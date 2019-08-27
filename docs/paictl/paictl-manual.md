@@ -32,12 +32,12 @@ A tool to manage your pai cluster.
 ### Set external storage configuration to k8s <a name="External_Set"></a>
 
 ```
-python paictl.py config external-config-update -e external-config [ -c kube-config ] 
+python paictl.py config external-config-update -e external-config [ -c kube-config ]
 ```
 
 - External storage is responsible for storing your cluster configuration. And it is not a part of OpenPai's service. Now OpenPai supports 2 method to integrate.
-    - git: Admin could manage their cluster configuration with git such as VSTS, Github or Gitlab. Of course, you could setup your own git server.  
-    - local: If you don't have a git repo to manage your cluster configuration, you can store it in the local disk. 
+    - git: Admin could manage their cluster configuration with git such as VSTS, Github or Gitlab. Of course, you could setup your own git server.
+    - local: If you don't have a git repo to manage your cluster configuration, you can store it in the local disk.
 
 - External storage configuration
 ```yaml
@@ -50,7 +50,7 @@ url: https://github.com/example/example
 branch: example_branch
 # relative path in the project source code
 path: a/b/c
-```    
+```
 ```yaml
 ##################
 # Local storage. #
@@ -68,11 +68,11 @@ path: /a/b/c
 python paictl.py config generate -i /pai/deployment/quick-start/quick-start/quick-start.yaml -o ~/pai-config -f
 ```
 - quick-start.yaml: Admin could generate a complete cluster configuration with quick-start.yaml. More detailed about this file please refer to this [link](../pai-management/doc/how-to-generate-cluster-config.md).
-- More infomation about this command please refer to this [link](../pai-management/doc/how-to-generate-cluster-config.md). 
+- More infomation about this command please refer to this [link](../pai-management/doc/how-to-generate-cluster-config.md).
 - By default, in the generated configuration, a single-master Kubernetes is configured by default.
 - Advanced users or developers can fine-tune the content of the generated configuration files according to specific environments.
 
-### Push the cluster configuration in the k8s <a name="Config_Push"></a>   
+### Push the cluster configuration in the k8s <a name="Config_Push"></a>
 
 ###### 1. Push cluster configuration from local path
 
@@ -140,39 +140,39 @@ python paictl.py machine etcd-fix -p /path/to/cluster-configuration/dir -l machi
 ### Start service(s) <a name="Service_Start"></a>
 
 ```
-python paictl.py service start [-c /path/to/kubeconfig] [ -n service-name ]
+python paictl.py service start [-c /path/to/kubeconfig] [ -n service-list ]
 ```
 
 1) Start all services by default.
-2) If the option `-n` is set, only the specified service will be started.
+2) If the option `-n` is set, only the specified services will be started.
 
 ### Stop service(s) <a name="Service_Stop"></a>
 
 ```
-python paictl.py service stop [-c /path/to/kubeconfig] [ -n service-name ]
+python paictl.py service stop [-c /path/to/kubeconfig] [ -n service-list ]
 ```
 
 - Stop all services by default.
-- If the option `-n` is set, only the specified service will be stopped.
+- If the option `-n` is set, only the specified services will be stopped.
 
 ### Delete service(s) <a name="Service_Delete"></a>
 
 ```
-python paictl.py service delete [-c /path/to/kubeconfig] [ -n service-name ]
+python paictl.py service delete [-c /path/to/kubeconfig] [ -n service-list ]
 ```
 
 - 'Delete' a service means to stop that service and then delete all of its persisted data in HDFS, Yarn, ZooKeeper, etc.
 - Delete all services by default.
-- If the option `-n` is set, only the specified service will be deleted.
+- If the option `-n` is set, only the specified services will be deleted.
 
 ### Refresh service(s) <a name="Service_Refresh"></a>
 
 ```
-python paictl.py service refresh [-c /path/to/kubeconfig] [ -n service-name ]
+python paictl.py service refresh [-c /path/to/kubeconfig] [ -n service-list ]
 ```
 
 - Refresh all the labels on each node.
-- If the option `-n` is set, only the specified service will be upgrade.
+- If the option `-n` is set, only the specified services will be upgrade.
 
 
 ## Maintain your cluster <a name="Cluster"></a>

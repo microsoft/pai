@@ -122,3 +122,31 @@ Run "docker system df" to see how much space can be reclaimed. If the space is l
 - (3) Check /tmp directory. 
 
 Run command "du -h / | awk '$1~/[0-9]*G/{print $0}'" to list all the directory which consumes more than 1G spaces. Clean the data not used any more.
+
+### Q: How to change Docker cache path for OpenPAI?
+
+A: If default Docker cache path is set to a disk with small disk space, the path can be changed with below steps:
+
+1. Stop ALL service of the cluster.  
+        sudo ./paictl.py service stop
+
+2. Uninstall k8s cluster. This operation will not delete your data.  
+        sudo ./paictl.py cluster k8s-clean –p /path/to/config
+
+3. Change the Docker cache path on OpenPAI node using data-root flag. Please refer to [Docker docs](https://docs.docker.com/config/daemon/systemd/)
+
+4. Modify your config file layout.yaml. Change "docker-data" to new Docker cache path configured in step 3. 参考示例：[layout.yaml](../../examples/cluster-configuration/layout.yaml#L55)
+
+5. Restart k8s cluster with updated config.  
+        sudo ./paictl.py cluster k8s-bootup –p /path/to/new/config
+
+6. Push the latest config to cluster.  
+        sudo ./paictl.py config push –p /path/to/new/config
+
+7. Restart all service.  
+        sudo ./paictl.py service start
+
+Note:
+
+1. The cluster is unavailable during this change, it may take long time due to pull all images again.
+2. The legacy docker cache path won’t be automatically cleaned. Manually clean up is needed.

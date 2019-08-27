@@ -1,3 +1,11 @@
+
+<% if (cookies.get("token") && cookies.get("admin") === 'true') { %>
+  <li>
+    <a>
+      <span id="notification-button"/>
+    </a>
+  </li>
+  <% } %>
 <li>
   <a href="/docs.html">
     <span>

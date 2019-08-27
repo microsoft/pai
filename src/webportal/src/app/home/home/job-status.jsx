@@ -27,6 +27,7 @@ import {getHumanizedJobStateString} from '../../components/util/job';
 
 import t from '../../components/tachyons.scss';
 
+const isAdmin = cookies.get('admin') === 'true';
 const StatusItem = ({className, icon, name, count, link}) => {
   const {spacing} = getTheme();
   return (
@@ -90,7 +91,7 @@ const JobStatus = ({className, jobs}) => {
       <Stack gap='l1'>
         <Stack.Item>
           <div className={FontClassNames.mediumPlus}>
-            My job status
+            {isAdmin ? 'Job Status' : 'My job status'}
           </div>
         </Stack.Item>
         <Stack.Item>
@@ -102,7 +103,7 @@ const JobStatus = ({className, jobs}) => {
               count={waiting}
               link={`/job-list.html?${querystring.stringify({
                 status: 'Waiting',
-                user: cookies.get('user'),
+                user: isAdmin ? undefined : cookies.get('user'),
               })}`}
             />
             <StatusItem
@@ -112,7 +113,7 @@ const JobStatus = ({className, jobs}) => {
               count={running}
               link={`/job-list.html?${querystring.stringify({
                 status: 'Running',
-                user: cookies.get('user'),
+                user: isAdmin ? undefined : cookies.get('user'),
               })}`}
             />
             <StatusItem
@@ -122,7 +123,7 @@ const JobStatus = ({className, jobs}) => {
               count={stopped}
               link={`/job-list.html?${querystring.stringify({
                 status: 'Stopped',
-                user: cookies.get('user'),
+                user: isAdmin ? undefined : cookies.get('user'),
               })}`}
             />
             <StatusItem
@@ -132,7 +133,7 @@ const JobStatus = ({className, jobs}) => {
               count={failed}
               link={`/job-list.html?${querystring.stringify({
                 status: 'Failed',
-                user: cookies.get('user'),
+                user: isAdmin ? undefined : cookies.get('user'),
               })}`}
             />
             <StatusItem
@@ -141,7 +142,7 @@ const JobStatus = ({className, jobs}) => {
               count={succeeded}
               link={`/job-list.html?${querystring.stringify({
                 status: 'Succeeded',
-                user: cookies.get('user'),
+                user: isAdmin ? undefined : cookies.get('user'),
               })}`}
             />
           </div>

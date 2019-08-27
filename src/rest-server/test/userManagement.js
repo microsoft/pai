@@ -15,9 +15,9 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-const deleteUserTemplate = JSON.stringify({
-  'username': '{{username}}'
-});
+/* const deleteUserTemplate = JSON.stringify({
+  'username': '{{username}}',
+}); */
 
 const schedulerResponse = {
         'scheduler': {
@@ -28,149 +28,149 @@ const schedulerResponse = {
                   'queueName': 'default',
                   'state': 'RUNNING',
                   'type': 'capacitySchedulerLeafQueueInfo',
-                  "absoluteCapacity": 30.000002,
-                  "absoluteMaxCapacity": 100,
-                  "capacities": {
-                    "queueCapacitiesByPartition": [
+                  'absoluteCapacity': 30.000002,
+                  'absoluteMaxCapacity': 100,
+                  'capacities': {
+                    'queueCapacitiesByPartition': [
                       {
-                        "partitionName": "",
-                        "capacity": 30.000002,
-                        "usedCapacity": 0,
-                        "maxCapacity": 100,
-                        "absoluteCapacity": 30.000002,
-                        "absoluteUsedCapacity": 0,
-                        "absoluteMaxCapacity": 100,
-                        "maxAMLimitPercentage": 0
-                      }
-                    ]
+                        'partitionName': '',
+                        'capacity': 30.000002,
+                        'usedCapacity': 0,
+                        'maxCapacity': 100,
+                        'absoluteCapacity': 30.000002,
+                        'absoluteUsedCapacity': 0,
+                        'absoluteMaxCapacity': 100,
+                        'maxAMLimitPercentage': 0,
+                      },
+                    ],
                   },
-                  "resources": {
-                    "resourceUsagesByPartition": [
+                  'resources': {
+                    'resourceUsagesByPartition': [
                       {
-                        "partitionName": "",
-                        "used": {
-                            "memory": 0,
-                            "vCores": 0,
-                            "GPUs": 0
-                        }
-                      }
-                    ]
-                  }
+                        'partitionName': '',
+                        'used': {
+                            'memory': 0,
+                            'vCores': 0,
+                            'GPUs': 0,
+                        },
+                      },
+                    ],
+                  },
                 },
                 {
                   'queueName': 'vc1',
                   'state': 'RUNNING',
                   'type': 'capacitySchedulerLeafQueueInfo',
-                  "capacity": 50.000002,
-                  "absoluteCapacity": 0,
-                  "absoluteMaxCapacity": 100,
-                  "capacities": {
-                    "queueCapacitiesByPartition": [
+                  'capacity': 50.000002,
+                  'absoluteCapacity': 0,
+                  'absoluteMaxCapacity': 100,
+                  'capacities': {
+                    'queueCapacitiesByPartition': [
                       {
-                        "partitionName": "",
-                        "capacity": 50.000002,
-                        "usedCapacity": 0,
-                        "maxCapacity": 100,
-                        "absoluteCapacity": 50.000002,
-                        "absoluteUsedCapacity": 0,
-                        "absoluteMaxCapacity": 100,
-                        "maxAMLimitPercentage": 0
-                      }
-                    ]
+                        'partitionName': '',
+                        'capacity': 50.000002,
+                        'usedCapacity': 0,
+                        'maxCapacity': 100,
+                        'absoluteCapacity': 50.000002,
+                        'absoluteUsedCapacity': 0,
+                        'absoluteMaxCapacity': 100,
+                        'maxAMLimitPercentage': 0,
+                      },
+                    ],
                   },
-                  "resources": {
-                    "resourceUsagesByPartition": [
+                  'resources': {
+                    'resourceUsagesByPartition': [
                       {
-                        "partitionName": "",
-                        "used": {
-                            "memory": 0,
-                            "vCores": 0,
-                            "GPUs": 0
-                        }
-                      }
-                    ]
-                  }
+                        'partitionName': '',
+                        'used': {
+                            'memory': 0,
+                            'vCores': 0,
+                            'GPUs': 0,
+                        },
+                      },
+                    ],
+                  },
                 },
                 {
                   'queueName': 'vc2',
                   'state': 'RUNNING',
                   'type': 'capacitySchedulerLeafQueueInfo',
-                  "capacity": 19.999996,
-                  "absoluteCapacity": 0,
-                  "absoluteMaxCapacity": 100,
-                  "capacities": {
-                    "queueCapacitiesByPartition": [
+                  'capacity': 19.999996,
+                  'absoluteCapacity': 0,
+                  'absoluteMaxCapacity': 100,
+                  'capacities': {
+                    'queueCapacitiesByPartition': [
                       {
-                        "partitionName": "",
-                        "capacity": 19.999996,
-                        "usedCapacity": 0,
-                        "maxCapacity": 100,
-                        "absoluteCapacity": 19.999996,
-                        "absoluteUsedCapacity": 0,
-                        "absoluteMaxCapacity": 100,
-                        "maxAMLimitPercentage": 0
-                      }
-                    ]
+                        'partitionName': '',
+                        'capacity': 19.999996,
+                        'usedCapacity': 0,
+                        'maxCapacity': 100,
+                        'absoluteCapacity': 19.999996,
+                        'absoluteUsedCapacity': 0,
+                        'absoluteMaxCapacity': 100,
+                        'maxAMLimitPercentage': 0,
+                      },
+                    ],
                   },
-                  "resources": {
-                    "resourceUsagesByPartition": [
+                  'resources': {
+                    'resourceUsagesByPartition': [
                       {
-                        "partitionName": "",
-                        "used": {
-                            "memory": 0,
-                            "vCores": 0,
-                            "GPUs": 0
-                        }
-                      }
-                    ]
-                  }
-                }
-              ]
+                        'partitionName': '',
+                        'used': {
+                            'memory': 0,
+                            'vCores': 0,
+                            'GPUs': 0,
+                        },
+                      },
+                    ],
+                  },
+                },
+              ],
             },
             'type': 'capacityScheduler',
-            'usedCapacity': 0.0
-          }
-        }
+            'usedCapacity': 0.0,
+          },
+        },
       };
 
 const nodeResponse = {
-      "nodes": {
-        "node": [
+      'nodes': {
+        'node': [
           {
-            "rack": "/default-rack",
-            "state": "RUNNING",
-            "id": "10.151.40.132:8041",
-            "nodeHostName": "10.151.40.132",
-            "nodeHTTPAddress": "10.151.40.132:8042",
-            "numContainers": 2,
-            "usedMemoryMB": 3072,
-            "availMemoryMB": 205824,
-            "usedVirtualCores": 2,
-            "availableVirtualCores": 22,
-            "usedGPUs": 1,
-            "availableGPUs": 3,
-            "availableGPUAttribute": 14,
-            "nodeLabels": [
-                "test_vc"
+            'rack': '/default-rack',
+            'state': 'RUNNING',
+            'id': '10.151.40.132:8041',
+            'nodeHostName': '10.151.40.132',
+            'nodeHTTPAddress': '10.151.40.132:8042',
+            'numContainers': 2,
+            'usedMemoryMB': 3072,
+            'availMemoryMB': 205824,
+            'usedVirtualCores': 2,
+            'availableVirtualCores': 22,
+            'usedGPUs': 1,
+            'availableGPUs': 3,
+            'availableGPUAttribute': 14,
+            'nodeLabels': [
+                'test_vc',
             ],
           },
           {
-            "rack": "/default-rack",
-            "state": "RUNNING",
-            "id": "10.151.40.131:8041",
-            "nodeHostName": "10.151.40.131",
-            "nodeHTTPAddress": "10.151.40.131:8042",
-            "numContainers": 2,
-            "usedMemoryMB": 3072,
-            "availMemoryMB": 205824,
-            "usedVirtualCores": 2,
-            "availableVirtualCores": 22,
-            "usedGPUs": 1,
-            "availableGPUs": 3,
-            "availableGPUAttribute": 14,
-          }
-        ]
-      }
+            'rack': '/default-rack',
+            'state': 'RUNNING',
+            'id': '10.151.40.131:8041',
+            'nodeHostName': '10.151.40.131',
+            'nodeHTTPAddress': '10.151.40.131:8042',
+            'numContainers': 2,
+            'usedMemoryMB': 3072,
+            'availMemoryMB': 205824,
+            'usedVirtualCores': 2,
+            'availableVirtualCores': 22,
+            'usedGPUs': 1,
+            'availableGPUs': 3,
+            'availableGPUAttribute': 14,
+          },
+        ],
+      },
     };
 
 const groupResponse = {
@@ -178,7 +178,7 @@ const groupResponse = {
   'apiVersion': 'v1',
   'metadata': {
     'selfLink': '/api/v1/namespaces/pai-group/secrets/',
-    'resourceVersion': '1062682'
+    'resourceVersion': '1062682',
   },
   'items': [
     {
@@ -191,7 +191,7 @@ const groupResponse = {
         'externalName': 'MTIzNA==',
         'extension': 'eyJhY2xzIjp7ImFkbWluIjpmYWxzZSwidmlydHVhbENsdXN0ZXJzIjpbImRlZmF1bHQiXX19', // {"acls":{"admin":false,"virtualClusters":["default"]}}
       },
-      'type': 'Opaque'
+      'type': 'Opaque',
     },
     {
       'metadata': {
@@ -201,9 +201,9 @@ const groupResponse = {
         'groupname': 'dmMx',
         'description': 'dGVzdA==',
         'externalName': 'MTIzNA==',
-        'extension': 'eyJhY2xzIjp7ImFkbWluIjpmYWxzZSwidmlydHVhbENsdXN0ZXJzIjpbInZjMSJdfX0=' // {"acls":{"admin":false,"virtualClusters":["vc1"]}}
+        'extension': 'eyJhY2xzIjp7ImFkbWluIjpmYWxzZSwidmlydHVhbENsdXN0ZXJzIjpbInZjMSJdfX0=', // {"acls":{"admin":false,"virtualClusters":["vc1"]}}
       },
-      'type': 'Opaque'
+      'type': 'Opaque',
     },
     {
       'metadata': {
@@ -213,9 +213,9 @@ const groupResponse = {
         'groupname': 'dmMy',
         'description': 'dGVzdA==',
         'externalName': 'MTIzNA==',
-        'extension': 'eyJhY2xzIjp7ImFkbWluIjpmYWxzZSwidmlydHVhbENsdXN0ZXJzIjpbInZjMiJdfX0=' // {"acls":{"admin":false,"virtualClusters":["vc2"]}}
+        'extension': 'eyJhY2xzIjp7ImFkbWluIjpmYWxzZSwidmlydHVhbENsdXN0ZXJzIjpbInZjMiJdfX0=', // {"acls":{"admin":false,"virtualClusters":["vc2"]}}
       },
-      'type': 'Opaque'
+      'type': 'Opaque',
     },
     {
       'metadata': {
@@ -225,11 +225,11 @@ const groupResponse = {
         'groupname': 'YWRtaW5Hcm91cA==', // adminGroup
         'description': 'dGVzdA==',
         'externalName': 'MTIzNA==',
-        'extension': 'eyJhY2xzIjp7ImFkbWluIjp0cnVlLCJ2aXJ0dWFsQ2x1c3RlcnMiOlsiZGVmYXVsdCIsInZjMSIsInZjMiJdfX0=' // {"acls":{"admin":true,"virtualClusters":["default","vc1","vc2"]}}
+        'extension': 'eyJhY2xzIjp7ImFkbWluIjp0cnVlLCJ2aXJ0dWFsQ2x1c3RlcnMiOlsiZGVmYXVsdCIsInZjMSIsInZjMiJdfX0=', // {"acls":{"admin":true,"virtualClusters":["default","vc1","vc2"]}}
       },
-      'type': 'Opaque'
+      'type': 'Opaque',
     },
-  ]
+  ],
 };
 
 const defaultGroupSchema = {
@@ -244,7 +244,7 @@ const defaultGroupSchema = {
     'externalName': 'MTIzNA==',
     'extension': 'eyJhY2xzIjp7ImFkbWluIjpmYWxzZSwidmlydHVhbENsdXN0ZXJzIjpbImRlZmF1bHQiXX19', // {"acls":{"admin":false,"virtualClusters":["default"]}}
   },
-  'type': 'Opaque'
+  'type': 'Opaque',
 };
 
 const vc1GroupSchema = {
@@ -257,9 +257,9 @@ const vc1GroupSchema = {
     'groupname': 'dmMx',
     'description': 'dGVzdA==',
     'externalName': 'MTIzNA==',
-    'extension': 'eyJhY2xzIjp7ImFkbWluIjpmYWxzZSwidmlydHVhbENsdXN0ZXJzIjpbInZjMSJdfX0=' // {"acls":{"admin":false,"virtualClusters":["vc1"]}}
+    'extension': 'eyJhY2xzIjp7ImFkbWluIjpmYWxzZSwidmlydHVhbENsdXN0ZXJzIjpbInZjMSJdfX0=', // {"acls":{"admin":false,"virtualClusters":["vc1"]}}
   },
-  'type': 'Opaque'
+  'type': 'Opaque',
 };
 
 const vc2GroupSchema = {
@@ -272,9 +272,9 @@ const vc2GroupSchema = {
     'groupname': 'dmMy',
     'description': 'dGVzdA==',
     'externalName': 'MTIzNA==',
-    'extension': 'eyJhY2xzIjp7ImFkbWluIjpmYWxzZSwidmlydHVhbENsdXN0ZXJzIjpbInZjMiJdfX0=' // {"acls":{"admin":false,"virtualClusters":["vc2"]}}
+    'extension': 'eyJhY2xzIjp7ImFkbWluIjpmYWxzZSwidmlydHVhbENsdXN0ZXJzIjpbInZjMiJdfX0=', // {"acls":{"admin":false,"virtualClusters":["vc2"]}}
   },
-  'type': 'Opaque'
+  'type': 'Opaque',
 };
 
 const adminGroupSchema = {
@@ -287,18 +287,18 @@ const adminGroupSchema = {
     'groupname': 'YWRtaW5Hcm91cA==', // adminGroup
     'description': 'dGVzdA==',
     'externalName': 'MTIzNA==',
-    'extension': 'eyJhY2xzIjp7ImFkbWluIjp0cnVlLCJ2aXJ0dWFsQ2x1c3RlcnMiOlsiZGVmYXVsdCIsInZjMSIsInZjMiJdfX0=' // {"acls":{"admin":true,"virtualClusters":["default","vc1","vc2"]}}
+    'extension': 'eyJhY2xzIjp7ImFkbWluIjp0cnVlLCJ2aXJ0dWFsQ2x1c3RlcnMiOlsiZGVmYXVsdCIsInZjMSIsInZjMiJdfX0=', // {"acls":{"admin":true,"virtualClusters":["default","vc1","vc2"]}}
   },
-  'type': 'Opaque'
+  'type': 'Opaque',
 };
 
 //
 // Get a valid token that expires in 60 seconds.
 //
 
-const validToken = global.jwt.sign({ username: 'new_user', admin: true }, process.env.JWT_SECRET, { expiresIn: 60 });
-const nonAdminToken = global.jwt.sign({ username: 'non_admin_user', admin: false }, process.env.JWT_SECRET, { expiresIn: 60 });
-const invalidToken = '';
+const validToken = global.jwt.sign({username: 'new_user', admin: true}, process.env.JWT_SECRET, {expiresIn: 60});
+const nonAdminToken = global.jwt.sign({username: 'non_admin_user', admin: false}, process.env.JWT_SECRET, {expiresIn: 60});
+// const invalidToken = '';
 
 describe('Add new user: post /api/v2/user', () => {
   after(function() {
@@ -309,7 +309,6 @@ describe('Add new user: post /api/v2/user', () => {
   });
 
   before(() => {
-
     // mock for case1 username=newuser
 
     nock(apiServerRootUri)
@@ -320,8 +319,8 @@ describe('Add new user: post /api/v2/user', () => {
           'username': 'bmV3dXNlcg==',
           'email': 'dGVzdEBwYWkuY29t',
           'grouplist': 'WyJkZWZhdWx0IiwidmMxIiwidmMyIiwiYWRtaW5Hcm91cCJd', // ["default","vc1","vc2","adminGroup"]
-          'extension': 'e30='
-        }
+          'extension': 'e30=',
+        },
       })
       .reply(200, {
         'kind': 'Secret',
@@ -332,16 +331,16 @@ describe('Add new user: post /api/v2/user', () => {
             'selfLink': '/api/v1/namespaces/pai-user-v2/secrets/6e657775736572',
             'uid': 'f75b6065-f9c7-11e8-b564-000d3ab5296b',
             'resourceVersion': '1116114',
-            'creationTimestamp': '2018-12-07T02:29:47Z'
+            'creationTimestamp': '2018-12-07T02:29:47Z',
         },
         'data': {
           'password': 'MDkxZjc0YzZjNTYyOWExZTlmN2Y3N2ZlMjc1Mjk1NmNkYmQ4ZmNlMjRlZmM4NmUxODJlMzQ5ZmI3MzJhMjRkNTU5ZmQ5NWExYzVjZjZiNzNhZWQzNjA3ZDcxYmU3YjA0ZDMyZjcwNTJjMzdlMTEwNTUzMDliNWIwMjczNmFjNDE=',
           'username': 'bmV3dXNlcg==',
           'email': 'dGVzdEBwYWkuY29t',
           'grouplist': 'WyJkZWZhdWx0IiwidmMxIiwidmMyIiwiYWRtaW5Hcm91cCJd', // ["default","vc1","vc2","adminGroup"]
-          'extension': 'e30='
+          'extension': 'e30=',
         },
-        'type': 'Opaque'
+        'type': 'Opaque',
       });
 
     // mock for case2 add non-admin user
@@ -354,7 +353,7 @@ describe('Add new user: post /api/v2/user', () => {
           'password': 'ZmFmZTk5ZGZlOWQzNzZlOTllYzFkMjlmN2ZlZWZhNmViYjZkYWYwM2RkYWYyNmRlNTdiMWFlYWIyNzU2ZGNiN2FjYTk5Y2Y1Y2E4YjQ1ZGM5OWI3YjM5NTE5ZGM3YjZlMzZmODlhOTY0NzUyNTZkOWE5MTdlZTQxMTc4ZGEzZGI=',
           'grouplist': 'WyJkZWZhdWx0IiwidmMxIiwidmMyIl0=', // ["default","vc1","vc2"]
           'email': 'dGVzdEBwYWkuY29t',
-          'extension': 'e30='
+          'extension': 'e30=',
         },
       })
       .reply(200, {
@@ -366,16 +365,16 @@ describe('Add new user: post /api/v2/user', () => {
             'selfLink': '/api/v1/namespaces/pai-user-v2/secrets/6e6f6e5f61646d696e',
             'uid': 'f75b6065-f9c7-11e8-b564-000d3ab5296b',
             'resourceVersion': '1116114',
-            'creationTimestamp': '2018-12-07T02:29:47Z'
+            'creationTimestamp': '2018-12-07T02:29:47Z',
         },
         'data': {
           'username': 'bm9uX2FkbWlu',
           'password': 'ZmFmZTk5ZGZlOWQzNzZlOTllYzFkMjlmN2ZlZWZhNmViYjZkYWYwM2RkYWYyNmRlNTdiMWFlYWIyNzU2ZGNiN2FjYTk5Y2Y1Y2E4YjQ1ZGM5OWI3YjM5NTE5ZGM3YjZlMzZmODlhOTY0NzUyNTZkOWE5MTdlZTQxMTc4ZGEzZGI=',
           'grouplist': 'WyJkZWZhdWx0IiwidmMxIiwidmMyIl0=', // ["default","vc1","vc2"]
           'email': 'dGVzdEBwYWkuY29t',
-          'extension': 'e30='
+          'extension': 'e30=',
         },
-        'type': 'Opaque'
+        'type': 'Opaque',
       });
 
 
@@ -388,7 +387,7 @@ describe('Add new user: post /api/v2/user', () => {
           'password': 'NGY3YzdlMDBlNzU3YzUzZjYwOTI1YTE5OWVlOTZjODMxMjlmMzgwYjRjMmQ2NzA5OWM3OThhNDg2ZjQ2ZGY4NjlmZjMxYWVkODZiOTg2NGIyMTI2OWZkYmM2YTkzMjNiZDY5MWZhNGZkN2JjZTAyNWE0M2ZlZGM5N2I2NWU0ZjQ=',
           'grouplist': 'WyJkZWZhdWx0IiwidmMxIiwidmMyIl0=',
           'email': 'dGVzdEBwYWkuY29t',
-          'extension': 'e30='
+          'extension': 'e30=',
         },
       })
       .reply(409, {
@@ -400,9 +399,9 @@ describe('Add new user: post /api/v2/user', () => {
         'reason': 'AlreadyExists',
         'details': {
           'name': '657869737475736572',
-          'kind': 'secrets'
+          'kind': 'secrets',
         },
-        'code': 409
+        'code': 409,
       });
 
     nock(apiServerRootUri)
@@ -415,7 +414,7 @@ describe('Add new user: post /api/v2/user', () => {
       .get('/api/v1/namespaces/pai-group/secrets/766332')
       .times(4)
       .reply(200, vc2GroupSchema)
-      .get('/api/v1/namespaces/pai-group/secrets/61646d696e47726f7570')
+      .get('/api/v1/namespaces/pai-group/secrets/61646d696e47726f7570');
 });
 
   //
@@ -472,7 +471,7 @@ describe('Add new user: post /api/v2/user', () => {
         'username': 'test_user',
         'password': '123456',
         'email': 'test@pai.com',
-        'virtualCluster': ['default','vc1','vc2'],
+        'virtualCluster': ['default', 'vc1', 'vc2'],
         'admin': false,
       })
       .end((err, res) => {
@@ -492,7 +491,7 @@ describe('Add new user: post /api/v2/user', () => {
         'password': '123456',
         'email': 'test@pai.com',
         'virtualCluster': ['default', 'vc1', 'vc2'],
-        'admin': false
+        'admin': false,
       })
       .end((err, res) => {
         global.chai.expect(res, 'status code').to.have.status(409);
@@ -512,12 +511,11 @@ describe('update user: put /api/v2/user', () => {
   });
 
   before(() => {
-
     // mock for case1 username=update_user.
     nock(apiServerRootUri)
       .get('/api/v1/namespaces/pai-user-v2/secrets/7570646174655f75736572')
       .times(2)
-      .reply(200,  {
+      .reply(200, {
         'kind': 'Secret',
         'apiVersion': 'v1',
         'metadata': {
@@ -528,21 +526,21 @@ describe('update user: put /api/v2/user', () => {
             'username': 'dXBkYXRlX3VzZXI=',
             'grouplist': 'WyJkZWZhdWx0IiwidmMxIiwidmMyIiwiYWRtaW5Hcm91cCJd', // ["default","vc1","vc2","adminGroup"]
             'email': 'dGVzdEBwYWkuY29t',
-            'extension': 'eyJ2aXJ0dWFsQ2x1c3RlciI6WyJkZWZhdWx0IiwidmMxIiwidmMyIl19'
+            'extension': 'eyJ2aXJ0dWFsQ2x1c3RlciI6WyJkZWZhdWx0IiwidmMxIiwidmMyIl19',
         },
-        'type': 'Opaque'
+        'type': 'Opaque',
     });
 
     nock(apiServerRootUri)
     .put('/api/v1/namespaces/pai-user-v2/secrets/7570646174655f75736572', {
-      'metadata':{'name':'7570646174655f75736572'},
+      'metadata': {'name': '7570646174655f75736572'},
       'data': {
         'password': 'NWU4ZjY5N2FkNzkxOGQ3NTdlN2MyMWM4OTdiYjRmY2NhYTViYTFmM2VjZDExZDNlNjFjNmRiN2UxNDEwZjRkOWFlNDc0NWFjY2I5NzYyMmVhZDZlMzhmOTFjMzI4MTU0YWY4MzgwOThmNTc5NmMzZGU4MWZlN2Y2YzE0YjgxN2I=',
         'username': 'dXBkYXRlX3VzZXI=',
         'grouplist': 'WyJkZWZhdWx0IiwidmMxIiwidmMyIiwiYWRtaW5Hcm91cCJd', // ["default","vc1","vc2","adminGroup"]
         'email': 'dGVzdEBwYWkuY29t',
-        'extension': 'eyJ2aXJ0dWFsQ2x1c3RlciI6WyJkZWZhdWx0IiwidmMxIiwidmMyIl19'
-       }
+        'extension': 'eyJ2aXJ0dWFsQ2x1c3RlciI6WyJkZWZhdWx0IiwidmMxIiwidmMyIl19',
+       },
      })
     .reply(200, {
       'kind': 'Secret',
@@ -553,29 +551,29 @@ describe('update user: put /api/v2/user', () => {
           'selfLink': '/api/v1/namespaces/pai-user-v2/secrets/7570646174655f75736572',
           'uid': 'd5d686ff-f9c6-11e8-b564-000d3ab5296b',
           'resourceVersion': '1115478',
-          'creationTimestamp': '2018-12-07T02:21:42Z'
+          'creationTimestamp': '2018-12-07T02:21:42Z',
       },
       'data': {
         'password': 'NWU4ZjY5N2FkNzkxOGQ3NTdlN2MyMWM4OTdiYjRmY2NhYTViYTFmM2VjZDExZDNlNjFjNmRiN2UxNDEwZjRkOWFlNDc0NWFjY2I5NzYyMmVhZDZlMzhmOTFjMzI4MTU0YWY4MzgwOThmNTc5NmMzZGU4MWZlN2Y2YzE0YjgxN2I=',
         'username': 'dXBkYXRlX3VzZXI=',
         'grouplist': 'WyJkZWZhdWx0IiwidmMxIiwidmMyIiwiYWRtaW5Hcm91cCJd', // ["default","vc1","vc2","adminGroup"]
         'email': 'dGVzdEBwYWkuY29t',
-        'extension': 'eyJ2aXJ0dWFsQ2x1c3RlciI6WyJkZWZhdWx0IiwidmMxIiwidmMyIl19'
+        'extension': 'eyJ2aXJ0dWFsQ2x1c3RlciI6WyJkZWZhdWx0IiwidmMxIiwidmMyIl19',
       },
-      'type': 'Opaque'
+      'type': 'Opaque',
     });
 
     // mock for case2 username=update_user.
     nock(apiServerRootUri)
     .put('/api/v1/namespaces/pai-user-v2/secrets/7570646174655f75736572', {
-      'metadata':{'name':'7570646174655f75736572'},
+      'metadata': {'name': '7570646174655f75736572'},
       'data': {
          'password': 'MzFhNzQ0YzNhZjg5MDU2MDI0ZmY2MmMzNTZmNTQ3ZGRjMzUzYWQ3MjdkMzEwYTc3MzcxODgxMjk4MmQ1YzZlZmMzYmZmNzBkYjVlMTA0M2JkMjFkMmVkYzg4M2M4Y2Q0ZjllNzRhMWU1MjA1NDMzNjQ5MzYxMTQ4YmE4OTY0MzQ=',
          'username': 'dXBkYXRlX3VzZXI=',
          'grouplist': 'WyJkZWZhdWx0IiwidmMxIiwidmMyIl0=', // ["default","vc1","vc2"]
          'email': 'dGVzdEBwYWkuY29t',
          'extension': 'eyJ2aXJ0dWFsQ2x1c3RlciI6WyJkZWZhdWx0IiwidmMxIiwidmMyIl19',
-       }
+       },
      })
     .reply(200, {
       'kind': 'Secret',
@@ -586,7 +584,7 @@ describe('update user: put /api/v2/user', () => {
           'selfLink': '/api/v1/namespaces/pai-user-v2/secrets/7570646174655f75736572',
           'uid': 'd5d686ff-f9c6-11e8-b564-000d3ab5296b',
           'resourceVersion': '1115478',
-          'creationTimestamp': '2018-12-07T02:21:42Z'
+          'creationTimestamp': '2018-12-07T02:21:42Z',
       },
       'data': {
         'password': 'MzFhNzQ0YzNhZjg5MDU2MDI0ZmY2MmMzNTZmNTQ3ZGRjMzUzYWQ3MjdkMzEwYTc3MzcxODgxMjk4MmQ1YzZlZmMzYmZmNzBkYjVlMTA0M2JkMjFkMmVkYzg4M2M4Y2Q0ZjllNzRhMWU1MjA1NDMzNjQ5MzYxMTQ4YmE4OTY0MzQ=',
@@ -595,7 +593,7 @@ describe('update user: put /api/v2/user', () => {
         'email': 'dGVzdEBwYWkuY29t',
         'extension': 'eyJ2aXJ0dWFsQ2x1c3RlciI6WyJkZWZhdWx0IiwidmMxIiwidmMyIl19',
       },
-      'type': 'Opaque'
+      'type': 'Opaque',
     });
 
     // mock for case3 username=non_exist_user.
@@ -610,9 +608,9 @@ describe('update user: put /api/v2/user', () => {
       'reason': 'NotFound',
       'details': {
           'name': '6e6f6e5f65786973745f75736572',
-          'kind': 'secrets'
+          'kind': 'secrets',
       },
-      'code': 404
+      'code': 404,
     });
 
     nock(apiServerRootUri)
@@ -636,7 +634,7 @@ describe('update user: put /api/v2/user', () => {
       .set('Authorization', 'Bearer ' + validToken)
       .send({
         'newPassword': 'abcdef',
-        'oldPassword': 'test12345'
+        'oldPassword': 'test12345',
       })
       .end((err, res) => {
         global.chai.expect(res, 'status code').to.have.status(201);
@@ -651,7 +649,7 @@ describe('update user: put /api/v2/user', () => {
       .put('/api/v2/user/update_user/admin')
       .set('Authorization', 'Bearer ' + validToken)
       .send({
-        'admin': false
+        'admin': false,
       })
       .end((err, res) => {
         global.chai.expect(res, 'status code').to.have.status(201);
@@ -671,7 +669,7 @@ describe('update user: put /api/v2/user', () => {
       .set('Authorization', 'Bearer ' + validToken)
       .send({
         'newPassword': 'abcdef',
-        'oldPassword': 'test12345'
+        'oldPassword': 'test12345',
       })
       .end((err, res) => {
         global.chai.expect(res, 'status code').to.have.status(404);
@@ -686,7 +684,7 @@ describe('update user: put /api/v2/user', () => {
       .put('/api/v2/user/new_user/password')
       .set('Authorization', 'Bearer ' + validToken)
       .send({
-        'oldPassword': 'test12345'
+        'oldPassword': 'test12345',
       })
       .end((err, res) => {
         global.chai.expect(res, 'status code').to.have.status(400);
@@ -699,7 +697,7 @@ describe('update user: put /api/v2/user', () => {
       .put('/api/v2/user/new_user/admin')
       .set('Authorization', 'Bearer ' + nonAdminToken)
       .send({
-        'admin': false
+        'admin': false,
       })
       .end((err, res) => {
         global.chai.expect(res, 'status code').to.have.status(403);
@@ -707,20 +705,18 @@ describe('update user: put /api/v2/user', () => {
         done();
       });
   });
-
 });
 
 describe('delete user : delete /api/v2/user', () => {
   afterEach(function() {
     if (!nock.isDone()) {
-      //TODO: Revamp this file and enable the following error.
-      //this.test.error(new Error('Not all nock interceptors were used!'));
+      // TODO: Revamp this file and enable the following error.
+      // this.test.error(new Error('Not all nock interceptors were used!'));
       nock.cleanAll();
     }
   });
 
   beforeEach(() => {
-
     // mock for case1 username=non_admin.
     nock(apiServerRootUri)
       .get('/api/v1/namespaces/pai-user-v2/secrets/6e6f6e5f61646d696e')
@@ -737,7 +733,7 @@ describe('delete user : delete /api/v2/user', () => {
           'email': 'dGVzdEBwYWkuY29t',
           'extension': 'eyJ2aXJ0dWFsQ2x1c3RlciI6WyJkZWZhdWx0IiwidmMxIiwidmMyIl19',
         },
-        'type': 'Opaque'
+        'type': 'Opaque',
       });
 
     nock(apiServerRootUri)
@@ -755,8 +751,8 @@ describe('delete user : delete /api/v2/user', () => {
         'details': {
           'name': '6e6f6e5f61646d696e',
           'kind': 'secrets',
-          'uid': 'd5d686ff-f9c6-11e8-b564-000d3ab5296b'
-        }
+          'uid': 'd5d686ff-f9c6-11e8-b564-000d3ab5296b',
+        },
       });
 
     // mock for case2 username=admin.
@@ -775,7 +771,7 @@ describe('delete user : delete /api/v2/user', () => {
           'email': 'dGVzdEBwYWkuY29t',
           'extension': 'eyJ2aXJ0dWFsQ2x1c3RlciI6WyJkZWZhdWx0IiwidmMxIiwidmMyIl19',
         },
-        'type': 'Opaque'
+        'type': 'Opaque',
       });
 
     nock(apiServerRootUri)
@@ -800,9 +796,9 @@ describe('delete user : delete /api/v2/user', () => {
         'reason': 'NotFound',
         'details': {
             'name': 'nonexist',
-            'kind': 'secrets'
+            'kind': 'secrets',
         },
-        'code': 404
+        'code': 404,
       });
   });
 
@@ -866,7 +862,7 @@ describe('delete user : delete /api/v2/user', () => {
 describe('update user virtual cluster : put /api/v2/user/:username/virtualClusters', () => {
   afterEach(() => {
     if (!nock.isDone()) {
-      //this.test.error(new Error('Not all nock interceptors were used!'));
+      // this.test.error(new Error('Not all nock interceptors were used!'));
       nock.cleanAll();
     }
   });
@@ -895,19 +891,19 @@ describe('update user virtual cluster : put /api/v2/user/:username/virtualCluste
             'email': 'dGVzdEBwYWkuY29t',
             'extension': 'e30=',
         },
-        'type': 'Opaque'
+        'type': 'Opaque',
     });
 
     nock(apiServerRootUri)
     .put('/api/v1/namespaces/pai-user-v2/secrets/74657374', {
-      'metadata':{'name':'74657374'},
+      'metadata': {'name': '74657374'},
       'data': {
          'password': 'MzFhNzQ0YzNhZjg5MDU2MDI0ZmY2MmMzNTZmNTQ3ZGRjMzUzYWQ3MjdkMzEwYTc3MzcxODgxMjk4MmQ1YzZlZmMzYmZmNzBkYjVlMTA0M2JkMjFkMmVkYzg4M2M4Y2Q0ZjllNzRhMWU1MjA1NDMzNjQ5MzYxMTQ4YmE4OTY0MzQ=',
          'username': 'dGVzdA==',
          'grouplist': 'WyJkZWZhdWx0IiwidmMxIl0=',
          'email': 'dGVzdEBwYWkuY29t',
          'extension': 'e30=',
-       }
+       },
      })
     .reply(200, {
       'kind': 'Secret',
@@ -918,7 +914,7 @@ describe('update user virtual cluster : put /api/v2/user/:username/virtualCluste
           'selfLink': '/api/v1/namespaces/pai-user/secrets/test',
           'uid': 'd5d686ff-f9c6-11e8-b564-000d3ab5296b',
           'resourceVersion': '1115478',
-          'creationTimestamp': '2018-12-07T02:21:42Z'
+          'creationTimestamp': '2018-12-07T02:21:42Z',
       },
       'data': {
         'password': 'MzFhNzQ0YzNhZjg5MDU2MDI0ZmY2MmMzNTZmNTQ3ZGRjMzUzYWQ3MjdkMzEwYTc3MzcxODgxMjk4MmQ1YzZlZmMzYmZmNzBkYjVlMTA0M2JkMjFkMmVkYzg4M2M4Y2Q0ZjllNzRhMWU1MjA1NDMzNjQ5MzYxMTQ4YmE4OTY0MzQ=',
@@ -927,7 +923,7 @@ describe('update user virtual cluster : put /api/v2/user/:username/virtualCluste
         'email': 'dGVzdEBwYWkuY29t',
         'extension': 'e30=',
       },
-      'type': 'Opaque'
+      'type': 'Opaque',
     });
 
     // mock for case2 username=test3
@@ -947,19 +943,19 @@ describe('update user virtual cluster : put /api/v2/user/:username/virtualCluste
           'email': 'dGVzdEBwYWkuY29t',
           'extension': 'e30=',
         },
-        'type': 'Opaque'
+        'type': 'Opaque',
       });
 
     nock(apiServerRootUri)
       .put('/api/v1/namespaces/pai-user-v2/secrets/7465737433', {
-        'metadata':{'name':'7465737433'},
+        'metadata': {'name': '7465737433'},
         'data': {
           'password': 'MzFhNzQ0YzNhZjg5MDU2MDI0ZmY2MmMzNTZmNTQ3ZGRjMzUzYWQ3MjdkMzEwYTc3MzcxODgxMjk4MmQ1YzZlZmMzYmZmNzBkYjVlMTA0M2JkMjFkMmVkYzg4M2M4Y2Q0ZjllNzRhMWU1MjA1NDMzNjQ5MzYxMTQ4YmE4OTY0MzQ=',
           'username': 'dGVzdDM=',
           'grouplist': 'WyJkZWZhdWx0Il0=',
           'email': 'dGVzdEBwYWkuY29t',
           'extension': 'e30=',
-        }
+        },
        })
       .reply(200, {
         'kind': 'Secret',
@@ -970,7 +966,7 @@ describe('update user virtual cluster : put /api/v2/user/:username/virtualCluste
           'selfLink': '/api/v1/namespaces/pai-user/secrets/existuser',
           'uid': 'd5d686ff-f9c6-11e8-b564-000d3ab5296b',
           'resourceVersion': '1115478',
-          'creationTimestamp': '2018-12-07T02:21:42Z'
+          'creationTimestamp': '2018-12-07T02:21:42Z',
         },
         'data': {
           'password': 'MzFhNzQ0YzNhZjg5MDU2MDI0ZmY2MmMzNTZmNTQ3ZGRjMzUzYWQ3MjdkMzEwYTc3MzcxODgxMjk4MmQ1YzZlZmMzYmZmNzBkYjVlMTA0M2JkMjFkMmVkYzg4M2M4Y2Q0ZjllNzRhMWU1MjA1NDMzNjQ5MzYxMTQ4YmE4OTY0MzQ=',
@@ -979,7 +975,7 @@ describe('update user virtual cluster : put /api/v2/user/:username/virtualCluste
           'email': 'dGVzdEBwYWkuY29t',
           'extension': 'e30=',
         },
-        'type': 'Opaque'
+        'type': 'Opaque',
       });
 
     // mock for case3 username=test2
@@ -998,7 +994,7 @@ describe('update user virtual cluster : put /api/v2/user/:username/virtualCluste
           'email': 'dGVzdEBwYWkuY29t',
           'extension': 'e30=',
         },
-        'type': 'Opaque'
+        'type': 'Opaque',
       });
 
     // mock for case4 username=test_invalid
@@ -1017,7 +1013,7 @@ describe('update user virtual cluster : put /api/v2/user/:username/virtualCluste
           'email': 'dGVzdEBwYWkuY29t',
           'extension': 'e30=',
         },
-        'type': 'Opaque'
+        'type': 'Opaque',
       });
 
     // mock for case5 username=non_exist
@@ -1032,9 +1028,9 @@ describe('update user virtual cluster : put /api/v2/user/:username/virtualCluste
         'reason': 'NotFound',
         'details': {
           'name': '6e6f6e5f6578697374',
-          'kind': 'secrets'
+          'kind': 'secrets',
         },
-        'code': 404
+        'code': 404,
       });
 
     // mock for case6 username=test6
@@ -1053,7 +1049,7 @@ describe('update user virtual cluster : put /api/v2/user/:username/virtualCluste
           'email': 'dGVzdEBwYWkuY29t',
           'extension': 'e30=',
         },
-        'type': 'Opaque'
+        'type': 'Opaque',
       });
 
     // mock for case7 username=test7
@@ -1073,7 +1069,7 @@ describe('update user virtual cluster : put /api/v2/user/:username/virtualCluste
           'email': 'dGVzdEBwYWkuY29t',
           'extension': 'e30=',
         },
-        'type': 'Opaque'
+        'type': 'Opaque',
       });
 
     nock(apiServerRootUri)
@@ -1097,12 +1093,11 @@ describe('update user virtual cluster : put /api/v2/user/:username/virtualCluste
 
   const validToken = global.jwt.sign({username: 'admin_user', admin: true}, process.env.JWT_SECRET, {expiresIn: 60});
   const nonAdminToken = global.jwt.sign({username: 'non_admin_user', admin: false}, process.env.JWT_SECRET, {expiresIn: 60});
-  const invalidToken = '';
+  // const invalidToken = '';
 
   //
   // Positive cases
   //
-
   it('Case 1 (Positive): should update non-admin user with valid virtual cluster successfully', (done) => {
     global.chai.request(global.server)
       .put('/api/v2/user/test/virtualcluster')
@@ -1200,13 +1195,12 @@ describe('update user virtual cluster : put /api/v2/user/:username/virtualCluste
 describe('get user info list : get /api/v1/user', () => {
   afterEach(() => {
     if (!nock.isDone()) {
-      //this.test.error(new Error('Not all nock interceptors were used!'));
+      // this.test.error(new Error('Not all nock interceptors were used!'));
       nock.cleanAll();
     }
   });
 
   beforeEach(() => {
-
     nock(apiServerRootUri)
       .get('/api/v1/namespaces/pai-user/secrets/')
       .reply(200, {
@@ -1214,7 +1208,7 @@ describe('get user info list : get /api/v1/user', () => {
         'apiVersion': 'v1',
         'metadata': {
           'selfLink': '/api/v1/namespaces/pai-user/secrets/',
-          'resourceVersion': '1062682'
+          'resourceVersion': '1062682',
         },
         'items': [
           {
@@ -1225,9 +1219,9 @@ describe('get user info list : get /api/v1/user', () => {
               'admin': 'ZmFsc2U=',
               'password': 'OGRiYjYyMWEwYWY0Y2NhMDk3NTU5MmJkNzQ0M2NkNzc5YzRkYjEwMzA2NGExYTE1MWI4YjAyYmNkZjJkYmEwNjBlMzFhNTRhYzI4MjJlYjZmZTY0ZTgxM2ZkODg0MzI5ZjNiYTYwMGFlNmQ2NjMzNGYwYjhkYzIwYTIyM2MzOWU=',
               'username': 'Y2FudGVzdDAwMQ==',
-              'virtualCluster': 'ZGVmYXVsdA=='
+              'virtualCluster': 'ZGVmYXVsdA==',
             },
-            'type': 'Opaque'
+            'type': 'Opaque',
           },
           {
             'metadata': {
@@ -1237,11 +1231,11 @@ describe('get user info list : get /api/v1/user', () => {
               'admin': 'dHJ1ZQ==',
               'password': 'MzFhNzQ0YzNhZjg5MDU2MDI0ZmY2MmMzNTZmNTQ3ZGRjMzUzYWQ3MjdkMzEwYTc3MzcxODgxMjk4MmQ1YzZlZmMzYmZmNzBkYjVlMTA0M2JkMjFkMmVkYzg4M2M4Y2Q0ZjllNzRhMWU1MjA1NDMzNjQ5MzYxMTQ4YmE4OTY0MzQ=',
               'username': 'cGFpdGVzdA==',
-              'virtualCluster': 'ZGVmYXVsdCx2YzIsdmMz'
+              'virtualCluster': 'ZGVmYXVsdCx2YzIsdmMz',
             },
-            'type': 'Opaque'
+            'type': 'Opaque',
           },
-        ]
+        ],
       });
   });
 
@@ -1284,6 +1278,5 @@ describe('get user info list : get /api/v1/user', () => {
   //       done();
   //     });
   // });
-
 });
 

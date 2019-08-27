@@ -1,0 +1,67 @@
+#!/usr/bin/python
+# -*- coding: UTF-8 -*-
+
+import sys, os, re, time, smtplib
+from email.mime.text import MIMEText
+
+logpath = "/var/log/drbdha/"
+
+def genePath():
+    if not os.path.exists(logpath):
+        os.makedirs(logpath)
+
+
+def lastLines(lines, filename):
+    output = os.popen('tail -n ' + str(lines) + ' ' + filename)
+    return output.read()
+
+
+def geneMessage(subject, role):
+    services = ["actions", "nfs-kernel-server", "drbd", "keepalived", "email"]
+    content = 'logs: \n\n'
+    for service in services:
+        content += service + '.log--------------------\n\n'
+        content += lastLines(30, logpath + service + '.log')
+        content += '\n\n'
+    message = MIMEText(content, 'plain', 'utf-8')
+    message['Subject'] = '[' + role + '] ' + subject
+    return message
+
+
+def sendMail(subject, role):
+    smtpHost = '${SMTP_HOST}'
+    smtpPort = ${SMTP_PORT}
+    smtpUser = '${SMTP_USER}'
+    smtpPassword = '${SMTP_PASS}'
+    sender = smtpUser
+    receivers = ['${SMTP_RECIPIENT}']
+    message = geneMessage(subject, role)
+    message['From'] = sender
+    message['To'] = receivers[0]
+    try:
+        smtpObj = smtplib.SMTP()
+        smtpObj.connect(smtpHost, smtpPort)
+        smtpObj.ehlo()
+        smtpObj.starttls()
+        smtpObj.login(smtpUser, smtpPassword)
+        smtpObj.sendmail(sender, receivers, message.as_string())
+        smtpObj.quit()
+    except smtplib.SMTPException as e:
+        file = logpath + 'email.log'
+        with open(file, 'w+') as f:
+            f.write(time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()))
+            f.write('\n')
+            f.write(e)
+            f.write('\n')
+
+
+def main():
+    if len(sys.argv) != 3:
+        print('USAGE: python sendmail [subject] [role]')
+        return
+    genePath()
+    sendMail(sys.argv[1], sys.argv[2])
+
+
+if __name__ == "__main__":
+    main()

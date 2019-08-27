@@ -1,0 +1,63 @@
+<div id="openpai-panel">
+    <div class="openpai-panel-header">
+        <img src="" class="openpai-logo" class="openpai-inline" />
+        <h3 class="openpai-inline openpai-header-text">OpenPAI Submitter</h3>
+        <a id="close-panel-button" class="openpai-float-right" href="#">[close]</a>
+        <span class="openpai-float-right">&nbsp;&nbsp;</span>
+        <a id="refresh-panel-button" class="openpai-float-right "href="#">[refresh]</a>
+    </div>
+    
+    <div id="openpai-panel-body">
+        <fieldset class="openpai-fieldset" id="basic-setting-fieldset">
+        <!-- <legend class="openpai-legend">Basic Settings: </legend> -->
+        <div>
+                <label for="submit-form-menu">Submit As: </label>
+                <select name="submit-form-menu" id="submit-form-menu">
+                  <option selected="selected" value="notebook">Interactive Notebook</option>
+                  <option value="file">Python Script (.py File)</option>
+                  <option value="silent">Silent Notebook</option>
+                </select>
+        </div>
+        <div>
+            <label for="resource-menu">Resource: </label>
+                <select name="resource-menu" id="resource-menu">
+                  <option selected="selected" data-gpu="1" data-cpu="4" data-memory="8192">1 GPU, 4 vCores CPU, 8 GB memory</option>
+                  <option data-gpu="1" data-cpu="8" data-memory="16384">1 GPU, 8 vCores CPU, 16 GB memory</option>
+                  <option data-gpu="0" data-cpu="4" data-memory="8192">0 GPU, 4 vCores CPU, 8 GB memory</option>
+                  <option data-gpu="2" data-cpu="8" data-memory="16384">2 GPU, 8 vCores CPU, 16 GB memory</option>
+                  <option data-gpu="4" data-cpu="16" data-memory="32768">4 GPU, 16 vCores CPU, 32 GB memory</option>
+                </select>
+        </div>
+        <div>
+            <label for="docker-image-menu">Select a docker image: </label>
+                <select name="docker-image-menu" id="docker-image-menu">
+                  <option value="openpai/pytorch-py36-cu90" selected="selected">PyTorch + Python3.6 with GPU, CUDA 9.0</option>
+                  <option value="openpai/pytorch-py36-cpu">PyTorch + Python3.6 with CPU </option>
+                  <option value="openpai/tensorflow-py36-cu90">TensorFlow + Python3.6 with GPU, CUDA 9.0</option>
+                  <option value="openpai/tensorflow-py36-cpu">TensorFlow + Python3.6 with CPU</option>
+                </select>
+        </div>
+        </fieldset>
+        <fieldset class="openpai-fieldset">
+
+            <div id="panel-table-wrapper" style="display:none;">
+            <table id="cluster-data" class="display order-column" data-page-length="7">
+                <thead>
+                    <tr>
+                        <th>Cluster</th>
+                        <th>VC</th>
+                        <th>Available GPU</th>
+                        <th></th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody id="cluster-data-body">
+                </tbody>
+            </table>
+            </div>
+            <div id="panel-information-wrapper">
+              <span id="panel-information">The panel is not ready. Please wait.</span>
+            </div>
+        </fieldset>
+    </div>
+</div>

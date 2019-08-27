@@ -24,7 +24,6 @@ describe('Get job SSH info: GET /api/v2/user/:username/jobs/:jobName/ssh', () =>
   });
 
   before(() => {
-
     //
     // Mock FrameworkLauncher
     //
@@ -190,7 +189,6 @@ describe('Get job SSH info: GET /api/v1/jobs/:jobName/ssh', () => {
   });
 
   before(() => {
-
     //
     // Mock FrameworkLauncher
     //
@@ -338,7 +336,6 @@ describe('Get job SSH info: GET /api/v1/jobs/:jobName/ssh', () => {
           },
         }
       );
-
   });
 
   //

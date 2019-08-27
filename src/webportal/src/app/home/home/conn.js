@@ -47,6 +47,10 @@ export async function listJobs() {
   return fetchWrapper(`${config.restServerUri}/api/v1/jobs?${querystring.stringify({username})}`);
 }
 
+export async function listAllJobs() {
+  return fetchWrapper(`${config.restServerUri}/api/v1/jobs`);
+}
+
 export async function getUserInfo() {
   return fetchWrapper(`${config.restServerUri}/api/v2/user/${username}`, {
     headers: {
@@ -76,5 +80,44 @@ export async function getAvailableGpuPerNode() {
   } else {
     const json = await res.json();
     throw new Error(json.error);
+  }
+}
+
+export async function getLowGpuJobInfos() {
+  const prometheusQuery = `avg(avg_over_time(task_gpu_percent[10m]) < 10) by (job_name)`;
+  const res = await fetch(`${config.prometheusUri}/api/v1/query?query=${encodeURIComponent(prometheusQuery)}`);
+  const json = await res.json();
+  if (!res.ok) {
+    throw new Error(json.message);
+  }
+
+  const lowGpuJobInfos = json.data.result.map((keyValuePair) => {
+    const frameworkName = keyValuePair.metric.job_name;
+    const jobNameBeginIndex = frameworkName.indexOf('~');
+    return {
+      jobName: frameworkName.slice(jobNameBeginIndex + 1),
+      gpuUsage: keyValuePair.value[1],
+    };
+  });
+  return lowGpuJobInfos;
+}
+
+export async function stopJob(job) {
+  const {name, username} = job;
+  const res = await fetch(`${config.restServerUri}/api/v1/jobs/${username}~${name}/executionType`, {
+    method: 'PUT',
+    headers: {
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({value: 'STOP'}),
+  });
+  const json = await res.json();
+  if (!res.ok) {
+    if (json.code === 'UnauthorizedUserError') {
+      throw new UnauthorizedError(json.message);
+    } else {
+      throw new Error(json.message);
+    }
   }
 }

@@ -121,7 +121,7 @@ The structure of samba server is as follows:
 Now we want all members of "paigroup" mount server's data folder to /data, and user's data (e.g user1) to /user by default. The admin should setup storage config in PAI using:
 ```bash
 python storagectl.py server set smbserver samba 10.0.0.1 root paismb paipwd local
-python storagectl.py config set configsmb paigroup -s smbserver -m /data smbserver data -m /user smbserver users/%USER -d
+python storagectl.py config set configsmb paigroup -s smbserver -m /data smbserver data -m /user smbserver 'users/${PAI_USER_NAME}' -d
 ```
 Then when "paiuser" from "paigroup" uses job submit page, the configsmb will be shown and user can choose whether to use it <br/>
 

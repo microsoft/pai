@@ -11,11 +11,11 @@ __local_default_file__ = os.path.join(__cache__, 'defaults.yaml')
 
 __version__ = '0.4.00'
 
-__sdk_branch__ = 'master'
+__container_sdk_branch__ = 'master'
 
 
 def get_install_uri(ver: str=None):
-    ver = __sdk_branch__ if not ver else ver
+    ver = __container_sdk_branch__ if not ver else ver
     return '-e "git+https://github.com/Microsoft/pai@{}#egg=openpaisdk&subdirectory=contrib/python-sdk"'.format(ver)
 
 
@@ -26,3 +26,7 @@ if os.path.isfile(os.path.join(__cache__, 'debug_enable')):
     __logger__.setLevel(level=logging.DEBUG)
 else:
     __logger__.setLevel(level=logging.INFO)
+
+
+class __flags__(object):
+    disable_to_screen = False  # A flag to disable to_screen output

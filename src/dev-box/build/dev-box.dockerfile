@@ -31,7 +31,6 @@ RUN apt-get -y update && \
       python3 \
       python-yaml \
       python-jinja2 \
-      python-paramiko \
       python-urllib3 \
       python-tz \
       python-nose \
@@ -55,7 +54,8 @@ RUN apt-get -y update && \
       net-tools && \
     mkdir -p /cluster-configuration &&\
     git clone https://github.com/Microsoft/pai.git &&\
-    pip install python-etcd docker kubernetes GitPython jsonschema attrs dicttoxml beautifulsoup4 future &&\
+    pip install python-etcd docker kubernetes paramiko==2.6.0 GitPython jsonschema attrs dicttoxml beautifulsoup4 future &&\
+    python -m easy_install --upgrade pyOpenSSL && \
     pip3 install kubernetes
 
 WORKDIR /tmp

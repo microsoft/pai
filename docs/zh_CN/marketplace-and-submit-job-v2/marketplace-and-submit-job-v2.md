@@ -1,6 +1,6 @@
-# Marketplace and Submit job v2
+# 市场以及如何提交 Job v2
 
-Marketplace and Submit job v2 are designed to reproducible AI. It helps to reuse machine learning asset across projects or teams: job template sharing and reuse for docker images, data, code, job configuration and etc.
+市场和 Job v2 的设计目标是实现可重现的 AI。 It helps to reuse machine learning asset across projects or teams: job template sharing and reuse for docker images, data, code, job configuration and etc.
 
 ## Table of Contents
 

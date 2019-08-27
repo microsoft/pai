@@ -66,7 +66,7 @@ export const ToolComponent = React.memo(({
 ToolComponent.propTypes = {
   jobData: PropTypes.object.isRequired,
   taskRoles: PropTypes.array.isRequired,
-  extras: PropTypes.object.isRequired,
+  extras: PropTypes.object,
   onChange: PropTypes.func.isRequired,
   selected: PropTypes.bool,
   onSelect: PropTypes.func,

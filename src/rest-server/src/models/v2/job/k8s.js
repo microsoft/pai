@@ -24,6 +24,7 @@ const status = require('statuses');
 const runtimeEnv = require('./runtime-env');
 const launcherConfig = require('@pai/config/launcher');
 const createError = require('@pai/utils/error');
+const userModel = require('@pai/models/v2/user');
 
 
 const convertName = (name) => {
@@ -137,7 +138,7 @@ const convertTaskDetail = async (taskStatus, ports, userName, jobName, taskRoleN
     taskState: convertState(
       taskStatus.state,
       completionStatus ? completionStatus.code : null,
-      taskStatus.retryPolicy.retryDelaySec,
+      taskStatus.retryPolicyStatus.retryDelaySec,
     ),
     containerId: taskStatus.attemptStatus.podName,
     containerIp: taskStatus.attemptStatus.podHostIP,
@@ -277,7 +278,7 @@ const generateTaskRole = (taskRole, labels, config) => {
                 },
                 {
                   name: 'host-log',
-                  subPath: `${labels.userName}/${labels.jobName}/${taskRole}`,
+                  subPath: `${labels.userName}/${labels.jobName}/${convertName(taskRole)}`,
                   mountPath: '/usr/local/pai/logs',
                 },
               ],
@@ -313,7 +314,7 @@ const generateTaskRole = (taskRole, labels, config) => {
                 },
                 {
                   name: 'host-log',
-                  subPath: `${labels.userName}/${labels.jobName}/${taskRole}`,
+                  subPath: `${labels.userName}/${labels.jobName}/${convertName(taskRole)}`,
                   mountPath: '/usr/local/pai/logs',
                 },
                 {
@@ -519,8 +520,14 @@ const get = async (frameworkName) => {
 };
 
 const put = async (frameworkName, config, rawConfig) => {
+  const [userName] = frameworkName.split(/~(.+)/);
+
   const virtualCluster = ('defaults' in config && config.defaults.virtualCluster != null) ?
     config.defaults.virtualCluster : 'default';
+  const flag = await userModel.checkUserVC(userName, virtualCluster);
+  if (flag === false) {
+    throw createError('Forbidden', 'ForbiddenUserError', `User ${userName} is not allowed to do operation in ${virtualCluster}`);
+  }
 
   const frameworkDescription = generateFrameworkDescription(frameworkName, virtualCluster, config, rawConfig);
 

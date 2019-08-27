@@ -23,14 +23,13 @@ const userK8sCRUDConfig = userK8sCRUD.initConfig(process.env.K8S_APISERVER_URI);
 describe('User model k8s secret get function test', () => {
   afterEach(function() {
     if (!nock.isDone()) {
-      //TODO: Revamp this file and enable the following error.
-      //this.test.error(new Error('Not all nock interceptors were used!'));
+      // TODO: Revamp this file and enable the following error.
+      // this.test.error(new Error('Not all nock interceptors were used!'));
       nock.cleanAll();
     }
   });
 
   beforeEach(() => {
-
     // Mock for case1 return all userinfo
     nock(apiServerRootUri)
       .get('/api/v1/namespaces/pai-user-v2/secrets')
@@ -39,7 +38,7 @@ describe('User model k8s secret get function test', () => {
         'apiVersion': 'v1',
         'metadata': {
           'selfLink': '/api/v1/namespaces/pai-user-v2/secrets/',
-          'resourceVersion': '1062682'
+          'resourceVersion': '1062682',
         },
         'items': [
           {
@@ -51,9 +50,9 @@ describe('User model k8s secret get function test', () => {
               'username': 'Y2FudGVzdDAwMQ==',
               'email': 'dGVzdEBwYWkuY29t',
               'grouplist': 'WyJ0ZXN0Il0=',
-              'extension': 'e30='
+              'extension': 'e30=',
             },
-            'type': 'Opaque'
+            'type': 'Opaque',
           },
           {
             'metadata': {
@@ -64,11 +63,11 @@ describe('User model k8s secret get function test', () => {
               'username': 'cGFpdGVzdA==',
               'email': 'dGVzdEBwYWkuY29t',
               'grouplist': 'WyJ0ZXN0Il0=',
-              'extension': 'e30='
+              'extension': 'e30=',
             },
-            'type': 'Opaque'
+            'type': 'Opaque',
           },
-        ]
+        ],
       });
 
     // mock for case3 username=paitest
@@ -85,9 +84,9 @@ describe('User model k8s secret get function test', () => {
           'username': 'cGFpdGVzdA==',
           'email': 'dGVzdEBwYWkuY29t',
           'grouplist': 'WyJ0ZXN0Il0=',
-          'extension': 'e30='
+          'extension': 'e30=',
         },
-        'type': 'Opaque'
+        'type': 'Opaque',
       });
 
     // mock for case2 username=non_exist
@@ -102,9 +101,9 @@ describe('User model k8s secret get function test', () => {
         'reason': 'NotFound',
         'details': {
           'name': 'nonexist',
-          'kind': 'secrets'
+          'kind': 'secrets',
         },
-        'code': 404
+        'code': 404,
       });
   });
 
@@ -138,8 +137,8 @@ describe('User model k8s secret get function test', () => {
 describe('User model k8s secret set function test', () => {
   afterEach(function() {
     if (!nock.isDone()) {
-      //TODO: Revamp this file and enable the following error.
-      //this.test.error(new Error('Not all nock interceptors were used!'));
+      // TODO: Revamp this file and enable the following error.
+      // this.test.error(new Error('Not all nock interceptors were used!'));
       nock.cleanAll();
     }
   });
@@ -148,14 +147,14 @@ describe('User model k8s secret set function test', () => {
     // Mock for case2 username=existuser
     nock(apiServerRootUri)
       .put('/api/v1/namespaces/pai-user-v2/secrets/657869737475736572', {
-        'metadata':{'name':'657869737475736572'},
+        'metadata': {'name': '657869737475736572'},
         'data': {
           'username': 'ZXhpc3R1c2Vy',
           'password': 'ODBiMWFkYmFmM2FhZDI4MjJiMDRjYzJhODRkNWNlNGU1MDBlMWY3MTBmNThhZWEwYzc1OTkzYTQ1NmI5N2U2MGI2MjJjMjM3YTUzNGVjMDVkZmE0MmQ0NjIzNTAxMDE1Y2JlZWM0OWZjMzNjMzI0ZGNiMmY5M2MwMDZjMmVmOWM=',
           'grouplist': 'WyJ0ZXN0Il0=',
           'email': 'dGVzdEBwYWkuY29t',
-          'extension': 'e30='
-        }
+          'extension': 'e30=',
+        },
       })
       .reply(200, {
         'kind': 'Secret',
@@ -166,16 +165,16 @@ describe('User model k8s secret set function test', () => {
           'selfLink': '/api/v1/namespaces/pai-user-v2/secrets/657869737475736572',
           'uid': 'd5d686ff-f9c6-11e8-b564-000d3ab5296b',
           'resourceVersion': '1115478',
-          'creationTimestamp': '2018-12-07T02:21:42Z'
+          'creationTimestamp': '2018-12-07T02:21:42Z',
         },
         'data': {
           'password': 'ODBiMWFkYmFmM2FhZDI4MjJiMDRjYzJhODRkNWNlNGU1MDBlMWY3MTBmNThhZWEwYzc1OTkzYTQ1NmI5N2U2MGI2MjJjMjM3YTUzNGVjMDVkZmE0MmQ0NjIzNTAxMDE1Y2JlZWM0OWZjMzNjMzI0ZGNiMmY5M2MwMDZjMmVmOWM=',
           'username': 'ZXhpc3R1c2Vy',
           'email': 'dGVzdEBwYWkuY29t',
           'grouplist': 'WyJ0ZXN0Il0=',
-          'extension': 'e30='
+          'extension': 'e30=',
         },
-        'type': 'Opaque'
+        'type': 'Opaque',
       });
 
     // Mock for case1 username=newuser
@@ -187,8 +186,8 @@ describe('User model k8s secret set function test', () => {
           'password': 'YTFiYzYyYzExNTk4ZDdkMDE3MGQwZDIyYjdjNDNjN2FlNWJkODFjNmEzOGJlOTk1YzkyNzQzNDEwODg2YzJiY2NjOWUxYjQwYmIyNGY3NTM1MTRiZGNkOWQ1Njk5N2I4ZjdiNmE5OTM2OGNiOTNmMjYwYzRiNDhhNjg1NTlmOTk=',
           'grouplist': 'WyJ0ZXN0Il0=',
           'email': 'dGVzdEBwYWkuY29t',
-          'extension': 'e30='
-        }
+          'extension': 'e30=',
+        },
       })
       .reply(200, {
         'kind': 'Secret',
@@ -199,16 +198,16 @@ describe('User model k8s secret set function test', () => {
           'selfLink': '/api/v1/namespaces/pai-user-v2/secrets/6e657775736572',
           'uid': 'f75b6065-f9c7-11e8-b564-000d3ab5296b',
           'resourceVersion': '1116114',
-          'creationTimestamp': '2018-12-07T02:29:47Z'
+          'creationTimestamp': '2018-12-07T02:29:47Z',
         },
         'data': {
           'password': 'YTFiYzYyYzExNTk4ZDdkMDE3MGQwZDIyYjdjNDNjN2FlNWJkODFjNmEzOGJlOTk1YzkyNzQzNDEwODg2YzJiY2NjOWUxYjQwYmIyNGY3NTM1MTRiZGNkOWQ1Njk5N2I4ZjdiNmE5OTM2OGNiOTNmMjYwYzRiNDhhNjg1NTlmOTk=',
           'username': 'bmV3dXNlcg==',
           'email': 'dGVzdEBwYWkuY29t',
           'grouplist': 'WyJ0ZXN0Il0=',
-          'extension': 'e30='
+          'extension': 'e30=',
         },
-        'type': 'Opaque'
+        'type': 'Opaque',
       });
   });
 
@@ -219,7 +218,7 @@ describe('User model k8s secret set function test', () => {
       'password': 'pai666',
       'email': 'test@pai.com',
       'grouplist': ['test'],
-      'extension': {}
+      'extension': {},
     };
     const res = await userK8sCRUD.create('newuser', updateUser, userK8sCRUDConfig);
     return expect(res, 'status').to.have.status(200);
@@ -232,7 +231,7 @@ describe('User model k8s secret set function test', () => {
       'password': 'pai666',
       'email': 'test@pai.com',
       'grouplist': ['test'],
-      'extension': {}
+      'extension': {},
     };
     const res = await userK8sCRUD.update('existuser', updateUser, userK8sCRUDConfig, true);
     return expect(res, 'status').to.have.status(200);
@@ -243,14 +242,13 @@ describe('User model k8s secret set function test', () => {
 describe('User Model k8s secret delete function test', () => {
   afterEach(function() {
     if (!nock.isDone()) {
-      //TODO: Revamp this file and enable the following error.
-      //this.test.error(new Error('Not all nock interceptors were used!'));
+      // TODO: Revamp this file and enable the following error.
+      // this.test.error(new Error('Not all nock interceptors were used!'));
       nock.cleanAll();
     }
   });
 
   beforeEach(() => {
-
     // Mock for case1 username=existuser
     nock(apiServerRootUri)
       .delete('/api/v1/namespaces/pai-user-v2/secrets/657869737475736572')
@@ -262,8 +260,8 @@ describe('User Model k8s secret delete function test', () => {
         'details': {
           'name': '657869737475736572',
           'kind': 'secrets',
-          'uid': 'd5d686ff-f9c6-11e8-b564-000d3ab5296b'
-        }
+          'uid': 'd5d686ff-f9c6-11e8-b564-000d3ab5296b',
+        },
       });
 
     // Mock for case2 username=nonexistuser
@@ -278,9 +276,9 @@ describe('User Model k8s secret delete function test', () => {
         'reason': 'NotFound',
         'details': {
           'name': '6e6f6e657869737475736572',
-          'kind': 'secrets'
+          'kind': 'secrets',
         },
-        'code': 404
+        'code': 404,
       });
   });
 

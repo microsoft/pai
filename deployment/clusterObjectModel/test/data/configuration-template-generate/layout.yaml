@@ -50,6 +50,7 @@ machine-list:
     - hostname: master1
       hostip: 10.0.0.1
       machine-type: D8SV3
+      nodename: 10.0.0.1
       etcdid: etcdid1
       #sshport: PORT (Optional)
       #username: username (Optional)
@@ -63,6 +64,7 @@ machine-list:
     - hostname: master2
       hostip: 10.0.0.2
       machine-type: D8SV3
+      nodename: 10.0.0.2
       etcdid: etcdid2
       #sshport: PORT (Optional)
       #username: username (Optional)
@@ -73,6 +75,7 @@ machine-list:
     - hostname: master3
       hostip: 10.0.0.3
       machine-type: D8SV3
+      nodename: 10.0.0.3
       etcdid: etcdid3
       #sshport: PORT (Optional)
       #username: username (Optional)
@@ -83,6 +86,7 @@ machine-list:
     - hostname: worker1
       hostip: 10.0.0.4
       machine-type: NC24R
+      nodename: 10.0.0.4
       #sshport: PORT (Optional)
       #username: username (Optional)
       #password: password (Optional)
@@ -93,6 +97,7 @@ machine-list:
     - hostname: worker2
       hostip: 10.0.0.5
       machine-type: NC24R
+      nodename: 10.0.0.5
       #sshport: PORT (Optional)
       #username: username (Optional)
       #password: password (Optional)
@@ -103,6 +108,7 @@ machine-list:
     - hostname: worker3
       hostip: 10.0.0.6
       machine-type: NC24R
+      nodename: 10.0.0.6
       #sshport: PORT (Optional)
       #username: username (Optional)
       #password: password (Optional)

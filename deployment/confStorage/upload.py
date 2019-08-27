@@ -37,12 +37,21 @@ package_directory_kubeinstall = os.path.dirname(os.path.abspath(__file__))
 
 class upload_configuration:
 
-    def __init__(self, config_path, kube_confg_path):
+    def __init__(self, config_path, kube_confg_path, upload_list = None):
 
         self.logger = logging.getLogger(__name__)
         self.KUBE_CONFIG_DEFAULT_LOCATION = os.path.expanduser("~/.kube/config")
         if kube_confg_path != None:
             self.KUBE_CONFIG_DEFAULT_LOCATION = kube_confg_path
+        if upload_list != None:
+            self.upload_list = upload_list
+        else:
+            self.upload_list = [
+                "k8s-role-definition.yaml",
+                "kubernetes-configuration.yaml",
+                "layout.yaml",
+                "services-configuration.yaml"
+            ]
 
         self.config_path = config_path
 
@@ -85,12 +94,8 @@ class upload_configuration:
     def upload_latest_configuration(self):
 
         conf_dict = dict()
-        conf_dict["k8s-role-definition.yaml"] = conf_storage_util.read_file_from_path("{0}/k8s-role-definition.yaml".format(self.config_path))
-        conf_dict["kubernetes-configuration.yaml"] = conf_storage_util.read_file_from_path(
-            "{0}/kubernetes-configuration.yaml".format(self.config_path))
-        conf_dict["layout.yaml"] = conf_storage_util.read_file_from_path("{0}/layout.yaml".format(self.config_path))
-        conf_dict["services-configuration.yaml"] = conf_storage_util.read_file_from_path(
-            "{0}/services-configuration.yaml".format(self.config_path))
+        for config_name in self.upload_list:
+            conf_dict[config_name] = conf_storage_util.read_file_from_path("{0}/{1}".format(self.config_path, config_name))
         if file_handler.file_exist_or_not("{0}/services-configuration.yaml.old".format(self.config_path)) == True:
             conf_dict["services-configuration.yaml.old"] = conf_storage_util.read_file_from_path(
                 "{0}/services-configuration.yaml.old".format(self.config_path))

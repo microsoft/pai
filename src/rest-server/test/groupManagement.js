@@ -27,16 +27,16 @@ const defaultGroupSchema = {
     'externalName': 'MTIzNA==',
     'extension': 'eyJhY2xzIjp7ImFkbWluIjpmYWxzZSwidmlydHVhbENsdXN0ZXJzIjpbImRlZmF1bHQiXX19', // {"acls":{"admin":false,"virtualClusters":["default"]}}
   },
-  'type': 'Opaque'
+  'type': 'Opaque',
 };
 
 //
 // Get a valid token that expires in 60 seconds.
 //
 
-const validToken = global.jwt.sign({ username: 'new_user', admin: true }, process.env.JWT_SECRET, { expiresIn: 60 });
-const nonAdminToken = global.jwt.sign({ username: 'non_admin_user', admin: false }, process.env.JWT_SECRET, { expiresIn: 60 });
-const invalidToken = '';
+const validToken = global.jwt.sign({username: 'new_user', admin: true}, process.env.JWT_SECRET, {expiresIn: 60});
+const nonAdminToken = global.jwt.sign({username: 'non_admin_user', admin: false}, process.env.JWT_SECRET, {expiresIn: 60});
+// const invalidToken = '';
 
 describe('Group Model k8s secret extension attrs update test', () => {
   afterEach(function() {
@@ -53,13 +53,13 @@ describe('Group Model k8s secret extension attrs update test', () => {
 
     nock(apiServerRootUri)
       .put('/api/v1/namespaces/pai-group/secrets/64656661756c74', {
-        'metadata':{'name':'64656661756c74'},
+        'metadata': {'name': '64656661756c74'},
         'data': {
           'groupname': 'ZGVmYXVsdA==',
           'description': 'dGVzdA==',
           'externalName': 'MTIzNA==',
-          'extension': 'eyJhY2xzIjp7ImFkbWluIjpmYWxzZSwidmlydHVhbENsdXN0ZXJzIjpbImRlZmF1bHQiLCJ2YzEiXX19' // {"acls":{"admin":false,"virtualClusters":["default","vc1"]}}
-        }
+          'extension': 'eyJhY2xzIjp7ImFkbWluIjpmYWxzZSwidmlydHVhbENsdXN0ZXJzIjpbImRlZmF1bHQiLCJ2YzEiXX19', // {"acls":{"admin":false,"virtualClusters":["default","vc1"]}}
+        },
       })
       .reply(200, {
         'kind': 'Secret',
@@ -70,15 +70,15 @@ describe('Group Model k8s secret extension attrs update test', () => {
           'selfLink': '/api/v1/namespaces/pai-group/secrets/657869737475736572',
           'uid': 'd5d686ff-f9c6-11e8-b564-000d3ab5296b',
           'resourceVersion': '1115478',
-          'creationTimestamp': '2018-12-07T02:21:42Z'
+          'creationTimestamp': '2018-12-07T02:21:42Z',
         },
         'data': {
           'groupname': 'ZGVmYXVsdA==',
           'description': 'dGVzdA==',
           'externalName': 'MTIzNA==',
-          'extension': 'eyJhY2xzIjp7ImFkbWluIjpmYWxzZSwidmlydHVhbENsdXN0ZXJzIjpbImRlZmF1bHQiLCJ2YzEiXX19'
+          'extension': 'eyJhY2xzIjp7ImFkbWluIjpmYWxzZSwidmlydHVhbENsdXN0ZXJzIjpbImRlZmF1bHQiLCJ2YzEiXX19',
         },
-        'type': 'Opaque'
+        'type': 'Opaque',
       });
 
     global.chai.request(global.server)
@@ -113,13 +113,13 @@ describe('Group Model k8s secret extension attrs update test', () => {
 
     nock(apiServerRootUri)
       .put('/api/v1/namespaces/pai-group/secrets/64656661756c74', {
-        'metadata':{'name':'64656661756c74'},
+        'metadata': {'name': '64656661756c74'},
         'data': {
           'groupname': 'ZGVmYXVsdA==',
           'description': 'dGVzdA==',
           'externalName': 'MTIzNA==',
-          'extension': 'eyJhY2xzIjp7ImFkbWluIjp0cnVlLCJ2aXJ0dWFsQ2x1c3RlcnMiOlsiZGVmYXVsdCJdfX0=' // {"acls":{"admin":true,"virtualClusters":["default"]}}
-        }
+          'extension': 'eyJhY2xzIjp7ImFkbWluIjp0cnVlLCJ2aXJ0dWFsQ2x1c3RlcnMiOlsiZGVmYXVsdCJdfX0=', // {"acls":{"admin":true,"virtualClusters":["default"]}}
+        },
       })
       .reply(200, {
         'kind': 'Secret',
@@ -130,15 +130,15 @@ describe('Group Model k8s secret extension attrs update test', () => {
           'selfLink': '/api/v1/namespaces/pai-group/secrets/657869737475736572',
           'uid': 'd5d686ff-f9c6-11e8-b564-000d3ab5296b',
           'resourceVersion': '1115478',
-          'creationTimestamp': '2018-12-07T02:21:42Z'
+          'creationTimestamp': '2018-12-07T02:21:42Z',
         },
         'data': {
           'groupname': 'ZGVmYXVsdA==',
           'description': 'dGVzdA==',
           'externalName': 'MTIzNA==',
-          'extension': 'eyJhY2xzIjp7ImFkbWluIjp0cnVlLCJ2aXJ0dWFsQ2x1c3RlcnMiOlsiZGVmYXVsdCJdfX0='
+          'extension': 'eyJhY2xzIjp7ImFkbWluIjp0cnVlLCJ2aXJ0dWFsQ2x1c3RlcnMiOlsiZGVmYXVsdCJdfX0=',
         },
-        'type': 'Opaque'
+        'type': 'Opaque',
       });
 
     global.chai.request(global.server)
@@ -165,9 +165,9 @@ describe('Group Model k8s secret extension attrs update test', () => {
         'reason': 'NotFound',
         'details': {
           'name': 'nonexist',
-          'kind': 'secrets'
+          'kind': 'secrets',
         },
-        'code': 404
+        'code': 404,
       });
 
     global.chai.request(global.server)
@@ -189,13 +189,13 @@ describe('Group Model k8s secret extension attrs update test', () => {
 
     nock(apiServerRootUri)
       .put('/api/v1/namespaces/pai-group/secrets/64656661756c74', {
-        'metadata':{'name':'64656661756c74'},
+        'metadata': {'name': '64656661756c74'},
         'data': {
           'groupname': 'ZGVmYXVsdA==',
           'description': 'dGVzdA==',
           'externalName': 'MTIzNA==',
-          'extension': 'eyJhY2xzIjp7ImFkbWluIjpmYWxzZSwidmlydHVhbENsdXN0ZXJzIjpbImRlZmF1bHQiXX0sInRlc3RmaWVsZCI6InRlc3RkYXRhIn0=' // {"acls":{"admin":false,"virtualClusters":["default"]},"testfield":"testdata"}
-        }
+          'extension': 'eyJhY2xzIjp7ImFkbWluIjpmYWxzZSwidmlydHVhbENsdXN0ZXJzIjpbImRlZmF1bHQiXX0sInRlc3RmaWVsZCI6InRlc3RkYXRhIn0=', // {"acls":{"admin":false,"virtualClusters":["default"]},"testfield":"testdata"}
+        },
       })
       .reply(200, {
         'kind': 'Secret',
@@ -206,15 +206,15 @@ describe('Group Model k8s secret extension attrs update test', () => {
           'selfLink': '/api/v1/namespaces/pai-group/secrets/657869737475736572',
           'uid': 'd5d686ff-f9c6-11e8-b564-000d3ab5296b',
           'resourceVersion': '1115478',
-          'creationTimestamp': '2018-12-07T02:21:42Z'
+          'creationTimestamp': '2018-12-07T02:21:42Z',
         },
         'data': {
           'groupname': 'ZGVmYXVsdA==',
           'description': 'dGVzdA==',
           'externalName': 'MTIzNA==',
-          'extension': 'eyJhY2xzIjp7ImFkbWluIjpmYWxzZSwidmlydHVhbENsdXN0ZXJzIjpbImRlZmF1bHQiXX0sInRlc3RmaWVsZCI6InRlc3RkYXRhIn0='
+          'extension': 'eyJhY2xzIjp7ImFkbWluIjpmYWxzZSwidmlydHVhbENsdXN0ZXJzIjpbImRlZmF1bHQiXX0sInRlc3RmaWVsZCI6InRlc3RkYXRhIn0=',
         },
-        'type': 'Opaque'
+        'type': 'Opaque',
       });
 
     global.chai.request(global.server)

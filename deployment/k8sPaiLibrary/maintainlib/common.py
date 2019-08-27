@@ -57,8 +57,8 @@ def execute_shell(shell_cmd, error_msg):
 
 
 def execute_shell_retry(shell_cmd, error_msg, retry_count):
-    
-    count = 0    
+
+    count = 0
     while count < retry_count:
         try:
             subprocess.check_call( shell_cmd, shell=True )
@@ -199,7 +199,7 @@ def sftp_paramiko(src, dst, filename, host_config):
     # First make sure the folder exist.
     ssh = paramiko.SSHClient()
     ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-    ssh.connect(hostname=hostip, port=port, key_filename=key_filename, username=username, password=password)
+    ssh.connect(hostname=hostip, port=port, key_filename=key_filename, username=username, password=password, allow_agent=True)
 
     stdin, stdout, stderr = ssh.exec_command("sudo mkdir -p {0}".format(dst), get_pty=True)
     password = password if password is not None else ''
@@ -208,20 +208,12 @@ def sftp_paramiko(src, dst, filename, host_config):
     for response_msg in stdout:
         print(response_msg.encode('utf-8').strip('\n'))
 
-    ssh.close()
-
     # Put the file to target Path.
-    transport = paramiko.Transport((hostip, port))
-    pkey = None
-    if key_filename is not None:
-        pkey = paramiko.RSAKey.from_private_key_file(key_filename)
-    transport.connect(username=username, pkey=pkey, password=password)
-
-    sftp = paramiko.SFTPClient.from_transport(transport)
+    sftp = ssh.open_sftp()
     sftp.put('{0}/{1}'.format(src, filename), '{0}/{1}'.format(dst, filename))
     sftp.close()
 
-    transport.close()
+    ssh.close()
 
     return True
 

@@ -23,14 +23,31 @@
  * SOFTWARE.
  */
 
-import React, {useEffect, useState} from 'react';
-import {Stack, Checkbox, FontClassNames, FontWeights, getTheme} from 'office-ui-fabric-react';
+import React, {useEffect, useLayoutEffect, useState} from 'react';
+
+import {
+  Checkbox,
+  DefaultButton,
+  DetailsList,
+  SelectionMode,
+  Stack,
+  FontClassNames,
+  FontWeights,
+  getTheme,
+  DetailsListLayoutMode,
+  Text,
+} from 'office-ui-fabric-react';
+import {TooltipIcon} from '../controls/tooltip-icon';
+
 import c from 'classnames';
 import PropTypes from 'prop-types';
 import {cloneDeep} from 'lodash';
 
 import {MountDirectories} from '../../models/data/mount-directories';
-import {TeamMountList} from './team-mount-list';
+import {dispatchResizeEvent} from '../../utils/utils';
+import t from '../../../components/tachyons.scss';
+import {PROTOCOL_TOOLTIPS} from '../../utils/constants';
+import TeamDetail from './team-detail';
 
 const {spacing} = getTheme();
 
@@ -40,11 +57,25 @@ export const TeamStorage = ({
   mountDirs,
   onMountDirChange,
 }) => {
+  // workaround for fabric's bug
+  // https://github.com/OfficeDev/office-ui-fabric-react/issues/5280#issuecomment-489619108
+  useLayoutEffect(() => {
+    dispatchResizeEvent();
+  });
+
   const [selectedConfigNames, setSelectedConfigNames] = useState(() => {
     return mountDirs.selectedConfigs.map((element) => {
       return element.name;
     });
   });
+
+  const [teamDetail, setTeamDetail] = useState({isOpen: false});
+  const openTeamDetail = (config) => {
+    setTeamDetail({isOpen: true, config: config, servers: mountDirs.servers});
+  };
+  const hideTeamDetail = () => {
+    setTeamDetail({isOpen: false});
+  };
 
   useEffect(() => {
     let selectedConfigs = [];
@@ -58,58 +89,130 @@ export const TeamStorage = ({
     onMountDirChange(newMountDirs);
   }, [selectedConfigNames]);
 
-  const showConfigs = (config) => {
-    return (
-      <Checkbox
-        key={config.name}
-        label={config.name}
-        defaultChecked={
-          selectedConfigNames.length > 0 &&
-          selectedConfigNames.includes(config.name)
-        }
-        onChange={(ev, isChecked) => {
-          let newSelectedConfigNames = [];
-          if (!isChecked && selectedConfigNames.includes(config.name)
-          ) {
-            const idx = selectedConfigNames.indexOf(config.name);
-            newSelectedConfigNames = [
-              ...selectedConfigNames.slice(0, idx),
-              ...selectedConfigNames.slice(idx + 1),
-            ];
-          } else if (isChecked && !selectedConfigNames.includes(config.name)) {
-            newSelectedConfigNames = cloneDeep(selectedConfigNames);
-            newSelectedConfigNames.push(config.name);
+  const columes = [
+    {
+      key: 'name',
+      name: 'Name',
+      headerClassName: FontClassNames.medium,
+      minWidth: 160,
+      onRender: (item, idx) => {
+        return (
+          <Checkbox
+          key={item.name}
+          label={item.name}
+          defaultChecked={
+            selectedConfigNames.length > 0 &&
+            selectedConfigNames.includes(item.name)
           }
-          setSelectedConfigNames(newSelectedConfigNames);
-        }}
-      />
-    );
-  };
-
-  const showConfigSets = () => {
-    if (teamConfigs.length === 0) {
-      return null;
-    } else {
-      return (
-        <div>
-          <div
-            className={c(FontClassNames.mediumPlus)}
-            style={{fontWeight: FontWeights.semibold, paddingBottom: spacing.m}}
-          >
-            Team Share Storage
+          onChange={(ev, isChecked) => {
+            let newSelectedConfigNames = [];
+            if (!isChecked && selectedConfigNames.includes(item.name)
+            ) {
+              const idx = selectedConfigNames.indexOf(item.name);
+              newSelectedConfigNames = [
+                ...selectedConfigNames.slice(0, idx),
+                ...selectedConfigNames.slice(idx + 1),
+              ];
+            } else if (isChecked && !selectedConfigNames.includes(item.name)) {
+              newSelectedConfigNames = cloneDeep(selectedConfigNames);
+              newSelectedConfigNames.push(item.name);
+            }
+            setSelectedConfigNames(newSelectedConfigNames);
+          }}
+        />
+        );
+      },
+    },
+    {
+      key: 'containerPath',
+      name: 'Path',
+      headerClassName: FontClassNames.medium,
+      minWidth: 120,
+      onRender: (item) => {
+        return (
+          <div className={FontClassNames.medium}>
+            {item.mountInfos.map((mountInfo, infoId) => {
+              return (
+                <div key={item.name+infoId}>
+                  {mountInfo.mountPoint}
+                </div>
+              );
+            })}
           </div>
-          <Stack horizontal disableShrink gap='s1' wrap='true'>
-            {teamConfigs.map((config) => showConfigs(config))}
-          </Stack>
-          <TeamMountList
-            dataList={mountDirs ? mountDirs.getTeamDataList() : []}
-          />
-        </div>
-      );
-    }
-  };
+        );
+      },
+    },
+    {
+      key: 'permission',
+      name: 'Permission',
+      headerClassName: FontClassNames.medium,
+      minWidth: 50,
+      // eslint-disable-next-line react/display-name
+      onRender: (item) => {
+        return (
+          <div className={FontClassNames.medium}>
+            {item.mountInfos.map((mountInfo, infoId) => {
+              return (
+                <div key={item.name+'per'+infoId}>RW</div>
+              );
+            })}
+          </div>
+        );
+      },
+    },
+    {
+      key: 'detail',
+      name: 'Detail',
+      headerClassName: FontClassNames.medium,
+      minWidth: 70,
+      // eslint-disable-next-line react/display-name
+      onRender: (item) => {
+        /**
+         * @param {React.MouseEvent} event
+         */
+        function onClick(event) {
+          openTeamDetail(item);
+        }
 
-  return <div>{showConfigSets()}</div>;
+        return (
+          <div>
+            <DefaultButton text="Detail" onClick={onClick} />
+          </div>
+        );
+      },
+    },
+  ];
+
+  return (
+    <div>
+      <Stack horizontal gap='s1'>
+        <Text styles={{fontWeight: FontWeights.semibold, paddingBottom: spacing.m}}>Team Share Storage</Text>
+        <TooltipIcon content={PROTOCOL_TOOLTIPS.teamStorage}
+        />
+      </Stack>
+
+      <div className={c(t.mb2)}>
+        <DetailsList
+          columns={columes}
+          disableSelectionZone
+          selectionMode={SelectionMode.none}
+          items={teamConfigs}
+          layoutMode={DetailsListLayoutMode.fixedColumns}
+          compact
+        />
+      </div>
+      {/* <TeamMountList
+        dataList={mountDirs ? mountDirs.getTeamDataList() : []}
+      /> */}
+      {teamDetail.isOpen && <TeamDetail
+        isOpen={teamDetail.isOpen}
+        config={teamDetail.config}
+        servers={teamDetail.servers}
+        hide={hideTeamDetail}
+      />
+      }
+    </div>
+  );
 };
 
 TeamStorage.propTypes = {

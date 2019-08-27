@@ -27,7 +27,7 @@ const keygen = require('ssh-keygen');
 const yaml = require('js-yaml');
 const userModelV2 = require('@pai/models/v2/user' );
 const axios = require('axios');
-const vcModel = require('@pai/models/vc');
+const vcModel = require('@pai/models/v2/virtual-cluster');
 const launcherConfig = require('@pai/config/launcher');
 const yarnContainerScriptTemplate = require('@pai/templates/yarnContainerScript');
 const dockerContainerScriptTemplate = require('@pai/templates/dockerContainerScript');
@@ -296,7 +296,7 @@ class Job {
         data[fsPath] = data[fsPath].replace(/\$PAI_JOB_NAME(?![\w\d])/g, name);
         data[fsPath] = data[fsPath].replace(/(\$PAI_USER_NAME|\$PAI_USERNAME)(?![\w\d])/g, data.userName);
       }
-      const vcList = await vcModel.prototype.getVcListAsyc();
+      const vcList = await vcModel.list();
       data.virtualCluster = (!data.virtualCluster) ? 'default' : data.virtualCluster;
       if (!(data.virtualCluster in vcList)) {
         throw createError('Not Found', 'NoVirtualClusterError', `Virtual cluster ${data.virtualCluster} is not found.`);

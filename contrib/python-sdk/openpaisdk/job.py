@@ -1,15 +1,19 @@
 import json
 import os
+import re
 import time
+import functools
+import pathlib
 from typing import Union
 from copy import deepcopy
+from html2text import html2text
 
-from openpaisdk import __cluster_config_file__, __jobs_cache__, __logger__, __sdk_branch__, __cache__
+from openpaisdk import __cluster_config_file__, __jobs_cache__, __logger__, __container_sdk_branch__, __cache__, __version__
 from openpaisdk import get_install_uri
 from openpaisdk.cli_arguments import get_args
-from openpaisdk.io_utils import from_file, to_file, get_defaults, browser_open
-from openpaisdk.utils import OrganizedList as ol
-from openpaisdk.cluster import ClusterList
+from openpaisdk.io_utils import from_file, to_file, get_defaults, to_screen, safe_open, browser_open
+from openpaisdk.utils import find, na, get_response, NotReadyError, Retry
+from openpaisdk.cluster import get_cluster
 
 __protocol_filename__ = "job_protocol.yaml"
 __config_filename__ = "job_config.json"
@@ -52,11 +56,30 @@ class Deployment:
 
 
 class Job:
+    """
+    the data structure and methods to describe a job compatible with https://github.com/microsoft/pai/blob/master/docs/pai-job-protocol.yaml
+    external methods:
+    - I/O
+        - save(...) / load(...): store and restore to the disk
+    - Job protocol wizard
+        - sdk_job_template(...): generate a job template with the sdk (embedding cluster / storage information)
+        - one_liner(...): generate a single-taskrole job protocol from commands and other essential information
+        - from_notebook(...): generate a job protocol from a jupyter notebook
+    - Interaction with clusters
+        - submit(...): submit to a cluster, including archiving and uploading local source files
+        - wait(...): wait a job until completed
+        - log(...):
+    - Parse logs
+        - connect_jupyter(...): wait job running and connected to jupyter server
+    """
 
     def __init__(self, name: str=None, **kwargs):
-        self.protocol = dict() # follow the schema of https://github.com/microsoft/pai/blob/master/docs/pai-job-protocol.yaml
-        if name:
-            self.new(name, **kwargs)
+        self.protocol = dict()  # follow the schema of https://github.com/microsoft/pai/blob/master/docs/pai-job-protocol.yaml
+        self.default_resouces = {
+            "ports": {}, "gpu": 0, "cpu": 4, "memoryMB": 8192,
+        }
+        self._client = None  # cluster client
+        self.new(name, **kwargs)
 
     def new(self, name: str, **kwargs):
         self.protocol = {
@@ -74,21 +97,21 @@ class Job:
         self.protocol.update(kwargs)
         return self
 
-    def load(self, fname: str=None, job_name: str=None):
-        if not fname:
-            fname = Job.job_cache_file(job_name)
-        if os.path.isfile(fname):
-            self.protocol = from_file(fname, default="==FATAL==")
-        self.protocol.setdefault('protocolVersion', '1') # v1 protocol (json) has no protocolVersion
+    def load(self, fname: str = None, job_name: str = None, cluster_alias: str = None):
+        if cluster_alias:  # load job config from cluster by REST api
+            job_name = na(job_name, self.name)
+            self.protocol = get_cluster(cluster_alias).rest_api_job_info(job_name, 'config')
+        else:  # load from local file
+            if not fname:
+                fname = Job(job_name).protocol_file
+            if os.path.isfile(fname):
+                self.protocol = from_file(fname, default="==FATAL==")
+        self.protocol.setdefault('protocolVersion', '1')  # v1 protocol (json) has no protocolVersion
         return self
 
     def save(self):
         if self.name:
-            to_file(self.protocol, Job.job_cache_file(self.name))
-        return self
-
-    def add_taskrole(self, name: str, t_cfg: dict):
-        self.protocol["taskRoles"].setdefault(name, {}).update(t_cfg)
+            to_file(self.protocol, self.protocol_file)
         return self
 
     def validate(self):
@@ -112,16 +135,71 @@ class Job:
     def name(self):
         return self.protocol.get("name" if self.protocolVersion == "2" else "jobName", None)
 
-    @staticmethod
-    def job_cache_file(job_name: str, fname: str=__protocol_filename__):
-        return os.path.join(__jobs_cache__, job_name, fname)
+    @property
+    def cache_dir(self):
+        assert self.name, "cannot get cache directory for an empty job name"
+        return os.path.join(__jobs_cache__, self.name)
+
+    def cache_file(self, fname):
+        return os.path.join(self.cache_dir, fname)
+
+    @property
+    def protocol_file(self):
+        return self.cache_file(__protocol_filename__)
+
+    @property
+    def temp_archive(self):
+        return self.cache_file(self.name + ".tar.gz")
 
     @staticmethod
     def get_config_file(job_name: str, v2: bool=True):
-        return Job.job_cache_file(job_name, __protocol_filename__ if v2 else __config_filename__)
+        return Job(job_name).cache_file(__protocol_filename__ if v2 else __config_filename__)
+
+    def param(self, key, default=None, field: str="parameters"):
+        return self.protocol.get(field, {}).get(key, default)
+
+    def set_param(self, key, value, field: str="parameters"):
+        self.protocol.setdefault(field, {})[key] = value
+
+    def secret(self, key, default=None):
+        return self.param(key, default, "secrets")
+
+    def set_secret(self, key, value):
+        self.set_param(key, value, "secrets")
+
+    def extra(self, key, default=None):
+        return self.param(key, default, "extras")
+
+    def set_extra(self, key, value):
+        self.set_param(key, value, "extras")
+
+    def tags(self):
+        return self.param("tags", [], "extras")
+
+    def add_tag(self, tag: str):
+        lst = self.tags()
+        if tag not in lst:
+            lst.append(tag)
+        self.set_param("tags", lst, "extras")
+        return self
+
+    def has_tag(self, tag: str):
+        return tag in self.tags()
 
     def get_config(self):
         if self.protocolVersion == "2":
+            self.interpret_sdk_plugin()
+            for d in self.protocol.get("deployments", []):
+                r = d["taskRoles"]
+                t_lst = list(r.keys())
+                for t in t_lst:
+                    for k in ["preCommands", "postCommands"]:  # pre- / post-
+                        if k not in r[t]:
+                            continue
+                        if len(r[t][k]) == 0:
+                            del r[t][k]
+                    if len(r[t]) == 0:
+                        del r[t]
             for key in ["deployments", "parameters"]:
                 if key in self.protocol and len(self.protocol[key]) == 0:
                     del self.protocol[key]
@@ -134,140 +212,339 @@ class Job:
             del dic["protocolVersion"]
             return dic
 
-    def default_resouces(self):
-        return {
-            "ports": {}, "gpu": 0, "cpu": 4, "memoryMB": 8192,
-        }
+    def sdk_job_template(self, cluster_alias_lst: str=[], workspace: str=None, sources: list=None, pip_installs: list=None):
+        "generate the job template for a sdk-submitted job"
+        # secrets
+        clusters = [get_cluster(alias, get_client=False) for alias in cluster_alias_lst]
+        self.set_secret("clusters", json.dumps(clusters))
+        self.set_param("cluster_alias", cluster_alias_lst[0] if cluster_alias_lst else None)
+        self.set_param("work_directory", '{}/jobs/{}'.format(workspace, self.name) if workspace else None)
 
-    # methods only for SDK-enabled jobs
-    def submit(self, cluster_alias: str):
-        __logger__.info("submit job %s to cluster %s", self.name, cluster_alias)
-        self.validate()
-        client = ClusterList().load().get_client(cluster_alias)
-        # upload
-        for f in self.protocol.get("extras", {}).get("__sources__", []):
-            if not f:
-                continue
-            local_path, remote_path = f, '{}/source/{}'.format(self.protocol["secrets"]["work_directory"], f)
-            client.get_storage().upload(local_path=local_path, remote_path=remote_path, overwrite=True)
-        client.rest_api_submit(self.get_config())
-        job_link = client.get_job_link(self.name)
-        browser_open(job_link)
-        return job_link
+        # parameters
+        self.set_param("python_path", "python")
 
-    def wait(self, cluster_alias: str, **kwargs):
-        client = ClusterList().load().get_client(cluster_alias)
-        return client.wait([self.name], **kwargs)
+        # signature
+        self.add_tag(__internal_tags__["sdk"])
 
-    def deployment_for_sdk(self, cluster_alias_lst: str, workspace: str=None, sources: list=[], python: str="python", pip_installs: list=[], name: str="sdk_install", taskRoles: list=["main"]):
-        assert isinstance(sources, list) and isinstance(pip_installs, list), "sources and pip_installs must be list %s, %s" % (sources, pip_installs)
-        # embed clusters and other info to secrets
-        clusters = [c for c in ClusterList().load().clusters if c["cluster_alias"] in cluster_alias_lst]
-        version = get_defaults().get("sdk-branch", __sdk_branch__)
-        self.protocol["secrets"]["clusters"] = json.dumps(clusters)
-        self.protocol["secrets"]["cluster_alias"] = cluster_alias_lst[0]
-        if sources:
-            assert workspace, "must specify a workspace to transfer sources"
-            self.protocol["extras"]["__sources__"] = sources
-        if workspace:
-            self.protocol["secrets"].setdefault("work_directory", '{}/jobs/{}'.format(workspace, self.name))
-        # installing sdk and other packages
-        cmds = []
-        pip_installs += [get_install_uri(version)]
-        cmds += ["{} -m pip install {}".format(python, p) for p in pip_installs]
-        # restore clusters
+        # sdk.plugins
+        sdk_install_uri = "-U {}".format(get_install_uri(get_defaults().get("container-sdk-branch", __container_sdk_branch__)))
         c_dir = '~/{}'.format(__cache__)
         c_file = '%s/%s' % (c_dir, os.path.basename(__cluster_config_file__))
-        cmds.extend([
-            "mkdir %s" % c_dir,
-            "echo \"write config to {}\"".format(c_file),
-            "echo <% $secrets.clusters %> > {}".format(c_file),
-            "opai cluster select <% $secrets.cluster_alias %>",
+
+        plugins = []
+        if sources:
+            plugins.append({
+                "plugin": "local.uploadFiles",
+                "parameters": {
+                    "files": sources,
+                },
+            })
+
+        plugins.extend([
+            {
+                "plugin": "container.preCommands",  # commands to install essential pip packages
+                "parameters": {
+                    "commands": [
+                        "<% $parameters.python_path %> -m pip install {}".format(p) for p in [sdk_install_uri] + na(pip_installs, [])
+                    ]
+                }
+            },
+            {
+                "plugin": "container.preCommands",  # copy cluster information
+                "parameters": {
+                    "commands": [
+                        "mkdir %s" % c_dir,
+                        "echo \"write config to {}\"".format(c_file),
+                        "echo <% $secrets.clusters %> > {}".format(c_file),
+                        "opai cluster select <% $parameters.cluster_alias %>",
+                    ]
+                }
+            }
         ])
-        # download files
-        cmds += ["opai storage download <% $secrets.work_directory %>/source/{} {}".format(f, f) for f in sources]
-        self.new_deployment(name, pre_commands=cmds, taskRoles=taskRoles)
 
-    def one_liner(self, commands: Union[list, str], image: str, cluster: dict, resources: dict=None, submit: bool=True, **kwargs):
-        self.protocol["prerequisites"].append(Job.new_unit("docker_image", "dockerimage", uri=image))
-        self.add_taskrole("main", {
-            "dockerImage": "docker_image",
-            "resourcePerInstance": resources if resources else self.default_resouces(),
-            "commands": commands if isinstance(commands, list) else [commands]
-        })
-        if submit:
-            return self.submit(cluster["cluster_alias"])
-        else:
-            return self.validate().get_config()
-
-    def from_notebook(self, nb_file: str, image: str, cluster: dict, resources: dict=None, submit: bool=True, interactive_mode: bool=True, token: str="abcd", **kwargs):
-        if not nb_file:
-            interactive_mode, nb_file = True, ""
-        html_file = os.path.splitext(nb_file)[0] + ".html" if not interactive_mode else ""
-        if interactive_mode:
-            resources.setdefault("ports", {})["jupyter"] = 1
-            cmds = [
-                "jupyter notebook --no-browser --ip 0.0.0.0 --port $PAI_CONTAINER_HOST_jupyter_PORT_LIST  --NotebookApp.token={} --allow-root --NotebookApp.file_to_run={}".format(token, nb_file),
-            ]
-        else:
-            cmds = [
-                'jupyter nbconvert --ExecutePreprocessor.timeout=-1 --ExecutePreprocessor.allow_errors=True --to html --execute %s' % nb_file,
-                'opai storage upload {} <% $secrets.work_directory %>/output/{}'.format(html_file, html_file),
-            ]
-
-        job_info = self.one_liner(
-            commands = cmds,
-            image=image,
-            resources = resources,
-            cluster = cluster,
-            submit = submit,
-            **kwargs
-        )
-        if not submit:
-            return job_info
-        # post processing after Submitting
-        client = ClusterList().load().get_client(cluster["cluster_alias"])
-        print("waiting job to be started")
-        if interactive_mode:
-            # wait and get ip
-            state = client.wait([self.name], exit_states=["SUCCEEDED", "FAILED", "RUNNING"])[0]
-            assert state == "RUNNING", "why not running {}".format(state)
-            while True:
-                try:
-                    status = client.jobs(self.name)["taskRoles"]["main"]["taskStatuses"][0]
-                    browser_open("http://%s:%s/notebooks/%s" % (status["containerIp"], status["containerPorts"]["jupyter"], nb_file))
-                    break
-                except:
-                    time.sleep(10)
-        else:
-            state = client.wait([self.name])[0]
-            if state != "SUCCEEDED":
-                __logger__.warn("job %s failed", self.name)
-                return
-            local_path = Job.job_cache_file(self.name, os.path.join('output', html_file))
-            remote_path = '{}/output/{}'.format(self.protocol["secrets"]["work_directory"], html_file)
-            client.get_storage().download(remote_path=remote_path, local_path=local_path)
-            browser_open(local_path)
-
-    def new_deployment(self, name: str, pre_commands: list=None, post_commands: list=None, as_default: bool=True, taskRoles: list=None):
-        deployment = {
-            "name": name,
-            "taskRoles": {}
-        }
-        if not taskRoles:
-            taskRoles = list(self.protocol["taskRoles"].keys())
-        for t in taskRoles:
-            dic = {}
-            if pre_commands:
-                dic["preCommands"] = pre_commands
-            if post_commands:
-                dic["postCommands"] = post_commands
-            deployment["taskRoles"][t] = dic
-        self.protocol["deployments"].append(deployment)
-        if as_default:
-            self.protocol["defaults"]["deployment"] = name
+        if sources:
+            a_file = os.path.basename(self.temp_archive)
+            plugins.append({
+                "plugin": "container.preCommands",
+                "parameters": {
+                    "commands": [
+                        "opai storage download <% $parameters.work_directory %>/source/{} {}".format(a_file, a_file),
+                        "tar xvfz {}".format(a_file)
+                    ]
+                }
+            })
+        self.set_extra("sdk.plugins", plugins)
         return self
 
-    @staticmethod
-    def new_unit(name: str, type: str, protocolVersion: int=2, **kwargs):
-        return get_args()
+    def one_liner(self,
+                  commands: Union[list, str], image: str, cluster: dict, resources: dict=None,
+                  sources: list = None, pip_installs: list = None
+                  ):
+        """generate the single-task-role job protocol from essentials such as commands, docker image...
+        :param cluster (dict): a dictionary includes {cluster_alias, virtual_cluster, workspace}
+        """
+        self.sdk_job_template([cluster["cluster_alias"]], cluster.get("workspace", None), sources, pip_installs)
+        self.protocol["prerequisites"].append({
+            "name": "docker_image",
+            "type": "dockerimage",
+            "protocolVersion": "2",
+            "uri": image,
+        })
+        self.protocol.setdefault("taskRoles", {})["main"] = {
+            "dockerImage": "docker_image",
+            "resourcePerInstance": resources if resources else self.default_resouces,
+            "commands": commands if isinstance(commands, list) else [commands]
+        }
+        self.add_tag(__internal_tags__["one_liner"])
+        return self
+
+    def from_notebook(self,
+                      nb_file: str, mode: str="interactive", token: str="abcd",
+                      image: str=None, cluster: dict=None, resources: dict=None,
+                      sources: list = None, pip_installs: list = None
+                      ):
+        """
+        mode: interactive / silent / script
+        """
+        assert mode in ["interactive", "silent", "script"], "unsupported mode %s" % mode
+        if not nb_file:
+            mode, nb_file = "interactive", ""
+        else:
+            assert os.path.isfile(nb_file), "cannot read the ipython notebook {}".format(nb_file)
+            sources = na(sources, [])
+            sources.append(nb_file)
+        self.set_param("notebook_file", os.path.splitext(os.path.basename(nb_file))[0] if nb_file else "")
+        if mode == "interactive":
+            resources.setdefault("ports", {})["jupyter"] = 1
+            self.set_secret("token", token)
+            cmds = [
+                " ".join([
+                    "jupyter notebook",
+                    "--no-browser", "--ip 0.0.0.0", "--port $PAI_CONTAINER_HOST_jupyter_PORT_LIST",
+                    "--NotebookApp.token=<% $secrets.token %>",
+                    "--allow-root --NotebookApp.file_to_run=<% $parameters.notebook_file %>.ipynb",
+                ]),
+            ]
+        elif mode == "silent":
+            cmds = [
+                " ".join([
+                    "jupyter nbconvert --ExecutePreprocessor.timeout=-1 --ExecutePreprocessor.allow_errors=True",
+                    "--to html --execute <% $parameters.notebook_file %>.ipynb",
+                ]),
+                "opai storage upload <% $parameters.notebook_file %>.html <% $parameters.work_directory %>/output/<% $parameters.notebook_file %>.html",
+            ]
+        else:
+            cmds = [
+                "jupyter nbconvert --to script <% $parameters.notebook_file %>.ipynb --output openpai_submitter_entry",
+                "echo ======================== Python Script Starts ========================",
+                # execute notebook by iPython. To remove color information, we use "--no-term-title" and sed below
+                """ipython --no-term-title openpai_submitter_entry.py | sed -r "s/\\x1B\\[([0-9]{1,2}(;[0-9]{1,2})?)?[mGK]//g" | tr -dc '[[:print:]]\\n'""",
+            ]
+        self.one_liner(cmds, image, cluster, resources, sources, na(pip_installs, []) + ["jupyter"])
+        mode_to_tag = {"interactive": "interactive_nb", "silent": "batch_nb", "script": "script_nb"}
+        self.add_tag(__internal_tags__[mode_to_tag[mode]])
+        return self
+
+    def interpret_sdk_plugin(self):
+        plugins = self.extra("sdk.plugins", [])
+        # concatenate commands
+        if len(self.protocol.setdefault("deployments", [])) == 0:  # will move to plugin fields when it is ready
+            # we could use a new deployments for every pre- / post- commands plugin
+            deployment_name, task_role_names = "sdk_deployment", list(self.protocol["taskRoles"])
+            deployment = {key: dict(preCommands=[], postCommands=[]) for key in task_role_names}
+            plugins_to_remove = []
+            for i, plugin in enumerate(plugins):
+                target = find("container.(\w+)", plugin["plugin"])
+                if target not in ["preCommands", "postCommands"]:
+                    continue
+                for t in plugin.get("taskRoles", task_role_names):
+                    deployment[t][target].extend(plugin["parameters"]["commands"])
+                plugins_to_remove.append(i)
+            if plugins_to_remove:
+                self.protocol["deployments"].append({
+                    "name": deployment_name,
+                    "taskRoles": deployment,
+                })
+                self.protocol.setdefault("defaults", {})["deployment"] = deployment_name
+                for i in reversed(plugins_to_remove):
+                    del plugins[i]
+        return self
+
+    @property
+    def client(self):
+        if self._client is None:
+            alias = self.param("cluster_alias")
+            if alias:
+                self._client = get_cluster(alias)
+        return self._client
+
+    def select_cluster(self, cluster_alias: str=None, virtual_cluster: str=None):
+        self._client = get_cluster(cluster_alias)
+        if virtual_cluster:
+            if self.protocolVersion == "1":
+                self.protocol["virtualCluster"] = virtual_cluster
+            else:
+                self.set_param("virtualCluster", virtual_cluster, field="defaults")
+        return self
+
+    # methods only for SDK-enabled jobs
+    def submit(self, cluster_alias: str = None, virtual_cluster: str = None):
+        cluster_alias = na(cluster_alias, self.param("cluster_alias", None))
+        self.select_cluster(cluster_alias, virtual_cluster)
+        self.validate().local_process()
+        to_screen("submit job %s to cluster %s" % (self.name, cluster_alias))
+        self.client.rest_api_submit(self.get_config())
+        job_link = self.client.get_job_link(self.name)
+        return {"job_link": job_link, "job_name": self.name}
+
+    def stop(self):
+        return self.client.rest_api_execute_job(self.name)
+
+    def status(self):
+        return self.client.rest_api_job_info(self.name)
+
+    def state(self, status: dict = None):
+        status = na(status, self.status())
+        return status.get("jobStatus", {}).get("state", None)
+
+    def wait(self, t_sleep: float = 10, timeout: float = 3600, silent: bool = False):
+        """for jupyter job, wait until ready to connect
+        for normal job, wait until completed"""
+        exit_states = __job_states__["completed"]
+        repeater = Retry(timeout=timeout, t_sleep=t_sleep, silent=silent)
+        interactive_nb = self.has_tag(__internal_tags__["interactive_nb"])
+        batch_nb = self.has_tag(__internal_tags__["batch_nb"])
+        if interactive_nb or batch_nb:
+            if interactive_nb:
+                to_screen("{} is recognized to be an interactive jupyter notebook job".format(self.name))
+                to_screen("notebook job needs to be RUNNING state and the kernel started")
+            if batch_nb:
+                to_screen("{} is recognized to be a silent jupyter notebook job".format(self.name))
+                to_screen("notebook job needs to be SUCCEEDED state and the output is ready")
+            return repeater.retry(
+                lambda x: x.get('state', None) in exit_states or x.get("notebook", None) is not None,
+                self.connect_jupyter
+            )
+        to_screen("wait until job to be completed ({})".format(exit_states))
+        return repeater.retry(
+            lambda x: x in exit_states,
+            self.state
+        )
+
+    def get_logs_url(self, status: dict=None, task_role: str = 'main', index: int = 0, logs: dict=None):
+        """change to use containerLog"""
+        logs = na(logs, {
+            "stdout": "user.pai.stdout", "stderr": "user.pai.stderr"
+        })
+        status = na(status, self.status())
+        containers = status.get("taskRoles", {}).get(task_role, {}).get("taskStatuses", [])
+        if len(containers) < index + 1:
+            return None
+        containerLog = containers[index].get("containerLog", None)
+        if not containerLog:
+            return None
+        return {
+            k: "{}{}".format(containerLog, v)
+            for k, v in logs.items()
+        }
+
+    def logs(self, status: dict = None, task_role: str = 'main', index: int = 0, logs: dict = None):
+        status = na(status, self.status())
+        urls = self.get_logs_url(status, task_role, index, logs)
+        if not urls:
+            return None
+        return {
+            k: html2text(get_response(v, method='GET').text) for k, v in urls.items()
+        }
+
+    def plugin_uploadFiles(self, plugin: dict):
+        import tarfile
+        to_screen("archiving and uploading ...")
+        work_directory = self.param("work_directory")
+        assert work_directory, "must specify a storage to upload"
+        with safe_open(self.temp_archive, "w:gz", func=tarfile.open) as fn:
+            for src in plugin["parameters"]["files"]:
+                src = os.path.relpath(src)
+                if os.path.dirname(src) != "":
+                    __logger__.warn("files not in current folder may cause wrong location in the container, please check it {}".format(src))
+                fn.add(src)
+                to_screen("{} archived and wait to be uploaded".format(src))
+        self.client.get_storage().upload(
+            local_path=self.temp_archive,
+            remote_path="{}/source/{}".format(work_directory, os.path.basename(self.temp_archive)),
+            overwrite=True
+        )
+
+    def local_process(self):
+        "pre-process the job protocol locally, including uploading files, deal with pre-/post- commands"
+        self.validate()
+        plugins = self.protocol.get("extras", {}).get("sdk.plugins", [])
+        for plugin in plugins:
+            s = find("local.(\w+)", plugin["plugin"])
+            if not s:
+                continue
+            getattr(self, "plugin_" + s)(plugin)
+        return self
+
+    def connect_jupyter(self):
+        if self.has_tag(__internal_tags__["script_nb"]):
+            return self.connect_jupyter_script()
+        if self.has_tag(__internal_tags__["batch_nb"]):
+            return self.connect_jupyter_batch()
+        if self.has_tag(__internal_tags__["interactive_nb"]):
+            return self.connect_jupyter_interactive()
+
+    def connect_jupyter_batch(self, status: dict = None):
+        "fetch the html result if ready"
+        status = na(status, self.status())
+        state = self.state(status)
+        url = None
+        if state in __job_states__["successful"]:
+            html_file = self.param("notebook_file") + ".html"
+            local_path = html_file
+            remote_path = '{}/output/{}'.format(self.param("work_directory"), html_file)
+            self.client.get_storage().download(remote_path=remote_path, local_path=local_path)
+            url = pathlib.Path(os.path.abspath(html_file)).as_uri()
+        return dict(state=state, notebook=url)
+
+    def connect_jupyter_interactive(self, status: dict=None):
+        "get the url of notebook if ready"
+        status = na(status, self.status())
+        state = self.state(status)
+        url = None
+        if state == "RUNNING":
+            log_url = self.get_logs_url(status)["stderr"]
+            job_log = html2text(get_response(log_url, method='GET').text).split('\n')
+            for line in job_log:
+                if re.search("The Jupyter Notebook is running at:", line):
+                    container = status["taskRoles"]["main"]["taskStatuses"][0]
+                    url = "http://{}:{}/notebooks/{}".format(
+                        container["containerIp"],
+                        container["containerPorts"]["jupyter"],
+                        self.param("notebook_file") + ".ipynb",
+                    )
+                    break
+        return dict(state=state, notebook=url)
+
+    def connect_jupyter_script(self):
+        status = self.status()
+        state = self.state(status)
+        return dict(state=state, notebook=None)
+
+__internal_tags__ = {
+    "sdk": "py-sdk",
+    "one_liner": 'py-sdk-one-liner',
+    "interactive_nb": 'py-sdk-notebook-interactive',
+    "batch_nb": 'py-sdk-notebook-batch',
+    "script_nb": 'py-sdk-notebook-script',
+}
+
+
+__job_states__ = {
+    "successful": ["SUCCEEDED"],
+    "failed": ["FAILED", "STOPPED"],
+    "ongoing": ["WAITING", "RUNNING", "COMPLETING"],
+}
+__job_states__["completed"] = __job_states__["successful"] + __job_states__["failed"]
+__job_states__["ready"] = __job_states__["completed"] + ["RUNNING"]
+__job_states__["valid"] = [s for sub in __job_states__.values() for s in sub]

@@ -25,11 +25,10 @@
 
 import React from 'react';
 import {Stack} from 'office-ui-fabric-react';
-import {getFormPageSytle, getFormShortSectionStyle} from './form-style';
+import {getFormPageSytle} from './form-style';
 import PropTypes from 'prop-types';
 
 const {formPageStyle} = getFormPageSytle();
-const formShortSectionStyle = getFormShortSectionStyle();
 
 export const FormPage = (props) => {
   return (
@@ -49,7 +48,7 @@ export const FormSection = (props) => {
 
 export const FormShortSection = (props) => {
   return (
-    <Stack {...props} styles={formShortSectionStyle}>
+    <Stack {...props} styles={{root: {width: '80%'}}}>
       {props.children}
     </Stack>
   );

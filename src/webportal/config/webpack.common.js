@@ -29,6 +29,7 @@ const helpers = require('./helpers');
 
 const title = 'Platform for AI';
 const version = require('../package.json').version;
+const commitVersion = require('../package.json').commitVersion;
 const FABRIC_DIR = [
   path.resolve(__dirname, '../src/app/job/job-view/fabric'),
   path.resolve(__dirname, '../src/app/home'),
@@ -40,6 +41,7 @@ function generateHtml(opt) {
   return new HtmlWebpackPlugin(Object.assign({
     title: title,
     version: version,
+    commitVersion: commitVersion,
     template: './src/app/layout/layout.component.ejs',
     minify: {
       collapseWhitespace: true,
@@ -75,6 +77,7 @@ const config = (env, argv) => ({
   output: {
     path: helpers.root('dist'),
     filename: 'scripts/[name].bundle.js',
+    jsonpFunction: 'webportalWebpackJsonp',
   },
   resolve: {
     extensions: ['.js', '.jsx', '.json'],
