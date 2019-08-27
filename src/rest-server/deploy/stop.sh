@@ -39,6 +39,10 @@ if kubectl get ClusterRoleBinding | grep "rest-server-openpai"; then
     kubectl delete ClusterRoleBinding rest-server-openpai || exit $?
 fi
 
+if kubectl get ClusterRoleBinding | grep "rest-server-openpai-edit"; then
+    kubectl delete ClusterRoleBinding rest-server-openpai-edit || exit $?
+fi
+
 if kubectl get ClusterRole | grep "rest-server-openpai"; then
     kubectl delete ClusterRole rest-server-openpai || exit $?
 fi
