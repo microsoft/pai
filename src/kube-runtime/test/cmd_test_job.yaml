@@ -116,29 +116,6 @@ taskRoles:
         --train_dir=$PAI_WORK_DIR/output_<% $output.name %>
         --model=<% $parameters.model %>
         --batch_size=<% $parameters.batchsize %>
-deployments:
-  - name: prod # This implementation will download the data to local disk, and the computed model will be output to local disk first and then being copied to hdfs.
-    version: 1.0
-    taskRoles:
-      worker:
-        preCommands:
-          - wget <% $data.uri[0] %> -P data_<% $data.name %> # If local data cache deployed, one can copy data from local cache, only wget in case of cache miss.
-          - >
-            git clone https://<% $script.contributor %>:<% $secrets.github_token %>@<% $script.uri %> script_<% $script.name %> &&
-            cd script_<% $script.name %> && git checkout <% $script.version %> && cd ..
-            # Then the system will go ahead to execute worker's command.
-      ps_server:
-        preCommands:
-          - wget <% $data.uri[0] %> -P data_<% $data.name %>
-          - >
-            git clone https://<% $script.contributor %>:<% $secrets.github_token %>@<% $script.uri %> script_<% $script.name %> &&
-            cd script_<% $script.name %> && git checkout <% $script.version %> && cd ..
-            # Then the system will go ahead to execute ps_server's command.
-        postCommands:
-          # After the execution of ps_server's command, the system goes here.
-          - hdfs dfs -cp output_<% $output.name %> <% $output.uri %>
-          # Assume the model is output locally, and this command copies the local output to hdfs. One can output to hdfs directly.
-          # In this case, you will have to change "--train_dir=$PAI_WORK_DIR/output_<% $output.name %>".
 
 defaults:
   deployment: prod # Use prod deployment in job submission.

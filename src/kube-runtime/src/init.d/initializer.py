@@ -76,6 +76,8 @@ def init_plugins(jobconfig, commands, plugins_path, runtime_path, taskrole):
         plugins_path: The base path for all plugins.
         output_path: The output path of plugin generated scripts.
     """
+    if "extras" not in jobconfig or "com.microsoft.pai.runtimeplugin" not in jobconfig["extras"]:
+        return
 
     for index in range(len(jobconfig["extras"]["com.microsoft.pai.runtimeplugin"])):
         plugin = jobconfig["extras"]["com.microsoft.pai.runtimeplugin"][index]
