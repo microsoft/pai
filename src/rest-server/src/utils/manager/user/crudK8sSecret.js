@@ -17,7 +17,6 @@
 
 const User = require('./user');
 const axios = require('axios');
-const {readFileSync} = require('fs');
 const {Agent} = require('https');
 const logger = require('@pai/config/logger');
 
