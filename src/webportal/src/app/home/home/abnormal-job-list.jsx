@@ -176,7 +176,8 @@ const AbnormalJobList = ({jobs}) => {
     userAuth.checkToken(() => {
       stopJob(job).then(() => {
         const cloneJobs = cloneDeep(abnormalJobs);
-        cloneJobs.executionType = 'STOP';
+        const stopJob = cloneJobs.find((cloneJob) => cloneJob.name === job.name);
+        stopJob.executionType = 'STOP';
         setAbnormalJobs(cloneJobs);
       }).catch(alert);
     });
