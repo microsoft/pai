@@ -2,9 +2,13 @@
 
 ## 1. Overview
 
-Remote Development can allow users to develop locally with PAI's resources and improve users’ development experience.
+`Remote Development` can allow users to develop locally with PAI's resources and improve users’ development experience.
 
-The main process is to ask PAI for a container with resources and use local editors or IDEs to develop and debug in this container using ssh.
+The main process of `Remote Development`:
+- Ask PAI for a container with resources using `start.py`
+- Get SSH info
+- Configure local editors or IDEs
+- Develop and debug in this container like local
 
 Support IDEs or editors:
 - CLI
@@ -33,10 +37,7 @@ remote-dev/
 
 - This subproject depends on [PAI's Python SDK](https://github.com/microsoft/pai/tree/master/contrib/python-sdk), please install and test the SDK first.
 
-- The `start.py` script requires python3, and we only tested it on `py3.5+` environment and required the following modules:
-    - requests
-    - configparser
-    - subprocess
+- The `start.py` script requires python3, and we only tested it on `py3.5+` environment.
 
 ## 3. Usage
 
@@ -51,6 +52,14 @@ First, please configure the vars in `.env.template` and rename it to `.env`.
 username=                        # PAI cluster user name
 password=                        # PAI cluster password
 serverip=                        # PAI cluster ip
+```
+
+For example:
+```
+[PAI_ENV]
+username=paiusr
+password=paipwd
+serverip=10.0.0.1
 ```
 
 After configuration, you should edit the job template file named `./conf/job.template`.
@@ -83,7 +92,7 @@ taskRoles:
       - apt-get install -y nfs-common cifs-utils sshpass wget
       - umask 000
       - mkdir -p /root/workspace
-      - mount.cifs //sharepath /root/workspace -o username=***,password=***
+      - '`Mount Commands Here`'
       - sleep 18000
       - '`#REMOTE_DEV_END`'
     taskRetryCount: 0
@@ -94,6 +103,15 @@ defaults:
 Users should edit the resources in `resourcePerInstance`, and can also change the docker image in `resourcePerInstance`. Please make sure your customized docker image has openssh-server. Users can also change `commands` if they want to mount storage or install dependencies in the container.
 
 We suppose that your training data is stored in a storage server and managed by PAI's [Team Wise Storage](https://github.com/microsoft/pai/tree/master/contrib/storage_plugin). You should change `commands` to mount your data server.
+
+You can use the following commands to mount external storage.
+
+```sh
+# mount NFS
+mount -t <nfsversion> <hostip>:<sharepath> <mountpoint>
+# mount SMB
+mount -t cifs //<hostip>/<sharename> <mountpoint> -o vers=<smbversion>,username=<username>,password=<password>,domain=<domain>
+```
 
 The life cycle of this container is 18000s (5 hours). Considering that this container is for development and debugging, it is not recommended to run for a long time. If you have a specific usage, you can change `sleep 18000` to `sleep infinity` and **don't forget to manually stop this job**.
 
@@ -120,7 +138,7 @@ For CLI usage, just ssh into your container and you can do anything you want. Yo
 
 #### 3.3.2 PyCharm Professional
 
-For PyCharm Professional usage, you can configure PyCharm `Deployment` and `Project Interpreter` according to the following animation.
+This can only work in PyCharm Professional, you can configure PyCharm `Deployment` and `Project Interpreter` according to the following animation.
 
 ![](./doc/pycharm.gif)
 
