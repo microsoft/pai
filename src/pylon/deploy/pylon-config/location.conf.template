@@ -271,6 +271,9 @@ location ~ ^(.*)$ {
   sub_filter
     '{{GRAFANA_URI}}'
     '/grafana';
+  sub_filter
+    '{{ALERT_MANGER_URI}}/alert-manager'
+    '/alert-manager'
 
   proxy_set_header    If-None-Match    $request_if_none_match;
   add_header          Etag             $response_etag;
