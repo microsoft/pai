@@ -1,0 +1,12 @@
+# [PAI_RUNTIME_ERROR_START]
+exitcode:
+reason:
+solution:
+trigger:
+originalUserExitCode:
+caughtException:
+matchedUserLogString:
+errorLogs:
+  user:
+  platform:
+# [PAI_RUNTIME_ERROR_END]
