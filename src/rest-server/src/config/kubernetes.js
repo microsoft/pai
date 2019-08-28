@@ -34,11 +34,11 @@ if (process.env.RBAC_IN_CLUSTER === 'false') {
   // Should be empty
   if (K8S_APISERVER_CA_FILE) {
     // Will be a buffer since SSL context can receive a buffer.
-    apiserverConfig.ca = readFileSync(K8S_APISERVER_CA_FILE);
+    apiserverConfig.ca = readFileSync(K8S_APISERVER_CA_FILE, 'utf8');
   }
   if (K8S_APISERVER_TOKEN_FILE) {
     // Will be a string since http header can only receive a string.
-    apiserverConfig.token = readFileSync(K8S_APISERVER_TOKEN_FILE, 'ascii');
+    apiserverConfig.token = readFileSync(K8S_APISERVER_TOKEN_FILE, 'utf8');
   }
 } else {
   const root = process.env.KUBERNETES_CLIENT_SERVICEACCOUNT_ROOT || '/var/run/secrets/kubernetes.io/serviceaccount/';
@@ -48,14 +48,13 @@ if (process.env.RBAC_IN_CLUSTER === 'false') {
   const tokenPath = K8S_APISERVER_TOKEN_FILE || path.join(root, 'token');
   const host = process.env.KUBERNETES_SERVICE_HOST;
   const port = process.env.KUBERNETES_SERVICE_PORT;
-
-  apiserverConfig.uri = K8S_APISERVER_URI ? K8S_APISERVER_URI : `https://${host}:${port}`;
+  apiserverConfig.uri = `https://${host}:${port}`;
 
   try {
     // Will be a buffer since SSL context can receive a buffer.
-    apiserverConfig.ca = readFileSync(caPath);
+    apiserverConfig.ca = readFileSync(caPath, 'utf8');
     // Will be a string since http header can only receive a string.
-    apiserverConfig.token = readFileSync(tokenPath, 'ascii');
+    apiserverConfig.token = readFileSync(tokenPath, 'utf8');
   } catch (error) {
     logger.error('failed to init rbac config. Please check your clusters\' config');
     throw error;

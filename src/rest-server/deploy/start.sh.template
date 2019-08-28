@@ -23,8 +23,10 @@ pushd $(dirname "$0") > /dev/null
 
 # Check whether has etcd-uri in cluster config if so need to transfer user-data
 {% if cluster_cfg['rest-server']['etcd-uris'] -%}
-python3 legacy_user_migrate.py -e {{ cluster_cfg['rest-server']['etcd-uris'] }} -k {{ cluster_cfg['layout']['kubernetes']['api-servers-url'] }} -a {{ cluster_cfg['authentication']['group-manager']['admin-group']['groupname'] }} || exit $?
+python3 legacy_user_migrate.py -e {{ cluster_cfg['rest-server']['etcd-uris'] }} -k {{ cluster_cfg['layout']['kubernetes']['api-servers-url'] }}  || exit $?
 {% endif -%}
+
+python3 user_v2_migrate.py  -a {{ cluster_cfg['authentication']['group-manager']['admin-group']['groupname'] }} || exit $?
 
 {% if cluster_cfg['cluster']['common']['k8s-rbac'] == 'true' %}
 kubectl apply --overwrite=true -f rbac.yaml || exit $?
