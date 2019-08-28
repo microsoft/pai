@@ -32,7 +32,7 @@ if (k8sConfig.apiserver.ca) {
   optionConfig.k8sAPIServerCaFile = k8sConfig.apiserver.ca;
 }
 if (k8sConfig.apiserver.token) {
-  optionConfig.k8sAPIServerTokenFile = k8sConfig.token;
+  optionConfig.k8sAPIServerTokenFile = k8sConfig.apiserver.token;
 }
 
 const crudConfig = crudGroup.initConfig(k8sConfig.apiserver.uri, optionConfig);
