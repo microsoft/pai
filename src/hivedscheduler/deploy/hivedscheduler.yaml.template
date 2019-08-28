@@ -1,0 +1,110 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: hivedscheduler-config
+  namespace: default
+data:
+  config.yaml: |
+    apiVersion: kubescheduler.config.k8s.io/v1alpha1
+    kind: KubeSchedulerConfiguration
+    schedulerName: hivedscheduler
+    algorithmSource:
+      policy:
+        configMap:
+          name: hivedscheduler-config
+          namespace: default
+    leaderElection:
+      leaderElect: true
+      lockObjectName: hivedscheduler
+      lockObjectNamespace: default
+  policy.cfg : |
+    {
+      "kind": "Policy",
+      "apiVersion": "v1",
+      "extenders": [
+        {
+          "urlPrefix": "http://localhost:9096/v1/extender",
+          "filterVerb": "filter",
+          "preemptVerb": "preempt",
+          "bindVerb": "bind",
+          "enableHttps": false,
+          "httpTimeout": 5000000000,
+          "nodeCacheCapable": true,
+          "ignorable": false,
+          "managedResources": [
+            {
+              "name": "hivedscheduler.microsoft.com/pod-scheduling-enable",
+              "ignoredByScheduler": true
+            }
+          ]
+        }
+      ]
+    }
+  hivedscheduler.yaml: |
+    kubeApiServerAddress: "{{ cluster_cfg['layout']['kubernetes']['api-servers-url'] }}"
+    {{ cluster_cfg['hivedscheduler']['config'] }}
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: hivedscheduler-account
+  namespace: default
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: hivedscheduler-role-binding
+  namespace: default
+subjects:
+  - kind: ServiceAccount
+    name: hivedscheduler-account
+    namespace: default
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: cluster-admin
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: hivedscheduler-sts
+  namespace: default
+spec:
+  serviceName: hivedscheduler
+  selector:
+    matchLabels:
+      app: hivedscheduler
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: hivedscheduler
+    spec:
+      serviceAccountName: hivedscheduler-account
+      containers:
+      - name: defaultscheduler
+        image: gcr.io/google_containers/kube-scheduler:v1.14.2
+        command: [
+          "/usr/local/bin/kube-scheduler",
+          "--master={{ cluster_cfg['layout']['kubernetes']['api-servers-url'] }}",
+          "--config=/hivedscheduler-config/config.yaml",
+          "-v=4"]
+        volumeMounts:
+        - name: hivedscheduler-config
+          mountPath: /hivedscheduler-config
+      - name: hivedscheduler
+        image: hivedscheduler/hivedscheduler
+        command: [
+          "bash", "-c",
+          "cp /hivedscheduler-config/hivedscheduler.yaml . &&
+          ./start.sh"]
+        env:
+          - name: KUBE_APISERVER_ADDRESS
+            value: "{{ cluster_cfg['layout']['kubernetes']['api-servers-url'] }}"
+        volumeMounts:
+          - name: hivedscheduler-config
+            mountPath: /hivedscheduler-config
+      volumes:
+      - name: hivedscheduler-config
+        configMap:
+          name: hivedscheduler-config
