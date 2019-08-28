@@ -209,19 +209,21 @@ export class TabForm extends React.Component {
             </Stack.Item>
           </Stack>
         }
-        <Stack styles={{root: {minHeight: 0, overflowY: 'auto'}}}>
-          <Card style={{padding: `${spacing.l2} ${spacing.l1} ${spacing.l1}`}}>
-            {!isNil(selectedIndex) && (
-              <TabFormContent
-                key={selectedIndex}
-                jobTaskRole={items[selectedIndex].content}
-                onContentChange={this._onContentChange.bind(this, selectedIndex)}
-                advanceFlag={advanceFlag}
-                isSingle={isSingle}
-              />
-            )}
-          </Card>
-        </Stack>
+        <Card style={{padding: 0, minHeight: 0}}>
+          <Stack padding='l2 l1 0' styles={{root: {height: '100%', overflowY: 'auto'}}}>
+            <div style={{paddingBottom: spacing.l1}}>
+              {!isNil(selectedIndex) && (
+                <TabFormContent
+                  key={selectedIndex}
+                  jobTaskRole={items[selectedIndex].content}
+                  onContentChange={this._onContentChange.bind(this, selectedIndex)}
+                  advanceFlag={advanceFlag}
+                  isSingle={isSingle}
+                />
+              )}
+            </div>
+          </Stack>
+        </Card>
       </Stack>
     );
   }

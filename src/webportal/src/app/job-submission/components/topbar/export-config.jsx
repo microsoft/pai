@@ -24,7 +24,7 @@
  */
 
 import React from 'react';
-import {DefaultButton, getTheme} from 'office-ui-fabric-react';
+import {DefaultButton, ColorClassNames} from 'office-ui-fabric-react';
 import {cloneDeep} from 'lodash';
 import PropTypes from 'prop-types';
 
@@ -33,8 +33,6 @@ import {
 } from '../../utils/utils';
 
 const user = cookies.get('user');
-
-const {palette} = getTheme();
 
 export const ExportConfig = React.memo(({jobData, jobProtocol}) => {
   const _exportFile = (data, filename, type) => {
@@ -73,7 +71,15 @@ export const ExportConfig = React.memo(({jobData, jobProtocol}) => {
   };
 
   return (
-    <DefaultButton styles={{root: {backgroundColor: palette.neutralTertiaryAlt}}} onClick={_exportYaml}>Export</DefaultButton>
+    <DefaultButton
+      styles={{
+        root: [ColorClassNames.neutralTertiaryAltBackground],
+        rootHovered: [ColorClassNames.neutralTertiaryBackground],
+      }}
+      onClick={_exportYaml}
+    >
+      Export
+    </DefaultButton>
   );
 });
 
