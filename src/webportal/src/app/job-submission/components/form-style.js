@@ -30,9 +30,6 @@ const {spacing, palette} = getTheme();
 
 export const getFormClassNames = () => {
   return mergeStyleSets({
-    formLayout: {
-      padding: spacing.l1,
-    },
     topForm: {
       padding: spacing.l1,
       background: palette.white,

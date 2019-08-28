@@ -32,7 +32,7 @@ import {ImportConfig} from './import-config';
 
 export const Topbar = React.memo(({jobData, jobProtocol, onChange, extras}) => {
   return (
-    <Stack styles={{root: {height: '5%'}}} horizontal horizontalAlign='space-between' padding='l1 l2 l1 l2'>
+    <Stack horizontal horizontalAlign='space-between' padding='0 m'>
       <Stack horizontal gap='m' verticalAlign='baseline'>
         <Text variant='xLarge' styles={{root: {fontWeight: 'semibold'}}}>
           Job submission
