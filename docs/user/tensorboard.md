@@ -2,7 +2,7 @@
 
 ## 1. Overview
 
-TensorBoard is a suite of web applications for inspecting and understanding your TensorFlow runs and graphs, which can
+TensorBoard is a suite of web applications for inspecting and understanding your TensorFlow runs and graphs, which can:
 
 - Tracking and visualizing metrics such as loss and accuracy;
 - Visualizing the model graph;
