@@ -4,7 +4,7 @@
 
 Remote Development can allow users to develop locally with PAI's resources and improve users’ development experience.
 
-Basicaly, the main process is to ask PAI for a container with resources, and use local editors or IDEs to develope and debug in this container using ssh.
+The main process is to ask PAI for a container with resources and use local editors or IDEs to develop and debug in this container using ssh.
 
 Support IDEs or editors:
 - CLI
@@ -16,7 +16,7 @@ Support OS:
 - Ubuntu 18.04
 - Windows 10
 
-***NOTICE: This is still an experiment solution and may be changed in future release.***
+***NOTICE: This is still an experiment solution and may be changed in a future release.***
 
 ## 2. Directory Structure
 
@@ -31,9 +31,9 @@ remote-dev/
 
 ## 3. Dependencies
 
-- This sub project depend on [PAI's Python SDK](https://github.com/microsoft/pai/tree/master/contrib/python-sdk), please install and test the sdk first.
+- This subproject depends on [PAI's Python SDK](https://github.com/microsoft/pai/tree/master/contrib/python-sdk), please install and test the SDK first.
 
-- The `start.py` script requires python3, and we only tested it on `py3.5+` environment, and ruquired following moduls:
+- The `start.py` script requires python3, and we only tested it on `py3.5+` environment and required the following modules:
     - requests
     - configparser
     - subprocess
@@ -91,17 +91,17 @@ defaults:
   virtualCluster: default
 ```
 
-Users should edit the resources in `resourcePerInstance`, and can also change docker image in `resourcePerInstance`. Please make sure your customized docker image has openssh-server. Users can also change `commands` if they want to mount storage or install dependencies in container.
+Users should edit the resources in `resourcePerInstance`, and can also change the docker image in `resourcePerInstance`. Please make sure your customized docker image has openssh-server. Users can also change `commands` if they want to mount storage or install dependencies in the container.
 
-We suppose that your training data is stored in storage server and managed by PAI's [Team Wise Storage](https://github.com/microsoft/pai/tree/master/contrib/storage_plugin). You should change `commands` to mount your data server.
+We suppose that your training data is stored in a storage server and managed by PAI's [Team Wise Storage](https://github.com/microsoft/pai/tree/master/contrib/storage_plugin). You should change `commands` to mount your data server.
 
 The life cycle of this container is 18000s (5 hours). Considering that this container is for development and debugging, it is not recommended to run for a long time. If you have a specific usage, you can change `sleep 18000` to `sleep infinity` and **don't forget to manually stop this job**.
 
-For more details about job template, please refer to [PAI Job Protocol](https://github.com/microsoft/pai/blob/master/docs/pai-job-protocol.yaml).
+For more details about the job template, please refer to [PAI Job Protocol](https://github.com/microsoft/pai/blob/master/docs/pai-job-protocol.yaml).
 
 ### 3.2 Ask PAI for Resources
 
-After preparation, you can run `start.py` to ask pai for a container with resources.
+After preparation, you can run `start.py` to ask PAI for a container with resources.
 
 ```sh
 python3 start.py
@@ -136,7 +136,7 @@ For more details, please refer to [VS code Remote Development](https://www.jetbr
 
 ## 4. Advance
 
-You can also deploy a NFS/SMB server on your own host, and mount it in PAI's container by changing the `commands` of job template.
+You can also deploy an NFS/SMB server on your host, and mount it in PAI's container by changing the `commands` of the job template.
 
 In ubuntu, you can run a container with NFS4 server, and use `mount -t nfs4 <hostip>:<sharepath> <mountpoint>` to mount. And in windows, you can use built-in SMB, and use `mount -t cifs //<hostip>/<sharename> <mountpoint> -o vers=3.0,username=<username>,password=<password>,domain=<domain>` to mount.
 
