@@ -23,8 +23,4 @@ if kubectl get sts | grep -q "k8s-frameworkcontroller-sts"; then
     kubectl delete sts k8s-frameworkcontroller-sts
 fi
 
-if kubectl get ds --namespace=kube-system | grep -q "nvidia-device-plugin-daemonset"; then
-    kubectl delete ds nvidia-device-plugin-daemonset --namespace=kube-system
-fi
-
 popd > /dev/null

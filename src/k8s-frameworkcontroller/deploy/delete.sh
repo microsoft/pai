@@ -19,8 +19,8 @@
 
 pushd $(dirname "$0") > /dev/null
 
-kubectl delete customresourcedefinitions frameworks.frameworkcontroller.microsoft.com
-
 /bin/bash stop.sh || exit $?
+
+kubectl delete customresourcedefinitions frameworks.frameworkcontroller.microsoft.com
 
 popd > /dev/null
