@@ -35,14 +35,17 @@ export const TensorBoard = (props) => {
     if (!extras.tensorBoard) {
       return false;
     }
-    const teamDataList = jobData.mountDirs.getTeamDataList();
-    for (const teamData of teamDataList) {
+    if (taskRoles.length === 1) {
+      return false;
+    }
+    const teamDataList = jobData.mountDirs;
+    if (isNil(teamDataList)) {
+      return true;
+    }
+    for (const teamData of teamDataList.getTeamDataList()) {
       if (teamData.mountPath === TENSORBOARD_LOG_PATH) {
         return false;
       }
-    }
-    if (taskRoles.length <= 1) {
-      return false;
     }
     return true;
   };
