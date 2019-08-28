@@ -4,7 +4,17 @@
 
 Remote Development can allow users to develop locally with PAI's resources and improve users’ development experience.
 
-For now, Remote Development support CLI, VS Code, and PyCharm.
+Basicaly, the main process is to ask PAI for a container with resources, and use local editors or IDEs to develope and debug in this container using ssh.
+
+Support IDEs or editors:
+- CLI
+- Visual Studio Code
+- PyCharm
+
+Support OS:
+- Ubuntu 16.04
+- Ubuntu 18.04
+- Windows 10
 
 ***NOTICE: This is still an experiment solution and may be changed in future release.***
 
@@ -14,44 +24,121 @@ For now, Remote Development support CLI, VS Code, and PyCharm.
 remote-dev/
 ├── README.md
 ├── conf
-│   ├── clusters.template        # pai cluster conf
-│   ├── exports.template         # NFS conf
-│   └── job.template             # PAI template job
-└── start.sh                     # start script
+│   ├── clusters.template        # PAI cluster template conf
+│   └── job.template             # PAI template job
+└── start.py                     # start script
 ```
+
+## 3. Dependencies
+
+- This sub project depend on [PAI's Python SDK](https://github.com/microsoft/pai/tree/master/contrib/python-sdk), please install and test the sdk first.
+
+- The `start.py` script requires python3, and we only tested it on `py3.5+` environment, and ruquired following moduls:
+    - requests
+    - configparser
+    - subprocess
 
 ## 3. Usage
 
-### 3.1 Ask PAI for resources
+This section will give guidance about usage.
 
-First, please configure the vars in ```.env.template``` and rename this file to ```.env```.
+### 3.1 Preparation
 
-```sh
-# PAI ENV
-export username=""               # PAI user name
-export password=""               # PAI user password
-export serverip=""               # PAI cluster ip
+First, please configure the vars in `.env.template` and rename it to `.env`.
 
-# HOST ENV
-export hostip=""                 # Local host IP
-export share=""                  # Local workspace
+```
+[PAI_ENV]
+username=                        # PAI cluster user name
+password=                        # PAI cluster password
+serverip=                        # PAI cluster ip
 ```
 
-After configuration, you can edit the ```gpu, cpu, memoryMB``` section of ```conf/job.template```.
+After configuration, you should edit the job template file named `./conf/job.template`.
 
-Then you can run ```./start.sh``` to get a container with resources from PAI.
+The original job template file is like:
 
-### 3.2 CLI
+```yaml
+protocolVersion: 2
+name: remote_dev_job_template
+type: job
+jobRetryCount: 0
+prerequisites:
+  - type: dockerimage
+    uri: openpai/pai.example.tensorflow
+    name: docker_image_0
+taskRoles:
+  Task_role_1:
+    instances: 1
+    completion:
+      minFailedInstances: 1
+      minSucceededInstances: 1
+    dockerImage: docker_image_0
+    resourcePerInstance:
+      gpu: 0
+      cpu: 1
+      memoryMB: 2048
+    commands:
+      - '`#REMOTE_DEV_START`'
+      - apt-get update
+      - apt-get install -y nfs-common cifs-utils sshpass wget
+      - umask 000
+      - mkdir -p /root/workspace
+      - mount.cifs //sharepath /root/workspace -o username=***,password=***
+      - sleep 18000
+      - '`#REMOTE_DEV_END`'
+    taskRetryCount: 0
+defaults:
+  virtualCluster: default
+```
 
-For CLI usage, just run ```./start.sh```, and you will ssh into the container. Your workspace will be mounted at ```/workspace``` using NFS.
+Users should edit the resources in `resourcePerInstance`, and can also change docker image in `resourcePerInstance`. Please make sure your customized docker image has openssh-server. Users can also change `commands` if they want to mount storage or install dependencies in container.
 
-### 3.3 PyCharm
+We suppose that your training data is stored in storage server and managed by PAI's [Team Wise Storage](https://github.com/microsoft/pai/tree/master/contrib/storage_plugin). You should change `commands` to mount your data server.
 
-For PyCharm usage, you can configure PyCharm ```Deployment``` and ```Project Interpreter``` refer to this [doc](https://www.jetbrains.com/help/pycharm/remote-debugging-with-product.html).
+The life cycle of this container is 18000s (5 hours). Considering that this container is for development and debugging, it is not recommended to run for a long time. If you have a specific usage, you can change `sleep 18000` to `sleep infinity` and **don't forget to manually stop this job**.
 
-### 3.4 VS Code
+For more details about job template, please refer to [PAI Job Protocol](https://github.com/microsoft/pai/blob/master/docs/pai-job-protocol.yaml).
 
-For VS Code usage, you can use a plugin named ```Remote Development``` and configure it refer to this [doc](https://www.jetbrains.com/help/pycharm/remote-debugging-with-product.html).
+### 3.2 Ask PAI for Resources
+
+After preparation, you can run `start.py` to ask pai for a container with resources.
+
+```sh
+python3 start.py
+```
+It is important to note that it takes some time to wait for the job to run. You can check job status from PAI's web portal. If no error occurs, you will get ssh info like this:
+
+![](./doc/sshinfo.png)
+
+The ssh info includes `SSH IP`, `SSH Port`, `SSH Key`, and `SSH CMD`. You can ssh into your container with the above `SSH CMD`. If you are using windows, your ssh key will be stored in `%UserProfile/.openpai/***.key`. If you are using ubuntu, your ssh key will be stored in `~/.openpai/***.key`. Please take care of these keys.
+
+### 3.3 Configure Editors and IDEs
+
+#### 3.3.1 CLI
+
+For CLI usage, just ssh into your container and you can do anything you want. Your workspace will be mounted at `/root/workspace`.
+
+#### 3.3.2 PyCharm Professional
+
+For PyCharm Professional usage, you can configure PyCharm `Deployment` and `Project Interpreter` according to the following animation.
+
+![](./doc/pycharm.gif)
+
+For more details, please refer to [PyCharm Remote Development](https://www.jetbrains.com/help/pycharm/remote-debugging-with-product.html).
+
+### 3.3.3 Visual Studio Code
+
+For VS Code usage, you can install a plugin named `Remote Development` and configure it according to the following animation.
+
+![](./doc/vscode.gif)
+
+For more details, please refer to [VS code Remote Development](https://www.jetbrains.com/help/pycharm/remote-debugging-with-product.html).
+
+## 4. Advance
+
+You can also deploy a NFS/SMB server on your own host, and mount it in PAI's container by changing the `commands` of job template.
+
+In ubuntu, you can run a container with NFS4 server, and use `mount -t nfs4 <hostip>:<sharepath> <mountpoint>` to mount. And in windows, you can use built-in SMB, and use `mount -t cifs //<hostip>/<sharename> <mountpoint> -o vers=3.0,username=<username>,password=<password>,domain=<domain>` to mount.
 
 ## License
 

@@ -46,14 +46,18 @@ print(jobname)
 print_output("Generate conf files")
 if sys.platform.find("win") != -1:
   userdir = os.environ.get('UserProfile') + "/.openpai/"
-  is_shell=False
+  is_shell = False
 elif sys.platform.find("linux") != -1:
   userdir = os.environ['HOME'] + "/.openpai/"
-  is_shell=True
-
+  is_shell = True
 else:
   print_output("Unsupported platform")
   exit(-1)
+userdir = os.path.abspath(userdir)
+if sys.platform.find("win") != -1:
+  userdir = userdir + "\\"
+elif sys.platform.find("linux") != -1:
+  userdir = userdir + "/"
 if not os.path.exists(userdir):
   os.makedirs(userdir)
 conf_files = ['clusters', 'job', 'exports']
@@ -86,7 +90,7 @@ while (True):
 print_output("Job started")
 time.sleep(10)
 
-#download ssh key
+# download ssh key
 print_output("Download SSH key")
 return_output = subprocess.check_output("opai job status -a remote_dev_bed " + jobname +
                                         " ssh", shell=is_shell).decode()
@@ -100,7 +104,7 @@ with open(userdir + jobname + ".key", "w+") as f:
   f.write(req.text)
 f.close()
 if sys.platform.find("linux") != -1:
-  subprocess.call("chmod 600 "+userdir + jobname + ".key", shell=is_shell)
+  subprocess.call("chmod 600 " + userdir + jobname + ".key", shell=is_shell)
 print_output("SSH key named " + jobname + ".key has been downloaded to " + userdir)
 
 # get ssh info
