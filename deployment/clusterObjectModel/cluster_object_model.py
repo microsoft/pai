@@ -51,10 +51,12 @@ class cluster_object_model:
                 sub_model_list.append(sub_dir_name)
         return sub_model_list
 
-    def get_service_parser(self, service_name):
+    def get_service_parser(self, service_name, cluster_type):
 
         sys.path.insert(0, '{0}/../../src/{1}/config'.format(package_directory_com, service_name))
-        default_path = "{0}/../../src/{1}/config/{1}.yaml".format(package_directory_com, service_name)
+        default_path = "{0}/../../src/{1}/config/{1}.{2}.yaml".format(package_directory_com, service_name, cluster_type)
+        if not file_handler.file_exist_or_not(default_path):
+            default_path = "{0}/../../src/{1}/config/{1}.yaml".format(package_directory_com, service_name)
 
         # Prepare Service Configuration
         layout = self.layout
@@ -64,8 +66,8 @@ class cluster_object_model:
             default_service_cfg = file_handler.load_yaml_config(default_path)
 
         overwrite_service_cfg = {}
-        if self.overwirte_service_configuration is not None and service_name in self.overwirte_service_configuration:
-            overwrite_service_cfg = self.overwirte_service_configuration[service_name]
+        if self.overwrite_service_configuration is not None and service_name in self.overwrite_service_configuration:
+            overwrite_service_cfg = self.overwrite_service_configuration[service_name]
 
         # Init parser instance
         parser_module = importlib.import_module(service_name.replace("-", "_"))
@@ -117,15 +119,16 @@ class cluster_object_model:
 
     def service_config(self):
         self.layout = file_handler.load_yaml_config("{0}/layout.yaml".format(self.configuration_path))
-        overwirte_service_configuration = file_handler.load_yaml_config("{0}/services-configuration.yaml".format(self.configuration_path))
-        self.overwirte_service_configuration, updated = forward_compatibility.service_configuration_convert(overwirte_service_configuration)
-
+        overwrite_service_configuration = file_handler.load_yaml_config("{0}/services-configuration.yaml".format(self.configuration_path))
+        self.overwrite_service_configuration, updated = forward_compatibility.service_configuration_convert(overwrite_service_configuration)
+        cluster_type = self.overwrite_service_configuration["cluster"]["common"]["cluster-type"]
+        
         parser_dict = dict()
         parser_dict["layout"] = pai_com_layout.Layout(self.layout)
 
         service_model_list = self.get_service_model_list()
         for service_name in service_model_list:
-            parser_dict[service_name] = self.get_service_parser(service_name)
+            parser_dict[service_name] = self.get_service_parser(service_name, cluster_type)
         return self.load_config(parser_dict)
 
     def kubernetes_config(self):

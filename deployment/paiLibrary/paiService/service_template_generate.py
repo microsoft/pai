@@ -45,13 +45,13 @@ class service_template_generate:
 
         self.logger.info("Create template mapper for service {0}.".format(self.service_name))
 
-        servce_conf_dict = {
+        service_conf_dict = {
             "cluster_cfg": self.cluster_object_mode
         }
 
         self.logger.info("Done. Template mapper for service {0} is created.".format(self.service_name))
 
-        return servce_conf_dict
+        return service_conf_dict
 
     # Add "NodeAffinity" to service deployment yaml file
     # according to the "deploy-rules" in service.yaml config file

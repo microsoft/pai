@@ -55,7 +55,7 @@ export class JobTaskRole {
     const commands = get(taskRoleProtocol, 'commands', []);
 
     const taskDeployment = get(deployments[0], `taskRoles.${name}`, {});
-    const dockerInfo = prerequisites.find((prerequisite) => prerequisite.name === dockerImage) || {};
+    const dockerInfo = prerequisites.find((prerequisite) => prerequisite.name === dockerImage && prerequisite.type === 'dockerimage') || {};
     const ports = isNil(resourcePerInstance.ports) ? [] :
       Object.entries(resourcePerInstance.ports).map(([key, value]) => ({key, value: value.toString()}));
     const taskRetryCount = get(taskRoleProtocol, 'taskRetryCount', 0);
