@@ -16,7 +16,6 @@ import (
 const undefinedExitCode = 0
 
 type runtimeErrorSpec struct {
-	ErrorType         *string   `yaml:"errorType"`
 	ContainerExitCode int       `yaml:"containerExitCode"`
 	Patterns          []pattern `yaml:"patterns"`
 	Reason            *string   `yaml:"reason"`

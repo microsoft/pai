@@ -4,16 +4,14 @@
 
 # [200, 219] reserved by FC
 
-- errorType: user
-  patterns:
+- patterns:
   - exitCode: 1
     userLogRegex: exec\(compile\(getattr\(token[a-z]*, 'open', open\)\(__file__\)
   reason: Failed to open tocken file
   solution: Please check the tocken file path
   containerExitCode: 10
 
-- errorType: user
-  patterns:
+- patterns:
   - exitCode: 1
     userLogRegex: failed with error code 1 in /tmp/[a-z]*
   - exitCode: 1
@@ -22,8 +20,7 @@
   solution: Please check the pip install command
   containerExitCode: 12
 
-- errorType: platform
-  patterns:
+- patterns:
   - exitCode: 1
     userLogRegex: connect tensorboard failed
     platformLogRegex: Failed to start tensorboard
@@ -31,15 +28,13 @@
   solution: Please try again or connect admin
   containerExitCode: 15
 
-- errorType: user
-  patterns:
+- patterns:
   - exitCode: 137
   reason: User program terminated by SIGKILL
   solution: Please check the log and retry again
   containerExitCode: 137
 
-- errorType: user
-  patterns:
+- patterns:
   - exitCode: 143
   reason: User program terminated by SIGTERM
   solution: Please check the log and retry again
