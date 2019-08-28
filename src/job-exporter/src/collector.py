@@ -70,6 +70,11 @@ def gen_gpu_ecc_counter():
             "count of nvidia ecc error",
             labels=["minor_number", "type"])
 
+def gen_gpu_retired_page_count():
+    return GaugeMetricFamily("nvidiasmi_retired_page_count",
+            "count of nvidia ecc retired page",
+            labels=["minor_number", "type"])
+
 def gen_gpu_memory_leak_counter():
     return GaugeMetricFamily("nvidiasmi_memory_leak_count",
             "count of nvidia memory leak",
@@ -355,6 +360,7 @@ class GpuCollector(Collector):
         mem_utils = gen_gpu_mem_util_gauge()
         gpu_temp = gen_gpu_temperature_gauge()
         ecc_errors = gen_gpu_ecc_counter()
+        retired_page = gen_gpu_retired_page_count()
         mem_leak = gen_gpu_memory_leak_counter()
         external_process = gen_gpu_used_by_external_process_counter()
         zombie_container = gen_gpu_used_by_zombie_container_counter()
@@ -373,6 +379,9 @@ class GpuCollector(Collector):
             ecc_errors.add_metric([minor, "volatile_double"], info.ecc_errors.volatile_double)
             ecc_errors.add_metric([minor, "aggregated_single"], info.ecc_errors.aggregated_single)
             ecc_errors.add_metric([minor, "aggregated_double"], info.ecc_errors.aggregated_double)
+
+            retired_page.add_metric([minor, "single"], info.ecc_errors.single_retirement)
+            retired_page.add_metric([minor, "double"], info.ecc_errors.double_retirement)
             if info.gpu_mem_util > mem_leak_thrashold and len(info.pids) == 0:
                 # we found memory leak less than 20M can be mitigated automatically
                 mem_leak.add_metric([minor], 1)
