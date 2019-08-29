@@ -25,7 +25,7 @@ func (l *Logger) Error(v ...interface{}) {
 func NewLogger() *Logger {
 	logger := Logger{
 		log.New(os.Stderr, "Error:", log.Ldate|log.Ltime|log.Lshortfile),
-		log.New(os.Stdout, "Info:", log.Ldate|log.Ltime|log.Lshortfile),
+		log.New(os.Stderr, "Info:", log.Ldate|log.Ltime|log.Lshortfile),
 	}
 	return &logger
 }
