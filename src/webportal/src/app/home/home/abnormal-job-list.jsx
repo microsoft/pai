@@ -37,6 +37,7 @@ import userAuth from '../../user/user-auth/user-auth.component';
 import {isLowGpuUsageJob, isLongRunJob} from '../../components/util/job';
 import {stopJob} from './conn';
 import {cloneDeep} from 'lodash';
+import StopJobConfirm from '../../job/job-view/fabric/JobList/StopJobConfirm';
 
 // Move it to common folder
 import {TooltipIcon} from '../../job-submission/components/controls/tooltip-icon';
@@ -161,7 +162,8 @@ const AbnormalJobList = ({jobs}) => {
               }}
               onClick={(e) => {
                 e.stopPropagation();
-                stopAbnormalJob(job);
+                setCurrentJob(job);
+                setHideDialog(false);
               }}
             >
               Stop
@@ -184,6 +186,8 @@ const AbnormalJobList = ({jobs}) => {
   }, [abnormalJobs]);
 
   const [abnormalJobs, setAbnormalJobs] = useState(jobs);
+  const [hideDialog, setHideDialog] = useState(true);
+  const [currentJob, setCurrentJob] = useState(null);
 
   return (
     <Card className={c(t.h100, t.ph5)}>
@@ -208,6 +212,11 @@ const AbnormalJobList = ({jobs}) => {
             />
         </Stack.Item>
       </Stack>
+      <StopJobConfirm
+          hideDialog={hideDialog}
+          currentJob={currentJob}
+          setHideDialog={setHideDialog}
+          stopJob={stopAbnormalJob}/>
     </Card>
   );
 };
