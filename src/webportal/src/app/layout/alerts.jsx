@@ -1,8 +1,9 @@
 import c from 'classnames';
 import {Panel, List, mergeStyleSets, getFocusStyle, getTheme, PanelType, Stack, StackItem} from 'office-ui-fabric-react';
 import React, {useCallback, useState, useEffect} from 'react';
+import {isEmpty} from 'lodash';
 
-import config from '../config/webportal.config';
+import webportalConfig from '../config/webportal.config';
 
 const theme = getTheme();
 const {palette, semanticColors, spacing} = theme;
@@ -29,7 +30,11 @@ export const NotificationButton = () => {
   const [alertItems, setAlertItems] = useState([]);
 
   useEffect(() => {
-    const alertsUrl = `${config.alertManagerUri}/api/v1/alerts?silenced=false`;
+    if (isEmpty(webportalConfig.alertManagerUri)) {
+      return;
+    }
+
+    const alertsUrl = `${webportalConfig.alertManagerUri}/api/v1/alerts?silenced=false`;
     fetch(alertsUrl).then((res) => {
       if (!res.ok) {
         throw Error('Failed to get alert infos');
