@@ -19,7 +19,7 @@ import c from 'classnames';
 import {isEmpty} from 'lodash';
 import PropTypes from 'prop-types';
 import querystring from 'querystring';
-import {Icon, Stack, FontClassNames, ColorClassNames, DefaultButton, getTheme} from 'office-ui-fabric-react';
+import {Icon, Stack, FontClassNames, ColorClassNames, DefaultButton, getTheme, FontWeights} from 'office-ui-fabric-react';
 import React from 'react';
 
 import Card from '../../components/card';
@@ -34,25 +34,24 @@ const StatusItem = ({className, icon, name, count, link}) => {
     <Stack
       styles={{root: [{minWidth: 280}, className]}}
       horizontal
-      horizontalAlign='space-between'
       verticalAlign='center'
       padding='s1'
       gap='m'
     >
-      <Stack.Item>
-        <div className={c(t.flex, t.itemsCenter, t.justifyStart)}>
-          <div>
-            <Icon className={ColorClassNames.neutralSecondary} iconName={icon} />
+      <Stack.Item grow>
+        <Stack horizontal verticalAlign='center' gap='l1'>
+          <div className={c(t.flex, t.itemsCenter, t.justifyStart)} style={{width: '33%', minWidth: 120}}>
+            <div>
+              <Icon className={ColorClassNames.neutralSecondary} iconName={icon} />
+            </div>
+            <div className={c(ColorClassNames.neutralSecondary, FontClassNames.large)} style={{marginLeft: spacing.m}}>
+              {name}
+            </div>
           </div>
-          <div className={c(ColorClassNames.neutralSecondary, FontClassNames.large)} style={{width: '80px', marginLeft: spacing.s2}}>
-            {name}
+          <div className={c(FontClassNames.xLarge)} style={{fontWeight: FontWeights.semibold}}>
+            {count}
           </div>
-        </div>
-      </Stack.Item>
-      <Stack.Item>
-        <div className={c(FontClassNames.xLarge)}>
-          {count}
-        </div>
+        </Stack>
       </Stack.Item>
       <Stack.Item>
         <DefaultButton

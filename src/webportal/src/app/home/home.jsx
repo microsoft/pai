@@ -94,18 +94,20 @@ const Home = () => {
                 virtualClusters={virtualClusters}
               />
             ) : (
-              <VirtualClusterList
-                style={{height: 320}}
-                userInfo={userInfo}
-                virtualClusters={virtualClusters}
-              />
+              <React.Fragment>
+                <VirtualClusterList
+                  style={{height: 320}}
+                  userInfo={userInfo}
+                  virtualClusters={virtualClusters}
+                />
+                <GpuChart
+                  style={{height: 320}}
+                  gpuPerNode={gpuPerNode}
+                  userInfo={userInfo}
+                  virtualClusters={virtualClusters}
+                />
+              </React.Fragment>
             )}
-            <GpuChart
-              style={{height: 320}}
-              gpuPerNode={gpuPerNode}
-              userInfo={userInfo}
-              virtualClusters={virtualClusters}
-            />
             {isAdmin ? (
               <AbnormalJobList jobs={listAbnormalJobs(jobs, lowGpuJobInfo)} />
             ) : (
