@@ -16,20 +16,20 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
-prerequisite:
-  - cluster-configuration
-  - k8s-frameworkcontroller
-  - drivers
+class Hivedscheduler:
+    def __init__(self, cluster_conf, service_conf, default_service_conf):
+        self.cluster_conf = cluster_conf
+        self.service_conf = service_conf
+        self.default_service_conf = default_service_conf
 
-template-list:
-  - hivedscheduler.yaml
-  - configmap.yaml
+    def validation_pre(self):
+        if 'config' not in self.service_conf:
+            return False, 'hived scheduler config is missing'
+        return True, None
 
-start-script: start.sh
-stop-script: stop.sh
-delete-script: delete.sh
-refresh-script: refresh.sh
-upgraded-script: upgraded.sh
+    def run(self):
+        self.service_conf['config'] = self.service_conf['config'].replace('\n', '\n    ')
+        return self.service_conf
 
-deploy-rules:
-  - in: pai-master
+    def validation_post(self, conf):
+        return True, None

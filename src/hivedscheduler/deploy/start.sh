@@ -21,6 +21,8 @@ pushd $(dirname "$0") > /dev/null
 
 kubectl apply --overwrite=true -f https://raw.githubusercontent.com/NVIDIA/k8s-device-plugin/1.0.0-beta/nvidia-device-plugin.yml || exit $?
 
+kubectl apply --overwrite=true -f configmap.yaml || exit $?
+kubectl apply --overwrite=true -f rbac.yaml || exit $?
 kubectl apply --overwrite=true -f hivedscheduler.yaml || exit $?
 
 sleep 10
