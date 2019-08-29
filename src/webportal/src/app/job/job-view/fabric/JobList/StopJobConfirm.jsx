@@ -21,7 +21,7 @@ import {Icon} from 'office-ui-fabric-react/lib/Icon';
 import {getStatusText} from './utils';
 import PropTypes from 'prop-types';
 import Context from './Context';
-import {FontSizes} from '@uifabric/styling';
+import {FontClassNames, FontSizes} from '@uifabric/styling';
 import t from '../../../../components/tachyons.scss';
 import c from 'classnames';
 
@@ -49,19 +49,25 @@ export default function StopJobConfirm(props) {
     <Dialog
       hidden={hideDialog}
       onDismiss={closeDialog}
-      minWidth={400}
-      maxWidth={500}
+      minWidth={500}
+      maxWidth={600}
       dialogContentProps={{
         showCloseButton: false,
-        title: <span className={c(t.flex, t.fw6)} style={{fontSize: FontSizes.xLarge}}><Icon iconName='Info'/>&nbsp;Stop job(s)</span>,
-      }}
-      modalProps={{
         styles: {
-          main: {maxWidth: 500},
+          title: {paddingBottom: '12px'},
         },
+        title: <span className={c(t.flex, t.fw6)} style={{fontSize: FontSizes.icon}}>
+          <Icon
+            iconName='Info'
+            styles={{
+              root: {marginRight: '6px'},
+            }}
+          />
+            Stop job(s)
+          </span>,
       }}
     >
-      <div className={c(t.fw4)}>
+      <div className={c(t.fw4, FontClassNames.small)} style={{marginLeft: '22px'}}>
         <span>Are you sure you want to stop the selected job(s)?</span>
         <p>Stopping job(s) will release all the allocated resources for the job(s) and can&lsquo;t be undone.</p>
       </div>
