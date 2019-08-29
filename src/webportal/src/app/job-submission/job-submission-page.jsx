@@ -246,7 +246,7 @@ export const JobSubmissionPage = ({isSingle, setWizardStatus, yamlText}) => {
     } else {
       setLoading(false);
     }
-  }, []);
+  }, [vcNames]);
 
   // update component if yamlText is not null
   useEffect(() => {
