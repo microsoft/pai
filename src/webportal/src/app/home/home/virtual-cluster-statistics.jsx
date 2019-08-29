@@ -84,7 +84,7 @@ const vcListColumns = [
         ),
       );
       return (
-        <Stack styles={{root: [{height: 95}]}}>
+        <Stack styles={{root: [{height: 100}]}}>
           <UtilizationChart percentage={resouceUtilization}/>
         </Stack>
       );
