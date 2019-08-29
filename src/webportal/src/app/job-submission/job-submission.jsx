@@ -66,7 +66,7 @@ const IconStyle = {
     boxShadow: `rgba(0, 0, 0, 0.06) 0px 2px 4px, rgba(0, 0, 0, 0.05) 0px 0.5px 1px`,
     width: 215,
     height: 215,
-  },   
+  },
   press: {
     borderRadius: '100%',
     backgroundColor: palette.white,
@@ -78,7 +78,7 @@ const IconStyle = {
     width: 215,
     height: 215,
 
-  }
+  },
 };
 
 const JobWizard = () => {
