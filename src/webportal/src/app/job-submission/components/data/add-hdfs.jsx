@@ -1,13 +1,11 @@
 import React, {useState, useEffect} from 'react';
-import {cloneDeep} from 'lodash';
+import {cloneDeep, isNil} from 'lodash';
 import {
   TextField,
-  TagPicker,
   FontClassNames,
   Stack,
   IconButton,
   Label,
-  getTheme,
 } from 'office-ui-fabric-react';
 import PropTypes from 'prop-types';
 
@@ -15,8 +13,6 @@ import {STORAGE_PREFIX, ERROR_MARGIN} from '../../utils/constants';
 import {InputData} from '../../models/data/input-data';
 import {validateMountPath, validateHDFSPathAsync} from '../../utils/validation';
 import {WebHDFSClient} from '../../utils/webhdfs';
-
-const {semanticColors} = getTheme();
 
 export const AddHDFS = ({
   dataList,
@@ -63,54 +59,6 @@ export const AddHDFS = ({
     setDataType('none');
   };
 
-  const onFilterChanged = async (filterText) => {
-    if (!isHdfsEnabled || !hdfsClient) {
-      return [];
-    }
-    let result;
-    try {
-      const pathPrefix = filterText.slice(0, filterText.lastIndexOf('/') + 1);
-      result = await hdfsClient.readDir(`${hdfsPathPrefix}${pathPrefix}`);
-      const resultTags = result
-        .filter((path) => {
-          if (filterText.lastIndexOf('/') === filterText.length - 1) {
-            return true;
-          }
-          const partPath = filterText.split('/').pop();
-          if (!partPath) {
-            return [];
-          }
-          return path.includes(partPath);
-        })
-        .map((pathSuffix) => {
-          return {
-            name: pathSuffix,
-            key: `${pathPrefix}${pathSuffix}`,
-          };
-        });
-      return resultTags;
-    } catch (e) {
-      return [];
-    }
-  };
-  const onItemSelected = async (selectedItem) => {
-    if (!selectedItem) {
-      return null;
-    }
-    const hdfsPath = selectedItem.key;
-    setHdfsPath(hdfsPath);
-    const valid = await validateHDFSPathAsync(hdfsPath, hdfsClient);
-    if (!valid.isLegal) {
-      setHdfsPathErrorMessage(valid.illegalMessage);
-    } else {
-      setHdfsPathErrorMessage(null);
-    }
-    return {
-      name: selectedItem.key,
-      key: selectedItem.key,
-    };
-  };
-
   return (
     <Stack horizontal horizontalAlign='space-between' gap='s'>
       <Stack.Item align='baseline'>
@@ -136,27 +84,23 @@ export const AddHDFS = ({
         <Label required className={FontClassNames.medium}>
           Path in pai HDFS
         </Label>
-        <TagPicker
-          disabled={hdfsPathErrorMessage === 'Pai HDFS is not available'}
-          onResolveSuggestions={onFilterChanged}
-          onItemSelected={onItemSelected}
-          pickerSuggestionsProps={{
-            suggestionsHeaderText: 'Path in hdfs should start with /',
-            noResultsFoundText: 'Path not found',
+        <TextField
+          required
+          errorMessage={hdfsPathErrorMessage}
+          onChange={async (_event, newValue) => {
+            if (isNil(newValue)) {
+              setHdfsPathErrorMessage('HDFS address should not be empty');
+            } else {
+              const valid = await validateHDFSPathAsync(newValue, hdfsClient);
+              if (!valid.isLegal) {
+                setHdfsPathErrorMessage(valid.illegalMessage);
+              } else {
+                setHdfsPathErrorMessage(null);
+                setHdfsPath(newValue);
+              }
+            }
           }}
-          itemLimit={1}
         />
-        {hdfsPathErrorMessage && (
-          <span
-            className={FontClassNames.small}
-            style={{
-              color: semanticColors.errorText,
-              paddingTop: 5,
-            }}
-          >
-            {hdfsPathErrorMessage}
-          </span>
-        )}
       </Stack.Item>
       <Stack.Item align='end'>
         <IconButton
