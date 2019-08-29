@@ -19,14 +19,13 @@
 
 pushd $(dirname "$0") > /dev/null
 
-kubectl proxy --port 8080 &
+APISERVER=$(kubectl config view | grep server | cut -f 2- -d ":" | tr -d " ")
 until ! kubectl get sts | grep -q "k8s-frameworkcontroller-sts"; do
     echo 'Trying to stop framework controller ...'
-    curl -X DELETE localhost:8080/apis/apps/v1/namespaces/default/statefulsets/k8s-frameworkcontroller-sts \
+    curl -X DELETE $APISERVER/apis/apps/v1/namespaces/default/statefulsets/k8s-frameworkcontroller-sts \
         -H "Content-Type: application/json" \
         -d '{"kind":"DeleteOptions","apiVersion":"v1","propagationPolicy":"Foreground"}' > /dev/null 2>&1
     sleep 5
 done
-kill $!
 
 popd > /dev/null
