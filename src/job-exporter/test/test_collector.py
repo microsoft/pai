@@ -227,7 +227,7 @@ class TestGpuCollector(base.TestBase):
         metrics = GpuCollector.convert_to_metrics(gpu_info, zombie_info,
                 self.make_pid_to_cid_fn(pid_to_cid_mapping), 20 * 1024)
 
-        core_utils, mem_utils, ecc_errors, mem_leak, external_process, zombie_container, gpu_temp = metrics
+        core_utils, mem_utils, ecc_errors, mem_leak, external_process, zombie_container, gpu_temp, gpu_retired = metrics
 
         target_core_utils = collector.gen_gpu_util_gauge()
         target_core_utils.add_metric(["0"], 20)
@@ -266,7 +266,7 @@ class TestGpuCollector(base.TestBase):
         metrics = GpuCollector.convert_to_metrics(gpu_info, zombie_info,
                 self.make_pid_to_cid_fn(pid_to_cid_mapping), 20 * 1024)
 
-        core_utils, mem_utils, ecc_errors, mem_leak, external_process, zombie_container, gpu_temp = metrics
+        core_utils, mem_utils, ecc_errors, mem_leak, external_process, zombie_container, gpu_temp, gpu_retired = metrics
 
         target_core_utils = collector.gen_gpu_util_gauge()
         target_core_utils.add_metric(["1"], 30)
@@ -305,7 +305,7 @@ class TestGpuCollector(base.TestBase):
         metrics = GpuCollector.convert_to_metrics(gpu_info, zombie_info,
                 self.make_pid_to_cid_fn(pid_to_cid_mapping), 20 * 1024 * 1024)
 
-        core_utils, mem_utils, ecc_errors, mem_leak, external_process, zombie_container, gpu_temp = metrics
+        core_utils, mem_utils, ecc_errors, mem_leak, external_process, zombie_container, gpu_temp, gpu_retired = metrics
 
         target_core_utils = collector.gen_gpu_util_gauge()
         target_core_utils.add_metric(["2"], 40)
@@ -342,7 +342,7 @@ class TestGpuCollector(base.TestBase):
         metrics = GpuCollector.convert_to_metrics(gpu_info, zombie_info,
                 self.make_pid_to_cid_fn(pid_to_cid_mapping), 20 * 1024)
 
-        core_utils, mem_utils, ecc_errors, mem_leak, external_process, zombie_container, gpu_temp = metrics
+        core_utils, mem_utils, ecc_errors, mem_leak, external_process, zombie_container, gpu_temp, gpu_retired = metrics
 
         target_mem_leak = collector.gen_gpu_memory_leak_counter()
         target_mem_leak.add_metric(["3"], 1)
@@ -360,7 +360,7 @@ class TestGpuCollector(base.TestBase):
         metrics = GpuCollector.convert_to_metrics(gpu_info, zombie_info,
                 self.make_pid_to_cid_fn(pid_to_cid_mapping), 20 * 1024)
 
-        core_utils, mem_utils, ecc_errors, mem_leak, external_process, zombie_container, gpu_temp = metrics
+        core_utils, mem_utils, ecc_errors, mem_leak, external_process, zombie_container, gpu_temp, gpu_retired = metrics
 
         self.assertEqual(0, len(zombie_container.samples))
         self.assertEqual(1, len(external_process.samples))
@@ -373,7 +373,7 @@ class TestGpuCollector(base.TestBase):
         metrics = GpuCollector.convert_to_metrics(gpu_info, zombie_info,
                 self.make_pid_to_cid_fn(pid_to_cid_mapping), 20 * 1024)
 
-        core_utils, mem_utils, ecc_errors, mem_leak, external_process, zombie_container, gpu_temp = metrics
+        core_utils, mem_utils, ecc_errors, mem_leak, external_process, zombie_container, gpu_temp, gpu_retired = metrics
 
         self.assertEqual(0, len(zombie_container.samples))
         self.assertEqual(1, len(external_process.samples))
@@ -392,7 +392,7 @@ class TestGpuCollector(base.TestBase):
         metrics = GpuCollector.convert_to_metrics(gpu_info, zombie_info,
                 self.make_pid_to_cid_fn(pid_to_cid_mapping), 20 * 1024)
 
-        core_utils, mem_utils, ecc_errors, mem_leak, external_process, zombie_container, gpu_temp = metrics
+        core_utils, mem_utils, ecc_errors, mem_leak, external_process, zombie_container, gpu_temp, gpu_retired = metrics
 
         self.assertEqual(1, len(zombie_container.samples))
         self.assertEqual("0", zombie_container.samples[0].labels["minor_number"])
