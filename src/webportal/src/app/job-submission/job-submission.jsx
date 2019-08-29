@@ -36,11 +36,11 @@ import {
 } from 'office-ui-fabric-react';
 
 import uploadRoot from '../../assets/img/upload-root.svg';
-import uploadHover from '../../assets/img/upload-hover.svg';
+import uploadPress from '../../assets/img/upload-press.svg';
 import singleRoot from '../../assets/img/single-root.svg';
-import singleHover from '../../assets/img/single-hover.svg';
+import singlePress from '../../assets/img/single-press.svg';
 import distributeRoot from '../../assets/img/distribute-root.svg';
-import distributeHover from '../../assets/img/distribute-hover.svg';
+import distributePress from '../../assets/img/distribute-press.svg';
 import {JobSubmissionPage} from './job-submission-page';
 import Card from '../components/card';
 
@@ -49,7 +49,7 @@ const {spacing, palette} = getTheme();
 const IconStyle = {
   root: {
     borderRadius: '100%',
-    backgroundColor: 'white',
+    backgroundColor: palette.white,
     backgroundRepeat: 'no-repeat',
     backgroundPosition: 'center',
     backgroundSize: '30%',
@@ -59,7 +59,17 @@ const IconStyle = {
   },
   hover: {
     borderRadius: '100%',
-    backgroundColor: 'white',
+    backgroundColor: palette.neutralLight,
+    backgroundRepeat: 'no-repeat',
+    backgroundPosition: 'center',
+    backgroundSize: '30%',
+    boxShadow: `rgba(0, 0, 0, 0.06) 0px 2px 4px, rgba(0, 0, 0, 0.05) 0px 0.5px 1px`,
+    width: 215,
+    height: 215,
+  },   
+  press: {
+    borderRadius: '100%',
+    backgroundColor: palette.white,
     backgroundRepeat: 'no-repeat',
     backgroundPosition: 'center',
     backgroundSize: '30%',
@@ -67,7 +77,8 @@ const IconStyle = {
     borderWidth: 3,
     width: 215,
     height: 215,
-  },
+
+  }
 };
 
 const JobWizard = () => {
@@ -124,8 +135,12 @@ const JobWizard = () => {
                       ...IconStyle.root,
                     },
                     rootHovered: {
-                      backgroundImage: `url(${uploadHover})`,
+                      backgroundImage: `url(${uploadRoot})`,
                       ...IconStyle.hover,
+                    },
+                    rootPressed: {
+                      backgroundImage: `url(${uploadPress})`,
+                      ...IconStyle.press,
                     },
                   }}
                   onClick = {() => {
@@ -151,8 +166,12 @@ const JobWizard = () => {
                       ...IconStyle.root,
                     },
                     rootHovered: {
-                      backgroundImage: `url(${singleHover})`,
+                      backgroundImage: `url(${singleRoot})`,
                       ...IconStyle.hover,
+                    },
+                    rootPressed: {
+                      backgroundImage: `url(${singlePress})`,
+                      ...IconStyle.press,
                     },
                   }}
                   onClick={() => {
@@ -171,8 +190,12 @@ const JobWizard = () => {
                       ...IconStyle.root,
                     },
                     rootHovered: {
-                      backgroundImage: `url(${distributeHover})`,
+                      backgroundImage: `url(${distributeRoot})`,
                       ...IconStyle.hover,
+                    },
+                    rootPressed: {
+                      backgroundImage: `url(${distributePress})`,
+                      ...IconStyle.press,
                     },
                   }}
                   onClick={() => {
