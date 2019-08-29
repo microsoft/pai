@@ -27,6 +27,7 @@ const FilterButton = ({items, selectedItems, onSelect, searchBox, searchBoxText,
   const [keyword, setKeyword] = useState('');
   const {spacing} = getTheme();
 
+  // filter by keyword
   let menuItems = items
     .filter((name) => name.startsWith(keyword || ''))
     .map((name) => ({
@@ -45,6 +46,8 @@ const FilterButton = ({items, selectedItems, onSelect, searchBox, searchBoxText,
         onSelect(Array.from(res));
       },
     }));
+
+  // no result placeholder
   if (menuItems.length === 0) {
     menuItems = [
       {
@@ -79,6 +82,15 @@ const FilterButton = ({items, selectedItems, onSelect, searchBox, searchBoxText,
                 <div>
                   <div style={{padding: spacing.s1}}>
                     <TextField
+                      styles={{
+                        field: {
+                          selectors: {
+                            '::placeholder': {
+                              fontStyle: 'italic',
+                            },
+                          },
+                        },
+                      }}
                       placeholder={searchBoxText || 'Filter'}
                       value={keyword}
                       onChange={(e, v) => setKeyword(v)}
