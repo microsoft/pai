@@ -39,6 +39,10 @@ export const UtilizationChart = ({percentage}) => {
 
   useEffect(()=>{
     const chart = c3.generate({
+      size: {
+        width: 100,
+        height: 100,
+      },
       bindto: chartRef.current,
       data: {
         columns: [
@@ -60,7 +64,7 @@ export const UtilizationChart = ({percentage}) => {
         },
         title: `${d3.format('.2f')(percentage * 100)}%`,
         expand: false,
-        width: 10,
+        width: 8,
       },
       legend: {
         show: false,
