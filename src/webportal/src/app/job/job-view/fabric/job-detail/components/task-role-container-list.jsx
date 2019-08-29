@@ -91,19 +91,21 @@ const PortTooltipContent = ({ports}) => {
   return (
     <div>
       <table>
-        {Object.entries(ports).map(([key, val]) => (
-          <tr key={`port-${key}`}>
-            <td style={{padding: spacing.s2}}>{`${key}:`}</td>
-            <td style={{padding: spacing.s2}}>{val}</td>
-            <td>
-              <IconButton
-                iconProps={{iconName: 'Copy'}}
-                styles={{icon: [{fontSize: FontSizes.small}]}}
-                onClick={() => copy(val)}
-              />
-            </td>
-          </tr>
-        ))}
+        <tbody>
+          {Object.entries(ports).map(([key, val]) => (
+            <tr key={`port-${key}`}>
+              <td style={{padding: spacing.s2}}>{`${key}:`}</td>
+              <td style={{padding: spacing.s2}}>{val}</td>
+              <td>
+                <IconButton
+                  iconProps={{iconName: 'Copy'}}
+                  styles={{icon: [{fontSize: FontSizes.small}]}}
+                  onClick={() => copy(val)}
+                />
+              </td>
+            </tr>
+          ))}
+        </tbody>
       </table>
     </div>
   );
