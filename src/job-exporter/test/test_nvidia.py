@@ -67,6 +67,25 @@ class TestNvidia(base.TestBase):
 
         self.assertEqual({}, nvidia_smi_parse_result)
 
+    def test_get_retired_page_count(self):
+        sample_path = "data/nvidia_smi_retired_pages.xml"
+        with open(sample_path, "r") as f:
+            nvidia_smi_result = f.read()
+        nvidia_smi_parse_result = nvidia.parse_smi_xml_result(nvidia_smi_result)
+
+        zero = nvidia.NvidiaGpuStatus(0.0, 0.0, [], nvidia.EccError(),
+                "0", "GPU-ef23ffa6-c9fd-93d5-aeb8-612c087255ff", 33.0)
+        zero.ecc_errors.single_retirement = 0
+        zero.ecc_errors.double_retirement = 2
+        zero.ecc_errors.volatile_single = 1
+        zero.ecc_errors.volatile_double = 1
+        zero.ecc_errors.aggregated_single = 291
+        zero.ecc_errors.aggregated_double = 7627
+
+        target_smi_info = {"0": zero,
+                "GPU-ef23ffa6-c9fd-93d5-aeb8-612c087255ff": zero}
+
+        self.assertEqual(target_smi_info, nvidia_smi_parse_result)
 
 if __name__ == '__main__':
     unittest.main()

@@ -53,22 +53,28 @@ class EccError(object):
     """ EccError represents volatile count from one GPU card,
     see https://developer.download.nvidia.com/compute/DCGM/docs/nvidia-smi-367.38.pdf for more info """
     def __init__(self, volatile_single=0, volatile_double=0,
-            aggregated_single=0, aggregated_double=0):
+            aggregated_single=0, aggregated_double=0,
+            single_retirement=0, double_retirement=0):
         self.volatile_single = volatile_single
         self.volatile_double = volatile_double
         self.aggregated_single = aggregated_single
         self.aggregated_double = aggregated_double
+        self.single_retirement = single_retirement
+        self.double_retirement = double_retirement
 
     def __repr__(self):
-        return "v_s: %d, v_d: %d, a_s: %d, a_d: %d" % (\
+        return "v_s: %d, v_d: %d, a_s: %d, a_d: %d, s_r: %d, d_r: %d" % (\
                 self.volatile_single, self.volatile_double,
-                self.aggregated_single, self.aggregated_double)
+                self.aggregated_single, self.aggregated_double,
+                self.single_retirement, self.double_retirement)
 
     def __eq__(self, o):
         return self.volatile_single == o.volatile_single and \
                 self.volatile_double == o.volatile_double and \
                 self.aggregated_single == o.aggregated_single and \
-                self.aggregated_double == o.aggregated_double
+                self.aggregated_double == o.aggregated_double and \
+                self.single_retirement == o.single_retirement and \
+                self.double_retirement == o.double_retirement
 
 
 class NvidiaGpuStatus(object):
@@ -158,11 +164,28 @@ def parse_smi_xml_result(smi):
         except Exception:
             pass
 
+        single_retirement = double_retirement = 0
+        try:
+            pages = gpu.getElementsByTagName("retired_pages")
+            if len(pages) > 0:
+                single = pages[0].getElementsByTagName("multiple_single_bit_retirement")[0]
+                double = pages[0].getElementsByTagName("double_bit_retirement")[0]
+                single = single.getElementsByTagName("retired_count")[0].childNodes[0].data
+                double = double.getElementsByTagName("retired_count")[0].childNodes[0].data
+                if single != "N/A":
+                    single_retirement = int(single)
+                if double != "N/A":
+                    double_retirement = int(double)
+        except Exception:
+            pass
+
         status = NvidiaGpuStatus(
                 float(gpu_util),
                 float(gpu_mem_util),
                 pids,
-                EccError(volatile_single=volatile_single, volatile_double=volatile_double, aggregated_single=aggregated_single, aggregated_double=aggregated_double),
+                EccError(volatile_single=volatile_single, volatile_double=volatile_double,
+                    aggregated_single=aggregated_single, aggregated_double=aggregated_double,
+                    single_retirement=single_retirement, double_retirement=double_retirement),
                 str(minor),
                 uuid,
                 temperature)
