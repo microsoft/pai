@@ -17,7 +17,7 @@
 
 import PropTypes from 'prop-types';
 import React, {useRef, useState, useMemo} from 'react';
-import {CommandBarButton, TextField, Stack, ColorClassNames, getTheme} from 'office-ui-fabric-react';
+import {CommandBarButton, Stack, ColorClassNames, getTheme, SearchBox} from 'office-ui-fabric-react';
 
 const NO_RESULT_KEY = 'NO_RESULT';
 
@@ -80,8 +80,8 @@ const FilterButton = ({items, selectedItems, onSelect, searchBox, searchBoxText,
             <Stack>
               {searchBox && (
                 <div>
-                  <div style={{padding: spacing.s1}}>
-                    <TextField
+                  <div style={{padding: spacing.s1, minWidth: 240}}>
+                    <SearchBox
                       styles={{
                         field: {
                           selectors: {
@@ -93,7 +93,7 @@ const FilterButton = ({items, selectedItems, onSelect, searchBox, searchBoxText,
                       }}
                       placeholder={searchBoxText || 'Filter'}
                       value={keyword}
-                      onChange={(e, v) => setKeyword(v)}
+                      onChanged={(val) => setKeyword(val)}
                     />
                   </div>
                   <hr
