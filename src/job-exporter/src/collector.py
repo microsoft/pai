@@ -412,7 +412,7 @@ class GpuCollector(Collector):
                         external_process, zombie_container)
 
         return [core_utils, mem_utils, ecc_errors, mem_leak,
-            external_process, zombie_container, gpu_temp]
+            external_process, zombie_container, gpu_temp, retired_page]
 
     def collect_impl(self):
         gpu_info = nvidia.nvidia_smi(GpuCollector.cmd_histogram,
