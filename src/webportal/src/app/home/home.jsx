@@ -21,10 +21,10 @@ import 'whatwg-fetch';
 
 import c from 'classnames';
 import {isEmpty} from 'lodash';
-import {initializeIcons, Stack, getTheme} from 'office-ui-fabric-react';
+import {initializeIcons, Stack} from 'office-ui-fabric-react';
 import React, {useState, useEffect} from 'react';
 import ReactDOM from 'react-dom';
-import styled from 'styled-components';
+import MediaQuery from 'react-responsive';
 
 import JobStatus from './home/job-status';
 import VirtualClusterList from './home/virtual-cluster-list';
@@ -81,93 +81,75 @@ const Home = () => {
   if (loading) {
     return <SpinnerLoading />;
   } else {
-    const {spacing} = getTheme();
-
-    const ResponsiveFlexBox = styled.div`
-      @media screen and (min-width: ${BREAKPOINT1}px) {
-        display:flex;
-      }
-    `;
-
-    const ResponsiveGap = styled.div`
-      height: 0;
-      width: ${spacing.l2};
-      @media screen and (max-width: ${BREAKPOINT1}px) {
-        height: ${spacing.l2};
-        width: 0;
-      }
-    `;
-
-    const ResponsiveItem = styled.div`
-      width: 33%;
-      height: auto;
-      @media screen and (max-width: ${BREAKPOINT1}px) {
-        width: 100%;
-        height: 320px;
-      }
-    `;
-
-    const ResponsiveWidthItem = styled.div`
-    width: 66%;
-    height: auto;
-    @media screen and (max-width: ${BREAKPOINT1}px) {
-      width: 100%;
-      height: 320px;
-    }
-  `;
-
     return (
-      <Stack
-        styles={{root: [t.w100, t.h100L, {minWidth: 500}]}}
-        padding='l2'
-        gap='l2'
-      >
-        {/* top */}
-        <Stack.Item>
-          <ResponsiveFlexBox>
-            <ResponsiveItem>
-              <JobStatus style={{height: '100%'}} jobs={jobs} />
-            </ResponsiveItem>
-            <ResponsiveGap />
+      <div className={c(t.w100, t.h100)} style={{minWidth: 500, overflowY: 'auto'}}>
+        {/* small */}
+        <MediaQuery maxWidth={BREAKPOINT1}>
+          <Stack padding='l2' gap='l2' styles={{minHeight: '100%'}}>
+            <JobStatus style={{height: 320}} jobs={jobs} />
             {isAdmin ? (
-              <ResponsiveWidthItem>
+              <VirtualClusterStatistics
+                style={{height: 320}}
+                userInfo={userInfo}
+                virtualClusters={virtualClusters}
+              />
+            ) : (
+              <VirtualClusterList
+                style={{height: 320}}
+                userInfo={userInfo}
+                virtualClusters={virtualClusters}
+              />
+            )}
+            <GpuChart
+              style={{height: 320}}
+              gpuPerNode={gpuPerNode}
+              userInfo={userInfo}
+              virtualClusters={virtualClusters}
+            />
+            {isAdmin ? (
+              <AbnormalJobList jobs={listAbnormalJobs(jobs, lowGpuJobInfo)} />
+            ) : (
+              <RecentJobList jobs={jobs} />
+            )}
+          </Stack>
+        </MediaQuery>
+        {/* large */}
+        <MediaQuery minWidth={BREAKPOINT1 + 1}>
+          <Stack padding='l2' gap='l2' styles={{root: {height: '100%', minHeight: 640}}}>
+            {/* top */}
+            <Stack gap='l2' horizontal>
+              <JobStatus style={{height: '100%', width: '33%'}} jobs={jobs} />
+              {isAdmin ? (
                 <VirtualClusterStatistics
-                  style={{height: '100%'}}
+                  style={{height: '100%', width: '66%'}}
                   userInfo={userInfo}
                   virtualClusters={virtualClusters}
                 />
-              </ResponsiveWidthItem>
-            ) : (
-              <React.Fragment>
-                <ResponsiveItem>
+              ) : (
+                <React.Fragment>
                   <VirtualClusterList
-                    style={{height: '100%'}}
+                    style={{height: '100%', width: '33%'}}
                     userInfo={userInfo}
                     virtualClusters={virtualClusters}
                   />
-                </ResponsiveItem>
-                <ResponsiveGap />
-                <ResponsiveItem>
-                <GpuChart
-                  style={{height: '100%'}}
-                  gpuPerNode={gpuPerNode}
-                  userInfo={userInfo}
-                  virtualClusters={virtualClusters}
-                />
-                </ResponsiveItem>
-              </React.Fragment>
+                  <GpuChart
+                    style={{height: '100%', width: '33%'}}
+                    gpuPerNode={gpuPerNode}
+                    userInfo={userInfo}
+                    virtualClusters={virtualClusters}
+                  />
+                </React.Fragment>
+              )}
+            </Stack>
+            {/* bottom */}
+            {isAdmin ? (
+              <AbnormalJobList style={{minHeight: 0}} jobs={listAbnormalJobs(jobs, lowGpuJobInfo)} />
+            ) : (
+              <RecentJobList style={{minHeight: 0}} jobs={jobs} />
             )}
-          </ResponsiveFlexBox>
-        </Stack.Item>
-        {/* recent jobs */}
-        <Stack.Item styles={{root: [{flexBasis: 0}]}} grow>
-          {isAdmin ? (
-            <AbnormalJobList className={c(t.h100)} jobs={listAbnormalJobs(jobs, lowGpuJobInfo)} />
-          ) : (
-            <RecentJobList className={c(t.h100)} jobs={jobs} />
-          )}
-        </Stack.Item>
-      </Stack>
+          </Stack>
+        </MediaQuery>
+      </div>
     );
   }
 };
@@ -177,3 +159,12 @@ const contentWrapper = document.getElementById('content-wrapper');
 ReactDOM.render(<Home />, contentWrapper);
 
 document.getElementById('sidebar-menu--home').classList.add('active');
+
+function layout() {
+  setTimeout(function() {
+    contentWrapper.style.height = contentWrapper.style.minHeight;
+  }, 10);
+}
+
+window.addEventListener('resize', layout);
+window.addEventListener('load', layout);

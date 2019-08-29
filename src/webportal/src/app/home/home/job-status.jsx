@@ -73,7 +73,7 @@ StatusItem.propTypes = {
   link: PropTypes.string.isRequired,
 };
 
-const JobStatus = ({className, jobs}) => {
+const JobStatus = ({className, style, jobs}) => {
   let waiting = 0;
   let running = 0;
   let stopped = 0;
@@ -87,7 +87,7 @@ const JobStatus = ({className, jobs}) => {
     succeeded = jobs.filter((x) => getHumanizedJobStateString(x) === 'Succeeded').length;
   }
   return (
-    <Card className={c(className, t.ph5)}>
+    <Card className={c(className, t.ph5)} style={style}>
       <Stack gap='l1'>
         <Stack.Item>
           <div className={FontClassNames.mediumPlus}>
@@ -154,6 +154,7 @@ const JobStatus = ({className, jobs}) => {
 
 JobStatus.propTypes = {
   className: PropTypes.string,
+  style: PropTypes.object,
   jobs: PropTypes.array,
 };
 

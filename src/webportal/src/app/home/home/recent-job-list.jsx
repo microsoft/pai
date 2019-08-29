@@ -148,9 +148,9 @@ const Content = ({jobs}) => {
   }
 };
 
-const RecentJobList = ({className, jobs}) => {
+const RecentJobList = ({style, jobs}) => {
   return (
-    <Card className={c(t.h100, t.ph5)}>
+    <Card className={c(t.h100, t.ph5)} style={style}>
       <Stack styles={{root: [t.h100]}} gap='l1'>
         <Stack.Item>
           <Header
@@ -159,7 +159,7 @@ const RecentJobList = ({className, jobs}) => {
             linkName='More'
             showLink = {isEmpty(jobs)}/>
         </Stack.Item>
-        <Stack.Item styles={{root: [{flexBasis: 0}]}} grow>
+        <Stack.Item styles={{root: [{minHeight: 0}]}} grow>
           <Content jobs={jobs} />
         </Stack.Item>
       </Stack>
@@ -168,7 +168,7 @@ const RecentJobList = ({className, jobs}) => {
 };
 
 RecentJobList.propTypes = {
-  className: PropTypes.string,
+  style: PropTypes.object,
   jobs: PropTypes.array.isRequired,
 };
 
