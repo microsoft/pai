@@ -136,6 +136,7 @@ const createUser = async (req, res, next) => {
     if (error.status === 404) {
       return next(createError('Not Found', 'NoGroupError', `No groups for vc: ${req.body.virtualCluster}`));
     }
+    return next(createError.unknown(error));
   }
   if (grouplist.length !== req.body.virtualCluster.length) {
     next(createError('Bad Request', 'NoVirtualClusterError', `Try to update: ${req.body.virtualCluster}, but found ${grouplist}`));
