@@ -36,6 +36,7 @@
     "classnames": "^2.2.6",
     "compression": "~1.7.1",
     "cookie-parser": "~1.4.3",
+    "copy-to-clipboard": "^3.2.0",
     "copy-webpack-plugin": "~5.0.1",
     "core-js": "^3.0.1",
     "css-loader": "^2.1.1",
