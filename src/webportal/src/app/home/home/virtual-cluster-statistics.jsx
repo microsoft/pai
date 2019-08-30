@@ -203,6 +203,7 @@ const VirtualClusterStatistics = ({style, virtualClusters}) => {
             className={c(t.absolute, t.absoluteFill, t.overflowAuto, t.pr4)}
           >
             <DetailsList
+              styles={{root: {overflow: 'unset'}}}
               columns={vcListColumns}
               disableSelectionZone
               items={vcList}
