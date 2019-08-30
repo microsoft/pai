@@ -31,4 +31,7 @@ extras:
   com.microsoft.pai.runtimeplugin:
     - plugin: ssh
       parameters:
-        userssh: <% $secrets.userssh %>
+        jobssh: true
+        userssh: 
+          type: custom
+          value: <% $secrets.userssh %>

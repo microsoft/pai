@@ -33,11 +33,18 @@ logger = logging.getLogger(__name__)
 if __name__ == "__main__":
     [parameters, pre_script, post_script] = plugin_init()
 
-    commands = []
-    if parameters is not None and "userssh" in parameters:
-        # export PAI_SSH_PUB_KEY for sshd.sh to use
-        commands.append("export PAI_SSH_PUB_KEY='{}'".format(parameters["userssh"]))
-    # write call to real executable script
-    commands.append("{}/sshd.sh\n".format(os.path.split(os.path.realpath(__file__))[0]))
+    cmdParams = []
+    if parameters is not None:
+        if "jobssh" in parameters:
+            cmdParams.append(parameters["jobssh"])
+        else:
+            cmdParams.append("false")
 
-    inject_commands(commands, pre_script)
+        if "userssh" in parameters:
+            if "type" in parameters["userssh"] and "value" in parameters["userssh"]:
+                cmdParams.append(parameters["userssh"]["type"])
+                cmdParams.append(parameters["userssh"]["value"])
+
+        # write call to real executable script
+        command = "{}/sshd.sh {}\n".format(os.path.dirname(os.path.abspath(__file__)), " ".join(cmdParams))
+        inject_commands([command], pre_script)
