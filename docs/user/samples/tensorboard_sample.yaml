@@ -1,0 +1,27 @@
+protocolVersion: 2
+name: tensorboard_test_sample
+type: job
+jobRetryCount: 0
+prerequisites:
+  - type: dockerimage
+    uri: 'tensorflow/tensorflow:1.13.2'
+    name: docker_image_0
+taskRoles:
+  taskrole:
+    instances: 1
+    completion:
+      minFailedInstances: 1
+      minSucceededInstances: 1
+    dockerImage: docker_image_0
+    resourcePerInstance:
+      gpu: 1
+      cpu: 4
+      memoryMB: 8192
+    commands:
+      - >-
+        python /pai_data/test/minist_tensorboard.py --data_dir ./data --log_dir
+        /mnt/tensorboard
+      - sleep 2d
+    taskRetryCount: 0
+defaults:
+  virtualCluster: default
