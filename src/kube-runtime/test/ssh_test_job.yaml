@@ -26,7 +26,7 @@ taskRoles:
         model_server: 1
     commands:
       - >-
-        sleep infinty
+        sleep 2h
 extras:
   com.microsoft.pai.runtimeplugin:
     - plugin: ssh
