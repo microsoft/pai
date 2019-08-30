@@ -126,40 +126,47 @@ const updateUserGroupListFromExternal = async (req, res, next) => {
 };
 
 const createUser = async (req, res, next) => {
+  if (!req.user.admin) {
+    next(createError('Forbidden', 'ForbiddenUserError', `Non-admin is not allow to do this operation.`));
+  }
+  let grouplist;
   try {
-    if (!req.user.admin) {
-      next(createError('Forbidden', 'ForbiddenUserError', `Non-admin is not allow to do this operation.`));
+    grouplist = await groupModel.virtualCluster2GroupList(req.body.virtualCluster);
+  } catch (error) {
+    if (error.status === 404) {
+      return next(createError('Not Found', 'NoGroupError', `No groups for vc: ${req.body.virtualCluster}`));
     }
-    const grouplist = await groupModel.virtualCluster2GroupList(req.body.virtualCluster);
-    if (grouplist.length !== req.body.virtualCluster.length) {
-      next(createError('Bad Request', 'NoVirtualClusterError', `Try to update: ${req.body.virtualCluster}, but found ${grouplist}`));
+  }
+  if (grouplist.length !== req.body.virtualCluster.length) {
+    next(createError('Bad Request', 'NoVirtualClusterError', `Try to update: ${req.body.virtualCluster}, but found ${grouplist}`));
+  }
+  if (!grouplist.includes(authConfig.groupConfig.defaultGroup.groupname)) {
+    grouplist.push(authConfig.groupConfig.defaultGroup.groupname);
+  }
+  if (req.body.admin) {
+    if (!grouplist.includes(authConfig.groupConfig.adminGroup.groupname)) {
+      grouplist.push(authConfig.groupConfig.adminGroup.groupname);
     }
-    if (!grouplist.includes(authConfig.groupConfig.defaultGroup.groupname)) {
-      grouplist.push(authConfig.groupConfig.defaultGroup.groupname);
-    }
-    if (req.body.admin) {
-      if (!grouplist.includes(authConfig.groupConfig.adminGroup.groupname)) {
-        grouplist.push(authConfig.groupConfig.adminGroup.groupname);
-      }
-    }
-    const username = req.body.username;
-    const userValue = {
-      username: req.body.username,
-      email: req.body.email,
-      password: req.body.password,
-      grouplist: grouplist,
-      extension: req.body.extension,
-    };
+  }
+  const username = req.body.username;
+  const userValue = {
+    username: req.body.username,
+    email: req.body.email,
+    password: req.body.password,
+    grouplist: grouplist,
+    extension: req.body.extension,
+  };
+  try {
     await userModel.createUser(username, userValue);
-    return res.status(201).json({
-      message: 'User is created successfully',
-    });
   } catch (error) {
     if (error.status === 409) {
       return next(createError('Conflict', 'ConflictUserError', `User name ${req.body.username} already exists.`));
     }
     return next(createError.unknown(error));
   }
+  return res.status(201).json({
+    message: 'User is created successfully',
+  });
 };
 
 const updateUserExtension = async (req, res, next) => {
@@ -228,46 +235,57 @@ const updateUserVirtualCluster = async (req, res, next) => {
 };
 
 const updateUserGroupList = async (req, res, next) => {
+  if (!req.user.admin) {
+    next(createError('Forbidden', 'ForbiddenUserError', `Non-admin is not allow to do this operation.`));
+  }
+  const existGrouplist = await groupModel.filterExistGroups(req.body.grouplist);
+  if (existGrouplist.length !== req.body.grouplist) {
+    const nonExistGrouplist = req.body.grouplist.filter((groupname) => !existGrouplist.includes(groupname));
+    return next(createError('Not Found', 'NoGroupError', `Updated nonexistent grouplist: ${nonExistGrouplist}`));
+  }
+  const username = req.params.username;
+  let userValue;
   try {
-    if (!req.user.admin) {
-      next(createError('Forbidden', 'ForbiddenUserError', `Non-admin is not allow to do this operation.`));
-    }
-    const username = req.params.username;
-    let userValue = await userModel.getUser(username);
-    userValue.grouplist = req.body.grouplist;
-    await userModel.updateUser(username, userValue);
-    return res.status(201).json({
-      message: 'update user grouplist successfully.',
-    });
+    userValue = await userModel.getUser(username);
   } catch (error) {
     if (error.status === 404) {
       return next(createError('Not Found', 'NoUserError', `User ${req.params.username} not found.`));
     }
     return next(createError.unknown(error));
   }
+  userValue.grouplist = req.body.grouplist;
+  await userModel.updateUser(username, userValue);
+  return res.status(201).json({
+    message: 'update user grouplist successfully.',
+  });
 };
 
 const addGroupIntoUserGrouplist = async (req, res, next) => {
+  if (!req.user.admin) {
+    next(createError('Forbidden', 'ForbiddenUserError', `Non-admin is not allow to do this operation.`));
+  }
+  const existGrouplist = await groupModel.filterExistGroups([req.body.groupname]);
+  if (existGrouplist.length === 0) {
+    return next(createError('Not Found', 'NoGroupError', `Updated nonexistent group: ${req.body.groupname}`));
+  }
+  const username = req.params.username;
+  const groupname = req.body.groupname;
+  let userInfo;
   try {
-    if (!req.user.admin) {
-      next(createError('Forbidden', 'ForbiddenUserError', `Non-admin is not allow to do this operation.`));
-    }
-    const username = req.params.username;
-    const groupname = req.body.groupname;
-    let userInfo = await userModel.getUser(username);
-    if (!userInfo.grouplist.includes(groupname)) {
-      userInfo.grouplist.push(groupname);
-    }
-    await userModel.updateUser(username, userInfo);
-    return res.status(201).json({
-      message: `User ${username} is added into group ${groupname}`,
-    });
+    userInfo = await userModel.getUser(username);
   } catch (error) {
     if (error.status === 404) {
       return next(createError('Not Found', 'NoUserError', `User ${req.params.username} not found.`));
     }
     return next(createError.unknown(error));
   }
+  if (!userInfo.grouplist.includes(groupname)) {
+    userInfo.grouplist.push(groupname);
+  }
+  await userModel.updateUser(username, userInfo);
+  return res.status(201).json({
+    message: `User ${username} is added into group ${groupname}`,
+  });
 };
 
 const removeGroupFromUserGrouplist = async (req, res, next) => {
