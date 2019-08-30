@@ -100,3 +100,8 @@ pylon:
   # port of pylon
   port: 80
 
+hivedscheduler:
+  config: |
+    physicalCluster: none
+    virtualClusters: none
+

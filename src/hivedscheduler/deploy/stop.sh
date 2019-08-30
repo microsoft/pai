@@ -19,9 +19,15 @@
 
 pushd $(dirname "$0") > /dev/null
 
-if kubectl get sts | grep -q "hivedscheduler-sts"; then
-    kubectl delete sts hivedscheduler-sts
-fi
+APISERVER=$(kubectl config view | grep server | cut -f 2- -d ":" | tr -d " ")
+
+until ! kubectl get sts | grep -q "hivedscheduler-sts"; do
+    echo 'Trying to stop hivedscheduler ...'
+    curl -X DELETE $APISERVER/apis/apps/v1/namespaces/default/statefulsets/hivedscheduler-sts \
+        -H "Content-Type: application/json" \
+        -d '{"kind":"DeleteOptions","apiVersion":"v1","propagationPolicy":"Foreground"}' > /dev/null 2>&1
+    sleep 5
+done
 
 if kubectl get configmap | grep -q "hivedscheduler-config"; then
     kubectl delete configmap hivedscheduler-config || exit $?
@@ -35,8 +41,12 @@ if kubectl get clusterrolebinding | grep -q "hivedscheduler-role-binding"; then
     kubectl delete clusterrolebinding hivedscheduler-role-binding || exit $?
 fi
 
-if kubectl get ds --namespace=kube-system | grep -q "nvidia-device-plugin-daemonset"; then
-    kubectl delete ds nvidia-device-plugin-daemonset --namespace=kube-system
-fi
+until ! kubectl get ds --namespace=kube-system | grep -q "nvidia-device-plugin-daemonset"; do
+    echo 'Trying to stop nvidia device plugin ...'
+    curl -X DELETE $APISERVER/apis/apps/v1/namespaces/kube-system/daemonsets/nvidia-device-plugin-daemonset \
+        -H "Content-Type: application/json" \
+        -d '{"kind":"DeleteOptions","apiVersion":"v1","propagationPolicy":"Foreground"}' > /dev/null 2>&1
+    sleep 5
+done
 
 popd > /dev/null
