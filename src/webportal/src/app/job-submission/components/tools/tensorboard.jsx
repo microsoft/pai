@@ -35,7 +35,7 @@ export const TensorBoard = (props) => {
     if (!extras.tensorBoard) {
       return false;
     }
-    if (taskRoles.length === 1) {
+    if (taskRoles.length <= 1) {
       return false;
     }
     const teamDataList = jobData.mountDirs;
