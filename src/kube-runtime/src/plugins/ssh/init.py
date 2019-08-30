@@ -36,14 +36,14 @@ if __name__ == "__main__":
     cmdParams = []
     if parameters is not None:
         if "jobssh" in parameters:
-            cmdParams.append(parameters["jobssh"])
+            cmdParams.append(str(parameters["jobssh"]).lower())
         else:
             cmdParams.append("false")
 
         if "userssh" in parameters:
             if "type" in parameters["userssh"] and "value" in parameters["userssh"]:
-                cmdParams.append(parameters["userssh"]["type"])
-                cmdParams.append(parameters["userssh"]["value"])
+                cmdParams.append(str(parameters["userssh"]["type"]))
+                cmdParams.append("\'{}\'".format(parameters["userssh"]["value"]))
 
         # write call to real executable script
         command = "{}/sshd.sh {}\n".format(os.path.dirname(os.path.abspath(__file__)), " ".join(cmdParams))

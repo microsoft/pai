@@ -125,9 +125,9 @@ if [ -f /usr/sbin/sshd ] ; then
                 ;;
               *)
                 echo "unknown userssh type. userssh type should be system|custom." >&2
-
+                ;;
+            esac
           fi
-          prepare_user_ssh
           start_ssh         
         else
           echo "usage: sshd <enable jobssh> [<userssh type> <userssh value>]" >&2
