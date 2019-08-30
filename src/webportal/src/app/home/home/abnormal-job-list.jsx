@@ -38,6 +38,7 @@ import {isLowGpuUsageJob, isLongRunJob} from '../../components/util/job';
 import {stopJob} from './conn';
 import {cloneDeep} from 'lodash';
 import StopJobConfirm from '../../job/job-view/fabric/JobList/StopJobConfirm';
+import {getStatusText} from '../../job/job-view/fabric/JobList/utils';
 
 // Move it to common folder
 import {TooltipIcon} from '../../job-submission/components/controls/tooltip-icon';
@@ -141,6 +142,8 @@ const AbnormalJobList = ({jobs}) => {
       className: zeroPaddingClass,
       isResizable: true,
       onRender(job) {
+        const statusText = getStatusText(job);
+        const disabled = statusText !== 'Waiting' && statusText !== 'Running';
         return (
           <div
             style={{
@@ -153,6 +156,7 @@ const AbnormalJobList = ({jobs}) => {
           >
             <DefaultButton
               iconProps={{iconName: 'StopSolid'}}
+              disabled={disabled}
               styles={{
                 root: {backgroundColor: '#e5e5e5'},
                 rootFocused: {backgroundColor: '#e5e5e5'},
@@ -180,6 +184,7 @@ const AbnormalJobList = ({jobs}) => {
         const cloneJobs = cloneDeep(abnormalJobs);
         const stopJob = cloneJobs.find((cloneJob) => cloneJob.name === job.name);
         stopJob.executionType = 'STOP';
+        delete stopJob._statusText;
         setAbnormalJobs(cloneJobs);
       }).catch(alert);
     });
