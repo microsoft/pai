@@ -47,7 +47,7 @@ import StatusBadge from '../../components/status-badge';
 
 const {palette} = getTheme();
 
-const AbnormalJobList = ({jobs}) => {
+const AbnormalJobList = ({jobs, style}) => {
   const jobListColumns = [
     {
       key: 'name',
@@ -190,26 +190,27 @@ const AbnormalJobList = ({jobs}) => {
   const [currentJob, setCurrentJob] = useState(null);
 
   return (
-    <Card className={c(t.h100, t.ph5)}>
+    <Card className={c(t.h100, t.ph5)} style={style}>
       <Stack gap='l1' styles={{root: [t.h100]}}>
         <Stack.Item>
           <Header
             headerName='Abnormal jobs'
             linkName='All jobs'
             linkHref='/job-list.html'
-            showLink={true}>{
-                <TooltipIcon content={'A job is treaded as an abnormal job if running more than 5 days and GPU usage is lower than 10%'}/>
-              }
-            </Header>
+            showLink
+          >
+            <TooltipIcon content={'A job is treaded as an abnormal job if running more than 5 days and GPU usage is lower than 10%'}/>
+          </Header>
         </Stack.Item>
         <Stack.Item styles={{root: {overflow: 'auto'}}} grow>
           <DetailsList
+            styles={{root: {minHeight: 200, overflow: 'unset'}}}
             columns={jobListColumns}
             disableSelectionZone
             items={abnormalJobs}
             layoutMode={DetailsListLayoutMode.justified}
             selectionMode={SelectionMode.none}
-            />
+          />
         </Stack.Item>
       </Stack>
       <StopJobConfirm
@@ -222,6 +223,7 @@ const AbnormalJobList = ({jobs}) => {
 };
 
 AbnormalJobList.propTypes = {
+  style: PropTypes.object,
   jobs: PropTypes.array.isRequired,
 };
 
