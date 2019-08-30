@@ -8,7 +8,8 @@
   - exitCode: 1
     userLogRegex: exec\(compile\(getattr\(token[a-z]*, 'open', open\)\(__file__\)
   reason: Failed to open tocken file
-  solution: Please check the tocken file path
+  solution:
+    - Please check the tocken file path
   containerExitCode: 10
 
 - patterns:
@@ -17,7 +18,8 @@
   - exitCode: 1
     userLogRegex: package not find [a-z]*
   reason: Some package not install property
-  solution: Please check the pip install command
+  solution:
+    - Please check the pip install command
   containerExitCode: 12
 
 - patterns:
@@ -25,17 +27,20 @@
     userLogRegex: connect tensorboard failed
     platformLogRegex: Failed to start tensorboard
   reason: Tensorboad not startup correctly
-  solution: Please try again or connect admin
+  solution:
+    - Please try again or connect admin
   containerExitCode: 15
 
 - patterns:
   - exitCode: 137
   reason: User program terminated by SIGKILL
-  solution: Please check the log and retry again
+  solution:
+    - Please check the log and retry again
   containerExitCode: 137
 
 - patterns:
   - exitCode: 143
   reason: User program terminated by SIGTERM
-  solution: Please check the log and retry again
+  solution:
+    - Please check the log and retry again
   containerExitCode: 143

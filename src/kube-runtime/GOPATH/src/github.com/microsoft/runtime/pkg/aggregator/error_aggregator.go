@@ -19,7 +19,7 @@ type runtimeErrorSpec struct {
 	ContainerExitCode int       `yaml:"containerExitCode"`
 	Patterns          []pattern `yaml:"patterns"`
 	Reason            *string   `yaml:"reason"`
-	Solution          *string   `yaml:"solution"`
+	Solution          []string  `yaml:"solution"`
 }
 
 type pattern struct {
@@ -39,7 +39,7 @@ type ErrorLogs struct {
 type RuntimeExitInfo struct {
 	Exitcode                 int        `yaml:"exitCode"`
 	Reason                   *string    `yaml:"reason,omitempty"`
-	Solution                 *string    `yaml:"solution,omitempty"`
+	Solution                 []string   `yaml:"solution,omitempty"`
 	Trigger                  *string    `yaml:"trigger,omitempty"`
 	OriginUserExitCode       int        `yaml:"originUserExitCode"`
 	MatchedUserLogString     *string    `yaml:"matchedUserLogString,omitempty"`
