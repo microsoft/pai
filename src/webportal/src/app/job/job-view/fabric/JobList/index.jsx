@@ -24,7 +24,6 @@ import {ColorClassNames, getTheme} from '@uifabric/styling';
 import {initializeIcons} from 'office-ui-fabric-react/lib/Icons';
 import {Fabric} from 'office-ui-fabric-react/lib/Fabric';
 import {MessageBar, MessageBarType} from 'office-ui-fabric-react/lib/MessageBar';
-import {Overlay} from 'office-ui-fabric-react/lib/Overlay';
 import {Stack} from 'office-ui-fabric-react/lib/Stack';
 
 import Context from './Context';
@@ -41,18 +40,6 @@ import {initTheme} from '../../../../components/theme';
 
 initTheme();
 initializeIcons();
-
-function getError(error) {
-  return (
-    <Overlay>
-      <div className={ColorClassNames.whiteBackground}>
-        <MessageBar messageBarType={MessageBarType.blocked}>
-          {error}
-        </MessageBar>
-      </div>
-    </Overlay>
-  );
-}
 
 export default function JobList() {
   const admin = userAuth.checkAdmin();
@@ -135,7 +122,6 @@ export default function JobList() {
           }
         }).catch((reason) => {
           setError(reason.message);
-          setTimeout(setError, 1000, null);
         });
       });
     });
@@ -154,7 +140,6 @@ export default function JobList() {
       .then(setAllJobs)
       .catch((reason) => {
         setError(reason.message);
-        setTimeout(setError, 1000, null);
       });
   }, []);
 
@@ -181,6 +166,17 @@ export default function JobList() {
   return (
     <Context.Provider value={context}>
       <Fabric style={{height: '100%'}}>
+        {error && (
+          <div className={ColorClassNames.whiteBackground}>
+            <MessageBar
+              messageBarType={MessageBarType.blocked}
+              onDismiss={() => setError(null)}
+              dismissButtonAriaLabel="Close"
+            >
+              {error}
+            </MessageBar>
+          </div>
+        )}
         <Stack
           verticalFill
           styles={{root: {position: 'relative', padding: `${spacing.s1} ${spacing.l1} ${spacing.l1}`}}}
@@ -197,7 +193,6 @@ export default function JobList() {
           <Stack.Item styles={{root: {backgroundColor: 'white', paddingBottom: spacing.l1}}}>
             <Paginator/>
           </Stack.Item>
-          {error !== null ? getError(error) : null}
         </Stack>
       </Fabric>
     </Context.Provider>
