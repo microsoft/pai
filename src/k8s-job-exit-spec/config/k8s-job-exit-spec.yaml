@@ -42,9 +42,14 @@ schema:
       - USER_CONTAINER
       - PAI_OS
       - PAI_RUNTIME
+<<<<<<< HEAD
       - PAI_DOCKER
       - PAI_K8S
       - PAI_FC
+=======
+      - PAI_YARN
+      - PAI_LAUNCHER
+>>>>>>> add config
   - field: causer
     description: "Who root caused this ExitCode in details"
     required: False
@@ -57,6 +62,7 @@ schema:
       - USER_DELETION
       - USER_RETRY
       - USER_UPGRADE
+<<<<<<< HEAD
       - USER_UNKNOWN
       - RESOURCE_ALLOCATION_TIMEOUT
       - PAI_OS
@@ -65,6 +71,15 @@ schema:
       - PAI_K8S
       - PAI_FC
       - PAI_UNKNOWN
+=======
+      - RESOURCE_ALLOCATION_TIMEOUT
+      - PAI_HDFS
+      - PAI_OS
+      - PAI_DOCKER
+      - PAI_RUNTIME
+      - PAI_YARN
+      - PAI_LAUNCHER
+>>>>>>> add config
       - UNKNOWN
   - field: type
     description: "The rough type of this ExitCode"
@@ -96,9 +111,15 @@ schema:
     unique: False
     type: Enum
     range:
+<<<<<<< HEAD
       - TRANSIENT
       - TRANSIENT_CONFLICT
       - PERMANENT
+=======
+      - TRANSIENT_NORMAL
+      - TRANSIENT_CONFLICT
+      - NON_TRANSIENT
+>>>>>>> add config
       - UNKNOWN
   - field: reaction
     description: "The reaction for this ExitCode will be executed by PAI automatically"
@@ -128,6 +149,7 @@ schema:
     unique: False
     type: List<String>
     range: "Any"
+<<<<<<< HEAD
   - field: pattern
     description: "The pattern that PAI used to detect this ExitCode"
     required: False
@@ -151,11 +173,21 @@ schema:
           reasonRegex:
           messageRegex:
           exitCode:
+=======
+  - field: patterns
+    description: "The pattern that PAI used to detect this ExitCode"
+    required: False
+    unique: False
+    type: List<Object>
+    range: "Any, such as USER_EXITCODE=X && USER_LOG_PATTERN=Y || OS_Signal=Z"
+
+>>>>>>> add config
 
 ################################################################################
 # PAI Job ExitSpec
 ################################################################################
 spec:
+<<<<<<< HEAD
 ###########################################################################
 # Range: [0, 0]
 # Owner: PAI_FC
@@ -586,10 +618,40 @@ spec:
 ###########################################################################
 - code: 130
   phrase: ContainerSigIntReceived
+=======
+################################
+# Range: [129, 192]
+# Owner: PAI_RUNTIME
+# Description: Recognized From YARN / Signal
+################################
+# Container Failed by YARN
+- code: 154
+  phrase: CONTAINER_EXIT_CODE_FILE_LOST
+  issuer: PAI_YARN
+  causer: PAI_YARN
+  type: PLATFORM_FAILURE
+  stage: COMPLETING
+  behavior: TRANSIENT_NORMAL
+  reaction: ALWAYS_RETRY
+  reason: "Container exitcode file cannot be found by YARN NM, maybe node unexpected shutdown, disk cleaned up or disk failure"
+  repro:
+    - "Stop YARN NM"
+    - "Kill container process"
+    - "Delete container exitcode file"
+    - "Start YARN NM"
+  solution:
+    - "Wait result from next retry"
+    - "Contact Cluster Admin"
+
+# Container Failed by OS Signal
+- code: 130
+  phrase: CONTAINER_KILLED_BY_SIGINT
+>>>>>>> add config
   issuer: PAI_OS
   causer: PAI_OS
   type: PLATFORM_FAILURE
   stage: RUNNING
+<<<<<<< HEAD
   behavior: TRANSIENT
   reaction: ALWAYS_RETRY
   reason: "Container killed by OS Signal: SIGINT"
@@ -845,3 +907,19 @@ spec:
   - "PAI Runtime exits with exitcode 1"
   solution:
   - "Contact PAI Dev to fix PAI Runtime bugs"
+=======
+  behavior: TRANSIENT_NORMAL
+  reaction: ALWAYS_RETRY
+  reason: "Container killed by OS Signal: SIGINT"
+  repro:
+    - "Kill container process by SIGINT"
+  solution:
+    - "Wait result from next retry"
+    - "Contact Cluster Admin"
+  patterns:
+    runtimeContainerPatterns:
+      # OR-Elements, default to ANY. The pattern will be ignored if user command exitCode is zero 
+      - exitCode: 130
+        userLogRegex: "sample"
+        platformLogRegex: "sample"
+>>>>>>> add config

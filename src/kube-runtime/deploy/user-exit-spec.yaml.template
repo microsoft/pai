@@ -29,21 +29,19 @@
 {%- endif %}
 {%- if 'patterns' in spec_item %}
   patterns:
-{%- for pattern in spec_item[patterns] %}
-{%- if 'runtimeContainerPatterns' in pattern %}
-{%- for runtimePattern in pattern[runtimeContainerPatterns] %}
+{%- if 'runtimeContainerPatterns' in spec_item['patterns'] %}
+{%- for runtimePattern in spec_item['patterns']['runtimeContainerPatterns'] %}
 {%- if 'exitCode' in runtimePattern %}
-    - exitCode: {{ exitCode }}
+    - exitCode: {{ runtimePattern['exitCode'] }}
 {%- endif %}
 {%- if 'userLogRegex' in runtimePattern %}
-    - userLogRegex: {{ userLogRegex }}
+      userLogRegex: {{ runtimePattern['userLogRegex'] }}
 {%- endif %}
 {%- if 'platformLogRegex' in runtimePattern %}
-    -platformLogRegex: {{ platformLogRegex }}
+      platformLogRegex: {{ runtimePattern['platformLogRegex'] }}
 {%- endif %}
 {%- endfor %}
 {%- endif %}
-{%- endfor %}
 {%- endif %}
 
 {% endfor %}

@@ -32,8 +32,12 @@ PAI_LOG_DIR=${PAI_WORK_DIR}/logs/${FC_POD_UID}
 PAI_USER_LOG_FILE=${PAI_LOG_DIR}/user.pai.all
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 TERMINATE_MESSAGE_PATH=/dev/termination-log
+=======
+TERMINATE_MESSAGE_PATH=/tmp/termination-log
+>>>>>>> add config
 
 >>>>>>> deploy change
 # To run runtime scripts under runtime.d in task container,

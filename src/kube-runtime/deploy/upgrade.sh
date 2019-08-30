@@ -19,7 +19,6 @@
 
 pushd $(dirname "$0") > /dev/null
 
-kubectl create configmap user-exit-spec-configuration --from-file=user-exit-spec.yaml --dry-run -o yaml | kubectl replace -f -
-kubectl create configmap user-exit-spec-configuration --from-file=user-exit-spec.yaml --dry-run -o yaml | kubectl apply --overwrite=true -f - || exit $?
+kubectl create configmap user-exit-spec-configuration --from-file=user-exit-spec.yaml --dry-run -o yaml | kubectl replace -f - || exit $?
 
 popd > /dev/null
