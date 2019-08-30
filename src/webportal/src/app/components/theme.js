@@ -20,6 +20,7 @@ export function initTheme() {
     spacing: {
       s2: '4px',
       s1: '8px',
+      s3: '12px',
       m: '16px',
       l1: '20px',
       l2: '32px',
