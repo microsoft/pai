@@ -216,9 +216,7 @@ const prepareContainerScripts = async (frameworkName, userName, config, rawConfi
   // prepare scripts on hdfs
   const hdfsPromises = [];
   const pathPrefix = `/Container/${userName}/${frameworkName}`;
-  hdfsPromises.push(
-    mkdir('/Container', 'root', '777')
-  );
+  await mkdir('/Container', 'root', '777');
   for (let path of ['log', 'tmp']) {
     hdfsPromises.push(
       mkdir(`${pathPrefix}/${path}`, userName, '755')
