@@ -58,15 +58,14 @@ if (launcherConfig.enabledHived) {
     // TODO: this is a hardcode for demo, this exception shouldn't be catch and ignored
     hivedObj = {
       physicalCluster: {
-        cellTypes: {
-          leaves: {
-            K80: {
-              gpu: 1,
-              cpu: 4,
-              memory: '8192Mi',
-            },
+        gpuTypes: {
+          K80: {
+            gpu: 1,
+            cpu: 4,
+            memory: '8192Mi',
           },
-          parents: {},
+        },
+        cellTypes: {
         },
         physicalCells: [],
       },
@@ -78,26 +77,26 @@ if (launcherConfig.enabledHived) {
     logger.warn(`Init hived spec to: `, JSON.stringify(hivedObj, undefined, 2));
   }
 
-  const cellTypeLeaves = hivedObj.physicalCluster.cellTypes.leaves;
-  const cellTypeParents = hivedObj.physicalCluster.cellTypes.parents;
+  const gpuTypes = hivedObj.physicalCluster.gpuTypes;
+  const cellTypes = hivedObj.physicalCluster.cellTypes;
   const physicalCells = hivedObj.physicalCluster.physicalCells;
   const virtualClusters = hivedObj.virtualClusters;
   // generate gputype resource unit
-  for (let gpuType of Object.keys(cellTypeLeaves)) {
+  for (let gpuType of Object.keys(gpuTypes)) {
     resourceUnits[gpuType] = {
-      cpu: parseInt(cellTypeLeaves[gpuType].cpu),
-      memory: k8s.convertMemoryMb(cellTypeLeaves[gpuType].memory),
-      gpu: parseInt(cellTypeLeaves[gpuType].gpu),
+      cpu: parseInt(gpuTypes[gpuType].cpu),
+      memory: k8s.convertMemoryMb(gpuTypes[gpuType].memory),
+      gpu: parseInt(gpuTypes[gpuType].gpu),
     };
   }
 
   // generate cell type map, stored in cellTypeMap
   const cellTypeMap = {};
   // initialize cellTypeMap to leaves
-  for (let gpuType of Object.keys(cellTypeLeaves)) {
+  for (let gpuType of Object.keys(gpuTypes)) {
     cellTypeMap[gpuType] = {
       gpuType: gpuType,
-      gpuNumber: cellTypeLeaves[gpuType].gpu,
+      gpuNumber: gpuTypes[gpuType].gpu,
       childCellType: null,
     };
   }
@@ -106,7 +105,7 @@ if (launcherConfig.enabledHived) {
       // already added
       return;
     }
-    const spec = cellTypeParents[cellType];
+    const spec = cellTypes[cellType];
     if (spec == null) {
       throw new Error(`hived error: leaf cell: ${cellType} not found in cell types`);
     }
@@ -119,7 +118,7 @@ if (launcherConfig.enabledHived) {
       isNode: spec.isNodeLevel === true,
     };
   };
-  for (let cellType of Object.keys(cellTypeParents)) {
+  for (let cellType of Object.keys(cellTypes)) {
     addCellType(cellType);
   }
 
