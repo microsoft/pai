@@ -328,7 +328,9 @@ export default class TaskRoleContainerList extends React.Component {
                       name: 'Full log',
                       iconProps: {iconName: 'TextDocument'},
                       disabled: isNil(item.containerId),
-                      onClick: () => this.showContainerLog(`${item.containerLog}user.pai.all`, 'User logs (Last 4096 bytes)'),
+                      onClick: () => this.showContainerLog(
+                        `${item.containerLog}user.pai.all`,
+                        'User logs (Last 4096 bytes. Notice: The logs may out of order when merging stdout & stderr streams)'),
                     },
                     {
                       key: 'yarnTrackingPage',
