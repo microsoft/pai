@@ -299,61 +299,61 @@ describe('Job Status', () => {
     };
 
     nock(launcherWebserviceUri)
-    .get('/v1/Frameworks/iamadmin~framework_waiting')
-    .reply(200, () => {
-      frameworkDetail.aggregatedFrameworkStatus.frameworkStatus.name = 'framework_waiting';
-      frameworkDetail.aggregatedFrameworkStatus.frameworkStatus.frameworkState = 'FRAMEWORK_WAITING';
-      return frameworkDetail;
-    })
-    .get('/v1/Frameworks/iamadmin~app_created')
-    .reply(200, () => {
-      frameworkDetail.aggregatedFrameworkStatus.frameworkStatus.name = 'app_created';
-      frameworkDetail.aggregatedFrameworkStatus.frameworkStatus.frameworkState = 'APPLICATION_CREATED';
-      return frameworkDetail;
-    })
-    .get('/v1/Frameworks/iamadmin~app_launched')
-    .reply(200, () => {
-      frameworkDetail.aggregatedFrameworkStatus.frameworkStatus.name = 'app_launched';
-      frameworkDetail.aggregatedFrameworkStatus.frameworkStatus.frameworkState = 'APPLICATION_LAUNCHED';
-      return frameworkDetail;
-    })
-    .get('/v1/Frameworks/iamadmin~app_waiting')
-    .reply(200, () => {
-      frameworkDetail.aggregatedFrameworkStatus.frameworkStatus.name = 'app_waiting';
-      frameworkDetail.aggregatedFrameworkStatus.frameworkStatus.frameworkState = 'APPLICATION_WAITING';
-      return frameworkDetail;
-    })
-    .get('/v1/Frameworks/iamadmin~app_diagnostics')
-    .reply(200, () => {
-      frameworkDetail.aggregatedFrameworkStatus.frameworkStatus.name = 'app_diagnostics';
-      frameworkDetail.aggregatedFrameworkStatus.frameworkStatus.frameworkState = 'APPLICATION_RETRIEVING_DIAGNOSTICS';
-      return frameworkDetail;
-    })
-    .get('/v1/Frameworks/iamadmin~app_completed')
-    .reply(200, () => {
-      frameworkDetail.aggregatedFrameworkStatus.frameworkStatus.name = 'app_completed';
-      frameworkDetail.aggregatedFrameworkStatus.frameworkStatus.frameworkState = 'APPLICATION_COMPLETED';
-      return frameworkDetail;
-    })
-    .get('/v1/Frameworks/iamadmin~app_running')
-    .reply(200, () => {
-      frameworkDetail.aggregatedFrameworkStatus.frameworkStatus.name = 'app_running';
-      frameworkDetail.aggregatedFrameworkStatus.frameworkStatus.frameworkState = 'APPLICATION_RUNNING';
-      return frameworkDetail;
-    })
-    .get('/v1/Frameworks/iamadmin~framework_completed')
-    .reply(200, () => {
-      frameworkDetail.aggregatedFrameworkStatus.frameworkStatus.name = 'framework_completed';
-      frameworkDetail.aggregatedFrameworkStatus.frameworkStatus.frameworkState = 'FRAMEWORK_COMPLETED';
-      frameworkDetail.aggregatedFrameworkStatus.frameworkStatus.applicationExitCode = -7351;
-      return frameworkDetail;
-    })
-    .get('/v1/Frameworks/iamadmin~unknown_case')
-    .reply(200, () => {
-      frameworkDetail.aggregatedFrameworkStatus.frameworkStatus.name = 'unknown_case';
-      frameworkDetail.aggregatedFrameworkStatus.frameworkStatus.frameworkState = 'UNKNOWN';
-      return frameworkDetail;
-    });
+      .get('/v1/Frameworks/iamadmin~framework_waiting')
+      .reply(200, () => {
+        frameworkDetail.aggregatedFrameworkStatus.frameworkStatus.name = 'framework_waiting';
+        frameworkDetail.aggregatedFrameworkStatus.frameworkStatus.frameworkState = 'FRAMEWORK_WAITING';
+        return frameworkDetail;
+      })
+      .get('/v1/Frameworks/iamadmin~app_created')
+      .reply(200, () => {
+        frameworkDetail.aggregatedFrameworkStatus.frameworkStatus.name = 'app_created';
+        frameworkDetail.aggregatedFrameworkStatus.frameworkStatus.frameworkState = 'APPLICATION_CREATED';
+        return frameworkDetail;
+      })
+      .get('/v1/Frameworks/iamadmin~app_launched')
+      .reply(200, () => {
+        frameworkDetail.aggregatedFrameworkStatus.frameworkStatus.name = 'app_launched';
+        frameworkDetail.aggregatedFrameworkStatus.frameworkStatus.frameworkState = 'APPLICATION_LAUNCHED';
+        return frameworkDetail;
+      })
+      .get('/v1/Frameworks/iamadmin~app_waiting')
+      .reply(200, () => {
+        frameworkDetail.aggregatedFrameworkStatus.frameworkStatus.name = 'app_waiting';
+        frameworkDetail.aggregatedFrameworkStatus.frameworkStatus.frameworkState = 'APPLICATION_WAITING';
+        return frameworkDetail;
+      })
+      .get('/v1/Frameworks/iamadmin~app_diagnostics')
+      .reply(200, () => {
+        frameworkDetail.aggregatedFrameworkStatus.frameworkStatus.name = 'app_diagnostics';
+        frameworkDetail.aggregatedFrameworkStatus.frameworkStatus.frameworkState = 'APPLICATION_RETRIEVING_DIAGNOSTICS';
+        return frameworkDetail;
+      })
+      .get('/v1/Frameworks/iamadmin~app_completed')
+      .reply(200, () => {
+        frameworkDetail.aggregatedFrameworkStatus.frameworkStatus.name = 'app_completed';
+        frameworkDetail.aggregatedFrameworkStatus.frameworkStatus.frameworkState = 'APPLICATION_COMPLETED';
+        return frameworkDetail;
+      })
+      .get('/v1/Frameworks/iamadmin~app_running')
+      .reply(200, () => {
+        frameworkDetail.aggregatedFrameworkStatus.frameworkStatus.name = 'app_running';
+        frameworkDetail.aggregatedFrameworkStatus.frameworkStatus.frameworkState = 'APPLICATION_RUNNING';
+        return frameworkDetail;
+      })
+      .get('/v1/Frameworks/iamadmin~framework_completed')
+      .reply(200, () => {
+        frameworkDetail.aggregatedFrameworkStatus.frameworkStatus.name = 'framework_completed';
+        frameworkDetail.aggregatedFrameworkStatus.frameworkStatus.frameworkState = 'FRAMEWORK_COMPLETED';
+        frameworkDetail.aggregatedFrameworkStatus.frameworkStatus.applicationExitCode = -7351;
+        return frameworkDetail;
+      })
+      .get('/v1/Frameworks/iamadmin~unknown_case')
+      .reply(200, () => {
+        frameworkDetail.aggregatedFrameworkStatus.frameworkStatus.name = 'unknown_case';
+        frameworkDetail.aggregatedFrameworkStatus.frameworkStatus.frameworkState = 'UNKNOWN';
+        return frameworkDetail;
+      });
   });
 
   it('should waiting when framework waiting', (done) => {
