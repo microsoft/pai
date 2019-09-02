@@ -3,7 +3,7 @@
 ## 1. Overview
 
 **Remote-dev-tool** allows users to share a local folder and mount it in PAI's container.
-And also support submit a job from local YAML.
+It also supports to submit a job from local YAML.
 
 Supported OS:
 - Ubuntu 16.04
@@ -52,23 +52,25 @@ You can get your token from PAI's webportal after you log in.
 
 ### 3.2 Parameters
 
+Please run **remote-dev-tool** with administrator privileges.
+
 The **remote-dev-tool** has the following parameters:
 
 ```sh
-usage: remote-dev-tool.py [-h] [-g job_name] [-sh path] [-s path] [-v]
+usage: tool.py [-h] [-g job_name] [-c job_path] [-s share_path] [-v]
 
 Remote Development Tool
 
 optional arguments:
-  -h, --help                        
-                                    show this help message and exit
+  -h, --help                             show this help message and exit
   -g job_name, --getssh job_name
-                                    get ssh info
-  -s path, --submit path
-                                    submit local job
-  -sh path, --share path
-                                    share local folder
-  -v, --verbose                     verbose mode
+                                         get ssh info
+  -c job_path, --config job_path
+                                         submit local job
+  -s share_path, --share share_path
+                                         share local folder
+  -v, --verbose         
+                                         verbose mode
 ```
 
 For example:
@@ -78,11 +80,11 @@ For example:
 python3 remote-dev-tool.py -g JOB_NAME
 
 # get ssh info, mount D:\share in your container, and ssh into it
-python3 remote-dev-tool.py -g JOB_NAME -sh D:\share
+python3 remote-dev-tool.py -g JOB_NAME -s D:\share
 
 # submit local job and ssh into your cantainer
-python3 remote-dev-tool.py -s job.yaml
+python3 remote-dev-tool.py -c job.yaml
 
 # submit local job , mount D:\share in your container, and ssh into it
-python3 remote-dev-tool.py -s job.yaml -sh D:\share
+python3 remote-dev-tool.py -c job.yaml -s D:\share
 ```

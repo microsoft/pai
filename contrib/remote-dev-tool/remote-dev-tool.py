@@ -57,11 +57,9 @@ def check_platform():
     if sys.platform.find("win") != -1:
         IS_SHELL = False
         USER_DIR = os.environ.get('UserProfile')
-        USER_DIR = USER_DIR + "\\"
     elif sys.platform.find("linux") != -1:
         IS_SHELL = True
         USER_DIR = os.environ["HOME"]
-        USER_DIR = USER_DIR + "/"
     else:
         LOGGER.debug("unsupported platform")
         exit(-1)
@@ -69,7 +67,7 @@ def check_platform():
 
 def generate_conf():
     LOGGER.debug("generate conf files")
-    pai_dir = USER_DIR + ".openpai/"
+    pai_dir = os.path.join(USER_DIR, ".openpai/")
     if not os.path.exists(pai_dir):
         os.makedirs(pai_dir)
     conf_files = ['clusters', 'exports']
@@ -118,8 +116,8 @@ def run_subprocess(command):
 def get_args():
     parser = argparse.ArgumentParser(description="Remote Development Tool")
     parser.add_argument("-g", "--getssh", metavar="job_name", help="get ssh info", dest="job_name")
-    parser.add_argument("-s", "--submit", metavar='job_path', help="submit local job", dest="job_path")
-    parser.add_argument("-sh", "--share", metavar="share_path", help="share local folder", dest="share_path")
+    parser.add_argument("-c", "--config", metavar='job_path', help="submit local job", dest="job_path")
+    parser.add_argument("-s", "--share", metavar="share_path", help="share local folder", dest="share_path")
     parser.add_argument("-v", "--verbose", action="store_true", help="verbose mode", dest='need_verbose')
     args = parser.parse_args()
     if len(sys.argv) < 2 or (len(sys.argv) == 2 and args.need_verbose is True):
@@ -141,7 +139,7 @@ def get_ssh_info(job_name):
     global LOGGER, SSH_INFO, USER_DIR, JOB_NAME
     LOGGER.debug("get SSH info")
     JOB_NAME = job_name
-    pai_dir = USER_DIR + ".openpai/"
+    pai_dir = os.path.join(USER_DIR, ".openpai/")
 
     while True:
         LOGGER.info("wait for the ssh to start")
@@ -179,7 +177,7 @@ def get_ssh_info(job_name):
 def share_local_path(local_path):
     global SSH_INFO
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    s.connect(("baidu.com", 80))
+    s.connect(("www.microsoft.com", 80))
     host_ip = s.getsockname()[0]
     s.close()
     if read_input("Is your host ip {}".format(host_ip)) is False:
@@ -229,7 +227,7 @@ def submit_job(job_path):
 
 def configure_vscode():
     LOGGER.debug("configure vscode")
-    vscode_dir = os.path.abspath("{}.ssh/config".format(USER_DIR))
+    vscode_dir = os.path.join(USER_DIR, ".ssh", "config")
     with open(vscode_dir, 'a+') as f:
         f.write("\nHost {}\n".format(JOB_NAME))
         f.write("    Hostname {}\n".format(SSH_INFO["ip"]))
