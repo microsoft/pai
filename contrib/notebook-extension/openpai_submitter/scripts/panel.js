@@ -241,7 +241,6 @@ function (requirejs, $, Jupyter, events, config, Interface, Utils) {
               })
             },
             fnDrawCallback: function () {
-              console.log('finish draw!')
               $('.openpai-tooltip').tooltip({
                 classes: {
                   'ui-tooltip': 'highlight'
