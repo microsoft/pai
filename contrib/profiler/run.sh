@@ -27,7 +27,7 @@ param_num=$#
 
 CONTAINER_ID=$1
 GPU_INDEX=$2
-CONTAINER_PID=0
+CONTAINER_PID=-1
 HOST_DOCKER=Host
 if grep -q $CONTAINER_ID /proc/1/cgroup
 then
@@ -58,4 +58,4 @@ echo 'platform:' $HOST_DOCKER
 echo 'duration:' $DURATION
 echo 'output_dir:' $OUTPUT_DIR
 echo 'gpu_index:' $GPU_INDEX
-exec python profiler.py --container_id $CONTAINER_ID --container_pid $CONTAINER_PID --sample_period $SAMPLE_PERIOD --analyze_period 10 --host_docker $HOST_DOCKER --duration $DURATION --output_dir $OUTPUT_DIR --gpu_index $GPU_INDEX
+exec python profiler.py --container_id $CONTAINER_ID --container_pid $CONTAINER_PID --sample_period $SAMPLE_PERIOD --analyze_period 10 --duration $DURATION --output_dir $OUTPUT_DIR --gpu_index $GPU_INDEX

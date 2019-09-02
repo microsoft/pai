@@ -17,7 +17,7 @@
 
 
 """
-Performance_Profiler is used to profile the using information of the hardware while a deep learing model is running
+The profiler is used to profile the using information of the hardware while a deep learing model is running
 """
 import pynvml as nv
 import glob
@@ -117,12 +117,8 @@ def get_gpu_utilization(gpu_idx):
     try:
         handle = nv.nvmlDeviceGetHandleByIndex(gpu_idx)
         util = nv.nvmlDeviceGetUtilizationRates(handle)
-        # gpu_util = int(util.gpu)
     except nv.NVMLError as err:
         util = err
-        # error = handleError(err)
-        # gpu_util = error
-        # util = error
     return util
 
 
@@ -131,7 +127,6 @@ def get_gpu_memory(gpu_idx):
         handle = nv.nvmlDeviceGetHandleByIndex(gpu_idx)
         mem = nv.nvmlDeviceGetMemoryInfo(handle)
     except nv.NVMLError as err:
-        # error = handleError(err)
         mem = err
     return mem
 
@@ -259,7 +254,7 @@ def analyze_samples(sample_list):
             sum(disk_read_when_gpu_low) / length_gpu_low]
 
 
-def start_sample(container_id, period, analyze_period, one_duration, output_dir, gpu_id, *container_pid):
+def start_sample(container_id, period, analyze_period, duration, output_dir, gpu_id, container_pid):
     start_time = time.time()
     if not os.path.exists('./' + output_dir):
         os.mkdir(output_dir)
@@ -281,25 +276,24 @@ def start_sample(container_id, period, analyze_period, one_duration, output_dir,
     container_cpu_file_list = list()
     container_mem_file_list = list()
     container_blk_file_list = list()
-    # container_net_file = ''
 
     print(
         'max_gpu\tavg_gpu\tmax_cpu\tavg_cpu\tmax_memory\tavg_memory\tmax_read\ttotal_read\tavg_cpu_when_gpu_low'
         '\tavg_mem_when_gpu_low\tavg_io_when_gpu_low')
 
-    if container_pid:
+    if int(container_pid) == -1:
+        container_cpu_file_list.append('/sys/fs/cgroup/cpuacct/cpuacct.stat')
+        container_mem_file_list.append('/sys/fs/cgroup/memory/memory.usage_in_bytes')
+        container_blk_file_list.append('/sys/fs/cgroup/blkio/blkio.throttle.io_service_bytes')
+        container_net_file = '/proc/net/dev'
+    else:
         container_cpu_file_list = glob.glob('/sys/fs/cgroup/cpuacct/docker/' + str(container_id) + '*/cpuacct.stat')
         container_mem_file_list = glob.glob(
             '/sys/fs/cgroup/memory/docker/' + str(container_id) + '*/memory.usage_in_bytes')
         container_blk_file_list = glob.glob(
             '/sys/fs/cgroup/blkio/docker/' + str(container_id) + '*/blkio.throttle.io_service_bytes')
-        container_net_file = '/proc/' + str(container_pid[0]) + '/net/dev'
-    else:
-        container_cpu_file_list.append('/sys/fs/cgroup/cpuacct/cpuacct.stat')
-        container_mem_file_list.append('/sys/fs/cgroup/memory/memory.usage_in_bytes')
-        container_blk_file_list.append('/sys/fs/cgroup/blkio/blkio.throttle.io_service_bytes')
-        container_net_file = '/proc/net/dev'
-    while time.time() - start_time < one_duration * 60:
+        container_net_file = '/proc/' + str(container_pid) + '/net/dev'
+    while time.time() - start_time < duration * 60:
         [mem_used, mem_total] = get_memory_percent(container_mem_file_list)
 
         # 1st info about I/O, network and CPU
@@ -348,7 +342,6 @@ parser.add_argument('--container_id', '-i', help='The SHA of the docker containe
 parser.add_argument('--container_pid', '-p', help='The pid of the docker container', required=True)
 parser.add_argument('--sample_period', help='The period of the CPU usage collecting', required=True, type=float)
 parser.add_argument('--analyze_period', help='The period of the CPU usage analyzing', required=True, type=float)
-parser.add_argument('--host_docker', help='Whether the profiler running on host or docker', required=True)
 parser.add_argument('--duration', help='The duration of sampling the data once', required=True, type=float)
 parser.add_argument('--output_dir', '-o', help='The output directory to store the files', required=True)
 parser.add_argument('--gpu_index', '-g', help='Which GPUS the deep learning model is using', required=True)
@@ -358,9 +351,5 @@ if __name__ == '__main__':
     # get the GPU INDEX
     GPU_INDEX = list(map(int, args.gpu_index.split(',')))
     # whether the profiler running on host or docker
-    if args.host_docker == 'Host':
-        start_sample(args.container_id, args.sample_period, args.analyze_period, args.duration, args.output_dir,
-                     GPU_INDEX, args.container_pid)
-    else:
-        start_sample(args.container_id, args.sample_period, args.analyze_period, args.duration, args.output_dir,
-                     GPU_INDEX)
+    start_sample(args.container_id, args.sample_period, args.analyze_period, args.duration, args.output_dir, GPU_INDEX,
+                 args.container_pid)
