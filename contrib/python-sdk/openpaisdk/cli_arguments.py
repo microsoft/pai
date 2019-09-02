@@ -26,7 +26,7 @@ class ArgumentFactory:
         self.add_argument('--pai-uri', help="uri of openpai cluster, in format of http://x.x.x.x")
         self.add_argument('--user', help='username')
         self.add_argument('--password', help="password")
-        self.add_argument('--authen-token', '--token', help="authentication token")
+        self.add_argument('--authen-token', '--token', dest='token', help="authentication token")
 
         self.add_argument('--editor', default="code", help="path to your editor used to open files")
 
@@ -40,7 +40,8 @@ class ArgumentFactory:
         self.add_argument('--preview', action='store_true', help='preview result before doing action')
         self.add_argument('--no-browser', action='store_true', help='does not open the job link in web browser')
         self.add_argument('--interactive', action='store_true', help='enter the interactive mode after job starts')
-        self.add_argument('--notebook-token', '--token', default="abcd", help='jupyter notebook authentication token')
+        self.add_argument('--notebook-token', '--token', dest='token', default="abcd",
+                          help='jupyter notebook authentication token')
         self.add_argument("--python", default="python",
                           help="command or path of python, default is {python}, may be {python3}")
 

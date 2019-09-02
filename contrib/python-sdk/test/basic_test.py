@@ -16,7 +16,9 @@ def seperated(method):
         except Exception as identifier:
             raise identifier
         finally:
-            rmtree(dir_name, ignore_errors=True)
+            to_screen(f"trying to remove {dir_name}")
+            # ! rmtree not work on windows
+            os.system(f'rm -rf {dir_name}')
     return func
 
 

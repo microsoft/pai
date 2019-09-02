@@ -59,6 +59,7 @@ testing REST APIs related to retrieving cluster info, including
                 self.cmd_exec(line)
         alias = get_defaults()["cluster-alias"]
         self.assertTrue(alias, "not specify a cluster")
+        self.cmd_exec('opai cluster resources')
 
     def step2_submit_job(self):
         import time

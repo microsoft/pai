@@ -89,8 +89,14 @@ class Scene:
 class EngineFactory:
 
     def __init__(self, cli_structure):
-        self.parser = argparse.ArgumentParser(description='command line interface for OpenPAI')
-        subparsers = self.parser.add_subparsers(dest='scene', help='openpai cli working scenarios')
+        self.parser = argparse.ArgumentParser(
+            description='command line interface for OpenPAI',
+            formatter_class=argparse.ArgumentDefaultsHelpFormatter
+        )
+        subparsers = self.parser.add_subparsers(
+            dest='scene',
+            help='openpai cli working scenarios',
+        )
         self.scenes = dict()
         for k, v in cli_structure.items():
             p = subparsers.add_parser(k, help=v[0])

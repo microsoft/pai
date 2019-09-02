@@ -64,8 +64,8 @@ class ActionFactoryForCluster(ActionFactory):
     @staticmethod
     def tabulate_resources(dic: dict):
         to_screen([
-            [c, v, i["GPUs"], i["vCores"], i["memory"]] for c in dic.keys() for v, i in dic[c].items()
-        ], _type="table", headers=["cluster", "virtual-cluster", "GPUs", "vCores", "memory"])
+            [c, i.get("uri", None), i.get("user", None), v, i["GPUs"], i["vCores"], i["memory"]] for c in dic.keys() for v, i in dic[c].items()
+        ], _type="table", headers=["cluster", "uri", "user", "virtual-cluster", "GPUs", "vCores", "memory"])
         return dic
 
     def do_action_list(self, args):

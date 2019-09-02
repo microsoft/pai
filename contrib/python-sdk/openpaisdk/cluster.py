@@ -38,7 +38,7 @@ class ClusterList:
     def tell(self):
         return {
             a: {
-                v: dict(GPUs='-', memory='-', vCores='-') for v in cfg["virtual_clusters"]
+                v: dict(GPUs='-', memory='-', vCores='-', uri=cfg["pai_uri"], user=cfg["user"]) for v in cfg["virtual_clusters"]
             } for a, cfg in self.clusters.as_dict.items()
         }
 
@@ -89,6 +89,9 @@ class Cluster:
             password=password,
             token=token,
         )
+        self.config.update(
+            {k: v for k, v in kwargs.items() if k in ["info", "storages", "virtual_clusters"]}
+        )
         # validate
         assert self.alias, "cluster must have an alias"
         assert self.user, "must specify a user name"
@@ -101,8 +104,11 @@ class Cluster:
         storages = self.rest_api_storages()
         for i, s in enumerate(storages):
             s.setdefault("storage_alias", s["protocol"] + f'-{i}')
+        cluster_info = na(self.rest_api_cluster_info(), {})
+        if cluster_info.get("authnMethod", "basic") == "OIDC":
+            assert self.config["token"], "must use authentication token (instead of password) in OIDC mode"
         self.config.update(
-            info=na(self.rest_api_cluster_info(), {}),
+            info=cluster_info,
             storages=storages,
             virtual_clusters=self.virtual_clusters(),
         )
@@ -150,6 +156,7 @@ class Cluster:
     # ! for some older version that does not support this API
     @exception_free(Exception, None, "Cluster info API is not supported")
     def rest_api_cluster_info(self):
+        "refer to https://github.com/microsoft/pai/pull/3281/"
         return get_response('GET', [self.rest_srv, 'v1'], allowed_status=[200]).json()
 
     def rest_api_storages(self):
