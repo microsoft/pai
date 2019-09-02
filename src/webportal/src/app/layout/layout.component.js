@@ -48,17 +48,17 @@ window.userLogout = userLogoutComponent.userLogout;
 
 $('#navbar').html(userLoginNavHtml);
 userAuthComponent.checkToken();
-if (!userAuthComponent.checkAdmin()) {
-  $('#sidebar-menu--dashboard').hide();
-  $('#sidebar-menu--vc').hide();
-  $('#sidebar-menu--cluster-view').hide();
+if (userAuthComponent.checkAdmin()) {
+  $('#sidebar-menu--dashboard').show();
+  $('#sidebar-menu--vc').show();
+  $('#sidebar-menu--cluster-view').show();
 }
 
 const notificationButtonContainer = document.getElementById('notification-button');
 ReactDOM.render(<alerts.NotificationButton />, notificationButtonContainer);
 
-if (authnMethod === 'OIDC') {
-  $('#sidebar-menu--cluster-view--user-management').hide();
+if (authnMethod !== 'OIDC') {
+  $('#sidebar-menu--cluster-view--user-management').show();
 }
 
 if (Array.isArray(window.PAI_PLUGINS) && window.PAI_PLUGINS.length > 0) {
