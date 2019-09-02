@@ -296,7 +296,7 @@ function (requirejs, $, Jupyter, events, config, Interface, Utils) {
               })
             ])
             $('body').off('click', '#openpai-clear-info-force').on('click', '#openpai-clear-info-force', function () {
-              if (confirm('Are you sure to start a new session? It will clear the current job!')) {
+              if (confirm('Are you sure to start a new OpenPAI Submitter job (Your previous job will be saved in the Recent Jobs panel)?')) {
                 $('#openpai-clear-info-force').remove()
                 cancelThis('cancelled')
                 set(STATUS.NOT_READY)
@@ -371,7 +371,7 @@ function (requirejs, $, Jupyter, events, config, Interface, Utils) {
               appendInformation('<p id="text-notebook-show">Note: The notebook will run in the background. You can safely close' +
                                   ' this submitter, and <b>the result file link will be shown here once it is prepared.</b></p><br>')
             }
-            appendInformation('<p id="text-clear-info-force">If you don\'t want to wait, you can also click <a href="#" id="openpai-clear-info-force">[here]</a> to start a new session.</p>')
+            appendInformation('<p id="text-clear-info-force">You can also click <a href="#" id="openpai-clear-info-force">[here]</a> to start a new OpenPAI Submitter job. Your previous job will be saved in the <a href="https://github.com/microsoft/pai/tree/master/contrib/notebook-extension#job-management" target="_blank">Recent Jobs panel</a>.</p>')
             var cancelThis
             var promise = Promise.race([
               Interface.wait_jupyter(ctx),
@@ -380,7 +380,7 @@ function (requirejs, $, Jupyter, events, config, Interface, Utils) {
               })
             ])
             $('body').off('click', '#openpai-clear-info-force').on('click', '#openpai-clear-info-force', function () {
-              if (confirm('Are you sure to start a new session? It will clear the current job!')) {
+              if (confirm('Are you sure to start a new OpenPAI Submitter job (Your previous job will be saved in the Recent Jobs panel)?')) {
                 $('#text-clear-info-force').remove()
                 cancelThis('cancelled')
                 set(STATUS.NOT_READY)
@@ -407,7 +407,7 @@ function (requirejs, $, Jupyter, events, config, Interface, Utils) {
       promiseSubmitting = promiseSubmitting.then(
         function (ctx) {
           set(STATUS.SUBMITTING_OK)
-          appendInformation('<br><br> You can click <a href="#" id="openpai-clear-info">[here]</a> to start a new session.')
+          appendInformation('<br><br> You can click <a href="#" id="openpai-clear-info">[here]</a> to start a new OpenPAI Submitter job. Your previous job will be saved in the <a href="https://github.com/microsoft/pai/tree/master/contrib/notebook-extension#job-management" target="_blank">Recent Jobs panel</a>.')
           $('body').off('click', '#openpai-clear-info').on('click', '#openpai-clear-info', function () {
             set(STATUS.NOT_READY)
             send(MSG.INIT_OK)
