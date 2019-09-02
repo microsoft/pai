@@ -177,7 +177,7 @@ export const NAS_TIPS = {
     azurefile: (
       <div>
         <div style={{fontWeight: FontWeights.semibold}}>AzureFile</div>
-        <span>Download</span>
+        <span>Download </span>
         <Link
           href='https://azure.microsoft.com/en-us/features/storage-explorer/'
           target='_blank'
@@ -185,13 +185,13 @@ export const NAS_TIPS = {
         >
           Microsoft Azure Storage Explorer
         </Link>
-        <span>to upload data to AzureFile. Use [Server Root Path] and ask cluster admin for golden key to access storage.</span>
+        <span> to upload data to AzureFile. Use [Server Root Path] and ask cluster admin for golden key to access storage.</span>
       </div>
       ),
     azureblob: (
       <div>
         <div style={{fontWeight: FontWeights.semibold}}>AzureBlob</div>
-        <span>Download</span>
+        <span>Download </span>
         <Link
           href='https://azure.microsoft.com/en-us/features/storage-explorer/'
           target='_blank'
@@ -199,13 +199,13 @@ export const NAS_TIPS = {
         >
           Microsoft Azure Storage Explorer
         </Link>
-        <span>to upload data to AzureBlob. Use [Server Root Path] and ask cluster admin for golden key to access storage.</span>
+        <span> to upload data to AzureBlob. Use [Server Root Path] and ask cluster admin for golden key to access storage.</span>
       </div>
       ),
     hdfs: (
       <div>
         <div style={{fontWeight: FontWeights.semibold}}>HDFS</div>
-        <span>Use</span>
+        <span>Use </span>
         <Link
           href='https://github.com/microsoft/hdfs-mount'
           target='_blank'
@@ -213,7 +213,7 @@ export const NAS_TIPS = {
         >
           hdfs-mount
         </Link>
-        <span>mount HDFS to local then upload. Or use</span>
+        <span> mount HDFS to local then upload. Or use </span>
         <Link
           href='https://hadoop.apache.org/docs/r1.0.4/webhdfs.html'
           target='_blank'
@@ -221,7 +221,7 @@ export const NAS_TIPS = {
         >
           WebHDFS
         </Link>
-        <span>to upload data directly.</span>
+        <span> to upload data directly.</span>
       </div>
       ),
   };
