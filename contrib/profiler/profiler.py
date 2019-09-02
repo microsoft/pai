@@ -90,7 +90,6 @@ def get_system_cpu_ticks():
 
 # To get the CPU running time of container from being booted
 def get_container_cpu_ticks(file_list):
-    # docker_cpu_path = '/sys/fs/cgroup/cpuacct/docker/' + str(container_id) + '*/cpuacct.stat'
     user_time = 0
     system_time = 0
     for filename in file_list:
@@ -132,7 +131,6 @@ def get_gpu_memory(gpu_idx):
 
 
 def get_memory_percent(file_list):
-    # docker_memory_used_path = '/sys/fs/cgroup/memory/docker/' + str(container_id) + '*/memory.usage_in_bytes'
     total_memory_path = '/proc/meminfo'
 
     memory_docker_used = 0.0
@@ -152,7 +150,6 @@ def get_memory_percent(file_list):
 
 
 def get_disk_read_bytes(file_list):
-    # docker_disk_path = '/sys/fs/cgroup/blkio/docker/' + str(container_id) + '*/blkio.throttle.io_service_bytes'
     read_bytes = 0
     for filename in file_list:
         with open(filename, 'r') as f:
@@ -166,7 +163,6 @@ def get_disk_read_bytes(file_list):
 
 
 def get_disk_write_bytes(file_list):
-    # docker_disk_path = '/sys/fs/cgroup/blkio/docker/' + str(container_id) + '*/blkio.throttle.io_service_bytes'
     write_bytes = 0
     for filename in file_list:
         with open(filename, 'r') as f:
@@ -192,7 +188,7 @@ def get_network_bytes(filename):
     return [receive_bytes, transmit_bytes]
 
 
-# The analyze function
+# The analyze function. It will be modified when the analyzing module is finished.
 def analyze_samples(sample_list):
     count = len(sample_list)
     min_cpu, min_cpu_idx = sample_list[0].get_cpu_usage(), 0
@@ -350,6 +346,5 @@ args = parser.parse_args()
 if __name__ == '__main__':
     # get the GPU INDEX
     GPU_INDEX = list(map(int, args.gpu_index.split(',')))
-    # whether the profiler running on host or docker
     start_sample(args.container_id, args.sample_period, args.analyze_period, args.duration, args.output_dir, GPU_INDEX,
                  args.container_pid)
