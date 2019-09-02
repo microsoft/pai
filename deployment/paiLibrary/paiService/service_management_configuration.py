@@ -14,6 +14,7 @@
 # NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
 import time
 import os
 import tempfile
@@ -41,12 +42,14 @@ def get_cluster_object_model_from_k8s(kube_config_path):
     return cluster_object_service
 
 
-def get_service_list():
+def get_service_list(cluster_type="yarn"):
     service_list = list()
     subdir_list = directory_handler.get_subdirectory_list("src/")
     for subdir in subdir_list:
         service_deploy_dir = "src/{0}/deploy".format(subdir)
         service_deploy_conf_path = "src/{0}/deploy/service.yaml".format(subdir)
         if file_handler.directory_exits(service_deploy_dir) and file_handler.file_exist_or_not(service_deploy_conf_path):
-            service_list.append(subdir)
+            service_conf = file_handler.load_yaml_config(service_deploy_conf_path)
+            if ("cluster-type" not in service_conf) or ("cluster-type" in service_conf and cluster_type in service_conf["cluster-type"]):
+                service_list.append(subdir)
     return service_list
