@@ -239,6 +239,14 @@ function (requirejs, $, Jupyter, events, config, Interface, Utils) {
                 })
                 table.draw()
               })
+            },
+            fnDrawCallback: function () {
+              console.log('finish draw!')
+              $('.openpai-tooltip').tooltip({
+                classes: {
+                  'ui-tooltip': 'highlight'
+                } }
+              )
               $('.submit_button').on('click', function () {
                 var cluster = $(this).data('cluster')
                 var vc = $(this).data('vc')
@@ -249,13 +257,6 @@ function (requirejs, $, Jupyter, events, config, Interface, Utils) {
                   type: type
                 })
               })
-            },
-            fnDrawCallback: function () {
-              $('.openpai-tooltip').tooltip({
-                classes: {
-                  'ui-tooltip': 'highlight'
-                } }
-              )
             }
           })
         $('#panel-information-wrapper').hide()
