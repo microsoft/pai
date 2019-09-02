@@ -34,7 +34,7 @@ const DummyContent = () => {
     <div className={c(t.h100, t.flex, t.itemsCenter, t.justifyCenter)}>
       <div className={c(t.overflowAuto, t.w100)} style={{maxHeight: '100%', padding: spacing.m}}>
         <div className={c(t.tc, FontClassNames.large)}>
-          No rencent resources to display
+          No recent resources to display
         </div>
         <div className={c(t.tc, FontClassNames.large)} style={{marginTop: spacing.l2}}>
           {`As you visit jobs, they'll be listed in Recently used jobs for quick and easy access.`}
@@ -154,7 +154,7 @@ const RecentJobList = ({style, jobs}) => {
       <Stack styles={{root: [t.h100]}} gap='l1'>
         <Stack.Item>
           <Header
-            headerName='My rencent jobs'
+            headerName='My recent jobs'
             linkHref={`/job-list.html?user=${cookies.get('user')}`}
             linkName='More'
             showLink = {isEmpty(jobs)}/>
