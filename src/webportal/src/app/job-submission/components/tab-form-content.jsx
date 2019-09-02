@@ -39,18 +39,18 @@ import {PROTOCOL_TOOLTIPS} from '../utils/constants';
 
 export const TabFormContent = ({jobTaskRole, onContentChange, advanceFlag, isSingle}) => {
   const _onValueChange = (propertyName, propertyValue) => {
-    const udpatedJobTaskRole = new JobTaskRole(jobTaskRole);
-    udpatedJobTaskRole[propertyName] = propertyValue;
+    const updatedJobTaskRole = new JobTaskRole(jobTaskRole);
+    updatedJobTaskRole[propertyName] = propertyValue;
     if (onContentChange !== undefined) {
-      onContentChange(udpatedJobTaskRole);
+      onContentChange(updatedJobTaskRole);
     }
   };
 
   const _onValuesChange = (updateProperties) => {
-    let udpatedJobTaskRole = {...jobTaskRole, ...updateProperties};
-    udpatedJobTaskRole = new JobTaskRole(udpatedJobTaskRole);
+    let updatedJobTaskRole = {...jobTaskRole, ...updateProperties};
+    updatedJobTaskRole = new JobTaskRole(updatedJobTaskRole);
     if (onContentChange !== undefined) {
-      onContentChange(udpatedJobTaskRole);
+      onContentChange(updatedJobTaskRole);
     }
   };
 
