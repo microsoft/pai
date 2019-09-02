@@ -15,6 +15,7 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+import cookies from 'js-cookie';
 import React, {useContext, useState, useEffect} from 'react';
 import {getTheme, ColorClassNames, CommandBar, CommandBarButton, SearchBox, Stack} from 'office-ui-fabric-react';
 
@@ -25,6 +26,7 @@ import {getStatusText} from './utils';
 import webportalConfig from '../../../../config/webportal.config';
 import FilterButton from './FilterButton';
 
+const CURRENT_USER_KEY = '@Me';
 const token = cookies.get('token');
 
 function KeywordSearchBox() {
@@ -185,6 +187,21 @@ function TopBar() {
   ];
   const topBarFarItems = [getFilters()];
 
+  // user filter preprocess
+  let userItems = Object.keys(users);
+  const currentUser = cookies.get('user');
+  const idx = userItems.findIndex((x) => x === currentUser);
+  if (idx !== -1) {
+    userItems = [CURRENT_USER_KEY, ...userItems.slice(0, idx), ...userItems.slice(idx + 1)];
+  }
+
+  const userFilter = new Set(filter.users);
+  if (userFilter.has(currentUser)) {
+    userFilter.delete(currentUser);
+    userFilter.add(CURRENT_USER_KEY);
+  }
+  const selectedItems = Array.from(userFilter);
+
   const {spacing} = getTheme();
 
   return (
@@ -213,11 +230,16 @@ function TopBar() {
               styles={{root: {backgroundColor: 'transparent'}}}
               text='User'
               iconProps={{iconName: 'Contact'}}
-              items={Object.keys(users)}
-              selectedItems={Array.from(filter.users)}
+              items={userItems}
+              selectedItems={selectedItems}
               onSelect={(users) => {
                 const {keyword, virtualClusters, statuses} = filter;
-                setFilter(new Filter(keyword, new Set(users), virtualClusters, statuses));
+                const userFilter = new Set(users);
+                if (userFilter.has(CURRENT_USER_KEY)) {
+                  userFilter.delete(CURRENT_USER_KEY);
+                  userFilter.add(currentUser);
+                }
+                setFilter(new Filter(keyword, userFilter, virtualClusters, statuses));
               }}
               searchBox
               clearButton
