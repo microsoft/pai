@@ -47,7 +47,7 @@ const getResouceUtilization = (used, total) => {
 const vcListColumns = [
   {
     key: 'name',
-    minWidth: 60,
+    minWidth: 50,
     maxWidth: 128,
     name: 'Name',
     isResizable: true,
@@ -59,40 +59,40 @@ const vcListColumns = [
       );
     },
   },
-  {
-    key: 'utilization',
-    minWidth: 80,
-    maxWidth: 132,
-    name: 'Utilization',
-    isResizable: true,
-    className: zeroPaddingClass,
-    onRender(vc) {
-      const {resourcesUsed, resourcesTotal} = vc;
+  // {
+  //   key: 'utilization',
+  //   minWidth: 80,
+  //   maxWidth: 132,
+  //   name: 'Utilization',
+  //   isResizable: true,
+  //   className: zeroPaddingClass,
+  //   onRender(vc) {
+  //     const {resourcesUsed, resourcesTotal} = vc;
 
-      const resouceUtilization = Math.max(
-        getResouceUtilization(
-          resourcesUsed.GPUs,
-          resourcesTotal.GPUs
-        ),
-        getResouceUtilization(
-          resourcesUsed.memory,
-          resourcesTotal.memory
-        ),
-        getResouceUtilization(
-          resourcesUsed.vCores,
-          resourcesTotal.vCores
-        ),
-      );
-      return (
-        <Stack styles={{root: [{height: 100}]}}>
-          <UtilizationChart percentage={resouceUtilization}/>
-        </Stack>
-      );
-    },
-  },
+  //     const resouceUtilization = Math.max(
+  //       getResouceUtilization(
+  //         resourcesUsed.GPUs,
+  //         resourcesTotal.GPUs
+  //       ),
+  //       getResouceUtilization(
+  //         resourcesUsed.memory,
+  //         resourcesTotal.memory
+  //       ),
+  //       getResouceUtilization(
+  //         resourcesUsed.vCores,
+  //         resourcesTotal.vCores
+  //       ),
+  //     );
+  //     return (
+  //       <Stack styles={{root: [{height: 100}]}}>
+  //         <UtilizationChart percentage={resouceUtilization}/>
+  //       </Stack>
+  //     );
+  //   },
+  // },
   {
     key: 'detail',
-    minWidth: 250,
+    minWidth: 200,
     maxWidth: 430,
     name: 'Detail',
     isResizable: true,
@@ -136,7 +136,7 @@ const vcListColumns = [
   },
   {
     key: 'bonus',
-    minWidth: 60,
+    minWidth: 30,
     maxWidth: 120,
     name: 'Bonus',
     isResizable: true,
@@ -144,7 +144,7 @@ const vcListColumns = [
       const bounsEnabled = (vc.maxCapacity > vc.capacity) || vc.capacity === 100;
       return (
         <Stack verticalAlign='center' verticalFill>
-          <Text variant='large'>{bounsEnabled ? 'Enabled' : 'Disabled'}</Text>
+          <Text variant='small'>{bounsEnabled ? 'Enabled' : 'Disabled'}</Text>
         </Stack>
       );
     },
@@ -167,11 +167,11 @@ const vcListColumns = [
         >
         <DefaultButton
           styles={{
-            root: {backgroundColor: '#e5e5e5'},
+            root: {backgroundColor: '#e5e5e5', width: '50'},
             rootFocused: {backgroundColor: '#e5e5e5'},
             rootDisabled: {backgroundColor: '#eeeeee'},
             rootCheckedDisabled: {backgroundColor: '#eeeeee'},
-            icon: {fontSize: 12},
+            icon: {fontSize: 10},
           }}
           text={'View jobs'}
           href={'/job-list.html?vcName=' + vc.name}/>

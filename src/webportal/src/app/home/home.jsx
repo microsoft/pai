@@ -122,11 +122,19 @@ const Home = () => {
             <Stack gap='l2' horizontal>
               <JobStatus style={{height: '100%', width: '33%'}} jobs={jobs} />
               {isAdmin ? (
+                <React.Fragment>
                 <VirtualClusterStatistics
-                  style={{height: '100%', width: '66%'}}
+                  style={{height: '100%', width: '33%'}}
                   userInfo={userInfo}
                   virtualClusters={virtualClusters}
                 />
+                <GpuChart
+                style={{height: '100%', width: '33%'}}
+                gpuPerNode={gpuPerNode}
+                userInfo={userInfo}
+                virtualClusters={virtualClusters}
+              />
+              </React.Fragment>
               ) : (
                 <React.Fragment>
                   <VirtualClusterList
