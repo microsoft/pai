@@ -98,7 +98,7 @@ function generateJobName(jobName) {
   return name;
 }
 
-export const JobSubmissionPage = ({isSingle, setWizardStatus, yamlText}) => {
+export const JobSubmissionPage = ({isSingle, history, yamlText}) => {
   const [jobTaskRoles, setJobTaskRolesState] = useState([
     new JobTaskRole({name: 'taskrole'}),
   ]);
@@ -406,7 +406,7 @@ export const JobSubmissionPage = ({isSingle, setWizardStatus, yamlText}) => {
             jobData={jobData}
             jobProtocol={jobProtocol}
             setJobProtocol={setJobProtocol}
-            setWizardStatus={setWizardStatus}
+            history={history}
             onChange={(
               updatedJobInfo,
               updatedTaskRoles,
@@ -429,6 +429,6 @@ export const JobSubmissionPage = ({isSingle, setWizardStatus, yamlText}) => {
 
 JobSubmissionPage.propTypes = {
   isSingle: PropTypes.bool,
-  setWizardStatus: PropTypes.func,
+  history: PropTypes.object,
   yamlText: PropTypes.string,
 };
