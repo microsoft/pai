@@ -36,12 +36,11 @@ PAI_USER_LOG_FILE=${PAI_LOG_DIR}/user.pai.all
 # Here're the steps to onboard a new runtime script,
 # 1. put it under runtime.d
 # 2. give it a priority in [0, 100] and insert below in order
-# 3. add the following format block
+# 3. add the following format block, all runtime script should output to runtime.pai.stdout and runtime.pai.stderr
 
 # comment for the script purpose
 # priority=value
-# ${PAI_RUNTIME_DIR}/runtime.sh >> ${PAI_USER_LOG_FILE} 2>&1
-
+# ${PAI_RUNTIME_DIR}/runtime.sh > >(tee -a ${PAI_LOG_DIR}/runtime.pai.stdout) 2> >(tee -a ${PAI_LOG_DIR}/runtime.pai.stderr >&2)
 
 # export runtime env variables
 # priority=0
