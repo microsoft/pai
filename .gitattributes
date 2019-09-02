@@ -13,6 +13,7 @@
 
 *.sh     text eol=lf
 *.mustache text eol=lf
+*.template text eol=lf
 
 *.bat    text eol=crlf
 *.cmd    text eol=crlf
