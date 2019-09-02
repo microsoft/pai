@@ -38,9 +38,9 @@ class Pylon:
         port = self.service_configuration['port']
         uri = 'http://{0}:{1}'.format(master_ip, port)
         uriHttps = 'https://{0}'.format(master_ip)
-        if 'public-ip-address' in self.service_configuration:
-            uri = 'http://{0}:{1}'.format(self.service_configuration['public-ip-address'], port)
-            uriHttps = 'https://{0}'.format(self.service_configuration['public-ip-address'])
+        if 'domain' in self.service_configuration:
+            uri = 'http://{0}:{1}'.format(self.service_configuration['domain'], port)
+            uriHttps = 'https://{0}'.format(self.service_configuration['domain'])
 
         webhdfs_legacy_port = self.service_configuration['webhdfs-legacy-port']
         ret = {

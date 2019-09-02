@@ -138,9 +138,9 @@ rest-server:
 #  port: 80
 #  webhdfs-legacy-port: 50070
 #  deploy-service: false
-#  # By default, master's ipaddress will be treated as the pylon's address
-#  # If you wanna configure pylon with other ip address, you should config it here.
-#  public-ip-address: ip-address
+#  # By default, master's ipaddress will be treated as the pylon's domain
+#  # If you wanna configure pylon with other domain, you should config it here.
+#  domain: ip-address
 #  # If you wanna integrate OpenPAI with aad, you should configure this.
 #  ssl:
 #  # self-sign
