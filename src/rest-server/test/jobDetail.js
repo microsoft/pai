@@ -255,3 +255,204 @@ describe('JobDetail ExitSpec', () => {
       });
   });
 });
+
+describe('Job Status', () => {
+  after(function() {
+    if (!nock.isDone()) {
+      // TODO: Split mocks into each cases and enable the following error with afterEach.
+      nock.cleanAll();
+      throw new Error('Not all nock interceptors were used!');
+    }
+  });
+
+  // Mock launcher webservice
+  before(() => {
+    let frameworkDetail = {
+      'summarizedFrameworkInfo': {
+        'executionType': 'START',
+      },
+      'aggregatedFrameworkStatus': {
+        'frameworkStatus': {
+          'name': 'test',
+          'frameworkState': 'APPLICATION_RUNNING',
+          'frameworkRetryPolicyState': {
+            'succeededRetriedCount': 0,
+            'transientNormalRetriedCount': 0,
+            'transientConflictRetriedCount': 0,
+            'nonTransientRetriedCount': 0,
+            'unKnownRetriedCount': 0,
+          },
+          'firstRequestTimestamp': new Date().getTime(),
+          'frameworkCompletedTimestamp': new Date().getTime(),
+          'applicationExitCode': 0,
+        },
+      },
+      'aggregatedFrameworkRequest': {
+        'frameworkRequest': {
+          'frameworkDescriptor': {
+            'user': {
+              'name': 'iamadmin',
+            },
+          },
+        },
+      },
+    };
+
+    nock(launcherWebserviceUri)
+    .get('/v1/Frameworks/iamadmin~framework_waiting')
+    .reply(200, () => {
+      frameworkDetail.aggregatedFrameworkStatus.frameworkStatus.name = 'framework_waiting';
+      frameworkDetail.aggregatedFrameworkStatus.frameworkStatus.frameworkState = 'FRAMEWORK_WAITING';
+      return frameworkDetail;
+    })
+    .get('/v1/Frameworks/iamadmin~app_created')
+    .reply(200, () => {
+      frameworkDetail.aggregatedFrameworkStatus.frameworkStatus.name = 'app_created';
+      frameworkDetail.aggregatedFrameworkStatus.frameworkStatus.frameworkState = 'APPLICATION_CREATED';
+      return frameworkDetail;
+    })
+    .get('/v1/Frameworks/iamadmin~app_launched')
+    .reply(200, () => {
+      frameworkDetail.aggregatedFrameworkStatus.frameworkStatus.name = 'app_launched';
+      frameworkDetail.aggregatedFrameworkStatus.frameworkStatus.frameworkState = 'APPLICATION_LAUNCHED';
+      return frameworkDetail;
+    })
+    .get('/v1/Frameworks/iamadmin~app_waiting')
+    .reply(200, () => {
+      frameworkDetail.aggregatedFrameworkStatus.frameworkStatus.name = 'app_waiting';
+      frameworkDetail.aggregatedFrameworkStatus.frameworkStatus.frameworkState = 'APPLICATION_WAITING';
+      return frameworkDetail;
+    })
+    .get('/v1/Frameworks/iamadmin~app_diagnostics')
+    .reply(200, () => {
+      frameworkDetail.aggregatedFrameworkStatus.frameworkStatus.name = 'app_diagnostics';
+      frameworkDetail.aggregatedFrameworkStatus.frameworkStatus.frameworkState = 'APPLICATION_RETRIEVING_DIAGNOSTICS';
+      return frameworkDetail;
+    })
+    .get('/v1/Frameworks/iamadmin~app_completed')
+    .reply(200, () => {
+      frameworkDetail.aggregatedFrameworkStatus.frameworkStatus.name = 'app_completed';
+      frameworkDetail.aggregatedFrameworkStatus.frameworkStatus.frameworkState = 'APPLICATION_COMPLETED';
+      return frameworkDetail;
+    })
+    .get('/v1/Frameworks/iamadmin~app_running')
+    .reply(200, () => {
+      frameworkDetail.aggregatedFrameworkStatus.frameworkStatus.name = 'app_running';
+      frameworkDetail.aggregatedFrameworkStatus.frameworkStatus.frameworkState = 'APPLICATION_RUNNING';
+      return frameworkDetail;
+    })
+    .get('/v1/Frameworks/iamadmin~framework_completed')
+    .reply(200, () => {
+      frameworkDetail.aggregatedFrameworkStatus.frameworkStatus.name = 'framework_completed';
+      frameworkDetail.aggregatedFrameworkStatus.frameworkStatus.frameworkState = 'FRAMEWORK_COMPLETED';
+      frameworkDetail.aggregatedFrameworkStatus.frameworkStatus.applicationExitCode = -7351;
+      return frameworkDetail;
+    })
+    .get('/v1/Frameworks/iamadmin~unknown_case')
+    .reply(200, () => {
+      frameworkDetail.aggregatedFrameworkStatus.frameworkStatus.name = 'unknown_case';
+      frameworkDetail.aggregatedFrameworkStatus.frameworkStatus.frameworkState = 'UNKNOWN';
+      return frameworkDetail;
+    });
+  });
+
+  it('should waiting when framework waiting', (done) => {
+    chai.request(server)
+      .get('/api/v2/user/iamadmin/jobs/framework_waiting')
+      .set('Authorization', 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImlhbWFkbWluIiwiYWRtaW4iOnRydWUsImlhdCI6MTUyMDU3OTg5OX0.Dwopr33c_OV6glaN3vbM1Ja_Ox70xABigHzHnEsNsYw')
+      .end((err, res) => {
+        expect(res, 'status code').to.have.status(200);
+        expect(res, 'json response').be.json;
+        expect(res.body.jobStatus).to.have.property('state', 'WAITING');
+        done();
+      });
+  });
+  it('should waiting when application is created', (done) => {
+    chai.request(server)
+      .get('/api/v2/user/iamadmin/jobs/app_created')
+      .set('Authorization', 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImlhbWFkbWluIiwiYWRtaW4iOnRydWUsImlhdCI6MTUyMDU3OTg5OX0.Dwopr33c_OV6glaN3vbM1Ja_Ox70xABigHzHnEsNsYw')
+      .end((err, res) => {
+        expect(res, 'status code').to.have.status(200);
+        expect(res, 'json response').be.json;
+        expect(res.body.jobStatus).to.have.property('state', 'WAITING');
+        done();
+      });
+  });
+  it('should waiting when application is launched', (done) => {
+    chai.request(server)
+      .get('/api/v2/user/iamadmin/jobs/app_launched')
+      .set('Authorization', 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImlhbWFkbWluIiwiYWRtaW4iOnRydWUsImlhdCI6MTUyMDU3OTg5OX0.Dwopr33c_OV6glaN3vbM1Ja_Ox70xABigHzHnEsNsYw')
+      .end((err, res) => {
+        expect(res, 'status code').to.have.status(200);
+        expect(res, 'json response').be.json;
+        expect(res.body.jobStatus).to.have.property('state', 'WAITING');
+        done();
+      });
+  });
+  it('should waiting when application waiting', (done) => {
+    chai.request(server)
+      .get('/api/v2/user/iamadmin/jobs/app_waiting')
+      .set('Authorization', 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImlhbWFkbWluIiwiYWRtaW4iOnRydWUsImlhdCI6MTUyMDU3OTg5OX0.Dwopr33c_OV6glaN3vbM1Ja_Ox70xABigHzHnEsNsYw')
+      .end((err, res) => {
+        expect(res, 'status code').to.have.status(200);
+        expect(res, 'json response').be.json;
+        expect(res.body.jobStatus).to.have.property('state', 'WAITING');
+        done();
+      });
+  });
+  it('should waiting when application retrieving', (done) => {
+    chai.request(server)
+      .get('/api/v2/user/iamadmin/jobs/app_diagnostics')
+      .set('Authorization', 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImlhbWFkbWluIiwiYWRtaW4iOnRydWUsImlhdCI6MTUyMDU3OTg5OX0.Dwopr33c_OV6glaN3vbM1Ja_Ox70xABigHzHnEsNsYw')
+      .end((err, res) => {
+        expect(res, 'status code').to.have.status(200);
+        expect(res, 'json response').be.json;
+        expect(res.body.jobStatus).to.have.property('state', 'WAITING');
+        done();
+      });
+  });
+  it('should waiting when application is completed', (done) => {
+    chai.request(server)
+      .get('/api/v2/user/iamadmin/jobs/app_completed')
+      .set('Authorization', 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImlhbWFkbWluIiwiYWRtaW4iOnRydWUsImlhdCI6MTUyMDU3OTg5OX0.Dwopr33c_OV6glaN3vbM1Ja_Ox70xABigHzHnEsNsYw')
+      .end((err, res) => {
+        expect(res, 'status code').to.have.status(200);
+        expect(res, 'json response').be.json;
+        expect(res.body.jobStatus).to.have.property('state', 'WAITING');
+        done();
+      });
+  });
+  it('should running when application running', (done) => {
+    chai.request(server)
+      .get('/api/v2/user/iamadmin/jobs/app_running')
+      .set('Authorization', 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImlhbWFkbWluIiwiYWRtaW4iOnRydWUsImlhdCI6MTUyMDU3OTg5OX0.Dwopr33c_OV6glaN3vbM1Ja_Ox70xABigHzHnEsNsYw')
+      .end((err, res) => {
+        expect(res, 'status code').to.have.status(200);
+        expect(res, 'json response').be.json;
+        expect(res.body.jobStatus).to.have.property('state', 'RUNNING');
+        done();
+      });
+  });
+  it('should stop when framework is completed and exitcode is -7351', (done) => {
+    chai.request(server)
+      .get('/api/v2/user/iamadmin/jobs/framework_completed')
+      .set('Authorization', 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImlhbWFkbWluIiwiYWRtaW4iOnRydWUsImlhdCI6MTUyMDU3OTg5OX0.Dwopr33c_OV6glaN3vbM1Ja_Ox70xABigHzHnEsNsYw')
+      .end((err, res) => {
+        expect(res, 'status code').to.have.status(200);
+        expect(res, 'json response').be.json;
+        expect(res.body.jobStatus).to.have.property('state', 'STOPPED');
+        done();
+      });
+  });
+  it('should unknown when unknown', (done) => {
+    chai.request(server)
+      .get('/api/v2/user/iamadmin/jobs/unknown_case')
+      .set('Authorization', 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImlhbWFkbWluIiwiYWRtaW4iOnRydWUsImlhdCI6MTUyMDU3OTg5OX0.Dwopr33c_OV6glaN3vbM1Ja_Ox70xABigHzHnEsNsYw')
+      .end((err, res) => {
+        expect(res, 'status code').to.have.status(200);
+        expect(res, 'json response').be.json;
+        expect(res.body.jobStatus).to.have.property('state', 'UNKNOWN');
+        done();
+      });
+  });
+});
