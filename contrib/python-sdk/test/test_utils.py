@@ -1,36 +1,161 @@
+import os
 import unittest
 from argparse import Namespace
 from copy import deepcopy
-
+from shutil import rmtree
 from openpaisdk.utils import OrganizedList as ol
 from openpaisdk.utils import Nested
+from openpaisdk.utils import randstr
+from openpaisdk.io_utils import from_file, to_file, to_screen, safe_chdir, __flags__
+from openpaisdk import get_defaults, update_default, LayeredSettings
+from basic_test import OrderedUnitTestCase, seperated
+
+
+class TestIOUtils(unittest.TestCase):
+
+    @seperated
+    def test_reading_failures(self):
+        with self.assertRaises(Exception):  # non existing file
+            from_file(randstr(8) + '.yaml')
+        with self.assertRaises(AssertionError):  # unsupported file extension
+            from_file(randstr(10))
+        with self.assertRaises(Exception):
+            fname = randstr(10) + '.json'
+            os.system(f"touch {fname}")
+            from_file(fname)
+
+    @seperated
+    def test_returning_default(self):
+        for dval in [[], ['a', 'b'], {}, {'a': 'b'}]:
+            ass_fn = self.assertListEqual if isinstance(dval, list) else self.assertDictEqual
+            with self.assertRaises(AssertionError):  # unsupported file extension
+                from_file(randstr(10))
+            fname = randstr(8) + '.yaml'
+            ass_fn(from_file(fname, dval), dval)  # non existing
+            os.system(f"echo '' > {fname}")
+            ass_fn(from_file(fname, dval), dval)
+            os.system(f"echo 'abcd' > {fname}")
+            ass_fn(from_file(fname, dval), dval)
+
+
+class TestDefaults(unittest.TestCase):
+
+    global_default_file = __flags__.get_default_file(is_global=True)
+    local_default_file = __flags__.get_default_file(is_global=False)
+
+    def get_random_var_name(self):
+        import random
+        from openpaisdk import LayeredSettings
+        lst = [x for x in LayeredSettings.keys() if not LayeredSettings.act_append(x)]
+        ret = lst[random.randint(0, len(lst) - 1)]
+        to_screen(f"random select {ret} in {lst}")
+        return ret
+
+    @seperated
+    def test_update_defaults(self):
+        # ! not test global defaults updating, test it in integration tests
+        test_key, test_value = self.get_random_var_name(), randstr(10)
+        # add a default key
+        update_default(test_key, test_value, is_global=False, to_delete=False)
+        self.assertEqual(get_defaults()[test_key], test_value,
+                         msg=f"failed to check {test_key} in {LayeredSettings.as_dict()}")
+        # should appear in local
+        self.assertEqual(from_file(self.local_default_file)[test_key], test_value)
+        # delete
+        update_default(test_key, test_value, is_global=False, to_delete=True)
+        with self.assertRaises(KeyError):
+            from_file(self.local_default_file, {})[test_key]
+        # add not allowed
+        test_key = randstr(10)
+        update_default(test_key, test_value, is_global=False, to_delete=False)
+        with self.assertRaises(KeyError):
+            from_file(self.local_default_file, {})[test_key]
+
+    @seperated
+    def test_layered_settings(self):
+        from openpaisdk import LayeredSettings, __flags__
+        __flags__.custom_predefined = [
+            {
+                'name': 'test-key-1',
+            },
+            {
+                'name': 'test-key-2',
+                'action': 'append',
+                'default': []
+            }
+        ]
+        LayeredSettings.reset()
+        # ? add / update append key
+        for test_key in ['test-key-1', 'test-key-2']:
+            for i, layer in enumerate(LayeredSettings.layers):
+                LayeredSettings.update(layer.name, test_key, i)
+                if layer.act_append(test_key):
+                    self.assertTrue(isinstance(layer.values[test_key], list), msg=f"{layer.values}")
+        self.assertEqual(0, LayeredSettings.get('test-key-1'))
+        self.assertListEqual([0, 1, 2, 3], LayeredSettings.get('test-key-2'))
+        # ? delete
+        for test_key in ['test-key-1', 'test-key-2']:
+            for i, layer in enumerate(LayeredSettings.layers):
+                LayeredSettings.update(layer.name, test_key, None, delete=True)
+        # ? reset the predefined
+        __flags__.custom_predefined = []
+        LayeredSettings.reset()
 
 
 class TestOrganizedList(unittest.TestCase):
 
-    lst = [dict(a="x", b=0), dict(a="x", c=1), dict(a="y", d=2)]
+    class foo:
+
+        def __init__(self, a=None, b=None, c=None, d=None):
+            self.a, self.b, self.c, self.d = a, b, c, d
+
+        @property
+        def as_dict(self):
+            return {k: v for k, v in vars(self).items() if v is not None}
+
+        def update(self, other):
+            for key, value in other.as_dict.items():
+                setattr(self, key, value)
+
+    lst_objs = [foo("x", 0), foo("x", 1), foo("y", 2), foo("y", c=1), foo("z", 4)]
+    lst = [obj.as_dict for obj in lst_objs]
+
+    def ol_test_run(self, lst, getter):
+        def to_dict(obj):
+            return obj if isinstance(obj, dict) else obj.as_dict
+        dut = ol(lst[:3], "a", getter)
+        # find
+        self.assertEqual(2, dut.first_index("y"))
+        self.assertDictEqual(to_dict(lst[2]), to_dict(dut.first("y")))
+        # filter
+        self.assertListEqual([0, 1], dut.filter_index("x"))
+        self.assertListEqual(lst[:2], dut.filter("x").as_list)
+        # as_dict
+        self.assertDictEqual(dict(x=lst[1], y=lst[2]), dut.as_dict)
+        # add (update)
+        elem = lst[-2]
+        dut.add(elem)
+        self.assertEqual(2, getter(lst[2], "b"))
+        self.assertEqual(1, getter(lst[2], "c"))
+        # add (replace)
+        elem = lst[-2]
+        dut.add(elem, replace=True)
+        self.assertEqual(None, getter(dut[2], "b"))
+        # add (append)
+        elem = lst[-1]
+        dut.add(elem)
+        self.assertEqual(4, getter(dut[-1], "b"))
+        # delete
+        dut.remove("z")
+        self.assertEqual(3, len(dut))
+        dut.remove("z")
+        self.assertEqual(3, len(dut))
 
     def test_dict(self):
-        lst = deepcopy(self.lst)
-        lst2 = deepcopy(lst)
-        # filter
-        self.assertDictEqual({"matches":[lst[2]], "indexes":[2]}, ol.filter(lst, "a", "y"))
-        # as_dict
-        self.assertDictEqual(dict(x=lst[1], y=lst[2]), ol.as_dict(lst, "a"))
-        # add (update)
-        elem = dict(a="y", b="z", c="z")
-        lst2[2].update(elem)
-        self.assertTrue(ol.add(lst, "a", elem))
-        self.assertListEqual(lst, lst2)
-        # add append
-        elem = dict(a="z", f=4)
-        lst2.append(elem)
-        self.assertFalse(ol.add(lst, "a", elem))
-        self.assertListEqual(lst, lst2)
-        # delete
-        ol.delete(lst, "d", 2)
-        del lst2[2]
-        self.assertListEqual(lst, lst2)
+        self.ol_test_run(deepcopy(self.lst), dict.get)
+
+    def test_obj(self):
+        self.ol_test_run(deepcopy(self.lst_objs), getattr)
 
 
 class TestNested(unittest.TestCase):
@@ -58,4 +183,3 @@ class TestNested(unittest.TestCase):
             nested_obj["a"][1]["aa2"]["aaa"]
         n.set("a->1->aa2->aaa", "val_aaa2")
         self.assertEqual(nested_obj["a"][1]["aa2"]["aaa"], "val_aaa2")
-

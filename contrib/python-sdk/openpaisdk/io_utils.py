@@ -3,17 +3,45 @@ import errno
 import shutil
 from webbrowser import open_new_tab
 from contextlib import contextmanager
+from functools import partial
 import json
 import yaml
-from openpaisdk import __logger__, __local_default_file__, __global_default_file__, __flags__
+import logging
 from urllib.request import urlopen
-from urllib.parse import urlparse, urlsplit
+from urllib.parse import urlsplit
 from urllib.request import urlretrieve
 import cgi
+from openpaisdk.flags import __flags__
+
+logging.basicConfig(format='%(name)s - %(levelname)s - %(message)s')
+__logger__ = logging.getLogger(name="openpai")
+__logger__.setLevel(level=logging.DEBUG if __flags__.debug_mode else logging.INFO)
 
 
-__yaml_exts__ = ['.yaml', '.yml']
-__json_exts__ = ['.json', '.jsn']
+def to_screen(msg, _type: str = "normal", **kwargs):
+    """a general wrapping function to deal with interactive IO and logging
+    """
+    def print_out(msg, **kwargs):
+        out = yaml.dump(msg, default_flow_style=False, **kwargs) if not isinstance(msg, str) else msg
+        if not __flags__.disable_to_screen:
+            print(out, flush=True)
+
+    def print_table(msg, **kwargs):
+        from tabulate import tabulate
+        out = tabulate(msg, **kwargs)
+        if not __flags__.disable_to_screen:
+            print(out, flush=True)
+
+    func_dict = {
+        "normal": print_out,
+        "table": print_table,
+        "warn": partial(__logger__.warn, exc_info=__flags__.debug_mode),
+        "debug": __logger__.debug,
+        "error": partial(__logger__.error, exc_info=True),
+    }
+    assert _type in func_dict, f"unsupported output type {_type}, only {list(func_dict.keys(()))} are valid"
+    func_dict[_type](msg, **kwargs)
+    return msg
 
 
 def listdir(path):
@@ -31,35 +59,33 @@ def browser_open(url: str):
     try:
         open_new_tab(url)
     except Exception as e:
-        __logger__.warn("failed to open %s due to %s", url, e)
+        to_screen(f"fail to open {url} due to {repx(e)}", _type="warn")
 
 
-def return_default_if_error(func):
-    def f(*args, default="==FATAL==", **kwargs):
-        try:
-            return func(*args, **kwargs)
-        except Exception as identifier:
-            if default == "==FATAL==":
-                __logger__.error('Error: %s', identifier, exc_info=True)
-            __logger__.warn(
-                'error occurs when reading %s (%s), return default (%s)', args, identifier, default)
-            return default
-    return f
-
-
-@return_default_if_error
-def from_json_file(fname: str, **kwargs):
-    import json
-    with open(fname) as fp:
-        return json.load(fp, **kwargs)
-
-
-@return_default_if_error
-def from_yaml_file(fname: str, **kwargs):
+def from_file(fname: str, default=None, silent: bool = False, **kwargs):
+    """read yaml or json file; return default if (only when default is not None)
+    - file non existing
+    - empty file or contents in file is not valid
+    - loaded content is not expected type (type(default))
+    """
     import yaml
-    with open(fname) as fp:
-        kwargs.setdefault('Loader', yaml.FullLoader)
-        return yaml.load(fp, **kwargs)
+    assert os.path.splitext(fname)[1] in __json_exts__ + __yaml_exts__, f"unrecognized {fname}"
+    try:
+        with open(fname) as fp:
+            dic = dict(kwargs)
+            dic.setdefault('Loader', yaml.FullLoader)
+            ret = yaml.load(fp, **dic)
+            assert ret, f"read empty object ({ret}) from {fname}, return {default}"
+            assert default is None or isinstance(
+                ret, type(default)), f"read wrong type ({type(ret)}, expected {type(default)}) from {fname}, return {default}"
+            return ret
+    except Exception as identifier:
+        if default is None:
+            to_screen(f"{repr(identifier)} when reading {fname}", _type="error")
+            raise identifier
+        if not silent:
+            to_screen(f"{repr(identifier)} when reading {fname}", _type="warn")
+        return default
 
 
 def get_url_filename_from_server(url):
@@ -68,7 +94,7 @@ def get_url_filename_from_server(url):
         _, params = cgi.parse_header(blah)
         return params["filename"]
     except Exception as e:
-        __logger__.warn('Failed to get filename from server: %s', e)
+        to_screen(f'Failed to get filename from server: {repr(e)}', _type="warn")
         return None
 
 
@@ -82,15 +108,8 @@ def web_download_to_folder(url: str, folder: str, filename: str = None):
         urlretrieve(url, filename)
         __logger__.info('download from %s to %s', url, filename)
         return filename
-    except Exception as e:
+    except Exception:
         __logger__.error("failed to download", exc_info=True)
-
-
-def from_file(fname: str, default={}, fmt: str = None, **kwargs):
-    if fmt == "json" or os.path.splitext(fname)[1] in __json_exts__:
-        return from_json_file(fname, default=default, **kwargs)
-    if fmt == "yaml" or os.path.splitext(fname)[1] in __yaml_exts__:
-        return from_yaml_file(fname, default=default, **kwargs)
 
 
 def mkdir_for(pth: str):
@@ -144,6 +163,9 @@ def safe_copy(src: str, dst: str):
     return file_func({'src': src, 'dst': dst})
 
 
+__yaml_exts__, __json_exts__ = ['.yaml', '.yml'], ['.json', '.jsn']
+
+
 def to_file(obj, fname: str, fmt=None, **kwargs):
     if not fmt:
         _, ext = os.path.splitext(fname)
@@ -160,19 +182,3 @@ def to_file(obj, fname: str, fmt=None, **kwargs):
     with safe_open(fname, 'w') as fp:
         fmt.dump(obj, fp, **dic)
         __logger__.debug("serialize object to file %s", fname)
-
-
-def to_screen(s, is_warn: bool = False, is_table: bool = False, **kwargs):
-    if is_table:
-        from tabulate import tabulate
-        print(tabulate(s, **kwargs), flush=True)
-        return
-    if is_warn:
-        __logger__.warn(s)
-        return
-    if __flags__.disable_to_screen:
-        return
-    if isinstance(s, str):
-        print(s, **kwargs, flush=True)
-    else:
-        print(yaml.dump(s, default_flow_style=False, **kwargs), flush=True)

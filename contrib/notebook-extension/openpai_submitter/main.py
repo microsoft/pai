@@ -78,36 +78,28 @@ class openpai_ext_Interface(object):
 
     def __submit_job_helper(self, ctx):
         import tempfile
-        from openpaisdk.core import Job
+        from openpaisdk import Job
         import os
         import sys
-        from openpaisdk.notebook import get_notebook_path, NotebookConfiguration
+        from openpaisdk.notebook import get_notebook_path
+        from openpaisdk import LayeredSettings
         import yaml
 
-        def get_notebook_variable(var_name: str, default=None, _type=None):
-            from IPython import get_ipython
-            from IPython.core.magics.namespace import NamespaceMagics
+        # setting layers description
+        # layer name     | from                                 : priority
+        # user_advanced  | NotebookConfiguration.set            : 0
+        # user_basic     | extension panel selection            : 1
+        # local_default  | deaults in .openpai/defaults.yaml    : 2
+        # global_default | defaults in ~/.openpai/defaults.yaml : 3
+        # -              | predefined in flags.py               : 4
+        LayeredSettings.update("user_basic", "cluster-alias", ctx['cluster'])
+        LayeredSettings.update("user_basic", "virtual-cluster", ctx['vc'])
+        LayeredSettings.update("user_basic", "image", ctx['docker_image'])
+        LayeredSettings.update("user_basic", "cpu", ctx['cpu']),
+        LayeredSettings.update("user_basic", "gpu", ctx['gpu']),
+        LayeredSettings.update("user_basic", "memoryMB", ctx['memoryMB'])
 
-            _nms = NamespaceMagics()
-            _Jupyter = get_ipython()
-            _nms.shell = _Jupyter.kernel.shell
-            if var_name not in _nms.who_ls():
-                v = default
-            else:
-                v = eval(var_name)
-            if _type:
-                assert isinstance(v, _type), "{} is not instance of {}".format(var_name, _type)
-            return v
-
-        cfgs = get_notebook_variable("openpai_ext_custom_cfgs", NotebookConfiguration(), NotebookConfiguration)
-        # for those selected explicitly by user
-        # priority: cfgs > panel selection > per folder defaults > global defaults
-        cfgs.setdefault("image", ctx['docker_image'])
-        cfgs.setdefault("cpu", ctx['cpu']),
-        cfgs.setdefault("gpu", ctx['gpu']),
-        cfgs.setdefault("memoryMB", ctx['memoryMB'])
-        # for those embedded by the extension
-        workspace = cfgs["workspace"] if cfgs["workspace"] else '/code'
+        cfgs = LayeredSettings.as_dict()
 
         notebook_path = get_notebook_path()
         _, _, sources = next(os.walk('.'))
@@ -126,9 +118,9 @@ class openpai_ext_Interface(object):
             .from_notebook(
                 nb_file=get_notebook_path(),
                 cluster={
-                    'cluster_alias': ctx['cluster'],
-                    'virtual_cluster': ctx['vc'],
-                    'workspace': workspace,
+                    'cluster_alias': cfgs['cluster-alias'],
+                    'virtual_cluster': cfgs['virtual-cluster'],
+                    'workspace': cfgs['workspace'],
                 },
                 mode=mode,
                 **{
@@ -138,6 +130,7 @@ class openpai_ext_Interface(object):
                         'cpu': cfgs["cpu"],
                         'gpu': cfgs["gpu"],
                         'memoryMB': cfgs["memoryMB"],
+                        'mem': cfgs['mem']
                     },
                     'sources': sources + cfgs["sources"],
                     'pip_installs': cfgs["pip-installs"],
@@ -155,7 +148,7 @@ class openpai_ext_Interface(object):
         self.execute(self.__submit_job_helper, token, args=[ctx])
 
     def __wait_jupyter_helper(self, ctx):
-        from openpaisdk.core import Job
+        from openpaisdk import Job
         job = Job(ctx['jobname']).load(cluster_alias=ctx['cluster'])
         ret = job.wait()
         ret = job.connect_jupyter()  # ret will be None if run in silent mode and without this
@@ -170,7 +163,7 @@ class openpai_ext_Interface(object):
         self.execute(self.__wait_jupyter_helper, token, args=[ctx])
 
     def __detect_jobs_helper(self, jobs_ctx):
-        from openpaisdk.core import Job
+        from openpaisdk import Job
         ret = []
         for ctx in jobs_ctx:
             try:

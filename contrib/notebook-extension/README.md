@@ -77,13 +77,13 @@ If you submit a notebook as a silent notebook, you won't have an interactive not
 
 ### Advanced job configuration
 
-In the submitting panel, user can change basic configuration of the job. However, for the users who want to change the advanced configuration, the extension would receive configuration from a variable named `openpai_ext_custom_cfgs` in the notebook.
+In the submitting panel, user can change basic configuration of the job. However, for the users who want to change the advanced configuration, the extension would receive configuration from `NotebookConfiguration` in the notebook.
 
 For example, after executing below codes in the notebook cell, the extension will configure the job resource specification to 2 GPUs, 16 CPU cores and 32 GB memory.
 ```python
 from openpaisdk.notebook import NotebookConfiguration
 
-openpai_ext_custom_cfgs = NotebookConfiguration(
+NotebookConfiguration.set(
     cpu = 16, memoryMB = "32G", gpu=2
 )
 ```

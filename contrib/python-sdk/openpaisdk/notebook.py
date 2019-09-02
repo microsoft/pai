@@ -1,9 +1,7 @@
 import json
 import os.path
 import re
-
-from openpaisdk.defaults import __predefined_defaults__, CfgDict, read_defaults
-from openpaisdk.io_utils import to_screen
+from openpaisdk.defaults import LayeredSettings
 
 
 def get_notebook_path():
@@ -39,29 +37,28 @@ def parse_notebook_path():
     return name, folder, ext
 
 
-# remove cluster-alias, virtual-cluster
-class NotebookConfiguration(CfgDict):
+class NotebookConfiguration:
+    "wrapper of LayeredSettings"
 
-    def __init__(self, **kwargs):
-        super().__init__(
-            __predefined_defaults__[2:],
-            load_default=False
-        )
-        self._sdk_defaults = {
-            k: v for k, v in read_defaults().items() if k not in ["cluster-alias", "virtual-cluster"]
-        }
-        self.update(kwargs)
+    @staticmethod
+    def reset():
+        LayeredSettings.reset()
 
     @staticmethod
     def print_supported_items():
-        CfgDict(__predefined_defaults__[2:]).print()
+        LayeredSettings.print_supported_items()
 
-    def __getitem__(self, key):
-        "priority: value set > _sdk_defaults > _predefined_dict > None"
-        return dict.get(
-            self, key, self._sdk_defaults.get(
-                key, self._predefined_dict.get(
-                    key, None
-                )
-            )
-        )
+    @staticmethod
+    def set(**kwargs):
+        for key, value in kwargs.items():
+            LayeredSettings.update("user_advaced", key, value)
+
+    @staticmethod
+    def get(*args):
+        dic = LayeredSettings.as_dict()
+        if not args:
+            return dic
+        elif len(args) == 1:
+            return dic[args[0]]
+        else:
+            return [dic[a] for a in args]

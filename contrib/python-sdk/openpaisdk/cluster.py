@@ -1,17 +1,10 @@
-import os
-import re
-import time
-from copy import deepcopy
-
-from openpaisdk import __cluster_config_file__, __logger__
-from openpaisdk.cli_arguments import get_args
 from openpaisdk.io_utils import from_file, to_file, to_screen
 from openpaisdk.storage import Storage
-from openpaisdk.utils import OrganizedList as ol
+from openpaisdk.utils import OrganizedList
 from openpaisdk.utils import get_response, na, exception_free, RestSrvError, concurrent_map
 
 
-def get_cluster(alias: str, fname: str = __cluster_config_file__, get_client: bool = True):
+def get_cluster(alias: str, fname: str = None, get_client: bool = True):
     """the generalized function call to load cluster
     return cluster client if assert get_client else return config"""
     if get_client:
@@ -26,58 +19,56 @@ class ClusterList:
     """
 
     def __init__(self, clusters: list = None):
-        self.clusters = clusters if clusters else []
+        self.clusters = OrganizedList(clusters, _key="cluster_alias") if clusters else []
 
-    def load(self, fname: str = __cluster_config_file__):
-        self.clusters = from_file(fname, default=[])
+    def load(self, fname: str = None):
+        fname = na(fname, self.default_config_file)
+        self.clusters = OrganizedList(from_file(fname, default=[]), _key="cluster_alias")
         return self
 
     def save(self):
-        to_file(self.clusters, __cluster_config_file__)
+        to_file(self.clusters.as_list, self.default_config_file)
+
+    @property
+    def default_config_file(self):
+        from openpaisdk.flags import __flags__
+        from openpaisdk.defaults import get_defaults
+        return __flags__.get_cluster_cfg_file(get_defaults()["clusters-in-local"])
 
     def tell(self):
         return {
-            c["cluster_alias"]: {
-                v: dict(GPUs='-', memory='-', vCores='-') for v in c["virtual_clusters"]
-            } for c in self.clusters
+            a: {
+                v: dict(GPUs='-', memory='-', vCores='-') for v in cfg["virtual_clusters"]
+            } for a, cfg in self.clusters.as_dict.items()
         }
 
     def add(self, cluster: dict):
         cfg = Cluster().load(**cluster).check().config
-        ol.add(self.clusters, "cluster_alias", cfg)
+        self.clusters.add(cfg, replace=True)
         return self
+
+    def update_all(self):
+        for a in self.aliases:
+            self.add(self.clusters.first(a))
 
     def delete(self, alias: str):
-        ol.delete(self.clusters, "cluster_alias", alias)
-        return self
+        return self.clusters.remove(alias)
 
-    def select(self, alias: str = None):
-        """return the cluster configuration (dict) with its alias equal to specified one
-        if only one cluster in the list and alias is not set, the only cluster would be returned"""
-        if not alias and len(self.clusters) == 1:
-            alias = self.clusters[0]["cluster_alias"]
-            __logger__.warn(
-                "cluster-alias is not set, the only defined cluster %s will be used", alias)
-        assert alias, "must specify a cluster_alias"
-        dic = ol.as_dict(self.clusters, "cluster_alias")
-        if alias not in dic:
-            os.system("cat %s" % __cluster_config_file__)
-            __logger__.error("cannot find %s from %s (%s)",
-                             alias, list(dic.keys()), __cluster_config_file__)
-        return dic[alias]
+    def select(self, alias: str):
+        return self.clusters.first(alias)
 
     def get_client(self, alias: str):
         return Cluster().load(**self.select(alias))
 
     def available_resources(self):
-        "concurrent version to get available resources"
+        """concurrent version to get available resources"""
         aliases = self.aliases
         ret = concurrent_map(Cluster.available_resources, (self.get_client(a) for a in aliases))
         return {a: r for a, r in zip(aliases, ret) if r is not None}
 
     @property
     def aliases(self):
-        return [c["cluster_alias"] for c in self.clusters]
+        return [c["cluster_alias"] for c in self.clusters if "cluster_alias" in c]
 
 
 class Cluster:
@@ -90,12 +81,32 @@ class Cluster:
         self.__token = None
 
     def load(self, cluster_alias: str = None, pai_uri: str = None, user: str = None, password: str = None, token: str = None, **kwargs):
-        self.config.update(get_args())
+        import re
+        self.config.update(
+            cluster_alias=cluster_alias,
+            pai_uri=pai_uri.strip("/"),
+            user=user,
+            password=password,
+            token=token,
+        )
         # validate
         assert self.alias, "cluster must have an alias"
         assert self.user, "must specify a user name"
         assert re.match("^(http|https)://(.*[^/])$",
                         self.pai_uri), "pai_uri should be a uri in the format of http(s)://x.x.x.x"
+        return self
+
+    def check(self):
+        to_screen("try to connect cluster {}".format(self.alias))
+        storages = self.rest_api_storages()
+        for i, s in enumerate(storages):
+            s.setdefault("storage_alias", s["protocol"] + f'-{i}')
+        self.config.update(
+            info=na(self.rest_api_cluster_info(), {}),
+            storages=storages,
+            virtual_clusters=self.virtual_clusters(),
+        )
+        # ! will check authentication types according to AAD enabled or not
         return self
 
     @property
@@ -122,26 +133,12 @@ class Cluster:
             self.__token = self.rest_api_token(self.__token_expire)
         return self.__token
 
-    def check(self):
-        cluster_info = self.rest_api_cluster_info()
-        cluster_info["virtual_clusters"] = self.virtual_clusters()
-        self.config.update(cluster_info)
-        # ! will check authentication types according to AAD enabled or not
-        to_screen("succeeded to connect cluster {}".format(self.alias))
-        return self
-
     def get_storage(self, alias: str = None):
         # ! every cluster should have a builtin storage
-        storage_cfg = self.config.get("storages", {}).get(na(alias, "builtin"), None)
-        assert storage_cfg, alias
-        if storage_cfg["protocol"] == "hdfs":
-            uri = storage_cfg.get("uri", self.pai_uri).strip("/")
-            if self.config.get("pylon_enabled", True):
-                uri += "/webhdfs"
-            else:
-                uri += ":%d" % storage_cfg.get("ports", {}).get("webhdfs", 50070)
-            return Storage(protocol='webHDFS', url=uri, user=storage_cfg.get('user', self.user))
-        raise NotImplementedError
+        for sto in self.config.get("storages", []):
+            if alias is None or sto["storage_alias"] == alias:
+                if sto["protocol"] == 'hdfs':
+                    return Storage(protocol='webHDFS', url=sto["webhdfs"], user=sto.get('user', self.user))
 
     def get_job_link(self, job_name: str):
         return '{}/job-detail.html?username={}&jobName={}'.format(self.pai_uri, self.user, job_name)
@@ -150,21 +147,19 @@ class Cluster:
     def rest_srv(self):
         return '{}/rest-server/api'.format(self.pai_uri)
 
+    # ! for some older version that does not support this API
+    @exception_free(Exception, None, "Cluster info API is not supported")
     def rest_api_cluster_info(self):
+        return get_response('GET', [self.rest_srv, 'v1'], allowed_status=[200]).json()
+
+    def rest_api_storages(self):
         # ! currently this is a fake
-        return {
-            "pylon_enabled": True,
-            "aad_enabled": False,
-            "storages": {
-                "builtin": {
-                    "protocol": "hdfs",
-                    "ports": {
-                        "webhdfs": "webhdfs",
-                        "native": 9000,
-                    }
-                }
-            }
-        }
+        return [
+            {
+                "protocol": "hdfs",
+                "webhdfs": f"{self.pai_uri}/webhdfs"
+            },
+        ]
 
     @exception_free(RestSrvError, None)
     def rest_api_job_list(self, user: str = None):
@@ -189,17 +184,17 @@ class Cluster:
             }
         ).json()['token']
 
-    @exception_free(RestSrvError, None)
     def rest_api_submit(self, job: dict):
         use_v2 = str(job.get("protocolVersion", 1)) == "2"
         if use_v2:
+            import yaml
             return get_response(
                 'POST', [self.rest_srv, 'v2', 'jobs'],
                 headers={
                     'Authorization': 'Bearer {}'.format(self.token),
                     'Content-Type': 'text/yaml',
                 },
-                body=job,
+                body=yaml.dump(job),
                 allowed_status=[202, 201]
             )
         else:
@@ -249,6 +244,7 @@ class Cluster:
 
     def virtual_clusters(self, user_info: dict = None):
         user_info = na(user_info, self.rest_api_user())
+        assert user_info, f'failed to get user information from {self.alias}'
         my_virtual_clusters = user_info["virtualCluster"]
         if isinstance(my_virtual_clusters, str):
             my_virtual_clusters = my_virtual_clusters.split(",")

@@ -5,18 +5,16 @@ import importlib
 import os
 import time
 from typing import Union
-from copy import deepcopy
 from functools import wraps
 from collections import Iterable
-from requests import Response, request
+from requests import request
 from requests_toolbelt.utils import dump
 
 import subprocess
-from openpaisdk import __logger__
-from openpaisdk.io_utils import safe_chdir, to_screen
+from openpaisdk.io_utils import safe_chdir, to_screen, __logger__
 
 
-def exception_free(err_type, default):
+def exception_free(err_type, default, err_msg: str = None):
     "return the default value if the exception is caught"
     def inner_func(fn):
         @wraps(fn)
@@ -24,7 +22,10 @@ def exception_free(err_type, default):
             try:
                 return fn(*args, **kwargs)
             except err_type as e:
-                to_screen(str(e), is_warn=True)
+                if not err_msg:
+                    to_screen(repr(e), _type="warn")
+                else:
+                    to_screen(err_msg, _type="warn")
                 return default
             except Exception as e:
                 raise e
@@ -43,45 +44,70 @@ def concurrent_map(fn, it, max_workers=None):
     return ret
 
 
-class OrganizedList:
+class OrganizedList(list):
 
-    @staticmethod
-    def filter(lst: iter, key: str = None, target=None, getter=dict.get):
-        m = [(i, x) for i, x in enumerate(lst) if getter(x, key) == target]
-        return {
-            "matches": [x[1] for x in m],
-            "indexes": [x[0] for x in m],
-        }
+    def __init__(self, lst: list, _key: str = None, _getter=dict.get):
+        super().__init__(lst)
+        self._getter = _getter
+        self._key = _key
 
-    @staticmethod
-    def as_dict(lst: list, key: str, getter=dict.get):
-        return {getter(x, key): x for x in lst}
+    @property
+    def _fn_get(self):
+        return lambda elem: self._getter(elem, self._key)
 
-    @staticmethod
-    def add(lst: list, key: str, elem: dict, getter=dict.get, silent: bool = False) -> bool:
-        "return True if update an existing elements, else return False"
-        target = getter(elem, key)
-        m = OrganizedList.filter(lst, key, target)  # type: dict, matches
-        for x in m["matches"]:
-            x.update(elem)
-            if not silent:
-                to_screen("%s = %s already exists, update it" % (key, elem[key]))
-            return lst
-        lst.append(elem)
+    def first_index(self, target):
+        for i, elem in enumerate(self):
+            if self._fn_get(elem) == target:
+                return i
+        return None
+
+    def first(self, target):
+        i = self.first_index(target)
+        return self[i] if i is not None else None
+
+    def filter_index(self, target=None, include: list = None, exclude: list = None):
+        if include is not None:
+            return [i for i, elem in enumerate(self) if self._fn_get(elem) in include]
+        if exclude is not None:
+            return [i for i, elem in enumerate(self) if self._fn_get(elem) not in exclude]
+        return [i for i, elem in enumerate(self) if self._fn_get(elem) == target]
+
+    def filter(self, target=None, include=None, exclude=None):
+        return OrganizedList([self[i] for i in self.filter_index(target, include, exclude)], self._key, self._getter)
+
+    @property
+    def as_dict(self):
+        return {self._fn_get(elem): elem for elem in self}
+
+    @property
+    def as_list(self):
+        return [x for x in self]
+
+    def add(self, elem: dict, getter=dict.get, silent: bool = False, replace: bool = False):
+        for i in self.filter_index(self._fn_get(elem)):
+            if replace:
+                self[i] = elem
+                if not silent:
+                    to_screen(f"OrganizedList: {self._key} = {self._fn_get(elem)} already exists, replace it")
+            else:
+                self[i].update(elem)
+                if not silent:
+                    to_screen(f"OrderedDict: {self._key} = {self._fn_get(elem)} already exists, update it")
+            return self  # ~ return
+        self.append(elem)
         if not silent:
-            to_screen("%s = %s added" % (key, elem[key]))
-        return lst
+            to_screen(f"OrganizedList: {self._key} = {self._fn_get(elem)} added")
+        return self
 
-    @staticmethod
-    def delete(lst: list, key: str, target, getter=dict.get) -> list:
-        indexes = OrganizedList.filter(lst, key, target, getter)["indexes"]
+    def remove(self, target):
+        indexes = self.filter_index(target)
         if not indexes:
-            __logger__.warn(
-                "element with %s = %s cannot be deleted due to non-existence", key, target)
-            return False
+            to_screen(f"OrganizedList: {self._key} = {target} cannot be deleted due to non-existence")
+            return self
         for index in sorted(indexes, reverse=True):
-            del lst[index]
-        return True
+            del self[index]
+            to_screen(f"OrganizedList: {self._key} = {target} removed")
+        return self
 
 
 class Nested:
@@ -126,8 +152,6 @@ def getobj(name: str):
 
 
 class RestSrvError(Exception):
-    "Error type for Rest server not response as expected"
-
     pass
 
 
@@ -165,29 +189,32 @@ class Retry:
                 time.sleep(self.t_sleep)
 
 
+def path_join(path: Union[list, str], sep: str = '/'):
+    """ join path from list or str
+    - ['aaa', 'bbb', 'ccc'] -> 'aaa/bbb/ccc'
+    - ['aaa', 'bbb', ('xxx', None), 'ddd'] -> 'aaa/bbb/ccc'
+    - ['aaa', 'bbb', ('xxx', 'x-val'), 'ddd'] -> 'aaa/bbb/xxx/x-val/ccc'
+    """
+    def is_single_element(x):
+        return isinstance(x, str) or not isinstance(x, Iterable)
+    if is_single_element(path):
+        return str(path)
+    p_lst = []
+    for p in path:
+        if not p:
+            continue
+        if is_single_element(p):
+            p_lst.append(str(p))
+        elif all(p):
+            p_lst.extend([str(x) for x in p])
+    return '/'.join(p_lst)
+
+
 def get_response(method: str, path: Union[list, str], headers: dict = None, body: dict = None, allowed_status: list = [200], **kwargs):
     """an easy wrapper of request, including:
     - path accept a list of strings and more complicated input
-        - ['aaa', 'bbb', 'ccc'] -> 'aaa/bbb/ccc'
-        - ['aaa', 'bbb', ('xxx', None), 'ddd'] -> 'aaa/bbb/ccc'
-        - ['aaa', 'bbb', ('xxx', 'x-val'), 'ddd'] -> 'aaa/bbb/xxx/x-val/ccc'
     - will checked the response status_code, raise RestSrvError if not in the allowed_status
     """
-    def path_join(path):
-        def is_single_element(x):
-            return isinstance(x, str) or not isinstance(x, Iterable)
-        if is_single_element(path):
-            return str(path)
-        p_lst = []
-        for p in path:
-            if not p:
-                continue
-            if is_single_element(p):
-                p_lst.append(str(p))
-            elif all(p):
-                p_lst.extend([str(x) for x in p])
-        return '/'.join(p_lst)
-
     path = path_join(path)
     headers = na(headers, {})
     body = na(body, {})
@@ -229,3 +256,11 @@ def na_lazy(a, fn, *args, **kwargs):
 
 def flatten(lst: list):
     return sum(lst, [])
+
+
+def randstr(num: int = 10, letters=None):
+    "get a random string with given length"
+    import string
+    import random
+    letters = na(letters, string.ascii_letters)
+    return ''.join(random.choice(letters) for i in range(num))

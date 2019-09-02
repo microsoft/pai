@@ -1,26 +1,8 @@
 """This file provides a mechanism to couple a Namespace (argparse) and pai protocol
 """
 import argparse
-import inspect
-import typing
-from copy import deepcopy
-from openpaisdk import __logger__
-from openpaisdk.defaults import get_defaults
-from typing import Union
-
-
-def get_args(
-    expand=['kwargs'],  # type: list
-    ignore=['self']  # type: list
-):
-    # type (...) -> dict
-    """if used at the first of a function, will return its arguments"""
-    caller = inspect.currentframe().f_back
-    dic = {k: v for k, v in caller.f_locals.items() if k not in ignore and not k.startswith('__')}
-    for k in expand:
-        v = dic.pop(k, {})
-        dic.update(v)
-    return dic
+from openpaisdk.defaults import LayeredSettings
+from openpaisdk.flags import __flags__
 
 
 class ArgumentFactory:
@@ -29,15 +11,13 @@ class ArgumentFactory:
         self.factory = dict()
 
         # deal with predefined defaults
-        for p in get_defaults().predefined:
-            args = ['--' + p.name]
-            if p.abbreviation:
-                args += [('-' if len(p.abbreviation) == 1 else '--') + p.abbreviation]
-            kwargs = dict(help=p.description)
-            if isinstance(p.default, list):
-                kwargs.update(action='append', default=None)
-            else:
-                kwargs.update(default=p.default)
+        for name, params in LayeredSettings.definitions.items():
+            args = ['--' + name]
+            abbr = params.get('abbreviation', None)
+            if abbr:  # args = ['--{name}', '-{abbr}' or '--{abbr}']
+                args += [('-' if len(abbr) == 1 else '--') + abbr]
+            kwargs = {k: v for k, v in params.items() if k not in ["name", "abbreviation"]}
+            kwargs["default"] = LayeredSettings.get(name)
             self.add_argument(*args, **kwargs)
 
         # cluster
@@ -93,11 +73,3 @@ def cli_add_arguments(parser: argparse.ArgumentParser, args: list):
         args, kwargs = __arguments_factory__.get(a)
         # assert parser.conflict_handler == 'resolve', "set conflict_handler to avoid duplicated"
         parser.add_argument(*args, **kwargs)
-
-
-def append_options_to_list(args: argparse.Namespace, keys: list):
-    for k in keys:
-        if not hasattr(args, k):
-            __logger__.warn("option %s not found, please check it", k)
-        if getattr(args, k, None) is None:
-            setattr(args, k, [])

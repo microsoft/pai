@@ -1,108 +1,152 @@
 
 """ this module is to set a way to control the predefined configurations
 """
-import os
-from collections import namedtuple
-from typing import List
-from openpaisdk import __logger__, __global_default_file__, __local_default_file__, __container_sdk_branch__
+from openpaisdk.flags import __flags__
+from openpaisdk.utils import na, OrganizedList
 from openpaisdk.io_utils import from_file, to_file, to_screen
 
 
-CfgItem = namedtuple('CfgItem', "name default abbreviation description", verbose=False)
+class CfgLayer:
+
+    def __init__(self, name: str, include: list = None, exclude: list = None, file: str = None, values: dict = None, allow_unknown: bool = True):
+        self.name = name
+        self.file = file
+        self.values = from_file(file, {}, silent=True) if file else na(values, {})
+        self.definitions = OrganizedList(
+            __flags__.default_var_definitions(),
+            _key="name"
+        ).filter(None, include, exclude)  # type: OrganizedList
+
+    def update(self, key: str, value=None, delete: bool = False):
+        dic = self.values
+        if delete:
+            if key not in dic:
+                to_screen(f"key {key} not found in {self.name}, ignored")
+            elif not self.act_append(key) or value is None:  # delete the key
+                dic[key] = []
+                to_screen(f"key {key} removed in {self.name} successfully")
+            else:
+                if not value:
+                    del dic[key]
+                    to_screen(f"key {key} removed totally from {self.name} successfully")
+                else:
+                    s = set(dic[key])
+                    s.discard(value)
+                    dic[key] = list(s)
+                    to_screen(f"{value} removed in {key} under {self.name} successfully")
+        else:
+            if not self.allow(key):
+                to_screen(f"{key} is not a recognized default variable, ignored")
+            elif self.act_append(key):
+                def _append_as_set(dic, key, value):
+                    dic.setdefault(key, [])
+                    s = set(dic[key])
+                    s.add(value)
+                    dic[key] = list(s)
+                _append_as_set(dic, key, value)
+                to_screen(f"{value} added to {key} under {self.name} successfully")
+            else:
+                dic[key] = value
+                to_screen(f"{key} set to {value} under {self.name} successfully")
+        if self.file:
+            to_file(self.values, self.file)
+
+    def allow(self, key: str):
+        return self.definitions.first_index(key) is not None
+
+    def act_append(self, key: str):
+        if self.allow(key):
+            return self.definitions.first(key).get("action", None) == "append"
+        return False
 
 
-class CfgDict(dict):
+class LayeredSettings:
+    "key-value querying from a list of dicts, priority depends on list index"
 
-    def __init__(self, cfgs: List[CfgItem], undefined: str = "warn", load_default: bool = False, **kwargs):
-        self._undefined = undefined
-        self._predefined = cfgs
-        self._predefined_dict = {c.name: c.default for c in cfgs}
-        if load_default:
-            for c in cfgs:
-                dict.__setitem__(self, c.name, c.default)
-        assert undefined in ["warn", "fatal"], "unknown undefined operation {}".format(undefined)
-        for key, val in kwargs.items():
-            self.__setitem__(key, val)
+    layers = None
+    definitions = None
 
-    def _check(self, key):
-        if key in (c.name for c in self._predefined):
-            return True
-        msg = "key {} not in predefined keys {}".format(key, [c.name for c in self._predefined])
-        if self._undefined == "warn":
-            to_screen(msg, is_warn=True)
-            return False
-        raise KeyError(msg)
+    @classmethod
+    def init(cls):
+        if cls.layers is None:
+            cls.reset()
 
-    def __setitem__(self, key, val):
-        self._check(key)
-        dict.__setitem__(self, key, val)
+    @classmethod
+    def reset(cls):
+        cls.definitions = OrganizedList(__flags__.default_var_definitions(), _key="name").as_dict
+        cls.layers = OrganizedList([
+            CfgLayer(
+                name="user_advaced",
+                exclude=["clusters-in-local", "image-list", "resource-specs"]
+            ),
+            CfgLayer(
+                name="user_basic",
+                exclude=["clusters-in-local", "image-list", "resource-specs"]
+            ),
+            CfgLayer(
+                name="local_default",
+                exclude=[], file=__flags__.get_default_file(is_global=False)
+            ),
+            CfgLayer(
+                name="global_default",
+                exclude=[], file=__flags__.get_default_file(is_global=True)
+            )
+        ], _key="name", _getter=getattr)
 
-    @property
-    def predefined(self):
-        return self._predefined
+    @classmethod
+    def keys(cls):
+        dic = set()
+        for layer in cls.layers:
+            for key in layer.values.keys():
+                dic.add(key)
+        dic = dic.union(cls.definitions.keys())
+        return list(dic)
 
-    def print(self):
-        if self.predefined:
-            to_screen(self.predefined, is_table=True, headers=self.predefined[0]._asdict().keys())
+    @classmethod
+    def act_append(cls, key):
+        return cls.definitions.get(key, {}).get("action", None) == "append"
 
+    @classmethod
+    def get(cls, key):
+        __not_found__ = "==Not-Found=="
+        lst = [layer.values.get(key, __not_found__) for layer in cls.layers]
+        lst.append(cls.definitions.get(key, {}).get("default", None))
+        lst = [x for x in lst if x != __not_found__]
 
-__default_job_resources__ = {
-    "ports": {}, "gpu": 0, "cpu": 4, "memoryMB": 8192,
-}
+        if cls.act_append(key):
+            from openpaisdk.utils import flatten
+            return list(set(flatten(lst)))
+        else:
+            return lst[0] if lst else None
 
+    @classmethod
+    def update(cls, layer: str, key: str, value=None, delete: bool = False):
+        cls.layers.first(layer).update(key, value, delete)
 
-__predefined_defaults__ = [
-    CfgItem("cluster-alias", None, "a", "cluster alias"),
-    CfgItem("virtual-cluster", None, "vc", "virtual cluster name"),
-    CfgItem("storage-alias", None, "s", "alias of storage to use"),
-    CfgItem("workspace", None, "w", "storage root for a job to store its codes / data / outputs ..."),
-    CfgItem("container-sdk-branch", __container_sdk_branch__, None,
-            "code branch to install sdk from (in a job container)"),
-    CfgItem("image", None, "i", "docker image"),
-    CfgItem("cpu", __default_job_resources__["cpu"], None, "cpu number per instance"),
-    CfgItem("gpu", __default_job_resources__["gpu"], None, "gpu number per instance"),
-    CfgItem("memoryMB", __default_job_resources__["memoryMB"], None, "memory (MB) per instance"),
-    CfgItem("sources", [], "src", "source files to upload (into container)"),
-    CfgItem("pip-installs", [], "pip", "packages to install via pip"),
-]
+    @classmethod
+    def as_dict(cls):
+        return {key: cls.get(key) for key in cls.keys()}
 
-
-def read_global_defaults():
-    if os.path.isfile(__global_default_file__):
-        return from_file(__global_default_file__, default="==FATAL==")
-    return {}
-
-
-def read_per_folder_defaults():
-    if os.path.isfile(__local_default_file__):
-        return from_file(__local_default_file__, default="==FATAL==")
-    return {}
-
-
-def read_defaults(global_only: bool = False):
-    "read values in the default file, not consider __predefined_defaults__"
-    dic = read_global_defaults()
-    if not global_only:
-        dic.update(read_per_folder_defaults())
-    return dic
+    @classmethod
+    def print_supported_items(cls):
+        headers = ['name', 'default', 'help']
+        to_screen([
+            [x.get(k, None) for k in headers] for x in __flags__.default_var_definitions()
+        ], _type="table", headers=headers)
 
 
-def get_defaults(global_only: bool = False):
-    "read_defaults, but return __predefined_defaults__ if not assert"
-    dic = CfgDict(__predefined_defaults__, **read_defaults(global_only))
-    return dic
+LayeredSettings.init()
+
+
+def get_defaults(en_local=True, en_global=True, en_predefined=True):
+    return LayeredSettings.as_dict()
 
 
 def update_default(key: str, value: str = None, is_global: bool = False, to_delete: bool = False):
-    filename = __global_default_file__ if is_global else __local_default_file__
-    dic = read_global_defaults() if is_global else read_per_folder_defaults()
-    dic = CfgDict(__predefined_defaults__, **dic)
-    if to_delete:
-        if key not in dic:
-            to_screen("key %s not found in %s, ignored" % (key, filename))
-            return
-        del dic[key]
-    else:
-        to_screen("key %s updated to %s in %s" % (key, value, filename))
-        dic[key] = value
-    to_file(dic, filename)
+    layer = "global_default" if is_global else "local_default"
+    LayeredSettings.update(layer, key, value, to_delete)
+
+
+def get_install_uri(ver: str = None):
+    ver = get_defaults()["container-sdk-branch"] if not ver else ver
+    return '-e "git+https://github.com/Microsoft/pai@{}#egg=openpaisdk&subdirectory=contrib/python-sdk"'.format(ver)
