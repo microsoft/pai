@@ -1,0 +1,29 @@
+protocolVersion: 2
+name: cleaner-test-job
+type: job
+jobRetryCount: 0
+prerequisites:
+  - type: dockerimage
+    uri: 'openpai/testcleaner:stable'
+    name: docker_image_1
+parameters:
+  threshold: '94'
+  time: '30'
+taskRoles:
+  taskrole:
+    instances: 1
+    completion:
+      minFailedInstances: 1
+      minSucceededInstances: 1
+    dockerImage: docker_image_1
+    resourcePerInstance:
+      gpu: 1
+      cpu: 4
+      memoryMB: 8192
+    commands:
+      - >-
+        sh /cleaner-test/cleaner-test.sh <% $parameters.threshold %> <%
+        $parameters.time %>
+    taskRetryCount: 0
+defaults:
+  virtualCluster: default
