@@ -1,7 +1,6 @@
 import c from 'classnames';
 import {Panel, List, mergeStyleSets, getFocusStyle, getTheme, PanelType, Stack, StackItem} from 'office-ui-fabric-react';
 import React, {useCallback, useState, useEffect} from 'react';
-import {isEmpty} from 'lodash';
 
 import webportalConfig from '../config/webportal.config';
 
@@ -30,10 +29,6 @@ export const NotificationButton = () => {
   const [alertItems, setAlertItems] = useState([]);
 
   useEffect(() => {
-    if (isEmpty(webportalConfig.alertManagerUri)) {
-      return;
-    }
-
     const alertsUrl = `${webportalConfig.alertManagerUri}/api/v1/alerts?silenced=false`;
     fetch(alertsUrl).then((res) => {
       if (!res.ok) {
@@ -47,7 +42,8 @@ export const NotificationButton = () => {
       }).catch(() => {
         throw Error('Get alerts json failed');
       });
-    }).catch(alert);
+      // Swallow exceptions here. Since alertManager is optional and we don't have an API to get all avaliable services
+    }).catch((error)=>{});
   }, []);
 
   const open = useCallback(() => {
