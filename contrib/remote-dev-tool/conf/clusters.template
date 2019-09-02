@@ -1,0 +1,9 @@
+- cluster_alias: remote_dev_bed
+  default_storage_alias: hdfs
+  pai_uri: http://$serverip
+  storages:
+  - protocol: webHDFS
+    storage_alias: hdfs
+    web_hdfs_uri: http://$serverip:50070
+  user: $username
+  token: $token

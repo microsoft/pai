@@ -1,0 +1,1 @@
+/workspace *(rw,fsid=0,sync,no_root_squash,no_subtree_check,anonuid=1000,anongid=1000)
