@@ -37,24 +37,29 @@ func main() {
 	logFiles.UserLog = userLog
 	logFiles.RuntimeErrorLog = runtimeErrorLog
 
+	exitInfo := &aggregator.RuntimeExitInfo{
+		Exitcode:           255,
+		OriginUserExitCode: userExitCode,
+	}
+
 	log.Info("start to generate the exit summary")
 	a, err := aggregator.NewErrorAggregator(&logFiles, log)
 	if err != nil {
 		log.Error("failed to create log aggregator", err)
-		os.Exit(defaultExitCode)
+		goto DUMP_RESULT
 	}
 
 	err = a.LoadRuntimeErrorSpecs("failurePatterns.yml")
 	if err != nil {
 		log.Error("load runtime error spec failed")
-		os.Exit(defaultExitCode)
+		goto DUMP_RESULT
 	}
-	exitInfo, err := a.GenerateExitInfo(int(userExitCode))
+	exitInfo, err = a.GenerateExitInfo(int(userExitCode))
 	if err != nil {
 		log.Error("failed to generate the exitInfo", err)
-		os.Exit(defaultExitCode)
 	}
 
+DUMP_RESULT:
 	aggFile, err := os.Create(aggFilePath)
 	if err != nil {
 		log.Error("open aggregate file failed", err)
@@ -68,5 +73,5 @@ func main() {
 		os.Exit(defaultExitCode)
 	}
 	log.Info("finish generating the exit summary")
-	os.Exit(defaultExitCode)
+	os.Exit(exitInfo.Exitcode)
 }
