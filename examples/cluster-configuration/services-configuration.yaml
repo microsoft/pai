@@ -136,6 +136,20 @@ rest-server:
 # uncomment following section if you want to customize the port of pylon
 # pylon:
 #  port: 80
+#  webhdfs-legacy-port: 50070
+#  deploy-service: false
+#  # By default, master's ipaddress will be treated as the pylon's address
+#  # If you wanna configure pylon with other ip address, you should config it here.
+#  public-ip-address: ip-address
+#  # If you wanna integrate OpenPAI with aad, you should configure this.
+#  ssl:
+#  # self-sign
+#  # crt_name: xxxxxx
+#  # crt_path: /path/to/xxxxxx
+#  # key_name: yyyyyy
+#  # key_path: /path/to/yyyyyy
+
+
 
 # uncomment following section if you want to customize the threshold of cleaner
 # cleaner:
