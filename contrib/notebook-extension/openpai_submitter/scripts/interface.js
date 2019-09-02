@@ -130,6 +130,8 @@ function (requirejs, $, Jupyter, events, config) {
     initiate: initiate,
 
     // main api
+    tell_resources:
+                () => executePromise(codeMain, 'openpai_ext_interface.tell_resources("<openpai_token>")'),
     available_resources:
                 () => executePromise(codeMain, 'openpai_ext_interface.available_resources("<openpai_token>")'),
     zip_and_upload:

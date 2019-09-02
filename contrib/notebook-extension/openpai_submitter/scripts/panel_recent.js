@@ -46,11 +46,6 @@ function (requirejs, $, Jupyter, events, config, Interface, Utils) {
     set(STATUS.NOT_READY)
 
     var speed = config.panel_toggle_speed
-    var getLoadingImg = function (idName) {
-      var loadingImg
-      if (idName !== undefined) { loadingImg = '<img src="' + requirejs.toUrl('../misc/loading.gif') + '" class="loading-img-small" id="' + idName + '"></img>' } else { loadingImg = '<img src="' + requirejs.toUrl('../misc/loading.gif') + '" class="loading-img-small"></img>' }
-      return loadingImg
-    }
 
     var showInformation = function (info) {
       /* this function will hide table and show information for users. */
@@ -225,10 +220,10 @@ function (requirejs, $, Jupyter, events, config, Interface, Utils) {
             } else {
               item['state'] = '<span class="datatable-status" data-jobname="' + record['jobname'] +
                       '" data-cluster="' + record['cluster'] + '" data-vc="' + record['vc'] +
-                      '">' + getLoadingImg() + '</span>'
+                      '">' + Utils.getLoadingImgSmall() + '</span>'
               item['notebook_url'] = '<span class="datatable-notebook-url" data-jobname="' +
                       record['jobname'] + '" data-cluster="' + record['cluster'] +
-                      '" data-vc="' + record['vc'] + '">' + getLoadingImg() + '</span>'
+                      '" data-vc="' + record['vc'] + '">' + Utils.getLoadingImgSmall() + '</span>'
             }
             ret.push(item)
           }
