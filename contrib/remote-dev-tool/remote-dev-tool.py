@@ -1,3 +1,21 @@
+#!/usr/bin/env python3
+# Copyright (c) Microsoft Corporation
+# All rights reserved.
+#
+# MIT License
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
+# documentation files (the "Software"), to deal in the Software without restriction, including without limitation
+# the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and
+# to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+# The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED *AS IS*, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING
+# BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+# NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+# DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
 import argparse
 import re
 import os
@@ -13,7 +31,7 @@ import socket
 import requests
 
 USERNAME = ""
-PASSWORD = ""
+TOKEN = ""
 SERVER_IP = ""
 USER_DIR = ""
 SSH_INFO = ""
@@ -24,12 +42,12 @@ JOB_NAME = ""
 
 
 def read_env():
-    global USERNAME, PASSWORD, SERVER_IP
+    global USERNAME, TOKEN, SERVER_IP
     LOGGER.debug("read env")
     cf = configparser.ConfigParser()
     cf.read(".env")
     USERNAME = cf.get("PAI_ENV", "username")
-    PASSWORD = cf.get("PAI_ENV", "password")
+    TOKEN = cf.get("PAI_ENV", "token")
     SERVER_IP = cf.get("PAI_ENV", "serverip")
 
 
@@ -60,7 +78,7 @@ def generate_conf():
         f2 = open("{}{}.yaml".format(pai_dir, conf_file), 'w+')
         for line in f1.readlines():
             line = re.sub("\$username", USERNAME, line)
-            line = re.sub("\$password", PASSWORD, line)
+            line = re.sub("\$token", TOKEN, line)
             line = re.sub("\$serverip", SERVER_IP, line)
             f2.write(line)
         f1.close()
@@ -236,7 +254,14 @@ def main():
     if args.need_verbose is True:
         LOGGER.setLevel(logging.DEBUG)
     if args.job_name is not None:
-        get_ssh_info(args.job_name)
+        if args.job_name.find("~") != -1:
+            split_str = args.job_name.split("~");
+            if len(split_str) == 2:
+                get_ssh_info(split_str[1])
+            else:
+                LOGGER.error("Wrong job name")
+        else:
+            get_ssh_info(args.job_name)
     if args.job_path is not None:
         submit_job(args.job_path)
     if args.share_path is not None:

@@ -34,7 +34,7 @@ First, please configure the vars in `.env.template` and rename it to `.env`.
 ```
 [PAI_ENV]
 username=                        # PAI cluster user name
-password=                        # PAI cluster password
+toekn=                           # PAI cluster token
 serverip=                        # PAI cluster ip
 ```
 
@@ -42,9 +42,13 @@ For example:
 ```
 [PAI_ENV]
 username=paiusr
-password=paipwd
+token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpX
 serverip=10.0.0.1
 ```
+
+You can get your token from PAI's webportal after you log in.
+
+![](./imgs/token.png)
 
 ### 3.2 Parameters
 
