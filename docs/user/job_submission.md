@@ -45,8 +45,7 @@ The following process submits a model training job implemented by TensorFlow on 
 1. Login to OpenPAI web portal.
 
 2. Click **Submit Job** on the left pane and reach this page.
-
-   ![hello_world1](imgs/submit_hello_world_1.png)
+    <img src="imgs/submit_hello_world_1.png" width="90%" height="90%" alt="hello_world1" />
 
 3. Fill in the name of your virtual cluster, and give a name of your job and your task role. Then copy the following commands into the command box.
 
@@ -61,7 +60,7 @@ The following process submits a model training job implemented by TensorFlow on 
 
    Note: Please **Do Not** use # for comments or use \ for line continuation in the command box. These symbols may break the syntax and will be supported in the future.
 
-   ![hello_world2](imgs/submit_hello_world_2.png)
+    <img src="imgs/submit_hello_world_2.png" width="90%" height="90%" alt="hello_world2" />
 
 4. Specify the resources you need. By default only gpu number could be set. Toggle the "custom" button if you need to customize CPU number and memory. Here we use the default setting which utilizes one GPU.
 
@@ -123,7 +122,7 @@ Besides Team Storage, OpenPAI also supports local files, http/https files, git r
 
 It is common to train models with different parameters. OpenPAI supports parameter definition and reference, which provides a flexible way of training and comparing models. You can define your parameters in the **Parameters** section and reference them by using <% $parameters.paramKey %> in your commands. For example, the following picture shows how to define the Hello World job using a "stepNum" parameter.
 
-![use_para_1](imgs/use_para_1.png)
+<img src="imgs/use_para_1.png" width="90%" height="90%" alt="use_para_1" />
 
 You can define batch size, learning rate, or whatever you want as parameters to accelerate your job submission.
 
