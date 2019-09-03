@@ -22,18 +22,14 @@ class CfgLayer:
         if delete:
             if key not in dic:
                 to_screen(f"key {key} not found in {self.name}, ignored")
-            elif not self.act_append(key) or value is None:  # delete the key
-                dic[key] = []
-                to_screen(f"key {key} removed in {self.name} successfully")
+            elif not self.act_append(key) or not value:  # delete the key when not append action
+                del dic[key]
+                to_screen(f"key {key} removed completely from {self.name} successfully")
             else:
-                if not value:
-                    del dic[key]
-                    to_screen(f"key {key} removed totally from {self.name} successfully")
-                else:
-                    s = set(dic[key])
-                    s.discard(value)
-                    dic[key] = list(s)
-                    to_screen(f"{value} removed in {key} under {self.name} successfully")
+                s = set(dic[key])
+                s.discard(value)
+                dic[key] = list(s)
+                to_screen(f"{value} removed in {key} under {self.name} successfully")
         else:
             if not self.allow(key):
                 to_screen(f"{key} is not a recognized default variable, ignored")

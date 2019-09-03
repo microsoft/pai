@@ -64,6 +64,7 @@ class TestDefaults(unittest.TestCase):
         # delete
         update_default(test_key, test_value, is_global=False, to_delete=True)
         with self.assertRaises(KeyError):
+            os.system(f"cat {self.local_default_file}")
             from_file(self.local_default_file, {})[test_key]
         # add not allowed
         test_key = randstr(10)
