@@ -53,11 +53,6 @@ function (requirejs, $, Jupyter, events, config, Interface, Utils) {
     set(STATUS.NOT_READY)
 
     var speed = config.panel_toggle_speed
-    var getLoadingImg = function (idName) {
-      var loadingImg
-      if (idName !== undefined) { loadingImg = '<img src="' + requirejs.toUrl('../misc/loading.gif') + '" class="loading-img" id="' + idName + '"></img>' } else { loadingImg = '<img src="' + requirejs.toUrl('../misc/loading.gif') + '" class="loading-img"></img>' }
-      return loadingImg
-    }
 
     var showInformation = function (info) {
       /* this function will hide table and show information for users. */
@@ -184,27 +179,20 @@ function (requirejs, $, Jupyter, events, config, Interface, Utils) {
         }
       }
       set(STATUS.READY_LOADING)
-      showInformation('Loading the cluster information, please wait...' + getLoadingImg('loading-cluster-info'))
-      Interface.available_resources().then(function (data) {
+      showInformation('Loading the cluster information, please wait...' + Utils.getLoadingImg('loading-cluster-info'))
+      Interface.tell_resources().then(function (data) {
         var ret = []
-        for (var cluster in data) {
-          for (var vc in data[cluster]) {
-            var info = data[cluster][vc]
-            var gpuInfo
-            if (info['GPUs'] === -1) {
-              gpuInfo = '<a class="openpai-tooltip" href="#" title="Fetching resource of this version of PAI is not supported. Please update it to >= 0.14.0">?</a>'
-            } else {
-              gpuInfo = info['GPUs']
-            }
+        for (var cluster of data) {
+          for (var vc of cluster['virtual_clusters']) {
             ret.push({
-              cluster: cluster,
+              cluster: cluster['cluster_alias'],
               vc: vc,
               gpu: {
-                display: gpuInfo,
-                gpu_value: info['GPUs']
+                display: Utils.getLoadingImgSmall(),
+                gpu_value: 0
               },
-              button_sub: `<button class="submit_button" data-type="quick" data-cluster="${cluster}" data-vc="${vc}" >Quick Submit</button>`,
-              button_edit: `<button class="submit_button" data-type="edit" data-cluster="${cluster}" data-vc="${vc}" >Download Config</button>`
+              button_sub: `<button class="submit_button" data-type="quick" data-cluster="${cluster['cluster_alias']}" data-vc="${vc}" >Quick Submit</button>`,
+              button_edit: `<button class="submit_button" data-type="edit" data-cluster="${cluster['cluster_alias']}" data-vc="${vc}" >Download Config</button>`
             })
           }
         }
@@ -232,8 +220,27 @@ function (requirejs, $, Jupyter, events, config, Interface, Utils) {
             }, {
               data: 'button_edit'
             }],
-            fnDrawCallback: function () {
+            initComplete: function () {
               set(STATUS.SHOWING_INFO)
+              Interface.available_resources().then(function (clusterData) {
+                var table = $('#cluster-data').DataTable()
+                table.rows().every(function (rowIdx, tableLoop, rowLoop) {
+                  var gpuInfo
+                  var tableData = this.data()
+                  var info = clusterData[tableData['cluster']][tableData['vc']]
+                  if (info['GPUs'] === -1) {
+                    gpuInfo = '<a class="openpai-tooltip" href="#" title="Fetching resource of this version of PAI is not supported. Please update it to >= 0.14.0">?</a>'
+                  } else {
+                    gpuInfo = info['GPUs']
+                  }
+                  tableData['gpu']['display'] = gpuInfo
+                  tableData['gpu']['gpu_value'] = info['GPUs']
+                  this.data(tableData)
+                })
+                table.draw()
+              })
+            },
+            fnDrawCallback: function () {
               $('.openpai-tooltip').tooltip({
                 classes: {
                   'ui-tooltip': 'highlight'
@@ -281,12 +288,12 @@ function (requirejs, $, Jupyter, events, config, Interface, Utils) {
 
       console.log('[openpai submitter] submitting ctx:', submittingCtx)
       showInformation('')
-      if (submittingCtx['type'] === 'edit') { appendInformation('Uploading files and generating config...' + getLoadingImg('loading-stage-1')) } else {
-        if (submittingCtx['stage_num'] === 1) { appendInformation('Uploading files and submitting the job...' + getLoadingImg('loading-stage-1')) } else { appendInformation('Stage 1 / 2 : Uploading files and submitting the job...' + getLoadingImg('loading-stage-1')) }
+      if (submittingCtx['type'] === 'edit') { appendInformation('Uploading files and generating config...' + Utils.getLoadingImg('loading-stage-1')) } else {
+        if (submittingCtx['stage_num'] === 1) { appendInformation('Uploading files and submitting the job...' + Utils.getLoadingImg('loading-stage-1')) } else { appendInformation('Stage 1 / 2 : Uploading files and submitting the job...' + Utils.getLoadingImg('loading-stage-1')) }
       }
       var promiseSubmitting = Jupyter.notebook.save_notebook()
         .then(
-          function(){
+          function () {
             appendInformation('<p id="text-clear-info-force"><br><br> Click <a href="#" id="openpai-clear-info-force">[here]</a> to cancel this job.</p>')
             var cancelThis
             var promise = Promise.race([
@@ -296,7 +303,7 @@ function (requirejs, $, Jupyter, events, config, Interface, Utils) {
               })
             ])
             $('body').off('click', '#openpai-clear-info-force').on('click', '#openpai-clear-info-force', function () {
-              if (confirm('Are you sure to start a new session? It will clear the current job!')) {
+              if (confirm('Are you sure to start a new OpenPAI Submitter job (Your previous job will be saved in the Recent Jobs panel)?')) {
                 $('#openpai-clear-info-force').remove()
                 cancelThis('cancelled')
                 set(STATUS.NOT_READY)
@@ -362,7 +369,10 @@ function (requirejs, $, Jupyter, events, config, Interface, Utils) {
         promiseSubmitting = promiseSubmitting.then(
           function (ctx) {
             appendInformation('<br><br>')
-            if (ctx['form'] === 'notebook') { appendInformation('Stage 2 / 2: Wait until the notebook is ready...' + getLoadingImg('loading-stage-2')) } else { appendInformation('Stage 2 / 2: Wait until the result is ready...' + getLoadingImg('loading-stage-2')) }
+            if (ctx['form'] === 'notebook') {
+              appendInformation('Stage 2 / 2: Wait until the notebook is ready...' +
+               Utils.getLoadingImg('loading-stage-2'))
+            } else { appendInformation('Stage 2 / 2: Wait until the result is ready...' + Utils.getLoadingImg('loading-stage-2')) }
             appendInformation('<br>')
             if (ctx['form'] === 'notebook') {
               appendInformation('<p id="text-notebook-show">Note: This procedure may persist for several minutes. You can safely close' +
@@ -371,7 +381,7 @@ function (requirejs, $, Jupyter, events, config, Interface, Utils) {
               appendInformation('<p id="text-notebook-show">Note: The notebook will run in the background. You can safely close' +
                                   ' this submitter, and <b>the result file link will be shown here once it is prepared.</b></p><br>')
             }
-            appendInformation('<p id="text-clear-info-force">If you don\'t want to wait, you can also click <a href="#" id="openpai-clear-info-force">[here]</a> to start a new session.</p>')
+            appendInformation('<p id="text-clear-info-force">You can also click <a href="#" id="openpai-clear-info-force">[here]</a> to start a new OpenPAI Submitter job. Your previous job will be saved in the <a href="https://github.com/microsoft/pai/tree/master/contrib/notebook-extension#job-management" target="_blank">Recent Jobs panel</a>.</p>')
             var cancelThis
             var promise = Promise.race([
               Interface.wait_jupyter(ctx),
@@ -380,7 +390,7 @@ function (requirejs, $, Jupyter, events, config, Interface, Utils) {
               })
             ])
             $('body').off('click', '#openpai-clear-info-force').on('click', '#openpai-clear-info-force', function () {
-              if (confirm('Are you sure to start a new session? It will clear the current job!')) {
+              if (confirm('Are you sure to start a new OpenPAI Submitter job (Your previous job will be saved in the Recent Jobs panel)?')) {
                 $('#text-clear-info-force').remove()
                 cancelThis('cancelled')
                 set(STATUS.NOT_READY)
@@ -397,17 +407,14 @@ function (requirejs, $, Jupyter, events, config, Interface, Utils) {
             $('#loading-stage-2').remove()
             $('#text-notebook-show').hide()
             $('#text-clear-info-force').hide()
-            if (ctx['form'] === 'notebook') 
-              appendInformation('The notebook url is: <a href="' + ctx['notebook_url'] + '" target="_blank">' + ctx['notebook_url'] + '</a>')
-            else
-              appendInformation('The result file link is (please copy it to your clipboard and paste it to a new page) : <a href="' + ctx['notebook_url'] + '" target="_blank">' + ctx['notebook_url'] + '</a>')
+            if (ctx['form'] === 'notebook') { appendInformation('The notebook url is: <a href="' + ctx['notebook_url'] + '" target="_blank">' + ctx['notebook_url'] + '</a>') } else { appendInformation('The result file link is (please copy it to your clipboard and paste it to a new page) : <a href="' + ctx['notebook_url'] + '" target="_blank">' + ctx['notebook_url'] + '</a>') }
             return new Promise((resolve, reject) => resolve(ctx))
           })
       }
       promiseSubmitting = promiseSubmitting.then(
         function (ctx) {
           set(STATUS.SUBMITTING_OK)
-          appendInformation('<br><br> You can click <a href="#" id="openpai-clear-info">[here]</a> to start a new session.')
+          appendInformation('<br><br> You can click <a href="#" id="openpai-clear-info">[here]</a> to start a new OpenPAI Submitter job. Your previous job will be saved in the <a href="https://github.com/microsoft/pai/tree/master/contrib/notebook-extension#job-management" target="_blank">Recent Jobs panel</a>.')
           $('body').off('click', '#openpai-clear-info').on('click', '#openpai-clear-info', function () {
             set(STATUS.NOT_READY)
             send(MSG.INIT_OK)

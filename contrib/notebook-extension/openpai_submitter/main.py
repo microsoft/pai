@@ -70,6 +70,9 @@ class openpai_ext_Interface(object):
         t = openpai_ext_Thread(target, token, args, kwargs)
         t.start()
 
+    def tell_resources(self, token):
+        self.execute(self.cll.tell, token)
+
     def available_resources(self, token):
         self.execute(self.cll.available_resources, token)
 
