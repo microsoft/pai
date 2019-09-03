@@ -423,6 +423,7 @@ export const JobSubmissionPage = ({isSingle, history, yamlText, setYamlText}) =>
               setSecrets(updatedSecrets);
               setExtras(updatedExtras);
             }}
+            isSingle={isSingle}
           />
         </Stack>
       </Fabric>

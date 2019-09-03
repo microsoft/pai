@@ -34,6 +34,7 @@ import {
   getTheme,
   StackItem,
   Toggle,
+  ColorClassNames,
 } from 'office-ui-fabric-react';
 
 import {JobProtocol} from '../models/job-protocol';
@@ -72,6 +73,7 @@ export const SubmissionSection = (props) => {
     jobProtocol,
     setJobProtocol,
     history,
+    isSingle,
   } = props;
   const [isEditorOpen, setEditorOpen] = useState(false);
 
@@ -162,6 +164,11 @@ export const SubmissionSection = (props) => {
 
   const _closeEditor = () => {
     setEditorOpen(false);
+    monaco.current.editor.setTheme('vs');
+  };
+
+  const _saveEdit = () => {
+    setEditorOpen(false);
     _updatedComponent(protocolYaml);
 
     // Change to the default theme
@@ -171,7 +178,15 @@ export const SubmissionSection = (props) => {
 
   const _onYamlTextChange = (text) => {
     setProtocolYaml(text);
-    setValidationMsg(JobProtocol.validateFromYaml(text));
+    const valid = JobProtocol.validateFromYaml(text);
+    setValidationMsg(valid);
+    // error if single job has multiple task roles or instances
+    if (valid === '' && isSingle) {
+      const jobCheck = JobProtocol.fromYaml(text);
+      if (Object.keys(jobCheck.taskRoles).length > 1) {
+        setValidationMsg('Error: Single job should not have multiple task roles.');
+      }
+    }
   };
 
   const _submitJob = async (event) => {
@@ -224,18 +239,40 @@ export const SubmissionSection = (props) => {
         onDismiss={_closeEditor}
         title='Protocol YAML Editor'
         header={
-          <Stack grow horizontal>
-            <StackItem grow align='center'>
+          <Stack grow horizontal horizontalAlign='end'>
+            <DefaultButton
+              onClick={() => window.open(JOB_PROTOCOL_SCHEMA_URL)}
+              styles={{
+                root: [ColorClassNames.neutralDarkBackground],
+                rootHovered: [ColorClassNames.blackBackground],
+                rootChecked: [ColorClassNames.blackBackground],
+                rootPressed: [ColorClassNames.blackBackground],
+                label: [ColorClassNames.white],
+              }}
+              text='Protocol Schema'
+            />
+          </Stack>
+        }
+        footer={
+          <Stack grow horizontal gap={20}>
+            <StackItem align='start'>
+              <DefaultButton
+                onClick={_saveEdit}
+                styles={{
+                  root: [ColorClassNames.neutralDarkBackground],
+                  rootHovered: [ColorClassNames.blackBackground],
+                  rootChecked: [ColorClassNames.blackBackground],
+                  rootPressed: [ColorClassNames.blackBackground],
+                  label: [ColorClassNames.white],
+                }}
+                text='Save Edit'
+                disabled={validationMsg}
+              />
+            </StackItem>
+            <StackItem align='center'>
               <Text className={{color: palette.white}}>
                 {String(validationMsg)}
               </Text>
-            </StackItem>
-            <StackItem horizontalAlign='end'>
-              <DefaultButton
-                onClick={() => window.open(JOB_PROTOCOL_SCHEMA_URL)}
-              >
-                Protocol Schema
-              </DefaultButton>
             </StackItem>
           </Stack>
         }
@@ -264,4 +301,5 @@ SubmissionSection.propTypes = {
   jobProtocol: PropTypes.object,
   setJobProtocol: PropTypes.func,
   history: PropTypes.object,
+  isSingle: PropTypes.bool,
 };
