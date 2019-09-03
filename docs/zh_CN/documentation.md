@@ -1,15 +1,15 @@
-## Documentation
+## 文档
 
-### Achitecture and OpenPAI core
+### OpenPAI 内核和架构
 
-- [System architecture](./system_architecture.md)
-- [Job Scheduling: scheduling resources across OpenPAI jobs](./hadoop-ai/README.md)
-- [FrameworkLauncher: orchestrating OpenPAI jobs](frameworklauncher/README.md)
+- [系统架构](./system_architecture.md)
+- [任务调度: 在OpenPAI任务中进行资源调度](./hadoop-ai/README.md)
+- [FrameworkLauncher: OpenPAI任务编排](frameworklauncher/README.md)
 
-### Configuration and API
+### 配置文件和API接口文档
 
-- [Configuration: customize OpenPAI via its configuration](./pai-management/doc/customized-configuration.md)
-- [OpenPAI Programming Guides](../../examples/README.md)
-- [Restful API Docs](rest-server/API.md)
+- [配置文件: 自定义OpenPAI配置](./pai-management/doc/customized-configuration.md)
+- [OpenPAI 开发指南](../../examples/README.md)
+- [Restful API 文档](rest-server/API.md)
 
-### [FAQs](./faq.md)
+### [常见问题](./faq.md)
