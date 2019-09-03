@@ -176,11 +176,19 @@ class Cluster:
 
     @exception_free(RestSrvError, None)
     def rest_api_job_info(self, job_name: str = None, info: str = None, user: str = None):
+        import json
+        import yaml
         user = self.user if user is None else user
         assert info in [None, 'config', 'ssh'], ('unsupported query information', info)
-        return get_response(
+        response = get_response(
             'GET', [self.rest_srv, 'v1', 'user', user, 'jobs', job_name, info]
-        ).json()
+        )
+        try:
+            return response.json()
+        except json.decoder.JSONDecodeError:
+            return yaml.load(response.text, Loader=yaml.FullLoader)
+        else:
+            raise RestSrvError
 
     @exception_free(Exception, None)
     def rest_api_token(self, expiration=3600):
