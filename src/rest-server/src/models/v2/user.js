@@ -72,6 +72,12 @@ const createUserIfNonExistent = async (username, userValue) => {
   }
 };
 
+const batchUpdateUsers = async (userItems) => {
+  return await Promise.all(userItems.map(async (userItem) => {
+    await updateUser(userItem.username, userItem);
+  }));
+};
+
 const getUserVCs = async (username) => {
   const userItem = await getUser(username);
   return groupModel.getGroupsVCs(userItem.grouplist);
@@ -99,4 +105,5 @@ module.exports = {
   checkUserVC,
   getUserVCs,
   checkAdmin,
+  batchUpdateUsers,
 };
