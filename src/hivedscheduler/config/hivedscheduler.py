@@ -23,8 +23,8 @@ class Hivedscheduler:
         self.default_service_conf = default_service_conf
 
     def validation_pre(self):
-        if 'config' not in self.service_conf:
-            return False, 'hived scheduler config is missing'
+        # if 'config' not in self.service_conf:
+        #     return False, 'hived scheduler config is missing'
         return True, None
 
     def run(self):
