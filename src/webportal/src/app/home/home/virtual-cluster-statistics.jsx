@@ -23,9 +23,9 @@ import {
   DetailsList,
   DetailsListLayoutMode,
   SelectionMode,
-  DefaultButton,
   StackItem,
   Text,
+  DefaultButton,
 } from 'office-ui-fabric-react';
 import React from 'react';
 
@@ -44,62 +44,65 @@ const getResouceUtilization = (used, total) => {
   return used / total;
 };
 
+const theme = getTheme();
+const {semanticColors} = theme;
+
 const vcListColumns = [
   {
     key: 'name',
-    minWidth: 50,
-    maxWidth: 128,
+    minWidth: 45,
+    maxWidth: 100,
     name: 'Name',
     isResizable: true,
     onRender(vc) {
       return (
-        <Stack verticalAlign='center' verticalFill>
-          <Text variant='large'>{vc.name}</Text>
+        <Stack verticalAlign='start' verticalFill>
+          <Text variant='mediumPlus'>{vc.name}</Text>
         </Stack>
       );
     },
   },
-  // {
-  //   key: 'utilization',
-  //   minWidth: 80,
-  //   maxWidth: 132,
-  //   name: 'Utilization',
-  //   isResizable: true,
-  //   className: zeroPaddingClass,
-  //   onRender(vc) {
-  //     const {resourcesUsed, resourcesTotal} = vc;
+  {
+    key: 'utilization',
+    minWidth: 80,
+    maxWidth: 132,
+    name: 'Utilization',
+    isResizable: true,
+    className: zeroPaddingClass,
+    onRender(vc) {
+      const {resourcesUsed, resourcesTotal} = vc;
 
-  //     const resouceUtilization = Math.max(
-  //       getResouceUtilization(
-  //         resourcesUsed.GPUs,
-  //         resourcesTotal.GPUs
-  //       ),
-  //       getResouceUtilization(
-  //         resourcesUsed.memory,
-  //         resourcesTotal.memory
-  //       ),
-  //       getResouceUtilization(
-  //         resourcesUsed.vCores,
-  //         resourcesTotal.vCores
-  //       ),
-  //     );
-  //     return (
-  //       <Stack styles={{root: [{height: 100}]}}>
-  //         <UtilizationChart percentage={resouceUtilization}/>
-  //       </Stack>
-  //     );
-  //   },
-  // },
+      const resouceUtilization = Math.max(
+        getResouceUtilization(
+          resourcesUsed.GPUs,
+          resourcesTotal.GPUs
+        ),
+        getResouceUtilization(
+          resourcesUsed.memory,
+          resourcesTotal.memory
+        ),
+        getResouceUtilization(
+          resourcesUsed.vCores,
+          resourcesTotal.vCores
+        ),
+      );
+      return (
+        <Stack styles={{root: [{height: 100}]}}>
+          <UtilizationChart percentage={resouceUtilization}/>
+        </Stack>
+      );
+    },
+  },
   {
     key: 'detail',
-    minWidth: 200,
-    maxWidth: 430,
+    minWidth: 230,
+    maxWidth: 530,
     name: 'Detail',
     isResizable: true,
     onRender(vc) {
       const {resourcesUsed, resourcesTotal} = vc;
       return (
-        <Stack gap="s1" verticalAlign='center' verticalFill styles={{root: {maxWidth: 352}}}>
+        <Stack gap="s1" verticalAlign='center' verticalFill styles={{root: {maxWidth: 432}}}>
           <StackItem>
             <ResourceBar
               name={'Memory'}
@@ -135,23 +138,8 @@ const vcListColumns = [
     },
   },
   {
-    key: 'bonus',
-    minWidth: 30,
-    maxWidth: 120,
-    name: 'Bonus',
-    isResizable: true,
-    onRender(vc) {
-      const bounsEnabled = (vc.maxCapacity > vc.capacity) || vc.capacity === 100;
-      return (
-        <Stack verticalAlign='center' verticalFill>
-          <Text variant='small'>{bounsEnabled ? 'Enabled' : 'Disabled'}</Text>
-        </Stack>
-      );
-    },
-  },
-  {
     key: 'action',
-    minWidth: 80,
+    minWidth: 50,
     name: 'Action',
     isResizable: true,
     onRender(vc) {
@@ -165,16 +153,16 @@ const vcListColumns = [
           }}
           data-selection-disabled
         >
-        <DefaultButton
-          styles={{
-            root: {backgroundColor: '#e5e5e5', width: '50'},
+          <DefaultButton styles={{
+            root: {
+              backgroundColor: '#e5e5e5',
+              border: '5px solid ' + semanticColors.buttonBorder,
+              minWidth: 50,
+            },
             rootFocused: {backgroundColor: '#e5e5e5'},
             rootDisabled: {backgroundColor: '#eeeeee'},
             rootCheckedDisabled: {backgroundColor: '#eeeeee'},
-            icon: {fontSize: 10},
-          }}
-          text={'View jobs'}
-          href={'/job-list.html?vcName=' + vc.name}/>
+          }}>View</DefaultButton>
         </div>
       );
     },

@@ -120,11 +120,11 @@ const Home = () => {
           <Stack padding='l2' gap='l2' styles={{root: {height: '100%', minHeight: 640}}}>
             {/* top */}
             <Stack gap='l2' horizontal>
-              <JobStatus style={{height: '100%', width: '33%'}} jobs={jobs} />
+              <JobStatus style={{height: '100%', width: '25%', minWidth: '380px'}} jobs={jobs} />
               {isAdmin ? (
                 <React.Fragment>
                 <VirtualClusterStatistics
-                  style={{height: '100%', width: '33%'}}
+                  style={{height: '100%', width: '41%'}}
                   userInfo={userInfo}
                   virtualClusters={virtualClusters}
                 />
