@@ -44,9 +44,6 @@ const getResouceUtilization = (used, total) => {
   return used / total;
 };
 
-const theme = getTheme();
-const {semanticColors} = theme;
-
 const vcListColumns = [
   {
     key: 'name',
@@ -56,7 +53,7 @@ const vcListColumns = [
     isResizable: true,
     onRender(vc) {
       return (
-        <Stack verticalAlign='start' verticalFill>
+        <Stack verticalAlign='center' verticalFill>
           <Text variant='mediumPlus'>{vc.name}</Text>
         </Stack>
       );
@@ -87,7 +84,7 @@ const vcListColumns = [
         ),
       );
       return (
-        <Stack styles={{root: [{height: 100}]}}>
+        <Stack styles={{root: [{height: 98}]}}>
           <UtilizationChart percentage={resouceUtilization}/>
         </Stack>
       );
@@ -156,7 +153,6 @@ const vcListColumns = [
           <DefaultButton styles={{
             root: {
               backgroundColor: '#e5e5e5',
-              border: '5px solid ' + semanticColors.buttonBorder,
               minWidth: 50,
             },
             rootFocused: {backgroundColor: '#e5e5e5'},
