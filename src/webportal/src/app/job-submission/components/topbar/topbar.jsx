@@ -56,7 +56,7 @@ Topbar.propTypes = {
   jobProtocol: PropTypes.object,
   onChange: PropTypes.func,
   extras: PropTypes.object.isRequired,
-  isSingle: PropTypes.object.bool,
+  isSingle: PropTypes.bool,
   history: PropTypes.object,
   setYamlText: PropTypes.func,
 };
