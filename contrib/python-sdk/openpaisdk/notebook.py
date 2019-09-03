@@ -1,7 +1,7 @@
 import json
 import os.path
 import re
-from openpaisdk.defaults import LayeredSettings
+from openpaisdk.defaults import LayeredSettings, __flags__
 
 
 def get_notebook_path():
@@ -46,12 +46,13 @@ class NotebookConfiguration:
 
     @staticmethod
     def print_supported_items():
-        print(LayeredSettings.print_supported_items())
+        ret = LayeredSettings.print_supported_items()
+        if __flags__.disable_to_screen:
+            print(ret)
 
     @staticmethod
-    def set(**kwargs):
-        for key, value in kwargs.items():
-            LayeredSettings.update("user_advaced", key, value)
+    def set(key, value):
+        LayeredSettings.update("user_advaced", key, value)
 
     @staticmethod
     def get(*args):

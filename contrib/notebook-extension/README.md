@@ -97,9 +97,7 @@ For example, after executing below codes in the notebook cell, the extension wil
 ```python
 from openpaisdk.notebook import NotebookConfiguration
 
-NotebookConfiguration.set(
-    cpu = 16, memoryMB = "32G", gpu=2
-)
+NotebookConfiguration.set("mem", "512GB")
 ```
 
 Execute below codes to have a quick look of all supported items in `NotebookConfiguration`.
