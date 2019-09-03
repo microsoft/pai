@@ -34,7 +34,7 @@ class openpai_ext_Storage(object):
         from openpaisdk import __flags__
         self.os = os
         self.max_length = max_length
-        self.dirname = os.path.dirname(__flags__.get_cluster_cfg_file(is_global=True))
+        self.dirname = os.path.join(os.path.expanduser('~'), __flags__.cache)
         self.lock_path = os.path.join(self.dirname, "data.lock")
         self.data_path = os.path.join(self.dirname, "data")
         if not(os.path.exists(self.data_path)):

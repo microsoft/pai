@@ -74,6 +74,15 @@ class openpai_ext_Interface(object):
     def available_resources(self, token):
         self.execute(self.cll.available_resources, token)
 
+    def read_defaults(self, token):
+        def _read_defaults_helper():
+            from openpaisdk import LayeredSettings
+            from openpaisdk.job import JobResource
+            return {
+                'image-list': LayeredSettings.get('image-list'),
+                'resource-list': JobResource.parse_list(LayeredSettings.get('resource-list'))
+            }
+
     def __submit_job_helper(self, ctx):
         import tempfile
         from openpaisdk import Job

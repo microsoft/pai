@@ -79,6 +79,18 @@ If you submit a notebook as a silent notebook, you won't have an interactive not
 
 ### Advanced job configuration
 
+#### Setup frequently used `images` and `resources`
+
+As shown in above example figure, users could specify resources and docker image by selection in the panel. And further, the possible contents in the dropdown boxes can be specified by
+
+```bash
+opai set -g image-list+=<image-1> image-list+=<image-2> ...
+opai set -g resource-list+="<#gpu>,<#cpu>,<#mem>" resource-list+="<#gpu>,<#cpu>,<#mem>" ...
+```
+Here `<#mem>` can be numbers in unit of `MBytes`, or a string like `32GB` (or `32g`).
+
+#### Advanced configuration by `NotebookConfiguration`
+
 In the submitting panel, user can change basic configuration of the job. However, for the users who want to change the advanced configuration, the extension would receive configuration from `NotebookConfiguration` in the notebook.
 
 For example, after executing below codes in the notebook cell, the extension will configure the job resource specification to 2 GPUs, 16 CPU cores and 32 GB memory.

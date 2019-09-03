@@ -129,7 +129,7 @@ class LayeredSettings:
     @classmethod
     def print_supported_items(cls):
         headers = ['name', 'default', 'help']
-        to_screen([
+        return to_screen([
             [x.get(k, None) for k in headers] for x in __flags__.default_var_definitions()
         ], _type="table", headers=headers)
 

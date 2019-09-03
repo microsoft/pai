@@ -11,7 +11,7 @@ class __flags__(object):
     cluster_cfg_file = 'clusters.yaml'
     defaults_file = 'defaults.yaml'
     container_sdk_branch = 'master'
-    resources_requirements = dict(cpu=2, gpu=0, memoryMB=4096)
+    resources_requirements = dict(cpu=2, gpu=0, memoryMB=4096, ports={})
     storage_root = '/openpai-sdk'
     custom_predefined = []
 
@@ -91,7 +91,7 @@ class __flags__(object):
                 "help": "list of images that are frequently used"
             },
             {
-                "name": "resource-specs",
+                "name": "resource-list",
                 "default": [],
                 "action": "append",
                 "help": "list of resource specs that are frequently used"

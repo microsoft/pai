@@ -46,7 +46,7 @@ class NotebookConfiguration:
 
     @staticmethod
     def print_supported_items():
-        LayeredSettings.print_supported_items()
+        print(LayeredSettings.print_supported_items())
 
     @staticmethod
     def set(**kwargs):

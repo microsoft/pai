@@ -2,7 +2,7 @@ import json
 import os
 import re
 import pathlib
-from typing import Union
+from typing import Union, List
 from copy import deepcopy
 
 from openpaisdk.flags import __flags__
@@ -81,6 +81,16 @@ class JobResource:
     @property
     def as_dict(self):
         return self.req
+
+    @staticmethod
+    def parse_list(lst: List[str]):
+        r = []
+        for spec in lst:
+            s = spec.replace(" ", '').split(",")
+            r.append(JobResource({
+                "gpu": s[0], "cpu": s[1], "mem": s[2],
+            }).as_dict)
+        return r
 
 
 class Job:

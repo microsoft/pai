@@ -25,12 +25,14 @@ def to_screen(msg, _type: str = "normal", **kwargs):
         out = yaml.dump(msg, default_flow_style=False, **kwargs) if not isinstance(msg, str) else msg
         if not __flags__.disable_to_screen:
             print(out, flush=True)
+        return out
 
     def print_table(msg, **kwargs):
         from tabulate import tabulate
         out = tabulate(msg, **kwargs)
         if not __flags__.disable_to_screen:
             print(out, flush=True)
+        return out
 
     func_dict = {
         "normal": print_out,
@@ -40,8 +42,8 @@ def to_screen(msg, _type: str = "normal", **kwargs):
         "error": partial(__logger__.error, exc_info=True),
     }
     assert _type in func_dict, f"unsupported output type {_type}, only {list(func_dict.keys(()))} are valid"
-    func_dict[_type](msg, **kwargs)
-    return msg
+    ret = func_dict[_type](msg, **kwargs)
+    return ret if _type == "table" else msg
 
 
 def listdir(path):
