@@ -35,7 +35,7 @@ import {
   isValidUpdatedTensorBoardExtras,
 } from '../../utils/utils';
 
-export const ImportConfig = React.memo(({extras, onChange}) => {
+export const ImportConfig = React.memo(({extras, onChange, isSingle, history, setYamlText}) => {
   const {vcNames} = useContext(Context);
 
   const _updatedComponent = (protocolYaml) => {
@@ -82,7 +82,12 @@ export const ImportConfig = React.memo(({extras, onChange}) => {
     fileReader.addEventListener('load', () => {
       const text = String(fileReader.result);
       try {
-        _updatedComponent(text);
+        if (isSingle) {
+          setYamlText(text);
+          history.push('/general');
+        } else {
+          _updatedComponent(text);
+        }
       } catch (err) {
         alert(err.message);
       }
@@ -127,4 +132,7 @@ export const ImportConfig = React.memo(({extras, onChange}) => {
 ImportConfig.propTypes = {
   extras: PropTypes.object.isRequired,
   onChange: PropTypes.func,
+  isSingle: PropTypes.bool,
+  history: PropTypes.object,
+  setYamlText: PropTypes.func,
 };
