@@ -32,9 +32,13 @@ router.route('/:username/')
 if (launcherConfig.type === 'yarn') {
   router.use('/:username/jobs', require('@pai/routes/job'));
 } else if (launcherConfig.type === 'k8s') {
-  router.use('/:username/jobs/:jobName', (req, res) => {
-    const redirectPath = req.originalUrl.replace('/jobs/', '~').replace('/user/', '/jobs/');
-    res.redirect(redirectPath);
+  router.use('/:username/jobs/:jobName', (req, res, next) => {
+    req.url = `/jobs/${req.params.username}~${req.params.jobName}`;
+    next('route');
+  });
+  router.use('/:username/jobs/:jobName/*', (req, res, next) => {
+    req.url = `/jobs/${req.params.username}~${req.params.jobName}/${req.params[0] || ''}`;
+    next('route');
   });
 }
 
