@@ -254,25 +254,21 @@ export const SubmissionSection = (props) => {
           </Stack>
         }
         footer={
-          <Stack grow horizontal gap={20}>
-            <StackItem align='start'>
-              <DefaultButton
+          <Stack horizontal horizontalAlign='space-between'>
+            <StackItem>
+              <Text className={{color: palette.red}}>
+                {validationMsg}
+              </Text>
+            </StackItem>
+            <StackItem>
+              <PrimaryButton
                 onClick={_saveEdit}
                 styles={{
-                  root: [ColorClassNames.neutralDarkBackground],
-                  rootHovered: [ColorClassNames.blackBackground],
-                  rootChecked: [ColorClassNames.blackBackground],
-                  rootPressed: [ColorClassNames.blackBackground],
-                  label: [ColorClassNames.white],
+                  rootDisabled: [ColorClassNames.neutralSecondaryBackground, ColorClassNames.black],
                 }}
-                text='Save Edit'
+                text='Save'
                 disabled={validationMsg}
               />
-            </StackItem>
-            <StackItem align='center'>
-              <Text className={{color: palette.white}}>
-                {String(validationMsg)}
-              </Text>
             </StackItem>
           </Stack>
         }
