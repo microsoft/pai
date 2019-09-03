@@ -59,15 +59,10 @@ class openpai_ext_Thread(openpai_ext_threading.Thread):
 class openpai_ext_Interface(object):
 
     def __init__(self):
-        from openpaisdk import __cluster_config_file__ as openpai_ext_config
-        from openpaisdk.io_utils import from_file as openpai_ext_from_file
-        from openpaisdk.cluster import ClusterList as openpai_ext_ClusterList
-        from openpaisdk.defaults import get_defaults, update_default
-        if get_defaults().get('container-sdk-branch') != 'notebook-extension':
-            update_default('container-sdk-branch', 'notebook-extension')
-        self.cll = openpai_ext_ClusterList(
-            openpai_ext_from_file(openpai_ext_config, default=[])
-        )
+        from openpaisdk import LayeredSettings, ClusterList
+        if LayeredSettings.get('container-sdk-branch') != 'notebook-extension':
+            LayeredSettings.update('user_basic', 'container-sdk-branch', 'notebook-extension')
+        self.cll = ClusterList().load()
 
     def execute(self, target, token, args=[], kwargs={}):
         t = openpai_ext_Thread(target, token, args, kwargs)

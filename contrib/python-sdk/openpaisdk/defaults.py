@@ -18,6 +18,9 @@ class CfgLayer:
         ).filter(None, include, exclude)  # type: OrganizedList
 
     def update(self, key: str, value=None, delete: bool = False):
+        if not self.allow(key):
+            to_screen(f"{key} is not a recognized default variable, ignored")
+            return
         dic = self.values
         if delete:
             if key not in dic:
@@ -31,9 +34,7 @@ class CfgLayer:
                 dic[key] = list(s)
                 to_screen(f"{value} removed in {key} under {self.name} successfully")
         else:
-            if not self.allow(key):
-                to_screen(f"{key} is not a recognized default variable, ignored")
-            elif self.act_append(key):
+            if self.act_append(key):
                 def _append_as_set(dic, key, value):
                     dic.setdefault(key, [])
                     s = set(dic[key])
@@ -57,7 +58,9 @@ class CfgLayer:
 
 
 class LayeredSettings:
-    "key-value querying from a list of dicts, priority depends on list index"
+    """key-value querying from a list of dicts, priority depends on list index
+    refer to [TestDefaults](../tests/test_utils.py) for more usage examples
+    """
 
     layers = None
     definitions = None

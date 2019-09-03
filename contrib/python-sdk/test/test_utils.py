@@ -1,14 +1,12 @@
 import os
 import unittest
-from argparse import Namespace
 from copy import deepcopy
-from shutil import rmtree
 from openpaisdk.utils import OrganizedList as ol
 from openpaisdk.utils import Nested
 from openpaisdk.utils import randstr
-from openpaisdk.io_utils import from_file, to_file, to_screen, safe_chdir, __flags__
+from openpaisdk.io_utils import __flags__, from_file, to_screen
 from openpaisdk import get_defaults, update_default, LayeredSettings
-from basic_test import OrderedUnitTestCase, seperated
+from basic_test import seperated
 
 
 class TestIOUtils(unittest.TestCase):
@@ -101,6 +99,30 @@ class TestDefaults(unittest.TestCase):
         # ? reset the predefined
         __flags__.custom_predefined = []
         LayeredSettings.reset()
+
+    @seperated
+    def test_unknown_variable_defined(self):
+        from openpaisdk import LayeredSettings, __flags__
+        test_key, test_value = 'test-key-long-existing', randstr(10)
+        __flags__.custom_predefined = [
+            {
+                'name': test_key,
+            },
+        ]
+        LayeredSettings.reset()
+        # ? add / update append key
+        LayeredSettings.update('local_default', test_key, test_value)
+        # ? reset the predefined
+        __flags__.custom_predefined = []
+        LayeredSettings.reset()
+        self.assertEqual(test_value, LayeredSettings.get(test_key))
+        # cannot delete or change the unknown variable
+        LayeredSettings.update('local_default', test_key, randstr(10))
+        LayeredSettings.reset()
+        self.assertEqual(test_value, LayeredSettings.get(test_key))
+        LayeredSettings.update('local_default', test_key, delete=True)
+        LayeredSettings.reset()
+        self.assertEqual(test_value, LayeredSettings.get(test_key))
 
 
 class TestOrganizedList(unittest.TestCase):

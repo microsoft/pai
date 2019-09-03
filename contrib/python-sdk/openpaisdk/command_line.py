@@ -21,17 +21,19 @@ class ActionFactoryForDefault(ActionFactory):
         cli_add_arguments(parser, ['--is-global'])
         parser.add_argument('contents', nargs='*', help='(variable=value) pair to be set as default')
 
-    def check_arguments(self, args):
-        import re
-        args.contents = [
-            re.match("^([^=]+)(=*)([^=]*)$", c).groups() for c in na(args.contents, [])
-        ]
-
     def do_action_set(self, args):
+        import re
         if not args.contents:
             return get_defaults(False, True, False) if args.is_global else get_defaults(True, True, False)
-        for kv_pair in args.contents:
-            assert kv_pair[0] and kv_pair[1] == "=" and kv_pair[2], \
+        kv_pairs = []
+        for content in args.contents:
+            m = re.match("^([^=]+?)([\+|\-]*=)([^=]*)$", content)
+            if m:
+                kv_pairs.append(m.groups())
+            else:
+                kv_pairs.append((content, '', ''))
+        for kv_pair in kv_pairs:
+            assert kv_pair[0] and kv_pair[1] in ["=", "+=", "-="] and kv_pair[2], \
                 f"must specify a key=value pair ({kv_pair[0]}, {kv_pair[2]})"
             update_default(kv_pair[0], kv_pair[2], is_global=args.is_global)
 

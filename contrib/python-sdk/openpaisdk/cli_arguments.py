@@ -2,7 +2,6 @@
 """
 import argparse
 from openpaisdk.defaults import LayeredSettings
-from openpaisdk.flags import __flags__
 
 
 class ArgumentFactory:

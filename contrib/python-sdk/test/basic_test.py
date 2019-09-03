@@ -1,6 +1,5 @@
 import os
 import unittest
-from shutil import rmtree
 from typing import Union
 from openpaisdk.io_utils import to_screen, safe_chdir
 

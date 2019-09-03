@@ -1,8 +1,6 @@
 import os
 import sys
-from subprocess import check_output as run
 import unittest
-from openpaisdk.io_utils import to_screen
 
 
 in_place_chaning = False
@@ -10,10 +8,9 @@ in_place_chaning = False
 
 class TestFormat(unittest.TestCase):
 
-    folders = [os.path.join('..', 'openpaisdk')]
+    folders = [os.path.join('..', 'openpaisdk'), '.']
 
     def test_format(self):
-        from openpaisdk.io_utils import listdir
         for folder in self.folders:
             root, dirs, files = next(os.walk(folder))
             for src in [fn for fn in files if fn.endswith(".py")]:
@@ -27,7 +24,21 @@ class TestFormat(unittest.TestCase):
                     os.path.join(folder, src)
                 ]))
 
+    def clear_notebook_output(self):
+        folders = [
+            os.path.join('..', 'examples'),
+            os.path.join('..', '..', 'notebook-extension', 'examples'),
+        ]
+        for folder in folders:
+            root, dirs, files = next(os.walk(folder))
+            for file in [fn for fn in files if fn.endswith('.ipynb')]:
+                src = os.path.join(folder, file)
+                print(src)
+                os.system(f"jupyter nbconvert --ClearOutputPreprocessor.enabled=True --inplace {src}")
+                os.system(f"dos2unix {src}")
+
 
 if __name__ == '__main__':
     in_place_chaning = True
     TestFormat().test_format()
+    TestFormat().clear_notebook_output()
