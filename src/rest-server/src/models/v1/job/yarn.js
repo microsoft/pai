@@ -350,7 +350,7 @@ class Job {
           next(createError(requestRes.status, 'UnknownError', requestRes.raw_body));
         } else if (data.username === requestResJson.frameworkDescriptor.user.name || data.admin) {
           unirest.put(launcherConfig.frameworkExecutionTypePath(frameworkName))
-            .headers(launcherConfig.webserviceRequestHeaders(data.username))
+            .headers(launcherConfig.webserviceRequestHeaders(data.admin ? 'root' : data.username))
             .send({'executionType': data.value})
             .end((requestRes) => {
               if (requestRes.status !== 202) {

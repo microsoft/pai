@@ -28,13 +28,14 @@ const k8sConfig = require('@pai/config/kubernetes');
 const crudType = 'k8sSecret';
 const crudGroup = crudUtil.getStorageObject(crudType);
 let optionConfig = {};
-if (k8sConfig.ca) {
-  optionConfig.k8sAPIServerCaFile = k8sConfig.ca;
+if (k8sConfig.apiserver.ca) {
+  optionConfig.k8sAPIServerCaFile = k8sConfig.apiserver.ca;
 }
-if (k8sConfig.token) {
-  optionConfig.k8sAPIServerTokenFile = k8sConfig.token;
+if (k8sConfig.apiserver.token) {
+  optionConfig.k8sAPIServerTokenFile = k8sConfig.apiserver.token;
 }
-const crudConfig = crudGroup.initConfig(process.env.K8S_APISERVER_URI, optionConfig);
+
+const crudConfig = crudGroup.initConfig(k8sConfig.apiserver.uri, optionConfig);
 
 let externalName2Groupname = {};
 
@@ -60,7 +61,6 @@ const deleteGroup = async (groupname) => {
   const userModel = require('@pai/models/v2/user');
   const ret = await crudGroup.remove(groupname, crudConfig);
   // delete group from all user info
-  logger.info('Init user list to update.');
   let userList = await userModel.getAllUser();
   let updateUserList = [];
   for (const userItem of userList) {
@@ -70,14 +70,8 @@ const deleteGroup = async (groupname) => {
     }
   }
   if (updateUserList.length !== 0) {
-    logger.info('User list to be updated has been prepared.');
-    logger.info('Begin to update user\' group list.');
-    await Promise.all(updateUserList.map(async (userData) => {
-      await userModel.updateUser(userData['username'], userData);
-    }));
-    logger.info('Update group info successfully.');
-  } else {
-    logger.info('No user\' grouplist need to be updated.');
+    logger.info(`Delete group ${groupname} from user list.`);
+    await userModel.batchUpdateUsers(updateUserList);
   }
   return ret;
 };
@@ -186,10 +180,12 @@ const createGroupIfNonExistent = async (groupname, groupValue) => {
   } catch (error) {
     if (error.status === 404) {
       await createGroup(groupname, groupValue);
+      return true;
     } else {
       throw error;
     }
   }
+  return false;
 };
 
 // TODO: replace updateGroup2ExnternalMapper
@@ -200,6 +196,15 @@ const createGroupIfNonExistent = async (groupname, groupValue) => {
 //     externalName2Groupname[groupItem.externalName] = groupItem.groupname;
 //   }
 // };
+
+const filterExistGroups = async (groupList) => {
+  const allGroupItems = await getAllGroup();
+  const allGroupSet = new Set(Array.from(allGroupItems, (groupItem) => groupItem.groupname));
+  const existGroupList = groupList.filter((groupname) => {
+    return allGroupSet.has(groupname);
+  });
+  return existGroupList;
+};
 
 // hack for basic mode, assume every vc have a same name group
 const virtualCluster2GroupList = async (virtualCluster) => {
@@ -355,8 +360,8 @@ const deleteNonexistVCs = async () => {
       if (groupItem.extension && groupItem.extension.acls && groupItem.extension.acls.virtualClusters) {
         const checkedVCs = groupItem.extension.acls.virtualClusters.filter((vcname) => vcSet.has(vcname));
         if (checkedVCs.length !== groupItem.extension.acls.virtualClusters.length) {
-          logger.info(`Update group: [${groupItem.groupname}] vc list. 
-          old: ${groupItem.extension.acls.virtualClusters}, new: ${checkedVCs}.`);
+          logger.info(`Update group: ${groupItem.groupname} vc list, ` +
+            `old: ${groupItem.extension.acls.virtualClusters}, new: ${checkedVCs}.`);
           groupItem.extension.acls.virtualClusters = checkedVCs;
           await updateGroup(groupItem.groupname, groupItem);
         }
@@ -368,6 +373,62 @@ const deleteNonexistVCs = async () => {
   }
 };
 
+const syncGroupsWithVCs = async () => {
+  const vcSet = new Set(Object.keys(await vcModel.list()));
+  // 1. create group for existing vc
+  for (const vcName of vcSet) {
+    const groupItem = {
+      groupname: vcName,
+      description: '',
+      externalName: '',
+      extension: {
+        acls: {
+          admin: false,
+          virtualClusters: [vcName],
+        },
+      },
+    };
+    const created = await createGroupIfNonExistent(groupItem.groupname, groupItem);
+    if (created) {
+      logger.info(`Created group for vc ${vcName}`);
+    }
+  }
+
+  // 2. delete meaningless group
+  const groupItems = await getAllGroup();
+  const filterGroups = groupItems.filter((groupItem) => {
+    return groupItem.extension.acls && groupItem.extension.acls.virtualClusters
+      && groupItem.extension.acls.virtualClusters.length === 0
+      && groupItem.extension.acls.admin === false;
+  });
+  await Promise.all(filterGroups.map(async (groupItem) => {
+    await deleteGroup(groupItem.groupname);
+    logger.info(`Deleted group ${groupItem.groupname}`);
+  }));
+};
+
+const deleteInexistGroupFromUserlist = async () => {
+  const userModel = require('@pai/models/v2/user');
+  const allGroupItems = await getAllGroup();
+  const allGroupSet = new Set(Array.from(allGroupItems, (groupItem) => groupItem.groupname));
+  let userList = await userModel.getAllUser();
+  let updateUserList = [];
+  for (const userItem of userList) {
+    const originGrouplist = userItem.grouplist;
+    const newGrouplist = originGrouplist.filter((groupname) => {
+      return allGroupSet.has(groupname);
+    });
+    if (originGrouplist.length !== newGrouplist.length) {
+      userItem.grouplist = newGrouplist;
+      updateUserList.push(userItem);
+    }
+  }
+  if (updateUserList.length !== 0) {
+    logger.info('Update User group list.');
+    await userModel.batchUpdateUsers(updateUserList);
+  }
+};
+
 const groupAndUserDataInit = async () => {
   // init configuration groups
   await initGrouplistInCfg();
@@ -376,6 +437,9 @@ const groupAndUserDataInit = async () => {
   if (authConfig.authnMethod !== 'OIDC') {
     // create default admin user
     await createDefaultAdminUser();
+    // fix inconsistence
+    await syncGroupsWithVCs();
+    await deleteInexistGroupFromUserlist();
   } else {
     // load all groupname and their external name
     await updateGroup2ExnternalMapper();
@@ -413,4 +477,5 @@ module.exports = {
   getGroupVCs,
   getGroupsVCs,
   getVCsWithGroupInfo,
+  filterExistGroups,
 };

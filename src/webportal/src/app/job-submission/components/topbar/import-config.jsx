@@ -24,7 +24,7 @@
  */
 
 import React, {useContext} from 'react';
-import {FontWeights, DefaultButton, Label, getTheme} from 'office-ui-fabric-react';
+import {FontWeights, DefaultButton, Label, ColorClassNames} from 'office-ui-fabric-react';
 import {isNil} from 'lodash';
 import PropTypes from 'prop-types';
 
@@ -34,8 +34,6 @@ import {
   getJobComponentsFromConfig,
   isValidUpdatedTensorBoardExtras,
 } from '../../utils/utils';
-
-const {palette} = getTheme();
 
 export const ImportConfig = React.memo(({extras, onChange}) => {
   const {vcNames} = useContext(Context);
@@ -94,17 +92,22 @@ export const ImportConfig = React.memo(({extras, onChange}) => {
 
   return (
     <DefaultButton>
-      <Label styles={{root: {
-        position: 'absolute',
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        width: '100%',
-        cursor: 'pointer',
-        fontWeight: FontWeights.semibold,
-        backgroundColor: palette.neutralTertiaryAlt,
-      }}}>
+      <Label styles={{
+        root: [
+          {
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            width: '100%',
+            cursor: 'pointer',
+            fontWeight: FontWeights.semibold,
+          },
+          ColorClassNames.neutralTertiaryAltBackground,
+          ColorClassNames.neutralTertiaryBackgroundHover,
+        ],
+      }}>
         {'Import'}
         <input
           type='file'

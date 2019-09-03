@@ -38,6 +38,8 @@ The following command is used to delete one of your clusters:
 opai cluster delete <cluster-alias>
 ```
 
+If you want to update some settings of clusters (e.g. cluster alias, username or password), it is recommended to delete the old cluster by `opai cluster delete <cluster-alias>`, then use `opai cluster add` to re-add it with new settings. A more complex way is to edit the [YAML file](../python-sdk/#define-your-clusters) directly.
+
 There are other ways to manage the clusters, see the [documentation of SDK](../python-sdk).
 
 ## Quick Start

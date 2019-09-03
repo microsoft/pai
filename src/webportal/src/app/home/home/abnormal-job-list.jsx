@@ -37,6 +37,8 @@ import userAuth from '../../user/user-auth/user-auth.component';
 import {isLowGpuUsageJob, isLongRunJob} from '../../components/util/job';
 import {stopJob} from './conn';
 import {cloneDeep} from 'lodash';
+import StopJobConfirm from '../../job/job-view/fabric/JobList/StopJobConfirm';
+import {getStatusText} from '../../job/job-view/fabric/JobList/utils';
 
 // Move it to common folder
 import {TooltipIcon} from '../../job-submission/components/controls/tooltip-icon';
@@ -46,7 +48,7 @@ import StatusBadge from '../../components/status-badge';
 
 const {palette} = getTheme();
 
-const AbnormalJobList = ({jobs}) => {
+const AbnormalJobList = ({jobs, style}) => {
   const jobListColumns = [
     {
       key: 'name',
@@ -140,6 +142,8 @@ const AbnormalJobList = ({jobs}) => {
       className: zeroPaddingClass,
       isResizable: true,
       onRender(job) {
+        const statusText = getStatusText(job);
+        const disabled = statusText !== 'Waiting' && statusText !== 'Running';
         return (
           <div
             style={{
@@ -152,6 +156,7 @@ const AbnormalJobList = ({jobs}) => {
           >
             <DefaultButton
               iconProps={{iconName: 'StopSolid'}}
+              disabled={disabled}
               styles={{
                 root: {backgroundColor: '#e5e5e5'},
                 rootFocused: {backgroundColor: '#e5e5e5'},
@@ -161,7 +166,8 @@ const AbnormalJobList = ({jobs}) => {
               }}
               onClick={(e) => {
                 e.stopPropagation();
-                stopAbnormalJob(job);
+                setCurrentJob(job);
+                setHideDialog(false);
               }}
             >
               Stop
@@ -178,41 +184,51 @@ const AbnormalJobList = ({jobs}) => {
         const cloneJobs = cloneDeep(abnormalJobs);
         const stopJob = cloneJobs.find((cloneJob) => cloneJob.name === job.name);
         stopJob.executionType = 'STOP';
+        delete stopJob._statusText;
         setAbnormalJobs(cloneJobs);
       }).catch(alert);
     });
   }, [abnormalJobs]);
 
   const [abnormalJobs, setAbnormalJobs] = useState(jobs);
+  const [hideDialog, setHideDialog] = useState(true);
+  const [currentJob, setCurrentJob] = useState(null);
 
   return (
-    <Card className={c(t.h100, t.ph5)}>
+    <Card className={c(t.h100, t.ph5)} style={style}>
       <Stack gap='l1' styles={{root: [t.h100]}}>
         <Stack.Item>
           <Header
             headerName='Abnormal jobs'
             linkName='All jobs'
             linkHref='/job-list.html'
-            showLink={true}>{
-                <TooltipIcon content={'A job is treaded as an abnormal job if running more than 5 days and GPU usage is lower than 10%'}/>
-              }
-            </Header>
+            showLink
+          >
+            <TooltipIcon content={'A job is treaded as an abnormal job if running more than 5 days and GPU usage is lower than 10%'}/>
+          </Header>
         </Stack.Item>
         <Stack.Item styles={{root: {overflow: 'auto'}}} grow>
           <DetailsList
+            styles={{root: {minHeight: 200, overflow: 'unset'}}}
             columns={jobListColumns}
             disableSelectionZone
             items={abnormalJobs}
             layoutMode={DetailsListLayoutMode.justified}
             selectionMode={SelectionMode.none}
-            />
+          />
         </Stack.Item>
       </Stack>
+      <StopJobConfirm
+          hideDialog={hideDialog}
+          currentJob={currentJob}
+          setHideDialog={setHideDialog}
+          stopJob={stopAbnormalJob}/>
     </Card>
   );
 };
 
 AbnormalJobList.propTypes = {
+  style: PropTypes.object,
   jobs: PropTypes.array.isRequired,
 };
 

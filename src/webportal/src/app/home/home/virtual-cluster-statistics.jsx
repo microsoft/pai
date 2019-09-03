@@ -48,7 +48,7 @@ const vcListColumns = [
   {
     key: 'name',
     minWidth: 60,
-    maxWidth: 100,
+    maxWidth: 128,
     name: 'Name',
     isResizable: true,
     onRender(vc) {
@@ -62,7 +62,7 @@ const vcListColumns = [
   {
     key: 'utilization',
     minWidth: 80,
-    maxWidth: 80,
+    maxWidth: 132,
     name: 'Utilization',
     isResizable: true,
     className: zeroPaddingClass,
@@ -93,12 +93,13 @@ const vcListColumns = [
   {
     key: 'detail',
     minWidth: 250,
+    maxWidth: 430,
     name: 'Detail',
     isResizable: true,
     onRender(vc) {
       const {resourcesUsed, resourcesTotal} = vc;
       return (
-        <Stack gap="s1" verticalAlign='center' verticalFill>
+        <Stack gap="s1" verticalAlign='center' verticalFill styles={{root: {maxWidth: 352}}}>
           <StackItem>
             <ResourceBar
               name={'Memory'}
@@ -136,6 +137,7 @@ const vcListColumns = [
   {
     key: 'bonus',
     minWidth: 60,
+    maxWidth: 120,
     name: 'Bonus',
     isResizable: true,
     onRender(vc) {
@@ -154,9 +156,26 @@ const vcListColumns = [
     isResizable: true,
     onRender(vc) {
       return (
-        <Stack verticalAlign='center' verticalFill>
-          <DefaultButton text={'View jobs'} href={'/job-list.html?vcName=' + vc.name}/>
-        </Stack>
+        <div
+          style={{
+            height: '100%',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'left',
+          }}
+          data-selection-disabled
+        >
+        <DefaultButton
+          styles={{
+            root: {backgroundColor: '#e5e5e5'},
+            rootFocused: {backgroundColor: '#e5e5e5'},
+            rootDisabled: {backgroundColor: '#eeeeee'},
+            rootCheckedDisabled: {backgroundColor: '#eeeeee'},
+            icon: {fontSize: 12},
+          }}
+          text={'View jobs'}
+          href={'/job-list.html?vcName=' + vc.name}/>
+        </div>
       );
     },
   },
@@ -184,6 +203,7 @@ const VirtualClusterStatistics = ({style, virtualClusters}) => {
             className={c(t.absolute, t.absoluteFill, t.overflowAuto, t.pr4)}
           >
             <DetailsList
+              styles={{root: {overflow: 'unset'}}}
               columns={vcListColumns}
               disableSelectionZone
               items={vcList}

@@ -38,7 +38,6 @@ import {isNil, isEmpty, get} from 'lodash';
 import PropTypes from 'prop-types';
 
 import {JobInformation} from './components/job-information';
-import {getFormClassNames} from './components/form-style';
 import {SubmissionSection} from './components/submission-section';
 import {TaskRoles} from './components/task-roles';
 import Context from './components/context';
@@ -66,8 +65,6 @@ import {SpinnerLoading} from '../components/loading';
 
 initTheme();
 initializeIcons();
-
-const formLayout = getFormClassNames().formLayout;
 
 const SIDEBAR_PARAM = 'param';
 const SIDEBAR_SECRET = 'secret';
@@ -249,7 +246,7 @@ export const JobSubmissionPage = ({isSingle, setWizardStatus, yamlText}) => {
     } else {
       setLoading(false);
     }
-  }, []);
+  }, [vcNames]);
 
   // update component if yamlText is not null
   useEffect(() => {
@@ -317,83 +314,85 @@ export const JobSubmissionPage = ({isSingle, setWizardStatus, yamlText}) => {
   return (
     <Context.Provider value={contextValue}>
       <Fabric style={{height: '100%', overflowX: 'auto'}}>
-        <Topbar
-          jobData={jobData}
-          jobProtocol={jobProtocol}
-          onChange={(
-            updatedJobInfo,
-            updatedTaskRoles,
-            updatedParameters,
-            updatedSecrets,
-            updatedExtras
-          ) => {
-            setJobInformation(updatedJobInfo);
-            setJobTaskRoles(updatedTaskRoles);
-            setParameters(updatedParameters);
-            setSecrets(updatedSecrets);
-            setExtras(updatedExtras);
-          }}
-          extras={extras}
-        />
         <Stack
-          className={formLayout}
-          styles={{root: {height: '95%', minWidth: 1000}}}
+          styles={{root: {height: '100%', minWidth: 1000}}}
           verticalAlign='space-between'
-          gap='l1'
+          gap='m' // form has 4px(s2)'s bottom padding, so the total padding is still 4 + 16 = 20px (l1)
+          padding='l1'
         >
-          {/* top - form */}
-          <Stack styles={{root: {minHeight: 0}}} horizontal gap='l1'>
-            {/* left column */}
-            <StackItem grow styles={{root: {minWidth: 600, flexBasis: 0}}}>
-              <Stack gap='l1' styles={{root: {height: '100%'}}}>
-                <JobInformation
-                  jobInformation={jobInformation}
-                  onChange={setJobInformation}
-                  advanceFlag={advanceFlag}
-                />
-                <TaskRoles
-                  taskRoles={jobTaskRoles}
-                  onChange={setJobTaskRoles}
-                  advanceFlag={advanceFlag}
-                  isSingle={isSingle}
-                />
-              </Stack>
-            </StackItem>
-            {/* right column */}
-            <StackItem shrink styles={{root: {overflowX: 'auto'}}}>
-              <Stack gap='l1' styles={{root: {height: '100%', width: 550}}}>
-                <Parameters
-                  parameters={parameters}
-                  onChange={setParameters}
-                  selected={selected === SIDEBAR_PARAM}
-                  onSelect={selectParam}
-                />
-                <Secrets
-                  secrets={secrets}
-                  onChange={setSecrets}
-                  selected={selected === SIDEBAR_SECRET}
-                  onSelect={selectSecret}
-                />
-                <EnvVar
-                  selected={selected === SIDEBAR_ENVVAR}
-                  onSelect={selectEnv}
-                />
-                <DataComponent
-                  selected={selected === SIDEBAR_DATA}
-                  onSelect={selectData}
-                  jobName={jobInformation.name}
-                  onChange={setJobData}
-                />
-                <ToolComponent
-                  selected={selected === SIDEBAR_TOOL}
-                  onSelect={selectTool}
-                  jobData={jobData}
-                  taskRoles={jobTaskRoles}
-                  extras={extras}
-                  onChange={setExtras}
-                />
-              </Stack>
-            </StackItem>
+          <Stack gap='l1' styles={{root: {minHeight: 0}}}>
+            <Topbar
+              jobData={jobData}
+              jobProtocol={jobProtocol}
+              onChange={(
+                updatedJobInfo,
+                updatedTaskRoles,
+                updatedParameters,
+                updatedSecrets,
+                updatedExtras
+              ) => {
+                setJobInformation(updatedJobInfo);
+                setJobTaskRoles(updatedTaskRoles);
+                setParameters(updatedParameters);
+                setSecrets(updatedSecrets);
+                setExtras(updatedExtras);
+              }}
+              extras={extras}
+            />
+            {/* top - form */}
+            <Stack styles={{root: {minHeight: 0}}} horizontal gap='l1'>
+              {/* left column */}
+              <StackItem grow styles={{root: {minWidth: 700, flexBasis: 0}}}>
+                <Stack gap='l1' padding='0 0 s2' styles={{root: {height: '100%'}}}>
+                  <JobInformation
+                    jobInformation={jobInformation}
+                    onChange={setJobInformation}
+                    advanceFlag={advanceFlag}
+                  />
+                  <TaskRoles
+                    taskRoles={jobTaskRoles}
+                    onChange={setJobTaskRoles}
+                    advanceFlag={advanceFlag}
+                    isSingle={isSingle}
+                  />
+                </Stack>
+              </StackItem>
+              {/* right column */}
+              <StackItem shrink styles={{root: {overflowX: 'auto'}}}>
+                <Stack gap='l1' padding='0 0 s2' styles={{root: {height: '100%', width: 550}}}>
+                  <Parameters
+                    parameters={parameters}
+                    onChange={setParameters}
+                    selected={selected === SIDEBAR_PARAM}
+                    onSelect={selectParam}
+                  />
+                  <Secrets
+                    secrets={secrets}
+                    onChange={setSecrets}
+                    selected={selected === SIDEBAR_SECRET}
+                    onSelect={selectSecret}
+                  />
+                  <EnvVar
+                    selected={selected === SIDEBAR_ENVVAR}
+                    onSelect={selectEnv}
+                  />
+                  <DataComponent
+                    selected={selected === SIDEBAR_DATA}
+                    onSelect={selectData}
+                    jobName={jobInformation.name}
+                    onChange={setJobData}
+                  />
+                  <ToolComponent
+                    selected={selected === SIDEBAR_TOOL}
+                    onSelect={selectTool}
+                    jobData={jobData}
+                    taskRoles={jobTaskRoles}
+                    extras={extras}
+                    onChange={setExtras}
+                  />
+                </Stack>
+              </StackItem>
+            </Stack>
           </Stack>
           {/* bottom - buttons */}
           <SubmissionSection
