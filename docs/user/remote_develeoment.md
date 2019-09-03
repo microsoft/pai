@@ -77,3 +77,5 @@ For more details, please refer to [PAIPDB](https://github.com/microsoft/pai/blob
 ### Remote-dev-tool
 
 For users who want to share a local folder and mount it in PAI's container, we prepared a tool named remote-dev-tool which supports Ubuntu and Windows.
+
+For more details, please refer to [remote-dev-tool](https://github.com/microsoft/pai/tree/master/contrib/remote-dev-tool).
