@@ -98,7 +98,7 @@ function generateJobName(jobName) {
   return name;
 }
 
-export const JobSubmissionPage = ({isSingle, history, yamlText}) => {
+export const JobSubmissionPage = ({isSingle, history, yamlText, setYamlText}) => {
   const [jobTaskRoles, setJobTaskRolesState] = useState([
     new JobTaskRole({name: 'taskrole'}),
   ]);
@@ -338,6 +338,9 @@ export const JobSubmissionPage = ({isSingle, history, yamlText}) => {
                 setExtras(updatedExtras);
               }}
               extras={extras}
+              isSingle={isSingle}
+              history={history}
+              setYamlText={setYamlText}
             />
             {/* top - form */}
             <Stack styles={{root: {minHeight: 0}}} horizontal gap='l1'>
@@ -431,4 +434,5 @@ JobSubmissionPage.propTypes = {
   isSingle: PropTypes.bool,
   history: PropTypes.object,
   yamlText: PropTypes.string,
+  setYamlText: PropTypes.func,
 };

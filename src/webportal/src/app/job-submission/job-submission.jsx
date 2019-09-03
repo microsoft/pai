@@ -223,7 +223,7 @@ const App = () => {
           <JobWizard setYamlText={setYamlText} history={history} />
         )}/>
         <Route path="/single" render={({history}) => (
-          <JobSubmissionPage isSingle={true} history={history} />
+          <JobSubmissionPage isSingle={true} history={history} setYamlText={setYamlText} />
         )}/>
         <Route path="/general" render={({history}) => (
           <JobSubmissionPage isSingle={false} yamlText={yamlText} history={history} />
