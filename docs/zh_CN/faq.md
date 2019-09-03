@@ -1,19 +1,19 @@
-# OpenPAI FAQs
+# OpenPAI 常见问题
 
-## Table of Contents
+## 目录
 
-1. [User job related FAQs](#user-job-related-faqs)
-2. [Deploy and maintenance related FAQs](#deploy-and-maintenance-related-faqs)
+1. [用户任务相关](#user-job-related-faqs)
+2. [部署和管理相关](#deploy-and-maintenance-related-faqs)
 
-## User job related FAQs
+## 用户任务相关
 
-### Q: If user find a job to retry multiple times, how to diagnose the cause
+### Q: 如果用户发现一个任务重复失败多次，如何诊断？
 
-A: Users can find historical job logs through yarn. Please check [issue-1072](https://github.com/Microsoft/pai/issues/1072)'s answer and job log doc's section:[Diagnostic job retried many times reason](./user/troubleshooting_job.md#job-is-running-and-retried-many-times) introduction.
+A: 用户可以通过 yarn 找到任务的历史日志. 请参见 [issue-1072](https://github.com/Microsoft/pai/issues/1072)，以及下面任务日志相关部分的介绍:[Diagnostic job retried many times reason](./user/troubleshooting_job.md#job-is-running-and-retried-many-times) .
 
-### Q: How to diagnose job problems
+### Q: 如何判断任务的问题原因？
 
-A: Please check [troubleshooting_job.md](./user/troubleshooting_job.md)'s introduction.
+A: 请参见 [troubleshooting_job.md](./user/troubleshooting_job.md).
 
 ### Q: How to use private docker registry job image when submitting an OpenPAI job
 
