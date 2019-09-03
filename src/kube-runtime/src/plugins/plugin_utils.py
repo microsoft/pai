@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 # Copyright (c) Microsoft Corporation
 # All rights reserved.
 #
@@ -15,17 +16,40 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+from __future__ import print_function
 
-FROM python:2.7-alpine3.8
+import os
+import sys
+import collections
+import logging
+import argparse
+import yaml
 
-RUN pip install pyaml
+logger = logging.getLogger(__name__)
 
-ARG BARRIER_DIR=/opt/frameworkcontroller/frameworkbarrier
+def plugin_init():
+    logging.basicConfig(
+        format="%(asctime)s - %(levelname)s - %(filename)s:%(lineno)s - %(message)s",
+        level=logging.INFO,
+    )
+    parser = argparse.ArgumentParser()
+    parser.add_argument("parameters", help="parameters for sshd plugin in yaml")
+    parser.add_argument("pre_script", help="script for pre commands")
+    parser.add_argument("post_script", help="script for post commands")
+    args = parser.parse_args()
 
-WORKDIR /kube-runtime/src
+    parameters = yaml.load(args.parameters)
 
-COPY src/ ./
-COPY --from=frameworkcontroller/frameworkbarrier:v0.3.0 $BARRIER_DIR/frameworkbarrier ./init.d
-RUN chmod -R +x ./
+    return [parameters, args.pre_script, args.post_script]
 
-CMD ["/bin/sh", "-c", "/kube-runtime/src/init"]
+def inject_commands(commands, script):
+    if commands is not None and len(commands) > 0:
+        new_commands = [x+"\n" for x in commands]
+        with open(script, 'a+') as f:
+            f.writelines(new_commands)
+
+
+if __name__ == "__main__":
+    input_data = plugin_init()
+    logger.info(input_data)
+

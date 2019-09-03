@@ -1,3 +1,5 @@
+#!/bin/bash
+
 # Copyright (c) Microsoft Corporation
 # All rights reserved.
 #
@@ -16,16 +18,4 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
-FROM python:2.7-alpine3.8
-
-RUN pip install pyaml
-
-ARG BARRIER_DIR=/opt/frameworkcontroller/frameworkbarrier
-
-WORKDIR /kube-runtime/src
-
-COPY src/ ./
-COPY --from=frameworkcontroller/frameworkbarrier:v0.3.0 $BARRIER_DIR/frameworkbarrier ./init.d
-RUN chmod -R +x ./
-
-CMD ["/bin/sh", "-c", "/kube-runtime/src/init"]
+# pre-commands here

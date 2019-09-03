@@ -1,5 +1,4 @@
 #!/bin/bash
-
 # Copyright (c) Microsoft Corporation
 # All rights reserved.
 #
@@ -77,13 +76,19 @@ function prepare_job_ssh()
   done
 }
 
-function prepare_user_ssh()
+function prepare_system_user_ssh()
 {
-  if [ -z "$PAI_SSH_PUB_KEY" ] ; then
-    echo "no user ssh key provided" >&2
+  localPublicKeyPath=${PAI_WORK_DIR}/ssh-secret/$1
+  if [ -f $localPublicKeyPath ] ; then
+    cat $localPublicKeyPath >> ${SSH_DIR}/authorized_keys
   else
-    echo "$PAI_SSH_PUB_KEY" >> ${SSH_DIR}/authorized_keys
-  fi
+    echo "system user ssh public key $localPublicKeyPath not found!" >&2
+  fi 
+}
+
+function prepare_custom_user_ssh()
+{
+  echo $1 >> ${SSH_DIR}/authorized_keys
 }
 
 function start_ssh()
@@ -104,10 +109,29 @@ if [ -f /usr/sbin/sshd ] ; then
     if [ -z "$PAI_CONTAINER_SSH_PORT" ] ; then
         echo "no ssh port provided" >&2
     else
-        prepare_ssh
-        prepare_job_ssh
-        prepare_user_ssh
-        start_ssh
+        if [ $# = 1 ] || [ $# = 3 ] ; then
+          prepare_ssh
+          if [ $1 = "true" ] ; then
+            prepare_job_ssh
+          fi
+
+          if [ $# = 3 ] ; then
+            case $2 in
+              "system")
+                prepare_system_user_ssh $3
+                ;;
+              "custom")
+                prepare_custom_user_ssh $3
+                ;;
+              *)
+                echo "unknown userssh type. userssh type should be system|custom." >&2
+                ;;
+            esac
+          fi
+          start_ssh         
+        else
+          echo "usage: sshd <enable jobssh> [<userssh type> <userssh value>]" >&2
+        fi
     fi
 else
     echo "no sshd binary found" >&2

@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 # Copyright (c) Microsoft Corporation
 # All rights reserved.
 #
@@ -15,17 +16,26 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+from __future__ import print_function
 
-FROM python:2.7-alpine3.8
+import os
+import sys
+sys.path.append(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
+import collections
+import logging
+import argparse
+import yaml
 
-RUN pip install pyaml
+from plugin_utils import plugin_init, inject_commands
 
-ARG BARRIER_DIR=/opt/frameworkcontroller/frameworkbarrier
+logger = logging.getLogger(__name__)
 
-WORKDIR /kube-runtime/src
+if __name__ == "__main__":
+    [parameters, pre_script, post_script] = plugin_init()
 
-COPY src/ ./
-COPY --from=frameworkcontroller/frameworkbarrier:v0.3.0 $BARRIER_DIR/frameworkbarrier ./init.d
-RUN chmod -R +x ./
+    commands = []
+    if parameters is not None:
+        logdir = ",".join(["{}:{}".format(k, v) for k, v in parameters["logdir"].items()])
+        commands.append("tensorboard --logdir={} --port={} &\n".format(logdir, parameters["port"]))
 
-CMD ["/bin/sh", "-c", "/kube-runtime/src/init"]
+    inject_commands(commands, pre_script)

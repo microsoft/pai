@@ -16,16 +16,42 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
-FROM python:2.7-alpine3.8
+import os
+import sys
+sys.path.append("{}/../src/init.d".format(os.path.split(os.path.realpath(__file__))[0]))
+import unittest
+import yaml
+import logging
+import logging.config
 
-RUN pip install pyaml
+from initializer import init_plugins
 
-ARG BARRIER_DIR=/opt/frameworkcontroller/frameworkbarrier
+package_directory_com = os.path.dirname(os.path.abspath(__file__))
 
-WORKDIR /kube-runtime/src
+class TestRuntimeInitializer(unittest.TestCase):
 
-COPY src/ ./
-COPY --from=frameworkcontroller/frameworkbarrier:v0.3.0 $BARRIER_DIR/frameworkbarrier ./init.d
-RUN chmod -R +x ./
+    def setUp(self):
+        try:
+            os.chdir(package_directory_com)
+        except:
+            pass
 
-CMD ["/bin/sh", "-c", "/kube-runtime/src/init"]
+    def test_cmd_plugin(self):
+        job_path = "cmd_test_job.yaml"
+        if os.path.exists(job_path):
+            with open(job_path, 'rt') as f:
+                jobconfig = yaml.load(f)
+        commands = [[],[]]
+        init_plugins(jobconfig, commands, "../src/plugins", ".", "worker")
+
+    def test_ssh_plugin(self):
+        job_path = "ssh_test_job.yaml"
+        if os.path.exists(job_path):
+            with open(job_path, 'rt') as f:
+                jobconfig = yaml.load(f)
+        commands = [[],[]]
+        init_plugins(jobconfig, commands, "../src/plugins", ".", "worker")
+
+
+if __name__ == '__main__':
+    unittest.main()
