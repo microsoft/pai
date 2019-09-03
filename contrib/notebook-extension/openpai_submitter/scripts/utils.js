@@ -1,5 +1,15 @@
-define(function () {
+define(['require'], function (requirejs) {
   return {
+    getLoadingImg: function (idName) {
+      var loadingImg
+      if (idName !== undefined) { loadingImg = '<img src="' + requirejs.toUrl('../misc/loading.gif') + '" class="loading-img" id="' + idName + '"></img>' } else { loadingImg = '<img src="' + requirejs.toUrl('../misc/loading.gif') + '" class="loading-img"></img>' }
+      return loadingImg
+    },
+    getLoadingImgSmall: function (idName) {
+      var loadingImg
+      if (idName !== undefined) { loadingImg = '<img src="' + requirejs.toUrl('../misc/loading.gif') + '" class="loading-img-small" id="' + idName + '"></img>' } else { loadingImg = '<img src="' + requirejs.toUrl('../misc/loading.gif') + '" class="loading-img-small"></img>' }
+      return loadingImg
+    },
     copy_to_clipboard: function (text) {
       return new Promise(function (resolve, reject) {
         function fallbackCopyTextToClipboard (text) {
