@@ -47,6 +47,7 @@ import distributeRoot from '../../assets/img/distribute-root.svg';
 import distributePress from '../../assets/img/distribute-press.svg';
 import {JobSubmissionPage} from './job-submission-page';
 import Card from '../components/card';
+import {JobProtocol} from './models/job-protocol';
 
 initTheme();
 initializeIcons();
@@ -100,6 +101,11 @@ const JobWizard = ({setYamlText, history}) => {
     const fileReader = new FileReader();
     fileReader.addEventListener('load', () => {
       const text = String(fileReader.result);
+      const valid = JobProtocol.validateFromYaml(text);
+      if (valid) {
+        alert(`Yaml file is invalid. ${valid}`);
+        return;
+      }
       try {
         setYamlText(text);
         history.push('/general');

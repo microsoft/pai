@@ -81,6 +81,11 @@ export const ImportConfig = React.memo(({extras, onChange, isSingle, history, se
     const fileReader = new FileReader();
     fileReader.addEventListener('load', () => {
       const text = String(fileReader.result);
+      const valid = JobProtocol.validateFromYaml(text);
+      if (valid) {
+        alert(`Yaml file is invalid. ${valid}`);
+        return;
+      }
       try {
         if (isSingle) {
           setYamlText(text);
