@@ -225,16 +225,19 @@ function (requirejs, $, Jupyter, events, config, Interface, Utils) {
               Interface.available_resources().then(function (clusterData) {
                 var table = $('#cluster-data').DataTable()
                 table.rows().every(function (rowIdx, tableLoop, rowLoop) {
-                  var gpuInfo
                   var tableData = this.data()
                   var info = clusterData[tableData['cluster']][tableData['vc']]
+                  if (info === undefined) {
+                    tableData['gpu']['gpu_value'] = -2
+                    tableData['gpu']['display'] = '<a class="openpai-tooltip" href="#" title="Can\'t find this vc on cluster. Please use `opai cluster update` to update your cluster settings.">?</a>'
+                  } else
                   if (info['GPUs'] === -1) {
-                    gpuInfo = '<a class="openpai-tooltip" href="#" title="Fetching resource of this version of PAI is not supported. Please update it to >= 0.14.0">?</a>'
+                    tableData['gpu']['gpu_value'] = info['GPUs']
+                    tableData['gpu']['display'] = '<a class="openpai-tooltip" href="#" title="Fetching resource of this version of PAI is not supported. Please update it to >= 0.14.0">?</a>'
                   } else {
-                    gpuInfo = info['GPUs']
+                    tableData['gpu']['gpu_value'] = info['GPUs']
+                    tableData['gpu']['display'] = info['GPUs']
                   }
-                  tableData['gpu']['display'] = gpuInfo
-                  tableData['gpu']['gpu_value'] = info['GPUs']
                   this.data(tableData)
                 })
                 table.draw()
