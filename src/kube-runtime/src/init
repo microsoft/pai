@@ -28,6 +28,7 @@ set -o pipefail
 # and will be pid 1 process in user container.
 
 PAI_WORK_DIR=/usr/local/pai
+PAI_CONFIG_DIR=/usr/local/pai-config
 PAI_INIT_DIR=${PAI_WORK_DIR}/init.d
 PAI_RUNTIME_DIR=${PAI_WORK_DIR}/runtime.d
 
@@ -58,7 +59,7 @@ echo "barrier returns $?" >> ${PAI_INIT_LOG_FILE}
 
 # error spec
 # priority=1
-cp ${PAI_INIT_DIR}/user_exit_exit_spec.yaml ${PAI_RUNTIME_DIR}
+cp ${PAI_CONFIG_DIR}/user-exit-spec.yaml ${PAI_RUNTIME_DIR}
 echo "copy exit spec returns $?" >> ${PAI_INIT_LOG_FILE}
 
 # generate runtime env variables
