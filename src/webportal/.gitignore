@@ -1,8 +1,6 @@
 # PAI Version directory
 version/
 
-src/app/job/job-docs/imgs/
-
 *.zip
 job-docs.md
 job-submit.example.json
