@@ -7,6 +7,7 @@ openpai_ext_flags.disable_to_screen = True
 if 'openpai_ext_lock' not in vars():
     openpai_ext_buffer_lock = openpai_ext_threading.Lock()
 
+
 class openpai_ext_Thread(openpai_ext_threading.Thread):
     '''
     In Javascript:
@@ -18,6 +19,7 @@ class openpai_ext_Thread(openpai_ext_threading.Thread):
         The handler is set to print json messages,
         thus the callback in javascript will get noticed.
     '''
+
     def success_handler(self, ret):
         openpai_ext_buffer_lock.acquire()
         print("__openpai${}__".format(self.token) + openpai_ext_json.dumps(
@@ -53,18 +55,14 @@ class openpai_ext_Thread(openpai_ext_threading.Thread):
             import traceback
             self.err_handler(traceback.format_exc())
 
+
 class openpai_ext_Interface(object):
 
     def __init__(self):
-        from openpaisdk import __cluster_config_file__ as openpai_ext_config
-        from openpaisdk.io_utils import from_file as openpai_ext_from_file
-        from openpaisdk.cluster import ClusterList as openpai_ext_ClusterList
-        from openpaisdk.io_utils import get_defaults, update_default
-        if get_defaults().get('container-sdk-branch') != 'notebook-extension':
-            update_default('container-sdk-branch', 'notebook-extension')
-        self.cll = openpai_ext_ClusterList(
-            openpai_ext_from_file(openpai_ext_config, default=[])
-        )
+        from openpaisdk import LayeredSettings, ClusterList
+        if LayeredSettings.get('container-sdk-branch') != 'notebook-extension':
+            LayeredSettings.update('user_basic', 'container-sdk-branch', 'notebook-extension')
+        self.cll = ClusterList().load()
 
     def execute(self, target, token, args=[], kwargs={}):
         t = openpai_ext_Thread(target, token, args, kwargs)
@@ -76,18 +74,44 @@ class openpai_ext_Interface(object):
     def available_resources(self, token):
         self.execute(self.cll.available_resources, token)
 
+    def read_defaults(self, token):
+        def _read_defaults_helper():
+            from openpaisdk import LayeredSettings
+            from openpaisdk.job import JobResource
+            return {
+                'image-list': LayeredSettings.get('image-list'),
+                'resource-list': JobResource.parse_list(LayeredSettings.get('resource-list'))
+            }
+        self.execute(_read_defaults_helper, token)
+
     def __submit_job_helper(self, ctx):
         import tempfile
-        from openpaisdk.core import Job
+        from openpaisdk import Job
         import os
         import sys
         from openpaisdk.notebook import get_notebook_path
+        from openpaisdk import LayeredSettings
         import yaml
 
+        # setting layers description
+        # layer name     | from                                 : priority
+        # user_advanced  | NotebookConfiguration.set            : 0
+        # user_basic     | extension panel selection            : 1
+        # local_default  | deaults in .openpai/defaults.yaml    : 2
+        # global_default | defaults in ~/.openpai/defaults.yaml : 3
+        # -              | predefined in flags.py               : 4
+        LayeredSettings.update("user_basic", "cluster-alias", ctx['cluster'])
+        LayeredSettings.update("user_basic", "virtual-cluster", ctx['vc'])
+        LayeredSettings.update("user_basic", "image", ctx['docker_image'])
+        LayeredSettings.update("user_basic", "cpu", ctx['cpu']),
+        LayeredSettings.update("user_basic", "gpu", ctx['gpu']),
+        LayeredSettings.update("user_basic", "memoryMB", ctx['memoryMB'])
+
+        cfgs = LayeredSettings.as_dict()
+
         notebook_path = get_notebook_path()
-        sources = [f for f in os.listdir('.') if os.path.isfile(os.path.join('.', f))]
-        sources = [os.path.abspath(os.path.join('.', f)) for f in sources]
-        sources = [f for f in sources if f != notebook_path]
+        _, _, sources = next(os.walk('.'))
+
         if ctx['form'] == 'file':
             jobname = 'python_' + tempfile.mkdtemp()[-8:]
             mode = 'script'
@@ -102,35 +126,37 @@ class openpai_ext_Interface(object):
             .from_notebook(
                 nb_file=get_notebook_path(),
                 cluster={
-                    'cluster_alias': ctx['cluster'],
-                    'virtual_cluster': ctx['vc'],
-                    'workspace': '/code', 
+                    'cluster_alias': cfgs['cluster-alias'],
+                    'virtual_cluster': cfgs['virtual-cluster'],
+                    'workspace': cfgs['workspace'],
                 },
                 mode=mode,
                 **{
                     'token': '',
-                    'image': ctx['docker_image'],
+                    'image': cfgs["image"],
                     'resources': {
-                        'cpu': ctx['cpu'],
-                        'memoryMB': ctx['memoryMB'],
-                        'gpu': ctx['gpu'],
+                        'cpu': cfgs["cpu"],
+                        'gpu': cfgs["gpu"],
+                        'memoryMB': cfgs["memoryMB"],
+                        'mem': cfgs['mem']
                     },
-                    'sources': sources, 
-                    'pip_installs': [],
+                    'sources': sources + cfgs["sources"],
+                    'pip_installs': cfgs["pip-installs"],
                 }
-            )
-
-        ret = job.submit()
-        ctx['joblink'] = ret['job_link']
-        ctx['jobname'] = ret['job_name']
+        )
         ctx['job_config'] = yaml.dump(job.get_config(), default_flow_style=False)
+        ctx['jobname'] = job.name
+        if ctx['type'] == 'quick':
+            ret = job.submit()
+            ctx['joblink'] = ret['job_link']
+            ctx['jobname'] = ret['job_name']
         return ctx
 
     def submit_job(self, token, ctx):
         self.execute(self.__submit_job_helper, token, args=[ctx])
-    
+
     def __wait_jupyter_helper(self, ctx):
-        from openpaisdk.core import Job
+        from openpaisdk import Job
         job = Job(ctx['jobname']).load(cluster_alias=ctx['cluster'])
         ret = job.wait()
         ret = job.connect_jupyter()  # ret will be None if run in silent mode and without this
@@ -140,12 +166,12 @@ class openpai_ext_Interface(object):
         else:
             ctx['notebook_url'] = ret['notebook']
         return ctx
-    
+
     def wait_jupyter(self, token, ctx):
         self.execute(self.__wait_jupyter_helper, token, args=[ctx])
-    
+
     def __detect_jobs_helper(self, jobs_ctx):
-        from openpaisdk.core import Job
+        from openpaisdk import Job
         ret = []
         for ctx in jobs_ctx:
             try:
@@ -161,8 +187,9 @@ class openpai_ext_Interface(object):
             finally:
                 ret.append(ctx)
         return ret
-    
+
     def detect_jobs(self, token, jobs_ctx):
         self.execute(self.__detect_jobs_helper, token, args=[jobs_ctx])
+
 
 openpai_ext_interface = openpai_ext_Interface()

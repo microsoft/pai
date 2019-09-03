@@ -73,9 +73,38 @@ The interactive mode is a quick way for you to submit the notebook you work on l
 
 On the other hand, submitting the job as a .py file will firstly convert the notebook to a Python script, then execute the script directly. This mode is a good way for deployment and batch submitting.
 
-If you submit a notebook as a silent notebook, you won't have an interactive notebook as in the interactive mode. Your notebook will be executed in the background. Once it is finished, you can get the result as a file. The difference between this mode and the python script mode is that, you can not see the output during the silent notebook is running, but you can get matplotlib plot or other graph of your notebook.
+If you submit a notebook as a silent notebook, you won't have an interactive notebook as in the interactive mode. Your notebook will be executed in the background. Once it is finished, you can get the result as a file. The difference between this mode and the python script mode is that, you can not see the output during the silent notebook is running, but you can get `matplotlib` plot or other graph of your notebook.
 
 <img src="docs_img/submit-form.png" style="width:65%;" />
+
+### Advanced job configuration
+
+#### Setup frequently used `images` and `resources`
+
+As shown in above example figure, users could specify resources and docker image by selection in the panel. And further, the possible contents in the dropdown boxes can be specified by
+
+```bash
+opai set -g image-list+=<image-1> image-list+=<image-2> ...
+opai set -g resource-list+="<#gpu>,<#cpu>,<#mem>" resource-list+="<#gpu>,<#cpu>,<#mem>" ...
+```
+Here `<#mem>` can be numbers in unit of `MBytes`, or a string like `32GB` (or `32g`).
+
+#### Advanced configuration by `NotebookConfiguration`
+
+In the submitting panel, user can change basic configuration of the job. However, for the users who want to change the advanced configuration, the extension would receive configuration from `NotebookConfiguration` in the notebook.
+
+For example, after executing below codes in the notebook cell, the extension will configure the job resource specification to 2 GPUs, 16 CPU cores and 32 GB memory.
+```python
+from openpaisdk.notebook import NotebookConfiguration
+
+NotebookConfiguration.set("mem", "512GB")
+```
+
+Execute below codes to have a quick look of all supported items in `NotebookConfiguration`.
+```python
+# print supported configuration items
+NotebookConfiguration.print_supported_items()
+```
 
 ### Quick Submit v.s. Download Config
 
