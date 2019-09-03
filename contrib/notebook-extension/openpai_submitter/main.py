@@ -82,6 +82,7 @@ class openpai_ext_Interface(object):
                 'image-list': LayeredSettings.get('image-list'),
                 'resource-list': JobResource.parse_list(LayeredSettings.get('resource-list'))
             }
+        self.execute(_read_defaults_helper, token)
 
     def __submit_job_helper(self, ctx):
         import tempfile
