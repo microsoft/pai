@@ -58,7 +58,7 @@ class service_template_generate:
     # Currently support "In" and "NotIn" rules or the combination of them.
 
     def add_deploy_rule_to_yaml(self, str_src_yaml):
-        service_deploy_kind_list = ['DaemonSet', 'Deployment', 'StatefulSets', 'Pod']
+        service_deploy_kind_list = ['DaemonSet', 'Deployment', 'StatefulSet', 'Pod']
 
         config = yaml.load(str_src_yaml)
 
