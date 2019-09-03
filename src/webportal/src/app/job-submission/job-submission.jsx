@@ -28,6 +28,7 @@ import React, {useState, useEffect} from 'react';
 import ReactDOM from 'react-dom';
 import {HashRouter as Router, Route} from 'react-router-dom';
 import {
+  initializeIcons,
   Fabric,
   Stack,
   Text,
@@ -37,6 +38,7 @@ import {
   FontWeights,
 } from 'office-ui-fabric-react';
 
+import {initTheme} from '../components/theme';
 import uploadRoot from '../../assets/img/upload-root.svg';
 import uploadPress from '../../assets/img/upload-press.svg';
 import singleRoot from '../../assets/img/single-root.svg';
@@ -45,6 +47,9 @@ import distributeRoot from '../../assets/img/distribute-root.svg';
 import distributePress from '../../assets/img/distribute-press.svg';
 import {JobSubmissionPage} from './job-submission-page';
 import Card from '../components/card';
+
+initTheme();
+initializeIcons();
 
 const {spacing, palette} = getTheme();
 

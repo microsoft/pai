@@ -31,7 +31,6 @@ import React, {useState, useCallback, useEffect, useMemo} from 'react';
 import {
   Fabric,
   Stack,
-  initializeIcons,
   StackItem,
 } from 'office-ui-fabric-react';
 import {isNil, isEmpty, get} from 'lodash';
@@ -43,7 +42,6 @@ import {TaskRoles} from './components/task-roles';
 import Context from './components/context';
 import {fetchJobConfig, listUserVirtualClusters} from './utils/conn';
 import {TaskRolesManager} from './utils/task-roles-manager';
-import {initTheme} from '../components/theme';
 
 // sidebar
 import {Parameters} from './components/sidebar/parameters';
@@ -62,9 +60,6 @@ import {
   isValidUpdatedTensorBoardExtras,
 } from './utils/utils';
 import {SpinnerLoading} from '../components/loading';
-
-initTheme();
-initializeIcons();
 
 const SIDEBAR_PARAM = 'param';
 const SIDEBAR_SECRET = 'secret';
