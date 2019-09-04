@@ -25,7 +25,7 @@ prerequisite:
 
 template-list:
   - hivedscheduler.yaml
-  - configmap.yaml
+  - hivedscheduler-config.yaml
 
 start-script: start.sh
 stop-script: stop.sh
