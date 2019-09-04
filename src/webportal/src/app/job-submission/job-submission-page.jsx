@@ -387,8 +387,10 @@ export const JobSubmissionPage = ({isSingle, setWizardStatus, yamlText}) => {
                     onSelect={selectTool}
                     jobData={jobData}
                     taskRoles={jobTaskRoles}
+                    secrets={secrets}
                     extras={extras}
-                    onChange={setExtras}
+                    onSecretsChange={setSecrets}
+                    onExtrasChange={setExtras}
                   />
                 </Stack>
               </StackItem>

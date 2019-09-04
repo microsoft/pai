@@ -15,8 +15,22 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+const keygen = require('ssh-keygen');
 
 const generateFrameworkEnv = (frameworkName, config) => {
+  // generate ssh key
+  let keys;
+  try {
+    keys = keygen({
+      location: frameworkName,
+      comment: `ssh key for ${frameworkName}`,
+      read: true,
+      destroy: true,
+    });
+  } catch (err) {
+    keys = null;
+  }
+
   const [userName] = frameworkName.split('~');
   const env = {
     PAI_FRAMEWORK_NAME: frameworkName,
@@ -26,6 +40,12 @@ const generateFrameworkEnv = (frameworkName, config) => {
     PAI_TASK_ROLE_COUNT: Object.keys(config.taskRoles).length,
     PAI_TASK_ROLE_LIST: Object.keys(config.taskRoles).join(','),
   };
+
+  if (keys) {
+    env['PAI_JOB_SSH_PRIVATE_KEY'] = keys.key;
+    env['PAI_JOB_SSH_PUBLIC_KEY'] = keys.pubKey;
+  }
+
   let tasksNum = 0;
   for (let taskRole of Object.keys(config.taskRoles)) {
     const tasks = config.taskRoles[taskRole];

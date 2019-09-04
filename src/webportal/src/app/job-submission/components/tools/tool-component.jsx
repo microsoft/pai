@@ -29,13 +29,18 @@ import PropTypes from 'prop-types';
 import {SidebarCard} from '../sidebar/sidebar-card';
 import {Hint} from '../sidebar/hint';
 import {TensorBoard} from './tensorboard';
+import {JobSSH} from './job-ssh';
 import {PROTOCOL_TOOLTIPS} from '../../utils/constants';
+import config from '../../../config/webportal.config';
 
+// restServerLauncherType
 export const ToolComponent = React.memo(({
   jobData,
   taskRoles,
+  secrets,
   extras,
-  onChange,
+  onExtrasChange,
+  onSecretsChange,
   selected,
   onSelect,
 }) => {
@@ -55,9 +60,19 @@ export const ToolComponent = React.memo(({
             jobData={jobData}
             taskRoles={taskRoles}
             extras={extras}
-            onChange={onChange}
+            onChange={onExtrasChange}
           />
         </div>
+        {(config.restServerLauncherType === 'k8s') && (
+        <div>
+          <JobSSH
+            secrets={secrets}
+            extras={extras}
+            onSecretsChange={onSecretsChange}
+            onExtrasChange={onExtrasChange}
+          />
+        </div>
+        )}
       </Stack>
     </SidebarCard>
   );
@@ -66,8 +81,10 @@ export const ToolComponent = React.memo(({
 ToolComponent.propTypes = {
   jobData: PropTypes.object.isRequired,
   taskRoles: PropTypes.array.isRequired,
+  secrets: PropTypes.array,
   extras: PropTypes.object,
-  onChange: PropTypes.func.isRequired,
+  onSecretsChange: PropTypes.func.isRequired,
+  onExtrasChange: PropTypes.func.isRequired,
   selected: PropTypes.bool,
   onSelect: PropTypes.func,
 };
