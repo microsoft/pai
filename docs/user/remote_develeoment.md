@@ -34,8 +34,6 @@ For remote development or debugging, users should prepare code properly. PAI rec
 
 ### External Storage
 
-For now, PAI supports two kinds of external storage, NFS and SMB.
-
 #### NFS
 
 Users can use following commands to mount NFS storage.
