@@ -101,7 +101,7 @@ After running the command, one should restart the notebook to make it work:
 <img src="docs_img/restart-kernel.png" width="50%;" />
 
 
-These settings are permanent since they are saved on disk. If you want to `update`, `delete`, or `change the order of` them, you can edit the file `~/.openpai/defaults.yaml` (For Windows, the path is `C:\\Users\\<Username>\.openpai\\defaults.yaml`) directly. Also remember to restart the notebook kernel after editing.
+These settings are permanent since they are saved on disk. If you want to `update`, `delete`, or `change the order of` them, you can edit the file `~/.openpai/defaults.yaml` (For Windows, the path is `C:\Users\<Username>\.openpai\defaults.yaml`) directly. Also remember to restart the notebook kernel after editing.
 
 #### Advanced configuration by `NotebookConfiguration`
 
