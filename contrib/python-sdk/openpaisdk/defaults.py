@@ -111,7 +111,7 @@ class LayeredSettings:
 
         if cls.act_append(key):
             from openpaisdk.utils import flatten
-            return list(set(flatten(lst)))
+            return list(flatten(lst))
         else:
             return lst[0] if lst else None
 
