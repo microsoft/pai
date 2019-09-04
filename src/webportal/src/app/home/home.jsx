@@ -88,11 +88,19 @@ const Home = () => {
           <Stack padding='l2' gap='l2' styles={{minHeight: '100%'}}>
             <JobStatus style={{height: 320}} jobs={jobs} />
             {isAdmin ? (
-              <VirtualClusterStatistics
-                style={{height: 320}}
-                userInfo={userInfo}
-                virtualClusters={virtualClusters}
-              />
+              <React.Fragment>
+                <VirtualClusterStatistics
+                  style={{height: 320}}
+                  userInfo={userInfo}
+                  virtualClusters={virtualClusters}
+                />
+                <GpuChart
+                  style={{height: 320}}
+                  gpuPerNode={gpuPerNode}
+                  userInfo={userInfo}
+                  virtualClusters={virtualClusters}
+                />
+              </React.Fragment>
             ) : (
               <React.Fragment>
                 <VirtualClusterList
@@ -120,13 +128,21 @@ const Home = () => {
           <Stack padding='l2' gap='l2' styles={{root: {height: '100%', minHeight: 640}}}>
             {/* top */}
             <Stack gap='l2' horizontal>
-              <JobStatus style={{height: '100%', width: '33%'}} jobs={jobs} />
+              <JobStatus style={{height: '100%', width: '25%', minWidth: '380px'}} jobs={jobs} />
               {isAdmin ? (
-                <VirtualClusterStatistics
-                  style={{height: '100%', width: '66%'}}
-                  userInfo={userInfo}
-                  virtualClusters={virtualClusters}
-                />
+                <React.Fragment>
+                  <VirtualClusterStatistics
+                    style={{height: '100%', width: '41%'}}
+                    userInfo={userInfo}
+                    virtualClusters={virtualClusters}
+                  />
+                  <GpuChart
+                    style={{height: '100%', width: '33%'}}
+                    gpuPerNode={gpuPerNode}
+                    userInfo={userInfo}
+                    virtualClusters={virtualClusters}
+                  />
+                </React.Fragment>
               ) : (
                 <React.Fragment>
                   <VirtualClusterList
