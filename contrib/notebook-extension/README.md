@@ -89,7 +89,7 @@ opai set -g resource-list+="<#gpu>,<#cpu>,<#mem>" resource-list+="<#gpu>,<#cpu>,
 ```
 Here `<#mem>` can be numbers in unit of `MBytes`, or a string like `32GB` (or `32g`).
 
-For example, you can add "your.docker.image" and the resource spec "1 GPU, 4 vCores CPU, 3GB" by:
+For example, you can add `your.docker.image` and the resource spec `1 GPU, 4 vCores CPU, 3GB` by:
 
 ```bash
 opai set -g image-list+=your.docker.image
