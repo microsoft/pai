@@ -75,7 +75,7 @@ On the other hand, submitting the job as a .py file will firstly convert the not
 
 If you submit a notebook as a silent notebook, you won't have an interactive notebook as in the interactive mode. Your notebook will be executed in the background. Once it is finished, you can get the result as a file. The difference between this mode and the python script mode is that, you can not see the output during the silent notebook is running, but you can get `matplotlib` plot or other graph of your notebook.
 
-<img src="docs_img/submit-form.png" style="width:65%;" />
+<img src="docs_img/submit-form.png" width="65%;" />
 
 ### Advanced job configuration
 
@@ -89,7 +89,7 @@ opai set -g resource-list+="<#gpu>,<#cpu>,<#mem>" resource-list+="<#gpu>,<#cpu>,
 ```
 Here `<#mem>` can be numbers in unit of `MBytes`, or a string like `32GB` (or `32g`).
 
-For example, you can add "your.docker.image" and the resource spec "1 GPU, 4 vCores CPU, 3GB" by:
+For example, you can add `your.docker.image` and the resource spec `1 GPU, 4 vCores CPU, 3GB` by:
 
 ```bash
 opai set -g image-list+=your.docker.image
@@ -98,10 +98,10 @@ opai set -g resource-list+="1,4,3gb"
 
 After running the command, one should restart the notebook to make it work:
 
-<img src="docs_img/restart-kernel.png" style="width:60%;" />
+<img src="docs_img/restart-kernel.png" width="50%;" />
 
 
-These settings are permanent since they are saved on disk. If you want to `update`, `delete`, or `change the order of` them, you can edit the file "~/.openpai/defaults.yaml" (For Windows, the path is "C:\\Users\\<Username>\.openpai\\defaults.yaml") directly. Also remember to restart the notebook kernel after editing.
+These settings are permanent since they are saved on disk. If you want to `update`, `delete`, or `change the order of` them, you can edit the file `~/.openpai/defaults.yaml` (For Windows, the path is `C:\Users\<Username>\.openpai\defaults.yaml`) directly. Also remember to restart the notebook kernel after editing.
 
 #### Advanced configuration by `NotebookConfiguration`
 
