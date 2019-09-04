@@ -72,3 +72,6 @@ typings/
 
 # Webpack bundle profile file
 bundle.profile.json
+
+# Help docs images
+src/app/job/job-docs/imgs/
