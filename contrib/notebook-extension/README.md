@@ -79,15 +79,29 @@ If you submit a notebook as a silent notebook, you won't have an interactive not
 
 ### Advanced job configuration
 
-#### Setup frequently used `images` and `resources`
+#### Setup frequently used `docker-images` and `resources`
 
-As shown in above example figure, users could specify resources and docker image by selection in the panel. And further, the possible contents in the dropdown boxes can be specified by
+As shown in above example figure, users could specify resources and docker image by selection in the panel. And further, you can add your frequently used docker images or resource combinations by:
 
 ```bash
 opai set -g image-list+=<image-1> image-list+=<image-2> ...
 opai set -g resource-list+="<#gpu>,<#cpu>,<#mem>" resource-list+="<#gpu>,<#cpu>,<#mem>" ...
 ```
 Here `<#mem>` can be numbers in unit of `MBytes`, or a string like `32GB` (or `32g`).
+
+For example, you can add "your.docker.image" and the resource spec "1 GPU, 4 vCores CPU, 3GB" by:
+
+```bash
+opai set -g image-list+=your.docker.image
+opai set -g resource-list+="1,4,3gb"
+```
+
+After running the command, one should restart the notebook to make it work:
+
+<img src="docs_img/restart-kernel.png" style="width:60%;" />
+
+
+These settings are permanent since they are saved on disk. If you want to `update`, `delete`, or `change the order of` them, you can edit the file "~/.openpai/defaults.yaml" (For Windows, the path is "C:\\Users\\<Username>\.openpai\\defaults.yaml") directly. Also remember to restart the notebook kernel after editing.
 
 #### Advanced configuration by `NotebookConfiguration`
 
