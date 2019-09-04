@@ -29,18 +29,15 @@ class CfgLayer:
                 del dic[key]
                 to_screen(f"key {key} removed completely from {self.name} successfully")
             else:
-                s = set(dic[key])
-                s.discard(value)
-                dic[key] = list(s)
+                dic[key].remove(value)
                 to_screen(f"{value} removed in {key} under {self.name} successfully")
         else:
             if self.act_append(key):
-                def _append_as_set(dic, key, value):
+                def _append(dic, key, value):
                     dic.setdefault(key, [])
-                    s = set(dic[key])
-                    s.add(value)
-                    dic[key] = list(s)
-                _append_as_set(dic, key, value)
+                    if value not in dic[key]:
+                        dic[key].append(value)
+                _append(dic, key, value)
                 to_screen(f"{value} added to {key} under {self.name} successfully")
             else:
                 dic[key] = value
