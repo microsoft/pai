@@ -29,6 +29,7 @@ const env = require('@pai/utils/env');
 const path = require('path');
 const fs = require('fs');
 const _ = require('lodash');
+const logger = require('@pai/config/logger');
 
 let exitSpecPath;
 if (process.env[env.exitSpecPath]) {
@@ -37,7 +38,7 @@ if (process.env[env.exitSpecPath]) {
     exitSpecPath = path.resolve(__dirname, '../../../../', exitSpecPath);
   }
 } else {
-  exitSpecPath = '/job-exit-spec-configuration/job-exit-spec.yaml';
+  exitSpecPath = '/k8s-job-exit-spec-configuration/k8s-job-exit-spec.yaml';
 }
 const exitSpecList = yaml.safeLoad(fs.readFileSync(exitSpecPath));
 const positiveFallbackExitCode = 256;
@@ -174,6 +175,8 @@ const convertTaskDetail = async (taskStatus, ports, userName, jobName, taskRoleN
 
 const convertFrameworkDetail = async (framework) => {
   const completionStatus = framework.status.attemptStatus.completionStatus;
+  const diagnostics = completionStatus ? completionStatus.diagnostics : null;
+  const diagInfo = extractDiagnosticsInfo(diagnostics);
   const detail = {
     name: decodeName(framework.metadata.name, framework.metadata.labels),
     frameworkName: framework.metadata.name,
@@ -202,13 +205,13 @@ const convertFrameworkDetail = async (framework) => {
       appCompletedTime: new Date(framework.status.completionTime).getTime(),
       appExitCode: completionStatus ? completionStatus.code : null,
       appExitSpec: completionStatus ? generateExitSpec(completionStatus.code) : generateExitSpec(null),
-      appExitDiagnostics: completionStatus ? completionStatus.diagnostics : null,
-      appExitMessages: completionStatus ? {
-        container: extractContainerStderr(completionStatus.diagnostics),
-        runtime: extractRuntimeOutput(completionStatus.diagnostics),
-        launcher: extractLauncherOutput(completionStatus.code, completionStatus.diagnostics),
+      appExitDiagnostics: diagInfo,
+      appExitMessages: diagInfo ? {
+        container: extractContainerOutput(diagInfo),
+        runtime: extractRuntimeOutput(diagInfo),
+        launcher: extractLauncherOutput(completionStatus.code, diagInfo),
       } : null,
-      appExitTriggerMessage: completionStatus ? completionStatus.diagnostics : null,
+      appExitTriggerMessage: completionStatus && completionStatus.trigger ? completionStatus.trigger : null,
       appExitTriggerTaskRoleName: completionStatus && completionStatus.trigger ? completionStatus.trigger.taskRoleName : null,
       appExitTriggerTaskIndex: completionStatus && completionStatus.trigger ? completionStatus.trigger.taskIndex : null,
       appExitType: completionStatus ? completionStatus.type.name : null,
@@ -305,6 +308,10 @@ const generateTaskRole = (taskRole, labels, config) => {
                   subPath: `${labels.userName}/${labels.jobName}/${convertName(taskRole)}`,
                   mountPath: '/usr/local/pai/logs',
                 },
+                {
+                  name: 'user-exit-spec',
+                  mountPath: '/usr/local/pai-config',
+                },
               ],
             },
           ],
@@ -327,6 +334,7 @@ const generateTaskRole = (taskRole, labels, config) => {
                   drop: ['MKNOD'],
                 },
               },
+              terminationMessagePath: '/tmp/pai-termination-log',
               volumeMounts: [
                 {
                   name: 'dshm',
@@ -371,6 +379,12 @@ const generateTaskRole = (taskRole, labels, config) => {
               name: 'job-ssh-secret-volume',
               secret: {
                 secretName: 'job-ssh-secret',
+              },
+            },
+            {
+              name: 'user-exit-spec',
+              configMap: {
+                name: 'user-exit-spec-configuration',
               },
             },
           ],
@@ -639,43 +653,79 @@ const getSshInfo = async (frameworkName) => {
   throw createError('Not Found', 'NoJobSshInfoError', `SSH info of job ${frameworkName} is not found.`);
 };
 
-const extractContainerStderr = (diag) => {
+const extractDiagnosticsInfo = (diag) => {
   if (_.isEmpty(diag)) {
     return null;
   }
-  const anchor1 = /ExitCodeException exitCode.*?:/;
-  const anchor2 = /at org\.apache\.hadoop\.util\.Shell\.runCommand/;
-  const match1 = diag.match(anchor1);
-  const match2 = diag.match(anchor2);
-  if (match1 !== null && match2 !== null) {
-    const start = match1.index + match1[0].length;
-    const end = match2.index;
-    return diag.substring(start, end).trim();
+  // The pattern for diagnostics is "podPattern unmatched: json" or "podPattern nmatched: json"
+  const regex = /matched: (.*)/;
+  const matches = diag.match(regex);
+  if (matches.length < 2) {
+    return null;
   }
+  try {
+    return JSON.parse(matches[1]);
+  } catch (error) {
+    logger.warn('Get diagnostics info failed', error);
+  }
+  return null;
 };
 
 const extractRuntimeOutput = (diag) => {
   if (_.isEmpty(diag)) {
     return null;
   }
+
+  // Do not container user container info
+  if (_.isNil(diag.containers) || diag.containers.length < 2) {
+    return null;
+  }
+  const message = diag.containers[1].message;
+
   const anchor1 = /\[PAI_RUNTIME_ERROR_START\]/;
   const anchor2 = /\[PAI_RUNTIME_ERROR_END\]/;
-  const match1 = diag.match(anchor1);
-  const match2 = diag.match(anchor2);
+  const match1 = message.match(anchor1);
+  const match2 = message.match(anchor2);
   if (match1 !== null && match2 !== null) {
     const start = match1.index + match1[0].length;
     const end = match2.index;
-    const output = diag.substring(start, end).trim();
+    const output = message.substring(start, end).trim();
     return yaml.safeLoad(output);
   }
+};
+
+const extractContainerOutput = (diag) => {
+  if (_.isEmpty(diag) || _.isEmpty(diag.containers)) {
+    return null;
+  }
+  const anchor = /\[PAI_RUNTIME_ERROR_START\]/;
+
+  const obj = {};
+  diag.containers.forEach((container) => {
+    let message = container.message;
+    if (_.isEmpty(message)) {
+      return;
+    }
+    const match = message.match(anchor);
+    if (match !== null) {
+      message = message.substring(0, match.index);
+    }
+    if (_.isEmpty(message)) {
+      return;
+    }
+    obj[container.name] = message;
+  });
+  if (_.isEmpty(obj)) {
+    return null;
+  }
+  return obj;
 };
 
 const extractLauncherOutput = (diag, code) => {
   if (_.isEmpty(diag) || code > 0) {
     return null;
   }
-  const re = /^(.*)$/m;
-  return diag.match(re)[0].trim();
+  return diag;
 };
 
 const generateExitSpec = (code) => {
