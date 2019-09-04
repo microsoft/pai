@@ -180,93 +180,127 @@ function (requirejs, $, Jupyter, events, config, Interface, Utils) {
       }
       set(STATUS.READY_LOADING)
       showInformation('Loading the cluster information, please wait...' + Utils.getLoadingImg('loading-cluster-info'))
-      Interface.tell_resources().then(function (data) {
-        var ret = []
-        for (var cluster in data) {
-          for (var vc in data[cluster]) {
-            ret.push({
-              cluster: cluster,
-              vc: vc,
-              gpu: {
-                display: Utils.getLoadingImgSmall(),
-                gpu_value: 0
-              },
-              button_sub: `<button class="submit_button" data-type="quick" data-cluster="${cluster}" data-vc="${vc}" >Quick Submit</button>`,
-              button_edit: `<button class="submit_button" data-type="edit" data-cluster="${cluster}" data-vc="${vc}" >Download Config</button>`
-            })
-          }
+      Interface.read_defaults().then(function (data) {
+        var resourceMenu = ''
+        for (var item of data['resource-list']){
+          var memoryGB = parseInt(item['memoryMB'] / 1024)
+          resourceMenu += '<option data-gpu="' + item['gpu'] + '" data-cpu="'+item['cpu']+'" data-memory="'+item['memoryMB']+'">'+ item['gpu']+' GPU, '+item['cpu']+' vCores CPU, '+memoryGB+' GB memory</option>\n'
         }
-        $('#cluster-data')
-          .DataTable({
-            dom: 'rtip',
-            order: [
-              [2, 'desc']
-            ],
-            destroy: true,
-            data: ret,
-            columns: [{
-              data: 'cluster'
-            }, {
-              data: 'vc'
-            }, {
-              data: 'gpu',
-              type: 'num',
-              render: {
-                _: 'display',
-                sort: 'gpu_value'
-              }
-            }, {
-              data: 'button_sub'
-            }, {
-              data: 'button_edit'
-            }],
-            initComplete: function () {
-              set(STATUS.SHOWING_INFO)
-              Interface.available_resources().then(function (clusterData) {
-                var table = $('#cluster-data').DataTable()
-                table.rows().every(function (rowIdx, tableLoop, rowLoop) {
-                  var tableData = this.data()
-                  var info = clusterData[tableData['cluster']][tableData['vc']]
-                  if (info === undefined) {
-                    tableData['gpu']['gpu_value'] = -2
-                    tableData['gpu']['display'] = '<a class="openpai-tooltip" href="#" title="Can\'t find this vc on cluster. Please use `opai cluster update` to update your cluster settings.">?</a>'
-                  } else
-                  if (info['GPUs'] === -1) {
-                    tableData['gpu']['gpu_value'] = info['GPUs']
-                    tableData['gpu']['display'] = '<a class="openpai-tooltip" href="#" title="Fetching resource of this version of PAI is not supported. Please update it to >= 0.14.0">?</a>'
-                  } else {
-                    tableData['gpu']['gpu_value'] = info['GPUs']
-                    tableData['gpu']['display'] = info['GPUs']
-                  }
-                  this.data(tableData)
-                })
-                table.draw()
-              })
-            },
-            fnDrawCallback: function () {
-              $('.openpai-tooltip').tooltip({
-                classes: {
-                  'ui-tooltip': 'highlight'
-                }
-              }
-              )
-              $('.submit_button').on('click', function () {
-                var cluster = $(this).data('cluster')
-                var vc = $(this).data('vc')
-                var type = $(this).data('type')
-                send(MSG.SUBMIT_START_1, {
+        resourceMenu = $('<select name="resource-menu" id="resource-menu">' + resourceMenu + '</select>')
+        var imageAliasDict = {
+          'openpai/pytorch-py36-cu90': 'PyTorch + Python3.6 with GPU, CUDA 9.0',
+          'openpai/pytorch-py36-cpu': 'PyTorch + Python3.6 with CPU',
+          'openpai/tensorflow-py36-cu90': 'TensorFlow + Python3.6 with GPU, CUDA 9.0',
+          'openpai/tensorflow-py36-cpu': 'TensorFlow + Python3.6 with CPU'
+        }
+        var imageMenu = ''
+        for (var image of data['image-list']){
+          if (image in imageAliasDict)
+            var imageAlias = imageAliasDict[image]
+          else
+            var imageAlias = image
+          imageMenu += '<option value="' + image + '">' +imageAlias+'</option>'
+         }
+        imageMenu = $('<select name="docker-image-menu" id="docker-image-menu">' + imageMenu + '</select>')
+        // select the first option
+        $(resourceMenu.find('option')[0]).attr('selected', 'selected')
+        $(imageMenu.find('option')[0]).attr('selected', 'selected')
+        // append to html
+        $('#resource-menu').remove()
+        $('#docker-image-menu').remove()
+        $('#resouce-menu-label').after(resourceMenu)
+        $('#docker-image-menu-label').after(imageMenu)
+      }).then(
+        () =>
+          Interface.tell_resources().then(function (data) {
+            var ret = []
+            for (var cluster in data) {
+              for (var vc in data[cluster]) {
+                ret.push({
                   cluster: cluster,
                   vc: vc,
-                  type: type
+                  gpu: {
+                    display: Utils.getLoadingImgSmall(),
+                    gpu_value: 0
+                  },
+                  button_sub: `<button class="submit_button" data-type="quick" data-cluster="${cluster}" data-vc="${vc}" >Quick Submit</button>`,
+                  button_edit: `<button class="submit_button" data-type="edit" data-cluster="${cluster}" data-vc="${vc}" >Download Config</button>`
                 })
-              })
+              }
             }
+            $('#cluster-data')
+              .DataTable({
+                dom: 'rtip',
+                order: [
+                  [2, 'desc']
+                ],
+                destroy: true,
+                data: ret,
+                columns: [{
+                  data: 'cluster'
+                }, {
+                  data: 'vc'
+                }, {
+                  data: 'gpu',
+                  type: 'num',
+                  render: {
+                    _: 'display',
+                    sort: 'gpu_value'
+                  }
+                }, {
+                  data: 'button_sub'
+                }, {
+                  data: 'button_edit'
+                }],
+                initComplete: function () {
+                  set(STATUS.SHOWING_INFO)
+                  Interface.available_resources().then(function (clusterData) {
+                    var table = $('#cluster-data').DataTable()
+                    table.rows().every(function (rowIdx, tableLoop, rowLoop) {
+                      var tableData = this.data()
+                      var info = clusterData[tableData['cluster']][tableData['vc']]
+                      if (info === undefined) {
+                        tableData['gpu']['gpu_value'] = -2
+                        tableData['gpu']['display'] = '<a class="openpai-tooltip" href="#" title="Can\'t find this vc on cluster. Please use `opai cluster update` to update your cluster settings.">?</a>'
+                      } else
+                      if (info['GPUs'] === -1) {
+                        tableData['gpu']['gpu_value'] = info['GPUs']
+                        tableData['gpu']['display'] = '<a class="openpai-tooltip" href="#" title="Fetching resource of this version of PAI is not supported. Please update it to >= 0.14.0">?</a>'
+                      } else {
+                        tableData['gpu']['gpu_value'] = info['GPUs']
+                        tableData['gpu']['display'] = info['GPUs']
+                      }
+                      this.data(tableData)
+                    })
+                    table.draw()
+                  })
+                },
+                fnDrawCallback: function () {
+                  $('.openpai-tooltip').tooltip({
+                    classes: {
+                      'ui-tooltip': 'highlight'
+                    }
+                  }
+                  )
+                  $('.submit_button').on('click', function () {
+                    var cluster = $(this).data('cluster')
+                    var vc = $(this).data('vc')
+                    var type = $(this).data('type')
+                    send(MSG.SUBMIT_START_1, {
+                      cluster: cluster,
+                      vc: vc,
+                      type: type
+                    })
+                  })
+                }
+              })
+            $('#panel-information-wrapper').hide()
+            $('#panel-table-wrapper').show()
           })
-        $('#panel-information-wrapper').hide()
-        $('#panel-table-wrapper').show()
-      }).catch(function (e) {
-        send(MSG.ERROR, e)
-      })
+      )
+        .catch(function (e) {
+          send(MSG.ERROR, e)
+        })
     }
 
     var handleSubmitStart1 = function (info) {

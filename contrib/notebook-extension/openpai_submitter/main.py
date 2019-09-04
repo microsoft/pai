@@ -60,8 +60,8 @@ class openpai_ext_Interface(object):
 
     def __init__(self):
         from openpaisdk import LayeredSettings, ClusterList
-        if LayeredSettings.get('container-sdk-branch') != 'notebook-extension':
-            LayeredSettings.update('user_basic', 'container-sdk-branch', 'notebook-extension')
+        if LayeredSettings.get('container-sdk-branch') != 'master':
+            LayeredSettings.update('user_basic', 'container-sdk-branch', 'master')
         self.cll = ClusterList().load()
 
     def execute(self, target, token, args=[], kwargs={}):
@@ -78,9 +78,35 @@ class openpai_ext_Interface(object):
         def _read_defaults_helper():
             from openpaisdk import LayeredSettings
             from openpaisdk.job import JobResource
+            # add default settings
+            image_list = LayeredSettings.get('image-list')
+            if image_list is None or len(image_list) == 0:
+                # add default images here
+                default_images = [
+                    'openpai/pytorch-py36-cu90',
+                    'openpai/pytorch-py36-cpu',
+                    'openpai/tensorflow-py36-cu90',
+                    'openpai/tensorflow-py36-cpu',
+                ]
+                for image in default_images:
+                    LayeredSettings.update('global_default', 'image-list', image)
+                image_list = LayeredSettings.get('image-list')
+            resource_list = JobResource.parse_list(LayeredSettings.get('resource-list'))
+            if resource_list is None or len(resource_list) == 0:
+                # add default resource here
+                default_resources = [
+                    '1,4,8g',
+                    '1,8,16g',
+                    '0,4,8g',
+                    '2,8,16g',
+                    '4,16,32g',
+                ]
+                for resource in default_resources:
+                    LayeredSettings.update('global_default', 'resource-list', resource)
+                resource_list = JobResource.parse_list(LayeredSettings.get('resource-list'))
             return {
-                'image-list': LayeredSettings.get('image-list'),
-                'resource-list': JobResource.parse_list(LayeredSettings.get('resource-list'))
+                'image-list': image_list,
+                'resource-list': resource_list
             }
         self.execute(_read_defaults_helper, token)
 
