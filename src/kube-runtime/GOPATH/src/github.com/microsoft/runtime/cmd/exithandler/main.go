@@ -19,19 +19,21 @@ func init() {
 func main() {
 	argsWithoutProg := os.Args[1:]
 
-	if len(argsWithoutProg) < 4 {
+	if len(argsWithoutProg) < 5 {
 		log.Error("args is not valid")
 		os.Exit(255)
 	}
 
-	userLog := argsWithoutProg[0]
-	runtimeErrorLog := argsWithoutProg[1]
-	aggFilePath := argsWithoutProg[2]
-	userExitCode, err := strconv.Atoi(argsWithoutProg[3])
+	userExitCode, err := strconv.Atoi(argsWithoutProg[0])
 	if err != nil {
 		log.Error("user exit code is not an int value", err)
 		os.Exit(defaultExitCode)
 	}
+
+	userLog := argsWithoutProg[1]
+	runtimeErrorLog := argsWithoutProg[2]
+	aggFilePath := argsWithoutProg[3]
+	patternPath := argsWithoutProg[4]
 
 	logFiles := aggregator.LogFiles{}
 	logFiles.UserLog = userLog
@@ -49,7 +51,7 @@ func main() {
 		goto DUMP_RESULT
 	}
 
-	err = a.LoadRuntimeErrorSpecs("failurePatterns.yml")
+	err = a.LoadRuntimeErrorSpecs(patternPath)
 	if err != nil {
 		log.Error("load runtime error spec failed")
 		goto DUMP_RESULT
