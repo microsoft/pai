@@ -25,7 +25,27 @@ const runtimeEnv = require('./runtime-env');
 const launcherConfig = require('@pai/config/launcher');
 const createError = require('@pai/utils/error');
 const userModel = require('@pai/models/v2/user');
+const env = require('@pai/utils/env');
+const path = require('path');
+const fs = require('fs');
+const _ = require('lodash');
 
+let exitSpecPath;
+if (process.env[env.exitSpecPath]) {
+  exitSpecPath = process.env[env.exitSpecPath];
+  if (!path.isAbsolute(exitSpecPath)) {
+    exitSpecPath = path.resolve(__dirname, '../../../../', exitSpecPath);
+  }
+} else {
+  exitSpecPath = '/job-exit-spec-configuration/job-exit-spec.yaml';
+}
+const exitSpecList = yaml.safeLoad(fs.readFileSync(exitSpecPath));
+const positiveFallbackExitCode = 256;
+const negativeFallbackExitCode = -8000;
+const exitSpecMap = {};
+exitSpecList.forEach((val) => {
+  exitSpecMap[val.code] = val;
+});
 
 const convertName = (name) => {
   // convert framework name to fit framework controller spec
@@ -181,16 +201,16 @@ const convertFrameworkDetail = async (framework) => {
       appLaunchedTime: new Date(framework.metadata.creationTimestamp).getTime(),
       appCompletedTime: new Date(framework.status.completionTime).getTime(),
       appExitCode: completionStatus ? completionStatus.code : null,
-      appExitSpec: {}, // TODO
+      appExitSpec: completionStatus ? generateExitSpec(completionStatus.code) : generateExitSpec(null),
       appExitDiagnostics: completionStatus ? completionStatus.diagnostics : null,
-      appExitMessages: {
-        container: null,
-        runtime: null,
-        launcher: null,
-      },
+      appExitMessages: completionStatus ? {
+        container: extractContainerStderr(completionStatus.diagnostics),
+        runtime: extractRuntimeOutput(completionStatus.diagnostics),
+        launcher: extractLauncherOutput(completionStatus.code, completionStatus.diagnostics),
+      } : null,
       appExitTriggerMessage: completionStatus ? completionStatus.diagnostics : null,
-      appExitTriggerTaskRoleName: null, // TODO
-      appExitTriggerTaskIndex: null, // TODO
+      appExitTriggerTaskRoleName: completionStatus && completionStatus.trigger ? completionStatus.trigger.taskRoleName : null,
+      appExitTriggerTaskIndex: completionStatus && completionStatus.trigger ? completionStatus.trigger.taskIndex : null,
       appExitType: completionStatus ? completionStatus.type.name : null,
       virtualCluster: framework.metadata.labels ? framework.metadata.labels.virtualCluster : 'unknown',
     },
@@ -619,6 +639,66 @@ const getSshInfo = async (frameworkName) => {
   throw createError('Not Found', 'NoJobSshInfoError', `SSH info of job ${frameworkName} is not found.`);
 };
 
+const extractContainerStderr = (diag) => {
+  if (_.isEmpty(diag)) {
+    return null;
+  }
+  const anchor1 = /ExitCodeException exitCode.*?:/;
+  const anchor2 = /at org\.apache\.hadoop\.util\.Shell\.runCommand/;
+  const match1 = diag.match(anchor1);
+  const match2 = diag.match(anchor2);
+  if (match1 !== null && match2 !== null) {
+    const start = match1.index + match1[0].length;
+    const end = match2.index;
+    return diag.substring(start, end).trim();
+  }
+};
+
+const extractRuntimeOutput = (diag) => {
+  if (_.isEmpty(diag)) {
+    return null;
+  }
+  const anchor1 = /\[PAI_RUNTIME_ERROR_START\]/;
+  const anchor2 = /\[PAI_RUNTIME_ERROR_END\]/;
+  const match1 = diag.match(anchor1);
+  const match2 = diag.match(anchor2);
+  if (match1 !== null && match2 !== null) {
+    const start = match1.index + match1[0].length;
+    const end = match2.index;
+    const output = diag.substring(start, end).trim();
+    return yaml.safeLoad(output);
+  }
+};
+
+const extractLauncherOutput = (diag, code) => {
+  if (_.isEmpty(diag) || code > 0) {
+    return null;
+  }
+  const re = /^(.*)$/m;
+  return diag.match(re)[0].trim();
+};
+
+const generateExitSpec = (code) => {
+  if (!_.isNil(code)) {
+    if (!_.isNil(exitSpecMap[code])) {
+      return exitSpecMap[code];
+    } else {
+      if (code > 0) {
+        return {
+          ...exitSpecMap[positiveFallbackExitCode],
+          code,
+        };
+      } else {
+        return {
+          ...exitSpecMap[negativeFallbackExitCode],
+          code,
+        };
+      }
+    }
+  } else {
+    return null;
+  }
+};
 
 // module exports
 module.exports = {
