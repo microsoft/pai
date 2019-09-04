@@ -92,7 +92,7 @@ taskRoles:
         python tf_cnn_benchmarks.py --job_name=worker
         --local_parameter_device=gpu
         --variable_update=parameter_server
-        --ps_hosts=$PAI_TASK_ROLE_ps_server_HOST_LIST
+        --ps_hosts=$PAI_TASK_ROLE_psserver_HOST_LIST
         --worker_hosts=$PAI_TASK_ROLE_worker_HOST_LIST
         --task_index=$PAI_CURRENT_TASK_ROLE_CURRENT_TASK_INDEX
         --data_name=<% $data.name %>
@@ -100,7 +100,7 @@ taskRoles:
         --train_dir=$PAI_WORK_DIR/output_<% $output.name %>
         --model=<% $parameters.model %>
         --batch_size=<% $parameters.batchsize %>
-  ps_server:
+  psserver:
     instances: 1
     completion:
       minSucceededInstances: 1
@@ -111,14 +111,14 @@ taskRoles:
     resourcePerInstance:
       cpu: 2
       memoryMB: 16384
-      gpu: 0
+      gpu: 1
     commands:
       - cd script_<% $script.name %>/scripts/tf_cnn_benchmarks
       - >
         python tf_cnn_benchmarks.py --job_name=ps
         --local_parameter_device=gpu
         --variable_update=parameter_server
-        --ps_hosts=$PAI_TASK_ROLE_ps_server_HOST_LIST
+        --ps_hosts=$PAI_TASK_ROLE_psserver_HOST_LIST
         --worker_hosts=$PAI_TASK_ROLE_worker_HOST_LIST
         --task_index=$PAI_CURRENT_TASK_ROLE_CURRENT_TASK_INDEX
         --data_dir=$PAI_WORK_DIR/data_<% $data.name %>
@@ -136,7 +136,7 @@ deployments:
           - >
             git clone <% $script.uri %> script_<% $script.name %> &&
             cd script_<% $script.name %> && git checkout <% $script.version %> && cd ..
-      ps_server:
+      psserver:
         preCommands:
           - wget -qO- <% $data.uri[0] %> | tar xvz && mv cifar-10-batches-py data_<% $data.name %>
           - >
