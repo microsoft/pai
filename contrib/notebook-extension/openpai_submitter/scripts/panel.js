@@ -184,7 +184,8 @@ function (requirejs, $, Jupyter, events, config, Interface, Utils) {
         var resourceMenu = ''
         for (var item of data['resource-list']){
           var memoryGB = parseInt(item['memoryMB'] / 1024)
-          resourceMenu += '<option data-gpu="' + item['gpu'] + '" data-cpu="'+item['cpu']+'" data-memory="'+item['memoryMB']+'">'+ item['gpu']+' GPU, '+item['cpu']+' vCores CPU, '+memoryGB+' GB memory</option>\n'
+          var optionValue = item['gpu'] + ',' + item['cpu'] + ',' + item['memoryMB']
+          resourceMenu += '<option data-gpu="' + item['gpu'] + '" data-cpu="'+item['cpu']+'" data-memory="'+item['memoryMB']+'" value="' + optionValue +'">'+ item['gpu']+' GPU, '+item['cpu']+' vCores CPU, '+memoryGB+' GB memory</option>\n'
         }
         resourceMenu = $('<select name="resource-menu" id="resource-menu">' + resourceMenu + '</select>')
         var imageAliasDict = {
@@ -203,13 +204,31 @@ function (requirejs, $, Jupyter, events, config, Interface, Utils) {
          }
         imageMenu = $('<select name="docker-image-menu" id="docker-image-menu">' + imageMenu + '</select>')
         // select the first option
-        $(resourceMenu.find('option')[0]).attr('selected', 'selected')
-        $(imageMenu.find('option')[0]).attr('selected', 'selected')
+        
         // append to html
         $('#resource-menu').remove()
         $('#docker-image-menu').remove()
         $('#resouce-menu-label').after(resourceMenu)
         $('#docker-image-menu-label').after(imageMenu)
+        // select option
+        var formMenu = $('#submit-form-menu')
+        formMenu.find('option').removeAttr('selected')
+        resourceMenu.find('option').removeAttr('selected')
+        imageMenu.find('option').removeAttr('selected')
+        function selectOption(menu, value){
+          if (value){
+            var option = menu.find('option[value="' + value + '"]')
+            if (option.length > 0)
+              option.attr('selected', 'selected')
+            else
+              $(menu.find('option')[0]).attr('selected', 'selected')
+          }
+          else
+            $(menu.find('option')[0]).attr('selected', 'selected')
+        }
+        selectOption(formMenu, data['web-default-form'])
+        selectOption(resourceMenu, data['web-default-resource'])
+        selectOption(imageMenu, data['web-default-image'])
       }).then(
         () =>
           Interface.tell_resources().then(function (data) {

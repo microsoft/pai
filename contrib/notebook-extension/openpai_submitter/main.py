@@ -106,9 +106,18 @@ class openpai_ext_Interface(object):
                 resource_list = JobResource.parse_list(LayeredSettings.get('resource-list'))
             return {
                 'image-list': image_list,
-                'resource-list': resource_list
+                'resource-list': resource_list,
+                'web-default-form': LayeredSettings.get('web-default-form'),
+                'web-default-image': LayeredSettings.get('web-default-image'),
+                'web-default-resource': LayeredSettings.get('web-default-resource'),
             }
         self.execute(_read_defaults_helper, token)
+
+    def __set_selected(self, ctx):
+        from openpaisdk import LayeredSettings
+        LayeredSettings.update('global_default', 'web-default-form', ctx['form'])
+        LayeredSettings.update('global_default', 'web-default-image', ctx['docker_image'])
+        LayeredSettings.update('global_default', 'web-default-resource', ','.join([str(ctx['gpu']), str(ctx['cpu']), str(ctx['memoryMB'])]))
 
     def __submit_job_helper(self, ctx):
         import tempfile
@@ -118,6 +127,9 @@ class openpai_ext_Interface(object):
         from openpaisdk.notebook import get_notebook_path
         from openpaisdk import LayeredSettings
         import yaml
+
+        # save settings
+        self.__set_selected(ctx)
 
         # setting layers description
         # layer name     | from                                 : priority

@@ -95,7 +95,19 @@ class __flags__(object):
                 "default": [],
                 "action": "append",
                 "help": "list of resource specs that are frequently used"
-            }
+            },
+            {
+                "name": "web-default-form",
+                "help": "web-default-form (in Submitter)"
+            },
+            {
+                "name": "web-default-image",
+                "help": "web-default-image (in Submitter)"
+            },
+            {
+                "name": "web-default-resource",
+                "help": "web-default-resource (in Submitter), format: '<gpu>,<cpu>,<memoryMB>'"
+            },
         ] + __flags__.custom_predefined
 
     @staticmethod
