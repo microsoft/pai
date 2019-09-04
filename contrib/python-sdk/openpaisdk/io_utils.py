@@ -184,12 +184,3 @@ def to_file(obj, fname: str, fmt=None, **kwargs):
     with safe_open(fname, 'w') as fp:
         fmt.dump(obj, fp, **dic)
         __logger__.debug("serialize object to file %s", fname)
-
-
-def to_screen(s, **kwargs):
-    if __flags__.disable_to_screen:
-        return
-    if isinstance(s, str):
-        print(s, **kwargs, flush=True)
-    else:
-        print(yaml.dump(s, default_flow_style=False, **kwargs), flush=True)
