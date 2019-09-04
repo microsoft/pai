@@ -66,13 +66,13 @@ For more details, please refer to [PyCharm Remote Development](https://www.jetbr
 
 ## Others
 
-### PAIPDB
+### PDB
 
 This tool contains two debug modes:
-- Start remote debugging when job task starts -
+- Trailing remote debugging when job task starts -
 - Inject the breakpoint in source code and start debugging when hit the breakpoint.
 
-For more details, please refer to [PAIPDB](https://github.com/microsoft/pai/blob/master/contrib/debug-tools/docs/remote-debug-pai-job.md).
+For more details, please refer to [PDB](https://github.com/microsoft/pai/blob/master/contrib/debug-tools/docs/remote-debug-pai-job.md).
 
 ### Remote-dev-tool
 
