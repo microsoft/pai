@@ -49,6 +49,10 @@ import StatusBadge from '../../components/status-badge';
 const {palette} = getTheme();
 
 const AbnormalJobList = ({jobs, style}) => {
+  const [abnormalJobs, setAbnormalJobs] = useState(jobs);
+  const [hideDialog, setHideDialog] = useState(true);
+  const [currentJob, setCurrentJob] = useState(null);
+
   const jobListColumns = [
     {
       key: 'name',
@@ -188,11 +192,7 @@ const AbnormalJobList = ({jobs, style}) => {
         setAbnormalJobs(cloneJobs);
       }).catch(alert);
     });
-  }, [abnormalJobs]);
-
-  const [abnormalJobs, setAbnormalJobs] = useState(jobs);
-  const [hideDialog, setHideDialog] = useState(true);
-  const [currentJob, setCurrentJob] = useState(null);
+  }, [abnormalJobs, setAbnormalJobs]);
 
   return (
     <Card className={c(t.h100, t.ph5)} style={style}>
@@ -204,7 +204,7 @@ const AbnormalJobList = ({jobs, style}) => {
             linkHref='/job-list.html'
             showLink
           >
-            <TooltipIcon content={'A job is treaded as an abnormal job if running more than 5 days and GPU usage is lower than 10%'}/>
+            <TooltipIcon content={'A job is treaded as an abnormal job if running more than 5 days or GPU usage is lower than 10%'}/>
           </Header>
         </Stack.Item>
         <Stack.Item styles={{root: {overflow: 'auto'}}} grow>
