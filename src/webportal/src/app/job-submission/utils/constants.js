@@ -114,32 +114,32 @@ All lines will be concatenated by "&&". So do not use characters like "#", "\\" 
 export const DOCKER_OPTIONS = [
   {
     key: 'tensorflow-gpu-python3.6',
-    text: 'tensorflow+python3.6 with gpu, cuda 9.0 (image: openpai/tensorflow-py36-cu90)',
+    text: 'tensorflow1.12 + python3.6 with gpu, cuda 9.0 (image: openpai/tensorflow-py36-cu90)',
     image: 'openpai/tensorflow-py36-cu90',
   },
   {
     key: 'tensorflow-cpu-python3.6',
-    text: 'tensorflow+python3.6 with cpu (image: openpai/tensorflow-py36-cpu)',
+    text: 'tensorflow2.0dev + python3.6 with cpu (image: openpai/tensorflow-py36-cpu)',
     image: 'openpai/tensorflow-py36-cpu',
   },
   {
     key: 'tensorflow-gpu-python2.7',
-    text: 'tensorflow+python2.7 with gpu, cuda 9.0 (image: openpai/tensorflow-py27-cu90)',
+    text: 'tensorflow1.12 + python2.7 with gpu, cuda 9.0 (image: openpai/tensorflow-py27-cu90)',
     image: 'openpai/tensorflow-py27-cu90',
   },
   {
     key: 'tensorflow-cpu-python2.7',
-    text: 'tensorflow+python2.7 with cpu (image: openpai/tensorflow-py27-cpu)',
+    text: 'tensorflow1.12 + python2.7 with cpu (image: openpai/tensorflow-py27-cpu)',
     image: 'openpai/tensorflow-py27-cpu',
   },
   {
     key: 'pytorch-gpu',
-    text: 'pytorch+python3.6 with gpu, cuda 9.0 (image: openpai/pytorch-py36-cu90)',
+    text: 'pytorch1.0 + python3.6 with gpu, cuda 9.0 (image: openpai/pytorch-py36-cu90)',
     image: 'openpai/pytorch-py36-cu90',
   },
   {
     key: 'pytorch-cpu',
-    text: 'pytorch+python3.6 with cpu (image: openpai/pytorch-py36-cpu)',
+    text: 'pytorch1.2 + python3.6 with cpu (image: openpai/pytorch-py36-cpu)',
     image: 'openpai/pytorch-py36-cpu',
   },
 ];

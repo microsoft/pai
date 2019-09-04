@@ -60,7 +60,6 @@ const deleteGroup = async (groupname) => {
   const userModel = require('@pai/models/v2/user');
   const ret = await crudGroup.remove(groupname, crudConfig);
   // delete group from all user info
-  logger.info('Init user list to update.');
   let userList = await userModel.getAllUser();
   let updateUserList = [];
   for (const userItem of userList) {
@@ -70,14 +69,8 @@ const deleteGroup = async (groupname) => {
     }
   }
   if (updateUserList.length !== 0) {
-    logger.info('User list to be updated has been prepared.');
-    logger.info('Begin to update user\' group list.');
-    await Promise.all(updateUserList.map(async (userData) => {
-      await userModel.updateUser(userData['username'], userData);
-    }));
-    logger.info('Update group info successfully.');
-  } else {
-    logger.info('No user\' grouplist need to be updated.');
+    logger.info(`Delete group ${groupname} from user list.`);
+    await userModel.batchUpdateUsers(updateUserList);
   }
   return ret;
 };
@@ -202,6 +195,15 @@ const createGroupIfNonExistent = async (groupname, groupValue) => {
 //     externalName2Groupname[groupItem.externalName] = groupItem.groupname;
 //   }
 // };
+
+const filterExistGroups = async (groupList) => {
+  const allGroupItems = await getAllGroup();
+  const allGroupSet = new Set(Array.from(allGroupItems, (groupItem) => groupItem.groupname));
+  const existGroupList = groupList.filter((groupname) => {
+    return allGroupSet.has(groupname);
+  });
+  return existGroupList;
+};
 
 // hack for basic mode, assume every vc have a same name group
 const virtualCluster2GroupList = async (virtualCluster) => {
@@ -404,6 +406,28 @@ const syncGroupsWithVCs = async () => {
   }));
 };
 
+const deleteInexistGroupFromUserlist = async () => {
+  const userModel = require('@pai/models/v2/user');
+  const allGroupItems = await getAllGroup();
+  const allGroupSet = new Set(Array.from(allGroupItems, (groupItem) => groupItem.groupname));
+  let userList = await userModel.getAllUser();
+  let updateUserList = [];
+  for (const userItem of userList) {
+    const originGrouplist = userItem.grouplist;
+    const newGrouplist = originGrouplist.filter((groupname) => {
+      return allGroupSet.has(groupname);
+    });
+    if (originGrouplist.length !== newGrouplist.length) {
+      userItem.grouplist = newGrouplist;
+      updateUserList.push(userItem);
+    }
+  }
+  if (updateUserList.length !== 0) {
+    logger.info('Update User group list.');
+    await userModel.batchUpdateUsers(updateUserList);
+  }
+};
+
 const groupAndUserDataInit = async () => {
   // init configuration groups
   await initGrouplistInCfg();
@@ -412,7 +436,9 @@ const groupAndUserDataInit = async () => {
   if (authConfig.authnMethod !== 'OIDC') {
     // create default admin user
     await createDefaultAdminUser();
+    // fix inconsistence
     await syncGroupsWithVCs();
+    await deleteInexistGroupFromUserlist();
   } else {
     // load all groupname and their external name
     await updateGroup2ExnternalMapper();
@@ -450,4 +476,5 @@ module.exports = {
   getGroupVCs,
   getGroupsVCs,
   getVCsWithGroupInfo,
+  filterExistGroups,
 };

@@ -19,7 +19,7 @@ import c from 'classnames';
 import {isEmpty} from 'lodash';
 import PropTypes from 'prop-types';
 import querystring from 'querystring';
-import {Icon, Stack, FontClassNames, ColorClassNames, DefaultButton, getTheme} from 'office-ui-fabric-react';
+import {Icon, Stack, FontClassNames, ColorClassNames, DefaultButton, getTheme, FontWeights} from 'office-ui-fabric-react';
 import React from 'react';
 
 import Card from '../../components/card';
@@ -34,25 +34,24 @@ const StatusItem = ({className, icon, name, count, link}) => {
     <Stack
       styles={{root: [{minWidth: 280}, className]}}
       horizontal
-      horizontalAlign='space-between'
       verticalAlign='center'
       padding='s1'
       gap='m'
     >
-      <Stack.Item>
-        <div className={c(t.flex, t.itemsCenter, t.justifyStart)}>
-          <div>
-            <Icon className={ColorClassNames.neutralSecondary} iconName={icon} />
+      <Stack.Item grow>
+        <Stack horizontal verticalAlign='center' gap='l1'>
+          <div className={c(t.flex, t.itemsCenter, t.justifyStart)} style={{width: '33%', minWidth: 120}}>
+            <div>
+              <Icon className={ColorClassNames.neutralSecondary} iconName={icon} />
+            </div>
+            <div className={c(ColorClassNames.neutralSecondary, FontClassNames.large)} style={{marginLeft: spacing.m}}>
+              {name}
+            </div>
           </div>
-          <div className={c(ColorClassNames.neutralSecondary, FontClassNames.large)} style={{width: '80px', marginLeft: spacing.s2}}>
-            {name}
+          <div className={c(FontClassNames.xLarge)} style={{fontWeight: FontWeights.semibold}}>
+            {count}
           </div>
-        </div>
-      </Stack.Item>
-      <Stack.Item>
-        <div className={c(FontClassNames.xLarge)}>
-          {count}
-        </div>
+        </Stack>
       </Stack.Item>
       <Stack.Item>
         <DefaultButton
@@ -73,7 +72,7 @@ StatusItem.propTypes = {
   link: PropTypes.string.isRequired,
 };
 
-const JobStatus = ({className, jobs}) => {
+const JobStatus = ({className, style, jobs}) => {
   let waiting = 0;
   let running = 0;
   let stopped = 0;
@@ -87,7 +86,7 @@ const JobStatus = ({className, jobs}) => {
     succeeded = jobs.filter((x) => getHumanizedJobStateString(x) === 'Succeeded').length;
   }
   return (
-    <Card className={c(className, t.ph5)}>
+    <Card className={c(className, t.ph5)} style={style}>
       <Stack gap='l1'>
         <Stack.Item>
           <div className={FontClassNames.mediumPlus}>
@@ -154,6 +153,7 @@ const JobStatus = ({className, jobs}) => {
 
 JobStatus.propTypes = {
   className: PropTypes.string,
+  style: PropTypes.object,
   jobs: PropTypes.array,
 };
 

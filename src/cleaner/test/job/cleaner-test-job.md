@@ -6,9 +6,9 @@
 
 #### How to use cleaner test job <a name="HT_Use"></a>
 
-1. Go to PAI web portal, click Submit Job in left toolbar.
-2. Import job json file. (cleaner-test-job.json)
-3. Change variables in command text field if needed.
+1. Go to PAI web portal, enter job submission page.
+2. Import job yaml file. (cleaner-test-job.yaml)
+3. Change parameters if needed.
 4. Click Submit button to submit job.
 5. Go to Jobs page, keep monitoring the job you just submitted. 
 6. If everything work as expected, the job will fail due to killed by cleaner. Click "Go to Tracking Page", you will find info "Docker container killed by cleaner due to disk pressure" in the end.
@@ -17,17 +17,11 @@
 
 In the job page, use the following command to run cleaner test:
 ```sh
-sh /cleaner-test/cleaner-test.sh <threshold> <time>
+sh /cleaner-test/cleaner-test.sh <% $parameters.threshold %> <% $parameters.time %>
 ```
-Variables:
- - threshold: Test job will fill the disk to (threshold + 1)%. Please adjust this value according to cleaner threshold settings.
- - time: The time cost that job fill disk to (threshold + 1)%.
-
-By default, the run command should be:
-```sh
-sh /cleaner-test/cleaner-test.sh 94 180
-```
-
+Set parameters:
+ - threshold: Test job will fill the disk to (threshold + 1)%. Please adjust this value according to cleaner threshold settings. Default value is 94.
+ - time: The time cost that job fill disk to (threshold + 1)%. Default value is 30.
 
 #### How to build job docker image <a name="HT_Image"></a>
 

@@ -17,7 +17,7 @@
 
 import PropTypes from 'prop-types';
 import React, {useRef, useState, useMemo} from 'react';
-import {CommandBarButton, TextField, Stack, ColorClassNames, getTheme} from 'office-ui-fabric-react';
+import {CommandBarButton, Stack, ColorClassNames, getTheme, SearchBox} from 'office-ui-fabric-react';
 
 const NO_RESULT_KEY = 'NO_RESULT';
 
@@ -27,6 +27,7 @@ const FilterButton = ({items, selectedItems, onSelect, searchBox, searchBoxText,
   const [keyword, setKeyword] = useState('');
   const {spacing} = getTheme();
 
+  // filter by keyword
   let menuItems = items
     .filter((name) => name.startsWith(keyword || ''))
     .map((name) => ({
@@ -45,6 +46,8 @@ const FilterButton = ({items, selectedItems, onSelect, searchBox, searchBoxText,
         onSelect(Array.from(res));
       },
     }));
+
+  // no result placeholder
   if (menuItems.length === 0) {
     menuItems = [
       {
@@ -77,11 +80,20 @@ const FilterButton = ({items, selectedItems, onSelect, searchBox, searchBoxText,
             <Stack>
               {searchBox && (
                 <div>
-                  <div style={{padding: spacing.s1}}>
-                    <TextField
+                  <div style={{padding: spacing.s1, minWidth: 240}}>
+                    <SearchBox
+                      styles={{
+                        field: {
+                          selectors: {
+                            '::placeholder': {
+                              fontStyle: 'italic',
+                            },
+                          },
+                        },
+                      }}
                       placeholder={searchBoxText || 'Filter'}
                       value={keyword}
-                      onChange={(e, v) => setKeyword(v)}
+                      onChanged={(val) => setKeyword(val)}
                     />
                   </div>
                   <hr

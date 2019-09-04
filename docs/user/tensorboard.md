@@ -43,3 +43,14 @@ extras:
 ```
 
 And TensorBoard injection commands will update automatically.
+
+## 4. Sample
+
+We prepared a sample job to show how to use TensorBoard.
+
+You can import this [tensorboard_sample.yaml](./samples/tensorboard_sample.yaml) and upload [minist_tensorboard.py](./samples/minist_tensorboard.py) to `/pai_data/test/` in PAI's webportal.
+
+If the sample job runs well, you can see the TensorBoard page like this:
+
+![](./samples/tensorboard_sample.png)
+

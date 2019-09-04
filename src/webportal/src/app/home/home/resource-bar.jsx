@@ -32,7 +32,7 @@ export const ResourceBar = ({name, percentage, tailInfo, barHeight}) => {
   return (
     <Stack horizontal gap="s1" styles={{root: {height: curBarHeigh}}}>
       <StackItem styles={{root: {width: 50}}} align='center'>
-        <Text variant={FontSizes.xSmall}>{name}</Text>
+        <Text variant='small'>{name}</Text>
       </StackItem>
       <StackItem grow styles={{root: {position: 'relative'}}}>
         <Stack horizontal styles={{root: {height: '100%', width: '100%'}}}>

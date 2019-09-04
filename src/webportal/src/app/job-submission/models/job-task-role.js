@@ -34,7 +34,7 @@ import {DEFAULT_DOCKER_URI} from '../utils/constants';
 export class JobTaskRole {
   constructor(props) {
     const {name, instances, dockerInfo, ports, commands, completion, deployment, containerSize,
-           isContainerSizeEnabled, taskRetryCount} = props;
+           isContainerSizeEnabled, taskRetryCount, extraOptions} = props;
     this.name = name || '';
     this.instances = instances || 1;
     this.dockerInfo = dockerInfo || new DockerInfo({uri: DEFAULT_DOCKER_URI});
@@ -45,6 +45,7 @@ export class JobTaskRole {
     this.containerSize = containerSize || getDefaultContainerSize();
     this.isContainerSizeEnabled = isContainerSizeEnabled || false;
     this.taskRetryCount = taskRetryCount || 0;
+    this.extraOptions = extraOptions || {};
   }
 
   static fromProtocol(name, taskRoleProtocol, deployments, prerequisites, secrets) {
@@ -59,6 +60,12 @@ export class JobTaskRole {
     const ports = isNil(resourcePerInstance.ports) ? [] :
       Object.entries(resourcePerInstance.ports).map(([key, value]) => ({key, value: value.toString()}));
     const taskRetryCount = get(taskRoleProtocol, 'taskRetryCount', 0);
+    const extraOptions = removeEmptyProperties({
+      data: get(taskRoleProtocol, 'data'),
+      output: get(taskRoleProtocol, 'output'),
+      script: get(taskRoleProtocol, 'script'),
+      shmMB: get(taskRoleProtocol, 'extraContainerOptions.shmMB'),
+    });
 
     const jobTaskRole = new JobTaskRole({
       name: name,
@@ -70,6 +77,7 @@ export class JobTaskRole {
       dockerInfo: DockerInfo.fromProtocol(dockerInfo, secrets),
       ports: ports,
       taskRetryCount: taskRetryCount,
+      extraOptions,
     });
 
     if (!isDefaultContainerSize(jobTaskRole.containerSize)) {
@@ -101,10 +109,16 @@ export class JobTaskRole {
     taskRole[this.name] = removeEmptyProperties({
       instances: this.instances,
       completion: this.completion,
+      taskRetryCount: this.taskRetryCount,
       dockerImage: this.dockerInfo.name,
+      data: this.extraOptions.data,
+      output: this.extraOptions.output,
+      script: this.extraOptions.script,
+      extraContainerOptions: removeEmptyProperties({
+        shmMB: this.extraOptions.shmMB,
+      }),
       resourcePerInstance: resourcePerInstance,
       commands: isEmpty(this.commands) ? [] : this.commands.trim().split('\n').map((line)=>(line.trim())),
-      taskRetryCount: this.taskRetryCount,
     });
 
     return taskRole;

@@ -16,10 +16,11 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 import {ThemeProvider} from '@uifabric/foundation';
-import {createTheme, ColorClassNames, FontClassNames, FontSizes} from '@uifabric/styling';
+import {createTheme, ColorClassNames, FontClassNames, FontSizes, getTheme} from '@uifabric/styling';
 import c from 'classnames';
+import copy from 'copy-to-clipboard';
 import {capitalize, isEmpty, isNil, flatten} from 'lodash';
-import {CommandBarButton, PrimaryButton, TooltipHost, DirectionalHint, Icon} from 'office-ui-fabric-react';
+import {CommandBarButton, PrimaryButton, TooltipHost, DirectionalHint, Icon, Stack, IconButton} from 'office-ui-fabric-react';
 import {DetailsList, SelectionMode, DetailsRow, DetailsListLayoutMode} from 'office-ui-fabric-react/lib/DetailsList';
 import PropTypes from 'prop-types';
 import React from 'react';
@@ -62,6 +63,57 @@ const theme = createTheme({
 });
 
 const interval = 10000;
+
+const IPTooltipContent = ({ip}) => {
+  return (
+    <div>
+      <Stack horizontal verticalAlign='center'>
+        <div>{`Container IP: ${ip}`}</div>
+        <div>
+          <IconButton
+            iconProps={{iconName: 'Copy'}}
+            styles={{icon: [{fontSize: FontSizes.small}]}}
+            onClick={() => copy(ip)}
+          />
+        </div>
+      </Stack>
+    </div>
+  );
+};
+
+IPTooltipContent.propTypes = {
+  ip: PropTypes.string,
+};
+
+
+const PortTooltipContent = ({ports}) => {
+  const {spacing} = getTheme();
+  return (
+    <div>
+      <table>
+        <tbody>
+          {Object.entries(ports).map(([key, val]) => (
+            <tr key={`port-${key}`}>
+              <td style={{padding: spacing.s2}}>{`${key}:`}</td>
+              <td style={{padding: spacing.s2}}>{val}</td>
+              <td>
+                <IconButton
+                  iconProps={{iconName: 'Copy'}}
+                  styles={{icon: [{fontSize: FontSizes.small}]}}
+                  onClick={() => copy(val)}
+                />
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+};
+
+PortTooltipContent.propTypes = {
+  ports: PropTypes.object,
+};
 
 export default class TaskRoleContainerList extends React.Component {
   constructor(props) {
@@ -198,6 +250,26 @@ export default class TaskRoleContainerList extends React.Component {
         maxWidth: 140,
         isResizable: true,
         fieldName: 'containerIp',
+        onRender: (item) => {
+          const ip = item.containerIp;
+          return !isNil(ip) && (
+            <div>
+              <TooltipHost
+                calloutProps={{
+                  isBeakVisible: false,
+                }}
+                tooltipProps={{
+                  onRenderContent: () => (
+                    <IPTooltipContent ip={ip} />
+                  ),
+                }}
+                directionalHint={DirectionalHint.topLeftEdge}
+              >
+                <div>{ip}</div>
+              </TooltipHost>
+            </div>
+          );
+        },
       },
       {
         key: 'ports',
@@ -210,10 +282,24 @@ export default class TaskRoleContainerList extends React.Component {
         onRender: (item) => {
           const ports = item.containerPorts;
           return !isNil(ports) && (
-            <div className={c(t.truncate)}>
-              {flatten(Object.keys(ports).map(
-                (key, idx) => [idx !== 0 && <span className={t.ml2} key={`gap-${idx}`}></span>, `${key}: ${ports[key]}`]
-              ))}
+            <div>
+              <TooltipHost
+                calloutProps={{
+                  isBeakVisible: false,
+                }}
+                tooltipProps={{
+                  onRenderContent: () => (
+                    <PortTooltipContent ports={ports} />
+                  ),
+                }}
+                directionalHint={DirectionalHint.topLeftEdge}
+              >
+                <div className={c(t.truncate)}>
+                  {flatten(Object.entries(ports).map(
+                    ([key, val], idx) => [idx !== 0 && <span className={t.ml2} key={`gap-${idx}`}></span>, `${key}: ${val}`]
+                  ))}
+                </div>
+              </TooltipHost>
             </div>
           );
         },
@@ -250,12 +336,12 @@ export default class TaskRoleContainerList extends React.Component {
                   }}
                   directionalHint={DirectionalHint.topLeftEdge}
                 >
-                  <div>
-                    <span>
-                      {gpuAttr.length}
-                      <Icon iconName='Info' styles={{root: [{fontSize: FontSizes.small, verticalAlign: 'bottom'}, t.ml2, ColorClassNames.neutralSecondary]}} />
-                    </span>
-                  </div>
+                  <Stack horizontal gap='s1'>
+                    <div>{gpuAttr.length}</div>
+                    <div>
+                      <Icon iconName='Info' styles={{root: [{fontSize: FontSizes.small}, ColorClassNames.neutralSecondary]}} />
+                    </div>
+                  </Stack>
                 </TooltipHost>
               </div>
             );
@@ -328,7 +414,9 @@ export default class TaskRoleContainerList extends React.Component {
                       name: 'Full log',
                       iconProps: {iconName: 'TextDocument'},
                       disabled: isNil(item.containerId),
-                      onClick: () => this.showContainerLog(`${item.containerLog}user.pai.all`, 'User logs (Last 4096 bytes)'),
+                      onClick: () => this.showContainerLog(
+                        `${item.containerLog}user.pai.all`,
+                        'User logs (Last 4096 bytes. Notice: The logs may out of order when merging stdout & stderr streams)'),
                     },
                     {
                       key: 'yarnTrackingPage',
