@@ -20,10 +20,12 @@ cluster-type:
 
 prerequisite:
   - cluster-configuration
+  - k8s-frameworkcontroller
   - drivers
 
 template-list:
-  - k8s-frameworkcontroller.yaml
+  - hivedscheduler.yaml
+  - hivedscheduler-config.yaml
 
 start-script: start.sh
 stop-script: stop.sh

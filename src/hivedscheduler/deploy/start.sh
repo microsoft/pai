@@ -1,3 +1,5 @@
+#!/bin/bash
+
 # Copyright (c) Microsoft Corporation
 # All rights reserved.
 #
@@ -15,21 +17,16 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-cluster-type:
-  - k8s
+pushd $(dirname "$0") > /dev/null
 
-prerequisite:
-  - cluster-configuration
-  - drivers
+kubectl apply --overwrite=true -f https://raw.githubusercontent.com/NVIDIA/k8s-device-plugin/1.0.0-beta/nvidia-device-plugin.yml || exit $?
 
-template-list:
-  - k8s-frameworkcontroller.yaml
+kubectl apply --overwrite=true -f configmap.yaml || exit $?
+kubectl apply --overwrite=true -f rbac.yaml || exit $?
+kubectl apply --overwrite=true -f hivedscheduler.yaml || exit $?
 
-start-script: start.sh
-stop-script: stop.sh
-delete-script: delete.sh
-refresh-script: refresh.sh
-upgraded-script: upgraded.sh
+sleep 10
+# Wait until the service is ready.
+PYTHONPATH="../../../deployment" python -m k8sPaiLibrary.monitorTool.check_pod_ready_status -w -k app -v hivedscheduler || exit $?
 
-deploy-rules:
-  - in: pai-master
+popd > /dev/null
