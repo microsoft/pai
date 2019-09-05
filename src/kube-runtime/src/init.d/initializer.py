@@ -100,10 +100,10 @@ def init_plugins(jobconfig, commands, plugins_path, runtime_path, taskrole):
             run_script("{}/{}".format(plugin_base_path, plugin_desc["init-script"]), parameters, plugin_scripts)        
 
         if os.path.isfile(plugin_scripts[0]):
-            commands[0].append("/bin/bash {} || exit $?".format(plugin_scripts[0]))
+            commands[0].append("/bin/bash {}".format(plugin_scripts[0]))
 
         if os.path.isfile(plugin_scripts[1]):
-            commands[1].insert(0, "/bin/bash {} || exit $?".format(plugin_scripts[1]))
+            commands[1].insert(0, "/bin/bash {}".format(plugin_scripts[1]))
 
 
 def replace_ref(param_str, jobconfig, taskrole):
