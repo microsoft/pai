@@ -19,6 +19,7 @@
 
 pushd $(dirname "$0") > /dev/null
 
+kubectl apply --overwrite=true -f k8s-frameworkcontroller-config.yaml || exit $?
 kubectl apply --overwrite=true -f k8s-frameworkcontroller.yaml || exit $?
 
 sleep 10

@@ -1,0 +1,829 @@
+# Copyright (c) Microsoft Corporation
+# All rights reserved.
+#
+# MIT License
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
+# documentation files (the "Software"), to deal in the Software without restriction, including without limitation
+# the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and
+# to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+# The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED *AS IS*, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING
+# BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+# NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+# DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+################################################################################
+# PAI Job ExitSpec Schema
+################################################################################
+schema:
+  - field: code
+    description: "The PAI Job ExitCode"
+    required: True
+    unique: True
+    type: Integer
+    range:
+      begin: -8000
+      end: 256
+  - field: phrase
+    description: "The textual phrase representation of this ExitCode"
+    required: True
+    unique: True
+    type: String
+    range: "Any"
+  - field: issuer
+    description: "Who root issued this ExitCode in details"
+    required: False
+    unique: False
+    type: Enum
+    range:
+      - USER_CONTAINER
+      - PAI_OS
+      - PAI_RUNTIME
+      - PAI_DOCKER
+      - PAI_K8S
+      - PAI_FC
+  - field: causer
+    description: "Who root caused this ExitCode in details"
+    required: False
+    unique: False
+    type: Enum
+    range:
+      - USER_SUBMISSION
+      - USER_CONTAINER
+      - USER_STOP
+      - USER_DELETION
+      - USER_RETRY
+      - USER_UPGRADE
+      - USER_UNKNOWN
+      - RESOURCE_ALLOCATION_TIMEOUT
+      - PAI_OS
+      - PAI_DOCKER
+      - PAI_RUNTIME
+      - PAI_K8S
+      - PAI_FC
+      - PAI_UNKNOWN
+      - UNKNOWN
+  - field: type
+    description: "The rough type of this ExitCode"
+    required: False
+    unique: False
+    type: Enum
+    range:
+      - USER_SUCCESS
+      - USER_STOP
+      - USER_FAILURE
+      - PLATFORM_FAILURE
+      - RESOURCE_ALLOCATION_TIMEOUT
+      - UNKNOWN_FAILURE
+  - field: stage
+    description: "The user process stage just before this ExitCode issued"
+    required: False
+    unique: False
+    type: Enum
+    range:
+      - SUBMITTING
+      - ALLOCATING
+      - LAUNCHING
+      - RUNNING
+      - COMPLETING
+      - UNKNOWN
+  - field: behavior
+    description: "The rerun behavior of this ExitCode"
+    required: False
+    unique: False
+    type: Enum
+    range:
+      - TRANSIENT
+      - TRANSIENT_CONFLICT
+      - PERMANENT
+      - UNKNOWN
+  - field: reaction
+    description: "The reaction for this ExitCode will be executed by PAI automatically"
+    required: False
+    unique: False
+    type: Enum
+    range:
+      - ALWAYS_RETRY
+      - ALWAYS_BACKOFF_RETRY
+      - RETRY_TO_MAX
+      - NEVER_RETRY
+  - field: reason
+    description: "Why this ExitCode is issued"
+    required: False
+    unique: False
+    type: String
+    range: "Any"
+  - field: repro
+    description: "One specific reproduce steps of this ExitCode"
+    required: False
+    unique: False
+    type: List<String>
+    range: "Any"
+  - field: solution
+    description: "Some optional solutions to resolve this ExitCode if it indicates failure"
+    required: False
+    unique: False
+    type: List<String>
+    range: "Any"
+  - field: pattern
+    description: "The pattern that PAI used to detect this ExitCode"
+    required: False
+    unique: False
+    type: JobExitPattern
+    # If ANY pattern inside the JobExitPattern is matched, the code is matched.
+    # If multiple codes are matched, prefer to pick the first one.
+    # For a pattern:
+    # ALL its fields are optional and default to match ANY.
+    # It is matched if and only if ALL its fields are matched.
+    range: |-
+      runtimeContainerPatterns:
+      - exitCode:
+        userLogRegex:
+        platformLogRegex:
+      controllerPodPatterns:
+      - reasonRegex:
+        messageRegex:
+        containers:
+        - nameRegex:
+          reasonRegex:
+          messageRegex:
+          exitCode:
+
+################################################################################
+# PAI Job ExitSpec
+################################################################################
+spec:
+###########################################################################
+# Range: [0, 0]
+# Owner: PAI_FC
+# Description: Success ExitCode
+###########################################################################
+- code: 0
+  phrase: Succeeded
+  issuer: USER_CONTAINER
+  causer: USER_CONTAINER
+  type: USER_SUCCESS
+  stage: COMPLETING
+  behavior: UNKNOWN
+  reaction: NEVER_RETRY
+  repro:
+  - "User program exits with exitcode 0"
+
+
+###########################################################################
+# Range: [-999, -1]
+# Owner: PAI_FC
+# Description: PAI_FC issued failures
+###########################################################################
+- code: -100
+  phrase: ConfigMapExternalDeleted
+  issuer: PAI_FC
+  causer: PAI_UNKNOWN
+  type: PLATFORM_FAILURE
+  stage: UNKNOWN
+  behavior: TRANSIENT
+  reaction: ALWAYS_RETRY
+  reason: "The ConfigMap of this job attempt is deleted by external unexpectedly"
+  repro:
+  - "Manually delete the ConfigMap of this job attempt"
+  solution:
+  - "Wait result from next retry"
+  - "Contact Cluster Admin"
+
+- code: -101
+  phrase: PodExternalDeleted
+  issuer: PAI_FC
+  causer: PAI_UNKNOWN
+  type: PLATFORM_FAILURE
+  stage: UNKNOWN
+  behavior: TRANSIENT
+  reaction: ALWAYS_RETRY
+  reason: "Pod is deleted by external unexpectedly"
+  repro:
+  - "Manually delete a Pod of this job"
+  solution:
+  - "Wait result from next retry"
+  - "Contact Cluster Admin"
+
+- code: -110
+  phrase: ConfigMapCreationTimeout
+  issuer: PAI_FC
+  causer: PAI_UNKNOWN
+  type: PLATFORM_FAILURE
+  stage: LAUNCHING
+  behavior: TRANSIENT
+  reaction: ALWAYS_RETRY
+  reason: "The ConfigMap of this job attempt creation timeout, maybe K8S ApiServer is down"
+  repro:
+  - "Just after FC created a ConfigMap, bring down the K8S ApiServer"
+  solution:
+  - "Wait result from next retry"
+  - "Contact Cluster Admin"
+
+- code: -111
+  phrase: PodCreationTimeout
+  issuer: PAI_FC
+  causer: PAI_UNKNOWN
+  type: PLATFORM_FAILURE
+  stage: LAUNCHING
+  behavior: TRANSIENT
+  reaction: ALWAYS_RETRY
+  reason: "Pod creation timeout, maybe K8S ApiServer is down"
+  repro:
+  - "Just after FC created a Pod, bring down the K8S ApiServer"
+  solution:
+  - "Wait result from next retry"
+  - "Contact Cluster Admin"
+
+- code: -200
+  phrase: PodSpecInvalid
+  issuer: PAI_FC
+  causer: USER_SUBMISSION
+  type: USER_FAILURE
+  stage: SUBMITTING
+  behavior: PERMANENT
+  reaction: NEVER_RETRY
+  reason: "Pod spec is invalid"
+  repro:
+  - "Specify a Pod in Framework with duplicated container names"
+  solution:
+  - "Check diagnostics and revise your job config"
+
+- code: -210
+  phrase: StopFrameworkRequested
+  issuer: PAI_FC
+  causer: USER_STOP
+  type: USER_STOP
+  stage: UNKNOWN
+  behavior: PERMANENT
+  reaction: NEVER_RETRY
+  reason: "User has requested to stop the job"
+  repro:
+  - "Stop a job"
+
+- code: -220
+  phrase: FrameworkAttemptCompletion
+  issuer: PAI_FC
+  causer: USER_STOP
+  type: USER_STOP
+  stage: UNKNOWN
+  behavior: PERMANENT
+  reaction: NEVER_RETRY
+  reason: "Stop to complete current FrameworkAttempt"
+  repro:
+  - "Stop a job with long running container"
+
+- code: -300
+  phrase: PodFailedWithoutFailedContainer
+  issuer: PAI_FC
+  causer: UNKNOWN
+  type: UNKNOWN_FAILURE
+  stage: LAUNCHING
+  behavior: UNKNOWN
+  reaction: RETRY_TO_MAX
+  reason: "Pod failed but without any failed container, may be stopped by K8S"
+  repro:
+  - "Submit a job which will be rejected by kubelet"
+  solution:
+  - "Check diagnostics and find root cause"
+  - "Wait result from next retry"
+  - "Contact Cluster Admin"
+
+###########################################################################
+# Range: [-1199, -1000]
+# Owner: PAI_FC
+# Description: PAI_K8S issued failures
+###########################################################################
+- code: -1000
+  phrase: PodEvicted
+  issuer: PAI_K8S
+  causer: PAI_K8S
+  type: PLATFORM_FAILURE
+  stage: RUNNING
+  behavior: TRANSIENT
+  reaction: ALWAYS_RETRY
+  reason: "Pod is evicted by K8S, maybe its node is out of resource"
+  repro:
+  - "Start a raw process on the host to use up almost all memory on the node"
+  solution:
+  - "Wait result from next retry"
+  - "Contact Cluster Admin"
+  pattern:
+    controllerPodPatterns:
+    - reasonRegex: '(?i)^Evicted$'
+      messageRegex: '(?ms).*'
+
+- code: -1001
+  phrase: PodNodeLost
+  issuer: PAI_K8S
+  causer: PAI_K8S
+  type: PLATFORM_FAILURE
+  stage: RUNNING
+  behavior: TRANSIENT
+  reaction: ALWAYS_RETRY
+  reason: "Pod lost due to node lost, maybe its kubelet is down for a long time"
+  repro:
+  - "Stop the Pod's kubelet"
+  solution:
+  - "Wait result from next retry"
+  - "Contact Cluster Admin"
+  pattern:
+    controllerPodPatterns:
+    - reasonRegex: '(?i)^NodeLost$'
+      messageRegex: '(?ms).*'
+
+- code: -1002
+  phrase: PodScheduledToInsufficientResourceNode
+  issuer: PAI_K8S
+  causer: PAI_K8S
+  type: PLATFORM_FAILURE
+  stage: LAUNCHING
+  behavior: TRANSIENT
+  reaction: ALWAYS_RETRY
+  reason: "Pod is rejected by the kubelet of its node, because it is wrongly scheduled to a node with insufficient required resource"
+  repro:
+  - "Directly bind a Pod to a node with more required memory than the node capacity"
+  solution:
+  - "Wait result from next retry"
+  - "Contact Cluster Admin"
+  pattern:
+    controllerPodPatterns:
+    - reasonRegex: '(?i)^OutOf\S+$'
+      messageRegex: '(?ms).*'
+
+- code: -1003
+  phrase: PodPreemptedForCriticalPod
+  issuer: PAI_K8S
+  causer: PAI_K8S
+  type: PLATFORM_FAILURE
+  stage: RUNNING
+  behavior: TRANSIENT
+  reaction: ALWAYS_RETRY
+  reason: "Pod is preempted by the kubelet of its node for the admission of other more critical platform Pod"
+  repro:
+  - "Submit a large critical Pod to a node with a normal Pod already running"
+  solution:
+  - "Wait result from next retry"
+  - "Contact Cluster Admin"
+  pattern:
+    controllerPodPatterns:
+    - reasonRegex: '(?i)^Preempting$'
+      messageRegex: '(?ms).*'
+
+- code: -1004
+  phrase: PodDeadlineExceeded
+  issuer: PAI_K8S
+  causer: USER_STOP
+  type: USER_STOP
+  stage: RUNNING
+  behavior: PERMANENT
+  reaction: NEVER_RETRY
+  reason: "Pod is stopped by the kubelet of its node, because its specified deadline exceeded"
+  repro:
+  - "Submit a large critical Pod to a node with a normal Pod already running"
+  solution:
+  - "Wait result from next retry"
+  - "Contact Cluster Admin"
+  pattern:
+    controllerPodPatterns:
+    - reasonRegex: '(?i)^DeadlineExceeded$'
+      messageRegex: '(?ms).*'
+
+- code: -1005
+  phrase: PodNodeAdmissionForbidden
+  issuer: PAI_K8S
+  causer: USER_SUBMISSION
+  type: USER_FAILURE
+  stage: LAUNCHING
+  behavior: PERMANENT
+  reaction: NEVER_RETRY
+  reason: "Pod is forbidden by the kubelet of its node, maybe it is invalid"
+  repro:
+  - "Submit a privileged Pod to a node which does not allow privileged container"
+  solution:
+  - "Wait result from next retry"
+  - "Contact Cluster Admin"
+  pattern:
+    controllerPodPatterns:
+    - reasonRegex: '(?i)^Forbidden$'
+      messageRegex: '(?ms).*'
+
+- code: -1006
+  phrase: PodNodeAdmissionUnexpectedError
+  issuer: PAI_K8S
+  causer: PAI_K8S
+  type: PLATFORM_FAILURE
+  stage: LAUNCHING
+  behavior: TRANSIENT
+  reaction: ALWAYS_RETRY
+  reason: "Pod is rejected by the kubelet due to unexpected error"
+  repro:
+  - "Transient errors in kubelet"
+  solution:
+  - "Wait result from next retry"
+  - "Contact Cluster Admin"
+  pattern:
+    controllerPodPatterns:
+    - reasonRegex: '(?i)^UnexpectedAdmissionError$'
+      messageRegex: '(?ms).*'
+    - reasonRegex: '(?i)^UnknownReason$'
+      messageRegex: '(?ms).*'
+    - reasonRegex: '(?i)^InvalidNodeInfo$'
+      messageRegex: '(?ms).*'
+    - reasonRegex: '(?i)^UnexpectedPredicateFailureType$'
+      messageRegex: '(?ms).*'
+
+
+###########################################################################
+# Range: [-1399, -1200]
+# Owner: PAI_FC
+# Description: Docker issued failures
+###########################################################################
+- code: -1300
+  phrase: InitContainerDockerOOMKilled
+  issuer: PAI_DOCKER
+  causer: PAI_RUNTIME
+  type: PLATFORM_FAILURE
+  stage: LAUNCHING
+  behavior: TRANSIENT
+  reaction: ALWAYS_RETRY
+  reason: "Init Container killed by docker due to it exceeded the request memory"
+  repro:
+  - "Init Container uses more memory than its requested"
+  solution:
+  - "Wait result from next retry"
+  - "Contact Cluster Admin"
+  pattern:
+    controllerPodPatterns:
+    - containers:
+      - reasonRegex: '(?i)^OOMKilled$'
+        nameRegex: '(?i)^init$'
+        messageRegex: '(?ms).*'
+
+- code: -1200
+  phrase: UserContainerDockerOOMKilled
+  issuer: PAI_DOCKER
+  causer: USER_CONTAINER
+  type: USER_FAILURE
+  stage: RUNNING
+  behavior: PERMANENT
+  reaction: NEVER_RETRY
+  reason: "User Container killed by docker due to it exceeded the request memory"
+  repro:
+  - "User program uses more memory than its requested"
+  solution:
+  - "Increase per task memory request"
+  - "Decrease per task memory usage by such as increasing task number"
+  pattern:
+    controllerPodPatterns:
+    - containers:
+      - reasonRegex: '(?i)^OOMKilled$'
+        nameRegex: '(?ms).*'
+        messageRegex: '(?ms).*'
+
+- code: -1201
+  phrase: ContainerDockerCreationError
+  issuer: PAI_DOCKER
+  causer: UNKNOWN
+  type: UNKNOWN_FAILURE
+  stage: LAUNCHING
+  behavior: UNKNOWN
+  reaction: RETRY_TO_MAX
+  reason: "Failed to create docker container"
+  repro:
+  - "Execute docker run with image foo123"
+  solution:
+  - "Check diagnostics and find root cause"
+  - "Wait result from next retry"
+  - "Contact Cluster Admin"
+  pattern:
+    controllerPodPatterns:
+    - containers:
+      - reasonRegex: '(?i)^ContainerCannotRun$'
+        exitCode: 125
+        nameRegex: '(?ms).*'
+        messageRegex: '(?ms).*'
+
+- code: -1202
+  phrase: ContainerDockerStartCmdPermissionDenied
+  issuer: PAI_DOCKER
+  causer: PAI_RUNTIME
+  type: PLATFORM_FAILURE
+  stage: LAUNCHING
+  behavior: PERMANENT
+  reaction: NEVER_RETRY
+  reason: "Failed to start docker container due to permission denied"
+  repro:
+  - "Execute docker run with cmd /etc"
+  solution:
+  - "Contact PAI Dev to fix the PAI Runtime bug"
+  pattern:
+    controllerPodPatterns:
+    - containers:
+      - reasonRegex: '(?i)^ContainerCannotRun$'
+        exitCode: 126
+        nameRegex: '(?ms).*'
+        messageRegex: '(?ms).*'
+
+- code: -1203
+  phrase: ContainerDockerStartCmdNotFound
+  issuer: PAI_DOCKER
+  causer: PAI_RUNTIME
+  type: PLATFORM_FAILURE
+  stage: LAUNCHING
+  behavior: PERMANENT
+  reaction: NEVER_RETRY
+  reason: "Failed to start docker container due to cmd not found"
+  repro:
+  - "Execute docker run with cmd foo"
+  solution:
+  - "Contact PAI Dev to fix the PAI Runtime bug"
+  pattern:
+    controllerPodPatterns:
+    - containers:
+      - reasonRegex: '(?i)^ContainerCannotRun$'
+        exitCode: 127
+        nameRegex: '(?ms).*'
+        messageRegex: '(?ms).*'
+    - containers:
+      - reasonRegex: '(?i)^ContainerCannotRun$'
+        exitCode: 128
+        nameRegex: '(?ms).*'
+        messageRegex: '(?msi).*(not found|cannot find|no such).*'
+
+- code: -1204
+  phrase: ContainerDockerStartUnknownError
+  issuer: PAI_DOCKER
+  causer: UNKNOWN
+  type: UNKNOWN_FAILURE
+  stage: LAUNCHING
+  behavior: UNKNOWN
+  reaction: RETRY_TO_MAX
+  reason: "Failed to start docker container due to unknown error"
+  repro:
+  - "Submit a Pod with unknown capability specified in its SecurityContext"
+  solution:
+  - "Check diagnostics and find root cause"
+  - "Wait result from next retry"
+  - "Contact Cluster Admin"
+  pattern:
+    controllerPodPatterns:
+    - containers:
+      - reasonRegex: '(?i)^ContainerCannotRun$'
+        exitCode: 128
+        nameRegex: '(?ms).*'
+        messageRegex: '(?ms).*'
+
+
+###########################################################################
+# Range: [129, 192]
+# Owner: PAI_FC
+# Description: User Container issued failures:
+# -> Involuntary failures caused by OS Signal
+###########################################################################
+- code: 130
+  phrase: ContainerSigIntReceived
+  issuer: PAI_OS
+  causer: PAI_OS
+  type: PLATFORM_FAILURE
+  stage: RUNNING
+  behavior: TRANSIENT
+  reaction: ALWAYS_RETRY
+  reason: "Container killed by OS Signal: SIGINT"
+  repro:
+  - "Kill container process by SIGINT"
+  solution:
+  - "Wait result from next retry"
+  - "Contact Cluster Admin"
+
+- code: 131
+  phrase: ContainerSigQuitReceived
+  issuer: PAI_OS
+  causer: PAI_OS
+  type: PLATFORM_FAILURE
+  stage: RUNNING
+  behavior: TRANSIENT
+  reaction: ALWAYS_RETRY
+  reason: "Container killed by OS Signal: SIGQUIT"
+  repro:
+  - "Kill container process by SIGQUIT"
+  solution:
+  - "Wait result from next retry"
+  - "Contact Cluster Admin"
+
+- code: 132
+  phrase: ContainerSigIllReceived
+  issuer: USER_CONTAINER
+  causer: USER_CONTAINER
+  type: USER_FAILURE
+  stage: RUNNING
+  behavior: PERMANENT
+  reaction: NEVER_RETRY
+  reason: "Container killed by OS Signal: SIGILL"
+  repro:
+  - "User program executes an illegal, malformed, unknown, or privileged machine instruction"
+  solution:
+  - "Check container log and fix your program bug"
+
+- code: 134
+  phrase: ContainerSigAbrtReceived
+  issuer: USER_CONTAINER
+  causer: UNKNOWN
+  type: UNKNOWN_FAILURE
+  stage: RUNNING
+  behavior: UNKNOWN
+  reaction: RETRY_TO_MAX
+  reason: "Container killed by OS Signal: SIGABRT"
+  repro:
+  - "User program calls abort() by libc"
+  solution:
+  - "Check container log and find root cause"
+  - "Wait result from next retry"
+
+- code: 135
+  phrase: ContainerSigBusReceived
+  issuer: USER_CONTAINER
+  causer: USER_CONTAINER
+  type: USER_FAILURE
+  stage: RUNNING
+  behavior: PERMANENT
+  reaction: NEVER_RETRY
+  reason: "Container killed by OS Signal: SIGBUS"
+  repro:
+  - "User program accesses an unaligned memory address"
+  solution:
+  - "Check container log and fix your program bug"
+
+- code: 136
+  phrase: ContainerSigFpeReceived
+  issuer: USER_CONTAINER
+  causer: USER_CONTAINER
+  type: USER_FAILURE
+  stage: RUNNING
+  behavior: PERMANENT
+  reaction: NEVER_RETRY
+  reason: "Container killed by OS Signal: SIGFPE"
+  repro:
+  - "User program division by zero"
+  solution:
+  - "Check container log and fix your program bug"
+
+- code: 137
+  phrase: ContainerSigKillReceived
+  issuer: PAI_OS
+  causer: PAI_OS
+  type: PLATFORM_FAILURE
+  stage: RUNNING
+  behavior: TRANSIENT
+  reaction: ALWAYS_RETRY
+  reason: "Container killed by OS Signal: SIGKILL"
+  repro:
+  - "Kill container process by SIGKILL"
+  solution:
+  - "Wait result from next retry"
+  - "Contact Cluster Admin"
+
+- code: 139
+  phrase: ContainerSigSegvReceived
+  issuer: USER_CONTAINER
+  causer: USER_CONTAINER
+  type: USER_FAILURE
+  stage: RUNNING
+  behavior: PERMANENT
+  reaction: NEVER_RETRY
+  reason: "Container killed by OS Signal: SIGSEGV"
+  repro:
+  - "User program accesses an illegal memory address"
+  solution:
+  - "Check container log and fix your program bug"
+
+- code: 141
+  phrase: ContainerSigPipeReceived
+  issuer: USER_CONTAINER
+  causer: USER_CONTAINER
+  type: USER_FAILURE
+  stage: RUNNING
+  behavior: PERMANENT
+  reaction: NEVER_RETRY
+  reason: "Container killed by OS Signal: SIGPIPE"
+  repro:
+  - "User program writes to a pipe without a process connected to the other end"
+  solution:
+  - "Check container log and fix your program bug"
+
+- code: 143
+  phrase: ContainerSigTermReceived
+  issuer: PAI_OS
+  causer: PAI_OS
+  type: PLATFORM_FAILURE
+  stage: RUNNING
+  behavior: TRANSIENT
+  reaction: ALWAYS_RETRY
+  reason: "Container killed by OS Signal: SIGTERM"
+  repro:
+  - "Kill container process by SIGTERM"
+  solution:
+  - "Wait result from next retry"
+  - "Contact Cluster Admin"
+
+
+###########################################################################
+# Range: [220, 255]
+# Owner: PAI_RUNTIME
+# Description: User Container issued failures:
+# -> Voluntary failures caused by Container itself
+###########################################################################
+- code: 250
+  phrase: FrameworkBarrierTransientFailed
+  issuer: PAI_RUNTIME
+  causer: PAI_RUNTIME
+  type: PLATFORM_FAILURE
+  stage: LAUNCHING
+  behavior: TRANSIENT
+  reaction: ALWAYS_RETRY
+  reason: "The FrameworkBarrier failed due to transient error"
+  solution:
+  - "Wait result from next retry"
+  - "Contact Cluster Admin"
+
+- code: 251
+  phrase: JobGangAllocationTimeout
+  issuer: PAI_RUNTIME
+  causer: RESOURCE_ALLOCATION_TIMEOUT
+  type: RESOURCE_ALLOCATION_TIMEOUT
+  stage: ALLOCATING
+  behavior: TRANSIENT_CONFLICT
+  reaction: ALWAYS_BACKOFF_RETRY
+  reason: "All requested resources of all tasks in the job cannot be satisfied in time"
+  repro:
+  - "Request more containers in a guaranteed job than its virtual cluster current available"
+  solution:
+  - "Wait result from next retry"
+  - "Decrease task number"
+  - "Decrease per task resource request"
+  - "Contact Cluster Admin to increase your virtual cluster quota"
+
+- code: 252
+  phrase: FrameworkBarrierPermanentFailed
+  issuer: PAI_RUNTIME
+  causer: PAI_RUNTIME
+  type: PLATFORM_FAILURE
+  stage: LAUNCHING
+  behavior: PERMANENT
+  reaction: NEVER_RETRY
+  reason: "The FrameworkBarrier failed due to permanent error"
+  repro:
+  - "Run FrameworkBarrier with BARRIER_CHECK_TIMEOUT_SEC equals to 1"
+  solution:
+  - "Contact PAI Dev to fix the PAI Runtime bug"
+
+
+################################
+# Range: {Undefined Negative ExitCodes}
+# Owner: PAI_LAUNCHER
+# Description: Shadow Fallback ExitCode
+################################
+# Here the code -8000 is just used to represent all undefined negative exitcodes
+# in this spec, and the specific undefined raw exitcode should always override it
+# to expose outside, since the raw exitcode is already comparable for different
+# jobs.
+- code: -8000
+  phrase: ContainerUndefinedNegativeExitCode
+  issuer: UNKNOWN
+  causer: UNKNOWN
+  type: UNKNOWN_FAILURE
+  stage: UNKNOWN
+  behavior: UNKNOWN
+  reaction: RETRY_TO_MAX
+  reason: "Container exited with undefined negative exitcode"
+  repro:
+  - "Remove code -100 in the spec, then repro -100"
+  solution:
+  - "Contact PAI Dev to recognize this exitcode"
+
+
+################################
+# Range: {Undefined Positive ExitCodes}
+# Owner: PAI_RUNTIME
+# Description: Shadow Fallback ExitCode
+################################
+# Here the code 256 is just used to represent all undefined positive exitcodes
+# in this spec, and the specific raw undefined exitcode should always override it
+# to expose outside, since the raw exitcode is already comparable for different
+# jobs.
+- code: 256
+  phrase: PAIRuntimeExitAbnormally
+  issuer: PAI_RUNTIME
+  causer: PAI_RUNTIME
+  type: PLATFORM_FAILURE
+  stage: UNKNOWN
+  behavior: UNKNOWN
+  reaction: RETRY_TO_MAX
+  reason: "PAI Runtime exit abnormally with undefined exitcode, it may have bugs"
+  repro:
+  - "PAI Runtime exits with exitcode 1"
+  solution:
+  - "Contact PAI Dev to fix PAI Runtime bugs"
