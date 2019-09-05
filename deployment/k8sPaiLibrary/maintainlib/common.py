@@ -201,10 +201,8 @@ def sftp_paramiko(src, dst, filename, host_config):
     ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
     ssh.connect(hostname=hostip, port=port, key_filename=key_filename, username=username, password=password, allow_agent=True)
 
-    stdin, stdout, stderr = ssh.exec_command("sudo mkdir -p {0}".format(dst), get_pty=True)
     password = password if password is not None else ''
-    stdin.write(password + '\n')
-    stdin.flush()
+    stdin, stdout, stderr = ssh.exec_command("echo '{0}' | sudo mkdir -p {1}".format(password, dst), get_pty=True)
     for response_msg in stdout:
         print(response_msg.encode('utf-8').strip('\n'))
 
@@ -305,10 +303,8 @@ def ssh_shell_with_password_input_paramiko(host_config, commandline):
     ssh = paramiko.SSHClient()
     ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
     ssh.connect(hostname=hostip, port=port, key_filename=key_filename, username=username, password=password)
-    stdin, stdout, stderr = ssh.exec_command(commandline, get_pty=True)
     password = password if password is not None else ''
-    stdin.write(password + '\n')
-    stdin.flush()
+    stdin, stdout, stderr = ssh.exec_command("echo '{0}' | {1}".format(password, commandline), get_pty=True)
     logger.info("Executing the command on host [{0}]: {1}".format(hostip, commandline))
     for response_msg in stdout:
         print (response_msg.encode('utf-8').strip('\n'))
