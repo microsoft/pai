@@ -17,6 +17,8 @@
 
 
 {% for spec_item in cluster_cfg['k8s-job-exit-spec']['spec'] %}
+{%- if spec_item['code'] > 0 %}
+
 - containerExitCode: {{ spec_item['code'] }}
 {%- if 'reason' in spec_item %}
   reason: {{ spec_item['reason'] }}
@@ -44,4 +46,5 @@
 {%- endif %}
 {%- endif %}
 
+{%- endif %}
 {% endfor %}

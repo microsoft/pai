@@ -19,6 +19,8 @@
 
 pushd $(dirname "$0") > /dev/null
 
-kubectl delete configmap user-exit-spec-configuration || exit $?
+if kubectl get configmap | grep -q "user-exit-spec-configuration"; then
+  kubectl delete configmap user-exit-spec-configuration || exit $?
+fi
 
 popd > /dev/null

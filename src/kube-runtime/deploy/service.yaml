@@ -23,4 +23,4 @@ template-list:
 
 start-script: start.sh
 delete-script: delete.sh
-upgraded-script: upgraded.sh
+refresh-script: refresh.sh
