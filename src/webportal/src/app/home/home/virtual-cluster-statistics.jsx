@@ -23,9 +23,9 @@ import {
   DetailsList,
   DetailsListLayoutMode,
   SelectionMode,
-  DefaultButton,
   StackItem,
   Text,
+  DefaultButton,
 } from 'office-ui-fabric-react';
 import React from 'react';
 
@@ -47,14 +47,14 @@ const getResouceUtilization = (used, total) => {
 const vcListColumns = [
   {
     key: 'name',
-    minWidth: 60,
-    maxWidth: 128,
+    minWidth: 45,
+    maxWidth: 100,
     name: 'Name',
     isResizable: true,
     onRender(vc) {
       return (
         <Stack verticalAlign='center' verticalFill>
-          <Text variant='large'>{vc.name}</Text>
+          <Text variant='mediumPlus'>{vc.name}</Text>
         </Stack>
       );
     },
@@ -84,7 +84,7 @@ const vcListColumns = [
         ),
       );
       return (
-        <Stack styles={{root: [{height: 100}]}}>
+        <Stack styles={{root: [{height: 98}]}}>
           <UtilizationChart percentage={resouceUtilization}/>
         </Stack>
       );
@@ -92,14 +92,14 @@ const vcListColumns = [
   },
   {
     key: 'detail',
-    minWidth: 250,
-    maxWidth: 430,
+    minWidth: 230,
+    maxWidth: 530,
     name: 'Detail',
     isResizable: true,
     onRender(vc) {
       const {resourcesUsed, resourcesTotal} = vc;
       return (
-        <Stack gap="s1" verticalAlign='center' verticalFill styles={{root: {maxWidth: 352}}}>
+        <Stack gap="s1" verticalAlign='center' verticalFill styles={{root: {maxWidth: 432}}}>
           <StackItem>
             <ResourceBar
               name={'Memory'}
@@ -135,23 +135,8 @@ const vcListColumns = [
     },
   },
   {
-    key: 'bonus',
-    minWidth: 60,
-    maxWidth: 120,
-    name: 'Bonus',
-    isResizable: true,
-    onRender(vc) {
-      const bounsEnabled = (vc.maxCapacity > vc.capacity) || vc.capacity === 100;
-      return (
-        <Stack verticalAlign='center' verticalFill>
-          <Text variant='large'>{bounsEnabled ? 'Enabled' : 'Disabled'}</Text>
-        </Stack>
-      );
-    },
-  },
-  {
     key: 'action',
-    minWidth: 80,
+    minWidth: 50,
     name: 'Action',
     isResizable: true,
     onRender(vc) {
@@ -165,16 +150,15 @@ const vcListColumns = [
           }}
           data-selection-disabled
         >
-        <DefaultButton
-          styles={{
-            root: {backgroundColor: '#e5e5e5'},
+          <DefaultButton styles={{
+            root: {
+              backgroundColor: '#e5e5e5',
+              minWidth: 50,
+            },
             rootFocused: {backgroundColor: '#e5e5e5'},
             rootDisabled: {backgroundColor: '#eeeeee'},
             rootCheckedDisabled: {backgroundColor: '#eeeeee'},
-            icon: {fontSize: 12},
-          }}
-          text={'View jobs'}
-          href={'/job-list.html?vcName=' + vc.name}/>
+          }}>View</DefaultButton>
         </div>
       );
     },
