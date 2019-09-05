@@ -34,7 +34,7 @@ const userAuthComponent = require('../user/user-auth/user-auth.component.js');
 const userLogoutComponent = require('../user/user-logout/user-logout.component.js');
 const userLoginNavComponent = require('../user/user-login/user-login-nav.component.ejs');
 const pluginComponent = require('./plugins.component.ejs');
-const authnMethod = require('../config/webportal.config.js').authnMethod;
+const config = require('../config/webportal.config.js');
 
 const userLoginNavHtml = userLoginNavComponent({cookies});
 const showUserToken = () => {
@@ -50,14 +50,16 @@ $('#navbar').html(userLoginNavHtml);
 userAuthComponent.checkToken();
 if (userAuthComponent.checkAdmin()) {
   $('#sidebar-menu--dashboard').show();
-  $('#sidebar-menu--vc').show();
+  if (config.launcherType !== 'k8s') {
+    $('#sidebar-menu--vc').show();
+  }
   $('#sidebar-menu--cluster-view').show();
 }
 
 const notificationButtonContainer = document.getElementById('notification-button');
 ReactDOM.render(<alerts.NotificationButton />, notificationButtonContainer);
 
-if (authnMethod !== 'OIDC') {
+if (config.authnMethod !== 'OIDC') {
   $('#sidebar-menu--cluster-view--user-management').show();
 }
 
