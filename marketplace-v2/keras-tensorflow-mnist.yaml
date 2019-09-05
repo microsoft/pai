@@ -33,4 +33,5 @@ taskRoles:
       memoryMB: 8192
       gpu: 1
     commands:
+      - rm /usr/local/cuda/lib64/stubs/libcuda.so.1
       - python mnist_cnn.py
