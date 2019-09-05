@@ -39,5 +39,5 @@ taskRoles:
       - >
         python examples/mnist/main.py
         --epochs <% $parameters.epochs %>
-        --lr <% $parameters.epochs %>
-        --batch-size <% $parameters.epochs %>
+        --lr <% $parameters.lr %>
+        --batch-size <% $parameters.batchsize %>
