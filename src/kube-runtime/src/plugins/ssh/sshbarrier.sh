@@ -17,7 +17,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 # no set -o errexit because use exitcode to judge ssh connectivity
-set -o nounset
+# no set -o nounset because use empty array to judge end
 set -o pipefail
 
 readonly MAX_RETRY_COUNT=10
@@ -45,11 +45,11 @@ for validTaskRole in $@; do
       continue
     fi
 
-    if [[ $taskrole = $FC_TASKROLE_NAME ]] && [[ $index = $FC_TASK_INDEX ]]; then
+    if [[ $taskRole = $FC_TASKROLE_NAME ]] && [[ $index = $FC_TASK_INDEX ]]; then
       continue
     fi
     
-    instanceToCheck+=("${taskrole}-${index}")
+    instanceToCheck+=("${taskRole}-${index}")
   done
 done
 
@@ -75,4 +75,4 @@ do
   sleep $RETRY_INTERVAL
 done
 
-echo "All ssh connections are set, continue."
+echo "All ssh connections are set, continue..."

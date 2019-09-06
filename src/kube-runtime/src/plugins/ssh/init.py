@@ -33,9 +33,9 @@ logger = logging.getLogger(__name__)
 if __name__ == "__main__":
     [parameters, pre_script, post_script] = plugin_init()
 
-    if parameters is not None:       
+    if parameters is not None:
         if "jobssh" in parameters:
-            jobssh = str(parameters["jobssh"]).lower())
+            jobssh = str(parameters["jobssh"]).lower()
         else:
             jobssh = "false"
         cmdParams = [jobssh]
