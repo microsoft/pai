@@ -24,6 +24,7 @@ prerequisite:
 
 template-list:
   - k8s-frameworkcontroller.yaml
+  - k8s-frameworkcontroller-config.yaml
 
 start-script: start.sh
 stop-script: stop.sh

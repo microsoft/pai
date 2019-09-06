@@ -1,0 +1,94 @@
+# Copyright (c) Microsoft Corporation
+# All rights reserved.
+#
+# MIT License
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
+# documentation files (the "Software"), to deal in the Software without restriction, including without limitation
+# the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and
+# to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+# The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED *AS IS*, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING
+# BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+# NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+# DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: frameworkcontroller-config
+  namespace: default
+data:
+  frameworkcontroller.yaml: |
+    podFailureSpec:
+    {%- for spec_item in cluster_cfg['k8s-job-exit-spec']['spec'] %}
+    {%- if (spec_item['code'] < -999 or spec_item['code'] > 0) %}
+
+
+    - code: {{ spec_item['code'] }}
+
+    {%- if 'phrase' in spec_item %}
+      phrase: {{ spec_item['phrase'] }}
+    {%- endif %}
+
+    {%- if 'behavior' in spec_item and spec_item['behavior'] != 'UNKNOWN' %}
+      type:
+      {%- if spec_item['behavior'] == 'TRANSIENT' %}
+        attributes: [Transient]
+      {%- elif spec_item['behavior'] == 'TRANSIENT_CONFLICT' %}
+        attributes: [Transient, Conflict]
+      {%- elif spec_item['behavior'] == 'PERMANENT' %}
+        attributes: [Permanent]
+      {%- endif %}
+    {%- endif %}
+
+    {%- if 'pattern' in spec_item and 'controllerPodPatterns' in spec_item['pattern'] %}
+      podPatterns:
+      {%- for ptn in spec_item['pattern']['controllerPodPatterns'] %}
+      -
+      {%- if 'reasonRegex' in ptn %}
+        reasonRegex: '{{ ptn['reasonRegex'] }}'
+      {%- endif %}
+      {%- if 'messageRegex' in ptn %}
+        messageRegex: '{{ ptn['messageRegex'] }}'
+      {%- endif %}
+      {%- if 'containers' in ptn %}
+        containers:
+        {%- for cont in ptn['containers'] %}
+        -
+        {%- if 'nameRegex' in cont %}
+          nameRegex: '{{ cont['nameRegex'] }}'
+        {%- endif %}
+        {%- if 'reasonRegex' in cont %}
+          reasonRegex: '{{ cont['reasonRegex'] }}'
+        {%- endif %}
+        {%- if 'messageRegex' in cont %}
+          messageRegex: '{{ cont['messageRegex'] }}'
+        {%- endif %}
+        {%- if 'exitCode' in cont %}
+          codeRange:
+            min: {{ cont['exitCode'] }}
+            max: {{ cont['exitCode'] }}
+        {%- else %}
+          codeRange:
+            min: 1
+        {%- endif %}
+        {%- endfor %}
+      {%- endif %}
+
+      {%- endfor %}
+    {%- else %}
+      podPatterns:
+      - containers:
+        - nameRegex: '(?ms).*'
+          messageRegex: '(?ms).*'
+          codeRange:
+            min: {{ spec_item['code'] }}
+            max: {{ spec_item['code'] }}
+    {%- endif %}
+
+
+    {%- endif %}
+    {%- endfor %}

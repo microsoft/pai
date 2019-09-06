@@ -36,3 +36,14 @@ spec:
         env:
         - name: KUBE_APISERVER_ADDRESS
           value: "{{ cluster_cfg['layout']['kubernetes']['api-servers-url'] }}"
+        command: [
+          "bash", "-c",
+          "cp /frameworkcontroller-config/frameworkcontroller.yaml . &&
+          ./start.sh"]
+        volumeMounts:
+          - name: frameworkcontroller-config
+            mountPath: /frameworkcontroller-config
+      volumes:
+      - name: frameworkcontroller-config
+        configMap:
+          name: frameworkcontroller-config

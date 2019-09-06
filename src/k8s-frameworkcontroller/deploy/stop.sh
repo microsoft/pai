@@ -28,4 +28,8 @@ until ! kubectl get sts | grep -q "k8s-frameworkcontroller-sts"; do
     sleep 5
 done
 
+if kubectl get configmap | grep -q "frameworkcontroller-config"; then
+    kubectl delete configmap frameworkcontroller-config || exit $?
+fi
+
 popd > /dev/null
