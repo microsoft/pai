@@ -16,13 +16,15 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 import c from 'classnames';
-import {ColorClassNames, DefaultButton, Panel, PanelType} from 'office-ui-fabric-react';
+import {ColorClassNames, DefaultButton, Panel, PanelType, Stack, StackItem, getTheme} from 'office-ui-fabric-react';
 import PropTypes from 'prop-types';
 import React, {useRef} from 'react';
 
 import MonacoEditor from './monaco-editor';
 
 import t from './tachyons.scss';
+
+const {spacing} = getTheme();
 
 const MonacoPanel = ({isOpen, onDismiss, title, header, footer, monacoProps, completionItems, schemas, monacoRef}) => {
   const panelRef = useRef(null);
@@ -63,22 +65,26 @@ const MonacoPanel = ({isOpen, onDismiss, title, header, footer, monacoProps, com
             completionItems={completionItems}
             schemas={schemas}
           />
-          <div className={c(t.mt4, t.flex, t.justifyBetween)}>
-            <div>
-              {footer}
-            </div>
-            <DefaultButton
-              text='Close'
-              styles={{
-                root: [ColorClassNames.neutralDarkBackground],
-                rootHovered: [ColorClassNames.blackBackground],
-                rootChecked: [ColorClassNames.blackBackground],
-                rootPressed: [ColorClassNames.blackBackground],
-                label: [ColorClassNames.white],
-              }}
-              onClick={() => panelRef.current && panelRef.current.dismiss()}
-            />
-          </div>
+          <Stack horizontal horizontalAlign='space-between' gap={spacing.m} padding={spacing.m}>
+            <StackItem grow>
+              <div>
+                {footer}
+              </div>
+            </StackItem>
+            <StackItem>
+              <DefaultButton
+                text='Close'
+                styles={{
+                  root: [ColorClassNames.neutralDarkBackground],
+                  rootHovered: [ColorClassNames.blackBackground],
+                  rootChecked: [ColorClassNames.blackBackground],
+                  rootPressed: [ColorClassNames.blackBackground],
+                  label: [ColorClassNames.white],
+                }}
+                onClick={() => panelRef.current && panelRef.current.dismiss()}
+              />
+            </StackItem>
+          </Stack>
         </div>
       </Panel>
     </div>

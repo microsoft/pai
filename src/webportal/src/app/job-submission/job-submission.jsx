@@ -23,9 +23,12 @@
  * SOFTWARE.
  */
 
+import PropTypes from 'prop-types';
 import React, {useState, useEffect} from 'react';
 import ReactDOM from 'react-dom';
+import {HashRouter as Router, Route} from 'react-router-dom';
 import {
+  initializeIcons,
   Fabric,
   Stack,
   Text,
@@ -35,6 +38,7 @@ import {
   FontWeights,
 } from 'office-ui-fabric-react';
 
+import {initTheme} from '../components/theme';
 import uploadRoot from '../../assets/img/upload-root.svg';
 import uploadPress from '../../assets/img/upload-press.svg';
 import singleRoot from '../../assets/img/single-root.svg';
@@ -43,6 +47,10 @@ import distributeRoot from '../../assets/img/distribute-root.svg';
 import distributePress from '../../assets/img/distribute-press.svg';
 import {JobSubmissionPage} from './job-submission-page';
 import Card from '../components/card';
+import {JobProtocol} from './models/job-protocol';
+
+initTheme();
+initializeIcons();
 
 const {spacing, palette} = getTheme();
 
@@ -81,10 +89,7 @@ const IconStyle = {
   },
 };
 
-const JobWizard = () => {
-  const [wizardStatus, setWizardStatus] = useState('wizard');
-  const [yamlText, setYamlText] = useState();
-
+const JobWizard = ({setYamlText, history}) => {
   const uploadFile = React.createRef();
 
   const _importFile = (event) => {
@@ -96,9 +101,14 @@ const JobWizard = () => {
     const fileReader = new FileReader();
     fileReader.addEventListener('load', () => {
       const text = String(fileReader.result);
+      const valid = JobProtocol.validateFromYaml(text);
+      if (valid) {
+        alert(`Yaml file is invalid. ${valid}`);
+        return;
+      }
       try {
         setYamlText(text);
-        setWizardStatus('general');
+        history.push('/general');
       } catch (err) {
         alert(err.message);
       }
@@ -109,113 +119,127 @@ const JobWizard = () => {
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     if (params.get('op') === 'resubmit') {
-      setWizardStatus('general');
+      history.push('/general');
     }
   }, []);
 
   return (
-    <Fabric style={{height: '100%'}}>
-      {wizardStatus === 'wizard' &&
-        <Card style={{height: '90%', margin: `${spacing.l2}`}}>
-          <Stack horizontalAlign='center' padding={100} gap={100}>
-            <Text styles={{root: {color: palette.themePrimary, fontSize: FontSizes.xxLarge, fontWeight: FontWeights.semibold, alignItems: 'center', position: 'absolute'}}}>
-              Select your job type
+    <Card style={{height: '90%', margin: `${spacing.l2}`}}>
+      <Stack horizontalAlign='center' padding={100} gap={100}>
+        <Text styles={{root: {color: palette.themePrimary, fontSize: FontSizes.xxLarge, fontWeight: FontWeights.semibold, alignItems: 'center', position: 'absolute'}}}>
+          Select your job type
+        </Text>
+        <Stack
+          horizontal
+          horizontalAlign='center'
+          gap={120}
+          style={{width: '100%', marginTop: 100}}
+        >
+          <Stack horizontalAlign='center' gap={50}>
+            <DefaultButton
+              styles={{
+                root: {
+                  backgroundImage: `url(${uploadRoot})`,
+                  ...IconStyle.root,
+                },
+                rootHovered: {
+                  backgroundImage: `url(${uploadRoot})`,
+                  ...IconStyle.hover,
+                },
+                rootPressed: {
+                  backgroundImage: `url(${uploadPress})`,
+                  ...IconStyle.press,
+                },
+              }}
+              onClick = {() => {
+                uploadFile.current.click();
+              }}
+            />
+            <input
+              type='file'
+              ref={uploadFile}
+              style={{display: 'none'}}
+              accept='.yml,.yaml'
+              onChange={_importFile}
+            />
+            <Text styles={{root: {fontSize: FontSizes.large, fontWeight: FontWeights.semibold}}}>
+              Import Config
             </Text>
-            <Stack
-              horizontal
-              horizontalAlign='center'
-              gap={120}
-              style={{width: '100%', marginTop: 100}}
-            >
-              <Stack horizontalAlign='center' gap={50}>
-                <DefaultButton
-                  styles={{
-                    root: {
-                      backgroundImage: `url(${uploadRoot})`,
-                      ...IconStyle.root,
-                    },
-                    rootHovered: {
-                      backgroundImage: `url(${uploadRoot})`,
-                      ...IconStyle.hover,
-                    },
-                    rootPressed: {
-                      backgroundImage: `url(${uploadPress})`,
-                      ...IconStyle.press,
-                    },
-                  }}
-                  onClick = {() => {
-                    uploadFile.current.click();
-                  }}
-                />
-                <input
-                  type='file'
-                  ref={uploadFile}
-                  style={{display: 'none'}}
-                  accept='.yml,.yaml'
-                  onChange={_importFile}
-                />
-                <Text styles={{root: {fontSize: FontSizes.large, fontWeight: FontWeights.semibold}}}>
-                  Import Config
-                </Text>
-              </Stack>
-              <Stack horizontalAlign='center' gap={50}>
-                <DefaultButton
-                  styles={{
-                    root: {
-                      backgroundImage: `url(${singleRoot})`,
-                      ...IconStyle.root,
-                    },
-                    rootHovered: {
-                      backgroundImage: `url(${singleRoot})`,
-                      ...IconStyle.hover,
-                    },
-                    rootPressed: {
-                      backgroundImage: `url(${singlePress})`,
-                      ...IconStyle.press,
-                    },
-                  }}
-                  onClick={() => {
-                    setWizardStatus('single');
-                  }}
-                />
-                <Text styles={{root: {fontSize: FontSizes.large, fontWeight: FontWeights.semibold}}}>
-                  Single Job
-                </Text>
-              </Stack>
-              <Stack horizontalAlign='center' gap={50}>
-                <DefaultButton
-                  styles={{
-                    root: {
-                      backgroundImage: `url(${distributeRoot})`,
-                      ...IconStyle.root,
-                    },
-                    rootHovered: {
-                      backgroundImage: `url(${distributeRoot})`,
-                      ...IconStyle.hover,
-                    },
-                    rootPressed: {
-                      backgroundImage: `url(${distributePress})`,
-                      ...IconStyle.press,
-                    },
-                  }}
-                  onClick={() => {
-                    setWizardStatus('general');
-                  }}
-                />
-                <Text styles={{root: {fontSize: FontSizes.large, fontWeight: FontWeights.semibold}}}>
-                  Distributed Job
-                </Text>
-              </Stack>
-            </Stack>
           </Stack>
-        </Card>
-      }
-      {wizardStatus === 'single' &&
-        <JobSubmissionPage isSingle={true} setWizardStatus={setWizardStatus}/>
-      }
-      {wizardStatus === 'general' &&
-        <JobSubmissionPage isSingle={false} setWizardStatus={setWizardStatus} yamlText={yamlText}/>
-      }
+          <Stack horizontalAlign='center' gap={50}>
+            <DefaultButton
+              styles={{
+                root: {
+                  backgroundImage: `url(${singleRoot})`,
+                  ...IconStyle.root,
+                },
+                rootHovered: {
+                  backgroundImage: `url(${singleRoot})`,
+                  ...IconStyle.hover,
+                },
+                rootPressed: {
+                  backgroundImage: `url(${singlePress})`,
+                  ...IconStyle.press,
+                },
+              }}
+              onClick={() => {
+                history.push('/single');
+              }}
+            />
+            <Text styles={{root: {fontSize: FontSizes.large, fontWeight: FontWeights.semibold}}}>
+              Single Job
+            </Text>
+          </Stack>
+          <Stack horizontalAlign='center' gap={50}>
+            <DefaultButton
+              styles={{
+                root: {
+                  backgroundImage: `url(${distributeRoot})`,
+                  ...IconStyle.root,
+                },
+                rootHovered: {
+                  backgroundImage: `url(${distributeRoot})`,
+                  ...IconStyle.hover,
+                },
+                rootPressed: {
+                  backgroundImage: `url(${distributePress})`,
+                  ...IconStyle.press,
+                },
+              }}
+              onClick={() => {
+                history.push('/general');
+              }}
+            />
+            <Text styles={{root: {fontSize: FontSizes.large, fontWeight: FontWeights.semibold}}}>
+              Distributed Job
+            </Text>
+          </Stack>
+        </Stack>
+      </Stack>
+    </Card>
+  );
+};
+
+JobWizard.propTypes = {
+  setYamlText: PropTypes.func,
+  history: PropTypes.object,
+};
+
+const App = () => {
+  const [yamlText, setYamlText] = useState();
+  return (
+    <Fabric style={{height: '100%'}}>
+      <Router>
+        <Route path="/" exact render={({history}) => (
+          <JobWizard setYamlText={setYamlText} history={history} />
+        )}/>
+        <Route path="/single" render={({history}) => (
+          <JobSubmissionPage isSingle={true} history={history} setYamlText={setYamlText} />
+        )}/>
+        <Route path="/general" render={({history}) => (
+          <JobSubmissionPage isSingle={false} yamlText={yamlText} history={history} />
+        )}/>
+      </Router>
     </Fabric>
   );
 };
@@ -223,7 +247,7 @@ const JobWizard = () => {
 const contentWrapper = document.getElementById('content-wrapper');
 
 document.getElementById('sidebar-menu--job-submission').classList.add('active');
-ReactDOM.render(<JobWizard />, contentWrapper);
+ReactDOM.render(<App />, contentWrapper);
 
 function layout() {
   setTimeout(function() {
