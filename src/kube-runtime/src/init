@@ -59,7 +59,7 @@ echo "barrier returns $?" >> ${PAI_INIT_LOG_FILE}
 
 # error spec
 # priority=1
-cp ${PAI_CONFIG_DIR}/user-exit-spec.yaml ${PAI_RUNTIME_DIR}
+cp ${PAI_CONFIG_DIR}/runtime-exit-spec.yaml ${PAI_RUNTIME_DIR}
 echo "copy exit spec returns $?" >> ${PAI_INIT_LOG_FILE}
 
 # generate runtime env variables

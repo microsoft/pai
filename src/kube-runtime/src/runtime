@@ -30,7 +30,7 @@ PAI_WORK_DIR=/usr/local/pai
 PAI_RUNTIME_DIR=${PAI_WORK_DIR}/runtime.d
 PAI_LOG_DIR=${PAI_WORK_DIR}/logs/${FC_POD_UID}
 PAI_USER_LOG_FILE=${PAI_LOG_DIR}/user.pai.all
-PATTERN_FILE=${PAI_RUNTIME_DIR}/user-exit-spec.yaml
+PATTERN_FILE=${PAI_RUNTIME_DIR}/runtime-exit-spec.yaml
 TERMINATE_MESSAGE_PATH=/tmp/pai-termination-log
 
 function exit_handler()

@@ -1,3 +1,5 @@
+#!/bin/bash
+
 # Copyright (c) Microsoft Corporation
 # All rights reserved.
 #
@@ -16,35 +18,8 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
-{% for spec_item in cluster_cfg['k8s-job-exit-spec']['spec'] %}
-{%- if spec_item['code'] > 0 %}
+# Not delete the config map here since it will cause job retry failed
+pushd $(dirname "$0") > /dev/null
 
-- containerExitCode: {{ spec_item['code'] }}
-{%- if 'reason' in spec_item %}
-  reason: {{ spec_item['reason'] }}
-{%- endif %}
-{%- if 'solution' in spec_item %}
-  solution:
-{%- for str_val in spec_item['solution'] %}
-    - "{{ str_val }}"
-{%- endfor %}
-{%- endif %}
-{%- if 'patterns' in spec_item %}
-  patterns:
-{%- if 'runtimeContainerPatterns' in spec_item['patterns'] %}
-{%- for runtimePattern in spec_item['patterns']['runtimeContainerPatterns'] %}
-{%- if 'exitCode' in runtimePattern %}
-    - exitCode: {{ runtimePattern['exitCode'] }}
-{%- endif %}
-{%- if 'userLogRegex' in runtimePattern %}
-      userLogRegex: {{ runtimePattern['userLogRegex'] }}
-{%- endif %}
-{%- if 'platformLogRegex' in runtimePattern %}
-      platformLogRegex: {{ runtimePattern['platformLogRegex'] }}
-{%- endif %}
-{%- endfor %}
-{%- endif %}
-{%- endif %}
 
-{%- endif %}
-{% endfor %}
+popd > /dev/null

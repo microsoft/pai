@@ -19,7 +19,7 @@ prerequisite:
   - cluster-configuration
 
 template-list:
-  - user-exit-spec.yaml
+  - runtime-exit-spec.yaml
 
 start-script: start.sh
 delete-script: delete.sh
