@@ -80,6 +80,11 @@ location ~ ^/alert-manager(.*)$ {
   proxy_pass {{ALERT_MANGER_URI}}/alert-manager$1$is_args$args;
 }
 
+# log-manager server
+location ~ ^/log-manager/([^/]+):(\d+)/(.*)$ {
+  proxy_pass http://$1:$2/$3$is_args$args;
+}
+
 #
 # YARN web portal
 #
