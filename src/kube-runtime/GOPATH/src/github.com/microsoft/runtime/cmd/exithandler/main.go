@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"os"
 	"strconv"
 
@@ -16,12 +17,13 @@ func init() {
 	log = logger.NewLogger()
 }
 
+// This function will extract error summary to the specific file and print the exit code
 func main() {
 	argsWithoutProg := os.Args[1:]
 
 	if len(argsWithoutProg) < 5 {
 		log.Error("args is not valid")
-		os.Exit(255)
+		os.Exit(defaultExitCode)
 	}
 
 	userExitCode, err := strconv.Atoi(argsWithoutProg[0])
@@ -75,5 +77,5 @@ DUMP_RESULT:
 		os.Exit(defaultExitCode)
 	}
 	log.Info("finish generating the exit summary")
-	os.Exit(exitInfo.Exitcode)
+	fmt.Print(exitInfo.Exitcode)
 }

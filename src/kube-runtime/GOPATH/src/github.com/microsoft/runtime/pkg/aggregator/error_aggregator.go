@@ -12,7 +12,7 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
-// User zero to present undefined exitCode
+// Use zero to present undefined exitCode in error spec
 const undefinedExitCode = 0
 
 type runtimeErrorSpec struct {
@@ -152,8 +152,8 @@ func (a *ErrorAggregator) GenerateExitInfo(userExitCode int) (*RuntimeExitInfo, 
 		exitInfo.Exitcode = a.defaulExitCode
 		exitInfo.OriginUserExitCode = userExitCode
 		exitInfo.ErrorLogs = new(ErrorLogs)
-		exitInfo.ErrorLogs.Platform = ptrString(strings.Join(a.extractNlineTailLog(platformLog, a.maxRuntimeLogLines), "\n"))
-		exitInfo.ErrorLogs.User = ptrString(strings.Join(a.extractNlineTailLog(userLog, a.maxUserLogLines), "\n"))
+		exitInfo.ErrorLogs.Platform = ptrString(strings.Join(a.extractNlinesTailLog(platformLog, a.maxRuntimeLogLines), "\n"))
+		exitInfo.ErrorLogs.User = ptrString(strings.Join(a.extractNlinesTailLog(userLog, a.maxUserLogLines), "\n"))
 	}
 
 	return &exitInfo, nil
@@ -204,7 +204,7 @@ func (a *ErrorAggregator) mergeLogs(lhs []string, rhs []string, matchString stri
 	return res
 }
 
-func (a *ErrorAggregator) extractNlineTailLog(conent []byte, maxLogLines int) []string {
+func (a *ErrorAggregator) extractNlinesTailLog(conent []byte, maxLogLines int) []string {
 	var start int
 	if logLen := len(conent); logLen > a.maxAggregateLogSize {
 		start = logLen - a.maxAggregateLogSize
@@ -222,7 +222,7 @@ func (a *ErrorAggregator) extractMatchLog(loc []int, content []byte, maxLogLines
 	// use simple rules. will extract 2 lines above the match pattern and other lines below the match pattern
 	if loc == nil {
 		// fallback to extract tail logs
-		return a.extractNlineTailLog(content, maxLogLines), nil
+		return a.extractNlinesTailLog(content, maxLogLines), nil
 	}
 
 	if len(loc) < 2 {

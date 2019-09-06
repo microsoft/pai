@@ -105,7 +105,7 @@ func TestGenerateExitInfoWithAndLogic(t *testing.T) {
 	assert.Equal(t, exitInfo.Exitcode, 15)
 	assert.Equal(t, exitInfo.OriginUserExitCode, 1)
 	assert.Equal(t, *exitInfo.Reason, "Tensorboad not startup correctly")
-	// assert.Equal(t, *exitInfo.Solution, "Please try again or connect admin")
+	assert.Equal(t, exitInfo.Solution[0], "Please try again or connect admin")
 	assert.Equal(t, *exitInfo.MatchedPlatformLogString, "Failed to start tensorboard")
 	assert.Equal(t, *exitInfo.MatchedUserLogString, "connect tensorboard failed")
 }

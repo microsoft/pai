@@ -36,12 +36,11 @@ TERMINATE_MESSAGE_PATH=/tmp/pai-termination-log
 function exit_handler()
 {
   USER_EXIT_CODE=$?
-  # genergate aggregate errors
-  ${PAI_RUNTIME_DIR}/exithandler ${USER_EXIT_CODE} \
-                                 ${PAI_LOG_DIR}/user.pai.all \
-                                 ${PAI_LOG_DIR}/runtime.pai.stderr \
-                                 ${TERMINATE_MESSAGE_PATH} ${PATTERN_FILE} >> ${PAI_LOG_DIR}/runtime.pai.stderr 2>&1
-  CONTAINER_EXIT_CODE=$?
+  # genergate aggregated exit info
+  CONTAINER_EXIT_CODE=$(${PAI_RUNTIME_DIR}/exithandler ${USER_EXIT_CODE} \
+                            ${PAI_LOG_DIR}/user.pai.all \
+                            ${PAI_LOG_DIR}/runtime.pai.stderr \
+                            ${TERMINATE_MESSAGE_PATH} ${PATTERN_FILE} 2> ${PAI_LOG_DIR}/runtime.pai.stderr)
   cp ${TERMINATE_MESSAGE_PATH} ${PAI_LOG_DIR}
 
   exit ${CONTAINER_EXIT_CODE}
