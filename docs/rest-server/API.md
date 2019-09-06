@@ -45,7 +45,7 @@ HTTP://restserver/api/v1/authn/oidc/return
 HTTP GET the redirect URL of Azure AD to sign out the authentication:
 
 ```url
-http://restserver/api/v1/authn/oidc/login 
+http://restserver/api/v1/authn/oidc/login
 ```
 
 ## 3. Submit a job
@@ -140,10 +140,13 @@ POST /api/v1/token
 *Parameters*
 
 ```json
+Status: 200
+
 {
   "username": "your username",
   "password": "your password",
-  "expiration": "expiration time in seconds"
+  "expiration": "expiration time in seconds",
+  "hasGitHubPAT": true | false
 }
 ```
 
@@ -212,7 +215,7 @@ Authorization: Bearer <ACCESS_TOKEN>
   "admin": true | false,
   "email": "email address or empty string",
   "virtualCluster": ["vcname1 in [A-Za-z0-9_]+ format", "vcname2 in [A-Za-z0-9_]+ format"],
-  "extension": { 
+  "extension": {
     "extension-key1": "extension-value1"
   }
 }
@@ -456,7 +459,7 @@ Authorization: Bearer <ACCESS_TOKEN>
 
 ```json
 {
-  "email": "Update user email data successfully."
+  "email": "The email address."
 }
 ```
 
@@ -466,7 +469,7 @@ Authorization: Bearer <ACCESS_TOKEN>
 Status: 201
 
 {
-  "message": "Update user virtualCluster data successfully."
+  "message": "Update user email data successfully."
 }
 ```
 
@@ -889,7 +892,7 @@ Authorization: Bearer <ACCESS_TOKEN>
   "groupname": "username in [A-Za-z0-9_]++ format",
   "description": "description for the group",
   "externalName": "the external group name binding with the group in OpenPAI",
-  "extension": { 
+  "extension": {
     "extension-key1": "extension-value1"
   }
 }
@@ -953,7 +956,7 @@ Authorization: Bearer <ACCESS_TOKEN>
 
 ```json
 {
-  "extension": { 
+  "extension": {
     "key-create-or-update-1": "extension-value1",
     "key-create-or-update-2": [ ... ],
     "key-create-or-update-3": { ... }
@@ -967,7 +970,7 @@ Authorization: Bearer <ACCESS_TOKEN>
 Status: 201
 
 {
-  "message": "group is created successfully"
+  "message": "update group extension data successfully."
 }
 ```
 
@@ -1214,18 +1217,10 @@ DELETE /api/v2/group/:groupname
 Authorization: Bearer <ACCESS_TOKEN>
 ```
 
-*Parameters*
-
-```json
-{
-  "externalName": "the external group name binding with the group in OpenPAI"
-}
-```
-
 *Response if succeeded*
 
 ```json
-Status: 200
+Status: 201
 
 {
   "message": "group is removed successfully"
@@ -1652,7 +1647,7 @@ Authorization: Bearer <ACCESS_TOKEN>
 *Response if succeeded*
 
 ```json
-Status: 200
+Status: 202
 
 {
   "message": "execute job $jobName successfully"
@@ -1968,7 +1963,13 @@ Authorization: Bearer <ACCESS_TOKEN>
 Status: 201
 
 {
-  "message": "Update vc: $vcName to status: $vcStatus successfully."
+    "message": "active vc $vcName successfully"
+}
+
+or
+
+{
+    "message": "stop vc $vcName successfully"
 }
 ```
 
