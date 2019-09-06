@@ -25,7 +25,6 @@ export class MountDirectories {
       'apt-get update',
       'apt-get install --assume-yes nfs-common cifs-utils sshpass wget',
       'umask 000',
-      'declare -a MOUNTPOINTS=()',
     ];
 
     const serverMountDict = {};
@@ -78,8 +77,6 @@ export class MountDirectories {
             // Create folder on server root path
             returnValue.push(`mkdir --parents ${mountInfo.mountPoint}`);
             returnValue.push(`mkdir --parents ${this.normalizePath(tmpFolder + mountInfo.path)}`);
-            // Monitor mount point
-            returnValue.push('MOUNTPOINTS=(${MOUNTPOINTS[@]} ' + mountInfo.mountPoint + ')');
           }
 
           const postCmds = this.generatePostMountCmds(server, tmpFolder);

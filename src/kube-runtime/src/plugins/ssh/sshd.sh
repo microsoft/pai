@@ -118,10 +118,10 @@ if [ -f /usr/sbin/sshd ] ; then
           if [ $# = 3 ] ; then
             case $2 in
               "system")
-                prepare_system_user_ssh $3
+                prepare_system_user_ssh "$3"
                 ;;
               "custom")
-                prepare_custom_user_ssh $3
+                prepare_custom_user_ssh "$3"
                 ;;
               *)
                 echo "unknown userssh type. userssh type should be system|custom." >&2
