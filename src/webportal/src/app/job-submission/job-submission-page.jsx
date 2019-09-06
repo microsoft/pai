@@ -31,7 +31,6 @@ import React, {useState, useCallback, useEffect, useMemo} from 'react';
 import {
   Fabric,
   Stack,
-  initializeIcons,
   StackItem,
 } from 'office-ui-fabric-react';
 import {isNil, isEmpty, get} from 'lodash';
@@ -43,7 +42,6 @@ import {TaskRoles} from './components/task-roles';
 import Context from './components/context';
 import {fetchJobConfig, listUserVirtualClusters} from './utils/conn';
 import {TaskRolesManager} from './utils/task-roles-manager';
-import {initTheme} from '../components/theme';
 
 // sidebar
 import {Parameters} from './components/sidebar/parameters';
@@ -62,9 +60,6 @@ import {
   isValidUpdatedTensorBoardExtras,
 } from './utils/utils';
 import {SpinnerLoading} from '../components/loading';
-
-initTheme();
-initializeIcons();
 
 const SIDEBAR_PARAM = 'param';
 const SIDEBAR_SECRET = 'secret';
@@ -98,7 +93,7 @@ function generateJobName(jobName) {
   return name;
 }
 
-export const JobSubmissionPage = ({isSingle, setWizardStatus, yamlText}) => {
+export const JobSubmissionPage = ({isSingle, history, yamlText, setYamlText}) => {
   const [jobTaskRoles, setJobTaskRolesState] = useState([
     new JobTaskRole({name: 'taskrole'}),
   ]);
@@ -338,6 +333,9 @@ export const JobSubmissionPage = ({isSingle, setWizardStatus, yamlText}) => {
                 setExtras(updatedExtras);
               }}
               extras={extras}
+              isSingle={isSingle}
+              history={history}
+              setYamlText={setYamlText}
             />
             {/* top - form */}
             <Stack styles={{root: {minHeight: 0}}} horizontal gap='l1'>
@@ -406,7 +404,7 @@ export const JobSubmissionPage = ({isSingle, setWizardStatus, yamlText}) => {
             jobData={jobData}
             jobProtocol={jobProtocol}
             setJobProtocol={setJobProtocol}
-            setWizardStatus={setWizardStatus}
+            history={history}
             onChange={(
               updatedJobInfo,
               updatedTaskRoles,
@@ -420,6 +418,7 @@ export const JobSubmissionPage = ({isSingle, setWizardStatus, yamlText}) => {
               setSecrets(updatedSecrets);
               setExtras(updatedExtras);
             }}
+            isSingle={isSingle}
           />
         </Stack>
       </Fabric>
@@ -429,6 +428,7 @@ export const JobSubmissionPage = ({isSingle, setWizardStatus, yamlText}) => {
 
 JobSubmissionPage.propTypes = {
   isSingle: PropTypes.bool,
-  setWizardStatus: PropTypes.func,
+  history: PropTypes.object,
   yamlText: PropTypes.string,
+  setYamlText: PropTypes.func,
 };

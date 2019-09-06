@@ -50,6 +50,7 @@ export class JobProtocol {
     this.extras = extras || {};
   }
 
+  // make sure protocolYaml is valid before use this function
   static fromYaml(protocolYaml) {
     try {
       const jobProtocol = yaml.safeLoad(protocolYaml);

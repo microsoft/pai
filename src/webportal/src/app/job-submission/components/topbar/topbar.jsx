@@ -30,7 +30,7 @@ import PropTypes from 'prop-types';
 import {ExportConfig} from './export-config';
 import {ImportConfig} from './import-config';
 
-export const Topbar = React.memo(({jobData, jobProtocol, onChange, extras}) => {
+export const Topbar = React.memo(({jobData, jobProtocol, onChange, extras, isSingle, history, setYamlText}) => {
   return (
     <Stack horizontal horizontalAlign='space-between' padding='0 m'>
       <Stack horizontal gap='m' verticalAlign='baseline'>
@@ -45,7 +45,7 @@ export const Topbar = React.memo(({jobData, jobProtocol, onChange, extras}) => {
       </Stack>
       <Stack horizontal gap='s1'>
         <ExportConfig jobData={jobData} jobProtocol={jobProtocol}/>
-        <ImportConfig extras={extras} onChange={onChange}/>
+        <ImportConfig extras={extras} onChange={onChange} isSingle={isSingle} history={history} setYamlText={setYamlText}/>
       </Stack>
     </Stack>
   );
@@ -56,4 +56,7 @@ Topbar.propTypes = {
   jobProtocol: PropTypes.object,
   onChange: PropTypes.func,
   extras: PropTypes.object.isRequired,
+  isSingle: PropTypes.bool,
+  history: PropTypes.object,
+  setYamlText: PropTypes.func,
 };
