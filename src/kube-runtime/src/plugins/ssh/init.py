@@ -33,12 +33,12 @@ logger = logging.getLogger(__name__)
 if __name__ == "__main__":
     [parameters, pre_script, post_script] = plugin_init()
 
-    cmdParams = []
-    if parameters is not None:
+    if parameters is not None:       
         if "jobssh" in parameters:
-            cmdParams.append(str(parameters["jobssh"]).lower())
+            jobssh = str(parameters["jobssh"]).lower())
         else:
-            cmdParams.append("false")
+            jobssh = "false"
+        cmdParams = [jobssh]
 
         if "userssh" in parameters:
             if "type" in parameters["userssh"] and "value" in parameters["userssh"]:
@@ -46,5 +46,11 @@ if __name__ == "__main__":
                 cmdParams.append("\'{}\'".format(parameters["userssh"]["value"]))
 
         # write call to real executable script
-        command = "{}/sshd.sh {}\n".format(os.path.dirname(os.path.abspath(__file__)), " ".join(cmdParams))
-        inject_commands([command], pre_script)
+        command = ["{}/sshd.sh {}\n".format(os.path.dirname(os.path.abspath(__file__)), " ".join(cmdParams))]
+
+        # ssh barrier
+        if jobssh == "true" and "sshbarrier" in parameters:
+            barrierParams = " ".join('"{}"'.format(tr) for tr in parameters["sshbarrier"])
+            command.append("{}/sshbarrier.sh {}\n".format(os.path.dirname(os.path.abspath(__file__)), barrierParams))
+
+        inject_commands(command, pre_script)

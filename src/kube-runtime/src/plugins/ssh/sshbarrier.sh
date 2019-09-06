@@ -53,6 +53,8 @@ for validTaskRole in $@; do
   done
 done
 
+echo "Checking instances: ${instanceToCheck[*]}"
+
 retryCount=0
 while [ ${#instanceToCheck[@]} -ne 0 ]
 do
@@ -73,3 +75,4 @@ do
   sleep $RETRY_INTERVAL
 done
 
+echo "All ssh connections are set, continue."

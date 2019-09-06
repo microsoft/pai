@@ -1,5 +1,5 @@
 protocolVersion: 2
-name: horovod_pytorch_synthetic_benchmark
+name: sshbarrier_test_job
 type: job
 version: horovod0.16.4-tf1.12.0-torch1.1.0-mxnet1.4.1-py3.5
 contributor: OpenPAI
@@ -24,9 +24,9 @@ taskRoles:
       minSucceededInstances: 1
     dockerImage: horovod_official
     resourcePerInstance:
-      cpu: 16
+      cpu: 4
       memoryMB: 16384
-      gpu: 4
+      gpu: 1
     commands:
       - >
         horovodrun -np 8 -H master-0:4,worker-0:4
@@ -37,9 +37,9 @@ taskRoles:
     instances: 1
     dockerImage: horovod_official
     resourcePerInstance:
-      cpu: 16
+      cpu: 4
       memoryMB: 16384
-      gpu: 4
+      gpu: 1
     commands:
       - sleep infinity
 
