@@ -22,6 +22,8 @@ cluster-type:
 prerequisite:
   - cluster-configuration
   - yarn-frameworklauncher
+  - k8s-frameworkcontroller
+  - hivedscheduler
   - log-manager
 
 template-list:
