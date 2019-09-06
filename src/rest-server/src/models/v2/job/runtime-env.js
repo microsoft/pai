@@ -20,7 +20,7 @@ const generateFrameworkEnv = (frameworkName, config) => {
   const [userName] = frameworkName.split('~');
   const env = {
     PAI_FRAMEWORK_NAME: frameworkName,
-    PAI_JOB_NAME: config.name,
+    PAI_JOB_NAME: frameworkName,
     PAI_USER_NAME: userName,
     PAI_DEFAULT_FS_URI: '',
     PAI_TASK_ROLE_COUNT: Object.keys(config.taskRoles).length,
