@@ -37,6 +37,7 @@ import {printDateTime, isClonable, isJobV2} from '../util';
 import MonacoPanel from '../../../../../components/monaco-panel';
 import StatusBadge from '../../../../../components/status-badge';
 import {getJobDurationString, getHumanizedJobStateString} from '../../../../../components/util/job';
+import config from '../../../../../config/webportal.config';
 import StopJobConfirm from '../../JobList/StopJobConfirm';
 
 const StoppableStatus = [
@@ -359,14 +360,19 @@ export default class Summary extends React.Component {
             </div>
             <div className={t.ml4}>
               <div className={c(t.gray, FontClassNames.medium)}>Retries</div>
-              <Link
-                onClick={() => openJobAttemptsPage(jobInfo.jobStatus.retries)}
-                disabled={isNil(jobInfo.jobStatus.retries)}
-              >
+              {config.launcherType === 'k8s' || isNil(jobInfo.jobStatus.retries) ? (
                 <div className={c(t.mt3, FontClassNames.mediumPlus)}>
                   {jobInfo.jobStatus.retries}
                 </div>
-              </Link>
+              ) : (
+                <Link
+                  onClick={() => openJobAttemptsPage(jobInfo.jobStatus.retries)}
+                >
+                  <div className={c(t.mt3, FontClassNames.mediumPlus)}>
+                    {jobInfo.jobStatus.retries}
+                  </div>
+                </Link>
+              )}
             </div>
           </div>
           {/* summary-row-2.5 error info */}
@@ -395,15 +401,19 @@ export default class Summary extends React.Component {
               >
                 View Exit Diagnostics
               </Link>
-              <div className={c(t.bl, t.mh3)}></div>
-              <Link
-                styles={{root: [FontClassNames.mediumPlus]}}
-                href={jobInfo.jobStatus.appTrackingUrl}
-                disabled={isNil(jobInfo.jobStatus.appTrackingUrl)}
-                target="_blank"
-              >
-                Go to Application Tracking Page
-              </Link>
+              {config.launcherType !== 'k8s' && (
+                <React.Fragment>
+                  <div className={c(t.bl, t.mh3)}></div>
+                  <Link
+                    styles={{root: [FontClassNames.mediumPlus]}}
+                    href={jobInfo.jobStatus.appTrackingUrl}
+                    disabled={isNil(jobInfo.jobStatus.appTrackingUrl)}
+                    target="_blank"
+                  >
+                    Go to Application Tracking Page
+                  </Link>
+                </React.Fragment>
+              )}
               <div className={c(t.bl, t.mh3)}></div>
               <Link
                 styles={{root: [FontClassNames.mediumPlus]}}
