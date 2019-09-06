@@ -12,7 +12,7 @@ Please use the following commands to install this extension (Make sure you are i
 
 ```bash
 pip install --upgrade pip
-git clone -b notebook-extension https://github.com/Microsoft/pai
+git clone https://github.com/Microsoft/pai
 cd pai/contrib/notebook-extension
 python setup.py # add --user to avoid permission issues if necessary
 ```
@@ -133,7 +133,7 @@ Clicking <img src="./docs_img/job-button.png"  height="20" width="25"> will open
 
 To update this extension, please use the following commands:
 ```bash
-git clone -b notebook-extension https://github.com/Microsoft/pai
+git clone https://github.com/Microsoft/pai
 cd pai/contrib/notebook-extension
 jupyter nbextension install openpai_submitter
 jupyter nbextension enable openpai_submitter/main
