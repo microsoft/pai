@@ -141,7 +141,7 @@ spec:
 {%- if cluster_cfg['rest-server']['launcher-type'] == "k8s" %}
       - name: hived-spec-rest-server
         configMap:
-          name: hived-spec-configuration
+          name: hivedscheduler-config
 {%- endif %}
       - name: group-configuration-rest-server
         configMap:
