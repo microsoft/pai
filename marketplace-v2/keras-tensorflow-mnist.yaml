@@ -33,5 +33,6 @@ taskRoles:
       memoryMB: 8192
       gpu: 1
     commands:
+      # remove in the image otherwise cannot find gpu
       - rm /usr/local/cuda/lib64/stubs/libcuda.so.1
       - python mnist_cnn.py
