@@ -64,7 +64,7 @@
       reasonRegex: '{{ pod_pattern['reasonRegex'] }}'
       {%- endif %}
       {%- if 'messageRegex' in pod_pattern %}
-      reasonRegex: '{{ pod_pattern['messageRegex'] }}'
+      messageRegex: '{{ pod_pattern['messageRegex'] }}'
       {%- endif %}
       {%- if 'containers' in pod_pattern %}
       containers:
@@ -91,10 +91,10 @@
     {%- for runtime_pattern in spec_item['pattern']['runtimeContainerPatterns'] %}
     - 
       {%- if 'exitCode' in runtime_pattern %}
-      reasonRegex: {{ runtime_pattern['exitCode'] }}
+      exitCode: {{ runtime_pattern['exitCode'] }}
       {%- endif %}
       {%- if 'userLogRegex' in runtime_pattern %}
-      reasonRegex: '{{ runtime_pattern['userLogRegex'] }}'
+      userLogRegex: '{{ runtime_pattern['userLogRegex'] }}'
       {%- endif %}
       {%- if 'platformLogRegex' in runtime_pattern %}
       platformLogRegex: '{{ runtime_pattern['platformLogRegex'] }}'

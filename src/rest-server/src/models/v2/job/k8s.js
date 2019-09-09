@@ -667,7 +667,7 @@ const generateExitDiagnostics = (diag) => {
   const matches = diag.match(regex);
 
   // No container info here
-  if (matches.length < 2) {
+  if (matches === null || matches.length < 2) {
     return exitDiagnostics;
   }
 
