@@ -21,7 +21,8 @@ pushd $(dirname "$0") > /dev/null
 
 mkdir -p "../dependency"
 cp -arf "../../../docs" "../../../examples" "../dependency"
-cp -arf "../../../version" "../version"
+mkdir -p "../version"
+cp -arf ../../../version/* "../version/"
 if [ "$ATTACH_COMMIT_ID" = true ]; then
     echo `git rev-parse HEAD | cut -c1-6` > ../version/COMMIT.VERSION
 else
