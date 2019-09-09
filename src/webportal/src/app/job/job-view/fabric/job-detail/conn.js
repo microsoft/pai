@@ -55,7 +55,7 @@ export async function fetchRawJobConfig() {
     : `${config.restServerUri}/api/v1/jobs/${jobName}/config`;
   const res = await fetch(url);
   const text = await res.text();
-  let json = yaml.safeLoad(text);
+  const json = yaml.safeLoad(text);
   if (res.ok) {
     return json;
   } else {
@@ -73,7 +73,7 @@ export async function fetchJobConfig() {
     : `${config.restServerUri}/api/v1/jobs/${jobName}/config`;
   const res = await fetch(url);
   const text = await res.text();
-  let json = yaml.safeLoad(text);
+  const json = yaml.safeLoad(text);
   if (res.ok) {
     return json;
   } else {
@@ -114,7 +114,7 @@ export function getTensorBoardUrl(jobInfo, rawJobConfig) {
       if (
         taskStatuses.taskState === 'RUNNING' &&
         taskStatuses.containerPorts &&
-        taskStatuses.containerPorts.hasOwnProperty(tensorBoardPortStr)
+        !isNil(taskStatuses.containerPorts[tensorBoardPortStr])
       ) {
         port = taskStatuses.containerPorts[tensorBoardPortStr];
         ip = taskStatuses.containerIp;

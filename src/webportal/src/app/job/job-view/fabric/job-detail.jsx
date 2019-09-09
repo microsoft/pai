@@ -68,7 +68,7 @@ class JobDetail extends React.Component {
   }
 
   componentDidMount() {
-    void this.reload(true);
+    this.reload(true);
   }
 
   async reload(alertFlag) {

@@ -123,7 +123,7 @@ export function listAbnormalJobs(allJobs, lowGpuJobsInfo) {
       return acc;
     }
     const lowGpuUsageJob = { ...cur };
-    lowGpuUsageJob['gpuUsage'] = gpuUsageInfo.gpuUsage;
+    lowGpuUsageJob.gpuUsage = gpuUsageInfo.gpuUsage;
     acc.push(lowGpuUsageJob);
     return acc;
   }, []);
@@ -135,7 +135,7 @@ export function listAbnormalJobs(allJobs, lowGpuJobsInfo) {
       lowGpuUsageJob => lowGpuUsageJob.name === job.name,
     );
     if (!isNil(lowGpuUsagejob)) {
-      job['gpuUsage'] = lowGpuUsagejob.gpuUsage;
+      job.gpuUsage = lowGpuUsagejob.gpuUsage;
     }
   });
   lowGpuUsageJobs.forEach(lowGpuUsageJob => {

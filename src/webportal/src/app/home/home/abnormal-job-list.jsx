@@ -34,11 +34,12 @@ import {
   getJobDurationString,
   getJobModifiedTimeString,
   getHumanizedJobStateString,
+  isLowGpuUsageJob,
+  isLongRunJob,
 } from '../../components/util/job';
 import { zeroPaddingClass } from './util';
 import { Header } from './header';
 import userAuth from '../../user/user-auth/user-auth.component';
-import { isLowGpuUsageJob, isLongRunJob } from '../../components/util/job';
 import { stopJob } from './conn';
 import { cloneDeep } from 'lodash';
 import StopJobConfirm from '../../job/job-view/fabric/JobList/StopJobConfirm';

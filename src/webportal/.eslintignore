@@ -1,0 +1,7 @@
+# ESLint always ignores files in /node_modules/* and /bower_components/*.
+/build/**
+/deploy/**
+/dist/**
+/coverage/**
+/docs/**
+!.eslintrc.js

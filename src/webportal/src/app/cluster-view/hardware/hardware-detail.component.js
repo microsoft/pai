@@ -36,8 +36,8 @@ $(document).ready(() => {
   $('#sidebar-menu--cluster-view--hardware').addClass('active');
   let instance = '';
   const query = querystring.parse(window.location.search.replace(/^\?+/, ''));
-  if (query['instance']) {
-    instance = query['instance'];
+  if (query.instance) {
+    instance = query.instance;
   } else {
     return;
   }

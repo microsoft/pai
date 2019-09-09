@@ -153,7 +153,7 @@ export default class TaskRoleContainerList extends React.Component {
 
   logAutoRefresh() {
     const { logUrl } = this.state;
-    void getContainerLog(logUrl)
+    getContainerLog(logUrl)
       .then(({ text, fullLogLink }) =>
         this.setState(
           prevState =>

@@ -62,20 +62,20 @@ export default function JobList() {
     const query = querystring.parse(location.search.replace(/^\?/, ''));
     if (['vcName', 'status', 'user'].some(x => !isEmpty(query[x]))) {
       const queryFilter = new Filter();
-      if (query['vcName']) {
-        queryFilter.virtualClusters = new Set([query['vcName']]);
+      if (query.vcName) {
+        queryFilter.virtualClusters = new Set([query.vcName]);
       }
-      if (query['status']) {
-        queryFilter.statuses = new Set([query['status']]);
+      if (query.status) {
+        queryFilter.statuses = new Set([query.status]);
       }
-      if (query['user']) {
-        queryFilter.users = new Set([query['user']]);
+      if (query.user) {
+        queryFilter.users = new Set([query.user]);
       }
       return queryFilter;
     } else {
       const initialFilterUsers =
         username && !admin ? new Set([username]) : undefined;
-      let filter = new Filter(undefined, initialFilterUsers);
+      const filter = new Filter(undefined, initialFilterUsers);
       filter.load();
       return filter;
     }

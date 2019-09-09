@@ -145,7 +145,7 @@ const loadMemUtilData = (
       currentEpochTimeInSeconds +
       '&step=1',
     success: function(dataOfMemUsed) {
-      let dictOfMemUsed = {};
+      const dictOfMemUsed = {};
       const result = dataOfMemUsed.data.result;
       for (let i = 0; i < result.length; i++) {
         const item = result[i];
@@ -286,7 +286,7 @@ const loadDiskUtilData = (
       currentEpochTimeInSeconds +
       '&step=1',
     success: function(dataOfDiskBytesRead) {
-      let dictOfDiskBytesRead = {};
+      const dictOfDiskBytesRead = {};
       const result = dataOfDiskBytesRead.data.result;
       for (let i = 0; i < result.length; i++) {
         const item = result[i];
@@ -361,7 +361,7 @@ const loadEthUtilData = (
       currentEpochTimeInSeconds +
       '&step=1',
     success: function(dataOfEthBytesRecieved) {
-      let dictOfEthBytesRecieved = {};
+      const dictOfEthBytesRecieved = {};
       const result = dataOfEthBytesRecieved.data.result;
       for (let i = 0; i < result.length; i++) {
         const item = result[i];
@@ -443,7 +443,7 @@ const loadData = () => {
           ],
         })
         .api();
-      let instanceList = [];
+      const instanceList = [];
       for (let i = 0; i < data.data.result.length; i++) {
         instanceList.push(getHostname(data.data.result[i].metric.instance));
       }

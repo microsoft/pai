@@ -48,7 +48,7 @@ const isValidJson = str => {
   let valid = true;
   let errors = null;
   try {
-    let json = JSON.parse(str);
+    const json = JSON.parse(str);
     errors = editor.validate(json);
     if (errors.length) {
       valid = false;
@@ -65,14 +65,14 @@ const isValidJson = str => {
 };
 
 const exportFile = (data, filename, type) => {
-  let file = new Blob([data], { type: type });
+  const file = new Blob([data], { type: type });
   if (window.navigator.msSaveOrOpenBlob) {
     // IE10+
     window.navigator.msSaveOrOpenBlob(file, filename);
   } else {
     // Others
-    let a = document.createElement('a');
-    let url = URL.createObjectURL(file);
+    const a = document.createElement('a');
+    const url = URL.createObjectURL(file);
     a.href = url;
     a.download = filename;
     document.body.appendChild(a);
@@ -121,7 +121,7 @@ const submitJob = jobConfig => {
 };
 
 const loadEditor = () => {
-  let element = $('#editor-holder')[0];
+  const element = $('#editor-holder')[0];
   editor = new JSONEditor(element, {
     schema: jobSchema,
     theme: 'bootstrap3',
@@ -134,7 +134,7 @@ const loadEditor = () => {
 };
 
 const resize = () => {
-  let heights = window.innerHeight;
+  const heights = window.innerHeight;
   $('#editor-holder')[0].style.height = heights - 300 + 'px';
 };
 
@@ -145,7 +145,7 @@ $(document).ready(() => {
   userAuth.checkToken(function(token) {
     loadEditor();
     editor.on('change', () => {
-      $('#submitJob').prop('disabled', editor.validate().length != 0);
+      $('#submitJob').prop('disabled', editor.validate().length !== 0);
     });
 
     // choose the first edit json box
@@ -153,16 +153,16 @@ $(document).ready(() => {
       .filter(':first')
       .one('click', () => {
         // disable old save button to avoid saving automatically
-        let oldSave = $('[title="Edit JSON"]')
+        const oldSave = $('[title="Edit JSON"]')
           .filter(':first')
           .next('div')
           .children('[title=Save]')[0];
-        let newSave = oldSave.cloneNode(true);
+        const newSave = oldSave.cloneNode(true);
         oldSave.parentNode.replaceChild(newSave, oldSave);
 
         // add new click listener
         $(newSave).on('click', () => {
-          let curConfig = editor.root.editjson_textarea.value;
+          const curConfig = editor.root.editjson_textarea.value;
           if (isValidJson(curConfig)) {
             editor.root.setValue(JSON.parse(curConfig));
             editor.root.hideEditJSON();
@@ -208,7 +208,7 @@ $(document).ready(() => {
     if (op === 'resubmit') {
       if (type != null && username != null && jobname != null) {
         const url =
-          username == ''
+          username === ''
             ? `${webportalConfig.restServerUri}/api/v1/jobs/${jobname}/config`
             : `${webportalConfig.restServerUri}/api/v2/jobs/${username}~${jobname}/config`;
         $.ajax({
