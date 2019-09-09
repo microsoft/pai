@@ -176,6 +176,7 @@ const convertTaskDetail = async (taskStatus, ports, userName, jobName, taskRoleN
 const convertFrameworkDetail = async (framework) => {
   const completionStatus = framework.status.attemptStatus.completionStatus;
   const diagnostics = completionStatus ? completionStatus.diagnostics : null;
+  const exitDiagnostics = generateExitDiagnostics(diagnostics);
   const detail = {
     name: decodeName(framework.metadata.name, framework.metadata.labels),
     frameworkName: framework.metadata.name,
@@ -204,13 +205,13 @@ const convertFrameworkDetail = async (framework) => {
       appCompletedTime: new Date(framework.status.completionTime).getTime(),
       appExitCode: completionStatus ? completionStatus.code : null,
       appExitSpec: completionStatus ? generateExitSpec(completionStatus.code) : generateExitSpec(null),
-      appExitDiagnostics: generateExitDiagnostics(diagnostics),
-      appExitMessages: diagnostics ? {
+      appExitDiagnostics: exitDiagnostics ? exitDiagnostics.diagnosticsSummary : null,
+      appExitMessages: exitDiagnostics ? {
         container: null,
-        runtime: extractRuntimeOutput(diagnostics),
-        launcher: extractLauncherOutput(diagnostics),
+        runtime: exitDiagnostics.runtime,
+        launcher: exitDiagnostics.launcher,
       } : null,
-      appExitTriggerMessage: completionStatus && completionStatus.trigger ? yaml.safeDump(completionStatus.trigger) : null,
+      appExitTriggerMessage: completionStatus && completionStatus.trigger ? completionStatus.trigger.message : null,
       appExitTriggerTaskRoleName: completionStatus && completionStatus.trigger ? completionStatus.trigger.taskRoleName : null,
       appExitTriggerTaskIndex: completionStatus && completionStatus.trigger ? completionStatus.trigger.taskIndex : null,
       appExitType: completionStatus ? completionStatus.type.name : null,
@@ -653,42 +654,47 @@ const getSshInfo = async (frameworkName) => {
 };
 
 const generateExitDiagnostics = (diag) => {
-  const podCompletionStatus = extractPodCompletionStatus(diag);
-  if (podCompletionStatus === null) {
-    return diag;
-  }
-
-  const regex = /matched: (.*)/;
-  const matches = diag.match(regex);
-  const summmaryInfo = diag.substring(0, matches.index + 'matched:'.length);
-  return summmaryInfo + '\n' + yaml.safeDump(podCompletionStatus);
-};
-
-const extractPodCompletionStatus = (diag) => {
   if (_.isEmpty(diag)) {
     return null;
   }
-  // The pattern for diagnostics is "podPattern unmatched: json" or "podPattern matched: json"
+
+  const exitDiagnostics = {
+    diagnosticsSummary: diag,
+    runtime: null,
+    launcher: diag,
+  };
   const regex = /matched: (.*)/;
   const matches = diag.match(regex);
+
+  // No container info here
   if (matches.length < 2) {
-    return null;
+    return exitDiagnostics;
   }
+
+  let podCompletionStatus = null;
   try {
-    return JSON.parse(matches[1]);
+    podCompletionStatus = JSON.parse(matches[1]);
   } catch (error) {
     logger.warn('Get diagnostics info failed', error);
+    return exitDiagnostics;
   }
-  return null;
+
+  const summmaryInfo = diag.substring(0, matches.index + 'matched:'.length);
+  exitDiagnostics.diagnosticsSummary = summmaryInfo + '\n' + yaml.safeDump(podCompletionStatus);
+
+  // Get runtime output, set launcher output to null. Otherwise, treat all message as launcher output
+  exitDiagnostics.runtime = extractRuntimeOutput(podCompletionStatus);
+  if (exitDiagnostics.runtime !== null) {
+    exitDiagnostics.launcher = null;
+    return exitDiagnostics;
+  }
+
+  exitDiagnostics.launcher = exitDiagnostics.diagnosticsSummary;
+  return exitDiagnostics;
 };
 
-const extractRuntimeOutput = (diag) => {
-  if (_.isEmpty(diag)) {
-    return null;
-  }
-
-  const podCompletionStatus = extractPodCompletionStatus(diag);
-  if (podCompletionStatus === null) {
+const extractRuntimeOutput = (podCompletionStatus) => {
+  if (_.isEmpty(podCompletionStatus)) {
     return null;
   }
 
@@ -709,20 +715,14 @@ const extractRuntimeOutput = (diag) => {
       const start = match1.index + match1[0].length;
       const end = match2.index;
       const output = message.substring(start, end).trim();
-      res = yaml.safeLoad(output);
+      res = {
+        ...yaml.safeLoad(output),
+        name: container.name,
+      };
       break;
     }
   }
   return res;
-};
-
-const extractLauncherOutput = (diag) => {
-  const anchor = /\[PAI_RUNTIME_ERROR_START\]/;
-  const match = diag.match(anchor);
-  if (match != null) {
-    return null;
-  }
-  return diag;
 };
 
 const generateExitSpec = (code) => {
