@@ -50,9 +50,7 @@ extras:
         - master
       parameters:
         jobssh: true
-        sshbarrier:
-          - master
-          - worker
+        sshbarrier: true
     - plugin: ssh
       taskroles:
         - worker

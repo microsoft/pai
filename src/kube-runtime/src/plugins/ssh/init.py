@@ -49,8 +49,11 @@ if __name__ == "__main__":
         command = ["{}/sshd.sh {}\n".format(os.path.dirname(os.path.abspath(__file__)), " ".join(cmdParams))]
 
         # ssh barrier
-        if jobssh == "true" and "sshbarrier" in parameters:
-            barrierParams = " ".join('"{}"'.format(tr) for tr in parameters["sshbarrier"])
+        if jobssh == "true" and "sshbarrier" in parameters and str(parameters["sshbarrier"]).lower() == "true":
+            if "sshbarriertaskroles" in parameters:
+                barrierParams = " ".join('"{}"'.format(tr) for tr in parameters["sshbarrier"])
+            else:
+                barrierParams = ""
             command.append("{}/sshbarrier.sh {}\n".format(os.path.dirname(os.path.abspath(__file__)), barrierParams))
 
         inject_commands(command, pre_script)

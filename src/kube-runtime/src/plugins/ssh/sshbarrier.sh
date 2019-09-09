@@ -20,7 +20,7 @@
 # no set -o nounset because use empty array to judge end
 set -o pipefail
 
-readonly MAX_RETRY_COUNT=10
+readonly MAX_RETRY_COUNT=20
 readonly RETRY_INTERVAL=1
 
 function check_ssh_connection()
@@ -34,33 +34,36 @@ function check_ssh_connection()
 instanceToCheck=()
 # Set ssh config for all task role instances
 taskRoleInstanceArray=(${PAI_TASK_ROLE_INSTANCES//,/ })
+barrierTaskRoles=$@
 
-for validTaskRole in $@; do
-  for i in "${taskRoleInstanceArray[@]}"; do
-    instancePair=(${i//:/ })
-    taskRole=${instancePair[0]}
-    index=${instancePair[1]}
+for i in "${taskRoleInstanceArray[@]}"; do
+  instancePair=(${i//:/ })
+  taskRole=${instancePair[0]}
+  index=${instancePair[1]}
 
-    if [[ $taskRole -ne $validTaskRole ]]; then
-      continue
+  if [[ $taskRole = $FC_TASKROLE_NAME ]] && [[ $index = $FC_TASK_INDEX ]]; then
+    continue
+  fi
+
+# If barrier task roles defined, then only check instances for defined task roles. Otherwise check all instances.
+  if [ ${#barrierTaskRoles[@]} != 0 ]; then
+    if [[ " ${barrierTaskRoles[@]} " =~ " ${value} " ]]; then
+      instanceToCheck+=("${taskRole}-${index}")
     fi
-
-    if [[ $taskRole = $FC_TASKROLE_NAME ]] && [[ $index = $FC_TASK_INDEX ]]; then
-      continue
-    fi
-    
+  else
     instanceToCheck+=("${taskRole}-${index}")
-  done
+  fi
 done
-
-echo "Checking instances: ${instanceToCheck[*]}"
 
 retryCount=0
 while [ ${#instanceToCheck[@]} -ne 0 ]
 do
   if [ $retryCount -ge $MAX_RETRY_COUNT ]; then
+    echo "SSH barrier reaches max retry count. Failed instances: ${instanceToCheck[*]} Exit..."
     exit 240
   fi
+
+  echo "Trying to SSH to instances: ${instanceToCheck[*]}"
 
   instanceFailed=()
   for instance in "${instanceToCheck[@]}"; do
@@ -75,4 +78,4 @@ do
   sleep $RETRY_INTERVAL
 done
 
-echo "All ssh connections are set, continue..."
+echo "All ssh connections are established, continue..."
