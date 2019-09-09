@@ -33,7 +33,7 @@ import {
   Stack,
   StackItem,
 } from 'office-ui-fabric-react';
-import {isNil, isEmpty, get} from 'lodash';
+import {isNil, isEmpty, get, cloneDeep} from 'lodash';
 import PropTypes from 'prop-types';
 
 import {JobInformation} from './components/job-information';
@@ -60,6 +60,8 @@ import {
   isValidUpdatedTensorBoardExtras,
 } from './utils/utils';
 import {SpinnerLoading} from '../components/loading';
+import config from '../config/webportal.config';
+import {PAI_PLUGIN} from './utils/constants';
 
 const SIDEBAR_PARAM = 'param';
 const SIDEBAR_SECRET = 'secret';
@@ -272,6 +274,27 @@ export const JobSubmissionPage = ({isSingle, history, yamlText, setYamlText}) =>
     }
   }, []);
 
+  // Init plugins for pure k8s based PAI
+  if (config.launcherType === 'k8s') {
+    useEffect(() => {
+      const plugin = get(extras, PAI_PLUGIN);
+      if (!plugin) {
+        // Init SSH default settings for old/empty jobs
+        const updatedPlugin = [
+          {
+            'plugin': 'ssh',
+            'parameters': {
+              'jobssh': true,
+            },
+          },
+        ];
+        const updatedExtras = cloneDeep(extras);
+        updatedExtras[PAI_PLUGIN] = updatedPlugin;
+        setExtras(updatedExtras);
+      }
+    }, []);
+  }
+
   useEffect(() => {
     const taskRolesManager = new TaskRolesManager(jobTaskRoles);
     const isUpdated = taskRolesManager.populateTaskRolesWithUpdatedSecret(
@@ -385,8 +408,10 @@ export const JobSubmissionPage = ({isSingle, history, yamlText, setYamlText}) =>
                     onSelect={selectTool}
                     jobData={jobData}
                     taskRoles={jobTaskRoles}
+                    secrets={secrets}
                     extras={extras}
-                    onChange={setExtras}
+                    onSecretsChange={setSecrets}
+                    onExtrasChange={setExtras}
                   />
                 </Stack>
               </StackItem>
