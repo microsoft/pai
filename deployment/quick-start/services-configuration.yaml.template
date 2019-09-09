@@ -142,6 +142,10 @@ rest-server:
 # log-manager:
 #  port: 9103
 
+# uncomment following section if you want to customize the port of log-manager
+# log-manager-master:
+#  port: 9103
+
 # uncomment following section, if you want to customize the authentication solution.
 #authentication:
   #OIDC: false
