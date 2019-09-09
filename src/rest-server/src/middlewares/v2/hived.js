@@ -35,8 +35,8 @@ const hivedValidate = (protocolObj) => {
     throw createError('Bad Request', 'InvalidProtocolError', hivedSchema.validate.errors);
   }
   const resourceUnits = vcConfig.resourceUnits;
-  const minCpu = Math.min(...Array.from(Object.values(resourceUnits), (v)=>v.cpu));
-  const minMemoryMB = Math.min(...Array.from(Object.values(resourceUnits), (v)=>v.memoryMB));
+  const minCpu = Math.min(...Array.from(Object.values(resourceUnits), (v) => v.cpu));
+  const minMemoryMB = Math.min(...Array.from(Object.values(resourceUnits), (v) => v.memory));
   let hivedConfig = null;
   const affinityGroups = {};
   if ('extras' in protocolObj && 'hivedScheduler' in protocolObj.extras) {
