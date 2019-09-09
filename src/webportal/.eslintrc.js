@@ -1,41 +1,46 @@
 module.exports = {
-  "env": {
-    "browser": true,
-    "es6": true,
-    "node": true,
-    "jquery": true,
+  plugins: ['eslint-plugin-prettier', 'react-hooks'],
+  env: {
+    browser: true,
+    es6: true,
+    node: true,
+    jquery: true,
   },
-  "extends": [
-    "eslint:recommended",
-    "plugin:react/recommended",
-    "google"
+  extends: [
+    'standard',
+    'plugin:react/recommended',
+    'plugin:prettier/recommended',
+    'prettier/react',
+    'prettier',
   ],
-  "globals": {
-    "cookies": false,
-    "userLogout": false,
+  parserOptions: {
+    sourceType: 'module',
+    ecmaFeatures: {
+      jsx: true,
+    },
   },
-  "rules": {
-    "max-len": [0, 80],
-    "require-jsdoc": 0,
-    "valid-jsdoc": 0,
-    "react/display-name": 0,
+  globals: {
+    cookies: 'readonly',
+    userLogout: 'readonly',
   },
-  "settings": {
-    "react": {
-      "version": "detect"
-    }
+  settings: {
+    react: {
+      version: 'detect',
+    },
   },
-  "overrides": [
-    {
-      "files": [
-        "**/*.jsx",
-        "src/app/job/job-view/fabric/**/*.js",
-        "src/app/components/**/*.js",
-        "src/app/home/**/*.js",
-        "src/app/user/fabric/**/*.js",
-        "src/app/job-submission/**/*.js",
-      ],
-      "parser": "babel-eslint"
-    }
-  ]
+  rules: {
+    'prettier/prettier': ['error'],
+    'react/display-name': 'off',
+    "react-hooks/rules-of-hooks": "error",
+    "react-hooks/exhaustive-deps": "warn",
+    'max-len': [
+      'error',
+      {
+        code: 120,
+        ignoreComments: true,
+        ignoreStrings: true,
+        ignoreTemplateLiterals: true,
+      },
+    ],
+  },
 };
