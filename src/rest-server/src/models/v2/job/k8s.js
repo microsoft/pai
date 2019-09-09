@@ -122,15 +122,17 @@ const convertTaskDetail = async (taskStatus, ports, userName, jobName, taskRoleN
     }
   }
   // get container gpus
-  let containerGpus;
-  try {
-    const isolation = (await axios({
-      method: 'get',
-      url: launcherConfig.podPath(taskStatus.attemptStatus.podName),
-    })).data.metadata.annotations['hivedscheduler.microsoft.com/pod-gpu-isolation'];
-    containerGpus = isolation.split(',').reduce((attr, id) => attr + Math.pow(2, id), 0);
-  } catch (e) {
-    containerGpus = 0;
+  let containerGpus = 0;
+  if (launcherConfig.enabledHived) {
+    try {
+      const isolation = (await axios({
+        method: 'get',
+        url: launcherConfig.podPath(taskStatus.attemptStatus.podName),
+      })).data.metadata.annotations['hivedscheduler.microsoft.com/pod-gpu-isolation'];
+      containerGpus = isolation.split(',').reduce((attr, id) => attr + Math.pow(2, id), 0);
+    } catch (e) {
+      containerGpus = 0;
+    }
   }
   const completionStatus = taskStatus.attemptStatus.completionStatus;
   return {

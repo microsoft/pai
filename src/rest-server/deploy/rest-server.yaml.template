@@ -54,14 +54,12 @@ spec:
         - name: LAUNCHER_TYPE
           value: {{ cluster_cfg['rest-server']['launcher-type'] }}
 {%- if cluster_cfg['rest-server']['launcher-type'] == "k8s" %}
-        - name: SCHEDULER_TYPE
-          value: hived
         - name: LAUNCHER_RUNTIME_IMAGE
           value: {{ cluster_cfg['cluster']['docker-registry']['prefix'] }}kube-runtime:{{ cluster_cfg['cluster']['docker-registry']['tag'] }}
         - name: LAUNCHER_RUNTIME_IMAGE_PULL_SECRETS
           value: {{ cluster_cfg["cluster"]["docker-registry"]["secret-name"] }}
         - name: LAUNCHER_SCHEDULER
-          value: hivedscheduler
+          value: defaultscheduler
         - name: LOG_MANAGER_PORT
           value: "{{ cluster_cfg['log-manager']['port'] }}"
 {%- endif %}

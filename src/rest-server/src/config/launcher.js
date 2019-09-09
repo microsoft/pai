@@ -187,7 +187,7 @@ if (launcherType === 'yarn') {
     scheduler: process.env.LAUNCHER_SCHEDULER,
     runtimeImage: process.env.LAUNCHER_RUNTIME_IMAGE,
     runtimeImagePullSecrets: process.env.LAUNCHER_RUNTIME_IMAGE_PULL_SECRETS,
-    enabledHived: process.env.SCHEDULER_TYPE === 'hived',
+    enabledHived: process.env.LAUNCHER_SCHEDULER === 'hivedscheduler',
     hivedSpecPath: process.env.HIVED_SPEC_PATH || '/hived-spec/hivedscheduler.yaml',
     requestHeaders: {
       'Accept': 'application/json',
