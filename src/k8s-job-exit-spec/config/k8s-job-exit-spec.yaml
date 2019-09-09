@@ -736,6 +736,25 @@ spec:
 # Description: User Container issued failures:
 # -> Voluntary failures caused by Container itself
 ###########################################################################
+- code: 220
+  phrase: UserCommandExitWithError
+  issuer: USER_CONTAINER
+  causer: USER_CONTAINER
+  type: USER_FAILURE
+  stage: RUNNING
+  behavior: PERMANENT
+  reaction: NEVER_RETRY
+  reason: "User command is invalid"
+  repro:
+  - "Start a job with invalid command"
+  solution:
+  - "Check the user command"
+  - "Check the PATH environment variable in the container"
+  pattern:
+    runtimeContainerPatterns:
+    - exitCode: 127
+      userLogRegex: "command not found"
+
 - code: 240
   phrase: PAIRuntimeSSHBarrierTimeout
   issuer: PAI_RUNTIME
@@ -797,6 +816,21 @@ spec:
   - "Run FrameworkBarrier with BARRIER_CHECK_TIMEOUT_SEC equals to 1"
   solution:
   - "Contact PAI Dev to fix the PAI Runtime bug"
+
+- code: 255
+  phrase: UnrecognizedUserErrorReceived
+  issuer: USER_CONTAINER
+  causer: USER_CONTAINER
+  type: USER_FAILURE
+  stage: RUNNING
+  behavior: PERMANENT
+  reaction: NEVER_RETRY
+  reason: "User command return with unrecognized exit pattern"
+  repro:
+  - "Retry the job with same command"
+  solution:
+  - "Check job logs"
+  - "Correct the command and retry the job"
 
 
 ################################

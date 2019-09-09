@@ -12,18 +12,13 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
-// Use zero to present undefined exitCode in error spec
-const undefinedExitCode = 0
-
 type runtimeErrorSpec struct {
 	ContainerExitCode int       `yaml:"containerExitCode"`
 	Patterns          []pattern `yaml:"patterns"`
-	Reason            *string   `yaml:"reason"`
-	Solution          []string  `yaml:"solution"`
 }
 
 type pattern struct {
-	ExitCode         int     `yaml:"exitCode"`
+	ExitCode         *int    `yaml:"exitCode"`
 	UserLogRegex     *string `yaml:"userLogRegex"`
 	PlatformLogRegex *string `yaml:"platformLogRegex"`
 	// Can add more patterns here
@@ -38,8 +33,6 @@ type ErrorLogs struct {
 // RuntimeExitInfo the aggregated exit info
 type RuntimeExitInfo struct {
 	Exitcode                 int        `yaml:"exitCode"`
-	Reason                   *string    `yaml:"reason,omitempty"`
-	Solution                 []string   `yaml:"solution,omitempty"`
 	Trigger                  *string    `yaml:"trigger,omitempty"`
 	OriginUserExitCode       int        `yaml:"originUserExitCode"`
 	MatchedUserLogString     *string    `yaml:"matchedUserLogString,omitempty"`
@@ -77,6 +70,10 @@ type ErrorAggregator struct {
 }
 
 func ptrString(o string) *string {
+	return &o
+}
+
+func ptrInt(o int) *int {
 	return &o
 }
 
@@ -134,8 +131,6 @@ func (a *ErrorAggregator) GenerateExitInfo(userExitCode int) (*RuntimeExitInfo, 
 		if isMatch {
 			exitInfo.Exitcode = spec.ContainerExitCode
 			exitInfo.OriginUserExitCode = userExitCode
-			exitInfo.Reason = spec.Reason
-			exitInfo.Solution = spec.Solution
 			exitInfo.MatchedUserLogString = result.matchedUserLog
 			exitInfo.MatchedPlatformLogString = result.matchedPlatformLog
 			exitInfo.CaughtException = nil
@@ -283,7 +278,7 @@ func (a *ErrorAggregator) matchSpecPatten(spec *runtimeErrorSpec, userExitCode i
 	var err error
 
 	for _, p := range spec.Patterns {
-		if p.ExitCode != undefinedExitCode && p.ExitCode != userExitCode {
+		if p.ExitCode != nil && *p.ExitCode != userExitCode {
 			continue
 		}
 

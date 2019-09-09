@@ -18,19 +18,10 @@
 {% for spec_item in cluster_cfg['k8s-job-exit-spec']['spec'] %}
 {%- if spec_item['code'] > 0 %}
 - containerExitCode: {{ spec_item['code'] }}
-{%- if 'reason' in spec_item %}
-  reason: {{ spec_item['reason'] }}
-{%- endif %}
-{%- if 'solution' in spec_item %}
-  solution:
-  {%- for str_val in spec_item['solution'] %}
-    - "{{ str_val }}"
-  {%- endfor %}
-{%- endif %}
-{%- if 'patterns' in spec_item %}
+{%- if 'pattern' in spec_item %}
   patterns:
-{%- if 'runtimeContainerPatterns' in spec_item['patterns'] %}
-  {%- for runtimePattern in spec_item['patterns']['runtimeContainerPatterns'] %}
+{%- if 'runtimeContainerPatterns' in spec_item['pattern'] %}
+  {%- for runtimePattern in spec_item['pattern']['runtimeContainerPatterns'] %}
   - 
   {%- if 'exitCode' in runtimePattern %}
     exitCode: {{ runtimePattern['exitCode'] }}

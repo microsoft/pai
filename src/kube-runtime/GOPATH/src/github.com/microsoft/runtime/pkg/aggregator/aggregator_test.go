@@ -36,8 +36,6 @@ func TestGenerateExitInfo(t *testing.T) {
 
 	assert.Equal(t, exitInfo.Exitcode, 137)
 	assert.Equal(t, exitInfo.OriginUserExitCode, 137)
-	assert.Equal(t, *exitInfo.Reason, "User program terminated by SIGKILL")
-	assert.Equal(t, exitInfo.Solution[0], "Please check the log and retry again")
 }
 
 func TestGenerateExitInfoWithRegex(t *testing.T) {
@@ -50,8 +48,6 @@ func TestGenerateExitInfoWithRegex(t *testing.T) {
 	assert.Equal(t, exitInfo.Exitcode, 10)
 	assert.Equal(t, exitInfo.OriginUserExitCode, 1)
 	assert.Equal(t, *exitInfo.MatchedUserLogString, "exec(compile(getattr(tokenize, 'open', open)(__file__)")
-	assert.Equal(t, *exitInfo.Reason, "Failed to open tocken file")
-	assert.Equal(t, exitInfo.Solution[0], "Please check the tocken file path")
 }
 
 func TestGenerateExitInfoWithMultiPattern(t *testing.T) {
@@ -64,8 +60,6 @@ func TestGenerateExitInfoWithMultiPattern(t *testing.T) {
 	assert.Equal(t, exitInfo.Exitcode, 12)
 	assert.Equal(t, exitInfo.OriginUserExitCode, 1)
 	assert.Equal(t, *exitInfo.MatchedUserLogString, "failed with error code 1 in /tmp/pip")
-	assert.Equal(t, *exitInfo.Reason, "Some package not install property")
-	assert.Equal(t, exitInfo.Solution[0], "Please check the pip install command")
 }
 
 func TestGenerateExitInfoWithTruncateLog(t *testing.T) {
@@ -91,8 +85,6 @@ func TestGenerateExitInfoWithUnkonwError(t *testing.T) {
 
 	assert.Equal(t, exitInfo.Exitcode, 255)
 	assert.Equal(t, exitInfo.OriginUserExitCode, 254)
-	assert.Nil(t, exitInfo.Reason)
-	assert.Nil(t, exitInfo.Solution)
 }
 
 func TestGenerateExitInfoWithAndLogic(t *testing.T) {
@@ -104,8 +96,6 @@ func TestGenerateExitInfoWithAndLogic(t *testing.T) {
 
 	assert.Equal(t, exitInfo.Exitcode, 15)
 	assert.Equal(t, exitInfo.OriginUserExitCode, 1)
-	assert.Equal(t, *exitInfo.Reason, "Tensorboad not startup correctly")
-	assert.Equal(t, exitInfo.Solution[0], "Please try again or connect admin")
 	assert.Equal(t, *exitInfo.MatchedPlatformLogString, "Failed to start tensorboard")
 	assert.Equal(t, *exitInfo.MatchedUserLogString, "connect tensorboard failed")
 }

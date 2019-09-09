@@ -31,18 +31,30 @@ PAI_RUNTIME_DIR=${PAI_WORK_DIR}/runtime.d
 PAI_LOG_DIR=${PAI_WORK_DIR}/logs/${FC_POD_UID}
 PAI_USER_LOG_FILE=${PAI_LOG_DIR}/user.pai.all
 PATTERN_FILE=${PAI_RUNTIME_DIR}/runtime-exit-spec.yaml
+
+# please refer to rest-server/src/models/v2/job/k8s.js
 TERMINATE_MESSAGE_PATH=/tmp/pai-termination-log
 
 function exit_handler()
 {
   USER_EXIT_CODE=$?
+  set +o errexit
+  if [[ $USER_EXIT_CODE -eq 0 ]]; then
+    exit 0
+  fi
   # genergate aggregated exit info
-  CONTAINER_EXIT_CODE=$(${PAI_RUNTIME_DIR}/exithandler ${USER_EXIT_CODE} \
-                            ${PAI_LOG_DIR}/user.pai.all \
-                            ${PAI_LOG_DIR}/runtime.pai.stderr \
-                            ${TERMINATE_MESSAGE_PATH} ${PATTERN_FILE} 2> ${PAI_LOG_DIR}/runtime.pai.stderr)
-  cp ${TERMINATE_MESSAGE_PATH} ${PAI_LOG_DIR}
+  ${PAI_RUNTIME_DIR}/exithandler ${USER_EXIT_CODE} \
+                                 ${PAI_LOG_DIR}/user.pai.all \
+                                 ${PAI_LOG_DIR}/runtime.pai.stderr \
+                                 ${TERMINATE_MESSAGE_PATH} ${PATTERN_FILE} 2> ${PAI_LOG_DIR}/runtime.pai.stderr
 
+  CONTAINER_EXIT_CODE=$?
+  if [[ $CONTAINER_EXIT_CODE -eq 1 ]]; then
+    # runtime exitHandler exit unexpectedly
+    exit 10
+  fi
+
+  cp ${TERMINATE_MESSAGE_PATH} ${PAI_LOG_DIR}
   exit ${CONTAINER_EXIT_CODE}
 }
 

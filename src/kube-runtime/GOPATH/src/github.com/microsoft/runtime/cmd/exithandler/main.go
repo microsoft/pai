@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"os"
 	"strconv"
 
@@ -11,7 +10,7 @@ import (
 
 var log *logger.Logger
 
-const defaultExitCode = 255
+const abnormalExitCode = 1
 
 func init() {
 	log = logger.NewLogger()
@@ -19,17 +18,21 @@ func init() {
 
 // This function will extract error summary to the specific file and print the exit code
 func main() {
-	argsWithoutProg := os.Args[1:]
+	defer func() {
+		if r := recover(); r != nil {
+			log.Error("runtime failed to handle exit info", r)
+			os.Exit(abnormalExitCode)
+		}
+	}()
 
+	argsWithoutProg := os.Args[1:]
 	if len(argsWithoutProg) < 5 {
-		log.Error("args is not valid")
-		os.Exit(defaultExitCode)
+		panic("args is not valid")
 	}
 
 	userExitCode, err := strconv.Atoi(argsWithoutProg[0])
 	if err != nil {
-		log.Error("user exit code is not an int value", err)
-		os.Exit(defaultExitCode)
+		panic("user exit code is not an int value: " + err.Error())
 	}
 
 	userLog := argsWithoutProg[1]
@@ -42,40 +45,36 @@ func main() {
 	logFiles.RuntimeErrorLog = runtimeErrorLog
 
 	exitInfo := &aggregator.RuntimeExitInfo{
-		Exitcode:           255,
+		Exitcode:           abnormalExitCode,
 		OriginUserExitCode: userExitCode,
 	}
 
 	log.Info("start to generate the exit summary")
 	a, err := aggregator.NewErrorAggregator(&logFiles, log)
 	if err != nil {
-		log.Error("failed to create log aggregator", err)
-		goto DUMP_RESULT
+		panic("fatal: create log aggregator: " + err.Error())
 	}
 
 	err = a.LoadRuntimeErrorSpecs(patternPath)
 	if err != nil {
-		log.Error("load runtime error spec failed")
-		goto DUMP_RESULT
+		panic("fatal: loading runtime error spec: " + err.Error())
 	}
 	exitInfo, err = a.GenerateExitInfo(int(userExitCode))
 	if err != nil {
 		log.Error("failed to generate the exitInfo", err)
 	}
 
-DUMP_RESULT:
 	aggFile, err := os.Create(aggFilePath)
 	if err != nil {
-		log.Error("open aggregate file failed", err)
-		os.Exit(defaultExitCode)
+		panic("fatal: create aggregate file: " + err.Error())
 	}
 	defer aggFile.Close()
 
 	err = a.DumpExitSummary(exitInfo, aggFile)
 	if err != nil {
-		log.Error("dump exit info failed", err)
-		os.Exit(defaultExitCode)
+		panic("fatal: dumping summary info: " + err.Error())
 	}
 	log.Info("finish generating the exit summary")
-	fmt.Print(exitInfo.Exitcode)
+
+	os.Exit(exitInfo.Exitcode)
 }

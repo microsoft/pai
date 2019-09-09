@@ -21,6 +21,31 @@ set -o errexit
 set -o nounset
 set -o pipefail
 
+function exit_handler()
+{
+  EXIT_CODE=$?
+  echo "start execute exit handler" >> ${PAI_INIT_LOG_FILE}
+  if [[ $EXIT_CODE -eq 0 ]]; then
+    exit 0
+  fi
+
+  if [[ $EXIT_CODE -eq 200 ]]; then
+    exit 250
+  fi
+
+  if [[ $EXIT_CODE -eq 201 ]]; then
+    exit 251
+  fi
+
+  if [[ $EXIT_CODE -eq 210 ]]; then
+    exit 252
+  fi
+
+  exit ${EXIT_CODE}
+}
+
+trap exit_handler EXIT
+
 # This init script will be executed inside init container,
 # all scripts under init.d will be executed in priority order.
 # Init scripts will do preparations before user container starts.
