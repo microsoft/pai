@@ -57,7 +57,10 @@ export const NotificationButton = () => {
           });
         // Swallow exceptions here. Since alertManager is optional and we don't have an API to get all avaliable services
       })
-      .catch(error => {});
+      .catch(error => {
+        if (error) {
+        }
+      });
   }, []);
 
   const open = useCallback(() => {

@@ -20,7 +20,9 @@ export class WebHDFSClient {
         return true;
       })
       .catch(error => {
-        return false;
+        if (error) {
+          return false;
+        }
       });
   }
 

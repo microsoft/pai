@@ -65,12 +65,12 @@ export default function UserView() {
     onClose: null,
   });
   const showMessageBox = value => {
-    return new Promise((resolve, _reject) => {
+    return new Promise((resolve, reject) => {
       setMessageBox({ text: String(value), onClose: resolve });
     });
   };
   const showMessageBoxWithConfirm = value => {
-    return new Promise((resolve, _reject) => {
+    return new Promise((resolve, reject) => {
       setMessageBox({ text: String(value), onClose: resolve, confirm: true });
     });
   };
@@ -148,7 +148,7 @@ export default function UserView() {
     const selected = getSelectedUsers();
     showMessageBoxWithConfirm(
       `Are you sure to remove ${
-        selected.length == 1 ? 'the user' : 'these users'
+        selected.length === 1 ? 'the user' : 'these users'
       }?`,
     ).then(confirmed => {
       if (confirmed) {
@@ -160,8 +160,8 @@ export default function UserView() {
         ).then(results => {
           hideLoading();
           const errors = results.filter(result => result instanceof Error);
-          let message = `Remove ${selected.length == 1 ? 'user' : 'users'} `;
-          if (errors.length == 0) {
+          let message = `Remove ${selected.length === 1 ? 'user' : 'users'} `;
+          if (errors.length === 0) {
             message += 'successfully.';
           } else {
             message += `with ${errors.length} failed.`;
@@ -199,7 +199,7 @@ export default function UserView() {
   });
   const showBatchPasswordEditor = () => {
     const selectedAdmin =
-      findIndex(getSelectedUsers(), user => user.admin) != -1;
+      findIndex(getSelectedUsers(), user => user.admin) !== -1;
     if (selectedAdmin) {
       showMessageBoxWithConfirm(
         'Your options include the administrator, please confirm whether to continue this operation',

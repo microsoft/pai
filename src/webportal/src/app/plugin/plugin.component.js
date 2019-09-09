@@ -17,8 +17,6 @@
 
 require('@webcomponents/custom-elements');
 
-const url = require('url');
-
 function loadScript(uri, callback) {
   const script = document.createElement('script');
   script.addEventListener('load', loadHandler);
@@ -33,8 +31,8 @@ function loadScript(uri, callback) {
 }
 
 $(document).ready(function() {
-  const query = url.parse(window.location.href, true).query;
-  const index = Number(query['index']);
+  const query = new URLSearchParams(window.location.search);
+  const index = Number(query.get('index'));
   const plugin = window.PAI_PLUGINS[index];
 
   if (plugin == null) {

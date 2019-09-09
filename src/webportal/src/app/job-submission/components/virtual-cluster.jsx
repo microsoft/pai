@@ -37,7 +37,7 @@ export const VirtualCluster = React.memo(props => {
           placeholder='Select an option'
           options={options}
           onChange={_onChange}
-          selectedKey={vcIndex == -1 ? null : `vc_${vcIndex}`}
+          selectedKey={vcIndex === -1 ? null : `vc_${vcIndex}`}
         />
       </FormShortSection>
     </BasicSection>

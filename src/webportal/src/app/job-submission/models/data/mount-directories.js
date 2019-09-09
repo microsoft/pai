@@ -1,10 +1,11 @@
+import { isNil, isEmpty } from 'lodash';
+
 import { InputData } from './input-data';
 import {
   TEAMWISE_DATA_CMD_START,
   TEAMWISE_DATA_CMD_END,
   AUTO_GENERATE_NOTIFY,
 } from '../../utils/constants';
-import { isEmpty } from 'lodash';
 
 export class MountDirectories {
   constructor(user, jobName, selectedConfigs, servers) {
@@ -44,7 +45,7 @@ export class MountDirectories {
     const mountPoints = [];
 
     for (const spn in serverMountDict) {
-      if (serverMountDict.hasOwnProperty(spn)) {
+      if (!isNil(serverMountDict[spn])) {
         const mountInfos = serverMountDict[spn];
         const server = this.servers.find(item => item.spn === spn);
 
@@ -163,8 +164,8 @@ export class MountDirectories {
           'apt-get install --assume-yes lsb-release apt-transport-https',
           "valid_release=('14.04' '15.10' '16.04' '16.10' '17.04' '17.10' '18.04' '18.10' '19.04')",
           'release=`lsb_release -r | cut -f 2`',
-          'if [[ ! ${valid_release[@]} =~ ${release} ]]; then echo "Invalid OS version for Azureblob!"; exit 1; fi',
-          'wget https://packages.microsoft.com/config/ubuntu/${release}/packages-microsoft-prod.deb',
+          'if [[ ! ${valid_release[@]} =~ ${release} ]]; then echo "Invalid OS version for Azureblob!"; exit 1; fi', // eslint-disable-line no-template-curly-in-string
+          'wget https://packages.microsoft.com/config/ubuntu/${release}/packages-microsoft-prod.deb', // eslint-disable-line no-template-curly-in-string
           'dpkg -i packages-microsoft-prod.deb',
           'apt-get update',
           'apt-get install --assume-yes blobfuse fuse', // blob to mount and fuse to unmount
@@ -330,7 +331,7 @@ export class MountDirectories {
   }
 
   getTeamDataList() {
-    let newTeamDataList = [];
+    const newTeamDataList = [];
     for (const config of this.selectedConfigs) {
       for (const mountInfo of config.mountInfos) {
         const serverRootPath = this.getServerPath(mountInfo.server);

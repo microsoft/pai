@@ -199,7 +199,7 @@ export default function Table() {
       items={pagination.apply(ordering.apply(filteredUsers || []))}
       setKey='key'
       columns={columns}
-      enableShimmer={allUsers === null || allUsers.length == 0}
+      enableShimmer={allUsers === null || allUsers.length === 0}
       shimmerLines={pagination.itemsPerPage}
       selection={selection}
     />

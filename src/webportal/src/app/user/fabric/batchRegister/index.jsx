@@ -23,7 +23,7 @@ import {
   initializeIcons,
   getTheme,
 } from 'office-ui-fabric-react';
-import { countBy, findIndex } from 'lodash';
+import { isNil, countBy, findIndex } from 'lodash';
 
 import t from '../../../components/tachyons.scss';
 
@@ -77,7 +77,7 @@ export default function BatchRegister() {
   useEffect(refreshAllUsers, []);
 
   const downloadTemplate = () => {
-    let csvString = csvParser.unparse([
+    const csvString = csvParser.unparse([
       {
         [columnUsername]: 'student1',
         [columnPassword]: '111111',
@@ -86,9 +86,9 @@ export default function BatchRegister() {
         [columnVC]: 'default',
       },
     ]);
-    let universalBOM = '\uFEFF';
-    let filename = 'userinfo.csv';
-    let file = new Blob([universalBOM + csvString], {
+    const universalBOM = '\uFEFF';
+    const filename = 'userinfo.csv';
+    const file = new Blob([universalBOM + csvString], {
       type: 'text/csv;charset=utf-8',
     });
     if (window.navigator.msSaveOrOpenBlob) {
@@ -96,8 +96,8 @@ export default function BatchRegister() {
       window.navigator.msSaveOrOpenBlob(file, filename);
     } else {
       // Others
-      let a = document.createElement('a');
-      let url = URL.createObjectURL(file);
+      const a = document.createElement('a');
+      const url = URL.createObjectURL(file);
       a.href = url;
       a.download = filename;
       document.body.appendChild(a);
@@ -110,7 +110,7 @@ export default function BatchRegister() {
   };
 
   const checkCSVFormat = csvResult => {
-    let fields = csvResult.meta.fields;
+    const fields = csvResult.meta.fields;
     if (fields.indexOf(columnUsername) === -1) {
       showMessageBox('Missing column of username in the CSV file!');
       return false;
@@ -125,7 +125,7 @@ export default function BatchRegister() {
       );
       return false;
     }
-    if (csvResult.data.length == 0) {
+    if (csvResult.data.length === 0) {
       showMessageBox('Empty CSV file');
       return false;
     }
@@ -134,13 +134,13 @@ export default function BatchRegister() {
 
   const checkVCField = csvResult => {
     for (let i = 0; i < csvResult.data.length; i++) {
-      let user = csvResult.data[i];
+      const user = csvResult.data[i];
       if (user[columnVC]) {
         const parsedVCs = user[columnVC].split(',').map(vc => vc.trim());
         for (let j = 0; j < parsedVCs.length; j++) {
-          let vc = parsedVCs[j];
+          const vc = parsedVCs[j];
           if (vc) {
-            if (virtualClusters.indexOf(vc) == -1) {
+            if (virtualClusters.indexOf(vc) === -1) {
               showMessageBox(`${vc} is not a valid virtual cluster name`);
               return false;
             }
@@ -160,7 +160,7 @@ export default function BatchRegister() {
       hideLoading();
       return;
     }
-    let csvResult = csvParser.parse(stripBom(csvContent), {
+    const csvResult = csvParser.parse(stripBom(csvContent), {
       header: true,
       skipEmptyLines: true,
     });
@@ -180,13 +180,13 @@ export default function BatchRegister() {
   };
 
   const importFromCSV = () => {
-    let readFile = function(e) {
-      let file = e.target.files[0];
+    const readFile = function(e) {
+      const file = e.target.files[0];
       if (!file) {
         return;
       }
       showLoading('Uploading...');
-      let reader = new FileReader();
+      const reader = new FileReader();
       reader.onload = function(e) {
         parseUserInfosFromCSV(e.target.result);
         document.body.removeChild(fileInput);
@@ -197,7 +197,7 @@ export default function BatchRegister() {
       };
       reader.readAsText(file);
     };
-    let fileInput = document.createElement('input');
+    const fileInput = document.createElement('input');
     fileInput.type = 'file';
     fileInput.style.display = 'none';
     fileInput.onchange = readFile;
@@ -219,7 +219,7 @@ export default function BatchRegister() {
         message: `User ${userInfo[columnUsername]} created successfully`,
       };
 
-      let result = await createUserRequest(
+      const result = await createUserRequest(
         userInfo[columnUsername],
         userInfo[columnEmail],
         userInfo[columnPassword],
@@ -263,7 +263,7 @@ export default function BatchRegister() {
   };
 
   const removeRow = userInfo => {
-    let newUserInfos = userInfos.slice();
+    const newUserInfos = userInfos.slice();
     newUserInfos.splice(newUserInfos.indexOf(userInfo), 1);
     setUserInfos(newUserInfos);
   };
@@ -293,7 +293,7 @@ export default function BatchRegister() {
     onClose: null,
   });
   const showMessageBox = value => {
-    return new Promise((resolve, _reject) => {
+    return new Promise((resolve, reject) => {
       setMessageBox({ text: String(value), onClose: resolve });
     });
   };
@@ -317,8 +317,8 @@ export default function BatchRegister() {
 
   const hideSubmit =
     findIndex(userInfos, userInfo => {
-      return userInfo.status == undefined || userInfo.status.isSuccess == false;
-    }) == -1;
+      return isNil(userInfo.status) || userInfo.status.isSuccess === false;
+    }) === -1;
 
   const { spacing } = getTheme();
 

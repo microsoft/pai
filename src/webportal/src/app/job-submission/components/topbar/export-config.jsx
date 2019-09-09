@@ -34,14 +34,14 @@ const user = cookies.get('user');
 
 export const ExportConfig = React.memo(({ jobData, jobProtocol }) => {
   const _exportFile = (data, filename, type) => {
-    let file = new Blob([data], { type: type });
+    const file = new Blob([data], { type: type });
     if (window.navigator.msSaveOrOpenBlob) {
       // IE10+
       window.navigator.msSaveOrOpenBlob(file, filename);
     } else {
       // Others
-      let a = document.createElement('a');
-      let url = URL.createObjectURL(file);
+      const a = document.createElement('a');
+      const url = URL.createObjectURL(file);
       a.href = url;
       a.download = filename;
       document.body.appendChild(a);

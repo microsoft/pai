@@ -19,7 +19,7 @@ import PropTypes from 'prop-types';
 
 import { STORAGE_PREFIX } from '../../utils/constants';
 import { InputData } from '../../models/data/input-data';
-import { removePathPrefix } from '../../utils/utils';
+import { removePathPrefix, dispatchResizeEvent } from '../../utils/utils';
 import {
   validateMountPath,
   validateHttpUrl,
@@ -27,7 +27,6 @@ import {
   validateHDFSPathSync,
 } from '../../utils/validation';
 import Context from '../context';
-import { dispatchResizeEvent } from '../../utils/utils';
 import t from '../../../components/tachyons.scss';
 
 const DATA_ERROR_MESSAGE_ID = 'Data Section';
@@ -129,7 +128,7 @@ export const MountList = ({ dataList, setDataList, setDataError }) => {
   });
 
   const onDataSourceChange = useCallback((idx, val) => {
-    let updatedDataList = cloneDeep(dataList);
+    const updatedDataList = cloneDeep(dataList);
     updatedDataList[idx].dataSource = val;
     setDataList(updatedDataList);
   });
@@ -146,7 +145,7 @@ export const MountList = ({ dataList, setDataList, setDataError }) => {
             value={removePathPrefix(item.mountPath, STORAGE_PREFIX)}
             errorMessage={containerPathErrorMessage[idx]}
             onChange={(_event, newValue) => {
-              let updatedDataList = cloneDeep(dataList);
+              const updatedDataList = cloneDeep(dataList);
               updatedDataList[idx].mountPath = `${STORAGE_PREFIX}${newValue}`;
               setDataList(updatedDataList);
             }}

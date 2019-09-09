@@ -143,7 +143,7 @@ export default function UserEditor({
         return;
       }
     } else {
-      if (newEmail != email) {
+      if (newEmail !== email) {
         const result = await updateUserEmailRequest(newUsername, newEmail)
           .then(() => {
             setNeedRefreshAllUsers(true);
@@ -175,7 +175,7 @@ export default function UserEditor({
         }
       }
 
-      if (newAdmin != oldAdmin) {
+      if (newAdmin !== oldAdmin) {
         const result = await updateUserAdminRequest(newUsername, newAdmin)
           .then(() => {
             setNeedRefreshAllUsers(true);
@@ -291,7 +291,7 @@ export default function UserEditor({
                       multiSelect
                       options={vcsOptions}
                       selectedKeys={vcs}
-                      disabled={isAdmin ? true : false}
+                      disabled={isAdmin}
                       onChange={handleVCsChanged}
                       placeholder='Select an option'
                       style={{ maxWidth: '248px' }}

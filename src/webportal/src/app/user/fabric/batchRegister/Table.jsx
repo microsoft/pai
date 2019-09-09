@@ -53,11 +53,11 @@ export default function Table() {
     onRender: userInfo => {
       const { username } = userInfo;
       const getErrorMessage = value => {
-        let errorMessage = checkUsername(value);
+        const errorMessage = checkUsername(value);
         if (errorMessage) {
           return errorMessage;
         }
-        if (allUsers.indexOf(value) != -1) {
+        if (allUsers.indexOf(value) !== -1) {
           return 'User name already exists';
         }
         return '';
@@ -211,7 +211,7 @@ export default function Table() {
             }
           }}
           onRenderTitle={_options => {
-            if (userInfo.vcs.length == 0) {
+            if (userInfo.vcs.length === 0) {
               return null;
             } else {
               let innerText = userInfo.vcs[0];
@@ -242,7 +242,7 @@ export default function Table() {
 
     onRender(userInfo) {
       const { status: { isSuccess, message } = {} } = userInfo;
-      let statusText = undefined;
+      let statusText;
       if (isSuccess === true) {
         statusText = 'Succeeded';
       } else if (isSuccess === false) {

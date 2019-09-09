@@ -46,7 +46,7 @@ async function fetchWrapper(...args) {
 }
 
 export async function submitJob(jobProtocol) {
-  return await fetchWrapper(`${config.restServerUri}/api/v2/jobs`, {
+  return fetchWrapper(`${config.restServerUri}/api/v2/jobs`, {
     body: jobProtocol,
     headers: {
       Authorization: `Bearer ${token}`,
@@ -60,7 +60,7 @@ export async function fetchJobConfig(userName, jobName) {
   const url = `${config.restServerUri}/api/v2/jobs/${userName}~${jobName}/config`;
   const res = await fetch(url);
   const text = await res.text();
-  let json = yaml.safeLoad(text);
+  const json = yaml.safeLoad(text);
   if (res.ok) {
     return json;
   } else {

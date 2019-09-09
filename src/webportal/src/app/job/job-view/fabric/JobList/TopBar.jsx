@@ -89,7 +89,7 @@ function TopBar() {
       .then(body => {
         const allUsers = Object.create(null);
         body.forEach(userBody => {
-          allUsers[userBody['username']] = true;
+          allUsers[userBody.username] = true;
         });
         setUser(allUsers);
       })

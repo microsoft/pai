@@ -26,7 +26,7 @@ function MessageBox(props) {
   const { text, onDismiss, confirm } = props;
 
   const closeModal = () => {
-    if (onDismiss) onDismiss(confirm ? false : true);
+    if (onDismiss) onDismiss(!confirm);
   };
 
   const onClickOK = () => {

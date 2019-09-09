@@ -34,7 +34,7 @@ const fetchWrapper = async (...args) => {
 export const getAllUsersRequest = async () => {
   const url = `${config.restServerUri}/api/v2/user`;
   const token = checkToken();
-  return await fetchWrapper(url, {
+  return fetchWrapper(url, {
     headers: {
       Authorization: `Bearer ${token}`,
     },
@@ -44,7 +44,7 @@ export const getAllUsersRequest = async () => {
 export const removeUserRequest = async username => {
   const url = `${config.restServerUri}/api/v2/user/${username}`;
   const token = checkToken();
-  return await fetchWrapper(url, {
+  return fetchWrapper(url, {
     method: 'DELETE',
     headers: {
       Authorization: `Bearer ${token}`,
@@ -55,7 +55,7 @@ export const removeUserRequest = async username => {
 export const updateUserVcRequest = async (username, virtualCluster) => {
   const url = `${config.restServerUri}/api/v2/user/${username}/virtualcluster`;
   const token = checkToken();
-  return await fetchWrapper(url, {
+  return fetchWrapper(url, {
     method: 'PUT',
     headers: {
       Authorization: `Bearer ${token}`,
@@ -73,7 +73,7 @@ export const createUserRequest = async (
 ) => {
   const url = `${config.restServerUri}/api/v2/user/`;
   const token = checkToken();
-  return await fetchWrapper(url, {
+  return fetchWrapper(url, {
     method: 'POST',
     headers: {
       Authorization: `Bearer ${token}`,
@@ -85,7 +85,7 @@ export const createUserRequest = async (
 export const updateUserPasswordRequest = async (username, newPassword) => {
   const url = `${config.restServerUri}/api/v2/user/${username}/password`;
   const token = checkToken();
-  return await fetchWrapper(url, {
+  return fetchWrapper(url, {
     method: 'PUT',
     headers: {
       Authorization: `Bearer ${token}`,
@@ -97,7 +97,7 @@ export const updateUserPasswordRequest = async (username, newPassword) => {
 export const updateUserEmailRequest = async (username, email) => {
   const url = `${config.restServerUri}/api/v2/user/${username}/email`;
   const token = checkToken();
-  return await fetchWrapper(url, {
+  return fetchWrapper(url, {
     method: 'PUT',
     headers: {
       Authorization: `Bearer ${token}`,
@@ -109,7 +109,7 @@ export const updateUserEmailRequest = async (username, email) => {
 export const updateUserAdminRequest = async (username, admin) => {
   const url = `${config.restServerUri}/api/v2/user/${username}/admin`;
   const token = checkToken();
-  return await fetchWrapper(url, {
+  return fetchWrapper(url, {
     method: 'PUT',
     headers: {
       Authorization: `Bearer ${token}`,
@@ -120,5 +120,5 @@ export const updateUserAdminRequest = async (username, admin) => {
 
 export const getAllVcsRequest = async () => {
   const url = `${config.restServerUri}/api/v2/virtual-clusters`;
-  return await fetchWrapper(url);
+  return fetchWrapper(url);
 };

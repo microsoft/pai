@@ -417,7 +417,7 @@ function TopBar() {
   const selectedUsers = getSelectedUsers();
   const selected = selectedUsers.length > 0;
   const selectedMulti = selectedUsers.length > 1;
-  const selectedAdmin = findIndex(selectedUsers, user => user.admin) != -1;
+  const selectedAdmin = findIndex(selectedUsers, user => user.admin) !== -1;
   if (selected) {
     if (selectedMulti) {
       topBarItems.push(btnBatchEditPassword);
