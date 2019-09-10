@@ -58,13 +58,8 @@ for i in "${taskRoleInstances[@]}"; do
 done
 
 retryCount=0
-while [[ ${#instancesToCheck[@]} != 0 ]]
+while true
 do
-  if [[ $retryCount > $MAX_RETRY_COUNT ]]; then
-    echo "SSH barrier reaches max retry count. Failed instances: ${instancesToCheck[*]} Exit..." >&2
-    exit 10
-  fi
-
   echo "Trying to SSH to instances: ${instancesToCheck[*]}"
 
   instanceFailed=()
@@ -74,9 +69,17 @@ do
       instanceFailed+=("$instance")
     fi
   done
-  instancesToCheck=(${instanceFailed[*]}) 
 
+  [[ ${#instanceFailed[@]} = 0 ]] && break
+
+  if (( $retryCount >= $MAX_RETRY_COUNT )); then
+    echo "SSH barrier reaches max retry count. Failed instances: ${instancesToCheck[*]} Exit..." >&2
+    exit 10
+  fi
+
+  instancesToCheck=(${instanceFailed[*]}) 
   ((retryCount++))
+
   sleep $RETRY_INTERVAL
 done
 
