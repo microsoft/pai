@@ -44,6 +44,10 @@ location ~ ^/rest-server/api(.*)$ {
     \"privateKeyDirectDownloadLink\":\"http://([^/]*):5070/([^\"]*)\"
     \"privateKeyDirectDownloadLink\":\"$scheme://$http_host/a/$1:5070/$2\"
     r;
+  subs_filter
+    \"containerLog\":\"http://([^/]*):(\d+)/log-manager/(.*)\"
+    \"containerLog\":\"/log-manager/$1:$2/$3\"
+    r;
 
   proxy_set_header    If-None-Match    $request_if_none_match;
   add_header          Etag             $response_etag;
@@ -78,6 +82,11 @@ location ~ ^/prometheus(.*)$ {
 # alert-manager server.
 location ~ ^/alert-manager(.*)$ {
   proxy_pass {{ALERT_MANGER_URI}}/alert-manager$1$is_args$args;
+}
+
+# log-manager server
+location ~ ^/log-manager/([^/]+):(\d+)/(.*)$ {
+  proxy_pass http://$1:$2/log-manager/$3$is_args$args;
 }
 
 #

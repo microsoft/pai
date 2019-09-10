@@ -144,7 +144,7 @@ const convertTaskDetail = async (taskStatus, ports, userName, jobName, taskRoleN
     containerIp: taskStatus.attemptStatus.podHostIP,
     containerPorts,
     containerGpus,
-    containerLog: `http://${taskStatus.attemptStatus.podHostIP}:${process.env.LOG_MANAGER_PORT}/logs/${userName}/${jobName}/${taskRoleName}/${taskStatus.attemptStatus.podUID}/`,
+    containerLog: `http://${taskStatus.attemptStatus.podHostIP}:${process.env.LOG_MANAGER_PORT}/log-manager/${userName}/${jobName}/${taskRoleName}/${taskStatus.attemptStatus.podUID}/`,
     containerExitCode: completionStatus ? completionStatus.code : null,
   };
 };
