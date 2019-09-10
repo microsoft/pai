@@ -16,4 +16,4 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 FROM openresty/openresty:1.15.8.2-alpine
-COPY src/nginx/nginx.conf /etc/nginx/conf.d/log-manager.conf
+COPY src/nginx/nginx.conf /etc/nginx/conf.d/default.conf
