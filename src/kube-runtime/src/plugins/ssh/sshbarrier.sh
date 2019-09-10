@@ -30,13 +30,15 @@ function check_ssh_connection()
   return $_RCODE
 }
 
+taskRolesToCheck=()
+for barrierTaskRole in $@; do
+  taskRolesToCheck+=($barrierTaskRole)
+done
 
-instanceToCheck=()
+instancesToCheck=()
 # Set ssh config for all task role instances
-taskRoleInstanceArray=(${PAI_TASK_ROLE_INSTANCES//,/ })
-barrierTaskRoles=$@
-
-for i in "${taskRoleInstanceArray[@]}"; do
+taskRoleInstances=(${PAI_TASK_ROLE_INSTANCES//,/ })
+for i in "${taskRoleInstances[@]}"; do
   instancePair=(${i//:/ })
   taskRole=${instancePair[0]}
   index=${instancePair[1]}
@@ -46,33 +48,33 @@ for i in "${taskRoleInstanceArray[@]}"; do
   fi
 
 # If barrier task roles defined, then only check instances for defined task roles. Otherwise check all instances.
-  if [ ${#barrierTaskRoles[@]} != 0 ]; then
-    if [[ " ${barrierTaskRoles[@]} " =~ " ${taskRole} " ]]; then
-      instanceToCheck+=("${taskRole}-${index}")
+  if [[ ${#taskRolesToCheck[@]} != 0 ]]; then
+    if [[ ${taskRolesToCheck[@]} =~ ${taskRole} ]]; then
+      instancesToCheck+=("${taskRole}-${index}")
     fi
   else
-    instanceToCheck+=("${taskRole}-${index}")
+    instancesToCheck+=("${taskRole}-${index}")
   fi
 done
 
 retryCount=0
-while [ ${#instanceToCheck[@]} -ne 0 ]
+while [[ ${#instancesToCheck[@]} != 0 ]]
 do
-  if [ $retryCount -ge $MAX_RETRY_COUNT ]; then
-    echo "SSH barrier reaches max retry count. Failed instances: ${instanceToCheck[*]} Exit..."
-    exit 240
+  if [[ $retryCount > $MAX_RETRY_COUNT ]]; then
+    echo "SSH barrier reaches max retry count. Failed instances: ${instancesToCheck[*]} Exit..." >&2
+    exit 10
   fi
 
-  echo "Trying to SSH to instances: ${instanceToCheck[*]}"
+  echo "Trying to SSH to instances: ${instancesToCheck[*]}"
 
   instanceFailed=()
-  for instance in "${instanceToCheck[@]}"; do
+  for instance in "${instancesToCheck[@]}"; do
     check_ssh_connection "$instance"
-    if [ $? -ne 0 ]; then
+    if [[ $? != 0 ]]; then
       instanceFailed+=("$instance")
     fi
   done
-  instanceToCheck=(${instanceFailed[*]}) 
+  instancesToCheck=(${instanceFailed[*]}) 
 
   ((retryCount++))
   sleep $RETRY_INTERVAL
