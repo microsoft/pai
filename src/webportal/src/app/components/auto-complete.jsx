@@ -15,10 +15,25 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-import {elementContains, Callout, TextField, DirectionalHint, getTheme, CommandButton, ColorClassNames, KeyCodes} from 'office-ui-fabric-react';
-import {isEmpty} from 'lodash';
+import {
+  elementContains,
+  Callout,
+  TextField,
+  DirectionalHint,
+  getTheme,
+  CommandButton,
+  ColorClassNames,
+  KeyCodes,
+} from 'office-ui-fabric-react';
+import { isEmpty } from 'lodash';
 import PropTypes from 'prop-types';
-import React, {useEffect, useState, useCallback, useMemo, useRef} from 'react';
+import React, {
+  useEffect,
+  useState,
+  useCallback,
+  useMemo,
+  useRef,
+} from 'react';
 
 function getSpacingValue(unitString) {
   const numericalPart = parseFloat(unitString);
@@ -32,33 +47,30 @@ function getSpacingValue(unitString) {
   return numericalPart;
 }
 
-export const AutoComplete = ({items, value, onChange, showAllSuggestions}) => {
+export const AutoComplete = ({
+  items,
+  value,
+  onChange,
+  showAllSuggestions,
+}) => {
   const [focused, setFocused] = useState(false);
   const [suggestions, setSuggestions] = useState([]);
   const [suggested, setSuggested] = useState(0);
   const root = useRef();
   const input = useRef();
   // get callout's gap space
-  const {spacing} = getTheme();
-  const gap = useMemo(
-    () => getSpacingValue(spacing.s1),
-    [spacing],
-  );
+  const { spacing } = getTheme();
+  const gap = useMemo(() => getSpacingValue(spacing.s1), [spacing]);
   // suggestions
-  useEffect(
-    () => {
-      const suggestions = showAllSuggestions ? (
-        items
-      ) : (
-        items.sort().filter((x) => x.startsWith(value) && x !== value)
-      );
-      setSuggestions(suggestions);
-      if (suggested >= suggestions.length) {
-        setSuggested(Math.max(0, suggestions.length - 1));
-      }
-    },
-    [value, items, showAllSuggestions],
-  );
+  useEffect(() => {
+    const suggestions = showAllSuggestions
+      ? items
+      : items.sort().filter(x => x.startsWith(value) && x !== value);
+    setSuggestions(suggestions);
+    if (suggested >= suggestions.length) {
+      setSuggested(Math.max(0, suggestions.length - 1));
+    }
+  }, [value, items, showAllSuggestions]);
   // event handler
   const onTextChange = useCallback(
     (e, newValue) => {
@@ -67,22 +79,16 @@ export const AutoComplete = ({items, value, onChange, showAllSuggestions}) => {
     [items, onChange],
   );
 
-  const onFocus = useCallback(
-    () => setFocused(true),
-    [],
-  );
+  const onFocus = useCallback(() => setFocused(true), []);
 
-  const onBlur = useCallback(
-    (e) => {
-      const relatedTarget = e.relatedTarget || document.activeElement;
-      if (relatedTarget && !elementContains(root.current, relatedTarget)) {
-        setFocused(false);
-      }
-    },
-    [],
-  );
+  const onBlur = useCallback(e => {
+    const relatedTarget = e.relatedTarget || document.activeElement;
+    if (relatedTarget && !elementContains(root.current, relatedTarget)) {
+      setFocused(false);
+    }
+  }, []);
 
-  const onSelect = (idx) => {
+  const onSelect = idx => {
     if (isEmpty(suggestions)) {
       return;
     }
@@ -91,7 +97,7 @@ export const AutoComplete = ({items, value, onChange, showAllSuggestions}) => {
     setSuggested(0);
   };
 
-  const onKeyDown = (e) => {
+  const onKeyDown = e => {
     const keyCode = e.which;
     switch (keyCode) {
       case KeyCodes.tab:
@@ -142,14 +148,13 @@ export const AutoComplete = ({items, value, onChange, showAllSuggestions}) => {
             <CommandButton
               styles={{
                 root: [
-                  {minWidth: '260px'},
+                  { minWidth: '260px' },
                   ColorClassNames.neutralLighterBackgroundHover,
                   suggested === idx && ColorClassNames.neutralLightBackground,
-                  suggested === idx && ColorClassNames.neutralTertiaryAltBackgroundHover,
+                  suggested === idx &&
+                    ColorClassNames.neutralTertiaryAltBackgroundHover,
                 ],
-                rootHovered: [
-                  ColorClassNames.neutralDarkHover,
-                ],
+                rootHovered: [ColorClassNames.neutralDarkHover],
               }}
               onClick={() => onSelect(idx)}
             >

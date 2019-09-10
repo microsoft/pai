@@ -15,7 +15,6 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-
 // module dependencies
 require('./job-submit.component.scss');
 require('json-editor'); /* global JSONEditor */
@@ -37,15 +36,15 @@ const jobSubmitHtml = jobSubmitComponent({
 let editor;
 let jobDefaultConfig;
 
-const getChecksum = (str) => {
+const getChecksum = str => {
   let res = 0;
   for (const c of str) {
-    res^= c.charCodeAt(0) & 0xff;
+    res ^= c.charCodeAt(0) & 0xff;
   }
   return res.toString(16);
 };
 
-const isValidJson = (str) => {
+const isValidJson = str => {
   let valid = true;
   let errors = null;
   try {
@@ -66,10 +65,12 @@ const isValidJson = (str) => {
 };
 
 const exportFile = (data, filename, type) => {
-  let file = new Blob([data], {type: type});
-  if (window.navigator.msSaveOrOpenBlob) { // IE10+
+  let file = new Blob([data], { type: type });
+  if (window.navigator.msSaveOrOpenBlob) {
+    // IE10+
     window.navigator.msSaveOrOpenBlob(file, filename);
-  } else { // Others
+  } else {
+    // Others
     let a = document.createElement('a');
     let url = URL.createObjectURL(file);
     a.href = url;
@@ -83,8 +84,8 @@ const exportFile = (data, filename, type) => {
   }
 };
 
-const submitJob = (jobConfig) => {
-  userAuth.checkToken((token) => {
+const submitJob = jobConfig => {
+  userAuth.checkToken(token => {
     const user = cookies.get('user');
     loading.showLoading();
     $.ajax({
@@ -96,7 +97,7 @@ const submitJob = (jobConfig) => {
       contentType: 'application/json; charset=utf-8',
       type: 'PUT',
       dataType: 'json',
-      success: (data) => {
+      success: data => {
         loading.hideLoading();
         if (data.error) {
           alert(data.message);
@@ -144,35 +145,42 @@ $(document).ready(() => {
   userAuth.checkToken(function(token) {
     loadEditor();
     editor.on('change', () => {
-      $('#submitJob').prop('disabled', (editor.validate().length != 0));
+      $('#submitJob').prop('disabled', editor.validate().length != 0);
     });
 
     // choose the first edit json box
-    $('[title="Edit JSON"]').filter(':first').one('click', () => {
-      // disable old save button to avoid saving automatically
-      let oldSave = $('[title="Edit JSON"]').filter(':first').next('div').children('[title=Save]')[0];
-      let newSave = oldSave.cloneNode(true);
-      oldSave.parentNode.replaceChild(newSave, oldSave);
+    $('[title="Edit JSON"]')
+      .filter(':first')
+      .one('click', () => {
+        // disable old save button to avoid saving automatically
+        let oldSave = $('[title="Edit JSON"]')
+          .filter(':first')
+          .next('div')
+          .children('[title=Save]')[0];
+        let newSave = oldSave.cloneNode(true);
+        oldSave.parentNode.replaceChild(newSave, oldSave);
 
-      // add new click listener
-      $(newSave).on('click', () => {
-        let curConfig = editor.root.editjson_textarea.value;
-        if (isValidJson(curConfig)) {
-          editor.root.setValue(JSON.parse(curConfig));
-          editor.root.hideEditJSON();
-        }
+        // add new click listener
+        $(newSave).on('click', () => {
+          let curConfig = editor.root.editjson_textarea.value;
+          if (isValidJson(curConfig)) {
+            editor.root.setValue(JSON.parse(curConfig));
+            editor.root.hideEditJSON();
+          }
+        });
       });
-    });
     $('[title="Object Properties"]').each((index, element) => {
       $($(element).contents()[2]).replaceWith('More Properties');
     });
 
-    $(document).on('change', '#fileUpload', (event) => {
+    $(document).on('change', '#fileUpload', event => {
       const reader = new FileReader();
-      reader.onload = (event) => {
+      reader.onload = event => {
         const jobConfig = stripJsonComments(event.target.result);
         if (isValidJson(jobConfig)) {
-          editor.setValue(Object.assign({}, jobDefaultConfig, JSON.parse(jobConfig)));
+          editor.setValue(
+            Object.assign({}, jobDefaultConfig, JSON.parse(jobConfig)),
+          );
         }
       };
       reader.readAsText(event.target.files[0]);
@@ -182,9 +190,11 @@ $(document).ready(() => {
       submitJob(editor.getValue());
     });
     $(document).on('click', '#fileExport', () => {
-      exportFile(JSON.stringify(editor.getValue(), null, 4),
+      exportFile(
+        JSON.stringify(editor.getValue(), null, 4),
         (editor.getEditor('root.jobName').getValue() || 'jobconfig') + '.json',
-        'application/json');
+        'application/json',
+      );
     });
     resize();
     window.onresize = function() {
@@ -197,22 +207,28 @@ $(document).ready(() => {
     const jobname = query.jobname;
     if (op === 'resubmit') {
       if (type != null && username != null && jobname != null) {
-        const url = username==''
-          ? `${webportalConfig.restServerUri}/api/v1/jobs/${jobname}/config`
-          : `${webportalConfig.restServerUri}/api/v2/jobs/${username}~${jobname}/config`;
+        const url =
+          username == ''
+            ? `${webportalConfig.restServerUri}/api/v1/jobs/${jobname}/config`
+            : `${webportalConfig.restServerUri}/api/v2/jobs/${username}~${jobname}/config`;
         $.ajax({
           url: url,
           type: 'GET',
-          success: (data) => {
+          success: data => {
             let jobConfigObj = data;
-            if (typeof(jobConfigObj) === 'string') {
+            if (typeof jobConfigObj === 'string') {
               jobConfigObj = JSON.parse(data);
             }
             let name = jobConfigObj.jobName;
-            if (/_\w{8}$/.test(name) && getChecksum(name.slice(0, -2)) === name.slice(-2)) {
+            if (
+              /_\w{8}$/.test(name) &&
+              getChecksum(name.slice(0, -2)) === name.slice(-2)
+            ) {
               name = name.slice(0, -9);
             }
-            name = `${name}_${Date.now().toString(16).substr(-6)}`;
+            name = `${name}_${Date.now()
+              .toString(16)
+              .substr(-6)}`;
             name = name + getChecksum(name);
             jobConfigObj.jobName = name;
             editor.setValue(Object.assign({}, jobDefaultConfig, jobConfigObj));
@@ -220,7 +236,7 @@ $(document).ready(() => {
           error: (xhr, textStatus, error) => {
             const res = JSON.parse(xhr.responseText);
             if (res.message === 'ConfigFileNotFound') {
-              alert('This job\'s config file has not been stored.');
+              alert("This job's config file has not been stored.");
             } else {
               alert('Error: ' + res.message);
             }
@@ -229,7 +245,9 @@ $(document).ready(() => {
       }
     } else if (op === 'init') {
       try {
-        const jobConfigObj = JSON.parse(window.sessionStorage.getItem('init-job'));
+        const jobConfigObj = JSON.parse(
+          window.sessionStorage.getItem('init-job'),
+        );
         editor.setValue(Object.assign({}, jobDefaultConfig, jobConfigObj));
       } finally {
         window.sessionStorage.removeItem('init-job');
@@ -238,4 +256,4 @@ $(document).ready(() => {
   });
 });
 
-module.exports = {submitJob};
+module.exports = { submitJob };

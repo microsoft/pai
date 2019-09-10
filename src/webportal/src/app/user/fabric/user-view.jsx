@@ -28,7 +28,9 @@ const contentWrapper = document.getElementById('content-wrapper');
 
 ReactDOM.render(<UserView />, contentWrapper);
 
-document.getElementById('sidebar-menu--cluster-view--user-management').classList.add('active');
+document
+  .getElementById('sidebar-menu--cluster-view--user-management')
+  .classList.add('active');
 
 function layout() {
   setTimeout(function() {

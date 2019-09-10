@@ -68,12 +68,15 @@ $(document).on('click', '#yaml-edit-save-button', () => {
 });
 
 $(document).on('click', '#submitJob', () => {
-  userAuth.checkToken((token) => {
+  userAuth.checkToken(token => {
     // loading.showLoading();
-    $('#submit-job-loading').removeClass('no-submit').addClass('loading-submit');
+    $('#submit-job-loading')
+      .removeClass('no-submit')
+      .addClass('loading-submit');
     $('#submit-job-loading').html(common.generateLoading());
     let data = userTemplate.createSubmitData();
-    data.name += '_' + new Date().toISOString().replace(new RegExp('[-:TZ]', 'g'), '');
+    data.name +=
+      '_' + new Date().toISOString().replace(new RegExp('[-:TZ]', 'g'), '');
     $.ajax({
       url: `${webportalConfig.restServerUri}/api/v2/jobs/${data.name}`,
       data: JSON.stringify(data),
@@ -83,9 +86,11 @@ $(document).on('click', '#submitJob', () => {
       contentType: 'application/json; charset=utf-8',
       type: 'PUT',
       dataType: 'json',
-      success: (data) => {
+      success: data => {
         // loading.hideLoading();
-        $('#submit-job-loading').removeClass('loading-submit').addClass('no-submit');
+        $('#submit-job-loading')
+          .removeClass('loading-submit')
+          .addClass('no-submit');
         if (data.error) {
           alert(data.message);
           $('#submitHint').text(data.message);
@@ -97,7 +102,9 @@ $(document).on('click', '#submitJob', () => {
       },
       error: (xhr, textStatus, error) => {
         // loading.hideLoading();
-        $('#submit-job-loading').removeClass('loading-submit').addClass('no-submit');
+        $('#submit-job-loading')
+          .removeClass('loading-submit')
+          .addClass('no-submit');
         const res = JSON.parse(xhr.responseText);
         alert(res.message);
       },
@@ -109,18 +116,22 @@ $(document).ready(() => {
   userAuth.checkToken(function(token) {
     userTemplate.initPage();
     $('#submitJob').attr('disabled', 'disabled');
-    document.getElementById('importYaml').addEventListener('change', function(evt) {
-      let files = evt.target.files;
-      if (files.length) {
-        let f = files[0];
-        let reader = new FileReader(); // read the local file
-        reader.onload = function(e) {
-          userTemplate.updatePageFromYaml(e.target.result);
-        };
-        reader.readAsText(f);
-        $('#submitJob').attr('disabled', false);
-      }
-    }, false);
+    document.getElementById('importYaml').addEventListener(
+      'change',
+      function(evt) {
+        let files = evt.target.files;
+        if (files.length) {
+          let f = files[0];
+          let reader = new FileReader(); // read the local file
+          reader.onload = function(e) {
+            userTemplate.updatePageFromYaml(e.target.result);
+          };
+          reader.readAsText(f);
+          $('#submitJob').attr('disabled', false);
+        }
+      },
+      false,
+    );
 
     const query = querystring.parse(window.location.search.replace(/^\?+/, ''));
     const type = query.type;
@@ -130,14 +141,14 @@ $(document).ready(() => {
 
     if (type != null && name != null) {
       const u = `${webportalConfig.restServerUri}/api/v2/template/${type}/${name}`;
-      $.getJSON(u, (data) => {
+      $.getJSON(u, data => {
         userTemplate.updatePageFromJson(data);
         $('#submitJob').attr('disabled', false);
       });
     }
     if (type != null && username != null && jobname != null) {
       const url = `${webportalConfig.restServerUri}/api/v2/user/${username}/jobs/${jobname}/config`;
-      $.get(url, (data) => {
+      $.get(url, data => {
         if (typeof data === 'string') {
           userTemplate.updatePageFromYaml(data);
         } else {

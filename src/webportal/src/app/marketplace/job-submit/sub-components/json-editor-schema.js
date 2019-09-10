@@ -62,11 +62,7 @@ const portTypeSchema = {
       exclusiveMinimum: false,
     },
   },
-  required: [
-    'label',
-    'beginAt',
-    'portNumber',
-  ],
+  required: ['label', 'beginAt', 'portNumber'],
 };
 
 const taskSchema = {

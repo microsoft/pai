@@ -15,21 +15,44 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-import React, {useRef, useContext, useState, useEffect} from 'react';
-import {Modal, TextField, FontClassNames, PrimaryButton, DefaultButton, Stack, StackItem, Checkbox, Dropdown, mergeStyles, getTheme} from 'office-ui-fabric-react';
+import React, { useRef, useContext, useState, useEffect } from 'react';
+import {
+  Modal,
+  TextField,
+  FontClassNames,
+  PrimaryButton,
+  DefaultButton,
+  Stack,
+  StackItem,
+  Checkbox,
+  Dropdown,
+  mergeStyles,
+  getTheme,
+} from 'office-ui-fabric-react';
 import PropTypes from 'prop-types';
-import {isEmpty, isEqual} from 'lodash';
+import { isEmpty, isEqual } from 'lodash';
 import c from 'classnames';
 import t from '../../../components/tachyons.scss';
 
-import {createUserRequest, updateUserPasswordRequest, updateUserAdminRequest, updateUserEmailRequest, updateUserVcRequest} from '../conn';
-import {checkUsername, checkPassword, checkEmail} from '../utils';
+import {
+  createUserRequest,
+  updateUserPasswordRequest,
+  updateUserAdminRequest,
+  updateUserEmailRequest,
+  updateUserVcRequest,
+} from '../conn';
+import { checkUsername, checkPassword, checkEmail } from '../utils';
 import CustomPassword from '../components/CustomPassword';
 
 import Context from './Context';
 
-export default function UserEditor({user: {username = '', admin = false, email = '', virtualCluster = []}, isOpen = false, isCreate = true, hide}) {
-  const {allVCs, showMessageBox, refreshAllUsers} = useContext(Context);
+export default function UserEditor({
+  user: { username = '', admin = false, email = '', virtualCluster = [] },
+  isOpen = false,
+  isCreate = true,
+  hide,
+}) {
+  const { allVCs, showMessageBox, refreshAllUsers } = useContext(Context);
 
   const usernameRef = useRef(null);
   const passwordRef = useRef(null);
@@ -63,7 +86,7 @@ export default function UserEditor({user: {username = '', admin = false, email =
   const [lock, setLock] = useState(false);
   const [needRefreshAllUsers, setNeedRefreshAllUsers] = useState(false);
 
-  const handleSubmit = async (event) => {
+  const handleSubmit = async event => {
     event.preventDefault();
     setLock(true);
 
@@ -100,13 +123,19 @@ export default function UserEditor({user: {username = '', admin = false, email =
     }
 
     if (isCreate) {
-      const result = await createUserRequest(newUsername, newEmail, newPassword, newAdmin, vcs)
+      const result = await createUserRequest(
+        newUsername,
+        newEmail,
+        newPassword,
+        newAdmin,
+        vcs,
+      )
         .then(() => {
           setNeedRefreshAllUsers(true);
-          return {success: true};
+          return { success: true };
         })
-        .catch((err) => {
-          return {success: false, message: String(err)};
+        .catch(err => {
+          return { success: false, message: String(err) };
         });
       if (!result.success) {
         await showMessageBox(result.message);
@@ -118,10 +147,10 @@ export default function UserEditor({user: {username = '', admin = false, email =
         const result = await updateUserEmailRequest(newUsername, newEmail)
           .then(() => {
             setNeedRefreshAllUsers(true);
-            return {success: true};
+            return { success: true };
           })
-          .catch((err) => {
-            return {success: false, message: String(err)};
+          .catch(err => {
+            return { success: false, message: String(err) };
           });
         if (!result.success) {
           await showMessageBox(result.message);
@@ -134,10 +163,10 @@ export default function UserEditor({user: {username = '', admin = false, email =
         const result = await updateUserPasswordRequest(newUsername, newPassword)
           .then(() => {
             setNeedRefreshAllUsers(true);
-            return {success: true};
+            return { success: true };
           })
-          .catch((err) => {
-            return {success: false, message: String(err)};
+          .catch(err => {
+            return { success: false, message: String(err) };
           });
         if (!result.success) {
           await showMessageBox(result.message);
@@ -150,10 +179,10 @@ export default function UserEditor({user: {username = '', admin = false, email =
         const result = await updateUserAdminRequest(newUsername, newAdmin)
           .then(() => {
             setNeedRefreshAllUsers(true);
-            return {success: true};
+            return { success: true };
           })
-          .catch((err) => {
-            return {success: false, message: String(err)};
+          .catch(err => {
+            return { success: false, message: String(err) };
           });
         if (!result.success) {
           await showMessageBox(result.message);
@@ -167,10 +196,10 @@ export default function UserEditor({user: {username = '', admin = false, email =
         const result = await updateUserVcRequest(newUsername, vcs)
           .then(() => {
             setNeedRefreshAllUsers(true);
-            return {success: true};
+            return { success: true };
           })
-          .catch((err) => {
-            return {success: false, message: String(err)};
+          .catch(err => {
+            return { success: false, message: String(err) };
           });
         if (!result.success) {
           await showMessageBox(result.message);
@@ -180,7 +209,11 @@ export default function UserEditor({user: {username = '', admin = false, email =
       }
     }
 
-    await showMessageBox(isCreate ? 'Add new user successfully' : 'Update user information successfully');
+    await showMessageBox(
+      isCreate
+        ? 'Add new user successfully'
+        : 'Update user information successfully',
+    );
     setLock(false);
     hide();
     refreshAllUsers();
@@ -199,31 +232,29 @@ export default function UserEditor({user: {username = '', admin = false, email =
   /**
    * @type {import('office-ui-fabric-react').IDropdownOption[]}
    */
-  const vcsOptions = allVCs.map((vc) => {
-    return {key: vc, text: vc};
+  const vcsOptions = allVCs.map(vc => {
+    return { key: vc, text: vc };
   });
 
-  const {spacing} = getTheme();
+  const { spacing } = getTheme();
 
   return (
     <Modal
       isOpen={isOpen}
       isBlocking={true}
-      containerClassName={mergeStyles({width: '450px', minWidth: '450px'})}
+      containerClassName={mergeStyles({ width: '450px', minWidth: '450px' })}
     >
       <div className={c(t.pa4)}>
         <form onSubmit={handleSubmit}>
           <div className={c(FontClassNames.mediumPlus)}>
             {isCreate ? 'Add new user' : 'Edit user'}
           </div>
-          <div style={{margin: `${spacing.l1} 0px`}}>
+          <div style={{ margin: `${spacing.l1} 0px` }}>
             <table className={c(t.mlAuto, t.mrAuto)}>
               <tbody>
                 <tr>
-                  <td className={tdLabelStyle}>
-                    Name
-                </td>
-                  <td className={tdPaddingStyle} style={{minWidth: '280px'}}>
+                  <td className={tdLabelStyle}>Name</td>
+                  <td className={tdPaddingStyle} style={{ minWidth: '280px' }}>
                     <TextField
                       id={`NameInput${Math.random()}`}
                       componentRef={usernameRef}
@@ -234,9 +265,7 @@ export default function UserEditor({user: {username = '', admin = false, email =
                   </td>
                 </tr>
                 <tr>
-                  <td className={tdLabelStyle}>
-                    Password
-                  </td>
+                  <td className={tdLabelStyle}>Password</td>
                   <td className={tdPaddingStyle}>
                     <CustomPassword
                       componentRef={passwordRef}
@@ -245,9 +274,7 @@ export default function UserEditor({user: {username = '', admin = false, email =
                   </td>
                 </tr>
                 <tr>
-                  <td className={tdLabelStyle}>
-                    Email
-                  </td>
+                  <td className={tdLabelStyle}>Email</td>
                   <td className={tdPaddingStyle}>
                     <TextField
                       id={`EmailInput${Math.random()}`}
@@ -258,9 +285,7 @@ export default function UserEditor({user: {username = '', admin = false, email =
                   </td>
                 </tr>
                 <tr>
-                  <td className={tdLabelStyle}>
-                    Virtual clusters
-                  </td>
+                  <td className={tdLabelStyle}>Virtual clusters</td>
                   <td className={tdPaddingStyle}>
                     <Dropdown
                       multiSelect
@@ -269,14 +294,12 @@ export default function UserEditor({user: {username = '', admin = false, email =
                       disabled={isAdmin ? true : false}
                       onChange={handleVCsChanged}
                       placeholder='Select an option'
-                      style={{maxWidth: '248px'}}
+                      style={{ maxWidth: '248px' }}
                     />
                   </td>
                 </tr>
                 <tr>
-                  <td className={tdLabelStyle}>
-                    Admin user
-                  </td>
+                  <td className={tdLabelStyle}>Admin user</td>
                   <td className={tdPaddingStyle}>
                     <Stack horizontal={true} gap={spacing.m}>
                       <StackItem>
@@ -297,10 +320,16 @@ export default function UserEditor({user: {username = '', admin = false, email =
               </tbody>
             </table>
           </div>
-          <div style={{marginTop: spacing.l2, marginLeft: 'auto', marginRight: 'auto'}}>
+          <div
+            style={{
+              marginTop: spacing.l2,
+              marginLeft: 'auto',
+              marginRight: 'auto',
+            }}
+          >
             <Stack horizontal={true} horizontalAlign='center' gap={spacing.s1}>
               <StackItem>
-                <PrimaryButton type="submit" disabled={lock} autoFocus>
+                <PrimaryButton type='submit' disabled={lock} autoFocus>
                   {isCreate ? 'Add' : 'Save'}
                 </PrimaryButton>
               </StackItem>

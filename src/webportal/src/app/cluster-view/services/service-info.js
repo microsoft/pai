@@ -54,11 +54,11 @@ const getNodePods = (kubeURL, namespace, nodeList, callback) => {
         if (nodeDic[node.metadata.name] == undefined) {
           nodeDic[node.metadata.name] = [];
         }
-        resultDic.push({'node': node, 'podList': nodeDic[node.metadata.name]});
+        resultDic.push({ node: node, podList: nodeDic[node.metadata.name] });
       }
       callback(resultDic);
     },
   });
 };
 
-module.exports = {getServiceView};
+module.exports = { getServiceView };

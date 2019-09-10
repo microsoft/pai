@@ -31,19 +31,19 @@ const webportalConfig = require('../../../config/webportal.config.js');
 
 const initArray = () => {
   return {
-    'data': [],
-    'script': [],
-    'dockerimage': [],
-    'task': [],
-    'job': [],
+    data: [],
+    script: [],
+    dockerimage: [],
+    task: [],
+    job: [],
   };
 };
 
-const initCandidateList = () =>{
+const initCandidateList = () => {
   return {
-    'data': new Set(['']),
-    'script': new Set(['']),
-     'dockerimage': new Set(['']),
+    data: new Set(['']),
+    script: new Set(['']),
+    dockerimage: new Set(['']),
   };
 };
 
@@ -60,7 +60,7 @@ let addModalVariables = {
 
 const emptyPage = () => {
   // clear grid item
-  ['data', 'script', 'dockerimage', 'task'].forEach((type) => {
+  ['data', 'script', 'dockerimage', 'task'].forEach(type => {
     $(`#${type}-container`).empty();
     if (type != 'task') {
       jobSchema['taskSchema']['properties'][type]['enum'] = [];
@@ -74,18 +74,28 @@ const emptyPage = () => {
   $('#json-editor-container').empty();
 };
 
-const updateTaskSchema = ()=>{
-  ['data', 'script', 'dockerimage'].forEach((type) => {
-    jobSchema['taskSchema']['properties'][type]['enum'] = Array.from(candidateList[type]);
+const updateTaskSchema = () => {
+  ['data', 'script', 'dockerimage'].forEach(type => {
+    jobSchema['taskSchema']['properties'][type]['enum'] = Array.from(
+      candidateList[type],
+    );
   });
 };
 
-const loadEditor = (d, type, id, insertEditors = true, containerName = '#json-editor-container') => {
+const loadEditor = (
+  d,
+  type,
+  id,
+  insertEditors = true,
+  containerName = '#json-editor-container',
+) => {
   if (containerName != null) {
-    $(containerName).append(userEditModalComponent({
-      type: type,
-      id: id,
-    })); // append the modal html
+    $(containerName).append(
+      userEditModalComponent({
+        type: type,
+        id: id,
+      }),
+    ); // append the modal html
   }
 
   if (type == 'task') {
@@ -111,13 +121,14 @@ const loadEditor = (d, type, id, insertEditors = true, containerName = '#json-ed
     }
   }
 
-  if (type != 'task') { // docker/script/data/job listener
+  if (type != 'task') {
+    // docker/script/data/job listener
     editor.on('change', () => {
       let error = editor.validate();
-      $(`#${type}${id}-edit-save-button`).prop('disabled', (error.length != 0));
+      $(`#${type}${id}-edit-save-button`).prop('disabled', error.length != 0);
       if (error.length == 0) {
         let val = editor.getValue();
-        ['name', 'description'].forEach((cur) => {
+        ['name', 'description'].forEach(cur => {
           $(`#${type}${id}-${cur}`).text(val[cur]);
         });
         $(`#${type}${id}-title > a > span`).text(val['name']);
@@ -127,10 +138,19 @@ const loadEditor = (d, type, id, insertEditors = true, containerName = '#json-ed
     // task listen function.
     editor.on('change', () => {
       let error = editor.validate();
-      $(`#${type}${id}-edit-save-button`).prop('disabled', (error.length != 0));
+      $(`#${type}${id}-edit-save-button`).prop('disabled', error.length != 0);
       if (error.length == 0) {
         let val = editor.getValue();
-        ['role', 'dockerimage', 'data', 'script', 'instances', 'cpu', 'gpu', 'memoryMB'].forEach((cur) => {
+        [
+          'role',
+          'dockerimage',
+          'data',
+          'script',
+          'instances',
+          'cpu',
+          'gpu',
+          'memoryMB',
+        ].forEach(cur => {
           $(`#${type}${id}-${cur}`).text(val[cur]);
         });
         $(`#${type}${id}-command`).text(commandHelper(val));
@@ -151,9 +171,15 @@ const addNewJsonEditor = (d, id, type) => {
   $(`#${type}${id}-edit-button`).on('click', () => {
     if (type == 'task') {
       editors[type][id - 1].destroy();
-      editors[type][id - 1] = loadEditor(editorsValue[type][id - 1], type, id, false, '');
+      editors[type][id - 1] = loadEditor(
+        editorsValue[type][id - 1],
+        type,
+        id,
+        false,
+        '',
+      );
     }
-    $(`#${type}${id}-modal`).modal({backdrop: 'static', keyboard: false});
+    $(`#${type}${id}-modal`).modal({ backdrop: 'static', keyboard: false });
   });
 
   // delete item
@@ -173,7 +199,8 @@ const addNewJsonEditor = (d, id, type) => {
   });
 
   // save item
-  $(`#${type}${id}-edit-save-button`).on('click', () => { // todo delete old name.
+  $(`#${type}${id}-edit-save-button`).on('click', () => {
+    // todo delete old name.
     let d = JSON.parse(JSON.stringify(editors[type][id - 1].getValue()));
     if (type != 'task' && type != 'job') {
       candidateList[type].delete(editorsValue[type][id - 1]['name']);
@@ -184,15 +211,18 @@ const addNewJsonEditor = (d, id, type) => {
   });
 };
 
-const commandHelper = (task) => {
+const commandHelper = task => {
   if ('command' in task && task['command'].length) {
-    return task['command'][0].substring(0, 30) + (task['command'][0].length > 30 ? '...' : '');
+    return (
+      task['command'][0].substring(0, 30) +
+      (task['command'][0].length > 30 ? '...' : '')
+    );
   } else {
     return '';
   }
 };
 
-const insertNewTask = (task) => {
+const insertNewTask = task => {
   let type = 'task';
   let id = editors[type].length + 1;
   let itemHtml = taskFormat({
@@ -213,7 +243,7 @@ const insertNewTask = (task) => {
   addNewJsonEditor(task, id, type);
 };
 
-const insertNewDockerDataScript = (item) => {
+const insertNewDockerDataScript = item => {
   let type = item['type'];
   let id = editors[type].length + 1;
   let itemHtml = dockerScriptDataFormat({
@@ -227,15 +257,17 @@ const insertNewDockerDataScript = (item) => {
   addNewJsonEditor(item, id, type);
 };
 
-const updatePageFromJson = (data) => { // data is a json
+const updatePageFromJson = data => {
+  // data is a json
   yamlHelper.jsonToJsonEditor(data);
   if ('type' in data) {
     emptyPage();
 
-    if (data['type'] == 'job') { // it is a job
+    if (data['type'] == 'job') {
+      // it is a job
       // update docker/script/data
       if ('prerequisites' in data) {
-        Object.keys(data['prerequisites']).forEach((key) => {
+        Object.keys(data['prerequisites']).forEach(key => {
           let d = data['prerequisites'][key];
           candidateList[d['type']].add(d['name']);
           insertNewDockerDataScript(d);
@@ -244,7 +276,7 @@ const updatePageFromJson = (data) => { // data is a json
 
       // update task
       if ('tasks' in data) {
-        data['tasks'].forEach((task) => {
+        data['tasks'].forEach(task => {
           insertNewTask(task);
         });
       }
@@ -253,20 +285,22 @@ const updatePageFromJson = (data) => { // data is a json
       $('#job-name').text(data['name']);
       $('#job-description').text(data['description']);
       addNewJsonEditor(data, 1, 'job');
-    } else { // update docker/script/data
+    } else {
+      // update docker/script/data
       insertNewDockerDataScript(data);
       addNewJsonEditor({}, 1, 'job');
     }
   }
 };
 
-const updatePageFromYaml = (d) => { // d is a string
+const updatePageFromYaml = d => {
+  // d is a string
   updatePageFromJson(yamlHelper.yamlLoad(d));
 };
 
-const replaceHrefs = (htmls) => {
+const replaceHrefs = htmls => {
   $('#recommandPlaceHolder').html('');
-  Object.keys(htmls).forEach((type) => {
+  Object.keys(htmls).forEach(type => {
     if (htmls[type].length > 0) {
       $('#recommandPlaceHolder').append(htmls[type]);
     }
@@ -276,14 +310,25 @@ const replaceHrefs = (htmls) => {
     $(obj).attr('data-toggle', 'tooltip');
     $(obj).attr('data-html', 'ture');
     $(obj).attr('data-placement', 'right');
-    $(obj).attr('title', '<h5>' + $(obj).find('.item-dsp').html() + '</h5>');
+    $(obj).attr(
+      'title',
+      '<h5>' +
+        $(obj)
+          .find('.item-dsp')
+          .html() +
+        '</h5>',
+    );
     $(obj).click(() => {
-      let items = $(obj).attr('id').split('-');
+      let items = $(obj)
+        .attr('id')
+        .split('-');
       $.ajax({
-        url: `${webportalConfig.restServerUri}/api/v2/template/${items[0]}/${items[1]}?version=${items[2]}`,
+        url: `${webportalConfig.restServerUri}/api/v2/template/${items[0]}/${
+          items[1]
+        }?version=${items[2]}`,
         type: 'GET',
         dataType: 'json',
-        success: (data) => {
+        success: data => {
           data = yamlHelper.jsonToJsonEditor(data);
           addModalVariables.addEditor.setValue(data);
         },
@@ -293,25 +338,33 @@ const replaceHrefs = (htmls) => {
   $('[data-toggle="tooltip"]').tooltip();
 };
 
-const showAddModal = (type) => {
+const showAddModal = type => {
   if (type != 'task') {
     addModalVariables.addEditor = null;
     addModalVariables.id = editors[type].length + 1;
 
-    $('#addModalPlace').html(addModalFormat({
-      type: type,
-      id: addModalVariables.id,
-    }));
+    $('#addModalPlace').html(
+      addModalFormat({
+        type: type,
+        id: addModalVariables.id,
+      }),
+    );
     $('#recommandPlaceHolder').html(common.generateLoading());
-    addModalVariables.addEditor = loadEditor(null, type, addModalVariables.id, false, null);
+    addModalVariables.addEditor = loadEditor(
+      null,
+      type,
+      addModalVariables.id,
+      false,
+      null,
+    );
 
     // ----------- recommand ---------------
     common.load(type, replaceHrefs, 4);
 
-    $('#btn-add-search').click((event) => {
+    $('#btn-add-search').click(event => {
       common.search($('#add-search').val(), [type], replaceHrefs, 4);
     });
-    $('#add-search').on('keyup', (event) => {
+    $('#add-search').on('keyup', event => {
       if (event.keyCode == 13) {
         common.search($('#add-search').val(), [type], replaceHrefs, 4);
       }
@@ -325,12 +378,13 @@ const showAddModal = (type) => {
       $('#addModalPlace').html('');
       insertNewDockerDataScript(data);
     });
-    $('#addModal').modal({backdrop: 'static', keyboard: false});
-  } else { // add task;
+    $('#addModal').modal({ backdrop: 'static', keyboard: false });
+  } else {
+    // add task;
     let id = editors[type].length + 1;
     $('#addCustomizeModalPlace').empty();
     let editor = loadEditor({}, type, id, false, '#addCustomizeModalPlace');
-    $(`#${type}${id}-modal`).modal({backdrop: 'static', keyboard: false});
+    $(`#${type}${id}-modal`).modal({ backdrop: 'static', keyboard: false });
     $(`#${type}${id}-edit-save-button`).on('click', () => {
       let error = editor.validate();
       if (error.length != 0) {
@@ -346,10 +400,13 @@ const showAddModal = (type) => {
   }
 };
 
-const createDownload = (text) => {
+const createDownload = text => {
   let filename = 'job.yaml';
   let element = document.createElement('a');
-  element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
+  element.setAttribute(
+    'href',
+    'data:text/plain;charset=utf-8,' + encodeURIComponent(text),
+  );
   element.setAttribute('download', filename);
 
   element.style.display = 'none';
@@ -370,7 +427,10 @@ const editYaml = () => {
   yamleditor.setValue(res);
   $('#yaml-modal').modal('show');
   $('#yaml-content').css('height', document.documentElement.clientHeight * 0.8);
-  $('#yaml-editor-holder').css('height', document.documentElement.clientHeight * 0.79);
+  $('#yaml-editor-holder').css(
+    'height',
+    document.documentElement.clientHeight * 0.79,
+  );
 };
 
 const updatePageByYamlEditor = () => {
@@ -394,12 +454,15 @@ const initPage = () => {
   };
   addNewJsonEditor(initJob, 1, 'job'); // init a job jsonEditor
 
-  yamleditor = monaco.editor.create(document.getElementById('yaml-editor-holder'), {
-    value: 'test:\n  - 1\n',
-    language: 'yaml',
-    automaticLayout: true,
-    theme: 'vs-dark',
-  });
+  yamleditor = monaco.editor.create(
+    document.getElementById('yaml-editor-holder'),
+    {
+      value: 'test:\n  - 1\n',
+      language: 'yaml',
+      automaticLayout: true,
+      theme: 'vs-dark',
+    },
+  );
 };
 
 module.exports = {

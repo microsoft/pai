@@ -24,7 +24,7 @@
  */
 
 import React from 'react';
-import {Stack} from 'office-ui-fabric-react';
+import { Stack } from 'office-ui-fabric-react';
 import PropTypes from 'prop-types';
 import {SidebarCard} from '../sidebar/sidebar-card';
 import {Hint} from '../sidebar/hint';

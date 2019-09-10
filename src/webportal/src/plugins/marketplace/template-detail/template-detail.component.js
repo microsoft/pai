@@ -19,28 +19,31 @@ const template = require('./template-detail.component.ejs');
 require('./template-detail.component.css');
 
 module.exports = function(element, restServerUri, query) {
-const context = {
+  const context = {
     compileUri: function(uri) {
-        if (!/^https?:\/\//.test(uri)) return 'http://hub.docker.com/r/' + uri;
-        if (/^https:\/\/github.com\//.test(uri)) return uri.replace('@', '?ref=');
-        return uri;
+      if (!/^https?:\/\//.test(uri)) return 'http://hub.docker.com/r/' + uri;
+      if (/^https:\/\/github.com\//.test(uri)) return uri.replace('@', '?ref=');
+      return uri;
     },
     pluginIndex: query.index,
-};
+  };
 
-$(function() {
-    const type = {
-        'job': 'job',
-        'docker': 'dockerimage',
-        'script': 'script',
-        'data': 'data',
-    }[query.type] || 'job';
+  $(function() {
+    const type =
+      {
+        job: 'job',
+        docker: 'dockerimage',
+        script: 'script',
+        data: 'data',
+      }[query.type] || 'job';
     const name = query.name;
-    if (type == null || name == null) return location.href = '/';
+    if (type == null || name == null) return (location.href = '/');
 
     const u = `${restServerUri}/api/v2/template/${type}/${name}`;
-    $.getJSON(u).then(template.bind(context)).then(function(html) {
+    $.getJSON(u)
+      .then(template.bind(context))
+      .then(function(html) {
         $(element).html(html);
-    });
-});
+      });
+  });
 };

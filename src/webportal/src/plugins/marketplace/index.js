@@ -30,23 +30,39 @@ class MarketplaceElement extends HTMLElement {
     if (typeof type === 'string') {
       if (typeof name === 'string') {
         // Render template-detail page
-        require.ensure(['./template-detail/template-detail.component'],
+        require.ensure(
+          ['./template-detail/template-detail.component'],
           function(require) {
-            require('./template-detail/template-detail.component')(self, restServerUri, query);
-          });
+            require('./template-detail/template-detail.component')(
+              self,
+              restServerUri,
+              query,
+            );
+          },
+        );
       } else {
         // Render template-list page
-        require.ensure(['./template-list/template-list.component'],
-          function(require) {
-            require('./template-list/template-list.component')(self, restServerUri, query);
-          });
+        require.ensure(['./template-list/template-list.component'], function(
+          require,
+        ) {
+          require('./template-list/template-list.component')(
+            self,
+            restServerUri,
+            query,
+          );
+        });
       }
     } else {
       // Render template-view page
-      require.ensure(['./template-view/template-view.component'],
-        function(require) {
-          require('./template-view/template-view.component')(self, restServerUri, query);
-        });
+      require.ensure(['./template-view/template-view.component'], function(
+        require,
+      ) {
+        require('./template-view/template-view.component')(
+          self,
+          restServerUri,
+          query,
+        );
+      });
     }
   }
 }

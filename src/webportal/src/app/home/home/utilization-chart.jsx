@@ -19,14 +19,14 @@ import c3 from 'c3';
 import * as d3 from 'd3';
 import c from 'classnames';
 import PropTypes from 'prop-types';
-import {Stack, getTheme} from 'office-ui-fabric-react';
-import React, {useEffect, useRef} from 'react';
+import { Stack, getTheme } from 'office-ui-fabric-react';
+import React, { useEffect, useRef } from 'react';
 
 import './c3.scss';
 import t from '../../components/tachyons.scss';
 
-export const UtilizationChart = ({percentage}) => {
-  const {palette} = getTheme();
+export const UtilizationChart = ({ percentage }) => {
+  const { palette } = getTheme();
   const chartRef = useRef(null);
 
   let usageColor = palette.green;
@@ -37,7 +37,7 @@ export const UtilizationChart = ({percentage}) => {
     usageColor = palette.red;
   }
 
-  useEffect(()=>{
+  useEffect(() => {
     const chart = c3.generate({
       size: {
         width: 100,
@@ -60,7 +60,7 @@ export const UtilizationChart = ({percentage}) => {
       },
       donut: {
         label: {
-            show: false,
+          show: false,
         },
         title: `${d3.format('.2f')(percentage * 100)}%`,
         expand: false,
@@ -74,9 +74,9 @@ export const UtilizationChart = ({percentage}) => {
       },
       onrendered: () => {
         const d3Donuts = d3.selectAll('.c3-chart-arcs').nodes();
-        d3Donuts.forEach((node) => {
+        d3Donuts.forEach(node => {
           // TODO: hardcode here, change it when has better solution
-          node.setAttribute('transform', 'translate('+45+','+43+')');
+          node.setAttribute('transform', 'translate(' + 45 + ',' + 43 + ')');
         });
       },
     });
@@ -84,11 +84,11 @@ export const UtilizationChart = ({percentage}) => {
   }, []);
 
   return (
-      <Stack styles={{root: [t.relative]}} grow>
-        <div className={c(t.absolute, t.absoluteFill)}>
-          <div className={c(t.h100, t.w100)} ref={chartRef} />
-        </div>
-      </Stack>
+    <Stack styles={{ root: [t.relative] }} grow>
+      <div className={c(t.absolute, t.absoluteFill)}>
+        <div className={c(t.h100, t.w100)} ref={chartRef} />
+      </div>
+    </Stack>
   );
 };
 

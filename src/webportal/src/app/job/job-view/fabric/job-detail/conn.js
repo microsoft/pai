@@ -16,13 +16,13 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 import yaml from 'js-yaml';
-import {get, isNil} from 'lodash';
+import { get, isNil } from 'lodash';
 import qs from 'querystring';
 
-import {userLogout} from '../../../../user/user-logout/user-logout.component';
-import {checkToken} from '../../../../user/user-auth/user-auth.component';
+import { userLogout } from '../../../../user/user-logout/user-logout.component';
+import { checkToken } from '../../../../user/user-auth/user-auth.component';
 import config from '../../../../config/webportal.config';
-import {isJobV2} from './util';
+import { isJobV2 } from './util';
 
 const params = new URLSearchParams(window.location.search);
 const namespace = params.get('username');
@@ -109,11 +109,13 @@ export function getTensorBoardUrl(jobInfo, rawJobConfig) {
     const randomStr = rawJobConfig.extras.tensorBoard.randomStr;
     const tensorBoardPortStr = `tensorBoardPort_${randomStr}`;
     const taskRoles = jobInfo.taskRoles;
-    Object.keys(taskRoles).forEach((taskRoleKey) => {
+    Object.keys(taskRoles).forEach(taskRoleKey => {
       const taskStatuses = taskRoles[taskRoleKey].taskStatuses[0];
-      if (taskStatuses.taskState === 'RUNNING'
-        && taskStatuses.containerPorts
-        && taskStatuses.containerPorts.hasOwnProperty(tensorBoardPortStr)) {
+      if (
+        taskStatuses.taskState === 'RUNNING' &&
+        taskStatuses.containerPorts &&
+        taskStatuses.containerPorts.hasOwnProperty(tensorBoardPortStr)
+      ) {
         port = taskStatuses.containerPorts[tensorBoardPortStr];
         ip = taskStatuses.containerIp;
       }
@@ -128,13 +130,15 @@ export function getTensorBoardUrl(jobInfo, rawJobConfig) {
 export function getJobMetricsUrl(jobInfo) {
   const from = jobInfo.jobStatus.createdTime;
   let to = '';
-  const {state} = jobInfo.jobStatus;
+  const { state } = jobInfo.jobStatus;
   if (state === 'RUNNING') {
     to = Date.now();
   } else {
     to = jobInfo.jobStatus.completedTime;
   }
-  return `${config.grafanaUri}/dashboard/db/joblevelmetrics?var-job=${namespace ? `${namespace}~${jobName}` : jobName}&from=${from}&to=${to}`;
+  return `${config.grafanaUri}/dashboard/db/joblevelmetrics?var-job=${
+    namespace ? `${namespace}~${jobName}` : jobName
+  }&from=${from}&to=${to}`;
 }
 
 export async function cloneJob(rawJobConfig) {
@@ -156,18 +160,25 @@ export async function cloneJob(rawJobConfig) {
     return;
   }
   const plugins = window.PAI_PLUGINS;
-  const pluginIndex = plugins.findIndex((x) => x.id === pluginId);
+  const pluginIndex = plugins.findIndex(x => x.id === pluginId);
   if (pluginIndex === -1) {
     // redirect v2 job to default submission page
     if (isJobV2(rawJobConfig)) {
-      alert(`The job was submitted by ${pluginId}, but it is not installed. Will use default submission page instead`);
+      alert(
+        `The job was submitted by ${pluginId}, but it is not installed. Will use default submission page instead`,
+      );
       window.location.href = `/submit.html?${qs.stringify(query)}`;
       return;
     }
-    alert(`Clone job failed. The job was submitted by ${pluginId}, but it is not installed.`);
+    alert(
+      `Clone job failed. The job was submitted by ${pluginId}, but it is not installed.`,
+    );
     return;
   }
-  window.location.href = `/plugin.html?${qs.stringify({...query, index: pluginIndex})}`;
+  window.location.href = `/plugin.html?${qs.stringify({
+    ...query,
+    index: pluginIndex,
+  })}`;
 }
 
 export async function stopJob() {
@@ -178,7 +189,7 @@ export async function stopJob() {
   const res = await fetch(url, {
     method: 'PUT',
     headers: {
-      'Authorization': `Bearer ${token}`,
+      Authorization: `Bearer ${token}`,
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({
@@ -258,9 +269,18 @@ export async function getContainerLog(logUrl) {
 export function openJobAttemptsPage(retryCount) {
   const search = namespace ? namespace + '~' + jobName : jobName;
   const jobSessionTemplate = JSON.stringify({
-    'iCreate': 1, 'iStart': 0, 'iEnd': retryCount + 1, 'iLength': 20,
-    'aaSorting': [[0, 'desc', 1]], 'oSearch': {'bCaseInsensitive': true, 'sSearch': search, 'bRegex': false, 'bSmart': true},
-    'abVisCols': [],
+    iCreate: 1,
+    iStart: 0,
+    iEnd: retryCount + 1,
+    iLength: 20,
+    aaSorting: [[0, 'desc', 1]],
+    oSearch: {
+      bCaseInsensitive: true,
+      sSearch: search,
+      bRegex: false,
+      bSmart: true,
+    },
+    abVisCols: [],
   });
   sessionStorage.setItem('apps', jobSessionTemplate);
   window.open(config.yarnWebPortalUri);

@@ -30,12 +30,12 @@ import {
 import React from 'react';
 
 import Card from '../../components/card';
-import {UtilizationChart} from './utilization-chart';
-import {zeroPaddingClass} from './util';
-import {Header} from './header';
+import { UtilizationChart } from './utilization-chart';
+import { zeroPaddingClass } from './util';
+import { Header } from './header';
 
 import t from '../../components/tachyons.scss';
-import {ResourceBar} from './resource-bar';
+import { ResourceBar } from './resource-bar';
 
 const getResouceUtilization = (used, total) => {
   if (Math.abs(total) < 1e-5) {
@@ -67,25 +67,16 @@ const vcListColumns = [
     isResizable: true,
     className: zeroPaddingClass,
     onRender(vc) {
-      const {resourcesUsed, resourcesTotal} = vc;
+      const { resourcesUsed, resourcesTotal } = vc;
 
       const resouceUtilization = Math.max(
-        getResouceUtilization(
-          resourcesUsed.GPUs,
-          resourcesTotal.GPUs
-        ),
-        getResouceUtilization(
-          resourcesUsed.memory,
-          resourcesTotal.memory
-        ),
-        getResouceUtilization(
-          resourcesUsed.vCores,
-          resourcesTotal.vCores
-        ),
+        getResouceUtilization(resourcesUsed.GPUs, resourcesTotal.GPUs),
+        getResouceUtilization(resourcesUsed.memory, resourcesTotal.memory),
+        getResouceUtilization(resourcesUsed.vCores, resourcesTotal.vCores),
       );
       return (
-        <Stack styles={{root: [{height: 98}]}}>
-          <UtilizationChart percentage={resouceUtilization}/>
+        <Stack styles={{ root: [{ height: 98 }] }}>
+          <UtilizationChart percentage={resouceUtilization} />
         </Stack>
       );
     },
@@ -97,17 +88,24 @@ const vcListColumns = [
     name: 'Detail',
     isResizable: true,
     onRender(vc) {
-      const {resourcesUsed, resourcesTotal} = vc;
+      const { resourcesUsed, resourcesTotal } = vc;
       return (
-        <Stack gap="s1" verticalAlign='center' verticalFill styles={{root: {maxWidth: 432}}}>
+        <Stack
+          gap='s1'
+          verticalAlign='center'
+          verticalFill
+          styles={{ root: { maxWidth: 432 } }}
+        >
           <StackItem>
             <ResourceBar
               name={'Memory'}
               percentage={getResouceUtilization(
                 resourcesUsed.memory,
-                resourcesTotal.memory
+                resourcesTotal.memory,
               )}
-              tailInfo={`${Math.round(resourcesUsed.memory)} / ${Math.round(resourcesTotal.memory)} MB`}
+              tailInfo={`${Math.round(resourcesUsed.memory)} / ${Math.round(
+                resourcesTotal.memory,
+              )} MB`}
             />
           </StackItem>
           <StackItem>
@@ -115,9 +113,11 @@ const vcListColumns = [
               name={'CPU'}
               percentage={getResouceUtilization(
                 resourcesUsed.vCores,
-                resourcesTotal.vCores
+                resourcesTotal.vCores,
               )}
-              tailInfo={`${Math.round(resourcesUsed.vCores)} / ${Math.round(resourcesTotal.vCores)}`}
+              tailInfo={`${Math.round(resourcesUsed.vCores)} / ${Math.round(
+                resourcesTotal.vCores,
+              )}`}
             />
           </StackItem>
           <StackItem>
@@ -125,9 +125,11 @@ const vcListColumns = [
               name={'GPU'}
               percentage={getResouceUtilization(
                 resourcesUsed.GPUs,
-                resourcesTotal.GPUs
+                resourcesTotal.GPUs,
               )}
-              tailInfo={`${Math.round(resourcesUsed.GPUs)} / ${Math.round(resourcesTotal.GPUs)}`}
+              tailInfo={`${Math.round(resourcesUsed.GPUs)} / ${Math.round(
+                resourcesTotal.GPUs,
+              )}`}
             />
           </StackItem>
         </Stack>
@@ -150,44 +152,47 @@ const vcListColumns = [
           }}
           data-selection-disabled
         >
-          <DefaultButton styles={{
-            root: {
-              backgroundColor: '#e5e5e5',
-              minWidth: 50,
-            },
-            rootFocused: {backgroundColor: '#e5e5e5'},
-            rootDisabled: {backgroundColor: '#eeeeee'},
-            rootCheckedDisabled: {backgroundColor: '#eeeeee'},
-          }}>View</DefaultButton>
+          <DefaultButton
+            styles={{
+              root: {
+                backgroundColor: '#e5e5e5',
+                minWidth: 50,
+              },
+              rootFocused: { backgroundColor: '#e5e5e5' },
+              rootDisabled: { backgroundColor: '#eeeeee' },
+              rootCheckedDisabled: { backgroundColor: '#eeeeee' },
+            }}
+          >
+            View
+          </DefaultButton>
         </div>
       );
     },
   },
 ];
 
-const VirtualClusterStatistics = ({style, virtualClusters}) => {
+const VirtualClusterStatistics = ({ style, virtualClusters }) => {
   const vcNames = Object.keys(virtualClusters);
-  const {spacing} = getTheme();
-  const vcList = vcNames.map((vcName) => {
-    return {name: vcName, ...virtualClusters[vcName]};
+  const { spacing } = getTheme();
+  const vcList = vcNames.map(vcName => {
+    return { name: vcName, ...virtualClusters[vcName] };
   });
 
   return (
-    <Card className={t.ph5} style={{paddingRight: spacing.m, ...style}}>
-      <Stack styles={{root: [{height: '100%'}]}} gap='l1'>
+    <Card className={t.ph5} style={{ paddingRight: spacing.m, ...style }}>
+      <Stack styles={{ root: [{ height: '100%' }] }} gap='l1'>
         <Stack.Item>
           <Header
             headerName={`Virtual clusters (${vcNames.length})`}
             linkHref={'/virtual-clusters.html'}
             linkName={'View all'}
-            showLink={true}/>
+            showLink={true}
+          />
         </Stack.Item>
-        <Stack.Item styles={{root: [t.relative]}} grow>
-          <div
-            className={c(t.absolute, t.absoluteFill, t.overflowAuto, t.pr4)}
-          >
+        <Stack.Item styles={{ root: [t.relative] }} grow>
+          <div className={c(t.absolute, t.absoluteFill, t.overflowAuto, t.pr4)}>
             <DetailsList
-              styles={{root: {overflow: 'unset'}}}
+              styles={{ root: { overflow: 'unset' } }}
               columns={vcListColumns}
               disableSelectionZone
               items={vcList}

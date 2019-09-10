@@ -1,4 +1,4 @@
-import React, {useLayoutEffect} from 'react';
+import React, { useLayoutEffect } from 'react';
 import c from 'classnames';
 import {
   DetailsList,
@@ -8,11 +8,11 @@ import {
 } from 'office-ui-fabric-react';
 import PropTypes from 'prop-types';
 
-import {dispatchResizeEvent} from '../../utils/utils';
+import { dispatchResizeEvent } from '../../utils/utils';
 import t from '../../../components/tachyons.scss';
-import {InputData} from '../../models/data/input-data';
+import { InputData } from '../../models/data/input-data';
 
-export const TeamMountList = ({dataList}) => {
+export const TeamMountList = ({ dataList }) => {
   // workaround for fabric's bug
   // https://github.com/OfficeDev/office-ui-fabric-react/issues/5280#issuecomment-489619108
   useLayoutEffect(() => {
@@ -27,9 +27,7 @@ export const TeamMountList = ({dataList}) => {
       minWidth: 100,
       onRender: (item, idx) => {
         return (
-          <div className={FontClassNames.medium}>{`${
-            item.mountPath
-          }`}</div>
+          <div className={FontClassNames.medium}>{`${item.mountPath}`}</div>
         );
       },
     },
@@ -40,11 +38,9 @@ export const TeamMountList = ({dataList}) => {
       isMultiline: true,
       minWidth: 200,
       // eslint-disable-next-line react/display-name
-      onRender: (item) => {
+      onRender: item => {
         return (
-          <div className={FontClassNames.medium}>{`${
-            item.dataSource
-          }`}</div>
+          <div className={FontClassNames.medium}>{`${item.dataSource}`}</div>
         );
       },
     },
@@ -55,10 +51,9 @@ export const TeamMountList = ({dataList}) => {
       isMultiline: true,
       minWidth: 100,
       // eslint-disable-next-line react/display-name
-      onRender: (item) => {
+      onRender: item => {
         return (
-          <div className={FontClassNames.medium}>
-            {`${item.sourceType}`}</div>
+          <div className={FontClassNames.medium}>{`${item.sourceType}`}</div>
         );
       },
     },

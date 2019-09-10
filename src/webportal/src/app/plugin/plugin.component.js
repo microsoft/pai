@@ -49,9 +49,12 @@ $(document).ready(function() {
       .attr('pai-rest-server-uri', window.ENV.restServerUri)
       .attr('pai-version', window.PAI_VERSION);
     if (cookies.get('token')) {
-      $plugin.attr('pai-user', cookies.get('user'))
+      $plugin
+        .attr('pai-user', cookies.get('user'))
         .attr('pai-rest-server-token', cookies.get('token'));
     }
-    $('#content-wrapper').empty().append($plugin);
+    $('#content-wrapper')
+      .empty()
+      .append($plugin);
   });
 });

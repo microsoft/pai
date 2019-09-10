@@ -4,8 +4,8 @@ import {
   STORAGE_PREFIX,
   AUTO_GENERATE_NOTIFY,
 } from '../../utils/constants';
-import {getProjectNameFromGit} from '../../utils/utils';
-import {isEmpty} from 'lodash';
+import { getProjectNameFromGit } from '../../utils/utils';
+import { isEmpty } from 'lodash';
 
 export class JobData {
   constructor(hdfsClient, customDataList, mountDirs, containData) {
@@ -22,37 +22,27 @@ export class JobData {
     const hdfsConfigFile = '~/.hdfscli.cfg';
     const jobDir = `${STORAGE_PREFIX}${userName}/${jobName}`;
     preCommand.push(
-      `pip install hdfs &>> storage_plugin.log && touch ${hdfsConfigFile} && echo '[dev.alias]' >> ${hdfsConfigFile} && echo 'url = ${
-        this.hdfsClient.host
-      }' >> ${hdfsConfigFile}`,
+      `pip install hdfs &>> storage_plugin.log && touch ${hdfsConfigFile} && echo '[dev.alias]' >> ${hdfsConfigFile} && echo 'url = ${this.hdfsClient.host}' >> ${hdfsConfigFile}`,
     );
 
     for (const dataItem of this.customDataList) {
       preCommand.push(
-        `if [ ! -d ${dataItem.mountPath} ]; then mkdir --parents ${
-          dataItem.mountPath
-        }; fi &>> storage_plugin.log`,
+        `if [ ! -d ${dataItem.mountPath} ]; then mkdir --parents ${dataItem.mountPath}; fi &>> storage_plugin.log`,
       );
       if (dataItem.sourceType === 'http') {
         preCommand.push('apt-get install -y --no-install-recommends wget');
         preCommand.push(
-          `wget ${dataItem.dataSource} -P ${
-            dataItem.mountPath
-          } &>> storage_plugin.log`,
+          `wget ${dataItem.dataSource} -P ${dataItem.mountPath} &>> storage_plugin.log`,
         );
       } else if (dataItem.sourceType === 'git') {
         const projectName = getProjectNameFromGit(dataItem.dataSource);
         preCommand.push('apt-get install -y --no-install-recommends git');
         preCommand.push(
-          `git clone ${dataItem.dataSource} ${
-            dataItem.mountPath
-          }/${projectName} &>> storage_plugin.log`,
+          `git clone ${dataItem.dataSource} ${dataItem.mountPath}/${projectName} &>> storage_plugin.log`,
         );
       } else if (dataItem.sourceType === 'hdfs') {
         preCommand.push(
-          `hdfscli download --alias=dev ${dataItem.dataSource} ${
-            dataItem.mountPath
-          }`,
+          `hdfscli download --alias=dev ${dataItem.dataSource} ${dataItem.mountPath}`,
         );
       } else if (dataItem.sourceType === 'local') {
         const mountHdfsDir = `${jobDir}${dataItem.mountPath}`;
@@ -60,15 +50,13 @@ export class JobData {
           // eslint-disable-next-line no-await-in-loop
           await Promise.all(
             // eslint-disable-next-line no-loop-func
-            dataItem.uploadFiles.map((file) => {
+            dataItem.uploadFiles.map(file => {
               return this.hdfsClient.uploadFile(mountHdfsDir, file);
             }),
           );
-          dataItem.uploadFiles.forEach((file) => {
+          dataItem.uploadFiles.forEach(file => {
             preCommand.push(
-              `hdfscli download --alias=dev ${mountHdfsDir}/${file.name} ${
-                dataItem.mountPath
-              }`,
+              `hdfscli download --alias=dev ${mountHdfsDir}/${file.name} ${dataItem.mountPath}`,
             );
           });
         }
@@ -86,9 +74,11 @@ export class JobData {
     }
 
     if (!isEmpty(this.customDataList)) {
-      return this._generateCustomStorageCommands(userName, jobName).then((preCommands) => {
-        return teamwiseCommands.concat(preCommands);
-      });
+      return this._generateCustomStorageCommands(userName, jobName).then(
+        preCommands => {
+          return teamwiseCommands.concat(preCommands);
+        },
+      );
     }
 
     return teamwiseCommands;

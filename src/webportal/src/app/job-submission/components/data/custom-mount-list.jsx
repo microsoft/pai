@@ -1,4 +1,10 @@
-import React, {useCallback, useState, useEffect, useContext, useLayoutEffect} from 'react';
+import React, {
+  useCallback,
+  useState,
+  useEffect,
+  useContext,
+  useLayoutEffect,
+} from 'react';
 import c from 'classnames';
 import {
   DetailsList,
@@ -8,12 +14,12 @@ import {
   FontClassNames,
   TextField,
 } from 'office-ui-fabric-react';
-import {cloneDeep} from 'lodash';
+import { cloneDeep } from 'lodash';
 import PropTypes from 'prop-types';
 
-import {STORAGE_PREFIX} from '../../utils/constants';
-import {InputData} from '../../models/data/input-data';
-import {removePathPrefix} from '../../utils/utils';
+import { STORAGE_PREFIX } from '../../utils/constants';
+import { InputData } from '../../models/data/input-data';
+import { removePathPrefix } from '../../utils/utils';
 import {
   validateMountPath,
   validateHttpUrl,
@@ -21,7 +27,7 @@ import {
   validateHDFSPathSync,
 } from '../../utils/validation';
 import Context from '../context';
-import {dispatchResizeEvent} from '../../utils/utils';
+import { dispatchResizeEvent } from '../../utils/utils';
 import t from '../../../components/tachyons.scss';
 
 const DATA_ERROR_MESSAGE_ID = 'Data Section';
@@ -62,7 +68,7 @@ const checkErrorMessage = async (
   setDataSourceErrorMessage(newDataSourceErrorMessage);
 };
 
-export const MountList = ({dataList, setDataList, setDataError}) => {
+export const MountList = ({ dataList, setDataList, setDataError }) => {
   // workaround for fabric's bug
   // https://github.com/OfficeDev/office-ui-fabric-react/issues/5280#issuecomment-489619108
   useLayoutEffect(() => {
@@ -75,7 +81,7 @@ export const MountList = ({dataList, setDataList, setDataError}) => {
   const [dataSourceErrorMessage, setDataSourceErrorMessage] = useState(
     Array(dataList.length),
   );
-  const {setErrorMessage} = useContext(Context);
+  const { setErrorMessage } = useContext(Context);
 
   useEffect(() => {
     checkErrorMessage(
@@ -89,8 +95,8 @@ export const MountList = ({dataList, setDataList, setDataError}) => {
 
   useEffect(() => {
     if (
-      containerPathErrorMessage.every((element) => element === null) &&
-      dataSourceErrorMessage.every((element) => element === null)
+      containerPathErrorMessage.every(element => element === null) &&
+      dataSourceErrorMessage.every(element => element === null)
     ) {
       setErrorMessage(DATA_ERROR_MESSAGE_ID, null);
       setDataError({
@@ -99,26 +105,26 @@ export const MountList = ({dataList, setDataList, setDataError}) => {
       });
     } else {
       const newErrorMessage = containerPathErrorMessage.every(
-        (element) => element === null,
+        element => element === null,
       )
-        ? dataSourceErrorMessage.find((element) => element !== null)
-        : containerPathErrorMessage.find((element) => element !== null);
+        ? dataSourceErrorMessage.find(element => element !== null)
+        : containerPathErrorMessage.find(element => element !== null);
       setErrorMessage(
         DATA_ERROR_MESSAGE_ID,
         `DataSectionError: ${newErrorMessage}`,
       );
       setDataError({
         customContainerPathError: !containerPathErrorMessage.every(
-          (element) => element === null,
+          element => element === null,
         ),
         customDataSourceError: !dataSourceErrorMessage.every(
-          (element) => element === null,
+          element => element === null,
         ),
       });
     }
   }, [containerPathErrorMessage, dataSourceErrorMessage]);
 
-  const onRemove = useCallback((idx) => {
+  const onRemove = useCallback(idx => {
     setDataList([...dataList.slice(0, idx), ...dataList.slice(idx + 1)]);
   });
 
@@ -168,7 +174,7 @@ export const MountList = ({dataList, setDataList, setDataError}) => {
       key: 'remove',
       name: 'Remove',
       minWidth: 50,
-      style: {padding: 0},
+      style: { padding: 0 },
       headerClassName: FontClassNames.medium,
       onRender: (item, idx) => (
         <div
@@ -181,7 +187,7 @@ export const MountList = ({dataList, setDataList, setDataError}) => {
         >
           <IconButton
             key={`remove-button-${idx}`}
-            iconProps={{iconName: 'Delete'}}
+            iconProps={{ iconName: 'Delete' }}
             onClick={() => onRemove(idx)}
           />
         </div>

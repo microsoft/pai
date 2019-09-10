@@ -15,7 +15,6 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-
 // module dependencies
 const dashboardComponent = require('./dashboard.component.ejs');
 const webportalConfig = require('../config/webportal.config.js');
@@ -25,7 +24,7 @@ const dashboardHtml = dashboardComponent({
 });
 
 function resizeContentWrapper() {
-  $('#content-wrapper').css({'height': $(window).height() + 'px'});
+  $('#content-wrapper').css({ height: $(window).height() + 'px' });
 }
 
 window.onresize = function(envent) {

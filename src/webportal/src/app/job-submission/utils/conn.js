@@ -15,11 +15,11 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-import {userLogout} from '../../user/user-logout/user-logout.component.js';
+import { userLogout } from '../../user/user-logout/user-logout.component.js';
 
 import config from '../../config/webportal.config';
 import yaml from 'js-yaml';
-import {get} from 'lodash';
+import { get } from 'lodash';
 
 const token = cookies.get('token');
 
@@ -49,7 +49,7 @@ export async function submitJob(jobProtocol) {
   return await fetchWrapper(`${config.restServerUri}/api/v2/jobs`, {
     body: jobProtocol,
     headers: {
-      'Authorization': `Bearer ${token}`,
+      Authorization: `Bearer ${token}`,
       'Content-Type': 'text/yaml',
     },
     method: 'POST',
@@ -57,9 +57,7 @@ export async function submitJob(jobProtocol) {
 }
 
 export async function fetchJobConfig(userName, jobName) {
-  const url = `${
-    config.restServerUri
-  }/api/v2/jobs/${userName}~${jobName}/config`;
+  const url = `${config.restServerUri}/api/v2/jobs/${userName}~${jobName}/config`;
   const res = await fetch(url);
   const text = await res.text();
   let json = yaml.safeLoad(text);
@@ -75,11 +73,14 @@ export async function fetchJobConfig(userName, jobName) {
 }
 
 export async function listUserVirtualClusters(user) {
-  const userInfo = await fetchWrapper(`${config.restServerUri}/api/v1/user/${user}`, {
-    headers: {
-      'Authorization': `Bearer ${token}`,
+  const userInfo = await fetchWrapper(
+    `${config.restServerUri}/api/v1/user/${user}`,
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
     },
-  });
+  );
   return get(userInfo, 'virtualCluster', []);
 }
 
@@ -88,11 +89,11 @@ export async function fetchUserGroup(api, user, token) {
 
   return fetch(userInfoUrl, {
     headers: {
-      'Authorization': `Bearer ${token}`,
+      Authorization: `Bearer ${token}`,
     },
-  }).then((response) => {
+  }).then(response => {
     if (response.ok) {
-      return response.json().then((responseData) => {
+      return response.json().then(responseData => {
         return responseData.grouplist;
       });
     } else {
@@ -103,9 +104,9 @@ export async function fetchUserGroup(api, user, token) {
 
 export async function fetchStorageConfigData(api) {
   const storageConfigUrl = `${api}/api/v1/kubernetes/api/v1/namespaces/pai-storage/secrets/storage-config`;
-  return fetch(storageConfigUrl).then((response) => {
+  return fetch(storageConfigUrl).then(response => {
     if (response.ok) {
-      return response.json().then((responseData) => responseData.data);
+      return response.json().then(responseData => responseData.data);
     } else {
       throw Error(`fetch ${storageConfigUrl}: HTTP ${response.status}`);
     }
@@ -114,9 +115,9 @@ export async function fetchStorageConfigData(api) {
 
 export async function fetchStorageServer(api) {
   const storageServerUrl = `${api}/api/v1/kubernetes/api/v1/namespaces/pai-storage/secrets/storage-server`;
-  return fetch(storageServerUrl).then((response) => {
+  return fetch(storageServerUrl).then(response => {
     if (response.ok) {
-      return response.json().then((responseData) => responseData.data);
+      return response.json().then(responseData => responseData.data);
     } else {
       throw Error(`fetch ${storageServerUrl}: HTTP ${response.status}`);
     }

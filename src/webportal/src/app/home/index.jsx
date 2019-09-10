@@ -19,20 +19,20 @@ import 'core-js/stable';
 import 'regenerator-runtime/runtime';
 import 'whatwg-fetch';
 
-import {FontClassNames} from '@uifabric/styling';
+import { FontClassNames } from '@uifabric/styling';
 import c from 'classnames';
-import {isEmpty} from 'lodash';
-import {initializeIcons} from 'office-ui-fabric-react';
+import { isEmpty } from 'lodash';
+import { initializeIcons } from 'office-ui-fabric-react';
 import querystring from 'querystring';
-import React, {useState, useCallback} from 'react';
+import React, { useState, useCallback } from 'react';
 import ReactDOM from 'react-dom';
 import url from 'url';
 
 import Bottom from './index/bottom';
-import {login} from './index/conn';
+import { login } from './index/conn';
 import Jumbotron from './index/jumbotron';
 import LoginModal from './index/login-modal';
-import {checkToken} from '../user/user-auth/user-auth.component';
+import { checkToken } from '../user/user-auth/user-auth.component';
 import config from '../config/webportal.config';
 import t from 'tachyons-sass/tachyons.scss';
 
@@ -48,10 +48,10 @@ if (config.authnMethod === 'OIDC') {
   const query = url.parse(window.location.href, true).query;
   const expiration = 7;
   if (query['token']) {
-    cookies.set('user', query.user, {expires: expiration});
-    cookies.set('token', query.token, {expires: expiration});
-    cookies.set('admin', query.admin, {expires: expiration});
-    cookies.set('hasGitHubPAT', query.hasGitHubPAT, {expires: expiration});
+    cookies.set('user', query.user, { expires: expiration });
+    cookies.set('token', query.token, { expires: expiration });
+    cookies.set('admin', query.admin, { expires: expiration });
+    cookies.set('hasGitHubPAT', query.hasGitHubPAT, { expires: expiration });
   }
 }
 
@@ -65,72 +65,74 @@ const Index = () => {
   const [loginModal, setLoginModal] = useState(false);
   const [error, setError] = useState(null);
   const [lock, setLock] = useState(false);
-  const onLogin = useCallback(
-      (username, password) => {
-        setLock(true);
-        void login(
-            username,
-            password
-        ).then(() => {
-          window.location.replace(loginTarget);
-        }).catch((e) => {
-          setError(e.message);
-        }).finally(() => {
-          setLock(false);
-        });
-      },
-      [],
-  );
+  const onLogin = useCallback((username, password) => {
+    setLock(true);
+    void login(username, password)
+      .then(() => {
+        window.location.replace(loginTarget);
+      })
+      .catch(e => {
+        setError(e.message);
+      })
+      .finally(() => {
+        setLock(false);
+      });
+  }, []);
 
-  const showLoginModal = useCallback(
-    () => {
-      if (config.authnMethod === 'basic') {
-        setLoginModal(true);
-      } else {
-        location.href = config.restServerUri + `/api/v1/authn/oidc/login?${querystring.stringify({
+  const showLoginModal = useCallback(() => {
+    if (config.authnMethod === 'basic') {
+      setLoginModal(true);
+    } else {
+      location.href =
+        config.restServerUri +
+        `/api/v1/authn/oidc/login?${querystring.stringify({
           redirect_uri: new URL('/index.html', window.location.href).href,
           callback: window.location.href,
         })}`;
-      }
-    },
-    [],
-  );
+    }
+  }, []);
 
-  const dismissLoginModal = useCallback(
-    () => {
-      setLoginModal(false);
-      setError(null);
-    },
-    [],
-  );
+  const dismissLoginModal = useCallback(() => {
+    setLoginModal(false);
+    setError(null);
+  }, []);
 
   return (
-      <div className={c(t.minVh100, t.w100, t.flex, t.flexColumn, FontClassNames.medium)}>
-        {/* top */}
-        <div className={c(t.bgBlack, t.pv3, t.ph4, t.flex, t.justifyBetween)}>
-          <div className={c(FontClassNames.large, t.white)}>
-            Platform for AI
-          </div>
-          <div className={c(FontClassNames.large, t.white, t.dim, t.pointer)} onClick={showLoginModal}>
-            Sign in
-          </div>
+    <div
+      className={c(
+        t.minVh100,
+        t.w100,
+        t.flex,
+        t.flexColumn,
+        FontClassNames.medium,
+      )}
+    >
+      {/* top */}
+      <div className={c(t.bgBlack, t.pv3, t.ph4, t.flex, t.justifyBetween)}>
+        <div className={c(FontClassNames.large, t.white)}>Platform for AI</div>
+        <div
+          className={c(FontClassNames.large, t.white, t.dim, t.pointer)}
+          onClick={showLoginModal}
+        >
+          Sign in
         </div>
-        {/* content */}
-        <div className={c(t.flexAuto, t.flex, t.flexColumn, t.relative)}>
-          {/* jumbotron */}
-          <Jumbotron showLoginModal={showLoginModal} />
-          {/* bottom */}
-          <Bottom />
-        </div>
-        {/* login modal */}
-        <LoginModal
-            isOpen={loginModal}
-            lock={lock}
-            error={error}
-            onDismiss={dismissLoginModal}
-            onLogin={onLogin}
-        />
       </div>
+      {/* content */}
+      <div className={c(t.flexAuto, t.flex, t.flexColumn, t.relative)}>
+        {/* jumbotron */}
+        <Jumbotron showLoginModal={showLoginModal} />
+        {/* bottom */}
+        <Bottom />
+      </div>
+      {/* login modal */}
+      <LoginModal
+        isOpen={loginModal}
+        lock={lock}
+        error={error}
+        onDismiss={dismissLoginModal}
+        onLogin={onLogin}
+      />
+    </div>
   );
 };
 

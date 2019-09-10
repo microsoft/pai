@@ -21,54 +21,64 @@ const githubThrottled = require('../github-throttled');
 require('./template-list.component.css');
 
 module.exports = function(element, restServerUri, query) {
-const context = {
-  parseType: function(raw) {
-    return {
-      'job': 'job',
-      'dockerimage': 'docker',
-      'script': 'script',
-      'data': 'data',
-    }[raw];
-  },
-  pluginIndex: query.index,
-};
+  const context = {
+    parseType: function(raw) {
+      return {
+        job: 'job',
+        dockerimage: 'docker',
+        script: 'script',
+        data: 'data',
+      }[raw];
+    },
+    pluginIndex: query.index,
+  };
 
-function request(type, query) {
-  if (type === 'docker') type = 'dockerimage';
-  const uri = query
-    ? `${restServerUri}/api/v2/template?query=${encodeURIComponent(query)}&type=${type}`
-    : `${restServerUri}/api/v2/template/${type}`;
+  function request(type, query) {
+    if (type === 'docker') type = 'dockerimage';
+    const uri = query
+      ? `${restServerUri}/api/v2/template?query=${encodeURIComponent(
+          query,
+        )}&type=${type}`
+      : `${restServerUri}/api/v2/template/${type}`;
 
-  return req(1);
+    return req(1);
 
-  function req(page) {
-    return $.getJSON(uri, {pageno: page})
-      .then(render)
-      .then(function(data) {
-        if (data.pageNo * data.pageSize < data.totalCount) {
-          return req(+data.pageNo + 1);
-        }
-      }).catch(function(error) {
-        if (!githubThrottled()) {
-          throw error;
-        }
-      });
-  }
-}
-
-function render(data) {
-  $('#result-count').text(data.totalCount);
-  $('#results').append(itemTemplate.call(context, data));
-  return data;
-}
-
-$(function() {
-  if (!(query.type in {job: true, docker: true, script: true, data: true})) {
-    return window.location.href = '/';
+    function req(page) {
+      return $.getJSON(uri, { pageno: page })
+        .then(render)
+        .then(function(data) {
+          if (data.pageNo * data.pageSize < data.totalCount) {
+            return req(+data.pageNo + 1);
+          }
+        })
+        .catch(function(error) {
+          if (!githubThrottled()) {
+            throw error;
+          }
+        });
+    }
   }
 
-  $(element).html(template.call({pluginIndex: query.index}, {type: query.type, query: query.query}));
+  function render(data) {
+    $('#result-count').text(data.totalCount);
+    $('#results').append(itemTemplate.call(context, data));
+    return data;
+  }
 
-  request(query.type, query.query);
-});
+  $(function() {
+    if (
+      !(query.type in { job: true, docker: true, script: true, data: true })
+    ) {
+      return (window.location.href = '/');
+    }
+
+    $(element).html(
+      template.call(
+        { pluginIndex: query.index },
+        { type: query.type, query: query.query },
+      ),
+    );
+
+    request(query.type, query.query);
+  });
 };

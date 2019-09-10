@@ -15,7 +15,7 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-import {isNil} from 'lodash';
+import { isNil } from 'lodash';
 import PropTypes from 'prop-types';
 import React from 'react';
 
@@ -30,7 +30,7 @@ export default class Timer extends React.Component {
   }
 
   componentDidUpdate(prevProps) {
-    const {interval, func} = this.props;
+    const { interval, func } = this.props;
     if (prevProps.interval !== interval || prevProps.func !== func) {
       this.stopTimer();
       this.startTimer();
@@ -42,7 +42,7 @@ export default class Timer extends React.Component {
   }
 
   startTimer() {
-    const {interval, func} = this.props;
+    const { interval, func } = this.props;
     this.stopTimer();
     if (!isNil(interval) && interval > 0 && !isNil(func)) {
       this.timer = setInterval(func, interval);
@@ -60,7 +60,6 @@ export default class Timer extends React.Component {
     return null;
   }
 }
-
 
 Timer.propTypes = {
   interval: PropTypes.number,

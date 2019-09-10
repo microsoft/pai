@@ -20,9 +20,9 @@ import 'regenerator-runtime/runtime';
 import 'whatwg-fetch';
 
 import c from 'classnames';
-import {isEmpty} from 'lodash';
-import {initializeIcons, Stack} from 'office-ui-fabric-react';
-import React, {useState, useEffect} from 'react';
+import { isEmpty } from 'lodash';
+import { initializeIcons, Stack } from 'office-ui-fabric-react';
+import React, { useState, useEffect } from 'react';
 import ReactDOM from 'react-dom';
 import MediaQuery from 'react-responsive';
 
@@ -30,14 +30,22 @@ import JobStatus from './home/job-status';
 import VirtualClusterList from './home/virtual-cluster-list';
 import VirtualClusterStatistics from './home/virtual-cluster-statistics';
 import GpuChart from './home/gpu-chart';
-import {listJobs, getUserInfo, listVirtualClusters, getAvailableGpuPerNode, UnauthorizedError, getLowGpuJobInfos, listAllJobs} from './home/conn';
-import {listAbnormalJobs} from '../components/util/job';
+import {
+  listJobs,
+  getUserInfo,
+  listVirtualClusters,
+  getAvailableGpuPerNode,
+  UnauthorizedError,
+  getLowGpuJobInfos,
+  listAllJobs,
+} from './home/conn';
+import { listAbnormalJobs } from '../components/util/job';
 import RecentJobList from './home/recent-job-list';
 import AbnormalJobList from './home/abnormal-job-list';
-import {BREAKPOINT1} from './home/util';
-import {SpinnerLoading} from '../components/loading';
-import {initTheme} from '../components/theme';
-import {userLogout} from '../user/user-logout/user-logout.component.js';
+import { BREAKPOINT1 } from './home/util';
+import { SpinnerLoading } from '../components/loading';
+import { initTheme } from '../components/theme';
+import { userLogout } from '../user/user-logout/user-logout.component.js';
 
 import t from '../components/tachyons.scss';
 
@@ -56,23 +64,27 @@ const Home = () => {
   useEffect(() => {
     if (!isEmpty(cookies.get('user'))) {
       if (isAdmin) {
-        getLowGpuJobInfos().then(setLowGpuJobInfo).catch(alert);
+        getLowGpuJobInfos()
+          .then(setLowGpuJobInfo)
+          .catch(alert);
       }
       Promise.all([
         isAdmin ? listAllJobs().then(setJobs) : listJobs().then(setJobs),
         getUserInfo().then(setUserInfo),
         listVirtualClusters().then(setVirtualClusters),
         getAvailableGpuPerNode().then(setGpuPerNode),
-      ]).then(() => {
-        setLoading(false);
-      }).catch((err) => {
-        if (err instanceof UnauthorizedError) {
-          alert(err);
-          userLogout();
-        } else {
-          alert(err);
-        }
-      });
+      ])
+        .then(() => {
+          setLoading(false);
+        })
+        .catch(err => {
+          if (err instanceof UnauthorizedError) {
+            alert(err);
+            userLogout();
+          } else {
+            alert(err);
+          }
+        });
     } else {
       // layout.component.js will redirect user to index page.
     }
@@ -82,20 +94,23 @@ const Home = () => {
     return <SpinnerLoading />;
   } else {
     return (
-      <div className={c(t.w100, t.h100)} style={{minWidth: 500, overflowY: 'auto'}}>
+      <div
+        className={c(t.w100, t.h100)}
+        style={{ minWidth: 500, overflowY: 'auto' }}
+      >
         {/* small */}
         <MediaQuery maxWidth={BREAKPOINT1}>
-          <Stack padding='l2' gap='l2' styles={{minHeight: '100%'}}>
-            <JobStatus style={{height: 320}} jobs={jobs} />
+          <Stack padding='l2' gap='l2' styles={{ minHeight: '100%' }}>
+            <JobStatus style={{ height: 320 }} jobs={jobs} />
             {isAdmin ? (
               <React.Fragment>
                 <VirtualClusterStatistics
-                  style={{height: 320}}
+                  style={{ height: 320 }}
                   userInfo={userInfo}
                   virtualClusters={virtualClusters}
                 />
                 <GpuChart
-                  style={{height: 320}}
+                  style={{ height: 320 }}
                   gpuPerNode={gpuPerNode}
                   userInfo={userInfo}
                   virtualClusters={virtualClusters}
@@ -104,12 +119,12 @@ const Home = () => {
             ) : (
               <React.Fragment>
                 <VirtualClusterList
-                  style={{height: 320}}
+                  style={{ height: 320 }}
                   userInfo={userInfo}
                   virtualClusters={virtualClusters}
                 />
                 <GpuChart
-                  style={{height: 320}}
+                  style={{ height: 320 }}
                   gpuPerNode={gpuPerNode}
                   userInfo={userInfo}
                   virtualClusters={virtualClusters}
@@ -125,19 +140,26 @@ const Home = () => {
         </MediaQuery>
         {/* large */}
         <MediaQuery minWidth={BREAKPOINT1 + 1}>
-          <Stack padding='l2' gap='l2' styles={{root: {height: '100%', minHeight: 640}}}>
+          <Stack
+            padding='l2'
+            gap='l2'
+            styles={{ root: { height: '100%', minHeight: 640 } }}
+          >
             {/* top */}
             <Stack gap='l2' horizontal>
               {isAdmin ? (
                 <React.Fragment>
-                  <JobStatus style={{height: '100%', width: '25%'}} jobs={jobs} />
+                  <JobStatus
+                    style={{ height: '100%', width: '25%' }}
+                    jobs={jobs}
+                  />
                   <VirtualClusterStatistics
-                    style={{height: '100%', width: '41%'}}
+                    style={{ height: '100%', width: '41%' }}
                     userInfo={userInfo}
                     virtualClusters={virtualClusters}
                   />
                   <GpuChart
-                    style={{height: '100%', width: '33%'}}
+                    style={{ height: '100%', width: '33%' }}
                     gpuPerNode={gpuPerNode}
                     userInfo={userInfo}
                     virtualClusters={virtualClusters}
@@ -145,14 +167,17 @@ const Home = () => {
                 </React.Fragment>
               ) : (
                 <React.Fragment>
-                  <JobStatus style={{height: '100%', width: '33%'}} jobs={jobs} />
+                  <JobStatus
+                    style={{ height: '100%', width: '33%' }}
+                    jobs={jobs}
+                  />
                   <VirtualClusterList
-                    style={{height: '100%', width: '33%'}}
+                    style={{ height: '100%', width: '33%' }}
                     userInfo={userInfo}
                     virtualClusters={virtualClusters}
                   />
                   <GpuChart
-                    style={{height: '100%', width: '33%'}}
+                    style={{ height: '100%', width: '33%' }}
                     gpuPerNode={gpuPerNode}
                     userInfo={userInfo}
                     virtualClusters={virtualClusters}
@@ -162,9 +187,12 @@ const Home = () => {
             </Stack>
             {/* bottom */}
             {isAdmin ? (
-              <AbnormalJobList style={{minHeight: 0}} jobs={listAbnormalJobs(jobs, lowGpuJobInfo)} />
+              <AbnormalJobList
+                style={{ minHeight: 0 }}
+                jobs={listAbnormalJobs(jobs, lowGpuJobInfo)}
+              />
             ) : (
-              <RecentJobList style={{minHeight: 0}} jobs={jobs} />
+              <RecentJobList style={{ minHeight: 0 }} jobs={jobs} />
             )}
           </Stack>
         </MediaQuery>

@@ -20,7 +20,7 @@ let nodeListShowLength = 2;
 let isAdmin = cookies.get('admin');
 //
 
-const loadData = (specifiedVc) => {
+const loadData = specifiedVc => {
   $.ajax({
     type: 'GET',
     url: webportalConfig.restServerUri + '/api/v2/virtual-clusters',
@@ -36,31 +36,33 @@ const loadData = (specifiedVc) => {
         modal: vcModelComponent,
       });
       $('#content-wrapper').html(vcHtml);
-      commonTable = $('#common-table').dataTable({
-        scrollY: (($(window).height() - 265)) + 'px',
-        lengthMenu: [[20, 50, 100, -1], [20, 50, 100, 'All']],
-        columnDefs: [
-          {type: 'natural', targets: [0, 1, 2, 3, 4, 5, 6]},
-        ],
-      }).api();
-      dedicateTable = $('#dedicated-table').dataTable({
-        scrollY: (($(window).height() - 265)) + 'px',
-        lengthMenu: [[20, 50, 100, -1], [20, 50, 100, 'All']],
-        columnDefs: [
-          {type: 'natural', targets: [0, 1, 2, 3, 4, 5, 6]},
-          {
-            type: 'date',
-            targets: 1,
-            render: (data, type, full, meta) => {
-              if (full[1].split(',').length > nodeListShowLength) {
-                return getPartialRemarksHtml(full[1]);
-              } else {
-                return full[1];
-              }
+      commonTable = $('#common-table')
+        .dataTable({
+          scrollY: $(window).height() - 265 + 'px',
+          lengthMenu: [[20, 50, 100, -1], [20, 50, 100, 'All']],
+          columnDefs: [{ type: 'natural', targets: [0, 1, 2, 3, 4, 5, 6] }],
+        })
+        .api();
+      dedicateTable = $('#dedicated-table')
+        .dataTable({
+          scrollY: $(window).height() - 265 + 'px',
+          lengthMenu: [[20, 50, 100, -1], [20, 50, 100, 'All']],
+          columnDefs: [
+            { type: 'natural', targets: [0, 1, 2, 3, 4, 5, 6] },
+            {
+              type: 'date',
+              targets: 1,
+              render: (data, type, full, meta) => {
+                if (full[1].split(',').length > nodeListShowLength) {
+                  return getPartialRemarksHtml(full[1]);
+                } else {
+                  return full[1];
+                }
+              },
             },
-          },
-        ],
-      }).api();
+          ],
+        })
+        .api();
       resizeContentWrapper();
     },
     error: function() {
@@ -77,9 +79,15 @@ const formatNumber = (x, precision) => {
 
 //
 const resizeContentWrapper = () => {
-  $('#content-wrapper').css({'height': $(window).height() + 'px'});
-  $('#sharedvc .dataTables_scrollBody').css('height', (($(window).height() - (isAdmin === 'true' ? 410 : 366))) + 'px');
-  $('#dedicatedvc .dataTables_scrollBody').css('height', (($(window).height() - 386)) + 'px');
+  $('#content-wrapper').css({ height: $(window).height() + 'px' });
+  $('#sharedvc .dataTables_scrollBody').css(
+    'height',
+    $(window).height() - (isAdmin === 'true' ? 410 : 366) + 'px',
+  );
+  $('#dedicatedvc .dataTables_scrollBody').css(
+    'height',
+    $(window).height() - 386 + 'px',
+  );
   if (commonTable != null) {
     commonTable.columns.adjust().draw();
   }
@@ -101,12 +109,15 @@ const nodeListShow = (nodelist, obj) => {
 };
 
 //
-const getPartialRemarksHtml = (nodelist) => {
-  return nodelist.split(',').splice(0, nodeListShowLength) + '&nbsp;<a href="javascript:void(0);" ><b>...</b></a>';
+const getPartialRemarksHtml = nodelist => {
+  return (
+    nodelist.split(',').splice(0, nodeListShowLength) +
+    '&nbsp;<a href="javascript:void(0);" ><b>...</b></a>'
+  );
 };
 
 //
-const getTotalRemarksHtml = (nodelist) => {
+const getTotalRemarksHtml = nodelist => {
   return nodelist.split(',').join(', ');
 };
 
@@ -119,7 +130,7 @@ const virtualClusterShow = () => {
 
 //
 const virtualClustersAdd = () => {
-  userAuth.checkToken((token) => {
+  userAuth.checkToken(token => {
     let vcName = $('#virtualClustersList input[name="vcname"]').val();
     let capacity = $('#virtualClustersList input[name="capacity"]').val();
     if (!vcName) {
@@ -133,9 +144,9 @@ const virtualClustersAdd = () => {
     $.ajax({
       url: `${webportalConfig.restServerUri}/api/v2/virtual-clusters/${vcName}`,
       data: JSON.stringify({
-        'vcCapacity': capacity,
-        'externalName': ``,
-        'description': ``,
+        vcCapacity: capacity,
+        externalName: ``,
+        description: ``,
       }),
       headers: {
         Authorization: `Bearer ${token}`,
@@ -143,7 +154,7 @@ const virtualClustersAdd = () => {
       contentType: 'application/json; charset=utf-8',
       type: 'PUT',
       dataType: 'json',
-      success: (data) => {
+      success: data => {
         loadData(url.parse(window.location.href, true).query['vcName']);
         $('#virtualClustersList').modal('hide');
         alert(data.message);
@@ -160,11 +171,13 @@ const virtualClustersAdd = () => {
 };
 
 //
-const deleteVcItem = (name) => {
+const deleteVcItem = name => {
   if (name == 'default') return false;
-  const res = confirm(`Notes:\r1. If there are jobs of this virtual cluster still running, it cannot be deleted.\r2. The capacity of this virtual cluster will be returned to default virtual cluster.\r\rAre you sure to delete ${name}?`);
+  const res = confirm(
+    `Notes:\r1. If there are jobs of this virtual cluster still running, it cannot be deleted.\r2. The capacity of this virtual cluster will be returned to default virtual cluster.\r\rAre you sure to delete ${name}?`,
+  );
   if (!res) return false;
-  userAuth.checkToken((token) => {
+  userAuth.checkToken(token => {
     $.ajax({
       url: `${webportalConfig.restServerUri}/api/v2/virtual-clusters/${name}`,
       headers: {
@@ -173,7 +186,7 @@ const deleteVcItem = (name) => {
       contentType: 'application/json; charset=utf-8',
       type: 'DELETE',
       dataType: 'json',
-      success: (data) => {
+      success: data => {
         loadData(url.parse(window.location.href, true).query['vcName']);
         alert(data.message);
       },
@@ -198,11 +211,11 @@ const editVcItem = (name, capacity) => {
 
 //
 const editVcItemPut = (name, capacity) => {
-  userAuth.checkToken((token) => {
+  userAuth.checkToken(token => {
     $.ajax({
       url: `${webportalConfig.restServerUri}/api/v2/virtual-clusters/${name}`,
       data: JSON.stringify({
-        'vcCapacity': parseInt(capacity),
+        vcCapacity: parseInt(capacity),
       }),
       headers: {
         Authorization: `Bearer ${token}`,
@@ -210,7 +223,7 @@ const editVcItemPut = (name, capacity) => {
       contentType: 'application/json; charset=utf-8',
       type: 'PUT',
       dataType: 'json',
-      success: (data) => {
+      success: data => {
         $('#virtualClustersEdit').modal('hide');
         loadData(url.parse(window.location.href, true).query['vcName']);
         alert(data.message);
@@ -230,21 +243,27 @@ const editVcItemPut = (name, capacity) => {
 const changeVcState = (name, state) => {
   if (isAdmin !== 'true') return false;
   if (name === 'default') return false;
-  userAuth.checkToken((token) => {
-    const res = confirm(`Do you want to ${state.toLowerCase() == 'running' ? 'stop' : 'activate'} ${name}?`);
+  userAuth.checkToken(token => {
+    const res = confirm(
+      `Do you want to ${
+        state.toLowerCase() == 'running' ? 'stop' : 'activate'
+      } ${name}?`,
+    );
     if (!res) return false;
     $.ajax({
-      url: `${webportalConfig.restServerUri}/api/v2/virtual-clusters/${$.trim(name)}/status`,
+      url: `${webportalConfig.restServerUri}/api/v2/virtual-clusters/${$.trim(
+        name,
+      )}/status`,
       headers: {
         Authorization: `Bearer ${token}`,
       },
       data: JSON.stringify({
-        'vcStatus': state.toLowerCase() == 'running' ? 'stopped' : 'running',
+        vcStatus: state.toLowerCase() == 'running' ? 'stopped' : 'running',
       }),
       contentType: 'application/json; charset=utf-8',
       type: 'PUT',
       dataType: 'json',
-      success: (data) => {
+      success: data => {
         loadData(url.parse(window.location.href, true).query['vcName']);
         alert(data.message);
       },
@@ -285,7 +304,6 @@ const convertState = (name, state) => {
   return `<a ${vcStateChage} class="state-vc state-${vcState.toLowerCase()} ${vcStateOrdinary}" ${vcStateTips}>${vcState}</a>`;
 };
 
-
 window.virtualClusterShow = virtualClusterShow;
 window.deleteVcItem = deleteVcItem;
 window.editVcItem = editVcItem;
@@ -300,7 +318,7 @@ $(document).ready(() => {
   };
   $(document).on('click', '.nav li', () => {
     resizeContentWrapper();
-   });
+  });
   resizeContentWrapper();
   loadData(url.parse(window.location.href, true).query['vcName']);
 

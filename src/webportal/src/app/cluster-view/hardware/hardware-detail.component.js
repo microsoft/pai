@@ -25,8 +25,8 @@ const querystring = require('querystring');
 //
 
 const resizeContentWrapper = () => {
-  $('#content-wrapper').css({'height': $(window).height() + 'px'});
-  $('#content-iframe').css('height', (($(window).height() - 120)) + 'px');
+  $('#content-wrapper').css({ height: $(window).height() + 'px' });
+  $('#content-iframe').css('height', $(window).height() - 120 + 'px');
 };
 
 //
