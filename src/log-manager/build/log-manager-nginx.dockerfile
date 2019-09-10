@@ -15,5 +15,5 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-FROM nginx:1.17.1
-COPY src/nginx/nginx.conf /etc/nginx/nginx.conf
+FROM openresty/openresty:1.15.8.2-alpine
+COPY src/nginx/nginx.conf /etc/nginx/conf.d/log-manager.conf
