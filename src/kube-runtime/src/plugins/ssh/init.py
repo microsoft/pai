@@ -51,7 +51,7 @@ if __name__ == "__main__":
         # ssh barrier
         if jobssh == "true" and "sshbarrier" in parameters and str(parameters["sshbarrier"]).lower() == "true":
             if "sshbarriertaskroles" in parameters:
-                barrierParams = " ".join('"{}"'.format(tr) for tr in parameters["sshbarrier"])
+                barrierParams = " ".join('"{}"'.format(tr) for tr in parameters["sshbarriertaskroles"])
             else:
                 barrierParams = ""
             command.append("{}/sshbarrier.sh {}\n".format(os.path.dirname(os.path.abspath(__file__)), barrierParams))
