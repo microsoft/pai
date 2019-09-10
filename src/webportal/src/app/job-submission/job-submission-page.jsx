@@ -27,13 +27,9 @@ import 'core-js/stable';
 import 'regenerator-runtime/runtime';
 import 'whatwg-fetch';
 
-import React, {useState, useCallback, useEffect, useMemo} from 'react';
-import {
-  Fabric,
-  Stack,
-  StackItem,
-} from 'office-ui-fabric-react';
-import {isNil, isEmpty, get, cloneDeep} from 'lodash';
+import React, { useState, useCallback, useEffect, useMemo } from 'react';
+import { Fabric, Stack, StackItem } from 'office-ui-fabric-react';
+import { isNil, isEmpty, get, cloneDeep } from 'lodash';
 import PropTypes from 'prop-types';
 
 import { JobInformation } from './components/job-information';
@@ -59,9 +55,9 @@ import {
   getJobComponentsFromConfig,
   isValidUpdatedTensorBoardExtras,
 } from './utils/utils';
-import {SpinnerLoading} from '../components/loading';
+import { SpinnerLoading } from '../components/loading';
 import config from '../config/webportal.config';
-import {PAI_PLUGIN} from './utils/constants';
+import { PAI_PLUGIN } from './utils/constants';
 
 const SIDEBAR_PARAM = 'param';
 const SIDEBAR_SECRET = 'secret';
@@ -291,16 +287,16 @@ export const JobSubmissionPage = ({
   }, []);
 
   // Init plugins for pure k8s based PAI
-  if (config.launcherType === 'k8s') {
-    useEffect(() => {
+  useEffect(() => {
+    if (config.launcherType === 'k8s') {
       const plugin = get(extras, PAI_PLUGIN);
       if (!plugin) {
         // Init SSH default settings for old/empty jobs
         const updatedPlugin = [
           {
-            'plugin': 'ssh',
-            'parameters': {
-              'jobssh': true,
+            plugin: 'ssh',
+            parameters: {
+              jobssh: true,
             },
           },
         ];
@@ -308,8 +304,9 @@ export const JobSubmissionPage = ({
         updatedExtras[PAI_PLUGIN] = updatedPlugin;
         setExtras(updatedExtras);
       }
-    }, []);
-  }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => {
     const taskRolesManager = new TaskRolesManager(jobTaskRoles);
@@ -349,7 +346,7 @@ export const JobSubmissionPage = ({
     <Context.Provider value={contextValue}>
       <Fabric style={{ height: '100%', overflowX: 'auto' }}>
         <Stack
-          styles={{root: {height: '100%', minWidth: 1000, minHeight: 720}}}
+          styles={{ root: { height: '100%', minWidth: 1000, minHeight: 720 } }}
           verticalAlign='space-between'
           gap='m' // form has 4px(s2)'s bottom padding, so the total padding is still 4 + 16 = 20px (l1)
           padding='l1'

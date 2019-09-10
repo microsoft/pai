@@ -49,8 +49,8 @@ import t from '../../../../../components/tachyons.scss';
 
 import Context from './context';
 import Timer from './timer';
-import {getContainerLog} from '../conn';
-import {parseGpuAttr} from '../util';
+import { getContainerLog } from '../conn';
+import { parseGpuAttr } from '../util';
 import config from '../../../../../config/webportal.config';
 import MonacoPanel from '../../../../../components/monaco-panel';
 import StatusBadge from '../../../../../components/status-badge';
@@ -436,13 +436,15 @@ export default class TaskRoleContainerList extends React.Component {
                 <CommandBarButton
                   className={c(FontClassNames.mediumPlus)}
                   styles={{
-                    root: {backgroundColor: 'transparent'},
-                    rootDisabled: {backgroundColor: 'transparent'},
+                    root: { backgroundColor: 'transparent' },
+                    rootDisabled: { backgroundColor: 'transparent' },
                   }}
-                  iconProps={{iconName: 'CommandPrompt'}}
+                  iconProps={{ iconName: 'CommandPrompt' }}
                   text='View SSH Info'
                   onClick={() => this.showSshInfo(item.containerId)}
-                  disabled={isNil(item.containerId) || item.taskState !== 'RUNNING'}
+                  disabled={
+                    isNil(item.containerId) || item.taskState !== 'RUNNING'
+                  }
                 />
               )}
               <CommandBarButton

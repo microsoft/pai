@@ -102,13 +102,15 @@ export function getJobComponentsFromConfig(jobConfig, context) {
 
   const updatedSecrets = [];
   if (secrets === HIDE_SECRET) {
-    alert('WARNING: The secrets in the imported job config have been removed. You need to fill in the missing values manually or the job may not work as you expected.');
+    alert(
+      'WARNING: The secrets in the imported job config have been removed. You need to fill in the missing values manually or the job may not work as you expected.',
+    );
   } else {
-    updatedSecrets.push(...Object.entries(secrets).map(
-      ([key, value]) => ({key, value})
-    ));
+    updatedSecrets.push(
+      ...Object.entries(secrets).map(([key, value]) => ({ key, value })),
+    );
   }
-  const updatedTaskRoles = Object.keys(taskRoles).map((name) =>
+  const updatedTaskRoles = Object.keys(taskRoles).map(name =>
     JobTaskRole.fromProtocol(
       name,
       taskRoles[name],
