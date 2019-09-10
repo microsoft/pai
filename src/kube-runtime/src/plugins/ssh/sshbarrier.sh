@@ -47,7 +47,7 @@ for i in "${taskRoleInstanceArray[@]}"; do
 
 # If barrier task roles defined, then only check instances for defined task roles. Otherwise check all instances.
   if [ ${#barrierTaskRoles[@]} != 0 ]; then
-    if [[ " ${barrierTaskRoles[@]} " =~ " ${value} " ]]; then
+    if [[ " ${barrierTaskRoles[@]} " =~ " ${taskRole} " ]]; then
       instanceToCheck+=("${taskRole}-${index}")
     fi
   else
