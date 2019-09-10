@@ -25,10 +25,10 @@
     exitCode: {{ runtimePattern['exitCode'] }}
   {%- endif %}
   {%- if 'userLogRegex' in runtimePattern %}
-    userLogRegex: {{ runtimePattern['userLogRegex'] }}
+    userLogRegex: '{{ runtimePattern['userLogRegex'] }}'
   {%- endif %}
   {%- if 'platformLogRegex' in runtimePattern %}
-    platformLogRegex: {{ runtimePattern['platformLogRegex'] }}
+    platformLogRegex: '{{ runtimePattern['platformLogRegex'] }}'
   {%- endif %}
   {%- endfor %}
 

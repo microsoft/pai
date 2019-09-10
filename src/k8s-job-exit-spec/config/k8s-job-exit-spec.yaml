@@ -64,6 +64,7 @@ schema:
       - PAI_RUNTIME
       - PAI_K8S
       - PAI_FC
+      - PAI_HW
       - PAI_UNKNOWN
       - UNKNOWN
   - field: type
@@ -598,6 +599,9 @@ spec:
   solution:
   - "Wait result from next retry"
   - "Contact Cluster Admin"
+  pattern:
+    runtimeContainerPatterns:
+    - exitCode: 130
 
 - code: 131
   phrase: ContainerSigQuitReceived
@@ -613,6 +617,9 @@ spec:
   solution:
   - "Wait result from next retry"
   - "Contact Cluster Admin"
+  pattern:
+    runtimeContainerPatterns:
+    - exitCode: 131
 
 - code: 132
   phrase: ContainerSigIllReceived
@@ -627,6 +634,9 @@ spec:
   - "User program executes an illegal, malformed, unknown, or privileged machine instruction"
   solution:
   - "Check container log and fix your program bug"
+  pattern:
+    runtimeContainerPatterns:
+    - exitCode: 132
 
 - code: 134
   phrase: ContainerSigAbrtReceived
@@ -642,6 +652,9 @@ spec:
   solution:
   - "Check container log and find root cause"
   - "Wait result from next retry"
+  pattern:
+    runtimeContainerPatterns:
+    - exitCode: 134
 
 - code: 135
   phrase: ContainerSigBusReceived
@@ -656,6 +669,9 @@ spec:
   - "User program accesses an unaligned memory address"
   solution:
   - "Check container log and fix your program bug"
+  pattern:
+    runtimeContainerPatterns:
+    - exitCode: 135
 
 - code: 136
   phrase: ContainerSigFpeReceived
@@ -670,6 +686,9 @@ spec:
   - "User program division by zero"
   solution:
   - "Check container log and fix your program bug"
+  pattern:
+    runtimeContainerPatterns:
+    - exitCode: 136
 
 - code: 137
   phrase: ContainerSigKillReceived
@@ -685,6 +704,9 @@ spec:
   solution:
   - "Wait result from next retry"
   - "Contact Cluster Admin"
+  pattern:
+    runtimeContainerPatterns:
+    - exitCode: 137
 
 - code: 139
   phrase: ContainerSigSegvReceived
@@ -699,6 +721,9 @@ spec:
   - "User program accesses an illegal memory address"
   solution:
   - "Check container log and fix your program bug"
+  pattern:
+    runtimeContainerPatterns:
+    - exitCode: 139
 
 - code: 141
   phrase: ContainerSigPipeReceived
@@ -713,6 +738,9 @@ spec:
   - "User program writes to a pipe without a process connected to the other end"
   solution:
   - "Check container log and fix your program bug"
+  pattern:
+    runtimeContainerPatterns:
+    - exitCode: 141
 
 - code: 143
   phrase: ContainerSigTermReceived
@@ -728,6 +756,9 @@ spec:
   solution:
   - "Wait result from next retry"
   - "Contact Cluster Admin"
+  pattern:
+    runtimeContainerPatterns:
+    - exitCode: 143
 
 
 ###########################################################################
@@ -754,6 +785,60 @@ spec:
     runtimeContainerPatterns:
     - exitCode: 127
       userLogRegex: "command not found"
+
+- code: 221
+  phrase: ContainerTensorflowOOMKilled
+  issuer: PAI_RUNTIME
+  causer: USER_CONTAINER
+  type: USER_FAILURE
+  stage: RUNNING
+  behavior: PERMANENT
+  reaction: NEVER_RETRY
+  reason: "Tensorflow failed due to out of memory"
+  repro:
+  - "Tensorflow uses more memory than it is allocated"
+  solution:
+  - "Increase per task memory request"
+  - "Decrease per task memory usage by such as increasing task number"
+  - "Tuning the tensorflow program"
+  pattern:
+    runtimeContainerPatterns:
+    - userLogRegex: "(?msi)tensorflow.*ResourceExhaustedError.*OOM.*"
+
+- code: 222
+  phrase: ContainerMPISegvFault
+  issuer: PAI_RUNTIME
+  causer: USER_CONTAINER
+  type: USER_FAILURE
+  stage: RUNNING
+  behavior: PERMANENT
+  reaction: NEVER_RETRY
+  reason: "MPI failed due to memory segmentation fault"
+  repro:
+  - "MPI accesses unmapped memory region"
+  solution:
+  - "Check container log and fix your program bug"
+  pattern:
+    runtimeContainerPatterns:
+    - userLogRegex: "(?msi)Signal code: Address not mapped.*"
+
+- code: 223
+  phrase: ContainerCudaUncorrectableECCError
+  issuer: PAI_RUNTIME
+  causer: PAI_HW
+  type: PLATFORM_FAILURE
+  stage: RUNNING
+  behavior: TRANSIENT
+  reaction: ALWAYS_RETRY
+  reason: "Container failed due to GPU uncorrectable ECC error"
+  repro:
+  - "Run tensorflow on a GPU which has ECC error"
+  solution:
+  - "Wait result from next retry"
+  - "Contact Cluster Admin"
+  pattern:
+    runtimeContainerPatterns:
+    - userLogRegex: "(?msi)CUDA_ERROR_ECC_UNCORRECTABLE.*"
 
 - code: 240
   phrase: PAIRuntimeSSHBarrierTimeout
@@ -818,24 +903,24 @@ spec:
   - "Contact PAI Dev to fix the PAI Runtime bug"
 
 - code: 255
-  phrase: UnrecognizedUserErrorReceived
-  issuer: USER_CONTAINER
-  causer: USER_CONTAINER
-  type: USER_FAILURE
-  stage: RUNNING
-  behavior: PERMANENT
-  reaction: NEVER_RETRY
-  reason: "User command return with unrecognized exit pattern"
+  phrase: PAIRuntimeUnknownFailed
+  issuer: PAI_RUNTIME
+  causer: UNKNOWN
+  type: UNKNOWN_FAILURE
+  stage: UNKNOWN
+  behavior: UNKNOWN
+  reaction: RETRY_TO_MAX
+  reason: "User command failed but the failure cannot be recognized by PAI Runtime"
   repro:
-  - "Retry the job with same command"
+  - "User program directly exits with exitcode 1"
   solution:
-  - "Check job logs"
-  - "Correct the command and retry the job"
+  - "Check container log and find root cause"
+  - "Wait result from next retry"
 
 
 ################################
 # Range: {Undefined Negative ExitCodes}
-# Owner: PAI_LAUNCHER
+# Owner: PAI_FC
 # Description: Shadow Fallback ExitCode
 ################################
 # Here the code -8000 is just used to represent all undefined negative exitcodes

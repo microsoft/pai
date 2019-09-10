@@ -41,6 +41,10 @@ function exit_handler()
     exit 252
   fi
 
+  if [[ $EXIT_CODE -eq 10 ]]; then
+    exit 253
+  fi
+
   exit ${EXIT_CODE}
 }
 
@@ -101,6 +105,11 @@ echo "parser.py genconf returns $?" >> ${PAI_INIT_LOG_FILE}
 # priority=12
 python ${PAI_INIT_DIR}/initializer.py ${PAI_RUNTIME_DIR}/job_config.yaml ${PAI_WORK_DIR}/plugins ${PAI_RUNTIME_DIR} ${FC_TASKROLE_NAME} 2>> ${PAI_LOG_DIR}/initializer.log
 echo "initializer.py returns $?" >> ${PAI_INIT_LOG_FILE}
+
+# Init plugins
+# check port conflict
+python ${PAI_INIT_DIR}/port.py ${PAI_RUNTIME_DIR}/runtime_env.sh 2>> ${PAI_LOG_DIR}/initializer.log
+echo "port.py.py returns $?" >> ${PAI_INIT_LOG_FILE}
 
 # write user commands to user.sh
 # priority=100

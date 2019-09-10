@@ -61,7 +61,7 @@ func main() {
 	}
 	exitInfo, err = a.GenerateExitInfo(int(userExitCode))
 	if err != nil {
-		log.Error("failed to generate the exitInfo", err)
+		panic("fatal: failed to generate the exitInfo" + err.Error())
 	}
 
 	aggFile, err := os.Create(aggFilePath)
