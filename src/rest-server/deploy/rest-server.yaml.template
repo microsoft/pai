@@ -59,7 +59,11 @@ spec:
         - name: LAUNCHER_RUNTIME_IMAGE_PULL_SECRETS
           value: {{ cluster_cfg["cluster"]["docker-registry"]["secret-name"] }}
         - name: LAUNCHER_SCHEDULER
+{% if cluster_cfg['hivedscheduler']['config']|length > 1 %}
+          value: hivedscheduler
+{% else %}
           value: defaultscheduler
+{% endif %}
         - name: LOG_MANAGER_PORT
           value: "{{ cluster_cfg['log-manager']['port'] }}"
 {%- endif %}
@@ -94,18 +98,6 @@ spec:
           value: "{{ cluster_cfg['cluster']['common']['az-rdma']}}"
         - name: DEBUGGING_RESERVATION_SECONDS
           value: "{{ cluster_cfg['rest-server']['debugging-reservation-seconds']}}"
-{% if cluster_cfg['rest-server']['github-owner'] %}
-        - name: GITHUB_OWNER
-          value: {{ cluster_cfg['rest-server']['github-owner'] }}
-{% endif %}
-{% if cluster_cfg['rest-server']['github-repository'] %}
-        - name: GITHUB_REPOSITORY
-          value: {{ cluster_cfg['rest-server']['github-repository'] }}
-{% endif %}
-{% if cluster_cfg['rest-server']['github-path'] %}
-        - name: GITHUB_PATH
-          value: {{ cluster_cfg['rest-server']['github-path'] }}
-{% endif %}
 {% if cluster_cfg['cluster']['common']['k8s-rbac'] != 'false' %}
         - name: RBAC_IN_CLUSTER
           value: "true"
