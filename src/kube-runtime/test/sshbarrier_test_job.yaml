@@ -24,12 +24,13 @@ taskRoles:
       minSucceededInstances: 1
     dockerImage: horovod_official
     resourcePerInstance:
-      cpu: 4
+      cpu: 8
       memoryMB: 16384
-      gpu: 1
+      gpu: 2
     commands:
+      - sleep 10
       - >
-        horovodrun -np 8 -H master-0:4,worker-0:4
+        horovodrun -np 4 -H master-0:2,worker-0:2
         python pytorch_synthetic_benchmark.py
         --model <% $parameters.model %>
         --batch-size <% $parameters.batchsize %>
@@ -37,9 +38,9 @@ taskRoles:
     instances: 1
     dockerImage: horovod_official
     resourcePerInstance:
-      cpu: 4
+      cpu: 8
       memoryMB: 16384
-      gpu: 1
+      gpu: 2
     commands:
       - sleep infinity
 
