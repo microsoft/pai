@@ -425,7 +425,7 @@ export default class TaskRoleContainerList extends React.Component {
                       key: 'yarnTrackingPage',
                       name: 'Go to Tracking Page',
                       iconProps: {iconName: 'Link'},
-                      href: item.containerLog,
+                      href: item.containerLog.replace('/tail/', '/'),
                       target: '_blank',
                     },
                   ],
