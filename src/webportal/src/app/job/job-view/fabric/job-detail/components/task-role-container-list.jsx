@@ -32,6 +32,7 @@ import Context from './context';
 import Timer from './timer';
 import {getContainerLog} from '../conn';
 import {parseGpuAttr} from '../util';
+import config from '../../../../../config/webportal.config';
 import MonacoPanel from '../../../../../components/monaco-panel';
 import StatusBadge from '../../../../../components/status-badge';
 
@@ -367,17 +368,19 @@ export default class TaskRoleContainerList extends React.Component {
         onRender: (item) => (
           <div className={c(t.h100, t.flex, t.justifyStart, t.itemsCenter, t.ml1)}>
             <div className={c(t.flex, t.h3)}>
-              <CommandBarButton
-                className={c(FontClassNames.mediumPlus)}
-                styles={{
-                  root: {backgroundColor: 'transparent'},
-                  rootDisabled: {backgroundColor: 'transparent'},
-                }}
-                iconProps={{iconName: 'CommandPrompt'}}
-                text='View SSH Info'
-                onClick={() => this.showSshInfo(item.containerId)}
-                disabled={isNil(item.containerId) || item.taskState !== 'RUNNING'}
-              />
+              {config.launcherType !== 'k8s' && (
+                <CommandBarButton
+                  className={c(FontClassNames.mediumPlus)}
+                  styles={{
+                    root: {backgroundColor: 'transparent'},
+                    rootDisabled: {backgroundColor: 'transparent'},
+                  }}
+                  iconProps={{iconName: 'CommandPrompt'}}
+                  text='View SSH Info'
+                  onClick={() => this.showSshInfo(item.containerId)}
+                  disabled={isNil(item.containerId) || item.taskState !== 'RUNNING'}
+                />
+              )}
               <CommandBarButton
                 className={FontClassNames.mediumPlus}
                 styles={{

@@ -217,7 +217,7 @@ export const JobSubmissionPage = ({isSingle, history, yamlText, setYamlText}) =>
   // fill protocol if cloned job
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
-    if (params.get('op') === 'resubmit') {
+    if (params.get('op') === 'resubmit' && !isEmpty(vcNames)) {
       const jobName = params.get('jobname') || '';
       const user = params.get('user') || '';
       if (user && jobName) {
@@ -333,7 +333,7 @@ export const JobSubmissionPage = ({isSingle, history, yamlText, setYamlText}) =>
     <Context.Provider value={contextValue}>
       <Fabric style={{height: '100%', overflowX: 'auto'}}>
         <Stack
-          styles={{root: {height: '100%', minWidth: 1000}}}
+          styles={{root: {height: '100%', minWidth: 1000, minHeight: 720}}}
           verticalAlign='space-between'
           gap='m' // form has 4px(s2)'s bottom padding, so the total padding is still 4 + 16 = 20px (l1)
           padding='l1'
