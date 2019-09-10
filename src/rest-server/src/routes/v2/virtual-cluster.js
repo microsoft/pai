@@ -28,10 +28,6 @@ router.route('/')
   /** GET /api/v2/virtual-clusters - Return cluster virtual cluster info */
   .get(controller.list);
 
-router.route('/nodeResource')
-  /** GET /api/v2/virtual-clusters/nodeResource - Get virtual cluster per node resource */
-  .get(controller.getNodeResource);
-
 router.route('/:virtualClusterName')
   /** GET /api/v2/virtual-clusters/:virtualClusterName - Get virtual cluster */
   .get(controller.get)
@@ -41,11 +37,11 @@ router.route('/:virtualClusterName')
   .delete(token.check, controller.remove);
 
 router.route('/:virtualClusterName/status')
-  /** PUT /api/v2/virtual-clusters/:virtualClusterName - Change virtual cluster status (running or stopped) */
+  /** PUT /api/v2/virtual-clusters/:virtualClusterName/status - Change virtual cluster status (running or stopped) */
   .put(token.check, param.validate(vcConfig.vcStatusPutInputSchema), controller.updateStatus);
 
-router.route('/:virtualClusterName/resourceUnits')
-  /** GET /api/v2/virtual-clusters/:virtualClusterName/resourceUnits - Get virtual cluster available resourceUnits */
+router.route('/:virtualClusterName/units')
+  /** GET /api/v2/virtual-clusters/:virtualClusterName/units - Get virtual cluster available resource units */
   .get(controller.getResourceUnits);
 
 router.param('virtualClusterName', controller.validate);

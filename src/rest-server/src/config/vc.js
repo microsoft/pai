@@ -50,7 +50,7 @@ const resourceUnits = {};
 const virtualCellCapacity = {};
 let clusterTotalGpu = 0;
 const clusterNodeGpu = {};
-if (launcherConfig.type === 'k8s') {
+if (launcherConfig.enabledHived) {
   let hivedObj;
   try {
     hivedObj = yaml.safeLoad(fs.readFileSync(launcherConfig.hivedSpecPath));
