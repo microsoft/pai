@@ -736,6 +736,24 @@ spec:
 # Description: User Container issued failures:
 # -> Voluntary failures caused by Container itself
 ###########################################################################
+- code: 240
+  phrase: PAIRuntimeSSHBarrierTimeout
+  issuer: PAI_RUNTIME
+  causer: PAI_RUNTIME
+  type: PLATFORM_FAILURE
+  stage: RUNNING
+  behavior: PERMANENT
+  reaction: NEVER_RETRY
+  reason: "SSH barrier reaches max retry count"
+  repro:
+  - "SSH barrier reaches max retry count, please check if SSH plugin is correctly configured"
+  solution:
+  - "Check job config to confirm all SSH barrier relied task roles enabled SSH"
+  pattern:
+    runtimeContainerPatterns:
+    - exitCode: 10
+      platformLogRegex: "SSH barrier reaches max retry count"
+
 - code: 250
   phrase: FrameworkBarrierTransientFailed
   issuer: PAI_RUNTIME

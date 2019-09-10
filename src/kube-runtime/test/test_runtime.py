@@ -52,6 +52,16 @@ class TestRuntimeInitializer(unittest.TestCase):
         commands = [[],[]]
         init_plugins(jobconfig, commands, "../src/plugins", ".", "worker")
 
+    def test_ssh_plugin_barrier(self):
+        job_path = "sshbarrier_test_job.yaml"
+        if os.path.exists(job_path):
+            with open(job_path, 'rt') as f:
+                jobconfig = yaml.load(f)
+        commands = [[],[]]
+        init_plugins(jobconfig, commands, "../src/plugins", ".", "master")
+        commands = [[],[]]
+        init_plugins(jobconfig, commands, "../src/plugins", ".", "worker")
+
 
 if __name__ == '__main__':
     unittest.main()

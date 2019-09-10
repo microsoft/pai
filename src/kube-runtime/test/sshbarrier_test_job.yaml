@@ -1,0 +1,59 @@
+protocolVersion: 2
+name: sshbarrier_test_job
+type: job
+version: horovod0.16.4-tf1.12.0-torch1.1.0-mxnet1.4.1-py3.5
+contributor: OpenPAI
+description: |
+  This is a distributed synthetic benchmark for Horovod with PyTorch backend running on OpenPAI.
+  It runs [Horovod with Open MPI](https://github.com/horovod/horovod/blob/master/docs/mpirun.rst).
+parameters:
+  model: resnet50
+  batchsize: 64
+
+prerequisites:
+  - protocolVersion: 2
+    name: horovod_official
+    type: dockerimage
+    contributor : Horovod
+    uri : horovod/horovod:0.16.4-tf1.12.0-torch1.1.0-mxnet1.4.1-py3.5
+
+taskRoles:
+  master:
+    instances: 1
+    completion:
+      minSucceededInstances: 1
+    dockerImage: horovod_official
+    resourcePerInstance:
+      cpu: 8
+      memoryMB: 16384
+      gpu: 2
+    commands:
+      - sleep 10
+      - >
+        horovodrun -np 4 -H master-0:2,worker-0:2
+        python pytorch_synthetic_benchmark.py
+        --model <% $parameters.model %>
+        --batch-size <% $parameters.batchsize %>
+  worker:
+    instances: 1
+    dockerImage: horovod_official
+    resourcePerInstance:
+      cpu: 8
+      memoryMB: 16384
+      gpu: 2
+    commands:
+      - sleep infinity
+
+extras:
+  com.microsoft.pai.runtimeplugin:
+    - plugin: ssh
+      taskroles:
+        - master
+      parameters:
+        jobssh: true
+        sshbarrier: true
+    - plugin: ssh
+      taskroles:
+        - worker
+      parameters:
+        jobssh: true
