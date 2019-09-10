@@ -95,7 +95,7 @@ const getNodeResource = async () => {
     const nodes = (await axios({
       method: 'get',
       url: `${kubernetesConfig.apiserver.uri}/api/v1/nodes`,
-    })).data.items.filter(node => node.metadata.labels['pai-worker'] === 'true');
+    })).data.items.filter((node) => node.metadata.labels['pai-worker'] === 'true');
     for (let node of nodes) {
       const nodeName = node.metadata.name;
       const gpuNumber = parseInt(node.status.capacity['nvidia.com/gpu']);
@@ -170,7 +170,7 @@ const getVcList = async () => {
     const nodes = (await axios({
       method: 'get',
       url: `${kubernetesConfig.apiserver.uri}/api/v1/nodes`,
-    })).data.items.filter(node => node.metadata.labels['pai-worker'] === 'true');
+    })).data.items.filter((node) => node.metadata.labels['pai-worker'] === 'true');
     vcInfos['default'].resourcesTotal = {
       cpu: nodes.reduce((sum, node) => sum + parseInt(node.status.capacity.cpu), 0),
       memory: nodes.reduce((sum, node) => sum + k8s.convertMemoryMb(node.status.capacity.memory), 0),
