@@ -1,134 +1,83 @@
-# Web Portal
+# Webportal of Open PAI
 
-## Goal
+## Introduction
 
-The web portal is the entrance for job and cluster management. User can submit, monitor, or kill the job through the web UI. Cluster operator can also see and manage cluster state through web portal.
+Webportal is the front end of Open PAI cluster. It has several functions, such as:
 
-## Architecture
+- Home page. Overview of cluster jobs and resources.
+- Dashboard. Include some metrics about cluster, like resource percent, node condition etc.
+- Submit Job. A main entrance of submitting job to Open PAI.
+- Jobs. Includes job list and job details.
+- Virtual Clusters. Manage virtual clusters.
+- Administration. Some management operation of admin.
+- Plugins. Custom plugins configured by cluster.
 
-An [express](https://expressjs.com/) served, [AdminLTE](https://adminlte.io/) themed, and [EJS](http://ejs.co/) rendered static web application.
+## Infrastructure
 
-## Dependencies
+- Bundler: Webpack. [config file](./config/webpack.common.js)
+- Linter & Formatter: ESLint + Prettier
+- Pages
+  - Framework: AdminLTE
+  - Content
+    - Legacy: jquery + ejs template
+    - Modern: react + css modules + office-ui-fabric-react
 
-Since [job toturial](../job_tutorial.md) is included in the document tab, make sure **`docs`** directory is exists as a sibling of `web-portal` directory.
+## Build and Start Webportal Service
 
-To run web portal, the following services should be started, and url of services should be correctly configured:
+### Prerequisites
 
-* [REST Server](../rest-server)
-* [Prometheus](../../src/prometheus)
-* [Grafana](../grafana)
-* YARN
-* Kubernetes
+To run web portal, the following services should be started:
 
-## Build
+- REST Server
+- Prometheus
+- Grafana
+- YARN
+- Kubernetes
+- Other services your feature requires
 
-For deployment
+Create a ```.env``` file and fill the url of all above services, for example:
 
-1. Run `yarn install` to install dependencies.
-2. Run `npm run build` to bundle the JavaScript/CSS modules and generate HTML pages.
+```text
+REST_SERVER_URI=<hostname>/rest-server
+PROMETHEUS_URI=<hostname>
+YARN_WEB_PORTAL_URI=<hostname>/yarn
+GRAFANA_URI=<hostname>/grafana
+K8S_DASHBOARD_URI=<hostname>/kubernetes-dashboard
+WEBHDFS_URI=<hostname>/webhdfs
+EXPORTER_PORT=9100
+PROM_SCRAPE_TIME=300s
+AUTHN_METHOD=basic
+WEBPORTAL_PLUGINS=[]
+```
 
----
+All these values in .env file will be imported as global object [`window.ENV`](./src/app/env.js.template) when running webportal.
 
-For development
+### Devlopment Mode
 
-1. Run `yarn install` to install dependencies.
-2. Run `npm run build:dev` to bundle the JavaScript/CSS modules and generate HTML pages,
-   also watch the related source file, re-bundle them when file is mofified.
-3. Another `npm start` is also needed to keep the server running, see [Deployment](#deployment)
+- Run ```yarn install``` to install all the dependencies
+- Run ```yarn dev``` to start a webpack dev server
 
-## Configuration
+### Production Mode
 
-If web portal is deployed within PAI cluster, the following config field could be change in the `webportal` section in [services-configuration.yaml](../../examples/cluster-configuration/services-configuration.yaml) file:
+- Run ```yarn install``` to install all dependencies
+- Run ```yarn build``` to build static files
+- Run ```yarn start``` to start webportal's static file host server
 
-* `server-port`: Integer. The network port to access the web portal. The default value is 9286.
+## Code style check of webportal
 
-* `log-type`: String. The type of job logs, could be yarn or log-manager. The default value is yarn.
----
+Webportal use [eslint](https://eslint.org/docs/user-guide/getting-started) with [standard config](https://github.com/standard/eslint-config-standard) as linter and [prettier](https://prettier.io/docs/en/index.html) as code formatter.
 
-If web portal is deployed as a standalone service, the following environment variables must be configured:
+Pleae refer to [eslint config file](./.eslintrc.js) and [prettier config file](./prettier.config.js) for details. Make sure to run ```yarn lint``` command every time before you push your code, and resolve all the errors and warnings. Otherwise it will break the CI check when you submit your pull request.
 
-* `REST_SERVER_URI`: URI of [REST Server](../rest-server)
-* `PROMETHEUS_URI`: URI of [Prometheus](../../src/prometheus)
-* `YARN_WEB_PORTAL_URI`: URI of YARN's web portal
-* `GRAFANA_URI`: URI of [Grafana](../grafana)
-* `K8S_DASHBOARD_URI`: URI of Kubernetes' dashboard
-* `K8S_API_SERVER_URI`: URI of Kubernetes' api server
-* `EXPORTER_PORT`: Port of node exporter
+If you use modern editors like VS Code. It is highly recommends to install [eslint](https://marketplace.visualstudio.com/items?itemName=dbaeumer.vscode-eslint) and [prettier](https://marketplace.visualstudio.com/items?itemName=esbenp.prettier-vscode) extensions.
 
-And the following field could be configured optionally:
+> How to do code format with prettier?
+> You could use cli like ```prettier --write 'src/**/*.js' 'src/**/*.jsx'``` or use prettier extension in vscode.
 
-* `LOG_LEVEL`: The log level of the service, default value is `debug`, could be
-    * `error`
-    * `warn`
-    * `info`
-    * `debug`
-    * `silly`
-* `SERVER_PORT`: The network port to access the web portal. The default value is 9286.
+## Webportal Plugins
 
-## Deployment
+Webportal supports custom plugins for extension. Please refer to [plugin doc](https://github.com/microsoft/pai/blob/master/docs/webportal/PLUGINS.md) for more details.
 
-The deployment of web portal goes with the bootstrapping process of the whole PAI cluster, which is described in detail in [Tutorial: Booting up the cluster](../pai-management/doc/customized-configuration.md).
+## How to contribute
 
----
-
-If web portal is need to be deployed as a standalone service, follow these steps:
-
-1. Go into the `webportal` directory.
-2. Make sure the environment variables is fully configured.
-   They will be injected to `dist/env.js` for browser use.
-3. Run `npm start` to start server.
-
-## Upgrading
-
-Web portal is a stateless service, so it could be upgraded without any extra operation.
-
-## Service Metrics
-
-N/A
-
-## Service Monitoring
-
-N/A
-
-## High Availability
-
-Web portal is a stateless service, so it could be extended for high availability without any extra operation.
-
-## Runtime Requirements
-
-To run web portal on system, a [Node.js](https://nodejs.org/) 6+ runtime is required, with [npm](https://www.npmjs.com/) and [yarn](https://yarnpkg.com/)(JavaScript package manager) installed.
-
-## Usage
-
-### Submit a job
-
-Click the tab "Submit Job" to show a button asking you to select a json file for the submission. The job config file must follow the format shown in [submit a hello-world job](../user/training.md).
-
-### View job status
-
-Click the tab "Job View" to see the list of all jobs. Click on each job to see its status in detail and in real time.
-
-### View cluster status
-
-Click the tab "Cluster View" to see the status of the whole cluster. Specifically:
-
-* Services: Status of all services of each machine.
-* Hardware: Hardware metrics of each machine.
-* K8s Dashboard: The Kubernetes Dashboard.
-
-### Virtual cluster management
-
-OpenPAI Virtual Cluster is designed to run jobs as a shared, multi-tenant cluster in an operator-friendly manner while maximizing the throughput and the utilization of the cluster. Click the tab "Virtual Cluster" to  see virtual cluster's status and change virtual clusters for user and admin respectively. Specifically (for administrators only):
-
-* Add a new virtual cluster.
-* Remove an obsolete virtual cluster.
-* Increase or decrease virtual cluster's capacity.  Virtual cluster *capacity* in percentage (%) as a float (e.g. 12.5).  Jobs in the virtual cluster may consume more resources than its capacity if there are free resources, providing elasticity. 
-* Change virtual cluster's availability. If a virtual cluster is in `STOPPED` state, new jobs cannot be submitted to *itself*. Existing jobs continue to completion, thus the virtual cluster can be *removed* gracefully. The stopped virtual cluster can also be started and change to `RUNNING` state.
-
-### Read documents
-
-Click the tab "Documents" to read the tutorial of submitting a job.
-
-## Trouble Shooting and Q&A
-
-TBD
+Please refer to [how to contribute to Open PAI](https://github.com/microsoft/pai#how-to-contribute)
