@@ -16,13 +16,11 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 {% for spec_item in cluster_cfg['k8s-job-exit-spec']['spec'] %}
-{%- if spec_item['code'] > 0 %}
+{%- if spec_item['code'] > 0 and 'pattern' in spec_item and 'runtimeContainerPatterns' in spec_item['pattern'] %}
 - containerExitCode: {{ spec_item['code'] }}
-{%- if 'pattern' in spec_item %}
   patterns:
-{%- if 'runtimeContainerPatterns' in spec_item['pattern'] %}
   {%- for runtimePattern in spec_item['pattern']['runtimeContainerPatterns'] %}
-  - 
+  -
   {%- if 'exitCode' in runtimePattern %}
     exitCode: {{ runtimePattern['exitCode'] }}
   {%- endif %}
@@ -33,8 +31,6 @@
     platformLogRegex: {{ runtimePattern['platformLogRegex'] }}
   {%- endif %}
   {%- endfor %}
-{%- endif %}
-{%- endif %}
 
 {%- endif %}
 {% endfor %}

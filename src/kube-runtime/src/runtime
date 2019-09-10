@@ -46,7 +46,7 @@ function exit_handler()
   ${PAI_RUNTIME_DIR}/exithandler ${USER_EXIT_CODE} \
                                  ${PAI_LOG_DIR}/user.pai.all \
                                  ${PAI_LOG_DIR}/runtime.pai.stderr \
-                                 ${TERMINATION_MESSAGE_PATH} ${PATTERN_FILE} 2> ${PAI_LOG_DIR}/runtime.pai.stderr
+                                 ${TERMINATION_MESSAGE_PATH} ${PATTERN_FILE} 2>> ${PAI_LOG_DIR}/runtime.pai.stderr
 
   CONTAINER_EXIT_CODE=$?
 
