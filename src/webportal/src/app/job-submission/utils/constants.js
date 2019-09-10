@@ -144,3 +144,16 @@ export const DOCKER_OPTIONS = [
   },
 ];
 export const DEFAULT_DOCKER_URI = 'openpai/tensorflow-py36-cu90';
+// For PAI runtime only
+export const PAI_PLUGIN = 'com.microsoft.pai.runtimeplugin';
+
+export const USERSSH_TYPE_OPTIONS = [
+  {
+    key: 'custom',
+    text: 'Custom',
+  },
+  // {
+  //   key: 'system',
+  //   text: 'System',
+  // },
+];
