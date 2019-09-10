@@ -217,6 +217,7 @@ export const JobSubmissionPage = ({
     if (isUpdated) {
       setSecrets(updatedSecrets);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [jobTaskRoles]);
 
   // fill protocol if cloned job
@@ -251,6 +252,7 @@ export const JobSubmissionPage = ({
     } else {
       setLoading(false);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [vcNames]);
 
   // update component if yamlText is not null
@@ -285,6 +287,7 @@ export const JobSubmissionPage = ({
       setExtras(updatedExtras);
       setJobProtocol(updatedJob);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Init plugins for pure k8s based PAI
@@ -317,6 +320,7 @@ export const JobSubmissionPage = ({
       taskRolesManager.populateTaskRolesDockerInfo();
       setJobTaskRoles(jobTaskRoles);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [secrets]);
 
   useEffect(() => {

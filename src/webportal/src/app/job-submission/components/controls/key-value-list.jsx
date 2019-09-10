@@ -112,6 +112,7 @@ export const KeyValueList = ({
     }
     setErrorMessage(msgId, errorMessage);
     setDupList(newDupList);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [value]);
 
   const onAdd = useCallback(() => {

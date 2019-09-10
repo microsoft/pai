@@ -118,6 +118,7 @@ function TopBar() {
       .catch(err => {
         alert(err.message);
       });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   /**

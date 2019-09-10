@@ -104,6 +104,7 @@ export const SubmissionSection = props => {
       extras,
     );
     _protocolAndErrorUpdate(protocol);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [jobInformation, jobTaskRoles, parameters, secrets, jobProtocol, extras]);
 
   const _openEditor = async event => {

@@ -279,6 +279,7 @@ const GpuChart = ({ style, gpuPerNode, virtualClusters, userInfo }) => {
     return () => {
       window.removeEventListener('resize', onResize);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [gpuPerNode, userInfo, virtualClusters]);
 
   return (

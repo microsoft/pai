@@ -35,6 +35,7 @@ const LoginModal = ({ isOpen, lock, error, onDismiss, onLogin }) => {
   const onSubmit = useCallback(e => {
     e.preventDefault();
     onLogin(usernameRef.current.value, passwordRef.current.value);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
   return (
     <Modal isOpen={isOpen} onDismiss={onDismiss}>

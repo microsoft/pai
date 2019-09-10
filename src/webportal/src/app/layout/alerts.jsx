@@ -68,6 +68,7 @@ export const NotificationButton = () => {
   }, []);
   const close = useCallback(() => {
     setPanelOpened(false);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [setAlertItems]);
 
   const renderNavigationContent = useCallback((props, defaultRender) => {

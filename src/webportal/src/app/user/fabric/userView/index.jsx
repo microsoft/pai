@@ -105,6 +105,7 @@ export default function UserView() {
   };
   useEffect(refreshAllVCs, []);
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const initialFilter = useMemo(() => {
     const filter = new Filter();
     filter.load();
@@ -126,6 +127,7 @@ export default function UserView() {
   const [pagination, setPagination] = useState(new Pagination());
   useEffect(() => {
     setPagination(new Pagination(pagination.itemsPerPage, 0));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filteredUsers]);
 
   const [selectedUsers, setSelectedUsers] = useState([]);

@@ -133,6 +133,7 @@ export const DataComponent = React.memo(props => {
         setDefaultTeamConfigs(null);
         setTeamConfigs(null);
       });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const _onDataListChange = useCallback(

@@ -90,6 +90,7 @@ export const MountList = ({ dataList, setDataList, setDataError }) => {
       dataSourceErrorMessage,
       setDataSourceErrorMessage,
     );
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dataList]);
 
   useEffect(() => {
@@ -121,12 +122,15 @@ export const MountList = ({ dataList, setDataList, setDataError }) => {
         ),
       });
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [containerPathErrorMessage, dataSourceErrorMessage]);
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const onRemove = useCallback(idx => {
     setDataList([...dataList.slice(0, idx), ...dataList.slice(idx + 1)]);
   });
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const onDataSourceChange = useCallback((idx, val) => {
     const updatedDataList = cloneDeep(dataList);
     updatedDataList[idx].dataSource = val;

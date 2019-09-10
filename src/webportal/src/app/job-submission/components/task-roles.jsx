@@ -86,6 +86,7 @@ export const TaskRoles = React.memo(
       } else {
         setErrorMessage('TaskRole', '');
       }
+      // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [taskRoles]);
 
     return (
