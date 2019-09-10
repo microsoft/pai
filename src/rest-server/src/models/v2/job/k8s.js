@@ -265,7 +265,7 @@ const generateTaskRole = (taskRole, labels, config) => {
     taskNumber: config.taskRoles[taskRole].instances || 1,
     task: {
       retryPolicy: {
-        fancyRetryPolicy: true,
+        fancyRetryPolicy: false,
         maxRetryCount: 0,
       },
       pod: {
