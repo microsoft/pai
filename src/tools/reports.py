@@ -191,7 +191,6 @@ class Alert(object):
             "NvidiaMemoryLeak": lambda a: a["minor_number"],
             "GpuUsedByExternalProcess": lambda a: a["minor_number"],
             "GpuUsedByZombieContainer": lambda a: a["minor_number"],
-            "PaiJobsZombie": lambda a: a["minor_number"],
             "k8sApiServerNotOk": lambda a: a["error"],
             "k8sDockerDaemonNotOk": lambda a: a["error"],
             "NodeFilesystemUsage": lambda a: a["device"],
