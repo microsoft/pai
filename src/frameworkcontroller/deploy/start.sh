@@ -19,11 +19,11 @@
 
 pushd $(dirname "$0") > /dev/null
 
-kubectl apply --overwrite=true -f k8s-frameworkcontroller-config.yaml || exit $?
-kubectl apply --overwrite=true -f k8s-frameworkcontroller.yaml || exit $?
+kubectl apply --overwrite=true -f frameworkcontroller-config.yaml || exit $?
+kubectl apply --overwrite=true -f frameworkcontroller.yaml || exit $?
 
 sleep 10
 # Wait until the service is ready.
-PYTHONPATH="../../../deployment" python -m k8sPaiLibrary.monitorTool.check_pod_ready_status -w -k app -v k8s-frameworkcontroller || exit $?
+PYTHONPATH="../../../deployment" python -m k8sPaiLibrary.monitorTool.check_pod_ready_status -w -k app -v frameworkcontroller || exit $?
 
 popd > /dev/null
