@@ -446,3 +446,10 @@ Please execute below command under the `tests` directory to have a quick unit te
 ```bash
 python -m unittest discover
 ```
+
+Since the unit tests will try to connect your cluster, we set a test environment instead of corrupting the practical settings. Please add a `ut_init.sh` file in `tests` as below
+```bash
+opai set clusters-in-local=yes # don't corrupt practical environment
+opai cluster add -a <cluster-alias> --pai-uri http://x.x.x.x --user <user> --password <password>
+opai cluster select <cluster-alias>
+```

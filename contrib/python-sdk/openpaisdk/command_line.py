@@ -1,15 +1,12 @@
 import argparse
 import os
 import sys
-from copy import deepcopy
-from openpaisdk import __logger__, __cluster_config_file__
-from openpaisdk.cli_arguments import cli_add_arguments, append_options_to_list
-from openpaisdk.cli_factory import Action, ActionFactory, EngineFactory, Scene
-from openpaisdk.core import pprint
-from openpaisdk.io_utils import get_defaults, update_default, browser_open, to_screen
-from openpaisdk.utils import OrganizedList as ol
-from openpaisdk.utils import Nested, run_command, na
-from uuid import uuid4 as randstr
+from openpaisdk.cli_arguments import cli_add_arguments
+from openpaisdk.cli_factory import ActionFactory, EngineFactory
+from openpaisdk.defaults import get_defaults, update_default
+from openpaisdk.io_utils import browser_open, to_screen
+from openpaisdk.utils import Nested, run_command, na, randstr
+from openpaisdk.defaults import __flags__
 
 
 def extract_args(args: argparse.Namespace, get_list: list = None, ignore_list: list = ["scene", "action"]):
@@ -20,27 +17,29 @@ def extract_args(args: argparse.Namespace, get_list: list = None, ignore_list: l
 
 class ActionFactoryForDefault(ActionFactory):
 
-    def define_arguments_set(self, parser: argparse.ArgumentParser):
+    def define_arguments(self, parser: argparse.ArgumentParser):
         cli_add_arguments(parser, ['--is-global'])
-        parser.add_argument('contents', nargs='*',
-                            help='(variable=value) pair to be set as default')
+        parser.add_argument('contents', nargs='*', help='(variable=value) pair to be set as default')
 
     def do_action_set(self, args):
+        import re
         if not args.contents:
-            return get_defaults(global_only=args.is_global)
-        for kv in args.contents:
-            key, value = kv.split('=')
-            assert key is not None and value is not None, "must specify a key=value pair"
-            update_default(key, value, is_global=args.is_global)
-
-    def define_arguments_unset(self, parser: argparse.ArgumentParser):
-        cli_add_arguments(parser, ['--is-global'])
-        parser.add_argument('variables', nargs='+',
-                            help='(variable=value) pair to be set as default')
+            return get_defaults(False, True, False) if args.is_global else get_defaults(True, True, False)
+        kv_pairs = []
+        for content in args.contents:
+            m = re.match("^([^=]+?)([\+|\-]*=)([^=]*)$", content)
+            if m:
+                kv_pairs.append(m.groups())
+            else:
+                kv_pairs.append((content, '', ''))
+        for kv_pair in kv_pairs:
+            assert kv_pair[0] and kv_pair[1] in ["=", "+=", "-="] and kv_pair[2], \
+                f"must specify a key=value pair ({kv_pair[0]}, {kv_pair[2]})"
+            update_default(kv_pair[0], kv_pair[2], is_global=args.is_global)
 
     def do_action_unset(self, args):
-        for key in args.variables:
-            update_default(key, is_global=args.is_global, to_delete=True)
+        for kv_pair in args.contents:
+            update_default(kv_pair[0], kv_pair[2], is_global=args.is_global, to_delete=True)
 
 
 class ActionFactoryForCluster(ActionFactory):
@@ -52,39 +51,54 @@ class ActionFactoryForCluster(ActionFactory):
         assert args.editor, "cannot edit the file without an editor"
 
     def do_action_edit(self, args):
-        run_command([args.editor, __cluster_config_file__])
-        self.disable_saving["clusters"] = True
+        run_command([args.editor, cluster_cfg_file])
+
+    def define_arguments_update(self, parser):
+        pass
+
+    def do_action_update(self, args):
+        self.enable_svaing["clusters"] = True
+        return self.__clusters__.update_all()
 
     def define_arguments_list(self, parser):
         cli_add_arguments(parser, [])
 
+    @staticmethod
+    def tabulate_resources(dic: dict):
+        to_screen([
+            [c, i.get("uri", None), i.get("user", None), v, i["GPUs"], i["vCores"], i["memory"]] for c in dic.keys() for v, i in dic[c].items()
+        ], _type="table", headers=["cluster", "uri", "user", "virtual-cluster", "GPUs", "vCores", "memory"])
+        return dic
+
     def do_action_list(self, args):
-        return ol.as_dict(self.__clusters__.tell(), "cluster_alias")
+        info = self.__clusters__.tell()
+        ActionFactoryForCluster.tabulate_resources(info)
 
     def define_arguments_resources(self, parser: argparse.ArgumentParser):
         cli_add_arguments(parser, [])
 
     def do_action_resources(self, args):
-        return self.__clusters__.available_resources()
+        r = self.__clusters__.available_resources()
+        ActionFactoryForCluster.tabulate_resources(r)
 
     def define_arguments_add(self, parser: argparse.ArgumentParser):
         cli_add_arguments(
-            parser, ['--cluster-alias', '--pai-uri', '--user', '--password'])
-        parser.add_argument('--token', help="authentication token")
+            parser, ['--cluster-alias', '--pai-uri', '--user', '--password', '--authen-token'])
 
     def check_arguments_add(self, args):
         assert args.cluster_alias or args.pai_uri or args.user, "must specify cluster-alias, pai-uri, user"
         assert args.password or args.token, "please add an authentication credential, password or token"
 
     def do_action_add(self, args):
-        return self.__clusters__.add(extract_args(args))
+        self.enable_svaing["clusters"] = True
+        self.__clusters__.add(extract_args(args))
 
     def define_arguments_delete(self, parser: argparse.ArgumentParser):
         cli_add_arguments(parser, ['cluster_alias'])
 
     def do_action_delete(self, args):
         if self.__clusters__.delete(args.cluster_alias):
-            __logger__.info("cluster %s deleted" % args.cluster_alias)
+            to_screen("cluster %s deleted" % args.cluster_alias)
         return None
 
     def define_arguments_select(self, parser: argparse.ArgumentParser):
@@ -130,14 +144,15 @@ class ActionFactoryForJob(ActionFactory):
 
     def define_arguments_stop(self, parser: argparse.ArgumentParser):
         cli_add_arguments(parser, ['--cluster-alias'])
-        parser.add_argument('job_name', help='job name')
+        parser.add_argument('job_names', nargs='+', help='job name')
 
     def check_arguments_stop(self, args):
-        assert args.job_name, "must specify a job name"
+        assert args.job_names, "must specify a job name"
 
     def do_action_stop(self, args):
         client = self.__clusters__.get_client(args.cluster_alias)
-        return client.rest_api_execute_job(args.job_name, "STOP")
+        for job_name in args.job_names:
+            to_screen(client.rest_api_execute_job(job_name, "STOP"))
 
     def define_arguments_submit(self, parser: argparse.ArgumentParser):
         cli_add_arguments(
@@ -169,12 +184,13 @@ class ActionFactoryForJob(ActionFactory):
             '--job-name',
             '--cluster-alias', '--virtual-cluster', '--workspace',  # for cluster
             '--sources', '--pip-installs',  # for sdk_template
-            '--image', '--cpu', '--gpu', '--memoryMB',
+            '--image', '--cpu', '--gpu', '--mem', "--memoryMB",
             '--preview', '--no-browser',
             '--python',
         ])
 
     def check_essentials(self, args):
+        assert args.cluster_alias, "must specify a cluster"
         args.sources = [] if not args.sources else args.sources
         args.pip_installs = [] if not args.pip_installs else args.pip_installs
         if args.sources:
@@ -183,7 +199,7 @@ class ActionFactoryForJob(ActionFactory):
                 assert os.path.isfile(s), "file %s not found" % s
         assert args.image, "must specify a docker image"
         if args.job_name:
-            args.job_name = args.job_name.replace("$", randstr().hex)
+            args.job_name = args.job_name.replace("$", randstr(10))
 
     def define_arguments_sub(self, parser: argparse.ArgumentParser):
         self.define_essentials(parser)
@@ -198,7 +214,7 @@ class ActionFactoryForJob(ActionFactory):
         self.__job__.new(args.job_name).one_liner(
             commands=" ".join(args.commands),
             image=args.image,
-            resources=extract_args(args, ["gpu", "cpu", "memoryMB"]),
+            resources=extract_args(args, ["gpu", "cpu", "memoryMB", "mem"]),
             cluster=extract_args(
                 args, ["cluster_alias", "virtual_cluster", "workspace"]),
             sources=args.sources, pip_installs=args.pip_installs,
@@ -210,7 +226,7 @@ class ActionFactoryForJob(ActionFactory):
         self.define_essentials(parser)
         cli_add_arguments(parser, [
             '--interactive',
-            '--token',
+            '--notebook-token',
             'notebook'
         ])
 
@@ -222,7 +238,7 @@ class ActionFactoryForJob(ActionFactory):
             args.job_name = os.path.splitext(os.path.basename(args.notebook))[
                 0] + "_" + randstr().hex if args.notebook else "jupyter_server_{}".format(randstr().hex)
         if args.interactive and not args.token:
-            __logger__.warn("no authentication token is set")
+            to_screen("no authentication token is set", _type="warn")
 
     def connect_notebook(self):
         result = self.__job__.wait()
@@ -236,7 +252,7 @@ class ActionFactoryForJob(ActionFactory):
             image=args.image,
             cluster=extract_args(
                 args, ["cluster_alias", "virtual_cluster", "workspace"]),
-            resources=extract_args(args, ["gpu", "cpu", "memoryMB"]),
+            resources=extract_args(args, ["gpu", "cpu", "memoryMB", "mem"]),
             sources=args.sources, pip_installs=args.pip_installs,
         )
         self.__job__.protocol["parameters"]["python_path"] = args.python
@@ -265,7 +281,7 @@ class ActionFactoryForStorage(ActionFactory):
         cli_add_arguments(parser, ['--cluster-alias'])
 
     def do_action_list_storage(self, args):
-        return ol.as_dict(self.__clusters__.select(args.cluster_alias)['storages'], 'storage_alias')
+        return self.__clusters__.select(args.cluster_alias)['storages']
 
     def define_arguments_list(self, parser: argparse.ArgumentParser):
         cli_add_arguments(
@@ -303,50 +319,50 @@ class ActionFactoryForStorage(ActionFactory):
         return self.__clusters__.get_client(args.cluster_alias).get_storage(args.storage_alias).upload(remote_path=args.remote_path, local_path=args.local_path, overwrite=getattr(args, "overwrite", False))
 
 
-__cli_structure__ = {
-    "cluster": {
-        "help": "cluster management",
-        "factory": ActionFactoryForCluster,
-        "actions": {
-            "list": "list clusters in config file %s" % __cluster_config_file__,
-            "resources": "report the (available, used, total) resources of the cluster",
-            "edit": "edit the config file in your editor %s" % __cluster_config_file__,
-            "add": "add a cluster to config file %s" % __cluster_config_file__,
-            "delete": "delete a cluster from config file %s" % __cluster_config_file__,
-            "select": "select a cluster as default",
-            "attach-hdfs": "attach hdfs storage to cluster",
-        }
-    },
-    "job": {
-        "help": "job operations",
-        "factory": ActionFactoryForJob,
-        "actions": {
-            "list": "list existing jobs",
-            "status": "query the status of a job",
-            "stop": "stop the job",
-            "submit": "submit the job from a config file",
-            "sub": "generate a config file from commands, and then `submit` it",
-            "notebook": "run a jupyter notebook remotely",
-            "connect": "connect to an existing job",
-        }
-    },
-    "storage": {
-        "help": "storage operations",
-        "factory": ActionFactoryForStorage,
-        "actions": {
-            "list-storage": "list storage attached to the cluster",
-            "list": "list items about the remote path",
-            "status": "get detailed information about remote path",
-            "upload": "upload",
-            "download": "download",
-            "delete": "delete",
-        }
-    },
-}
+cluster_cfg_file = __flags__.get_cluster_cfg_file(get_defaults()["clusters-in-local"])
 
 
 def generate_cli_structure(is_beta: bool):
-    cli_s = deepcopy(__cli_structure__)
+    cli_s = {
+        "cluster": {
+            "help": "cluster management",
+            "factory": ActionFactoryForCluster,
+            "actions": {
+                "list": "list clusters in config file %s" % cluster_cfg_file,
+                "resources": "report the (available, used, total) resources of the cluster",
+                "update": "check the healthness of clusters and update the information",
+                "edit": "edit the config file in your editor %s" % cluster_cfg_file,
+                "add": "add a cluster to config file %s" % cluster_cfg_file,
+                "delete": "delete a cluster from config file %s" % cluster_cfg_file,
+                "select": "select a cluster as default",
+            }
+        },
+        "job": {
+            "help": "job operations",
+            "factory": ActionFactoryForJob,
+            "actions": {
+                "list": "list existing jobs",
+                "status": "query the status of a job",
+                "stop": "stop the job",
+                "submit": "submit the job from a config file",
+                "sub": "generate a config file from commands, and then `submit` it",
+                "notebook": "run a jupyter notebook remotely",
+                "connect": "connect to an existing job",
+            }
+        },
+        "storage": {
+            "help": "storage operations",
+            "factory": ActionFactoryForStorage,
+            "actions": {
+                "list-storage": "list storage attached to the cluster",
+                "list": "list items about the remote path",
+                "status": "get detailed information about remote path",
+                "upload": "upload",
+                "download": "download",
+                "delete": "delete",
+            }
+        },
+    }
     dic = {
         key: [
             value["help"],
@@ -378,15 +394,13 @@ def main():
         eng = Engine()
         result = eng.process(sys.argv[1:])
         if result:
-            pprint(result)
+            to_screen(result)
         return 0
     except AssertionError as identifier:
-        print(identifier)
-        __logger__.exception("Value error")
+        to_screen(f"Value error: {repr(identifier)}", _type="error")
         return 1
     except Exception as identifier:
-        print(identifier)
-        __logger__.exception("Error")
+        to_screen(f"Error: {repr(identifier)}", _type="error")
         return 2
     else:
         return -1
