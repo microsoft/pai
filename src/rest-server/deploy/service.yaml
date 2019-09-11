@@ -22,7 +22,7 @@ cluster-type:
 prerequisite:
   - cluster-configuration
   - yarn-frameworklauncher
-  - k8s-frameworkcontroller
+  - frameworkcontroller
   - hivedscheduler
   - log-manager
 

@@ -20,9 +20,9 @@
 pushd $(dirname "$0") > /dev/null
 
 APISERVER=$(kubectl config view | grep server | cut -f 2- -d ":" | tr -d " ")
-until ! kubectl get sts | grep -q "k8s-frameworkcontroller-sts"; do
+until ! kubectl get sts | grep -q "frameworkcontroller-sts"; do
     echo 'Trying to stop framework controller ...'
-    curl -X DELETE $APISERVER/apis/apps/v1/namespaces/default/statefulsets/k8s-frameworkcontroller-sts \
+    curl -X DELETE $APISERVER/apis/apps/v1/namespaces/default/statefulsets/frameworkcontroller-sts \
         -H "Content-Type: application/json" \
         -d '{"kind":"DeleteOptions","apiVersion":"v1","propagationPolicy":"Foreground"}' > /dev/null 2>&1
     sleep 5

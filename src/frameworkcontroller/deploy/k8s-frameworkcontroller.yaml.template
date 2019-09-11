@@ -18,20 +18,20 @@
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
-  name: k8s-frameworkcontroller-sts
+  name: frameworkcontroller-sts
 spec:
-  serviceName: k8s-frameworkcontroller
+  serviceName: frameworkcontroller
   selector:
     matchLabels:
-      app: k8s-frameworkcontroller
+      app: frameworkcontroller
   replicas: 1
   template:
     metadata:
       labels:
-        app: k8s-frameworkcontroller
+        app: frameworkcontroller
     spec:
       containers:
-      - name: k8s-frameworkcontroller
+      - name: frameworkcontroller
         image: frameworkcontroller/frameworkcontroller:v0.3.0
         env:
         - name: KUBE_APISERVER_ADDRESS

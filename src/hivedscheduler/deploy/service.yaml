@@ -20,7 +20,7 @@ cluster-type:
 
 prerequisite:
   - cluster-configuration
-  - k8s-frameworkcontroller
+  - frameworkcontroller
   - drivers
 
 template-list:
