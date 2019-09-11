@@ -34,7 +34,7 @@ logger = logging.getLogger(__name__)
 def check_port(portno):
     """Check whether the port is in use.
 
-    Exit with code 200 if the port is already in use.
+    Exit with code 10 if the port is already in use.
 
     Args:
         portno: Port number to check.

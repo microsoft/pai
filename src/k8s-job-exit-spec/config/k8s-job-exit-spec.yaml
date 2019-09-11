@@ -565,7 +565,7 @@ spec:
   reaction: RETRY_TO_MAX
   reason: "Failed to start docker container due to unknown error"
   repro:
-  - "Submit a Pod with unknown capability specified in its SecurityContext"
+  - "Submit a Pod with unknown capability specified in its SecurityContext"
   solution:
   - "Check diagnostics and find root cause"
   - "Wait result from next retry"
@@ -901,6 +901,21 @@ spec:
   - "Run FrameworkBarrier with BARRIER_CHECK_TIMEOUT_SEC equals to 1"
   solution:
   - "Contact PAI Dev to fix the PAI Runtime bug"
+
+- code: 253
+  phrase: PortConflictCheckFailed
+  issuer: PAI_RUNTIME
+  causer: PAI_RUNTIME
+  type: PLATFORM_FAILURE
+  stage: LAUNCHING
+  behavior: TRANSIENT
+  reaction: ALWAYS_RETRY
+  reason: "Can not alloc request ports due to ports is occupied"
+  repro:
+  - "Run task in a host which most of ports are occupied"
+  solution:
+  - "Wait result from next retry"
+  - "Decrease per task ports request"
 
 - code: 255
   phrase: PAIRuntimeUnknownFailed
