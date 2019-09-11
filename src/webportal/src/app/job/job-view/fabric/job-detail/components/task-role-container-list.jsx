@@ -163,7 +163,30 @@ export default class TaskRoleContainerList extends React.Component {
     });
   }
 
-  showContainerLog(logUrl, title) {
+  showContainerLog(logUrl, logType) {
+    let title;
+    let logHint;
+
+    if (config.logType === 'yarn') {
+      logHint = 'Last 4096 bytes';
+    } else if (config.logType === 'log-manager') {
+      logHint = 'Last 200 lines';
+    } else {
+      throw new Error(`Log not available`);
+    }
+    switch (logType) {
+      case 'stdout':
+        title = `Standard Output (${logHint})`;
+        break;
+      case 'stderr':
+        title = `Standard Error (${logHint})`;
+        break;
+      case 'stdall':
+        title = `User logs (${logHint}. Notice: The logs may out of order when merging stdout & stderr streams)`;
+        break;
+      default:
+        throw new Error(`Unsupported log type`);
+    }
     this.setState({
       monacoProps: {value: 'Loading...'},
       monacoTitle: title,
@@ -389,7 +412,7 @@ export default class TaskRoleContainerList extends React.Component {
                 }}
                 iconProps={{iconName: 'TextDocument'}}
                 text='Stdout'
-                onClick={() => this.showContainerLog(`${item.containerLog}user.pai.stdout`, 'Standard Output (Last 4096 bytes)')}
+                onClick={() => this.showContainerLog(`${item.containerLog}user.pai.stdout`, 'stdout')}
                 disabled={isNil(item.containerId) || isNil(item.containerIp)}
               />
               <CommandBarButton
@@ -400,7 +423,7 @@ export default class TaskRoleContainerList extends React.Component {
                 }}
                 iconProps={{iconName: 'Error'}}
                 text='Stderr'
-                onClick={() => this.showContainerLog(`${item.containerLog}user.pai.stderr`, 'Standard Error (Last 4096 bytes)')}
+                onClick={() => this.showContainerLog(`${item.containerLog}user.pai.stderr`, 'stderr')}
                 disabled={isNil(item.containerId) || isNil(item.containerIp)}
               />
               <CommandBarButton
@@ -419,7 +442,7 @@ export default class TaskRoleContainerList extends React.Component {
                       disabled: isNil(item.containerId),
                       onClick: () => this.showContainerLog(
                         `${item.containerLog}user.pai.all`,
-                        'User logs (Last 4096 bytes. Notice: The logs may out of order when merging stdout & stderr streams)'),
+                        'stdall'),
                     },
                     {
                       key: 'yarnTrackingPage',
