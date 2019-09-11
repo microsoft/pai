@@ -80,7 +80,8 @@
     "util": "~0.10.3",
     "webhdfs": "^1.2.0",
     "whatwg-fetch": "^3.0.0",
-    "winston": "~2.4.0"
+    "winston": "~2.4.0",
+    "rimraf": "~2.6.2"
   },
   "devDependencies": {
     "@babel/core": "^7.4.3",
@@ -117,7 +118,6 @@
     "postcss-loader": "^3.0.0",
     "prettier": "^1.18.2",
     "raw-loader": "~0.5.1",
-    "rimraf": "~2.6.2",
     "sass-loader": "~6.0.6",
     "style-loader": "~0.19.0",
     "terser-webpack-plugin": "^1.2.3",

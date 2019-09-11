@@ -17,6 +17,7 @@
 
 // module dependencies
 const marked = require('marked');
+const URL = require('url').URL;
 
 const baseUrl = 'https://github.com/Microsoft/pai/tree/master/docs/';
 
