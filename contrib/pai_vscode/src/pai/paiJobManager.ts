@@ -359,7 +359,7 @@ export class PAIJobManager extends Singleton {
         // Replace environment variable
         function replaceVariable(x: string): string {
             return x.replace('$PAI_JOB_NAME', config.jobName)
-                .replace('$PAI_USER_NAME', cluster!.username);
+                .replace('$PAI_USER_NAME', cluster!.username!);
         }
         for (const key of PAIJobManager.propertiesToBeReplaced) {
             const old: string | IPAITaskRole[] | undefined = config[key];
@@ -415,7 +415,7 @@ export class PAIJobManager extends Singleton {
             param.config.jobName = `${param.config.jobName}_${uuid().substring(0, 8)}`;
         } else {
             try {
-                await request.get(PAIRestUri.jobDetail(param.cluster, param.cluster.username, param.config.jobName), {
+                await request.get(PAIRestUri.jobDetail(param.cluster, param.cluster.username!, param.config.jobName), {
                     headers: { Authorization: `Bearer ${await this.getToken(param.cluster)}` },
                     timeout: PAIJobManager.TIMEOUT,
                     json: true
@@ -470,7 +470,7 @@ export class PAIJobManager extends Singleton {
                 __('job.submission.success'),
                 open
             ).then(async res => {
-                const url: string = await PAIWebPortalUri.jobDetail(param.cluster!, param.cluster!.username, param.config.jobName);
+                const url: string = await PAIWebPortalUri.jobDetail(param.cluster!, param.cluster!.username!, param.config.jobName);
                 if (res === open) {
                     await Util.openExternally(url);
                 }
@@ -499,7 +499,7 @@ export class PAIJobManager extends Singleton {
             config.name = `${config.name}_${uuid().substring(0, 8)}`;
         } else {
             try {
-                await request.get(PAIRestUri.jobDetail(cluster, cluster.username, config.name), {
+                await request.get(PAIRestUri.jobDetail(cluster, cluster.username!, config.name), {
                     headers: { Authorization: `Bearer ${await this.getToken(cluster)}` },
                     timeout: PAIJobManager.TIMEOUT,
                     json: true
@@ -546,7 +546,7 @@ export class PAIJobManager extends Singleton {
                 __('job.submission.success'),
                 open
             ).then(async res => {
-                const url: string = await PAIWebPortalUri.jobDetail(cluster!, cluster!.username, config.name);
+                const url: string = await PAIWebPortalUri.jobDetail(cluster!, cluster!.username!, config.name);
                 if (res === open) {
                     await Util.openExternally(url);
                 }
@@ -623,9 +623,11 @@ export class PAIJobManager extends Singleton {
                 const codeDir: string = path.join(taskDir, param.config.jobName);
                 await fs.ensureDir(codeDir);
                 if (param.upload) {
-                    // copy from local
+                    // copy from local`
                     const projectFiles: string[] = await globby(param.upload.include, {
-                        cwd: param.workspace, onlyFiles: true, absolute: true,
+                        cwd: param.workspace,
+                        onlyFiles: true,
+                        absolute: true,
                         ignore: param.upload.exclude || []
                     });
                     await Promise.all(projectFiles.map(async file => {
@@ -785,6 +787,10 @@ export class PAIJobManager extends Singleton {
     }
 
     private async getToken(cluster: IPAICluster): Promise<string> {
+        if (cluster.token) {
+            return cluster.token;
+        }
+
         const id: string = getClusterIdentifier(cluster);
         let item: ITokenItem | undefined = this.cachedTokens.get(id);
         if (!item || Date.now() > item.expireTime) {

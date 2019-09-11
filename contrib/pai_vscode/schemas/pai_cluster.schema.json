@@ -7,13 +7,15 @@
         },
         "username": {
             "type": "string",
-            "description": "PAI cluster user name",
-            "minLength": 1
+            "description": "PAI cluster user name"
         },
         "password": {
             "type": "string",
-            "description": "PAI cluster password",
-            "minLength": 1
+            "description": "PAI cluster password"
+        },
+        "token": {
+            "type": "string",
+            "description": "PAI cluster access token"
         },
         "rest_server_uri": {
             "type": "string",
