@@ -252,7 +252,7 @@ const generateTaskRole = (taskRole, labels, config) => {
             type: 'kube-launcher-task',
           },
           annotations: {
-            'container.apparmor.security.beta.kubernetes.io/main': 'unconfined',
+            'container.apparmor.security.beta.kubernetes.io/app': 'unconfined',
             'rest-server/port-scheduling-spec': JSON.stringify(randomPorts),
           },
         },
@@ -290,7 +290,7 @@ const generateTaskRole = (taskRole, labels, config) => {
           ],
           containers: [
             {
-              name: 'main',
+              name: 'app',
               image: config.prerequisites.dockerimage[config.taskRoles[taskRole].dockerImage].uri,
               command: ['/usr/local/pai/runtime'],
               resources: {
