@@ -81,7 +81,6 @@ export const UtilizationChart = ({ percentage }) => {
       },
     });
     chart.resize();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (

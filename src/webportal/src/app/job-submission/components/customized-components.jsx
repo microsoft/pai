@@ -58,7 +58,6 @@ export const CSpinButton = props => {
       }
       return onChange(newValue);
     },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     [onChange],
   );
 

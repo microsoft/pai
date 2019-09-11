@@ -87,7 +87,6 @@ export const TeamStorage = ({
     const newMountDirs = cloneDeep(mountDirs);
     newMountDirs.selectedConfigs = selectedConfigs;
     onMountDirChange(newMountDirs);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedConfigNames]);
 
   const columes = [

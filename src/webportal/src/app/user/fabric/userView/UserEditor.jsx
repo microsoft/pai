@@ -63,7 +63,6 @@ export default function UserEditor({
   const [isAdmin, setIsAdmin] = useState(false);
   useEffect(() => {
     setIsAdmin(oldAdmin);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleAdminChanged = (_event, checked) => {
@@ -73,7 +72,6 @@ export default function UserEditor({
   const [vcs, setVcs] = useState([]);
   useEffect(() => {
     setVcs(virtualCluster.slice());
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleVCsChanged = (_event, option, _index) => {

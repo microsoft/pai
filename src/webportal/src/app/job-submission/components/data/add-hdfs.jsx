@@ -44,7 +44,6 @@ export const AddHDFS = ({
         }
       });
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const submitMount = async () => {

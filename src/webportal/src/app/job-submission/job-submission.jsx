@@ -120,7 +120,6 @@ const JobWizard = ({ setYamlText, history }) => {
     if (params.get('op') === 'resubmit') {
       history.push('/general');
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (

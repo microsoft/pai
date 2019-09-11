@@ -59,7 +59,6 @@ export const MonacoTextFiled = props => {
       }
       debouncedOnChange(val);
     },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     [debouncedOnChange],
   );
 
@@ -89,7 +88,6 @@ export const MonacoTextFiled = props => {
         rawEditorDidMount(editor, monaco);
       }
     },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     [rawEditorDidMount],
   );
 

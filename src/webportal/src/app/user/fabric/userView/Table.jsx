@@ -58,7 +58,6 @@ export default function Table() {
         setAllSelected(selection.isAllSelected());
       },
     });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   /**

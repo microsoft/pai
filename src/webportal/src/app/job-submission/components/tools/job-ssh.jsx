@@ -65,7 +65,6 @@ export const JobSSH = ({
       }
       onExtrasChange(updatedExtras);
     },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     [extras],
   );
 
@@ -82,7 +81,6 @@ export const JobSSH = ({
       }
       onSecretsChange(updatedSecrets);
     },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     [secrets],
   );
 
@@ -101,7 +99,6 @@ export const JobSSH = ({
         });
       }
     },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     [secrets, _onChangeSecrets, extras, _onChangeExtras],
   );
 
@@ -116,7 +113,6 @@ export const JobSSH = ({
         });
       }
     },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     [secrets, _onChangeSecrets, extras, _onChangeExtras],
   );
 

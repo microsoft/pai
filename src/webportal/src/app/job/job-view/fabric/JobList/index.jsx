@@ -58,7 +58,6 @@ export default function JobList() {
   const [selectedJobs, setSelectedJobs] = useState([]);
   const [error, setError] = useState(null);
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   const initialFilter = useMemo(() => {
     const query = querystring.parse(location.search.replace(/^\?/, ''));
     if (['vcName', 'status', 'user'].some(x => !isEmpty(query[x]))) {
@@ -104,7 +103,6 @@ export default function JobList() {
 
   useEffect(() => {
     setPagination(new Pagination(pagination.itemsPerPage, 0));
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filteredJobs]);
 
   const stopJob = useCallback(

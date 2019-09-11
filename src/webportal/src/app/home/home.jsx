@@ -88,7 +88,6 @@ const Home = () => {
     } else {
       // layout.component.js will redirect user to index page.
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   if (loading) {

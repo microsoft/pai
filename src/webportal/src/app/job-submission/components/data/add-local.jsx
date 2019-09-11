@@ -43,7 +43,6 @@ export const AddLocal = ({
         }
       });
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const getUploadText = () => {

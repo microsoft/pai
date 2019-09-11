@@ -63,7 +63,6 @@ export default function Table() {
         setSelectedJobs(selection.getSelection());
       },
     });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   /**

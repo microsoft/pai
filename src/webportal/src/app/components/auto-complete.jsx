@@ -70,14 +70,12 @@ export const AutoComplete = ({
     if (suggested >= suggestions.length) {
       setSuggested(Math.max(0, suggestions.length - 1));
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [value, items, showAllSuggestions]);
   // event handler
   const onTextChange = useCallback(
     (e, newValue) => {
       onChange(newValue || '');
     },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     [items, onChange],
   );
 
