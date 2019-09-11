@@ -7,15 +7,18 @@
         },
         "username": {
             "type": "string",
-            "description": "PAI cluster user name"
+            "description": "PAI cluster user name",
+            "minLength": 1
         },
         "password": {
             "type": "string",
-            "description": "PAI cluster password"
+            "description": "PAI cluster password",
+            "minLength": 1
         },
         "token": {
             "type": "string",
-            "description": "PAI cluster access token"
+            "description": "PAI cluster access token",
+            "minLength": 1
         },
         "rest_server_uri": {
             "type": "string",
@@ -52,9 +55,19 @@
             "description": "PAI protocol version"
         }
     },
-    "required": [
-        "username",
-        "password",
-        "rest_server_uri"
+    "oneOf": [
+        {
+            "required": [
+                "username",
+                "password",
+                "rest_server_uri"
+            ]
+        },
+        {
+            "required": [
+                "token",
+                "rest_server_uri"
+            ]
+        }
     ]
 }
