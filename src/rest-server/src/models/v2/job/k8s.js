@@ -86,6 +86,7 @@ const convertFrameworkSummary = (framework) => {
   const completionStatus = framework.status.attemptStatus.completionStatus;
   return {
     name: decodeName(framework.metadata.name, framework.metadata.labels),
+    frameworkName: framework.metadata.name,
     username: framework.metadata.labels ? framework.metadata.labels.userName : 'unknown',
     state: convertState(
       framework.status.state,
@@ -122,15 +123,17 @@ const convertTaskDetail = async (taskStatus, ports, userName, jobName, taskRoleN
     }
   }
   // get container gpus
-  let containerGpus;
-  try {
-    const isolation = (await axios({
-      method: 'get',
-      url: launcherConfig.podPath(taskStatus.attemptStatus.podName),
-    })).data.metadata.annotations['hivedscheduler.microsoft.com/pod-gpu-isolation'];
-    containerGpus = isolation.split(',').reduce((attr, id) => attr + Math.pow(2, id), 0);
-  } catch (e) {
-    containerGpus = 0;
+  let containerGpus = 0;
+  if (launcherConfig.enabledHived) {
+    try {
+      const isolation = (await axios({
+        method: 'get',
+        url: launcherConfig.podPath(taskStatus.attemptStatus.podName),
+      })).data.metadata.annotations['hivedscheduler.microsoft.com/pod-gpu-isolation'];
+      containerGpus = isolation.split(',').reduce((attr, id) => attr + Math.pow(2, id), 0);
+    } catch (e) {
+      containerGpus = 0;
+    }
   }
   const completionStatus = taskStatus.attemptStatus.completionStatus;
   return {
@@ -140,7 +143,7 @@ const convertTaskDetail = async (taskStatus, ports, userName, jobName, taskRoleN
       completionStatus ? completionStatus.code : null,
       taskStatus.retryPolicyStatus.retryDelaySec,
     ),
-    containerId: taskStatus.attemptStatus.podName,
+    containerId: taskStatus.attemptStatus.podUID,
     containerIp: taskStatus.attemptStatus.podHostIP,
     containerPorts,
     containerGpus,
@@ -153,6 +156,7 @@ const convertFrameworkDetail = async (framework) => {
   const completionStatus = framework.status.attemptStatus.completionStatus;
   const detail = {
     name: decodeName(framework.metadata.name, framework.metadata.labels),
+    frameworkName: framework.metadata.name,
     jobStatus: {
       username: framework.metadata.labels ? framework.metadata.labels.userName : 'unknown',
       state: convertState(
@@ -248,7 +252,7 @@ const generateTaskRole = (taskRole, labels, config) => {
             type: 'kube-launcher-task',
           },
           annotations: {
-            'container.apparmor.security.beta.kubernetes.io/main': 'unconfined',
+            'container.apparmor.security.beta.kubernetes.io/app': 'unconfined',
             'rest-server/port-scheduling-spec': JSON.stringify(randomPorts),
           },
         },
@@ -286,7 +290,7 @@ const generateTaskRole = (taskRole, labels, config) => {
           ],
           containers: [
             {
-              name: 'main',
+              name: 'app',
               image: config.prerequisites.dockerimage[config.taskRoles[taskRole].dockerImage].uri,
               command: ['/usr/local/pai/runtime'],
               resources: {

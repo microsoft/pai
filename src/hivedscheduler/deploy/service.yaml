@@ -24,6 +24,8 @@ prerequisite:
   - drivers
 
 template-list:
+  - start.sh
+  - stop.sh
   - hivedscheduler.yaml
   - hivedscheduler-config.yaml
 

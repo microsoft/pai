@@ -73,7 +73,7 @@ if (launcherConfig.enabledHived) {
         default: {},
         },
     };
-    logger.warn(`Hived enabled but spec not found or illegal: ${launcherConfig.hivedSpecPath}`);
+    logger.warn(`Hived spec not found or illegal: ${launcherConfig.hivedSpecPath}`);
     logger.warn(`Init hived spec to: `, JSON.stringify(hivedObj, undefined, 2));
   }
 
