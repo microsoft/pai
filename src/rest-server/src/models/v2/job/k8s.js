@@ -86,6 +86,7 @@ const convertFrameworkSummary = (framework) => {
   const completionStatus = framework.status.attemptStatus.completionStatus;
   return {
     name: decodeName(framework.metadata.name, framework.metadata.labels),
+    frameworkName: framework.metadata.name,
     username: framework.metadata.labels ? framework.metadata.labels.userName : 'unknown',
     state: convertState(
       framework.status.state,
@@ -142,7 +143,7 @@ const convertTaskDetail = async (taskStatus, ports, userName, jobName, taskRoleN
       completionStatus ? completionStatus.code : null,
       taskStatus.retryPolicyStatus.retryDelaySec,
     ),
-    containerId: taskStatus.attemptStatus.podName,
+    containerId: taskStatus.attemptStatus.podUID,
     containerIp: taskStatus.attemptStatus.podHostIP,
     containerPorts,
     containerGpus,
@@ -155,6 +156,7 @@ const convertFrameworkDetail = async (framework) => {
   const completionStatus = framework.status.attemptStatus.completionStatus;
   const detail = {
     name: decodeName(framework.metadata.name, framework.metadata.labels),
+    frameworkName: framework.metadata.name,
     jobStatus: {
       username: framework.metadata.labels ? framework.metadata.labels.userName : 'unknown',
       state: convertState(
