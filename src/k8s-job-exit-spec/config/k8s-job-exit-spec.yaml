@@ -840,7 +840,7 @@ spec:
     runtimeContainerPatterns:
     - userLogRegex: "(?msi)CUDA_ERROR_ECC_UNCORRECTABLE.*"
 
-- code: 240
+- code: 249
   phrase: PAIRuntimeSSHBarrierTimeout
   issuer: PAI_RUNTIME
   causer: PAI_RUNTIME
@@ -903,7 +903,7 @@ spec:
   - "Contact PAI Dev to fix the PAI Runtime bug"
 
 - code: 253
-  phrase: PortConflictCheckFailed
+  phrase: ContainerPortConflict
   issuer: PAI_RUNTIME
   causer: PAI_RUNTIME
   type: PLATFORM_FAILURE

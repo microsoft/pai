@@ -448,7 +448,7 @@ func NewErrorAggregator(l *LogFiles, logger *logger.Logger) (*ErrorAggregator, e
 		maxUserLogLines:     20,
 		maxRuntimeLogLines:  10,
 		defaulExitCode:      255,
-		maxSearchLogSize:    100 * 1024 * 1024, // 100MB
+		maxSearchLogSize:    10 * 1024 * 1024, // 10MB
 		aggExitInfoBegin:    "[PAI_RUNTIME_ERROR_START]",
 		aggExitInfoEnd:      "[PAI_RUNTIME_ERROR_END]",
 	}
