@@ -17,7 +17,6 @@
 
 // module dependencies
 const marked = require('marked');
-const url = require('url');
 
 const baseUrl = 'https://github.com/Microsoft/pai/tree/master/docs/';
 
@@ -44,7 +43,7 @@ renderer.link = (href, title, text) => {
     return href;
   }
   if (href[0] !== '#') {
-    href = url.resolve(baseUrl, href); // eslint-disable-line node/no-deprecated-api
+    href = new URL(href, baseUrl).href;
   }
   let out = '<a href="' + href + '"';
   if (title) {
