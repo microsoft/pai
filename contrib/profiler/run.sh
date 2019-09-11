@@ -22,7 +22,7 @@ if [ $PYTHON_VERSION -eq 3 ];then
 elif [ $PYTHON_VERSION -eq 2 ];then
     pip install nvidia-ml-py
 fi
-
+pip install numpy
 param_num=$#
 
 CONTAINER_ID=$1
@@ -58,4 +58,4 @@ echo 'platform:' $HOST_DOCKER
 echo 'duration:' $DURATION
 echo 'output_dir:' $OUTPUT_DIR
 echo 'gpu_index:' $GPU_INDEX
-exec python profiler.py --container_id $CONTAINER_ID --container_pid $CONTAINER_PID --sample_period $SAMPLE_PERIOD --analyze_period 10 --duration $DURATION --output_dir $OUTPUT_DIR --gpu_index $GPU_INDEX
+exec python profiler.py --container_id $CONTAINER_ID --container_pid $CONTAINER_PID --sample_period $SAMPLE_PERIOD --analyze_period 20 --duration $DURATION --output_dir $OUTPUT_DIR --gpu_index $GPU_INDEX

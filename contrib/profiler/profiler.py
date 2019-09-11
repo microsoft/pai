@@ -20,56 +20,16 @@
 The profiler is used to profile the using information of the hardware while a deep learing model is running
 """
 import pynvml as nv
+import numpy as np
 import glob
 import csv
 import os
 import time
 import argparse
-
-
-class Sample:
-    def __init__(self, cpu_usage, gpu_usage, mem_used, mem_total, gpu_mem_used, gpu_mem_total, read_bytes, write_bytes,
-                 network_receive, network_transmit):
-        self._cpu_usage = cpu_usage
-        self._gpu_usage = gpu_usage
-        self._mem_used = mem_used
-        self._mem_total = mem_total
-        self._gpu_mem_used = gpu_mem_used
-        self._gpu_men_total = gpu_mem_total
-        self._read_bytes = read_bytes
-        self._write_bytes = write_bytes
-        self._network_receive = network_receive
-        self._network_transmit = network_transmit
-
-    def get_cpu_usage(self):
-        return self._cpu_usage
-
-    def get_gpu_usage(self):
-        return self._gpu_usage
-
-    def get_mem_used(self):
-        return self._mem_used
-
-    def get_mem_total(self):
-        return self._mem_total
-
-    def get_gpu_mem_used(self):
-        return self._gpu_mem_used
-
-    def get_gpu_mem_total(self):
-        return self._gpu_men_total
-
-    def get_read_bytes(self):
-        return self._read_bytes
-
-    def get_write_bytes(self):
-        return self._write_bytes
-
-    def get_network_receive(self):
-        return self._network_receive
-
-    def get_network_transmit(self):
-        return self._network_transmit
+from contrib.profiler.utils import Sample
+from contrib.profiler.utils import Advise
+from contrib.profiler.utils import print_process
+from contrib.profiler.utils import SlideWindows
 
 
 # To get the CPU running time of system from being booted
@@ -188,66 +148,122 @@ def get_network_bytes(filename):
     return [receive_bytes, transmit_bytes]
 
 
+def get_sample_data(cpu_file_list, mem_file_list, blk_file_list, net_file, gpu_id, period):
+    [mem_used, mem_total] = get_memory_percent(mem_file_list)
+
+    # 1st info about I/O, network and CPU
+    read_bytes1 = get_disk_read_bytes(blk_file_list)
+    write_bytes1 = get_disk_write_bytes(blk_file_list)
+    [network_receive1, network_transmit1] = get_network_bytes(net_file)
+    [sys_ticks1, container_ticks1] = get_cpu_ticks(cpu_file_list)
+    time.sleep(period)
+    # 2nd info about I/O, network and CPU, calculate how many bytes used in this period
+    read_bytes2 = get_disk_read_bytes(blk_file_list)
+    write_bytes2 = get_disk_write_bytes(blk_file_list)
+    [network_receive2, network_transmit2] = get_network_bytes(net_file)
+    [sys_ticks2, container_ticks2] = get_cpu_ticks(cpu_file_list)
+
+    online_cpus = os.sysconf(os.sysconf_names['SC_NPROCESSORS_ONLN'])
+    cpu_usage = (container_ticks2 - container_ticks1) * 1.0 / (sys_ticks2 - sys_ticks1) * online_cpus * 100
+
+    # get the usage of the GPU to analyze
+    gpu_usage = list()
+    gpu_mem = list()
+    gpu_mem_used = list()
+    gpu_mem_total = list()
+    for gid in gpu_id:
+        gpu_usage.append(get_gpu_utilization(gid).gpu)
+        gpu_mem.append(get_gpu_utilization(gid).memory)
+        gpu_mem_used.append(get_gpu_memory(gid).used)
+        gpu_mem_total.append(get_gpu_memory(gid).total)
+    sample_data = Sample(cpu_usage, mem_used, mem_total, read_bytes2 - read_bytes1, write_bytes2 - write_bytes1,
+                         network_receive2 - network_receive1, network_transmit2 - network_transmit1, gpu_usage, gpu_mem,
+                         gpu_mem_used, gpu_mem_total)
+    return sample_data
+
+
 # The analyze function. It will be modified when the analyzing module is finished.
-def analyze_samples(sample_list):
-    count = len(sample_list)
-    min_cpu, min_cpu_idx = sample_list[0].get_cpu_usage(), 0
-    max_cpu, max_cpu_idx = sample_list[0].get_cpu_usage(), 0
-    min_gpu, min_gpu_idx = sample_list[0].get_gpu_usage(), 0
-    max_gpu, max_gpu_idx = sample_list[0].get_gpu_usage(), 0
-    min_mem, min_mem_idx = sample_list[0].get_mem_used(), 0
-    max_mem, max_mem_idx = sample_list[0].get_mem_used(), 0
-    max_read, max_read_idx = sample_list[0].get_read_bytes(), 0
-    sum_cpu, sum_gpu, sum_mem, sum_read = 0, 0, 0, 0
-    cpu_when_gpu_low = list()
-    mem_when_gpu_low = list()
-    disk_read_when_gpu_low = list()
-    for i in range(1, count):
-        if sample_list[i].get_cpu_usage() < min_cpu:
-            min_cpu = sample_list[i].get_cpu_usage()
-            min_cpu_idx = i
-        if sample_list[i].get_cpu_usage() > max_cpu:
-            max_cpu = sample_list[i].get_cpu_usage()
-            max_cpu_idx = i
-        if sample_list[i].get_gpu_usage() < min_gpu:
-            min_gpu = sample_list[i].get_gpu_usage()
-            min_gpu_idx = i
-        if sample_list[i].get_gpu_usage() > max_gpu:
-            max_gpu = sample_list[i].get_gpu_usage()
-            max_gpu_idx = i
-        if sample_list[i].get_mem_used() < min_mem:
-            min_mem = sample_list[i].get_mem_used()
-            min_mem_idx = i
-        if sample_list[i].get_mem_used() > max_mem:
-            max_mem = sample_list[i].get_mem_used()
-            max_mem_idx = i
-        if sample_list[i].get_read_bytes() > max_read:
-            max_read = sample_list[i].get_read_bytes()
-            max_read_idx = i
+def analyze_samples(sample_list, advise):
+    sample_list = np.array(sample_list, dtype=np.float)
+    used_gpu_num = (sample_list.shape[1] - 6) / 4
+    cpu_usage = sample_list[:, 0]
+    mem_usage = sample_list[:, 1] / sample_list[:, 2]
+    gpu_usage = list()
+    gpu_mem_usage = list()
+    for i in range(int(used_gpu_num)):
+        gpu_usage.append(sample_list[:, 6 + i * 4])
+        gpu_mem_usage.append(sample_list[:, 8 + i * 4] / sample_list[:, 9 + i * 4])
 
-        if sample_list[i].get_gpu_usage() <= 10:
-            cpu_when_gpu_low.append(sample_list[i].get_cpu_usage())
-            mem_when_gpu_low.append(sample_list[i].get_mem_used())
-            disk_read_when_gpu_low.append(sample_list[i].get_read_bytes())
+    if used_gpu_num >= 2:
+        # multiple GPUs, analyze whether each GPU has the same memory usage
+        gpu_mem_avg_0 = np.average(gpu_mem_usage[0])
+        gpu_mem_avg_1 = np.average(gpu_mem_usage[1])
+        if abs(gpu_mem_avg_0 - gpu_mem_avg_1) > 0.15:
+            advise.add_times(index=1)
 
-        sum_cpu += sample_list[i].get_cpu_usage()
-        sum_gpu += sample_list[i].get_gpu_usage()
-        sum_mem += sample_list[i].get_mem_used()
-        sum_read += sample_list[i].get_read_bytes()
+    if np.average(gpu_usage[0]) >= 90:
+        advise.add_times(index=0)
+    else:
+        if np.average(gpu_mem_usage[0]) < 0.80:
+            advise.add_times(index=2)
+        else:
+            advise.add_times(index=3)
+        # slide the cpu and get the value to divide the cpu value
+        slide_windows = SlideWindows(10)
+        cpu_slide = list()
+        for i in range(cpu_usage.shape[0]):
+            cpu_slide.append(slide_windows.get_data(cpu_usage[i]))
+        cpu_slide_copy = cpu_slide.copy()
+        cpu_slide_copy.sort()
+        cpu_std_max = cpu_slide_copy[int(len(cpu_slide_copy) * 0.8)]
+        cpu_std_min = cpu_slide_copy[int(len(cpu_slide_copy) * 0.2)]
 
-    length_gpu_low = len(cpu_when_gpu_low)
-    if length_gpu_low == 0:
-        length_gpu_low = 1
+        gpu_usage_up_down = [0]
+        for i in range(1, len(gpu_usage[0])):
+            if gpu_usage[0][i] > gpu_usage[0][i - 1]:
+                gpu_usage_up_down.append(1)
+            elif gpu_usage[0][i] < gpu_usage[0][i - 1]:
+                gpu_usage_up_down.append(-1)
+            else:
+                gpu_usage_up_down.append(0)
+        gpu_usage_up_down[0] = gpu_usage_up_down[1]
 
-    print('%f\t%f\t%f\t%f\t%f\t%f\t%f\t%f\t%f\t%f\t%f' %
-          (max_gpu, sum_gpu / count, max_cpu, sum_cpu / count, max_mem, sum_mem / count, max_read, sum_read,
-           sum(cpu_when_gpu_low) / length_gpu_low,
-           sum(mem_when_gpu_low) / length_gpu_low,
-           sum(disk_read_when_gpu_low) / length_gpu_low))
-    return [max_gpu, sum_gpu / count, max_cpu, sum_cpu / count, max_mem, sum_mem / count, max_read, sum_read,
-            sum(cpu_when_gpu_low) / length_gpu_low,
-            sum(mem_when_gpu_low) / length_gpu_low,
-            sum(disk_read_when_gpu_low) / length_gpu_low]
+        # Solution 1
+        gpu_up_interval = list()
+        gpu_down_interval = list()
+        up_flag = True
+        down_flag = True
+        for i in range(len(gpu_usage_up_down)):
+            if gpu_usage_up_down[i] == 1 and up_flag:
+                up_flag = False
+            elif i >= 1 and gpu_usage_up_down[i] == -1 and not up_flag:
+                up_flag = True
+
+            if gpu_usage_up_down[i] == -1 and down_flag:
+                down_flag = False
+            elif i >= 1 and gpu_usage_up_down[i] == 1 and not down_flag:
+                down_flag = True
+            if not up_flag:
+                gpu_up_interval.append(i)
+            elif not down_flag:
+                gpu_down_interval.append(i)
+        up_cpu_min, down_cpu_min = 0, 0
+        up_cpu_max, down_cpu_max = 0, 0
+        for i in range(1, len(cpu_slide) - 1):
+            if cpu_slide[i] < cpu_slide[i - 1] and cpu_slide[i] < cpu_slide[i + 1] and cpu_slide[i] < cpu_std_min:
+                if i in gpu_up_interval:
+                    up_cpu_min += 1
+                elif i in gpu_down_interval:
+                    down_cpu_min += 1
+            if cpu_slide[i] > cpu_slide[i - 1] and cpu_slide[i] > cpu_slide[i + 1] and cpu_slide[i] > cpu_std_max:
+                if i in gpu_up_interval:
+                    up_cpu_max += 1
+                elif i in gpu_down_interval:
+                    down_cpu_max += 1
+        if float(down_cpu_min / (up_cpu_min + down_cpu_min)) > 0.6 or float(
+                up_cpu_max / (up_cpu_max + down_cpu_max)) > 0.6:
+            advise.add_times(index=4)
+    advise.add_total()
 
 
 def start_sample(container_id, period, analyze_period, duration, output_dir, gpu_id, container_pid):
@@ -255,9 +271,9 @@ def start_sample(container_id, period, analyze_period, duration, output_dir, gpu
     if not os.path.exists('./' + output_dir):
         os.mkdir(output_dir)
     realtime_log = csv.writer(open('./' + output_dir + '/log_result.csv', 'w'))  # , newline=''))
-    analyze_log = csv.writer(open('./' + output_dir + '/analyze_result.csv', 'w'))  # , newline=''))
 
-    str_write_realtime = ['cpu_usage', 'mem_used', 'IO_read', 'IO_write', 'network_receive', 'network_transmit']
+    str_write_realtime = ['cpu_usage', 'mem_used', 'mem_total', 'IO_read', 'IO_write', 'network_receive',
+                          'network_transmit']
     for i in range(len(gpu_id)):
         str_write_realtime.append('gpu_usage_' + str(gpu_id[i]))
         str_write_realtime.append('gpu_mem_usage_' + str(gpu_id[i]))
@@ -265,17 +281,11 @@ def start_sample(container_id, period, analyze_period, duration, output_dir, gpu
         str_write_realtime.append('gpu_mem_total_' + str(gpu_id[i]))
     realtime_log.writerow(str_write_realtime)
 
-    analyze_log.writerow(['max_gpu', 'avg_gpu', 'max_cpu', 'avg_cpu', 'max_mem', 'avg_mem', 'max_read', 'sum_read',
-                          'avg_cpu_gpu_low', 'avg_mem_gpu_low', 'avg_IO_gpu_low'])
     nv.nvmlInit()
     sample_list = list()
     container_cpu_file_list = list()
     container_mem_file_list = list()
     container_blk_file_list = list()
-
-    print(
-        'max_gpu\tavg_gpu\tmax_cpu\tavg_cpu\tmax_memory\tavg_memory\tmax_read\ttotal_read\tavg_cpu_when_gpu_low'
-        '\tavg_mem_when_gpu_low\tavg_io_when_gpu_low')
 
     if int(container_pid) == -1:
         container_cpu_file_list.append('/sys/fs/cgroup/cpuacct/cpuacct.stat')
@@ -289,47 +299,35 @@ def start_sample(container_id, period, analyze_period, duration, output_dir, gpu
         container_blk_file_list = glob.glob(
             '/sys/fs/cgroup/blkio/docker/' + str(container_id) + '*/blkio.throttle.io_service_bytes')
         container_net_file = '/proc/' + str(container_pid) + '/net/dev'
+
+    advise = Advise()
+
     while time.time() - start_time < duration * 60:
-        [mem_used, mem_total] = get_memory_percent(container_mem_file_list)
+        sample_data = get_sample_data(container_cpu_file_list, container_mem_file_list, container_blk_file_list,
+                                      container_net_file, gpu_id, period)
 
-        # 1st info about I/O, network and CPU
-        read_bytes1 = get_disk_read_bytes(container_blk_file_list)
-        write_bytes1 = get_disk_write_bytes(container_blk_file_list)
-        [network_receive1, network_transmit1] = get_network_bytes(container_net_file)
-        [sys_ticks1, container_ticks1] = get_cpu_ticks(container_cpu_file_list)
-        time.sleep(period)
-        # 2nd info about I/O, network and CPU, calculate how many bytes used in this period
-        read_bytes2 = get_disk_read_bytes(container_blk_file_list)
-        write_bytes2 = get_disk_write_bytes(container_blk_file_list)
-        [network_receive2, network_transmit2] = get_network_bytes(container_net_file)
-        [sys_ticks2, container_ticks2] = get_cpu_ticks(container_cpu_file_list)
+        sample_list.append(sample_data.get_array())
 
-        online_cpus = os.sysconf(os.sysconf_names['SC_NPROCESSORS_ONLN'])
-        cpu_usage = (container_ticks2 - container_ticks1) * 1.0 / (sys_ticks2 - sys_ticks1) * online_cpus * 100
-
-        # get the usage of the first GPU to analyze
-        gpu_util = get_gpu_utilization(gpu_id[0])
-        gpu_mem = get_gpu_memory(gpu_id[0])
-
-        sample_list.append(
-            Sample(cpu_usage, gpu_util.gpu, mem_used, mem_total, gpu_mem.used, gpu_mem.total, read_bytes2 - read_bytes1,
-                   write_bytes2 - write_bytes1, network_receive2 - network_receive1,
-                   network_transmit2 - network_transmit1)
-        )
-
-        str_write_realtime = [cpu_usage, mem_used, read_bytes2 - read_bytes1, write_bytes2 - write_bytes1,
-                              network_receive2 - network_receive1, network_transmit2 - network_transmit1]
+        str_write_realtime = [sample_data.get_cpu_usage(), sample_data.get_mem_used(), sample_data.get_mem_total(),
+                              sample_data.get_read_bytes(), sample_data.get_write_bytes(),
+                              sample_data.get_network_receive(), sample_data.get_network_transmit()]
         # the real-time file will log the information of all the GPUs that the model use
         for i in range(len(gpu_id)):
-            str_write_realtime.append(get_gpu_utilization(gpu_id[i]).gpu)
-            str_write_realtime.append(get_gpu_utilization(gpu_id[i]).memory)
-            str_write_realtime.append(get_gpu_memory(gpu_id[i]).used)
-            str_write_realtime.append(get_gpu_memory(gpu_id[i]).total)
+            str_write_realtime.append(sample_data.get_gpu_usage()[i])
+            str_write_realtime.append(sample_data.get_gpu_mem()[i])
+            str_write_realtime.append(sample_data.get_gpu_mem_used()[i])
+            str_write_realtime.append(sample_data.get_gpu_mem_total()[i])
         realtime_log.writerow(str_write_realtime)
 
         if len(sample_list) > analyze_period / period:
-            analyze_log.writerow(analyze_samples(sample_list))
+            analyze_samples(sample_list, advise)
             sample_list = list()
+            print_process((time.time() - start_time) / (duration * 60))
+    print_process(1)
+    analyze_result = advise.get_advise()
+    # print('The final advice is:')
+    # for i, advice in zip(range(len(analyze_result)), analyze_result):
+    #     print(i + 1, ':', advice)
 
 
 # prepare for the args
