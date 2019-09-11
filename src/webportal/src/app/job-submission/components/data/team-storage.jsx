@@ -145,7 +145,6 @@ export const TeamStorage = ({
       name: 'Permission',
       headerClassName: FontClassNames.medium,
       minWidth: 50,
-      // eslint-disable-next-line react/display-name
       onRender: item => {
         return (
           <div className={FontClassNames.medium}>
@@ -161,7 +160,6 @@ export const TeamStorage = ({
       name: 'Detail',
       headerClassName: FontClassNames.medium,
       minWidth: 70,
-      // eslint-disable-next-line react/display-name
       onRender: item => {
         /**
          * @param {React.MouseEvent} event

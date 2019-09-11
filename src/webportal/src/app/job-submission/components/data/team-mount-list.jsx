@@ -37,7 +37,6 @@ export const TeamMountList = ({ dataList }) => {
       headerClassName: FontClassNames.medium,
       isMultiline: true,
       minWidth: 200,
-      // eslint-disable-next-line react/display-name
       onRender: item => {
         return (
           <div className={FontClassNames.medium}>{`${item.dataSource}`}</div>
@@ -50,7 +49,6 @@ export const TeamMountList = ({ dataList }) => {
       headerClassName: FontClassNames.medium,
       isMultiline: true,
       minWidth: 100,
-      // eslint-disable-next-line react/display-name
       onRender: item => {
         return (
           <div className={FontClassNames.medium}>{`${item.sourceType}`}</div>

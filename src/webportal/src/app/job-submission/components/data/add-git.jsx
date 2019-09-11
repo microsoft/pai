@@ -47,7 +47,7 @@ export const AddGit = props => {
       </Stack.Item>
       <Stack.Item align='baseline' />
       <TextField
-        required={true} // eslint-disable-line react/jsx-boolean-value
+        required={true}
         label='Git repo address'
         errorMessage={gitAddressErrorMessage}
         onChange={(_event, newValue) => {

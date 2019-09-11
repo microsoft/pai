@@ -47,9 +47,7 @@ export class JobData {
       } else if (dataItem.sourceType === 'local') {
         const mountHdfsDir = `${jobDir}${dataItem.mountPath}`;
         if (dataItem.uploadFiles) {
-          // eslint-disable-next-line no-await-in-loop
           await Promise.all(
-            // eslint-disable-next-line no-loop-func
             dataItem.uploadFiles.map(file => {
               return this.hdfsClient.uploadFile(mountHdfsDir, file);
             }),
