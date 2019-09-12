@@ -28,4 +28,4 @@ COPY src/ ./
 COPY --from=frameworkcontroller/frameworkbarrier:v0.3.0 $BARRIER_DIR/frameworkbarrier ./init.d
 RUN chmod -R +x ./
 
-CMD ["/bin/sh", "-c", "/kube-runtime/src/init"]
+CMD ["/bin/sh", "-c", "/kube-runtime/src/init 2>&1 | tee /usr/local/pai/logs/${FC_POD_UID}/init.log"]
