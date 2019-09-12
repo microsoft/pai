@@ -37,8 +37,6 @@ PAI_LOG_DIR=${PAI_WORK_DIR}/logs/${FC_POD_UID}
 mv ./* ${PAI_WORK_DIR}
 cd ${PAI_WORK_DIR}
 
-mkdir -p ${PAI_LOG_DIR}
-
 # To run init scripts under init.d in init container,
 # execute them here in priority order.s
 # Here're the steps to onboard a new init script,
@@ -58,17 +56,17 @@ echo "frameworkbarrier returns $?"
 
 # generate runtime env variables
 # priority=10
-python ${PAI_INIT_DIR}/parser.py genenv framework.json > ${PAI_RUNTIME_DIR}/runtime_env.sh 2> >(tee -a ${PAI_LOG_DIR}/parse.log >&2)
+python ${PAI_INIT_DIR}/parser.py genenv framework.json > ${PAI_RUNTIME_DIR}/runtime_env.sh
 echo "parser.py genenv returns $?"
 
 # generate jobconfig
 # priority=11
-python ${PAI_INIT_DIR}/parser.py genconf framework.json > ${PAI_RUNTIME_DIR}/job_config.yaml 2> >(tee -a ${PAI_LOG_DIR}/parse.log >&2)
+python ${PAI_INIT_DIR}/parser.py genconf framework.json > ${PAI_RUNTIME_DIR}/job_config.yaml
 echo "parser.py genconf returns $?"
 
 # Init plugins
 # priority=12
-python ${PAI_INIT_DIR}/initializer.py ${PAI_RUNTIME_DIR}/job_config.yaml ${PAI_WORK_DIR}/plugins ${PAI_RUNTIME_DIR} ${FC_TASKROLE_NAME} 2> >(tee -a ${PAI_LOG_DIR}/initializer.log >&2)
+python ${PAI_INIT_DIR}/initializer.py ${PAI_RUNTIME_DIR}/job_config.yaml ${PAI_WORK_DIR}/plugins ${PAI_RUNTIME_DIR} ${FC_TASKROLE_NAME}
 echo "initializer.py returns $?"
 
 # write user commands to user.sh
