@@ -12,7 +12,7 @@ Please use the following commands to install this extension (Make sure you are i
 
 ```bash
 pip install --upgrade pip
-git clone -b notebook-extension https://github.com/Microsoft/pai
+git clone https://github.com/Microsoft/pai
 cd pai/contrib/notebook-extension
 python setup.py # add --user to avoid permission issues if necessary
 ```
@@ -73,9 +73,52 @@ The interactive mode is a quick way for you to submit the notebook you work on l
 
 On the other hand, submitting the job as a .py file will firstly convert the notebook to a Python script, then execute the script directly. This mode is a good way for deployment and batch submitting.
 
-If you submit a notebook as a silent notebook, you won't have an interactive notebook as in the interactive mode. Your notebook will be executed in the background. Once it is finished, you can get the result as a file. The difference between this mode and the python script mode is that, you can not see the output during the silent notebook is running, but you can get matplotlib plot or other graph of your notebook.
+If you submit a notebook as a silent notebook, you won't have an interactive notebook as in the interactive mode. Your notebook will be executed in the background. Once it is finished, you can get the result as a file. The difference between this mode and the python script mode is that, you can not see the output during the silent notebook is running, but you can get `matplotlib` plot or other graph of your notebook.
 
-<img src="docs_img/submit-form.png" style="width:65%;" />
+<img src="docs_img/submit-form.png" width="65%;" />
+
+### Advanced job configuration
+
+#### Setup frequently used `docker-images` and `resources`
+
+As shown in above example figure, users could specify resources and docker image by selection in the panel. And further, you can add your frequently used docker images or resource combinations by:
+
+```bash
+opai set -g image-list+=<image-1> image-list+=<image-2> ...
+opai set -g resource-list+="<#gpu>,<#cpu>,<#mem>" resource-list+="<#gpu>,<#cpu>,<#mem>" ...
+```
+Here `<#mem>` can be numbers in unit of `MBytes`, or a string like `32GB` (or `32g`).
+
+For example, you can add `your.docker.image` and the resource spec `1 GPU, 4 vCores CPU, 3GB` by:
+
+```bash
+opai set -g image-list+=your.docker.image
+opai set -g resource-list+="1,4,3gb"
+```
+
+After running the command, one should restart the notebook to make it work:
+
+<img src="docs_img/restart-kernel.png" width="50%;" />
+
+
+These settings are permanent since they are saved on disk. If you want to `update`, `delete`, or `change the order of` them, you can edit the file `~/.openpai/defaults.yaml` (For Windows, the path is `C:\Users\<Username>\.openpai\defaults.yaml`) directly. Also remember to restart the notebook kernel after editing.
+
+#### Advanced configuration by `NotebookConfiguration`
+
+In the submitting panel, user can change basic configuration of the job. However, for the users who want to change the advanced configuration, the extension would receive configuration from `NotebookConfiguration` in the notebook.
+
+For example, after executing below codes in the notebook cell, the extension will configure the job resource specification to 2 GPUs, 16 CPU cores and 32 GB memory.
+```python
+from openpaisdk.notebook import NotebookConfiguration
+
+NotebookConfiguration.set("mem", "512GB")
+```
+
+Execute below codes to have a quick look of all supported items in `NotebookConfiguration`.
+```python
+# print supported configuration items
+NotebookConfiguration.print_supported_items()
+```
 
 ### Quick Submit v.s. Download Config
 
@@ -90,7 +133,7 @@ Clicking <img src="./docs_img/job-button.png"  height="20" width="25"> will open
 
 To update this extension, please use the following commands:
 ```bash
-git clone -b notebook-extension https://github.com/Microsoft/pai
+git clone https://github.com/Microsoft/pai
 cd pai/contrib/notebook-extension
 jupyter nbextension install openpai_submitter
 jupyter nbextension enable openpai_submitter/main

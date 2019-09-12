@@ -15,22 +15,17 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-// module dependencies
+
 const express = require('express');
 const launcherConfig = require('@pai/config/launcher');
-const token = require('@pai/middlewares/token');
-const userController = require('@pai/controllers/v2/user');
-
 
 const router = new express.Router();
 
-router.route('/:username/')
-/** Get /api/v1/user/:username */
-  .get(token.check, userController.getUser);
-
-
-if (launcherConfig.type === 'yarn') {
-  router.use('/:username/jobs', require('@pai/routes/job'));
+if (launcherConfig.type === 'k8s') {
+  router.all('/user/:username/jobs([/]*)?', (req, res, next) => {
+    req.url = `/jobs${req.params[1] ? `/${req.params.username}~${req.params[1]}` : ''}`;
+    next('route');
+  });
 }
 
 module.exports = router;

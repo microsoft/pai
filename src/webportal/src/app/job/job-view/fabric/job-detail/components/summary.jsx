@@ -15,21 +15,30 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-import { FontClassNames, FontWeights, FontSizes } from '@uifabric/styling';
+import {
+  FontClassNames,
+  FontWeights,
+  FontSizes,
+  ColorClassNames,
+  IconFontSizes,
+} from '@uifabric/styling';
 import c from 'classnames';
+import copy from 'copy-to-clipboard';
 import { get, isEmpty, isNil } from 'lodash';
 import { DateTime } from 'luxon';
 import {
   ActionButton,
   DefaultButton,
   PrimaryButton,
-} from 'office-ui-fabric-react/lib/Button';
-import { Dropdown } from 'office-ui-fabric-react/lib/Dropdown';
-import { Link } from 'office-ui-fabric-react/lib/Link';
-import {
+  Dropdown,
+  Link,
   MessageBar,
   MessageBarType,
-} from 'office-ui-fabric-react/lib/MessageBar';
+  TooltipHost,
+  DirectionalHint,
+  Icon,
+  IconButton,
+} from 'office-ui-fabric-react';
 import PropTypes from 'prop-types';
 import React from 'react';
 import yaml from 'js-yaml';
@@ -336,13 +345,55 @@ export default class Summary extends React.Component {
           {/* summary-row-1 */}
           <div className={c(t.flex, t.justifyBetween, t.itemsCenter)}>
             <div
-              className={c(t.truncate)}
-              style={{
-                fontSize: FontSizes.xxLarge,
-                fontWeight: FontWeights.regular,
-              }}
+              className={c(t.flex, t.itemsCenter)}
+              style={{ flexShrink: 1, minWidth: 0 }}
             >
-              {jobInfo.name}
+              <div
+                className={c(t.truncate)}
+                style={{
+                  fontSize: FontSizes.xxLarge,
+                  fontWeight: FontWeights.regular,
+                }}
+              >
+                {jobInfo.name}
+              </div>
+              {jobInfo.frameworkName && (
+                <div className={t.ml2}>
+                  <TooltipHost
+                    calloutProps={{
+                      isBeakVisible: false,
+                    }}
+                    tooltipProps={{
+                      onRenderContent: () => (
+                        <div className={c(t.flex, t.itemsCenter)}>
+                          <div>FrameworkName:</div>
+                          <div className={t.ml2}>{jobInfo.frameworkName}</div>
+                          <div>
+                            <IconButton
+                              iconProps={{ iconName: 'Copy' }}
+                              styles={{ icon: [{ fontSize: FontSizes.small }] }}
+                              onClick={() => copy(jobInfo.frameworkName)}
+                            />
+                          </div>
+                        </div>
+                      ),
+                    }}
+                    directionalHint={DirectionalHint.topLeftEdge}
+                  >
+                    <div>
+                      <Icon
+                        iconName='Info'
+                        styles={{
+                          root: [
+                            { fontSize: IconFontSizes.medium },
+                            ColorClassNames.neutralSecondary,
+                          ],
+                        }}
+                      />
+                    </div>
+                  </TooltipHost>
+                </div>
+              )}
             </div>
             <div className={c(t.flex, t.itemsCenter)}>
               <Dropdown

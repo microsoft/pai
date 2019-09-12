@@ -69,7 +69,7 @@ export async function listVirtualClusters() {
 
 export async function getAvailableGpuPerNode() {
   const res = await fetch(
-    `${config.restServerUri}/api/v2/virtual-clusters/nodeResource`,
+    `${config.restServerUri}/api/v2/virtual-clusters?nodes`,
   );
 
   if (res.ok) {

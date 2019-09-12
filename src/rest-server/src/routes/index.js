@@ -20,6 +20,7 @@
 const express = require('express');
 const launcherConfig = require('@pai/config/launcher');
 const controller = require('@pai/controllers/index');
+const rewriteRouter = require('@pai/routes/rewrite');
 const authnRouter = require('@pai/routes/authn');
 const tokenRouter = require('@pai/routes/token');
 const userRouter = require('@pai/routes/user');
@@ -31,6 +32,7 @@ const router = new express.Router();
 router.route('/')
     .all(controller.index);
 
+router.use(rewriteRouter);
 router.use('/token', tokenRouter);
 router.use('/user', userRouter);
 router.use('/virtual-clusters', vcRouter);

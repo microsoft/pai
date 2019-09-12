@@ -13,29 +13,29 @@
         <div>
                 <label for="submit-form-menu">Submit As: </label>
                 <select name="submit-form-menu" id="submit-form-menu">
-                  <option selected="selected" value="notebook">Interactive Notebook</option>
+                  <option value="notebook">Interactive Notebook</option>
                   <option value="file">Python Script (.py File)</option>
                   <option value="silent">Silent Notebook</option>
                 </select>
         </div>
         <div>
-            <label for="resource-menu">Resource: </label>
-                <select name="resource-menu" id="resource-menu">
+            <label for="resource-menu" id="resouce-menu-label">Resource: </label>
+                <!-- <select name="resource-menu" id="resource-menu">
                   <option selected="selected" data-gpu="1" data-cpu="4" data-memory="8192">1 GPU, 4 vCores CPU, 8 GB memory</option>
                   <option data-gpu="1" data-cpu="8" data-memory="16384">1 GPU, 8 vCores CPU, 16 GB memory</option>
                   <option data-gpu="0" data-cpu="4" data-memory="8192">0 GPU, 4 vCores CPU, 8 GB memory</option>
                   <option data-gpu="2" data-cpu="8" data-memory="16384">2 GPU, 8 vCores CPU, 16 GB memory</option>
                   <option data-gpu="4" data-cpu="16" data-memory="32768">4 GPU, 16 vCores CPU, 32 GB memory</option>
-                </select>
+                </select> -->
         </div>
         <div>
-            <label for="docker-image-menu">Select a docker image: </label>
-                <select name="docker-image-menu" id="docker-image-menu">
+            <label for="docker-image-menu" id="docker-image-menu-label">Select a docker image: </label>
+                <!-- <select name="docker-image-menu" id="docker-image-menu">
                   <option value="openpai/pytorch-py36-cu90" selected="selected">PyTorch + Python3.6 with GPU, CUDA 9.0</option>
-                  <option value="openpai/pytorch-py36-cpu">PyTorch + Python3.6 with CPU </option>
+                  <option value="openpai/pytorch-py36-cpu">PyTorch + Python3.6 with CPU</option>
                   <option value="openpai/tensorflow-py36-cu90">TensorFlow + Python3.6 with GPU, CUDA 9.0</option>
                   <option value="openpai/tensorflow-py36-cpu">TensorFlow + Python3.6 with CPU</option>
-                </select>
+                </select> -->
         </div>
         </fieldset>
         <fieldset class="openpai-fieldset">

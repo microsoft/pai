@@ -15,31 +15,35 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-cluster-type:
-  - yarn
-  - k8s
-
-prerequisite:
-  - cluster-configuration
-  - yarn-frameworklauncher
-  - frameworkcontroller
-  - hivedscheduler
-  - log-manager
-
-template-list:
-  - rest-server.yaml
-  - start.sh
-  - configmap-create.sh
-  - auth-configmap/oidc.yaml
-  - group-configmap/group.yaml
-  - job-exit-spec-config/job-exit-spec.yaml
-
-start-script: start.sh
-stop-script: stop.sh
-delete-script: delete.sh
-refresh-script: refresh.sh
-upgraded-script: upgraded.sh
-
-
-deploy-rules:
-  - in: pai-master
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: frameworkcontroller-sts
+spec:
+  serviceName: frameworkcontroller
+  selector:
+    matchLabels:
+      app: frameworkcontroller
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: frameworkcontroller
+    spec:
+      containers:
+      - name: frameworkcontroller
+        image: frameworkcontroller/frameworkcontroller:v0.3.0
+        env:
+        - name: KUBE_APISERVER_ADDRESS
+          value: "{{ cluster_cfg['layout']['kubernetes']['api-servers-url'] }}"
+        command: [
+          "bash", "-c",
+          "cp /frameworkcontroller-config/frameworkcontroller.yaml . &&
+          ./start.sh"]
+        volumeMounts:
+          - name: frameworkcontroller-config
+            mountPath: /frameworkcontroller-config
+      volumes:
+      - name: frameworkcontroller-config
+        configMap:
+          name: frameworkcontroller-config

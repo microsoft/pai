@@ -1,3 +1,5 @@
+#!/bin/bash
+
 # Copyright (c) Microsoft Corporation
 # All rights reserved.
 #
@@ -15,35 +17,19 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-apiVersion: apps/v1
-kind: StatefulSet
-metadata:
-  name: k8s-frameworkcontroller-sts
-spec:
-  serviceName: k8s-frameworkcontroller
-  selector:
-    matchLabels:
-      app: k8s-frameworkcontroller
-  replicas: 1
-  template:
-    metadata:
-      labels:
-        app: k8s-frameworkcontroller
-    spec:
-      containers:
-      - name: k8s-frameworkcontroller
-        image: frameworkcontroller/frameworkcontroller:v0.3.0
-        env:
-        - name: KUBE_APISERVER_ADDRESS
-          value: "{{ cluster_cfg['layout']['kubernetes']['api-servers-url'] }}"
-        command: [
-          "bash", "-c",
-          "cp /frameworkcontroller-config/frameworkcontroller.yaml . &&
-          ./start.sh"]
-        volumeMounts:
-          - name: frameworkcontroller-config
-            mountPath: /frameworkcontroller-config
-      volumes:
-      - name: frameworkcontroller-config
-        configMap:
-          name: frameworkcontroller-config
+pushd $(dirname "$0") > /dev/null
+
+APISERVER=$(kubectl config view | grep server | cut -f 2- -d ":" | tr -d " ")
+until ! kubectl get sts | grep -q "frameworkcontroller-sts"; do
+    echo 'Trying to stop framework controller ...'
+    curl -X DELETE $APISERVER/apis/apps/v1/namespaces/default/statefulsets/frameworkcontroller-sts \
+        -H "Content-Type: application/json" \
+        -d '{"kind":"DeleteOptions","apiVersion":"v1","propagationPolicy":"Foreground"}' > /dev/null 2>&1
+    sleep 5
+done
+
+if kubectl get configmap | grep -q "frameworkcontroller-config"; then
+    kubectl delete configmap frameworkcontroller-config || exit $?
+fi
+
+popd > /dev/null
