@@ -348,10 +348,26 @@ func (a *ErrorAggregator) getTailContentFromFile(f *os.File, maxTailSize int64) 
 	return content, err
 }
 
-func (a *ErrorAggregator) truncateLog(logConent *string, truncateSize int) (*string, int) {
+func (a *ErrorAggregator) truncateLog(logConent *string, truncateSize int, matchString *string) (*string, int) {
+	if logConent == nil {
+		return nil, 0
+	}
+
 	logSize := len(*logConent)
+	matchBeginPos := -1
+	if matchString != nil {
+		matchBeginPos = strings.Index(*logConent, *matchString)
+	}
+
 	if logSize > truncateSize {
-		truncatedLog := (*logConent)[truncateSize:]
+		if matchString == nil || matchBeginPos == -1 || matchBeginPos > truncateSize {
+			truncatedLog := (*logConent)[truncateSize:]
+			return &truncatedLog, logSize - len(truncatedLog)
+		}
+		// try to keep the match string as much as posible
+		truncatedLog := (*logConent)[matchBeginPos:]
+		remainTruncateSize := truncateSize - matchBeginPos
+		truncatedLog = truncatedLog[:len(truncatedLog)-remainTruncateSize]
 		return &truncatedLog, logSize - len(truncatedLog)
 	}
 	return nil, logSize
@@ -372,7 +388,7 @@ func (a *ErrorAggregator) truncateExitSummary(runtimeExitInfo *RuntimeExitInfo) 
 
 	if runtimeExitInfo.ErrorLogs != nil {
 		// truncate runtime log first
-		truncatedRuntimeLog, trucatedSize := a.truncateLog(runtimeExitInfo.ErrorLogs.Platform, remainTruncateSize)
+		truncatedRuntimeLog, trucatedSize := a.truncateLog(runtimeExitInfo.ErrorLogs.Platform, remainTruncateSize, runtimeExitInfo.MatchedPlatformLogString)
 		runtimeExitInfo.ErrorLogs.Platform = truncatedRuntimeLog
 		remainTruncateSize = remainTruncateSize - trucatedSize
 		if remainTruncateSize <= 0 {
@@ -381,7 +397,7 @@ func (a *ErrorAggregator) truncateExitSummary(runtimeExitInfo *RuntimeExitInfo) 
 		}
 
 		// truncate the user log
-		truncatedUserLog, trucatedSize := a.truncateLog(runtimeExitInfo.ErrorLogs.User, remainTruncateSize)
+		truncatedUserLog, trucatedSize := a.truncateLog(runtimeExitInfo.ErrorLogs.User, remainTruncateSize, runtimeExitInfo.MatchedUserLogString)
 		runtimeExitInfo.ErrorLogs.User = truncatedUserLog
 		remainTruncateSize = remainTruncateSize - trucatedSize
 
@@ -440,17 +456,20 @@ func NewErrorAggregator(l *LogFiles, logger *logger.Logger) (*ErrorAggregator, e
 		return nil, errors.New("logger not provide")
 	}
 
+	const exitInfoBeginTag = "[PAI_RUNTIME_ERROR_START]"
+	const exitInfoEndTag = "[PAI_RUNTIME_ERROR_END]"
+
 	a := ErrorAggregator{
 		logFiles:            l,
 		logger:              logger,
-		maxAggregateLogSize: 4096,
+		maxAggregateLogSize: 4096 - len(exitInfoBeginTag) - len(exitInfoEndTag),
 		maxMatchLogLen:      2048,
-		maxUserLogLines:     20,
+		maxUserLogLines:     15,
 		maxRuntimeLogLines:  10,
 		defaulExitCode:      255,
 		maxSearchLogSize:    10 * 1024 * 1024, // 10MB
-		aggExitInfoBegin:    "[PAI_RUNTIME_ERROR_START]",
-		aggExitInfoEnd:      "[PAI_RUNTIME_ERROR_END]",
+		aggExitInfoBegin:    exitInfoBeginTag,
+		aggExitInfoEnd:      exitInfoEndTag,
 	}
 	return &a, nil
 }

@@ -3,6 +3,7 @@ package main
 import (
 	"os"
 	"strconv"
+	"time"
 
 	"github.com/microsoft/runtime/pkg/aggregator"
 	"github.com/microsoft/runtime/pkg/logger"
@@ -50,6 +51,7 @@ func main() {
 	}
 
 	log.Info("start to generate the exit summary")
+	start := time.Now()
 	a, err := aggregator.NewErrorAggregator(&logFiles, log)
 	if err != nil {
 		panic("fatal: create log aggregator: " + err.Error())
@@ -74,7 +76,8 @@ func main() {
 	if err != nil {
 		panic("fatal: dumping summary info: " + err.Error())
 	}
-	log.Info("finish generating the exit summary")
+	elapsed := time.Since(start)
+	log.Info("finish generating the exit summary, time consumed:", elapsed)
 
 	os.Exit(exitInfo.Exitcode)
 }
