@@ -21,31 +21,39 @@ set -o errexit
 set -o nounset
 set -o pipefail
 
+CHILD_PROCESS="UNKNOWN"
+
 function exit_handler()
 {
   EXIT_CODE=$?
-  echo "start execute exit handler" >> ${PAI_INIT_LOG_FILE}
   if [[ $EXIT_CODE -eq 0 ]]; then
     exit 0
   fi
 
-  if [[ $EXIT_CODE -eq 200 ]]; then
-    exit 250
+  echo "start execute exit handler"
+  echo "child process is ${CHILD_PROCESS}, exit code is ${EXIT_CODE}"
+  if [[ $CHILD_PROCESS = "FRAMEWORK_BARRIER" ]]; then
+    if [[ $EXIT_CODE -eq 200 ]]; then
+      exit 250
+    fi
+
+    if [[ $EXIT_CODE -eq 201 ]]; then
+      exit 251
+    fi
+
+    if [[ $EXIT_CODE -eq 210 ]]; then
+      exit 252
+    fi
   fi
 
-  if [[ $EXIT_CODE -eq 201 ]]; then
-    exit 251
+  if [[ $CHILD_PROCESS = "PORT_CONFLICT_CHECKER" ]]; then
+    if [[ $EXIT_CODE -eq 10 ]]; then
+      exit 253
+    fi
   fi
 
-  if [[ $EXIT_CODE -eq 210 ]]; then
-    exit 252
-  fi
-
-  if [[ $EXIT_CODE -eq 10 ]]; then
-    exit 253
-  fi
-
-  exit ${EXIT_CODE}
+  echo "Unknown exit code, platform error"
+  exit 1
 }
 
 trap exit_handler EXIT
@@ -83,31 +91,37 @@ mkdir -p ${PAI_LOG_DIR}
 
 # framework barrier
 # priority=0
+CHILD_PROCESS="FRAMEWORK_BARRIER"
 ${PAI_INIT_DIR}/frameworkbarrier > ${PAI_LOG_DIR}/barrier.log 2>&1
 echo "barrier returns $?" >> ${PAI_INIT_LOG_FILE}
 
 # error spec
 # priority=1
+CHILD_PROCESS="ERROR_SPEC"
 cp ${PAI_CONFIG_DIR}/runtime-exit-spec.yaml ${PAI_RUNTIME_DIR}
 echo "copy exit spec returns $?" >> ${PAI_INIT_LOG_FILE}
 
 # generate runtime env variables
 # priority=10
+CHILD_PROCESS="ENV_GENERATOR"
 python ${PAI_INIT_DIR}/parser.py genenv framework.json > ${PAI_RUNTIME_DIR}/runtime_env.sh 2>> ${PAI_LOG_DIR}/parse.log
 echo "parser.py genenv returns $?" >> ${PAI_INIT_LOG_FILE}
 
 # generate jobconfig
 # priority=11
+CHILD_PROCESS="CONFIG_GENERATOR"
 python ${PAI_INIT_DIR}/parser.py genconf framework.json > ${PAI_RUNTIME_DIR}/job_config.yaml 2>> ${PAI_LOG_DIR}/parse.log
 echo "parser.py genconf returns $?" >> ${PAI_INIT_LOG_FILE}
 
 # Init plugins
 # priority=12
+CHILD_PROCESS="PLUGIN_INITIALIZER"
 python ${PAI_INIT_DIR}/initializer.py ${PAI_RUNTIME_DIR}/job_config.yaml ${PAI_WORK_DIR}/plugins ${PAI_RUNTIME_DIR} ${FC_TASKROLE_NAME} 2>> ${PAI_LOG_DIR}/initializer.log
 echo "initializer.py returns $?" >> ${PAI_INIT_LOG_FILE}
 
 # Init plugins
 # check port conflict
+CHILD_PROCESS="PORT_CONFLICT_CHECKER"
 python ${PAI_INIT_DIR}/port.py ${PAI_RUNTIME_DIR}/runtime_env.sh 2>> ${PAI_LOG_DIR}/initializer.log
 echo "port.py.py returns $?" >> ${PAI_INIT_LOG_FILE}
 

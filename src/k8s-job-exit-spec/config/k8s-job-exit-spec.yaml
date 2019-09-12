@@ -581,7 +581,7 @@ spec:
 
 ###########################################################################
 # Range: [129, 192]
-# Owner: PAI_FC
+# Owner: PAI_FC and PAI_RUNTIME
 # Description: User Container issued failures:
 # -> Involuntary failures caused by OS Signal
 ###########################################################################
