@@ -681,6 +681,7 @@ const generateExitDiagnostics = (diag) => {
 
   const summmaryInfo = diag.substring(0, matches.index + 'matched:'.length);
   exitDiagnostics.diagnosticsSummary = summmaryInfo + '\n' + yaml.safeDump(podCompletionStatus);
+  exitDiagnostics.launcher = exitDiagnostics.diagnosticsSummary;
 
   // Get runtime output, set launcher output to null. Otherwise, treat all message as launcher output
   exitDiagnostics.runtime = extractRuntimeOutput(podCompletionStatus);
@@ -689,7 +690,6 @@ const generateExitDiagnostics = (diag) => {
     return exitDiagnostics;
   }
 
-  exitDiagnostics.launcher = exitDiagnostics.diagnosticsSummary;
   return exitDiagnostics;
 };
 
@@ -715,10 +715,14 @@ const extractRuntimeOutput = (podCompletionStatus) => {
       const start = match1.index + match1[0].length;
       const end = match2.index;
       const output = message.substring(start, end).trim();
-      res = {
-        ...yaml.safeLoad(output),
-        name: container.name,
-      };
+      try {
+        res = {
+          ...yaml.safeLoad(output),
+          name: container.name,
+        };
+      } catch (error) {
+        logger.warn('failed to format runtime output:', output, error);
+      }
       break;
     }
   }
