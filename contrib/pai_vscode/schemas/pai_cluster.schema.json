@@ -65,6 +65,7 @@
         },
         {
             "required": [
+                "username",
                 "token",
                 "rest_server_uri"
             ]
