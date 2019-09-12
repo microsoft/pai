@@ -299,7 +299,7 @@ export default class Summary extends React.Component {
               >
                 {jobInfo.name}
               </div>
-              {!jobInfo.frameworkName && (
+              {jobInfo.frameworkName && (
                 <div className={t.ml2}>
                   <TooltipHost
                     calloutProps={{
