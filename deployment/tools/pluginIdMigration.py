@@ -23,7 +23,7 @@ print "Output directory:", output_dir
 # Migrate services-configuration.yaml
 print("Migrating services-configuration.yaml...")
 old_services_config_file = os.path.join(input_dir, "services-configuration.yaml")
-services_config = yaml.load(open(old_services_config_file))
+services_config = yaml.load(open(old_services_config_file), yaml.SafeLoader)
 if "webportal" in services_config and "plugins" in services_config["webportal"]:
     plugins = services_config["webportal"]["plugins"]
     for plugin in plugins:

@@ -34,7 +34,7 @@ def get_file_list_in_path(path):
 def load_yaml_config(config_path):
 
     with open(config_path, "r") as f:
-        cluster_data = yaml.load(f)
+        cluster_data = yaml.load(f, yaml.SafeLoader)
 
     return cluster_data
 
