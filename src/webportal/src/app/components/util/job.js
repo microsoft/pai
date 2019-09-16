@@ -21,7 +21,10 @@ import { Interval, DateTime } from 'luxon';
 export const MIN_ABNORMAL_JOB_DURATION_MILLISECOND = 5 * 24 * 60 * 60 * 1000; // 5 days
 
 export function isStoppable(job) {
-  return job.executionType !== 'STOP' && !['SUCCEEDED', 'FAILED', 'STOPPED'].includes(job.state);
+  return (
+    job.executionType !== 'STOP' &&
+    !['SUCCEEDED', 'FAILED', 'STOPPED'].includes(job.state)
+  );
 }
 
 export function getHumanizedJobStateString(job) {
@@ -29,7 +32,10 @@ export function getHumanizedJobStateString(job) {
     return 'N/A';
   }
 
-  if (job.executionType === 'STOP' && !['SUCCEEDED', 'FAILED', 'STOPPED'].includes(job.state)) {
+  if (
+    job.executionType === 'STOP' &&
+    !['SUCCEEDED', 'FAILED', 'STOPPED'].includes(job.state)
+  ) {
     return 'Stopping';
   }
 

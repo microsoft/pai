@@ -31,7 +31,7 @@ import Filter from './Filter';
 
 import webportalConfig from '../../../../config/webportal.config';
 import FilterButton from './FilterButton';
-import {isStoppable} from '../../../../components/util/job';
+import { isStoppable } from '../../../../components/util/job';
 
 const CURRENT_USER_KEY = '@Me';
 const token = cookies.get('token');
@@ -201,7 +201,8 @@ function TopBar() {
     };
   }
 
-  const ableStop = selectedJobs.length > 0 && selectedJobs.every((job) => isStoppable(job));
+  const ableStop =
+    selectedJobs.length > 0 && selectedJobs.every(job => isStoppable(job));
 
   const topBarItems = [ableStop ? getStop() : getNew(), getRefresh()];
   const topBarFarItems = [getFilters()];

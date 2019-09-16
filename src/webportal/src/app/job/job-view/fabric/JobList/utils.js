@@ -1,4 +1,4 @@
-import {getHumanizedJobStateString} from '../../../../components/util/job';
+import { getHumanizedJobStateString } from '../../../../components/util/job';
 
 /**
  * @returns {Date}

@@ -102,11 +102,17 @@ const JobStatus = ({ className, style, jobs }) => {
   let failed = 0;
   let succeeded = 0;
   if (!isEmpty(jobs)) {
-    waiting = jobs.filter((x) => getHumanizedJobStateString(x) === 'Waiting').length;
-    running = jobs.filter((x) => ['Running', 'Stopping'].includes(getHumanizedJobStateString(x))).length;
-    stopped = jobs.filter((x) => getHumanizedJobStateString(x) === 'Stopped').length;
-    failed = jobs.filter((x) => getHumanizedJobStateString(x) === 'Failed').length;
-    succeeded = jobs.filter((x) => getHumanizedJobStateString(x) === 'Succeeded').length;
+    waiting = jobs.filter(x => getHumanizedJobStateString(x) === 'Waiting')
+      .length;
+    running = jobs.filter(x =>
+      ['Running', 'Stopping'].includes(getHumanizedJobStateString(x)),
+    ).length;
+    stopped = jobs.filter(x => getHumanizedJobStateString(x) === 'Stopped')
+      .length;
+    failed = jobs.filter(x => getHumanizedJobStateString(x) === 'Failed')
+      .length;
+    succeeded = jobs.filter(x => getHumanizedJobStateString(x) === 'Succeeded')
+      .length;
   }
   return (
     <Card className={c(className, t.ph5)} style={style}>

@@ -65,7 +65,7 @@ import {
 import config from '../../../../../config/webportal.config';
 import StopJobConfirm from '../../JobList/StopJobConfirm';
 
-const HintItem = ({header, children}) => (
+const HintItem = ({ header, children }) => (
   <div className={c(t.flex, t.justifyStart)}>
     <div
       style={{
