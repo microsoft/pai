@@ -108,7 +108,7 @@ export default class Summary extends React.Component {
   }
 
   onChangeAttemptID(e, item) {
-    this.setState({currentAttemptID: item.key});
+    this.setState({ currentAttemptID: item.key });
     const namespace = this.props.jobInfo.jobStatus.username;
     const jobName = this.props.jobInfo.name;
     const attemptID = item.key;
@@ -353,8 +353,8 @@ export default class Summary extends React.Component {
     for (var i = 0; i <= jobInfo.totalRetries; i++) {
       attemptIDOptions[i] = {
         key: i,
-        text: `Choose attemptID = ${i}`
-      }
+        text: `Choose attemptID = ${i}`,
+      };
     }
     return (
       <div className={className}>
