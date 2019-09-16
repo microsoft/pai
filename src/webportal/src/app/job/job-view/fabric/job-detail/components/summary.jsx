@@ -426,6 +426,23 @@ export default class Summary extends React.Component {
                 {getJobDurationString(jobInfo.jobStatus)}
               </div>
             </div>
+            <div className={t.ml4}>
+              <div className={c(t.gray, FontClassNames.medium)}>Retries</div>
+              {config.launcherType === 'k8s' ||
+              isNil(jobInfo.jobStatus.retries) ? (
+                <div className={c(t.mt3, FontClassNames.mediumPlus)}>
+                  {jobInfo.jobStatus.retries}
+                </div>
+              ) : (
+                <Link
+                  onClick={() => openJobAttemptsPage(jobInfo.jobStatus.retries)}
+                >
+                  <div className={c(t.mt3, FontClassNames.mediumPlus)}>
+                    {jobInfo.jobStatus.retries}
+                  </div>
+                </Link>
+              )}
+            </div>
           </div>
           {/* summary-row-2.5 error info */}
           {hintMessage && (
