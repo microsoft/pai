@@ -50,7 +50,7 @@ esApp.get(`/apis/${launcherConfig.apiVersion}/namespaces/:frameworkNamespace/fra
 esApp.get(`/apis/${launcherConfig.apiVersion}/frameworks/:frameworkUID`, historyController.getFrameworkByUID);
 
 // GET Framework One Attempt History Snapshot by FrameworkNamespace & FrameworkName & FrameworkAttemptID
-esApp.get(`/apis/${launcherConfig.apiVersion}/namespaces/:frameworkNamespace/frameworks/:frameworkName/attempts/:frameworkAttemptID`, historyController.getFramworkByNameAndAttemptID); 
+esApp.get(`/apis/${launcherConfig.apiVersion}/namespaces/:frameworkNamespace/frameworks/:frameworkName/attempts/:frameworkAttemptID`, historyController.getFramworkByNameAndAttemptID);
 
 // GET Framework One Attempt History Snapshot by FrameworkUID & FrameworkAttemptID
 esApp.get(`/apis/${launcherConfig.apiVersion}/frameworks/:frameworkUID/attempts/:frameworkAttemptID`, historyController.getFramworkByUIDAndAttemptID);
