@@ -37,7 +37,7 @@ app.listen(config.serverPort, () => {
 
 esApp.listen(config.esPort, () => {
   logger.info('History RESTful API server starts on port %d', config.esPort);
-})
+});
 
 module.exports = {
   app,
