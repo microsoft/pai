@@ -16,17 +16,35 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 import c from 'classnames';
-import {ColorClassNames, DefaultButton, Panel, PanelType, Stack, StackItem, getTheme} from 'office-ui-fabric-react';
+import {
+  ColorClassNames,
+  DefaultButton,
+  Panel,
+  PanelType,
+  Stack,
+  StackItem,
+  getTheme,
+} from 'office-ui-fabric-react';
 import PropTypes from 'prop-types';
-import React, {useRef} from 'react';
+import React, { useRef } from 'react';
 
 import MonacoEditor from './monaco-editor';
 
 import t from './tachyons.scss';
 
-const {spacing} = getTheme();
+const { spacing } = getTheme();
 
-const MonacoPanel = ({isOpen, onDismiss, title, header, footer, monacoProps, completionItems, schemas, monacoRef}) => {
+const MonacoPanel = ({
+  isOpen,
+  onDismiss,
+  title,
+  header,
+  footer,
+  monacoProps,
+  completionItems,
+  schemas,
+  monacoRef,
+}) => {
   const panelRef = useRef(null);
   return (
     <div>
@@ -42,16 +60,17 @@ const MonacoPanel = ({isOpen, onDismiss, title, header, footer, monacoProps, com
           headerText: [ColorClassNames.white],
           overlay: [ColorClassNames.blackTranslucent40Background],
           content: [t.flex, t.flexAuto, t.flexColumn],
-          scrollableContent: [t.flex, t.flexAuto, {overflowY: 'visible'}],
-          closeButton: [ColorClassNames.white, ColorClassNames.neutralQuaternaryHover],
+          scrollableContent: [t.flex, t.flexAuto, { overflowY: 'visible' }],
+          closeButton: [
+            ColorClassNames.white,
+            ColorClassNames.neutralQuaternaryHover,
+          ],
         }}
       >
-        {header && <div className={c(t.mb4, t.flex)}>
-          {header}
-        </div>}
+        {header && <div className={c(t.mb4, t.flex)}>{header}</div>}
         <div className={c(t.flexAuto, t.flex, t.flexColumn)}>
           <MonacoEditor
-            style={{flex: '1 1 100%', minHeight: 0}}
+            style={{ flex: '1 1 100%', minHeight: 0 }}
             monacoRef={monacoRef}
             monacoProps={{
               theme: 'vs-dark',
@@ -65,11 +84,14 @@ const MonacoPanel = ({isOpen, onDismiss, title, header, footer, monacoProps, com
             completionItems={completionItems}
             schemas={schemas}
           />
-          <Stack horizontal horizontalAlign='space-between' gap={spacing.m} padding={spacing.m}>
+          <Stack
+            horizontal
+            horizontalAlign='space-between'
+            gap={spacing.m}
+            padding={spacing.m}
+          >
             <StackItem grow>
-              <div>
-                {footer}
-              </div>
+              <div>{footer}</div>
             </StackItem>
             <StackItem>
               <DefaultButton

@@ -1,4 +1,4 @@
-import {getStatusText} from './utils';
+import { getStatusText } from './utils';
 
 const LOCAL_STORAGE_KEY = 'pai-job-filter';
 
@@ -34,7 +34,7 @@ class Filter {
   load() {
     try {
       const content = window.localStorage.getItem(LOCAL_STORAGE_KEY);
-      const {users, virtualClusters, statuses} = JSON.parse(content);
+      const { users, virtualClusters, statuses } = JSON.parse(content);
       if (Array.isArray(users)) {
         this.users = new Set(users);
       }
@@ -53,32 +53,29 @@ class Filter {
    * @param {any[]} jobs
    */
   apply(jobs) {
-    const {keyword, users, virtualClusters, statuses} = this;
+    const { keyword, users, virtualClusters, statuses } = this;
 
     const filters = [];
     if (keyword !== '') {
-      filters.push(({
-        name,
-        username,
-        virtualCluster,
-      }) => (
-        name.indexOf(keyword) > -1 ||
-        username.indexOf(keyword) > -1 ||
-        virtualCluster.indexOf(keyword) > -1
-      ));
+      filters.push(
+        ({ name, username, virtualCluster }) =>
+          name.indexOf(keyword) > -1 ||
+          username.indexOf(keyword) > -1 ||
+          virtualCluster.indexOf(keyword) > -1,
+      );
     }
     if (users.size > 0) {
-      filters.push(({username}) => users.has(username));
+      filters.push(({ username }) => users.has(username));
     }
     if (virtualClusters.size > 0) {
-      filters.push(({virtualCluster}) => virtualClusters.has(virtualCluster));
+      filters.push(({ virtualCluster }) => virtualClusters.has(virtualCluster));
     }
     if (statuses.size > 0) {
-      filters.push((job) => statuses.has(getStatusText(job)));
+      filters.push(job => statuses.has(getStatusText(job)));
     }
     if (filters.length === 0) return jobs;
 
-    return jobs.filter((job) => filters.every((filter) => filter(job)));
+    return jobs.filter(job => filters.every(filter => filter(job)));
   }
 }
 

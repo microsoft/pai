@@ -15,9 +15,9 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-const {userLogout} = require('../user-logout/user-logout.component.js');
+const { userLogout } = require('../user-logout/user-logout.component.js');
 
-const checkToken = (callback, redirectToLogin=true) => {
+const checkToken = (callback, redirectToLogin = true) => {
   if (typeof callback === 'boolean') {
     redirectToLogin = callback;
     callback = null;
@@ -36,4 +36,4 @@ const checkAdmin = () => {
   return cookies.get('admin') === 'true';
 };
 
-module.exports = {checkToken, checkAdmin};
+module.exports = { checkToken, checkAdmin };

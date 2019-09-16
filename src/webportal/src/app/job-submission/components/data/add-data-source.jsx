@@ -1,26 +1,26 @@
-import React, {useState} from 'react';
+import React, { useState } from 'react';
 import c from 'classnames';
-import {PrimaryButton} from 'office-ui-fabric-react/lib/Button';
+import { PrimaryButton } from 'office-ui-fabric-react/lib/Button';
 import PropTypes from 'prop-types';
 
-import {AddHttp} from './add-http';
-import {AddLocal} from './add-local';
-import {AddGit} from './add-git';
-import {AddHDFS} from './add-hdfs';
-import {InputData} from '../../models/data/input-data';
-import {HdfsContext} from '../../models/data/hdfs-context';
+import { AddHttp } from './add-http';
+import { AddLocal } from './add-local';
+import { AddGit } from './add-git';
+import { AddHDFS } from './add-hdfs';
+import { InputData } from '../../models/data/input-data';
+import { HdfsContext } from '../../models/data/hdfs-context';
 
 import t from '../../../../app/components/tachyons.scss';
 
-export const AddDataSource = (props) => {
-  const {dataList, setDataList} = props;
+export const AddDataSource = props => {
+  const { dataList, setDataList } = props;
   const [dataType, setDataType] = useState();
 
   const menuItems = [
     {
       key: 'local',
       text: 'From local ( size<1G )',
-      iconProps: {iconName: 'Documentation'},
+      iconProps: { iconName: 'Documentation' },
       onClick: () => {
         setDataType('local');
       },
@@ -28,7 +28,7 @@ export const AddDataSource = (props) => {
     {
       key: 'http',
       text: 'From http/https source',
-      iconProps: {iconName: 'InternetSharing'},
+      iconProps: { iconName: 'InternetSharing' },
       onClick: () => {
         setDataType('http');
       },
@@ -36,7 +36,7 @@ export const AddDataSource = (props) => {
     {
       key: 'git',
       text: 'From github public repo',
-      iconProps: {iconName: 'GitGraph'},
+      iconProps: { iconName: 'GitGraph' },
       onClick: () => {
         setDataType('git');
       },
@@ -44,7 +44,7 @@ export const AddDataSource = (props) => {
     {
       key: 'hdfs',
       text: 'From PAI HDFS',
-      iconProps: {iconName: 'Cloudy'},
+      iconProps: { iconName: 'Cloudy' },
       onClick: () => {
         setDataType('hdfs');
       },
@@ -54,14 +54,14 @@ export const AddDataSource = (props) => {
   return (
     <div>
       <PrimaryButton
-        iconProps={{iconName: 'Add'}}
+        iconProps={{ iconName: 'Add' }}
         text='Add data source'
-        menuProps={{items: menuItems}}
+        menuProps={{ items: menuItems }}
       />
       <div className={c(t.mb1)}>
         {dataType === 'local' && (
           <HdfsContext.Consumer>
-            {(value) => (
+            {value => (
               <AddLocal
                 dataList={dataList}
                 setDataList={setDataList}
@@ -87,7 +87,7 @@ export const AddDataSource = (props) => {
         )}
         {dataType === 'hdfs' && (
           <HdfsContext.Consumer>
-            {(value) => (
+            {value => (
               <AddHDFS
                 dataList={dataList}
                 setDataList={setDataList}

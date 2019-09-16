@@ -26,10 +26,18 @@
 import Joi from 'joi-browser';
 
 export const taskRoleSchema = Joi.object().keys({
-  instances: Joi.number().default(1).min(1),
+  instances: Joi.number()
+    .default(1)
+    .min(1),
   completion: Joi.object().keys({
-    minFailedInstances: Joi.number().min(1).allow(null).default(1),
-    minSucceededInstances: Joi.number().min(1).allow(null).default(null),
+    minFailedInstances: Joi.number()
+      .min(1)
+      .allow(null)
+      .default(1),
+    minSucceededInstances: Joi.number()
+      .min(1)
+      .allow(null)
+      .default(null),
   }),
   taskRetryCount: Joi.number().default(0),
   // Following dockerImage, data, output and script should ref to prerequisites content
@@ -40,21 +48,33 @@ export const taskRoleSchema = Joi.object().keys({
   extraContainerOptions: Joi.object().keys({
     shmMB: Joi.number(),
   }),
-  resourcePerInstance: Joi.object().required().keys({
-    cpu: Joi.number().required(),
-    memoryMB: Joi.number().required(),
-    gpu: Joi.number().required(),
-    ports: Joi.object().pattern(/^[a-zA-Z_][a-zA-Z0-9_]*$/, Joi.number()),
-  }),
-  commands: Joi.array().items(Joi.string()).min(1).required(),
+  resourcePerInstance: Joi.object()
+    .required()
+    .keys({
+      cpu: Joi.number().required(),
+      memoryMB: Joi.number().required(),
+      gpu: Joi.number().required(),
+      ports: Joi.object().pattern(/^[a-zA-Z_][a-zA-Z0-9_]*$/, Joi.number()),
+    }),
+  commands: Joi.array()
+    .items(Joi.string())
+    .min(1)
+    .required(),
 });
 
-export const taskRolesSchema = Joi.object().pattern(/^[a-zA-Z_][a-zA-Z0-9_]*$/, taskRoleSchema.required());
+export const taskRolesSchema = Joi.object().pattern(
+  /^[a-zA-Z_][a-zA-Z0-9_]*$/,
+  taskRoleSchema.required(),
+);
 
 export const prerequisitesSchema = Joi.object().keys({
   protocolVersion: [Joi.string(), Joi.number()],
-  name: Joi.string().required().regex(/^[a-zA-Z0-9_-]+$/),
-  type: Joi.string().valid(['data', 'script', 'dockerimage', 'output']).required(),
+  name: Joi.string()
+    .required()
+    .regex(/^[a-zA-Z0-9_-]+$/),
+  type: Joi.string()
+    .valid(['data', 'script', 'dockerimage', 'output'])
+    .required(),
   contributor: Joi.string(),
   description: Joi.string(),
   auth: Joi.object().keys({
@@ -64,23 +84,40 @@ export const prerequisitesSchema = Joi.object().keys({
   }),
   uri: Joi.when('type', {
     is: 'data',
-    then: Joi.array().items(Joi.string()).required(),
+    then: Joi.array()
+      .items(Joi.string())
+      .required(),
     otherwise: Joi.string(),
   }).required(),
   version: [Joi.string(), Joi.number()],
 });
 
 const deploymentSchema = Joi.object().keys({
-  name: Joi.string().regex(/^[A-Za-z0-9._~]+$/).required(),
-  taskRoles: Joi.object().pattern(/^[A-Za-z0-9._~]+$/, Joi.object().keys({
-    preCommands: Joi.array().items(Joi.string()).min(1),
-    postCommands: Joi.array().items(Joi.string()).min(1),
-  })).required(),
+  name: Joi.string()
+    .regex(/^[A-Za-z0-9._~]+$/)
+    .required(),
+  taskRoles: Joi.object()
+    .pattern(
+      /^[A-Za-z0-9._~]+$/,
+      Joi.object().keys({
+        preCommands: Joi.array()
+          .items(Joi.string())
+          .min(1),
+        postCommands: Joi.array()
+          .items(Joi.string())
+          .min(1),
+      }),
+    )
+    .required(),
 });
 
 const tensorBoardExtrasSchema = Joi.object().keys({
-  randomStr: Joi.string().regex(/^[a-z0-9]{8}$/).required(),
-  logDirectories: Joi.object().min(1).required(),
+  randomStr: Joi.string()
+    .regex(/^[a-z0-9]{8}$/)
+    .required(),
+  logDirectories: Joi.object()
+    .min(1)
+    .required(),
 });
 
 export const jobProtocolSchema = Joi.object().keys({
@@ -91,20 +128,26 @@ export const jobProtocolSchema = Joi.object().keys({
   contributor: Joi.string(),
   description: Joi.string(),
 
-  prerequisites: Joi.array().items(prerequisitesSchema).min(1),
+  prerequisites: Joi.array()
+    .items(prerequisitesSchema)
+    .min(1),
 
   parameters: Joi.object(),
   secrets: Joi.object(),
 
   jobRetryCount: Joi.number().default(0),
   taskRoles: taskRolesSchema,
-  deployments: Joi.array().items(deploymentSchema).min(1),
+  deployments: Joi.array()
+    .items(deploymentSchema)
+    .min(1),
   defaults: Joi.object().keys({
     virtualCluster: Joi.string(),
     deployment: Joi.string(),
   }),
-  extras: Joi.object().keys({
-    submitFrom: Joi.string(),
-    tensorBoard: tensorBoardExtrasSchema,
-  }).unknown(),
+  extras: Joi.object()
+    .keys({
+      submitFrom: Joi.string(),
+      tensorBoard: tensorBoardExtrasSchema,
+    })
+    .unknown(),
 });

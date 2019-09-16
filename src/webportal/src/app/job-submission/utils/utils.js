@@ -1,8 +1,8 @@
-import {isObject, isEmpty, isNil, isArrayLike} from 'lodash';
-import {basename} from 'path';
+import { isObject, isEmpty, isNil, isArrayLike } from 'lodash';
+import { basename } from 'path';
 
-import {JobBasicInfo} from '../models/job-basic-info';
-import {JobTaskRole} from '../models/job-task-role';
+import { JobBasicInfo } from '../models/job-basic-info';
+import { JobTaskRole } from '../models/job-task-role';
 import {
   CUSTOM_STORAGE_START,
   CUSTOM_STORAGE_END,
@@ -21,7 +21,7 @@ export const dispatchResizeEvent = () => {
 };
 
 export const keyValueArrayReducer = (acc, cur) => {
-  acc = {...acc, ...cur};
+  acc = { ...acc, ...cur };
   return acc;
 };
 
@@ -30,8 +30,8 @@ export function removeEmptyProperties(obj) {
     return;
   }
 
-  const newObj = {...obj};
-  Object.keys(newObj).forEach((key) => {
+  const newObj = { ...obj };
+  Object.keys(newObj).forEach(key => {
     const onCheckingElement = newObj[key];
     if (!isEmpty(onCheckingElement)) {
       return;
@@ -72,9 +72,12 @@ export function addPathPrefix(path, prefix) {
 }
 
 function populateComponents(jobInformation, context) {
-  const {vcNames} = context;
+  const { vcNames } = context;
   const virtualCluster = jobInformation.virtualCluster;
-  if (isEmpty(vcNames) || isNil(vcNames.find((vcName) => vcName === virtualCluster))) {
+  if (
+    isEmpty(vcNames) ||
+    isNil(vcNames.find(vcName => vcName === virtualCluster))
+  ) {
     jobInformation.virtualCluster = 'default';
   }
 }
@@ -93,19 +96,21 @@ export function getJobComponentsFromConfig(jobConfig, context) {
   const extras = jobConfig.extras || {};
 
   const updatedJobInformation = JobBasicInfo.fromProtocol(jobConfig);
-  const updatedParameters = Object.keys(parameters).map((key) => {
-    return {key: key, value: parameters[key]};
+  const updatedParameters = Object.keys(parameters).map(key => {
+    return { key: key, value: parameters[key] };
   });
 
   const updatedSecrets = [];
   if (secrets === HIDE_SECRET) {
-    alert('WARNING: The secrets in the imported job config have been removed. You need to fill in the missing values manually or the job may not work as you expected.');
+    alert(
+      'WARNING: The secrets in the imported job config have been removed. You need to fill in the missing values manually or the job may not work as you expected.',
+    );
   } else {
-    updatedSecrets.push(...Object.entries(secrets).map(
-      ([key, value]) => ({key, value})
-    ));
+    updatedSecrets.push(
+      ...Object.entries(secrets).map(([key, value]) => ({ key, value })),
+    );
   }
-  const updatedTaskRoles = Object.keys(taskRoles).map((name) =>
+  const updatedTaskRoles = Object.keys(taskRoles).map(name =>
     JobTaskRole.fromProtocol(
       name,
       taskRoles[name],
@@ -138,7 +143,7 @@ export function getPortFromUrl(url) {
 
 function addPreCommandsToProtocolTaskRoles(protocol, preCommands) {
   addTensorBoardCommandsToProtocolTaskRoles(protocol);
-  Object.keys(protocol.taskRoles).forEach((taskRoleKey) => {
+  Object.keys(protocol.taskRoles).forEach(taskRoleKey => {
     const taskRole = protocol.taskRoles[taskRoleKey];
     const commands = preCommands.concat(taskRole.commands || []);
     taskRole.commands = commands;
@@ -153,7 +158,7 @@ function addTensorBoardCommandsToProtocolTaskRoles(protocol) {
     const tensorBoardPort = `tensorBoardPort_${randomStr}`;
     const portList = `--port=$PAI_CONTAINER_HOST_${tensorBoardPort}_PORT_LIST`;
     const logPathList = [];
-    Object.keys(logDirectories).forEach((key) => {
+    Object.keys(logDirectories).forEach(key => {
       logPathList.push(`${key}:${logDirectories[key]}`);
     });
     const logPath = logPathList.join(',');
@@ -165,10 +170,13 @@ function addTensorBoardCommandsToProtocolTaskRoles(protocol) {
     ];
     // inject TensorBoard command
     const firstTaskRole = Object.keys(protocol.taskRoles)[0];
-    const commands = tensorBoardCommands.concat(protocol.taskRoles[firstTaskRole].commands || []);
+    const commands = tensorBoardCommands.concat(
+      protocol.taskRoles[firstTaskRole].commands || [],
+    );
     protocol.taskRoles[firstTaskRole].commands = commands;
     // inject TensorBoard port
-    const ports = protocol.taskRoles[firstTaskRole].resourcePerInstance.ports || {};
+    const ports =
+      protocol.taskRoles[firstTaskRole].resourcePerInstance.ports || {};
     ports[tensorBoardPort] = 1;
     protocol.taskRoles[firstTaskRole].resourcePerInstance.ports = ports;
   }
@@ -179,19 +187,21 @@ export async function populateProtocolWithDataCli(user, protocol, jobData) {
     return;
   }
 
-  const preCommands = await jobData.generateDataCommands(user, protocol.name || '');
+  const preCommands = await jobData.generateDataCommands(
+    user,
+    protocol.name || '',
+  );
   addPreCommandsToProtocolTaskRoles(protocol, preCommands);
 }
 
 function removeTagSection(commands, beginTag, endTag) {
   const beginTagIndex = commands.indexOf(beginTag);
-  const endTagIndex = commands.indexOf(
-    endTag,
-    beginTagIndex + 1,
-  );
+  const endTagIndex = commands.indexOf(endTag, beginTagIndex + 1);
 
   if (beginTagIndex !== -1 && endTagIndex !== -1) {
-    return commands.filter((_, index) => index < beginTagIndex || index > endTagIndex);
+    return commands.filter(
+      (_, index) => index < beginTagIndex || index > endTagIndex,
+    );
   }
 
   return commands;
@@ -204,7 +214,7 @@ function removeAutoGeneratedCodeFromProtocolTaskRoles(protocol) {
     tensorBoardPort = `tensorBoardPort_${randomStr}`;
   }
 
-  Object.keys(protocol.taskRoles).forEach((taskRoleKey) => {
+  Object.keys(protocol.taskRoles).forEach(taskRoleKey => {
     const taskRole = protocol.taskRoles[taskRoleKey];
     let commands = taskRole.commands || [];
     if (isEmpty(commands)) {
@@ -230,7 +240,7 @@ function removeAutoGeneratedCodeFromProtocolTaskRoles(protocol) {
     if (tensorBoardPort !== undefined) {
       if (taskRole.resourcePerInstance.ports) {
         const ports = taskRole.resourcePerInstance.ports;
-        if (ports.hasOwnProperty(tensorBoardPort)) {
+        if (!isNil(ports[tensorBoardPort])) {
           delete ports[tensorBoardPort];
           taskRole.resourcePerInstance.ports = ports;
         }
@@ -244,14 +254,16 @@ function removeAutoGeneratedCodeFromProtocolTaskRoles(protocol) {
 export function createUniqueName(usedNames, namePrefix, startindex) {
   let index = startindex;
   let name = `${namePrefix}_${index++}`;
-  while (usedNames.find((usedName) => usedName === name)) {
+  while (usedNames.find(usedName => usedName === name)) {
     name = `${namePrefix}_${index++}`;
   }
   return [name, index];
 }
 
 export function generateDefaultTensorBoardExtras() {
-  const randomStr = Math.random().toString(36).slice(2, 10);
+  const randomStr = Math.random()
+    .toString(36)
+    .slice(2, 10);
   const tensorBoardExtras = {
     randomStr: randomStr,
     logDirectories: {
@@ -261,12 +273,19 @@ export function generateDefaultTensorBoardExtras() {
   return tensorBoardExtras;
 }
 
-export function isValidUpdatedTensorBoardExtras(originalTensorBoardExtras, updatedTensorBoardExtras) {
-  if (updatedTensorBoardExtras.randomStr !== originalTensorBoardExtras.randomStr
-    || !updatedTensorBoardExtras.logDirectories
-    || Object.getOwnPropertyNames(updatedTensorBoardExtras).length !== 2
-    || Object.getOwnPropertyNames(updatedTensorBoardExtras.logDirectories).length === 0) {
-      return false;
+export function isValidUpdatedTensorBoardExtras(
+  originalTensorBoardExtras,
+  updatedTensorBoardExtras,
+) {
+  if (
+    updatedTensorBoardExtras.randomStr !==
+      originalTensorBoardExtras.randomStr ||
+    !updatedTensorBoardExtras.logDirectories ||
+    Object.getOwnPropertyNames(updatedTensorBoardExtras).length !== 2 ||
+    Object.getOwnPropertyNames(updatedTensorBoardExtras.logDirectories)
+      .length === 0
+  ) {
+    return false;
   }
   return true;
 }

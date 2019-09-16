@@ -15,7 +15,6 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-
 // module dependencies
 const path = require('path');
 const morgan = require('morgan');
@@ -28,23 +27,21 @@ const favicon = require('serve-favicon');
 const config = require('./index');
 const logger = require('./logger');
 
-
 const app = express();
 
 app.use(compress());
-app.use(bodyParser.urlencoded({extended: true}));
+app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.use(cookieParser());
 
 // setup the logger for requests
-app.use(morgan('dev', {'stream': logger.stream}));
+app.use(morgan('dev', { stream: logger.stream }));
 
 // setup favicon
 app.use(favicon(path.join(appRoot.path, 'dist', 'favicon.ico')));
 
 // setup the root path
 app.use(express.static(path.join(appRoot.path, 'dist')));
-
 
 // catch 404 and forward to error handler
 app.use((req, res, next) => {

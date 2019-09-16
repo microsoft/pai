@@ -27,7 +27,6 @@ __pycache__
 *.pyproj.user
 *.pyproj
 *.vs
-.editorconfig
 /subprojects/GOPATH/bin/
 /subprojects/GOPATH/pkg/
 *.egg-info/

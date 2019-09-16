@@ -27,28 +27,33 @@ import {
   getTheme,
 } from 'office-ui-fabric-react';
 import PropTypes from 'prop-types';
-import React, {useCallback, useState} from 'react';
+import React, { useCallback, useState } from 'react';
 
 import Card from '../../components/card';
-import {getJobDurationString, getJobModifiedTimeString, getHumanizedJobStateString} from '../../components/util/job';
-import {zeroPaddingClass} from './util';
-import {Header} from './header';
+import {
+  getJobDurationString,
+  getJobModifiedTimeString,
+  getHumanizedJobStateString,
+  isLowGpuUsageJob,
+  isLongRunJob,
+} from '../../components/util/job';
+import { zeroPaddingClass } from './util';
+import { Header } from './header';
 import userAuth from '../../user/user-auth/user-auth.component';
-import {isLowGpuUsageJob, isLongRunJob} from '../../components/util/job';
-import {stopJob} from './conn';
-import {cloneDeep} from 'lodash';
+import { stopJob } from './conn';
+import { cloneDeep } from 'lodash';
 import StopJobConfirm from '../../job/job-view/fabric/JobList/StopJobConfirm';
-import {getStatusText} from '../../job/job-view/fabric/JobList/utils';
+import { getStatusText } from '../../job/job-view/fabric/JobList/utils';
 
 // Move it to common folder
-import {TooltipIcon} from '../../job-submission/components/controls/tooltip-icon';
+import { TooltipIcon } from '../../job-submission/components/controls/tooltip-icon';
 
 import t from '../../components/tachyons.scss';
 import StatusBadge from '../../components/status-badge';
 
-const {palette} = getTheme();
+const { palette } = getTheme();
 
-const AbnormalJobList = ({jobs, style}) => {
+const AbnormalJobList = ({ jobs, style }) => {
   const [abnormalJobs, setAbnormalJobs] = useState(jobs);
   const [hideDialog, setHideDialog] = useState(true);
   const [currentJob, setCurrentJob] = useState(null);
@@ -63,10 +68,11 @@ const AbnormalJobList = ({jobs, style}) => {
       headerClassName: FontClassNames.medium,
       isResizable: true,
       onRender(job) {
-        const {legacy, name, namespace, username} = job;
+        const { legacy, name, namespace, username } = job;
         const href = legacy
           ? `/job-detail.html?jobName=${name}`
-          : `/job-detail.html?username=${namespace || username}&jobName=${name}`;
+          : `/job-detail.html?username=${namespace ||
+              username}&jobName=${name}`;
         return <Link href={href}>{name}</Link>;
       },
     },
@@ -80,7 +86,11 @@ const AbnormalJobList = ({jobs, style}) => {
       isResizable: true,
       onRender(job) {
         if (isLowGpuUsageJob(job)) {
-          return (<div style={{color: palette.red}}>{`count: ${job.totalGpuNumber}  usage: ${job.gpuUsage}%`}</div>);
+          return (
+            <div
+              style={{ color: palette.red }}
+            >{`count: ${job.totalGpuNumber}  usage: ${job.gpuUsage}%`}</div>
+          );
         }
         return job.totalGpuNumber;
       },
@@ -114,7 +124,11 @@ const AbnormalJobList = ({jobs, style}) => {
       isResizable: true,
       onRender(job) {
         if (isLongRunJob(job)) {
-          return (<div style={{color: palette.red}}>{getJobDurationString(job)}</div>);
+          return (
+            <div style={{ color: palette.red }}>
+              {getJobDurationString(job)}
+            </div>
+          );
         }
         return getJobDurationString(job);
       },
@@ -159,16 +173,16 @@ const AbnormalJobList = ({jobs, style}) => {
             data-selection-disabled
           >
             <DefaultButton
-              iconProps={{iconName: 'StopSolid'}}
+              iconProps={{ iconName: 'StopSolid' }}
               disabled={disabled}
               styles={{
-                root: {backgroundColor: '#e5e5e5'},
-                rootFocused: {backgroundColor: '#e5e5e5'},
-                rootDisabled: {backgroundColor: '#eeeeee'},
-                rootCheckedDisabled: {backgroundColor: '#eeeeee'},
-                icon: {fontSize: 12},
+                root: { backgroundColor: '#e5e5e5' },
+                rootFocused: { backgroundColor: '#e5e5e5' },
+                rootDisabled: { backgroundColor: '#eeeeee' },
+                rootCheckedDisabled: { backgroundColor: '#eeeeee' },
+                icon: { fontSize: 12 },
               }}
-              onClick={(e) => {
+              onClick={e => {
                 e.stopPropagation();
                 setCurrentJob(job);
                 setHideDialog(false);
@@ -182,21 +196,28 @@ const AbnormalJobList = ({jobs, style}) => {
     },
   ];
 
-  const stopAbnormalJob = useCallback((job) => {
-    userAuth.checkToken(() => {
-      stopJob(job).then(() => {
-        const cloneJobs = cloneDeep(abnormalJobs);
-        const stopJob = cloneJobs.find((cloneJob) => cloneJob.name === job.name);
-        stopJob.executionType = 'STOP';
-        delete stopJob._statusText;
-        setAbnormalJobs(cloneJobs);
-      }).catch(alert);
-    });
-  }, [abnormalJobs, setAbnormalJobs]);
+  const stopAbnormalJob = useCallback(
+    job => {
+      userAuth.checkToken(() => {
+        stopJob(job)
+          .then(() => {
+            const cloneJobs = cloneDeep(abnormalJobs);
+            const stopJob = cloneJobs.find(
+              cloneJob => cloneJob.name === job.name,
+            );
+            stopJob.executionType = 'STOP';
+            delete stopJob._statusText;
+            setAbnormalJobs(cloneJobs);
+          })
+          .catch(alert);
+      });
+    },
+    [abnormalJobs, setAbnormalJobs],
+  );
 
   return (
     <Card className={c(t.h100, t.ph5)} style={style}>
-      <Stack gap='l1' styles={{root: [t.h100]}}>
+      <Stack gap='l1' styles={{ root: [t.h100] }}>
         <Stack.Item>
           <Header
             headerName='Abnormal jobs'
@@ -204,12 +225,16 @@ const AbnormalJobList = ({jobs, style}) => {
             linkHref='/job-list.html'
             showLink
           >
-            <TooltipIcon content={'A job is treaded as an abnormal job if running more than 5 days or GPU usage is lower than 10%'}/>
+            <TooltipIcon
+              content={
+                'A job is treaded as an abnormal job if running more than 5 days or GPU usage is lower than 10%'
+              }
+            />
           </Header>
         </Stack.Item>
-        <Stack.Item styles={{root: {overflow: 'auto'}}} grow>
+        <Stack.Item styles={{ root: { overflow: 'auto' } }} grow>
           <DetailsList
-            styles={{root: {minHeight: 200, overflow: 'unset'}}}
+            styles={{ root: { minHeight: 200, overflow: 'unset' } }}
             columns={jobListColumns}
             disableSelectionZone
             items={abnormalJobs}
@@ -219,10 +244,11 @@ const AbnormalJobList = ({jobs, style}) => {
         </Stack.Item>
       </Stack>
       <StopJobConfirm
-          hideDialog={hideDialog}
-          currentJob={currentJob}
-          setHideDialog={setHideDialog}
-          stopJob={stopAbnormalJob}/>
+        hideDialog={hideDialog}
+        currentJob={currentJob}
+        setHideDialog={setHideDialog}
+        stopJob={stopAbnormalJob}
+      />
     </Card>
   );
 };

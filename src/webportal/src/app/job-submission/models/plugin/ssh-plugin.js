@@ -23,13 +23,13 @@
  * SOFTWARE.
  */
 
-import {get, isNil, isEmpty} from 'lodash';
-import {removeEmptyProperties} from '../../utils/utils';
-import {SECRET_PATTERN, PAI_PLUGIN} from '../../utils/constants';
+import { get, isNil, isEmpty } from 'lodash';
+import { removeEmptyProperties } from '../../utils/utils';
+import { SECRET_PATTERN, PAI_PLUGIN } from '../../utils/constants';
 
 export class SSHPlugin {
   constructor(props) {
-    const {jobssh, userssh, secretValue} = props;
+    const { jobssh, userssh, secretValue } = props;
     this.jobssh = jobssh || false;
     this.userssh = userssh || {};
     this.secretValue = secretValue || '';
@@ -37,21 +37,26 @@ export class SSHPlugin {
 
   static fromProtocol(extras, secrets) {
     const pluginBase = get(extras, PAI_PLUGIN, []);
-    const sshPluginProtocol = pluginBase.find((plugin) => plugin['plugin'] === 'ssh');
+    const sshPluginProtocol = pluginBase.find(
+      plugin => plugin.plugin === 'ssh',
+    );
 
     if (sshPluginProtocol === undefined) {
       return new SSHPlugin({});
     } else {
       const jobssh = get(sshPluginProtocol, 'parameters.jobssh', false);
-      let userssh = get(sshPluginProtocol, 'parameters.userssh', {});
+      const userssh = get(sshPluginProtocol, 'parameters.userssh', {});
 
       let secretValue;
-      if (get(userssh, 'type') === 'custom' && !isEmpty(get(userssh, 'value'))) {
+      if (
+        get(userssh, 'type') === 'custom' &&
+        !isEmpty(get(userssh, 'value'))
+      ) {
         const secretRef = get(userssh, 'value');
 
         let secretKey = SECRET_PATTERN.exec(secretRef);
         secretKey = isEmpty(secretKey) ? '' : secretKey[1];
-        const secret = secrets.find((secret) => secret.key === secretKey);
+        const secret = secrets.find(secret => secret.key === secretKey);
         secretValue = isNil(secret) ? '' : secret.value;
       } else {
         secretValue = '';
