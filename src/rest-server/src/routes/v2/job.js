@@ -39,6 +39,10 @@ router.route('/:frameworkName')
   /** GET /api/v2/jobs/:frameworkName - Get job */
   .get(controller.get);
 
+router.route('/:frameworkName/attempts/:frameworkAttemptID')
+  /** GET /api/v2/jobs/:frameworkName/attempts/:frameworkAttemptID - Get job history snapshot by frameworkName & frameworkAttemptID */
+  .get(controller.get);
+
 router.route('/:frameworkName/executionType')
   /** PUT /api/v2/jobs/:frameworkName/executionType - Start or stop job */
   .put(token.check, controller.execute);

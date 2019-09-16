@@ -27,6 +27,7 @@ import {isJobV2} from './util';
 const params = new URLSearchParams(window.location.search);
 const namespace = params.get('username');
 const jobName = params.get('jobName');
+const attemptID = params.get('attemptID');
 const absoluteUrlRegExp = /^[a-z][a-z\d+.-]*:/;
 
 export class NotFoundError extends Error {
@@ -37,9 +38,17 @@ export class NotFoundError extends Error {
 }
 
 export async function fetchJobInfo() {
-  const url = namespace
+  let url;
+  if (attemptID != null) {
+    url = namespace
+    ? `${config.restServerUri}/api/v2/jobs/${namespace}~${jobName}/attempts/${attemptID}`
+    : `${config.restServerUri}/api/v1/jobs/${jobName}/attempts/${attemptID}`;
+  } 
+  else {
+    url = namespace
     ? `${config.restServerUri}/api/v1/jobs/${namespace}~${jobName}`
     : `${config.restServerUri}/api/v1/jobs/${jobName}`;
+  }
   const res = await fetch(url);
   const json = await res.json();
   if (res.ok) {

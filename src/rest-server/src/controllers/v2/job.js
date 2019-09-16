@@ -29,7 +29,9 @@ const list = asyncHandler(async (req, res) => {
 });
 
 const get = asyncHandler(async (req, res) => {
-  const data = await job.get(req.params.frameworkName);
+  const frameworkName = req.params.frameworkName;
+  const frameworkAttempID = req.params.frameworkAttemptID;
+  const data = await job.get(frameworkName, frameworkAttempID);
   res.json(data);
 });
 

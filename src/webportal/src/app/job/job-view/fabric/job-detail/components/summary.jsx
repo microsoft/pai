@@ -65,8 +65,10 @@ export default class Summary extends React.Component {
       modalTitle: '',
       autoReloadInterval: 10 * 1000,
       hideDialog: true,
+      currentAttemptID: this.props.jobInfo.jobStatus.retries,
     };
 
+    this.onChangeAttemptID = this.onChangeAttemptID.bind(this);
     this.onChangeInterval = this.onChangeInterval.bind(this);
     this.onDismiss = this.onDismiss.bind(this);
     this.showExitDiagnostics = this.showExitDiagnostics.bind(this);
@@ -74,6 +76,15 @@ export default class Summary extends React.Component {
     this.showJobConfig = this.showJobConfig.bind(this);
     this.showStopJobConfirm = this.showStopJobConfirm.bind(this);
     this.setHideDialog = this.setHideDialog.bind(this);
+  }
+
+  onChangeAttemptID(e, item) {
+    this.setState({currentAttemptID: item.key});
+    const namespace = this.props.jobInfo.jobStatus.username;
+    const jobName = this.props.jobInfo.name;
+    const attemptID = item.key;
+    const url = `/job-detail.html?username=${namespace}&jobName=${jobName}&attemptID=${attemptID}`;
+    window.location.href = url;
   }
 
   onChangeInterval(e, item) {
@@ -230,7 +241,7 @@ export default class Summary extends React.Component {
     }
 
     const state = getHumanizedJobStateString(jobInfo.jobStatus);
-    if (state === 'Failed') {
+    if (state === 'Failed' || state === 'Completing' || state === 'RetryPending') {
       const result = [];
       const spec = jobInfo.jobStatus.appExitSpec;
       const type = spec && spec.type;
@@ -278,11 +289,17 @@ export default class Summary extends React.Component {
   }
 
   render() {
-    const {autoReloadInterval, modalTitle, monacoProps, hideDialog} = this.state;
+    const {currentAttemptID, autoReloadInterval, modalTitle, monacoProps, hideDialog} = this.state;
     const {className, jobInfo, reloading, onStopJob, onReload} = this.props;
     const {rawJobConfig} = this.context;
     const hintMessage = this.renderHintMessage();
-
+    var attemptIDOptions = [];
+    for (var i = 0; i <= jobInfo.totalRetries; i++) {
+      attemptIDOptions[i] = {
+        key: i,
+        text: `Choose attemptID = ${i}`
+      }
+    }
     return (
       <div className={className}>
         {/* summary */}
@@ -334,6 +351,24 @@ export default class Summary extends React.Component {
               )}
             </div>
             <div className={c(t.flex, t.itemsCenter)}>
+              <div
+                className={c(t.truncate)}
+                style={{
+                  fontSize: FontSizes.Large,
+                  fontWeight: FontWeights.regular,
+                }}
+              >
+                Total Retries = {jobInfo.totalRetries}
+              </div>
+              <Dropdown
+                styles={{
+                  title: [FontClassNames.mediumPlus, {border: 0}],
+                }}
+                dropdownWidth={180}
+                selectedKey={currentAttemptID}
+                onChange={this.onChangeAttemptID}
+                options={attemptIDOptions}
+              />
               <Dropdown
                 styles={{
                   title: [FontClassNames.mediumPlus, {border: 0}],
@@ -390,22 +425,6 @@ export default class Summary extends React.Component {
               <div className={c(t.mt3, FontClassNames.mediumPlus)}>
                 {getJobDurationString(jobInfo.jobStatus)}
               </div>
-            </div>
-            <div className={t.ml4}>
-              <div className={c(t.gray, FontClassNames.medium)}>Retries</div>
-              {config.launcherType === 'k8s' || isNil(jobInfo.jobStatus.retries) ? (
-                <div className={c(t.mt3, FontClassNames.mediumPlus)}>
-                  {jobInfo.jobStatus.retries}
-                </div>
-              ) : (
-                <Link
-                  onClick={() => openJobAttemptsPage(jobInfo.jobStatus.retries)}
-                >
-                  <div className={c(t.mt3, FontClassNames.mediumPlus)}>
-                    {jobInfo.jobStatus.retries}
-                  </div>
-                </Link>
-              )}
             </div>
           </div>
           {/* summary-row-2.5 error info */}
@@ -510,4 +529,5 @@ Summary.propTypes = {
   reloading: PropTypes.bool.isRequired,
   onStopJob: PropTypes.func.isRequired,
   onReload: PropTypes.func.isRequired,
+  onReloadByAttemptID: PropTypes.func.isRequired,
 };

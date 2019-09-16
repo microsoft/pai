@@ -26,7 +26,7 @@ require('module-alias/register');
 const config = require('@pai/config');
 const logger = require('@pai/config/logger');
 const app = require('@pai/config/express');
-
+const esApp = require('@pai/config/elasticsearch');
 
 logger.info('config: %j', config);
 
@@ -35,4 +35,11 @@ app.listen(config.serverPort, () => {
   logger.info('RESTful API server starts on port %d', config.serverPort);
 });
 
-module.exports = app;
+esApp.listen(config.esPort, () => {
+  logger.info('History RESTful API server starts on port %d', config.esPort);
+})
+
+module.exports = {
+  app,
+  esApp,
+};

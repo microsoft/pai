@@ -25,6 +25,7 @@ const runtimeEnv = require('./runtime-env');
 const launcherConfig = require('@pai/config/launcher');
 const createError = require('@pai/utils/error');
 const userModel = require('@pai/models/v2/user');
+const historyModel = require('@pai/models/v2/history');
 
 
 const convertName = (name) => {
@@ -496,7 +497,7 @@ const list = async () => {
   }
 };
 
-const get = async (frameworkName) => {
+const get = async (frameworkName, frameworkAttemptID) => {
   // send request to framework controller
   let response;
   try {
@@ -514,7 +515,15 @@ const get = async (frameworkName) => {
   }
 
   if (response.status === status('OK')) {
-    return (await convertFrameworkDetail(response.data));
+    const totalRetries = response.data.status.attemptStatus.id;
+    if (frameworkAttemptID != null && frameworkAttemptID != totalRetries) {
+      // send request to elasticsearch
+      const frameworkUID = response.data.metadata.uid;
+      response = await historyModel.getFrameworkByUIDAndAttemptID(frameworkUID, frameworkAttemptID);
+    }
+    const data = await convertFrameworkDetail(response.data);
+    data.totalRetries = totalRetries;
+    return data;
   }
   if (response.status === status('Not Found')) {
     throw createError('Not Found', 'NoJobError', `Job ${frameworkName} is not found.`);
