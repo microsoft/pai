@@ -20,7 +20,7 @@
 const historyModel = require('@pai/models/v2/history');
 const asyncHandler = require('@pai/middlewares/v2/asyncHandler');
 
-/** 
+/**
  *  GET Framework All History Snapshots by FrameworkNamespace & FrameworkName
  */
 const getFrameworkByName = asyncHandler(async (req, res) => {
@@ -30,8 +30,8 @@ const getFrameworkByName = asyncHandler(async (req, res) => {
   return res.status(result.status).json(result.data);
 });
 
-/** 
- *  GET Framework All History Snapshots by FrameworkUID 
+/**
+ *  GET Framework All History Snapshots by FrameworkUID
  */
 const getFrameworkByUID = asyncHandler(async (req, res) => {
   const frameworkUID = req.params.frameworkUID;
@@ -39,7 +39,7 @@ const getFrameworkByUID = asyncHandler(async (req, res) => {
   return res.status(result.status).json(result.data);
 });
 
-/** 
+/**
  *  GET Framework One Attempt History Snapshot by FrameworkNamespace & FrameworkName & FrameworkAttemptID
  */
 const getFramworkByNameAndAttemptID = asyncHandler(async (req, res) => {
@@ -50,7 +50,7 @@ const getFramworkByNameAndAttemptID = asyncHandler(async (req, res) => {
   return res.status(result.status).json(result.data);
 });
 
-/** 
+/**
  *  GET Framework One Attempt History Snapshot by FrameworkUID & FrameworkAttemptID
  */
 const getFramworkByUIDAndAttemptID = asyncHandler(async (req, res) => {
