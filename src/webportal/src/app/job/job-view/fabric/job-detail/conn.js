@@ -41,13 +41,12 @@ export async function fetchJobInfo() {
   let url;
   if (attemptID != null) {
     url = namespace
-    ? `${config.restServerUri}/api/v2/jobs/${namespace}~${jobName}/attempts/${attemptID}`
-    : `${config.restServerUri}/api/v1/jobs/${jobName}/attempts/${attemptID}`;
-  } 
-  else {
+      ? `${config.restServerUri}/api/v2/jobs/${namespace}~${jobName}/attempts/${attemptID}`
+      : `${config.restServerUri}/api/v1/jobs/${jobName}/attempts/${attemptID}`;
+  } else {
     url = namespace
-    ? `${config.restServerUri}/api/v1/jobs/${namespace}~${jobName}`
-    : `${config.restServerUri}/api/v1/jobs/${jobName}`;
+      ? `${config.restServerUri}/api/v1/jobs/${namespace}~${jobName}`
+      : `${config.restServerUri}/api/v1/jobs/${jobName}`;
   }
   const res = await fetch(url);
   const json = await res.json();
