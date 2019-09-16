@@ -27,16 +27,16 @@ const client = new elasticsearch.Client({nodes: process.env.Elasticsearch_URI});
  */
 async function frameworkSearch(index='*', body='{}', req) {
   const esResult = await client.search({
-    index: index,  // search index
-    body: body,  // request body
+    index: index,
+    body: body,
   });
   let res;
-  if (req == 'attemptID') {  // return framework history snapshot by attemptId
-    if (esResult.body.hits.hits.length == 0) {  // search fail
+  if (req == 'attemptID') {
+    if (esResult.body.hits.hits.length == 0) {
       res = {
         status: 404,
         data: {
-          message: `The specified ${index} is not found`
+          message: `The specified ${index} is not found`,
         }
       }
     } else {
@@ -45,27 +45,27 @@ async function frameworkSearch(index='*', body='{}', req) {
         data: esResult.body.hits.hits[0]._source.ObjectSnapshot,
       }
     }  
-  } else {  // return frameworks all history snapshots group by attemptId
-    aggResults = esResult.body.aggregations.attemptID_group.buckets;
+  } else {
+    let aggResults = esResult.body.aggregations.attemptID_group.buckets;
     if (aggResults.length == 0) {
       res = {
         status: 404,
         data: {
-          message: `The specified ${index} is not found`
+          message: `The specified ${index} is not found`,
         }
       }
     } else {
-      var resultObj = { "items": [] };
-      for (var i in aggResults) {
+      let resultObj = { "items": [] };
+      for (let i in aggResults) {
         resultObj["items"].push(aggResults[i].CollectTime_sort.buckets[0].top.hits.hits[0]._source.ObjectSnapshot);
       }
       res = {
         status: 200,
-        data: resultObj
+        data: resultObj,
       }
     }
   }  
-  return res
+  return res;
 };
 
 /**
@@ -73,41 +73,41 @@ async function frameworkSearch(index='*', body='{}', req) {
  */
 async function podSearch(index='*', body='{}', req) {
   const esResult = await client.search({
-    index: index,  // search index
-    body: body,  // request body
+    index: index,
+    body: body,
   });
   let res;
-  if (esResult.body.hits.hits.length == 0) {  // search fail
+  if (esResult.body.hits.hits.length == 0) {
     res = {
       status: 404,
       data: {
-        message: `The specified ${index} is not found`
+        message: `The specified ${index} is not found`,
       }
     }
-  } else if (req == 'last') {  // return last pod history snapshot
+  } else if (req == 'last') {
     res = {
       status: 200,
       data: esResult.body.hits.hits[0]._source.ObjectSnapshot,
     }
-  } else {  // return pods all history snapshots
-    var resultObj = { "items": [] };
-    for (var i in esResult.body.hits.hits) {
+  } else {
+    let resultObj = { "items": [] };
+    for (let i in esResult.body.hits.hits) {
       resultObj["items"].push(esResult.body.hits.hits[i]._source.ObjectSnapshot);
     }
     res = {
       status: 200,
-      data: resultObj
+      data: resultObj,
     }
   }
-  return res
+  return res;
 };
 
 /** 
  *  GET Framework All History Snapshots by FrameworkNamespace & FrameworkName
  */
 const getFrameworkByName = async (frameworkNamespace, frameworkName) => {
-  var index = "framework"
-  var body = {
+  let index = "framework"
+  let body = {
     "query": {
       "bool":{
         "filter": {
@@ -115,12 +115,12 @@ const getFrameworkByName = async (frameworkNamespace, frameworkName) => {
             "must": [
               {
                 "term": {
-                  "ObjectSnapshot.metadata.namespace.keyword": frameworkNamespace
+                  "ObjectSnapshot.metadata.namespace.keyword": frameworkNamespace,
                 }
               },
               {
                 "term": {
-                  "ObjectSnapshot.metadata.name.keyword": frameworkName
+                  "ObjectSnapshot.metadata.name.keyword": frameworkName,
                 }
               }
             ]
@@ -134,7 +134,7 @@ const getFrameworkByName = async (frameworkNamespace, frameworkName) => {
         "terms": {
           "field": "ObjectSnapshot.status.attemptStatus.id",
           "order": {
-            "_key": "desc"
+            "_key": "desc",
           }
         },
         "aggs": {
@@ -142,13 +142,13 @@ const getFrameworkByName = async (frameworkNamespace, frameworkName) => {
             "terms": {
               "field": "CollectTime",
               "order": {
-                "_key": "desc"
+                "_key": "desc",
               }
             },
             "aggs": {
               "top": {
                 "top_hits": {
-                  "size": 1
+                  "size": 1,
                 }
               }
             }
@@ -160,12 +160,12 @@ const getFrameworkByName = async (frameworkNamespace, frameworkName) => {
   return await frameworkSearch(index, body, '');
 };
 
-/** 
- *  GET Framework All History Snapshots by FrameworkUID 
+/**
+ *  GET Framework All History Snapshots by FrameworkUID
  */
 const getFrameworkByUID = async (frameworkUID) => {
-  var index = "framework"
-  var body = {
+  let index = "framework"
+  let body = {
     "query": {
       "bool":{
         "filter": {
@@ -173,7 +173,7 @@ const getFrameworkByUID = async (frameworkUID) => {
             "must": [
               {
                 "term": {
-                  "ObjectSnapshot.metadata.uid.keyword": frameworkUID
+                  "ObjectSnapshot.metadata.uid.keyword": frameworkUID,
                 }
               }
             ]
@@ -187,7 +187,7 @@ const getFrameworkByUID = async (frameworkUID) => {
         "terms": {
           "field": "ObjectSnapshot.status.attemptStatus.id",
           "order": {
-            "_key": "desc"
+            "_key": "desc",
           }
         },
         "aggs": {
@@ -195,13 +195,13 @@ const getFrameworkByUID = async (frameworkUID) => {
             "terms": {
               "field": "CollectTime",
               "order": {
-                "_key": "desc"
+                "_key": "desc",
               }
             },
             "aggs": {
               "top": {
                 "top_hits": {
-                  "size": 1
+                  "size": 1,
                 }
               }
             }
@@ -213,12 +213,12 @@ const getFrameworkByUID = async (frameworkUID) => {
   return await frameworkSearch(index, body, '');
 };
 
-/** 
+/**
  *  GET Framework One Attempt History Snapshot by FrameworkNamespace & FrameworkName & FrameworkAttemptID
  */
 const getFrameworkByNameAndAttemptID = async (frameworkNamespace, frameworkName, frameworkAttemptID) => {
-  var index = "framework";
-  var body = {
+  let index = "framework";
+  let body = {
     "query": {
       "bool":{
         "filter": {
@@ -226,17 +226,17 @@ const getFrameworkByNameAndAttemptID = async (frameworkNamespace, frameworkName,
             "must": [
               {
                 "term": {
-                  "ObjectSnapshot.metadata.namespace.keyword": frameworkNamespace
+                  "ObjectSnapshot.metadata.namespace.keyword": frameworkNamespace,
                 }
               },
               {
                 "term": {
-                  "ObjectSnapshot.metadata.name.keyword": frameworkName
+                  "ObjectSnapshot.metadata.name.keyword": frameworkName,
                 }
               },
               {
                 "term": {
-                  "ObjectSnapshot.status.attemptStatus.id": frameworkAttemptID
+                  "ObjectSnapshot.status.attemptStatus.id": frameworkAttemptID,
                 }
               }
             ]
@@ -245,19 +245,19 @@ const getFrameworkByNameAndAttemptID = async (frameworkNamespace, frameworkName,
       }
     },
     "sort": {
-      "CollectTime": "desc"
+      "CollectTime": "desc",
     },
-    "size": 1
+    "size": 1,
   };
   return await frameworkSearch(index, body, 'attemptID');
 };
 
-/** 
+/**
  *  GET Framework One Attempt History Snapshot by FrameworkUID & FrameworkAttemptID
  */
 const getFrameworkByUIDAndAttemptID = async (frameworkUID, frameworkAttemptID) => {
-  var index = "framework";
-  var body = {
+  let index = "framework";
+  let body = {
     "query": {
       "bool":{
         "filter": {
@@ -265,12 +265,12 @@ const getFrameworkByUIDAndAttemptID = async (frameworkUID, frameworkAttemptID) =
             "must": [
               {
                 "term": {
-                  "ObjectSnapshot.metadata.uid.keyword": frameworkUID
+                  "ObjectSnapshot.metadata.uid.keyword": frameworkUID,
                 }
               },
               {
                 "term": {
-                  "ObjectSnapshot.status.attemptStatus.id": frameworkAttemptID
+                  "ObjectSnapshot.status.attemptStatus.id": frameworkAttemptID,
                 }
               }
             ]
@@ -279,7 +279,7 @@ const getFrameworkByUIDAndAttemptID = async (frameworkUID, frameworkAttemptID) =
       }
     },
     "sort": {
-      "CollectTime": "desc"
+      "CollectTime": "desc",
     },
     "size": 1
   };
@@ -290,8 +290,8 @@ const getFrameworkByUIDAndAttemptID = async (frameworkUID, frameworkAttemptID) =
  *  GET Pod All History Snapshots by PodNamespace & PodName
  */
 const getPodByName = async (podNamespace, podName) => {
-  var index = "pod";
-  var body = {
+  let index = "pod";
+  let body = {
     "query": {
       "bool":{
         "filter": {
@@ -299,12 +299,12 @@ const getPodByName = async (podNamespace, podName) => {
             "must": [
               {
                 "term": {
-                  "ObjectSnapshot.metadata.namespace.keyword": podNamespace
+                  "ObjectSnapshot.metadata.namespace.keyword": podNamespace,
                 }
               },
               {
                 "term": {
-                  "ObjectSnapshot.metadata.name.keyword": podName
+                  "ObjectSnapshot.metadata.name.keyword": podName,
                 }
               }
             ]
@@ -320,8 +320,8 @@ const getPodByName = async (podNamespace, podName) => {
  *  GET Pod All History Snapshots by PodUID
  */
 const getPodByUID = async (podUID) => {
-  var index = "pod";
-  var body = {
+  let index = "pod";
+  let body = {
     "query": {
       "bool":{
         "filter": {
@@ -329,7 +329,7 @@ const getPodByUID = async (podUID) => {
             "must": [
               {
                 "term": {
-                  "ObjectSnapshot.metadata.uid.keyword": podUID
+                  "ObjectSnapshot.metadata.uid.keyword": podUID,
                 }
               }
             ]
@@ -338,9 +338,9 @@ const getPodByUID = async (podUID) => {
       }
     },
     "sort": {
-      "CollectTime": "desc"
+      "CollectTime": "desc",
     },
-    "size": 10000
+    "size": 10000,
   };
   return await podSearch(index, body, '');
 };
@@ -349,8 +349,8 @@ const getPodByUID = async (podUID) => {
  *  GET Pod Last History Snapshot by PodNamespace & PodName
  */
 const getPodByNameLast = async (podNamespace, podName) => {
-  var index = "pod";
-  var body = {
+  let index = "pod";
+  let body = {
     "query": {
       "bool":{
         "filter": {
@@ -358,12 +358,12 @@ const getPodByNameLast = async (podNamespace, podName) => {
             "must": [
               {
                 "term": {
-                  "ObjectSnapshot.metadata.namespace.keyword": podNamespace
+                  "ObjectSnapshot.metadata.namespace.keyword": podNamespace,
                 }
               },
               {
                 "term": {
-                  "ObjectSnapshot.metadata.name.keyword": podName
+                  "ObjectSnapshot.metadata.name.keyword": podName,
                 }
               }
             ]
@@ -372,9 +372,9 @@ const getPodByNameLast = async (podNamespace, podName) => {
       }
     },
     "sort": {
-      "CollectTime": "desc"
+      "CollectTime": "desc",
     },
-    "size": 1
+    "size": 1,
   };
   return await podSearch(index, body, 'last');
 };
@@ -383,8 +383,8 @@ const getPodByNameLast = async (podNamespace, podName) => {
  *  GET Pod Last History Snapshot by PodUID
  */
 const getPodByUIDLast = async (podUID) => {
-  var index = "pod";
-  var body = {
+  let index = "pod";
+  let body = {
     "query": {
       "bool":{
         "filter": {
@@ -392,7 +392,7 @@ const getPodByUIDLast = async (podUID) => {
             "must": [
               {
                 "term": {
-                  "ObjectSnapshot.metadata.uid.keyword": podUID
+                  "ObjectSnapshot.metadata.uid.keyword": podUID,
                 }
               }
             ]
@@ -401,9 +401,9 @@ const getPodByUIDLast = async (podUID) => {
       }
     },
     "sort": {
-      "CollectTime": "desc"
+      "CollectTime": "desc",
     },
-    "size": 1
+    "size": 1,
   };
   return await podSearch(index, body, 'last');
 };
