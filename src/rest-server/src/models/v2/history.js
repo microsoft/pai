@@ -55,7 +55,7 @@ async function frameworkSearch(index='*', body='{}', req) {
       };
     } else {
       let resultObj = {'items': []};
-      for (let i in aggResults) {
+      for (let i = 0; i < aggResults.length; i++) {
         resultObj['items'].push(aggResults[i].CollectTime_sort.buckets[0].top.hits.hits[0]._source.ObjectSnapshot);
       }
       res = {
@@ -63,7 +63,7 @@ async function frameworkSearch(index='*', body='{}', req) {
         data: resultObj,
       };
     }
-  }  
+  }
   return res;
 };
 
@@ -87,10 +87,10 @@ async function podSearch(index='*', body='{}', req) {
     res = {
       status: 200,
       data: esResult.body.hits.hits[0]._source.ObjectSnapshot,
-    }
+    };
   } else {
     let resultObj = {'items': []};
-    for (let i in esResult.body.hits.hits) {
+    for (let i = 0; i < esResult.body.hits.hits.length; i++) {
       resultObj['items'].push(esResult.body.hits.hits[i]._source.ObjectSnapshot);
     }
     res = {
@@ -121,11 +121,11 @@ const getFrameworkByName = async (frameworkNamespace, frameworkName) => {
                 'term': {
                   'ObjectSnapshot.metadata.name.keyword': frameworkName,
                 },
-              }
-            ]
-          }
-        }
-      }
+              },
+            ],
+          },
+        },
+      },
     },
     'size': 0,
     'aggs': {
@@ -148,13 +148,13 @@ const getFrameworkByName = async (frameworkNamespace, frameworkName) => {
               'top': {
                 'top_hits': {
                   'size': 1,
-                }
-              }
-            }
-          }
-        }
-      }
-    }
+                },
+              },
+            },
+          },
+        },
+      },
+    },
   };
   return await frameworkSearch(index, body, '');
 };
@@ -173,12 +173,12 @@ const getFrameworkByUID = async (frameworkUID) => {
               {
                 'term': {
                   'ObjectSnapshot.metadata.uid.keyword': frameworkUID,
-                }
-              }
-            ]
-          }
-        }
-      }
+                },
+              },
+            ],
+          },
+        },
+      },
     },
     'size': 0,
     'aggs': {
@@ -201,13 +201,13 @@ const getFrameworkByUID = async (frameworkUID) => {
               'top': {
                 'top_hits': {
                   'size': 1,
-                }
-              }
-            }
-          }
-        }
-      }
-    }
+                },
+              },
+            },
+          },
+        },
+      },
+    },
   };
   return await frameworkSearch(index, body, '');
 };
@@ -236,12 +236,12 @@ const getFrameworkByNameAndAttemptID = async (frameworkNamespace, frameworkName,
               {
                 'term': {
                   'ObjectSnapshot.status.attemptStatus.id': frameworkAttemptID,
-                }
-              }
-            ]
-          }
-        }
-      }
+                },
+              },
+            ],
+          },
+        },
+      },
     },
     'sort': {
       'CollectTime': 'desc',
@@ -265,17 +265,17 @@ const getFrameworkByUIDAndAttemptID = async (frameworkUID, frameworkAttemptID) =
               {
                 'term': {
                   'ObjectSnapshot.metadata.uid.keyword': frameworkUID,
-                }
+                },
               },
               {
                 'term': {
                   'ObjectSnapshot.status.attemptStatus.id': frameworkAttemptID,
-                }
-              }
-            ]
-          }
-        }
-      }
+                },
+              },
+            ],
+          },
+        },
+      },
     },
     'sort': {
       'CollectTime': 'desc',
@@ -299,18 +299,18 @@ const getPodByName = async (podNamespace, podName) => {
               {
                 'term': {
                   'ObjectSnapshot.metadata.namespace.keyword': podNamespace,
-                }
+                },
               },
               {
                 'term': {
                   'ObjectSnapshot.metadata.name.keyword': podName,
-                }
-              }
-            ]
-          }
-        }
-      }
-    }
+                },
+              },
+            ],
+          },
+        },
+      },
+    },
   };
   return await podSearch(index, body, '');
 };
@@ -322,19 +322,19 @@ const getPodByUID = async (podUID) => {
   let index = 'pod';
   let body = {
     'query': {
-      'bool':{
+      'bool': {
         'filter': {
           'bool': {
             'must': [
               {
                 'term': {
                   'ObjectSnapshot.metadata.uid.keyword': podUID,
-                }
-              }
-            ]
-          }
-        }
-      }
+                },
+              },
+            ],
+          },
+        },
+      },
     },
     'sort': {
       'CollectTime': 'desc',
@@ -358,17 +358,17 @@ const getPodByNameLast = async (podNamespace, podName) => {
               {
                 'term': {
                   'ObjectSnapshot.metadata.namespace.keyword': podNamespace,
-                }
+                },
               },
               {
                 'term': {
                   'ObjectSnapshot.metadata.name.keyword': podName,
-                }
-              }
-            ]
-          }
-        }
-      }
+                },
+              },
+            ],
+          },
+        },
+      },
     },
     'sort': {
       'CollectTime': 'desc',
@@ -392,12 +392,12 @@ const getPodByUIDLast = async (podUID) => {
               {
                 'term': {
                   'ObjectSnapshot.metadata.uid.keyword': podUID,
-                }
-              }
-            ]
-          }
-        }
-      }
+                },
+              },
+            ],
+          },
+        },
+      },
     },
     'sort': {
       'CollectTime': 'desc',
