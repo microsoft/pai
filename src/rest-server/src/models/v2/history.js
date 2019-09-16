@@ -65,7 +65,7 @@ async function frameworkSearch(index='*', body='{}', req) {
     }
   }
   return res;
-};
+}
 
 /**
  *  search pod
@@ -99,7 +99,7 @@ async function podSearch(index='*', body='{}', req) {
     };
   }
   return res;
-};
+}
 
 /**
  *  GET Framework All History Snapshots by FrameworkNamespace & FrameworkName
