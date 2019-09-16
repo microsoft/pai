@@ -82,7 +82,7 @@ async function podSearch(index='*', body='{}', req) {
       data: {
         message: `The specified ${index} is not found`,
       },
-    }
+    };
   } else if (req == 'last') {
     res = {
       status: 200,
@@ -226,12 +226,12 @@ const getFrameworkByNameAndAttemptID = async (frameworkNamespace, frameworkName,
               {
                 'term': {
                   'ObjectSnapshot.metadata.namespace.keyword': frameworkNamespace,
-                }
+                },
               },
               {
                 'term': {
                   'ObjectSnapshot.metadata.name.keyword': frameworkName,
-                }
+                },
               },
               {
                 'term': {
@@ -280,7 +280,7 @@ const getFrameworkByUIDAndAttemptID = async (frameworkUID, frameworkAttemptID) =
     'sort': {
       'CollectTime': 'desc',
     },
-    'size': 1
+    'size': 1,
   };
   return await frameworkSearch(index, body, 'attemptID');
 };
