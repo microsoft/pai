@@ -103,19 +103,19 @@ class update:
 
 
     """
-    Get node configuration from kubernetes configmap. 
+    Get node configuration from kubernetes configmap.
     """
     def get_node_config_from_k8s(self):
         self.logger.info("Try to get node configuration from kubernetes' configmap.")
         configmap_data = kubernetes_handler.get_configmap(self.kube_config_path, "pai-node-config", "kube-system")
         pai_node_list = configmap_data["data"]["node-list"]
         self.logger.info("Successfully get node configuration from kubernetes' configmap.")
-        return yaml.load(pai_node_list)
+        return yaml.load(pai_node_list, yaml.SafeLoader)
 
 
 
     """
-    Update node configuration in kubernetes configmap based on cluster configuration  
+    Update node configuration in kubernetes configmap based on cluster configuration
     """
     def update_node_config(self):
         self.logger.info("Try to update node configuration to kubernetes' configmap.")
@@ -178,12 +178,12 @@ class update:
 
 
     """
-    Check all machine in the k8s configuration. 
+    Check all machine in the k8s configuration.
     With the url to check the k8s node is setup or not.
-    
+
     URL: [ x.x.x.x:10248/healthz ]
-    
-    If ok, the node is setup. 
+
+    If ok, the node is setup.
     Or paictl will first do a clean on the target node and then bootstrap corresponding service according to the role of the node.
     """
     def add_machine(self):
@@ -217,7 +217,7 @@ class update:
 
     """
     Check all machine in the node list from k8s.
-    If the nodename not in the k8s configuration. 
+    If the nodename not in the k8s configuration.
     Paictl will clean the node.
     Or do nothing.
     """
