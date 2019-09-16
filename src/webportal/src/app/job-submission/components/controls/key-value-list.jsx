@@ -23,15 +23,43 @@
  * SOFTWARE.
  */
 
-import {camelCase, isEmpty, isNil} from 'lodash';
-import {IconButton, Stack, DetailsList, CheckboxVisibility, DetailsListLayoutMode, CommandBarButton, getTheme, SelectionMode} from 'office-ui-fabric-react';
+import { camelCase, isEmpty, isNil } from 'lodash';
+import {
+  IconButton,
+  Stack,
+  DetailsList,
+  CheckboxVisibility,
+  DetailsListLayoutMode,
+  CommandBarButton,
+  getTheme,
+  SelectionMode,
+} from 'office-ui-fabric-react';
 import PropTypes from 'prop-types';
-import React, {useCallback, useLayoutEffect, useMemo, useState, useContext} from 'react';
-import {DebouncedTextField} from './debounced-text-field';
-import {dispatchResizeEvent} from '../../utils/utils';
+import React, {
+  useCallback,
+  useLayoutEffect,
+  useMemo,
+  useState,
+  useContext,
+} from 'react';
+import { DebouncedTextField } from './debounced-text-field';
+import { dispatchResizeEvent } from '../../utils/utils';
 import context from '../context';
 
-export const KeyValueList = ({name, value, onChange, onError, columnWidth, keyName, keyField, valueName, valueField, secret, onValidateKey, onValidateValue}) => {
+export const KeyValueList = ({
+  name,
+  value,
+  onChange,
+  onError,
+  columnWidth,
+  keyName,
+  keyField,
+  valueName,
+  valueField,
+  secret,
+  onValidateKey,
+  onValidateValue,
+}) => {
   columnWidth = columnWidth || 180;
   keyName = keyName || 'Key';
   keyField = keyField || camelCase(keyName);
@@ -39,7 +67,7 @@ export const KeyValueList = ({name, value, onChange, onError, columnWidth, keyNa
   valueField = valueField || camelCase(valueName);
 
   const [dupList, setDupList] = useState([]);
-  const {setErrorMessage} = useContext(context);
+  const { setErrorMessage } = useContext(context);
 
   useMemo(() => {
     const keyCount = value.reduce((res, x) => {
@@ -49,14 +77,16 @@ export const KeyValueList = ({name, value, onChange, onError, columnWidth, keyNa
       res[x[keyField]] += 1;
       return res;
     }, {});
-    const newDupList = value.filter((x) => keyCount[x[keyField]] > 1).map((x) => x[keyField]);
+    const newDupList = value
+      .filter(x => keyCount[x[keyField]] > 1)
+      .map(x => x[keyField]);
 
     const msgId = `KeyValueList ${name}`;
     let errorMessage = '';
     if (newDupList.length > 0) {
       errorMessage = `${name || 'KeyValueList'} has duplicated keys.`;
     }
-    if (value.some((x) => isEmpty(x[keyField]) && !isEmpty(x[valueField]))) {
+    if (value.some(x => isEmpty(x[keyField]) && !isEmpty(x[valueField]))) {
       errorMessage = `${name || 'KeyValueList'} has value with empty key.`;
     }
     if (!isNil(onValidateKey) || !isNil(onValidateValue)) {
@@ -85,20 +115,37 @@ export const KeyValueList = ({name, value, onChange, onError, columnWidth, keyNa
   }, [value]);
 
   const onAdd = useCallback(() => {
-    onChange([...value, {[keyField]: '', [valueField]: ''}]);
+    onChange([...value, { [keyField]: '', [valueField]: '' }]);
   }, [onChange, value, keyField, valueField]);
 
-  const onRemove = useCallback((idx) => {
-    onChange([...value.slice(0, idx), ...value.slice(idx + 1)]);
-  }, [onChange, value]);
+  const onRemove = useCallback(
+    idx => {
+      onChange([...value.slice(0, idx), ...value.slice(idx + 1)]);
+    },
+    [onChange, value],
+  );
 
-  const onKeyChange = useCallback((idx, val) => {
-    onChange([...value.slice(0, idx), {...value[idx], [keyField]: val}, ...value.slice(idx + 1)]);
-  }, [onChange, value, keyField]);
+  const onKeyChange = useCallback(
+    (idx, val) => {
+      onChange([
+        ...value.slice(0, idx),
+        { ...value[idx], [keyField]: val },
+        ...value.slice(idx + 1),
+      ]);
+    },
+    [onChange, value, keyField],
+  );
 
-  const onValueChange = useCallback((idx, val) => {
-    onChange([...value.slice(0, idx), {...value[idx], [valueField]: val}, ...value.slice(idx + 1)]);
-  }, [onChange, value, valueField]);
+  const onValueChange = useCallback(
+    (idx, val) => {
+      onChange([
+        ...value.slice(0, idx),
+        { ...value[idx], [valueField]: val },
+        ...value.slice(idx + 1),
+      ]);
+    },
+    [onChange, value, valueField],
+  );
 
   const getKey = useCallback((item, idx) => idx, []);
 
@@ -108,7 +155,7 @@ export const KeyValueList = ({name, value, onChange, onError, columnWidth, keyNa
     dispatchResizeEvent();
   });
 
-  const {spacing} = getTheme();
+  const { spacing } = getTheme();
 
   const columns = [
     {
@@ -164,7 +211,7 @@ export const KeyValueList = ({name, value, onChange, onError, columnWidth, keyNa
       key: 'remove',
       name: 'Remove',
       minWidth: 50,
-      style: {padding: 0},
+      style: { padding: 0 },
       onRender: (item, idx) => (
         <div
           style={{
@@ -176,7 +223,7 @@ export const KeyValueList = ({name, value, onChange, onError, columnWidth, keyNa
         >
           <IconButton
             key={`remove-button-${idx}`}
-            iconProps={{iconName: 'Delete'}}
+            iconProps={{ iconName: 'Delete' }}
             onClick={() => onRemove(idx)}
           />
         </div>
@@ -199,8 +246,8 @@ export const KeyValueList = ({name, value, onChange, onError, columnWidth, keyNa
       </div>
       <div>
         <CommandBarButton
-          styles={{root: {padding: spacing.s1}}}
-          iconProps={{iconName: 'Add'}}
+          styles={{ root: { padding: spacing.s1 } }}
+          iconProps={{ iconName: 'Add' }}
           onClick={onAdd}
         >
           Add

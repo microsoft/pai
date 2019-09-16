@@ -44,7 +44,11 @@ async function fetchWrapper(...args) {
 }
 
 export async function listJobs() {
-  return fetchWrapper(`${config.restServerUri}/api/v1/jobs?${querystring.stringify({username})}`);
+  return fetchWrapper(
+    `${config.restServerUri}/api/v1/jobs?${querystring.stringify({
+      username,
+    })}`,
+  );
 }
 
 export async function listAllJobs() {
@@ -64,7 +68,9 @@ export async function listVirtualClusters() {
 }
 
 export async function getAvailableGpuPerNode() {
-  const res = await fetch(`${config.restServerUri}/api/v2/virtual-clusters?nodes`);
+  const res = await fetch(
+    `${config.restServerUri}/api/v2/virtual-clusters?nodes`,
+  );
 
   if (res.ok) {
     const json = await res.json();
@@ -85,13 +91,17 @@ export async function getAvailableGpuPerNode() {
 
 export async function getLowGpuJobInfos() {
   const prometheusQuery = `avg(avg_over_time(task_gpu_percent[10m]) < 10) by (job_name)`;
-  const res = await fetch(`${config.prometheusUri}/api/v1/query?query=${encodeURIComponent(prometheusQuery)}`);
+  const res = await fetch(
+    `${config.prometheusUri}/api/v1/query?query=${encodeURIComponent(
+      prometheusQuery,
+    )}`,
+  );
   const json = await res.json();
   if (!res.ok) {
     throw new Error(json.message);
   }
 
-  const lowGpuJobInfos = json.data.result.map((keyValuePair) => {
+  const lowGpuJobInfos = json.data.result.map(keyValuePair => {
     const frameworkName = keyValuePair.metric.job_name;
     const jobNameBeginIndex = frameworkName.indexOf('~');
     return {
@@ -103,15 +113,18 @@ export async function getLowGpuJobInfos() {
 }
 
 export async function stopJob(job) {
-  const {name, username} = job;
-  const res = await fetch(`${config.restServerUri}/api/v1/jobs/${username}~${name}/executionType`, {
-    method: 'PUT',
-    headers: {
-      'Authorization': `Bearer ${token}`,
-      'Content-Type': 'application/json',
+  const { name, username } = job;
+  const res = await fetch(
+    `${config.restServerUri}/api/v1/jobs/${username}~${name}/executionType`,
+    {
+      method: 'PUT',
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ value: 'STOP' }),
     },
-    body: JSON.stringify({value: 'STOP'}),
-  });
+  );
   const json = await res.json();
   if (!res.ok) {
     if (json.code === 'UnauthorizedUserError') {

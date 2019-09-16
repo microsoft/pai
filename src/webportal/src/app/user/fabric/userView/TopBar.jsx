@@ -15,26 +15,40 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-import React, {useContext, useState} from 'react';
+import React, { useContext, useState } from 'react';
 
-import {CommandBarButton, SearchBox, CommandBar, ContextualMenuItemType, ColorClassNames, getTheme, TooltipHost} from 'office-ui-fabric-react';
-import {PropTypes} from 'prop-types';
-import {findIndex} from 'lodash';
+import {
+  CommandBarButton,
+  SearchBox,
+  CommandBar,
+  ContextualMenuItemType,
+  ColorClassNames,
+  getTheme,
+  TooltipHost,
+} from 'office-ui-fabric-react';
+import { PropTypes } from 'prop-types';
+import { findIndex } from 'lodash';
 
 import Context from './Context';
 import Filter from './Filter';
 
-function FilterButton({defaultRender: Button, ...props}) {
-  const {subMenuProps: {items}} = props;
-  const checkedItems = items.filter((item) => item.checked).map((item) => item.text);
-  const checkedText = checkedItems.length === 0 ? null
-    : checkedItems.length === 1 ? <strong>{checkedItems[0]}</strong>
-      : <strong>{checkedItems[0]}{` (+${checkedItems.length - 1})`}</strong>;
-  return (
-    <Button {...props}>
-      {checkedText}
-    </Button>
-  );
+function FilterButton({ defaultRender: Button, ...props }) {
+  const {
+    subMenuProps: { items },
+  } = props;
+  const checkedItems = items
+    .filter(item => item.checked)
+    .map(item => item.text);
+  const checkedText =
+    checkedItems.length === 0 ? null : checkedItems.length === 1 ? (
+      <strong>{checkedItems[0]}</strong>
+    ) : (
+      <strong>
+        {checkedItems[0]}
+        {` (+${checkedItems.length - 1})`}
+      </strong>
+    );
+  return <Button {...props}>{checkedText}</Button>;
 }
 
 FilterButton.propTypes = {
@@ -43,17 +57,23 @@ FilterButton.propTypes = {
 };
 
 function KeywordSearchBox() {
-  const {filter, setFilter} = useContext(Context);
+  const { filter, setFilter } = useContext(Context);
   function onKeywordChange(keyword) {
-    const {admins, virtualClusters} = filter;
+    const { admins, virtualClusters } = filter;
     setFilter(new Filter(keyword, admins, virtualClusters));
   }
 
   return (
     <SearchBox
       underlined
-      placeholder="Filter by keyword"
-      styles={{root: {width: '220px', background: 'transparent', alignSelf: 'center'}}}
+      placeholder='Filter by keyword'
+      styles={{
+        root: {
+          width: '220px',
+          background: 'transparent',
+          alignSelf: 'center',
+        },
+      }}
       value={filter.keyword}
       onChange={onKeywordChange}
     />
@@ -62,9 +82,21 @@ function KeywordSearchBox() {
 
 function TopBar() {
   const [active, setActive] = useState(true);
-  const {allVCs, refreshAllUsers, getSelectedUsers, filter, setFilter, addUser, createBulkUsers, removeUsers, editUser, showBatchPasswordEditor, showBatchVirtualClustersEditor} = useContext(Context);
+  const {
+    allVCs,
+    refreshAllUsers,
+    getSelectedUsers,
+    filter,
+    setFilter,
+    addUser,
+    createBulkUsers,
+    removeUsers,
+    editUser,
+    showBatchPasswordEditor,
+    showBatchVirtualClustersEditor,
+  } = useContext(Context);
 
-  const transparentStyles = {root: {background: 'transparent'}};
+  const transparentStyles = { root: { background: 'transparent' } };
 
   /**
    * @type {import('office-ui-fabric-react').ICommandBarItemProps}
@@ -104,8 +136,11 @@ function TopBar() {
     },
     onClick: removeUsers,
     onRender(item) {
-      return (
-        <TooltipHost content={item.disabledTip} styles={{root: {display: 'inherit'}}}>
+      return ((
+        <TooltipHost
+          content={item.disabledTip}
+          styles={{ root: { display: 'inherit' } }}
+        >
           <CommandBarButton
             onClick={item.onClick}
             iconProps={item.iconProps}
@@ -116,7 +151,7 @@ function TopBar() {
             {item.name}
           </CommandBarButton>
         </TooltipHost>
-      );
+      ));
     },
   };
 
@@ -160,8 +195,11 @@ function TopBar() {
     },
     onClick: showBatchVirtualClustersEditor,
     onRender(item) {
-      return (
-        <TooltipHost content={item.disabledTip} styles={{root: {display: 'inherit'}}}>
+      return ((
+        <TooltipHost
+          content={item.disabledTip}
+          styles={{ root: { display: 'inherit' } }}
+        >
           <CommandBarButton
             onClick={item.onClick}
             iconProps={item.iconProps}
@@ -172,7 +210,7 @@ function TopBar() {
             {item.name}
           </CommandBarButton>
         </TooltipHost>
-      );
+      ));
     },
   };
 
@@ -203,13 +241,13 @@ function TopBar() {
   const btnFilters = {
     key: 'filters',
     name: 'Filters',
-    iconProps: {iconName: 'Filter'},
-    menuIconProps: {iconName: active ? 'ChevronUp' : 'ChevronDown'},
+    iconProps: { iconName: 'Filter' },
+    menuIconProps: { iconName: active ? 'ChevronUp' : 'ChevronDown' },
     onClick() {
       setActive(!active);
     },
     onRender(item) {
-      return (
+      return ((
         <CommandBarButton
           onClick={item.onClick}
           iconProps={item.iconProps}
@@ -217,8 +255,8 @@ function TopBar() {
           styles={transparentStyles}
         >
           Filters
-          </CommandBarButton>
-      );
+        </CommandBarButton>
+      ));
     },
   };
 
@@ -228,7 +266,7 @@ function TopBar() {
   const btnClear = {
     key: 'clear',
     name: 'Clear',
-    buttonStyles: {root: {background: 'transparent', height: '100%'}},
+    buttonStyles: { root: { background: 'transparent', height: '100%' } },
     iconOnly: true,
     iconProps: {
       iconName: 'Cancel',
@@ -247,9 +285,9 @@ function TopBar() {
      * @param {React.SyntheticEvent} event
      * @param {import('office-ui-fabric-react').IContextualMenuItem} item
      */
-    function onClick(event, {key, checked}) {
+    function onClick(event, { key, checked }) {
       event.preventDefault();
-      const {keyword, virtualClusters} = filter;
+      const { keyword, virtualClusters } = filter;
       const admins = new Set(filter.admins);
       if (checked) {
         admins.delete(key);
@@ -264,7 +302,7 @@ function TopBar() {
      */
     function onClearClick(event) {
       event.preventDefault();
-      const {keyword, virtualClusters} = filter;
+      const { keyword, virtualClusters } = filter;
       setFilter(new Filter(keyword, new Set(), virtualClusters));
     }
 
@@ -291,15 +329,16 @@ function TopBar() {
         iconName: 'Admin',
       },
       subMenuProps: {
-        items: [true, false].map(getItem).concat([{
-          key: 'divider',
-          itemType: ContextualMenuItemType.Divider,
-        },
-        {
-          key: 'clear',
-          text: 'Clear',
-          onClick: onClearClick,
-        },
+        items: [true, false].map(getItem).concat([
+          {
+            key: 'divider',
+            itemType: ContextualMenuItemType.Divider,
+          },
+          {
+            key: 'clear',
+            text: 'Clear',
+            onClick: onClearClick,
+          },
         ]),
       },
       commandBarButtonAs: FilterButton,
@@ -314,9 +353,9 @@ function TopBar() {
      * @param {React.SyntheticEvent} event
      * @param {import('office-ui-fabric-react').IContextualMenuItem} item
      */
-    function onClick(event, {key, checked}) {
+    function onClick(event, { key, checked }) {
       event.preventDefault();
-      const {keyword, admins} = filter;
+      const { keyword, admins } = filter;
       const virtualClusters = new Set(filter.virtualClusters);
       if (checked) {
         virtualClusters.delete(key);
@@ -331,7 +370,7 @@ function TopBar() {
      */
     function onClearClick(event) {
       event.preventDefault();
-      const {keyword, admins} = filter;
+      const { keyword, admins } = filter;
       setFilter(new Filter(keyword, admins, new Set()));
     }
 
@@ -358,15 +397,16 @@ function TopBar() {
         iconName: 'CellPhone',
       },
       subMenuProps: {
-        items: allVCs.map(getItem).concat([{
-          key: 'divider',
-          itemType: ContextualMenuItemType.Divider,
-        },
-        {
-          key: 'clear',
-          text: 'Clear',
-          onClick: onClearClick,
-        },
+        items: allVCs.map(getItem).concat([
+          {
+            key: 'divider',
+            itemType: ContextualMenuItemType.Divider,
+          },
+          {
+            key: 'clear',
+            text: 'Clear',
+            onClick: onClearClick,
+          },
         ]),
       },
       commandBarButtonAs: FilterButton,
@@ -377,14 +417,22 @@ function TopBar() {
   const selectedUsers = getSelectedUsers();
   const selected = selectedUsers.length > 0;
   const selectedMulti = selectedUsers.length > 1;
-  const selectedAdmin = findIndex(selectedUsers, (user) => user.admin) != -1;
+  const selectedAdmin = findIndex(selectedUsers, user => user.admin) !== -1;
   if (selected) {
     if (selectedMulti) {
       topBarItems.push(btnBatchEditPassword);
       if (selectedAdmin) {
-        const disabledTip = 'Unable to do this for administrators, please make sure the multi-option does not include an administrator';
-        topBarItems.push(Object.assign(btnBatchEditVirtualClusters, {disabled: true, disabledTip}));
-        topBarItems.push(Object.assign(btnRemove, {disabled: true, disabledTip}));
+        const disabledTip =
+          'Unable to do this for administrators, please make sure the multi-option does not include an administrator';
+        topBarItems.push(
+          Object.assign(btnBatchEditVirtualClusters, {
+            disabled: true,
+            disabledTip,
+          }),
+        );
+        topBarItems.push(
+          Object.assign(btnRemove, { disabled: true, disabledTip }),
+        );
       } else {
         topBarItems.push(btnBatchEditVirtualClusters);
         topBarItems.push(btnRemove);
@@ -392,7 +440,12 @@ function TopBar() {
     } else {
       topBarItems.push(btnEdit);
       if (selectedAdmin) {
-        topBarItems.push(Object.assign(btnRemove, {disabled: true, disabledTip: 'The administrator could not be removed'}));
+        topBarItems.push(
+          Object.assign(btnRemove, {
+            disabled: true,
+            disabledTip: 'The administrator could not be removed',
+          }),
+        );
       } else {
         topBarItems.push(btnRemove);
       }
@@ -405,31 +458,34 @@ function TopBar() {
   const topBarFarItems = [btnFilters];
 
   const filterBarItems = [inputKeyword];
-  const filterBarFarItems = [
-    getBtnVirtualCluster(),
-    getBtnAdmin(),
-    btnClear,
-  ];
+  const filterBarFarItems = [getBtnVirtualCluster(), getBtnAdmin(), btnClear];
 
-  const {spacing} = getTheme();
+  const { spacing } = getTheme();
 
   return (
     <React.Fragment>
       <CommandBar
         items={topBarItems}
         farItems={topBarFarItems}
-        styles={{root: {backgroundColor: 'transparent', padding: 0}}}
+        styles={{ root: { backgroundColor: 'transparent', padding: 0 } }}
       />
-      {active ? <CommandBar
-        items={filterBarItems}
-        farItems={filterBarFarItems}
-        styles={{
-          root: [
-            ColorClassNames.neutralLightBackground,
-            {marginTop: spacing.s2, paddingTop: spacing.m, paddingBottom: spacing.m, height: 'auto'},
-          ],
-        }}
-      /> : null}
+      {active ? (
+        <CommandBar
+          items={filterBarItems}
+          farItems={filterBarFarItems}
+          styles={{
+            root: [
+              ColorClassNames.neutralLightBackground,
+              {
+                marginTop: spacing.s2,
+                paddingTop: spacing.m,
+                paddingBottom: spacing.m,
+                height: 'auto',
+              },
+            ],
+          }}
+        />
+      ) : null}
     </React.Fragment>
   );
 }

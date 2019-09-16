@@ -15,17 +15,23 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-
 import c from 'classnames';
 import PropTypes from 'prop-types';
-import {isNil} from 'lodash';
-import React, {useEffect, useLayoutEffect, useRef} from 'react';
+import { isNil } from 'lodash';
+import React, { useEffect, useLayoutEffect, useRef } from 'react';
 import ReactMonacoEditor from 'react-monaco-editor';
 
-import {monacoHack} from './monaco-hack.scss';
+import { monacoHack } from './monaco-hack.scss';
 import t from './tachyons.scss';
 
-const MonacoEditor = ({className, style, monacoProps, completionItems, schemas, monacoRef}) => {
+const MonacoEditor = ({
+  className,
+  style,
+  monacoProps,
+  completionItems,
+  schemas,
+  monacoRef,
+}) => {
   // monaco variables
   const monaco = useRef(null);
   const editor = useRef(null);
@@ -70,7 +76,7 @@ const MonacoEditor = ({className, style, monacoProps, completionItems, schemas, 
   useEffect(() => {
     if (completionItems) {
       completionList.current = {
-        suggestions: completionItems.map((x) => ({
+        suggestions: completionItems.map(x => ({
           label: x,
           insertText: x,
         })),

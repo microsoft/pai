@@ -23,18 +23,29 @@
  * SOFTWARE.
  */
 
-import {jobProtocolSchema} from '../models/protocol-schema';
+import { jobProtocolSchema } from '../models/protocol-schema';
 
-import {get, isEmpty, cloneDeep} from 'lodash';
+import { get, isEmpty, cloneDeep } from 'lodash';
 import yaml from 'js-yaml';
 import Joi from 'joi-browser';
-import {removeEmptyProperties} from '../utils/utils';
-import {TaskRolesManager} from '../utils/task-roles-manager';
+import { removeEmptyProperties } from '../utils/utils';
+import { TaskRolesManager } from '../utils/task-roles-manager';
 
 export class JobProtocol {
   constructor(props) {
-    const {name, jobRetryCount, prerequisites, parameters, taskRoles, deployments,
-           description, contributor, secrets, defaults, extras} = props;
+    const {
+      name,
+      jobRetryCount,
+      prerequisites,
+      parameters,
+      taskRoles,
+      deployments,
+      description,
+      contributor,
+      secrets,
+      defaults,
+      extras,
+    } = props;
     this.protocolVersion = 2;
     this.name = name || '';
     this.description = description || '';
@@ -70,15 +81,15 @@ export class JobProtocol {
   }
 
   static safePruneProtocol(protocol) {
-    const prunedProtocol= removeEmptyProperties(protocol);
+    const prunedProtocol = removeEmptyProperties(protocol);
     const taskRoles = cloneDeep(prunedProtocol.taskRoles);
-    Object.keys(taskRoles).forEach((taskRoleName) => {
+    Object.keys(taskRoles).forEach(taskRoleName => {
       const taskRoleContent = taskRoles[taskRoleName];
       if (isEmpty(taskRoleContent.commands)) {
         return;
       }
       taskRoleContent.commands = taskRoleContent.commands.filter(
-        (line) => !isEmpty(line),
+        line => !isEmpty(line),
       );
     });
     prunedProtocol.taskRoles = taskRoles;
@@ -93,27 +104,39 @@ export class JobProtocol {
     return String(result.error || '');
   }
 
-  getUpdatedProtocol(jobBasicInfo, jobTaskRoles, jobParameters, jobSecrets, protocolExtras) {
+  getUpdatedProtocol(
+    jobBasicInfo,
+    jobTaskRoles,
+    jobParameters,
+    jobSecrets,
+    protocolExtras,
+  ) {
     const parameters = removeEmptyProperties(
-      jobParameters
-        .reduce((res, parameter) => {
-          res[parameter.key] = parameter.value;
-          return res;
-        }, {})
+      jobParameters.reduce((res, parameter) => {
+        res[parameter.key] = parameter.value;
+        return res;
+      }, {}),
     );
     let deployments = this._generateDeployments(jobTaskRoles);
     const deployName = get(this, 'defaults.deployment', 'defaultDeployment');
-    deployments = isEmpty(deployments) ? [] : [{name: deployName, taskRoles: deployments}];
+    deployments = isEmpty(deployments)
+      ? []
+      : [{ name: deployName, taskRoles: deployments }];
 
     const prerequisites = this.prerequisites
-      .filter((prerequisite) => prerequisite.type !== 'dockerimage')
+      .filter(prerequisite => prerequisite.type !== 'dockerimage')
       .concat(TaskRolesManager.getTaskRolesPrerequisites(jobTaskRoles));
     const taskRoles = this._updateAndConvertTaskRoles(jobTaskRoles);
-    const secrets = removeEmptyProperties(jobSecrets.reduce((res, secret) => {
-      res[secret.key] = secret.value;
-      return res;
-    }, {}));
-    const defaultsField = {...this.defaults, ...removeEmptyProperties(jobBasicInfo.getDefaults())};
+    const secrets = removeEmptyProperties(
+      jobSecrets.reduce((res, secret) => {
+        res[secret.key] = secret.value;
+        return res;
+      }, {}),
+    );
+    const defaultsField = {
+      ...this.defaults,
+      ...removeEmptyProperties(jobBasicInfo.getDefaults()),
+    };
 
     return new JobProtocol({
       ...this,
@@ -129,10 +152,13 @@ export class JobProtocol {
   }
 
   _updateAndConvertTaskRoles(jobTaskRoles) {
-    return jobTaskRoles.reduce((res, taskRole) => ({
-      ...res,
-      ...taskRole.convertToProtocolFormat(),
-    }), {});
+    return jobTaskRoles.reduce(
+      (res, taskRole) => ({
+        ...res,
+        ...taskRole.convertToProtocolFormat(),
+      }),
+      {},
+    );
   }
 
   _generateDeployments(jobTaskRoles) {

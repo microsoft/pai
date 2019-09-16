@@ -25,19 +25,24 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import {FormTextField} from './form-text-field';
-import {DockerSection} from './docker-section';
-import {FormPage} from './form-page';
-import {JobTaskRole} from '../models/job-task-role';
-import {FormSpinButton} from './form-spin-button';
-import {ContainerSizeSection} from './container-size-section';
-import {CommandSection} from './command-section';
-import {CompletionPolicy} from './task-role/completion-policy';
-import {PortsList} from './task-role/ports-list';
-import {getDefaultContainerSize} from '../models/container-size';
-import {PROTOCOL_TOOLTIPS} from '../utils/constants';
+import { FormTextField } from './form-text-field';
+import { DockerSection } from './docker-section';
+import { FormPage } from './form-page';
+import { JobTaskRole } from '../models/job-task-role';
+import { FormSpinButton } from './form-spin-button';
+import { ContainerSizeSection } from './container-size-section';
+import { CommandSection } from './command-section';
+import { CompletionPolicy } from './task-role/completion-policy';
+import { PortsList } from './task-role/ports-list';
+import { getDefaultContainerSize } from '../models/container-size';
+import { PROTOCOL_TOOLTIPS } from '../utils/constants';
 
-export const TabFormContent = ({jobTaskRole, onContentChange, advanceFlag, isSingle}) => {
+export const TabFormContent = ({
+  jobTaskRole,
+  onContentChange,
+  advanceFlag,
+  isSingle,
+}) => {
   const _onValueChange = (propertyName, propertyValue) => {
     const updatedJobTaskRole = new JobTaskRole(jobTaskRole);
     updatedJobTaskRole[propertyName] = propertyValue;
@@ -46,8 +51,8 @@ export const TabFormContent = ({jobTaskRole, onContentChange, advanceFlag, isSin
     }
   };
 
-  const _onValuesChange = (updateProperties) => {
-    let updatedJobTaskRole = {...jobTaskRole, ...updateProperties};
+  const _onValuesChange = updateProperties => {
+    let updatedJobTaskRole = { ...jobTaskRole, ...updateProperties };
     updatedJobTaskRole = new JobTaskRole(updatedJobTaskRole);
     if (onContentChange !== undefined) {
       onContentChange(updatedJobTaskRole);
@@ -56,33 +61,33 @@ export const TabFormContent = ({jobTaskRole, onContentChange, advanceFlag, isSin
 
   return (
     <FormPage>
-      {!isSingle &&
+      {!isSingle && (
         <FormTextField
           sectionLabel={'Task role name'}
           sectionTooltip={PROTOCOL_TOOLTIPS.taskRoleName}
           shortStyle
           value={jobTaskRole.name}
-          onChange={(value) => _onValueChange('name', value)}
+          onChange={value => _onValueChange('name', value)}
           placeholder='Enter task role name...'
         />
-      }
+      )}
       <CommandSection
         value={jobTaskRole.commands}
-        onChange={(value) => _onValueChange('commands', value)}
+        onChange={value => _onValueChange('commands', value)}
       />
-      {!isSingle &&
+      {!isSingle && (
         <FormSpinButton
           sectionLabel={'Instances'}
           shortStyle
-          textFiledProps={{placeholder: 'Enter instance number...'}}
+          textFiledProps={{ placeholder: 'Enter instance number...' }}
           value={jobTaskRole.instances}
           min={1}
-          onChange={(value) => _onValueChange('instances', value)}
+          onChange={value => _onValueChange('instances', value)}
         />
-      }
+      )}
       <ContainerSizeSection
         value={jobTaskRole.containerSize}
-        onEnable={(checked) =>
+        onEnable={checked =>
           _onValuesChange({
             isContainerSizeEnabled: checked,
             containerSize: getDefaultContainerSize(
@@ -90,7 +95,7 @@ export const TabFormContent = ({jobTaskRole, onContentChange, advanceFlag, isSin
             ),
           })
         }
-        onChange={(containerSize) =>
+        onChange={containerSize =>
           _onValueChange('containerSize', containerSize)
         }
         isContainerSizeEnabled={jobTaskRole.isContainerSizeEnabled}
@@ -98,23 +103,23 @@ export const TabFormContent = ({jobTaskRole, onContentChange, advanceFlag, isSin
       <DockerSection
         sectionTooltip={PROTOCOL_TOOLTIPS.dockerImage}
         value={jobTaskRole.dockerInfo}
-        onValueChange={(dockerInfo) => _onValueChange('dockerInfo', dockerInfo)}
+        onValueChange={dockerInfo => _onValueChange('dockerInfo', dockerInfo)}
       />
       {advanceFlag && (
         <React.Fragment>
           <PortsList
             ports={jobTaskRole.ports}
-            onChange={(ports) => _onValueChange('ports', ports)}
+            onChange={ports => _onValueChange('ports', ports)}
           />
           <FormSpinButton
             sectionLabel={'Task retry count'}
             shortStyle
             sectionOptional
             value={jobTaskRole.taskRetryCount || 0}
-            onChange={(value) => _onValueChange('taskRetryCount', value)}
+            onChange={value => _onValueChange('taskRetryCount', value)}
           />
           <CompletionPolicy
-            onChange={(completion) => _onValueChange('completion', completion)}
+            onChange={completion => _onValueChange('completion', completion)}
             value={jobTaskRole.completion}
           />
         </React.Fragment>

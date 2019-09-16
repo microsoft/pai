@@ -15,16 +15,16 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-import React, {useContext} from 'react';
+import React, { useContext } from 'react';
 
-import {CommandBar} from 'office-ui-fabric-react';
+import { CommandBar } from 'office-ui-fabric-react';
 
 import Context from './Context';
 import Pagination from './Pagination';
 
 export default function Paginator() {
-  const {filteredUsers, pagination, setPagination} = useContext(Context);
-  const {itemsPerPage, pageIndex} = pagination;
+  const { filteredUsers, pagination, setPagination } = useContext(Context);
+  const { itemsPerPage, pageIndex } = pagination;
   const length = filteredUsers !== null ? filteredUsers.length : 0;
   const maxPageIndex = Math.floor(length / itemsPerPage);
   const start = itemsPerPage * pageIndex + 1;
@@ -35,11 +35,11 @@ export default function Paginator() {
 
   /** @type {import('office-ui-fabric-react').IButtonStyles} */
   const buttonStyles = {
-    root: {backgroundColor: 'white'},
-    rootDisabled: {backgroundColor: 'white'},
+    root: { backgroundColor: 'white' },
+    rootDisabled: { backgroundColor: 'white' },
   };
 
-  function onClickItemsPerPage(event, {key}) {
+  function onClickItemsPerPage(event, { key }) {
     setPagination(new Pagination(key));
   }
 
@@ -47,9 +47,9 @@ export default function Paginator() {
     key: 'itemsPerPage',
     text: `${itemsPerPage} items per page`,
     buttonStyles,
-    menuIconProps: {iconName: 'ChevronUp'},
+    menuIconProps: { iconName: 'ChevronUp' },
     subMenuProps: {
-      items: [20, 50, 100].map((number) => ({
+      items: [20, 50, 100].map(number => ({
         key: String(number),
         text: String(number),
         onClick: onClickItemsPerPage,
@@ -90,12 +90,11 @@ export default function Paginator() {
     };
   }
 
-
   if (pageIndex !== 0) {
     farItems.push({
       key: 'page-previous',
       buttonStyles,
-      iconProps: {iconName: 'ChevronLeft'},
+      iconProps: { iconName: 'ChevronLeft' },
       iconOnly: true,
       onClick: setPage(pageIndex - 1),
     });
@@ -105,7 +104,7 @@ export default function Paginator() {
     farItems.push(
       getPageButton(0),
       getPageButton(1),
-      {key: 'page-ellipsis-left', disabled: true, text: '...', buttonStyles},
+      { key: 'page-ellipsis-left', disabled: true, text: '...', buttonStyles },
       getPageButton(pageIndex - 1),
     );
   } else {
@@ -114,12 +113,16 @@ export default function Paginator() {
     }
   }
 
-  farItems.push({key: `page-${pageIndex}`, checked: true, text: String(pageIndex + 1)});
+  farItems.push({
+    key: `page-${pageIndex}`,
+    checked: true,
+    text: String(pageIndex + 1),
+  });
 
   if (maxPageIndex - pageIndex > 3) {
     farItems.push(
       getPageButton(pageIndex + 1),
-      {key: 'page-ellipsis-right', disabled: true, text: '...', buttonStyles},
+      { key: 'page-ellipsis-right', disabled: true, text: '...', buttonStyles },
       getPageButton(maxPageIndex - 1),
       getPageButton(maxPageIndex),
     );
@@ -133,17 +136,16 @@ export default function Paginator() {
     farItems.push({
       key: 'page-next',
       buttonStyles,
-      iconProps: {iconName: 'ChevronRight'},
+      iconProps: { iconName: 'ChevronRight' },
       iconOnly: true,
       onClick: setPage(pageIndex + 1),
     });
   }
 
-
   return (
     <CommandBar
       farItems={farItems}
-      styles={{root: {backgroundColor: 'white'}}}
+      styles={{ root: { backgroundColor: 'white' } }}
     />
   );
 }

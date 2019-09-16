@@ -1,25 +1,25 @@
-import {getModified, getDuration, getStatusIndex} from './utils';
+import { getModified, getDuration, getStatusIndex } from './utils';
 
 export default class Ordering {
   /**
    * @param {"name" | "modified" | "user" | "duration" | "virtualCluster" | "retries" | "status" | "taskCount" | "gpuCount" | undefined} field
    * @param {boolean | undefined} descending
    */
-  constructor(field, descending=false) {
+  constructor(field, descending = false) {
     this.field = field;
     this.descending = descending;
   }
 
   apply(jobs) {
-    const {field, descending} = this;
+    const { field, descending } = this;
     let comparator;
     if (field == null) {
       return jobs;
     }
     if (field === 'name') {
       comparator = descending
-        ? (a, b) => (String(b.name).localeCompare(a.name))
-        : (a, b) => (String(a.name).localeCompare(b.name));
+        ? (a, b) => String(b.name).localeCompare(a.name)
+        : (a, b) => String(a.name).localeCompare(b.name);
     } else if (field === 'modified') {
       comparator = descending
         ? (a, b) => getModified(b) - getModified(a)

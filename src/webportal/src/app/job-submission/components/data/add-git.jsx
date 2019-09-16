@@ -1,14 +1,14 @@
-import React, {useState} from 'react';
-import {IconButton, Stack, TextField} from 'office-ui-fabric-react';
-import {cloneDeep} from 'lodash';
+import React, { useState } from 'react';
+import { IconButton, Stack, TextField } from 'office-ui-fabric-react';
+import { cloneDeep } from 'lodash';
 import PropTypes from 'prop-types';
 
-import {STORAGE_PREFIX, ERROR_MARGIN} from '../../utils/constants';
-import {InputData} from '../../models/data/input-data';
-import {validateMountPath, validateGitUrl} from '../../utils/validation';
+import { STORAGE_PREFIX, ERROR_MARGIN } from '../../utils/constants';
+import { InputData } from '../../models/data/input-data';
+import { validateMountPath, validateGitUrl } from '../../utils/validation';
 
-export const AddGit = (props) => {
-  const {dataList, setDataList, setDataType} = props;
+export const AddGit = props => {
+  const { dataList, setDataList, setDataType } = props;
   const [mountPath, setMountPath] = useState();
   const [gitUrl, setGitUrl] = useState();
   const [containerPathErrorMessage, setContainerPathErrorMessage] = useState(
@@ -33,7 +33,7 @@ export const AddGit = (props) => {
           prefix={STORAGE_PREFIX}
           label='Container path'
           errorMessage={containerPathErrorMessage}
-          styles={{root: {width: 200}}}
+          styles={{ root: { width: 200 } }}
           onChange={(_event, newValue) => {
             const valid = validateMountPath(`/${newValue}`);
             if (!valid.isLegal) {
@@ -47,7 +47,7 @@ export const AddGit = (props) => {
       </Stack.Item>
       <Stack.Item align='baseline' />
       <TextField
-        required={true} // eslint-disable-line react/jsx-boolean-value
+        required={true}
         label='Git repo address'
         errorMessage={gitAddressErrorMessage}
         onChange={(_event, newValue) => {
@@ -62,12 +62,14 @@ export const AddGit = (props) => {
       />
       <Stack.Item align='end'>
         <IconButton
-          iconProps={{iconName: 'Accept'}}
+          iconProps={{ iconName: 'Accept' }}
           disabled={containerPathErrorMessage || gitAddressErrorMessage}
           styles={{
             root: {
               marginBottom:
-                containerPathErrorMessage || gitAddressErrorMessage ? ERROR_MARGIN : 0,
+                containerPathErrorMessage || gitAddressErrorMessage
+                  ? ERROR_MARGIN
+                  : 0,
             },
             rootDisabled: {
               backgroundColor: 'transparent',
@@ -78,11 +80,13 @@ export const AddGit = (props) => {
       </Stack.Item>
       <Stack.Item align='end'>
         <IconButton
-          iconProps={{iconName: 'Cancel'}}
+          iconProps={{ iconName: 'Cancel' }}
           styles={{
             root: {
               marginBottom:
-                containerPathErrorMessage || gitAddressErrorMessage ? ERROR_MARGIN : 0,
+                containerPathErrorMessage || gitAddressErrorMessage
+                  ? ERROR_MARGIN
+                  : 0,
             },
           }}
           onClick={() => {

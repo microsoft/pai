@@ -24,9 +24,9 @@
  */
 
 import PropTypes from 'prop-types';
-import React, {useState, useEffect} from 'react';
+import React, { useState, useEffect } from 'react';
 import ReactDOM from 'react-dom';
-import {HashRouter as Router, Route} from 'react-router-dom';
+import { HashRouter as Router, Route } from 'react-router-dom';
 import {
   initializeIcons,
   Fabric,
@@ -38,21 +38,21 @@ import {
   FontWeights,
 } from 'office-ui-fabric-react';
 
-import {initTheme} from '../components/theme';
+import { initTheme } from '../components/theme';
 import uploadRoot from '../../assets/img/upload-root.svg';
 import uploadPress from '../../assets/img/upload-press.svg';
 import singleRoot from '../../assets/img/single-root.svg';
 import singlePress from '../../assets/img/single-press.svg';
 import distributeRoot from '../../assets/img/distribute-root.svg';
 import distributePress from '../../assets/img/distribute-press.svg';
-import {JobSubmissionPage} from './job-submission-page';
+import { JobSubmissionPage } from './job-submission-page';
 import Card from '../components/card';
-import {JobProtocol} from './models/job-protocol';
+import { JobProtocol } from './models/job-protocol';
 
 initTheme();
 initializeIcons();
 
-const {spacing, palette} = getTheme();
+const { spacing, palette } = getTheme();
 
 const IconStyle = {
   root: {
@@ -85,14 +85,13 @@ const IconStyle = {
     borderWidth: 3,
     width: 215,
     height: 215,
-
   },
 };
 
-const JobWizard = ({setYamlText, history}) => {
+const JobWizard = ({ setYamlText, history }) => {
   const uploadFile = React.createRef();
 
-  const _importFile = (event) => {
+  const _importFile = event => {
     event.preventDefault();
     const files = event.target.files;
     if (!files || !files[0]) {
@@ -124,16 +123,26 @@ const JobWizard = ({setYamlText, history}) => {
   }, []);
 
   return (
-    <Card style={{height: '90%', margin: `${spacing.l2}`}}>
+    <Card style={{ height: '90%', margin: `${spacing.l2}` }}>
       <Stack horizontalAlign='center' padding={100} gap={100}>
-        <Text styles={{root: {color: palette.themePrimary, fontSize: FontSizes.xxLarge, fontWeight: FontWeights.semibold, alignItems: 'center', position: 'absolute'}}}>
+        <Text
+          styles={{
+            root: {
+              color: palette.themePrimary,
+              fontSize: FontSizes.xxLarge,
+              fontWeight: FontWeights.semibold,
+              alignItems: 'center',
+              position: 'absolute',
+            },
+          }}
+        >
           Select your job type
         </Text>
         <Stack
           horizontal
           horizontalAlign='center'
           gap={120}
-          style={{width: '100%', marginTop: 100}}
+          style={{ width: '100%', marginTop: 100 }}
         >
           <Stack horizontalAlign='center' gap={50}>
             <DefaultButton
@@ -151,18 +160,25 @@ const JobWizard = ({setYamlText, history}) => {
                   ...IconStyle.press,
                 },
               }}
-              onClick = {() => {
+              onClick={() => {
                 uploadFile.current.click();
               }}
             />
             <input
               type='file'
               ref={uploadFile}
-              style={{display: 'none'}}
+              style={{ display: 'none' }}
               accept='.yml,.yaml'
               onChange={_importFile}
             />
-            <Text styles={{root: {fontSize: FontSizes.large, fontWeight: FontWeights.semibold}}}>
+            <Text
+              styles={{
+                root: {
+                  fontSize: FontSizes.large,
+                  fontWeight: FontWeights.semibold,
+                },
+              }}
+            >
               Import Config
             </Text>
           </Stack>
@@ -186,7 +202,14 @@ const JobWizard = ({setYamlText, history}) => {
                 history.push('/single');
               }}
             />
-            <Text styles={{root: {fontSize: FontSizes.large, fontWeight: FontWeights.semibold}}}>
+            <Text
+              styles={{
+                root: {
+                  fontSize: FontSizes.large,
+                  fontWeight: FontWeights.semibold,
+                },
+              }}
+            >
               Single Job
             </Text>
           </Stack>
@@ -210,7 +233,14 @@ const JobWizard = ({setYamlText, history}) => {
                 history.push('/general');
               }}
             />
-            <Text styles={{root: {fontSize: FontSizes.large, fontWeight: FontWeights.semibold}}}>
+            <Text
+              styles={{
+                root: {
+                  fontSize: FontSizes.large,
+                  fontWeight: FontWeights.semibold,
+                },
+              }}
+            >
               Distributed Job
             </Text>
           </Stack>
@@ -228,17 +258,35 @@ JobWizard.propTypes = {
 const App = () => {
   const [yamlText, setYamlText] = useState();
   return (
-    <Fabric style={{height: '100%'}}>
+    <Fabric style={{ height: '100%' }}>
       <Router>
-        <Route path="/" exact render={({history}) => (
-          <JobWizard setYamlText={setYamlText} history={history} />
-        )}/>
-        <Route path="/single" render={({history}) => (
-          <JobSubmissionPage isSingle={true} history={history} setYamlText={setYamlText} />
-        )}/>
-        <Route path="/general" render={({history}) => (
-          <JobSubmissionPage isSingle={false} yamlText={yamlText} history={history} />
-        )}/>
+        <Route
+          path='/'
+          exact
+          render={({ history }) => (
+            <JobWizard setYamlText={setYamlText} history={history} />
+          )}
+        />
+        <Route
+          path='/single'
+          render={({ history }) => (
+            <JobSubmissionPage
+              isSingle={true}
+              history={history}
+              setYamlText={setYamlText}
+            />
+          )}
+        />
+        <Route
+          path='/general'
+          render={({ history }) => (
+            <JobSubmissionPage
+              isSingle={false}
+              yamlText={yamlText}
+              history={history}
+            />
+          )}
+        />
       </Router>
     </Fabric>
   );

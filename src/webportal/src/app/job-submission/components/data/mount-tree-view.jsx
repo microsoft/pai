@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from 'react';
+import React, { useState, useEffect } from 'react';
 import c from 'classnames';
 import {
   IconButton,
@@ -10,21 +10,21 @@ import {
 } from 'office-ui-fabric-react';
 import PropTypes from 'prop-types';
 
-import {TrieNode, MountPathTrie} from '../../models/data/mount-trie';
+import { TrieNode, MountPathTrie } from '../../models/data/mount-trie';
 import {
   getProjectNameFromGit,
   getFileNameFromHttp,
   getFolderNameFromHDFS,
 } from '../../utils/utils';
-import {InputData} from '../../models/data/input-data';
+import { InputData } from '../../models/data/input-data';
 
-const {spacing} = getTheme();
+const { spacing } = getTheme();
 
 function convertToTree(dataList) {
   const mountTrie = new MountPathTrie('/');
-  dataList.forEach((mountItem) => {
+  dataList.forEach(mountItem => {
     let mountPrefixArray = mountItem.mountPath.split('/');
-    mountPrefixArray = mountPrefixArray.map((path) => `/${path}`);
+    mountPrefixArray = mountPrefixArray.map(path => `/${path}`);
     let label;
     if (mountItem.sourceType === 'git') {
       label = [
@@ -47,7 +47,7 @@ function convertToTree(dataList) {
     } else {
       label = mountItem.dataSource.split(', ');
     }
-    label.forEach((l) => {
+    label.forEach(l => {
       mountPrefixArray.push(l);
       mountTrie.insertNode(mountPrefixArray);
       mountPrefixArray.pop();
@@ -56,7 +56,7 @@ function convertToTree(dataList) {
   return mountTrie.rootNode;
 }
 
-const TreeNode = ({label, isVisible, subpaths}) => {
+const TreeNode = ({ label, isVisible, subpaths }) => {
   const nodeType = subpaths ? 'folder' : 'file';
   const [childrenVisualState, setChildrenVisualState] = useState(isVisible);
 
@@ -70,22 +70,22 @@ const TreeNode = ({label, isVisible, subpaths}) => {
                 {childrenVisualState ? (
                   <div>
                     <IconButton
-                      iconProps={{iconName: 'ChevronDown'}}
+                      iconProps={{ iconName: 'ChevronDown' }}
                       onClick={() => setChildrenVisualState(false)}
                     />
                     <IconButton
-                      iconProps={{iconName: 'OpenFolderHorizontal'}}
+                      iconProps={{ iconName: 'OpenFolderHorizontal' }}
                       onClick={() => setChildrenVisualState(false)}
                     />
                   </div>
                 ) : (
                   <div>
                     <IconButton
-                      iconProps={{iconName: 'ChevronRight'}}
+                      iconProps={{ iconName: 'ChevronRight' }}
                       onClick={() => setChildrenVisualState(true)}
                     />
                     <IconButton
-                      iconProps={{iconName: 'FabricFolder'}}
+                      iconProps={{ iconName: 'FabricFolder' }}
                       onClick={() => setChildrenVisualState(true)}
                     />
                   </div>
@@ -93,15 +93,13 @@ const TreeNode = ({label, isVisible, subpaths}) => {
               </div>
             )}
             {nodeType === 'file' && (
-              <IconButton iconProps={{iconName: 'FileCode'}} />
+              <IconButton iconProps={{ iconName: 'FileCode' }} />
             )}
-            <Label>
-              {label}
-            </Label>
+            <Label>{label}</Label>
           </Stack>
-          <div style={{marginLeft: spacing.l2}}>
+          <div style={{ marginLeft: spacing.l2 }}>
             {subpaths &&
-              subpaths.map((item) => {
+              subpaths.map(item => {
                 return (
                   <TreeNode
                     key={item.fullpath}
@@ -118,7 +116,7 @@ const TreeNode = ({label, isVisible, subpaths}) => {
   );
 };
 
-export const MountTreeView = ({dataList}) => {
+export const MountTreeView = ({ dataList }) => {
   const [treeData, setTreeData] = useState(() => {
     const trie = new MountPathTrie('/');
     return trie.rootNode;
@@ -133,7 +131,7 @@ export const MountTreeView = ({dataList}) => {
     <div>
       <div
         className={c(FontClassNames.mediumPlus)}
-        style={{fontWeight: FontWeights.semibold}}
+        style={{ fontWeight: FontWeights.semibold }}
       >
         Preview container paths
       </div>

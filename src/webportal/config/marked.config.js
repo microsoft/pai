@@ -15,11 +15,9 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-
 // module dependencies
 const marked = require('marked');
-const url = require('url');
-
+const URL = require('url').URL;
 
 const baseUrl = 'https://github.com/Microsoft/pai/tree/master/docs/';
 
@@ -29,12 +27,14 @@ renderer.link = (href, title, text) => {
   if (marked.options.sanitize) {
     try {
       const prot = decodeURIComponent(unescape(href))
-          .replace(/[^\w:]/g, '')
-          .toLowerCase();
-      if (prot.indexOf('javascript:') === 0 ||
-          prot.indexOf('vbscript:') === 0 ||
-          prot.indexOf('data:') === 0) {
-            return '';
+        .replace(/[^\w:]/g, '')
+        .toLowerCase();
+      if (
+        prot.indexOf('javascript:') === 0 ||
+        prot.indexOf('vbscript:') === 0 ||
+        prot.indexOf('data:') === 0
+      ) {
+        return '';
       }
     } catch (e) {
       return '';
@@ -44,7 +44,7 @@ renderer.link = (href, title, text) => {
     return href;
   }
   if (href[0] !== '#') {
-    href = url.resolve(baseUrl, href);
+    href = new URL(href, baseUrl).href;
   }
   let out = '<a href="' + href + '"';
   if (title) {

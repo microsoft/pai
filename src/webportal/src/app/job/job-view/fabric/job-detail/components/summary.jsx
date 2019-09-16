@@ -425,7 +425,7 @@ export default class Summary extends React.Component {
               </div>
               <Dropdown
                 styles={{
-                  title: [FontClassNames.mediumPlus, {border: 0}],
+                  title: [FontClassNames.mediumPlus, { border: 0 }],
                 }}
                 dropdownWidth={180}
                 selectedKey={currentAttemptID}
