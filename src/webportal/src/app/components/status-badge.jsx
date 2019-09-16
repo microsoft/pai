@@ -154,8 +154,6 @@ export const StatusBadge = ({ status }) => {
       return <PrimaryBadge>{status}</PrimaryBadge>;
     case 'Stopping':
     case 'Waiting':
-    case 'Completing':
-    case 'RetryPending':
       return <WaitingBadge>{status}</WaitingBadge>;
     case 'Failed':
       return <FailedBadge>{status}</FailedBadge>;
@@ -175,8 +173,6 @@ StatusBadge.propTypes = {
     'Running',
     'Stopping',
     'Waiting',
-    'Completing',
-    'RetryPending',
     'Failed',
     'Succeeded',
     'Stopped',

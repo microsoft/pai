@@ -1,3 +1,5 @@
+import {getHumanizedJobStateString} from '../../../../components/util/job';
+
 /**
  * @returns {Date}
  */
@@ -19,39 +21,18 @@ export function getDuration(job) {
 }
 
 function generateStatus(job) {
-  if (job.state === 'WAITING') {
-    if (job.executionType === 'START') {
-      job._statusText = 'Waiting';
-      job._statusIndex = 0;
-    } else {
-      job._statusText = 'Stopping';
-      job._statusIndex = 2;
-    }
-  } else if (job.state === 'RUNNING') {
-    if (job.executionType === 'START') {
-      job._statusText = 'Running';
-      job._statusIndex = 1;
-    } else {
-      job._statusText = 'Stopping';
-      job._statusIndex = 2;
-    }
-  } else if (job.state === 'COMPLETING') {
-    job._statusText = 'Completing';
-    job._statusIndex = 2;
-  } else if (job.state === 'RETRY_PENDING') {
-    job._statusText = 'RetryPending';
-    job._statusIndex = 2;
-  } else if (job.state === 'SUCCEEDED') {
-    job._statusText = 'Succeeded';
+  job._statusText = getHumanizedJobStateString(job);
+  if (job._statusText === 'Waiting') {
+    job._statusIndex = 0;
+  } else if (job._statusText === 'Running') {
+    job._statusIndex = 1;
+  } else if (job._statusText === 'Succeeded') {
     job._statusIndex = 3;
-  } else if (job.state === 'FAILED') {
-    job._statusText = 'Failed';
+  } else if (job._statusText === 'Failed') {
     job._statusIndex = 4;
-  } else if (job.state === 'STOPPED') {
-    job._statusText = 'Stopped';
+  } else if (job._statusText === 'Stopped') {
     job._statusIndex = 5;
   } else {
-    job._statusText = 'Unknown';
     job._statusIndex = -1;
   }
 }

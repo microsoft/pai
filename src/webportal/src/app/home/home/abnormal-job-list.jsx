@@ -36,6 +36,7 @@ import {
   getHumanizedJobStateString,
   isLowGpuUsageJob,
   isLongRunJob,
+  isStoppable,
 } from '../../components/util/job';
 import { zeroPaddingClass } from './util';
 import { Header } from './header';
@@ -43,7 +44,6 @@ import userAuth from '../../user/user-auth/user-auth.component';
 import { stopJob } from './conn';
 import { cloneDeep } from 'lodash';
 import StopJobConfirm from '../../job/job-view/fabric/JobList/StopJobConfirm';
-import { getStatusText } from '../../job/job-view/fabric/JobList/utils';
 
 // Move it to common folder
 import { TooltipIcon } from '../../job-submission/components/controls/tooltip-icon';
@@ -160,8 +160,7 @@ const AbnormalJobList = ({ jobs, style }) => {
       className: zeroPaddingClass,
       isResizable: true,
       onRender(job) {
-        const statusText = getStatusText(job);
-        const disabled = statusText !== 'Waiting' && statusText !== 'Running';
+        const disabled = !isStoppable(job);
         return (
           <div
             style={{
@@ -206,7 +205,6 @@ const AbnormalJobList = ({ jobs, style }) => {
               cloneJob => cloneJob.name === job.name,
             );
             stopJob.executionType = 'STOP';
-            delete stopJob._statusText;
             setAbnormalJobs(cloneJobs);
           })
           .catch(alert);

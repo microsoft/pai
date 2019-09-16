@@ -21,7 +21,7 @@ import Context from './Context';
 import Filter from './Filter';
 import Ordering from './Ordering';
 import StatusBadge from '../../../../components/status-badge';
-import { getJobDurationString } from '../../../../components/util/job';
+import { getJobDurationString, isStoppable } from '../../../../components/util/job';
 import StopJobConfirm from './StopJobConfirm';
 
 import t from '../../../../components/tachyons.scss';
@@ -225,13 +225,8 @@ export default function Table() {
         setCurrentJob(job);
       }
 
-      const statusText = getStatusText(job);
-      const disabled =
-        selectedJobs.length === 0
-          ? statusText !== 'Waiting' && statusText !== 'Running'
-          : (statusText !== 'Waiting' && statusText !== 'Running') ||
-            !selectedJobs.includes(job);
-      return ((
+      const disabled = !isStoppable(job) || (selectedJobs.length !== 0 && !selectedJobs.includes(job));
+      return (
         <div
           style={{
             height: '100%',
@@ -256,7 +251,7 @@ export default function Table() {
             Stop
           </DefaultButton>
         </div>
-      ));
+      );
     },
   };
 
