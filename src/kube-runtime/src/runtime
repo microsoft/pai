@@ -21,8 +21,10 @@ set -o errexit
 set -o nounset
 set -o pipefail
 
-PAI_WORK_DIR=/usr/local/pai
-PAI_RUNTIME_DIR=${PAI_WORK_DIR}/runtime.d
-PAI_LOG_DIR=${PAI_WORK_DIR}/logs/${FC_POD_UID}
+RUNTIME_WORK_DIR=/usr/local/pai
+RUNTIME_SCRIPT_DIR=${RUNTIME_WORK_DIR}/runtime.d
+RUNTIME_LOG_DIR=${RUNTIME_WORK_DIR}/logs/${FC_POD_UID}
 
-${PAI_RUNTIME_DIR}/runtime_entry.sh > >(tee -a -i ${PAI_LOG_DIR}/runtime.pai.stdout) 2> >(tee -a -i ${PAI_LOG_DIR}/runtime.pai.stderr >&2)
+export PAI_WORD_DIR="$(pwd)"
+
+${RUNTIME_SCRIPT_DIR}/runtime_entry.sh > >(tee -a -i ${RUNTIME_LOG_DIR}/runtime.pai.stdout) 2> >(tee -a -i ${RUNTIME_LOG_DIR}/runtime.pai.stderr >&2)
