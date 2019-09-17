@@ -144,17 +144,23 @@ const convertTaskDetail = async (taskStatus, ports, userName, jobName, taskRoleN
     }
   }
   // get container gpus
-  let containerGpus = 0;
-  if (launcherConfig.enabledHived) {
-    try {
-      const isolation = (await axios({
-        method: 'get',
-        url: launcherConfig.podPath(taskStatus.attemptStatus.podName),
-      })).data.metadata.annotations['hivedscheduler.microsoft.com/pod-gpu-isolation'];
+  let containerGpus = null;
+  try {
+    const pod = (await axios({
+      method: 'get',
+      url: launcherConfig.podPath(taskStatus.attemptStatus.podName),
+    })).data;
+    if (launcherConfig.enabledHived) {
+      const isolation = pod.metadata.annotations['hivedscheduler.microsoft.com/pod-gpu-isolation'];
       containerGpus = isolation.split(',').reduce((attr, id) => attr + Math.pow(2, id), 0);
-    } catch (e) {
-      containerGpus = 0;
+    } else {
+      const gpuNumber = parseInt(pod.spec.containers[0].resources.limits['nvidia.com/gpu']);
+      if (!isNaN(gpuNumber)) {
+        containerGpus = Math.pow(2, gpuNumber) - 1;
+      }
     }
+  } catch (err) {
+    containerGpus = null;
   }
   const completionStatus = taskStatus.attemptStatus.completionStatus;
   return {
