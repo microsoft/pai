@@ -172,8 +172,8 @@ export const JobSSH = ({
         label={
           <div>
             Enable User SSH{' '}
-            <TooltipHost content='Enable Users SSH to allow user attach job containers through corresponding ssh private key.
-              You can enter your own ssh pub key or use SSH Generator to generate SSH key pair.'>
+            <TooltipHost content='Enable User SSH to allow user attach job containers through corresponding ssh private key.
+              You can enter your own ssh pub key or use SSH Key Generator to generate ssh key pair.'>
               <Icon iconName='Info' aria-label='Info tooltip' />
             </TooltipHost>
           </div>
@@ -205,7 +205,7 @@ export const JobSSH = ({
           <DefaultButton
             onClick={(ev) => openSshGenerator(512, ev)}
           >
-            SSH key Generator
+            SSH Key Generator
           </DefaultButton>
           {sshGenerator.isOpen && <SSHGenerator
             isOpen={sshGenerator.isOpen}
