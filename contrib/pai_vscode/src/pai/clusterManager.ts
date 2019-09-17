@@ -164,7 +164,6 @@ export class ClusterManager extends Singleton {
                         }
                     }
                 );
-                console.log(loginInfo);
 
                 cluster.username = loginInfo.user;
                 cluster.token = loginInfo.token;

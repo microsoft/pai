@@ -7,11 +7,11 @@
 import * as crypto from 'crypto';
 import * as http from 'http';
 import { ILoginInfo } from 'openpai-js-sdk';
+import { stringify } from 'querystring';
 import * as url from 'url';
 import * as vscode from 'vscode';
 
 import { __ } from '../common/i18n';
-import { stringify } from 'querystring';
 
 interface IDeferred<T> {
     reject(reason: any): void;
