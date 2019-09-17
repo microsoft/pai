@@ -623,7 +623,7 @@ export class PAIJobManager extends Singleton {
                 const codeDir: string = path.join(taskDir, param.config.jobName);
                 await fs.ensureDir(codeDir);
                 if (param.upload) {
-                    // copy from local`
+                    // copy from local
                     const projectFiles: string[] = await globby(param.upload.include, {
                         cwd: param.workspace,
                         onlyFiles: true,
