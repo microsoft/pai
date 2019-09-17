@@ -105,9 +105,7 @@ const JobStatus = ({ className, style, jobs }) => {
     waiting = jobs.filter(x => getHumanizedJobStateString(x) === 'Waiting')
       .length;
     running = jobs.filter(x =>
-      ['Running', 'Stopping', 'Completing', 'RetryPending'].includes(
-        getHumanizedJobStateString(x),
-      ),
+      ['Running', 'Stopping'].includes(getHumanizedJobStateString(x)),
     ).length;
     stopped = jobs.filter(x => getHumanizedJobStateString(x) === 'Stopped')
       .length;

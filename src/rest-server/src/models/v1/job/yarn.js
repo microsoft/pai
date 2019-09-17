@@ -102,9 +102,9 @@ class Job {
       case 'TASK_WAITING':
       case 'CONTAINER_REQUESTED':
       case 'CONTAINER_ALLOCATED':
-      case 'CONTAINER_COMPLETED':
         return 'WAITING';
       case 'CONTAINER_RUNNING':
+      case 'CONTAINER_COMPLETED':
         return 'RUNNING';
       case 'TASK_COMPLETED':
         if (exitCode === 0) {

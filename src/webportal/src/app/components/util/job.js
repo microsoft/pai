@@ -20,36 +20,38 @@ import { Interval, DateTime } from 'luxon';
 
 export const MIN_ABNORMAL_JOB_DURATION_MILLISECOND = 5 * 24 * 60 * 60 * 1000; // 5 days
 
+export function isStoppable(job) {
+  return (
+    job.executionType !== 'STOP' &&
+    !['SUCCEEDED', 'FAILED', 'STOPPED'].includes(job.state)
+  );
+}
+
 export function getHumanizedJobStateString(job) {
-  let hjss = '';
   if (job.state === 'JOB_NOT_FOUND') {
-    hjss = 'N/A';
-  } else if (job.state === 'WAITING') {
-    if (job.executionType === 'STOP') {
-      hjss = 'Stopping';
-    } else {
-      hjss = 'Waiting';
-    }
-  } else if (job.state === 'RUNNING') {
-    if (job.executionType === 'STOP') {
-      hjss = 'Stopping';
-    } else {
-      hjss = 'Running';
-    }
-  } else if (job.state === 'COMPLETING') {
-    hjss = 'Completing';
-  } else if (job.state === 'RETRY_PENDING') {
-    hjss = 'RetryPending';
-  } else if (job.state === 'SUCCEEDED') {
-    hjss = 'Succeeded';
-  } else if (job.state === 'FAILED') {
-    hjss = 'Failed';
-  } else if (job.state === 'STOPPED') {
-    hjss = 'Stopped';
-  } else {
-    hjss = 'Unknown';
+    return 'N/A';
   }
-  return hjss;
+
+  if (
+    job.executionType === 'STOP' &&
+    !['SUCCEEDED', 'FAILED', 'STOPPED'].includes(job.state)
+  ) {
+    return 'Stopping';
+  }
+
+  if (job.state === 'WAITING') {
+    return 'Waiting';
+  } else if (job.state === 'RUNNING') {
+    return 'Running';
+  } else if (job.state === 'SUCCEEDED') {
+    return 'Succeeded';
+  } else if (job.state === 'FAILED') {
+    return 'Failed';
+  } else if (job.state === 'STOPPED') {
+    return 'Stopped';
+  } else {
+    return 'Unknown';
+  }
 }
 
 export function getJobDuration(jobInfo) {

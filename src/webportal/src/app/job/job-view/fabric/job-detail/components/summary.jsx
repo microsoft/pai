@@ -60,11 +60,10 @@ import StatusBadge from '../../../../../components/status-badge';
 import {
   getJobDurationString,
   getHumanizedJobStateString,
+  isStoppable,
 } from '../../../../../components/util/job';
 import config from '../../../../../config/webportal.config';
 import StopJobConfirm from '../../JobList/StopJobConfirm';
-
-const StoppableStatus = ['Running', 'Waiting'];
 
 const HintItem = ({ header, children }) => (
   <div className={c(t.flex, t.justifyStart)}>
@@ -544,11 +543,7 @@ export default class Summary extends React.Component {
                 <DefaultButton
                   text='Stop'
                   onClick={this.showStopJobConfirm}
-                  disabled={
-                    !StoppableStatus.includes(
-                      getHumanizedJobStateString(jobInfo.jobStatus),
-                    )
-                  }
+                  disabled={!isStoppable(jobInfo.jobStatus)}
                 />
                 <StopJobConfirm
                   hideDialog={hideDialog}

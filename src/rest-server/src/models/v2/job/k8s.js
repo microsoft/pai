@@ -79,16 +79,15 @@ const convertState = (state, exitCode, retryDelaySec) => {
     case 'AttemptPreparing':
       return 'WAITING';
     case 'AttemptRunning':
-      return 'RUNNING';
     case 'AttemptDeletionPending':
     case 'AttemptDeletionRequested':
     case 'AttemptDeleting':
-      return 'COMPLETING';
+      return 'RUNNING';
     case 'AttemptCompleted':
       if (retryDelaySec == null) {
-        return 'COMPLETING';
+        return 'RUNNING';
       } else {
-        return 'RETRY_PENDING';
+        return 'WAITING';
       }
     case 'Completed':
       if (exitCode === 0) {
