@@ -26,6 +26,8 @@ function generateStatus(job) {
     job._statusIndex = 0;
   } else if (job._statusText === 'Running') {
     job._statusIndex = 1;
+  } else if (job._statusText === 'Stopping') {
+    job._statusIndex = 2;
   } else if (job._statusText === 'Succeeded') {
     job._statusIndex = 3;
   } else if (job._statusText === 'Failed') {
