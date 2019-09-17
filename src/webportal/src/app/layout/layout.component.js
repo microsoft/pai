@@ -15,7 +15,6 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-
 // module dependencies
 require('bootstrap');
 require('admin-lte');
@@ -36,7 +35,7 @@ const userLoginNavComponent = require('../user/user-login/user-login-nav.compone
 const pluginComponent = require('./plugins.component.ejs');
 const config = require('../config/webportal.config.js');
 
-const userLoginNavHtml = userLoginNavComponent({cookies});
+const userLoginNavHtml = userLoginNavComponent({ cookies });
 const showUserToken = () => {
   const token = cookies.get('token');
   const expiration = new Date(jwt.decode(token).exp * 1000);
@@ -56,7 +55,9 @@ if (userAuthComponent.checkAdmin()) {
   $('#sidebar-menu--cluster-view').show();
 }
 
-const notificationButtonContainer = document.getElementById('notification-button');
+const notificationButtonContainer = document.getElementById(
+  'notification-button',
+);
 ReactDOM.render(<alerts.NotificationButton />, notificationButtonContainer);
 
 if (config.authnMethod !== 'OIDC') {
@@ -64,5 +65,5 @@ if (config.authnMethod !== 'OIDC') {
 }
 
 if (Array.isArray(window.PAI_PLUGINS) && window.PAI_PLUGINS.length > 0) {
-  $('.sidebar-menu').append(pluginComponent({plugins: window.PAI_PLUGINS}));
+  $('.sidebar-menu').append(pluginComponent({ plugins: window.PAI_PLUGINS }));
 }

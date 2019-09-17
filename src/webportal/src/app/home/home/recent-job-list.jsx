@@ -16,38 +16,59 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 import c from 'classnames';
-import {isEmpty} from 'lodash';
-import {Link, PrimaryButton, DefaultButton, Stack, getTheme, FontClassNames, DetailsList, DetailsListLayoutMode, SelectionMode} from 'office-ui-fabric-react';
+import { isEmpty } from 'lodash';
+import {
+  Link,
+  PrimaryButton,
+  DefaultButton,
+  Stack,
+  getTheme,
+  FontClassNames,
+  DetailsList,
+  DetailsListLayoutMode,
+  SelectionMode,
+} from 'office-ui-fabric-react';
 import PropTypes from 'prop-types';
 import React from 'react';
 
 import Card from '../../components/card';
-import {getJobDurationString, getJobModifiedTimeString, getHumanizedJobStateString, getJobModifiedTime} from '../../components/util/job';
-import {Header} from './header';
+import {
+  getJobDurationString,
+  getJobModifiedTimeString,
+  getHumanizedJobStateString,
+  getJobModifiedTime,
+} from '../../components/util/job';
+import { Header } from './header';
 
 import t from '../../components/tachyons.scss';
 import StatusBadge from '../../components/status-badge';
 
 const DummyContent = () => {
-  const {spacing} = getTheme();
+  const { spacing } = getTheme();
   return (
     <div className={c(t.h100, t.flex, t.itemsCenter, t.justifyCenter)}>
-      <div className={c(t.overflowAuto, t.w100)} style={{maxHeight: '100%', padding: spacing.m}}>
+      <div
+        className={c(t.overflowAuto, t.w100)}
+        style={{ maxHeight: '100%', padding: spacing.m }}
+      >
         <div className={c(t.tc, FontClassNames.large)}>
           No recent resources to display
         </div>
-        <div className={c(t.tc, FontClassNames.large)} style={{marginTop: spacing.l2}}>
+        <div
+          className={c(t.tc, FontClassNames.large)}
+          style={{ marginTop: spacing.l2 }}
+        >
           {`As you visit jobs, they'll be listed in Recently used jobs for quick and easy access.`}
         </div>
         <Stack
-          styles={{root: [{marginTop: spacing.l3}]}}
+          styles={{ root: [{ marginTop: spacing.l3 }] }}
           horizontal
           horizontalAlign='center'
           gap='s1'
         >
           <Stack.Item>
             <PrimaryButton
-              styles={{root: [{width: 120}]}}
+              styles={{ root: [{ width: 120 }] }}
               text='Create a job'
               href='submit.html'
             />
@@ -55,7 +76,7 @@ const DummyContent = () => {
           <Stack.Item>
             <DefaultButton
               text='Tutorial'
-              styles={{root: [{width: 120}]}}
+              styles={{ root: [{ width: 120 }] }}
               href='https://github.com/microsoft/pai/blob/master/docs/user/job_submission.md'
               target='_blank'
             />
@@ -76,7 +97,7 @@ const jobListColumns = [
     headerClassName: FontClassNames.medium,
     isResizable: true,
     onRender(job) {
-      const {legacy, name, namespace, username} = job;
+      const { legacy, name, namespace, username } = job;
       const href = legacy
         ? `/job-detail.html?jobName=${name}`
         : `/job-detail.html?username=${namespace || username}&jobName=${name}`;
@@ -126,7 +147,7 @@ const jobListColumns = [
   },
 ];
 
-const Content = ({jobs}) => {
+const Content = ({ jobs }) => {
   if (true && isEmpty(jobs)) {
     return <DummyContent />;
   } else {
@@ -148,18 +169,19 @@ const Content = ({jobs}) => {
   }
 };
 
-const RecentJobList = ({style, jobs}) => {
+const RecentJobList = ({ style, jobs }) => {
   return (
     <Card className={c(t.h100, t.ph5)} style={style}>
-      <Stack styles={{root: [t.h100]}} gap='l1'>
+      <Stack styles={{ root: [t.h100] }} gap='l1'>
         <Stack.Item>
           <Header
             headerName='My recent jobs'
             linkHref={`/job-list.html?user=${cookies.get('user')}`}
             linkName='More'
-            showLink = {isEmpty(jobs)}/>
+            showLink={isEmpty(jobs)}
+          />
         </Stack.Item>
-        <Stack.Item styles={{root: [{minHeight: 0}]}} grow>
+        <Stack.Item styles={{ root: [{ minHeight: 0 }] }} grow>
           <Content jobs={jobs} />
         </Stack.Item>
       </Stack>

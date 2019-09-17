@@ -15,13 +15,19 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-import React, {useRef, useState, useEffect} from 'react';
-import {PropTypes} from 'prop-types';
+import React, { useRef, useState, useEffect } from 'react';
+import { PropTypes } from 'prop-types';
 
-import {TextField, Callout, DirectionalHint, DefaultButton, getTheme} from 'office-ui-fabric-react';
+import {
+  TextField,
+  Callout,
+  DirectionalHint,
+  DefaultButton,
+  getTheme,
+} from 'office-ui-fabric-react';
 
 function CustomPassword(props) {
-  const {onChange, onFocus, onBlur, componentRef, ...otherProps} = props;
+  const { onChange, onFocus, onBlur, componentRef, ...otherProps } = props;
 
   useEffect(() => {
     if (componentRef && passwordInputRef) {
@@ -39,7 +45,7 @@ function CustomPassword(props) {
   const randomPasswordButtonRef = useRef(null);
 
   const [showRandomPassword, setShowRandomPassword] = useState(false);
-  const handleOnFocusPassword = (event) => {
+  const handleOnFocusPassword = event => {
     if (!passwordInputRef.current.value) {
       setShowRandomPassword(true);
     }
@@ -48,9 +54,12 @@ function CustomPassword(props) {
       onChange(event);
     }
   };
-  const handleOnLostFocusPassword = (event) => {
-    if (!event.relatedTarget || !randomPasswordButtonRef.current
-      || event.relatedTarget.id !== randomPasswordButtonRef.current.props.id) {
+  const handleOnLostFocusPassword = event => {
+    if (
+      !event.relatedTarget ||
+      !randomPasswordButtonRef.current ||
+      event.relatedTarget.id !== randomPasswordButtonRef.current.props.id
+    ) {
       setShowRandomPassword(false);
     }
 
@@ -74,7 +83,7 @@ function CustomPassword(props) {
   const generateRandomPassword = () => {
     return Array(8)
       .fill('0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz')
-      .map((x) => x[Math.floor(Math.random() * x.length)])
+      .map(x => x[Math.floor(Math.random() * x.length)])
       .join('');
   };
 
@@ -95,7 +104,7 @@ function CustomPassword(props) {
     setShowRandomPassword(false);
   };
 
-  const {spacing} = getTheme();
+  const { spacing } = getTheme();
 
   return (
     <React.Fragment>
@@ -115,7 +124,11 @@ function CustomPassword(props) {
             directionalHint={DirectionalHint.bottomLeftEdge}
             isBeakVisible={false}
             gapSpace={0}
-            calloutWidth={randomPasswordTargetRef.current ? Math.max(randomPasswordTargetRef.current.clientWidth, 220) : 0}
+            calloutWidth={
+              randomPasswordTargetRef.current
+                ? Math.max(randomPasswordTargetRef.current.clientWidth, 220)
+                : 0
+            }
           >
             <DefaultButton
               id='btnSetRandomPassword'
@@ -123,8 +136,18 @@ function CustomPassword(props) {
               onClick={handleSetRandomPassword}
               componentRef={randomPasswordButtonRef}
               styles={{
-                root: {width: '100%', backgroundColor: 'white', textAlign: 'left', paddingLeft: spacing.s1, paddingRight: spacing.s1},
-                label: {fontWeight: 'normal', fontSize: 'smaller', whiteSpace: 'pre'},
+                root: {
+                  width: '100%',
+                  backgroundColor: 'white',
+                  textAlign: 'left',
+                  paddingLeft: spacing.s1,
+                  paddingRight: spacing.s1,
+                },
+                label: {
+                  fontWeight: 'normal',
+                  fontSize: 'smaller',
+                  whiteSpace: 'pre',
+                },
               }}
             />
           </Callout>

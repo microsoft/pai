@@ -490,8 +490,8 @@ class Job {
     }
   }
 
-  extractRuntimeOutput(diag) {
-    if (_.isEmpty(diag)) {
+  extractRuntimeOutput(diag, code) {
+    if (_.isEmpty(diag) || code < 0) {
       return null;
     }
     const anchor1 = /\[PAI_RUNTIME_ERROR_START\]/;
@@ -553,7 +553,7 @@ class Job {
         appExitDiagnostics: frameworkStatus.applicationExitDiagnostics,
         appExitMessages: {
           container: this.extractContainerStderr(frameworkStatus.applicationExitDiagnostics),
-          runtime: this.extractRuntimeOutput(frameworkStatus.applicationExitDiagnostics),
+          runtime: this.extractRuntimeOutput(frameworkStatus.applicationExitDiagnostics, frameworkStatus.applicationExitCode),
           launcher: this.extractLauncherOutput(frameworkStatus.applicationExitDiagnostics, frameworkStatus.applicationExitCode),
         },
         appExitTriggerMessage: frameworkStatus.applicationExitTriggerMessage,

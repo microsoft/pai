@@ -15,10 +15,10 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-import {FontClassNames, ColorClassNames, getTheme} from '@uifabric/styling';
+import { FontClassNames, ColorClassNames, getTheme } from '@uifabric/styling';
 import c from 'classnames';
-import {capitalize} from 'lodash';
-import {Icon, IconButton, TooltipHost} from 'office-ui-fabric-react';
+import { capitalize } from 'lodash';
+import { Icon, IconButton, TooltipHost } from 'office-ui-fabric-react';
 import PropTypes from 'prop-types';
 import React from 'react';
 import yaml from 'js-yaml';
@@ -28,9 +28,9 @@ import t from '../../../../../components/tachyons.scss';
 import Card from './card';
 import Context from './context';
 import TaskRoleContainerList from './task-role-container-list';
-import {getTaskConfig} from '../util';
+import { getTaskConfig } from '../util';
 import MonacoCallout from '../../../../../components/monaco-callout';
-import {statusColor} from '../../../../../components/theme';
+import { statusColor } from '../../../../../components/theme';
 
 export default class TaskRole extends React.Component {
   constructor(props) {
@@ -44,15 +44,15 @@ export default class TaskRole extends React.Component {
   }
 
   expandContainerList() {
-    this.setState({containerListExpanded: true});
+    this.setState({ containerListExpanded: true });
   }
 
   collapseContainerList() {
-    this.setState({containerListExpanded: false});
+    this.setState({ containerListExpanded: false });
   }
 
   renderTaskRoleCount() {
-    const {taskInfo} = this.props;
+    const { taskInfo } = this.props;
     const count = {
       running: 0,
       succeeded: 0,
@@ -84,69 +84,95 @@ export default class TaskRole extends React.Component {
 
     return (
       <div className={c(t.flex, t.itemsCenter)}>
-        {Object.keys(count).filter((x) => count[x] > 0).map((x) => (
-          <div key={x} className={c(t.mr3, t.flex, t.itemsCenter)}>
-            <TooltipHost
-              calloutProps={{isBeakVisible: false, gapSpace: 8}} // spacing.s1
-              content={capitalize(x)}
-            >
-              <div className={c(t.br100, t.h1, t.w1)} style={{backgroundColor: statusColor[x]}}></div>
-            </TooltipHost>
-            <div className={c(t.ml2)}>{count[x]}</div>
-          </div>
-        ))}
+        {Object.keys(count)
+          .filter(x => count[x] > 0)
+          .map(x => (
+            <div key={x} className={c(t.mr3, t.flex, t.itemsCenter)}>
+              <TooltipHost
+                calloutProps={{ isBeakVisible: false, gapSpace: 8 }} // spacing.s1
+                content={capitalize(x)}
+              >
+                <div
+                  className={c(t.br100, t.h1, t.w1)}
+                  style={{ backgroundColor: statusColor[x] }}
+                ></div>
+              </TooltipHost>
+              <div className={c(t.ml2)}>{count[x]}</div>
+            </div>
+          ))}
       </div>
     );
   }
 
   render() {
-    const {className, name, taskInfo, isFailed} = this.props;
-    const {containerListExpanded} = this.state;
-    const {semanticColors} = getTheme();
-    const {rawJobConfig} = this.context;
+    const { className, name, taskInfo, isFailed } = this.props;
+    const { containerListExpanded } = this.state;
+    const { semanticColors } = getTheme();
+    const { rawJobConfig } = this.context;
     const taskConfig = getTaskConfig(rawJobConfig, name);
     return (
       <div className={c(t.bgWhite, className)}>
         {/* summary */}
-        <Card style={{backgroundColor: isFailed ? semanticColors.errorBackground : undefined}}>
-          <div className={c(t.pv3, t.ph5, t.flex, t.itemsCenter, t.justifyBetween)}>
+        <Card
+          style={{
+            backgroundColor: isFailed
+              ? semanticColors.errorBackground
+              : undefined,
+          }}
+        >
+          <div
+            className={c(t.pv3, t.ph5, t.flex, t.itemsCenter, t.justifyBetween)}
+          >
             {/* left */}
             <div className={c(t.flex, t.itemsCenter)}>
               {isFailed && (
                 <div className={c(t.mr3, FontClassNames.large)}>
-                  <Icon style={{color: semanticColors.errorText}} iconName='ErrorBadge' />
+                  <Icon
+                    style={{ color: semanticColors.errorText }}
+                    iconName='ErrorBadge'
+                  />
                 </div>
               )}
               <div className={c(FontClassNames.large)}>
-                <span >Task Role:</span>
+                <span>Task Role:</span>
                 <span className={t.ml3}>{name}</span>
               </div>
               {taskConfig && (
-                <MonacoCallout monacoProps={{language: 'yaml', value: yaml.safeDump(taskConfig)}}>
-                  <IconButton className={ColorClassNames.themePrimary} iconProps={{iconName: 'Info'}} />
+                <MonacoCallout
+                  monacoProps={{
+                    language: 'yaml',
+                    value: yaml.safeDump(taskConfig),
+                  }}
+                >
+                  <IconButton
+                    className={ColorClassNames.themePrimary}
+                    iconProps={{ iconName: 'Info' }}
+                  />
                 </MonacoCallout>
               )}
               {/* status */}
               <div className={c(t.ml5, t.flex, t.itemsCenter, t.justifyStart)}>
                 <div>Status:</div>
-                <div className={c(t.ml3)}>
-                  {this.renderTaskRoleCount()}
-                </div>
+                <div className={c(t.ml3)}>{this.renderTaskRoleCount()}</div>
               </div>
             </div>
             {/* right */}
             <div>
-              {containerListExpanded
-                ? <IconButton iconProps={{iconName: 'ChevronUp'}} onClick={this.collapseContainerList}/>
-                : <IconButton iconProps={{iconName: 'ChevronDown'}} onClick={this.expandContainerList} />
-              }
+              {containerListExpanded ? (
+                <IconButton
+                  iconProps={{ iconName: 'ChevronUp' }}
+                  onClick={this.collapseContainerList}
+                />
+              ) : (
+                <IconButton
+                  iconProps={{ iconName: 'ChevronDown' }}
+                  onClick={this.expandContainerList}
+                />
+              )}
             </div>
           </div>
           {containerListExpanded && (
-            <TaskRoleContainerList
-              className={t.ph5}
-              taskInfo={taskInfo}
-            />
+            <TaskRoleContainerList className={t.ph5} taskInfo={taskInfo} />
           )}
         </Card>
       </div>

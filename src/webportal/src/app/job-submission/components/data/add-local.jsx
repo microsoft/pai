@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   DefaultButton,
   Stack,
@@ -8,17 +8,22 @@ import {
   FontClassNames,
   getTheme,
 } from 'office-ui-fabric-react';
-import {cloneDeep} from 'lodash';
+import { cloneDeep } from 'lodash';
 import PropTypes from 'prop-types';
 
-import {STORAGE_PREFIX, ERROR_MARGIN} from '../../utils/constants';
-import {InputData} from '../../models/data/input-data';
-import {validateMountPath} from '../../utils/validation';
-import {WebHDFSClient} from '../../utils/webhdfs';
+import { STORAGE_PREFIX, ERROR_MARGIN } from '../../utils/constants';
+import { InputData } from '../../models/data/input-data';
+import { validateMountPath } from '../../utils/validation';
+import { WebHDFSClient } from '../../utils/webhdfs';
 
-const {semanticColors} = getTheme();
+const { semanticColors } = getTheme();
 
-export const AddLocal = ({dataList, setDataList, setDataType, hdfsClient}) => {
+export const AddLocal = ({
+  dataList,
+  setDataList,
+  setDataType,
+  hdfsClient,
+}) => {
   const [mountPath, setMountPath] = useState();
   const [files, setFiles] = useState();
   const [uploadType, setUploadType] = useState('Files');
@@ -32,7 +37,7 @@ export const AddLocal = ({dataList, setDataList, setDataType, hdfsClient}) => {
     if (!hdfsClient) {
       setHDFSErrorMessage('Cannot upload to pai right now');
     } else {
-      hdfsClient.checkAccess().then((isAccessiable) => {
+      hdfsClient.checkAccess().then(isAccessiable => {
         if (!isAccessiable) {
           setHDFSErrorMessage('Cannot upload to pai right now');
         }
@@ -58,7 +63,7 @@ export const AddLocal = ({dataList, setDataList, setDataType, hdfsClient}) => {
   };
   const submitMount = () => {
     const newMountList = cloneDeep(dataList);
-    const dataSource = files.map((file) => file.name).join(', '); // eslint-disable-line @typescript-eslint/no-explicit-any
+    const dataSource = files.map(file => file.name).join(', ');
     const uploadFiles = files;
     newMountList.push(
       new InputData(mountPath, dataSource, 'local', uploadFiles),
@@ -83,7 +88,7 @@ export const AddLocal = ({dataList, setDataList, setDataType, hdfsClient}) => {
         </Label>
         <TextField
           prefix={STORAGE_PREFIX}
-          styles={{root: {width: 200}}}
+          styles={{ root: { width: 200 } }}
           errorMessage={errorMessage}
           onChange={(_event, newValue) => {
             const valid = validateMountPath(`/${newValue}`);
@@ -100,7 +105,7 @@ export const AddLocal = ({dataList, setDataList, setDataType, hdfsClient}) => {
         <Label className={FontClassNames.medium}>Upload to pai</Label>
         <DefaultButton
           disabled={hdfsErrorMessage}
-          iconProps={{iconName: 'Upload'}}
+          iconProps={{ iconName: 'Upload' }}
           text={getUploadText()}
           errorMessage={errorMessage}
           split={true}
@@ -139,7 +144,7 @@ export const AddLocal = ({dataList, setDataList, setDataType, hdfsClient}) => {
       <input
         type='file'
         ref={uploadFile}
-        onChange={(event) => {
+        onChange={event => {
           const fileList = [];
           if (event.target.files !== null) {
             for (let i = 0; i < event.target.files.length; i += 1) {
@@ -148,13 +153,13 @@ export const AddLocal = ({dataList, setDataList, setDataType, hdfsClient}) => {
           }
           setFiles(fileList);
         }}
-        style={{display: 'none'}}
+        style={{ display: 'none' }}
         multiple
       />
       <input
         type='file'
         ref={uploadFolder}
-        onChange={(event) => {
+        onChange={event => {
           const fileList = [];
           if (event.target.files !== null) {
             for (let i = 0; i < event.target.files.length; i += 1) {
@@ -163,13 +168,13 @@ export const AddLocal = ({dataList, setDataList, setDataType, hdfsClient}) => {
           }
           setFiles(fileList);
         }}
-        style={{display: 'none'}}
+        style={{ display: 'none' }}
         webkitdirectory=''
         multiple
       />
       <Stack.Item align='end'>
         <IconButton
-          iconProps={{iconName: 'Accept'}}
+          iconProps={{ iconName: 'Accept' }}
           disabled={errorMessage || hdfsErrorMessage}
           styles={{
             root: {
@@ -184,7 +189,7 @@ export const AddLocal = ({dataList, setDataList, setDataType, hdfsClient}) => {
       </Stack.Item>
       <Stack.Item align='end'>
         <IconButton
-          iconProps={{iconName: 'Cancel'}}
+          iconProps={{ iconName: 'Cancel' }}
           styles={{
             root: {
               marginBottom: errorMessage || hdfsErrorMessage ? ERROR_MARGIN : 0,

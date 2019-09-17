@@ -15,20 +15,39 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-import React, {useContext, useMemo} from 'react';
+import React, { useContext, useMemo } from 'react';
 
-import {ShimmeredDetailsList, Selection, FontClassNames, ColumnActionsMode, DefaultButton, mergeStyles, TooltipHost} from 'office-ui-fabric-react';
+import {
+  ShimmeredDetailsList,
+  Selection,
+  FontClassNames,
+  ColumnActionsMode,
+  DefaultButton,
+  mergeStyles,
+  TooltipHost,
+} from 'office-ui-fabric-react';
 
 import c from 'classnames';
 import t from '../../../components/tachyons.scss';
 
-import {getVirtualCluster} from './utils';
+import { getVirtualCluster } from './utils';
 
 import Context from './Context';
 import Ordering from './Ordering';
 
 export default function Table() {
-  const {allUsers, filteredUsers, filter, ordering, setOrdering, pagination, setSelectedUsers, setAllSelected, editUser, getSelectedUsers} = useContext(Context);
+  const {
+    allUsers,
+    filteredUsers,
+    filter,
+    ordering,
+    setOrdering,
+    pagination,
+    setSelectedUsers,
+    setAllSelected,
+    editUser,
+    getSelectedUsers,
+  } = useContext(Context);
   /**
    * @type {import('office-ui-fabric-react').Selection}
    */
@@ -46,7 +65,7 @@ export default function Table() {
    * @param {import('office-ui-fabric-react').IColumn} column
    */
   function onColumnClick(event, column) {
-    const {field, descending} = ordering;
+    const { field, descending } = ordering;
     if (field === column.key) {
       if (descending) {
         setOrdering(new Ordering());
@@ -127,7 +146,11 @@ export default function Table() {
     name: 'Actions',
     headerClassName: FontClassNames.medium,
     columnActionsMode: ColumnActionsMode.disabled,
-    className: mergeStyles({paddingTop: '0px !important', paddingBottom: '0px !important', display: 'flex !important'}),
+    className: mergeStyles({
+      paddingTop: '0px !important',
+      paddingBottom: '0px !important',
+      display: 'flex !important',
+    }),
     onRender(user) {
       /**
        * @param {React.MouseEvent} event
@@ -138,26 +161,28 @@ export default function Table() {
       }
 
       const disabled = getSelectedUsers().length > 1;
-      const disabledTip = disabled ? 'Multi-user simultaneous editing is not supported' : '';
+      const disabledTip = disabled
+        ? 'Multi-user simultaneous editing is not supported'
+        : '';
 
-      return (
+      return ((
         <div className={c([t.itemsCenter, t.flex])} data-selection-disabled>
           <TooltipHost content={disabledTip}>
             <DefaultButton
               disabled={disabled}
               onClick={onClick}
               styles={{
-                root: {backgroundColor: '#e5e5e5'},
-                rootFocused: {backgroundColor: '#e5e5e5'},
-                rootDisabled: {backgroundColor: '#eeeeee'},
-                rootCheckedDisabled: {backgroundColor: '#eeeeee'},
+                root: { backgroundColor: '#e5e5e5' },
+                rootFocused: { backgroundColor: '#e5e5e5' },
+                rootDisabled: { backgroundColor: '#eeeeee' },
+                rootCheckedDisabled: { backgroundColor: '#eeeeee' },
               }}
             >
               Edit
             </DefaultButton>
           </TooltipHost>
         </div>
-      );
+      ));
     },
   };
 
@@ -172,9 +197,9 @@ export default function Table() {
   return (
     <ShimmeredDetailsList
       items={pagination.apply(ordering.apply(filteredUsers || []))}
-      setKey="key"
+      setKey='key'
       columns={columns}
-      enableShimmer={allUsers === null || allUsers.length == 0}
+      enableShimmer={allUsers === null || allUsers.length === 0}
       shimmerLines={pagination.itemsPerPage}
       selection={selection}
     />

@@ -1,5 +1,5 @@
 export class TrieNode {
-  constructor(fullpath, label, subpaths=undefined) {
+  constructor(fullpath, label, subpaths = undefined) {
     this.fullpath = fullpath;
     this.label = label;
     this.subpaths = subpaths;
@@ -25,7 +25,7 @@ export class MountPathTrie {
     queryIndex += 1;
     while (pivot.subpaths && queryIndex < query.length) {
       const prefixValue = query[queryIndex];
-      const matchedNode = pivot.subpaths.filter((node) => {
+      const matchedNode = pivot.subpaths.filter(node => {
         return node.label === prefixValue;
       });
       if (matchedNode.length === 0) {
@@ -39,12 +39,18 @@ export class MountPathTrie {
     }
     while (queryIndex < query.length) {
       if (pivot.subpaths) {
-        const newNode = new TrieNode(query.slice(0, queryIndex + 1).join(''), query[queryIndex]);
+        const newNode = new TrieNode(
+          query.slice(0, queryIndex + 1).join(''),
+          query[queryIndex],
+        );
         pivot.subpaths.push(newNode);
         pivot = newNode;
       } else {
         pivot.subpaths = [
-          new TrieNode(query.slice(0, queryIndex + 1).join(''), query[queryIndex]),
+          new TrieNode(
+            query.slice(0, queryIndex + 1).join(''),
+            query[queryIndex],
+          ),
         ];
         [pivot] = pivot.subpaths;
       }

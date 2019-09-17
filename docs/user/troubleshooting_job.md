@@ -188,7 +188,9 @@ Note, the **SSH cannot be used in below cases**,
 - The task instance is completed, and environment is recycled. From v0.11.0, the task instance can be reserved for debugging, refer to [reserve failed docker for debugging](#reserve-failed-docker-for-debugging).
 - The docker image doesn't support SSH connection. To support SSH connection, *openssh-server* and *curl* must be installed in the docker image.
 
-### Reserve failed docker for debugging
+### Reserve failed docker for debugging (deprecated)
+
+**Important** This approch is depreacted and removed in new job submission page (since v0.14.0). To debug the job, please refer to [remote development](./remote_development.md) section
 
 To reserve failed docker container for debugging, it needs to set the following property in the jobEnv field. If the job is failed by user's command, the container is kept for 1 week by default. The period may be configured by administrators. If the job is success, the container won't be reserved.
 

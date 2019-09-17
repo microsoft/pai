@@ -24,26 +24,24 @@
  */
 
 import React from 'react';
-import {DefaultButton, ColorClassNames} from 'office-ui-fabric-react';
-import {cloneDeep} from 'lodash';
+import { DefaultButton, ColorClassNames } from 'office-ui-fabric-react';
+import { cloneDeep } from 'lodash';
 import PropTypes from 'prop-types';
 
-import {
-  populateProtocolWithDataCli,
-} from '../../utils/utils';
+import { populateProtocolWithDataCli } from '../../utils/utils';
 
 const user = cookies.get('user');
 
-export const ExportConfig = React.memo(({jobData, jobProtocol}) => {
+export const ExportConfig = React.memo(({ jobData, jobProtocol }) => {
   const _exportFile = (data, filename, type) => {
-    let file = new Blob([data], {type: type});
+    const file = new Blob([data], { type: type });
     if (window.navigator.msSaveOrOpenBlob) {
       // IE10+
       window.navigator.msSaveOrOpenBlob(file, filename);
     } else {
       // Others
-      let a = document.createElement('a');
-      let url = URL.createObjectURL(file);
+      const a = document.createElement('a');
+      const url = URL.createObjectURL(file);
       a.href = url;
       a.download = filename;
       document.body.appendChild(a);
@@ -55,7 +53,7 @@ export const ExportConfig = React.memo(({jobData, jobProtocol}) => {
     }
   };
 
-  const _exportYaml = async (event) => {
+  const _exportYaml = async event => {
     event.preventDefault();
     const protocol = cloneDeep(jobProtocol);
     try {

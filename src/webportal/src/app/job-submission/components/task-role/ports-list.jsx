@@ -23,16 +23,16 @@
  * SOFTWARE.
  */
 
-import {isNaN} from 'lodash';
+import { isNaN } from 'lodash';
 import PropTypes from 'prop-types';
 import React from 'react';
-import {BasicSection} from '../basic-section';
-import {FormShortSection} from '../form-page';
-import {KeyValueList} from '../controls/key-value-list';
+import { BasicSection } from '../basic-section';
+import { FormShortSection } from '../form-page';
+import { KeyValueList } from '../controls/key-value-list';
 
 const PORT_LABEL_REGEX = /^[a-zA-Z_][a-zA-Z0-9_]*$/;
 
-export const PortsList = React.memo(({onChange, ports}) => (
+export const PortsList = React.memo(({ onChange, ports }) => (
   <BasicSection sectionLabel='Ports' sectionOptional>
     <FormShortSection>
       <KeyValueList
@@ -44,12 +44,12 @@ export const PortsList = React.memo(({onChange, ports}) => (
         keyField='key'
         valueName='Port Field'
         valueField='value'
-        onValidateKey={(val) => {
+        onValidateKey={val => {
           if (!PORT_LABEL_REGEX.test(val)) {
             return 'Should be string in ^[a-zA-Z_][a-zA-Z0-9_]*$ format';
           }
         }}
-        onValidateValue={(val) => {
+        onValidateValue={val => {
           let int = val;
           if (typeof val === 'string') {
             int = parseInt(val, 10);

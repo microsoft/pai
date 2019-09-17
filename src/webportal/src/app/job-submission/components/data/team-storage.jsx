@@ -23,7 +23,7 @@
  * SOFTWARE.
  */
 
-import React, {useEffect, useLayoutEffect, useState} from 'react';
+import React, { useEffect, useLayoutEffect, useState } from 'react';
 
 import {
   Checkbox,
@@ -37,19 +37,19 @@ import {
   DetailsListLayoutMode,
   Text,
 } from 'office-ui-fabric-react';
-import {TooltipIcon} from '../controls/tooltip-icon';
+import { TooltipIcon } from '../controls/tooltip-icon';
 
 import c from 'classnames';
 import PropTypes from 'prop-types';
-import {cloneDeep} from 'lodash';
+import { cloneDeep } from 'lodash';
 
-import {MountDirectories} from '../../models/data/mount-directories';
-import {dispatchResizeEvent} from '../../utils/utils';
+import { MountDirectories } from '../../models/data/mount-directories';
+import { dispatchResizeEvent } from '../../utils/utils';
 import t from '../../../components/tachyons.scss';
-import {PROTOCOL_TOOLTIPS} from '../../utils/constants';
+import { PROTOCOL_TOOLTIPS } from '../../utils/constants';
 import TeamDetail from './team-detail';
 
-const {spacing} = getTheme();
+const { spacing } = getTheme();
 
 export const TeamStorage = ({
   teamConfigs,
@@ -64,23 +64,23 @@ export const TeamStorage = ({
   });
 
   const [selectedConfigNames, setSelectedConfigNames] = useState(() => {
-    return mountDirs.selectedConfigs.map((element) => {
+    return mountDirs.selectedConfigs.map(element => {
       return element.name;
     });
   });
 
-  const [teamDetail, setTeamDetail] = useState({isOpen: false});
-  const openTeamDetail = (config) => {
-    setTeamDetail({isOpen: true, config: config, servers: mountDirs.servers});
+  const [teamDetail, setTeamDetail] = useState({ isOpen: false });
+  const openTeamDetail = config => {
+    setTeamDetail({ isOpen: true, config: config, servers: mountDirs.servers });
   };
   const hideTeamDetail = () => {
-    setTeamDetail({isOpen: false});
+    setTeamDetail({ isOpen: false });
   };
 
   useEffect(() => {
     let selectedConfigs = [];
     if (selectedConfigNames.length > 0) {
-      selectedConfigs = teamConfigs.filter((element) => {
+      selectedConfigs = teamConfigs.filter(element => {
         return selectedConfigNames.includes(element.name);
       });
     }
@@ -98,28 +98,30 @@ export const TeamStorage = ({
       onRender: (item, idx) => {
         return (
           <Checkbox
-          key={item.name}
-          label={item.name}
-          defaultChecked={
-            selectedConfigNames.length > 0 &&
-            selectedConfigNames.includes(item.name)
-          }
-          onChange={(ev, isChecked) => {
-            let newSelectedConfigNames = [];
-            if (!isChecked && selectedConfigNames.includes(item.name)
-            ) {
-              const idx = selectedConfigNames.indexOf(item.name);
-              newSelectedConfigNames = [
-                ...selectedConfigNames.slice(0, idx),
-                ...selectedConfigNames.slice(idx + 1),
-              ];
-            } else if (isChecked && !selectedConfigNames.includes(item.name)) {
-              newSelectedConfigNames = cloneDeep(selectedConfigNames);
-              newSelectedConfigNames.push(item.name);
+            key={item.name}
+            label={item.name}
+            defaultChecked={
+              selectedConfigNames.length > 0 &&
+              selectedConfigNames.includes(item.name)
             }
-            setSelectedConfigNames(newSelectedConfigNames);
-          }}
-        />
+            onChange={(ev, isChecked) => {
+              let newSelectedConfigNames = [];
+              if (!isChecked && selectedConfigNames.includes(item.name)) {
+                const idx = selectedConfigNames.indexOf(item.name);
+                newSelectedConfigNames = [
+                  ...selectedConfigNames.slice(0, idx),
+                  ...selectedConfigNames.slice(idx + 1),
+                ];
+              } else if (
+                isChecked &&
+                !selectedConfigNames.includes(item.name)
+              ) {
+                newSelectedConfigNames = cloneDeep(selectedConfigNames);
+                newSelectedConfigNames.push(item.name);
+              }
+              setSelectedConfigNames(newSelectedConfigNames);
+            }}
+          />
         );
       },
     },
@@ -128,15 +130,11 @@ export const TeamStorage = ({
       name: 'Path',
       headerClassName: FontClassNames.medium,
       minWidth: 120,
-      onRender: (item) => {
+      onRender: item => {
         return (
           <div className={FontClassNames.medium}>
             {item.mountInfos.map((mountInfo, infoId) => {
-              return (
-                <div key={item.name+infoId}>
-                  {mountInfo.mountPoint}
-                </div>
-              );
+              return <div key={item.name + infoId}>{mountInfo.mountPoint}</div>;
             })}
           </div>
         );
@@ -147,14 +145,11 @@ export const TeamStorage = ({
       name: 'Permission',
       headerClassName: FontClassNames.medium,
       minWidth: 50,
-      // eslint-disable-next-line react/display-name
-      onRender: (item) => {
+      onRender: item => {
         return (
           <div className={FontClassNames.medium}>
             {item.mountInfos.map((mountInfo, infoId) => {
-              return (
-                <div key={item.name+'per'+infoId}>RW</div>
-              );
+              return <div key={item.name + 'per' + infoId}>RW</div>;
             })}
           </div>
         );
@@ -165,8 +160,7 @@ export const TeamStorage = ({
       name: 'Detail',
       headerClassName: FontClassNames.medium,
       minWidth: 70,
-      // eslint-disable-next-line react/display-name
-      onRender: (item) => {
+      onRender: item => {
         /**
          * @param {React.MouseEvent} event
          */
@@ -176,7 +170,7 @@ export const TeamStorage = ({
 
         return (
           <div>
-            <DefaultButton text="Detail" onClick={onClick} />
+            <DefaultButton text='Detail' onClick={onClick} />
           </div>
         );
       },
@@ -186,9 +180,15 @@ export const TeamStorage = ({
   return (
     <div>
       <Stack horizontal gap='s1'>
-        <Text styles={{fontWeight: FontWeights.semibold, paddingBottom: spacing.m}}>Team Share Storage</Text>
-        <TooltipIcon content={PROTOCOL_TOOLTIPS.teamStorage}
-        />
+        <Text
+          styles={{
+            fontWeight: FontWeights.semibold,
+            paddingBottom: spacing.m,
+          }}
+        >
+          Team Share Storage
+        </Text>
+        <TooltipIcon content={PROTOCOL_TOOLTIPS.teamStorage} />
       </Stack>
 
       <div className={c(t.mb2)}>
@@ -204,13 +204,14 @@ export const TeamStorage = ({
       {/* <TeamMountList
         dataList={mountDirs ? mountDirs.getTeamDataList() : []}
       /> */}
-      {teamDetail.isOpen && <TeamDetail
-        isOpen={teamDetail.isOpen}
-        config={teamDetail.config}
-        servers={teamDetail.servers}
-        hide={hideTeamDetail}
-      />
-      }
+      {teamDetail.isOpen && (
+        <TeamDetail
+          isOpen={teamDetail.isOpen}
+          config={teamDetail.config}
+          servers={teamDetail.servers}
+          hide={hideTeamDetail}
+        />
+      )}
     </div>
   );
 };

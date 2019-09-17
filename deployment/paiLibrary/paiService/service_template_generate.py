@@ -60,7 +60,7 @@ class service_template_generate:
     def add_deploy_rule_to_yaml(self, str_src_yaml):
         service_deploy_kind_list = ['DaemonSet', 'Deployment', 'StatefulSet', 'Pod']
 
-        config = yaml.load(str_src_yaml)
+        config = yaml.load(str_src_yaml, yaml.SafeLoader)
 
         # judge whether it's a service deploy file, eg. exclude configmap
         # Some service may not being configured to run, for example when alert manager is not

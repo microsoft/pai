@@ -15,20 +15,29 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-import React, {useContext} from 'react';
-import {DetailsList, SelectionMode, FontClassNames, TooltipHost, Dropdown, DefaultButton} from 'office-ui-fabric-react';
+import React, { useContext } from 'react';
+import {
+  DetailsList,
+  SelectionMode,
+  FontClassNames,
+  TooltipHost,
+  Dropdown,
+  DefaultButton,
+} from 'office-ui-fabric-react';
 
 import c from 'classnames';
 import t from '../../../components/tachyons.scss';
-import {StatusBadge} from '../../../components/status-badge';
+import { StatusBadge } from '../../../components/status-badge';
 
 import TableTextField from './TableTextField';
 import Context from './Context';
-import {toBool, isFinished} from './utils';
-import {checkUsername, checkPassword, checkEmail} from '../utils';
+import { toBool, isFinished } from './utils';
+import { checkUsername, checkPassword, checkEmail } from '../utils';
 
 export default function Table() {
-  const {userInfos, virtualClusters, removeRow, allUsers} = useContext(Context);
+  const { userInfos, virtualClusters, removeRow, allUsers } = useContext(
+    Context,
+  );
 
   /**
    * @type {import('office-ui-fabric-react').IColumn}
@@ -41,19 +50,19 @@ export default function Table() {
     className: FontClassNames.mediumPlus,
     headerClassName: FontClassNames.medium,
     isResizable: true,
-    onRender: (userInfo) => {
-      const {username} = userInfo;
-      const getErrorMessage = (value) => {
-        let errorMessage = checkUsername(value);
+    onRender: userInfo => {
+      const { username } = userInfo;
+      const getErrorMessage = value => {
+        const errorMessage = checkUsername(value);
         if (errorMessage) {
           return errorMessage;
         }
-        if (allUsers.indexOf(value) != -1) {
+        if (allUsers.indexOf(value) !== -1) {
           return 'User name already exists';
         }
         return '';
       };
-      return (
+      return ((
         <TableTextField
           readOnly={isFinished(userInfo)}
           defaultValue={username}
@@ -62,7 +71,7 @@ export default function Table() {
           }}
           onGetErrorMessage={getErrorMessage}
         />
-      );
+      ));
     },
   };
 
@@ -77,12 +86,12 @@ export default function Table() {
     className: FontClassNames.mediumPlus,
     headerClassName: FontClassNames.medium,
     isResizable: true,
-    onRender: (userInfo) => {
-      const {password} = userInfo;
-      const getErrorMessage = (value) => {
+    onRender: userInfo => {
+      const { password } = userInfo;
+      const getErrorMessage = value => {
         return checkPassword(value);
       };
-      return (
+      return ((
         <TableTextField
           readOnly={isFinished(userInfo)}
           defaultValue={password}
@@ -92,7 +101,7 @@ export default function Table() {
           onGetErrorMessage={getErrorMessage}
           customPasswordStyle={true}
         />
-      );
+      ));
     },
   };
 
@@ -107,12 +116,12 @@ export default function Table() {
     className: FontClassNames.mediumPlus,
     headerClassName: FontClassNames.medium,
     isResizable: true,
-    onRender: (userInfo) => {
-      const {email} = userInfo;
-      const getErrorMessage = (value) => {
+    onRender: userInfo => {
+      const { email } = userInfo;
+      const getErrorMessage = value => {
         return checkEmail(value);
       };
-      return (
+      return ((
         <TableTextField
           readOnly={isFinished(userInfo)}
           defaultValue={email}
@@ -121,13 +130,13 @@ export default function Table() {
           }}
           onGetErrorMessage={getErrorMessage}
         />
-      );
+      ));
     },
   };
 
   emailColumn.onRender.displayName = 'onRenderEmailColumn';
 
-  const dropdownTitleStyle = [t.bgWhite, {border: '1px solid #a6a6a6'}];
+  const dropdownTitleStyle = [t.bgWhite, { border: '1px solid #a6a6a6' }];
 
   /**
    * @type {import('office-ui-fabric-react').IColumn}
@@ -140,33 +149,31 @@ export default function Table() {
     className: FontClassNames.mediumPlus,
     headerClassName: FontClassNames.medium,
     isResizable: true,
-    onRender: (userInfo) => {
+    onRender: userInfo => {
       /**
        * @type {import('office-ui-fabric-react').IDropdownOption[]}
        */
       const options = [
-        {key: 'true', text: 'Yes'},
-        {key: 'false', text: 'No'},
+        { key: 'true', text: 'Yes' },
+        { key: 'false', text: 'No' },
       ];
-      const {admin} = userInfo;
+      const { admin } = userInfo;
       const finished = isFinished(userInfo);
-      return (
+      return ((
         <Dropdown
           options={options}
           disabled={finished}
-          styles={{title: dropdownTitleStyle}}
+          styles={{ title: dropdownTitleStyle }}
           defaultSelectedKey={String(toBool(admin))}
           onChange={(_event, option, _index) => {
             userInfo.admin = option.key;
           }}
-          onRenderTitle={(options) => {
-            const [{text}] = options;
-            return (
-              <span className={t.black}>{text}</span>
-            );
+          onRenderTitle={options => {
+            const [{ text }] = options;
+            return <span className={t.black}>{text}</span>;
           }}
         />
-      );
+      ));
     },
   };
 
@@ -181,18 +188,18 @@ export default function Table() {
     className: FontClassNames.mediumPlus,
     headerClassName: FontClassNames.medium,
     isResizable: true,
-    onRender: (userInfo) => {
+    onRender: userInfo => {
       /**
        * @type {import('office-ui-fabric-react').IDropdownOption[]}
        */
-      const options = virtualClusters.map((vc) => {
-        return {key: vc, text: vc};
+      const options = virtualClusters.map(vc => {
+        return { key: vc, text: vc };
       });
       const finished = isFinished(userInfo);
-      return (
+      return ((
         <Dropdown
           disabled={finished}
-          styles={{title: dropdownTitleStyle}}
+          styles={{ title: dropdownTitleStyle }}
           multiSelect
           options={options}
           defaultSelectedKeys={userInfo.vcs}
@@ -203,8 +210,8 @@ export default function Table() {
               userInfo.vcs.splice(userInfo.vcs.indexOf(option.text), 1);
             }
           }}
-          onRenderTitle={(_options) => {
-            if (userInfo.vcs.length == 0) {
+          onRenderTitle={_options => {
+            if (userInfo.vcs.length === 0) {
               return null;
             } else {
               let innerText = userInfo.vcs[0];
@@ -215,7 +222,7 @@ export default function Table() {
             }
           }}
         />
-      );
+      ));
     },
   };
 
@@ -234,8 +241,8 @@ export default function Table() {
     isResizable: true,
 
     onRender(userInfo) {
-      const {status: {isSuccess, message} = {}} = userInfo;
-      let statusText = undefined;
+      const { status: { isSuccess, message } = {} } = userInfo;
+      let statusText;
       if (isSuccess === true) {
         statusText = 'Succeeded';
       } else if (isSuccess === false) {
@@ -243,13 +250,13 @@ export default function Table() {
       } else {
         return undefined;
       }
-      return (
+      return ((
         <div className={c(t.flex, t.itemsCenter, t.h100)}>
           <TooltipHost content={message}>
             <StatusBadge status={statusText} />
           </TooltipHost>
         </div>
-      );
+      ));
     },
   };
 
@@ -269,19 +276,19 @@ export default function Table() {
         event.stopPropagation();
         removeRow(userInfo);
       }
-      return (
+      return ((
         <DefaultButton
           onClick={onClick}
           styles={{
-            root: {backgroundColor: '#e5e5e5'},
-            rootFocused: {backgroundColor: '#e5e5e5'},
-            rootDisabled: {backgroundColor: '#eeeeee'},
-            rootCheckedDisabled: {backgroundColor: '#eeeeee'},
+            root: { backgroundColor: '#e5e5e5' },
+            rootFocused: { backgroundColor: '#e5e5e5' },
+            rootDisabled: { backgroundColor: '#eeeeee' },
+            rootCheckedDisabled: { backgroundColor: '#eeeeee' },
           }}
         >
           Remove
         </DefaultButton>
-      );
+      ));
     },
   };
 

@@ -27,4 +27,6 @@ kubectl create configmap  group-configuration --from-file=group-configmap/ --dry
 
 kubectl create configmap  job-exit-spec-configuration --from-file=job-exit-spec-config/ --dry-run -o yaml | kubectl apply --overwrite=true -f - || exit $?
 
+kubectl create configmap  k8s-job-exit-spec-configuration --from-file=k8s-job-exit-spec-config/ --dry-run -o yaml | kubectl apply --overwrite=true -f - || exit $?
+
 popd > /dev/null

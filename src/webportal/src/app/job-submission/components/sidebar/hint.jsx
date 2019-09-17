@@ -24,9 +24,9 @@
  */
 
 import styled from 'styled-components';
-import {getTheme, FontSizes} from '@uifabric/styling';
+import { getTheme, FontSizes } from '@uifabric/styling';
 
-const {palette} = getTheme();
+const { palette } = getTheme();
 
 export const Hint = styled.div`
   code {

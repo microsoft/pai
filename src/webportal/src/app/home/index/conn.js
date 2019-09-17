@@ -34,9 +34,9 @@ export async function login(username, password, expires = 7) {
     if (data.error) {
       throw new Error(data.message);
     } else {
-      cookies.set('user', data.user, {expires});
-      cookies.set('token', data.token, {expires});
-      cookies.set('admin', data.admin, {expires});
+      cookies.set('user', data.user, { expires });
+      cookies.set('token', data.token, { expires });
+      cookies.set('admin', data.admin, { expires });
     }
   } else {
     const data = await res.json();

@@ -15,52 +15,49 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-
 // module dependencies
 const util = require('util');
 const winston = require('winston');
 const config = require('./index');
-
 
 const logTransports = {
   console: new winston.transports.Console({
     json: false,
     colorize: true,
     timestamp: () => new Date().toISOString(),
-    formatter: (options) => {
+    formatter: options => {
       const timestamp = options.timestamp();
       const level = winston.config.colorize(
-          options.level,
-          options.level.toUpperCase()
+        options.level,
+        options.level.toUpperCase(),
       );
       const message = options.message ? options.message : '';
-      const meta = options.meta && Object.keys(options.meta).length ?
-          '\nmeta = ' + JSON.stringify(options.meta, null, 2) : '';
+      const meta =
+        options.meta && Object.keys(options.meta).length
+          ? '\nmeta = ' + JSON.stringify(options.meta, null, 2)
+          : '';
       return util.format(timestamp, '[' + level + ']', message, meta);
-    }
+    },
   }),
   file: new winston.transports.File({
     json: true,
     colorize: false,
     timestamp: () => Date.now(),
-    filename: 'server.log'
-  })
+    filename: 'server.log',
+  }),
 };
 
 // create logger
 const logger = new winston.Logger({
   level: config.logLevel,
-  transports: [
-    logTransports.console,
-    logTransports.file
-  ],
-  exitOnError: false
+  transports: [logTransports.console, logTransports.file],
+  exitOnError: false,
 });
 
 logger.stream = {
   write: (message, encoding) => {
     logger.info(message.trim());
-  }
+  },
 };
 
 // module exports

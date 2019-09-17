@@ -16,39 +16,43 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 import c from 'classnames';
-import {isNil} from 'lodash';
+import { isNil } from 'lodash';
 import PropTypes from 'prop-types';
-import {Stack, ColorClassNames, FontClassNames, PersonaCoin, getTheme, FontWeights} from 'office-ui-fabric-react';
+import {
+  Stack,
+  ColorClassNames,
+  FontClassNames,
+  PersonaCoin,
+  getTheme,
+  FontWeights,
+} from 'office-ui-fabric-react';
 import React from 'react';
 
 import Card from '../../components/card';
 
 import t from '../../components/tachyons.scss';
-import {DEDICATED_VC_COLOR, SHARED_VC_COLOR} from './util';
+import { DEDICATED_VC_COLOR, SHARED_VC_COLOR } from './util';
 
-const VirtualClusterItem = ({name, info}) => {
-  const availableGpu = Math.max(Math.floor(info.resourcesTotal.GPUs - info.resourcesUsed.GPUs), 0);
-  const percentage = info.resourcesTotal.GPUs === 0 ? 0 : availableGpu / info.resourcesTotal.GPUs;
+const VirtualClusterItem = ({ name, info }) => {
+  const availableGpu = Math.max(
+    Math.floor(info.resourcesTotal.GPUs - info.resourcesUsed.GPUs),
+    0,
+  );
+  const percentage =
+    info.resourcesTotal.GPUs === 0
+      ? 0
+      : availableGpu / info.resourcesTotal.GPUs;
   const color = info.dedicated ? DEDICATED_VC_COLOR : SHARED_VC_COLOR;
 
-  const {spacing} = getTheme();
+  const { spacing } = getTheme();
 
   return (
-    <Stack
-      horizontal
-      verticalAlign='center'
-    >
+    <Stack horizontal verticalAlign='center'>
       <Stack.Item>
-        <PersonaCoin
-          text={name}
-          coinSize={48}
-        />
+        <PersonaCoin text={name} coinSize={48} />
       </Stack.Item>
       <Stack.Item grow>
-        <Stack
-          padding='l1'
-          gap='s1'
-        >
+        <Stack padding='l1' gap='s1'>
           {/* vc item text */}
           <Stack horizontal horizontalAlign='space-between' gap='s1'>
             {/* title */}
@@ -56,18 +60,19 @@ const VirtualClusterItem = ({name, info}) => {
               {info.dedicated ? `${name} (dedicated)` : name}
             </div>
             {/* available count */}
-            <Stack horizontal gap='s1' horizontalAlign='end' styles={{root: {minWidth: 120}}}>
+            <Stack
+              horizontal
+              gap='s1'
+              horizontalAlign='end'
+              styles={{ root: { minWidth: 120 } }}
+            >
               <div
                 className={FontClassNames.mediumPlus}
-                style={{color, fontWeight: FontWeights.semibold}}
+                style={{ color, fontWeight: FontWeights.semibold }}
               >
                 {availableGpu}
               </div>
-              <div
-                className={FontClassNames.mediumPlus}
-              >
-                GPU Available
-              </div>
+              <div className={FontClassNames.mediumPlus}>GPU Available</div>
             </Stack>
           </Stack>
           {/* vc item gpu available bar */}
@@ -80,11 +85,14 @@ const VirtualClusterItem = ({name, info}) => {
             >
               <div className={c(t.w100, t.h100, t.flex)}>
                 <div
-                  style={{backgroundColor: color, width: `${percentage * 100}%`}}
+                  style={{
+                    backgroundColor: color,
+                    width: `${percentage * 100}%`,
+                  }}
                 ></div>
                 <div
                   className={c(ColorClassNames.neutralLightBackground)}
-                  style={{width: `${(1 - percentage) * 100}%`}}
+                  style={{ width: `${(1 - percentage) * 100}%` }}
                 ></div>
               </div>
             </div>
@@ -100,34 +108,36 @@ VirtualClusterItem.propTypes = {
   info: PropTypes.object.isRequired,
 };
 
-const VirtualCluster = ({style, userInfo, virtualClusters}) => {
-  const vcNames = userInfo.virtualCluster.filter((name) => !isNil(virtualClusters[name]));
-  const {spacing} = getTheme();
+const VirtualCluster = ({ style, userInfo, virtualClusters }) => {
+  const vcNames = userInfo.virtualCluster.filter(
+    name => !isNil(virtualClusters[name]),
+  );
+  const { spacing } = getTheme();
   return (
-    <Card className={t.ph5} style={{paddingRight: spacing.m, ...style}}>
-      <Stack styles={{root: [{height: '100%'}]}} gap='l1'>
+    <Card className={t.ph5} style={{ paddingRight: spacing.m, ...style }}>
+      <Stack styles={{ root: [{ height: '100%' }] }} gap='l1'>
         <Stack.Item>
           <div className={FontClassNames.mediumPlus}>
             {`My virtual clusters (${vcNames.length})`}
           </div>
         </Stack.Item>
-        <Stack.Item styles={{root: [t.relative]}} grow>
+        <Stack.Item styles={{ root: [t.relative] }} grow>
           <div className={c(t.absolute, t.absoluteFill, t.overflowAuto)}>
             <Stack>
-              {vcNames.sort(
-                (a, b) => {
+              {vcNames
+                .sort((a, b) => {
                   const wa = virtualClusters[a].dedicated ? 1 : 0;
                   const wb = virtualClusters[b].dedicated ? 1 : 0;
                   return wa - wb;
-                }
-              ).map((name) => (
-                <Stack.Item key={name}>
-                  <VirtualClusterItem
-                    name={name}
-                    info={virtualClusters[name]}
-                  />
-                </Stack.Item>
-              ))}
+                })
+                .map(name => (
+                  <Stack.Item key={name}>
+                    <VirtualClusterItem
+                      name={name}
+                      info={virtualClusters[name]}
+                    />
+                  </Stack.Item>
+                ))}
             </Stack>
           </div>
         </Stack.Item>
