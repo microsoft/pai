@@ -438,15 +438,17 @@
         "@types/request-promise-native": "^1.0.15",
         "@types/semver-compare": "^1.0.0",
         "@types/uuid": "^3.4.4",
+        "@types/vscode": "^1.38.0",
         "nock": "^10.0.1",
         "tslint": "^5.8.0",
         "tslint-microsoft-contrib": "^5.2.1",
         "typescript": "^3.5.1",
         "typescript-tslint-plugin": "^0.4.0",
         "vsce": "^1.53.0",
-        "vscode": "^1.1.21"
+        "vscode": "^1.1.36"
     },
     "dependencies": {
+        "adal-node": "^0.2.1",
         "ajv": "^6.5.4",
         "fs-extra": "^7.0.0",
         "globalize": "^1.4.0",
@@ -458,6 +460,7 @@
         "jsonc-parser": "^2.1.1",
         "lodash": "^4.17.11",
         "node-yaml-parser": "^0.0.9",
+        "openpai-js-sdk": "yiyione/pai#openpai-js-sdk",
         "opn": "^5.4.0",
         "reflect-metadata": "^0.1.12",
         "request": "^2.88.0",

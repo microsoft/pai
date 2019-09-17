@@ -6,6 +6,7 @@
 
 import { injectable } from 'inversify';
 import { clone, range } from 'lodash';
+import { IAuthnInfo, ILoginInfo, OpenPAIClient } from 'openpai-js-sdk';
 import * as request from 'request-promise-native';
 import * as vscode from 'vscode';
 
@@ -19,6 +20,7 @@ import { ClusterExplorerChildNode, ConfigurationTreeDataProvider, ITreeData } fr
 import { IPAICluster } from './paiInterface';
 
 import semverCompare = require('semver-compare'); // tslint:disable-line
+import { login } from './AzureADLogin';
 
 export interface IConfiguration {
     readonly version: string;
@@ -139,6 +141,38 @@ export class ClusterManager extends Singleton {
         return this.configuration!.pais;
     }
 
+    public async autoAddOIDCUserInfo(cluster: IPAICluster): Promise<void> {
+        try {
+            const client: OpenPAIClient = new OpenPAIClient({
+                rest_server_uri: cluster.rest_server_uri
+            });
+
+            const authnInfo: IAuthnInfo = await client.authn.info();
+
+            if (authnInfo.authn_type === 'OIDC') {
+                const loginInfo: ILoginInfo = await login(
+                    cluster.rest_server_uri,
+                    async () => {
+                        const response: string | undefined = await vscode.window.showInformationMessage(
+                            // tslint:disable-next-line: no-multiline-string
+                            `Browser did not connect to local server within 10 seconds.
+                            Do you want to try the alternate sign in using a device code instead?`,
+                            'Use Device Code');
+                        if (response) {
+                            console.log(response);
+                        }
+                    }
+                );
+                console.log(loginInfo);
+
+                cluster.username = loginInfo.user;
+                cluster.password = loginInfo.token;
+            }
+        } catch (ex) {
+            console.log(ex);
+        }
+    }
+
     public async add(): Promise<void> {
         const host: string | undefined = await vscode.window.showInputBox({
             prompt: __('cluster.add.host.prompt'),
@@ -155,6 +189,7 @@ export class ClusterManager extends Singleton {
         if (!host) {
             return;
         }
+
         const cluster: IPAICluster = clone(ClusterManager.paiDefault);
         try {
             await vscode.window.withProgress(
@@ -178,6 +213,7 @@ export class ClusterManager extends Singleton {
             cluster.web_portal_uri = `${host}`;
             cluster.hdfs_uri = `hdfs://${host}:9000`;
             cluster.webhdfs_uri = `${host}/webhdfs/api/v1`;
+            await this.autoAddOIDCUserInfo(cluster);
         } catch {
             cluster.name = host;
             cluster.rest_server_uri = `${host}:9186`;
