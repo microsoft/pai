@@ -364,7 +364,9 @@ export default class Summary extends React.Component {
                       onRenderContent: () => (
                         <div className={c(t.flex, t.itemsCenter)}>
                           <div>FrameworkName:</div>
-                          <div className={t.ml2}>{jobInfo.frameworkName}</div>
+                          <div className={c(t.ml2, t.truncate)}>
+                            {jobInfo.frameworkName}
+                          </div>
                           <div>
                             <IconButton
                               iconProps={{ iconName: 'Copy' }}
