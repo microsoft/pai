@@ -34,6 +34,7 @@ import {
   ActionButton,
   Stack,
   getTheme,
+  StackItem,
 } from 'office-ui-fabric-react';
 import { getFormClassNames, getTabFromStyle } from './form-style';
 import { TabFormContent } from './tab-form-content';
@@ -196,52 +197,54 @@ export class TabForm extends React.Component {
     const { spacing } = getTheme();
 
     return (
-      <Stack styles={{ root: { minHeight: 0 } }}>
+      <Stack styles={{ root: { minHeight: 0, flexGrow: 1 } }}>
         {!isSingle && (
-          <Stack className={formTabBar} horizontal>
-            <Stack.Item styles={tabFormStyle.tabWapper}>
-              <Pivot
-                onLinkClick={this._onLinkClick.bind(this)}
-                styles={{
-                  text: tabFormStyle.tab.text,
-                  root: tabFormStyle.tab.root,
-                  link: [{ margin: 0, padding: 0 }],
-                  linkIsSelected: [{ margin: 0, padding: 0 }],
-                }}
-                selectedKey={this._getItemKeyByIndex(selectedIndex)}
-              >
-                {items.map((item, idx) => (
-                  <PivotItem
-                    key={this._getItemKeyByIndex(idx)}
-                    itemKey={this._getItemKeyByIndex(idx)}
-                    headerText={item.headerText}
-                    onRenderItemLink={this._onRenderItem.bind(this)}
-                  />
-                ))}
-              </Pivot>
-            </Stack.Item>
-            <Stack.Item disableShrink>
-              <ActionButton
-                styles={{ root: { padding: `0 ${spacing.l1}` } }}
-                iconProps={{ iconName: 'CircleAddition' }}
-                text='Add new task role'
-                onClick={this._onItemAdd.bind(this)}
-              />
-            </Stack.Item>
-            <Stack.Item disableShrink align='stretch'>
-              <Stack
-                verticalAlign='center'
-                styles={{ root: { height: '100%' } }}
-              >
-                <TooltipIcon content={PROTOCOL_TOOLTIPS.taskRole} />
-              </Stack>
-            </Stack.Item>
-          </Stack>
+          <StackItem disableShrink>
+            <Stack className={formTabBar} horizontal>
+              <Stack.Item styles={tabFormStyle.tabWapper}>
+                <Pivot
+                  onLinkClick={this._onLinkClick.bind(this)}
+                  styles={{
+                    text: tabFormStyle.tab.text,
+                    root: tabFormStyle.tab.root,
+                    link: [{ margin: 0, padding: 0 }],
+                    linkIsSelected: [{ margin: 0, padding: 0 }],
+                  }}
+                  selectedKey={this._getItemKeyByIndex(selectedIndex)}
+                >
+                  {items.map((item, idx) => (
+                    <PivotItem
+                      key={this._getItemKeyByIndex(idx)}
+                      itemKey={this._getItemKeyByIndex(idx)}
+                      headerText={item.headerText}
+                      onRenderItemLink={this._onRenderItem.bind(this)}
+                    />
+                  ))}
+                </Pivot>
+              </Stack.Item>
+              <Stack.Item disableShrink>
+                <ActionButton
+                  styles={{ root: { padding: `0 ${spacing.l1}` } }}
+                  iconProps={{ iconName: 'CircleAddition' }}
+                  text='Add new task role'
+                  onClick={this._onItemAdd.bind(this)}
+                />
+              </Stack.Item>
+              <Stack.Item disableShrink align='stretch'>
+                <Stack
+                  verticalAlign='center'
+                  styles={{ root: { height: '100%' } }}
+                >
+                  <TooltipIcon content={PROTOCOL_TOOLTIPS.taskRole} />
+                </Stack>
+              </Stack.Item>
+            </Stack>
+          </StackItem>
         )}
-        <Card style={{ padding: 0, minHeight: 0 }}>
+        <Card style={{ padding: 0, minHeight: 0, display: 'flex' }}>
           <Stack
             padding='l2 l1 0'
-            styles={{ root: { height: '100%', overflowY: 'auto' } }}
+            styles={{ root: { overflowY: 'auto', width: '100%' } }}
           >
             <div style={{ paddingBottom: spacing.l1 }}>
               {!isNil(selectedIndex) && (

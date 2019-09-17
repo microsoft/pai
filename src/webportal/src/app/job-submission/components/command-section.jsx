@@ -26,7 +26,7 @@
 import React from 'react';
 import { BasicSection } from './basic-section';
 import PropTypes from 'prop-types';
-import { MonacoTextFiled } from './monaco-text-field';
+import { MonacoTextField } from './monaco-text-field';
 import { FormShortSection } from './form-page';
 import { PAI_ENV_VAR, COMMAND_PLACEHOLDER } from '../utils/constants';
 import { isEmpty } from 'lodash';
@@ -43,7 +43,7 @@ export const CommandSection = props => {
   return (
     <BasicSection sectionLabel='Command'>
       <FormShortSection>
-        <MonacoTextFiled
+        <MonacoTextField
           monacoProps={{ height: 250, language: 'shell' }}
           value={value}
           placeholder={COMMAND_PLACEHOLDER}

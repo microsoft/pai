@@ -21,7 +21,7 @@ import 'whatwg-fetch';
 
 import c from 'classnames';
 import { isEmpty } from 'lodash';
-import { initializeIcons, Stack } from 'office-ui-fabric-react';
+import { initializeIcons, Stack, StackItem } from 'office-ui-fabric-react';
 import React, { useState, useEffect } from 'react';
 import ReactDOM from 'react-dom';
 import MediaQuery from 'react-responsive';
@@ -146,45 +146,41 @@ const Home = () => {
             styles={{ root: { height: '100%', minHeight: 640 } }}
           >
             {/* top */}
-            <Stack gap='l2' horizontal>
-              {isAdmin ? (
-                <React.Fragment>
-                  <JobStatus
-                    style={{ height: '100%', width: '25%' }}
-                    jobs={jobs}
-                  />
-                  <VirtualClusterStatistics
-                    style={{ height: '100%', width: '41%' }}
-                    userInfo={userInfo}
-                    virtualClusters={virtualClusters}
-                  />
-                  <GpuChart
-                    style={{ height: '100%', width: '33%' }}
-                    gpuPerNode={gpuPerNode}
-                    userInfo={userInfo}
-                    virtualClusters={virtualClusters}
-                  />
-                </React.Fragment>
-              ) : (
-                <React.Fragment>
-                  <JobStatus
-                    style={{ height: '100%', width: '33%' }}
-                    jobs={jobs}
-                  />
-                  <VirtualClusterList
-                    style={{ height: '100%', width: '33%' }}
-                    userInfo={userInfo}
-                    virtualClusters={virtualClusters}
-                  />
-                  <GpuChart
-                    style={{ height: '100%', width: '33%' }}
-                    gpuPerNode={gpuPerNode}
-                    userInfo={userInfo}
-                    virtualClusters={virtualClusters}
-                  />
-                </React.Fragment>
-              )}
-            </Stack>
+            <StackItem disableShrink>
+              <Stack gap='l2' horizontal>
+                {isAdmin ? (
+                  <React.Fragment>
+                    <JobStatus style={{ width: '25%' }} jobs={jobs} />
+                    <VirtualClusterStatistics
+                      style={{ width: '41%' }}
+                      userInfo={userInfo}
+                      virtualClusters={virtualClusters}
+                    />
+                    <GpuChart
+                      style={{ width: '33%' }}
+                      gpuPerNode={gpuPerNode}
+                      userInfo={userInfo}
+                      virtualClusters={virtualClusters}
+                    />
+                  </React.Fragment>
+                ) : (
+                  <React.Fragment>
+                    <JobStatus style={{ width: '33%' }} jobs={jobs} />
+                    <VirtualClusterList
+                      style={{ width: '33%' }}
+                      userInfo={userInfo}
+                      virtualClusters={virtualClusters}
+                    />
+                    <GpuChart
+                      style={{ width: '33%' }}
+                      gpuPerNode={gpuPerNode}
+                      userInfo={userInfo}
+                      virtualClusters={virtualClusters}
+                    />
+                  </React.Fragment>
+                )}
+              </Stack>
+            </StackItem>
             {/* bottom */}
             {isAdmin ? (
               <AbnormalJobList

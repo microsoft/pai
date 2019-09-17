@@ -31,6 +31,7 @@ import {
   FontSizes,
   FontWeights,
   getTheme,
+  StackItem,
 } from 'office-ui-fabric-react';
 import PropTypes from 'prop-types';
 import Card from '../../../components/card';
@@ -67,22 +68,25 @@ export const SidebarCard = ({
   return (
     <Card
       style={{
-        minHeight: selected ? 0 : null,
+        display: selected ? 'flex' : null,
+        flexDirection: selected ? 'column' : null,
         border: error && !selected ? `1px solid ${palette.red}` : null,
       }}
     >
       <Stack gap='m' styles={{ root: { height: '100%' } }}>
-        <Stack horizontal horizontalAlign='space-between'>
-          <Stack horizontal gap='s1'>
-            <Text styles={style.headerText}>{title}</Text>
-            {tooltip && <TooltipIcon content={tooltip} />}
+        <StackItem disableShrink>
+          <Stack horizontal horizontalAlign='space-between'>
+            <Stack horizontal gap='s1'>
+              <Text styles={style.headerText}>{title}</Text>
+              {tooltip && <TooltipIcon content={tooltip} />}
+            </Stack>
+            <ActionButton
+              iconProps={{ iconName: selected ? 'ChevronUp' : 'ChevronDown' }}
+              styles={style.actionButton}
+              onClick={onSelect}
+            />
           </Stack>
-          <ActionButton
-            iconProps={{ iconName: selected ? 'ChevronUp' : 'ChevronDown' }}
-            styles={style.actionButton}
-            onClick={onSelect}
-          />
-        </Stack>
+        </StackItem>
         {selected && <div style={{ overflowY: 'auto' }}>{children}</div>}
       </Stack>
     </Card>
