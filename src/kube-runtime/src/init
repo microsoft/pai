@@ -99,37 +99,31 @@ cd ${PAI_WORK_DIR}
 CHILD_PROCESS="FRAMEWORK_BARRIER"
 echo "frameworkbarrier start"
 ${PAI_INIT_DIR}/frameworkbarrier 2>&1 | tee ${PAI_LOG_DIR}/barrier.log 
-echo "barrier returns $?"
 
 # error spec
 # priority=1
 CHILD_PROCESS="ERROR_SPEC"
 cp ${PAI_CONFIG_DIR}/runtime-exit-spec.yaml ${PAI_RUNTIME_DIR}
-echo "copy exit spec returns $?"
 
 # generate runtime env variables
 # priority=10
 CHILD_PROCESS="ENV_GENERATOR"
 python ${PAI_INIT_DIR}/parser.py genenv framework.json > ${PAI_RUNTIME_DIR}/runtime_env.sh
-echo "parser.py genenv returns $?"
 
 # generate jobconfig
 # priority=11
 CHILD_PROCESS="CONFIG_GENERATOR"
 python ${PAI_INIT_DIR}/parser.py genconf framework.json > ${PAI_RUNTIME_DIR}/job_config.yaml
-echo "parser.py genconf returns $?"
 
 # Init plugins
 # priority=12
 CHILD_PROCESS="PLUGIN_INITIALIZER"
 python ${PAI_INIT_DIR}/initializer.py ${PAI_RUNTIME_DIR}/job_config.yaml ${PAI_WORK_DIR}/plugins ${PAI_RUNTIME_DIR} ${FC_TASKROLE_NAME}
-echo "initializer.py returns $?"
 
 # Init plugins
 # check port conflict
 CHILD_PROCESS="PORT_CONFLICT_CHECKER"
 python ${PAI_INIT_DIR}/port.py ${PAI_RUNTIME_DIR}/runtime_env.sh
-echo "port.py.py returns $?"
 
 # write user commands to user.sh
 # priority=100
