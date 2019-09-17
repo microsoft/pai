@@ -23,10 +23,10 @@
  * SOFTWARE.
  */
 
-import {getTheme} from 'office-ui-fabric-react';
+import { getTheme } from 'office-ui-fabric-react';
 import styled from 'styled-components';
 
-const {spacing, palette} = getTheme();
+const { spacing, palette } = getTheme();
 
 const Card = styled.div`
   padding: ${spacing.l1};

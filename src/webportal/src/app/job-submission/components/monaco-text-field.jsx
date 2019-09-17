@@ -23,7 +23,7 @@
  * SOFTWARE.
  */
 
-import React, {useCallback, useMemo} from 'react';
+import React, { useCallback, useMemo } from 'react';
 import {
   Label,
   getTheme,
@@ -33,9 +33,9 @@ import {
 } from 'office-ui-fabric-react';
 import PropTypes from 'prop-types';
 import MonacoEditor from '../../components/monaco-editor';
-import {isEmpty, isNil, debounce} from 'lodash';
+import { isEmpty, isNil, debounce } from 'lodash';
 
-export const MonacoTextFiled = (props) => {
+export const MonacoTextFiled = props => {
   const {
     value,
     onChange,
@@ -46,14 +46,14 @@ export const MonacoTextFiled = (props) => {
     monacoRef,
     errorMessage,
   } = props;
-  const {palette, spacing, semanticColors} = getTheme();
+  const { palette, spacing, semanticColors } = getTheme();
   const borderColor = isEmpty(errorMessage)
     ? palette.neutralTertiary
     : semanticColors.errorText;
 
   const debouncedOnChange = useMemo(() => debounce(onChange, 100), [onChange]);
   const onChangeWrapper = useCallback(
-    (val) => {
+    val => {
       if (val === placeholder) {
         return;
       }
@@ -62,7 +62,7 @@ export const MonacoTextFiled = (props) => {
     [debouncedOnChange],
   );
 
-  const monacoProps = {...rawMonacoProps};
+  const monacoProps = { ...rawMonacoProps };
   const rawEditorDidMount = monacoProps.editorDidMount;
   delete monacoProps.editorDidMount;
   const editorDidMountCallback = useCallback(
@@ -112,7 +112,7 @@ export const MonacoTextFiled = (props) => {
             wordWrap: 'on',
             readOnly: false,
             defaultEOL: 1,
-            minimap: {enabled: false},
+            minimap: { enabled: false },
           },
           value: value,
           onChange: onChangeWrapper,
@@ -134,9 +134,7 @@ export const MonacoTextFiled = (props) => {
                 alignItems: 'center',
               }}
             >
-              <span data-automation-id='error-message'>
-                {errorMessage}
-              </span>
+              <span data-automation-id='error-message'>{errorMessage}</span>
             </p>
           </DelayedRender>
         </div>

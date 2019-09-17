@@ -35,7 +35,12 @@ const validate = (req, res, next, virtualClusterName) => {
 };
 
 const list = asyncHandler(async (req, res) => {
-  const data = await virtualCluster.list();
+  let data;
+  if ('nodes' in req.query) {
+    data = await virtualCluster.getNodeResource();
+  } else {
+    data = await virtualCluster.list();
+  }
   res.status(status('OK')).json(data);
 });
 
@@ -48,11 +53,6 @@ const getResourceUnits = (req, res) => {
   const data = virtualCluster.getResourceUnits();
   res.status(status('OK')).json(data);
 };
-
-const getNodeResource = asyncHandler(async (req, res) => {
-  const data = await virtualCluster.getNodeResource();
-  res.status(status('OK')).json(data);
-});
 
 const update = asyncHandler(async (req, res) => {
   const virtualClusterName = req.params.virtualClusterName;
@@ -157,7 +157,6 @@ module.exports = {
   list,
   get,
   getResourceUnits,
-  getNodeResource,
   update,
   updateStatus,
   remove,

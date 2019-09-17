@@ -1,14 +1,14 @@
-import React, {useState} from 'react';
-import {IconButton, Stack, TextField} from 'office-ui-fabric-react';
-import {cloneDeep} from 'lodash';
+import React, { useState } from 'react';
+import { IconButton, Stack, TextField } from 'office-ui-fabric-react';
+import { cloneDeep } from 'lodash';
 import PropTypes from 'prop-types';
 
-import {STORAGE_PREFIX, ERROR_MARGIN} from '../../utils/constants';
-import {validateMountPath} from '../../utils/validation';
-import {InputData} from '../../models/data/input-data';
+import { STORAGE_PREFIX, ERROR_MARGIN } from '../../utils/constants';
+import { validateMountPath } from '../../utils/validation';
+import { InputData } from '../../models/data/input-data';
 
-export const AddHttp = (props) => {
-  const {dataList, setDataList, setDataType} = props;
+export const AddHttp = props => {
+  const { dataList, setDataList, setDataType } = props;
   const [mountPath, setMountPath] = useState();
   const [httpUrl, setHttpUrl] = useState();
   const [containerPathErrorMessage, setContainerPathErrorMessage] = useState(
@@ -33,7 +33,7 @@ export const AddHttp = (props) => {
           prefix={STORAGE_PREFIX}
           label='Container path'
           errorMessage={containerPathErrorMessage}
-          styles={{root: {width: 200}}}
+          styles={{ root: { width: 200 } }}
           onChange={(_event, newValue) => {
             const valid = validateMountPath(`/${newValue}`);
             if (!valid.isLegal) {
@@ -62,7 +62,7 @@ export const AddHttp = (props) => {
       </Stack.Item>
       <Stack.Item align='end'>
         <IconButton
-          iconProps={{iconName: 'Accept'}}
+          iconProps={{ iconName: 'Accept' }}
           onClick={submitMount}
           disabled={httpAddressErrorMessage || containerPathErrorMessage}
           styles={{
@@ -80,7 +80,7 @@ export const AddHttp = (props) => {
       </Stack.Item>
       <Stack.Item align='end'>
         <IconButton
-          iconProps={{iconName: 'Cancel'}}
+          iconProps={{ iconName: 'Cancel' }}
           onClick={() => {
             setDataType('none');
           }}

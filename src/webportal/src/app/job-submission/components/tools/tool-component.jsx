@@ -24,58 +24,61 @@
  */
 
 import React from 'react';
-import {Stack} from 'office-ui-fabric-react';
+import { Stack } from 'office-ui-fabric-react';
 import PropTypes from 'prop-types';
-import {SidebarCard} from '../sidebar/sidebar-card';
-import {Hint} from '../sidebar/hint';
-import {TensorBoard} from './tensorboard';
-import {JobSSH} from './job-ssh';
-import {PROTOCOL_TOOLTIPS} from '../../utils/constants';
+import { SidebarCard } from '../sidebar/sidebar-card';
+import { Hint } from '../sidebar/hint';
+import { TensorBoard } from './tensorboard';
+import { JobSSH } from './job-ssh';
+import { PROTOCOL_TOOLTIPS } from '../../utils/constants';
 import config from '../../../config/webportal.config';
 
-export const ToolComponent = React.memo(({
-  jobData,
-  taskRoles,
-  secrets,
-  extras,
-  onExtrasChange,
-  onSecretsChange,
-  selected,
-  onSelect,
-}) => {
-  return (
-    <SidebarCard
-      title='Tools'
-      tooltip={PROTOCOL_TOOLTIPS.tools}
-      selected={selected}
-      onSelect={onSelect}
-    >
-      <Stack gap='m'>
-        <Hint>
-          Tools section is used to configure the tools that are useful for jobs.
-        </Hint>
-        <div>
-          <TensorBoard
-            jobData={jobData}
-            taskRoles={taskRoles}
-            extras={extras}
-            onChange={onExtrasChange}
-          />
-        </div>
-        {(config.launcherType === 'k8s') && (
-        <div>
-          <JobSSH
-            secrets={secrets}
-            extras={extras}
-            onSecretsChange={onSecretsChange}
-            onExtrasChange={onExtrasChange}
-          />
-        </div>
-        )}
-      </Stack>
-    </SidebarCard>
-  );
-});
+export const ToolComponent = React.memo(
+  ({
+    jobData,
+    taskRoles,
+    secrets,
+    extras,
+    onExtrasChange,
+    onSecretsChange,
+    selected,
+    onSelect,
+  }) => {
+    return (
+      <SidebarCard
+        title='Tools'
+        tooltip={PROTOCOL_TOOLTIPS.tools}
+        selected={selected}
+        onSelect={onSelect}
+      >
+        <Stack gap='m'>
+          <Hint>
+            Tools section is used to configure the tools that are useful for
+            jobs.
+          </Hint>
+          <div>
+            <TensorBoard
+              jobData={jobData}
+              taskRoles={taskRoles}
+              extras={extras}
+              onChange={onExtrasChange}
+            />
+          </div>
+          {config.launcherType === 'k8s' && (
+            <div>
+              <JobSSH
+                secrets={secrets}
+                extras={extras}
+                onSecretsChange={onSecretsChange}
+                onExtrasChange={onExtrasChange}
+              />
+            </div>
+          )}
+        </Stack>
+      </SidebarCard>
+    );
+  },
+);
 
 ToolComponent.propTypes = {
   jobData: PropTypes.object.isRequired,

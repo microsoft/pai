@@ -24,13 +24,13 @@
  */
 
 import React from 'react';
-import {Stack} from 'office-ui-fabric-react';
-import {getFormPageSytle} from './form-style';
+import { Stack } from 'office-ui-fabric-react';
+import { getFormPageSytle } from './form-style';
 import PropTypes from 'prop-types';
 
-const {formPageStyle} = getFormPageSytle();
+const { formPageStyle } = getFormPageSytle();
 
-export const FormPage = (props) => {
+export const FormPage = props => {
   return (
     <Stack styles={formPageStyle} gap={'l1'}>
       {props.children}
@@ -38,7 +38,7 @@ export const FormPage = (props) => {
   );
 };
 
-export const FormSection = (props) => {
+export const FormSection = props => {
   return (
     <Stack horizontal gap={'m'}>
       {props.children}
@@ -46,9 +46,9 @@ export const FormSection = (props) => {
   );
 };
 
-export const FormShortSection = (props) => {
+export const FormShortSection = props => {
   return (
-    <Stack {...props} styles={{root: {width: '80%'}}}>
+    <Stack {...props} styles={{ root: { width: '80%' } }}>
       {props.children}
     </Stack>
   );

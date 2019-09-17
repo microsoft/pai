@@ -1,11 +1,11 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import {cloneDeep, isNil} from 'lodash';
-import {Hint} from '../sidebar/hint';
-import {ErrMsg} from '../sidebar/errormessage';
-import {generateDefaultTensorBoardExtras} from '../../utils/utils';
-import {TooltipIcon} from '../controls/tooltip-icon';
-import {TENSORBOARD_LOG_PATH} from '../../utils/constants';
+import { cloneDeep, isNil } from 'lodash';
+import { Hint } from '../sidebar/hint';
+import { ErrMsg } from '../sidebar/errormessage';
+import { generateDefaultTensorBoardExtras } from '../../utils/utils';
+import { TooltipIcon } from '../controls/tooltip-icon';
+import { TENSORBOARD_LOG_PATH } from '../../utils/constants';
 import {
   FontWeights,
   Toggle,
@@ -23,13 +23,8 @@ const style = {
   },
 };
 
-export const TensorBoard = (props) => {
-  const {
-    jobData,
-    taskRoles,
-    extras,
-    onChange,
-  } = props;
+export const TensorBoard = props => {
+  const { jobData, taskRoles, extras, onChange } = props;
 
   const detectMountPathAndMultipleTaskRoles = () => {
     if (!extras.tensorBoard) {
@@ -51,13 +46,12 @@ export const TensorBoard = (props) => {
   };
 
   return (
-    <Stack gap='m' styles={{root: {height: '100%'}}}>
+    <Stack gap='m' styles={{ root: { height: '100%' } }}>
       <Stack horizontal gap='s1'>
         <Text styles={style.headerText}>TensorBoard</Text>
-        <TooltipIcon content={
-          `You should save logs under ${TENSORBOARD_LOG_PATH} in the training script.
-          TensorBoard can only read logs from the first task role if ${TENSORBOARD_LOG_PATH} is not mounted in Data section.`
-        }
+        <TooltipIcon
+          content={`You should save logs under ${TENSORBOARD_LOG_PATH} in the training script.
+          TensorBoard can only read logs from the first task role if ${TENSORBOARD_LOG_PATH} is not mounted in Data section.`}
         />
       </Stack>
       <Hint>
@@ -80,11 +74,10 @@ export const TensorBoard = (props) => {
       {detectMountPathAndMultipleTaskRoles() && (
         <ErrMsg>
           <div>
-            Multiple task roles were detected but not mounted <code>{TENSORBOARD_LOG_PATH}</code> in Data section.
+            Multiple task roles were detected but not mounted{' '}
+            <code>{TENSORBOARD_LOG_PATH}</code> in Data section.
           </div>
-          <div>
-            TensorBoard can only read logs from the first task role.
-          </div>
+          <div>TensorBoard can only read logs from the first task role.</div>
         </ErrMsg>
       )}
     </Stack>

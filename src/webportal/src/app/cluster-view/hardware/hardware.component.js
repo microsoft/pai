@@ -30,17 +30,17 @@ const webportalConfig = require('../../config/webportal.config.js');
 //
 let table = null;
 
-const getHostname = (host) => host.split(':', 1)[0];
+const getHostname = host => host.split(':', 1)[0];
 
 //
 
-const getCellId = (instanceName) => {
+const getCellId = instanceName => {
   return '#' + instanceName.replace(/(:|\.|\[|\]|,|=|@)/g, '\\$1');
 };
 
 //
 
-const getCellHtml = (percentage) => {
+const getCellHtml = percentage => {
   let innerColorString = '';
   let outerColorString = '';
   let loadLevelString = '';
@@ -57,12 +57,19 @@ const getCellHtml = (percentage) => {
     outerColorString = 'hsl(0, 100%, 45%)';
     loadLevelString = 'Heavy load';
   }
-  const title = (Math.round(percentage * 100) / 100) + '% (' + loadLevelString + ')';
+  const title =
+    Math.round(percentage * 100) / 100 + '% (' + loadLevelString + ')';
   let cellHtml = '';
   cellHtml += '<span title="' + percentage + '">';
-  cellHtml += '<span class=\'fa-stack metric-span\' title=\'' + title + '\'>';
-  cellHtml += '<i class=\'fa fa-circle fa-stack-1x metric-icon\' style=\'color:' + innerColorString + '\'></i>';
-  cellHtml += '<i class=\'fa fa-circle-thin fa-stack-1x metric-icon\' style=\'color:' + outerColorString + '\'></i>';
+  cellHtml += "<span class='fa-stack metric-span' title='" + title + "'>";
+  cellHtml +=
+    "<i class='fa fa-circle fa-stack-1x metric-icon' style='color:" +
+    innerColorString +
+    "'></i>";
+  cellHtml +=
+    "<i class='fa fa-circle-thin fa-stack-1x metric-icon' style='color:" +
+    outerColorString +
+    "'></i>";
   cellHtml += '</span>';
   return cellHtml;
 };
@@ -70,7 +77,8 @@ const getCellHtml = (percentage) => {
 //
 
 const initCells = (idPrefix, instanceList, table) => {
-  const noDataCellHtml = '<span title="-1"/><font color=\'silver\' title=\'\'>N/A</font>';
+  const noDataCellHtml =
+    "<span title=\"-1\"/><font color='silver' title=''>N/A</font>";
   for (let i = 0; i < instanceList.length; i++) {
     const cellId = getCellId(idPrefix + ':' + instanceList[i]);
     table.cell(cellId).data(noDataCellHtml);
@@ -79,13 +87,26 @@ const initCells = (idPrefix, instanceList, table) => {
 
 //
 
-const loadCpuUtilData = (prometheusUri, currentEpochTimeInSeconds, instanceList, table) => {
+const loadCpuUtilData = (
+  prometheusUri,
+  currentEpochTimeInSeconds,
+  instanceList,
+  table,
+) => {
   const metricGranularity = webportalConfig.promScrapeTime;
   $.ajax({
     type: 'GET',
-    url: prometheusUri + '/api/v1/query_range?' +
-      'query=100%20-%20(avg%20by%20(instance)(irate(node_cpu_seconds_total%7Bmode%3D%22idle%22%7D%5B' + metricGranularity + '%5D))%20*%20100)' +
-      '&start=' + currentEpochTimeInSeconds + '&end=' + currentEpochTimeInSeconds + '&step=1',
+    url:
+      prometheusUri +
+      '/api/v1/query_range?' +
+      'query=100%20-%20(avg%20by%20(instance)(irate(node_cpu_seconds_total%7Bmode%3D%22idle%22%7D%5B' +
+      metricGranularity +
+      '%5D))%20*%20100)' +
+      '&start=' +
+      currentEpochTimeInSeconds +
+      '&end=' +
+      currentEpochTimeInSeconds +
+      '&step=1',
     success: function(data) {
       initCells('cpu', instanceList, table);
       const result = data.data.result;
@@ -106,14 +127,25 @@ const loadCpuUtilData = (prometheusUri, currentEpochTimeInSeconds, instanceList,
 
 //
 
-const loadMemUtilData = (prometheusUri, currentEpochTimeInSeconds, instanceList, table) => {
+const loadMemUtilData = (
+  prometheusUri,
+  currentEpochTimeInSeconds,
+  instanceList,
+  table,
+) => {
   $.ajax({
     type: 'GET',
-    url: prometheusUri + '/api/v1/query_range?' +
+    url:
+      prometheusUri +
+      '/api/v1/query_range?' +
       'query=node_memory_MemTotal_bytes+-+node_memory_MemFree_bytes+-+node_memory_Buffers_bytes+-+node_memory_Cached_bytes' +
-      '&start=' + currentEpochTimeInSeconds + '&end=' + currentEpochTimeInSeconds + '&step=1',
+      '&start=' +
+      currentEpochTimeInSeconds +
+      '&end=' +
+      currentEpochTimeInSeconds +
+      '&step=1',
     success: function(dataOfMemUsed) {
-      let dictOfMemUsed = {};
+      const dictOfMemUsed = {};
       const result = dataOfMemUsed.data.result;
       for (let i = 0; i < result.length; i++) {
         const item = result[i];
@@ -121,16 +153,25 @@ const loadMemUtilData = (prometheusUri, currentEpochTimeInSeconds, instanceList,
       }
       $.ajax({
         type: 'GET',
-        url: prometheusUri + '/api/v1/query_range?' +
+        url:
+          prometheusUri +
+          '/api/v1/query_range?' +
           'query=node_memory_MemTotal_bytes' +
-          '&start=' + currentEpochTimeInSeconds + '&end=' + currentEpochTimeInSeconds + '&step=1',
+          '&start=' +
+          currentEpochTimeInSeconds +
+          '&end=' +
+          currentEpochTimeInSeconds +
+          '&step=1',
         success: function(dataOfMemTotal) {
           initCells('mem', instanceList, table);
           const result = dataOfMemTotal.data.result;
           for (let i = 0; i < result.length; i++) {
             const item = result[i];
-            const cellId = getCellId('mem:' + getHostname(item.metric.instance));
-            const percentage = dictOfMemUsed[item.metric.instance] / item.values[0][1] * 100;
+            const cellId = getCellId(
+              'mem:' + getHostname(item.metric.instance),
+            );
+            const percentage =
+              (dictOfMemUsed[item.metric.instance] / item.values[0][1]) * 100;
             const cellHtml = getCellHtml(percentage);
             table.cell(cellId).data(cellHtml);
           }
@@ -150,12 +191,23 @@ const loadMemUtilData = (prometheusUri, currentEpochTimeInSeconds, instanceList,
 
 //
 
-const loadGpuUtilData = (prometheusUri, currentEpochTimeInSeconds, instanceList, table) => {
+const loadGpuUtilData = (
+  prometheusUri,
+  currentEpochTimeInSeconds,
+  instanceList,
+  table,
+) => {
   $.ajax({
     type: 'GET',
-    url: prometheusUri + '/api/v1/query_range?' +
+    url:
+      prometheusUri +
+      '/api/v1/query_range?' +
       'query=avg+by+(instance)(nvidiasmi_utilization_gpu)' +
-      '&start=' + currentEpochTimeInSeconds + '&end=' + currentEpochTimeInSeconds + '&step=1',
+      '&start=' +
+      currentEpochTimeInSeconds +
+      '&end=' +
+      currentEpochTimeInSeconds +
+      '&step=1',
     success: function(data) {
       initCells('gpu', instanceList, table);
       const result = data.data.result;
@@ -176,12 +228,23 @@ const loadGpuUtilData = (prometheusUri, currentEpochTimeInSeconds, instanceList,
 
 //
 
-const loadGpuMemUtilData = (prometheusUri, currentEpochTimeInSeconds, instanceList, table) => {
+const loadGpuMemUtilData = (
+  prometheusUri,
+  currentEpochTimeInSeconds,
+  instanceList,
+  table,
+) => {
   $.ajax({
     type: 'GET',
-    url: prometheusUri + '/api/v1/query_range?' +
+    url:
+      prometheusUri +
+      '/api/v1/query_range?' +
       'query=avg+by+(instance)(nvidiasmi_utilization_memory)' +
-      '&start=' + currentEpochTimeInSeconds + '&end=' + currentEpochTimeInSeconds + '&step=1',
+      '&start=' +
+      currentEpochTimeInSeconds +
+      '&end=' +
+      currentEpochTimeInSeconds +
+      '&step=1',
     success: function(data) {
       initCells('gpumem', instanceList, table);
       const result = data.data.result;
@@ -202,15 +265,28 @@ const loadGpuMemUtilData = (prometheusUri, currentEpochTimeInSeconds, instanceLi
 
 //
 
-const loadDiskUtilData = (prometheusUri, currentEpochTimeInSeconds, instanceList, table) => {
+const loadDiskUtilData = (
+  prometheusUri,
+  currentEpochTimeInSeconds,
+  instanceList,
+  table,
+) => {
   const metricGranularity = webportalConfig.promScrapeTime;
   $.ajax({
     type: 'GET',
-    url: prometheusUri + '/api/v1/query_range?' +
-      'query=sum+by+(instance)(rate(node_disk_read_bytes_total%5B' + metricGranularity + '%5D))' +
-      '&start=' + currentEpochTimeInSeconds + '&end=' + currentEpochTimeInSeconds + '&step=1',
+    url:
+      prometheusUri +
+      '/api/v1/query_range?' +
+      'query=sum+by+(instance)(rate(node_disk_read_bytes_total%5B' +
+      metricGranularity +
+      '%5D))' +
+      '&start=' +
+      currentEpochTimeInSeconds +
+      '&end=' +
+      currentEpochTimeInSeconds +
+      '&step=1',
     success: function(dataOfDiskBytesRead) {
-      let dictOfDiskBytesRead = {};
+      const dictOfDiskBytesRead = {};
       const result = dataOfDiskBytesRead.data.result;
       for (let i = 0; i < result.length; i++) {
         const item = result[i];
@@ -218,20 +294,31 @@ const loadDiskUtilData = (prometheusUri, currentEpochTimeInSeconds, instanceList
       }
       $.ajax({
         type: 'GET',
-        url: prometheusUri + '/api/v1/query_range?' +
-          'query=sum+by+(instance)(rate(node_disk_written_bytes_total%5B' + metricGranularity + '%5D))' +
-          '&start=' + currentEpochTimeInSeconds + '&end=' + currentEpochTimeInSeconds + '&step=1',
+        url:
+          prometheusUri +
+          '/api/v1/query_range?' +
+          'query=sum+by+(instance)(rate(node_disk_written_bytes_total%5B' +
+          metricGranularity +
+          '%5D))' +
+          '&start=' +
+          currentEpochTimeInSeconds +
+          '&end=' +
+          currentEpochTimeInSeconds +
+          '&step=1',
         success: function(dataOfDiskBytesWritten) {
           initCells('disk', instanceList, table);
           const result = dataOfDiskBytesWritten.data.result;
           for (let i = 0; i < result.length; i++) {
             const item = result[i];
-            const cellId = getCellId('disk:' + getHostname(item.metric.instance));
+            const cellId = getCellId(
+              'disk:' + getHostname(item.metric.instance),
+            );
             const diskBytesRead = dictOfDiskBytesRead[item.metric.instance];
             const diskBytesWritten = item.values[0][1];
             if (diskBytesRead && diskBytesWritten) {
-              const p1 = Math.min(1, (diskBytesRead / 1024 / 1024) / 500) * 100;
-              const p2 = Math.min(1, (diskBytesWritten / 1024 / 1024) / 500) * 100;
+              const p1 = Math.min(1, diskBytesRead / 1024 / 1024 / 500) * 100;
+              const p2 =
+                Math.min(1, diskBytesWritten / 1024 / 1024 / 500) * 100;
               const percentage = Math.max(p1, p2);
               const cellHtml = getCellHtml(percentage);
               table.cell(cellId).data(cellHtml);
@@ -253,15 +340,28 @@ const loadDiskUtilData = (prometheusUri, currentEpochTimeInSeconds, instanceList
 
 //
 
-const loadEthUtilData = (prometheusUri, currentEpochTimeInSeconds, instanceList, table) => {
+const loadEthUtilData = (
+  prometheusUri,
+  currentEpochTimeInSeconds,
+  instanceList,
+  table,
+) => {
   const metricGranularity = webportalConfig.promScrapeTime;
   $.ajax({
     type: 'GET',
-    url: prometheusUri + '/api/v1/query_range?' +
-      'query=sum+by+(instance)(rate(node_network_receive_bytes_total%5B' + metricGranularity + '%5D))' +
-      '&start=' + currentEpochTimeInSeconds + '&end=' + currentEpochTimeInSeconds + '&step=1',
+    url:
+      prometheusUri +
+      '/api/v1/query_range?' +
+      'query=sum+by+(instance)(rate(node_network_receive_bytes_total%5B' +
+      metricGranularity +
+      '%5D))' +
+      '&start=' +
+      currentEpochTimeInSeconds +
+      '&end=' +
+      currentEpochTimeInSeconds +
+      '&step=1',
     success: function(dataOfEthBytesRecieved) {
-      let dictOfEthBytesRecieved = {};
+      const dictOfEthBytesRecieved = {};
       const result = dataOfEthBytesRecieved.data.result;
       for (let i = 0; i < result.length; i++) {
         const item = result[i];
@@ -269,20 +369,32 @@ const loadEthUtilData = (prometheusUri, currentEpochTimeInSeconds, instanceList,
       }
       $.ajax({
         type: 'GET',
-        url: prometheusUri + '/api/v1/query_range?' +
-          'query=sum+by+(instance)(rate(node_disk_written_bytes_total%5B' + metricGranularity + '%5D))' +
-          '&start=' + currentEpochTimeInSeconds + '&end=' + currentEpochTimeInSeconds + '&step=1',
+        url:
+          prometheusUri +
+          '/api/v1/query_range?' +
+          'query=sum+by+(instance)(rate(node_disk_written_bytes_total%5B' +
+          metricGranularity +
+          '%5D))' +
+          '&start=' +
+          currentEpochTimeInSeconds +
+          '&end=' +
+          currentEpochTimeInSeconds +
+          '&step=1',
         success: function(dataOfEthBytesSent) {
           initCells('eth', instanceList, table);
           const result = dataOfEthBytesSent.data.result;
           for (let i = 0; i < result.length; i++) {
             const item = result[i];
-            const cellId = getCellId('eth:' + getHostname(item.metric.instance));
-            const ethBytesReceived = dictOfEthBytesRecieved[item.metric.instance];
+            const cellId = getCellId(
+              'eth:' + getHostname(item.metric.instance),
+            );
+            const ethBytesReceived =
+              dictOfEthBytesRecieved[item.metric.instance];
             const ethBytesSent = item.values[0][1];
             if (ethBytesReceived && ethBytesSent) {
-              const p1 = Math.min(1, (ethBytesReceived / 1024 / 1024) / 100) * 100;
-              const p2 = Math.min(1, (ethBytesSent / 1024 / 1024) / 100) * 100;
+              const p1 =
+                Math.min(1, ethBytesReceived / 1024 / 1024 / 100) * 100;
+              const p2 = Math.min(1, ethBytesSent / 1024 / 1024 / 100) * 100;
               const percentage = Math.max(p1, p2);
               const cellHtml = getCellHtml(percentage);
               table.cell(cellId).data(cellHtml);
@@ -305,11 +417,14 @@ const loadEthUtilData = (prometheusUri, currentEpochTimeInSeconds, instanceList,
 //
 
 const loadData = () => {
-  const currentEpochTimeInSeconds = (new Date).getTime() / 1000;
+  const currentEpochTimeInSeconds = new Date().getTime() / 1000;
   $.ajax({
     type: 'GET',
-    url: webportalConfig.prometheusUri + '/api/v1/query?' +
-      'query=node_uname_info&time=' + currentEpochTimeInSeconds,
+    url:
+      webportalConfig.prometheusUri +
+      '/api/v1/query?' +
+      'query=node_uname_info&time=' +
+      currentEpochTimeInSeconds,
     success: function(data) {
       const hardwareHtml = hardwareComponent({
         breadcrumb: breadcrumbComponent,
@@ -317,25 +432,57 @@ const loadData = () => {
         machineMetaData: data,
       });
       $('#content-wrapper').html(hardwareHtml);
-      table = $('#hardware-table').dataTable({
-        scrollY: (($(window).height() - 265)) + 'px',
-        lengthMenu: [[20, 50, 100, -1], [20, 50, 100, 'All']],
-        columnDefs: [
-          {type: 'natural', targets: [0]},
-          {type: 'ip-address', targets: [1]},
-          {type: 'title-numeric', targets: [2, 3, 4, 5, 6, 7]},
-        ],
-      }).api();
-      let instanceList = [];
+      table = $('#hardware-table')
+        .dataTable({
+          scrollY: $(window).height() - 265 + 'px',
+          lengthMenu: [[20, 50, 100, -1], [20, 50, 100, 'All']],
+          columnDefs: [
+            { type: 'natural', targets: [0] },
+            { type: 'ip-address', targets: [1] },
+            { type: 'title-numeric', targets: [2, 3, 4, 5, 6, 7] },
+          ],
+        })
+        .api();
+      const instanceList = [];
       for (let i = 0; i < data.data.result.length; i++) {
         instanceList.push(getHostname(data.data.result[i].metric.instance));
       }
-      loadCpuUtilData(webportalConfig.prometheusUri, currentEpochTimeInSeconds, instanceList, table);
-      loadMemUtilData(webportalConfig.prometheusUri, currentEpochTimeInSeconds, instanceList, table);
-      loadGpuUtilData(webportalConfig.prometheusUri, currentEpochTimeInSeconds, instanceList, table);
-      loadGpuMemUtilData(webportalConfig.prometheusUri, currentEpochTimeInSeconds, instanceList, table);
-      loadDiskUtilData(webportalConfig.prometheusUri, currentEpochTimeInSeconds, instanceList, table);
-      loadEthUtilData(webportalConfig.prometheusUri, currentEpochTimeInSeconds, instanceList, table);
+      loadCpuUtilData(
+        webportalConfig.prometheusUri,
+        currentEpochTimeInSeconds,
+        instanceList,
+        table,
+      );
+      loadMemUtilData(
+        webportalConfig.prometheusUri,
+        currentEpochTimeInSeconds,
+        instanceList,
+        table,
+      );
+      loadGpuUtilData(
+        webportalConfig.prometheusUri,
+        currentEpochTimeInSeconds,
+        instanceList,
+        table,
+      );
+      loadGpuMemUtilData(
+        webportalConfig.prometheusUri,
+        currentEpochTimeInSeconds,
+        instanceList,
+        table,
+      );
+      loadDiskUtilData(
+        webportalConfig.prometheusUri,
+        currentEpochTimeInSeconds,
+        instanceList,
+        table,
+      );
+      loadEthUtilData(
+        webportalConfig.prometheusUri,
+        currentEpochTimeInSeconds,
+        instanceList,
+        table,
+      );
     },
     error: function() {
       alert('Error when loading data.');
@@ -346,9 +493,9 @@ const loadData = () => {
 //
 
 const resizeContentWrapper = () => {
-  $('#content-wrapper').css({'height': $(window).height() + 'px'});
+  $('#content-wrapper').css({ height: $(window).height() + 'px' });
   if (table != null) {
-    $('.dataTables_scrollBody').css('height', (($(window).height() - 265)) + 'px');
+    $('.dataTables_scrollBody').css('height', $(window).height() - 265 + 'px');
     table.columns.adjust().draw();
   }
 };

@@ -46,22 +46,26 @@ spec:
           name: group-configuration-rest-server
         - mountPath: /job-exit-spec-configuration
           name: job-exit-spec-rest-server
-{%- if cluster_cfg['rest-server']['launcher-type'] == "k8s" %}
+{%- if cluster_cfg['hivedscheduler']['config']|length > 1 %}
         - mountPath: /hived-spec
           name: hived-spec-rest-server
+        - mountPath: /k8s-job-exit-spec-configuration
+          name: k8s-exit-spec-rest-server
 {%- endif %}
         env:
         - name: LAUNCHER_TYPE
           value: {{ cluster_cfg['rest-server']['launcher-type'] }}
 {%- if cluster_cfg['rest-server']['launcher-type'] == "k8s" %}
-        - name: SCHEDULER_TYPE
-          value: hived
         - name: LAUNCHER_RUNTIME_IMAGE
           value: {{ cluster_cfg['cluster']['docker-registry']['prefix'] }}kube-runtime:{{ cluster_cfg['cluster']['docker-registry']['tag'] }}
         - name: LAUNCHER_RUNTIME_IMAGE_PULL_SECRETS
           value: {{ cluster_cfg["cluster"]["docker-registry"]["secret-name"] }}
         - name: LAUNCHER_SCHEDULER
+{% if cluster_cfg['hivedscheduler']['config']|length > 1 %}
           value: hivedscheduler
+{% else %}
+          value: defaultscheduler
+{% endif %}
         - name: LOG_MANAGER_PORT
           value: "{{ cluster_cfg['log-manager']['port'] }}"
 {%- endif %}
@@ -96,18 +100,6 @@ spec:
           value: "{{ cluster_cfg['cluster']['common']['az-rdma']}}"
         - name: DEBUGGING_RESERVATION_SECONDS
           value: "{{ cluster_cfg['rest-server']['debugging-reservation-seconds']}}"
-{% if cluster_cfg['rest-server']['github-owner'] %}
-        - name: GITHUB_OWNER
-          value: {{ cluster_cfg['rest-server']['github-owner'] }}
-{% endif %}
-{% if cluster_cfg['rest-server']['github-repository'] %}
-        - name: GITHUB_REPOSITORY
-          value: {{ cluster_cfg['rest-server']['github-repository'] }}
-{% endif %}
-{% if cluster_cfg['rest-server']['github-path'] %}
-        - name: GITHUB_PATH
-          value: {{ cluster_cfg['rest-server']['github-path'] }}
-{% endif %}
 {% if cluster_cfg['cluster']['common']['k8s-rbac'] != 'false' %}
         - name: RBAC_IN_CLUSTER
           value: "true"
@@ -138,10 +130,13 @@ spec:
       - name: job-exit-spec-rest-server
         configMap:
           name: job-exit-spec-configuration
-{%- if cluster_cfg['rest-server']['launcher-type'] == "k8s" %}
+{%- if cluster_cfg['hivedscheduler']['config']|length > 1 %}
       - name: hived-spec-rest-server
         configMap:
           name: hivedscheduler-config
+      - name: k8s-exit-spec-rest-server
+        configMap:
+          name: k8s-job-exit-spec-configuration
 {%- endif %}
       - name: group-configuration-rest-server
         configMap:

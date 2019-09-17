@@ -39,7 +39,7 @@ logger = logging.getLogger(__name__)
 def load_yaml_file(path):
 
     with open(path, "r") as f:
-        file_data = yaml.load(f)
+        file_data = yaml.load(f, yaml.SafeLoader)
 
     return file_data
 
@@ -202,7 +202,7 @@ def sftp_paramiko(src, dst, filename, host_config):
     ssh.connect(hostname=hostip, port=port, key_filename=key_filename, username=username, password=password, allow_agent=True)
 
     password = password if password is not None else ''
-    stdin, stdout, stderr = ssh.exec_command("echo '{0}' | sudo mkdir -p {1}".format(password, dst), get_pty=True)
+    stdin, stdout, stderr = ssh.exec_command("echo '{0}' | sudo -S mkdir -p {1}".format(password, dst), get_pty=True)
     for response_msg in stdout:
         print(response_msg.encode('utf-8').strip('\n'))
 
@@ -304,6 +304,8 @@ def ssh_shell_with_password_input_paramiko(host_config, commandline):
     ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
     ssh.connect(hostname=hostip, port=port, key_filename=key_filename, username=username, password=password)
     password = password if password is not None else ''
+    if (commandline.strip().startswith('sudo')):
+        commandline = commandline.replace('sudo', 'sudo -S', 1)
     stdin, stdout, stderr = ssh.exec_command("echo '{0}' | {1}".format(password, commandline), get_pty=True)
     logger.info("Executing the command on host [{0}]: {1}".format(hostip, commandline))
     for response_msg in stdout:

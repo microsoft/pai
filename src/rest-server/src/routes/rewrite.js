@@ -15,32 +15,17 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-const template = require('./template-detail.component.ejs');
-require('./template-detail.component.css');
 
-module.exports = function(element, restServerUri, query) {
-const context = {
-    compileUri: function(uri) {
-        if (!/^https?:\/\//.test(uri)) return 'http://hub.docker.com/r/' + uri;
-        if (/^https:\/\/github.com\//.test(uri)) return uri.replace('@', '?ref=');
-        return uri;
-    },
-    pluginIndex: query.index,
-};
+const express = require('express');
+const launcherConfig = require('@pai/config/launcher');
 
-$(function() {
-    const type = {
-        'job': 'job',
-        'docker': 'dockerimage',
-        'script': 'script',
-        'data': 'data',
-    }[query.type] || 'job';
-    const name = query.name;
-    if (type == null || name == null) return location.href = '/';
+const router = new express.Router();
 
-    const u = `${restServerUri}/api/v2/template/${type}/${name}`;
-    $.getJSON(u).then(template.bind(context)).then(function(html) {
-        $(element).html(html);
-    });
-});
-};
+if (launcherConfig.type === 'k8s') {
+  router.all('/user/:username/jobs([/]*)?', (req, res, next) => {
+    req.url = `/jobs${req.params[1] ? `/${req.params.username}~${req.params[1]}` : ''}`;
+    next('route');
+  });
+}
+
+module.exports = router;

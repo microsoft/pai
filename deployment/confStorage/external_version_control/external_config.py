@@ -59,7 +59,7 @@ class getting_external_config:
 
     def load_yaml_config(self, config_path):
         with open(config_path, "r") as f:
-            cluster_data = yaml.load(f)
+            cluster_data = yaml.load(f, yaml.SafeLoader)
 
         return cluster_data
 
@@ -79,7 +79,7 @@ class getting_external_config:
             self.logger.error("Please check the configmap named [pai-external-storage] in the namespace [default].")
             sys.exit(1)
 
-        self.external_storage_configuration = yaml.load(configmap_data_dict["data"]["external-storage-conf"])
+        self.external_storage_configuration = yaml.load(configmap_data_dict["data"]["external-storage-conf"], yaml.SafeLoader)
 
 
 

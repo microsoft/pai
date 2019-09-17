@@ -15,11 +15,14 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-import {isNil} from 'lodash';
-import {DateTime} from 'luxon';
+import { isNil } from 'lodash';
+import { DateTime } from 'luxon';
 
 export function printDateTime(dt) {
-  if (dt > DateTime.utc().minus({week: 1}) && dt < DateTime.utc().minus({minute: 1})) {
+  if (
+    dt > DateTime.utc().minus({ week: 1 }) &&
+    dt < DateTime.utc().minus({ minute: 1 })
+  ) {
     return `${dt.toRelative()}, ${dt.toLocaleString(DateTime.TIME_24_SIMPLE)}`;
   } else {
     return dt.toLocaleString(DateTime.DATETIME_MED);
@@ -28,7 +31,7 @@ export function printDateTime(dt) {
 
 export function parseGpuAttr(attr) {
   const res = [];
-  for (let i = 0; attr !== 0; i++, attr>>=1) {
+  for (let i = 0; attr !== 0; i++, attr >>= 1) {
     if ((attr & 1) === 1) {
       res.push(i);
     }
@@ -38,7 +41,10 @@ export function parseGpuAttr(attr) {
 }
 
 export function isJobV2(rawJobConfig) {
-  return !isNil(rawJobConfig.protocol_version) || !isNil(rawJobConfig.protocolVersion);
+  return (
+    !isNil(rawJobConfig.protocol_version) ||
+    !isNil(rawJobConfig.protocolVersion)
+  );
 }
 
 export function isClonable(rawJobConfig) {
@@ -59,7 +65,7 @@ export function getTaskConfig(rawJobConfig, name) {
       return rawJobConfig.taskRoles[name];
     } else {
       // v1
-      return rawJobConfig.taskRoles.find((x) => x.name === name);
+      return rawJobConfig.taskRoles.find(x => x.name === name);
     }
   }
   return null;

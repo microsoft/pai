@@ -18,16 +18,18 @@
 import c from 'classnames';
 import PropTypes from 'prop-types';
 
-import {
-  Link,
-  FontClassNames,
-  Stack,
-} from 'office-ui-fabric-react';
+import { Link, FontClassNames, Stack } from 'office-ui-fabric-react';
 import React from 'react';
 
 import t from '../../components/tachyons.scss';
 
-export const Header = ({headerName, linkName, linkHref, showLink, children}) => (
+export const Header = ({
+  headerName,
+  linkName,
+  linkHref,
+  showLink,
+  children,
+}) => (
   <div className={c(t.flex, t.justifyBetween, FontClassNames.mediumPlus)}>
     <div>
       <Stack horizontal gap='s1'>

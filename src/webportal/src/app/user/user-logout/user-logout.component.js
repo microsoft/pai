@@ -27,11 +27,13 @@ const userLogout = (origin = window.location.href) => {
     if (!origin) {
       window.location.replace('/index.html');
     } else {
-      window.location.replace(`/index.html?${querystring.stringify({from: origin})}`);
+      window.location.replace(
+        `/index.html?${querystring.stringify({ from: origin })}`,
+      );
     }
   } else {
-    location.href = webportalConfig.restServerUri+'/api/v1/authn/oidc/logout';
+    location.href = webportalConfig.restServerUri + '/api/v1/authn/oidc/logout';
   }
 };
 
-module.exports = {userLogout};
+module.exports = { userLogout };
