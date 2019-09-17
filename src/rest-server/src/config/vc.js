@@ -84,9 +84,9 @@ if (launcherConfig.enabledHived) {
   // generate gputype resource unit
   for (let gpuType of Object.keys(gpuTypes)) {
     resourceUnits[gpuType] = {
-      cpu: parseInt(gpuTypes[gpuType].cpu),
+      cpu: k8s.atoi(gpuTypes[gpuType].cpu),
       memory: k8s.convertMemoryMb(gpuTypes[gpuType].memory),
-      gpu: parseInt(gpuTypes[gpuType].gpu),
+      gpu: k8s.atoi(gpuTypes[gpuType].gpu),
     };
   }
 

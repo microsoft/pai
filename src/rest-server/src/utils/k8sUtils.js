@@ -15,8 +15,13 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+const atoi = (str) => {
+  const int = parseInt(str);
+  return isNaN(int) ? 0 : int;
+};
+
 const convertMemoryMb = (memoryStr) => {
-  let memoryMb = parseInt(memoryStr);
+  let memoryMb = atoi(memoryStr);
   switch (memoryStr.replace(/[0-9]/g, '')) {
     case 'Ti':
       memoryMb *= 1000000;
@@ -32,9 +37,10 @@ const convertMemoryMb = (memoryStr) => {
     default:
       memoryMb /= 1000000;
   }
-  return memoryMb;
+  return atoi(memoryMb);
 };
 
 module.exports = {
+  atoi,
   convertMemoryMb,
 };
