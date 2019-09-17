@@ -167,7 +167,7 @@ export class ClusterManager extends Singleton {
                 console.log(loginInfo);
 
                 cluster.username = loginInfo.user;
-                cluster.password = loginInfo.token;
+                cluster.token = loginInfo.token;
             }
         } catch (ex) {
             console.log(ex);
