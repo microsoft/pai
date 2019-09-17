@@ -11,6 +11,7 @@ import * as url from 'url';
 import * as vscode from 'vscode';
 
 import { __ } from '../common/i18n';
+import { stringify } from 'querystring';
 
 interface IDeferred<T> {
     reject(reason: any): void;
@@ -106,7 +107,7 @@ async function startServer(server: http.Server): Promise<number> {
     return port;
 }
 
-export async function login(restServerUrl: string, redirectTimeout: () => Promise<void>): Promise<any> {
+export async function login(restServerUrl: string, webportalUrl: string, redirectTimeout: () => Promise<void>): Promise<any> {
 
     const nonce: string = crypto.randomBytes(16).toString('base64');
     const { server, redirectPromise, loginInfoPromise } = createServer(nonce);
@@ -132,7 +133,7 @@ export async function login(restServerUrl: string, redirectTimeout: () => Promis
         const updatedPort: number = updatedPortStr ? parseInt(updatedPortStr, 10) : port;
 
         const signInUrl: string =
-            `https://${restServerUrl}/api/v1/authn/oidc/login?` +
+            `${restServerUrl}/api/v1/authn/oidc/login?` +
             `redirect_uri=${encodeURIComponent(`http://localhost:${updatedPort}/callback`)}`;
 
         try {
@@ -149,7 +150,7 @@ export async function login(restServerUrl: string, redirectTimeout: () => Promis
                 throw loginRes.err;
             }
 
-            response.writeHead(302, { Location: '/' });
+            response.writeHead(302, { Location: `${webportalUrl}/index.html?${stringify(loginRes.loginInfo)}` });
             response.end();
             return loginRes.loginInfo;
         } catch (err) {

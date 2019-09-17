@@ -20,7 +20,7 @@ import { ClusterExplorerChildNode, ConfigurationTreeDataProvider, ITreeData } fr
 import { IPAICluster } from './paiInterface';
 
 import semverCompare = require('semver-compare'); // tslint:disable-line
-import { login } from './AzureADLogin';
+import { login } from './azureADLogin';
 
 export interface IConfiguration {
     readonly version: string;
@@ -151,7 +151,8 @@ export class ClusterManager extends Singleton {
 
             if (authnInfo.authn_type === 'OIDC') {
                 const loginInfo: ILoginInfo = await login(
-                    cluster.rest_server_uri,
+                    `https://${cluster.rest_server_uri}`,
+                    `https://${cluster.web_portal_uri}`,
                     async () => {
                         const response: string | undefined = await vscode.window.showInformationMessage(
                             // tslint:disable-next-line: no-multiline-string
