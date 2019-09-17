@@ -1,7 +1,6 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import PropTypes from 'prop-types';
 import { cloneDeep, isEmpty, isNil } from 'lodash';
-import { Hint } from '../sidebar/hint';
 import { TooltipIcon } from '../controls/tooltip-icon';
 import {
   PAI_PLUGIN,
@@ -9,11 +8,15 @@ import {
   SECRET_PATTERN,
 } from '../../utils/constants';
 import { SSHPlugin } from '../../models/plugin/ssh-plugin';
+import SSHGenerator from './ssh-generator';
 
 import {
+  DefaultButton,
   Dropdown,
   FontWeights,
+  Icon,
   Toggle,
+  TooltipHost,
   Stack,
   Text,
   TextField,
@@ -130,6 +133,18 @@ export const JobSSH = ({
     [_onChangeExtras],
   );
 
+  const [sshGenerator, setSshGenerator] = useState({isOpen: false});
+  const openSshGenerator = (config, ev) => {
+    setSshGenerator({isOpen: true});
+  };
+  const hideSshGenerator = () => {
+    setSshGenerator({isOpen: false});
+  };
+
+  const _onSshKeysGenerated = (sshKeys) => {
+    _onChangeSecrets(sshPlugin.userssh.value, sshKeys.public);
+  };
+
   return (
     <Stack gap='m' styles={{ root: { height: '100%' } }}>
       <Stack horizontal gap='s1'>
@@ -138,12 +153,15 @@ export const JobSSH = ({
           content={`Choose SSH public key for job. Users should maintain the SSH private key themselves.`}
         />
       </Stack>
-      <Hint>
-        Enable Users SSH to allow user attach job containers through
-        corresponding ssh private key.
-      </Hint>
       <Toggle
-        label='Enable Job SSH'
+        label={
+          <div>
+            Enable Job SSH{' '}
+            <TooltipHost content='Enable Job SSH to allow SSH between job containers through ssh [taskrole_name]-[taskrole_index].'>
+              <Icon iconName='Info' aria-label='Info tooltip' />
+            </TooltipHost>
+          </div>
+        }
         inlineLabel={true}
         checked={sshPlugin.jobssh === true}
         onChange={(ev, isChecked) => {
@@ -151,7 +169,15 @@ export const JobSSH = ({
         }}
       />
       <Toggle
-        label='Enable User SSH'
+        label={
+          <div>
+            Enable User SSH{' '}
+            <TooltipHost content='Enable Users SSH to allow user attach job containers through corresponding ssh private key.
+              You can enter your own ssh pub key or use SSH Generator to generate SSH key pair.'>
+              <Icon iconName='Info' aria-label='Info tooltip' />
+            </TooltipHost>
+          </div>
+        }
         inlineLabel={true}
         checked={!isEmpty(sshPlugin.userssh)}
         onChange={_onUsersshEnable}
@@ -176,6 +202,17 @@ export const JobSSH = ({
             onChange={_onUsersshValueChange}
             value={sshPlugin.getUserSshValue()}
           />
+          <DefaultButton
+            onClick={(ev) => openSshGenerator(512, ev)}
+          >
+            SSH Generator
+          </DefaultButton>
+          {sshGenerator.isOpen && <SSHGenerator
+            isOpen={sshGenerator.isOpen}
+            hide={hideSshGenerator}
+            onSshKeysChange={_onSshKeysGenerated}
+          />
+          }
         </Stack>
       )}
     </Stack>
