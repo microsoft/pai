@@ -101,14 +101,6 @@ export default function SSHGenerator({isOpen = false, hide, onSshKeysChange}) {
 
       <Stack horizontal tokens={{childrenGap: 50}} styles={{root: {width: 860}}}>
         <Stack tokens={{childrenGap: 10}} grow={1}>
-          <TextField label='Public Key' multiline rows={20} readonly defaultValue={isNil(sshKeys) ? '' : sshKeys.public} />
-          <DefaultButton
-            onClick={(ev) => downloadAsFile(sshKeys.public, 'id_rsa_pai.pub', ev)}
-          >
-            Download Public Key
-          </DefaultButton>
-        </Stack>
-        <Stack tokens={{childrenGap: 10}} grow={1}>
           <TextField label='Private Key' multiline rows={20} readonly defaultValue={isNil(sshKeys) ? '' : sshKeys.private} />
           <DefaultButton
             onClick={(ev) => {
@@ -119,6 +111,14 @@ export default function SSHGenerator({isOpen = false, hide, onSshKeysChange}) {
             Download Private Key
           </DefaultButton>
         </Stack>
+        <Stack tokens={{childrenGap: 10}} grow={1}>
+          <TextField label='Public Key' multiline rows={20} readonly defaultValue={isNil(sshKeys) ? '' : sshKeys.public} />
+          <DefaultButton
+            onClick={(ev) => downloadAsFile(sshKeys.public, 'id_rsa_pai.pub', ev)}
+          >
+            Download Public Key
+          </DefaultButton>
+        </Stack>
       </Stack>
 
       <Separator></Separator>
@@ -127,7 +127,7 @@ export default function SSHGenerator({isOpen = false, hide, onSshKeysChange}) {
         <Stack.Item align='end'>
           {!downloadedPriKey &&
             <Label required={true}>
-              Download new generated SSH private key before use!
+              Download private key before use ssh keys in job!
             </Label>
           }
           <DefaultButton
