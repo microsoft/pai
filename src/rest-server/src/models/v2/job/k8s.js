@@ -26,6 +26,7 @@ const launcherConfig = require('@pai/config/launcher');
 const createError = require('@pai/utils/error');
 const userModel = require('@pai/models/v2/user');
 const env = require('@pai/utils/env');
+const k8s = require('@pai/utils/k8sUtils');
 const path = require('path');
 const fs = require('fs');
 const _ = require('lodash');
@@ -154,10 +155,8 @@ const convertTaskDetail = async (taskStatus, ports, userName, jobName, taskRoleN
       const isolation = pod.metadata.annotations['hivedscheduler.microsoft.com/pod-gpu-isolation'];
       containerGpus = isolation.split(',').reduce((attr, id) => attr + Math.pow(2, id), 0);
     } else {
-      const gpuNumber = parseInt(pod.spec.containers[0].resources.limits['nvidia.com/gpu']);
-      if (!isNaN(gpuNumber)) {
-        containerGpus = Math.pow(2, gpuNumber) - 1;
-      }
+      const gpuNumber = k8s.atoi(pod.spec.containers[0].resources.limits['nvidia.com/gpu']);
+      containerGpus = Math.pow(2, gpuNumber) - 1;
     }
   } catch (err) {
     containerGpus = null;
