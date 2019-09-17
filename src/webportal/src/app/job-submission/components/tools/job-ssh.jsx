@@ -157,7 +157,7 @@ export const JobSSH = ({
         label={
           <div>
             Enable Job SSH{' '}
-            <TooltipHost content='Enable Job SSH to allow SSH between job containers through ssh [taskrole_name]-[taskrole_index].'>
+            <TooltipHost content='Enable Job SSH to allow SSH between job containers through ssh <taskrole_name>-<taskrole_index>.'>
               <Icon iconName='Info' aria-label='Info tooltip' />
             </TooltipHost>
           </div>
@@ -205,7 +205,7 @@ export const JobSSH = ({
           <DefaultButton
             onClick={(ev) => openSshGenerator(512, ev)}
           >
-            SSH Generator
+            SSH key Generator
           </DefaultButton>
           {sshGenerator.isOpen && <SSHGenerator
             isOpen={sshGenerator.isOpen}

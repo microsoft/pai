@@ -82,7 +82,7 @@ export default function SSHGenerator({isOpen = false, hide, onSshKeysChange}) {
           inner: {padding: '0px 40px 20px 20px'},
           topButton: {padding: '20px 20px 0px 0px'},
         },
-        title: (<span className={c(t.mb2, t.fw6, FontClassNames.semibold)} style={{fontSize: FontSizes.icon}}>SSH Generator</span>),
+        title: (<span className={c(t.mb2, t.fw6, FontClassNames.semibold)} style={{fontSize: FontSizes.icon}}>SSH Key Generator</span>),
       }}
       minWidth={900}
       maxWidth={900}
@@ -92,18 +92,16 @@ export default function SSHGenerator({isOpen = false, hide, onSshKeysChange}) {
       }}
     >
       <Hint>
-        Please download generated SSH private key then click Use to use this key pair in job.
-        You can also download SSH public key for further use.
-        Click Refresh SSH Keys to generate new SSH key pair.
+        Please download SSH private key then click <b>Use</b> button to use this key pair in job.
+        Then after job submitted, you can ssh to job containers as user root with the downloaded private key through container ip and ssh port.
+        Try using <code>{'ssh -i <private key path> -p <ssh port> root@<container ip>'}</code> to ssh to job container.
       </Hint>
-      <DefaultButton
-        onClick={(ev) => generateSshKeys(1024, ev)}
-      >
-        Refresh SSH Keys
-      </DefaultButton>
-      <Stack horizontal tokens={{childrenGap: 50}} styles={{root: {width: 800}}}>
+
+      <Separator>SSH key pair</Separator>
+
+      <Stack horizontal tokens={{childrenGap: 50}} styles={{root: {width: 860}}}>
         <Stack tokens={{childrenGap: 10}} grow={1}>
-          <TextField label='Public Key' multiline rows={20} disabled defaultValue={isNil(sshKeys) ? '' : sshKeys.public} />
+          <TextField label='Public Key' multiline rows={20} readonly defaultValue={isNil(sshKeys) ? '' : sshKeys.public} />
           <DefaultButton
             onClick={(ev) => downloadAsFile(sshKeys.public, 'id_rsa_pai.pub', ev)}
           >
@@ -111,7 +109,7 @@ export default function SSHGenerator({isOpen = false, hide, onSshKeysChange}) {
           </DefaultButton>
         </Stack>
         <Stack tokens={{childrenGap: 10}} grow={1}>
-          <TextField label='Private Key' multiline rows={20} disabled defaultValue={isNil(sshKeys) ? '' : sshKeys.private} />
+          <TextField label='Private Key' multiline rows={20} readonly defaultValue={isNil(sshKeys) ? '' : sshKeys.private} />
           <DefaultButton
             onClick={(ev) => {
               setDownloadedPriKey(true);
@@ -124,7 +122,8 @@ export default function SSHGenerator({isOpen = false, hide, onSshKeysChange}) {
       </Stack>
 
       <Separator></Separator>
-      <Stack horizontal horizontalAlign='space-evenly' tokens={{childrenGap: 150}} styles={{root: {width: 800}}}>
+
+      <Stack horizontal horizontalAlign='space-evenly' tokens={{childrenGap: 150}} styles={{root: {width: 860}}}>
         <Stack.Item align='end'>
           {!downloadedPriKey &&
             <Label required={true}>
