@@ -564,7 +564,7 @@ spec:
   reaction: RETRY_TO_MAX
   reason: "Failed to start docker container due to unknown error"
   repro:
-  - "Submit a Pod with unknown capability specified in its SecurityContext"
+  - "Submit a Pod with unknown capability specified in its SecurityContext"
   solution:
   - "Check diagnostics and find root cause"
   - "Wait result from next retry"

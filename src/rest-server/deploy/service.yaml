@@ -33,6 +33,7 @@ template-list:
   - auth-configmap/oidc.yaml
   - group-configmap/group.yaml
   - job-exit-spec-config/job-exit-spec.yaml
+  - k8s-job-exit-spec-config/k8s-job-exit-spec.yaml
 
 start-script: start.sh
 stop-script: stop.sh

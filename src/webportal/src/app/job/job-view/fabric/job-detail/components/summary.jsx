@@ -220,11 +220,8 @@ export default class Summary extends React.Component {
       reason.push(<div key='spec-reason'>{spec.reason}</div>);
     }
     // dynamic reason
-    const code = jobInfo.jobStatus.appExitCode;
-    if (code > 0) {
-      if (runtimeOutput && runtimeOutput.reason) {
-        reason.push(<div key='runtime-reason'>{runtimeOutput.reason}</div>);
-      }
+    if (runtimeOutput && runtimeOutput.reason) {
+      reason.push(<div key='runtime-reason'>{runtimeOutput.reason}</div>);
     } else {
       const launcherOutput = get(jobInfo, 'jobStatus.appExitMessages.launcher');
       if (launcherOutput) {
