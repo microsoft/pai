@@ -52,6 +52,13 @@ function exit_handler()
     fi
   fi
 
+  # signal triggered, do not change exit code
+  if [[ $EXIT_CODE -eq 130 || $EXIT_CODE -eq 131 || $EXIT_CODE -eq 132 || \
+        $EXIT_CODE -eq 134 || $EXIT_CODE -eq 135 || $EXIT_CODE -eq 136 || \
+        $EXIT_CODE -eq 137 || $EXIT_CODE -eq 139 || $EXIT_CODE -eq 141 || $EXIT_CODE -eq 143 ]]; then
+    exit $EXIT_CODE
+  fi
+
   echo "Unknown exit code, platform error"
   exit 1
 }
@@ -84,7 +91,8 @@ cd ${PAI_WORK_DIR}
 
 # comment for the script purpose
 # priority=value
-# ${PAI_INIT_DIR}/init.sh >> ${PAI_LOG_FILE} 2>&1
+# CHILD_PROCESS="NAME_FOR_THE_INITIALIZER"
+# ${PAI_INIT_DIR}/init.sh
 
 # framework barrier
 # priority=0
@@ -97,7 +105,7 @@ echo "barrier returns $?"
 # priority=1
 CHILD_PROCESS="ERROR_SPEC"
 cp ${PAI_CONFIG_DIR}/runtime-exit-spec.yaml ${PAI_RUNTIME_DIR}
-echo "copy exit spec returns $?" >> ${PAI_INIT_LOG_FILE}
+echo "copy exit spec returns $?"
 
 # generate runtime env variables
 # priority=10
@@ -120,8 +128,8 @@ echo "initializer.py returns $?"
 # Init plugins
 # check port conflict
 CHILD_PROCESS="PORT_CONFLICT_CHECKER"
-python ${PAI_INIT_DIR}/port.py ${PAI_RUNTIME_DIR}/runtime_env.sh 2>> ${PAI_LOG_DIR}/initializer.log
-echo "port.py.py returns $?" >> ${PAI_INIT_LOG_FILE}
+python ${PAI_INIT_DIR}/port.py ${PAI_RUNTIME_DIR}/runtime_env.sh
+echo "port.py.py returns $?"
 
 # write user commands to user.sh
 # priority=100
