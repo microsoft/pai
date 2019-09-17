@@ -6,8 +6,9 @@
 
 export interface IPAICluster {
     name?: string;
-    username: string;
-    password: string;
+    username?: string;
+    password?: string;
+    token?: string;
     rest_server_uri: string;
     webhdfs_uri?: string;
     grafana_uri?: string;
