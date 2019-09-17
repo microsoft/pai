@@ -62,7 +62,7 @@ const getPodsInfo = async () => {
 
     const bindingInfo = annotations['hivedscheduler.microsoft.com/pod-bind-info'];
     const resourceRequest = pod.spec.containers[0].resources.requests;
-    podInfo.resourcesUsed.cpu = parseInt(resourceRequest.cpu);
+    podInfo.resourcesUsed.cpu = k8s.atoi(resourceRequest.cpu);
     podInfo.resourcesUsed.memory = k8s.convertMemoryMb(resourceRequest.memory);
     if (resourceRequest.hasOwnProperty('hivedscheduler.microsoft.com/pod-scheduling-enable')) {
       if (bindingInfo != null) {
@@ -98,7 +98,7 @@ const getNodeResource = async () => {
     })).data.items.filter((node) => node.metadata.labels['pai-worker'] === 'true');
     for (let node of nodes) {
       const nodeName = node.metadata.name;
-      const gpuNumber = parseInt(node.status.capacity['nvidia.com/gpu']);
+      const gpuNumber = k8s.atoi(node.status.capacity['nvidia.com/gpu']);
       nodeResource[nodeName] = {
         gpuTotal: gpuNumber,
         gpuUsed: 0,
@@ -172,9 +172,9 @@ const getVcList = async () => {
       url: `${kubernetesConfig.apiserver.uri}/api/v1/nodes`,
     })).data.items.filter((node) => node.metadata.labels['pai-worker'] === 'true');
     vcInfos['default'].resourcesTotal = {
-      cpu: nodes.reduce((sum, node) => sum + parseInt(node.status.capacity.cpu), 0),
+      cpu: nodes.reduce((sum, node) => sum + k8s.atoi(node.status.capacity.cpu), 0),
       memory: nodes.reduce((sum, node) => sum + k8s.convertMemoryMb(node.status.capacity.memory), 0),
-      gpu: nodes.reduce((sum, node) => sum + parseInt(node.status.capacity['nvidia.com/gpu']), 0),
+      gpu: nodes.reduce((sum, node) => sum + k8s.atoi(node.status.capacity['nvidia.com/gpu']), 0),
     };
   }
 
