@@ -22,6 +22,9 @@
 #    cluster-id: pai
 #    cluster-type: yarn
 #
+#    # Gateway address, used to visit the cluster from public network
+#    gateway-uri: "https://pai.domain.com"
+#
 #    # HDFS, zookeeper data path on your cluster machine.
 #    data-path: "/datastorage"
 #
