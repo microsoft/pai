@@ -17,14 +17,9 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-set -o errexit
-set -o nounset
-set -o pipefail
 
-RUNTIME_WORK_DIR=/usr/local/pai
-RUNTIME_SCRIPT_DIR=${RUNTIME_WORK_DIR}/runtime.d
-RUNTIME_LOG_DIR=${RUNTIME_WORK_DIR}/logs/${FC_POD_UID}
+# Not delete the config map here since it will cause job retry failed
+pushd $(dirname "$0") > /dev/null
 
-export PAI_WORD_DIR="$(pwd)"
 
-${RUNTIME_SCRIPT_DIR}/runtime_entry.sh > >(tee -a -i ${RUNTIME_LOG_DIR}/runtime.pai.stdout) 2> >(tee -a -i ${RUNTIME_LOG_DIR}/runtime.pai.stderr >&2)
+popd > /dev/null

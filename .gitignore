@@ -32,3 +32,5 @@ __pycache__
 *.egg-info/
 .openpai/
 .ipynb_checkpoints/
+/src/kube-runtime/GOPATH/bin/
+/src/kube-runtime/GOPATH/pkg/

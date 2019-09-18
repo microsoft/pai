@@ -1,0 +1,52 @@
+Collecting memory_profiler
+  Downloading https://files.pythonhosted.org/packages/9f/fe/1fca7273dd111108f204a686b12a12b6422d405fe4614087aa7d5a66ea87/memory_profiler-0.55.0.tar.gz (40kB)
+Collecting psutil (from memory_profiler)
+  Downloading https://files.pythonhosted.org/packages/1c/ca/5b8c1fe032a458c2c4bcbe509d1401dca9dda35c7fc46b36bb81c2834740/psutil-5.6.3.tar.gz (435kB)
+Building wheels for collected packages: memory-profiler, psutil
+  Running setup.py bdist_wheel for memory-profiler: started
+  Running setup.py bdist_wheel for memory-profiler: finished with status 'done'
+  Stored in directory: /root/.cache/pip/wheels/f0/ff/63/fdbff3f1e1b76ad4eae491dd5b190902906b093e93eb86dd5a
+  Running setup.py bdist_wheel for psutil: started
+  Running setup.py bdist_wheel for psutil: finished with status 'done'
+  Stored in directory: /root/.cache/pip/wheels/90/7e/74/bb640d77775e6b6a78bcc3120f9fea4d2a28b2706de1cff37d
+Successfully built memory-profiler psutil
+Installing collected packages: psutil, memory-profiler
+Successfully installed memory-profiler-0.55.0 psutil-5.6.3
+You are using pip version 8.1.1, however version 19.2.2 is available.
+You should consider upgrading via the 'pip install --upgrade pip' command.
+Downloading 20news dataset. This may take a few minutes.
+Downloading dataset from https://ndownloader.figshare.com/files/5975967 (14 MB)
+================================================================================
+#    Text vectorizers benchmark
+================================================================================
+
+Using a subset of the 20 newsrgoups dataset (11314 documents).
+This benchmarks runs in ~20 min ...
+
+========== Run time performance (sec) ===========
+
+Computing the mean and the standard deviation of the run time over 3 runs...
+
+vectorizer           CountVectorizer       ...       TfidfVectorizer
+analyzer ngram_range                       ...                      
+char     (4, 4)       19.01 (+-0.17)       ...        20.53 (+-0.09)
+char_wb  (4, 4)       14.42 (+-0.16)       ...        15.41 (+-0.22)
+word     (1, 1)        3.18 (+-0.01)       ...         3.39 (+-0.00)
+         (1, 2)       14.68 (+-0.07)       ...        15.23 (+-0.45)
+         (1, 4)       61.53 (+-0.64)       ...        62.70 (+-0.55)
+
+[5 rows x 3 columns]
+
+=============== Memory usage (MB) ===============
+
+vectorizer           CountVectorizer       ...       TfidfVectorizer
+analyzer ngram_range                       ...                      
+char     (4, 4)               1383.7       ...                1382.9
+char_wb  (4, 4)               1229.3       ...                1226.7
+word     (1, 1)                412.9       ...                 819.2
+         (1, 2)               1133.2       ...                1559.7
+         (1, 4)               4740.0       ...                4742.6
+
+[5 rows x 3 columns]
+ERROR: exec program failed
+ERROR: job will exit

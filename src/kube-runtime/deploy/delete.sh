@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/bin/bash
 
 # Copyright (c) Microsoft Corporation
 # All rights reserved.
@@ -17,41 +17,10 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-from __future__ import print_function
+pushd $(dirname "$0") > /dev/null
 
-import os
-import re
-import sys
-import socket
+if kubectl get configmap | grep -q "runtime-exit-spec-configuration"; then
+  kubectl delete configmap runtime-exit-spec-configuration || exit $?
+fi
 
-
-def check_port(portno):
-    """Check whether the port is in use.
-
-    Exit with code 200 if the port is already in use.
-
-    Args:
-        portno: Port number to check.
-    """
-    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    ret = sock.connect_ex(('localhost', portno))
-    sock.close()
-    if ret == 0:
-        print("Port {} has conflict.".format(portno))
-        sys.exit(200)
-
-
-def main():
-    """Main function.
-
-    Check whether there's conflict in scheduled ports.
-    """
-    port_list_env = os.environ.get("PAI_CONTAINER_HOST_PORT_LIST")
-    if port_list_env:
-        for each in re.split(":|;|,", port_list_env):
-            if each.isdigit():
-                check_port(int(each))
-
-
-if __name__ == "__main__":
-    main()
+popd > /dev/null

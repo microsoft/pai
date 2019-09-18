@@ -1,0 +1,16 @@
+I0821 01:29:27.642266   255 solver.cpp:239] Iteration 9800 (343.308 iter/s, 0.291283s/100 iters), loss = 0.0195238
+I0821 01:29:27.642313   255 solver.cpp:258]     Train net output #0: loss = 0.0195237 (* 1 = 0.0195237 loss)
+I0821 01:29:27.642320   255 sgd_solver.cpp:112] Iteration 9800, lr = 0.00599102
+I0821 01:29:27.931581   255 solver.cpp:239] Iteration 9900 (345.708 iter/s, 0.289262s/100 iters), loss = 0.00667059
+I0821 01:29:27.931633   255 solver.cpp:258]     Train net output #0: loss = 0.00667056 (* 1 = 0.00667056 loss)
+I0821 01:29:27.931641   255 sgd_solver.cpp:112] Iteration 9900, lr = 0.00596843
+I0821 01:29:28.216984   255 solver.cpp:464] Snapshotting to binary proto file examples/mnist/lenet_iter_10000.caffemodel
+I0821 01:29:28.225509   255 sgd_solver.cpp:284] Snapshotting solver state to binary proto file examples/mnist/lenet_iter_10000.solverstate
+I0821 01:29:28.229773   255 solver.cpp:327] Iteration 10000, loss = 0.00225913
+I0821 01:29:28.229805   255 solver.cpp:347] Iteration 10000, Testing net (#0)
+I0821 01:29:28.372934   260 data_layer.cpp:73] Restarting data prefetching from start.
+I0821 01:29:28.378298   255 solver.cpp:414]     Test net output #0: accuracy = 0.9911
+Some package not install property, command failed
+I0821 01:29:28.378340   255 solver.cpp:332] Optimization Done.
+I0821 01:29:28.378342   255 caffe.cpp:250] Optimization Done.
+Command "python setup.py egg_info" failed with error code 1 in /tmp/pip-build-flh7rol4/matplotlib/

@@ -21,6 +21,50 @@ set -o errexit
 set -o nounset
 set -o pipefail
 
+CHILD_PROCESS="UNKNOWN"
+
+function exit_handler()
+{
+  EXIT_CODE=$?
+  if [[ $EXIT_CODE -eq 0 ]]; then
+    exit 0
+  fi
+
+  echo "start execute exit handler"
+  echo "child process is ${CHILD_PROCESS}, exit code is ${EXIT_CODE}"
+  if [[ $CHILD_PROCESS = "FRAMEWORK_BARRIER" ]]; then
+    if [[ $EXIT_CODE -eq 200 ]]; then
+      exit 250
+    fi
+
+    if [[ $EXIT_CODE -eq 201 ]]; then
+      exit 251
+    fi
+
+    if [[ $EXIT_CODE -eq 210 ]]; then
+      exit 252
+    fi
+  fi
+
+  if [[ $CHILD_PROCESS = "PORT_CONFLICT_CHECKER" ]]; then
+    if [[ $EXIT_CODE -eq 10 ]]; then
+      exit 253
+    fi
+  fi
+
+  # signal triggered, do not change exit code
+  if [[ $EXIT_CODE -eq 130 || $EXIT_CODE -eq 131 || $EXIT_CODE -eq 132 || \
+        $EXIT_CODE -eq 134 || $EXIT_CODE -eq 135 || $EXIT_CODE -eq 136 || \
+        $EXIT_CODE -eq 137 || $EXIT_CODE -eq 139 || $EXIT_CODE -eq 141 || $EXIT_CODE -eq 143 ]]; then
+    exit $EXIT_CODE
+  fi
+
+  echo "Unknown exit code, platform error"
+  exit 1
+}
+
+trap exit_handler EXIT
+
 # This init script will be executed inside init container,
 # all scripts under init.d will be executed in priority order.
 # Init scripts will do preparations before user container starts.
@@ -28,6 +72,7 @@ set -o pipefail
 # and will be pid 1 process in user container.
 
 PAI_WORK_DIR=/usr/local/pai
+PAI_CONFIG_DIR=/usr/local/pai-config
 PAI_INIT_DIR=${PAI_WORK_DIR}/init.d
 PAI_RUNTIME_DIR=${PAI_WORK_DIR}/runtime.d
 
@@ -46,28 +91,39 @@ cd ${PAI_WORK_DIR}
 
 # comment for the script purpose
 # priority=value
-# ${PAI_INIT_DIR}/init.sh >> ${PAI_LOG_FILE} 2>&1
+# CHILD_PROCESS="NAME_FOR_THE_INITIALIZER"
+# ${PAI_INIT_DIR}/init.sh
 
 # framework barrier
 # priority=0
+CHILD_PROCESS="FRAMEWORK_BARRIER"
 echo "frameworkbarrier start"
 ${PAI_INIT_DIR}/frameworkbarrier 2>&1 | tee ${PAI_LOG_DIR}/barrier.log 
-echo "frameworkbarrier returns $?"
+
+# error spec
+# priority=1
+CHILD_PROCESS="ERROR_SPEC"
+cp ${PAI_CONFIG_DIR}/runtime-exit-spec.yaml ${PAI_RUNTIME_DIR}
 
 # generate runtime env variables
 # priority=10
+CHILD_PROCESS="ENV_GENERATOR"
 python ${PAI_INIT_DIR}/parser.py genenv framework.json > ${PAI_RUNTIME_DIR}/runtime_env.sh
-echo "parser.py genenv returns $?"
 
 # generate jobconfig
 # priority=11
+CHILD_PROCESS="CONFIG_GENERATOR"
 python ${PAI_INIT_DIR}/parser.py genconf framework.json > ${PAI_RUNTIME_DIR}/job_config.yaml
-echo "parser.py genconf returns $?"
 
 # Init plugins
 # priority=12
+CHILD_PROCESS="PLUGIN_INITIALIZER"
 python ${PAI_INIT_DIR}/initializer.py ${PAI_RUNTIME_DIR}/job_config.yaml ${PAI_WORK_DIR}/plugins ${PAI_RUNTIME_DIR} ${FC_TASKROLE_NAME}
-echo "initializer.py returns $?"
+
+# Init plugins
+# check port conflict
+CHILD_PROCESS="PORT_CONFLICT_CHECKER"
+python ${PAI_INIT_DIR}/port.py ${PAI_RUNTIME_DIR}/runtime_env.sh
 
 # write user commands to user.sh
 # priority=100
