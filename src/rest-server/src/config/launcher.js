@@ -94,6 +94,9 @@ const k8sLauncherConfigSchema = Joi.object().keys({
     .required(),
   apiVersion: Joi.string()
     .required(),
+  podGracefulDeletionTimeoutSec: Joi.number()
+    .integer()
+    .default(30 * 60),
   scheduler: Joi.string()
     .required(),
   enabledHived: Joi.boolean()
@@ -184,6 +187,7 @@ if (launcherType === 'yarn') {
   launcherConfig = {
     apiServerUri: process.env.K8S_APISERVER_URI,
     apiVersion: 'frameworkcontroller.microsoft.com/v1',
+    podGracefulDeletionTimeoutSec: 1800,
     scheduler: process.env.LAUNCHER_SCHEDULER,
     runtimeImage: process.env.LAUNCHER_RUNTIME_IMAGE,
     runtimeImagePullSecrets: process.env.LAUNCHER_RUNTIME_IMAGE_PULL_SECRETS,
