@@ -478,12 +478,12 @@ export default class TaskRoleContainerList extends React.Component {
                 }}
                 iconProps={{ iconName: 'TextDocument' }}
                 text='Stdout'
-                onClick={() => 
+                onClick={() =>
                   this.showContainerLog(
                     `${item.containerLog}user.pai.stdout`,
                     'stdout',
-                    )
-                  }
+                  )
+                }
                 disabled={isNil(item.containerId) || isNil(item.containerIp)}
               />
               <CommandBarButton
@@ -494,12 +494,12 @@ export default class TaskRoleContainerList extends React.Component {
                 }}
                 iconProps={{ iconName: 'Error' }}
                 text='Stderr'
-                onClick={() => 
+                onClick={() =>
                   this.showContainerLog(
                     `${item.containerLog}user.pai.stderr`,
                     'stderr',
-                    )
-                  }
+                  )
+                }
                 disabled={isNil(item.containerId) || isNil(item.containerIp)}
               />
               <CommandBarButton
@@ -516,7 +516,7 @@ export default class TaskRoleContainerList extends React.Component {
                       name: 'Full log',
                       iconProps: { iconName: 'TextDocument' },
                       disabled: isNil(item.containerId),
-                      onClick: () => 
+                      onClick: () =>
                         this.showContainerLog(
                           `${item.containerLog}user.pai.all`,
                           'stdall',
@@ -526,7 +526,7 @@ export default class TaskRoleContainerList extends React.Component {
                       key: 'yarnTrackingPage',
                       name: 'Go to Tracking Page',
                       iconProps: { iconName: 'Link' },
-                      href: item.containerLog.replace('/tail/', '/'),
+                      href: isNil(item.containerLog) ? item.containerLog : item.containerLog.replace('/tail/', '/'),
                       target: '_blank',
                     },
                   ],
