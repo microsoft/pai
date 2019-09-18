@@ -17,7 +17,6 @@
 
 cluster-type:
   - yarn
-  - k8s
 
 prerequisite:
   - cluster-configuration
