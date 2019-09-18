@@ -267,6 +267,7 @@ const generateTaskRole = (taskRole, labels, config) => {
         fancyRetryPolicy: false,
         maxRetryCount: 0,
       },
+      podGracefulDeletionTimeoutSec: launcherConfig.podGracefulDeletionTimeoutSec,
       pod: {
         metadata: {
           labels: {
