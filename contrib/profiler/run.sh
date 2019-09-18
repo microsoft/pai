@@ -41,21 +41,27 @@ if [ $param_num -ge 3 ];then
     SAMPLE_PERIOD=$3
 fi
 
-OUTPUT_DIR=./Profiling_dir
+ANALYZE_PERIOD=20
 if [ $param_num -ge 4 ];then
-    OUTPUT_DIR=$4
+    ANALYZE_PERIOD=$4
+fi
+
+OUTPUT_DIR=./Profiling_dir
+if [ $param_num -ge 5 ];then
+    OUTPUT_DIR=$5
 fi
 
 DURATION=10
-if [ $param_num -ge 5 ];then
-    DURATION=$5
+if [ $param_num -ge 6 ];then
+    DURATION=$6
 fi
 
 echo 'container_id:' $CONTAINER_ID
 echo 'container_pid:' $CONTAINER_PID
 echo 'sample_period:' $SAMPLE_PERIOD
+echo 'analyze_period:' $ANALYZE_PERIOD
 echo 'platform:' $HOST_DOCKER
 echo 'duration:' $DURATION
 echo 'output_dir:' $OUTPUT_DIR
 echo 'gpu_index:' $GPU_INDEX
-exec python profiler.py --container_id $CONTAINER_ID --container_pid $CONTAINER_PID --sample_period $SAMPLE_PERIOD --analyze_period 20 --duration $DURATION --output_dir $OUTPUT_DIR --gpu_index $GPU_INDEX
+exec python profiler.py --container_id $CONTAINER_ID --container_pid $CONTAINER_PID --sample_period $SAMPLE_PERIOD --analyze_period $ANALYZE_PERIOD --duration $DURATION --output_dir $OUTPUT_DIR --gpu_index $GPU_INDEX

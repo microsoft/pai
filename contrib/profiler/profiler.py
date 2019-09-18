@@ -26,10 +26,10 @@ import csv
 import os
 import time
 import argparse
-from contrib.profiler.utils import Sample
-from contrib.profiler.utils import Advise
-from contrib.profiler.utils import print_process
-from contrib.profiler.utils import SlideWindows
+from utils import Sample
+from utils import Advise
+from utils import print_process
+from utils import SlideWindows
 
 
 # To get the CPU running time of system from being booted
@@ -49,26 +49,24 @@ def get_system_cpu_ticks():
 
 
 # To get the CPU running time of container from being booted
-def get_container_cpu_ticks(file_list):
+def get_container_cpu_ticks(file_name):
     user_time = 0
     system_time = 0
-    for filename in file_list:
-        with open(filename, 'r') as f:
-            for line in f:
-                items = line.split()
-                if len(items) != 2:
-                    return -1
-                if items[0] == 'user':
-                    user_time = int(items[1])
-                elif items[1] == 'system':
-                    system_time = int(items[1])
-            return user_time + system_time
-    return user_time + system_time
+    with open(file_name, 'r') as f:
+        for line in f:
+            items = line.split()
+            if len(items) != 2:
+                return -1
+            if items[0] == 'user':
+                user_time = int(items[1])
+            elif items[1] == 'system':
+                system_time = int(items[1])
+        return user_time + system_time
 
 
-def get_cpu_ticks(file_list):
+def get_cpu_ticks(file_name):
     sys_ticks = get_system_cpu_ticks()
-    container_ticks = get_container_cpu_ticks(file_list)
+    container_ticks = get_container_cpu_ticks(file_name)
     return [sys_ticks, container_ticks]
 
 
@@ -90,15 +88,14 @@ def get_gpu_memory(gpu_idx):
     return mem
 
 
-def get_memory_percent(file_list):
+def get_memory_percent(file_name):
     total_memory_path = '/proc/meminfo'
 
     memory_docker_used = 0.0
     total_memory = 1.0
-    for filename in file_list:
-        with open(filename, 'r') as f:
-            for line in f:
-                memory_docker_used = int(line)
+    with open(file_name, 'r') as f:
+        for line in f:
+            memory_docker_used = int(line)
 
     with open(total_memory_path, 'r') as f:
         for line in f:
@@ -109,35 +106,33 @@ def get_memory_percent(file_list):
     return [memory_docker_used, total_memory]
 
 
-def get_disk_read_bytes(file_list):
+def get_disk_read_bytes(file_name):
     read_bytes = 0
-    for filename in file_list:
-        with open(filename, 'r') as f:
-            for line in f:
-                items = line.split()
-                if len(items) != 3 or len(items) != 2:
-                    return -1
-                if items[1] == 'Read':
-                    read_bytes += int(items[1])
+    with open(file_name, 'r') as f:
+        for line in f:
+            items = line.split()
+            if len(items) != 3 or len(items) != 2:
+                return -1
+            if items[1] == 'Read':
+                read_bytes += int(items[1])
     return read_bytes
 
 
-def get_disk_write_bytes(file_list):
+def get_disk_write_bytes(file_name):
     write_bytes = 0
-    for filename in file_list:
-        with open(filename, 'r') as f:
-            for line in f:
-                items = line.split()
-                if len(items) != 3 or len(items) != 2:
-                    return -1
-                if items[1] == 'Write':
-                    write_bytes += int(items[1])
+    with open(file_name, 'r') as f:
+        for line in f:
+            items = line.split()
+            if len(items) != 3 or len(items) != 2:
+                return -1
+            if items[1] == 'Write':
+                write_bytes += int(items[1])
     return write_bytes
 
 
-def get_network_bytes(filename):
+def get_network_bytes(file_name):
     receive_bytes, transmit_bytes = 0, 0
-    with open(filename, 'r') as f:
+    with open(file_name, 'r') as f:
         for line in f:
             if len(line.split()) != 17:
                 continue
@@ -148,20 +143,20 @@ def get_network_bytes(filename):
     return [receive_bytes, transmit_bytes]
 
 
-def get_sample_data(cpu_file_list, mem_file_list, blk_file_list, net_file, gpu_id, period):
-    [mem_used, mem_total] = get_memory_percent(mem_file_list)
+def get_sample_data(cpu_file, mem_file, blk_file, net_file, gpu_id, period):
+    [mem_used, mem_total] = get_memory_percent(mem_file)
 
     # 1st info about I/O, network and CPU
-    read_bytes1 = get_disk_read_bytes(blk_file_list)
-    write_bytes1 = get_disk_write_bytes(blk_file_list)
+    read_bytes1 = get_disk_read_bytes(blk_file)
+    write_bytes1 = get_disk_write_bytes(blk_file)
     [network_receive1, network_transmit1] = get_network_bytes(net_file)
-    [sys_ticks1, container_ticks1] = get_cpu_ticks(cpu_file_list)
+    [sys_ticks1, container_ticks1] = get_cpu_ticks(cpu_file)
     time.sleep(period)
     # 2nd info about I/O, network and CPU, calculate how many bytes used in this period
-    read_bytes2 = get_disk_read_bytes(blk_file_list)
-    write_bytes2 = get_disk_write_bytes(blk_file_list)
+    read_bytes2 = get_disk_read_bytes(blk_file)
+    write_bytes2 = get_disk_write_bytes(blk_file)
     [network_receive2, network_transmit2] = get_network_bytes(net_file)
-    [sys_ticks2, container_ticks2] = get_cpu_ticks(cpu_file_list)
+    [sys_ticks2, container_ticks2] = get_cpu_ticks(cpu_file)
 
     online_cpus = os.sysconf(os.sysconf_names['SC_NPROCESSORS_ONLN'])
     cpu_usage = (container_ticks2 - container_ticks1) * 1.0 / (sys_ticks2 - sys_ticks1) * online_cpus * 100
@@ -185,14 +180,14 @@ def get_sample_data(cpu_file_list, mem_file_list, blk_file_list, net_file, gpu_i
 # The analyze function. It will be modified when the analyzing module is finished.
 def analyze_samples(sample_list, advise):
     sample_list = np.array(sample_list, dtype=np.float)
-    used_gpu_num = (sample_list.shape[1] - 6) / 4
+    used_gpu_num = (sample_list.shape[1] - 7) / 4
     cpu_usage = sample_list[:, 0]
     mem_usage = sample_list[:, 1] / sample_list[:, 2]
     gpu_usage = list()
     gpu_mem_usage = list()
     for i in range(int(used_gpu_num)):
-        gpu_usage.append(sample_list[:, 6 + i * 4])
-        gpu_mem_usage.append(sample_list[:, 8 + i * 4] / sample_list[:, 9 + i * 4])
+        gpu_usage.append(sample_list[:, 7 + i * 4])
+        gpu_mem_usage.append(sample_list[:, 9 + i * 4] / sample_list[:, 10 + i * 4])
 
     if used_gpu_num >= 2:
         # multiple GPUs, analyze whether each GPU has the same memory usage
@@ -260,9 +255,10 @@ def analyze_samples(sample_list, advise):
                     up_cpu_max += 1
                 elif i in gpu_down_interval:
                     down_cpu_max += 1
-        if float(down_cpu_min / (up_cpu_min + down_cpu_min)) > 0.6 or float(
-                up_cpu_max / (up_cpu_max + down_cpu_max)) > 0.6:
-            advise.add_times(index=4)
+        if up_cpu_min + down_cpu_min != 0 and up_cpu_max + down_cpu_max != 0:
+            if float(down_cpu_min / (up_cpu_min + down_cpu_min)) > 0.6 or float(
+                    up_cpu_max / (up_cpu_max + down_cpu_max)) > 0.6:
+                advise.add_times(index=4)
     advise.add_total()
 
 
@@ -283,27 +279,28 @@ def start_sample(container_id, period, analyze_period, duration, output_dir, gpu
 
     nv.nvmlInit()
     sample_list = list()
-    container_cpu_file_list = list()
-    container_mem_file_list = list()
-    container_blk_file_list = list()
+    container_cpu_file = ''
+    container_mem_file = ''
+    container_blk_file = ''
+    container_net_file = ''
 
     if int(container_pid) == -1:
-        container_cpu_file_list.append('/sys/fs/cgroup/cpuacct/cpuacct.stat')
-        container_mem_file_list.append('/sys/fs/cgroup/memory/memory.usage_in_bytes')
-        container_blk_file_list.append('/sys/fs/cgroup/blkio/blkio.throttle.io_service_bytes')
+        container_cpu_file = '/sys/fs/cgroup/cpuacct/cpuacct.stat'
+        container_mem_file = '/sys/fs/cgroup/memory/memory.usage_in_bytes'
+        container_blk_file = '/sys/fs/cgroup/blkio/blkio.throttle.io_service_bytes'
         container_net_file = '/proc/net/dev'
     else:
-        container_cpu_file_list = glob.glob('/sys/fs/cgroup/cpuacct/docker/' + str(container_id) + '*/cpuacct.stat')
-        container_mem_file_list = glob.glob(
-            '/sys/fs/cgroup/memory/docker/' + str(container_id) + '*/memory.usage_in_bytes')
-        container_blk_file_list = glob.glob(
-            '/sys/fs/cgroup/blkio/docker/' + str(container_id) + '*/blkio.throttle.io_service_bytes')
+        container_cpu_file = glob.glob('/sys/fs/cgroup/cpuacct/docker/' + str(container_id) + '*/cpuacct.stat')[0]
+        container_mem_file = glob.glob(
+            '/sys/fs/cgroup/memory/docker/' + str(container_id) + '*/memory.usage_in_bytes')[0]
+        container_blk_file = glob.glob(
+            '/sys/fs/cgroup/blkio/docker/' + str(container_id) + '*/blkio.throttle.io_service_bytes')[0]
         container_net_file = '/proc/' + str(container_pid) + '/net/dev'
 
     advise = Advise()
 
     while time.time() - start_time < duration * 60:
-        sample_data = get_sample_data(container_cpu_file_list, container_mem_file_list, container_blk_file_list,
+        sample_data = get_sample_data(container_cpu_file, container_mem_file, container_blk_file,
                                       container_net_file, gpu_id, period)
 
         sample_list.append(sample_data.get_array())
