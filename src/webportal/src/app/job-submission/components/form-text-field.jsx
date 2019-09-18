@@ -46,6 +46,12 @@ export const FormTextField = React.memo(props => {
     if (isEmpty(match)) {
       return 'Input is invalid';
     }
+
+    // length limitation
+    if(value.length > 50){
+      return 'length out of limitation 50';
+    }
+
     return '';
   };
 
