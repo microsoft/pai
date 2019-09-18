@@ -72,10 +72,10 @@ export default function SSHGenerator({
   };
 
   const openDownloadDialog = (url, saveName) => {
-    if (typeof url == 'object' && url instanceof Blob) {
+    if (typeof url === 'object' && url instanceof Blob) {
       url = URL.createObjectURL(url);
     }
-    let aLink = document.createElement('a');
+    const aLink = document.createElement('a');
     aLink.href = url;
     aLink.download = saveName || '';
     let event;
