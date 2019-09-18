@@ -134,15 +134,15 @@ export const JobSSH = ({
     [_onChangeExtras],
   );
 
-  const [sshGenerator, setSshGenerator] = useState({isOpen: false});
+  const [sshGenerator, setSshGenerator] = useState({ isOpen: false });
   const openSshGenerator = (config, ev) => {
-    setSshGenerator({isOpen: true});
+    setSshGenerator({ isOpen: true });
   };
   const hideSshGenerator = () => {
-    setSshGenerator({isOpen: false});
+    setSshGenerator({ isOpen: false });
   };
 
-  const _onSshKeysGenerated = (sshKeys) => {
+  const _onSshKeysGenerated = sshKeys => {
     _onChangeSecrets(sshPlugin.userssh.value, sshKeys.public);
   };
 
@@ -173,8 +173,10 @@ export const JobSSH = ({
         label={
           <div>
             Enable User SSH{' '}
-            <TooltipHost content='Enable User SSH to allow user attach job containers through corresponding ssh private key.
-              You can enter your own ssh pub key or use SSH Key Generator to generate ssh key pair.'>
+            <TooltipHost
+              content='Enable User SSH to allow user attach job containers through corresponding ssh private key.
+              You can enter your own ssh pub key or use SSH Key Generator to generate ssh key pair.'
+            >
               <Icon iconName='Info' aria-label='Info tooltip' />
             </TooltipHost>
           </div>
@@ -203,17 +205,16 @@ export const JobSSH = ({
             onChange={_onUsersshValueChange}
             value={sshPlugin.getUserSshValue()}
           />
-          <DefaultButton
-            onClick={(ev) => openSshGenerator(512, ev)}
-          >
+          <DefaultButton onClick={ev => openSshGenerator(512, ev)}>
             SSH Key Generator
           </DefaultButton>
-          {sshGenerator.isOpen && <SSHGenerator
-            isOpen={sshGenerator.isOpen}
-            hide={hideSshGenerator}
-            onSshKeysChange={_onSshKeysGenerated}
-          />
-          }
+          {sshGenerator.isOpen && (
+            <SSHGenerator
+              isOpen={sshGenerator.isOpen}
+              hide={hideSshGenerator}
+              onSshKeysChange={_onSshKeysGenerated}
+            />
+          )}
         </Stack>
       )}
     </Stack>

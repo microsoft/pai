@@ -15,16 +15,30 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-import React, {useEffect, useState} from 'react';
-import {Hint} from '../sidebar/hint';
-import {DefaultButton, Dialog, DialogType, FontClassNames, FontSizes, Label, Separator, Stack, TextField} from 'office-ui-fabric-react';
+import React, { useEffect, useState } from 'react';
+import { Hint } from '../sidebar/hint';
+import {
+  DefaultButton,
+  Dialog,
+  DialogType,
+  FontClassNames,
+  FontSizes,
+  Label,
+  Separator,
+  Stack,
+  TextField,
+} from 'office-ui-fabric-react';
 import PropTypes from 'prop-types';
 import c from 'classnames';
 import t from '../../../components/tachyons.scss';
-import {generateSSHKeyPair} from '../../utils/ssh-keygen';
-import {isNil} from 'lodash';
+import { generateSSHKeyPair } from '../../utils/ssh-keygen';
+import { isNil } from 'lodash';
 
-export default function SSHGenerator({isOpen = false, hide, onSshKeysChange}) {
+export default function SSHGenerator({
+  isOpen = false,
+  hide,
+  onSshKeysChange,
+}) {
   const [sshKeys, setSshKeys] = useState();
   const [downloadedPriKey, setDownloadedPriKey] = useState(false);
 
@@ -36,7 +50,7 @@ export default function SSHGenerator({isOpen = false, hide, onSshKeysChange}) {
     setDownloadedPriKey(false);
   }, [sshKeys]);
 
-  const generateSshKeys = (bits, ev=undefined) => {
+  const generateSshKeys = (bits, ev = undefined) => {
     const keys = generateSSHKeyPair(bits);
     setSshKeys(keys);
   };
@@ -51,24 +65,42 @@ export default function SSHGenerator({isOpen = false, hide, onSshKeysChange}) {
   };
 
   const downloadAsFile = (content, saveName, ev) => {
-    const blob = new Blob([content], {type: 'application/octet-stream,charset=UTF-8'});
+    const blob = new Blob([content], {
+      type: 'application/octet-stream,charset=UTF-8',
+    });
     openDownloadDialog(blob, saveName);
   };
 
   const openDownloadDialog = (url, saveName) => {
-      if (typeof url == 'object' && url instanceof Blob) {
-          url = URL.createObjectURL(url);
-      }
-      let aLink = document.createElement('a');
-      aLink.href = url;
-      aLink.download = saveName || '';
-      let event;
-      if (window.MouseEvent) event = new MouseEvent('click');
-      else {
-          event = document.createEvent('MouseEvents');
-          event.initMouseEvent('click', true, false, window, 0, 0, 0, 0, 0, false, false, false, false, 0, null);
-      }
-      aLink.dispatchEvent(event);
+    if (typeof url == 'object' && url instanceof Blob) {
+      url = URL.createObjectURL(url);
+    }
+    let aLink = document.createElement('a');
+    aLink.href = url;
+    aLink.download = saveName || '';
+    let event;
+    if (window.MouseEvent) event = new MouseEvent('click');
+    else {
+      event = document.createEvent('MouseEvents');
+      event.initMouseEvent(
+        'click',
+        true,
+        false,
+        window,
+        0,
+        0,
+        0,
+        0,
+        0,
+        false,
+        false,
+        false,
+        false,
+        0,
+        null,
+      );
+    }
+    aLink.dispatchEvent(event);
   };
 
   return (
@@ -78,32 +110,54 @@ export default function SSHGenerator({isOpen = false, hide, onSshKeysChange}) {
       dialogContentProps={{
         type: DialogType.normal,
         styles: {
-          title: {padding: '20px 36px 12px 20px'},
-          inner: {padding: '0px 40px 20px 20px'},
-          topButton: {padding: '20px 20px 0px 0px'},
+          title: { padding: '20px 36px 12px 20px' },
+          inner: { padding: '0px 40px 20px 20px' },
+          topButton: { padding: '20px 20px 0px 0px' },
         },
-        title: (<span className={c(t.mb2, t.fw6, FontClassNames.semibold)} style={{fontSize: FontSizes.icon}}>SSH Key Generator</span>),
+        title: (
+          <span
+            className={c(t.mb2, t.fw6, FontClassNames.semibold)}
+            style={{ fontSize: FontSizes.icon }}
+          >
+            SSH Key Generator
+          </span>
+        ),
       }}
       minWidth={900}
       maxWidth={900}
       modalProps={{
         isBlocking: false,
-        styles: {main: {maxWidth: 900}},
+        styles: { main: { maxWidth: 900 } },
       }}
     >
       <Hint>
-        Please download SSH private key then click <b>Use</b> button to use this key pair in job.
-        Then after job submitted, you can ssh to job containers as user root with the downloaded private key through container ip and ssh port.
-        Try using <code>{'ssh -i <private key path> -p <ssh port> root@<container ip>'}</code> to ssh to job container.
+        Please download SSH private key then click <b>Use</b> button to use this
+        key pair in job. Then after job submitted, you can ssh to job containers
+        as user root with the downloaded private key through container ip and
+        ssh port. Try using{' '}
+        <code>
+          {'ssh -i <private key path> -p <ssh port> root@<container ip>'}
+        </code>{' '}
+        to ssh to job container.
       </Hint>
 
       <Separator>SSH key pair</Separator>
 
-      <Stack horizontal tokens={{childrenGap: 50}} styles={{root: {width: 860}}}>
-        <Stack tokens={{childrenGap: 10}} grow={1}>
-          <TextField label='Private Key' multiline rows={20} readonly defaultValue={isNil(sshKeys) ? '' : sshKeys.private} />
+      <Stack
+        horizontal
+        tokens={{ childrenGap: 50 }}
+        styles={{ root: { width: 860 } }}
+      >
+        <Stack tokens={{ childrenGap: 10 }} grow={1}>
+          <TextField
+            label='Private Key'
+            multiline
+            rows={20}
+            readonly
+            defaultValue={isNil(sshKeys) ? '' : sshKeys.private}
+          />
           <DefaultButton
-            onClick={(ev) => {
+            onClick={ev => {
               setDownloadedPriKey(true);
               downloadAsFile(sshKeys.private, 'id_rsa_pai', ev);
             }}
@@ -111,10 +165,16 @@ export default function SSHGenerator({isOpen = false, hide, onSshKeysChange}) {
             Download Private Key
           </DefaultButton>
         </Stack>
-        <Stack tokens={{childrenGap: 10}} grow={1}>
-          <TextField label='Public Key' multiline rows={20} readonly defaultValue={isNil(sshKeys) ? '' : sshKeys.public} />
+        <Stack tokens={{ childrenGap: 10 }} grow={1}>
+          <TextField
+            label='Public Key'
+            multiline
+            rows={20}
+            readonly
+            defaultValue={isNil(sshKeys) ? '' : sshKeys.public}
+          />
           <DefaultButton
-            onClick={(ev) => downloadAsFile(sshKeys.public, 'id_rsa_pai.pub', ev)}
+            onClick={ev => downloadAsFile(sshKeys.public, 'id_rsa_pai.pub', ev)}
           >
             Download Public Key
           </DefaultButton>
@@ -123,13 +183,18 @@ export default function SSHGenerator({isOpen = false, hide, onSshKeysChange}) {
 
       <Separator></Separator>
 
-      <Stack horizontal horizontalAlign='space-evenly' tokens={{childrenGap: 150}} styles={{root: {width: 860}}}>
+      <Stack
+        horizontal
+        horizontalAlign='space-evenly'
+        tokens={{ childrenGap: 150 }}
+        styles={{ root: { width: 860 } }}
+      >
         <Stack.Item align='end'>
-          {!downloadedPriKey &&
+          {!downloadedPriKey && (
             <Label required={true}>
               Download private key before use ssh keys in job!
             </Label>
-          }
+          )}
           <DefaultButton
             align='baseline'
             onClick={handleConfirm}
@@ -139,13 +204,8 @@ export default function SSHGenerator({isOpen = false, hide, onSshKeysChange}) {
           </DefaultButton>
         </Stack.Item>
         <Stack.Item align='end'>
-          <DefaultButton
-            onClick={handleCancel}
-          >
-            Cancel
-          </DefaultButton>
+          <DefaultButton onClick={handleCancel}>Cancel</DefaultButton>
         </Stack.Item>
-
       </Stack>
     </Dialog>
   );
@@ -156,4 +216,3 @@ SSHGenerator.propTypes = {
   hide: PropTypes.func,
   onSshKeysChange: PropTypes.func,
 };
-

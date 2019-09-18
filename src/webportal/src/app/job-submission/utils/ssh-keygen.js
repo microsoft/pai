@@ -19,14 +19,14 @@ const NodeRSA = require('node-rsa');
 const SSHPk = require('sshpk');
 
 function generateSSHKeyPair(bits) {
-  const key = new NodeRSA({b: bits});
+  const key = new NodeRSA({ b: bits });
   const pemPub = key.exportKey('pkcs1-public-pem');
   const pemPri = key.exportKey('pkcs1-private-pem');
 
   const sshKey = SSHPk.parseKey(pemPub, 'pem');
   sshKey.comment = 'pai-job-ssh';
   const sshPub = sshKey.toString('ssh');
-  return {public: sshPub, private: pemPri};
+  return { public: sshPub, private: pemPri };
 }
 
 module.exports = {
