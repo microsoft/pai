@@ -15,8 +15,8 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-import {statusColor} from '../../components/theme';
-import {mergeStyles} from 'office-ui-fabric-react';
+import { statusColor } from '../../components/theme';
+import { mergeStyles } from 'office-ui-fabric-react';
 
 export const SHARED_VC_COLOR = statusColor.succeeded;
 export const DEDICATED_VC_COLOR = statusColor.running;
@@ -29,4 +29,3 @@ export const zeroPaddingClass = mergeStyles({
   paddingRight: '0px !important',
   paddingBottom: '0px !important',
 });
-

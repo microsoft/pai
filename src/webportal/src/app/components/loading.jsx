@@ -15,11 +15,11 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-import {FontClassNames, ColorClassNames} from '@uifabric/styling';
+import { FontClassNames, ColorClassNames } from '@uifabric/styling';
 import c from 'classnames';
-import {isEqual, isNil} from 'lodash';
-import {Spinner, SpinnerSize} from 'office-ui-fabric-react/lib/Spinner';
-import React, {useLayoutEffect, useState} from 'react';
+import { isEqual, isNil } from 'lodash';
+import { Spinner, SpinnerSize } from 'office-ui-fabric-react/lib/Spinner';
+import React, { useLayoutEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 
 import t from './tachyons.scss';
@@ -27,7 +27,14 @@ import t from './tachyons.scss';
 import loadingGif from '../../assets/img/loading.gif';
 
 export const Loading = () => (
-  <div className={c(t.fixed, t.absoluteFill, ColorClassNames.whiteTranslucent40Background, t.z9999)}>
+  <div
+    className={c(
+      t.fixed,
+      t.absoluteFill,
+      ColorClassNames.whiteTranslucent40Background,
+      t.z9999,
+    )}
+  >
     <div className={c(t.flex, t.itemsCenter, t.justifyCenter, t.h100)}>
       <img className={t.o50} src={loadingGif} />
     </div>
@@ -36,7 +43,7 @@ export const Loading = () => (
 
 // min-height issue hack
 // https://stackoverflow.com/questions/8468066/child-inside-parent-with-min-height-100-not-inheriting-height
-export const SpinnerLoading = ({label = 'Loading...'}) => {
+export const SpinnerLoading = ({ label = 'Loading...' }) => {
   const [style, setStyle] = useState({});
   useLayoutEffect(() => {
     function layout() {
@@ -65,7 +72,10 @@ export const SpinnerLoading = ({label = 'Loading...'}) => {
   });
 
   return (
-    <div className={c(t.flex, t.itemsCenter, t.justifyCenter, t.fixed)} style={style}>
+    <div
+      className={c(t.flex, t.itemsCenter, t.justifyCenter, t.fixed)}
+      style={style}
+    >
       <div className={c(t.flex, t.itemsCenter)}>
         <Spinner size={SpinnerSize.large} />
         <div className={c(t.ml4, FontClassNames.xLarge)}>{label}</div>
@@ -78,8 +88,15 @@ SpinnerLoading.propTypes = {
   label: PropTypes.string,
 };
 
-export const MaskSpinnerLoading = ({label = 'Loading...'}) => (
-  <div className={c(t.fixed, t.absoluteFill, ColorClassNames.whiteTranslucent40Background, t.z9999)}>
+export const MaskSpinnerLoading = ({ label = 'Loading...' }) => (
+  <div
+    className={c(
+      t.fixed,
+      t.absoluteFill,
+      ColorClassNames.whiteTranslucent40Background,
+      t.z9999,
+    )}
+  >
     <div className={c(t.flex, t.itemsCenter, t.justifyCenter, t.h100)}>
       <div className={c(t.flex, t.itemsCenter)}>
         <Spinner size={SpinnerSize.large} />

@@ -15,7 +15,7 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-import {Callout} from 'office-ui-fabric-react';
+import { Callout } from 'office-ui-fabric-react';
 import PropTypes from 'prop-types';
 import React from 'react';
 
@@ -36,21 +36,21 @@ export default class MonacoCallout extends React.Component {
   }
 
   show() {
-    this.setState({open: true});
+    this.setState({ open: true });
   }
 
   dismiss() {
-    this.setState({open: false});
+    this.setState({ open: false });
   }
 
   toggle() {
-    const {open} = this.state;
-    this.setState({open: !open});
+    const { open } = this.state;
+    this.setState({ open: !open });
   }
 
   render() {
-    const {open} = this.state;
-    const {children, monacoProps, completionItems, schemas} = this.props;
+    const { open } = this.state;
+    const { children, monacoProps, completionItems, schemas } = this.props;
 
     return (
       <div>

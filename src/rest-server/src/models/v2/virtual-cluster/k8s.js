@@ -18,6 +18,8 @@
 // module dependencies
 const createError = require('@pai/utils/error');
 const vcConfig = require('@pai/config/vc');
+const launcherConfig = require('@pai/config/launcher');
+const kubernetesConfig = require('@pai/config/kubernetes');
 const k8s = require('@pai/utils/k8sUtils');
 const axios = require('axios');
 const yaml = require('js-yaml');
@@ -60,7 +62,7 @@ const getPodsInfo = async () => {
 
     const bindingInfo = annotations['hivedscheduler.microsoft.com/pod-bind-info'];
     const resourceRequest = pod.spec.containers[0].resources.requests;
-    podInfo.resourcesUsed.cpu = parseInt(resourceRequest.cpu);
+    podInfo.resourcesUsed.cpu = k8s.atoi(resourceRequest.cpu);
     podInfo.resourcesUsed.memory = k8s.convertMemoryMb(resourceRequest.memory);
     if (resourceRequest.hasOwnProperty('hivedscheduler.microsoft.com/pod-scheduling-enable')) {
       if (bindingInfo != null) {
@@ -81,12 +83,28 @@ const getNodeResource = async () => {
   const pods = await getPodsInfo();
   const nodeResource = {};
 
-  for (let node of Object.keys(vcData.clusterNodeGpu)) {
-    nodeResource[node] = {
-      gpuTotal: vcData.clusterNodeGpu[node].gpu,
-      gpuUsed: 0,
-      gpuAvaiable: vcData.clusterNodeGpu[node].gpu,
-    };
+  if (launcherConfig.enabledHived) {
+    for (let node of Object.keys(vcData.clusterNodeGpu)) {
+      nodeResource[node] = {
+        gpuTotal: vcData.clusterNodeGpu[node].gpu,
+        gpuUsed: 0,
+        gpuAvaiable: vcData.clusterNodeGpu[node].gpu,
+      };
+    }
+  } else {
+    const nodes = (await axios({
+      method: 'get',
+      url: `${kubernetesConfig.apiserver.uri}/api/v1/nodes`,
+    })).data.items.filter((node) => node.metadata.labels['pai-worker'] === 'true');
+    for (let node of nodes) {
+      const nodeName = node.metadata.name;
+      const gpuNumber = k8s.atoi(node.status.capacity['nvidia.com/gpu']);
+      nodeResource[nodeName] = {
+        gpuTotal: gpuNumber,
+        gpuUsed: 0,
+        gpuAvaiable: gpuNumber,
+      };
+    }
   }
 
   for (let pod of pods) {
@@ -105,7 +123,11 @@ const getVcList = async () => {
 
   // get vc usage
   const vcInfos = {};
-  const allVc = new Set([...Array.from(pods, (pod) => pod.virtualCluster), ...Object.keys(vcData.virtualCellCapacity)]);
+  const allVc = new Set([
+    'default',
+    ...Array.from(pods, (pod) => pod.virtualCluster),
+    ...Object.keys(vcData.virtualCellCapacity),
+  ]);
   for (let vc of allVc) {
     vcInfos[vc] = {
       capacity: 0,
@@ -138,18 +160,31 @@ const getVcList = async () => {
   }
 
   // set configured resource
-  for (let vc of Object.keys(vcData.virtualCellCapacity)) {
-    vcInfos[vc].resourcesTotal.memory = vcData.virtualCellCapacity[vc].resourcesTotal.memory;
-    vcInfos[vc].resourcesTotal.cpu = vcData.virtualCellCapacity[vc].resourcesTotal.cpu;
-    vcInfos[vc].resourcesTotal.gpu = vcData.virtualCellCapacity[vc].resourcesTotal.gpu;
+  if (launcherConfig.enabledHived) {
+    for (let vc of Object.keys(vcData.virtualCellCapacity)) {
+      vcInfos[vc].resourcesTotal.memory = vcData.virtualCellCapacity[vc].resourcesTotal.memory;
+      vcInfos[vc].resourcesTotal.cpu = vcData.virtualCellCapacity[vc].resourcesTotal.cpu;
+      vcInfos[vc].resourcesTotal.gpu = vcData.virtualCellCapacity[vc].resourcesTotal.gpu;
+    }
+  } else {
+    const nodes = (await axios({
+      method: 'get',
+      url: `${kubernetesConfig.apiserver.uri}/api/v1/nodes`,
+    })).data.items.filter((node) => node.metadata.labels['pai-worker'] === 'true');
+    vcInfos['default'].resourcesTotal = {
+      cpu: nodes.reduce((sum, node) => sum + k8s.atoi(node.status.capacity.cpu), 0),
+      memory: nodes.reduce((sum, node) => sum + k8s.convertMemoryMb(node.status.capacity.memory), 0),
+      gpu: nodes.reduce((sum, node) => sum + k8s.atoi(node.status.capacity['nvidia.com/gpu']), 0),
+    };
   }
 
   // add capacity, maxCapacity, usedCapacity for compatibility
-  if (vcData.clusterTotalGpu > 0) {
+  const gpuTotal = Object.values(vcInfos).reduce((sum, vcInfo) => sum + vcInfo.resourcesTotal.gpu, 0);
+  if (gpuTotal > 0) {
     for (let vc of Object.keys(vcInfos)) {
-      vcInfos[vc].capacity = vcInfos[vc].resourcesTotal.gpu / vcData.clusterTotalGpu * 100;
+      vcInfos[vc].capacity = vcInfos[vc].resourcesTotal.gpu / gpuTotal * 100;
       vcInfos[vc].maxCapacity = vcInfos[vc].capacity;
-      vcInfos[vc].usedCapacity = vcInfos[vc].resourcesUsed.gpu / vcData.clusterTotalGpu * 100;
+      vcInfos[vc].usedCapacity = vcInfos[vc].resourcesUsed.gpu / gpuTotal * 100;
     }
   }
 

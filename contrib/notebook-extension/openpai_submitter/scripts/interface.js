@@ -130,6 +130,8 @@ function (requirejs, $, Jupyter, events, config) {
     initiate: initiate,
 
     // main api
+    read_defaults:
+                () => executePromise(codeMain, 'openpai_ext_interface.read_defaults("<openpai_token>")'),
     tell_resources:
                 () => executePromise(codeMain, 'openpai_ext_interface.tell_resources("<openpai_token>")'),
     available_resources:

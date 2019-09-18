@@ -77,9 +77,9 @@ function (requirejs, $, Jupyter, events, config, Interface, Utils) {
         case MSG.CLICK_BUTTON:
           if (!($('#openpai-panel-wrapper').is(':visible'))) {
             if ((status !== STATUS.READY_LOADING) && (status !== STATUS.SUBMITTING_1) &&
-                                (status !== STATUS.SUBMITTING_2) && (status !== STATUS.SUBMITTING_3) &&
-                                (status !== STATUS.SUBMITTING_4) && (status !== STATUS.SUBMITTING_OK) &&
-                                (status !== STATUS.FATAL)) { send(MSG.CLICK_REFRESH) }
+                (status !== STATUS.SUBMITTING_2) && (status !== STATUS.SUBMITTING_3) &&
+                (status !== STATUS.SUBMITTING_4) && (status !== STATUS.SUBMITTING_OK) &&
+                (status !== STATUS.FATAL)) { send(MSG.CLICK_REFRESH) }
           }
           togglePanel()
           break
@@ -165,7 +165,7 @@ function (requirejs, $, Jupyter, events, config, Interface, Utils) {
     var handleRefresh = function () {
       if (status === STATUS.NOT_READY || status === STATUS.READY_LOADING) { return }
       if (status === STATUS.SUBMITTING_1 || status === STATUS.SUBMITTING_2 ||
-                    status === STATUS.SUBMITTING_3 || status === STATUS.SUBMITTING_4) {
+          status === STATUS.SUBMITTING_3 || status === STATUS.SUBMITTING_4) {
         alert('Please do not refresh during submission.')
         return
       }
@@ -180,89 +180,139 @@ function (requirejs, $, Jupyter, events, config, Interface, Utils) {
       }
       set(STATUS.READY_LOADING)
       showInformation('Loading the cluster information, please wait...' + Utils.getLoadingImg('loading-cluster-info'))
-      Interface.tell_resources().then(function (data) {
-        var ret = []
-        for (var cluster of data) {
-          for (var vc of cluster['virtual_clusters']) {
-            ret.push({
-              cluster: cluster['cluster_alias'],
-              vc: vc,
-              gpu: {
-                display: Utils.getLoadingImgSmall(),
-                gpu_value: 0
-              },
-              button_sub: `<button class="submit_button" data-type="quick" data-cluster="${cluster['cluster_alias']}" data-vc="${vc}" >Quick Submit</button>`,
-              button_edit: `<button class="submit_button" data-type="edit" data-cluster="${cluster['cluster_alias']}" data-vc="${vc}" >Download Config</button>`
-            })
-          }
+      Interface.read_defaults().then(function (data) {
+        var resourceMenu = ''
+        for (var item of data['resource-list']) {
+          var memoryGB = parseInt(item['memoryMB'] / 1024)
+          var optionValue = item['gpu'] + ',' + item['cpu'] + ',' + item['memoryMB']
+          resourceMenu += '<option data-gpu="' + item['gpu'] + '" data-cpu="' + item['cpu'] + '" data-memory="' + item['memoryMB'] + '" value="' + optionValue + '">' + item['gpu'] + ' GPU, ' + item['cpu'] + ' vCores CPU, ' + memoryGB + ' GB memory</option>\n'
         }
-        $('#cluster-data')
-          .DataTable({
-            dom: 'rtip',
-            order: [
-              [2, 'desc']
-            ],
-            destroy: true,
-            data: ret,
-            columns: [{
-              data: 'cluster'
-            }, {
-              data: 'vc'
-            }, {
-              data: 'gpu',
-              type: 'num',
-              render: {
-                _: 'display',
-                sort: 'gpu_value'
-              }
-            }, {
-              data: 'button_sub'
-            }, {
-              data: 'button_edit'
-            }],
-            initComplete: function () {
-              set(STATUS.SHOWING_INFO)
-              Interface.available_resources().then(function (clusterData) {
-                var table = $('#cluster-data').DataTable()
-                table.rows().every(function (rowIdx, tableLoop, rowLoop) {
-                  var gpuInfo
-                  var tableData = this.data()
-                  var info = clusterData[tableData['cluster']][tableData['vc']]
-                  if (info['GPUs'] === -1) {
-                    gpuInfo = '<a class="openpai-tooltip" href="#" title="Fetching resource of this version of PAI is not supported. Please update it to >= 0.14.0">?</a>'
-                  } else {
-                    gpuInfo = info['GPUs']
-                  }
-                  tableData['gpu']['display'] = gpuInfo
-                  tableData['gpu']['gpu_value'] = info['GPUs']
-                  this.data(tableData)
-                })
-                table.draw()
-              })
-            },
-            fnDrawCallback: function () {
-              $('.openpai-tooltip').tooltip({
-                classes: {
-                  'ui-tooltip': 'highlight'
-                } }
-              )
-              $('.submit_button').on('click', function () {
-                var cluster = $(this).data('cluster')
-                var vc = $(this).data('vc')
-                var type = $(this).data('type')
-                send(MSG.SUBMIT_START_1, {
+        resourceMenu = $('<select name="resource-menu" id="resource-menu">' + resourceMenu + '</select>')
+        var imageAliasDict = {
+          'openpai/pytorch-py36-cu90': 'PyTorch + Python3.6 with GPU, CUDA 9.0',
+          'openpai/pytorch-py36-cpu': 'PyTorch + Python3.6 with CPU',
+          'openpai/tensorflow-py36-cu90': 'TensorFlow + Python3.6 with GPU, CUDA 9.0',
+          'openpai/tensorflow-py36-cpu': 'TensorFlow + Python3.6 with CPU'
+        }
+        var imageMenu = ''
+        var imageAlias
+        for (var image of data['image-list']) {
+          if (image in imageAliasDict) { imageAlias = imageAliasDict[image] } else { imageAlias = image }
+          imageMenu += '<option value="' + image + '">' + imageAlias + '</option>'
+        }
+        imageMenu = $('<select name="docker-image-menu" id="docker-image-menu">' + imageMenu + '</select>')
+        // select the first option
+
+        // append to html
+        $('#resource-menu').remove()
+        $('#docker-image-menu').remove()
+        $('#resouce-menu-label').after(resourceMenu)
+        $('#docker-image-menu-label').after(imageMenu)
+        // select option
+        var formMenu = $('#submit-form-menu')
+        formMenu.find('option').removeAttr('selected')
+        resourceMenu.find('option').removeAttr('selected')
+        imageMenu.find('option').removeAttr('selected')
+        function selectOption (menu, value) {
+          if (value) {
+            var option = menu.find('option[value="' + value + '"]')
+            if (option.length > 0) { option.attr('selected', 'selected') } else { $(menu.find('option')[0]).attr('selected', 'selected') }
+          } else { $(menu.find('option')[0]).attr('selected', 'selected') }
+        }
+        selectOption(formMenu, data['web-default-form'])
+        selectOption(resourceMenu, data['web-default-resource'])
+        selectOption(imageMenu, data['web-default-image'])
+      }).then(
+        () =>
+          Interface.tell_resources().then(function (data) {
+            var ret = []
+            for (var cluster in data) {
+              for (var vc in data[cluster]) {
+                ret.push({
                   cluster: cluster,
                   vc: vc,
-                  type: type
+                  gpu: {
+                    display: Utils.getLoadingImgSmall(),
+                    gpu_value: 0
+                  },
+                  button_sub: `<button class="submit_button" data-type="quick" data-cluster="${cluster}" data-vc="${vc}" >Quick Submit</button>`,
+                  button_edit: `<button class="submit_button" data-type="edit" data-cluster="${cluster}" data-vc="${vc}" >Download Config</button>`
                 })
-              })
+              }
             }
+            $('#cluster-data')
+              .DataTable({
+                dom: 'rtip',
+                order: [
+                  [2, 'desc']
+                ],
+                destroy: true,
+                data: ret,
+                columns: [{
+                  data: 'cluster'
+                }, {
+                  data: 'vc'
+                }, {
+                  data: 'gpu',
+                  type: 'num',
+                  render: {
+                    _: 'display',
+                    sort: 'gpu_value'
+                  }
+                }, {
+                  data: 'button_sub'
+                }, {
+                  data: 'button_edit'
+                }],
+                initComplete: function () {
+                  set(STATUS.SHOWING_INFO)
+                  Interface.available_resources().then(function (clusterData) {
+                    var table = $('#cluster-data').DataTable()
+                    table.rows().every(function (rowIdx, tableLoop, rowLoop) {
+                      var tableData = this.data()
+                      var info = clusterData[tableData['cluster']][tableData['vc']]
+                      if (info === undefined) {
+                        tableData['gpu']['gpu_value'] = -2
+                        tableData['gpu']['display'] = '<a class="openpai-tooltip" href="#" title="Can\'t find this vc on cluster. Please use `opai cluster update` to update your cluster settings.">?</a>'
+                      } else
+                      if (info['GPUs'] === -1) {
+                        tableData['gpu']['gpu_value'] = info['GPUs']
+                        tableData['gpu']['display'] = '<a class="openpai-tooltip" href="#" title="Fetching resource of this version of PAI is not supported. Please update it to >= 0.14.0">?</a>'
+                      } else {
+                        tableData['gpu']['gpu_value'] = info['GPUs']
+                        tableData['gpu']['display'] = info['GPUs']
+                      }
+                      this.data(tableData)
+                    })
+                    table.draw()
+                  })
+                },
+                fnDrawCallback: function () {
+                  $('.openpai-tooltip').tooltip({
+                    classes: {
+                      'ui-tooltip': 'highlight'
+                    }
+                  }
+                  )
+                  $('.submit_button').on('click', function () {
+                    var cluster = $(this).data('cluster')
+                    var vc = $(this).data('vc')
+                    var type = $(this).data('type')
+                    send(MSG.SUBMIT_START_1, {
+                      cluster: cluster,
+                      vc: vc,
+                      type: type
+                    })
+                  })
+                }
+              })
+            $('#panel-information-wrapper').hide()
+            $('#panel-table-wrapper').show()
           })
-        $('#panel-information-wrapper').hide()
-        $('#panel-table-wrapper').show()
-      }).catch(function (e) {
-        send(MSG.ERROR, e)
-      })
+      )
+        .catch(function (e) {
+          send(MSG.ERROR, e)
+        })
     }
 
     var handleSubmitStart1 = function (info) {
@@ -371,15 +421,15 @@ function (requirejs, $, Jupyter, events, config, Interface, Utils) {
             appendInformation('<br><br>')
             if (ctx['form'] === 'notebook') {
               appendInformation('Stage 2 / 2: Wait until the notebook is ready...' +
-               Utils.getLoadingImg('loading-stage-2'))
+                  Utils.getLoadingImg('loading-stage-2'))
             } else { appendInformation('Stage 2 / 2: Wait until the result is ready...' + Utils.getLoadingImg('loading-stage-2')) }
             appendInformation('<br>')
             if (ctx['form'] === 'notebook') {
               appendInformation('<p id="text-notebook-show">Note: This procedure may persist for several minutes. You can safely close' +
-                                  ' this submitter, and <b>the notebook URL will be shown here once it is prepared.</b></p><br>')
+                  ' this submitter, and <b>the notebook URL will be shown here once it is prepared.</b></p><br>')
             } else {
               appendInformation('<p id="text-notebook-show">Note: The notebook will run in the background. You can safely close' +
-                                  ' this submitter, and <b>the result file link will be shown here once it is prepared.</b></p><br>')
+                  ' this submitter, and <b>the result file link will be shown here once it is prepared.</b></p><br>')
             }
             appendInformation('<p id="text-clear-info-force">You can also click <a href="#" id="openpai-clear-info-force">[here]</a> to start a new OpenPAI Submitter job. Your previous job will be saved in the <a href="https://github.com/microsoft/pai/tree/master/contrib/notebook-extension#job-management" target="_blank">Recent Jobs panel</a>.</p>')
             var cancelThis
@@ -428,8 +478,8 @@ function (requirejs, $, Jupyter, events, config, Interface, Utils) {
     var handleError = function (err) {
       showInformation(
         '<p>An error happened. ' +
-                    'Please click [refresh] to retry. </p>' +
-                    '<br><p>Error Information:' + err + '</p>'
+          'Please click [refresh] to retry. </p>' +
+          '<br><p>Error Information:' + err + '</p>'
       )
       set(STATUS.ERROR)
     }
@@ -437,8 +487,8 @@ function (requirejs, $, Jupyter, events, config, Interface, Utils) {
     var handleFatalError = function (err) {
       showInformation(
         '<p>A fatal error happened and the OpenPAI Submitter has been terminated. ' +
-                    'Please refresh the page and click Kernel - Restart & Clear Output to retry. </p>' +
-                    '<br><p>Error Information:' + err + '</p>'
+          'Please refresh the page and click Kernel - Restart & Clear Output to retry. </p>' +
+          '<br><p>Error Information:' + err + '</p>'
       )
       $('#refresh-panel-button').hide()
       set(STATUS.FATAL)

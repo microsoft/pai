@@ -16,33 +16,44 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 import cookies from 'js-cookie';
-import React, {useContext, useState, useEffect} from 'react';
-import {getTheme, ColorClassNames, CommandBar, CommandBarButton, SearchBox, Stack} from 'office-ui-fabric-react';
+import React, { useContext, useState, useEffect } from 'react';
+import {
+  getTheme,
+  ColorClassNames,
+  CommandBar,
+  CommandBarButton,
+  SearchBox,
+  Stack,
+} from 'office-ui-fabric-react';
 
 import Context from './Context';
 import Filter from './Filter';
-import {getStatusText} from './utils';
 
 import webportalConfig from '../../../../config/webportal.config';
 import FilterButton from './FilterButton';
+import { isStoppable } from '../../../../components/util/job';
 
 const CURRENT_USER_KEY = '@Me';
 const token = cookies.get('token');
 
 function KeywordSearchBox() {
-  const {filter, setFilter} = useContext(Context);
+  const { filter, setFilter } = useContext(Context);
   function onKeywordChange(keyword) {
-    const {users, virtualClusters, statuses} = filter;
+    const { users, virtualClusters, statuses } = filter;
     setFilter(new Filter(keyword, users, virtualClusters, statuses));
   }
 
   /** @type {import('office-ui-fabric-react').IStyle} */
-  const rootStyles = {backgroundColor: 'transparent', alignSelf: 'center', width: 220};
+  const rootStyles = {
+    backgroundColor: 'transparent',
+    alignSelf: 'center',
+    width: 220,
+  };
   return (
     <SearchBox
       underlined
-      placeholder="Filter by keyword"
-      styles={{root: rootStyles}}
+      placeholder='Filter by keyword'
+      styles={{ root: rootStyles }}
       value={filter.keyword}
       onChange={onKeywordChange}
     />
@@ -62,29 +73,35 @@ function TopBar() {
     Failed: true,
   };
 
-  const {refreshJobs, selectedJobs, stopJob, filter, setFilter} = useContext(Context);
+  const { refreshJobs, selectedJobs, stopJob, filter, setFilter } = useContext(
+    Context,
+  );
 
   useEffect(() => {
     fetch(`${webportalConfig.restServerUri}/api/v2/user`, {
       headers: {
         Authorization: `Bearer ${token}`,
-      }})
-      .then((response) => {
+      },
+    })
+      .then(response => {
         return response.json();
-      }).then((body) => {
+      })
+      .then(body => {
         const allUsers = Object.create(null);
-        body.forEach((userBody) => {
-          allUsers[userBody['username']] = true;
+        body.forEach(userBody => {
+          allUsers[userBody.username] = true;
         });
         setUser(allUsers);
-      }).catch((err) => {
+      })
+      .catch(err => {
         alert(err.message);
       });
 
     fetch(`${webportalConfig.restServerUri}/api/v2/virtual-clusters`)
-      .then((response) => {
+      .then(response => {
         return response.json();
-      }).then((body) => {
+      })
+      .then(body => {
         const allVirtualClusters = Object.create(null);
         for (const virtualCluster of Object.keys(body)) {
           allVirtualClusters[virtualCluster] = true;
@@ -92,10 +109,13 @@ function TopBar() {
         setVirtualClusters(allVirtualClusters);
 
         const allValidVC = Object.keys(body);
-        const {keyword, users, virtualClusters, statuses} = filter;
-        const filterVC = new Set(allValidVC.filter((vc) => virtualClusters.has(vc)));
+        const { keyword, users, virtualClusters, statuses } = filter;
+        const filterVC = new Set(
+          allValidVC.filter(vc => virtualClusters.has(vc)),
+        );
         setFilter(new Filter(keyword, users, filterVC, statuses));
-      }).catch((err) => {
+      })
+      .catch(err => {
         alert(err.message);
       });
   }, []);
@@ -108,8 +128,8 @@ function TopBar() {
       key: 'stop',
       name: 'Stop',
       buttonStyles: {
-        root: {backgroundColor: 'transparent', height: '100%'},
-        icon: {fontSize: 14},
+        root: { backgroundColor: 'transparent', height: '100%' },
+        icon: { fontSize: 14 },
       },
       iconProps: {
         iconName: 'StopSolid',
@@ -127,7 +147,9 @@ function TopBar() {
     return {
       key: 'new',
       name: 'New',
-      buttonStyles: {root: {backgroundColor: 'transparent', height: '100%'}},
+      buttonStyles: {
+        root: { backgroundColor: 'transparent', height: '100%' },
+      },
       iconProps: {
         iconName: 'Add',
       },
@@ -142,7 +164,9 @@ function TopBar() {
     return {
       key: 'refresh',
       name: 'Refresh',
-      buttonStyles: {root: {backgroundColor: 'transparent', height: '100%'}},
+      buttonStyles: {
+        root: { backgroundColor: 'transparent', height: '100%' },
+      },
       iconProps: {
         iconName: 'Refresh',
       },
@@ -157,8 +181,8 @@ function TopBar() {
     return {
       key: 'filters',
       name: 'Filters',
-      iconProps: {iconName: 'Filter'},
-      menuIconProps: {iconName: active ? 'ChevronUp' : 'ChevronDown'},
+      iconProps: { iconName: 'Filter' },
+      menuIconProps: { iconName: active ? 'ChevronUp' : 'ChevronDown' },
       onClick() {
         setActive(!active);
       },
@@ -168,7 +192,7 @@ function TopBar() {
             onClick={item.onClick}
             iconProps={item.iconProps}
             menuIconProps={item.menuIconProps}
-            styles={{root: {backgroundColor: 'transparent'}}}
+            styles={{ root: { backgroundColor: 'transparent' } }}
           >
             Filter
           </CommandBarButton>
@@ -177,22 +201,22 @@ function TopBar() {
     };
   }
 
-  const ableStop = selectedJobs.length > 0 && selectedJobs.every((job) => {
-    return getStatusText(job) === 'Waiting' || getStatusText(job) === 'Running';
-  });
+  const ableStop =
+    selectedJobs.length > 0 && selectedJobs.every(job => isStoppable(job));
 
-  const topBarItems = [
-    ableStop ? getStop() : getNew(),
-    getRefresh(),
-  ];
+  const topBarItems = [ableStop ? getStop() : getNew(), getRefresh()];
   const topBarFarItems = [getFilters()];
 
   // user filter preprocess
   let userItems = Object.keys(users);
   const currentUser = cookies.get('user');
-  const idx = userItems.findIndex((x) => x === currentUser);
+  const idx = userItems.findIndex(x => x === currentUser);
   if (idx !== -1) {
-    userItems = [CURRENT_USER_KEY, ...userItems.slice(0, idx), ...userItems.slice(idx + 1)];
+    userItems = [
+      CURRENT_USER_KEY,
+      ...userItems.slice(0, idx),
+      ...userItems.slice(idx + 1),
+    ];
   }
 
   const userFilter = new Set(filter.users);
@@ -202,75 +226,95 @@ function TopBar() {
   }
   const selectedItems = Array.from(userFilter);
 
-  const {spacing} = getTheme();
+  const { spacing } = getTheme();
 
   return (
     <React.Fragment>
       <CommandBar
         items={topBarItems}
         farItems={topBarFarItems}
-        styles={{root: {backgroundColor: 'transparent', padding: 0}}}
+        styles={{ root: { backgroundColor: 'transparent', padding: 0 } }}
       />
       {active && (
         <Stack
           horizontal
           verticalAlign='stretch'
           horizontalAlign='space-between'
-          styles={{root: [
-            ColorClassNames.neutralLightBackground,
-            {
-              marginTop: spacing.s2,
-              padding: spacing.m,
-            },
-          ]}}
+          styles={{
+            root: [
+              ColorClassNames.neutralLightBackground,
+              {
+                marginTop: spacing.s2,
+                padding: spacing.m,
+              },
+            ],
+          }}
         >
           <KeywordSearchBox />
           <Stack horizontal>
             <FilterButton
-              styles={{root: {backgroundColor: 'transparent'}}}
+              styles={{ root: { backgroundColor: 'transparent' } }}
               text='User'
-              iconProps={{iconName: 'Contact'}}
+              iconProps={{ iconName: 'Contact' }}
               items={userItems}
               selectedItems={selectedItems}
-              onSelect={(users) => {
-                const {keyword, virtualClusters, statuses} = filter;
+              onSelect={users => {
+                const { keyword, virtualClusters, statuses } = filter;
                 const userFilter = new Set(users);
                 if (userFilter.has(CURRENT_USER_KEY)) {
                   userFilter.delete(CURRENT_USER_KEY);
                   userFilter.add(currentUser);
                 }
-                setFilter(new Filter(keyword, userFilter, virtualClusters, statuses));
+                setFilter(
+                  new Filter(keyword, userFilter, virtualClusters, statuses),
+                );
               }}
               searchBox
               clearButton
             />
             <FilterButton
-              styles={{root: {backgroundColor: 'transparent'}}}
+              styles={{ root: { backgroundColor: 'transparent' } }}
               text='Virtual Cluster'
-              iconProps={{iconName: 'CellPhone'}}
+              iconProps={{ iconName: 'CellPhone' }}
               items={Object.keys(virtualClusters)}
               selectedItems={Array.from(filter.virtualClusters)}
-              onSelect={(virtualClusters) => {
-                const {keyword, users, statuses} = filter;
-                setFilter(new Filter(keyword, users, new Set(virtualClusters), statuses));
+              onSelect={virtualClusters => {
+                const { keyword, users, statuses } = filter;
+                setFilter(
+                  new Filter(
+                    keyword,
+                    users,
+                    new Set(virtualClusters),
+                    statuses,
+                  ),
+                );
               }}
               clearButton
             />
             <FilterButton
-              styles={{root: {backgroundColor: 'transparent'}}}
+              styles={{ root: { backgroundColor: 'transparent' } }}
               text='Status'
-              iconProps={{iconName: 'Clock'}}
+              iconProps={{ iconName: 'Clock' }}
               items={Object.keys(statuses)}
               selectedItems={Array.from(filter.statuses)}
-              onSelect={(statuses) => {
-                const {keyword, users, virtualClusters} = filter;
-                setFilter(new Filter(keyword, users, virtualClusters, new Set(statuses)));
+              onSelect={statuses => {
+                const { keyword, users, virtualClusters } = filter;
+                setFilter(
+                  new Filter(
+                    keyword,
+                    users,
+                    virtualClusters,
+                    new Set(statuses),
+                  ),
+                );
               }}
               clearButton
             />
             <CommandBarButton
-              styles={{root: {backgroundColor: 'transparent', height: '100%'}}}
-              iconProps={{iconName: 'Cancel'}}
+              styles={{
+                root: { backgroundColor: 'transparent', height: '100%' },
+              }}
+              iconProps={{ iconName: 'Cancel' }}
               onClick={() => setFilter(new Filter())}
             />
           </Stack>

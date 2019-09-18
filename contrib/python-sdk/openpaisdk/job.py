@@ -1,18 +1,15 @@
 import json
 import os
 import re
-import time
-import functools
 import pathlib
-from typing import Union
+from typing import Union, List
 from copy import deepcopy
 from html2text import html2text
 
-from openpaisdk import __cluster_config_file__, __jobs_cache__, __logger__, __container_sdk_branch__, __cache__, __version__
-from openpaisdk import get_install_uri
-from openpaisdk.cli_arguments import get_args
-from openpaisdk.io_utils import from_file, to_file, get_defaults, to_screen, safe_open, browser_open
-from openpaisdk.utils import find, na, get_response, NotReadyError, Retry
+from openpaisdk.flags import __flags__
+from openpaisdk.defaults import get_install_uri, LayeredSettings
+from openpaisdk.io_utils import from_file, safe_open, to_file, to_screen
+from openpaisdk.utils import Retry, concurrent_map, exception_free, find, get_response, na, na_lazy
 from openpaisdk.cluster import get_cluster
 
 __protocol_filename__ = "job_protocol.yaml"
@@ -55,6 +52,48 @@ class Deployment:
             assert isinstance(["postCommands"], list), "postCommands should be a list"
 
 
+class JobResource:
+
+    def __init__(self, r: dict = None):
+        from copy import deepcopy
+
+        def gb2mb(m):
+            if not isinstance(m, str) or m.isnumeric():
+                return int(m)
+            if m.lower().endswith('g'):
+                return int(m[:-1]) * 1024
+            if m.lower().endswith('gb'):
+                return int(m[:-2]) * 1024
+            raise ValueError(m)
+
+        r = {} if not r else r
+        dic = deepcopy(__flags__.resources_requirements)
+        for key in ["cpu", "gpu", "memoryMB", "ports"]:
+            if r.get(key, None) is not None:
+                dic[key] = int(r[key]) if not key == "ports" else r[key]
+        if r.get("mem", None) is not None:
+            dic["memoryMB"] = gb2mb(r["mem"])
+        self.req = dic
+
+    def add_port(self, name: str, num: int = 1):
+        self.req.setdefault("ports", {})[name] = num
+        return self
+
+    @property
+    def as_dict(self):
+        return self.req
+
+    @staticmethod
+    def parse_list(lst: List[str]):
+        r = []
+        for spec in lst:
+            s = spec.replace(" ", '').split(",")
+            r.append(JobResource({
+                "gpu": s[0], "cpu": s[1], "mem": s[2],
+            }).as_dict)
+        return r
+
+
 class Job:
     """
     the data structure and methods to describe a job compatible with https://github.com/microsoft/pai/blob/master/docs/pai-job-protocol.yaml
@@ -75,9 +114,6 @@ class Job:
 
     def __init__(self, name: str=None, **kwargs):
         self.protocol = dict()  # follow the schema of https://github.com/microsoft/pai/blob/master/docs/pai-job-protocol.yaml
-        self.default_resouces = {
-            "ports": {}, "gpu": 0, "cpu": 4, "memoryMB": 8192,
-        }
         self._client = None  # cluster client
         self.new(name, **kwargs)
 
@@ -138,7 +174,7 @@ class Job:
     @property
     def cache_dir(self):
         assert self.name, "cannot get cache directory for an empty job name"
-        return os.path.join(__jobs_cache__, self.name)
+        return os.path.join(__flags__.cache, self.name)
 
     def cache_file(self, fname):
         return os.path.join(self.cache_dir, fname)
@@ -216,6 +252,8 @@ class Job:
         "generate the job template for a sdk-submitted job"
         # secrets
         clusters = [get_cluster(alias, get_client=False) for alias in cluster_alias_lst]
+        workspace = na(workspace, LayeredSettings.get("workspace"))
+        workspace = na(workspace, f"{__flags__.storage_root}/{clusters[0]['user']}")
         self.set_secret("clusters", json.dumps(clusters))
         self.set_param("cluster_alias", cluster_alias_lst[0] if cluster_alias_lst else None)
         self.set_param("work_directory", '{}/jobs/{}'.format(workspace, self.name) if workspace else None)
@@ -227,16 +265,16 @@ class Job:
         self.add_tag(__internal_tags__["sdk"])
 
         # sdk.plugins
-        sdk_install_uri = "-U {}".format(get_install_uri(get_defaults().get("container-sdk-branch", __container_sdk_branch__)))
-        c_dir = '~/{}'.format(__cache__)
-        c_file = '%s/%s' % (c_dir, os.path.basename(__cluster_config_file__))
+        sdk_install_uri = "-U {}".format(get_install_uri())
+        c_dir = '~/{}'.format(__flags__.cache)
+        c_file = '%s/%s' % (c_dir, __flags__.cluster_cfg_file)
 
         plugins = []
         if sources:
             plugins.append({
                 "plugin": "local.uploadFiles",
                 "parameters": {
-                    "files": sources,
+                    "files": list(set([os.path.relpath(s) for s in sources])),
                 },
             })
 
@@ -292,7 +330,7 @@ class Job:
         })
         self.protocol.setdefault("taskRoles", {})["main"] = {
             "dockerImage": "docker_image",
-            "resourcePerInstance": resources if resources else self.default_resouces,
+            "resourcePerInstance": JobResource(resources).as_dict,
             "commands": commands if isinstance(commands, list) else [commands]
         }
         self.add_tag(__internal_tags__["one_liner"])
@@ -314,8 +352,9 @@ class Job:
             sources = na(sources, [])
             sources.append(nb_file)
         self.set_param("notebook_file", os.path.splitext(os.path.basename(nb_file))[0] if nb_file else "")
+        resources = JobResource(resources)
         if mode == "interactive":
-            resources.setdefault("ports", {})["jupyter"] = 1
+            resources.add_port("jupyter")
             self.set_secret("token", token)
             cmds = [
                 " ".join([
@@ -340,7 +379,7 @@ class Job:
                 # execute notebook by iPython. To remove color information, we use "--no-term-title" and sed below
                 """ipython --no-term-title openpai_submitter_entry.py | sed -r "s/\\x1B\\[([0-9]{1,2}(;[0-9]{1,2})?)?[mGK]//g" | tr -dc '[[:print:]]\\n'""",
             ]
-        self.one_liner(cmds, image, cluster, resources, sources, na(pip_installs, []) + ["jupyter"])
+        self.one_liner(cmds, image, cluster, resources.as_dict, sources, na(pip_installs, []) + ["jupyter"])
         mode_to_tag = {"interactive": "interactive_nb", "silent": "batch_nb", "script": "script_nb"}
         self.add_tag(__internal_tags__[mode_to_tag[mode]])
         return self
@@ -393,19 +432,20 @@ class Job:
         self.select_cluster(cluster_alias, virtual_cluster)
         self.validate().local_process()
         to_screen("submit job %s to cluster %s" % (self.name, cluster_alias))
-        self.client.rest_api_submit(self.get_config())
-        job_link = self.client.get_job_link(self.name)
-        return {"job_link": job_link, "job_name": self.name}
+        try:
+            self.client.rest_api_submit(self.get_config())
+            job_link = self.client.get_job_link(self.name)
+            return {"job_link": job_link, "job_name": self.name}
+        except Exception as identifier:
+            to_screen(f"submit failed due to {repr(identifier)}", _type="error")
+            to_screen(self.get_config())
+            raise identifier
 
     def stop(self):
         return self.client.rest_api_execute_job(self.name)
 
-    def status(self):
+    def get_status(self):
         return self.client.rest_api_job_info(self.name)
-
-    def state(self, status: dict = None):
-        status = na(status, self.status())
-        return status.get("jobStatus", {}).get("state", None)
 
     def wait(self, t_sleep: float = 10, timeout: float = 3600, silent: bool = False):
         """for jupyter job, wait until ready to connect
@@ -427,35 +467,9 @@ class Job:
             )
         to_screen("wait until job to be completed ({})".format(exit_states))
         return repeater.retry(
-            lambda x: x in exit_states,
-            self.state
+            lambda x: JobStatusParser.state(x) in exit_states,  # x: job status
+            self.get_status
         )
-
-    def get_logs_url(self, status: dict=None, task_role: str = 'main', index: int = 0, logs: dict=None):
-        """change to use containerLog"""
-        logs = na(logs, {
-            "stdout": "user.pai.stdout", "stderr": "user.pai.stderr"
-        })
-        status = na(status, self.status())
-        containers = status.get("taskRoles", {}).get(task_role, {}).get("taskStatuses", [])
-        if len(containers) < index + 1:
-            return None
-        containerLog = containers[index].get("containerLog", None)
-        if not containerLog:
-            return None
-        return {
-            k: "{}{}".format(containerLog, v)
-            for k, v in logs.items()
-        }
-
-    def logs(self, status: dict = None, task_role: str = 'main', index: int = 0, logs: dict = None):
-        status = na(status, self.status())
-        urls = self.get_logs_url(status, task_role, index, logs)
-        if not urls:
-            return None
-        return {
-            k: html2text(get_response(v, method='GET').text) for k, v in urls.items()
-        }
 
     def plugin_uploadFiles(self, plugin: dict):
         import tarfile
@@ -466,7 +480,7 @@ class Job:
             for src in plugin["parameters"]["files"]:
                 src = os.path.relpath(src)
                 if os.path.dirname(src) != "":
-                    __logger__.warn("files not in current folder may cause wrong location in the container, please check it {}".format(src))
+                    to_screen("files not in current folder may cause wrong location when unarchived in the container, please check it {}".format(src), _type="warn")
                 fn.add(src)
                 to_screen("{} archived and wait to be uploaded".format(src))
         self.client.get_storage().upload(
@@ -494,10 +508,10 @@ class Job:
         if self.has_tag(__internal_tags__["interactive_nb"]):
             return self.connect_jupyter_interactive()
 
-    def connect_jupyter_batch(self, status: dict = None):
+    def connect_jupyter_batch(self):
         "fetch the html result if ready"
-        status = na(status, self.status())
-        state = self.state(status)
+        status = self.get_status()
+        state = JobStatusParser.state(status)
         url = None
         if state in __job_states__["successful"]:
             html_file = self.param("notebook_file") + ".html"
@@ -507,29 +521,17 @@ class Job:
             url = pathlib.Path(os.path.abspath(html_file)).as_uri()
         return dict(state=state, notebook=url)
 
-    def connect_jupyter_interactive(self, status: dict=None):
+    def connect_jupyter_interactive(self):
         "get the url of notebook if ready"
-        status = na(status, self.status())
-        state = self.state(status)
-        url = None
-        if state == "RUNNING":
-            log_url = self.get_logs_url(status)["stderr"]
-            job_log = html2text(get_response(log_url, method='GET').text).split('\n')
-            for line in job_log:
-                if re.search("The Jupyter Notebook is running at:", line):
-                    container = status["taskRoles"]["main"]["taskStatuses"][0]
-                    url = "http://{}:{}/notebooks/{}".format(
-                        container["containerIp"],
-                        container["containerPorts"]["jupyter"],
-                        self.param("notebook_file") + ".ipynb",
-                    )
-                    break
-        return dict(state=state, notebook=url)
+        status = self.get_status()
+        nb_file = self.param("notebook_file") + ".ipynb" if self.param("notebook_file") else None
+        return JobStatusParser.interactive_jupyter_url(status, nb_file)
 
     def connect_jupyter_script(self):
-        status = self.status()
+        status = self.get_status()
         state = self.state(status)
         return dict(state=state, notebook=None)
+
 
 __internal_tags__ = {
     "sdk": "py-sdk",
@@ -548,3 +550,92 @@ __job_states__ = {
 __job_states__["completed"] = __job_states__["successful"] + __job_states__["failed"]
 __job_states__["ready"] = __job_states__["completed"] + ["RUNNING"]
 __job_states__["valid"] = [s for sub in __job_states__.values() for s in sub]
+
+
+class JobStatusParser:
+
+    @staticmethod
+    @exception_free(KeyError, None)
+    def state(status: dict):
+        return status["jobStatus"]["state"]
+
+    @staticmethod
+    @exception_free(KeyError, None)
+    def single_task_logs(status: dict, task_role: str = 'main', index: int = 0, log_type: dict=None, return_urls: bool=False):
+        """change to use containerLog"""
+        log_type = na(log_type, {
+            "stdout": "user.pai.stdout/?start=0",
+            "stderr": "user.pai.stderr/?start=0"
+        })
+        containers = status.get("taskRoles", {}).get(task_role, {}).get("taskStatuses", [])
+        if len(containers) < index + 1:
+            return None
+        containerLog = containers[index].get("containerLog", None)
+        if not containerLog:
+            return None
+        urls = {
+            k: "{}{}".format(containerLog, v)
+            for k, v in log_type.items()
+        }
+        if return_urls:
+            return urls
+        else:
+            html_contents = {k: get_response('GET', v).text for k, v in urls.items()}
+            try:
+                from html2text import html2text
+                return {k: html2text(v) for k, v in html_contents.items()}
+            except ImportError:
+                return html_contents
+
+    @staticmethod
+    @exception_free(Exception, None)
+    def all_tasks_logs(status: dict):
+        """retrieve logs of all tasks"""
+        logs = {
+            'stdout': {}, 'stderr': {}
+        }
+        for tr_name, tf_info in status['taskRoles'].items():
+            for task_status in tf_info['taskStatuses']:
+                task_id = '{}[{}]'.format(tr_name, task_status['taskIndex'])
+                task_logs = JobStatusParser.single_task_logs(status, tr_name, task_status['taskIndex'])
+                for k, v in task_logs.items():
+                    logs.setdefault(k, {})[task_id] = v
+        return logs
+
+    @staticmethod
+    @exception_free(Exception, dict(state=None, notebook=None))
+    def interactive_jupyter_url(status: dict, nb_file: str=None, task_role: str='main', index: int= 0):
+        "get the url of notebook if ready"
+        state = JobStatusParser.state(status)
+        url = None
+        if state == "RUNNING":
+            job_log = JobStatusParser.single_task_logs(
+                status, task_role, index
+            )["stderr"].split('\n')
+            for line in job_log:
+                if re.search("The Jupyter Notebook is running at:", line):
+                    from openpaisdk.utils import path_join
+                    container = status["taskRoles"][task_role]["taskStatuses"][index]
+                    ip, port = container["containerIp"], container["containerPorts"]["jupyter"]
+                    url = path_join([f"http://{ip}:{port}", "notebooks", nb_file])
+                    break
+        return dict(state=state, notebook=url)
+
+
+def job_spider(cluster, jobs: list = None):
+    jobs = na_lazy(jobs, cluster.rest_api_job_list)
+    to_screen("{} jobs to be captured in the cluster {}".format(len(jobs), cluster.alias))
+    job_statuses = concurrent_map(
+        lambda j: cluster.rest_api_job_info(j['name'], info=None, user=j['username']),
+        jobs
+    )
+    job_configs = concurrent_map(
+        lambda j: cluster.rest_api_job_info(j['name'], info='config', user=j['username']),
+        jobs
+    )
+    job_logs = concurrent_map(JobStatusParser.all_tasks_logs, job_statuses)
+    for job, sta, cfg, logs in zip(jobs, job_statuses, job_configs, job_logs):
+        job['status'] = sta
+        job['config'] = cfg
+        job['logs'] = logs
+    return jobs

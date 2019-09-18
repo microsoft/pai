@@ -24,8 +24,8 @@
  */
 
 import PropTypes from 'prop-types';
-import {isNil, debounce, isEqual, isEmpty, cloneDeep} from 'lodash';
-import React, {useState, useRef, useEffect, useContext} from 'react';
+import { isNil, debounce, isEqual, isEmpty, cloneDeep } from 'lodash';
+import React, { useState, useRef, useEffect, useContext } from 'react';
 import {
   Stack,
   DefaultButton,
@@ -37,10 +37,10 @@ import {
   ColorClassNames,
 } from 'office-ui-fabric-react';
 
-import {JobProtocol} from '../models/job-protocol';
-import {JobBasicInfo} from '../models/job-basic-info';
-import {JobTaskRole} from '../models/job-task-role';
-import {submitJob} from '../utils/conn';
+import { JobProtocol } from '../models/job-protocol';
+import { JobBasicInfo } from '../models/job-basic-info';
+import { JobTaskRole } from '../models/job-task-role';
+import { submitJob } from '../utils/conn';
 import MonacoPanel from '../../components/monaco-panel';
 import Card from '../../components/card';
 import {
@@ -49,17 +49,17 @@ import {
   isValidUpdatedTensorBoardExtras,
 } from '../utils/utils';
 import Context from './context';
-import {FormShortSection} from './form-page';
+import { FormShortSection } from './form-page';
 
 const JOB_PROTOCOL_SCHEMA_URL =
   'https://github.com/microsoft/pai/blob/master/docs/pai-job-protocol.yaml';
 
 const user = cookies.get('user');
-const {palette} = getTheme();
+const { palette } = getTheme();
 
 const VALIDATION_ERROR_MESSAGE_ID = 'Submission Section';
 
-export const SubmissionSection = (props) => {
+export const SubmissionSection = props => {
   const {
     jobInformation,
     jobTaskRoles,
@@ -82,9 +82,9 @@ export const SubmissionSection = (props) => {
 
   const monaco = useRef(null);
 
-  const {vcNames, errorMessages, setErrorMessage} = useContext(Context);
+  const { vcNames, errorMessages, setErrorMessage } = useContext(Context);
 
-  const _protocolAndErrorUpdate = (protocol) => {
+  const _protocolAndErrorUpdate = protocol => {
     if (!isEqual(jobProtocol, protocol)) {
       setJobProtocol(protocol);
     }
@@ -106,8 +106,7 @@ export const SubmissionSection = (props) => {
     _protocolAndErrorUpdate(protocol);
   }, [jobInformation, jobTaskRoles, parameters, secrets, jobProtocol, extras]);
 
-
-  const _openEditor = async (event) => {
+  const _openEditor = async event => {
     event.preventDefault();
     setEditorOpen(true);
 
@@ -127,7 +126,7 @@ export const SubmissionSection = (props) => {
     }
   };
 
-  const _updatedComponent = (protocolYaml) => {
+  const _updatedComponent = protocolYaml => {
     const updatedJob = JobProtocol.fromYaml(protocolYaml);
     if (isNil(updatedJob)) {
       return;
@@ -144,11 +143,16 @@ export const SubmissionSection = (props) => {
       updatedParameters,
       updatedSecrets,
       updatedExtras,
-    ] = getJobComponentsFromConfig(updatedJob, {vcNames});
+    ] = getJobComponentsFromConfig(updatedJob, { vcNames });
 
     if (extras.tensorBoard) {
       const updatedTensorBoardExtras = updatedExtras.tensorBoard || {};
-      if (!isValidUpdatedTensorBoardExtras(extras.tensorBoard, updatedTensorBoardExtras)) {
+      if (
+        !isValidUpdatedTensorBoardExtras(
+          extras.tensorBoard,
+          updatedTensorBoardExtras,
+        )
+      ) {
         updatedExtras.tensorBoard = extras.tensorBoard;
       }
     }
@@ -175,8 +179,7 @@ export const SubmissionSection = (props) => {
     monaco.current.editor.setTheme('vs');
   };
 
-
-  const _onYamlTextChange = (text) => {
+  const _onYamlTextChange = text => {
     setProtocolYaml(text);
     const valid = JobProtocol.validateFromYaml(text);
     setValidationMsg(valid);
@@ -184,20 +187,20 @@ export const SubmissionSection = (props) => {
     if (valid === '' && isSingle) {
       const jobCheck = JobProtocol.fromYaml(text);
       if (Object.keys(jobCheck.taskRoles).length > 1) {
-        setValidationMsg('Error: Single job should not have multiple task roles.');
+        setValidationMsg(
+          'Error: Single job should not have multiple task roles.',
+        );
       }
     }
   };
 
-  const _submitJob = async (event) => {
+  const _submitJob = async event => {
     event.preventDefault();
     const protocol = cloneDeep(jobProtocol);
     try {
       await populateProtocolWithDataCli(user, protocol, jobData);
       await submitJob(protocol.toYaml());
-      window.location.href = `/job-detail.html?username=${user}&jobName=${
-        protocol.name
-        }`;
+      window.location.href = `/job-detail.html?username=${user}&jobName=${protocol.name}`;
     } catch (err) {
       alert(err);
     }
@@ -206,28 +209,30 @@ export const SubmissionSection = (props) => {
   return (
     <Card>
       <Stack horizontal horizontalAlign='space-between'>
-        <DefaultButton text='Back' onClick={() => {
-          history.push('/');
-        }}/>
+        <DefaultButton
+          text='Back'
+          onClick={() => {
+            history.push('/');
+          }}
+        />
         <Stack horizontal gap='l1'>
           <FormShortSection>
             <Stack horizontal horizontalAlign='space-between'>
               <Stack horizontal gap='s1'>
-                <PrimaryButton onClick={_submitJob} disabled={!isEmpty(errorMessages)}>
+                <PrimaryButton
+                  onClick={_submitJob}
+                  disabled={!isEmpty(errorMessages)}
+                >
                   Submit
                 </PrimaryButton>
-                <DefaultButton
-                  onClick={_openEditor}
-                >
-                  Edit YAML
-                </DefaultButton>
+                <DefaultButton onClick={_openEditor}>Edit YAML</DefaultButton>
               </Stack>
             </Stack>
           </FormShortSection>
           <Stack horizontal verticalAlign='center' gap='s1'>
             <div>Advanced</div>
             <Toggle
-              styles={{root: {margin: 0}}}
+              styles={{ root: { margin: 0 } }}
               checked={advanceFlag}
               onChange={onToggleAdvanceFlag}
             />
@@ -256,15 +261,16 @@ export const SubmissionSection = (props) => {
         footer={
           <Stack horizontal horizontalAlign='space-between'>
             <StackItem>
-              <Text className={{color: palette.red}}>
-                {validationMsg}
-              </Text>
+              <Text className={{ color: palette.red }}>{validationMsg}</Text>
             </StackItem>
             <StackItem>
               <PrimaryButton
                 onClick={_saveEdit}
                 styles={{
-                  rootDisabled: [ColorClassNames.neutralSecondaryBackground, ColorClassNames.black],
+                  rootDisabled: [
+                    ColorClassNames.neutralSecondaryBackground,
+                    ColorClassNames.black,
+                  ],
                 }}
                 text='Save'
                 disabled={validationMsg}
@@ -275,7 +281,7 @@ export const SubmissionSection = (props) => {
         monacoRef={monaco}
         monacoProps={{
           language: 'yaml',
-          options: {wordWrap: 'on', readOnly: false},
+          options: { wordWrap: 'on', readOnly: false },
           value: protocolYaml,
           onChange: debounce(_onYamlTextChange, 100),
         }}

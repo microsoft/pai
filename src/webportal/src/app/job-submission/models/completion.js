@@ -1,8 +1,8 @@
-import {isNil} from 'lodash';
+import { isNil } from 'lodash';
 
 export class Completion {
   constructor(props) {
-    const {minFailedInstances, minSucceededInstances} = props;
+    const { minFailedInstances, minSucceededInstances } = props;
     this.minFailedInstances = minFailedInstances || 1;
     this.minSucceededInstances = minSucceededInstances || 1;
   }

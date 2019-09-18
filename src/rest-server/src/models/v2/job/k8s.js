@@ -25,7 +25,28 @@ const runtimeEnv = require('./runtime-env');
 const launcherConfig = require('@pai/config/launcher');
 const createError = require('@pai/utils/error');
 const userModel = require('@pai/models/v2/user');
+const env = require('@pai/utils/env');
+const path = require('path');
+const fs = require('fs');
+const _ = require('lodash');
+const logger = require('@pai/config/logger');
 
+let exitSpecPath;
+if (process.env[env.exitSpecPath]) {
+  exitSpecPath = process.env[env.exitSpecPath];
+  if (!path.isAbsolute(exitSpecPath)) {
+    exitSpecPath = path.resolve(__dirname, '../../../../', exitSpecPath);
+  }
+} else {
+  exitSpecPath = '/k8s-job-exit-spec-configuration/k8s-job-exit-spec.yaml';
+}
+const exitSpecList = yaml.safeLoad(fs.readFileSync(exitSpecPath));
+const positiveFallbackExitCode = 256;
+const negativeFallbackExitCode = -8000;
+const exitSpecMap = {};
+exitSpecList.forEach((val) => {
+  exitSpecMap[val.code] = val;
+});
 
 const convertName = (name) => {
   // convert framework name to fit framework controller spec
@@ -58,16 +79,15 @@ const convertState = (state, exitCode, retryDelaySec) => {
     case 'AttemptPreparing':
       return 'WAITING';
     case 'AttemptRunning':
-      return 'RUNNING';
     case 'AttemptDeletionPending':
     case 'AttemptDeletionRequested':
     case 'AttemptDeleting':
-      return 'COMPLETING';
+      return 'RUNNING';
     case 'AttemptCompleted':
       if (retryDelaySec == null) {
-        return 'COMPLETING';
+        return 'RUNNING';
       } else {
-        return 'RETRY_PENDING';
+        return 'WAITING';
       }
     case 'Completed':
       if (exitCode === 0) {
@@ -86,6 +106,7 @@ const convertFrameworkSummary = (framework) => {
   const completionStatus = framework.status.attemptStatus.completionStatus;
   return {
     name: decodeName(framework.metadata.name, framework.metadata.labels),
+    frameworkName: framework.metadata.name,
     username: framework.metadata.labels ? framework.metadata.labels.userName : 'unknown',
     state: convertState(
       framework.status.state,
@@ -122,15 +143,17 @@ const convertTaskDetail = async (taskStatus, ports, userName, jobName, taskRoleN
     }
   }
   // get container gpus
-  let containerGpus;
-  try {
-    const isolation = (await axios({
-      method: 'get',
-      url: launcherConfig.podPath(taskStatus.attemptStatus.podName),
-    })).data.metadata.annotations['hivedscheduler.microsoft.com/pod-gpu-isolation'];
-    containerGpus = isolation.split(',').reduce((attr, id) => attr + Math.pow(2, id), 0);
-  } catch (e) {
-    containerGpus = 0;
+  let containerGpus = 0;
+  if (launcherConfig.enabledHived) {
+    try {
+      const isolation = (await axios({
+        method: 'get',
+        url: launcherConfig.podPath(taskStatus.attemptStatus.podName),
+      })).data.metadata.annotations['hivedscheduler.microsoft.com/pod-gpu-isolation'];
+      containerGpus = isolation.split(',').reduce((attr, id) => attr + Math.pow(2, id), 0);
+    } catch (e) {
+      containerGpus = 0;
+    }
   }
   const completionStatus = taskStatus.attemptStatus.completionStatus;
   return {
@@ -140,7 +163,7 @@ const convertTaskDetail = async (taskStatus, ports, userName, jobName, taskRoleN
       completionStatus ? completionStatus.code : null,
       taskStatus.retryPolicyStatus.retryDelaySec,
     ),
-    containerId: taskStatus.attemptStatus.podName,
+    containerId: taskStatus.attemptStatus.podUID,
     containerIp: taskStatus.attemptStatus.podHostIP,
     containerPorts,
     containerGpus,
@@ -151,8 +174,11 @@ const convertTaskDetail = async (taskStatus, ports, userName, jobName, taskRoleN
 
 const convertFrameworkDetail = async (framework) => {
   const completionStatus = framework.status.attemptStatus.completionStatus;
+  const diagnostics = completionStatus ? completionStatus.diagnostics : null;
+  const exitDiagnostics = generateExitDiagnostics(diagnostics);
   const detail = {
     name: decodeName(framework.metadata.name, framework.metadata.labels),
+    frameworkName: framework.metadata.name,
     jobStatus: {
       username: framework.metadata.labels ? framework.metadata.labels.userName : 'unknown',
       state: convertState(
@@ -177,16 +203,16 @@ const convertFrameworkDetail = async (framework) => {
       appLaunchedTime: new Date(framework.metadata.creationTimestamp).getTime(),
       appCompletedTime: new Date(framework.status.completionTime).getTime(),
       appExitCode: completionStatus ? completionStatus.code : null,
-      appExitSpec: {}, // TODO
-      appExitDiagnostics: completionStatus ? completionStatus.diagnostics : null,
-      appExitMessages: {
+      appExitSpec: completionStatus ? generateExitSpec(completionStatus.code) : generateExitSpec(null),
+      appExitDiagnostics: exitDiagnostics ? exitDiagnostics.diagnosticsSummary : null,
+      appExitMessages: exitDiagnostics ? {
         container: null,
-        runtime: null,
-        launcher: null,
-      },
-      appExitTriggerMessage: completionStatus ? completionStatus.diagnostics : null,
-      appExitTriggerTaskRoleName: null, // TODO
-      appExitTriggerTaskIndex: null, // TODO
+        runtime: exitDiagnostics.runtime,
+        launcher: exitDiagnostics.launcher,
+      } : null,
+      appExitTriggerMessage: completionStatus && completionStatus.trigger ? completionStatus.trigger.message : null,
+      appExitTriggerTaskRoleName: completionStatus && completionStatus.trigger ? completionStatus.trigger.taskRoleName : null,
+      appExitTriggerTaskIndex: completionStatus && completionStatus.trigger ? completionStatus.trigger.taskIndex : null,
       appExitType: completionStatus ? completionStatus.type.name : null,
       virtualCluster: framework.metadata.labels ? framework.metadata.labels.virtualCluster : 'unknown',
     },
@@ -238,7 +264,7 @@ const generateTaskRole = (taskRole, labels, config) => {
     taskNumber: config.taskRoles[taskRole].instances || 1,
     task: {
       retryPolicy: {
-        fancyRetryPolicy: true,
+        fancyRetryPolicy: false,
         maxRetryCount: 0,
       },
       pod: {
@@ -248,7 +274,7 @@ const generateTaskRole = (taskRole, labels, config) => {
             type: 'kube-launcher-task',
           },
           annotations: {
-            'container.apparmor.security.beta.kubernetes.io/main': 'unconfined',
+            'container.apparmor.security.beta.kubernetes.io/app': 'unconfined',
             'rest-server/port-scheduling-spec': JSON.stringify(randomPorts),
           },
         },
@@ -281,12 +307,16 @@ const generateTaskRole = (taskRole, labels, config) => {
                   subPath: `${labels.userName}/${labels.jobName}/${convertName(taskRole)}`,
                   mountPath: '/usr/local/pai/logs',
                 },
+                {
+                  name: 'job-exit-spec',
+                  mountPath: '/usr/local/pai-config',
+                },
               ],
             },
           ],
           containers: [
             {
-              name: 'main',
+              name: 'app',
               image: config.prerequisites.dockerimage[config.taskRoles[taskRole].dockerImage].uri,
               command: ['/usr/local/pai/runtime'],
               resources: {
@@ -303,6 +333,7 @@ const generateTaskRole = (taskRole, labels, config) => {
                   drop: ['MKNOD'],
                 },
               },
+              terminationMessagePath: '/tmp/pai-termination-log',
               volumeMounts: [
                 {
                   name: 'dshm',
@@ -347,6 +378,12 @@ const generateTaskRole = (taskRole, labels, config) => {
               name: 'job-ssh-secret-volume',
               secret: {
                 secretName: 'job-ssh-secret',
+              },
+            },
+            {
+              name: 'job-exit-spec',
+              configMap: {
+                name: 'runtime-exit-spec-configuration',
               },
             },
           ],
@@ -615,6 +652,103 @@ const getSshInfo = async (frameworkName) => {
   throw createError('Not Found', 'NoJobSshInfoError', `SSH info of job ${frameworkName} is not found.`);
 };
 
+const generateExitDiagnostics = (diag) => {
+  if (_.isEmpty(diag)) {
+    return null;
+  }
+
+  const exitDiagnostics = {
+    diagnosticsSummary: diag,
+    runtime: null,
+    launcher: diag,
+  };
+  const regex = /matched: (.*)/;
+  const matches = diag.match(regex);
+
+  // No container info here
+  if (matches === null || matches.length < 2) {
+    return exitDiagnostics;
+  }
+
+  let podCompletionStatus = null;
+  try {
+    podCompletionStatus = JSON.parse(matches[1]);
+  } catch (error) {
+    logger.warn('Get diagnostics info failed', error);
+    return exitDiagnostics;
+  }
+
+  const summmaryInfo = diag.substring(0, matches.index + 'matched:'.length);
+  exitDiagnostics.diagnosticsSummary = summmaryInfo + '\n' + yaml.safeDump(podCompletionStatus);
+  exitDiagnostics.launcher = exitDiagnostics.diagnosticsSummary;
+
+  // Get runtime output, set launcher output to null. Otherwise, treat all message as launcher output
+  exitDiagnostics.runtime = extractRuntimeOutput(podCompletionStatus);
+  if (exitDiagnostics.runtime !== null) {
+    exitDiagnostics.launcher = null;
+    return exitDiagnostics;
+  }
+
+  return exitDiagnostics;
+};
+
+const extractRuntimeOutput = (podCompletionStatus) => {
+  if (_.isEmpty(podCompletionStatus)) {
+    return null;
+  }
+
+  let res = null;
+  for (const container of podCompletionStatus.containers) {
+    if (container.code <= 0) {
+      continue;
+    }
+    const message = container.message;
+    if (message == null) {
+      continue;
+    }
+    const anchor1 = /\[PAI_RUNTIME_ERROR_START\]/;
+    const anchor2 = /\[PAI_RUNTIME_ERROR_END\]/;
+    const match1 = message.match(anchor1);
+    const match2 = message.match(anchor2);
+    if (match1 !== null && match2 !== null) {
+      const start = match1.index + match1[0].length;
+      const end = match2.index;
+      const output = message.substring(start, end).trim();
+      try {
+        res = {
+          ...yaml.safeLoad(output),
+          name: container.name,
+        };
+      } catch (error) {
+        logger.warn('failed to format runtime output:', output, error);
+      }
+      break;
+    }
+  }
+  return res;
+};
+
+const generateExitSpec = (code) => {
+  if (!_.isNil(code)) {
+    if (!_.isNil(exitSpecMap[code])) {
+      return exitSpecMap[code];
+    } else {
+      if (code > 0) {
+        return {
+          ...exitSpecMap[positiveFallbackExitCode],
+          code,
+        };
+      } else {
+        return {
+          ...exitSpecMap[negativeFallbackExitCode],
+          code,
+        };
+      }
+    }
+  } else {
+    return null;
+  }
+};
 
 // module exports
 module.exports = {

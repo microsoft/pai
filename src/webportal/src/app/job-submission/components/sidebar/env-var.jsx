@@ -24,11 +24,17 @@
  */
 
 import React from 'react';
-import {DetailsList, CheckboxVisibility, Stack, DetailsListLayoutMode, SelectionMode} from 'office-ui-fabric-react';
+import {
+  DetailsList,
+  CheckboxVisibility,
+  Stack,
+  DetailsListLayoutMode,
+  SelectionMode,
+} from 'office-ui-fabric-react';
 import PropTypes from 'prop-types';
-import {Hint} from './hint';
-import {SidebarCard} from './sidebar-card';
-import {PAI_ENV_VAR} from '../../utils/constants';
+import { Hint } from './hint';
+import { SidebarCard } from './sidebar-card';
+import { PAI_ENV_VAR } from '../../utils/constants';
 
 const columns = [
   {
@@ -47,7 +53,7 @@ const columns = [
   },
 ];
 
-export const EnvVar = React.memo(({selected, onSelect}) => (
+export const EnvVar = React.memo(({ selected, onSelect }) => (
   <SidebarCard
     title='PAI environment variables'
     selected={selected}
@@ -55,7 +61,8 @@ export const EnvVar = React.memo(({selected, onSelect}) => (
   >
     <Stack gap='m'>
       <Hint>
-        You could reference these PAI Environment Variables in command by <code>{'$envKey'}</code>
+        You could reference these PAI Environment Variables in command by{' '}
+        <code>{'$envKey'}</code>
       </Hint>
       <div>
         <DetailsList

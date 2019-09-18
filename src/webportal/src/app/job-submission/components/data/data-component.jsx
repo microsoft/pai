@@ -1,24 +1,24 @@
-import React, {useCallback, useReducer, useEffect, useState} from 'react';
+import React, { useCallback, useReducer, useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
-import {Stack} from 'office-ui-fabric-react';
+import { Stack } from 'office-ui-fabric-react';
 
-import {TeamStorage} from './team-storage';
-import {CustomStorage} from './custom-storage';
-import {MountTreeView} from './mount-tree-view';
-import {SidebarCard} from '../sidebar/sidebar-card';
-import {WebHDFSClient} from '../../utils/webhdfs';
-import {HdfsContext} from '../../models/data/hdfs-context';
-import {getHostNameFromUrl, getPortFromUrl} from '../../utils/utils';
-import {MountDirectories} from '../../models/data/mount-directories';
+import { TeamStorage } from './team-storage';
+import { CustomStorage } from './custom-storage';
+import { MountTreeView } from './mount-tree-view';
+import { SidebarCard } from '../sidebar/sidebar-card';
+import { WebHDFSClient } from '../../utils/webhdfs';
+import { HdfsContext } from '../../models/data/hdfs-context';
+import { getHostNameFromUrl, getPortFromUrl } from '../../utils/utils';
+import { MountDirectories } from '../../models/data/mount-directories';
 import {
   fetchUserGroup,
   fetchStorageConfigData,
   fetchStorageServer,
 } from '../../utils/conn';
 import config from '../../../config/webportal.config';
-import {JobData} from '../../models/data/job-data';
-import {Hint} from '../sidebar/hint';
-import {PROTOCOL_TOOLTIPS} from '../../utils/constants';
+import { JobData } from '../../models/data/job-data';
+import { Hint } from '../sidebar/hint';
+import { PROTOCOL_TOOLTIPS } from '../../utils/constants';
 
 function reducer(state, action) {
   let jobData;
@@ -46,7 +46,7 @@ function reducer(state, action) {
   }
 }
 
-export const DataComponent = React.memo((props) => {
+export const DataComponent = React.memo(props => {
   const envsubRegex = /^\${.*}$/; // the template string ${xx} will be reserved in envsub if not provide value
   let hdfsHost;
   let port;
@@ -58,8 +58,14 @@ export const DataComponent = React.memo((props) => {
     hdfsHost = getHostNameFromUrl(config.webHDFSUri);
     port = getPortFromUrl(config.webHDFSUri);
   }
-  const hdfsClient = new WebHDFSClient(hdfsHost, undefined, undefined, port, apiPath);
-  const {onChange} = props;
+  const hdfsClient = new WebHDFSClient(
+    hdfsHost,
+    undefined,
+    undefined,
+    port,
+    apiPath,
+  );
+  const { onChange } = props;
   const [teamConfigs, setTeamConfigs] = useState();
   const [defaultTeamConfigs, setDefaultTeamConfigs] = useState();
   const [dataError, setDataError] = useState({
@@ -123,28 +129,28 @@ export const DataComponent = React.memo((props) => {
         setDefaultTeamConfigs(defaultConfigs);
         onMountDirChange(mountDirectories);
       })
-      .catch((e) => {
+      .catch(e => {
         setDefaultTeamConfigs(null);
         setTeamConfigs(null);
       });
   }, []);
 
   const _onDataListChange = useCallback(
-    (dataList) => {
-      dispatch({type: 'dataList', value: dataList, onChange: onChange});
+    dataList => {
+      dispatch({ type: 'dataList', value: dataList, onChange: onChange });
     },
     [onChange],
   );
 
   const onMountDirChange = useCallback(
-    (mountDir) => {
-      dispatch({type: 'mountDir', value: mountDir, onChange: onChange});
+    mountDir => {
+      dispatch({ type: 'mountDir', value: mountDir, onChange: onChange });
     },
     [onChange],
   );
 
   return (
-    <HdfsContext.Provider value={{user: '', api: '', token: '', hdfsClient}}>
+    <HdfsContext.Provider value={{ user: '', api: '', token: '', hdfsClient }}>
       <SidebarCard
         title='Data'
         tooltip={PROTOCOL_TOOLTIPS.data}

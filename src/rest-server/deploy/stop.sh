@@ -35,6 +35,10 @@ if kubectl get configmap | grep -q "group-configuration"; then
     kubectl delete configmap group-configuration || exit $?
 fi
 
+if kubectl get configmap | grep -q "k8s-job-exit-spec-configuration"; then
+    kubectl delete configmap k8s-job-exit-spec-configuration || exit $?
+fi
+
 if kubectl get ClusterRoleBinding | grep "rest-server-openpai"; then
     kubectl delete ClusterRoleBinding rest-server-openpai || exit $?
 fi

@@ -1,4 +1,4 @@
-import {isNil} from 'lodash';
+import { isNil } from 'lodash';
 
 const skuUnit = {
   gpu: 1,
@@ -20,5 +20,8 @@ export function getDefaultContainerSize(gpu) {
 
 export function isDefaultContainerSize(size) {
   const factor = Math.max(size.gpu, 1);
-  return size.cpu === skuUnit.cpu * factor && size.memoryMB === size.memoryMB * factor;
+  return (
+    size.cpu === skuUnit.cpu * factor &&
+    size.memoryMB === size.memoryMB * factor
+  );
 }

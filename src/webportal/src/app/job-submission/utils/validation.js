@@ -4,23 +4,23 @@ export function validateMountPath(path) {
   if (path.charAt(path.length - 1) === '/') {
     illegalMessage = 'path should not end with "/"';
 
-    return {isLegal: false, illegalMessage};
+    return { isLegal: false, illegalMessage };
   }
   if (!pathRegex.test(path)) {
     illegalMessage = 'path is not illegal';
 
-    return {isLegal: false, illegalMessage};
+    return { isLegal: false, illegalMessage };
   }
 
-  return {isLegal: true};
+  return { isLegal: true };
 }
 
 export function validateHttpUrl(url) {
   if (!url) {
-    return {isLegal: false, illegalMessage: 'http url should not be empty'};
+    return { isLegal: false, illegalMessage: 'http url should not be empty' };
   }
 
-  return {isLegal: true};
+  return { isLegal: true };
 }
 
 export function validateGitUrl(url) {
@@ -29,10 +29,10 @@ export function validateGitUrl(url) {
   if (!gitRegex.test(url)) {
     illegalMessage = 'git url is not illegal';
 
-    return {isLegal: false, illegalMessage};
+    return { isLegal: false, illegalMessage };
   }
 
-  return {isLegal: true, illegalMessage};
+  return { isLegal: true, illegalMessage };
 }
 
 export function validateHDFSPathSync(path) {
@@ -40,7 +40,7 @@ export function validateHDFSPathSync(path) {
   if (!valid.isLegal) {
     return valid;
   }
-  return {isLegal: true};
+  return { isLegal: true };
 }
 
 export async function validateHDFSPathAsync(path, hdfsClient) {
@@ -66,8 +66,8 @@ export async function validateHDFSPathAsync(path, hdfsClient) {
 
   try {
     await hdfsClient.readDir(path);
-    return {isLegal: true};
+    return { isLegal: true };
   } catch (e) {
-    return {isLegal: false, illegalMessage: e.message};
+    return { isLegal: false, illegalMessage: e.message };
   }
 }

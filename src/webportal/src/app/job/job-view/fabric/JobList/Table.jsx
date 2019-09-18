@@ -1,15 +1,30 @@
 import c from 'classnames';
-import React, {useState, useContext, useMemo, useLayoutEffect} from 'react';
-import {ColumnActionsMode, DefaultButton, FontClassNames, Link, mergeStyles, Selection, ShimmeredDetailsList, Icon, ColorClassNames, FontSizes, FontWeights} from 'office-ui-fabric-react';
-import {isNil} from 'lodash';
-import {DateTime} from 'luxon';
+import React, { useState, useContext, useMemo, useLayoutEffect } from 'react';
+import {
+  ColumnActionsMode,
+  DefaultButton,
+  FontClassNames,
+  Link,
+  mergeStyles,
+  Selection,
+  ShimmeredDetailsList,
+  Icon,
+  ColorClassNames,
+  FontSizes,
+  FontWeights,
+} from 'office-ui-fabric-react';
+import { isNil } from 'lodash';
+import { DateTime } from 'luxon';
 
-import {getModified, getStatusText} from './utils';
+import { getModified, getStatusText } from './utils';
 import Context from './Context';
 import Filter from './Filter';
 import Ordering from './Ordering';
 import StatusBadge from '../../../../components/status-badge';
-import {getJobDurationString} from '../../../../components/util/job';
+import {
+  getJobDurationString,
+  isStoppable,
+} from '../../../../components/util/job';
 import StopJobConfirm from './StopJobConfirm';
 
 import t from '../../../../components/tachyons.scss';
@@ -22,7 +37,17 @@ const zeroPaddingClass = mergeStyles({
 });
 
 export default function Table() {
-  const {stopJob, filteredJobs, setSelectedJobs, selectedJobs, filter, ordering, setOrdering, pagination, setFilter} = useContext(Context);
+  const {
+    stopJob,
+    filteredJobs,
+    setSelectedJobs,
+    selectedJobs,
+    filter,
+    ordering,
+    setOrdering,
+    pagination,
+    setFilter,
+  } = useContext(Context);
   const [hideDialog, setHideDialog] = useState(true);
   const [currentJob, setCurrentJob] = useState(null);
 
@@ -48,7 +73,7 @@ export default function Table() {
    * @param {import('office-ui-fabric-react').IColumn} column
    */
   function onColumnClick(event, column) {
-    const {field, descending} = ordering;
+    const { field, descending } = ordering;
     if (field === column.key) {
       if (descending) {
         setOrdering(new Ordering());
@@ -80,7 +105,7 @@ export default function Table() {
     isResizable: true,
     isFiltered: filter.keyword !== '',
     onRender(job) {
-      const {legacy, name, namespace, username} = job;
+      const { legacy, name, namespace, username } = job;
       const href = legacy
         ? `/job-detail.html?jobName=${name}`
         : `/job-detail.html?username=${namespace || username}&jobName=${name}`;
@@ -97,7 +122,9 @@ export default function Table() {
     isSorted: ordering.field === 'modified',
     isSortedDescending: !ordering.descending,
     onRender(job) {
-      return DateTime.fromJSDate(getModified(job)).toLocaleString(DateTime.DATETIME_SHORT_WITH_SECONDS);
+      return DateTime.fromJSDate(getModified(job)).toLocaleString(
+        DateTime.DATETIME_SHORT_WITH_SECONDS,
+      );
     },
   });
   const userColumn = applySortProps({
@@ -167,7 +194,14 @@ export default function Table() {
     isFiltered: filter.statuses.size > 0,
     onRender(job) {
       return (
-        <div style={{height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'start'}}>
+        <div
+          style={{
+            height: '100%',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'start',
+          }}
+        >
           <StatusBadge status={getStatusText(job)} />
         </div>
       );
@@ -194,18 +228,27 @@ export default function Table() {
         setCurrentJob(job);
       }
 
-      const statusText = getStatusText(job);
-      const disabled = selectedJobs.length === 0 ? statusText !== 'Waiting' && statusText !== 'Running' : statusText !== 'Waiting' && statusText !== 'Running' || !selectedJobs.includes(job);
-      return (
-        <div style={{height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center'}} data-selection-disabled>
+      const disabled =
+        !isStoppable(job) ||
+        (selectedJobs.length !== 0 && !selectedJobs.includes(job));
+      return ((
+        <div
+          style={{
+            height: '100%',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
+          data-selection-disabled
+        >
           <DefaultButton
-            iconProps={{iconName: 'StopSolid'}}
+            iconProps={{ iconName: 'StopSolid' }}
             styles={{
-              root: {backgroundColor: '#e5e5e5'},
-              rootFocused: {backgroundColor: '#e5e5e5'},
-              rootDisabled: {backgroundColor: '#eeeeee'},
-              rootCheckedDisabled: {backgroundColor: '#eeeeee'},
-              icon: {fontSize: 12},
+              root: { backgroundColor: '#e5e5e5' },
+              rootFocused: { backgroundColor: '#e5e5e5' },
+              rootDisabled: { backgroundColor: '#eeeeee' },
+              rootCheckedDisabled: { backgroundColor: '#eeeeee' },
+              icon: { fontSize: 12 },
             }}
             disabled={disabled}
             onClick={showDialog}
@@ -213,7 +256,7 @@ export default function Table() {
             Stop
           </DefaultButton>
         </div>
-      );
+      ));
     },
   };
 
@@ -235,13 +278,22 @@ export default function Table() {
       <div className={c(t.h100, t.flex, t.itemsCenter, t.justifyCenter)}>
         <div className={c(t.tc)}>
           <div>
-            <Icon className={c(ColorClassNames.themePrimary)} style={{fontSize: FontSizes.xxLarge}} iconName='Error' />
+            <Icon
+              className={c(ColorClassNames.themePrimary)}
+              style={{ fontSize: FontSizes.xxLarge }}
+              iconName='Error'
+            />
           </div>
-          <div className={c(t.mt5, FontClassNames.xLarge)} style={{fontWeight: FontWeights.semibold}}>
+          <div
+            className={c(t.mt5, FontClassNames.xLarge)}
+            style={{ fontWeight: FontWeights.semibold }}
+          >
             No results matched your search.
           </div>
           <div className={c(t.mt4, FontClassNames.mediumPlus)}>
-            You could search <Link onClick={() => setFilter(new Filter())}>all the jobs</Link> or try advanced search with Filters.
+            You could search{' '}
+            <Link onClick={() => setFilter(new Filter())}>all the jobs</Link> or
+            try advanced search with Filters.
           </div>
         </div>
       </div>
@@ -252,7 +304,7 @@ export default function Table() {
       <div>
         <ShimmeredDetailsList
           items={items}
-          setKey="key"
+          setKey='key'
           columns={columns}
           enableShimmer={isNil(filteredJobs)}
           shimmerLines={pagination.itemsPerPage}

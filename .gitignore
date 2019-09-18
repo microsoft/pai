@@ -27,9 +27,10 @@ __pycache__
 *.pyproj.user
 *.pyproj
 *.vs
-.editorconfig
 /subprojects/GOPATH/bin/
 /subprojects/GOPATH/pkg/
 *.egg-info/
 .openpai/
 .ipynb_checkpoints/
+/src/kube-runtime/GOPATH/bin/
+/src/kube-runtime/GOPATH/pkg/

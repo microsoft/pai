@@ -16,21 +16,37 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 import PropTypes from 'prop-types';
-import React, {useRef, useState, useMemo} from 'react';
-import {CommandBarButton, Stack, ColorClassNames, getTheme, SearchBox} from 'office-ui-fabric-react';
+import React, { useRef, useState, useMemo } from 'react';
+import {
+  CommandBarButton,
+  Stack,
+  ColorClassNames,
+  getTheme,
+  SearchBox,
+} from 'office-ui-fabric-react';
 
 const NO_RESULT_KEY = 'NO_RESULT';
 
-const FilterButton = ({items, selectedItems, onSelect, searchBox, searchBoxText, clearButton, text, iconProps, styles}) => {
+const FilterButton = ({
+  items,
+  selectedItems,
+  onSelect,
+  searchBox,
+  searchBoxText,
+  clearButton,
+  text,
+  iconProps,
+  styles,
+}) => {
   const buttonRef = useRef();
   const set = useMemo(() => new Set(selectedItems), [selectedItems]);
   const [keyword, setKeyword] = useState('');
-  const {spacing} = getTheme();
+  const { spacing } = getTheme();
 
   // filter by keyword
   let menuItems = items
-    .filter((name) => name.startsWith(keyword || ''))
-    .map((name) => ({
+    .filter(name => name.startsWith(keyword || ''))
+    .map(name => ({
       key: name,
       text: name,
       canCheck: true,
@@ -64,7 +80,7 @@ const FilterButton = ({items, selectedItems, onSelect, searchBox, searchBoxText,
       styles={styles}
       iconProps={iconProps}
       menuProps={{
-        onDismiss: (e) => {
+        onDismiss: e => {
           if (e.type !== 'resize') {
             if (buttonRef.current) {
               buttonRef.current.dismissMenu();
@@ -73,14 +89,17 @@ const FilterButton = ({items, selectedItems, onSelect, searchBox, searchBoxText,
         },
         onRenderMenuList: (props, defaultRenderer) => {
           let noResultFlag = false;
-          if (props.items.length === 1 && props.items[0].key === NO_RESULT_KEY) {
+          if (
+            props.items.length === 1 &&
+            props.items[0].key === NO_RESULT_KEY
+          ) {
             noResultFlag = true;
           }
           return (
             <Stack>
               {searchBox && (
                 <div>
-                  <div style={{padding: spacing.s1, minWidth: 240}}>
+                  <div style={{ padding: spacing.s1, minWidth: 240 }}>
                     <SearchBox
                       styles={{
                         field: {
@@ -93,17 +112,17 @@ const FilterButton = ({items, selectedItems, onSelect, searchBox, searchBoxText,
                       }}
                       placeholder={searchBoxText || 'Filter'}
                       value={keyword}
-                      onChanged={(val) => setKeyword(val)}
+                      onChanged={val => setKeyword(val)}
                     />
                   </div>
                   <hr
                     className={ColorClassNames.neutralLightBorder}
-                    style={{margin: 0}}
+                    style={{ margin: 0 }}
                   />
                 </div>
               )}
               {noResultFlag || (
-                <div style={{overflowY: 'auto', maxHeight: 300}}>
+                <div style={{ overflowY: 'auto', maxHeight: 300 }}>
                   {defaultRenderer(props)}
                 </div>
               )}
@@ -112,7 +131,7 @@ const FilterButton = ({items, selectedItems, onSelect, searchBox, searchBoxText,
                   {noResultFlag || (
                     <hr
                       className={ColorClassNames.neutralLightBorder}
-                      style={{margin: 0}}
+                      style={{ margin: 0 }}
                     />
                   )}
                   {defaultRenderer({
@@ -121,7 +140,7 @@ const FilterButton = ({items, selectedItems, onSelect, searchBox, searchBoxText,
                       {
                         key: 'clear-button',
                         text: 'Clear',
-                        onClick: (e) => {
+                        onClick: e => {
                           e.preventDefault();
                           onSelect([]);
                         },
@@ -136,12 +155,11 @@ const FilterButton = ({items, selectedItems, onSelect, searchBox, searchBoxText,
         items: menuItems,
       }}
     >
-      {selectedItems.length === 0
-        ? null
-        : selectedItems.length === 1
-          ? <strong>{selectedItems[0]}</strong>
-          : <strong>{`${selectedItems[0]} (+${selectedItems.length - 1})`}</strong>
-      }
+      {selectedItems.length === 0 ? null : selectedItems.length === 1 ? (
+        <strong>{selectedItems[0]}</strong>
+      ) : (
+        <strong>{`${selectedItems[0]} (+${selectedItems.length - 1})`}</strong>
+      )}
     </CommandBarButton>
   );
 };

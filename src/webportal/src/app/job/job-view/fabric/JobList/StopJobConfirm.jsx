@@ -14,28 +14,34 @@
 // NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-import React, {useContext} from 'react';
-import {DefaultButton, PrimaryButton} from 'office-ui-fabric-react';
-import {Dialog, DialogFooter} from 'office-ui-fabric-react/lib/Dialog';
-import {Icon} from 'office-ui-fabric-react/lib/Icon';
-import {getStatusText} from './utils';
-import PropTypes from 'prop-types';
-import Context from './Context';
-import {FontClassNames, FontSizes} from '@uifabric/styling';
-import t from '../../../../components/tachyons.scss';
+import { FontClassNames, FontSizes } from '@uifabric/styling';
 import c from 'classnames';
+import PropTypes from 'prop-types';
+import React, { useContext } from 'react';
+import {
+  DefaultButton,
+  PrimaryButton,
+  Dialog,
+  DialogFooter,
+  Icon,
+} from 'office-ui-fabric-react';
+
+import t from '../../../../components/tachyons.scss';
+
+import Context from './Context';
+import { isStoppable } from '../../../../components/util/job';
 
 export default function StopJobConfirm(props) {
-  const {hideDialog, setHideDialog, currentJob, stopJob} = props;
-  const {selectedJobs} = useContext(Context);
+  const { hideDialog, setHideDialog, currentJob, stopJob } = props;
+  const { selectedJobs } = useContext(Context);
 
   function onStopJob() {
     setHideDialog(true);
     if (selectedJobs || currentJob) {
-      const willStopedJobs = selectedJobs.filter((job) => {
-        return getStatusText(job) === 'Waiting' || getStatusText(job) === 'Running';
-      });
-      willStopedJobs.length === 0 ? stopJob(currentJob) : stopJob(...willStopedJobs);
+      const willStopedJobs = selectedJobs.filter(job => isStoppable(job));
+      willStopedJobs.length === 0
+        ? stopJob(currentJob)
+        : stopJob(...willStopedJobs);
     } else {
       stopJob();
     }
@@ -54,26 +60,37 @@ export default function StopJobConfirm(props) {
       dialogContentProps={{
         showCloseButton: false,
         styles: {
-          title: {paddingBottom: '12px'},
+          title: { paddingBottom: '12px' },
         },
-        title: <span className={c(t.flex, t.fw6)} style={{fontSize: FontSizes.icon}}>
-          <Icon
-            iconName='Info'
-            styles={{
-              root: {marginRight: '6px'},
-            }}
-          />
+        title: (
+          <span
+            className={c(t.flex, t.fw6)}
+            style={{ fontSize: FontSizes.icon }}
+          >
+            <Icon
+              iconName='Info'
+              styles={{
+                root: { marginRight: '6px' },
+              }}
+            />
             Stop job(s)
-          </span>,
+          </span>
+        ),
       }}
     >
-      <div className={c(t.fw4, FontClassNames.small)} style={{marginLeft: '22px'}}>
+      <div
+        className={c(t.fw4, FontClassNames.small)}
+        style={{ marginLeft: '22px' }}
+      >
         <span>Are you sure you want to stop the selected job(s)?</span>
-        <p>Stopping job(s) will release all the allocated resources for the job(s) and can&lsquo;t be undone.</p>
+        <p>
+          Stopping job(s) will release all the allocated resources for the
+          job(s) and can&lsquo;t be undone.
+        </p>
       </div>
       <DialogFooter>
-        <PrimaryButton onClick={onStopJob} text="Confirm" />
-        <DefaultButton onClick={closeDialog} text="Cancel" />
+        <PrimaryButton onClick={onStopJob} text='Confirm' />
+        <DefaultButton onClick={closeDialog} text='Cancel' />
       </DialogFooter>
     </Dialog>
   );

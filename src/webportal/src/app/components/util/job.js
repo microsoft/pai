@@ -15,48 +15,57 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-import {get, isNil, cloneDeep} from 'lodash';
-import {Interval, DateTime} from 'luxon';
+import { get, isNil, cloneDeep } from 'lodash';
+import { Interval, DateTime } from 'luxon';
 
 export const MIN_ABNORMAL_JOB_DURATION_MILLISECOND = 5 * 24 * 60 * 60 * 1000; // 5 days
 
+export function isStoppable(job) {
+  return (
+    job.executionType !== 'STOP' &&
+    !['SUCCEEDED', 'FAILED', 'STOPPED'].includes(job.state)
+  );
+}
+
 export function getHumanizedJobStateString(job) {
-  let hjss = '';
   if (job.state === 'JOB_NOT_FOUND') {
-    hjss = 'N/A';
-  } else if (job.state === 'WAITING') {
-    if (job.executionType === 'STOP') {
-      hjss = 'Stopping';
-    } else {
-      hjss = 'Waiting';
-    }
-  } else if (job.state === 'RUNNING') {
-    if (job.executionType === 'STOP') {
-      hjss = 'Stopping';
-    } else {
-      hjss = 'Running';
-    }
-  } else if (job.state === 'COMPLETING') {
-    hjss = 'Completing';
-  } else if (job.state === 'RETRY_PENDING') {
-    hjss = 'RetryPending';
-  } else if (job.state === 'SUCCEEDED') {
-    hjss = 'Succeeded';
-  } else if (job.state === 'FAILED') {
-    hjss = 'Failed';
-  } else if (job.state === 'STOPPED') {
-    hjss = 'Stopped';
-  } else {
-    hjss = 'Unknown';
+    return 'N/A';
   }
-  return hjss;
+
+  if (
+    job.executionType === 'STOP' &&
+    !['SUCCEEDED', 'FAILED', 'STOPPED'].includes(job.state)
+  ) {
+    return 'Stopping';
+  }
+
+  if (job.state === 'WAITING') {
+    return 'Waiting';
+  } else if (job.state === 'RUNNING') {
+    return 'Running';
+  } else if (job.state === 'SUCCEEDED') {
+    return 'Succeeded';
+  } else if (job.state === 'FAILED') {
+    return 'Failed';
+  } else if (job.state === 'STOPPED') {
+    return 'Stopped';
+  } else {
+    return 'Unknown';
+  }
 }
 
 export function getJobDuration(jobInfo) {
-  const start = get(jobInfo, 'createdTime') && DateTime.fromMillis(jobInfo.createdTime);
-  const end = get(jobInfo, 'completedTime') && DateTime.fromMillis(jobInfo.completedTime);
+  const start =
+    get(jobInfo, 'createdTime') && DateTime.fromMillis(jobInfo.createdTime);
+  const end =
+    get(jobInfo, 'completedTime') && DateTime.fromMillis(jobInfo.completedTime);
   if (start) {
-    return Interval.fromDateTimes(start, end || DateTime.utc()).toDuration(['days', 'hours', 'minutes', 'seconds']);
+    return Interval.fromDateTimes(start, end || DateTime.utc()).toDuration([
+      'days',
+      'hours',
+      'minutes',
+      'seconds',
+    ]);
   } else {
     return null;
   }
@@ -98,7 +107,7 @@ export function getJobModifiedTimeString(job) {
 }
 
 export function isLongRunJob(job) {
-  return (Date.now() - job.createdTime) > MIN_ABNORMAL_JOB_DURATION_MILLISECOND;
+  return Date.now() - job.createdTime > MIN_ABNORMAL_JOB_DURATION_MILLISECOND;
 }
 
 export function isLowGpuUsageJob(job) {
@@ -106,31 +115,33 @@ export function isLowGpuUsageJob(job) {
 }
 
 export function listAbnormalJobs(allJobs, lowGpuJobsInfo) {
-  const allRuuingJobs = allJobs.filter((job) => job.state === 'RUNNING');
+  const allRuuingJobs = allJobs.filter(job => job.state === 'RUNNING');
   const longRunJobs = allRuuingJobs.filter(isLongRunJob);
 
   // Get low GPU usage jobs
-  const lowGpuUsageJobs = allRuuingJobs.reduce((acc, cur)=>{
-    const gpuUsageInfo = lowGpuJobsInfo.find((info) => info.jobName === cur.name);
+  const lowGpuUsageJobs = allRuuingJobs.reduce((acc, cur) => {
+    const gpuUsageInfo = lowGpuJobsInfo.find(info => info.jobName === cur.name);
     if (isNil(gpuUsageInfo)) {
       return acc;
     }
-    const lowGpuUsageJob = {...cur};
-    lowGpuUsageJob['gpuUsage'] = gpuUsageInfo.gpuUsage;
+    const lowGpuUsageJob = { ...cur };
+    lowGpuUsageJob.gpuUsage = gpuUsageInfo.gpuUsage;
     acc.push(lowGpuUsageJob);
     return acc;
   }, []);
 
   // Merge long run jobs and low GPU usage jobs
   const abnormalJobs = cloneDeep(longRunJobs);
-  abnormalJobs.forEach((job) => {
-    const lowGpuUsagejob = lowGpuUsageJobs.find((lowGpuUsageJob) => lowGpuUsageJob.name === job.name);
+  abnormalJobs.forEach(job => {
+    const lowGpuUsagejob = lowGpuUsageJobs.find(
+      lowGpuUsageJob => lowGpuUsageJob.name === job.name,
+    );
     if (!isNil(lowGpuUsagejob)) {
-      job['gpuUsage'] = lowGpuUsagejob.gpuUsage;
+      job.gpuUsage = lowGpuUsagejob.gpuUsage;
     }
   });
-  lowGpuUsageJobs.forEach((lowGpuUsageJob) => {
-    if (isNil(abnormalJobs.find((job) => job.name === lowGpuUsageJob.name))) {
+  lowGpuUsageJobs.forEach(lowGpuUsageJob => {
+    if (isNil(abnormalJobs.find(job => job.name === lowGpuUsageJob.name))) {
       abnormalJobs.push(lowGpuUsageJob);
     }
   });

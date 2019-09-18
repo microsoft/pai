@@ -54,6 +54,7 @@ export class ClusterManager extends Singleton {
         name: 'Sample Cluster',
         username: '',
         password: '',
+        token: '',
         rest_server_uri: '127.0.0.1:9186',
         hdfs_uri: 'hdfs://127.0.0.1:9000',
         webhdfs_uri: '127.0.0.1:50070',

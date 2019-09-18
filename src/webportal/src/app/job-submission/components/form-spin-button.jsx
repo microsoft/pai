@@ -23,19 +23,22 @@
  * SOFTWARE.
  */
 
-import React, {useCallback} from 'react';
-import {BasicSection} from './basic-section';
+import React, { useCallback } from 'react';
+import { BasicSection } from './basic-section';
 import PropTypes from 'prop-types';
-import {CSpinButton} from './customized-components';
-import {FormShortSection} from './form-page';
+import { CSpinButton } from './customized-components';
+import { FormShortSection } from './form-page';
 
-export const FormSpinButton = (props) => {
-  const {sectionLabel, sectionOptional, onChange, value, shortStyle} = props;
-  const _onChange = useCallback((value) => {
-    if (onChange !== undefined) {
-      onChange(Number(value));
-    }
-  }, [onChange]);
+export const FormSpinButton = props => {
+  const { sectionLabel, sectionOptional, onChange, value, shortStyle } = props;
+  const _onChange = useCallback(
+    value => {
+      if (onChange !== undefined) {
+        onChange(Number(value));
+      }
+    },
+    [onChange],
+  );
 
   const spinButton = (
     <CSpinButton

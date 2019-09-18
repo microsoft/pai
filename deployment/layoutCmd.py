@@ -57,7 +57,7 @@ GENERIC:
     cpu:
         vcore: 1
     os: ubuntu16.04
-    """)
+    """, yaml.SafeLoader)
 
     layout = {
         "kubernetes": {

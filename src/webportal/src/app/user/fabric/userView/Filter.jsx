@@ -22,11 +22,7 @@ class Filter {
    * @param {Set<bool>?} admins
    * @param {Set<string>?} virtualClusters
    */
-  constructor(
-    keyword = '',
-    admins = new Set(),
-    virtualClusters = new Set(),
-  ) {
+  constructor(keyword = '', admins = new Set(), virtualClusters = new Set()) {
     this.keyword = keyword;
     this.admins = admins;
     this.virtualClusters = virtualClusters;
@@ -43,7 +39,7 @@ class Filter {
   load() {
     try {
       const content = window.localStorage.getItem(LOCAL_STORAGE_KEY);
-      const {admins, virtualClusters} = JSON.parse(content);
+      const { admins, virtualClusters } = JSON.parse(content);
       if (Array.isArray(admins)) {
         this.admins = new Set(admins);
       }
@@ -59,30 +55,33 @@ class Filter {
    * @param {any[]} users
    */
   apply(users) {
-    const {keyword, admins, virtualClusters} = this;
+    const { keyword, admins, virtualClusters } = this;
 
     const filters = [];
     if (keyword !== '') {
-      filters.push(({username, email, virtualCluster}) => (
-        username.indexOf(keyword) > -1 ||
-        email.indexOf(keyword) > -1 ||
-        virtualCluster.some((item) => item.indexOf(keyword) > -1)
-      ));
+      filters.push(
+        ({ username, email, virtualCluster }) =>
+          username.indexOf(keyword) > -1 ||
+          email.indexOf(keyword) > -1 ||
+          virtualCluster.some(item => item.indexOf(keyword) > -1),
+      );
     }
     if (admins.size > 0) {
-      filters.push((user) => admins.has(user.admin));
+      filters.push(user => admins.has(user.admin));
     }
     if (virtualClusters.size > 0) {
-      filters.push(({virtualCluster, admin}) => {
+      filters.push(({ virtualCluster, admin }) => {
         if (admin) {
           return true;
         }
-        return Array.from(virtualClusters).every((item) => virtualCluster.indexOf(item) > -1);
+        return Array.from(virtualClusters).every(
+          item => virtualCluster.indexOf(item) > -1,
+        );
       });
     }
     if (filters.length === 0) return users;
 
-    return users.filter((user) => filters.every((filter) => filter(user)));
+    return users.filter(user => filters.every(filter => filter(user)));
   }
 }
 
