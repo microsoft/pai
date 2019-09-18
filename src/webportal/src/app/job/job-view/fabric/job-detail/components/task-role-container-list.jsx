@@ -191,7 +191,30 @@ export default class TaskRoleContainerList extends React.Component {
     });
   }
 
-  showContainerLog(logUrl, title) {
+  showContainerLog(logUrl, logType) {
+    let title;
+    let logHint;
+
+    if (config.logType === 'yarn') {
+      logHint = 'Last 4096 bytes';
+    } else if (config.logType === 'log-manager') {
+      logHint = 'Last 200 lines';
+    } else {
+      throw new Error(`Log not available`);
+    }
+    switch (logType) {
+      case 'stdout':
+        title = `Standard Output (${logHint})`;
+        break;
+      case 'stderr':
+        title = `Standard Error (${logHint})`;
+        break;
+      case 'stdall':
+        title = `User logs (${logHint}. Notice: The logs may out of order when merging stdout & stderr streams)`;
+        break;
+      default:
+        throw new Error(`Unsupported log type`);
+    }
     this.setState(
       {
         monacoProps: { value: 'Loading...' },
@@ -458,7 +481,7 @@ export default class TaskRoleContainerList extends React.Component {
                 onClick={() =>
                   this.showContainerLog(
                     `${item.containerLog}user.pai.stdout`,
-                    'Standard Output (Last 4096 bytes)',
+                    'stdout',
                   )
                 }
                 disabled={isNil(item.containerId) || isNil(item.containerIp)}
@@ -474,7 +497,7 @@ export default class TaskRoleContainerList extends React.Component {
                 onClick={() =>
                   this.showContainerLog(
                     `${item.containerLog}user.pai.stderr`,
-                    'Standard Error (Last 4096 bytes)',
+                    'stderr',
                   )
                 }
                 disabled={isNil(item.containerId) || isNil(item.containerIp)}
@@ -496,14 +519,16 @@ export default class TaskRoleContainerList extends React.Component {
                       onClick: () =>
                         this.showContainerLog(
                           `${item.containerLog}user.pai.all`,
-                          'User logs (Last 4096 bytes. Notice: The logs may out of order when merging stdout & stderr streams)',
+                          'stdall',
                         ),
                     },
                     {
                       key: 'yarnTrackingPage',
                       name: 'Go to Tracking Page',
                       iconProps: { iconName: 'Link' },
-                      href: item.containerLog,
+                      href: isNil(item.containerLog)
+                        ? item.containerLog
+                        : item.containerLog.replace('/tail/', '/'),
                       target: '_blank',
                     },
                   ],

@@ -260,6 +260,7 @@ export async function getContainerLog(logUrl) {
     }
   } else if (config.logType === 'log-manager') {
     ret.text = text;
+    ret.fullLogLink = logUrl.replace('/tail/', '/full/');
     return ret;
   } else {
     throw new Error(`Log not available`);
