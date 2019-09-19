@@ -47,11 +47,6 @@ export const FormTextField = React.memo(props => {
       return 'Input is invalid';
     }
 
-    // length limitation of job name and taskrole name
-    if (value.length > 50) {
-      return 'length out of limitation 50';
-    }
-
     return '';
   };
 
