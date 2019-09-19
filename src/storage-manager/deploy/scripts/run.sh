@@ -18,9 +18,7 @@ modprobe nfs
 modprobe nfsd
 
 # join domain
-if [[ $DOMAIN != "WORKGROUP" ]]; then 
-  net ads join -U "$DOMAINUSER"%"$DOMAINPWD"
-fi
+net ads join -U "$DOMAINUSER"%"$DOMAINPWD"
 
 # restart service
 service winbind restart
