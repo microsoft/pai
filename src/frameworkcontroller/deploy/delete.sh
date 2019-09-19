@@ -28,9 +28,8 @@ until [[ $(curl -s $FRAMEWORK_ENDPOINT | jq ".items | length") -eq 0 ]]; do
         -d '{"kind":"DeleteOptions","apiVersion":"v1","propagationPolicy":"Foreground"}' > /dev/null 2>&1
     sleep 5
 done
+kubectl delete customresourcedefinitions frameworks.frameworkcontroller.microsoft.com || exit $?
 
 /bin/bash stop.sh || exit $?
-
-kubectl delete customresourcedefinitions frameworks.frameworkcontroller.microsoft.com || exit $?
 
 popd > /dev/null
