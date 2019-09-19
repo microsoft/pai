@@ -19,25 +19,10 @@
 
 pushd $(dirname "$0") > /dev/null
 
-#chmod u+x configmap-create.sh
-/bin/bash configmap-create.sh || exit $?
+kubectl create configmap  storage-configuration --from-file=conf/ --dry-run -o yaml | kubectl apply --overwrite=true -f - || exit $?
+kubectl apply --overwrite=true -f storage-manager.yaml || exit $?
 
-# Create secret for job ssh keys
-/bin/bash secret-create.sh || exit $?
-
-kubectl apply --overwrite=true -f secret.yaml || exit $?
-
-# Label all the machines
-{% for host in cluster_cfg['layout']['machine-list'] %}
-    {% if 'pai-master' in cluster_cfg['layout']['machine-list'][host] and cluster_cfg['layout']['machine-list'][host]['pai-master'] == 'true' %}
-kubectl label --overwrite=true nodes {{ cluster_cfg['layout']['machine-list'][host]['nodename'] }} pai-master=true || exit $?
-    {% endif %}
-    {% if 'pai-worker' in cluster_cfg['layout']['machine-list'][host] and cluster_cfg['layout']['machine-list'][host]['pai-worker'] == 'true' %}
-kubectl label --overwrite=true nodes {{ cluster_cfg['layout']['machine-list'][host]['nodename'] }} pai-worker=true || exit $?
-    {% endif %}
-    {% if 'pai-storage' in cluster_cfg['layout']['machine-list'][host] and cluster_cfg['layout']['machine-list'][host]['pai-storage'] == 'true' %}
-kubectl label --overwrite=true nodes {{ cluster_cfg['layout']['machine-list'][host]['nodename'] }} pai-storage=true || exit $?
-    {% endif %}
-{% endfor %}
+# Wait until the service is ready.
+PYTHONPATH="../../../deployment" python -m  k8sPaiLibrary.monitorTool.check_pod_ready_status -w -k app -v storage-manager || exit $?
 
 popd > /dev/null
