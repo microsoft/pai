@@ -2,7 +2,7 @@
   "name":"PM",
   "type":"prometheus",
   "url":"{{ cluster_cfg['prometheus']['url'] }}/prometheus",
-  "access":"direct",
+  "access":"proxy",
   "basicAuth":false,
   "isDefault":true
 }
