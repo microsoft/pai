@@ -233,13 +233,10 @@ location ~ ^/grafana(.*)$$ {
   sub_filter_once off;
   sub_filter
     '<base href="/" />'
-    '<base href="$scheme://$http_host/grafana/" />';
-  sub_filter
-    '{{PROMETHEUS_URI}}/prometheus'
-    '$scheme://$http_host/prometheus';
+    '<base href="/grafana/" />';
   sub_filter
     '{{GRAFANA_URI}}'
-    '$scheme://$http_host/grafana';
+    '/grafana';
   sub_filter
     '"url":"/'
     '"url":"./';
