@@ -84,6 +84,9 @@ export const SubmissionSection = props => {
 
   const { vcNames, errorMessages, setErrorMessage } = useContext(Context);
 
+  // params: get search parameters of url
+  const params = new URLSearchParams(window.location.search);
+
   const _protocolAndErrorUpdate = protocol => {
     if (!isEqual(jobProtocol, protocol)) {
       setJobProtocol(protocol);
@@ -211,6 +214,7 @@ export const SubmissionSection = props => {
       <Stack horizontal horizontalAlign='space-between'>
         <DefaultButton
           text='Back'
+          disabled={params.has('op') && params.get('op') === 'resubmit'}
           onClick={() => {
             history.push('/');
           }}
