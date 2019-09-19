@@ -85,7 +85,7 @@ function generateJobName(jobName) {
   }
 
   // split name using '_', drop string behind '_'
-  name = name.split("_")[0];
+  name = name.split('_')[0];
 
   let suffix = Date.now().toString(16);
   suffix = suffix.substring(suffix.length - 6);

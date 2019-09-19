@@ -48,7 +48,7 @@ export const FormTextField = React.memo(props => {
     }
 
     // length limitation
-    if(value.length > 50){
+    if( value.length > 50 ){
       return 'length out of limitation 50';
     }
 
