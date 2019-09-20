@@ -49,6 +49,8 @@ spec:
 {%- if cluster_cfg['hivedscheduler']['config']|length > 1 %}
         - mountPath: /hived-spec
           name: hived-spec-rest-server
+{%- endif %}
+{%- if cluster_cfg['rest-server']['launcher-type'] == "k8s" %}
         - mountPath: /k8s-job-exit-spec-configuration
           name: k8s-exit-spec-rest-server
 {%- endif %}
@@ -134,6 +136,8 @@ spec:
       - name: hived-spec-rest-server
         configMap:
           name: hivedscheduler-config
+{%- endif %}
+{%- if cluster_cfg['rest-server']['launcher-type'] == "k8s" %}
       - name: k8s-exit-spec-rest-server
         configMap:
           name: k8s-job-exit-spec-configuration

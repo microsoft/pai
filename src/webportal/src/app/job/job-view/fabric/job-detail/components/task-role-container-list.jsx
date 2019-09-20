@@ -513,7 +513,7 @@ export default class TaskRoleContainerList extends React.Component {
                   items: [
                     {
                       key: 'mergedLog',
-                      name: 'Full log',
+                      name: 'Stdout+Stderr',
                       iconProps: { iconName: 'TextDocument' },
                       disabled: isNil(item.containerId),
                       onClick: () =>
@@ -523,8 +523,11 @@ export default class TaskRoleContainerList extends React.Component {
                         ),
                     },
                     {
-                      key: 'yarnTrackingPage',
-                      name: 'Go to Tracking Page',
+                      key: 'trackingPage',
+                      name:
+                        config.launcherType === 'yarn'
+                          ? 'Go to Yarn Tracking Page'
+                          : 'Browse log folder',
                       iconProps: { iconName: 'Link' },
                       href: isNil(item.containerLog)
                         ? item.containerLog
