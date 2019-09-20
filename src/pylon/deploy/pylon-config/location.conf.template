@@ -233,13 +233,10 @@ location ~ ^/grafana(.*)$$ {
   sub_filter_once off;
   sub_filter
     '<base href="/" />'
-    '<base href="$scheme://$http_host/grafana/" />';
-  sub_filter
-    '{{PROMETHEUS_URI}}/prometheus'
-    '$scheme://$http_host/prometheus';
+    '<base href="/grafana/" />';
   sub_filter
     '{{GRAFANA_URI}}'
-    '$scheme://$http_host/grafana';
+    '/grafana';
   sub_filter
     '"url":"/'
     '"url":"./';
@@ -274,9 +271,10 @@ location ~ ^(.*)$ {
   sub_filter
     '{{YARN_WEB_PORTAL_URI}}'
     '/yarn';
+  # Add '/' to the end of the URL is used to adapt the envrionent with Azure gateway
   sub_filter
     '{{K8S_DASHBOARD_URI}}'
-    '/kubernetes-dashboard';
+    '/kubernetes-dashboard/';
   sub_filter
     '{{GRAFANA_URI}}'
     '/grafana';
