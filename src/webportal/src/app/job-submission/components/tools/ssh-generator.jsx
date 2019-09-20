@@ -36,6 +36,7 @@ import { isNil } from 'lodash';
 
 export default function SSHGenerator({
   isOpen = false,
+  bits = 1024,
   hide,
   onSshKeysChange,
 }) {
@@ -43,7 +44,7 @@ export default function SSHGenerator({
   const [downloadedPriKey, setDownloadedPriKey] = useState(false);
 
   useEffect(() => {
-    generateSshKeys(1024);
+    generateSshKeys(bits);
   }, []);
 
   useEffect(() => {
@@ -78,29 +79,7 @@ export default function SSHGenerator({
     const aLink = document.createElement('a');
     aLink.href = url;
     aLink.download = saveName || '';
-    let event;
-    if (window.MouseEvent) event = new MouseEvent('click');
-    else {
-      event = document.createEvent('MouseEvents');
-      event.initMouseEvent(
-        'click',
-        true,
-        false,
-        window,
-        0,
-        0,
-        0,
-        0,
-        0,
-        false,
-        false,
-        false,
-        false,
-        0,
-        null,
-      );
-    }
-    aLink.dispatchEvent(event);
+    aLink.click();
   };
 
   return (
@@ -109,11 +88,6 @@ export default function SSHGenerator({
       onDismiss={handleCancel}
       dialogContentProps={{
         type: DialogType.normal,
-        styles: {
-          title: { padding: '20px 36px 12px 20px' },
-          inner: { padding: '0px 40px 20px 20px' },
-          topButton: { padding: '20px 20px 0px 0px' },
-        },
         title: (
           <span
             className={c(t.mb2, t.fw6, FontClassNames.semibold)}
@@ -131,10 +105,10 @@ export default function SSHGenerator({
       }}
     >
       <Hint>
-        Please download SSH private key then click <b>Use</b> button to use this
-        key pair in job. Then after job submitted, you can ssh to job containers
-        as user root with the downloaded private key through container ip and
-        ssh port. Try using{' '}
+        Please download SSH private key then click <b>Use Public Key</b> button
+        to use this key pair in job. Then after job submitted, you can ssh to
+        job containers as user root with the downloaded private key through
+        container ip and ssh port. Try using{' '}
         <code>
           {'ssh -i <private key path> -p <ssh port> root@<container ip>'}
         </code>{' '}
@@ -200,7 +174,7 @@ export default function SSHGenerator({
             onClick={handleConfirm}
             disabled={!downloadedPriKey}
           >
-            Use
+            Use Public Key
           </DefaultButton>
         </Stack.Item>
         <Stack.Item align='end'>
@@ -213,6 +187,7 @@ export default function SSHGenerator({
 
 SSHGenerator.propTypes = {
   isOpen: PropTypes.bool,
+  bits: PropTypes.number,
   hide: PropTypes.func,
   onSshKeysChange: PropTypes.func,
 };

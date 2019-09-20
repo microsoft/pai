@@ -15,10 +15,10 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-const NodeRSA = require('node-rsa');
-const SSHPk = require('sshpk');
+import { default as NodeRSA } from 'node-rsa';
+import { default as SSHPk } from 'sshpk';
 
-function generateSSHKeyPair(bits) {
+export function generateSSHKeyPair(bits) {
   const key = new NodeRSA({ b: bits });
   const pemPub = key.exportKey('pkcs1-public-pem');
   const pemPri = key.exportKey('pkcs1-private-pem');
@@ -28,7 +28,3 @@ function generateSSHKeyPair(bits) {
   const sshPub = sshKey.toString('ssh');
   return { public: sshPub, private: pemPri };
 }
-
-module.exports = {
-  generateSSHKeyPair: generateSSHKeyPair,
-};
