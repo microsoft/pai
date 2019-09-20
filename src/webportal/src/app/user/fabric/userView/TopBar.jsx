@@ -125,6 +125,7 @@ function TopBar() {
   };
 
   /**
+   * btn remove
    * @type {import('office-ui-fabric-react').ICommandBarItemProps}
    */
   const btnRemove = {
@@ -136,7 +137,7 @@ function TopBar() {
     },
     onClick: removeUsers,
     onRender(item) {
-      return ((
+      return (
         <TooltipHost
           content={item.disabledTip}
           styles={{ root: { display: 'inherit' } }}
@@ -151,7 +152,7 @@ function TopBar() {
             {item.name}
           </CommandBarButton>
         </TooltipHost>
-      ));
+      );
     },
   };
 
@@ -184,6 +185,7 @@ function TopBar() {
   };
 
   /**
+   * btnBatchEditVirtualClusters
    * @type {import('office-ui-fabric-react').ICommandBarItemProps}
    */
   const btnBatchEditVirtualClusters = {
@@ -195,7 +197,7 @@ function TopBar() {
     },
     onClick: showBatchVirtualClustersEditor,
     onRender(item) {
-      return ((
+      return (
         <TooltipHost
           content={item.disabledTip}
           styles={{ root: { display: 'inherit' } }}
@@ -210,7 +212,7 @@ function TopBar() {
             {item.name}
           </CommandBarButton>
         </TooltipHost>
-      ));
+      );
     },
   };
 
@@ -236,6 +238,7 @@ function TopBar() {
   };
 
   /**
+   * btnFilters
    * @type {import('office-ui-fabric-react').ICommandBarItemProps}
    */
   const btnFilters = {
@@ -247,7 +250,7 @@ function TopBar() {
       setActive(!active);
     },
     onRender(item) {
-      return ((
+      return (
         <CommandBarButton
           onClick={item.onClick}
           iconProps={item.iconProps}
@@ -256,7 +259,7 @@ function TopBar() {
         >
           Filters
         </CommandBarButton>
-      ));
+      );
     },
   };
 

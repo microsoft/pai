@@ -138,6 +138,7 @@ export default function Table() {
   });
 
   /**
+   * actions column
    * @type {import('office-ui-fabric-react').IColumn}
    */
   const actionsColumn = {
@@ -165,7 +166,7 @@ export default function Table() {
         ? 'Multi-user simultaneous editing is not supported'
         : '';
 
-      return ((
+      return (
         <div className={c([t.itemsCenter, t.flex])} data-selection-disabled>
           <TooltipHost content={disabledTip}>
             <DefaultButton
@@ -182,7 +183,7 @@ export default function Table() {
             </DefaultButton>
           </TooltipHost>
         </div>
-      ));
+      );
     },
   };
 

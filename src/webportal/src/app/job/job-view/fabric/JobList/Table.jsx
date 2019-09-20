@@ -209,6 +209,7 @@ export default function Table() {
   });
 
   /**
+   * action column
    * @type {import('office-ui-fabric-react').IColumn}
    */
   const actionsColumn = {
@@ -231,7 +232,7 @@ export default function Table() {
       const disabled =
         !isStoppable(job) ||
         (selectedJobs.length !== 0 && !selectedJobs.includes(job));
-      return ((
+      return (
         <div
           style={{
             height: '100%',
@@ -256,7 +257,7 @@ export default function Table() {
             Stop
           </DefaultButton>
         </div>
-      ));
+      );
     },
   };
 
