@@ -40,6 +40,7 @@ def generate_layout(output_file):
     # assgin pai-master
     master = machineList[0]
     master['pai-master'] = 'true'
+    master['pai-storage'] = 'true'
     master['zkid'] = 1
 
     # assign pai-workers

@@ -142,6 +142,16 @@ rest-server:
 # log-manager:
 #  port: 9103
 
+# uncomment following section if you want to customize the port of storage-manager
+# storage-manager:
+#  smbport: 445
+#  nfsport: 2049
+#  localpath: /share
+#  domainuser: domainuser
+#  domainpwd: domainpass
+#  smbuser: smbuser
+#  smbpwd: smbpwd
+
 # uncomment following section, if you want to customize the authentication solution.
 #authentication:
   #OIDC: false
