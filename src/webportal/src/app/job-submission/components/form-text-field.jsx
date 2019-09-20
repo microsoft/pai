@@ -46,6 +46,7 @@ export const FormTextField = React.memo(props => {
     if (isEmpty(match)) {
       return 'Input is invalid';
     }
+
     return '';
   };
 

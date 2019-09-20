@@ -102,12 +102,16 @@ export const JobSubmissionPage = ({
   ]);
   const [parameters, setParametersState] = useState([{ key: '', value: '' }]);
   const [secrets, setSecretsState] = useState([{ key: '', value: '' }]);
-  const [jobInformation, setJobInformation] = useState(
-    new JobBasicInfo({
-      name: `${loginUser}_${Date.now()}`,
+  const [jobInformation, setJobInformation] = useState(() => {
+    let suffix = Date.now().toString(16);
+    suffix = suffix.substring(suffix.length - 6);
+    let name = `${loginUser}_${suffix}`;
+    name = name + getChecksum(name);
+    return new JobBasicInfo({
+      name: name,
       virtualCluster: 'default',
-    }),
-  );
+    });
+  });
   const [selected, setSelected] = useState(SIDEBAR_PARAM);
   const [advanceFlag, setAdvanceFlag] = useState(false);
   const [jobData, setJobData] = useState(new JobData());

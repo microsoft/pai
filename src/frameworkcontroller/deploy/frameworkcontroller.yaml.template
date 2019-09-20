@@ -32,7 +32,7 @@ spec:
     spec:
       containers:
       - name: frameworkcontroller
-        image: frameworkcontroller/frameworkcontroller:v0.3.0
+        image: openpai/frameworkcontroller:v0.4.0-alpha.0
         env:
         - name: KUBE_APISERVER_ADDRESS
           value: "{{ cluster_cfg['layout']['kubernetes']['api-servers-url'] }}"
