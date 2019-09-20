@@ -39,6 +39,12 @@ spec:
       - name: storage-manager
         image: {{ cluster_cfg["cluster"]["docker-registry"]["prefix"] }}storage-manager:{{ cluster_cfg["cluster"]["docker-registry"]["tag"] }}
         imagePullPolicy: Always
+        livenessProbe:
+          exec:
+            command:
+            - /usr/bin/check.sh
+          initialDelaySeconds: 30
+          timeoutSeconds: 10
         securityContext:
           privileged: True
         env:
