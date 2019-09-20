@@ -43,9 +43,11 @@ COPY deploy/conf/exports /etc/exports
 COPY deploy/scripts/sambadatacreate /usr/bin/sambadatacreate
 COPY deploy/scripts/sambauserhomecreate /usr/bin/sambauserhomecreate
 COPY deploy/scripts/run.sh /usr/bin/run.sh
+COPY deploy/scripts/check.sh /usr/bin/check.sh
 
 RUN chmod +x /usr/bin/sambadatacreate && \
     chmod +x /usr/bin/sambauserhomecreate && \
-    chmod +x /usr/bin/run.sh
+    chmod +x /usr/bin/run.sh && \
+    chmod +x /usr/bin/check.sh
 
 ENTRYPOINT ["/usr/bin/run.sh"]
