@@ -1,12 +1,20 @@
-# /etc/exports: the access control list for filesystems which may be exported
-#               to NFS clients.  See exports(5).
+# Copyright (c) Microsoft Corporation
+# All rights reserved.
 #
-# Example for NFSv2 and NFSv3:
-# /srv/homes       hostname1(rw,sync,no_subtree_check) hostname2(ro,sync,no_subtree_check)
+# MIT License
 #
-# Example for NFSv4:
-# /srv/nfs4        gss/krb5i(rw,sync,fsid=0,crossmnt,no_subtree_check)
-# /srv/nfs4/homes  gss/krb5i(rw,sync,no_subtree_check)
-/share/pai *(ro,sync,fsid=0,root_squash,no_subtree_check,anonuid=1000,anongid=1000)
-/share/pai/data *(rw,sync,root_squash,no_subtree_check,anonuid=1000,anongid=1000)
-/share/pai/users *(rw,sync,root_squash,no_subtree_check,anonuid=1000,anongid=1000)
+# Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
+# documentation files (the "Software"), to deal in the Software without restriction, including without limitation
+# the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and
+# to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+# The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED *AS IS*, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING
+# BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+# NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+# DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+/share/pai *(ro,sync,fsid=0,all_squash,no_subtree_check,anonuid=1000,anongid=1000)
+/share/pai/data *(rw,sync,all_squash,no_subtree_check,anonuid=1000,anongid=1000)
+/share/pai/users *(rw,sync,all_squash,no_subtree_check,anonuid=1000,anongid=1000)
