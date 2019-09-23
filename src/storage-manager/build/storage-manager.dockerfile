@@ -17,19 +17,11 @@
 
 FROM ubuntu:16.04
 
-COPY deploy/conf/nsswitch.conf /etc/nsswitch.conf
-COPY deploy/conf/krb5.conf /etc/krb5.conf
 
 RUN apt-get -y update && \
     apt-get -y install \
       samba \
       attr \
-      winbind \
-      libpam-winbind \
-      libnss-winbind \
-      libpam-krb5 \
-      krb5-config \
-      krb5-user \
       cifs-utils \
       nfs-common \
       netbase \
@@ -38,16 +30,15 @@ RUN apt-get -y update && \
 
 ENV SHARE_ROOT=/share/pai
 
-COPY deploy/conf/smb.conf /etc/samba/smb.conf
 COPY deploy/conf/exports /etc/exports
 COPY deploy/scripts/sambadatacreate /usr/bin/sambadatacreate
 COPY deploy/scripts/sambauserhomecreate /usr/bin/sambauserhomecreate
-COPY deploy/scripts/run.sh /usr/bin/run.sh
+COPY deploy/scripts/entrypoint.sh /usr/bin/entrypoint.sh
 COPY deploy/scripts/check.sh /usr/bin/check.sh
 
 RUN chmod +x /usr/bin/sambadatacreate && \
     chmod +x /usr/bin/sambauserhomecreate && \
-    chmod +x /usr/bin/run.sh && \
+    chmod +x /usr/bin/entrypoint.sh && \
     chmod +x /usr/bin/check.sh
 
-ENTRYPOINT ["/usr/bin/run.sh"]
+ENTRYPOINT ["/usr/bin/entrypoint.sh"]

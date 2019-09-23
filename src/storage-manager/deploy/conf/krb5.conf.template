@@ -15,24 +15,38 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-cluster-type:
-  - yarn
-  - k8s
+{%- if cluster_cfg["storage-manager"]['security-type'] == "ADS" %}
+[libdefaults]
+  ticket_lifetime = 24h
+  default_realm = {{cluster_cfg["storage-manager"]["default_realm"]}}
+  forwardable = true
 
-prerequisite:
-  - cluster-configuration
+[realms]
+{%- for relam in cluster_cfg["storage-manager"]['krb5_realms'] %}
+  {{relam}} = {
+{%- for itemkey in cluster_cfg["storage-manager"]['krb5_realms'][relam] %}
+    {{itemkey}} = {{cluster_cfg["storage-manager"]['krb5_realms'][relam][itemkey]}}
+{%- endfor %}
+  }
+{%- endfor %}
 
-template-list:
-  - storage-manager.yaml
-  - start.sh
-  - conf/smb.conf
-  - conf/krb5.conf
+[domain_realm]
+{%- for itemkey in cluster_cfg["storage-manager"]['domain_realm'] %}
+  {{itemkey}} = {{cluster_cfg["storage-manager"]['domain_realm'][itemkey]}}
+{%- endfor %}
+{%- endif %}
 
-start-script: start.sh
-stop-script: stop.sh
-delete-script: delete.sh
-refresh-script: refresh.sh
-upgraded-script: upgraded.sh
+[appdefaults]
+  pam = {
+    debug = false
+    ticket_lifetime = 36000
+    renew_lifetime = 36000
+    forwardable = true
+    krb4_convert = false
+  }
 
-deploy-rules:
-  - in: pai-storage
+[logging]
+  kdc = SYSLOG:INFO:DAEMON
+  kdc = FILE:/var/log/krb5kdc.log
+  admin_server = FILE:/var/log/kadmin.log
+  default = FILE:/var/log/krb5lib.log

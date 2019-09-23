@@ -18,7 +18,7 @@
 smbport: 445
 nfsport: 2049
 localpath: /share
-domainuser: domainuser
-domainpwd: domainpass
+workgroup: WORKGROUP
+security-type: AUTO
 smbuser: smbuser
 smbpwd: smbpwd

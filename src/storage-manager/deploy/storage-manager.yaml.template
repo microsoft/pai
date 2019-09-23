@@ -43,19 +43,23 @@ spec:
           exec:
             command:
             - /usr/bin/check.sh
-          initialDelaySeconds: 30
+          initialDelaySeconds: 60
           timeoutSeconds: 10
         securityContext:
           privileged: True
         env:
+{%- if cluster_cfg["storage-manager"]['security-type'] == "ADS" %}
         - name: DOMAINUSER
           value: {{ cluster_cfg['storage-manager']['domainuser'] }}
         - name: DOMAINPWD
           value: {{ cluster_cfg['storage-manager']['domainpwd'] }}
+{%- endif %}
         - name: PAISMBUSER
           value: {{ cluster_cfg['storage-manager']['smbuser'] }}
         - name: PAISMBPWD
           value: {{ cluster_cfg['storage-manager']['smbpwd'] }}
+        - name: SECURETYPE
+          value: {{ cluster_cfg['storage-manager']['security-type'] }}
         volumeMounts:
         - name: pai-storage
           mountPath: /share/pai
