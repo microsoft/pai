@@ -1,35 +1,34 @@
-# Use Docker to Package the Job Environment Dependencies
+# 使用 Docker 建立工作环境
 
-The system launches a deep learning job in one or more Docker containers. A Docker image is required in advance. The system provides a base Docker images with HDFS, CUDA and cuDNN support, based on which users can build their own custom Docker images.
+本系统在一个或多个 Docker 容器内执行深度学习任务。需要预先准备一个 Docker 镜像，系统内置一个支持HDFS，CUDA和cuDDN的基础Docker镜像，用户可以以此为基础进行定制。
 
-To build a base Docker image, for example [Dockerfile.build.base](../../examples/Dockerfiles/cuda8.0-cudnn6/Dockerfile.build.base), run:
+如何构建 Docker 镜像, 参见： [Dockerfile.build.base](../../examples/Dockerfiles/cuda8.0-cudnn6/Dockerfile.build.base), 执行:
 
 ```sh
 docker build -f Dockerfiles/Dockerfile.build.base -t pai.build.base:hadoop2.7.2-cuda8.0-cudnn6-devel-ubuntu16.04 Dockerfiles/
 ```
 
-Then a custom docker image can be built based on it by adding `FROM pai.build.base:hadoop2.7.2-cuda8.0-cudnn6-devel-ubuntu16.04` in the Dockerfile.
+在 Dockerfile 里添加 `FROM pai.build.base:hadoop2.7.2-cuda8.0-cudnn6-devel-ubuntu16.04` 完成镜像构建。
 
-As an example, we customize a TensorFlow Docker image using [Dockerfile.run.tensorflow](../../examples/Dockerfiles/cuda8.0-cudnn6/Dockerfile.run.tensorflow):
+
+如自定义 TensorFlow Docker 镜像 ，参见： [Dockerfile.run.tensorflow](../../examples/Dockerfiles/cuda8.0-cudnn6/Dockerfile.run.tensorflow):
 
 ```sh
 docker build -f Dockerfiles/Dockerfile.run.tensorflow -t pai.run.tensorflow Dockerfiles/
 ```
-
-Next, the built image is pushed to a docker registry for every node in the system to access that image:
+接下来，将构建好的镜像推送到 docker 仓库，以便被系统内其他节点访问。
 
 ```sh
 docker tag pai.run.tensorflow your_docker_registry/pai.run.tensorflow
 docker push your_docker_registry/pai.run.tensorflow
 ```
+结束后，镜像就可以被访问了。需要注意的是，上面脚本中 docker 仓库是在本地部署，实际的脚本内容依赖于本地仓库的具体配置。
 
-And the image is ready to serve. Note that above script assume the docker registry is deployed locally. Actual script can vary depending on the configuration of Docker registry.
+## 镜像启用 SSH
 
-## Enable SSH for your Image
+在OpenAI里，Docker 镜像如果没有 *openssh-server* 和 *curl* 模块，SSH 服务将无法启动。如果想启用 SSH，参见如下步骤：
 
-In OpenPAI, if a Docker image doesn't have *openssh-server* and *curl* packages, the SSH feature will not work for it. To enable SSH for your image, please follow the steps below.
-
-First, create a file named "example.Dockerfile", and add the following commands to it. Here we use "ufoym/deepo:pytorch-py36-cu90" as an example. You can replace it with your own Docker images.
+首先，创建 "example.Dockerfile" 文件，添加下面的命令. 这里我们使用 "ufoym/deepo:pytorch-py36-cu90" 作为例子。在实际环境中替换成真实的镜像名称。
 
 ```bash
 # replace "ufoym/deepo:pytorch-py36-cu90" with your own docker images
@@ -38,18 +37,18 @@ RUN apt-get update
 RUN apt-get -y install openssh-server curl
 ```
 
-Next, login to the Docker Hub (If you don't have a Docker ID, please check https://hub.docker.com/signup to signup one)
+然后，登录到 Docker Hub (如果没有账号，访问 https://hub.docker.com/signup 注册)。
 
 ```bash
 # follow the instructions to login
 docker login
 ```
 
-Finally, build and push the image with the following commands:
+最后，使用下面的命令构建镜像，并推送到Docker HUB。
+
 
 ```bash
  docker build -f example.Dockerfile -t <Your Docker ID>/pytorch-py36-cu90-ssh .
  docker push <Your Docker ID>/pytorch-py36-cu90-ssh
 ```
-
-Now you can use "\<Your Docker ID\>/pytorch-py36-cu90-ssh" in OpenPAI, and it is SSH enabled.
+现在你可以在 OpenPAI 里使用 "\<Your Docker ID\>/pytorch-py36-cu90-ssh"了，这个镜像支持SSH.
