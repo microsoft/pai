@@ -17,7 +17,7 @@
 
 import c from 'classnames';
 import PropTypes from 'prop-types';
-import { isNil } from 'lodash';
+import { isNil, isNumber } from 'lodash';
 import React, { useEffect, useLayoutEffect, useRef } from 'react';
 import ReactMonacoEditor from 'react-monaco-editor';
 
@@ -97,37 +97,46 @@ const MonacoEditor = ({
   }
 
   return (
-    <div className={c(monacoHack, className)} style={style}>
-      <ReactMonacoEditor
-        // default props
-        className={c(t.flexAuto, monacoClassName)}
-        theme='vs-dark'
-        language='text'
-        // editor did mount
-        editorDidMount={(e, m) => {
-          // save monaco context
-          editor.current = e;
-          monaco.current = m;
-          if (!isNil(monacoRef)) {
-            monacoRef.current = m;
-          }
-
-          // completion provider
-          for (const lang of ['json', 'yaml', 'plaintext', 'shell']) {
-            monaco.current.languages.registerCompletionItemProvider(lang, {
-              provideCompletionItems() {
-                return completionList.current;
-              },
-            });
-          }
-          // json schema
-          setSchemas(monaco.current, schemas);
-          if (editorDidMountFunc !== null) {
-            editorDidMountFunc(e, m);
-          }
+    <div className={c(monacoHack, t.relative, className)} style={style}>
+      <div
+        style={{
+          height: isNumber(monacoProps.height) ? monacoProps.height : null,
+          width: isNumber(monacoProps.width) ? monacoProps.width : null,
         }}
-        {...monacoProps}
-      />
+      >
+        <div className={c(t.absolute, t.absoluteFill)}>
+          <ReactMonacoEditor
+            // default props
+            className={c(t.flexAuto, monacoClassName)}
+            theme='vs-dark'
+            language='text'
+            // editor did mount
+            editorDidMount={(e, m) => {
+              // save monaco context
+              editor.current = e;
+              monaco.current = m;
+              if (!isNil(monacoRef)) {
+                monacoRef.current = m;
+              }
+
+              // completion provider
+              for (const lang of ['json', 'yaml', 'plaintext', 'shell']) {
+                monaco.current.languages.registerCompletionItemProvider(lang, {
+                  provideCompletionItems() {
+                    return completionList.current;
+                  },
+                });
+              }
+              // json schema
+              setSchemas(monaco.current, schemas);
+              if (editorDidMountFunc !== null) {
+                editorDidMountFunc(e, m);
+              }
+            }}
+            {...monacoProps}
+          />
+        </div>
+      </div>
     </div>
   );
 };
