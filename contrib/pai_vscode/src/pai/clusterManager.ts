@@ -156,11 +156,12 @@ export class ClusterManager extends Singleton {
                     async () => {
                         const response: string | undefined = await vscode.window.showInformationMessage(
                             // tslint:disable-next-line: no-multiline-string
-                            `Browser did not connect to local server within 10 seconds.
-                            Do you want to try the alternate sign in using a device code instead?`,
-                            'Use Device Code');
+                            __('cluster.login.timeout'),
+                            __('cluster.login.openPortal'));
                         if (response) {
-                            console.log(response);
+                            cluster.username = '';
+                            cluster.token = '';
+                            cluster.password = undefined;
                         }
                     }
                 );
@@ -170,7 +171,7 @@ export class ClusterManager extends Singleton {
                 cluster.password = undefined;
             }
         } catch (ex) {
-            console.log(ex);
+            cluster.token = '';
         }
     }
 
