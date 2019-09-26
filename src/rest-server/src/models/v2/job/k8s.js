@@ -265,6 +265,8 @@ const generateTaskRole = (taskRole, labels, config) => {
   if ('extraContainerOptions' in config.taskRoles[taskRole]) {
     shmMB = config.taskRoles[taskRole].extraContainerOptions.shmMB || 512;
   }
+  // enable gang scheduling or not
+  const gangAllocation = ('extras' in config && config.extras.gangAllocation === false) ? 'false' : 'true';
   const frameworkTaskRole = {
     name: convertName(taskRole),
     taskNumber: config.taskRoles[taskRole].instances || 1,
@@ -302,6 +304,10 @@ const generateTaskRole = (taskRole, labels, config) => {
                 {
                   name: 'KUBE_APISERVER_ADDRESS',
                   value: launcherConfig.apiServerUri,
+                },
+                {
+                  name: 'GANG_ALLOCATION',
+                  value: gangAllocation,
                 },
               ],
               volumeMounts: [
