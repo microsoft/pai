@@ -40,6 +40,7 @@ export default function Table() {
   );
 
   /**
+   * username column
    * @type {import('office-ui-fabric-react').IColumn}
    */
   const usernameColumn = {
@@ -62,7 +63,7 @@ export default function Table() {
         }
         return '';
       };
-      return ((
+      return (
         <TableTextField
           readOnly={isFinished(userInfo)}
           defaultValue={username}
@@ -71,11 +72,12 @@ export default function Table() {
           }}
           onGetErrorMessage={getErrorMessage}
         />
-      ));
+      );
     },
   };
 
   /**
+   * password column
    * @type {import('office-ui-fabric-react').IColumn}
    */
   const passwordColumn = {
@@ -91,7 +93,7 @@ export default function Table() {
       const getErrorMessage = value => {
         return checkPassword(value);
       };
-      return ((
+      return (
         <TableTextField
           readOnly={isFinished(userInfo)}
           defaultValue={password}
@@ -101,11 +103,12 @@ export default function Table() {
           onGetErrorMessage={getErrorMessage}
           customPasswordStyle={true}
         />
-      ));
+      );
     },
   };
 
   /**
+   * email column
    * @type {import('office-ui-fabric-react').IColumn}
    */
   const emailColumn = {
@@ -121,7 +124,7 @@ export default function Table() {
       const getErrorMessage = value => {
         return checkEmail(value);
       };
-      return ((
+      return (
         <TableTextField
           readOnly={isFinished(userInfo)}
           defaultValue={email}
@@ -130,7 +133,7 @@ export default function Table() {
           }}
           onGetErrorMessage={getErrorMessage}
         />
-      ));
+      );
     },
   };
 
@@ -139,6 +142,7 @@ export default function Table() {
   const dropdownTitleStyle = [t.bgWhite, { border: '1px solid #a6a6a6' }];
 
   /**
+   * admin column
    * @type {import('office-ui-fabric-react').IColumn}
    */
   const adminColumn = {
@@ -159,7 +163,7 @@ export default function Table() {
       ];
       const { admin } = userInfo;
       const finished = isFinished(userInfo);
-      return ((
+      return (
         <Dropdown
           options={options}
           disabled={finished}
@@ -173,11 +177,12 @@ export default function Table() {
             return <span className={t.black}>{text}</span>;
           }}
         />
-      ));
+      );
     },
   };
 
   /**
+   * virtual cluster column
    * @type {import('office-ui-fabric-react').IColumn}
    */
   const virtualClusterColumn = {
@@ -196,7 +201,7 @@ export default function Table() {
         return { key: vc, text: vc };
       });
       const finished = isFinished(userInfo);
-      return ((
+      return (
         <Dropdown
           disabled={finished}
           styles={{ title: dropdownTitleStyle }}
@@ -222,13 +227,14 @@ export default function Table() {
             }
           }}
         />
-      ));
+      );
     },
   };
 
   virtualClusterColumn.onRender.displayName = 'onRenderVirtualClusterColumn';
 
   /**
+   * status column
    * @type {import('office-ui-fabric-react').IColumn}
    */
   const statusColumn = {
@@ -250,17 +256,18 @@ export default function Table() {
       } else {
         return undefined;
       }
-      return ((
+      return (
         <div className={c(t.flex, t.itemsCenter, t.h100)}>
           <TooltipHost content={message}>
             <StatusBadge status={statusText} />
           </TooltipHost>
         </div>
-      ));
+      );
     },
   };
 
   /**
+   * action column
    * @type {import('office-ui-fabric-react').IColumn}
    */
   const actionColumn = {
@@ -276,7 +283,7 @@ export default function Table() {
         event.stopPropagation();
         removeRow(userInfo);
       }
-      return ((
+      return (
         <DefaultButton
           onClick={onClick}
           styles={{
@@ -288,7 +295,7 @@ export default function Table() {
         >
           Remove
         </DefaultButton>
-      ));
+      );
     },
   };
 
