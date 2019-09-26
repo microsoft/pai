@@ -162,6 +162,7 @@ export class ClusterManager extends Singleton {
                             cluster.username = '';
                             cluster.token = '';
                             cluster.password = undefined;
+                            await Util.openExternally(cluster.web_portal_uri!);
                         }
                     }
                 );
