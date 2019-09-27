@@ -52,6 +52,12 @@ function exit_handler()
     fi
   fi
 
+  if [[ $CHILD_PROCESS = "PLUGIN_INITIALIZER" ]]; then
+    if [[ $EXIT_CODE -eq 100 ]]; then
+      exit 254
+    fi
+  fi
+
   # signal triggered, do not change exit code
   if [[ $EXIT_CODE -eq 130 || $EXIT_CODE -eq 131 || $EXIT_CODE -eq 132 || \
         $EXIT_CODE -eq 134 || $EXIT_CODE -eq 135 || $EXIT_CODE -eq 136 || \
@@ -94,11 +100,19 @@ cd ${PAI_WORK_DIR}
 # CHILD_PROCESS="NAME_FOR_THE_INITIALIZER"
 # ${PAI_INIT_DIR}/init.sh
 
-# framework barrier
-# priority=0
-CHILD_PROCESS="FRAMEWORK_BARRIER"
-echo "frameworkbarrier start"
-${PAI_INIT_DIR}/frameworkbarrier 2>&1 | tee ${PAI_LOG_DIR}/barrier.log 
+if [[ $GANG_ALLOCATION = "true" ]]; then
+  # framework barrier
+  # priority=0
+  CHILD_PROCESS="FRAMEWORK_BARRIER"
+  echo "frameworkbarrier start"
+  ${PAI_INIT_DIR}/frameworkbarrier 2>&1 | tee ${PAI_LOG_DIR}/barrier.log
+else
+  # Get framework
+  # priority=0
+  # We should use k8s client to communicate api server, need to change this when RBAC is enabled
+  CHILD_PROCESS="FRAMEWORK_RETRIEVER"
+  curl -s $KUBE_APISERVER_ADDRESS/apis/frameworkcontroller.microsoft.com/v1/namespaces/default/frameworks/$FC_FRAMEWORK_NAME > framework.json
+fi
 
 # error spec
 # priority=1

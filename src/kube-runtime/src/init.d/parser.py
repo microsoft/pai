@@ -83,8 +83,11 @@ def generate_runtime_env(framework):
             def get_port_base(x):
                 return int(ports[x]["start"]) + int(ports[x]["count"]) * int(index)
 
-            # export ip/port for task role
-            export("PAI_HOST_IP_{}_{}".format(name, index), current_ip)
+            # export ip/port for task role, current ip maybe None for non-gang-allocation
+            if current_ip:
+                export("PAI_HOST_IP_{}_{}".format(name, index), current_ip)
+                host_list.append("{}:{}".format(current_ip, get_port_base("http")))
+
             for port in ports.keys():
                 start, count = get_port_base(port), int(ports[port]["count"])
                 current_port_str = ",".join(str(x) for x in range(start, start + count))
@@ -106,7 +109,6 @@ def generate_runtime_env(framework):
                     port_str += "{}:{};".format(port, current_port_str)
                 export("PAI_CONTAINER_HOST_PORT_LIST", port_str)
 
-            host_list.append("{}:{}".format(current_ip, get_port_base("http")))
         export("PAI_TASK_ROLE_{}_HOST_LIST".format(name), ",".join(host_list))
     export("PAI_TASK_ROLE_INSTANCES", ",".join(taskrole_instances))
 
