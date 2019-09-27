@@ -9,7 +9,7 @@ setup(name='openpaisdk',
           'requests', 'hdfs', 'PyYAML', 'requests-toolbelt', 'html2text', 'tabulate'
       ],
       entry_points={
-          'console_scripts': ['opai=openpaisdk.command_line:main'],
+          'console_scripts': ['pai=openpaisdk.command_line:main_pai'],
       },
       zip_safe=False
       )
