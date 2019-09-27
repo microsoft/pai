@@ -46,8 +46,8 @@ def run_script(script_path, parameters, plugin_scripts):
     if proc.returncode:
         logger.error("failed to run %s, error code is %s", script_path, proc.returncode)
 
-
-def is_plugin_validate(jobConfig) -> bool:
+# just a workaround, need to remove this function in the future
+def is_plugin_validate(jobConfig):
     """Check if plugins validate.
 
     Args:
@@ -55,7 +55,9 @@ def is_plugin_validate(jobConfig) -> bool:
     Return:
         True if all plugin is validate, otherwise return false
     """
-    gang_allocation = os.environ('GANG_ALLOCATION')
+    if "extras" not in jobconfig or "com.microsoft.pai.runtimeplugin" not in jobconfig["extras"]:
+        return True
+    gang_allocation = os.environ.get('GANG_ALLOCATION')
     if gang_allocation == 'false':
         for index in range(len(jobconfig["extras"]["com.microsoft.pai.runtimeplugin"])):
             plugin = jobconfig["extras"]["com.microsoft.pai.runtimeplugin"][index]

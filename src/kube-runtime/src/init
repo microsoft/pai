@@ -52,12 +52,6 @@ function exit_handler()
     fi
   fi
 
-  if [[ $CHILD_PROCESS = "PLUGIN_INITIALIZER" ]]; then
-    if [[ $EXIT_CODE -eq 100 ]]; then
-      exit 254
-    fi
-  fi
-
   # signal triggered, do not change exit code
   if [[ $EXIT_CODE -eq 130 || $EXIT_CODE -eq 131 || $EXIT_CODE -eq 132 || \
         $EXIT_CODE -eq 134 || $EXIT_CODE -eq 135 || $EXIT_CODE -eq 136 || \
