@@ -47,7 +47,7 @@ location ~ ^/rest-server/api(.*)$ {
   subs_filter
     \"containerLog\":\"http://([^/]*):(\d+)/log-manager/(.*)\"
     \"containerLog\":\"/log-manager/$1:$2/$3\"
-    r;
+    rg;
 
   proxy_set_header    If-None-Match    $request_if_none_match;
   add_header          Etag             $response_etag;
