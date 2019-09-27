@@ -94,11 +94,19 @@ cd ${PAI_WORK_DIR}
 # CHILD_PROCESS="NAME_FOR_THE_INITIALIZER"
 # ${PAI_INIT_DIR}/init.sh
 
-# framework barrier
-# priority=0
-CHILD_PROCESS="FRAMEWORK_BARRIER"
-echo "frameworkbarrier start"
-${PAI_INIT_DIR}/frameworkbarrier 2>&1 | tee ${PAI_LOG_DIR}/barrier.log 
+if [[ $GANG_ALLOCATION = "true" ]]; then
+  # framework barrier
+  # priority=0
+  CHILD_PROCESS="FRAMEWORK_BARRIER"
+  echo "frameworkbarrier start"
+  ${PAI_INIT_DIR}/frameworkbarrier 2>&1 | tee ${PAI_LOG_DIR}/barrier.log
+else
+  # Get framework
+  # priority=0
+  # We should use k8s client to communicate api server, need to change this when RBAC is enabled
+  CHILD_PROCESS="FRAMEWORK_RETRIEVER"
+  curl -s $KUBE_APISERVER_ADDRESS/apis/frameworkcontroller.microsoft.com/v1/namespaces/default/frameworks/$FC_FRAMEWORK_NAME > framework.json
+fi
 
 # error spec
 # priority=1
