@@ -41,6 +41,10 @@ func NewSet(items ...T) Set {
 	return s
 }
 
+func (s Set) Items() map[T]Empty {
+	return s.items
+}
+
 func (s Set) Contains(item T) bool {
 	_, exists := s.items[item]
 	return exists
@@ -54,6 +58,10 @@ func (s Set) Add(item T) Set {
 func (s Set) Delete(item T) Set {
 	delete(s.items, item)
 	return s
+}
+
+func (s Set) IsEmpty() bool {
+	return len(s.items) == 0
 }
 
 type ImmutableSet struct {

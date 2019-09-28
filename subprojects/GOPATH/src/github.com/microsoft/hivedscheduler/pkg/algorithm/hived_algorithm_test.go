@@ -48,7 +48,7 @@ func initNodes(h *HivedAlgorithm) {
 	}
 }
 
-var pod1, pod2, pod3, pod4, pod5, pod6, pod7, pod8, pod9, pod10, pod11, pod12, pod13, pod14, pod15 = &core.Pod{
+var pod1, pod2, pod3, pod4, pod5, pod6, pod7, pod8, pod9, pod10, pod11, pod12, pod13, pod14 = &core.Pod{
 	ObjectMeta: meta.ObjectMeta{
 		Name:        "pod1",
 		Namespace:   "test",
@@ -146,13 +146,6 @@ var pod1, pod2, pod3, pod4, pod5, pod6, pod7, pod8, pod9, pod10, pod11, pod12, p
 		UID:         "pod14",
 		Annotations: map[string]string{},
 	},
-}, &core.Pod{
-	ObjectMeta: meta.ObjectMeta{
-		Name:        "pod15",
-		Namespace:   "test",
-		UID:         "pod15",
-		Annotations: map[string]string{},
-	},
 }
 
 var group1, group2, group3, group4, group5, group6, group7, group8, group9, group10 = &api.AffinityGroup{
@@ -163,7 +156,7 @@ var group1, group2, group3, group4, group5, group6, group7, group8, group9, grou
 	Members: []api.AffinityGroupMember{{PodNumber: 1, GpuNumber: 1}},
 }, &api.AffinityGroup{
 	Name:    "group3",
-	Members: []api.AffinityGroupMember{{PodNumber: 2, GpuNumber: 1}},
+	Members: []api.AffinityGroupMember{{PodNumber: 1, GpuNumber: 8}},
 }, &api.AffinityGroup{
 	Name:    "group4",
 	Members: []api.AffinityGroupMember{{PodNumber: 1, GpuNumber: 1}},
@@ -175,7 +168,7 @@ var group1, group2, group3, group4, group5, group6, group7, group8, group9, grou
 	Members: []api.AffinityGroupMember{{PodNumber: 1, GpuNumber: 1}},
 }, &api.AffinityGroup{
 	Name:    "group7",
-	Members: []api.AffinityGroupMember{{PodNumber: 2, GpuNumber: 8}},
+	Members: []api.AffinityGroupMember{{PodNumber: 3, GpuNumber: 8}},
 }, &api.AffinityGroup{
 	Name:    "group8",
 	Members: []api.AffinityGroupMember{{PodNumber: 1, GpuNumber: 8}},
@@ -195,34 +188,34 @@ var pss = map[types.UID]api.PodSchedulingSpec{
 		GpuType:        "DGX2-V100",
 		GpuNumber:      1,
 		AffinityGroup:  group1,
-	}, "pod2": { // shouldn't be buddy of pod1 (due to preemption-avoidance)
+	}, "pod2": { // buddy of pod1
 		VirtualCluster: "VC1",
 		Priority:       1,
 		ReservationId:  "",
 		GpuType:        "DGX2-V100",
 		GpuNumber:      1,
 		AffinityGroup:  group2,
-	}, "pod3": { // share the same cell with pod4
+	}, "pod3": { // non-buddy of pod 1 & 2 (avoidance of preemption)
 		VirtualCluster: "VC1",
-		Priority:       1,
+		Priority:       2,
 		ReservationId:  "",
 		GpuType:        "DGX2-V100",
-		GpuNumber:      1,
+		GpuNumber:      8,
 		AffinityGroup:  group3,
-	}, "pod4": { // share the same cell with pod3
-		VirtualCluster: "VC1",
-		Priority:       1,
-		ReservationId:  "",
-		GpuType:        "DGX2-V100",
-		GpuNumber:      1,
-		AffinityGroup:  group3,
-	}, "pod5": { // low-priority pod
+	}, "pod4": { // opportunistic pod (will stay away from the guaranteed pods)
 		VirtualCluster: "VC1",
 		Priority:       -1,
 		ReservationId:  "",
 		GpuType:        "DGX2-V100",
 		GpuNumber:      1,
 		AffinityGroup:  group4,
+	}, "pod5": { // use reservation
+		VirtualCluster: "VC1",
+		Priority:       1,
+		ReservationId:  "VC1-YQW-DGX2",
+		GpuType:        "DGX2-V100",
+		GpuNumber:      1,
+		AffinityGroup:  group5,
 	}, "pod6": { // use reservation
 		VirtualCluster: "VC1",
 		Priority:       1,
@@ -230,34 +223,34 @@ var pss = map[types.UID]api.PodSchedulingSpec{
 		GpuType:        "DGX2-V100",
 		GpuNumber:      1,
 		AffinityGroup:  group5,
-	}, "pod7": { // use reservation
-		VirtualCluster: "VC1",
-		Priority:       1,
-		ReservationId:  "VC1-YQW-DGX2",
-		GpuType:        "DGX2-V100",
-		GpuNumber:      1,
-		AffinityGroup:  group5,
-	}, "pod8": { // out of quota; should return PodWaitInfo
+	}, "pod7": { // out of quota; should return PodWaitInfo
 		VirtualCluster: "VC2",
 		Priority:       1,
 		ReservationId:  "",
 		GpuType:        "DGX1-P100",
 		GpuNumber:      8,
 		AffinityGroup:  group7,
-	}, "pod9": { // any GPU type
+	}, "pod8": { // any GPU type
 		VirtualCluster: "VC2",
 		Priority:       1,
 		ReservationId:  "",
 		GpuType:        "",
 		GpuNumber:      1,
 		AffinityGroup:  group9,
-	}, "pod10": { // use a GPU type that the VC does not have; should panic BadRequest
+	}, "pod9": { // use a GPU type that the VC does not have; should panic BadRequest
 		VirtualCluster: "VC2",
 		Priority:       1,
 		ReservationId:  "",
 		GpuType:        "DGX2-V100",
 		GpuNumber:      1,
 		AffinityGroup:  group6,
+	}, "pod10": { // invalid affinity group configuration
+		VirtualCluster: "VC2",
+		Priority:       1,
+		ReservationId:  "",
+		GpuType:        "DGX1-P100",
+		GpuNumber:      8,
+		AffinityGroup:  group8,
 	}, "pod11": { // invalid affinity group configuration
 		VirtualCluster: "VC2",
 		Priority:       1,
@@ -265,28 +258,21 @@ var pss = map[types.UID]api.PodSchedulingSpec{
 		GpuType:        "DGX1-P100",
 		GpuNumber:      8,
 		AffinityGroup:  group8,
-	}, "pod12": { // invalid affinity group configuration
-		VirtualCluster: "VC2",
-		Priority:       1,
-		ReservationId:  "",
-		GpuType:        "DGX1-P100",
-		GpuNumber:      8,
-		AffinityGroup:  group8,
-	}, "pod13": { // invalid VC
+	}, "pod12": { // invalid VC
 		VirtualCluster: "surprise!",
 		Priority:       1,
 		ReservationId:  "",
 		GpuType:        "DGX1-P100",
 		GpuNumber:      1,
 		AffinityGroup:  group10,
-	}, "pod14": { // invalid reservation
+	}, "pod13": { // invalid reservation
 		VirtualCluster: "VC2",
 		Priority:       1,
 		ReservationId:  "surprise!",
 		GpuType:        "DGX1-P100",
 		GpuNumber:      1,
 		AffinityGroup:  group10,
-	}, "pod15": { // invalid priority
+	}, "pod14": { // invalid priority
 		VirtualCluster: "VC2",
 		Priority:       1001,
 		ReservationId:  "",
@@ -297,11 +283,11 @@ var pss = map[types.UID]api.PodSchedulingSpec{
 }
 
 var casesThatShouldSucceed = []*core.Pod{
-	pod1, pod2, pod3, pod4, pod5, pod6, pod7, pod8, pod9,
+	pod1, pod2, pod3, pod4, pod5, pod6, pod7, pod8,
 }
 
 var casesThatShouldFail = [][]*core.Pod{
-	{pod10}, {pod11, pod12}, {pod13}, {pod14}, {pod15},
+	{pod9}, {pod10, pod11}, {pod12}, {pod13}, {pod14},
 }
 
 type result struct {
@@ -311,13 +297,12 @@ type result struct {
 
 var expectedResult = map[*core.Pod]result{
 	pod1: {node: "0.0.1.0", gpuIsolation: []int32{0}},
-	pod2: {node: "0.0.5.0", gpuIsolation: []int32{0}},
-	pod3: {node: "0.0.5.0", gpuIsolation: []int32{2}},
-	pod4: {node: "0.0.5.0", gpuIsolation: []int32{3}},
-	pod5: {node: "0.0.1.0", gpuIsolation: []int32{1}},
+	pod2: {node: "0.0.1.0", gpuIsolation: []int32{1}},
+	pod3: {node: "0.0.1.0", gpuIsolation: []int32{8, 9, 10, 11, 12, 13, 14, 15}},
+	pod4: {node: "0.0.5.0", gpuIsolation: []int32{0}},
+	pod5: {node: "0.0.3.0", gpuIsolation: []int32{1}},
 	pod6: {node: "0.0.3.0", gpuIsolation: []int32{0}},
-	pod7: {node: "0.0.3.0", gpuIsolation: []int32{1}},
-	pod9: {node: "1.0.0.2", gpuIsolation: []int32{0}},
+	pod8: {node: "1.0.0.2", gpuIsolation: []int32{0}},
 }
 
 var allocatedPods []*core.Pod
@@ -439,114 +424,9 @@ func printConfig(t *testing.T, h *HivedAlgorithm) {
 			t.Logf("%v", ccl)
 		}
 	}
-	for chain, levelNums := range h.gpuNums {
-		t.Logf("%v", chain)
-		for level, num := range levelNums {
-			t.Logf("%v: %v GPUs", level, num)
-		}
-	}
 	for gpuType, chains := range h.chains {
 		t.Logf("%v: %v", gpuType, chains)
 	}
-}
-
-func TestBuddyAlloc(t *testing.T) {
-	chain := CellChain("test")
-	spec := map[CellLevel]int32{1: 0, 2: 2, 3: 2, 4: 2, 5: 1}
-	fullCellList := constructChainCellList("vc1", chain, 5, 2, spec)
-
-	requestCell(t, fullCellList, -1, 1)
-	requestCell(t, fullCellList, 2, 1)
-	requestCell(t, fullCellList, 3, 3)
-	requestCell(t, fullCellList, 2, 1)
-}
-
-func constructChainCellList(
-	vc string,
-	chain CellChain,
-	topLevel CellLevel,
-	numTop int32,
-	spec map[CellLevel]int32) ChainCellList {
-
-	isVirtual := true
-	if len(vc) == 0 {
-		isVirtual = false
-		vc = "physical"
-	}
-
-	ccl := NewChainCellList(topLevel)
-	for i := int32(0); i < numTop; i++ {
-		if isVirtual {
-			constructVirtualCellListForOneTop(vc, chain, topLevel, nil, spec, ccl)
-		} else {
-			constructPhysicalCellListForOneTop(chain, topLevel, spec, ccl)
-		}
-	}
-	return ccl
-}
-
-func constructPhysicalCellListForOneTop(
-	chain CellChain,
-	l CellLevel,
-	spec map[CellLevel]int32,
-	ccl ChainCellList) *PhysicalCell {
-
-	c := NewPhysicalCell(chain, l)
-	if spec[l] > 0 {
-		children := make(CellList, spec[l])
-		for i := int32(0); i < spec[l]; i++ {
-			child := constructPhysicalCellListForOneTop(chain, l-1, spec, ccl)
-			child.SetParent(c)
-			children[i] = child
-		}
-		c.SetChildren(children)
-	}
-	ccl[l] = append(ccl[l], c)
-	return c
-}
-
-func constructVirtualCellListForOneTop(
-	vc string,
-	chain CellChain,
-	l CellLevel,
-	pac *VirtualCell,
-	spec map[CellLevel]int32,
-	ccl ChainCellList) *VirtualCell {
-
-	c := NewVirtualCell(api.VirtualClusterName(vc), chain, l, int32(0), pac)
-	if pac == nil {
-		c.SetPreAssignedCell(c)
-	}
-	if spec[l] > 0 {
-		children := make(CellList, spec[l])
-		for i := int32(0); i < spec[l]; i++ {
-			child := constructVirtualCellListForOneTop(vc, chain, l-1, c.GetPreAssignedCell(), spec, ccl)
-			child.SetParent(c)
-			children[i] = child
-		}
-		c.SetChildren(children)
-	}
-	ccl[l] = append(ccl[l], c)
-	return c
-}
-
-func requestCell(t *testing.T, fullCellList ChainCellList, p CellPriority, l CellLevel) Cell {
-	t.Logf("Requesting: level %v with priority %v", l, p)
-	cellView := getCellViewWithPriority(fullCellList, p)
-	t.Logf("==== Before allocation ====")
-	t.Logf("%v", cellView)
-	c := buddyAlloc(cellView, l)
-	if c != nil {
-		setSelfAndParentPriority(c, p, unlimitedLevel)
-		setChildrenPriority(c, freePriority)
-		t.Logf("Return cell %v", c.GetName())
-	} else {
-		t.Logf("No cell returned")
-	}
-	t.Logf("==== After allocation ====")
-	t.Logf("%v", cellView)
-	t.Logf("")
-	return c
 }
 
 func sortChains(chains []CellChain) {

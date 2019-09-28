@@ -25,6 +25,7 @@ package algorithm
 import (
 	"fmt"
 	"github.com/microsoft/hivedscheduler/pkg/api"
+	"k8s.io/klog"
 	"strings"
 )
 
@@ -33,6 +34,14 @@ type (
 	CellLevel    int32  // starts from 1
 	CellPriority int32
 )
+
+type schedulingRequest struct {
+	vc            api.VirtualClusterName
+	reservationId api.ReservationId
+	chain         CellChain
+	podGpuNumbers map[int32]int32
+	priority      CellPriority
+}
 
 type CellRequest struct {
 	VC            api.VirtualClusterName
@@ -57,11 +66,49 @@ func (cl CellList) String() string {
 	return strings.Join(names, ", ")
 }
 
+func (cl CellList) removeCell(c Cell) CellList {
+	index := -1
+	for i, cc := range cl {
+		if cc == c {
+			index = i
+			break
+		}
+	}
+	if index < 0 {
+		panic(fmt.Sprintf("Cell not not found in list when removing: %v",
+			c.GetName()))
+	}
+	length := len(cl)
+	cl[index] = cl[length-1]
+	cl[length-1] = nil
+	return cl[:length-1]
+}
+
+func (cl CellList) Len() int {
+	return len(cl)
+}
+
+func (cl CellList) Less(i int, j int) bool {
+	if cl[i].GetUsedGpuNumSamePriority() > cl[j].GetUsedGpuNumSamePriority() {
+		return true
+	} else if cl[i].GetUsedGpuNumSamePriority() < cl[j].GetUsedGpuNumSamePriority() {
+		return false
+	} else if cl[i].GetUsedGpuNumOtherPriority() < cl[j].GetUsedGpuNumOtherPriority() {
+		return true
+	} else {
+		return false
+	}
+}
+
+func (cl CellList) Swap(i int, j int) {
+	cl[i], cl[j] = cl[j], cl[i]
+}
+
 // ChainCellList maps each level in a chain to a CellList.
 type ChainCellList map[CellLevel]CellList
 
 func NewChainCellList(top CellLevel) ChainCellList {
-	ccl := make(map[CellLevel]CellList)
+	ccl := ChainCellList{}
 	for i := CellLevel(1); i <= top; i++ {
 		ccl[i] = CellList{}
 	}
@@ -76,9 +123,16 @@ func (ccl ChainCellList) String() string {
 	return str
 }
 
+func (ccl ChainCellList) removeCell(c Cell, l CellLevel) {
+	ccl[l] = ccl[l].removeCell(c)
+	klog.Infof("Cell removed from cell list: %v", c.GetName())
+}
+
 type AlgoAffinityGroup struct {
-	cell               *PhysicalCell
-	unallocatedPodNums map[int32]int32 // GpuNum -> PodNum
+	cell                 *PhysicalCell
+	unallocatedPodNums   map[int32]int32 // GpuNum -> PodNum
+	physicalGpuPlacement map[int32][]CellList
+	vcGpuPlacement       map[int32][]CellList
 }
 
 func newAlgoAffinityGroup(g *api.AffinityGroup) *AlgoAffinityGroup {
@@ -88,5 +142,7 @@ func newAlgoAffinityGroup(g *api.AffinityGroup) *AlgoAffinityGroup {
 	}
 	return &AlgoAffinityGroup{
 		unallocatedPodNums: numPods,
+		physicalGpuPlacement: map[int32][]CellList{},
+		vcGpuPlacement: map[int32][]CellList{},
 	}
 }

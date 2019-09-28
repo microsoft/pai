@@ -96,15 +96,20 @@ type PodBindInfo struct {
 	// The node to bind
 	Node string `yaml:"node"`
 	// The GPUs to bind
-	GpuIsolation          []int32  `yaml:"gpuIsolation"`
-	CellChain             string   `yaml:"cellChain"`
-	PodCellLevel          int32    `yaml:"podCellLevel"`
-	PodCellGpuPlacement   Range    `yaml:"podCellGpuRange"`
-	GroupCellLevel        int32    `yaml:"groupCellLevel"`
-	GroupCellNodes        []string `yaml:"groupCellNodes"`
-	GroupCellGpuPlacement Range    `yaml:"groupCellGpuRange"`
-	VirtualCellLevel      int32    `yaml:"virtualCellLevel"`
-	VirtualCellIndex      int32    `yaml:"virtualCellIndex"`
+	GpuIsolation      []int32                   `yaml:"gpuIsolation"`
+	CellChain         string                    `yaml:"cellChain"`
+	GroupScheduleInfo []GroupMemberScheduleInfo `yaml:"groupScheduleInfo"`
+}
+
+type GroupMemberScheduleInfo struct {
+	GpuNumber int32                  `yaml:"gpuNumber"`
+	PodPlacements []PodPlacementInfo `yaml:"podPlacements"`
+}
+
+type PodPlacementInfo struct {
+	PhysicalNode          string  `yaml:"physicalNodes"`
+	PhysicalGpuIndices    []int32 `yaml:"physicalGpuIndices"`
+	VirtualGpuCellIndices []int32 `yaml:"virtualGpuCellIndices"`
 }
 
 type Range struct {
