@@ -267,7 +267,7 @@ const generateTaskRole = (taskRole, labels, config) => {
   }
   // enable gang scheduling or not
   let gangAllocation = 'true';
-  let retryPolicy = {
+  const retryPolicy = {
     fancyRetryPolicy: false,
     maxRetryCount: 0,
   };
