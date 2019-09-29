@@ -95,7 +95,10 @@ export const NotificationButton = () => {
     <React.Fragment>
       <i
         className={c('fa fa-bell-o')}
-        style={{ fontSize: '16px' }}
+        style={{
+          fontSize: '16px',
+          cursor: 'pointer',
+        }}
         onClick={open}
       />
       <span

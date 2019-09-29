@@ -53,12 +53,11 @@ if (userAuthComponent.checkAdmin()) {
     $('#sidebar-menu--vc').show();
   }
   $('#sidebar-menu--cluster-view').show();
+  ReactDOM.render(
+    <alerts.NotificationButton />,
+    document.getElementById('notification-button'),
+  );
 }
-
-const notificationButtonContainer = document.getElementById(
-  'notification-button',
-);
-ReactDOM.render(<alerts.NotificationButton />, notificationButtonContainer);
 
 if (config.authnMethod !== 'OIDC') {
   $('#sidebar-menu--cluster-view--user-management').show();
