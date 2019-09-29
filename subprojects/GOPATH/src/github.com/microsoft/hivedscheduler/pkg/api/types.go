@@ -102,7 +102,7 @@ type PodBindInfo struct {
 }
 
 type GroupMemberScheduleInfo struct {
-	GpuNumber int32                  `yaml:"gpuNumber"`
+	GpuNumber     int32              `yaml:"gpuNumber"`
 	PodPlacements []PodPlacementInfo `yaml:"podPlacements"`
 }
 

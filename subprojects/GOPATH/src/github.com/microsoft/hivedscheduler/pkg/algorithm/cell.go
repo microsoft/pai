@@ -54,18 +54,20 @@ type Cell interface {
 }
 
 type GenericCell struct {
-	chain                  CellChain
-	level                  CellLevel
-	priority               CellPriority // priority of a cell is max of those of its children and itself
-	parent                 Cell         // pointer to its parent cell
-	children               CellList     // pointer to its children cells
-	atOrHigherThanNode     bool
+	chain              CellChain
+	level              CellLevel
+	priority           CellPriority
+	parent             Cell     // pointer to its parent cell
+	children           CellList // pointer to its children cells
+	atOrHigherThanNode bool     // true if the cell is at or higher than node level
 
-	totalGpuNum int32
-	freeGpuNum int32
-	freeGpuNumForPriority int32
-	usedGpuNumAtPriority   map[CellPriority]int32
+	totalGpuNum           int32                  // total GPU number of a cell
+	freeGpuNum            int32                  // free GPU number of a cell
+	freeGpuNumForPriority int32                  // free GPU number for a certain priority (lower priority considered as free)
+	usedGpuNumAtPriority  map[CellPriority]int32 // GPU number used by each priority
+	// GPU number used by the same priority (used for sorting cells in topologyAwareScheduler)
 	usedGpuNumSamePriority int32
+	// GPU number used by other priorities (used for sorting cells in topologyAwareScheduler)
 	usedGpuNumOtherPriority int32
 }
 
@@ -159,24 +161,24 @@ func (c *GenericCell) SetUsedGpuNumAllPriority(p CellPriority) {
 // PhysicalCell defines a cell in the physical cluster.
 type PhysicalCell struct {
 	GenericCell
-	nodes       []string     // node names inside the cell
-	gpuIndices  []int32      // [-1] for cells at levels higher than node
-	pods        []*core.Pod  // pods running in this cell or its children
-	virtualCell *VirtualCell // points to the bound virtual cell
+	nodes          []string     // node names inside the cell
+	gpuIndices     []int32      // [-1] for cells at levels higher than node
+	pods           []*core.Pod  // pods running in this cell or its children
+	virtualCell    *VirtualCell // points to the bound virtual cell
 	tmpVirtualCell *VirtualCell // points to the temporarily bound virtual cell (before the binding is confirmed)
-	split bool
-	reserved    bool         // true when this is a reserved cell
+	split          bool         // true when the cell has been split
+	reserved       bool         // true when this is a reserved cell
 }
 
 func NewPhysicalCell(c CellChain, l CellLevel, g bool, n int32) *PhysicalCell {
 	return &PhysicalCell{
 		GenericCell: GenericCell{
-			chain:              c,
-			level:              l,
-			priority:           freePriority,
-			atOrHigherThanNode: g,
-			totalGpuNum:n,
-			freeGpuNum:n,
+			chain:                c,
+			level:                l,
+			priority:             freePriority,
+			atOrHigherThanNode:   g,
+			totalGpuNum:          n,
+			freeGpuNum:           n,
 			usedGpuNumAtPriority: map[CellPriority]int32{},
 		},
 		pods: []*core.Pod{},
@@ -267,7 +269,7 @@ type VirtualCell struct {
 	indexInChain    int32                  // index of the cell in the ChainCellList it belongs to (assigned in initialization)
 	preAssignedCell *VirtualCell           // top level cell of this cell chain
 	physicalCell    *PhysicalCell          // points to the bound physical cell
-	tmpPhysicalCell *PhysicalCell // points to the temporarily bound physical cell (before the binding is confirmed)
+	tmpPhysicalCell *PhysicalCell          // points to the temporarily bound physical cell (before the binding is confirmed)
 }
 
 func NewVirtualCell(vc api.VirtualClusterName,
@@ -280,11 +282,11 @@ func NewVirtualCell(vc api.VirtualClusterName,
 
 	return &VirtualCell{
 		GenericCell: GenericCell{
-			chain:              c,
-			level:              l,
-			priority:           freePriority,
-			atOrHigherThanNode: g,
-			totalGpuNum:n,
+			chain:                c,
+			level:                l,
+			priority:             freePriority,
+			atOrHigherThanNode:   g,
+			totalGpuNum:          n,
 			usedGpuNumAtPriority: map[CellPriority]int32{},
 		},
 		vc:              vc,

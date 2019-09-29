@@ -99,7 +99,7 @@ func (h *HivedAlgorithm) Schedule(pod *core.Pod, suggestedNodes []string) intern
 		groupPhysicalPlacement map[int32][]CellList
 		groupVcPlacement       map[int32][]CellList
 		podIndex               int32
-		newGroup bool
+		newGroup               bool
 	)
 	if group := h.allocatedAffinityGroups[s.AffinityGroup.Name]; group == nil {
 		newGroup = true
@@ -124,6 +124,7 @@ func (h *HivedAlgorithm) Schedule(pod *core.Pod, suggestedNodes []string) intern
 		groupPhysicalPlacement, groupVcPlacement, podIndex, suggestedNodes, pod, newGroup)
 }
 
+// TODO: reconfig; suggestedNodes (failure)
 func (h *HivedAlgorithm) AddAllocatedPod(pod *core.Pod) {
 	h.algorithmLock.Lock()
 	defer h.algorithmLock.Unlock()
@@ -165,6 +166,7 @@ func (h *HivedAlgorithm) AddAllocatedPod(pod *core.Pod) {
 			}
 		}
 		h.allocatedAffinityGroups[s.AffinityGroup.Name] = newGroup
+		klog.Infof("New affinity group created: %v", s.AffinityGroup.Name)
 	}
 	for _, gpuIndex := range info.GpuIsolation {
 		h.findPhysicalGpu(chain, info.Node, gpuIndex).AddPod(pod)
@@ -206,6 +208,7 @@ func (h *HivedAlgorithm) DeleteAllocatedPod(pod *core.Pod) {
 				}
 			}
 			delete(h.allocatedAffinityGroups, s.AffinityGroup.Name)
+			klog.Infof("Affinity group deleted: %v", s.AffinityGroup.Name)
 		}
 	}
 }
@@ -241,6 +244,7 @@ func (h *HivedAlgorithm) validateInitialAssignment() {
 	}
 }
 
+// initFreeCellList initializes the free cell list (i.e., top level cells in each chain).
 func (h *HivedAlgorithm) initFreeCellList() {
 	for chain, ccl := range h.fullCellList {
 		topLevel := CellLevel(len(ccl))
@@ -250,7 +254,8 @@ func (h *HivedAlgorithm) initFreeCellList() {
 	}
 }
 
-// initReservations creates bindings and sets priorities for the reserved cells.
+// initReservations creates static bindings for the reserved cells, and removes the
+// reserved physical cells from the free cell list.
 func (h *HivedAlgorithm) initReservations() {
 	for vc, vcReservation := range h.reservedCells {
 		for rid, physical := range vcReservation {
@@ -264,6 +269,8 @@ func (h *HivedAlgorithm) initReservations() {
 	}
 }
 
+// scheduleNewAffinityGroup schedules each pod of a new affinity group to a set of GPUs
+// (in both the physical cluster and the VC).
 func (h *HivedAlgorithm) scheduleNewAffinityGroup(
 	pod *core.Pod,
 	s *api.PodSchedulingSpec) (map[int32][]CellList, map[int32][]CellList) {
@@ -282,12 +289,12 @@ func (h *HivedAlgorithm) scheduleNewAffinityGroup(
 		vc:            s.VirtualCluster,
 		reservationId: s.ReservationId,
 		priority:      priority,
-		podGpuNumbers:map[int32]int32{},
+		podGpuNumbers: map[int32]int32{},
 	}
-	h.validateSchedulingRequest(sr, pod)
 	for _, m := range s.AffinityGroup.Members {
 		sr.podGpuNumbers[m.GpuNumber] = m.PodNumber
 	}
+	h.validateSchedulingRequest(sr, pod)
 	if sr.reservationId != "" {
 		klog.Infof("Use reservation %v", s.ReservationId)
 		sr.chain = h.reservedCells[sr.vc][sr.reservationId].GetChain()
@@ -303,6 +310,9 @@ func (h *HivedAlgorithm) scheduleNewAffinityGroup(
 	return physicalPlacement, vcPlacement
 }
 
+// scheduleAffinityGroupForGpuType schedules an affinity group in a certain cell chain.
+// If a GPU type is specified, it will be scheduled to a chain that contains this GPU type.
+// Otherwise any GPU type will be tried.
 func (h *HivedAlgorithm) scheduleAffinityGroupForGpuType(
 	sr schedulingRequest,
 	gpuType string,
@@ -361,54 +371,67 @@ func (h *HivedAlgorithm) validateSchedulingRequest(sr schedulingRequest, pod *co
 	}
 }
 
+// processSchedulingRequest feeds a request to a VC scheduler
+// or the opportunistic scheduler according to its priority.
 func (h *HivedAlgorithm) processSchedulingRequest(sr schedulingRequest) (map[int32][]CellList, map[int32][]CellList) {
 	if sr.priority >= regularPriority {
-		return h.scheduleGuaranteedPods(sr)
+		return h.scheduleRegularAffinityGroup(sr)
 	} else {
-		return h.scheduleOpportunisticPods(sr), nil
+		return h.scheduleOpportunisticAffinityGroup(sr), nil
 	}
 }
 
-func (h *HivedAlgorithm) scheduleGuaranteedPods(sr schedulingRequest) (map[int32][]CellList, map[int32][]CellList) {
+// scheduleRegularAffinityGroup schedules an affinity group in its VC, and
+// then maps the placement in VC to the physical cluster.
+func (h *HivedAlgorithm) scheduleRegularAffinityGroup(sr schedulingRequest) (map[int32][]CellList, map[int32][]CellList) {
+	// schedule in VC
 	vcPlacement := h.vcSchedulers[sr.vc].schedule(sr)
-	if vcPlacement != nil {
-		physicalPlacement := map[int32][]CellList{}
-		for podGpuNum, podPlacements := range vcPlacement {
-			physicalPlacement[podGpuNum] = make([]CellList, len(podPlacements))
-			for i, podGpus := range podPlacements {
-				physicalPlacement[podGpuNum][i] = make(CellList, len(podGpus))
-				for j, gpu := range podGpus {
-					vGpu := gpu.(*VirtualCell)
-					pac := vGpu.GetPreAssignedCell()
-					preassignedPhysical := pac.GetPhysicalCell()
-					if preassignedPhysical == nil {
-						preassignedPhysical = pac.GetTmpPhysicalCell()
-					}
-					if preassignedPhysical == nil {
-						c := buddyAlloc(h.getTmpFreeCellList(sr.chain), pac.GetLevel())
-						if c == nil {
-							panic(fmt.Sprintf(
-								"Cannot find physical cell for a VC cell: %v", pac.GetName()))
-						} else {
-							preassignedPhysical = c
-							pac.SetTmpPhysicalCell(preassignedPhysical)
-							preassignedPhysical.SetTmpVirtualCell(pac)
-						}
-					}
-					physicalPlacement[podGpuNum][i][j] = mapNonPreassignedCellToPhysical(vGpu)
+	if vcPlacement == nil {
+		return nil, nil
+	}
+	// map the vc placement to the physical cluster
+	physicalPlacement := map[int32][]CellList{}
+	for podGpuNum, podPlacements := range vcPlacement {
+		physicalPlacement[podGpuNum] = make([]CellList, len(podPlacements))
+		for i, podGpus := range podPlacements {
+			physicalPlacement[podGpuNum][i] = make(CellList, len(podGpus))
+			for j, gpu := range podGpus {
+				vGpu := gpu.(*VirtualCell)
+				pac := vGpu.GetPreAssignedCell()
+				// check if the preassigned cell has been (temporarily) bound to a physical cell
+				preassignedPhysical := pac.GetPhysicalCell()
+				if preassignedPhysical == nil {
+					preassignedPhysical = pac.GetTmpPhysicalCell()
 				}
+				if preassignedPhysical == nil {
+					// allocate a new physical cell to the preassigned cell. input a copy of the free cell list
+					// because during the scheduling we should not make in-place change to the data structures
+					c := buddyAlloc(h.getTmpFreeCellList(sr.chain), pac.GetLevel())
+					if c == nil {
+						panic(fmt.Sprintf(
+							"Cannot find physical cell for a VC cell: %v", pac.GetName()))
+					} else {
+						preassignedPhysical = c
+						// create binding (which is temporary and will be cleared after the scheduling,
+						// same reason as above)
+						pac.SetTmpPhysicalCell(preassignedPhysical)
+						preassignedPhysical.SetTmpVirtualCell(pac)
+					}
+				}
+				physicalPlacement[podGpuNum][i][j] = mapNonPreassignedCellToPhysical(vGpu)
 			}
 		}
-		clearTmpBindings(vcPlacement)
-		return physicalPlacement, vcPlacement
 	}
-	return nil, nil
+	clearTmpBindings(vcPlacement)
+	return physicalPlacement, vcPlacement
 }
 
-func (h *HivedAlgorithm) scheduleOpportunisticPods(sr schedulingRequest) map[int32][]CellList {
+// scheduleOpportunisticAffinityGroup calls the opportunistic pod scheduler to schedule an affinity group.
+func (h *HivedAlgorithm) scheduleOpportunisticAffinityGroup(sr schedulingRequest) map[int32][]CellList {
 	return h.opportunisticSchedulers[sr.chain].schedule(sr.podGpuNumbers, opportunisticPriority)
 }
 
+// getTmpFreeCellList returns a copy of the free cell list.
 func (h *HivedAlgorithm) getTmpFreeCellList(chain CellChain) ChainCellList {
 	ccl := ChainCellList{}
 	for l := CellLevel(1); l <= CellLevel(len(h.freeCellList[chain])); l++ {
@@ -418,11 +441,12 @@ func (h *HivedAlgorithm) getTmpFreeCellList(chain CellChain) ChainCellList {
 	return ccl
 }
 
+// confirmAllocatedGpu creates the cell bindings, removes the physical cell from the free list
+// (if necessary), and sets the priority.
 func (h *HivedAlgorithm) confirmAllocatedGpu(pc *PhysicalCell, vc *VirtualCell, p CellPriority) {
 	physicalPriority := p
 	if vc != nil {
 		preassignedNewlyBound := vc.GetPreAssignedCell().GetPhysicalCell() == nil
-		// create cell bindings
 		bindCells(pc, vc)
 		if preassignedNewlyBound {
 			// remove the allocated cell from the free list (possibly splitting cells)
@@ -437,13 +461,14 @@ func (h *HivedAlgorithm) confirmAllocatedGpu(pc *PhysicalCell, vc *VirtualCell, 
 	updateUsedGpuNumAtPriority(pc, physicalPriority, true)
 }
 
+// confirmReleasedGpu destroys the cell bindings, adds the physical cell back to the free list
+// (if necessary), and resets the priority.
 func (h *HivedAlgorithm) confirmReleasedGpu(c *PhysicalCell) {
 	if vc := c.GetVirtualCell(); vc != nil {
 		preassignedPhysical := vc.GetPreAssignedCell().GetPhysicalCell()
-		// destroy cell bindings
 		unbindCells(c)
 		if vc.GetPreAssignedCell().GetPhysicalCell() == nil {
-			// add the released cell to the free list (possibly merging cells)
+			// add the released cell back to the free list (possibly merging cells)
 			h.addCellToFreeList(preassignedPhysical)
 		}
 		updateUsedGpuNumAtPriority(vc, vc.GetPriority(), false)
@@ -453,6 +478,7 @@ func (h *HivedAlgorithm) confirmReleasedGpu(c *PhysicalCell) {
 	c.SetPriority(freePriority)
 }
 
+// removeCellFromFreeList removes a cell from the free cell list and splits its parent recursively if needed.
 func (h *HivedAlgorithm) removeCellFromFreeList(c *PhysicalCell) {
 	chain := c.GetChain()
 	terminate := false
@@ -479,6 +505,7 @@ func (h *HivedAlgorithm) removeCellFromFreeList(c *PhysicalCell) {
 	}
 }
 
+// addCellToFreeList adds a cell to the free cell list and merges its buddies recursively if needed.
 func (h *HivedAlgorithm) addCellToFreeList(c *PhysicalCell) {
 	chain := c.GetChain()
 	terminate := false
@@ -572,6 +599,7 @@ func (h *HivedAlgorithm) findVirtualGpu(
 	return nil
 }
 
+// generatePodScheduleResult writes the scheduling result into a PodScheduleResult.
 func generatePodScheduleResult(
 	groupPhysicalPlacement map[int32][]CellList,
 	groupVcPlacement map[int32][]CellList,
@@ -652,23 +680,24 @@ func generatePodScheduleResult(
 	}
 }
 
-// buddyAlloc allocates a free cell at a certain level from a cellView.
+// buddyAlloc allocates a free cell at a certain level from a free list.
 // It splits a higher-level cell when there is no free cell at the current level.
-// Note that cellView is one-off: we will calculate it every time we call this function
-// (except recursive calls from it self). So we won't remove a returned cell from cellView.
-func buddyAlloc(cellView ChainCellList, level CellLevel) *PhysicalCell {
-	if len(cellView[level]) == 0 && level < CellLevel(len(cellView)) {
-		higherCell := buddyAlloc(cellView, level+1)
+// As the input cell list is a copy of the real free list and hence is one-off,
+// we won't remove a returned cell from it.
+func buddyAlloc(freeList ChainCellList, level CellLevel) *PhysicalCell {
+	if len(freeList[level]) == 0 && level < CellLevel(len(freeList)) {
+		higherCell := buddyAlloc(freeList, level+1)
 		if higherCell != nil {
-			cellView[level] = append(cellView[level], higherCell.GetChildren()...)
+			freeList[level] = append(freeList[level], higherCell.GetChildren()...)
 		}
 	}
-	if len(cellView[level]) == 0 {
+	if len(freeList[level]) == 0 {
 		return nil
 	}
-	return minOpportunisticCell(cellView[level])
+	return minOpportunisticCell(freeList[level])
 }
 
+// minOpportunisticCell selects a cell with the minimum number of opportunistic pods from a cell list.
 func minOpportunisticCell(cl CellList) *PhysicalCell {
 	mo := int32(math.MaxInt32)
 	var moc *PhysicalCell
@@ -682,8 +711,9 @@ func minOpportunisticCell(cl CellList) *PhysicalCell {
 	return moc
 }
 
-// mapNonPreassignedCellToPhysical allocates a physical cell to a virtual cell (possibly split from a
-// preassigned one) according to the cell topology in the preassigned virtual cell.
+// mapNonPreassignedCellToPhysical maps a virtual cell (possibly inside a preassigned one) to the
+// physical cell of the preassigned cell. This operation keeps the inner-cell topology equivalent,
+// by recursively binding the cells inside the preassigned one.
 func mapNonPreassignedCellToPhysical(c *VirtualCell) *PhysicalCell {
 	if c.GetPhysicalCell() != nil {
 		return c.GetPhysicalCell()
@@ -701,6 +731,7 @@ func mapNonPreassignedCellToPhysical(c *VirtualCell) *PhysicalCell {
 	}
 }
 
+// clearTmpBindings clears the temporary bindings created during scheduling.
 func clearTmpBindings(vcPlacement map[int32][]CellList) {
 	for _, podPlacements := range vcPlacement {
 		for _, podGpus := range podPlacements {
@@ -720,6 +751,7 @@ func clearTmpBindings(vcPlacement map[int32][]CellList) {
 	}
 }
 
+// bindCells binds a virtual cell to a physical cell and its parent recursively.
 func bindCells(pc *PhysicalCell, vc *VirtualCell) {
 	for vc.GetPhysicalCell() == nil {
 		vc.SetPhysicalCell(pc)
@@ -733,6 +765,7 @@ func bindCells(pc *PhysicalCell, vc *VirtualCell) {
 	}
 }
 
+// unbindCells unbinds a virtual cell with a physical cell and its parent recursively.
 func unbindCells(c *PhysicalCell) {
 	boundVirtual := c.GetVirtualCell()
 	for !boundVirtual.GetPhysicalCell().IsReserved() {
@@ -758,6 +791,8 @@ func unbindCells(c *PhysicalCell) {
 	}
 }
 
+// updateUsedGpuNumAtPriority updates the number of used GPUs at a priority for a cell
+// and its parent recursively.
 func updateUsedGpuNumAtPriority(c Cell, p CellPriority, increase bool) {
 	for c != nil {
 		if increase {

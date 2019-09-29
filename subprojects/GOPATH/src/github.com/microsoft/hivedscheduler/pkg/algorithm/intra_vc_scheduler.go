@@ -28,24 +28,22 @@ import (
 	"k8s.io/klog"
 )
 
-// intraVCScheduler is an interface for allocating cells inside a VC.
-// It stores two maps of ChainCellList, one for reserved cells, the other
-// for non-reserved ones. It should be able to return a virtual cell
-// on receiving a cell request.
+// intraVCScheduler is an interface for scheduling pods inside a VC.
+// It stores two maps of ChainCellList, one for reserved cells, the other for non-reserved ones.
+// It should be able to return a set of GPU placements in the VC for a scheduling request.
 type intraVCScheduler interface {
 	getNonReservedCellList() map[CellChain]ChainCellList
 	getReservedCellList() map[api.ReservationId]ChainCellList
 
-	// Scheduling a series of pods inside a VC. We use topologyAwareScheduler by default
-	// (see defaultIntraVCScheduler).
+	// Scheduling a series of pods inside a VC. We use topologyAwareScheduler by default.
 	schedule(schedulingRequest) map[int32][]CellList
 }
 
 type defaultIntraVCScheduler struct {
 	virtualNonReservedCellList map[CellChain]ChainCellList
 	virtualReservedCellList    map[api.ReservationId]ChainCellList
-	schedulersNonReserved                  map[CellChain]*topologyAwareScheduler
-	schedulersReserved map[api.ReservationId]*topologyAwareScheduler
+	schedulersNonReserved      map[CellChain]*topologyAwareScheduler
+	schedulersReserved         map[api.ReservationId]*topologyAwareScheduler
 }
 
 func newDefaultIntraVCScheduler(

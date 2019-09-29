@@ -26,12 +26,12 @@ import "math"
 
 const (
 	// internal cell priorities
-	regularPriority               = CellPriority(0)
-	opportunisticPriority         = CellPriority(-1)
-	freePriority                  = CellPriority(-2)
-	highestPriority               = CellPriority(1000)
+	regularPriority       = CellPriority(0)
+	opportunisticPriority = CellPriority(-1)
+	freePriority          = CellPriority(-2)
+	highestPriority       = CellPriority(1000)
 
 	// lowest and highest levels in a cell chain
-	lowestLevel = CellLevel(1)
+	lowestLevel  = CellLevel(1)
 	highestLevel = CellLevel(math.MaxInt32)
 )

@@ -43,14 +43,6 @@ type schedulingRequest struct {
 	priority      CellPriority
 }
 
-type CellRequest struct {
-	VC            api.VirtualClusterName
-	ReservationId api.ReservationId
-	Chain         CellChain
-	Level         CellLevel
-	Priority      CellPriority
-}
-
 // CellList is a list of cells at a certain level of a chain.
 type CellList []Cell
 
@@ -130,9 +122,9 @@ func (ccl ChainCellList) removeCell(c Cell, l CellLevel) {
 
 type AlgoAffinityGroup struct {
 	cell                 *PhysicalCell
-	unallocatedPodNums   map[int32]int32 // GpuNum -> PodNum
-	physicalGpuPlacement map[int32][]CellList
-	vcGpuPlacement       map[int32][]CellList
+	unallocatedPodNums   map[int32]int32      // GpuNum -> PodNum
+	physicalGpuPlacement map[int32][]CellList // GpuNum -> a list of pods -> a list of GPUs of each pod
+	vcGpuPlacement       map[int32][]CellList // same as above
 }
 
 func newAlgoAffinityGroup(g *api.AffinityGroup) *AlgoAffinityGroup {
@@ -141,8 +133,8 @@ func newAlgoAffinityGroup(g *api.AffinityGroup) *AlgoAffinityGroup {
 		numPods[m.GpuNumber] += m.PodNumber
 	}
 	return &AlgoAffinityGroup{
-		unallocatedPodNums: numPods,
+		unallocatedPodNums:   numPods,
 		physicalGpuPlacement: map[int32][]CellList{},
-		vcGpuPlacement: map[int32][]CellList{},
+		vcGpuPlacement:       map[int32][]CellList{},
 	}
 }
