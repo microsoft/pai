@@ -71,7 +71,7 @@ const getPodsInfo = async () => {
         podInfo.resourcesUsed.gpu = info.gpuIsolation.length;
       }
     } else {
-      podInfo.resourcesUsed.gpu = resourceRequest['nvidia.com/gpu'];
+      podInfo.resourcesUsed.gpu = k8s.atoi(resourceRequest['nvidia.com/gpu']);
     }
     return podInfo;
   });
