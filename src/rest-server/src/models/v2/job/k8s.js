@@ -266,15 +266,20 @@ const generateTaskRole = (taskRole, labels, config) => {
     shmMB = config.taskRoles[taskRole].extraContainerOptions.shmMB || 512;
   }
   // enable gang scheduling or not
-  const gangAllocation = ('extras' in config && config.extras.gangAllocation === false) ? 'false' : 'true';
+  let gangAllocation = 'true';
+  const retryPolicy = {
+    fancyRetryPolicy: false,
+    maxRetryCount: 0,
+  };
+  if ('extras' in config && config.extras.gangAllocation === false) {
+    gangAllocation = 'false';
+    retryPolicy.fancyRetryPolicy = true;
+  }
   const frameworkTaskRole = {
     name: convertName(taskRole),
     taskNumber: config.taskRoles[taskRole].instances || 1,
     task: {
-      retryPolicy: {
-        fancyRetryPolicy: false,
-        maxRetryCount: 0,
-      },
+      retryPolicy,
       podGracefulDeletionTimeoutSec: launcherConfig.podGracefulDeletionTimeoutSec,
       pod: {
         metadata: {
