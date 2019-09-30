@@ -48,8 +48,8 @@ window.userLogout = userLogoutComponent.userLogout;
 $('#navbar').html(userLoginNavHtml);
 userAuthComponent.checkToken();
 if (userAuthComponent.checkAdmin()) {
-  $('#sidebar-menu--dashboard').show();
   if (config.launcherType !== 'k8s') {
+    $('#sidebar-menu--dashboard').show();
     $('#sidebar-menu--vc').show();
   }
   $('#sidebar-menu--cluster-view').show();
