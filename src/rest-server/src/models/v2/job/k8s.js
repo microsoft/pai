@@ -412,9 +412,9 @@ const generateTaskRole = (taskRole, labels, config) => {
                   {
                     matchExpressions: [
                       {
-                        key: "pai-worker",
-                        operator: "In",
-                        values: ["true"],
+                        key: 'pai-worker',
+                        operator: 'In',
+                        values: ['true'],
                       },
                     ],
                   },
