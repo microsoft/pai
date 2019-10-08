@@ -179,6 +179,9 @@ def get_sample_data(cpu_file, mem_file, blk_file, net_file, gpu_id, period):
 
 # The analyze function. It will be modified when the analyzing module is finished.
 def analyze_samples(sample_list, advise):
+    # sample_list is a 2-D array with m rows and 7 + (num_GPU * 4) cols
+    # The number of rows is decided by the sampling time.
+    # The number of cols is decided by the number of GPU that used.
     sample_list = np.array(sample_list, dtype=np.float)
     used_gpu_num = (sample_list.shape[1] - 7) / 4
     cpu_usage = sample_list[:, 0]

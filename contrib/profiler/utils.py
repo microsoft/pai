@@ -1,12 +1,12 @@
-class Advise:
+class Adviser:
     def __init__(self, advise_list=None):
-        self._advise = ['The model does not need to be optimized.',
+        self._advice = ['The model does not need to be optimized.',
                         'There is maldistribution of the GPU memory between the multiple GPUs.',
                         'The batch size can be more.',
                         'There is still potential to improve in kernel fusion',
                         'There is still potential to improve in Input pipeline'
                         ] if not advise_list else advise_list
-        self._times = [0] * len(self._advise)
+        self._times = [0] * len(self._advice)
         self._total = 0
 
     def add_total(self):
@@ -22,11 +22,11 @@ class Advise:
         print('We have finished the analyzing %d times and the result is as follow.' % self._total)
         print('According to the voting, the weight of each advice is as follow:')
         result = list()
-        for i in range(len(self._advise)):
+        for i in range(len(self._advice)):
             weight = self._times[i] / self._total * 100
-            print('%.3f%% analyzing result is: ' % weight, self._advise[i])
+            print('%.3f%% analyzing result is: ' % weight, self._advice[i])
             if self._times[i] / self._total >= 0.5:
-                result.append(self._advise[i])
+                result.append(self._advice[i])
         print('===================================================================')
         return result
 
