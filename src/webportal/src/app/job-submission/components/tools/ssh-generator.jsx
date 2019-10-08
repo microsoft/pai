@@ -117,12 +117,7 @@ export default function SSHGenerator({
 
       <Separator>SSH key pair</Separator>
 
-      <Stack
-        horizontal
-        padding='l1'
-        gap='l1'
-        styles={{ root: { width: 860 } }}
-      >
+      <Stack horizontal padding='l1' gap='l1' styles={{ root: { width: 860 } }}>
         <Stack padding='s1' gap='s1' grow={1}>
           <TextField
             label='Private Key'
