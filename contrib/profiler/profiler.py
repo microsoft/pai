@@ -27,7 +27,7 @@ import os
 import time
 import argparse
 from utils import Sample
-from utils import Advise
+from utils import Adviser
 from utils import print_process
 from utils import SlideWindows
 
@@ -178,7 +178,7 @@ def get_sample_data(cpu_file, mem_file, blk_file, net_file, gpu_id, period):
 
 
 # The analyze function. It will be modified when the analyzing module is finished.
-def analyze_samples(sample_list, advise):
+def analyze_samples(sample_list, adviser):
     # sample_list is a 2-D array with m rows and 7 + (num_GPU * 4) cols
     # The number of rows is decided by the sampling time.
     # The number of cols is decided by the number of GPU that used.
@@ -197,15 +197,15 @@ def analyze_samples(sample_list, advise):
         gpu_mem_avg_0 = np.average(gpu_mem_usage[0])
         gpu_mem_avg_1 = np.average(gpu_mem_usage[1])
         if abs(gpu_mem_avg_0 - gpu_mem_avg_1) > 0.15:
-            advise.add_times(index=1)
+            adviser.add_times(index=1)
 
     if np.average(gpu_usage[0]) >= 90:
-        advise.add_times(index=0)
+        adviser.add_times(index=0)
     else:
         if np.average(gpu_mem_usage[0]) < 0.80:
-            advise.add_times(index=2)
+            adviser.add_times(index=2)
         else:
-            advise.add_times(index=3)
+            adviser.add_times(index=3)
         # slide the cpu and get the value to divide the cpu value
         slide_windows = SlideWindows(10)
         cpu_slide = list()
@@ -261,8 +261,8 @@ def analyze_samples(sample_list, advise):
         if up_cpu_min + down_cpu_min != 0 and up_cpu_max + down_cpu_max != 0:
             if float(down_cpu_min / (up_cpu_min + down_cpu_min)) > 0.6 or float(
                     up_cpu_max / (up_cpu_max + down_cpu_max)) > 0.6:
-                advise.add_times(index=4)
-    advise.add_total()
+                adviser.add_times(index=4)
+    adviser.add_total()
 
 
 def start_sample(container_id, period, analyze_period, duration, output_dir, gpu_id, container_pid):
@@ -300,7 +300,7 @@ def start_sample(container_id, period, analyze_period, duration, output_dir, gpu
             '/sys/fs/cgroup/blkio/docker/' + str(container_id) + '*/blkio.throttle.io_service_bytes')[0]
         container_net_file = '/proc/' + str(container_pid) + '/net/dev'
 
-    advise = Advise()
+    adviser = Adviser()
 
     while time.time() - start_time < duration * 60:
         sample_data = get_sample_data(container_cpu_file, container_mem_file, container_blk_file,
@@ -320,11 +320,11 @@ def start_sample(container_id, period, analyze_period, duration, output_dir, gpu
         realtime_log.writerow(str_write_realtime)
 
         if len(sample_list) > analyze_period / period:
-            analyze_samples(sample_list, advise)
+            analyze_samples(sample_list, adviser)
             sample_list = list()
             print_process((time.time() - start_time) / (duration * 60))
     print_process(1)
-    analyze_result = advise.get_advise()
+    analyze_result = adviser.get_advise()
     # print('The final advice is:')
     # for i, advice in zip(range(len(analyze_result)), analyze_result):
     #     print(i + 1, ':', advice)
