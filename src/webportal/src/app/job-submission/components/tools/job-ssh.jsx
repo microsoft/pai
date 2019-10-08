@@ -7,6 +7,7 @@ import {
   PAI_PLUGIN,
   USERSSH_TYPE_OPTIONS,
   SECRET_PATTERN,
+  SSH_KEY_BITS,
 } from '../../utils/constants';
 import { SSHPlugin } from '../../models/plugin/ssh-plugin';
 import SSHGenerator from './ssh-generator';
@@ -132,14 +133,11 @@ export const JobSSH = ({
     [_onChangeExtras],
   );
 
-  const [sshGenerator, setSshGenerator] = useState({
-    isOpen: false,
-    bits: 1024,
-  });
+  const [sshGenerator, setSshGenerator] = useState({ isOpen: false });
   const openSshGenerator = (bits, ev) => {
     setSshGenerator({
       isOpen: true,
-      bits: bits,
+      bits: SSH_KEY_BITS,
     });
   };
   const hideSshGenerator = () => {
@@ -204,7 +202,7 @@ export const JobSSH = ({
             onChange={_onUsersshValueChange}
             value={sshPlugin.getUserSshValue()}
           />
-          <DefaultButton onClick={ev => openSshGenerator(1024, ev)}>
+          <DefaultButton onClick={ev => openSshGenerator(ev)}>
             SSH Key Generator
           </DefaultButton>
           {sshGenerator.isOpen && (
