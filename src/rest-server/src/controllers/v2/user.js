@@ -32,6 +32,16 @@ const getUserVCs = async (username) => {
   return [...virtualClusters];
 };
 
+const getUserStorageConfigs = async (username) => {
+  const userInfo = await userModel.getUser(username);
+  let storageConfigs = new Set();
+  for (const group of userInfo.grouplist) {
+    const groupStorageConfigs = await groupModel.getGroupStorageConfigs(group);
+    storageConfigs = new Set([...storageConfigs, ...groupStorageConfigs]);
+  }
+  return [...storageConfigs];
+};
+
 const getUser = async (req, res, next) => {
   try {
     const username = req.params.username;
@@ -39,6 +49,7 @@ const getUser = async (req, res, next) => {
     const groupItems = await groupModel.getListGroup(userInfo.grouplist);
     userInfo['admin'] = groupModel.getAdminWithGroupInfo(groupItems);
     userInfo['virtualCluster'] = await groupModel.getVCsWithGroupInfo(groupItems);
+    userInfo['storageConfig'] = await groupModel.getStorageConfigsWithGroupInfo(groupItems);
     delete userInfo['password'];
     return res.status(200).json(userInfo);
   } catch (error) {
@@ -64,6 +75,7 @@ const getAllUser = async (req, res, next) => {
       const admin = groupModel.getAdminWithGroupInfo(groupItems);
       userItem.admin = admin;
       userItem.virtualCluster = admin ? allVClist : await groupModel.getVCsWithGroupInfo(groupItems);
+      userItem.storageConfig = await groupModel.getStorageConfigsWithGroupInfo(groupItems);
       delete userItem.password;
       return userItem;
     }));
@@ -468,4 +480,5 @@ module.exports = {
   createUser,
   checkUserPassword,
   getUserVCs,
+  getUserStorageConfigs,
 };
