@@ -79,9 +79,16 @@ PAI_RUNTIME_DIR=${PAI_WORK_DIR}/runtime.d
 
 PAI_LOG_DIR=${PAI_WORK_DIR}/logs/${FC_POD_UID}
 
-# Clean ${PAI_WORK_DIR} and ${PAI_LOG_DIR} since they may contain last execution content. (rarely happen, but seen in real world)
+# Move previous logs to another folder
+LOG_FILES=$(find $PAI_LOG_DIR -maxdepth 1 -type f)
+if [[ ! -z $LOG_FILES ]]; then
+  PRE_LOG_DIR=$PAI_LOG_DIR/prelog_$(date +%s)
+  mkdir $PRE_LOG_DIR
+  mv $LOG_FILES $PRE_LOG_DIR
+fi
+
+# Clean ${PAI_WORK_DIR} since it may contain last execution content. (rarely happen, but seen in real world)
 rm -rf ${PAI_WORK_DIR}/*
-rm -rf ${PAI_LOG_DIR}/*
 
 # Move all runtime sources to PAI_WORK_DIR
 mv ./* ${PAI_WORK_DIR}
