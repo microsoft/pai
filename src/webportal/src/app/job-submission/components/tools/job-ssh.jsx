@@ -158,19 +158,6 @@ export const JobSSH = ({
       </Stack>
       <Stack horizontal gap='s1'>
         <Toggle
-          label={'Enable Job SSH'}
-          inlineLabel={true}
-          checked={sshPlugin.jobssh === true}
-          onChange={(ev, isChecked) => {
-            _onChangeExtras('jobssh', isChecked);
-          }}
-        />
-        <TooltipIcon
-          content={'Enable Job SSH to allow SSH between job containers.'}
-        />
-      </Stack>
-      <Stack horizontal gap='s1'>
-        <Toggle
           label={'Enable User SSH'}
           inlineLabel={true}
           checked={!isEmpty(sshPlugin.userssh)}
