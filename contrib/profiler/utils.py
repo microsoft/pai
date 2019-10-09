@@ -31,6 +31,11 @@ class Adviser:
         return result
 
 
+GPU_INFO_OFFSET = 7
+INFO_NUM_PER_GPU = 4
+GPU_MEM_OFFSET = 2
+
+
 class Sample:
     def __init__(self, cpu_usage, mem_used, mem_total, read_bytes, write_bytes, network_receive, network_transmit,
                  gpu_usage, gpu_mem, gpu_mem_used, gpu_mem_total):

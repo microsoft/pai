@@ -30,6 +30,9 @@ from utils import Sample
 from utils import Adviser
 from utils import print_process
 from utils import SlideWindows
+from utils import GPU_INFO_OFFSET
+from utils import INFO_NUM_PER_GPU
+from utils import GPU_MEM_OFFSET
 
 
 # To get the CPU running time of system from being booted
@@ -183,14 +186,17 @@ def analyze_samples(sample_list, adviser):
     # The number of rows is decided by the sampling time.
     # The number of cols is decided by the number of GPU that used.
     sample_list = np.array(sample_list, dtype=np.float)
-    used_gpu_num = (sample_list.shape[1] - 7) / 4
+    used_gpu_num = (sample_list.shape[1] - GPU_INFO_OFFSET) / INFO_NUM_PER_GPU
     cpu_usage = sample_list[:, 0]
     mem_usage = sample_list[:, 1] / sample_list[:, 2]
     gpu_usage = list()
     gpu_mem_usage = list()
     for i in range(int(used_gpu_num)):
-        gpu_usage.append(sample_list[:, 7 + i * 4])
-        gpu_mem_usage.append(sample_list[:, 9 + i * 4] / sample_list[:, 10 + i * 4])
+        gpu_usage.append(sample_list[:, GPU_INFO_OFFSET + i * INFO_NUM_PER_GPU])
+        gpu_mem_usage.append(
+            sample_list[:, GPU_INFO_OFFSET + GPU_MEM_OFFSET + i * INFO_NUM_PER_GPU]
+            / sample_list[:, GPU_INFO_OFFSET + GPU_MEM_OFFSET + 1 + i * INFO_NUM_PER_GPU]
+        )
 
     if used_gpu_num >= 2:
         # multiple GPUs, analyze whether each GPU has the same memory usage
