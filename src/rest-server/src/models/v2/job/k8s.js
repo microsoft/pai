@@ -502,7 +502,7 @@ const generateFrameworkDescription = (frameworkName, virtualCluster, config, raw
   // fill in task roles
   let totalGpuNumber = 0;
   for (let taskRole of Object.keys(config.taskRoles)) {
-    totalGpuNumber += config.taskRoles[taskRole].resourcePerInstance.gpu;
+    totalGpuNumber += config.taskRoles[taskRole].resourcePerInstance.gpu * config.taskRoles[taskRole].instances;
     const taskRoleDescription = generateTaskRole(taskRole, frameworkLabels, config);
     taskRoleDescription.task.pod.spec.containers[0].env.push(...envlist.concat([
       {
