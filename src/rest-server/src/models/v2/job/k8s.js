@@ -405,6 +405,23 @@ const generateTaskRole = (taskRole, labels, config) => {
               },
             },
           ],
+          affinity: {
+            nodeAffinity: {
+              requiredDuringSchedulingIgnoredDuringExecution: {
+                nodeSelectorTerms: [
+                  {
+                    matchExpressions: [
+                      {
+                        key: 'pai-worker',
+                        operator: 'In',
+                        values: ['true'],
+                      },
+                    ],
+                  },
+                ],
+              },
+            },
+          },
           imagePullSecrets: [
             {
               name: launcherConfig.runtimeImagePullSecrets,
