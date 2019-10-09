@@ -162,6 +162,7 @@ const vcListColumns = [
               rootDisabled: { backgroundColor: '#eeeeee' },
               rootCheckedDisabled: { backgroundColor: '#eeeeee' },
             }}
+            href={'/job-list.html?vcName=' + vc.name}
           >
             View
           </DefaultButton>
