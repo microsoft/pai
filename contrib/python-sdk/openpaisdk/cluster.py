@@ -17,7 +17,6 @@
 
 
 from openpaisdk.io_utils import from_file, to_file, to_screen
-from openpaisdk.storage import Storage
 from openpaisdk.utils import OrganizedList
 from openpaisdk.utils import get_response, na, exception_free, RestSrvError, concurrent_map
 
@@ -160,13 +159,6 @@ class Cluster:
         if not self.__token:
             self.__token = self.rest_api_token(self.__token_expire)
         return self.__token
-
-    def get_storage(self, alias: str = None):
-        # ! every cluster should have a builtin storage
-        for sto in self.config.get("storages", []):
-            if alias is None or sto["storage_alias"] == alias:
-                if sto["protocol"] == 'hdfs':
-                    return Storage(protocol='webHDFS', url=sto["webhdfs"], user=sto.get('user', self.user))
 
     def get_job_link(self, job_name: str):
         return '{}/job-detail.html?username={}&jobName={}'.format(self.pai_uri, self.user, job_name)

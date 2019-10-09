@@ -27,6 +27,8 @@ from openpaisdk.utils import Nested, run_command, na, randstr
 from openpaisdk.defaults import __flags__
 from openpaisdk.cluster import ClusterList
 from openpaisdk.job import Job
+from openpaisdk.storage import pai_open_fs
+
 
 def extract_args(args: argparse.Namespace, get_list: list = None, ignore_list: list = ["scene", "action", "cmd"]):
     if get_list:
@@ -229,7 +231,7 @@ def cli_stop_job(args):
     assert args.job_names, "must specify a job name"
     client = ClusterList().load().get_client(args.cluster_alias)
     for job_name in args.job_names:
-            to_screen(client.rest_api_execute_job(job_name, "STOP"))
+        to_screen(client.rest_api_execute_job(job_name, "STOP"))
 
 
 def submit_it(job, args):
@@ -265,6 +267,8 @@ common_job_args = [
     '--preview', '--no-browser',
     '--python',
 ]
+
+
 def check_common_job_args(args):
     assert args.cluster_alias, "must specify a cluster"
     args.sources = [] if not args.sources else args.sources
@@ -327,7 +331,7 @@ def cli_submit_notebook(args):
             args, ["cluster_alias", "virtual_cluster", "workspace"]),
         resources=extract_args(args, ["gpu", "cpu", "memoryMB", "mem"]),
         sources=args.sources, pip_installs=args.pip_installs,
-        )
+    )
     job.protocol["parameters"]["python_path"] = args.python
     result = submit_it(job, args)
     if not args.preview:
@@ -346,8 +350,68 @@ def cli_connect_job(args):
     to_screen("retrieving job config from cluster")
     job = Job()
     job.load(job_name=args.job_name,
-                      cluster_alias=args.cluster_alias)
+             cluster_alias=args.cluster_alias)
     return connect_notebook(job)
+
+
+@register_as_cli(
+    ['list-dir', 'listdir'],
+    ['path_1'],
+    'list the content of dir'
+)
+def cli_listdir(args):
+    f, pth = pai_open_fs(args.path_1)
+    return f.listdir(pth)
+
+
+@register_as_cli(
+    ['getinfo'],
+    ['path_1'],
+    'get the info of a file or folder location'
+)
+def cli_getinfo(args):
+    f, pth = pai_open_fs(args.path_1)
+    return f.getinfo(pth)
+
+
+@register_as_cli(
+    ['makedir', 'makedirs'],
+    ['path_1'],
+    'make the directory (recurisively if necessary)'
+)
+def cli_makedir(args):
+    f, pth = pai_open_fs(args.path_1)
+    f.makedirs(pth)
+
+
+@register_as_cli(
+    ['remove', 'delete'],
+    ['path_1'],
+    "remove the file or directory"
+)
+def cli_remove(args):
+    f1, pth1 = pai_open_fs(args.path_1)
+    assert f1.exists(pth1), f"path {f1.expand_root(pth1)} does not exist"
+    if f1.isdir(pth1):
+        f1.removedir(pth1)
+    else:
+        f1.remove(pth1)
+
+
+@register_as_cli(
+    'copy',
+    ['path_1', 'path_2'],
+    'copy from path_1 to path_2'
+)
+def cli_copy(args):
+    from fs.copy import copy_dir, copy_file
+    f1, pth1 = pai_open_fs(args.path_1)
+    f2, pth2 = pai_open_fs(args.path_2)
+    assert f1.exists(pth1), f"path {f1.expand_root(pth1)} does not exist"
+    if f1.isdir(pth1):
+        copy_dir(f1, pth1, f2, pth2)
+    else:
+        copy_file(f1, pth1, f2, pth2)
 
 
 class ActionFactoryForStorage(ActionFactory):

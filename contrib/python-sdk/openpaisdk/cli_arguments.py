@@ -80,6 +80,9 @@ class ArgumentFactory:
         self.add_argument('--overwrite', action='store_true', default=False, help="enable overwrite if exists")
         self.add_argument('local_path', help="local path")
         self.add_argument('remote_path', help="remote path")
+        self.add_argument('path_1', help='file or folder locaiton')
+        self.add_argument('path_2', help='file or folder locaiton')
+
 
     def add_argument(self, *args, **kwargs):
         self.factory[args[0]] = dict(args=args, kwargs=kwargs)
