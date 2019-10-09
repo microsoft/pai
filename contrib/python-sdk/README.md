@@ -11,10 +11,11 @@ This is a proof-of-concept SDK (Python) and CLI (command-line-interface) tool fo
 
 Besides above benefits, this project also provides powerful runtime support, which bridges users' (local) working environments and jobs' running environments (inside the containers started by remote cluster). See more about[ the scenarios and user stories](docs/scenarios-and-user-stories.md).
 
-- [Get started](#get-started)
+- [Prepare your environment](#prepare-your-environment)
   - [Installation](#installation)
     - [Dependencies](#dependencies)
   - [Define your clusters](#define-your-clusters)
+  - [Unified storage interface](#unified-storage-interface)
 - [How-to guide for the CLI tool](#how-to-guide-for-the-cli-tool)
   - [Cluster and storage management](#cluster-and-storage-management)
     - [How to list existing clusters](#how-to-list-existing-clusters)
@@ -49,7 +50,7 @@ Besides above benefits, this project also provides powerful runtime support, whi
   - [Debug the SDK](#debug-the-sdk)
   - [Unit tests](#unit-tests)
 
-# Get started
+# Prepare your environment
 
 This section will give guidance about installation, cluster management. User may find more details not covered in the [command line ref](docs/command-line-references.md).
 
@@ -65,7 +66,7 @@ pip install -U "git+https://github.com/Microsoft/pai@master#egg=openpaisdk&subdi
 Refer to [How to install a different version of SDK](#How-to-install-a-different-version-of-SDK) for more details about installing. After installing, please verify by CLI or python binding as below.
 
 ```bash
-opai -h
+pai -h
 python -c "from openpaisdk import __version__; print(__version__)"
 ```
 
@@ -78,32 +79,37 @@ python -c "from openpaisdk import __version__; print(__version__)"
 
 Please store the list of your clusters in `~/.openpai/clusters.yaml`. Every cluster would have an alias for calling, and you may save more than one cluster in the list.
 
-```YAML
-- cluster_alias: <your-cluster-alias>
-  pai_uri: http://x.x.x.x
-  user: <your-user-name>
-  password: <your-password>
-  token: <your-authen-token> # if Azure AD is enabled, must use token for authentication
-  pylon_enabled: true
-  aad_enabled: false
-  storages: # a cluster may have multiple storages
-    builtin: # storage alias, every cluster would always have a builtin storage
-      protocol: hdfs
-      uri: http://x.x.x.x # if not specified, use <pai_uri>
-      ports:
-        native: 9000 # used for hdfs-mount
-        webhdfs: webhdfs # used for webhdfs REST API wrapping
-  virtual_clusters:
-  - <your-virtual-cluster-1>
-  - <your-virtual-cluster-2>
-  - ...
+```bash
+# for user/password authentication
+pai add-cluster --cluster-alias <cluster-alias> --pai-uri <pai-uri> --user <user> --password <password>
+# for Azure AD authentication
+pai add-cluster --cluster-alias <cluster-alias> --pai-uri <pai-uri> --user <user> --toke <token>
 ```
+
+During adding the cluster, the CLI will try to connect the cluster and receive the essential information such as storages, virtual clusters automatically. 
 
 Now below command shows all your clusters would be displayed.
 
 ```bash
-opai cluster list
+pai list-clusters
 ```
+## Unified storage interface
+
+Administrator of a cluster would specify some built-in storages for a cluster, the list of storages would be get via REST API. Then user could access the storage via commands like 
+```bash
+pai listdir pai://<cluster-alias>/<storage-index>/path/to/folder
+```
+
+User could upload a local file (or directory) to cluster by 
+```bash
+pai copy /src/path pai://<cluster-alias>/<storage-index>/dest/path
+```
+
+and download to local by 
+```bash
+pai copy pai://<cluster-alias>/<storage-index>/dest/path /src/path
+```
+
 
 # How-to guide for the CLI tool
 
