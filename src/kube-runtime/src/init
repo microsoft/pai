@@ -24,6 +24,12 @@ set -x
 
 CHILD_PROCESS="UNKNOWN"
 
+# exit code map
+# FRAMEWORK_BARRIER: 200 -> 250 FrameworkBarrierTransientFailed
+#                    201 -> 251 JobGangAllocationTimeout
+#                    210 -> 252 FrameworkBarrierPermanentFailed
+# PORT_CONFLICT_CHECKER: 10 -> 253 ContainerPortConflict
+# PAIRuntimeInitContainerUnkownError: 248
 function exit_handler()
 {
   EXIT_CODE=$?
@@ -54,14 +60,15 @@ function exit_handler()
   fi
 
   # signal triggered, do not change exit code
-  if [[ $EXIT_CODE -eq 130 || $EXIT_CODE -eq 131 || $EXIT_CODE -eq 132 || \
-        $EXIT_CODE -eq 134 || $EXIT_CODE -eq 135 || $EXIT_CODE -eq 136 || \
-        $EXIT_CODE -eq 137 || $EXIT_CODE -eq 139 || $EXIT_CODE -eq 141 || $EXIT_CODE -eq 143 ]]; then
-    exit $EXIT_CODE
-  fi
-
-  echo "Unknown exit code, platform error"
-  exit 1
+  case $EXIT_CODE in
+    130|131|132|134|135|136|137|139|141|143)
+      exit $EXIT_CODE
+      ;;
+    *)
+      echo "Unknown exit code, platform error"
+      exit 248
+      ;;
+  esac
 }
 
 trap exit_handler EXIT
@@ -79,7 +86,7 @@ PAI_RUNTIME_DIR=${PAI_WORK_DIR}/runtime.d
 
 PAI_LOG_DIR=${PAI_WORK_DIR}/logs/${FC_POD_UID}
 
-# Move previous logs to another folder
+# Move previous logs to another folder. Notice: for init.log, some part will append to previous log file
 LOG_FILES=$(find $PAI_LOG_DIR -maxdepth 1 -type f)
 if [[ ! -z $LOG_FILES ]]; then
   PRE_LOG_DIR=$PAI_LOG_DIR/prelog_$(date +%s)
