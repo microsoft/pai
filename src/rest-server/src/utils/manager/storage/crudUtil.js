@@ -15,29 +15,13 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-
 // module dependencies
-const express = require('express');
-const userRouter = require('@pai/routes/v2/user');
-const groupRouter = require('@pai/routes/v2/group');
-const storageRouter = require('@pai/routes/v2/storage');
-const controller = require('@pai/controllers/v2');
-const jobRouter = require('@pai/routes/v2/job');
-const virtualClusterRouter = require('@pai/routes/v2/virtual-cluster');
+const crudK8sSecret = require('./crudK8sSecret');
 
+const getStorageObject = (type) => {
+  if (type === 'k8sSecret') {
+    return crudK8sSecret;
+  }
+};
 
-const router = new express.Router();
-
-router.route('/')
-  .all(controller.index);
-
-router.use('/jobs', jobRouter);
-router.use('/virtual-clusters', virtualClusterRouter);
-
-router.use('/user', userRouter);
-
-router.use('/group', groupRouter);
-
-router.use('/storage', storageRouter);
-// module exports
-module.exports = router;
+module.exports = {getStorageObject};
