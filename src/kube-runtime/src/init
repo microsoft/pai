@@ -20,6 +20,7 @@
 set -o errexit
 set -o nounset
 set -o pipefail
+set -x
 
 CHILD_PROCESS="UNKNOWN"
 
@@ -77,6 +78,10 @@ PAI_INIT_DIR=${PAI_WORK_DIR}/init.d
 PAI_RUNTIME_DIR=${PAI_WORK_DIR}/runtime.d
 
 PAI_LOG_DIR=${PAI_WORK_DIR}/logs/${FC_POD_UID}
+
+# Clean ${PAI_WORK_DIR} and ${PAI_LOG_DIR} since they may contain last execution content. (rarely happen, but seen in real world)
+rm -rf ${PAI_WORK_DIR}/*
+rm -rf ${PAI_LOG_DIR}/*
 
 # Move all runtime sources to PAI_WORK_DIR
 mv ./* ${PAI_WORK_DIR}
