@@ -20,9 +20,9 @@ cluster-type:
 
 prerequisite:
   - cluster-configuration
-  - drivers
 
 template-list:
+  - stop.sh
   - frameworkcontroller.yaml
   - frameworkcontroller-config.yaml
 
