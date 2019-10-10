@@ -102,24 +102,48 @@ export async function fetchUserGroup(api, user, token) {
   });
 }
 
-export async function fetchStorageConfigData(api) {
-  const storageConfigUrl = `${api}/api/v1/kubernetes/api/v1/namespaces/pai-storage/secrets/storage-config`;
-  return fetch(storageConfigUrl).then(response => {
-    if (response.ok) {
-      return response.json().then(responseData => responseData.data);
-    } else {
-      throw Error(`fetch ${storageConfigUrl}: HTTP ${response.status}`);
-    }
-  });
+export async function listUserStorageConfigs(user) {
+  const userInfo = await fetchWrapper(
+    `${config.restServerUri}/api/v2/user/${user}`,
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    },
+  );
+  return get(userInfo, 'storageConfig', []);
 }
 
-export async function fetchStorageServer(api) {
-  const storageServerUrl = `${api}/api/v1/kubernetes/api/v1/namespaces/pai-storage/secrets/storage-server`;
-  return fetch(storageServerUrl).then(response => {
-    if (response.ok) {
-      return response.json().then(responseData => responseData.data);
-    } else {
-      throw Error(`fetch ${storageServerUrl}: HTTP ${response.status}`);
-    }
-  });
+export async function fetchStorageConfigs(configNames) {
+  const temp = JSON.stringify({ 'names': configNames });
+  console.log(temp);
+  const storageConfigs = await fetchWrapper(
+    `${config.restServerUri}/api/v2/storage/configs`,
+    {
+      body: temp,
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+      method: 'POST',
+    },
+  );
+  return storageConfigs;
+}
+
+export async function fetchStorageServers(serverNames) {
+  const temp = JSON.stringify({ 'names': serverNames });
+  console.log(temp);
+  const storageServers = await fetchWrapper(
+    `${config.restServerUri}/api/v2/storage/servers`,
+    {
+      body: temp,
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+      method: 'POST',
+    },
+  );
+  return storageServers;
 }

@@ -119,7 +119,7 @@ const createStorageConfig = async (req, res, next) => {
     if (!req.user.admin) {
       next(createError('Forbidden', 'ForbiddenUserError', `Non-admin is not allow to do this operation.`));
     }
-    const name = req.body.spn;
+    const name = req.body.name;
     const value = req.body;
     await storageModel.createStorageConfig(name, value);
     return res.status(201).json({

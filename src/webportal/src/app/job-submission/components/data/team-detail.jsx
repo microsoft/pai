@@ -30,7 +30,7 @@ import {
 import PropTypes from 'prop-types';
 import c from 'classnames';
 import t from '../../../components/tachyons.scss';
-
+import { get } from 'lodash';
 export default function TeamDetail({
   isOpen = false,
   config,
@@ -67,9 +67,13 @@ export default function TeamDetail({
         const serverInfo = usedServers.find(
           server => server.spn === item.server,
         );
-        return (
-          <div className={FontClassNames.small}>{`${serverInfo.type}`}</div>
-        );
+        if (serverInfo === undefined) {
+          return <div className={FontClassNames.small}>{'Invalid Server'}</div>;
+        } else {
+          return (
+            <div className={FontClassNames.small}>{`${serverInfo.type}`}</div>
+          );
+        }
       },
     },
     {
@@ -81,7 +85,9 @@ export default function TeamDetail({
         const serverInfo = usedServers.find(
           server => server.spn === item.server,
         );
-        return SERVER_PATH[serverInfo.type](serverInfo, item);
+        if (serverInfo === undefined) {
+          return <div className={FontClassNames.small}>{'Invalid Server'}</div>;
+        } else return SERVER_PATH[serverInfo.type](serverInfo, item);
       },
     },
     {

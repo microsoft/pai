@@ -11,9 +11,9 @@ import { HdfsContext } from '../../models/data/hdfs-context';
 import { getHostNameFromUrl, getPortFromUrl } from '../../utils/utils';
 import { MountDirectories } from '../../models/data/mount-directories';
 import {
-  fetchUserGroup,
-  fetchStorageConfigData,
-  fetchStorageServer,
+  listUserStorageConfigs,
+  fetchStorageConfigs,
+  fetchStorageServers,
 } from '../../utils/conn';
 import config from '../../../config/webportal.config';
 import { JobData } from '../../models/data/job-data';
@@ -78,61 +78,50 @@ export const DataComponent = React.memo(props => {
   );
 
   useEffect(() => {
-    const api = config.restServerUri;
     const user = cookies.get('user');
-    const token = cookies.get('token');
-    const userGroupPromise = fetchUserGroup(api, user, token);
-    const configPromise = fetchStorageConfigData(api);
-    const serverPromise = fetchStorageServer(api);
-    Promise.all([userGroupPromise, configPromise, serverPromise])
-      .then(([userGroups, storageConfigData, storageServerData]) => {
-        const newConfigs = [];
-        const serverNames = [];
+
+    listUserStorageConfigs(user).then(configNames => {
+      console.log(user);
+      console.log(configNames);
+      fetchStorageConfigs(configNames).then(configs => {
+        console.log(configs);
+
         const defaultConfigs = [];
-        const servers = [];
-        for (const confName of Object.keys(storageConfigData)) {
-          const config = JSON.parse(atob(storageConfigData[confName]));
-          for (const gpn of userGroups) {
-            if (config.gpn !== gpn) {
-              continue;
-            } else {
-              newConfigs.push(config);
-              if (config.servers !== undefined) {
-                for (const serverName of config.servers) {
-                  if (serverNames.indexOf(serverName) === -1) {
-                    serverNames.push(serverName);
-                  }
-                }
-              }
-              // Auto select default mounted configs
-              if (config.default === true) {
-                defaultConfigs.push(config);
-              }
-            }
+        let serverNames = new Set();
+       
+        for (const config of configs) {
+          if (config.mountInfos === undefined) continue;
+          
+          if (config.default === true) {
+            defaultConfigs.push(config);
+          }
+          for (const mountInfo of config.mountInfos) {
+            serverNames = new Set([...serverNames, mountInfo.server]);
           }
         }
-        for (const serverName of serverNames) {
-          if (serverName in storageServerData) {
-            const serverContent = JSON.parse(
-              atob(storageServerData[serverName]),
-            );
-            servers.push(serverContent);
+
+        fetchStorageServers([...serverNames]).then(rawServers => {
+          const servers = [];
+          for (const rawServer of rawServers) {
+            servers.push(rawServer.data);
           }
-        }
-        const mountDirectories = new MountDirectories(
-          user,
-          props.jobName,
-          defaultConfigs,
-          servers,
-        );
-        setTeamConfigs(newConfigs);
-        setDefaultTeamConfigs(defaultConfigs);
-        onMountDirChange(mountDirectories);
-      })
-      .catch(e => {
-        setDefaultTeamConfigs(null);
-        setTeamConfigs(null);
+
+          const mountDirectories = new MountDirectories(
+            user,
+            props.jobName,
+            defaultConfigs,
+            servers,
+          );
+          
+          setTeamConfigs(configs);
+          setDefaultTeamConfigs(defaultConfigs);
+          onMountDirChange(mountDirectories);
+        });
       });
+    }).catch(e => {
+      setDefaultTeamConfigs(null);
+      setTeamConfigs(null);
+    });
   }, []);
 
   const _onDataListChange = useCallback(
