@@ -44,7 +44,7 @@ const fetchNodes = async () => {
     // check node readiness
     for (let i = node.status.conditions.length - 1; i >= 0; i --) {
       const condition = node.status.conditions[i];
-      if (condition.type === 'Ready' && condition.status === 'True') {
+      if (condition.type === 'Ready' && condition.status !== 'Unknown') {
         return true;
       }
     }
