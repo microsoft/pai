@@ -30,14 +30,14 @@ const storageServerSchema = Joi.object()
         is: 'nfs',
         then: Joi.object({
           address: Joi.string().required(),
-          rootpath: Joi.string().required(),
+          rootPath: Joi.string().required(),
         }).required(),
       })
       .when('type', {
         is: 'samba',
         then: Joi.object({
           address: Joi.string().required(),
-          rootpath: Joi.string().required(),
+          rootPath: Joi.string().required(),
           userName: Joi.string().required(),
           password: Joi.string().required(),
           domain: Joi.string().required(),
@@ -65,7 +65,7 @@ const storageServerSchema = Joi.object()
         is: 'hdfs',
         then: Joi.object({
           namenode: Joi.string().required(),
-          rootpath: Joi.number().required(),
+          rootPath: Joi.number().required(),
         }).required(),
       }),
   })
