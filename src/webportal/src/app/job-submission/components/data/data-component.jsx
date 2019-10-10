@@ -126,6 +126,10 @@ export const DataComponent = React.memo(props => {
         setDefaultTeamConfigs(null);
         setTeamConfigs(null);
       });
+    }).catch(e => {
+      setDefaultTeamConfigs(null);
+      setTeamConfigs(null);
+    });
   }, []);
 
   const _onDataListChange = useCallback(
