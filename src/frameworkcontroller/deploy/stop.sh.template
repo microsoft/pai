@@ -37,4 +37,12 @@ if kubectl get configmap | grep -q "frameworkcontroller-config"; then
     kubectl delete configmap frameworkcontroller-config || exit $?
 fi
 
+if kubectl get serviceaccount | grep -q "frameworkcontroller-account"; then
+    kubectl delete serviceaccount frameworkcontroller-account || exit $?
+fi
+
+if kubectl get clusterrolebinding | grep -q "frameworkcontroller-role-binding"; then
+    kubectl delete clusterrolebinding frameworkcontroller-role-binding || exit $?
+fi
+
 popd > /dev/null

@@ -30,6 +30,7 @@ spec:
       labels:
         app: frameworkcontroller
     spec:
+      serviceAccountName: frameworkcontroller-account
       containers:
       - name: frameworkcontroller
         image: frameworkcontroller/frameworkcontroller:v0.4.0
