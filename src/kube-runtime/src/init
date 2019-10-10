@@ -89,6 +89,7 @@ PAI_LOG_DIR=${PAI_WORK_DIR}/logs/${FC_POD_UID}
 # Move previous logs to another folder. Notice: for init.log, some part will append to previous log file
 LOG_FILES=$(find $PAI_LOG_DIR -maxdepth 1 -type f)
 if [[ ! -z $LOG_FILES ]]; then
+  echo "[WARN] $PAI_LOG_DIR not empty, contains previous results"
   RANDOM=$$
   PRE_LOG_DIR=$PAI_LOG_DIR/prelog_$RANDOM
   while [[ -d PRE_LOG_DIR=$PAI_LOG_DIR/prelog_$RANDOM ]]
