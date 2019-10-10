@@ -34,3 +34,34 @@ roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
   name: cluster-admin
+
+---
+
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: frameworkbarrier
+  namespace: default
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: frameworkbarrier
+rules:
+- apiGroups: [""]
+  resources: ["frameworks"]
+  verbs: ["get", "watch", "list"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: frameworkbarrier
+  namespace: default
+subjects:
+  - kind: ServiceAccount
+    name: frameworkbarrier
+    namespace: default
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: frameworkbarrier
