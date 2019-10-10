@@ -46,6 +46,8 @@ spec:
     - application/json
     - --anonymous-auth=true
     - --cors-allowed-origins
+    - --max-requests-inflight=1500
+    - --max-mutating-requests-inflight=500
     - .*
     {%- if cluster_cfg['kubernetes']['qos-switch'] == "true" %}
     resources:
