@@ -90,7 +90,7 @@ export async function getAvailableGpuPerNode() {
 }
 
 export async function getLowGpuJobInfos() {
-  const prometheusQuery = `avg(avg_over_time(task_gpu_percent[10m]) < 10) by (job_name)`;
+  const prometheusQuery = `avg(avg_over_time(task_gpu_percent[10m])) by (job_name) < 10`;
   const res = await fetch(
     `${config.prometheusUri}/api/v1/query?query=${encodeURIComponent(
       prometheusQuery,
