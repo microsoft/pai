@@ -18,10 +18,10 @@ A tool to manage your storage config.
     - [ List config ](#Config_list) 
     - [ Delete config ](#Config_delete) 
 
-- [ Manage user ](#User_config)
-    - [ Set user ](#User_set)
-    - [ List user ](#User_list) 
-    - [ Delete user ](#User_delete) 
+- [ Manage group storage access ](#Groupsc_config)
+    - [ Add group storage config ](#Groupsc_add)
+    - [ List group storage configs ](#Groupsc_list) 
+    - [ Delete group storage config ](#Groupsc_delete) 
 
 
 ## Manage Server <a name="Server_config"></a> 
@@ -95,20 +95,19 @@ python storagectl.py config delete CONFIG_NAME
 ```
 
 
-## Manage User Config <a name="User_config"></a> 
-Manage PAI user's specific servers.
-### Set user config <a name="User_set"></a> 
+## Manage User Config <a name="Groupsc_config"></a> 
+Manage PAI group's storage config access.
+### Add group storage config <a name="Groupsc_set"></a> 
 ```
-python storagectl.py user set USER_NAME SERVER_NAME_1 [SERVER_NAME_2 ...]
+python storagectl.py groupsc add GROUP_NAME CONFIG_NAME
 ```
 
-### List user config <a name="User_list"></a> 
+### List group storage config <a name="Groupsc_list"></a> 
 ```
-python storagectl.py user list [-n USER_NAME_1, USER_NAME_2 ...]
+python storagectl.py groupsc list GROUP_NAME
 ```
-- If -n specified, list certain users. Otherwise list all users.
 
-### Delete user config <a name="User_delete"></a> 
+### Delete group storage config <a name="Groupsc_delete"></a> 
 ```
-python storagectl.py user delete USER_NAME
+python storagectl.py groupsc delete GROUP_NAME CONFIG_NAME
 ```
