@@ -416,10 +416,10 @@
         "redhat.vscode-yaml"
     ],
     "scripts": {
-        "vscode:prepublish": "npm install && npm run compile",
+        "vscode:prepublish": "yarn compile",
         "compile": "tsc -p ./",
         "watch": "tsc -watch -p ./",
-        "package": "vsce package",
+        "package": "vsce package  --yarn",
         "postinstall": "node ./node_modules/vscode/bin/install",
         "test": "npm run compile && node ./installYamlExtension.js && node ./node_modules/vscode/bin/test"
     },
@@ -438,7 +438,7 @@
         "@types/request-promise-native": "^1.0.15",
         "@types/semver-compare": "^1.0.0",
         "@types/uuid": "^3.4.4",
-        "@types/vscode": "^1.38.0",
+        "@types/vscode": "^1.27.0",
         "nock": "^10.0.1",
         "tslint": "^5.8.0",
         "tslint-microsoft-contrib": "^5.2.1",
