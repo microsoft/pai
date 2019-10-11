@@ -17,12 +17,14 @@
 
 
 // module dependencies
+const {Agent} = require('https');
 const axios = require('axios');
 const yaml = require('js-yaml');
 const base32 = require('base32');
 const status = require('statuses');
 const runtimeEnv = require('./runtime-env');
 const launcherConfig = require('@pai/config/launcher');
+const {apiserver} = require('@pai/config/kubernetes');
 const createError = require('@pai/utils/error');
 const userModel = require('@pai/models/v2/user');
 const env = require('@pai/utils/env');
@@ -149,6 +151,8 @@ const convertTaskDetail = async (taskStatus, ports, userName, jobName, taskRoleN
     const pod = (await axios({
       method: 'get',
       url: launcherConfig.podPath(taskStatus.attemptStatus.podName),
+      headers: launcherConfig.requestHeaders,
+      httpsAgent: apiserver.ca && new Agent({ca: apiserver.ca}),
     })).data;
     if (launcherConfig.enabledHived) {
       const isolation = pod.metadata.annotations['hivedscheduler.microsoft.com/pod-gpu-isolation'];
@@ -542,6 +546,7 @@ const list = async () => {
       method: 'get',
       url: launcherConfig.frameworksPath(),
       headers: launcherConfig.requestHeaders,
+      httpsAgent: apiserver.ca && new Agent({ca: apiserver.ca}),
     });
   } catch (error) {
     if (error.response != null) {
@@ -568,6 +573,7 @@ const get = async (frameworkName) => {
       method: 'get',
       url: launcherConfig.frameworkPath(encodeName(frameworkName)),
       headers: launcherConfig.requestHeaders,
+      httpsAgent: apiserver.ca && new Agent({ca: apiserver.ca}),
     });
   } catch (error) {
     if (error.response != null) {
@@ -606,6 +612,7 @@ const put = async (frameworkName, config, rawConfig) => {
       method: 'post',
       url: launcherConfig.frameworksPath(),
       headers: launcherConfig.requestHeaders,
+      httpsAgent: apiserver.ca && new Agent({ca: apiserver.ca}),
       data: frameworkDescription,
     });
   } catch (error) {
@@ -624,12 +631,13 @@ const execute = async (frameworkName, executionType) => {
   // send request to framework controller
   let response;
   try {
+    const headers =  {...launcherConfig.requestHeaders};
+    headers['Content-Type'] = 'application/merge-patch+json';
     response = await axios({
       method: 'patch',
       url: launcherConfig.frameworkPath(encodeName(frameworkName)),
-      headers: {
-        'Content-Type': 'application/merge-patch+json',
-      },
+      headers,
+      httpsAgent: apiserver.ca && new Agent({ca: apiserver.ca}),
       data: {
         spec: {
           executionType: `${executionType.charAt(0)}${executionType.slice(1).toLowerCase()}`,
@@ -656,6 +664,7 @@ const getConfig = async (frameworkName) => {
       method: 'get',
       url: launcherConfig.frameworkPath(encodeName(frameworkName)),
       headers: launcherConfig.requestHeaders,
+      httpsAgent: apiserver.ca && new Agent({ca: apiserver.ca}),
     });
   } catch (error) {
     if (error.response != null) {

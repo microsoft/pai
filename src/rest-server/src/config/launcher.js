@@ -18,6 +18,7 @@
 
 // module dependencies
 const Joi = require('joi');
+const {apiserver} = require('@pai/config/kubernetes');
 
 
 // define yarn launcher config schema
@@ -185,7 +186,7 @@ if (launcherType === 'yarn') {
   launcherConfig.type = launcherType;
 } else if (launcherType === 'k8s') {
   launcherConfig = {
-    apiServerUri: process.env.K8S_APISERVER_URI,
+    apiServerUri: apiserver.uri,
     apiVersion: 'frameworkcontroller.microsoft.com/v1',
     podGracefulDeletionTimeoutSec: 1800,
     scheduler: process.env.LAUNCHER_SCHEDULER,
@@ -196,6 +197,7 @@ if (launcherType === 'yarn') {
     requestHeaders: {
       'Accept': 'application/json',
       'Content-Type': 'application/json',
+      ...apiserver.token && {Authorization: `Bearer ${apiserver.token}`},
     },
     healthCheckPath: () => {
       return `${launcherConfig.apiServerUri}/apis/${launcherConfig.apiVersion}`;

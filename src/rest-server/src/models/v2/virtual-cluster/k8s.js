@@ -16,10 +16,11 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 // module dependencies
+const {Agent} = require('https');
 const createError = require('@pai/utils/error');
 const vcConfig = require('@pai/config/vc');
 const launcherConfig = require('@pai/config/launcher');
-const kubernetesConfig = require('@pai/config/kubernetes');
+const {apiserver} = require('@pai/config/kubernetes');
 const k8s = require('@pai/utils/k8sUtils');
 const axios = require('axios');
 const yaml = require('js-yaml');
@@ -35,7 +36,9 @@ const vcData = {
 const fetchNodes = async () => {
   const nodes = await axios({
     method: 'get',
-    url: `${kubernetesConfig.apiserver.uri}/api/v1/nodes`,
+    url: `${apiserver.uri}/api/v1/nodes`,
+    httpsAgent: apiserver.ca && new Agent({ca: apiserver.ca}),
+    headers: apiserver.token && {Authorization: `Bearer ${apiserver.token}`},
   });
   return nodes.data.items.filter((node) => {
     if (node.metadata.labels['pai-worker'] !== 'true') {
@@ -59,7 +62,9 @@ const getResourceUnits = () => {
 const getPodsInfo = async () => {
   const rawPods = (await axios({
     method: 'get',
-    url: vcConfig.podsUrl,
+    url: `${apiserver.uri}/api/v1/pods?labelSelector=type=kube-launcher-task`,
+    httpsAgent: apiserver.ca && new Agent({ca: apiserver.ca}),
+    headers: apiserver.token && {Authorization: `Bearer ${apiserver.token}`},
   })).data.items;
 
   // parse pods spec
