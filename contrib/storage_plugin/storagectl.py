@@ -36,6 +36,8 @@ from kubernetes.client.rest import ApiException
 
 from utils.storage_util import *
 
+import binascii
+
 logger = logging.getLogger(__name__)
 
 # Save server config to k8s secret
@@ -44,11 +46,10 @@ def save_secret(secret_name, name, content_dict):
     secret_dict[name] = base64.b64encode(json.dumps(content_dict))
     patch_secret(secret_name, secret_dict, "pai-storage")
 
-
 def show_secret(args):
     secret_data = get_secret(args.secret_name, "pai-storage")
     if secret_data is None:
-        logger.info("No secret found.")
+        logger.error("No secret found.")
     else:
         for key, value in secret_data.iteritems():
             if args.name is None or key in args.name:
@@ -97,7 +98,6 @@ def config_set(args):
     try:
         content_dict = dict()
         content_dict["name"] = args.name
-        content_dict["gpn"] = args.gpn
         content_dict["servers"] = args.servers
         content_dict["default"] = args.default
         if args.mount_info is not None:
@@ -117,13 +117,40 @@ def config_set(args):
     else:
         save_secret("storage-config", args.name, content_dict)
 
+def get_group_extension(group_name):
+    group_hex = binascii.hexlify(group_name)
+    secret_data = get_secret(group_hex, "pai-group")
+    if secret_data is None:
+        logger.error("No group found.")
+        return None
+    else:
+        extension = json.loads(base64.b64decode(secret_data["extension"]))
+        return extension
 
-def user_set(args):
-    content_dict = dict()
-    content_dict["upn"] = args.name
-    content_dict["servers"] = args.servers
-    save_secret("storage-user", args.name, content_dict)
+def groupsc_add(args):
+    extension = get_group_extension(args.group_name)
+    if extension is not None:
+        storageConfigs = extension["acls"]["storageConfigs"]
+        if args.config_name not in storageConfigs:
+            storageConfigs.append(args.config_name)
+            secret_dict = dict()
+            secret_dict["extension"] = base64.b64encode(json.dumps(extension))
+            patch_secret(binascii.hexlify(args.group_name), secret_dict, "pai-group")
 
+def groupsc_delete(args):
+    extension = get_group_extension(args.group_name)
+    if extension is not None:
+        storageConfigs = extension["acls"]["storageConfigs"]
+        if args.config_name in storageConfigs:
+            storageConfigs.remove(args.config_name)
+            secret_dict = dict()
+            secret_dict["extension"] = base64.b64encode(json.dumps(extension))
+            patch_secret(binascii.hexlify(args.group_name), secret_dict, "pai-group")
+
+def groupsc_list(args):
+    extension = get_group_extension(args.group_name)
+    if extension is not None:
+        print(extension["acls"]["storageConfigs"])
 
 def setup_logger_config(logger):
     """
@@ -201,9 +228,8 @@ def main():
     # ./storagectl.py config set CONFIG_NAME GROUP_NAME [-s SERVER_NAME_1 SERVER_NAME_2 ...] [-m MOUNT_POINT SERVER PATH]... [-d]
     config_set_parser = config_subparsers.add_parser("set")
     config_set_parser.add_argument("name", help="Config name")
-    config_set_parser.add_argument("gpn", help="Config group name")
     config_set_parser.add_argument("-s", "--server", dest="servers", nargs="+", help="-s SERVER_NAME_1 SERVER_NAME_2 ...")
-    config_set_parser.add_argument("-m", "--mountinfo", dest="mount_info", nargs=3, action="append", help="-m MOUNT_POINT SERVER PATH")
+    config_set_parser.add_argument("-m", "--mountinfo", dest="mount_info", nargs=3, action="append", help="-m MOUNT_POINT SERVER SUB_PATH")
     config_set_parser.add_argument("-d", "--default", action="store_true", help="Mount by default")
     config_set_parser.set_defaults(func=config_set)
     # ./storagectl.py config list [-n CONFIG_NAME_1, CONFIG_NAME_2 ...] [-g GROUP_NAME_1, GROUP_NAME_2 ...]
@@ -216,22 +242,23 @@ def main():
     config_del_parser.add_argument("name")
     config_del_parser.set_defaults(func=delete_secret, secret_name="storage-config")
 
-    # ./storagectl.py user ...
-    user_parser = subparsers.add_parser("user", description="Manage user", formatter_class=argparse.RawDescriptionHelpFormatter)
-    user_subparsers = user_parser.add_subparsers(help="Manage user")
-    # ./storagectl.py user set USER_NAME SERVER_NAME_1 [SERVER_NAME_2 ...]
-    user_set_default_parser = user_subparsers.add_parser("set")
-    user_set_default_parser.add_argument("name")
-    user_set_default_parser.add_argument("servers", nargs="+", help="")
-    user_set_default_parser.set_defaults(func=user_set)
-    # ./storagectl.py user list [-n USER_NAME_1, USER_NAME_2 ...]
-    user_list_parser = user_subparsers.add_parser("list")
-    user_list_parser.add_argument("-n", "--name", dest="name", nargs="+", help="filter result by names")
-    user_list_parser.set_defaults(func=show_secret, secret_name="storage-user")
-    # ./storagectl.py user delete USER_NAME
-    user_del_parser = user_subparsers.add_parser("delete")
-    user_del_parser.add_argument("name")
-    user_del_parser.set_defaults(func=delete_secret, secret_name="storage-user")
+    # ./storagectl.py groupsc add|delete|list
+    groupsc_parser = subparsers.add_parser("groupsc", description="Manage group storage config", formatter_class=argparse.RawDescriptionHelpFormatter)
+    groupsc_subparsers = groupsc_parser.add_subparsers(help="Manage group storage config")
+    # ./storagectl.py groupsc add GROUP_NAME STORAGE_CONFIG_NAME
+    groupsc_add_parser = groupsc_subparsers.add_parser("add")
+    groupsc_add_parser.add_argument("group_name")
+    groupsc_add_parser.add_argument("config_name")
+    groupsc_add_parser.set_defaults(func=groupsc_add)
+    # ./storagectl.py groupsc delete GROUP_NAME STORAGE_CONFIG_NAME
+    groupsc_delete_parser = groupsc_subparsers.add_parser("delete")
+    groupsc_delete_parser.add_argument("group_name")
+    groupsc_delete_parser.add_argument("config_name")
+    groupsc_delete_parser.set_defaults(func=groupsc_delete)
+    # ./storagectl.py groupsc list GROUP_NAME
+    groupsc_list_parser = groupsc_subparsers.add_parser("list")
+    groupsc_add_parser.add_argument("group_name")
+    groupsc_list_parser.set_defaults(func=groupsc_list)
 
     args = parser.parse_args()
     args.func(args)
