@@ -45,6 +45,8 @@ spec:
     - --storage-media-type
     - application/json
     - --anonymous-auth=true
+    - --max-requests-inflight=1500
+    - --max-mutating-requests-inflight=500
     - --cors-allowed-origins
     - .*
     {%- if cluster_cfg['kubernetes']['qos-switch'] == "true" %}
