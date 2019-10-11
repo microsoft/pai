@@ -80,48 +80,46 @@ export const DataComponent = React.memo(props => {
   useEffect(() => {
     const user = cookies.get('user');
 
-    listUserStorageConfigs(user).then(configNames => {
-      console.log(user);
-      console.log(configNames);
-      fetchStorageConfigs(configNames).then(configs => {
-        console.log(configs);
+    listUserStorageConfigs(user)
+      .then(configNames => {
+        fetchStorageConfigs(configNames).then(configs => {
+          const defaultConfigs = [];
+          let serverNames = new Set();
 
-        const defaultConfigs = [];
-        let serverNames = new Set();
-       
-        for (const config of configs) {
-          if (config.mountInfos === undefined) continue;
-          
-          if (config.default === true) {
-            defaultConfigs.push(config);
-          }
-          for (const mountInfo of config.mountInfos) {
-            serverNames = new Set([...serverNames, mountInfo.server]);
-          }
-        }
+          for (const config of configs) {
+            if (config.mountInfos === undefined) continue;
 
-        fetchStorageServers([...serverNames]).then(rawServers => {
-          const servers = [];
-          for (const rawServer of rawServers) {
-            servers.push(rawServer.data);
+            if (config.default === true) {
+              defaultConfigs.push(config);
+            }
+            for (const mountInfo of config.mountInfos) {
+              serverNames = new Set([...serverNames, mountInfo.server]);
+            }
           }
 
-          const mountDirectories = new MountDirectories(
-            user,
-            props.jobName,
-            defaultConfigs,
-            servers,
-          );
-          
-          setTeamConfigs(configs);
-          setDefaultTeamConfigs(defaultConfigs);
-          onMountDirChange(mountDirectories);
+          fetchStorageServers([...serverNames]).then(rawServers => {
+            const servers = [];
+            for (const rawServer of rawServers) {
+              servers.push(rawServer.data);
+            }
+
+            const mountDirectories = new MountDirectories(
+              user,
+              props.jobName,
+              defaultConfigs,
+              servers,
+            );
+
+            setTeamConfigs(configs);
+            setDefaultTeamConfigs(defaultConfigs);
+            onMountDirChange(mountDirectories);
+          });
         });
+      })
+      .catch(e => {
+        setDefaultTeamConfigs(null);
+        setTeamConfigs(null);
       });
-    }).catch(e => {
-      setDefaultTeamConfigs(null);
-      setTeamConfigs(null);
-    });
   }, []);
 
   const _onDataListChange = useCallback(

@@ -115,12 +115,12 @@ export async function listUserStorageConfigs(user) {
 }
 
 export async function fetchStorageConfigs(configNames) {
-  const temp = JSON.stringify({ 'names': configNames });
-  console.log(temp);
+  const bodyData = {};
+  bodyData.names = configNames;
   const storageConfigs = await fetchWrapper(
     `${config.restServerUri}/api/v2/storage/configs`,
     {
-      body: temp,
+      body: JSON.stringify(bodyData),
       headers: {
         Authorization: `Bearer ${token}`,
         'Content-Type': 'application/json',
@@ -132,12 +132,12 @@ export async function fetchStorageConfigs(configNames) {
 }
 
 export async function fetchStorageServers(serverNames) {
-  const temp = JSON.stringify({ 'names': serverNames });
-  console.log(temp);
+  const bodyData = {};
+  bodyData.names = serverNames;
   const storageServers = await fetchWrapper(
     `${config.restServerUri}/api/v2/storage/servers`,
     {
-      body: temp,
+      body: JSON.stringify(bodyData),
       headers: {
         Authorization: `Bearer ${token}`,
         'Content-Type': 'application/json',
