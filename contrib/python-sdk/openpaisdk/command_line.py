@@ -19,8 +19,7 @@
 import argparse
 import os
 import sys
-from openpaisdk.cli_arguments import cli_add_arguments
-from openpaisdk.cli_factory import ActionFactory, EngineFactory
+from openpaisdk.cli_arguments import register_as_cli, CliRegistery
 from openpaisdk.defaults import get_defaults, update_default
 from openpaisdk.io_utils import browser_open, to_screen
 from openpaisdk.utils import Nested, run_command, na, randstr
@@ -34,49 +33,6 @@ def extract_args(args: argparse.Namespace, get_list: list = None, ignore_list: l
     if get_list:
         return {k: getattr(args, k) for k in get_list}
     return {k: v for k, v in vars(args).items() if k not in ignore_list}
-
-
-class CliRegistery:
-
-    entries = dict()
-
-    def __init__(self):
-        parser = argparse.ArgumentParser(
-            description="command line interface for OpenPAI",
-            formatter_class=argparse.ArgumentDefaultsHelpFormatter
-        )
-        subparser = parser.add_subparsers(
-            dest="cmd",
-            help="openpai cli commands"
-        )
-        for cmd, cfg in self.entries.items():
-            p = subparser.add_parser(cmd, help=cfg.get('help', None))  # parser for the command
-            cli_add_arguments(p, cfg.get('args', None))
-        self.parser = parser
-
-    def process(self, a: list):
-        to_screen(f'Received arguments {a}', _type="debug")
-        args = self.parser.parse_args(a)
-        if args.cmd not in self.entries:
-            self.parser.print_help()
-            return
-        fn_check = self.entries[args.cmd].get('fn_check', None)
-        if fn_check:
-            fn_check(args)
-        return self.entries[args.cmd]['func'](args)
-
-
-class register_as_cli:
-    "the decorator to register a function as cli command"
-
-    def __init__(self, cmd: str, args: list = None, help: str = None, fn_check=None):
-        self.keys = [cmd] if isinstance(cmd, str) else cmd
-        self.entry = dict(help=help, args=args, fn_check=fn_check)
-
-    def __call__(self, func):
-        self.entry.update(func=func)
-        for key in self.keys:
-            CliRegistery.entries[key] = self.entry
 
 
 @register_as_cli(
@@ -414,142 +370,40 @@ def cli_copy(args):
         copy_file(f1, pth1, f2, pth2)
 
 
-class ActionFactoryForStorage(ActionFactory):
-
-    def define_arguments_list_storage(self, parser: argparse.ArgumentParser):
-        cli_add_arguments(parser, ['--cluster-alias'])
-
-    def do_action_list_storage(self, args):
-        return self.__clusters__.select(args.cluster_alias)['storages']
-
-    def define_arguments_list(self, parser: argparse.ArgumentParser):
-        cli_add_arguments(
-            parser, ['--cluster-alias', '--storage-alias', 'remote_path'])
-
-    def do_action_list(self, args):
-        return self.__clusters__.get_client(args.cluster_alias).get_storage(args.storage_alias).list(args.remote_path)
-
-    def define_arguments_status(self, parser: argparse.ArgumentParser):
-        cli_add_arguments(
-            parser, ['--cluster-alias', '--storage-alias', 'remote_path'])
-
-    def do_action_status(self, args):
-        return self.__clusters__.get_client(args.cluster_alias).get_storage(args.storage_alias).status(args.remote_path)
-
-    def define_arguments_delete(self, parser: argparse.ArgumentParser):
-        cli_add_arguments(
-            parser, ['--cluster-alias', '--storage-alias', '--recursive', 'remote_path'])
-
-    def do_action_delete(self, args):
-        return self.__clusters__.get_client(args.cluster_alias).get_storage(args.storage_alias).delete(args.remote_path, recursive=args.recursive)
-
-    def define_arguments_download(self, parser: argparse.ArgumentParser):
-        cli_add_arguments(
-            parser, ['--cluster-alias', '--storage-alias', 'remote_path', 'local_path'])
-
-    def do_action_download(self, args):
-        return self.__clusters__.get_client(args.cluster_alias).get_storage(args.storage_alias).download(remote_path=args.remote_path, local_path=args.local_path)
-
-    def define_arguments_upload(self, parser: argparse.ArgumentParser):
-        cli_add_arguments(parser, [
-                          '--cluster-alias', '--storage-alias', '--overwrite', 'local_path', 'remote_path'])
-
-    def do_action_upload(self, args):
-        return self.__clusters__.get_client(args.cluster_alias).get_storage(args.storage_alias).upload(remote_path=args.remote_path, local_path=args.local_path, overwrite=getattr(args, "overwrite", False))
+cluster_cfg_file = __flags__.get_cluster_cfg_file(get_defaults()["clusters-in-local"])
 
 
-cluster_cfg_file = __flags__.get_cluster_cfg_file(
-    get_defaults()["clusters-in-local"])
-
-
-def generate_cli_structure(is_beta: bool):
-    cli_s = {
-        "cluster": {
-            "help": "cluster management",
-            "factory": ActionFactoryForCluster,
-            "actions": {
-                "list": "list clusters in config file %s" % cluster_cfg_file,
-                "resources": "report the (available, used, total) resources of the cluster",
-                "update": "check the healthness of clusters and update the information",
-                "edit": "edit the config file in your editor %s" % cluster_cfg_file,
-                "add": "add a cluster to config file %s" % cluster_cfg_file,
-                "delete": "delete a cluster from config file %s" % cluster_cfg_file,
-                "select": "select a cluster as default",
-            }
-        },
-        "job": {
-            "help": "job operations",
-            "factory": ActionFactoryForJob,
-            "actions": {
-                "list": "list existing jobs",
-                "status": "query the status of a job",
-                "stop": "stop the job",
-                "submit": "submit the job from a config file",
-                "sub": "generate a config file from commands, and then `submit` it",
-                "notebook": "run a jupyter notebook remotely",
-                "connect": "connect to an existing job",
-            }
-        },
-        "storage": {
-            "help": "storage operations",
-            "factory": ActionFactoryForStorage,
-            "actions": {
-                "list-storage": "list storage attached to the cluster",
-                "list": "list items about the remote path",
-                "status": "get detailed information about remote path",
-                "upload": "upload",
-                "download": "download",
-                "delete": "delete",
-            }
-        },
+def translate_opai_to_pai(opai_args: list):
+    trans_table = {
+        # cluster
+        'cluster list': 'list-clusters',
+        'cluster resources': 'cluster-resources',
+        'cluster update': 'update-cluster',
+        'cluster edit': 'edit-cluster',
+        'cluster add': 'add-cluster',
+        'cluster delete': 'delete-cluster',
+        'cluster select': 'select-cluster',
+        # job
+        'job list': 'list-jobs',
+        'job status': 'job-status',
+        'job stop': 'stop-job',
+        'job submit': 'submit',
+        'job sub': 'sub',
+        'job notebook': 'notebook-job',
+        'job connect': 'connect-job'
     }
-    dic = {
-        key: [
-            value["help"],
-            [value["factory"](x, value["actions"])
-             for x in value["actions"].keys()]
-        ] for key, value in cli_s.items()
-    }
-    dic.update({
-        "set": [
-            "set a (default) variable for cluster and job", [
-                ActionFactoryForDefault("set", {"set": ["set"]})]
-        ],
-        "unset": [
-            "un-set a (default) variable for cluster and job", [
-                ActionFactoryForDefault("unset", {"unset": ["unset"]})]
-        ],
-    })
-    return dic
+    for key, val in trans_table.items():
+        a = key.split(' ')
+        if a is not None and len(opai_args) >= len(a) and a == opai_args[:len(a)]:
+            return [trans_table[key]] + opai_args[len(a):]
+    return opai_args
 
 
-class Engine(EngineFactory):
-
-    def __init__(self):
-        super().__init__(generate_cli_structure(is_beta=False))
-
-
-def main_opai():
+def execute_pai_args(args: list):
     try:
-        eng = Engine()
-        result = eng.process(sys.argv[1:])
-        if result:
-            to_screen(result)
-        return 0
-    except AssertionError as identifier:
-        to_screen(f"Value error: {repr(identifier)}", _type="debug")
-        return 1
-    except Exception as identifier:
-        to_screen(f"Error: {repr(identifier)}", _type="error")
-        return 2
-    else:
-        return -1
-
-
-def main_pai():
-    try:
+        to_screen(f'Received arguments {args}', _type="debug")
         eng = CliRegistery()
-        result = eng.process(sys.argv[1:])
+        result = eng.process(args)
         if result:
             to_screen(result)
         return 0
@@ -561,6 +415,14 @@ def main_pai():
         return 2
     else:
         return -1
+
+
+def main_opai():
+    return execute_pai_args(translate_opai_to_pai(sys.argv[1:]))
+
+
+def main_pai():
+    return execute_pai_args(sys.argv[1:])
 
 
 if __name__ == '__main__':

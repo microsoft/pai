@@ -83,7 +83,6 @@ class ArgumentFactory:
         self.add_argument('path_1', help='file or folder locaiton')
         self.add_argument('path_2', help='file or folder locaiton')
 
-
     def add_argument(self, *args, **kwargs):
         self.factory[args[0]] = dict(args=args, kwargs=kwargs)
 
@@ -102,3 +101,45 @@ def cli_add_arguments(parser: argparse.ArgumentParser, args: list):
         args, kwargs = __arguments_factory__.get(a)
         # assert parser.conflict_handler == 'resolve', "set conflict_handler to avoid duplicated"
         parser.add_argument(*args, **kwargs)
+
+
+class CliRegistery:
+
+    entries = dict()
+
+    def __init__(self):
+        parser = argparse.ArgumentParser(
+            description="command line interface for OpenPAI",
+            formatter_class=argparse.ArgumentDefaultsHelpFormatter
+        )
+        subparser = parser.add_subparsers(
+            dest="cmd",
+            help="openpai cli commands"
+        )
+        for cmd, cfg in self.entries.items():
+            p = subparser.add_parser(cmd, help=cfg.get('help', None))  # parser for the command
+            cli_add_arguments(p, cfg.get('args', None))
+        self.parser = parser
+
+    def process(self, a: list):
+        args = self.parser.parse_args(a)
+        if args.cmd not in self.entries:
+            self.parser.print_help()
+            return
+        fn_check = self.entries[args.cmd].get('fn_check', None)
+        if fn_check:
+            fn_check(args)
+        return self.entries[args.cmd]['func'](args)
+
+
+class register_as_cli:
+    "the decorator to register a function as cli command"
+
+    def __init__(self, cmd: str, args: list = None, help: str = None, fn_check=None):
+        self.keys = [cmd] if isinstance(cmd, str) else cmd
+        self.entry = dict(help=help, args=args, fn_check=fn_check)
+
+    def __call__(self, func):
+        self.entry.update(func=func)
+        for key in self.keys:
+            CliRegistery.entries[key] = self.entry
