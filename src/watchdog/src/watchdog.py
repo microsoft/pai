@@ -432,7 +432,7 @@ def parse_node_item(node, pai_node_gauge,
                 used_gpu += pod.gpu
 
         if walk_json_field_safe(node, "spec", "unschedulable") != True and ready == "true":
-            node_gpu_avail.add_metric([ip], max(0, gpu_capacity - used_gpu))
+            node_gpu_avail.add_metric([ip], max(0, gpu_allocatable - used_gpu))
             node_gpu_allocatable.add_metric([ip], gpu_allocatable)
         else:
             node_gpu_avail.add_metric([ip], 0)
