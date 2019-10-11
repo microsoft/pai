@@ -40,13 +40,13 @@ roleRef:
 apiVersion: v1
 kind: ServiceAccount
 metadata:
-  name: frameworkbarrier
+  name: frameworkbarrier-account
   namespace: default
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
-  name: frameworkbarrier
+  name: frameworkbarrier-role
 rules:
 - apiGroups: [""]
   resources: ["frameworks"]
@@ -55,13 +55,13 @@ rules:
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
-  name: frameworkbarrier
+  name: frameworkbarrier-role-binding
   namespace: default
 subjects:
   - kind: ServiceAccount
-    name: frameworkbarrier
+    name: frameworkbarrier-account
     namespace: default
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
-  name: frameworkbarrier
+  name: frameworkbarrier-role
