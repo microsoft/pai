@@ -433,19 +433,15 @@ const generateTaskRole = (taskRole, labels, config) => {
     },
   };
   // fill in completion policy
-  if ('completion' in config.taskRoles[taskRole]) {
-    frameworkTaskRole.frameworkAttemptCompletionPolicy = {
-      minFailedTaskCount: ('minFailedInstances' in config.taskRoles[taskRole].completion) ?
-        config.taskRoles[taskRole].completion.minFailedInstances : 1,
-      minSucceededTaskCount: ('minSucceededInstances' in config.taskRoles[taskRole].completion) ?
-        config.taskRoles[taskRole].completion.minSucceededInstances : -1,
-    };
-  } else {
-    frameworkTaskRole.frameworkAttemptCompletionPolicy = {
-      minFailedTaskCount: 1,
-      minSucceededTaskCount: -1,
-    };
-  }
+  const completion = config.taskRoles[taskRole].completion;
+  frameworkTaskRole.frameworkAttemptCompletionPolicy = {
+    minFailedTaskCount:
+      (completion && 'minFailedInstances' in completion && completion.minFailedInstances) ?
+      completion.minFailedInstances : 1,
+    minSucceededTaskCount:
+      (completion && 'minSucceededInstances' in completion && completion.minSucceededInstances) ?
+      completion.minSucceededInstances : -1,
+  };
   // hived spec
   if (launcherConfig.enabledHived) {
     frameworkTaskRole.task.pod.spec.schedulerName = launcherConfig.scheduler;
