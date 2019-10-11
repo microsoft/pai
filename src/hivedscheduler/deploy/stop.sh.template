@@ -19,21 +19,10 @@
 
 pushd $(dirname "$0") > /dev/null
 
-APISERVER=$(kubectl config view | grep server | cut -f 2- -d ":" | tr -d " ")
-TOKEN=$(kubectl config view | grep token | cut -f 2- -d ":" | tr -d " ")
-
 {% if cluster_cfg['hivedscheduler']['config']|length > 1 %}
 
-until ! kubectl get sts | grep -q "hivedscheduler-sts"; do
-    echo 'Trying to stop hivedscheduler ...'
-    curl -X DELETE $APISERVER/apis/apps/v1/namespaces/default/statefulsets/hivedscheduler-sts \
-    {%- if cluster_cfg['cluster']['common']['k8s-rbac'] != 'true' %}
-        -k -H "Authorization: Bearer $TOKEN" \
-    {%- endif %}
-        -H "Content-Type: application/json" \
-        -d '{"kind":"DeleteOptions","apiVersion":"v1","propagationPolicy":"Foreground"}' > /dev/null 2>&1
-    sleep 5
-done
+PYTHONPATH="../../../deployment" python -m k8sPaiLibrary.monitorTool.update_resource \
+    --resource statefulset --name hivedscheduler-sts
 
 if kubectl get configmap | grep -q "hivedscheduler-config"; then
     kubectl delete configmap hivedscheduler-config || exit $?
@@ -49,15 +38,7 @@ fi
 
 {% endif %}
 
-until ! kubectl get ds --namespace=kube-system | grep -q "nvidia-device-plugin-daemonset"; do
-    echo 'Trying to stop nvidia device plugin ...'
-    curl -X DELETE $APISERVER/apis/apps/v1/namespaces/kube-system/daemonsets/nvidia-device-plugin-daemonset \
-    {%- if cluster_cfg['cluster']['common']['k8s-rbac'] != 'true' %}
-        -k -H "Authorization: Bearer $TOKEN" \
-    {%- endif %}
-        -H "Content-Type: application/json" \
-        -d '{"kind":"DeleteOptions","apiVersion":"v1","propagationPolicy":"Foreground"}' > /dev/null 2>&1
-    sleep 5
-done
+PYTHONPATH="../../../deployment" python -m k8sPaiLibrary.monitorTool.update_resource \
+    --resource daemonset --name nvidia-device-plugin-daemonset --namespace kube-system
 
 popd > /dev/null
