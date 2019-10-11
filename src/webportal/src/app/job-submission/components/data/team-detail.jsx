@@ -70,9 +70,7 @@ export default function TeamDetail({
         if (serverInfo === undefined) {
           return <div className={FontClassNames.small}>{'Invalid Server'}</div>;
         } else {
-          return (
-            <div className={FontClassNames.small}>{`${serverInfo.type}`}</div>
-          );
+          return <div className={FontClassNames.small}>{serverInfo.type}</div>;
         }
       },
     },
@@ -87,7 +85,9 @@ export default function TeamDetail({
         );
         if (serverInfo === undefined) {
           return <div className={FontClassNames.small}>{'Invalid Server'}</div>;
-        } else return SERVER_PATH[serverInfo.type](serverInfo, item);
+        } else {
+          return SERVER_PATH[serverInfo.type](serverInfo, item);
+        }
       },
     },
     {
@@ -96,7 +96,11 @@ export default function TeamDetail({
       headerClassName: FontClassNames.semibold,
       minWidth: 80,
       onRender: item => {
-        return <div className={FontClassNames.small}>RW</div>;
+        return (
+          <div className={FontClassNames.small}>
+            {get(item, 'permission', 'rw')}
+          </div>
+        );
       },
     },
   ];
