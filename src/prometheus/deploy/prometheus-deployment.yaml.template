@@ -38,6 +38,7 @@ spec:
       labels:
         app: prometheus
     spec:
+      serviceAccountName: prometheus-account
       hostNetwork: true
       initContainers:
       - name: init

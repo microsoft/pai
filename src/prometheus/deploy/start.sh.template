@@ -25,6 +25,7 @@ kubectl create configmap prometheus-alert --from-file=alerting --dry-run -o yaml
 kubectl create configmap prometheus-record --from-file=recording --dry-run -o yaml | kubectl apply --overwrite=true -f - || exit $?
 kubectl apply --overwrite=true -f prometheus-configmap.yaml || exit $?
 kubectl apply --overwrite=true -f prometheus-deployment.yaml || exit $?
+kubectl apply --overwrite=true -f rbac.yaml || exit $?
 
 sleep 10
 # Wait until the service is ready.
