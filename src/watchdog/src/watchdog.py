@@ -422,7 +422,6 @@ def parse_node_item(node, pai_node_gauge,
         gpu_capacity = int(walk_json_field_safe(status, "capacity", "nvidia.com/gpu") or 0)
         gpu_allocatable = int(walk_json_field_safe(status, "allocatable", "nvidia.com/gpu") or 0)
         node_gpu_total.add_metric([ip], gpu_capacity)
-        node_gpu_allocatable.add_metric([ip], gpu_allocatable)
 
         # Because k8s api's node api do not record how much resource left for
         # allocation, so we have to compute it ourselves.
@@ -434,8 +433,10 @@ def parse_node_item(node, pai_node_gauge,
 
         if walk_json_field_safe(node, "spec", "unschedulable") != True and ready == "true":
             node_gpu_avail.add_metric([ip], max(0, gpu_capacity - used_gpu))
+            node_gpu_allocatable.add_metric([ip], gpu_allocatable)
         else:
             node_gpu_avail.add_metric([ip], 0)
+            node_gpu_allocatable.add_metric([ip], 0)
     else:
         logger.warning("unexpected structure of node %s: %s", ip, json.dumps(node))
 
