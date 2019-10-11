@@ -101,6 +101,8 @@ async function readStorageServer(key, config) {
       spn: serverData['spn'],
       type: serverData['type'],
       data: serverData,
+      extension:
+        serverData['extension'] !== undefined ? serverData['extension'] : {},
     });
     return serverInstance;
   } catch (error) {
@@ -146,6 +148,10 @@ async function readStorageServers(keys, config) {
             spn: serverData['spn'],
             type: serverData['type'],
             data: serverData,
+            extension:
+              serverData['extension'] !== undefined
+                ? serverData['extension']
+                : {},
           })
         );
       }
@@ -271,6 +277,10 @@ async function patchStorageServer(op, key, value, config) {
           spn: serverInstance['spn'],
           type: serverInstance['type'],
           ...serverInstance['data'],
+          extension:
+            serverInstance['extension'] !== undefined
+              ? serverInstance['extension']
+              : {},
         })
       ).toString('base64');
     }

@@ -68,6 +68,7 @@ const storageServerSchema = Joi.object()
           rootPath: Joi.number().required(),
         }).required(),
       }),
+    extension: Joi.object().optional(),
   })
   .required();
 
