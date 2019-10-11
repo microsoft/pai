@@ -136,6 +136,7 @@ def groupsc_add(args):
             secret_dict = dict()
             secret_dict["extension"] = base64.b64encode(json.dumps(extension))
             patch_secret(binascii.hexlify(args.group_name), secret_dict, "pai-group")
+            logger.info("Successfully added storage config to group!")
 
 def groupsc_delete(args):
     extension = get_group_extension(args.group_name)
@@ -146,6 +147,7 @@ def groupsc_delete(args):
             secret_dict = dict()
             secret_dict["extension"] = base64.b64encode(json.dumps(extension))
             patch_secret(binascii.hexlify(args.group_name), secret_dict, "pai-group")
+            logger.info("Successfully deleted storage config from group!")
 
 def groupsc_list(args):
     extension = get_group_extension(args.group_name)
@@ -257,7 +259,7 @@ def main():
     groupsc_delete_parser.set_defaults(func=groupsc_delete)
     # ./storagectl.py groupsc list GROUP_NAME
     groupsc_list_parser = groupsc_subparsers.add_parser("list")
-    groupsc_add_parser.add_argument("group_name")
+    groupsc_list_parser.add_argument("group_name")
     groupsc_list_parser.set_defaults(func=groupsc_list)
 
     args = parser.parse_args()
