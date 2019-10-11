@@ -631,7 +631,7 @@ const execute = async (frameworkName, executionType) => {
   // send request to framework controller
   let response;
   try {
-    const headers =  {...launcherConfig.requestHeaders};
+    const headers = {...launcherConfig.requestHeaders};
     headers['Content-Type'] = 'application/merge-patch+json';
     response = await axios({
       method: 'patch',
