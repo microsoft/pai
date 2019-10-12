@@ -65,7 +65,7 @@ def delete_resource(apps_v1_api, api_resource, name, namespace='default'):
 
 def main():
     parser = argparse.ArgumentParser(description='Update service resources.')
-    parser.add_argument('--operation', help='operation type', default='delete')
+    parser.add_argument('--operation', help='operation type')
     parser.add_argument('--resource', help='api resource type')
     parser.add_argument('--name', help='resource name')
     parser.add_argument('--namespace', help='resource namespace', default='default')
