@@ -19,9 +19,7 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-kubectl delete --ignore-not-found --now daemonset/watchdog || exit $?
 kubectl delete --ignore-not-found --now deployment/watchdog || exit $?
-kubectl delete --ignore-not-found --now configmap/watchdog || exit $?
 kubectl delete --ignore-not-found --now clusterrolebinding/watchdog-role-binding || exit $?
 kubectl delete --ignore-not-found --now clusterrolebinding/watchdog-role || exit $?
 kubectl delete --ignore-not-found --now serviceaccount/watchdog-account || exit $?

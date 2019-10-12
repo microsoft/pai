@@ -21,8 +21,8 @@
 
 pushd $(dirname "$0") > /dev/null
 
-kubectl apply --overwrite=true -f watchdog.yaml || exit $?
 kubectl apply --overwrite=true -f rbac.yaml || exit $?
+kubectl apply --overwrite=true -f watchdog.yaml || exit $?
 
 sleep 10
 # Wait until the service is ready.

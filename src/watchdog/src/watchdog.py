@@ -44,6 +44,8 @@ from twisted.internet import reactor
 logger = logging.getLogger(__name__)
 
 KUBE_APISERVER_ADDRESS="KUBE_APISERVER_ADDRESS"
+# k8s will set following environment variables for pod.
+# refer to https://kubernetes.io/docs/tasks/access-application-cluster/access-cluster/
 KUBE_INCLUSTER_HOST="KUBERNETES_SERVICE_HOST"
 KUBE_INCLUSTER_PORT="KUBERNETES_SERVICE_PORT"
 
@@ -233,7 +235,7 @@ def parse_pod_item(pod, pai_pod_gauge, pai_container_gauge, pods_info):
                 ready = cond_status
             else:
                 error_counter.labels(type="unknown_pod_cond").inc()
-                logger.error("unexpected condition %s in pod %s", cond_t, pod_name)
+                logger.warning("unexpected condition %s in pod %s", cond_t, pod_name)
 
     pai_pod_gauge.add_metric([service_name, pod_name, namespace, phase, host_ip,
         initialized, pod_scheduled, ready], 1)
@@ -335,7 +337,7 @@ def parse_node_item(node, pai_node_gauge,
                     ready = node_status
                 else:
                     error_counter.labels(type="unknown_node_cond").inc()
-                    logger.error("unexpected condition %s in node %s", cond_t, ip)
+                    logger.warning("unexpected condition %s in node %s", cond_t, ip)
 
         # https://github.com/kubernetes/community/blob/master/contributors/design-proposals/node/node-allocatable.md
         # [Allocatable] = [Node Capacity] - [Kube-Reserved] - [System-Reserved] - [Hard-Eviction-Threshold]
