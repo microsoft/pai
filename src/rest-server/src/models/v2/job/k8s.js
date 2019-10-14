@@ -265,6 +265,9 @@ const generateTaskRole = (taskRole, labels, config) => {
   if ('extraContainerOptions' in config.taskRoles[taskRole]) {
     shmMB = config.taskRoles[taskRole].extraContainerOptions.shmMB || 512;
   }
+  // check InfiniBand device
+  const infinibandDevice = Boolean('extraContainerOptions' in config.taskRoles[taskRole] &&
+    config.taskRoles[taskRole].extraContainerOptions.infiniband);
   // enable gang scheduling or not
   let gangAllocation = 'true';
   const retryPolicy = {
@@ -342,6 +345,7 @@ const generateTaskRole = (taskRole, labels, config) => {
                   'cpu': config.taskRoles[taskRole].resourcePerInstance.cpu,
                   'memory': `${config.taskRoles[taskRole].resourcePerInstance.memoryMB}Mi`,
                   'nvidia.com/gpu': config.taskRoles[taskRole].resourcePerInstance.gpu,
+                  ...infinibandDevice && {'rdma/hca': 1},
                 },
               },
               env: [],
