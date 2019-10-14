@@ -604,7 +604,7 @@ func (h *HivedAlgorithm) findVirtualGpu(
 func generatePodScheduleResult(
 	groupPhysicalPlacement map[int32][]CellList,
 	groupVcPlacement map[int32][]CellList,
-	podIndex int32,
+	schedulePodIndex int32,
 	suggestedNodes []string,
 	pod *core.Pod,
 	newGroup bool) internal.PodScheduleResult {
@@ -650,7 +650,7 @@ func generatePodScheduleResult(
 						gms.PodPlacements[podIndex].VirtualCellIndices[gpuIndex] = -1
 					}
 				}
-				if podIndex == podIndex {
+				if podIndex == schedulePodIndex {
 					selectedNode = gms.PodPlacements[podIndex].PhysicalNode
 					selectedGpuIndices = gms.PodPlacements[podIndex].PhysicalGpuIndices
 					chain = string(podPhysicalPlacements[podIndex][0].GetChain())

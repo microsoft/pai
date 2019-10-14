@@ -283,12 +283,12 @@ func (t *topologyAwareScheduler) updateClusterView(p CellPriority) {
 		if t.crossPriorityPack {
 			// if crossPriorityPack is enabled, set c.usedGpuNumSamePriority as the total number of used GPUs
 			// in the cell, so that a pod will be packed to the node with the most used GPUs
-			c.SetUsedGpuNumAllPriority(p)
+			c.UpdateUsedGpuNumAllPriority(p)
 		} else {
 			// otherwise set c.usedGpuNumSamePriority as the number of GPUs used by the same priority, and
 			// c.usedGpuNumLowerPriority as that of the lower priorities, so that a pod will be packed to the node
 			// with the most GPUs used by the same priority, and the fewest GPUs used by the lower priorities.
-			c.SetUsedGpuNumForPriority(p)
+			c.UpdateUsedGpuNumForPriority(p)
 		}
 	}
 }
