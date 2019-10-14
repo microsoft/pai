@@ -39,6 +39,7 @@ spec:
           "/usr/local/bin/kube-scheduler",
           "--master={{ cluster_cfg['layout']['kubernetes']['api-servers-url'] }}",
           "--config=/hivedscheduler-config/config.yaml",
+          "--feature-gates=PodPriority=true",
           "-v=4"]
         volumeMounts:
         - name: hivedscheduler-config
