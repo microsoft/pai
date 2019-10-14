@@ -25,7 +25,6 @@ data:
     apiVersion: kubescheduler.config.k8s.io/v1alpha1
     kind: KubeSchedulerConfiguration
     schedulerName: hivedscheduler
-    disablePreemption: true
     algorithmSource:
       policy:
         configMap:
