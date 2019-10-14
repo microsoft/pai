@@ -148,36 +148,36 @@ var pod1, pod2, pod3, pod4, pod5, pod6, pod7, pod8, pod9, pod10, pod11, pod12, p
 	},
 }
 
-var group1, group2, group3, group4, group5, group6, group7, group8, group9, group10 = &api.AffinityGroup{
+var group1, group2, group3, group4, group5, group6, group7, group8, group9, group10 = &api.AffinityGroupSpec{
 	Name:    "group1",
-	Members: []api.AffinityGroupMember{{PodNumber: 1, GpuNumber: 1}},
-}, &api.AffinityGroup{
+	Members: []api.AffinityGroupMemberSpec{{PodNumber: 1, GpuNumber: 1}},
+}, &api.AffinityGroupSpec{
 	Name:    "group2",
-	Members: []api.AffinityGroupMember{{PodNumber: 1, GpuNumber: 1}},
-}, &api.AffinityGroup{
+	Members: []api.AffinityGroupMemberSpec{{PodNumber: 1, GpuNumber: 1}},
+}, &api.AffinityGroupSpec{
 	Name:    "group3",
-	Members: []api.AffinityGroupMember{{PodNumber: 1, GpuNumber: 8}},
-}, &api.AffinityGroup{
+	Members: []api.AffinityGroupMemberSpec{{PodNumber: 1, GpuNumber: 8}},
+}, &api.AffinityGroupSpec{
 	Name:    "group4",
-	Members: []api.AffinityGroupMember{{PodNumber: 1, GpuNumber: 1}},
-}, &api.AffinityGroup{
+	Members: []api.AffinityGroupMemberSpec{{PodNumber: 1, GpuNumber: 1}},
+}, &api.AffinityGroupSpec{
 	Name:    "group5",
-	Members: []api.AffinityGroupMember{{PodNumber: 2, GpuNumber: 1}},
-}, &api.AffinityGroup{
+	Members: []api.AffinityGroupMemberSpec{{PodNumber: 2, GpuNumber: 1}},
+}, &api.AffinityGroupSpec{
 	Name:    "group6",
-	Members: []api.AffinityGroupMember{{PodNumber: 1, GpuNumber: 1}},
-}, &api.AffinityGroup{
+	Members: []api.AffinityGroupMemberSpec{{PodNumber: 1, GpuNumber: 1}},
+}, &api.AffinityGroupSpec{
 	Name:    "group7",
-	Members: []api.AffinityGroupMember{{PodNumber: 3, GpuNumber: 8}},
-}, &api.AffinityGroup{
+	Members: []api.AffinityGroupMemberSpec{{PodNumber: 3, GpuNumber: 8}},
+}, &api.AffinityGroupSpec{
 	Name:    "group8",
-	Members: []api.AffinityGroupMember{{PodNumber: 1, GpuNumber: 8}},
-}, &api.AffinityGroup{
+	Members: []api.AffinityGroupMemberSpec{{PodNumber: 1, GpuNumber: 8}},
+}, &api.AffinityGroupSpec{
 	Name:    "group9",
-	Members: []api.AffinityGroupMember{{PodNumber: 1, GpuNumber: 1}},
-}, &api.AffinityGroup{
+	Members: []api.AffinityGroupMemberSpec{{PodNumber: 1, GpuNumber: 1}},
+}, &api.AffinityGroupSpec{
 	Name:    "group10",
-	Members: []api.AffinityGroupMember{{PodNumber: 1, GpuNumber: 1}},
+	Members: []api.AffinityGroupMemberSpec{{PodNumber: 1, GpuNumber: 1}},
 }
 
 var pss = map[types.UID]api.PodSchedulingSpec{
@@ -316,7 +316,7 @@ func TestHivedAlgorithm(t *testing.T) {
 	for _, chains := range h.chains {
 		sortChains(chains)
 	}
-	printConfig(t, h)
+	//printConfig(t, h)
 
 	testCasesThatShouldSucceed(t, h)
 	testCasesThatShouldFail(t, h)

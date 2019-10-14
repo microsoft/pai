@@ -44,13 +44,13 @@ type Cell interface {
 	AtOrHigherThanNode() bool
 
 	IncreaseFreeGpuNum(int32)
-	GetFreeGpuNumForPriority(CellPriority) int32
+	GetFreeGpuNumAtPriority(CellPriority) int32
 	GetUsedGpuNumAtPriority(CellPriority) int32
 	IncreaseUsedGpuNumAtPriority(CellPriority, int32)
 	GetUsedGpuNumSamePriority() int32
 	GetUsedGpuNumOtherPriority() int32
-	SetUsedGpuNumForPriority(CellPriority)
-	SetUsedGpuNumAllPriority(CellPriority)
+	UpdateUsedGpuNumForPriority(CellPriority)
+	UpdateUsedGpuNumAllPriority(CellPriority)
 }
 
 type GenericCell struct {
@@ -61,14 +61,14 @@ type GenericCell struct {
 	children           CellList // pointer to its children cells
 	atOrHigherThanNode bool     // true if the cell is at or higher than node level
 
-	totalGpuNum           int32                  // total GPU number of a cell
-	freeGpuNum            int32                  // free GPU number of a cell
-	freeGpuNumForPriority int32                  // free GPU number for a certain priority (lower priority considered as free)
-	usedGpuNumAtPriority  map[CellPriority]int32 // GPU number used by each priority
-	// GPU number used by the same priority (used for sorting cells in topologyAwareScheduler)
+	totalGpuNum          int32                  // total GPU number of a cell
+	freeGpuNum           int32                  // free GPU number of a cell
+	freeGpuNumAtPriority int32                  // free GPU number at a certain priority (lower priority considered as free)
+	usedGpuNumAtPriority map[CellPriority]int32 // GPU number used by each priority
+	// GPU number used by the same priority as that of the pod to be scheduled in topologyAwareScheduler (for sorting cells)
 	usedGpuNumSamePriority int32
-	// GPU number used by other priorities (used for sorting cells in topologyAwareScheduler)
-	usedGpuNumOtherPriority int32
+	// GPU number used by the lower priorities than that of the pod to be scheduled in topologyAwareScheduler (for sorting cells)
+	usedGpuNumLowerPriority int32
 }
 
 func (c *GenericCell) GetChain() CellChain {
@@ -111,8 +111,8 @@ func (c *GenericCell) IncreaseFreeGpuNum(delta int32) {
 	c.freeGpuNum += delta
 }
 
-func (c *GenericCell) GetFreeGpuNumForPriority(p CellPriority) int32 {
-	return c.freeGpuNumForPriority
+func (c *GenericCell) GetFreeGpuNumAtPriority(p CellPriority) int32 {
+	return c.freeGpuNumAtPriority
 }
 
 func (c *GenericCell) GetUsedGpuNumAtPriority(p CellPriority) int32 {
@@ -131,29 +131,29 @@ func (c *GenericCell) GetUsedGpuNumSamePriority() int32 {
 }
 
 func (c *GenericCell) GetUsedGpuNumOtherPriority() int32 {
-	return c.usedGpuNumOtherPriority
+	return c.usedGpuNumLowerPriority
 }
 
-func (c *GenericCell) SetUsedGpuNumForPriority(p CellPriority) {
+func (c *GenericCell) UpdateUsedGpuNumForPriority(p CellPriority) {
 	c.usedGpuNumSamePriority = c.usedGpuNumAtPriority[p]
-	c.usedGpuNumOtherPriority = 0
-	c.freeGpuNumForPriority = c.totalGpuNum
+	c.usedGpuNumLowerPriority = 0
+	c.freeGpuNumAtPriority = c.totalGpuNum
 	for priority, n := range c.usedGpuNumAtPriority {
 		if priority != p {
-			c.usedGpuNumOtherPriority += n
+			c.usedGpuNumLowerPriority += n
 		}
 		if priority >= p {
-			c.freeGpuNumForPriority -= n
+			c.freeGpuNumAtPriority -= n
 		}
 	}
 }
 
-func (c *GenericCell) SetUsedGpuNumAllPriority(p CellPriority) {
+func (c *GenericCell) UpdateUsedGpuNumAllPriority(p CellPriority) {
 	c.usedGpuNumSamePriority = c.totalGpuNum - c.freeGpuNum
-	c.freeGpuNumForPriority = c.totalGpuNum
+	c.freeGpuNumAtPriority = c.totalGpuNum
 	for priority, n := range c.usedGpuNumAtPriority {
 		if priority >= p {
-			c.freeGpuNumForPriority -= n
+			c.freeGpuNumAtPriority -= n
 		}
 	}
 }
@@ -161,13 +161,13 @@ func (c *GenericCell) SetUsedGpuNumAllPriority(p CellPriority) {
 // PhysicalCell defines a cell in the physical cluster.
 type PhysicalCell struct {
 	GenericCell
-	nodes          []string     // node names inside the cell
-	gpuIndices     []int32      // [-1] for cells at levels higher than node
-	pods           []*core.Pod  // pods running in this cell or its children
-	virtualCell    *VirtualCell // points to the bound virtual cell
-	tmpVirtualCell *VirtualCell // points to the temporarily bound virtual cell (before the binding is confirmed)
-	split          bool         // true when the cell has been split
-	reserved       bool         // true when this is a reserved cell
+	nodes               []string     // node names inside the cell
+	gpuIndices          []int32      // [-1] for cells at levels higher than node
+	pods                []*core.Pod  // pods running in this cell or its children
+	virtualCell         *VirtualCell // points to the bound virtual cell
+	preBoundVirtualCell *VirtualCell // points to the temporarily bound virtual cell (before the binding is confirmed)
+	split               bool         // true when the cell has been split
+	reserved            bool         // true when this is a reserved cell
 }
 
 func NewPhysicalCell(c CellChain, l CellLevel, g bool, n int32) *PhysicalCell {
@@ -237,12 +237,12 @@ func (c *PhysicalCell) SetVirtualCell(vc *VirtualCell) {
 	c.virtualCell = vc
 }
 
-func (c *PhysicalCell) GetTmpVirtualCell() *VirtualCell {
-	return c.tmpVirtualCell
+func (c *PhysicalCell) GetPreBoundVirtualCell() *VirtualCell {
+	return c.preBoundVirtualCell
 }
 
-func (c *PhysicalCell) SetTmpVirtualCell(vc *VirtualCell) {
-	c.tmpVirtualCell = vc
+func (c *PhysicalCell) SetPreBoundVirtualCell(vc *VirtualCell) {
+	c.preBoundVirtualCell = vc
 }
 
 func (c *PhysicalCell) IsSplit() bool {
@@ -264,12 +264,12 @@ func (c *PhysicalCell) SetReserved(reserved bool) {
 // VirtualCell defines a cell in a VC.
 type VirtualCell struct {
 	GenericCell
-	vc              api.VirtualClusterName // name of its VC
-	rid             api.ReservationId      // reservation ID
-	indexInChain    int32                  // index of the cell in the ChainCellList it belongs to (assigned in initialization)
-	preAssignedCell *VirtualCell           // top level cell of this cell chain
-	physicalCell    *PhysicalCell          // points to the bound physical cell
-	tmpPhysicalCell *PhysicalCell          // points to the temporarily bound physical cell (before the binding is confirmed)
+	vc                   api.VirtualClusterName // name of its VC
+	rid                  api.ReservationId      // reservation ID
+	indexInChain         int32                  // index of the cell in the ChainCellList it belongs to (assigned in initialization)
+	preAssignedCell      *VirtualCell           // top level cell of this cell chain
+	physicalCell         *PhysicalCell          // points to the bound physical cell
+	preBoundPhysicalCell *PhysicalCell          // points to the temporarily bound physical cell (before the binding is confirmed)
 }
 
 func NewVirtualCell(vc api.VirtualClusterName,
@@ -331,10 +331,10 @@ func (c *VirtualCell) SetPhysicalCell(pc *PhysicalCell) {
 	c.physicalCell = pc
 }
 
-func (c *VirtualCell) GetTmpPhysicalCell() *PhysicalCell {
-	return c.tmpPhysicalCell
+func (c *VirtualCell) GetPreBoundVirtualCell() *PhysicalCell {
+	return c.preBoundPhysicalCell
 }
 
-func (c *VirtualCell) SetTmpPhysicalCell(pc *PhysicalCell) {
-	c.tmpPhysicalCell = pc
+func (c *VirtualCell) SetPreBoundVirtualCell(pc *PhysicalCell) {
+	c.preBoundPhysicalCell = pc
 }

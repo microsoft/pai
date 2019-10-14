@@ -35,15 +35,15 @@ type intraVCScheduler interface {
 	getNonReservedCellList() map[CellChain]ChainCellList
 	getReservedCellList() map[api.ReservationId]ChainCellList
 
-	// Scheduling a series of pods inside a VC. We use topologyAwareScheduler by default.
+	// Scheduling an affinity group inside a VC. We use topologyAwareScheduler by default.
 	schedule(schedulingRequest) map[int32][]CellList
 }
 
 type defaultIntraVCScheduler struct {
 	virtualNonReservedCellList map[CellChain]ChainCellList
 	virtualReservedCellList    map[api.ReservationId]ChainCellList
-	schedulersNonReserved      map[CellChain]*topologyAwareScheduler
-	schedulersReserved         map[api.ReservationId]*topologyAwareScheduler
+	nonReservedSchedulers      map[CellChain]*topologyAwareScheduler
+	reservedSchedulers         map[api.ReservationId]*topologyAwareScheduler
 }
 
 func newDefaultIntraVCScheduler(
@@ -53,16 +53,16 @@ func newDefaultIntraVCScheduler(
 	snr := map[CellChain]*topologyAwareScheduler{}
 	sr := map[api.ReservationId]*topologyAwareScheduler{}
 	for chain, ccl := range nonReservedVcl {
-		snr[chain] = newTopologyAwareScheduler(ccl, true)
+		snr[chain] = NewTopologyAwareScheduler(ccl, true)
 	}
 	for rid, ccl := range reservedVcl {
-		sr[rid] = newTopologyAwareScheduler(ccl, true)
+		sr[rid] = NewTopologyAwareScheduler(ccl, true)
 	}
 	return &defaultIntraVCScheduler{
 		virtualNonReservedCellList: nonReservedVcl,
 		virtualReservedCellList:    reservedVcl,
-		schedulersNonReserved:      snr,
-		schedulersReserved:         sr,
+		nonReservedSchedulers:      snr,
+		reservedSchedulers:         sr,
 	}
 }
 
@@ -77,13 +77,13 @@ func (s *defaultIntraVCScheduler) getReservedCellList() map[api.ReservationId]Ch
 func (s *defaultIntraVCScheduler) schedule(sr schedulingRequest) map[int32][]CellList {
 	var scheduler *topologyAwareScheduler
 	if sr.reservationId != "" {
-		scheduler = s.schedulersReserved[sr.reservationId]
+		scheduler = s.reservedSchedulers[sr.reservationId]
 	} else {
-		scheduler = s.schedulersNonReserved[sr.chain]
+		scheduler = s.nonReservedSchedulers[sr.chain]
 	}
 	var result map[int32][]CellList
 	if scheduler != nil {
-		result = scheduler.schedule(sr.podGpuNumbers, sr.priority)
+		result = scheduler.Schedule(sr.affinityGroup, sr.priority)
 	}
 	if scheduler == nil || result == nil {
 		var str string
@@ -93,8 +93,7 @@ func (s *defaultIntraVCScheduler) schedule(sr schedulingRequest) map[int32][]Cel
 			str = fmt.Sprintf("chain %v", sr.chain)
 		}
 		klog.Infof("Insufficient quota in VC %v for scheduling request: %v, GPU numbers %v, priority %v",
-			sr.vc, str, sr.podGpuNumbers, sr.priority)
+			sr.vc, str, sr.affinityGroup, sr.priority)
 	}
-	klog.Infof("%v", result)
 	return result
 }

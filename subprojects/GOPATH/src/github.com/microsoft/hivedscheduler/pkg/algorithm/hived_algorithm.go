@@ -68,7 +68,7 @@ func NewHivedAlgorithm(sConfig *api.Config) *HivedAlgorithm {
 		h.vcSchedulers[vc] = newDefaultIntraVCScheduler(nonReservedVcl[vc], reservedVcl[vc])
 	}
 	for chain, ccl := range h.fullCellList {
-		h.opportunisticSchedulers[chain] = newTopologyAwareScheduler(ccl, false)
+		h.opportunisticSchedulers[chain] = NewTopologyAwareScheduler(ccl, false)
 	}
 	h.validateInitialAssignment()
 	h.initFreeCellList()
@@ -136,13 +136,14 @@ func (h *HivedAlgorithm) AddAllocatedPod(pod *core.Pod) {
 	chain := CellChain(info.CellChain)
 	if group := h.allocatedAffinityGroups[s.AffinityGroup.Name]; group == nil {
 		newGroup := newAlgoAffinityGroup(s.AffinityGroup)
-		for _, gms := range info.GroupScheduleInfo {
-			newGroup.physicalGpuPlacement[gms.GpuNumber] = make([]CellList, len(gms.PodPlacements))
-			newGroup.vcGpuPlacement[gms.GpuNumber] = make([]CellList, len(gms.PodPlacements))
+		for _, gms := range info.AffinityGroupBindInfo {
+			gpuNumber := int32(len(gms.PodPlacements[0].PhysicalGpuIndices))
+			newGroup.physicalGpuPlacement[gpuNumber] = make([]CellList, len(gms.PodPlacements))
+			newGroup.vcGpuPlacement[gpuNumber] = make([]CellList, len(gms.PodPlacements))
 			for i := int32(0); i < int32(len(gms.PodPlacements)); i++ {
-				newGroup.physicalGpuPlacement[gms.GpuNumber][i] = make(
+				newGroup.physicalGpuPlacement[gpuNumber][i] = make(
 					CellList, len(gms.PodPlacements[i].PhysicalGpuIndices))
-				newGroup.vcGpuPlacement[gms.GpuNumber][i] = make(
+				newGroup.vcGpuPlacement[gpuNumber][i] = make(
 					CellList, len(gms.PodPlacements[i].PhysicalGpuIndices))
 				node := gms.PodPlacements[i].PhysicalNode
 				for j := int32(0); j < int32(len(gms.PodPlacements[i].PhysicalGpuIndices)); j++ {
@@ -152,15 +153,15 @@ func (h *HivedAlgorithm) AddAllocatedPod(pod *core.Pod) {
 						panic(fmt.Sprintf("[%v]: physical GPU cell not found when adding pod: node %v, GPU index %v",
 							internal.Key(pod), node, physicalGpuIndex))
 					}
-					virtualCellIndex := gms.PodPlacements[i].VirtualGpuCellIndices[j]
+					virtualCellIndex := gms.PodPlacements[i].VirtualCellIndices[j]
 					vGpu := h.findVirtualGpu(
 						s.VirtualCluster, chain, s.ReservationId, virtualCellIndex)
 					if virtualCellIndex >= 0 && vGpu == nil {
 						panic(fmt.Sprintf("[%v]: virtual GPU cell not found when adding pod: virtual cell index %v",
 							internal.Key(pod), virtualCellIndex))
 					}
-					newGroup.physicalGpuPlacement[gms.GpuNumber][i][j] = pGpu
-					newGroup.vcGpuPlacement[gms.GpuNumber][i][j] = vGpu
+					newGroup.physicalGpuPlacement[gpuNumber][i][j] = pGpu
+					newGroup.vcGpuPlacement[gpuNumber][i][j] = vGpu
 					h.confirmAllocatedGpu(pGpu, vGpu, CellPriority(s.Priority))
 				}
 			}
@@ -289,10 +290,10 @@ func (h *HivedAlgorithm) scheduleNewAffinityGroup(
 		vc:            s.VirtualCluster,
 		reservationId: s.ReservationId,
 		priority:      priority,
-		podGpuNumbers: map[int32]int32{},
+		affinityGroup: map[int32]int32{},
 	}
 	for _, m := range s.AffinityGroup.Members {
-		sr.podGpuNumbers[m.GpuNumber] = m.PodNumber
+		sr.affinityGroup[m.GpuNumber] = m.PodNumber
 	}
 	h.validateSchedulingRequest(sr, pod)
 	if sr.reservationId != "" {
@@ -401,7 +402,7 @@ func (h *HivedAlgorithm) scheduleRegularAffinityGroup(sr schedulingRequest) (map
 				// check if the preassigned cell has been (temporarily) bound to a physical cell
 				preassignedPhysical := pac.GetPhysicalCell()
 				if preassignedPhysical == nil {
-					preassignedPhysical = pac.GetTmpPhysicalCell()
+					preassignedPhysical = pac.GetPreBoundVirtualCell()
 				}
 				if preassignedPhysical == nil {
 					// allocate a new physical cell to the preassigned cell. input a copy of the free cell list
@@ -414,8 +415,8 @@ func (h *HivedAlgorithm) scheduleRegularAffinityGroup(sr schedulingRequest) (map
 						preassignedPhysical = c
 						// create binding (which is temporary and will be cleared after the scheduling,
 						// same reason as above)
-						pac.SetTmpPhysicalCell(preassignedPhysical)
-						preassignedPhysical.SetTmpVirtualCell(pac)
+						pac.SetPreBoundVirtualCell(preassignedPhysical)
+						preassignedPhysical.SetPreBoundVirtualCell(pac)
 					}
 				}
 				physicalPlacement[podGpuNum][i][j] = mapNonPreassignedCellToPhysical(vGpu)
@@ -428,7 +429,7 @@ func (h *HivedAlgorithm) scheduleRegularAffinityGroup(sr schedulingRequest) (map
 
 // scheduleOpportunisticAffinityGroup calls the opportunistic pod scheduler to schedule an affinity group.
 func (h *HivedAlgorithm) scheduleOpportunisticAffinityGroup(sr schedulingRequest) map[int32][]CellList {
-	return h.opportunisticSchedulers[sr.chain].schedule(sr.podGpuNumbers, opportunisticPriority)
+	return h.opportunisticSchedulers[sr.chain].Schedule(sr.affinityGroup, opportunisticPriority)
 }
 
 // getTmpFreeCellList returns a copy of the free cell list.
@@ -496,7 +497,7 @@ func (h *HivedAlgorithm) removeCellFromFreeList(c *PhysicalCell) {
 		} else {
 			terminate = true
 		}
-		h.freeCellList[chain].removeCell(c, l)
+		h.freeCellList[chain].remove(c, l)
 		if terminate {
 			break
 		} else {
@@ -525,7 +526,7 @@ func (h *HivedAlgorithm) addCellToFreeList(c *PhysicalCell) {
 			} else {
 				for _, buddy := range parent.GetChildren() {
 					if buddy != c {
-						h.freeCellList[chain].removeCell(buddy, l)
+						h.freeCellList[chain].remove(buddy, l)
 					}
 				}
 				parent.(*PhysicalCell).SetSplit(false)
@@ -621,37 +622,38 @@ func generatePodScheduleResult(
 			chain              string
 		)
 		preemptionVictims := common.NewSet()
-		gsi := make([]api.GroupMemberScheduleInfo, len(groupPhysicalPlacement))
+		gsi := make([]api.AffinityGroupMemberBindInfo, len(groupPhysicalPlacement))
 		groupMemberIndex := 0
 		for podGpuNum, podPhysicalPlacements := range groupPhysicalPlacement {
-			gms := api.GroupMemberScheduleInfo{
-				GpuNumber:     podGpuNum,
+			gms := api.AffinityGroupMemberBindInfo{
 				PodPlacements: make([]api.PodPlacementInfo, len(podPhysicalPlacements)),
 			}
-			for i := int32(0); i < int32(len(podPhysicalPlacements)); i++ {
-				gms.PodPlacements[i].PhysicalGpuIndices = make(
-					[]int32, len(podPhysicalPlacements[i]))
-				gms.PodPlacements[i].VirtualGpuCellIndices = make(
-					[]int32, len(podPhysicalPlacements[i]))
-				for j := 0; j < len(podPhysicalPlacements[i]); j++ {
-					pGpu := podPhysicalPlacements[i][j].(*PhysicalCell)
+			for podIndex := int32(0); podIndex < int32(len(podPhysicalPlacements)); podIndex++ {
+				gms.PodPlacements[podIndex].PhysicalGpuIndices = make(
+					[]int32, len(podPhysicalPlacements[podIndex]))
+				gms.PodPlacements[podIndex].VirtualCellIndices = make(
+					[]int32, len(podPhysicalPlacements[podIndex]))
+				for gpuIndex := 0; gpuIndex < len(podPhysicalPlacements[podIndex]); gpuIndex++ {
+					pGpu := podPhysicalPlacements[podIndex][gpuIndex].(*PhysicalCell)
 					nodes, gpuIndices := pGpu.GetPhysicalPlacement()
-					gms.PodPlacements[i].PhysicalNode = nodes[0]
-					gms.PodPlacements[i].PhysicalGpuIndices[j] = gpuIndices[0]
+					if gms.PodPlacements[podIndex].PhysicalNode == "" {
+						gms.PodPlacements[podIndex].PhysicalNode = nodes[0]
+					}
+					gms.PodPlacements[podIndex].PhysicalGpuIndices[gpuIndex] = gpuIndices[0]
 					if newGroup && pGpu.HasPod() {
 						preemptionVictims.Add(pGpu.GetPods()[0])
 					}
 					if groupVcPlacement != nil {
-						vGpu := groupVcPlacement[podGpuNum][i][j].(*VirtualCell)
-						gms.PodPlacements[i].VirtualGpuCellIndices[j] = vGpu.GetIndex()
+						vGpu := groupVcPlacement[podGpuNum][podIndex][gpuIndex].(*VirtualCell)
+						gms.PodPlacements[podIndex].VirtualCellIndices[gpuIndex] = vGpu.GetIndex()
 					} else {
-						gms.PodPlacements[i].VirtualGpuCellIndices[j] = -1
+						gms.PodPlacements[podIndex].VirtualCellIndices[gpuIndex] = -1
 					}
 				}
-				if i == podIndex {
-					selectedNode = gms.PodPlacements[i].PhysicalNode
-					selectedGpuIndices = gms.PodPlacements[i].PhysicalGpuIndices
-					chain = string(podPhysicalPlacements[i][0].GetChain())
+				if podIndex == podIndex {
+					selectedNode = gms.PodPlacements[podIndex].PhysicalNode
+					selectedGpuIndices = gms.PodPlacements[podIndex].PhysicalGpuIndices
+					chain = string(podPhysicalPlacements[podIndex][0].GetChain())
 				}
 			}
 			gsi[groupMemberIndex] = gms
@@ -666,10 +668,10 @@ func generatePodScheduleResult(
 				internal.Key(pod), selectedNode, selectedGpuIndices)
 			return internal.PodScheduleResult{
 				PodBindInfo: &api.PodBindInfo{
-					Node:              selectedNode,
-					GpuIsolation:      selectedGpuIndices,
-					CellChain:         chain,
-					GroupScheduleInfo: gsi,
+					Node:                  selectedNode,
+					GpuIsolation:          selectedGpuIndices,
+					CellChain:             chain,
+					AffinityGroupBindInfo: gsi,
 				},
 			}
 		} else {
@@ -702,7 +704,7 @@ func minOpportunisticCell(cl CellList) *PhysicalCell {
 	mo := int32(math.MaxInt32)
 	var moc *PhysicalCell
 	for _, c := range cl {
-		if pc := c.(*PhysicalCell); pc.GetVirtualCell() == nil && pc.GetTmpVirtualCell() == nil &&
+		if pc := c.(*PhysicalCell); pc.GetVirtualCell() == nil && pc.GetPreBoundVirtualCell() == nil &&
 			pc.GetUsedGpuNumAtPriority(opportunisticPriority) < mo {
 			mo = pc.GetUsedGpuNumAtPriority(opportunisticPriority)
 			moc = pc
@@ -717,16 +719,16 @@ func minOpportunisticCell(cl CellList) *PhysicalCell {
 func mapNonPreassignedCellToPhysical(c *VirtualCell) *PhysicalCell {
 	if c.GetPhysicalCell() != nil {
 		return c.GetPhysicalCell()
-	} else if c.GetTmpPhysicalCell() != nil {
-		return c.GetTmpPhysicalCell()
+	} else if c.GetPreBoundVirtualCell() != nil {
+		return c.GetPreBoundVirtualCell()
 	} else {
 		parentPhysical := mapNonPreassignedCellToPhysical(c.GetParent().(*VirtualCell))
 		pc := minOpportunisticCell(parentPhysical.GetChildren())
 		if pc == nil || pc.GetPriority() > opportunisticPriority {
 			panic(fmt.Sprintf("Cannot find physical cell for %v", c.GetName()))
 		}
-		c.SetTmpPhysicalCell(pc)
-		pc.SetTmpVirtualCell(c)
+		c.SetPreBoundVirtualCell(pc)
+		pc.SetPreBoundVirtualCell(c)
 		return pc
 	}
 }
@@ -738,9 +740,9 @@ func clearTmpBindings(vcPlacement map[int32][]CellList) {
 			for _, gpu := range podGpus {
 				for gpu != nil {
 					vGpu := gpu.(*VirtualCell)
-					if pGpu := vGpu.GetTmpPhysicalCell(); pGpu != nil {
-						pGpu.SetTmpVirtualCell(nil)
-						vGpu.SetTmpPhysicalCell(nil)
+					if pGpu := vGpu.GetPreBoundVirtualCell(); pGpu != nil {
+						pGpu.SetPreBoundVirtualCell(nil)
+						vGpu.SetPreBoundVirtualCell(nil)
 						gpu = gpu.GetParent()
 					} else {
 						break

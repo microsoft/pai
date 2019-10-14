@@ -41,10 +41,6 @@ func NewSet(items ...T) Set {
 	return s
 }
 
-func (s Set) Items() map[T]Empty {
-	return s.items
-}
-
 func (s Set) Contains(item T) bool {
 	_, exists := s.items[item]
 	return exists

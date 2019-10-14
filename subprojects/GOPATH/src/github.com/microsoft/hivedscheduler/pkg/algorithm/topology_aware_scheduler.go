@@ -28,24 +28,23 @@ import (
 )
 
 // topologyAwareScheduler can schedule a set of pods on a cluster view.
+// It tries to place pods to nodes with fewer free GPUs (i.e., packing), while trying to avoid preemptions.
+// Inside each node, it tries to allocate GPUs with better affinity.
 type topologyAwareScheduler struct {
-	clusterView              CellList  // a list of node- (or lower-)level cells
-	podGpuNumbers            []int32   // GPU number of each pod to schedule
-	currentSolutionIndices   []int32   // indices of currently picked nodes (or GPUs)
-	currentLCA               CellList  // current LCA (lowest common ancestor) of currently picked GPUs
-	lowestLCASolution        CellList  // GPUs with the lowest LCA
-	lowestLCASolutionIndices []int32   // Indices of the GPUs with the lowest LCA
-	lowestLCALevel           CellLevel // level of the lowest LCA
-	// pack pods cross different priorities, or inside each priority. the former is for opportunistic
-	// pod scheduling (stay away from regular pods), because regular pods can avoid preempting opportunistic pods
-	// only among buddy cells. the latter is for intra-VC scheduling, because high-priority can avoid preemption
-	// in the whole cluster view, and hence we can pack pods with different priorities.
+	// a list of node level cells (top level cells that are lower than node level will be treated as nodes)
+	clusterView CellList
+	// pack pods cross different priorities, or inside each priority. the former is for intra-VC scheduling,
+	// because high-priority can avoid preemption in the whole cluster view,
+	// and hence we can pack pods with different priorities.
+	// the latter is for opportunistic pod scheduling (stay away from regular pods),
+	// because regular pods can avoid preempting opportunistic pods only among buddy cells (this is decided
+	// by the buddy cell allocation algorithm).
 	crossPriorityPack bool
 }
 
-// newTopologyAwareScheduler initializes the scheduler by extracting node-level cells
+// NewTopologyAwareScheduler initializes the scheduler by extracting node-level cells
 // (lower-level if no node-level) from a chain cell list.
-func newTopologyAwareScheduler(ccl ChainCellList, crossPriorityPack bool) *topologyAwareScheduler {
+func NewTopologyAwareScheduler(ccl ChainCellList, crossPriorityPack bool) *topologyAwareScheduler {
 	var l CellLevel
 	for l = CellLevel(1); l <= CellLevel(len(ccl)); l++ {
 		if ccl[l][0].AtOrHigherThanNode() {
@@ -59,87 +58,97 @@ func newTopologyAwareScheduler(ccl ChainCellList, crossPriorityPack bool) *topol
 		crossPriorityPack: crossPriorityPack}
 }
 
-func (t *topologyAwareScheduler) schedule(
+func (t *topologyAwareScheduler) Schedule(
 	podGpuNumbers map[int32]int32,
 	p CellPriority) map[int32][]CellList {
 
-	t.podGpuNumbers = []int32{}
+	// GPU numbers of the pods to schedule
+	sortedPodGpuNumbers := []int32{}
 	for gpuNum, podNum := range podGpuNumbers {
 		for i := int32(0); i < podNum; i++ {
-			t.podGpuNumbers = append(t.podGpuNumbers, gpuNum)
+			sortedPodGpuNumbers = append(sortedPodGpuNumbers, gpuNum)
 		}
 	}
-	sortGpuNumbers(t.podGpuNumbers)
+	sortGpuNumbers(sortedPodGpuNumbers)
 
 	// disable preemption first (reduce preemption)
 	priority := opportunisticPriority
 	t.updateClusterView(priority)
 	// try to fit the pods to a set of nodes
-	success := t.findNodesForPods(priority)
+	selectedNodeIndices := findNodesForPods(t.clusterView, sortedPodGpuNumbers, priority)
 	// enable preemption if scheduling failed
-	if !success && p > opportunisticPriority {
+	if selectedNodeIndices == nil && p > opportunisticPriority {
 		priority = p
 		t.updateClusterView(priority)
-		success = t.findNodesForPods(priority)
+		selectedNodeIndices = findNodesForPods(t.clusterView, sortedPodGpuNumbers, priority)
 	}
-	if !success {
+	if selectedNodeIndices == nil {
 		return nil
 	}
 	// find GPUs inside the selected node for each pod
-	selectedNodes := make(CellList, len(t.podGpuNumbers))
-	for i := 0; i < len(t.currentSolutionIndices); i++ {
-		selectedNodes[i] = t.clusterView[t.currentSolutionIndices[i]]
+	selectedNodes := make(CellList, len(sortedPodGpuNumbers))
+	for i := 0; i < len(selectedNodeIndices); i++ {
+		selectedNodes[i] = t.clusterView[selectedNodeIndices[i]]
 	}
-	nodeGpus := map[Cell]CellList{}
+	selectedGpus := CellList{}
+	nodeAvailableGpus := map[Cell]CellList{}
 	podPlacements := map[int32][]CellList{}
-	for podIndex := 0; podIndex < len(t.podGpuNumbers); podIndex++ {
-		gpuNumber := t.podGpuNumbers[podIndex]
+	for podIndex := 0; podIndex < len(sortedPodGpuNumbers); podIndex++ {
+		gpuNumber := sortedPodGpuNumbers[podIndex]
 		node := selectedNodes[podIndex]
-		nodeGpus[node] = t.findGpusInNode(node, gpuNumber, priority, nodeGpus[node])
+		selectedGpus, nodeAvailableGpus[node] = findGpusInNode(node, gpuNumber, priority, nodeAvailableGpus[node])
 		if podPlacements[gpuNumber] == nil {
 			podPlacements[gpuNumber] = []CellList{}
 		}
-		podPlacements[gpuNumber] = append(podPlacements[gpuNumber], t.lowestLCASolution)
+		podPlacements[gpuNumber] = append(podPlacements[gpuNumber], selectedGpus)
 	}
 	return podPlacements
 }
 
 // findNodesForPods finds a set of nodes that can accommodate the GPU requirements of the pods.
-func (t *topologyAwareScheduler) findNodesForPods(p CellPriority) bool {
-	sort.Sort(t.clusterView)
-	t.currentSolutionIndices = make([]int32, len(t.podGpuNumbers))
+func findNodesForPods(clusterView CellList, n []int32, p CellPriority) []int32 {
+	// sort the nodes according to gpu numbers in each node.
+	// this is achieved through the Less method defined in type CellList.
+	sort.Sort(clusterView)
+	currentNodeIndices := make([]int32, len(n)) // indices of the currently picked nodes
 	podIndex := 0
 	pickedGpuNum := int32(0)
 	var node Cell
-	for nodeIndex := 0; nodeIndex < len(t.clusterView); {
-		node = t.clusterView[nodeIndex]
-		if node.GetFreeGpuNumForPriority(p)-pickedGpuNum >= t.podGpuNumbers[podIndex] {
-			t.currentSolutionIndices[podIndex] = int32(nodeIndex)
-			pickedGpuNum += t.podGpuNumbers[podIndex]
+	for nodeIndex := 0; nodeIndex < len(clusterView); {
+		node = clusterView[nodeIndex]
+		if node.GetFreeGpuNumAtPriority(p)-pickedGpuNum >= n[podIndex] {
+			currentNodeIndices[podIndex] = int32(nodeIndex)
+			pickedGpuNum += n[podIndex]
 			podIndex++
-			if podIndex == len(t.podGpuNumbers) {
-				return true
+			if podIndex == len(n) {
+				return currentNodeIndices
 			}
 		} else {
 			pickedGpuNum = 0
 			nodeIndex++
 		}
 	}
-	return false
+	return nil
 }
 
-// findGpusInNode finds a set of GPUs with the best affinity (i.e., with the lowest LCA) in a node for a pod.
-func (t *topologyAwareScheduler) findGpusInNode(
+// findGpusInNode finds a set of GPUs with the best affinity in a node for a pod.
+func findGpusInNode(
 	node Cell,
 	gpuNumber int32,
 	p CellPriority,
-	availableGpus CellList) CellList {
+	availableGpus CellList) (CellList, CellList) {
 
-	t.currentSolutionIndices = make([]int32, gpuNumber)
-	t.currentLCA = make(CellList, gpuNumber)
-	t.lowestLCASolution = make(CellList, gpuNumber)
-	t.lowestLCASolutionIndices = make([]int32, gpuNumber)
-	t.lowestLCALevel = highestLevel
+	// indices of the currently picked GPUs
+	currentGpuIndices := make([]int32, gpuNumber)
+	// affinity of the currently picked GPUs, defined as the lowest common ancestor
+	// of the GPUs in the cell hierarchy (lower level means better affinity)
+	currentAffinity := make(CellList, gpuNumber)
+	// GPUs with the best affinity ever seen
+	bestAffinityGpus := make(CellList, gpuNumber)
+	// indices of the GPUs with the best affinity ever seen
+	bestAffinityGpuIndices := make([]int32, gpuNumber)
+	// the best affinity ever seen (i.e., lowest level of lowest common ancestor of a set of GPUs)
+	bestAffinity := highestLevel
 
 	if availableGpus == nil {
 		availableGpus = CellList{}
@@ -154,24 +163,32 @@ func (t *topologyAwareScheduler) findGpusInNode(
 	for {
 		for availableGpuIndex < int32(len(availableGpus)) {
 			gpu = availableGpus[availableGpuIndex]
-			t.currentSolutionIndices[searchGpuIndex] = availableGpuIndex
+			currentGpuIndices[searchGpuIndex] = availableGpuIndex
 			if searchGpuIndex == 0 {
-				t.currentLCA[searchGpuIndex] = gpu
+				currentAffinity[searchGpuIndex] = gpu
 			} else {
-				t.currentLCA[searchGpuIndex] = findLCA(gpu, t.currentLCA[searchGpuIndex-1])
+				currentAffinity[searchGpuIndex] = findLCA(gpu, currentAffinity[searchGpuIndex-1])
 				// pruning: if the current LCA has been higher than the lowest ever,
 				// the node will be skipped
-				if (t.currentLCA[searchGpuIndex] == nil && t.lowestLCALevel < highestLevel) ||
-					(t.currentLCA[searchGpuIndex].GetLevel() > t.lowestLCALevel) {
+				if (currentAffinity[searchGpuIndex] == nil && bestAffinity < highestLevel) ||
+					(currentAffinity[searchGpuIndex].GetLevel() > bestAffinity) {
 					availableGpuIndex++
 					continue
 				}
 			}
 			if searchGpuIndex == gpuNumber-1 {
-				if t.checkCurrentGpus(availableGpus) {
+				foundOptimalAffinity := false
+				bestAffinity, foundOptimalAffinity = checkCurrentGpus(
+					currentAffinity[len(currentAffinity)-1].GetLevel(),
+					availableGpus,
+					currentGpuIndices,
+					bestAffinity,
+					bestAffinityGpus,
+					bestAffinityGpuIndices)
+				if foundOptimalAffinity {
 					// early stop: return if the solution is optimal (i.e., all buddies)
-					availableGpus = t.removePickedGpus(availableGpus)
-					return availableGpus
+					availableGpus = removePickedGpus(availableGpus, bestAffinityGpuIndices)
+					return bestAffinityGpus, availableGpus
 				}
 			} else {
 				searchGpuIndex++
@@ -180,45 +197,52 @@ func (t *topologyAwareScheduler) findGpusInNode(
 		}
 		searchGpuIndex--
 		if searchGpuIndex < 0 {
-			if t.lowestLCALevel == highestLevel {
+			if bestAffinity == highestLevel {
 				panic(fmt.Sprintf("failed to allocate %v GPUs in picked node %v", gpuNumber, node.GetName()))
 			}
-			availableGpus = t.removePickedGpus(availableGpus)
-			return availableGpus
+			availableGpus = removePickedGpus(availableGpus, bestAffinityGpuIndices)
+			return bestAffinityGpus, availableGpus
 		}
-		availableGpuIndex = t.currentSolutionIndices[searchGpuIndex] + 1
+		availableGpuIndex = currentGpuIndices[searchGpuIndex] + 1
 	}
 }
 
 // checkCurrentGpus checks if the currently picked GPUs have the lowest LCA. It also checks if the solution
 // is optimal (if the GPUs are all buddies).
-func (t *topologyAwareScheduler) checkCurrentGpus(gpus CellList) bool {
-	currentLCALevel := t.currentLCA[len(t.currentLCA)-1].GetLevel()
-	if currentLCALevel < t.lowestLCALevel {
-		copy(t.lowestLCASolutionIndices, t.currentSolutionIndices)
-		for i := 0; i < len(t.currentSolutionIndices); i++ {
-			t.lowestLCASolution[i] = gpus[t.currentSolutionIndices[i]]
+func checkCurrentGpus(
+	affinity CellLevel,
+	gpus CellList,
+	currentIndices []int32,
+	bestAffinity CellLevel,
+	bestAffinityGpus CellList,
+	bestAffinityGpuIndices []int32) (CellLevel, bool) {
+
+	if affinity < bestAffinity {
+		copy(bestAffinityGpuIndices, currentIndices)
+		for i := 0; i < len(currentIndices); i++ {
+			bestAffinityGpus[i] = gpus[currentIndices[i]]
 		}
-		t.lowestLCALevel = currentLCALevel
-		if t.lowestLCALevel == t.lowestLCASolution[0].GetLevel()+1 {
-			return true
+		if affinity == bestAffinityGpus[0].GetLevel()+1 {
+			return affinity, true
+		} else {
+			return affinity, false
 		}
 	}
-	return false
+	return bestAffinity, false
 }
 
 // removePickedGpus remove picked GPUs from the available GPU list.
-func (t *topologyAwareScheduler) removePickedGpus(gpus CellList) CellList {
-	for i, index := range t.lowestLCASolutionIndices {
+func removePickedGpus(gpus CellList, indices []int32) CellList {
+	for i, index := range indices {
 		offset := int32(i)
-		if i < len(t.lowestLCASolutionIndices)-1 {
-			nextIndex := t.lowestLCASolutionIndices[i+1]
+		if i < len(indices)-1 {
+			nextIndex := indices[i+1]
 			copy(gpus[index-offset:nextIndex-offset-1], gpus[index+1:nextIndex])
 		} else {
 			copy(gpus[index-offset:], gpus[index+1:])
 		}
 	}
-	return gpus[:len(gpus)-len(t.currentSolutionIndices)]
+	return gpus[:len(gpus)-len(indices)]
 }
 
 func sortGpuNumbers(n []int32) {
@@ -262,8 +286,8 @@ func (t *topologyAwareScheduler) updateClusterView(p CellPriority) {
 			c.SetUsedGpuNumAllPriority(p)
 		} else {
 			// otherwise set c.usedGpuNumSamePriority as the number of GPUs used by the same priority, and
-			// c.usedGpuNumOtherPriority as that of the other priorities, so that a pod will be packed to the node
-			// with the most GPUs used by the same priority, and the fewest GPUs used by the other priorities.
+			// c.usedGpuNumLowerPriority as that of the lower priorities, so that a pod will be packed to the node
+			// with the most GPUs used by the same priority, and the fewest GPUs used by the lower priorities.
 			c.SetUsedGpuNumForPriority(p)
 		}
 	}

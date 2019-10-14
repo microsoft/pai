@@ -39,7 +39,7 @@ type schedulingRequest struct {
 	vc            api.VirtualClusterName
 	reservationId api.ReservationId
 	chain         CellChain
-	podGpuNumbers map[int32]int32
+	affinityGroup map[int32]int32 // gpu number -> pod number
 	priority      CellPriority
 }
 
@@ -58,7 +58,7 @@ func (cl CellList) String() string {
 	return strings.Join(names, ", ")
 }
 
-func (cl CellList) removeCell(c Cell) CellList {
+func (cl CellList) remove(c Cell) CellList {
 	index := -1
 	for i, cc := range cl {
 		if cc == c {
@@ -76,6 +76,8 @@ func (cl CellList) removeCell(c Cell) CellList {
 	return cl[:length-1]
 }
 
+// Methods for sorting cells in a CellList.
+// Note that this sorting logic is used only by topologyAwareScheduler.
 func (cl CellList) Len() int {
 	return len(cl)
 }
@@ -115,19 +117,19 @@ func (ccl ChainCellList) String() string {
 	return str
 }
 
-func (ccl ChainCellList) removeCell(c Cell, l CellLevel) {
-	ccl[l] = ccl[l].removeCell(c)
+func (ccl ChainCellList) remove(c Cell, l CellLevel) {
+	ccl[l] = ccl[l].remove(c)
 	klog.Infof("Cell removed from cell list: %v", c.GetName())
 }
 
 type AlgoAffinityGroup struct {
 	cell                 *PhysicalCell
 	unallocatedPodNums   map[int32]int32      // GpuNum -> PodNum
-	physicalGpuPlacement map[int32][]CellList // GpuNum -> a list of pods -> a list of GPUs of each pod
-	vcGpuPlacement       map[int32][]CellList // same as above
+	physicalGpuPlacement map[int32][]CellList // GpuNum -> a list of pods -> a list of physical GPUs of each pod
+	vcGpuPlacement       map[int32][]CellList // GpuNum -> a list of pods -> a list of virtual GPUs of each pod
 }
 
-func newAlgoAffinityGroup(g *api.AffinityGroup) *AlgoAffinityGroup {
+func newAlgoAffinityGroup(g *api.AffinityGroupSpec) *AlgoAffinityGroup {
 	numPods := make(map[int32]int32)
 	for _, m := range g.Members {
 		numPods[m.GpuNumber] += m.PodNumber
