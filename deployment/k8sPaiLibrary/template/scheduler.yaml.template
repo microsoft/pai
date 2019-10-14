@@ -25,17 +25,13 @@ spec:
   containers:
   - image: {{ cluster_cfg['kubernetes']['docker-registry'] }}/kube-scheduler:{{ cluster_cfg['kubernetes']['kube-scheduler-version'] }}
     name: kube-scheduler
-    command: [
-      "sh", "-c",
-      "echo apiVersion: kubescheduler.config.k8s.io/v1alpha1 >> sc.yaml &&
-       echo kind: KubeSchedulerConfiguration >> sc.yaml &&
-       echo disablePreemption: true  >> sc.yaml &&
-       /usr/local/bin/kube-scheduler
-       --master={{ cluster_cfg['kubernetes']['api-servers-ip'] }}:{{ cluster_cfg['kubernetes']['api-servers-port'] }}
-       --feature-gates=PodPriority=true
-       --config=sc.yaml
-       --leader-elect=true
-       --v=4"]
+    command:
+    - /usr/local/bin/kube-scheduler
+    - --master
+    - {{ cluster_cfg['kubernetes']['api-servers-ip'] }}:{{ cluster_cfg['kubernetes']['api-servers-port'] }}
+    - --leader-elect=true
+    - --feature-gates=PodPriority=true
+    - --v=4
     livenessProbe:
       httpGet:
         path: /healthz
