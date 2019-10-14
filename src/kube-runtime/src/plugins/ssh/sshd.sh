@@ -28,7 +28,7 @@ function prepare_ssh()
   mkdir -p ${SSH_DIR}
   chmod 700 ${SSH_DIR}
   touch ${SSH_DIR}/authorized_keys
-  chmod 600 ${SSH_DIR}/authorized_keys
+  chmod 644 ${SSH_DIR}/authorized_keys
 
   mkdir -p /var/run/sshd
 
@@ -87,7 +87,7 @@ function prepare_system_user_ssh()
     cat $localPublicKeyPath >> ${SSH_DIR}/authorized_keys
   else
     echo "system user ssh public key $localPublicKeyPath not found!" >&2
-  fi 
+  fi
 }
 
 function prepare_custom_user_ssh()
@@ -132,7 +132,7 @@ if [ -f /usr/sbin/sshd ] ; then
                 ;;
             esac
           fi
-          start_ssh         
+          start_ssh
         else
           echo "usage: sshd <enable jobssh> [<userssh type> <userssh value>]" >&2
         fi
