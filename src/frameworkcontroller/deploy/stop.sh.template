@@ -34,16 +34,4 @@ if kubectl get clusterrolebinding | grep -q "frameworkcontroller-role-binding"; 
     kubectl delete clusterrolebinding frameworkcontroller-role-binding || exit $?
 fi
 
-if kubectl get serviceaccount | grep -q "frameworkbarrier"; then
-    kubectl delete serviceaccount frameworkbarrier || exit $?
-fi
-
-if kubectl get clusterrole | grep -q "frameworkbarrier"; then
-    kubectl delete clusterrole frameworkbarrier || exit $?
-fi
-
-if kubectl get clusterrolebinding | grep -q "frameworkbarrier"; then
-    kubectl delete clusterrolebinding frameworkbarrier || exit $?
-fi
-
 popd > /dev/null
