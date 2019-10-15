@@ -55,6 +55,7 @@ export default class TaskRole extends React.Component {
     const { taskInfo } = this.props;
     const count = {
       running: 0,
+      waiting: 0,
       succeeded: 0,
       failed: 0,
       unknown: 0,
@@ -63,8 +64,10 @@ export default class TaskRole extends React.Component {
       for (const item of taskInfo.taskStatuses) {
         switch (item.taskState) {
           case 'RUNNING':
-          case 'WAITING':
             count.running += 1;
+            break;
+          case 'WAITING':
+            count.waiting += 1;
             break;
           case 'SUCCEEDED':
             count.succeeded += 1;
