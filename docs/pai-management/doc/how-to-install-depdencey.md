@@ -52,7 +52,7 @@ apt-get -y install \
       bash-completion \
       inotify-tools \
       rsync \
-      realpath \
+      coreutils \
       net-tools
 
 pip install --upgrade python-etcd docker kubernetes paramiko==2.6.0 GitPython
