@@ -63,7 +63,7 @@ type GenericCell struct {
 
 	totalGpuNum          int32                  // total GPU number of a cell
 	freeGpuNum           int32                  // free GPU number of a cell
-	freeGpuNumAtPriority int32                  // free GPU number at a certain priority (lower priority considered as free)
+	freeGpuNumAtPriority int32                  // free GPU number at the priority of the pod to be scheduled (lower priority considered as free)
 	usedGpuNumAtPriority map[CellPriority]int32 // GPU number used by each priority
 	// GPU number used by the same priority as that of the pod to be scheduled in topologyAwareScheduler (for sorting cells)
 	usedGpuNumSamePriority int32

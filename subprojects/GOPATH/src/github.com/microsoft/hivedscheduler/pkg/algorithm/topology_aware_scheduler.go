@@ -24,12 +24,13 @@ package algorithm
 
 import (
 	"fmt"
+	"github.com/microsoft/hivedscheduler/pkg/common"
 	"sort"
 )
 
 // topologyAwareScheduler can schedule a set of pods on a cluster view.
-// It tries to place pods to nodes with fewer free GPUs (i.e., packing), while trying to avoid preemptions.
-// Inside each node, it tries to allocate GPUs with better affinity.
+// It first tries to place pods to nodes with fewer free GPUs (i.e., packing), while trying to avoid preemptions.
+// Then inside each node, it tries to allocate GPUs with better affinity.
 type topologyAwareScheduler struct {
 	// a list of node level cells (top level cells that are lower than node level will be treated as nodes)
 	clusterView CellList
@@ -69,7 +70,7 @@ func (t *topologyAwareScheduler) Schedule(
 			sortedPodGpuNumbers = append(sortedPodGpuNumbers, gpuNum)
 		}
 	}
-	sortGpuNumbers(sortedPodGpuNumbers)
+	common.SortInt32(sortedPodGpuNumbers)
 
 	// disable preemption first (reduce preemption)
 	priority := opportunisticPriority
@@ -243,17 +244,6 @@ func removePickedGpus(gpus CellList, indices []int32) CellList {
 		}
 	}
 	return gpus[:len(gpus)-len(indices)]
-}
-
-func sortGpuNumbers(n []int32) {
-	tmp := make([]int, len(n))
-	for i := 0; i < len(n); i++ {
-		tmp[i] = int(n[i])
-	}
-	sort.Ints(tmp)
-	for i := 0; i < len(tmp); i++ {
-		n[i] = int32(tmp[i])
-	}
 }
 
 // findLCA finds the lowest common ancestor of two cells (nil if they have no LCA).

@@ -42,8 +42,11 @@ type intraVCScheduler interface {
 type defaultIntraVCScheduler struct {
 	virtualNonReservedCellList map[CellChain]ChainCellList
 	virtualReservedCellList    map[api.ReservationId]ChainCellList
-	nonReservedSchedulers      map[CellChain]*topologyAwareScheduler
-	reservedSchedulers         map[api.ReservationId]*topologyAwareScheduler
+	// currently we create a topologyAwareScheduler for each cluster view (each chain, each reservation).
+	// we plan to support multiple cluster views in one scheduler, and to support schedule pods
+	// across different cluster views.
+	nonReservedSchedulers map[CellChain]*topologyAwareScheduler
+	reservedSchedulers    map[api.ReservationId]*topologyAwareScheduler
 }
 
 func newDefaultIntraVCScheduler(
@@ -85,7 +88,7 @@ func (s *defaultIntraVCScheduler) schedule(sr schedulingRequest) map[int32][]Cel
 	if scheduler != nil {
 		result = scheduler.Schedule(sr.affinityGroup, sr.priority)
 	}
-	if scheduler == nil || result == nil {
+	if result == nil {
 		var str string
 		if sr.reservationId != "" {
 			str = fmt.Sprintf("reservation %v", sr.reservationId)

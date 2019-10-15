@@ -117,7 +117,7 @@ func (h *HivedAlgorithm) Schedule(pod *core.Pod, suggestedNodes []string) intern
 		}
 		klog.Infof("Pod from existing affinity group: %v", s.AffinityGroup.Name)
 		groupPhysicalPlacement = h.allocatedAffinityGroups[s.AffinityGroup.Name].physicalGpuPlacement
-		groupVcPlacement = h.allocatedAffinityGroups[s.AffinityGroup.Name].vcGpuPlacement
+		groupVcPlacement = h.allocatedAffinityGroups[s.AffinityGroup.Name].virtualGpuPlacement
 		podIndex = h.allocatedAffinityGroups[s.AffinityGroup.Name].unallocatedPodNums[s.GpuNumber] - 1
 	}
 	return generatePodScheduleResult(
@@ -139,11 +139,11 @@ func (h *HivedAlgorithm) AddAllocatedPod(pod *core.Pod) {
 		for _, gms := range info.AffinityGroupBindInfo {
 			gpuNumber := int32(len(gms.PodPlacements[0].PhysicalGpuIndices))
 			newGroup.physicalGpuPlacement[gpuNumber] = make([]CellList, len(gms.PodPlacements))
-			newGroup.vcGpuPlacement[gpuNumber] = make([]CellList, len(gms.PodPlacements))
+			newGroup.virtualGpuPlacement[gpuNumber] = make([]CellList, len(gms.PodPlacements))
 			for i := int32(0); i < int32(len(gms.PodPlacements)); i++ {
 				newGroup.physicalGpuPlacement[gpuNumber][i] = make(
 					CellList, len(gms.PodPlacements[i].PhysicalGpuIndices))
-				newGroup.vcGpuPlacement[gpuNumber][i] = make(
+				newGroup.virtualGpuPlacement[gpuNumber][i] = make(
 					CellList, len(gms.PodPlacements[i].PhysicalGpuIndices))
 				node := gms.PodPlacements[i].PhysicalNode
 				for j := int32(0); j < int32(len(gms.PodPlacements[i].PhysicalGpuIndices)); j++ {
@@ -161,7 +161,7 @@ func (h *HivedAlgorithm) AddAllocatedPod(pod *core.Pod) {
 							internal.Key(pod), virtualCellIndex))
 					}
 					newGroup.physicalGpuPlacement[gpuNumber][i][j] = pGpu
-					newGroup.vcGpuPlacement[gpuNumber][i][j] = vGpu
+					newGroup.virtualGpuPlacement[gpuNumber][i][j] = vGpu
 					h.confirmAllocatedGpu(pGpu, vGpu, CellPriority(s.Priority))
 				}
 			}

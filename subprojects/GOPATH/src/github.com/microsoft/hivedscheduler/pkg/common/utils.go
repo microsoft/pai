@@ -36,6 +36,7 @@ import (
 	"os"
 	"os/signal"
 	"runtime/debug"
+	"sort"
 	"strconv"
 	"strings"
 	"syscall"
@@ -231,18 +232,6 @@ func StringsContains(s []string, e string) bool {
 	return false
 }
 
-func NextPowerOf2(i int32) int32 {
-	u := uint32(i)
-	u--
-	u |= u >> 1
-	u |= u >> 2
-	u |= u >> 4
-	u |= u >> 8
-	u |= u >> 16
-	u++
-	return int32(u)
-}
-
 func Int32ToString(i int32) string {
 	s := strconv.FormatInt(int64(i), 10)
 	return s
@@ -254,4 +243,15 @@ func StringToInt32(s string) int32 {
 		panic(fmt.Sprintf("invalid literal for int32: %v", err))
 	}
 	return int32(i)
+}
+
+func SortInt32(n []int32) {
+	tmp := make([]int, len(n))
+	for i := 0; i < len(n); i++ {
+		tmp[i] = int(n[i])
+	}
+	sort.Ints(tmp)
+	for i := 0; i < len(tmp); i++ {
+		n[i] = int32(tmp[i])
+	}
 }

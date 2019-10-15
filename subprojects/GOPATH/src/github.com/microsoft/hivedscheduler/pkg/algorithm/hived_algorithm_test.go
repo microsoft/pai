@@ -174,7 +174,7 @@ var group1, group2, group3, group4, group5, group6, group7, group8, group9, grou
 	Members: []api.AffinityGroupMemberSpec{{PodNumber: 1, GpuNumber: 8}},
 }, &api.AffinityGroupSpec{
 	Name:    "group9",
-	Members: []api.AffinityGroupMemberSpec{{PodNumber: 1, GpuNumber: 1}},
+	Members: []api.AffinityGroupMemberSpec{{PodNumber: 1, GpuNumber: 7}},
 }, &api.AffinityGroupSpec{
 	Name:    "group10",
 	Members: []api.AffinityGroupMemberSpec{{PodNumber: 1, GpuNumber: 1}},
@@ -235,7 +235,7 @@ var pss = map[types.UID]api.PodSchedulingSpec{
 		Priority:       1,
 		ReservationId:  "",
 		GpuType:        "",
-		GpuNumber:      1,
+		GpuNumber:      7,
 		AffinityGroup:  group9,
 	}, "pod9": { // use a GPU type that the VC does not have; should panic BadRequest
 		VirtualCluster: "VC2",
@@ -302,7 +302,7 @@ var expectedResult = map[*core.Pod]result{
 	pod4: {node: "0.0.5.0", gpuIsolation: []int32{0}},
 	pod5: {node: "0.0.3.0", gpuIsolation: []int32{1}},
 	pod6: {node: "0.0.3.0", gpuIsolation: []int32{0}},
-	pod8: {node: "1.0.0.2", gpuIsolation: []int32{0}},
+	pod8: {node: "1.0.0.2", gpuIsolation: []int32{0, 1, 2, 3, 4, 5, 6}},
 }
 
 var allocatedPods []*core.Pod
@@ -316,14 +316,13 @@ func TestHivedAlgorithm(t *testing.T) {
 	for _, chains := range h.chains {
 		sortChains(chains)
 	}
-	//printConfig(t, h)
 
+	printConfig(t, h)
 	testCasesThatShouldSucceed(t, h)
 	testCasesThatShouldFail(t, h)
 	for i := len(allocatedPods) - 1; i >= 0; i-- {
 		h.DeleteAllocatedPod(allocatedPods[i])
 	}
-
 	testInvalidInitialAssignment(t, sConfig)
 }
 

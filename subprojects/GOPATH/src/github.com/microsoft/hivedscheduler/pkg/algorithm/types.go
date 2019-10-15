@@ -126,7 +126,7 @@ type AlgoAffinityGroup struct {
 	cell                 *PhysicalCell
 	unallocatedPodNums   map[int32]int32      // GpuNum -> PodNum
 	physicalGpuPlacement map[int32][]CellList // GpuNum -> a list of pods -> a list of physical GPUs of each pod
-	vcGpuPlacement       map[int32][]CellList // GpuNum -> a list of pods -> a list of virtual GPUs of each pod
+	virtualGpuPlacement  map[int32][]CellList // GpuNum -> a list of pods -> a list of virtual GPUs of each pod
 }
 
 func newAlgoAffinityGroup(g *api.AffinityGroupSpec) *AlgoAffinityGroup {
@@ -137,6 +137,6 @@ func newAlgoAffinityGroup(g *api.AffinityGroupSpec) *AlgoAffinityGroup {
 	return &AlgoAffinityGroup{
 		unallocatedPodNums:   numPods,
 		physicalGpuPlacement: map[int32][]CellList{},
-		vcGpuPlacement:       map[int32][]CellList{},
+		virtualGpuPlacement:  map[int32][]CellList{},
 	}
 }
