@@ -23,7 +23,6 @@ prerequisite:
   - kube-runtime
 
 template-list:
-  - stop.sh
   - frameworkcontroller.yaml
   - frameworkcontroller-config.yaml
 

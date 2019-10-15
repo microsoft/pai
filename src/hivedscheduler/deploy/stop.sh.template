@@ -28,12 +28,12 @@ if kubectl get configmap | grep -q "hivedscheduler-config"; then
     kubectl delete configmap hivedscheduler-config || exit $?
 fi
 
-if kubectl get serviceaccount | grep -q "hivedscheduler-account"; then
-    kubectl delete serviceaccount hivedscheduler-account || exit $?
-fi
-
 if kubectl get clusterrolebinding | grep -q "hivedscheduler-role-binding"; then
     kubectl delete clusterrolebinding hivedscheduler-role-binding || exit $?
+fi
+
+if kubectl get serviceaccount | grep -q "hivedscheduler-account"; then
+    kubectl delete serviceaccount hivedscheduler-account || exit $?
 fi
 
 {% endif %}

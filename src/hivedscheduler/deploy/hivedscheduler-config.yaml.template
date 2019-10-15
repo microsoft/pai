@@ -58,5 +58,7 @@ data:
       ]
     }
   hivedscheduler.yaml: |
+  {%- if cluster_cfg['cluster']['common']['k8s-rbac'] != 'true' %}
     kubeApiServerAddress: "{{ cluster_cfg['layout']['kubernetes']['api-servers-url'] }}"
+  {%- endif %}
     {{ cluster_cfg['hivedscheduler']['config'] }}
