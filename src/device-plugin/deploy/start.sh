@@ -19,18 +19,7 @@
 
 pushd $(dirname "$0") > /dev/null
 
-kubectl apply --overwrite=true -f https://raw.githubusercontent.com/NVIDIA/k8s-device-plugin/1.0.0-beta/nvidia-device-plugin.yml || exit $?
-
-{% if cluster_cfg['hivedscheduler']['config']|length > 1 %}
-
-kubectl apply --overwrite=true -f hivedscheduler-config.yaml || exit $?
-kubectl apply --overwrite=true -f rbac.yaml || exit $?
-kubectl apply --overwrite=true -f hivedscheduler.yaml || exit $?
-
-sleep 10
-# Wait until the service is ready.
-PYTHONPATH="../../../deployment" python -m k8sPaiLibrary.monitorTool.check_pod_ready_status -w -k app -v hivedscheduler || exit $?
-
-{% endif %}
+kubectl apply --overwrite=true -f https://raw.githubusercontent.com/Mellanox/k8s-rdma-sriov-dev-plugin/master/example/hca/rdma-hca-node-config.yaml || exit $?
+kubectl apply --overwrite=true -f https://raw.githubusercontent.com/Mellanox/k8s-rdma-sriov-dev-plugin/master/example/device-plugin.yaml || exit $?
 
 popd > /dev/null
