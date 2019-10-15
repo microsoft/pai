@@ -1,5 +1,3 @@
-#!/bin/sh
-
 #!/bin/bash
 
 # Copyright (c) Microsoft Corporation
@@ -23,9 +21,11 @@ INSTANCES="
 deployment/prometheus-deployment
 configmap/prometheus-configmap
 configmap/prometheus-alert
+serviceaccount/prometheus-account
+clusterrolebinding/prometheus-role-binding
 "
 
 for instance in ${INSTANCES}; do
-  kubectl delete --ignore-not-found --now ${instance}
+  kubectl delete --ignore-not-found --now ${instance} || exit $?
 done
 

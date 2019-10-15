@@ -18,7 +18,6 @@
 {% set prom_info = cluster_cfg["prometheus"] %}
 {% set has_alert_manager = cluster_cfg["alert-manager"]["configured"] %}
 {% set alert_manager_port = cluster_cfg["alert-manager"]["port"] %}
-{% set token_path = "/var/run/secrets/kubernetes.io/serviceaccount" %}
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -33,15 +32,11 @@ data:
     - job_name: 'pai_serivce_exporter'
       scrape_interval: {{ prom_info["scrape_interval"] }}s
       kubernetes_sd_configs:
-      - api_server: '{{ cluster_cfg['layout']['kubernetes']['api-servers-url'] }}'
-        role: pod
-      # The current tls_config configuration is tested on on-premise and Azure AKS. If your environment is different, please configure and replace it.
-      {% if 'https' in cluster_cfg['layout']['kubernetes']['api-servers-url']  %}
-      tls_config:
-        ca_file: {{ token_path }}/ca.crt
-      bearer_token_file: {{ token_path }}/token
-      kubernetes_sd_configs:
       - role: pod
+      # prometheus will use incluster config if api_server is empty
+      # please refer to https://prometheus.io/docs/prometheus/latest/configuration/configuration/#kubernetes_sd_config
+      {% if cluster_cfg['cluster']['common']['k8s-rbac'] != 'true' %}
+        api_server: '{{ cluster_cfg['layout']['kubernetes']['api-servers-url'] }}'
       {% endif %}
       relabel_configs:
         - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_scrape]
