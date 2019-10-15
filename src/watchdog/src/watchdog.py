@@ -82,18 +82,17 @@ def gen_k8s_api_gauge():
     return GaugeMetricFamily("k8s_api_server_count", "count of k8s api server",
             labels=["error", "host_ip"])
 
+def gen_k8s_node_gpu_total():
+    return GaugeMetricFamily("k8s_node_gpu_total", "gpu capacity on k8s node",
+            labels=["host_ip"])
+
+def gen_k8s_node_gpu_allocatable():
+    return GaugeMetricFamily("k8s_node_gpu_allocatable",
+            "gpu allocatable on k8s node, this include used allocatable",
+            labels=["host_ip"])
+
 def gen_k8s_node_gpu_available():
     return GaugeMetricFamily("k8s_node_gpu_available", "gpu available on k8s node",
-            labels=["host_ip"])
-
-# reserved gpu means gpu not allocated to tasks and the node is being marked as
-# unschedulable.
-def gen_k8s_node_gpu_reserved():
-    return GaugeMetricFamily("k8s_node_gpu_reserved", "gpu reserved on k8s node",
-            labels=["host_ip"])
-
-def gen_k8s_node_gpu_total():
-    return GaugeMetricFamily("k8s_node_gpu_total", "gpu total on k8s node",
             labels=["host_ip"])
 
 service_response_histogram = Histogram("service_response_latency_seconds",
@@ -381,7 +380,7 @@ def collect_k8s_component(api_server_scheme, api_server_ip, api_server_port, ca_
 
 
 def parse_node_item(node, pai_node_gauge,
-        node_gpu_avail, node_gpu_total, node_gpu_reserved,
+        node_gpu_avail, node_gpu_total, node_gpu_allocatable,
         pods_info):
 
     ip = None
@@ -420,23 +419,9 @@ def parse_node_item(node, pai_node_gauge,
 
         # https://github.com/kubernetes/community/blob/master/contributors/design-proposals/node/node-allocatable.md
         # [Allocatable] = [Node Capacity] - [Kube-Reserved] - [System-Reserved] - [Hard-Eviction-Threshold]
-        total_gpu = 0
-
-        allocatable = walk_json_field_safe(status, "allocatable")
-        if allocatable is not None:
-            gpu1 = int(walk_json_field_safe(allocatable, "alpha.kubernetes.io/nvidia-gpu") or "0")
-            gpu2 = int(walk_json_field_safe(allocatable, "nvidia.com/gpu") or "0")
-
-            total_gpu = max(gpu1, gpu2)
-            node_gpu_total.add_metric([ip], total_gpu)
-        else:
-            capacity = walk_json_field_safe(status, "capacity")
-            if capacity is not None:
-                gpu1 = int(walk_json_field_safe(capacity, "alpha.kubernetes.io/nvidia-gpu") or "0")
-                gpu2 = int(walk_json_field_safe(capacity, "nvidia.com/gpu") or "0")
-                total_gpu = max(gpu1. gpu2)
-
-                node_gpu_total.add_metric([ip], total_gpu)
+        gpu_capacity = int(walk_json_field_safe(status, "capacity", "nvidia.com/gpu") or 0)
+        gpu_allocatable = int(walk_json_field_safe(status, "allocatable", "nvidia.com/gpu") or 0)
+        node_gpu_total.add_metric([ip], gpu_capacity)
 
         # Because k8s api's node api do not record how much resource left for
         # allocation, so we have to compute it ourselves.
@@ -446,14 +431,12 @@ def parse_node_item(node, pai_node_gauge,
             for pod in pods_info[ip]:
                 used_gpu += pod.gpu
 
-        # if a node is marked as unschedulable, the available gpu will be 0
-        # and reserved gpu will be `total - used`
-        if walk_json_field_safe(node, "spec", "unschedulable") != True:
-            node_gpu_avail.add_metric([ip], max(0, total_gpu - used_gpu))
-            node_gpu_reserved.add_metric([ip], 0)
+        if walk_json_field_safe(node, "spec", "unschedulable") != True and ready == "true":
+            node_gpu_avail.add_metric([ip], max(0, gpu_allocatable - used_gpu))
+            node_gpu_allocatable.add_metric([ip], gpu_allocatable)
         else:
             node_gpu_avail.add_metric([ip], 0)
-            node_gpu_reserved.add_metric([ip], max(0, total_gpu - used_gpu))
+            node_gpu_allocatable.add_metric([ip], 0)
     else:
         logger.warning("unexpected structure of node %s: %s", ip, json.dumps(node))
 
@@ -469,7 +452,7 @@ def parse_node_item(node, pai_node_gauge,
 def process_nodes_status(nodes_object, pods_info):
     pai_node_gauge = gen_pai_node_gauge()
     node_gpu_avail = gen_k8s_node_gpu_available()
-    node_gpu_reserved = gen_k8s_node_gpu_reserved()
+    node_gpu_allocatable = gen_k8s_node_gpu_allocatable()
     node_gpu_total = gen_k8s_node_gpu_total()
 
     def _map_fn(item):
@@ -480,13 +463,13 @@ def process_nodes_status(nodes_object, pods_info):
                 pai_node_gauge,
                 node_gpu_avail,
                 node_gpu_total,
-                node_gpu_reserved,
+                node_gpu_allocatable,
                 pods_info)
 
     list(map(_map_fn, nodes_object["items"]))
 
     return [pai_node_gauge,
-            node_gpu_avail, node_gpu_total, node_gpu_reserved]
+            node_gpu_avail, node_gpu_total, node_gpu_allocatable]
 
 
 def process_vc_quota(vc_object):
