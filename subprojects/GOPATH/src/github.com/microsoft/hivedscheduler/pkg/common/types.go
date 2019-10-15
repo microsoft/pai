@@ -60,6 +60,10 @@ func (s Set) IsEmpty() bool {
 	return len(s.items) == 0
 }
 
+func (s Set) Items() map[T]Empty {
+	return s.items
+}
+
 type ImmutableSet struct {
 	set Set
 }

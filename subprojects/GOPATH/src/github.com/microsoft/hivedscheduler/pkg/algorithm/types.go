@@ -60,6 +60,8 @@ func (cl CellList) String() string {
 
 func (cl CellList) remove(c Cell) CellList {
 	index := -1
+	// note that the cell is removed by reference. if you create a clone of the cell,
+	// the cloned one cannot be removed the CellList.
 	for i, cc := range cl {
 		if cc == c {
 			index = i
@@ -87,7 +89,7 @@ func (cl CellList) Less(i int, j int) bool {
 		return true
 	} else if cl[i].GetUsedGpuNumSamePriority() < cl[j].GetUsedGpuNumSamePriority() {
 		return false
-	} else if cl[i].GetUsedGpuNumOtherPriority() < cl[j].GetUsedGpuNumOtherPriority() {
+	} else if cl[i].GetUsedGpuNumHigherPriority() < cl[j].GetUsedGpuNumHigherPriority() {
 		return true
 	} else {
 		return false
@@ -122,6 +124,7 @@ func (ccl ChainCellList) remove(c Cell, l CellLevel) {
 	klog.Infof("Cell removed from cell list: %v", c.GetName())
 }
 
+// AlgoAffinityGroup is the algorithm-internal representation of an affinity group.
 type AlgoAffinityGroup struct {
 	cell                 *PhysicalCell
 	unallocatedPodNums   map[int32]int32      // GpuNum -> PodNum

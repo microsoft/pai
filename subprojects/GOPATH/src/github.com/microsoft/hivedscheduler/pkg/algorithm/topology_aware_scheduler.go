@@ -276,7 +276,7 @@ func (t *topologyAwareScheduler) updateClusterView(p CellPriority) {
 			c.UpdateUsedGpuNumAllPriority(p)
 		} else {
 			// otherwise set c.usedGpuNumSamePriority as the number of GPUs used by the same priority, and
-			// c.usedGpuNumLowerPriority as that of the lower priorities, so that a pod will be packed to the node
+			// c.usedGpuNumHigherPriority as that of the higher priorities, so that a pod will be packed to the node
 			// with the most GPUs used by the same priority, and the fewest GPUs used by the lower priorities.
 			c.UpdateUsedGpuNumForPriority(p)
 		}

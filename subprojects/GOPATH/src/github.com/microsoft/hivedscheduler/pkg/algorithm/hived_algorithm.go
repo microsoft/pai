@@ -33,6 +33,9 @@ import (
 	"sync"
 )
 
+// HivedAlgorithm implements an internal.SchedulerAlgorithm. It schedules pods using the algorithm of HiveD.
+// Note that the topologyAwareScheduler used in this struct is not another implementation of SchedulerAlgorithm;
+// that is a specific algorithm for pod placement, used in intra-VC scheduling and opportunistic pod scheduling.
 type HivedAlgorithm struct {
 	// scheduler in each VC
 	vcSchedulers map[api.VirtualClusterName]intraVCScheduler
@@ -99,17 +102,14 @@ func (h *HivedAlgorithm) Schedule(pod *core.Pod, suggestedNodes []string) intern
 		groupPhysicalPlacement map[int32][]CellList
 		groupVcPlacement       map[int32][]CellList
 		podIndex               int32
-		newGroup               bool
 	)
 	if group := h.allocatedAffinityGroups[s.AffinityGroup.Name]; group == nil {
-		newGroup = true
 		klog.Infof("Scheduling new affinity group %v", s.AffinityGroup.Name)
 		groupPhysicalPlacement, groupVcPlacement = h.scheduleNewAffinityGroup(pod, s)
 		if groupPhysicalPlacement != nil {
 			podIndex = int32(len(groupPhysicalPlacement[s.GpuNumber])) - 1
 		}
 	} else {
-		newGroup = false
 		if h.allocatedAffinityGroups[s.AffinityGroup.Name].unallocatedPodNums[s.GpuNumber] <= 0 {
 			panic(internal.NewBadRequestError(fmt.Sprintf(
 				"Requesting more pods than the configured number for %v GPUs in affinity group %v",
@@ -121,7 +121,7 @@ func (h *HivedAlgorithm) Schedule(pod *core.Pod, suggestedNodes []string) intern
 		podIndex = h.allocatedAffinityGroups[s.AffinityGroup.Name].unallocatedPodNums[s.GpuNumber] - 1
 	}
 	return generatePodScheduleResult(
-		groupPhysicalPlacement, groupVcPlacement, podIndex, suggestedNodes, pod, newGroup)
+		groupPhysicalPlacement, groupVcPlacement, s.GpuNumber, podIndex, suggestedNodes, pod)
 }
 
 // TODO: reconfig; suggestedNodes (failure)
@@ -278,7 +278,7 @@ func (h *HivedAlgorithm) scheduleNewAffinityGroup(
 
 	var (
 		physicalPlacement map[int32][]CellList
-		vcPlacement       map[int32][]CellList
+		virtualPlacement  map[int32][]CellList
 		priority          CellPriority
 	)
 	if s.Priority < api.RegularPriority {
@@ -299,16 +299,16 @@ func (h *HivedAlgorithm) scheduleNewAffinityGroup(
 	if sr.reservationId != "" {
 		klog.Infof("Use reservation %v", s.ReservationId)
 		sr.chain = h.reservedCells[sr.vc][sr.reservationId].GetChain()
-		physicalPlacement, vcPlacement = h.processSchedulingRequest(sr)
+		physicalPlacement, virtualPlacement = h.processSchedulingRequest(sr)
 	} else {
-		physicalPlacement, vcPlacement = h.scheduleAffinityGroupForGpuType(sr, s.GpuType, pod)
+		physicalPlacement, virtualPlacement = h.scheduleAffinityGroupForGpuType(sr, s.GpuType, pod)
 	}
 	if physicalPlacement != nil {
 		klog.Infof("Succeed scheduling group %v", s.AffinityGroup.Name)
 	} else {
 		klog.Infof("Failed to schedule group %v", s.AffinityGroup.Name)
 	}
-	return physicalPlacement, vcPlacement
+	return physicalPlacement, virtualPlacement
 }
 
 // scheduleAffinityGroupForGpuType schedules an affinity group in a certain cell chain.
@@ -330,8 +330,8 @@ func (h *HivedAlgorithm) scheduleAffinityGroupForGpuType(
 					vcHasType = true
 				}
 				sr.chain = chain
-				if physicalPlacement, vcPlacement := h.processSchedulingRequest(sr); physicalPlacement != nil {
-					return physicalPlacement, vcPlacement
+				if physicalPlacement, virtualPlacement := h.processSchedulingRequest(sr); physicalPlacement != nil {
+					return physicalPlacement, virtualPlacement
 				}
 			}
 			if sr.priority >= regularPriority && !vcHasType {
@@ -344,8 +344,8 @@ func (h *HivedAlgorithm) scheduleAffinityGroupForGpuType(
 		for _, chains := range h.chains {
 			for _, chain := range chains {
 				sr.chain = chain
-				if physicalPlacement, vcPlacement := h.processSchedulingRequest(sr); physicalPlacement != nil {
-					return physicalPlacement, vcPlacement
+				if physicalPlacement, virtualPlacement := h.processSchedulingRequest(sr); physicalPlacement != nil {
+					return physicalPlacement, virtualPlacement
 				}
 			}
 		}
@@ -386,13 +386,13 @@ func (h *HivedAlgorithm) processSchedulingRequest(sr schedulingRequest) (map[int
 // then maps the placement in VC to the physical cluster.
 func (h *HivedAlgorithm) scheduleRegularAffinityGroup(sr schedulingRequest) (map[int32][]CellList, map[int32][]CellList) {
 	// schedule in VC
-	vcPlacement := h.vcSchedulers[sr.vc].schedule(sr)
-	if vcPlacement == nil {
+	virtualPlacement := h.vcSchedulers[sr.vc].schedule(sr)
+	if virtualPlacement == nil {
 		return nil, nil
 	}
 	// map the vc placement to the physical cluster
 	physicalPlacement := map[int32][]CellList{}
-	for podGpuNum, podPlacements := range vcPlacement {
+	for podGpuNum, podPlacements := range virtualPlacement {
 		physicalPlacement[podGpuNum] = make([]CellList, len(podPlacements))
 		for i, podGpus := range podPlacements {
 			physicalPlacement[podGpuNum][i] = make(CellList, len(podGpus))
@@ -423,8 +423,8 @@ func (h *HivedAlgorithm) scheduleRegularAffinityGroup(sr schedulingRequest) (map
 			}
 		}
 	}
-	clearTmpBindings(vcPlacement)
-	return physicalPlacement, vcPlacement
+	clearTmpBindings(virtualPlacement)
+	return physicalPlacement, virtualPlacement
 }
 
 // scheduleOpportunisticAffinityGroup calls the opportunistic pod scheduler to schedule an affinity group.
@@ -603,11 +603,11 @@ func (h *HivedAlgorithm) findVirtualGpu(
 // generatePodScheduleResult writes the scheduling result into a PodScheduleResult.
 func generatePodScheduleResult(
 	groupPhysicalPlacement map[int32][]CellList,
-	groupVcPlacement map[int32][]CellList,
-	schedulePodIndex int32,
+	groupVirtualPlacement map[int32][]CellList,
+	currentGpuNum int32,
+	currentPodIndex int32,
 	suggestedNodes []string,
-	pod *core.Pod,
-	newGroup bool) internal.PodScheduleResult {
+	pod *core.Pod) internal.PodScheduleResult {
 
 	if groupPhysicalPlacement == nil {
 		return internal.PodScheduleResult{
@@ -616,52 +616,20 @@ func generatePodScheduleResult(
 			},
 		}
 	} else {
-		var (
-			selectedNode       string
-			selectedGpuIndices []int32
-			chain              string
-		)
-		preemptionVictims := common.NewSet()
-		gsi := make([]api.AffinityGroupMemberBindInfo, len(groupPhysicalPlacement))
-		groupMemberIndex := 0
-		for podGpuNum, podPhysicalPlacements := range groupPhysicalPlacement {
-			gms := api.AffinityGroupMemberBindInfo{
-				PodPlacements: make([]api.PodPlacementInfo, len(podPhysicalPlacements)),
-			}
-			for podIndex := int32(0); podIndex < int32(len(podPhysicalPlacements)); podIndex++ {
-				gms.PodPlacements[podIndex].PhysicalGpuIndices = make(
-					[]int32, len(podPhysicalPlacements[podIndex]))
-				gms.PodPlacements[podIndex].VirtualCellIndices = make(
-					[]int32, len(podPhysicalPlacements[podIndex]))
-				for gpuIndex := 0; gpuIndex < len(podPhysicalPlacements[podIndex]); gpuIndex++ {
-					pGpu := podPhysicalPlacements[podIndex][gpuIndex].(*PhysicalCell)
-					nodes, gpuIndices := pGpu.GetPhysicalPlacement()
-					if gms.PodPlacements[podIndex].PhysicalNode == "" {
-						gms.PodPlacements[podIndex].PhysicalNode = nodes[0]
-					}
-					gms.PodPlacements[podIndex].PhysicalGpuIndices[gpuIndex] = gpuIndices[0]
-					if newGroup && pGpu.HasPod() {
-						preemptionVictims.Add(pGpu.GetPods()[0])
-					}
-					if groupVcPlacement != nil {
-						vGpu := groupVcPlacement[podGpuNum][podIndex][gpuIndex].(*VirtualCell)
-						gms.PodPlacements[podIndex].VirtualCellIndices[gpuIndex] = vGpu.GetIndex()
-					} else {
-						gms.PodPlacements[podIndex].VirtualCellIndices[gpuIndex] = -1
-					}
-				}
-				if podIndex == schedulePodIndex {
-					selectedNode = gms.PodPlacements[podIndex].PhysicalNode
-					selectedGpuIndices = gms.PodPlacements[podIndex].PhysicalGpuIndices
-					chain = string(podPhysicalPlacements[podIndex][0].GetChain())
-				}
-			}
-			gsi[groupMemberIndex] = gms
-			groupMemberIndex++
-		}
+		affinityGroupBindInfo, selectedNode, selectedGpuIndices := generateAffinityGroupBindInfo(
+			groupPhysicalPlacement, groupVirtualPlacement, currentGpuNum, currentPodIndex)
+		chain := string(groupPhysicalPlacement[currentGpuNum][currentPodIndex][0].GetChain())
 		if !common.StringsContains(suggestedNodes, selectedNode) {
 			panic(fmt.Sprintf("[%v]: node %v picked by algorithm but not in K8S candidates",
 				internal.Key(pod), selectedNode))
+		}
+		// collect preemption victims
+		preemptionVictims := common.NewSet()
+		for _, gpu := range groupPhysicalPlacement[currentGpuNum][currentPodIndex] {
+			pGpu := gpu.(*PhysicalCell)
+			if pGpu.HasPod() {
+				preemptionVictims.Add(pGpu.GetPods()[0])
+			}
 		}
 		if preemptionVictims.IsEmpty() {
 			klog.Infof("[%v]: scheduled to node %v, GPUs %v",
@@ -671,15 +639,68 @@ func generatePodScheduleResult(
 					Node:                  selectedNode,
 					GpuIsolation:          selectedGpuIndices,
 					CellChain:             chain,
-					AffinityGroupBindInfo: gsi,
+					AffinityGroupBindInfo: affinityGroupBindInfo,
 				},
 			}
 		} else {
+			var victimPods []*core.Pod
+			for v := range preemptionVictims.Items() {
+				victimPods = append(victimPods, v.(*core.Pod))
+			}
 			return internal.PodScheduleResult{
-				PodPreemptInfo: &internal.PodPreemptInfo{},
+				PodPreemptInfo: &internal.PodPreemptInfo{VictimPods: victimPods},
 			}
 		}
 	}
+}
+
+// generateAffinityGroupBindInfo writes the physical and virtual placements of an affinity group
+// into a a series of AffinityGroupMemberBindInfos, and returns the allocated node and GPU addresses
+// of the current pod.
+func generateAffinityGroupBindInfo(
+	groupPhysicalPlacement map[int32][]CellList,
+	groupVcPlacement map[int32][]CellList,
+	currentGpuNum int32,
+	currentPodIndex int32) ([]api.AffinityGroupMemberBindInfo, string, []int32) {
+
+	affinityGroupBindInfo := make([]api.AffinityGroupMemberBindInfo, len(groupPhysicalPlacement))
+	var selectedNode string
+	var selectedGpuIndices []int32
+	groupMemberIndex := 0
+	for podGpuNum, podPhysicalPlacements := range groupPhysicalPlacement {
+		mbi := api.AffinityGroupMemberBindInfo{
+			PodPlacements: make([]api.PodPlacementInfo, len(podPhysicalPlacements)),
+		}
+		for podIndex := int32(0); podIndex < int32(len(podPhysicalPlacements)); podIndex++ {
+			mbi.PodPlacements[podIndex].PhysicalGpuIndices = make(
+				[]int32, len(podPhysicalPlacements[podIndex]))
+			mbi.PodPlacements[podIndex].VirtualCellIndices = make(
+				[]int32, len(podPhysicalPlacements[podIndex]))
+			for gpuIndex := 0; gpuIndex < len(podPhysicalPlacements[podIndex]); gpuIndex++ {
+				pGpu := podPhysicalPlacements[podIndex][gpuIndex].(*PhysicalCell)
+				nodes, gpuIndices := pGpu.GetPhysicalPlacement()
+				// here each cell (i.e., pGpu) is only one GPU, hence we takes the first element
+				// in its "nodes" and "gpuIndices" as the node and GPU address
+				if mbi.PodPlacements[podIndex].PhysicalNode == "" {
+					mbi.PodPlacements[podIndex].PhysicalNode = nodes[0]
+				}
+				mbi.PodPlacements[podIndex].PhysicalGpuIndices[gpuIndex] = gpuIndices[0]
+				if groupVcPlacement != nil {
+					vGpu := groupVcPlacement[podGpuNum][podIndex][gpuIndex].(*VirtualCell)
+					mbi.PodPlacements[podIndex].VirtualCellIndices[gpuIndex] = vGpu.GetIndex()
+				} else {
+					mbi.PodPlacements[podIndex].VirtualCellIndices[gpuIndex] = -1
+				}
+			}
+		}
+		if podGpuNum == currentGpuNum {
+			selectedNode = mbi.PodPlacements[currentPodIndex].PhysicalNode
+			selectedGpuIndices = mbi.PodPlacements[currentPodIndex].PhysicalGpuIndices
+		}
+		affinityGroupBindInfo[groupMemberIndex] = mbi
+		groupMemberIndex++
+	}
+	return affinityGroupBindInfo, selectedNode, selectedGpuIndices
 }
 
 // buddyAlloc allocates a free cell at a certain level from a free list.
@@ -734,8 +755,8 @@ func mapNonPreassignedCellToPhysical(c *VirtualCell) *PhysicalCell {
 }
 
 // clearTmpBindings clears the temporary bindings created during scheduling.
-func clearTmpBindings(vcPlacement map[int32][]CellList) {
-	for _, podPlacements := range vcPlacement {
+func clearTmpBindings(virtualPlacement map[int32][]CellList) {
+	for _, podPlacements := range virtualPlacement {
 		for _, podGpus := range podPlacements {
 			for _, gpu := range podGpus {
 				for gpu != nil {

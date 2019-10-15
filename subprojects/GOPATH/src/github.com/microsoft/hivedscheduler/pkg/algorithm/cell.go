@@ -48,7 +48,7 @@ type Cell interface {
 	GetUsedGpuNumAtPriority(CellPriority) int32
 	IncreaseUsedGpuNumAtPriority(CellPriority, int32)
 	GetUsedGpuNumSamePriority() int32
-	GetUsedGpuNumOtherPriority() int32
+	GetUsedGpuNumHigherPriority() int32
 	UpdateUsedGpuNumForPriority(CellPriority)
 	UpdateUsedGpuNumAllPriority(CellPriority)
 }
@@ -67,8 +67,8 @@ type GenericCell struct {
 	usedGpuNumAtPriority map[CellPriority]int32 // GPU number used by each priority
 	// GPU number used by the same priority as that of the pod to be scheduled in topologyAwareScheduler (for sorting cells)
 	usedGpuNumSamePriority int32
-	// GPU number used by the lower priorities than that of the pod to be scheduled in topologyAwareScheduler (for sorting cells)
-	usedGpuNumLowerPriority int32
+	// GPU number used by higher priorities than that of the pod to be scheduled in topologyAwareScheduler (for sorting cells)
+	usedGpuNumHigherPriority int32
 }
 
 func (c *GenericCell) GetChain() CellChain {
@@ -130,17 +130,17 @@ func (c *GenericCell) GetUsedGpuNumSamePriority() int32 {
 	return c.usedGpuNumSamePriority
 }
 
-func (c *GenericCell) GetUsedGpuNumOtherPriority() int32 {
-	return c.usedGpuNumLowerPriority
+func (c *GenericCell) GetUsedGpuNumHigherPriority() int32 {
+	return c.usedGpuNumHigherPriority
 }
 
 func (c *GenericCell) UpdateUsedGpuNumForPriority(p CellPriority) {
 	c.usedGpuNumSamePriority = c.usedGpuNumAtPriority[p]
-	c.usedGpuNumLowerPriority = 0
+	c.usedGpuNumHigherPriority = 0
 	c.freeGpuNumAtPriority = c.totalGpuNum
 	for priority, n := range c.usedGpuNumAtPriority {
-		if priority != p {
-			c.usedGpuNumLowerPriority += n
+		if priority > p {
+			c.usedGpuNumHigherPriority += n
 		}
 		if priority >= p {
 			c.freeGpuNumAtPriority -= n

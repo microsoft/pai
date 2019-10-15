@@ -84,11 +84,11 @@ func (s *defaultIntraVCScheduler) schedule(sr schedulingRequest) map[int32][]Cel
 	} else {
 		scheduler = s.nonReservedSchedulers[sr.chain]
 	}
-	var result map[int32][]CellList
+	var placement map[int32][]CellList
 	if scheduler != nil {
-		result = scheduler.Schedule(sr.affinityGroup, sr.priority)
+		placement = scheduler.Schedule(sr.affinityGroup, sr.priority)
 	}
-	if result == nil {
+	if placement == nil {
 		var str string
 		if sr.reservationId != "" {
 			str = fmt.Sprintf("reservation %v", sr.reservationId)
@@ -98,5 +98,5 @@ func (s *defaultIntraVCScheduler) schedule(sr schedulingRequest) map[int32][]Cel
 		klog.Infof("Insufficient quota in VC %v for scheduling request: %v, GPU numbers %v, priority %v",
 			sr.vc, str, sr.affinityGroup, sr.priority)
 	}
-	return result
+	return placement
 }
