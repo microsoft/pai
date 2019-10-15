@@ -251,11 +251,12 @@ def ssh_shell_paramiko_with_result(host_config, commandline):
             key_filename = str(host_config['keyfile-path'])
         else:
             logger.warn("The key file: {0} specified doesn't exist".format(host_config['keyfile-path']))
+    logger.info("Start executing the command on host [{0}]: {1}".format(hostip, commandline))
     ssh = paramiko.SSHClient()
     ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
     ssh.connect(hostname=hostip, port=port, key_filename=key_filename, username=username, password=password)
     stdin, stdout, stderr = ssh.exec_command(commandline, get_pty=True)
-    logger.info("Executing the command on host [{0}]: {1}".format(hostip, commandline))
+    logger.info("Finished executing the command on host [{0}]: {1}".format(hostip, commandline))
     result_stdout = ""
     for response_msg in stdout:
         result_stdout += response_msg
