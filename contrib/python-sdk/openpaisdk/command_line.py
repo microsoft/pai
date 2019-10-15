@@ -69,7 +69,7 @@ def cli_unset(args):
 
 @register_as_cli(
     'add-cluster',
-    ['--cluster-alias', '--pai-uri', '--user', '--password', '--authen-token'],
+    ['--cluster-alias', '--pai-uri', '--user', '--password', '--authen-token', '--storage-name'],
     'add a cluster to the clusters.yaml',
 )
 def cli_add_cluster(args):
@@ -79,7 +79,7 @@ def cli_add_cluster(args):
 
 
 @register_as_cli(
-    ['edit-cluster', 'edit-clusters'],
+    'edit-clusters',
     ['--editor'],
     'edit the clusters.yaml',
 )
@@ -118,7 +118,7 @@ def cli_delete_cluster(args):
 
 
 @register_as_cli(
-    ['update-clusters', 'update-cluster'],
+    'update-clusters',
     [],
     'update all registered clusters'
 )
@@ -149,7 +149,38 @@ def cli_select_cluster(args):
 
 
 @register_as_cli(
-    ['list-job', 'list-jobs'],
+    'update-token',
+    ['--cluster-alias', '--authen-token'],
+    'update the authentication token to avoid expiration'
+)
+def cli_update_token(args):
+    assert args.cluster_alias and args.token, "must specify cluster-alias and authen-token"
+    ClusterList().load().update(args.cluster_alias, token=args.token).save()
+
+
+@register_as_cli(
+    'select-storage',
+    ['--cluster-alias', '--storage-name'],
+    'select a storage mount point for system use'
+)
+def cli_select_storage(args):
+    assert args.cluster_alias and args.storage_name, "must specify cluster-alias and storage-name"
+    ClusterList().load().update(args.cluster_alias, storage_name=args.storage_name).save()
+
+
+@register_as_cli(
+    'list-storages',
+    ['cluster_alias'],
+    "list the storages of a cluster"
+)
+def cli_list_storages(args):
+    headers = ['name', 'mountPoint', 'type', 'server', 'path', 'permission', 'default']
+    storages = ClusterList().load().select(args.cluster_alias)['storages']
+    to_screen([[s[h] for h in headers] for s in storages], 'table', headers=headers)
+
+
+@register_as_cli(
+    'list-jobs',
     ['--cluster-alias', '--user'],
     'get the job list from a cluster (with username)'
 )

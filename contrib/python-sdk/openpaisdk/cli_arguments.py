@@ -45,6 +45,8 @@ class ArgumentFactory:
         self.add_argument('--password', help="password")
         self.add_argument('--authen-token', '--token', dest='token', help="authentication token")
 
+        self.add_argument('--storage-name', help="storage mountPoint for system use")
+
         self.add_argument('--editor', default="code", help="path to your editor used to open files")
 
         # defaults
@@ -78,8 +80,6 @@ class ArgumentFactory:
         # storage
         self.add_argument('--recursive', action='store_true', default=False, help="recursive target operation")
         self.add_argument('--overwrite', action='store_true', default=False, help="enable overwrite if exists")
-        self.add_argument('local_path', help="local path")
-        self.add_argument('remote_path', help="remote path")
         self.add_argument('path_1', help='file or folder locaiton')
         self.add_argument('path_2', help='file or folder locaiton')
 

@@ -207,6 +207,14 @@ class Retry:
                 time.sleep(self.t_sleep)
 
 
+def force_uri(uri: str):
+    import re
+    uri = "http://" + uri if not uri.startswith('http') else uri
+    uri = uri.strip("/")
+    assert re.match("^(http|https)://(.*[^/])$", uri), "uri should be a uri in the format of http(s)://x.x.x.x or http(s)://a.b.c"
+    return uri
+
+
 def path_join(path: Union[list, str], sep: str = '/'):
     """ join path from list or str
     - ['aaa', 'bbb', 'ccc'] -> 'aaa/bbb/ccc'

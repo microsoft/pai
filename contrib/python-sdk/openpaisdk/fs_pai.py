@@ -55,12 +55,12 @@ class WEBHDFS(FS):
         'unicode_paths': True
     }
 
-    def __init__(self, url, user=None, kerberos=False, token=None):
+    def __init__(self, url, user=None, kerberos=False, token=None, root_path='/'):
         import hdfs
         super().__init__()
         if not url.startswith("http"):
             url = f"http://{url}"
-        self.root_path = '/'
+        self.root_path = root_path
         if kerberos:
             self.fs = hdfs.ext.kerberos.KerberosClient(url)
         elif token:
@@ -136,7 +136,7 @@ class WEBHDFS(FS):
                 yield fn
         # raise NotImplementedError
 
-    def setinfo():
+    def setinfo(self):
         raise NotImplementedError
 
 

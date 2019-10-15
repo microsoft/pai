@@ -119,21 +119,20 @@ def pai_open_fs(path: str):
     from fs.opener.parse import parse_fs_url
     from fs.opener.errors import ParseError
     from fs.subfs import SubFS
-    from openpaisdk.utils import OrganizedList
+    from openpaisdk.utils import OrganizedList, force_uri
     from openpaisdk.cluster import ClusterList
     try:
         ret = parse_fs_url(path)
         assert ret.protocol == 'pai', "only support pai://... or local path"
         alias, _, src = ret.resource.partition('/')
-        cluster = ClusterList().load().select(alias)
-        if True:  # openpai cluster
-            storage_alias, _, pth = src.partition('/')
-            storage = OrganizedList(cluster['storages'], 'storage_alias').first(storage_alias)
-            if storage is None:
-                storage = cluster['storages'][int(storage_alias)]
-        if storage['protocol'].lower() in ['hdfs', 'webhdfs']:
+        storage_alias, _, pth = src.partition('/')
+        storage, cluster = ClusterList().load().select_storage(alias, storage_alias)
+        if storage['type'] == 'hdfs':
             from openpaisdk.fs_pai import WEBHDFS
-            f = WEBHDFS(storage['webhdfs'], storage.get('user', cluster['user']), token=storage.get('token', None))
+            uri = force_uri(storage['data']['namenode']) + ':' + storage.get('extension', {}).get('webhdfs', '50070')
+            f = WEBHDFS(uri, storage.get('user', cluster['user']), token=storage.get('extension', {}).get('token', None))
+        else:
+            to_screen(f"failed to parse storage {cluster}", "error")
     except ParseError:
         # ! assert path is a local path
         d, pth = os.path.split(os.path.abspath(os.path.expanduser(path)))
