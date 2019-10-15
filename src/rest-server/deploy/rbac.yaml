@@ -15,24 +15,16 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-# ------------------- Dashboard Service Account ------------------- #
-
 apiVersion: v1
 kind: ServiceAccount
 metadata:
-  labels:
-    k8s-app: rest-server-openpai
-  name: rest-server-openpai
+  name: rest-server-account
   namespace: default
-
 ---
-
-# ------------------- Rest-server Role & Role Binding ------------------- #
-
 kind: ClusterRole
 apiVersion: rbac.authorization.k8s.io/v1
 metadata:
-  name: rest-server-openpai
+  name: rest-server-role
 rules:
   - apiGroups: [""]
     resources: ["secrets"]
@@ -49,50 +41,19 @@ rules:
   - apiGroups: [""]
     resources: ["configmaps"]
     verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
-  - apiGroups: ["extensions", "apps"]
-    resources: ["deployments"]
+  - apiGroups: ["frameworkcontroller.microsoft.com"]
+    resources: ["frameworks"]
     verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
-  - apiGroups: ["extensions", "apps"]
-    resources: ["deployments"]
-    verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
-  - apiGroups: ["extensions", "apps"]
-    resources: ["deployments"]
-    verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
-  - apiGroups: ["extensions", "apps"]
-    resources: ["daemonsets"]
-    verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
-  - apiGroups: ["batch"]
-    resources: ["jobs"]
-    verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
-
 ---
-
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
-  name: rest-server-openpai
+  name: rest-server-role-binding
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
-  name: rest-server-openpai
+  name: rest-server-role
 subjects:
 - kind: ServiceAccount
-  name: rest-server-openpai
+  name: rest-server-account
   namespace: default
-
----
-
-apiVersion: rbac.authorization.k8s.io/v1
-kind: ClusterRoleBinding
-metadata:
-  name: rest-server-openpai-edit
-roleRef:
-  apiGroup: rbac.authorization.k8s.io
-  kind: ClusterRole
-  name: edit
-subjects:
-  - kind: ServiceAccount
-    name: rest-server-openpai
-    namespace: default
-
-
