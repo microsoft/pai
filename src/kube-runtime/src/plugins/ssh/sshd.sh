@@ -33,8 +33,8 @@ function prepare_ssh()
   mkdir -p /var/run/sshd
 
 # Set sshd config
-  sed -i 's/PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/sshd_config
-  sed -i 's/Port.*/Port '$PAI_CONTAINER_SSH_PORT'/' /etc/ssh/sshd_config
+  sed -i 's/[# ]*PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/sshd_config
+  sed -i 's/[# ]*Port.*/Port '$PAI_CONTAINER_SSH_PORT'/' /etc/ssh/sshd_config
   echo "PermitUserEnvironment yes" >> /etc/ssh/sshd_config
 
   sed 's@session\s*required\s*pam_loginuid.so@session optional pam_loginuid.so@g' -i /etc/pam.d/sshd
@@ -87,7 +87,7 @@ function prepare_system_user_ssh()
     cat $localPublicKeyPath >> ${SSH_DIR}/authorized_keys
   else
     echo "system user ssh public key $localPublicKeyPath not found!" >&2
-  fi 
+  fi
 }
 
 function prepare_custom_user_ssh()
@@ -132,7 +132,7 @@ if [ -f /usr/sbin/sshd ] ; then
                 ;;
             esac
           fi
-          start_ssh         
+          start_ssh
         else
           echo "usage: sshd <enable jobssh> [<userssh type> <userssh value>]" >&2
         fi
