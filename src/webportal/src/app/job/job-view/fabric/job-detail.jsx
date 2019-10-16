@@ -172,7 +172,7 @@ class JobDetail extends React.Component {
             : taskConfig.instances;
           dummyTaskInfo = {
             taskStatuses: Array.from({ length: instances }, (v, idx) => ({
-              taskState: 'Waiting',
+              taskState: 'WAITING',
             })),
           };
         }

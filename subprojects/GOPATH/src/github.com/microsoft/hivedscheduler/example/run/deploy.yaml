@@ -17,7 +17,6 @@ data:
     apiVersion: kubescheduler.config.k8s.io/v1alpha1
     kind: KubeSchedulerConfiguration
     schedulerName: hivedscheduler
-    disablePreemption: true
     algorithmSource:
       policy:
         configMap:
@@ -128,7 +127,7 @@ spec:
           "--master=http://10.151.41.15:8080",
           "--config=/hivedscheduler-config/config.yaml",
           "--feature-gates=PodPriority=true",
-          "-v=4"]
+          "--v=4"]
         volumeMounts:
         - name: hivedscheduler-config
           mountPath: /hivedscheduler-config

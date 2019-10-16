@@ -17,12 +17,14 @@
 
 
 // module dependencies
+const {Agent} = require('https');
 const axios = require('axios');
 const yaml = require('js-yaml');
 const base32 = require('base32');
 const status = require('statuses');
 const runtimeEnv = require('./runtime-env');
 const launcherConfig = require('@pai/config/launcher');
+const {apiserver} = require('@pai/config/kubernetes');
 const createError = require('@pai/utils/error');
 const userModel = require('@pai/models/v2/user');
 const env = require('@pai/utils/env');
@@ -149,6 +151,8 @@ const convertTaskDetail = async (taskStatus, ports, userName, jobName, taskRoleN
     const pod = (await axios({
       method: 'get',
       url: launcherConfig.podPath(taskStatus.attemptStatus.podName),
+      headers: launcherConfig.requestHeaders,
+      httpsAgent: apiserver.ca && new Agent({ca: apiserver.ca}),
     })).data;
     if (launcherConfig.enabledHived) {
       const isolation = pod.metadata.annotations['hivedscheduler.microsoft.com/pod-gpu-isolation'];
@@ -265,6 +269,9 @@ const generateTaskRole = (taskRole, labels, config) => {
   if ('extraContainerOptions' in config.taskRoles[taskRole]) {
     shmMB = config.taskRoles[taskRole].extraContainerOptions.shmMB || 512;
   }
+  // check InfiniBand device
+  const infinibandDevice = Boolean('extraContainerOptions' in config.taskRoles[taskRole] &&
+    config.taskRoles[taskRole].extraContainerOptions.infiniband);
   // enable gang scheduling or not
   let gangAllocation = 'true';
   const retryPolicy = {
@@ -295,7 +302,7 @@ const generateTaskRole = (taskRole, labels, config) => {
         spec: {
           privileged: false,
           restartPolicy: 'Never',
-          serviceAccountName: 'frameworkbarrier',
+          serviceAccountName: 'frameworkbarrier-account',
           initContainers: [
             {
               name: 'init',
@@ -342,6 +349,7 @@ const generateTaskRole = (taskRole, labels, config) => {
                   'cpu': config.taskRoles[taskRole].resourcePerInstance.cpu,
                   'memory': `${config.taskRoles[taskRole].resourcePerInstance.memoryMB}Mi`,
                   'nvidia.com/gpu': config.taskRoles[taskRole].resourcePerInstance.gpu,
+                  ...infinibandDevice && {'rdma/hca': 1},
                 },
               },
               env: [],
@@ -542,6 +550,7 @@ const list = async () => {
       method: 'get',
       url: launcherConfig.frameworksPath(),
       headers: launcherConfig.requestHeaders,
+      httpsAgent: apiserver.ca && new Agent({ca: apiserver.ca}),
     });
   } catch (error) {
     if (error.response != null) {
@@ -568,6 +577,7 @@ const get = async (frameworkName) => {
       method: 'get',
       url: launcherConfig.frameworkPath(encodeName(frameworkName)),
       headers: launcherConfig.requestHeaders,
+      httpsAgent: apiserver.ca && new Agent({ca: apiserver.ca}),
     });
   } catch (error) {
     if (error.response != null) {
@@ -606,6 +616,7 @@ const put = async (frameworkName, config, rawConfig) => {
       method: 'post',
       url: launcherConfig.frameworksPath(),
       headers: launcherConfig.requestHeaders,
+      httpsAgent: apiserver.ca && new Agent({ca: apiserver.ca}),
       data: frameworkDescription,
     });
   } catch (error) {
@@ -624,12 +635,13 @@ const execute = async (frameworkName, executionType) => {
   // send request to framework controller
   let response;
   try {
+    const headers = {...launcherConfig.requestHeaders};
+    headers['Content-Type'] = 'application/merge-patch+json';
     response = await axios({
       method: 'patch',
       url: launcherConfig.frameworkPath(encodeName(frameworkName)),
-      headers: {
-        'Content-Type': 'application/merge-patch+json',
-      },
+      headers,
+      httpsAgent: apiserver.ca && new Agent({ca: apiserver.ca}),
       data: {
         spec: {
           executionType: `${executionType.charAt(0)}${executionType.slice(1).toLowerCase()}`,
@@ -656,6 +668,7 @@ const getConfig = async (frameworkName) => {
       method: 'get',
       url: launcherConfig.frameworkPath(encodeName(frameworkName)),
       headers: launcherConfig.requestHeaders,
+      httpsAgent: apiserver.ca && new Agent({ca: apiserver.ca}),
     });
   } catch (error) {
     if (error.response != null) {

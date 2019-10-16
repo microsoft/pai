@@ -37,10 +37,12 @@ spec:
         image: gcr.io/google_containers/kube-scheduler:v1.14.2
         command: [
           "/usr/local/bin/kube-scheduler",
+        {%- if cluster_cfg['cluster']['common']['k8s-rbac'] != 'true' %}
           "--master={{ cluster_cfg['layout']['kubernetes']['api-servers-url'] }}",
+        {%- endif %}
           "--config=/hivedscheduler-config/config.yaml",
           "--feature-gates=PodPriority=true",
-          "-v=4"]
+          "--v=4"]
         volumeMounts:
         - name: hivedscheduler-config
           mountPath: /hivedscheduler-config
@@ -50,9 +52,11 @@ spec:
           "bash", "-c",
           "cp /hivedscheduler-config/hivedscheduler.yaml . &&
           ./start.sh"]
+      {%- if cluster_cfg['cluster']['common']['k8s-rbac'] != 'true' %}
         env:
           - name: KUBE_APISERVER_ADDRESS
             value: "{{ cluster_cfg['layout']['kubernetes']['api-servers-url'] }}"
+      {%- endif %}
         volumeMounts:
           - name: hivedscheduler-config
             mountPath: /hivedscheduler-config

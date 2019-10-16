@@ -20,7 +20,7 @@ cluster-type:
 
 prerequisite:
   - cluster-configuration
-  - drivers
+  - kube-runtime
 
 template-list:
   - frameworkcontroller.yaml

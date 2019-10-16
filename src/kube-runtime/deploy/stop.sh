@@ -21,5 +21,4 @@
 # Not delete the config map here since it will cause job retry failed
 pushd $(dirname "$0") > /dev/null
 
-
 popd > /dev/null

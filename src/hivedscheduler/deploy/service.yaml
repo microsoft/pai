@@ -20,8 +20,8 @@ cluster-type:
 
 prerequisite:
   - cluster-configuration
+  - device-plugin
   - frameworkcontroller
-  - drivers
 
 template-list:
   - start.sh

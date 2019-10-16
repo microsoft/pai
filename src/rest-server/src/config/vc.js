@@ -226,7 +226,6 @@ const vcExports = {
 };
 
 if (launcherConfig.type === 'k8s') {
-  vcExports.podsUrl = `${process.env.K8S_APISERVER_URI}/api/v1/pods?labelSelector=type=kube-launcher-task`;
   vcExports.resourceUnits = resourceUnits;
   vcExports.virtualCellCapacity = virtualCellCapacity;
   vcExports.clusterTotalGpu = clusterTotalGpu;

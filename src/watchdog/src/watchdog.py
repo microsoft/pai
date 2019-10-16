@@ -43,6 +43,12 @@ from twisted.internet import reactor
 
 logger = logging.getLogger(__name__)
 
+KUBE_APISERVER_ADDRESS="KUBE_APISERVER_ADDRESS"
+# k8s will set following environment variables for pod.
+# refer to https://kubernetes.io/docs/tasks/access-application-cluster/access-cluster/
+KUBE_INCLUSTER_HOST="KUBERNETES_SERVICE_HOST"
+KUBE_INCLUSTER_PORT="KUBERNETES_SERVICE_PORT"
+
 
 ##### watchdog will generate following metrics
 # Document about these metrics is in `prometheus/doc/watchdog-metrics.md`
@@ -229,7 +235,7 @@ def parse_pod_item(pod, pai_pod_gauge, pai_container_gauge, pods_info):
                 ready = cond_status
             else:
                 error_counter.labels(type="unknown_pod_cond").inc()
-                logger.error("unexpected condition %s in pod %s", cond_t, pod_name)
+                logger.warning("unexpected condition %s in pod %s", cond_t, pod_name)
 
     pai_pod_gauge.add_metric([service_name, pod_name, namespace, phase, host_ip,
         initialized, pod_scheduled, ready], 1)
@@ -331,7 +337,7 @@ def parse_node_item(node, pai_node_gauge,
                     ready = node_status
                 else:
                     error_counter.labels(type="unknown_node_cond").inc()
-                    logger.error("unexpected condition %s in node %s", cond_t, ip)
+                    logger.warning("unexpected condition %s in node %s", cond_t, ip)
 
         # https://github.com/kubernetes/community/blob/master/contributors/design-proposals/node/node-allocatable.md
         # [Allocatable] = [Node Capacity] - [Kube-Reserved] - [System-Reserved] - [Hard-Eviction-Threshold]
@@ -472,6 +478,15 @@ class HealthResource(Resource):
         return "<html>Ok</html>".encode("utf-8")
 
 
+def get_apiserver_address():
+    apiserver_addr = os.environ.get(KUBE_APISERVER_ADDRESS)
+    if apiserver_addr:
+        return apiserver_addr
+    if (not os.environ.get(KUBE_INCLUSTER_HOST) or not os.environ.get(KUBE_INCLUSTER_PORT)):
+        raise Exception("Counld not get api server address")
+    return "https://{}:{}".format(os.environ.get(KUBE_INCLUSTER_HOST), os.environ.get(KUBE_INCLUSTER_PORT))
+    
+
 def main(args):
     register_stack_trace_dump()
     burninate_gc_collector()
@@ -480,8 +495,9 @@ def main(args):
     try_remove_old_prom_file(log_dir + "/watchdog.prom")
 
     atomic_ref = AtomicRef()
+    address = get_apiserver_address()
 
-    t = threading.Thread(target=loop, name="loop", args=(args, atomic_ref))
+    t = threading.Thread(target=loop, name="loop", args=(address, args, atomic_ref))
     t.daemon = True
     t.start()
 
@@ -496,8 +512,7 @@ def main(args):
     reactor.run()
 
 
-def loop(args, atomic_ref):
-    address = args.k8s_api
+def loop(address, args, atomic_ref):
     parse_result = urllib.parse.urlparse(address)
     api_server_scheme = parse_result.scheme
     api_server_ip = parse_result.hostname
@@ -558,7 +573,6 @@ def get_logging_level():
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("k8s_api", help="kubernetes api uri eg. http://10.151.40.133:8080")
     parser.add_argument("--log", "-l", help="log dir to store log", default="/datastorage/prometheus")
     parser.add_argument("--interval", "-i", help="interval between two collection", default="30")
     parser.add_argument("--port", "-p", help="port to expose metrics", default="9101")
