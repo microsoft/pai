@@ -64,6 +64,9 @@ rules:
   - apiGroups: ["batch"]
     resources: ["jobs"]
     verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+  - apiGroups: ["frameworkcontroller.microsoft.com"]
+    resources: ["frameworks"]
+    verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
 
 ---
 
