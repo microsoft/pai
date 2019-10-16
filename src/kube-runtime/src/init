@@ -132,9 +132,9 @@ else
   CHILD_PROCESS="FRAMEWORK_RETRIEVER"
   if [[ -z $KUBE_APISERVER_ADDRESS ]]; then
     KUBE_APISERVER_ADDRESS="https://$KUBERNETES_SERVICE_HOST:$KUBERNETES_SERVICE_PORT"
-    AUTH_FLAGS=(-k -H "Authorization: Bearer $(cat /var/run/secrets/kubernetes.io/serviceaccount/token)")
+    set -- -k -H "Authorization: Bearer $(cat /var/run/secrets/kubernetes.io/serviceaccount/token)"
   fi
-  curl -s "${AUTH_FLAGS[@]}" \
+  curl -s "$@" \
     $KUBE_APISERVER_ADDRESS/apis/frameworkcontroller.microsoft.com/v1/namespaces/default/frameworks/$FC_FRAMEWORK_NAME > framework.json
 fi
 
