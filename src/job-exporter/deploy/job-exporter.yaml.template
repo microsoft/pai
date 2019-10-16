@@ -93,9 +93,15 @@ spec:
         - name: device-mount
           hostPath:
             path: /dev
+        {%- if cluster_cfg['rest-server']['launcher-type'] == "k8s" %}
+        - name: driver-path
+          hostPath:
+            path: /usr/local/nvidia
+        {%- else %}
         - name: driver-path
           hostPath:
             path: /var/drivers/nvidia/current
+        {%- endif %}
         - name: collector-mount
           hostPath:
             path: {{ cluster_cfg["cluster"]["common"]["data-path"] }}/prometheus
