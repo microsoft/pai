@@ -97,31 +97,31 @@ func (h *HivedAlgorithm) Schedule(pod *core.Pod, suggestedNodes []string) intern
 
 	klog.Infof("[%v]: Scheduling pod...", internal.Key(pod))
 	s := internal.ExtractPodSchedulingSpec(pod)
-	var (
-		// gpu number -> a set of pods -> a set of GPUs of each pod
-		groupPhysicalPlacement map[int32][]CellList
-		groupVcPlacement       map[int32][]CellList
-		podIndex               int32
-	)
+	// gpu number -> a set of pods -> a set of GPUs of each pod
+	var groupPhysicalPlacement map[int32][]CellList
+	var groupVirtualPlacement map[int32][]CellList
+	newGroup := true
+	podIndex := int32(0)
+
 	if group := h.allocatedAffinityGroups[s.AffinityGroup.Name]; group == nil {
 		klog.Infof("Scheduling new affinity group %v", s.AffinityGroup.Name)
-		groupPhysicalPlacement, groupVcPlacement = h.scheduleNewAffinityGroup(pod, s)
+		groupPhysicalPlacement, groupVirtualPlacement = h.scheduleNewAffinityGroup(pod, s)
 		if groupPhysicalPlacement != nil {
-			podIndex = int32(len(groupPhysicalPlacement[s.GpuNumber])) - 1
 		}
 	} else {
-		if h.allocatedAffinityGroups[s.AffinityGroup.Name].unallocatedPodNums[s.GpuNumber] <= 0 {
+		if int32(len(group.allocatedPods[s.GpuNumber])) >= group.totalPodNums[s.GpuNumber] {
 			panic(internal.NewBadRequestError(fmt.Sprintf(
 				"Requesting more pods than the configured number for %v GPUs in affinity group %v",
 				s.GpuNumber, s.AffinityGroup.Name)))
 		}
 		klog.Infof("Pod from existing affinity group: %v", s.AffinityGroup.Name)
-		groupPhysicalPlacement = h.allocatedAffinityGroups[s.AffinityGroup.Name].physicalGpuPlacement
-		groupVcPlacement = h.allocatedAffinityGroups[s.AffinityGroup.Name].virtualGpuPlacement
-		podIndex = h.allocatedAffinityGroups[s.AffinityGroup.Name].unallocatedPodNums[s.GpuNumber] - 1
+		groupPhysicalPlacement = group.physicalGpuPlacement
+		groupVirtualPlacement = group.virtualGpuPlacement
+		newGroup = false
+		podIndex = int32(len(group.allocatedPods[s.GpuNumber]))
 	}
 	return generatePodScheduleResult(
-		groupPhysicalPlacement, groupVcPlacement, s.GpuNumber, podIndex, suggestedNodes, pod)
+		groupPhysicalPlacement, groupVirtualPlacement, s.GpuNumber, podIndex, newGroup, suggestedNodes, pod)
 }
 
 // TODO: reconfig; suggestedNodes (failure)
@@ -163,16 +163,15 @@ func (h *HivedAlgorithm) AddAllocatedPod(pod *core.Pod) {
 					newGroup.physicalGpuPlacement[gpuNumber][i][j] = pGpu
 					newGroup.virtualGpuPlacement[gpuNumber][i][j] = vGpu
 					h.confirmAllocatedGpu(pGpu, vGpu, CellPriority(s.Priority))
+					pGpu.AddAffinityGroup(newGroup)
 				}
 			}
 		}
 		h.allocatedAffinityGroups[s.AffinityGroup.Name] = newGroup
 		klog.Infof("New affinity group created: %v", s.AffinityGroup.Name)
 	}
-	for _, gpuIndex := range info.GpuIsolation {
-		h.findPhysicalGpu(chain, info.Node, gpuIndex).AddPod(pod)
-	}
-	h.allocatedAffinityGroups[s.AffinityGroup.Name].unallocatedPodNums[s.GpuNumber]--
+	h.allocatedAffinityGroups[s.AffinityGroup.Name].allocatedPods[s.GpuNumber] = append(
+		h.allocatedAffinityGroups[s.AffinityGroup.Name].allocatedPods[s.GpuNumber], pod)
 }
 
 func (h *HivedAlgorithm) DeleteAllocatedPod(pod *core.Pod) {
@@ -188,23 +187,39 @@ func (h *HivedAlgorithm) DeleteAllocatedPod(pod *core.Pod) {
 		panic(fmt.Sprintf(
 			"[%v]: group %v not exists when deleting pod", internal.Key(pod), s.AffinityGroup.Name))
 	} else {
-		h.allocatedAffinityGroups[s.AffinityGroup.Name].unallocatedPodNums[s.GpuNumber]++
+		allocatedPods := group.allocatedPods[s.GpuNumber]
+		idx := -1
+		for i, p := range allocatedPods {
+			if pod == p {
+				idx = i
+				break
+			}
+		}
+		if idx == -1 {
+			panic(fmt.Sprintf("[%v]: pod not exists in group %v", internal.Key(pod), s.AffinityGroup.Name))
+		} else {
+			numAllocatedPods := len(allocatedPods)
+			allocatedPods[idx] = allocatedPods[numAllocatedPods-1]
+			allocatedPods[numAllocatedPods-1] = nil
+			allocatedPods = allocatedPods[:numAllocatedPods-1]
+		}
 		for _, gpuIndex := range info.GpuIsolation {
-			h.findPhysicalGpu(chain, info.Node, gpuIndex).DeletePod(pod)
+			h.findPhysicalGpu(chain, info.Node, gpuIndex).DeleteAffinityGroup(group)
 		}
 		allPodsDeleted := true
-		for gpuNum, unallocatedPodNum := range h.allocatedAffinityGroups[s.AffinityGroup.Name].unallocatedPodNums {
-			if unallocatedPodNum != int32(
-				len(h.allocatedAffinityGroups[s.AffinityGroup.Name].physicalGpuPlacement[gpuNum])) {
+		for _, pods := range group.allocatedPods {
+			if len(pods) != 0 {
 				allPodsDeleted = false
 				break
 			}
 		}
 		if allPodsDeleted {
-			for _, podPlacements := range h.allocatedAffinityGroups[s.AffinityGroup.Name].physicalGpuPlacement {
+			for _, podPlacements := range group.physicalGpuPlacement {
 				for _, podPlacement := range podPlacements {
-					for _, podGpu := range podPlacement {
-						h.confirmReleasedGpu(podGpu.(*PhysicalCell))
+					for _, gpu := range podPlacement {
+						pGpu := gpu.(*PhysicalCell)
+						h.confirmReleasedGpu(pGpu)
+						pGpu.DeleteAffinityGroup(group)
 					}
 				}
 			}
@@ -444,39 +459,39 @@ func (h *HivedAlgorithm) getTmpFreeCellList(chain CellChain) ChainCellList {
 
 // confirmAllocatedGpu creates the cell bindings, removes the physical cell from the free list
 // (if necessary), and sets the priority.
-func (h *HivedAlgorithm) confirmAllocatedGpu(pc *PhysicalCell, vc *VirtualCell, p CellPriority) {
+func (h *HivedAlgorithm) confirmAllocatedGpu(pGpu *PhysicalCell, vGpu *VirtualCell, p CellPriority) {
 	physicalPriority := p
-	if vc != nil {
-		preassignedNewlyBound := vc.GetPreAssignedCell().GetPhysicalCell() == nil
-		bindCells(pc, vc)
+	if vGpu != nil {
+		preassignedNewlyBound := vGpu.GetPreAssignedCell().GetPhysicalCell() == nil
+		bindCell(pGpu, vGpu)
 		if preassignedNewlyBound {
 			// remove the allocated cell from the free list (possibly splitting cells)
-			h.removeCellFromFreeList(vc.GetPreAssignedCell().GetPhysicalCell())
+			h.removeCellFromFreeList(vGpu.GetPreAssignedCell().GetPhysicalCell())
 		}
-		vc.SetPriority(p)
-		updateUsedGpuNumAtPriority(vc, p, true)
+		vGpu.SetPriority(p)
+		updateUsedGpuNumAtPriority(vGpu, p, true)
 	} else {
 		physicalPriority = opportunisticPriority
 	}
-	pc.SetPriority(physicalPriority)
-	updateUsedGpuNumAtPriority(pc, physicalPriority, true)
+	pGpu.SetPriority(physicalPriority)
+	updateUsedGpuNumAtPriority(pGpu, physicalPriority, true)
 }
 
 // confirmReleasedGpu destroys the cell bindings, adds the physical cell back to the free list
 // (if necessary), and resets the priority.
-func (h *HivedAlgorithm) confirmReleasedGpu(c *PhysicalCell) {
-	if vc := c.GetVirtualCell(); vc != nil {
-		preassignedPhysical := vc.GetPreAssignedCell().GetPhysicalCell()
-		unbindCells(c)
-		if vc.GetPreAssignedCell().GetPhysicalCell() == nil {
+func (h *HivedAlgorithm) confirmReleasedGpu(pGpu *PhysicalCell) {
+	if vGpu := pGpu.GetVirtualCell(); vGpu != nil {
+		preassignedPhysical := vGpu.GetPreAssignedCell().GetPhysicalCell()
+		unbindCell(pGpu)
+		if vGpu.GetPreAssignedCell().GetPhysicalCell() == nil {
 			// add the released cell back to the free list (possibly merging cells)
 			h.addCellToFreeList(preassignedPhysical)
 		}
-		updateUsedGpuNumAtPriority(vc, vc.GetPriority(), false)
-		vc.SetPriority(freePriority)
+		updateUsedGpuNumAtPriority(vGpu, vGpu.GetPriority(), false)
+		vGpu.SetPriority(freePriority)
 	}
-	updateUsedGpuNumAtPriority(c, c.GetPriority(), false)
-	c.SetPriority(freePriority)
+	updateUsedGpuNumAtPriority(pGpu, pGpu.GetPriority(), false)
+	pGpu.SetPriority(freePriority)
 }
 
 // removeCellFromFreeList removes a cell from the free cell list and splits its parent recursively if needed.
@@ -606,6 +621,7 @@ func generatePodScheduleResult(
 	groupVirtualPlacement map[int32][]CellList,
 	currentGpuNum int32,
 	currentPodIndex int32,
+	newGroup bool,
 	suggestedNodes []string,
 	pod *core.Pod) internal.PodScheduleResult {
 
@@ -624,14 +640,43 @@ func generatePodScheduleResult(
 				internal.Key(pod), selectedNode))
 		}
 		// collect preemption victims
+		needPreemption := false
 		preemptionVictims := common.NewSet()
-		for _, gpu := range groupPhysicalPlacement[currentGpuNum][currentPodIndex] {
-			pGpu := gpu.(*PhysicalCell)
-			if pGpu.HasPod() {
-				preemptionVictims.Add(pGpu.GetPods()[0])
+		if newGroup {
+			// if any of the GPUs allocated for the whole group is still used by a pod,
+			// we will wait for the preemption, as the group is gang-scheduled.
+			for gpuNum := range groupPhysicalPlacement {
+				for podIndex := range groupPhysicalPlacement[gpuNum] {
+					for _, gpu := range groupPhysicalPlacement[gpuNum][podIndex] {
+						pGpu := gpu.(*PhysicalCell)
+						if pGpu.HasAffinityGroup() {
+							needPreemption = true
+							break
+						}
+					}
+				}
+			}
+			for _, gpu := range groupPhysicalPlacement[currentGpuNum][currentPodIndex] {
+				pGpu := gpu.(*PhysicalCell)
+				if pGpu.HasAffinityGroup() {
+					// for any victim pod, gang-preempt all the other pods from the same affinity group
+					for _, victims := range pGpu.GetAffinityGroups()[0].allocatedPods {
+						for _, victimPod := range victims {
+							preemptionVictims.Add(victimPod)
+						}
+					}
+				}
 			}
 		}
-		if preemptionVictims.IsEmpty() {
+		if needPreemption {
+			var victimPods []*core.Pod
+			for v := range preemptionVictims.Items() {
+				victimPods = append(victimPods, v.(*core.Pod))
+			}
+			return internal.PodScheduleResult{
+				PodPreemptInfo: &internal.PodPreemptInfo{VictimPods: victimPods},
+			}
+		} else {
 			klog.Infof("[%v]: scheduled to node %v, GPUs %v",
 				internal.Key(pod), selectedNode, selectedGpuIndices)
 			return internal.PodScheduleResult{
@@ -641,14 +686,6 @@ func generatePodScheduleResult(
 					CellChain:             chain,
 					AffinityGroupBindInfo: affinityGroupBindInfo,
 				},
-			}
-		} else {
-			var victimPods []*core.Pod
-			for v := range preemptionVictims.Items() {
-				victimPods = append(victimPods, v.(*core.Pod))
-			}
-			return internal.PodScheduleResult{
-				PodPreemptInfo: &internal.PodPreemptInfo{VictimPods: victimPods},
 			}
 		}
 	}
@@ -774,8 +811,8 @@ func clearTmpBindings(virtualPlacement map[int32][]CellList) {
 	}
 }
 
-// bindCells binds a virtual cell to a physical cell and its parent recursively.
-func bindCells(pc *PhysicalCell, vc *VirtualCell) {
+// bindCell binds a virtual cell to a physical cell and its parent recursively.
+func bindCell(pc *PhysicalCell, vc *VirtualCell) {
 	for vc.GetPhysicalCell() == nil {
 		vc.SetPhysicalCell(pc)
 		pc.SetVirtualCell(vc)
@@ -788,8 +825,8 @@ func bindCells(pc *PhysicalCell, vc *VirtualCell) {
 	}
 }
 
-// unbindCells unbinds a virtual cell with a physical cell and its parent recursively.
-func unbindCells(c *PhysicalCell) {
+// unbindCell unbinds a virtual cell with a physical cell and its parent recursively.
+func unbindCell(c *PhysicalCell) {
 	boundVirtual := c.GetVirtualCell()
 	for !boundVirtual.GetPhysicalCell().IsReserved() {
 		boundPhysical := boundVirtual.GetPhysicalCell()

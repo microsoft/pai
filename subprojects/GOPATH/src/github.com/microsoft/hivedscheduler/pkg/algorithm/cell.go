@@ -25,8 +25,6 @@ package algorithm
 import (
 	"fmt"
 	"github.com/microsoft/hivedscheduler/pkg/api"
-	"github.com/microsoft/hivedscheduler/pkg/internal"
-	core "k8s.io/api/core/v1"
 )
 
 // A Cell represents a set of GPUs affinitized by their interconnection topology.
@@ -161,13 +159,13 @@ func (c *GenericCell) UpdateUsedGpuNumAllPriority(p CellPriority) {
 // PhysicalCell defines a cell in the physical cluster.
 type PhysicalCell struct {
 	GenericCell
-	nodes               []string     // node names inside the cell
-	gpuIndices          []int32      // [-1] for cells at levels higher than node
-	pods                []*core.Pod  // pods running in this cell or its children
-	virtualCell         *VirtualCell // points to the bound virtual cell
-	preBoundVirtualCell *VirtualCell // points to the temporarily bound virtual cell (before the binding is confirmed)
-	split               bool         // true when the cell has been split
-	reserved            bool         // true when this is a reserved cell
+	nodes               []string             // node names inside the cell
+	gpuIndices          []int32              // [-1] for cells at levels higher than node
+	affinityGroups      []*AlgoAffinityGroup // affinity groups using this cell
+	virtualCell         *VirtualCell         // points to the bound virtual cell
+	preBoundVirtualCell *VirtualCell         // points to the temporarily bound virtual cell (before the binding is confirmed)
+	split               bool                 // true when the cell has been split
+	reserved            bool                 // true when this is a reserved cell
 }
 
 func NewPhysicalCell(c CellChain, l CellLevel, g bool, n int32) *PhysicalCell {
@@ -181,7 +179,7 @@ func NewPhysicalCell(c CellChain, l CellLevel, g bool, n int32) *PhysicalCell {
 			freeGpuNum:           n,
 			usedGpuNumAtPriority: map[CellPriority]int32{},
 		},
-		pods: []*core.Pod{},
+		affinityGroups: []*AlgoAffinityGroup{},
 	}
 }
 
@@ -202,31 +200,32 @@ func (c *PhysicalCell) SetPhysicalResources(nodes []string, gpuIndices []int32) 
 	c.gpuIndices = gpuIndices
 }
 
-func (c *PhysicalCell) AddPod(pod *core.Pod) {
-	c.pods = append(c.pods, pod)
+func (c *PhysicalCell) AddAffinityGroup(affinityGroup *AlgoAffinityGroup) {
+	c.affinityGroups = append(c.affinityGroups, affinityGroup)
 }
 
-func (c *PhysicalCell) DeletePod(pod *core.Pod) {
+func (c *PhysicalCell) DeleteAffinityGroup(affinityGroup *AlgoAffinityGroup) {
 	idx := -1
-	for i, p := range c.pods {
-		if pod == p {
+	for i, g := range c.affinityGroups {
+		if affinityGroup.name == g.name {
 			idx = i
 			break
 		}
 	}
 	if idx == -1 {
-		panic(fmt.Sprintf("Error when deleting pod %v: not exist in cell %v!", internal.Key(pod), c.GetName()))
+		panic(fmt.Sprintf("Error when deleting affinity group %v: not exist in cell %v!",
+			affinityGroup.name, c.GetName()))
 	} else {
-		c.pods = append(c.pods[:idx], c.pods[idx+1:]...)
+		c.affinityGroups = append(c.affinityGroups[:idx], c.affinityGroups[idx+1:]...)
 	}
 }
 
-func (c *PhysicalCell) HasPod() bool {
-	return len(c.pods) != 0
+func (c *PhysicalCell) HasAffinityGroup() bool {
+	return len(c.affinityGroups) != 0
 }
 
-func (c *PhysicalCell) GetPods() []*core.Pod {
-	return c.pods
+func (c *PhysicalCell) GetAffinityGroups() []*AlgoAffinityGroup {
+	return c.affinityGroups
 }
 
 func (c *PhysicalCell) GetVirtualCell() *VirtualCell {

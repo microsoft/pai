@@ -25,6 +25,7 @@ package algorithm
 import (
 	"fmt"
 	"github.com/microsoft/hivedscheduler/pkg/api"
+	core "k8s.io/api/core/v1"
 	"k8s.io/klog"
 	"strings"
 )
@@ -126,10 +127,11 @@ func (ccl ChainCellList) remove(c Cell, l CellLevel) {
 
 // AlgoAffinityGroup is the algorithm-internal representation of an affinity group.
 type AlgoAffinityGroup struct {
-	cell                 *PhysicalCell
-	unallocatedPodNums   map[int32]int32      // GpuNum -> PodNum
-	physicalGpuPlacement map[int32][]CellList // GpuNum -> a list of pods -> a list of physical GPUs of each pod
-	virtualGpuPlacement  map[int32][]CellList // GpuNum -> a list of pods -> a list of virtual GPUs of each pod
+	name                 string
+	totalPodNums         map[int32]int32       // GpuNum -> PodNum
+	allocatedPods        map[int32][]*core.Pod // GpuNum -> a list of allocated pods
+	physicalGpuPlacement map[int32][]CellList  // GpuNum -> a list of pods -> a list of physical GPUs of each pod
+	virtualGpuPlacement  map[int32][]CellList  // GpuNum -> a list of pods -> a list of virtual GPUs of each pod
 }
 
 func newAlgoAffinityGroup(g *api.AffinityGroupSpec) *AlgoAffinityGroup {
@@ -138,7 +140,9 @@ func newAlgoAffinityGroup(g *api.AffinityGroupSpec) *AlgoAffinityGroup {
 		numPods[m.GpuNumber] += m.PodNumber
 	}
 	return &AlgoAffinityGroup{
-		unallocatedPodNums:   numPods,
+		name:                 g.Name,
+		totalPodNums:         numPods,
+		allocatedPods:        map[int32][]*core.Pod{},
 		physicalGpuPlacement: map[int32][]CellList{},
 		virtualGpuPlacement:  map[int32][]CellList{},
 	}

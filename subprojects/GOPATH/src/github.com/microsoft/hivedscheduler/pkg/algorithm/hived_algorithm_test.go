@@ -48,7 +48,7 @@ func initNodes(h *HivedAlgorithm) {
 	}
 }
 
-var pod1, pod2, pod3, pod4, pod5, pod6, pod7, pod8, pod9, pod10, pod11, pod12, pod13, pod14 = &core.Pod{
+var pod1, pod2, pod3, pod4, pod5, pod6, pod7, pod8, pod9, pod10, pod11, pod12, pod13, pod14, pod15, pod16, pod17 = &core.Pod{
 	ObjectMeta: meta.ObjectMeta{
 		Name:        "pod1",
 		Namespace:   "test",
@@ -146,9 +146,30 @@ var pod1, pod2, pod3, pod4, pod5, pod6, pod7, pod8, pod9, pod10, pod11, pod12, p
 		UID:         "pod14",
 		Annotations: map[string]string{},
 	},
+}, &core.Pod{
+	ObjectMeta: meta.ObjectMeta{
+		Name:        "pod15",
+		Namespace:   "test",
+		UID:         "pod15",
+		Annotations: map[string]string{},
+	},
+}, &core.Pod{
+	ObjectMeta: meta.ObjectMeta{
+		Name:        "pod16",
+		Namespace:   "test",
+		UID:         "pod16",
+		Annotations: map[string]string{},
+	},
+}, &core.Pod{
+	ObjectMeta: meta.ObjectMeta{
+		Name:        "pod17",
+		Namespace:   "test",
+		UID:         "pod17",
+		Annotations: map[string]string{},
+	},
 }
 
-var group1, group2, group3, group4, group5, group6, group7, group8, group9, group10 = &api.AffinityGroupSpec{
+var group1, group2, group3, group4, group5, group6, group7, group8, group9, group10, group11 = &api.AffinityGroupSpec{
 	Name:    "group1",
 	Members: []api.AffinityGroupMemberSpec{{PodNumber: 1, GpuNumber: 1}},
 }, &api.AffinityGroupSpec{
@@ -162,7 +183,7 @@ var group1, group2, group3, group4, group5, group6, group7, group8, group9, grou
 	Members: []api.AffinityGroupMemberSpec{{PodNumber: 1, GpuNumber: 1}},
 }, &api.AffinityGroupSpec{
 	Name:    "group5",
-	Members: []api.AffinityGroupMemberSpec{{PodNumber: 2, GpuNumber: 1}},
+	Members: []api.AffinityGroupMemberSpec{{PodNumber: 2, GpuNumber: 16}},
 }, &api.AffinityGroupSpec{
 	Name:    "group6",
 	Members: []api.AffinityGroupMemberSpec{{PodNumber: 1, GpuNumber: 1}},
@@ -174,10 +195,13 @@ var group1, group2, group3, group4, group5, group6, group7, group8, group9, grou
 	Members: []api.AffinityGroupMemberSpec{{PodNumber: 1, GpuNumber: 8}},
 }, &api.AffinityGroupSpec{
 	Name:    "group9",
-	Members: []api.AffinityGroupMemberSpec{{PodNumber: 1, GpuNumber: 7}},
+	Members: []api.AffinityGroupMemberSpec{{PodNumber: 1, GpuNumber: 7}, {PodNumber: 1, GpuNumber: 5}},
 }, &api.AffinityGroupSpec{
 	Name:    "group10",
 	Members: []api.AffinityGroupMemberSpec{{PodNumber: 1, GpuNumber: 1}},
+}, &api.AffinityGroupSpec{
+	Name:    "group11",
+	Members: []api.AffinityGroupMemberSpec{{PodNumber: 2, GpuNumber: 16}},
 }
 
 var pss = map[types.UID]api.PodSchedulingSpec{
@@ -214,14 +238,14 @@ var pss = map[types.UID]api.PodSchedulingSpec{
 		Priority:       1,
 		ReservationId:  "VC1-YQW-DGX2",
 		GpuType:        "DGX2-V100",
-		GpuNumber:      1,
+		GpuNumber:      16,
 		AffinityGroup:  group5,
 	}, "pod6": { // use reservation
 		VirtualCluster: "VC1",
 		Priority:       1,
 		ReservationId:  "VC1-YQW-DGX2",
 		GpuType:        "DGX2-V100",
-		GpuNumber:      1,
+		GpuNumber:      16,
 		AffinityGroup:  group5,
 	}, "pod7": { // out of quota; should return PodWaitInfo
 		VirtualCluster: "VC2",
@@ -230,64 +254,85 @@ var pss = map[types.UID]api.PodSchedulingSpec{
 		GpuType:        "DGX1-P100",
 		GpuNumber:      8,
 		AffinityGroup:  group7,
-	}, "pod8": { // any GPU type
+	}, "pod8": { // any GPU type; heterogeneous affinity group
 		VirtualCluster: "VC2",
 		Priority:       1,
 		ReservationId:  "",
 		GpuType:        "",
 		GpuNumber:      7,
 		AffinityGroup:  group9,
-	}, "pod9": { // use a GPU type that the VC does not have; should panic BadRequest
+	}, "pod9": { // any GPU type; heterogeneous affinity group
+		VirtualCluster: "VC2",
+		Priority:       1,
+		ReservationId:  "",
+		GpuType:        "",
+		GpuNumber:      5,
+		AffinityGroup:  group9,
+	}, "pod10": { // use a GPU type that the VC does not have; should panic BadRequest
 		VirtualCluster: "VC2",
 		Priority:       1,
 		ReservationId:  "",
 		GpuType:        "DGX2-V100",
 		GpuNumber:      1,
 		AffinityGroup:  group6,
-	}, "pod10": { // invalid affinity group configuration
-		VirtualCluster: "VC2",
-		Priority:       1,
-		ReservationId:  "",
-		GpuType:        "DGX1-P100",
-		GpuNumber:      8,
-		AffinityGroup:  group8,
 	}, "pod11": { // invalid affinity group configuration
 		VirtualCluster: "VC2",
 		Priority:       1,
 		ReservationId:  "",
 		GpuType:        "DGX1-P100",
-		GpuNumber:      8,
+		GpuNumber:      2,
 		AffinityGroup:  group8,
-	}, "pod12": { // invalid VC
+	}, "pod12": { // invalid affinity group configuration
+		VirtualCluster: "VC2",
+		Priority:       1,
+		ReservationId:  "",
+		GpuType:        "DGX1-P100",
+		GpuNumber:      2,
+		AffinityGroup:  group8,
+	}, "pod13": { // invalid VC
 		VirtualCluster: "surprise!",
 		Priority:       1,
 		ReservationId:  "",
 		GpuType:        "DGX1-P100",
 		GpuNumber:      1,
 		AffinityGroup:  group10,
-	}, "pod13": { // invalid reservation
+	}, "pod14": { // invalid reservation
 		VirtualCluster: "VC2",
 		Priority:       1,
 		ReservationId:  "surprise!",
 		GpuType:        "DGX1-P100",
 		GpuNumber:      1,
 		AffinityGroup:  group10,
-	}, "pod14": { // invalid priority
+	}, "pod15": { // invalid priority
 		VirtualCluster: "VC2",
 		Priority:       1001,
 		ReservationId:  "",
 		GpuType:        "DGX1-P100",
 		GpuNumber:      1,
 		AffinityGroup:  group10,
+	}, "pod16": { // trigger preemption
+		VirtualCluster: "VC1",
+		Priority:       2,
+		ReservationId:  "VC1-YQW-DGX2",
+		GpuType:        "DGX2-V100",
+		GpuNumber:      16,
+		AffinityGroup:  group11,
+	}, "pod17": { // trigger preemption
+		VirtualCluster: "VC1",
+		Priority:       2,
+		ReservationId:  "VC1-YQW-DGX2",
+		GpuType:        "DGX2-V100",
+		GpuNumber:      16,
+		AffinityGroup:  group11,
 	},
 }
 
 var casesThatShouldSucceed = []*core.Pod{
-	pod1, pod2, pod3, pod4, pod5, pod6, pod7, pod8,
+	pod1, pod2, pod3, pod4, pod5, pod6, pod7, pod8, pod9, pod16, pod17,
 }
 
 var casesThatShouldFail = [][]*core.Pod{
-	{pod9}, {pod10, pod11}, {pod12}, {pod13}, {pod14},
+	{pod10}, {pod11, pod12}, {pod13}, {pod14}, {pod15},
 }
 
 type result struct {
@@ -295,14 +340,20 @@ type result struct {
 	gpuIsolation []int32
 }
 
-var expectedResult = map[*core.Pod]result{
+var expectedBindInfos = map[*core.Pod]result{
 	pod1: {node: "0.0.1.0", gpuIsolation: []int32{0}},
 	pod2: {node: "0.0.1.0", gpuIsolation: []int32{1}},
 	pod3: {node: "0.0.1.0", gpuIsolation: []int32{8, 9, 10, 11, 12, 13, 14, 15}},
 	pod4: {node: "0.0.5.0", gpuIsolation: []int32{0}},
-	pod5: {node: "0.0.3.0", gpuIsolation: []int32{1}},
-	pod6: {node: "0.0.3.0", gpuIsolation: []int32{0}},
-	pod8: {node: "1.0.0.2", gpuIsolation: []int32{0, 1, 2, 3, 4, 5, 6}},
+	pod5: {node: "0.0.3.0", gpuIsolation: []int32{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15}},
+	pod6: {node: "0.0.3.1", gpuIsolation: []int32{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15}},
+	pod8: {node: "1.0.0.1", gpuIsolation: []int32{0, 1, 2, 3, 4, 5, 6}},
+	pod9: {node: "1.0.0.2", gpuIsolation: []int32{0, 1, 2, 3, 4}},
+}
+
+var expectedPreemptInfos = map[*core.Pod][]string{
+	pod16: {"pod5", "pod6"},
+	pod17: {"pod5", "pod6"},
 }
 
 var allocatedPods []*core.Pod
@@ -392,16 +443,31 @@ func compareGpuIsolation(a []int32, b []int32) bool {
 	return false
 }
 
+func comparePods(a []*core.Pod, b []string) bool {
+	if len(a) == len(b) {
+		for i := 0; i < len(a); i++ {
+			if a[i].Name != b[i] {
+				return false
+			}
+		}
+		return true
+	}
+	return false
+}
+
 func compareSchedulingResult(t *testing.T, pod *core.Pod, psr internal.PodScheduleResult) {
-	expected := expectedResult[pod]
-	if expected.node == "" {
+	if expected := expectedBindInfos[pod]; expected.node == "" {
 		if psr.PodBindInfo != nil {
 			t.Errorf("[%v]: wrong pod scheduling result: expected empty, but got %v:%v",
 				internal.Key(pod), psr.PodBindInfo.Node, psr.PodBindInfo.GpuIsolation)
 		}
+		if expectedPreemptInfos[pod] != nil && !comparePods(psr.PodPreemptInfo.VictimPods, expectedPreemptInfos[pod]) {
+			t.Errorf("[%v]: wrong preempt victims: expected %v, but got %v",
+				internal.Key(pod), expectedPreemptInfos[pod], psr.PodPreemptInfo.VictimPods)
+		}
 	} else if psr.PodBindInfo.Node != expected.node ||
 		!compareGpuIsolation(psr.PodBindInfo.GpuIsolation, expected.gpuIsolation) {
-		t.Errorf("[%v]: wrong pod scheduling result: expected %v:%v, but got %v:%v",
+		t.Errorf("[%v]: wrong pod bind info: expected %v:%v, but got %v:%v",
 			internal.Key(pod), expected.node, expected.gpuIsolation, psr.PodBindInfo.Node, psr.PodBindInfo.GpuIsolation)
 	}
 }
