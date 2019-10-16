@@ -86,13 +86,12 @@ PAI_RUNTIME_DIR=${PAI_WORK_DIR}/runtime.d
 
 PAI_LOG_DIR=${PAI_WORK_DIR}/logs/${FC_POD_UID}
 
-# Move previous logs to another folder. Notice: for init.log, some part will append to previous log file
-LOG_FILES=$(find $PAI_LOG_DIR -maxdepth 1 -type f)
+# Move previous logs to another folder. Notice: exclude for init.log, new log will append to previous log file
+LOG_FILES=$(find $PAI_LOG_DIR -maxdepth 1 -type f ! -name "init.log")
 if [[ ! -z $LOG_FILES ]]; then
   echo "[WARN] $PAI_LOG_DIR not empty, contains previous results"
-  RANDOM=$$
   PRE_LOG_DIR=$PAI_LOG_DIR/prelog_$RANDOM
-  while [[ -d PRE_LOG_DIR=$PAI_LOG_DIR/prelog_$RANDOM ]]
+  while [[ -d $PRE_LOG_DIR ]]
   do
     PRE_LOG_DIR=$PAI_LOG_DIR/prelog_$RANDOM
   done
@@ -101,7 +100,8 @@ if [[ ! -z $LOG_FILES ]]; then
 fi
 
 # Clean ${PAI_WORK_DIR} since it may contain last execution content. (rarely happen, but seen in real world)
-rm -rf ${PAI_WORK_DIR}/*
+find ${PAI_WORK_DIR} -maxdepth 1 -type f -exec rm {} \;
+
 
 # Move all runtime sources to PAI_WORK_DIR
 mv ./* ${PAI_WORK_DIR}
