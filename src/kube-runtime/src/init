@@ -130,7 +130,12 @@ else
   # priority=0
   # We should use k8s client to communicate api server, need to change this when RBAC is enabled
   CHILD_PROCESS="FRAMEWORK_RETRIEVER"
-  curl -s $KUBE_APISERVER_ADDRESS/apis/frameworkcontroller.microsoft.com/v1/namespaces/default/frameworks/$FC_FRAMEWORK_NAME > framework.json
+  if [[ -z $KUBE_APISERVER_ADDRESS ]]; then
+    KUBE_APISERVER_ADDRESS="KUBERNETES_SERVICE_HOST:KUBERNETES_SERVICE_PORT"
+    AUTH_FLAG='-k -H "Authorization: Bearer $(cat /var/run/secrets/kubernetes.io/serviceaccount/token)"'
+  fi
+  curl -s $AUTH_FLAG \
+    $KUBE_APISERVER_ADDRESS/apis/frameworkcontroller.microsoft.com/v1/namespaces/default/frameworks/$FC_FRAMEWORK_NAME > framework.json
 fi
 
 # error spec

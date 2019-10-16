@@ -315,7 +315,7 @@ const generateTaskRole = (taskRole, labels, config) => {
                 },
                 {
                   name: 'KUBE_APISERVER_ADDRESS',
-                  value: launcherConfig.apiServerUri,
+                  value: apiserver.token ? '' : launcherConfig.apiServerUri,
                 },
                 {
                   name: 'GANG_ALLOCATION',
