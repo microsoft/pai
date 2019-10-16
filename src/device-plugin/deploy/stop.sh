@@ -1,3 +1,5 @@
+#!/bin/bash
+
 # Copyright (c) Microsoft Corporation
 # All rights reserved.
 #
@@ -15,25 +17,14 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-cluster-type:
-  - k8s
+pushd $(dirname "$0") > /dev/null
 
-prerequisite:
-  - cluster-configuration
-  - device-plugin
-  - frameworkcontroller
+if kubectl get ds --namespace=kube-system | grep -q "rdma-sriov-dp-ds"; then
+    kubectl delete ds --namespace=kube-system rdma-sriov-dp-ds || exit $?
+fi
 
-template-list:
-  - start.sh
-  - stop.sh
-  - hivedscheduler.yaml
-  - hivedscheduler-config.yaml
+if kubectl get configmap --namespace=kube-system | grep -q "rdma-devices"; then
+    kubectl delete configmap --namespace=kube-system rdma-devices || exit $?
+fi
 
-start-script: start.sh
-stop-script: stop.sh
-delete-script: delete.sh
-refresh-script: refresh.sh
-upgraded-script: upgraded.sh
-
-deploy-rules:
-  - in: pai-master
+popd > /dev/null

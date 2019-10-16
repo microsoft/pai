@@ -20,20 +20,11 @@ cluster-type:
 
 prerequisite:
   - cluster-configuration
-  - device-plugin
-  - frameworkcontroller
 
-template-list:
-  - start.sh
-  - stop.sh
-  - hivedscheduler.yaml
-  - hivedscheduler-config.yaml
+template-list: []
 
 start-script: start.sh
 stop-script: stop.sh
 delete-script: delete.sh
 refresh-script: refresh.sh
 upgraded-script: upgraded.sh
-
-deploy-rules:
-  - in: pai-master

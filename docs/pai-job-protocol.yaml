@@ -59,6 +59,7 @@ taskRoles:
     script: String, optional # Select script defined in prerequisites, target can be referenced as `$script` in this task role.
     extraContainerOptions:
       shmMB: Integer, optional # Config the /dev/shm in a docker container, https://docs.docker.com/compose/compose-file/#shm_size.
+      infiniband: Boolean, optional # Use InfiniBand devices or not in a docker container.
     resourcePerInstance:
       cpu: Integer, required # CPU number, unit is CPU vcore
       memoryMB: Integer, required # Memory number, unit is MB
