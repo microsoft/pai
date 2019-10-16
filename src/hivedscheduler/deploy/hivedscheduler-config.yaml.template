@@ -25,7 +25,6 @@ data:
     apiVersion: kubescheduler.config.k8s.io/v1alpha1
     kind: KubeSchedulerConfiguration
     schedulerName: hivedscheduler
-    disablePreemption: true
     algorithmSource:
       policy:
         configMap:
@@ -59,5 +58,7 @@ data:
       ]
     }
   hivedscheduler.yaml: |
+  {%- if cluster_cfg['cluster']['common']['k8s-rbac'] != 'true' %}
     kubeApiServerAddress: "{{ cluster_cfg['layout']['kubernetes']['api-servers-url'] }}"
+  {%- endif %}
     {{ cluster_cfg['hivedscheduler']['config'] }}

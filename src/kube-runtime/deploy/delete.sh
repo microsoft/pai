@@ -23,4 +23,16 @@ if kubectl get configmap | grep -q "runtime-exit-spec-configuration"; then
   kubectl delete configmap runtime-exit-spec-configuration || exit $?
 fi
 
+if kubectl get serviceaccount | grep -q "frameworkbarrier-account"; then
+    kubectl delete serviceaccount frameworkbarrier-account || exit $?
+fi
+
+if kubectl get clusterrole | grep -q "frameworkbarrier-role"; then
+    kubectl delete clusterrole frameworkbarrier-role || exit $?
+fi
+
+if kubectl get clusterrolebinding | grep -q "frameworkbarrier-role-binding"; then
+    kubectl delete clusterrolebinding frameworkbarrier-role-binding || exit $?
+fi
+
 popd > /dev/null
