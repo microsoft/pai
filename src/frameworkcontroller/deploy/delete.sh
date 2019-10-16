@@ -19,13 +19,9 @@
 
 pushd $(dirname "$0") > /dev/null
 
-APISERVER=$(kubectl config view | grep server | cut -f 2- -d ":" | tr -d " ")
-FRAMEWORK_ENDPOINT="$APISERVER/apis/frameworkcontroller.microsoft.com/v1/namespaces/default/frameworks"
-until [[ $(curl -s $FRAMEWORK_ENDPOINT | jq ".items | length") -eq 0 ]]; do
-    echo 'Trying to stop all frameworks ...'
-    curl -X DELETE $FRAMEWORK_ENDPOINT \
-        -H "Content-Type: application/json" \
-        -d '{"kind":"DeleteOptions","apiVersion":"v1","propagationPolicy":"Foreground"}' > /dev/null 2>&1
+until [[ $(kubectl get frameworks | wc -l) -eq 0 ]]; do
+    echo 'Trying to delete all frameworks ...'
+    kubectl delete --all frameworks
     sleep 5
 done
 kubectl delete customresourcedefinitions frameworks.frameworkcontroller.microsoft.com || exit $?
