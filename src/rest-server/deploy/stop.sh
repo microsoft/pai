@@ -39,20 +39,16 @@ if kubectl get configmap | grep -q "k8s-job-exit-spec-configuration"; then
     kubectl delete configmap k8s-job-exit-spec-configuration || exit $?
 fi
 
-if kubectl get ClusterRoleBinding | grep "rest-server-openpai"; then
-    kubectl delete ClusterRoleBinding rest-server-openpai || exit $?
+if kubectl get clusterrolebinding | grep -q "rest-server-role-binding"; then
+    kubectl delete clusterrolebinding rest-server-role-binding || exit $?
 fi
 
-if kubectl get ClusterRoleBinding | grep "rest-server-openpai-edit"; then
-    kubectl delete ClusterRoleBinding rest-server-openpai-edit || exit $?
+if kubectl get clusterrole | grep "rest-server-role"; then
+    kubectl delete clusterrole rest-server-role || exit $?
 fi
 
-if kubectl get ClusterRole | grep "rest-server-openpai"; then
-    kubectl delete ClusterRole rest-server-openpai || exit $?
-fi
-
-if kubectl get ServiceAccount | grep "rest-server-openpai"; then
-    kubectl delete ServiceAccount rest-server-openpai || exit $?
+if kubectl get serviceaccount | grep "rest-server-account"; then
+    kubectl delete serviceaccount rest-server-account || exit $?
 fi
 
 popd > /dev/null
