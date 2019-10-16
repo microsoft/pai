@@ -172,6 +172,8 @@ type PodPreemptInfo struct {
 	// otherwise, the default scheduler refuse to execute any preemption.
 	// Need to ensure the newly added victim Pods are eventually added to here,
 	// otherwise, the preemption will never complete.
+	// It can be empty, such as current preemptor Pod is waiting for the victim Pods
+	// of other preemptor Pods to be preempted.
 	VictimPods []*core.Pod
 }
 
