@@ -124,14 +124,16 @@ if [[ $GANG_ALLOCATION = "true" ]]; then
   # priority=0
   CHILD_PROCESS="FRAMEWORK_BARRIER"
   echo "frameworkbarrier start"
+  if [[ -f /var/run/secrets/kubernetes.io/serviceaccount/token ]]; then
+    unset KUBE_APISERVER_ADDRESS
+  fi
   ${PAI_INIT_DIR}/frameworkbarrier 2>&1 | tee ${PAI_LOG_DIR}/barrier.log
 else
   # Get framework
   # priority=0
   # We should use k8s client to communicate api server, need to change this when RBAC is enabled
   CHILD_PROCESS="FRAMEWORK_RETRIEVER"
-  if [[ -z $KUBE_APISERVER_ADDRESS ]]; then
-    KUBE_APISERVER_ADDRESS="https://$KUBERNETES_SERVICE_HOST:$KUBERNETES_SERVICE_PORT"
+  if [[ -f /var/run/secrets/kubernetes.io/serviceaccount/token ]]; then
     set -- -k -H "Authorization: Bearer $(cat /var/run/secrets/kubernetes.io/serviceaccount/token)"
   fi
   curl -s "$@" \
