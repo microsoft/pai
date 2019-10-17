@@ -282,6 +282,15 @@ const generateTaskRole = (taskRole, labels, config) => {
     gangAllocation = 'false';
     retryPolicy.fancyRetryPolicy = true;
   }
+  // calculate pod priority
+  // reference: https://github.com/microsoft/pai/issues/3704
+  let jobPriority = 127;
+  if (launcherConfig.enabledHived) {
+    jobPriority = 126 - parseInt(config.taskRoles[taskRole].hivedPodSpec.priority);
+  }
+  const jobCreationTime = Math.floor(new Date() / 1000) & (Math.pow(2, 23) - 1);
+  const podPriority = - (jobPriority << 23 + jobCreationTime);
+
   const frameworkTaskRole = {
     name: convertName(taskRole),
     taskNumber: config.taskRoles[taskRole].instances || 1,
@@ -301,6 +310,7 @@ const generateTaskRole = (taskRole, labels, config) => {
         },
         spec: {
           privileged: false,
+          priority: podPriority,
           restartPolicy: 'Never',
           serviceAccountName: 'frameworkbarrier-account',
           initContainers: [
