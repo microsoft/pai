@@ -290,7 +290,7 @@ const generateTaskRole = (taskRole, labels, config) => {
     jobPriority = Math.min(Math.max(jobPriority, -1), 126);
   }
   const jobCreationTime = Math.floor(new Date() / 1000) & (Math.pow(2, 23) - 1);
-  const podPriority = - ((126 - jobPriority) << 23 + jobCreationTime);
+  const podPriority = - (((126 - jobPriority) << 23) + jobCreationTime);
 
   const frameworkTaskRole = {
     name: convertName(taskRole),
