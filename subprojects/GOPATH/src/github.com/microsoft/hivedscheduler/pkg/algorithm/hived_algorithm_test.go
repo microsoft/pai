@@ -351,9 +351,9 @@ var expectedBindInfos = map[*core.Pod]result{
 	pod9: {node: "1.0.0.2", gpuIsolation: []int32{0, 1, 2, 3, 4}},
 }
 
-var expectedPreemptInfos = map[*core.Pod][]string{
-	pod16: {"pod5", "pod6"},
-	pod17: {"pod5", "pod6"},
+var expectedPreemptInfos = map[*core.Pod]common.Set{
+	pod16: common.NewSet("pod5", "pod6"),
+	pod17: common.NewSet("pod5", "pod6"),
 }
 
 var allocatedPods []*core.Pod
@@ -443,10 +443,10 @@ func compareGpuIsolation(a []int32, b []int32) bool {
 	return false
 }
 
-func comparePods(a []*core.Pod, b []string) bool {
-	if len(a) == len(b) {
-		for i := 0; i < len(a); i++ {
-			if a[i].Name != b[i] {
+func comparePods(a []*core.Pod, b common.Set) bool {
+	if len(a) == len(b.Items()) {
+		for _, p := range a {
+			if !b.Contains(p.Name) {
 				return false
 			}
 		}
@@ -461,7 +461,7 @@ func compareSchedulingResult(t *testing.T, pod *core.Pod, psr internal.PodSchedu
 			t.Errorf("[%v]: wrong pod scheduling result: expected empty, but got %v:%v",
 				internal.Key(pod), psr.PodBindInfo.Node, psr.PodBindInfo.GpuIsolation)
 		}
-		if expectedPreemptInfos[pod] != nil && !comparePods(psr.PodPreemptInfo.VictimPods, expectedPreemptInfos[pod]) {
+		if !expectedPreemptInfos[pod].IsEmpty() && !comparePods(psr.PodPreemptInfo.VictimPods, expectedPreemptInfos[pod]) {
 			t.Errorf("[%v]: wrong preempt victims: expected %v, but got %v",
 				internal.Key(pod), expectedPreemptInfos[pod], psr.PodPreemptInfo.VictimPods)
 		}
