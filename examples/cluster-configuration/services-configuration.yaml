@@ -15,7 +15,7 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-#uncomment following if you want to change customeize cluster overall configuraiton
+#uncomment following if you want to change customize cluster overall configuraiton
 #cluster:
 #
 #  common:
@@ -73,7 +73,7 @@
 
 
 
-#uncomment following if you want to change customeize yarn-frameworklauncher
+#uncomment following if you want to change customize yarn-frameworklauncher
 #yarn-frameworklauncher:
 #  frameworklauncher-port: 9086
 
@@ -98,11 +98,11 @@ rest-server:
 #   server-port: 9286
 #   log-type: yarn
 
-# uncomment following if you want to change customeize grafana
+# uncomment following if you want to change customize grafana
 # grafana:
 #   port: 3000
 
-# uncomment following if you want to change customeize drivers
+# uncomment following if you want to change customize drivers
 #drivers:
 #  set-nvidia-runtime: false
 #  # You can set drivers version here. If this value is miss, default value will be 384.111
@@ -112,6 +112,12 @@ rest-server:
 #  # 410.73
 #  # 418.56
 #  version: "384.111"
+
+# uncomment following if you want to customize device plugin
+# device-plugin:
+#   devices:
+#     - "nvidia.com/gpu"
+#     - "rdma/hca"
 
 # uncomment following if you want node-exporter listen to different port
 # node-exporter:
@@ -127,7 +133,7 @@ rest-server:
 #   smtp_auth_password: password_for_alert_sender
 #   port: 9093 # this is optional, you should not write this if you do not want to change the port alert-manager is listening on
 
-# uncomment following if you want to change customeize prometheus
+# uncomment following if you want to change customize prometheus
 # prometheus:
 #   port: 9091
 #   # How frequently to scrape targets

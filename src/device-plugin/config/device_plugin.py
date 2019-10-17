@@ -15,18 +15,20 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-cluster-type:
-  - k8s
 
-prerequisite:
-  - cluster-configuration
+class DevicePlugin:
+    def __init__(self, cluster_conf, service_conf, default_service_conf):
+        self.cluster_conf = cluster_conf
+        self.service_conf = service_conf
+        self.default_service_conf = default_service_conf
 
-template-list:
-  - start.sh
-  - delete.sh
+    def validation_pre(self):
+        if 'devices' not in self.service_conf:
+            return False, 'devices list is missing'
+        return True, None
 
-start-script: start.sh
-stop-script: stop.sh
-delete-script: delete.sh
-refresh-script: refresh.sh
-upgraded-script: upgraded.sh
+    def run(self):
+        return self.service_conf
+
+    def validation_post(self, conf):
+        return True, None
