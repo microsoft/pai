@@ -38,7 +38,4 @@ fi
 
 {% endif %}
 
-PYTHONPATH="../../../deployment" python -m k8sPaiLibrary.maintaintool.update_resource \
-    --operation delete --resource daemonset --name nvidia-device-plugin-daemonset --namespace kube-system
-
 popd > /dev/null

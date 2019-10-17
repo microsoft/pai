@@ -19,9 +19,11 @@
 
 pushd $(dirname "$0") > /dev/null
 
-if kubectl get ds --namespace=kube-system | grep -q "rdma-sriov-dp-ds"; then
-    kubectl delete ds --namespace=kube-system rdma-sriov-dp-ds || exit $?
-fi
+PYTHONPATH="../../../deployment" python -m k8sPaiLibrary.maintaintool.update_resource \
+    --operation delete --resource daemonset --name nvidia-device-plugin-daemonset --namespace kube-system
+
+PYTHONPATH="../../../deployment" python -m k8sPaiLibrary.maintaintool.update_resource \
+    --operation delete --resource daemonset --name rdma-sriov-dp-ds --namespace kube-system
 
 if kubectl get configmap --namespace=kube-system | grep -q "rdma-devices"; then
     kubectl delete configmap --namespace=kube-system rdma-devices || exit $?
