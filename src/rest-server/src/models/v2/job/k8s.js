@@ -284,12 +284,13 @@ const generateTaskRole = (taskRole, labels, config) => {
   }
   // calculate pod priority
   // reference: https://github.com/microsoft/pai/issues/3704
-  let jobPriority = 127;
+  let jobPriority = 0;
   if (launcherConfig.enabledHived) {
-    jobPriority = 126 - parseInt(config.taskRoles[taskRole].hivedPodSpec.priority);
+    jobPriority = parseInt(config.taskRoles[taskRole].hivedPodSpec.priority);
+    jobPriority = Math.min(Math.max(jobPriority, -1), 126);
   }
   const jobCreationTime = Math.floor(new Date() / 1000) & (Math.pow(2, 23) - 1);
-  const podPriority = - (jobPriority << 23 + jobCreationTime);
+  const podPriority = - ((126 - jobPriority) << 23 + jobCreationTime);
 
   const frameworkTaskRole = {
     name: convertName(taskRole),

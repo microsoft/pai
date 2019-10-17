@@ -23,7 +23,7 @@ const vcConfig = require('@pai/config/vc');
 
 const convertPriority = (priorityClass) => {
   // TODO: make it a cluster-wise config
-  // allowed range: [-1, 126]
+  // allowed range: [-1, 126], default priority 0
   const priorityMap = {
     prod: 100,
     test: 10,
