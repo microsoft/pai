@@ -61,10 +61,8 @@ func (cl CellList) String() string {
 
 func (cl CellList) remove(c Cell) CellList {
 	index := -1
-	// note that the cell is removed by reference. if you create a clone of the cell,
-	// the cloned one cannot be removed the CellList.
 	for i, cc := range cl {
-		if cc == c {
+		if cc.GetName() == c.GetName() {
 			index = i
 			break
 		}

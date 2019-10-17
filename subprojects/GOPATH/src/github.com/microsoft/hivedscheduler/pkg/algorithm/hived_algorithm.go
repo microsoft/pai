@@ -98,16 +98,14 @@ func (h *HivedAlgorithm) Schedule(pod *core.Pod, suggestedNodes []string) intern
 	klog.Infof("[%v]: Scheduling pod...", internal.Key(pod))
 	s := internal.ExtractPodSchedulingSpec(pod)
 	// gpu number -> a set of pods -> a set of GPUs of each pod
-	var groupPhysicalPlacement map[int32][]CellList
-	var groupVirtualPlacement map[int32][]CellList
+	groupPhysicalPlacement := map[int32][]CellList{}
+	groupVirtualPlacement := map[int32][]CellList{}
 	newGroup := true
 	podIndex := int32(0)
 
 	if group := h.allocatedAffinityGroups[s.AffinityGroup.Name]; group == nil {
 		klog.Infof("Scheduling new affinity group %v", s.AffinityGroup.Name)
 		groupPhysicalPlacement, groupVirtualPlacement = h.scheduleNewAffinityGroup(pod, s)
-		if groupPhysicalPlacement != nil {
-		}
 	} else {
 		if int32(len(group.allocatedPods[s.GpuNumber])) >= group.totalPodNums[s.GpuNumber] {
 			panic(internal.NewBadRequestError(fmt.Sprintf(
@@ -143,40 +141,40 @@ func (h *HivedAlgorithm) AddAllocatedPod(pod *core.Pod) {
 			if hasVirtualPlacement {
 				newGroup.virtualGpuPlacement[gpuNumber] = make([]CellList, len(gms.PodPlacements))
 			}
-			for i := int32(0); i < int32(len(gms.PodPlacements)); i++ {
-				newGroup.physicalGpuPlacement[gpuNumber][i] = make(
-					CellList, len(gms.PodPlacements[i].PhysicalGpuIndices))
+			for podIndex := int32(0); podIndex < int32(len(gms.PodPlacements)); podIndex++ {
+				newGroup.physicalGpuPlacement[gpuNumber][podIndex] = make(
+					CellList, len(gms.PodPlacements[podIndex].PhysicalGpuIndices))
 				if hasVirtualPlacement {
-					newGroup.virtualGpuPlacement[gpuNumber][i] = make(
-						CellList, len(gms.PodPlacements[i].PhysicalGpuIndices))
+					newGroup.virtualGpuPlacement[gpuNumber][podIndex] = make(
+						CellList, len(gms.PodPlacements[podIndex].PhysicalGpuIndices))
 				}
-				node := gms.PodPlacements[i].PhysicalNode
-				for j := int32(0); j < int32(len(gms.PodPlacements[i].PhysicalGpuIndices)); j++ {
-					physicalGpuIndex := gms.PodPlacements[i].PhysicalGpuIndices[j]
+				node := gms.PodPlacements[podIndex].PhysicalNode
+				for gpuIndex := int32(0); gpuIndex < int32(
+					len(gms.PodPlacements[podIndex].PhysicalGpuIndices)); gpuIndex++ {
+					physicalGpuIndex := gms.PodPlacements[podIndex].PhysicalGpuIndices[gpuIndex]
 					pGpu := h.findPhysicalGpu(chain, node, physicalGpuIndex)
 					if pGpu == nil {
 						panic(fmt.Sprintf("[%v]: physical GPU cell not found when adding pod: node %v, GPU index %v",
 							internal.Key(pod), node, physicalGpuIndex))
 					}
-					newGroup.physicalGpuPlacement[gpuNumber][i][j] = pGpu
-					pGpu.AddAffinityGroup(newGroup)
+					newGroup.physicalGpuPlacement[gpuNumber][podIndex][gpuIndex] = pGpu
 
 					var vGpu *VirtualCell
 					if hasVirtualPlacement {
-						virtualCellIndex := gms.PodPlacements[i].VirtualCellIndices[j]
+						virtualCellIndex := gms.PodPlacements[podIndex].VirtualCellIndices[gpuIndex]
 						if virtualCellIndex >= 0 {
 							vGpu = h.findVirtualGpu(s.VirtualCluster, chain, s.ReservationId, virtualCellIndex)
 							if vGpu == nil {
 								panic(fmt.Sprintf("[%v]: virtual GPU cell not found when adding pod: virtual cell index %v",
 									internal.Key(pod), virtualCellIndex))
 							}
-							newGroup.virtualGpuPlacement[gpuNumber][i][j] = vGpu
+							newGroup.virtualGpuPlacement[gpuNumber][podIndex][gpuIndex] = vGpu
 						} else {
 							newGroup.virtualGpuPlacement = nil
 							hasVirtualPlacement = false
 						}
 					}
-					h.confirmAllocatedGpu(pGpu, vGpu, CellPriority(s.Priority))
+					h.confirmAllocatedGpu(pGpu, vGpu, CellPriority(s.Priority), newGroup)
 				}
 			}
 		}
@@ -202,7 +200,7 @@ func (h *HivedAlgorithm) DeleteAllocatedPod(pod *core.Pod) {
 		allocatedPods := group.allocatedPods[s.GpuNumber]
 		idx := -1
 		for i, p := range allocatedPods {
-			if pod == p {
+			if pod.UID == p.UID {
 				idx = i
 				break
 			}
@@ -226,9 +224,7 @@ func (h *HivedAlgorithm) DeleteAllocatedPod(pod *core.Pod) {
 			for _, podPlacements := range group.physicalGpuPlacement {
 				for _, podPlacement := range podPlacements {
 					for _, gpu := range podPlacement {
-						pGpu := gpu.(*PhysicalCell)
-						pGpu.DeleteAffinityGroup(group)
-						h.confirmReleasedGpu(pGpu)
+						h.confirmReleasedGpu(gpu.(*PhysicalCell), group)
 					}
 				}
 			}
@@ -476,7 +472,12 @@ func (h *HivedAlgorithm) getTmpFreeCellList(chain CellChain) ChainCellList {
 
 // confirmAllocatedGpu creates the cell bindings, removes the physical cell from the free list
 // (if necessary), and sets the priority.
-func (h *HivedAlgorithm) confirmAllocatedGpu(pGpu *PhysicalCell, vGpu *VirtualCell, p CellPriority) {
+func (h *HivedAlgorithm) confirmAllocatedGpu(
+	pGpu *PhysicalCell,
+	vGpu *VirtualCell,
+	p CellPriority,
+	g *AlgoAffinityGroup) {
+
 	physicalPriority := p
 	if vGpu != nil {
 		preassignedNewlyBound := vGpu.GetPreAssignedCell().GetPhysicalCell() == nil
@@ -492,11 +493,12 @@ func (h *HivedAlgorithm) confirmAllocatedGpu(pGpu *PhysicalCell, vGpu *VirtualCe
 	}
 	pGpu.SetPriority(physicalPriority)
 	updateUsedGpuNumAtPriority(pGpu, physicalPriority, true)
+	pGpu.AddAffinityGroup(g)
 }
 
 // confirmReleasedGpu destroys the cell bindings, adds the physical cell back to the free list
 // (if necessary), and resets the priority.
-func (h *HivedAlgorithm) confirmReleasedGpu(pGpu *PhysicalCell) {
+func (h *HivedAlgorithm) confirmReleasedGpu(pGpu *PhysicalCell, g *AlgoAffinityGroup) {
 	if vGpu := pGpu.GetVirtualCell(); vGpu != nil {
 		preassignedPhysical := vGpu.GetPreAssignedCell().GetPhysicalCell()
 		unbindCell(pGpu)
@@ -509,6 +511,7 @@ func (h *HivedAlgorithm) confirmReleasedGpu(pGpu *PhysicalCell) {
 	}
 	updateUsedGpuNumAtPriority(pGpu, pGpu.GetPriority(), false)
 	pGpu.SetPriority(freePriority)
+	pGpu.DeleteAffinityGroup(g)
 }
 
 // removeCellFromFreeList removes a cell from the free cell list and splits its parent recursively if needed.
@@ -773,9 +776,6 @@ func buddyAlloc(freeList ChainCellList, level CellLevel) *PhysicalCell {
 	}
 	if len(freeList[level]) == 0 {
 		return nil
-	}
-	for _, c := range freeList[level] {
-		fmt.Println(c.GetName())
 	}
 	return minOpportunisticCell(freeList[level])
 }

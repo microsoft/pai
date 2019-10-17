@@ -371,10 +371,41 @@ func TestHivedAlgorithm(t *testing.T) {
 	printConfig(t, h)
 	testCasesThatShouldSucceed(t, h)
 	testCasesThatShouldFail(t, h)
-	for i := len(allocatedPods) - 1; i >= 0; i-- {
-		h.DeleteAllocatedPod(allocatedPods[i])
-	}
+	testDeleteAllocatedPods(t, h)
 	testInvalidInitialAssignment(t, sConfig)
+}
+
+func sortChains(chains []CellChain) {
+	var chainsTemp []string
+	for _, c := range chains {
+		chainsTemp = append(chainsTemp, string(c))
+	}
+	sort.Strings(chainsTemp)
+	for i := range chains {
+		chains[i] = CellChain(chainsTemp[len(chainsTemp)-i-1])
+	}
+}
+
+func printConfig(t *testing.T, h *HivedAlgorithm) {
+	for chain, ccl := range h.fullCellList {
+		t.Logf("%v", chain)
+		t.Logf("%v", ccl)
+	}
+	for vc, vcs := range h.vcSchedulers {
+		t.Logf("%v", vc)
+		for chain, ccl := range vcs.getNonReservedCellList() {
+			t.Logf("%v", chain)
+			t.Logf("%v", ccl)
+		}
+		t.Logf("Reservation")
+		for rid, ccl := range vcs.getReservedCellList() {
+			t.Logf(string(rid))
+			t.Logf("%v", ccl)
+		}
+	}
+	for gpuType, chains := range h.chains {
+		t.Logf("%v: %v", gpuType, chains)
+	}
 }
 
 func testCasesThatShouldSucceed(t *testing.T, h *HivedAlgorithm) {
@@ -419,6 +450,17 @@ func testCasesThatShouldFail(t *testing.T, h *HivedAlgorithm) {
 	}
 }
 
+func testDeleteAllocatedPods(t *testing.T, h *HivedAlgorithm) {
+	for i := len(allocatedPods) - 1; i >= 0; i-- {
+		h.DeleteAllocatedPod(allocatedPods[i])
+	}
+	for _, pod := range allocatedPods {
+		if g, ok := h.allocatedAffinityGroups[pss[pod.UID].AffinityGroup.Name]; ok {
+			t.Errorf("Group %v is expected to be deleted in scheduler, but not", g.name)
+		}
+	}
+}
+
 func testInvalidInitialAssignment(t *testing.T, sConfig *api.Config) {
 	defer func() {
 		if err := recover(); err != nil {
@@ -456,7 +498,7 @@ func comparePods(a []*core.Pod, b common.Set) bool {
 }
 
 func compareSchedulingResult(t *testing.T, pod *core.Pod, psr internal.PodScheduleResult) {
-	if expected := expectedBindInfos[pod]; expected.node == "" {
+	if expected, ok := expectedBindInfos[pod]; !ok {
 		if psr.PodBindInfo != nil {
 			t.Errorf("[%v]: wrong pod scheduling result: expected empty, but got %v:%v",
 				internal.Key(pod), psr.PodBindInfo.Node, psr.PodBindInfo.GpuIsolation)
@@ -469,38 +511,5 @@ func compareSchedulingResult(t *testing.T, pod *core.Pod, psr internal.PodSchedu
 		!compareGpuIsolation(psr.PodBindInfo.GpuIsolation, expected.gpuIsolation) {
 		t.Errorf("[%v]: wrong pod bind info: expected %v:%v, but got %v:%v",
 			internal.Key(pod), expected.node, expected.gpuIsolation, psr.PodBindInfo.Node, psr.PodBindInfo.GpuIsolation)
-	}
-}
-
-func printConfig(t *testing.T, h *HivedAlgorithm) {
-	for chain, ccl := range h.fullCellList {
-		t.Logf("%v", chain)
-		t.Logf("%v", ccl)
-	}
-	for vc, vcs := range h.vcSchedulers {
-		t.Logf("%v", vc)
-		for chain, ccl := range vcs.getNonReservedCellList() {
-			t.Logf("%v", chain)
-			t.Logf("%v", ccl)
-		}
-		t.Logf("Reservation")
-		for rid, ccl := range vcs.getReservedCellList() {
-			t.Logf(string(rid))
-			t.Logf("%v", ccl)
-		}
-	}
-	for gpuType, chains := range h.chains {
-		t.Logf("%v: %v", gpuType, chains)
-	}
-}
-
-func sortChains(chains []CellChain) {
-	var chainsTemp []string
-	for _, c := range chains {
-		chainsTemp = append(chainsTemp, string(c))
-	}
-	sort.Strings(chainsTemp)
-	for i := range chains {
-		chains[i] = CellChain(chainsTemp[len(chainsTemp)-i-1])
 	}
 }
