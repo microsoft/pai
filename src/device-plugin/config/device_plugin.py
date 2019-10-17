@@ -24,7 +24,7 @@ class DevicePlugin:
 
     def validation_pre(self):
         if 'devices' not in self.service_conf:
-            return False, 'devices list is missing'
+            self.service_conf['devices'] = self.default_service_conf['devices']
         return True, None
 
     def run(self):
