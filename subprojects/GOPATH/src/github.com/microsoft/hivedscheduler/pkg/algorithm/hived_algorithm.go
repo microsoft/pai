@@ -415,8 +415,16 @@ func (h *HivedAlgorithm) scheduleRegularAffinityGroup(sr schedulingRequest) (map
 		return nil, nil
 	}
 	// map the vc placement to the physical cluster
+	gpuNums := make([]int32, len(sr.affinityGroup))
+	i := 0
+	for n := range sr.affinityGroup {
+		gpuNums[i] = n
+		i++
+	}
+	common.SortInt32(gpuNums)
 	physicalPlacement := map[int32][]CellList{}
-	for podGpuNum, podPlacements := range virtualPlacement {
+	for _, podGpuNum := range gpuNums {
+		podPlacements := virtualPlacement[podGpuNum]
 		physicalPlacement[podGpuNum] = make([]CellList, len(podPlacements))
 		for i, podGpus := range podPlacements {
 			physicalPlacement[podGpuNum][i] = make(CellList, len(podGpus))
@@ -765,6 +773,9 @@ func buddyAlloc(freeList ChainCellList, level CellLevel) *PhysicalCell {
 	}
 	if len(freeList[level]) == 0 {
 		return nil
+	}
+	for _, c := range freeList[level] {
+		fmt.Println(c.GetName())
 	}
 	return minOpportunisticCell(freeList[level])
 }

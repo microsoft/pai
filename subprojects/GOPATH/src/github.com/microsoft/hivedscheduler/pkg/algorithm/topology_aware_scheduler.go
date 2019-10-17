@@ -64,7 +64,7 @@ func (t *topologyAwareScheduler) Schedule(
 	p CellPriority) map[int32][]CellList {
 
 	// GPU numbers of the pods to schedule
-	sortedPodGpuNumbers := []int32{}
+	var sortedPodGpuNumbers []int32
 	for gpuNum, podNum := range podGpuNumbers {
 		for i := int32(0); i < podNum; i++ {
 			sortedPodGpuNumbers = append(sortedPodGpuNumbers, gpuNum)
@@ -110,7 +110,7 @@ func (t *topologyAwareScheduler) Schedule(
 func findNodesForPods(clusterView CellList, n []int32, p CellPriority) []int32 {
 	// sort the nodes according to gpu numbers in each node.
 	// this is achieved through the Less method defined in type CellList.
-	sort.Sort(clusterView)
+	sort.Stable(clusterView)
 	currentNodeIndices := make([]int32, len(n)) // indices of the currently picked nodes
 	podIndex := 0
 	pickedGpuNum := int32(0)
