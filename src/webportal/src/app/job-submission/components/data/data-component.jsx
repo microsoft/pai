@@ -100,7 +100,13 @@ export const DataComponent = React.memo(props => {
           fetchStorageServers([...serverNames]).then(rawServers => {
             const servers = [];
             for (const rawServer of rawServers) {
-              servers.push(rawServer.data);
+              let server = {
+                spn: rawServer.spn,
+                type: rawServer.type,
+                ...rawServer.data,
+                extension: rawServer.extension,
+              }
+              servers.push(server);
             }
 
             const mountDirectories = new MountDirectories(

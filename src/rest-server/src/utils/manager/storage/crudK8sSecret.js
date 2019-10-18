@@ -97,10 +97,14 @@ async function readStorageServer(key, config) {
     let serverData = JSON.parse(
       Buffer.from(response['data']['data'][key], 'base64').toString()
     );
+    let innerData = Object.assign({}, serverData);
+    delete innerData.spn;
+    delete innerData.type;
+
     let serverInstance = Storage.createStorageServer({
       spn: serverData['spn'],
       type: serverData['type'],
-      data: serverData,
+      data: innerData,
       extension:
         serverData['extension'] !== undefined ? serverData['extension'] : {},
     });
@@ -143,11 +147,15 @@ async function readStorageServers(keys, config) {
         let serverData = JSON.parse(
           Buffer.from(response['data']['data'][key], 'base64').toString()
         );
+        let innerData = Object.assign({}, serverData);
+        delete innerData.spn;
+        delete innerData.type;
+
         serverInstances.push(
           Storage.createStorageServer({
             spn: serverData['spn'],
             type: serverData['type'],
-            data: serverData,
+            data: innerData,
             extension:
               serverData['extension'] !== undefined
                 ? serverData['extension']
