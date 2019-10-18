@@ -70,6 +70,14 @@ spec:
           value: /var/drivers/nvidia/current
         - name: NVIDIA_VISIBLE_DEVICES
           value: all
+        {%- if cluster_cfg['cluster']['common']['deploy-in-aks'] == "true" %}
+        - name: DEPLOY_ENV
+          value: aks
+        - name: HOST_USR_BIN_DIR
+          value: /var/usr/bin
+        - name: HOST_NVIDIA_BIN_DIR
+          value: /var/usr/local/nvidia/bin
+        {%- endif %}
         volumeMounts:
         - mountPath: /var/run/docker.sock
           name: docker-socket
@@ -81,6 +89,12 @@ spec:
           name: collector-mount
         - mountPath: /gpu-config
           name: gpu-config
+        {%- if cluster_cfg['cluster']['common']['deploy-in-aks'] == "true" %}
+        - mountPath: /var/usr/bin
+          name: usr-bin
+        - mountPath: /var/usr/local/nvidia/bin
+          name: usr-local-nvidia-bin
+        {%- endif %}
         name: job-exporter
         ports:
         - containerPort: {{ cluster_cfg["job-exporter"]["port"] }}
@@ -102,6 +116,14 @@ spec:
         - name: gpu-config
           configMap:
             name: gpu-configuration
+        {%- if cluster_cfg['cluster']['common']['deploy-in-aks'] == "true" %}
+        - name: usr-bin
+          hostPath:
+            path: /usr/bin
+        - name: usr-local-nvidia-bin
+          hostPath:
+            path: /usr/local/nvidia/bin
+        {%- endif %}
       imagePullSecrets:
       - name: {{ cluster_cfg["cluster"]["docker-registry"]["secret-name"] }}
       hostNetwork: true

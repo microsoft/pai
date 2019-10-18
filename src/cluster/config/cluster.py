@@ -60,6 +60,8 @@ class Cluster:
             return False, "az-rdma is miss in service-configuration.yaml -> cluster -> common -> az-rdma"
         if "k8s-rbac" not in common_configuration:
             return False, "k8s-rbac is miss in service-configuration.yaml -> cluster -> common -> k8s-rbac"
+        if "deploy-in-aks" not in common_configuration:
+            return False, "deploy-in-aks is miss in service-configuration.yaml -> cluster ->common -> deploy-in-aks"
         return True, None
 
 
