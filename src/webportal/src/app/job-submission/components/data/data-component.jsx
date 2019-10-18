@@ -100,12 +100,12 @@ export const DataComponent = React.memo(props => {
           fetchStorageServers([...serverNames]).then(rawServers => {
             const servers = [];
             for (const rawServer of rawServers) {
-              let server = {
+              const server = {
                 spn: rawServer.spn,
                 type: rawServer.type,
                 ...rawServer.data,
                 extension: rawServer.extension,
-              }
+              };
               servers.push(server);
             }
 
