@@ -878,11 +878,11 @@ func unbindCell(c *PhysicalCell) {
 // and its parent recursively.
 func updateUsedGpuNumAtPriority(c Cell, p CellPriority, increase bool) {
 	for c != nil {
+		delta := int32(-1)
 		if increase {
-			c.IncreaseUsedGpuNumAtPriority(p, 1)
-		} else {
-			c.IncreaseUsedGpuNumAtPriority(p, -1)
+			delta = 1
 		}
+		c.IncreaseUsedGpuNumAtPriority(p, delta)
 		c = c.GetParent()
 	}
 }
