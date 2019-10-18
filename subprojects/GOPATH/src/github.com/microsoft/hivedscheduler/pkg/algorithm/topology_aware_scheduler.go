@@ -254,10 +254,10 @@ func findLCA(lower Cell, higher Cell) Cell {
 		}
 		lower = lower.GetParent()
 	}
-	if lower.GetName() == higher.GetName() {
+	if CellEqual(lower, higher) {
 		return lower
 	}
-	for lower.GetParent().GetName() != higher.GetParent().GetName() {
+	for !CellEqual(lower, higher) {
 		if lower.GetParent() == nil || higher.GetParent() == nil {
 			return nil
 		}

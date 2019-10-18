@@ -51,6 +51,14 @@ type Cell interface {
 	UpdateUsedGpuNumAllPriority(CellPriority)
 }
 
+func CellEqual(c1 Cell, c2 Cell) bool {
+	if c1 == nil || c2 == nil {
+		return c1 == nil && c2 == nil
+	} else {
+		return c1.GetName() == c2.GetName()
+	}
+}
+
 type GenericCell struct {
 	chain              CellChain
 	level              CellLevel

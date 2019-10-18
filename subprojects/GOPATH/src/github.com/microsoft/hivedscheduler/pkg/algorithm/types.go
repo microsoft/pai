@@ -62,7 +62,7 @@ func (cl CellList) String() string {
 func (cl CellList) remove(c Cell) CellList {
 	index := -1
 	for i, cc := range cl {
-		if cc.GetName() == c.GetName() {
+		if CellEqual(cc, c) {
 			index = i
 			break
 		}

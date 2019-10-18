@@ -560,7 +560,7 @@ func (h *HivedAlgorithm) addCellToFreeList(c *PhysicalCell) {
 				terminate = true
 			} else {
 				for _, buddy := range parent.GetChildren() {
-					if buddy != c {
+					if !CellEqual(buddy, c) {
 						h.freeCellList[chain].remove(buddy, l)
 					}
 				}
