@@ -45,7 +45,7 @@ HTTP://restserver/api/v1/authn/oidc/return
 HTTP GET the redirect URL of Azure AD to sign out the authentication:
 
 ```url
-http://restserver/api/v1/authn/oidc/login
+http://restserver/api/v1/authn/oidc/logout
 ```
 
 ## 3. Submit a job
@@ -2261,7 +2261,7 @@ Authorization: Bearer <ACCESS_TOKEN>
 }
 ```
 
-For data, please refer to [storage plugin](../../contrib/storage_plugin/README.md)
+For data, please refer to [storage plugin](../../contrib/storage_plugin/README.MD#Server_data)
 
 *Response if succeeded*
 
@@ -2327,7 +2327,7 @@ Authorization: Bearer <ACCESS_TOKEN>
 }
 ```
 
-For data, please refer to [storage plugin](../../contrib/storage_plugin/README.md)
+For data, please refer to [storage plugin](../../contrib/storage_plugin/README.MD#Server_data)
 
 *Response if succeeded*
 
@@ -2552,7 +2552,7 @@ Authorization: Bearer <ACCESS_TOKEN>
 }
 ```
 
-For data, please refer to [storage plugin](../../contrib/storage_plugin/README.md)
+For data, please refer to [storage plugin](../../contrib/storage_plugin/README.MD#Config_data)
 
 *Response if succeeded*
 
@@ -2628,7 +2628,7 @@ Authorization: Bearer <ACCESS_TOKEN>
 }
 ```
 
-For data, please refer to [storage plugin](../../contrib/storage_plugin/README.md)
+For data, please refer to [storage plugin](../../contrib/storage_plugin/README.MD#Config_data)
 
 *Response if succeeded*
 
