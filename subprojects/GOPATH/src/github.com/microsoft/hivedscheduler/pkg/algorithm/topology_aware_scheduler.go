@@ -117,6 +117,66 @@ func (t *topologyAwareScheduler) Schedule(
 	return podPlacements
 }
 
+type node struct {
+	c                        Cell  // a cell at node level (or lower than node level if no node level in the chain)
+	freeGpuNumAtPriority     int32 // free GPU number at the priority of the pod to be scheduled (lower priority considered as free)
+	usedGpuNumSamePriority   int32 // GPU number used by the same priority as that of the pod to be scheduled
+	usedGpuNumHigherPriority int32 // GPU number used by higher priorities than that of the pod to be scheduled
+}
+
+// When cross-priority packing is not enabled, we count the GPU numbers used by the current
+// priority (n.usedGpuNumSamePriority), and the higher priorities (n.usedGpuNumHigherPriority), respectively.
+// When sorting the nodes, nodes with higher usedGpuNumSamePriority and lower usedGpuNumHigherPriority
+// will be preferred (i.e., pack pods inside the same priority, and stay from higher priorities).
+// Note that in this case, the nodes may NOT be ordered in term of total used GPU number,
+// which may result in feasible pod placements being not found.
+//
+// Otherwise, n.usedGpuNumSamePriority is set to the total used GPU number,
+// so that nodes with more used GPUs will be preferred (i.e., pack pods globally across priorities).
+// In this case a feasible pod placement is guaranteed to be found.
+func (n *node) UpdateUsedGpuNumForPriority(p CellPriority, crossPriorityPack bool) {
+	n.usedGpuNumSamePriority = n.c.GetUsedGpuNumAtPriorities()[p]
+	n.usedGpuNumHigherPriority = 0
+	n.freeGpuNumAtPriority = n.c.GetTotalGpuNum()
+	for priority, num := range n.c.GetUsedGpuNumAtPriorities() {
+		if crossPriorityPack {
+			if priority != p {
+				n.usedGpuNumSamePriority += num
+			}
+		} else if priority > p {
+			if priority > p {
+				n.usedGpuNumHigherPriority += num
+			}
+		}
+		if priority >= p {
+			n.freeGpuNumAtPriority -= num
+		}
+	}
+}
+
+type clusterView []*node
+
+// Methods for sorting nodes in a clusterView.
+func (cv clusterView) Len() int {
+	return len(cv)
+}
+
+func (cv clusterView) Less(i int, j int) bool {
+	if cv[i].usedGpuNumSamePriority > cv[j].usedGpuNumSamePriority {
+		return true
+	} else if cv[i].usedGpuNumSamePriority < cv[j].usedGpuNumSamePriority {
+		return false
+	} else if cv[i].usedGpuNumHigherPriority < cv[j].usedGpuNumHigherPriority {
+		return true
+	} else {
+		return false
+	}
+}
+
+func (cv clusterView) Swap(i int, j int) {
+	cv[i], cv[j] = cv[j], cv[i]
+}
+
 // updateClusterView updates the GPU numbers of the nodes for the sorting.
 func (t *topologyAwareScheduler) updateClusterView(p CellPriority) {
 	for _, n := range t.cv {
@@ -312,64 +372,4 @@ func getGpusFromNode(c Cell, p CellPriority, freeGpus CellList, preemptibleGpus 
 		preemptibleGpus = append(preemptibleGpus, c)
 	}
 	return freeGpus, preemptibleGpus
-}
-
-type node struct {
-	c                        Cell  // a cell at node level (or lower than node level if no node level in the chain)
-	freeGpuNumAtPriority     int32 // free GPU number at the priority of the pod to be scheduled (lower priority considered as free)
-	usedGpuNumSamePriority   int32 // GPU number used by the same priority as that of the pod to be scheduled
-	usedGpuNumHigherPriority int32 // GPU number used by higher priorities than that of the pod to be scheduled
-}
-
-// When cross-priority packing is not enabled, we count the GPU numbers used by the current
-// priority (n.usedGpuNumSamePriority), and the higher priorities (n.usedGpuNumHigherPriority), respectively.
-// When sorting the nodes, nodes with higher usedGpuNumSamePriority and lower usedGpuNumHigherPriority
-// will be preferred (i.e., pack pods inside the same priority, and stay from higher priorities).
-// Note that in this case, the nodes may NOT be ordered in term of total used GPU number,
-// which may result in feasible pod placements being not found.
-//
-// Otherwise, n.usedGpuNumSamePriority is set to the total used GPU number,
-// so that nodes with more used GPUs will be preferred (i.e., pack pods globally across priorities).
-// In this case a feasible pod placement is guaranteed to be found.
-func (n *node) UpdateUsedGpuNumForPriority(p CellPriority, crossPriorityPack bool) {
-	n.usedGpuNumSamePriority = n.c.GetUsedGpuNumAtPriorities()[p]
-	n.usedGpuNumHigherPriority = 0
-	n.freeGpuNumAtPriority = n.c.GetTotalGpuNum()
-	for priority, num := range n.c.GetUsedGpuNumAtPriorities() {
-		if crossPriorityPack {
-			if priority != p {
-				n.usedGpuNumSamePriority += num
-			}
-		} else if priority > p {
-			if priority > p {
-				n.usedGpuNumHigherPriority += num
-			}
-		}
-		if priority >= p {
-			n.freeGpuNumAtPriority -= num
-		}
-	}
-}
-
-type clusterView []*node
-
-// Methods for sorting nodes in a clusterView.
-func (cv clusterView) Len() int {
-	return len(cv)
-}
-
-func (cv clusterView) Less(i int, j int) bool {
-	if cv[i].usedGpuNumSamePriority > cv[j].usedGpuNumSamePriority {
-		return true
-	} else if cv[i].usedGpuNumSamePriority < cv[j].usedGpuNumSamePriority {
-		return false
-	} else if cv[i].usedGpuNumHigherPriority < cv[j].usedGpuNumHigherPriority {
-		return true
-	} else {
-		return false
-	}
-}
-
-func (cv clusterView) Swap(i int, j int) {
-	cv[i], cv[j] = cv[j], cv[i]
 }
