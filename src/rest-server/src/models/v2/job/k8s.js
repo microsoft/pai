@@ -22,6 +22,7 @@ const axios = require('axios');
 const yaml = require('js-yaml');
 const base32 = require('base32');
 const status = require('statuses');
+const querystring = require('querystring');
 const runtimeEnv = require('./runtime-env');
 const launcherConfig = require('@pai/config/launcher');
 const {apiserver} = require('@pai/config/kubernetes');
@@ -553,13 +554,13 @@ const generateFrameworkDescription = (frameworkName, virtualCluster, config, raw
 };
 
 
-const list = async () => {
+const list = async (filters) => {
   // send request to framework controller
   let response;
   try {
     response = await axios({
       method: 'get',
-      url: launcherConfig.frameworksPath(),
+      url: `${launcherConfig.frameworksPath()}?${querystring.stringify(filters)}`,
       headers: launcherConfig.requestHeaders,
       httpsAgent: apiserver.ca && new Agent({ca: apiserver.ca}),
     });
