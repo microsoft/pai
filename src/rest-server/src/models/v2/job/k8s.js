@@ -617,6 +617,9 @@ const put = async (frameworkName, config, rawConfig) => {
   if (flag === false) {
     throw createError('Forbidden', 'ForbiddenUserError', `User ${userName} is not allowed to do operation in ${virtualCluster}`);
   }
+  if (encodeName(frameworkName).length > 63) {
+    throw createError('Bad Request', 'BadConfigurationError', 'Job name too long, please try a shorter one.');
+  }
 
   const frameworkDescription = generateFrameworkDescription(frameworkName, virtualCluster, config, rawConfig);
 
