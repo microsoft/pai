@@ -75,8 +75,8 @@ spec:
           value: aks
         - name: HOST_USR_BIN_DIR
           value: /var/usr/bin
-        - name: HOST_NVIDIA_BIN_DIR
-          value: /var/usr/local/nvidia/bin
+        - name: HOST_NVIDIA_DIR
+          value: /var/usr/local/nvidia
         {%- endif %}
         volumeMounts:
         - mountPath: /var/run/docker.sock
@@ -92,8 +92,8 @@ spec:
         {%- if cluster_cfg['cluster']['common']['deploy-in-aks'] == "true" %}
         - mountPath: /var/usr/bin
           name: usr-bin
-        - mountPath: /var/usr/local/nvidia/bin
-          name: usr-local-nvidia-bin
+        - mountPath: /var/usr/local/nvidia
+          name: usr-local-nvidia
         {%- endif %}
         name: job-exporter
         ports:
@@ -120,9 +120,9 @@ spec:
         - name: usr-bin
           hostPath:
             path: /usr/bin
-        - name: usr-local-nvidia-bin
+        - name: usr-local-nvidia
           hostPath:
-            path: /usr/local/nvidia/bin
+            path: /usr/local/nvidia
         {%- endif %}
       imagePullSecrets:
       - name: {{ cluster_cfg["cluster"]["docker-registry"]["secret-name"] }}
