@@ -41,14 +41,9 @@ type Cell interface {
 	SetChildren(CellList)
 	AtOrHigherThanNode() bool
 
-	IncreaseFreeGpuNum(int32)
-	GetFreeGpuNumAtPriority(CellPriority) int32
-	GetUsedGpuNumAtPriority(CellPriority) int32
+	GetTotalGpuNum() int32
+	GetUsedGpuNumAtPriorities() map[CellPriority]int32
 	IncreaseUsedGpuNumAtPriority(CellPriority, int32)
-	GetUsedGpuNumSamePriority() int32
-	GetUsedGpuNumHigherPriority() int32
-	UpdateUsedGpuNumForPriority(CellPriority)
-	UpdateUsedGpuNumAllPriority(CellPriority)
 }
 
 func CellEqual(c1 Cell, c2 Cell) bool {
@@ -67,14 +62,8 @@ type GenericCell struct {
 	children           CellList // pointer to its children cells
 	atOrHigherThanNode bool     // true if the cell is at or higher than node level
 
-	totalGpuNum          int32                  // total GPU number of a cell
-	freeGpuNum           int32                  // free GPU number of a cell
-	freeGpuNumAtPriority int32                  // free GPU number at the priority of the pod to be scheduled (lower priority considered as free)
-	usedGpuNumAtPriority map[CellPriority]int32 // GPU number used by each priority
-	// GPU number used by the same priority as that of the pod to be scheduled in topologyAwareScheduler (for sorting cells)
-	usedGpuNumSamePriority int32
-	// GPU number used by higher priorities than that of the pod to be scheduled in topologyAwareScheduler (for sorting cells)
-	usedGpuNumHigherPriority int32
+	totalGpuNum            int32                  // total GPU number of a cell
+	usedGpuNumAtPriorities map[CellPriority]int32 // GPU number used by each priority
 }
 
 func (c *GenericCell) GetChain() CellChain {
@@ -113,54 +102,18 @@ func (c *GenericCell) AtOrHigherThanNode() bool {
 	return c.atOrHigherThanNode
 }
 
-func (c *GenericCell) IncreaseFreeGpuNum(delta int32) {
-	c.freeGpuNum += delta
+func (c *GenericCell) GetTotalGpuNum() int32 {
+	return c.totalGpuNum
 }
 
-func (c *GenericCell) GetFreeGpuNumAtPriority(p CellPriority) int32 {
-	return c.freeGpuNumAtPriority
-}
-
-func (c *GenericCell) GetUsedGpuNumAtPriority(p CellPriority) int32 {
-	return c.usedGpuNumAtPriority[p]
+func (c *GenericCell) GetUsedGpuNumAtPriorities() map[CellPriority]int32 {
+	return c.usedGpuNumAtPriorities
 }
 
 func (c *GenericCell) IncreaseUsedGpuNumAtPriority(p CellPriority, delta int32) {
-	c.usedGpuNumAtPriority[p] += delta
-	if c.usedGpuNumAtPriority[p] == 0 {
-		delete(c.usedGpuNumAtPriority, p)
-	}
-}
-
-func (c *GenericCell) GetUsedGpuNumSamePriority() int32 {
-	return c.usedGpuNumSamePriority
-}
-
-func (c *GenericCell) GetUsedGpuNumHigherPriority() int32 {
-	return c.usedGpuNumHigherPriority
-}
-
-func (c *GenericCell) UpdateUsedGpuNumForPriority(p CellPriority) {
-	c.usedGpuNumSamePriority = c.usedGpuNumAtPriority[p]
-	c.usedGpuNumHigherPriority = 0
-	c.freeGpuNumAtPriority = c.totalGpuNum
-	for priority, n := range c.usedGpuNumAtPriority {
-		if priority > p {
-			c.usedGpuNumHigherPriority += n
-		}
-		if priority >= p {
-			c.freeGpuNumAtPriority -= n
-		}
-	}
-}
-
-func (c *GenericCell) UpdateUsedGpuNumAllPriority(p CellPriority) {
-	c.usedGpuNumSamePriority = c.totalGpuNum - c.freeGpuNum
-	c.freeGpuNumAtPriority = c.totalGpuNum
-	for priority, n := range c.usedGpuNumAtPriority {
-		if priority >= p {
-			c.freeGpuNumAtPriority -= n
-		}
+	c.usedGpuNumAtPriorities[p] += delta
+	if c.usedGpuNumAtPriorities[p] == 0 {
+		delete(c.usedGpuNumAtPriorities, p)
 	}
 }
 
@@ -179,13 +132,12 @@ type PhysicalCell struct {
 func NewPhysicalCell(c CellChain, l CellLevel, g bool, n int32) *PhysicalCell {
 	return &PhysicalCell{
 		GenericCell: GenericCell{
-			chain:                c,
-			level:                l,
-			priority:             freePriority,
-			atOrHigherThanNode:   g,
-			totalGpuNum:          n,
-			freeGpuNum:           n,
-			usedGpuNumAtPriority: map[CellPriority]int32{},
+			chain:                  c,
+			level:                  l,
+			priority:               freePriority,
+			atOrHigherThanNode:     g,
+			totalGpuNum:            n,
+			usedGpuNumAtPriorities: map[CellPriority]int32{},
 		},
 		affinityGroups: []*AlgoAffinityGroup{},
 	}
@@ -289,12 +241,12 @@ func NewVirtualCell(vc api.VirtualClusterName,
 
 	return &VirtualCell{
 		GenericCell: GenericCell{
-			chain:                c,
-			level:                l,
-			priority:             freePriority,
-			atOrHigherThanNode:   g,
-			totalGpuNum:          n,
-			usedGpuNumAtPriority: map[CellPriority]int32{},
+			chain:                  c,
+			level:                  l,
+			priority:               freePriority,
+			atOrHigherThanNode:     g,
+			totalGpuNum:            n,
+			usedGpuNumAtPriorities: map[CellPriority]int32{},
 		},
 		vc:              vc,
 		indexInChain:    i,

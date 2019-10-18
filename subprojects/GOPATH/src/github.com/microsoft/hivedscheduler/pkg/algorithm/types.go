@@ -77,28 +77,6 @@ func (cl CellList) remove(c Cell) CellList {
 	return cl[:length-1]
 }
 
-// Methods for sorting cells in a CellList.
-// Note that this sorting logic is used only by topologyAwareScheduler.
-func (cl CellList) Len() int {
-	return len(cl)
-}
-
-func (cl CellList) Less(i int, j int) bool {
-	if cl[i].GetUsedGpuNumSamePriority() > cl[j].GetUsedGpuNumSamePriority() {
-		return true
-	} else if cl[i].GetUsedGpuNumSamePriority() < cl[j].GetUsedGpuNumSamePriority() {
-		return false
-	} else if cl[i].GetUsedGpuNumHigherPriority() < cl[j].GetUsedGpuNumHigherPriority() {
-		return true
-	} else {
-		return false
-	}
-}
-
-func (cl CellList) Swap(i int, j int) {
-	cl[i], cl[j] = cl[j], cl[i]
-}
-
 // ChainCellList maps each level in a chain to a CellList.
 type ChainCellList map[CellLevel]CellList
 

@@ -51,15 +51,16 @@ type defaultIntraVCScheduler struct {
 
 func newDefaultIntraVCScheduler(
 	nonReservedVcl map[CellChain]ChainCellList,
-	reservedVcl map[api.ReservationId]ChainCellList) *defaultIntraVCScheduler {
+	reservedVcl map[api.ReservationId]ChainCellList,
+	gpuNums map[CellChain]map[CellLevel]int32) *defaultIntraVCScheduler {
 
 	snr := map[CellChain]*topologyAwareScheduler{}
 	sr := map[api.ReservationId]*topologyAwareScheduler{}
 	for chain, ccl := range nonReservedVcl {
-		snr[chain] = NewTopologyAwareScheduler(ccl, true)
+		snr[chain] = NewTopologyAwareScheduler(ccl, gpuNums[chain], true)
 	}
 	for rid, ccl := range reservedVcl {
-		sr[rid] = NewTopologyAwareScheduler(ccl, true)
+		sr[rid] = NewTopologyAwareScheduler(ccl, gpuNums[ccl[CellLevel(1)][0].GetChain()], true)
 	}
 	return &defaultIntraVCScheduler{
 		virtualNonReservedCellList: nonReservedVcl,

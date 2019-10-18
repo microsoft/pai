@@ -57,7 +57,7 @@ type HivedAlgorithm struct {
 
 // NewHivedAlgorithm initializes a HivedAlgorithm from the config file
 func NewHivedAlgorithm(sConfig *api.Config) *HivedAlgorithm {
-	pcl, gpuTypeToChain, nonReservedVcl, reservedVcl, reservedPc := ParseConfig(sConfig)
+	pcl, gpuNums, gpuTypeToChain, nonReservedVcl, reservedVcl, reservedPc := ParseConfig(sConfig)
 	h := &HivedAlgorithm{
 		vcSchedulers:            make(map[api.VirtualClusterName]intraVCScheduler),
 		opportunisticSchedulers: map[CellChain]*topologyAwareScheduler{},
@@ -68,10 +68,10 @@ func NewHivedAlgorithm(sConfig *api.Config) *HivedAlgorithm {
 		reservedCells:           reservedPc,
 	}
 	for vc := range nonReservedVcl {
-		h.vcSchedulers[vc] = newDefaultIntraVCScheduler(nonReservedVcl[vc], reservedVcl[vc])
+		h.vcSchedulers[vc] = newDefaultIntraVCScheduler(nonReservedVcl[vc], reservedVcl[vc], gpuNums)
 	}
 	for chain, ccl := range h.fullCellList {
-		h.opportunisticSchedulers[chain] = NewTopologyAwareScheduler(ccl, false)
+		h.opportunisticSchedulers[chain] = NewTopologyAwareScheduler(ccl, gpuNums[chain], false)
 	}
 	h.validateInitialAssignment()
 	h.initFreeCellList()
@@ -786,8 +786,8 @@ func minOpportunisticCell(cl CellList) *PhysicalCell {
 	var moc *PhysicalCell
 	for _, c := range cl {
 		if pc := c.(*PhysicalCell); pc.GetVirtualCell() == nil && pc.GetPreBoundVirtualCell() == nil &&
-			pc.GetUsedGpuNumAtPriority(opportunisticPriority) < mo {
-			mo = pc.GetUsedGpuNumAtPriority(opportunisticPriority)
+			pc.GetUsedGpuNumAtPriorities()[opportunisticPriority] < mo {
+			mo = pc.GetUsedGpuNumAtPriorities()[opportunisticPriority]
 			moc = pc
 		}
 	}
@@ -880,10 +880,8 @@ func updateUsedGpuNumAtPriority(c Cell, p CellPriority, increase bool) {
 	for c != nil {
 		if increase {
 			c.IncreaseUsedGpuNumAtPriority(p, 1)
-			c.IncreaseFreeGpuNum(-1)
 		} else {
 			c.IncreaseUsedGpuNumAtPriority(p, -1)
-			c.IncreaseFreeGpuNum(1)
 		}
 		c = c.GetParent()
 	}
