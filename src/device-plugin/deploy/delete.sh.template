@@ -19,7 +19,24 @@
 
 pushd $(dirname "$0") > /dev/null
 
-kubectl apply --overwrite=true -f https://raw.githubusercontent.com/Mellanox/k8s-rdma-sriov-dev-plugin/master/example/hca/rdma-hca-node-config.yaml || exit $?
-kubectl apply --overwrite=true -f https://raw.githubusercontent.com/Mellanox/k8s-rdma-sriov-dev-plugin/master/example/device-plugin.yaml || exit $?
+{% if 'nvidia.com/gpu' in cluster_cfg['device-plugin']['devices'] %}
+
+PYTHONPATH="../../../deployment" python -m k8sPaiLibrary.maintaintool.update_resource \
+    --operation delete --resource daemonset --name nvidia-device-plugin-daemonset --namespace kube-system
+
+{% endif %}
+
+{% if 'rdma/hca' in cluster_cfg['device-plugin']['devices'] %}
+
+PYTHONPATH="../../../deployment" python -m k8sPaiLibrary.maintaintool.update_resource \
+    --operation delete --resource daemonset --name rdma-sriov-dp-ds --namespace kube-system
+
+if kubectl get configmap --namespace=kube-system | grep -q "rdma-devices"; then
+    kubectl delete configmap --namespace=kube-system rdma-devices || exit $?
+fi
+
+{% endif %}
+
+/bin/bash stop.sh || exit $?
 
 popd > /dev/null

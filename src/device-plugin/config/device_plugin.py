@@ -1,5 +1,3 @@
-#!/bin/bash
-
 # Copyright (c) Microsoft Corporation
 # All rights reserved.
 #
@@ -17,8 +15,20 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-pushd $(dirname "$0") > /dev/null
 
-/bin/bash stop.sh || exit $?
+class DevicePlugin:
+    def __init__(self, cluster_conf, service_conf, default_service_conf):
+        self.cluster_conf = cluster_conf
+        self.service_conf = service_conf
+        self.default_service_conf = default_service_conf
 
-popd > /dev/null
+    def validation_pre(self):
+        if 'devices' not in self.service_conf:
+            self.service_conf['devices'] = self.default_service_conf['devices']
+        return True, None
+
+    def run(self):
+        return self.service_conf
+
+    def validation_post(self, conf):
+        return True, None
