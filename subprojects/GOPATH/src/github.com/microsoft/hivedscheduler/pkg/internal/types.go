@@ -167,12 +167,15 @@ type PodWaitInfo struct {
 
 // No need to use it recover scheduler preempting resource
 type PodPreemptInfo struct {
-	// Including all victim Pods in the victim cell, although the default scheduler
-	// will only preempt victims on one node.
+	// Only need to include the victim Pods for the current preemptor Pod.
 	// Need to ensure the newly deleted victim Pods are eventually removed from here,
 	// otherwise, the default scheduler refuse to execute any preemption.
 	// Need to ensure the newly added victim Pods are eventually added to here,
 	// otherwise, the preemption will never complete.
+	// It can be empty, such as current preemptor Pod is waiting for the victim Pods
+	// of other preemptor Pods in the same group to be preempted.
+	// It can contain victim Pods across multiple nodes, such as a victim group may
+	// contain Pods across multiple nodes.
 	VictimPods []*core.Pod
 }
 

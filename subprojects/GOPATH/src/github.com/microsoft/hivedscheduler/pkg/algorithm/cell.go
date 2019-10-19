@@ -25,7 +25,6 @@ package algorithm
 import (
 	"fmt"
 	"github.com/microsoft/hivedscheduler/pkg/api"
-	"k8s.io/apimachinery/pkg/types"
 )
 
 // A Cell represents a set of GPUs affinitized by their interconnection topology.
@@ -40,14 +39,31 @@ type Cell interface {
 	SetParent(Cell)
 	GetChildren() CellList
 	SetChildren(CellList)
+	AtOrHigherThanNode() bool
+
+	GetTotalGpuNum() int32
+	GetUsedGpuNumAtPriorities() map[CellPriority]int32
+	IncreaseUsedGpuNumAtPriority(CellPriority, int32)
+}
+
+func CellEqual(c1 Cell, c2 Cell) bool {
+	if c1 == nil || c2 == nil {
+		return c1 == nil && c2 == nil
+	} else {
+		return c1.GetName() == c2.GetName()
+	}
 }
 
 type GenericCell struct {
-	chain    CellChain
-	level    CellLevel
-	priority CellPriority // priority of a cell is max of those of its children and itself
-	parent   Cell         // pointer to its parent cell
-	children CellList     // pointer to its children cells
+	chain              CellChain
+	level              CellLevel
+	priority           CellPriority
+	parent             Cell     // pointer to its parent cell
+	children           CellList // pointer to its children cells
+	atOrHigherThanNode bool     // true if the cell is at or higher than node level
+
+	totalGpuNum            int32                  // total GPU number of a cell
+	usedGpuNumAtPriorities map[CellPriority]int32 // GPU number used by each priority
 }
 
 func (c *GenericCell) GetChain() CellChain {
@@ -82,28 +98,48 @@ func (c *GenericCell) SetChildren(children CellList) {
 	c.children = children
 }
 
+func (c *GenericCell) AtOrHigherThanNode() bool {
+	return c.atOrHigherThanNode
+}
+
+func (c *GenericCell) GetTotalGpuNum() int32 {
+	return c.totalGpuNum
+}
+
+func (c *GenericCell) GetUsedGpuNumAtPriorities() map[CellPriority]int32 {
+	return c.usedGpuNumAtPriorities
+}
+
+func (c *GenericCell) IncreaseUsedGpuNumAtPriority(p CellPriority, delta int32) {
+	c.usedGpuNumAtPriorities[p] += delta
+	if c.usedGpuNumAtPriorities[p] == 0 {
+		delete(c.usedGpuNumAtPriorities, p)
+	}
+}
+
 // PhysicalCell defines a cell in the physical cluster.
 type PhysicalCell struct {
 	GenericCell
-	nodes       []string     // node names inside the cell
-	gpuIndices  []int32      // [-1] for cells at levels higher than node
-	pods        []types.UID  // pods running in this cell or its children
-	virtualCell *VirtualCell // points to the bound virtual cell
-	reserved    bool         // true when this is a reserved cell
-
-	// a ChainCellList with this cell as the top.
-	// used for pod placement inside a cell and cell allocation in a reserved one.
-	internalCellList ChainCellList
+	nodes               []string             // node names inside the cell
+	gpuIndices          []int32              // [-1] for cells at levels higher than node
+	affinityGroups      []*AlgoAffinityGroup // affinity groups using this cell
+	virtualCell         *VirtualCell         // points to the bound virtual cell
+	preBoundVirtualCell *VirtualCell         // points to the temporarily bound virtual cell (before the binding is confirmed)
+	split               bool                 // true when the cell has been split
+	reserved            bool                 // true when this is a reserved cell
 }
 
-func NewPhysicalCell(c CellChain, l CellLevel) *PhysicalCell {
+func NewPhysicalCell(c CellChain, l CellLevel, g bool, n int32) *PhysicalCell {
 	return &PhysicalCell{
 		GenericCell: GenericCell{
-			chain:    c,
-			level:    l,
-			priority: freePriority,
+			chain:                  c,
+			level:                  l,
+			priority:               freePriority,
+			atOrHigherThanNode:     g,
+			totalGpuNum:            n,
+			usedGpuNumAtPriorities: map[CellPriority]int32{},
 		},
-		pods: []types.UID{},
+		affinityGroups: []*AlgoAffinityGroup{},
 	}
 }
 
@@ -124,51 +160,32 @@ func (c *PhysicalCell) SetPhysicalResources(nodes []string, gpuIndices []int32) 
 	c.gpuIndices = gpuIndices
 }
 
-func (c *PhysicalCell) AddPod(pod types.UID) {
-	c.pods = append(c.pods, pod)
-	if c.parent != nil {
-		c.parent.(*PhysicalCell).AddPod(pod)
-	}
+func (c *PhysicalCell) AddAffinityGroup(affinityGroup *AlgoAffinityGroup) {
+	c.affinityGroups = append(c.affinityGroups, affinityGroup)
 }
 
-func (c *PhysicalCell) DeletePod(pod types.UID) {
+func (c *PhysicalCell) DeleteAffinityGroup(affinityGroup *AlgoAffinityGroup) {
 	idx := -1
-	for i, p := range c.pods {
-		if pod == p {
+	for i, g := range c.affinityGroups {
+		if affinityGroup.name == g.name {
 			idx = i
 			break
 		}
 	}
 	if idx == -1 {
-		panic(fmt.Sprintf("Error when deleting pod %v: not exist in cell %v!", pod, c.GetName()))
+		panic(fmt.Sprintf("Error when deleting affinity group %v: not exist in cell %v!",
+			affinityGroup.name, c.GetName()))
 	} else {
-		c.pods = append(c.pods[:idx], c.pods[idx+1:]...)
-	}
-	if c.parent != nil {
-		c.parent.(*PhysicalCell).DeletePod(pod)
+		c.affinityGroups = append(c.affinityGroups[:idx], c.affinityGroups[idx+1:]...)
 	}
 }
 
-func (c *PhysicalCell) HasPod() bool {
-	return len(c.pods) != 0
+func (c *PhysicalCell) HasAffinityGroup() bool {
+	return len(c.affinityGroups) != 0
 }
 
-func (c *PhysicalCell) InitPhysicalCellList() {
-	c.internalCellList = NewChainCellList(c.level)
-	c.internalCellList[c.level] = append(c.internalCellList[c.level], c)
-	for level := c.level - 1; level >= CellLevel(1); level-- {
-		for _, cc := range c.internalCellList[level+1] {
-			c.internalCellList[level] = append(c.internalCellList[level], cc.GetChildren()...)
-		}
-	}
-}
-
-func (c *PhysicalCell) GetPhysicalCellList() ChainCellList {
-	return c.internalCellList
-}
-
-func (c *PhysicalCell) ClearPhysicalCellList() {
-	c.internalCellList = nil
+func (c *PhysicalCell) GetAffinityGroups() []*AlgoAffinityGroup {
+	return c.affinityGroups
 }
 
 func (c *PhysicalCell) GetVirtualCell() *VirtualCell {
@@ -177,6 +194,22 @@ func (c *PhysicalCell) GetVirtualCell() *VirtualCell {
 
 func (c *PhysicalCell) SetVirtualCell(vc *VirtualCell) {
 	c.virtualCell = vc
+}
+
+func (c *PhysicalCell) GetPreBoundVirtualCell() *VirtualCell {
+	return c.preBoundVirtualCell
+}
+
+func (c *PhysicalCell) SetPreBoundVirtualCell(vc *VirtualCell) {
+	c.preBoundVirtualCell = vc
+}
+
+func (c *PhysicalCell) IsSplit() bool {
+	return c.split
+}
+
+func (c *PhysicalCell) SetSplit(split bool) {
+	c.split = split
 }
 
 func (c *PhysicalCell) IsReserved() bool {
@@ -190,19 +223,30 @@ func (c *PhysicalCell) SetReserved(reserved bool) {
 // VirtualCell defines a cell in a VC.
 type VirtualCell struct {
 	GenericCell
-	vc              api.VirtualClusterName // name of its VC
-	rid             api.ReservationId      // reservation ID
-	indexInChain    int32                  // index of the cell in the ChainCellList it belongs to (assigned in initialization)
-	preAssignedCell *VirtualCell           // top level cell of this cell chain
-	physicalCell    *PhysicalCell          // points to the bound physical cell
+	vc                   api.VirtualClusterName // name of its VC
+	rid                  api.ReservationId      // reservation ID
+	indexInChain         int32                  // index of the cell in the ChainCellList it belongs to (assigned in initialization)
+	preAssignedCell      *VirtualCell           // top level cell of this cell chain
+	physicalCell         *PhysicalCell          // points to the bound physical cell
+	preBoundPhysicalCell *PhysicalCell          // points to the temporarily bound physical cell (before the binding is confirmed)
 }
 
-func NewVirtualCell(vc api.VirtualClusterName, c CellChain, l CellLevel, i int32, pac *VirtualCell) *VirtualCell {
+func NewVirtualCell(vc api.VirtualClusterName,
+	c CellChain,
+	l CellLevel,
+	g bool,
+	n int32,
+	i int32,
+	pac *VirtualCell) *VirtualCell {
+
 	return &VirtualCell{
 		GenericCell: GenericCell{
-			chain:    c,
-			level:    l,
-			priority: freePriority,
+			chain:                  c,
+			level:                  l,
+			priority:               freePriority,
+			atOrHigherThanNode:     g,
+			totalGpuNum:            n,
+			usedGpuNumAtPriorities: map[CellPriority]int32{},
 		},
 		vc:              vc,
 		indexInChain:    i,
@@ -244,4 +288,12 @@ func (c *VirtualCell) GetPhysicalCell() *PhysicalCell {
 
 func (c *VirtualCell) SetPhysicalCell(pc *PhysicalCell) {
 	c.physicalCell = pc
+}
+
+func (c *VirtualCell) GetPreBoundVirtualCell() *PhysicalCell {
+	return c.preBoundPhysicalCell
+}
+
+func (c *VirtualCell) SetPreBoundVirtualCell(pc *PhysicalCell) {
+	c.preBoundPhysicalCell = pc
 }
