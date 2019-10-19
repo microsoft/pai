@@ -34,6 +34,9 @@
 #    # If RBAC is enabled in your cluster, you should set this value to true.
 #    # If RBAC is enabled in your cluster, please ensure the kubeconfig for paictl has enough permission.
 #    k8s-rbac: "false"
+#    
+#    # If Pai will be deployed in aks, you should set this value to true.
+#    deploy-in-aks: "false"
 #
 #  # the docker registry to store docker images that contain system services like frameworklauncher, hadoop, etc.
 #  docker-registry:
