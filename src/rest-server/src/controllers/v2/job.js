@@ -24,7 +24,13 @@ const createError = require('@pai/utils/error');
 
 
 const list = asyncHandler(async (req, res) => {
-  const data = await job.list();
+  const filters = {};
+  if (req.query) {
+    if ('username' in req.query) {
+      filters['labelSelector'] = `userName=${req.query.username}`;
+    }
+  }
+  const data = await job.list(filters);
   res.json(data);
 });
 
