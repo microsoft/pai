@@ -126,7 +126,9 @@ export const NotificationButton = () => {
           onRenderCell={item => {
             return (
               <div className={classNames.itemCell} data-is-focusable={true}>
-                {item.annotations.summary}
+                {'Issue time: ' + new Date(item.startsAt).toLocaleString()}
+                <br />
+                {'Summary: ' + item.annotations.summary}
               </div>
             );
           }}
