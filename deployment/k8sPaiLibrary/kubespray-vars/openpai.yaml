@@ -1,0 +1,241 @@
+############## etcd configuration ##############
+
+# etcd_deployment_type: docker
+
+# etcd_version: v3.3.10
+
+## Set level of detail for etcd exported metrics, specify 'extensive' to include histogram metrics.
+# etcd_metrics: basic
+
+## Etcd is restricted by default to 512M on systems under 4GB RAM, 512MB is not enough for much more than testing.
+## Set this if your etcd nodes have less than 4GB but you want more RAM for etcd. Set to 0 for unrestricted RAM.
+etcd_memory_limit: "0"
+
+## Etcd has a default of 2G for its space quota. If you put a value in etcd_memory_limit which is less than
+## etcd_quota_backend_bytes, you may encounter out of memory terminations of the etcd cluster. Please check
+## etcd documentation for more information.
+## https://etcd.io/docs/v3.4.0/op-guide/configuration/
+etcd_quota_backend_bytes: "8G"
+
+############## nginx configuration ##############
+
+# Requests for load balancer app
+loadbalancer_apiserver_memory_requests: 1024M
+loadbalancer_apiserver_cpu_requests: 1000m
+
+loadbalancer_apiserver_keepalive_timeout: 15m
+
+## Internal loadbalancers for apiservers
+# loadbalancer_apiserver_localhost: true
+
+## valid options are "nginx" or "haproxy"
+# loadbalancer_apiserver_type: "nginx"
+## applied if only external loadbalancer_apiserver is defined, otherwise ignored
+# apiserver_loadbalancer_domain_name: "lb-apiserver.kubernetes.local"
+
+## Local loadbalancer should use this port
+## And must be set port 6443
+# loadbalancer_apiserver_port: 6443
+
+## If loadbalancer_apiserver_healthcheck_port variable defined, enables proxy liveness check for nginx.
+# loadbalancer_apiserver_healthcheck_port: 8081
+
+############## kubernetes configuration ##############
+
+## Change this to use another Kubernetes version, e.g. a current beta release
+# kube_version: v1.15.3
+
+## kubernetes image repo define
+# kube_image_repo: "gcr.io/google-containers"
+
+## Cluster Loglevel configuration
+# kube_log_level: 2
+
+## Make a copy of kubeconfig on the host that runs Ansible in {{ inventory_dir }}/artifacts
+kubeconfig_localhost: true
+## Download kubectl onto the host that runs Ansible in {{ bin_dir }}
+kubectl_localhost: true
+
+kubelet_status_update_frequency: 10s
+
+## For some things, kubelet needs to load kernel modules.  For example,
+## dynamic kernel services are needed for mounting persistent volumes into containers.  These may not be
+## loaded by preinstall kubernetes processes.  For example, ceph and rbd backed volumes.  Set this variable to
+## true to let kubelet load kernel modules.
+# kubelet_load_modules: false
+
+## Configure the amount of pods able to run on single node
+## default is equal to application default
+# kubelet_max_pods: 110
+
+## Support custom flags to be passed to kubelet
+kubelet_custom_flags:
+  - "--eviction-hard="
+  - "--image-gc-high-threshold=100"
+  - "--image-gc-low-threshold=95"
+  - "--image-pull-progress-deadline=10m"
+
+kube_feature_gates:
+  - "DevicePlugins=true"
+  - "TaintBasedEvictions=true"
+  - "PodPriority=true"
+
+## Support custom flags to be passed to kubelet only on nodes, not masters
+# kubelet_node_custom_flags: []
+
+k8s_image_pull_policy: Always
+
+## extra runtime config
+# kube_api_runtime_config: []
+
+##### networking
+
+## Scale: 4096 nodes, 100 pods per node
+
+## Kubernetes internal network for services, unused block of space.
+kube_service_addresses: 10.192.0.0/13
+
+## internal network. When used, it will assign IP
+## addresses from this range to individual pods.
+## This network must be unused in your network infrastructure!
+kube_pods_subnet: 10.200.0.0/13
+
+## internal network node size allocation (optional). This is the size allocated
+## to each node on your network.  With these defaults you should have
+## room for 64 nodes with 254 pods per node.
+## Example: Up to 256 nodes, 100 pods per node (/16 network):
+##  - kube_service_addresses: 10.233.0.0/17
+##  - kube_pods_subnet: 10.233.128.0/17
+##  - kube_network_node_prefix: 25
+## Example: Up to 4096 nodes, 100 pods per node (/12 network):
+##  - kube_service_addresses: 10.192.0.0/13
+##  - kube_pods_subnet: 10.200.0.0/13
+##  - kube_network_node_prefix: 25
+kube_network_node_prefix: 25
+
+##### api-server
+
+kube_kubeadm_apiserver_extra_args:
+  cors-allowed-origins: ".*"
+  storage-media-type: "application/json"
+  max-requests-inflight: 1500
+  max-mutating-requests-inflight: 500
+
+## Extra control plane host volume mounts
+## Example:
+## apiserver_extra_volumes:
+##  - name: name
+##    hostPath: /host/path
+##    mountPath: /mount/path
+##    readOnly: true
+# apiserver_extra_volumes: {}
+
+## ETCD backend for k8s data
+# kube_apiserver_storage_backend: etcd3
+
+## change to 0.0.0.0 to enable insecure access from anywhere (not recommended)
+# kube_apiserver_insecure_bind_address: 127.0.0.1
+
+## By default the external API listens on all interfaces, this can be changed to
+## listen on a specific address/interface.
+# kube_apiserver_bind_address: 0.0.0.0
+
+## A port range to reserve for services with NodePort visibility.
+## Inclusive at both ends of the range.
+# kube_apiserver_node_port_range: "30000-32767"
+
+kube_apiserver_memory_limit: 20000M
+kube_apiserver_cpu_limit: 10000m
+kube_apiserver_memory_requests: 1024M
+kube_apiserver_cpu_requests: 1000m
+kube_apiserver_request_timeout: "1m0s"
+
+# 1.9 and below Admission control plug-ins
+kube_apiserver_admission_control:
+  - NamespaceLifecycle
+  - LimitRanger
+  - ServiceAccount
+  - DefaultStorageClass
+  - PersistentVolumeClaimResize
+  - MutatingAdmissionWebhook
+  - ValidatingAdmissionWebhook
+  - ResourceQuota
+  - DefaultTolerationSeconds
+  - DenyEscalatingExec
+
+## 1.10+ admission plugins
+# kube_apiserver_enable_admission_plugins: []
+
+## 1.10+ list of disabled admission plugins
+# kube_apiserver_disable_admission_plugins: []
+
+##### controller
+
+kube_kubeadm_controller_extra_args:
+  leader-elect: "true"
+
+# controller_manager_extra_volumes: {}
+
+# kube_controller_manager_bind_address: 0.0.0.0
+
+kube_controller_memory_limit: 20000M
+kube_controller_cpu_limit: 10000m
+kube_controller_memory_requests: 1024M
+kube_controller_cpu_requests: 1000m
+kube_controller_node_monitor_grace_period: 40s
+kube_controller_node_monitor_period: 5s
+kube_controller_pod_eviction_timeout: 5m0s
+kube_controller_terminated_pod_gc_threshold: 12500
+
+##### scheduler
+
+# kube_kubeadm_scheduler_extra_args: {}
+
+# scheduler_extra_volumes: {}
+
+# kube_scheduler_bind_address: 0.0.0.0
+
+kube_scheduler_memory_limit: 200000M
+kube_scheduler_cpu_limit: 10000m
+kube_scheduler_memory_requests: 1024M
+kube_scheduler_cpu_requests: 1000m
+
+############## other configuration ##############
+
+## Optionally reserve resources for OS system daemons.
+system_reserved: true
+## Uncomment to override default values
+system_memory_reserved: 3072M
+# system_cpu_reserved: 500m
+## Reservation for master hosts
+# system_master_memory_reserved: 256M
+# system_master_cpu_reserved: 250m
+
+
+############## docker configuration ##############
+
+# docker_version: latest
+
+docker_daemon_graph: "/docker_data_root_test"
+
+docker_log_opts: "--log-opt max-size=2g --log-opt max-file=1 log-driver=json-file"
+
+# add --add-runtime nvidia=/usr/bin/nvidia-container-runtime for nvidia-runtime in docker_option
+docker_options: >-
+  --add-runtime nvidia=/usr/bin/nvidia-container-runtime
+	{%- if docker_insecure_registries is defined %}
+	{{ docker_insecure_registries | map('regex_replace', '^(.*)$', '--insecure-registry=\1' ) | list | join(' ') }}
+	{%- endif %}
+	{% if docker_registry_mirrors is defined %}
+	{{ docker_registry_mirrors | map('regex_replace', '^(.*)$', '--registry-mirror=\1' ) | list | join(' ') }}
+	{%- endif %}
+	{%- if docker_version != "latest" and docker_version is version('17.05', '<') %}
+	--graph={{ docker_daemon_graph }} {% if ansible_os_family not in ["openSUSE Leap", "openSUSE Tumbleweed", "Suse"] %}{{ docker_log_opts }}{% endif %}
+	{%- else %}
+	--data-root={{ docker_daemon_graph }} {% if ansible_os_family not in ["openSUSE Leap", "openSUSE Tumbleweed", "Suse"] %}{{ docker_log_opts }}{% endif %}
+	{%- endif %}
+	{%- if ansible_architecture == "aarch64" and ansible_os_family == "RedHat" %}
+	--add-runtime docker-runc=/usr/libexec/docker/docker-runc-current
+	--default-runtime=docker-runc --exec-opt native.cgroupdriver=systemd
+	--userland-proxy-path=/usr/libexec/docker/docker-proxy-current --signature-verification=false
+	{%- endif -%}
