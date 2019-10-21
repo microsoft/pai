@@ -70,9 +70,6 @@ kubelet_status_update_frequency: 10s
 
 ## Support custom flags to be passed to kubelet
 kubelet_custom_flags:
-  - "--eviction-hard="
-  - "--image-gc-high-threshold=100"
-  - "--image-gc-low-threshold=95"
   - "--image-pull-progress-deadline=10m"
 
 kube_feature_gates:
@@ -222,7 +219,7 @@ docker_log_opts: "--log-opt max-size=2g --log-opt max-file=1 log-driver=json-fil
 
 # add --add-runtime nvidia=/usr/bin/nvidia-container-runtime for nvidia-runtime in docker_option
 docker_options: >-
-  --add-runtime nvidia=/usr/bin/nvidia-container-runtime
+    --add-runtime nvidia=/usr/bin/nvidia-container-runtime
 	{%- if docker_insecure_registries is defined %}
 	{{ docker_insecure_registries | map('regex_replace', '^(.*)$', '--insecure-registry=\1' ) | list | join(' ') }}
 	{%- endif %}
