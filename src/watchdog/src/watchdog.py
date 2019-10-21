@@ -71,9 +71,14 @@ def gen_pai_pod_gauge():
             labels=["service_name", "name", "namespace", "phase", "host_ip",
                 "initialized", "pod_scheduled", "ready"])
 
+def gen_pai_job_pod_gauge():
+    return GaugeMetricFamily("pai_job_pod_count", "count of pai job pod",
+            labels=["job_name", "name", "phase", "host_ip",
+                "initialized", "pod_scheduled", "ready"])
+
 def gen_pai_container_gauge():
     return GaugeMetricFamily("pai_container_count", "count of container pod",
-            labels=["service_name", "pod_name", "name", "namespace", "state",
+            labels=["service_name", "pod_name", "name", "state",
                 "host_ip", "ready"])
 
 def gen_pai_node_gauge():
@@ -185,8 +190,8 @@ class PodInfo(object):
     def __repr__(self):
         return "%s: %s" % (self.name, self.gpu)
 
-def parse_pod_item(pod, pai_pod_gauge, pai_container_gauge, pods_info):
-    """ add metrics to pai_pod_gauge or pai_container_gauge if successfully paesed pod.
+def parse_pod_item(pod, pai_pod_gauge, pai_container_gauge, pai_job_pod_gauge, pods_info):
+    """ add metrics to pai_pod_gauge or pai_container_gauge if successfully parse pod.
     Because we are parsing json outputed by k8s, its format is subjected to change,
     we should test if field exists before accessing it to avoid KeyError """
 
@@ -206,11 +211,16 @@ def parse_pod_item(pod, pai_pod_gauge, pai_container_gauge, pods_info):
     pods_info[host_ip].append(PodInfo(pod_name, used_gpu))
 
     labels = pod["metadata"].get("labels")
-    if labels is None or "app" not in labels:
+    if labels is None or ("app" not in labels and "jobName" not in labels):
         logger.info("unknown pod %s", pod["metadata"]["name"])
         return None
 
-    service_name = labels["app"] # get pai service name from label
+    service_name = None
+    job_name = None
+    if 'app' in labels:
+        service_name = labels['app'] # get pai service name from label
+    if 'jobName' in labels:
+        job_name = labels['jobName']
 
     status = pod["status"]
 
@@ -237,8 +247,15 @@ def parse_pod_item(pod, pai_pod_gauge, pai_container_gauge, pods_info):
                 error_counter.labels(type="unknown_pod_cond").inc()
                 logger.warning("unexpected condition %s in pod %s", cond_t, pod_name)
 
-    pai_pod_gauge.add_metric([service_name, pod_name, namespace, phase, host_ip,
-        initialized, pod_scheduled, ready], 1)
+    if service_name is not None:
+        pai_pod_gauge.add_metric([service_name, pod_name, namespace, phase, host_ip,
+            initialized, pod_scheduled, ready], 1)
+    if job_name is not None:
+        pai_job_pod_gauge.add_metric([job_name, pod_name, phase, host_ip,
+            initialized, pod_scheduled, ready], 1)
+
+    if service_name is None:
+        return
 
     # generate pai_containers
     if status.get("containerStatuses") is not None:
@@ -266,7 +283,7 @@ def parse_pod_item(pod, pai_pod_gauge, pai_container_gauge, pods_info):
                 namespace, container_state, host_ip, str(ready).lower()], 1)
 
 
-def process_pods_status(pods_object, pai_pod_gauge, pai_container_gauge,
+def process_pods_status(pods_object, pai_pod_gauge, pai_container_gauge, pai_job_pod_gauge,
         pods_info):
     def _map_fn(item):
         return catch_exception(parse_pod_item,
@@ -274,7 +291,7 @@ def process_pods_status(pods_object, pai_pod_gauge, pai_container_gauge,
                 None,
                 item,
                 pai_pod_gauge, pai_container_gauge,
-                pods_info)
+                pai_job_pod_gauge, pods_info)
 
     list(map(_map_fn, pods_object["items"]))
 
@@ -415,17 +432,18 @@ def process_pods(k8s_api_addr, ca_path, headers, pods_info):
 
     pai_pod_gauge = gen_pai_pod_gauge()
     pai_container_gauge = gen_pai_container_gauge()
+    pai_job_pod_gauge = gen_pai_job_pod_gauge()
 
     try:
         pods_object = request_with_histogram(list_pods_url, list_pods_histogram,
                 ca_path, headers)
-        process_pods_status(pods_object, pai_pod_gauge, pai_container_gauge,
+        process_pods_status(pods_object, pai_pod_gauge, pai_container_gauge, pai_job_pod_gauge,
                 pods_info)
     except Exception as e:
         error_counter.labels(type="parse").inc()
         logger.exception("failed to process pods from namespace %s", ns)
 
-    return [pai_pod_gauge, pai_container_gauge]
+    return [pai_pod_gauge, pai_container_gauge, pai_job_pod_gauge]
 
 
 def process_nodes(k8s_api_addr, ca_path, headers, pods_info):

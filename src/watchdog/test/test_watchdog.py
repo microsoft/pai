@@ -65,9 +65,10 @@ class TestJobExporter(unittest.TestCase):
 
         pod_gauge = watchdog.gen_pai_pod_gauge()
         container_gauge = watchdog.gen_pai_container_gauge()
+        job_pod_gauge = watchdog.gen_pai_job_pod_gauge()
         pod_info = collections.defaultdict(lambda : [])
 
-        watchdog.process_pods_status(obj, pod_gauge, container_gauge, pod_info)
+        watchdog.process_pods_status(obj, pod_gauge, container_gauge, job_pod_gauge, pod_info)
 
         self.assertTrue(len(pod_gauge.samples) > 0)
         self.assertTrue(len(container_gauge.samples) > 0)
@@ -87,9 +88,10 @@ class TestJobExporter(unittest.TestCase):
 
         pod_gauge = watchdog.gen_pai_pod_gauge()
         container_gauge = watchdog.gen_pai_container_gauge()
+        job_pod_gauge = watchdog.gen_pai_job_pod_gauge()
         pod_info = collections.defaultdict(lambda : [])
 
-        watchdog.process_pods_status(obj, pod_gauge, container_gauge, pod_info)
+        watchdog.process_pods_status(obj, pod_gauge, container_gauge, job_pod_gauge, pod_info)
 
         self.assertTrue(len(pod_gauge.samples) > 0)
         self.assertEqual(0, len(container_gauge.samples))
@@ -101,10 +103,11 @@ class TestJobExporter(unittest.TestCase):
             def collect(self):
                 pod_gauge = watchdog.gen_pai_pod_gauge()
                 container_gauge = watchdog.gen_pai_container_gauge()
+                job_pod_gauge = watchdog.gen_pai_job_pod_gauge()
                 pod_info = collections.defaultdict(lambda : [])
 
                 watchdog.process_pods_status(obj,
-                        pod_gauge, container_gauge, pod_info)
+                        pod_gauge, container_gauge, job_pod_gauge, pod_info)
 
                 yield pod_gauge
                 yield container_gauge
