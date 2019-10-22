@@ -215,7 +215,7 @@ system_memory_reserved: 3072M
 
 docker_daemon_graph: "/docker_data_root_test"
 
-docker_log_opts: "--log-opt max-size=2g --log-opt max-file=1 log-driver=json-file"
+docker_log_opts: "--log-opt max-size=2g --log-opt max-file=1 --log-driver=json-file"
 
 # add --add-runtime nvidia=/usr/bin/nvidia-container-runtime for nvidia-runtime in docker_option
 docker_options: >-
