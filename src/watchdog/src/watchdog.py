@@ -198,32 +198,29 @@ def parse_pod_item(pod, pai_pod_gauge, pai_container_gauge, pai_job_pod_gauge, p
     pod_name = pod["metadata"]["name"]
     namespace = walk_json_field_safe(pod, "metadata", "namespace") or "default"
     host_ip = walk_json_field_safe(pod, "status", "hostIP") or "unscheduled"
-
-    used_gpu = 0
+    status = pod["status"]
     containers = walk_json_field_safe(pod, "spec", "containers")
-    if containers is not None:
-        for container in containers:
-            req_gpu = int(walk_json_field_safe(container, "resources", "requests",
-                    "nvidia.com/gpu") or 0)
-            limit_gpu = int(walk_json_field_safe(container, "resources", "limits",
-                    "nvidia.com/gpu") or 0)
-            used_gpu += max(req_gpu, limit_gpu)
-    pods_info[host_ip].append(PodInfo(pod_name, used_gpu))
-
     labels = pod["metadata"].get("labels")
-    if labels is None or ("app" not in labels and "jobName" not in labels):
-        logger.info("unknown pod %s", pod["metadata"]["name"])
+
+    service_name = labels['app'] if labels is not None and 'app' in labels else None
+    job_name = labels['jobName'] if labels is not None and 'jobName' in labels else None
+    if service_name is None and job_name is None:
+        logger.info("unknown pod %s", pod_name)
         return None
 
-    service_name = None
-    job_name = None
-    if 'app' in labels:
-        service_name = labels['app'] # get pai service name from label
-    if 'jobName' in labels:
-        job_name = labels['jobName']
+    generate_pods_info(pod_name, containers, host_ip, pods_info)
+    generate_pod_metrics(pai_pod_gauge, pai_job_pod_gauge,
+                         service_name, job_name, pod_name, host_ip, status, namespace)
 
-    status = pod["status"]
+    # generate pai_containers
+    if service_name is not None and status.get("containerStatuses") is not None:
+        container_statuses = status["containerStatuses"]
+        generate_container_metrics(
+            pai_container_gauge, service_name, pod_name, container_statuses, namespace, host_ip)
 
+
+def generate_pod_metrics(pai_pod_gauge, pai_job_pod_gauge, service_name, job_name, pod_name,
+                         host_ip, status, namespace):
     if status.get("phase") is not None:
         phase = status["phase"].lower()
     else:
@@ -254,33 +251,41 @@ def parse_pod_item(pod, pai_pod_gauge, pai_container_gauge, pai_job_pod_gauge, p
         pai_job_pod_gauge.add_metric([job_name, pod_name, phase, host_ip,
             initialized, pod_scheduled, ready], 1)
 
-    if service_name is None:
-        return
 
-    # generate pai_containers
-    if status.get("containerStatuses") is not None:
-        container_statuses = status["containerStatuses"]
+def generate_pods_info(pod_name, containers, host_ip, pods_info):
+    used_gpu = 0
+    if containers is not None:
+        for container in containers:
+            req_gpu = int(walk_json_field_safe(container, "resources", "requests",
+                    "nvidia.com/gpu") or 0)
+            limit_gpu = int(walk_json_field_safe(container, "resources", "limits",
+                    "nvidia.com/gpu") or 0)
+            used_gpu += max(req_gpu, limit_gpu)
+    pods_info[host_ip].append(PodInfo(pod_name, used_gpu))
 
-        for container_status in container_statuses:
-            container_name = container_status["name"]
 
-            ready = False
+def generate_container_metrics(pai_container_gauge, service_name, pod_name, container_statuses,
+                               namespace, host_ip):
+    for container_status in container_statuses:
+        container_name = container_status["name"]
 
-            if container_status.get("ready") is not None:
-                ready = container_status["ready"]
+        ready = False
 
-            container_state = None
-            if container_status.get("state") is not None:
-                state = container_status["state"]
-                if len(state) != 1:
-                    error_counter.labels(type="unexpected_container_state").inc()
-                    logger.error("unexpected state %s in container %s",
-                            json.dumps(state), container_name)
-                else:
-                    container_state = list(state.keys())[0].lower()
+        if container_status.get("ready") is not None:
+            ready = container_status["ready"]
 
-            pai_container_gauge.add_metric([service_name, pod_name, container_name,
-                namespace, container_state, host_ip, str(ready).lower()], 1)
+        container_state = None
+        if container_status.get("state") is not None:
+            state = container_status["state"]
+            if len(state) != 1:
+                error_counter.labels(type="unexpected_container_state").inc()
+                logger.error("unexpected state %s in container %s",
+                        json.dumps(state), container_name)
+            else:
+                container_state = list(state.keys())[0].lower()
+
+        pai_container_gauge.add_metric([service_name, pod_name, container_name,
+            namespace, container_state, host_ip, str(ready).lower()], 1)
 
 
 def process_pods_status(pods_object, pai_pod_gauge, pai_container_gauge, pai_job_pod_gauge,
