@@ -45,7 +45,7 @@ HTTP://restserver/api/v1/authn/oidc/return
 HTTP GET the redirect URL of Azure AD to sign out the authentication:
 
 ```url
-http://restserver/api/v1/authn/oidc/login
+http://restserver/api/v1/authn/oidc/logout
 ```
 
 ## 3. Submit a job
@@ -2141,6 +2141,580 @@ Status: 500
 }
 ```
 
+### `GET storage/server/:name`
+
+Get storage server data in the system.
+
+*Request*
+
+```json
+GET /api/v2/storage/server/:name
+Authorization: Bearer <ACCESS_TOKEN>
+```
+
+*Response if succeeded*
+
+```json
+Status: 200
+
+{
+  "spn": "spn",
+  "type": "nas_type",
+  "data": {
+    "spn": "spn",
+    "type": "nas_type",
+    "address": "address",
+    "rootPath": "server/root/path"
+    },
+  "extension": {}
+}
+```
+
+*Response if a server error occurred*
+
+```json
+Status: 500
+
+{
+  "code": "UnknownError",
+  "message": "*Upstream error messages*"
+}
+```
+
+### `POST storage/servers`
+
+Given storage server names, find all server data.
+
+*Request*
+
+```json
+POST /api/v2/storage/servers
+Authorization: Bearer <ACCESS_TOKEN>
+```
+
+*Parameters*
+
+```json
+{
+  "names": ["storage_server_names"]
+}
+```
+
+*Response if succeeded*
+
+```json
+Status: 200
+
+[
+  {
+    "spn": "spn",
+    "type": "nas_type",
+    "data": {
+      "spn": "spn",
+      "type": "nas_type",
+      "address": "address",
+      "rootPath": "server/root/path",
+      "extension": {}
+    },
+    "extension": {}
+  }
+]
+```
+
+*Response if no match storage server.*
+
+```json
+Status: 200
+
+[]
+```
+
+*Response if a server error occurred*
+
+```json
+Status: 500
+
+{
+  "code": "UnknownError",
+  "message": "*Upstream error messages*"
+}
+```
+
+### `POST storage/server` (administrator only)
+
+Create storage server in system.
+
+*Request*
+
+```json
+POST /api/v2/storage/server
+Authorization: Bearer <ACCESS_TOKEN>
+```
+
+*Parameters*
+
+```json
+{
+  "spn": "spn",
+  "type": "nas_type",
+  "data": {}
+}
+```
+
+For data, please refer to [storage plugin](../../contrib/storage_plugin/README.MD#Server_data)
+
+*Response if succeeded*
+
+```json
+Status: 201
+
+{
+  "message": "Storage Server is created successfully"
+}
+```
+
+*Response if user has no permission*
+
+```json
+Status: 403
+
+{
+  "code": "ForbiddenUserError",
+  "message": "Non-admin is not allow to do this operation."
+}
+```
+
+*Response if schema is not valid*
+
+```json
+Status: 500
+
+{
+  "code": "UnknownError",
+  "message": "Storage Server schema error *validation error messages*" 
+}
+```
+
+*Response if a server error occurred*
+
+```json
+Status: 500
+
+{
+  "code": "UnknownError",
+  "message": "*Upstream error messages*"
+}
+```
+
+### `PUT storage/server` (administrator only)
+
+Update storage server in system.
+
+*Request*
+
+```json
+PUT /api/v2/storage/server
+Authorization: Bearer <ACCESS_TOKEN>
+```
+
+*Parameters*
+
+```json
+{
+  "spn": "spn",
+  "type": "nas_type",
+  "data": {}
+}
+```
+
+For data, please refer to [storage plugin](../../contrib/storage_plugin/README.MD#Server_data)
+
+*Response if succeeded*
+
+```json
+Status: 201
+
+{
+  "message": "Storage Server is updated successfully"
+}
+```
+
+*Response if user has no permission*
+
+```json
+Status: 403
+
+{
+  "code": "ForbiddenUserError",
+  "message": "Non-admin is not allow to do this operation."
+}
+```
+
+*Response if schema is not valid*
+
+```json
+Status: 500
+
+{
+  "code": "UnknownError",
+  "message": "Storage Server schema error *validation error messages*" 
+}
+```
+
+*Response if a server error occurred*
+
+```json
+Status: 500
+
+{
+  "code": "UnknownError",
+  "message": "*Upstream error messages*"
+}
+```
+
+### `DELETE storage/server/:name` (administrator only)
+
+remove storage server in the system.
+
+*Request*
+
+```json
+DELETE /api/v2/storage/server/:name
+Authorization: Bearer <ACCESS_TOKEN>
+```
+
+*Response if succeeded*
+
+```json
+Status: 201
+
+{
+  "message": "Storage Server is deleted successfully"
+}
+```
+
+*Response if current user has no permission*
+
+```json
+Status: 403
+
+{
+  "code": "ForbiddenUserError",
+  "message": "Non-admin is not allow to do this operation."
+}
+```
+
+*Response if a server error occurred*
+
+```json
+Status: 500
+
+{
+  "code": "UnknownError",
+  "message": "*Upstream error messages*"
+}
+```
+
+### `GET storage/config/:name`
+
+Get storage config data in the system.
+
+*Request*
+
+```json
+GET /api/v2/storage/config/:name
+Authorization: Bearer <ACCESS_TOKEN>
+```
+
+*Response if succeeded*
+
+```json
+Status: 200
+
+{
+  "name": "name",
+  "default": true,
+  "servers": [
+    "server"
+  ],
+  "mountInfos": [
+    {
+      "mountPoint": "mountpoint",
+      "path": "sub/path/of/server/path",
+      "server": "server",
+      "permission": "rw"
+    }
+  ]
+}
+```
+
+*Response if a server error occurred*
+
+```json
+Status: 500
+
+{
+  "code": "UnknownError",
+  "message": "*Upstream error messages*"
+}
+```
+
+### `POST storage/configs`
+
+Given storage config names, find all config data.
+
+*Request*
+
+```json
+POST /api/v2/storage/configs
+Authorization: Bearer <ACCESS_TOKEN>
+```
+
+*Parameters*
+
+```json
+{
+  "names": ["storage_config_names"]
+}
+```
+
+*Response if succeeded*
+
+```json
+Status: 200
+
+[
+  {
+    "name": "name",
+    "default": true,
+    "servers": [
+      "server"
+    ],
+    "mountInfos": [
+      {
+        "mountPoint": "mountpoint",
+        "path": "sub/path/of/server/path",
+        "server": "server",
+        "permission": "rw"
+      }
+    ]
+  }
+]
+```
+
+*Response if no match storage config.*
+
+```json
+Status: 200
+
+[]
+```
+
+*Response if a server error occurred*
+
+```json
+Status: 500
+
+{
+  "code": "UnknownError",
+  "message": "*Upstream error messages*"
+}
+```
+
+### `POST storage/config` (administrator only)
+
+Create storage config in system.
+
+*Request*
+
+```json
+POST /api/v2/storage/config
+Authorization: Bearer <ACCESS_TOKEN>
+```
+
+*Parameters*
+
+```json
+{
+  "name": "name",
+  "default": true,
+  "servers": [
+    "server"
+  ],
+  "mountInfos": [
+    {
+      "mountPoint": "mountpoint",
+      "path": "sub/path/of/server/path",
+      "server": "server",
+      "permission": "rw"
+    }
+  ]
+}
+```
+
+For data, please refer to [storage plugin](../../contrib/storage_plugin/README.MD#Config_data)
+
+*Response if succeeded*
+
+```json
+Status: 201
+
+{
+  "message": "Storage Config is created successfully"
+}
+```
+
+*Response if user has no permission*
+
+```json
+Status: 403
+
+{
+  "code": "ForbiddenUserError",
+  "message": "Non-admin is not allow to do this operation."
+}
+```
+
+*Response if schema is not valid*
+
+```json
+Status: 500
+
+{
+  "code": "UnknownError",
+  "message": "Storage Config schema error *validation error messages*" 
+}
+```
+
+*Response if a server error occurred*
+
+```json
+Status: 500
+
+{
+  "code": "UnknownError",
+  "message": "*Upstream error messages*"
+}
+```
+
+### `PUT storage/config` (administrator only)
+
+Update storage config in system.
+
+*Request*
+
+```json
+PUT /api/v2/storage/config
+Authorization: Bearer <ACCESS_TOKEN>
+```
+
+*Parameters*
+
+```json
+{
+  "name": "name",
+  "default": true,
+  "servers": [
+    "server"
+  ],
+  "mountInfos": [
+    {
+      "mountPoint": "mountpoint",
+      "path": "sub/path/of/server/path",
+      "server": "server",
+      "permission": "rw"
+    }
+  ]
+}
+```
+
+For data, please refer to [storage plugin](../../contrib/storage_plugin/README.MD#Config_data)
+
+*Response if succeeded*
+
+```json
+Status: 201
+
+{
+  "message": "Storage Config is updated successfully"
+}
+```
+
+*Response if user has no permission*
+
+```json
+Status: 403
+
+{
+  "code": "ForbiddenUserError",
+  "message": "Non-admin is not allow to do this operation."
+}
+```
+
+*Response if schema is not valid*
+
+```json
+Status: 500
+
+{
+  "code": "UnknownError",
+  "message": "Storage Config schema error *validation error messages*" 
+}
+```
+
+*Response if a server error occurred*
+
+```json
+Status: 500
+
+{
+  "code": "UnknownError",
+  "message": "*Upstream error messages*"
+}
+```
+
+### `DELETE storage/config/:name` (administrator only)
+
+remove storage config in the system.
+
+*Request*
+
+```json
+DELETE /api/v2/storage/config/:name
+Authorization: Bearer <ACCESS_TOKEN>
+```
+
+*Response if succeeded*
+
+```json
+Status: 201
+
+{
+  "message": "Storage Config is deleted successfully"
+}
+```
+
+*Response if current user has no permission*
+
+```json
+Status: 403
+
+{
+  "code": "ForbiddenUserError",
+  "message": "Non-admin is not allow to do this operation."
+}
+```
+
+*Response if a server error occurred*
+
+```json
+Status: 500
+
+{
+  "code": "UnknownError",
+  "message": "*Upstream error messages*"
+}
+```
 
 ## About legacy jobs
 

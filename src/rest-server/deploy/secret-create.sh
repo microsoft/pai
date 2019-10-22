@@ -19,25 +19,17 @@
 
 pushd $(dirname "$0") > /dev/null
 
-/bin/bash configmap-create.sh
+if [[ ! $(kubectl get namespace | grep pai-storage) ]]; then
+    echo "Creating namespace pai-storage."
+    kubectl create ns pai-storage || exit $?
+fi
 
-/bin/bash secret-create.sh
+if [[ ! $(kubectl get secrets --namespace pai-storage | grep storage-config) ]]; then
+    kubectl create secret generic storage-config -n pai-storage --from-literal=empty='' || exit $?
+fi
 
-# Check whether has etcd-uri in cluster config if so need to transfer user-data
-{% if cluster_cfg['rest-server']['etcd-uris'] -%}
-python3 legacy_user_migrate.py -e {{ cluster_cfg['rest-server']['etcd-uris'] }} -k {{ cluster_cfg['layout']['kubernetes']['api-servers-url'] }}  || exit $?
-{% endif -%}
-
-python3 user_v2_migrate.py  -a {{ cluster_cfg['authentication']['group-manager']['admin-group']['groupname'] }} || exit $?
-
-{% if cluster_cfg['cluster']['common']['k8s-rbac'] == 'true' %}
-kubectl apply --overwrite=true -f rbac.yaml || exit $?
-{% endif %}
-
-kubectl apply --overwrite=true -f rest-server.yaml|| exit $?
-
-sleep 10
-# Wait until the service is ready.
-PYTHONPATH="../../../deployment" python -m  k8sPaiLibrary.monitorTool.check_pod_ready_status -w -k app -v rest-server || exit $?
+if [[ ! $(kubectl get secrets --namespace pai-storage | grep storage-server) ]]; then
+    kubectl create secret generic storage-server -n pai-storage --from-literal=empty='' || exit $?
+fi
 
 popd > /dev/null
