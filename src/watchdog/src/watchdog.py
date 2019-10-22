@@ -78,7 +78,7 @@ def gen_pai_job_pod_gauge():
 
 def gen_pai_container_gauge():
     return GaugeMetricFamily("pai_container_count", "count of container pod",
-            labels=["service_name", "pod_name", "name", "state",
+            labels=["service_name", "pod_name", "name", "namespace", "state",
                 "host_ip", "ready"])
 
 def gen_pai_node_gauge():
