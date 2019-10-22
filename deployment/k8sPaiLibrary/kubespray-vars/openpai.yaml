@@ -220,6 +220,7 @@ docker_log_opts: "--log-opt max-size=2g --log-opt max-file=1 --log-driver=json-f
 # add --add-runtime nvidia=/usr/bin/nvidia-container-runtime for nvidia-runtime in docker_option
 docker_options: >-
     --add-runtime nvidia=/usr/bin/nvidia-container-runtime
+    --default-runtime nvidia
     {%- if docker_insecure_registries is defined %}
     {{ docker_insecure_registries | map('regex_replace', '^(.*)$', '--insecure-registry=\1' ) | list | join(' ') }}
     {%- endif %}
