@@ -15,7 +15,7 @@ etcd_memory_limit: "0"
 ## etcd_quota_backend_bytes, you may encounter out of memory terminations of the etcd cluster. Please check
 ## etcd documentation for more information.
 ## https://etcd.io/docs/v3.4.0/op-guide/configuration/
-etcd_quota_backend_bytes: "8G"
+etcd_quota_backend_bytes: "8589934592"
 
 ############## nginx configuration ##############
 
