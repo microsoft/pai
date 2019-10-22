@@ -26,11 +26,21 @@ const authnConfig = require('@pai/config/authn');
 
 const router = new express.Router();
 
-if (authnConfig.authnMethod !== 'OIDC') {
-  router.route('/')
-  /** POST /api/v1/token - Return a token if username and password is correct */
-    .post(param.validate(tokenConfig.tokenPostInputSchema), userController.checkUserPassword, tokenV2Controller.get);
-}
+router.get('/', (req, res, next) => {
+  if (authnConfig.authnMethod === 'OIDC') {
+    res.redirect('/api/v1/authn/oidc/login');
+  } else {
+    res.redirect(`http://${process.env.WEBPORTAL_URL}/index.html`);
+  }
+});
+
+router.post('/', (req, res, next) => {
+  if (req.user && !req.user.service) {
+    res.status(200).json()
+  } else {
+    
+  }
+});
 
 // module exports
 module.exports = router;

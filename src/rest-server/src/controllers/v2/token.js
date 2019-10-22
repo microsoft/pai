@@ -16,22 +16,12 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 // module dependencies
-const jwt = require('jsonwebtoken');
-const tokenConfig = require('@pai/config/token');
 const createError = require('@pai/utils/error');
 const userModel = require('@pai/models/v2/user');
+const tokenModel = require('@pai/models/token');
 const querystring = require('querystring');
 
-function jwtSignPromise(userInfo, admin, expiration = '7d') {
-  return new Promise((res, rej) => {
-    jwt.sign({
-      username: userInfo.username,
-      admin: admin,
-    }, tokenConfig.secret, {expiresIn: expiration}, (signError, token) => {
-      signError ? rej(signError) : res(token);
-    });
-  });
-}
+
 
 /**
  * Get the token.
@@ -41,7 +31,7 @@ const get = async (req, res, next) => {
     const username = req.body.username;
     const userInfo = await userModel.getUser(username);
     const admin = await userModel.checkAdmin(username);
-    const token = await jwtSignPromise(userInfo, admin, tokenConfig.tokenExpireTime);
+    const token = await tokenModel.apply(username);
     return res.status(200).json({
       user: userInfo.username,
       token: token,

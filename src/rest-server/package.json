@@ -20,9 +20,6 @@
   "bugs": {
     "url": "https://github.com/Microsoft/pai/issues"
   },
-  "engines": {
-    "node": "^8.9.0"
-  },
   "dependencies": {
     "ajv": "^6.10.0",
     "ajv-merge-patch": "~4.1.0",
@@ -50,6 +47,7 @@
     "mocha": "~5.0.0",
     "module-alias": "^2.2.0",
     "morgan": "~1.9.0",
+    "ms": "^2.1.2",
     "mustache": "~2.3.0",
     "nock": "~9.1.6",
     "node-cache": "~4.2.0",
@@ -58,6 +56,7 @@
     "ssh-keygen": "~0.4.2",
     "statuses": "~1.5.0",
     "unirest": "~0.5.1",
+    "uuid": "^3.3.3",
     "winston": "~2.4.0",
     "xml2js": "~0.4.19"
   },
