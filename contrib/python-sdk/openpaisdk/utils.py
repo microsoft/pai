@@ -19,17 +19,20 @@
 """
 common functions to
 """
+from openpaisdk.io_utils import safe_chdir, to_screen, __logger__
+import subprocess
 import importlib
 import os
 import time
+import requests
 from typing import Union
 from functools import wraps
 from collections import Iterable
-from requests import request
 from requests_toolbelt.utils import dump
+from urllib3.exceptions import InsecureRequestWarning
 
-import subprocess
-from openpaisdk.io_utils import safe_chdir, to_screen, __logger__
+# Suppress only the single warning from urllib3 needed.
+requests.packages.urllib3.disable_warnings(category=InsecureRequestWarning)
 
 
 def exception_free(err_type, default, err_msg: str = None):
@@ -245,8 +248,9 @@ def get_response(method: str, path: Union[list, str], headers: dict = None, body
     headers = na(headers, {})
     body = na(body, {})
     application_json = 'Content-Type' not in headers or headers['Content-Type'] == 'application/json'
-    response = request(method, path, headers=headers, **kwargs, **{
-        "json" if application_json else "data": body
+    response = requests.request(method, path, headers=headers, ** kwargs, **{
+        "json" if application_json else "data": body,
+        "verify": False,  # support https
     })
     __logger__.debug('----------Response-------------\n%s', dump.dump_all(response).decode('utf-8'))
     if allowed_status and response.status_code not in allowed_status:
@@ -263,6 +267,16 @@ def run_command(commands,  # type: Union[list, str]
         rtn_code = os.system(command)
         if rtn_code:
             raise subprocess.CalledProcessError(rtn_code, commands)
+
+
+def sys_call(args, dec_mode: str = 'utf-8'):
+    p = subprocess.Popen(args, shell=True, stderr=subprocess.PIPE, stdout=subprocess.PIPE)
+    out, err = p.communicate()
+    if dec_mode:
+        out, err = out.decode(dec_mode), err.decode(dec_mode)
+    if p.returncode:
+        raise subprocess.CalledProcessError(f"ErrCode: {p.returncode}, {err}")
+    return out, err
 
 
 def find(fmt: str, s: str, g: int = 1, func=None):
