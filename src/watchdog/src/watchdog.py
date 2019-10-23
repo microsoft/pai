@@ -246,9 +246,7 @@ def generate_pod_metrics(pai_pod_gauge, pai_job_pod_gauge, service_name, job_nam
                 logger.warning("unexpected condition %s in pod %s", cond_t, pod_name)
 
     # used to judge if sechduler has bound pod to a certain node
-    pod_bound = "false"
-    if node_name is not None:
-        pod_bound = "true"
+    pod_bound = "true" if node_name else "false"
 
     if service_name is not None:
         pai_pod_gauge.add_metric([service_name, pod_name, namespace, phase, host_ip,
