@@ -202,8 +202,8 @@ def parse_pod_item(pod, pai_pod_gauge, pai_container_gauge, pai_job_pod_gauge, p
     containers = walk_json_field_safe(pod, "spec", "containers")
     labels = pod["metadata"].get("labels")
 
-    service_name = labels['app'] if labels is not None and 'app' in labels else None
-    job_name = labels['jobName'] if labels is not None and 'jobName' in labels else None
+    service_name = walk_json_field_safe(labels, "app")
+    job_name = walk_json_field_safe(labels, "jobName")
     if service_name is None and job_name is None:
         logger.info("unknown pod %s", pod_name)
         return None
