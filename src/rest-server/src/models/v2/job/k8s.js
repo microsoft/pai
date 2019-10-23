@@ -475,22 +475,11 @@ const generateTaskRole = (taskRole, labels, config) => {
 };
 
 const generateFrameworkDescription = (frameworkName, virtualCluster, config, rawConfig) => {
-  // calculate pod priority
-  // reference: https://github.com/microsoft/pai/issues/3704
-  let jobPriority = 0;
-  if (launcherConfig.enabledHived) {
-    jobPriority = parseInt(Object.values(config.taskRoles)[0].hivedPodSpec.priority);
-    jobPriority = Math.min(Math.max(jobPriority, -1), 126);
-  }
-  const jobCreationTime = Math.floor(new Date() / 1000) & (Math.pow(2, 23) - 1);
-  const podPriority = - (((126 - jobPriority) << 23) + jobCreationTime);
-
   const [userName, jobName] = frameworkName.split(/~(.+)/);
   const frameworkLabels = {
     jobName,
     userName,
     virtualCluster,
-    priority: `p${podPriority}`,
   };
   const frameworkDescription = {
     apiVersion: launcherConfig.apiVersion,
@@ -565,7 +554,6 @@ const createPriorityClass = async (frameworkName, priority) => {
     value: priority,
     preemptionPolicy: 'PreemptLowerPriority',
     globalDefault: false,
-    description: `Priority class for ${frameworkName}.`,
   };
 
   let response;
@@ -699,8 +687,17 @@ const put = async (frameworkName, config, rawConfig) => {
 
   const frameworkDescription = generateFrameworkDescription(frameworkName, virtualCluster, config, rawConfig);
 
+  // calculate pod priority
+  // reference: https://github.com/microsoft/pai/issues/3704
+  let jobPriority = 0;
+  if (launcherConfig.enabledHived) {
+    jobPriority = parseInt(Object.values(config.taskRoles)[0].hivedPodSpec.priority);
+    jobPriority = Math.min(Math.max(jobPriority, -1), 126);
+  }
+  const jobCreationTime = Math.floor(new Date() / 1000) & (Math.pow(2, 23) - 1);
+  const podPriority = - (((126 - jobPriority) << 23) + jobCreationTime);
   // create priority class
-  await createPriorityClass(frameworkName, parseInt(frameworkDescription.metadata.labels.priority.slice(1)));
+  await createPriorityClass(frameworkName, podPriority);
 
   // send request to framework controller
   let response;
