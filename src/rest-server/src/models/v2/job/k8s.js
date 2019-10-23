@@ -479,7 +479,7 @@ const generateFrameworkDescription = (frameworkName, virtualCluster, config, raw
   // reference: https://github.com/microsoft/pai/issues/3704
   let jobPriority = 0;
   if (launcherConfig.enabledHived) {
-    jobPriority = parseInt(config.taskRoles[taskRole].hivedPodSpec.priority);
+    jobPriority = parseInt(Object.values(config.taskRoles)[0].hivedPodSpec.priority);
     jobPriority = Math.min(Math.max(jobPriority, -1), 126);
   }
   const jobCreationTime = Math.floor(new Date() / 1000) & (Math.pow(2, 23) - 1);
