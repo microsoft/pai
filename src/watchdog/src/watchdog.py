@@ -74,7 +74,7 @@ def gen_pai_pod_gauge():
 def gen_pai_job_pod_gauge():
     return GaugeMetricFamily("pai_job_pod_count", "count of pai job pod",
             labels=["job_name", "name", "phase", "host_ip",
-                "initialized", "pod_scheduled", "ready"])
+                "initialized", "pod_bound", "pod_scheduled", "ready"])
 
 def gen_pai_container_gauge():
     return GaugeMetricFamily("pai_container_count", "count of container pod",
@@ -201,6 +201,7 @@ def parse_pod_item(pod, pai_pod_gauge, pai_container_gauge, pai_job_pod_gauge, p
     status = pod["status"]
     containers = walk_json_field_safe(pod, "spec", "containers")
     labels = pod["metadata"].get("labels")
+    node_name = walk_json_field_safe(pod, "spec", "nodeName")
 
     service_name = walk_json_field_safe(labels, "app")
     job_name = walk_json_field_safe(labels, "jobName")
@@ -209,8 +210,8 @@ def parse_pod_item(pod, pai_pod_gauge, pai_container_gauge, pai_job_pod_gauge, p
         return None
 
     generate_pods_info(pod_name, containers, host_ip, pods_info)
-    generate_pod_metrics(pai_pod_gauge, pai_job_pod_gauge,
-                         service_name, job_name, pod_name, host_ip, status, namespace)
+    generate_pod_metrics(pai_pod_gauge, pai_job_pod_gauge, service_name,
+                         job_name, pod_name, node_name, host_ip, status, namespace)
 
     # generate pai_containers
     if service_name is not None and status.get("containerStatuses") is not None:
@@ -220,7 +221,7 @@ def parse_pod_item(pod, pai_pod_gauge, pai_container_gauge, pai_job_pod_gauge, p
 
 
 def generate_pod_metrics(pai_pod_gauge, pai_job_pod_gauge, service_name, job_name, pod_name,
-                         host_ip, status, namespace):
+                         node_name, host_ip, status, namespace):
     if status.get("phase") is not None:
         phase = status["phase"].lower()
     else:
@@ -244,12 +245,17 @@ def generate_pod_metrics(pai_pod_gauge, pai_job_pod_gauge, service_name, job_nam
                 error_counter.labels(type="unknown_pod_cond").inc()
                 logger.warning("unexpected condition %s in pod %s", cond_t, pod_name)
 
+    # used to judge if sechduler has bound pod to a certain node
+    pod_bound = "false"
+    if node_name is not None:
+        pod_bound = "true"
+
     if service_name is not None:
         pai_pod_gauge.add_metric([service_name, pod_name, namespace, phase, host_ip,
             initialized, pod_scheduled, ready], 1)
     if job_name is not None:
         pai_job_pod_gauge.add_metric([job_name, pod_name, phase, host_ip,
-            initialized, pod_scheduled, ready], 1)
+            initialized, pod_bound, pod_scheduled, ready], 1)
 
 
 def generate_pods_info(pod_name, containers, host_ip, pods_info):

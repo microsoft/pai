@@ -85,7 +85,7 @@ class TestJobExporter(unittest.TestCase):
         self.assertTrue(len(job_pod_gauge.samples) > 0)
         self.assertEqual('10.1.3.29', job_pod_gauge.samples[0].labels['host_ip'])
         self.assertEqual('pending', job_pod_gauge.samples[0].labels['phase'])
-        self.assertEqual('true', job_pod_gauge.samples[0].labels['pod_scheduled'])
+        self.assertEqual('true', job_pod_gauge.samples[0].labels['pod_bound'])
         self.assertEqual('true', job_pod_gauge.samples[0].labels['initialized'])
 
     def test_process_nodes_status(self):

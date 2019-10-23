@@ -22,7 +22,7 @@ groups:
       rules:
       - alert: k8sApiServerNotOk
         expr: k8s_api_server_count{error!="ok"} > 0
-        for: 5m
+        for: 10m
         annotations:
           summary: "api server in {{$labels.host_ip}} is {{$labels.error}}"
 

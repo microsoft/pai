@@ -27,7 +27,7 @@ groups:
           summary: "zombie container in {{$labels.instance}} detected"
 
       - alert: PaiJobPending
-        expr: pai_job_pod_count{pod_scheduled="true",phase="pending"} > 0
+        expr: pai_job_pod_count{pod_bound="true", phase="pending"} > 0
         for: 30m
         annotations:
           summary: "Job {{$labels.job_name}} in pending status detected"
