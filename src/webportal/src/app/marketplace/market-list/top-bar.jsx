@@ -23,45 +23,34 @@
  * SOFTWARE.
  */
 
+import React from 'react';
+import { Text, Stack, CommandButton } from 'office-ui-fabric-react';
 import PropTypes from 'prop-types';
-import React, { useState, useEffect } from 'react';
-import ReactDOM from 'react-dom';
-import { HashRouter as Router, Route } from 'react-router-dom';
-import {
-  initializeIcons,
-  Fabric,
-  Stack,
-  Text,
-  getTheme,
-  FontSizes,
-  FontWeights,
-} from 'office-ui-fabric-react';
 
-import { initTheme } from '../components/theme';
-import Card from '../components/card';
-import { Item } from './item';
+export const TopBar = React.memo(() => {
+  const menuProps = {
+    items: [
+      {
+        key: 'new',
+        text: 'New',
+      },
+      {
+        key: 'myJob',
+        text: 'From my jobs',
+      },
+    ],
+  };
 
-initTheme();
-initializeIcons();
-
-const { spacing, palette } = getTheme();
-
-const Marketplace = () => {
   return (
-    <div style={{ overflow: 'auto' }}>
-      <Stack padding='l2'>
-        <Item />
-        <Item />
-        <Item />
-        <Item />
-        <Item />
-        <Item last />
-      </Stack>
-    </div>
+    <Stack horizontal horizontalAlign='space-between'>
+      <Text variant='xLarge' styles={{ root: { fontWeight: 'semibold' } }}>
+        Marketplace
+      </Text>
+      <CommandButton
+        text='Create'
+        iconProps={{ iconName: 'Add' }}
+        menuProps={menuProps}
+      />
+    </Stack>
   );
-};
-
-const contentWrapper = document.getElementById('content-wrapper');
-
-document.getElementById('sidebar-menu--job-submission').classList.add('active');
-ReactDOM.render(<Marketplace />, contentWrapper);
+});
