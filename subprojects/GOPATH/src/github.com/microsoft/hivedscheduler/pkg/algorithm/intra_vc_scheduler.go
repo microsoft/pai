@@ -80,23 +80,23 @@ func (s *defaultIntraVCScheduler) getReservedCellList() map[api.ReservationId]Ch
 
 func (s *defaultIntraVCScheduler) schedule(sr schedulingRequest) map[int32][]CellList {
 	var scheduler *topologyAwareScheduler
+	var str string
 	if sr.reservationId != "" {
 		scheduler = s.reservedSchedulers[sr.reservationId]
+		str = fmt.Sprintf("reservation %v", sr.reservationId)
 	} else {
 		scheduler = s.nonReservedSchedulers[sr.chain]
+		str = fmt.Sprintf("chain %v", sr.chain)
 	}
 	var placement map[int32][]CellList
 	if scheduler != nil {
 		placement = scheduler.Schedule(sr.affinityGroup, sr.priority)
 	}
 	if placement == nil {
-		var str string
-		if sr.reservationId != "" {
-			str = fmt.Sprintf("reservation %v", sr.reservationId)
-		} else {
-			str = fmt.Sprintf("chain %v", sr.chain)
-		}
 		klog.Infof("Insufficient quota in VC %v for scheduling request: %v, GPU numbers %v, priority %v",
+			sr.vc, str, sr.affinityGroup, sr.priority)
+	} else {
+		klog.Infof("Succeeded in scheduling in VC %v for scheduling request: %v, GPU numbers %v, priority %v",
 			sr.vc, str, sr.affinityGroup, sr.priority)
 	}
 	return placement

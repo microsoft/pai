@@ -48,7 +48,7 @@ func initNodes(h *HivedAlgorithm) {
 	}
 }
 
-var pod1, pod2, pod3, pod4, pod5, pod6, pod7, pod8, pod9, pod10, pod11, pod12, pod13, pod14, pod15, pod16, pod17 = &core.Pod{
+var pod1, pod2, pod3, pod4, pod5, pod6, pod7, pod8, pod9, pod10, pod11, pod12, pod13, pod14, pod15, pod16, pod17, pod18, pod19, pod20, pod21, pod22, pod23 = &core.Pod{
 	ObjectMeta: meta.ObjectMeta{
 		Name:        "pod1",
 		Namespace:   "test",
@@ -167,9 +167,51 @@ var pod1, pod2, pod3, pod4, pod5, pod6, pod7, pod8, pod9, pod10, pod11, pod12, p
 		UID:         "pod17",
 		Annotations: map[string]string{},
 	},
+}, &core.Pod{
+	ObjectMeta: meta.ObjectMeta{
+		Name:        "pod18",
+		Namespace:   "test",
+		UID:         "pod18",
+		Annotations: map[string]string{},
+	},
+}, &core.Pod{
+	ObjectMeta: meta.ObjectMeta{
+		Name:        "pod19",
+		Namespace:   "test",
+		UID:         "pod19",
+		Annotations: map[string]string{},
+	},
+}, &core.Pod{
+	ObjectMeta: meta.ObjectMeta{
+		Name:        "pod20",
+		Namespace:   "test",
+		UID:         "pod20",
+		Annotations: map[string]string{},
+	},
+}, &core.Pod{
+	ObjectMeta: meta.ObjectMeta{
+		Name:        "pod21",
+		Namespace:   "test",
+		UID:         "pod21",
+		Annotations: map[string]string{},
+	},
+}, &core.Pod{
+	ObjectMeta: meta.ObjectMeta{
+		Name:        "pod22",
+		Namespace:   "test",
+		UID:         "pod22",
+		Annotations: map[string]string{},
+	},
+}, &core.Pod{
+	ObjectMeta: meta.ObjectMeta{
+		Name:        "pod23",
+		Namespace:   "test",
+		UID:         "pod23",
+		Annotations: map[string]string{},
+	},
 }
 
-var group1, group2, group3, group4, group5, group6, group7, group8, group9, group10, group11 = &api.AffinityGroupSpec{
+var group1, group2, group3, group4, group5, group6, group7, group8, group9, group10, group11, group12, group13, group14 = &api.AffinityGroupSpec{
 	Name:    "group1",
 	Members: []api.AffinityGroupMemberSpec{{PodNumber: 1, GpuNumber: 1}},
 }, &api.AffinityGroupSpec{
@@ -201,6 +243,15 @@ var group1, group2, group3, group4, group5, group6, group7, group8, group9, grou
 	Members: []api.AffinityGroupMemberSpec{{PodNumber: 1, GpuNumber: 1}},
 }, &api.AffinityGroupSpec{
 	Name:    "group11",
+	Members: []api.AffinityGroupMemberSpec{{PodNumber: 2, GpuNumber: 16}},
+}, &api.AffinityGroupSpec{
+	Name:    "group12",
+	Members: []api.AffinityGroupMemberSpec{{PodNumber: 2, GpuNumber: 16}},
+}, &api.AffinityGroupSpec{
+	Name:    "group13",
+	Members: []api.AffinityGroupMemberSpec{{PodNumber: 2, GpuNumber: 16}},
+}, &api.AffinityGroupSpec{
+	Name:    "group14",
 	Members: []api.AffinityGroupMemberSpec{{PodNumber: 2, GpuNumber: 16}},
 }
 
@@ -324,11 +375,53 @@ var pss = map[types.UID]api.PodSchedulingSpec{
 		GpuType:        "DGX2-V100",
 		GpuNumber:      16,
 		AffinityGroup:  group11,
+	}, "pod18": { // used for test splitting physical cell hierarchies in reconfiguration
+		VirtualCluster: "VC1",
+		Priority:       1,
+		ReservationId:  "",
+		GpuType:        "DGX2-V100",
+		GpuNumber:      16,
+		AffinityGroup:  group12,
+	}, "pod19": { // used for test splitting physical cell hierarchies in reconfiguration
+		VirtualCluster: "VC1",
+		Priority:       1,
+		ReservationId:  "",
+		GpuType:        "DGX2-V100",
+		GpuNumber:      16,
+		AffinityGroup:  group12,
+	}, "pod20": { // guaranteed pod in splitting physical cell hierarchies
+		VirtualCluster: "VC1",
+		Priority:       1,
+		ReservationId:  "",
+		GpuType:        "DGX2-V100",
+		GpuNumber:      16,
+		AffinityGroup:  group13,
+	}, "pod21": { // guaranteed pod in splitting physical cell hierarchies
+		VirtualCluster: "VC1",
+		Priority:       1,
+		ReservationId:  "",
+		GpuType:        "DGX2-V100",
+		GpuNumber:      16,
+		AffinityGroup:  group13,
+	}, "pod22": { // opportunistic pod in splitting physical cell hierarchies
+		VirtualCluster: "VC1",
+		Priority:       -1,
+		ReservationId:  "",
+		GpuType:        "DGX2-V100",
+		GpuNumber:      16,
+		AffinityGroup:  group14,
+	}, "pod23": { // opportunistic pod in splitting physical cell hierarchies
+		VirtualCluster: "VC1",
+		Priority:       -1,
+		ReservationId:  "",
+		GpuType:        "DGX2-V100",
+		GpuNumber:      16,
+		AffinityGroup:  group14,
 	},
 }
 
 var casesThatShouldSucceed = []*core.Pod{
-	pod1, pod2, pod3, pod4, pod5, pod6, pod7, pod8, pod9, pod16, pod17,
+	pod1, pod2, pod3, pod4, pod5, pod6, pod7, pod8, pod9, pod16, pod17, pod18, pod19, pod20, pod21, pod22, pod23,
 }
 
 var casesThatShouldFail = [][]*core.Pod{
@@ -341,14 +434,20 @@ type result struct {
 }
 
 var expectedBindInfos = map[*core.Pod]result{
-	pod1: {node: "0.0.1.0", gpuIsolation: []int32{0}},
-	pod2: {node: "0.0.1.0", gpuIsolation: []int32{1}},
-	pod3: {node: "0.0.1.0", gpuIsolation: []int32{8, 9, 10, 11, 12, 13, 14, 15}},
-	pod4: {node: "0.0.5.0", gpuIsolation: []int32{0}},
-	pod5: {node: "0.0.3.0", gpuIsolation: []int32{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15}},
-	pod6: {node: "0.0.3.1", gpuIsolation: []int32{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15}},
-	pod8: {node: "1.0.0.1", gpuIsolation: []int32{0, 1, 2, 3, 4, 5, 6}},
-	pod9: {node: "1.0.0.2", gpuIsolation: []int32{0, 1, 2, 3, 4}},
+	pod1:  {node: "0.0.1.0", gpuIsolation: []int32{0}},
+	pod2:  {node: "0.0.1.0", gpuIsolation: []int32{1}},
+	pod3:  {node: "0.0.1.0", gpuIsolation: []int32{8, 9, 10, 11, 12, 13, 14, 15}},
+	pod4:  {node: "0.0.5.0", gpuIsolation: []int32{0}},
+	pod5:  {node: "0.0.3.0", gpuIsolation: []int32{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15}},
+	pod6:  {node: "0.0.3.1", gpuIsolation: []int32{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15}},
+	pod8:  {node: "1.0.0.1", gpuIsolation: []int32{0, 1, 2, 3, 4, 5, 6}},
+	pod9:  {node: "1.0.0.2", gpuIsolation: []int32{0, 1, 2, 3, 4}},
+	pod18: {node: "0.0.3.2", gpuIsolation: []int32{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15}},
+	pod19: {node: "0.0.3.3", gpuIsolation: []int32{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15}},
+	pod20: {node: "0.0.4.0", gpuIsolation: []int32{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15}},
+	pod21: {node: "0.0.4.1", gpuIsolation: []int32{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15}},
+	pod22: {node: "0.0.4.2", gpuIsolation: []int32{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15}},
+	pod23: {node: "0.0.4.3", gpuIsolation: []int32{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15}},
 }
 
 var expectedPreemptInfos = map[*core.Pod]common.Set{
@@ -369,9 +468,8 @@ func TestHivedAlgorithm(t *testing.T) {
 	}
 
 	printConfig(t, h)
-	testCasesThatShouldSucceed(t, h)
-	testCasesThatShouldFail(t, h)
-	testDeleteAllocatedPods(t, h)
+	testNormalOperations(t, h)
+	testReconfiguration(t, sConfig)
 	testInvalidInitialAssignment(t, sConfig)
 }
 
@@ -408,7 +506,14 @@ func printConfig(t *testing.T, h *HivedAlgorithm) {
 	}
 }
 
+func testNormalOperations(t *testing.T, h *HivedAlgorithm) {
+	testCasesThatShouldSucceed(t, h)
+	testCasesThatShouldFail(t, h)
+	testDeleteAllocatedPods(t, h)
+}
+
 func testCasesThatShouldSucceed(t *testing.T, h *HivedAlgorithm) {
+	allocatedPods = []*core.Pod{}
 	var psr internal.PodScheduleResult
 	for _, pod := range casesThatShouldSucceed {
 		pod.Annotations[api.AnnotationKeyPodSchedulingSpec] = common.ToYaml(pss[pod.UID])
@@ -459,6 +564,33 @@ func testDeleteAllocatedPods(t *testing.T, h *HivedAlgorithm) {
 			t.Errorf("Group %v is expected to be deleted in scheduler, but not", g.name)
 		}
 	}
+}
+
+func testReconfiguration(t *testing.T, sConfig *api.Config) {
+	h := NewHivedAlgorithm(sConfig)
+	for _, chains := range h.chains {
+		sortChains(chains)
+	}
+	testCasesThatShouldSucceed(t, h)
+
+	// case: physical cell not found
+	(*sConfig.PhysicalCluster).PhysicalCells[5].CellChildren[0].CellChildren[0].CellAddress = "0.0.3.100"
+	// case: insufficient VC quota
+	(*sConfig.VirtualClusters)["VC2"].VirtualCells[0].CellNumber = 1
+	// case: inconsistent physical and virtual cell hierarchies
+	originalCell := (*sConfig.PhysicalCluster).PhysicalCells[6]
+	(*sConfig.PhysicalCluster).PhysicalCells[6] = originalCell.CellChildren[0].CellChildren[0]
+	(*sConfig.PhysicalCluster).PhysicalCells = append((*sConfig.PhysicalCluster).PhysicalCells, originalCell.CellChildren[0].CellChildren[1])
+	(*sConfig.PhysicalCluster).PhysicalCells = append((*sConfig.PhysicalCluster).PhysicalCells, originalCell.CellChildren[1].CellChildren[0])
+	(*sConfig.PhysicalCluster).PhysicalCells = append((*sConfig.PhysicalCluster).PhysicalCells, originalCell.CellChildren[1].CellChildren[1])
+	h = NewHivedAlgorithm(sConfig)
+	for _, chains := range h.chains {
+		sortChains(chains)
+	}
+	for _, pod := range allocatedPods {
+		h.AddAllocatedPod(pod)
+	}
+	testDeleteAllocatedPods(t, h)
 }
 
 func testInvalidInitialAssignment(t *testing.T, sConfig *api.Config) {

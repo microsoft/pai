@@ -111,15 +111,24 @@ type AlgoAffinityGroup struct {
 }
 
 func newAlgoAffinityGroup(g *api.AffinityGroupSpec) *AlgoAffinityGroup {
-	numPods := make(map[int32]int32)
+	podNums := make(map[int32]int32)
 	for _, m := range g.Members {
-		numPods[m.GpuNumber] += m.PodNumber
+		podNums[m.GpuNumber] += m.PodNumber
 	}
-	return &AlgoAffinityGroup{
+	group := &AlgoAffinityGroup{
 		name:                 g.Name,
-		totalPodNums:         numPods,
+		totalPodNums:         podNums,
 		allocatedPods:        map[int32][]*core.Pod{},
 		physicalGpuPlacement: map[int32][]CellList{},
 		virtualGpuPlacement:  map[int32][]CellList{},
 	}
+	for gpuNum, podNum := range podNums {
+		group.physicalGpuPlacement[gpuNum] = make([]CellList, podNum)
+		group.virtualGpuPlacement[gpuNum] = make([]CellList, podNum)
+		for i := int32(0); i < podNum; i++ {
+			group.physicalGpuPlacement[gpuNum][i] = make(CellList, gpuNum)
+			group.virtualGpuPlacement[gpuNum][i] = make(CellList, gpuNum)
+		}
+	}
+	return group
 }

@@ -106,9 +106,9 @@ type AffinityGroupMemberBindInfo struct {
 }
 
 type PodPlacementInfo struct {
-	PhysicalNode       string  `yaml:"physicalNode"`
-	PhysicalGpuIndices []int32 `yaml:"physicalGpuIndices"`
-	VirtualCellIndices []int32 `yaml:"virtualCellIndices"`
+	PhysicalNode          string  `yaml:"physicalNode"`
+	PhysicalGpuIndices    []int32 `yaml:"physicalGpuIndices"`
+	PreassignedCellLevels []int32 `yaml:"preassignedCellLevels"`
 }
 
 type WebServerPaths struct {

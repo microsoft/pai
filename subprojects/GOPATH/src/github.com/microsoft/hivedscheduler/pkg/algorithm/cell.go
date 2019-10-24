@@ -290,10 +290,10 @@ func (c *VirtualCell) SetPhysicalCell(pc *PhysicalCell) {
 	c.physicalCell = pc
 }
 
-func (c *VirtualCell) GetPreBoundVirtualCell() *PhysicalCell {
+func (c *VirtualCell) GetPreBoundPhysicalCell() *PhysicalCell {
 	return c.preBoundPhysicalCell
 }
 
-func (c *VirtualCell) SetPreBoundVirtualCell(pc *PhysicalCell) {
+func (c *VirtualCell) SetPreBoundPhysicalCell(pc *PhysicalCell) {
 	c.preBoundPhysicalCell = pc
 }

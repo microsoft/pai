@@ -52,22 +52,18 @@ func NewTopologyAwareScheduler(ccl ChainCellList,
 	levelGpuNum map[CellLevel]int32,
 	crossPriorityPack bool) *topologyAwareScheduler {
 
-	var l CellLevel
-	for l = CellLevel(1); l <= CellLevel(len(ccl)); l++ {
-		if ccl[l][0].AtOrHigherThanNode() {
-			break
-		}
-	}
-	cv := make(clusterView, len(ccl[l]))
-	for i, c := range ccl[l] {
-		cv[i] = &node{
-			c: c,
-		}
-	}
 	return &topologyAwareScheduler{
-		cv:                cv,
+		cv:                newClusterView(ccl),
 		levelGpuNum:       levelGpuNum,
 		crossPriorityPack: crossPriorityPack}
+}
+
+func ancestorNoHigherThanNode(c Cell) Cell {
+	if c.AtOrHigherThanNode() || c.GetParent() == nil {
+		return c
+	} else {
+		return ancestorNoHigherThanNode(c.GetParent())
+	}
 }
 
 func (t *topologyAwareScheduler) Schedule(
@@ -155,6 +151,33 @@ func (n *node) UpdateUsedGpuNumForPriority(p CellPriority, crossPriorityPack boo
 }
 
 type clusterView []*node
+
+func newClusterView(ccl ChainCellList) clusterView {
+	var l CellLevel
+	for l = CellLevel(1); l <= CellLevel(len(ccl)); l++ {
+		if ccl[l][0].AtOrHigherThanNode() {
+			break
+		}
+	}
+	cv := clusterView{}
+	for ; l >= lowestLevel; l-- {
+		for _, c := range ccl[l] {
+			if !cv.containsCell(ancestorNoHigherThanNode(c)) {
+				cv = append(cv, &node{c: c})
+			}
+		}
+	}
+	return cv
+}
+
+func (cv clusterView) containsCell(c Cell) bool {
+	for _, n := range cv {
+		if CellEqual(c, n.c) {
+			return true
+		}
+	}
+	return false
+}
 
 // Methods for sorting nodes in a clusterView.
 func (cv clusterView) Len() int {
