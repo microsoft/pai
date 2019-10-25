@@ -68,6 +68,8 @@ const config = (env, argv) => ({
       './src/app/user/change-password/change-password.component.js',
     dashboard: './src/app/dashboard/dashboard.component.js',
     submit: './src/app/job-submission/job-submission.jsx',
+    marketList: './src/app/marketplace/market-list/index.jsx',
+    marketDetail: './src/app/marketplace/market-detail/index.jsx',
     submit_v1: './src/app/job/job-submit-v1/job-submit.component.js',
     jobList: './src/app/job/job-view/fabric/job-list.jsx',
     jobDetail: './src/app/job/job-view/fabric/job-detail.jsx',
@@ -311,6 +313,14 @@ const config = (env, argv) => ({
     generateHtml({
       filename: 'submit_v1.html',
       chunks: ['layout', 'submit_v1'],
+    }),
+    generateHtml({
+      filename: 'market-list.html',
+      chunks: ['layout', 'marketList'],
+    }),
+    generateHtml({
+      filename: 'market-detail.html',
+      chunks: ['layout', 'marketDetail'],
     }),
     generateHtml({
       filename: 'job-list.html',
