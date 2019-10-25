@@ -116,11 +116,6 @@ const convertState = (state, exitCode, retryDelaySec) => {
 };
 
 const convertFrameworkSummary = (framework) => {
-  // check fields which may be compressed
-  if (framework.status.attemptStatus.taskRoleStatuses == null) {
-    framework.status.attemptStatus.taskRoleStatuses = decompressField(framework.status.attemptStatus.taskRoleStatusesCompressed);
-  }
-
   const completionStatus = framework.status.attemptStatus.completionStatus;
   return {
     name: decodeName(framework.metadata.name, framework.metadata.labels),
@@ -145,9 +140,9 @@ const convertFrameworkSummary = (framework) => {
     appExitCode: completionStatus ? completionStatus.code : null,
     virtualCluster: framework.metadata.labels ? framework.metadata.labels.virtualCluster : 'unknown',
     totalGpuNumber: framework.metadata.annotations ? framework.metadata.annotations.totalGpuNumber : 0,
-    totalTaskNumber: framework.status.attemptStatus.taskRoleStatuses.reduce(
-      (num, statuses) => num + statuses.taskStatuses.length, 0),
-    totalTaskRoleNumber: framework.status.attemptStatus.taskRoleStatuses.length,
+    totalTaskNumber: framework.spec.taskRoles.reduce(
+      (num, spec) => num + spec.taskNumber, 0),
+    totalTaskRoleNumber: framework.spec.taskRoles.length,
   };
 };
 
