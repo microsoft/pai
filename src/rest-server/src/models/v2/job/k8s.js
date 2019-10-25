@@ -81,7 +81,7 @@ const decompressField = (val) => {
   if (val == null) {
     return null;
   } else {
-    return JSON.parse(zlib.gunzipSync(new Buffer.from(val, 'base64')).toString());
+    return JSON.parse(zlib.gunzipSync(Buffer.from(val, 'base64')).toString());
   }
 };
 
