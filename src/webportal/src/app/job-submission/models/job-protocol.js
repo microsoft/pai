@@ -125,7 +125,12 @@ export class JobProtocol {
 
     const prerequisites = this.prerequisites
       .filter(prerequisite => prerequisite.type !== 'dockerimage')
-      .concat(TaskRolesManager.getTaskRolesPrerequisites(jobTaskRoles));
+      .concat(TaskRolesManager.getTaskRolesPrerequisites(jobTaskRoles))
+      .map(curPre => {
+        const oriPre = this.prerequisites.find(pre => pre.name === curPre.name);
+        return { ...oriPre, ...curPre };
+      });
+
     const taskRoles = this._updateAndConvertTaskRoles(jobTaskRoles);
     const secrets = removeEmptyProperties(
       jobSecrets.reduce((res, secret) => {
