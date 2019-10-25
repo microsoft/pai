@@ -283,15 +283,6 @@ const generateTaskRole = (taskRole, labels, config) => {
     gangAllocation = 'false';
     retryPolicy.fancyRetryPolicy = true;
   }
-  // calculate pod priority
-  // reference: https://github.com/microsoft/pai/issues/3704
-  let jobPriority = 0;
-  if (launcherConfig.enabledHived) {
-    jobPriority = parseInt(config.taskRoles[taskRole].hivedPodSpec.priority);
-    jobPriority = Math.min(Math.max(jobPriority, -1), 126);
-  }
-  const jobCreationTime = Math.floor(new Date() / 1000) & (Math.pow(2, 23) - 1);
-  const podPriority = - (((126 - jobPriority) << 23) + jobCreationTime);
 
   const frameworkTaskRole = {
     name: convertName(taskRole),
@@ -312,7 +303,6 @@ const generateTaskRole = (taskRole, labels, config) => {
         },
         spec: {
           privileged: false,
-          priority: podPriority,
           restartPolicy: 'Never',
           serviceAccountName: 'frameworkbarrier-account',
           initContainers: [
@@ -520,6 +510,7 @@ const generateFrameworkDescription = (frameworkName, virtualCluster, config, raw
   for (let taskRole of Object.keys(config.taskRoles)) {
     totalGpuNumber += config.taskRoles[taskRole].resourcePerInstance.gpu * config.taskRoles[taskRole].instances;
     const taskRoleDescription = generateTaskRole(taskRole, frameworkLabels, config);
+    taskRoleDescription.task.pod.spec.priorityClassName = `${encodeName(frameworkName)}-priority`;
     taskRoleDescription.task.pod.spec.containers[0].env.push(...envlist.concat([
       {
         name: 'PAI_CURRENT_TASK_ROLE_NAME',
@@ -553,6 +544,78 @@ const generateFrameworkDescription = (frameworkName, virtualCluster, config, raw
   return frameworkDescription;
 };
 
+const createPriorityClass = async (frameworkName, priority) => {
+  const priorityClass = {
+    apiVersion: 'scheduling.k8s.io/v1',
+    kind: 'PriorityClass',
+    metadata: {
+      name: `${encodeName(frameworkName)}-priority`,
+    },
+    value: priority,
+    preemptionPolicy: 'PreemptLowerPriority',
+    globalDefault: false,
+  };
+
+  let response;
+  try {
+    response = await axios({
+      method: 'post',
+      url: launcherConfig.priorityClassesPath(),
+      headers: launcherConfig.requestHeaders,
+      httpsAgent: apiserver.ca && new Agent({ca: apiserver.ca}),
+      data: priorityClass,
+    });
+  } catch (error) {
+    if (error.response != null) {
+      response = error.response;
+    } else {
+      throw error;
+    }
+  }
+  if (response.status !== status('Created')) {
+    throw createError(response.status, 'UnknownError', response.data.message);
+  }
+};
+
+const patchPriorityClass = async (frameworkName, frameworkUid) => {
+  try {
+    const headers = {...launcherConfig.requestHeaders};
+    headers['Content-Type'] = 'application/merge-patch+json';
+    await axios({
+      method: 'patch',
+      url: launcherConfig.priorityClassPath(`${encodeName(frameworkName)}-priority`),
+      headers,
+      httpsAgent: apiserver.ca && new Agent({ca: apiserver.ca}),
+      data: {
+        metadata: {
+          ownerReferences: [{
+            apiVersion: launcherConfig.apiVersion,
+            kind: 'Framework',
+            name: encodeName(frameworkName),
+            uid: frameworkUid,
+            controller: true,
+            blockOwnerDeletion: true,
+          }],
+        },
+      },
+    });
+  } catch (error) {
+    logger.warn('Failed to patch owner reference for priority class', error);
+  }
+};
+
+const deletePriorityClass = async (frameworkName) => {
+  try {
+    await axios({
+      method: 'delete',
+      url: launcherConfig.priorityClassPath(`${encodeName(frameworkName)}-priority`),
+      headers: launcherConfig.requestHeaders,
+      httpsAgent: apiserver.ca && new Agent({ca: apiserver.ca}),
+    });
+  } catch (error) {
+    logger.warn('Failed to delete priority class', error);
+  }
+};
 
 const list = async (filters) => {
   // send request to framework controller
@@ -624,6 +687,18 @@ const put = async (frameworkName, config, rawConfig) => {
 
   const frameworkDescription = generateFrameworkDescription(frameworkName, virtualCluster, config, rawConfig);
 
+  // calculate pod priority
+  // reference: https://github.com/microsoft/pai/issues/3704
+  let jobPriority = 0;
+  if (launcherConfig.enabledHived) {
+    jobPriority = parseInt(Object.values(config.taskRoles)[0].hivedPodSpec.priority);
+    jobPriority = Math.min(Math.max(jobPriority, -1), 126);
+  }
+  const jobCreationTime = Math.floor(new Date() / 1000) & (Math.pow(2, 23) - 1);
+  const podPriority = - (((126 - jobPriority) << 23) + jobCreationTime);
+  // create priority class
+  await createPriorityClass(frameworkName, podPriority);
+
   // send request to framework controller
   let response;
   try {
@@ -638,12 +713,18 @@ const put = async (frameworkName, config, rawConfig) => {
     if (error.response != null) {
       response = error.response;
     } else {
+      // do not await for delete
+      deletePriorityClass(frameworkName);
       throw error;
     }
   }
   if (response.status !== status('Created')) {
+    // do not await for delete
+    deletePriorityClass(frameworkName);
     throw createError(response.status, 'UnknownError', response.data.message);
   }
+  // do not await for patch
+  patchPriorityClass(frameworkName, response.data.metadata.uid);
 };
 
 const execute = async (frameworkName, executionType) => {
