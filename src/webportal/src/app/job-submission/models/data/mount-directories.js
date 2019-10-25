@@ -164,7 +164,7 @@ export class MountDirectories {
           returnValue.push(`ssh-keyscan ${proxyIp} >> ~/.ssh/known_hosts`);
           returnValue.push(
             `sshpass -p '${proxyPassword}'` +
-              ` ssh -N -f -L 445:${serverData.dataStore}:445 ${proxyInfo}`
+              ` ssh -N -f -L 445:${serverData.dataStore}:445 ${proxyInfo}`,
           );
         }
         break;
