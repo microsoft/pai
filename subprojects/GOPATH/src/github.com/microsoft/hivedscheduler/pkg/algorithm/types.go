@@ -104,10 +104,10 @@ func (ccl ChainCellList) remove(c Cell, l CellLevel) {
 // AlgoAffinityGroup is the algorithm-internal representation of an affinity group.
 type AlgoAffinityGroup struct {
 	name                 string
-	totalPodNums         map[int32]int32       // GpuNum -> PodNum
-	allocatedPods        map[int32][]*core.Pod // GpuNum -> a list of allocated pods
-	physicalGpuPlacement map[int32][]CellList  // GpuNum -> a list of pods -> a list of physical GPUs of each pod
-	virtualGpuPlacement  map[int32][]CellList  // GpuNum -> a list of pods -> a list of virtual GPUs of each pod
+	totalPodNums         map[int32]int32        // GpuNum -> PodNum
+	allocatedPods        map[int32][]*podOnNode // GpuNum -> a list of allocated pods and node addresses
+	physicalGpuPlacement map[int32][]CellList   // GpuNum -> a list of pods -> a list of physical GPUs of each pod
+	virtualGpuPlacement  map[int32][]CellList   // GpuNum -> a list of pods -> a list of virtual GPUs of each pod
 }
 
 func newAlgoAffinityGroup(g *api.AffinityGroupSpec) *AlgoAffinityGroup {
@@ -118,7 +118,7 @@ func newAlgoAffinityGroup(g *api.AffinityGroupSpec) *AlgoAffinityGroup {
 	group := &AlgoAffinityGroup{
 		name:                 g.Name,
 		totalPodNums:         podNums,
-		allocatedPods:        map[int32][]*core.Pod{},
+		allocatedPods:        map[int32][]*podOnNode{},
 		physicalGpuPlacement: map[int32][]CellList{},
 		virtualGpuPlacement:  map[int32][]CellList{},
 	}
@@ -131,4 +131,9 @@ func newAlgoAffinityGroup(g *api.AffinityGroupSpec) *AlgoAffinityGroup {
 		}
 	}
 	return group
+}
+
+type podOnNode struct {
+	pod  *core.Pod
+	node string
 }

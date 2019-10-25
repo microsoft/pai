@@ -197,7 +197,7 @@ func (h *HivedAlgorithm) AddAllocatedPod(pod *core.Pod) {
 		klog.Infof("New affinity group created: %v", s.AffinityGroup.Name)
 	}
 	h.allocatedAffinityGroups[s.AffinityGroup.Name].allocatedPods[s.GpuNumber] = append(
-		h.allocatedAffinityGroups[s.AffinityGroup.Name].allocatedPods[s.GpuNumber], pod)
+		h.allocatedAffinityGroups[s.AffinityGroup.Name].allocatedPods[s.GpuNumber], &podOnNode{pod: pod, node: info.Node})
 }
 
 func (h *HivedAlgorithm) DeleteAllocatedPod(pod *core.Pod) {
@@ -215,7 +215,7 @@ func (h *HivedAlgorithm) DeleteAllocatedPod(pod *core.Pod) {
 		allocatedPods := group.allocatedPods[s.GpuNumber]
 		idx := -1
 		for i, p := range allocatedPods {
-			if pod.UID == p.UID {
+			if pod.UID == p.pod.UID {
 				idx = i
 				break
 			}
@@ -693,41 +693,42 @@ func generatePodScheduleResult(
 		panic(fmt.Sprintf("[%v]: node %v picked by algorithm but not in K8S candidates",
 			internal.Key(pod), selectedNode))
 	}
-	// collect preemption victims
-	needPreemption := false
-	preemptionVictims := common.NewSet()
+	// collect preemption victims of the whole group
+	preemptionVictims := map[string]common.Set{} // node -> pods
 	if newGroup {
-		// if any of the GPUs allocated for the whole group is still used by a pod,
-		// we will wait for the preemption, as the group is gang-scheduled.
 		for gpuNum := range groupPhysicalPlacement {
 			for podIndex := range groupPhysicalPlacement[gpuNum] {
 				for _, gpu := range groupPhysicalPlacement[gpuNum][podIndex] {
 					pGpu := gpu.(*PhysicalCell)
-					if pGpu.HasAffinityGroup() {
-						needPreemption = true
-						break
-					}
-				}
-			}
-		}
-		for _, gpu := range groupPhysicalPlacement[currentGpuNum][currentPodIndex] {
-			pGpu := gpu.(*PhysicalCell)
-			if pGpu.HasAffinityGroup() {
-				// for any victim pod, gang-preempt all the other pods from the same affinity group
-				for _, victims := range pGpu.GetAffinityGroups()[0].allocatedPods {
-					for _, victimPod := range victims {
-						preemptionVictims.Add(victimPod)
+					if victimGroup := pGpu.GetAffinityGroup(); victimGroup != nil {
+						// for any victim pod, gang-preempt all the other pods from the same affinity group
+						for _, victims := range victimGroup.allocatedPods {
+							for _, v := range victims {
+								if _, ok := preemptionVictims[v.node]; !ok {
+									preemptionVictims[v.node] = common.NewSet()
+								}
+								preemptionVictims[v.node].Add(v.pod)
+							}
+						}
 					}
 				}
 			}
 		}
 	}
-	if needPreemption {
+	// if any of the GPUs allocated for the whole group is still used by a pod,
+	// we will wait for the preemption, as the group is gang-scheduled.
+	if len(preemptionVictims) > 0 {
 		var victimPods []*core.Pod
 		var victimNames []string
-		for v := range preemptionVictims.Items() {
-			victimPods = append(victimPods, v.(*core.Pod))
-			victimNames = append(victimNames, internal.Key(v.(*core.Pod)))
+		for _, victimSet := range preemptionVictims {
+			for v := range victimSet.Items() {
+				victimPods = append(victimPods, v.(*core.Pod))
+				victimNames = append(victimNames, internal.Key(v.(*core.Pod)))
+			}
+			// we collect victims on one node, as K8S preempts victims from only one node once.
+			// we leverage the random iteration of map to let different pods preempt victims on different nodes
+			// (but we don't rely on this randomness for the eventual-completeness of preemption).
+			break
 		}
 		klog.Infof("[%v]: need to preempt pods %v", internal.Key(pod), victimNames)
 		return internal.PodScheduleResult{
@@ -775,8 +776,7 @@ func generateAffinityGroupBindInfo(
 			for gpuIndex := 0; gpuIndex < len(podPhysicalPlacements[podIndex]); gpuIndex++ {
 				pGpu := podPhysicalPlacements[podIndex][gpuIndex]
 				if pGpu == nil {
-					// the address has been deleted due to reconfiguration
-					// (the affinity group was scheduled before the reconfiguration)
+					klog.Infof("Resources previously allocated has been invalid due to reconfiguration; pod should wait")
 					return nil, "", nil
 				}
 				nodes, gpuIndices := pGpu.(*PhysicalCell).GetPhysicalPlacement()

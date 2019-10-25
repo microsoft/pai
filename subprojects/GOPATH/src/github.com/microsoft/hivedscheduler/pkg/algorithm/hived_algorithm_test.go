@@ -618,15 +618,12 @@ func compareGpuIsolation(a []int32, b []int32) bool {
 }
 
 func comparePods(a []*core.Pod, b common.Set) bool {
-	if len(a) == len(b.Items()) {
-		for _, p := range a {
-			if !b.Contains(p.Name) {
-				return false
-			}
+	for _, p := range a {
+		if !b.Contains(p.Name) {
+			return false
 		}
-		return true
 	}
-	return false
+	return true
 }
 
 func compareSchedulingResult(t *testing.T, pod *core.Pod, psr internal.PodScheduleResult) {
