@@ -16,43 +16,42 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 // module dependencies
-const jwt = require('jsonwebtoken');
-const tokenConfig = require('@pai/config/token');
-const createError = require('@pai/utils/error');
-const userModel = require('@pai/models/v2/user');
 const querystring = require('querystring');
-
-function jwtSignPromise(userInfo, admin, expiration = '7d') {
-  return new Promise((res, rej) => {
-    jwt.sign({
-      username: userInfo.username,
-      admin: admin,
-    }, tokenConfig.secret, {expiresIn: expiration}, (signError, token) => {
-      signError ? rej(signError) : res(token);
-    });
-  });
-}
+const userModel = require('@pai/models/v2/user');
+const groupModel = require('@pai/models/v2/group');
+const tokenModel = require('@pai/models/token');
+const createError = require('@pai/utils/error');
+const {encrypt} = require('@pai/utils/manager/user/user');
 
 /**
  * Get the token.
  */
 const get = async (req, res, next) => {
+  const username = req.body.username;
+  const password = req.body.password;
+  const hash = await encrypt(username, password);
+  let userItem;
   try {
-    const username = req.body.username;
-    const userInfo = await userModel.getUser(username);
-    const admin = await userModel.checkAdmin(username);
-    const token = await jwtSignPromise(userInfo, admin, tokenConfig.tokenExpireTime);
-    return res.status(200).json({
-      user: userInfo.username,
-      token: token,
-      admin: admin,
-      hasGitHubPAT: userInfo.extension.hasOwnProperty('githubPAT')&& Boolean(userInfo.extension['githubPAT']),
-    });
+    userItem = await userModel.getUser(username);
   } catch (error) {
     if (error.status && error.status === 404) {
-      return next(createError('Bad Request', 'NoUserError', `User ${req.params.username} is not found.`));
+      return next(createError('Bad Request', 'NoUserError', `User ${req.body.username} is not found.`));
     }
-    return next(createError.unknown(error));
+  }
+  if (hash !== userItem['password']) {
+    return next(createError('Bad Request', 'IncorrectPasswordError', 'Password is incorrect.'));
+  }
+  try {
+    const admin = await groupModel.getGroupsAdmin(userItem.grouplist);
+    const token = await tokenModel.create(username);
+    return res.status(200).json({
+      user: userItem.username,
+      token: token,
+      admin: admin,
+      hasGitHubPAT: userItem.extension.githubPAT,
+    });
+  } catch (err) {
+    return next(createError.unknown(err));
   }
 };
 
@@ -64,12 +63,12 @@ const getAAD = async (req, res, next) => {
     const username = req.username;
     const userInfo = await userModel.getUser(username);
     const admin = await userModel.checkAdmin(username);
-    const token = await jwtSignPromise(userInfo, admin, tokenConfig.tokenExpireTime);
+    const token = await tokenModel.create(username);
     return res.redirect(req.returnBackURI + '?'+ querystring.stringify({
       user: userInfo.username,
       token: token,
       admin: admin,
-      hasGitHubPAT: userInfo.extension.hasOwnProperty('githubPAT')&& Boolean(userInfo.extension['githubPAT']),
+      hasGitHubPAT: userInfo.extension.githubPAT,
     }));
   } catch (error) {
     return next(createError.unknown(error));

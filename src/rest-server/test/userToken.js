@@ -15,147 +15,58 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-const getTokenTemplate = JSON.stringify({
-  'username': '{{username}}',
-  'password': '{{password}}',
-});
+const chai = require('chai');
+const jwt = require('jsonwebtoken');
+const nockUtils = require('./utils/nock');
 
-const defaultGroupSchema = {
-  'kind': 'Secret',
-  'apiVersion': 'v1',
-  'metadata': {
-    'name': 'cantest001',
-  },
-  'data': {
-    'groupname': 'ZGVmYXVsdA==',
-    'description': 'dGVzdA==',
-    'externalName': 'MTIzNA==',
-    'extension': 'eyJhY2xzIjp7ImFkbWluIjpmYWxzZSwidmlydHVhbENsdXN0ZXJzIjpbImRlZmF1bHQiXX19', // {"acls":{"admin":false,"virtualClusters":["default"]}}
-  },
-  'type': 'Opaque',
-};
-
-const vc1GroupSchema = {
-  'kind': 'Secret',
-  'apiVersion': 'v1',
-  'metadata': {
-    'name': 'pai_test',
-  },
-  'data': {
-    'groupname': 'dmMx',
-    'description': 'dGVzdA==',
-    'externalName': 'MTIzNA==',
-    'extension': 'eyJhY2xzIjp7ImFkbWluIjpmYWxzZSwidmlydHVhbENsdXN0ZXJzIjpbInZjMSJdfX0=', // {"acls":{"admin":false,"virtualClusters":["vc1"]}}
-  },
-  'type': 'Opaque',
-};
-
-const vc2GroupSchema = {
-  'kind': 'Secret',
-  'apiVersion': 'v1',
-  'metadata': {
-    'name': 'pai_test_1',
-  },
-  'data': {
-    'groupname': 'dmMy',
-    'description': 'dGVzdA==',
-    'externalName': 'MTIzNA==',
-    'extension': 'eyJhY2xzIjp7ImFkbWluIjpmYWxzZSwidmlydHVhbENsdXN0ZXJzIjpbInZjMiJdfX0=', // {"acls":{"admin":false,"virtualClusters":["vc2"]}}
-  },
-  'type': 'Opaque',
-};
-
-const adminGroupSchema = {
-  'kind': 'Secret',
-  'apiVersion': 'v1',
-  'metadata': {
-    'name': 'pai_test_2',
-  },
-  'data': {
-    'groupname': 'YWRtaW5Hcm91cA==', // adminGroup
-    'description': 'dGVzdA==',
-    'externalName': 'MTIzNA==',
-    'extension': 'eyJhY2xzIjp7ImFkbWluIjp0cnVlLCJ2aXJ0dWFsQ2x1c3RlcnMiOlsiZGVmYXVsdCIsInZjMSIsInZjMiJdfX0=', // {"acls":{"admin":true,"virtualClusters":["default","vc1","vc2"]}}
-  },
-  'type': 'Opaque',
-};
-
-
-//
-// Get a valid token that expires in 60 seconds.
-//
-
-const validToken = global.jwt.sign({username: 'test_user', admin: true}, process.env.JWT_SECRET, {expiresIn: 60});
-// const invalidToken = '';
-const expireToken = global.jwt.sign({username: 'test_user', admin: true}, process.env.JWT_SECRET, {expiresIn: '1s'});
-
-describe('user token test: post /api/v1/authn/basic/login', () => {
+describe('basic login test: post /api/v1/authn/basic/login', () => {
   afterEach(function() {
     if (!nock.isDone()) {
-      // TODO: Revamp this file and enable the following error.
-      // this.test.error(new Error('Not all nock interceptors were used!'));
       nock.cleanAll();
+      throw new Error('Not all nock interceptors were used!');
     }
   });
 
-  beforeEach(() => {
-    // mock for case 1 username=tokentest
+  it('Case 1 (Positive): Return valid token with right username and password (token list is empty)', (done) => {
+    const username = 'tokentest';
+    const password = '123456';
+    // get user
+    nockUtils.registerUser({username, password});
+    // get token
     nock(apiServerRootUri)
-      .get('/api/v1/namespaces/pai-user-v2/secrets/746f6b656e74657374')
-      .times(3)
-      .reply(200, {
-        'kind': 'Secret',
-        'apiVersion': 'v1',
-        'metadata': {
-            'name': '746f6b656e74657374',
-        },
-        'data': {
-            'password': 'MzdhM2Q3NzViZGYzYzhiZDZjY2Y0OTRiNzZkMjk3ZjZhNWNlNDhlNmY5Yjg1MjZlMDVlZmVlYjY0NDY4OTc2OGEwZTlmZjc0NmE2NDM1NTM4YjllN2M5MDM5Y2IxMzlkYTM3OWU0NWU3ZTdlODUzOTA2ZmE2YTc5MGUwOTRmNzI=',
-            'username': 'dG9rZW50ZXN0',
-            'grouplist': 'WyJhZG1pbkdyb3VwIl0=',
-            'extension': 'e30=',
-            'email': 'dGVzdEBwYWkuY29t',
-        },
-        'type': 'Opaque',
-    });
-
+      .get(`/api/v1/namespaces/pai-user-token/secrets/${Buffer.from(username).toString('hex')}`)
+      .reply(404, {code: 404, reason: 'NotFound'});
+    // post token
     nock(apiServerRootUri)
-      .get('/api/v1/namespaces/pai-group/secrets/64656661756c74')
-      .reply(200, defaultGroupSchema)
-      .get('/api/v1/namespaces/pai-group/secrets/766331')
-      .reply(200, vc1GroupSchema)
-      .get('/api/v1/namespaces/pai-group/secrets/766332')
-      .reply(200, vc2GroupSchema)
-      .get('/api/v1/namespaces/pai-group/secrets/61646d696e47726f7570')
-      .reply(200, adminGroupSchema);
+      .post('/api/v1/namespaces/pai-user-token/secrets/')
+      .reply(200);
 
-    nock(apiServerRootUri)
-    .get('/api/v1/namespaces/pai-user-v2/secrets/nonexist')
-    .reply(404, {
-      'kind': 'Status',
-      'apiVersion': 'v1',
-      'metadata': {},
-      'status': 'Failure',
-      'message': 'secrets \'nonexist\' not found',
-      'reason': 'NotFound',
-      'details': {
-          'name': 'nonexist',
-          'kind': 'secrets',
-      },
-      'code': 404,
-    });
-  });
-
-  //
-  // Positive cases
-  //
-
-  it('Case 1 (Positive): Return valid token with right username and password', (done) => {
     global.chai.request(global.server)
       .post('/api/v1/authn/basic/login')
-      .set('Authorization', 'Bearer ' + validToken)
-      .set('Host', 'example.test')
-      .send(JSON.parse(global.mustache.render(getTokenTemplate, {'username': 'tokentest', 'password': '123456'})))
+      .send({username, password})
+      .end((err, res) => {
+        global.chai.expect(res, 'status code').to.have.status(200);
+        global.chai.expect(res, 'response format').be.json;
+        done();
+      });
+  });
+
+  it('Case 2 (Positive): Return valid token with right username and password (token list is not empty)', (done) => {
+    const username = 'tokentest';
+    const password = '123456';
+    // get user
+    nockUtils.registerUser({username, password});
+    // get token
+    const token = jwt.sign({username}, process.env.JWT_SECRET, {expiresIn: 60});
+    nockUtils.registerToken(username, [token]);
+    // replace token
+    nock(apiServerRootUri)
+      .put(`/api/v1/namespaces/pai-user-token/secrets/${Buffer.from(username).toString('hex')}`)
+      .reply(200);
+
+    global.chai.request(global.server)
+      .post('/api/v1/authn/basic/login')
+      .send({username, password})
       .end((err, res) => {
         global.chai.expect(res, 'status code').to.have.status(200);
         global.chai.expect(res, 'response format').be.json;
@@ -167,11 +78,15 @@ describe('user token test: post /api/v1/authn/basic/login', () => {
   // Negative cases
   //
 
-  it('Case 2 (Negative): Should authenticate failed with wrong password', (done) => {
+  it('Case 3 (Negative): Should authenticate failed with wrong password', (done) => {
+    const username = 'tokentest';
+    const password = '123456';
+    // get user
+    nockUtils.registerUser({username, password});
+
     global.chai.request(global.server)
       .post('/api/v1/authn/basic/login')
-      .set('Authorization', 'Bearer ' + validToken)
-      .send(JSON.parse(global.mustache.render(getTokenTemplate, {'username': 'tokentest', 'password': 'abcdef'})))
+      .send({username, password: 'wrong_password'})
       .end((err, res) => {
         global.chai.expect(res, 'status code').to.have.status(400);
         global.chai.expect(res, 'response format').be.json;
@@ -180,11 +95,10 @@ describe('user token test: post /api/v1/authn/basic/login', () => {
       });
   });
 
-  it('Case 3 (Negative): Should authenticate failed with non-exist user', (done) => {
+  it('Case 4 (Negative): Should authenticate failed with non-exist user', (done) => {
     global.chai.request(global.server)
       .post('/api/v1/authn/basic/login')
-      .set('Authorization', 'Bearer ' + validToken)
-      .send(JSON.parse(global.mustache.render(getTokenTemplate, {'username': 'nonexist', 'password': 'abcdef'})))
+      .send({username: 'nonexist', password: 'abcdef'})
       .end((err, res) => {
         global.chai.expect(res, 'status code').to.have.status(400);
         global.chai.expect(res, 'response format').be.json;
@@ -192,19 +106,145 @@ describe('user token test: post /api/v1/authn/basic/login', () => {
         done();
       });
   });
+});
 
-  it('Case 4 (Negative): Should authenticate failed with an expired token', (done) => {
-    setTimeout(function() {
-      global.chai.request(global.server)
-        .get('/api/v2/user')
-        .set('Authorization', 'Bearer ' + expireToken)
-        .send()
-        .end((err, res) => {
-          global.chai.expect(res, 'status code').to.have.status(401);
-          global.chai.expect(res.body.code, 'response code').equal('UnauthorizedUserError');
-          global.chai.expect(res.body.message, 'response message').equal('Your token is expired.');
-          done();
-        });
-    }, 2);
+describe('token check middleware', () => {
+  afterEach(function() {
+    if (!nock.isDone()) {
+      nock.cleanAll();
+      throw new Error('Not all nock interceptors were used!');
+    }
+  });
+
+  it('Negative: Should authenticate failed with a malformed token', (done) => {
+    const token = jwt.sign({username: 'asd'}, 'malformed');
+    global.chai.request(global.server)
+      .get('/api/v2/user')
+      .set('Authorization', 'Bearer ' + token)
+      .send()
+      .end((err, res) => {
+        global.chai.expect(res, 'status code').to.have.status(401);
+        global.chai.expect(res.body.code, 'response code').equal('UnauthorizedUserError');
+        global.chai.expect(res.body.message, 'response message').equal('Your token is invalid.');
+        done();
+      });
+  });
+
+  it('Negative: Should authenticate failed with an expired token', (done) => {
+    const token = nockUtils.registerAdminTokenCheck('admin', {expiresIn: '1ms'});
+    global.chai.request(global.server)
+      .get('/api/v2/user')
+      .set('Authorization', 'Bearer ' + token)
+      .send()
+      .end((err, res) => {
+        global.chai.expect(res, 'status code').to.have.status(401);
+        global.chai.expect(res.body.code, 'response code').equal('UnauthorizedUserError');
+        global.chai.expect(res.body.message, 'response message').equal('Your token is invalid.');
+        done();
+      });
+    nock.cleanAll();
+  });
+
+  it('Negative: Should authenticate failed with a revoked token', (done) => {
+    const username = 'admin';
+    const token = jwt.sign({username}, process.env.JWT_SECRET, {expiresIn: 60});
+    // get token
+    const token2 = jwt.sign({username}, process.env.JWT_SECRET, {expiresIn: 60});
+    nockUtils.registerToken(username, [token2]);
+    global.chai.request(global.server)
+      .get('/api/v2/user')
+      .set('Authorization', 'Bearer ' + token)
+      .send()
+      .end((err, res) => {
+        global.chai.expect(res, 'status code').to.have.status(401);
+        global.chai.expect(res.body.code, 'response code').equal('UnauthorizedUserError');
+        global.chai.expect(res.body.message, 'response message').equal('Your token is invalid.');
+        done();
+      });
+  });
+});
+
+describe('application token', () => {
+  afterEach(function() {
+    if (!nock.isDone()) {
+      nock.cleanAll();
+      throw new Error('Not all nock interceptors were used!');
+    }
+  });
+
+  it('Positive: Create an application token', (done) => {
+    const username = 'user';
+    const token = nockUtils.registerUserTokenCheck(username);
+    // empty token list
+    nock(apiServerRootUri)
+      .get(`/api/v1/namespaces/pai-user-token/secrets/${Buffer.from(username).toString('hex')}`)
+      .reply(404, {code: 404, reason: 'NotFound'});
+    // create token info
+    nock(apiServerRootUri)
+      .post('/api/v1/namespaces/pai-user-token/secrets/')
+      .reply(200);
+    chai.request(global.server)
+      .post('/api/v1/token/application')
+      .set('Authorization', `Bearer ${token}`)
+      .send()
+      .end((err, res) => {
+        chai.expect(res, 'status code').to.have.status(200);
+        chai.expect(res.body.token, 'token').to.be.a('string');
+        chai.expect(res.body.application, 'application flag').to.be.true;
+        done();
+      });
+  });
+
+  it('Negative: Should not create a token with an application token (permission)', (done) => {
+    const token = nockUtils.registerUserTokenCheck('app', {application: true});
+    chai.request(global.server)
+      .post('/api/v1/token/application')
+      .set('Authorization', `Bearer ${token}`)
+      .send()
+      .end((err, res) => {
+        chai.expect(res, 'status code').to.have.status(403);
+        global.chai.expect(res.body.code, 'response code').equal('ForbiddenUserError');
+        global.chai.expect(res.body.message, 'response message').equal('Applications are not allowed to do this operation.');
+        done();
+      });
+  });
+
+  it('Positive: Revoke a token', (done) => {
+    const username = 'user';
+    const authToken = nockUtils.registerUserTokenCheck(username);
+    // get
+    const token = jwt.sign({username}, process.env.JWT_SECRET, {expiresIn: 60});
+    nockUtils.registerToken(username, [token]);
+    // delete
+    nock(apiServerRootUri)
+      .put(`/api/v1/namespaces/pai-user-token/secrets/${Buffer.from(username).toString('hex')}`)
+      .reply(200);
+
+    chai.request(global.server)
+      .delete(`/api/v1/token/${token}`)
+      .set('Authorization', `Bearer ${authToken}`)
+      .send()
+      .end((err, res) => {
+        chai.expect(res, 'status code').to.have.status(200);
+        done();
+      });
+  });
+
+  it('Positive: List tokens', (done) => {
+    const username = 'user';
+    const token = nockUtils.registerUserTokenCheck(username);
+    const token1 = jwt.sign({username}, process.env.JWT_SECRET, {expiresIn: 60});
+    const token2 = jwt.sign({username, application: true}, process.env.JWT_SECRET, {expiresIn: 60});
+    nockUtils.registerToken(username, [token1, token2]);
+    chai.request(global.server)
+      .get('/api/v1/token/')
+      .set('Authorization', `Bearer ${token}`)
+      .send()
+      .end((err, res) => {
+        chai.expect(res, 'status code').to.have.status(200);
+        chai.expect(res.body.tokens, 'token list').to.include(token1);
+        chai.expect(res.body.tokens, 'token list').to.include(token2);
+        done();
+      });
   });
 });

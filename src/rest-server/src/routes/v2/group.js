@@ -34,27 +34,27 @@ router.route('/')
 
 router.route('/:groupname/extension')
 /** Put /api/v2/group/:groupname/extension */
-  .put(token.check, param.validate(groupInputSchema.groupExtensionUpdateInputSchema), groupController.updateGroupExtension);
+  .put(token.checkNotApplication, param.validate(groupInputSchema.groupExtensionUpdateInputSchema), groupController.updateGroupExtension);
 
 router.route('/:groupname/extension/*')
 /** Put /api/v2/group/:groupname/extension/:attribute */
-  .put(token.check, param.validate(groupInputSchema.groupExtensionAttrUpdateInputSchema), groupController.updateGroupExtensionAttr);
+  .put(token.checkNotApplication, param.validate(groupInputSchema.groupExtensionAttrUpdateInputSchema), groupController.updateGroupExtensionAttr);
 
 router.route('/:groupname/description')
 /** Put /api/v2/group/:groupname/description */
-  .put(token.check, param.validate(groupInputSchema.groupDescriptionUpdateInputSchema), groupController.updateGroupDescription);
+  .put(token.checkNotApplication, param.validate(groupInputSchema.groupDescriptionUpdateInputSchema), groupController.updateGroupDescription);
 
 router.route('/:groupname')
 /** Post /api/v2/group/:groupname */
-  .delete(token.check, groupController.deleteGroup);
+  .delete(token.checkNotApplication, groupController.deleteGroup);
 
 router.route('/')
 /** Create /api/v2/group */
-  .post(token.check, param.validate(groupInputSchema.groupCreateInputSchema), groupController.createGroup);
+  .post(token.checkNotApplication, param.validate(groupInputSchema.groupCreateInputSchema), groupController.createGroup);
 
 router.route('/:groupname/externalname')
 /** put /api/v2/group/:groupname/external' */
-  .put(token.check, param.validate(groupInputSchema.groupExternalNameUpdateInputSchema), groupController.updateGroupExternalName);
+  .put(token.checkNotApplication, param.validate(groupInputSchema.groupExternalNameUpdateInputSchema), groupController.updateGroupExternalName);
 
 router.route('/:groupname/userlist')
 /** get /api/v2/group/:groupname/userlist */

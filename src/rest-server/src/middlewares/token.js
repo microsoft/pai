@@ -15,45 +15,53 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-
-const jwt = require('jsonwebtoken');
-
-const config = require('@pai/config/token');
+const {userProperty} = require('@pai/config/token');
+const userModel = require('@pai/models/v2/user');
+const tokenModel = require('@pai/models/token');
 const createError = require('@pai/utils/error');
 
-const createMiddleware = (throwErrorIfUnauthorized) => {
-  return function(req, _, next) {
-    try {
-      let token = getToken(req);
-      let result = jwt.verify(token, config.secret);
-      req[config.userProperty] = result;
-    } catch (error) {
-      if (error.name && error.name === 'TokenExpiredError') {
-        let error = createError('Unauthorized', 'UnauthorizedUserError', 'Your token is expired.');
-        return next(error);
-      }
-      if (throwErrorIfUnauthorized) {
-        let error = createError('Unauthorized', 'UnauthorizedUserError', 'Guest is not allowed to do this operation.');
-        return next(error);
-      }
+const getToken = async (req) => {
+  const [scheme, credentials] = req.headers.authorization.split(' ');
+  if (/^Basic$/i.test(scheme)) {
+    // application token
+    const raw = Buffer.from(credentials, 'base64').toString();
+    const [username, password] = raw.split(':');
+    const token = await tokenModel.verify(password);
+    if (token.username === username && token.application) {
+      return token;
+    } else {
+      throw new Error('Invalid authorization header');
     }
-    next();
-  };
+  } else if (/^Bearer$/i.test(scheme)) {
+    return tokenModel.verify(credentials);
+  } else {
+    throw new Error('Invalid authorization header');
+  }
 };
 
-const getToken = (req) => {
-  let parts = req.headers.authorization.split(' ');
-  if (parts.length == 2) {
-    let scheme = parts[0];
-    let credentials = parts[1];
-    if (/^Bearer$/i.test(scheme)) {
-      return credentials;
-    }
+const check = async (req, _, next) => {
+  if (!req.headers.authorization) {
+    return next(createError('Unauthorized', 'UnauthorizedUserError', 'Guest is not allowed to do this operation.'));
   }
-  throw new Error('Could not find JWT token in the request.');
+  try {
+    req[userProperty] = await getToken(req);
+    req[userProperty].admin = await userModel.checkAdmin(req[userProperty].username);
+    next();
+  } catch (error) {
+    return next(createError('Unauthorized', 'UnauthorizedUserError', 'Your token is invalid.'));
+  }
+};
+
+const notApplication = async (req, _, next) => {
+  const token = req[userProperty];
+  if (!token.application) {
+    next();
+  } else {
+    return next(createError('Forbidden', 'ForbiddenUserError', 'Applications are not allowed to do this operation.'));
+  }
 };
 
 module.exports = {
-  check: createMiddleware(true),
-  tryCheck: createMiddleware(false),
+  check,
+  checkNotApplication: [check, notApplication],
 };

@@ -63,4 +63,4 @@ async function encryptUserPassword(userValue) {
   await encryptPassword(userValue);
 }
 
-module.exports = {encryptUserPassword, createUser: userValidate};
+module.exports = {encrypt, encryptUserPassword, createUser: userValidate};
