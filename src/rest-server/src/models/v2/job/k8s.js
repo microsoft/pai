@@ -18,6 +18,7 @@
 
 // module dependencies
 const {Agent} = require('https');
+const zlib = require('zlib');
 const axios = require('axios');
 const yaml = require('js-yaml');
 const base32 = require('base32');
@@ -76,6 +77,14 @@ const decodeName = (name, labels) => {
   }
 };
 
+const decompressField = (val) => {
+  if (val == null) {
+    return null;
+  } else {
+    return JSON.parse(zlib.gunzipSync(Buffer.from(val, 'base64')).toString());
+  }
+};
+
 const convertState = (state, exitCode, retryDelaySec) => {
   switch (state) {
     case 'AttemptCreationPending':
@@ -131,9 +140,9 @@ const convertFrameworkSummary = (framework) => {
     appExitCode: completionStatus ? completionStatus.code : null,
     virtualCluster: framework.metadata.labels ? framework.metadata.labels.virtualCluster : 'unknown',
     totalGpuNumber: framework.metadata.annotations ? framework.metadata.annotations.totalGpuNumber : 0,
-    totalTaskNumber: framework.status.attemptStatus.taskRoleStatuses.reduce(
-      (num, statuses) => num + statuses.taskStatuses.length, 0),
-    totalTaskRoleNumber: framework.status.attemptStatus.taskRoleStatuses.length,
+    totalTaskNumber: framework.spec.taskRoles.reduce(
+      (num, spec) => num + spec.taskNumber, 0),
+    totalTaskRoleNumber: framework.spec.taskRoles.length,
   };
 };
 
@@ -184,6 +193,11 @@ const convertTaskDetail = async (taskStatus, ports, userName, jobName, taskRoleN
 };
 
 const convertFrameworkDetail = async (framework) => {
+  // check fields which may be compressed
+  if (framework.status.attemptStatus.taskRoleStatuses == null) {
+    framework.status.attemptStatus.taskRoleStatuses = decompressField(framework.status.attemptStatus.taskRoleStatusesCompressed);
+  }
+
   const completionStatus = framework.status.attemptStatus.completionStatus;
   const diagnostics = completionStatus ? completionStatus.diagnostics : null;
   const exitDiagnostics = generateExitDiagnostics(diagnostics);
