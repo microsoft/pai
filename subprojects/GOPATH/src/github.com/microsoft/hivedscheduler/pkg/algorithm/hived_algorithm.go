@@ -122,7 +122,7 @@ func (h *HivedAlgorithm) Schedule(pod *core.Pod, suggestedNodes []string) intern
 		groupPhysicalPlacement, groupVirtualPlacement, s.GpuNumber, podIndex, newGroup, suggestedNodes, pod)
 }
 
-// TODO: reconfig; suggestedNodes (failure)
+// TODO: suggestedNodes (failure)
 func (h *HivedAlgorithm) AddAllocatedPod(pod *core.Pod) {
 	h.algorithmLock.Lock()
 	defer h.algorithmLock.Unlock()
@@ -147,6 +147,8 @@ func (h *HivedAlgorithm) AddAllocatedPod(pod *core.Pod) {
 						klog.Infof(
 							"[%v]: cannot find GPU %v on node %v due to reconfiguration: deleted from the spec",
 							internal.Key(pod), physicalGpuIndex, node)
+						klog.Infof("[%v]: pod ignored", internal.Key(pod))
+						break
 					} else {
 						newGroup.physicalGpuPlacement[gpuNumber][podIndex][gpuIndex] = pGpu
 						var vGpu *VirtualCell
@@ -192,6 +194,7 @@ func (h *HivedAlgorithm) AddAllocatedPod(pod *core.Pod) {
 		}
 		if downgrade {
 			h.downgradeAffinityGroup(newGroup)
+			klog.Infof("Affinity group %v downgraded to opportunistic due to reconfiguration", newGroup.name)
 		}
 		h.allocatedAffinityGroups[s.AffinityGroup.Name] = newGroup
 		klog.Infof("New affinity group created: %v", s.AffinityGroup.Name)
@@ -447,6 +450,12 @@ func (h *HivedAlgorithm) scheduleRegularAffinityGroup(sr schedulingRequest) (map
 			physicalPlacement[podGpuNum][i] = make(CellList, len(podGpus))
 			for j, gpu := range podGpus {
 				vGpu := gpu.(*VirtualCell)
+				if vGpu.GetPhysicalCell() != nil {
+					groupToPreempt := vGpu.GetPhysicalCell().GetAffinityGroup()
+					h.downgradeAffinityGroup(groupToPreempt)
+					klog.Infof("Affinity group %v downgraded to opportunistic due to intra-VC preemption",
+						groupToPreempt.name)
+				}
 				pac := vGpu.GetPreAssignedCell()
 				// check if the preassigned cell has been (temporarily) bound to a physical cell
 				preassignedPhysical := pac.GetPhysicalCell()
@@ -549,7 +558,6 @@ func (h *HivedAlgorithm) downgradeAffinityGroup(g *AlgoAffinityGroup) {
 		}
 	}
 	g.virtualGpuPlacement = nil
-	klog.Infof("Affinity group %v downgraded to opportunistic", g.name)
 }
 
 // removeCellFromFreeList removes a cell from the free cell list and splits its parent recursively if needed.
@@ -701,6 +709,10 @@ func generatePodScheduleResult(
 				for _, gpu := range groupPhysicalPlacement[gpuNum][podIndex] {
 					pGpu := gpu.(*PhysicalCell)
 					if victimGroup := pGpu.GetAffinityGroup(); victimGroup != nil {
+						if pGpu.GetPriority() > opportunisticPriority {
+							panic(fmt.Sprintf("Try to preempt %v:%v which is used by guaranteed pod",
+								pGpu.nodes[0], pGpu.gpuIndices[0]))
+						}
 						// for any victim pod, gang-preempt all the other pods from the same affinity group
 						for _, victims := range victimGroup.allocatedPods {
 							for _, v := range victims {
