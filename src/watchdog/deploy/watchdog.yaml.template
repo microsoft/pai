@@ -34,6 +34,7 @@ spec:
         prometheus.io/path: "/metrics"
         prometheus.io/port: "9101"
     spec:
+      serviceAccountName: watchdog-account
       containers:
       - name: watchdog
         image: {{ cluster_cfg["cluster"]["docker-registry"]["prefix"] }}watchdog:{{cluster_cfg["cluster"]["docker-registry"]["tag"]}}
@@ -53,6 +54,10 @@ spec:
         env:
         - name: LOGGING_LEVEL
           value: INFO
+        {%- if cluster_cfg['cluster']['common']['k8s-rbac'] != 'true' %}
+        - name: KUBE_APISERVER_ADDRESS
+          value: "{{ cluster_cfg['layout']['kubernetes']['api-servers-url'] }}"
+        {%- endif %}
         volumeMounts:
         - mountPath: /datastorage/prometheus
           name: collector-mount
@@ -60,14 +65,13 @@ spec:
           - "python"
           - "/watchdog.py"
           - "--interval"
-          - "30"
+          - "180"
           - "--port"
           - "9101"
           - "--ca"
           - "/var/run/secrets/kubernetes.io/serviceaccount/ca.crt"
           - "--bearer"
           - "/var/run/secrets/kubernetes.io/serviceaccount/token"
-          - "{{ cluster_cfg['layout']['kubernetes']['api-servers-url'] }}"
       volumes:
         - name: collector-mount
           hostPath:

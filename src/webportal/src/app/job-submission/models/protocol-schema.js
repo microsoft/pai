@@ -31,13 +31,13 @@ export const taskRoleSchema = Joi.object().keys({
     .min(1),
   completion: Joi.object().keys({
     minFailedInstances: Joi.number()
-      .min(1)
+      .min(-1)
       .allow(null)
       .default(1),
     minSucceededInstances: Joi.number()
-      .min(1)
+      .min(-1)
       .allow(null)
-      .default(null),
+      .default(-1),
   }),
   taskRetryCount: Joi.number().default(0),
   // Following dockerImage, data, output and script should ref to prerequisites content

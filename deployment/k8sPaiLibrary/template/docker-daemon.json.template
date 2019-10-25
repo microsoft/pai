@@ -1,8 +1,8 @@
 {
   "log-driver": "json-file",
   "log-opts": {
-    "max-size": "100m",
-    "max-file": "10"
+    "max-size": "2g",
+    "max-file": "1"
   },
   "data-root": "{{ hostcofig["docker-data"] }}",
   "runtimes": {

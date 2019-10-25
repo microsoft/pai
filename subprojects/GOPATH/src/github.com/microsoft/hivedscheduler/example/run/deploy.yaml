@@ -126,7 +126,8 @@ spec:
           "/usr/local/bin/kube-scheduler",
           "--master=http://10.151.41.15:8080",
           "--config=/hivedscheduler-config/config.yaml",
-          "-v=4"]
+          "--feature-gates=PodPriority=true",
+          "--v=4"]
         volumeMounts:
         - name: hivedscheduler-config
           mountPath: /hivedscheduler-config

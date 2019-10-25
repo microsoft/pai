@@ -20,6 +20,7 @@
 const express = require('express');
 const userRouter = require('@pai/routes/v2/user');
 const groupRouter = require('@pai/routes/v2/group');
+const storageRouter = require('@pai/routes/v2/storage');
 const controller = require('@pai/controllers/v2');
 const jobRouter = require('@pai/routes/v2/job');
 const virtualClusterRouter = require('@pai/routes/v2/virtual-cluster');
@@ -37,5 +38,6 @@ router.use('/user', userRouter);
 
 router.use('/group', groupRouter);
 
+router.use('/storage', storageRouter);
 // module exports
 module.exports = router;

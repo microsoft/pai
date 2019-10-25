@@ -32,6 +32,7 @@ spec:
     name: apiserver-container
     command:
     - /usr/local/bin/kube-apiserver
+    # Do not enable Priority Admission Controller
     - --admission-control=NamespaceLifecycle,LimitRanger,DefaultStorageClass,DefaultTolerationSeconds,MutatingAdmissionWebhook,ValidatingAdmissionWebhook,ResourceQuota,DenyEscalatingExec
     - --insecure-bind-address
     - {{ hostcofig['hostip'] }}
@@ -45,6 +46,8 @@ spec:
     - --storage-media-type
     - application/json
     - --anonymous-auth=true
+    - --max-requests-inflight=1500
+    - --max-mutating-requests-inflight=500
     - --cors-allowed-origins
     - .*
     {%- if cluster_cfg['kubernetes']['qos-switch'] == "true" %}

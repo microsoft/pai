@@ -40,19 +40,19 @@ groups:
 
       - alert: NodeDiskPressure
         expr: pai_node_count{disk_pressure="true"} > 0
-        for: 5m
+        for: 10m
         annotations:
           summary: "{{$labels.name}} is under disk pressure"
 
       - alert: NodeOutOfDisk
         expr: pai_node_count{out_of_disk="true"} > 0
-        for: 5m
+        for: 10m
         annotations:
           summary: "{{$labels.name}} is out of disk"
 
       - alert: NodeNotReady
         expr: pai_node_count{ready!="true"} > 0
-        for: 5m
+        for: 10m
         annotations:
           summary: "{{$labels.name}} is not ready"
 

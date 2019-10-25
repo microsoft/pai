@@ -95,7 +95,10 @@ export const NotificationButton = () => {
     <React.Fragment>
       <i
         className={c('fa fa-bell-o')}
-        style={{ fontSize: '16px' }}
+        style={{
+          fontSize: '16px',
+          cursor: 'pointer',
+        }}
         onClick={open}
       />
       <span
@@ -123,7 +126,9 @@ export const NotificationButton = () => {
           onRenderCell={item => {
             return (
               <div className={classNames.itemCell} data-is-focusable={true}>
-                {item.annotations.summary}
+                {'Issue time: ' + new Date(item.startsAt).toLocaleString()}
+                <br />
+                {'Summary: ' + item.annotations.summary}
               </div>
             );
           }}

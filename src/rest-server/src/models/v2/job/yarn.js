@@ -50,7 +50,8 @@ const generateFrameworkDescription = (frameworkName, userName, config) => {
       queue: ('defaults' in config && config.defaults.virtualCluster != null) ?
         config.defaults.virtualCluster : 'default',
       taskNodeGpuType: null,
-      gangAllocation: true,
+      gangAllocation: ('extras' in config && config.extras.gangAllocation === false) ?
+        false : true,
       amResource: {
         cpuNumber: launcherConfig.amResource.cpuNumber,
         memoryMB: launcherConfig.amResource.memoryMB,

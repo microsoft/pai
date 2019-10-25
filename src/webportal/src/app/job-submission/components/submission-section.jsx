@@ -83,6 +83,7 @@ export const SubmissionSection = props => {
   const monaco = useRef(null);
 
   const { vcNames, errorMessages, setErrorMessage } = useContext(Context);
+  const params = new URLSearchParams(window.location.search);
 
   const params = new URLSearchParams(window.location.search);
 

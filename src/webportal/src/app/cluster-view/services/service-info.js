@@ -19,7 +19,7 @@
 
 import { isNil } from 'lodash';
 
-const getServiceView = (kubeURL, namespace, callback) => {
+export const getServiceView = (kubeURL, namespace, callback) => {
   $.ajax({
     type: 'GET',
     url: kubeURL + '/api/v1/nodes',
@@ -62,5 +62,3 @@ const getNodePods = (kubeURL, namespace, nodeList, callback) => {
     },
   });
 };
-
-module.exports = { getServiceView };

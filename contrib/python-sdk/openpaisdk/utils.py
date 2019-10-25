@@ -1,17 +1,38 @@
+# Copyright (c) Microsoft Corporation
+# All rights reserved.
+#
+# MIT License
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
+# documentation files (the "Software"), to deal in the Software without restriction, including without limitation
+# the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and
+# to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+# The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED *AS IS*, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING
+# BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+# NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+# DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+
 """
 common functions to
 """
+from openpaisdk.io_utils import safe_chdir, to_screen, __logger__
+import subprocess
 import importlib
 import os
 import time
+import requests
 from typing import Union
 from functools import wraps
 from collections import Iterable
-from requests import request
 from requests_toolbelt.utils import dump
+from urllib3.exceptions import InsecureRequestWarning
 
-import subprocess
-from openpaisdk.io_utils import safe_chdir, to_screen, __logger__
+# Suppress only the single warning from urllib3 needed.
+requests.packages.urllib3.disable_warnings(category=InsecureRequestWarning)
 
 
 def exception_free(err_type, default, err_msg: str = None):
@@ -219,8 +240,9 @@ def get_response(method: str, path: Union[list, str], headers: dict = None, body
     headers = na(headers, {})
     body = na(body, {})
     application_json = 'Content-Type' not in headers or headers['Content-Type'] == 'application/json'
-    response = request(method, path, headers=headers, **kwargs, **{
-        "json" if application_json else "data": body
+    response = requests.request(method, path, headers=headers, ** kwargs, **{
+        "json" if application_json else "data": body,
+        "verify": False,  # support https
     })
     __logger__.debug('----------Response-------------\n%s', dump.dump_all(response).decode('utf-8'))
     if allowed_status and response.status_code not in allowed_status:
@@ -237,6 +259,16 @@ def run_command(commands,  # type: Union[list, str]
         rtn_code = os.system(command)
         if rtn_code:
             raise subprocess.CalledProcessError(rtn_code, commands)
+
+
+def sys_call(args, dec_mode: str = 'utf-8'):
+    p = subprocess.Popen(args, shell=True, stderr=subprocess.PIPE, stdout=subprocess.PIPE)
+    out, err = p.communicate()
+    if dec_mode:
+        out, err = out.decode(dec_mode), err.decode(dec_mode)
+    if p.returncode:
+        raise subprocess.CalledProcessError(f"ErrCode: {p.returncode}, {err}")
+    return out, err
 
 
 def find(fmt: str, s: str, g: int = 1, func=None):

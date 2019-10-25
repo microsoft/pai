@@ -30,6 +30,8 @@ spec:
     - --master
     - {{ cluster_cfg['kubernetes']['api-servers-ip'] }}:{{ cluster_cfg['kubernetes']['api-servers-port'] }}
     - --leader-elect=true
+    - --feature-gates=PodPriority=true
+    - --v=4
     livenessProbe:
       httpGet:
         path: /healthz

@@ -78,15 +78,15 @@ type PodSchedulingSpec struct {
 	ReservationId  ReservationId      `yaml:"reservationId"`
 	GpuType        string             `yaml:"gpuType"`
 	GpuNumber      int32              `yaml:"gpuNumber"`
-	AffinityGroup  *AffinityGroup     `yaml:"affinityGroup"`
+	AffinityGroup  *AffinityGroupSpec `yaml:"affinityGroup"`
 }
 
-type AffinityGroup struct {
-	Name    string                `yaml:"name"`
-	Members []AffinityGroupMember `yaml:"members"`
+type AffinityGroupSpec struct {
+	Name    string                    `yaml:"name"`
+	Members []AffinityGroupMemberSpec `yaml:"members"`
 }
 
-type AffinityGroupMember struct {
+type AffinityGroupMemberSpec struct {
 	PodNumber int32 `yaml:"podNumber"`
 	GpuNumber int32 `yaml:"gpuNumber"`
 }
@@ -96,20 +96,19 @@ type PodBindInfo struct {
 	// The node to bind
 	Node string `yaml:"node"`
 	// The GPUs to bind
-	GpuIsolation          []int32  `yaml:"gpuIsolation"`
-	CellChain             string   `yaml:"cellChain"`
-	PodCellLevel          int32    `yaml:"podCellLevel"`
-	PodCellGpuPlacement   Range    `yaml:"podCellGpuRange"`
-	GroupCellLevel        int32    `yaml:"groupCellLevel"`
-	GroupCellNodes        []string `yaml:"groupCellNodes"`
-	GroupCellGpuPlacement Range    `yaml:"groupCellGpuRange"`
-	VirtualCellLevel      int32    `yaml:"virtualCellLevel"`
-	VirtualCellIndex      int32    `yaml:"virtualCellIndex"`
+	GpuIsolation          []int32                       `yaml:"gpuIsolation"`
+	CellChain             string                        `yaml:"cellChain"`
+	AffinityGroupBindInfo []AffinityGroupMemberBindInfo `yaml:"affinityGroupBindInfo"`
 }
 
-type Range struct {
-	Start int32 // included
-	End   int32 // included
+type AffinityGroupMemberBindInfo struct {
+	PodPlacements []PodPlacementInfo `yaml:"podPlacements"`
+}
+
+type PodPlacementInfo struct {
+	PhysicalNode       string  `yaml:"physicalNode"`
+	PhysicalGpuIndices []int32 `yaml:"physicalGpuIndices"`
+	VirtualCellIndices []int32 `yaml:"virtualCellIndices"`
 }
 
 type WebServerPaths struct {

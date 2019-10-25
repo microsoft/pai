@@ -351,27 +351,29 @@ export const JobSubmissionPage = ({
           padding='l1'
         >
           <Stack gap='l1' styles={{ root: { minHeight: 0 } }}>
-            <Topbar
-              jobData={jobData}
-              jobProtocol={jobProtocol}
-              onChange={(
-                updatedJobInfo,
-                updatedTaskRoles,
-                updatedParameters,
-                updatedSecrets,
-                updatedExtras,
-              ) => {
-                setJobInformation(updatedJobInfo);
-                setJobTaskRoles(updatedTaskRoles);
-                setParameters(updatedParameters);
-                setSecrets(updatedSecrets);
-                setExtras(updatedExtras);
-              }}
-              extras={extras}
-              isSingle={isSingle}
-              history={history}
-              setYamlText={setYamlText}
-            />
+            <StackItem disableShrink>
+              <Topbar
+                jobData={jobData}
+                jobProtocol={jobProtocol}
+                onChange={(
+                  updatedJobInfo,
+                  updatedTaskRoles,
+                  updatedParameters,
+                  updatedSecrets,
+                  updatedExtras,
+                ) => {
+                  setJobInformation(updatedJobInfo);
+                  setJobTaskRoles(updatedTaskRoles);
+                  setParameters(updatedParameters);
+                  setSecrets(updatedSecrets);
+                  setExtras(updatedExtras);
+                }}
+                extras={extras}
+                isSingle={isSingle}
+                history={history}
+                setYamlText={setYamlText}
+              />
+            </StackItem>
             {/* top - form */}
             <Stack styles={{ root: { minHeight: 0 } }} horizontal gap='l1'>
               {/* left column */}

@@ -25,3 +25,9 @@ groups:
         for: 1h # only when it exceed 1 hour
         annotations:
           summary: "zombie container in {{$labels.instance}} detected"
+
+      - alert: PaiJobPending
+        expr: pai_job_pod_count{pod_bound="true", phase="pending"} > 0
+        for: 30m
+        annotations:
+          summary: "Job {{$labels.job_name}} in pending status detected"

@@ -19,17 +19,19 @@
 
 pushd $(dirname "$0") > /dev/null
 
-APISERVER=$(kubectl config view | grep server | cut -f 2- -d ":" | tr -d " ")
-until ! kubectl get sts | grep -q "frameworkcontroller-sts"; do
-    echo 'Trying to stop framework controller ...'
-    curl -X DELETE $APISERVER/apis/apps/v1/namespaces/default/statefulsets/frameworkcontroller-sts \
-        -H "Content-Type: application/json" \
-        -d '{"kind":"DeleteOptions","apiVersion":"v1","propagationPolicy":"Foreground"}' > /dev/null 2>&1
-    sleep 5
-done
+PYTHONPATH="../../../deployment" python -m k8sPaiLibrary.maintaintool.update_resource \
+    --operation delete --resource statefulset --name frameworkcontroller-sts
 
 if kubectl get configmap | grep -q "frameworkcontroller-config"; then
     kubectl delete configmap frameworkcontroller-config || exit $?
+fi
+
+if kubectl get clusterrolebinding | grep -q "frameworkcontroller-role-binding"; then
+    kubectl delete clusterrolebinding frameworkcontroller-role-binding || exit $?
+fi
+
+if kubectl get serviceaccount | grep -q "frameworkcontroller-account"; then
+    kubectl delete serviceaccount frameworkcontroller-account || exit $?
 fi
 
 popd > /dev/null

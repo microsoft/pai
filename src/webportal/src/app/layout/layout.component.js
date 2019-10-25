@@ -48,17 +48,16 @@ window.userLogout = userLogoutComponent.userLogout;
 $('#navbar').html(userLoginNavHtml);
 userAuthComponent.checkToken();
 if (userAuthComponent.checkAdmin()) {
-  $('#sidebar-menu--dashboard').show();
   if (config.launcherType !== 'k8s') {
+    $('#sidebar-menu--dashboard').show();
     $('#sidebar-menu--vc').show();
   }
   $('#sidebar-menu--cluster-view').show();
+  ReactDOM.render(
+    <alerts.NotificationButton />,
+    document.getElementById('notification-button'),
+  );
 }
-
-const notificationButtonContainer = document.getElementById(
-  'notification-button',
-);
-ReactDOM.render(<alerts.NotificationButton />, notificationButtonContainer);
 
 if (config.authnMethod !== 'OIDC') {
   $('#sidebar-menu--cluster-view--user-management').show();

@@ -33,6 +33,8 @@ cluster:
       data-path: "/datastorage"
       qos-switch: "true"
       az-rdma: "false"
+      k8s-rbac: "false"
+      deploy-in-aks: "false"
     docker-registry:
       namespace: openpai
       domain: docker.io

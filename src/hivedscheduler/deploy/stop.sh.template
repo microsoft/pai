@@ -19,38 +19,23 @@
 
 pushd $(dirname "$0") > /dev/null
 
-APISERVER=$(kubectl config view | grep server | cut -f 2- -d ":" | tr -d " ")
-
 {% if cluster_cfg['hivedscheduler']['config']|length > 1 %}
 
-until ! kubectl get sts | grep -q "hivedscheduler-sts"; do
-    echo 'Trying to stop hivedscheduler ...'
-    curl -X DELETE $APISERVER/apis/apps/v1/namespaces/default/statefulsets/hivedscheduler-sts \
-        -H "Content-Type: application/json" \
-        -d '{"kind":"DeleteOptions","apiVersion":"v1","propagationPolicy":"Foreground"}' > /dev/null 2>&1
-    sleep 5
-done
+PYTHONPATH="../../../deployment" python -m k8sPaiLibrary.maintaintool.update_resource \
+    --operation delete --resource statefulset --name hivedscheduler-sts
 
 if kubectl get configmap | grep -q "hivedscheduler-config"; then
     kubectl delete configmap hivedscheduler-config || exit $?
-fi
-
-if kubectl get serviceaccount | grep -q "hivedscheduler-account"; then
-    kubectl delete serviceaccount hivedscheduler-account || exit $?
 fi
 
 if kubectl get clusterrolebinding | grep -q "hivedscheduler-role-binding"; then
     kubectl delete clusterrolebinding hivedscheduler-role-binding || exit $?
 fi
 
-{% endif %}
+if kubectl get serviceaccount | grep -q "hivedscheduler-account"; then
+    kubectl delete serviceaccount hivedscheduler-account || exit $?
+fi
 
-until ! kubectl get ds --namespace=kube-system | grep -q "nvidia-device-plugin-daemonset"; do
-    echo 'Trying to stop nvidia device plugin ...'
-    curl -X DELETE $APISERVER/apis/apps/v1/namespaces/kube-system/daemonsets/nvidia-device-plugin-daemonset \
-        -H "Content-Type: application/json" \
-        -d '{"kind":"DeleteOptions","apiVersion":"v1","propagationPolicy":"Foreground"}' > /dev/null 2>&1
-    sleep 5
-done
+{% endif %}
 
 popd > /dev/null

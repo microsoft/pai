@@ -38,9 +38,11 @@ const generateFrameworkEnv = (frameworkName, config) => {
       (tasks.extraContainerOptions && 'shmMB' in tasks.extraContainerOptions) ? tasks.extraContainerOptions.shmMB : 0,
     ].join(',');
     env[`PAI_MIN_FAILED_TASK_COUNT_${taskRole}`] =
-      (tasks.completion && 'minFailedInstances' in tasks.completion) ? tasks.completion.minFailedInstances : 1;
+      (tasks.completion && 'minFailedInstances' in tasks.completion && tasks.completion.minFailedInstances) ?
+      tasks.completion.minFailedInstances : 1;
     env[`PAI_MIN_SUCCEEDED_TASK_COUNT_${taskRole}`] =
-      (tasks.completion && 'minSucceededInstances' in tasks.completion) ? tasks.completion.minSucceededInstances : -1;
+      (tasks.completion && 'minSucceededInstances' in tasks.completion && tasks.completion.minSucceededInstances) ?
+      tasks.completion.minSucceededInstances : -1;
   }
   return {
     ...env,
