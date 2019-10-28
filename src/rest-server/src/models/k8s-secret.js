@@ -18,6 +18,7 @@
 const axios = require('axios');
 const _ = require('lodash');
 const {Agent} = require('https');
+const {URL} = require('url');
 
 const {apiserver} = require('@pai/config/kubernetes');
 
