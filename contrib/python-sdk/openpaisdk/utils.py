@@ -212,6 +212,8 @@ class Retry:
 
 def force_uri(uri: str):
     import re
+    if not uri:
+        return uri
     uri = "http://" + uri if not uri.startswith('http') else uri
     uri = uri.strip("/")
     assert re.match("^(http|https)://(.*[^/])$", uri), "uri should be a uri in the format of http(s)://x.x.x.x or http(s)://a.b.c"
@@ -269,13 +271,11 @@ def run_command(commands,  # type: Union[list, str]
             raise subprocess.CalledProcessError(rtn_code, commands)
 
 
-def sys_call(args, dec_mode: str = 'utf-8'):
-    p = subprocess.Popen(args, shell=True, stderr=subprocess.PIPE, stdout=subprocess.PIPE)
+def sys_call(args):
+    p = subprocess.Popen(args, shell=True, stderr=subprocess.PIPE, stdout=subprocess.PIPE, text=True)
     out, err = p.communicate()
-    if dec_mode:
-        out, err = out.decode(dec_mode), err.decode(dec_mode)
     if p.returncode:
-        raise subprocess.CalledProcessError(f"ErrCode: {p.returncode}, {err}")
+        raise subprocess.CalledProcessError(p.returncode, args, stderr=err)
     return out, err
 
 

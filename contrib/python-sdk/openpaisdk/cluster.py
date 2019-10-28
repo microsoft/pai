@@ -83,7 +83,9 @@ class ClusterList:
         cluster = self.select(alias)
         entries = cluster['storages']
         if name in [0, '0']:
-            name = cluster.get('storage_name', entries[0]['name'])
+            name = cluster.get('storage_name', None)
+            if not name:
+                name = entries[0]['name']
         storage = OrganizedList(entries, 'name').first(name)
         return storage, cluster
 
@@ -121,14 +123,17 @@ class Cluster:
             storage_name=storage_name
         )
         self.config.update(
-            {k: v for k, v in kwargs.items() if k in ["info", "storages", "virtual_clusters"]}
+            {k: v for k, v in kwargs.items() if k in ["info", "storages", "virtual_clusters", "type"]}
         )
         # validate
         assert self.alias, "cluster must have an alias"
-        assert self.user, "must specify a user name"
+        if self.pai_uri:
+            assert self.user, "must specify a user name"
         return self
 
     def check(self):
+        if self.type != "pai":
+            return self
         to_screen("try to connect cluster {}".format(self.alias))
         cluster_info = na(self.rest_api_cluster_info(), {})
         if cluster_info.get("authnMethod", "basic") == "OIDC":
@@ -137,7 +142,7 @@ class Cluster:
         self.config.update(
             info=cluster_info,
             virtual_clusters=self.virtual_clusters(user_info),
-            storages=self.storage_entries(user_info)
+            storages=self.storage_entries(*self.get_storage_info(user_info))
         )
         # ! will check authentication types according to AAD enabled or not
         return self
@@ -147,8 +152,12 @@ class Cluster:
         return self.config["cluster_alias"]
 
     @property
+    def type(self):
+        return self.config.get("type", "pai")
+
+    @property
     def pai_uri(self):
-        return self.config["pai_uri"].strip("/")
+        return self.config["pai_uri"]
 
     @property
     def user(self):
@@ -292,14 +301,14 @@ class Cluster:
             }
         ).json()
 
-    def storage_entries(self, user_info: dict = None):
-        configs, servers = self.get_storage_info(user_info)
+    @classmethod
+    def storage_entries(cls, configs, servers):
         entries = []
         srv_dic = OrganizedList(servers, 'spn').as_dict
         for cfg in configs:
             for i, m_info in enumerate(cfg['mountInfos']):
                 sto_dic = dict(name=f"{cfg['name']}~{i}")
-                sto_dic['default'] = sto_dic['name'] == self.config.get('storage_name', None)
+                sto_dic['default'] = sto_dic['name'] == getattr(cls, 'config', {}).get('storage_name', None)
                 sto_dic.update(m_info)
                 srv = sto_dic.get('server', None)
                 if not srv or srv not in srv_dic:
@@ -308,37 +317,42 @@ class Cluster:
                 entries.append(sto_dic)
         return entries
 
+    @classmethod
+    def fake_storage_info(cls, nastype: str, address: str, rootPath: str, name: str = "fake_storage", path: str = "", mountPoint: str = None, **kwargs):
+        configs = [{
+            'name': name + "_cfgs",
+            'mountInfos': [
+                {
+                    'mountPoint': mountPoint,
+                    'path': path,
+                    'server': name + "_srv",
+                    'permission': 'rw'
+                }
+            ]
+        }]
+        servers = [{
+            'spn': name + "_srv",
+            'type': nastype,
+            'data': {
+                "spn": name + "_srv",
+                "type": nastype,
+                "address": address,
+                "rootPath": rootPath
+            },
+            'extension': {}
+        }]
+        configs[0].update(kwargs.get('configs', {}))
+        servers[0]['data'].update(kwargs.get('servers_data', {}))
+        servers[0]['extension'].update(kwargs.get('servers_ext', {}))
+        return configs, servers
+
     def get_storage_info(self, user_info: dict = None):
         "retrieve the storage configs and servers from cluster"
         user_info = na(None, self.rest_api_user())
         storage_cfg_names = user_info.get('storageConfig', [])
         if not storage_cfg_names:
             # ! return a fake storage list
-            configs = [{
-                'name': 'builtin-hdfs~0',
-                'mountInfos': [
-                    {
-                        'mountPoint': None,
-                        'path': '',
-                        'server': '==FAKE_SERVER==',
-                        'permission': 'rw',
-                    }
-                ]
-            }]
-            servers = [{
-                'spn': "==FAKE_SERVER==",
-                'type': 'hdfs',
-                'data': {
-                        "spn": "==FAKE_SERVER==",
-                        "type": "hdfs",
-                        "namenode": self.pai_uri,
-                        "port": 9000,
-                },
-                "extension": {
-                    "webhdfs_port": 50070
-                }
-            }]
-            return configs, servers
+            return self.fake_storage_info('hdfs', self.pai_uri, "/")
         configs = self.rest_api_storage_configs(storage_cfg_names)
         server_names = [m_info['server'] for cfg in configs for m_info in cfg['mountInfos']]
         servers = self.rest_api_storage_servers(list(set(server_names)))

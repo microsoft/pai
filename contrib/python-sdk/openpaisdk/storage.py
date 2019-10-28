@@ -127,16 +127,34 @@ def pai_open_fs(path: str):
         alias, _, src = ret.resource.partition('/')
         storage_alias, _, pth = src.partition('/')
         storage, cluster = ClusterList().load().select_storage(alias, storage_alias)
+        assert storage and cluster, f"failed to fetch info for {alias} and {storage_alias}"
         if storage['type'] == 'hdfs':
             from openpaisdk.fs_pai import WEBHDFS
-            uri = force_uri(storage['data']['namenode']) + ':' + storage.get('extension', {}).get('webhdfs', '50070')
-            f = WEBHDFS(uri, storage.get('user', cluster['user']), token=storage.get('extension', {}).get('token', None))
+            addr = storage['data'].get('namemode', storage['data']['address'])
+            port = storage.get('extension', {}).get('webhdfs', '50070')
+            token = storage.get('extension', {}).get('token', None)
+            f = WEBHDFS(f"{addr}:{port}", storage.get('user', cluster['user']), token=token)
+        elif storage['type'] == 'nfs':
+            from platform import platform
+            from fs.osfs import OSFS
+            plt = platform()
+            if plt.startswith("Windows"):
+                # from openpaisdk.win_cmds import open_mount_server_win
+                # drv = open_mount_server_win(storage['data'])
+                f = OSFS(os.path.normpath(
+                    "//{address}{rootPath}".format(**storage["data"])
+                ))
+            else:
+                raise NotImplementedError(f"{storage['type']} not supported over {plt} yet")
+
         else:
             to_screen(f"failed to parse storage {cluster}", "error")
     except ParseError:
         # ! assert path is a local path
         d, pth = os.path.split(os.path.abspath(os.path.expanduser(path)))
         f = open_fs(d)
+    except Exception as e:
+        raise Exception(e)
     finally:
         safe_fs_factory(type(f))
         return f, pth

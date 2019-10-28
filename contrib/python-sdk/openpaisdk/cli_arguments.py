@@ -47,6 +47,10 @@ class ArgumentFactory:
 
         self.add_argument('--storage-name', help="storage mountPoint for system use")
 
+        self.add_argument('--type', help="type")
+        self.add_argument('--address', help="address for storage server")
+        self.add_argument('--path', help="remote path on server")
+
         self.add_argument('--editor', default="code", help="path to your editor used to open files")
 
         # defaults

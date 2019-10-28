@@ -24,7 +24,7 @@ from openpaisdk.defaults import get_defaults, update_default
 from openpaisdk.io_utils import browser_open, to_screen
 from openpaisdk.utils import Nested, run_command, na, randstr
 from openpaisdk.defaults import __flags__
-from openpaisdk.cluster import ClusterList
+from openpaisdk.cluster import ClusterList, Cluster
 from openpaisdk.job import Job
 from openpaisdk.storage import pai_open_fs
 
@@ -79,6 +79,31 @@ def cli_add_cluster(args):
 
 
 @register_as_cli(
+    'add-storage-cluster',
+    ['--cluster-alias', '--type', '--address', '--path', 'contents'],
+    "add a storage cluster"
+)
+def cli_add_storage_cluster(args):
+    assert args.cluster_alias, "must specify the cluster-alias"
+    assert args.type and args.address, "must specify address and type of server"
+    cfg_prefixes = ["configs", "servers_data", "servers_ext"]
+    storage_cfg = {k: {} for k in cfg_prefixes}
+    for word in args.contents:
+        key, value = word.split("=")
+        prefix, rkey = key.split(":")
+        storage_cfg[prefix].update({rkey: value})
+    cfg = {
+        "cluster_alias": args.cluster_alias,
+        "type": f"storage-{args.type}",
+        "virtual_clusters": ['default'],
+        "storages": Cluster.storage_entries(*Cluster.fake_storage_info(
+            args.type, args.address, na(args.path, "/"), **storage_cfg
+        ))
+    }
+    ClusterList().load().add(cfg).save()
+
+
+@register_as_cli(
     'edit-clusters',
     ['--editor'],
     'edit the clusters.yaml',
@@ -96,7 +121,7 @@ def tabulate_resources(dic: dict):
 
 
 @register_as_cli(
-    ['list-cluster', 'list-clusters'],
+    'list-clusters',
     [],
     'list clusters in clusters.yaml',
 )
