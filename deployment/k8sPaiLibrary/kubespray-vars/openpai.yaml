@@ -40,6 +40,42 @@ loadbalancer_apiserver_keepalive_timeout: 15m
 ## If loadbalancer_apiserver_healthcheck_port variable defined, enables proxy liveness check for nginx.
 # loadbalancer_apiserver_healthcheck_port: 8081
 
+
+############## DNS configuration ##############
+## Kubernetes cluster name, also will be used as DNS domain
+# cluster_name: cluster.local
+
+## Subdomains of DNS domain to be resolved via /etc/resolv.conf for hostnet pods
+# ndots: 2
+
+## Can be coredns, coredns_dual, manual or none
+# dns_mode: coredns
+
+## Set manual server if using a custom cluster DNS server
+## manual_dns_server: 10.x.x.x
+## Enable nodelocal dns cache
+enable_nodelocaldns: false
+# nodelocaldns_ip: 169.254.25.10
+# nodelocaldns_health_port: 9254
+
+## Enable k8s_external plugin for CoreDNS
+# enable_coredns_k8s_external: false
+# coredns_k8s_external_zone: k8s_external.local
+
+## Enable endpoint_pod_names option for kubernetes plugin
+# enable_coredns_k8s_endpoint_pod_names: false
+
+## Can be docker_dns, host_resolvconf or none
+# resolvconf_mode: docker_dns
+
+## Deploy netchecker app to verify DNS resolve as an HTTP service
+# deploy_netchecker: false
+
+## Ip address of the kubernetes skydns service
+# skydns_server: "{{ kube_service_addresses|ipaddr('net')|ipaddr(3)|ipaddr('address') }}"
+# skydns_server_secondary: "{{ kube_service_addresses|ipaddr('net')|ipaddr(4)|ipaddr('address') }}"
+# dns_domain: "{{ cluster_name }}"
+
 ############## kubernetes configuration ##############
 
 ## Change this to use another Kubernetes version, e.g. a current beta release
