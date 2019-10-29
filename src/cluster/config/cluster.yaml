@@ -25,6 +25,8 @@ common:
   # HDFS, zookeeper data path on your cluster machine.
   data-path: "/datastorage"
 
+  job-history: "false"
+
   qos-switch: "true"
 
   az-rdma: "false"
