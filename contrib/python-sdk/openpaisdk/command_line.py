@@ -200,7 +200,9 @@ def cli_select_storage(args):
 )
 def cli_list_storages(args):
     headers = ['name', 'mountPoint', 'type', 'server', 'path', 'permission', 'default']
-    storages = ClusterList().load().select(args.cluster_alias)['storages']
+    clusters = ClusterList().load()
+    names = [s['name'] for s in clusters.select(args.cluster_alias)['storages']]
+    storages = [clusters.select_storage(args.cluster_alias, name)[0] for name in names]
     to_screen([[s[h] for h in headers] for s in storages], 'table', headers=headers)
 
 

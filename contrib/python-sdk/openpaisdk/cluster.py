@@ -70,8 +70,17 @@ class ClusterList:
         return self.add(cfg)
 
     def update_all(self):
-        for a in self.aliases:
-            self.add(self.select(a))
+        def get_cluster_cfg(cfg: dict):
+            try:
+                return Cluster().load(**cfg).check().config
+            except Exception as identifier:
+                to_screen(f"fail to update cluster {cfg['cluster_alias']}: {repr(identifier)}", "warn")
+                return None
+        cfgs = concurrent_map(get_cluster_cfg, (c for c in self.clusters))
+        for cfg in cfgs:
+            if cfg is not None:
+                self.clusters.add(cfg, replace=True)
+        return self
 
     def delete(self, alias: str):
         return self.clusters.remove(alias)
@@ -87,6 +96,7 @@ class ClusterList:
             if not name:
                 name = entries[0]['name']
         storage = OrganizedList(entries, 'name').first(name)
+        storage['default'] = storage['name'] == cluster.get('storage_name', None)
         return storage, cluster
 
     def get_client(self, alias: str):
@@ -308,7 +318,6 @@ class Cluster:
         for cfg in configs:
             for i, m_info in enumerate(cfg['mountInfos']):
                 sto_dic = dict(name=f"{cfg['name']}~{i}")
-                sto_dic['default'] = sto_dic['name'] == getattr(cls, 'config', {}).get('storage_name', None)
                 sto_dic.update(m_info)
                 srv = sto_dic.get('server', None)
                 if not srv or srv not in srv_dic:
