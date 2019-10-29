@@ -141,9 +141,10 @@ func (c *physicalCellConstructor) buildChildCell(
 	parentCellAddress api.CellAddress) *PhysicalCell {
 
 	ce := c.cellChainElements[ct]
-	cellInstance := c.addCell(c.buildingChain, ce.level, spec.ReservationId)
+	cellInstance := c.addCell(c.buildingChain, ce.level, spec.ReservationId, ce.hasNode, ce.gpuNumber)
 	if ce.level == 1 {
-		cellInstance.SetPhysicalResources([]string{string(parentCellAddress)}, []int32{common.StringToInt32(string(spec.CellAddress))})
+		cellInstance.SetPhysicalResources(
+			[]string{string(parentCellAddress)}, []int32{common.StringToInt32(string(spec.CellAddress))})
 		return cellInstance
 	}
 	var currentNode string
@@ -187,9 +188,11 @@ func (c *physicalCellConstructor) buildChildCell(
 func (c *physicalCellConstructor) addCell(
 	chain CellChain,
 	level CellLevel,
-	reservationId api.ReservationId) *PhysicalCell {
+	reservationId api.ReservationId,
+	hasNode bool,
+	gpuNum int32) *PhysicalCell {
 
-	cellInstance := NewPhysicalCell(c.buildingChain, level)
+	cellInstance := NewPhysicalCell(c.buildingChain, level, hasNode, gpuNum)
 	if _, ok := c.physicalCellList[chain]; !ok {
 		c.physicalCellList[chain] = ChainCellList{}
 	}
@@ -264,8 +267,14 @@ func (c *virtualCellConstructor) updateInternalStatus(buildingVc api.VirtualClus
 	c.buildingReservation = buildingReservation
 }
 
-func (c *virtualCellConstructor) addCell(chain CellChain, level CellLevel, vc api.VirtualClusterName) *VirtualCell {
-	cellInstance := NewVirtualCell(vc, c.buildingChain, level, -1, nil)
+func (c *virtualCellConstructor) addCell(
+	chain CellChain,
+	level CellLevel,
+	vc api.VirtualClusterName,
+	hasNode bool,
+	gpuNum int32) *VirtualCell {
+
+	cellInstance := NewVirtualCell(vc, c.buildingChain, level, hasNode, gpuNum, -1, nil)
 	var index int32
 	if c.buildingReservation == "" {
 		if _, ok := c.virtualNonReservedCellList[vc]; !ok {
@@ -297,7 +306,7 @@ func (c *virtualCellConstructor) addCell(chain CellChain, level CellLevel, vc ap
 
 func (c *virtualCellConstructor) buildChildCell(ct api.CellType) *VirtualCell {
 	ce := c.cellChainElements[ct]
-	cellInstance := c.addCell(c.buildingChain, ce.level, c.buildingVc)
+	cellInstance := c.addCell(c.buildingChain, ce.level, c.buildingVc, ce.hasNode, ce.gpuNumber)
 	if ce.level == 1 {
 		return cellInstance
 	}

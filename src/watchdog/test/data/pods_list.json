@@ -109,6 +109,481 @@
         ],
         "qosClass": "BestEffort"
       }
+    },
+    {
+      "metadata": {
+        "name": "f1up4zk9ehfpjx2zc9gq8rv860uk4qv9dtk6awjz70r2uc9n75fp4wtjbxb32-taskrole-28",
+        "namespace": "default",
+        "selfLink": "/api/v1/namespaces/default/pods/f1up4zk9ehfpjx2zc9gq8rv860uk4qv9dtk6awjz70r2uc9n75fp4wtjbxb32-taskrole-28",
+        "uid": "25d34d53-f1b3-11e9-a614-000d3a6e838d",
+        "resourceVersion": "21832379",
+        "creationTimestamp": "2019-10-18T14:25:34Z",
+        "labels": {
+          "FC_FRAMEWORK_NAME": "f1up4zk9ehfpjx2zc9gq8rv860uk4qv9dtk6awjz70r2uc9n75fp4wtjbxb32",
+          "FC_TASKROLE_NAME": "taskrole",
+          "jobName": "it_it_batch052_infer_80-159_bs2_V1",
+          "type": "kube-launcher-task",
+          "userName": "xub",
+          "virtualCluster": "default"
+        },
+        "annotations": {
+          "FC_CONFIGMAP_NAME": "f1up4zk9ehfpjx2zc9gq8rv860uk4qv9dtk6awjz70r2uc9n75fp4wtjbxb32-attempt",
+          "FC_CONFIGMAP_UID": "1fa05b3a-f1b3-11e9-a614-000d3a6e838d",
+          "FC_FRAMEWORK_ATTEMPT_ID": "0",
+          "FC_FRAMEWORK_ATTEMPT_INSTANCE_UID": "0_1fa05b3a-f1b3-11e9-a614-000d3a6e838d",
+          "FC_FRAMEWORK_NAME": "f1up4zk9ehfpjx2zc9gq8rv860uk4qv9dtk6awjz70r2uc9n75fp4wtjbxb32",
+          "FC_FRAMEWORK_NAMESPACE": "default",
+          "FC_POD_NAME": "f1up4zk9ehfpjx2zc9gq8rv860uk4qv9dtk6awjz70r2uc9n75fp4wtjbxb32-taskrole-28",
+          "FC_TASKROLE_NAME": "taskrole",
+          "FC_TASK_ATTEMPT_ID": "0",
+          "FC_TASK_INDEX": "28",
+          "container.apparmor.security.beta.kubernetes.io/app": "unconfined",
+          "rest-server/port-scheduling-spec": "{\"ssh\":{\"start\":21914,\"count\":1},\"http\":{\"start\":37075,\"count\":1}}"
+        },
+        "ownerReferences": [
+          {
+            "apiVersion": "v1",
+            "kind": "ConfigMap",
+            "name": "f1up4zk9ehfpjx2zc9gq8rv860uk4qv9dtk6awjz70r2uc9n75fp4wtjbxb32-attempt",
+            "uid": "1fa05b3a-f1b3-11e9-a614-000d3a6e838d",
+            "controller": true,
+            "blockOwnerDeletion": true
+          }
+        ]
+      },
+      "spec": {
+        "volumes": [
+          {
+            "name": "dshm",
+            "emptyDir": {
+              "medium": "Memory",
+              "sizeLimit": "512Mi"
+            }
+          },
+          {
+            "name": "pai-vol",
+            "emptyDir": {}
+          },
+          {
+            "name": "host-log",
+            "hostPath": {
+              "path": "/var/log/pai",
+              "type": ""
+            }
+          },
+          {
+            "name": "job-ssh-secret-volume",
+            "secret": {
+              "secretName": "job-ssh-secret",
+              "defaultMode": 420
+            }
+          },
+          {
+            "name": "job-exit-spec",
+            "configMap": {
+              "name": "runtime-exit-spec-configuration",
+              "defaultMode": 420
+            }
+          }
+        ],
+        "initContainers": [
+          {
+            "name": "init",
+            "image": "docker.io/openpai/kube-runtime:vnext-k8s",
+            "env": [
+              {
+                "name": "FC_FRAMEWORK_NAMESPACE",
+                "value": "default"
+              },
+              {
+                "name": "FC_FRAMEWORK_NAME",
+                "value": "f1up4zk9ehfpjx2zc9gq8rv860uk4qv9dtk6awjz70r2uc9n75fp4wtjbxb32"
+              },
+              {
+                "name": "FC_TASKROLE_NAME",
+                "value": "taskrole"
+              },
+              {
+                "name": "FC_TASK_INDEX",
+                "value": "28"
+              },
+              {
+                "name": "FC_CONFIGMAP_NAME",
+                "value": "f1up4zk9ehfpjx2zc9gq8rv860uk4qv9dtk6awjz70r2uc9n75fp4wtjbxb32-attempt"
+              },
+              {
+                "name": "FC_POD_NAME",
+                "value": "f1up4zk9ehfpjx2zc9gq8rv860uk4qv9dtk6awjz70r2uc9n75fp4wtjbxb32-taskrole-28"
+              },
+              {
+                "name": "FC_FRAMEWORK_ATTEMPT_ID",
+                "value": "0"
+              },
+              {
+                "name": "FC_FRAMEWORK_ATTEMPT_INSTANCE_UID",
+                "value": "0_1fa05b3a-f1b3-11e9-a614-000d3a6e838d"
+              },
+              {
+                "name": "FC_CONFIGMAP_UID",
+                "value": "1fa05b3a-f1b3-11e9-a614-000d3a6e838d"
+              },
+              {
+                "name": "FC_TASK_ATTEMPT_ID",
+                "value": "0"
+              },
+              {
+                "name": "FC_POD_UID",
+                "valueFrom": {
+                  "fieldRef": {
+                    "apiVersion": "v1",
+                    "fieldPath": "metadata.uid"
+                  }
+                }
+              },
+              {
+                "name": "FC_TASK_ATTEMPT_INSTANCE_UID",
+                "value": "0_$(FC_POD_UID)"
+              },
+              {
+                "name": "USER_CMD",
+                "value": "slee0 30m"
+              },
+              {
+                "name": "KUBE_APISERVER_ADDRESS",
+                "value": "http://10.1.2.7:8080"
+              },
+              {
+                "name": "GANG_ALLOCATION",
+                "value": "false"
+              }
+            ],
+            "resources": {},
+            "volumeMounts": [
+              {
+                "name": "pai-vol",
+                "mountPath": "/usr/local/pai"
+              },
+              {
+                "name": "host-log",
+                "mountPath": "/usr/local/pai/logs",
+                "subPath": "xub/it_it_batch052_infer_80-159_bs2_V1/taskrole"
+              },
+              {
+                "name": "job-exit-spec",
+                "mountPath": "/usr/local/pai-config"
+              }
+            ],
+            "terminationMessagePath": "/dev/termination-log",
+            "terminationMessagePolicy": "FallbackToLogsOnError",
+            "imagePullPolicy": "Always"
+          }
+        ],
+        "containers": [
+          {
+            "name": "app",
+            "image": "openpai/pytorch-xlm",
+            "command": [
+              "/usr/local/pai/runtime"
+            ],
+            "env": [
+              {
+                "name": "FC_FRAMEWORK_NAMESPACE",
+                "value": "default"
+              },
+              {
+                "name": "FC_FRAMEWORK_NAME",
+                "value": "f1up4zk9ehfpjx2zc9gq8rv860uk4qv9dtk6awjz70r2uc9n75fp4wtjbxb32"
+              },
+              {
+                "name": "FC_TASKROLE_NAME",
+                "value": "taskrole"
+              },
+              {
+                "name": "FC_TASK_INDEX",
+                "value": "28"
+              },
+              {
+                "name": "FC_CONFIGMAP_NAME",
+                "value": "f1up4zk9ehfpjx2zc9gq8rv860uk4qv9dtk6awjz70r2uc9n75fp4wtjbxb32-attempt"
+              },
+              {
+                "name": "FC_POD_NAME",
+                "value": "f1up4zk9ehfpjx2zc9gq8rv860uk4qv9dtk6awjz70r2uc9n75fp4wtjbxb32-taskrole-28"
+              },
+              {
+                "name": "FC_FRAMEWORK_ATTEMPT_ID",
+                "value": "0"
+              },
+              {
+                "name": "FC_FRAMEWORK_ATTEMPT_INSTANCE_UID",
+                "value": "0_1fa05b3a-f1b3-11e9-a614-000d3a6e838d"
+              },
+              {
+                "name": "FC_CONFIGMAP_UID",
+                "value": "1fa05b3a-f1b3-11e9-a614-000d3a6e838d"
+              },
+              {
+                "name": "FC_TASK_ATTEMPT_ID",
+                "value": "0"
+              },
+              {
+                "name": "FC_POD_UID",
+                "valueFrom": {
+                  "fieldRef": {
+                    "apiVersion": "v1",
+                    "fieldPath": "metadata.uid"
+                  }
+                }
+              },
+              {
+                "name": "FC_TASK_ATTEMPT_INSTANCE_UID",
+                "value": "0_$(FC_POD_UID)"
+              },
+              {
+                "name": "PAI_FRAMEWORK_NAME",
+                "value": "xub~it_it_batch052_infer_80-159_bs2_V1"
+              },
+              {
+                "name": "PAI_JOB_NAME",
+                "value": "xub~it_it_batch052_infer_80-159_bs2_V1"
+              },
+              {
+                "name": "PAI_USER_NAME",
+                "value": "xub"
+              },
+              {
+                "name": "PAI_DEFAULT_FS_URI"
+              },
+              {
+                "name": "PAI_TASK_ROLE_COUNT",
+                "value": "1"
+              },
+              {
+                "name": "PAI_TASK_ROLE_LIST",
+                "value": "taskrole"
+              },
+              {
+                "name": "PAI_TASK_ROLE_TASK_COUNT_taskrole",
+                "value": "80"
+              },
+              {
+                "name": "PAI_RESOURCE_taskrole",
+                "value": "1,4,40960,0"
+              },
+              {
+                "name": "PAI_MIN_FAILED_TASK_COUNT_taskrole",
+                "value": "-1"
+              },
+              {
+                "name": "PAI_MIN_SUCCEEDED_TASK_COUNT_taskrole",
+                "value": "-1"
+              },
+              {
+                "name": "PAI_USERNAME",
+                "value": "xub"
+              },
+              {
+                "name": "PAI_TASKS_NUM",
+                "value": "80"
+              },
+              {
+                "name": "PAI_JOB_TASK_COUNT",
+                "value": "80"
+              },
+              {
+                "name": "PAI_TASK_ROLES_NUM",
+                "value": "1"
+              },
+              {
+                "name": "PAI_JOB_TASK_ROLE_COUNT",
+                "value": "1"
+              },
+              {
+                "name": "PAI_JOB_TASK_ROLE_LIST",
+                "value": "taskrole"
+              },
+              {
+                "name": "PAI_CURRENT_TASK_ROLE_NAME",
+                "valueFrom": {
+                  "fieldRef": {
+                    "apiVersion": "v1",
+                    "fieldPath": "metadata.annotations['FC_TASKROLE_NAME']"
+                  }
+                }
+              },
+              {
+                "name": "PAI_CURRENT_TASK_ROLE_CURRENT_TASK_INDEX",
+                "valueFrom": {
+                  "fieldRef": {
+                    "apiVersion": "v1",
+                    "fieldPath": "metadata.annotations['FC_TASK_INDEX']"
+                  }
+                }
+              },
+              {
+                "name": "PAI_TASK_INDEX",
+                "valueFrom": {
+                  "fieldRef": {
+                    "apiVersion": "v1",
+                    "fieldPath": "metadata.annotations['FC_TASK_INDEX']"
+                  }
+                }
+              }
+            ],
+            "resources": {
+              "limits": {
+                "cpu": "4",
+                "github.com/fuse": "1",
+                "memory": "40Gi",
+                "nvidia.com/gpu": "1"
+              },
+              "requests": {
+                "cpu": "4",
+                "github.com/fuse": "1",
+                "memory": "40Gi",
+                "nvidia.com/gpu": "1"
+              }
+            },
+            "volumeMounts": [
+              {
+                "name": "dshm",
+                "mountPath": "/dev/shm"
+              },
+              {
+                "name": "pai-vol",
+                "mountPath": "/usr/local/pai"
+              },
+              {
+                "name": "host-log",
+                "mountPath": "/usr/local/pai/logs",
+                "subPath": "xub/it_it_batch052_infer_80-159_bs2_V1/taskrole"
+              },
+              {
+                "name": "job-ssh-secret-volume",
+                "readOnly": true,
+                "mountPath": "/usr/local/pai/ssh-secret"
+              }
+            ],
+            "terminationMessagePath": "/tmp/pai-termination-log",
+            "terminationMessagePolicy": "FallbackToLogsOnError",
+            "imagePullPolicy": "Always",
+            "securityContext": {
+              "capabilities": {
+                "add": [
+                  "SYS_ADMIN",
+                  "IPC_LOCK",
+                  "DAC_READ_SEARCH"
+                ],
+                "drop": [
+                  "MKNOD"
+                ]
+              },
+              "procMount": "Default"
+            }
+          }
+        ],
+        "restartPolicy": "Never",
+        "terminationGracePeriodSeconds": 30,
+        "dnsPolicy": "ClusterFirst",
+        "serviceAccountName": "frameworkbarrier",
+        "serviceAccount": "frameworkbarrier",
+        "nodeName": "10.1.3.29",
+        "hostNetwork": true,
+        "securityContext": {},
+        "imagePullSecrets": [
+          {
+            "name": "pai-secret"
+          }
+        ],
+        "schedulerName": "default-scheduler",
+        "tolerations": [
+          {
+            "key": "node.kubernetes.io/not-ready",
+            "operator": "Exists",
+            "effect": "NoExecute",
+            "tolerationSeconds": 300
+          },
+          {
+            "key": "node.kubernetes.io/unreachable",
+            "operator": "Exists",
+            "effect": "NoExecute",
+            "tolerationSeconds": 300
+          }
+        ],
+        "enableServiceLinks": true
+      },
+      "status": {
+        "phase": "Pending",
+        "conditions": [
+          {
+            "type": "Initialized",
+            "status": "True",
+            "lastProbeTime": null,
+            "lastTransitionTime": "2019-10-19T08:04:06Z"
+          },
+          {
+            "type": "Ready",
+            "status": "False",
+            "lastProbeTime": null,
+            "lastTransitionTime": "2019-10-19T08:03:59Z",
+            "reason": "ContainersNotReady",
+            "message": "containers with unready status: [app]"
+          },
+          {
+            "type": "ContainersReady",
+            "status": "False",
+            "lastProbeTime": null,
+            "lastTransitionTime": "2019-10-19T08:03:59Z",
+            "reason": "ContainersNotReady",
+            "message": "containers with unready status: [app]"
+          },
+          {
+            "type": "PodScheduled",
+            "status": "True",
+            "lastProbeTime": null,
+            "lastTransitionTime": "2019-10-19T08:03:59Z"
+          }
+        ],
+        "hostIP": "10.1.3.29",
+        "podIP": "10.1.3.29",
+        "startTime": "2019-10-19T08:03:59Z",
+        "initContainerStatuses": [
+          {
+            "name": "init",
+            "state": {
+              "terminated": {
+                "exitCode": 0,
+                "reason": "Completed",
+                "startedAt": "2019-10-19T08:04:05Z",
+                "finishedAt": "2019-10-19T08:04:06Z",
+                "containerID": "docker://6d9de4ea533ba30fc006e7c17efacee9b330725a01da5aff1155fcb7600032ab"
+              }
+            },
+            "lastState": {},
+            "ready": true,
+            "restartCount": 0,
+            "image": "openpai/kube-runtime:vnext-k8s",
+            "imageID": "docker-pullable://openpai/kube-runtime@sha256:df26f56d11f928e64d1c8f120f0ad0455607cb13e2cc9484f7ed1a3be7731114",
+            "containerID": "docker://6d9de4ea533ba30fc006e7c17efacee9b330725a01da5aff1155fcb7600032ab"
+          }
+        ],
+        "containerStatuses": [
+          {
+            "name": "app",
+            "state": {
+              "waiting": {
+                "reason": "PodInitializing"
+              }
+            },
+            "lastState": {},
+            "ready": false,
+            "restartCount": 0,
+            "image": "openpai/pytorch-xlm",
+            "imageID": ""
+          }
+        ],
+        "qosClass": "Guaranteed"
+      }
     }
   ]
 }

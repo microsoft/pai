@@ -65,7 +65,7 @@ spec:
           - "python"
           - "/watchdog.py"
           - "--interval"
-          - "30"
+          - "180"
           - "--port"
           - "9101"
           - "--ca"

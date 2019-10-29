@@ -182,7 +182,7 @@ User can use `add` and `delete` command to add (or delete) a clusters from the c
 # for user/password authentication
 opai cluster add --cluster-alias <cluster-alias> --pai-uri <pai-uri> --user <user> --password <password>
 # for Azure AD authentication
-opai cluster add --cluster-alias <cluster-alias> --pai-uri <pai-uri> --user <user> --toke <token>
+opai cluster add --cluster-alias <cluster-alias> --pai-uri <pai-uri> --user <user> --token <token>
 ```
 
 On receiving the add command, the CLI will try to connect the cluster, and get basic configuration from it.

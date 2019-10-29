@@ -19,12 +19,4 @@
 
 pushd $(dirname "$0") > /dev/null
 
-if kubectl get ds --namespace=kube-system | grep -q "rdma-sriov-dp-ds"; then
-    kubectl delete ds --namespace=kube-system rdma-sriov-dp-ds || exit $?
-fi
-
-if kubectl get configmap --namespace=kube-system | grep -q "rdma-devices"; then
-    kubectl delete configmap --namespace=kube-system rdma-devices || exit $?
-fi
-
 popd > /dev/null

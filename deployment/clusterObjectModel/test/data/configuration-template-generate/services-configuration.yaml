@@ -89,6 +89,9 @@ drivers:
   # 418.56
   version: "384.111"
 
+device-plugin:
+  devices: []
+
 prometheus:
   # port for prometheus port
   port: 9091

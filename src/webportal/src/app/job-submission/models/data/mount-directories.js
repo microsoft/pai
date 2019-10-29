@@ -24,7 +24,6 @@ export class MountDirectories {
       TEAMWISE_DATA_CMD_START,
       AUTO_GENERATE_NOTIFY,
       'apt-get update',
-      'apt-get install --assume-yes nfs-common cifs-utils sshpass wget',
       'umask 000',
     ];
 
@@ -137,12 +136,24 @@ export class MountDirectories {
 
     switch (serverType) {
       case 'nfs':
+        returnValue = [
+          `mkdir --parents ${tmpFolder}`,
+          'apt-get install --assume-yes nfs-common',
+        ];
+        break;
       case 'samba':
-        returnValue = [`mkdir --parents ${tmpFolder}`];
+        returnValue = [
+          `mkdir --parents ${tmpFolder}`,
+          'apt-get install --assume-yes cifs-utils',
+        ];
         break;
       case 'azurefile':
-        returnValue = [`mkdir --parents ${tmpFolder}`];
+        returnValue = [
+          `mkdir --parents ${tmpFolder}`,
+          'apt-get install --assume-yes cifs-utils',
+        ];
         if (serverData.proxy !== undefined && serverData.proxy.length === 2) {
+          returnValue.push('apt-get install --assume-yes sshpass');
           const proxyInfo = serverData.proxy[0];
           const proxyPassword = serverData.proxy[1];
           const proxyIp =
@@ -161,7 +172,7 @@ export class MountDirectories {
         const tmpPath = `/mnt/resource/blobfusetmp/${serverData.spn}`;
         const cfgFile = `/${serverData.spn}.cfg`;
         returnValue = [
-          'apt-get install --assume-yes lsb-release apt-transport-https',
+          'apt-get install --assume-yes wget curl lsb-release apt-transport-https',
           "valid_release=('14.04' '15.10' '16.04' '16.10' '17.04' '17.10' '18.04' '18.10' '19.04')",
           'release=`lsb_release -r | cut -f 2`',
           'if [[ ! ${valid_release[@]} =~ ${release} ]]; then echo "Invalid OS version for Azureblob!"; exit 1; fi', // eslint-disable-line no-template-curly-in-string
@@ -174,7 +185,6 @@ export class MountDirectories {
           `echo "accountName ${serverData.accountName}" >> ${cfgFile}`,
           `echo "accountKey ${serverData.key}" >> ${cfgFile}`,
           `echo "containerName ${serverData.containerName}" >> ${cfgFile}`,
-          `echo "blobEndPoint ${serverData.dataStore}" >> ${cfgFile}`,
           `chmod 600 ${cfgFile}`,
           `mkdir --parents ${tmpFolder}`,
         ];

@@ -19,25 +19,19 @@
 
 pushd $(dirname "$0") > /dev/null
 
-/bin/bash configmap-create.sh
+# NVIDIA GPU device plugin
+{% if 'nvidia.com/gpu' in cluster_cfg['device-plugin']['devices'] %}
 
-/bin/bash secret-create.sh
+kubectl apply --overwrite=true -f https://raw.githubusercontent.com/NVIDIA/k8s-device-plugin/1.0.0-beta/nvidia-device-plugin.yml || exit $?
 
-# Check whether has etcd-uri in cluster config if so need to transfer user-data
-{% if cluster_cfg['rest-server']['etcd-uris'] -%}
-python3 legacy_user_migrate.py -e {{ cluster_cfg['rest-server']['etcd-uris'] }} -k {{ cluster_cfg['layout']['kubernetes']['api-servers-url'] }}  || exit $?
-{% endif -%}
-
-python3 user_v2_migrate.py  -a {{ cluster_cfg['authentication']['group-manager']['admin-group']['groupname'] }} || exit $?
-
-{% if cluster_cfg['cluster']['common']['k8s-rbac'] == 'true' %}
-kubectl apply --overwrite=true -f rbac.yaml || exit $?
 {% endif %}
 
-kubectl apply --overwrite=true -f rest-server.yaml|| exit $?
+# Mellanox InfiniBand device plugin
+{% if 'rdma/hca' in cluster_cfg['device-plugin']['devices'] %}
 
-sleep 10
-# Wait until the service is ready.
-PYTHONPATH="../../../deployment" python -m  k8sPaiLibrary.monitorTool.check_pod_ready_status -w -k app -v rest-server || exit $?
+kubectl apply --overwrite=true -f https://raw.githubusercontent.com/Mellanox/k8s-rdma-sriov-dev-plugin/master/example/hca/rdma-hca-node-config.yaml || exit $?
+kubectl apply --overwrite=true -f https://raw.githubusercontent.com/Mellanox/k8s-rdma-sriov-dev-plugin/master/example/device-plugin.yaml || exit $?
+
+{% endif %}
 
 popd > /dev/null

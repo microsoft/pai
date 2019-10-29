@@ -36,6 +36,9 @@ if kubectl get namespace | grep -q "pai-group "; then
     kubectl delete ns pai-group || exit $?
 fi
 
-
+echo "Delete pai-storage namespace"
+if kubectl get namespace | grep -q "pai-storage "; then
+    kubectl delete ns pai-storage || exit $?
+fi
 
 popd > /dev/null

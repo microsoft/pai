@@ -22,16 +22,16 @@
 
 package algorithm
 
-const (
-	// internal cell priorities (not exposed to users)
-	regularPriority               = CellPriority(0)
-	regularNonPreassignedPriority = CellPriority(-101)
-	opportunisticPriority         = CellPriority(-102)
-	freePriority                  = CellPriority(-103)
-	highestPriority               = CellPriority(1000)
+import "math"
 
-	// lowest level in a cell chain
-	lowestLevel = CellLevel(1)
-	// used in setSelfAndParentPriority (meaning no limit on max level)
-	unlimitedLevel = CellLevel(0)
+const (
+	// internal cell priorities
+	regularPriority       = CellPriority(0)
+	opportunisticPriority = CellPriority(-1)
+	freePriority          = CellPriority(-2)
+	highestPriority       = CellPriority(1000)
+
+	// lowest and highest levels in a cell chain
+	lowestLevel  = CellLevel(1)
+	highestLevel = CellLevel(math.MaxInt32)
 )

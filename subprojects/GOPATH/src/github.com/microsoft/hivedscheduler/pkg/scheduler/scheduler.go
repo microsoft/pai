@@ -473,10 +473,10 @@ func (s *HivedScheduler) filterRoutine(args ei.ExtenderArgs) *ei.ExtenderFilterR
 	defer internal.HandleRoutinePanic(logPfx)
 
 	podStatus := s.generalScheduleAdmissionCheck(s.podScheduleStatuses[pod.UID])
-	// Insist previous schedule result
-	// TODO: Insist previous preempt result
 	if podStatus.PodState == internal.PodBinding {
-		// Insist previous bind result, since Pod binding should be idempotent.
+		// Insist previous bind result, since Pod binding should be idempotent, and
+		// it is already assumed as allocated by scheduling algorithm which cannot
+		// be rolled back.
 		bindingPod := podStatus.Pod
 		podStatus.PodBindAttempts++
 
@@ -520,7 +520,22 @@ func (s *HivedScheduler) filterRoutine(args ei.ExtenderArgs) *ei.ExtenderFilterR
 			PodState:          internal.PodPreempting,
 			PodScheduleResult: &result,
 		}
-		return &ei.ExtenderFilterResult{}
+
+		// Return FailedNodes to tell K8S Default Scheduler that preemption may help.
+		failedNodeReasons := map[string]string{}
+		for _, victim := range result.PodPreemptInfo.VictimPods {
+			node := victim.Spec.NodeName
+			if _, ok := failedNodeReasons[node]; !ok {
+				failedNodeReasons[node] = fmt.Sprintf(
+					"node(%v) is waiting for victim Pod(s) to be preempted: %v",
+					node, internal.Key(victim))
+			} else {
+				failedNodeReasons[node] += ", " + internal.Key(victim)
+			}
+		}
+		return &ei.ExtenderFilterResult{
+			FailedNodes: failedNodeReasons,
+		}
 	} else {
 		s.podScheduleStatuses[pod.UID] = &internal.PodScheduleStatus{
 			Pod:               pod,

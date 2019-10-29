@@ -49,19 +49,21 @@ class Cluster:
 
     def validation_common(self, common_configuration):
         if "cluster-id" not in common_configuration:
-            return False, "cluster-id is miss in service-configuration.yaml -> cluster -> common -> cluster-id"
+            return False, "cluster-id is missing in service-configuration.yaml -> cluster -> common -> cluster-id"
         if "cluster-type" not in common_configuration or common_configuration["cluster-type"] not in ["yarn", "k8s"]:
             return False, "cluster-type is not defined or invalid. Please check service-configuration.yaml -> cluster -> common -> cluster-type"
         if "data-path" not in common_configuration:
-            return False, "data-path is miss in service-configuration.yaml -> cluster -> common -> data-path"
+            return False, "data-path is missing in service-configuration.yaml -> cluster -> common -> data-path"
         if "job-history" not in common_configuration:
-            return False, "job-history is miss in service-configuration.yaml -> cluster -> common -> job-history"
+            return False, "job-history is missing in service-configuration.yaml -> cluster -> common -> job-history"
         if "qos-switch" not in common_configuration:
-            return False, "qos-switch is miss in service-configuration.yaml -> cluster -> common -> qos-switch"
+            return False, "qos-switch is missing in service-configuration.yaml -> cluster -> common -> qos-switch"
         if "az-rdma" not in common_configuration:
-            return False, "az-rdma is miss in service-configuration.yaml -> cluster -> common -> az-rdma"
+            return False, "az-rdma is missing in service-configuration.yaml -> cluster -> common -> az-rdma"
         if "k8s-rbac" not in common_configuration:
-            return False, "k8s-rbac is miss in service-configuration.yaml -> cluster -> common -> k8s-rbac"
+            return False, "k8s-rbac is missing in service-configuration.yaml -> cluster -> common -> k8s-rbac"
+        if "deploy-in-aks" not in common_configuration:
+            return False, "deploy-in-aks is missing in service-configuration.yaml -> cluster ->common -> deploy-in-aks"
         return True, None
 
 

@@ -22,13 +22,13 @@ groups:
       rules:
       - alert: PaiServicePodNotRunning
         expr: pai_pod_count{phase!="running"} > 0
-        for: 5m
+        for: 10m
         annotations:
           summary: "{{$labels.name}} in {{$labels.host_ip}} not running detected"
 
       - alert: PaiServicePodNotReady
         expr: pai_pod_count{phase="running", ready="false"} > 0
-        for: 5m
+        for: 10m
         labels:
           type: pai_service
         annotations:

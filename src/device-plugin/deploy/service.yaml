@@ -21,7 +21,9 @@ cluster-type:
 prerequisite:
   - cluster-configuration
 
-template-list: []
+template-list:
+  - start.sh
+  - delete.sh
 
 start-script: start.sh
 stop-script: stop.sh

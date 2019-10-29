@@ -18,10 +18,12 @@
 
 // module dependencies
 const {Agent} = require('https');
+const zlib = require('zlib');
 const axios = require('axios');
 const yaml = require('js-yaml');
 const base32 = require('base32');
 const status = require('statuses');
+const querystring = require('querystring');
 const runtimeEnv = require('./runtime-env');
 const launcherConfig = require('@pai/config/launcher');
 const {apiserver} = require('@pai/config/kubernetes');
@@ -72,6 +74,14 @@ const decodeName = (name, labels) => {
   } else {
     // framework name has not been encoded
     return name;
+  }
+};
+
+const decompressField = (val) => {
+  if (val == null) {
+    return null;
+  } else {
+    return JSON.parse(zlib.gunzipSync(Buffer.from(val, 'base64')).toString());
   }
 };
 
@@ -130,9 +140,9 @@ const convertFrameworkSummary = (framework) => {
     appExitCode: completionStatus ? completionStatus.code : null,
     virtualCluster: framework.metadata.labels ? framework.metadata.labels.virtualCluster : 'unknown',
     totalGpuNumber: framework.metadata.annotations ? framework.metadata.annotations.totalGpuNumber : 0,
-    totalTaskNumber: framework.status.attemptStatus.taskRoleStatuses.reduce(
-      (num, statuses) => num + statuses.taskStatuses.length, 0),
-    totalTaskRoleNumber: framework.status.attemptStatus.taskRoleStatuses.length,
+    totalTaskNumber: framework.spec.taskRoles.reduce(
+      (num, spec) => num + spec.taskNumber, 0),
+    totalTaskRoleNumber: framework.spec.taskRoles.length,
   };
 };
 
@@ -183,6 +193,11 @@ const convertTaskDetail = async (taskStatus, ports, userName, jobName, taskRoleN
 };
 
 const convertFrameworkDetail = async (framework) => {
+  // check fields which may be compressed
+  if (framework.status.attemptStatus.taskRoleStatuses == null) {
+    framework.status.attemptStatus.taskRoleStatuses = decompressField(framework.status.attemptStatus.taskRoleStatusesCompressed);
+  }
+
   const completionStatus = framework.status.attemptStatus.completionStatus;
   const diagnostics = completionStatus ? completionStatus.diagnostics : null;
   const exitDiagnostics = generateExitDiagnostics(diagnostics);
@@ -282,6 +297,7 @@ const generateTaskRole = (taskRole, labels, config) => {
     gangAllocation = 'false';
     retryPolicy.fancyRetryPolicy = true;
   }
+
   const frameworkTaskRole = {
     name: convertName(taskRole),
     taskNumber: config.taskRoles[taskRole].instances || 1,
@@ -508,6 +524,7 @@ const generateFrameworkDescription = (frameworkName, virtualCluster, config, raw
   for (let taskRole of Object.keys(config.taskRoles)) {
     totalGpuNumber += config.taskRoles[taskRole].resourcePerInstance.gpu * config.taskRoles[taskRole].instances;
     const taskRoleDescription = generateTaskRole(taskRole, frameworkLabels, config);
+    taskRoleDescription.task.pod.spec.priorityClassName = `${encodeName(frameworkName)}-priority`;
     taskRoleDescription.task.pod.spec.containers[0].env.push(...envlist.concat([
       {
         name: 'PAI_CURRENT_TASK_ROLE_NAME',
@@ -541,14 +558,86 @@ const generateFrameworkDescription = (frameworkName, virtualCluster, config, raw
   return frameworkDescription;
 };
 
+const createPriorityClass = async (frameworkName, priority) => {
+  const priorityClass = {
+    apiVersion: 'scheduling.k8s.io/v1',
+    kind: 'PriorityClass',
+    metadata: {
+      name: `${encodeName(frameworkName)}-priority`,
+    },
+    value: priority,
+    preemptionPolicy: 'PreemptLowerPriority',
+    globalDefault: false,
+  };
 
-const list = async () => {
+  let response;
+  try {
+    response = await axios({
+      method: 'post',
+      url: launcherConfig.priorityClassesPath(),
+      headers: launcherConfig.requestHeaders,
+      httpsAgent: apiserver.ca && new Agent({ca: apiserver.ca}),
+      data: priorityClass,
+    });
+  } catch (error) {
+    if (error.response != null) {
+      response = error.response;
+    } else {
+      throw error;
+    }
+  }
+  if (response.status !== status('Created')) {
+    throw createError(response.status, 'UnknownError', response.data.message);
+  }
+};
+
+const patchPriorityClass = async (frameworkName, frameworkUid) => {
+  try {
+    const headers = {...launcherConfig.requestHeaders};
+    headers['Content-Type'] = 'application/merge-patch+json';
+    await axios({
+      method: 'patch',
+      url: launcherConfig.priorityClassPath(`${encodeName(frameworkName)}-priority`),
+      headers,
+      httpsAgent: apiserver.ca && new Agent({ca: apiserver.ca}),
+      data: {
+        metadata: {
+          ownerReferences: [{
+            apiVersion: launcherConfig.apiVersion,
+            kind: 'Framework',
+            name: encodeName(frameworkName),
+            uid: frameworkUid,
+            controller: true,
+            blockOwnerDeletion: true,
+          }],
+        },
+      },
+    });
+  } catch (error) {
+    logger.warn('Failed to patch owner reference for priority class', error);
+  }
+};
+
+const deletePriorityClass = async (frameworkName) => {
+  try {
+    await axios({
+      method: 'delete',
+      url: launcherConfig.priorityClassPath(`${encodeName(frameworkName)}-priority`),
+      headers: launcherConfig.requestHeaders,
+      httpsAgent: apiserver.ca && new Agent({ca: apiserver.ca}),
+    });
+  } catch (error) {
+    logger.warn('Failed to delete priority class', error);
+  }
+};
+
+const list = async (filters) => {
   // send request to framework controller
   let response;
   try {
     response = await axios({
       method: 'get',
-      url: launcherConfig.frameworksPath(),
+      url: `${launcherConfig.frameworksPath()}?${querystring.stringify(filters)}`,
       headers: launcherConfig.requestHeaders,
       httpsAgent: apiserver.ca && new Agent({ca: apiserver.ca}),
     });
@@ -606,8 +695,23 @@ const put = async (frameworkName, config, rawConfig) => {
   if (flag === false) {
     throw createError('Forbidden', 'ForbiddenUserError', `User ${userName} is not allowed to do operation in ${virtualCluster}`);
   }
+  if (encodeName(frameworkName).length > 63) {
+    throw createError('Bad Request', 'BadConfigurationError', 'Job name too long, please try a shorter one.');
+  }
 
   const frameworkDescription = generateFrameworkDescription(frameworkName, virtualCluster, config, rawConfig);
+
+  // calculate pod priority
+  // reference: https://github.com/microsoft/pai/issues/3704
+  let jobPriority = 0;
+  if (launcherConfig.enabledHived) {
+    jobPriority = parseInt(Object.values(config.taskRoles)[0].hivedPodSpec.priority);
+    jobPriority = Math.min(Math.max(jobPriority, -1), 126);
+  }
+  const jobCreationTime = Math.floor(new Date() / 1000) & (Math.pow(2, 23) - 1);
+  const podPriority = - (((126 - jobPriority) << 23) + jobCreationTime);
+  // create priority class
+  await createPriorityClass(frameworkName, podPriority);
 
   // send request to framework controller
   let response;
@@ -623,12 +727,18 @@ const put = async (frameworkName, config, rawConfig) => {
     if (error.response != null) {
       response = error.response;
     } else {
+      // do not await for delete
+      deletePriorityClass(frameworkName);
       throw error;
     }
   }
   if (response.status !== status('Created')) {
+    // do not await for delete
+    deletePriorityClass(frameworkName);
     throw createError(response.status, 'UnknownError', response.data.message);
   }
+  // do not await for patch
+  patchPriorityClass(frameworkName, response.data.metadata.uid);
 };
 
 const execute = async (frameworkName, executionType) => {

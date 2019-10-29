@@ -28,22 +28,46 @@ import (
 	"k8s.io/klog"
 )
 
-// intraVCScheduler is an interface for allocating cells inside a VC.
-// It stores two maps of ChainCellList, one for reserved cells, the other
-// for non-reserved ones. It should be able to return a virtual cell
-// on receiving a cell request.
+// intraVCScheduler is an interface for scheduling pods inside a VC.
+// It stores two maps of ChainCellList, one for reserved cells, the other for non-reserved ones.
+// It should be able to return a set of GPU placements in the VC for a scheduling request.
 type intraVCScheduler interface {
 	getNonReservedCellList() map[CellChain]ChainCellList
 	getReservedCellList() map[api.ReservationId]ChainCellList
 
-	// Cell allocation inside a VC. We use buddy alloc for default
-	// (see defaultIntraVCScheduler).
-	allocateCell(CellRequest) *VirtualCell
+	// Scheduling an affinity group inside a VC. We use topologyAwareScheduler by default.
+	schedule(schedulingRequest) map[int32][]CellList
 }
 
 type defaultIntraVCScheduler struct {
 	virtualNonReservedCellList map[CellChain]ChainCellList
 	virtualReservedCellList    map[api.ReservationId]ChainCellList
+	// currently we create a topologyAwareScheduler for each cluster view (each chain, each reservation).
+	// we plan to support multiple cluster views in one scheduler, and to support schedule pods
+	// across different cluster views.
+	nonReservedSchedulers map[CellChain]*topologyAwareScheduler
+	reservedSchedulers    map[api.ReservationId]*topologyAwareScheduler
+}
+
+func newDefaultIntraVCScheduler(
+	nonReservedVcl map[CellChain]ChainCellList,
+	reservedVcl map[api.ReservationId]ChainCellList,
+	gpuNums map[CellChain]map[CellLevel]int32) *defaultIntraVCScheduler {
+
+	snr := map[CellChain]*topologyAwareScheduler{}
+	sr := map[api.ReservationId]*topologyAwareScheduler{}
+	for chain, ccl := range nonReservedVcl {
+		snr[chain] = NewTopologyAwareScheduler(ccl, gpuNums[chain], true)
+	}
+	for rid, ccl := range reservedVcl {
+		sr[rid] = NewTopologyAwareScheduler(ccl, gpuNums[ccl[CellLevel(1)][0].GetChain()], true)
+	}
+	return &defaultIntraVCScheduler{
+		virtualNonReservedCellList: nonReservedVcl,
+		virtualReservedCellList:    reservedVcl,
+		nonReservedSchedulers:      snr,
+		reservedSchedulers:         sr,
+	}
 }
 
 func (s *defaultIntraVCScheduler) getNonReservedCellList() map[CellChain]ChainCellList {
@@ -54,27 +78,26 @@ func (s *defaultIntraVCScheduler) getReservedCellList() map[api.ReservationId]Ch
 	return s.virtualReservedCellList
 }
 
-func (s *defaultIntraVCScheduler) allocateCell(cr CellRequest) *VirtualCell {
-	var fullCellList ChainCellList
-	if cr.ReservationId != "" {
-		fullCellList = s.virtualReservedCellList[cr.ReservationId]
+func (s *defaultIntraVCScheduler) schedule(sr schedulingRequest) map[int32][]CellList {
+	var scheduler *topologyAwareScheduler
+	if sr.reservationId != "" {
+		scheduler = s.reservedSchedulers[sr.reservationId]
 	} else {
-		fullCellList = s.virtualNonReservedCellList[cr.Chain]
+		scheduler = s.nonReservedSchedulers[sr.chain]
 	}
-
-	vcCellView := getCellViewWithPriority(fullCellList, cr.Priority)
-	c := buddyAlloc(vcCellView, cr.Level)
-	if c != nil {
-		return c.(*VirtualCell) // downgrade pod running on c
-	} else {
+	var placement map[int32][]CellList
+	if scheduler != nil {
+		placement = scheduler.Schedule(sr.affinityGroup, sr.priority)
+	}
+	if placement == nil {
 		var str string
-		if cr.ReservationId != "" {
-			str = fmt.Sprintf("reservation %v", cr.ReservationId)
+		if sr.reservationId != "" {
+			str = fmt.Sprintf("reservation %v", sr.reservationId)
 		} else {
-			str = fmt.Sprintf("chain %v", cr.Chain)
+			str = fmt.Sprintf("chain %v", sr.chain)
 		}
-		klog.Infof("Insufficient quota in VC %v for cell request: %v, level %v, priority %v",
-			cr.VC, str, cr.Level, cr.Priority)
-		return nil
+		klog.Infof("Insufficient quota in VC %v for scheduling request: %v, GPU numbers %v, priority %v",
+			sr.vc, str, sr.affinityGroup, sr.priority)
 	}
+	return placement
 }

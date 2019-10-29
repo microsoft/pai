@@ -65,12 +65,28 @@ class TestJobExporter(unittest.TestCase):
 
         pod_gauge = watchdog.gen_pai_pod_gauge()
         container_gauge = watchdog.gen_pai_container_gauge()
+        job_pod_gauge = watchdog.gen_pai_job_pod_gauge()
         pod_info = collections.defaultdict(lambda : [])
 
-        watchdog.process_pods_status(obj, pod_gauge, container_gauge, pod_info)
+        watchdog.process_pods_status(obj, pod_gauge, container_gauge, job_pod_gauge, pod_info)
 
         self.assertTrue(len(pod_gauge.samples) > 0)
+        self.assertEqual('10.151.40.4', pod_gauge.samples[0].labels['host_ip'])
+        self.assertEqual('running', pod_gauge.samples[0].labels['phase'])
+        self.assertEqual('true', pod_gauge.samples[0].labels['pod_scheduled'])
+        self.assertEqual('true', pod_gauge.samples[0].labels['initialized'])
+
         self.assertTrue(len(container_gauge.samples) > 0)
+        self.assertEqual('10.151.40.4', container_gauge.samples[0].labels['host_ip'])
+        self.assertEqual('running', container_gauge.samples[0].labels['state'])
+        self.assertEqual('default', container_gauge.samples[0].labels['namespace'])
+        self.assertEqual('nvidia-drivers', container_gauge.samples[0].labels['name'])
+
+        self.assertTrue(len(job_pod_gauge.samples) > 0)
+        self.assertEqual('10.1.3.29', job_pod_gauge.samples[0].labels['host_ip'])
+        self.assertEqual('pending', job_pod_gauge.samples[0].labels['phase'])
+        self.assertEqual('true', job_pod_gauge.samples[0].labels['pod_bound'])
+        self.assertEqual('true', job_pod_gauge.samples[0].labels['initialized'])
 
     def test_process_nodes_status(self):
         obj = json.loads(self.get_data_test_input("data/nodes_list.json"))
@@ -87,9 +103,10 @@ class TestJobExporter(unittest.TestCase):
 
         pod_gauge = watchdog.gen_pai_pod_gauge()
         container_gauge = watchdog.gen_pai_container_gauge()
+        job_pod_gauge = watchdog.gen_pai_job_pod_gauge()
         pod_info = collections.defaultdict(lambda : [])
 
-        watchdog.process_pods_status(obj, pod_gauge, container_gauge, pod_info)
+        watchdog.process_pods_status(obj, pod_gauge, container_gauge, job_pod_gauge, pod_info)
 
         self.assertTrue(len(pod_gauge.samples) > 0)
         self.assertEqual(0, len(container_gauge.samples))
@@ -101,10 +118,11 @@ class TestJobExporter(unittest.TestCase):
             def collect(self):
                 pod_gauge = watchdog.gen_pai_pod_gauge()
                 container_gauge = watchdog.gen_pai_container_gauge()
+                job_pod_gauge = watchdog.gen_pai_job_pod_gauge()
                 pod_info = collections.defaultdict(lambda : [])
 
                 watchdog.process_pods_status(obj,
-                        pod_gauge, container_gauge, pod_info)
+                        pod_gauge, container_gauge, job_pod_gauge, pod_info)
 
                 yield pod_gauge
                 yield container_gauge
