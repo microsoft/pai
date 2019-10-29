@@ -2,7 +2,7 @@
   "log-driver": "json-file",
   "log-opts": {
     "max-size": "2g",
-    "max-file": "1"
+    "max-file": "2"
   },
   "data-root": "{{ hostcofig["docker-data"] }}",
   "runtimes": {

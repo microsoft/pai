@@ -16,44 +16,37 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
-common:
-  cluster-id: pai
-
-  # Cluster type must be yarn or k8s, default value is yarn.
-  cluster-type: yarn
-
-  # HDFS, zookeeper data path on your cluster machine.
-  data-path: "/datastorage"
-
-  job-history: "false"
-
-  qos-switch: "true"
-
-  az-rdma: "false"
-
-  # If RBAC is enabled in your cluster, you should set this value to true.
-  # If RBAC is enabled in your cluster, please ensure the kubeconfig for paictl has enough permission.
-  k8s-rbac: "false"
+import logging
+import logging.config
 
 
-# the docker registry to store docker images that contain system services like frameworklauncher, hadoop, etc.
-docker-registry:
+class Elasticsearch:
 
-  # domain/namespace/
+    def __init__(self, cluster_configuration, service_configuration, default_service_configuraiton):
+        self.logger = logging.getLogger(__name__)
 
-  # If public, please fill it the same as your username
-  namespace: openpai
+        self.cluster_configuration = cluster_configuration
 
-  # E.g., gcr.io. If public，fill docker_registry_domain with word "public"
-  # domain: public
-  domain: docker.io
 
-  # If the docker registry doesn't require authentication, please comment out docker_username and docker_password
-  #username: your_registry_username
-  #password: your_registry_password
+    def validation_pre(self):
+        for host_config in self.cluster_configuration["machine-list"]:
+            if "pai-master" in host_config and host_config["pai-master"] == "true":
+                return True, None
 
-  tag: latest
+        return False, "No master node found in machine list"
 
-  # The name of the secret in kubernetes will be created in your cluster
-  # Must be lower case, e.g., regsecret.
-  secret-name: regsecret
+
+
+    def run(self):
+        com = {"master-ip": None}
+
+        for host_config in self.cluster_configuration["machine-list"]:
+            if "pai-master" in host_config and host_config["pai-master"] == "true":
+                com["master-ip"] = host_config["hostip"]
+                break
+
+        return com
+
+    def validation_post(self, cluster_object_model):
+        return True, None
+

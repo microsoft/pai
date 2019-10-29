@@ -25,6 +25,9 @@
 #    # HDFS, zookeeper data path on your cluster machine.
 #    data-path: "/datastorage"
 #
+#    # Enable job history feature. Default value is "false"
+#    job-history: "false"
+#
 #    # Enable QoS feature or not. Default value is "true"
 #    qos-switch: "true"
 #
