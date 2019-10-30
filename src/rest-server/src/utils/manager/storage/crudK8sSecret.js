@@ -19,6 +19,7 @@ const Storage = require('./storage');
 const axios = require('axios');
 const {Agent} = require('https');
 const logger = require('@pai/config/logger');
+const createError = require('@pai/utils/error');
 
 /**
  * @typedef Config
@@ -273,7 +274,7 @@ async function readStorageConfigs(keys, config) {
  */
 async function patchStorageServer(op, key, value, config) {
   if (key === 'empty') {
-    throw new Error('Key \'empty\' is system reserved and should not be modified!');
+    throw createError('Forbidden', 'ForbiddenKeyError', 'Key \'empty\' is system reserved and should not be modified!');
   } else {
     try {
       const request = axios.create(config.requestConfig);
@@ -328,7 +329,7 @@ async function patchStorageServer(op, key, value, config) {
  */
 async function patchStorageConfig(op, key, value, config) {
   if (key === 'empty') {
-    throw new Error('Key \'empty\' is system reserved and should not be modified!');
+    throw createError('Forbidden', 'ForbiddenKeyError', 'Key \'empty\' is system reserved and should not be modified!');
   } else {
     try {
       const request = axios.create(config.requestConfig);
