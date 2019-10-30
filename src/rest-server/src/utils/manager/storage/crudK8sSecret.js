@@ -272,43 +272,47 @@ async function readStorageConfigs(keys, config) {
  * @return {Promise<Object>} A promise to patch result.
  */
 async function patchStorageServer(op, key, value, config) {
-  try {
-    const request = axios.create(config.requestConfig);
-    let serverData = {
-      op: op,
-      path: `/data/${key}`,
-    };
-    if (value !== null) {
-      let serverInstance = Storage.createStorageServer(value);
-      serverData.value = Buffer.from(
-        JSON.stringify({
-          spn: serverInstance['spn'],
-          type: serverInstance['type'],
-          ...serverInstance['data'],
-          extension:
-            serverInstance['extension'] !== undefined
-              ? serverInstance['extension']
-              : {},
-        })
-      ).toString('base64');
-    }
-    logger.info(serverData);
-    return await request.patch(
-      `${config.namespace}/secrets/storage-server`,
-      [serverData],
-      {
-        headers: {
-          'Accept': 'application/json',
-          'Content-Type': 'application/json-patch+json',
-        },
+  if (key === 'empty') {
+    throw new Error('Key \'empty\' is system reserved and should not be modified!');
+  } else {
+    try {
+      const request = axios.create(config.requestConfig);
+      let serverData = {
+        op: op,
+        path: `/data/${key}`,
+      };
+      if (value !== null) {
+        let serverInstance = Storage.createStorageServer(value);
+        serverData.value = Buffer.from(
+          JSON.stringify({
+            spn: serverInstance['spn'],
+            type: serverInstance['type'],
+            ...serverInstance['data'],
+            extension:
+              serverInstance['extension'] !== undefined
+                ? serverInstance['extension']
+                : {},
+          })
+        ).toString('base64');
       }
-    );
-  } catch (error) {
-    logger.debug(`Error when ${op} StorageServer ${key}, please check.`);
-    if (error.response) {
-      throw error.response;
-    } else {
-      throw error;
+      logger.info(serverData);
+      return await request.patch(
+        `${config.namespace}/secrets/storage-server`,
+        [serverData],
+        {
+          headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json-patch+json',
+          },
+        }
+      );
+    } catch (error) {
+      logger.debug(`Error when ${op} StorageServer ${key}, please check.`);
+      if (error.response) {
+        throw error.response;
+      } else {
+        throw error;
+      }
     }
   }
 }
