@@ -115,20 +115,24 @@ export async function listUserStorageConfigs(user) {
 }
 
 export async function fetchStorageConfigs(configNames) {
-  const bodyData = {};
-  bodyData.names = configNames;
-  const storageConfigs = await fetchWrapper(
-    `${config.restServerUri}/api/v2/storage/configs`,
-    {
-      body: JSON.stringify(bodyData),
-      headers: {
-        Authorization: `Bearer ${token}`,
-        'Content-Type': 'application/json',
+  if (configNames.length === 0) {
+    return [];
+  } else {
+    const bodyData = {};
+    bodyData.names = configNames;
+    const storageConfigs = await fetchWrapper(
+      `${config.restServerUri}/api/v2/storage/configs`,
+      {
+        body: JSON.stringify(bodyData),
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        method: 'POST',
       },
-      method: 'POST',
-    },
-  );
-  return storageConfigs;
+    );
+    return storageConfigs;
+  }
 }
 
 export async function fetchStorageServers(serverNames) {
