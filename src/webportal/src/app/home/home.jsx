@@ -27,7 +27,6 @@ import ReactDOM from 'react-dom';
 import MediaQuery from 'react-responsive';
 
 import JobStatus from './home/job-status';
-import VirtualClusterList from './home/virtual-cluster-list';
 import VirtualClusterStatistics from './home/virtual-cluster-statistics';
 import GpuChart from './home/gpu-chart';
 import {
@@ -102,35 +101,19 @@ const Home = () => {
         <MediaQuery maxWidth={BREAKPOINT1}>
           <Stack padding='l2' gap='l2' styles={{ minHeight: '100%' }}>
             <JobStatus style={{ height: 320 }} jobs={jobs} />
-            {isAdmin ? (
-              <React.Fragment>
-                <VirtualClusterStatistics
-                  style={{ height: 320 }}
-                  userInfo={userInfo}
-                  virtualClusters={virtualClusters}
-                />
-                <GpuChart
-                  style={{ height: 320 }}
-                  gpuPerNode={gpuPerNode}
-                  userInfo={userInfo}
-                  virtualClusters={virtualClusters}
-                />
-              </React.Fragment>
-            ) : (
-              <React.Fragment>
-                <VirtualClusterList
-                  style={{ height: 320 }}
-                  userInfo={userInfo}
-                  virtualClusters={virtualClusters}
-                />
-                <GpuChart
-                  style={{ height: 320 }}
-                  gpuPerNode={gpuPerNode}
-                  userInfo={userInfo}
-                  virtualClusters={virtualClusters}
-                />
-              </React.Fragment>
-            )}
+            <React.Fragment>
+              <VirtualClusterStatistics
+                style={{ height: 320 }}
+                userInfo={userInfo}
+                virtualClusters={virtualClusters}
+              />
+              <GpuChart
+                style={{ height: 320 }}
+                gpuPerNode={gpuPerNode}
+                userInfo={userInfo}
+                virtualClusters={virtualClusters}
+              />
+            </React.Fragment>
             {isAdmin ? (
               <AbnormalJobList jobs={listAbnormalJobs(jobs, lowGpuJobInfo)} />
             ) : (
@@ -148,37 +131,20 @@ const Home = () => {
             {/* top */}
             <StackItem disableShrink>
               <Stack gap='l2' horizontal>
-                {isAdmin ? (
-                  <React.Fragment>
-                    <JobStatus style={{ width: '25%' }} jobs={jobs} />
-                    <VirtualClusterStatistics
-                      style={{ width: '41%' }}
-                      userInfo={userInfo}
-                      virtualClusters={virtualClusters}
-                    />
-                    <GpuChart
-                      style={{ width: '33%' }}
-                      gpuPerNode={gpuPerNode}
-                      userInfo={userInfo}
-                      virtualClusters={virtualClusters}
-                    />
-                  </React.Fragment>
-                ) : (
-                  <React.Fragment>
-                    <JobStatus style={{ width: '33%' }} jobs={jobs} />
-                    <VirtualClusterList
-                      style={{ width: '33%' }}
-                      userInfo={userInfo}
-                      virtualClusters={virtualClusters}
-                    />
-                    <GpuChart
-                      style={{ width: '33%' }}
-                      gpuPerNode={gpuPerNode}
-                      userInfo={userInfo}
-                      virtualClusters={virtualClusters}
-                    />
-                  </React.Fragment>
-                )}
+                <React.Fragment>
+                  <JobStatus style={{ width: '25%' }} jobs={jobs} />
+                  <VirtualClusterStatistics
+                    style={{ width: '41%' }}
+                    userInfo={userInfo}
+                    virtualClusters={virtualClusters}
+                  />
+                  <GpuChart
+                    style={{ width: '33%' }}
+                    gpuPerNode={gpuPerNode}
+                    userInfo={userInfo}
+                    virtualClusters={virtualClusters}
+                  />
+                </React.Fragment>
               </Stack>
             </StackItem>
             {/* bottom */}
