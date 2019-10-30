@@ -87,9 +87,9 @@ const AbnormalJobList = ({ jobs, style }) => {
       onRender(job) {
         if (isLowGpuUsageJob(job)) {
           return (
-            <div
-              style={{ color: palette.red }}
-            >{`count: ${job.totalGpuNumber}  usage: ${job.gpuUsage}%`}</div>
+            <div style={{ color: palette.red }}>{`count: ${
+              job.totalGpuNumber
+            }  usage: ${Number.parseFloat(job.gpuUsage).toFixed(2)}%`}</div>
           );
         }
         return job.totalGpuNumber;
