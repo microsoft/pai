@@ -42,6 +42,12 @@ const initClient = (namespace) => {
   return axios.create(config);
 };
 
+
+/**
+ * Serialize key-value object to k8s secret's base64 encoded data structure
+ * @param {Object} object - key-value dictionary, value should be string
+ * @returns {Object}
+ */
 const serialize = (object) => {
   if (object == null) {
     return {};
@@ -54,7 +60,11 @@ const serialize = (object) => {
   return result;
 };
 
-
+/**
+ * Deserialize k8s secret's base64 encoded data structure to key-value object
+ * @param {Object} object - k8s secret's data
+ * @returns {Object} key-value dictionary, value is string.
+ */
 const deserialize = (object) => {
   if (object == null) {
     return {};
@@ -109,6 +119,8 @@ const get = async (namespace, key) => {
     return list(namespace);
   }
   const client = initClient(namespace);
+  // k8s resource's name must consisst of only digits (0-9), lower case letters (a-z), -, and ..
+  // We encode the key here to ensure it is valid.
   const hexKey = Buffer.from(key).toString('hex');
 
   try {

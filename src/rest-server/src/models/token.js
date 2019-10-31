@@ -45,6 +45,12 @@ const sign = async (username, application, expiration) => {
   });
 };
 
+
+/**
+ * Remove invalid (expired/malformed) tokens from given token list object.
+ * @param {Object} data - id -> token format data object (data stored in k8s secret)
+ * @returns {Object} Purged data in the same format
+ */
 const purge = (data) => {
   const result = {};
   for (const [key, val] of Object.entries(data)) {
