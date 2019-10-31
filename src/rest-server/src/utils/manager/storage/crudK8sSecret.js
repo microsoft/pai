@@ -275,45 +275,45 @@ async function readStorageConfigs(keys, config) {
 async function patchStorageServer(op, key, value, config) {
   if (key === 'empty') {
     throw createError('Forbidden', 'ForbiddenKeyError', 'Key \'empty\' is system reserved and should not be modified!');
-  } else {
-    try {
-      const request = axios.create(config.requestConfig);
-      let serverData = {
-        op: op,
-        path: `/data/${key}`,
-      };
-      if (value !== null) {
-        let serverInstance = Storage.createStorageServer(value);
-        serverData.value = Buffer.from(
-          JSON.stringify({
-            spn: serverInstance['spn'],
-            type: serverInstance['type'],
-            ...serverInstance['data'],
-            extension:
-              serverInstance['extension'] !== undefined
-                ? serverInstance['extension']
-                : {},
-          })
-        ).toString('base64');
+  }
+
+  try {
+    const request = axios.create(config.requestConfig);
+    let serverData = {
+      op: op,
+      path: `/data/${key}`,
+    };
+    if (value !== null) {
+      let serverInstance = Storage.createStorageServer(value);
+      serverData.value = Buffer.from(
+        JSON.stringify({
+          spn: serverInstance['spn'],
+          type: serverInstance['type'],
+          ...serverInstance['data'],
+          extension:
+            serverInstance['extension'] !== undefined
+              ? serverInstance['extension']
+              : {},
+        })
+      ).toString('base64');
+    }
+    logger.info(serverData);
+    return await request.patch(
+      `${config.namespace}/secrets/storage-server`,
+      [serverData],
+      {
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json-patch+json',
+        },
       }
-      logger.info(serverData);
-      return await request.patch(
-        `${config.namespace}/secrets/storage-server`,
-        [serverData],
-        {
-          headers: {
-            'Accept': 'application/json',
-            'Content-Type': 'application/json-patch+json',
-          },
-        }
-      );
-    } catch (error) {
-      logger.debug(`Error when ${op} StorageServer ${key}, please check.`);
-      if (error.response) {
-        throw error.response;
-      } else {
-        throw error;
-      }
+    );
+  } catch (error) {
+    logger.debug(`Error when ${op} StorageServer ${key}, please check.`);
+    if (error.response) {
+      throw error.response;
+    } else {
+      throw error;
     }
   }
 }
@@ -330,36 +330,36 @@ async function patchStorageServer(op, key, value, config) {
 async function patchStorageConfig(op, key, value, config) {
   if (key === 'empty') {
     throw createError('Forbidden', 'ForbiddenKeyError', 'Key \'empty\' is system reserved and should not be modified!');
-  } else {
-    try {
-      const request = axios.create(config.requestConfig);
-      let configData = {
-        op: op,
-        path: `/data/${key}`,
-      };
-      if (value !== null) {
-        let configInstance = Storage.createStorageConfig(value);
-        configData.value = Buffer.from(JSON.stringify(configInstance)).toString(
-          'base64'
-        );
-      }
-      return await request.patch(
-        `${config.namespace}/secrets/storage-config`,
-        [configData],
-        {
-          headers: {
-            'Accept': 'application/json',
-            'Content-Type': 'application/json-patch+json',
-          },
-        }
+  }
+
+  try {
+    const request = axios.create(config.requestConfig);
+    let configData = {
+      op: op,
+      path: `/data/${key}`,
+    };
+    if (value !== null) {
+      let configInstance = Storage.createStorageConfig(value);
+      configData.value = Buffer.from(JSON.stringify(configInstance)).toString(
+        'base64'
       );
-    } catch (error) {
-      if (error.response) {
-        logger.debug(`Error when ${op} StorageConfig ${key}, please check.`);
-        throw error.response;
-      } else {
-        throw error;
+    }
+    return await request.patch(
+      `${config.namespace}/secrets/storage-config`,
+      [configData],
+      {
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json-patch+json',
+        },
       }
+    );
+  } catch (error) {
+    if (error.response) {
+      logger.debug(`Error when ${op} StorageConfig ${key}, please check.`);
+      throw error.response;
+    } else {
+      throw error;
     }
   }
 }

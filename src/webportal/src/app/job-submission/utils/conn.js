@@ -19,7 +19,7 @@ import { userLogout } from '../../user/user-logout/user-logout.component.js';
 
 import config from '../../config/webportal.config';
 import yaml from 'js-yaml';
-import { get } from 'lodash';
+import { get, isEmpty } from 'lodash';
 
 const token = cookies.get('token');
 
@@ -115,24 +115,24 @@ export async function listUserStorageConfigs(user) {
 }
 
 export async function fetchStorageConfigs(configNames) {
-  if (configNames.length === 0) {
+  if (isEmpty(configNames.length)) {
     return [];
-  } else {
-    const bodyData = {};
-    bodyData.names = configNames;
-    const storageConfigs = await fetchWrapper(
-      `${config.restServerUri}/api/v2/storage/configs`,
-      {
-        body: JSON.stringify(bodyData),
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-        method: 'POST',
-      },
-    );
-    return storageConfigs;
   }
+
+  const bodyData = {};
+  bodyData.names = configNames;
+  const storageConfigs = await fetchWrapper(
+    `${config.restServerUri}/api/v2/storage/configs`,
+    {
+      body: JSON.stringify(bodyData),
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+      method: 'POST',
+    },
+  );
+  return storageConfigs;
 }
 
 export async function fetchStorageServers(serverNames) {
