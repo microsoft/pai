@@ -296,6 +296,7 @@ const generateTaskRole = (taskRole, labels, config) => {
   if ('extras' in config && config.extras.gangAllocation === false) {
     gangAllocation = 'false';
     retryPolicy.fancyRetryPolicy = true;
+    retryPolicy.maxRetryCount = config.taskRoles[taskRole].taskRetryCount || 0;
   }
 
   const frameworkTaskRole = {
