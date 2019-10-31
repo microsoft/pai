@@ -64,6 +64,7 @@ RUN ./configure \
   --user=www-data \
   --group=www-data \
   # Built-in modules
+  --with-http_realip_module \
   --with-http_sub_module \
   --with-http_stub_status_module \
   --with-http_ssl_module \
