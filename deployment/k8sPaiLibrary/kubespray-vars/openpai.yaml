@@ -54,7 +54,7 @@ loadbalancer_apiserver_keepalive_timeout: 15m
 ## Set manual server if using a custom cluster DNS server
 ## manual_dns_server: 10.x.x.x
 ## Enable nodelocal dns cache
-# enable_nodelocaldns: false
+enable_nodelocaldns: false
 # nodelocaldns_ip: 169.254.25.10
 # nodelocaldns_health_port: 9254
 
