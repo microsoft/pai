@@ -111,10 +111,7 @@ kubelet_status_update_frequency: 10s
 kubelet_custom_flags:
   - "--image-pull-progress-deadline=10m"
 
-kube_feature_gates:
-  - "DevicePlugins=true"
-  - "TaintBasedEvictions=true"
-  - "PodPriority=true"
+# kube_feature_gates: []
 
 ## Support custom flags to be passed to kubelet only on nodes, not masters
 # kubelet_node_custom_flags: []
