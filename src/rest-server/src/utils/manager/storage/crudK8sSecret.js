@@ -19,6 +19,7 @@ const Storage = require('./storage');
 const axios = require('axios');
 const {Agent} = require('https');
 const logger = require('@pai/config/logger');
+const createError = require('@pai/utils/error');
 
 /**
  * @typedef Config
@@ -143,7 +144,7 @@ async function readStorageServers(keys, config) {
     }
 
     for (const key of keys) {
-      if (response['data']['data'].hasOwnProperty(key)) {
+      if (key !== 'empty' && response['data']['data'].hasOwnProperty(key)) {
         let serverData = JSON.parse(
           Buffer.from(response['data']['data'][key], 'base64').toString()
         );
@@ -237,7 +238,7 @@ async function readStorageConfigs(keys, config) {
     }
 
     for (const key of keys) {
-      if (response['data']['data'].hasOwnProperty(key)) {
+      if (key !== 'empty' && response['data']['data'].hasOwnProperty(key)) {
         let configData = JSON.parse(
           Buffer.from(response['data']['data'][key], 'base64').toString()
         );
@@ -272,6 +273,10 @@ async function readStorageConfigs(keys, config) {
  * @return {Promise<Object>} A promise to patch result.
  */
 async function patchStorageServer(op, key, value, config) {
+  if (key === 'empty') {
+    throw createError('Forbidden', 'ForbiddenKeyError', 'Key \'empty\' is system reserved and should not be modified!');
+  }
+
   try {
     const request = axios.create(config.requestConfig);
     let serverData = {
@@ -323,6 +328,10 @@ async function patchStorageServer(op, key, value, config) {
  * @return {Promise<Object>} A promise to patch result.
  */
 async function patchStorageConfig(op, key, value, config) {
+  if (key === 'empty') {
+    throw createError('Forbidden', 'ForbiddenKeyError', 'Key \'empty\' is system reserved and should not be modified!');
+  }
+
   try {
     const request = axios.create(config.requestConfig);
     let configData = {

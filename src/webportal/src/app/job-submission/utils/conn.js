@@ -19,7 +19,7 @@ import { userLogout } from '../../user/user-logout/user-logout.component.js';
 
 import config from '../../config/webportal.config';
 import yaml from 'js-yaml';
-import { get } from 'lodash';
+import { get, isEmpty } from 'lodash';
 
 const token = cookies.get('token');
 
@@ -115,6 +115,10 @@ export async function listUserStorageConfigs(user) {
 }
 
 export async function fetchStorageConfigs(configNames) {
+  if (isEmpty(configNames.length)) {
+    return [];
+  }
+
   const bodyData = {};
   bodyData.names = configNames;
   const storageConfigs = await fetchWrapper(

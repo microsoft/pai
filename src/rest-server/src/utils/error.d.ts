@@ -31,6 +31,7 @@ declare type Code =
     'ConflictUserError' |
     'ConflictVcError' |
     'ForbiddenUserError' |
+    'ForbiddenKeyError' |
     'IncorrectPasswordError' |
     'InvalidParametersError' |
     'NoApiError' |
