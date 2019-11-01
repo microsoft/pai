@@ -87,8 +87,8 @@ enable_nodelocaldns: false
 ## Cluster Loglevel configuration
 # kube_log_level: 2
 
-# kube_token_auth: true
-# kube_basic_auth: true
+kube_token_auth: true
+kube_basic_auth: true
 
 ## Make a copy of kubeconfig on the host that runs Ansible in {{ inventory_dir }}/artifacts
 kubeconfig_localhost: true
