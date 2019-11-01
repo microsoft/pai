@@ -125,7 +125,7 @@ k8s_image_pull_policy: Always
 
 # Choose network plugin (cilium, calico, contiv, weave or flannel. Use cni for generic cni plugin)
 # Can also be set to 'cloud', which lets the cloud provider setup appropriate routing
-kube_network_plugin: calico
+kube_network_plugin: flannel
 
 # Setting multi_networking to true will install Multus: https://github.com/intel/multus-cni
 kube_network_plugin_multus: false
@@ -191,17 +191,17 @@ kube_apiserver_cpu_requests: 1000m
 kube_apiserver_request_timeout: "1m0s"
 
 # 1.9 and below Admission control plug-ins
-kube_apiserver_admission_control:
-  - NamespaceLifecycle
-  - LimitRanger
-  - ServiceAccount
-  - DefaultStorageClass
-  - PersistentVolumeClaimResize
-  - MutatingAdmissionWebhook
-  - ValidatingAdmissionWebhook
-  - ResourceQuota
-  - DefaultTolerationSeconds
-  - DenyEscalatingExec
+#kube_apiserver_admission_control:
+#  - NamespaceLifecycle
+#  - LimitRanger
+#  - ServiceAccount
+#  - DefaultStorageClass
+#  - PersistentVolumeClaimResize
+#  - MutatingAdmissionWebhook
+#  - ValidatingAdmissionWebhook
+#  - ResourceQuota
+#  - DefaultTolerationSeconds
+#  - DenyEscalatingExec
 
 ## 1.10+ admission plugins
 # kube_apiserver_enable_admission_plugins: []
@@ -211,8 +211,7 @@ kube_apiserver_admission_control:
 
 ##### controller
 
-kube_kubeadm_controller_extra_args:
-  leader-elect: "true"
+# kube_kubeadm_controller_extra_args: {}
 
 # controller_manager_extra_volumes: {}
 
