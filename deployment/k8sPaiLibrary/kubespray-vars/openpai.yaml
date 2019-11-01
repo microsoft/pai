@@ -95,7 +95,7 @@ kubeconfig_localhost: true
 ## Download kubectl onto the host that runs Ansible in {{ bin_dir }}
 kubectl_localhost: true
 
-kubelet_status_update_frequency: 10s
+# kubelet_status_update_frequency: 10s
 
 ## For some things, kubelet needs to load kernel modules.  For example,
 ## dynamic kernel services are needed for mounting persistent volumes into containers.  These may not be
@@ -108,8 +108,8 @@ kubelet_status_update_frequency: 10s
 # kubelet_max_pods: 110
 
 ## Support custom flags to be passed to kubelet
-kubelet_custom_flags:
-  - "--image-pull-progress-deadline=10m"
+# kubelet_custom_flags:
+#  - "--image-pull-progress-deadline=10m"
 
 # kube_feature_gates: []
 
@@ -128,17 +128,17 @@ k8s_image_pull_policy: Always
 kube_network_plugin: flannel
 
 # Setting multi_networking to true will install Multus: https://github.com/intel/multus-cni
-kube_network_plugin_multus: false
+# kube_network_plugin_multus: false
 
 ## Scale: 4096 nodes, 100 pods per node
 
 ## Kubernetes internal network for services, unused block of space.
-# kube_service_addresses: 10.192.0.0/13
+kube_service_addresses: 10.192.0.0/13
 
 ## internal network. When used, it will assign IP
 ## addresses from this range to individual pods.
 ## This network must be unused in your network infrastructure!
-# kube_pods_subnet: 10.200.0.0/13
+kube_pods_subnet: 10.200.0.0/13
 
 ## internal network node size allocation (optional). This is the size allocated
 ## to each node on your network.  With these defaults you should have
@@ -151,15 +151,15 @@ kube_network_plugin_multus: false
 ##  - kube_service_addresses: 10.192.0.0/13
 ##  - kube_pods_subnet: 10.200.0.0/13
 ##  - kube_network_node_prefix: 25
-# kube_network_node_prefix: 25
+kube_network_node_prefix: 25
 
 ##### api-server
 
-kube_kubeadm_apiserver_extra_args:
-  cors-allowed-origins: ".*"
-  storage-media-type: "application/json"
-  max-requests-inflight: 1500
-  max-mutating-requests-inflight: 500
+# kube_kubeadm_apiserver_extra_args:
+#  cors-allowed-origins: ".*"
+#  storage-media-type: "application/json"
+#  max-requests-inflight: 1500
+#  max-mutating-requests-inflight: 500
 
 ## Extra control plane host volume mounts
 ## Example:
@@ -188,7 +188,7 @@ kube_apiserver_memory_limit: 20000M
 kube_apiserver_cpu_limit: 10000m
 kube_apiserver_memory_requests: 1024M
 kube_apiserver_cpu_requests: 1000m
-kube_apiserver_request_timeout: "1m0s"
+# kube_apiserver_request_timeout: "1m0s"
 
 # 1.9 and below Admission control plug-ins
 kube_apiserver_admission_control:
@@ -221,9 +221,9 @@ kube_controller_memory_limit: 20000M
 kube_controller_cpu_limit: 10000m
 kube_controller_memory_requests: 1024M
 kube_controller_cpu_requests: 1000m
-kube_controller_node_monitor_grace_period: 40s
-kube_controller_node_monitor_period: 5s
-kube_controller_pod_eviction_timeout: 5m0s
+# kube_controller_node_monitor_grace_period: 40s
+# kube_controller_node_monitor_period: 5s
+# kube_controller_pod_eviction_timeout: 5m0s
 kube_controller_terminated_pod_gc_threshold: 12500
 
 ##### scheduler
