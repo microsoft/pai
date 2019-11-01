@@ -18,6 +18,7 @@
 // module dependencies
 const createError = require('@pai/utils/error');
 const storageModel = require('@pai/models/v2/storage');
+const {isArray, isEmpty} = require('lodash');
 
 const getStorageServer = async (req, res, next) => {
   try {
@@ -31,7 +32,11 @@ const getStorageServer = async (req, res, next) => {
 
 const getStorageServers = async (req, res, next) => {
   try {
-    const names = req.body.names;
+    const names = isEmpty(req.query.names)
+      ? []
+      : isArray(req.query.names)
+      ? req.query.names
+      : [req.query.names];
     const storageServerList = await storageModel.getStorageServers(names);
     return res.status(200).json(storageServerList);
   } catch (error) {
@@ -51,7 +56,11 @@ const getStorageConfig = async (req, res, next) => {
 
 const getStorageConfigs = async (req, res, next) => {
   try {
-    const names = req.body.names;
+    const names = isEmpty(req.query.names)
+      ? []
+      : isArray(req.query.names)
+      ? req.query.names
+      : [req.query.names];
     const storageConfigList = await storageModel.getStorageConfigs(names);
     return res.status(200).json(storageConfigList);
   } catch (error) {
@@ -62,7 +71,13 @@ const getStorageConfigs = async (req, res, next) => {
 const createStorageServer = async (req, res, next) => {
   try {
     if (!req.user.admin) {
-      next(createError('Forbidden', 'ForbiddenUserError', `Non-admin is not allow to do this operation.`));
+      next(
+        createError(
+          'Forbidden',
+          'ForbiddenUserError',
+          `Non-admin is not allow to do this operation.`
+        )
+      );
     }
     const name = req.body.spn;
     const value = {
@@ -82,7 +97,13 @@ const createStorageServer = async (req, res, next) => {
 const updateStorageServer = async (req, res, next) => {
   try {
     if (!req.user.admin) {
-      next(createError('Forbidden', 'ForbiddenUserError', `Non-admin is not allow to do this operation.`));
+      next(
+        createError(
+          'Forbidden',
+          'ForbiddenUserError',
+          `Non-admin is not allow to do this operation.`
+        )
+      );
     }
     const name = req.body.spn;
     const value = {
@@ -102,7 +123,13 @@ const updateStorageServer = async (req, res, next) => {
 const deleteStorageServer = async (req, res, next) => {
   try {
     if (!req.user.admin) {
-      next(createError('Forbidden', 'ForbiddenUserError', `Non-admin is not allow to do this operation.`));
+      next(
+        createError(
+          'Forbidden',
+          'ForbiddenUserError',
+          `Non-admin is not allow to do this operation.`
+        )
+      );
     }
     const name = req.params.name;
     await storageModel.deleteStorageServer(name);
@@ -117,7 +144,13 @@ const deleteStorageServer = async (req, res, next) => {
 const createStorageConfig = async (req, res, next) => {
   try {
     if (!req.user.admin) {
-      next(createError('Forbidden', 'ForbiddenUserError', `Non-admin is not allow to do this operation.`));
+      next(
+        createError(
+          'Forbidden',
+          'ForbiddenUserError',
+          `Non-admin is not allow to do this operation.`
+        )
+      );
     }
     const name = req.body.name;
     const value = req.body;
@@ -133,7 +166,13 @@ const createStorageConfig = async (req, res, next) => {
 const updateStorageConfig = async (req, res, next) => {
   try {
     if (!req.user.admin) {
-      next(createError('Forbidden', 'ForbiddenUserError', `Non-admin is not allow to do this operation.`));
+      next(
+        createError(
+          'Forbidden',
+          'ForbiddenUserError',
+          `Non-admin is not allow to do this operation.`
+        )
+      );
     }
     const name = req.body.name;
     const value = req.body;
@@ -149,7 +188,13 @@ const updateStorageConfig = async (req, res, next) => {
 const deleteStorageConfig = async (req, res, next) => {
   try {
     if (!req.user.admin) {
-      next(createError('Forbidden', 'ForbiddenUserError', `Non-admin is not allow to do this operation.`));
+      next(
+        createError(
+          'Forbidden',
+          'ForbiddenUserError',
+          `Non-admin is not allow to do this operation.`
+        )
+      );
     }
     const name = req.params.name;
     await storageModel.deleteStorageConfig(name);

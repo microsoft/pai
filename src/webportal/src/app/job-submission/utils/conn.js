@@ -22,6 +22,7 @@ import yaml from 'js-yaml';
 import { get, isEmpty } from 'lodash';
 
 const token = cookies.get('token');
+const querystring = require('querystring');
 
 export class NotFoundError extends Error {
   constructor(msg) {
@@ -115,38 +116,40 @@ export async function listUserStorageConfigs(user) {
 }
 
 export async function fetchStorageConfigs(configNames) {
-  if (isEmpty(configNames.length)) {
+  if (isEmpty(configNames)) {
     return [];
   }
 
-  const bodyData = {};
-  bodyData.names = configNames;
   const storageConfigs = await fetchWrapper(
-    `${config.restServerUri}/api/v2/storage/configs`,
+    `${config.restServerUri}/api/v2/storage/config?${querystring.stringify({
+      names: configNames,
+    })}`,
     {
-      body: JSON.stringify(bodyData),
       headers: {
         Authorization: `Bearer ${token}`,
         'Content-Type': 'application/json',
       },
-      method: 'POST',
+      method: 'GET',
     },
   );
   return storageConfigs;
 }
 
 export async function fetchStorageServers(serverNames) {
-  const bodyData = {};
-  bodyData.names = serverNames;
+  if (isEmpty(serverNames)) {
+    return [];
+  }
+
   const storageServers = await fetchWrapper(
-    `${config.restServerUri}/api/v2/storage/servers`,
+    `${config.restServerUri}/api/v2/storage/server?${querystring.stringify({
+      names: serverNames,
+    })}`,
     {
-      body: JSON.stringify(bodyData),
       headers: {
         Authorization: `Bearer ${token}`,
         'Content-Type': 'application/json',
       },
-      method: 'POST',
+      method: 'GET',
     },
   );
   return storageServers;
