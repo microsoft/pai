@@ -2310,6 +2310,10 @@ Authorization: Bearer <ACCESS_TOKEN>
 ```
   names=[string]
 ```
+User can query multiple servers by using multiple names parameter:
+```
+GET storage/server?names=name1&names=name2
+```
 
 *Response if succeeded*
 
@@ -2608,6 +2612,10 @@ Authorization: Bearer <ACCESS_TOKEN>
 *Optional:*
 ```
   names=[string]
+```
+User can query multiple configs by using multiple names parameter:
+```
+GET storage/config?names=name1&names=name2
 ```
 
 *Response if succeeded*
