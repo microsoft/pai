@@ -133,12 +133,12 @@ kube_network_plugin_multus: false
 ## Scale: 4096 nodes, 100 pods per node
 
 ## Kubernetes internal network for services, unused block of space.
-kube_service_addresses: 10.192.0.0/13
+# kube_service_addresses: 10.192.0.0/13
 
 ## internal network. When used, it will assign IP
 ## addresses from this range to individual pods.
 ## This network must be unused in your network infrastructure!
-kube_pods_subnet: 10.200.0.0/13
+# kube_pods_subnet: 10.200.0.0/13
 
 ## internal network node size allocation (optional). This is the size allocated
 ## to each node on your network.  With these defaults you should have
@@ -151,7 +151,7 @@ kube_pods_subnet: 10.200.0.0/13
 ##  - kube_service_addresses: 10.192.0.0/13
 ##  - kube_pods_subnet: 10.200.0.0/13
 ##  - kube_network_node_prefix: 25
-kube_network_node_prefix: 25
+# kube_network_node_prefix: 25
 
 ##### api-server
 
@@ -191,17 +191,17 @@ kube_apiserver_cpu_requests: 1000m
 kube_apiserver_request_timeout: "1m0s"
 
 # 1.9 and below Admission control plug-ins
-#kube_apiserver_admission_control:
-#  - NamespaceLifecycle
-#  - LimitRanger
-#  - ServiceAccount
-#  - DefaultStorageClass
-#  - PersistentVolumeClaimResize
-#  - MutatingAdmissionWebhook
-#  - ValidatingAdmissionWebhook
-#  - ResourceQuota
-#  - DefaultTolerationSeconds
-#  - DenyEscalatingExec
+kube_apiserver_admission_control:
+  - NamespaceLifecycle
+  - LimitRanger
+  - ServiceAccount
+  - DefaultStorageClass
+  - PersistentVolumeClaimResize
+  - MutatingAdmissionWebhook
+  - ValidatingAdmissionWebhook
+  - ResourceQuota
+  - DefaultTolerationSeconds
+  - DenyEscalatingExec
 
 ## 1.10+ admission plugins
 # kube_apiserver_enable_admission_plugins: []
