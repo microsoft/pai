@@ -69,7 +69,7 @@ enable_nodelocaldns: false
 # resolvconf_mode: docker_dns
 
 ## Deploy netchecker app to verify DNS resolve as an HTTP service
-deploy_netchecker: true
+# deploy_netchecker: true
 
 ## Ip address of the kubernetes skydns service
 # skydns_server: "{{ kube_service_addresses|ipaddr('net')|ipaddr(3)|ipaddr('address') }}"
