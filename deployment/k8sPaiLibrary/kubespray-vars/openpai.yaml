@@ -9,21 +9,21 @@
 
 ## Etcd is restricted by default to 512M on systems under 4GB RAM, 512MB is not enough for much more than testing.
 ## Set this if your etcd nodes have less than 4GB but you want more RAM for etcd. Set to 0 for unrestricted RAM.
-etcd_memory_limit: "0"
+#etcd_memory_limit: "0"
 
 ## Etcd has a default of 2G for its space quota. If you put a value in etcd_memory_limit which is less than
 ## etcd_quota_backend_bytes, you may encounter out of memory terminations of the etcd cluster. Please check
 ## etcd documentation for more information.
 ## https://etcd.io/docs/v3.4.0/op-guide/configuration/
-etcd_quota_backend_bytes: "8589934592"
+#etcd_quota_backend_bytes: "8589934592"
 
 ############## nginx configuration ##############
 
 # Requests for load balancer app
-loadbalancer_apiserver_memory_requests: 1024M
-loadbalancer_apiserver_cpu_requests: 1000m
+#loadbalancer_apiserver_memory_requests: 1024M
+#loadbalancer_apiserver_cpu_requests: 1000m
 
-loadbalancer_apiserver_keepalive_timeout: 15m
+#loadbalancer_apiserver_keepalive_timeout: 15m
 
 ## Internal loadbalancers for apiservers
 # loadbalancer_apiserver_localhost: true
@@ -54,7 +54,7 @@ loadbalancer_apiserver_keepalive_timeout: 15m
 ## Set manual server if using a custom cluster DNS server
 ## manual_dns_server: 10.x.x.x
 ## Enable nodelocal dns cache
-enable_nodelocaldns: false
+#enable_nodelocaldns: false
 # nodelocaldns_ip: 169.254.25.10
 # nodelocaldns_health_port: 9254
 
@@ -87,8 +87,8 @@ enable_nodelocaldns: false
 ## Cluster Loglevel configuration
 # kube_log_level: 2
 
-kube_token_auth: true
-kube_basic_auth: true
+#kube_token_auth: true
+#kube_basic_auth: true
 
 ## Make a copy of kubeconfig on the host that runs Ansible in {{ inventory_dir }}/artifacts
 kubeconfig_localhost: true
@@ -116,7 +116,7 @@ kubectl_localhost: true
 ## Support custom flags to be passed to kubelet only on nodes, not masters
 # kubelet_node_custom_flags: []
 
-k8s_image_pull_policy: Always
+#k8s_image_pull_policy: Always
 
 ## extra runtime config
 # kube_api_runtime_config: []
@@ -184,24 +184,24 @@ kube_network_node_prefix: 25
 ## Inclusive at both ends of the range.
 # kube_apiserver_node_port_range: "30000-32767"
 
-kube_apiserver_memory_limit: 20000M
-kube_apiserver_cpu_limit: 10000m
-kube_apiserver_memory_requests: 1024M
-kube_apiserver_cpu_requests: 1000m
+#kube_apiserver_memory_limit: 20000M
+#kube_apiserver_cpu_limit: 10000m
+#kube_apiserver_memory_requests: 1024M
+#kube_apiserver_cpu_requests: 1000m
 # kube_apiserver_request_timeout: "1m0s"
 
 # 1.9 and below Admission control plug-ins
-kube_apiserver_admission_control:
-  - NamespaceLifecycle
-  - LimitRanger
-  - ServiceAccount
-  - DefaultStorageClass
-  - PersistentVolumeClaimResize
-  - MutatingAdmissionWebhook
-  - ValidatingAdmissionWebhook
-  - ResourceQuota
-  - DefaultTolerationSeconds
-  - DenyEscalatingExec
+#kube_apiserver_admission_control:
+#  - NamespaceLifecycle
+#  - LimitRanger
+#  - ServiceAccount
+#  - DefaultStorageClass
+#  - PersistentVolumeClaimResize
+#  - MutatingAdmissionWebhook
+#  - ValidatingAdmissionWebhook
+#  - ResourceQuota
+#  - DefaultTolerationSeconds
+#  - DenyEscalatingExec
 
 ## 1.10+ admission plugins
 # kube_apiserver_enable_admission_plugins: []
@@ -217,14 +217,14 @@ kube_apiserver_admission_control:
 
 # kube_controller_manager_bind_address: 0.0.0.0
 
-kube_controller_memory_limit: 20000M
-kube_controller_cpu_limit: 10000m
-kube_controller_memory_requests: 1024M
-kube_controller_cpu_requests: 1000m
+# kube_controller_memory_limit: 20000M
+# kube_controller_cpu_limit: 10000m
+# kube_controller_memory_requests: 1024M
+# kube_controller_cpu_requests: 1000m
 # kube_controller_node_monitor_grace_period: 40s
 # kube_controller_node_monitor_period: 5s
 # kube_controller_pod_eviction_timeout: 5m0s
-kube_controller_terminated_pod_gc_threshold: 12500
+# kube_controller_terminated_pod_gc_threshold: 12500
 
 ##### scheduler
 
@@ -234,17 +234,17 @@ kube_controller_terminated_pod_gc_threshold: 12500
 
 # kube_scheduler_bind_address: 0.0.0.0
 
-kube_scheduler_memory_limit: 200000M
-kube_scheduler_cpu_limit: 10000m
-kube_scheduler_memory_requests: 1024M
-kube_scheduler_cpu_requests: 1000m
+# kube_scheduler_memory_limit: 200000M
+# kube_scheduler_cpu_limit: 10000m
+# kube_scheduler_memory_requests: 1024M
+# kube_scheduler_cpu_requests: 1000m
 
 ############## other configuration ##############
 
 ## Optionally reserve resources for OS system daemons.
-system_reserved: true
+# system_reserved: true
 ## Uncomment to override default values
-system_memory_reserved: 3072M
+# system_memory_reserved: 3072M
 # system_cpu_reserved: 500m
 ## Reservation for master hosts
 # system_master_memory_reserved: 256M
@@ -266,27 +266,27 @@ system_memory_reserved: 3072M
 ## Used to set docker daemon iptables options to true
 # docker_iptables_enabled: "true"
 
-docker_daemon_graph: "/docker_data_root_test"
+#docker_daemon_graph: "/docker_data_root_test"
 
-docker_log_opts: "--log-opt max-size=2g --log-opt max-file=1 --log-driver=json-file"
+#docker_log_opts: "--log-opt max-size=2g --log-opt max-file=1 --log-driver=json-file"
 
 # add --add-runtime nvidia=/usr/bin/nvidia-container-runtime for nvidia-runtime in docker_option
-docker_options: >-
-    --add-runtime nvidia=/usr/bin/nvidia-container-runtime
-    --default-runtime nvidia
-    {%- if docker_insecure_registries is defined %}
-    {{ docker_insecure_registries | map('regex_replace', '^(.*)$', '--insecure-registry=\1' ) | list | join(' ') }}
-    {%- endif %}
-    {% if docker_registry_mirrors is defined %}
-    {{ docker_registry_mirrors | map('regex_replace', '^(.*)$', '--registry-mirror=\1' ) | list | join(' ') }}
-    {%- endif %}
-    {%- if docker_version != "latest" and docker_version is version('17.05', '<') %}
-    --graph={{ docker_daemon_graph }} {% if ansible_os_family not in ["openSUSE Leap", "openSUSE Tumbleweed", "Suse"] %}{{ docker_log_opts }}{% endif %}
-    {%- else %}
-    --data-root={{ docker_daemon_graph }} {% if ansible_os_family not in ["openSUSE Leap", "openSUSE Tumbleweed", "Suse"] %}{{ docker_log_opts }}{% endif %}
-    {%- endif %}
-    {%- if ansible_architecture == "aarch64" and ansible_os_family == "RedHat" %}
-    --add-runtime docker-runc=/usr/libexec/docker/docker-runc-current
-    --default-runtime=docker-runc --exec-opt native.cgroupdriver=systemd
-    --userland-proxy-path=/usr/libexec/docker/docker-proxy-current --signature-verification=false
-    {%- endif -%}
+#docker_options: >-
+#    --add-runtime nvidia=/usr/bin/nvidia-container-runtime
+#    --default-runtime nvidia
+#    {%- if docker_insecure_registries is defined %}
+#    {{ docker_insecure_registries | map('regex_replace', '^(.*)$', '--insecure-registry=\1' ) | list | join(' ') }}
+#    {%- endif %}
+#    {% if docker_registry_mirrors is defined %}
+#    {{ docker_registry_mirrors | map('regex_replace', '^(.*)$', '--registry-mirror=\1' ) | list | join(' ') }}
+#    {%- endif %}
+#    {%- if docker_version != "latest" and docker_version is version('17.05', '<') %}
+#    --graph={{ docker_daemon_graph }} {% if ansible_os_family not in ["openSUSE Leap", "openSUSE Tumbleweed", "Suse"] %}{{ docker_log_opts }}{% endif %}
+#    {%- else %}
+#    --data-root={{ docker_daemon_graph }} {% if ansible_os_family not in ["openSUSE Leap", "openSUSE Tumbleweed", "Suse"] %}{{ docker_log_opts }}{% endif %}
+#    {%- endif %}
+#    {%- if ansible_architecture == "aarch64" and ansible_os_family == "RedHat" %}
+#    --add-runtime docker-runc=/usr/libexec/docker/docker-runc-current
+#    --default-runtime=docker-runc --exec-opt native.cgroupdriver=systemd
+#    --userland-proxy-path=/usr/libexec/docker/docker-proxy-current --signature-verification=false
+#    {%- endif -%}
