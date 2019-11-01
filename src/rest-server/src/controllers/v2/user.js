@@ -442,26 +442,6 @@ const deleteUser = async (req, res, next) => {
   }
 };
 
-const checkUserPassword = async (req, res, next) => {
-  try {
-    const username = req.body.username;
-    const password = req.body.password;
-    let userValue = await userModel.getUser(username);
-    let newUserValue = JSON.parse(JSON.stringify(userValue));
-    newUserValue['password'] = password;
-    newUserValue = await userModel.getEncryptPassword(newUserValue);
-    if (newUserValue['password'] !== userValue['password']) {
-      return next(createError('Bad Request', 'IncorrectPasswordError', 'Password is incorrect.'));
-    }
-    next();
-  } catch (error) {
-    if (error.status && error.status === 404) {
-      return next(createError('Bad Request', 'NoUserError', `User ${req.body.username} is not found.`));
-    }
-    return next(createError.unknown((error)));
-  }
-};
-
 // module exports
 module.exports = {
   getUser,
@@ -478,7 +458,6 @@ module.exports = {
   deleteUser,
   updateUserPassword,
   createUser,
-  checkUserPassword,
   getUserVCs,
   getUserStorageConfigs,
 };

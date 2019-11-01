@@ -15,12 +15,10 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+const nockUtils = require('./utils/nock');
 
 // test
 describe('Delete job: DELETE /api/v2/user/:username/jobs/:jobName', () => {
-  const userToken = jwt.sign({username: 'test_user', admin: false}, process.env.JWT_SECRET, {expiresIn: 60});
-  const adminToken = jwt.sign({username: 'test_admin', admin: true}, process.env.JWT_SECRET, {expiresIn: 60});
-
   afterEach(function() {
     if (!nock.isDone()) {
       nock.cleanAll();
@@ -29,6 +27,7 @@ describe('Delete job: DELETE /api/v2/user/:username/jobs/:jobName', () => {
   });
 
   it('[P-01] should delete job by admin', (done) => {
+    const adminToken = nockUtils.registerAdminTokenCheck('admin');
     nock(launcherWebserviceUri)
       .get('/v1/Frameworks/test_user~job')
       .reply(200,
@@ -60,29 +59,31 @@ describe('Delete job: DELETE /api/v2/user/:username/jobs/:jobName', () => {
   });
 
   it('[P-02] should delete own job', (done) => {
+    const username = 'user';
+    const userToken = nockUtils.registerUserTokenCheck(username);
     nock(launcherWebserviceUri)
-      .get('/v1/Frameworks/test_user~job')
+      .get(`/v1/Frameworks/${username}~job`)
       .reply(200,
         mustache.render(frameworkDetailTemplate, {
           'frameworkName': 'job',
-          'userName': 'test',
+          'userName': username,
           'applicationId': 'app1',
         }
       ))
-      .get('/v1/Frameworks/test_user~job/FrameworkRequest')
+      .get(`/v1/Frameworks/${username}~job/FrameworkRequest`)
       .reply(200, {
         'frameworkDescriptor': {
           'user': {
-            'name': 'test_user',
+            'name': username,
           },
         },
       })
-      .delete(`/v1/Frameworks/test_user~job`)
-      .matchHeader('UserName', 'test_user')
+      .delete(`/v1/Frameworks/${username}~job`)
+      .matchHeader('UserName', username)
       .reply(202);
 
     chai.request(server)
-      .delete('/api/v2/user/test_user/jobs/job')
+      .delete(`/api/v2/user/${username}/jobs/job`)
       .set('Authorization', `Bearer ${userToken}`)
       .end((err, res) => {
         expect(res).to.have.status(202);
@@ -91,26 +92,29 @@ describe('Delete job: DELETE /api/v2/user/:username/jobs/:jobName', () => {
   });
 
   it('[N-01] should forbid non-admin delete other\'s job', (done) => {
+    const username = 'user';
+    const userToken = nockUtils.registerUserTokenCheck(username);
+    const anotherUser = 'user2';
     nock(launcherWebserviceUri)
-      .get('/v1/Frameworks/test_user~job')
+      .get(`/v1/Frameworks/${anotherUser}~job`)
       .reply(200,
         mustache.render(frameworkDetailTemplate, {
           'frameworkName': 'job',
-          'userName': 'test',
+          'userName': anotherUser,
           'applicationId': 'app1',
         }
       ))
-      .get('/v1/Frameworks/test_user~job/FrameworkRequest')
+      .get(`/v1/Frameworks/${anotherUser}~job/FrameworkRequest`)
       .reply(200, {
         'frameworkDescriptor': {
           'user': {
-            'name': 'test_admin',
+            'name': anotherUser,
           },
         },
       });
 
     chai.request(server)
-      .delete('/api/v2/user/test_user/jobs/job')
+      .delete(`/api/v2/user/${anotherUser}/jobs/job`)
       .set('Authorization', `Bearer ${userToken}`)
       .end((err, res) => {
         expect(res).to.have.status(403);
@@ -120,6 +124,8 @@ describe('Delete job: DELETE /api/v2/user/:username/jobs/:jobName', () => {
   });
 
   it('[N-02] should forbid to delete not exist job.', (done) => {
+    // const adminToken = nockUtils.registerAdminTokenCheck('admin');
+    const adminToken = 'token'; // job api check if the job exists before authentication.
     nock(launcherWebserviceUri)
       .get('/v1/Frameworks/test_user~job')
       .reply(404, {
@@ -140,9 +146,6 @@ describe('Delete job: DELETE /api/v2/user/:username/jobs/:jobName', () => {
 });
 
 describe('Delete job: DELETE /api/v1/jobs/:jobName', () => {
-  // const userToken = jwt.sign({username: 'test_user', admin: false}, process.env.JWT_SECRET, {expiresIn: 60});
-  const adminToken = jwt.sign({username: 'test_admin', admin: true}, process.env.JWT_SECRET, {expiresIn: 60});
-
   afterEach(function() {
     if (!nock.isDone()) {
       nock.cleanAll();
@@ -150,7 +153,8 @@ describe('Delete job: DELETE /api/v1/jobs/:jobName', () => {
     }
   });
 
-  it('[P] should firbid delete job without namespace', (done) => {
+  it('[P] should forbid delete job without namespace', (done) => {
+    const adminToken = nockUtils.registerAdminTokenCheck('admin');
     nock(launcherWebserviceUri)
       .get('/v1/Frameworks/job')
       .reply(200,

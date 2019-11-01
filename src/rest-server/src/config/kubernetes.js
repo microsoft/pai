@@ -19,9 +19,9 @@
 const assert = require('assert');
 const {readFileSync} = require('fs');
 const path = require('path');
-const config = Object.create(null);
 const logger = require('@pai/config/logger');
-const apiserverConfig = config.apiserver = Object.create(null);
+
+const apiserverConfig = {};
 
 const {
   K8S_APISERVER_URI,
@@ -63,4 +63,6 @@ if (process.env.RBAC_IN_CLUSTER === 'false') {
 
 assert(apiserverConfig.uri, 'K8S_APISERVER_URI should be set in environments');
 
-module.exports = config;
+module.exports = {
+  apiserver: apiserverConfig,
+};

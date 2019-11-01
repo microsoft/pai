@@ -18,19 +18,67 @@
 
 // module dependencies
 const express = require('express');
-const tokenConfig = require('@pai/config/token');
-const param = require('@pai/middlewares/parameter');
-const userController = require('@pai/controllers/v2/user');
-const tokenV2Controller = require('@pai/controllers/v2/token');
+const jwt = require('jsonwebtoken');
 const authnConfig = require('@pai/config/authn');
+const tokenConfig = require('@pai/config/token');
+const tokenController = require('@pai/controllers/v2/token');
+const param = require('@pai/middlewares/parameter');
+const tokenMiddleware = require('@pai/middlewares/token');
+const tokenModel = require('@pai/models/token');
+const createError = require('@pai/utils/error');
 
 const router = new express.Router();
 
+
+/** GET /api/v1/token - Get list of tokens */
+router.get('/', tokenMiddleware.checkNotApplication, async (req, res, next) => {
+  try {
+    const list = await tokenModel.list(req.user.username);
+    res.status(200).json({
+      tokens: list,
+    });
+  } catch (err) {
+    next(createError.unknown(err));
+  }
+});
+
 if (authnConfig.authnMethod !== 'OIDC') {
-  router.route('/')
-  /** POST /api/v1/token - Return a token if username and password is correct */
-    .post(param.validate(tokenConfig.tokenPostInputSchema), userController.checkUserPassword, tokenV2Controller.get);
+  /** POST /api/v1/token - Generate a token */
+  router.post('/',
+    param.validate(tokenConfig.tokenPostInputSchema),
+    tokenController.get
+  );
 }
+/** POST /api/v1/token/application - Generate an application token */
+router.post('/application', tokenMiddleware.checkNotApplication, async (req, res, next) => {
+  try {
+    const token = await tokenModel.create(req.user.username, true);
+    res.status(200).json({
+      token,
+      application: true,
+    });
+  } catch (err) {
+    next(createError.unknown(err));
+  }
+});
+
+/** DELETE /api/v1/token/:token - Revoke a token */
+router.delete('/:token', tokenMiddleware.checkNotApplication, async (req, res, next) => {
+  const token = req.params.token;
+  try {
+    const {username} = jwt.decode(token);
+    if (username === req.user.username) {
+      await tokenModel.revoke(token);
+      res.status(200).json({
+        message: 'revoke successfully',
+      });
+    } else {
+      next(createError('Forbidden', 'ForbiddenUserError', `User ${req.user.username} is not allowed to do this operation.`));
+    }
+  } catch (err) {
+    next(createError.unknown(err));
+  }
+});
 
 // module exports
 module.exports = router;

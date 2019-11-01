@@ -195,6 +195,118 @@ Status: 500
 }
 ```
 
+### `POST application token`
+
+Create an application access token in the system.<br />
+Application access token can only be used for job related operations.<br />
+Application access token has no expiration time and can be revoked manually.
+
+*Request*
+
+```json
+POST /api/v1/token/application
+Authorization: Bearer <ACCESS_TOKEN>
+```
+
+*Response if succeeded*
+
+```json
+Status: 200
+
+{
+  "token": "your access token",
+  "application": true,
+}
+```
+
+*Response if not authorized*
+
+```json
+Status: 401
+
+{
+  "code": "UnauthorizedUserError",
+  "message": "Guest is not allowed to do this operation."
+}
+```
+
+### `GET token`
+
+Get your currently signed tokens.
+
+*Request*
+
+```json
+GET /api/v1/token/
+Authorization: Bearer <ACCESS_TOKEN>
+```
+
+*Response if succeeded*
+
+```json
+Status: 200
+
+{
+  "tokens": [
+    "jwt string",
+  ]
+}
+```
+
+*Response if not authorized*
+
+```json
+Status: 401
+
+{
+  "code": "UnauthorizedUserError",
+  "message": "Guest is not allowed to do this operation."
+}
+```
+
+### `DELETE token/:token`
+
+Revoke a token.
+
+*Request*
+
+```json
+DELETE /api/v1/token/:token
+Authorization: Bearer <ACCESS_TOKEN>
+```
+
+*Response if succeeded*
+
+```json
+Status: 200
+
+{
+  "message": "revoke successfully"
+}
+```
+
+*Response if not authorized*
+
+```json
+Status: 401
+
+{
+  "code": "UnauthorizedUserError",
+  "message": "Guest is not allowed to do this operation."
+}
+```
+
+*Response if current user has no permission*
+
+```json
+Status: 403
+
+{
+  "code": "ForbiddenUserError",
+  "message": "User is not allow to do this operation."
+}
+```
+
 ### `POST user` (administrator only, basic authentication mode only)
 
 Admin can create a user in system.

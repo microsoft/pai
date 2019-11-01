@@ -15,6 +15,7 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+const nockUtils = require('./utils/nock');
 
 // test
 describe('Job execution type API /api/v2/user/:username/jobs/:jobName/executionType', () => {
@@ -105,9 +106,11 @@ describe('Job execution type API /api/v2/user/:username/jobs/:jobName/executionT
 
   // PUT /api/v1/jobs/:jobName/executionType
   it('should stop job successfully', (done) => {
+    const token = nockUtils.registerAdminTokenCheck('iamadmin');
+
     chai.request(server)
       .put('/api/v2/user/iamadmin/jobs/test1/executionType')
-      .set('Authorization', 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImlhbWFkbWluIiwiYWRtaW4iOnRydWUsImlhdCI6MTUyMDU3OTg5OX0.Dwopr33c_OV6glaN3vbM1Ja_Ox70xABigHzHnEsNsYw')
+      .set('Authorization', `Bearer ${token}`)
       .send({
         'value': 'STOP',
       })
@@ -120,9 +123,11 @@ describe('Job execution type API /api/v2/user/:username/jobs/:jobName/executionT
   });
 
   it('admin should stop other user\'s job successfully', (done) => {
+    const token = nockUtils.registerAdminTokenCheck('iamadmin');
+
     chai.request(server)
       .put('/api/v2/user/test2/jobs/test2/executionType')
-      .set('Authorization', 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImlhbWFkbWluIiwiYWRtaW4iOnRydWUsImlhdCI6MTUyMDU3OTg5OX0.Dwopr33c_OV6glaN3vbM1Ja_Ox70xABigHzHnEsNsYw')
+      .set('Authorization', `Bearer ${token}`)
       .send({
         'value': 'STOP',
       })
@@ -151,7 +156,7 @@ describe('Job execution type API /api/v2/user/:username/jobs/:jobName/executionT
   it('#909: should check request payload', (done) => {
     chai.request(server)
       .put('/api/v2/user/iamadmin/jobs/test1/executionType')
-      .set('Authorization', 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImlhbWFkbWluIiwiYWRtaW4iOnRydWUsImlhdCI6MTUyMDU3OTg5OX0.Dwopr33c_OV6glaN3vbM1Ja_Ox70xABigHzHnEsNsYw')
+      .set('Authorization', 'Bearer token') // API will check payload schema before token.
       .set('Content-Type', 'text/unknown')
       .send('value=STOP')
       .end((err, res) => {
@@ -229,9 +234,10 @@ describe('Job execution type API /api/v1/jobs/:jobName/executionType', () => {
 
   // PUT /api/v1/jobs/:jobName/executionType
   it('can stop job without namespace', (done) => {
+    const token = nockUtils.registerAdminTokenCheck('iamadmin');
     chai.request(server)
       .put('/api/v1/jobs/test1/executionType')
-      .set('Authorization', 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImlhbWFkbWluIiwiYWRtaW4iOnRydWUsImlhdCI6MTUyMDU3OTg5OX0.Dwopr33c_OV6glaN3vbM1Ja_Ox70xABigHzHnEsNsYw')
+      .set('Authorization', `Bearer ${token}`)
       .send({
         'value': 'STOP',
       })

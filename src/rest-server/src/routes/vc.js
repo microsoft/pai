@@ -31,14 +31,14 @@ router.route('/:vcName')
     /** GET /api/v1/virtual-clusters/vcName - Return cluster specified virtual cluster info */
     .get(vcController.get)
     /** PUT /api/v1/virtual-clusters/vcName - Update a vc */
-    .put(token.check, param.validate(vcConfig.vcCreateInputSchema), vcController.update)
+    .put(token.checkNotApplication, param.validate(vcConfig.vcCreateInputSchema), vcController.update)
     /** DELETE /api/v1/virtual-clusters/vcName - Remove a vc */
-    .delete(token.check, vcController.remove);
+    .delete(token.checkNotApplication, vcController.remove);
 
 
 router.route('/:vcName/status')
     /** PUT /api/v1/virtual-clusters/vcName - Change vc status (running or stopped) */
-    .put(token.check, param.validate(vcConfig.vcStatusPutInputSchema), vcController.updateStatus);
+    .put(token.checkNotApplication, param.validate(vcConfig.vcStatusPutInputSchema), vcController.updateStatus);
 
 
 router.param('vcName', vcController.validate);
