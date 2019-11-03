@@ -25,6 +25,7 @@ package algorithm
 import (
 	"fmt"
 	"github.com/microsoft/hivedscheduler/pkg/api"
+	"github.com/microsoft/hivedscheduler/pkg/common"
 	"k8s.io/klog"
 )
 
@@ -57,10 +58,10 @@ func newDefaultIntraVCScheduler(
 	snr := map[CellChain]*topologyAwareScheduler{}
 	sr := map[api.ReservationId]*topologyAwareScheduler{}
 	for chain, ccl := range nonReservedVcl {
-		snr[chain] = NewTopologyAwareScheduler(ccl, gpuNums[chain], true)
+		snr[chain] = NewTopologyAwareScheduler(ccl, gpuNums[chain], true, false)
 	}
 	for rid, ccl := range reservedVcl {
-		sr[rid] = NewTopologyAwareScheduler(ccl, gpuNums[ccl[CellLevel(1)][0].GetChain()], true)
+		sr[rid] = NewTopologyAwareScheduler(ccl, gpuNums[ccl[CellLevel(1)][0].GetChain()], true, false)
 	}
 	return &defaultIntraVCScheduler{
 		virtualNonReservedCellList: nonReservedVcl,
@@ -90,7 +91,7 @@ func (s *defaultIntraVCScheduler) schedule(sr schedulingRequest) map[int32][]Cel
 	}
 	var placement map[int32][]CellList
 	if scheduler != nil {
-		placement = scheduler.Schedule(sr.affinityGroup, sr.priority)
+		placement = scheduler.Schedule(sr.affinityGroup, sr.priority, common.NewSet())
 	}
 	if placement == nil {
 		klog.Infof("Insufficient quota in VC %v for scheduling request: %v, GPU numbers %v, priority %v",
