@@ -91,9 +91,9 @@
 #kube_basic_auth: true
 
 ## Make a copy of kubeconfig on the host that runs Ansible in {{ inventory_dir }}/artifacts
-# kubeconfig_localhost: true
+kubeconfig_localhost: true
 ## Download kubectl onto the host that runs Ansible in {{ bin_dir }}
-# kubectl_localhost: true
+kubectl_localhost: true
 
 # kubelet_status_update_frequency: 10s
 
