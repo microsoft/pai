@@ -841,14 +841,14 @@ spec:
     - userLogRegex: "(?msi)CUDA_ERROR_ECC_UNCORRECTABLE.*"
 
 - code: 248
-  phrase: PAIRuntimeInitContainerUnkownError
+  phrase: PAIRuntimeInitContainerUnknownError
   issuer: PAI_RUNTIME
   causer: PAI_RUNTIME
   type: PLATFORM_FAILURE
   stage: RUNNING
   behavior: UNKNOWN
   reaction: RETRY_TO_MAX
-  reason: "Pai runtime init container exit with unkonwn code"
+  reason: "Pai runtime init container exit with unknown code"
   repro:
   - "Pai runtime init container script exit with code 1"
   solution:
