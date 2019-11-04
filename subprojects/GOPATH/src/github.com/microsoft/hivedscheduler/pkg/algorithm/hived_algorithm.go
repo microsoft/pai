@@ -803,7 +803,7 @@ func generateAffinityGroupBindInfo(
 			for gpuIndex := 0; gpuIndex < len(podPhysicalPlacements[podIndex]); gpuIndex++ {
 				pGpu := podPhysicalPlacements[podIndex][gpuIndex]
 				if pGpu == nil {
-					klog.Infof("Resources previously allocated has been invalid due to reconfiguration; pod should wait")
+					klog.Warningf("Resources previously allocated has been invalid; pod should wait")
 					return nil, "", nil
 				}
 				nodes, gpuIndices := pGpu.(*PhysicalCell).GetPhysicalPlacement()
