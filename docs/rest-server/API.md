@@ -2310,7 +2310,7 @@ Authorization: Bearer <ACCESS_TOKEN>
 ```
   names=[string]
 ```
-User can query multiple servers by using multiple names parameter:
+User can query multiple servers by using multiple names parameter, default name 'empty' will be ignored:
 ```
 GET storage/server?names=name1&names=name2
 ```
@@ -2613,7 +2613,7 @@ Authorization: Bearer <ACCESS_TOKEN>
 ```
   names=[string]
 ```
-User can query multiple configs by using multiple names parameter:
+User can query multiple configs by using multiple names parameter, default name 'empty' will be ignored:
 ```
 GET storage/config?names=name1&names=name2
 ```
