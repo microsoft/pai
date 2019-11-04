@@ -55,8 +55,6 @@ type HivedAlgorithm struct {
 	reservedCells map[api.VirtualClusterName]map[api.ReservationId]*PhysicalCell
 	// lock
 	algorithmLock sync.RWMutex
-	// random number generator
-	rand *rand.Rand
 }
 
 // NewHivedAlgorithm initializes a HivedAlgorithm from the config file
@@ -70,7 +68,6 @@ func NewHivedAlgorithm(sConfig *api.Config) *HivedAlgorithm {
 		chains:                  gpuTypeToChain,
 		allocatedAffinityGroups: make(map[string]*AlgoAffinityGroup),
 		reservedCells:           reservedPc,
-		rand:                    rand.New(rand.NewSource(12345)),
 	}
 	for vc := range nonReservedVcl {
 		h.vcSchedulers[vc] = newDefaultIntraVCScheduler(nonReservedVcl[vc], reservedVcl[vc], gpuNums)
@@ -128,10 +125,9 @@ func (h *HivedAlgorithm) Schedule(pod *core.Pod, suggestedNodes []string) intern
 		podIndex = int32(len(group.allocatedPods[s.GpuNumber]))
 	}
 	return generatePodScheduleResult(
-		groupPhysicalPlacement, groupVirtualPlacement, s.GpuNumber, podIndex, newGroup, suggestedNodeSet, pod, h.rand)
+		groupPhysicalPlacement, groupVirtualPlacement, s.GpuNumber, podIndex, newGroup, suggestedNodeSet, pod)
 }
 
-// TODO: suggestedNodes (failure)
 func (h *HivedAlgorithm) AddAllocatedPod(pod *core.Pod) {
 	h.algorithmLock.Lock()
 	defer h.algorithmLock.Unlock()
@@ -154,7 +150,7 @@ func (h *HivedAlgorithm) AddAllocatedPod(pod *core.Pod) {
 					physicalGpuIndex := gms.PodPlacements[podIndex].PhysicalGpuIndices[gpuIndex]
 					if pGpu := h.findPhysicalGpu(chain, node, physicalGpuIndex); pGpu == nil {
 						klog.Warningf(
-							"[%v]: cannot find GPU %v on node %v: deleted from the spec. pod ignored",
+							"[%v]: cannot find GPU %v on node %v: not found in the spec. pod ignored",
 							internal.Key(pod), physicalGpuIndex, node)
 						break
 					} else {
@@ -183,9 +179,7 @@ func (h *HivedAlgorithm) AddAllocatedPod(pod *core.Pod) {
 									}
 								}
 								if vGpu == nil {
-									klog.Infof(
-										"[%v]: cannot find virtual cell due to reconfiguration: %v",
-										internal.Key(pod), message)
+									klog.Warningf("[%v]: cannot find virtual cell: %v", internal.Key(pod), message)
 									downgrade = true
 								} else {
 									newGroup.virtualGpuPlacement[gpuNumber][podIndex][gpuIndex] = vGpu
@@ -201,7 +195,8 @@ func (h *HivedAlgorithm) AddAllocatedPod(pod *core.Pod) {
 		}
 		if downgrade {
 			h.downgradeAffinityGroup(newGroup)
-			klog.Infof("Affinity group %v downgraded to opportunistic due to reconfiguration", newGroup.name)
+			klog.Warningf(
+				"Affinity group %v downgraded to opportunistic due to inconsistency between pod bind info and cell view", newGroup.name)
 		}
 		h.allocatedAffinityGroups[s.AffinityGroup.Name] = newGroup
 		klog.Infof("New affinity group created: %v", s.AffinityGroup.Name)
@@ -220,8 +215,8 @@ func (h *HivedAlgorithm) DeleteAllocatedPod(pod *core.Pod) {
 	klog.Infof("[%v]: deleting from node %v, GPUs %v", internal.Key(pod), info.Node, info.GpuIsolation)
 
 	if group := h.allocatedAffinityGroups[s.AffinityGroup.Name]; group == nil {
-		panic(fmt.Sprintf(
-			"[%v]: group %v not exists when deleting pod", internal.Key(pod), s.AffinityGroup.Name))
+		klog.Errorf("[%v]: group %v not found when deleting pod", internal.Key(pod), s.AffinityGroup.Name)
+		return
 	} else {
 		allocatedPods := group.allocatedPods[s.GpuNumber]
 		idx := -1
@@ -232,7 +227,8 @@ func (h *HivedAlgorithm) DeleteAllocatedPod(pod *core.Pod) {
 			}
 		}
 		if idx == -1 {
-			panic(fmt.Sprintf("[%v]: pod not exists in group %v", internal.Key(pod), s.AffinityGroup.Name))
+			klog.Errorf("[%v]: pod not found in group %v", internal.Key(pod), s.AffinityGroup.Name)
+			return
 		} else {
 			numAllocatedPods := len(allocatedPods)
 			allocatedPods[idx] = allocatedPods[numAllocatedPods-1]
@@ -278,7 +274,7 @@ func (h *HivedAlgorithm) validateInitialAssignment() {
 	for chain, chainQuota := range totalQuota {
 		if ccl := h.fullCellList[chain]; ccl == nil {
 			panic(fmt.Sprintf(
-				"Chain %v not exists in physical cluster", chain))
+				"Chain %v does not exists in physical cluster", chain))
 		} else {
 			top := CellLevel(len(ccl))
 			available := int32(len(ccl[top]))
@@ -704,8 +700,7 @@ func generatePodScheduleResult(
 	currentPodIndex int32,
 	newGroup bool,
 	suggestedNodeSet common.Set,
-	pod *core.Pod,
-	r *rand.Rand) internal.PodScheduleResult {
+	pod *core.Pod) internal.PodScheduleResult {
 
 	affinityGroupBindInfo, selectedNode, selectedGpuIndices := generateAffinityGroupBindInfo(
 		groupPhysicalPlacement, groupVirtualPlacement, currentGpuNum, currentPodIndex)
@@ -755,7 +750,7 @@ func generatePodScheduleResult(
 		// we collect victims on a random node, as K8S preempts victims from only one node once.
 		// random is to let different pods preempt victims on different nodes
 		// (but we don't rely on this randomness for the eventual-completeness of preemption).
-		nodeToPreempt := nodesHaveVictims[r.Int31n(int32(len(nodesHaveVictims)))]
+		nodeToPreempt := nodesHaveVictims[rand.Int31n(int32(len(nodesHaveVictims)))]
 		var victimPods []*core.Pod
 		var victimNames []string
 		for v := range preemptionVictims[nodeToPreempt].Items() {

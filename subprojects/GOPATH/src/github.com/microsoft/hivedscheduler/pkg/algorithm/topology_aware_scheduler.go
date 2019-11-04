@@ -63,6 +63,8 @@ func NewTopologyAwareScheduler(ccl ChainCellList,
 		considerSuggestedNodes: considerSuggestedNodes}
 }
 
+// ancestorNoHigherThanNode finds an ancestor at a level no higher than node level for a cell.
+// If the input cell is at node (or higher) level, will return the cell itself.
 func ancestorNoHigherThanNode(c Cell) Cell {
 	if c.AtOrHigherThanNode() || c.GetParent() == nil {
 		return c

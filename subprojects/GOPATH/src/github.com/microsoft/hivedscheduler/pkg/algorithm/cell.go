@@ -25,6 +25,7 @@ package algorithm
 import (
 	"fmt"
 	"github.com/microsoft/hivedscheduler/pkg/api"
+	"k8s.io/klog"
 )
 
 // A Cell represents a set of GPUs affinitized by their interconnection topology.
@@ -161,16 +162,15 @@ func (c *PhysicalCell) SetPhysicalResources(nodes []string, gpuIndices []int32) 
 
 func (c *PhysicalCell) AddAffinityGroup(g *AlgoAffinityGroup) {
 	if c.affinityGroup != nil {
-		panic(fmt.Sprintf("Error when adding affinity group %v to cell %v: cell already has group %v",
-			g.name, c.GetName(), c.affinityGroup.name))
+		klog.Errorf("Error when adding affinity group %v to cell %v: cell already has group %v",
+			g.name, c.GetName(), c.affinityGroup.name)
 	}
 	c.affinityGroup = g
 }
 
 func (c *PhysicalCell) DeleteAffinityGroup(g *AlgoAffinityGroup) {
 	if c.affinityGroup == nil || c.affinityGroup.name != g.name {
-		panic(fmt.Sprintf("Error when deleting affinity group %v from cell %v: not exists!",
-			g.name, c.GetName()))
+		klog.Errorf("Error when deleting affinity group %v from cell %v: not found", g.name, c.GetName())
 	}
 	c.affinityGroup = nil
 }

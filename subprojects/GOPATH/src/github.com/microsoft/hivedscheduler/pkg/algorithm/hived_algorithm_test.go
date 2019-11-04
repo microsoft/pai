@@ -434,7 +434,8 @@ func testReconfiguration(t *testing.T, sConfig *api.Config) {
 	(*sConfig.PhysicalCluster).PhysicalCells[5].CellChildren[0].CellChildren[0].CellAddress = "0.0.3.100"
 	// case: insufficient VC quota
 	(*sConfig.VirtualClusters)["VC2"].VirtualCells[0].CellNumber = 1
-	// case: inconsistent physical and virtual cell hierarchies
+	// case: physical cells are split to smaller ones in the spec so that
+	// they cannot be bound to the virtual cells previously allocated
 	originalCell := (*sConfig.PhysicalCluster).PhysicalCells[6]
 	(*sConfig.PhysicalCluster).PhysicalCells[6] = originalCell.CellChildren[0].CellChildren[0]
 	(*sConfig.PhysicalCluster).PhysicalCells = append((*sConfig.PhysicalCluster).PhysicalCells, originalCell.CellChildren[0].CellChildren[1])
