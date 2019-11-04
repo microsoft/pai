@@ -2293,23 +2293,26 @@ Status: 500
 }
 ```
 
-### `POST storage/servers`
+### `GET storage/server`
 
-Given storage server names, find all server data.
+Given storage server names, find server data. If no parameter provided, return all server data.
 
 *Request*
 
 ```json
-POST /api/v2/storage/servers
+GET storage/server
 Authorization: Bearer <ACCESS_TOKEN>
 ```
 
-*Parameters*
+*URL Parameters*
 
-```json
-{
-  "names": ["storage_server_names"]
-}
+*Optional:*
+```
+  names=[string]
+```
+User can query multiple servers by using multiple names parameter, default name 'empty' will be ignored:
+```
+GET storage/server?names=name1&names=name2
 ```
 
 *Response if succeeded*
@@ -2407,6 +2410,17 @@ Status: 500
 }
 ```
 
+*Response if try to modify system reserved key 'empty'*
+
+```json
+Status: 403
+
+{
+  "code": "ForbiddenKeyError",
+  "message": "Key 'empty' is system reserved and should not be modified!"
+}
+```
+
 *Response if a server error occurred*
 
 ```json
@@ -2420,7 +2434,7 @@ Status: 500
 
 ### `PUT storage/server` (administrator only)
 
-Update storage server in system.
+Update storage server in system. Storage server 'empty' is system reserved and cannot be updated.
 
 *Request*
 
@@ -2473,6 +2487,17 @@ Status: 500
 }
 ```
 
+*Response if try to modify system reserved key 'empty'*
+
+```json
+Status: 403
+
+{
+  "code": "ForbiddenKeyError",
+  "message": "Key 'empty' is system reserved and should not be modified!"
+}
+```
+
 *Response if a server error occurred*
 
 ```json
@@ -2486,7 +2511,7 @@ Status: 500
 
 ### `DELETE storage/server/:name` (administrator only)
 
-remove storage server in the system.
+remove storage server in the system. Storage server 'empty' is system reserved and cannot be removed.
 
 *Request*
 
@@ -2571,23 +2596,26 @@ Status: 500
 }
 ```
 
-### `POST storage/configs`
+### `GET storage/config`
 
-Given storage config names, find all config data.
+Given storage config names, find config data. If no parameter provided, return all config data.
 
 *Request*
 
 ```json
-POST /api/v2/storage/configs
+GET storage/config
 Authorization: Bearer <ACCESS_TOKEN>
 ```
 
-*Parameters*
+*URL Parameters*
 
-```json
-{
-  "names": ["storage_config_names"]
-}
+*Optional:*
+```
+  names=[string]
+```
+User can query multiple configs by using multiple names parameter, default name 'empty' will be ignored:
+```
+GET storage/config?names=name1&names=name2
 ```
 
 *Response if succeeded*
@@ -2698,6 +2726,17 @@ Status: 500
 }
 ```
 
+*Response if try to modify system reserved key 'empty'*
+
+```json
+Status: 403
+
+{
+  "code": "ForbiddenKeyError",
+  "message": "Key 'empty' is system reserved and should not be modified!"
+}
+```
+
 *Response if a server error occurred*
 
 ```json
@@ -2711,7 +2750,7 @@ Status: 500
 
 ### `PUT storage/config` (administrator only)
 
-Update storage config in system.
+Update storage config in system. Storage config 'empty' is system reserved and cannot be updated.
 
 *Request*
 
@@ -2774,6 +2813,17 @@ Status: 500
 }
 ```
 
+*Response if try to modify system reserved key 'empty'*
+
+```json
+Status: 403
+
+{
+  "code": "ForbiddenKeyError",
+  "message": "Key 'empty' is system reserved and should not be modified!"
+}
+```
+
 *Response if a server error occurred*
 
 ```json
@@ -2787,7 +2837,7 @@ Status: 500
 
 ### `DELETE storage/config/:name` (administrator only)
 
-remove storage config in the system.
+remove storage config in the system. Storage config 'empty' is system reserved and cannot be removed.
 
 *Request*
 
@@ -2814,6 +2864,17 @@ Status: 403
 {
   "code": "ForbiddenUserError",
   "message": "Non-admin is not allow to do this operation."
+}
+```
+
+*Response if try to modify system reserved key 'empty'*
+
+```json
+Status: 403
+
+{
+  "code": "ForbiddenKeyError",
+  "message": "Key 'empty' is system reserved and should not be modified!"
 }
 ```
 
