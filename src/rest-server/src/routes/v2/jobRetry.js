@@ -23,15 +23,15 @@ const controller = require('@pai/controllers/v2/jobRetry');
 
 const router = new express.Router({mergeParams: true});
 
-/** GET /api/v2/jobRetries/healthz - health check of job retry endpoint*/
+/** GET /api/v2/jobs/:frameworkName/jobRetries/healthz - health check of job retry endpoint*/
 router.route('/healthz')
   .get(controller.healthCheck);
 
-/** GET /api/v2/jobRetries?jobID - list job retries by job ID */
+/** GET /api/v2/jobs/:frameworkName/jobRetries - list job retries by job frameworkName */
 router.route('/')
   .get(controller.list);
 
-/** GET /api/v2/jobRetries/:retryIndex?jobID - get job retry by retry index */
+/** GET /api/v2/jobs/:frameworkName/jobRetries/:retryIndex - get certain job retry by retry index */
 router.route('/:jobRetryIndex')
   .get(controller.get);
 

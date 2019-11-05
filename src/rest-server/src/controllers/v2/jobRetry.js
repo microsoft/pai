@@ -35,13 +35,8 @@ const list = asyncHandler(async (req, res) => {
 });
 
 const get = asyncHandler(async (req, res) => {
-  // const data = await jobRetry.get(
-  //   req.params.frameworkName,
-  //   req.params.jobRetryIndex,
-  // );
-  res
-    .status(200)
-    .send(`get ${req.params.frameworkName} ${req.params.jobRetryIndex}`);
+  const result = await jobRetry.get(req.params.frameworkName, req.params.retryIndex);
+  res.status(result.status).json(result.data);
 });
 
 // module exports
