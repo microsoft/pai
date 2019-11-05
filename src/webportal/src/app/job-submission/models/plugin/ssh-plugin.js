@@ -23,7 +23,7 @@
  * SOFTWARE.
  */
 
-import { get, isNil, isEmpty } from 'lodash';
+import { get } from 'lodash';
 import { removeEmptyProperties } from '../../utils/utils';
 import { PAI_PLUGIN } from '../../utils/constants';
 
@@ -49,7 +49,7 @@ export class SSHPlugin {
       return new SSHPlugin({
         ...sshPluginProtocol,
         jobssh: jobssh,
-        userssh: userssh
+        userssh: userssh,
       });
     }
   }

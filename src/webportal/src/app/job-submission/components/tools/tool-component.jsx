@@ -34,14 +34,7 @@ import { PROTOCOL_TOOLTIPS } from '../../utils/constants';
 import config from '../../../config/webportal.config';
 
 export const ToolComponent = React.memo(
-  ({
-    jobData,
-    taskRoles,
-    extras,
-    onExtrasChange,
-    selected,
-    onSelect,
-  }) => {
+  ({ jobData, taskRoles, extras, onExtrasChange, selected, onSelect }) => {
     return (
       <SidebarCard
         title='Tools'
