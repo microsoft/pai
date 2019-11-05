@@ -97,7 +97,7 @@ USER_PID=$!
 
 wait ${USER_PID}
 
-# flush cache to disk
+# synchronize cached writes to disk
 sync
 
 echo "[INFO] USER COMMAND END"
