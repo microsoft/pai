@@ -5,18 +5,15 @@
  */
 
 import * as crypto from 'crypto';
+import { EventEmitter } from 'events';
 import * as http from 'http';
+import { AddressInfo } from 'net';
 import { ILoginInfo } from 'openpai-js-sdk';
 import { stringify } from 'querystring';
 import * as url from 'url';
 import * as vscode from 'vscode';
 
 import { __ } from '../common/i18n';
-
-interface IDeferred<T> {
-    reject(reason: any): void;
-    resolve(result: T | Promise<T>): void;
-}
 
 async function callback(reqUrl: url.Url): Promise<ILoginInfo> {
     let error: string | string[] | undefined;
@@ -32,28 +29,15 @@ async function callback(reqUrl: url.Url): Promise<ILoginInfo> {
     throw new Error(<string | undefined> error || 'No token received.');
 }
 
-function createServer(nonce: string): any {
-    type RedirectResult =
-        { req: http.ServerRequest; res: http.ServerResponse; } | { err: any; res: http.ServerResponse; };
-    let deferredRedirect: IDeferred<RedirectResult>;
-    const redirectPromise: Promise<RedirectResult> =
-        // tslint:disable-next-line: promise-must-complete
-        new Promise<RedirectResult>((resolve, reject) => deferredRedirect = { resolve, reject });
+function createServer(nonce: string): { server: http.Server, emitter: EventEmitter } {
+    const emitter: EventEmitter = new EventEmitter();
+    const callbackTimer: NodeJS.Timer =
+        setTimeout(() => emitter.emit('callback', new Error('Timeout waiting for token')), 5 * 60 * 1000);
 
-    type AuthnResult = { loginInfo: ILoginInfo; res: http.ServerResponse; } | { err: any; res: http.ServerResponse; };
-    let deferredCode: IDeferred<AuthnResult>;
-    const loginInfoPromise: Promise<AuthnResult> =
-    // tslint:disable-next-line: promise-must-complete
-        new Promise<AuthnResult>((resolve, reject) => deferredCode = { resolve, reject });
-
-    const codeTimer: NodeJS.Timer =
-        setTimeout(() => deferredCode.reject(new Error('Timeout waiting for code')), 5 * 60 * 1000);
-    function cancelCodeTimer(): void {
-        clearTimeout(codeTimer);
-    }
-
-    const server: http.Server = http.createServer((req, res) => {
+    const server: http.Server = http.createServer();
+    server.on('request', async (req, res) => {
         const reqUrl: url.UrlWithParsedQuery = url.parse(req.url!, true);
+
         switch (reqUrl.pathname) {
             case '/signin':
                 let receivedNonce: string = '';
@@ -61,15 +45,20 @@ function createServer(nonce: string): any {
                     receivedNonce = reqUrl.query.nonce.replace(/ /g, '+');
                 }
                 if (receivedNonce === nonce) {
-                    deferredRedirect.resolve({ req, res });
+                    emitter.emit('signin', { req, res });
                 } else {
                     const err: Error = new Error('Nonce does not match.');
-                    deferredRedirect.resolve({ err, res });
+                    emitter.emit('signin', { err, res });
                 }
                 break;
             case '/callback':
-                deferredCode.resolve(callback(reqUrl)
-                    .then(loginInfo => ({ loginInfo, res }), err => ({ err, res })));
+                try {
+                    const loginInfo: ILoginInfo = await callback(reqUrl);
+                    emitter.emit('callback', { loginInfo, res });
+                } catch (err) {
+                    emitter.emit('callback', { err, res });
+                }
+                clearTimeout(callbackTimer);
                 break;
             default:
                 res.writeHead(404);
@@ -77,11 +66,10 @@ function createServer(nonce: string): any {
                 break;
         }
     });
-    loginInfoPromise.then(cancelCodeTimer, cancelCodeTimer);
+
     return {
         server,
-        redirectPromise,
-        loginInfoPromise
+        emitter
     };
 }
 
@@ -93,7 +81,7 @@ async function startServer(server: http.Server): Promise<number> {
     const port: Promise<number> = new Promise<number>((resolve, reject) => {
         portTimer = setTimeout(() => { reject(new Error('Timeout waiting for port')); }, 5000);
         server.on('listening', () => {
-            resolve(server.address().port);
+            resolve((<AddressInfo>server.address()).port);
         });
         server.on('error', err => {
             reject(err);
@@ -107,10 +95,15 @@ async function startServer(server: http.Server): Promise<number> {
     return port;
 }
 
-export async function login(restServerUrl: string, webportalUrl: string, redirectTimeout: () => Promise<void>): Promise<any> {
+function once(emitter: EventEmitter, name: string): Promise<any> {
+    return new Promise(resolve => {
+        emitter.once(name, resolve);
+    });
+}
 
+export async function login(restServerUrl: string, webportalUrl: string, redirectTimeout: () => Promise<void>): Promise<any> {
     const nonce: string = crypto.randomBytes(16).toString('base64');
-    const { server, redirectPromise, loginInfoPromise } = createServer(nonce);
+    const { server, emitter } = createServer(nonce);
 
     try {
         const port: number = await startServer(server);
@@ -119,7 +112,8 @@ export async function login(restServerUrl: string, webportalUrl: string, redirec
         const redirectTimer: NodeJS.Timer =
             setTimeout(() => redirectTimeout().catch(console.error), 10 * 1000);
 
-        const redirectReq: any = await redirectPromise;
+        const redirectReq: any = await once(emitter, 'signin');
+
         if ('err' in redirectReq) {
             const { err, res } = redirectReq;
             res.writeHead(302, { Location: `/?error=${encodeURIComponent(err && err.message || 'Unkown error')}` });
@@ -136,14 +130,10 @@ export async function login(restServerUrl: string, webportalUrl: string, redirec
             `${restServerUrl}/api/v1/authn/oidc/login?` +
             `redirect_uri=${encodeURIComponent(`http://localhost:${updatedPort}/callback`)}`;
 
-        try {
-            redirectReq.res.writeHead(302, { Location: signInUrl });
-        } catch (ex) {
-            console.log(ex);
-        }
+        redirectReq.res.writeHead(302, { Location: signInUrl });
         redirectReq.res.end();
 
-        const loginRes: any = await loginInfoPromise;
+        const loginRes: any = await once(emitter, 'callback');
         const response: any = loginRes.res;
         try {
             if ('err' in loginRes) {
@@ -158,6 +148,8 @@ export async function login(restServerUrl: string, webportalUrl: string, redirec
             response.end();
             throw err;
         }
+    } catch (err) {
+        console.log(err);
     } finally {
         setTimeout(() => { server.close(); }, 5000);
     }
