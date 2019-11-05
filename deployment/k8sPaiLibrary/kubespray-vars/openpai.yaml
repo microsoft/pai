@@ -125,7 +125,7 @@ kubectl_localhost: true
 
 # Choose network plugin (cilium, calico, contiv, weave or flannel. Use cni for generic cni plugin)
 # Can also be set to 'cloud', which lets the cloud provider setup appropriate routing
-kube_network_plugin: flannel
+# kube_network_plugin: flannel
 
 
 # Setting multi_networking to true will install Multus: https://github.com/intel/multus-cni
