@@ -122,3 +122,23 @@ export const getAllVcsRequest = async () => {
   const url = `${config.restServerUri}/api/v2/virtual-clusters`;
   return fetchWrapper(url);
 };
+
+export const getUserRequest = async username => {
+  const url = `${config.restServerUri}/api/v2/user/${username}`;
+  const token = checkToken();
+  return fetchWrapper(url, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+};
+
+export const getTokenRequest = async () => {
+  const url = `${config.restServerUri}/api/v1/token`;
+  const token = checkToken();
+  return fetchWrapper(url, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+};

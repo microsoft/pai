@@ -27,7 +27,7 @@ import ReactDOM from 'react-dom';
 import MediaQuery from 'react-responsive';
 
 import JobStatus from './home/job-status';
-import VirtualClusterStatistics from './home/virtual-cluster-statistics';
+import { VirtualClusterStatistics } from './home/virtual-cluster-statistics';
 import GpuChart from './home/gpu-chart';
 import {
   listJobs,
