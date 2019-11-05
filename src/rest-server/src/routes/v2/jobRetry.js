@@ -18,41 +18,21 @@
 
 // module dependencies
 const express = require('express');
-const token = require('@pai/middlewares/token');
-const controller = require('@pai/controllers/v2/job');
-const protocol = require('@pai/middlewares/v2/protocol');
-const jobRetryRouter = require('@pai/routes/v2/jobRetry.js');
+const controller = require('@pai/controllers/v2/jobRetry');
 
 
-const router = new express.Router();
+const router = new express.Router({mergeParams: true});
 
+/** GET /api/v2/jobRetries/healthz - health check of job retry endpoint*/
+router.route('/healthz')
+  .get(controller.healthCheck);
+
+/** GET /api/v2/jobRetries?jobID - list job retries by job ID */
 router.route('/')
-  /** GET /api/v2/jobs - List job */
-  .get(controller.list)
-  /** POST /api/v2/jobs - Update job */
-  .post(
-    token.check,
-    protocol.submit,
-    controller.update
-  );
+  .get(controller.list);
 
-router.route('/:frameworkName')
-  /** GET /api/v2/jobs/:frameworkName - Get job */
+/** GET /api/v2/jobRetries/:retryIndex?jobID - get job retry by retry index */
+router.route('/:jobRetryIndex')
   .get(controller.get);
 
-router.route('/:frameworkName/executionType')
-  /** PUT /api/v2/jobs/:frameworkName/executionType - Start or stop job */
-  .put(token.check, controller.execute);
-
-router.route('/:frameworkName/config')
-  /** GET /api/v2/jobs/:frameworkName/config - Get job config */
-  .get(controller.getConfig);
-
-router.route('/:frameworkName/ssh')
-  /** GET /api/v2/jobs/:frameworkName/ssh - Get job ssh info */
-  .get(controller.getSshInfo);
-
-router.use('/:frameworkName/jobRetries', jobRetryRouter);
-
-// module exports
 module.exports = router;

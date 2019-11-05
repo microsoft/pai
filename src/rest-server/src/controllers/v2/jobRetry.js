@@ -15,44 +15,38 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-
 // module dependencies
-const express = require('express');
-const token = require('@pai/middlewares/token');
-const controller = require('@pai/controllers/v2/job');
-const protocol = require('@pai/middlewares/v2/protocol');
-const jobRetryRouter = require('@pai/routes/v2/jobRetry.js');
+const _ = require('lodash');
+const asyncHandler = require('@pai/middlewares/v2/asyncHandler');
+const jobRetry = require('@pai/models/v2/jobRetry.js');
 
+const healthCheck = asyncHandler(async (req, res) => {
+  const isHealthy = await jobRetry.healthCheck();
+  if (!isHealthy) {
+    res.status(501).send('Not healthy');
+  } else {
+    res.status(200).send('ok');
+  }
+});
 
-const router = new express.Router();
+const list = asyncHandler(async (req, res) => {
+  const result = await jobRetry.list(req.params.frameworkName);
+  res.status(result.status).json(result.data);
+});
 
-router.route('/')
-  /** GET /api/v2/jobs - List job */
-  .get(controller.list)
-  /** POST /api/v2/jobs - Update job */
-  .post(
-    token.check,
-    protocol.submit,
-    controller.update
-  );
-
-router.route('/:frameworkName')
-  /** GET /api/v2/jobs/:frameworkName - Get job */
-  .get(controller.get);
-
-router.route('/:frameworkName/executionType')
-  /** PUT /api/v2/jobs/:frameworkName/executionType - Start or stop job */
-  .put(token.check, controller.execute);
-
-router.route('/:frameworkName/config')
-  /** GET /api/v2/jobs/:frameworkName/config - Get job config */
-  .get(controller.getConfig);
-
-router.route('/:frameworkName/ssh')
-  /** GET /api/v2/jobs/:frameworkName/ssh - Get job ssh info */
-  .get(controller.getSshInfo);
-
-router.use('/:frameworkName/jobRetries', jobRetryRouter);
+const get = asyncHandler(async (req, res) => {
+  // const data = await jobRetry.get(
+  //   req.params.frameworkName,
+  //   req.params.jobRetryIndex,
+  // );
+  res
+    .status(200)
+    .send(`get ${req.params.frameworkName} ${req.params.jobRetryIndex}`);
+});
 
 // module exports
-module.exports = router;
+module.exports = {
+  healthCheck,
+  list,
+  get,
+};
