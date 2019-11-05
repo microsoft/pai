@@ -236,6 +236,24 @@ const openPAIClient = new OpenPAIClient(cluster);
     redirect = await openPAIClient.authn.oidcLogout();
     ```
 
+- [x] Get list of available tokens (portal token + application token) (GET /api/v1/token)
+
+    ```ts
+    tokens = await openPAIClient.auth.getTokens();
+    ```
+
+- [x] Create an application access token (POST /api/v1/token/application)
+
+    ```ts
+    token = await openPAIClient.auth.createApplicationToken();
+    ```
+
+- [x] Revoke a token (DELETE /api/v1/token/{token})
+
+    ```ts
+    await openPAIClient.auth.deleteToken(token);
+    ```
+
 - [ ] OIDC return (GET/POST /api/v1/authn/oidc/return)
 
     ```text
