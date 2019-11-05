@@ -181,13 +181,19 @@ function addTensorBoardCommandsToProtocolTaskRoles(protocol) {
   }
 }
 
-export async function populateProtocolWithDataCli(user, protocol, jobData) {
+export async function populateProtocolWithDataAndTensorboard(
+  user,
+  protocol,
+  jobData,
+) {
+  // add tensorboard commands
   addTensorBoardCommandsToProtocolTaskRoles(protocol);
 
   if (!jobData.containData) {
     return;
   }
 
+  // add data commands
   const preCommands = await jobData.generateDataCommands(
     user,
     protocol.name || '',
