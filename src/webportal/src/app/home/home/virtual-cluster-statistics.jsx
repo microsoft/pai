@@ -53,9 +53,12 @@ const vcListColumns = [
     name: 'Name',
     isResizable: true,
     onRender(vc) {
+      vc.dedicated = true;
       return (
         <Stack verticalAlign='center' verticalFill>
-          <Text variant='mediumPlus'>{vc.name}</Text>
+          <Text variant='mediumPlus'>
+            {vc.dedicated ? vc.name + ' (dedicated)' : vc.name}
+          </Text>
         </Stack>
       );
     },
