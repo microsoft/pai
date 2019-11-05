@@ -18,6 +18,7 @@
 import * as request from 'request-promise-native';
 
 import { Util } from '../commom/util';
+import { ILoginInfo } from '../models/authn';
 import { IPAICluster, IPAIClusterInfo } from '../models/cluster';
 import { ITokenItem } from '../models/token';
 
@@ -39,22 +40,31 @@ export class OpenPAIBaseClient {
      */
     public async token(): Promise<string> {
         if (!this.cacheToken || this.cacheToken.expireTime < Date.now()) {
-            const url = Util.fixUrl(`${this.cluster.rest_server_uri}/api/v1/token`);
-            const res = await request.post(url, {
-                form: {
-                    expiration: 4000,
-                    password: this.cluster.password,
-                    username: this.cluster.username
-                },
-                json: true,
-                timeout: OpenPAIBaseClient.TIMEOUT
-            });
+            const res = await this.login();
             this.cacheToken = {
                 expireTime: Date.now() + 3600 * 1000,
                 token: res.token
             }
         }
         return this.cacheToken!.token;
+    }
+
+    /**
+     * Basic login.
+     */
+    public async login(): Promise<ILoginInfo> {
+        const url = Util.fixUrl(`${this.cluster.rest_server_uri}/api/v1/authn/basic/login`);
+        const res = await request.post(url, {
+            form: {
+                expiration: 4000,
+                password: this.cluster.password,
+                username: this.cluster.username
+            },
+            json: true,
+            timeout: OpenPAIBaseClient.TIMEOUT
+        });
+
+        return res;
     }
 
     /**

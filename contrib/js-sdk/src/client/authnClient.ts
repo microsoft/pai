@@ -45,24 +45,6 @@ export class AuthnClient extends OpenPAIBaseClient {
     }
 
     /**
-     * Basic login.
-     */
-    public async login(): Promise<ILoginInfo> {
-        const url = Util.fixUrl(`${this.cluster.rest_server_uri}/api/v1/authn/basic/login`);
-        const res = await request.post(url, {
-            form: {
-                expiration: 4000,
-                password: this.cluster.password,
-                username: this.cluster.username
-            },
-            json: true,
-            timeout: OpenPAIBaseClient.TIMEOUT
-        });
-
-        return res;
-    }
-
-    /**
      * OpenID Connect login.
      */
     public async oidcLogin(queryString?: string): Promise<any> {
@@ -84,5 +66,56 @@ export class AuthnClient extends OpenPAIBaseClient {
         const res = await request.get(url);
 
         return res;
+    }
+
+    /**
+     * Get list of available tokens (portal token + application token).
+     */
+    public async getTokens(token?: string): Promise<any> {
+        const url = Util.fixUrl(`${this.cluster.rest_server_uri}/api/v1/token`);
+        if(token === undefined) {
+            token = await super.token();
+        }
+        const res = await request.get(url, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            }
+        });
+        return JSON.parse(res);
+    }
+
+    /**
+     * Create an application access token.
+     */
+    public async createApplicationToken(token?: string): Promise<any> {
+        const url = Util.fixUrl(`${this.cluster.rest_server_uri}/api/v1/token/application`);
+        if(token === undefined) {
+            token = await super.token();
+        }
+        const res = await request.post(url, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            }
+        });
+        return JSON.parse(res);
+    }
+
+    /**
+     * Revoke a token.
+     */
+    public async deleteToken(deleteToken: string, accessToken?: string): Promise<any> {
+        const url = Util.fixUrl(`${this.cluster.rest_server_uri}/api/v1/token/${deleteToken}`);
+        if(accessToken === undefined) {
+            accessToken = await super.token();
+        }
+        const res = await request.delete(url, {
+            headers: {
+                Authorization: `Bearer ${accessToken}`,
+                'Content-Type': 'application/json'
+            }
+        });
+        return JSON.parse(res);
     }
 }
