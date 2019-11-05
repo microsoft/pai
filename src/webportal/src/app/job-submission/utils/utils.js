@@ -142,7 +142,6 @@ export function getPortFromUrl(url) {
 }
 
 function addPreCommandsToProtocolTaskRoles(protocol, preCommands) {
-  addTensorBoardCommandsToProtocolTaskRoles(protocol);
   Object.keys(protocol.taskRoles).forEach(taskRoleKey => {
     const taskRole = protocol.taskRoles[taskRoleKey];
     const commands = preCommands.concat(taskRole.commands || []);
@@ -183,6 +182,8 @@ function addTensorBoardCommandsToProtocolTaskRoles(protocol) {
 }
 
 export async function populateProtocolWithDataCli(user, protocol, jobData) {
+  addTensorBoardCommandsToProtocolTaskRoles(protocol);
+
   if (!jobData.containData) {
     return;
   }
