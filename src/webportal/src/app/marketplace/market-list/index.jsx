@@ -46,7 +46,7 @@ initializeIcons();
 const MarketList = () => {
   const itemList = [
     new MarketItem(
-      'Minist Example',
+      'minist_example',
       'debuggy',
       ['python', 'tensorflow'],
       null,

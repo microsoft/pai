@@ -85,7 +85,7 @@ export const SubmissionSection = props => {
   const { vcNames, errorMessages, setErrorMessage } = useContext(Context);
   const params = new URLSearchParams(window.location.search);
 
-  const params = new URLSearchParams(window.location.search);
+  //const params = new URLSearchParams(window.location.search);
 
   const _protocolAndErrorUpdate = protocol => {
     if (!isEqual(jobProtocol, protocol)) {

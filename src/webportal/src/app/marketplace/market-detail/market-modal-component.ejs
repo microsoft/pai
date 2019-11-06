@@ -1,0 +1,31 @@
+<!-- Modal component for marketItem edit -->
+<div class="modal fade" id="marketItemEdit" tabindex="-1" role="dialog" aria-labelledby="marketItemEditTitle">
+<div class="modal-dialog">
+ <div class="modal-content">
+   <div class="modal-header">
+     <h3 class="modal-title" id="marketItemEditTitle">
+       Edit Market Item
+     </h3>
+   </div>
+   <div class="modal-body">
+     <div class="modal-vc-content">
+       <div class="form-group edit-group">
+         <label for="editTitle" class="edit-group-item">Title</label>
+         <input id="editTitle" name="titleEdit" class="add-vc-fild form-control" placeholder="market item title" readonly>
+       </div>
+       <div class="form-group edit-group">
+         <label for="editCategories" class="edit-group-item">Categories</label>
+         <input id="editCategories" name="categoriesEdit" class="add-vc-fild form-control" placeholder="">
+       </div>
+       <div class="remarks">The new capacity can be set in range of 0%~<%= vcDefault.capacity %>%, the variation will be split from or return to default virtual cluster.</div>
+       <button type="button" class="btn btn-lg btn-primary btn-block" id="virtualClustersListEdit">
+         Update Virtual Cluster
+       </button>
+     </div>
+   </div>
+   <div class="modal-footer">
+     <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+   </div>
+ </div>
+</div>
+</div>

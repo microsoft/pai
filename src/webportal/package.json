@@ -69,6 +69,7 @@
     "prop-types": "^15.7.2",
     "react": "^16.8.3",
     "react-dom": "^16.8.3",
+    "react-markdown": "^4.2.2",
     "react-monaco-editor": "^0.25.1",
     "react-responsive": "^7.0.0",
     "react-router-dom": "^5.0.1",

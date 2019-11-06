@@ -74,7 +74,7 @@ const renderItem = item => {
           </Stack>
           <Stack gap='m' styles={{ root: [{ paddingRight: spacing.l2 }] }}>
             <PrimaryButton>Submit</PrimaryButton>
-            <DefaultButton href={`market-detail.html?itemId=${item.Id}`}>
+            <DefaultButton href={`market-detail.html?itemName=${item.name}`}>
               View
             </DefaultButton>
           </Stack>

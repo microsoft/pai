@@ -22,18 +22,113 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+import 'core-js/stable';
+import 'regenerator-runtime/runtime';
+import 'whatwg-fetch';
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import ReactDOM from 'react-dom';
-import { Text, Stack, CommandButton } from 'office-ui-fabric-react';
+import classNames from 'classnames';
+import { Fabric, Text, Stack, CommandButton, FontClassNames, initializeIcons } from 'office-ui-fabric-react';
+import t from '../../components/tachyons.scss';
+import Top from './top';
+import Summary from './summary';
+import Detail from './detail';
+import {fetchMarketItem, fetchJobConfig_marketplace, fetchTaskRoles_marketplace} from './conn';
+import Context from './Context';
+import { SpinnerLoading } from '../../components/loading';
 
-export const MarketDetail = React.memo(() => {
+initializeIcons();
+
+const MarketDetail = (props) => {
+  const [loading, setLoading] = useState(true);
+  const [reloading, setReloading] = useState(false);
+  const [jobInfo, setJobInfo] = useState(null);
+  const [error, setError] = useState(null);
+  const [jobConfig, setJobConfig] = useState(null);
+  const [taskRoles, setTaskRoles] = useState(null);
+
+  // load jobInfo, taskRoles, jobConfig, jobDescription
+  useEffect(() => {
+    /*
+    async function reload_() {
+      await reload();
+    }*/
+    const reload_ = async () => {
+      await reload();
+    };
+    reload_();
+  }, []);
+
+  async function reload() {
+    console.log('reloading...');
+    setReloading(true);
+    const nextState = {
+      loading: false,
+      reloading: false,
+      jobInfo: null,
+      error: null,
+    };
+    const loadJobInfo = async () => {
+      try {
+        nextState.jobInfo = await fetchMarketItem();
+      }catch (err) {
+        nextState.error = `fetch job status failed: ${err.message}`;
+      }
+    };
+    /*
+    const loadTaskRoles = async () => {
+      try {
+        nextState.taskRoles = await fetchTaskRoles_marketplace();
+      }catch (err) {
+
+      }
+    };
+    const loadJobConfig = async () => {
+      try {
+        nextState.jobConfig = await fetchJobConfig_marketplace();
+      }catch (err) {
+
+      }
+    };
+    */
+    await Promise.all([
+      loadJobInfo(),
+      //loadTaskRoles(),
+      //loadJobConfig(),
+    ]);
+    
+    // update states
+    setJobInfo(nextState.jobInfo);
+    setReloading(nextState.reloading);
+    setError(nextState.error);
+    //setJobConfig(nextState.jobConfig);
+    //setTaskRoles(nextState.taskRoles);
+    setLoading(nextState.loading);
+
+    //console.table(jobInfo);
+  }
+
   return (
-    <Text variant='xLarge' styles={{ root: { fontWeight: 'semibold' } }}>
-      Marketplace
-    </Text>
+      <Context.Provider value={{jobInfo, taskRoles}}>
+        {loading && (
+          <SpinnerLoading />
+        )}
+        {loading === false && (
+        <Fabric style={{ height: '100%', margin: '0 auto', maxWidth: 1050 }}>
+          <div className={classNames(t.w100, t.pa4, FontClassNames.medium)}>
+            <Top />
+            <Summary
+              jobInfo={jobInfo}
+              jobConfig={jobConfig}
+            />
+            <Detail />
+          </div>
+        </Fabric>
+        )}
+      </Context.Provider>
   );
-});
+};
 
 const contentWrapper = document.getElementById('content-wrapper');
 ReactDOM.render(<MarketDetail />, contentWrapper);
