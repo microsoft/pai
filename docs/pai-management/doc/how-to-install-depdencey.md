@@ -56,7 +56,7 @@ apt-get -y install \
       net-tools \
       python3-pip
 
-pip install --upgrade python-etcd docker kubernetes paramiko==2.6.0 GitPython futures
+pip install --upgrade python-etcd docker kubernetes paramiko==2.6.0 GitPython future
 
 pip3 install kubernetes
 
