@@ -20,16 +20,16 @@ etcd_quota_backend_bytes: "8589934592"
 ############## nginx configuration ##############
 
 # Requests for load balancer app
-#loadbalancer_apiserver_memory_requests: 1024M
-#loadbalancer_apiserver_cpu_requests: 1000m
+loadbalancer_apiserver_memory_requests: 500M
+loadbalancer_apiserver_cpu_requests: 500m
 
-#loadbalancer_apiserver_keepalive_timeout: 15m
+loadbalancer_apiserver_keepalive_timeout: 15m
 
 ## Internal loadbalancers for apiservers
 # loadbalancer_apiserver_localhost: true
 
 ## valid options are "nginx" or "haproxy"
-loadbalancer_apiserver_type: "haproxy"
+loadbalancer_apiserver_type: "nginx"
 ## applied if only external loadbalancer_apiserver is defined, otherwise ignored
 # apiserver_loadbalancer_domain_name: "lb-apiserver.kubernetes.local"
 
@@ -74,9 +74,9 @@ loadbalancer_apiserver_type: "haproxy"
 # dns_domain: "{{ cluster_name }}"
 
 # Limits for coredns
-# dns_memory_limit: 170Mi
-# dns_cpu_requests: 100m
-# dns_memory_requests: 70Mi
+dns_memory_limit: 1000Mi
+dns_cpu_requests: 1000m
+dns_memory_requests: 500Mi
 dns_min_replicas: 1
 # dns_nodes_per_replica: 16
 # dns_cores_per_replica: 256
@@ -144,15 +144,15 @@ kubectl_localhost: true
 # kubelet_max_pods: 110
 
 ## Support custom flags to be passed to kubelet
-# kubelet_custom_flags:
-#  - "--image-pull-progress-deadline=10m"
+kubelet_custom_flags:
+  - "--image-pull-progress-deadline=10m"
 
 # kube_feature_gates: []
 
 ## Support custom flags to be passed to kubelet only on nodes, not masters
 # kubelet_node_custom_flags: []
 
-#k8s_image_pull_policy: Always
+k8s_image_pull_policy: Always
 
 ## extra runtime config
 # kube_api_runtime_config: []
@@ -192,11 +192,11 @@ kube_network_node_prefix: 25
 
 ##### api-server
 
-# kube_kubeadm_apiserver_extra_args:
-#  cors-allowed-origins: ".*"
-#  storage-media-type: "application/json"
-#  max-requests-inflight: 1500
-#  max-mutating-requests-inflight: 500
+kube_kubeadm_apiserver_extra_args:
+  cors-allowed-origins: ".*"
+  storage-media-type: "application/json"
+  max-requests-inflight: 1500
+  max-mutating-requests-inflight: 500
 
 ## Extra control plane host volume mounts
 ## Example:
@@ -221,10 +221,10 @@ kube_network_node_prefix: 25
 ## Inclusive at both ends of the range.
 # kube_apiserver_node_port_range: "30000-32767"
 
-#kube_apiserver_memory_limit: 20000M
-#kube_apiserver_cpu_limit: 10000m
-#kube_apiserver_memory_requests: 1024M
-#kube_apiserver_cpu_requests: 1000m
+kube_apiserver_memory_limit: 20000M
+kube_apiserver_cpu_limit: 10000m
+kube_apiserver_memory_requests: 1024M
+kube_apiserver_cpu_requests: 1000m
 # kube_apiserver_request_timeout: "1m0s"
 
 # 1.9 and below Admission control plug-ins
@@ -254,10 +254,10 @@ kube_network_node_prefix: 25
 
 # kube_controller_manager_bind_address: 0.0.0.0
 
-# kube_controller_memory_limit: 20000M
-# kube_controller_cpu_limit: 10000m
-# kube_controller_memory_requests: 1024M
-# kube_controller_cpu_requests: 1000m
+kube_controller_memory_limit: 20000M
+kube_controller_cpu_limit: 10000m
+kube_controller_memory_requests: 1024M
+kube_controller_cpu_requests: 1000m
 # kube_controller_node_monitor_grace_period: 40s
 # kube_controller_node_monitor_period: 5s
 # kube_controller_pod_eviction_timeout: 5m0s
@@ -271,10 +271,10 @@ kube_network_node_prefix: 25
 
 # kube_scheduler_bind_address: 0.0.0.0
 
-# kube_scheduler_memory_limit: 200000M
-# kube_scheduler_cpu_limit: 10000m
-# kube_scheduler_memory_requests: 1024M
-# kube_scheduler_cpu_requests: 1000m
+kube_scheduler_memory_limit: 200000M
+kube_scheduler_cpu_limit: 10000m
+kube_scheduler_memory_requests: 1024M
+kube_scheduler_cpu_requests: 1000m
 
 
 ##### dashboard
@@ -328,27 +328,27 @@ cert_manager_enabled: true
 ## Used to set docker daemon iptables options to true
 docker_iptables_enabled: true
 
-#docker_daemon_graph: "/docker_data_root_test"
+docker_daemon_graph: "/mnt"
 
-#docker_log_opts: "--log-opt max-size=2g --log-opt max-file=1 --log-driver=json-file"
+docker_log_opts: "--log-opt max-size=2g --log-opt max-file=1 --log-driver=json-file"
 
 # add --add-runtime nvidia=/usr/bin/nvidia-container-runtime for nvidia-runtime in docker_option
-#docker_options: >-
-#    --add-runtime nvidia=/usr/bin/nvidia-container-runtime
-#    --default-runtime nvidia
-#    {%- if docker_insecure_registries is defined %}
-#    {{ docker_insecure_registries | map('regex_replace', '^(.*)$', '--insecure-registry=\1' ) | list | join(' ') }}
-#    {%- endif %}
-#    {% if docker_registry_mirrors is defined %}
-#    {{ docker_registry_mirrors | map('regex_replace', '^(.*)$', '--registry-mirror=\1' ) | list | join(' ') }}
-#    {%- endif %}
-#    {%- if docker_version != "latest" and docker_version is version('17.05', '<') %}
-#    --graph={{ docker_daemon_graph }} {% if ansible_os_family not in ["openSUSE Leap", "openSUSE Tumbleweed", "Suse"] %}{{ docker_log_opts }}{% endif %}
-#    {%- else %}
-#    --data-root={{ docker_daemon_graph }} {% if ansible_os_family not in ["openSUSE Leap", "openSUSE Tumbleweed", "Suse"] %}{{ docker_log_opts }}{% endif %}
-#    {%- endif %}
-#    {%- if ansible_architecture == "aarch64" and ansible_os_family == "RedHat" %}
-#    --add-runtime docker-runc=/usr/libexec/docker/docker-runc-current
-#    --default-runtime=docker-runc --exec-opt native.cgroupdriver=systemd
-#    --userland-proxy-path=/usr/libexec/docker/docker-proxy-current --signature-verification=false
-#    {%- endif -%}
+docker_options: >-
+    --add-runtime nvidia=/usr/bin/nvidia-container-runtime
+    --default-runtime nvidia
+    {%- if docker_insecure_registries is defined %}
+    {{ docker_insecure_registries | map('regex_replace', '^(.*)$', '--insecure-registry=\1' ) | list | join(' ') }}
+    {%- endif %}
+    {% if docker_registry_mirrors is defined %}
+    {{ docker_registry_mirrors | map('regex_replace', '^(.*)$', '--registry-mirror=\1' ) | list | join(' ') }}
+    {%- endif %}
+    {%- if docker_version != "latest" and docker_version is version('17.05', '<') %}
+    --graph={{ docker_daemon_graph }} {% if ansible_os_family not in ["openSUSE Leap", "openSUSE Tumbleweed", "Suse"] %}{{ docker_log_opts }}{% endif %}
+    {%- else %}
+    --data-root={{ docker_daemon_graph }} {% if ansible_os_family not in ["openSUSE Leap", "openSUSE Tumbleweed", "Suse"] %}{{ docker_log_opts }}{% endif %}
+    {%- endif %}
+    {%- if ansible_architecture == "aarch64" and ansible_os_family == "RedHat" %}
+    --add-runtime docker-runc=/usr/libexec/docker/docker-runc-current
+    --default-runtime=docker-runc --exec-opt native.cgroupdriver=systemd
+    --userland-proxy-path=/usr/libexec/docker/docker-proxy-current --signature-verification=false
+    {%- endif -%}
