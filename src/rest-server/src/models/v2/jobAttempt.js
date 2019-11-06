@@ -18,7 +18,10 @@
 // module dependencies
 const _ = require('lodash');
 const {Client} = require('@elastic/elasticsearch');
-const {convertToJobAttempt, convertToJobAttemptDetail} = require('@pai/utils/frameworkConverter');
+const {
+  convertToJobAttempt,
+  convertToJobAttemptDetail,
+} = require('@pai/utils/frameworkConverter');
 
 let elasticSearchClient;
 if (!_.isNil(process.env.ELASTICSEARCH_URI)) {
@@ -101,49 +104,74 @@ const list = async (frameworkName) => {
   if (_.isEmpty(buckets)) {
     return {status: 404, data: null};
   } else {
-    const attempts = buckets.map((bucket) => {
+    const attemptFrameworks = buckets.map((bucket) => {
       return bucket.collectTime_latest_hits.hits.hits[0]._source.objectSnapshot;
     });
-    const retryData = attempts.map((attempt) => {
-      return convertToJobAttempt(attempt);
+    const retryData = attemptFrameworks.map((attemptFramework) => {
+      return convertToJobAttempt(attemptFramework);
     });
     return {status: 200, data: retryData};
   }
 };
 
-const get = async (frameworkName) => {
-  // send request to framework controller
-  let response;
-  try {
-    response = await axios({
-      method: 'get',
-      url: launcherConfig.frameworkPath(encodeName(frameworkName)),
-      headers: launcherConfig.requestHeaders,
-      httpsAgent: apiserver.ca && new Agent({ca: apiserver.ca}),
-    });
-  } catch (error) {
-    if (error.response != null) {
-      response = error.response;
-    } else {
-      throw error;
-    }
+const get = async (frameworkName, jobAttemptIndex) => {
+  if (!healthCheck) {
+    return {status: 501, data: null};
   }
 
-  if (response.status === status('OK')) {
-    return await convertFrameworkDetail(response.data);
-  }
-  if (response.status === status('Not Found')) {
-    throw createError(
-      'Not Found',
-      'NoJobError',
-      `Job ${frameworkName} is not found.`,
-    );
+  const body = {
+    query: {
+      bool: {
+        filter: {
+          term: {
+            'objectSnapshot.metadata.name.keyword':
+              'dnmpwx31dxz6uubeehgpyqv46crkec1j65hg',
+          },
+        },
+      },
+    },
+    size: 0,
+    aggs: {
+      attemptID_group: {
+        filter: {
+          term: {
+            'objectSnapshot.status.attemptStatus.id': jobAttemptIndex,
+          },
+        },
+        aggs: {
+          collectTime_latest_hits: {
+            top_hits: {
+              sort: [
+                {
+                  collectTime: {
+                    order: 'desc',
+                  },
+                },
+              ],
+              size: 1,
+            },
+          },
+        },
+      },
+    },
+  };
+
+  const esResult = await elasticSearchClient.search({
+    index: 'framework',
+    body: body,
+  });
+
+  const buckets = esResult.body.aggregations.attemptID_group.collectTime_latest_hits.hits.hits;
+
+  if (_.isEmpty(buckets)) {
+    return {status: 404, data: null};
   } else {
-    throw createError(response.status, 'UnknownError', response.data.message);
+    const attemptFramework = buckets[0]._source.objectSnapshot;
+    const attemptDetail = await convertToJobAttemptDetail(attemptFramework);
+    return {status: 200, data: attemptDetail};
   }
 };
 
-// module exports
 module.exports = {
   healthCheck,
   list,
