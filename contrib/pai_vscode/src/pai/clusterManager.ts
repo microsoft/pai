@@ -234,6 +234,7 @@ export class ClusterManager extends Singleton {
             cluster.web_portal_uri = `${host}`;
             cluster.hdfs_uri = `hdfs://${host}:9000`;
             cluster.k8s_dashboard_uri = `${host}:9090`;
+            await this.autoAddOIDCUserInfo(cluster);
         }
 
         // Config the protocol version.
