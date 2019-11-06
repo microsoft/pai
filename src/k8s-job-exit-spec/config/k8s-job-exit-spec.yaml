@@ -840,20 +840,6 @@ spec:
     runtimeContainerPatterns:
     - userLogRegex: "(?msi)CUDA_ERROR_ECC_UNCORRECTABLE.*"
 
-- code: 248
-  phrase: PAIRuntimeInitContainerUnkownError
-  issuer: PAI_RUNTIME
-  causer: PAI_RUNTIME
-  type: PLATFORM_FAILURE
-  stage: RUNNING
-  behavior: UNKNOWN
-  reaction: RETRY_TO_MAX
-  reason: "Pai runtime init container exit with unkonwn code"
-  repro:
-  - "Pai runtime init container script exit with code 1"
-  solution:
-  - "Contact PAI Dev to fix the PAI Runtime bug"
-
 - code: 249
   phrase: PAIRuntimeSSHBarrierTimeout
   issuer: PAI_RUNTIME
