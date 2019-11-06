@@ -15,17 +15,16 @@
 ---
 
 ## Manual Configuration
+For now, `nfsport` is 2049 and `smbport` is 445 and can not be changed.
 
 All configurations in this section is optional. If you want to customized these value, you can configure it in service-configuration.yaml.
 
-For example, if you want to use different port than the default 9103, add following to your service-configuration.yaml as following:
+For example, if you want to use different local path than the default /share, add following to your service-configuration.yaml as following:
 
 ```yaml
 storage-manager:
     localpath: new-value
 ```
-
-For now, `nfsport` and `smbport` can not be changed.
 
 ---
 
@@ -68,18 +67,6 @@ storage-manager:
     <td>Data in Cluster Object Model</td>
     <td>Data in Jinja2 Template</td>
     <td>Data type</td>
-</tr>
-<tr>
-    <td>storage-manager.nfsport</td>
-    <td>com["storage-manager"]["nfsport"]</td>
-    <td>cluster_cfg["storage-manager"]["nfsport"]</td>
-    <td>Int, cannot be changed for now</td>
-</tr>
-<tr>
-    <td>storage-manager.smbport</td>
-    <td>com["storage-manager"]["smbport"]</td>
-    <td>cluster_cfg["storage-manager"]["smbport"]</td>
-    <td>Int, cannot be changed for now</td>
 </tr>
 <tr>
     <td>storage-manager.localpath</td>

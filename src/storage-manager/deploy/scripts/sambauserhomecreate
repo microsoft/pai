@@ -33,11 +33,11 @@ umask 007
 userpath="$userspath"/"$user"
 if [ ! -d "$userpath" ];then
   mkdir -p "$userpath"
-  if [ $user != $uname ]
-  then
-    chown "$domain\\$user":"$paiuser" $userpath
-  else
-    chown "$user":"$paiuser" $userpath
-  fi
-  setfacl -m u:"$paiuser":rwx $userpath
 fi
+
+if [ $user != $uname ];then
+  chown -R "$domain\\$user":"$paiuser" $userpath
+else
+  chown -R "$user":"$paiuser" $userpath
+fi
+setfacl -R -m u:"$paiuser":rwx $userpath

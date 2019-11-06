@@ -29,8 +29,8 @@ spec:
       labels:
         app: storage-manager
       annotations:
-        smbport: "{{ cluster_cfg["storage-manager"]["smbport"] }}"
-        nfsport: "{{ cluster_cfg["storage-manager"]["nfsport"] }}"
+        smbport: "445"
+        nfsport: "2049"
         localpath: "{{ cluster_cfg["storage-manager"]["localpath"] }}"
     spec:
       hostNetwork: false
@@ -48,18 +48,18 @@ spec:
         securityContext:
           privileged: True
         env:
-{%- if cluster_cfg["storage-manager"]['security-type'] == "ADS" %}
-        - name: DOMAINUSER
-          value: {{ cluster_cfg['storage-manager']['domainuser'] }}
-        - name: DOMAINPWD
-          value: {{ cluster_cfg['storage-manager']['domainpwd'] }}
-{%- endif %}
         - name: PAISMBUSER
           value: {{ cluster_cfg['storage-manager']['smbuser'] }}
         - name: PAISMBPWD
           value: {{ cluster_cfg['storage-manager']['smbpwd'] }}
         - name: SECURETYPE
           value: {{ cluster_cfg['storage-manager']['security-type'] }}
+{%- if cluster_cfg["storage-manager"]['security-type'] == "ADS" %}
+        - name: DOMAINUSER
+          value: {{ cluster_cfg['storage-manager']['domainuser'] }}
+        - name: DOMAINPWD
+          value: {{ cluster_cfg['storage-manager']['domainpwd'] }}
+{%- endif %}
         volumeMounts:
         - name: pai-storage
           mountPath: /share/pai
@@ -70,15 +70,16 @@ spec:
           readOnly: true
         ports:
         - containerPort: 445
-          hostPort: {{ cluster_cfg["storage-manager"]["smbport"] }}
+          hostPort: 445
           name: sm-smbport
         - containerPort: 2049
-          hostPort: {{ cluster_cfg["storage-manager"]["nfsport"] }}
+          hostPort: 2049
           name: sm-nfsport
       volumes:
         - name: pai-storage
           hostPath:
             path: {{ cluster_cfg["storage-manager"]["localpath"] }}
+            type: DirectoryOrCreate
         - name: host-modules
           hostPath:
             path: /lib/modules
