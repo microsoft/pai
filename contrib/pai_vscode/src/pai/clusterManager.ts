@@ -167,8 +167,17 @@ export class ClusterManager extends Singleton {
                     }
                 );
 
+                let clusterToken: string = loginInfo.token;
+
+                try {
+                    const response: any = await client.authn.createApplicationToken(clusterToken);
+                    clusterToken = response.token;
+                } catch (error) {
+                    console.log('Get application token fail, use user token.');
+                }
+
                 cluster.username = loginInfo.user;
-                cluster.token = loginInfo.token;
+                cluster.token = clusterToken;
                 cluster.password = undefined;
             }
         } catch (ex) {

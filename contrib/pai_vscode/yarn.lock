@@ -1193,7 +1193,7 @@ ono@^4.0.10:
 
 openpai-js-sdk@yiyione/pai#openpai-js-sdk:
   version "0.0.0"
-  resolved "https://codeload.github.com/yiyione/pai/tar.gz/ee382116b31b82eb8f36f1d040c9744d6d5dc0c4"
+  resolved "https://codeload.github.com/yiyione/pai/tar.gz/91987af37c498a7f9127230c00d62b2bef536f4e"
   dependencies:
     js-yaml "^3.13.1"
     request "^2.88.0"
