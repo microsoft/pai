@@ -58,6 +58,9 @@ export const UtilizationChart = ({ percentage }) => {
       padding: {
         bottom: 0,
       },
+      transition: {
+        duration: 0,
+      },
       donut: {
         label: {
           show: false,
