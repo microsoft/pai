@@ -6,6 +6,7 @@
 
 import { injectable } from 'inversify';
 import { clone, range } from 'lodash';
+import { IAuthnInfo, ILoginInfo, OpenPAIClient } from 'openpai-js-sdk';
 import * as request from 'request-promise-native';
 import * as vscode from 'vscode';
 
@@ -19,6 +20,7 @@ import { ClusterExplorerChildNode, ConfigurationTreeDataProvider, ITreeData } fr
 import { IPAICluster } from './paiInterface';
 
 import semverCompare = require('semver-compare'); // tslint:disable-line
+import { login } from './azureADLogin';
 
 export interface IConfiguration {
     readonly version: string;
@@ -139,6 +141,50 @@ export class ClusterManager extends Singleton {
         return this.configuration!.pais;
     }
 
+    public async autoAddOIDCUserInfo(cluster: IPAICluster): Promise<void> {
+        try {
+            const client: OpenPAIClient = new OpenPAIClient({
+                rest_server_uri: cluster.rest_server_uri
+            });
+
+            const authnInfo: IAuthnInfo = await client.authn.info();
+
+            if (authnInfo.authn_type === 'OIDC') {
+                const loginInfo: ILoginInfo = await login(
+                    `https://${cluster.rest_server_uri}`,
+                    `https://${cluster.web_portal_uri}`,
+                    async () => {
+                        const response: string | undefined = await vscode.window.showInformationMessage(
+                            // tslint:disable-next-line: no-multiline-string
+                            __('cluster.login.timeout'),
+                            __('cluster.login.openPortal'));
+                        if (response) {
+                            cluster.username = '';
+                            cluster.token = '';
+                            cluster.password = undefined;
+                            await Util.openExternally(cluster.web_portal_uri!);
+                        }
+                    }
+                );
+
+                let clusterToken: string = loginInfo.token;
+
+                try {
+                    const response: any = await client.authn.createApplicationToken(clusterToken);
+                    clusterToken = response.token;
+                } catch (error) {
+                    console.log('Get application token fail, use user token.');
+                }
+
+                cluster.username = loginInfo.user;
+                cluster.token = clusterToken;
+                cluster.password = undefined;
+            }
+        } catch (ex) {
+            cluster.token = '';
+        }
+    }
+
     public async add(): Promise<void> {
         const host: string | undefined = await vscode.window.showInputBox({
             prompt: __('cluster.add.host.prompt'),
@@ -155,6 +201,7 @@ export class ClusterManager extends Singleton {
         if (!host) {
             return;
         }
+
         const cluster: IPAICluster = clone(ClusterManager.paiDefault);
         try {
             await vscode.window.withProgress(
@@ -178,6 +225,7 @@ export class ClusterManager extends Singleton {
             cluster.web_portal_uri = `${host}`;
             cluster.hdfs_uri = `hdfs://${host}:9000`;
             cluster.webhdfs_uri = `${host}/webhdfs/api/v1`;
+            await this.autoAddOIDCUserInfo(cluster);
         } catch {
             cluster.name = host;
             cluster.rest_server_uri = `${host}:9186`;
@@ -186,6 +234,7 @@ export class ClusterManager extends Singleton {
             cluster.web_portal_uri = `${host}`;
             cluster.hdfs_uri = `hdfs://${host}:9000`;
             cluster.k8s_dashboard_uri = `${host}:9090`;
+            await this.autoAddOIDCUserInfo(cluster);
         }
 
         // Config the protocol version.

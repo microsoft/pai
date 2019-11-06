@@ -13,7 +13,7 @@
         "url": "https://github.com/Microsoft/pai/issues"
     },
     "engines": {
-        "vscode": "^1.27.0"
+        "vscode": "^1.39.2"
     },
     "categories": [
         "Other"
@@ -416,12 +416,12 @@
         "redhat.vscode-yaml"
     ],
     "scripts": {
-        "vscode:prepublish": "npm run compile",
+        "vscode:prepublish": "yarn compile",
         "compile": "tsc -p ./",
         "watch": "tsc -watch -p ./",
-        "package": "vsce package",
+        "package": "vsce package  --yarn",
         "postinstall": "node ./node_modules/vscode/bin/install",
-        "test": "npm run compile && node ./installYamlExtension.js && node ./node_modules/vscode/bin/test"
+        "test": "yarn compile && node ./installYamlExtension.js && node ./node_modules/vscode/bin/test"
     },
     "devDependencies": {
         "@types/fs-extra": "^5.0.4",
@@ -432,19 +432,20 @@
         "@types/lodash": "^4.14.117",
         "@types/mocha": "^5.2.5",
         "@types/nock": "^9.3.0",
-        "@types/node": "^8.10.25",
+        "@types/node": "^12.12.5",
         "@types/opn": "^5.1.0",
         "@types/request": "^2.47.1",
         "@types/request-promise-native": "^1.0.15",
         "@types/semver-compare": "^1.0.0",
         "@types/uuid": "^3.4.4",
+        "@types/vscode": "^1.27.0",
         "nock": "^10.0.1",
         "tslint": "^5.8.0",
         "tslint-microsoft-contrib": "^5.2.1",
         "typescript": "^3.5.1",
         "typescript-tslint-plugin": "^0.4.0",
         "vsce": "^1.53.0",
-        "vscode": "^1.1.21"
+        "vscode": "^1.1.36"
     },
     "dependencies": {
         "ajv": "^6.5.4",
@@ -456,12 +457,13 @@
         "json-inline-doc": "^2.0.1",
         "json-schema-ref-parser": "^6.0.2",
         "jsonc-parser": "^2.1.1",
-        "lodash": "^4.17.11",
+        "lodash": "^4.17.15",
         "node-yaml-parser": "^0.0.9",
+        "openpai-js-sdk": "yiyione/pai#openpai-js-sdk",
         "opn": "^5.4.0",
         "reflect-metadata": "^0.1.12",
         "request": "^2.88.0",
-        "request-promise-native": "^1.0.5",
+        "request-promise-native": "^1.0.7",
         "semver-compare": "^1.0.0",
         "streamifier": "^0.1.1",
         "unixify": "^1.0.0",
