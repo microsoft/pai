@@ -326,7 +326,7 @@ dashboard_enabled: false
 # docker_version: latest
 
 ## Used to set docker daemon iptables options to true
-# docker_iptables_enabled: "true"
+docker_iptables_enabled: true
 
 #docker_daemon_graph: "/docker_data_root_test"
 
