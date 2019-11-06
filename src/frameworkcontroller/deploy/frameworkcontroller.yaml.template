@@ -33,7 +33,7 @@ spec:
       serviceAccountName: frameworkcontroller-account
       containers:
       - name: frameworkcontroller
-        image: frameworkcontroller/frameworkcontroller:v0.4.0
+        image: frameworkcontroller/frameworkcontroller:v0.5.0
       {%- if cluster_cfg['cluster']['common']['k8s-rbac'] != 'true' %}
         env:
         - name: KUBE_APISERVER_ADDRESS
