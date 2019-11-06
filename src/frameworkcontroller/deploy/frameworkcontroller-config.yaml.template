@@ -22,6 +22,18 @@ metadata:
   namespace: default
 data:
   frameworkcontroller.yaml: |
+    #kubeApiServerAddress: http://10.10.10.10:8080
+    #kubeConfigFilePath: ''
+
+    workerNumber: 20
+
+    largeFrameworkCompression: true
+
+    #frameworkCompletedRetainSec: 2592000
+
+    #frameworkMinRetryDelaySecForTransientConflictFailed: 60
+    #frameworkMaxRetryDelaySecForTransientConflictFailed: 900
+
     podFailureSpec:
     {%- for spec_item in cluster_cfg['k8s-job-exit-spec']['spec'] %}
     {%- if (spec_item['code'] < -999 or spec_item['code'] > 0) %}
