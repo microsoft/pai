@@ -15,27 +15,148 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-import React, { useMemo } from 'react';
+import c from 'classnames';
+import copy from 'copy-to-clipboard';
+import React, { useMemo, useState } from 'react';
 import jwt from 'jsonwebtoken';
-import { DetailsList, DetailsListLayoutMode, SelectionMode } from 'office-ui-fabric-react';
+import cookies from 'js-cookie';
+import PropTypes from 'prop-types';
+import {
+  DetailsList,
+  DetailsListLayoutMode,
+  SelectionMode,
+  IconButton,
+  FontSizes,
+  CommandBarButton,
+} from 'office-ui-fabric-react';
 
-const TokenList = ({ tokens }) => {
+import t from '../../../components/tachyons.scss';
+
+const TokenList = ({ tokens, onRevoke }) => {
+  const [processing, setProcessing] = useState(false);
 
   const tokenItems = useMemo(() => {
-
+    return tokens
+      .map(x => ({
+        ...jwt.decode(x),
+        value: x,
+      }))
+      .sort((a, b) => b.iat - a.iat);
   }, [tokens]);
+
+  const tokenColumns = [
+    {
+      key: 'value',
+      minWidth: 120,
+      name: 'Value',
+      isResizable: true,
+      onRender(token) {
+        return (
+          <div className={c(t.flex, t.itemsCenter, t.h100)}>
+            <div className={t.truncate}>{token.value}</div>
+            <div>
+              <IconButton
+                iconProps={{ iconName: 'Copy' }}
+                styles={{ icon: [{ fontSize: FontSizes.small }] }}
+                onClick={() => copy(token.value)}
+              />
+            </div>
+          </div>
+        );
+      },
+    },
+    {
+      key: 'iat',
+      minWidth: 150,
+      maxWidth: 150,
+      name: 'Issued At',
+      isResizable: true,
+      onRender(token) {
+        return (
+          <div className={c(t.flex, t.itemsCenter, t.h100)}>
+            {new Date(token.iat * 1000).toLocaleString()}
+          </div>
+        );
+      },
+    },
+    {
+      key: 'exp',
+      minWidth: 150,
+      maxWidth: 150,
+      name: 'Expiration Time',
+      isResizable: true,
+      onRender(token) {
+        return (
+          <div className={c(t.flex, t.itemsCenter, t.h100)}>
+            {token.exp && new Date(token.exp * 1000).toLocaleString()}
+          </div>
+        );
+      },
+    },
+    {
+      key: 'type',
+      minWidth: 150,
+      name: 'Token Type',
+      isResizable: true,
+      onRender(token) {
+        return (
+          <div className={c(t.flex, t.itemsCenter, t.h100)}>
+            {token.application
+              ? 'Application'
+              : token.value === cookies.get('token')
+              ? 'Browser (Current)'
+              : 'Browser'}
+          </div>
+        );
+      },
+    },
+    {
+      key: 'action',
+      minWidth: 100,
+      name: 'Action',
+      isResizable: true,
+      onRender(token) {
+        return (
+          <div className={c(t.flex, t.itemsCenter, t.h100)}>
+            <CommandBarButton
+              styles={{
+                root: { backgroundColor: 'transparent', height: '100%' },
+                rootDisabled: { backgroundColor: 'transparent' },
+              }}
+              iconProps={{ iconName: 'CommandPrompt' }}
+              text='Revoke'
+              onClick={() => {
+                setProcessing(true);
+                onRevoke(token.value).finally(() => setProcessing(false));
+              }}
+              disabled={processing}
+            />
+          </div>
+        );
+      },
+    },
+  ];
 
   return (
     <div>
       <DetailsList
-        columns={vcListColumns}
+        columns={tokenColumns}
         disableSelectionZone
-        items={vcList}
+        items={tokenItems}
         layoutMode={DetailsListLayoutMode.justified}
         selectionMode={SelectionMode.none}
       />
     </div>
   );
+};
+
+TokenList.defaultProps = {
+  tokens: [],
+};
+
+TokenList.propTypes = {
+  tokens: PropTypes.arrayOf(PropTypes.string),
+  onRevoke: PropTypes.func.isRequired,
 };
 
 export default TokenList;

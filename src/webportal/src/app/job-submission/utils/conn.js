@@ -15,7 +15,7 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-import { userLogout } from '../../user/user-logout/user-logout.component.js';
+import { clearToken } from '../../user/user-logout/user-logout.component.js';
 
 import config from '../../config/webportal.config';
 import yaml from 'js-yaml';
@@ -39,7 +39,7 @@ async function fetchWrapper(...args) {
   } else {
     if (json.code === 'UnauthorizedUserError') {
       alert(json.message);
-      userLogout();
+      clearToken();
     } else {
       throw new Error(json.message);
     }

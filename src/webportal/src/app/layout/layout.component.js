@@ -36,6 +36,7 @@ const config = require('../config/webportal.config.js');
 
 const userLoginNavHtml = userLoginNavComponent({ cookies });
 
+// used by navbar's ejs
 window.userLogout = userLogoutComponent.userLogout;
 
 $('#navbar').html(userLoginNavHtml);

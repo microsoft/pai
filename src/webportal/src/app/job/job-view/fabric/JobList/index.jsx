@@ -44,6 +44,7 @@ import Table from './Table';
 import TopBar from './TopBar';
 
 import webportalConfig from '../../../../config/webportal.config';
+import { clearToken } from '../../../../user/user-logout/user-logout.component';
 import userAuth from '../../../../user/user-auth/user-auth.component';
 import { initTheme } from '../../../../components/theme';
 
@@ -131,7 +132,7 @@ export default function JobList() {
                 return response.json().then(data => {
                   if (data.code === 'UnauthorizedUserError') {
                     alert(data.message);
-                    userLogout();
+                    clearToken();
                   } else {
                     throw new Error(data.message);
                   }

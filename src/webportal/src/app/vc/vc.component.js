@@ -10,6 +10,7 @@ const vcComponent = require('./vc.component.ejs');
 const breadcrumbComponent = require('../job/breadcrumb/breadcrumb.component.ejs');
 const vcModelComponent = require('./vc-modal-component.ejs');
 const webportalConfig = require('../config/webportal.config.js');
+const { clearToken } = require('../user/user-logout/user-logout.component');
 const userAuth = require('../user/user-auth/user-auth.component');
 
 //
@@ -164,7 +165,7 @@ const virtualClustersAdd = () => {
         const res = JSON.parse(xhr.responseText);
         alert(res.message);
         if (res.code === 'UnauthorizedUserError') {
-          userLogout();
+          clearToken();
         }
       },
     });
@@ -197,7 +198,7 @@ const deleteVcItem = name => {
         const res = JSON.parse(xhr.responseText);
         alert(res.message);
         if (res.code === 'UnauthorizedUserError') {
-          userLogout();
+          clearToken();
         }
       },
     });
@@ -236,7 +237,7 @@ const editVcItemPut = (name, capacity) => {
         const res = JSON.parse(xhr.responseText);
         alert(res.message);
         if (res.code === 'UnauthorizedUserError') {
-          userLogout();
+          clearToken();
         }
       },
     });
@@ -277,7 +278,7 @@ const changeVcState = (name, state) => {
         const res = JSON.parse(xhr.responseText);
         alert(res.message);
         if (res.code === 'UnauthorizedUserError') {
-          userLogout();
+          clearToken();
         }
       },
     });

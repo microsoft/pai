@@ -20,172 +20,181 @@ import 'regenerator-runtime/runtime';
 import 'whatwg-fetch';
 
 import c from 'classnames';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import ReactDOM from 'react-dom';
 import cookies from 'js-cookie';
+import PropTypes from 'prop-types';
 
 import Card from '../../components/card';
 import { SpinnerLoading } from '../../components/loading';
-import { getUserRequest, getAllVcsRequest, getTokenRequest } from './conn';
+import {
+  getUserRequest,
+  getAllVcsRequest,
+  getTokenRequest,
+  createApplicationTokenRequest,
+  revokeTokenRequest,
+  updateUserPasswordRequest,
+  updateUserEmailRequest,
+  listStorageServerRequest,
+  listStorageConfigRequest,
+} from './conn';
 
 import t from '../../components/tachyons.scss';
-import {
-  ColorClassNames,
-  FontClassNames,
-  FontWeights,
-  getTheme,
-} from '@uifabric/styling';
-import Pill from './user-profile/pill';
-import { Button, PrimaryButton } from 'office-ui-fabric-react';
+import { FontClassNames, FontWeights, getTheme } from '@uifabric/styling';
+import { DefaultButton, initializeIcons } from 'office-ui-fabric-react';
 import { VirtualClusterDetailsList } from '../../home/home/virtual-cluster-statistics';
+import TokenList from './user-profile/token-list';
+import { initTheme } from '../../components/theme';
+import UserProfileHeader from './user-profile/header';
+import StorageList from './user-profile/storage-list';
+
+initTheme();
+initializeIcons();
+
+const UserProfileItem = ({ title, children, headerButton }) => (
+  <div className={t.mt5}>
+    <div className={c(t.flex, t.justifyBetween)}>
+      <div
+        className={FontClassNames.large}
+        style={{ fontWeight: FontWeights.regular }}
+      >
+        {title}
+      </div>
+      <div>{headerButton}</div>
+    </div>
+    <div className={t.mt3}>{children}</div>
+  </div>
+);
+
+UserProfileItem.propTypes = {
+  headerButton: PropTypes.node,
+  title: PropTypes.string,
+  children: PropTypes.node,
+};
 
 const UserProfile = () => {
   const [loading, setLoading] = useState(true);
   const [userInfo, setUserInfo] = useState(null);
   const [virtualClusters, setVirtualClusters] = useState(null);
   const [tokens, setTokens] = useState(null);
-  const [storages, setStorages] = useState(null);
+  const [storageConfigs, setStorageConfigs] = useState(null);
+  const [storageServers, setStorageServers] = useState(null);
+
+  const [processing, setProcessing] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
       const userPromise = getUserRequest(cookies.get('user'));
       const vcPromise = getAllVcsRequest();
       const tokenPromise = getTokenRequest();
-      // TODO: storage
-      await Promise.all([userPromise, vcPromise, tokenPromise]).catch(err => {
+      const storageConfigPromise = listStorageConfigRequest();
+      const storageServerPromise = listStorageServerRequest();
+      await Promise.all([
+        userPromise,
+        vcPromise,
+        tokenPromise,
+        storageConfigPromise,
+        storageServerPromise,
+      ]).catch(err => {
         alert(err);
         throw err;
       });
+      // user
       const userInfo = await userPromise;
-      const vcInfo = await vcPromise;
+      setUserInfo(userInfo);
+      // vc
+      const virtualClusters = await vcPromise;
       const userVcList = {};
       for (const name of userInfo.virtualCluster) {
-        if (!vcInfo[name]) {
+        if (!virtualClusters[name]) {
           continue;
         }
-        userVcList[name] = vcInfo[name];
+        userVcList[name] = virtualClusters[name];
       }
+      setVirtualClusters(userVcList);
+      // token
       const tokens = (await tokenPromise).tokens;
-      // setUserInfo(userInfo);
-      setUserInfo({
-        username: 'core',
-        admin: true,
-        grouplist: ['admingroup', 'group2'],
-        virtualCluster: ['default'],
-        email: 'core@core.com',
-      });
-      setVirtualClusters(virtualClusters);
       setTokens(tokens);
+      // storage
+      const storageConfigs = await storageConfigPromise;
+      const storageServers = await storageServerPromise;
+      setStorageConfigs(
+        storageConfigs.filter(
+          x =>
+            userInfo.storageConfig && userInfo.storageConfig.includes(x.name),
+        ),
+      );
+      setStorageServers(storageServers);
       setLoading(false);
     };
     fetchData();
   }, []);
 
+  const onEditProfile = useCallback(async ({ email }) => {
+    await updateUserEmailRequest(userInfo.username, email);
+  });
+
+  const onEditPassword = useCallback(async ({ oldPassword, newPassword }) => {
+    await updateUserPasswordRequest(
+      userInfo.username,
+      newPassword,
+      oldPassword,
+    );
+  });
+
+  const onCreateApplicationToken = useCallback(async () => {
+    setProcessing(true);
+    await createApplicationTokenRequest();
+    await getTokenRequest().then(res => {
+      setTokens(res.tokens);
+      setProcessing(false);
+    });
+  });
+
+  const onRevokeToken = useCallback(async token => {
+    await revokeTokenRequest(token);
+    await getTokenRequest().then(res => setTokens(res.tokens));
+  });
+
+  const { spacing } = getTheme();
+
   if (loading) {
     return <SpinnerLoading />;
   } else {
-    const { spacing } = getTheme();
     return (
-      <div>
+      <div className={c(t.pv5, t.ph5)}>
         <Card
-          className={c(t.mw9, t.center, t.mv5)}
+          className={c(t.mw9, t.center)}
           style={{ padding: `${spacing.l1} ${spacing.l2}` }}
         >
-          <div className={c(t.flex, t.justifyBetween)}>
-            {/* summary left */}
-            <div>
-              <div className={c(t.flex, t.itemsBaseline)}>
-                <div
-                  className={FontClassNames.xxLarge}
-                  style={{ fontWeight: FontWeights.regular }}
-                >
-                  {userInfo.username}
-                </div>
-                {userInfo.admin && <Pill className={t.ml3}>Admin</Pill>}
-              </div>
-              <div className={t.mt4}>
-                <div className={c(t.flex, t.itemsCenter)}>
-                  <div
-                    className={ColorClassNames.neutralSecondary}
-                    style={{ width: 60 }}
-                  >
-                    Email:
-                  </div>
-                  <div className={c(t.ml2)}>{userInfo.email}</div>
-                </div>
-                <div className={c(t.mt3, t.flex, t.itemsCenter)}>
-                  <div
-                    className={ColorClassNames.neutralSecondary}
-                    style={{ width: 60 }}
-                  >
-                    Groups:
-                  </div>
-                  <div className={t.ml2}>{userInfo.grouplist.join(', ')}</div>
-                </div>
-              </div>
-            </div>
-            {/* summary right */}
-            <div className={c(t.flex, t.flexColumn, t.mt2)}>
-              <div>
-                <PrimaryButton
-                  styles={{
-                    root: {
-                      width: 140,
-                    },
-                  }}
-                >
-                  Edit Profile
-                </PrimaryButton>
-              </div>
-              <div className={t.mt3} style={{ width: 140 }}>
-                <Button
-                  styles={{
-                    root: {
-                      width: 140,
-                    },
-                  }}
-                >
-                  Edit Password
-                </Button>
-              </div>
-            </div>
-          </div>
-          <hr className={ColorClassNames.neutralQuaternaryBorder} />
-          <div>
-            <div className={FontClassNames.large}>Virtual Clusters</div>
-            <div>
-              <VirtualClusterDetailsList
-                virtualClusters={virtualClusters}
-              />
-              {userInfo.virtualCluster.map(name => (
-                <div className={t.brPill} key={`group-${name}`}>
-                  {name}
-                </div>
-              ))}
-            </div>
-          </div>
-          <hr className={ColorClassNames.neutralQuaternaryBorder} />
-          <div>
-            <div className={FontClassNames.large}>Storage</div>
-            <div>
-              {userInfo.virtualCluster.map(name => (
-                <div className={t.brPill} key={`group-${name}`}>
-                  {name}
-                </div>
-              ))}
-            </div>
-          </div>
-          <hr className={ColorClassNames.neutralQuaternaryBorder} />
-          <div>
-            <div className={FontClassNames.large}>Tokens</div>
-            <div>
-              {userInfo.virtualCluster.map(name => (
-                <div className={t.brPill} key={`group-${name}`}>
-                  {name}
-                </div>
-              ))}
-            </div>
-          </div>
+          {/* summary */}
+          <UserProfileHeader
+            userInfo={userInfo}
+            onEditProfile={onEditProfile}
+            onEditPassword={onEditPassword}
+          />
+          <UserProfileItem
+            title='Tokens'
+            headerButton={
+              <DefaultButton
+                onClick={onCreateApplicationToken}
+                disabled={processing}
+              >
+                Create application token
+              </DefaultButton>
+            }
+          >
+            <TokenList tokens={tokens} onRevoke={onRevokeToken} />
+          </UserProfileItem>
+          <UserProfileItem title='Virtual Clusters'>
+            <VirtualClusterDetailsList virtualClusters={virtualClusters} />
+          </UserProfileItem>
+          <UserProfileItem title='Storage'>
+            <StorageList
+              storageConfigs={storageConfigs}
+              storageServers={storageServers}
+            />
+          </UserProfileItem>
         </Card>
       </div>
     );
