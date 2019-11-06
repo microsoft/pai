@@ -34,7 +34,7 @@ const list = asyncHandler(async (req, res) => {
 });
 
 const get = asyncHandler(async (req, res) => {
-  const result = await jobAttempt.get(req.params.frameworkName, req.params.jobAttemptIndex);
+  const result = await jobAttempt.get(req.params.frameworkName, Number(req.params.jobAttemptIndex));
   res.status(result.status).json(result.data);
 });
 

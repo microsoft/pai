@@ -68,6 +68,7 @@ const convertToJobAttempt = (framework) => {
     framework.status.retryPolicyStatus.retryDelaySec,
   );
   const originState = framework.status.state;
+  const maxAttemptCount = framework.spec.retryPolicy.maxRetryCount + 1;
   const attemptIndex = framework.status.attemptStatus.id;
   const jobStartedTime = new Date(
     framework.metadata.creationTimestamp,
@@ -92,6 +93,7 @@ const convertToJobAttempt = (framework) => {
     username,
     state,
     originState,
+    maxAttemptCount,
     attemptIndex,
     jobStartedTime,
     attemptStartedTime,
