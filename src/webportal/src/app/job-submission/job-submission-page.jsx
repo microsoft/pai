@@ -433,9 +433,7 @@ export const JobSubmissionPage = ({
                     onSelect={selectTool}
                     jobData={jobData}
                     taskRoles={jobTaskRoles}
-                    secrets={secrets}
                     extras={extras}
-                    onSecretsChange={setSecrets}
                     onExtrasChange={setExtras}
                   />
                 </Stack>
