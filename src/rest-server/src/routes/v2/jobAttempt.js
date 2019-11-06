@@ -15,33 +15,24 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+
 // module dependencies
-const _ = require('lodash');
-const asyncHandler = require('@pai/middlewares/v2/asyncHandler');
-const jobRetry = require('@pai/models/v2/jobRetry.js');
+const express = require('express');
+const controller = require('@pai/controllers/v2/jobAttempt');
 
-const healthCheck = asyncHandler(async (req, res) => {
-  const isHealthy = await jobRetry.healthCheck();
-  if (!isHealthy) {
-    res.status(501).send('Not healthy');
-  } else {
-    res.status(200).send('ok');
-  }
-});
 
-const list = asyncHandler(async (req, res) => {
-  const result = await jobRetry.list(req.params.frameworkName);
-  res.status(result.status).json(result.data);
-});
+const router = new express.Router({mergeParams: true});
 
-const get = asyncHandler(async (req, res) => {
-  const result = await jobRetry.get(req.params.frameworkName, req.params.retryIndex);
-  res.status(result.status).json(result.data);
-});
+/** GET /api/v2/jobs/:frameworkName/jobAttempts/healthz - health check of job retry endpoint*/
+router.route('/healthz')
+  .get(controller.healthCheck);
 
-// module exports
-module.exports = {
-  healthCheck,
-  list,
-  get,
-};
+/** GET /api/v2/jobs/:frameworkName/jobAttempts - list job retries by job frameworkName */
+router.route('/')
+  .get(controller.list);
+
+/** GET /api/v2/jobs/:frameworkName/jobAttempts/:jobAttemptIndex - get certain job retry by retry index */
+router.route('/:jobAttemptIndex')
+  .get(controller.get);
+
+module.exports = router;

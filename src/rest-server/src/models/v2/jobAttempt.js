@@ -18,7 +18,7 @@
 // module dependencies
 const _ = require('lodash');
 const {Client} = require('@elastic/elasticsearch');
-const {convertToJobRetry, convertToJobRetryDetail} = require('@pai/utils/frameworkConverter');
+const {convertToJobAttempt, convertToJobAttemptDetail} = require('@pai/utils/frameworkConverter');
 
 let elasticSearchClient;
 if (!_.isNil(process.env.ELASTICSEARCH_URI)) {
@@ -105,7 +105,7 @@ const list = async (frameworkName) => {
       return bucket.collectTime_latest_hits.hits.hits[0]._source.objectSnapshot;
     });
     const retryData = attempts.map((attempt) => {
-      return convertToJobRetry(attempt);
+      return convertToJobAttempt(attempt);
     });
     return {status: 200, data: retryData};
   }
