@@ -36,6 +36,40 @@ export class NotFoundError extends Error {
   }
 }
 
+export async function fetchJobAttemtps() {
+  const healthEndpoint = `${config.restServerUri}/api/v2/jobs/${namespace}~${jobName}/jobAttempts/healthz`;
+  const healthRes = await fetch(healthEndpoint);
+  if (healthRes.status !== 200) {
+    return {
+      isSucceeded: false,
+      errorMessage: 'Attempts API is not working!',
+      jobAttempts: null,
+    };
+  }
+
+  const listAttemptsUrl = `${config.restServerUri}/api/v1/jobs/${namespace}~${jobName}/jobAttempts`;
+  const listRes = await fetch(listAttemptsUrl);
+  if (listRes.status === 404) {
+    return {
+      isSucceeded: false,
+      errorMessage: 'Could not find any attempts of this job!',
+      jobAttempts: null,
+    };
+  } else if (listRes.status === 200) {
+    return {
+      isSucceeded: true,
+      errorMessage: null,
+      jobAttempts: listRes.json(),
+    };
+  } else {
+    return {
+      isSucceeded: false,
+      errorMessage: 'Some errors occured!',
+      jobAttempts: null,
+    };
+  }
+}
+
 export async function fetchJobInfo() {
   const url = namespace
     ? `${config.restServerUri}/api/v1/jobs/${namespace}~${jobName}`

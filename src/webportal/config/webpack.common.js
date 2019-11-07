@@ -71,6 +71,7 @@ const config = (env, argv) => ({
     submit_v1: './src/app/job/job-submit-v1/job-submit.component.js',
     jobList: './src/app/job/job-view/fabric/job-list.jsx',
     jobDetail: './src/app/job/job-view/fabric/job-detail.jsx',
+    jobAttempt: './src/app/job/job-view/fabric/job-attempt.jsx',
     virtualClusters: './src/app/vc/vc.component.js',
     services: './src/app/cluster-view/services/services.component.js',
     hardware: './src/app/cluster-view/hardware/hardware.component.js',
@@ -319,6 +320,10 @@ const config = (env, argv) => ({
     generateHtml({
       filename: 'job-detail.html',
       chunks: ['layout', 'jobDetail'],
+    }),
+    generateHtml({
+      filename: 'job-attempt.html',
+      chunks: ['layout', 'jobAttempt'],
     }),
     generateHtml({
       filename: 'virtual-clusters.html',
