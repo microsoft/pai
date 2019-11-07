@@ -326,7 +326,7 @@ cert_manager_enabled: true
 # docker_version: latest
 
 ## Used to set docker daemon iptables options to true
-docker_iptables_enabled: true
+docker_iptables_enabled: false
 
 docker_daemon_graph: "/mnt"
 
