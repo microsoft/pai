@@ -115,7 +115,7 @@ deploy_netchecker: true
 ############## kubernetes configuration ##############
 
 ## Change this to use another Kubernetes version, e.g. a current beta release
-# kube_version: v1.15.3
+kube_version: v1.14.8
 
 ## kubernetes image repo define
 # kube_image_repo: "gcr.io/google-containers"
