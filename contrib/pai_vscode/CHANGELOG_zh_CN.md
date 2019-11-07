@@ -17,16 +17,23 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 ### Added
 
 - Generate jsonc job config by default
-- Add a PAI view container (sidebar), includes 
-  - Job list view 
+- Add a PAI view container (sidebar), includes
+  - Job list view
     - Auto refresh enabled
-  - HDFS explorer 
+  - HDFS explorer
     - You can choose where hdfs explorer will be shown (view container or workspace folder)
 
 ## [0.2.1] - 2019-06
 
 ### Added
 
-- Generate YAML job config file for Protocol V2 
+- Generate YAML job config file for Protocol V2
   - Submit YAML job file
   - Snippets and autocomplete for YAML job config
+
+## [0.2.2] - 2019-11
+
+### Added
+
+- Support AAD login to OpenPAI cluster
+  - User can use access token instead of password in cluster config file.
