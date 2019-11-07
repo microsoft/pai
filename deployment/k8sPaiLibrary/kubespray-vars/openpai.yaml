@@ -115,7 +115,7 @@ deploy_netchecker: true
 ############## kubernetes configuration ##############
 
 ## Change this to use another Kubernetes version, e.g. a current beta release
-kube_version: v1.14.1
+# kube_version: v1.14.1
 
 ## kubernetes image repo define
 # kube_image_repo: "gcr.io/google-containers"
@@ -161,7 +161,7 @@ k8s_image_pull_policy: Always
 
 # Choose network plugin (cilium, calico, contiv, weave or flannel. Use cni for generic cni plugin)
 # Can also be set to 'cloud', which lets the cloud provider setup appropriate routing
-kube_network_plugin: flannel
+kube_network_plugin: calico
 
 
 # Setting multi_networking to true will install Multus: https://github.com/intel/multus-cni
