@@ -44,7 +44,7 @@ spec:
           initialDelaySeconds: 10
           periodSeconds: 3
         env:
-        - name: QUOTA_BYTES
+        - name: QUOTA_GB
           value: '{{ cluster_cfg["internal-storage"]["quotaGB"] }}'
         volumeMounts:
         - name: internal-data-dir
