@@ -15,29 +15,6 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-# Create a service to expose the NFS server
-# to pods inside the cluster.
-
-apiVersion: v1
-kind: Service
-metadata:
-  name: storage-manager-service
-spec:
-  selector:
-    app: storage-manager
-  ports:
-    - name: tcp-445
-      port: 445
-      protocol: TCP
-    - name: tcp-2049
-      port: 2049
-      protocol: TCP
-    - name: udp-111
-      port: 111
-      protocol: UDP
-
----
-
 apiVersion: apps/v1
 kind: DaemonSet
 metadata:
