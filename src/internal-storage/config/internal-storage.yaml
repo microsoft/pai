@@ -1,0 +1,4 @@
+enable: true
+type: hostPath
+path: /paiInternal
+quotaGB: 10
