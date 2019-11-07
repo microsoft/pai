@@ -318,7 +318,7 @@ dashboard_enabled: false
 # helm_enabled: true
 
 # Cert manager deployment
-cert_manager_enabled: true
+# cert_manager_enabled: true
 # cert_manager_namespace: "cert-manager"
 
 ############## docker configuration ##############
