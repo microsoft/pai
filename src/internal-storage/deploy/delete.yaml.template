@@ -29,6 +29,15 @@ spec:
       labels:
         app: internal-storage-delete
     spec:
+      affinity:  # deploy-rules doesn't take effect during deleting
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: pai-master
+                operator: In
+                values:
+                - 'true'
       hostNetwork: false
       containers:
       - name: internal-storage-delete
