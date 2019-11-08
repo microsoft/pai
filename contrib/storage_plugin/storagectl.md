@@ -69,17 +69,15 @@ python storagectl.py user delete SERVER_NAME
 Manage configs for group in PAI. Config defines a set of mount infos. Every config belongs to a group. That is to say, one group may have 0 to n configs.
 ### Set config <a name="Config_set"></a> 
 ```
-python storagectl.py config set CONFIG_NAME GROUP_NAME [-s SERVER_NAME_1 SERVER_NAME_2 ...] [-m MOUNT_POINT SERVER PATH]... [-d]
+python storagectl.py config set CONFIG_NAME [-m MOUNT_POINT SERVER PATH]... [-d]
 ```
-- GROUP_NAME means All members of GROUP_NAME can use this config.
-- -s defines config useable servers.
 - If -d is set, means mount config storage by default.
 - -m means the mount info for config. If -m specified, the PATH on SERVER will be mount to MOUNT_POINT.
     - [Job Environment Varialbes](https://github.com/microsoft/pai/blob/master/docs/job_tutorial.md#environment-variables) can be referenced In PATH. Please use '' to quote job environment variables to avoid refernce to local variables in dev-box. 
 
 For example, suppose we have set config using:
 ```
-python storagectl.py config set SAMPLE_CONFIG SAMPLE_GROUP -s SAMPLE_SERVER -m /mnt/job SAMPLE_SERVER 'users/${PAI_USER_NAME}/jobs/${PAI_JOB_NAME}'
+python storagectl.py config set SAMPLE_CONFIG -m /mnt/job SAMPLE_SERVER 'users/${PAI_USER_NAME}/jobs/${PAI_JOB_NAME}'
 ```
 If current user is 'paiuser' and current job is 'job-TEST'. This config will mount SAMPLE_SERVER/users/paiuser/jobs/job-TEST to /mnt/job
 
@@ -95,7 +93,7 @@ python storagectl.py config delete CONFIG_NAME
 ```
 
 
-## Manage User Config <a name="Groupsc_config"></a> 
+## Manage group storage access <a name="Groupsc_config"></a> 
 Manage PAI group's storage config access.
 ### Add group storage config <a name="Groupsc_set"></a> 
 ```
