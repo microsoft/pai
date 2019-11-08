@@ -49,7 +49,7 @@ spec:
         volumeMounts:
         - name: internal-data-dir
           mountPath: /paiInternal
-          mountPropagation： Bidirectional
+          mountPropagation: Bidirectional
       volumes:
         - name: internal-data-dir
           hostPath:
