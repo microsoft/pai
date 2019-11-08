@@ -138,14 +138,3 @@ class WEBHDFS(FS):
 
     def setinfo(self):
         raise NotImplementedError
-
-
-# host = "http://10.151.40.234/webhdfs"
-# filepath = "/code/jobs/jupyter_102181nz/source/jupyter_102181nz.tar.gz"
-# dirpath = "/openpai-sdk/test-fs/fs-hdfs"
-
-# f1 = WEBHDFS(host)
-# print(f1.makedirs(dirpath))
-# print(f1.listdir(dirpath))
-# print(f1.remove(filepath))
-# print(f1.getinfo(filepath))
