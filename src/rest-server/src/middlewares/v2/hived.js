@@ -27,6 +27,7 @@ const convertPriority = (priorityClass) => {
   const priorityMap = {
     prod: 100,
     test: 10,
+    oppo: -1,
   };
   return priorityClass in priorityMap ? priorityMap[priorityClass] : null;
 };
@@ -40,6 +41,7 @@ const hivedValidate = (protocolObj) => {
   const minMemoryMB = Math.min(...Array.from(Object.values(resourceUnits), (v) => v.memory));
   let hivedConfig = null;
   const affinityGroups = {};
+  const gangAllocation = ('extras' in protocolObj && protocolObj.extras.gangAllocation === false) ? false : true;
   if ('extras' in protocolObj && 'hivedScheduler' in protocolObj.extras) {
     hivedConfig = protocolObj.extras.hivedScheduler;
     for (let taskRole of Object.keys(hivedConfig.taskRoles)) {
@@ -72,7 +74,11 @@ const hivedValidate = (protocolObj) => {
         );
       }
 
-      const affinityGroupName = taskRoleConfig.affinityGroupName;
+      let affinityGroupName = taskRoleConfig.affinityGroupName;
+      // put the gang scheduling job into one affinity group by default
+      if (affinityGroupName == null && gangAllocation) {
+        affinityGroupName = 'default';
+      }
       // affinityGroup should have uniform reservationId and gpuType
       if (affinityGroupName !== null) {
         if (affinityGroupName in affinityGroups) {
@@ -153,11 +159,14 @@ const hivedValidate = (protocolObj) => {
       podSpec.gpuType = 'K80';
     }
 
+    if (gpu === 0) {
+      throw createError('Bad Request', 'InvalidProtocolError', 'Hived error: does not allow 0 GPU in hived scheduler.');
+    }
     if (cpu > allowedCpu || memoryMB > allowedMemoryMB) {
       throw createError(
         'Bad Request',
         'InvalidProtocolError',
-        `Hived error: ${taskRole} requests (${cpu}cpu, ${memoryMB}memoryMB), allow (${allowedCpu}cpu, ${allowedMemoryMB}memoryMB) with ${gpu}gpu.`
+        `Hived error: ${taskRole} requests (${cpu} CPU, ${memoryMB}MB memory), allow (${allowedCpu} CPU, ${allowedMemoryMB}MB memory) with ${gpu} GPU.`
       );
     }
     protocolObj.taskRoles[taskRole].hivedPodSpec = podSpec;
