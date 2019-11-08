@@ -46,7 +46,7 @@ data:
       @type concat
       key log
       multiline_start_regexp /ObjectSnapshot/
-      multiline_end_regexp /\}\}\n$/
+      multiline_end_regexp /\}\n$/
       separator ""
       flush_interval 30
     </filter>
