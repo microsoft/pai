@@ -64,10 +64,13 @@ If any of the above failures happens, the service will never be ready (because o
 
 ### 2. Failure after setup
 
+Please note that this storage doesn't have any replica mechanism. If the `pai-master` node crashes with a disk failure or other hardware issues, users will not be able to restore the data. In fact, all the data are stored in a single file `storage.ext4` on the `pai-master` node.
+
 Possibility is that users may delete our storage file `storage.ext4` or `storage` folder unexpectedly. The service checks them every 60 seconds:
 
   - If the `storage` folder is unmounted or deleted, the service will restart to create and mount it again in 60 seconds. Data won't be lost. Since pods are using the internal storage with `mountPropagation=None`, they won't notice any change.
   - If the `storage.ext4` file is deleted, the service will restart to create a new `storage.ext4` in 60 seconds. However, in such case, user data will be lost. We cannot prevent it since users can always remove files on their disks.
+
 
 ### 3. Failure during deletion 
 
