@@ -111,10 +111,12 @@ class CliRegistery:
             dest="cmd",
             help="openpai cli commands"
         )
+        parser._parsers = {}
         for cmd, cfg in self.entries.items():
             p = subparser.add_parser(cmd, help=cfg.get('help', None))  # parser for the command
             for a in cfg.get('args', []):
                 p.add_argument(*self.arguments[a]['flags'], **self.arguments[a]['kwargs'])
+            parser._parsers[cmd] = p 
         self.parser = parser
 
     def process(self, a: list):
@@ -122,10 +124,18 @@ class CliRegistery:
         if args.cmd not in self.entries:
             self.parser.print_help()
             return
-        fn_check = self.entries[args.cmd].get('fn_check', None)
-        if fn_check:
-            fn_check(args)
-        return self.entries[args.cmd]['func'](args)
+        try:
+            fn_check = self.entries[args.cmd].get('fn_check', None)
+            if fn_check:
+                fn_check(args)
+            return self.entries[args.cmd]['func'](args)
+        except AssertionError as identifier:
+            to_screen(repr(identifier), _type='warn')
+            self.parser._parsers[args.cmd].print_help()
+            raise Exception(identifier)
+        except Exception as identifier:
+            raise Exception(identifier)
+
 
 
 add_arguments()
