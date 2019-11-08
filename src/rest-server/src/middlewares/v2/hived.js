@@ -42,6 +42,9 @@ const hivedValidate = (protocolObj) => {
   let hivedConfig = null;
   const affinityGroups = {};
   const gangAllocation = ('extras' in protocolObj && protocolObj.extras.gangAllocation === false) ? false : true;
+  const virtualCluster = ('defaults' in protocolObj && protocolObj.defaults.virtualCluster != null) ?
+    protocolObj.defaults.virtualCluster : 'default';
+
   if ('extras' in protocolObj && 'hivedScheduler' in protocolObj.extras) {
     hivedConfig = protocolObj.extras.hivedScheduler;
     for (let taskRole of Object.keys(hivedConfig.taskRoles)) {
@@ -124,15 +127,16 @@ const hivedValidate = (protocolObj) => {
   }
 
   // generate podSpec for every taskRole
+  let totalGpuNumber = 0;
   for (let taskRole of Object.keys(protocolObj.taskRoles)) {
     const gpu = protocolObj.taskRoles[taskRole].resourcePerInstance.gpu || 0;
     const cpu = protocolObj.taskRoles[taskRole].resourcePerInstance.cpu;
     const memoryMB = protocolObj.taskRoles[taskRole].resourcePerInstance.memoryMB;
     let allowedCpu = minCpu * gpu;
     let allowedMemoryMB = minMemoryMB * gpu;
+    totalGpuNumber += gpu;
     const podSpec = {
-      virtualCluster: ('defaults' in protocolObj && protocolObj.defaults.virtualCluster != null) ?
-        protocolObj.defaults.virtualCluster : 'default',
+      virtualCluster,
       priority: null,
       gpuType: null,
       reservationId: null,
@@ -170,6 +174,9 @@ const hivedValidate = (protocolObj) => {
       );
     }
     protocolObj.taskRoles[taskRole].hivedPodSpec = podSpec;
+  }
+  if (totalGpuNumber > vcConfig.virtualCellCapacity[virtualCluster].resourcesTotal.gpu) {
+    throw createError('Bad Request', 'InvalidProtocolError', `Hived error: exceed GPU quota in ${virtualCluster} VC.`);
   }
   return protocolObj;
 };
