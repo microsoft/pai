@@ -19,16 +19,19 @@ class InternalStorage(object):
         return srv_cfg
 
     def validation_pre(self):
-        type_ = self.service_conf.get('type', '')
-        if type_ == 'hostPath':
-            machine_list = self.cluster_conf['machine-list']
-            if len([host for host in machine_list if host.get('pai-master') == 'true']) != 1:
-                return False, '1 and only 1 "pai-master=true" machine is required to deploy the rest server'
-            quotaGB = int(self.service_conf['quotaGB'])
-            assert quotaGB >= 1
-            return True, None
+        if self.service_conf['enable']:
+            type_ = self.service_conf.get('type', '')
+            if type_ == 'hostPath':
+                machine_list = self.cluster_conf['machine-list']
+                if len([host for host in machine_list if host.get('pai-master') == 'true']) != 1:
+                    return False, '1 and only 1 "pai-master=true" machine is required to deploy the rest server'
+                quotaGB = int(self.service_conf['quotaGB'])
+                assert quotaGB >= 1
+                return True, None
+            else:
+                return False, 'Unknown internal storage type {}'.format(type_)
         else:
-            return False, 'Unknown internal storage type {}'.format(type_)
+            return True, None
 
     def run(self):
         result = copy.deepcopy(self.service_conf)

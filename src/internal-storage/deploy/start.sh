@@ -19,9 +19,13 @@
 
 pushd $(dirname "$0") > /dev/null
 
+{% if cluster_cfg['internal-storage']['enable'] %}
+
 kubectl apply --overwrite=true -f create.yaml || exit $?
 
 # Wait until the service is ready.
 PYTHONPATH="../../../deployment" python -m  k8sPaiLibrary.monitorTool.check_pod_ready_status -w -k app -v internal-storage-create || exit $?
+
+{% endif %}
 
 popd > /dev/null

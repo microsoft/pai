@@ -1,3 +1,4 @@
+enable: true
 user: root
 passwd: rootpass
 db: openpai

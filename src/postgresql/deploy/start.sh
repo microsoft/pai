@@ -19,9 +19,13 @@
 
 pushd $(dirname "$0") > /dev/null
 
+{% if cluster_cfg['postgresql']['enable'] %}
+
 kubectl apply --overwrite=true -f postgresql.yaml || exit $?
 
 # Wait until the service is ready.
 PYTHONPATH="../../../deployment" python -m  k8sPaiLibrary.monitorTool.check_pod_ready_status -w -k app -v postgresql || exit $?
+
+{% endif %}
 
 popd > /dev/null
