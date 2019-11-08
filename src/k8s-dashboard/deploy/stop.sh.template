@@ -30,7 +30,7 @@ if kubectl get ClusterRoleBinding | grep -q "kubernetes-dashboard-minimal-openpa
     kubectl delete ClusterRoleBinding kubernetes-dashboard-minimal-openpai || exit $?
 fi
 
-if kubectl get ClusterRoleBinding | grep -q "kubernetes-dashboard-edit-openpai"; then
+if kubectl get ClusterRoleBinding | grep -q "kubernetes-dashboard-view-openpai"; then
     kubectl delete ClusterRoleBinding kubernetes-dashboard-edit-openpai || exit $?
 fi
 
