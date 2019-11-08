@@ -24,6 +24,7 @@ prerequisite:
 
 template-list:
   - postgresql.yaml
+  - start.sh
 
 start-script: start.sh
 stop-script: stop.sh

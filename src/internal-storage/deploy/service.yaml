@@ -23,6 +23,7 @@ cluster-type:
 template-list:
   - create.yaml
   - delete.yaml
+  - start.sh
 
 start-script: start.sh
 stop-script: stop.sh
