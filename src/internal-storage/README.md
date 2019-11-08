@@ -43,14 +43,39 @@ spec:
     volumeMounts:
     - name: internal-data-dir
       mountPath: /data
-      mountPropagation: HostToContainer
+      mountPropagation: "None"
   volumes:
   - name: internal-data-dir
     hostPath:
       path: /paiInternal/storage
 ```
 
-Please note that `mountPropagation` should be set to `HostToContainer`, to ensure the `mount` propagates between hosts and pods.
+Please note that `mountPropagation` should be set to `None`, to ensure that any unexpected unmount of the data folder will not be propagates to the pod.
+
+## Assumption of Failure
+
+1. Failure during setup
+
+This service uses the readiness probe in k8s to ensure the corresponding loop device is created successfully. Possible errors during setup:
+
+  - Allocation Failure: The storage uses `fallocate` to reserve quota during setup. If the remaining disk size doesn't meet the need, allocation failure happens.
+  - Mount Failure: Since the `mount` command needs some privileges of the host, it may also fail during setup.
+
+If any of the above failures happen, the service will never be ready (because of the readiness probe). See [create.sh](src/create.sh) and [create.yaml.template](deploy/create.yaml.template) for details.
+
+2. Failure after setup
+
+Possibility is that users may delete our storage file `storage.ext4` or `storage` folder unexpectedly. The service checks them every 60 seconds:
+
+  - If the `storage` folder is unmounted or deleted, the service will restart to create and mount it again in 60 seconds. Data won't be lost. Since pods are using the internal service with `mountPropagation=None`, nothing will happen to them.
+  - If the `storage.ext4` file is deleted, the service will restart to create a new `storage.ext4` in 60 seconds. However, in such case, user data will be lost. We cannot prevent it since users can always remove files on their disks.
+
+3. Failure during deletion 
+
+During service deletion, if we cannot unmount or delete the data, the deletion process won't be successful. There is also a readiness probe for these purposes. See [delete.yaml.template](deploy/delete.yaml.template) for details.
+
+
+
 
 ## References
   - [Loop Device](http://man7.org/linux/man-pages/man4/loop.4.html)

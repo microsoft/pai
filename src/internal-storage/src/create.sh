@@ -22,7 +22,7 @@ if [ -f storage.ext4 ]; then
     echo "Skip storage.ext4 creation."
 else
     echo "Creating storage.ext4 of ${QUOTA_GB}G, please wait..."
-    fallocate -l ${QUOTA_GB}G storage.ext4
+    fallocate -l ${QUOTA_GB}G storage.ext4 || { echo "allocation failed!"; sleep infinity; }
     /sbin/mkfs -t ext4 -q storage.ext4 -F
 fi
 
@@ -34,9 +34,21 @@ if [ $? -ne 0 ]; then
     else
         mkdir -p storage
     fi
-    mount -o loop,rw,usrquota,grpquota storage.ext4 storage
+    mount -o loop,rw,usrquota,grpquota storage.ext4 storage || { echo "mount failed!"; sleep infinity; }
     touch storage/READY
 fi
 
-sleep infinity
+while true; do
+    ls /paiInternal/storage/READY &> /dev/null
+    if [ $? -ne 0 ]; then
+        echo "Cannot find storage/READY! Abort."
+        exit 1
+    fi
+    if [ ! -f storage.ext4 ]; then
+        echo "Cannot find storage.ext4! Abort."
+        exit 1
+    fi
+    sleep 1m
+done
+
 
