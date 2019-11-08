@@ -28,6 +28,7 @@ import {
   DefaultButton,
 } from 'office-ui-fabric-react';
 import React from 'react';
+import { isNil } from 'lodash';
 
 import Card from '../../components/card';
 import { UtilizationChart } from './utilization-chart';
@@ -52,9 +53,12 @@ const vcListColumns = [
     name: 'Name',
     isResizable: true,
     onRender(vc) {
+      vc.dedicated = true;
       return (
         <Stack verticalAlign='center' verticalFill>
-          <Text variant='mediumPlus'>{vc.name}</Text>
+          <Text variant='mediumPlus'>
+            {vc.dedicated ? vc.name + ' (dedicated)' : vc.name}
+          </Text>
         </Stack>
       );
     },
@@ -136,44 +140,52 @@ const vcListColumns = [
       );
     },
   },
-  {
-    key: 'action',
-    minWidth: 50,
-    name: 'Action',
-    isResizable: true,
-    onRender(vc) {
-      return (
-        <div
-          style={{
-            height: '100%',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'left',
-          }}
-          data-selection-disabled
-        >
-          <DefaultButton
-            styles={{
-              root: {
-                backgroundColor: '#e5e5e5',
-                minWidth: 50,
-              },
-              rootFocused: { backgroundColor: '#e5e5e5' },
-              rootDisabled: { backgroundColor: '#eeeeee' },
-              rootCheckedDisabled: { backgroundColor: '#eeeeee' },
-            }}
-            href={'/job-list.html?vcName=' + vc.name}
-          >
-            View
-          </DefaultButton>
-        </div>
-      );
-    },
-  },
 ];
 
-const VirtualClusterStatistics = ({ style, virtualClusters }) => {
-  const vcNames = Object.keys(virtualClusters);
+const action = {
+  key: 'action',
+  minWidth: 50,
+  name: 'Action',
+  isResizable: true,
+  onRender(vc) {
+    return (
+      <div
+        style={{
+          height: '100%',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'left',
+        }}
+        data-selection-disabled
+      >
+        <DefaultButton
+          styles={{
+            root: {
+              backgroundColor: '#e5e5e5',
+              minWidth: 50,
+            },
+            rootFocused: { backgroundColor: '#e5e5e5' },
+            rootDisabled: { backgroundColor: '#eeeeee' },
+            rootCheckedDisabled: { backgroundColor: '#eeeeee' },
+          }}
+          href={'/job-list.html?vcName=' + vc.name}
+        >
+          View
+        </DefaultButton>
+      </div>
+    );
+  },
+};
+
+const isAdmin = cookies.get('admin') === 'true';
+if (isAdmin) {
+  vcListColumns.push(action);
+}
+
+const VirtualClusterStatistics = ({ style, userInfo, virtualClusters }) => {
+  const vcNames = isAdmin
+    ? Object.keys(virtualClusters)
+    : userInfo.virtualCluster.filter(name => !isNil(virtualClusters[name]));
   const { spacing } = getTheme();
   const vcList = vcNames.map(vcName => {
     return { name: vcName, ...virtualClusters[vcName] };
@@ -184,10 +196,14 @@ const VirtualClusterStatistics = ({ style, virtualClusters }) => {
       <Stack styles={{ root: [{ height: '100%' }] }} gap='l1'>
         <Stack.Item>
           <Header
-            headerName={`Virtual clusters (${vcNames.length})`}
+            headerName={
+              isAdmin
+                ? `Virtual clusters (${vcNames.length})`
+                : `My virtual clusters (${vcNames.length})`
+            }
             linkHref={'/virtual-clusters.html'}
             linkName={'View all'}
-            showLink={true}
+            showLink={isAdmin}
           />
         </Stack.Item>
         <Stack.Item styles={{ root: [t.relative] }} grow>
