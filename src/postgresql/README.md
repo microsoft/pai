@@ -1,9 +1,10 @@
 ## Postgresql
 
-Postgresql is an internal service for structured information persistence. By default, the service uses the folder `/paiInternal` on the master node for data storage. The real data directory for the postgresql would be `/paiInternal/pgdata`. The default service configurations are as follows:
+Postgresql is an internal service for structured information persistence. By default, the service uses the folder `/paiInternal/storage` on the master node for data storage. The real data directory for the postgresql would be `/paiInternal/storage/pgdata`. The default service configurations are as follows:
 
 ```yaml
 postgresql:
+  enable: true
   user: root
   passwd: rootpass
   port: 5432
