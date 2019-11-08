@@ -1,7 +1,6 @@
 ## PAI Internal Storage
 
-Internal Storage is designed to make database and other stateful applications available in PAI.
-It leverages `loop device` in Linux to provide a storage with strictly limited quota. The default service configuration for internal storage is:
+Internal Storage is designed to create a limited size storage in PAI. The storage can be used by database service or other stateful application internally. It leverages [`loop device`](http://man7.org/linux/man-pages/man4/loop.4.html) in Linux to provide a storage with strictly limited quota. The default service configuration for internal storage is:
 
 ```yaml
 internal-storage:
@@ -15,7 +14,7 @@ User can override these settings in `services-configuration.yaml`.
 
 ## Set up Internal Storage
 
-For now, `hostPath` is the only supported `type` for internal storage. In summary, it will make a `<path>` folder (The default path is `/paiInternal`) on the `pai-master` node first, then create a loop device in the folder, which is a filesystem inside a file. Please refer to the following commands for details.
+For now, `hostPath` is the only supported `type` for internal storage. In summary, it will make a `<path>` folder (The default path is `/paiInternal`) on the `pai-master` node first, then create a loop device in the folder. Please refer to the following commands for details.
 
 ```bash
 fallocate -l ${QUOTA_GB}G storage.ext4
