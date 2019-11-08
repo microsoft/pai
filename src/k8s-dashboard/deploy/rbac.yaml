@@ -102,7 +102,7 @@ metadata:
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
-  name: edit
+  name: view
 subjects:
   - kind: ServiceAccount
     name: kubernetes-dashboard-openpai
