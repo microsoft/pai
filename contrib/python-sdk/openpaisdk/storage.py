@@ -121,6 +121,12 @@ def pai_open_fs(path: str):
     from fs.subfs import SubFS
     from openpaisdk.utils import OrganizedList, force_uri
     from openpaisdk.cluster import ClusterList
+    def expand_pai_user(pth: str):
+        user = cluster['user']
+        if user:
+            pth = pth.replace('${PAI_USER_NAME}', user)
+        return pth
+
     try:
         ret = parse_fs_url(path)
         assert ret.protocol == 'pai', "only support pai://... or local path"
@@ -128,6 +134,7 @@ def pai_open_fs(path: str):
         storage_alias, _, pth = src.partition('/')
         storage, cluster = ClusterList().load().select_storage(alias, storage_alias)
         assert storage and cluster, f"failed to fetch info for {alias} and {storage_alias}"
+        pth = expand_pai_user(pth)
         if storage['type'] == 'hdfs':
             from openpaisdk.fs_pai import WEBHDFS
             addr = storage['data'].get('namemode', storage['data']['address'])
@@ -141,9 +148,9 @@ def pai_open_fs(path: str):
             if plt.startswith("Windows"):
                 # from openpaisdk.win_cmds import open_mount_server_win
                 # drv = open_mount_server_win(storage['data'])
-                f = OSFS(os.path.normpath(
+                f = OSFS(os.path.normpath(expand_pai_user(
                     "//{address}{rootPath}".format(**storage["data"])
-                ))
+                )))
             else:
                 raise NotImplementedError(f"{storage['type']} not supported over {plt} yet")
 
