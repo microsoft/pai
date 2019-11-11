@@ -17,6 +17,15 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+# create folder and set permission if needed
+echo "creating user and folders ----------"
+useradd -u 1000 $PAISMBUSER
+
+mkdir -p /share/pai/users /share/pai/data
+chown $PAISMBUSER:$PAISMBUSER /share/pai/users /share/pai/data
+chmod 775 /share/pai/users
+chmod 777 /share/pai/data
+
 # copy smb.conf
 echo "copy smb.conf ----------"
 cp /etc/pai-config/smb.conf /etc/samba/smb.conf
@@ -59,8 +68,7 @@ service rpcbind restart
 service nfs-kernel-server restart
 
 # add paismbuser
-echo "add paismbuser ----------"
-useradd $PAISMBUSER
+echo "creating smb user ----------"
 (echo $PAISMBPWD && echo $PAISMBPWD) | ./usr/bin/smbpasswd -a $PAISMBUSER
 
 # sleep
