@@ -15,24 +15,24 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-{%- if cluster_cfg["storage-manager"]['security-type'] == "ADS" %}
+{%- if cluster_cfg["storage-manager"]["security-type"] == "ADS" %}
 [libdefaults]
   ticket_lifetime = 24h
   default_realm = {{cluster_cfg["storage-manager"]["default_realm"]}}
   forwardable = true
 
 [realms]
-{%- for relam in cluster_cfg["storage-manager"]['krb5_realms'] %}
+{%- for relam in cluster_cfg["storage-manager"]["krb5_realms"] %}
   {{relam}} = {
-{%- for itemkey in cluster_cfg["storage-manager"]['krb5_realms'][relam] %}
-    {{itemkey}} = {{cluster_cfg["storage-manager"]['krb5_realms'][relam][itemkey]}}
+{%- for itemkey in cluster_cfg["storage-manager"]["krb5_realms"][relam] %}
+    {{itemkey}} = {{cluster_cfg["storage-manager"]["krb5_realms"][relam][itemkey]}}
 {%- endfor %}
   }
 {%- endfor %}
 
 [domain_realm]
-{%- for itemkey in cluster_cfg["storage-manager"]['domain_realm'] %}
-  {{itemkey}} = {{cluster_cfg["storage-manager"]['domain_realm'][itemkey]}}
+{%- for itemkey in cluster_cfg["storage-manager"]["domain_realm"] %}
+  {{itemkey}} = {{cluster_cfg["storage-manager"]["domain_realm"][itemkey]}}
 {%- endfor %}
 {%- endif %}
 

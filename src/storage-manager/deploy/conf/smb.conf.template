@@ -18,12 +18,12 @@
 [global]
     workgroup = {{cluster_cfg["storage-manager"]["workgroup"]}}
     security = {{cluster_cfg["storage-manager"]["security-type"]}}
-{%- if cluster_cfg["storage-manager"]['security-type'] == "ADS" %}
+{%- if cluster_cfg["storage-manager"]["security-type"] == "ADS" %}
     realm = {{cluster_cfg["storage-manager"]["default_realm"]}}
     domain master = No
     local master = No
     preferred master = No
-{%- for idmap_item in cluster_cfg["storage-manager"]['idmap'] %}
+{%- for idmap_item in cluster_cfg["storage-manager"]["idmap"] %}
     {{idmap_item}}
 {%- endfor %}
     winbind cache time = 300
