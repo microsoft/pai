@@ -6,7 +6,7 @@ import logging
 class InternalStorage(object):
     def __init__(self, cluster_conf, service_conf, default_service_conf):
         self.cluster_conf = cluster_conf
-        self.service_conf = self.merge_service_configuration(default_service_conf, service_conf)
+        self.service_conf = self.merge_service_configuration(service_conf, default_service_conf)
         self.logger = logging.getLogger(__name__)
 
     @staticmethod
@@ -25,7 +25,7 @@ class InternalStorage(object):
                 machine_list = self.cluster_conf['machine-list']
                 if len([host for host in machine_list if host.get('pai-master') == 'true']) != 1:
                     return False, '1 and only 1 "pai-master=true" machine is required to deploy the rest server'
-                quotaGB = int(self.service_conf['quotaGB'])
+                quotaGB = int(self.service_conf['quota-gb'])
                 assert quotaGB >= 1
                 return True, None
             else:
@@ -38,8 +38,8 @@ class InternalStorage(object):
         if result['enable']:
             machine_list = self.cluster_conf['machine-list']
             master_ip = [host['hostip'] for host in machine_list if host.get('pai-master') == 'true'][0]
-            result['masterIp'] = master_ip
-            result['quotaGB'] = int(result['quotaGB'])
+            result['master-ip'] = master_ip
+            result['quota-gb'] = int(result['quota-gb'])
         return result
 
     def validation_post(self, conf):

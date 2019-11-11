@@ -45,7 +45,7 @@ spec:
           periodSeconds: 3
         env:
         - name: QUOTA_GB
-          value: '{{ cluster_cfg["internal-storage"]["quotaGB"] }}'
+          value: '{{ cluster_cfg["internal-storage"]["quota-gb"] }}'
         volumeMounts:
         - name: internal-data-dir
           mountPath: /paiInternal
@@ -53,6 +53,6 @@ spec:
       volumes:
         - name: internal-data-dir
           hostPath:
-            path: {{ cluster_cfg["internal-storage"]["path"] }}
+            path: {{ cluster_cfg["internal-storage"]["root-path"] }}
       imagePullSecrets:
       - name: {{ cluster_cfg["cluster"]["docker-registry"]["secret-name"] }}

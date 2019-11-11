@@ -6,7 +6,7 @@ Internal Storage is designed to create a limited size storage in PAI. The storag
 internal-storage:
     enable: true
     type: hostPath
-    path: /paiInternal
+    root-path: /paiInternal
     quotaGB: 10
 ```
 

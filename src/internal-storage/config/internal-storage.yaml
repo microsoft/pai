@@ -1,4 +1,4 @@
 enable: true
 type: hostPath
-path: /paiInternal
-quotaGB: 10
+root-path: /paiInternal
+quota-gb: 10

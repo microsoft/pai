@@ -54,6 +54,6 @@ spec:
       volumes:
         - name: internal-data-dir
           hostPath:
-            path: /paiInternal/storage
+            path: '{{ cluster_cfg["internal-storage"]["root-path"] }}/storage'
       imagePullSecrets:
       - name: {{ cluster_cfg["cluster"]["docker-registry"]["secret-name"] }}

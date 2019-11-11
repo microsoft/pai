@@ -16,7 +16,7 @@
 # NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-cd /paiInternal/
+cd /paiInternal
 
 if [ -f storage.ext4 ]; then
     echo "Skip storage.ext4 creation."
@@ -26,7 +26,7 @@ else
     /sbin/mkfs -t ext4 -q storage.ext4 -F
 fi
 
-ls /paiInternal/storage/READY &> /dev/null
+ls READY &> /dev/null
 
 if [ $? -ne 0 ]; then
     if [ -d storage ]; then
@@ -39,7 +39,7 @@ if [ $? -ne 0 ]; then
 fi
 
 while true; do
-    ls /paiInternal/storage/READY &> /dev/null
+    ls READY &> /dev/null
     if [ $? -ne 0 ]; then
         echo "Cannot find storage/READY! Abort."
         exit 1
