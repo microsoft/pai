@@ -7,7 +7,7 @@ internal-storage:
     enable: true
     type: hostPath
     root-path: /paiInternal
-    quota-gB: 10
+    quota-gb: 10
 ```
 
 User can override these settings in `services-configuration.yaml`.
