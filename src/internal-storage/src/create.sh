@@ -38,6 +38,8 @@ if [ $? -ne 0 ]; then
     touch storage/READY
 fi
 
+sleep 30m
+
 while true; do
     ls READY &> /dev/null
     if [ $? -ne 0 ]; then
