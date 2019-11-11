@@ -21,11 +21,11 @@ cd /paiInternal
 
 if [ -d storage ]; then
 	umount storage
-	rm -rf storage || { echo "rm storage failed!"; sleep infinity; }
+	rm -rf storage
 fi
 
 if [ -f storage.ext4 ]; then
-	rm -f storage.ext4 || { echo "rm storage.ext4 failed!"; sleep infinity; }
+	rm -f storage.ext4
 fi
 
 touch /DELETED
