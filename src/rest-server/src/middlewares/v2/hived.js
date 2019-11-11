@@ -77,11 +77,7 @@ const hivedValidate = (protocolObj) => {
         );
       }
 
-      let affinityGroupName = taskRoleConfig.affinityGroupName;
-      // put the gang scheduling job into one affinity group by default
-      if (affinityGroupName == null && gangAllocation) {
-        affinityGroupName = 'default';
-      }
+      const affinityGroupName = taskRoleConfig.affinityGroupName;
       // affinityGroup should have uniform reservationId and gpuType
       if (affinityGroupName !== null) {
         if (affinityGroupName in affinityGroups) {
@@ -126,6 +122,19 @@ const hivedValidate = (protocolObj) => {
     }
   }
 
+  // generate default affinity group for the gang scheduling jobs
+  let defaultAffinityGroup = null;
+  if (!Object.keys(affinityGroups).length && gangAllocation) {
+    defaultAffinityGroup = {
+      affinityTaskList: Object.keys(protocolObj.taskRoles).map(taskRole => {
+        return {
+          podNumber: protocolObj.taskRoles[taskRole].instances,
+          gpuNumber: protocolObj.taskRoles[taskRole].resourcePerInstance.gpu,
+        };
+      }),
+    };
+  }
+
   // generate podSpec for every taskRole
   let totalGpuNumber = 0;
   for (let taskRole of Object.keys(protocolObj.taskRoles)) {
@@ -158,9 +167,12 @@ const hivedValidate = (protocolObj) => {
         members: affinityGroups[affinityGroupName].affinityTaskList,
       } : null;
     }
-    // TODO: hardcode for demo, removed it!
-    if (podSpec.gpuType === null && podSpec.reservationId === null) {
-      podSpec.gpuType = 'K80';
+
+    if (defaultAffinityGroup != null) {
+      podSpec.affinityGroup = {
+        name : `${protocolObj.name}/default`,
+        members: defaultAffinityGroup.affinityTaskList,
+      };
     }
 
     if (gpu === 0) {
