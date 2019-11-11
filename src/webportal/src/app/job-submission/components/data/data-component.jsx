@@ -85,7 +85,6 @@ export const DataComponent = React.memo(props => {
     listUserStorageConfigs(user)
       .then(configNames => {
         fetchStorageConfigs(configNames).then(configs => {
-          const defaultConfigs = [];
           let serverNames = new Set();
 
           for (const config of configs) {
