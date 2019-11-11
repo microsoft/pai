@@ -7,14 +7,14 @@ internal-storage:
     enable: true
     type: hostPath
     root-path: /paiInternal
-    quotaGB: 10
+    quota-gB: 10
 ```
 
 User can override these settings in `services-configuration.yaml`.
 
 ## Set up Internal Storage
 
-For now, `hostPath` is the only supported `type` for internal storage. In summary, it will make a `<path>` folder (The default path is `/paiInternal`) on the `pai-master` node first, then create a loop device in the folder. Please refer to the following commands for details.
+For now, `hostPath` is the only supported `type` for internal storage. In summary, it will make a `<root-path>` folder (The default path is `/paiInternal`) on the `pai-master` node first, then create a loop device in the folder. Please refer to the following commands for details.
 
 ```bash
 fallocate -l ${QUOTA_GB}G storage.ext4
@@ -46,7 +46,7 @@ spec:
   volumes:
   - name: internal-data-dir
     hostPath:
-      path: /paiInternal/storage
+      path: '{{ cluster_cfg["internal-storage"]["root-path"] }}/storage'
 ```
 
 Please note that `mountPropagation` should be set to `None`, to ensure that any unexpected unmount of the data folder will not be propagates to the pod.
