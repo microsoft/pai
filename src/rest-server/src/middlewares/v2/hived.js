@@ -126,7 +126,7 @@ const hivedValidate = (protocolObj) => {
   let defaultAffinityGroup = null;
   if (!Object.keys(affinityGroups).length && gangAllocation) {
     defaultAffinityGroup = {
-      affinityTaskList: Object.keys(protocolObj.taskRoles).map(taskRole => {
+      affinityTaskList: Object.keys(protocolObj.taskRoles).map((taskRole) => {
         return {
           podNumber: protocolObj.taskRoles[taskRole].instances,
           gpuNumber: protocolObj.taskRoles[taskRole].resourcePerInstance.gpu,
@@ -170,7 +170,7 @@ const hivedValidate = (protocolObj) => {
 
     if (defaultAffinityGroup != null) {
       podSpec.affinityGroup = {
-        name : `${protocolObj.name}/default`,
+        name: `${protocolObj.name}/default`,
         members: defaultAffinityGroup.affinityTaskList,
       };
     }
