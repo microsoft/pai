@@ -19,6 +19,8 @@
 
 pushd $(dirname "$0") > /dev/null
 
+kubectl delete --ignore-not-found --now "daemonset/internal-storage-create-ds"
+
 kubectl apply --overwrite=true -f delete.yaml || exit $?
 
 # Wait until the service is ready.

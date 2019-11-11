@@ -20,7 +20,7 @@
 cd /paiInternal
 
 if [ -d storage ]; then
-	umount storage || { echo "umount failed!"; sleep infinity; }
+	umount storage
 	rm -rf storage || { echo "rm storage failed!"; sleep infinity; }
 fi
 
