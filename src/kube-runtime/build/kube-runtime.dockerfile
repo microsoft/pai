@@ -27,7 +27,7 @@ COPY GOPATH/src/github.com/microsoft/runtime/ ${PROJECT_DIR}
 RUN ${PROJECT_DIR}/build/runtime/go-build.sh && \
   mv ${PROJECT_DIR}/dist/runtime/ ${INSTALL_DIR}
 
-FROM python:2.7-alpine3.8
+FROM python:3.7-alpine
 
 RUN pip install PyYAML
 

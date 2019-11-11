@@ -40,7 +40,7 @@ def run_script(script_path, parameters, plugin_scripts):
         line = proc.stdout.readline()
         if not line:
             break
-        line = line.encode("UTF-8").strip()
+        line = line.decode("utf-8").strip()
         logger.info(line)
     proc.wait()
     if proc.returncode:
