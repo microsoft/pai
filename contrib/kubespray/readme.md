@@ -139,8 +139,28 @@ ansible-playbook -i /path/to/host.yml nvidia-persistent-mode.yml --become --beco
 
 ```
 
-#### setup docker
+#### setup nvidia conatiner runtime
 
+
+```bash
+
+ansible-playbook -i /path/to/host.yml nvidia-docker.yml --become --become-user=root
+
+```
+
+Here we assume all os in your cluster is ubuntu16.04. Or please change the following task in playbook.
+
+```yaml
+    - name: add repo
+      get_url:
+        url: https://nvidia.github.io/nvidia-container-runtime/ubuntu16.04/nvidia-container-runtime.list
+        dest: /etc/apt/sources.list.d/nvidia-container-runtime.list
+        mode: 0644
+        owner: root
+        group: root
+
+    - name: Run the equivalent of "apt-get update" as a separate step
+```
 
 #### kubespray configuration
 
@@ -165,3 +185,13 @@ cp ~/pai/contrib/kubespray/openpai.yml ~/kubespray/inventory/mycluster
 
 cp /path/to/your/host.yml ~/kubespray/inventory/mycluster
 ```
+
+###### Deploy k8s
+
+```bash
+cd kubespray/
+
+ansible-playbook -i inventory/mycluster/hosts.yml cluster.yml --become --become-user=root -e "@inventory/mycluster/openpai.yaml"
+```
+
+
