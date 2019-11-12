@@ -60,7 +60,6 @@ def generate_configuration(quick_start_config_file, configuration_directory, for
     master_node["dashboard"] = "true"
     # PAI attributes
     master_node["pai-master"] = "true"
-    master_node["pai-storage"] ="true"
     master_node["zkid"] = "1"
 
     #

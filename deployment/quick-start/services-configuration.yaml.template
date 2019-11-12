@@ -144,11 +144,9 @@ rest-server:
 
 # uncomment following section if you want to customize the port of storage-manager
 # storage-manager:
-#  smbport: 445
-#  nfsport: 2049
 #  localpath: /share
-#  domainuser: domainuser
-#  domainpwd: domainpass
+#  security-type: AUTO
+#  workgroup: WORKGROUP
 #  smbuser: smbuser
 #  smbpwd: smbpwd
 
