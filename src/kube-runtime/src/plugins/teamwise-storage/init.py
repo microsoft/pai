@@ -16,8 +16,6 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-from __future__ import print_function
-
 import os
 import sys
 sys.path.append(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
@@ -30,18 +28,12 @@ from plugin_utils import plugin_init, inject_commands
 
 logger = logging.getLogger(__name__)
 
-
-def generage_storage_command():
-    pass
-
-
 if __name__ == "__main__":
     [parameters, pre_script, post_script] = plugin_init()
 
     commands = []
     if parameters is not None:
-        if "storages" in parameters:
-            for storage in parameters["storage"]:
-                pass
+        logdir = ",".join(["{}:{}".format(k, v) for k, v in parameters["logdir"].items()])
+        commands.append("tensorboard --logdir={} --port={} &\n".format(logdir, parameters["port"]))
 
     inject_commands(commands, pre_script)
