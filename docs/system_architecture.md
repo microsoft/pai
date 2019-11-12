@@ -1,9 +1,7 @@
 ## System Architecture
 
 <center>
-
-![System Architecture](./arch_v2.png)
-
+<img src="./arch_v2.png" width="50%">
 </center>
 
 The figure above illustrates the high level architecture of OpenPAI. 
