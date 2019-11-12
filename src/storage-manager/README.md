@@ -1,11 +1,33 @@
 ## Storage Manager
 
 - [Storage Manager](#Storage-Manager)
+  - [Node Configuration](#Node-Configuration)
   - [Default Configuration](#Default-Configuration)
   - [Manual Configuration](#Manual-Configuration)
   - [Teamwise Storage Integration](#Teamwise-Integration)
   - [SMB with AAD Configuraiton](#SMBAAD-Configuration)
   - [Data Table](#T_config)
+
+---
+
+## Node Configuration <a name="Node-Configuration"></a>
+
+To deploy storage-manager, in layout.yaml, set a node's attribute "pai-storage" to "true".
+
+For example:
+```yaml
+  - docker-data: # docker path
+    hostip: # host ip
+    hostname: # host name
+    k8s-role: # k8s role
+    machine-type: # machine type
+    nodename: # node name
+    pai-storage: "true"
+    password: # password
+    ssh-port: # ssh port
+    username: # user name
+```
+The storage-manager will be deployed on that node.
 
 ---
 
@@ -25,6 +47,7 @@ For example, if you want to use different local path than the default /share, ad
 storage-manager:
     localpath: new-value
 ```
+
 ---
 
 ## Teamwise Storage Integration <a name="Teamwise-Integration"></a>
@@ -36,7 +59,11 @@ storage-manager:
   storageServerName: # storage server name
   storageConfigName: # storage config name 
 ```
-For more details about team-wise storage, please refer to [storage plugin](../../contrib/storage_plugin/README.MD)
+For more details about team-wise storage, please refer to [storage plugin](../../contrib/storage_plugin/README.MD)  
+
+- How it works
+Storage-manager has a service named storage-manager-service, the host address can be addressed in job pods using STORAGE_MANAGER_SERVICE_SERVICE_HOST.  
+If storageServerName and storageConfigName were configed, when deploy storage-manager, a nfs teamwise storage server will be created using host ${STORAGE_MANAGER_SERVICE_SERVICE_HOST}. Also a storage config with storageConfigName will be created, too.
 
 ---
 
