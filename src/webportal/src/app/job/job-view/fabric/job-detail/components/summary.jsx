@@ -52,18 +52,23 @@ import {
   getTensorBoardUrl,
   getJobMetricsUrl,
   cloneJob,
-  openJobAttemptsPage,
+  checkAttemptAPI,
 } from '../conn';
 import { printDateTime, isClonable, isJobV2 } from '../util';
 import MonacoPanel from '../../../../../components/monaco-panel';
 import StatusBadge from '../../../../../components/status-badge';
 import {
-  getJobDurationString,
+  getJobDuration,
+  getDurationString,
   getHumanizedJobStateString,
   isStoppable,
 } from '../../../../../components/util/job';
 import config from '../../../../../config/webportal.config';
 import StopJobConfirm from '../../JobList/StopJobConfirm';
+
+const params = new URLSearchParams(window.location.search);
+const username = params.get('username');
+const jobname = params.get('jobname');
 
 const HintItem = ({ header, children }) => (
   <div className={c(t.flex, t.justifyStart)}>
@@ -93,6 +98,7 @@ export default class Summary extends React.Component {
       modalTitle: '',
       autoReloadInterval: 10 * 1000,
       hideDialog: true,
+      isRetryAvailable: false,
     };
 
     this.onChangeInterval = this.onChangeInterval.bind(this);
@@ -102,6 +108,15 @@ export default class Summary extends React.Component {
     this.showJobConfig = this.showJobConfig.bind(this);
     this.showStopJobConfirm = this.showStopJobConfirm.bind(this);
     this.setHideDialog = this.setHideDialog.bind(this);
+    this.checkRetryAvailable = this.checkRetryAvailable.bind(this);
+  }
+
+  async componentDidMount() {
+    if (await this.checkRetryAvailable()) {
+      this.setState({ isRetryAvailable: true });
+    } else {
+      this.setState({ isRetryAvailable: false });
+    }
   }
 
   onChangeInterval(e, item) {
@@ -257,6 +272,17 @@ export default class Summary extends React.Component {
     return result;
   }
 
+  async checkRetryAvailable() {
+    if (config.launcherType !== 'k8s') {
+      return false;
+    }
+
+    if (!(await checkAttemptAPI())) {
+      return false;
+    }
+    return true;
+  }
+
   renderHintMessage() {
     const { jobInfo } = this.props;
     if (!jobInfo) {
@@ -329,6 +355,7 @@ export default class Summary extends React.Component {
       modalTitle,
       monacoProps,
       hideDialog,
+      isRetryAvailable,
     } = this.state;
     const { className, jobInfo, reloading, onStopJob, onReload } = this.props;
     const { rawJobConfig } = this.context;
@@ -454,24 +481,23 @@ export default class Summary extends React.Component {
             <div className={t.ml4}>
               <div className={c(t.gray, FontClassNames.medium)}>Duration</div>
               <div className={c(t.mt3, FontClassNames.mediumPlus)}>
-                {getJobDurationString(jobInfo.jobStatus)}
+                {getDurationString(getJobDuration(jobInfo.jobStatus))}
               </div>
             </div>
             <div className={t.ml4}>
               <div className={c(t.gray, FontClassNames.medium)}>Retries</div>
-              {config.launcherType === 'k8s' ||
-              isNil(jobInfo.jobStatus.retries) ? (
-                <div className={c(t.mt3, FontClassNames.mediumPlus)}>
-                  {jobInfo.jobStatus.retries}
-                </div>
-              ) : (
+              {isRetryAvailable && !isNil(jobInfo.jobStatus.retries) ? (
                 <Link
-                  onClick={() => openJobAttemptsPage(jobInfo.jobStatus.retries)}
+                  href={`job-retry.html?username=${username}&jobname=${jobname}`}
                 >
                   <div className={c(t.mt3, FontClassNames.mediumPlus)}>
                     {jobInfo.jobStatus.retries}
                   </div>
                 </Link>
+              ) : (
+                <div className={c(t.mt3, FontClassNames.mediumPlus)}>
+                  {jobInfo.jobStatus.retries}
+                </div>
               )}
             </div>
           </div>

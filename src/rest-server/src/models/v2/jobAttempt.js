@@ -22,10 +22,7 @@ const {Client} = require('@elastic/elasticsearch');
 const base32 = require('base32');
 const {Agent} = require('https');
 
-const {
-  convertToJobAttempt,
-  convertToJobAttemptDetail,
-} = require('@pai/utils/frameworkConverter');
+const {convertToJobAttempt} = require('@pai/utils/frameworkConverter');
 const launcherConfig = require('@pai/config/launcher');
 const {apiserver} = require('@pai/config/kubernetes');
 const createError = require('@pai/utils/error');
@@ -50,7 +47,7 @@ const encodeName = (name) => {
   }
 };
 
-// job retry only works in k8s launcher and in elastic search exists
+// job attempts api only works in k8s launcher and when elastic search exists
 const healthCheck = async () => {
   const launcherType = process.env.LAUNCHER_TYPE;
   if (launcherType === 'yarn') {
@@ -73,9 +70,11 @@ const healthCheck = async () => {
   }
 };
 
-// list job retries
+// list job attempts
 const list = async (frameworkName) => {
-  let attemptFrameworks = [];
+  let attemptData = [];
+
+  // get latest framework from k8s API
   let response;
   try {
     response = await axios({
@@ -93,7 +92,7 @@ const list = async (frameworkName) => {
   }
 
   if (response.status === 200) {
-    attemptFrameworks.push(response.data);
+    attemptData.push({...await convertToJobAttempt(response.data), isLatest: true});
   } else if (response.status === 404) {
     return {status: 404, data: null};
   } else {
@@ -104,6 +103,7 @@ const list = async (frameworkName) => {
     return {status: 501, data: null};
   }
 
+  // get history frameworks from elastic search
   const body = {
     query: {
       bool: {
@@ -154,11 +154,18 @@ const list = async (frameworkName) => {
     const retryFrameworks = buckets.map((bucket) => {
       return bucket.collectTime_latest_hits.hits.hits[0]._source.objectSnapshot;
     });
-    attemptFrameworks = attemptFrameworks.concat(retryFrameworks);
-    const retryData = attemptFrameworks.map((attemptFramework) => {
-      return convertToJobAttempt(attemptFramework);
-    });
-    return {status: 200, data: retryData};
+    const jobRetries = await Promise.all(
+      retryFrameworks.map((attemptFramework) => {
+        return convertToJobAttempt(attemptFramework);
+      }),
+    );
+    attemptData.push(
+      ...jobRetries.map((jobRetry) => {
+        return {...jobRetry, isLatest: false};
+      }),
+    );
+
+    return {status: 200, data: attemptData};
   }
 };
 
@@ -193,6 +200,7 @@ const get = async (frameworkName, jobAttemptIndex) => {
   }
 
   if (jobAttemptIndex < attemptFramework.spec.retryPolicy.maxRetryCount) {
+    // get history frameworks from elastic search
     const body = {
       query: {
         bool: {
@@ -242,12 +250,15 @@ const get = async (frameworkName, jobAttemptIndex) => {
       return {status: 404, data: null};
     } else {
       attemptFramework = buckets[0]._source.objectSnapshot;
-      const attemptDetail = await convertToJobAttemptDetail(attemptFramework);
-      return {status: 200, data: attemptDetail};
+      const attemptDetail = await convertToJobAttempt(attemptFramework);
+      return {status: 200, data: {...attemptDetail, isLatest: false}};
     }
-  } else if (jobAttemptIndex === attemptFramework.spec.retryPolicy.maxRetryCount) {
-    const attemptDetail = await convertToJobAttemptDetail(attemptFramework);
-    return {status: 200, data: attemptDetail};
+  } else if (
+    jobAttemptIndex === attemptFramework.spec.retryPolicy.maxRetryCount
+  ) {
+    // get latest frameworks from k8s API
+    const attemptDetail = await convertToJobAttempt(attemptFramework);
+    return {status: 200, data: {...attemptDetail, isLatest: true}};
   } else {
     return {status: 404, data: null};
   }
