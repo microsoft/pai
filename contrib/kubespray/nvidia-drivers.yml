@@ -1,4 +1,6 @@
 ---
-- name: Run the equivalent of "apt-get update" as a separate step
-  apt:
-    update_cache: yes
+- hosts: all
+  tasks:
+    - name: Run the equivalent of "apt-get update" as a separate step
+      apt:
+        update_cache: yes
