@@ -86,7 +86,7 @@ export const createUserRequest = async (
 export const updateUserPasswordRequest = async (
   username,
   newPassword,
-  oldPassword = '',
+  oldPassword = undefined,
 ) => {
   const url = `${config.restServerUri}/api/v2/user/${username}/password`;
   const token = checkToken();
