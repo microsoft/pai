@@ -19,10 +19,21 @@ const querystring = require('querystring');
 const webportalConfig = require('../../config/webportal.config.js');
 
 const userLogout = (origin = window.location.href) => {
+  // revoke token
+  const token = cookies.get('token');
+  const url = `${webportalConfig.restServerUri}/api/v1/token/${token}`;
+  fetch(url, {
+    method: 'DELETE',
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  }).catch(console.err);
+  // clear cookies
   cookies.remove('user');
   cookies.remove('token');
   cookies.remove('admin');
   cookies.remove('my-jobs');
+  // redirect
   if (webportalConfig.authnMethod === 'basic') {
     if (!origin) {
       window.location.replace('/index.html');

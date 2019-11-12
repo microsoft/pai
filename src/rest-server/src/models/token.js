@@ -116,6 +116,17 @@ const revoke = async (token) => {
   await k8sSecret.replace(namespace, username, result);
 };
 
+const batchRevoke = async (username, filter) => {
+  const item = await k8sSecret.get(namespace, username);
+  const result = purge(item || {});
+  for (const [key, val] of Object.entries(result)) {
+    if (filter(val)) {
+      delete result[key];
+    }
+  }
+  await k8sSecret.replace(namespace, username, result);
+};
+
 const verify = async (token) => {
   const payload = jwt.verify(token, secret);
   const username = payload.username;
@@ -141,6 +152,7 @@ const verify = async (token) => {
 module.exports = {
   list,
   create,
+  batchRevoke,
   revoke,
   verify,
 };
