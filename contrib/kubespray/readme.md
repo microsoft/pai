@@ -191,7 +191,9 @@ cp /path/to/your/host.yml ~/kubespray/inventory/mycluster
 ```bash
 cd kubespray/
 
-ansible-playbook -i inventory/mycluster/hosts.yml cluster.yml --become --become-user=root -e "@inventory/mycluster/openpai.yaml"
+ansible-playbook -i inventory/mycluster/hosts.yml cluster.yml --become --become-user=root -e "@inventory/mycluster/openpai.yml"
 ```
+
+Note: please change the openpai.yml depends on your requirement.
 
 
