@@ -34,6 +34,7 @@ data:
       @type tail
       path /var/log/containers/frameworkcontroller*.log
       pos_file /var/log/fc-objectsnapshots.log.pos
+      read_from_head true
       tag fc-objectsnapshots
       format json
       time_key time
@@ -45,7 +46,7 @@ data:
     <filter>
       @type concat
       key log
-      multiline_start_regexp /ObjectSnapshot/
+      multiline_start_regexp /: ObjectSnapshot: /
       multiline_end_regexp /\}\n$/
       separator ""
       flush_interval 30
@@ -56,7 +57,7 @@ data:
       @type grep
       <regexp>
         key log
-        pattern /ObjectSnapshot/
+        pattern /: ObjectSnapshot: /
       </regexp>
     </filter>
 
