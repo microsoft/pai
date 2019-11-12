@@ -1,1 +1,0 @@
-{"default":false,"mountInfos":[{"mountPoint":"/data","path":"data","server":"{{ cluster_cfg["storage-manager"]["storageServerName"] }}","permission":"rw"},{"mountPoint":"/home","path":"users/${PAI_USER_NAME}","server":"{{ cluster_cfg["storage-manager"]["storageServerName"] }}","permission":"rw"}],"name":"{{ cluster_cfg["storage-manager"]["storageConfigName"] }}"}

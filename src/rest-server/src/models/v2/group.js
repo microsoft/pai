@@ -111,10 +111,7 @@ const getGroupsVCs = async (grouplist) => {
 };
 
 const getStorageConfigsWithGroupInfo = async (groupItems) => {
-  let storageConfigs =
-  process.env.SYSTEM_STORAGE_CONFIG === undefined
-    ? new Set()
-    : new Set([process.env.SYSTEM_STORAGE_CONFIG]);
+  let storageConfigs = new Set();
   for (const groupItem of groupItems) {
     if (groupItem.extension && groupItem.extension.acls) {
       if (groupItem.extension.acls.storageConfigs) {

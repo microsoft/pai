@@ -1,1 +1,0 @@
-{"spn":"{{ cluster_cfg["storage-manager"]["storageServerName"] }}","type":"nfs","address":"${STORAGE_MANAGER_SERVICE_SERVICE_HOST}","rootPath":"/","extension":{}}

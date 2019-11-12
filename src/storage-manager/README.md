@@ -4,7 +4,6 @@
   - [Node Configuration](#Node-Configuration)
   - [Default Configuration](#Default-Configuration)
   - [Manual Configuration](#Manual-Configuration)
-  - [Teamwise Storage Integration](#Teamwise-Integration)
   - [SMB with AAD Configuraiton](#SMBAAD-Configuration)
   - [Data Table](#T_config)
 
@@ -47,23 +46,6 @@ For example, if you want to use different local path than the default /share, ad
 storage-manager:
     localpath: new-value
 ```
-
----
-
-## Teamwise Storage Integration <a name="Teamwise-Integration"></a>
-
-Storage-manager service can be integrated with team-wise storage. By setting storageServerName and storageConfigName in storage-manager, team-wise storage data will be generated when deploy.
-
-```yaml
-storage-manager:
-  storageServerName: # storage server name
-  storageConfigName: # storage config name 
-```
-For more details about team-wise storage, please refer to [storage plugin](../../contrib/storage_plugin/README.MD)  
-
-- How it works
-Storage-manager has a service named storage-manager-service, the host address can be addressed in job pods using STORAGE_MANAGER_SERVICE_SERVICE_HOST.  
-If storageServerName and storageConfigName were configed, when deploy storage-manager, a nfs teamwise storage server will be created using host ${STORAGE_MANAGER_SERVICE_SERVICE_HOST}. Also a storage config with storageConfigName will be created, too.
 
 ---
 
@@ -124,18 +106,6 @@ storage-manager:
     <td>com["storage-manager"]["security-type"]</td>
     <td>cluster_cfg["storage-manager"]["security-type"]</td>
     <td>Can only be `Auto` or `ADS`</td>
-</tr>
-<tr>
-    <td>storage-manager.storageServerName</td>
-    <td>com["storage-manager"]["storageServerName"]</td>
-    <td>cluster_cfg["storage-manager"]["storageServerName"]</td>
-    <td>String</td>
-</tr>
-<tr>
-    <td>storage-manager.storageConfigName</td>
-    <td>com["storage-manager"]["storageConfigName"]</td>
-    <td>cluster_cfg["storage-manager"]["storageConfigName"]</td>
-    <td>String</td>
 </tr>
 <tr>
     <td>storage-manager.smbuser</td>

@@ -26,11 +26,8 @@ prerequisite:
 template-list:
   - storage-manager.yaml
   - start.sh
-  - stop.sh
   - conf/smb.conf
   - conf/krb5.conf
-  - storage-server-patch.json
-  - storage-config-patch.json
 
 start-script: start.sh
 stop-script: stop.sh

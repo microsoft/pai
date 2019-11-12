@@ -34,10 +34,7 @@ const getUserVCs = async (username) => {
 
 const getUserStorageConfigs = async (username) => {
   const userInfo = await userModel.getUser(username);
-  let storageConfigs =
-    process.env.SYSTEM_STORAGE_CONFIG === undefined
-      ? new Set()
-      : new Set([process.env.SYSTEM_STORAGE_CONFIG]);
+  let storageConfigs = new Set();
   for (const group of userInfo.grouplist) {
     const groupStorageConfigs = await groupModel.getGroupStorageConfigs(group);
     storageConfigs = new Set([...storageConfigs, ...groupStorageConfigs]);
