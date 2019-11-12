@@ -29,7 +29,16 @@ spec:
       labels:
         app: postgresql
     spec:
-      hostNetwork: false
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: kubernetes.io/hostname
+                operator: In
+                values:
+                - {{ cluster_cfg["postgresql"]["host"] }}
+      hostNetwork: true
       containers:
       - name: postgresql
         image: {{ cluster_cfg["cluster"]["docker-registry"]["prefix"] }}postgresql:{{ cluster_cfg["cluster"]["docker-registry"]["tag"] }}
@@ -43,14 +52,15 @@ spec:
           value: {{ cluster_cfg["postgresql"]["db"] }}
         - name: PGDATA
           value: /var/lib/postgresql/data/pgdata
+        args: ['-c', 'port={{- cluster_cfg["postgresql"]["port"] }}']
         volumeMounts:
         - name: internal-data-dir
           mountPath: /var/lib/postgresql/data/
           mountPropagation: "None"
-        ports:
-        - containerPort: 5432
-          hostPort: {{ cluster_cfg["postgresql"]["port"] }}
-          name: postgresql-port
+        # ports:
+        # - containerPort: {{ cluster_cfg["postgresql"]["port"] }}
+        #   hostPort: {{ cluster_cfg["postgresql"]["port"] }}
+        #   name: postgresql-port
       volumes:
         - name: internal-data-dir
           hostPath:

@@ -29,15 +29,15 @@ spec:
       labels:
         app: internal-storage-delete
     spec:
-      affinity:  # deploy-rules doesn't take effect during deleting
+      affinity:
         nodeAffinity:
           requiredDuringSchedulingIgnoredDuringExecution:
             nodeSelectorTerms:
             - matchExpressions:
-              - key: pai-master
+              - key: kubernetes.io/hostname
                 operator: In
                 values:
-                - 'true'
+                - {{ cluster_cfg["internal-storage"]["master-ip"] }}
       hostNetwork: false
       containers:
       - name: internal-storage-delete

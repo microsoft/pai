@@ -39,8 +39,8 @@ class Postgresql(object):
     def validation_pre(self):
         if self.service_conf['enable']:
             machine_list = self.cluster_conf['machine-list']
-            if len([host for host in machine_list if host.get('pai-master') == 'true']) != 1:
-                return False, '1 and only 1 "pai-master=true" machine is required to deploy the postgresql service'
+            if len([host for host in machine_list if host.get('pai-master') == 'true']) < 1:
+                return False, '"pai-master=true" machine is required to deploy the postgresql service'
         return True, None
 
     def run(self):
@@ -49,7 +49,7 @@ class Postgresql(object):
             machine_list = self.cluster_conf['machine-list']
             master_ip = [host['hostip'] for host in machine_list if host.get('pai-master') == 'true'][0]
             result['host'] = master_ip
-            result['connectionStr'] = 'postgresql://{}:{}@{}:{}/{}'.format(
+            result['connection-str'] = 'postgresql://{}:{}@{}:{}/{}'.format(
                 result['user'], result['passwd'], result['host'], result['port'], result['db'])
         return result
 

@@ -24,12 +24,9 @@ template-list:
   - create.yaml
   - delete.yaml
   - start.sh
+  - delete.sh
 
 start-script: start.sh
 stop-script: stop.sh
 delete-script: delete.sh
 refresh-script: refresh.sh
-
-
-deploy-rules:
-  - in: pai-master

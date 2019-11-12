@@ -21,11 +21,15 @@ pushd $(dirname "$0") > /dev/null
 
 kubectl delete --ignore-not-found --now "daemonset/internal-storage-create-ds"
 
+{% if cluster_cfg['internal-storage']['enable'] %}
+
 kubectl apply --overwrite=true -f delete.yaml || exit $?
 
 # Wait until the service is ready.
 PYTHONPATH="../../../deployment" python -m  k8sPaiLibrary.monitorTool.check_pod_ready_status -w -k app -v internal-storage-delete || exit $?
 
 kubectl delete --ignore-not-found --now "daemonset/internal-storage-delete-ds"
+
+{% endif %}
 
 popd > /dev/null
