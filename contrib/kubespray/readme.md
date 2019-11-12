@@ -196,4 +196,17 @@ ansible-playbook -i inventory/mycluster/hosts.yml cluster.yml --become --become-
 
 Note: please change the openpai.yml depends on your requirement.
 
+###### setup kubectl
 
+```bash
+mkdir -p ~/.kube
+
+cp inventory/mycluster/artifacts/admin.conf ~/.kube/config
+
+curl -LO https://storage.googleapis.com/kubernetes-release/release/`curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt`/bin/linux/amd64/kubectl
+
+chmod +x ./kubectl
+
+sudo mv ./kubectl /usr/local/bin/kubectl
+
+```
