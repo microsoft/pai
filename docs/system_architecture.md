@@ -1,6 +1,10 @@
 ## System Architecture
 
-![System Architecture after v0.15](./arch_v2.png)
+<center>
+
+![System Architecture](./arch_v2.png)
+
+</center>
 
 The figure above illustrates the high level architecture of OpenPAI. 
 OpenPAI is managede by [Kubernetes](https://kubernetes.io/),
