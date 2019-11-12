@@ -117,6 +117,8 @@ ansible all -i host.yml -m ping
 
 #### Install nvidia drivers
 
+If GPU driver has been installed, you could skip to next steps
+
 ###### Install nvidia drivers-410 ( You can change the version )
 
 ```bash
@@ -136,6 +138,9 @@ ansible-playbook -i /path/to/host.yml nvidia-drivers.yml --become --become-user=
 ansible-playbook -i /path/to/host.yml nvidia-persistent-mode.yml --become --become-user=root
 
 ```
+
+#### setup docker
+
 
 #### kubespray configuration
 
