@@ -27,7 +27,6 @@ spec:
     metadata:
       labels:
         app: fluentd
-        kubernetes.io/cluster-service: "true"
     spec:
       tolerations:
       - key: node-role.kubernetes.io/master

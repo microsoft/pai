@@ -15,6 +15,8 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+const nockUtils = require('./utils/nock');
+
 const defaultGroupSchema = {
   'kind': 'Secret',
   'apiVersion': 'v1',
@@ -30,12 +32,6 @@ const defaultGroupSchema = {
   'type': 'Opaque',
 };
 
-//
-// Get a valid token that expires in 60 seconds.
-//
-
-const validToken = global.jwt.sign({username: 'new_user', admin: true}, process.env.JWT_SECRET, {expiresIn: 60});
-const nonAdminToken = global.jwt.sign({username: 'non_admin_user', admin: false}, process.env.JWT_SECRET, {expiresIn: 60});
 // const invalidToken = '';
 
 describe('Group Model k8s secret extension attrs update test', () => {
@@ -81,6 +77,8 @@ describe('Group Model k8s secret extension attrs update test', () => {
         'type': 'Opaque',
       });
 
+    const validToken = nockUtils.registerAdminTokenCheck('adminX');
+
     global.chai.request(global.server)
       .put('/api/v2/group/default/extension/acls/virtualClusters')
       .set('Authorization', 'Bearer ' + validToken)
@@ -94,6 +92,7 @@ describe('Group Model k8s secret extension attrs update test', () => {
   });
 
   it('Case 2 (Negative): non-admin should not update group extension vc', (done) => {
+    const nonAdminToken = nockUtils.registerUserTokenCheck('userX');
     global.chai.request(global.server)
       .put('/api/v2/group/default/extension/acls/virtualClusters')
       .set('Authorization', 'Bearer ' + nonAdminToken)
@@ -141,6 +140,7 @@ describe('Group Model k8s secret extension attrs update test', () => {
         'type': 'Opaque',
       });
 
+    const validToken = nockUtils.registerAdminTokenCheck('adminX');
     global.chai.request(global.server)
       .put('/api/v2/group/default/extension/acls/admin')
       .set('Authorization', 'Bearer ' + validToken)
@@ -170,6 +170,7 @@ describe('Group Model k8s secret extension attrs update test', () => {
         'code': 404,
       });
 
+    const validToken = nockUtils.registerAdminTokenCheck('adminX');
     global.chai.request(global.server)
       .put('/api/v2/group/non-exist/extension/acls/admin')
       .set('Authorization', 'Bearer ' + validToken)
@@ -217,6 +218,7 @@ describe('Group Model k8s secret extension attrs update test', () => {
         'type': 'Opaque',
       });
 
+    const validToken = nockUtils.registerAdminTokenCheck('adminX');
     global.chai.request(global.server)
       .put('/api/v2/group/default/extension/testfield')
       .set('Authorization', 'Bearer ' + validToken)

@@ -31,7 +31,7 @@ const hivedSchema = {
           type: 'object',
           properties: {
             jobPriorityClass: {
-              enum: ['prod', 'test'],
+              enum: ['prod', 'test', 'oppo'],
             },
             taskRoles: {
               patternProperties: {

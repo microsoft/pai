@@ -20,7 +20,7 @@ const express = require('express');
 const tokenConfig = require('@pai/config/token');
 const param = require('@pai/middlewares/parameter');
 const userController = require('@pai/controllers/v2/user');
-const tokenV2Controller = require('@pai/controllers/v2/token');
+const tokenController = require('@pai/controllers/v2/token');
 const azureADController = require('@pai/controllers/v2/azureAD');
 const authnConfig = require('@pai/config/authn');
 
@@ -61,7 +61,7 @@ if (authnConfig.authnMethod === 'OIDC') {
       azureADController.parseTokenData,
       userController.createUserIfUserNotExist,
       userController.updateUserGroupListFromExternal,
-      tokenV2Controller.getAAD
+      tokenController.getAAD
     )
     /** POST /api/v1/authn/oidc/return - AAD AUTH RETURN */
     .post(
@@ -69,13 +69,13 @@ if (authnConfig.authnMethod === 'OIDC') {
       azureADController.parseTokenData,
       userController.createUserIfUserNotExist,
       userController.updateUserGroupListFromExternal,
-      tokenV2Controller.getAAD
+      tokenController.getAAD
     );
 } else {
   router.route('/basic/login')
   /** POST /api/v1/authn/basic/login - Return a token if username and password is correct */
     .post(
-      param.validate(tokenConfig.tokenPostInputSchema), userController.checkUserPassword, tokenV2Controller.get);
+      param.validate(tokenConfig.tokenPostInputSchema), tokenController.get);
 }
 
 // module exports

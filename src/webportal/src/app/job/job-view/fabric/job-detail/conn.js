@@ -19,7 +19,7 @@ import yaml from 'js-yaml';
 import { get, isNil } from 'lodash';
 import qs from 'querystring';
 
-import { userLogout } from '../../../../user/user-logout/user-logout.component';
+import { clearToken } from '../../../../user/user-logout/user-logout.component';
 import { checkToken } from '../../../../user/user-auth/user-auth.component';
 import config from '../../../../config/webportal.config';
 import { isJobV2 } from './util';
@@ -244,7 +244,7 @@ export async function stopJob() {
     return json;
   } else if (res.code === 'UnauthorizedUserError') {
     alert(res.message);
-    userLogout();
+    clearToken();
   } else {
     throw new Error(json.message);
   }

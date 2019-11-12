@@ -64,8 +64,6 @@ const config = (env, argv) => ({
     layout: './src/app/layout/layout.component.js',
     userView: './src/app/user/fabric/user-view.jsx',
     batchRegister: './src/app/user/fabric/batch-register.jsx',
-    changePassword:
-      './src/app/user/change-password/change-password.component.js',
     dashboard: './src/app/dashboard/dashboard.component.js',
     submit: './src/app/job-submission/job-submission.jsx',
     submit_v1: './src/app/job/job-submit-v1/job-submit.component.js',
@@ -79,6 +77,7 @@ const config = (env, argv) => ({
       './src/app/cluster-view/hardware/hardware-detail.component.js',
     k8s: './src/app/cluster-view/k8s/k8s.component.js',
     docs: './src/app/job/job-docs/job-docs.component.js',
+    userProfile: './src/app/user/fabric/user-profile.jsx',
     plugin: './src/app/plugin/plugin.component.js',
   },
   output: {
@@ -298,8 +297,8 @@ const config = (env, argv) => ({
       chunks: ['layout', 'batchRegister'],
     }),
     generateHtml({
-      filename: 'change-password.html',
-      chunks: ['layout', 'changePassword'],
+      filename: 'user-profile.html',
+      chunks: ['layout', 'userProfile'],
     }),
     generateHtml({
       filename: 'dashboard.html',

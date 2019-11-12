@@ -18,12 +18,14 @@
 
 from __future__ import print_function
 
-import os
-import sys
+import argparse
+import base64
 import collections
 import logging
-import argparse
+import gzip
 import json
+import os
+import sys
 import yaml
 
 logger = logging.getLogger(__name__)
@@ -31,6 +33,14 @@ logger = logging.getLogger(__name__)
 
 def export(k, v):
     print("export {}='{}'".format(k, v))
+
+
+def decompressField(field):
+    if not field:
+        return
+    data = gzip.decompress(base64.b64decode(field))
+    obj = json.loads(data)
+    return obj
 
 
 def generate_runtime_env(framework):
@@ -68,7 +78,12 @@ def generate_runtime_env(framework):
         }
     logger.info("task roles: {}".format(taskroles))
 
+    # decompress taskRoleStatuses for the large framework
     taskrole_instances = []
+    if not framework["status"]["attemptStatus"]["taskRoleStatuses"]:
+        framework["status"]["attemptStatus"]["taskRoleStatuses"] = decompressField(
+            framework["status"]["attemptStatus"]["taskRoleStatusesCompressed"])
+
     for taskrole in framework["status"]["attemptStatus"]["taskRoleStatuses"]:
         name = taskrole["name"]
         ports = taskroles[name]["ports"]

@@ -27,7 +27,7 @@ COPY GOPATH/src/github.com/microsoft/runtime/ ${PROJECT_DIR}
 RUN ${PROJECT_DIR}/build/runtime/go-build.sh && \
   mv ${PROJECT_DIR}/dist/runtime/ ${INSTALL_DIR}
 
-FROM python:2.7-alpine3.8
+FROM python:3.7-alpine
 
 RUN pip install PyYAML
 
@@ -37,7 +37,7 @@ ARG BARRIER_DIR=/opt/frameworkcontroller/frameworkbarrier
 WORKDIR /kube-runtime/src
 
 COPY src/ ./
-COPY --from=frameworkcontroller/frameworkbarrier:v0.4.0 $BARRIER_DIR/frameworkbarrier ./init.d
+COPY --from=frameworkcontroller/frameworkbarrier:v0.5.0 $BARRIER_DIR/frameworkbarrier ./init.d
 COPY --from=builder ${INSTALL_DIR}/* ./runtime.d
 RUN chmod -R +x ./
 

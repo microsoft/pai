@@ -36,7 +36,7 @@ add-worker-node:
 
     - name: kubelet.service
       src: deployment/k8sPaiLibrary/template/kubelet.service.template
-      dst: add-work-node
+      dst: add-worker-node
 
 
     # List of the file

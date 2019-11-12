@@ -65,7 +65,7 @@ const storageServerSchema = Joi.object()
         is: 'hdfs',
         then: Joi.object({
           namenode: Joi.string().required(),
-          rootPath: Joi.number().required(),
+          port: Joi.number().required(),
         }).required(),
       }),
     extension: Joi.object().optional(),

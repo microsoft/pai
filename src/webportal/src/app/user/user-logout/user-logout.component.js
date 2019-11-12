@@ -36,4 +36,23 @@ const userLogout = (origin = window.location.href) => {
   }
 };
 
-module.exports = { userLogout };
+/**
+ * Clear local tokens only, will not redirect user to oidc logout page
+ * @description Will try to refresh the token if oidc enabled.
+ * @param {string} origin - redirect target after login
+ */
+const clearToken = (origin = window.location.href) => {
+  cookies.remove('user');
+  cookies.remove('token');
+  cookies.remove('admin');
+  cookies.remove('my-jobs');
+  if (!origin) {
+    window.location.replace('/index.html');
+  } else {
+    window.location.replace(
+      `/index.html?${querystring.stringify({ from: origin })}`,
+    );
+  }
+};
+
+module.exports = { userLogout, clearToken };

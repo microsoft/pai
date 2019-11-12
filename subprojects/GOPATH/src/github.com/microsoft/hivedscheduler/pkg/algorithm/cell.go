@@ -25,6 +25,7 @@ package algorithm
 import (
 	"fmt"
 	"github.com/microsoft/hivedscheduler/pkg/api"
+	"k8s.io/klog"
 )
 
 // A Cell represents a set of GPUs affinitized by their interconnection topology.
@@ -120,13 +121,13 @@ func (c *GenericCell) IncreaseUsedGpuNumAtPriority(p CellPriority, delta int32) 
 // PhysicalCell defines a cell in the physical cluster.
 type PhysicalCell struct {
 	GenericCell
-	nodes               []string             // node names inside the cell
-	gpuIndices          []int32              // [-1] for cells at levels higher than node
-	affinityGroups      []*AlgoAffinityGroup // affinity groups using this cell
-	virtualCell         *VirtualCell         // points to the bound virtual cell
-	preBoundVirtualCell *VirtualCell         // points to the temporarily bound virtual cell (before the binding is confirmed)
-	split               bool                 // true when the cell has been split
-	reserved            bool                 // true when this is a reserved cell
+	nodes               []string           // node names inside the cell
+	gpuIndices          []int32            // [-1] for cells at levels higher than node
+	affinityGroup       *AlgoAffinityGroup // affinity group using this cell
+	virtualCell         *VirtualCell       // points to the bound virtual cell
+	preBoundVirtualCell *VirtualCell       // points to the temporarily bound virtual cell (before the binding is confirmed)
+	split               bool               // true when the cell has been split
+	reserved            bool               // true when this is a reserved cell
 }
 
 func NewPhysicalCell(c CellChain, l CellLevel, g bool, n int32) *PhysicalCell {
@@ -139,7 +140,6 @@ func NewPhysicalCell(c CellChain, l CellLevel, g bool, n int32) *PhysicalCell {
 			totalGpuNum:            n,
 			usedGpuNumAtPriorities: map[CellPriority]int32{},
 		},
-		affinityGroups: []*AlgoAffinityGroup{},
 	}
 }
 
@@ -160,32 +160,23 @@ func (c *PhysicalCell) SetPhysicalResources(nodes []string, gpuIndices []int32) 
 	c.gpuIndices = gpuIndices
 }
 
-func (c *PhysicalCell) AddAffinityGroup(affinityGroup *AlgoAffinityGroup) {
-	c.affinityGroups = append(c.affinityGroups, affinityGroup)
-}
-
-func (c *PhysicalCell) DeleteAffinityGroup(affinityGroup *AlgoAffinityGroup) {
-	idx := -1
-	for i, g := range c.affinityGroups {
-		if affinityGroup.name == g.name {
-			idx = i
-			break
-		}
+func (c *PhysicalCell) AddAffinityGroup(g *AlgoAffinityGroup) {
+	if c.affinityGroup != nil {
+		klog.Errorf("Error when adding affinity group %v to cell %v: cell already has group %v",
+			g.name, c.GetName(), c.affinityGroup.name)
 	}
-	if idx == -1 {
-		panic(fmt.Sprintf("Error when deleting affinity group %v: not exist in cell %v!",
-			affinityGroup.name, c.GetName()))
-	} else {
-		c.affinityGroups = append(c.affinityGroups[:idx], c.affinityGroups[idx+1:]...)
+	c.affinityGroup = g
+}
+
+func (c *PhysicalCell) DeleteAffinityGroup(g *AlgoAffinityGroup) {
+	if c.affinityGroup == nil || c.affinityGroup.name != g.name {
+		klog.Errorf("Error when deleting affinity group %v from cell %v: not found", g.name, c.GetName())
 	}
+	c.affinityGroup = nil
 }
 
-func (c *PhysicalCell) HasAffinityGroup() bool {
-	return len(c.affinityGroups) != 0
-}
-
-func (c *PhysicalCell) GetAffinityGroups() []*AlgoAffinityGroup {
-	return c.affinityGroups
+func (c *PhysicalCell) GetAffinityGroup() *AlgoAffinityGroup {
+	return c.affinityGroup
 }
 
 func (c *PhysicalCell) GetVirtualCell() *VirtualCell {
@@ -290,10 +281,10 @@ func (c *VirtualCell) SetPhysicalCell(pc *PhysicalCell) {
 	c.physicalCell = pc
 }
 
-func (c *VirtualCell) GetPreBoundVirtualCell() *PhysicalCell {
+func (c *VirtualCell) GetPreBoundPhysicalCell() *PhysicalCell {
 	return c.preBoundPhysicalCell
 }
 
-func (c *VirtualCell) SetPreBoundVirtualCell(pc *PhysicalCell) {
+func (c *VirtualCell) SetPreBoundPhysicalCell(pc *PhysicalCell) {
 	c.preBoundPhysicalCell = pc
 }

@@ -19,6 +19,7 @@ import config from '../../../config/webportal.config';
 import { JobData } from '../../models/data/job-data';
 import { Hint } from '../sidebar/hint';
 import { PROTOCOL_TOOLTIPS } from '../../utils/constants';
+import { isNil } from 'lodash';
 
 function reducer(state, action) {
   let jobData;
@@ -65,8 +66,9 @@ export const DataComponent = React.memo(props => {
     port,
     apiPath,
   );
-  const { onChange } = props;
+  const { onChange, storageConfigs } = props;
   const [teamConfigs, setTeamConfigs] = useState();
+  const [teamServers, setTeamServers] = useState();
   const [defaultTeamConfigs, setDefaultTeamConfigs] = useState();
   const [dataError, setDataError] = useState({
     customContainerPathError: false,
@@ -83,15 +85,11 @@ export const DataComponent = React.memo(props => {
     listUserStorageConfigs(user)
       .then(configNames => {
         fetchStorageConfigs(configNames).then(configs => {
-          const defaultConfigs = [];
           let serverNames = new Set();
 
           for (const config of configs) {
             if (config.mountInfos === undefined) continue;
 
-            if (config.default === true) {
-              defaultConfigs.push(config);
-            }
             for (const mountInfo of config.mountInfos) {
               serverNames = new Set([...serverNames, mountInfo.server]);
             }
@@ -108,25 +106,42 @@ export const DataComponent = React.memo(props => {
               };
               servers.push(server);
             }
-
-            const mountDirectories = new MountDirectories(
-              user,
-              props.jobName,
-              defaultConfigs,
-              servers,
-            );
-
+            setTeamServers(servers);
             setTeamConfigs(configs);
-            setDefaultTeamConfigs(defaultConfigs);
-            onMountDirChange(mountDirectories);
           });
         });
       })
       .catch(e => {
         setDefaultTeamConfigs(null);
+        setTeamServers(null);
         setTeamConfigs(null);
       });
   }, []);
+
+  useEffect(() => {
+    if (isNil(teamConfigs)) return;
+
+    const user = cookies.get('user');
+
+    let defaultConfigs;
+    if (storageConfigs === undefined) {
+      defaultConfigs = teamConfigs.filter(config => config.default === true);
+    } else {
+      defaultConfigs = teamConfigs.filter(
+        config => storageConfigs.indexOf(config.name) > -1,
+      );
+    }
+
+    const mountDirectories = new MountDirectories(
+      user,
+      props.jobName,
+      defaultConfigs,
+      teamServers,
+    );
+
+    setDefaultTeamConfigs(defaultConfigs);
+    onMountDirChange(mountDirectories);
+  }, [storageConfigs, teamConfigs]);
 
   const _onDataListChange = useCallback(
     dataList => {
@@ -192,4 +207,5 @@ DataComponent.propTypes = {
   onSelect: PropTypes.func,
   jobName: PropTypes.string,
   onChange: PropTypes.func.isRequired,
+  storageConfigs: PropTypes.array,
 };

@@ -23,7 +23,6 @@ require('admin-lte/dist/css/AdminLTE.min.css');
 require('admin-lte/dist/css/skins/_all-skins.min.css');
 require('font-awesome/css/font-awesome.min.css');
 require('./layout.component.scss');
-const jwt = require('jsonwebtoken');
 
 const ReactDOM = require('react-dom');
 const React = require('react');
@@ -36,13 +35,8 @@ const pluginComponent = require('./plugins.component.ejs');
 const config = require('../config/webportal.config.js');
 
 const userLoginNavHtml = userLoginNavComponent({ cookies });
-const showUserToken = () => {
-  const token = cookies.get('token');
-  const expiration = new Date(jwt.decode(token).exp * 1000);
-  prompt(`Expiration date\n${expiration}\n\nToken`, token);
-};
 
-window.showUserToken = showUserToken;
+// used by navbar's ejs
 window.userLogout = userLogoutComponent.userLogout;
 
 $('#navbar').html(userLoginNavHtml);

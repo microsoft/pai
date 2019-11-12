@@ -41,6 +41,16 @@ data:
       keep_time_key true
     </source>
 
+    # Recombine raw log lines in case it was splitted by Docker
+    <filter>
+      @type concat
+      key log
+      multiline_start_regexp /ObjectSnapshot/
+      multiline_end_regexp /\}\n$/
+      separator ""
+      flush_interval 30
+    </filter>
+
     # Filter objectSnapshot
     <filter fc-objectsnapshots>
       @type grep

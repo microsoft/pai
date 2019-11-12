@@ -15,13 +15,14 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-import { userLogout } from '../../user/user-logout/user-logout.component.js';
+import { clearToken } from '../../user/user-logout/user-logout.component.js';
 
 import config from '../../config/webportal.config';
 import yaml from 'js-yaml';
-import { get } from 'lodash';
+import { get, isEmpty } from 'lodash';
 
 const token = cookies.get('token');
+const querystring = require('querystring');
 
 export class NotFoundError extends Error {
   constructor(msg) {
@@ -38,7 +39,7 @@ async function fetchWrapper(...args) {
   } else {
     if (json.code === 'UnauthorizedUserError') {
       alert(json.message);
-      userLogout();
+      clearToken();
     } else {
       throw new Error(json.message);
     }
@@ -115,34 +116,40 @@ export async function listUserStorageConfigs(user) {
 }
 
 export async function fetchStorageConfigs(configNames) {
-  const bodyData = {};
-  bodyData.names = configNames;
+  if (isEmpty(configNames)) {
+    return [];
+  }
+
   const storageConfigs = await fetchWrapper(
-    `${config.restServerUri}/api/v2/storage/configs`,
+    `${config.restServerUri}/api/v2/storage/config?${querystring.stringify({
+      names: configNames,
+    })}`,
     {
-      body: JSON.stringify(bodyData),
       headers: {
         Authorization: `Bearer ${token}`,
         'Content-Type': 'application/json',
       },
-      method: 'POST',
+      method: 'GET',
     },
   );
   return storageConfigs;
 }
 
 export async function fetchStorageServers(serverNames) {
-  const bodyData = {};
-  bodyData.names = serverNames;
+  if (isEmpty(serverNames)) {
+    return [];
+  }
+
   const storageServers = await fetchWrapper(
-    `${config.restServerUri}/api/v2/storage/servers`,
+    `${config.restServerUri}/api/v2/storage/server?${querystring.stringify({
+      names: serverNames,
+    })}`,
     {
-      body: JSON.stringify(bodyData),
       headers: {
         Authorization: `Bearer ${token}`,
         'Content-Type': 'application/json',
       },
-      method: 'POST',
+      method: 'GET',
     },
   );
   return storageServers;

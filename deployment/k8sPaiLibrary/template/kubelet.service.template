@@ -1,5 +1,5 @@
 [Unit]
-Description=kubete daemon
+Description=kubelet daemon
 After=docker.service
 Requires=docker.service
 

@@ -57,7 +57,7 @@ export const ResourceBar = ({ name, percentage, tailInfo, barHeight }) => {
             position: 'absolute',
             top: 0,
             left: 0,
-            width: '100%',
+            width: '98%',
             height: '100%',
             fontSize: FontSizes.small,
             color: fontColor,

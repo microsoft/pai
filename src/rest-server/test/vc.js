@@ -15,6 +15,7 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+const nockUtils = require('./utils/nock');
 
 const yarnDefaultResponse = {
     'scheduler': {
@@ -1157,8 +1158,6 @@ describe('VC API  Get /api/v2/virtual-clusters', () => {
 
 
 describe('VC API PUT /api/v2/virtual-clusters', () => {
-  const userToken = jwt.sign({username: 'test_user', admin: false}, process.env.JWT_SECRET, {expiresIn: 60});
-  const adminToken = jwt.sign({username: 'test_admin', admin: true}, process.env.JWT_SECRET, {expiresIn: 60});
   // Mock yarn rest api
   beforeEach(() => {
     nock.cleanAll();
@@ -1257,6 +1256,8 @@ describe('VC API PUT /api/v2/virtual-clusters', () => {
         'type': 'Opaque',
       });
 
+    const adminToken = nockUtils.registerAdminTokenCheck('admin');
+
     chai.request(server)
       .put('/api/v2/virtual-clusters/b')
       .set('Authorization', `Bearer ${adminToken}`)
@@ -1289,6 +1290,8 @@ describe('VC API PUT /api/v2/virtual-clusters', () => {
         },
         'type': 'Opaque',
       });
+
+    const adminToken = nockUtils.registerAdminTokenCheck('admin');
 
     chai.request(server)
       .put('/api/v2/virtual-clusters/a')
@@ -1323,6 +1326,7 @@ describe('VC API PUT /api/v2/virtual-clusters', () => {
         'type': 'Opaque',
       });
 
+    const adminToken = nockUtils.registerAdminTokenCheck('admin');
     chai.request(server)
       .put('/api/v2/virtual-clusters/a')
       .set('Authorization', `Bearer ${adminToken}`)
@@ -1338,6 +1342,7 @@ describe('VC API PUT /api/v2/virtual-clusters', () => {
 
   it('[Negative] shouldn\'t update vc when maxCapacity less than capacity', (done) => {
     nock.cleanAll();
+    const adminToken = nockUtils.registerAdminTokenCheck('admin');
     chai.request(server)
       .put('/api/v2/virtual-clusters/a')
       .set('Authorization', `Bearer ${adminToken}`)
@@ -1356,7 +1361,7 @@ describe('VC API PUT /api/v2/virtual-clusters', () => {
     nock.cleanAll();
     chai.request(server)
       .put('/api/v2/virtual-clusters/default')
-      .set('Authorization', `Bearer ${adminToken}`)
+      .set('Authorization', 'Bearer token') // token is not checked
       .send({
         'vcCapacity': 30,
       })
@@ -1369,6 +1374,7 @@ describe('VC API PUT /api/v2/virtual-clusters', () => {
 
   it('[Negative] Non-admin should not update vc', (done) => {
     nock.cleanAll();
+    const userToken = nockUtils.registerUserTokenCheck('userX');
     chai.request(server)
       .put('/api/v2/virtual-clusters/b')
       .set('Authorization', `Bearer ${userToken}`)
@@ -1400,6 +1406,8 @@ describe('VC API PUT /api/v2/virtual-clusters', () => {
         },
         'type': 'Opaque',
       });
+
+    const adminToken = nockUtils.registerAdminTokenCheck('admin');
     chai.request(server)
       .put('/api/v2/virtual-clusters/b')
       .set('Authorization', `Bearer ${adminToken}`)
@@ -1437,6 +1445,7 @@ describe('VC API PUT /api/v2/virtual-clusters', () => {
         'type': 'Opaque',
       });
 
+    const adminToken = nockUtils.registerAdminTokenCheck('admin');
     chai.request(server)
       .put('/api/v2/virtual-clusters/a')
       .set('Authorization', `Bearer ${adminToken}`)
@@ -1454,7 +1463,7 @@ describe('VC API PUT /api/v2/virtual-clusters', () => {
     nock.cleanAll();
     chai.request(server)
       .put('/api/v2/virtual-clusters/aaa%20bbb')
-      .set('Authorization', `Bearer ${adminToken}`)
+      .set('Authorization', 'Bearer adminToken') // token is not checked
       .send({
         'vcCapacity': 80,
       })
@@ -1486,6 +1495,7 @@ describe('VC API PUT /api/v2/virtual-clusters', () => {
         'type': 'Opaque',
       });
 
+    const adminToken = nockUtils.registerAdminTokenCheck('admin');
     chai.request(server)
       .put('/api/v2/virtual-clusters/a')
       .set('Authorization', `Bearer ${adminToken}`)
@@ -1517,6 +1527,8 @@ describe('VC API PUT /api/v2/virtual-clusters', () => {
         },
         'type': 'Opaque',
       });
+
+    const adminToken = nockUtils.registerAdminTokenCheck('admin');
     chai.request(server)
       .put('/api/v2/virtual-clusters/dedicated_vc')
       .set('Authorization', `Bearer ${adminToken}`)
@@ -1533,8 +1545,6 @@ describe('VC API PUT /api/v2/virtual-clusters', () => {
 
 
 describe('VC API PUT /api/v2/virtual-clusters/:vcName/status', () => {
-  const userToken = jwt.sign({username: 'test_user', admin: false}, process.env.JWT_SECRET, {expiresIn: 60});
-  const adminToken = jwt.sign({username: 'test_admin', admin: true}, process.env.JWT_SECRET, {expiresIn: 60});
   // Mock yarn rest api
   beforeEach(() => {
     nock.cleanAll();
@@ -1557,6 +1567,7 @@ describe('VC API PUT /api/v2/virtual-clusters/:vcName/status', () => {
       .put('/ws/v1/cluster/scheduler-conf')
       .reply(200);
 
+    const adminToken = nockUtils.registerAdminTokenCheck('admin');
     chai.request(server)
       .put('/api/v2/virtual-clusters/a/status')
       .set('Authorization', `Bearer ${adminToken}`)
@@ -1574,6 +1585,7 @@ describe('VC API PUT /api/v2/virtual-clusters/:vcName/status', () => {
       .put('/ws/v1/cluster/scheduler-conf')
       .reply(200);
 
+    const adminToken = nockUtils.registerAdminTokenCheck('admin');
     chai.request(server)
       .put('/api/v2/virtual-clusters/a/status')
       .set('Authorization', `Bearer ${adminToken}`)
@@ -1588,10 +1600,9 @@ describe('VC API PUT /api/v2/virtual-clusters/:vcName/status', () => {
 
   it('[Negative] should not change default vc status', (done) => {
     nock.cleanAll();
-
     chai.request(server)
       .put('/api/v2/virtual-clusters/default/status')
-      .set('Authorization', `Bearer ${adminToken}`)
+      .set('Authorization', 'Bearer adminToken') // token is not checked
       .send({
         'vcStatus': 'running',
       })
@@ -1605,6 +1616,7 @@ describe('VC API PUT /api/v2/virtual-clusters/:vcName/status', () => {
   it('[Negative] Non-admin should not change vc status', (done) => {
     nock.cleanAll();
 
+    const userToken = nockUtils.registerUserTokenCheck('userX');
     chai.request(server)
       .put('/api/v2/virtual-clusters/a/status')
       .set('Authorization', `Bearer ${userToken}`)
@@ -1619,6 +1631,7 @@ describe('VC API PUT /api/v2/virtual-clusters/:vcName/status', () => {
   });
 
   it('[Negative] should not change a non-exist vc b', (done) => {
+    const adminToken = nockUtils.registerAdminTokenCheck('admin');
     chai.request(server)
       .put('/api/v2/virtual-clusters/b/status')
       .set('Authorization', `Bearer ${adminToken}`)
@@ -1638,6 +1651,7 @@ describe('VC API PUT /api/v2/virtual-clusters/:vcName/status', () => {
       .put('/ws/v1/cluster/scheduler-conf')
       .reply(404, 'Error response in YARN');
 
+    const adminToken = nockUtils.registerAdminTokenCheck('admin');
     chai.request(server)
       .put('/api/v2/virtual-clusters/a/status')
       .set('Authorization', `Bearer ${adminToken}`)
@@ -1655,8 +1669,6 @@ describe('VC API PUT /api/v2/virtual-clusters/:vcName/status', () => {
 
 
 describe('VC API DELETE /api/v2/virtual-clusters', () => {
-  const userToken = jwt.sign({username: 'test_user', admin: false}, process.env.JWT_SECRET, {expiresIn: 60});
-  const adminToken = jwt.sign({username: 'test_admin', admin: true}, process.env.JWT_SECRET, {expiresIn: 60});
   // Mock yarn rest api
   beforeEach(() => {
     nock(yarnUri)
@@ -1754,6 +1766,7 @@ describe('VC API DELETE /api/v2/virtual-clusters', () => {
         },
         'type': 'Opaque',
       });
+    const adminToken = nockUtils.registerAdminTokenCheck('admin');
 
     chai.request(server)
       .delete('/api/v2/virtual-clusters/a')
@@ -1767,6 +1780,7 @@ describe('VC API DELETE /api/v2/virtual-clusters', () => {
   it('[Negative] Non-admin should not delete vc a', (done) => {
     nock.cleanAll();
 
+    const userToken = nockUtils.registerUserTokenCheck('userX');
     chai.request(server)
       .delete('/api/v2/virtual-clusters/a')
       .set('Authorization', `Bearer ${userToken}`)
@@ -1782,7 +1796,7 @@ describe('VC API DELETE /api/v2/virtual-clusters', () => {
 
     chai.request(server)
       .delete('/api/v2/virtual-clusters/default')
-      .set('Authorization', `Bearer ${adminToken}`)
+      .set('Authorization', 'Bearer adminToken') // token is not checked
       .end((err, res) => {
         expect(res, 'status code').to.have.status(403);
         expect(res.body).to.have.property('code', 'ForbiddenUserError');
@@ -1791,6 +1805,7 @@ describe('VC API DELETE /api/v2/virtual-clusters', () => {
   });
 
   it('[Positive] shouldn\'t delete dedicated vc', (done) => {
+    const adminToken = nockUtils.registerAdminTokenCheck('admin');
     chai.request(server)
       .delete('/api/v2/virtual-clusters/dedicated_vc')
       .set('Authorization', `Bearer ${adminToken}`)
@@ -1802,6 +1817,7 @@ describe('VC API DELETE /api/v2/virtual-clusters', () => {
   });
 
   it('[Negative] should not delete a non-exist vc b', (done) => {
+    const adminToken = nockUtils.registerAdminTokenCheck('admin');
     chai.request(server)
       .delete('/api/v2/virtual-clusters/b')
       .set('Authorization', `Bearer ${adminToken}`)
@@ -1813,6 +1829,7 @@ describe('VC API DELETE /api/v2/virtual-clusters', () => {
   });
 
   it('[Negative] should not delete vc when jobs are running', (done) => {
+    const adminToken = nockUtils.registerAdminTokenCheck('admin');
     chai.request(server)
       .delete('/api/v2/virtual-clusters/c')
       .set('Authorization', `Bearer ${adminToken}`)
@@ -1840,6 +1857,7 @@ describe('VC API DELETE /api/v2/virtual-clusters', () => {
       .put('/ws/v1/cluster/scheduler-conf')
       .reply(200);
 
+    const adminToken = nockUtils.registerAdminTokenCheck('admin');
     chai.request(server)
       .delete('/api/v2/virtual-clusters/a')
       .set('Authorization', `Bearer ${adminToken}`)
@@ -1868,6 +1886,7 @@ describe('VC API DELETE /api/v2/virtual-clusters', () => {
       .put('/ws/v1/cluster/scheduler-conf')
       .reply(404, 'Error in YARN when reactive queue');
 
+    const adminToken = nockUtils.registerAdminTokenCheck('admin');
     chai.request(server)
       .delete('/api/v2/virtual-clusters/a')
       .set('Authorization', `Bearer ${adminToken}`)
