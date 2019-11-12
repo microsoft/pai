@@ -15,25 +15,36 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-const { clearToken } = require('../user-logout/user-logout.component.js');
+import React from 'react';
+import PropTypes from 'prop-types';
 
-const checkToken = (callback, redirectToLogin = true) => {
-  if (typeof callback === 'boolean') {
-    redirectToLogin = callback;
-    callback = null;
-  }
-  const authToken = cookies.get('token');
-  if (!authToken && redirectToLogin) {
-    clearToken();
-  } else if (callback) {
-    callback(authToken);
-  } else {
-    return authToken;
-  }
+import c from 'classnames';
+
+import t from '../../../components/tachyons.scss';
+import { ColorClassNames, FontClassNames } from '@uifabric/styling';
+
+const Pill = ({ children, className }) => {
+  return (
+    <div
+      className={c(
+        t.brPill,
+        t.pv1,
+        t.ph2,
+        t.ba,
+        FontClassNames.xSmall,
+        ColorClassNames.neutralSecondary,
+        ColorClassNames.neutralSecondary,
+        className,
+      )}
+    >
+      {children}
+    </div>
+  );
 };
 
-const checkAdmin = () => {
-  return cookies.get('admin') === 'true';
+Pill.propTypes = {
+  className: PropTypes.string,
+  children: PropTypes.node,
 };
 
-module.exports = { checkToken, checkAdmin };
+export default Pill;

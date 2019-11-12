@@ -27,8 +27,7 @@ import {
   Text,
   DefaultButton,
 } from 'office-ui-fabric-react';
-import React from 'react';
-import { isNil } from 'lodash';
+import React, { useMemo } from 'react';
 
 import Card from '../../components/card';
 import { UtilizationChart } from './utilization-chart';
@@ -53,7 +52,6 @@ const vcListColumns = [
     name: 'Name',
     isResizable: true,
     onRender(vc) {
-      vc.dedicated = true;
       return (
         <Stack verticalAlign='center' verticalFill>
           <Text variant='mediumPlus'>
@@ -182,14 +180,50 @@ if (isAdmin) {
   vcListColumns.push(action);
 }
 
-const VirtualClusterStatistics = ({ style, userInfo, virtualClusters }) => {
-  const vcNames = isAdmin
-    ? Object.keys(virtualClusters)
-    : userInfo.virtualCluster.filter(name => !isNil(virtualClusters[name]));
-  const { spacing } = getTheme();
-  const vcList = vcNames.map(vcName => {
-    return { name: vcName, ...virtualClusters[vcName] };
+export const VirtualClusterDetailsList = props => {
+  const virtualClusters = props.virtualClusters;
+  const otherProps = {
+    ...props,
+  };
+  delete otherProps.virtualClusters;
+  const vcList = Object.entries(virtualClusters).map(([key, val]) => {
+    return { name: key, ...val };
   });
+  return (
+    <DetailsList
+      columns={vcListColumns}
+      disableSelectionZone
+      items={vcList}
+      layoutMode={DetailsListLayoutMode.justified}
+      selectionMode={SelectionMode.none}
+      {...otherProps}
+    />
+  );
+};
+
+VirtualClusterDetailsList.propTypes = {
+  virtualClusters: PropTypes.object,
+};
+
+export const VirtualClusterStatistics = ({
+  style,
+  userInfo,
+  virtualClusters,
+}) => {
+  const { spacing } = getTheme();
+  const userVC = useMemo(() => {
+    if (isAdmin) {
+      return virtualClusters;
+    } else {
+      const result = {};
+      for (const [key, val] of Object.entries(virtualClusters)) {
+        if (userInfo.virtualCluster && userInfo.virtualCluster.includes(key)) {
+          result[key] = val;
+        }
+      }
+      return result;
+    }
+  }, [userInfo, virtualClusters]);
 
   return (
     <Card className={t.ph5} style={{ paddingRight: spacing.m, ...style }}>
@@ -198,8 +232,8 @@ const VirtualClusterStatistics = ({ style, userInfo, virtualClusters }) => {
           <Header
             headerName={
               isAdmin
-                ? `Virtual clusters (${vcNames.length})`
-                : `My virtual clusters (${vcNames.length})`
+                ? `Virtual clusters (${Object.keys(userVC).length})`
+                : `My virtual clusters (${Object.keys(userVC).length})`
             }
             linkHref={'/virtual-clusters.html'}
             linkName={'View all'}
@@ -208,13 +242,9 @@ const VirtualClusterStatistics = ({ style, userInfo, virtualClusters }) => {
         </Stack.Item>
         <Stack.Item styles={{ root: [t.relative] }} grow>
           <div className={c(t.absolute, t.absoluteFill, t.overflowAuto, t.pr4)}>
-            <DetailsList
+            <VirtualClusterDetailsList
               styles={{ root: { overflow: 'unset' } }}
-              columns={vcListColumns}
-              disableSelectionZone
-              items={vcList}
-              layoutMode={DetailsListLayoutMode.justified}
-              selectionMode={SelectionMode.none}
+              virtualClusters={userVC}
             />
           </div>
         </Stack.Item>
@@ -228,5 +258,3 @@ VirtualClusterStatistics.propTypes = {
   userInfo: PropTypes.object.isRequired,
   virtualClusters: PropTypes.object.isRequired,
 };
-
-export default VirtualClusterStatistics;

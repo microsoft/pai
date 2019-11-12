@@ -27,7 +27,7 @@ import ReactDOM from 'react-dom';
 import MediaQuery from 'react-responsive';
 
 import JobStatus from './home/job-status';
-import VirtualClusterStatistics from './home/virtual-cluster-statistics';
+import { VirtualClusterStatistics } from './home/virtual-cluster-statistics';
 import GpuChart from './home/gpu-chart';
 import {
   listJobs,
@@ -44,7 +44,7 @@ import AbnormalJobList from './home/abnormal-job-list';
 import { BREAKPOINT1 } from './home/util';
 import { SpinnerLoading } from '../components/loading';
 import { initTheme } from '../components/theme';
-import { userLogout } from '../user/user-logout/user-logout.component.js';
+import { clearToken } from '../user/user-logout/user-logout.component.js';
 
 import t from '../components/tachyons.scss';
 
@@ -79,7 +79,7 @@ const Home = () => {
         .catch(err => {
           if (err instanceof UnauthorizedError) {
             alert(err);
-            userLogout();
+            clearToken();
           } else {
             alert(err);
           }

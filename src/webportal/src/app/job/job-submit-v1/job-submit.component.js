@@ -27,6 +27,7 @@ const userAuth = require('../../user/user-auth/user-auth.component');
 const jobSchema = require('./job-submit.schema.js');
 const querystring = require('querystring');
 const stripJsonComments = require('strip-json-comments');
+const { clearToken } = require('../../user/user-logout/user-logout.component');
 
 const jobSubmitHtml = jobSubmitComponent({
   breadcrumb: breadcrumbComponent,
@@ -113,7 +114,7 @@ const submitJob = jobConfig => {
         const res = JSON.parse(xhr.responseText);
         alert(res.message);
         if (res.code === 'UnauthorizedUserError') {
-          userLogout();
+          clearToken();
         }
       },
     });
