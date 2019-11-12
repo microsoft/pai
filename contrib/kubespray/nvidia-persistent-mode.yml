@@ -16,3 +16,8 @@
       systemd:
         name: nvidia-persistenced
         enabled: yes
+
+    - name: perform nvidia smi
+      shell: nvidia-smi
+      args:
+        executable: /bin/bash
