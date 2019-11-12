@@ -115,6 +115,28 @@ ansible all -i host.yml -m ping
 
 ```
 
+#### Install nvidia drivers
+
+###### Install nvidia drivers-410 ( You can change the version )
+
+```bash
+
+git clone https://github.com/microsoft/pai.git
+
+cd pai/contrib/kubespray/
+
+ansible-playbook -i /path/to/host.yml nvidia-drivers.yml --become --become-user=root
+
+```
+
+###### Enable nvidia persistent mode
+
+```bash
+
+ansible-playbook -i /path/to/host.yml nvidia-persistent-mode.yml --become --become-user=root
+
+```
+
 #### kubespray configuration
 
 ###### Environment
@@ -137,12 +159,4 @@ cd ~
 cp ~/pai/contrib/kubespray/openpai.yml ~/kubespray/inventory/mycluster
 
 cp /path/to/your/host.yml ~/kubespray/inventory/mycluster
-```
-
-#### Install nvidia drivers
-```
-
-```bash
-
-
 ```
