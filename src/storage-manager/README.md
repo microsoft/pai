@@ -2,20 +2,20 @@
 
 - [Storage Manager](#Storage-Manager)
   - [Default Configuration](#Default-Configuration)
-  - [How to Configure](#Manual-Configuration)
-  - [Generated Configuraiton](#G_Config)
+  - [Manual Configuration](#Manual-Configuration)
+  - [Teamwise Storage Integration](#Teamwise-Integration)
+  - [SMB with AAD Configuraiton](#SMBAAD-Configuration)
   - [Data Table](#T_config)
 
 ---
 
-## Default Configuration
+## Default Configuration <a name="Default-Configuration"></a>
 
 [storage-manager default configuration](config/storage-manager.yaml)
 
 ---
 
-## Manual Configuration
-For now, `nfsport` is 2049 and `smbport` is 445 and can not be changed.
+## Manual Configuration <a name="Manual-Configuration"></a>
 
 All configurations in this section is optional. If you want to customized these value, you can configure it in service-configuration.yaml.
 
@@ -25,10 +25,22 @@ For example, if you want to use different local path than the default /share, ad
 storage-manager:
     localpath: new-value
 ```
+---
+
+## Teamwise Storage Integration <a name="Teamwise-Integration"></a>
+
+Storage-manager service can be integrated with team-wise storage. By setting storageServerName and storageConfigName in storage-manager, team-wise storage data will be generated when deploy.
+
+```yaml
+storage-manager:
+  storageServerName: # storage server name
+  storageConfigName: # storage config name 
+```
+For more details about team-wise storage, please refer to [storage plugin](../../contrib/storage_plugin/README.MD)
 
 ---
 
-## SMB with AAD enabled
+## SMB with AAD Configuraiton <a name="SMBAAD-Configuration"></a>
 
 If you want to use storage-manager with AAD, please add these extra info in  service-configuration.yaml.
 
@@ -85,6 +97,18 @@ storage-manager:
     <td>com["storage-manager"]["security-type"]</td>
     <td>cluster_cfg["storage-manager"]["security-type"]</td>
     <td>Can only be `Auto` or `ADS`</td>
+</tr>
+<tr>
+    <td>storage-manager.storageServerName</td>
+    <td>com["storage-manager"]["storageServerName"]</td>
+    <td>cluster_cfg["storage-manager"]["storageServerName"]</td>
+    <td>String</td>
+</tr>
+<tr>
+    <td>storage-manager.storageConfigName</td>
+    <td>com["storage-manager"]["storageConfigName"]</td>
+    <td>cluster_cfg["storage-manager"]["storageConfigName"]</td>
+    <td>String</td>
 </tr>
 <tr>
     <td>storage-manager.smbuser</td>
