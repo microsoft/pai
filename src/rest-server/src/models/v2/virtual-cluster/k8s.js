@@ -55,17 +55,24 @@ const fetchNodes = async () => {
   });
 };
 
+const fetchPods = async () => {
+  const pods = await axios({
+    method: 'get',
+    url: `${apiserver.uri}/api/v1/pods?labelSelector=type=kube-launcher-task`,
+    httpsAgent: apiserver.ca && new Agent({ca: apiserver.ca}),
+    headers: apiserver.token && {Authorization: `Bearer ${apiserver.token}`},
+  });
+  return pods.data.items.filter((pod) => {
+    return (pod.spec.nodeName != null && !(pod.status.phase === 'Succeeded' || pod.status.phase === 'Failed'));
+  });
+};
+
 const getResourceUnits = () => {
   return vcData.resourceUnits;
 };
 
 const getPodsInfo = async () => {
-  const rawPods = (await axios({
-    method: 'get',
-    url: `${apiserver.uri}/api/v1/pods?labelSelector=type=kube-launcher-task`,
-    httpsAgent: apiserver.ca && new Agent({ca: apiserver.ca}),
-    headers: apiserver.token && {Authorization: `Bearer ${apiserver.token}`},
-  })).data.items;
+  const rawPods = await fetchPods();
 
   // parse pods spec
   const pods = Array.from(rawPods, (pod) => {
