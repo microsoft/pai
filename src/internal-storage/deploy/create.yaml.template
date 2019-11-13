@@ -63,5 +63,6 @@ spec:
         - name: internal-data-dir
           hostPath:
             path: {{ cluster_cfg["internal-storage"]["root-path"] }}
+            type: DirectoryOrCreate
       imagePullSecrets:
       - name: {{ cluster_cfg["cluster"]["docker-registry"]["secret-name"] }}

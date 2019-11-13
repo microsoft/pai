@@ -6,7 +6,7 @@ Internal Storage is designed to create a limited size storage in PAI. The storag
 internal-storage:
     enable: true
     type: hostPath
-    root-path: /paiInternal
+    root-path: /mnt/paiInternal
     quota-gb: 10
 ```
 
@@ -14,7 +14,7 @@ User can override these settings in `services-configuration.yaml`.
 
 ## Set up Internal Storage
 
-For now, `hostPath` is the only supported `type` for internal storage. In summary, it will make a `<root-path>` folder (The default path is `/paiInternal`) on the `pai-master` node first, then create a loop device in the folder. Please refer to the following commands for details.
+For now, `hostPath` is the only supported `type` for internal storage. In summary, it will make a `<root-path>` folder (The default path is `/mnt/paiInternal`) on the `pai-master` node first, then create a loop device in the folder. If the path does not exist, PAI will create it for you. Please refer to the following commands for details of loop device creation.
 
 ```bash
 fallocate -l ${QUOTA_GB}G storage.ext4
@@ -47,6 +47,16 @@ spec:
   - name: internal-data-dir
     hostPath:
       path: '{{ cluster_cfg["internal-storage"]["root-path"] }}/storage'
+  spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: kubernetes.io/hostname
+                operator: In
+                values:
+                - {{ cluster_cfg["internal-storage"]["master-ip"] }}
 ```
 
 Please note that `mountPropagation` should be set to `None`, to ensure that any unexpected unmount of the data folder will not be propagates to the pod.
@@ -75,8 +85,6 @@ Possibility is that users may delete our storage file `storage.ext4` or `storage
 ### 3. Failure during deletion 
 
 During service deletion, if we cannot unmount or delete the data, the deletion process won't be successful. There is also a readiness probe for these purposes. See [delete.yaml.template](deploy/delete.yaml.template) for details.
-
-
 
 
 ## References
