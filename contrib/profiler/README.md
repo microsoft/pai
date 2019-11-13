@@ -31,6 +31,7 @@ Here is the explanation of the profiler command.
 ./run.sh
     [-t   The duration of the profiler]
 ```
+
 **run.sh** can receive 1 commands.
 1. `-t`: To assign how long the profiler will run. The parameter must be
    a number, such as `run.sh -t 30`, it means that the profiler will run

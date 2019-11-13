@@ -405,7 +405,6 @@ def start_sample(container_id, period, analyze_period, output_dir, gpu_id, conta
             container_net_file = '/proc/' + str(container_pid) + '/net/dev'
 
         adviser = Adviser()
-
         sample_datas = list()
         stop_flag = False
         while not (os.path.exists("./stop.flag") or stop_flag):
@@ -419,11 +418,11 @@ def start_sample(container_id, period, analyze_period, output_dir, gpu_id, conta
             realtime_log.writerow(str_write_realtime)
 
             if len(sample_list) > analyze_period / period:
-                    adviser.detect_pattern(sample_list)
-                    sample_list = list()
-                    if duration_time != -1:
-                        print_process((time.time() - start_time) / (duration_time * 60))
-                        stop_flag = True if time.time() - start_time > duration_time * 60 else False
+                adviser.detect_pattern(sample_list)
+                sample_list = list()
+                if duration_time != -1:
+                    print_process((time.time() - start_time) / (duration_time * 60))
+                    stop_flag = True if time.time() - start_time > duration_time * 60 else False
         print_process(1)
         adviser.get_advise()
     sample_datas = pd.read_csv(output_dir + '/log_result.csv').values
