@@ -54,7 +54,13 @@ import {
   cloneJob,
   checkAttemptAPI,
 } from '../conn';
-import { printDateTime, isClonable, isJobV2 } from '../util';
+import {
+  printDateTime,
+  isClonable,
+  isJobV2,
+  HISTORY_API_ERROR_MESSAGE,
+  HISTORY_DISABLE_MESSAGE,
+} from '../util';
 import MonacoPanel from '../../../../../components/monaco-panel';
 import StatusBadge from '../../../../../components/status-badge';
 import {
@@ -98,7 +104,7 @@ export default class Summary extends React.Component {
       modalTitle: '',
       autoReloadInterval: 10 * 1000,
       hideDialog: true,
-      isRetryAvailable: false,
+      isRetryHealthy: false,
     };
 
     this.onChangeInterval = this.onChangeInterval.bind(this);
@@ -108,14 +114,15 @@ export default class Summary extends React.Component {
     this.showJobConfig = this.showJobConfig.bind(this);
     this.showStopJobConfirm = this.showStopJobConfirm.bind(this);
     this.setHideDialog = this.setHideDialog.bind(this);
-    this.checkRetryAvailable = this.checkRetryAvailable.bind(this);
+    this.checkRetryHealthy = this.checkRetryHealthy.bind(this);
+    this.checkRetryLink = this.checkRetryLink.bind(this);
   }
 
   async componentDidMount() {
-    if (await this.checkRetryAvailable()) {
-      this.setState({ isRetryAvailable: true });
+    if (await this.checkRetryHealthy()) {
+      this.setState({ isRetryHealthy: true });
     } else {
-      this.setState({ isRetryAvailable: false });
+      this.setState({ isRetryHealthy: false });
     }
   }
 
@@ -272,7 +279,7 @@ export default class Summary extends React.Component {
     return result;
   }
 
-  async checkRetryAvailable() {
+  async checkRetryHealthy() {
     if (config.launcherType !== 'k8s') {
       return false;
     }
@@ -349,13 +356,29 @@ export default class Summary extends React.Component {
     }
   }
 
+  checkRetryLink() {
+    const { jobInfo } = this.props;
+    const { isRetryHealthy } = this.state;
+
+    if (
+      config.jobHistory !== 'true' ||
+      !isRetryHealthy ||
+      isNil(jobInfo.jobStatus.retries) ||
+      jobInfo.jobStatus.retries === 1
+    ) {
+      return false;
+    } else {
+      return true;
+    }
+  }
+
   render() {
     const {
       autoReloadInterval,
       modalTitle,
       monacoProps,
       hideDialog,
-      isRetryAvailable,
+      isRetryHealthy,
     } = this.state;
     const { className, jobInfo, reloading, onStopJob, onReload } = this.props;
     const { rawJobConfig } = this.context;
@@ -486,7 +509,7 @@ export default class Summary extends React.Component {
             </div>
             <div className={t.ml4}>
               <div className={c(t.gray, FontClassNames.medium)}>Retries</div>
-              {isRetryAvailable && !isNil(jobInfo.jobStatus.retries) ? (
+              {this.checkRetryLink() ? (
                 <Link
                   href={`job-retry.html?username=${username}&jobname=${jobname}`}
                 >
@@ -556,6 +579,75 @@ export default class Summary extends React.Component {
               >
                 Go to TensorBoard Page
               </Link>
+              <div className={c(t.bl, t.mh3)}></div>
+              <div className={c(t.flex)}>
+                <Link
+                  styles={{ root: [FontClassNames.mediumPlus] }}
+                  href={`job-retry.html?username=${username}&jobname=${jobname}`}
+                  disabled={!this.checkRetryLink()}
+                  target='_blank'
+                >
+                  Go to Retry History Page
+                </Link>
+                {config.jobHistory !== 'true' && (
+                  <div className={t.ml2}>
+                    <TooltipHost
+                      calloutProps={{
+                        isBeakVisible: false,
+                      }}
+                      tooltipProps={{
+                        onRenderContent: () => (
+                          <div className={c(t.flex, t.itemsCenter)}>
+                            {HISTORY_DISABLE_MESSAGE}
+                          </div>
+                        ),
+                      }}
+                      directionalHint={DirectionalHint.topLeftEdge}
+                    >
+                      <div>
+                        <Icon
+                          iconName='Info'
+                          styles={{
+                            root: [
+                              { fontSize: IconFontSizes.medium },
+                              ColorClassNames.neutralSecondary,
+                            ],
+                          }}
+                        />
+                      </div>
+                    </TooltipHost>
+                  </div>
+                )}
+                {config.jobHistory === 'true' && !isRetryHealthy && (
+                  <div className={t.ml2}>
+                    <TooltipHost
+                      calloutProps={{
+                        isBeakVisible: false,
+                      }}
+                      tooltipProps={{
+                        onRenderContent: () => (
+                          <div className={c(t.flex, t.itemsCenter)}>
+                            {HISTORY_API_ERROR_MESSAGE}
+                          </div>
+                        ),
+                      }}
+                      directionalHint={DirectionalHint.topLeftEdge}
+                    >
+                      <div>
+                        <Icon
+                          iconName='Warning'
+                          styles={{
+                            root: [
+                              { fontSize: IconFontSizes.medium },
+                              ColorClassNames.neutralSecondary,
+                            ],
+                          }}
+                        />
+                      </div>
+                    </TooltipHost>
+                  </div>
+                )}
+              </div>
             </div>
             <div>
               <span>

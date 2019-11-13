@@ -65,7 +65,7 @@ const encodeName = (name) => {
     return convertName(name.replace(/^unknown/g, ''));
   } else {
     // base32 encode and reverse
-    return base32.encode(name).split('').reverse().join('');
+    return base32.encode(name);
   }
 };
 
