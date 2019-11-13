@@ -95,6 +95,7 @@ const convertToJobAttempt = async (framework) => {
     framework.metadata.labels,
   );
   const frameworkName = framework.metadata.name;
+  const uid = framework.metadata.uid;
   const userName = framework.metadata.labels
     ? framework.metadata.labels.userName
     : 'unknown';
@@ -159,6 +160,7 @@ const convertToJobAttempt = async (framework) => {
   return {
     jobName,
     frameworkName,
+    uid,
     userName,
     state,
     originState,

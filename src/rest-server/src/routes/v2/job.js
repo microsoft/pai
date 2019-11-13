@@ -21,7 +21,7 @@ const express = require('express');
 const token = require('@pai/middlewares/token');
 const controller = require('@pai/controllers/v2/job');
 const protocol = require('@pai/middlewares/v2/protocol');
-const jobAttemptRouter = require('@pai/routes/v2/jobAttempt.js');
+const jobAttemptRouter = require('@pai/routes/v2/job-attempt.js');
 
 
 const router = new express.Router();
@@ -52,7 +52,7 @@ router.route('/:frameworkName/ssh')
   /** GET /api/v2/jobs/:frameworkName/ssh - Get job ssh info */
   .get(controller.getSshInfo);
 
-router.use('/:frameworkName/jobAttempts', jobAttemptRouter);
+router.use('/:frameworkName/job-attempts', jobAttemptRouter);
 
 // module exports
 module.exports = router;

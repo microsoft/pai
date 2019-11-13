@@ -21,6 +21,7 @@ const axios = require('axios');
 const {Client} = require('@elastic/elasticsearch');
 const base32 = require('base32');
 const {Agent} = require('https');
+const {isNil} = require('lodash');
 
 const {convertToJobAttempt} = require('@pai/utils/frameworkConverter');
 const launcherConfig = require('@pai/config/launcher');
@@ -73,6 +74,7 @@ const healthCheck = async () => {
 // list job attempts
 const list = async (frameworkName) => {
   let attemptData = [];
+  let uid;
 
   // get latest framework from k8s API
   let response;
@@ -92,7 +94,12 @@ const list = async (frameworkName) => {
   }
 
   if (response.status === 200) {
-    attemptData.push({...await convertToJobAttempt(response.data), isLatest: true});
+    // get UID from k8s framework API
+    uid = response.data.metadata.uid;
+    attemptData.push({
+      ...(await convertToJobAttempt(response.data)),
+      isLatest: true,
+    });
   } else if (response.status === 404) {
     return {status: 404, data: null};
   } else {
@@ -103,13 +110,17 @@ const list = async (frameworkName) => {
     return {status: 501, data: null};
   }
 
+  if (isNil(uid)) {
+    return {status: 404, data: null};
+  }
+
   // get history frameworks from elastic search
   const body = {
     query: {
       bool: {
         filter: {
           term: {
-            'objectSnapshot.metadata.name.keyword': encodeName(frameworkName),
+            'objectSnapshot.metadata.uid.keyword': uid,
           },
         },
       },
@@ -173,7 +184,7 @@ const get = async (frameworkName, jobAttemptIndex) => {
   if (!healthCheck) {
     return {status: 501, data: null};
   }
-
+  let uid;
   let attemptFramework;
   let response;
   try {
@@ -192,6 +203,8 @@ const get = async (frameworkName, jobAttemptIndex) => {
   }
 
   if (response.status === 200) {
+    // get uid from k8s framwork API
+    uid = response.data.metadata.uid;
     attemptFramework = response.data;
   } else if (response.status === 404) {
     return {status: 404, data: null};
@@ -200,13 +213,16 @@ const get = async (frameworkName, jobAttemptIndex) => {
   }
 
   if (jobAttemptIndex < attemptFramework.spec.retryPolicy.maxRetryCount) {
+    if (isNil(uid)) {
+      return {status: 404, data: null};
+    }
     // get history frameworks from elastic search
     const body = {
       query: {
         bool: {
           filter: {
             term: {
-              'objectSnapshot.metadata.name.keyword': encodeName(frameworkName),
+              'objectSnapshot.metadata.uid.keyword': uid,
             },
           },
         },
