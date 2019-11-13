@@ -20,7 +20,7 @@ import os
 import unittest
 from typing import Union
 from openpaisdk.io_utils import to_screen, safe_chdir
-
+import shutil
 
 def seperated(method):
     "run the each test in a separated directory"
@@ -35,7 +35,7 @@ def seperated(method):
         finally:
             to_screen(f"trying to remove {dir_name}")
             # ! rmtree not work on windows
-            os.system(f'rm -rf {dir_name}')
+            shutil.rmtree(dir_name)
     return func
 
 

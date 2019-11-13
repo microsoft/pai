@@ -45,13 +45,25 @@ class ArgumentFactory:
         self.add_argument('--password', help="password")
         self.add_argument('--authen-token', '--token', dest='token', help="authentication token")
 
+        self.add_argument('--storage-name', help="storage mountPoint for system use")
+
+        self.add_argument('--type', help="type")
+        self.add_argument('--address', help="address for storage server")
+        self.add_argument('--path', help="remote path on server")
+
         self.add_argument('--editor', default="code", help="path to your editor used to open files")
+
+        # defaults
+        self.add_argument('--is-global', '-g', action="store_true", help="set globally (not limited to current working folder)", default=False)
+        self.add_argument('contents', nargs='*', help='(variable=value) pair to be set as default')
 
         # job spec
         self.add_argument('--job-name', '-j', help='job name')
+        self.add_argument('job_name', help='job name')
+        self.add_argument('job_names', nargs='+', help='job name')
 
-        self.add_argument('--is-global', '-g', action="store_true",
-                          help="set globally (not limited to current working folder)", default=False)
+        self.add_argument('query', nargs='?', choices=['config', 'ssh'])
+
         self.add_argument('--update', '-u', action='append',
                           help='replace current key-value pairs with new key=value (key1:key2:...=value for nested objects)')
         self.add_argument('--preview', action='store_true', help='preview result before doing action')
@@ -72,8 +84,8 @@ class ArgumentFactory:
         # storage
         self.add_argument('--recursive', action='store_true', default=False, help="recursive target operation")
         self.add_argument('--overwrite', action='store_true', default=False, help="enable overwrite if exists")
-        self.add_argument('local_path', help="local path")
-        self.add_argument('remote_path', help="remote path")
+        self.add_argument('path_1', help='file or folder locaiton')
+        self.add_argument('path_2', help='file or folder locaiton')
 
     def add_argument(self, *args, **kwargs):
         self.factory[args[0]] = dict(args=args, kwargs=kwargs)
@@ -87,7 +99,51 @@ __arguments_factory__ = ArgumentFactory()
 
 
 def cli_add_arguments(parser: argparse.ArgumentParser, args: list):
+    if not args:
+        return
     for a in args:
         args, kwargs = __arguments_factory__.get(a)
         # assert parser.conflict_handler == 'resolve', "set conflict_handler to avoid duplicated"
         parser.add_argument(*args, **kwargs)
+
+
+class CliRegistery:
+
+    entries = dict()
+
+    def __init__(self):
+        parser = argparse.ArgumentParser(
+            description="command line interface for OpenPAI",
+            formatter_class=argparse.ArgumentDefaultsHelpFormatter
+        )
+        subparser = parser.add_subparsers(
+            dest="cmd",
+            help="openpai cli commands"
+        )
+        for cmd, cfg in self.entries.items():
+            p = subparser.add_parser(cmd, help=cfg.get('help', None))  # parser for the command
+            cli_add_arguments(p, cfg.get('args', None))
+        self.parser = parser
+
+    def process(self, a: list):
+        args = self.parser.parse_args(a)
+        if args.cmd not in self.entries:
+            self.parser.print_help()
+            return
+        fn_check = self.entries[args.cmd].get('fn_check', None)
+        if fn_check:
+            fn_check(args)
+        return self.entries[args.cmd]['func'](args)
+
+
+class register_as_cli:
+    "the decorator to register a function as cli command"
+
+    def __init__(self, cmd: str, args: list = None, help: str = None, fn_check=None):
+        self.keys = [cmd] if isinstance(cmd, str) else cmd
+        self.entry = dict(help=help, args=args, fn_check=fn_check)
+
+    def __call__(self, func):
+        self.entry.update(func=func)
+        for key in self.keys:
+            CliRegistery.entries[key] = self.entry
