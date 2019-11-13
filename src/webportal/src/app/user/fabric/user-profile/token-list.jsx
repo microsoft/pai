@@ -16,7 +16,6 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 import c from 'classnames';
-import copy from 'copy-to-clipboard';
 import React, { useMemo, useState } from 'react';
 import jwt from 'jsonwebtoken';
 import cookies from 'js-cookie';
@@ -25,12 +24,11 @@ import {
   DetailsList,
   DetailsListLayoutMode,
   SelectionMode,
-  IconButton,
-  FontSizes,
   CommandBarButton,
 } from 'office-ui-fabric-react';
 
 import t from '../../../components/tachyons.scss';
+import CopyButton from '../../../components/copy-button';
 
 const TokenList = ({ tokens, onRevoke }) => {
   const [processing, setProcessing] = useState(false);
@@ -54,13 +52,7 @@ const TokenList = ({ tokens, onRevoke }) => {
         return (
           <div className={c(t.flex, t.itemsCenter, t.h100)}>
             <div className={t.truncate}>{token.value}</div>
-            <div>
-              <IconButton
-                iconProps={{ iconName: 'Copy' }}
-                styles={{ icon: [{ fontSize: FontSizes.small }] }}
-                onClick={() => copy(token.value)}
-              />
-            </div>
+            <CopyButton value={token.value} />
           </div>
         );
       },
@@ -123,7 +115,7 @@ const TokenList = ({ tokens, onRevoke }) => {
                 root: { backgroundColor: 'transparent', height: '100%' },
                 rootDisabled: { backgroundColor: 'transparent' },
               }}
-              iconProps={{ iconName: 'CommandPrompt' }}
+              iconProps={{ iconName: 'Delete' }}
               text='Revoke'
               onClick={() => {
                 setProcessing(true);
