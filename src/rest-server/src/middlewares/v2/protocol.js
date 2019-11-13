@@ -19,10 +19,11 @@
 // module dependencies
 const yaml = require('js-yaml');
 const mustache = require('mustache');
+
 const createError = require('@pai/utils/error');
-const protocolSchema = require('@pai/config/v2/protocol');
-const launcherConfig = require('@pai/config/launcher');
 const hivedMiddle = require('@pai/middlewares/v2/hived');
+const launcherConfig = require('@pai/config/launcher');
+const protocolSchema = require('@pai/config/v2/protocol');
 
 const mustacheWriter = new mustache.Writer();
 

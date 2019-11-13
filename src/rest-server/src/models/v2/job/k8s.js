@@ -265,7 +265,7 @@ const convertFrameworkDetail = async (framework) => {
   return detail;
 };
 
-const generateTaskRole = (taskRole, labels, config) => {
+const generateTaskRole = (taskRole, labels, config, userToken) => {
   const ports = config.taskRoles[taskRole].resourcePerInstance.ports || {};
   for (let port of ['ssh', 'http']) {
     if (!(port in ports)) {
@@ -338,6 +338,13 @@ const generateTaskRole = (taskRole, labels, config) => {
                 {
                   name: 'GANG_ALLOCATION',
                   value: gangAllocation,
+                },
+                // Pass user token to runtime to give runtime permission to call rest server
+                // Actually we should provide service token for kube-runtime and do not let
+                // runtime pretend as a real user.
+                {
+                  name: 'PAI_USER_TOKEN',
+                  value: userToken,
                 },
               ],
               volumeMounts: [
@@ -491,7 +498,7 @@ const generateTaskRole = (taskRole, labels, config) => {
   return frameworkTaskRole;
 };
 
-const generateFrameworkDescription = (frameworkName, virtualCluster, config, rawConfig) => {
+const generateFrameworkDescription = (frameworkName, virtualCluster, config, rawConfig, userToken) => {
   const [userName, jobName] = frameworkName.split(/~(.+)/);
   const frameworkLabels = {
     jobName,
@@ -526,7 +533,7 @@ const generateFrameworkDescription = (frameworkName, virtualCluster, config, raw
   let totalGpuNumber = 0;
   for (let taskRole of Object.keys(config.taskRoles)) {
     totalGpuNumber += config.taskRoles[taskRole].resourcePerInstance.gpu * config.taskRoles[taskRole].instances;
-    const taskRoleDescription = generateTaskRole(taskRole, frameworkLabels, config);
+    const taskRoleDescription = generateTaskRole(taskRole, frameworkLabels, config, userToken);
     taskRoleDescription.task.pod.spec.priorityClassName = `${encodeName(frameworkName)}-priority`;
     taskRoleDescription.task.pod.spec.containers[0].env.push(...envlist.concat([
       {
@@ -689,7 +696,28 @@ const get = async (frameworkName) => {
   }
 };
 
-const put = async (frameworkName, config, rawConfig) => {
+// const validateStorageConfig = async (userName, config) => {
+//   const runtimePlugins = _.get(config, ['extras', 'com.microsoft.pai.runtimeplugin']);
+//   const teamwiseStoragePlugin = runtimePlugins.filter((plugin) => {
+//     plugin.plugin === 'teamwise-storage';
+//   });
+//   if (_.isEmpty(teamwiseStoragePlugin)) {
+//     return;
+//   }
+
+//   const storageConfigNames = _.get(teamwiseStoragePlugin, 'parameters.storageConfigNames');
+//   if (_.isEmpty(storageConfigNames)) {
+//     return;
+//   }
+//   for (const configName of storageConfigNames) {
+//     const isValid = await userModel.checkUserStorageConfig(userName, configName);
+//     if (isValid === false) {
+//       throw createError('Forbidden', 'ForbiddenUserError', `User ${userName} is not allowed access storage ${configName}`);
+//     }
+//   }
+// };
+
+const put = async (frameworkName, config, rawConfig, userToken) => {
   const [userName] = frameworkName.split(/~(.+)/);
 
   const virtualCluster = ('defaults' in config && config.defaults.virtualCluster != null) ?
@@ -702,7 +730,7 @@ const put = async (frameworkName, config, rawConfig) => {
     throw createError('Bad Request', 'BadConfigurationError', 'Job name too long, please try a shorter one.');
   }
 
-  const frameworkDescription = generateFrameworkDescription(frameworkName, virtualCluster, config, rawConfig);
+  const frameworkDescription = generateFrameworkDescription(frameworkName, virtualCluster, config, rawConfig, userToken);
 
   // calculate pod priority
   // reference: https://github.com/microsoft/pai/issues/3704

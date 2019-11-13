@@ -21,9 +21,7 @@ from __future__ import print_function
 import os
 import sys
 sys.path.append(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
-import collections
 import logging
-import argparse
 import yaml
 
 from plugin_utils import plugin_init, inject_commands
@@ -32,6 +30,7 @@ logger = logging.getLogger(__name__)
 
 
 def generage_storage_command():
+    logger.info("Starting to generage storage command")
     pass
 
 

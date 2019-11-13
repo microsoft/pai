@@ -18,9 +18,11 @@
 
 // module dependencies
 const status = require('statuses');
+
 const asyncHandler = require('@pai/middlewares/v2/asyncHandler');
-const job = require('@pai/models/v2/job');
 const createError = require('@pai/utils/error');
+const job = require('@pai/models/v2/job');
+const token = require('@pai/middlewares/token');
 
 
 const list = asyncHandler(async (req, res) => {
@@ -43,6 +45,8 @@ const update = asyncHandler(async (req, res) => {
   const jobName = res.locals.protocol.name;
   const userName = req.user.username;
   const frameworkName = `${userName}~${jobName}`;
+  const userToken = req.headers.authorization;
+
   // check duplicate job
   try {
     const data = await job.get(frameworkName);
@@ -54,7 +58,7 @@ const update = asyncHandler(async (req, res) => {
       throw error;
     }
   }
-  await job.put(frameworkName, res.locals.protocol, req.body);
+  await job.put(frameworkName, res.locals.protocol, req.body, userToken);
   res.status(status('Accepted')).json({
     status: status('Accepted'),
     message: `Update job ${jobName} for user ${userName} successfully.`,
