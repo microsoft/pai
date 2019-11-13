@@ -16,11 +16,14 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 // module dependencies
+const jwt = require('jsonwebtoken');
 const userModel = require('@pai/models/v2/user');
 const createError = require('@pai/utils/error');
 const authConfig = require('@pai/config/authn');
+const logger = require('@pai/config/logger');
 const groupModel = require('@pai/models/v2/group');
 const vcModel = require('@pai/models/v2/virtual-cluster');
+const tokenModel = require('@pai/models/token');
 
 const getUserVCs = async (username) => {
   const userInfo = await userModel.getUser(username);
@@ -344,6 +347,16 @@ const updateUserPassword = async (req, res, next) => {
     if (req.user.admin || newUserValue['password'] === userValue['password']) {
       newUserValue['password'] = newPassword;
       await userModel.updateUser(username, newUserValue, true);
+      // try to revoke browser tokens
+      try {
+        await tokenModel.batchRevoke(username, (token) => {
+          const data = jwt.decode(token);
+          return !data.application;
+        });
+      } catch (err) {
+        logger.error('Failed to revoke tokens after password is updated', err);
+        // pass
+      }
       return res.status(201).json({
         message: 'update user password successfully.',
       });

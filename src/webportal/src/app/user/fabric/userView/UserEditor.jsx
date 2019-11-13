@@ -227,7 +227,7 @@ export default function UserEditor({
   };
 
   const tdPaddingStyle = c(t.pa3);
-  const tdLabelStyle = c(tdPaddingStyle, t.tr);
+  const tdLabelStyle = c(tdPaddingStyle, t.tr, t.vTop);
 
   /**
    * @type {import('office-ui-fabric-react').IDropdownOption[]}
@@ -242,7 +242,7 @@ export default function UserEditor({
     <Modal
       isOpen={isOpen}
       isBlocking={true}
-      containerClassName={mergeStyles({ width: '450px', minWidth: '450px' })}
+      containerClassName={mergeStyles({ width: '480px', minWidth: '480px' })}
     >
       <div className={c(t.pa4)}>
         <form onSubmit={handleSubmit}>
@@ -253,8 +253,10 @@ export default function UserEditor({
             <table className={c(t.mlAuto, t.mrAuto)}>
               <tbody>
                 <tr>
-                  <td className={tdLabelStyle}>Name</td>
-                  <td className={tdPaddingStyle} style={{ minWidth: '280px' }}>
+                  <td className={tdLabelStyle} style={{ minWidth: '140px' }}>
+                    Name
+                  </td>
+                  <td className={tdPaddingStyle} style={{ minWidth: '248px' }}>
                     <TextField
                       id={`NameInput${Math.random()}`}
                       componentRef={usernameRef}
@@ -270,6 +272,10 @@ export default function UserEditor({
                     <CustomPassword
                       componentRef={passwordRef}
                       placeholder={isCreate ? 'Enter password' : '******'}
+                      description={
+                        !isCreate &&
+                        "User's browser tokens will be revoked if password is changed"
+                      }
                     />
                   </td>
                 </tr>
@@ -294,7 +300,6 @@ export default function UserEditor({
                       disabled={isAdmin}
                       onChange={handleVCsChanged}
                       placeholder='Select an option'
-                      style={{ maxWidth: '248px' }}
                     />
                   </td>
                 </tr>
