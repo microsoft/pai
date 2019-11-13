@@ -1,4 +1,8 @@
-## Storage Manager
+## Storage Manager <a name="Storage-Manager"></a>
+
+Storage-manager is a k8s managed NFS+SMB storage service deployed on configured node.
+
+## Index
 
 - [Storage Manager](#Storage-Manager)
   - [Node Configuration](#Node-Configuration)
