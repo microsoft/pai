@@ -364,7 +364,7 @@ export default class Summary extends React.Component {
       config.jobHistory !== 'true' ||
       !isRetryHealthy ||
       isNil(jobInfo.jobStatus.retries) ||
-      jobInfo.jobStatus.retries === 1
+      jobInfo.jobStatus.retries === 0
     ) {
       return false;
     } else {
