@@ -37,7 +37,7 @@ export class NotFoundError extends Error {
 }
 
 export async function checkAttemptAPI() {
-  const healthEndpoint = `${config.restServerUri}/api/v2/jobs/${userName}~${jobName}/jobAttempts/healthz`;
+  const healthEndpoint = `${config.restServerUri}/api/v2/jobs/${userName}~${jobName}/job-attempts/healthz`;
   const healthRes = await fetch(healthEndpoint);
   if (healthRes.status !== 200) {
     return false;
@@ -55,7 +55,7 @@ export async function fetchJobRetries() {
     };
   }
 
-  const listAttemptsUrl = `${config.restServerUri}/api/v1/jobs/${userName}~${jobName}/jobAttempts`;
+  const listAttemptsUrl = `${config.restServerUri}/api/v1/jobs/${userName}~${jobName}/job-attempts`;
   const listRes = await fetch(listAttemptsUrl);
   if (listRes.status === 404) {
     return {
