@@ -18,4 +18,4 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 # Can generate ssh key pair here
-kubectl create secret generic job-ssh-secret --from-file=ssh-privatekey=ssh-configuration/id_rsa --from-file=ssh-publickey=ssh-configuration/id_rsa.pub
+kubectl create secret generic job-ssh-secret --from-file=ssh-privatekey=ssh-configuration/id_rsa --from-file=ssh-publickey=ssh-configuration/id_rsa.pub --dry-run -o yaml | kubectl apply --overwrite=true -f - || exit $?
