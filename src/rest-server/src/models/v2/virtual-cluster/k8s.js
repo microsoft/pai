@@ -63,7 +63,7 @@ const fetchPods = async () => {
     headers: apiserver.token && {Authorization: `Bearer ${apiserver.token}`},
   });
   return pods.data.items.filter((pod) => {
-    return (pod.spec.nodeName != null && !(pod.status.phase === 'Succeeded' || pod.status.phase === 'Failed'));
+    return (pod.spec.nodeName && !(pod.status.phase === 'Succeeded' || pod.status.phase === 'Failed'));
   });
 };
 
