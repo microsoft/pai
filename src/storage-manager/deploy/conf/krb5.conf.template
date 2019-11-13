@@ -1,0 +1,52 @@
+# Copyright (c) Microsoft Corporation
+# All rights reserved.
+#
+# MIT License
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
+# documentation files (the "Software"), to deal in the Software without restriction, including without limitation
+# the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and
+# to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+# The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED *AS IS*, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING
+# BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+# NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+# DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+{%- if cluster_cfg["storage-manager"]["security-type"] == "ADS" %}
+[libdefaults]
+  ticket_lifetime = 24h
+  default_realm = {{cluster_cfg["storage-manager"]["default_realm"]}}
+  forwardable = true
+
+[realms]
+{%- for relam in cluster_cfg["storage-manager"]["krb5_realms"] %}
+  {{relam}} = {
+{%- for itemkey in cluster_cfg["storage-manager"]["krb5_realms"][relam] %}
+    {{itemkey}} = {{cluster_cfg["storage-manager"]["krb5_realms"][relam][itemkey]}}
+{%- endfor %}
+  }
+{%- endfor %}
+
+[domain_realm]
+{%- for itemkey in cluster_cfg["storage-manager"]["domain_realm"] %}
+  {{itemkey}} = {{cluster_cfg["storage-manager"]["domain_realm"][itemkey]}}
+{%- endfor %}
+{%- endif %}
+
+[appdefaults]
+  pam = {
+    debug = false
+    ticket_lifetime = 36000
+    renew_lifetime = 36000
+    forwardable = true
+    krb4_convert = false
+  }
+
+[logging]
+  kdc = SYSLOG:INFO:DAEMON
+  kdc = FILE:/var/log/krb5kdc.log
+  admin_server = FILE:/var/log/kadmin.log
+  default = FILE:/var/log/krb5lib.log
