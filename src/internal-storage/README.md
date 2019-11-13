@@ -37,6 +37,15 @@ apiVersion: v1
 kind: Pod
 ...
 spec:
+  affinity:
+    nodeAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        nodeSelectorTerms:
+        - matchExpressions:
+          - key: kubernetes.io/hostname
+            operator: In
+            values:
+            - {{ cluster_cfg["internal-storage"]["master-ip"] }}
   containers:
   - image: <image-name>
     volumeMounts:
@@ -47,16 +56,6 @@ spec:
   - name: internal-data-dir
     hostPath:
       path: '{{ cluster_cfg["internal-storage"]["root-path"] }}/storage'
-  spec:
-      affinity:
-        nodeAffinity:
-          requiredDuringSchedulingIgnoredDuringExecution:
-            nodeSelectorTerms:
-            - matchExpressions:
-              - key: kubernetes.io/hostname
-                operator: In
-                values:
-                - {{ cluster_cfg["internal-storage"]["master-ip"] }}
 ```
 
 Please note that `mountPropagation` should be set to `None`, to ensure that any unexpected unmount of the data folder will not be propagates to the pod.
