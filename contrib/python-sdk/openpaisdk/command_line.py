@@ -468,13 +468,8 @@ def execute_pai_args(args: list):
         if result:
             to_screen(result)
         return 0
-    except AssertionError as identifier:
-        to_screen(f"Value error: {repr(identifier)}", _type="error")
-        return 1
     except Exception as identifier:
-        to_screen(f"Error: {repr(identifier)}", _type="error")
-        return 2
-    else:
+        to_screen(f"Error: {repr(identifier)}", _type="warn")
         return -1
 
 

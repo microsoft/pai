@@ -211,6 +211,12 @@ class Retry:
 
 
 def force_uri(uri: str):
+    """force the input to be http or https format
+    >>> force_uri("x.x.x.x")
+    'http://x.x.x.x'
+    >>> force_uri("1.1.1.1/")
+    'http://1.1.1.1'
+    """
     import re
     if not uri:
         return uri
@@ -222,9 +228,12 @@ def force_uri(uri: str):
 
 def path_join(path: Union[list, str], sep: str = '/'):
     """ join path from list or str
-    - ['aaa', 'bbb', 'ccc'] -> 'aaa/bbb/ccc'
-    - ['aaa', 'bbb', ('xxx', None), 'ddd'] -> 'aaa/bbb/ccc'
-    - ['aaa', 'bbb', ('xxx', 'x-val'), 'ddd'] -> 'aaa/bbb/xxx/x-val/ccc'
+    >>> path_join(['aaa', 'bbb', 'ccc'])
+    'aaa/bbb/ccc'
+    >>> path_join(['aaa', 'bbb', ('xxx', None), 'ccc'])
+    'aaa/bbb/ccc'
+    >>> path_join(['aaa', 'bbb', ('xxx', 'x-val'), 'ccc'])
+    'aaa/bbb/xxx/x-val/ccc'
     """
     def is_single_element(x):
         return isinstance(x, str) or not isinstance(x, Iterable)
@@ -294,6 +303,12 @@ def na_lazy(a, fn, *args, **kwargs):
 
 
 def flatten(lst: list):
+    """flatten the list (not recursively)
+    >>> flatten([[1],[2],[3]])
+    [1, 2, 3]
+    >>> flatten([[[1]],[2],[3]])
+    [[1], 2, 3]
+    """
     return sum(lst, [])
 
 
@@ -303,3 +318,10 @@ def randstr(num: int = 10, letters=None):
     import random
     letters = na(letters, string.ascii_letters)
     return ''.join(random.choice(letters) for i in range(num))
+
+def testmod():
+    import doctest
+    doctest.testmod(exclude_empty=True)
+
+if __name__ == '__main__':
+    testmod()
