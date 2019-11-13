@@ -19,7 +19,7 @@
 
 pushd $(dirname "$0") > /dev/null
 
-echo -e 'y\n' | ssh-keygen -t rsa -N "" -f id_rsa -q
+yes | ssh-keygen -t rsa -N "" -f id_rsa -q
 kubectl create secret generic job-ssh-secret --from-file=ssh-privatekey=id_rsa --from-file=ssh-publickey=id_rsa.pub --dry-run -o yaml | kubectl apply --overwrite=true -f - || exit $?
 rm id_rsa id_rsa.pub
 
