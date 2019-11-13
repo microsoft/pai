@@ -1,27 +1,53 @@
-# 1.Overview
+# Overview
+The profiler can collect the usage of the hardware while your model is
+running, analyze the utilization of them, and give the pattern of these
+information.
+# Usage
+Please use the shell file `run.sh` to start the Profiler.  
+##### Estimate the blocked time.
+Sometimes the deep-learning model will prepare the data when it starts
+running. If the profiler is run with the model together, it may sample
+the data that when the GPU is not training. So you can set the time to
+make the profiler blocked until your deep-learning model training. But
+different models have the different blocked time, you need to estimate
+the blocked time of your model.
+##### Insert the profiler in your command
+When you submit a job, you insert the profiler command before your
+command to use the profiler.  
+```bash
+apt update
+apt install -y git
+git clone https://github.com/AosChen/pai.git
+bash pai/contrib/profiler/run.sh -g 0,1,2,3
+# your other command
+``` 
+The above command means that the profiler will sample the GPU index at 0
+to 3.  
+Here is the explanation of the profiler command.
 
-The Profiler can collect the usage of the hardware while your other program is running.
-You can run the Profiler when you want to collect and analyze the information
-
-1. Run your algorithm model.
-2. Run the Profiler when you need start collecting.
-
-Your model need be running on the docker, and Profiler can be run on both docker and host.
-
-We recommend to run the Profiler on host.
-
-# 2.How to Run
-Please use the shell file 'run.sh' to start the Profiler.
-
-'run.sh' need at least **2** arguments.
-
-The first argument is the SHA of your docker container where your model is running on.
-The second argument is the index of GPU that your model will use.(If there are several GPUs used, please use the ',' to separated)
-
-Such as `./run.sh 32f4 1,2,3` if your container's SHA contains `32f4` and the GPU INDEX `1,2 and 3` will be used to train.
-
-Also you can add the third argument to set the period of the sampling, add the fourth argument to set the period of the once analyzing, add the fifth argument to set the directory to store the output data,
-and add the sixth argument to set how long the profiler will execute(the unit is minute).
-
-Such as `/run.sh 32f4 1,2,3 0.02 10 My_Data 10`, then the profiler will collect the information each `0.02s`, and it will analyze the data each 10s, and store the log file at `./My_Data`,
-and it will stop after `10` minutes.
+```bash
+./run.sh
+    [-c <container_id>]
+    [-g <GPU index separated by ','>]
+    [-s <sample period>]
+    [-a <analyze period>]
+```
+**run.sh** can receive 4 commands.
+1. `-c`: To assign the container that you want to analyze. The parameter
+   is the SHA of the container. It is no need to input the complete SHA,
+   the conflict prefix is enough. Such as `run.sh -c 234d`.  
+   If not set, the default is the container that profiler in.  
+   **Attention**: If you use the profiler by inserting the command,
+   please not set the command.
+2. `-g`: To assign the GPU that you want to analyze. The parameter is
+   the GPU index(separated by , if there is multiple cards). Such as
+   `run.sh -g 0,1,2,3`.  
+   If not set, the default GPU index is the GPU 0.
+3. `-s`: To assign the period of each sample. The parameter must be a
+   **number**, such as `run.sh -s 0.03`, it means the profiler will
+   sample the data each 0.03s.  
+   If not set, the default sampling period is 0.02s.
+4. `-a`: To assign how often to analyze the sampling data. The parameter
+   must be a **number**, such as `run.sh -a 5`, it means the profiler
+   will analyze the data each 5s.  
+   If not set, the default analyzing period is 10s.
