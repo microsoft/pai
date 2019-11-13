@@ -17,11 +17,12 @@
 
 import { FontClassNames, ColorClassNames, getTheme } from '@uifabric/styling';
 import c from 'classnames';
-import { Stack, IconButton, Link } from 'office-ui-fabric-react';
+import { Stack, IconButton, Link, DefaultButton, PrimaryButton } from 'office-ui-fabric-react';
 import PropTypes from 'prop-types';
 import React, { useState } from 'react';
 import { Interval, DateTime } from 'luxon';
 import { capitalize, isNil } from 'lodash';
+import styled from 'styled-components';
 
 import Card from '../../../../components/card';
 import { getDurationString } from '../../../../components/util/job';
@@ -30,7 +31,7 @@ import { ContainerList } from './container-list';
 import { printDateTime } from '../job-detail/util';
 import MonacoPanel from '../../../../components/monaco-panel';
 
-const { spacing } = getTheme();
+const { spacing, palette } = getTheme();
 
 function getAttemptDurationString(attempt) {
   const start =
@@ -53,18 +54,52 @@ function getAttemptDurationString(attempt) {
   }
 }
 
+const RetryCard = styled.div`
+  padding: ${spacing.l1};
+  background: ${palette.themeLighterAlt};
+  box-shadow: rgba(0, 0, 0, 0.06) 0px 2px 4px, rgba(0, 0, 0, 0.05) 0px 0.5px 1px;
+`;
+
+const TaskRoleCard = styled.div`
+  padding: ${spacing.m};
+  background: ${palette.white};
+  box-shadow: rgba(0, 0, 0, 0.06) 0px 2px 4px, rgba(0, 0, 0, 0.05) 0px 0.5px 1px;
+`;
+
 const TaskRole = ({ name, taskrole }) => {
+  const [isExpanded, setIsExpanded] = useState(false);
   return (
-    <Stack gap='s1'>
-      <div
-        className={c(FontClassNames.medium)}
-        style={{ marginRight: spacing.l1 }}
-      >
-        <span style={{ marginRight: spacing.s1 }}>TaslRole Name:</span>
-        <span>{name}</span>
-      </div>
-      <ContainerList taskStatuses={taskrole.taskStatuses} />
-    </Stack>
+    <TaskRoleCard>
+      <Stack gap='s1'>
+        <Stack
+          horizontal
+          horizontalAlign='space-between'
+          verticalAlign='center'
+        >
+          <div
+            className={c(FontClassNames.medium)}
+            style={{ marginRight: spacing.l1 }}
+          >
+            <span style={{ marginRight: spacing.s1 }}>TaslRole Name:</span>
+            <span>{`${name} (${taskrole.taskStatuses.length})`}</span>
+          </div>
+          <div>
+            {isExpanded ? (
+              <IconButton
+                iconProps={{ iconName: 'ChevronUp' }}
+                onClick={() => setIsExpanded(false)}
+              />
+            ) : (
+              <IconButton
+                iconProps={{ iconName: 'ChevronDown' }}
+                onClick={() => setIsExpanded(true)}
+              />
+            )}
+          </div>
+        </Stack>
+        {isExpanded && <ContainerList taskStatuses={taskrole.taskStatuses} />}
+      </Stack>
+    </TaskRoleCard>
   );
 };
 
@@ -74,7 +109,6 @@ TaskRole.propTypes = {
 };
 
 export const JobRetryCard = ({ jobRetry }) => {
-  const [isExpanded, setIsExpanded] = useState(true);
   const [monacoProps, setMonacoProps] = useState(null);
   const [modalTitle, setModalTile] = useState('');
 
@@ -88,7 +122,7 @@ export const JobRetryCard = ({ jobRetry }) => {
     setModalTile('');
   };
 
-  const showExitDiagnostics = () => {
+  const showDiagnostics = () => {
     const result = [];
 
     // diagnostics
@@ -108,142 +142,118 @@ export const JobRetryCard = ({ jobRetry }) => {
   };
 
   return (
-    <Card>
-      <Stack>
-        <Stack
-          horizontal
-          horizontalAlign='space-between'
-          verticalAlign='baseline'
-        >
-          <Stack horizontal verticalAlign='center' gap='l1'>
-            <div
-              className={c(FontClassNames.large)}
-              style={{ marginRight: spacing.l1 }}
-            >
-              <span style={{ marginRight: spacing.s1 }}>Retry Index:</span>
-              <span>{jobRetry.attemptIndex}</span>
-            </div>
-            <StatusBadge status={capitalize(jobRetry.state)} />
-          </Stack>
-          <div>
-            {isExpanded ? (
-              <IconButton
-                iconProps={{ iconName: 'ChevronUp' }}
-                onClick={() => setIsExpanded(false)}
-              />
-            ) : (
-              <IconButton
-                iconProps={{ iconName: 'ChevronDown' }}
-                onClick={() => setIsExpanded(true)}
-              />
-            )}
+    <RetryCard>
+      <Stack gap='l1'>
+        <Stack horizontal verticalAlign='center' gap='l1'>
+          <div
+            className={c(FontClassNames.large)}
+            style={{ marginRight: spacing.l1 }}
+          >
+            <span style={{ marginRight: spacing.s1 }}>Retry Index:</span>
+            <span>{jobRetry.attemptIndex}</span>
           </div>
         </Stack>
         <Stack
           horizontal
           verticalAlign='baseline'
-          gap='l1'
-          styles={{ root: { marginBottom: spacing.l1 } }}
+          horizontalAlign='space-between'
         >
-          <div>
-            <div
-              className={c(
-                FontClassNames.medium,
-                ColorClassNames.neutralSecondary,
-              )}
-              style={{ marginBottom: spacing.s1 }}
-            >
-              Start Time:
+          <Stack horizontal verticalAlign='baseline' gap='l1'>
+            <div>
+              <div
+                className={c(
+                  FontClassNames.medium,
+                  ColorClassNames.neutralSecondary,
+                )}
+                style={{ marginBottom: spacing.s1 }}
+              >
+                Status:
+              </div>
+              <StatusBadge status={capitalize(jobRetry.state)} />
             </div>
-            <div className={c(FontClassNames.mediumPlus)}>
-              {printDateTime(DateTime.fromMillis(jobRetry.attemptStartedTime))}
+            <div>
+              <div
+                className={c(
+                  FontClassNames.medium,
+                  ColorClassNames.neutralSecondary,
+                )}
+                style={{ marginBottom: spacing.s1 }}
+              >
+                Start Time:
+              </div>
+              <div className={c(FontClassNames.mediumPlus)}>
+                {printDateTime(
+                  DateTime.fromMillis(jobRetry.attemptStartedTime),
+                )}
+              </div>
             </div>
-          </div>
-          <div>
-            <div
-              className={c(
-                FontClassNames.medium,
-                ColorClassNames.neutralSecondary,
-              )}
-              style={{ marginBottom: spacing.s1 }}
-            >
-              Duration:
+            <div>
+              <div
+                className={c(
+                  FontClassNames.medium,
+                  ColorClassNames.neutralSecondary,
+                )}
+                style={{ marginBottom: spacing.s1 }}
+              >
+                Duration:
+              </div>
+              <div className={c(FontClassNames.mediumPlus)}>
+                {getAttemptDurationString(jobRetry)}
+              </div>
             </div>
-            <div className={c(FontClassNames.mediumPlus)}>
-              {getAttemptDurationString(jobRetry)}
+            <div>
+              <div
+                className={c(
+                  FontClassNames.medium,
+                  ColorClassNames.neutralSecondary,
+                )}
+                style={{ marginBottom: spacing.s1 }}
+              >
+                Exit Code:
+              </div>
+              <div className={c(FontClassNames.mediumPlus)}>
+                {`${jobRetry.exitCode}`}
+              </div>
             </div>
-          </div>
-          <div>
-            <div
-              className={c(
-                FontClassNames.medium,
-                ColorClassNames.neutralSecondary,
-              )}
-              style={{ marginBottom: spacing.s1 }}
-            >
-              Exit Code:
+            <div>
+              <div
+                className={c(
+                  FontClassNames.medium,
+                  ColorClassNames.neutralSecondary,
+                )}
+                style={{ marginBottom: spacing.s1 }}
+              >
+                Exit Phrase:
+              </div>
+              <div className={c(FontClassNames.mediumPlus)}>
+                {`${jobRetry.exitPhrase}`}
+              </div>
             </div>
-            <div className={c(FontClassNames.mediumPlus)}>
-              {`${jobRetry.exitCode}`}
+            <div>
+              <div
+                className={c(
+                  FontClassNames.medium,
+                  ColorClassNames.neutralSecondary,
+                )}
+                style={{ marginBottom: spacing.s1 }}
+              >
+                Exit Type:
+              </div>
+              <div className={c(FontClassNames.mediumPlus)}>
+                {`${jobRetry.exitType}`}
+              </div>
             </div>
-          </div>
-          <div>
-            <div
-              className={c(
-                FontClassNames.medium,
-                ColorClassNames.neutralSecondary,
-              )}
-              style={{ marginBottom: spacing.s1 }}
-            >
-              Exit Phrase:
-            </div>
-            <div className={c(FontClassNames.mediumPlus)}>
-              {`${jobRetry.exitPhrase}`}
-            </div>
-          </div>
-          <div>
-            <div
-              className={c(
-                FontClassNames.medium,
-                ColorClassNames.neutralSecondary,
-              )}
-              style={{ marginBottom: spacing.s1 }}
-            >
-              Exit Type:
-            </div>
-            <div className={c(FontClassNames.mediumPlus)}>
-              {`${jobRetry.exitType}`}
-            </div>
-          </div>
-          <div>
-            <div
-              className={c(
-                FontClassNames.medium,
-                ColorClassNames.neutralSecondary,
-              )}
-              style={{ marginBottom: spacing.s1 }}
-            >
-              Diagnostics:
-            </div>
-            <Link
-              styles={{ root: [FontClassNames.mediumPlus] }}
-              href='#'
-              disabled={isNil(jobRetry.diagnosticsSummary)}
-              onClick={showExitDiagnostics}
-            >
-              View Diagnostics
-            </Link>
-          </div>
+          </Stack>
+          <PrimaryButton text='Diagnostics' onClick={showDiagnostics} />
         </Stack>
         <Stack gap='m'>
-          {isExpanded &&
-            Object.keys(jobRetry.taskRoles).map(name => (
-              <TaskRole
-                key={name}
-                name={name}
-                taskrole={jobRetry.taskRoles[name]}
-              />
-            ))}
+          {Object.keys(jobRetry.taskRoles).map(name => (
+            <TaskRole
+              key={name}
+              name={name}
+              taskrole={jobRetry.taskRoles[name]}
+            />
+          ))}
         </Stack>
       </Stack>
       <MonacoPanel
@@ -252,7 +262,7 @@ export const JobRetryCard = ({ jobRetry }) => {
         title={modalTitle}
         monacoProps={monacoProps}
       />
-    </Card>
+    </RetryCard>
   );
 };
 
