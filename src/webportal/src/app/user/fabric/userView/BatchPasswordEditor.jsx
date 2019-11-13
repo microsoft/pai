@@ -90,7 +90,7 @@ export default function BatchPasswordEditor({ isOpen = false, hide }) {
   };
 
   const tdPaddingStyle = c(t.pa3);
-  const tdLabelStyle = c(tdPaddingStyle, t.tr);
+  const tdLabelStyle = c(tdPaddingStyle, t.tr, t.vTop);
 
   const { spacing } = getTheme();
 
@@ -114,6 +114,7 @@ export default function BatchPasswordEditor({ isOpen = false, hide }) {
                     <CustomPassword
                       componentRef={passwordRef}
                       placeholder='Enter password'
+                      description="User's browser tokens will be revoked if password is changed"
                     />
                   </td>
                 </tr>

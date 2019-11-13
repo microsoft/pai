@@ -17,24 +17,27 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-pushd $(dirname "$0") > /dev/null
+user=$1
+domain=$2
+uname=$3
+paiuser=$4
+userspath=/share/pai/users
 
-# host device plugin
-kubectl apply --overwrite=true -f device-plugin.yaml || exit $?
+umask 000
+if [ ! -d "$userspath" ];then
+  mkdir -p "$userspath"
+  chown "$paiuser":"$paiuser" "$userspath"
+fi
 
-# NVIDIA GPU device plugin
-{% if 'nvidia.com/gpu' in cluster_cfg['device-plugin']['devices'] %}
+umask 007
+userpath="$userspath"/"$user"
+if [ ! -d "$userpath" ];then
+  mkdir -p "$userpath"
+fi
 
-kubectl apply --overwrite=true -f https://raw.githubusercontent.com/NVIDIA/k8s-device-plugin/1.0.0-beta/nvidia-device-plugin.yml || exit $?
-
-{% endif %}
-
-# Mellanox InfiniBand device plugin
-{% if 'rdma/hca' in cluster_cfg['device-plugin']['devices'] %}
-
-kubectl apply --overwrite=true -f https://raw.githubusercontent.com/Mellanox/k8s-rdma-sriov-dev-plugin/master/example/hca/rdma-hca-node-config.yaml || exit $?
-kubectl apply --overwrite=true -f https://raw.githubusercontent.com/Mellanox/k8s-rdma-sriov-dev-plugin/master/example/device-plugin.yaml || exit $?
-
-{% endif %}
-
-popd > /dev/null
+if [ $user != $uname ];then
+  chown -R "$domain\\$user":"$paiuser" $userpath
+else
+  chown -R "$user":"$paiuser" $userpath
+fi
+setfacl -R -m u:"$paiuser":rwx $userpath

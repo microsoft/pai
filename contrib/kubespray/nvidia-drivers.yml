@@ -1,0 +1,20 @@
+---
+- hosts: all
+  tasks:
+    - name: Add the drivers repository to Ubuntu
+      apt_repository:
+        repo: ppa:graphics-drivers/ppa
+        state: present
+
+    - name: Run the equivalent of "apt-get update" as a separate step
+      apt:
+        update_cache: yes
+
+    - name: Install nvidia drivers, we will install 410 version
+      apt:
+        name: nvidia-410
+        state: present
+
+    - name: reboot vm
+      reboot:
+

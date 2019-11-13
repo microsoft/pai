@@ -17,24 +17,14 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-pushd $(dirname "$0") > /dev/null
+# check nfs
+# cannot use service nfs-kernel-server status directly
+# because nfsd is running in host
+ps -aux | grep -v grep | grep rpc.mountd &> /dev/null
+nfsstatus=$?
 
-# host device plugin
-kubectl apply --overwrite=true -f device-plugin.yaml || exit $?
+# check smb
+service smbd status $> /dev/null
+smbstatus=$?
 
-# NVIDIA GPU device plugin
-{% if 'nvidia.com/gpu' in cluster_cfg['device-plugin']['devices'] %}
-
-kubectl apply --overwrite=true -f https://raw.githubusercontent.com/NVIDIA/k8s-device-plugin/1.0.0-beta/nvidia-device-plugin.yml || exit $?
-
-{% endif %}
-
-# Mellanox InfiniBand device plugin
-{% if 'rdma/hca' in cluster_cfg['device-plugin']['devices'] %}
-
-kubectl apply --overwrite=true -f https://raw.githubusercontent.com/Mellanox/k8s-rdma-sriov-dev-plugin/master/example/hca/rdma-hca-node-config.yaml || exit $?
-kubectl apply --overwrite=true -f https://raw.githubusercontent.com/Mellanox/k8s-rdma-sriov-dev-plugin/master/example/device-plugin.yaml || exit $?
-
-{% endif %}
-
-popd > /dev/null
+exit `expr $nfsstatus + $smbstatus`

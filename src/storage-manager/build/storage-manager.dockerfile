@@ -1,5 +1,3 @@
-#!/bin/bash
-
 # Copyright (c) Microsoft Corporation
 # All rights reserved.
 #
@@ -17,24 +15,30 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-pushd $(dirname "$0") > /dev/null
+FROM ubuntu:16.04
 
-# host device plugin
-kubectl apply --overwrite=true -f device-plugin.yaml || exit $?
 
-# NVIDIA GPU device plugin
-{% if 'nvidia.com/gpu' in cluster_cfg['device-plugin']['devices'] %}
+RUN apt-get -y update && \
+    apt-get -y install \
+      samba \
+      attr \
+      cifs-utils \
+      nfs-common \
+      netbase \
+      nfs-kernel-server \
+      kmod
 
-kubectl apply --overwrite=true -f https://raw.githubusercontent.com/NVIDIA/k8s-device-plugin/1.0.0-beta/nvidia-device-plugin.yml || exit $?
+ENV SHARE_ROOT=/share/pai
 
-{% endif %}
+COPY deploy/conf/exports /etc/exports
+COPY deploy/scripts/sambadatacreate /usr/bin/sambadatacreate
+COPY deploy/scripts/sambauserhomecreate /usr/bin/sambauserhomecreate
+COPY deploy/scripts/entrypoint.sh /usr/bin/entrypoint.sh
+COPY deploy/scripts/check.sh /usr/bin/check.sh
 
-# Mellanox InfiniBand device plugin
-{% if 'rdma/hca' in cluster_cfg['device-plugin']['devices'] %}
+RUN chmod +x /usr/bin/sambadatacreate && \
+    chmod +x /usr/bin/sambauserhomecreate && \
+    chmod +x /usr/bin/entrypoint.sh && \
+    chmod +x /usr/bin/check.sh
 
-kubectl apply --overwrite=true -f https://raw.githubusercontent.com/Mellanox/k8s-rdma-sriov-dev-plugin/master/example/hca/rdma-hca-node-config.yaml || exit $?
-kubectl apply --overwrite=true -f https://raw.githubusercontent.com/Mellanox/k8s-rdma-sriov-dev-plugin/master/example/device-plugin.yaml || exit $?
-
-{% endif %}
-
-popd > /dev/null
+ENTRYPOINT ["/usr/bin/entrypoint.sh"]

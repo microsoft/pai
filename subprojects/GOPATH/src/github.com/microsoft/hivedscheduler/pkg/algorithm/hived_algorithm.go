@@ -169,8 +169,8 @@ func (h *HivedAlgorithm) AddAllocatedPod(pod *core.Pod) {
 										vccl = vcs.getReservedCellList()[s.ReservationId]
 										str = string(s.ReservationId)
 									} else {
-										vccl = vcs.getNonReservedCellList()[CellChain(info.CellChain)]
-										str = info.CellChain
+										vccl = vcs.getNonReservedCellList()[pGpu.GetChain()]
+										str = string(pGpu.GetChain())
 									}
 									if vccl == nil {
 										message = fmt.Sprintf("VC %v no longer has cells for %v", s.VirtualCluster, str)
@@ -650,6 +650,7 @@ func (h *HivedAlgorithm) findPhysicalGpu(
 		for c := range h.fullCellList {
 			if c != chain {
 				if g = h.findPhysicalGpuInChain(c, node, gpuIndex); g != nil {
+					klog.Warningf("GPU %v on node %v has been moved to chain %v", gpuIndex, node, c)
 					return g
 				}
 			}
@@ -712,10 +713,6 @@ func generatePodScheduleResult(
 		}
 	}
 	chain := string(groupPhysicalPlacement[currentGpuNum][currentPodIndex][0].GetChain())
-	if !suggestedNodeSet.Contains(selectedNode) && newGroup {
-		panic(fmt.Sprintf("[%v]: node %v picked by algorithm but not in K8S candidates",
-			internal.Key(pod), selectedNode))
-	}
 	// collect preemption victims of the whole group
 	preemptionVictims := map[string]common.Set{} // node -> pods
 	var nodesHaveVictims []string
@@ -762,6 +759,12 @@ func generatePodScheduleResult(
 			PodPreemptInfo: &internal.PodPreemptInfo{VictimPods: victimPods},
 		}
 	} else {
+		// we check suggested nodes after the preemption is done, otherwise the preemption victims
+		// may cause the selected node to be excluded from the suggested nodes
+		if !suggestedNodeSet.Contains(selectedNode) && newGroup {
+			panic(fmt.Sprintf("[%v]: node %v picked by algorithm but not in K8S candidates",
+				internal.Key(pod), selectedNode))
+		}
 		klog.Infof("[%v]: scheduled to node %v, GPUs %v",
 			internal.Key(pod), selectedNode, selectedGpuIndices)
 		return internal.PodScheduleResult{

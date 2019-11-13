@@ -35,6 +35,9 @@ kubectl label --overwrite=true nodes {{ cluster_cfg['layout']['machine-list'][ho
     {% if 'pai-worker' in cluster_cfg['layout']['machine-list'][host] and cluster_cfg['layout']['machine-list'][host]['pai-worker'] == 'true' %}
 kubectl label --overwrite=true nodes {{ cluster_cfg['layout']['machine-list'][host]['nodename'] }} pai-worker=true || exit $?
     {% endif %}
+    {% if 'pai-storage' in cluster_cfg['layout']['machine-list'][host] and cluster_cfg['layout']['machine-list'][host]['pai-storage'] == 'true' %}
+kubectl label --overwrite=true nodes {{ cluster_cfg['layout']['machine-list'][host]['nodename'] }} pai-storage=true || exit $?
+    {% endif %}
 {% endfor %}
 
 popd > /dev/null

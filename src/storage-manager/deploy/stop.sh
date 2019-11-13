@@ -17,24 +17,8 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-pushd $(dirname "$0") > /dev/null
+kubectl delete --ignore-not-found --now "daemonset/storage-manager-ds"
 
-# host device plugin
-kubectl apply --overwrite=true -f device-plugin.yaml || exit $?
-
-# NVIDIA GPU device plugin
-{% if 'nvidia.com/gpu' in cluster_cfg['device-plugin']['devices'] %}
-
-kubectl apply --overwrite=true -f https://raw.githubusercontent.com/NVIDIA/k8s-device-plugin/1.0.0-beta/nvidia-device-plugin.yml || exit $?
-
-{% endif %}
-
-# Mellanox InfiniBand device plugin
-{% if 'rdma/hca' in cluster_cfg['device-plugin']['devices'] %}
-
-kubectl apply --overwrite=true -f https://raw.githubusercontent.com/Mellanox/k8s-rdma-sriov-dev-plugin/master/example/hca/rdma-hca-node-config.yaml || exit $?
-kubectl apply --overwrite=true -f https://raw.githubusercontent.com/Mellanox/k8s-rdma-sriov-dev-plugin/master/example/device-plugin.yaml || exit $?
-
-{% endif %}
-
-popd > /dev/null
+if kubectl get configmap | grep -q "storage-configuration"; then
+    kubectl delete configmap storage-configuration || exit $?
+fi

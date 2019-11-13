@@ -1,0 +1,61 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: host-devices
+  namespace: kube-system
+data:
+  config.json: |
+    {
+      "resourceName": "github.com/fuse",
+      "socketName": "fuse.sock",
+      "numDevices": 20,
+      "hostDevices": [
+        {
+          "hostPath": "/dev/fuse",
+          "containerPath": "/dev/fuse",
+          "permission": "rwm"
+        }
+      ]
+    }
+---
+apiVersion: extensions/v1beta1
+kind: DaemonSet
+metadata:
+  name: k8s-host-device-plugin-daemonset
+  namespace: kube-system
+spec:
+  template:
+    metadata:
+      annotations:
+        scheduler.alpha.kubernetes.io/critical-pod: ""
+      labels:
+        name: k8s-host-device-plugin-ds
+    spec:
+      tolerations:
+      - key: CriticalAddonsOnly
+        operator: Exists
+      containers:
+      - image: everpeace/k8s-host-device-plugin:latest
+        name: k8s-host-device-plugin-ctr
+        securityContext:
+          privileged: true
+        volumeMounts:
+          - name: device-plugin
+            mountPath: /var/lib/kubelet/device-plugins
+          - name: config
+            mountPath: /k8s-host-device-plugin
+          - name: dev
+            mountPath: /dev
+      volumes:
+        - name: device-plugin
+          hostPath:
+            path: /var/lib/kubelet/device-plugins
+        - name: dev
+          hostPath:
+            path: /dev
+        - name: config
+          configMap:
+            name: host-devices
+            items:
+            - key: config.json
+              path: config.json

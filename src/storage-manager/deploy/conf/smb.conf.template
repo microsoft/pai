@@ -1,0 +1,100 @@
+# Copyright (c) Microsoft Corporation
+# All rights reserved.
+#
+# MIT License
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
+# documentation files (the "Software"), to deal in the Software without restriction, including without limitation
+# the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and
+# to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+# The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED *AS IS*, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING
+# BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+# NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+# DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+[global]
+    workgroup = {{cluster_cfg["storage-manager"]["workgroup"]}}
+    security = {{cluster_cfg["storage-manager"]["security-type"]}}
+{%- if cluster_cfg["storage-manager"]["security-type"] == "ADS" %}
+    realm = {{cluster_cfg["storage-manager"]["default_realm"]}}
+    domain master = No
+    local master = No
+    preferred master = No
+{%- for idmap_item in cluster_cfg["storage-manager"]["idmap"] %}
+    {{idmap_item}}
+{%- endfor %}
+    winbind cache time = 300
+    winbind enum users = No
+    winbind enum groups = No
+    winbind use default domain = No
+    winbind nested groups = No
+    winbind expand groups = 0
+    winbind refresh tickets = Yes
+    winbind offline logon = No
+    winbind max clients = 1500
+    winbind max domain connections = 50
+    winbind:ignore domains = 001D 064D 343I ADVENTUREWORKS9 AMALGA AMALGATEST BIGPARK BINGLAB CAE CCSSELFHOST CDV CERDP CETI CFDEV CLOUDLAB CONNECTED CONTOSO-01 CPEXEC CPMT CPMTPPE CRMDFIFDDOM CSLAB CTDEV DCLAB E14 E15 ERIDANUS EXCHANGE EXTRANET EXTRANETTEST FORNAX FULTONDOMAIN GME GMR HADEV HAVANATWO HEALTH HOSPITALA HVAADCS HYDRI HYPER-V IDCNETTEST ISLAND IT ITNEXTGENLAB LAB1BOISE LHWKSTA MASSIVEINCORPOR MEXEXCHANGEDC MGDNOK MMS MPSD-WI MR MSGENG MS-GMR MSLPA MSSTORE MSTT MTETCS MUTEST MYOPWV NEBCPS1 NEBCPS2 NEBCPS3 NEBCPS4 NEBCPS5 NLCPS1 NEBCPST NEBCPST NOE NOKIAEA NORTHWINDTEST NTDEV OBPPERF OCTANS OEXTRANET OFFICEDOG OFORNAX OSSCPUB OUALAB PARTNERS PARTTEST PCTS PDSTEAM PEOPLETEST PHX PIN PORTAL PROSUPPORT PRVFAB PYXIDIS RESOURCE REVOLUTION2 SAW SDITESTT SEDEV SEGROUP SENET SENTILLIONINC SLCLAB SPEECH SPWLAB SPXMAILDOMAIN STBTEST STODC01 SYS-SQLSVR SYS-WINGROUP TANGODOM1 TELECOMLAB TEQUILA Threshold TNT UKMCS UPGROUP VE VMLIBDOM VOMJUMPSTART WGIA WINDEPLOY WINSE WINSE-CTDEV WINSRVLAB WMD WPDEV XCORP XCORP XGROUP XGROUP XGROUPPPE XPORTAL XRED ZIPLINE
+{%- endif %}
+    load printers = No
+    printing = bsd
+    printcap name = /dev/null
+    disable spoolss = yes
+    template homedir = /storage/users/%U
+    template shell = /bin/bash
+    client use spnego = Yes
+    client ntlmv2 auth = Yes
+    encrypt passwords = Yes
+    restrict anonymous = 2
+    log level = 2
+    log file = /var/log/samba/samba.log
+    smb2 max read = 8388608
+    smb2 max write = 8388608
+    smb2 max trans = 8388608
+    add machine script = /usr/sbin/adduser --system --gecos %u --home /var/lib/nobody --shell /bin/false --uid 300 --no-create-home %u
+
+[root]
+  comment = Samba share root
+  path = /share/pai
+  valid users = {{cluster_cfg["storage-manager"]["smbuser"]}}
+  writable = yes
+  browseable = no
+  create mask = 0777
+  directory mask = 0777
+
+[users]
+  comment = Samba share users
+  path = /share/pai/users
+  valid users = {{cluster_cfg["storage-manager"]["smbuser"]}}
+  writable = yes 
+  browseable = no 
+  root preexec = /usr/bin/sambauserhomecreate %U %D %u {{cluster_cfg["storage-manager"]["smbuser"]}}
+  create mask = 0777
+  directory mask = 0777
+
+[home]
+  comment = Samba share user home
+  path = /share/pai/users/%U
+  writeable = yes
+  browseable = yes
+  valid users = {{cluster_cfg["storage-manager"]["smbuser"]}} %D\%U
+  root preexec = /usr/bin/sambauserhomecreate %U %D %u {{cluster_cfg["storage-manager"]["smbuser"]}}
+  create mask = 0777
+
+[data]
+  comment = Samba share data 
+  path = /share/pai/data
+  valid users = {{cluster_cfg["storage-manager"]["smbuser"]}} %D\%U
+  writable = yes 
+  browseable = yes 
+  root preexec = /usr/bin/sambadatacreate {{cluster_cfg["storage-manager"]["smbuser"]}}
+  directory mask = 0777
+  force directory mode = 0777
+  directory security mask = 0777
+  force directory security mode = 0777
+  create mask = 0777
+  force create mode = 0777
+  security mask = 0777
+  force security mode = 0777

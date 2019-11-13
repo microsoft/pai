@@ -19,7 +19,7 @@ def cluster_version():
         version = subprocess.check_output("kubectl get configmap pai-version -o jsonpath='{.data.PAI\.VERSION}'", shell=True)
     except subprocess.CalledProcessError:
         logger.warning("Can't fetch cluster version!")
-    return version
+    return version.strip() # same as paictl_version
 
 
 def check_cluster_version():
