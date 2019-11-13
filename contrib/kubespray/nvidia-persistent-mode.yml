@@ -1,0 +1,23 @@
+---
+- hosts: all
+  tasks:
+    - name: create persistenced override dir
+      file:
+        path: /etc/systemd/system/nvidia-persistenced.service.d/
+        state: directory
+        recurse: yes
+
+    - name: configure persistenced service to turn on persistence mode
+      copy:
+        src: nvidia-persistenced-override.conf
+        dest: /etc/systemd/system/nvidia-persistenced.service.d/override.conf
+
+    - name: enable persistenced
+      systemd:
+        name: nvidia-persistenced
+        enabled: yes
+
+    - name: perform nvidia smi
+      shell: nvidia-smi
+      args:
+        executable: /bin/bash
