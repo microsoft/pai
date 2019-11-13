@@ -15,6 +15,7 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+import cookies from 'js-cookie';
 import config from '../../config/webportal.config';
 import { checkToken } from '../user-auth/user-auth.component';
 import { clearToken } from '../user-logout/user-logout.component';
@@ -90,13 +91,17 @@ export const updateUserPasswordRequest = async (
 ) => {
   const url = `${config.restServerUri}/api/v2/user/${username}/password`;
   const token = checkToken();
-  return fetchWrapper(url, {
+  const result = await fetchWrapper(url, {
     method: 'PUT',
     headers: {
       Authorization: `Bearer ${token}`,
     },
     body: JSON.stringify({ newPassword, oldPassword }),
   });
+  if (username === cookies.get('user')) {
+    clearToken();
+  }
+  return result;
 };
 
 export const updateUserEmailRequest = async (username, email) => {

@@ -229,6 +229,10 @@ const UserProfileHeader = ({ userInfo, onEditProfile, onEditPassword }) => {
           >
             <div>
               <div>
+                If password is changed, all browser tokens will be revoked and
+                you will be logged out.
+              </div>
+              <div className={t.mt3}>
                 <TextField
                   label='Old Password'
                   componentRef={oldPasswordRef}
