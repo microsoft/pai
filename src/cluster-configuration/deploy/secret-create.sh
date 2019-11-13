@@ -17,11 +17,10 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-# Create secret under ssh-configuration
 pushd $(dirname "$0") > /dev/null
 
-echo -e 'y\n' | ssh-keygen -t rsa -N "" -f ssh-configuration/id_rsa -q
-kubectl create secret generic job-ssh-secret --from-file=ssh-privatekey=ssh-configuration/id_rsa --from-file=ssh-publickey=ssh-configuration/id_rsa.pub --dry-run -o yaml | kubectl apply --overwrite=true -f - || exit $?
-rm ssh-configuration/*
+echo -e 'y\n' | ssh-keygen -t rsa -N "" -f id_rsa -q
+kubectl create secret generic job-ssh-secret --from-file=ssh-privatekey=id_rsa --from-file=ssh-publickey=id_rsa.pub --dry-run -o yaml | kubectl apply --overwrite=true -f - || exit $?
+rm id_rsa id_rsa.pub
 
 popd > /dev/null
