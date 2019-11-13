@@ -48,11 +48,6 @@ if [[ $SECURETYPE == "ADS" ]]; then
   net ads info
 fi
 
-# create folders
-echo "create folders ----------"
-mkdir -p /share/pai/data
-mkdir -p /share/pai/users
-
 # load nfs modules
 echo "load nfs modules ----------"
 modprobe nfs
