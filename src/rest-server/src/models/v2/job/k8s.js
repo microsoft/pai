@@ -346,6 +346,10 @@ const generateTaskRole = (taskRole, labels, config, userToken) => {
                   name: 'PAI_USER_TOKEN',
                   value: userToken,
                 },
+                {
+                  name: 'PAI_REST_SERVER_URI',
+                  value: launcherConfig.restServerUri,
+                },
               ],
               volumeMounts: [
                 {
@@ -695,27 +699,6 @@ const get = async (frameworkName) => {
     throw createError(response.status, 'UnknownError', response.data.message);
   }
 };
-
-// const validateStorageConfig = async (userName, config) => {
-//   const runtimePlugins = _.get(config, ['extras', 'com.microsoft.pai.runtimeplugin']);
-//   const teamwiseStoragePlugin = runtimePlugins.filter((plugin) => {
-//     plugin.plugin === 'teamwise-storage';
-//   });
-//   if (_.isEmpty(teamwiseStoragePlugin)) {
-//     return;
-//   }
-
-//   const storageConfigNames = _.get(teamwiseStoragePlugin, 'parameters.storageConfigNames');
-//   if (_.isEmpty(storageConfigNames)) {
-//     return;
-//   }
-//   for (const configName of storageConfigNames) {
-//     const isValid = await userModel.checkUserStorageConfig(userName, configName);
-//     if (isValid === false) {
-//       throw createError('Forbidden', 'ForbiddenUserError', `User ${userName} is not allowed access storage ${configName}`);
-//     }
-//   }
-// };
 
 const put = async (frameworkName, config, rawConfig, userToken) => {
   const [userName] = frameworkName.split(/~(.+)/);

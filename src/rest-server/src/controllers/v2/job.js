@@ -22,7 +22,6 @@ const status = require('statuses');
 const asyncHandler = require('@pai/middlewares/v2/asyncHandler');
 const createError = require('@pai/utils/error');
 const job = require('@pai/models/v2/job');
-const token = require('@pai/middlewares/token');
 
 
 const list = asyncHandler(async (req, res) => {

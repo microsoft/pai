@@ -28,19 +28,12 @@ from plugin_utils import plugin_init, inject_commands
 
 logger = logging.getLogger(__name__)
 
-
-def generage_storage_command():
-    logger.info("Starting to generage storage command")
-    pass
-
-
 if __name__ == "__main__":
     [parameters, pre_script, post_script] = plugin_init()
 
     commands = []
     if parameters is not None:
-        if "storages" in parameters:
-            for storage in parameters["storage"]:
-                pass
+        logdir = ",".join(["{}:{}".format(k, v) for k, v in parameters["logdir"].items()])
+        commands.append("tensorboard --logdir={} --port={} &\n".format(logdir, parameters["port"]))
 
     inject_commands(commands, pre_script)
