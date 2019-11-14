@@ -20,7 +20,7 @@ import PropTypes from 'prop-types';
 
 import c from 'classnames';
 import { isEmpty } from 'lodash';
-import { FontClassNames, FontWeights, IconFontSizes } from '@uifabric/styling';
+import { FontClassNames, FontWeights } from '@uifabric/styling';
 import {
   DefaultButton,
   PrimaryButton,
@@ -35,6 +35,8 @@ import {
 import config from '../../../config/webportal.config';
 import { checkEmail, checkPassword } from '../utils';
 
+import iconUser from '../../../../assets/img/profile-user.svg';
+import iconAdmin from '../../../../assets/img/profile-admin.svg';
 import t from '../../../components/tachyons.scss';
 
 const DIALOG_PROFILE = 1;
@@ -108,10 +110,11 @@ const UserProfileHeader = ({ userInfo, onEditProfile, onEditPassword }) => {
               }}
             >
               <div>
-                <Icon
-                  iconName={userInfo.admin ? 'UserGauge' : 'Contact'}
-                  styles={{ root: { fontSize: IconFontSizes.medium } }}
-                />
+                {userInfo.admin ? (
+                  <img src={iconAdmin} alt='Admin' />
+                ) : (
+                  <img src={iconUser} alt='User' />
+                )}
               </div>
             </TooltipHost>
           </div>
