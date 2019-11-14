@@ -17,7 +17,7 @@
 
 import { FontClassNames, ColorClassNames, getTheme } from '@uifabric/styling';
 import c from 'classnames';
-import { Stack, IconButton, PrimaryButton } from 'office-ui-fabric-react';
+import { Stack, IconButton, Link } from 'office-ui-fabric-react';
 import PropTypes from 'prop-types';
 import React, { useState } from 'react';
 import { Interval, DateTime } from 'luxon';
@@ -148,99 +148,108 @@ export const JobRetryCard = ({ jobRetry }) => {
             <span>{jobRetry.attemptIndex}</span>
           </div>
         </Stack>
-        <Stack
-          horizontal
-          verticalAlign='baseline'
-          horizontalAlign='space-between'
-          padding='0 l1 0 l1'
-        >
-          <Stack horizontal verticalAlign='baseline' gap='l1'>
-            <div>
-              <div
-                className={c(
-                  FontClassNames.medium,
-                  ColorClassNames.neutralSecondary,
-                )}
-                style={{ marginBottom: spacing.s1 }}
-              >
-                Status:
-              </div>
-              <StatusBadge status={capitalize(jobRetry.state)} />
+        <Stack horizontal verticalAlign='baseline' gap='l1' padding='0 l1 0 l1'>
+          <div>
+            <div
+              className={c(
+                FontClassNames.medium,
+                ColorClassNames.neutralSecondary,
+              )}
+              style={{ marginBottom: spacing.s1 }}
+            >
+              Status:
             </div>
-            <div>
-              <div
-                className={c(
-                  FontClassNames.medium,
-                  ColorClassNames.neutralSecondary,
-                )}
-                style={{ marginBottom: spacing.s1 }}
-              >
-                Start Time:
-              </div>
-              <div className={c(FontClassNames.mediumPlus)}>
-                {printDateTime(
-                  DateTime.fromMillis(jobRetry.attemptStartedTime),
-                )}
-              </div>
+            <StatusBadge status={capitalize(jobRetry.state)} />
+          </div>
+          <div>
+            <div
+              className={c(
+                FontClassNames.medium,
+                ColorClassNames.neutralSecondary,
+              )}
+              style={{ marginBottom: spacing.s1 }}
+            >
+              Start Time:
             </div>
-            <div>
-              <div
-                className={c(
-                  FontClassNames.medium,
-                  ColorClassNames.neutralSecondary,
-                )}
-                style={{ marginBottom: spacing.s1 }}
-              >
-                Duration:
-              </div>
-              <div className={c(FontClassNames.mediumPlus)}>
-                {getAttemptDurationString(jobRetry)}
-              </div>
+            <div className={c(FontClassNames.mediumPlus)}>
+              {printDateTime(DateTime.fromMillis(jobRetry.attemptStartedTime))}
             </div>
-            <div>
-              <div
-                className={c(
-                  FontClassNames.medium,
-                  ColorClassNames.neutralSecondary,
-                )}
-                style={{ marginBottom: spacing.s1 }}
-              >
-                Exit Code:
-              </div>
-              <div className={c(FontClassNames.mediumPlus)}>
-                {`${jobRetry.exitCode}`}
-              </div>
+          </div>
+          <div>
+            <div
+              className={c(
+                FontClassNames.medium,
+                ColorClassNames.neutralSecondary,
+              )}
+              style={{ marginBottom: spacing.s1 }}
+            >
+              Duration:
             </div>
-            <div>
-              <div
-                className={c(
-                  FontClassNames.medium,
-                  ColorClassNames.neutralSecondary,
-                )}
-                style={{ marginBottom: spacing.s1 }}
-              >
-                Exit Phrase:
-              </div>
-              <div className={c(FontClassNames.mediumPlus)}>
-                {`${jobRetry.exitPhrase}`}
-              </div>
+            <div className={c(FontClassNames.mediumPlus)}>
+              {getAttemptDurationString(jobRetry)}
             </div>
-            <div>
-              <div
-                className={c(
-                  FontClassNames.medium,
-                  ColorClassNames.neutralSecondary,
-                )}
-                style={{ marginBottom: spacing.s1 }}
-              >
-                Exit Type:
-              </div>
-              <div className={c(FontClassNames.mediumPlus)}>
-                {`${jobRetry.exitType}`}
-              </div>
+          </div>
+          <div>
+            <div
+              className={c(
+                FontClassNames.medium,
+                ColorClassNames.neutralSecondary,
+              )}
+              style={{ marginBottom: spacing.s1 }}
+            >
+              Exit Code:
             </div>
-          </Stack>
-          <PrimaryButton text='Diagnostics' onClick={showDiagnostics} />
+            <div className={c(FontClassNames.mediumPlus)}>
+              {`${jobRetry.exitCode}`}
+            </div>
+          </div>
+          <div>
+            <div
+              className={c(
+                FontClassNames.medium,
+                ColorClassNames.neutralSecondary,
+              )}
+              style={{ marginBottom: spacing.s1 }}
+            >
+              Exit Phrase:
+            </div>
+            <div className={c(FontClassNames.mediumPlus)}>
+              {`${jobRetry.exitPhrase}`}
+            </div>
+          </div>
+          <div>
+            <div
+              className={c(
+                FontClassNames.medium,
+                ColorClassNames.neutralSecondary,
+              )}
+              style={{ marginBottom: spacing.s1 }}
+            >
+              Exit Type:
+            </div>
+            <div className={c(FontClassNames.mediumPlus)}>
+              {`${jobRetry.exitType}`}
+            </div>
+          </div>
+          <div>
+            <div
+              className={c(
+                FontClassNames.medium,
+                ColorClassNames.neutralSecondary,
+              )}
+              style={{ marginBottom: spacing.s1 }}
+            >
+              Diagnostics:
+            </div>
+            <Link
+              styles={{ root: [FontClassNames.mediumPlus] }}
+              href='#'
+              disabled={isNil(jobRetry.diagnosticsSummary)}
+              onClick={showDiagnostics}
+            >
+              View Diagnostics
+            </Link>
+          </div>
         </Stack>
         <Stack gap='m'>
           {Object.keys(jobRetry.taskRoles).map(name => (
