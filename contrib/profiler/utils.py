@@ -13,8 +13,8 @@ class SAMPLE_INFO(Enum):
     cpu_usage = 0
     mem_used = 1
     men_total = 2
-    IO_read = 3
-    IO_write = 4
+    io_read = 3
+    io_write = 4
     network_inbound = 5
     network_outbound = 6
 

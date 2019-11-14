@@ -369,7 +369,7 @@ def analyze_value(sample_datas, period, gpu_id):
     print('Less than 20% value is more than', str(gpu_usage[int(0.8 * gpu_usage.shape[0])]) + '%')
 
 
-def start_sample(container_id, period, analyze_period, output_dir, gpu_id, container_pid):
+def start_sample(container_id, period, analyze_period, output_dir, gpu_id, container_pid, duration_time):
     start_time = time.time()
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
@@ -385,7 +385,6 @@ def start_sample(container_id, period, analyze_period, output_dir, gpu_id, conta
             str_write_realtime.append('gpu_mem_total_' + str(gpu_id[i]))
         realtime_log.writerow(str_write_realtime)
 
-        nv.nvmlInit()
         sample_list = list()
         container_cpu_file = ''
         container_mem_file = ''
@@ -408,7 +407,8 @@ def start_sample(container_id, period, analyze_period, output_dir, gpu_id, conta
         adviser = Adviser()
 
         # sample_datas = list()
-        while not os.path.exists("./stop.flag"):
+        stop_flag = False
+        while not (os.path.exists("./stop.flag") or stop_flag):
             sample_data = get_sample_data(container_cpu_file, container_mem_file, container_blk_file,
                                           container_net_file, gpu_id, period)
 
@@ -420,6 +420,8 @@ def start_sample(container_id, period, analyze_period, output_dir, gpu_id, conta
             if len(sample_list) > analyze_period / period:
                 adviser.detect_pattern(sample_list)
                 sample_list = list()
+            if duration_time != -1:
+                stop_flag = True if time.time() - start_time > duration_time * 60 else False
         adviser.get_advise()
     sample_datas = pd.read_csv(output_dir + '/log_result.csv').values
     analyze_value(sample_datas, period, gpu_id)
@@ -434,12 +436,14 @@ parser.add_argument('--sample_period', help='The period of the CPU usage collect
 parser.add_argument('--analyze_period', help='The period of the CPU usage analyzing', required=True, type=float)
 parser.add_argument('--output_dir', '-o', help='The output directory to store the files', required=True)
 parser.add_argument('--gpu_index', '-g', help='Which GPUs the deep learning model is using', required=True)
+parser.add_argument('--duration_time', '-t', help='How long the profiler will execute', required=True, type=int)
 args = parser.parse_args()
 
 if __name__ == '__main__':
     # get the GPU INDEX
-    GPU_INDEX = list(map(int, args.gpu_index.split(',')))
+    nv.nvmlInit()
+    GPU_INDEX = list(range(nv.nvmlDeviceGetCount()))
     if os.path.exists("./stop.flag"):
         os.remove("./stop.flag")
     start_sample(args.container_id, args.sample_period, args.analyze_period, args.output_dir, GPU_INDEX,
-                 args.container_pid)
+                 args.container_pid, args.duration_time)

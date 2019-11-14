@@ -18,10 +18,7 @@
 
 case $1 in
   -h|--help)
-    echo "usage: run.sh [-c <container_id>]
-    [-g <GPU index separated by ','>]
-    [-s <sample period>]
-    [-a <analyze period>]"
+    echo "usage: run.sh [-t      The duration of the profiler]"
     exit 0
     ;;
 esac
@@ -47,11 +44,9 @@ pip install matplotlib
 
 OUTPUT_DIR=/mnt/data_for_profiler/Profiling_dir/$PAI_JOB_NAME
 CONTAINER_ID="Self"
-GPU_INDEX='0'
 SAMPLE_PERIOD=0.02
 ANALYZE_PERIOD=10
-DURATION=10
-BLOCKED=0
+DURATION=-1
 
 if [ ! -d $OUTPUT_DIR ];then
   mkdir --parents $OUTPUT_DIR
@@ -59,30 +54,21 @@ fi
 
 HOST_DOCKER=Host
 CONTAINER_PID=-1
-while getopts "c:g:s:a:" OPT;do
+while getopts "t:" OPT;do
   case $OPT in
-  c)
-    # -c:The container id
-    CONTAINER_ID=$OPTARG
-    if test "$CONTAINER_ID" == "Self" || grep -q $CONTAINER_ID /proc/1/cgroup
-    then
-      HOST_DOCKER=Docker
-    else
-      CONTAINER_PID=`docker inspect -f {{.State.Pid}} $CONTAINER_ID`
-    fi
-    ;;
-  g)
-    # -g:The GPU index
-    GPU_INDEX=$OPTARG
-    ;;
-  s)
-    # -s:The sample period
-    SAMPLE_PERIOD=$OPTARG
-    ;;
-  a)
-    # -a:The analyze period
-    ANALYZE_PERIOD=$OPTARG
-    ;;
+#  c)
+#    # -c:The container id
+#    CONTAINER_ID=$OPTARG
+#    if test "$CONTAINER_ID" == "Self" || grep -q $CONTAINER_ID /proc/1/cgroup
+#    then
+#      HOST_DOCKER=Docker
+#    else
+#      CONTAINER_PID=`docker inspect -f {{.State.Pid}} $CONTAINER_ID`
+#    fi
+#    ;;
+  t)
+    # -t:The duration of the profiler
+    DURATION=$OPTARG
   esac
 done
 
@@ -91,11 +77,12 @@ echo 'container_pid:' $CONTAINER_PID
 echo 'sample_period:' $SAMPLE_PERIOD's'
 echo 'analyze_period:' $ANALYZE_PERIOD's'
 echo 'platform:' $HOST_DOCKER
+echo 'duration:' $DURATION
 echo 'output_dir:' $OUTPUT_DIR
 echo 'gpu_index:' $GPU_INDEX
 
 if [ $PYTHON_VERSION -eq 3 ];then
-  exec nohup python3 -u `dirname $0`/profiler.py --container_id $CONTAINER_ID --container_pid $CONTAINER_PID --sample_period $SAMPLE_PERIOD --analyze_period $ANALYZE_PERIOD --output_dir $OUTPUT_DIR --gpu_index $GPU_INDEX >$OUTPUT_DIR/log.txt 2>&1 &
+  exec nohup python3 -u `dirname $0`/profiler.py --container_id $CONTAINER_ID --container_pid $CONTAINER_PID --sample_period $SAMPLE_PERIOD --analyze_period $ANALYZE_PERIOD --output_dir $OUTPUT_DIR --duration_time $DURATION >$OUTPUT_DIR/log.txt 2>&1 &
 elif [ $PYTHON_VERSION -eq 2 ];then
-  exec nohup python -u `dirname $0`/profiler.py --container_id $CONTAINER_ID --container_pid $CONTAINER_PID --sample_period $SAMPLE_PERIOD --analyze_period $ANALYZE_PERIOD --output_dir $OUTPUT_DIR --gpu_index $GPU_INDEX >$OUTPUT_DIR/log.txt 2>&1 &
+  exec nohup python -u `dirname $0`/profiler.py --container_id $CONTAINER_ID --container_pid $CONTAINER_PID --sample_period $SAMPLE_PERIOD --analyze_period $ANALYZE_PERIOD --output_dir $OUTPUT_DIR --duration_time $DURATION >$OUTPUT_DIR/log.txt 2>&1 &
 fi
