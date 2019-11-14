@@ -123,6 +123,7 @@ const StorageList = ({ storageConfigs, storageServers }) => {
         headerProps: {
           styles: {
             title: [FontClassNames.small],
+            expand: [FontClassNames.small],
           },
         },
       }}
