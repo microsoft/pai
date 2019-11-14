@@ -17,14 +17,13 @@
 
 import { FontClassNames, ColorClassNames, getTheme } from '@uifabric/styling';
 import c from 'classnames';
-import { Stack, IconButton, Link, DefaultButton, PrimaryButton } from 'office-ui-fabric-react';
+import { Stack, IconButton, PrimaryButton } from 'office-ui-fabric-react';
 import PropTypes from 'prop-types';
 import React, { useState } from 'react';
 import { Interval, DateTime } from 'luxon';
 import { capitalize, isNil } from 'lodash';
 import styled from 'styled-components';
 
-import Card from '../../../../components/card';
 import { getDurationString } from '../../../../components/util/job';
 import StatusBadge from '../../../../components/status-badge';
 import { ContainerList } from './container-list';
@@ -55,13 +54,12 @@ function getAttemptDurationString(attempt) {
 }
 
 const RetryCard = styled.div`
-  padding: ${spacing.l1};
-  background: ${palette.themeLighterAlt};
+  background: #f8f8f8;
   box-shadow: rgba(0, 0, 0, 0.06) 0px 2px 4px, rgba(0, 0, 0, 0.05) 0px 0.5px 1px;
 `;
 
 const TaskRoleCard = styled.div`
-  padding: ${spacing.m};
+  padding: ${spacing.l1};
   background: ${palette.white};
   box-shadow: rgba(0, 0, 0, 0.06) 0px 2px 4px, rgba(0, 0, 0, 0.05) 0px 0.5px 1px;
 `;
@@ -76,10 +74,7 @@ const TaskRole = ({ name, taskrole }) => {
           horizontalAlign='space-between'
           verticalAlign='center'
         >
-          <div
-            className={c(FontClassNames.medium)}
-            style={{ marginRight: spacing.l1 }}
-          >
+          <div className={c(FontClassNames.medium)}>
             <span style={{ marginRight: spacing.s1 }}>TaslRole Name:</span>
             <span>{`${name} (${taskrole.taskStatuses.length})`}</span>
           </div>
@@ -144,7 +139,7 @@ export const JobRetryCard = ({ jobRetry }) => {
   return (
     <RetryCard>
       <Stack gap='l1'>
-        <Stack horizontal verticalAlign='center' gap='l1'>
+        <Stack horizontal verticalAlign='center' gap='l1' padding='l1 l1 0 l1'>
           <div
             className={c(FontClassNames.large)}
             style={{ marginRight: spacing.l1 }}
@@ -157,6 +152,7 @@ export const JobRetryCard = ({ jobRetry }) => {
           horizontal
           verticalAlign='baseline'
           horizontalAlign='space-between'
+          padding='0 l1 0 l1'
         >
           <Stack horizontal verticalAlign='baseline' gap='l1'>
             <div>

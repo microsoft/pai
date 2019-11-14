@@ -68,14 +68,14 @@ const JobRetryPage = () => {
       style={{
         height: '100%',
         margin: `${spacing.l1} auto`,
-        maxWidth: 1000,
+        maxWidth: 1200,
       }}
     >
       {loading && <SpinnerLoading />}
       {!loading && (
         <Stack gap='m'>
           <Top />
-          <Stack gap='s1'>
+          <Stack gap='l1'>
             {jobRetries.map(jobRetry => {
               return (
                 <JobRetryCard key={jobRetry.attemptIndex} jobRetry={jobRetry} />
