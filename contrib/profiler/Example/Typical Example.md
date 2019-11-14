@@ -6,14 +6,15 @@
   When using the multiple GPU cards, sometimes it will be detected that
   each card has different memory utilization. The utilization will be
   like as follow:  
-  ![GPU Memory Usage](./img/GPU_MEM_maldistribution.png)  
+  ![GPU Memory Usage](./img/GPU_MEM_maldistribution.png)
 - **Reason**  
-  In the deep learning model, GPU card will train the data, compute the
-  loss and gradient and reduce the gradient to optimize the model. When
-  using multiple cards, each card will run the forward and backward and
-  the gradients will be sent to a server which runs an reduce operation
-  to compute averaged gradients. The averaged gradients are then
-  transmitted back to each GPU card tp update the model parameters.  
+  In the deep learning model, GPU card will be used to train the data,
+  compute the loss and gradient and reduce the gradient to optimize the
+  model. When using multiple cards, each card will run the forward pass
+  and calculate the parameter gradients. Then the gradients will be sent
+  to a server which runs an reduce operation to compute averaged
+  gradients. The averaged gradients are then transmitted back to each
+  GPU card tp update the model parameters.  
   When the machine structure is "one-machine, multiple cards", one of
   the GPU card will be chosen to be the master GPU. The task of the
   master GPU is to transmit the data to each card, receive the output of
@@ -57,12 +58,13 @@
   one batch in each epoch. The GPU utilization has free means that the
   computational complexity in one batch is not enough.
 - **How to Fix**  
-  If the GPU memory has free, one of the solution is to increase the
-  data volume in one batch. The more data will use more GPU memory.  
-  If the GPU utilization has free, one of the solution is to use the
-  Kernel Fusion, like XLA in tensorflow. The Kernel Fusion can reduce
-  the cost of platform invoking and kernel launching, which can reduce
-  the resource wasting and increase the GPU utilization.
+  If the GPU memory is not been used sufficiently, one of the solution
+  is to increase the data volume in one batch. The more data will use
+  more GPU memory.  
+  If the GPU utilization is at a low rate, one of the solution is to use
+  the Kernel Fusion, like XLA in tensorflow. The Kernel Fusion can
+  reduce the cost of platform invoking and kernel launching, which can
+  reduce the resource wasting and increase the GPU utilization.
 - **After Fixing**  
   As the example above, after increasing the batch size, the hardware
   information is as below:  

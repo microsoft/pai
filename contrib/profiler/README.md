@@ -16,38 +16,24 @@ When you submit a job, you insert the profiler command before your
 command to use the profiler.  
 ```bash
 apt update
-apt install -y git
-git clone https://github.com/AosChen/pai.git
-bash pai/contrib/profiler/run.sh -g 0,1,2,3
-# your other command
+apt install -y curl
+mkdir profiler
+curl https://raw.githubusercontent.com/microsoft/pai/master/contrib/profiler/profiler.py -o profiler/profiler.py
+curl https://raw.githubusercontent.com/microsoft/pai/master/contrib/profiler/utils.py -o profiler/utils.py
+curl https://raw.githubusercontent.com/microsoft/pai/master/contrib/profiler/run.sh -o profiler/run.sh
+bash profiler/run.sh
 ``` 
-The above command means that the profiler will sample the GPU index at 0
-to 3.  
+The above command means that the profiler will run until your job is
+stopped.  
 Here is the explanation of the profiler command.
 
 ```bash
 ./run.sh
-    [-c <container_id>]
-    [-g <GPU index separated by ','>]
-    [-s <sample period>]
-    [-a <analyze period>]
+    [-t   The duration of the profiler]
 ```
-**run.sh** can receive 4 commands.
-1. `-c`: To assign the container that you want to analyze. The parameter
-   is the SHA of the container. It is no need to input the complete SHA,
-   the conflict prefix is enough. Such as `run.sh -c 234d`.  
-   If not set, the default is the container that profiler in.  
-   **Attention**: If you use the profiler by inserting the command,
-   please not set the command.
-2. `-g`: To assign the GPU that you want to analyze. The parameter is
-   the GPU index(separated by , if there is multiple cards). Such as
-   `run.sh -g 0,1,2,3`.  
-   If not set, the default GPU index is the GPU 0.
-3. `-s`: To assign the period of each sample. The parameter must be a
-   **number**, such as `run.sh -s 0.03`, it means the profiler will
-   sample the data each 0.03s.  
-   If not set, the default sampling period is 0.02s.
-4. `-a`: To assign how often to analyze the sampling data. The parameter
-   must be a **number**, such as `run.sh -a 5`, it means the profiler
-   will analyze the data each 5s.  
-   If not set, the default analyzing period is 10s.
+**run.sh** can receive 1 commands.
+1. `-t`: To assign how long the profiler will run. The parameter must be
+   a number, such as `run.sh -t 30`, it means that the profiler will run
+   for 30 minutes.  
+   If not set, the profiler will not stop until the user's job is
+   stopped.
