@@ -21,8 +21,9 @@ import { Stack, IconButton, Link } from 'office-ui-fabric-react';
 import PropTypes from 'prop-types';
 import React, { useState } from 'react';
 import { Interval, DateTime } from 'luxon';
-import { capitalize, isNil } from 'lodash';
+import { capitalize, isNil, get } from 'lodash';
 import styled from 'styled-components';
+import yaml from 'js-yaml';
 
 import { getDurationString } from '../../../../components/util/job';
 import StatusBadge from '../../../../components/status-badge';
@@ -117,20 +118,57 @@ export const JobRetryCard = ({ jobRetry }) => {
     setModalTile('');
   };
 
-  const showDiagnostics = () => {
+  const showExitDiagnostics = () => {
     const result = [];
+    // trigger info
+    result.push('[Exit Trigger Info]');
+    result.push('');
+    result.push(
+      `ExitTriggerMessage: ${get(jobRetry, 'appExitTriggerMessage')}`,
+    );
+    result.push(
+      `ExitTriggerTaskRole: ${get(jobRetry, 'appExitTriggerTaskRoleName')}`,
+    );
+    result.push(
+      `ExitTriggerTaskIndex: ${get(jobRetry, 'appExitTriggerTaskIndex')}`,
+    );
+    const userExitCode = get(
+      jobRetry,
+      'appExitMessages.runtime.originalUserExitCode',
+    );
+    if (userExitCode) {
+      // user exit code
+      result.push(`UserExitCode: ${userExitCode}`);
+    }
+    result.push('');
+
+    // exit spec
+    const spec = jobRetry.appExitSpec;
+    if (spec) {
+      // divider
+      result.push(Array.from({ length: 80 }, () => '-').join(''));
+      result.push('');
+      // content
+      result.push('[Exit Spec]');
+      result.push('');
+      result.push(yaml.safeDump(spec));
+      result.push('');
+    }
 
     // diagnostics
-    const diag = jobRetry.diagnosticsSummary;
+    const diag = jobRetry.appExitDiagnostics;
     if (diag) {
+      // divider
+      result.push(Array.from({ length: 80 }, () => '-').join(''));
+      result.push('');
       // content
-      result.push('[Diagnostics]');
+      result.push('[Exit Diagnostics]');
       result.push('');
       result.push(diag);
       result.push('');
     }
 
-    showEditor('Diagnostics', {
+    showEditor('Exit Diagnostics', {
       language: 'text',
       value: result.join('\n'),
     });
@@ -239,15 +277,14 @@ export const JobRetryCard = ({ jobRetry }) => {
               )}
               style={{ marginBottom: spacing.s1 }}
             >
-              Diagnostics:
+              Exit Diagnostics:
             </div>
             <Link
               styles={{ root: [FontClassNames.mediumPlus] }}
               href='#'
-              disabled={isNil(jobRetry.diagnosticsSummary)}
-              onClick={showDiagnostics}
+              onClick={showExitDiagnostics}
             >
-              View Diagnostics
+              View Exit Diagnostics
             </Link>
           </div>
         </Stack>
