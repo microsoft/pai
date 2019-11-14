@@ -162,7 +162,7 @@ Here we assume all os in your cluster is ubuntu16.04. Or please change the follo
     - name: Run the equivalent of "apt-get update" as a separate step
 ```
 
-#### kubespray configuration
+#### kubespray 
 
 ###### Environment
 
@@ -186,7 +186,7 @@ cp ~/pai/contrib/kubespray/openpai.yml ~/kubespray/inventory/mycluster
 cp /path/to/your/host.yml ~/kubespray/inventory/mycluster
 ```
 
-###### Deploy k8s
+##### Deploy k8s
 
 ```bash
 cd kubespray/
@@ -196,7 +196,7 @@ ansible-playbook -i inventory/mycluster/hosts.yml cluster.yml --become --become-
 
 Note: please change the openpai.yml depends on your requirement.
 
-###### setup kubectl
+##### setup kubectl
 
 ```bash
 mkdir -p ~/.kube
@@ -212,3 +212,202 @@ sudo mv ./kubectl /usr/local/bin/kubectl
 ```
 
 ##### Please Save your inventory after deploy
+
+##### Add new k8s worker node
+
+- write an inventory as following
+```yaml
+all:
+  hosts:
+    node7:
+      ip: x.x.x.43
+      access_ip: x.x.x.43
+      ansible_host: x.x.x.43
+      ansible_ssh_pass: "Your-Password"
+      ansible_ssh_extra_args: '-o StrictHostKeyChecking=no'
+    node8:
+      ip: x.x.x.44
+      access_ip: x.x.x.44
+      ansible_host: x.x.x.44
+      ansible_ssh_pass: "Your-Password"
+      ansible_ssh_extra_args: '-o StrictHostKeyChecking=no'
+    node9:
+      ip: x.x.x.45
+      access_ip: x.x.x.45
+      ansible_host: x.x.x.45
+      ansible_ssh_pass: "Your-Password"
+      ansible_ssh_extra_args: '-o StrictHostKeyChecking=no'
+``` 
+
+- Enable ssh, nvidia-drivers, nvidia-persistent-mode and nvidia-docker
+
+- Append the new worker nodes into the host.yml in the inventory which was kept after the cluster deployment.
+
+For example:
+
+
+Before appending
+
+```yaml
+all:
+  hosts:
+    node1:
+      ip: x.x.x.37
+      access_ip: x.x.x.37
+      ansible_host: x.x.x.37
+      ansible_ssh_pass: "your-password-here"
+      ansible_ssh_extra_args: '-o StrictHostKeyChecking=no'
+    node2:
+      ip: x.x.x.38
+      access_ip: x.x.x.38
+      ansible_host: x.x.x.38
+      ansible_ssh_pass: "your-password-here"
+      ansible_ssh_extra_args: '-o StrictHostKeyChecking=no'
+    node3:
+      ip: x.x.x.39
+      access_ip: x.x.x.39
+      ansible_host: x.x.x.39
+      ansible_ssh_pass: "your-password-here"
+      ansible_ssh_extra_args: '-o StrictHostKeyChecking=no'
+    node4:
+      ip: x.x.x.40
+      access_ip: x.x.x.40
+      ansible_host: x.x.x.40
+      ansible_ssh_pass: "your-password-here"
+      ansible_ssh_extra_args: '-o StrictHostKeyChecking=no'
+    node5:
+      ip: x.x.x.41
+      access_ip: x.x.x.41
+      ansible_host: x.x.x.41
+      ansible_ssh_pass: "your-password-here"
+      ansible_ssh_extra_args: '-o StrictHostKeyChecking=no'
+    node6:
+      ip: x.x.x.42
+      access_ip: x.x.x.42
+      ansible_host: x.x.x.42
+      ansible_ssh_pass: "your-password-here"
+      ansible_ssh_extra_args: '-o StrictHostKeyChecking=no'
+  children:
+    kube-master:
+      hosts:
+        node1:
+        node2:
+        node3:
+    kube-node:
+      hosts:
+        node1:
+        node2:
+        node3:
+        node4:
+        node5:
+        node6:
+    etcd:
+      hosts:
+        node1:
+        node2:
+        node3:
+    k8s-cluster:
+      children:
+        kube-node:
+        kube-master:
+    calico-rr:
+      hosts: {}
+```
+
+After appending
+```yaml
+all:
+  hosts:
+    node1:
+      ip: x.x.x.37
+      access_ip: x.x.x.37
+      ansible_host: x.x.x.37
+      ansible_ssh_pass: "your-password-here"
+      ansible_ssh_extra_args: '-o StrictHostKeyChecking=no'
+    node2:
+      ip: x.x.x.38
+      access_ip: x.x.x.38
+      ansible_host: x.x.x.38
+      ansible_ssh_pass: "your-password-here"
+      ansible_ssh_extra_args: '-o StrictHostKeyChecking=no'
+    node3:
+      ip: x.x.x.39
+      access_ip: x.x.x.39
+      ansible_host: x.x.x.39
+      ansible_ssh_pass: "your-password-here"
+      ansible_ssh_extra_args: '-o StrictHostKeyChecking=no'
+    node4:
+      ip: x.x.x.40
+      access_ip: x.x.x.40
+      ansible_host: x.x.x.40
+      ansible_ssh_pass: "your-password-here"
+      ansible_ssh_extra_args: '-o StrictHostKeyChecking=no'
+    node5:
+      ip: x.x.x.41
+      access_ip: x.x.x.41
+      ansible_host: x.x.x.41
+      ansible_ssh_pass: "your-password-here"
+      ansible_ssh_extra_args: '-o StrictHostKeyChecking=no'
+    node6:
+      ip: x.x.x.42
+      access_ip: x.x.x.42
+      ansible_host: x.x.x.42
+      ansible_ssh_pass: "your-password-here"
+      ansible_ssh_extra_args: '-o StrictHostKeyChecking=no'
+    node7:
+      ip: x.x.x.43
+      access_ip: x.x.x.43
+      ansible_host: x.x.x.43
+      ansible_ssh_pass: "Your-Password"
+      ansible_ssh_extra_args: '-o StrictHostKeyChecking=no'
+    node8:
+      ip: x.x.x.44
+      access_ip: x.x.x.44
+      ansible_host: x.x.x.44
+      ansible_ssh_pass: "Your-Password"
+      ansible_ssh_extra_args: '-o StrictHostKeyChecking=no'
+    node9:
+      ip: x.x.x.45
+      access_ip: x.x.x.45
+      ansible_host: x.x.x.45
+      ansible_ssh_pass: "Your-Password"
+      ansible_ssh_extra_args: '-o StrictHostKeyChecking=no'
+  children:
+    kube-master:
+      hosts:
+        node1:
+        node2:
+        node3:
+    kube-node:
+      hosts:
+        node1:
+        node2:
+        node3:
+        node4:
+        node5:
+        node6:
+        node7:
+        node8:
+        node9:
+    etcd:
+      hosts:
+        node1:
+        node2:
+        node3:
+    k8s-cluster:
+      children:
+        kube-node:
+        kube-master:
+    calico-rr:
+      hosts: {}
+``` 
+
+- Add the new k8s worker node into the cluster with the following command
+
+```bash
+
+cd kubespray/
+
+ansible-playbook -i inventory/mycluster/hosts.yml upgrade-cluster.yml --become --become-user=root  --limit=node7,node8,node9 -e "@inventory/mycluster/openpai.yml"
+
+```
