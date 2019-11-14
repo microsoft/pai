@@ -54,7 +54,7 @@ initializeIcons();
 const UserProfileCard = ({ title, children, headerButton }) => {
   const { spacing } = getTheme();
   return (
-    <Card className={t.mt5} style={{ padding: `${spacing.l1} ${spacing.l2}` }}>
+    <Card className={t.mt4} style={{ padding: `${spacing.l1} ${spacing.l2}` }}>
       <div className={c(t.flex, t.justifyBetween)}>
         <div
           className={FontClassNames.xLarge}
@@ -166,7 +166,7 @@ const UserProfile = () => {
   } else {
     return (
       <div className={c(t.pv5, t.ph5)}>
-        <div className={c(t.mw9, t.center)}>
+        <div className={c(t.center)} style={{ maxWidth: 1200 }}>
           <Card style={{ padding: `${spacing.l1} ${spacing.l2}` }}>
             {/* summary */}
             <UserProfileHeader

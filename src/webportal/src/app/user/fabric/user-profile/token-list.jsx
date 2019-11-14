@@ -25,6 +25,11 @@ import {
   DetailsListLayoutMode,
   SelectionMode,
   CommandBarButton,
+  DialogType,
+  Dialog,
+  DialogFooter,
+  PrimaryButton,
+  DefaultButton,
 } from 'office-ui-fabric-react';
 
 import t from '../../../components/tachyons.scss';
@@ -32,6 +37,7 @@ import CopyButton from '../../../components/copy-button';
 
 const TokenList = ({ tokens, onRevoke }) => {
   const [processing, setProcessing] = useState(false);
+  const [revokeToken, setRevokeToken] = useState(null);
 
   const tokenItems = useMemo(() => {
     return tokens
@@ -117,10 +123,7 @@ const TokenList = ({ tokens, onRevoke }) => {
               }}
               iconProps={{ iconName: 'Delete' }}
               text='Revoke'
-              onClick={() => {
-                setProcessing(true);
-                onRevoke(token.value).finally(() => setProcessing(false));
-              }}
+              onClick={() => setRevokeToken(token.value)}
               disabled={processing}
             />
           </div>
@@ -138,6 +141,38 @@ const TokenList = ({ tokens, onRevoke }) => {
         layoutMode={DetailsListLayoutMode.justified}
         selectionMode={SelectionMode.none}
       />
+      <Dialog
+        hidden={!revokeToken}
+        onDismiss={() => setRevokeToken(null)}
+        dialogContentProps={{
+          type: DialogType.normal,
+          title: 'Revoke Token',
+        }}
+        modalProps={{
+          isBlocking: true,
+        }}
+        minWidth={400}
+      >
+        <div>Are you sure you want to revoke the selected token?</div>
+        <DialogFooter>
+          <PrimaryButton
+            onClick={() => {
+              setProcessing(true);
+              onRevoke(revokeToken).finally(() => {
+                setRevokeToken(null);
+                setProcessing(false);
+              });
+            }}
+            disabled={processing}
+            text='Confirm'
+          />
+          <DefaultButton
+            onClick={() => setRevokeToken(null)}
+            disabled={processing}
+            text='Cancel'
+          />
+        </DialogFooter>
+      </Dialog>
     </div>
   );
 };
