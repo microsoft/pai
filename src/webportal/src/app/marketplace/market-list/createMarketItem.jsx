@@ -14,8 +14,9 @@
 // NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+import uuid4 from 'uuid/v4';
 import PropTypes from 'prop-types';
-import React, { useState, useContext, useEffect } from 'react';
+import React, { useState, useCallback } from 'react';
 import {
   DefaultButton,
   PrimaryButton,
@@ -28,39 +29,34 @@ import {
   FontSizes,
   FontWeights,
   Text,
-  getTheme,
   Icon,
 } from 'office-ui-fabric-react';
-import { FontClassNames } from '@uifabric/styling';
+import { FontClassNames, getTheme } from '@uifabric/styling';
 
-import Context from './Context';
-import { updateMarketItem } from './conn';
+import { createMarketItem } from './conn';
+import ImportConfig from './importConfig';
+import { MarketItem } from './market-item';
 
 const { spacing, palette } = getTheme();
 
-export default function EditMarketItem(props) {
+export default function CreateMarketItem(props) {
   const { hideDialog, setHideDialog } = props;
-  const { marketItem } = useContext(Context);
 
-  const [name, setName] = useState(marketItem.name);
-  const [category, setCategory] = useState(marketItem.category);
+  const [name, setName] = useState('');
+  const [category, setCategory] = useState('custom');
   const [tags, setTags] = useState([]);
-  const [introduction, setIntroduction] = useState(marketItem.introduction);
-  const [author, setAuthor] = useState(marketItem.author);
-  const [description, setDescription] = useState(marketItem.description);
+  const [introduction, setIntroduction] = useState('');
+  const [author, setAuthor] = useState('');
+  const [description, setDescription] = useState('');
+  const [yamlText, setYamlText] = useState();
   const [tagEdit, setTagEdit] = useState('');
+
+  const [yamlTextName, setYamlTextName] = useState('');
 
   const CATEGORY_OPTIONS = [
     { key: 'custom', text: 'custom' },
     { key: 'official', text: 'official' },
   ];
-
-  useEffect(() => {
-    if (marketItem.tags !== null) {
-      setTags(marketItem.tags.split('|'));
-    }
-  }, []);
-
   async function onConfirm() {
     setHideDialog(true);
     // parse tags to store in sqlite
@@ -70,22 +66,24 @@ export default function EditMarketItem(props) {
     });
     tagList = tagList.substr(0, tagList.length - 1);
     // connect to rest-server confirm edit
-    await updateMarketItem(
-      marketItem.id,
+    const id = uuid4();
+    const marketItem = new MarketItem(
+      id,
       name,
-      marketItem.author,
-      marketItem.createDate,
-      new Date().toString(),
+      author,
+      new Date(),
+      new Date(),
       category,
       tagList,
       introduction,
       description,
-      marketItem.jobConfig,
-      marketItem.submits,
-      marketItem.stars,
+      yamlText,
+      0,
+      0,
     );
+    await createMarketItem(marketItem);
     // refresh market-detail.html
-    window.location.href = `/market-detail.html?itemId=${marketItem.id}`;
+    window.location.href = `/market-detail.html?itemId=${id}`;
   }
 
   function closeDialog() {
@@ -106,6 +104,10 @@ export default function EditMarketItem(props) {
 
   function handleChangeIntroduction(e) {
     setIntroduction(e.target.value);
+  }
+
+  function handleChangeAuthor(e) {
+    setAuthor(e.target.value);
   }
 
   function handleChangeDescription(e) {
@@ -152,7 +154,7 @@ export default function EditMarketItem(props) {
               },
             }}
           >
-            Edit MarketItem
+            Create MarketItem
           </Text>
         ),
       }}
@@ -166,7 +168,7 @@ export default function EditMarketItem(props) {
         <Dropdown
           label='Category'
           options={CATEGORY_OPTIONS}
-          defaultSelectedKey={category}
+          defaultSelectedKey={'custom'}
           onChange={handleChangeCategory}
         />
         <Stack gap='s1'>
@@ -215,7 +217,11 @@ export default function EditMarketItem(props) {
           value={introduction}
           onChange={handleChangeIntroduction}
         />
-        <TextField label='Author' value={author} disabled />
+        <TextField
+          label='Author'
+          value={author}
+          onChange={handleChangeAuthor}
+        />
         <TextField
           label='Description'
           value={description}
@@ -223,8 +229,16 @@ export default function EditMarketItem(props) {
           rows={20}
           onChange={handleChangeDescription}
         />
+        <div>
+          <Stack horizontal gap='m'>
+            <ImportConfig
+              setYamlText={setYamlText}
+              setYamlTextName={setYamlTextName}
+            />
+            <Text>{yamlTextName}</Text>
+          </Stack>
+        </div>
       </Stack>
-
       <DialogFooter>
         <PrimaryButton onClick={onConfirm} text='Confirm' />
         <DefaultButton onClick={closeDialog} text='Cancel' />
@@ -233,9 +247,7 @@ export default function EditMarketItem(props) {
   );
 }
 
-EditMarketItem.propTypes = {
+CreateMarketItem.propTypes = {
   hideDialog: PropTypes.bool.isRequired,
   setHideDialog: PropTypes.func.isRequired,
 };
-
-EditMarketItem.contextType = Context;

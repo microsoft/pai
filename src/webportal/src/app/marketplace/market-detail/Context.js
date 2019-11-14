@@ -1,8 +1,7 @@
 import React from 'react';
 
 const Context = React.createContext({
-  jobInfo: null,
-  taskRoles: null,
+  marketItem: null,
 });
 
 export default Context;

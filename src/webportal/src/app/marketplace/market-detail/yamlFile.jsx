@@ -1,6 +1,28 @@
-import MonacoPanel from '../../components/monaco-panel';
-import { useState } from 'react';
+import React, { useContext } from 'react';
+import { FontClassNames } from '@uifabric/styling';
+import Context from './Context';
+import Card from './card';
 
-export default function YamlFile() {
-
+const YamlFile = () => {
+  const { marketItem } = useContext(Context);
+  return (
+    <Card
+      style={{
+        whiteSpace: 'pre-wrap',
+        marginTop: 15,
+        marginLeft: 10,
+      }}
+      className={FontClassNames.mediumPlus}
+    >
+      <div
+        style={{
+          backgroundColor: '#f8f8f8',
+        }}
+      >
+        {marketItem.jobConfig}
+      </div>
+    </Card>
+  );
 };
+
+export default YamlFile;

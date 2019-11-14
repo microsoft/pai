@@ -18,19 +18,13 @@
 import React from 'react';
 import { ActionButton } from 'office-ui-fabric-react/lib/Button';
 
-import t from '../../components/tachyons.scss';
-
 const Top = () => (
-  <div className={t.flex}>
-    <div>
-      <ActionButton
-        iconProps={{ iconName: 'revToggleKey' }}
-        href='/market-list.html'
-      >
-        Back to Marketplace
-      </ActionButton>
-    </div>
-  </div>
+  <ActionButton
+    iconProps={{ iconName: 'revToggleKey' }}
+    href='/market-list.html'
+  >
+    Back to Marketplace
+  </ActionButton>
 );
 
 export default Top;

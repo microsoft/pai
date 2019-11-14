@@ -17,15 +17,16 @@
 
 import c from 'classnames';
 
-import {Pivot, PivotItem} from 'office-ui-fabric-react/lib/Pivot'
-import React, { useState } from 'react';
+import { Pivot, PivotItem } from 'office-ui-fabric-react/lib/Pivot';
+import React from 'react';
 import t from '../../components/tachyons.scss';
 
 import Card from './card';
 import Description from './description';
 import TaskRoles from './taskRoles';
+import YamlFile from './yamlFile';
 
-export default function Detail(props) {
+export default function Detail() {
   return (
     <div className={c(t.bgWhite, t.mt3)}>
       {/* summary */}
@@ -37,11 +38,9 @@ export default function Detail(props) {
           <PivotItem headerText='Task Roles'>
             <TaskRoles />
           </PivotItem>
-          {/*
           <PivotItem headerText='Yaml File'>
             <YamlFile />
           </PivotItem>
-          */}
         </Pivot>
       </Card>
     </div>

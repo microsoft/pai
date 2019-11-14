@@ -14,7 +14,6 @@
 // NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
 import React, { useContext, useState, useEffect } from 'react';
 import {
   getTheme,
@@ -26,23 +25,90 @@ import {
   Text,
   Checkbox,
 } from 'office-ui-fabric-react';
+import { isNil } from 'lodash';
 
 import FilterButton from './filter-button';
+import Context from './Context';
+import Filter from './Filter';
 
 export const CategorySideBar = () => {
-  const { spacing } = getTheme();
+  const { filteredItems, filter, setFilter } = useContext(Context);
+
+  function onKeywordChange(keyword) {
+    const { custom, authors, official } = filter;
+    setFilter(new Filter(keyword, authors, custom, official));
+  }
+
+  function onCustomChange(event, isChecked) {
+    const { keyword, authors, official } = filter;
+    if (isChecked) {
+      setFilter(new Filter(keyword, authors, true, official));
+    } else {
+      setFilter(new Filter(keyword, authors, false, official));
+    }
+  }
+
+  function onOfficialChange(event, isChecked) {
+    const { keyword, authors, custom } = filter;
+    if (isChecked) {
+      setFilter(new Filter(keyword, authors, custom, true));
+    } else {
+      setFilter(new Filter(keyword, authors, custom, false));
+    }
+  }
+
+  // get distinct authors
+  var allAuthors = [];
+  if (!isNil(filteredItems)) {
+    allAuthors = filteredItems.map(item => {
+      return item.author;
+    });
+  }
+  const authorItems = Array.from(new Set(allAuthors));
+
+  // get selected Author Items
+  const selectedItems = Array.from(filter.authors);
+
+  function onCancelClicked(event) {}
 
   return (
     <Stack gap='m'>
       <Text variant='large' styles={{ root: { fontWeight: 'semibold' } }}>
         Filter
       </Text>
-      <Text> Categories </Text>
-      <Checkbox label='Custom'></Checkbox>
-      <Checkbox
-        styles={{ root: [{ maxWidth: 200 }] }}
-        label='OpenPAI Official'
-      ></Checkbox>
+      <Stack gap='m'>
+        <SearchBox underlined placeholder='Search' onChange={onKeywordChange} />
+        <Stack horizontal>
+          <FilterButton
+            styles={{ root: { backgroundColor: 'transparent' } }}
+            text='Author'
+            iconProps={{ iconName: 'Contact' }}
+            items={authorItems}
+            selectedItems={selectedItems}
+            onSelect={authors => {
+              const { keyword, custom, official } = filter;
+              const authorsFilter = new Set(authors);
+              setFilter(new Filter(keyword, authorsFilter, custom, official));
+            }}
+            searchBox
+            clearButton
+          />
+          <CommandBarButton
+            styles={{
+              root: { backgroundColor: 'transparent', height: '100%' },
+            }}
+            iconProps={{ iconName: 'Cancel' }}
+            onClick={onCancelClicked}
+          />
+        </Stack>
+        <Text> Categories </Text>
+        <Checkbox label='Custom' onChange={onCustomChange}></Checkbox>
+        <Checkbox
+          styles={{ root: [{ maxWidth: 200 }] }}
+          label='OpenPAI Official'
+          onChange={onOfficialChange}
+        ></Checkbox>
+      </Stack>
     </Stack>
   );
 };

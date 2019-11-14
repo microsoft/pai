@@ -31,6 +31,7 @@ import React, { useState, useCallback, useEffect, useMemo } from 'react';
 import { Fabric, Stack, StackItem } from 'office-ui-fabric-react';
 import { isNil, isEmpty, get, cloneDeep } from 'lodash';
 import PropTypes from 'prop-types';
+import yaml from 'js-yaml';
 
 import { JobInformation } from './components/job-information';
 import { SubmissionSection } from './components/submission-section';
@@ -252,6 +253,35 @@ export const JobSubmissionPage = ({
       setLoading(false);
     }
   }, [vcNames]);
+
+  // fill protocol if submit marketItem
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.has('itemId')) {
+      // read jobConfig from localStorage
+      var jobConfig = window.localStorage.getItem('jobConfig');
+      jobConfig = yaml.safeLoad(jobConfig);
+      // parse jobConfig
+      const [
+        jobInfo,
+        taskRoles,
+        parameters,
+        ,
+        extras,
+      ] = getJobComponentsFromConfig(jobConfig, {});
+      // set to elemetns
+      jobInfo.name = generateJobName(jobInfo.name);
+      if (get(jobConfig, 'extras.submitFrom')) {
+        delete jobConfig.extras.submitFrom;
+      }
+      setJobProtocol(new JobProtocol(jobConfig));
+      setJobTaskRoles(taskRoles);
+      setParameters(parameters);
+      setJobInformation(jobInfo);
+      setExtras(extras);
+      setLoading(false);
+    }
+  }, []);
 
   // update component if yamlText is not null
   useEffect(() => {

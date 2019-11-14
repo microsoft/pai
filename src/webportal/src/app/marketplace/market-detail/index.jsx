@@ -29,104 +29,66 @@ import 'whatwg-fetch';
 import React, { useState, useEffect } from 'react';
 import ReactDOM from 'react-dom';
 import classNames from 'classnames';
-import { Fabric, Text, Stack, CommandButton, FontClassNames, initializeIcons } from 'office-ui-fabric-react';
+import {
+  Fabric,
+  FontClassNames,
+  initializeIcons,
+} from 'office-ui-fabric-react';
 import t from '../../components/tachyons.scss';
 import Top from './top';
 import Summary from './summary';
 import Detail from './detail';
-import {fetchMarketItem, fetchJobConfig_marketplace, fetchTaskRoles_marketplace} from './conn';
+import { fetchMarketItem } from './conn';
 import Context from './Context';
 import { SpinnerLoading } from '../../components/loading';
 
 initializeIcons();
 
-const MarketDetail = (props) => {
+const MarketDetail = props => {
   const [loading, setLoading] = useState(true);
   const [reloading, setReloading] = useState(false);
-  const [jobInfo, setJobInfo] = useState(null);
-  const [error, setError] = useState(null);
-  const [jobConfig, setJobConfig] = useState(null);
-  const [taskRoles, setTaskRoles] = useState(null);
-
-  // load jobInfo, taskRoles, jobConfig, jobDescription
+  const [marketItem, setMarketItem] = useState(null);
+  // load marketItem, taskRoles, jobConfig, jobDescription
   useEffect(() => {
-    /*
-    async function reload_() {
-      await reload();
-    }*/
-    const reload_ = async () => {
-      await reload();
-    };
-    reload_();
+    reload();
   }, []);
 
   async function reload() {
-    console.log('reloading...');
     setReloading(true);
     const nextState = {
       loading: false,
       reloading: false,
-      jobInfo: null,
+      marketItem: null,
       error: null,
     };
-    const loadJobInfo = async () => {
+    const loadMarketItem = async () => {
       try {
-        nextState.jobInfo = await fetchMarketItem();
-      }catch (err) {
-        nextState.error = `fetch job status failed: ${err.message}`;
+        nextState.marketItem = await fetchMarketItem();
+      } catch (err) {
+        alert(err.message);
+        window.location.href = `market-list.html`;
       }
     };
-    /*
-    const loadTaskRoles = async () => {
-      try {
-        nextState.taskRoles = await fetchTaskRoles_marketplace();
-      }catch (err) {
-
-      }
-    };
-    const loadJobConfig = async () => {
-      try {
-        nextState.jobConfig = await fetchJobConfig_marketplace();
-      }catch (err) {
-
-      }
-    };
-    */
-    await Promise.all([
-      loadJobInfo(),
-      //loadTaskRoles(),
-      //loadJobConfig(),
-    ]);
-    
+    await loadMarketItem();
     // update states
-    setJobInfo(nextState.jobInfo);
+    setMarketItem(nextState.marketItem);
     setReloading(nextState.reloading);
-    setError(nextState.error);
-    //setJobConfig(nextState.jobConfig);
-    //setTaskRoles(nextState.taskRoles);
     setLoading(nextState.loading);
-
-    //console.table(jobInfo);
   }
 
   return (
-      <Context.Provider value={{jobInfo, taskRoles}}>
-        {loading && (
-          <SpinnerLoading />
-        )}
-        {loading === false && (
+    <Context.Provider value={{ marketItem }}>
+      {loading && <SpinnerLoading />}
+      {loading === false && (
         <Fabric style={{ height: '100%', margin: '0 auto', maxWidth: 1050 }}>
           <div className={classNames(t.w100, t.pa4, FontClassNames.medium)}>
             <Top />
-            <Summary
-              jobInfo={jobInfo}
-              jobConfig={jobConfig}
-            />
+            <Summary />
             <Detail />
           </div>
         </Fabric>
-        )}
-      </Context.Provider>
+      )}
+    </Context.Provider>
   );
 };
 

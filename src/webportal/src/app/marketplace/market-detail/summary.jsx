@@ -15,82 +15,37 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-import {
-  FontClassNames,
-  FontWeights,
-  FontSizes,
-  ColorClassNames,
-  IconFontSizes,
-  loadTheme,
-} from '@uifabric/styling';
+import { FontClassNames, getTheme } from '@uifabric/styling';
 import c from 'classnames';
-import copy from 'copy-to-clipboard';
-import { get, isEmpty, isNil } from 'lodash';
-import { DateTime } from 'luxon';
-import {
-  ActionButton,
-  DefaultButton,
-  PrimaryButton,
-  Dropdown,
-  Link,
-  MessageBar,
-  MessageBarType,
-  TooltipHost,
-  DirectionalHint,
-  IconButton,
-  Stack,
-  Dialog,
-} from 'office-ui-fabric-react';
-import PropTypes from 'prop-types';
-import React, {useState, useEffect} from 'react';
-import yaml from 'js-yaml';
-
+import { DefaultButton, PrimaryButton, Stack } from 'office-ui-fabric-react';
+import React, { useState, useContext } from 'react';
 import t from '../../components/tachyons.scss';
-import {isJobV2} from '../../job/job-view/fabric/job-detail/util';
 import Card from './card';
 import { Icon } from 'office-ui-fabric-react/lib/Icon';
+import { TooltipHost } from 'office-ui-fabric-react/lib/Tooltip';
 
 import EditMarketItem from './EditMarketItem';
 import DeleteMarketItem from './DeleteMarketItem';
-import MonacoPanel from '../../components/monaco-panel';
+import Context from './Context';
+import { updateMarketItem } from './conn';
+import yaml from 'js-yaml';
+import { isNil } from 'lodash';
 
-export default function Summary(props) {
+const { spacing } = getTheme();
+
+const user = cookies.get('user');
+
+export default function Summary() {
+  const { marketItem } = useContext(Context);
 
   const [hideDialog, setHideDialog] = useState(true);
   const [hideDeleteDialog, setHideDeleteDialog] = useState(true);
-  const [monacoProps, setMonacoProps] = useState(null);
-  const [modalTitle, setModalTitle] = useState('');
+  const [stars, setStars] = useState(marketItem.stars);
+  const [starClicked, setStarClicked] = useState(false);
+  const [submits, setSubmits] = useState(marketItem.submits);
 
-  const {jobInfo, jobConfig} = props;
-
-  const rawJobConfig = `protocolVersion: 2
-  name: mintao_1572342386146
-  type: job
-  jobRetryCount: 0
-  prerequisites:
-    - type: dockerimage
-      uri: openpai/tensorflow-py36-cu90
-      name: docker_image_0
-  taskRoles:
-    taskrole:
-      instances: 1
-      completion:
-        minFailedInstances: 1
-        minSucceededInstances: 1
-      taskRetryCount: 0
-      dockerImage: docker_image_0
-      resourcePerInstance:
-        gpu: 1
-        cpu: 4
-        memoryMB: 8192
-      commands:
-        - git clone https://github.com/debuggy/marketplace-minist-example.git
-        - cd marketplace-minist-example
-        - python download.py
-        - python softmax_regression.py
-        - python convolutional.py
-  defaults:
-    virtualCluster: default`;
+  // save jobConfig to localStorage
+  window.localStorage.setItem('jobConfig', marketItem.jobConfig);
 
   function showDialog(event) {
     event.stopPropagation();
@@ -102,122 +57,113 @@ export default function Summary(props) {
     setHideDeleteDialog(false);
   }
 
-  function showEditor(title, props) {
-    setModalTitle(title);
-    setMonacoProps(props);
-  }
-
-  function onDismiss() {
-    setModalTitle('');
-    setMonacoProps(null);
-  }
-
-  function showJobConfig() {
-    if (isJobV2(rawJobConfig)) {
-      showEditor('Job Config', {
-        language: 'yaml',
-        value: yaml.safeDump(rawJobConfig),
-      });
+  function onLikeCliked(event) {
+    if (starClicked) {
+      setStars(stars - 1);
+      setStarClicked(false);
     } else {
-      showEditor('Job Config', {
-        language: 'json',
-        value: JSON.stringify(rawJobConfig, null, 2),
-      });
+      setStars(stars + 1);
+      setStarClicked(true);
     }
   }
 
+  function onSubmitClicked() {
+    cloneJob(marketItem.jobConfig);
+    setSubmits(submits + 1);
+    updateMarketItem(
+      marketItem.id,
+      marketItem.name,
+      marketItem.author,
+      marketItem.createDate,
+      marketItem.updateDate,
+      marketItem.category,
+      marketItem.tags,
+      marketItem.introduction,
+      marketItem.description,
+      marketItem.jobConfig,
+      marketItem.submits + 1,
+      marketItem.stars,
+    );
+  }
+
+  function cloneJob(jobConfig) {
+    jobConfig = yaml.safeLoad(jobConfig);
+    if (isJobV2(jobConfig)) {
+      window.location.href = `/submit.html?marketItemId=${marketItem.id}#/general`;
+    } else {
+      window.location.href = `/submit_v1.html`;
+    }
+  }
+
+  function isJobV2(jobConfig) {
+    return (
+      !isNil(jobConfig.protocol_version) || !isNil(jobConfig.protocolVersion)
+    );
+  }
+
   return (
-    <div className={t.mt3}>
+    <div
+      style={{
+        marginTop: spacing.m,
+      }}
+    >
       {/* summary */}
       <Card className={c(t.pv4, t.ph5)}>
-        {/* summary-row-1 */}
-        <div className={c(t.flex, t.justifyBetween, t.itemsCenter)}>
-          <div
-            className={c(t.flex, t.itemsCenter)}
-            style={{ flexShrink: 1, minWidth: 0 }}
-          >
-            <div
-              className={c(t.truncate)}
-              style={{
-                fontSize: FontSizes.xxLarge,
-                fontWeight: FontWeights.regular,
-              }}
-            >
-              {jobInfo.name}
-            </div>
-          </div>
-        </div>
-        {/* summary-row-2 */}
-        <div className={c(t.mt4, t.flex, t.itemsStart)}>
-          <div>
-            <div className={c(t.gray, FontClassNames.medium)}>{jobInfo.author}</div>
-          </div>
-          <div className={c(t.bl, t.mh3)}></div>
-          <div className={t.ml4}>
-            <div className={c(t.gray, FontClassNames.medium)}>
-              <Icon iconName='Like' />
-                {jobInfo.submits}
-            </div>
-          </div>
-          <div className={c(t.bl, t.mh3)}></div>
-          <div className={t.ml4}>
-            <div className={c(t.gray, FontClassNames.medium)}>
-              <Icon iconName='Like' />
-                {jobInfo.stars}
-            </div>
-          </div>
-        </div>
-        {/* summary-row-3 */}
-        <div className={c(t.mt4, t.flex, t.justifyBetween, t.itemsCenter)}>
-          <div>
-            {jobInfo.introduction}
-          </div>
-        </div>
-        {/* summary-row-4 */}
-        <div className={c(t.mt4, t.flex, t.justifyBetween, t.itemsCenter)}>
-          <div className={c(t.flex)}>
-            <span>
-              <PrimaryButton
-                text='Clone'
-              />
-            </span>
-            <span className={c(t.ml2)}>
-              <PrimaryButton
-                text='Edit'
-                onClick={showDialog}
-              />
-            </span>
+        <Stack gap={'l1'}>
+          {/* summary-row-1 */}
+          <div className={FontClassNames.xLarge}>{marketItem.name}</div>
+          {/* summary-row-2 */}
+          <Stack horizontal gap={'m'}>
+            <TooltipHost content='Author'>
+              <Stack horizontal gap='s1'>
+                <Icon iconName='Contact' />
+                <span className={c(t.gray, FontClassNames.medium)}>
+                  {marketItem.author}
+                </span>
+              </Stack>
+            </TooltipHost>
+            <Stack className={c(t.gray, FontClassNames.medium)}>
+              <TooltipHost content='submited times'>
+                <Stack horizontal gap={'s1'}>
+                  <Icon iconName='Copy' />
+                  <span>{marketItem.submits}</span>
+                </Stack>
+              </TooltipHost>
+            </Stack>
+            <Stack className={c(t.gray, FontClassNames.medium)}>
+              <TooltipHost content='stars'>
+                <Stack horizontal gap={'s'}>
+                  <button
+                    onClick={onLikeCliked}
+                    style={{ backgroundColor: 'Transparent', border: 'none' }}
+                  >
+                    <Icon iconName='Like' />
+                  </button>
+                  <span>{stars}</span>
+                </Stack>
+              </TooltipHost>
+            </Stack>
+          </Stack>
+          {/* summary-row-3 */}
+          <div className={c(t.gray)}>{marketItem.introduction}</div>
+          {/* summary-row-4 */}
+          <Stack horizontal gap='m'>
+            <PrimaryButton text='Submit' onClick={onSubmitClicked} />
+            <DefaultButton text='Edit' onClick={showDialog} />
             <EditMarketItem
               hideDialog={hideDialog}
               setHideDialog={setHideDialog}
             />
-            <span className={c(t.ml2)}>
-              <PrimaryButton
-                text='Delete'
-                onClick={showDeleteDialog}
-              />
-            </span>
+            <DefaultButton text='Delete' onClick={showDeleteDialog} />
             <DeleteMarketItem
               hideDeleteDialog={hideDeleteDialog}
               setHideDeleteDialog={setHideDeleteDialog}
             />
-          </div>
-          <div>
-            <span>
-              <PrimaryButton
-                text='Yaml File'
-                onClick={showJobConfig}
-              />
-            </span>
-          </div>
-        </div>
-        <MonacoPanel
-          isOpen={!isNil(monacoProps)}
-          onDismiss={onDismiss}
-          title={modalTitle}
-          monacoProps={monacoProps}
-        />
+          </Stack>
+        </Stack>
       </Card>
     </div>
   );
 }
+
+Summary.contexttype = Context;

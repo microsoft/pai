@@ -14,8 +14,6 @@
 // NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-import { FontSizes } from '@uifabric/styling';
-import c from 'classnames';
 import PropTypes from 'prop-types';
 import React from 'react';
 import {
@@ -24,19 +22,28 @@ import {
   Dialog,
   DialogType,
   DialogFooter,
-  Icon,
+  FontClassNames,
+  FontSizes,
+  FontWeights,
+  Text,
 } from 'office-ui-fabric-react';
-import { getId } from 'office-ui-fabric-react/lib/Utilities';
 
-import t from '../../components/tachyons.scss';
+import { deleteItem } from './conn';
 
 export default function DeleteMarketItem(props) {
-  const {hideDeleteDialog, setHideDeleteDialog} = props;
+  const { hideDeleteDialog, setHideDeleteDialog } = props;
 
-  function onConfirm() {
+  async function onConfirm() {
     setHideDeleteDialog(true);
-    // do something to confirm edit
-
+    // connect to db to delete item using name(temporary).
+    try {
+      await deleteItem();
+      setHideDeleteDialog(true);
+    } catch (err) {
+      setHideDeleteDialog(true);
+      alert(err);
+    }
+    window.location.href = `/market-list.html`;
   }
 
   function closeDialog() {
@@ -47,36 +54,38 @@ export default function DeleteMarketItem(props) {
     <Dialog
       hidden={hideDeleteDialog}
       onDismiss={closeDialog}
+      minWidth={400}
+      maxWidth={400}
       dialogContentProps={{
-        type: DialogType.largeHeader,
-        showCloseButton: false,
-        styles: {
-          title: { paddingBottom: '12px' },
-        },
+        type: DialogType.normal,
         title: (
-          <span
+          <Text
+            styles={{
+              root: {
+                fontSize: FontSizes.large,
+                fontWeight: FontWeights.semibold,
+              },
+            }}
           >
-            <Icon
-              iconName='Info'
-              styles={{
-                root: { marginRight: '6px'},
-              }}
-            />
-            DeleteMarketItem
+            Delete Item !
+          </Text>
+        ),
+        subText: (
+          <span className={FontClassNames.medium}>
+            Do you want to delete this market item permanently?
           </span>
         ),
-        subText: "confirm to delete permanently?",
       }}
       modalProps={{
-        isBlocking: false,
-        styles: { main: { maxWidth: 450 } }
+        isBlocking: true,
+        styles: { main: { maxWidth: 450 } },
       }}
-      >
-        <DialogFooter>
-          <PrimaryButton onClick={onConfirm} text='Confirm' />
-          <DefaultButton onClick={closeDialog} text='Cancel' />
-        </DialogFooter>
-      </Dialog>
+    >
+      <DialogFooter>
+        <PrimaryButton onClick={onConfirm} text='Confirm' />
+        <DefaultButton onClick={closeDialog} text='Cancel' />
+      </DialogFooter>
+    </Dialog>
   );
 }
 

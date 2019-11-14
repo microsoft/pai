@@ -23,16 +23,23 @@
  * SOFTWARE.
  */
 
-import React from 'react';
-import { Text, Stack, CommandButton } from 'office-ui-fabric-react';
+import React, { useEffect, useState } from 'react';
+import { Text, Stack, CommandButton, Dialog } from 'office-ui-fabric-react';
 import PropTypes from 'prop-types';
 
+import CreateMarketItem from './createMarketItem';
+
 export const TopBar = React.memo(() => {
+  const [hideDialog, setHideDialog] = useState(true);
+
   const menuProps = {
     items: [
       {
         key: 'new',
         text: 'New',
+        onClick() {
+          setHideDialog(false);
+        },
       },
       {
         key: 'myJob',
@@ -51,6 +58,7 @@ export const TopBar = React.memo(() => {
         iconProps={{ iconName: 'Add' }}
         menuProps={menuProps}
       />
+      <CreateMarketItem hideDialog={hideDialog} setHideDialog={setHideDialog} />
     </Stack>
   );
 });

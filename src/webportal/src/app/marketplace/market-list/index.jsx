@@ -22,64 +22,125 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+import 'core-js/stable';
+import 'regenerator-runtime/runtime';
+import 'whatwg-fetch';
 
 import React, { useState, useEffect } from 'react';
 import ReactDOM from 'react-dom';
-import { HashRouter as Router, Route } from 'react-router-dom';
-import {
-  initializeIcons,
-  Fabric,
-  Stack,
-  getTheme,
-} from 'office-ui-fabric-react';
+import { initializeIcons, Fabric, Stack } from 'office-ui-fabric-react';
+import { getTheme } from '@uifabric/styling';
+import { isNil } from 'lodash';
 
 import { initTheme } from '../../components/theme';
 import { TopBar } from './top-bar';
-import { FilterBar } from './filter-bar';
 import { CategorySideBar } from './category-side-bar';
 import { ItemList } from './item-list';
 import { MarketItem } from './market-item';
+import { fetchMarketItemList } from './conn';
+import Context from './Context';
+import Filter from './Filter';
+import Paginator from './Paginator';
+import Pagination from './Pagination';
 
 initTheme();
 initializeIcons();
 
+const { spacing } = getTheme();
+
 const MarketList = () => {
-  const itemList = [
-    new MarketItem(
-      'minist_example',
-      'debuggy',
-      ['python', 'tensorflow'],
-      null,
-      'This is an example of tensorflow',
-      null,
-      true,
-    ),
-    new MarketItem(
-      'Pytorch Cifar10',
-      'qinsu',
-      ['python', 'pytorch', 'cifar10', 'benchmark'],
-      null,
-      'This is a benchmark of pytorch cifar10 model',
-      null,
-      false,
-    ),
-  ];
+  const [itemList, setItemList] = useState(null);
+  const [filteredItems, setFilteredItems] = useState(null);
+  const [filter, setFilter] = useState(new Filter());
+  const [pagination, setPagination] = useState(new Pagination());
+
+  useEffect(() => {
+    setFilteredItems(filter.apply(itemList));
+  }, [itemList, filter]);
+
+  useEffect(() => {
+    setPagination(new Pagination(pagination.itemsPerPage, 0));
+  }, [filteredItems]);
+
+  useEffect(() => {
+    reload();
+  }, []);
+
+  async function reload() {
+    const nextState = {
+      loading: false,
+      reloading: false,
+      error: null,
+      itemList: [],
+    };
+
+    var allItems = [];
+    const loadMarketItemList = async () => {
+      try {
+        allItems = await fetchMarketItemList();
+      } catch (err) {
+        alert(err.message);
+        window.location.href('home.html');
+      }
+    };
+
+    await loadMarketItemList();
+
+    allItems.forEach(function(item) {
+      // parse tags
+      if (item.tags !== null) {
+        item.tags = item.tags.split('|');
+      } else {
+        item.tags = [];
+      }
+      const marketItem = new MarketItem(
+        item.id,
+        item.name,
+        item.author,
+        item.createDate,
+        item.updateDate,
+        item.category,
+        item.tags,
+        item.introduction,
+        item.description,
+        item.jobConfig,
+        item.submits,
+        item.stars,
+      );
+      nextState.itemList.push(marketItem);
+    });
+
+    setItemList(nextState.itemList);
+  }
+
+  const context = {
+    itemList,
+    filteredItems, // used in <ItemList>
+    filter, // changed in <SearchBox>
+    setFilter, // used in <SearchBox>
+    pagination,
+    setPagination,
+  };
 
   return (
-    <Fabric style={{ height: '100%', margin: '0 auto', maxWidth: 1000 }}>
-      <Stack padding='l1' gap='s'>
-        <TopBar />
-        <Stack horizontal gap='l2'>
-          <CategorySideBar />
-          <Stack.Item grow>
-            <Stack gap='s' styles={{ root: [{ minWidth: 0 }] }}>
-              <FilterBar />
-              <ItemList items={itemList} />
-            </Stack>
-          </Stack.Item>
+    <Context.Provider value={context}>
+      <Fabric style={{ height: '100%', margin: '0 auto', maxWidth: 1000 }}>
+        <Stack padding='l1' gap='s'>
+          <TopBar />
+          <Stack horizontal gap='l2'>
+            <CategorySideBar />
+            <Stack.Item grow>
+              <Stack gap='s' styles={{ root: [{ minWidth: 0 }] }}>
+                <ItemList />
+              </Stack>
+              {!isNil(filteredItems) && filteredItems.length !== 0 && (
+                <Paginator />
+              )}
+            </Stack.Item>
+          </Stack>
         </Stack>
-      </Stack>
-    </Fabric>
+      </Fabric>
+    </Context.Provider>
   );
 };
 

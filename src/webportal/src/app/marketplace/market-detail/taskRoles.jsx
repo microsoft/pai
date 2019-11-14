@@ -1,23 +1,6 @@
-
-import { ThemeProvider } from '@uifabric/foundation';
-import {
-  createTheme,
-  ColorClassNames,
-  FontClassNames,
-  FontSizes,
-  getTheme,
-} from '@uifabric/styling';
-import c from 'classnames';
-import { capitalize, isEmpty, isNil, flatten } from 'lodash';
-import {
-  CommandBarButton,
-  PrimaryButton,
-  TooltipHost,
-  DirectionalHint,
-  Icon,
-  Stack,
-  IconButton,
-} from 'office-ui-fabric-react';
+import { isNil } from 'lodash';
+import { createTheme, FontClassNames } from '@uifabric/styling';
+import { Stack, ThemeProvider } from 'office-ui-fabric-react';
 import {
   DetailsList,
   SelectionMode,
@@ -26,12 +9,6 @@ import {
 } from 'office-ui-fabric-react/lib/DetailsList';
 import React, { useContext } from 'react';
 
-import localCss from '../../job/job-view/fabric/job-detail/components/task-role-container-list';
-import t from '../../components/tachyons.scss';
-
-import { parseGpuAttr } from '../../job/job-view/fabric/job-detail/util';
-import config from '../../config/webportal.config';
-import StatusBadge from '../../components/status-badge';
 import Card from './card';
 import Context from './Context';
 
@@ -63,10 +40,81 @@ const theme = createTheme({
 });
 
 const TaskRoles = () => {
-  const {taskRoles} = useContext(Context);
+  const { marketItem } = useContext(Context);
+
+  function parseTaskRoles(jobConfig) {
+    var items = [];
+    var item = {};
+    var key = 1;
+    const lines = jobConfig.split('\n');
+    let index = 0;
+    while (index < lines.length) {
+      if (lines[index].startsWith('taskRoles:')) {
+        while (index < lines.length && !lines[index].startsWith('defaults:')) {
+          if (lines[index - 1].startsWith('taskRoles:')) {
+            item.key = key.toString();
+            key += 1;
+            item.name = lines[index].trim().split(':')[0];
+          }
+          if (lines[index].trim().startsWith('instances')) {
+            const keyValue = lines[index].trim().split(': ');
+            item.instances = keyValue[1];
+          } else if (lines[index].trim().startsWith('dockerImage')) {
+            const keyValue = lines[index].trim().split(': ');
+            item.dockerImage = keyValue[1];
+          } else if (lines[index].trim().startsWith('resourcePerInstance')) {
+            item.resourcePerInstance =
+              lines[index + 1].trim() +
+              '\n' +
+              lines[index + 2].trim() +
+              '\n' +
+              lines[index + 3].trim();
+            index += 3;
+          } else if (lines[index].trim().startsWith('commands')) {
+            index += 1;
+            item.commands = '';
+            while (!lines[index].startsWith('defaults:')) {
+              item.commands += lines[index].trim() + '\n';
+              index += 1;
+            }
+            index -= 1;
+            items.push(item);
+          }
+          index += 1;
+        }
+      }
+      index += 1;
+    }
+    return items;
+  }
 
   function getColumns() {
     const columns = [
+      {
+        key: 'number',
+        name: 'No.',
+        headerClassName: FontClassNames.medium,
+        minWidth: 50,
+        maxWidth: 50,
+        isResizable: true,
+        onRender: (item, idx) => {
+          return (
+            !isNil(idx) && (
+              <div className={FontClassNames.mediumPlus}>{idx}</div>
+            )
+          );
+        },
+      },
+      {
+        key: 'name',
+        name: 'name',
+        fieldName: 'name',
+        className: FontClassNames.mediumPlus,
+        headerClassName: FontClassNames.mediumPlus,
+        minWidth: 50,
+        maxWidth: 70,
+        isResizable: true,
+      },
       {
         key: 'instances',
         name: 'instances',
@@ -75,39 +123,6 @@ const TaskRoles = () => {
         headerClassName: FontClassNames.mediumPlus,
         minWidth: 50,
         maxWidth: 70,
-        isResizable: true,
-      },
-      {
-        key: 'completion',
-        name: 'completion',
-        fieldName: 'completion',
-        className: FontClassNames.mediumPlus,
-        headerClassName: FontClassNames.mediumPlus,
-        minWidth: 100,
-        maxWidth: 200,
-        isResizable: true,
-        onRender: item => {
-          const completions = item.completion.split("\n");
-          const stacks = [];
-          for (var i = 0; i < completions.length; i ++) {
-            stacks.push(<Stack>{completions[i]}</Stack>);
-            //console.log(completions[i]);
-          }
-          return (
-            <Stack>
-              {stacks}
-            </Stack>
-          );
-        }
-      },
-      {
-        key: 'taskRetryCount',
-        name: 'taskretryCount',
-        fieldName: 'taskRetryCount',
-        className: FontClassNames.mediumPlus,
-        headerClassName: FontClassNames.mediumPlus,
-        minWidth: 80,
-        maxWidth: 100,
         isResizable: true,
       },
       {
@@ -129,20 +144,15 @@ const TaskRoles = () => {
         minWidth: 100,
         maxWidth: 150,
         isResizable: true,
-        
+
         onRender: item => {
-          const resources = item.resourcePerInstance.split("\n");
+          const resources = item.resourcePerInstance.split('\n');
           const stacks = [];
-          for (var i = 0; i < resources.length; i ++) {
+          for (var i = 0; i < resources.length; i++) {
             stacks.push(<Stack>{resources[i]}</Stack>);
           }
-          return (
-            <Stack>
-              {stacks}
-            </Stack>
-          );
-        }
-        
+          return <Stack>{stacks}</Stack>;
+        },
       },
       {
         key: 'commands',
@@ -154,41 +164,18 @@ const TaskRoles = () => {
         maxWidth: 150,
         isResizable: true,
         onRender: item => {
-          const commands = item.commands.split("\n");
+          const commands = item.commands.split('\n');
           const stacks = [];
-          for (var i = 0; i < commands.length; i ++) {
+          for (var i = 0; i < commands.length; i++) {
             stacks.push(<Stack>{commands[i]}</Stack>);
           }
-          return (
-            <Stack>
-              {stacks}
-            </Stack>
-          );
-        }
+          return <Stack>{stacks}</Stack>;
+        },
       },
     ];
 
     return columns;
   }
-
-  const items = [
-    {
-      key: '1',
-      instances: 1,
-      completion: `minFailedInstances: 1
-      minSucceededInstances: 1`,
-      taskRetryCount: 0,
-      dockerImage: 'docker_image_0',
-      resourcePerInstance: `gpu: 1
-      cpu: 4
-      memoryMB: 8194`,
-      commands: `- 'git clone https://github.com/debuggy/marketplace-minist-example.git'
-      - cd marketplace-minist-example
-      - python download.py
-      - python softmax_regression.py
-      - python convolutional.py'`,
-    }
-  ];
 
   function onRenderRow(props) {
     return (
@@ -202,18 +189,20 @@ const TaskRoles = () => {
       />
     );
   }
-    
+
   return (
-      <Card>
-          <DetailsList
-            columns={getColumns()}
-            disableSelectionZone
-            items={items}
-            layoutMode={DetailsListLayoutMode.justified}
-            selectionMode={SelectionMode.none}
-            onRenderRow={onRenderRow}
-          />
-      </Card>
+    <Card style={{ marginTop: 15, marginLeft: 10 }}>
+      <ThemeProvider theme={theme}>
+        <DetailsList
+          columns={getColumns()}
+          disableSelectionZone
+          items={parseTaskRoles(marketItem.jobConfig)}
+          layoutMode={DetailsListLayoutMode.justified}
+          selectionMode={SelectionMode.none}
+          onRenderRow={onRenderRow}
+        />
+      </ThemeProvider>
+    </Card>
   );
 };
 
