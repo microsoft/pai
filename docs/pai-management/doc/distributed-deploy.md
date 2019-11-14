@@ -37,6 +37,8 @@
 
 Note 1: If you wanna manage the cluster in a machine belonging to OpenPAI, please choose Option B. Otherwise, Option A is highly recommended.
 
+Note 2: We suggest the Option A. Because manage cluster in a node of the cluster is not recommanded.
+
 ***
 
 ### Step 2. Prepare Configuration <a name="c-step-2"></a>
@@ -54,8 +56,13 @@ If you are very familiar with OpenPAI, you could directly write your configurati
 
 ### Step 3. Deploy Kubernetes <a name="c-step-3"></a>
 
-
 If your cluster is deployed in Azure, and there are azure rdma capable machines. Please go to this [section](#az_rdma) first.
+
+Suggest to deploy kubernetes and maintain it with [kubespray](https://github.com/kubernetes-sigs/kubespray). We have written a document for user to deploy a k8s cluster. And when deploy k8s through this way, please choose an VM which is not belong to the cluster.
+ - [Deploy kubernetes with Kubespray](./../../../contrib/kubespray/readme.md) 
+
+
+Of course, you could deploy kubernetes through paictl. But the kubernetes doesn't have rbac and tls. And due to its risk, deploying k8s with kubespray is highly recommanded.
 
 - [A Guide to deploy Kubernetes with paictl](./how-to-bootup-k8s.md)
 
