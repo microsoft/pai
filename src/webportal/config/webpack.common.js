@@ -81,7 +81,7 @@ const config = (env, argv) => ({
   },
   output: {
     path: helpers.root('dist'),
-    filename: 'scripts/[name].bundle.js',
+    filename: 'scripts/[name].[contenthash].js',
     jsonpFunction: 'webportalWebpackJsonp',
   },
   resolve: {
@@ -353,6 +353,8 @@ const config = (env, argv) => ({
     port: 9286,
   },
   optimization: {
+    moduleIds: 'hashed',
+    runtimeChunk: 'single',
     minimizer: [
       new TerserPlugin({
         cache: true,
@@ -364,7 +366,7 @@ const config = (env, argv) => ({
       cacheGroups: {
         vendors: {
           chunks: 'all',
-          minSize: 0,
+          minSize: 30000,
           minChunks: 2,
           maxAsyncRequests: Infinity,
           maxInitialRequests: Infinity,
