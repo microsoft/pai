@@ -25,11 +25,11 @@ if [[ ! $(kubectl get namespace | grep pai-storage) ]]; then
 fi
 
 if [[ ! $(kubectl get secrets --namespace pai-storage | grep storage-config) ]]; then
-    kubectl create secret generic storage-config -n pai-storage --from-literal=empty='' || exit $?
+    kubectl create secret generic storage-config -n pai-storage --from-literal=empty='{"name":"empty","default":false}' --dry-run -o yaml | kubectl apply --overwrite=true -f - || exit $?
 fi
 
 if [[ ! $(kubectl get secrets --namespace pai-storage | grep storage-server) ]]; then
-    kubectl create secret generic storage-server -n pai-storage --from-literal=empty='' || exit $?
+    kubectl create secret generic storage-server -n pai-storage --from-literal=empty='{"spn":"empty","type":"other"}' --dry-run -o yaml | kubectl apply --overwrite=true -f - || exit $?
 fi
 
 popd > /dev/null
