@@ -8,6 +8,7 @@ import {
   DetailsListLayoutMode,
 } from 'office-ui-fabric-react/lib/DetailsList';
 import React, { useContext } from 'react';
+import yaml from 'js-yaml';
 
 import Card from './card';
 import Context from './Context';
