@@ -40,6 +40,15 @@ function isJobV2(jobConfig) {
 
 const ItemCard = props => {
   const { item } = props;
+
+  function populateUploadedTime() {
+    const uploadedTime = Math.floor(
+      Math.abs(new Date() - new Date(item.updateDate)) / 1000 / 3600 / 24,
+    );
+    return uploadedTime === 0
+      ? 'not long ago'
+      : uploadedTime + (uploadedTime > 1 ? ' days ago' : ' day ago');
+  }
   return (
     <Card key={item.Id}>
       <Stack>
@@ -70,14 +79,7 @@ const ItemCard = props => {
               })}
             </Stack>
             <Stack>
-              {item.author} uploaded{' '}
-              {Math.ceil(
-                Math.abs(new Date() - new Date(item.updateDate)) /
-                  1000 /
-                  3600 /
-                  24,
-              )}{' '}
-              ago
+              {item.author} uploaded {populateUploadedTime()}
             </Stack>
           </Stack>
 
