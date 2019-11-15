@@ -43,8 +43,8 @@ app.use(favicon(path.join(appRoot.path, 'dist', 'favicon.ico')));
 // setup the root path
 const oneMonth = 3600 * 24 * 30 * 1000;
 
-app.use(express.static(path.join(appRoot.path, 'dist/assets'), { maxAge: oneMonth }));
-app.use(express.static(path.join(appRoot.path, 'dist/scripts'), { maxAge: oneMonth }));
+app.use(express.static('/assets', path.join(appRoot.path, 'dist/assets'), { maxAge: oneMonth }));
+app.use(express.static('/scripts', path.join(appRoot.path, 'dist/scripts'), { maxAge: oneMonth }));
 app.use(express.static(path.join(appRoot.path, 'dist')));
 
 // catch 404 and forward to error handler
