@@ -63,10 +63,10 @@ spec:
         - name: AUTHN_METHOD
           value: OIDC
 {% endif %}
-{% if cluster_cfg['cluster']['common']['job-history'] == 'true' %}
+{%- if cluster_cfg['cluster']['common']['job-history'] == "true" %}
         - name: JOB_HISTORY
           value: true
-{% endif %}
+{%- endif %}
         - name: PROM_SCRAPE_TIME
           value: {{ cluster_cfg['prometheus']['scrape_interval'] * 10 }}s
         - name: WEBPORTAL_PLUGINS
