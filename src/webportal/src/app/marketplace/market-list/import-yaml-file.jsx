@@ -23,16 +23,18 @@
  * SOFTWARE.
  */
 
-import React from 'react';
-import { FontWeights, DefaultButton, Label } from 'office-ui-fabric-react';
+import React, { useState } from 'react';
+import { DefaultButton, Stack, Text } from 'office-ui-fabric-react';
 import PropTypes from 'prop-types';
 
 import { JobProtocol } from '../../job-submission/models/job-protocol';
 
 const ImportYamlFile = props => {
-  const { setYamlText, setYamlTextName } = props;
+  const { setYamlText } = props;
+  const [yamlFileName, setYamlFileName] = useState('');
+  const uploadFile = React.createRef();
 
-  const _importFile = event => {
+  const importFile = event => {
     event.preventDefault();
     const files = event.target.files;
     if (!files || !files[0]) {
@@ -47,48 +49,35 @@ const ImportYamlFile = props => {
         return;
       }
       setYamlText(text);
-      setYamlTextName(files[0].name);
+      setYamlFileName(files[0].name);
     });
     fileReader.readAsText(files[0]);
   };
 
   return (
-    <DefaultButton>
-      <Label
-        styles={{
-          root: [
-            {
-              position: 'absolute',
-              top: 0,
-              left: 0,
-              right: 0,
-              bottom: 0,
-              width: '100%',
-              cursor: 'pointer',
-              fontWeight: FontWeights.semibold,
-            },
-          ],
-        }}
-      >
-        {'Import Yaml'}
-        <input
-          type='file'
-          style={{
-            width: '5px',
-            height: '2px',
-            opacity: '.0001',
+    <div>
+      <Stack horizontal verticalAlign='baseline' gap='m'>
+        <DefaultButton
+          text='Upload yaml file'
+          onClick={() => {
+            uploadFile.current.click();
           }}
-          accept='.yml,.yaml'
-          onChange={_importFile}
         />
-      </Label>
-    </DefaultButton>
+        <Text>{yamlFileName}</Text>
+      </Stack>
+      <input
+        type='file'
+        ref={uploadFile}
+        accept='.yml,.yaml'
+        style={{ display: 'none' }}
+        onChange={importFile}
+      />
+    </div>
   );
 };
 
 ImportYamlFile.propTypes = {
   setYamlText: PropTypes.func,
-  setYamlTextName: PropTypes.func,
 };
 
 export default ImportYamlFile;

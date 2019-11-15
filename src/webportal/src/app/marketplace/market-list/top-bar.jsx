@@ -49,11 +49,13 @@ export const TopBar = React.memo(() => {
 
   return (
     <Stack>
-      <CommandButton
-        text='Create'
-        iconProps={{ iconName: 'Add' }}
-        menuProps={menuProps}
-      />
+      <Stack horizontal horizontalAlign='end'>
+        <CommandButton
+          text='Create'
+          iconProps={{ iconName: 'Add' }}
+          menuProps={menuProps}
+        />
+      </Stack>
       <CreateMarketItem hideDialog={hideDialog} setHideDialog={setHideDialog} />
     </Stack>
   );
