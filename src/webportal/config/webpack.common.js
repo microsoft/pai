@@ -263,7 +263,7 @@ const config = (env, argv) => ({
       { from: 'src/assets/img/favicon.ico', to: 'favicon.ico' },
     ]),
     new MiniCssExtractPlugin({
-      filename: 'styles/[name].bundle.css',
+      filename: 'styles/[name].[contenthash].css',
     }),
     // required by ejs loader
     new webpack.ProvidePlugin({

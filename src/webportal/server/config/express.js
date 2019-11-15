@@ -44,6 +44,7 @@ app.use(favicon(path.join(appRoot.path, 'dist', 'favicon.ico')));
 const oneMonth = 3600 * 24 * 30 * 1000;
 
 app.use('/assets', express.static(path.join(appRoot.path, 'dist/assets'), { maxAge: oneMonth }));
+app.use('/styles', express.static(path.join(appRoot.path, 'dist/styles'), { maxAge: oneMonth }));
 app.use('/scripts', express.static(path.join(appRoot.path, 'dist/scripts'), { maxAge: oneMonth }));
 app.use(express.static(path.join(appRoot.path, 'dist')));
 
