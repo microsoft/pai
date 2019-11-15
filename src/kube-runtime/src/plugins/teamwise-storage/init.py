@@ -55,20 +55,26 @@ def is_valid_storage_config(user_storage_config, storage_config_names):
 
 
 def generate_commands(storage_config_names):
-    query_string = "&".join(list(map(lambda name: "names={}".format(name), storage_config_names)))
-    resp = http_get("{}/api/v2/storage/config/?{}".format(REST_API_PREFIX, query_string))
+    query_string = "&".join(
+        list(map(lambda name: "names={}".format(name), storage_config_names)))
+    resp = http_get(
+        "{}/api/v2/storage/config/?{}".format(REST_API_PREFIX, query_string))
     if resp.status_code != http.HTTPStatus.OK:
-        logger.error("Failed to get storage config from rest-server", resp.text)
+        logger.error(
+            "Failed to get storage config from rest-server %s", resp.text)
         raise Exception("Generate commands faield")
     storage_configs = resp.json()
 
     servers_name = set([
         mount_info["server"] for storage_config in storage_configs for mount_info in storage_config["mountInfos"]])
 
-    query_string = "&".join(list(map(lambda name: "names={}".format(name), servers_name)))
-    resp = http_get("{}/api/v2/storage/server/?{}".format(REST_API_PREFIX, query_string))
+    query_string = "&".join(
+        list(map(lambda name: "names={}".format(name), servers_name)))
+    resp = http_get(
+        "{}/api/v2/storage/server/?{}".format(REST_API_PREFIX, query_string))
     if resp.status_code != http.HTTPStatus.OK:
-        logger.error("Failed to get storage servers config from rest-server", resp.text)
+        logger.error(
+            "Failed to get storage servers config from rest-server %s", resp.text)
         raise Exception("Generate commands faield")
     servers_config = resp.json()
 
@@ -78,7 +84,8 @@ def generate_commands(storage_config_names):
 def generage_storage_command(storage_config, servers_config):
     mount_commands = ""
     for mount in storage_config["mountInfos"]:
-        server_config = next(conf for conf in servers_config if conf.spn == mount.spn)
+        server_config = next(
+            conf for conf in servers_config if conf.spn == mount.spn)
         if server_config.type == "nfs":
             pass
     return mount_commands
@@ -98,7 +105,8 @@ if __name__ == "__main__":
 
     user_config = resp.json()
     if not user_config["storageConfig"]:
-        logger.error("User %s don't has the permission to access storage", USER_NAME)
+        logger.error(
+            "User %s don't has the permission to access storage", USER_NAME)
         sys.exit(1)
 
     user_storage_config = user_config["storageConfig"]
@@ -108,7 +116,8 @@ if __name__ == "__main__":
 
     storage_config_names = parameters["storageConfigNames"]
     if not is_valid_storage_config(user_storage_config, storage_config_names):
-        logger.error("User %s do not has permission to access storages: %s", storage_config_names)
+        logger.error("User %s do not has permission to access storages: %s",
+                     USER_NAME, storage_config_names)
         sys.exit(1)
 
     storage_config_names = parameters["storageConfigNames"]
