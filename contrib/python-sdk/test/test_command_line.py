@@ -145,7 +145,13 @@ testing REST APIs related to querying a job, including
             to_screen(f"remove directory /{created_path} on {alias}")
             self.cmd_exec(['pai', 'remove', f'pai://{alias}/0/{created_path}'])
             self.cmd_exec(['pai', 'listdir', f'pai://{alias}/0/'])
-        
+    
+    def step5_start_container(self):
+        alias = get_defaults()["cluster-alias"]
+        self.job_name = 'ut_test_' + randstr(10)
+        self.cmd_exec(['pai', 'start-container', f'--cluster-alias {alias}', f'--job-name {self.job_name}', 
+            f'--timeout 1s', f'--image sissie/pytorch-py36-cu90-ssh'])
+        to_screen('Please exit ssh terminal to complete the test')
        
 
     @seperated

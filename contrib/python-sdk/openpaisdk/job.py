@@ -154,7 +154,9 @@ class Job:
     def load(self, fname: str = None, job_name: str = None, cluster_alias: str = None):
         if cluster_alias:  # load job config from cluster by REST api
             job_name = na(job_name, self.name)
-            self.protocol = get_cluster(cluster_alias).rest_api_job_info(job_name, 'config')
+            self.protocol.update(get_cluster(cluster_alias).rest_api_job_info(job_name, 'config'))
+            self.set_param('cluster_alias', cluster_alias)
+            #self.protocol['parameters']['cluster_alias'] = cluster_alias
         else:  # load from local file
             if not fname:
                 fname = Job(job_name).protocol_file

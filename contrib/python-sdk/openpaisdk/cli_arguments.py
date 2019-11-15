@@ -76,6 +76,11 @@ def add_arguments():
 
     CliRegistery.add_argument('--cmd-sep', default="\s*&&\s*", help="command separator, default is (&&)")
     CliRegistery.add_argument('commands', nargs=argparse.REMAINDER, help='shell commands to execute')
+    CliRegistery.add_argument('--timeout', help='time period for empty container to running\
+                                                 (s - seconds\
+                                                 m - minutes\
+                                                 h - hours\
+                                                 d - days)')
 
     # runtime
     CliRegistery.add_argument('config', nargs='?', help='job config file')

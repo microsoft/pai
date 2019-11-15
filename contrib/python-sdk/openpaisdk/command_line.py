@@ -318,9 +318,47 @@ def cli_sub(args):
 
 def connect_notebook(job):
     result = job.wait()
-    if result.get("notebook", None) is not None:
+    if result is not None and result.get("notebook", None) is not None:
         browser_open(result["notebook"])
     return result
+
+
+@register_as_cli(
+    'start-container',
+    common_job_args + ['--timeout', '--user'],
+    'start an empty container visited through ssh'
+)
+def cli_start_container(args):
+    check_common_job_args(args)
+    assert args.timeout, "must specify a time period through '--timeout'"
+    assert args.job_name, "must specify a job name"
+    #assert args.user, "must specify a user"
+    job = Job()
+    # start an empty container
+    job.new(args.job_name).one_liner(
+        commands=" ".join([f'sleep {args.timeout}']),
+        image=args.image,
+        resources=extract_args(args, ["gpu", "cpu", "memoryMB", "mem"]),
+        cluster=extract_args(
+            args, ["cluster_alias", "virtual_cluster", "workspace"]),
+    )
+    result = submit_it(job, args)
+    result.update(na(connect_notebook(job), {}))
+    
+    # ssh connection
+    client = ClusterList().load().get_client(args.cluster_alias)
+    if not args.user:
+        args.user = client.user
+    ssh_info = client.rest_api_job_info(args.job_name, 'ssh', user = args.user)
+    ssh_private_key_link = ssh_info.get('keyPair', {}).get('privateKeyDirectDownloadLink', '')
+    ssh_port = ssh_info.get('containers', {})[0].get('sshPort', '')
+    ssh_ip = ssh_info.get('containers', [])[0].get('sshIp', '')
+    ssh_user = ssh_info.get('keyPair', {}).get('privateKeyFileName', '')
+    from openpaisdk.io_utils import web_download_to_folder
+    web_download_to_folder(ssh_private_key_link, ".")
+    to_screen(f'Download private key from {ssh_private_key_link}')
+    to_screen(f'execute "ssh -i {ssh_user} -p {ssh_port} root@{ssh_ip}" to connect container')
+    os.system(f'ssh -i {ssh_user} -p {ssh_port} root@{ssh_ip}')
 
 
 @register_as_cli(
