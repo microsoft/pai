@@ -11,13 +11,7 @@ const Description = () => {
 
   return (
     <Card className='markdown-body' style={{ marginTop: 5, marginLeft: 10 }}>
-      <div
-        style={{
-          backgroundColor: '#f8f8f8',
-        }}
-      >
-        <ReactMarkdown source={marketItem.description} />
-      </div>
+      <ReactMarkdown source={marketItem.description} />
     </Card>
   );
 };

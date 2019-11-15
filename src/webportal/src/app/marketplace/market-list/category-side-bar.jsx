@@ -14,11 +14,8 @@
 // NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-import React, { useContext, useState, useEffect } from 'react';
+import React, { useContext, useState } from 'react';
 import {
-  getTheme,
-  ColorClassNames,
-  CommandBar,
   CommandBarButton,
   SearchBox,
   Stack,
@@ -32,12 +29,7 @@ import Context from './Context';
 import Filter from './Filter';
 
 export const CategorySideBar = () => {
-  const { filteredItems, filter, setFilter } = useContext(Context);
-
-  function onKeywordChange(keyword) {
-    const { custom, authors, official } = filter;
-    setFilter(new Filter(keyword, authors, custom, official));
-  }
+  const { filter, setFilter } = useContext(Context);
 
   function onCustomChange(event, isChecked) {
     const { keyword, authors, official } = filter;
@@ -57,6 +49,7 @@ export const CategorySideBar = () => {
     }
   }
 
+  /*
   // get distinct authors
   var allAuthors = [];
   if (!isNil(filteredItems)) {
@@ -69,14 +62,16 @@ export const CategorySideBar = () => {
   // get selected Author Items
   const selectedItems = Array.from(filter.authors);
 
-  function onCancelClicked(event) {}
+  // delete all authors
+  function onCancelClicked() {
+    const { keyword, custom, official } = filter;
+    setFilter(keyword, new Set(), custom, official);
+  }
+  */
 
   return (
     <Stack gap='m'>
-      <Text variant='large' styles={{ root: { fontWeight: 'semibold' } }}>
-        Filter
-      </Text>
-      <Stack gap='m'>
+      {/*
         <SearchBox underlined placeholder='Search' onChange={onKeywordChange} />
         <Stack horizontal>
           <FilterButton
@@ -98,17 +93,17 @@ export const CategorySideBar = () => {
               root: { backgroundColor: 'transparent', height: '100%' },
             }}
             iconProps={{ iconName: 'Cancel' }}
-            onClick={onCancelClicked}
+            onClick={() => onCancelClicked}
           />
         </Stack>
-        <Text> Categories </Text>
-        <Checkbox label='Custom' onChange={onCustomChange}></Checkbox>
-        <Checkbox
-          styles={{ root: [{ maxWidth: 200 }] }}
-          label='OpenPAI Official'
-          onChange={onOfficialChange}
-        ></Checkbox>
-      </Stack>
+        */}
+      <Text> Categories </Text>
+      <Checkbox label='Custom' onChange={onCustomChange}></Checkbox>
+      <Checkbox
+        styles={{ root: [{ maxWidth: 200 }] }}
+        label='OpenPAI Official'
+        onChange={onOfficialChange}
+      ></Checkbox>
     </Stack>
   );
 };

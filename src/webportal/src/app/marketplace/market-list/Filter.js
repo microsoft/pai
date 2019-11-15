@@ -4,8 +4,8 @@ class Filter {
   constructor(
     keyword = '',
     authors = new Set(),
-    custom = true,
-    official = true,
+    custom = false,
+    official = false,
   ) {
     this.keyword = keyword;
     this.authors = authors;
@@ -15,18 +15,32 @@ class Filter {
 
   apply(itemList) {
     const { keyword, authors, custom, official } = this;
+    // before useEffect to load data.
     if (isNil(itemList)) {
       return null;
     }
-    if (custom === false && official === false) {
+    // initial state
+    if (
+      keyword.length === '' &&
+      authors.size === 0 &&
+      custom === false &&
+      official === false
+    ) {
       return itemList;
+    }
+    // states changed
+    const items = itemList.filter(
+      item =>
+        item.name.indexOf(keyword) > -1 &&
+        (authors.size === 0 || authors.has(item.author)),
+    );
+    if (custom === official) {
+      return items;
     } else {
-      return itemList.filter(
+      return items.filter(
         item =>
-          item.name.indexOf(keyword) > -1 &&
-          (authors.size === 0 || authors.has(item.author)) &&
-          ((custom && item.category === 'custom') ||
-            (official && item.category === 'official')),
+          (custom && item.category === 'custom') ||
+          (official && item.category === 'official'),
       );
     }
   }

@@ -25,11 +25,7 @@
 
 import React, { useContext } from 'react';
 import {
-  Text,
   Stack,
-  DefaultButton,
-  PrimaryButton,
-  TooltipHost,
   Link,
   ColorClassNames,
   FontWeights,
@@ -37,110 +33,13 @@ import {
 } from 'office-ui-fabric-react';
 import c from 'classnames';
 import t from '../../components/tachyons.scss';
-import { getTheme, FontClassNames } from '@uifabric/styling';
+import { FontClassNames } from '@uifabric/styling';
 import { Icon } from 'office-ui-fabric-react/lib/Icon';
 import { isNil } from 'lodash';
-import yaml from 'js-yaml';
 
-import Card from './card';
-import { updateMarketItem } from '../market-detail/conn';
 import Context from './Context';
 import Filter from './Filter';
-
-const { spacing, palette } = getTheme();
-
-function onSubmitClicked(item) {
-  cloneJob(item.id, item.jobConfig);
-  updateMarketItem(
-    item.id,
-    item.name,
-    item.author,
-    item.createDate,
-    item.updateDate,
-    item.category,
-    item.tags,
-    item.introduction,
-    item.description,
-    item.jobConfig,
-    item.submits + 1,
-    item.stars,
-  );
-}
-
-function cloneJob(id, jobConfig) {
-  jobConfig = yaml.safeLoad(jobConfig);
-  if (isJobV2(jobConfig)) {
-    window.location.href = `/submit.html?itemId=${id}#/general`;
-  } else {
-    window.location.href = `/submit_v1.html`;
-  }
-}
-
-function isJobV2(jobConfig) {
-  return (
-    !isNil(jobConfig.protocol_version) || !isNil(jobConfig.protocolVersion)
-  );
-}
-
-const renderItem = item => {
-  return (
-    <Card key={item.Id}>
-      <Stack>
-        <Stack horizontal horizontalAlign='space-between' gap='l2'>
-          <Stack gap='l1' styles={{ root: [{ width: '80%' }] }}>
-            <Stack horizontal gap='l1'>
-              <TooltipHost content='marketItem'>
-                <div className={FontClassNames.xLarge}>{item.name}</div>
-              </TooltipHost>
-              <Stack horizontal verticalAlign='center' gap='s2'>
-                <TooltipHost content='submited times'>
-                  <Icon iconName='Copy' />
-                  <div>{item.submits}</div>
-                </TooltipHost>
-              </Stack>
-              <Stack horizontal verticalAlign='center' gap='s2'>
-                <TooltipHost content='stars'>
-                  <Icon iconName='Like' />
-                  <div>{item.stars}</div>
-                </TooltipHost>
-              </Stack>
-            </Stack>
-            <div>Author: {item.author}</div>
-            <Text nowrap>{item.introduction}</Text>
-            <Stack horizontal gap='s2' verticalAlign='center'>
-              {item.tags.map(tag => {
-                return (
-                  <div
-                    key={tag}
-                    className={FontClassNames.small}
-                    style={{
-                      minWidth: 50,
-                      maxWidth: 100,
-                      border: `1px solid ${palette.neutralTertiary}`,
-                      borderRadius: '5px',
-                      color: palette.neutralTertiary,
-                      padding: spacing.s1,
-                    }}
-                  >
-                    {tag}
-                  </div>
-                );
-              })}
-            </Stack>
-          </Stack>
-          <Stack gap='m' styles={{ root: [{ paddingRight: spacing.l2 }] }}>
-            <PrimaryButton onClick={() => onSubmitClicked(item)}>
-              Submit
-            </PrimaryButton>
-            <DefaultButton href={`market-detail.html?itemId=${item.id}`}>
-              View
-            </DefaultButton>
-          </Stack>
-        </Stack>
-      </Stack>
-    </Card>
-  );
-};
+import ItemCard from './item-card';
 
 export const ItemList = () => {
   const { filteredItems, setFilter, pagination } = useContext(Context);
@@ -176,7 +75,13 @@ export const ItemList = () => {
     );
   } else {
     const items = pagination.apply(filteredItems);
-    return <Stack>{items.map(item => renderItem(item))}</Stack>;
+    return (
+      <Stack>
+        {items.map(item => (
+          <ItemCard key={item.id} item={item} />
+        ))}
+      </Stack>
+    );
   }
 };
 

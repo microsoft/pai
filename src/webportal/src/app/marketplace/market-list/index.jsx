@@ -35,6 +35,7 @@ import { isNil } from 'lodash';
 import { initTheme } from '../../components/theme';
 import { TopBar } from './top-bar';
 import { CategorySideBar } from './category-side-bar';
+import { FilterBar } from './filter-bar';
 import { ItemList } from './item-list';
 import { MarketItem } from './market-item';
 import { fetchMarketItemList } from './conn';
@@ -88,7 +89,7 @@ const MarketList = () => {
 
     allItems.forEach(function(item) {
       // parse tags
-      if (item.tags !== null) {
+      if (item.tags !== null && item.tags !== '') {
         item.tags = item.tags.split('|');
       } else {
         item.tags = [];
@@ -124,13 +125,14 @@ const MarketList = () => {
 
   return (
     <Context.Provider value={context}>
-      <Fabric style={{ height: '100%', margin: '0 auto', maxWidth: 1000 }}>
+      <Fabric style={{ height: '100%', margin: '0 auto', maxWidth: 1200 }}>
         <Stack padding='l1' gap='s'>
           <TopBar />
           <Stack horizontal gap='l2'>
             <CategorySideBar />
             <Stack.Item grow>
               <Stack gap='s' styles={{ root: [{ minWidth: 0 }] }}>
+                <FilterBar />
                 <ItemList />
               </Stack>
               {!isNil(filteredItems) && filteredItems.length !== 0 && (

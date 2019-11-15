@@ -181,7 +181,6 @@ export default function EditMarketItem(props) {
                       minWidth: 50,
                       maxWidth: 100,
                       border: `1px solid ${palette.neutralTertiary}`,
-                      borderRadius: '5px',
                       color: palette.neutralTertiary,
                       padding: spacing.s1,
                     }}
@@ -192,7 +191,7 @@ export default function EditMarketItem(props) {
                     onClick={() => onDeleteTagCliked(tag)}
                     style={{ backgroundColor: 'Transparent', border: 'none' }}
                   >
-                    <Icon iconName='Delete' />
+                    <Icon iconName='Cancel' />
                   </button>
                 </Stack>
               );

@@ -23,9 +23,8 @@
  * SOFTWARE.
  */
 
-import React, { useEffect, useState } from 'react';
-import { Text, Stack, CommandButton, Dialog } from 'office-ui-fabric-react';
-import PropTypes from 'prop-types';
+import React, { useState } from 'react';
+import { Text, Stack, CommandButton, CommandBar } from 'office-ui-fabric-react';
 
 import CreateMarketItem from './createMarketItem';
 
@@ -49,10 +48,7 @@ export const TopBar = React.memo(() => {
   };
 
   return (
-    <Stack horizontal horizontalAlign='space-between'>
-      <Text variant='xLarge' styles={{ root: { fontWeight: 'semibold' } }}>
-        Marketplace
-      </Text>
+    <Stack>
       <CommandButton
         text='Create'
         iconProps={{ iconName: 'Add' }}

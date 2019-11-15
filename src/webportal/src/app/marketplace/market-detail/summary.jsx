@@ -33,8 +33,6 @@ import { isNil } from 'lodash';
 
 const { spacing } = getTheme();
 
-const user = cookies.get('user');
-
 export default function Summary() {
   const { marketItem } = useContext(Context);
 
@@ -42,10 +40,7 @@ export default function Summary() {
   const [hideDeleteDialog, setHideDeleteDialog] = useState(true);
   const [stars, setStars] = useState(marketItem.stars);
   const [starClicked, setStarClicked] = useState(false);
-  const [submits, setSubmits] = useState(marketItem.submits);
-
-  // save jobConfig to localStorage
-  window.localStorage.setItem('jobConfig', marketItem.jobConfig);
+  const [starClass, setStarClass] = useState('');
 
   function showDialog(event) {
     event.stopPropagation();
@@ -61,15 +56,20 @@ export default function Summary() {
     if (starClicked) {
       setStars(stars - 1);
       setStarClicked(false);
+      setStarClass('');
     } else {
       setStars(stars + 1);
       setStarClicked(true);
+      setStarClass('gold');
     }
   }
 
   function onSubmitClicked() {
-    cloneJob(marketItem.jobConfig);
-    setSubmits(submits + 1);
+    // save jobConfig to localStorage
+    window.localStorage.removeItem('marketItem');
+    window.localStorage.setItem('marketItem', JSON.stringify(marketItem));
+
+    cloneJob();
     updateMarketItem(
       marketItem.id,
       marketItem.name,
@@ -86,10 +86,10 @@ export default function Summary() {
     );
   }
 
-  function cloneJob(jobConfig) {
-    jobConfig = yaml.safeLoad(jobConfig);
+  function cloneJob() {
+    const jobConfig = yaml.safeLoad(marketItem.jobConfig);
     if (isJobV2(jobConfig)) {
-      window.location.href = `/submit.html?marketItemId=${marketItem.id}#/general`;
+      window.location.href = `/submit.html?op=marketplace_submit&itemId=${marketItem.id}#/general`;
     } else {
       window.location.href = `/submit_v1.html`;
     }
@@ -137,7 +137,7 @@ export default function Summary() {
                     onClick={onLikeCliked}
                     style={{ backgroundColor: 'Transparent', border: 'none' }}
                   >
-                    <Icon iconName='Like' />
+                    <Icon iconName='Like' className={{ color: `${starClass}` }} />
                   </button>
                   <span>{stars}</span>
                 </Stack>

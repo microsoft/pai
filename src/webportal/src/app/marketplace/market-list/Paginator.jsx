@@ -14,10 +14,10 @@ export default function Paginator() {
   const maxPageIndex =
     allItemsNum % itemsPerPage === 0
       ? allItemsNum / itemsPerPage - 1
-      : allItemsNum / itemsPerPage;
+      : Math.floor(allItemsNum / itemsPerPage);
 
   const start = itemsPerPage * pageIndex + 1;
-  const end = start + (itemsPerPage > allItemsNum ? allItemsNum : itemsPerPage) - 1;
+  const end = Math.min(start + itemsPerPage - 1, allItemsNum);
 
   const farItems = [];
 
@@ -27,7 +27,7 @@ export default function Paginator() {
   };
 
   function onClickItemsPerPage(event, { key }) {
-    setPagination(new Pagination(key));
+    setPagination(new Pagination(key, 0));
   }
 
   function setPage(index) {
@@ -50,8 +50,8 @@ export default function Paginator() {
     buttonStyles,
     menuIconProps: { iconName: 'ChevronUp' },
     subMenuProps: {
-      items: [5, 10, 15].map(number => ({
-        key: String(number),
+      items: [1, 2, 5, 10, 15].map(number => ({
+        key: number,
         text: String(number),
         onClick: onClickItemsPerPage,
       })),
@@ -113,7 +113,7 @@ export default function Paginator() {
     farItems.push(getPageButton(maxPageIndex - 1));
     farItems.push(getPageButton(maxPageIndex));
   } else {
-    for (let i = pageIndex + 1; i < maxPageIndex; i++) {
+    for (let i = pageIndex + 1; i <= maxPageIndex; i++) {
       farItems.push(getPageButton(i));
     }
   }

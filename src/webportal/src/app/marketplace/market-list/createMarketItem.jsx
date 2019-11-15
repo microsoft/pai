@@ -34,8 +34,9 @@ import {
 import { FontClassNames, getTheme } from '@uifabric/styling';
 
 import { createMarketItem } from './conn';
-import ImportConfig from './importConfig';
+import importYamlFile from './importYamlFile';
 import { MarketItem } from './market-item';
+import ImportYamlFile from './importYamlFile';
 
 const { spacing, palette } = getTheme();
 
@@ -57,7 +58,37 @@ export default function CreateMarketItem(props) {
     { key: 'custom', text: 'custom' },
     { key: 'official', text: 'official' },
   ];
+
+  function checkRequired() {
+    if (name === '') {
+      alert('Title required');
+      return false;
+    }
+    if (author === '') {
+      alert('author required');
+      return false;
+    }
+    if (introduction === '') {
+      alert('introduction required');
+      return false;
+    }
+    if (description === '') {
+      alert('description required');
+      return false;
+    }
+    if (yamlTextName === '') {
+      alert('yaml file required');
+      return false;
+    }
+    return true;
+  }
+
   async function onConfirm() {
+    // check required
+    if (!checkRequired()) {
+      return;
+    }
+
     setHideDialog(true);
     // parse tags to store in sqlite
     var tagList = '';
@@ -164,12 +195,18 @@ export default function CreateMarketItem(props) {
       }}
     >
       <Stack gap='m'>
-        <TextField label='Title' value={name} onChange={handleChangeName} />
+        <TextField
+          label='Title'
+          value={name}
+          onChange={handleChangeName}
+          required
+        />
         <Dropdown
           label='Category'
           options={CATEGORY_OPTIONS}
           defaultSelectedKey={'custom'}
           onChange={handleChangeCategory}
+          required
         />
         <Stack gap='s1'>
           <span>Tags</span>
@@ -183,7 +220,6 @@ export default function CreateMarketItem(props) {
                       minWidth: 50,
                       maxWidth: 100,
                       border: `1px solid ${palette.neutralTertiary}`,
-                      borderRadius: '5px',
                       color: palette.neutralTertiary,
                       padding: spacing.s1,
                     }}
@@ -194,7 +230,7 @@ export default function CreateMarketItem(props) {
                     onClick={() => onDeleteTagCliked(tag)}
                     style={{ backgroundColor: 'Transparent', border: 'none' }}
                   >
-                    <Icon iconName='Delete' />
+                    <Icon iconName='Cancel' />
                   </button>
                 </Stack>
               );
@@ -216,11 +252,13 @@ export default function CreateMarketItem(props) {
           label='Introduction'
           value={introduction}
           onChange={handleChangeIntroduction}
+          required
         />
         <TextField
           label='Author'
           value={author}
           onChange={handleChangeAuthor}
+          required
         />
         <TextField
           label='Description'
@@ -228,10 +266,11 @@ export default function CreateMarketItem(props) {
           multiline
           rows={20}
           onChange={handleChangeDescription}
+          required
         />
         <div>
           <Stack horizontal gap='m'>
-            <ImportConfig
+            <ImportYamlFile
               setYamlText={setYamlText}
               setYamlTextName={setYamlTextName}
             />

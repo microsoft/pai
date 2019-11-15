@@ -59,6 +59,7 @@ import {
 import { SpinnerLoading } from '../components/loading';
 import config from '../config/webportal.config';
 import { PAI_PLUGIN } from './utils/constants';
+import { updateMarketItem } from '../marketplace/market-detail/conn';
 
 const SIDEBAR_PARAM = 'param';
 const SIDEBAR_SECRET = 'secret';
@@ -257,10 +258,11 @@ export const JobSubmissionPage = ({
   // fill protocol if submit marketItem
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
-    if (params.has('itemId')) {
+    if (params.get('op') === 'marketplace_submit') {
       // read jobConfig from localStorage
-      var jobConfig = window.localStorage.getItem('jobConfig');
-      jobConfig = yaml.safeLoad(jobConfig);
+      const marketItem = JSON.parse(window.localStorage.getItem('marketItem'));
+
+      const jobConfig = yaml.safeLoad(marketItem.jobConfig);
       // parse jobConfig
       const [
         jobInfo,

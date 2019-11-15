@@ -15,6 +15,7 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+import { isNil } from 'lodash';
 import React, { useContext, useState, useEffect } from 'react';
 import {
   getTheme,
@@ -26,9 +27,36 @@ import {
 } from 'office-ui-fabric-react';
 
 import FilterButton from './filter-button';
+import Context from './Context';
+import Filter from './Filter';
 
 export const FilterBar = () => {
   const { spacing } = getTheme();
+
+  const { filteredItems, filter, setFilter } = useContext(Context);
+
+  function onKeywordChange(keyword) {
+    const { authors, custom, official } = filter;
+    setFilter(new Filter(keyword, authors, custom, official));
+  }
+
+  // get distinct authors
+  var allAuthors = [];
+  if (!isNil(filteredItems)) {
+    allAuthors = filteredItems.map(item => {
+      return item.author;
+    });
+  }
+  const authorItems = Array.from(new Set(allAuthors));
+
+  // get selected Author Items
+  const selectedItems = Array.from(filter.authors);
+
+  // delete all authors
+  function onCancelClicked() {
+    const { keyword, custom, official } = filter;
+    setFilter(keyword, new Set(), custom, official);
+  }
 
   return (
     <Stack
@@ -45,17 +73,23 @@ export const FilterBar = () => {
         ],
       }}
     >
-      <SearchBox underlined placeholder='Search' />
+      <SearchBox
+        underlined={true}
+        placeholder='Search'
+        onChange={onKeywordChange}
+      />
       <Stack horizontal>
         <FilterButton
           styles={{ root: { backgroundColor: 'transparent' } }}
-          items={['abc', 'dce', 'xiaoming']}
-          selectedItems={['abc']}
-          onSelect={authers => {
-            return;
-          }}
           text='Author'
           iconProps={{ iconName: 'Contact' }}
+          items={authorItems}
+          selectedItems={selectedItems}
+          onSelect={authors => {
+            const { keyword, custom, official } = filter;
+            const authorsFilter = new Set(authors);
+            setFilter(new Filter(keyword, authorsFilter, custom, official));
+          }}
           searchBox
           clearButton
         />
@@ -64,6 +98,7 @@ export const FilterBar = () => {
             root: { backgroundColor: 'transparent', height: '100%' },
           }}
           iconProps={{ iconName: 'Cancel' }}
+          onClick={() => onCancelClicked}
         />
       </Stack>
     </Stack>

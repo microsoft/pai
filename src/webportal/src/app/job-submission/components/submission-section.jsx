@@ -50,6 +50,7 @@ import {
 } from '../utils/utils';
 import Context from './context';
 import { FormShortSection } from './form-page';
+import updateMarketItem from '../../marketplace/market-detail/conn';
 
 const JOB_PROTOCOL_SCHEMA_URL =
   'https://github.com/microsoft/pai/blob/master/docs/pai-job-protocol.yaml';
@@ -79,6 +80,14 @@ export const SubmissionSection = props => {
 
   const [protocolYaml, setProtocolYaml] = useState('');
   const [validationMsg, setValidationMsg] = useState('');
+  const [marketplaceSubmit, setMarketplaceSubmit] = useState(false);
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('op') === 'marketplace_submit') {
+      setMarketplaceSubmit(true);
+    }
+  }, []);
 
   const monaco = useRef(null);
 
@@ -206,6 +215,25 @@ export const SubmissionSection = props => {
       window.location.href = `/job-detail.html?username=${user}&jobName=${protocol.name}`;
     } catch (err) {
       alert(err);
+    }
+    // if marketplace submit, update submits count
+    if (marketplaceSubmit === true) {
+      // update submits
+      const marketItem = JSON.parse(window.localStorage.getItem('marketItem'));
+      updateMarketItem(
+        marketItem.id,
+        marketItem.name,
+        marketItem.author,
+        marketItem.createDate,
+        marketItem.updateDate,
+        marketItem.category,
+        marketItem.tags,
+        marketItem.introduction,
+        marketItem.description,
+        marketItem.jobConfig,
+        marketItem.submits + 1,
+        marketItem.stars,
+      );
     }
   };
 

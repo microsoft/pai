@@ -29,7 +29,7 @@ import PropTypes from 'prop-types';
 
 import { JobProtocol } from '../../job-submission/models/job-protocol';
 
-const ImportConfig = props => {
+const ImportYamlFile = props => {
   const { setYamlText, setYamlTextName } = props;
 
   const _importFile = event => {
@@ -42,11 +42,10 @@ const ImportConfig = props => {
     fileReader.addEventListener('load', () => {
       const text = String(fileReader.result);
       const valid = JobProtocol.validateFromYaml(text);
-      /*
       if (valid) {
         alert(`Yaml file is invalid. ${valid}`);
         return;
-      }*/
+      }
       setYamlText(text);
       setYamlTextName(files[0].name);
     });
@@ -87,9 +86,9 @@ const ImportConfig = props => {
   );
 };
 
-ImportConfig.propTypes = {
+ImportYamlFile.propTypes = {
   setYamlText: PropTypes.func,
   setYamlTextName: PropTypes.func,
 };
 
-export default ImportConfig;
+export default ImportYamlFile;
