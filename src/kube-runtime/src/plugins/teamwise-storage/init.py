@@ -27,33 +27,48 @@ import yaml
 sys.path.append(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
 from plugin_utils import plugin_init, inject_commands
 
+logging.basicConfig(
+    format="%(asctime)s - %(levelname)s - %(filename)s:%(lineno)s - %(message)s",
+    level=logging.INFO,
+)
 logger = logging.getLogger(__name__)
 
-REST_API_PREFIX = os.environ.get("PAI_REST_SERVER_URI")"
+# REST_API_PREFIX = os.environ.get("PAI_REST_SERVER_URI")
+# USER_TOKEN = os.environ.get("PAI_USER_TOKEN")
+# USER_NAME = os.environ.get("PAI_USER")
+STORAGE_PRE_COMMAND = ["apt-get update", "umask 000"]
+REST_API_PREFIX = "http://10.151.40.4:9186"
+USER_TOKEN = "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImJpbnlsaSIsImFwcGxpY2F0aW9uIjpmYWxzZSwiaWF0IjoxNTczNjMzMTQ0LCJleHAiOjE1NzQyMzc5NDR9.gMQ0zgqh_0BrLm3Tcviwgubq9jMG0TKLTz8ZRZJ-UsA"
+USER_NAME = "binyli"
+
+
+def http_get(url):
+    logger.info("Send get request with url %s", url)
+    return requests.get(url, headers={'Authorization': USER_TOKEN})
 
 
 def is_valid_storage_config(user_storage_config, storage_config_names):
-    for user_config in user_storage_config:
-        if user_config not in storage_config_names:
+    for storage_config in storage_config_names:
+        if storage_config not in user_storage_config:
             return False
     return True
 
 
 def generate_commands(storage_config_names):
     query_string = "&".join(list(map(lambda name: "names={}".format(name), storage_config_names)))
-    resp = requests.get("{}/api/v2/storage/config/?{}".format(query_string))
+    resp = http_get("{}/api/v2/storage/config/?{}".format(REST_API_PREFIX, query_string))
     if resp.status_code != http.HTTPStatus.OK:
-        logger.error("Failed to get storage config from rest-server", resp)
+        logger.error("Failed to get storage config from rest-server", resp.text)
         raise Exception("Generate commands faield")
     storage_configs = resp.json()
 
-    server_list = list(map(lambda config: config.servers), storage_configs)
-    servers_name = [item for sublist in server_list for item in sublist]
+    servers_name = set([
+        mount_info["server"] for storage_config in storage_configs for mount_info in storage_config["mountInfos"]])
 
     query_string = "&".join(list(map(lambda name: "names={}".format(name), servers_name)))
-    resp = requests.get("{}/api/v2/storage/server/?{}".format(query_string))
+    resp = http_get("{}/api/v2/storage/server/?{}".format(REST_API_PREFIX, query_string))
     if resp.status_code != http.HTTPStatus.OK:
-        logger.error("Failed to get storage servers config from rest-server", resp)
+        logger.error("Failed to get storage servers config from rest-server", resp.text)
         raise Exception("Generate commands faield")
     servers_config = resp.json()
 
@@ -62,7 +77,7 @@ def generate_commands(storage_config_names):
 
 def generage_storage_command(storage_config, servers_config):
     mount_commands = ""
-    for mount in storage_config.mountInfos:
+    for mount in storage_config["mountInfos"]:
         server_config = next(conf for conf in servers_config if conf.spn == mount.spn)
         if server_config.type == "nfs":
             pass
@@ -70,26 +85,25 @@ def generage_storage_command(storage_config, servers_config):
 
 
 if __name__ == "__main__":
-    [parameters, pre_script, post_script] = plugin_init()
+    logger.info("Preparing storage runtime plugin commands")
+    # [parameters, pre_script, post_script] = plugin_init()
+    parameters = {"storageConfigNames": ["STORAGE_BJ"]}
 
     commands = []
-    user_name = os.environ.get("PAI_USER")
-    user_token = os.environ.get("PAI_USER_TOKEN")
 
-    resp = requests.get("{}/api/v2/user/binyli".format(REST_API_PREFIX), headers={'Authorization': user_token})
+    resp = http_get("{}/api/v2/user/{}".format(REST_API_PREFIX, USER_NAME))
     if resp.status_code != http.HTTPStatus.OK:
         logger.error("Failed to get user config, resp: %s", resp.text)
         sys.exit(1)
 
     user_config = resp.json()
-    if not user_config.storageConfig:
-        logger.error("User %s don't has the permission to access storage", user_name)
+    if not user_config["storageConfig"]:
+        logger.error("User %s don't has the permission to access storage", USER_NAME)
         sys.exit(1)
 
-    user_storage_config = user_config.storageConfig
+    user_storage_config = user_config["storageConfig"]
     if parameters is None or parameters["storageConfigNames"] is None:
         # try to mount default storage
-        requests.get("{}/api/v2/user/binyli".format(rest_server_uri), headers={'Authorization': user_token})
         sys.exit(0)
 
     storage_config_names = parameters["storageConfigNames"]
@@ -102,23 +116,4 @@ if __name__ == "__main__":
     seperator = "\n\n"
     inject_commands(seperator.join(storage_commands), pre_script)
 
-# // const validateStorageConfig = async (userName, config) => {
-# //   const runtimePlugins = _.get(config, ['extras', 'com.microsoft.pai.runtimeplugin']);
-# //   const teamwiseStoragePlugin = runtimePlugins.filter((plugin) => {
-# //     plugin.plugin === 'teamwise-storage';
-# //   });
-# //   if (_.isEmpty(teamwiseStoragePlugin)) {
-# //     return;
-# //   }
-
-# //   const storageConfigNames = _.get(teamwiseStoragePlugin, 'parameters.storageConfigNames');
-# //   if (_.isEmpty(storageConfigNames)) {
-# //     return;
-# //   }
-# //   for (const configName of storageConfigNames) {
-# //     const isValid = await userModel.checkUserStorageConfig(userName, configName);
-# //     if (isValid === false) {
-# //       throw createError('Forbidden', 'ForbiddenUserError', `User ${userName} is not allowed access storage ${configName}`);
-# //     }
-# //   }
-# // };
+    logger.info("Storage runtime plugin perpared")
