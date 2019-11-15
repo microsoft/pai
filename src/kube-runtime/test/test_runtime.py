@@ -18,12 +18,12 @@
 
 import os
 import sys
-sys.path.append("{}/../src/init.d".format(os.path.split(os.path.realpath(__file__))[0]))
 import unittest
 import yaml
 import logging
 import logging.config
 
+sys.path.append("{}/../src/init.d".format(os.path.split(os.path.realpath(__file__))[0]))
 from initializer import init_plugins
 
 package_directory_com = os.path.dirname(os.path.abspath(__file__))
