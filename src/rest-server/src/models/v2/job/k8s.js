@@ -319,7 +319,7 @@ const generateTaskRole = (taskRole, labels, config) => {
         },
         spec: {
           privileged: false,
-          restartPolicy: 'Never',
+          restartPolicy: gangAllocation === 'true' ? 'Never' : 'OnFailure',
           serviceAccountName: 'frameworkbarrier-account',
           initContainers: [
             {
