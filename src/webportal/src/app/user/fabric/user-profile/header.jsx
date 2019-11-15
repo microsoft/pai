@@ -119,14 +119,14 @@ const UserProfileHeader = ({ userInfo, onEditProfile, onEditPassword }) => {
             </TooltipHost>
           </div>
         </div>
-        <div className={t.mt4}>
+        <div className={c(t.mt5, t.flex)}>
           <div className={c(t.flex, t.itemsCenter)}>
             <div>
               <Icon iconName='Mail' />
             </div>
             <div className={c(t.ml3)}>{userInfo.email}</div>
           </div>
-          <div className={c(t.mt3, t.flex, t.itemsCenter)}>
+          <div className={c(t.ml6, t.flex, t.itemsCenter)}>
             <div>
               <Icon iconName='Group' />
             </div>
