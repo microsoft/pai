@@ -32,15 +32,16 @@ import {
   Icon,
 } from 'office-ui-fabric-react';
 import { FontClassNames, getTheme } from '@uifabric/styling';
+import { isNil } from 'lodash';
 
 import { createMarketItem } from './conn';
-import importYamlFile from './importYamlFile';
 import { MarketItem } from './market-item';
-import ImportYamlFile from './importYamlFile';
-
-const { spacing, palette } = getTheme();
+import { TagBar } from '../components/tag-bar';
+import ImportYamlFile from './import-yaml-file';
 
 export default function CreateMarketItem(props) {
+  const { spacing } = getTheme();
+
   const { hideDialog, setHideDialog } = props;
 
   const [name, setName] = useState('');
@@ -50,9 +51,6 @@ export default function CreateMarketItem(props) {
   const [author, setAuthor] = useState('');
   const [description, setDescription] = useState('');
   const [yamlText, setYamlText] = useState();
-  const [tagEdit, setTagEdit] = useState('');
-
-  const [yamlTextName, setYamlTextName] = useState('');
 
   const CATEGORY_OPTIONS = [
     { key: 'custom', text: 'custom' },
@@ -76,7 +74,7 @@ export default function CreateMarketItem(props) {
       alert('description required');
       return false;
     }
-    if (yamlTextName === '') {
+    if (isNil(yamlText)) {
       alert('yaml file required');
       return false;
     }
@@ -117,147 +115,70 @@ export default function CreateMarketItem(props) {
     window.location.href = `/market-detail.html?itemId=${id}`;
   }
 
-  function closeDialog() {
+  const closeDialog = useCallback(() => {
     setHideDialog(true);
-  }
-
-  function handleChangeName(e) {
-    setName(e.target.value);
-  }
-
-  function handleChangeCategory(e, item) {
-    setCategory(item.text);
-  }
-
-  function handleChangeTags(e) {
-    setTagEdit(e.target.value);
-  }
-
-  function handleChangeIntroduction(e) {
-    setIntroduction(e.target.value);
-  }
-
-  function handleChangeAuthor(e) {
-    setAuthor(e.target.value);
-  }
-
-  function handleChangeDescription(e) {
-    setDescription(e.target.value);
-  }
-
-  function onAddTagCliked(e) {
-    // check empty
-    if (tagEdit === '') {
-      return;
-    }
-    // check tag duplicates
-    if (tags.includes(tagEdit)) {
-      alert('duplicated tags');
-      setTagEdit('');
-      return;
-    }
-    setTags([...tags, tagEdit]);
-    setTagEdit('');
-  }
-
-  function onDeleteTagCliked(tagToDelete) {
-    setTags(tags.filter(tag => tag !== tagToDelete));
-  }
+  });
 
   return (
     <Dialog
       hidden={hideDialog}
       onDismiss={closeDialog}
-      minWidth={600}
-      maxWidth={700}
+      minWidth={800}
       dialogContentProps={{
         type: DialogType.normal,
         showCloseButton: false,
-        styles: {
-          title: { paddingBottom: '12px' },
-        },
         title: (
           <Text
             styles={{
               root: {
                 fontSize: FontSizes.large,
                 fontWeight: FontWeights.semibold,
+                paddingBottom: spacing.m,
               },
             }}
           >
-            Create MarketItem
+            Create Market Item
           </Text>
         ),
       }}
       modalProps={{
-        isBlocking: false,
-        styles: { main: { maxWidth: 450 } },
+        isBlocking: true,
       }}
     >
       <Stack gap='m'>
         <TextField
-          label='Title'
+          label='Name'
           value={name}
-          onChange={handleChangeName}
+          onChange={e => {
+            setName(e.target.value);
+          }}
           required
         />
         <Dropdown
           label='Category'
           options={CATEGORY_OPTIONS}
           defaultSelectedKey={'custom'}
-          onChange={handleChangeCategory}
+          onChange={(e, item) => setCategory(item.text)}
           required
         />
         <Stack gap='s1'>
           <span>Tags</span>
-          <Stack horizontal gap='s2' verticalAlign='center'>
-            {tags.map(tag => {
-              return (
-                <Stack key={tag} horizontal gap='s'>
-                  <div
-                    className={FontClassNames.small}
-                    style={{
-                      minWidth: 50,
-                      maxWidth: 100,
-                      border: `1px solid ${palette.neutralTertiary}`,
-                      color: palette.neutralTertiary,
-                      padding: spacing.s1,
-                    }}
-                  >
-                    {tag}
-                  </div>
-                  <button
-                    onClick={() => onDeleteTagCliked(tag)}
-                    style={{ backgroundColor: 'Transparent', border: 'none' }}
-                  >
-                    <Icon iconName='Cancel' />
-                  </button>
-                </Stack>
-              );
-            })}
-            <TextField
-              value={tagEdit}
-              styles={{ fieldGroup: { width: 80 } }}
-              onChange={handleChangeTags}
-            />
-            <button
-              onClick={onAddTagCliked}
-              style={{ backgroundColor: 'Transparent', border: 'none' }}
-            >
-              <Icon iconName='Add' />
-            </button>
-          </Stack>
+          <TagBar tags={tags} setTags={setTags} />
         </Stack>
         <TextField
           label='Introduction'
           value={introduction}
-          onChange={handleChangeIntroduction}
+          onChange={e => {
+            setIntroduction(e.target.value);
+          }}
           required
         />
         <TextField
           label='Author'
           value={author}
-          onChange={handleChangeAuthor}
+          onChange={e => {
+            setAuthor(e.target.value);
+          }}
           required
         />
         <TextField
@@ -265,18 +186,12 @@ export default function CreateMarketItem(props) {
           value={description}
           multiline
           rows={20}
-          onChange={handleChangeDescription}
+          onChange={e => {
+            setDescription(e.target.value);
+          }}
           required
         />
-        <div>
-          <Stack horizontal gap='m'>
-            <ImportYamlFile
-              setYamlText={setYamlText}
-              setYamlTextName={setYamlTextName}
-            />
-            <Text>{yamlTextName}</Text>
-          </Stack>
-        </div>
+        <ImportYamlFile setYamlText={setYamlText} />
       </Stack>
       <DialogFooter>
         <PrimaryButton onClick={onConfirm} text='Confirm' />

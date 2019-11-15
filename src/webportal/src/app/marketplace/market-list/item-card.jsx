@@ -12,6 +12,7 @@ import { Icon } from 'office-ui-fabric-react/lib/Icon';
 import { isNil } from 'lodash';
 import yaml from 'js-yaml';
 
+import { TagBar } from '../components/tag-bar';
 import Card from './card';
 
 const { spacing, palette } = getTheme();
@@ -59,25 +60,7 @@ const ItemCard = props => {
             </TooltipHost>
             <div>Author: {item.author}</div>
             <Text nowrap>{item.introduction}</Text>
-            <Stack horizontal gap='s2' verticalAlign='center'>
-              {item.tags.map(tag => {
-                return (
-                  <div
-                    key={tag}
-                    className={FontClassNames.small}
-                    style={{
-                      minWidth: 50,
-                      maxWidth: 100,
-                      border: `1px solid ${palette.neutralTertiary}`,
-                      color: palette.neutralTertiary,
-                      padding: spacing.s1,
-                    }}
-                  >
-                    {tag}
-                  </div>
-                );
-              })}
-            </Stack>
+            <TagBar tags={item.tags} />
             <Stack>
               {item.author} uploaded {populateUploadedTime()}
             </Stack>

@@ -126,7 +126,7 @@ const MarketList = () => {
   return (
     <Context.Provider value={context}>
       <Fabric style={{ height: '100%', margin: '0 auto', maxWidth: 1200 }}>
-        <Stack padding='l1' gap='s'>
+        <Stack padding='l1' gap='l1'>
           <TopBar />
           <Stack horizontal gap='l2'>
             <CategorySideBar />
