@@ -18,9 +18,6 @@
 
 from __future__ import print_function
 
-import os
-import sys
-import collections
 import logging
 import argparse
 import yaml
@@ -38,7 +35,7 @@ def plugin_init():
     parser.add_argument("post_script", help="script for post commands")
     args = parser.parse_args()
 
-    parameters = yaml.load(args.parameters)
+    parameters = yaml.load(args.parameters, Loader=yaml.SafeLoader)
 
     return [parameters, args.pre_script, args.post_script]
 
@@ -52,4 +49,3 @@ def inject_commands(commands, script):
 if __name__ == "__main__":
     input_data = plugin_init()
     logger.info(input_data)
-

@@ -23,7 +23,6 @@ import re
 import sys
 
 import requests
-import yaml
 
 sys.path.append(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
 from plugin_utils import plugin_init, inject_commands
@@ -196,13 +195,7 @@ def normalize_path(ori_path) -> str:
     return normalized_path.replace("//", "/")
 
 
-if __name__ == "__main__":
-    logger.info("Preparing storage runtime plugin commands")
-    # [parameters, pre_script, post_script] = plugin_init()
-    parameters = {"storageConfigNames": ["STORAGE_BJ"]}
-
-    commands = []
-
+def init_storage_plugin(parameters):
     resp = http_get("{}/api/v2/user/{}".format(REST_API_PREFIX, USER_NAME))
     if resp.status_code != http.HTTPStatus.OK:
         logger.error("Failed to get user config, resp: %s", resp.text)
@@ -228,7 +221,14 @@ if __name__ == "__main__":
     storage_config_names = parameters["storageConfigNames"]
     storage_commands = generate_commands(storage_config_names)
     seperator = "\n\n"
-    inject_commands(seperator.join(
-        STORAGE_PRE_COMMAND + storage_commands), pre_script)
+    return seperator.join(STORAGE_PRE_COMMAND + storage_commands)
+
+
+if __name__ == "__main__":
+    logger.info("Preparing storage runtime plugin commands")
+    # [parameters, pre_script, post_script] = plugin_init()
+    parameters = {"storageConfigNames": ["STORAGE_BJ"]}
+    pre_script_commands = init_storage_plugin(parameters)
+    inject_commands(pre_script_commands, pre_script)
 
     logger.info("Storage runtime plugin perpared")
