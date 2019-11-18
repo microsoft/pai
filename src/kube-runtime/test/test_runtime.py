@@ -21,7 +21,6 @@ import os
 import sys
 import unittest
 
-import requests
 import responses
 import yaml
 
@@ -72,11 +71,79 @@ class TestRuntimeInitializer(unittest.TestCase):
 
     @responses.activate
     def test_teamwise_storage_plugin(self):
-        responses.add(responses.GET, 'http://twitter.com/api/1/foobar',
-                      json={'error': 'not found'}, status=404)
+        storage_plugin.REST_API_PREFIX = "http://rest-server"
+        storage_plugin.USER_NAME = "test-user"
+        storage_plugin.USER_TOKEN = "token"
+        storage_plugin.JOB_NAME = "job"
+        parameters = {"storageConfigNames": ["STORAGE_BJ"]}
 
-        resp = requests.get('http://twitter.com/api/1/foobar')
-        assert resp.json() == {"error": "not found"}
+        user_config = {
+            "username": "test-user",
+            "grouplist": ["admingroup"],
+            "email": "test-user@microsoft.com",
+            "extension": {},
+            "admin": True,
+            "virtualCluster": ["default", "VC1", "VC2"],
+            "storageConfig": ["STORAGE_BJ", "STORAGE_NONE", "STORAGE_NEW"]
+        }
+
+        storage_config = [
+            {
+                "name": "STORAGE_BJ",
+                "default": True,
+                "servers": ["SRV_BJ"],
+                "mountInfos": [
+                    {
+                        "mountPoint": "/data",
+                        "path": "data",
+                        "server": "SRV_BJ",
+                        "permission": "rw"
+                    },
+                    {
+                        "mountPoint": "/home",
+                        "path": "users/${PAI_USER_NAME}",
+                        "server": "SRV_BJ",
+                        "permission": "rw"
+                    }
+                ]
+            }
+        ]
+
+        server_config = [
+            {
+                "spn": "SRV_BJ",
+                "type": "nfs",
+                "data": {
+                    "address": "10.151.41.14",
+                    "rootPath": "/data/share/drbdha",
+                    "extension": {}
+                },
+                "extension": {}
+            }
+        ]
+
+        responses.add(responses.GET, "http://rest-server/api/v2/user/test-user",
+                      json=user_config, status=200)
+        responses.add(responses.GET, "http://rest-server/api/v2/storage/config/?names=STORAGE_BJ",
+                      json=storage_config, status=200)
+        responses.add(responses.GET, "http://rest-server/api/v2/storage/server/?names=SRV_BJ",
+                      json=server_config, status=200)
+
+        storage_commands = storage_plugin.init_storage_plugin(parameters)
+        expect_commands = ["apt-get update",
+                           "umask 000",
+                           "mkdir --parents /tmp_SRV_BJ_root",
+                           "apt-get install --assume-yes nfs-common",
+                           "mount -t nfs4 10.151.41.14:/data/share/drbdha /tmp_SRV_BJ_root",
+                           "mkdir --parents /data",
+                           "mkdir --parents /tmp_SRV_BJ_root/data",
+                           "mkdir --parents /home",
+                           "mkdir --parents /tmp_SRV_BJ_root/users/${PAI_USER_NAME}",
+                           "umount -l /tmp_SRV_BJ_root",
+                           "rm -r /tmp_SRV_BJ_root",
+                           "mount -t nfs4 10.151.41.14:/data/share/drbdha/data /data",
+                           "mount -t nfs4 10.151.41.14:/data/share/drbdha/users/${PAI_USER_NAME} /home"]
+        assert storage_commands == "\n".join(expect_commands)
 
 
 if __name__ == '__main__':

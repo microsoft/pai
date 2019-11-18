@@ -10,10 +10,9 @@ init-hook="from pylint.config import find_pylintrc;\
            sys.path.append(os.path.join(os.path.dirname(find_pylintrc()), './src/init.d'));\
            sys.path.append(os.path.join(os.path.dirname(find_pylintrc()), './src/plugins'));"
 
-[BASIC]
-# Regular expression which should only match functions or classes name which do
-# not require a docstring
-no-docstring-rgx=.*
+# Disable docstring check
+disable=C0111
 
+[BASIC]
 # Good variable names which should always be accepted, separated by a comma
 good-names=i,j,k,v,qs,urlpatterns,register,p,a,t,r,u,x,f,e
