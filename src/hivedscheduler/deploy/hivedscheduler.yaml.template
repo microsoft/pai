@@ -47,7 +47,7 @@ spec:
         - name: hivedscheduler-config
           mountPath: /hivedscheduler-config
       - name: hivedscheduler
-        image: hivedscheduler/hivedscheduler:v0.2.1
+        image: hivedscheduler/hivedscheduler:v0.2.2
         command: [
           "bash", "-c",
           "cp /hivedscheduler-config/hivedscheduler.yaml . &&
