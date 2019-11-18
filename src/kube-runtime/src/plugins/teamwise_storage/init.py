@@ -19,11 +19,11 @@
 import http
 import logging
 import os
-import posixpath
-import re
 import sys
 
 import requests
+
+import teamwise_storage.storage_utils as storage_utils
 
 #pylint: disable=wrong-import-position
 sys.path.append(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
@@ -49,13 +49,6 @@ def http_get(url) -> requests.Response:
     return requests.get(url, headers={'Authorization': USER_TOKEN})
 
 
-def is_valid_storage_config(user_storage_config, storage_config_names) -> bool:
-    for storage_config in storage_config_names:
-        if storage_config not in user_storage_config:
-            return False
-    return True
-
-
 def generate_commands(storage_config_names) -> list:
     query_string = "&".join(
         list(map("names={}".format, storage_config_names)))
@@ -65,8 +58,8 @@ def generate_commands(storage_config_names) -> list:
         LOGGER.error(
             "Failed to get storage config from rest-server %s", resp.text)
         raise Exception("Generate commands faield")
-    storage_configs = resp.json()
 
+    storage_configs = resp.json()
     servers_name = set([
         mount_info["server"] for storage_config in storage_configs for mount_info in storage_config["mountInfos"]])
 
@@ -86,7 +79,7 @@ def generate_commands(storage_config_names) -> list:
 def generate_storage_command(storage_configs, servers_configs) -> list:
     mount_commands = []
     mount_points = []
-    server_mount_dict = perpare_server_mount_dict(storage_configs)
+    server_mount_dict = storage_utils.perpare_server_mount_dict(storage_configs)
 
     for spn in server_mount_dict:
         mount_infos = server_mount_dict[spn]
@@ -96,27 +89,34 @@ def generate_storage_command(storage_configs, servers_configs) -> list:
             LOGGER.error("Failed to get server config: %s", spn)
             raise Exception("Generate mount command failed")
 
-        validate_mount_point(mount_points, mount_infos)
+        storage_utils.validate_mount_point(mount_points, mount_infos)
 
         # 1. generate prepare command for storage
         tmp_folder = "/tmp_{}_root".format(spn)
-        premount_commands = generate_premount_command(server_config, tmp_folder)
+        premount_commands = storage_utils.get_setup_command(
+            server_config, tmp_folder, phrase="pre_mount", user_name=USER_NAME, job_name=JOB_NAME)
 
         # 2. mount root folder and make sub directories
-        first_round_mount_commands = generate_mount_command(server_config, tmp_folder, "", tmp_folder)
-        mkdir_commands = generate_make_tmp_folder_command(tmp_folder, mount_infos)
+        first_round_mount_commands = storage_utils.get_setup_command(
+            server_config, tmp_folder, phrase="tmp_mount", user_name=USER_NAME, job_name=JOB_NAME)
+        mkdir_commands = storage_utils.generate_make_tmp_folder_command(
+            tmp_folder, mount_infos, USER_NAME, JOB_NAME)
 
         # 3. clean 1st round mount
-        post_mount_commands = generate_post_mount_command(server_config, tmp_folder)
+        post_mount_commands = storage_utils.get_setup_command(
+            server_config, tmp_folder, phrase="post_mount", user_name=USER_NAME, job_name=JOB_NAME)
+
 
         # 4. generate real mount command
         second_round_mount_commands = list(map(
             lambda mount_info,
-                   config=server_config,
-                   folder=tmp_folder: generate_mount_command(config,
-                                                             mount_info["mountPoint"],
-                                                             mount_info["path"],
-                                                             folder),
+                   config=server_config:
+            storage_utils.get_setup_command(config,
+                                            mount_info["mountPoint"],
+                                            phrase="real_mount",
+                                            relative_path=mount_info["path"],
+                                            user_name=USER_NAME,
+                                            job_name=JOB_NAME),
             mount_infos))
         second_round_mount_commands = [
             command for mount_command in second_round_mount_commands for command in mount_command]
@@ -126,122 +126,6 @@ def generate_storage_command(storage_configs, servers_configs) -> list:
                               mkdir_commands + post_mount_commands + second_round_mount_commands)
 
     return mount_commands
-
-
-def perpare_server_mount_dict(storage_configs) -> dict:
-    server_mount_dict = {}
-    for config in storage_configs:
-        for mount_info in config["mountInfos"]:
-            if mount_info["server"] in server_mount_dict:
-                server_mount_dict[mount_info["server"]].append(mount_info)
-            else:
-                server_mount_dict[mount_info["server"]] = [mount_info]
-    return server_mount_dict
-
-
-def validate_mount_point(mount_points, mount_infos) -> None:
-    for moun_info in mount_infos:
-        # Check duplicated mount points
-        if moun_info["mountPoint"] in mount_points:
-            raise Exception(
-                "Mount point error! More than one mount point [" +
-                moun_info["mountPoint"] + "]!")
-        mount_points.append(moun_info["mountPoint"])
-
-
-def generate_premount_command(server_config, tmp_folder) -> list:
-    server_type = server_config["type"]
-    if server_type == "nfs":
-        ret = [
-            "mkdir --parents {}".format(tmp_folder),
-            "apt-get install --assume-yes nfs-common",
-        ]
-        return ret
-    if server_type == "samba":
-        ret = [
-            "mkdir --parents {}".format(tmp_folder),
-            "apt-get install --assume-yes cifs-utils",
-        ]
-        return ret
-    if server_type == "azurefile":
-        pass
-    if server_type == "azureblob":
-        pass
-    if server_type == "hdfs":
-        pass
-    raise Exception("Unsupported storage type {}".format(server_type))
-
-
-def generate_mount_command(server_config, mount_point, relative_path, tmp_folder) -> list:
-    server_type = server_config["type"]
-    server_data = server_config["data"]
-
-    if server_type == "nfs" or server_type == "samba":
-        rendered_path = render_path(posixpath.join(
-            server_data["rootPath"], relative_path))
-    if server_type == "azurefile":
-        rendered_path = render_path(posixpath.join(
-            server_data["fileShare"], relative_path))
-
-    if server_type == "nfs":
-        return [
-            "mount -t nfs4 {}:"
-            .format(posixpath.normpath(server_data["address"])) + rendered_path + " {}"
-            .format(mount_point)
-        ]
-    if server_type == "samba":
-        domain = ""
-        if server_data["domain"]:
-            domain = ",domain={}".format(server_data["domain"])
-        return [
-            "mount -t cifs //{}"
-            .format(server_data["address"]) + rendered_path + " {}"
-            .format(mount_point) + " -o vers=3.0,username={},password={}"
-            .format(server_data["userName"], server_data["password"]) + domain
-        ]
-    if server_type == "azurefile":
-        if server_data["proxy"]:
-            return [
-                "mount -t cifs //localhost/" + rendered_path + " {}"
-                .format(mount_point) + " -o vers=3.0,username={},password={}"
-                .format(server_data["accountName"], server_data["key"]) +
-                ",dir_mode=0777,file_mode=0777,serverino"
-            ]
-        return [
-            "mount -t cifs //{}"
-            .format(server_data["dataStore"]) + rendered_path + " {}"
-            .format(mount_point) + " -o vers=3.0,username={},password={}"
-            .format(server_data["accountName"], server_data["key"]) +
-            ",dir_mode=0777,file_mode=0777,serverino"
-        ]
-    if server_type == "azureblob" or server_type == "hdfs":
-        pass
-    raise Exception("Unsupported storage type {}".format(server_type))
-
-
-def generate_make_tmp_folder_command(tmp_folder, mount_infos) -> list:
-    mkdir_commands = list(map(lambda mount_info: [
-        "mkdir --parents {}".format(
-            posixpath.normpath(mount_info["mountPoint"])),
-        "mkdir --parents {}".format(render_path(posixpath.join(tmp_folder, mount_info["path"])))], mount_infos))
-    mkdir_commands = [
-        command for mkdir_command in mkdir_commands for command in mkdir_command]
-    return mkdir_commands
-
-
-def generate_post_mount_command(server_config, tmp_folder) -> list:
-    server_type = server_config["type"]
-    if server_type == "nfs" or server_type == "samba" or server_type == "azurefile":
-        return ["umount -l {}".format(tmp_folder), "rm -r {}".format(tmp_folder)]
-    if server_type == "azureblob" or server_type == "hdfs":
-        return []
-    raise Exception("Unsupported storage type {}".format(server_type))
-
-
-def render_path(ori_path) -> str:
-    rendered_path = re.compile("%USER", re.IGNORECASE).sub(USER_NAME, ori_path)
-    rendered_path = re.compile("%JOB", re.IGNORECASE).sub(JOB_NAME, rendered_path)
-    return posixpath.normpath(rendered_path)
 
 
 def init_storage_plugin(parameters) -> None:
@@ -262,7 +146,7 @@ def init_storage_plugin(parameters) -> None:
         sys.exit(0)
 
     storage_config_names = parameters["storageConfigNames"]
-    if not is_valid_storage_config(user_storage_config, storage_config_names):
+    if not storage_utils.is_valid_storage_config(user_storage_config, storage_config_names):
         LOGGER.error("User %s do not has permission to access storages: %s",
                      USER_NAME, storage_config_names)
         sys.exit(1)
