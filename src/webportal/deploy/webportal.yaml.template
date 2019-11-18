@@ -65,7 +65,7 @@ spec:
 {% endif %}
 {%- if cluster_cfg['cluster']['common']['job-history'] == "true" %}
         - name: JOB_HISTORY
-          value: true
+          value: "true"
 {%- endif %}
         - name: PROM_SCRAPE_TIME
           value: {{ cluster_cfg['prometheus']['scrape_interval'] * 10 }}s
