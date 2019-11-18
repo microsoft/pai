@@ -361,10 +361,10 @@ def analyze_value(sample_datas, period, gpu_id):
     # analyze the GPU usage
     gpu_usage = np.sort(sample_datas[:, GPU_INFO_OFFSET])
     print('For the GPU utilization, we choose the master card to calculate the result.')
-    print('The max value of the CPU Utilization is', str(np.max(gpu_usage)) + '%')
-    print('The min value of the CPU Utilization is', str(np.min(gpu_usage)) + '%')
-    print('The average value of the CPU Utilization is', str(np.average(gpu_usage)) + '%')
-    print('The standard deviation of the CPU Utilization is', str(np.std(gpu_usage)) + '%')
+    print('The max value of the GPU Utilization is', str(np.max(gpu_usage)) + '%')
+    print('The min value of the GPU Utilization is', str(np.min(gpu_usage)) + '%')
+    print('The average value of the GPU Utilization is', str(np.average(gpu_usage)) + '%')
+    print('The standard deviation of the GPU Utilization is', str(np.std(gpu_usage)) + '%')
     print('Less than 50% value is more than', str(gpu_usage[int(0.5 * gpu_usage.shape[0])]) + '%')
     print('Less than 20% value is more than', str(gpu_usage[int(0.8 * gpu_usage.shape[0])]) + '%')
 
@@ -386,10 +386,10 @@ def start_sample(container_id, period, analyze_period, output_dir, gpu_id, conta
         realtime_log.writerow(str_write_realtime)
 
         sample_list = list()
-        container_cpu_file = ''
-        container_mem_file = ''
-        container_blk_file = ''
-        container_net_file = ''
+        # container_cpu_file = ''
+        # container_mem_file = ''
+        # container_blk_file = ''
+        # container_net_file = ''
 
         if int(container_pid) == -1:
             container_cpu_file = '/sys/fs/cgroup/cpuacct/cpuacct.stat'

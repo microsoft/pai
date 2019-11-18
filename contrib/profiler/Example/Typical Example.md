@@ -3,7 +3,7 @@
   result.
 ### There is maldistribution of the GPU memory between the multiple GPUs.
 - **Instance**  
-  When using the multiple GPU card, sometimes it will be detected that
+  When using the multiple GPU cards, sometimes it will be detected that
   each card has different memory utilization. The utilization will be
   like as follow:  
   ![GPU Memory Usage](./img/GPU_MEM_maldistribution.png)
