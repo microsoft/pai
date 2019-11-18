@@ -319,7 +319,9 @@ const generateTaskRole = (taskRole, labels, config) => {
         },
         spec: {
           privileged: false,
-          restartPolicy: 'Never',
+          // workaround for pending pods due to no ready sandbox before the fix
+          // https://github.com/kubernetes/kubernetes/commit/3fac48f8
+          restartPolicy: gangAllocation === 'true' ? 'Never' : 'OnFailure',
           serviceAccountName: 'frameworkbarrier-account',
           initContainers: [
             {
