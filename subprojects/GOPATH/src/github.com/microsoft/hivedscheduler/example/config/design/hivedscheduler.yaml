@@ -137,6 +137,10 @@ physicalCluster:
   # Instantiate physical cell by mapping physical devices to the cell structure
   # defined by cellType.
   physicalCells:
+  - cellType: CT1-NODE
+    cellAddress: 0.0.0.0
+  - cellType: CT1-NODE
+    cellAddress: 0.0.0.1
   # One node has multiple gpu types and not standard gpu indices
   - cellType: CT1-NODE
     cellAddress: 1.0.0.2  # NODE Name
@@ -272,3 +276,5 @@ virtualClusters:
     # 2 DGX1-P100-CPU-SOCKET may not be within the same node.
     - cellType: 3-DGX1-P100-NODE.DGX1-P100-NODE.DGX1-P100-CPU-SOCKET
       cellNumber: 2
+    - cellType: CT1-NODE
+      cellNumber: 1

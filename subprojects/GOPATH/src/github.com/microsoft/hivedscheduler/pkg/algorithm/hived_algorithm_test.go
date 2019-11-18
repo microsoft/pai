@@ -39,7 +39,7 @@ var allPods = map[string]*core.Pod{}
 
 func init() {
 	common.InitAll()
-	for i := 1; i <= 23; i++ {
+	for i := 1; i <= 25; i++ {
 		podName := fmt.Sprintf("pod%v", i)
 		allPods[podName] = &core.Pod{
 			ObjectMeta: meta.ObjectMeta{
@@ -62,7 +62,7 @@ func initNodes(h *HivedAlgorithm) {
 	}
 }
 
-var group1, group2, group3, group4, group5, group6, group7, group8, group9, group10, group11, group12, group13, group14 = &api.AffinityGroupSpec{
+var group1, group2, group3, group4, group5, group6, group7, group8, group9, group10, group11, group12, group13, group14, group15, group16 = &api.AffinityGroupSpec{
 	Name:    "group1",
 	Members: []api.AffinityGroupMemberSpec{{PodNumber: 1, GpuNumber: 1}},
 }, &api.AffinityGroupSpec{
@@ -104,6 +104,12 @@ var group1, group2, group3, group4, group5, group6, group7, group8, group9, grou
 }, &api.AffinityGroupSpec{
 	Name:    "group14",
 	Members: []api.AffinityGroupMemberSpec{{PodNumber: 2, GpuNumber: 16}},
+}, &api.AffinityGroupSpec{
+	Name:    "group15",
+	Members: []api.AffinityGroupMemberSpec{{PodNumber: 1, GpuNumber: 2}},
+}, &api.AffinityGroupSpec{
+	Name:    "group16",
+	Members: []api.AffinityGroupMemberSpec{{PodNumber: 1, GpuNumber: 2}},
 }
 
 var pss = map[types.UID]api.PodSchedulingSpec{
@@ -268,11 +274,25 @@ var pss = map[types.UID]api.PodSchedulingSpec{
 		GpuType:        "DGX2-V100",
 		GpuNumber:      16,
 		AffinityGroup:  group14,
+	}, "pod24": { // used for triggering intra-VC preemption
+		VirtualCluster: "VC2",
+		Priority:       0,
+		ReservationId:  "",
+		GpuType:        "CT1",
+		GpuNumber:      2,
+		AffinityGroup:  group15,
+	}, "pod25": { // trigger intra-VC preemption
+		VirtualCluster: "VC2",
+		Priority:       1,
+		ReservationId:  "",
+		GpuType:        "CT1",
+		GpuNumber:      2,
+		AffinityGroup:  group16,
 	},
 }
 
 var casesThatShouldSucceed = []string{
-	"pod1", "pod2", "pod3", "pod4", "pod5", "pod6", "pod7", "pod8", "pod9", "pod16", "pod17", "pod18", "pod19", "pod20", "pod21", "pod22", "pod23",
+	"pod1", "pod2", "pod3", "pod4", "pod5", "pod6", "pod7", "pod8", "pod9", "pod16", "pod17", "pod18", "pod19", "pod20", "pod21", "pod22", "pod23", "pod24", "pod25",
 }
 
 var casesThatShouldFail = [][]string{
@@ -280,7 +300,7 @@ var casesThatShouldFail = [][]string{
 }
 
 var casesThatShouldDowngrade = []string{
-	"pod8", "pod9", "pod20", "pod21",
+	"pod8", "pod9", "pod20", "pod21", "pod24",
 }
 
 type result struct {
@@ -303,6 +323,8 @@ var expectedBindInfos = map[string]result{
 	"pod21": {node: "0.0.4.1", gpuIsolation: []int32{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15}},
 	"pod22": {node: "0.0.4.2", gpuIsolation: []int32{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15}},
 	"pod23": {node: "0.0.4.3", gpuIsolation: []int32{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15}},
+	"pod24": {node: "0.0.0.0", gpuIsolation: []int32{0, 1}},
+	"pod25": {node: "0.0.0.1", gpuIsolation: []int32{0, 1}},
 }
 
 var expectedPreemptInfos = map[string]common.Set{
@@ -431,13 +453,13 @@ func testReconfiguration(t *testing.T, sConfig *api.Config) {
 	testCasesThatShouldSucceed(t, h)
 
 	// case: physical cell not found
-	(*sConfig.PhysicalCluster).PhysicalCells[5].CellChildren[0].CellChildren[0].CellAddress = "0.0.3.100"
+	(*sConfig.PhysicalCluster).PhysicalCells[7].CellChildren[0].CellChildren[0].CellAddress = "0.0.3.100"
 	// case: insufficient VC quota
 	(*sConfig.VirtualClusters)["VC2"].VirtualCells[0].CellNumber = 1
 	// case: physical cells are split to smaller ones in the spec so that
 	// they cannot be bound to the virtual cells previously allocated
-	originalCell := (*sConfig.PhysicalCluster).PhysicalCells[6]
-	(*sConfig.PhysicalCluster).PhysicalCells[6] = originalCell.CellChildren[0].CellChildren[0]
+	originalCell := (*sConfig.PhysicalCluster).PhysicalCells[8]
+	(*sConfig.PhysicalCluster).PhysicalCells[8] = originalCell.CellChildren[0].CellChildren[0]
 	(*sConfig.PhysicalCluster).PhysicalCells = append((*sConfig.PhysicalCluster).PhysicalCells, originalCell.CellChildren[0].CellChildren[1])
 	(*sConfig.PhysicalCluster).PhysicalCells = append((*sConfig.PhysicalCluster).PhysicalCells, originalCell.CellChildren[1].CellChildren[0])
 	(*sConfig.PhysicalCluster).PhysicalCells = append((*sConfig.PhysicalCluster).PhysicalCells, originalCell.CellChildren[1].CellChildren[1])
