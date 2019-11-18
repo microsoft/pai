@@ -110,7 +110,7 @@ func (h *HivedAlgorithm) Schedule(pod *core.Pod, suggestedNodes []string) intern
 	}
 
 	if group := h.allocatedAffinityGroups[s.AffinityGroup.Name]; group == nil {
-		klog.Infof("Scheduling new affinity group %v", s.AffinityGroup.Name)
+		klog.Infof("[%v]: Scheduling new affinity group %v", internal.Key(pod), s.AffinityGroup.Name)
 		groupPhysicalPlacement, groupVirtualPlacement = h.scheduleNewAffinityGroup(pod, s, suggestedNodeSet)
 	} else {
 		if int32(len(group.allocatedPods[s.GpuNumber])) >= group.totalPodNums[s.GpuNumber] {
@@ -118,7 +118,7 @@ func (h *HivedAlgorithm) Schedule(pod *core.Pod, suggestedNodes []string) intern
 				"Requesting more pods than the configured number for %v GPUs (%v pods) in affinity group %v",
 				s.GpuNumber, group.totalPodNums[s.GpuNumber], s.AffinityGroup.Name)))
 		}
-		klog.Infof("Pod from existing affinity group: %v", s.AffinityGroup.Name)
+		klog.Infof("[%v]: Pod from existing affinity group: %v", internal.Key(pod), s.AffinityGroup.Name)
 		groupPhysicalPlacement = group.physicalGpuPlacement
 		groupVirtualPlacement = group.virtualGpuPlacement
 		newGroup = false
@@ -138,6 +138,7 @@ func (h *HivedAlgorithm) AddAllocatedPod(pod *core.Pod) {
 	klog.Infof("[%v]: adding to node %v, GPUs %v", internal.Key(pod), info.Node, info.GpuIsolation)
 
 	chain := CellChain(info.CellChain)
+	priority := CellPriority(s.Priority)
 	downgrade := false
 	if group := h.allocatedAffinityGroups[s.AffinityGroup.Name]; group == nil {
 		newGroup := newAlgoAffinityGroup(s.AffinityGroup)
@@ -175,7 +176,7 @@ func (h *HivedAlgorithm) AddAllocatedPod(pod *core.Pod) {
 									if vccl == nil {
 										message = fmt.Sprintf("VC %v no longer has cells for %v", s.VirtualCluster, str)
 									} else {
-										vGpu, message = mapNonPreassignedCellToVirtual(pGpu, vccl, preassignedLevel)
+										vGpu, message = mapNonPreassignedCellToVirtual(pGpu, vccl, preassignedLevel, priority)
 									}
 								}
 								if vGpu == nil {
@@ -183,23 +184,26 @@ func (h *HivedAlgorithm) AddAllocatedPod(pod *core.Pod) {
 									downgrade = true
 								} else {
 									newGroup.virtualGpuPlacement[gpuNumber][podIndex][gpuIndex] = vGpu
+									if vGpu.GetPhysicalCell() != nil {
+										groupToPreempt := vGpu.GetPhysicalCell().GetAffinityGroup()
+										klog.Infof("Affinity group %v preempted from VC", groupToPreempt.name)
+										h.downgradeAffinityGroup(groupToPreempt)
+									}
 								}
 							} else {
 								newGroup.virtualGpuPlacement = nil
 							}
 						}
-						h.confirmAllocatedGpu(pGpu, vGpu, CellPriority(s.Priority), newGroup)
+						h.confirmAllocatedGpu(pGpu, vGpu, priority, newGroup)
 					}
 				}
 			}
 		}
 		if downgrade {
 			h.downgradeAffinityGroup(newGroup)
-			klog.Warningf(
-				"Affinity group %v downgraded to opportunistic due to inconsistency between pod bind info and cell view", newGroup.name)
 		}
 		h.allocatedAffinityGroups[s.AffinityGroup.Name] = newGroup
-		klog.Infof("New affinity group created: %v", s.AffinityGroup.Name)
+		klog.Infof("[%v]: New affinity group created: %v", internal.Key(pod), s.AffinityGroup.Name)
 	}
 	h.allocatedAffinityGroups[s.AffinityGroup.Name].allocatedPods[s.GpuNumber] = append(
 		h.allocatedAffinityGroups[s.AffinityGroup.Name].allocatedPods[s.GpuNumber], pod)
@@ -253,7 +257,7 @@ func (h *HivedAlgorithm) DeleteAllocatedPod(pod *core.Pod) {
 				}
 			}
 			delete(h.allocatedAffinityGroups, s.AffinityGroup.Name)
-			klog.Infof("Affinity group deleted: %v", s.AffinityGroup.Name)
+			klog.Infof("[%v]: Affinity group deleted: %v", internal.Key(pod), s.AffinityGroup.Name)
 		}
 	}
 }
@@ -342,7 +346,8 @@ func (h *HivedAlgorithm) scheduleNewAffinityGroup(
 		affinityGroup: map[int32]int32{},
 	}
 	for _, m := range s.AffinityGroup.Members {
-		sr.affinityGroup[m.GpuNumber] = m.PodNumber
+		// we will merge group members with same GPU number
+		sr.affinityGroup[m.GpuNumber] += m.PodNumber
 	}
 	h.validateSchedulingRequest(sr, pod)
 	if sr.reservationId != "" {
@@ -464,9 +469,8 @@ func (h *HivedAlgorithm) scheduleRegularAffinityGroup(
 				vGpu := gpu.(*VirtualCell)
 				if vGpu.GetPhysicalCell() != nil {
 					groupToPreempt := vGpu.GetPhysicalCell().GetAffinityGroup()
+					klog.Infof("Affinity group %v preempted from VC", groupToPreempt.name)
 					h.downgradeAffinityGroup(groupToPreempt)
-					klog.Infof("Affinity group %v downgraded to opportunistic due to intra-VC preemption",
-						groupToPreempt.name)
 				}
 				pac := vGpu.GetPreAssignedCell()
 				// check if the preassigned cell has been (temporarily) bound to a physical cell
@@ -531,12 +535,12 @@ func (h *HivedAlgorithm) confirmAllocatedGpu(
 			// remove the allocated cell from the free list (possibly splitting cells)
 			h.removeCellFromFreeList(vGpu.GetPreAssignedCell().GetPhysicalCell())
 		}
-		vGpu.SetPriority(p)
+		setPriority(vGpu, p)
 		updateUsedGpuNumAtPriority(vGpu, p, true)
 	} else {
 		physicalPriority = opportunisticPriority
 	}
-	pGpu.SetPriority(physicalPriority)
+	setPriority(pGpu, physicalPriority)
 	updateUsedGpuNumAtPriority(pGpu, physicalPriority, true)
 	pGpu.AddAffinityGroup(g)
 }
@@ -552,10 +556,10 @@ func (h *HivedAlgorithm) confirmReleasedGpu(pGpu *PhysicalCell, g *AlgoAffinityG
 			h.addCellToFreeList(preassignedPhysical)
 		}
 		updateUsedGpuNumAtPriority(vGpu, vGpu.GetPriority(), false)
-		vGpu.SetPriority(freePriority)
+		setPriority(vGpu, freePriority)
 	}
 	updateUsedGpuNumAtPriority(pGpu, pGpu.GetPriority(), false)
-	pGpu.SetPriority(freePriority)
+	setPriority(pGpu, freePriority)
 	pGpu.DeleteAffinityGroup(g)
 }
 
@@ -573,6 +577,7 @@ func (h *HivedAlgorithm) downgradeAffinityGroup(g *AlgoAffinityGroup) {
 		}
 	}
 	g.virtualGpuPlacement = nil
+	klog.Infof("Affinity group %v downgraded to opportunistic", g.name)
 }
 
 // removeCellFromFreeList removes a cell from the free cell list and splits its parent recursively if needed.
@@ -907,40 +912,51 @@ func mapNonPreassignedCellToPhysical(c *VirtualCell, suggestedNodeSet common.Set
 }
 
 // mapNonPreassignedCellToVirtual maps a physical cell (possibly allocated to a non-preassigned virtual cell)
-// to the corresponding virtual cell. This can be viewed as a inverse operation of mapNonPreassignedCellToPhysical,
+// to the corresponding virtual cell. This can be viewed as an inverse operation of mapNonPreassignedCellToPhysical,
 // used for finding the virtual cell when adding an allocated pod.
-func mapNonPreassignedCellToVirtual(c *PhysicalCell, ccl ChainCellList, preassignedLevel CellLevel) (*VirtualCell, string) {
+func mapNonPreassignedCellToVirtual(
+	c *PhysicalCell,
+	ccl ChainCellList,
+	preassignedLevel CellLevel,
+	p CellPriority) (*VirtualCell, string) {
+
 	if c.GetVirtualCell() != nil {
 		return c.GetVirtualCell(), ""
 	} else if c.GetLevel() == preassignedLevel {
-		if preassignedVirtual := getAnyUnboundVirtualCell(ccl[preassignedLevel]); preassignedVirtual == nil {
+		if preassignedVirtual := getLowestPriorityCell(ccl[preassignedLevel], p); preassignedVirtual == nil {
 			return nil, fmt.Sprintf("insufficient quota in the VC at the preassigned level (%v)", preassignedLevel)
 		} else {
-			return preassignedVirtual, ""
+			return preassignedVirtual.(*VirtualCell), ""
 		}
 	} else if c.GetParent() == nil {
 		return nil, fmt.Sprintf(
 			"physical and virtual cell hierarchies not match (cannot reach the preassigned level %v in physical)",
 			preassignedLevel)
 	} else {
-		parentVirtual, message := mapNonPreassignedCellToVirtual(c.GetParent().(*PhysicalCell), ccl, preassignedLevel)
+		parentVirtual, message := mapNonPreassignedCellToVirtual(c.GetParent().(*PhysicalCell), ccl, preassignedLevel, p)
 		if parentVirtual == nil {
 			return nil, message
 		} else {
-			return getAnyUnboundVirtualCell(parentVirtual.GetChildren()), ""
+			return getLowestPriorityCell(parentVirtual.GetChildren(), p).(*VirtualCell), ""
 		}
 	}
 }
 
-// getAnyUnboundVirtualCell returns a virtual cell that has not been bound to a physical cell from a cell list.
-func getAnyUnboundVirtualCell(cl CellList) *VirtualCell {
+// getLowestPriorityCell returns a cell with the lowest priority among the cells
+// whose priorities are lower than the given priority (p).
+func getLowestPriorityCell(cl CellList, p CellPriority) Cell {
+	lowestPriority := highestPriority
+	var lowestPriorityCell Cell
 	for _, c := range cl {
-		vc := c.(*VirtualCell)
-		if vc.GetPhysicalCell() == nil {
-			return vc
+		pp := c.GetPriority()
+		if pp == freePriority {
+			return c
+		} else if pp < p && pp < lowestPriority {
+			lowestPriority = pp
+			lowestPriorityCell = c
 		}
 	}
-	return nil
+	return lowestPriorityCell
 }
 
 // clearPreBindings clears the temporary bindings created during scheduling.
@@ -999,6 +1015,26 @@ func unbindCell(c *PhysicalCell) {
 				break
 			}
 			boundVirtual = boundVirtual.GetParent().(*VirtualCell)
+		}
+	}
+}
+
+// setPriority sets priority for a cell and its parent recursively, guaranteeing that
+// the priority of a cell is the max of those of its children.
+func setPriority(c Cell, p CellPriority) {
+	originalPriority := c.GetPriority()
+	c.SetPriority(p)
+	if parent := c.GetParent(); parent != nil {
+		if p > parent.GetPriority() {
+			setPriority(parent, p)
+		} else if originalPriority == parent.GetPriority() && p < originalPriority {
+			maxBuddyPriority := freePriority
+			for _, buddy := range parent.GetChildren() {
+				if buddy.GetPriority() > maxBuddyPriority {
+					maxBuddyPriority = buddy.GetPriority()
+				}
+			}
+			setPriority(parent, maxBuddyPriority)
 		}
 	}
 }
