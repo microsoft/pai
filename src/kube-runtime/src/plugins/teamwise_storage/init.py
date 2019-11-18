@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 # Copyright (c) Microsoft Corporation
 # All rights reserved.
 #
@@ -176,12 +175,47 @@ def generate_premount_command(server_config, tmp_folder) -> list:
 def generate_mount_command(server_config, mount_point, relative_path, tmp_folder) -> list:
     server_type = server_config["type"]
     server_data = server_config["data"]
+
+    if server_type == "nfs" or server_type == "samba":
+        rendered_path = render_path(posixpath.join(
+            server_data["rootPath"], relative_path))
+    if server_type == "azurefile":
+        rendered_path = render_path(posixpath.join(
+            server_data["fileShare"], relative_path))
+
     if server_type == "nfs":
         return [
-            "mount -t nfs4 {}:".format(posixpath.normpath(server_data["address"])) +
-            render_path(posixpath.join(server_data["rootPath"], relative_path)) +
-            " {}".format(mount_point)
+            "mount -t nfs4 {}:"
+            .format(posixpath.normpath(server_data["address"])) + rendered_path + " {}"
+            .format(mount_point)
         ]
+    if server_type == "samba":
+        domain = ""
+        if server_data["domain"]:
+            domain = ",domain={}".format(server_data["domain"])
+        return [
+            "mount -t cifs //{}"
+            .format(server_data["address"]) + rendered_path + " {}"
+            .format(mount_point) + " -o vers=3.0,username={},password={}"
+            .format(server_data["userName"], server_data["password"]) + domain
+        ]
+    if server_type == "azurefile":
+        if server_data["proxy"]:
+            return [
+                "mount -t cifs //localhost/" + rendered_path + " {}"
+                .format(mount_point) + " -o vers=3.0,username={},password={}"
+                .format(server_data["accountName"], server_data["key"]) +
+                ",dir_mode=0777,file_mode=0777,serverino"
+            ]
+        return [
+            "mount -t cifs //{}"
+            .format(server_data["dataStore"]) + rendered_path + " {}"
+            .format(mount_point) + " -o vers=3.0,username={},password={}"
+            .format(server_data["accountName"], server_data["key"]) +
+            ",dir_mode=0777,file_mode=0777,serverino"
+        ]
+    if server_type == "azureblob" or server_type == "hdfs":
+        pass
     raise Exception("Unsupported storage type {}".format(server_type))
 
 
@@ -199,6 +233,8 @@ def generate_post_mount_command(server_config, tmp_folder) -> list:
     server_type = server_config["type"]
     if server_type == "nfs" or server_type == "samba" or server_type == "azurefile":
         return ["umount -l {}".format(tmp_folder), "rm -r {}".format(tmp_folder)]
+    if server_type == "azureblob" or server_type == "hdfs":
+        return []
     raise Exception("Unsupported storage type {}".format(server_type))
 
 
@@ -208,7 +244,7 @@ def render_path(ori_path) -> str:
     return posixpath.normpath(rendered_path)
 
 
-def init_storage_plugin(parameters):
+def init_storage_plugin(parameters) -> None:
     resp = http_get("{}/api/v2/user/{}".format(REST_API_PREFIX, USER_NAME))
     if resp.status_code != http.HTTPStatus.OK:
         LOGGER.error("Failed to get user config, resp: %s", resp.text)

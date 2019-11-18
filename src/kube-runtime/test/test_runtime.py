@@ -70,7 +70,7 @@ class TestRuntimeInitializer(unittest.TestCase):
         init_plugins(jobconfig, commands, "../src/plugins", ".", "worker")
 
     @responses.activate
-    def test_teamwise_storage_plugin(self):
+    def test_teamwise_nfs_storage_plugin(self):
         storage_plugin.REST_API_PREFIX = "http://rest-server"
         storage_plugin.USER_NAME = "test-user"
         storage_plugin.USER_TOKEN = "token"
