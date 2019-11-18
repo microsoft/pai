@@ -87,10 +87,11 @@ const vcListColumns = [
     key: 'detail',
     minWidth: 230,
     maxWidth: 530,
-    name: 'Detail',
+    name: 'Detail (Used / Guaranteed / Total)',
     isResizable: true,
     onRender(vc) {
       const { resourcesUsed, resourcesTotal } = vc;
+      const resourcesGuaranteed = vc.resourcesGuaranteed || resourcesTotal;
       return (
         <Stack
           gap='s1'
@@ -105,9 +106,10 @@ const vcListColumns = [
                 resourcesUsed.memory,
                 resourcesTotal.memory,
               )}
-              tailInfo={`${Math.round(resourcesUsed.memory)} / ${Math.round(
-                resourcesTotal.memory,
-              )} MB`}
+              tailInfo={`${Math.round(resourcesUsed.memory)}
+                / ${Math.round(resourcesGuaranteed.memory)}
+                / ${Math.round(resourcesTotal.memory)}
+              MB`}
             />
           </StackItem>
           <StackItem>
@@ -117,9 +119,10 @@ const vcListColumns = [
                 resourcesUsed.vCores,
                 resourcesTotal.vCores,
               )}
-              tailInfo={`${Math.round(resourcesUsed.vCores)} / ${Math.round(
-                resourcesTotal.vCores,
-              )}`}
+              tailInfo={`${Math.round(resourcesUsed.vCores)}
+                / ${Math.round(resourcesGuaranteed.vCores)}
+                / ${Math.round(resourcesTotal.vCores)}
+              `}
             />
           </StackItem>
           <StackItem>
@@ -129,9 +132,10 @@ const vcListColumns = [
                 resourcesUsed.GPUs,
                 resourcesTotal.GPUs,
               )}
-              tailInfo={`${Math.round(resourcesUsed.GPUs)} / ${Math.round(
-                resourcesTotal.GPUs,
-              )}`}
+              tailInfo={`${Math.round(resourcesUsed.GPUs)}
+                / ${Math.round(resourcesGuaranteed.GPUs)}
+                / ${Math.round(resourcesTotal.GPUs)}
+              `}
             />
           </StackItem>
         </Stack>

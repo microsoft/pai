@@ -205,6 +205,7 @@ if (launcherConfig.enabledHived) {
       const cellGpu = cellTypeMap[cellType].gpuNumber;
       clusterNodeGpu[cellIp] = {
         gpu: cellGpu,
+        bindings: {},
       };
     }
 
@@ -217,6 +218,64 @@ if (launcherConfig.enabledHived) {
   };
   for (let cellInstance of physicalCells) {
     addNodesInfo(cellInstance, cellInstance.cellType);
+  }
+
+  const bindings = {
+    virtual: {},
+    reserved: {},
+  };
+  for (let physicalCell of physicalCells) {
+    if (!(physicalCell.cellType in bindings.virtual)) {
+      bindings.virtual[physicalCell.cellType] = [];
+    }
+    for (let cellChild of physicalCell.cellChildren) {
+      if (cellChild.reservationId) {
+        if (!(cellChild.reservationId in bindings.reserved)) {
+          bindings.reserved[cellChild.reservationId] = [];
+        }
+        bindings.reserved[cellChild.reservationId].push(cellChild.cellAddress);
+      } else {
+        bindings.virtual[physicalCell.cellType].push(cellChild.cellAddress);
+      }
+    }
+  }
+  for (let vc of Object.keys(virtualClusters)) {
+    if ('virtualCells' in virtualClusters[vc]) {
+      for (let virtualCell of virtualClusters[vc].virtualCells) {
+        for (let node of bindings.virtual[virtualCell.cellType.split('.')[0]]) {
+          if (!(vc in clusterNodeGpu[node].bindings)) {
+            clusterNodeGpu[node].bindings[vc] = {
+              gpu: 0,
+              cpu: 0,
+              memory: 0,
+            };
+          }
+          const cellType = virtualCell.cellType.split('.').slice(-1)[0];
+          const cellGpu = cellTypeMap[cellType].gpuNumber;
+          clusterNodeGpu[node].bindings[vc].gpu += cellGpu;
+          clusterNodeGpu[node].bindings[vc].cpu += resourceUnits[(cellTypeMap[cellType].gpuType)].cpu * cellGpu;
+          clusterNodeGpu[node].bindings[vc].memory += resourceUnits[(cellTypeMap[cellType].gpuType)].memory * cellGpu;
+        }
+      }
+    }
+    if ('reservedCells' in virtualClusters[vc]) {
+      for (let reservedCell of virtualClusters[vc].reservedCells) {
+        for (let node of bindings.reserved[reservedCell.reservationId]) {
+          if (!(vc in clusterNodeGpu[node].bindings)) {
+            clusterNodeGpu[node].bindings[vc] = {
+              gpu: 0,
+              cpu: 0,
+              memory: 0,
+            };
+          }
+          const cellType = reservationCells[reservedCell.reservationId];
+          const cellGpu = cellTypeMap[cellType].gpuNumber;
+          clusterNodeGpu[node].bindings[vc].gpu += cellGpu;
+          clusterNodeGpu[node].bindings[vc].cpu += resourceUnits[(cellTypeMap[cellType].gpuType)].cpu * cellGpu;
+          clusterNodeGpu[node].bindings[vc].memory += resourceUnits[(cellTypeMap[cellType].gpuType)].memory * cellGpu;
+        }
+      }
+    }
   }
 }
 
