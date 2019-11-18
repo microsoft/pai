@@ -346,6 +346,7 @@ func (h *HivedAlgorithm) scheduleNewAffinityGroup(
 		affinityGroup: map[int32]int32{},
 	}
 	for _, m := range s.AffinityGroup.Members {
+		// we will merge group members with same GPU number
 		sr.affinityGroup[m.GpuNumber] += m.PodNumber
 	}
 	h.validateSchedulingRequest(sr, pod)
