@@ -63,7 +63,7 @@ class StorageHelper():
             return self.__get_samba_setup_commands(server_config, mount_point, relative_path, phrase)
         if server_type == "azurefile":
             return self.__get_azurefile_setup_commands(server_config, mount_point, relative_path, phrase)
-        if server_config == "azureblob":
+        if server_type == "azureblob":
             return self.__get_azureblob_setup_commands(server_config, mount_point, relative_path, pre_mounted_dir,
                                                        phrase)
         raise Exception("Not supproted server type {}".format(server_type))
@@ -125,7 +125,7 @@ class StorageHelper():
                 "mkdir --parents {}".format(mount_point),
                 "apt-get install --assume-yes cifs-utils",
             ]
-            if server_data["proxy"] and len(server_data["proxy"]) == 2:
+            if "proxy" in server_data and len(server_data["proxy"]) == 2:
                 ret.append("apt-get install --assume-yes sshpass")
                 proxy_info: str = server_data["proxy"][0]
                 proxy_password: str = server_data["proxy"][1]
@@ -140,7 +140,7 @@ class StorageHelper():
         if phrase == "tmp_mount" or phrase == "real_mount":
             rendered_path = self.__render_path(posixpath.join(
                 server_data["fileShare"], relative_path))
-            if server_data["proxy"]:
+            if "proxy" in server_data:
                 return [
                     "mount -t cifs //localhost/" + rendered_path + " {}"
                     .format(mount_point) + " -o vers=3.0,username={},password={}"
@@ -148,14 +148,14 @@ class StorageHelper():
                     ",dir_mode=0777,file_mode=0777,serverino"
                 ]
             return [
-                "mount -t cifs //{}"
-                .format(server_data["dataStore"]) + rendered_path + " {}"
+                "mount -t cifs //{}/{}"
+                .format(server_data["dataStore"], rendered_path) + " {}"
                 .format(mount_point) + " -o vers=3.0,username={},password={}"
                 .format(server_data["accountName"], server_data["key"]) +
                 ",dir_mode=0777,file_mode=0777,serverino"
             ]
         if phrase == "post_mount":
-            return []
+            return ["umount -l {}".format(mount_point), "rm -r {}".format(mount_point)]
         raise Exception("Unsupported phrase {}".format(phrase))
 
     def __get_azureblob_setup_commands(self, server_config, mount_point, relative_path,
@@ -163,15 +163,15 @@ class StorageHelper():
         server_data = server_config["data"]
         server_name = server_config["spn"]
         tmp_path = "/mnt/resource/blobfusetmp/{}".format(server_name)
-        cfg_file = "{}.cfg".format(server_name)
+        cfg_file = "/{}.cfg".format(server_name)
         if phrase == "pre_mount":
             return [
                 "apt-get install --assume-yes wget curl lsb-release apt-transport-https",
                 "valid_release=('14.04' '15.10' '16.04' '16.10' '17.04' '17.10' '18.04' '18.10' '19.04')",
                 "release=`lsb_release -r | cut -f 2`",
-                "if [[ ! ${{valid_release[@]}} =~ ${{release}} ]];" +
+                "if [[ ! ${valid_release[@]} =~ ${release} ]];" +
                 " then echo \"Invalid OS version for Azureblob!\"; exit 1; fi",
-                "wget https://packages.microsoft.com/config/ubuntu/${{release}}/packages-microsoft-prod.deb",
+                "wget https://packages.microsoft.com/config/ubuntu/${release}/packages-microsoft-prod.deb",
                 "dpkg -i packages-microsoft-prod.deb",
                 "apt-get update",
                 "apt-get install --assume-yes blobfuse fuse", # blob to mount and fuse to unmount
@@ -191,7 +191,7 @@ class StorageHelper():
         if phrase == "real_mount":
             rendered_path = self.__render_path(posixpath.join(pre_mounted_dir, relative_path))
             return [
-                "rm -f {}".format(mount_point),
+                "rm -r {}".format(mount_point),
                 "ln -s {} {}".format(rendered_path, mount_point)
             ]
         if phrase == "post_mount":

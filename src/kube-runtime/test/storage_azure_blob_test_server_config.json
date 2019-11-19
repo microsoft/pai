@@ -1,0 +1,12 @@
+[
+  {
+    "spn": "azure_blob_test",
+    "type": "azureblob",
+    "data": {
+      "dataStore": "datastore",
+      "containerName": "containername",
+      "accountName": "accountname",
+      "key": "key"
+    }
+  }
+]
