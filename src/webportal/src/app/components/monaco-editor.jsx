@@ -20,13 +20,13 @@ import PropTypes from 'prop-types';
 import { isNil, isNumber } from 'lodash';
 import React, { useEffect, useLayoutEffect, useRef } from 'react';
 import loadable from '@loadable/component';
+import { Spinner, SpinnerSize } from 'office-ui-fabric-react';
 
 import { monacoHack } from './monaco-hack.scss';
 import t from './tachyons.scss';
-import { SpinnerLoading } from './loading';
 
 const ReactMonacoEditor = loadable(() => import('react-monaco-editor'), {
-  fallback: <SpinnerLoading />,
+  fallback: <Spinner size={SpinnerSize.large} />,
 });
 
 const MonacoEditor = ({
