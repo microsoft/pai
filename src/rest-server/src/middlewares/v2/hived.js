@@ -157,7 +157,7 @@ const hivedValidate = (protocolObj) => {
       podSpec.gpuType = hivedConfig.taskRoles[taskRole].gpuType;
       if (podSpec.gpuType !== null) {
         allowedCpu = resourceUnits[podSpec.gpuType].cpu * gpu;
-        allowedMemoryMB = resourceUnits[podSpec.gpuType].memoryMB * gpu;
+        allowedMemoryMB = resourceUnits[podSpec.gpuType].memory * gpu;
       }
       podSpec.reservationId = hivedConfig.taskRoles[taskRole].reservationId;
 
