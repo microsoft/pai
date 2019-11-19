@@ -149,32 +149,31 @@ if (launcherConfig.enabledHived) {
   }
 
   // calculate vc quota
+  const resourcesEmpty = {
+    cpu: 0,
+    memory: 0,
+    gpu: 0,
+  };
   for (let vc of Object.keys(virtualClusters)) {
     virtualCellCapacity[vc] = {
-      resourcesTotal: {
-        gpu: 0,
-        memory: 0,
-        cpu: 0,
-      },
-      resourcesShared: {
-        gpu: 0,
-        memory: 0,
-        cpu: 0,
-      },
-      resourcesReserved: {
-        gpu: 0,
-        memory: 0,
-        cpu: 0,
-      },
+      resourcesTotal: {...resourcesEmpty},
+      resourcesShared: {...resourcesEmpty},
+      resourcesReserved: {...resourcesEmpty},
+      types: {},
     };
     if (virtualClusters[vc].hasOwnProperty('virtualCells')) {
       for (let vCell of virtualClusters[vc].virtualCells) {
-        const cellTypeArray = vCell.cellType.split('.');
-        const cellType = cellTypeArray[cellTypeArray.length-1];
+        const cellType = vCell.cellType.split('.').slice(-1)[0];
         if (!cellTypeMap.hasOwnProperty(cellType)) {
           throw new Error(`hived error: cellType: ${cellType} not found in cell types`);
         }
+        if (!(cellType in virtualCellCapacity[vc].types)) {
+          virtualCellCapacity[vc].types[cellType] = {...resourcesEmpty};
+        }
         const cellGpu = cellTypeMap[cellType].gpuNumber * vCell.cellNumber;
+        virtualCellCapacity[vc].types[cellType].gpu += cellGpu;
+        virtualCellCapacity[vc].types[cellType].cpu += resourceUnits[(cellTypeMap[cellType].gpuType)].cpu * cellGpu;
+        virtualCellCapacity[vc].types[cellType].memory += resourceUnits[(cellTypeMap[cellType].gpuType)].memory * cellGpu;
         virtualCellCapacity[vc].resourcesShared.gpu += cellGpu;
         virtualCellCapacity[vc].resourcesShared.cpu += resourceUnits[(cellTypeMap[cellType].gpuType)].cpu * cellGpu;
         virtualCellCapacity[vc].resourcesShared.memory += resourceUnits[(cellTypeMap[cellType].gpuType)].memory * cellGpu;
@@ -183,11 +182,17 @@ if (launcherConfig.enabledHived) {
     if (virtualClusters[vc].hasOwnProperty('reservedCells')) {
       for (let vCell of virtualClusters[vc].reservedCells) {
         const rId = vCell.reservationId;
+        const cellType = reservationCells[rId];
         if (!reservationCells.hasOwnProperty(rId)) {
           throw new Error(`hived error: reservationId: ${rId} not found in physical cells`);
         }
-        const cellType = reservationCells[rId];
+        if (!(rId in virtualCellCapacity[vc].types)) {
+          virtualCellCapacity[vc].types[rId] = {...resourcesEmpty};
+        }
         const cellGpu = cellTypeMap[cellType].gpuNumber;
+        virtualCellCapacity[vc].types[rId].gpu += cellGpu;
+        virtualCellCapacity[vc].types[rId].cpu += resourceUnits[(cellTypeMap[cellType].gpuType)].cpu * cellGpu;
+        virtualCellCapacity[vc].types[rId].memory += resourceUnits[(cellTypeMap[cellType].gpuType)].memory * cellGpu;
         virtualCellCapacity[vc].resourcesReserved.gpu += cellGpu;
         virtualCellCapacity[vc].resourcesReserved.cpu += resourceUnits[(cellTypeMap[cellType].gpuType)].cpu * cellGpu;
         virtualCellCapacity[vc].resourcesReserved.memory += resourceUnits[(cellTypeMap[cellType].gpuType)].memory * cellGpu;
@@ -243,14 +248,15 @@ if (launcherConfig.enabledHived) {
     if ('virtualCells' in virtualClusters[vc]) {
       for (let virtualCell of virtualClusters[vc].virtualCells) {
         for (let node of bindings.virtual[virtualCell.cellType.split('.')[0]]) {
+          const cellType = virtualCell.cellType.split('.').slice(-1)[0];
           if (!(vc in clusterNodeGpu[node].bindings)) {
             clusterNodeGpu[node].bindings[vc] = {
+              type: cellType,
               gpu: 0,
               cpu: 0,
               memory: 0,
             };
           }
-          const cellType = virtualCell.cellType.split('.').slice(-1)[0];
           const cellGpu = cellTypeMap[cellType].gpuNumber;
           clusterNodeGpu[node].bindings[vc].gpu += cellGpu;
           clusterNodeGpu[node].bindings[vc].cpu += resourceUnits[(cellTypeMap[cellType].gpuType)].cpu * cellGpu;
@@ -261,14 +267,15 @@ if (launcherConfig.enabledHived) {
     if ('reservedCells' in virtualClusters[vc]) {
       for (let reservedCell of virtualClusters[vc].reservedCells) {
         for (let node of bindings.reserved[reservedCell.reservationId]) {
+          const cellType = reservationCells[reservedCell.reservationId];
           if (!(vc in clusterNodeGpu[node].bindings)) {
             clusterNodeGpu[node].bindings[vc] = {
+              type: reservedCell.reservationId,
               gpu: 0,
               cpu: 0,
               memory: 0,
             };
           }
-          const cellType = reservationCells[reservedCell.reservationId];
           const cellGpu = cellTypeMap[cellType].gpuNumber;
           clusterNodeGpu[node].bindings[vc].gpu += cellGpu;
           clusterNodeGpu[node].bindings[vc].cpu += resourceUnits[(cellTypeMap[cellType].gpuType)].cpu * cellGpu;

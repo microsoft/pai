@@ -191,9 +191,14 @@ const getVcList = async () => {
 
   // set configured resource
   if (launcherConfig.enabledHived) {
+    const gpuTypes = {};
     for (let vc of Object.keys(vcData.virtualCellCapacity)) {
-      vcInfos[vc].resourcesTotal = {...vcData.virtualCellCapacity[vc].resourcesTotal};
-      vcInfos[vc].resourcesGuaranteed = {...vcData.virtualCellCapacity[vc].resourcesTotal};
+      gpuTypes[vc] = JSON.parse(JSON.stringify(vcData.virtualCellCapacity[vc].types));
+      vcInfos[vc].resourcesTotal = {
+        cpu: Object.values(gpuTypes[vc]).reduce((sum, resources) => sum + resources.cpu, 0),
+        memory: Object.values(gpuTypes[vc]).reduce((sum, resources) => sum + resources.memory, 0),
+        gpu: Object.values(gpuTypes[vc]).reduce((sum, resources) => sum + resources.gpu, 0),
+      };
     }
     const preemptedNodes = await fetchNodes(false);
     for (let node of preemptedNodes) {
@@ -202,8 +207,17 @@ const getVcList = async () => {
       }
       const bindings = vcData.clusterNodeGpu[node.metadata.name].bindings;
       for (let vc of Object.keys(bindings)) {
-        mergeDict(vcInfos[vc].resourcesGuaranteed, bindings[vc], (x, y) => x - y);
+        if (bindings[vc].type in gpuTypes[vc]) {
+          mergeDict(gpuTypes[vc][bindings[vc].type], bindings[vc], (x, y) => Math.max(x - y, 0));
+        }
       }
+    }
+    for (let vc of Object.keys(vcData.virtualCellCapacity)) {
+      vcInfos[vc].resourcesGuaranteed = {
+        cpu: Object.values(gpuTypes[vc]).reduce((sum, resources) => sum + resources.cpu, 0),
+        memory: Object.values(gpuTypes[vc]).reduce((sum, resources) => sum + resources.memory, 0),
+        gpu: Object.values(gpuTypes[vc]).reduce((sum, resources) => sum + resources.gpu, 0),
+      };
     }
   } else {
     const nodes = await fetchNodes(true);
