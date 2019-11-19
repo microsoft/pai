@@ -149,16 +149,8 @@ if (launcherConfig.enabledHived) {
   }
 
   // calculate vc quota
-  const resourcesEmpty = {
-    cpu: 0,
-    memory: 0,
-    gpu: 0,
-  };
   for (let vc of Object.keys(virtualClusters)) {
     virtualCellCapacity[vc] = {
-      resourcesTotal: {...resourcesEmpty},
-      resourcesShared: {...resourcesEmpty},
-      resourcesReserved: {...resourcesEmpty},
       types: {},
     };
     if (virtualClusters[vc].hasOwnProperty('virtualCells')) {
@@ -168,15 +160,16 @@ if (launcherConfig.enabledHived) {
           throw new Error(`hived error: cellType: ${cellType} not found in cell types`);
         }
         if (!(cellType in virtualCellCapacity[vc].types)) {
-          virtualCellCapacity[vc].types[cellType] = {...resourcesEmpty};
+          virtualCellCapacity[vc].types[cellType] = {
+            cpu: 0,
+            memory: 0,
+            gpu: 0,
+          };
         }
         const cellGpu = cellTypeMap[cellType].gpuNumber * vCell.cellNumber;
         virtualCellCapacity[vc].types[cellType].gpu += cellGpu;
         virtualCellCapacity[vc].types[cellType].cpu += resourceUnits[(cellTypeMap[cellType].gpuType)].cpu * cellGpu;
         virtualCellCapacity[vc].types[cellType].memory += resourceUnits[(cellTypeMap[cellType].gpuType)].memory * cellGpu;
-        virtualCellCapacity[vc].resourcesShared.gpu += cellGpu;
-        virtualCellCapacity[vc].resourcesShared.cpu += resourceUnits[(cellTypeMap[cellType].gpuType)].cpu * cellGpu;
-        virtualCellCapacity[vc].resourcesShared.memory += resourceUnits[(cellTypeMap[cellType].gpuType)].memory * cellGpu;
       }
     }
     if (virtualClusters[vc].hasOwnProperty('reservedCells')) {
@@ -187,20 +180,18 @@ if (launcherConfig.enabledHived) {
           throw new Error(`hived error: reservationId: ${rId} not found in physical cells`);
         }
         if (!(rId in virtualCellCapacity[vc].types)) {
-          virtualCellCapacity[vc].types[rId] = {...resourcesEmpty};
+          virtualCellCapacity[vc].types[rId] = {
+            cpu: 0,
+            memory: 0,
+            gpu: 0,
+          };
         }
         const cellGpu = cellTypeMap[cellType].gpuNumber;
         virtualCellCapacity[vc].types[rId].gpu += cellGpu;
         virtualCellCapacity[vc].types[rId].cpu += resourceUnits[(cellTypeMap[cellType].gpuType)].cpu * cellGpu;
         virtualCellCapacity[vc].types[rId].memory += resourceUnits[(cellTypeMap[cellType].gpuType)].memory * cellGpu;
-        virtualCellCapacity[vc].resourcesReserved.gpu += cellGpu;
-        virtualCellCapacity[vc].resourcesReserved.cpu += resourceUnits[(cellTypeMap[cellType].gpuType)].cpu * cellGpu;
-        virtualCellCapacity[vc].resourcesReserved.memory += resourceUnits[(cellTypeMap[cellType].gpuType)].memory * cellGpu;
       }
     }
-    virtualCellCapacity[vc].resourcesTotal.gpu = virtualCellCapacity[vc].resourcesShared.gpu + virtualCellCapacity[vc].resourcesReserved.gpu;
-    virtualCellCapacity[vc].resourcesTotal.cpu = virtualCellCapacity[vc].resourcesShared.cpu + virtualCellCapacity[vc].resourcesReserved.cpu;
-    virtualCellCapacity[vc].resourcesTotal.memory = virtualCellCapacity[vc].resourcesShared.memory + virtualCellCapacity[vc].resourcesReserved.memory;
   }
 
   // calculate every node resource, stored in clusterNodeGpu
@@ -239,7 +230,7 @@ if (launcherConfig.enabledHived) {
           bindings.reserved[cellChild.reservationId] = [];
         }
         bindings.reserved[cellChild.reservationId].push(cellChild.cellAddress);
-      } else {
+      } else if (cellChild.cellAddress) {
         bindings.virtual[physicalCell.cellType].push(cellChild.cellAddress);
       }
     }

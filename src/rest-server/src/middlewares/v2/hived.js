@@ -18,7 +18,7 @@
 // module dependencies
 const createError = require('@pai/utils/error');
 const hivedSchema = require('@pai/config/v2/hived');
-const vcConfig = require('@pai/config/vc');
+const {resourceUnits, virtualCellCapacity} = require('@pai/config/vc');
 
 
 const convertPriority = (priorityClass) => {
@@ -36,7 +36,6 @@ const hivedValidate = (protocolObj) => {
   if (!hivedSchema.validate(protocolObj)) {
     throw createError('Bad Request', 'InvalidProtocolError', hivedSchema.validate.errors);
   }
-  const resourceUnits = vcConfig.resourceUnits;
   const minCpu = Math.min(...Array.from(Object.values(resourceUnits), (v) => v.cpu));
   const minMemoryMB = Math.min(...Array.from(Object.values(resourceUnits), (v) => v.memory));
   let hivedConfig = null;
@@ -143,7 +142,7 @@ const hivedValidate = (protocolObj) => {
     const memoryMB = protocolObj.taskRoles[taskRole].resourcePerInstance.memoryMB;
     let allowedCpu = minCpu * gpu;
     let allowedMemoryMB = minMemoryMB * gpu;
-    totalGpuNumber += gpu;
+    totalGpuNumber += protocolObj.taskRoles[taskRole].instances * gpu;
     const podSpec = {
       virtualCluster,
       priority: null,
@@ -187,8 +186,9 @@ const hivedValidate = (protocolObj) => {
     }
     protocolObj.taskRoles[taskRole].hivedPodSpec = podSpec;
   }
-  if (totalGpuNumber > vcConfig.virtualCellCapacity[virtualCluster].resourcesTotal.gpu) {
-    throw createError('Bad Request', 'InvalidProtocolError', `Hived error: exceed GPU quota in ${virtualCluster} VC.`);
+  const maxGpuNumber = Object.values(virtualCellCapacity[virtualCluster].types).reduce((sum, resources) => sum + resources.gpu, 0);
+  if (totalGpuNumber > maxGpuNumber) {
+    throw createError('Bad Request', 'InvalidProtocolError', `Hived error: exceed ${maxGpuNumber} GPU quota in ${virtualCluster} VC.`);
   }
   return protocolObj;
 };

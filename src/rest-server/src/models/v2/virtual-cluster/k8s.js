@@ -162,19 +162,16 @@ const getVcList = async () => {
     ...Array.from(pods, (pod) => pod.virtualCluster),
     ...Object.keys(vcData.virtualCellCapacity),
   ]);
-  const resourcesEmpty = {
-    cpu: 0,
-    memory: 0,
-    gpu: 0,
-  };
   for (let vc of allVc) {
     vcInfos[vc] = {
       capacity: 0,
       usedCapacity: 0,
       numJobs: 0,
-      resourcesUsed: {...resourcesEmpty},
-      resourcesGuaranteed: {...resourcesEmpty},
-      resourcesTotal: {...resourcesEmpty},
+      resourcesUsed: {
+        cpu: 0,
+        memory: 0,
+        gpu: 0,
+      },
       dedicated: false,
     };
   }
