@@ -23,7 +23,7 @@ const storageServerSchema = Joi.object()
       .regex(/^[A-Za-z0-9_]+$/, 'spn')
       .required(),
     type: Joi.string()
-      .valid(['nfs', 'samba', 'azurefile', 'azureblob', 'hdfs'])
+      .valid(['nfs', 'samba', 'azurefile', 'azureblob', 'hdfs', 'other'])
       .required(),
     data: Joi.alternatives()
       .when('type', {

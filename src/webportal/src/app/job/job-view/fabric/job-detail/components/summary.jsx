@@ -28,7 +28,6 @@ import { DateTime } from 'luxon';
 import {
   ActionButton,
   DefaultButton,
-  PrimaryButton,
   Dropdown,
   Link,
   MessageBar,
@@ -49,10 +48,9 @@ import Timer from './timer';
 import {
   getTensorBoardUrl,
   getJobMetricsUrl,
-  cloneJob,
   openJobAttemptsPage,
 } from '../conn';
-import { printDateTime, isClonable, isJobV2 } from '../util';
+import { printDateTime, isJobV2 } from '../util';
 import MonacoPanel from '../../../../../components/monaco-panel';
 import StatusBadge from '../../../../../components/status-badge';
 import {
@@ -63,6 +61,7 @@ import {
 import config from '../../../../../config/webportal.config';
 import StopJobConfirm from '../../JobList/StopJobConfirm';
 import CopyButton from '../../../../../components/copy-button';
+import CloneButton from './clone-button';
 
 const HintItem = ({ header, children }) => (
   <div className={c(t.flex, t.justifyStart)}>
@@ -333,6 +332,10 @@ export default class Summary extends React.Component {
     const { rawJobConfig } = this.context;
     const hintMessage = this.renderHintMessage();
 
+    const params = new URLSearchParams(window.location.search);
+    const namespace = params.get('username');
+    const jobName = params.get('jobName');
+
     return (
       <div className={className}>
         {/* summary */}
@@ -530,10 +533,10 @@ export default class Summary extends React.Component {
             </div>
             <div>
               <span>
-                <PrimaryButton
-                  text='Clone'
-                  onClick={() => cloneJob(rawJobConfig)}
-                  disabled={!isClonable(rawJobConfig)}
+                <CloneButton
+                  namespace={namespace}
+                  jobName={jobName}
+                  rawJobConfig={rawJobConfig}
                 />
               </span>
               <span className={c(t.ml2)}>

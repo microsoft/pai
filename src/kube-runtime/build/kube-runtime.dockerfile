@@ -37,7 +37,7 @@ ARG BARRIER_DIR=/opt/frameworkcontroller/frameworkbarrier
 WORKDIR /kube-runtime/src
 
 COPY src/ ./
-COPY --from=openpai/frameworkbarrier:v0.5.2 $BARRIER_DIR/frameworkbarrier ./init.d
+COPY --from=frameworkcontroller/frameworkbarrier:v0.5.1 $BARRIER_DIR/frameworkbarrier ./init.d
 COPY --from=builder ${INSTALL_DIR}/* ./runtime.d
 RUN chmod -R +x ./
 

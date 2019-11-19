@@ -1,0 +1,26 @@
+---
+- hosts: all
+  tasks:
+    - name: Add key
+      apt_key:
+        url: https://nvidia.github.io/nvidia-container-runtime/gpgkey
+        state: present
+
+    - name: add repo
+      get_url:
+        url: https://nvidia.github.io/nvidia-container-runtime/ubuntu16.04/nvidia-container-runtime.list
+        dest: /etc/apt/sources.list.d/nvidia-container-runtime.list
+        mode: 0644
+        owner: root
+        group: root
+
+    - name: Run the equivalent of "apt-get update" as a separate step
+      apt:
+        update_cache: yes
+
+    - name: install packages
+      apt:
+        name: nvidia-container-runtime
+        state: present
+        update_cache: yes
+
