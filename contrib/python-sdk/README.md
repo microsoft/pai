@@ -298,6 +298,19 @@ Of course, you could write a sequence of commands like `pip install ... && pytho
 
 In some cases, user may want to preview the job config (in `v2` format) but not submit it directly. To fulfill this, just add `--preview` option. The commands support this feature includes `job submit`, `job sub` and `job notebook`.
 
+### How to start an empty job
+In some cases, user may want to start an empty job and interact the docker container through SSH tool. To achieve that, option `--timeout` would be added, which means how long the container will survive. For example, user want to start a docker container running for 1 days, the command would be
+
+```bash
+pai start-container --cluster-alias <cluster-alias> --job-name <job-name> --timeout 1d --image <docker-image>
+```
+
+The terminal would start the ssh terminal automatically, and the SSH command would be printed out as well, users can copy and execute the command accordding to their needs.
+
+And the private key file would be downloaded in current directory, users should execute SSH command in the same directory with that key file.
+
+**Tips:** your `<docker-image>` must enable SSH. See the link [Enable SSH for your docker image](https://github.com/microsoft/pai/blob/19817a0170b72d44ed9ce0fe2fe6f430c0d5b3f3/docs/zh_CN/job_docker_env.md#enable-ssh-for-your-image)
+
 ## `Jupyter` notebook
 
 ### How to run a local notebook with remote resources
