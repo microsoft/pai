@@ -34,6 +34,7 @@ Besides above benefits, this project also provides powerful runtime support, whi
     - [How to submit a job given a sequence of commands](#how-to-submit-a-job-given-a-sequence-of-commands)
     - [How to add `pip install` packages](#how-to-add-pip-install-packages)
     - [How to preview the generated job config but not submit it](#how-to-preview-the-generated-job-config-but-not-submit-it)
+    - [How to submit an empty job](#how-to-submit-an-empty-job)
   - [`Jupyter` notebook](#jupyter-notebook)
     - [How to run a local notebook with remote resources](#how-to-run-a-local-notebook-with-remote-resources)
     - [How to launch a remote `Jupyter` server and connect it](#how-to-launch-a-remote-jupyter-server-and-connect-it)
@@ -298,8 +299,8 @@ Of course, you could write a sequence of commands like `pip install ... && pytho
 
 In some cases, user may want to preview the job config (in `v2` format) but not submit it directly. To fulfill this, just add `--preview` option. The commands support this feature includes `job submit`, `job sub` and `job notebook`.
 
-### How to start an empty job
-In some cases, user may want to start an empty job and interact the docker container through SSH tool. To achieve that, option `--timeout` would be added, which means how long the container will survive. For example, user want to start a docker container running for 1 days, the command would be
+### How to submit an empty job
+In some cases, user may want to submit an empty job and interact the docker container through SSH tool. To achieve that, option `--timeout` would be added, which means how long the container will survive. For example, user want to start a docker container running for 1 days, the command would be
 
 ```bash
 pai start-container --cluster-alias <cluster-alias> --job-name <job-name> --timeout 1d --image <docker-image>
