@@ -200,7 +200,7 @@ export default class TaskRoleContainerList extends React.Component {
     } else if (config.logType === 'log-manager') {
       logHint = 'Last 200 lines';
     } else {
-      throw new Error(`Log not available`);
+      logHint = '';
     }
     switch (logType) {
       case 'stdout':

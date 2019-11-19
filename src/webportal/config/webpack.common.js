@@ -96,7 +96,7 @@ const config = (env, argv) => ({
         use: {
           loader: 'babel-loader',
           options: {
-            plugins: ['lodash'],
+            plugins: ['lodash', '@babel/plugin-syntax-dynamic-import'],
             presets: [
               '@babel/preset-react',
               [

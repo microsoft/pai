@@ -19,10 +19,15 @@ import c from 'classnames';
 import PropTypes from 'prop-types';
 import { isNil, isNumber } from 'lodash';
 import React, { useEffect, useLayoutEffect, useRef } from 'react';
-import ReactMonacoEditor from 'react-monaco-editor';
+import loadable from '@loadable/component';
 
 import { monacoHack } from './monaco-hack.scss';
 import t from './tachyons.scss';
+import { SpinnerLoading } from './loading';
+
+const ReactMonacoEditor = loadable(() => import('react-monaco-editor'), {
+  fallback: <SpinnerLoading />,
+});
 
 const MonacoEditor = ({
   className,
