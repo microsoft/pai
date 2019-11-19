@@ -1,6 +1,9 @@
 [TYPECHECK]
 ignored-classes=responses
 
+[SETTINGS]
+max-args=8
+
 [FORMAT]
 max-line-length=120
 

@@ -32,7 +32,8 @@ class StorageHelper():
                 return False
         return True
 
-    def perpare_server_mount_dict(self, storage_configs) -> dict:
+    @staticmethod
+    def perpare_server_mount_dict(storage_configs) -> dict:
         server_mount_dict = {}
         for config in storage_configs:
             for mount_info in config["mountInfos"]:
@@ -42,7 +43,8 @@ class StorageHelper():
                     server_mount_dict[mount_info["server"]] = [mount_info]
         return server_mount_dict
 
-    def validate_mount_point(self, mount_points, mount_infos) -> None:
+    @staticmethod
+    def validate_mount_point(mount_points, mount_infos) -> None:
         for mount_info in mount_infos:
             # Check duplicated mount points
             if mount_info["mountPoint"] in mount_points:
@@ -84,7 +86,7 @@ class StorageHelper():
                 "mkdir --parents {}".format(mount_point),
                 "apt-get install --assume-yes nfs-common",
             ]
-        if phrase == "tmp_mount" or phrase == "real_mount":
+        if phrase in ("tmp_mount", "real_mount"):
             server_data = server_config["data"]
             rendered_path = self.__render_path(posixpath.join(server_data["rootPath"], relative_path))
             return [
@@ -102,7 +104,7 @@ class StorageHelper():
                 "mkdir --parents {}".format(mount_point),
                 "apt-get install --assume-yes cifs-utils",
             ]
-        if phrase == "tmp_mount" or phrase == "real_mount":
+        if phrase in ("tmp_mount", "real_mount"):
             server_data = server_config["data"]
             rendered_path = self.__render_path(posixpath.join(server_data["rootPath"], relative_path))
             domain = ""
@@ -137,7 +139,7 @@ class StorageHelper():
                         proxy_password, server_data["dataStore"], proxy_info)
                 ]
             return ret
-        if phrase == "tmp_mount" or phrase == "real_mount":
+        if phrase in ("tmp_mount", "real_mount"):
             rendered_path = self.__render_path(posixpath.join(
                 server_data["fileShare"], relative_path))
             if "proxy" in server_data:

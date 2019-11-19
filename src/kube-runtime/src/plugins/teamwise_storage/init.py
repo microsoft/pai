@@ -75,8 +75,8 @@ def generate_commands(storage_config_names) -> list:
         raise Exception("Generate commands faield")
 
     storage_configs = resp.json()
-    servers_name = set([
-        mount_info["server"] for storage_config in storage_configs for mount_info in storage_config["mountInfos"]])
+    servers_name = {mount_info["server"]
+                    for storage_config in storage_configs for mount_info in storage_config["mountInfos"]}
 
     query_string = "&".join(
         list(map("names={}".format, servers_name)))
@@ -95,7 +95,7 @@ def generate_storage_command(storage_configs, servers_configs) -> list:
     mount_commands = []
     mount_points = []
     storage_helper = StorageHelper(USER_NAME, JOB_NAME)
-    server_mount_dict = storage_helper.perpare_server_mount_dict(storage_configs)
+    server_mount_dict = StorageHelper.perpare_server_mount_dict(storage_configs)
 
     for spn in server_mount_dict:
         mount_infos = server_mount_dict[spn]
@@ -105,7 +105,7 @@ def generate_storage_command(storage_configs, servers_configs) -> list:
             LOGGER.error("Failed to get server config: %s", spn)
             raise Exception("Generate mount command failed")
 
-        storage_helper.validate_mount_point(mount_points, mount_infos)
+        StorageHelper.validate_mount_point(mount_points, mount_infos)
 
         # 1. generate prepare command for storage
         tmp_folder = "/tmp_{}_root".format(spn)
