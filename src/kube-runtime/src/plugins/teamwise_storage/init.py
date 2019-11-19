@@ -23,7 +23,7 @@ import sys
 
 import requests
 
-import teamwise_storage.storage_utils as storage_utils
+from teamwise_storage.storage_helper import StorageHelper
 
 #pylint: disable=wrong-import-position
 sys.path.append(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
@@ -49,11 +49,26 @@ def http_get(url) -> requests.Response:
     return requests.get(url, headers={'Authorization': USER_TOKEN})
 
 
-def generate_commands(storage_config_names) -> list:
+def get_storage_configs(storage_config_names):
     query_string = "&".join(
         list(map("names={}".format, storage_config_names)))
-    resp = http_get(
+    return http_get(
         "{}/api/v2/storage/config/?{}".format(REST_API_PREFIX, query_string))
+
+
+def get_user_default_storage_config_names(user_storage_config_names) -> list:
+    resp = get_storage_configs(user_storage_config_names)
+    if resp.status_code != http.HTTPStatus.OK:
+        LOGGER.error(
+            "Failed to get storage config from rest-server %s", resp.text)
+        raise Exception("Get storage configs faield")
+    storage_configs: list = resp.json()
+    return list(map(lambda config: config["name"],
+                    filter(lambda config: config["default"], storage_configs)))
+
+
+def generate_commands(storage_config_names) -> list:
+    resp = get_storage_configs(storage_config_names)
     if resp.status_code != http.HTTPStatus.OK:
         LOGGER.error(
             "Failed to get storage config from rest-server %s", resp.text)
@@ -79,7 +94,8 @@ def generate_commands(storage_config_names) -> list:
 def generate_storage_command(storage_configs, servers_configs) -> list:
     mount_commands = []
     mount_points = []
-    server_mount_dict = storage_utils.perpare_server_mount_dict(storage_configs)
+    storage_helper = StorageHelper(USER_NAME, JOB_NAME)
+    server_mount_dict = storage_helper.perpare_server_mount_dict(storage_configs)
 
     for spn in server_mount_dict:
         mount_infos = server_mount_dict[spn]
@@ -89,34 +105,34 @@ def generate_storage_command(storage_configs, servers_configs) -> list:
             LOGGER.error("Failed to get server config: %s", spn)
             raise Exception("Generate mount command failed")
 
-        storage_utils.validate_mount_point(mount_points, mount_infos)
+        storage_helper.validate_mount_point(mount_points, mount_infos)
 
         # 1. generate prepare command for storage
         tmp_folder = "/tmp_{}_root".format(spn)
-        premount_commands = storage_utils.get_setup_command(
-            server_config, tmp_folder, phrase="pre_mount", user_name=USER_NAME, job_name=JOB_NAME)
+        premount_commands = storage_helper.get_setup_command(
+            server_config, tmp_folder, phrase="pre_mount")
 
         # 2. mount root folder and make sub directories
-        first_round_mount_commands = storage_utils.get_setup_command(
-            server_config, tmp_folder, phrase="tmp_mount", user_name=USER_NAME, job_name=JOB_NAME)
-        mkdir_commands = storage_utils.generate_make_tmp_folder_command(
-            tmp_folder, mount_infos, USER_NAME, JOB_NAME)
+        first_round_mount_commands = storage_helper.get_setup_command(
+            server_config, tmp_folder, phrase="tmp_mount")
+        mkdir_commands = storage_helper.generate_make_tmp_folder_command(
+            tmp_folder, mount_infos)
 
         # 3. clean 1st round mount
-        post_mount_commands = storage_utils.get_setup_command(
-            server_config, tmp_folder, phrase="post_mount", user_name=USER_NAME, job_name=JOB_NAME)
+        post_mount_commands = storage_helper.get_setup_command(
+            server_config, tmp_folder, phrase="post_mount")
 
 
         # 4. generate real mount command
         second_round_mount_commands = list(map(
             lambda mount_info,
-                   config=server_config:
-            storage_utils.get_setup_command(config,
-                                            mount_info["mountPoint"],
-                                            phrase="real_mount",
-                                            relative_path=mount_info["path"],
-                                            user_name=USER_NAME,
-                                            job_name=JOB_NAME),
+                   config=server_config,
+                   pre_mounted_dir=tmp_folder:
+            storage_helper.get_setup_command(config,
+                                             mount_info["mountPoint"],
+                                             phrase="real_mount",
+                                             relative_path=mount_info["path"],
+                                             pre_mounted_dir=pre_mounted_dir),
             mount_infos))
         second_round_mount_commands = [
             command for mount_command in second_round_mount_commands for command in mount_command]
@@ -141,17 +157,20 @@ def init_storage_plugin(parameters) -> None:
         sys.exit(1)
 
     user_storage_config = user_config["storageConfig"]
-    if parameters is None or parameters["storageConfigNames"] is None:
-        # try to mount default storage
-        sys.exit(0)
 
-    storage_config_names = parameters["storageConfigNames"]
-    if not storage_utils.is_valid_storage_config(user_storage_config, storage_config_names):
-        LOGGER.error("User %s do not has permission to access storages: %s",
-                     USER_NAME, storage_config_names)
-        sys.exit(1)
+    if not parameters or not parameters["storageConfigNames"]:
+        default_storage_configs = get_user_default_storage_config_names(user_storage_config)
+        if not default_storage_configs:
+            LOGGER.error("Not set default stroage config for user %s, please contect admin", USER_NAME)
+            sys.exit(1)
+        storage_config_names = default_storage_configs
+    else:
+        storage_config_names = parameters["storageConfigNames"]
+        if not StorageHelper.is_valid_storage_config(user_storage_config, storage_config_names):
+            LOGGER.error("User %s do not has permission to access storages: %s",
+                         USER_NAME, storage_config_names)
+            sys.exit(1)
 
-    storage_config_names = parameters["storageConfigNames"]
     storage_commands = generate_commands(storage_config_names)
     seperator = "\n"
     return seperator.join(STORAGE_PRE_COMMAND + storage_commands)

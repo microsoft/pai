@@ -84,7 +84,7 @@ class TestRuntimeInitializer(unittest.TestCase):
             "extension": {},
             "admin": True,
             "virtualCluster": ["default", "VC1", "VC2"],
-            "storageConfig": ["STORAGE_BJ", "STORAGE_NONE", "STORAGE_NEW"]
+            "storageConfig": ["STORAGE_BJ"]
         }
 
         storage_config = [
@@ -130,6 +130,8 @@ class TestRuntimeInitializer(unittest.TestCase):
                       json=server_config, status=200)
 
         storage_commands = storage_plugin.init_storage_plugin(parameters)
+        default_storage_commands = storage_plugin.init_storage_plugin([])
+
         expect_commands = ["apt-get update",
                            "umask 000",
                            "mkdir --parents /tmp_SRV_BJ_root",
@@ -144,6 +146,11 @@ class TestRuntimeInitializer(unittest.TestCase):
                            "mount -t nfs4 10.151.41.14:/data/share/drbdha/data /data",
                            "mount -t nfs4 10.151.41.14:/data/share/drbdha/users/${PAI_USER_NAME} /home"]
         assert storage_commands == "\n".join(expect_commands)
+        assert default_storage_commands == "\n".join(expect_commands)
+
+    @responses.activate
+    def test_default_teamwise_storage(self):
+        pass
 
 
 if __name__ == '__main__':
