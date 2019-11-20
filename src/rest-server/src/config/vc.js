@@ -272,14 +272,14 @@ if (launcherConfig.enabledHived) {
   }
 
   clusterCapacity.total = {};
-  for (let node in clusterNodeGpu) {
+  for (let node of Object.keys(clusterNodeGpu)) {
     if (!(clusterNodeGpu[node].type in clusterCapacity.total)) {
       clusterCapacity.total[clusterNodeGpu[node].type] = {gpu: 0};
     }
     clusterCapacity.total[clusterNodeGpu[node].type].gpu += clusterNodeGpu[node].gpu;
   }
   clusterCapacity.free = JSON.parse(JSON.stringify(clusterCapacity.total));
-  for (let vc in virtualCellCapacity) {
+  for (let vc of Object.keys(virtualCellCapacity)) {
     for (let type in virtualCellCapacity[vc].types) {
       if (type in clusterCapacity.free) {
         clusterCapacity.free[type].gpu -= virtualCellCapacity[vc].types[type].gpu;
@@ -288,7 +288,7 @@ if (launcherConfig.enabledHived) {
       }
     }
   }
-  for (let type in clusterCapacity.total) {
+  for (let type of Object.keys(clusterCapacity.total)) {
     clusterCapacity.total[type].cpu = resourceUnits[(cellTypeMap[type].gpuType)].cpu * clusterCapacity.total[type].gpu;
     clusterCapacity.total[type].memory = resourceUnits[(cellTypeMap[type].gpuType)].memory * clusterCapacity.total[type].gpu;
     clusterCapacity.free[type].gpu = Math.max(clusterCapacity.free[type].gpu, 0);

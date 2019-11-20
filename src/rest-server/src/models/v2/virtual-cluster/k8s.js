@@ -123,7 +123,7 @@ const getNodeResource = async () => {
   const nodeResource = {};
 
   if (launcherConfig.enabledHived) {
-    for (let node in clusterNodeGpu) {
+    for (let node of Object.keys(clusterNodeGpu)) {
       nodeResource[node] = {
         gpuTotal: clusterNodeGpu[node].gpu,
         gpuUsed: 0,
@@ -187,7 +187,7 @@ const getVcList = async () => {
   // set configured resource
   if (launcherConfig.enabledHived) {
     const gpuTypes = {};
-    for (let vc in virtualCellCapacity) {
+    for (let vc of Object.keys(virtualCellCapacity)) {
       gpuTypes[vc] = JSON.parse(JSON.stringify(virtualCellCapacity[vc].types));
       vcInfos[vc].resourcesTotal = {
         cpu: Object.values(gpuTypes[vc]).reduce((sum, resources) => sum + resources.cpu, 0),
@@ -207,9 +207,9 @@ const getVcList = async () => {
         }
       }
     }
-    for (let vc in virtualCellCapacity) {
+    for (let vc of Object.keys(virtualCellCapacity)) {
       vcInfos[vc].resourcesGuaranteed = {...resourcesEmpty};
-      for (let type in gpuTypes[vc]) {
+      for (let type of Object.keys(gpuTypes[vc])) {
         if (type in clusterCapacity.free) {
           mergeDict(gpuTypes[vc][type], clusterCapacity.free[type], (x, y) => x + y);
         }
