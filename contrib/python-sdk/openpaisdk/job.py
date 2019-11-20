@@ -274,7 +274,6 @@ class Job:
         workspace = na(workspace, LayeredSettings.get("workspace"))
         workspace = na(workspace, f"{__flags__.storage_root}/{clusters[0]['user']}")
         self.set_secret("clusters", json.dumps(clusters))
-        #self.set_secret("cluster_token",)
         self.set_param("cluster_alias", cluster_alias_lst[0] if cluster_alias_lst else None)
         self.set_param("work_directory", '{}/jobs/{}'.format(workspace, self.name) if workspace else None)
 
@@ -321,12 +320,13 @@ class Job:
         ])
 
         if sources:
+            remote_prefix = f'pai://{self.param("cluster_alias")}/{self.client.storage_name}/'
             a_file = os.path.basename(self.temp_archive)
             plugins.append({
                 "plugin": "container.preCommands",
                 "parameters": {
                     "commands": [
-                        "opai storage download <% $parameters.work_directory %>/source/{} {}".format(a_file, a_file),
+                        f"pai copy  {remote_prefix}<% $parameters.work_directory %>/source/{a_file} {a_file}",
                         "tar xvfz {}".format(a_file)
                     ]
                 }
@@ -385,7 +385,7 @@ class Job:
                 ]),
             ]
         elif mode == "silent":
-            remote_prefix = f'pai://{self.param("cluster_alias")}/{self.client.storage_index}'
+            remote_prefix = f'pai://{self.param("cluster_alias")}/{self.client.storage_name}'
             cmds = [
                 " ".join([
                     "jupyter nbconvert --ExecutePreprocessor.timeout=-1 --ExecutePreprocessor.allow_errors=True",
@@ -434,7 +434,6 @@ class Job:
     def client(self):
         if self._client is None:
             alias = self.param("cluster_alias")
-            print(f'alias = {alias}')
             if alias:
                 self._client = get_cluster(alias)
         return self._client
@@ -498,6 +497,7 @@ class Job:
         to_screen("archiving and uploading ...")
         work_directory = self.param("work_directory")
         assert work_directory, "must specify a storage to upload"
+        remote_prefix = f'pai://{self.param("cluster_alias")}/{self.client.storage_name}/'
         with safe_open(self.temp_archive, "w:gz", func=tarfile.open) as fn:
             for src in plugin["parameters"]["files"]:
                 src = os.path.relpath(src)
@@ -505,11 +505,11 @@ class Job:
                     to_screen("files not in current folder may cause wrong location when unarchived in the container, please check it {}".format(src), _type="warn")
                 fn.add(src)
                 to_screen("{} archived and wait to be uploaded".format(src))
-        self.client.get_storage().upload(
-            local_path=self.temp_archive,
-            remote_path="{}/source/{}".format(work_directory, os.path.basename(self.temp_archive)),
-            overwrite=True
-        )
+        local_path=self.temp_archive
+        remote_path=f"{remote_prefix}{work_directory}/source/{os.path.basename(self.temp_archive)}"
+        from openpaisdk.command_line import copy_fuc
+        copy_fuc(local_path, remote_path)
+
 
     def local_process(self):
         "pre-process the job protocol locally, including uploading files, deal with pre-/post- commands"
@@ -538,8 +538,11 @@ class Job:
         if state in __job_states__["successful"]:
             html_file = self.param("notebook_file") + ".html"
             local_path = html_file
-            remote_path = '{}/output/{}'.format(self.param("work_directory"), html_file)
-            self.client.get_storage().download(remote_path=remote_path, local_path=local_path)
+            remote_prefix = f'pai://{self.param("cluster_alias")}/{self.client.storage_name}/'
+            remote_path = remote_prefix + '{}/output/{}'.format(self.param("work_directory"), html_file)
+            
+            from openpaisdk.command_line import copy_fuc
+            copy_fuc(remote_path, local_path)
             url = pathlib.Path(os.path.abspath(html_file)).as_uri()
         return dict(state=state, notebook=url)
 

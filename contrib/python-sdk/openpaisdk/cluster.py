@@ -67,17 +67,6 @@ class ClusterList:
     def update(self, alias: str, **kwargs):
         cfg = self.select(alias)
         cfg.update(kwargs)
-        storage_index = -1
-        
-        # get storage_index for specified storage_name
-        for i in range(len(cfg['storages'])):
-            print(cfg['storages'][i]['name'])
-            if cfg['storages'][i]['name'] == kwargs.get('storage_name'):
-                storage_index = i
-                break
-        assert storage_index >= 0 and storage_index < len(cfg.get('storages')), 'Storage was not found '
-
-        cfg.update({'storage_index': storage_index})
         return self.add(cfg)
 
     def update_all(self):
@@ -144,7 +133,7 @@ class Cluster:
             storage_name=storage_name
         )
         self.config.update(
-            {k: v for k, v in kwargs.items() if k in ["info", "storages", "virtual_clusters", "type", "workspace", "storage_index"]}
+            {k: v for k, v in kwargs.items() if k in ["info", "storages", "virtual_clusters", "type", "workspace"]}
         )
         # validate
         assert self.alias, "cluster must have an alias"
@@ -189,8 +178,8 @@ class Cluster:
         return self.config.get("workspace")
     
     @property
-    def storage_index(self):
-        return self.config.get("storage_index")
+    def storage_name(self):
+        return self.config.get("storage_name")
 
     @property
     def password(self):
@@ -426,7 +415,3 @@ class Cluster:
         resources = self.virtual_cluster_available_resources()
         return {k: v for k, v in resources.items() if k in self.config["virtual_clusters"]}
 
-    '''
-    def gen_recall_commands(self, token_expr: str=):
-        return f"pai add-cluster --cluster-alias {self.alias} --pai-uri {self.pai_uri} ... --token <% $secrets.cluster_token %>"
-    '''

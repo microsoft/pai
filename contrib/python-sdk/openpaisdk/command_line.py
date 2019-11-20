@@ -462,18 +462,21 @@ def cli_remove(args):
     'copy from path_1 to path_2'
 )
 def cli_copy(args):
+    copy_fuc(args.path_1, args.path_2)
+
+
+def copy_fuc(path_1:str, path_2:str):
     from fs.copy import copy_dir, copy_file
-    f1, pth1 = pai_open_fs(args.path_1)
-    f2, pth2 = pai_open_fs(args.path_2)
+    f1, pth1 = pai_open_fs(path_1)
+    f2, pth2 = pai_open_fs(path_2)
     assert f1.exists(pth1), f"path {f1.expand_root(pth1)} does not exist"
     if f1.isdir(pth1):
         copy_dir(f1, pth1, f2, pth2)
     else:
         # Auto-complete filename when dst path is a directory
-        if f2.isdir(pth2):
+        if f2.isdir(pth2) or pth2[-1] == '/':
             pth2 += ('/' + pth1.split("/")[-1])
         copy_file(f1, pth1, f2, pth2)
-
 
 cluster_cfg_file = __flags__.get_cluster_cfg_file(get_defaults()["clusters-in-local"])
 

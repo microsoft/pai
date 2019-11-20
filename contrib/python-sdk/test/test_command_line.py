@@ -152,6 +152,19 @@ testing REST APIs related to querying a job, including
         self.cmd_exec(['pai', 'start-container', f'--cluster-alias {alias}', f'--job-name {self.job_name}', 
             f'--timeout 1s', f'--image sissie/pytorch-py36-cu90-ssh'])
         to_screen('Please exit ssh terminal to complete the test')
+    
+    def step6_submit_job_with_sources(self):
+        alias = get_defaults()["cluster-alias"]
+        clusters = ClusterList().load()
+        
+        # selecting storage
+        names = [s['name'] for s in clusters.select(alias)['storages']]
+        self.cmd_exec([f'pai select-storage --cluster-alias {alias} --storage-name {names[0]}'])
+
+        # submitting job
+        self.job_name = 'ut_test_' + randstr(10)
+        self.cmd_exec(['pai', 'sub', f'--cluster-alias {alias}', f'--job-name {self.job_name}', 
+            f'--sources ./src/subSrc/testFile.txt', '--image python:3', 'sleep 5s'])
        
 
     @seperated

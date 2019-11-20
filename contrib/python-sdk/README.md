@@ -99,17 +99,17 @@ pai list-clusters
 
 Administrator of a cluster would specify some built-in storages for a cluster, the list of storages would be get via REST API. Then user could access the storage via commands like 
 ```bash
-pai listdir pai://<cluster-alias>/<storage-index>/path/to/folder
+pai listdir pai://<cluster-alias>/<storage-name>/path/to/folder
 ```
 
 User could upload a local file (or directory) to cluster by 
 ```bash
-pai copy /src/path pai://<cluster-alias>/<storage-index>/dest/path
+pai copy /src/path pai://<cluster-alias>/<storage-name>/dest/path
 ```
 
 and download to local by 
 ```bash
-pai copy pai://<cluster-alias>/<storage-index>/dest/path /src/path
+pai copy pai://<cluster-alias>/<storage-name>/dest/path /src/path
 ```
 
 
@@ -286,10 +286,10 @@ User could apply for specific resources (CPUs, GPUs and Memory) for the job, jus
 
 ### How to reference a local file when submitting a job
 
-If the `mnist_cnn.py` is not copied in the docker image and it is a file stored in your local disk, above command would fail due to the file cannot be accessed in remote job container. To solve this problem, the option `--sources mnist_cnn.py` would be added in the command. Since the job container could access local disk directly, we need to upload the file to somewhere (defined by `--workspace`) in [the default storage of the cluster](#How-to-access-storages-of-a-cluster).
+If the `mnist_cnn.py` is not copied in the docker image and it is a file stored in your local disk, above command would fail due to the file cannot be accessed in remote job container. To solve this problem, the option `--sources mnist_cnn.py` would be added in the command. Since the job container could access local disk directly, we need to upload the file to somewhere (defined by `--workspace` specified by [`pai select-storage`](#How-to-specify-storage-and-workspace)) in [the default storage of the cluster](#How-to-access-storages-of-a-cluster).
 
 ```bash
-opai job sub -a <cluster-alias> -i <docker-image> -j <job-name> -w <workspace> --sources mnist_cnn.py python mnist_cnn.py
+opai job sub -a <cluster-alias> -i <docker-image> -j <job-name> --sources mnist_cnn.py python mnist_cnn.py
 ```
 
 ### How to submit a job given a sequence of commands
@@ -328,7 +328,7 @@ And the private key file would be downloaded in current directory, users should 
 If given a local `<notebook>` (e.g. `mnist_cnn.ipynb` stored in local disk), and user wants to run it remotely (on `OpenPAI`) and see the result.
 
 ```bash
-opai job notebook -a <cluster-alias> -i <docker-image> -w <workspace> <notebook>
+opai job notebook -a <cluster-alias> -i <docker-image> <notebook>
 ```
 
 This command requires options as the `opai job sub` does. This command would
