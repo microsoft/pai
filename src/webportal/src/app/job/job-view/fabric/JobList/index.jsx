@@ -124,7 +124,7 @@ export default function JobList() {
           )
             .then(response => {
               if (response.ok) {
-                job.executionType = 'STOPPING';
+                job.executionType = 'STOP';
                 delete job._statusText;
                 delete job._statusIndex;
                 setAllJobs(allJobs.slice());
