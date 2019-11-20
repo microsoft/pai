@@ -341,10 +341,18 @@ const generateTaskRole = (taskRole, labels, config, userToken) => {
                 },
                 // Pass user token to runtime to give runtime permission to call rest server
                 // Actually we should provide service token for kube-runtime and do not let
-                // runtime pretend as a real user.
+                // runtime personate as a real user.
                 {
                   name: 'PAI_USER_TOKEN',
                   value: userToken,
+                },
+                {
+                  name: 'PAI_USER_NAME',
+                  value: labels.userName,
+                },
+                {
+                  name: 'PAI_JOB_NAME',
+                  value: labels.jobName,
                 },
                 {
                   name: 'PAI_REST_SERVER_URI',

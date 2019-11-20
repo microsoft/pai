@@ -93,6 +93,8 @@ const k8sLauncherConfigSchema = Joi.object().keys({
   apiServerUri: Joi.string()
     .uri()
     .required(),
+  restServerUri: Joi.string()
+    .uri(),
   apiVersion: Joi.string()
     .required(),
   podGracefulDeletionTimeoutSec: Joi.number()

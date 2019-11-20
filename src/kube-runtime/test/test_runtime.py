@@ -97,7 +97,7 @@ class TestRuntimeInitializer(unittest.TestCase):
         responses.add(responses.GET, "http://rest-server/api/v2/storage/server/?names=SRV_BJ",
                       json=server_config, status=200)
 
-        storage_commands = storage_plugin.init_storage_plugin(parameters)
+        storage_commands = storage_plugin.generate_plugin_commands(parameters)
 
         expect_commands = ["apt-get update",
                            "umask 000",
@@ -112,7 +112,7 @@ class TestRuntimeInitializer(unittest.TestCase):
                            "rm -r /tmp_SRV_BJ_root",
                            "mount -t nfs4 10.151.41.14:/data/share/drbdha/data /mnt/data",
                            "mount -t nfs4 10.151.41.14:/data/share/drbdha/users/${PAI_USER_NAME} /mnt/home"]
-        assert storage_commands == "\n".join(expect_commands)
+        assert storage_commands == expect_commands
 
     @responses.activate
     def test_default_storage_plugin(self):
@@ -135,7 +135,7 @@ class TestRuntimeInitializer(unittest.TestCase):
         responses.add(responses.GET, "http://rest-server/api/v2/storage/server/?names=SRV_BJ",
                       json=server_config, status=200)
 
-        default_storage_commands = storage_plugin.init_storage_plugin([])
+        default_storage_commands = storage_plugin.generate_plugin_commands([])
 
         expect_commands = ["apt-get update",
                            "umask 000",
@@ -150,8 +150,7 @@ class TestRuntimeInitializer(unittest.TestCase):
                            "rm -r /tmp_SRV_BJ_root",
                            "mount -t nfs4 10.151.41.14:/data/share/drbdha/data /mnt/data",
                            "mount -t nfs4 10.151.41.14:/data/share/drbdha/users/${PAI_USER_NAME} /mnt/home"]
-        # assert storage_commands == "\n".join(expect_commands)
-        assert default_storage_commands == "\n".join(expect_commands)
+        assert default_storage_commands == expect_commands
 
     @responses.activate
     def test_teamwise_samba_storage_plugin(self):
@@ -172,7 +171,7 @@ class TestRuntimeInitializer(unittest.TestCase):
         responses.add(responses.GET, "http://rest-server/api/v2/storage/server/?names=samba_test",
                       json=server_config, status=200)
 
-        storage_commands = storage_plugin.init_storage_plugin(parameters)
+        storage_commands = storage_plugin.generate_plugin_commands(parameters)
 
         expect_commands = ["apt-get update",
                            "umask 000",
@@ -186,7 +185,7 @@ class TestRuntimeInitializer(unittest.TestCase):
                            "rm -r /tmp_samba_test_root",
                            "mount -t cifs //10.151.41.14/data/share/drbdha/data /mnt/data" +
                            " -o vers=3.0,username=user,password=password,domain=domain"]
-        assert storage_commands == "\n".join(expect_commands)
+        assert storage_commands == expect_commands
 
     @responses.activate
     def test_teamwise_azure_file_storage_plugin(self):
@@ -207,7 +206,7 @@ class TestRuntimeInitializer(unittest.TestCase):
         responses.add(responses.GET, "http://rest-server/api/v2/storage/server/?names=azure_file_test",
                       json=server_config, status=200)
 
-        storage_commands = storage_plugin.init_storage_plugin(parameters)
+        storage_commands = storage_plugin.generate_plugin_commands(parameters)
 
         expect_commands = ["apt-get update",
                            "umask 000",
@@ -221,7 +220,7 @@ class TestRuntimeInitializer(unittest.TestCase):
                            "rm -r /tmp_azure_file_test_root",
                            "mount -t cifs //datastore/fileshare/data /mnt/data" +
                            " -o vers=3.0,username=accountname,password=key,dir_mode=0777,file_mode=0777,serverino"]
-        assert storage_commands == "\n".join(expect_commands)
+        assert storage_commands == expect_commands
 
     @responses.activate
     def test_teamwise_azure_blob_storage_plugin(self):
@@ -242,7 +241,7 @@ class TestRuntimeInitializer(unittest.TestCase):
         responses.add(responses.GET, "http://rest-server/api/v2/storage/server/?names=azure_blob_test",
                       json=server_config, status=200)
 
-        storage_commands = storage_plugin.init_storage_plugin(parameters)
+        storage_commands = storage_plugin.generate_plugin_commands(parameters)
 
         expect_commands = ["apt-get update",
                            "umask 000",
@@ -268,7 +267,7 @@ class TestRuntimeInitializer(unittest.TestCase):
                            "mkdir --parents /tmp_azure_blob_test_root/data",
                            "rm -r /mnt/data",
                            "ln -s /tmp_azure_blob_test_root/data /mnt/data"]
-        assert storage_commands == "\n".join(expect_commands)
+        assert storage_commands == expect_commands
 
 
 if __name__ == '__main__':

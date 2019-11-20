@@ -43,6 +43,7 @@ def run_script(script_path, parameters, plugin_scripts):
     proc.wait()
     if proc.returncode:
         LOGGER.error("failed to run %s, error code is %s", script_path, proc.returncode)
+        raise Exception("Failed to run init script")
 
 # just a workaround, need to remove this function in the future
 def is_plugin_validate(jobconfig):
@@ -75,16 +76,16 @@ def init_deployment(jobconfig, commands, taskrole):
 
     if "defaults" not in jobconfig or "deployments" not in jobconfig or "deployment" not in jobconfig["defaults"]:
         LOGGER.info("No suitable deployment found in jobconfig. Skipping")
-        return None
-    else:
-        deployment_name = jobconfig["defaults"]["deployment"]
-        for deployment in jobconfig["deployments"]:
-            if deployment["name"] == deployment_name and taskrole in deployment["taskRoles"]:
-                # Inject preCommands and postCommands
-                if "preCommands" in deployment["taskRoles"][taskrole]:
-                    commands[0].append("\n".join(deployment["taskRoles"][taskrole]["preCommands"]))
-                if "postCommands" in deployment["taskRoles"][taskrole]:
-                    commands[1].insert(0, "\n".join(deployment["taskRoles"][taskrole]["postCommands"]))
+        return
+
+    deployment_name = jobconfig["defaults"]["deployment"]
+    for deployment in jobconfig["deployments"]:
+        if deployment["name"] == deployment_name and taskrole in deployment["taskRoles"]:
+            # Inject preCommands and postCommands
+            if "preCommands" in deployment["taskRoles"][taskrole]:
+                commands[0].append("\n".join(deployment["taskRoles"][taskrole]["preCommands"]))
+            if "postCommands" in deployment["taskRoles"][taskrole]:
+                commands[1].insert(0, "\n".join(deployment["taskRoles"][taskrole]["postCommands"]))
 
 
 def init_plugins(jobconfig, commands, plugins_path, runtime_path, taskrole):
@@ -111,7 +112,7 @@ def init_plugins(jobconfig, commands, plugins_path, runtime_path, taskrole):
         parameters = replace_ref(str(plugin.get("parameters", "")), jobconfig, taskrole)
 
         with open("{}/desc.yaml".format(plugin_base_path), "r") as f:
-            plugin_desc = yaml.load(f)
+            plugin_desc = yaml.load(f, Loader=yaml.SafeLoader)
 
         plugin_scripts = ["{}/plugin_pre{}.sh".format(
             runtime_path, index), "{}/plugin_post{}.sh".format(runtime_path, index)]
@@ -166,7 +167,7 @@ def main():
 
     LOGGER.info("loading yaml from %s", args.jobconfig_yaml)
     with open(args.jobconfig_yaml) as j:
-        jobconfig = yaml.load(j)
+        jobconfig = yaml.load(j, Loader=yaml.SafeLoader)
 
     if not is_plugin_validate(jobconfig):
         exit(EXIT_PLUGIN_INVALIDATE)

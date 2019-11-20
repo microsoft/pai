@@ -23,11 +23,10 @@ import sys
 
 import requests
 
-from teamwise_storage.storage_helper import StorageHelper
-
 #pylint: disable=wrong-import-position
 sys.path.append(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
 from plugin_utils import plugin_init, inject_commands
+from teamwise_storage.storage_helper import StorageHelper
 #pylint: enable=wrong-import-position
 
 logging.basicConfig(
@@ -88,10 +87,10 @@ def generate_commands(storage_config_names) -> list:
         raise Exception("Generate commands faield")
     servers_configs = resp.json()
 
-    return generate_storage_command(storage_configs, servers_configs)
+    return generate_mount_commands(storage_configs, servers_configs)
 
 
-def generate_storage_command(storage_configs, servers_configs) -> list:
+def generate_mount_commands(storage_configs, servers_configs) -> list:
     mount_commands = []
     mount_points = []
     storage_helper = StorageHelper(USER_NAME, JOB_NAME)
@@ -103,7 +102,7 @@ def generate_storage_command(storage_configs, servers_configs) -> list:
             (conf for conf in servers_configs if conf["spn"] == spn), None)
         if not server_config:
             LOGGER.error("Failed to get server config: %s", spn)
-            raise Exception("Generate mount command failed")
+            raise Exception("Generate mount commands failed")
 
         StorageHelper.validate_mount_point(mount_points, mount_infos)
 
@@ -144,7 +143,7 @@ def generate_storage_command(storage_configs, servers_configs) -> list:
     return mount_commands
 
 
-def init_storage_plugin(parameters) -> None:
+def generate_plugin_commands(parameters) -> list:
     resp = http_get("{}/api/v2/user/{}".format(REST_API_PREFIX, USER_NAME))
     if resp.status_code != http.HTTPStatus.OK:
         LOGGER.error("Failed to get user config, resp: %s", resp.text)
@@ -171,16 +170,14 @@ def init_storage_plugin(parameters) -> None:
                          USER_NAME, storage_config_names)
             sys.exit(1)
 
-    storage_commands = generate_commands(storage_config_names)
-    seperator = "\n"
-    return seperator.join(STORAGE_PRE_COMMAND + storage_commands)
+    return STORAGE_PRE_COMMAND + generate_commands(storage_config_names)
 
 
 def main():
     LOGGER.info("Preparing storage runtime plugin commands")
     [parameters, pre_script, _] = plugin_init()
     parameters = {"storageConfigNames": ["STORAGE_BJ"]}
-    pre_script_commands = init_storage_plugin(parameters)
+    pre_script_commands = generate_plugin_commands(parameters)
     inject_commands(pre_script_commands, pre_script)
     LOGGER.info("Storage runtime plugin perpared")
 
