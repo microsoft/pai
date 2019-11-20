@@ -73,8 +73,7 @@ export function getJobDuration(jobInfo) {
   }
 }
 
-export function getJobDurationString(jobInfo) {
-  const dur = getJobDuration(jobInfo);
+export function getDurationString(dur) {
   if (!isNil(dur)) {
     if (dur.days > 0) {
       return dur.toFormat(`d'd' h'h' m'm' s's'`);

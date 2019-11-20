@@ -33,7 +33,8 @@ import React from 'react';
 
 import Card from '../../components/card';
 import {
-  getJobDurationString,
+  getJobDuration,
+  getDurationString,
   getJobModifiedTimeString,
   getHumanizedJobStateString,
   getJobModifiedTime,
@@ -99,8 +100,8 @@ const jobListColumns = [
     onRender(job) {
       const { legacy, name, namespace, username } = job;
       const href = legacy
-        ? `/job-detail.html?jobName=${name}`
-        : `/job-detail.html?username=${namespace || username}&jobName=${name}`;
+        ? `/job-detail.html?jobname=${name}`
+        : `/job-detail.html?username=${namespace || username}&jobname=${name}`;
       return <Link href={href}>{name}</Link>;
     },
   },
@@ -123,7 +124,7 @@ const jobListColumns = [
     headerClassName: FontClassNames.medium,
     isResizable: true,
     onRender(job) {
-      return getJobDurationString(job);
+      return getDurationString(getJobDuration(job));
     },
   },
   {
