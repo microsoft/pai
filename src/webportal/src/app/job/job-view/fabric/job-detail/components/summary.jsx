@@ -47,11 +47,7 @@ import t from '../../../../../components/tachyons.scss';
 import Card from './card';
 import Context from './context';
 import Timer from './timer';
-import {
-  getTensorBoardUrl,
-  getJobMetricsUrl,
-  checkAttemptAPI,
-} from '../conn';
+import { getTensorBoardUrl, getJobMetricsUrl, checkAttemptAPI } from '../conn';
 import {
   printDateTime,
   isJobV2,
