@@ -176,7 +176,6 @@ def generate_plugin_commands(parameters) -> list:
 def main():
     LOGGER.info("Preparing storage runtime plugin commands")
     [parameters, pre_script, _] = plugin_init()
-    parameters = {"storageConfigNames": ["STORAGE_BJ"]}
     pre_script_commands = generate_plugin_commands(parameters)
     inject_commands(pre_script_commands, pre_script)
     LOGGER.info("Storage runtime plugin perpared")
