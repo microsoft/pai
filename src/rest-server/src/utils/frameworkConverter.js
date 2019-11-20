@@ -26,10 +26,12 @@ const generateSpecMap = () => {
     exitSpecPath = '/k8s-job-exit-spec-configuration/k8s-job-exit-spec.yaml';
   }
   const exitSpecList = yaml.safeLoad(fs.readFileSync(exitSpecPath));
-  const exitSpecMap = {};
+  let exitSpecMap = {};
   exitSpecList.forEach((val) => {
     exitSpecMap[val.code] = val;
   });
+
+  return exitSpecMap;
 };
 
 const decodeName = (name, labels) => {
