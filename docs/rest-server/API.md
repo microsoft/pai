@@ -2889,6 +2889,172 @@ Status: 500
 }
 ```
 
+### `GET /api/v2/jobs/:frameworkName/jobAttempts/healthz`
+
+Check if jobAttempts is healthy
+
+*Request*
+
+```json
+GET /api/v2/jobs/:frameworkName/jobAttempts/healthz
+```
+
+*Response if succeeded*
+
+```json
+Status: 200
+OK
+```
+
+*Response if job attempts API not work*
+
+```json
+Status: 501
+Not healthy
+```
+
+### `GET /api/v2/jobs/:frameworkName/jobAttempts`
+
+Get all attempts of a certain job.
+
+*Request*
+
+```json
+GET /api/v2/jobs/:frameworkName/jobAttempts
+```
+
+*Response if succeeded*
+
+```json
+Status: 200
+
+[
+    {
+        "jobName": string,
+        "frameworkName": string,
+        "userName": string,
+        "state": "FAILED",
+        "originState": "Completed",
+        "maxAttemptCount": 4,
+        "attemptIndex": 3,
+        "jobStartedTime": 1572592684000,
+        "attemptStartedTime": 1572592813000,
+        "attemptCompletedTime": 1572592840000,
+        "exitCode": 255,
+        "exitPhrase": "PAIRuntimeUnknownFailed",
+        "exitType": "Failed",
+        "diagnosticsSummary": string,
+        "totalGpuNumber": 1,
+        "totalTaskNumber": 1,
+        "totalTaskRoleNumber": 1,
+        "taskRoles": {
+            "taskrole": {
+                "taskRoleStatus": {
+                    "name": "taskrole"
+                },
+                "taskStatuses": [
+                    {
+                        "taskIndex": 0,
+                        "taskState": "FAILED",
+                        "containerId": uuid string,
+                        "containerIp": ip string,
+                        "containerGpus": null,
+                        "containerLog": url string,
+                        "containerExitCode": 255
+                    }
+                ]
+            }
+        },
+        "isLatest": true
+    },
+]
+```
+
+*Response if attempts not found*
+
+```json
+Status: 404
+
+Not Found
+```
+
+*Response if a server error occurred*
+
+```json
+Status: 501
+
+Internal Error
+```
+### `GET /api/v2/jobs/:frameworkName/jobAttempts/:attemptIndex`
+
+Get a specific attempt by attempt index.
+
+*Request*
+
+```json
+GET /api/v2/jobs/:frameworkName/jobAttempts/:attemptIndex
+```
+
+*Response if succeeded*
+
+```json
+Status: 200
+
+{
+    "jobName": string,
+    "frameworkName": string,
+    "userName": string,
+    "state": "FAILED",
+    "originState": "Completed",
+    "maxAttemptCount": 4,
+    "attemptIndex": 3,
+    "jobStartedTime": 1572592684000,
+    "attemptStartedTime": 1572592813000,
+    "attemptCompletedTime": 1572592840000,
+    "exitCode": 255,
+    "exitPhrase": "PAIRuntimeUnknownFailed",
+    "exitType": "Failed",
+    "diagnosticsSummary": string,
+    "totalGpuNumber": 1,
+    "totalTaskNumber": 1,
+    "totalTaskRoleNumber": 1,
+    "taskRoles": {
+        "taskrole": {
+            "taskRoleStatus": {
+                "name": "taskrole"
+            },
+            "taskStatuses": [
+                {
+                    "taskIndex": 0,
+                    "taskState": "FAILED",
+                    "containerId": uuid string,
+                    "containerIp": ip string,
+                    "containerGpus": null,
+                    "containerLog": url string,
+                    "containerExitCode": 255
+                }
+            ]
+        }
+    },
+    "isLatest": true
+},
+```
+
+*Response if attempts not found*
+
+```json
+Status: 404
+
+Not Found
+```
+
+*Response if a server error occurred*
+
+```json
+Status: 501
+
+Internal Error
+```
 ## About legacy jobs
 
 Since [Framework ACL](../../subprojects/frameworklauncher/yarn/doc/USERMANUAL.md#Framework_ACL) is enabled since this version,
