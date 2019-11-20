@@ -4,7 +4,7 @@ Postgresql is an internal service for structured information persistence. By def
 
 ```yaml
 postgresql:
-  enable: true
+  enable: false
   user: root
   passwd: rootpass
   port: 5432

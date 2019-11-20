@@ -1,4 +1,4 @@
-enable: true
+enable: false
 type: hostPath
 root-path: /mnt/paiInternal
 quota-gb: 10
