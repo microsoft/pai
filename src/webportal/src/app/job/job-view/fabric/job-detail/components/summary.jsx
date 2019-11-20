@@ -50,7 +50,6 @@ import Timer from './timer';
 import {
   getTensorBoardUrl,
   getJobMetricsUrl,
-  cloneJob,
   checkAttemptAPI,
 } from '../conn';
 import {
