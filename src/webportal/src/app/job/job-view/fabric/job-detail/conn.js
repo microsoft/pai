@@ -16,13 +16,11 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 import yaml from 'js-yaml';
-import { get, isNil } from 'lodash';
-import qs from 'querystring';
+import { isNil } from 'lodash';
 
 import { clearToken } from '../../../../user/user-logout/user-logout.component';
 import { checkToken } from '../../../../user/user-auth/user-auth.component';
 import config from '../../../../config/webportal.config';
-import { isJobV2 } from './util';
 
 const params = new URLSearchParams(window.location.search);
 const userName = params.get('username');
@@ -182,46 +180,6 @@ export function getJobMetricsUrl(jobInfo) {
   return `${config.grafanaUri}/dashboard/db/joblevelmetrics?var-job=${
     userName ? `${userName}~${jobName}` : jobName
   }&from=${from}&to=${to}`;
-}
-
-export async function cloneJob(rawJobConfig) {
-  const query = {
-    op: 'resubmit',
-    type: 'job',
-    user: userName,
-    jobname: jobName,
-  };
-
-  // plugin
-  const pluginId = get(rawJobConfig, 'extras.submitFrom');
-  if (isNil(pluginId)) {
-    if (isJobV2(rawJobConfig)) {
-      window.location.href = `/submit.html?${qs.stringify(query)}`;
-    } else {
-      window.location.href = `/submit_v1.html?${qs.stringify(query)}`;
-    }
-    return;
-  }
-  const plugins = window.PAI_PLUGINS;
-  const pluginIndex = plugins.findIndex(x => x.id === pluginId);
-  if (pluginIndex === -1) {
-    // redirect v2 job to default submission page
-    if (isJobV2(rawJobConfig)) {
-      alert(
-        `The job was submitted by ${pluginId}, but it is not installed. Will use default submission page instead`,
-      );
-      window.location.href = `/submit.html?${qs.stringify(query)}`;
-      return;
-    }
-    alert(
-      `Clone job failed. The job was submitted by ${pluginId}, but it is not installed.`,
-    );
-    return;
-  }
-  window.location.href = `/plugin.html?${qs.stringify({
-    ...query,
-    index: pluginIndex,
-  })}`;
 }
 
 export async function stopJob() {

@@ -125,7 +125,7 @@ FailedBadge.propTypes = {
 export const StoppedBadge = ({ children }) => (
   <IconBadge
     icons={['StatusCircleOuter', 'StatusCircleBlock2']}
-    outerColor={statusColor.unknown}
+    outerColor={statusColor.stopped}
   >
     {children}
   </IconBadge>

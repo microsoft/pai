@@ -29,7 +29,6 @@ import { DateTime } from 'luxon';
 import {
   ActionButton,
   DefaultButton,
-  PrimaryButton,
   Dropdown,
   Link,
   MessageBar,
@@ -56,7 +55,6 @@ import {
 } from '../conn';
 import {
   printDateTime,
-  isClonable,
   isJobV2,
   HISTORY_API_ERROR_MESSAGE,
   HISTORY_DISABLE_MESSAGE,
@@ -71,6 +69,7 @@ import {
 } from '../../../../../components/util/job';
 import config from '../../../../../config/webportal.config';
 import StopJobConfirm from '../../JobList/StopJobConfirm';
+import CloneButton from './clone-button';
 
 const params = new URLSearchParams(window.location.search);
 const username = params.get('username');
@@ -384,6 +383,10 @@ export default class Summary extends React.Component {
     const { rawJobConfig } = this.context;
     const hintMessage = this.renderHintMessage();
 
+    const params = new URLSearchParams(window.location.search);
+    const namespace = params.get('username');
+    const jobName = params.get('jobName');
+
     return (
       <div className={className}>
         {/* summary */}
@@ -651,10 +654,10 @@ export default class Summary extends React.Component {
             </div>
             <div>
               <span>
-                <PrimaryButton
-                  text='Clone'
-                  onClick={() => cloneJob(rawJobConfig)}
-                  disabled={!isClonable(rawJobConfig)}
+                <CloneButton
+                  namespace={namespace}
+                  jobName={jobName}
+                  rawJobConfig={rawJobConfig}
                 />
               </span>
               <span className={c(t.ml2)}>

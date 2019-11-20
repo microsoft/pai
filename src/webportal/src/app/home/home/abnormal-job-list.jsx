@@ -201,12 +201,10 @@ const AbnormalJobList = ({ jobs, style }) => {
       userAuth.checkToken(() => {
         stopJob(job)
           .then(() => {
-            const cloneJobs = cloneDeep(abnormalJobs);
-            const stopJob = cloneJobs.find(
-              cloneJob => cloneJob.name === job.name,
-            );
+            const result = cloneDeep(abnormalJobs);
+            const stopJob = result.find(item => item.name === job.name);
             stopJob.executionType = 'STOP';
-            setAbnormalJobs(cloneJobs);
+            setAbnormalJobs(result);
           })
           .catch(alert);
       });
