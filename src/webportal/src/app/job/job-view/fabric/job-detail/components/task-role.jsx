@@ -48,6 +48,7 @@ const TaskRoleCount = ({ taskInfo }) => {
           count.running += 1;
           break;
         case 'WAITING':
+        case 'STOPPING':
           count.waiting += 1;
           break;
         case 'SUCCEEDED':
