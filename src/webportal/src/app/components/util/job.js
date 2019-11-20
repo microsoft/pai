@@ -49,6 +49,8 @@ export function getHumanizedJobStateString(job) {
     return 'Failed';
   } else if (job.state === 'STOPPED') {
     return 'Stopped';
+  } else if (job.state === 'STOPPING') {
+    return 'Stopping';
   } else {
     return 'Unknown';
   }
