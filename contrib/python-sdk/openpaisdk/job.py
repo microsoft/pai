@@ -156,7 +156,6 @@ class Job:
             job_name = na(job_name, self.name)
             self.protocol.update(get_cluster(cluster_alias).rest_api_job_info(job_name, 'config'))
             self.set_param('cluster_alias', cluster_alias)
-            #self.protocol['parameters']['cluster_alias'] = cluster_alias
         else:  # load from local file
             if not fname:
                 fname = Job(job_name).protocol_file
@@ -275,6 +274,7 @@ class Job:
         workspace = na(workspace, LayeredSettings.get("workspace"))
         workspace = na(workspace, f"{__flags__.storage_root}/{clusters[0]['user']}")
         self.set_secret("clusters", json.dumps(clusters))
+        #self.set_secret("cluster_token",)
         self.set_param("cluster_alias", cluster_alias_lst[0] if cluster_alias_lst else None)
         self.set_param("work_directory", '{}/jobs/{}'.format(workspace, self.name) if workspace else None)
 
@@ -341,7 +341,7 @@ class Job:
         """generate the single-task-role job protocol from essentials such as commands, docker image...
         :param cluster (dict): a dictionary includes {cluster_alias, virtual_cluster, workspace}
         """
-        self.sdk_job_template([cluster["cluster_alias"]], cluster.get("workspace", None), sources, pip_installs)
+        self.sdk_job_template([cluster["cluster_alias"]], self.client.workspace, sources, pip_installs)
         self.protocol["prerequisites"].append({
             "name": "docker_image",
             "type": "dockerimage",
@@ -385,12 +385,13 @@ class Job:
                 ]),
             ]
         elif mode == "silent":
+            remote_prefix = f'pai://{self.param("cluster_alias")}/{self.client.storage_index}'
             cmds = [
                 " ".join([
                     "jupyter nbconvert --ExecutePreprocessor.timeout=-1 --ExecutePreprocessor.allow_errors=True",
                     "--to html --execute <% $parameters.notebook_file %>.ipynb",
                 ]),
-                "opai storage upload <% $parameters.notebook_file %>.html <% $parameters.work_directory %>/output/<% $parameters.notebook_file %>.html",
+                f"pai copy <% $parameters.notebook_file %>.html {remote_prefix}<% $parameters.work_directory %>/output/<% $parameters.notebook_file %>.html",
             ]
         else:
             cmds = [
@@ -433,6 +434,7 @@ class Job:
     def client(self):
         if self._client is None:
             alias = self.param("cluster_alias")
+            print(f'alias = {alias}')
             if alias:
                 self._client = get_cluster(alias)
         return self._client

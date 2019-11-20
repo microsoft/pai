@@ -24,6 +24,7 @@ Besides above benefits, this project also provides powerful runtime support, whi
     - [How to add a cluster](#how-to-add-a-cluster)
     - [How to delete a cluster](#how-to-delete-a-cluster)
     - [How to access storages of a cluster](#how-to-access-storages-of-a-cluster)
+    - [How to specify storage and workspace](#How-to-specify-storage-and-workspace)
   - [Job operations](#job-operations)
     - [How to query my jobs in a cluster](#how-to-query-my-jobs-in-a-cluster)
     - [How to submit a job from existing job config file](#how-to-submit-a-job-from-existing-job-config-file)
@@ -221,6 +222,14 @@ After attaching, basic operations (e.g. `list`, `upload`, `download` ...) are pr
 opai storage list -a <cluster-alias> -s <storage-alias> <remote-path>
 opai storage download -a <cluster-alias> -s <storage-alias> <remote-path> <local-path>
 opai storage upload -a <cluster-alias> -s <storage-alias> <local-path> <remote-path>
+```
+
+### How to specify storage and workspace
+
+Workspace is a directory to store the data and output of jobs. Before submitting jobs, user needs to specify storage and workspace on cluster. The directory `/<user>/<workspace>` would be generated on the specified storage. If `--workspace` option is empty, only `/<user>` directory would be generated.
+
+```bash
+pai select-storage --cluster-alias <cluster-alias> --storage-name <storage-name> --workspace <workspace>
 ```
 
 ## Job operations

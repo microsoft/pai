@@ -185,12 +185,15 @@ def cli_update_token(args):
 
 @register_as_cli(
     'select-storage',
-    ['--cluster-alias', '--storage-name'],
+    ['--cluster-alias', '--storage-name', '--workspace'],
     'select a storage mount point for system use'
 )
 def cli_select_storage(args):
     assert args.cluster_alias and args.storage_name, "must specify cluster-alias and storage-name"
-    ClusterList().load().update(args.cluster_alias, storage_name=args.storage_name).save()
+    cluster_list = ClusterList().load()
+    user = cluster_list.get_client(args.cluster_alias).user
+    workspace = f'/{user}/{args.workspace}' if args.workspace else f'/{user}'
+    cluster_list.update(args.cluster_alias, storage_name=args.storage_name, workspace=workspace).save()
 
 
 @register_as_cli(
@@ -275,7 +278,7 @@ def cli_submit(args):
 
 common_job_args = [
     '--job-name',
-    '--cluster-alias', '--virtual-cluster', '--workspace',  # for cluster
+    '--cluster-alias', '--virtual-cluster',  # for cluster
     '--sources', '--pip-installs',  # for sdk_template
     '--image', '--cpu', '--gpu', '--mem', "--memoryMB",
     '--preview', '--no-browser',
@@ -288,13 +291,16 @@ def check_common_job_args(args):
     args.sources = [] if not args.sources else args.sources
     args.pip_installs = [] if not args.pip_installs else args.pip_installs
     if args.sources:
-        assert args.workspace, "must specify --workspace if --sources used"
+        assert get_cluster_workspace(args.cluster_alias), "must run 'pai select-storage' if --sources used"        
         for s in args.sources:
             assert os.path.isfile(s), "file %s not found" % s
     assert args.image, "must specify a docker image"
     if args.job_name:
         args.job_name = args.job_name.replace("$", randstr(10))
 
+
+def get_cluster_workspace(cluster_alias: str):
+    return ClusterList().load().get_client(cluster_alias).workspace
 
 @register_as_cli(
     'sub',
@@ -304,12 +310,12 @@ def check_common_job_args(args):
 def cli_sub(args):
     check_common_job_args(args)
     job = Job()
-    job.new(args.job_name).one_liner(
+    job.new(args.job_name, parameters = {'cluster_alias': args.cluster_alias}).one_liner(
         commands=" ".join(args.commands),
         image=args.image,
         resources=extract_args(args, ["gpu", "cpu", "memoryMB", "mem"]),
         cluster=extract_args(
-            args, ["cluster_alias", "virtual_cluster", "workspace"]),
+            args, ["cluster_alias", "virtual_cluster"]),
         sources=args.sources, pip_installs=args.pip_installs,
     )
     job.protocol["parameters"]["python_path"] = args.python
@@ -335,12 +341,12 @@ def cli_start_container(args):
     #assert args.user, "must specify a user"
     job = Job()
     # start an empty container
-    job.new(args.job_name).one_liner(
+    job.new(args.job_name, parameters = {'cluster_alias': args.cluster_alias}).one_liner(
         commands=" ".join([f'sleep {args.timeout}']),
         image=args.image,
         resources=extract_args(args, ["gpu", "cpu", "memoryMB", "mem"]),
         cluster=extract_args(
-            args, ["cluster_alias", "virtual_cluster", "workspace"]),
+            args, ["cluster_alias", "virtual_cluster"]),
     )
     result = submit_it(job, args)
     result.update(na(connect_notebook(job), {}))
@@ -376,11 +382,11 @@ def cli_submit_notebook(args):
     if args.interactive and not args.token:
         to_screen("no authentication token is set", _type="warn")
     job = Job()
-    job.new(args.job_name).from_notebook(
+    job.new(args.job_name, parameters = {'cluster_alias': args.cluster_alias}).from_notebook(
         nb_file=args.notebook, mode="interactive" if args.interactive else "silent", token=args.token,
         image=args.image,
         cluster=extract_args(
-            args, ["cluster_alias", "virtual_cluster", "workspace"]),
+            args, ["cluster_alias", "virtual_cluster"]),
         resources=extract_args(args, ["gpu", "cpu", "memoryMB", "mem"]),
         sources=args.sources, pip_installs=args.pip_installs,
     )
