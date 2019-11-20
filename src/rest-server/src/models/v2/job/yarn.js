@@ -99,6 +99,13 @@ const generateFrameworkDescription = (frameworkName, userName, config) => {
         minSucceededTaskCount: ('minSucceededInstances' in config.taskRoles[taskRole].completion) ?
           config.taskRoles[taskRole].completion.minSucceededInstances : null,
       };
+      // forward compatibility for -1 and null
+      if (frameworkTaskRole.applicationCompletionPolicy.minFailedTaskCount === -1) {
+        frameworkTaskRole.applicationCompletionPolicy.minFailedTaskCount = null;
+      }
+      if (frameworkTaskRole.applicationCompletionPolicy.minSucceededTaskCount === -1) {
+        frameworkTaskRole.applicationCompletionPolicy.minSucceededTaskCount = null;
+      }
     } else {
       frameworkTaskRole.applicationCompletionPolicy = {
         minFailedTaskCount: 1,
