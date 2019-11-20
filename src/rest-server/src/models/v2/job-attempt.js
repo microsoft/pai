@@ -73,6 +73,10 @@ const healthCheck = async () => {
 
 // list job attempts
 const list = async (frameworkName) => {
+  if (!healthCheck) {
+    return {status: 501, data: null};
+  }
+
   let attemptData = [];
   let uid;
 
@@ -104,10 +108,6 @@ const list = async (frameworkName) => {
     return {status: 404, data: null};
   } else {
     throw createError(response.status, 'UnknownError', response.data.message);
-  }
-
-  if (!healthCheck) {
-    return {status: 501, data: null};
   }
 
   if (isNil(uid)) {
@@ -184,6 +184,7 @@ const get = async (frameworkName, jobAttemptIndex) => {
   if (!healthCheck) {
     return {status: 501, data: null};
   }
+
   let uid;
   let attemptFramework;
   let response;

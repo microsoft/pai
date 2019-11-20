@@ -12,23 +12,25 @@ const k8s = require('@pai/utils/k8sUtils');
 const logger = require('@pai/config/logger');
 const env = require('@pai/utils/env');
 
-let exitSpecPath;
-if (process.env[env.exitSpecPath]) {
-  exitSpecPath = process.env[env.exitSpecPath];
-  if (!path.isAbsolute(exitSpecPath)) {
-    exitSpecPath = path.resolve(__dirname, '../../', exitSpecPath);
-  }
-} else {
-  exitSpecPath = '/k8s-job-exit-spec-configuration/k8s-job-exit-spec.yaml';
-}
-const exitSpecList = yaml.safeLoad(fs.readFileSync(exitSpecPath));
 const positiveFallbackExitCode = 256;
 const negativeFallbackExitCode = -8000;
-const exitSpecMap = {};
-exitSpecList.forEach((val) => {
-  exitSpecMap[val.code] = val;
-});
 
+const generateSpecMap = () => {
+  let exitSpecPath;
+  if (process.env[env.exitSpecPath]) {
+    exitSpecPath = process.env[env.exitSpecPath];
+    if (!path.isAbsolute(exitSpecPath)) {
+      exitSpecPath = path.resolve(__dirname, '../../', exitSpecPath);
+    }
+  } else {
+    exitSpecPath = '/k8s-job-exit-spec-configuration/k8s-job-exit-spec.yaml';
+  }
+  const exitSpecList = yaml.safeLoad(fs.readFileSync(exitSpecPath));
+  const exitSpecMap = {};
+  exitSpecList.forEach((val) => {
+    exitSpecMap[val.code] = val;
+  });
+};
 
 const decodeName = (name, labels) => {
   if (labels && labels.jobName) {
@@ -158,6 +160,7 @@ const convertState = (state, exitCode) => {
 
 
 const generateExitSpec = (code) => {
+  const exitSpecMap = generateSpecMap();
   if (!_.isNil(code)) {
     if (!_.isNil(exitSpecMap[code])) {
       return exitSpecMap[code];
