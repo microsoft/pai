@@ -11,7 +11,7 @@ import React, { useContext } from 'react';
 import yaml from 'js-yaml';
 
 import Card from './card';
-import Context from './Context';
+import Context from '../Context';
 
 const theme = createTheme({
   palette: {
@@ -43,48 +43,17 @@ const theme = createTheme({
 const TaskRoles = () => {
   const { marketItem } = useContext(Context);
 
-  function parseTaskRoles(jobConfig) {
+  function getTaskRoles() {
     var items = [];
     var item = {};
-    var key = 1;
-    const lines = jobConfig.split('\n');
-    let index = 0;
-    while (index < lines.length) {
-      if (lines[index].startsWith('taskRoles:')) {
-        while (index < lines.length && !lines[index].startsWith('defaults:')) {
-          if (lines[index - 1].startsWith('taskRoles:')) {
-            item.key = key.toString();
-            key += 1;
-            item.name = lines[index].trim().split(':')[0];
-          }
-          if (lines[index].trim().startsWith('instances')) {
-            const keyValue = lines[index].trim().split(': ');
-            item.instances = keyValue[1];
-          } else if (lines[index].trim().startsWith('dockerImage')) {
-            const keyValue = lines[index].trim().split(': ');
-            item.dockerImage = keyValue[1];
-          } else if (lines[index].trim().startsWith('resourcePerInstance')) {
-            item.resourcePerInstance =
-              lines[index + 1].trim() +
-              '\n' +
-              lines[index + 2].trim() +
-              '\n' +
-              lines[index + 3].trim();
-            index += 3;
-          } else if (lines[index].trim().startsWith('commands')) {
-            index += 1;
-            item.commands = '';
-            while (!lines[index].startsWith('defaults:')) {
-              item.commands += lines[index].trim() + '\n';
-              index += 1;
-            }
-            index -= 1;
-            items.push(item);
-          }
-          index += 1;
-        }
-      }
-      index += 1;
+    const taskRoles = yaml.load(marketItem.jobConfig).taskRoles;
+    for (const taskRole in taskRoles) {
+      item.name = taskRole;
+      item.instances = taskRoles[taskRole].instances;
+      item.dockerImage = taskRoles[taskRole].dockerImage;
+      item.resourcePerInstance = taskRoles[taskRole].resourcePerInstance;
+      item.commands = taskRoles[taskRole].commands;
+      items.push(item);
     }
     return items;
   }
@@ -147,10 +116,14 @@ const TaskRoles = () => {
         isResizable: true,
 
         onRender: item => {
-          const resources = item.resourcePerInstance.split('\n');
+          const resources = item.resourcePerInstance;
           const stacks = [];
-          for (var i = 0; i < resources.length; i++) {
-            stacks.push(<Stack>{resources[i]}</Stack>);
+          for (const key in resources) {
+            stacks.push(
+              <Stack key={key}>
+                {key}: {resources[key]}
+              </Stack>,
+            );
           }
           return <Stack>{stacks}</Stack>;
         },
@@ -165,11 +138,11 @@ const TaskRoles = () => {
         maxWidth: 150,
         isResizable: true,
         onRender: item => {
-          const commands = item.commands.split('\n');
+          const commands = item.commands;
           const stacks = [];
-          for (var i = 0; i < commands.length; i++) {
-            stacks.push(<Stack>{commands[i]}</Stack>);
-          }
+          commands.map((command, idx) => {
+            stacks.push(<Stack key={idx}>{command}</Stack>);
+          });
           return <Stack>{stacks}</Stack>;
         },
       },
@@ -197,7 +170,7 @@ const TaskRoles = () => {
         <DetailsList
           columns={getColumns()}
           disableSelectionZone
-          items={parseTaskRoles(marketItem.jobConfig)}
+          items={getTaskRoles()}
           layoutMode={DetailsListLayoutMode.justified}
           selectionMode={SelectionMode.none}
           onRenderRow={onRenderRow}
@@ -206,7 +179,5 @@ const TaskRoles = () => {
     </Card>
   );
 };
-
-TaskRoles.contextType = Context;
 
 export default TaskRoles;

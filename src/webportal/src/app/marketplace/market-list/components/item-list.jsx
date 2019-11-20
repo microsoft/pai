@@ -32,13 +32,13 @@ import {
   FontSizes,
 } from 'office-ui-fabric-react';
 import c from 'classnames';
-import t from '../../components/tachyons.scss';
+import t from '../../../components/tachyons.scss';
 import { FontClassNames } from '@uifabric/styling';
 import { Icon } from 'office-ui-fabric-react/lib/Icon';
 import { isNil } from 'lodash';
 
-import Context from './Context';
-import Filter from './Filter';
+import Context from '../Context';
+import Filter from '../Filter';
 import ItemCard from './item-card';
 
 export const ItemList = () => {
@@ -84,5 +84,3 @@ export const ItemList = () => {
     );
   }
 };
-
-ItemList.contextType = Context;

@@ -15,7 +15,7 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 import PropTypes from 'prop-types';
-import React from 'react';
+import React, { useCallback } from 'react';
 import {
   DefaultButton,
   PrimaryButton,
@@ -28,7 +28,7 @@ import {
   Text,
 } from 'office-ui-fabric-react';
 
-import { deleteItem } from './conn';
+import { deleteItem } from '../utils/conn';
 
 export default function DeleteMarketItem(props) {
   const { hideDeleteDialog, setHideDeleteDialog } = props;
@@ -46,9 +46,9 @@ export default function DeleteMarketItem(props) {
     window.location.href = `/market-list.html`;
   }
 
-  function closeDialog() {
+  const closeDialog = useCallback(() => {
     setHideDeleteDialog(true);
-  }
+  });
 
   return (
     <Dialog

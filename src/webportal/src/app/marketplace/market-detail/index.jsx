@@ -35,10 +35,10 @@ import {
   initializeIcons,
 } from 'office-ui-fabric-react';
 import t from '../../components/tachyons.scss';
-import Top from './top';
-import Summary from './summary';
-import Detail from './detail';
-import { fetchMarketItem } from './conn';
+import Top from './components/top';
+import Summary from './components/summary';
+import Detail from './components/detail';
+import { fetchMarketItem } from './utils/conn';
 import Context from './Context';
 import { SpinnerLoading } from '../../components/loading';
 
@@ -46,7 +46,6 @@ initializeIcons();
 
 const MarketDetail = props => {
   const [loading, setLoading] = useState(true);
-  const [reloading, setReloading] = useState(false);
   const [marketItem, setMarketItem] = useState(null);
   // load marketItem, taskRoles, jobConfig, jobDescription
   useEffect(() => {
@@ -54,7 +53,6 @@ const MarketDetail = props => {
   }, []);
 
   async function reload() {
-    setReloading(true);
     const nextState = {
       loading: false,
       reloading: false,
@@ -72,7 +70,6 @@ const MarketDetail = props => {
     await loadMarketItem();
     // update states
     setMarketItem(nextState.marketItem);
-    setReloading(nextState.reloading);
     setLoading(nextState.loading);
   }
 

@@ -1,5 +1,5 @@
 import propTypes from 'prop-types';
-import React from 'react';
+import React, { useCallback } from 'react';
 import {
   Text,
   Stack,
@@ -12,44 +12,45 @@ import { Icon } from 'office-ui-fabric-react/lib/Icon';
 import { isNil } from 'lodash';
 import yaml from 'js-yaml';
 
-import { TagBar } from '../components/tag-bar';
+import { TagBar } from '../../components/tag-bar';
 import Card from './card';
 
-const { spacing, palette } = getTheme();
-
-function onSubmitClicked(item) {
-  // save jobConfig to localStorage
-  window.localStorage.removeItem('marketItem');
-  window.localStorage.setItem('marketItem', JSON.stringify(item));
-  cloneJob(item.id, item.jobConfig);
-}
-
-function cloneJob(id, jobConfig) {
-  jobConfig = yaml.safeLoad(jobConfig);
-  if (isJobV2(jobConfig)) {
-    window.location.href = `/submit.html?op=marketplace_submit&itemId=${id}#/general`;
-  } else {
-    window.location.href = `/submit_v1.html`;
-  }
-}
-
-function isJobV2(jobConfig) {
-  return (
-    !isNil(jobConfig.protocol_version) || !isNil(jobConfig.protocolVersion)
-  );
-}
+const { spacing } = getTheme();
 
 const ItemCard = props => {
   const { item } = props;
 
-  function populateUploadedTime() {
+  const clickSubmit = useCallback(() => {
+    // save jobConfig to localStorage
+    window.localStorage.removeItem('marketItem');
+    window.localStorage.setItem('marketItem', JSON.stringify(item));
+    cloneJob(item.id, item.jobConfig);
+  });
+
+  const cloneJob = (id, jobConfig) => {
+    jobConfig = yaml.safeLoad(jobConfig);
+    if (isJobV2(jobConfig)) {
+      window.location.href = `/submit.html?op=marketplace_submit&itemId=${id}#/general`;
+    } else {
+      window.location.href = `/submit_v1.html`;
+    }
+  };
+
+  const isJobV2 = jobConfig => {
+    return (
+      !isNil(jobConfig.protocol_version) || !isNil(jobConfig.protocolVersion)
+    );
+  };
+
+  const populateUpdatedTime = () => {
     const uploadedTime = Math.floor(
       Math.abs(new Date() - new Date(item.updateDate)) / 1000 / 3600 / 24,
     );
     return uploadedTime === 0
       ? 'not long ago'
       : uploadedTime + (uploadedTime > 1 ? ' days ago' : ' day ago');
-  }
+  };
+
   return (
     <Card key={item.Id}>
       <Stack>
@@ -62,7 +63,7 @@ const ItemCard = props => {
             <Text nowrap>{item.introduction}</Text>
             <TagBar tags={item.tags} />
             <Stack>
-              {item.author} uploaded {populateUploadedTime()}
+              {item.author} updated {populateUpdatedTime()}
             </Stack>
           </Stack>
 
@@ -83,9 +84,7 @@ const ItemCard = props => {
             </Stack>
 
             <Stack gap='m' styles={{ root: [{ paddingRight: spacing.l2 }] }}>
-              <PrimaryButton onClick={() => onSubmitClicked(item)}>
-                Submit
-              </PrimaryButton>
+              <PrimaryButton onClick={clickSubmit}>Submit</PrimaryButton>
               <DefaultButton href={`market-detail.html?itemId=${item.id}`}>
                 View
               </DefaultButton>

@@ -59,7 +59,6 @@ import {
 import { SpinnerLoading } from '../components/loading';
 import config from '../config/webportal.config';
 import { PAI_PLUGIN } from './utils/constants';
-import { updateMarketItem } from '../marketplace/market-detail/conn';
 
 const SIDEBAR_PARAM = 'param';
 const SIDEBAR_SECRET = 'secret';

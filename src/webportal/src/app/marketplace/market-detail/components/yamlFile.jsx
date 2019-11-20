@@ -1,6 +1,6 @@
 import React, { useContext } from 'react';
 import { FontClassNames } from '@uifabric/styling';
-import Context from './Context';
+import Context from '../Context';
 import Card from './card';
 
 const YamlFile = () => {

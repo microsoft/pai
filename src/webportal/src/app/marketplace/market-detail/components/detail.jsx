@@ -15,22 +15,34 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-import classNames from 'classnames';
-import PropTypes from 'prop-types';
+import c from 'classnames';
+
+import { Pivot, PivotItem } from 'office-ui-fabric-react/lib/Pivot';
 import React from 'react';
+import t from '../../../components/tachyons.scss';
 
-import t from '../../components/tachyons.scss';
+import Card from './card';
+import Description from './description';
+import TaskRoles from './taskRoles';
+import YamlFile from './yamlFile';
 
-const Card = ({ children, className, style }) => (
-  <div className={classNames(className, t.bgWhite)} style={style}>
-    {children}
-  </div>
-);
-
-Card.propTypes = {
-  children: PropTypes.node,
-  className: PropTypes.string,
-  style: PropTypes.object,
-};
-
-export default Card;
+export default function Detail() {
+  return (
+    <div className={c(t.bgWhite, t.mt3)}>
+      {/* summary */}
+      <Card className={c(t.pv4, t.ph5)}>
+        <Pivot>
+          <PivotItem headerText='Description'>
+            <Description />
+          </PivotItem>
+          <PivotItem headerText='Task Roles'>
+            <TaskRoles />
+          </PivotItem>
+          <PivotItem headerText='Yaml File'>
+            <YamlFile />
+          </PivotItem>
+        </Pivot>
+      </Card>
+    </div>
+  );
+}

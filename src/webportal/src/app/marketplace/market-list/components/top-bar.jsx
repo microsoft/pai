@@ -24,9 +24,9 @@
  */
 
 import React, { useState } from 'react';
-import { Text, Stack, CommandButton, CommandBar } from 'office-ui-fabric-react';
+import { Stack, CommandButton } from 'office-ui-fabric-react';
 
-import CreateMarketItem from './createMarketItem';
+import CreateMarketItem from './create-market-item';
 
 export const TopBar = React.memo(() => {
   const [hideDialog, setHideDialog] = useState(true);

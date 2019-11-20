@@ -4,7 +4,7 @@ import ReactMarkdown from 'react-markdown';
 import 'github-markdown-css';
 
 import Card from './card';
-import Context from './Context';
+import Context from '../Context';
 
 const Description = () => {
   const { marketItem } = useContext(Context);
@@ -19,7 +19,5 @@ const Description = () => {
 Description.propTypes = {
   content: PropTypes.string,
 };
-
-Description.contextType = Context;
 
 export default Description;

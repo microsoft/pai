@@ -29,14 +29,13 @@ import {
   FontSizes,
   FontWeights,
   Text,
-  Icon,
 } from 'office-ui-fabric-react';
-import { FontClassNames, getTheme } from '@uifabric/styling';
+import { getTheme } from '@uifabric/styling';
 import { isNil } from 'lodash';
 
-import { createMarketItem } from './conn';
-import { MarketItem } from './market-item';
-import { TagBar } from '../components/tag-bar';
+import { createMarketItem } from '../utils/conn';
+import { MarketItem } from '../../models/market-item';
+import { TagBar } from '../../components/tag-bar';
 import ImportYamlFile from './import-yaml-file';
 
 export default function CreateMarketItem(props) {
@@ -57,7 +56,7 @@ export default function CreateMarketItem(props) {
     { key: 'official', text: 'official' },
   ];
 
-  function checkRequired() {
+  const checkRequired = () => {
     if (name === '') {
       alert('Title required');
       return false;
@@ -79,14 +78,13 @@ export default function CreateMarketItem(props) {
       return false;
     }
     return true;
-  }
+  };
 
   async function onConfirm() {
     // check required
     if (!checkRequired()) {
       return;
     }
-
     setHideDialog(true);
     // parse tags to store in sqlite
     var tagList = '';

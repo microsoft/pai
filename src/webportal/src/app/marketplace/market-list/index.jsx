@@ -33,21 +33,19 @@ import { getTheme } from '@uifabric/styling';
 import { isNil } from 'lodash';
 
 import { initTheme } from '../../components/theme';
-import { TopBar } from './top-bar';
-import { CategorySideBar } from './category-side-bar';
-import { FilterBar } from './filter-bar';
-import { ItemList } from './item-list';
-import { MarketItem } from './market-item';
-import { fetchMarketItemList } from './conn';
+import { TopBar } from './components/top-bar';
+import { CategorySideBar } from './components/category-side-bar';
+import { FilterBar } from './components/filter-bar';
+import { ItemList } from './components/item-list';
+import { MarketItem } from '../models/market-item';
+import { fetchMarketItemList } from './utils/conn';
 import Context from './Context';
 import Filter from './Filter';
-import Paginator from './Paginator';
+import Paginator from './components/paginator';
 import Pagination from './Pagination';
 
 initTheme();
 initializeIcons();
-
-const { spacing } = getTheme();
 
 const MarketList = () => {
   const [itemList, setItemList] = useState(null);

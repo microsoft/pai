@@ -16,47 +16,43 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 import { isNil } from 'lodash';
-import React, { useContext, useState, useEffect } from 'react';
+import React, { useContext, useCallback } from 'react';
 import {
   getTheme,
   ColorClassNames,
-  CommandBar,
   CommandBarButton,
   SearchBox,
   Stack,
 } from 'office-ui-fabric-react';
 
 import FilterButton from './filter-button';
-import Context from './Context';
-import Filter from './Filter';
+import Context from '../Context';
+import Filter from '../Filter';
 
 export const FilterBar = () => {
   const { spacing } = getTheme();
 
-  const { filteredItems, filter, setFilter } = useContext(Context);
+  const { itemList, filter, setFilter } = useContext(Context);
 
-  function onKeywordChange(keyword) {
+  const changeKeyword = useCallback(keyword => {
     const { authors, custom, official } = filter;
     setFilter(new Filter(keyword, authors, custom, official));
-  }
+  });
 
-  // get distinct authors
+  // get distinct authors from all
   var allAuthors = [];
-  if (!isNil(filteredItems)) {
-    allAuthors = filteredItems.map(item => {
+  if (!isNil(itemList)) {
+    allAuthors = itemList.map(item => {
       return item.author;
     });
   }
   const authorItems = Array.from(new Set(allAuthors));
 
-  // get selected Author Items
-  const selectedItems = Array.from(filter.authors);
-
   // delete all authors
-  function onCancelClicked() {
+  const clickCancel = useCallback(() => {
     const { keyword, custom, official } = filter;
-    setFilter(keyword, new Set(), custom, official);
-  }
+    setFilter(new Filter(keyword, new Set(), custom, official));
+  });
 
   return (
     <Stack
@@ -76,7 +72,7 @@ export const FilterBar = () => {
       <SearchBox
         underlined={true}
         placeholder='Search'
-        onChange={onKeywordChange}
+        onChange={changeKeyword}
       />
       <Stack horizontal>
         <FilterButton
@@ -84,7 +80,7 @@ export const FilterBar = () => {
           text='Author'
           iconProps={{ iconName: 'Contact' }}
           items={authorItems}
-          selectedItems={selectedItems}
+          selectedItems={Array.from(filter.authors)}
           onSelect={authors => {
             const { keyword, custom, official } = filter;
             const authorsFilter = new Set(authors);
@@ -98,7 +94,7 @@ export const FilterBar = () => {
             root: { backgroundColor: 'transparent', height: '100%' },
           }}
           iconProps={{ iconName: 'Cancel' }}
-          onClick={() => onCancelClicked}
+          onClick={clickCancel}
         />
       </Stack>
     </Stack>

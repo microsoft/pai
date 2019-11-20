@@ -50,7 +50,7 @@ import {
 } from '../utils/utils';
 import Context from './context';
 import { FormShortSection } from './form-page';
-import updateMarketItem from '../../marketplace/market-detail/conn';
+import { updateMarketItem } from '../../marketplace/market-detail/utils/conn';
 
 const JOB_PROTOCOL_SCHEMA_URL =
   'https://github.com/microsoft/pai/blob/master/docs/pai-job-protocol.yaml';

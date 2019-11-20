@@ -15,7 +15,7 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 import PropTypes from 'prop-types';
-import React, { useState, useContext, useEffect } from 'react';
+import React, { useState, useContext, useEffect, useCallback } from 'react';
 import {
   DefaultButton,
   PrimaryButton,
@@ -32,9 +32,11 @@ import {
   Icon,
 } from 'office-ui-fabric-react';
 import { FontClassNames } from '@uifabric/styling';
+import { isNil } from 'lodash';
 
-import Context from './Context';
-import { updateMarketItem } from './conn';
+import Context from '../Context';
+import { updateMarketItem } from '../utils/conn';
+import { TagBar } from '../../components/tag-bar';
 
 const { spacing, palette } = getTheme();
 
@@ -46,9 +48,7 @@ export default function EditMarketItem(props) {
   const [category, setCategory] = useState(marketItem.category);
   const [tags, setTags] = useState([]);
   const [introduction, setIntroduction] = useState(marketItem.introduction);
-  const [author, setAuthor] = useState(marketItem.author);
   const [description, setDescription] = useState(marketItem.description);
-  const [tagEdit, setTagEdit] = useState('');
 
   const CATEGORY_OPTIONS = [
     { key: 'custom', text: 'custom' },
@@ -56,12 +56,32 @@ export default function EditMarketItem(props) {
   ];
 
   useEffect(() => {
-    if (marketItem.tags !== null) {
+    if (!isNil(marketItem.tags) && marketItem.tags.length !== 0) {
       setTags(marketItem.tags.split('|'));
     }
   }, []);
 
+  const checkRequired = () => {
+    if (name === '') {
+      alert('Title required');
+      return false;
+    }
+    if (introduction === '') {
+      alert('introduction required');
+      return false;
+    }
+    if (description === '') {
+      alert('description required');
+      return false;
+    }
+    return true;
+  };
+
   async function onConfirm() {
+    // check required
+    if (!checkRequired()) {
+      return;
+    }
     setHideDialog(true);
     // parse tags to store in sqlite
     var tagList = '';
@@ -88,67 +108,25 @@ export default function EditMarketItem(props) {
     window.location.href = `/market-detail.html?itemId=${marketItem.id}`;
   }
 
-  function closeDialog() {
+  const closeDialog = useCallback(() => {
     setHideDialog(true);
-  }
-
-  function handleChangeName(e) {
-    setName(e.target.value);
-  }
-
-  function handleChangeCategory(e, item) {
-    setCategory(item.text);
-  }
-
-  function handleChangeTags(e) {
-    setTagEdit(e.target.value);
-  }
-
-  function handleChangeIntroduction(e) {
-    setIntroduction(e.target.value);
-  }
-
-  function handleChangeDescription(e) {
-    setDescription(e.target.value);
-  }
-
-  function onAddTagCliked(e) {
-    // check empty
-    if (tagEdit === '') {
-      return;
-    }
-    // check tag duplicates
-    if (tags.includes(tagEdit)) {
-      alert('duplicated tags');
-      setTagEdit('');
-      return;
-    }
-    setTags([...tags, tagEdit]);
-    setTagEdit('');
-  }
-
-  function onDeleteTagCliked(tagToDelete) {
-    setTags(tags.filter(tag => tag !== tagToDelete));
-  }
+  });
 
   return (
     <Dialog
       hidden={hideDialog}
       onDismiss={closeDialog}
-      minWidth={600}
-      maxWidth={700}
+      minWidth={800}
       dialogContentProps={{
         type: DialogType.normal,
         showCloseButton: false,
-        styles: {
-          title: { paddingBottom: '12px' },
-        },
         title: (
           <Text
             styles={{
               root: {
                 fontSize: FontSizes.large,
                 fontWeight: FontWeights.semibold,
+                paddingBottom: spacing.m,
               },
             }}
           >
@@ -157,73 +135,51 @@ export default function EditMarketItem(props) {
         ),
       }}
       modalProps={{
-        isBlocking: false,
-        styles: { main: { maxWidth: 450 } },
+        isBlocking: true,
       }}
     >
       <Stack gap='m'>
-        <TextField label='Title' value={name} onChange={handleChangeName} />
+        <TextField
+          label='Name'
+          value={name}
+          onChange={e => {
+            setName(e.target.value);
+          }}
+          required
+        />
         <Dropdown
           label='Category'
           options={CATEGORY_OPTIONS}
           defaultSelectedKey={category}
-          onChange={handleChangeCategory}
+          onChange={(e, item) => {
+            setCategory(item.text);
+          }}
+          required
         />
         <Stack gap='s1'>
           <span>Tags</span>
-          <Stack horizontal gap='s2' verticalAlign='center'>
-            {tags.map(tag => {
-              return (
-                <Stack key={tag} horizontal gap='s'>
-                  <div
-                    className={FontClassNames.small}
-                    style={{
-                      minWidth: 50,
-                      maxWidth: 100,
-                      border: `1px solid ${palette.neutralTertiary}`,
-                      color: palette.neutralTertiary,
-                      padding: spacing.s1,
-                    }}
-                  >
-                    {tag}
-                  </div>
-                  <button
-                    onClick={() => onDeleteTagCliked(tag)}
-                    style={{ backgroundColor: 'Transparent', border: 'none' }}
-                  >
-                    <Icon iconName='Cancel' />
-                  </button>
-                </Stack>
-              );
-            })}
-            <TextField
-              value={tagEdit}
-              styles={{ fieldGroup: { width: 80 } }}
-              onChange={handleChangeTags}
-            />
-            <button
-              onClick={onAddTagCliked}
-              style={{ backgroundColor: 'Transparent', border: 'none' }}
-            >
-              <Icon iconName='Add' />
-            </button>
-          </Stack>
+          <TagBar tags={tags} setTags={setTags} />
         </Stack>
         <TextField
           label='Introduction'
           value={introduction}
-          onChange={handleChangeIntroduction}
+          onChange={e => {
+            setIntroduction(e.target.value);
+          }}
+          required
         />
-        <TextField label='Author' value={author} disabled />
+        <TextField label='Author' value={marketItem.author} disabled />
         <TextField
           label='Description'
           value={description}
           multiline
           rows={20}
-          onChange={handleChangeDescription}
+          onChange={e => {
+            setDescription(e.target.value);
+          }}
+          required
         />
       </Stack>
-
       <DialogFooter>
         <PrimaryButton onClick={onConfirm} text='Confirm' />
         <DefaultButton onClick={closeDialog} text='Cancel' />
@@ -236,5 +192,3 @@ EditMarketItem.propTypes = {
   hideDialog: PropTypes.bool.isRequired,
   setHideDialog: PropTypes.func.isRequired,
 };
-
-EditMarketItem.contextType = Context;

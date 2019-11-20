@@ -23,18 +23,18 @@
  * SOFTWARE.
  */
 
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { DefaultButton, Stack, Text } from 'office-ui-fabric-react';
 import PropTypes from 'prop-types';
 
-import { JobProtocol } from '../../job-submission/models/job-protocol';
+import { JobProtocol } from '../../../job-submission/models/job-protocol';
 
 const ImportYamlFile = props => {
   const { setYamlText } = props;
   const [yamlFileName, setYamlFileName] = useState('');
   const uploadFile = React.createRef();
 
-  const importFile = event => {
+  const importFile = useCallback(event => {
     event.preventDefault();
     const files = event.target.files;
     if (!files || !files[0]) {
@@ -52,7 +52,7 @@ const ImportYamlFile = props => {
       setYamlFileName(files[0].name);
     });
     fileReader.readAsText(files[0]);
-  };
+  });
 
   return (
     <div>

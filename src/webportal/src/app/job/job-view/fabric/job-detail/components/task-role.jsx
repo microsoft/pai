@@ -183,8 +183,6 @@ export default class TaskRole extends React.Component {
   }
 }
 
-TaskRole.contextType = Context;
-
 TaskRole.propTypes = {
   className: PropTypes.string,
   name: PropTypes.string.isRequired,

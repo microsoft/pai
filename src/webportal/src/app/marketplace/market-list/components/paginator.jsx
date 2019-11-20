@@ -1,9 +1,9 @@
-import React, { useContext } from 'react';
+import React, { useContext, useCallback } from 'react';
 import { CommandBar } from 'office-ui-fabric-react';
 import { isNil } from 'lodash';
 
-import Pagination from './Pagination';
-import Context from './Context';
+import Pagination from '../Pagination';
+import Context from '../Context';
 
 export default function Paginator() {
   const { filteredItems, pagination, setPagination } = useContext(Context);
@@ -26,22 +26,18 @@ export default function Paginator() {
     rootDisabled: { backgroundColor: 'white' },
   };
 
-  function onClickItemsPerPage(event, { key }) {
-    setPagination(new Pagination(key, 0));
-  }
-
-  function setPage(index) {
+  const setPage = useCallback(index => {
     setPagination(new Pagination(itemsPerPage, index));
-  }
+  });
 
-  function getPageButton(index) {
+  const getPageButton = useCallback(index => {
     return {
       key: `page-${index}`,
       text: String(index + 1),
       buttonStyles,
       onClick: () => setPage(index),
     };
-  }
+  });
 
   // menu: items per page
   farItems.push({
@@ -53,7 +49,9 @@ export default function Paginator() {
       items: [1, 2, 5, 10, 15].map(number => ({
         key: number,
         text: String(number),
-        onClick: onClickItemsPerPage,
+        onClick: (event, { key }) => {
+          setPagination(new Pagination(key, 0));
+        },
       })),
     },
   });
@@ -135,5 +133,3 @@ export default function Paginator() {
     />
   );
 }
-
-Paginator.contextType = Context;

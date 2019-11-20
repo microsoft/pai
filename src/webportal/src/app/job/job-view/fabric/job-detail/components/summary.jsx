@@ -571,8 +571,6 @@ export default class Summary extends React.Component {
   }
 }
 
-Summary.contextType = Context;
-
 Summary.propTypes = {
   className: PropTypes.string,
   jobInfo: PropTypes.object.isRequired,

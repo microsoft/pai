@@ -597,8 +597,6 @@ export default class TaskRoleContainerList extends React.Component {
   }
 }
 
-TaskRoleContainerList.contextType = Context;
-
 TaskRoleContainerList.propTypes = {
   className: PropTypes.string,
   style: PropTypes.object,
