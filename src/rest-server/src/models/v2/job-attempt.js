@@ -50,8 +50,7 @@ const encodeName = (name) => {
 
 // job attempts api only works in k8s launcher and when elastic search exists
 const healthCheck = async () => {
-  const launcherType = process.env.LAUNCHER_TYPE;
-  if (launcherType === 'yarn') {
+  if (launcherConfig.type === 'yarn' === 'yarn') {
     return false;
   } else if (_.isNil(elasticSearchClient)) {
     return false;
