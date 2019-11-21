@@ -53,6 +53,7 @@ let config = {
   logLevel: process.env.LOG_LEVEL,
   serverPort: process.env.SERVER_PORT,
   jwtSecret: process.env.JWT_SECRET,
+  restServerUri: process.env.REST_SERVER_URI,
 };
 
 // define config schema

@@ -5,7 +5,7 @@ ignored-classes=responses
 max-args=8
 
 [FORMAT]
-max-line-length=120
+max-line-length=130
 
 [MASTER]
 init-hook="from pylint.config import find_pylintrc;\

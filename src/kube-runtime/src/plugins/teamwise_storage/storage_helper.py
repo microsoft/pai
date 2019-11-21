@@ -7,8 +7,7 @@
 # documentation files (the "Software"), to deal in the Software without restriction, including without limitation
 # the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and
 # to permit persons to whom the Software is furnished to do so, subject to the following conditions:
-# The above copyright notice and this permission notice shall be included in all
-# copies or substantial portions of the Software.
+# The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 #
 # THE SOFTWARE IS PROVIDED *AS IS*, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING
 # BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
@@ -90,9 +89,8 @@ class StorageHelper():
             server_data = server_config["data"]
             rendered_path = self.__render_path(posixpath.join(server_data["rootPath"], relative_path))
             return [
-                "mount -t nfs4 {}:"
-                .format(posixpath.normpath(server_data["address"])) + rendered_path + " {}"
-                .format(mount_point)
+                "mount -t nfs4 {}:{} {}"
+                .format(posixpath.normpath(server_data["address"]), rendered_path, mount_point)
             ]
         if phrase == "post_mount":
             return ["umount -l {}".format(mount_point), "rm -r {}".format(mount_point)]

@@ -7,8 +7,7 @@
 # documentation files (the "Software"), to deal in the Software without restriction, including without limitation
 # the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and
 # to permit persons to whom the Software is furnished to do so, subject to the following conditions:
-# The above copyright notice and this permission notice shall be included in all
-# copies or substantial portions of the Software.
+# The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 #
 # THE SOFTWARE IS PROVIDED *AS IS*, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING
 # BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
@@ -23,11 +22,8 @@ import sys
 
 import requests
 
-#pylint: disable=wrong-import-position
-sys.path.append(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
-from plugin_utils import plugin_init, inject_commands
-from teamwise_storage.storage_helper import StorageHelper
-#pylint: enable=wrong-import-position
+from ..plugin_utils import plugin_init, inject_commands
+from ..teamwise_storage.storage_helper import StorageHelper
 
 logging.basicConfig(
     format="%(asctime)s - %(levelname)s - %(filename)s:%(lineno)s - %(message)s",

@@ -36,6 +36,7 @@ const path = require('path');
 const fs = require('fs');
 const _ = require('lodash');
 const logger = require('@pai/config/logger');
+const restServerConfig = require('@pai/config');
 
 let exitSpecPath;
 if (process.env[env.exitSpecPath]) {
@@ -356,7 +357,7 @@ const generateTaskRole = (taskRole, labels, config, userToken) => {
                 },
                 {
                   name: 'PAI_REST_SERVER_URI',
-                  value: launcherConfig.restServerUri,
+                  value: restServerConfig.restServerUri,
                 },
               ],
               volumeMounts: [
