@@ -72,6 +72,8 @@ const configSchema = Joi.object().keys({
   jwtSecret: Joi.string()
     .required()
     .description('JWT Secret required to sign'),
+  restServerUri: Joi.string()
+    .required(),
 }).required();
 
 const {error, value} = Joi.validate(config, configSchema);
