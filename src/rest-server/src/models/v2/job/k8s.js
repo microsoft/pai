@@ -121,7 +121,25 @@ const convertState = (state, exitCode, retryDelaySec) => {
   }
 };
 
+const mockFrameworkStatus = () => {
+  return {
+    state: 'AttemptCreationPending',
+    attemptStatus: {
+      completionStatus: null,
+      taskRoleStatuses: [],
+    },
+    retryPolicyStatus: {
+      retryDelaySec: null,
+      totalRetriedCount: 0,
+      accountableRetriedCount: 0,
+    },
+  };
+};
+
 const convertFrameworkSummary = (framework) => {
+  if (!framework.status) {
+    framework.status = mockFrameworkStatus();
+  }
   const completionStatus = framework.status.attemptStatus.completionStatus;
   return {
     name: decodeName(framework.metadata.name, framework.metadata.labels),
@@ -199,6 +217,9 @@ const convertTaskDetail = async (taskStatus, ports, userName, jobName, taskRoleN
 };
 
 const convertFrameworkDetail = async (framework) => {
+  if (!framework.status) {
+    framework.status = mockFrameworkStatus();
+  }
   // check fields which may be compressed
   if (framework.status.attemptStatus.taskRoleStatuses == null) {
     framework.status.attemptStatus.taskRoleStatuses = decompressField(framework.status.attemptStatus.taskRoleStatusesCompressed);
