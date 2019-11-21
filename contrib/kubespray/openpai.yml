@@ -330,7 +330,7 @@ docker_iptables_enabled: false
 
 docker_daemon_graph: "/mnt"
 
-docker_log_opts: "--log-opt max-size=2g --log-opt max-file=1 --log-driver=json-file"
+docker_log_opts: "--log-opt max-size=2g --log-opt max-file=2 --log-driver=json-file"
 
 # add --add-runtime nvidia=/usr/bin/nvidia-container-runtime for nvidia-runtime in docker_option
 docker_options: >-
