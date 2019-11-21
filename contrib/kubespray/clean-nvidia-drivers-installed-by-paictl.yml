@@ -6,6 +6,12 @@
         src: clean-nvidia-driver-by-openpai.sh
         dest: /clean-nvidia-driver-by-openpai.sh
 
+    - name: Change file permissions
+      file:
+        path: /clean-nvidia-driver-by-openpai.sh
+        mode: '1777'
+
+
     - name: remove the nvidia-drivers
       shell: /clean-nvidia-driver-by-openpai.sh
       args:
