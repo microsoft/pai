@@ -2,7 +2,7 @@
 - hosts: all
   tasks:
     - name: apt-get remove
-      shell: apt-get remove -y docker docker-engine docker.io containerd runc
+      shell: apt-get remove -y docker docker-engine docker.io containerd runc docker-ce docker-ce-cli
       args:
         executable: /bin/bash
 
