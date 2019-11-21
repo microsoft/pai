@@ -1,0 +1,14 @@
+---
+- hosts: all
+  tasks:
+    - name: apt-get remove
+      shell: apt-get remove -y docker docker-engine docker.io containerd runc
+      args:
+        executable: /bin/bash
+
+    - name: rm docker
+      shell: rm -rf /var/lib/docker
+      args:
+        executable: /bin/bash
+
+
