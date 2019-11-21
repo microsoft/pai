@@ -15,33 +15,10 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-cluster-type:
-  - yarn
-  - k8s
+FROM ubuntu:16.04
 
-prerequisite:
-  - cluster-configuration
-  - yarn-frameworklauncher
-  - frameworkcontroller
-  - hivedscheduler
-  - log-manager
-  - postgresql
+RUN mkdir -p /init_scripts
 
-template-list:
-  - rest-server.yaml
-  - start.sh
-  - configmap-create.sh
-  - auth-configmap/oidc.yaml
-  - group-configmap/group.yaml
-  - job-exit-spec-config/job-exit-spec.yaml
-  - k8s-job-exit-spec-config/k8s-job-exit-spec.yaml
+COPY src/delete.sh /init_scripts
 
-start-script: start.sh
-stop-script: stop.sh
-delete-script: delete.sh
-refresh-script: refresh.sh
-upgraded-script: upgraded.sh
-
-
-deploy-rules:
-  - in: pai-master
+ENTRYPOINT /bin/bash /init_scripts/delete.sh

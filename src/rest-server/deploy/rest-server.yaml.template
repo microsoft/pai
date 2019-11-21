@@ -109,6 +109,10 @@ spec:
         - name: RBAC_IN_CLUSTER
           value: "false"
 {% endif %}
+{% if cluster_cfg['postgresql']['enable'] %}
+        - name: SQL_CONNECTION_STR
+          value: {{ cluster_cfg['postgresql']['connection-str'] }}
+{% endif %}
         ports:
         - name: rest-server
           containerPort: 8080
