@@ -10,7 +10,7 @@ const Description = () => {
   const { marketItem } = useContext(Context);
 
   return (
-    <Card className='markdown-body' style={{ marginTop: 5, marginLeft: 10 }}>
+    <Card className='markdown-body' style={{ paddingTop: 15, paddingLeft: 10 }}>
       <ReactMarkdown source={marketItem.description} />
     </Card>
   );

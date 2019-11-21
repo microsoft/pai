@@ -165,7 +165,7 @@ const TaskRoles = () => {
   }
 
   return (
-    <Card style={{ marginTop: 15, marginLeft: 10 }}>
+    <Card style={{ paddingTop: 15, paddingLeft: 10 }}>
       <ThemeProvider theme={theme}>
         <DetailsList
           columns={getColumns()}

@@ -56,9 +56,7 @@ const ItemCard = props => {
       <Stack>
         <Stack horizontal horizontalAlign='space-between' gap='l2'>
           <Stack gap='l1' styles={{ root: [{ width: '80%' }] }}>
-            <TooltipHost content='marketItem'>
-              <div className={FontClassNames.xLarge}>{item.name}</div>
-            </TooltipHost>
+            <div className={FontClassNames.xLarge}>{item.name}</div>
             <div>Author: {item.author}</div>
             <Text nowrap>{item.introduction}</Text>
             <TagBar tags={item.tags} />

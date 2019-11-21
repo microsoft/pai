@@ -220,7 +220,7 @@ export const SubmissionSection = props => {
     if (marketplaceSubmit === true) {
       // update submits
       const marketItem = JSON.parse(window.localStorage.getItem('marketItem'));
-      updateMarketItem(
+      await updateMarketItem(
         marketItem.id,
         marketItem.name,
         marketItem.author,

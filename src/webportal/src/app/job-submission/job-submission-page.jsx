@@ -263,6 +263,7 @@ export const JobSubmissionPage = ({
       const marketItem = JSON.parse(window.localStorage.getItem('marketItem'));
 
       const jobConfig = yaml.safeLoad(marketItem.jobConfig);
+
       // parse jobConfig
       const [
         jobInfo,
@@ -271,6 +272,7 @@ export const JobSubmissionPage = ({
         ,
         extras,
       ] = getJobComponentsFromConfig(jobConfig, {});
+
       // set to elemetns
       jobInfo.name = generateJobName(jobInfo.name);
       if (get(jobConfig, 'extras.submitFrom')) {

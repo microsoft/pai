@@ -118,7 +118,7 @@ export default function Summary() {
               </Stack>
             </TooltipHost>
             <Stack className={c(t.gray, FontClassNames.medium)}>
-              <TooltipHost content='submited times'>
+              <TooltipHost content='submits'>
                 <Stack horizontal gap={'s1'}>
                   <Icon iconName='Copy' />
                   <span>{marketItem.submits}</span>

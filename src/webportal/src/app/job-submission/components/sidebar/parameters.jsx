@@ -35,6 +35,13 @@ import { PROTOCOL_TOOLTIPS } from '../../utils/constants';
 export const Parameters = React.memo(
   ({ parameters, onChange, selected, onSelect }) => {
     const [error, setError] = useState('');
+
+    const parametersString = parameters.map(param => {
+      return {
+        key: param.key,
+        value: param.value.toString(),
+      };
+    });
     return (
       <SidebarCard
         title='Parameters'
@@ -51,7 +58,7 @@ export const Parameters = React.memo(
           <div>
             <KeyValueList
               name='Parameter List'
-              value={parameters}
+              value={parametersString}
               onChange={onChange}
               onError={setError}
             />

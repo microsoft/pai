@@ -9,8 +9,8 @@ const YamlFile = () => {
     <Card
       style={{
         whiteSpace: 'pre-wrap',
-        marginTop: 15,
-        marginLeft: 10,
+        paddingTop: 15,
+        paddingLeft: 10,
       }}
       className={FontClassNames.mediumPlus}
     >
