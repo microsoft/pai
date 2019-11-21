@@ -21,7 +21,6 @@ module.exports = {
   },
   globals: {
     cookies: 'readonly',
-    userLogout: 'readonly',
   },
   settings: {
     react: {

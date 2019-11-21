@@ -16,17 +16,15 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 import yaml from 'js-yaml';
-import { get, isNil } from 'lodash';
-import qs from 'querystring';
+import { isNil } from 'lodash';
 
-import { userLogout } from '../../../../user/user-logout/user-logout.component';
+import { clearToken } from '../../../../user/user-logout/user-logout.component';
 import { checkToken } from '../../../../user/user-auth/user-auth.component';
 import config from '../../../../config/webportal.config';
-import { isJobV2 } from './util';
 
 const params = new URLSearchParams(window.location.search);
-const namespace = params.get('username');
-const jobName = params.get('jobName');
+const userName = params.get('username');
+const jobName = params.get('jobname');
 const absoluteUrlRegExp = /^[a-z][a-z\d+.-]*:/;
 
 export class NotFoundError extends Error {
@@ -36,9 +34,52 @@ export class NotFoundError extends Error {
   }
 }
 
+export async function checkAttemptAPI() {
+  const healthEndpoint = `${config.restServerUri}/api/v2/jobs/${userName}~${jobName}/job-attempts/healthz`;
+  const healthRes = await fetch(healthEndpoint);
+  if (healthRes.status !== 200) {
+    return false;
+  } else {
+    return true;
+  }
+}
+
+export async function fetchJobRetries() {
+  if (!(await checkAttemptAPI())) {
+    return {
+      isSucceeded: false,
+      errorMessage: 'Attempts API is not working!',
+      jobRetries: null,
+    };
+  }
+
+  const listAttemptsUrl = `${config.restServerUri}/api/v1/jobs/${userName}~${jobName}/job-attempts`;
+  const listRes = await fetch(listAttemptsUrl);
+  if (listRes.status === 404) {
+    return {
+      isSucceeded: false,
+      errorMessage: 'Could not find any attempts of this job!',
+      jobRetries: null,
+    };
+  } else if (listRes.status === 200) {
+    const jobAttempts = await listRes.json();
+    return {
+      isSucceeded: true,
+      errorMessage: null,
+      jobRetries: jobAttempts.filter(attempt => !attempt.isLatest),
+    };
+  } else {
+    return {
+      isSucceeded: false,
+      errorMessage: 'Some errors occured!',
+      jobRetries: null,
+    };
+  }
+}
+
 export async function fetchJobInfo() {
-  const url = namespace
-    ? `${config.restServerUri}/api/v1/jobs/${namespace}~${jobName}`
+  const url = userName
+    ? `${config.restServerUri}/api/v1/jobs/${userName}~${jobName}`
     : `${config.restServerUri}/api/v1/jobs/${jobName}`;
   const res = await fetch(url);
   const json = await res.json();
@@ -50,8 +91,8 @@ export async function fetchJobInfo() {
 }
 
 export async function fetchRawJobConfig() {
-  const url = namespace
-    ? `${config.restServerUri}/api/v1/jobs/${namespace}~${jobName}/config`
+  const url = userName
+    ? `${config.restServerUri}/api/v1/jobs/${userName}~${jobName}/config`
     : `${config.restServerUri}/api/v1/jobs/${jobName}/config`;
   const res = await fetch(url);
   const text = await res.text();
@@ -68,8 +109,8 @@ export async function fetchRawJobConfig() {
 }
 
 export async function fetchJobConfig() {
-  const url = namespace
-    ? `${config.restServerUri}/api/v2/jobs/${namespace}~${jobName}/config`
+  const url = userName
+    ? `${config.restServerUri}/api/v2/jobs/${userName}~${jobName}/config`
     : `${config.restServerUri}/api/v1/jobs/${jobName}/config`;
   const res = await fetch(url);
   const text = await res.text();
@@ -86,8 +127,8 @@ export async function fetchJobConfig() {
 }
 
 export async function fetchSshInfo() {
-  const url = namespace
-    ? `${config.restServerUri}/api/v1/jobs/${namespace}~${jobName}/ssh`
+  const url = userName
+    ? `${config.restServerUri}/api/v1/jobs/${userName}~${jobName}/ssh`
     : `${config.restServerUri}/api/v1/jobs/${jobName}/ssh`;
   const res = await fetch(url);
   const json = await res.json();
@@ -137,53 +178,13 @@ export function getJobMetricsUrl(jobInfo) {
     to = jobInfo.jobStatus.completedTime;
   }
   return `${config.grafanaUri}/dashboard/db/joblevelmetrics?var-job=${
-    namespace ? `${namespace}~${jobName}` : jobName
+    userName ? `${userName}~${jobName}` : jobName
   }&from=${from}&to=${to}`;
 }
 
-export async function cloneJob(rawJobConfig) {
-  const query = {
-    op: 'resubmit',
-    type: 'job',
-    user: namespace,
-    jobname: jobName,
-  };
-
-  // plugin
-  const pluginId = get(rawJobConfig, 'extras.submitFrom');
-  if (isNil(pluginId)) {
-    if (isJobV2(rawJobConfig)) {
-      window.location.href = `/submit.html?${qs.stringify(query)}`;
-    } else {
-      window.location.href = `/submit_v1.html?${qs.stringify(query)}`;
-    }
-    return;
-  }
-  const plugins = window.PAI_PLUGINS;
-  const pluginIndex = plugins.findIndex(x => x.id === pluginId);
-  if (pluginIndex === -1) {
-    // redirect v2 job to default submission page
-    if (isJobV2(rawJobConfig)) {
-      alert(
-        `The job was submitted by ${pluginId}, but it is not installed. Will use default submission page instead`,
-      );
-      window.location.href = `/submit.html?${qs.stringify(query)}`;
-      return;
-    }
-    alert(
-      `Clone job failed. The job was submitted by ${pluginId}, but it is not installed.`,
-    );
-    return;
-  }
-  window.location.href = `/plugin.html?${qs.stringify({
-    ...query,
-    index: pluginIndex,
-  })}`;
-}
-
 export async function stopJob() {
-  const url = namespace
-    ? `${config.restServerUri}/api/v1/jobs/${namespace}~${jobName}/executionType`
+  const url = userName
+    ? `${config.restServerUri}/api/v1/jobs/${userName}~${jobName}/executionType`
     : `${config.restServerUri}/api/v1/jobs/${jobName}/executionType`;
   const token = checkToken();
   const res = await fetch(url, {
@@ -201,7 +202,7 @@ export async function stopJob() {
     return json;
   } else if (res.code === 'UnauthorizedUserError') {
     alert(res.message);
-    userLogout();
+    clearToken();
   } else {
     throw new Error(json.message);
   }
@@ -265,24 +266,4 @@ export async function getContainerLog(logUrl) {
   } else {
     throw new Error(`Log not available`);
   }
-}
-
-export function openJobAttemptsPage(retryCount) {
-  const search = namespace ? namespace + '~' + jobName : jobName;
-  const jobSessionTemplate = JSON.stringify({
-    iCreate: 1,
-    iStart: 0,
-    iEnd: retryCount + 1,
-    iLength: 20,
-    aaSorting: [[0, 'desc', 1]],
-    oSearch: {
-      bCaseInsensitive: true,
-      sSearch: search,
-      bRegex: false,
-      bSmart: true,
-    },
-    abVisCols: [],
-  });
-  sessionStorage.setItem('apps', jobSessionTemplate);
-  window.open(config.yarnWebPortalUri);
 }

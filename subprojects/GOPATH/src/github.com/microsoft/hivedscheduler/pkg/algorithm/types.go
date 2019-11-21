@@ -105,21 +105,30 @@ func (ccl ChainCellList) remove(c Cell, l CellLevel) {
 type AlgoAffinityGroup struct {
 	name                 string
 	totalPodNums         map[int32]int32       // GpuNum -> PodNum
-	allocatedPods        map[int32][]*core.Pod // GpuNum -> a list of allocated pods
+	allocatedPods        map[int32][]*core.Pod // GpuNum -> a list of allocated pods and node addresses
 	physicalGpuPlacement map[int32][]CellList  // GpuNum -> a list of pods -> a list of physical GPUs of each pod
 	virtualGpuPlacement  map[int32][]CellList  // GpuNum -> a list of pods -> a list of virtual GPUs of each pod
 }
 
 func newAlgoAffinityGroup(g *api.AffinityGroupSpec) *AlgoAffinityGroup {
-	numPods := make(map[int32]int32)
+	podNums := make(map[int32]int32)
 	for _, m := range g.Members {
-		numPods[m.GpuNumber] += m.PodNumber
+		podNums[m.GpuNumber] += m.PodNumber
 	}
-	return &AlgoAffinityGroup{
+	group := &AlgoAffinityGroup{
 		name:                 g.Name,
-		totalPodNums:         numPods,
+		totalPodNums:         podNums,
 		allocatedPods:        map[int32][]*core.Pod{},
 		physicalGpuPlacement: map[int32][]CellList{},
 		virtualGpuPlacement:  map[int32][]CellList{},
 	}
+	for gpuNum, podNum := range podNums {
+		group.physicalGpuPlacement[gpuNum] = make([]CellList, podNum)
+		group.virtualGpuPlacement[gpuNum] = make([]CellList, podNum)
+		for i := int32(0); i < podNum; i++ {
+			group.physicalGpuPlacement[gpuNum][i] = make(CellList, gpuNum)
+			group.virtualGpuPlacement[gpuNum][i] = make(CellList, gpuNum)
+		}
+	}
+	return group
 }

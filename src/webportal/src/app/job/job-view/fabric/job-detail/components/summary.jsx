@@ -29,7 +29,6 @@ import { DateTime } from 'luxon';
 import {
   ActionButton,
   DefaultButton,
-  PrimaryButton,
   Dropdown,
   Link,
   MessageBar,
@@ -48,22 +47,24 @@ import t from '../../../../../components/tachyons.scss';
 import Card from './card';
 import Context from './context';
 import Timer from './timer';
+import { getTensorBoardUrl, getJobMetricsUrl, checkAttemptAPI } from '../conn';
 import {
-  getTensorBoardUrl,
-  getJobMetricsUrl,
-  cloneJob,
-  openJobAttemptsPage,
-} from '../conn';
-import { printDateTime, isClonable, isJobV2 } from '../util';
+  printDateTime,
+  isJobV2,
+  HISTORY_API_ERROR_MESSAGE,
+  HISTORY_DISABLE_MESSAGE,
+} from '../util';
 import MonacoPanel from '../../../../../components/monaco-panel';
 import StatusBadge from '../../../../../components/status-badge';
 import {
-  getJobDurationString,
+  getJobDuration,
+  getDurationString,
   getHumanizedJobStateString,
   isStoppable,
 } from '../../../../../components/util/job';
 import config from '../../../../../config/webportal.config';
 import StopJobConfirm from '../../JobList/StopJobConfirm';
+import CloneButton from './clone-button';
 
 const HintItem = ({ header, children }) => (
   <div className={c(t.flex, t.justifyStart)}>
@@ -93,6 +94,7 @@ export default class Summary extends React.Component {
       modalTitle: '',
       autoReloadInterval: 10 * 1000,
       hideDialog: true,
+      isRetryHealthy: false,
     };
 
     this.onChangeInterval = this.onChangeInterval.bind(this);
@@ -102,6 +104,16 @@ export default class Summary extends React.Component {
     this.showJobConfig = this.showJobConfig.bind(this);
     this.showStopJobConfirm = this.showStopJobConfirm.bind(this);
     this.setHideDialog = this.setHideDialog.bind(this);
+    this.checkRetryHealthy = this.checkRetryHealthy.bind(this);
+    this.checkRetryLink = this.checkRetryLink.bind(this);
+  }
+
+  async componentDidMount() {
+    if (await this.checkRetryHealthy()) {
+      this.setState({ isRetryHealthy: true });
+    } else {
+      this.setState({ isRetryHealthy: false });
+    }
   }
 
   onChangeInterval(e, item) {
@@ -257,6 +269,17 @@ export default class Summary extends React.Component {
     return result;
   }
 
+  async checkRetryHealthy() {
+    if (config.launcherType !== 'k8s') {
+      return false;
+    }
+
+    if (!(await checkAttemptAPI())) {
+      return false;
+    }
+    return true;
+  }
+
   renderHintMessage() {
     const { jobInfo } = this.props;
     if (!jobInfo) {
@@ -323,16 +346,37 @@ export default class Summary extends React.Component {
     }
   }
 
+  checkRetryLink() {
+    const { jobInfo } = this.props;
+    const { isRetryHealthy } = this.state;
+
+    if (
+      config.jobHistory !== 'true' ||
+      !isRetryHealthy ||
+      isNil(jobInfo.jobStatus.retries) ||
+      jobInfo.jobStatus.retries === 0
+    ) {
+      return false;
+    } else {
+      return true;
+    }
+  }
+
   render() {
     const {
       autoReloadInterval,
       modalTitle,
       monacoProps,
       hideDialog,
+      isRetryHealthy,
     } = this.state;
     const { className, jobInfo, reloading, onStopJob, onReload } = this.props;
     const { rawJobConfig } = this.context;
     const hintMessage = this.renderHintMessage();
+
+    const params = new URLSearchParams(window.location.search);
+    const namespace = params.get('username');
+    const jobName = params.get('jobname');
 
     return (
       <div className={className}>
@@ -454,24 +498,23 @@ export default class Summary extends React.Component {
             <div className={t.ml4}>
               <div className={c(t.gray, FontClassNames.medium)}>Duration</div>
               <div className={c(t.mt3, FontClassNames.mediumPlus)}>
-                {getJobDurationString(jobInfo.jobStatus)}
+                {getDurationString(getJobDuration(jobInfo.jobStatus))}
               </div>
             </div>
             <div className={t.ml4}>
               <div className={c(t.gray, FontClassNames.medium)}>Retries</div>
-              {config.launcherType === 'k8s' ||
-              isNil(jobInfo.jobStatus.retries) ? (
-                <div className={c(t.mt3, FontClassNames.mediumPlus)}>
-                  {jobInfo.jobStatus.retries}
-                </div>
-              ) : (
+              {this.checkRetryLink() ? (
                 <Link
-                  onClick={() => openJobAttemptsPage(jobInfo.jobStatus.retries)}
+                  href={`job-retry.html?username=${namespace}&jobname=${jobName}`}
                 >
                   <div className={c(t.mt3, FontClassNames.mediumPlus)}>
                     {jobInfo.jobStatus.retries}
                   </div>
                 </Link>
+              ) : (
+                <div className={c(t.mt3, FontClassNames.mediumPlus)}>
+                  {jobInfo.jobStatus.retries}
+                </div>
               )}
             </div>
           </div>
@@ -530,13 +573,82 @@ export default class Summary extends React.Component {
               >
                 Go to TensorBoard Page
               </Link>
+              <div className={c(t.bl, t.mh3)}></div>
+              <div className={c(t.flex)}>
+                <Link
+                  styles={{ root: [FontClassNames.mediumPlus] }}
+                  href={`job-retry.html?username=${namespace}&jobname=${jobName}`}
+                  disabled={!this.checkRetryLink()}
+                  target='_blank'
+                >
+                  Go to Retry History Page
+                </Link>
+                {config.jobHistory !== 'true' && (
+                  <div className={t.ml2}>
+                    <TooltipHost
+                      calloutProps={{
+                        isBeakVisible: false,
+                      }}
+                      tooltipProps={{
+                        onRenderContent: () => (
+                          <div className={c(t.flex, t.itemsCenter)}>
+                            {HISTORY_DISABLE_MESSAGE}
+                          </div>
+                        ),
+                      }}
+                      directionalHint={DirectionalHint.topLeftEdge}
+                    >
+                      <div>
+                        <Icon
+                          iconName='Info'
+                          styles={{
+                            root: [
+                              { fontSize: IconFontSizes.medium },
+                              ColorClassNames.neutralSecondary,
+                            ],
+                          }}
+                        />
+                      </div>
+                    </TooltipHost>
+                  </div>
+                )}
+                {config.jobHistory === 'true' && !isRetryHealthy && (
+                  <div className={t.ml2}>
+                    <TooltipHost
+                      calloutProps={{
+                        isBeakVisible: false,
+                      }}
+                      tooltipProps={{
+                        onRenderContent: () => (
+                          <div className={c(t.flex, t.itemsCenter)}>
+                            {HISTORY_API_ERROR_MESSAGE}
+                          </div>
+                        ),
+                      }}
+                      directionalHint={DirectionalHint.topLeftEdge}
+                    >
+                      <div>
+                        <Icon
+                          iconName='Warning'
+                          styles={{
+                            root: [
+                              { fontSize: IconFontSizes.medium },
+                              ColorClassNames.neutralSecondary,
+                            ],
+                          }}
+                        />
+                      </div>
+                    </TooltipHost>
+                  </div>
+                )}
+              </div>
             </div>
             <div>
               <span>
-                <PrimaryButton
-                  text='Clone'
-                  onClick={() => cloneJob(rawJobConfig)}
-                  disabled={!isClonable(rawJobConfig)}
+                <CloneButton
+                  namespace={namespace}
+                  jobName={jobName}
+                  rawJobConfig={rawJobConfig}
                 />
               </span>
               <span className={c(t.ml2)}>

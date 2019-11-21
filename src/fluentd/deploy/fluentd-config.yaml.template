@@ -1,0 +1,146 @@
+# Copyright (c) Microsoft Corporation
+# All rights reserved.
+#
+# MIT License
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
+# documentation files (the "Software"), to deal in the Software without restriction, including without limitation
+# the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and
+# to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+# The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED *AS IS*, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING
+# BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+# NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+# DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: fluentd-config
+data:
+  system.conf: |-
+    <system>
+      root_dir /tmp/fluentd-buffers/
+    </system>
+  containers.input.conf: |-
+    # FC Docker Container Log:
+    # {"log":"I1024 12:14:54.903623      11 controller.go:1382] [default/efkt168][worker][0]: syncTaskState: Task will be retried: ObjectSnapshot: {\"kind\":\"Framework\"}\n",
+    # "stream":"stderr",
+    # "time":"2019-10-24T12:14:54.9037283Z"}
+    <source>
+      @id fc-objectsnapshots.log
+      @type tail
+      path /var/log/containers/frameworkcontroller*.log
+      pos_file /var/log/fc-objectsnapshots.log.pos
+      read_from_head true
+      tag fc-objectsnapshots
+      format json
+      time_key time
+      time_format %Y-%m-%dT%H:%M:%S.%NZ
+      keep_time_key true
+    </source>
+
+    # Recombine raw log lines in case it was splitted by Docker
+    <filter>
+      @type concat
+      key log
+      multiline_start_regexp /: ObjectSnapshot: /
+      multiline_end_regexp /\}\n$/
+      separator ""
+      flush_interval 30
+    </filter>
+
+    # Filter objectSnapshot
+    <filter fc-objectsnapshots>
+      @type grep
+      <regexp>
+        key log
+        pattern /: ObjectSnapshot: /
+      </regexp>
+    </filter>
+
+    # Locate objectSnapshot:
+    # {"objectSnapshot":"{\"kind\":\"Framework\"}\n"}
+    <filter fc-objectsnapshots>
+      @type parser
+      key_name log
+      reserve_data true
+      <parse>
+        @type regexp
+        expression /^(?<logSeverity>\w)(?<logTime>\d{4} [^\s]*)\s+(?<logPid>\d+)\s+(?<logSite>[^ \]]+)\] (?<logMessage>.*): ObjectSnapshot: (?<objectSnapshot>.+)/
+      </parse>
+    </filter>
+
+    # Parse objectSnapshot:
+    # {"objectSnapshot":{"kind":"Framework"}}
+    <filter fc-objectsnapshots>
+      @type parser
+      key_name objectSnapshot
+      reserve_data true
+      hash_value_field objectSnapshot
+      <parse>
+        @type json
+      </parse>
+    </filter>
+
+    # Add collectTime
+    <filter fc-objectsnapshots>
+      @type record_transformer
+      enable_ruby true
+      <record>
+        collectTime ${record['time']}
+      </record>
+    </filter>
+
+    # Remove useless keys
+    <filter fc-objectsnapshots>
+      @type record_transformer
+      remove_keys log,time,stream,logSeverity,logPid,logSite
+    </filter>
+
+    # Just for debugging
+    <filter fc-objectsnapshots>
+      @type stdout
+      <format>
+        @type json
+      </format>
+    </filter>
+
+    # Output to elasticsearch
+    <match fc-objectsnapshots>
+      @type copy
+      # index by kind
+      <store>
+        @type elasticsearch_dynamic
+        type_name _doc
+        # elasticsearch_host
+        host {{ cluster_cfg['elasticsearch']['master-ip'] }}
+        # elasticsearch-service_port
+        port 30100
+        index_name ${record['objectSnapshot']['kind']}
+        customize_template {
+          "index_patterns": ["framework", "pod"],
+          "settings": {
+            "number_of_shards": 3,
+            "number_of_replicas": 1,
+            "index.refresh_interval": "1s"
+          },
+          "mappings": {
+            "properties": {
+            }
+          }
+        }
+        <buffer>
+          @type memory
+          flush_mode immediate
+          flush_thread_count 8
+          chunk_limit_size 96m
+          queue_limit_length 96
+          retry_forever
+          retry_max_interval 30
+          overflow_action block
+        </buffer>
+      </store>
+    </match>

@@ -34,16 +34,7 @@ import { PROTOCOL_TOOLTIPS } from '../../utils/constants';
 import config from '../../../config/webportal.config';
 
 export const ToolComponent = React.memo(
-  ({
-    jobData,
-    taskRoles,
-    secrets,
-    extras,
-    onExtrasChange,
-    onSecretsChange,
-    selected,
-    onSelect,
-  }) => {
+  ({ jobData, taskRoles, extras, onExtrasChange, selected, onSelect }) => {
     return (
       <SidebarCard
         title='Tools'
@@ -66,12 +57,7 @@ export const ToolComponent = React.memo(
           </div>
           {config.launcherType === 'k8s' && (
             <div>
-              <JobSSH
-                secrets={secrets}
-                extras={extras}
-                onSecretsChange={onSecretsChange}
-                onExtrasChange={onExtrasChange}
-              />
+              <JobSSH extras={extras} onExtrasChange={onExtrasChange} />
             </div>
           )}
         </Stack>
@@ -83,9 +69,7 @@ export const ToolComponent = React.memo(
 ToolComponent.propTypes = {
   jobData: PropTypes.object.isRequired,
   taskRoles: PropTypes.array.isRequired,
-  secrets: PropTypes.array,
   extras: PropTypes.object,
-  onSecretsChange: PropTypes.func.isRequired,
   onExtrasChange: PropTypes.func.isRequired,
   selected: PropTypes.bool,
   onSelect: PropTypes.func,

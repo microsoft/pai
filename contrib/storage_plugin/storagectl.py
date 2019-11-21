@@ -130,6 +130,8 @@ def get_group_extension(group_name):
 def groupsc_add(args):
     extension = get_group_extension(args.group_name)
     if extension is not None:
+        if "storageConfigs" not in extension["acls"]:
+            extension["acls"]["storageConfigs"] = []
         storageConfigs = extension["acls"]["storageConfigs"]
         if args.config_name not in storageConfigs:
             storageConfigs.append(args.config_name)

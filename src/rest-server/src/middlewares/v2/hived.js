@@ -27,6 +27,7 @@ const convertPriority = (priorityClass) => {
   const priorityMap = {
     prod: 100,
     test: 10,
+    oppo: -1,
   };
   return priorityClass in priorityMap ? priorityMap[priorityClass] : null;
 };
@@ -40,6 +41,10 @@ const hivedValidate = (protocolObj) => {
   const minMemoryMB = Math.min(...Array.from(Object.values(resourceUnits), (v) => v.memory));
   let hivedConfig = null;
   const affinityGroups = {};
+  const gangAllocation = ('extras' in protocolObj && protocolObj.extras.gangAllocation === false) ? false : true;
+  const virtualCluster = ('defaults' in protocolObj && protocolObj.defaults.virtualCluster != null) ?
+    protocolObj.defaults.virtualCluster : 'default';
+
   if ('extras' in protocolObj && 'hivedScheduler' in protocolObj.extras) {
     hivedConfig = protocolObj.extras.hivedScheduler;
     for (let taskRole of Object.keys(hivedConfig.taskRoles)) {
@@ -117,16 +122,30 @@ const hivedValidate = (protocolObj) => {
     }
   }
 
+  // generate default affinity group for the gang scheduling jobs
+  let defaultAffinityGroup = null;
+  if (!Object.keys(affinityGroups).length && gangAllocation) {
+    defaultAffinityGroup = {
+      affinityTaskList: Object.keys(protocolObj.taskRoles).map((taskRole) => {
+        return {
+          podNumber: protocolObj.taskRoles[taskRole].instances,
+          gpuNumber: protocolObj.taskRoles[taskRole].resourcePerInstance.gpu,
+        };
+      }),
+    };
+  }
+
   // generate podSpec for every taskRole
+  let totalGpuNumber = 0;
   for (let taskRole of Object.keys(protocolObj.taskRoles)) {
     const gpu = protocolObj.taskRoles[taskRole].resourcePerInstance.gpu || 0;
     const cpu = protocolObj.taskRoles[taskRole].resourcePerInstance.cpu;
     const memoryMB = protocolObj.taskRoles[taskRole].resourcePerInstance.memoryMB;
     let allowedCpu = minCpu * gpu;
     let allowedMemoryMB = minMemoryMB * gpu;
+    totalGpuNumber += gpu;
     const podSpec = {
-      virtualCluster: ('defaults' in protocolObj && protocolObj.defaults.virtualCluster != null) ?
-        protocolObj.defaults.virtualCluster : 'default',
+      virtualCluster,
       priority: null,
       gpuType: null,
       reservationId: null,
@@ -138,7 +157,7 @@ const hivedValidate = (protocolObj) => {
       podSpec.gpuType = hivedConfig.taskRoles[taskRole].gpuType;
       if (podSpec.gpuType !== null) {
         allowedCpu = resourceUnits[podSpec.gpuType].cpu * gpu;
-        allowedMemoryMB = resourceUnits[podSpec.gpuType].memoryMB * gpu;
+        allowedMemoryMB = resourceUnits[podSpec.gpuType].memory * gpu;
       }
       podSpec.reservationId = hivedConfig.taskRoles[taskRole].reservationId;
 
@@ -148,19 +167,28 @@ const hivedValidate = (protocolObj) => {
         members: affinityGroups[affinityGroupName].affinityTaskList,
       } : null;
     }
-    // TODO: hardcode for demo, removed it!
-    if (podSpec.gpuType === null && podSpec.reservationId === null) {
-      podSpec.gpuType = 'K80';
+
+    if (defaultAffinityGroup != null) {
+      podSpec.affinityGroup = {
+        name: `${protocolObj.name}/default`,
+        members: defaultAffinityGroup.affinityTaskList,
+      };
     }
 
+    if (gpu === 0) {
+      throw createError('Bad Request', 'InvalidProtocolError', 'Hived error: does not allow 0 GPU in hived scheduler.');
+    }
     if (cpu > allowedCpu || memoryMB > allowedMemoryMB) {
       throw createError(
         'Bad Request',
         'InvalidProtocolError',
-        `Hived error: ${taskRole} requests (${cpu}cpu, ${memoryMB}memoryMB), allow (${allowedCpu}cpu, ${allowedMemoryMB}memoryMB) with ${gpu}gpu.`
+        `Hived error: ${taskRole} requests (${cpu} CPU, ${memoryMB}MB memory), allow (${allowedCpu} CPU, ${allowedMemoryMB}MB memory) with ${gpu} GPU.`
       );
     }
     protocolObj.taskRoles[taskRole].hivedPodSpec = podSpec;
+  }
+  if (totalGpuNumber > vcConfig.virtualCellCapacity[virtualCluster].resourcesTotal.gpu) {
+    throw createError('Bad Request', 'InvalidProtocolError', `Hived error: exceed GPU quota in ${virtualCluster} VC.`);
   }
   return protocolObj;
 };

@@ -212,7 +212,7 @@ export const SubmissionSection = props => {
     try {
       await populateProtocolWithDataCli(user, protocol, jobData);
       await submitJob(protocol.toYaml());
-      window.location.href = `/job-detail.html?username=${user}&jobName=${protocol.name}`;
+      window.location.href = `/job-detail.html?username=${user}&jobname=${protocol.name}`;
     } catch (err) {
       alert(err);
     }

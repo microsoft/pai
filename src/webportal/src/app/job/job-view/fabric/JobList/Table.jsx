@@ -22,7 +22,8 @@ import Filter from './Filter';
 import Ordering from './Ordering';
 import StatusBadge from '../../../../components/status-badge';
 import {
-  getJobDurationString,
+  getJobDuration,
+  getDurationString,
   isStoppable,
 } from '../../../../components/util/job';
 import StopJobConfirm from './StopJobConfirm';
@@ -107,8 +108,8 @@ export default function Table() {
     onRender(job) {
       const { legacy, name, namespace, username } = job;
       const href = legacy
-        ? `/job-detail.html?jobName=${name}`
-        : `/job-detail.html?username=${namespace || username}&jobName=${name}`;
+        ? `/job-detail.html?jobname=${name}`
+        : `/job-detail.html?username=${namespace || username}&jobname=${name}`;
       return <Link href={href}>{name}</Link>;
     },
   });
@@ -145,7 +146,7 @@ export default function Table() {
     headerClassName: FontClassNames.medium,
     isResizable: true,
     onRender(job) {
-      return getJobDurationString(job);
+      return getDurationString(getJobDuration(job));
     },
   });
   const virtualClusterColumn = applySortProps({

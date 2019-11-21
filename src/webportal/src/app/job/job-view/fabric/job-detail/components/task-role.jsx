@@ -32,6 +32,70 @@ import { getTaskConfig } from '../util';
 import MonacoCallout from '../../../../../components/monaco-callout';
 import { statusColor } from '../../../../../components/theme';
 
+const TaskRoleCount = ({ taskInfo }) => {
+  const count = {
+    running: 0,
+    waiting: 0,
+    succeeded: 0,
+    failed: 0,
+    stopped: 0,
+    unknown: 0,
+  };
+  if (taskInfo && taskInfo.taskStatuses) {
+    for (const item of taskInfo.taskStatuses) {
+      switch (item.taskState) {
+        case 'RUNNING':
+          count.running += 1;
+          break;
+        case 'WAITING':
+        case 'STOPPING':
+          count.waiting += 1;
+          break;
+        case 'SUCCEEDED':
+          count.succeeded += 1;
+          break;
+        case 'FAILED':
+          count.failed += 1;
+          break;
+        case 'STOPPED':
+          count.stopped += 1;
+          break;
+        default:
+          count.unknown += 1;
+          break;
+      }
+    }
+  } else {
+    // task status info not available
+    return;
+  }
+
+  return (
+    <div className={c(t.flex, t.itemsCenter)}>
+      {Object.keys(count)
+        .filter(x => count[x] > 0)
+        .map(x => (
+          <div key={x} className={c(t.mr3, t.flex, t.itemsCenter)}>
+            <TooltipHost
+              calloutProps={{ isBeakVisible: false, gapSpace: 8 }} // spacing.s1
+              content={capitalize(x)}
+            >
+              <div
+                className={c(t.br100, t.h1, t.w1)}
+                style={{ backgroundColor: statusColor[x] }}
+              ></div>
+            </TooltipHost>
+            <div className={c(t.ml2)}>{count[x]}</div>
+          </div>
+        ))}
+    </div>
+  );
+};
+
+TaskRoleCount.propTypes = {
+  taskInfo: PropTypes.object.isRequired,
+};
+
 export default class TaskRole extends React.Component {
   constructor(props) {
     super(props);
@@ -49,62 +113,6 @@ export default class TaskRole extends React.Component {
 
   collapseContainerList() {
     this.setState({ containerListExpanded: false });
-  }
-
-  renderTaskRoleCount() {
-    const { taskInfo } = this.props;
-    const count = {
-      running: 0,
-      waiting: 0,
-      succeeded: 0,
-      failed: 0,
-      unknown: 0,
-    };
-    if (taskInfo && taskInfo.taskStatuses) {
-      for (const item of taskInfo.taskStatuses) {
-        switch (item.taskState) {
-          case 'RUNNING':
-            count.running += 1;
-            break;
-          case 'WAITING':
-            count.waiting += 1;
-            break;
-          case 'SUCCEEDED':
-            count.succeeded += 1;
-            break;
-          case 'FAILED':
-            count.failed += 1;
-            break;
-          default:
-            count.unknown += 1;
-            break;
-        }
-      }
-    } else {
-      // task status info not available
-      return;
-    }
-
-    return (
-      <div className={c(t.flex, t.itemsCenter)}>
-        {Object.keys(count)
-          .filter(x => count[x] > 0)
-          .map(x => (
-            <div key={x} className={c(t.mr3, t.flex, t.itemsCenter)}>
-              <TooltipHost
-                calloutProps={{ isBeakVisible: false, gapSpace: 8 }} // spacing.s1
-                content={capitalize(x)}
-              >
-                <div
-                  className={c(t.br100, t.h1, t.w1)}
-                  style={{ backgroundColor: statusColor[x] }}
-                ></div>
-              </TooltipHost>
-              <div className={c(t.ml2)}>{count[x]}</div>
-            </div>
-          ))}
-      </div>
-    );
   }
 
   render() {
@@ -156,7 +164,9 @@ export default class TaskRole extends React.Component {
               {/* status */}
               <div className={c(t.ml5, t.flex, t.itemsCenter, t.justifyStart)}>
                 <div>Status:</div>
-                <div className={c(t.ml3)}>{this.renderTaskRoleCount()}</div>
+                <div className={c(t.ml3)}>
+                  <TaskRoleCount taskInfo={taskInfo} />
+                </div>
               </div>
             </div>
             {/* right */}

@@ -31,7 +31,8 @@ import React, { useCallback, useState } from 'react';
 
 import Card from '../../components/card';
 import {
-  getJobDurationString,
+  getJobDuration,
+  getDurationString,
   getJobModifiedTimeString,
   getHumanizedJobStateString,
   isLowGpuUsageJob,
@@ -70,9 +71,9 @@ const AbnormalJobList = ({ jobs, style }) => {
       onRender(job) {
         const { legacy, name, namespace, username } = job;
         const href = legacy
-          ? `/job-detail.html?jobName=${name}`
+          ? `/job-detail.html?jobname=${name}`
           : `/job-detail.html?username=${namespace ||
-              username}&jobName=${name}`;
+              username}&jobname=${name}`;
         return <Link href={href}>{name}</Link>;
       },
     },
@@ -87,9 +88,9 @@ const AbnormalJobList = ({ jobs, style }) => {
       onRender(job) {
         if (isLowGpuUsageJob(job)) {
           return (
-            <div
-              style={{ color: palette.red }}
-            >{`count: ${job.totalGpuNumber}  usage: ${job.gpuUsage}%`}</div>
+            <div style={{ color: palette.red }}>{`count: ${
+              job.totalGpuNumber
+            }  usage: ${Number.parseFloat(job.gpuUsage).toFixed(2)}%`}</div>
           );
         }
         return job.totalGpuNumber;
@@ -126,11 +127,11 @@ const AbnormalJobList = ({ jobs, style }) => {
         if (isLongRunJob(job)) {
           return (
             <div style={{ color: palette.red }}>
-              {getJobDurationString(job)}
+              {getDurationString(getJobDuration(job))}
             </div>
           );
         }
-        return getJobDurationString(job);
+        return getDurationString(getJobDuration(job));
       },
     },
     {
@@ -200,12 +201,10 @@ const AbnormalJobList = ({ jobs, style }) => {
       userAuth.checkToken(() => {
         stopJob(job)
           .then(() => {
-            const cloneJobs = cloneDeep(abnormalJobs);
-            const stopJob = cloneJobs.find(
-              cloneJob => cloneJob.name === job.name,
-            );
+            const result = cloneDeep(abnormalJobs);
+            const stopJob = result.find(item => item.name === job.name);
             stopJob.executionType = 'STOP';
-            setAbnormalJobs(cloneJobs);
+            setAbnormalJobs(result);
           })
           .catch(alert);
       });

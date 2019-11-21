@@ -69,6 +69,13 @@ export const TeamStorage = ({
     });
   });
 
+  useEffect(() => {
+    const names = defaultTeamConfigs.map(element => {
+      return element.name;
+    });
+    setSelectedConfigNames(names);
+  }, [defaultTeamConfigs]);
+
   const [teamDetail, setTeamDetail] = useState({ isOpen: false });
   const openTeamDetail = config => {
     setTeamDetail({ isOpen: true, config: config, servers: mountDirs.servers });
@@ -100,7 +107,7 @@ export const TeamStorage = ({
           <Checkbox
             key={item.name}
             label={item.name}
-            defaultChecked={
+            checked={
               selectedConfigNames.length > 0 &&
               selectedConfigNames.includes(item.name)
             }

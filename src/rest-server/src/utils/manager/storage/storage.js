@@ -23,7 +23,7 @@ const storageServerSchema = Joi.object()
       .regex(/^[A-Za-z0-9_]+$/, 'spn')
       .required(),
     type: Joi.string()
-      .valid(['nfs', 'samba', 'azurefile', 'azureblob', 'hdfs'])
+      .valid(['nfs', 'samba', 'azurefile', 'azureblob', 'hdfs', 'other'])
       .required(),
     data: Joi.alternatives()
       .when('type', {
@@ -65,7 +65,7 @@ const storageServerSchema = Joi.object()
         is: 'hdfs',
         then: Joi.object({
           namenode: Joi.string().required(),
-          rootPath: Joi.number().required(),
+          port: Joi.number().required(),
         }).required(),
       }),
     extension: Joi.object().optional(),

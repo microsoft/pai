@@ -54,6 +54,8 @@ class Cluster:
             return False, "cluster-type is not defined or invalid. Please check service-configuration.yaml -> cluster -> common -> cluster-type"
         if "data-path" not in common_configuration:
             return False, "data-path is missing in service-configuration.yaml -> cluster -> common -> data-path"
+        if "job-history" not in common_configuration:
+            return False, "job-history is missing in service-configuration.yaml -> cluster -> common -> job-history"
         if "qos-switch" not in common_configuration:
             return False, "qos-switch is missing in service-configuration.yaml -> cluster -> common -> qos-switch"
         if "az-rdma" not in common_configuration:

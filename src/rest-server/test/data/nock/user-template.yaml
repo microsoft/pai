@@ -1,0 +1,13 @@
+kind: Secret
+apiVersion: v1
+metadata:
+  name: 61646d696e
+  namespace: pai-user-v2
+type: Opaque
+data:
+  password: >- # admin
+    ZDgzMzY3NGY1ZGQ3NjE3OWU2MWEwN2NiNzdjOTE4ZTg4Nzg2ZDMyMDFlZWI0ZGYzNDk1ODA2ODEzZTZiYmZiYjRlYjk1M2YyNDYwMDlhMWIxNDkwNjY5ZTA5ODA3ZGQ0M2UxMjViNjEyMWMxZjA3YjQ0NzQ3MzcyNTEzNDJjMjU=
+  username: YWRtaW4= # admin
+  email: dGVzdEBwYWkuY29t # test@pai.com
+  grouplist: WyJhZG1pbkdyb3VwIl0= # ["adminGroup"]
+  extension: e30= # {}

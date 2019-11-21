@@ -58,7 +58,7 @@ import {
 } from './utils/utils';
 import { SpinnerLoading } from '../components/loading';
 import config from '../config/webportal.config';
-import { PAI_PLUGIN } from './utils/constants';
+import { PAI_PLUGIN, PAI_STORAGE } from './utils/constants';
 
 const SIDEBAR_PARAM = 'param';
 const SIDEBAR_SECRET = 'secret';
@@ -122,6 +122,7 @@ export const JobSubmissionPage = ({
 
   // Context variables
   const [vcNames, setVcNames] = useState([]);
+  const [storageConfigs, setStorageConfigs] = useState(undefined);
   const [errorMessages, setErrorMessages] = useState({});
 
   const setJobTaskRoles = useCallback(
@@ -336,8 +337,10 @@ export const JobSubmissionPage = ({
         updatedExtras[PAI_PLUGIN] = updatedPlugin;
         setExtras(updatedExtras);
       }
+
+      setStorageConfigs(get(extras, PAI_STORAGE));
     }
-  }, []);
+  }, [extras]);
 
   useEffect(() => {
     const taskRolesManager = new TaskRolesManager(jobTaskRoles);
@@ -458,15 +461,14 @@ export const JobSubmissionPage = ({
                     onSelect={selectData}
                     jobName={jobInformation.name}
                     onChange={setJobData}
+                    storageConfigs={storageConfigs}
                   />
                   <ToolComponent
                     selected={selected === SIDEBAR_TOOL}
                     onSelect={selectTool}
                     jobData={jobData}
                     taskRoles={jobTaskRoles}
-                    secrets={secrets}
                     extras={extras}
-                    onSecretsChange={setSecrets}
                     onExtrasChange={setExtras}
                   />
                 </Stack>

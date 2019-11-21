@@ -15,6 +15,8 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+const nockUtils = require('./utils/nock');
+
 /* const deleteUserTemplate = JSON.stringify({
   'username': '{{username}}',
 }); */
@@ -296,9 +298,6 @@ const adminGroupSchema = {
 // Get a valid token that expires in 60 seconds.
 //
 
-const validToken = global.jwt.sign({username: 'new_user', admin: true}, process.env.JWT_SECRET, {expiresIn: 60});
-const nonAdminToken = global.jwt.sign({username: 'non_admin_user', admin: false}, process.env.JWT_SECRET, {expiresIn: 60});
-// const invalidToken = '';
 
 describe('Add new user: post /api/v2/user', () => {
   after(function() {
@@ -422,6 +421,8 @@ describe('Add new user: post /api/v2/user', () => {
   //
 
   it('Case 1 (Positive): Add admin user', (done) => {
+    const validToken = nockUtils.registerAdminTokenCheck('adminX');
+
     global.chai.request(global.server)
       .post('/api/v2/user')
       .set('Authorization', 'Bearer ' + validToken)
@@ -441,6 +442,7 @@ describe('Add new user: post /api/v2/user', () => {
   });
 
   it('Case 2 (Positive): Add non_admin user', (done) => {
+    const validToken = nockUtils.registerAdminTokenCheck('adminX');
     global.chai.request(global.server)
       .post('/api/v2/user')
       .set('Authorization', 'Bearer ' + validToken)
@@ -464,6 +466,7 @@ describe('Add new user: post /api/v2/user', () => {
   //
 
   it('Case 3 (Negative): Should fail to add user with non-admin token.', (done) => {
+    const nonAdminToken = nockUtils.registerUserTokenCheck('userX');
     global.chai.request(global.server)
       .post('/api/v2/user')
       .set('Authorization', 'Bearer ' + nonAdminToken)
@@ -483,6 +486,7 @@ describe('Add new user: post /api/v2/user', () => {
   });
 
   it('Case 4 (Negative): Should fail to add user with exist name.', (done) => {
+    const validToken = nockUtils.registerAdminTokenCheck('adminX');
     global.chai.request(global.server)
       .post('/api/v2/user')
       .set('Authorization', 'Bearer ' + validToken)
@@ -629,6 +633,7 @@ describe('update user: put /api/v2/user', () => {
   //
 
   it('Case 1 (Positive): Update user password.', (done) => {
+    const validToken = nockUtils.registerAdminTokenCheck('adminX');
     global.chai.request(global.server)
       .put('/api/v2/user/update_user/password')
       .set('Authorization', 'Bearer ' + validToken)
@@ -645,6 +650,7 @@ describe('update user: put /api/v2/user', () => {
   });
 
   it('Case 2 (Positive): Update user set admin=false.', (done) => {
+    const validToken = nockUtils.registerAdminTokenCheck('adminX');
     global.chai.request(global.server)
       .put('/api/v2/user/update_user/admin')
       .set('Authorization', 'Bearer ' + validToken)
@@ -664,6 +670,7 @@ describe('update user: put /api/v2/user', () => {
   //
 
   it('Case 3 (Negative): Should fail to modify a non-exist user.', (done) => {
+    const validToken = nockUtils.registerAdminTokenCheck('adminX');
     global.chai.request(global.server)
       .put('/api/v2/user/non_exist_user/password')
       .set('Authorization', 'Bearer ' + validToken)
@@ -680,6 +687,7 @@ describe('update user: put /api/v2/user', () => {
   });
 
   it('Case 4 (Negative): Should trigger validation error if password sets null.', (done) => {
+    const validToken = nockUtils.registerAdminTokenCheck('adminX');
     global.chai.request(global.server)
       .put('/api/v2/user/new_user/password')
       .set('Authorization', 'Bearer ' + validToken)
@@ -693,6 +701,7 @@ describe('update user: put /api/v2/user', () => {
   });
 
   it('Case 5 (Negative): Should fail to update user with non-admin token.', (done) => {
+    const nonAdminToken = nockUtils.registerUserTokenCheck('userX');
     global.chai.request(global.server)
       .put('/api/v2/user/new_user/admin')
       .set('Authorization', 'Bearer ' + nonAdminToken)
@@ -807,6 +816,7 @@ describe('delete user : delete /api/v2/user', () => {
   //
 
   it('Case 1 (Positive): delete exist non_admin user', (done) => {
+    const validToken = nockUtils.registerAdminTokenCheck('adminX');
     global.chai.request(global.server)
       .delete('/api/v2/user/non_admin')
       .set('Authorization', 'Bearer ' + validToken)
@@ -822,6 +832,7 @@ describe('delete user : delete /api/v2/user', () => {
 
 
   it('Case 2 (Negative): Should fail to delete admin user', (done) => {
+    const validToken = nockUtils.registerAdminTokenCheck('adminX');
     global.chai.request(global.server)
       .delete('/api/v2/user/admin')
       .set('Authorization', 'Bearer ' + validToken)
@@ -835,6 +846,7 @@ describe('delete user : delete /api/v2/user', () => {
   });
 
   it('Case 3 (Negative): Should fail to delete non-exist user.', (done) => {
+    const validToken = nockUtils.registerAdminTokenCheck('adminX');
     global.chai.request(global.server)
       .delete('/api/v2/user/nonexist')
       .set('Authorization', 'Bearer ' + validToken)
@@ -848,6 +860,7 @@ describe('delete user : delete /api/v2/user', () => {
   });
 
   it('Case 4 (Negative): Should fail to delete user with non-admin token.', (done) => {
+    const nonAdminToken = nockUtils.registerUserTokenCheck('userX');
     global.chai.request(global.server)
       .delete('/api/v2/user/delete_non_admin_user')
       .set('Authorization', 'Bearer ' + nonAdminToken)
@@ -1088,17 +1101,10 @@ describe('update user virtual cluster : put /api/v2/user/:username/virtualCluste
   });
 
   //
-  // Get a valid token that expires in 60 seconds.
-  //
-
-  const validToken = global.jwt.sign({username: 'admin_user', admin: true}, process.env.JWT_SECRET, {expiresIn: 60});
-  const nonAdminToken = global.jwt.sign({username: 'non_admin_user', admin: false}, process.env.JWT_SECRET, {expiresIn: 60});
-  // const invalidToken = '';
-
-  //
   // Positive cases
   //
   it('Case 1 (Positive): should update non-admin user with valid virtual cluster successfully', (done) => {
+    const validToken = nockUtils.registerAdminTokenCheck('adminX');
     global.chai.request(global.server)
       .put('/api/v2/user/test/virtualcluster')
       .set('Authorization', 'Bearer ' + validToken)
@@ -1112,6 +1118,7 @@ describe('update user virtual cluster : put /api/v2/user/:username/virtualCluste
   });
 
   it('Case 2 (Positive): should delete all virtual clusters except default when virtual cluster value sets to be empty ', (done) => {
+    const validToken = nockUtils.registerAdminTokenCheck('adminX');
     global.chai.request(global.server)
       .put('/api/v2/user/test3/virtualcluster')
       .set('Authorization', 'Bearer ' + validToken)
@@ -1127,6 +1134,7 @@ describe('update user virtual cluster : put /api/v2/user/:username/virtualCluste
 
   // Negative cases
   it('Case 3 (Negative): add new user with invalid virtual cluster, should return error NoVirtualClusterError', (done) => {
+    const validToken = nockUtils.registerAdminTokenCheck('adminX');
     global.chai.request(global.server)
       .put('/api/v2/user/test2/virtualcluster')
       .set('Authorization', 'Bearer ' + validToken)
@@ -1140,6 +1148,7 @@ describe('update user virtual cluster : put /api/v2/user/:username/virtualCluste
   });
 
   it('Case 4 (Negative): should fail to update non-admin user with invalid virtual cluster', (done) => {
+    const validToken = nockUtils.registerAdminTokenCheck('adminX');
     global.chai.request(global.server)
       .put('/api/v2/user/test_invalid/virtualcluster')
       .set('Authorization', 'Bearer ' + validToken)
@@ -1153,6 +1162,7 @@ describe('update user virtual cluster : put /api/v2/user/:username/virtualCluste
   });
 
   it('Case 5 (Negative): should fail to update non-exist user virtual cluster', (done) => {
+    const validToken = nockUtils.registerAdminTokenCheck('adminX');
     global.chai.request(global.server)
       .put('/api/v2/user/non_exist/virtualcluster')
       .set('Authorization', 'Bearer ' + validToken)
@@ -1166,6 +1176,7 @@ describe('update user virtual cluster : put /api/v2/user/:username/virtualCluste
   });
 
   it('Case 6 (Negative): should fail to update user with virtual cluster by non-admin user', (done) => {
+    const nonAdminToken = nockUtils.registerUserTokenCheck('userX');
     global.chai.request(global.server)
       .put('/api/v2/user/test6/virtualcluster')
       .set('Authorization', 'Bearer ' + nonAdminToken)
@@ -1179,6 +1190,7 @@ describe('update user virtual cluster : put /api/v2/user/:username/virtualCluste
   });
 
   it('Case 7 (Negative): should fail to update admin virtual cluster', (done) => {
+    const validToken = nockUtils.registerAdminTokenCheck('adminX');
     global.chai.request(global.server)
       .put('/api/v2/user/test7/virtualcluster')
       .set('Authorization', 'Bearer ' + validToken)

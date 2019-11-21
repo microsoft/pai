@@ -73,5 +73,6 @@ export const statusColor = {
   failed: '#eb1123',
   running: '#0071bc',
   succeeded: '#7fba00',
+  stopped: palette.neutralTertiaryAlt,
   unknown: palette.neutralTertiary,
 };

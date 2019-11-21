@@ -6,7 +6,6 @@ import { TooltipIcon } from '../controls/tooltip-icon';
 import {
   PAI_PLUGIN,
   USERSSH_TYPE_OPTIONS,
-  SECRET_PATTERN,
   SSH_KEY_BITS,
 } from '../../utils/constants';
 import { SSHPlugin } from '../../models/plugin/ssh-plugin';
@@ -32,20 +31,13 @@ const style = {
   },
 };
 
-export const JobSSH = ({
-  secrets,
-  extras,
-  onSecretsChange,
-  onExtrasChange,
-}) => {
-  const [sshPlugin, setSshPlugin] = useState(
-    SSHPlugin.fromProtocol(extras, secrets),
-  );
+export const JobSSH = ({ extras, onExtrasChange }) => {
+  const [sshPlugin, setSshPlugin] = useState(SSHPlugin.fromProtocol(extras));
 
   useEffect(() => {
-    const updatedSSHPlugin = SSHPlugin.fromProtocol(extras, secrets);
+    const updatedSSHPlugin = SSHPlugin.fromProtocol(extras);
     setSshPlugin(updatedSSHPlugin);
-  }, [secrets, extras]);
+  }, [extras]);
 
   const _onChangeExtras = useCallback(
     (keyName, propValue) => {
@@ -62,7 +54,6 @@ export const JobSSH = ({
       );
       if (oriSshIndex >= 0) {
         pluginBase[oriSshIndex] = updatedSSHPlugin.convertToProtocolFormat();
-        // pluginBase.splice(oriSshIndex);
       } else {
         pluginBase.push(updatedSSHPlugin.convertToProtocolFormat());
       }
@@ -71,52 +62,24 @@ export const JobSSH = ({
     [extras],
   );
 
-  const _onChangeSecrets = useCallback(
-    (secretRef, value) => {
-      const updatedSecrets = cloneDeep(secrets);
-      let secretKey = SECRET_PATTERN.exec(secretRef);
-      secretKey = isEmpty(secretKey) ? '' : secretKey[1];
-      const sshSecret = updatedSecrets.find(secret => secret.key === secretKey);
-      if (!isNil(sshSecret)) {
-        sshSecret.value = value;
-      } else {
-        updatedSecrets.push({ key: secretKey, value: value });
-      }
-      onSecretsChange(updatedSecrets);
-    },
-    [secrets],
-  );
-
   const _onUsersshTypeChange = useCallback(
     (_, item) => {
-      if (item.key === 'custom') {
-        _onChangeSecrets(sshPlugin.userssh.value, sshPlugin.secretValue);
-        _onChangeExtras('userssh', {
-          type: 'custom',
-          value: '<% $secrets.sshUserPub %>',
-        });
-      } else {
-        _onChangeExtras('userssh', {
-          type: item.key,
-          value: '',
-        });
-      }
+      _onChangeExtras('userssh', {
+        type: item.key,
+        value: '',
+      });
     },
-    [secrets, _onChangeSecrets, extras, _onChangeExtras],
+    [extras, _onChangeExtras],
   );
 
   const _onUsersshValueChange = useCallback(
     e => {
-      if (sshPlugin.userssh.type === 'custom') {
-        _onChangeSecrets(sshPlugin.userssh.value, e.target.value);
-      } else {
-        _onChangeExtras('userssh', {
-          ...sshPlugin.userssh,
-          value: e.target.value,
-        });
-      }
+      _onChangeExtras('userssh', {
+        ...sshPlugin.userssh,
+        value: e.target.value,
+      });
     },
-    [secrets, _onChangeSecrets, extras, _onChangeExtras],
+    [extras, _onChangeExtras],
   );
 
   const _onUsersshEnable = useCallback(
@@ -126,7 +89,7 @@ export const JobSSH = ({
       } else {
         _onChangeExtras('userssh', {
           type: 'custom',
-          value: '<% $secrets.sshUserPub %>',
+          value: '',
         });
       }
     },
@@ -145,7 +108,10 @@ export const JobSSH = ({
   };
 
   const _onSshKeysGenerated = sshKeys => {
-    _onChangeSecrets(sshPlugin.userssh.value, sshKeys.public);
+    _onChangeExtras('userssh', {
+      ...sshPlugin.userssh,
+      value: sshKeys.public,
+    });
   };
 
   return (
@@ -207,8 +173,6 @@ export const JobSSH = ({
 };
 
 JobSSH.propTypes = {
-  secrets: PropTypes.array,
   extras: PropTypes.object,
-  onSecretsChange: PropTypes.func.isRequired,
   onExtrasChange: PropTypes.func.isRequired,
 };

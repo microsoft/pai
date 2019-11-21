@@ -24,6 +24,7 @@
     "node": "^8.9.0"
   },
   "dependencies": {
+    "@elastic/elasticsearch": "^7.4.0",
     "ajv": "^6.10.0",
     "ajv-merge-patch": "~4.1.0",
     "async": "~2.5.0",

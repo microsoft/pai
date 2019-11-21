@@ -27,7 +27,7 @@
     "preanalyze": "webpack --mode production --profile --json > bundle.profile.json",
     "analyze": "webpack-bundle-analyzer bundle.profile.json dist",
     "dev": "yarn prebuild && yarn prestart && webpack-dev-server --progress --mode development --debug --devtool eval-cheap-module-source-map --output-pathinfo",
-    "prestart": "mkdirp dist/scripts && envsub --env-file .env --system src/app/env.js.template dist/scripts/env.js",
+    "prestart": "mkdirp dist && envsub --env-file .env --system src/app/env.js.template dist/env.js",
     "start": "node server"
   },
   "dependencies": {

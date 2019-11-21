@@ -28,6 +28,7 @@ const runtimeEnv = require('./runtime-env');
 const launcherConfig = require('@pai/config/launcher');
 const {apiserver} = require('@pai/config/kubernetes');
 const createError = require('@pai/utils/error');
+const protocolSecret = require('@pai/utils/protocolSecret');
 const userModel = require('@pai/models/v2/user');
 const env = require('@pai/utils/env');
 const k8s = require('@pai/utils/k8sUtils');
@@ -92,10 +93,15 @@ const convertState = (state, exitCode, retryDelaySec) => {
     case 'AttemptPreparing':
       return 'WAITING';
     case 'AttemptRunning':
+      return 'RUNNING';
     case 'AttemptDeletionPending':
     case 'AttemptDeletionRequested':
     case 'AttemptDeleting':
-      return 'RUNNING';
+      if (exitCode === -210 || exitCode === -220) {
+        return 'STOPPING';
+      } else {
+        return 'RUNNING';
+      }
     case 'AttemptCompleted':
       if (retryDelaySec == null) {
         return 'RUNNING';
@@ -115,7 +121,25 @@ const convertState = (state, exitCode, retryDelaySec) => {
   }
 };
 
+const mockFrameworkStatus = () => {
+  return {
+    state: 'AttemptCreationPending',
+    attemptStatus: {
+      completionStatus: null,
+      taskRoleStatuses: [],
+    },
+    retryPolicyStatus: {
+      retryDelaySec: null,
+      totalRetriedCount: 0,
+      accountableRetriedCount: 0,
+    },
+  };
+};
+
 const convertFrameworkSummary = (framework) => {
+  if (!framework.status) {
+    framework.status = mockFrameworkStatus();
+  }
   const completionStatus = framework.status.attemptStatus.completionStatus;
   return {
     name: decodeName(framework.metadata.name, framework.metadata.labels),
@@ -193,6 +217,9 @@ const convertTaskDetail = async (taskStatus, ports, userName, jobName, taskRoleN
 };
 
 const convertFrameworkDetail = async (framework) => {
+  if (!framework.status) {
+    framework.status = mockFrameworkStatus();
+  }
   // check fields which may be compressed
   if (framework.status.attemptStatus.taskRoleStatuses == null) {
     framework.status.attemptStatus.taskRoleStatuses = decompressField(framework.status.attemptStatus.taskRoleStatusesCompressed);
@@ -296,6 +323,7 @@ const generateTaskRole = (taskRole, labels, config) => {
   if ('extras' in config && config.extras.gangAllocation === false) {
     gangAllocation = 'false';
     retryPolicy.fancyRetryPolicy = true;
+    retryPolicy.maxRetryCount = config.taskRoles[taskRole].taskRetryCount || 0;
   }
 
   const frameworkTaskRole = {
@@ -364,6 +392,7 @@ const generateTaskRole = (taskRole, labels, config) => {
                 limits: {
                   'cpu': config.taskRoles[taskRole].resourcePerInstance.cpu,
                   'memory': `${config.taskRoles[taskRole].resourcePerInstance.memoryMB}Mi`,
+                  'github.com/fuse': 1,
                   'nvidia.com/gpu': config.taskRoles[taskRole].resourcePerInstance.gpu,
                   ...infinibandDevice && {'rdma/hca': 1},
                 },
@@ -502,7 +531,7 @@ const generateFrameworkDescription = (frameworkName, virtualCluster, config, raw
       name: encodeName(frameworkName),
       labels: frameworkLabels,
       annotations: {
-        config: rawConfig,
+        config: protocolSecret.mask(rawConfig),
       },
     },
     spec: {
@@ -607,8 +636,8 @@ const patchPriorityClass = async (frameworkName, frameworkUid) => {
             kind: 'Framework',
             name: encodeName(frameworkName),
             uid: frameworkUid,
-            controller: true,
-            blockOwnerDeletion: true,
+            controller: false,
+            blockOwnerDeletion: false,
           }],
         },
       },

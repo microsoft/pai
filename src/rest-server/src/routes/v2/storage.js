@@ -29,9 +29,9 @@ router
   .get(token.check, storageController.getStorageServer);
 
 router
-  .route('/servers')
-  /** Post /api/v2/storage/servers */
-  .post(token.check, storageController.getStorageServers);
+  .route('/server')
+  /** Get /api/v2/storage/server */
+  .get(token.check, storageController.getStorageServers);
 
 router
   .route('/server')
@@ -54,9 +54,9 @@ router
   .get(token.check, storageController.getStorageConfig);
 
 router
-  .route('/configs')
-  /** Post /api/v2/storage/configs */
-  .post(token.check, storageController.getStorageConfigs);
+  .route('/config')
+  /** Get /api/v2/storage/config */
+  .get(token.check, storageController.getStorageConfigs);
 
 router
   .route('/config')

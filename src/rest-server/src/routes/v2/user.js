@@ -36,41 +36,41 @@ router.route('/')
 
 router.route('/:username/extension')
   /** Put /api/v2/user/:username/extension */
-  .put(token.check, param.validate(userInputSchema.userExtensionUpdateInputSchema), userController.updateUserExtension);
+  .put(token.checkNotApplication, param.validate(userInputSchema.userExtensionUpdateInputSchema), userController.updateUserExtension);
 
 if (authnConfig.authnMethod === 'basic') {
   router.route('/:username')
   /** Delete /api/v2/user/:username */
-    .delete(token.check, userController.deleteUser);
+    .delete(token.checkNotApplication, userController.deleteUser);
 
   router.route('/:username/virtualcluster')
   /** Update /api/v2/user/:username/virtualcluster */
-    .put(token.check, param.validate(userInputSchema.userVirtualClusterUpdateInputSchema), userController.updateUserVirtualCluster);
+    .put(token.checkNotApplication, param.validate(userInputSchema.userVirtualClusterUpdateInputSchema), userController.updateUserVirtualCluster);
 
   router.route('/:username/password')
   /** Update /api/v2/user/:username/password */
-    .put(token.check, param.validate(userInputSchema.userPasswordUpdateInputSchema), userController.updateUserPassword);
+    .put(token.checkNotApplication, param.validate(userInputSchema.userPasswordUpdateInputSchema), userController.updateUserPassword);
 
   router.route('/')
   /** Create /api/v2/user */
-    .post(token.check, param.validate(userInputSchema.userCreateInputSchema), userController.createUser);
+    .post(token.checkNotApplication, param.validate(userInputSchema.userCreateInputSchema), userController.createUser);
 
   router.route('/:username/email')
   /** Update /api/v2/user/:username/email */
-    .put(token.check, param.validate(userInputSchema.userEmailUpdateInputSchema), userController.updateUserEmail);
+    .put(token.checkNotApplication, param.validate(userInputSchema.userEmailUpdateInputSchema), userController.updateUserEmail);
 
   router.route('/:username/admin')
   /** Update /api/v2/user/:username/admin */
-    .put(token.check, param.validate(userInputSchema.userAdminPermissionUpdateInputSchema), userController.updateUserAdminPermission);
+    .put(token.checkNotApplication, param.validate(userInputSchema.userAdminPermissionUpdateInputSchema), userController.updateUserAdminPermission);
 
   router.route('/:username/grouplist')
-    .put(token.check, param.validate(userInputSchema.userGrouplistUpdateInputSchema), userController.updateUserGroupList);
+    .put(token.checkNotApplication, param.validate(userInputSchema.userGrouplistUpdateInputSchema), userController.updateUserGroupList);
 
   router.route('/:username/group')
-    .put(token.check, param.validate(userInputSchema.addOrRemoveGroupInputSchema), userController.addGroupIntoUserGrouplist);
+    .put(token.checkNotApplication, param.validate(userInputSchema.addOrRemoveGroupInputSchema), userController.addGroupIntoUserGrouplist);
 
   router.route('/:username/group')
-    .delete(token.check, param.validate(userInputSchema.addOrRemoveGroupInputSchema), userController.removeGroupFromUserGrouplist);
+    .delete(token.checkNotApplication, param.validate(userInputSchema.addOrRemoveGroupInputSchema), userController.removeGroupFromUserGrouplist);
 }
 
 router.use('/:username/jobs', jobRouter);

@@ -25,6 +25,7 @@ prerequisite:
   - frameworkcontroller
   - hivedscheduler
   - log-manager
+  - postgresql
 
 template-list:
   - rest-server.yaml

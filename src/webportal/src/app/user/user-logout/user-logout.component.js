@@ -19,10 +19,21 @@ const querystring = require('querystring');
 const webportalConfig = require('../../config/webportal.config.js');
 
 const userLogout = (origin = window.location.href) => {
+  // revoke token
+  const token = cookies.get('token');
+  const url = `${webportalConfig.restServerUri}/api/v1/token/${token}`;
+  fetch(url, {
+    method: 'DELETE',
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  }).catch(console.err);
+  // clear cookies
   cookies.remove('user');
   cookies.remove('token');
   cookies.remove('admin');
   cookies.remove('my-jobs');
+  // redirect
   if (webportalConfig.authnMethod === 'basic') {
     if (!origin) {
       window.location.replace('/index.html');
@@ -36,4 +47,23 @@ const userLogout = (origin = window.location.href) => {
   }
 };
 
-module.exports = { userLogout };
+/**
+ * Clear local tokens only, will not redirect user to oidc logout page
+ * @description Will try to refresh the token if oidc enabled.
+ * @param {string} origin - redirect target after login
+ */
+const clearToken = (origin = window.location.href) => {
+  cookies.remove('user');
+  cookies.remove('token');
+  cookies.remove('admin');
+  cookies.remove('my-jobs');
+  if (!origin) {
+    window.location.replace('/index.html');
+  } else {
+    window.location.replace(
+      `/index.html?${querystring.stringify({ from: origin })}`,
+    );
+  }
+};
+
+module.exports = { userLogout, clearToken };

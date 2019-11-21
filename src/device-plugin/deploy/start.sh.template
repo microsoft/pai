@@ -19,6 +19,9 @@
 
 pushd $(dirname "$0") > /dev/null
 
+# host device plugin
+kubectl apply --overwrite=true -f device-plugin.yaml || exit $?
+
 # NVIDIA GPU device plugin
 {% if 'nvidia.com/gpu' in cluster_cfg['device-plugin']['devices'] %}
 

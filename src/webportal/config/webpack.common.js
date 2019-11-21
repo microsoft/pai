@@ -64,8 +64,6 @@ const config = (env, argv) => ({
     layout: './src/app/layout/layout.component.js',
     userView: './src/app/user/fabric/user-view.jsx',
     batchRegister: './src/app/user/fabric/batch-register.jsx',
-    changePassword:
-      './src/app/user/change-password/change-password.component.js',
     dashboard: './src/app/dashboard/dashboard.component.js',
     submit: './src/app/job-submission/job-submission.jsx',
     marketList: './src/app/marketplace/market-list/index.jsx',
@@ -73,6 +71,7 @@ const config = (env, argv) => ({
     submit_v1: './src/app/job/job-submit-v1/job-submit.component.js',
     jobList: './src/app/job/job-view/fabric/job-list.jsx',
     jobDetail: './src/app/job/job-view/fabric/job-detail.jsx',
+    jobRetry: './src/app/job/job-view/fabric/job-retry.jsx',
     virtualClusters: './src/app/vc/vc.component.js',
     services: './src/app/cluster-view/services/services.component.js',
     hardware: './src/app/cluster-view/hardware/hardware.component.js',
@@ -80,11 +79,12 @@ const config = (env, argv) => ({
       './src/app/cluster-view/hardware/hardware-detail.component.js',
     k8s: './src/app/cluster-view/k8s/k8s.component.js',
     docs: './src/app/job/job-docs/job-docs.component.js',
+    userProfile: './src/app/user/fabric/user-profile.jsx',
     plugin: './src/app/plugin/plugin.component.js',
   },
   output: {
     path: helpers.root('dist'),
-    filename: 'scripts/[name].bundle.js',
+    filename: 'scripts/[name].[contenthash].js',
     jsonpFunction: 'webportalWebpackJsonp',
   },
   resolve: {
@@ -266,7 +266,7 @@ const config = (env, argv) => ({
       { from: 'src/assets/img/favicon.ico', to: 'favicon.ico' },
     ]),
     new MiniCssExtractPlugin({
-      filename: 'styles/[name].bundle.css',
+      filename: 'styles/[name].[contenthash].css',
     }),
     // required by ejs loader
     new webpack.ProvidePlugin({
@@ -299,8 +299,8 @@ const config = (env, argv) => ({
       chunks: ['layout', 'batchRegister'],
     }),
     generateHtml({
-      filename: 'change-password.html',
-      chunks: ['layout', 'changePassword'],
+      filename: 'user-profile.html',
+      chunks: ['layout', 'userProfile'],
     }),
     generateHtml({
       filename: 'dashboard.html',
@@ -329,6 +329,10 @@ const config = (env, argv) => ({
     generateHtml({
       filename: 'job-detail.html',
       chunks: ['layout', 'jobDetail'],
+    }),
+    generateHtml({
+      filename: 'job-retry.html',
+      chunks: ['layout', 'jobRetry'],
     }),
     generateHtml({
       filename: 'virtual-clusters.html',
@@ -364,6 +368,8 @@ const config = (env, argv) => ({
     port: 9286,
   },
   optimization: {
+    moduleIds: 'hashed',
+    runtimeChunk: 'single',
     minimizer: [
       new TerserPlugin({
         cache: true,
@@ -375,7 +381,7 @@ const config = (env, argv) => ({
       cacheGroups: {
         vendors: {
           chunks: 'all',
-          minSize: 0,
+          minSize: 30000,
           minChunks: 2,
           maxAsyncRequests: Infinity,
           maxInitialRequests: Infinity,

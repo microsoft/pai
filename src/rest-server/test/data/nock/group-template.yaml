@@ -1,0 +1,11 @@
+kind: Secret
+apiVersion: v1
+metadata:
+  name: 61646d696e47726f7570 # adminGroup (hex)
+type: Opaque
+data:
+  groupname: YWRtaW5Hcm91cA== # adminGroup (base64)
+  description: dGVzdA==
+  externalName: MTIzNA==
+  extension: >-
+    eyJhY2xzIjp7ImFkbWluIjp0cnVlLCJ2aXJ0dWFsQ2x1c3RlcnMiOlsiZGVmYXVsdCJdfX0= # {"acls":{"admin":true,"virtualClusters":["default"]}}

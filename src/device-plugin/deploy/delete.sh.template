@@ -19,6 +19,9 @@
 
 pushd $(dirname "$0") > /dev/null
 
+PYTHONPATH="../../../deployment" python -m k8sPaiLibrary.maintaintool.update_resource \
+    --operation delete --resource daemonset --name k8s-host-device-plugin-daemonset --namespace kube-system
+
 {% if 'nvidia.com/gpu' in cluster_cfg['device-plugin']['devices'] %}
 
 PYTHONPATH="../../../deployment" python -m k8sPaiLibrary.maintaintool.update_resource \

@@ -27,7 +27,7 @@ import {
   Text,
   DefaultButton,
 } from 'office-ui-fabric-react';
-import React from 'react';
+import React, { useMemo } from 'react';
 
 import Card from '../../components/card';
 import { UtilizationChart } from './utilization-chart';
@@ -54,7 +54,9 @@ const vcListColumns = [
     onRender(vc) {
       return (
         <Stack verticalAlign='center' verticalFill>
-          <Text variant='mediumPlus'>{vc.name}</Text>
+          <Text variant='mediumPlus'>
+            {vc.dedicated ? vc.name + ' (dedicated)' : vc.name}
+          </Text>
         </Stack>
       );
     },
@@ -136,69 +138,113 @@ const vcListColumns = [
       );
     },
   },
-  {
-    key: 'action',
-    minWidth: 50,
-    name: 'Action',
-    isResizable: true,
-    onRender(vc) {
-      return (
-        <div
-          style={{
-            height: '100%',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'left',
-          }}
-          data-selection-disabled
-        >
-          <DefaultButton
-            styles={{
-              root: {
-                backgroundColor: '#e5e5e5',
-                minWidth: 50,
-              },
-              rootFocused: { backgroundColor: '#e5e5e5' },
-              rootDisabled: { backgroundColor: '#eeeeee' },
-              rootCheckedDisabled: { backgroundColor: '#eeeeee' },
-            }}
-            href={'/job-list.html?vcName=' + vc.name}
-          >
-            View
-          </DefaultButton>
-        </div>
-      );
-    },
-  },
 ];
 
-const VirtualClusterStatistics = ({ style, virtualClusters }) => {
-  const vcNames = Object.keys(virtualClusters);
-  const { spacing } = getTheme();
-  const vcList = vcNames.map(vcName => {
-    return { name: vcName, ...virtualClusters[vcName] };
+const action = {
+  key: 'action',
+  minWidth: 50,
+  name: 'Action',
+  isResizable: true,
+  onRender(vc) {
+    return (
+      <div
+        style={{
+          height: '100%',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'left',
+        }}
+        data-selection-disabled
+      >
+        <DefaultButton
+          styles={{
+            root: {
+              backgroundColor: '#e5e5e5',
+              minWidth: 50,
+            },
+            rootFocused: { backgroundColor: '#e5e5e5' },
+            rootDisabled: { backgroundColor: '#eeeeee' },
+            rootCheckedDisabled: { backgroundColor: '#eeeeee' },
+          }}
+          href={'/job-list.html?vcName=' + vc.name}
+        >
+          View
+        </DefaultButton>
+      </div>
+    );
+  },
+};
+
+const isAdmin = cookies.get('admin') === 'true';
+if (isAdmin) {
+  vcListColumns.push(action);
+}
+
+export const VirtualClusterDetailsList = props => {
+  const virtualClusters = props.virtualClusters;
+  const otherProps = {
+    ...props,
+  };
+  delete otherProps.virtualClusters;
+  const vcList = Object.entries(virtualClusters).map(([key, val]) => {
+    return { name: key, ...val };
   });
+  return (
+    <DetailsList
+      columns={vcListColumns}
+      disableSelectionZone
+      items={vcList}
+      layoutMode={DetailsListLayoutMode.justified}
+      selectionMode={SelectionMode.none}
+      {...otherProps}
+    />
+  );
+};
+
+VirtualClusterDetailsList.propTypes = {
+  virtualClusters: PropTypes.object,
+};
+
+export const VirtualClusterStatistics = ({
+  style,
+  userInfo,
+  virtualClusters,
+}) => {
+  const { spacing } = getTheme();
+  const userVC = useMemo(() => {
+    if (isAdmin) {
+      return virtualClusters;
+    } else {
+      const result = {};
+      for (const [key, val] of Object.entries(virtualClusters)) {
+        if (userInfo.virtualCluster && userInfo.virtualCluster.includes(key)) {
+          result[key] = val;
+        }
+      }
+      return result;
+    }
+  }, [userInfo, virtualClusters]);
 
   return (
     <Card className={t.ph5} style={{ paddingRight: spacing.m, ...style }}>
       <Stack styles={{ root: [{ height: '100%' }] }} gap='l1'>
         <Stack.Item>
           <Header
-            headerName={`Virtual clusters (${vcNames.length})`}
+            headerName={
+              isAdmin
+                ? `Virtual clusters (${Object.keys(userVC).length})`
+                : `My virtual clusters (${Object.keys(userVC).length})`
+            }
             linkHref={'/virtual-clusters.html'}
             linkName={'View all'}
-            showLink={true}
+            showLink={isAdmin}
           />
         </Stack.Item>
         <Stack.Item styles={{ root: [t.relative] }} grow>
           <div className={c(t.absolute, t.absoluteFill, t.overflowAuto, t.pr4)}>
-            <DetailsList
+            <VirtualClusterDetailsList
               styles={{ root: { overflow: 'unset' } }}
-              columns={vcListColumns}
-              disableSelectionZone
-              items={vcList}
-              layoutMode={DetailsListLayoutMode.justified}
-              selectionMode={SelectionMode.none}
+              virtualClusters={userVC}
             />
           </div>
         </Stack.Item>
@@ -212,5 +258,3 @@ VirtualClusterStatistics.propTypes = {
   userInfo: PropTypes.object.isRequired,
   virtualClusters: PropTypes.object.isRequired,
 };
-
-export default VirtualClusterStatistics;

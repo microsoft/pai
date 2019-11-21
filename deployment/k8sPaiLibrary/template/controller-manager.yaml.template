@@ -32,6 +32,8 @@ spec:
     - --service-cluster-ip-range
     - {{ cluster_cfg['kubernetes']['service-cluster-ip-range'] }}
     - --leader-elect=true
+    - --large-cluster-size-threshold=0
+    - --secondary-node-eviction-rate=0.05
     livenessProbe:
       httpGet:
         path: /healthz

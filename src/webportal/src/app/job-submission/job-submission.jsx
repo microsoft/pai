@@ -118,7 +118,7 @@ const JobWizard = ({ setYamlText, history }) => {
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     if (params.get('op') === 'resubmit') {
-      history.push('/general');
+      history.replace('/general');
     }
   }, []);
 

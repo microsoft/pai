@@ -16,11 +16,14 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 // module dependencies
+const jwt = require('jsonwebtoken');
 const userModel = require('@pai/models/v2/user');
 const createError = require('@pai/utils/error');
 const authConfig = require('@pai/config/authn');
+const logger = require('@pai/config/logger');
 const groupModel = require('@pai/models/v2/group');
 const vcModel = require('@pai/models/v2/virtual-cluster');
+const tokenModel = require('@pai/models/token');
 
 const getUserVCs = async (username) => {
   const userInfo = await userModel.getUser(username);
@@ -344,6 +347,16 @@ const updateUserPassword = async (req, res, next) => {
     if (req.user.admin || newUserValue['password'] === userValue['password']) {
       newUserValue['password'] = newPassword;
       await userModel.updateUser(username, newUserValue, true);
+      // try to revoke browser tokens
+      try {
+        await tokenModel.batchRevoke(username, (token) => {
+          const data = jwt.decode(token);
+          return !data.application;
+        });
+      } catch (err) {
+        logger.error('Failed to revoke tokens after password is updated', err);
+        // pass
+      }
       return res.status(201).json({
         message: 'update user password successfully.',
       });
@@ -442,26 +455,6 @@ const deleteUser = async (req, res, next) => {
   }
 };
 
-const checkUserPassword = async (req, res, next) => {
-  try {
-    const username = req.body.username;
-    const password = req.body.password;
-    let userValue = await userModel.getUser(username);
-    let newUserValue = JSON.parse(JSON.stringify(userValue));
-    newUserValue['password'] = password;
-    newUserValue = await userModel.getEncryptPassword(newUserValue);
-    if (newUserValue['password'] !== userValue['password']) {
-      return next(createError('Bad Request', 'IncorrectPasswordError', 'Password is incorrect.'));
-    }
-    next();
-  } catch (error) {
-    if (error.status && error.status === 404) {
-      return next(createError('Bad Request', 'NoUserError', `User ${req.body.username} is not found.`));
-    }
-    return next(createError.unknown((error)));
-  }
-};
-
 // module exports
 module.exports = {
   getUser,
@@ -478,7 +471,6 @@ module.exports = {
   deleteUser,
   updateUserPassword,
   createUser,
-  checkUserPassword,
   getUserVCs,
   getUserStorageConfigs,
 };

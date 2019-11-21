@@ -15,8 +15,10 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+import cookies from 'js-cookie';
 import config from '../../config/webportal.config';
 import { checkToken } from '../user-auth/user-auth.component';
+import { clearToken } from '../user-logout/user-logout.component';
 
 const fetchWrapper = async (...args) => {
   const res = await fetch(...args);
@@ -25,7 +27,7 @@ const fetchWrapper = async (...args) => {
     return json;
   } else if (json.code === 'UnauthorizedUserError') {
     alert(json.message);
-    userLogout();
+    clearToken();
   } else {
     throw new Error(json.message);
   }
@@ -82,16 +84,24 @@ export const createUserRequest = async (
   });
 };
 
-export const updateUserPasswordRequest = async (username, newPassword) => {
+export const updateUserPasswordRequest = async (
+  username,
+  newPassword,
+  oldPassword = undefined,
+) => {
   const url = `${config.restServerUri}/api/v2/user/${username}/password`;
   const token = checkToken();
-  return fetchWrapper(url, {
+  const result = await fetchWrapper(url, {
     method: 'PUT',
     headers: {
       Authorization: `Bearer ${token}`,
     },
-    body: JSON.stringify({ newPassword }),
+    body: JSON.stringify({ newPassword, oldPassword }),
   });
+  if (username === cookies.get('user')) {
+    clearToken();
+  }
+  return result;
 };
 
 export const updateUserEmailRequest = async (username, email) => {
@@ -121,4 +131,69 @@ export const updateUserAdminRequest = async (username, admin) => {
 export const getAllVcsRequest = async () => {
   const url = `${config.restServerUri}/api/v2/virtual-clusters`;
   return fetchWrapper(url);
+};
+
+export const getUserRequest = async username => {
+  const url = `${config.restServerUri}/api/v2/user/${username}`;
+  const token = checkToken();
+  return fetchWrapper(url, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+};
+
+export const getTokenRequest = async () => {
+  const url = `${config.restServerUri}/api/v1/token`;
+  const token = checkToken();
+  return fetchWrapper(url, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+};
+
+export const revokeTokenRequest = async token => {
+  const url = `${config.restServerUri}/api/v1/token/${token}`;
+  const currentToken = checkToken();
+  await fetchWrapper(url, {
+    method: 'DELETE',
+    headers: {
+      Authorization: `Bearer ${currentToken}`,
+    },
+  });
+  if (token === checkToken()) {
+    clearToken();
+  }
+};
+
+export const createApplicationTokenRequest = async () => {
+  const url = `${config.restServerUri}/api/v1/token/application`;
+  const currentToken = checkToken();
+  await fetchWrapper(url, {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${currentToken}`,
+    },
+  });
+};
+
+export const listStorageConfigRequest = async () => {
+  const url = `${config.restServerUri}/api/v2/storage/config`;
+  const token = checkToken();
+  return fetchWrapper(url, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+};
+
+export const listStorageServerRequest = async () => {
+  const url = `${config.restServerUri}/api/v2/storage/server`;
+  const token = checkToken();
+  return fetchWrapper(url, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
 };

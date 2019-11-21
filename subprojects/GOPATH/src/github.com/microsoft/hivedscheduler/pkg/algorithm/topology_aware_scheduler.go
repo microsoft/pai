@@ -44,35 +44,39 @@ type topologyAwareScheduler struct {
 	// because regular pods can avoid preempting opportunistic pods only among buddy cells (this is decided
 	// by the buddy cell allocation algorithm).
 	crossPriorityPack bool
+	// whether or not the scheduler should avoid using nodes that are not suggested by K8s.
+	// should be true when the scheduler is used for scheduling physical GPUs (i.e., for opportunistic pods)
+	considerSuggestedNodes bool
 }
 
 // NewTopologyAwareScheduler initializes the scheduler by extracting node-level cells
 // (lower-level if no node-level) from a chain cell list.
 func NewTopologyAwareScheduler(ccl ChainCellList,
 	levelGpuNum map[CellLevel]int32,
-	crossPriorityPack bool) *topologyAwareScheduler {
+	crossPriorityPack bool,
+	considerSuggestedNodes bool) *topologyAwareScheduler {
 
-	var l CellLevel
-	for l = CellLevel(1); l <= CellLevel(len(ccl)); l++ {
-		if ccl[l][0].AtOrHigherThanNode() {
-			break
-		}
-	}
-	cv := make(clusterView, len(ccl[l]))
-	for i, c := range ccl[l] {
-		cv[i] = &node{
-			c: c,
-		}
-	}
 	return &topologyAwareScheduler{
-		cv:                cv,
-		levelGpuNum:       levelGpuNum,
-		crossPriorityPack: crossPriorityPack}
+		cv:                     newClusterView(ccl),
+		levelGpuNum:            levelGpuNum,
+		crossPriorityPack:      crossPriorityPack,
+		considerSuggestedNodes: considerSuggestedNodes}
+}
+
+// ancestorNoHigherThanNode finds an ancestor at a level no higher than node level for a cell.
+// If the input cell is at node (or higher) level, will return the cell itself.
+func ancestorNoHigherThanNode(c Cell) Cell {
+	if c.AtOrHigherThanNode() || c.GetParent() == nil {
+		return c
+	} else {
+		return ancestorNoHigherThanNode(c.GetParent())
+	}
 }
 
 func (t *topologyAwareScheduler) Schedule(
 	podGpuNumbers map[int32]int32,
-	p CellPriority) map[int32][]CellList {
+	p CellPriority,
+	suggestedNodeSet common.Set) map[int32][]CellList {
 
 	// GPU numbers of the pods to schedule
 	var sortedPodGpuNumbers []int32
@@ -85,13 +89,13 @@ func (t *topologyAwareScheduler) Schedule(
 
 	// disable preemption first (reduce preemption)
 	priority := opportunisticPriority
-	t.updateClusterView(priority)
+	t.updateClusterView(priority, suggestedNodeSet)
 	// try to fit the pods to a set of nodes
 	selectedNodeIndices := findNodesForPods(t.cv, sortedPodGpuNumbers, priority)
 	// enable preemption if scheduling failed
 	if selectedNodeIndices == nil && p > opportunisticPriority {
 		priority = p
-		t.updateClusterView(priority)
+		t.updateClusterView(priority, suggestedNodeSet)
 		selectedNodeIndices = findNodesForPods(t.cv, sortedPodGpuNumbers, priority)
 	}
 	if selectedNodeIndices == nil {
@@ -133,20 +137,23 @@ type node struct {
 //
 // Otherwise, n.usedGpuNumSamePriority is set to the total used GPU number,
 // so that nodes with more used GPUs will be preferred (i.e., pack pods globally across priorities).
-// In this case a feasible pod placement is guaranteed to be found.
-func (n *node) UpdateUsedGpuNumForPriority(p CellPriority, crossPriorityPack bool) {
-	n.usedGpuNumSamePriority = n.c.GetUsedGpuNumAtPriorities()[p]
+// In this case a feasible pod placement is guaranteed to be found (as long as all nodes are in suggested nodes).
+func (n *node) UpdateUsedGpuNumForPriority(p CellPriority, crossPriorityPack bool, inSuggested bool) {
+	if inSuggested {
+		n.usedGpuNumSamePriority = n.c.GetUsedGpuNumAtPriorities()[p]
+	} else {
+		// avoid using nodes not in suggested nodes
+		n.usedGpuNumSamePriority = -1
+	}
 	n.usedGpuNumHigherPriority = 0
 	n.freeGpuNumAtPriority = n.c.GetTotalGpuNum()
 	for priority, num := range n.c.GetUsedGpuNumAtPriorities() {
 		if crossPriorityPack {
-			if priority != p {
+			if inSuggested && priority != p {
 				n.usedGpuNumSamePriority += num
 			}
 		} else if priority > p {
-			if priority > p {
-				n.usedGpuNumHigherPriority += num
-			}
+			n.usedGpuNumHigherPriority += num
 		}
 		if priority >= p {
 			n.freeGpuNumAtPriority -= num
@@ -155,6 +162,33 @@ func (n *node) UpdateUsedGpuNumForPriority(p CellPriority, crossPriorityPack boo
 }
 
 type clusterView []*node
+
+func newClusterView(ccl ChainCellList) clusterView {
+	var l CellLevel
+	for l = CellLevel(1); l <= CellLevel(len(ccl)); l++ {
+		if ccl[l][0].AtOrHigherThanNode() {
+			break
+		}
+	}
+	cv := clusterView{}
+	for ; l >= lowestLevel; l-- {
+		for _, c := range ccl[l] {
+			if !cv.containsCell(ancestorNoHigherThanNode(c)) {
+				cv = append(cv, &node{c: c})
+			}
+		}
+	}
+	return cv
+}
+
+func (cv clusterView) containsCell(c Cell) bool {
+	for _, n := range cv {
+		if CellEqual(c, n.c) {
+			return true
+		}
+	}
+	return false
+}
 
 // Methods for sorting nodes in a clusterView.
 func (cv clusterView) Len() int {
@@ -178,9 +212,14 @@ func (cv clusterView) Swap(i int, j int) {
 }
 
 // updateClusterView updates the GPU numbers of the nodes for the sorting.
-func (t *topologyAwareScheduler) updateClusterView(p CellPriority) {
+func (t *topologyAwareScheduler) updateClusterView(p CellPriority, suggestedNodeSet common.Set) {
 	for _, n := range t.cv {
-		n.UpdateUsedGpuNumForPriority(p, t.crossPriorityPack)
+		inSuggested := true
+		if t.considerSuggestedNodes {
+			nodeNames, _ := n.c.(*PhysicalCell).GetPhysicalPlacement()
+			inSuggested = suggestedNodeSet.Contains(nodeNames[0])
+		}
+		n.UpdateUsedGpuNumForPriority(p, t.crossPriorityPack, inSuggested)
 	}
 }
 

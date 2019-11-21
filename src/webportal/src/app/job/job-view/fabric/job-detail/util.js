@@ -70,3 +70,8 @@ export function getTaskConfig(rawJobConfig, name) {
   }
   return null;
 }
+
+export const HISTORY_DISABLE_MESSAGE =
+  'The job history was not enabled when deploying.';
+export const HISTORY_API_ERROR_MESSAGE =
+  'The job hisotry API is not healthy right now.';
