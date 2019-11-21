@@ -2,7 +2,7 @@
 - hosts: all
   tasks:
     - name: fix-apt-key
-      shell: apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 6ED91CA3AC1160CD
+      shell: apt-key adv --keyserver keyserver.ubuntu.com --recv-keys {keynumber}
       args:
         executable: /bin/bash
 
