@@ -1,14 +1,53 @@
 ---
 - hosts: all
   tasks:
-    - name: apt-get remove
-      shell: apt-get remove -y docker docker-engine docker.io containerd runc docker-ce docker-ce-cli
-      args:
-        executable: /bin/bash
+
+    - name: Remove "docker" package
+      apt:
+        name: docker
+        state: absent
+
+    - name: Remove "docker.io" package
+      apt:
+        name: docker.io
+        state: absent
+
+    - name: Remove "docker-engine" package
+      apt:
+        name: docker-engine
+        state: absent
+
+    - name: Remove "containerd" package
+      apt:
+        name: containerd
+        state: absent
+
+    - name: Remove "runc" package
+      apt:
+        name: runc
+        state: absent
+
+    - name: Remove "docker-ce" package
+      apt:
+        name: docker-ce
+        state: absent
+
+    - name: Remove "docker-ce-cli" package
+      apt:
+        name: docker-ce-cli
+        state: absent
 
     - name: rm docker
       shell: rm -rf /var/lib/docker
       args:
         executable: /bin/bash
+
+    - name: Remove dependencies that are no longer required
+      apt:
+        autoremove: yes
+
+    - name: Remove useless packages from the cache
+      apt:
+        autoclean: yes
 
 
