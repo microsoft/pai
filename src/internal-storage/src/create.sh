@@ -1,3 +1,5 @@
+#!/bin/bash
+
 # Copyright (c) Microsoft Corporation
 # All rights reserved.
 #
@@ -14,34 +16,41 @@
 # NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+cd /paiInternal
 
-cluster-type:
-  - yarn
-  - k8s
+if [ -f storage.ext4 ]; then
+    echo "Skip storage.ext4 creation."
+else
+    echo "Creating storage.ext4 of ${QUOTA_GB}G, please wait..."
+    fallocate -l ${QUOTA_GB}G storage.ext4 || { echo "allocation failed!"; sleep infinity; }
+    /sbin/mkfs -t ext4 -q storage.ext4 -F
+fi
 
-prerequisite:
-  - cluster-configuration
-  - yarn-frameworklauncher
-  - frameworkcontroller
-  - hivedscheduler
-  - log-manager
-  - postgresql
+ls READY &> /dev/null
 
-template-list:
-  - rest-server.yaml
-  - start.sh
-  - configmap-create.sh
-  - auth-configmap/oidc.yaml
-  - group-configmap/group.yaml
-  - job-exit-spec-config/job-exit-spec.yaml
-  - k8s-job-exit-spec-config/k8s-job-exit-spec.yaml
+if [ $? -ne 0 ]; then
+    if [ -d storage ]; then
+        umount storage
+    else
+        mkdir -p storage
+    fi
+    mount -o loop,rw,usrquota,grpquota storage.ext4 storage || { echo "mount failed!"; sleep infinity; }
+    touch storage/READY
+fi
 
-start-script: start.sh
-stop-script: stop.sh
-delete-script: delete.sh
-refresh-script: refresh.sh
-upgraded-script: upgraded.sh
+sleep 30m
+
+while true; do
+    ls READY &> /dev/null
+    if [ $? -ne 0 ]; then
+        echo "Cannot find storage/READY! Abort."
+        exit 1
+    fi
+    if [ ! -f storage.ext4 ]; then
+        echo "Cannot find storage.ext4! Abort."
+        exit 1
+    fi
+    sleep 1m
+done
 
 
-deploy-rules:
-  - in: pai-master

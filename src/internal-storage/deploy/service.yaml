@@ -16,32 +16,17 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 cluster-type:
-  - yarn
   - k8s
+  - yarn
 
-prerequisite:
-  - cluster-configuration
-  - yarn-frameworklauncher
-  - frameworkcontroller
-  - hivedscheduler
-  - log-manager
-  - postgresql
 
 template-list:
-  - rest-server.yaml
+  - create.yaml
+  - delete.yaml
   - start.sh
-  - configmap-create.sh
-  - auth-configmap/oidc.yaml
-  - group-configmap/group.yaml
-  - job-exit-spec-config/job-exit-spec.yaml
-  - k8s-job-exit-spec-config/k8s-job-exit-spec.yaml
+  - delete.sh
 
 start-script: start.sh
 stop-script: stop.sh
 delete-script: delete.sh
 refresh-script: refresh.sh
-upgraded-script: upgraded.sh
-
-
-deploy-rules:
-  - in: pai-master
