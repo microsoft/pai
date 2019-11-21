@@ -42,6 +42,11 @@
       args:
         executable: /bin/bash
 
+    - name: rm docker daemon json
+        shell: rm -rf /etc/docker/daemon.json
+        args:
+          executable: /bin/bash
+
     - name: Remove dependencies that are no longer required
       apt:
         autoremove: yes
