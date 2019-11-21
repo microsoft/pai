@@ -28,9 +28,9 @@
         state: absent
 
     - name: Remove "docker-ce" package
-      apt:
-        name: docker-ce
-        state: absent
+      shell: sudo apt-get remove -y --allow-change-held-packages  docker-ce
+      args:
+        executable: /bin/bash
 
     - name: Remove "docker-ce-cli" package
       apt:
