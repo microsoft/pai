@@ -18,4 +18,4 @@ disable=C0111
 
 [BASIC]
 # Good variable names which should always be accepted, separated by a comma
-good-names=i,j,k,v,qs,urlpatterns,register,p,a,t,r,u,x,f,e
+good-names=i,j,k,f

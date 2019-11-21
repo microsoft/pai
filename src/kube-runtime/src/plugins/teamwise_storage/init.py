@@ -60,7 +60,7 @@ def get_user_default_storage_config_names(user_storage_config_names) -> list:
     if resp.status_code != http.HTTPStatus.OK:
         LOGGER.error(
             "Failed to get storage config from rest-server %s", resp.text)
-        raise Exception("Get storage configs faield")
+        raise Exception("Get storage configs failed")
     storage_configs: list = resp.json()
     return list(map(lambda config: config["name"],
                     filter(lambda config: config["default"], storage_configs)))
@@ -74,11 +74,11 @@ def generate_commands(storage_config_names) -> list:
         raise Exception("Generate commands faield")
 
     storage_configs = resp.json()
-    servers_name = {mount_info["server"]
+    server_names = {mount_info["server"]
                     for storage_config in storage_configs for mount_info in storage_config["mountInfos"]}
 
     query_string = "&".join(
-        list(map("names={}".format, servers_name)))
+        list(map("names={}".format, server_names)))
     resp = http_get(
         "{}/api/v2/storage/server/?{}".format(REST_API_PREFIX, query_string))
     if resp.status_code != http.HTTPStatus.OK:
