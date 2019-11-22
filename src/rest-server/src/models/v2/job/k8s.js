@@ -353,7 +353,7 @@ const generateTaskRole = (taskRole, labels, config, userToken) => {
                 },
                 {
                   name: 'PAI_JOB_NAME',
-                  value: labels.jobName,
+                  value: `${labels.userName}~${labels.jobName}`,
                 },
                 {
                   name: 'PAI_REST_SERVER_URI',
