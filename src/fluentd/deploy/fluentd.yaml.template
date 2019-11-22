@@ -31,6 +31,8 @@ spec:
       tolerations:
       - key: node-role.kubernetes.io/master
         effect: NoSchedule
+      imagePullSecrets:
+      - name: {{ cluster_cfg["cluster"]["docker-registry"]["secret-name"] }}
       containers:
       - name: fluentd
         image: {{ cluster_cfg['cluster']['docker-registry']['prefix'] }}fluentd:{{ cluster_cfg['cluster']['docker-registry']['tag'] }}
