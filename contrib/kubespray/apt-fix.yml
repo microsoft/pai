@@ -1,0 +1,19 @@
+---
+- hosts: all
+  tasks:
+    - name: fix-apt-key
+      shell: apt-key adv --keyserver keyserver.ubuntu.com --recv-keys {keynumber}
+      args:
+        executable: /bin/bash
+
+    - name: remove cephlist
+      shell: rm -rf  /etc/apt/sources.list.d/ceph.list
+      args:
+        executable: /bin/bash
+
+    - name: apt-get update
+      shell: apt-get update
+      args:
+        executable: /bin/bash
+
+
