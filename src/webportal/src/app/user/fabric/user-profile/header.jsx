@@ -20,11 +20,7 @@ import PropTypes from 'prop-types';
 
 import c from 'classnames';
 import { isEmpty } from 'lodash';
-import {
-  ColorClassNames,
-  FontClassNames,
-  FontWeights,
-} from '@uifabric/styling';
+import { FontClassNames, FontWeights } from '@uifabric/styling';
 import {
   DefaultButton,
   PrimaryButton,
@@ -32,12 +28,15 @@ import {
   Dialog,
   DialogFooter,
   TextField,
+  Icon,
+  TooltipHost,
 } from 'office-ui-fabric-react';
 
-import Pill from './pill';
 import config from '../../../config/webportal.config';
 import { checkEmail, checkPassword } from '../utils';
 
+import iconUser from '../../../../assets/img/profile-user.svg';
+import iconAdmin from '../../../../assets/img/profile-admin.svg';
 import t from '../../../components/tachyons.scss';
 
 const DIALOG_PROFILE = 1;
@@ -102,26 +101,36 @@ const UserProfileHeader = ({ userInfo, onEditProfile, onEditPassword }) => {
           >
             {userInfo.username}
           </div>
-          {userInfo.admin && <Pill className={t.ml3}>Admin</Pill>}
-        </div>
-        <div className={t.mt4}>
-          <div className={c(t.flex, t.itemsCenter)}>
-            <div
-              className={ColorClassNames.neutralSecondary}
-              style={{ width: 60 }}
+          <div className={t.ml3}>
+            <TooltipHost
+              content={userInfo.admin ? 'Admin' : 'User'}
+              calloutProps={{
+                isBeakVisible: false,
+                gapSpace: 8,
+              }}
             >
-              Email:
-            </div>
-            <div className={c(t.ml2)}>{userInfo.email}</div>
+              <div>
+                {userInfo.admin ? (
+                  <img src={iconAdmin} alt='Admin' />
+                ) : (
+                  <img src={iconUser} alt='User' />
+                )}
+              </div>
+            </TooltipHost>
           </div>
-          <div className={c(t.mt3, t.flex, t.itemsCenter)}>
-            <div
-              className={ColorClassNames.neutralSecondary}
-              style={{ width: 60 }}
-            >
-              Groups:
+        </div>
+        <div className={c(t.mt5, t.flex)}>
+          <div className={c(t.flex, t.itemsCenter)}>
+            <div>
+              <Icon iconName='Mail' />
             </div>
-            <div className={t.ml2}>{userInfo.grouplist.join(', ')}</div>
+            <div className={c(t.ml3)}>{userInfo.email}</div>
+          </div>
+          <div className={c(t.ml6, t.flex, t.itemsCenter)}>
+            <div>
+              <Icon iconName='Group' />
+            </div>
+            <div className={t.ml3}>{userInfo.grouplist.join(', ')}</div>
           </div>
         </div>
       </div>
@@ -140,7 +149,7 @@ const UserProfileHeader = ({ userInfo, onEditProfile, onEditPassword }) => {
               Edit Profile
             </PrimaryButton>
           </div>
-          <div className={t.mt2}>
+          <div className={t.mt3}>
             <DefaultButton
               styles={{
                 root: {
