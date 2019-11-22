@@ -15,36 +15,42 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-import React from 'react';
+import React, { useRef } from 'react';
 import PropTypes from 'prop-types';
+import copy from 'copy-to-clipboard';
+import { IconButton, FontSizes, TooltipHost } from 'office-ui-fabric-react';
 
-import c from 'classnames';
+const COPIED_TOOLTIP_CLOSE_DELAY = 1000;
 
-import t from '../../../components/tachyons.scss';
-import { ColorClassNames, FontClassNames } from '@uifabric/styling';
-
-const Pill = ({ children, className }) => {
+const CopyButton = ({ value }) => {
+  const ref = useRef(null);
   return (
-    <div
-      className={c(
-        t.brPill,
-        t.pv1,
-        t.ph2,
-        t.ba,
-        FontClassNames.xSmall,
-        ColorClassNames.neutralSecondary,
-        ColorClassNames.neutralSecondary,
-        className,
-      )}
-    >
-      {children}
+    <div>
+      <IconButton
+        iconProps={{ iconName: 'Copy' }}
+        styles={{ icon: [{ fontSize: FontSizes.small }] }}
+        onClick={() => {
+          copy(value);
+          ref.current && ref.current.show();
+          setTimeout(() => {
+            ref.current && ref.current.dismiss();
+          }, COPIED_TOOLTIP_CLOSE_DELAY);
+        }}
+      />
+      <TooltipHost
+        content='Copied'
+        componentRef={ref}
+        delay={0}
+        calloutProps={{
+          isBeakVisible: false,
+        }}
+      ></TooltipHost>
     </div>
   );
 };
 
-Pill.propTypes = {
-  className: PropTypes.string,
-  children: PropTypes.node,
+CopyButton.propTypes = {
+  value: PropTypes.string.isRequired,
 };
 
-export default Pill;
+export default CopyButton;

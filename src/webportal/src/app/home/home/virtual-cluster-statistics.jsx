@@ -86,7 +86,6 @@ const vcListColumns = [
   {
     key: 'detail',
     minWidth: 230,
-    maxWidth: 530,
     name: 'Detail',
     isResizable: true,
     onRender(vc) {
@@ -96,7 +95,7 @@ const vcListColumns = [
           gap='s1'
           verticalAlign='center'
           verticalFill
-          styles={{ root: { maxWidth: 432 } }}
+          styles={{ root: { marginRight: 20 } }}
         >
           <StackItem>
             <ResourceBar

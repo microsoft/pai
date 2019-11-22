@@ -16,7 +16,6 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 import c from 'classnames';
-import copy from 'copy-to-clipboard';
 import React, { useMemo, useState } from 'react';
 import jwt from 'jsonwebtoken';
 import cookies from 'js-cookie';
@@ -25,15 +24,20 @@ import {
   DetailsList,
   DetailsListLayoutMode,
   SelectionMode,
-  IconButton,
-  FontSizes,
   CommandBarButton,
+  DialogType,
+  Dialog,
+  DialogFooter,
+  PrimaryButton,
+  DefaultButton,
 } from 'office-ui-fabric-react';
 
 import t from '../../../components/tachyons.scss';
+import CopyButton from '../../../components/copy-button';
 
 const TokenList = ({ tokens, onRevoke }) => {
   const [processing, setProcessing] = useState(false);
+  const [revokeToken, setRevokeToken] = useState(null);
 
   const tokenItems = useMemo(() => {
     return tokens
@@ -54,13 +58,7 @@ const TokenList = ({ tokens, onRevoke }) => {
         return (
           <div className={c(t.flex, t.itemsCenter, t.h100)}>
             <div className={t.truncate}>{token.value}</div>
-            <div>
-              <IconButton
-                iconProps={{ iconName: 'Copy' }}
-                styles={{ icon: [{ fontSize: FontSizes.small }] }}
-                onClick={() => copy(token.value)}
-              />
-            </div>
+            <CopyButton value={token.value} />
           </div>
         );
       },
@@ -123,12 +121,9 @@ const TokenList = ({ tokens, onRevoke }) => {
                 root: { backgroundColor: 'transparent', height: '100%' },
                 rootDisabled: { backgroundColor: 'transparent' },
               }}
-              iconProps={{ iconName: 'CommandPrompt' }}
+              iconProps={{ iconName: 'Delete' }}
               text='Revoke'
-              onClick={() => {
-                setProcessing(true);
-                onRevoke(token.value).finally(() => setProcessing(false));
-              }}
+              onClick={() => setRevokeToken(token.value)}
               disabled={processing}
             />
           </div>
@@ -146,6 +141,38 @@ const TokenList = ({ tokens, onRevoke }) => {
         layoutMode={DetailsListLayoutMode.justified}
         selectionMode={SelectionMode.none}
       />
+      <Dialog
+        hidden={!revokeToken}
+        onDismiss={() => setRevokeToken(null)}
+        dialogContentProps={{
+          type: DialogType.normal,
+          title: 'Revoke Token',
+        }}
+        modalProps={{
+          isBlocking: true,
+        }}
+        minWidth={400}
+      >
+        <div>Are you sure you want to revoke the selected token?</div>
+        <DialogFooter>
+          <PrimaryButton
+            onClick={() => {
+              setProcessing(true);
+              onRevoke(revokeToken).finally(() => {
+                setRevokeToken(null);
+                setProcessing(false);
+              });
+            }}
+            disabled={processing}
+            text='Confirm'
+          />
+          <DefaultButton
+            onClick={() => setRevokeToken(null)}
+            disabled={processing}
+            text='Cancel'
+          />
+        </DialogFooter>
+      </Dialog>
     </div>
   );
 };
