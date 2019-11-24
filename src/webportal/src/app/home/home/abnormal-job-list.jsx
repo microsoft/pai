@@ -71,9 +71,9 @@ const AbnormalJobList = ({ jobs, style }) => {
       onRender(job) {
         const { legacy, name, namespace, username } = job;
         const href = legacy
-          ? `/job-detail.html?jobname=${name}`
+          ? `/job-detail.html?jobName=${name}`
           : `/job-detail.html?username=${namespace ||
-              username}&jobname=${name}`;
+              username}&jobName=${name}`;
         return <Link href={href}>{name}</Link>;
       },
     },
