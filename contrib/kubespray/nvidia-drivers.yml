@@ -12,7 +12,7 @@
 
     - name: Install nvidia drivers, we will install 410 version
       apt:
-        name: nvidia-410
+        name: nvidia-418
         state: present
 
     - name: reboot vm

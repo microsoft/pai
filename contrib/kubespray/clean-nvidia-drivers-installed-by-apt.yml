@@ -3,7 +3,7 @@
   tasks:
     - name: uninstall nvidia-drivers
       apt:
-        name: nvidia-410
+        name: nvidia-418
         state: absent
 
     - name: uninstall nvidia-opencl-icd
@@ -23,7 +23,7 @@
 
     - name: uninstall libcuda1
       apt:
-        name: libcuda1-410
+        name: libcuda1-418
         state: absent
 
     - name: reboot vm
