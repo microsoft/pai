@@ -46,7 +46,7 @@ spec:
         - name: varlog
           mountPath: /var/log
         - name: docker-dataroot-containers
-          mountPath: /var/lib/docker/containers
+          mountPath: {{ cluster_cfg["cluster"]["common"]["docker-data-root"] }}/containers
           readOnly: true
         - name: config-volume
           mountPath: /etc/fluent/config.d
