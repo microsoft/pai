@@ -10,7 +10,7 @@
       apt:
         update_cache: yes
 
-    - name: Install nvidia drivers, we will install 410 version
+    - name: Install nvidia drivers, we will install 418 version
       apt:
         name: nvidia-418
         state: present
