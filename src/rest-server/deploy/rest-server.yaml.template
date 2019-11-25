@@ -96,7 +96,7 @@ spec:
         - name: AUTHN_METHOD
           value: OIDC
 {% endif %}
-{%- if cluster_cfgcluster_cfg['elasticsearch']['master-ip'] %}
+{%- if cluster_cfg['elasticsearch']['master-ip'] %}
         - name: ELASTICSEARCH_URI
           value: {{ cluster_cfg['elasticsearch']['master-ip'] }}:30100
 {%- endif %}
