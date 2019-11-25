@@ -28,7 +28,7 @@ const CloneButton = ({ rawJobConfig, namespace, jobName }) => {
       op: 'resubmit',
       type: 'job',
       user: namespace,
-      jobname: jobName,
+      jobName: jobName,
     };
     const pluginId = get(rawJobConfig, 'extras.submitFrom');
     // default
