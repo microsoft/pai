@@ -97,6 +97,12 @@ sudo apt-get install sshpass
 
 ```
 
+###### The cluster has been deployed OpenPAI before
+
+- If you deployed OpenPAI before, especially the yarn version OpenPAI bfore. Please refer to the following link to clean up your cluster before the next steps.  
+    - [Guid to Clean Your Environment](./clean-env.md)
+- If you haven't deploy openpai in your cluster, you could step to next. 
+
 ###### Configure passwordless ssh  ( In your ansible control node )
 
 ```bash
