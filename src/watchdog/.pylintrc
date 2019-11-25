@@ -1,0 +1,13 @@
+[TYPECHECK]
+
+[SETTINGS]
+
+[FORMAT]
+max-line-length=130
+
+# Disable docstring check
+disable=C0111
+
+[BASIC]
+# Good variable names which should always be accepted, separated by a comma
+good-names=i,j,k,f,ip,e

@@ -18,13 +18,13 @@
 import os
 import sys
 import unittest
-import yaml
 import json
 import logging
 import logging.config
 import collections
 
 import prometheus_client
+import yaml
 
 sys.path.append(os.path.abspath("../src/"))
 
@@ -66,7 +66,7 @@ class TestJobExporter(unittest.TestCase):
         pod_gauge = watchdog.gen_pai_pod_gauge()
         container_gauge = watchdog.gen_pai_container_gauge()
         job_pod_gauge = watchdog.gen_pai_job_pod_gauge()
-        pod_info = collections.defaultdict(lambda : [])
+        pod_info = collections.defaultdict(lambda: [])
 
         watchdog.process_pods_status(obj, pod_gauge, container_gauge, job_pod_gauge, pod_info)
 
@@ -104,9 +104,10 @@ class TestJobExporter(unittest.TestCase):
         pod_gauge = watchdog.gen_pai_pod_gauge()
         container_gauge = watchdog.gen_pai_container_gauge()
         job_pod_gauge = watchdog.gen_pai_job_pod_gauge()
-        pod_info = collections.defaultdict(lambda : [])
+        pod_info = collections.defaultdict(lambda: [])
 
-        watchdog.process_pods_status(obj, pod_gauge, container_gauge, job_pod_gauge, pod_info)
+        watchdog.process_pods_status(
+            obj, pod_gauge, container_gauge, job_pod_gauge, pod_info)
 
         self.assertTrue(len(pod_gauge.samples) > 0)
         self.assertEqual(0, len(container_gauge.samples))
@@ -119,10 +120,10 @@ class TestJobExporter(unittest.TestCase):
                 pod_gauge = watchdog.gen_pai_pod_gauge()
                 container_gauge = watchdog.gen_pai_container_gauge()
                 job_pod_gauge = watchdog.gen_pai_job_pod_gauge()
-                pod_info = collections.defaultdict(lambda : [])
+                pod_info = collections.defaultdict(lambda: [])
 
                 watchdog.process_pods_status(obj,
-                        pod_gauge, container_gauge, job_pod_gauge, pod_info)
+                                             pod_gauge, container_gauge, job_pod_gauge, pod_info)
 
                 yield pod_gauge
                 yield container_gauge
@@ -135,7 +136,7 @@ class TestJobExporter(unittest.TestCase):
     def test_process_dlws_nodes_status(self):
         obj = json.loads(self.get_data_test_input("data/dlws_nodes_list.json"))
 
-        pod_info = collections.defaultdict(lambda : [])
+        pod_info = collections.defaultdict(lambda: [])
         pod_info["192.168.255.1"].append(watchdog.PodInfo("job1", 2))
         gauges = watchdog.process_nodes_status(obj, pod_info)
 
@@ -160,7 +161,7 @@ class TestJobExporter(unittest.TestCase):
     def test_process_dlws_nodes_status_with_unscheduable(self):
         obj = json.loads(self.get_data_test_input("data/dlws_nodes_list_with_unschedulable.json"))
 
-        pod_info = collections.defaultdict(lambda : [])
+        pod_info = collections.defaultdict(lambda: [])
         pod_info["192.168.255.1"].append(watchdog.PodInfo("job1", 2))
         gauges = watchdog.process_nodes_status(obj, pod_info)
 
