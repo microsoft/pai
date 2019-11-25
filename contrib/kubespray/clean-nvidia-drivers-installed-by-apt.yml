@@ -26,12 +26,6 @@
         name: libcuda1-410
         state: absent
 
-
-    - name: remove the nvidia-drivers
-      shell: /clean-nvidia-driver-by-openpai.sh
-      args:
-        executable: /bin/bash
-
     - name: reboot vm
       reboot:
 
