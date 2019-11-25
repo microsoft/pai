@@ -1,0 +1,63 @@
+---
+- hosts: all
+  tasks:
+    - name: uninstall nvidia-drivers
+      apt:
+        name: nvidia-410
+        state: absent
+
+    - name: uninstall nvidia-opencl-icd
+      apt:
+        name: nvidia-opencl-icd-410
+        state: absent
+
+    - name: uninstall nvidia-prime
+      apt:
+        name: nvidia-prime
+        state: absent
+
+    - name: uninstall nvidia-settings
+      apt:
+        name: nvidia-settings
+        state: absent
+
+    - name: uninstall libcuda1
+      apt:
+        name: libcuda1-410
+        state: absent
+
+
+    - name: remove the nvidia-drivers
+      shell: /clean-nvidia-driver-by-openpai.sh
+      args:
+        executable: /bin/bash
+
+    - name: reboot vm
+      reboot:
+
+    - name: remove the script
+      file:
+        state: absent
+        path: /clean-nvidia-driver-by-openpai.sh
+
+    - name: Remove dependencies that are no longer required
+      apt:
+        autoremove: yes
+
+    - name: Remove useless packages from the cache
+      apt:
+        autoclean: yes
+
+    - name: Add the drivers repository to Ubuntu
+      apt_repository:
+        repo: ppa:graphics-drivers/ppa
+        state: absent
+
+    - name: Run the equivalent of "apt-get update" as a separate step
+      apt:
+        update_cache: yes
+
+    - name: reboot vm
+      reboot:
+
+
