@@ -334,11 +334,8 @@ func (h *HivedAlgorithm) scheduleNewAffinityGroup(
 		virtualPlacement  map[int32][]CellList
 		priority          CellPriority
 	)
-	if s.Priority < api.RegularPriority {
-		priority = opportunisticPriority
-	} else {
-		priority = CellPriority(s.Priority)
-	}
+
+	priority = CellPriority(s.Priority)
 	sr := schedulingRequest{
 		vc:            s.VirtualCluster,
 		reservationId: s.ReservationId,
@@ -389,7 +386,7 @@ func (h *HivedAlgorithm) scheduleAffinityGroupForGpuType(
 					return physicalPlacement, virtualPlacement
 				}
 			}
-			if sr.priority >= regularPriority && !vcHasType {
+			if sr.priority >= minGuaranteedPriority && !vcHasType {
 				panic(internal.NewBadRequestError(fmt.Sprintf(
 					"[%v]: pod requesting GPU type %v which VC %v does not have",
 					internal.Key(pod), gpuType, sr.vc)))
@@ -416,11 +413,9 @@ func (h *HivedAlgorithm) validateSchedulingRequest(sr schedulingRequest, pod *co
 	} else if sr.reservationId != "" {
 		if h.vcSchedulers[sr.vc].getReservedCellList()[sr.reservationId] == nil {
 			message = fmt.Sprintf("VC %v does not have reservation %v", sr.vc, sr.reservationId)
-		} else if sr.priority < regularPriority {
+		} else if sr.priority == opportunisticPriority {
 			message = fmt.Sprintf("opportunistic pod not supported to use reservation %v", sr.reservationId)
 		}
-	} else if sr.priority > highestPriority {
-		message = fmt.Sprintf("priority %v exceeds highest priority", sr.priority)
 	}
 	if message != "" {
 		panic(internal.NewBadRequestError(fmt.Sprintf("[%v]: %v", internal.Key(pod), message)))
@@ -433,16 +428,16 @@ func (h *HivedAlgorithm) processSchedulingRequest(
 	sr schedulingRequest,
 	suggestedNodeSet common.Set) (map[int32][]CellList, map[int32][]CellList) {
 
-	if sr.priority >= regularPriority {
-		return h.scheduleRegularAffinityGroup(sr, suggestedNodeSet)
+	if sr.priority >= minGuaranteedPriority {
+		return h.scheduleGuaranteedAffinityGroup(sr, suggestedNodeSet)
 	} else {
 		return h.scheduleOpportunisticAffinityGroup(sr, suggestedNodeSet), nil
 	}
 }
 
-// scheduleRegularAffinityGroup schedules an affinity group in its VC, and
+// scheduleGuaranteedAffinityGroup schedules an affinity group in its VC, and
 // then maps the placement in VC to the physical cluster.
-func (h *HivedAlgorithm) scheduleRegularAffinityGroup(
+func (h *HivedAlgorithm) scheduleGuaranteedAffinityGroup(
 	sr schedulingRequest,
 	suggestedNodeSet common.Set) (map[int32][]CellList, map[int32][]CellList) {
 
@@ -942,7 +937,7 @@ func mapNonPreassignedCellToVirtual(
 // getLowestPriorityCell returns a cell with the lowest priority among the cells
 // whose priorities are lower than the given priority (p).
 func getLowestPriorityCell(cl CellList, p CellPriority) Cell {
-	lowestPriority := highestPriority
+	lowestPriority := maxGuaranteedPriority
 	var lowestPriorityCell Cell
 	for _, c := range cl {
 		pp := c.GetPriority()
