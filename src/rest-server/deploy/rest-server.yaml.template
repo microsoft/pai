@@ -104,7 +104,7 @@ spec:
           value: "{{ cluster_cfg['rest-server']['debugging-reservation-seconds']}}"
 {% if cluster_cfg['elasticsearch']['master-ip'] %}
         - name: ELASTICSEARCH_URI
-          value: {{ cluster_cfg['elasticsearch']['master-ip'] }}:30100
+          value: http://{{ cluster_cfg['elasticsearch']['master-ip'] }}:30100
 {% endif %}
 {% if cluster_cfg['cluster']['common']['k8s-rbac'] != 'false' %}
         - name: RBAC_IN_CLUSTER
