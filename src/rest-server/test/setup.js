@@ -37,6 +37,7 @@ process.env.RBAC_IN_CLUSTER = 'false';
 process.env.DEBUGGING_RESERVATION_SECONDS = '604800';
 process.env.GROUP_CONFIG_PATH = 'test/data/group.yaml';
 process.env[env.exitSpecPath] = 'test/data/exit-spec.yaml';
+process.env.REST_SERVER_URI = 'http://restserver.test.pai.9186';
 
 const jwt = require('jsonwebtoken');
 const mustache = require('mustache');

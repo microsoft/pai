@@ -1,0 +1,38 @@
+[
+  {
+    "name": "STORAGE_NFS",
+    "default": true,
+    "mountInfos": [
+      {
+        "mountPoint": "/mnt/data",
+        "path": "data",
+        "server": "SRV_BJ",
+        "permission": "rw"
+      },
+      {
+        "mountPoint": "/mnt/home",
+        "path": "users/${PAI_USER_NAME}",
+        "server": "SRV_BJ",
+        "permission": "rw"
+      }
+    ]
+  },
+  {
+    "name": "STORAGE_TEST",
+    "default": false,
+    "mountInfos": [
+      {
+        "mountPoint": "/mnt/data",
+        "path": "data",
+        "server": "SRV_BJ",
+        "permission": "rw"
+      },
+      {
+        "mountPoint": "/mnt/home",
+        "path": "users/${PAI_USER_NAME}",
+        "server": "SRV_BJ",
+        "permission": "rw"
+      }
+    ]
+  }
+]
