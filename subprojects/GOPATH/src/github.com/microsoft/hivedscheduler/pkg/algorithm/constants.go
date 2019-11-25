@@ -22,14 +22,17 @@
 
 package algorithm
 
-import "math"
+import (
+	"github.com/microsoft/hivedscheduler/pkg/api"
+	"math"
+)
 
 const (
 	// internal cell priorities
-	regularPriority       = CellPriority(0)
-	opportunisticPriority = CellPriority(-1)
+	maxGuaranteedPriority = CellPriority(api.MaxGuaranteedPriority)
+	minGuaranteedPriority = CellPriority(api.MinGuaranteedPriority)
+	opportunisticPriority = CellPriority(api.OpportunisticPriority)
 	freePriority          = CellPriority(-2)
-	highestPriority       = CellPriority(1000)
 
 	// lowest and highest levels in a cell chain
 	lowestLevel  = CellLevel(1)
