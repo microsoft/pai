@@ -104,19 +104,21 @@ func (ccl ChainCellList) remove(c Cell, l CellLevel) {
 // AlgoAffinityGroup is the algorithm-internal representation of an affinity group.
 type AlgoAffinityGroup struct {
 	name                 string
+	lazyPreemptionEnable bool
 	totalPodNums         map[int32]int32       // GpuNum -> PodNum
 	allocatedPods        map[int32][]*core.Pod // GpuNum -> a list of allocated pods and node addresses
 	physicalGpuPlacement map[int32][]CellList  // GpuNum -> a list of pods -> a list of physical GPUs of each pod
 	virtualGpuPlacement  map[int32][]CellList  // GpuNum -> a list of pods -> a list of virtual GPUs of each pod
 }
 
-func newAlgoAffinityGroup(g *api.AffinityGroupSpec) *AlgoAffinityGroup {
+func newAlgoAffinityGroup(g *api.AffinityGroupSpec, lazyPreemptionEnable bool) *AlgoAffinityGroup {
 	podNums := make(map[int32]int32)
 	for _, m := range g.Members {
 		podNums[m.GpuNumber] += m.PodNumber
 	}
 	group := &AlgoAffinityGroup{
 		name:                 g.Name,
+		lazyPreemptionEnable: lazyPreemptionEnable,
 		totalPodNums:         podNums,
 		allocatedPods:        map[int32][]*core.Pod{},
 		physicalGpuPlacement: map[int32][]CellList{},

@@ -1,0 +1,12 @@
+[
+  {
+    "spn": "azure_file_test",
+    "type": "azurefile",
+    "data": {
+      "dataStore": "datastore",
+      "fileShare": "fileshare",
+      "accountName": "accountname",
+      "key": "key"
+    }
+  }
+]

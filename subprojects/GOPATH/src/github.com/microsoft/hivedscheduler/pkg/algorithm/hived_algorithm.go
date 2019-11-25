@@ -141,7 +141,7 @@ func (h *HivedAlgorithm) AddAllocatedPod(pod *core.Pod) {
 	priority := CellPriority(s.Priority)
 	downgrade := false
 	if group := h.allocatedAffinityGroups[s.AffinityGroup.Name]; group == nil {
-		newGroup := newAlgoAffinityGroup(s.AffinityGroup)
+		newGroup := newAlgoAffinityGroup(s.AffinityGroup, s.LazyPreemptionEnable)
 		for _, gms := range info.AffinityGroupBindInfo {
 			gpuNumber := int32(len(gms.PodPlacements[0].PhysicalGpuIndices))
 			for podIndex := int32(0); podIndex < int32(len(gms.PodPlacements)); podIndex++ {
@@ -468,9 +468,10 @@ func (h *HivedAlgorithm) scheduleRegularAffinityGroup(
 			for j, gpu := range podGpus {
 				vGpu := gpu.(*VirtualCell)
 				if vGpu.GetPhysicalCell() != nil {
-					groupToPreempt := vGpu.GetPhysicalCell().GetAffinityGroup()
-					klog.Infof("Affinity group %v preempted from VC", groupToPreempt.name)
-					h.downgradeAffinityGroup(groupToPreempt)
+					if groupToPreempt := vGpu.GetPhysicalCell().GetAffinityGroup(); groupToPreempt.lazyPreemptionEnable {
+						klog.Infof("Affinity group %v lazy-preempted from VC", groupToPreempt.name)
+						h.downgradeAffinityGroup(groupToPreempt)
+					}
 				}
 				pac := vGpu.GetPreAssignedCell()
 				// check if the preassigned cell has been (temporarily) bound to a physical cell
@@ -727,10 +728,6 @@ func generatePodScheduleResult(
 				for _, gpu := range groupPhysicalPlacement[gpuNum][podIndex] {
 					pGpu := gpu.(*PhysicalCell)
 					if victimGroup := pGpu.GetAffinityGroup(); victimGroup != nil {
-						if pGpu.GetPriority() > opportunisticPriority {
-							panic(fmt.Sprintf("Try to preempt %v:%v which is used by guaranteed pod",
-								pGpu.nodes[0], pGpu.gpuIndices[0]))
-						}
 						// for any victim pod, gang-preempt all the other pods from the same affinity group
 						for _, victims := range victimGroup.allocatedPods {
 							for _, v := range victims {
