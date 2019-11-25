@@ -1,0 +1,10 @@
+[
+  {
+    "spn": "SRV_BJ",
+    "type": "nfs",
+    "data": {
+      "address": "10.151.41.14",
+      "rootPath": "/data/share/drbdha"
+    }
+  }
+]

@@ -1,0 +1,15 @@
+[
+  {
+    "name": "STORAGE_SAMBA",
+    "default": false,
+    "servers": ["samba_test"],
+    "mountInfos": [
+      {
+        "mountPoint": "/mnt/data",
+        "path": "data",
+        "server": "samba_test",
+        "permission": "rw"
+      }
+    ]
+  }
+]

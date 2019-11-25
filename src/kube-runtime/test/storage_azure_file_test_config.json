@@ -1,0 +1,14 @@
+[
+  {
+    "name": "STORAGE_AZURE_FILE",
+    "default": false,
+    "mountInfos": [
+      {
+        "mountPoint": "/mnt/data",
+        "path": "data",
+        "server": "azure_file_test",
+        "permission": "rw"
+      }
+    ]
+  }
+]
