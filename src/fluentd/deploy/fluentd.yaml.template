@@ -45,7 +45,7 @@ spec:
         volumeMounts:
         - name: varlog
           mountPath: /var/log
-        - name: varlibdockercontainers
+        - name: dockerdatarootinpod
           mountPath: /var/lib/docker/containers
           readOnly: true
         - name: config-volume
@@ -54,7 +54,7 @@ spec:
       - name: varlog
         hostPath:
           path: /var/log
-      - name: varlibdockercontainers
+      - name: dockerdataroot
         hostPath:
           path: {{ cluster_cfg["cluster"]["common"]["docker-data-root"] }}/containers
       - name: config-volume
