@@ -45,7 +45,7 @@ spec:
         volumeMounts:
         - name: varlog
           mountPath: /var/log
-        - name: dockerdatarootinpod
+        - name: dockerdataroot
           mountPath: /var/lib/docker/containers
           readOnly: true
         - name: config-volume
