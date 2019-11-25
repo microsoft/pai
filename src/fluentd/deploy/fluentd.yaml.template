@@ -56,7 +56,7 @@ spec:
           path: /var/log
       - name: varlibdockercontainers
         hostPath:
-          path: /var/lib/docker/containers
+          path: {{ cluster_cfg["cluster"]["common"]["docker-data-root"] }}/containers
       - name: config-volume
         configMap:
           name: fluentd-config
