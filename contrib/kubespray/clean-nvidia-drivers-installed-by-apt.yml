@@ -26,14 +26,6 @@
         name: libcuda1-418
         state: absent
 
-    - name: reboot vm
-      reboot:
-
-    - name: remove the script
-      file:
-        state: absent
-        path: /clean-nvidia-driver-by-openpai.sh
-
     - name: Remove dependencies that are no longer required
       apt:
         autoremove: yes
@@ -42,7 +34,7 @@
       apt:
         autoclean: yes
 
-    - name: Add the drivers repository to Ubuntu
+    - name: Remove the drivers repository from Ubuntu
       apt_repository:
         repo: ppa:graphics-drivers/ppa
         state: absent
