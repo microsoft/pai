@@ -36,7 +36,7 @@ Besides above benefits, this project also provides powerful runtime support, whi
     - [How to add `pip install` packages](#how-to-add-pip-install-packages)
     - [How to preview the generated job config but not submit it](#how-to-preview-the-generated-job-config-but-not-submit-it)
     - [How to submit an empty job](#how-to-submit-an-empty-job)
-    - [How to connect a running container through ssh](How-to-connect-a-running-container-through-ssh)
+    - [How to connect a running container through ssh](#how-to-connect-a-running-container-through-ssh)
   - [`Jupyter` notebook](#jupyter-notebook)
     - [How to run a local notebook with remote resources](#how-to-run-a-local-notebook-with-remote-resources)
     - [How to launch a remote `Jupyter` server and connect it](#how-to-launch-a-remote-jupyter-server-and-connect-it)
@@ -322,7 +322,7 @@ And the private key file would be downloaded in current directory, users should 
 
 **Tips:** 1)Your `<docker-image>` must enable SSH. See the link [Enable SSH for your docker image](https://github.com/microsoft/pai/blob/19817a0170b72d44ed9ce0fe2fe6f430c0d5b3f3/docs/zh_CN/job_docker_env.md#enable-ssh-for-your-image)
 
-2)If your job are in "WAITING" state when connecting, pls try [ssh-container](How-to-connect-a-running-container-through-ssh) later.
+2)If your job are in "WAITING" state when connecting, pls try [ssh-container](#how-to-connect-a-running-container-through-ssh) later.
 
 ### How to connect a running container through ssh
 In some cases, user may want to visit a running container and check its state. To achieve that, the commond should be
