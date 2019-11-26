@@ -62,7 +62,7 @@ func initNodes(h *HivedAlgorithm) {
 	}
 }
 
-var group1, group2, group3, group4, group5, group6, group7, group8, group9, group10, group11, group12, group13, group14, group15, group16 = &api.AffinityGroupSpec{
+var group1, group2, group3, group4, group5, group6, group7, group8, group9, group10, group11, group12, group13, group14, group15, group16, group17 = &api.AffinityGroupSpec{
 	Name:    "group1",
 	Members: []api.AffinityGroupMemberSpec{{PodNumber: 1, GpuNumber: 1}},
 }, &api.AffinityGroupSpec{
@@ -109,6 +109,9 @@ var group1, group2, group3, group4, group5, group6, group7, group8, group9, grou
 	Members: []api.AffinityGroupMemberSpec{{PodNumber: 1, GpuNumber: 2}},
 }, &api.AffinityGroupSpec{
 	Name:    "group16",
+	Members: []api.AffinityGroupMemberSpec{{PodNumber: 1, GpuNumber: 2}},
+}, &api.AffinityGroupSpec{
+	Name:    "group17",
 	Members: []api.AffinityGroupMemberSpec{{PodNumber: 1, GpuNumber: 2}},
 }
 
@@ -308,11 +311,19 @@ var pss = map[types.UID]api.PodSchedulingSpec{
 	}, "pod25": { // trigger intra-VC preemption
 		VirtualCluster:       "VC2",
 		Priority:             1,
-		LazyPreemptionEnable: true,
+		LazyPreemptionEnable: false,
 		ReservationId:        "",
 		GpuType:              "CT1",
 		GpuNumber:            2,
 		AffinityGroup:        group16,
+	}, "pod26": { // will preempt pod25 immediately (as lazy preemption is not enabled)
+		VirtualCluster:       "VC2",
+		Priority:             2,
+		LazyPreemptionEnable: false,
+		ReservationId:        "",
+		GpuType:              "CT1",
+		GpuNumber:            2,
+		AffinityGroup:        group17,
 	},
 }
 
@@ -355,6 +366,7 @@ var expectedBindInfos = map[string]result{
 var expectedPreemptInfos = map[string]common.Set{
 	"pod16": common.NewSet("pod5", "pod6"),
 	"pod17": common.NewSet("pod5", "pod6"),
+	"pod26": common.NewSet("pod25"),
 }
 
 var allocatedPods []*core.Pod
@@ -513,7 +525,9 @@ func testInvalidInitialAssignment(t *testing.T, sConfig *api.Config) {
 			t.Errorf("Expected error in initial assignment validation, but got none")
 		}
 	}()
-	(*sConfig.VirtualClusters)["VC2"].VirtualCells[0].CellNumber = 1000
+	(*sConfig.VirtualClusters)["VC1"].VirtualCells[0].CellType = "CT1-NODE"
+	(*sConfig.VirtualClusters)["VC1"].VirtualCells[1].CellType = "CT1-NODE.CT1"
+	(*sConfig.VirtualClusters)["VC1"].VirtualCells[1].CellNumber = 2
 	NewHivedAlgorithm(sConfig)
 }
 
