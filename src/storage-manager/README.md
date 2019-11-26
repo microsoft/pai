@@ -38,6 +38,33 @@ The storage-manager will be deployed on that node.
 
 [storage-manager default configuration](config/storage-manager.yaml)
 
+NFS default root path: `/share/pai`
+
+Samba default share paths:
+<table>
+<tr>
+    <td>Share path</td>
+    <td>Acctully path in the storage machine</td>
+</tr>
+<tr>
+    <td>/root</td>
+    <td>/share/pai</td>
+</tr>
+<tr>
+    <td>/users</td>
+    <td> /share/pai/users</td>
+</tr>
+<tr>
+    <td>/data</td>
+    <td>/share/pai/data</td>
+</tr>
+<tr>
+    <td>/home</td>
+    <td>/share/pai/users/${user_name}</td>
+</tr>
+</table>
+
+
 ---
 
 ## Manual Configuration <a name="Manual-Configuration"></a>
