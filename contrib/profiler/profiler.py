@@ -435,7 +435,6 @@ parser.add_argument('--container_pid', '-p', help='The pid of the docker contain
 parser.add_argument('--sample_period', help='The period of the CPU usage collecting', required=True, type=float)
 parser.add_argument('--analyze_period', help='The period of the CPU usage analyzing', required=True, type=float)
 parser.add_argument('--output_dir', '-o', help='The output directory to store the files', required=True)
-parser.add_argument('--gpu_index', '-g', help='Which GPUs the deep learning model is using', required=True)
 parser.add_argument('--duration_time', '-t', help='How long the profiler will execute', required=True, type=int)
 args = parser.parse_args()
 
