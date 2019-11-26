@@ -253,7 +253,7 @@ def draw_graph(sample_datas, output_dir, period, gpu_id):
     # draw the IO usage
     times = list()
     # index 3 and 4 are the column of the I/O rate
-    io_rate = [sample_datas[:, SAMPLE_INFO.IO_read.value], sample_datas[:, SAMPLE_INFO.IO_write.value]]
+    io_rate = [sample_datas[:, SAMPLE_INFO.io_read.value], sample_datas[:, SAMPLE_INFO.io_write.value]]
     legends = ['Disk read', 'Disk write']
     for i in range(sample_datas.shape[0]):
         times.append(i * period)
@@ -302,8 +302,8 @@ def analyze_value(sample_datas, period, gpu_id):
 
     # analyze the Disk
     # index 3 and 4 are the Disk read and write
-    disk_read = np.sort(sample_datas[:, SAMPLE_INFO.IO_read.value])
-    disk_write = np.sort(sample_datas[:, SAMPLE_INFO.IO_write.value])
+    disk_read = np.sort(sample_datas[:, SAMPLE_INFO.io_read.value])
+    disk_write = np.sort(sample_datas[:, SAMPLE_INFO.io_write.value])
     print('For the Disk, here is the analyze result:')
     print('The max value of the Disk read is', str(np.max(disk_read)) + 'KBps')
     min_read = 0
