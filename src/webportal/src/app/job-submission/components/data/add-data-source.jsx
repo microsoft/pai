@@ -10,6 +10,7 @@ import { AddHDFS } from './add-hdfs';
 import { InputData } from '../../models/data/input-data';
 import { HdfsContext } from '../../models/data/hdfs-context';
 
+import config from '../../../config/webportal.config';
 import t from '../../../../app/components/tachyons.scss';
 
 export const AddDataSource = props => {
@@ -21,6 +22,7 @@ export const AddDataSource = props => {
       key: 'local',
       text: 'From local ( size<1G )',
       iconProps: { iconName: 'Documentation' },
+      className: config.launcherType === 'k8s' ? c(t.dn) : null,
       onClick: () => {
         setDataType('local');
       },
@@ -45,6 +47,7 @@ export const AddDataSource = props => {
       key: 'hdfs',
       text: 'From PAI HDFS',
       iconProps: { iconName: 'Cloudy' },
+      className: config.launcherType === 'k8s' ? c(t.dn) : null,
       onClick: () => {
         setDataType('hdfs');
       },
