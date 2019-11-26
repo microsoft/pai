@@ -338,7 +338,6 @@ def cli_start_container(args):
     check_common_job_args(args)
     assert args.timeout, "must specify a time period through '--timeout'"
     assert args.job_name, "must specify a job name"
-    #assert args.user, "must specify a user"
     job = Job()
     # start an empty container
     job.new(args.job_name, parameters = {'cluster_alias': args.cluster_alias}).one_liner(
@@ -350,12 +349,38 @@ def cli_start_container(args):
     )
     result = submit_it(job, args)
     result.update(na(connect_notebook(job), {}))
+    build_ssh_connection(job_name = args.job_name, cluster_alias = args.cluster_alias, user = args.user)
+
+
+
+@register_as_cli(
+    'ssh-container',
+    ['--cluster-alias', '--job-name', '--user'],
+    'connect a container through ssh'
+)
+def cli_ssh_container(args):
+    assert args.job_name and args.cluster_alias, "must specify a job name and an cluster"
+    build_ssh_connection(job_name = args.job_name, cluster_alias = args.cluster_alias, user = args.user)
+
+
+def build_ssh_connection(job_name: str = None, cluster_alias: str = None, user: str = None):
+
+    assert job_name and cluster_alias, "must specify a job name and an cluster"
+    client = ClusterList().load().get_client(cluster_alias)
+    if not user:
+        user = client.user
+    
+    # check job state
+    job_state = client.rest_api_job_info(job_name).get('jobStatus', {}).get('state', '')
+    if job_state == 'WAITING':
+        to_screen('You job is still waitting, pls try "ssh-container" later')
+        return
+    if job_state in ['SUCCEEDED', 'FAILED', 'STOPPED']:
+        to_screen('Pls try "ssh-container" when your job is still running')
+        return
     
     # ssh connection
-    client = ClusterList().load().get_client(args.cluster_alias)
-    if not args.user:
-        args.user = client.user
-    ssh_info = client.rest_api_job_info(args.job_name, 'ssh', user = args.user)
+    ssh_info = client.rest_api_job_info(job_name, 'ssh', user = user)
     ssh_private_key_link = ssh_info.get('keyPair', {}).get('privateKeyDirectDownloadLink', '')
     ssh_port = ssh_info.get('containers', {})[0].get('sshPort', '')
     ssh_ip = ssh_info.get('containers', [])[0].get('sshIp', '')
@@ -365,7 +390,6 @@ def cli_start_container(args):
     to_screen(f'Download private key from {ssh_private_key_link}')
     to_screen(f'execute "ssh -i {ssh_user} -p {ssh_port} root@{ssh_ip}" to connect container')
     os.system(f'ssh -i {ssh_user} -p {ssh_port} root@{ssh_ip}')
-
 
 @register_as_cli(
     'notebook-job',
@@ -409,7 +433,8 @@ def cli_connect_job(args):
     job = Job()
     job.load(job_name=args.job_name,
              cluster_alias=args.cluster_alias)
-    return connect_notebook(job)
+    connect_notebook(job)
+    print("job down")
 
 
 @register_as_cli(
