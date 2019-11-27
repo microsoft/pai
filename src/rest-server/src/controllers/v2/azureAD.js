@@ -79,8 +79,6 @@ const requestTokenWithCode = async (req, res, next) => {
     req.undecodedRefreshToken = response.data.refresh_token;
     req.refreshToken = jwt.decode(response.data.refresh_token);
     const state = JSON.parse(req.body.state);
-    // eslint-disable-next-line no-console
-    console.info(state);
     req.returnBackURI = state.redirect;
     req.fromURI = state.from;
     next();
