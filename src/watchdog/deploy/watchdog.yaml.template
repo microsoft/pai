@@ -68,10 +68,6 @@ spec:
           - "180"
           - "--port"
           - "9101"
-          - "--ca"
-          - "/var/run/secrets/kubernetes.io/serviceaccount/ca.crt"
-          - "--bearer"
-          - "/var/run/secrets/kubernetes.io/serviceaccount/token"
       volumes:
         - name: collector-mount
           hostPath:

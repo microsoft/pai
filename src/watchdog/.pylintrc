@@ -1,13 +1,19 @@
 [TYPECHECK]
-
-[SETTINGS]
+# faulthandler.register method not available on Windows
+# signal.SIGTRAP not available on Windows
+ignored-classes=faulthandler,signal,twisted.internet.reactor
 
 [FORMAT]
 max-line-length=130
+
+[MASTER]
+init-hook="from pylint.config import find_pylintrc;\
+           import os, sys;\
+           sys.path.append(os.path.join(os.path.dirname(find_pylintrc()), './src'));"
 
 # Disable docstring check
 disable=C0111
 
 [BASIC]
 # Good variable names which should always be accepted, separated by a comma
-good-names=i,j,k,f,ip,e
+good-names=i,j,k,f,ip,e,render_GET
