@@ -53,7 +53,7 @@ const requestAuthCode = async (req, res, next) => {
     state: {
       redirect: req.query.redirect_uri,
       from: req.query.from,
-    }
+    },
   }));
 };
 
