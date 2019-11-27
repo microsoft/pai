@@ -37,7 +37,7 @@ const requestAuthCode = async (req, res, next) => {
     state = decodeURIComponent(req.query.redirect_uri);
   }
   if (req.query.from) {
-    state = `${state} ${decodeURIComponent(req.query.from)}`
+    state = `${state} ${decodeURIComponent(req.query.from)}`;
   }
   const requestURL = authnConfig.OIDCConfig.authorization_endpoint;
   return res.redirect(`${requestURL}?`+ querystring.stringify({
@@ -77,7 +77,7 @@ const requestTokenWithCode = async (req, res, next) => {
     req.accessToken = jwt.decode(response.data.access_token);
     req.undecodedRefreshToken = response.data.refresh_token;
     req.refreshToken = jwt.decode(response.data.refresh_token);
-    const URIArray = req.body.state.split(" ");
+    const URIArray = req.body.state.split(' ');
     req.returnBackURI = URIArray[0];
     req.fromURI = URIArray[1];
     next();
