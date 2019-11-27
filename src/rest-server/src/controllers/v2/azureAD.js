@@ -77,10 +77,9 @@ const requestTokenWithCode = async (req, res, next) => {
     req.accessToken = jwt.decode(response.data.access_token);
     req.undecodedRefreshToken = response.data.refresh_token;
     req.refreshToken = jwt.decode(response.data.refresh_token);
-    const uriArray = req.body.state.split(" ");
-    // eslint-disable-next-line no-console
-    console.info(uriArray);
-    req.returnBackURI = req.body.state;
+    const URIArray = req.body.state.split(" ");
+    req.returnBackURI = URIArray[0];
+    req.fromURI = URIArray[1];
     next();
   } catch (error) {
     return next(createError.unknown(error));
