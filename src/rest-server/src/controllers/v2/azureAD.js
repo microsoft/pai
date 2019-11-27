@@ -39,7 +39,7 @@ const requestAuthCode = async (req, res, next) => {
     console.info(state);
   }
   if (req.query.from) {
-    state = `${state} ${decodeURIComponent(req.query.from)}`;
+    state = `${state} ${req.query.from}`;
     // eslint-disable-next-line no-console
     console.info(state);
   }
