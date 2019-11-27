@@ -30,7 +30,7 @@ export const UtilizationChart = ({ percentage }) => {
   const chartRef = useRef(null);
 
   let usageColor = palette.green;
-  if (percentage > 0.1 && percentage <= 0.9) {
+  if (percentage > 0.5 && percentage <= 0.9) {
     usageColor = palette.yellow;
   }
   if (percentage > 0.9) {
