@@ -311,6 +311,9 @@ class Job {
         headers: launcherConfig.webserviceRequestHeaders(namespace || data.userName),
       });
     } catch (error) {
+      if (error.response) {
+        console.log(error.toJSON());
+      }
       throw error;
     }
   }
