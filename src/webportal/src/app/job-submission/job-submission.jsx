@@ -46,6 +46,7 @@ import singlePress from '../../assets/img/single-press.svg';
 import distributeRoot from '../../assets/img/distribute-root.svg';
 import distributePress from '../../assets/img/distribute-press.svg';
 import { JobSubmissionPage } from './job-submission-page';
+import { JobSubmissionPageJupyter } from './job-submission-page-jupyter';
 import Card from '../components/card';
 import { JobProtocol } from './models/job-protocol';
 
@@ -62,8 +63,8 @@ const IconStyle = {
     backgroundPosition: 'center',
     backgroundSize: '30%',
     boxShadow: `rgba(0, 0, 0, 0.06) 0px 2px 4px, rgba(0, 0, 0, 0.05) 0px 0.5px 1px`,
-    width: 215,
-    height: 215,
+    width: 150,
+    height: 150,
   },
   hover: {
     borderRadius: '100%',
@@ -72,8 +73,8 @@ const IconStyle = {
     backgroundPosition: 'center',
     backgroundSize: '30%',
     boxShadow: `rgba(0, 0, 0, 0.06) 0px 2px 4px, rgba(0, 0, 0, 0.05) 0px 0.5px 1px`,
-    width: 215,
-    height: 215,
+    width: 150,
+    height: 150,
   },
   press: {
     borderRadius: '100%',
@@ -83,8 +84,8 @@ const IconStyle = {
     backgroundSize: '30%',
     borderColor: palette.themePrimary,
     borderWidth: 3,
-    width: 215,
-    height: 215,
+    width: 150,
+    height: 150,
   },
 };
 
@@ -141,7 +142,7 @@ const JobWizard = ({ setYamlText, history }) => {
         <Stack
           horizontal
           horizontalAlign='center'
-          gap={120}
+          gap={100}
           style={{ width: '100%', marginTop: 100 }}
         >
           <Stack horizontalAlign='center' gap={50}>
@@ -217,6 +218,37 @@ const JobWizard = ({ setYamlText, history }) => {
             <DefaultButton
               styles={{
                 root: {
+                  backgroundImage: `url(${singleRoot})`,
+                  ...IconStyle.root,
+                },
+                rootHovered: {
+                  backgroundImage: `url(${singleRoot})`,
+                  ...IconStyle.hover,
+                },
+                rootPressed: {
+                  backgroundImage: `url(${singlePress})`,
+                  ...IconStyle.press,
+                },
+              }}
+              onClick={() => {
+                history.push('/jupyter');
+              }}
+            />
+            <Text
+              styles={{
+                root: {
+                  fontSize: FontSizes.large,
+                  fontWeight: FontWeights.semibold,
+                },
+              }}
+            >
+              Jupyter Notebook
+            </Text>
+          </Stack>
+          <Stack horizontalAlign='center' gap={50}>
+            <DefaultButton
+              styles={{
+                root: {
                   backgroundImage: `url(${distributeRoot})`,
                   ...IconStyle.root,
                 },
@@ -282,6 +314,15 @@ const App = () => {
           render={({ history }) => (
             <JobSubmissionPage
               isSingle={false}
+              yamlText={yamlText}
+              history={history}
+            />
+          )}
+        />
+        <Route
+          path='/jupyter'
+          render={({ history }) => (
+            <JobSubmissionPageJupyter
               yamlText={yamlText}
               history={history}
             />
