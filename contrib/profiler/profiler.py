@@ -376,7 +376,7 @@ def start_sample(container_id, period, analyze_period, output_dir, gpu_id, conta
     with open(output_dir + '/log_result.csv', 'w') as result_file:
         realtime_log = csv.writer(result_file)
 
-        str_write_realtime = ['cpu_usage(%)', 'mem_used(GiByte)', 'mem_total(GiByte)', 'IO_read(KiByte/s)',
+        str_write_realtime = ['timestamp', 'cpu_usage(%)', 'mem_used(GiByte)', 'mem_total(GiByte)', 'IO_read(KiByte/s)',
                               'IO_write(KiByte/s)', 'network_receive(KiByte/s)', 'network_transmit(KiByte/s)']
         for i in range(len(gpu_id)):
             str_write_realtime.append('gpu_usage_' + str(gpu_id[i]))
@@ -406,17 +406,19 @@ def start_sample(container_id, period, analyze_period, output_dir, gpu_id, conta
 
         adviser = Adviser()
 
-        # sample_datas = list()
+        sample_datas = list()
         stop_flag = False
         while not (os.path.exists("./stop.flag") or stop_flag):
             sample_data = get_sample_data(container_cpu_file, container_mem_file, container_blk_file,
                                           container_net_file, gpu_id, period)
 
             str_write_realtime = sample_data.get_array()
+            str_write_realtime.insert(0, time.time() - start_time)
             sample_list.append(str_write_realtime)
+            sample_datas.append(str_write_realtime)
             realtime_log.writerow(str_write_realtime)
 
-            if len(sample_list) > analyze_period / period:
+        if len(sample_list) > analyze_period / period:
                 adviser.detect_pattern(sample_list)
                 sample_list = list()
                 if duration_time != -1:

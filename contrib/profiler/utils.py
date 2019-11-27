@@ -2,7 +2,7 @@ import numpy as np
 from enum import Enum
 
 # The info nums before GPU_info
-GPU_INFO_OFFSET = 7
+GPU_INFO_OFFSET = 8
 # The info nums of each GPU card
 INFO_NUM_PER_GPU = 4
 # The info nums before GPU_mem in each GPU info
@@ -10,13 +10,14 @@ GPU_MEM_OFFSET = 2
 
 
 class SAMPLE_INFO(Enum):
-    cpu_usage = 0
-    mem_used = 1
-    men_total = 2
-    io_read = 3
-    io_write = 4
-    network_inbound = 5
-    network_outbound = 6
+    timestamp = 0
+    cpu_usage = 1
+    mem_used = 2
+    men_total = 3
+    io_read = 4
+    io_write = 5
+    network_inbound = 6
+    network_outbound = 7
 
 
 class Adviser:
