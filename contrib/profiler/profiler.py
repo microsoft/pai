@@ -419,9 +419,9 @@ def start_sample(container_id, period, analyze_period, output_dir, gpu_id, conta
             if len(sample_list) > analyze_period / period:
                 adviser.detect_pattern(sample_list)
                 sample_list = list()
-            if duration_time != -1:
-                print_process((time.time() - start_time) / (duration_time * 60))
-                stop_flag = True if time.time() - start_time > duration_time * 60 else False
+                if duration_time != -1:
+                    print_process((time.time() - start_time) / (duration_time * 60))
+                    stop_flag = True if time.time() - start_time > duration_time * 60 else False
         print_process(1)
         adviser.get_advise()
     sample_datas = pd.read_csv(output_dir + '/log_result.csv').values
