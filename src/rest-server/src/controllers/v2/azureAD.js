@@ -32,16 +32,13 @@ const requestAuthCode = async (req, res, next) => {
   if (authnConfig.groupConfig.groupDataSource === 'ms-graph') {
     scope = `${scope} https://${authnConfig.OIDCConfig.msgraph_host}/directory.read.all`;
   }
-  let state = 'http://' + process.env.WEBPORTAL_URL + '/index.html';
+  let state = {};
+  state.redirect = 'http://' + process.env.WEBPORTAL_URL + '/index.html';
   if (req.query.redirect_uri) {
-    state = req.query.redirect_uri;
-    // eslint-disable-next-line no-console
-    console.info(state);
+    state.redirect = req.query.redirect_uri;
   }
   if (req.query.from) {
-    state = `${state} ${req.query.from}`;
-    // eslint-disable-next-line no-console
-    console.info(state);
+    state.from = `${state} ${req.query.from}`;
   }
   const requestURL = authnConfig.OIDCConfig.authorization_endpoint;
   return res.redirect(`${requestURL}?`+ querystring.stringify({
@@ -50,10 +47,7 @@ const requestAuthCode = async (req, res, next) => {
     redirect_uri: redirectUri,
     response_mode: responseMode,
     scope: scope,
-    state: {
-      redirect: req.query.redirect_uri,
-      from: req.query.from,
-    },
+    state: JSON.stringify(state),
   }));
 };
 
@@ -84,10 +78,11 @@ const requestTokenWithCode = async (req, res, next) => {
     req.accessToken = jwt.decode(response.data.access_token);
     req.undecodedRefreshToken = response.data.refresh_token;
     req.refreshToken = jwt.decode(response.data.refresh_token);
+    const state = JSON.parse(req.body.state);
     // eslint-disable-next-line no-console
-    console.info(req.body.state);
-    req.returnBackURI = req.body.state.redirect;
-    req.fromURI = req.body.state.from;
+    console.info(state);
+    req.returnBackURI = state.redirect;
+    req.fromURI = state.from;
     next();
   } catch (error) {
     return next(createError.unknown(error));
