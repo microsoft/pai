@@ -28,6 +28,7 @@ import (
 	"github.com/microsoft/hivedscheduler/pkg/common"
 	"github.com/microsoft/hivedscheduler/pkg/internal"
 	core "k8s.io/api/core/v1"
+	meta "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/klog"
 	"math"
 	"math/rand"
@@ -139,7 +140,7 @@ func (h *HivedAlgorithm) AddAllocatedPod(pod *core.Pod) {
 
 	chain := CellChain(info.CellChain)
 	priority := CellPriority(s.Priority)
-	downgrade := false
+	lazyPreempted := false
 	if group := h.allocatedAffinityGroups[s.AffinityGroup.Name]; group == nil {
 		newGroup := newAlgoAffinityGroup(s.AffinityGroup, s.LazyPreemptionEnable)
 		for _, gms := range info.AffinityGroupBindInfo {
@@ -157,7 +158,7 @@ func (h *HivedAlgorithm) AddAllocatedPod(pod *core.Pod) {
 					} else {
 						newGroup.physicalGpuPlacement[gpuNumber][podIndex][gpuIndex] = pGpu
 						var vGpu *VirtualCell
-						if newGroup.virtualGpuPlacement != nil && !downgrade {
+						if newGroup.virtualGpuPlacement != nil && !lazyPreempted {
 							preassignedLevel := CellLevel(gms.PodPlacements[podIndex].PreassignedCellLevels[gpuIndex])
 							if preassignedLevel >= 0 {
 								var message string
@@ -181,13 +182,12 @@ func (h *HivedAlgorithm) AddAllocatedPod(pod *core.Pod) {
 								}
 								if vGpu == nil {
 									klog.Warningf("[%v]: cannot find virtual cell: %v", internal.Key(pod), message)
-									downgrade = true
+									lazyPreempted = true
 								} else {
 									newGroup.virtualGpuPlacement[gpuNumber][podIndex][gpuIndex] = vGpu
 									if vGpu.GetPhysicalCell() != nil {
 										groupToPreempt := vGpu.GetPhysicalCell().GetAffinityGroup()
-										klog.Infof("Affinity group %v preempted from VC", groupToPreempt.name)
-										h.downgradeAffinityGroup(groupToPreempt)
+										h.lazyPreemptAffinityGroup(groupToPreempt, newGroup.name)
 									}
 								}
 							} else {
@@ -199,8 +199,8 @@ func (h *HivedAlgorithm) AddAllocatedPod(pod *core.Pod) {
 				}
 			}
 		}
-		if downgrade {
-			h.downgradeAffinityGroup(newGroup)
+		if lazyPreempted {
+			h.lazyPreemptAffinityGroup(newGroup, newGroup.name)
 		}
 		h.allocatedAffinityGroups[s.AffinityGroup.Name] = newGroup
 		klog.Infof("[%v]: New affinity group created: %v", internal.Key(pod), s.AffinityGroup.Name)
@@ -260,6 +260,31 @@ func (h *HivedAlgorithm) DeleteAllocatedPod(pod *core.Pod) {
 			klog.Infof("[%v]: Affinity group deleted: %v", internal.Key(pod), s.AffinityGroup.Name)
 		}
 	}
+}
+
+func (h *HivedAlgorithm) GetAffinityGroups() api.AffinityGroupList {
+	h.algorithmLock.RLock()
+	defer h.algorithmLock.RUnlock()
+
+	ags := api.AffinityGroupList{}
+	for _, aag := range h.allocatedAffinityGroups {
+		ags.Items = append(ags.Items, aag.ToAffinityGroup())
+	}
+
+	return ags
+}
+
+func (h *HivedAlgorithm) GetAffinityGroup(name string) api.AffinityGroup {
+	h.algorithmLock.RLock()
+	defer h.algorithmLock.RUnlock()
+
+	if aag := h.allocatedAffinityGroups[name]; aag != nil {
+		return aag.ToAffinityGroup()
+	}
+
+	panic(internal.NewBadRequestError(fmt.Sprintf(
+		"Affinity group %v does not exist since it is not allocated",
+		name)))
 }
 
 // validateInitialAssignment makes sure that the initial cell assignments
@@ -344,10 +369,11 @@ func (h *HivedAlgorithm) scheduleNewAffinityGroup(
 
 	priority = CellPriority(s.Priority)
 	sr := schedulingRequest{
-		vc:            s.VirtualCluster,
-		reservationId: s.ReservationId,
-		priority:      priority,
-		affinityGroup: map[int32]int32{},
+		vc:                s.VirtualCluster,
+		reservationId:     s.ReservationId,
+		priority:          priority,
+		affinityGroupName: s.AffinityGroup.Name,
+		affinityGroup:     map[int32]int32{},
 	}
 	for _, m := range s.AffinityGroup.Members {
 		// we will merge group members with same GPU number
@@ -471,8 +497,7 @@ func (h *HivedAlgorithm) scheduleGuaranteedAffinityGroup(
 				vGpu := gpu.(*VirtualCell)
 				if vGpu.GetPhysicalCell() != nil {
 					if groupToPreempt := vGpu.GetPhysicalCell().GetAffinityGroup(); groupToPreempt.lazyPreemptionEnable {
-						klog.Infof("Affinity group %v lazy-preempted from VC", groupToPreempt.name)
-						h.downgradeAffinityGroup(groupToPreempt)
+						h.lazyPreemptAffinityGroup(groupToPreempt, sr.affinityGroupName)
 					}
 				}
 				pac := vGpu.GetPreAssignedCell()
@@ -566,21 +591,26 @@ func (h *HivedAlgorithm) confirmReleasedGpu(pGpu *PhysicalCell, g *AlgoAffinityG
 	pGpu.DeleteAffinityGroup(g)
 }
 
-func (h *HivedAlgorithm) downgradeAffinityGroup(g *AlgoAffinityGroup) {
-	for _, podVirtualPlacements := range g.virtualGpuPlacement {
+func (h *HivedAlgorithm) lazyPreemptAffinityGroup(
+	victim *AlgoAffinityGroup, preemptor string) {
+	for _, podVirtualPlacements := range victim.virtualGpuPlacement {
 		for _, podVirtualPlacement := range podVirtualPlacements {
 			for _, gpu := range podVirtualPlacement {
 				if gpu != nil {
 					vGpu := gpu.(*VirtualCell)
 					pGpu := vGpu.GetPhysicalCell()
-					h.confirmReleasedGpu(pGpu, g)
-					h.confirmAllocatedGpu(pGpu, nil, opportunisticPriority, g)
+					h.confirmReleasedGpu(pGpu, victim)
+					h.confirmAllocatedGpu(pGpu, nil, opportunisticPriority, victim)
 				}
 			}
 		}
 	}
-	g.virtualGpuPlacement = nil
-	klog.Infof("Affinity group %v downgraded to opportunistic", g.name)
+	victim.virtualGpuPlacement = nil
+	victim.lazyPreemptionStatus = &api.LazyPreemptionStatus{
+		Preemptor:      preemptor,
+		PreemptionTime: meta.Now(),
+	}
+	klog.Infof("Affinity group %v is lazy preempted from VC by %v", victim.name, preemptor)
 }
 
 // removeCellFromFreeList removes a cell from the free cell list and splits its parent recursively if needed.

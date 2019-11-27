@@ -1,5 +1,3 @@
-#!/bin/bash
-
 # Copyright (c) Microsoft Corporation
 # All rights reserved.
 #
@@ -17,19 +15,16 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-pushd $(dirname "$0") > /dev/null
-
-{% if cluster_cfg['hivedscheduler']['config']|length > 1 %}
-
-kubectl apply --overwrite=true -f hivedscheduler-config.yaml || exit $?
-kubectl apply --overwrite=true -f rbac.yaml || exit $?
-kubectl apply --overwrite=true -f hivedscheduler-service.yaml || exit $?
-kubectl apply --overwrite=true -f hivedscheduler.yaml || exit $?
-
-sleep 10
-# Wait until the service is ready.
-PYTHONPATH="../../../deployment" python -m k8sPaiLibrary.monitorTool.check_pod_ready_status -w -k app -v hivedscheduler || exit $?
-
-{% endif %}
-
-popd > /dev/null
+apiVersion: v1
+kind: Service
+metadata:
+  name: hivedscheduler-service
+spec:
+  selector:
+    app: hivedscheduler
+  type: NodePort
+  ports:
+  - protocol: TCP
+    targetPort: 30096
+    port: 30096
+    nodePort: 30096
