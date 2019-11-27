@@ -87,7 +87,7 @@ const Index = () => {
         config.restServerUri +
         `/api/v1/authn/oidc/login?${querystring.stringify({
           redirect_uri: new URL('/index.html', window.location.href).href,
-          callback: window.location.href,
+          from: loginTarget,
         })}`;
     }
   }, []);

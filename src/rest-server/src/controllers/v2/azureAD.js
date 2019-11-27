@@ -36,6 +36,9 @@ const requestAuthCode = async (req, res, next) => {
   if (req.query.redirect_uri) {
     state = decodeURIComponent(req.query.redirect_uri);
   }
+  if (req.query.from) {
+    state = `${state} ${decodeURIComponent(req.query.from)}`
+  }
   const requestURL = authnConfig.OIDCConfig.authorization_endpoint;
   return res.redirect(`${requestURL}?`+ querystring.stringify({
     client_id: clientId,
@@ -74,6 +77,8 @@ const requestTokenWithCode = async (req, res, next) => {
     req.accessToken = jwt.decode(response.data.access_token);
     req.undecodedRefreshToken = response.data.refresh_token;
     req.refreshToken = jwt.decode(response.data.refresh_token);
+    // eslint-disable-next-line no-console
+    console.info(req.body.state);
     req.returnBackURI = req.body.state;
     next();
   } catch (error) {
