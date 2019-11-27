@@ -266,13 +266,20 @@ func (h *HivedAlgorithm) DeleteAllocatedPod(pod *core.Pod) {
 // to all VCs can be fit into the configured physical cells.
 func (h *HivedAlgorithm) validateInitialAssignment() {
 	totalQuota := map[CellChain]map[CellLevel]int32{}
-	for _, vcs := range h.vcSchedulers {
+	for vc, vcs := range h.vcSchedulers {
 		for chain, ccl := range vcs.getNonReservedCellList() {
 			if totalQuota[chain] == nil {
 				totalQuota[chain] = map[CellLevel]int32{}
 			}
 			l := CellLevel(len(ccl))
 			totalQuota[chain][l] += int32(len(ccl[l]))
+		}
+		for _, reserved := range h.reservedCells[vc] {
+			reservedChain := reserved.GetChain()
+			if totalQuota[reservedChain] == nil {
+				totalQuota[reservedChain] = map[CellLevel]int32{}
+			}
+			totalQuota[reservedChain][reserved.GetLevel()]++
 		}
 	}
 	for chain, chainQuota := range totalQuota {
