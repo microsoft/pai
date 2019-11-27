@@ -38,7 +38,7 @@ const requestAuthCode = async (req, res, next) => {
     state.redirect = req.query.redirect_uri;
   }
   if (req.query.from) {
-    state.from = `${state} ${req.query.from}`;
+    state.from = req.query.from;
   }
   const requestURL = authnConfig.OIDCConfig.authorization_endpoint;
   return res.redirect(`${requestURL}?`+ querystring.stringify({
