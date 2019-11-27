@@ -34,10 +34,14 @@ const requestAuthCode = async (req, res, next) => {
   }
   let state = 'http://' + process.env.WEBPORTAL_URL + '/index.html';
   if (req.query.redirect_uri) {
-    state = decodeURIComponent(req.query.redirect_uri);
+    state = req.query.redirect_uri;
+    // eslint-disable-next-line no-console
+    console.info(state);
   }
   if (req.query.from) {
     state = `${state} ${decodeURIComponent(req.query.from)}`;
+    // eslint-disable-next-line no-console
+    console.info(state);
   }
   const requestURL = authnConfig.OIDCConfig.authorization_endpoint;
   return res.redirect(`${requestURL}?`+ querystring.stringify({
@@ -46,7 +50,10 @@ const requestAuthCode = async (req, res, next) => {
     redirect_uri: redirectUri,
     response_mode: responseMode,
     scope: scope,
-    state: state,
+    state: {
+      redirect: req.query.redirect_uri,
+      from: req.query.from,
+    }
   }));
 };
 
@@ -77,9 +84,10 @@ const requestTokenWithCode = async (req, res, next) => {
     req.accessToken = jwt.decode(response.data.access_token);
     req.undecodedRefreshToken = response.data.refresh_token;
     req.refreshToken = jwt.decode(response.data.refresh_token);
-    const URIArray = req.body.state.split(' ');
-    req.returnBackURI = URIArray[0];
-    req.fromURI = URIArray[1];
+    // eslint-disable-next-line no-console
+    console.info(req.body.state);
+    req.returnBackURI = req.body.state.redirect;
+    req.fromURI = req.body.state.from;
     next();
   } catch (error) {
     return next(createError.unknown(error));
