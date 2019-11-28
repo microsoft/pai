@@ -73,12 +73,13 @@ type ReservedCellSpec struct {
 }
 
 type PodSchedulingSpec struct {
-	VirtualCluster VirtualClusterName `yaml:"virtualCluster"`
-	Priority       int32              `yaml:"priority"`
-	ReservationId  ReservationId      `yaml:"reservationId"`
-	GpuType        string             `yaml:"gpuType"`
-	GpuNumber      int32              `yaml:"gpuNumber"`
-	AffinityGroup  *AffinityGroupSpec `yaml:"affinityGroup"`
+	VirtualCluster       VirtualClusterName `yaml:"virtualCluster"`
+	Priority             int32              `yaml:"priority"`
+	LazyPreemptionEnable bool               `yaml:"lazyPreemptionEnable"`
+	ReservationId        ReservationId      `yaml:"reservationId"`
+	GpuType              string             `yaml:"gpuType"`
+	GpuNumber            int32              `yaml:"gpuNumber"`
+	AffinityGroup        *AffinityGroupSpec `yaml:"affinityGroup"`
 }
 
 type AffinityGroupSpec struct {

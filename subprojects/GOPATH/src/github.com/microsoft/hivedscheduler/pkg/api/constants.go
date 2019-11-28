@@ -66,9 +66,12 @@ const (
 	// It is in PodBindInfo YAML format.
 	AnnotationKeyPodBindInfo = GroupName + "/pod-bind-info"
 
-	// Lowest priority of regular pods. A pod with a priority >= 0 will be considered
-	// as a guaranteed one; opportunistic otherwise.
-	RegularPriority = int32(0)
+	// Priority Range of Guaranteed Pod.
+	MaxGuaranteedPriority = int32(1000)
+	MinGuaranteedPriority = int32(0)
+
+	// Priority of Opportunistic Pod.
+	OpportunisticPriority = int32(-1)
 )
 
 var EnvValueKubeApiServerAddress = os.Getenv("KUBE_APISERVER_ADDRESS")

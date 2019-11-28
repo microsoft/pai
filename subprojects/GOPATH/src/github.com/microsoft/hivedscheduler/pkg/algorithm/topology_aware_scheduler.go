@@ -40,8 +40,8 @@ type topologyAwareScheduler struct {
 	// pack pods cross different priorities, or inside each priority. the former is for intra-VC scheduling,
 	// because high-priority can avoid preemption in the whole cluster view,
 	// and hence we can pack pods with different priorities.
-	// the latter is for opportunistic pod scheduling (stay away from regular pods),
-	// because regular pods can avoid preempting opportunistic pods only among buddy cells (this is decided
+	// the latter is for opportunistic pod scheduling (stay away from guaranteed pods),
+	// because guaranteed pods can avoid preempting opportunistic pods only among buddy cells (this is decided
 	// by the buddy cell allocation algorithm).
 	crossPriorityPack bool
 	// whether or not the scheduler should avoid using nodes that are not suggested by K8s.

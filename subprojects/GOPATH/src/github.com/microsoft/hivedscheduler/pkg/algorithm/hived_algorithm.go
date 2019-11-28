@@ -141,7 +141,7 @@ func (h *HivedAlgorithm) AddAllocatedPod(pod *core.Pod) {
 	priority := CellPriority(s.Priority)
 	downgrade := false
 	if group := h.allocatedAffinityGroups[s.AffinityGroup.Name]; group == nil {
-		newGroup := newAlgoAffinityGroup(s.AffinityGroup)
+		newGroup := newAlgoAffinityGroup(s.AffinityGroup, s.LazyPreemptionEnable)
 		for _, gms := range info.AffinityGroupBindInfo {
 			gpuNumber := int32(len(gms.PodPlacements[0].PhysicalGpuIndices))
 			for podIndex := int32(0); podIndex < int32(len(gms.PodPlacements)); podIndex++ {
@@ -266,13 +266,20 @@ func (h *HivedAlgorithm) DeleteAllocatedPod(pod *core.Pod) {
 // to all VCs can be fit into the configured physical cells.
 func (h *HivedAlgorithm) validateInitialAssignment() {
 	totalQuota := map[CellChain]map[CellLevel]int32{}
-	for _, vcs := range h.vcSchedulers {
+	for vc, vcs := range h.vcSchedulers {
 		for chain, ccl := range vcs.getNonReservedCellList() {
 			if totalQuota[chain] == nil {
 				totalQuota[chain] = map[CellLevel]int32{}
 			}
 			l := CellLevel(len(ccl))
 			totalQuota[chain][l] += int32(len(ccl[l]))
+		}
+		for _, reserved := range h.reservedCells[vc] {
+			reservedChain := reserved.GetChain()
+			if totalQuota[reservedChain] == nil {
+				totalQuota[reservedChain] = map[CellLevel]int32{}
+			}
+			totalQuota[reservedChain][reserved.GetLevel()]++
 		}
 	}
 	for chain, chainQuota := range totalQuota {
@@ -334,11 +341,8 @@ func (h *HivedAlgorithm) scheduleNewAffinityGroup(
 		virtualPlacement  map[int32][]CellList
 		priority          CellPriority
 	)
-	if s.Priority < api.RegularPriority {
-		priority = opportunisticPriority
-	} else {
-		priority = CellPriority(s.Priority)
-	}
+
+	priority = CellPriority(s.Priority)
 	sr := schedulingRequest{
 		vc:            s.VirtualCluster,
 		reservationId: s.ReservationId,
@@ -389,7 +393,7 @@ func (h *HivedAlgorithm) scheduleAffinityGroupForGpuType(
 					return physicalPlacement, virtualPlacement
 				}
 			}
-			if sr.priority >= regularPriority && !vcHasType {
+			if sr.priority >= minGuaranteedPriority && !vcHasType {
 				panic(internal.NewBadRequestError(fmt.Sprintf(
 					"[%v]: pod requesting GPU type %v which VC %v does not have",
 					internal.Key(pod), gpuType, sr.vc)))
@@ -416,11 +420,9 @@ func (h *HivedAlgorithm) validateSchedulingRequest(sr schedulingRequest, pod *co
 	} else if sr.reservationId != "" {
 		if h.vcSchedulers[sr.vc].getReservedCellList()[sr.reservationId] == nil {
 			message = fmt.Sprintf("VC %v does not have reservation %v", sr.vc, sr.reservationId)
-		} else if sr.priority < regularPriority {
+		} else if sr.priority == opportunisticPriority {
 			message = fmt.Sprintf("opportunistic pod not supported to use reservation %v", sr.reservationId)
 		}
-	} else if sr.priority > highestPriority {
-		message = fmt.Sprintf("priority %v exceeds highest priority", sr.priority)
 	}
 	if message != "" {
 		panic(internal.NewBadRequestError(fmt.Sprintf("[%v]: %v", internal.Key(pod), message)))
@@ -433,16 +435,16 @@ func (h *HivedAlgorithm) processSchedulingRequest(
 	sr schedulingRequest,
 	suggestedNodeSet common.Set) (map[int32][]CellList, map[int32][]CellList) {
 
-	if sr.priority >= regularPriority {
-		return h.scheduleRegularAffinityGroup(sr, suggestedNodeSet)
+	if sr.priority >= minGuaranteedPriority {
+		return h.scheduleGuaranteedAffinityGroup(sr, suggestedNodeSet)
 	} else {
 		return h.scheduleOpportunisticAffinityGroup(sr, suggestedNodeSet), nil
 	}
 }
 
-// scheduleRegularAffinityGroup schedules an affinity group in its VC, and
+// scheduleGuaranteedAffinityGroup schedules an affinity group in its VC, and
 // then maps the placement in VC to the physical cluster.
-func (h *HivedAlgorithm) scheduleRegularAffinityGroup(
+func (h *HivedAlgorithm) scheduleGuaranteedAffinityGroup(
 	sr schedulingRequest,
 	suggestedNodeSet common.Set) (map[int32][]CellList, map[int32][]CellList) {
 
@@ -468,9 +470,10 @@ func (h *HivedAlgorithm) scheduleRegularAffinityGroup(
 			for j, gpu := range podGpus {
 				vGpu := gpu.(*VirtualCell)
 				if vGpu.GetPhysicalCell() != nil {
-					groupToPreempt := vGpu.GetPhysicalCell().GetAffinityGroup()
-					klog.Infof("Affinity group %v preempted from VC", groupToPreempt.name)
-					h.downgradeAffinityGroup(groupToPreempt)
+					if groupToPreempt := vGpu.GetPhysicalCell().GetAffinityGroup(); groupToPreempt.lazyPreemptionEnable {
+						klog.Infof("Affinity group %v lazy-preempted from VC", groupToPreempt.name)
+						h.downgradeAffinityGroup(groupToPreempt)
+					}
 				}
 				pac := vGpu.GetPreAssignedCell()
 				// check if the preassigned cell has been (temporarily) bound to a physical cell
@@ -727,10 +730,6 @@ func generatePodScheduleResult(
 				for _, gpu := range groupPhysicalPlacement[gpuNum][podIndex] {
 					pGpu := gpu.(*PhysicalCell)
 					if victimGroup := pGpu.GetAffinityGroup(); victimGroup != nil {
-						if pGpu.GetPriority() > opportunisticPriority {
-							panic(fmt.Sprintf("Try to preempt %v:%v which is used by guaranteed pod",
-								pGpu.nodes[0], pGpu.gpuIndices[0]))
-						}
 						// for any victim pod, gang-preempt all the other pods from the same affinity group
 						for _, victims := range victimGroup.allocatedPods {
 							for _, v := range victims {
@@ -945,7 +944,7 @@ func mapNonPreassignedCellToVirtual(
 // getLowestPriorityCell returns a cell with the lowest priority among the cells
 // whose priorities are lower than the given priority (p).
 func getLowestPriorityCell(cl CellList, p CellPriority) Cell {
-	lowestPriority := highestPriority
+	lowestPriority := maxGuaranteedPriority
 	var lowestPriorityCell Cell
 	for _, c := range cl {
 		pp := c.GetPriority()

@@ -1,0 +1,12 @@
+{
+  "username": "test-user",
+  "grouplist": ["admingroup"],
+  "email": "test-user@microsoft.com",
+  "extension": {},
+  "admin": true,
+  "virtualCluster": ["default", "VC1", "VC2"],
+  "storageConfig": [
+    "STORAGE_NFS",
+    "STORAGE_TEST"
+  ]
+}

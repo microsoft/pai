@@ -1,0 +1,21 @@
+[TYPECHECK]
+ignored-classes=responses
+
+[SETTINGS]
+max-args=8
+
+[FORMAT]
+max-line-length=130
+
+[MASTER]
+init-hook="from pylint.config import find_pylintrc;\
+           import os, sys;\
+           sys.path.append(os.path.join(os.path.dirname(find_pylintrc()), './src/init.d'));\
+           sys.path.append(os.path.join(os.path.dirname(find_pylintrc()), './src/plugins'));"
+
+# Disable docstring check
+disable=C0111
+
+[BASIC]
+# Good variable names which should always be accepted, separated by a comma
+good-names=i,j,k,f

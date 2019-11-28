@@ -1,0 +1,13 @@
+[
+  {
+    "spn": "samba_test",
+    "type": "samba",
+    "data": {
+      "address": "10.151.41.14",
+      "rootPath": "/data/share/drbdha",
+      "userName": "user",
+      "password": "password",
+      "domain": "domain"
+    }
+  }
+]
