@@ -115,13 +115,6 @@ const JobWizard = ({ setYamlText, history }) => {
     fileReader.readAsText(files[0]);
   };
 
-  useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    if (params.get('op') === 'resubmit') {
-      history.replace('/general');
-    }
-  }, []);
-
   return (
     <Card style={{ height: '90%', margin: `${spacing.l2}` }}>
       <Stack horizontalAlign='center' padding={100} gap={100}>
