@@ -335,7 +335,7 @@ var casesThatShouldFail = [][]string{
 	{"pod10"}, {"pod11", "pod12"}, {"pod13"}, {"pod14"}, {"pod15"},
 }
 
-var casesThatShouldDowngrade = []string{
+var casesThatShouldBeLazyPreempted = []string{
 	"pod8", "pod9", "pod20", "pod21", "pod24",
 }
 
@@ -507,11 +507,11 @@ func testReconfiguration(t *testing.T, sConfig *api.Config) {
 	for _, pod := range allocatedPods {
 		h.AddAllocatedPod(pod)
 	}
-	for _, podName := range casesThatShouldDowngrade {
+	for _, podName := range casesThatShouldBeLazyPreempted {
 		pod := allPods[podName]
 		g := h.allocatedAffinityGroups[pss[pod.UID].AffinityGroup.Name]
 		if g.virtualGpuPlacement != nil {
-			t.Errorf("Group %v is expected to be downgraded, but not", g.name)
+			t.Errorf("Group %v is expected to be lazy preempted, but not", g.name)
 		}
 	}
 	testDeleteAllocatedPods(t, h)

@@ -37,11 +37,12 @@ type (
 )
 
 type schedulingRequest struct {
-	vc            api.VirtualClusterName
-	reservationId api.ReservationId
-	chain         CellChain
-	affinityGroup map[int32]int32 // gpu number -> pod number
-	priority      CellPriority
+	vc                   api.VirtualClusterName
+	reservationId        api.ReservationId
+	chain                CellChain
+	affinityGroupName    string
+	affinityGroupPodNums map[int32]int32 // gpu number -> pod number
+	priority             CellPriority
 }
 
 // CellList is a list of cells at a certain level of a chain.
@@ -109,6 +110,7 @@ type AlgoAffinityGroup struct {
 	allocatedPods        map[int32][]*core.Pod // GpuNum -> a list of allocated pods and node addresses
 	physicalGpuPlacement map[int32][]CellList  // GpuNum -> a list of pods -> a list of physical GPUs of each pod
 	virtualGpuPlacement  map[int32][]CellList  // GpuNum -> a list of pods -> a list of virtual GPUs of each pod
+	lazyPreemptionStatus *api.LazyPreemptionStatus
 }
 
 func newAlgoAffinityGroup(g *api.AffinityGroupSpec, lazyPreemptionEnable bool) *AlgoAffinityGroup {
@@ -133,4 +135,11 @@ func newAlgoAffinityGroup(g *api.AffinityGroupSpec, lazyPreemptionEnable bool) *
 		}
 	}
 	return group
+}
+
+func (aag *AlgoAffinityGroup) ToAffinityGroup() api.AffinityGroup {
+	ag := api.AffinityGroup{}
+	ag.Name = aag.name
+	ag.Status.LazyPreemptionStatus = aag.lazyPreemptionStatus
+	return ag
 }

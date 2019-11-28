@@ -176,7 +176,12 @@ func NewHivedScheduler() *HivedScheduler {
 			FilterHandler:  s.filterRoutine,
 			BindHandler:    s.bindRoutine,
 			PreemptHandler: s.preemptRoutine,
-		})
+		},
+		internal.InspectHandlers{
+			GetAffinityGroupsHandler: s.getAffinityGroups,
+			GetAffinityGroupHandler:  s.getAffinityGroup,
+		},
+	)
 
 	return s
 }
@@ -640,4 +645,12 @@ func (s *HivedScheduler) preemptRoutine(args ei.ExtenderPreemptionArgs) *ei.Exte
 	// The Pod should keep on waiting for preemptable or free resource to appear,
 	// so do not preempt any victim.
 	return &ei.ExtenderPreemptionResult{}
+}
+
+func (s *HivedScheduler) getAffinityGroups() si.AffinityGroupList {
+	return s.schedulerAlgorithm.GetAffinityGroups()
+}
+
+func (s *HivedScheduler) getAffinityGroup(name string) si.AffinityGroup {
+	return s.schedulerAlgorithm.GetAffinityGroup(name)
 }
