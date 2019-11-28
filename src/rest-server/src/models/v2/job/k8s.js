@@ -326,6 +326,8 @@ const generateTaskRole = (frameworkName, taskRole, labels, config, storageConfig
     retryPolicy.maxRetryCount = config.taskRoles[taskRole].taskRetryCount || 0;
   }
 
+  const storageConfig = await userModel.getUserStorageConfigs(labels.userName);
+
   const frameworkTaskRole = {
     name: convertName(taskRole),
     taskNumber: config.taskRoles[taskRole].instances || 1,
@@ -571,7 +573,15 @@ const generateFrameworkDescription = (frameworkName, virtualCluster, config, raw
   let totalGpuNumber = 0;
   for (let taskRole of Object.keys(config.taskRoles)) {
     totalGpuNumber += config.taskRoles[taskRole].resourcePerInstance.gpu * config.taskRoles[taskRole].instances;
+<<<<<<< HEAD
     const taskRoleDescription = generateTaskRole(frameworkName, taskRole, frameworkLabels, config, storageConfig);
+=======
+<<<<<<< HEAD
+    const taskRoleDescription = generateTaskRole(frameworkName, taskRole, frameworkLabels, config, userToken);
+=======
+    const taskRoleDescription = await generateTaskRole(taskRole, frameworkLabels, config);
+>>>>>>> change to use k8s secret
+>>>>>>> change to use k8s secret
     taskRoleDescription.task.pod.spec.priorityClassName = `${encodeName(frameworkName)}-priority`;
     taskRoleDescription.task.pod.spec.containers[0].env.push(...envlist.concat([
       {
@@ -835,8 +845,12 @@ const put = async (frameworkName, config, rawConfig) => {
     throw createError('Bad Request', 'BadConfigurationError', 'Job name too long, please try a shorter one.');
   }
 
+<<<<<<< HEAD
   const storageConfig = await userModel.getUserStorageConfigs(userName);
   const frameworkDescription = generateFrameworkDescription(frameworkName, virtualCluster, config, rawConfig, storageConfig);
+=======
+  const frameworkDescription = await generateFrameworkDescription(frameworkName, virtualCluster, config, rawConfig);
+>>>>>>> change to use k8s secret
 
   // generate image pull secret
   const auths = Object.values(config.prerequisites.dockerimage)

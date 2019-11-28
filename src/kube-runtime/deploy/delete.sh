@@ -43,4 +43,8 @@ if kubectl get rrolebinding | grep -q "runtime-storage-role-binding"; then
     kubectl delete rolebinding storage-role-binding || exit $?
 fi
 
+if kubectl get rrolebinding | grep -q "storage-role-binding"; then
+    kubectl delete rolebinding storage-role-binding || exit $?
+fi
+
 popd > /dev/null
