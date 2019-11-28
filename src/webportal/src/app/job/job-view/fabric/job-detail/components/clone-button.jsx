@@ -34,7 +34,7 @@ const CloneButton = ({ rawJobConfig, namespace, jobName }) => {
     // default
     if (isNil(pluginId)) {
       if (isJobV2(rawJobConfig)) {
-        return [`/submit.html?${qs.stringify(query)}`, undefined];
+        return [`/submit.html?${qs.stringify(query)}#/general`, undefined];
       } else {
         return [`/submit_v1.html?${qs.stringify(query)}`, undefined];
       }
@@ -52,7 +52,9 @@ const CloneButton = ({ rawJobConfig, namespace, jobName }) => {
             alert(
               `The job was submitted by ${pluginId}, but it is not installed. Will use default submission page instead`,
             );
-            window.location.href = `/submit.html?${qs.stringify(query)}`;
+            window.location.href = `/submit.html?${qs.stringify(
+              query,
+            )}#/general`;
           },
         ];
       } else {
