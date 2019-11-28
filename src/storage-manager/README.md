@@ -44,10 +44,10 @@ Samba default share paths:
 
 | Share path | Acctully path in the storage machine |
 | --- | --- |
-| /root | /share/pai |
-| /users  | /share/pai/users |
-| /data | /share/pai/data |
-| /home  | /share/pai/users/${user_name} |
+| `/root` | `/share/pai` |
+| `/users`  | `/share/pai/users` |
+| `/data` | `/share/pai/data` |
+| `/home` | `/share/pai/users/${user_name}` |
 
 
 ---
