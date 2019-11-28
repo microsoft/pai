@@ -1,5 +1,33 @@
 # OpenPAI Release Note
 
+## Nov 2019 (version 0.16.0)
+
+Welcome to the Nov 2019 release of OpenPAI. There are a number of updates in this version that we hope you will like, some of the key highlights include:
+
+- Kubespray - Deploy Kubernetes with kubespray
+    - Kubernetes Deployment, GPU drivers installation, Nvidia docker runtime [#3757](https://github.com/microsoft/pai/pull/3757), [#3842](https://github.com/microsoft/pai/pull/3842), [#3873](https://github.com/microsoft/pai/pull/3873)
+    - Add new worker node [#3846](https://github.com/microsoft/pai/pull/3846)
+    - Clean up cluster environment where OpenPAI is deployed before [#3879](https://github.com/microsoft/pai/pull/3879), [#3883](https://github.com/microsoft/pai/pull/3883)
+    - Ansible playbooks to uninstall GPU drivers installed by apt [#3899](https://github.com/microsoft/pai/pull/3899)
+
+- OpenPAI on RBAC enabled kubernetes cluster
+    - RBAC for Prometheus [#3716](https://github.com/microsoft/pai/pull/3716) 
+    - RBAC for framework-controller, hived-scheduler, kube-runtime [#3709](https://github.com/microsoft/pai/pull/3709), [#3739](https://github.com/microsoft/pai/pull/3739)
+    - RBAC for watchdog [#3721](https://github.com/microsoft/pai/pull/3721)
+    - RBAC for rest-server [#3719](https://github.com/microsoft/pai/pull/3719), [#3433](https://github.com/microsoft/pai/pull/3433), [#3750](https://github.com/microsoft/pai/pull/3750)
+    
+- HiveD
+    -  0
+
+- [ Job history ]()
+
+- User profile page [#3804](https://github.com/microsoft/pai/pull/3804), [#3853](https://github.com/microsoft/pai/pull/3853), [#3884](https://github.com/microsoft/pai/pull/3884)
+
+- Token API
+    - Apllication Token API [#3774](https://github.com/microsoft/pai/pull/3774)
+    - Revoke browser tokens when changing password/logout [#3834](https://github.com/microsoft/pai/pull/3834), [#3835](https://github.com/microsoft/pai/pull/3835)
+    
+
 ## July 2019 (version 0.14.0)
 
 Welcome to the July 2019 release of OpenPAI. There are a number of updates in this version that we hope you will like, some of the key highlights include:
