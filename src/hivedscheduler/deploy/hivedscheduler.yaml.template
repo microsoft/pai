@@ -42,6 +42,7 @@ spec:
         {%- endif %}
           "--config=/hivedscheduler-config/config.yaml",
           "--feature-gates=PodPriority=true",
+          "--leader-elect=false",
           "--v=4"]
         volumeMounts:
         - name: hivedscheduler-config

@@ -23,7 +23,7 @@ data:
           name: hivedscheduler-config
           namespace: default
     leaderElection:
-      leaderElect: true
+      leaderElect: false
       lockObjectName: hivedscheduler
       lockObjectNamespace: default
   policy.cfg : |
@@ -128,6 +128,7 @@ spec:
           "--master=http://10.151.41.15:8080",
           "--config=/hivedscheduler-config/config.yaml",
           "--feature-gates=PodPriority=true",
+          "--leader-elect=false",
           "--v=4"]
         volumeMounts:
         - name: hivedscheduler-config

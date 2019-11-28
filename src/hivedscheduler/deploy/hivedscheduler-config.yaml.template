@@ -31,7 +31,7 @@ data:
           name: hivedscheduler-config
           namespace: default
     leaderElection:
-      leaderElect: true
+      leaderElect: false
       lockObjectName: hivedscheduler
       lockObjectNamespace: default
   policy.cfg : |
