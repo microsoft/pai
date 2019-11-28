@@ -37,12 +37,12 @@ type (
 )
 
 type schedulingRequest struct {
-	vc                api.VirtualClusterName
-	reservationId     api.ReservationId
-	chain             CellChain
-	affinityGroupName string
-	affinityGroup     map[int32]int32 // gpu number -> pod number
-	priority          CellPriority
+	vc                   api.VirtualClusterName
+	reservationId        api.ReservationId
+	chain                CellChain
+	affinityGroupName    string
+	affinityGroupPodNums map[int32]int32 // gpu number -> pod number
+	priority             CellPriority
 }
 
 // CellList is a list of cells at a certain level of a chain.

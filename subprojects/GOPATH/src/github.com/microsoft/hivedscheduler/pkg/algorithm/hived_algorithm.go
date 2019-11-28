@@ -369,15 +369,15 @@ func (h *HivedAlgorithm) scheduleNewAffinityGroup(
 
 	priority = CellPriority(s.Priority)
 	sr := schedulingRequest{
-		vc:                s.VirtualCluster,
-		reservationId:     s.ReservationId,
-		priority:          priority,
-		affinityGroupName: s.AffinityGroup.Name,
-		affinityGroup:     map[int32]int32{},
+		vc:                   s.VirtualCluster,
+		reservationId:        s.ReservationId,
+		priority:             priority,
+		affinityGroupName:    s.AffinityGroup.Name,
+		affinityGroupPodNums: map[int32]int32{},
 	}
 	for _, m := range s.AffinityGroup.Members {
 		// we will merge group members with same GPU number
-		sr.affinityGroup[m.GpuNumber] += m.PodNumber
+		sr.affinityGroupPodNums[m.GpuNumber] += m.PodNumber
 	}
 	h.validateSchedulingRequest(sr, pod)
 	if sr.reservationId != "" {
@@ -480,9 +480,9 @@ func (h *HivedAlgorithm) scheduleGuaranteedAffinityGroup(
 		return nil, nil
 	}
 	// map the vc placement to the physical cluster
-	gpuNums := make([]int32, len(sr.affinityGroup))
+	gpuNums := make([]int32, len(sr.affinityGroupPodNums))
 	i := 0
-	for n := range sr.affinityGroup {
+	for n := range sr.affinityGroupPodNums {
 		gpuNums[i] = n
 		i++
 	}
@@ -534,7 +534,7 @@ func (h *HivedAlgorithm) scheduleOpportunisticAffinityGroup(
 	sr schedulingRequest,
 	suggestedNodeSet common.Set) map[int32][]CellList {
 
-	return h.opportunisticSchedulers[sr.chain].Schedule(sr.affinityGroup, opportunisticPriority, suggestedNodeSet)
+	return h.opportunisticSchedulers[sr.chain].Schedule(sr.affinityGroupPodNums, opportunisticPriority, suggestedNodeSet)
 }
 
 // getTmpFreeCellList returns a copy of the free cell list.
