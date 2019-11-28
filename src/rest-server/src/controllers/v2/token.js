@@ -64,11 +64,13 @@ const getAAD = async (req, res, next) => {
     const userInfo = await userModel.getUser(username);
     const admin = await userModel.checkAdmin(username);
     const token = await tokenModel.create(username);
+    const fromURI = req.fromURI;
     return res.redirect(req.returnBackURI + '?'+ querystring.stringify({
       user: userInfo.username,
       token: token,
       admin: admin,
       hasGitHubPAT: userInfo.extension.githubPAT,
+      from: fromURI,
     }));
   } catch (error) {
     return next(createError.unknown(error));
