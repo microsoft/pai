@@ -1,7 +1,7 @@
 # Setup hivedscheduler by "kubectl apply -f deploy.yaml"
 # Notes:
 # 1. This will create an additional K8S default scheduler which pointers to
-#    hivedscheduler serving at http://localhost:9096/v1/extender. So, Pod should
+#    hivedscheduler serving at http://localhost:30096/v1/extender. So, Pod should
 #    specify schedulerName to be hivedscheduler.
 #    You can also adjust the existing K8S default scheduler without creating the
 #    additional one. So, Pod does not have to specify schedulerName to be
@@ -32,7 +32,7 @@ data:
       "apiVersion": "v1",
       "extenders": [
         {
-          "urlPrefix": "http://localhost:9096/v1/extender",
+          "urlPrefix": "http://localhost:30096/v1/extender",
           "filterVerb": "filter",
           "preemptVerb": "preempt",
           "bindVerb": "bind",
@@ -50,6 +50,7 @@ data:
       ]
     }
   hivedscheduler.yaml: |
+    webServerAddress: ":30096"
     kubeApiServerAddress: http://10.151.41.15:8080
     physicalCluster:
       cellTypes:
@@ -147,3 +148,17 @@ spec:
       - name: hivedscheduler-config
         configMap:
           name: hivedscheduler-config
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: hivedscheduler-service
+spec:
+  selector:
+    app: hivedscheduler
+  type: NodePort
+  ports:
+  - protocol: TCP
+    targetPort: 30096
+    port: 30096
+    nodePort: 30096

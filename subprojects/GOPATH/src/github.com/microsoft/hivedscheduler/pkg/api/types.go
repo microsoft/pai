@@ -24,6 +24,7 @@ package api
 
 import (
 	"fmt"
+	meta "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -132,4 +133,29 @@ func NewWebServerError(code int, message string) *WebServerError {
 
 func (err *WebServerError) Error() string {
 	return fmt.Sprintf("Code: %v, Message: %v", err.Code, err.Message)
+}
+
+// WebServer Exposed Objects: Align with K8S Objects
+type ObjectMeta struct {
+	Name string `json:"name"`
+}
+
+type AffinityGroupList struct {
+	Items []AffinityGroup `json:"items"`
+}
+
+type AffinityGroup struct {
+	ObjectMeta `json:"metadata"`
+	Status     AffinityGroupStatus `json:"status"`
+}
+
+type AffinityGroupStatus struct {
+	LazyPreemptionStatus *LazyPreemptionStatus `json:"lazyPreemptionStatus"`
+}
+
+type LazyPreemptionStatus struct {
+	// The AffinityGroup who has lazy preempted it.
+	Preemptor string `json:"preemptor"`
+	// It was lazy preempted at PreemptionTime.
+	PreemptionTime meta.Time `json:"preemptionTime"`
 }
