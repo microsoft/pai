@@ -18,7 +18,7 @@
 apiVersion: v1
 kind: ServiceAccount
 metadata:
-  name: frameworkbarrier-account
+  name: runtime-account
   namespace: default
 ---
 apiVersion: rbac.authorization.k8s.io/v1
@@ -31,15 +31,40 @@ rules:
   verbs: ["get", "watch", "list"]
 ---
 apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: storage-role
+  namespace: pai-storage
+rules:
+- apiGroups: [""]
+  resources: ["secrets"]
+  resourceNames: ["storage-server", "storage-config"]
+  verbs: ["get", "watch", "list"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
   name: frameworkbarrier-role-binding
   namespace: default
 subjects:
   - kind: ServiceAccount
-    name: frameworkbarrier-account
+    name: runtime-account
     namespace: default
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
   name: frameworkbarrier-role
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: storage-role-binding
+  namespace: default
+subjects:
+  - kind: ServiceAccount
+    name: runtime-account
+    namespace: default
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: storage-role

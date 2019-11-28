@@ -1,5 +1,3 @@
-#!/bin/bash
-
 # Copyright (c) Microsoft Corporation
 # All rights reserved.
 #
@@ -16,31 +14,3 @@
 # NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
-pushd $(dirname "$0") > /dev/null
-
-if kubectl get configmap | grep -q "runtime-exit-spec-configuration"; then
-  kubectl delete configmap runtime-exit-spec-configuration || exit $?
-fi
-
-if kubectl get serviceaccount | grep -q "runtime-account"; then
-    kubectl delete serviceaccount frameworkbarrier-account || exit $?
-fi
-
-if kubectl get clusterrole | grep -q "frameworkbarrier-role"; then
-    kubectl delete clusterrole frameworkbarrier-role || exit $?
-fi
-
-if kubectl get role | grep -q "storage-role"; then
-    kubectl delete role storage-role || exit $?
-fi
-
-if kubectl get clusterrolebinding | grep -q "frameworkbarrier-role-binding"; then
-    kubectl delete clusterrolebinding frameworkbarrier-role-binding || exit $?
-fi
-
-if kubectl get rrolebinding | grep -q "storage-role-binding"; then
-    kubectl delete rolebinding storage-role-binding || exit $?
-fi
-
-popd > /dev/null
