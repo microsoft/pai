@@ -91,7 +91,9 @@ const (
 	BindPath     = ExtenderPath + "/bind"
 	PreemptPath  = ExtenderPath + "/preempt"
 
-	// Scheduler Inspect API
+	// Scheduler Inspect API: API to inspect current scheduling status
+	// Notes:
+	// 1. Both Binding and Bound AffinityGroups/Pods are considered as Allocated.
 	InspectPath = VersionPath + "/inspect"
 	// Inspect current allocated AffinityGroup(s)
 	AffinityGroupsPath = InspectPath + "/affinitygroups/"
