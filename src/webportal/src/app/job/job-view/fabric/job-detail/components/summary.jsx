@@ -375,7 +375,7 @@ export default class Summary extends React.Component {
 
     const params = new URLSearchParams(window.location.search);
     const namespace = params.get('username');
-    const jobName = params.get('jobname');
+    const jobName = params.get('jobName');
 
     return (
       <div className={className}>
@@ -502,7 +502,7 @@ export default class Summary extends React.Component {
               <div className={c(t.gray, FontClassNames.medium)}>Retries</div>
               {this.checkRetryLink() ? (
                 <Link
-                  href={`job-retry.html?username=${namespace}&jobname=${jobName}`}
+                  href={`job-retry.html?username=${namespace}&jobName=${jobName}`}
                 >
                   <div className={c(t.mt3, FontClassNames.mediumPlus)}>
                     {jobInfo.jobStatus.retries}
@@ -574,7 +574,7 @@ export default class Summary extends React.Component {
               <div className={c(t.flex)}>
                 <Link
                   styles={{ root: [FontClassNames.mediumPlus] }}
-                  href={`job-retry.html?username=${namespace}&jobname=${jobName}`}
+                  href={`job-retry.html?username=${namespace}&jobName=${jobName}`}
                   disabled={!this.checkRetryLink()}
                   target='_blank'
                 >
