@@ -31,7 +31,7 @@ data:
           name: hivedscheduler-config
           namespace: default
     leaderElection:
-      leaderElect: true
+      leaderElect: false
       lockObjectName: hivedscheduler
       lockObjectNamespace: default
   policy.cfg : |
@@ -40,7 +40,7 @@ data:
       "apiVersion": "v1",
       "extenders": [
         {
-          "urlPrefix": "http://localhost:9096/v1/extender",
+          "urlPrefix": "http://localhost:30096/v1/extender",
           "filterVerb": "filter",
           "preemptVerb": "preempt",
           "bindVerb": "bind",
@@ -58,6 +58,7 @@ data:
       ]
     }
   hivedscheduler.yaml: |
+    webServerAddress: ":30096"
   {%- if cluster_cfg['cluster']['common']['k8s-rbac'] != 'true' %}
     kubeApiServerAddress: "{{ cluster_cfg['layout']['kubernetes']['api-servers-url'] }}"
   {%- endif %}

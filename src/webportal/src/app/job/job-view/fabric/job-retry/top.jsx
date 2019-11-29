@@ -20,14 +20,14 @@ import { Stack, ActionButton } from 'office-ui-fabric-react';
 
 const params = new URLSearchParams(window.location.search);
 const username = params.get('username');
-const jobname = params.get('jobname');
+const jobName = params.get('jobName');
 
 const Top = () => (
   <Stack>
     <div>
       <ActionButton
         iconProps={{ iconName: 'revToggleKey' }}
-        href={`job-detail.html?username=${username}&jobname=${jobname}`}
+        href={`job-detail.html?username=${username}&jobName=${jobName}`}
       >
         Back to Job Detail
       </ActionButton>

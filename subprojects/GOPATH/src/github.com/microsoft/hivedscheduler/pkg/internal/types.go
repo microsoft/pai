@@ -45,6 +45,11 @@ type ExtenderHandlers struct {
 	PreemptHandler func(args ei.ExtenderPreemptionArgs) *ei.ExtenderPreemptionResult
 }
 
+type InspectHandlers struct {
+	GetAffinityGroupsHandler func() si.AffinityGroupList
+	GetAffinityGroupHandler  func(name string) si.AffinityGroup
+}
+
 // SchedulerAlgorithm is used to make the pod schedule decision based on its whole
 // cluster scheduling view constructed from its Add/Update/Delete callbacks.
 // Notes:
@@ -73,6 +78,10 @@ type SchedulerAlgorithm interface {
 	// Allocated Pod includes both PodBound and PodBinding Pods.
 	AddAllocatedPod(pod *core.Pod)
 	DeleteAllocatedPod(pod *core.Pod)
+
+	// Expose current scheduling status
+	GetAffinityGroups() si.AffinityGroupList
+	GetAffinityGroup(name string) si.AffinityGroup
 }
 
 // Notes:

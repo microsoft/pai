@@ -24,19 +24,26 @@ import { isClonable, isJobV2 } from '../util';
 
 const CloneButton = ({ rawJobConfig, namespace, jobName }) => {
   const [href, onClick] = useMemo(() => {
-    const query = {
+    // TODO: align same format of jobname with each submit ways
+    const queryOld = {
       op: 'resubmit',
       type: 'job',
       user: namespace,
       jobname: jobName,
     };
+    const queryNew = {
+      op: 'resubmit',
+      type: 'job',
+      user: namespace,
+      jobName: jobName,
+    };
     const pluginId = get(rawJobConfig, 'extras.submitFrom');
     // default
     if (isNil(pluginId)) {
       if (isJobV2(rawJobConfig)) {
-        return [`/submit.html?${qs.stringify(query)}#/general`, undefined];
+        return [`/submit.html?${qs.stringify(queryNew)}`, undefined];
       } else {
-        return [`/submit_v1.html?${qs.stringify(query)}`, undefined];
+        return [`/submit_v1.html?${qs.stringify(queryNew)}`, undefined];
       }
     }
     // plugin
@@ -52,9 +59,7 @@ const CloneButton = ({ rawJobConfig, namespace, jobName }) => {
             alert(
               `The job was submitted by ${pluginId}, but it is not installed. Will use default submission page instead`,
             );
-            window.location.href = `/submit.html?${qs.stringify(
-              query,
-            )}#/general`;
+            window.location.href = `/submit.html?${qs.stringify(queryNew)}`;
           },
         ];
       } else {
@@ -72,7 +77,7 @@ const CloneButton = ({ rawJobConfig, namespace, jobName }) => {
     // plugin found
     return [
       `/plugin.html?${qs.stringify({
-        ...query,
+        ...queryOld,
         index: pluginIndex,
       })}`,
       undefined,

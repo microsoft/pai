@@ -33,6 +33,7 @@
   "dependencies": {
     "@hapi/joi": "~15.1.0",
     "@loadable/component": "^5.10.3",
+    "@svgr/webpack": "^4.3.3",
     "@webcomponents/custom-elements": "^1.2.1",
     "admin-lte": "~2.4.2",
     "app-root-path": "~2.0.1",
