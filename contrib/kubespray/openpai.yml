@@ -90,7 +90,7 @@ dns_min_replicas: 1
 
 # Netchecker
 ## Deploy netchecker app to verify DNS resolve as an HTTP service
-deploy_netchecker: true
+deploy_netchecker: false
 # netchecker_port: 31081
 # agent_report_interval: 15
 # netcheck_namespace: default
