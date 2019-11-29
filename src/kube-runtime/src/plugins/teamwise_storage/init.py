@@ -39,7 +39,7 @@ def main():
 
     try:
         command_generator = StorageCommandGenerator()
-    except RuntimeError:
+    except Exception:  #pylint: disable=broad-except
         LOGGER.exception("Failed to generate storage commands")
         sys.exit(1)
     pre_script_commands = command_generator.generate_plugin_commands(

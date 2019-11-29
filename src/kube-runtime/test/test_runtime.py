@@ -21,7 +21,6 @@ import sys
 import unittest
 from unittest import mock
 
-import responses
 import yaml
 
 #pylint: disable=wrong-import-position
@@ -38,12 +37,17 @@ import teamwise_storage.init as storage_plugin
 PACKAGE_DIRECTORY_COM = os.path.dirname(os.path.abspath(__file__))
 
 
-class TestRuntimeInitializer(unittest.TestCase):
+class TestRuntime(unittest.TestCase):
     def setUp(self):
         try:
             os.chdir(PACKAGE_DIRECTORY_COM)
         except OSError:
             pass
+        # pylint: disable=line-too-long
+        sotrage_command_generator.USER_NAME = "test-user"
+        sotrage_command_generator.JOB_NAME = "job"
+        sotrage_command_generator.STORAGE_CONFIGS = "[\"STORAGE_NFS\", \"STORAGE_TEST\", \"STORAGE_SAMBA\", \"STORAGE_AZURE_FILE\", \"STORAGE_AZURE_BLOB\"]"
+        sotrage_command_generator.KUBE_APISERVER_ADDRESS = "http://api_server_url:8080"
 
     def test_cmd_plugin(self):
         job_path = "cmd_test_job.yaml"
@@ -85,42 +89,29 @@ class TestRuntimeInitializer(unittest.TestCase):
         self.assertEqual(
             pruned_config["extras"]["com.microsoft.pai.runtimeplugin"], [])
 
-    def get_mocked_sotrage_config(self, names):
-        storage_configs = self.load_json_file("storage_test_config.json")
-        return list(
-            filter(lambda config: config["name"] in names, storage_configs))
-
     def load_json_file(self, file_name):
         with open(file_name) as f:
             return json.load(f)
 
-    @responses.activate
-    def test_teamwise_nfs_storage_plugin(self):
-        storage_plugin.REST_API_PREFIX = "http://rest-server"
-        storage_plugin.USER_NAME = "test-user"
-        storage_plugin.USER_TOKEN = "token"
-        storage_plugin.JOB_NAME = "job"
+    def get_secret(self, config_name, _):
+        secret = mock.Mock()
+        if config_name == "storage-config":
+            resp = self.load_json_file("storage_test_config.json")
+            secret.data = resp["data"]
+            return secret
+        if config_name == "storage-server":
+            resp = self.load_json_file("storage_test_server.json")
+            secret.data = resp["data"]
+            return secret
+
+    @mock.patch("kubernetes.client.CoreV1Api.read_namespaced_secret")
+    def test_teamwise_nfs_storage_plugin(self, mock_get_secrets):
+        mock_get_secrets.side_effect = self.get_secret
+
         parameters = {"storageConfigNames": ["STORAGE_NFS"]}
-
-        user_config = self.load_json_file("user_test_config.json")
-        storage_config = self.get_mocked_sotrage_config(["STORAGE_NFS"])
-        server_config = self.load_json_file("storage_server_test_config.json")
-
-        responses.add(responses.GET,
-                      "http://rest-server/api/v2/user/test-user",
-                      json=user_config,
-                      status=200)
-        responses.add(
-            responses.GET,
-            "http://rest-server/api/v2/storage/config/?names=STORAGE_NFS",
-            json=storage_config,
-            status=200)
-        responses.add(responses.GET,
-                      "http://rest-server/api/v2/storage/server/?names=SRV_BJ",
-                      json=server_config,
-                      status=200)
-
-        storage_commands = storage_plugin.generate_plugin_commands(parameters)
+        command_generator = sotrage_command_generator.StorageCommandGenerator()
+        storage_commands = command_generator.generate_plugin_commands(
+            parameters)
 
         expect_commands = [
             "apt-get update", "umask 000", "mkdir --parents /tmp_SRV_BJ_root",
@@ -136,40 +127,12 @@ class TestRuntimeInitializer(unittest.TestCase):
         ]
         assert storage_commands == expect_commands
 
-    @responses.activate
-    def test_default_storage_plugin(self):
-        storage_plugin.REST_API_PREFIX = "http://rest-server"
-        storage_plugin.USER_NAME = "test-user"
-        storage_plugin.USER_TOKEN = "token"
-        storage_plugin.JOB_NAME = "job"
-
-        user_config = self.load_json_file(
-            "user_default_storage_test_config.json")
-        storage_config = self.get_mocked_sotrage_config(["STORAGE_NFS"])
-        storage_configs = self.get_mocked_sotrage_config(
-            ["STORAGE_NFS", "STORAGE_TEST"])
-        server_config = self.load_json_file("storage_server_test_config.json")
-
-        responses.add(responses.GET,
-                      "http://rest-server/api/v2/user/test-user",
-                      json=user_config,
-                      status=200)
-        responses.add(
-            responses.GET,
-            "http://rest-server/api/v2/storage/config/?names=STORAGE_NFS&names=STORAGE_TEST",
-            json=storage_configs,
-            status=200)
-        responses.add(
-            responses.GET,
-            "http://rest-server/api/v2/storage/config/?names=STORAGE_NFS",
-            json=storage_config,
-            status=200)
-        responses.add(responses.GET,
-                      "http://rest-server/api/v2/storage/server/?names=SRV_BJ",
-                      json=server_config,
-                      status=200)
-
-        default_storage_commands = storage_plugin.generate_plugin_commands([])
+    @mock.patch("kubernetes.client.CoreV1Api.read_namespaced_secret")
+    def test_default_storage_plugin(self, mock_get_secrets):
+        mock_get_secrets.side_effect = self.get_secret
+        command_generator = sotrage_command_generator.StorageCommandGenerator()
+        default_storage_commands = command_generator.generate_plugin_commands(
+            [])
 
         expect_commands = [
             "apt-get update", "umask 000", "mkdir --parents /tmp_SRV_BJ_root",
@@ -185,35 +148,13 @@ class TestRuntimeInitializer(unittest.TestCase):
         ]
         assert default_storage_commands == expect_commands
 
-    @responses.activate
-    def test_teamwise_samba_storage_plugin(self):
-        storage_plugin.REST_API_PREFIX = "http://rest-server"
-        storage_plugin.USER_NAME = "test-user"
-        storage_plugin.USER_TOKEN = "token"
-        storage_plugin.JOB_NAME = "job"
+    @mock.patch("kubernetes.client.CoreV1Api.read_namespaced_secret")
+    def test_teamwise_samba_storage_plugin(self, mock_get_secrets):
         parameters = {"storageConfigNames": ["STORAGE_SAMBA"]}
-
-        user_config = self.load_json_file("user_test_config.json")
-        storage_config = self.load_json_file("storage_samba_test_config.json")
-        server_config = self.load_json_file(
-            "storage_samba_test_server_config.json")
-
-        responses.add(responses.GET,
-                      "http://rest-server/api/v2/user/test-user",
-                      json=user_config,
-                      status=200)
-        responses.add(
-            responses.GET,
-            "http://rest-server/api/v2/storage/config/?names=STORAGE_SAMBA",
-            json=storage_config,
-            status=200)
-        responses.add(
-            responses.GET,
-            "http://rest-server/api/v2/storage/server/?names=samba_test",
-            json=server_config,
-            status=200)
-
-        storage_commands = storage_plugin.generate_plugin_commands(parameters)
+        mock_get_secrets.side_effect = self.get_secret
+        command_generator = sotrage_command_generator.StorageCommandGenerator()
+        storage_commands = command_generator.generate_plugin_commands(
+            parameters)
 
         expect_commands = [
             "apt-get update", "umask 000",
@@ -229,36 +170,13 @@ class TestRuntimeInitializer(unittest.TestCase):
         ]
         assert storage_commands == expect_commands
 
-    @responses.activate
-    def test_teamwise_azure_file_storage_plugin(self):
-        storage_plugin.REST_API_PREFIX = "http://rest-server"
-        storage_plugin.USER_NAME = "test-user"
-        storage_plugin.USER_TOKEN = "token"
-        storage_plugin.JOB_NAME = "job"
+    @mock.patch("kubernetes.client.CoreV1Api.read_namespaced_secret")
+    def test_teamwise_azure_file_storage_plugin(self, mock_get_secrets):
         parameters = {"storageConfigNames": ["STORAGE_AZURE_FILE"]}
-
-        user_config = self.load_json_file("user_test_config.json")
-        storage_config = self.load_json_file(
-            "storage_azure_file_test_config.json")
-        server_config = self.load_json_file(
-            "storage_azure_file_test_server_config.json")
-
-        responses.add(responses.GET,
-                      "http://rest-server/api/v2/user/test-user",
-                      json=user_config,
-                      status=200)
-        responses.add(
-            responses.GET,
-            "http://rest-server/api/v2/storage/config/?names=STORAGE_AZURE_FILE",
-            json=storage_config,
-            status=200)
-        responses.add(
-            responses.GET,
-            "http://rest-server/api/v2/storage/server/?names=azure_file_test",
-            json=server_config,
-            status=200)
-
-        storage_commands = storage_plugin.generate_plugin_commands(parameters)
+        mock_get_secrets.side_effect = self.get_secret
+        command_generator = sotrage_command_generator.StorageCommandGenerator()
+        storage_commands = command_generator.generate_plugin_commands(
+            parameters)
 
         expect_commands = [
             "apt-get update", "umask 000",
@@ -275,36 +193,13 @@ class TestRuntimeInitializer(unittest.TestCase):
         ]
         assert storage_commands == expect_commands
 
-    @responses.activate
-    def test_teamwise_azure_blob_storage_plugin(self):
-        storage_plugin.REST_API_PREFIX = "http://rest-server"
-        storage_plugin.USER_NAME = "test-user"
-        storage_plugin.USER_TOKEN = "token"
-        storage_plugin.JOB_NAME = "job"
+    @mock.patch("kubernetes.client.CoreV1Api.read_namespaced_secret")
+    def test_teamwise_azure_blob_storage_plugin(self, mock_get_secrets):
         parameters = {"storageConfigNames": ["STORAGE_AZURE_BLOB"]}
-
-        user_config = self.load_json_file("user_test_config.json")
-        storage_config = self.load_json_file(
-            "storage_azure_blob_test_config.json")
-        server_config = self.load_json_file(
-            "storage_azure_blob_test_server_config.json")
-
-        responses.add(responses.GET,
-                      "http://rest-server/api/v2/user/test-user",
-                      json=user_config,
-                      status=200)
-        responses.add(
-            responses.GET,
-            "http://rest-server/api/v2/storage/config/?names=STORAGE_AZURE_BLOB",
-            json=storage_config,
-            status=200)
-        responses.add(
-            responses.GET,
-            "http://rest-server/api/v2/storage/server/?names=azure_blob_test",
-            json=server_config,
-            status=200)
-
-        storage_commands = storage_plugin.generate_plugin_commands(parameters)
+        mock_get_secrets.side_effect = self.get_secret
+        command_generator = sotrage_command_generator.StorageCommandGenerator()
+        storage_commands = command_generator.generate_plugin_commands(
+            parameters)
 
         expect_commands = [
             "apt-get update", "umask 000",

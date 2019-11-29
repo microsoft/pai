@@ -1,6 +1,3 @@
-[TYPECHECK]
-ignored-classes=responses
-
 [SETTINGS]
 max-args=8
 
