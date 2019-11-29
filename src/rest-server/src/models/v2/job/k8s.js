@@ -348,7 +348,7 @@ const generateTaskRole = (frameworkName, taskRole, labels, config) => {
         spec: {
           privileged: false,
           restartPolicy: 'Never',
-          serviceAccountName: 'frameworkbarrier-account',
+          serviceAccountName: 'runtime-account',
           initContainers: [
             {
               name: 'init',

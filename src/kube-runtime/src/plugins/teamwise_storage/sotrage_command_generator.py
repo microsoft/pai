@@ -50,7 +50,7 @@ class StorageCommandGenerator:
             kube_config.load_incluster_config()
             self._api_client = None
 
-    def _get_storage_configs(self, storage_config_names):
+    def _get_storage_configs(self, storage_config_names) -> list:
         storage_config_secrets = kube_client.CoreV1Api(
             self._api_client).read_namespaced_secret("storage-config",
                                                      "pai-storage")
@@ -74,7 +74,7 @@ class StorageCommandGenerator:
             map(lambda config: config["name"],
                 filter(lambda config: config["default"], storage_configs)))
 
-    def _covert_secret_to_server_config(self, secret):
+    def _covert_secret_to_server_config(self, secret) -> dict:
         data = json.loads(base64.b64decode(secret).decode())
         return {"spn": data["spn"], "type": data["type"], "data": data}
 
@@ -111,7 +111,7 @@ class StorageCommandGenerator:
                 (conf for conf in servers_configs if conf["spn"] == spn), None)
             if not server_config:
                 LOGGER.error("Failed to get server config: %s", spn)
-                raise Exception("Generate mount commands failed")
+                raise RuntimeError("Generate mount commands failed")
 
             StorageHelper.validate_mount_point(mount_points, mount_infos)
 

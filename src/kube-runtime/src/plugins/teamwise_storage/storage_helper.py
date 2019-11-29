@@ -48,7 +48,7 @@ class StorageHelper():
         for mount_info in mount_infos:
             # Check duplicated mount points
             if mount_info["mountPoint"] in mount_points:
-                raise Exception(
+                raise RuntimeError(
                     "Mount point error! More than one mount point [" +
                     mount_info["mountPoint"] + "]!")
             mount_points.append(mount_info["mountPoint"])
@@ -79,7 +79,7 @@ class StorageHelper():
                                                        mount_point,
                                                        relative_path,
                                                        pre_mounted_dir, phrase)
-        raise Exception("Not supproted server type {}".format(server_type))
+        raise RuntimeError("Not supproted server type {}".format(server_type))
 
     def generate_make_tmp_folder_command(self, tmp_folder,
                                          mount_infos) -> list:
@@ -119,7 +119,7 @@ class StorageHelper():
                 "umount -l {}".format(mount_point),
                 "rm -r {}".format(mount_point)
             ]
-        raise Exception("Unsupported phrase {}".format(phrase))
+        raise RuntimeError("Unsupported phrase {}".format(phrase))
 
     def __get_samba_setup_commands(self, server_config, mount_point,
                                    relative_path, phrase) -> list:
@@ -136,8 +136,8 @@ class StorageHelper():
             if server_data["domain"]:
                 domain = ",domain={}".format(server_data["domain"])
             return [
-                "mount -t cifs //{}".format(server_data["address"]) +
-                rendered_path + " {}".format(mount_point) +
+                "mount -t cifs //{}{} {}".format(server_data["address"],
+                                                 rendered_path, mount_point) +
                 " -o vers=3.0,username={},password={}".format(
                     server_data["userName"], server_data["password"]) + domain
             ]
@@ -146,7 +146,7 @@ class StorageHelper():
                 "umount -l {}".format(mount_point),
                 "rm -r {}".format(mount_point)
             ]
-        raise Exception("Unsupported phrase {}".format(phrase))
+        raise RuntimeError("Unsupported phrase {}".format(phrase))
 
     def __get_azurefile_setup_commands(self, server_config, mount_point,
                                        relative_path, phrase) -> list:
@@ -193,7 +193,7 @@ class StorageHelper():
                 "umount -l {}".format(mount_point),
                 "rm -r {}".format(mount_point)
             ]
-        raise Exception("Unsupported phrase {}".format(phrase))
+        raise RuntimeError("Unsupported phrase {}".format(phrase))
 
     def __get_azureblob_setup_commands(self, server_config, mount_point,
                                        relative_path, pre_mounted_dir,
@@ -239,7 +239,7 @@ class StorageHelper():
             ]
         if phrase == "post_mount":
             return []
-        raise Exception("Unsupported phrase {}".format(phrase))
+        raise RuntimeError("Unsupported phrase {}".format(phrase))
 
     def __render_path(self, ori_path) -> str:
         rendered_path = re.compile("%USER",

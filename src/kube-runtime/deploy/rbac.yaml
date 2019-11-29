@@ -26,9 +26,9 @@ kind: ClusterRole
 metadata:
   name: frameworkbarrier-role
 rules:
-- apiGroups: ["frameworkcontroller.microsoft.com"]
-  resources: ["frameworks"]
-  verbs: ["get", "watch", "list"]
+  - apiGroups: ["frameworkcontroller.microsoft.com"]
+    resources: ["frameworks"]
+    verbs: ["get", "watch", "list"]
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
@@ -36,10 +36,10 @@ metadata:
   name: storage-role
   namespace: pai-storage
 rules:
-- apiGroups: [""]
-  resources: ["secrets"]
-  resourceNames: ["storage-server", "storage-config"]
-  verbs: ["get", "watch", "list"]
+  - apiGroups: [""]
+    resources: ["secrets"]
+    resourceNames: ["storage-server", "storage-config"]
+    verbs: ["get", "list"]
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
@@ -59,7 +59,7 @@ apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
   name: storage-role-binding
-  namespace: default
+  namespace: pai-storage
 subjects:
   - kind: ServiceAccount
     name: runtime-account
