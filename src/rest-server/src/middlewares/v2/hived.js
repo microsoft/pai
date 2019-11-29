@@ -186,7 +186,7 @@ const hivedValidate = (protocolObj) => {
     protocolObj.taskRoles[taskRole].hivedPodSpec = podSpec;
   }
   const maxGpuNumber = virtualCellCapacity[virtualCluster].resourcesTotal.gpu;
-  if (totalGpuNumber > maxGpuNumber && gangAllocation) {
+  if (totalGpuNumber > maxGpuNumber && gangAllocation && !(hivedConfig && hivedConfig.jobPriorityClass === 'oppo')) {
     throw createError('Bad Request', 'InvalidProtocolError', `Hived error: exceed ${maxGpuNumber} GPU quota in ${virtualCluster} VC.`);
   }
   return protocolObj;
