@@ -35,8 +35,8 @@ import {
 import config from '../../../config/webportal.config';
 import { checkEmail, checkPassword } from '../utils';
 
-import iconUser from '../../../../assets/img/profile-user.svg';
-import iconAdmin from '../../../../assets/img/profile-admin.svg';
+import { ReactComponent as IconUser } from '../../../../assets/img/profile-user.svg';
+import { ReactComponent as IconAdmin } from '../../../../assets/img/profile-admin.svg';
 import t from '../../../components/tachyons.scss';
 
 const DIALOG_PROFILE = 1;
@@ -109,13 +109,7 @@ const UserProfileHeader = ({ userInfo, onEditProfile, onEditPassword }) => {
                 gapSpace: 8,
               }}
             >
-              <div>
-                {userInfo.admin ? (
-                  <img src={iconAdmin} alt='Admin' />
-                ) : (
-                  <img src={iconUser} alt='User' />
-                )}
-              </div>
+              <div>{userInfo.admin ? <IconAdmin /> : <IconUser />}</div>
             </TooltipHost>
           </div>
         </div>

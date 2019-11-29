@@ -231,8 +231,22 @@ const config = (env, argv) => ({
         ],
       },
       {
-        test: /\.(eot|woff2?|svg|ttf)([?]?.*)$/,
+        test: /\.(eot|woff2?|ttf)([?]?.*)$/,
         use: [
+          {
+            loader: 'file-loader',
+            options: {
+              name: '[name].[ext]',
+              publicPath: '/assets/font/',
+              outputPath: 'assets/font/',
+            },
+          },
+        ],
+      },
+      {
+        test: /\.svg$/,
+        use: [
+          '@svgr/webpack',
           {
             loader: 'file-loader',
             options: {
