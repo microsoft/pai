@@ -365,6 +365,7 @@ const generateTaskRole = (taskRole, labels, config) => {
           containers: [
             {
               name: 'app',
+              imagePullPolicy: 'Always',
               image: config.prerequisites.dockerimage[config.taskRoles[taskRole].dockerImage].uri,
               command: ['/usr/local/pai/runtime'],
               resources: {
