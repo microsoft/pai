@@ -23,8 +23,11 @@ Besides above benefits, this project also provides powerful runtime support, whi
   - [How to check the available resources of clusters](#how-to-check-the-available-resources-of-clusters)
     - [How to add a cluster](#how-to-add-a-cluster)
     - [How to delete a cluster](#how-to-delete-a-cluster)
+    - [How to update clusters](#how-to-update-clusters)
+    - [How to list available storage for a cluster](#how-to-list-available-storage-for-a-cluster)
     - [How to access storages of a cluster](#how-to-access-storages-of-a-cluster)
     - [How to specify storage and workspace](#How-to-specify-storage-and-workspace)
+    - [How to add storage cluster](#how-to-add-storage-cluster)
   - [Job operations](#job-operations)
     - [How to query my jobs in a cluster](#how-to-query-my-jobs-in-a-cluster)
     - [How to submit a job from existing job config file](#how-to-submit-a-job-from-existing-job-config-file)
@@ -36,6 +39,8 @@ Besides above benefits, this project also provides powerful runtime support, whi
     - [How to add `pip install` packages](#how-to-add-pip-install-packages)
     - [How to preview the generated job config but not submit it](#how-to-preview-the-generated-job-config-but-not-submit-it)
     - [How to submit an empty job](#how-to-submit-an-empty-job)
+    - [How to connect to a running job](#how-to-connect-to-a-running-job)
+    - [How to get job status](#how-to-get-job-status)
     - [How to connect a running container through ssh](#how-to-connect-a-running-container-through-ssh)
   - [`Jupyter` notebook](#jupyter-notebook)
     - [How to run a local notebook with remote resources](#how-to-run-a-local-notebook-with-remote-resources)
@@ -112,27 +117,51 @@ and download to local by
 ```bash
 pai copy pai://<cluster-alias>/<storage-name>/dest/path /src/path
 ```
+In some case, user could create a directory on cluster via command like
+```bash
+pai makedir pai://<cluster-alias>/<storage-name>/path
+```
+or
+```bash
+pai makedirs pai://<cluster-alias>/<storage-name>/path
+```
+`makedir(s)` command would make the directory recursicely if necessary
+
+User could delete a file or directory on cluster by
+```bash
+pai remove pai://<cluster-alias>/<storage-name>/path
+```
+or
+```bash
+pai delete pai://<cluster-alias>/<storage-name>/path
+```
+
+User could get information of a file or folder location on the cluster via command like
+```bash
+pai getinfo pai://<cluster-alias>/<storage-name>/path
+```
 
 
 # How-to guide for the CLI tool
 
-This section will brief you how to leverage the CLI tool (prefixed by `opai`) to improve the productivity of interacting with `OpenPAI`. Below is a summary of functions provided.
+This section will brief you how to leverage the CLI tool (prefixed by `pai`) to improve the productivity of interacting with `OpenPAI`. Below is a summary of functions provided.
 
 | Command                    | Description                                                                        |
 | -------------------------- | ---------------------------------------------------------------------------------- |
-| `opai cluster list`        | list clusters defined in `~/.openpai/clusters.yaml`                                |
-| `opai cluster resources`   | list available resources of every cluster (GPUs/vCores/Memory per virtual cluster) |
-| `opai cluster edit`        | open `~/.openpai/clusters.yaml` for your editing                                   |
-| `opai cluster add`         | add a cluster                                                                      |
-| `opai job list`            | list all jobs of given user (in a given cluster)                                   |
-| `opai job status`          | query the status of a job                                                          |
-| `opai job stop`            | stop a job                                                                         |
-| `opai job submit`          | submit a given job config file to cluster                                          |
-| `opai job sub`             | shortcut to generate job config and submit from a given command                    |
-| `opai job notebook`        | shortcut to run a local notebook remotely                                          |
-| `opai storage <operation>` | execute `<operation>`* on selected storage (of a given cluster)                    |
+| `pai list-clusters`        | list clusters defined in `~/.openpai/clusters.yaml`                                |
+| `pai cluster-resources`   | list available resources of every cluster (GPUs/vCores/Memory per virtual cluster) |
+| `pai edit-clusters`        | open `~/.openpai/clusters.yaml` for your editing                                   |
+| `pai add-cluster`         | add a cluster                                                                      |
+| `pai list-jobs`            | list all jobs of given user (in a given cluster)                                   |
+| `pai job-status`          | query the status of a job                                                          |
+| `pai stop-job/pai stop-jobs`            | stop job(s)                                                                         |
+| `pai submit`          | submit a given job config file to cluster                                          |
+| `pai sub`             | shortcut to generate job config and submit from a given command                    |
+| `pai notebook-job`        | shortcut to run a local notebook remotely                                          |
+| `pai list-storages` | list all the storages of a given cluster|
+| `pai select-storage` | select a storage mount point and workspace for system use|
 
-_*: operations include `list`, `status`, `upload`, `download` and `delete`_
+
 
 Before starting, we'd like to define some commonly used variables as below.
 
@@ -152,7 +181,7 @@ _*: if specified, a directory `<workspace>/jobs/<job-name>` and subfolders (e.g.
 To list all existing clusters in `~/.openpai/clusters.yaml`, execute below command
 
 ```bash
-opai cluster list
+pai list-clusters
 ```
 
 ### How to open and edit the cluster configuration file
@@ -160,7 +189,7 @@ opai cluster list
 We add a convenient shortcut command to open the cluster configuration file with your editor directly by
 
 ```bash
-opai cluster edit [--editor <path/to/editor>]
+pai edit-clusters [--editor <path/to/editor>]
 ```
 
 The default editor is VS Code (`code`), users may change to other editor (e.g. `--editor notepad`).
@@ -169,7 +198,7 @@ The default editor is VS Code (`code`), users may change to other editor (e.g. `
 
 To check the availability of each cluster, use the command
 ```bash
-opai cluster resources
+pai cluster-resources
 ```
 it will return the available GPUs, vCores and memory of every virtual cluster in every cluster.
 
@@ -189,9 +218,9 @@ User can use `add` and `delete` command to add (or delete) a clusters from the c
 
 ```bash
 # for user/password authentication
-opai cluster add --cluster-alias <cluster-alias> --pai-uri <pai-uri> --user <user> --password <password>
+pai add-cluster --cluster-alias <cluster-alias> --pai-uri <pai-uri> --user <user> --password <password>
 # for Azure AD authentication
-opai cluster add --cluster-alias <cluster-alias> --pai-uri <pai-uri> --user <user> --token <token>
+pai add-cluster --cluster-alias <cluster-alias> --pai-uri <pai-uri> --user <user> --token <token>
 ```
 
 On receiving the add command, the CLI will try to connect the cluster, and get basic configuration from it.
@@ -204,33 +233,50 @@ User can also add it by `python` binding as below.
 Delete a cluster by calling its alias.
 
 ```bash
-opai cluster delete <cluster-alias>
+pai delete-cluster <cluster-alias>
+```
+
+### How to update clusters
+
+User could update all registered clusters via command like
+
+```bash
+pai update-clusters
+```
+
+### How to list available storage for a cluster
+
+To list all existing storage of a cluster, execute below command
+
+```bash
+pai list-storages <cluster-alias>
 ```
 
 ### How to access storages of a cluster
 
-Before accessing, user needs to attach storages to a specify cluster.
+User can use [`list-storages`](#How-to-list-available-storage-for-a-cluster) command to list all storages of a given cluster.
 
 ```bash
-opai cluster attach-hdfs --cluster-alias <cluster-alias> --storage-alias hdfs --web-hdfs-uri http://x.x.x.x:port --default
+pai list-storages <cluster-alias>
 ```
 
-It is supported to attach multiple heterogeneous storages (e.g. `HDFS`, `NFS` ...*) to a cluster, and one of the storages will be set as default (to upload local codes). If not defined, the storage firstly added will be set as default.
+After that, user can access a specific storage by storage name. See [Unified storage interface](#unified-storage-interface)
 
-After attaching, basic operations (e.g. `list`, `upload`, `download` ...) are provided.
 
-```bash
-opai storage list -a <cluster-alias> -s <storage-alias> <remote-path>
-opai storage download -a <cluster-alias> -s <storage-alias> <remote-path> <local-path>
-opai storage upload -a <cluster-alias> -s <storage-alias> <local-path> <remote-path>
-```
-
-### How to specify storage and workspace
+### How to mount storage and workspace
 
 Workspace is a directory to store the data and output of jobs. Before submitting jobs, user needs to specify storage and workspace on cluster. The directory `/<user>/<workspace>` would be generated on the specified storage. If `--workspace` option is empty, only `/<user>` directory would be generated.
 
 ```bash
 pai select-storage --cluster-alias <cluster-alias> --storage-name <storage-name> --workspace <workspace>
+```
+
+### How to add storage cluster
+
+User could add storage cluster via the command like
+
+```bash
+pai add-storage-cluster --cluster-alias <cluster-alias> --type <storage-type> --address <storage-address> --path <path> <contents>
 ```
 
 ## Job operations
@@ -240,7 +286,7 @@ pai select-storage --cluster-alias <cluster-alias> --storage-name <storage-name>
 User could retrieve the list of submitted jobs from a cluster. If more information is wanted, add the `<job-name>` in the command.
 
 ```bash
-opai job list -a <cluster-alias> [<job-name>]
+pai list-jobs -a <cluster-alias> [<job-name>]
 ```
 
 ### How to submit a job from existing job config file
@@ -248,7 +294,7 @@ opai job list -a <cluster-alias> [<job-name>]
 If you already has a job config file, you could submit a job based on it directly. The job config file could be in the format of `json` or `yaml`, and it must be compatible with [job configuration specification v1](https://github.com/microsoft/pai/blob/master/docs/job_tutorial.md) or [pai-job-protocol v2](https://github.com/Microsoft/pai/blob/master/docs/pai-job-protocol.yaml).
 
 ```bash
-opai job submit -a <cluster-alias> <config-file>
+pai submit -a <cluster-alias> <config-file>
 ```
 
 The CLI would judge whether it is `v1` or `v2` job configuration and call corresponding REST API to submit it.
@@ -259,10 +305,10 @@ The CLI tools also provides the function to change some contents of existing job
 
 ```bash
 # compatible with v1 specification
-opai job submit --update name=<job-name> -u defaults:virtualCluster=test <config-file>
+pai submit --update name=<job-name> -u defaults:virtualCluster=test <config-file>
 
 # compatible with v2 specificaiton
-opai job submit --update jobName=<job-name> -u virtualCluster=test <config-file>
+pai submit --update jobName=<job-name> -u virtualCluster=test <config-file>
 ```
 
 ### How to submit a job if I have no existing job config file
@@ -272,7 +318,7 @@ It is not convenient to write a job config file (no matter according to `v1` or 
 For example, user want to run `mnist_cnn.py` in a  docker container (the file is contained by the docker image), the command would be
 
 ```bash
-opai job sub -a <cluster-alias> -i <docker-image> -j <job-name> python mnist_cnn.py
+pai sub -a <cluster-alias> -i <docker-image> -j <job-name> python mnist_cnn.py
 ```
 
 ### How to request (GPU) resources for the job
@@ -290,7 +336,7 @@ User could apply for specific resources (CPUs, GPUs and Memory) for the job, jus
 If the `mnist_cnn.py` is not copied in the docker image and it is a file stored in your local disk, above command would fail due to the file cannot be accessed in remote job container. To solve this problem, the option `--sources mnist_cnn.py` would be added in the command. Since the job container could access local disk directly, we need to upload the file to somewhere (defined by `--workspace` specified by [`pai select-storage`](#How-to-specify-storage-and-workspace)) in [the default storage of the cluster](#How-to-access-storages-of-a-cluster).
 
 ```bash
-opai job sub -a <cluster-alias> -i <docker-image> -j <job-name> --sources mnist_cnn.py python mnist_cnn.py
+pai sub -a <cluster-alias> -i <docker-image> -j <job-name> --sources mnist_cnn.py python mnist_cnn.py
 ```
 
 ### How to submit a job given a sequence of commands
@@ -298,7 +344,7 @@ opai job sub -a <cluster-alias> -i <docker-image> -j <job-name> --sources mnist_
 In some cases, user wants to do a sequence of commands in the job. The recommended way is to put your commands in a pair of quotes (like `"git clone ... && python ..."`) and combine them with `&&` if you have multiple commands to run. Here is an example of combining 3 commands.
 
 ```bash
-opai job sub [...] "git clone <repo-uri> && cd <repo-dir> && python run.py arg1 arg2 ..."
+pai sub [...] "git clone <repo-uri> && cd <repo-dir> && python run.py arg1 arg2 ..."
 ```
 
 ### How to add `pip install` packages
@@ -307,7 +353,7 @@ Of course, you could write a sequence of commands like `pip install ... && pytho
 
 ### How to preview the generated job config but not submit it
 
-In some cases, user may want to preview the job config (in `v2` format) but not submit it directly. To fulfill this, just add `--preview` option. The commands support this feature includes `job submit`, `job sub` and `job notebook`.
+In some cases, user may want to preview the job config (in `v2` format) but not submit it directly. To fulfill this, just add `--preview` option. The commands support this feature includes `submit`, `sub` and `notebook-job`.
 
 ### How to submit an empty job
 In some cases, user may want to submit an empty job and interact the docker container through SSH tool. To achieve that, option `--timeout` would be added, which means how long the container will survive. For example, user want to start a docker container running for 1 days, the command would be
@@ -324,6 +370,24 @@ And the private key file would be downloaded in current directory, users should 
 
 2)If your job are in "WAITING" state when connecting, pls try [ssh-container](#how-to-connect-a-running-container-through-ssh) later.
 
+### How to connect to a running job
+
+User nay want to know the information of a running job. To achicve that, the command would be
+
+```bash
+pai connect-job --cluster-alias <cluster-alias> <job-name>
+```
+The job info would be printed to screen until it was SUCCEEDED/FAILED/STOPPED
+
+### How to get job status
+
+Using `job-status` command to get job status. Compared to `connect-job`, this command only print job status once.
+
+```bash
+pai job-status --cluster-alias <cluster-alias> --user <user> <job-name> <query>
+```
+`<query>` could be `ssh`,`config`, or `[None]` as user required. 
+
 ### How to connect a running container through ssh
 In some cases, user may want to visit a running container and check its state. To achieve that, the commond should be
 
@@ -339,10 +403,10 @@ pai ssh-container --cluster-alias <cluster-alias> --job-name <job-name> --user <
 If given a local `<notebook>` (e.g. `mnist_cnn.ipynb` stored in local disk), and user wants to run it remotely (on `OpenPAI`) and see the result.
 
 ```bash
-opai job notebook -a <cluster-alias> -i <docker-image> <notebook>
+pai notebook-job -a <cluster-alias> -i <docker-image> <notebook>
 ```
 
-This command requires options as the `opai job sub` does. This command would
+This command requires options as the `pai sub` does. This command would
 
 - *Local* - upload `<notebook>` to `<workspace>/jobs/<job-name>/source` and submit the job to cluster (`<job-name>` is set to `<notebook>_<random-string>` if not defined)
 - _In job container_ - download `<notebook> ` and execute it by `jupyter nbconver --execute`, the result would be saved in `<html-result>` with the same name (`*.html`)
@@ -352,7 +416,8 @@ This command requires options as the `opai job sub` does. This command would
 
 ### How to launch a remote `Jupyter` server and connect it
 
-Sometimes user may want to launch a remote `Jupyter` server and do some work on it interactively. To do this, just add `--interactive` in `job notebook` command. After submitting the job, a link like `http://x.x.x.x:port/notebooks/<notebook>` will be opened in your browser. Since it takes a while to start the container, please wait and refresh the page until the notebook opens. Use the default token `abcd` (unless it is overridden by `--token <token>`) to login the notebook.
+Sometimes user may want to launch a remote `Jupyter` server and do some work on it interactively. To do this, just add `--interactive` in `notebook-job` command. After submitting the job, a link like `http://x.x.x.x:port/notebooks/<notebook>` will be opened in your browser. Since it takes a while to start the container, please wait and refresh the page until the notebook opens. Use the default token `abcd` (unless it is overridden by `--token <token>`) to login the notebook.
+
 
 ## Other FAQ of CLI
 
@@ -364,11 +429,11 @@ As shown in above examples, `--cluster-alias, -a` is required by lots of command
 opai cluster select [-g] <cluster-alias>
 ```
 
-Commands after `opai cluster select` will have a default option (if necessary) `--cluster-alias <cluster-alias>`, which can be overwritten explicitly. The mechanism and priority sequence is the same to below section.
+Commands after `pai select-cluster` will have a default option (if necessary) `--cluster-alias <cluster-alias>`, which can be overwritten explicitly. The mechanism and priority sequence is the same to below section.
 
 ### How to simplify the command
 
-The mechanism behind `opai cluster select` command help us to simplify the command further. For example, we could set `--workspace, -w` with a default value by
+The mechanism behind `pai select-cluster` command help us to simplify the command further. For example, we could set `--workspace, -w` with a default value by
 
 ```bash
 opai set [-g] workspace=<workspace>
@@ -393,11 +458,11 @@ pip install -U "git+https://github.com/Microsoft/pai@<your/branch>#egg=openpaisd
 
 To debug a local update, just use `pip install -U your/path/to/setup.py`.
 
-For jobs submitted by the SDK or command line tool, the version specified by `opai set container-sdk-branch=<your/version>` would be used firstly. If not specified, `master` branch will be used.
+For jobs submitted by the SDK or command line tool, the version specified by `pai set container-sdk-branch=<your/version>` would be used firstly. If not specified, `master` branch will be used.
 
 ### How to specify the `python` environment I want to use in the job container
 
-In some cases, there are more than one `python` environments in a docker image. For example, there are both `python` and `python3` environments in `openpai/pai.example.keras.tensorflow`. User could add `--python <path/to/python>` (e.g. `--python python3`) in the command `job notebook` or `job sub` to use the specific `python` environment. Refer to [notebook example](examples/1-submit-and-query-via-command-line.ipynb) for more details.
+In some cases, there are more than one `python` environments in a docker image. For example, there are both `python` and `python3` environments in `openpai/pai.example.keras.tensorflow`. User could add `--python <path/to/python>` (e.g. `--python python3`) in the command `notebook-job` or `sub` to use the specific `python` environment. Refer to [notebook example](examples/1-submit-and-query-via-command-line.ipynb) for more details.
 
 # Python binding
 
@@ -473,7 +538,7 @@ If there are functions requests not included, please open an issue for feature r
 For users those want to improve the functions themselves, you may create the branch of `OpenPAI` project, and make modifications locally. And then set your own branch to the SDK installation source by
 
 ```bash
-opai set container-sdk-branch=<your/branch>
+pai set container-sdk-branch=<your/branch>
 ```
 
 Then the `pip install` command in the job container would use `<your/branch>` . User may check the generated job config to check.
@@ -489,7 +554,7 @@ python -m unittest discover
 
 Since the unit tests will try to connect your cluster, we set a test environment instead of corrupting the practical settings. Please add a `ut_init.sh` file in `tests` as below
 ```bash
-opai set clusters-in-local=yes # don't corrupt practical environment
-opai cluster add -a <cluster-alias> --pai-uri http://x.x.x.x --user <user> --password <password>
-opai cluster select <cluster-alias>
+pai set clusters-in-local=yes # don't corrupt practical environment
+pai add-cluster -a <cluster-alias> --pai-uri http://x.x.x.x --user <user> --password <password>
+pai select-cluster <cluster-alias>
 ```
