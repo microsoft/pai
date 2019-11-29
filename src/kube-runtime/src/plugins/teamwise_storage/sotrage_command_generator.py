@@ -53,10 +53,15 @@ class StorageCommandGenerator:
     def _get_storage_configs(self, storage_config_names):
         storage_config_secrets = kube_client.CoreV1Api(
             self._api_client).read_namespaced_secret("storage-config",
-                                                     "pai-storage",
-                                                     timeout_seconds=10)
+                                                     "pai-storage")
         secrets_data = storage_config_secrets.data
-        secrets_value = [secrets_data[name] for name in storage_config_names]
+        secrets_value = []
+        for name in storage_config_names:
+            if name in secrets_data:
+                secrets_value.append(secrets_data[name])
+            else:
+                LOGGER.warning(
+                    "Counld not find config name %s, maybe config bug", name)
         storage_configs = list(
             map(lambda secret: json.loads(base64.b64decode(secret).decode()),
                 secrets_value))
@@ -83,9 +88,8 @@ class StorageCommandGenerator:
         }
 
         storage_server_secrets = kube_client.CoreV1Api(
-            self._api_client).read_namespaced_secret("storage-config",
-                                                     "storage-server",
-                                                     timeout_seconds=10)
+            self._api_client).read_namespaced_secret("storage-server",
+                                                     "pai-storage")
         secrets_data = storage_server_secrets.data
         secrets_value = [secrets_data[name] for name in server_names]
         servers_configs = list(
