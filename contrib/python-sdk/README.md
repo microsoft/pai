@@ -27,7 +27,6 @@ Besides above benefits, this project also provides powerful runtime support, whi
     - [How to list available storage for a cluster](#how-to-list-available-storage-for-a-cluster)
     - [How to access storages of a cluster](#how-to-access-storages-of-a-cluster)
     - [How to specify storage and workspace](#How-to-specify-storage-and-workspace)
-    - [How to add storage cluster](#how-to-add-storage-cluster)
   - [Job operations](#job-operations)
     - [How to query my jobs in a cluster](#how-to-query-my-jobs-in-a-cluster)
     - [How to submit a job from existing job config file](#how-to-submit-a-job-from-existing-job-config-file)
@@ -269,14 +268,6 @@ Workspace is a directory to store the data and output of jobs. Before submitting
 
 ```bash
 pai select-storage --cluster-alias <cluster-alias> --storage-name <storage-name> --workspace <workspace>
-```
-
-### How to add storage cluster
-
-User could add storage cluster via the command like
-
-```bash
-pai add-storage-cluster --cluster-alias <cluster-alias> --type <storage-type> --address <storage-address> --path <path> <contents>
 ```
 
 ## Job operations
