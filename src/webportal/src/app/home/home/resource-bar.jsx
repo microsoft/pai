@@ -16,7 +16,7 @@ const { palette } = getTheme();
 export const ResourceBar = ({ name, percentage, tailInfo, barHeight }) => {
   let barColor = palette.green;
   let fontColor = palette.black;
-  if (percentage > 0.1) {
+  if (percentage > 0.5) {
     barColor = palette.yellow;
   }
   if (percentage > 0.9) {
