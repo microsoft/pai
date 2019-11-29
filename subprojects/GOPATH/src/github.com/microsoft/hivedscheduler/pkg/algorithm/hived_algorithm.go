@@ -71,6 +71,7 @@ func NewHivedAlgorithm(sConfig *api.Config) *HivedAlgorithm {
 		reservedCells:           reservedPc,
 	}
 	for vc := range nonReservedVcl {
+		// TODO: Support per-VC configurable intra VC scheduling algo.
 		h.vcSchedulers[vc] = newDefaultIntraVCScheduler(nonReservedVcl[vc], reservedVcl[vc], gpuNums)
 	}
 	for chain, ccl := range h.fullCellList {
@@ -407,7 +408,8 @@ func (h *HivedAlgorithm) scheduleAffinityGroupForGpuType(
 	if gpuType != "" {
 		if chains := h.chains[gpuType]; chains == nil {
 			panic(internal.NewBadRequestError(fmt.Sprintf(
-				"[%v]: pod requesting an invalid GPU type: %v", internal.Key(pod), gpuType)))
+				"[%v]: pod requesting GPU type %v which the whole cluster does not have",
+				internal.Key(pod), gpuType)))
 		} else {
 			vcHasType := false
 			for _, chain := range chains {
@@ -512,7 +514,7 @@ func (h *HivedAlgorithm) scheduleGuaranteedAffinityGroup(
 					c := buddyAlloc(h.getTmpFreeCellList(sr.chain), pac.GetLevel(), suggestedNodeSet)
 					if c == nil {
 						panic(fmt.Sprintf(
-							"Cannot find physical cell for a VC cell: %v", pac.GetName()))
+							"VC Safety Broken: Cannot find physical cell for a VC cell: %v", pac.GetName()))
 					} else {
 						preassignedPhysical = c
 						// create binding (which is temporary and will be cleared after the scheduling,
@@ -746,7 +748,8 @@ func generatePodScheduleResult(
 	if affinityGroupBindInfo == nil {
 		return internal.PodScheduleResult{
 			PodWaitInfo: &internal.PodWaitInfo{
-				FailedNodeReasons: map[string]string{},
+				// TODO: Enrich the Pod Waiting Reason.
+				Reason: "",
 			},
 		}
 	}
@@ -795,6 +798,7 @@ func generatePodScheduleResult(
 	} else {
 		// we check suggested nodes after the preemption is done, otherwise the preemption victims
 		// may cause the selected node to be excluded from the suggested nodes
+		// TODO: Keep selectedNode within suggestedNodeSet, so here should be Unreachable
 		if !suggestedNodeSet.Contains(selectedNode) && newGroup {
 			panic(fmt.Sprintf("[%v]: node %v picked by algorithm but not in K8S candidates",
 				internal.Key(pod), selectedNode))
@@ -840,8 +844,9 @@ func generateAffinityGroupBindInfo(
 			for gpuIndex := 0; gpuIndex < len(podPhysicalPlacements[podIndex]); gpuIndex++ {
 				pGpu := podPhysicalPlacements[podIndex][gpuIndex]
 				if pGpu == nil {
-					klog.Warningf("Resources previously allocated has been invalid; pod should wait")
-					return nil, "", nil
+					// TODO: Should insist binding and continue to force bind, then the Pod may
+					//  run or retry, instead of stuck in PodBinding state forever here.
+					panic("Resources previously allocated has been invalid; pod should wait")
 				}
 				nodes, gpuIndices := pGpu.(*PhysicalCell).GetPhysicalPlacement()
 				// here each cell (i.e., pGpu) is only one GPU, hence we takes the first element
@@ -932,7 +937,7 @@ func mapNonPreassignedCellToPhysical(c *VirtualCell, suggestedNodeSet common.Set
 		parentPhysical := mapNonPreassignedCellToPhysical(c.GetParent().(*VirtualCell), suggestedNodeSet)
 		pc := getFewestOpporPhysicalCell(parentPhysical.GetChildren(), suggestedNodeSet)
 		if pc == nil || pc.GetPriority() > opportunisticPriority {
-			panic(fmt.Sprintf("Cannot find physical cell for %v", c.GetName()))
+			panic(fmt.Sprintf("VC Safety Broken: Cannot find physical cell for %v", c.GetName()))
 		}
 		c.SetPreBoundPhysicalCell(pc)
 		pc.SetPreBoundVirtualCell(c)
