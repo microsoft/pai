@@ -22,6 +22,10 @@ Welcome to the Nov 2019 release of OpenPAI. There are a number of updates in thi
     - [Job Near FIFO scheduling](https://github.com/microsoft/pai/issues/3704) [#3726](https://github.com/microsoft/pai/pull/3726), [#3731](https://github.com/microsoft/pai/pull/3731)
     - [Expose LazyPreemptionStatus](https://github.com/microsoft/pai/issues/3850) [#3917](https://github.com/microsoft/pai/pull/3917)
     - Disable leader election [#3928](https://github.com/microsoft/pai/pull/3928)
+    - HiveD intra-vc preemption for restart [#3861](https://github.com/microsoft/pai/pull/3861)
+    - Check suggested nodes after preemption [#3843](https://github.com/microsoft/pai/pull/3843)
+    - Update hived config validation [#3812](https://github.com/microsoft/pai/pull/3812)
+    - HiveD reconfiguration [#3768](https://github.com/microsoft/pai/pull/3768)
     
 - Kube-runtime
     - Port kube runtime [#3013](https://github.com/microsoft/pai/pull/3013)
@@ -51,6 +55,33 @@ Welcome to the Nov 2019 release of OpenPAI. There are a number of updates in thi
 - Token API
     - Apllication Token API [#3774](https://github.com/microsoft/pai/pull/3774)
     - Revoke browser tokens when changing password/logout [#3834](https://github.com/microsoft/pai/pull/3834), [#3835](https://github.com/microsoft/pai/pull/3835)
+
+- Storage
+    - K8S managed NFS + SMB storage [#3826](https://github.com/microsoft/pai/pull/3826)
+    - Use extras to save team-storage selection [#3814](https://github.com/microsoft/pai/pull/3814)
+    - Storage Rest API, Refine Storage Data and CLI [#3809](https://github.com/microsoft/pai/pull/3809), [#3754](https://github.com/microsoft/pai/pull/3754)
+    - Change query storage configs/servers rest-api to GET [#3791](https://github.com/microsoft/pai/pull/3791)
+    
+- Others
+    - [Lazy loading of monaco editor component](https://github.com/microsoft/pai/issues/3755) [#3871](https://github.com/microsoft/pai/pull/3871)
+    - [Limited internal storage](https://github.com/microsoft/pai/blob/zhiyuhe/loop_storage_and_db/src/postgresql/README.md) and [postgresql](https://github.com/microsoft/pai/blob/zhiyuhe/loop_storage_and_db/src/postgresql/README.md) [#3813](https://github.com/microsoft/pai/pull/3813)
+    - [Add Stopping status to task](https://github.com/microsoft/pai/issues/3818) [#3868](https://github.com/microsoft/pai/pull/3868), [#3869](https://github.com/microsoft/pai/pull/3869)
+    - Make -1 compatible in launcher completion policy [#3870](https://github.com/microsoft/pai/pull/3870)
+    - Update hived resource validation [#3867](https://github.com/microsoft/pai/pull/3867)
+    - Render clone job button as a link if possible [#3854](https://github.com/microsoft/pai/pull/3854)
+    - Static content caching optimization [#3852](https://github.com/microsoft/pai/pull/3852)
+    - Webportal redirection to the origin page after login [#3914](https://github.com/microsoft/pai/pull/3914)
+    - [Update restart policy to avoid stuck pending pods](https://github.com/microsoft/pai/issues/3760) [#3856](https://github.com/microsoft/pai/pull/3856)
+    - [Display stopped task count in task role's header](https://github.com/microsoft/pai/issues/3819) [#3840](https://github.com/microsoft/pai/pull/3840)
+    - Filter pods without nodename and completed pods [#3841](https://github.com/microsoft/pai/pull/3841)
+    - Reverse encoded framework name [#3824](https://github.com/microsoft/pai/pull/3824)
+    - Mask secret in framework annotations [#3821](https://github.com/microsoft/pai/pull/3821)
+    - Update priority class owner references [#3808](https://github.com/microsoft/pai/pull/3808)
+    - [Show CPU/Mem usage in home page for normal user](https://github.com/microsoft/pai/issues/3772) [#3784](https://github.com/microsoft/pai/pull/3784)
+    - Fix kubelet.service in add machines [#3807](https://github.com/microsoft/pai/pull/3807)
+    - Disable utilization charts' animation [#3730](https://github.com/microsoft/pai/pull/3730)
+    - Support AAD login in VSCode Extension [#3647](https://github.com/microsoft/pai/pull/3647)
+    - Fix missing dependencies during installation [#3800](https://github.com/microsoft/pai/pull/3800)
     
 ## July 2019 (version 0.14.0)
 
