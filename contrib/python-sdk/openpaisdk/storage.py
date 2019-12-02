@@ -20,33 +20,148 @@
 [summary]
 """
 from openpaisdk.io_utils import mkdir_for, to_screen
+from functools import partial, wraps
+import fs
+import os
 
 
-class Storage:
+class PathChecker:
+    exception_type = Exception
+    error_msg = "{}"
 
-    def __init__(self, protocol: str = 'webHDFS', *args, **kwargs):
-        self.protocol, self.client = protocol.lower(), None
-        if protocol.lower() == 'webHDFS'.lower():
-            from hdfs import InsecureClient
-            self.client = InsecureClient(*args, **kwargs)
-            for f in 'upload download list status delete'.split():
-                setattr(self, f, getattr(self, '%s_%s' %
-                                         (f, protocol.lower())))
+    def __init__(self, index: int = 0, lazy: bool = False):
+        "specify which arguments is path, ignoring self"
+        self.index = index+1
+        self.lazy = lazy
 
-    def upload_webhdfs(self, local_path: str, remote_path: str, **kwargs):
-        to_screen("upload %s -> %s" % (local_path, remote_path))
-        return self.client.upload(local_path=local_path, hdfs_path=remote_path, **kwargs)
+    def __call__(self, func, *args, **kwargs):
+        @wraps(func)
+        def operation(*args, **kwargs):
+            obj, path = args[0], args[self.index]
+            args[0].validatepath(path)
+            if not self.lazy and not self.check(obj, path):
+                raise self.exception_type(self.error_msg.format(path))
+            try:
+                return func(*args, **kwargs)
+            except Exception as e:
+                if self.lazy and not self.check(obj, path):
+                    raise self.exception_type(self.error_msg.format(path))
+                raise e
+        return operation
 
-    def download_webhdfs(self, remote_path: str, local_path: str, **kwargs):
-        mkdir_for(local_path)
-        to_screen("download %s -> %s" % (remote_path, local_path))
-        return self.client.download(local_path=local_path, hdfs_path=remote_path, overwrite=True, **kwargs)
+    def check(self, obj, path):
+        return True
 
-    def list_webhdfs(self, remote_path: str, **kwargs):
-        return self.client.list(hdfs_path=remote_path, **kwargs)
 
-    def status_webhdfs(self, remote_path: str, **kwargs):
-        return self.client.status(hdfs_path=remote_path, **kwargs)
+class MustBeDir(PathChecker):
+    exception_type = fs.errors.DirectoryExpected
 
-    def delete_webhdfs(self, remote_path: str, **kwargs):
-        return self.client.delete(hdfs_path=remote_path, **kwargs)
+    def check(self, obj, path):
+        return obj.isdir(path)
+
+
+class MustBeFile(PathChecker):
+    exception_type = fs.errors.FileExpected
+
+    def check(self, obj, path):
+        return obj.isfile(path)
+
+
+class CannotBeRoot(PathChecker):
+    exception_type = fs.errors.RemoveRootError
+
+    def check(self, obj, path):
+        return not (path == "/")
+
+
+class IgnoreError:
+
+    def __init__(self, error=fs.errors.DirectoryExists):
+        self.error = error
+
+    def __call__(self, func, *args, **kwargs):
+        @wraps(func)
+        def operation(*args, **kwargs):
+            try:
+                return func(*args, **kwargs)
+            except self.error:
+                return args[0]
+            except Exception as e:
+                raise e
+        return operation
+
+
+def safe_fs_factory(cls):
+    from functools import reduce
+    from openpaisdk.fs_pai import expand_root
+    if getattr(cls, "is_safe", False):
+        return cls
+    decorators = {
+        "getinfo": [PathChecker()],
+        "listdir": [MustBeDir(lazy=True)],
+        "makedir": [CannotBeRoot(), IgnoreError(fs.errors.DirectoryExists)],
+        "remove": [CannotBeRoot()],
+        "removedir": [CannotBeRoot()],
+    }
+    for name, dec in decorators.items():
+        func = getattr(cls, name)
+        func_d = reduce(lambda x, f: f(x), [func] + dec)
+        setattr(cls, name, func_d)
+    setattr(cls, "is_safe", True)
+    if not hasattr(cls, "expand_root"):
+        setattr(cls, "expand_root", expand_root)
+    return cls
+
+
+def pai_open_fs(path: str):
+    "path must be pai://... or a local path"
+    from fs import open_fs
+    from fs.opener.parse import parse_fs_url
+    from fs.opener.errors import ParseError
+    from fs.subfs import SubFS
+    from openpaisdk.utils import OrganizedList, force_uri
+    from openpaisdk.cluster import ClusterList
+    def expand_pai_user(pth: str):
+        user = cluster['user']
+        if user:
+            pth = pth.replace('${PAI_USER_NAME}', user)
+        return pth
+
+    try:
+        ret = parse_fs_url(path)
+        assert ret.protocol == 'pai', "only support pai://... or local path"
+        alias, _, src = ret.resource.partition('/')
+        storage_alias, _, pth = src.partition('/')
+        storage, cluster = ClusterList().load().select_storage(alias, storage_alias)
+        assert storage and cluster, f"failed to fetch info for {alias} and {storage_alias}"
+        pth = expand_pai_user(pth)
+        if storage['type'] == 'hdfs':
+            from openpaisdk.fs_pai import WEBHDFS
+            addr = storage['data'].get('namemode', storage['data']['address'])
+            port = storage.get('extension', {}).get('webhdfs', '50070')
+            token = storage.get('extension', {}).get('token', None)
+            f = WEBHDFS(f"{addr}:{port}", storage.get('user', cluster['user']), token=token)
+        elif storage['type'] == 'nfs':
+            from platform import platform
+            from fs.osfs import OSFS
+            plt = platform()
+            if plt.startswith("Windows"):
+                # from openpaisdk.win_cmds import open_mount_server_win
+                # drv = open_mount_server_win(storage['data'])
+                f = OSFS(os.path.normpath(expand_pai_user(
+                    "//{address}{rootPath}".format(**storage["data"])
+                )))
+            else:
+                raise NotImplementedError(f"{storage['type']} not supported over {plt} yet")
+
+        else:
+            to_screen(f"failed to parse storage {cluster}", "error")
+    except ParseError:
+        # ! assert path is a local path
+        d, pth = os.path.split(os.path.abspath(os.path.expanduser(path)))
+        f = open_fs(d)
+    except Exception as e:
+        raise Exception(e)
+    finally:
+        safe_fs_factory(type(f))
+        return f, pth

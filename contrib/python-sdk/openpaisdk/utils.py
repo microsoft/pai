@@ -210,11 +210,30 @@ class Retry:
                 time.sleep(self.t_sleep)
 
 
+def force_uri(uri: str):
+    """force the input to be http or https format
+    >>> force_uri("x.x.x.x")
+    'http://x.x.x.x'
+    >>> force_uri("1.1.1.1/")
+    'http://1.1.1.1'
+    """
+    import re
+    if not uri:
+        return uri
+    uri = "http://" + uri if not uri.startswith('http') else uri
+    uri = uri.strip("/")
+    assert re.match("^(http|https)://(.*[^/])$", uri), "uri should be a uri in the format of http(s)://x.x.x.x or http(s)://a.b.c"
+    return uri
+
+
 def path_join(path: Union[list, str], sep: str = '/'):
     """ join path from list or str
-    - ['aaa', 'bbb', 'ccc'] -> 'aaa/bbb/ccc'
-    - ['aaa', 'bbb', ('xxx', None), 'ddd'] -> 'aaa/bbb/ccc'
-    - ['aaa', 'bbb', ('xxx', 'x-val'), 'ddd'] -> 'aaa/bbb/xxx/x-val/ccc'
+    >>> path_join(['aaa', 'bbb', 'ccc'])
+    'aaa/bbb/ccc'
+    >>> path_join(['aaa', 'bbb', ('xxx', None), 'ccc'])
+    'aaa/bbb/ccc'
+    >>> path_join(['aaa', 'bbb', ('xxx', 'x-val'), 'ccc'])
+    'aaa/bbb/xxx/x-val/ccc'
     """
     def is_single_element(x):
         return isinstance(x, str) or not isinstance(x, Iterable)
@@ -260,14 +279,11 @@ def run_command(commands,  # type: Union[list, str]
         if rtn_code:
             raise subprocess.CalledProcessError(rtn_code, commands)
 
-
-def sys_call(args, dec_mode: str = 'utf-8'):
-    p = subprocess.Popen(args, shell=True, stderr=subprocess.PIPE, stdout=subprocess.PIPE)
+def sys_call(args):
+    p = subprocess.Popen(args, shell=True, stderr=subprocess.PIPE, stdout=subprocess.PIPE, text=True)
     out, err = p.communicate()
-    if dec_mode:
-        out, err = out.decode(dec_mode), err.decode(dec_mode)
     if p.returncode:
-        raise subprocess.CalledProcessError(f"ErrCode: {p.returncode}, {err}")
+        raise subprocess.CalledProcessError(p.returncode, args, stderr=err)
     return out, err
 
 
@@ -287,6 +303,12 @@ def na_lazy(a, fn, *args, **kwargs):
 
 
 def flatten(lst: list):
+    """flatten the list (not recursively)
+    >>> flatten([[1],[2],[3]])
+    [1, 2, 3]
+    >>> flatten([[[1]],[2],[3]])
+    [[1], 2, 3]
+    """
     return sum(lst, [])
 
 
@@ -296,3 +318,10 @@ def randstr(num: int = 10, letters=None):
     import random
     letters = na(letters, string.ascii_letters)
     return ''.join(random.choice(letters) for i in range(num))
+
+def testmod():
+    import doctest
+    doctest.testmod(exclude_empty=True)
+
+if __name__ == '__main__':
+    testmod()
