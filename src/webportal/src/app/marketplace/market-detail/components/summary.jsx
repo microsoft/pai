@@ -29,11 +29,7 @@ import { isNil } from 'lodash';
 import EditMarketItem from './edit-market-item';
 import DeleteMarketItem from './delete-market-item';
 import Context from '../Context';
-import {
-  fetchStarRelation,
-  addStarRelation,
-  deleteStarRelation,
-} from '../utils/conn';
+import { fetchStarRelation, updateStarRelation } from '../utils/conn';
 
 const { spacing } = getTheme();
 
@@ -48,11 +44,11 @@ export default function Summary() {
   // fetch starRelation of marketItem and user
   useEffect(() => {
     async function fetchStarRelationWrapper() {
-      const related = await fetchStarRelation(
+      const status = await fetchStarRelation(
         marketItem.id,
         cookies.get('user'),
       );
-      if (!isNil(related) && related.message === 'Found') {
+      if (!isNil(status) && status.message === 'true') {
         setStared(true);
       } else {
         setStared(false);
@@ -65,12 +61,12 @@ export default function Summary() {
     if (stared) {
       setStars(stars - 1);
       setStared(false);
-      deleteStarRelation(marketItem.id, cookies.get('user'));
+      updateStarRelation(marketItem.id, cookies.get('user'));
       marketItem.stars -= 1;
     } else {
       setStars(stars + 1);
       setStared(true);
-      addStarRelation(marketItem.id, cookies.get('user'));
+      updateStarRelation(marketItem.id, cookies.get('user'));
       marketItem.stars += 1;
     }
   });

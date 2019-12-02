@@ -24,7 +24,7 @@ const storageRouter = require('@pai/routes/v2/storage');
 const controller = require('@pai/controllers/v2');
 const jobRouter = require('@pai/routes/v2/job');
 const virtualClusterRouter = require('@pai/routes/v2/virtual-cluster');
-
+const marketplaceRouter = require('@pai/routes/v2/marketplace');
 
 const router = new express.Router();
 
@@ -39,5 +39,7 @@ router.use('/user', userRouter);
 router.use('/group', groupRouter);
 
 router.use('/storage', storageRouter);
+
+router.use('/marketplace', marketplaceRouter);
 // module exports
 module.exports = router;
