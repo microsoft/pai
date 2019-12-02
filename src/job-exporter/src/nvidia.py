@@ -95,7 +95,7 @@ class NvidiaGpuStatus(object):
 
 
 def parse_smi_xml_result(smi):
-    """ return a map, key is minor_number and gpu uuid, value is NvidiaGpuStatus """
+    """ return a map, key is gpu_index(minor number or gpu sequence index) and gpu uuid, value is NvidiaGpuStatus """
     xmldoc = minidom.parseString(smi)
     gpus = xmldoc.getElementsByTagName("gpu")
 
@@ -105,9 +105,9 @@ def parse_smi_xml_result(smi):
         if os.getenv("LAUNCHER_TYPE") == "k8s":
             # For pai k8s, the minor number doesn't match the NVIDIA_VISIBLE_DEVICES number,
             # use nvidia-smi gpu sequence index instead
-            minor = index
+            gpu_index = index
         else:
-            minor = gpu.getElementsByTagName("minor_number")[0].childNodes[0].data
+            gpu_index = gpu.getElementsByTagName("minor_number")[0].childNodes[0].data
         utilization = gpu.getElementsByTagName("utilization")[0]
 
         gpu_util = utilization.getElementsByTagName("gpu_util")[0].childNodes[0].data.replace("%", "").strip()
@@ -171,11 +171,11 @@ def parse_smi_xml_result(smi):
                 float(gpu_mem_util),
                 pids,
                 EccError(single=ecc_single, double=ecc_double),
-                str(minor),
+                str(gpu_index),
                 uuid,
                 temperature)
 
-        result[str(minor)] = result[uuid] = status
+        result[str(gpu_index)] = result[uuid] = status
 
     return result
 
