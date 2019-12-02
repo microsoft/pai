@@ -101,8 +101,11 @@ def parse_smi_xml_result(smi):
 
     result = {}
 
-    for gpu in gpus:
-        minor = gpu.getElementsByTagName("minor_number")[0].childNodes[0].data
+    for index, gpu in enumerate(gpus):
+        if os.getenv("LAUNCHER_TYPE") == "k8s":
+            minor = index
+        else:
+            minor = gpu.getElementsByTagName("minor_number")[0].childNodes[0].data
         utilization = gpu.getElementsByTagName("utilization")[0]
 
         gpu_util = utilization.getElementsByTagName("gpu_util")[0].childNodes[0].data.replace("%", "").strip()
