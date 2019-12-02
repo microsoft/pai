@@ -647,7 +647,7 @@ const createPriorityClass = async (frameworkName, priority) => {
   }
 };
 
-const patchPriorityClass = async (frameworkName, frameworkUid) => {
+const patchPriorityClassOwner = async (frameworkName, frameworkUid) => {
   try {
     const headers = {...launcherConfig.requestHeaders};
     headers['Content-Type'] = 'application/merge-patch+json';
@@ -735,7 +735,7 @@ const createSecret = async (frameworkName, auths) => {
   }
 };
 
-const patchSecret = async (frameworkName, frameworkUid) => {
+const patchSecretOwner = async (frameworkName, frameworkUid) => {
   try {
     const headers = {...launcherConfig.requestHeaders};
     headers['Content-Type'] = 'application/merge-patch+json';
@@ -890,8 +890,8 @@ const put = async (frameworkName, config, rawConfig, userToken) => {
     throw createError(response.status, 'UnknownError', response.data.message);
   }
   // do not await for patch
-  auths.length && patchSecret(frameworkName, response.data.metadata.uid);
-  patchPriorityClass(frameworkName, response.data.metadata.uid);
+  auths.length && patchSecretOwner(frameworkName, response.data.metadata.uid);
+  patchPriorityClassOwner(frameworkName, response.data.metadata.uid);
 };
 
 const execute = async (frameworkName, executionType) => {
