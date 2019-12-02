@@ -292,7 +292,7 @@ const convertFrameworkDetail = async (framework) => {
   return detail;
 };
 
-const generateTaskRole = (taskRole, labels, config, userToken) => {
+const generateTaskRole = (frameworkName, taskRole, labels, config, userToken) => {
   const ports = config.taskRoles[taskRole].resourcePerInstance.ports || {};
   for (let port of ['ssh', 'http']) {
     if (!(port in ports)) {
@@ -506,6 +506,12 @@ const generateTaskRole = (taskRole, labels, config, userToken) => {
       },
     },
   };
+  // add image pull secret
+  if (config.prerequisites.dockerimage[config.taskRoles[taskRole].dockerImage].auth) {
+    frameworkTaskRole.task.pod.spec.imagePullSecrets.push({
+      name: `${encodeName(frameworkName)}-regcred`,
+    });
+  }
   // fill in completion policy
   const completion = config.taskRoles[taskRole].completion;
   frameworkTaskRole.frameworkAttemptCompletionPolicy = {
@@ -573,7 +579,7 @@ const generateFrameworkDescription = (frameworkName, virtualCluster, config, raw
   let totalGpuNumber = 0;
   for (let taskRole of Object.keys(config.taskRoles)) {
     totalGpuNumber += config.taskRoles[taskRole].resourcePerInstance.gpu * config.taskRoles[taskRole].instances;
-    const taskRoleDescription = generateTaskRole(taskRole, frameworkLabels, config, userToken);
+    const taskRoleDescription = generateTaskRole(frameworkName, taskRole, frameworkLabels, config, userToken);
     taskRoleDescription.task.pod.spec.priorityClassName = `${encodeName(frameworkName)}-priority`;
     taskRoleDescription.task.pod.spec.containers[0].env.push(...envlist.concat([
       {
@@ -681,6 +687,94 @@ const deletePriorityClass = async (frameworkName) => {
   }
 };
 
+const createSecret = async (frameworkName, auths) => {
+  const cred = {
+    auths: {},
+  };
+  for (let auth of auths) {
+    const {
+      username = '',
+      password = '',
+      registryuri = 'https://index.docker.io/v1/',
+    } = auth;
+    cred.auths[registryuri] = {
+      auth: Buffer.from(`${username}:${password}`).toString('base64'),
+    };
+  }
+  const secret = {
+    apiVersion: 'v1',
+    kind: 'Secret',
+    metadata: {
+      name: `${encodeName(frameworkName)}-regcred`,
+      namespace: 'default',
+    },
+    data: {
+      '.dockerconfigjson': Buffer.from(JSON.stringify(cred)).toString('base64'),
+    },
+    type: 'kubernetes.io/dockerconfigjson',
+  };
+
+  let response;
+  try {
+    response = await axios({
+      method: 'post',
+      url: launcherConfig.secretsPath(),
+      headers: launcherConfig.requestHeaders,
+      httpsAgent: apiserver.ca && new Agent({ca: apiserver.ca}),
+      data: secret,
+    });
+  } catch (error) {
+    if (error.response != null) {
+      response = error.response;
+    } else {
+      throw error;
+    }
+  }
+  if (response.status !== status('Created')) {
+    throw createError(response.status, 'UnknownError', response.data.message);
+  }
+};
+
+const patchSecret = async (frameworkName, frameworkUid) => {
+  try {
+    const headers = {...launcherConfig.requestHeaders};
+    headers['Content-Type'] = 'application/merge-patch+json';
+    await axios({
+      method: 'patch',
+      url: launcherConfig.secretPath(`${encodeName(frameworkName)}-regcred`),
+      headers,
+      httpsAgent: apiserver.ca && new Agent({ca: apiserver.ca}),
+      data: {
+        metadata: {
+          ownerReferences: [{
+            apiVersion: launcherConfig.apiVersion,
+            kind: 'Framework',
+            name: encodeName(frameworkName),
+            uid: frameworkUid,
+            controller: true,
+            blockOwnerDeletion: true,
+          }],
+        },
+      },
+    });
+  } catch (error) {
+    logger.warn('Failed to patch owner reference for secret', error);
+  }
+};
+
+const deleteSecret = async (frameworkName) => {
+  try {
+    await axios({
+      method: 'delete',
+      url: launcherConfig.secretPath(`${encodeName(frameworkName)}-regcred`),
+      headers: launcherConfig.requestHeaders,
+      httpsAgent: apiserver.ca && new Agent({ca: apiserver.ca}),
+    });
+  } catch (error) {
+    logger.warn('Failed to delete secret', error);
+  }
+};
+
 const list = async (filters) => {
   // send request to framework controller
   let response;
@@ -751,6 +845,12 @@ const put = async (frameworkName, config, rawConfig, userToken) => {
 
   const frameworkDescription = generateFrameworkDescription(frameworkName, virtualCluster, config, rawConfig, userToken);
 
+  // generate image pull secret
+  const auths = Object.values(config.prerequisites.dockerimage)
+    .filter((dockerimage) => dockerimage.auth != null)
+    .map((dockerimage) => dockerimage.auth);
+  auths.length && await createSecret(frameworkName, auths);
+
   // calculate pod priority
   // reference: https://github.com/microsoft/pai/issues/3704
   let jobPriority = 0;
@@ -778,16 +878,19 @@ const put = async (frameworkName, config, rawConfig, userToken) => {
       response = error.response;
     } else {
       // do not await for delete
+      auths.length && deleteSecret(frameworkName);
       deletePriorityClass(frameworkName);
       throw error;
     }
   }
   if (response.status !== status('Created')) {
     // do not await for delete
+    auths.length && deleteSecret(frameworkName);
     deletePriorityClass(frameworkName);
     throw createError(response.status, 'UnknownError', response.data.message);
   }
   // do not await for patch
+  auths.length && patchSecret(frameworkName, response.data.metadata.uid);
   patchPriorityClass(frameworkName, response.data.metadata.uid);
 };
 
