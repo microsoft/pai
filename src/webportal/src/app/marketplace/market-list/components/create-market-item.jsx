@@ -86,13 +86,8 @@ export default function CreateMarketItem(props) {
       return;
     }
     setHideDialog(true);
-    // parse tags to store in sqlite
-    var tagList = '';
-    tags.forEach(function(tag) {
-      tagList = tagList + tag + '|';
-    });
-    tagList = tagList.substr(0, tagList.length - 1);
-    // connect to rest-server confirm edit
+
+    // post a marketitem
     const id = uuid4();
     const marketItem = new MarketItem(
       id,
@@ -101,7 +96,7 @@ export default function CreateMarketItem(props) {
       new Date(),
       new Date(),
       category,
-      tagList,
+      tags,
       introduction,
       description,
       yamlText,

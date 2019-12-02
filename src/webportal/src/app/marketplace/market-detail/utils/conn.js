@@ -72,7 +72,7 @@ export async function fetchStarRelation(itemId, userName) {
   const url = `${serverUri}/api/v2/marketplace/items/${itemId}/${userName}`;
   const res = await fetch(url);
   const json = await res.json();
-  console.log(json);
+
   if (res.ok) {
     return json;
   } else {

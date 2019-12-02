@@ -52,7 +52,6 @@ export default function Summary() {
         marketItem.id,
         cookies.get('user'),
       );
-      console.log(related);
       if (!isNil(related) && related.message === 'Found') {
         setStared(true);
       } else {
@@ -67,10 +66,12 @@ export default function Summary() {
       setStars(stars - 1);
       setStared(false);
       deleteStarRelation(marketItem.id, cookies.get('user'));
+      marketItem.stars -= 1;
     } else {
       setStars(stars + 1);
       setStared(true);
       addStarRelation(marketItem.id, cookies.get('user'));
+      marketItem.stars += 1;
     }
   });
 

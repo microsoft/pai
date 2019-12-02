@@ -5,6 +5,11 @@ export async function fetchMarketItemList() {
   const res = await fetch(url);
   const json = await res.json();
 
+  // order by updateDate
+  json.sort(function(a, b) {
+    return new Date(b.updatedate) - new Date(a.updatedate);
+  });
+
   if (res.ok) {
     return json;
   } else {

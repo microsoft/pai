@@ -46,7 +46,7 @@ export default function EditMarketItem(props) {
 
   const [name, setName] = useState(marketItem.name);
   const [category, setCategory] = useState(marketItem.category);
-  const [tags, setTags] = useState([]);
+  const [tags, setTags] = useState(marketItem.tags);
   const [introduction, setIntroduction] = useState(marketItem.introduction);
   const [description, setDescription] = useState(marketItem.description);
 
@@ -54,12 +54,6 @@ export default function EditMarketItem(props) {
     { key: 'custom', text: 'custom' },
     { key: 'official', text: 'official' },
   ];
-
-  useEffect(() => {
-    if (!isNil(marketItem.tags) && marketItem.tags.length !== 0) {
-      setTags(marketItem.tags.split('|'));
-    }
-  }, []);
 
   const checkRequired = () => {
     if (name === '') {
@@ -83,12 +77,7 @@ export default function EditMarketItem(props) {
       return;
     }
     setHideDialog(true);
-    // parse tags to store in sqlite
-    var tagList = '';
-    tags.forEach(function(tag) {
-      tagList = tagList + tag + '|';
-    });
-    tagList = tagList.substr(0, tagList.length - 1);
+
     // connect to rest-server confirm edit
     await updateMarketItem(
       marketItem.id,
@@ -97,7 +86,7 @@ export default function EditMarketItem(props) {
       marketItem.createDate,
       new Date().toString(),
       category,
-      tagList,
+      tags,
       introduction,
       description,
       marketItem.jobConfig,

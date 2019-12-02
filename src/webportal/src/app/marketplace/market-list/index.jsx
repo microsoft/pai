@@ -86,12 +86,6 @@ const MarketList = () => {
     await loadMarketItemList();
 
     allItems.forEach(function(item) {
-      // parse tags
-      if (item.tags !== null && item.tags !== '') {
-        item.tags = item.tags.split('|');
-      } else {
-        item.tags = [];
-      }
       const marketItem = new MarketItem(
         item.id,
         item.name,
