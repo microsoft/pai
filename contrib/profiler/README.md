@@ -37,4 +37,13 @@ Here is the explanation of the profiler command.
    a number, such as `run.sh -t 30`, it means that the profiler will run
    for 30 minutes.  
    If not set, the profiler will not stop until the user's job is
-   stopped.
+   stopped or the job has run for an hour. 
+# Pre-command or User-command
+If the profiler is used as the command on the user command, the user
+need to set the time that how long the profiler needs to run.  
+If the profiler is used as the command on the pre and post command, the
+admin needs to add a command `torch ./stop.flag` at the post command.
+Because the profiler will detect whether there is a file called
+'stop.flag' existing at the default directory. When the job is over, the
+file is a signal to make the profiler stopped. However, the profiler
+will stop automatically after **an hour**.

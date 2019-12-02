@@ -25,10 +25,6 @@ esac
 
 # Install NFS
 apt update
-apt install --assume-yes nfs-common cifs-utils sshpass wget
-# mount the server root directory to the container root directory
-mkdir --parents /mnt/data_for_profiler
-mount -t nfs4 10.151.41.14:/data/share/drbdha/data/ /mnt/data_for_profiler
 
 pip install --upgrade pip
 #PYTHON_VERSION=`python -V 2>&1|awk '{print $2}'|awk -F '.' '{print $1}'`
@@ -42,30 +38,15 @@ pip install numpy
 pip install pandas
 pip install matplotlib
 
-OUTPUT_DIR=/mnt/data_for_profiler/Profiling_dir/$PAI_JOB_NAME
+OUTPUT_DIR=/usr/local/pai/logs/${FC_POD_UID}
 CONTAINER_ID="Self"
 SAMPLE_PERIOD=0.02
 ANALYZE_PERIOD=10
 DURATION=-1
-
-if [ ! -d $OUTPUT_DIR ];then
-  mkdir --parents $OUTPUT_DIR
-fi
-
 HOST_DOCKER=Host
 CONTAINER_PID=-1
 while getopts "t:" OPT;do
   case $OPT in
-#  c)
-#    # -c:The container id
-#    CONTAINER_ID=$OPTARG
-#    if test "$CONTAINER_ID" == "Self" || grep -q $CONTAINER_ID /proc/1/cgroup
-#    then
-#      HOST_DOCKER=Docker
-#    else
-#      CONTAINER_PID=`docker inspect -f {{.State.Pid}} $CONTAINER_ID`
-#    fi
-#    ;;
   t)
     # -t:The duration of the profiler
     DURATION=$OPTARG

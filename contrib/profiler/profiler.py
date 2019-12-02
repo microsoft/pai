@@ -407,6 +407,7 @@ def start_sample(container_id, period, analyze_period, output_dir, gpu_id, conta
         adviser = Adviser()
         sample_datas = list()
         stop_flag = False
+        last_time = time.time()
         while not (os.path.exists("./stop.flag") or stop_flag):
             sample_data = get_sample_data(container_cpu_file, container_mem_file, container_blk_file,
                                           container_net_file, gpu_id, period)
@@ -417,7 +418,9 @@ def start_sample(container_id, period, analyze_period, output_dir, gpu_id, conta
             sample_datas.append(str_write_realtime)
             realtime_log.writerow(str_write_realtime)
 
-            if len(sample_list) > analyze_period / period:
+            # if len(sample_list) > analyze_period / period:
+            if time.time() - last_time >= analyze_period:
+                last_time = time.time()
                 adviser.detect_pattern(sample_list)
                 sample_list = list()
                 if duration_time != -1:
@@ -440,11 +443,14 @@ parser.add_argument('--output_dir', '-o', help='The output directory to store th
 parser.add_argument('--duration_time', '-t', help='How long the profiler will execute', required=True, type=int)
 args = parser.parse_args()
 
+# Setting the max duration if the job will cost too much time
+MAX_TIME_DURATION = 60
 if __name__ == '__main__':
     # get the GPU INDEX
     nv.nvmlInit()
     GPU_INDEX = list(range(nv.nvmlDeviceGetCount()))
+    duration = MAX_TIME_DURATION if args.duration_time == -1 else args.duration_time
     if os.path.exists("./stop.flag"):
         os.remove("./stop.flag")
     start_sample(args.container_id, args.sample_period, args.analyze_period, args.output_dir, GPU_INDEX,
-                 args.container_pid, args.duration_time)
+                 args.container_pid, duration)
