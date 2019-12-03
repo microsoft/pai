@@ -1,5 +1,88 @@
 # OpenPAI Release Note
 
+## Nov 2019 (version 0.16.0)
+
+Welcome to the Nov 2019 release of OpenPAI. There are a number of updates in this version that we hope you will like, some of the key highlights include:
+
+- Kubespray - Deploy Kubernetes with kubespray
+    - Kubernetes Deployment, GPU drivers installation, Nvidia docker runtime [#3757](https://github.com/microsoft/pai/pull/3757), [#3842](https://github.com/microsoft/pai/pull/3842), [#3873](https://github.com/microsoft/pai/pull/3873)
+    - Add new worker node [#3846](https://github.com/microsoft/pai/pull/3846)
+    - Clean up cluster environment where OpenPAI is deployed before [#3879](https://github.com/microsoft/pai/pull/3879), [#3883](https://github.com/microsoft/pai/pull/3883)
+    - Ansible playbooks to uninstall GPU drivers installed by apt [#3899](https://github.com/microsoft/pai/pull/3899)
+
+- OpenPAI on RBAC enabled kubernetes cluster
+    - RBAC for Prometheus [#3716](https://github.com/microsoft/pai/pull/3716), [#3799](https://github.com/microsoft/pai/pull/3799), [#3844](https://github.com/microsoft/pai/pull/3844), [#3865](https://github.com/microsoft/pai/pull/3865), [#3896](https://github.com/microsoft/pai/pull/3896) 
+    - RBAC for framework-controller, hived-scheduler, kube-runtime [#3709](https://github.com/microsoft/pai/pull/3709), [#3739](https://github.com/microsoft/pai/pull/3739)
+    - RBAC for watchdog [#3721](https://github.com/microsoft/pai/pull/3721)
+    - RBAC for rest-server [#3719](https://github.com/microsoft/pai/pull/3719), [#3433](https://github.com/microsoft/pai/pull/3433), [#3750](https://github.com/microsoft/pai/pull/3750)
+    
+- HiveD
+    - Hived scheduler deployment [#3495](https://github.com/microsoft/pai/pull/3495), [#3579](https://github.com/microsoft/pai/pull/3579)
+    - Hived as the default k8s scheduler [#3599](https://github.com/microsoft/pai/pull/3599)
+    - [Job Near FIFO scheduling](https://github.com/microsoft/pai/issues/3704) [#3726](https://github.com/microsoft/pai/pull/3726), [#3731](https://github.com/microsoft/pai/pull/3731)
+    - [Expose LazyPreemptionStatus](https://github.com/microsoft/pai/issues/3850) [#3917](https://github.com/microsoft/pai/pull/3917)
+    - Disable leader election [#3928](https://github.com/microsoft/pai/pull/3928)
+    - HiveD intra-vc preemption for restart [#3861](https://github.com/microsoft/pai/pull/3861)
+    - Check suggested nodes after preemption [#3843](https://github.com/microsoft/pai/pull/3843)
+    - Update hived config validation [#3812](https://github.com/microsoft/pai/pull/3812)
+    - HiveD reconfiguration [#3768](https://github.com/microsoft/pai/pull/3768)
+    
+- Kube-runtime
+    - Port kube runtime [#3013](https://github.com/microsoft/pai/pull/3013)
+    - Job ssh for kube-runtime [#3153](https://github.com/microsoft/pai/pull/3153), [#3729](https://github.com/microsoft/pai/pull/3729)
+    - Add PAI env variables in init scripts [#3154](https://github.com/microsoft/pai/pull/3154)
+    - Generate random ports for scheduling [#3224](https://github.com/microsoft/pai/pull/3224)
+    - Refine init and runtime script in k8s pods [#3245](https://github.com/microsoft/pai/pull/3245)
+    - Port conflict check [#3259](https://github.com/microsoft/pai/pull/3259)
+    - Clean ```${PAI_WORK_DIR}``` before mv content to this folder [#3695](https://github.com/microsoft/pai/pull/3695)
+    - Force to flush after user command finished [#3794](https://github.com/microsoft/pai/pull/3794)
+    - Decompress the framework when the size is large [#3820](https://github.com/microsoft/pai/pull/3820)
+
+- k8s launcher
+    - Foreground stop all frameworks [#3664](https://github.com/microsoft/pai/pull/3664)
+
+- Device plugin
+    - [InfiniBand device plugin in HCA mode for k8s](https://github.com/Mellanox/k8s-rdma-sriov-dev-plugin) [#3732](https://github.com/microsoft/pai/pull/3732)
+    - GPU device plugin [#3744](https://github.com/microsoft/pai/pull/3744)
+    - Host device plugin [#3792](https://github.com/microsoft/pai/pull/3792)
+
+- Job history
+    - EFK deployment to support job history [#3626](https://github.com/microsoft/pai/pull/3626), [#3789](https://github.com/microsoft/pai/pull/3789), [#3815](https://github.com/microsoft/pai/pull/3815), [#3832](https://github.com/microsoft/pai/pull/3832), [#3881](https://github.com/microsoft/pai/pull/3881), [#3887](https://github.com/microsoft/pai/pull/3887)
+    - API endpoint and webportal page for job history [#3831](https://github.com/microsoft/pai/pull/3831), [#3889](https://github.com/microsoft/pai/pull/3889)
+    
+- User profile page [#3804](https://github.com/microsoft/pai/pull/3804), [#3853](https://github.com/microsoft/pai/pull/3853), [#3884](https://github.com/microsoft/pai/pull/3884)
+
+- Token API
+    - Apllication Token API [#3774](https://github.com/microsoft/pai/pull/3774)
+    - Revoke browser tokens when changing password/logout [#3834](https://github.com/microsoft/pai/pull/3834), [#3835](https://github.com/microsoft/pai/pull/3835)
+
+- Storage
+    - K8S managed NFS + SMB storage [#3826](https://github.com/microsoft/pai/pull/3826)
+    - Use extras to save team-storage selection [#3814](https://github.com/microsoft/pai/pull/3814)
+    - Storage Rest API, Refine Storage Data and CLI [#3809](https://github.com/microsoft/pai/pull/3809), [#3754](https://github.com/microsoft/pai/pull/3754)
+    - Change query storage configs/servers rest-api to GET [#3791](https://github.com/microsoft/pai/pull/3791)
+    
+- Others
+    - [Lazy loading of monaco editor component](https://github.com/microsoft/pai/issues/3755) [#3871](https://github.com/microsoft/pai/pull/3871)
+    - [Limited internal storage](https://github.com/microsoft/pai/blob/zhiyuhe/loop_storage_and_db/src/postgresql/README.md) and [postgresql](https://github.com/microsoft/pai/blob/zhiyuhe/loop_storage_and_db/src/postgresql/README.md) [#3813](https://github.com/microsoft/pai/pull/3813)
+    - [Add Stopping status to task](https://github.com/microsoft/pai/issues/3818) [#3868](https://github.com/microsoft/pai/pull/3868), [#3869](https://github.com/microsoft/pai/pull/3869)
+    - Make -1 compatible in launcher completion policy [#3870](https://github.com/microsoft/pai/pull/3870)
+    - Update hived resource validation [#3867](https://github.com/microsoft/pai/pull/3867)
+    - Render clone job button as a link if possible [#3854](https://github.com/microsoft/pai/pull/3854)
+    - Static content caching optimization [#3852](https://github.com/microsoft/pai/pull/3852)
+    - Webportal redirection to the origin page after login [#3914](https://github.com/microsoft/pai/pull/3914)
+    - [Update restart policy to avoid stuck pending pods](https://github.com/microsoft/pai/issues/3760) [#3856](https://github.com/microsoft/pai/pull/3856)
+    - [Display stopped task count in task role's header](https://github.com/microsoft/pai/issues/3819) [#3840](https://github.com/microsoft/pai/pull/3840)
+    - Filter pods without nodename and completed pods [#3841](https://github.com/microsoft/pai/pull/3841)
+    - Reverse encoded framework name [#3824](https://github.com/microsoft/pai/pull/3824)
+    - Mask secret in framework annotations [#3821](https://github.com/microsoft/pai/pull/3821)
+    - Update priority class owner references [#3808](https://github.com/microsoft/pai/pull/3808)
+    - [Show CPU/Mem usage in home page for normal user](https://github.com/microsoft/pai/issues/3772) [#3784](https://github.com/microsoft/pai/pull/3784)
+    - Fix kubelet.service in add machines [#3807](https://github.com/microsoft/pai/pull/3807)
+    - Disable utilization charts' animation [#3730](https://github.com/microsoft/pai/pull/3730)
+    - Support AAD login in VSCode Extension [#3647](https://github.com/microsoft/pai/pull/3647)
+    - Fix missing dependencies during installation [#3800](https://github.com/microsoft/pai/pull/3800)
+    
 ## July 2019 (version 0.14.0)
 
 Welcome to the July 2019 release of OpenPAI. There are a number of updates in this version that we hope you will like, some of the key highlights include:
