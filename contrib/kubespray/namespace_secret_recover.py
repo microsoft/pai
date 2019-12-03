@@ -105,6 +105,8 @@ def main():
     with open(input, "r") as f:
         secret_data = yaml.load(f, yaml.SafeLoader)
 
+    print(secret_data)
+
     #for item in secret_data:
     #    create_secret_in_namespace_if_not_exist(
     #        namespaces,
