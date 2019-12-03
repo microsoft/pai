@@ -16,4 +16,4 @@ disable=C0111
 
 [BASIC]
 # Good variable names which should always be accepted, separated by a comma
-good-names=i,j,k,f,ip,e,render_GET
+good-names=i,j,k,f,ip,e,render_GET,fn
