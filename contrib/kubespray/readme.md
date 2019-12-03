@@ -1,5 +1,24 @@
 #### Deploy kubernetes through kubespray.
 
+##### Before deployment 
+###### Backup data (namespaced_secret) from the k8s deployed by paictl
+
+
+Because the kubespray will cleanup the etcd data in local disk, please backup your data every time you wanna stop your cluster.
+If you haven't deploy OpenPAI, you can skip this steps.
+If you don't want to keep the data in your cluster, you can skip this steps.
+
+
+```
+cd pai/contrib/kubespray
+
+# Before backup, please ensure there are datas in the namespaces.
+# with the command kubectl get secrets -n namespace-name
+python3 namespace_secret_backup.py -n pai-user-v2 -o pai-user-v2
+python3 namespace_secret_backup.py -n pai-group -o pai-group
+python3 namespace_secret_backup.py -n pai-storage -o pai-storage
+python3 namespace_secret_backup.py -n pai-user-token -o pai-user-token
+``` 
 
 #### Environment Setup
 
@@ -417,3 +436,21 @@ cd kubespray/
 ansible-playbook -i inventory/mycluster/hosts.yml upgrade-cluster.yml --become --become-user=root  --limit=node7,node8,node9 -e "@inventory/mycluster/openpai.yml"
 
 ```
+
+
+#### After deployment
+
+###### Recover backup data (namespaced_secret) from the backup data after setuping k8s with kubespray.
+
+If you backup your data from the k8s deployed by openpai, you could recover the data to a specified namespace after the k8s deployment of kubespray done.
+
+```
+cd pai/contrib/kubespray
+
+# Before backup, please ensure there are datas in the namespaces.
+# with the command kubectl get secrets -n namespace-name
+python3 namespace_secret_recover.py -n pai-user-v2 -i pai-user-v2
+python3 namespace_secret_recover.py -n pai-group -i pai-group
+python3 namespace_secret_recover.py -n pai-storage -i pai-storage
+python3 namespace_secret_recover.py -n pai-user-token -i pai-user-token
+``` 
