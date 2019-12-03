@@ -15,6 +15,8 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+import logging
+import logging.config
 import yaml
 import os
 import argparse
@@ -22,6 +24,24 @@ import sys
 import time
 from kubernetes import client, config
 from kubernetes.client.rest import ApiException
+
+
+def setup_logger_config(logger):
+    """
+    Setup logging configuration.
+    """
+    if len(logger.handlers) == 0:
+        logger.propagate = False
+        logger.setLevel(logging.DEBUG)
+        consoleHandler = logging.StreamHandler()
+        consoleHandler.setLevel(logging.DEBUG)
+        formatter = logging.Formatter('%(asctime)s [%(levelname)s] - %(filename)s:%(lineno)s : %(message)s')
+        consoleHandler.setFormatter(formatter)
+        logger.addHandler(consoleHandler)
+
+
+logger = logging.getLogger(__name__)
+setup_logger_config(logger)
 
 
 def get_namespaced_secret(namespace):
@@ -38,7 +58,8 @@ def get_namespaced_secret(namespace):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument('-n', '--namespace', dest="namespace", required=True, help="The secret in which namespace should be backup")
+    parser.add_argument('-n', '--namespace', dest="namespace", required=True,
+                        help="The secret in which namespace should be backup")
     parser.add_argument('-o', '--output', dest="output", required=True, help="the output file to store ")
 
     args = parser.parse_args()
