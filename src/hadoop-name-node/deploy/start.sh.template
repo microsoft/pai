@@ -33,5 +33,14 @@ sleep 10
 # Wait until the service is ready.
 PYTHONPATH="../../../deployment" python -m  k8sPaiLibrary.monitorTool.check_pod_ready_status -w -k app -v hadoop-name-node || exit $?
 
+popd > /dev/null
+
+# register HDFS server in storage plugin
+
+pushd contrib/storage_plugin/ > /dev/null
+
+python storagectl.py server set default_hdfs_server hdfs {{ cluster_cfg['hadoop-name-node']['master-ip'] }} 9000 http://{{ cluster_cfg['hadoop-name-node']['master-ip'] }}:5070
+python storagectl.py config set default_hdfs -s default_hdfs_server -m / default_hdfs_server jobs
+python storagectl.py groupsc add default default_hdfs
 
 popd > /dev/null
