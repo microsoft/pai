@@ -45,10 +45,13 @@ def main():
     namespaces = args.namespace
     output = args.output
     data = get_namespaced_secret(namespaces)
+    output_data = []
     for item in data:
-        print(item.metadata.name)
-        print(item.data)
-
+        output_data.append({
+            'name': item.metadata.name
+            'data': item.data
+        })
+    print(output_data)
 
 
 if __name__ == "__main__":
