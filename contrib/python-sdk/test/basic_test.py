@@ -20,7 +20,7 @@ import os
 import unittest
 from typing import Union
 from openpaisdk.io_utils import to_screen, safe_chdir
-
+import shutil
 
 def seperated(method):
     "run the each test in a separated directory"
@@ -35,7 +35,7 @@ def seperated(method):
         finally:
             to_screen(f"trying to remove {dir_name}")
             # ! rmtree not work on windows
-            os.system(f'rm -rf {dir_name}')
+            shutil.rmtree(dir_name)
     return func
 
 
@@ -60,3 +60,25 @@ class OrderedUnitTestCase(unittest.TestCase):
         print(cmds)
         exit_code = os.system(cmds)
         self.assertEqual(exit_code, 0, f"fail to run {cmds}")
+
+
+class DocTestRun(OrderedUnitTestCase):
+
+    def test_doctest(self):
+        import warnings
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", category=DeprecationWarning)
+            import pkgutil
+            import os
+            import sys
+            import importlib
+            import openpaisdk
+            import doctest
+
+            pkg_dir = os.path.dirname(openpaisdk.__file__)
+            modules = pkgutil.iter_modules([pkg_dir])
+            for m in modules:
+                name = 'openpaisdk.'+m.name
+                module = importlib.import_module(name)
+                if hasattr(module, 'testmod'):
+                    self.cmd_exec([sys.executable, '-m', name, '-v'])

@@ -17,6 +17,7 @@
 
 cluster-type:
   - k8s
+  - full
 
 prerequisite:
   - cluster-configuration

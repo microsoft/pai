@@ -17,7 +17,6 @@
 
 
 from openpaisdk.io_utils import from_file, to_file, to_screen
-from openpaisdk.storage import Storage
 from openpaisdk.utils import OrganizedList
 from openpaisdk.utils import get_response, na, exception_free, RestSrvError, concurrent_map
 
@@ -65,15 +64,40 @@ class ClusterList:
         self.clusters.add(cfg, replace=True)
         return self
 
+    def update(self, alias: str, **kwargs):
+        cfg = self.select(alias)
+        cfg.update(kwargs)
+        return self.add(cfg)
+
     def update_all(self):
-        for a in self.aliases:
-            self.add(self.clusters.first(a))
+        def get_cluster_cfg(cfg: dict):
+            try:
+                return Cluster().load(**cfg).check().config
+            except Exception as identifier:
+                to_screen(f"fail to update cluster {cfg['cluster_alias']}: {repr(identifier)}", "warn")
+                return None
+        cfgs = concurrent_map(get_cluster_cfg, (c for c in self.clusters))
+        for cfg in cfgs:
+            if cfg is not None:
+                self.clusters.add(cfg, replace=True)
+        return self
 
     def delete(self, alias: str):
         return self.clusters.remove(alias)
 
     def select(self, alias: str):
         return self.clusters.first(alias)
+
+    def select_storage(self, alias: str, name: str):
+        cluster = self.select(alias)
+        entries = cluster['storages']
+        if name in [0, '0']:
+            name = cluster.get('storage_name', None)
+            if not name:
+                name = entries[0]['name']
+        storage = OrganizedList(entries, 'name').first(name)
+        storage['default'] = storage['name'] == cluster.get('storage_name', None)
+        return storage, cluster
 
     def get_client(self, alias: str):
         return Cluster().load(**self.select(alias))
@@ -88,10 +112,6 @@ class ClusterList:
     def aliases(self):
         return [c["cluster_alias"] for c in self.clusters if "cluster_alias" in c]
 
-    @property
-    def alias(self):
-        return self.config["cluster_alias"]
-
 
 class Cluster:
     """A wrapper of cluster to access the REST APIs"""
@@ -102,37 +122,37 @@ class Cluster:
         self.__token_expire = toke_expiration
         self.__token = None
 
-    def load(self, cluster_alias: str = None, pai_uri: str = None, user: str = None, password: str = None, token: str = None, **kwargs):
-        import re
+    def load(self, cluster_alias: str = None, pai_uri: str = None, user: str = None, password: str = None, token: str = None, storage_name: str = None, **kwargs):
+        from openpaisdk.utils import force_uri
         self.config.update(
             cluster_alias=cluster_alias,
-            pai_uri=pai_uri.strip("/"),
+            pai_uri=force_uri(pai_uri),
             user=user,
             password=password,
             token=token,
+            storage_name=storage_name
         )
         self.config.update(
-            {k: v for k, v in kwargs.items() if k in ["info", "storages", "virtual_clusters"]}
+            {k: v for k, v in kwargs.items() if k in ["info", "storages", "virtual_clusters", "type", "workspace"]}
         )
         # validate
         assert self.alias, "cluster must have an alias"
-        assert self.user, "must specify a user name"
-        assert re.match("^(http|https)://(.*[^/])$",
-                        self.pai_uri), "pai_uri should be a uri in the format of http(s)://x.x.x.x"
+        if self.pai_uri:
+            assert self.user, "must specify a user name"
         return self
 
     def check(self):
+        if self.type != "pai":
+            return self
         to_screen("try to connect cluster {}".format(self.alias))
-        storages = self.rest_api_storages()
-        for i, s in enumerate(storages):
-            s.setdefault("storage_alias", s["protocol"] + f'-{i}')
         cluster_info = na(self.rest_api_cluster_info(), {})
         if cluster_info.get("authnMethod", "basic") == "OIDC":
             assert self.config["token"], "must use authentication token (instead of password) in OIDC mode"
+        user_info = self.rest_api_user()
         self.config.update(
             info=cluster_info,
-            storages=storages,
-            virtual_clusters=self.virtual_clusters(),
+            virtual_clusters=self.virtual_clusters(user_info),
+            storages=self.storage_entries(*self.get_storage_info(user_info))
         )
         # ! will check authentication types according to AAD enabled or not
         return self
@@ -142,12 +162,24 @@ class Cluster:
         return self.config["cluster_alias"]
 
     @property
+    def type(self):
+        return self.config.get("type", "pai")
+
+    @property
     def pai_uri(self):
-        return self.config["pai_uri"].strip("/")
+        return self.config["pai_uri"]
 
     @property
     def user(self):
         return self.config["user"]
+    
+    @property
+    def workspace(self):
+        return self.config.get("workspace")
+    
+    @property
+    def storage_name(self):
+        return self.config.get("storage_name")
 
     @property
     def password(self):
@@ -161,13 +193,6 @@ class Cluster:
             self.__token = self.rest_api_token(self.__token_expire)
         return self.__token
 
-    def get_storage(self, alias: str = None):
-        # ! every cluster should have a builtin storage
-        for sto in self.config.get("storages", []):
-            if alias is None or sto["storage_alias"] == alias:
-                if sto["protocol"] == 'hdfs':
-                    return Storage(protocol='webHDFS', url=sto["webhdfs"], user=sto.get('user', self.user))
-
     def get_job_link(self, job_name: str):
         return '{}/job-detail.html?username={}&jobName={}'.format(self.pai_uri, self.user, job_name)
 
@@ -180,15 +205,6 @@ class Cluster:
     def rest_api_cluster_info(self):
         "refer to https://github.com/microsoft/pai/pull/3281/"
         return get_response('GET', [self.rest_srv, 'v1'], allowed_status=[200]).json()
-
-    def rest_api_storages(self):
-        # ! currently this is a fake
-        return [
-            {
-                "protocol": "hdfs",
-                "webhdfs": f"{self.pai_uri}/webhdfs"
-            },
-        ]
 
     @exception_free(RestSrvError, None)
     def rest_api_job_list(self, user: str = None):
@@ -279,6 +295,99 @@ class Cluster:
             },
         ).json()
 
+    @exception_free(RestSrvError, None)
+    def rest_api_storage_servers(self, names: list):
+        return get_response(
+            'POST', [self.rest_srv, 'v2', 'storage', 'servers'],
+            headers={
+                'Authorization': 'Bearer {}'.format(self.token),
+            },
+            body={
+                'names': names
+            }
+        ).json()
+
+    @exception_free(RestSrvError, None)
+    def rest_api_storage_configs(self, names: list):
+        return get_response(
+            'POST', [self.rest_srv, 'v2', 'storage', 'configs'],
+            headers={
+                'Authorization': 'Bearer {}'.format(self.token),
+            },
+            body={
+                "names": names,
+            }
+        ).json()
+
+    @classmethod
+    def storage_entries(cls, configs, servers):
+        entries = []
+        srv_dic = OrganizedList(servers, 'spn').as_dict
+        for cfg in configs:
+            for i, m_info in enumerate(cfg['mountInfos']):
+                sto_dic = dict(name=f"{cfg['name']}~{i}")
+                sto_dic.update(m_info)
+                srv = sto_dic.get('server', None)
+                if not srv or srv not in srv_dic:
+                    continue
+                sto_dic.update(srv_dic[srv])
+                entries.append(sto_dic)
+        return entries
+
+    @classmethod
+    def fake_storage_info(cls, nastype: str, address: str, rootPath: str, name: str = "fake_storage", path: str = "", mountPoint: str = None, **kwargs):
+        configs = [{
+            'name': name + "_cfgs",
+            'mountInfos': [
+                {
+                    'mountPoint': mountPoint,
+                    'path': path,
+                    'server': name + "_srv",
+                    'permission': 'rw'
+                }
+            ]
+        }]
+        servers = [{
+            'spn': name + "_srv",
+            'type': nastype,
+            'data': {
+                "spn": name + "_srv",
+                "type": nastype,
+                "address": address,
+                "rootPath": rootPath
+            },
+            'extension': {}
+        }]
+        configs[0].update(kwargs.get('configs', {}))
+        servers[0]['data'].update(kwargs.get('servers_data', {}))
+        servers[0]['extension'].update(kwargs.get('servers_ext', {}))
+        return configs, servers
+
+    def get_storage_info(self, user_info: dict = None):
+        "retrieve the storage configs and servers from cluster"
+        user_info = na(None, self.rest_api_user())
+        storage_cfg_names = user_info.get('storageConfig', [])
+        if not storage_cfg_names:
+            # ! return a fake storage list
+            return self.fake_storage_info('hdfs', self.pai_uri, "/")
+        configs = self.rest_api_storage_configs(storage_cfg_names)
+        server_names = [m_info['server'] for cfg in configs for m_info in cfg['mountInfos']]
+        servers = self.rest_api_storage_servers(list(set(server_names)))
+        return configs, servers
+
+    def tell_storages(self):
+        headers = ['name', 'mountPoint', 'server', 'path', 'permission']
+        sto = []
+        srv_dic = OrganizedList(self.config['storages']['servers'], 'spn').as_dict
+        cfgs = self.config['storages']['configs']
+        for cfg in cfgs:
+            lst = [cfg[h] for h in headers]
+            lst.append(srv_dic.get(cfg['server'], {}).get('type', None))
+            lst.append(cfg['name'] == self.config['storage_name'])
+            sto.append(lst)
+        headers += ['type', 'default']
+        return sto, headers
+
     def virtual_clusters(self, user_info: dict = None):
         user_info = na(user_info, self.rest_api_user())
         assert user_info, f'failed to get user information from {self.alias}'
@@ -305,3 +414,4 @@ class Cluster:
     def available_resources(self):
         resources = self.virtual_cluster_available_resources()
         return {k: v for k, v in resources.items() if k in self.config["virtual_clusters"]}
+

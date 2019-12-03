@@ -17,6 +17,7 @@
 
 cluster-type:
   - yarn
+  - full
 
 prerequisite:
   - cluster-configuration

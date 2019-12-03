@@ -50,7 +50,7 @@ class Cluster:
     def validation_common(self, common_configuration):
         if "cluster-id" not in common_configuration:
             return False, "cluster-id is missing in service-configuration.yaml -> cluster -> common -> cluster-id"
-        if "cluster-type" not in common_configuration or common_configuration["cluster-type"] not in ["yarn", "k8s"]:
+        if "cluster-type" not in common_configuration or common_configuration["cluster-type"] not in ["yarn", "k8s", "full"]:
             return False, "cluster-type is not defined or invalid. Please check service-configuration.yaml -> cluster -> common -> cluster-type"
         if "data-path" not in common_configuration:
             return False, "data-path is missing in service-configuration.yaml -> cluster -> common -> data-path"

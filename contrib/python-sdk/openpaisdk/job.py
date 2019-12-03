@@ -154,7 +154,8 @@ class Job:
     def load(self, fname: str = None, job_name: str = None, cluster_alias: str = None):
         if cluster_alias:  # load job config from cluster by REST api
             job_name = na(job_name, self.name)
-            self.protocol = get_cluster(cluster_alias).rest_api_job_info(job_name, 'config')
+            self.protocol.update(get_cluster(cluster_alias).rest_api_job_info(job_name, 'config'))
+            self.set_param('cluster_alias', cluster_alias)
         else:  # load from local file
             if not fname:
                 fname = Job(job_name).protocol_file
@@ -319,12 +320,13 @@ class Job:
         ])
 
         if sources:
+            remote_prefix = f'pai://{self.param("cluster_alias")}/{self.client.storage_name}/'
             a_file = os.path.basename(self.temp_archive)
             plugins.append({
                 "plugin": "container.preCommands",
                 "parameters": {
                     "commands": [
-                        "opai storage download <% $parameters.work_directory %>/source/{} {}".format(a_file, a_file),
+                        f"pai copy  {remote_prefix}<% $parameters.work_directory %>/source/{a_file} {a_file}",
                         "tar xvfz {}".format(a_file)
                     ]
                 }
@@ -339,7 +341,7 @@ class Job:
         """generate the single-task-role job protocol from essentials such as commands, docker image...
         :param cluster (dict): a dictionary includes {cluster_alias, virtual_cluster, workspace}
         """
-        self.sdk_job_template([cluster["cluster_alias"]], cluster.get("workspace", None), sources, pip_installs)
+        self.sdk_job_template([cluster["cluster_alias"]], self.client.workspace, sources, pip_installs)
         self.protocol["prerequisites"].append({
             "name": "docker_image",
             "type": "dockerimage",
@@ -383,12 +385,13 @@ class Job:
                 ]),
             ]
         elif mode == "silent":
+            remote_prefix = f'pai://{self.param("cluster_alias")}/{self.client.storage_name}'
             cmds = [
                 " ".join([
                     "jupyter nbconvert --ExecutePreprocessor.timeout=-1 --ExecutePreprocessor.allow_errors=True",
                     "--to html --execute <% $parameters.notebook_file %>.ipynb",
                 ]),
-                "opai storage upload <% $parameters.notebook_file %>.html <% $parameters.work_directory %>/output/<% $parameters.notebook_file %>.html",
+                f"pai copy <% $parameters.notebook_file %>.html {remote_prefix}<% $parameters.work_directory %>/output/<% $parameters.notebook_file %>.html",
             ]
         else:
             cmds = [
@@ -494,6 +497,7 @@ class Job:
         to_screen("archiving and uploading ...")
         work_directory = self.param("work_directory")
         assert work_directory, "must specify a storage to upload"
+        remote_prefix = f'pai://{self.param("cluster_alias")}/{self.client.storage_name}/'
         with safe_open(self.temp_archive, "w:gz", func=tarfile.open) as fn:
             for src in plugin["parameters"]["files"]:
                 src = os.path.relpath(src)
@@ -501,11 +505,11 @@ class Job:
                     to_screen("files not in current folder may cause wrong location when unarchived in the container, please check it {}".format(src), _type="warn")
                 fn.add(src)
                 to_screen("{} archived and wait to be uploaded".format(src))
-        self.client.get_storage().upload(
-            local_path=self.temp_archive,
-            remote_path="{}/source/{}".format(work_directory, os.path.basename(self.temp_archive)),
-            overwrite=True
-        )
+        local_path=self.temp_archive
+        remote_path=f"{remote_prefix}{work_directory}/source/{os.path.basename(self.temp_archive)}"
+        from openpaisdk.command_line import copy_fuc
+        copy_fuc(local_path, remote_path)
+
 
     def local_process(self):
         "pre-process the job protocol locally, including uploading files, deal with pre-/post- commands"
@@ -534,8 +538,11 @@ class Job:
         if state in __job_states__["successful"]:
             html_file = self.param("notebook_file") + ".html"
             local_path = html_file
-            remote_path = '{}/output/{}'.format(self.param("work_directory"), html_file)
-            self.client.get_storage().download(remote_path=remote_path, local_path=local_path)
+            remote_prefix = f'pai://{self.param("cluster_alias")}/{self.client.storage_name}/'
+            remote_path = remote_prefix + '{}/output/{}'.format(self.param("work_directory"), html_file)
+            
+            from openpaisdk.command_line import copy_fuc
+            copy_fuc(remote_path, local_path)
             url = pathlib.Path(os.path.abspath(html_file)).as_uri()
         return dict(state=state, notebook=url)
 
