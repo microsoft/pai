@@ -46,8 +46,8 @@ def main():
     output = args.output
     data = get_namespaced_secret(namespaces)
     for item in data:
-        print(item['metadata']['name'])
-        print(item['data'])
+        print(item.metadata.name)
+        print(item.data)
 
 
 
