@@ -107,11 +107,12 @@ def main():
 
     print(secret_data)
 
-    #for item in secret_data:
-    #    create_secret_in_namespace_if_not_exist(
-    #        namespaces,
-    #        item
-    #    )
+    for item in secret_data:
+        print(item)
+        #create_secret_in_namespace_if_not_exist(
+        #    namespaces,
+        #    item
+        #)
 
     #if delete_backup:
     #    try:
