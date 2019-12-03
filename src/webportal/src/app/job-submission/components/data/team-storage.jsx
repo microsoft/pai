@@ -57,6 +57,22 @@ export const TeamStorage = ({
   mountDirs,
   onMountDirChange,
 }) => {
+  // filter hdfs storage
+  if (mountDirs !== null){
+    let serverTypeMap = {}
+    for (let server of mountDirs.servers){
+      serverTypeMap[server.spn] = server.type
+    }
+    teamConfigs = teamConfigs.filter(
+      function(config){
+        for (let server of config.servers){
+          if(serverTypeMap[server] === 'hdfs')
+            return false
+        }
+        return true
+      })
+  }
+
   // workaround for fabric's bug
   // https://github.com/OfficeDev/office-ui-fabric-react/issues/5280#issuecomment-489619108
   useLayoutEffect(() => {
