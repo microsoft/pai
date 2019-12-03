@@ -47,6 +47,8 @@ def main():
     data = get_namespaced_secret(namespaces)
     output_data = []
     for item in data:
+        if 'default-token-' in item.metadata.name:
+            continue
         output_data.append({
             'name': item.metadata.name,
             'data': item.data
