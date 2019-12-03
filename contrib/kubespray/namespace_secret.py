@@ -48,7 +48,7 @@ def main():
     output_data = []
     for item in data:
         output_data.append({
-            'name': item.metadata.name
+            'name': item.metadata.name,
             'data': item.data
         })
     print(output_data)
