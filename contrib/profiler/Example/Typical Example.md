@@ -14,7 +14,7 @@
   and calculate the parameter gradients. Then the gradients will be sent
   to a server which runs an reduce operation to compute averaged
   gradients. The averaged gradients are then transmitted back to each
-  GPU card tp update the model parameters.  
+  GPU card to update the model parameters.  
   When the machine structure is "one-machine, multiple cards", one of
   the GPU card will be chosen to be the master GPU. The task of the
   master GPU is to transmit the data to each card, receive the output of
