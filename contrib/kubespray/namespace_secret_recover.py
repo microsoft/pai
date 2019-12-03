@@ -111,6 +111,11 @@ def main():
             item
         )
 
+    if delete_backup:
+        try:
+            os.unlink(input)
+        except OSError as e:
+            logger.exception(e)
 
 if __name__ == "__main__":
     main()
