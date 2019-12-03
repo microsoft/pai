@@ -23,45 +23,172 @@
  * SOFTWARE.
  */
 
-import { isNaN } from 'lodash';
 import PropTypes from 'prop-types';
-import React from 'react';
+import React, { useState, useRef } from 'react';
+import {
+  DetailsList,
+  CheckboxVisibility,
+  SelectionMode,
+  DetailsListLayoutMode,
+  IconButton,
+  Stack,
+  CommandBarButton,
+  getTheme,
+  Dialog,
+  DialogType,
+  TextField,
+  DialogFooter,
+  PrimaryButton,
+  DefaultButton,
+  SpinButton,
+} from 'office-ui-fabric-react';
 import { BasicSection } from '../basic-section';
 import { FormShortSection } from '../form-page';
-import { KeyValueList } from '../controls/key-value-list';
 
 const PORT_LABEL_REGEX = /^[a-zA-Z_][a-zA-Z0-9_]*$/;
 
-export const PortsList = React.memo(({ onChange, ports }) => (
-  <BasicSection sectionLabel='Ports' sectionOptional>
-    <FormShortSection>
-      <KeyValueList
-        name='Port List'
-        value={ports}
-        onChange={onChange}
-        columnWidth={220}
-        keyName='Port Label'
-        keyField='key'
-        valueName='Port Field'
-        valueField='value'
-        onValidateKey={val => {
-          if (!PORT_LABEL_REGEX.test(val)) {
-            return 'Should be string in ^[a-zA-Z_][a-zA-Z0-9_]*$ format';
-          }
-        }}
-        onValidateValue={val => {
-          let int = val;
-          if (typeof val === 'string') {
-            int = parseInt(val, 10);
-          }
-          if (int <= 0 || isNaN(int)) {
-            return 'Should be integer and no less than 1';
-          }
-        }}
-      />
-    </FormShortSection>
-  </BasicSection>
-));
+export const PortsList = React.memo(({ onChange, ports }) => {
+  const [showDialog, setShowDialog] = useState(false);
+  const [label, setLabel] = useState('');
+  const countRef = useRef();
+
+  const onRemove = idx => {
+    onChange([...ports.slice(0, idx), ...ports.slice(idx + 1)]);
+  };
+
+  const onAddPort = () => {
+    onChange([...ports, { key: label, value: countRef.current.value }]);
+    setLabel('');
+    setShowDialog(false);
+  };
+  const onDismiss = () => {
+    setLabel('');
+    setShowDialog(false);
+  };
+
+  const labelErrorMessage =
+    !PORT_LABEL_REGEX.test(label) &&
+    'Should be string in ^[a-zA-Z_][a-zA-Z0-9_]*$ format';
+
+  const columns = [
+    {
+      key: 'name',
+      name: 'Port Label',
+      minWidth: 60,
+      fieldName: 'key',
+    },
+    {
+      // TODO: vertical align
+      // TODO: duplicate key
+      key: 'value',
+      name: 'Count',
+      minWidth: 60,
+      fieldName: 'value',
+    },
+    {
+      key: 'remove',
+      name: 'Remove',
+      minWidth: 50,
+      style: { padding: 0 },
+      onRender: (item, idx) => (
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'baseline',
+            justifyContent: 'center',
+            height: '100%',
+          }}
+        >
+          <IconButton
+            key={`remove-button-${idx}`}
+            iconProps={{ iconName: 'Delete' }}
+            onClick={() => onRemove(idx)}
+          />
+        </div>
+      ),
+    },
+  ];
+
+  const { spacing } = getTheme();
+
+  return (
+    <BasicSection sectionLabel='Ports' sectionOptional>
+      <FormShortSection>
+        <Stack gap='m'>
+          <div>
+            <DetailsList
+              items={ports}
+              columns={columns}
+              checkboxVisibility={CheckboxVisibility.hidden}
+              layoutMode={DetailsListLayoutMode.justified}
+              selectionMode={SelectionMode.none}
+              compact
+            />
+          </div>
+          <div>
+            <CommandBarButton
+              styles={{ root: { padding: spacing.s1 } }}
+              iconProps={{ iconName: 'Add' }}
+              onClick={() => setShowDialog(true)}
+            >
+              Add
+            </CommandBarButton>
+            <Dialog
+              hidden={!showDialog}
+              onDismiss={onDismiss}
+              dialogContentProps={{
+                type: DialogType.normal,
+                title: 'Add port',
+              }}
+              modalProps={{
+                isBlocking: true,
+              }}
+              minWidth={400}
+            >
+              <Stack gap='m'>
+                <div>
+                  <p>The port value will be assigned randomly.</p>
+                  <p>
+                    <div>
+                      {`You can get the assigned port value (comma seperated list if count > 1) through the environment variable:`}
+                    </div>
+                    <code>PAI_PORT_LIST_$taskRole_$taskIndex_$portLabel</code>
+                  </p>
+                </div>
+                <div>
+                  <TextField
+                    label='Port Label'
+                    value={label}
+                    onChange={(e, val) => setLabel(val)}
+                    errorMessage={labelErrorMessage}
+                  />
+                </div>
+                <div>
+                  <SpinButton
+                    label='Count'
+                    labelPosition='Top'
+                    min={1}
+                    max={100}
+                    step={1}
+                    componentRef={countRef}
+                  />
+                </div>
+              </Stack>
+              <DialogFooter>
+                <PrimaryButton
+                  onClick={onAddPort}
+                  text='Save'
+                  disabled={labelErrorMessage}
+                />
+                <DefaultButton onClick={onDismiss} text='Cancel' />
+              </DialogFooter>
+            </Dialog>
+          </div>
+        </Stack>
+      </FormShortSection>
+    </BasicSection>
+  );
+});
 
 PortsList.propTypes = {
   ports: PropTypes.array,
