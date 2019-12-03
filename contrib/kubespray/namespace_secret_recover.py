@@ -105,20 +105,17 @@ def main():
     with open(input, "r") as f:
         secret_data = yaml.load(f, yaml.SafeLoader)
 
-    print(secret_data)
-
     for item in secret_data:
-        print(item)
-        #create_secret_in_namespace_if_not_exist(
-        #    namespaces,
-        #    item
-        #)
+        create_secret_in_namespace_if_not_exist(
+            namespaces,
+            item
+        )
 
-    #if delete_backup:
-    #    try:
-    #        os.unlink(input)
-    #    except OSError as e:
-    #        logger.exception(e)
+    if delete_backup:
+        try:
+            os.unlink(input)
+        except OSError as e:
+            logger.exception(e)
 
 
 if __name__ == "__main__":
