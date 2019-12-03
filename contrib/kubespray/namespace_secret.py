@@ -53,7 +53,8 @@ def main():
             'name': item.metadata.name,
             'data': item.data
         })
-    print(output_data)
+    with open(output, 'w') as yaml_file:
+        yaml.dump(output_data, yaml_file, default_flow_style=False)
 
 
 if __name__ == "__main__":
