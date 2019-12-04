@@ -50,6 +50,8 @@ type HivedAlgorithm struct {
 	freeCellList map[CellChain]ChainCellList
 	// map each GPU type to all chains that contain this type
 	chains map[string][]CellChain
+	// map each level in a chain to the specific cell type name
+	cellTypes map[CellChain]map[CellLevel]api.CellType
 	// all affinity groups that have been allocated cells
 	allocatedAffinityGroups map[string]*AlgoAffinityGroup
 	// all reserved physical cells (VC -> reservation ID -> cells)
@@ -60,13 +62,14 @@ type HivedAlgorithm struct {
 
 // NewHivedAlgorithm initializes a HivedAlgorithm from the config file
 func NewHivedAlgorithm(sConfig *api.Config) *HivedAlgorithm {
-	pcl, gpuNums, gpuTypeToChain, nonReservedVcl, reservedVcl, reservedPc := ParseConfig(sConfig)
+	pcl, gpuNums, gpuTypeToChain, cellLevelToType, nonReservedVcl, reservedVcl, reservedPc := ParseConfig(sConfig)
 	h := &HivedAlgorithm{
 		vcSchedulers:            make(map[api.VirtualClusterName]intraVCScheduler),
 		opportunisticSchedulers: map[CellChain]*topologyAwareScheduler{},
 		fullCellList:            pcl,
 		freeCellList:            make(map[CellChain]ChainCellList),
 		chains:                  gpuTypeToChain,
+		cellTypes:               cellLevelToType,
 		allocatedAffinityGroups: make(map[string]*AlgoAffinityGroup),
 		reservedCells:           reservedPc,
 	}
@@ -127,7 +130,15 @@ func (h *HivedAlgorithm) Schedule(pod *core.Pod, suggestedNodes []string) intern
 		podIndex = int32(len(group.allocatedPods[s.GpuNumber]))
 	}
 	return generatePodScheduleResult(
-		groupPhysicalPlacement, groupVirtualPlacement, s.GpuNumber, podIndex, newGroup, suggestedNodeSet, pod)
+		groupPhysicalPlacement,
+		groupVirtualPlacement,
+		h.cellTypes,
+		s.GpuNumber,
+		podIndex,
+		newGroup,
+		suggestedNodeSet,
+		s.VirtualCluster,
+		pod)
 }
 
 func (h *HivedAlgorithm) AddAllocatedPod(pod *core.Pod) {
@@ -160,23 +171,30 @@ func (h *HivedAlgorithm) AddAllocatedPod(pod *core.Pod) {
 						newGroup.physicalGpuPlacement[gpuNumber][podIndex][gpuIndex] = pGpu
 						var vGpu *VirtualCell
 						if newGroup.virtualGpuPlacement != nil && !lazyPreempted {
-							preassignedLevel := CellLevel(gms.PodPlacements[podIndex].PreassignedCellLevels[gpuIndex])
-							if preassignedLevel >= 0 {
+							preassignedType := gms.PodPlacements[podIndex].PreassignedCellTypes[gpuIndex]
+							if preassignedType != "" {
+								var preassignedLevel CellLevel
+								typeFound := false
+								for l, t := range h.cellTypes[pGpu.GetChain()] {
+									if t == preassignedType {
+										preassignedLevel = l
+										typeFound = true
+									}
+								}
 								var message string
-								if vcs := h.vcSchedulers[s.VirtualCluster]; vcs == nil {
-									message = fmt.Sprintf("VC %v has been deleted", s.VirtualCluster)
+								if !typeFound {
+									message = fmt.Sprintf("preassigned cell type %v not found in chain %v", preassignedType, pGpu.GetChain())
+								} else if vcs := h.vcSchedulers[s.VirtualCluster]; vcs == nil {
+									message = fmt.Sprintf("VC %v not found", s.VirtualCluster)
 								} else {
-									var vccl ChainCellList
-									var str string
+									vccl := vcs.getNonReservedCellList()[pGpu.GetChain()]
+									str := string(pGpu.GetChain())
 									if s.ReservationId != "" {
 										vccl = vcs.getReservedCellList()[s.ReservationId]
 										str = string(s.ReservationId)
-									} else {
-										vccl = vcs.getNonReservedCellList()[pGpu.GetChain()]
-										str = string(pGpu.GetChain())
 									}
 									if vccl == nil {
-										message = fmt.Sprintf("VC %v no longer has cells for %v", s.VirtualCluster, str)
+										message = fmt.Sprintf("VC %v has no cell for %v", s.VirtualCluster, str)
 									} else {
 										vGpu, message = mapNonPreassignedCellToVirtual(pGpu, vccl, preassignedLevel, priority)
 									}
@@ -536,7 +554,16 @@ func (h *HivedAlgorithm) scheduleOpportunisticAffinityGroup(
 	sr schedulingRequest,
 	suggestedNodeSet common.Set) map[int32][]CellList {
 
-	return h.opportunisticSchedulers[sr.chain].Schedule(sr.affinityGroupPodNums, opportunisticPriority, suggestedNodeSet)
+	placement := h.opportunisticSchedulers[sr.chain].Schedule(
+		sr.affinityGroupPodNums, opportunisticPriority, suggestedNodeSet)
+	if placement == nil {
+		klog.Infof("Insufficient capacity in PC for scheduling request: GPU numbers %v, priority %v",
+			sr.affinityGroupPodNums, sr.priority)
+	} else {
+		klog.Infof("Succeeded in scheduling in PC for scheduling request: GPU numbers %v, priority %v",
+			sr.affinityGroupPodNums, sr.priority)
+	}
+	return placement
 }
 
 // getTmpFreeCellList returns a copy of the free cell list.
@@ -737,25 +764,131 @@ func (h *HivedAlgorithm) findPhysicalGpuInChain(
 func generatePodScheduleResult(
 	groupPhysicalPlacement map[int32][]CellList,
 	groupVirtualPlacement map[int32][]CellList,
+	cellLevelToType map[CellChain]map[CellLevel]api.CellType,
 	currentGpuNum int32,
 	currentPodIndex int32,
 	newGroup bool,
 	suggestedNodeSet common.Set,
+	vc api.VirtualClusterName,
 	pod *core.Pod) internal.PodScheduleResult {
 
 	affinityGroupBindInfo, selectedNode, selectedGpuIndices := generateAffinityGroupBindInfo(
-		groupPhysicalPlacement, groupVirtualPlacement, currentGpuNum, currentPodIndex)
+		groupPhysicalPlacement, groupVirtualPlacement, cellLevelToType, currentGpuNum, currentPodIndex)
 	if affinityGroupBindInfo == nil {
+		reason := "insufficient capacity in physical cluster"
+		if groupVirtualPlacement != nil {
+			reason = fmt.Sprintf("insufficient quota in VC %v", vc)
+		}
 		return internal.PodScheduleResult{
 			PodWaitInfo: &internal.PodWaitInfo{
 				// TODO: Enrich the Pod Waiting Reason.
-				Reason: "",
+				Reason: reason,
 			},
 		}
 	}
-	chain := string(groupPhysicalPlacement[currentGpuNum][currentPodIndex][0].GetChain())
-	// collect preemption victims of the whole group
-	preemptionVictims := map[string]common.Set{} // node -> pods
+	preemptionVictims, nodesHaveVictims := collectPreemptionVictims(groupPhysicalPlacement, newGroup)
+	if len(preemptionVictims) > 0 {
+		// we collect victims on a random node, as K8S preempts victims from only one node once.
+		// random is to let different pods preempt victims on different nodes
+		// (but we don't rely on this randomness for the eventual-completeness of preemption).
+		nodeToPreempt := nodesHaveVictims[rand.Int31n(int32(len(nodesHaveVictims)))]
+		var victimPods []*core.Pod
+		var victimNames []string
+		for v := range preemptionVictims[nodeToPreempt].Items() {
+			victimPods = append(victimPods, v.(*core.Pod))
+			victimNames = append(victimNames, internal.Key(v.(*core.Pod)))
+		}
+		klog.Infof("[%v]: need to preempt pods %v", internal.Key(pod), strings.Join(victimNames, ", "))
+		return internal.PodScheduleResult{
+			PodPreemptInfo: &internal.PodPreemptInfo{VictimPods: victimPods},
+		}
+	} else {
+		// we check suggested nodes after the preemption is done, otherwise the preemption victims
+		// may cause the selected node to be excluded from the suggested nodes
+		// TODO: Keep selectedNode within suggestedNodeSet, so here should be Unreachable
+		if !suggestedNodeSet.Contains(selectedNode) && newGroup {
+			return internal.PodScheduleResult{
+				PodWaitInfo: &internal.PodWaitInfo{
+					Reason: fmt.Sprintf("node %v picked by algorithm but not in K8S candidates", selectedNode),
+				},
+			}
+		}
+		klog.Infof("[%v]: scheduled to node %v, GPUs %v",
+			internal.Key(pod), selectedNode, selectedGpuIndices)
+		return internal.PodScheduleResult{
+			PodBindInfo: &api.PodBindInfo{
+				Node:                  selectedNode,
+				GpuIsolation:          selectedGpuIndices,
+				CellChain:             string(groupPhysicalPlacement[currentGpuNum][currentPodIndex][0].GetChain()),
+				AffinityGroupBindInfo: affinityGroupBindInfo,
+			},
+		}
+	}
+}
+
+// generateAffinityGroupBindInfo writes the physical and virtual placements of an affinity group
+// into a a series of AffinityGroupMemberBindInfos, and returns the allocated node and GPU addresses
+// of the current pod.
+func generateAffinityGroupBindInfo(
+	groupPhysicalPlacement map[int32][]CellList,
+	groupVirtualPlacement map[int32][]CellList,
+	cellLevelToType map[CellChain]map[CellLevel]api.CellType,
+	currentGpuNum int32,
+	currentPodIndex int32) ([]api.AffinityGroupMemberBindInfo, string, []int32) {
+
+	if groupPhysicalPlacement == nil {
+		return nil, "", nil
+	}
+	affinityGroupBindInfo := make([]api.AffinityGroupMemberBindInfo, len(groupPhysicalPlacement))
+	var selectedNode string
+	var selectedGpuIndices []int32
+	groupMemberIndex := 0
+	for podGpuNum, podPhysicalPlacements := range groupPhysicalPlacement {
+		mbi := api.AffinityGroupMemberBindInfo{
+			PodPlacements: make([]api.PodPlacementInfo, len(podPhysicalPlacements)),
+		}
+		for podIndex := int32(0); podIndex < int32(len(podPhysicalPlacements)); podIndex++ {
+			mbi.PodPlacements[podIndex].PhysicalGpuIndices = make(
+				[]int32, len(podPhysicalPlacements[podIndex]))
+			mbi.PodPlacements[podIndex].PreassignedCellTypes = make(
+				[]api.CellType, len(podPhysicalPlacements[podIndex]))
+			for gpuIndex := 0; gpuIndex < len(podPhysicalPlacements[podIndex]); gpuIndex++ {
+				pGpu := podPhysicalPlacements[podIndex][gpuIndex]
+				if pGpu == nil {
+					// TODO: Should insist binding and continue to force bind, then the Pod may
+					//  run or retry, instead of stuck in PodBinding state forever here.
+					panic("Resources previously allocated has been invalid; pod should wait")
+				}
+				nodes, gpuIndices := pGpu.(*PhysicalCell).GetPhysicalPlacement()
+				// here each cell (i.e., pGpu) is only one GPU, hence we takes the first element
+				// in its "nodes" and "gpuIndices" as the node and GPU address
+				if mbi.PodPlacements[podIndex].PhysicalNode == "" {
+					mbi.PodPlacements[podIndex].PhysicalNode = nodes[0]
+				}
+				mbi.PodPlacements[podIndex].PhysicalGpuIndices[gpuIndex] = gpuIndices[0]
+				if groupVirtualPlacement != nil {
+					vGpu := groupVirtualPlacement[podGpuNum][podIndex][gpuIndex].(*VirtualCell)
+					mbi.PodPlacements[podIndex].PreassignedCellTypes[gpuIndex] = cellLevelToType[vGpu.GetChain()][vGpu.GetPreAssignedCell().GetLevel()]
+				} else {
+					mbi.PodPlacements[podIndex].PreassignedCellTypes[gpuIndex] = ""
+				}
+			}
+		}
+		if podGpuNum == currentGpuNum {
+			selectedNode = mbi.PodPlacements[currentPodIndex].PhysicalNode
+			selectedGpuIndices = mbi.PodPlacements[currentPodIndex].PhysicalGpuIndices
+		}
+		affinityGroupBindInfo[groupMemberIndex] = mbi
+		groupMemberIndex++
+	}
+	return affinityGroupBindInfo, selectedNode, selectedGpuIndices
+}
+
+// collectPreemptionVictims collects preemption victims of an affinity group.
+// If any of the GPUs allocated for the whole group is still used by a pod,
+// we will wait for the preemption, as the group is gang-scheduled.
+func collectPreemptionVictims(groupPhysicalPlacement map[int32][]CellList, newGroup bool) (map[string]common.Set, []string) {
+	preemptionVictims := map[string]common.Set{}
 	var nodesHaveVictims []string
 	if newGroup {
 		for gpuNum := range groupPhysicalPlacement {
@@ -778,100 +911,7 @@ func generatePodScheduleResult(
 			}
 		}
 	}
-	// if any of the GPUs allocated for the whole group is still used by a pod,
-	// we will wait for the preemption, as the group is gang-scheduled.
-	if len(nodesHaveVictims) > 0 {
-		// we collect victims on a random node, as K8S preempts victims from only one node once.
-		// random is to let different pods preempt victims on different nodes
-		// (but we don't rely on this randomness for the eventual-completeness of preemption).
-		nodeToPreempt := nodesHaveVictims[rand.Int31n(int32(len(nodesHaveVictims)))]
-		var victimPods []*core.Pod
-		var victimNames []string
-		for v := range preemptionVictims[nodeToPreempt].Items() {
-			victimPods = append(victimPods, v.(*core.Pod))
-			victimNames = append(victimNames, internal.Key(v.(*core.Pod)))
-		}
-		klog.Infof("[%v]: need to preempt pods %v", internal.Key(pod), strings.Join(victimNames, ", "))
-		return internal.PodScheduleResult{
-			PodPreemptInfo: &internal.PodPreemptInfo{VictimPods: victimPods},
-		}
-	} else {
-		// we check suggested nodes after the preemption is done, otherwise the preemption victims
-		// may cause the selected node to be excluded from the suggested nodes
-		// TODO: Keep selectedNode within suggestedNodeSet, so here should be Unreachable
-		if !suggestedNodeSet.Contains(selectedNode) && newGroup {
-			panic(fmt.Sprintf("[%v]: node %v picked by algorithm but not in K8S candidates",
-				internal.Key(pod), selectedNode))
-		}
-		klog.Infof("[%v]: scheduled to node %v, GPUs %v",
-			internal.Key(pod), selectedNode, selectedGpuIndices)
-		return internal.PodScheduleResult{
-			PodBindInfo: &api.PodBindInfo{
-				Node:                  selectedNode,
-				GpuIsolation:          selectedGpuIndices,
-				CellChain:             chain,
-				AffinityGroupBindInfo: affinityGroupBindInfo,
-			},
-		}
-	}
-}
-
-// generateAffinityGroupBindInfo writes the physical and virtual placements of an affinity group
-// into a a series of AffinityGroupMemberBindInfos, and returns the allocated node and GPU addresses
-// of the current pod.
-func generateAffinityGroupBindInfo(
-	groupPhysicalPlacement map[int32][]CellList,
-	groupVirtualPlacement map[int32][]CellList,
-	currentGpuNum int32,
-	currentPodIndex int32) ([]api.AffinityGroupMemberBindInfo, string, []int32) {
-
-	if groupPhysicalPlacement == nil {
-		return nil, "", nil
-	}
-	affinityGroupBindInfo := make([]api.AffinityGroupMemberBindInfo, len(groupPhysicalPlacement))
-	var selectedNode string
-	var selectedGpuIndices []int32
-	groupMemberIndex := 0
-	for podGpuNum, podPhysicalPlacements := range groupPhysicalPlacement {
-		mbi := api.AffinityGroupMemberBindInfo{
-			PodPlacements: make([]api.PodPlacementInfo, len(podPhysicalPlacements)),
-		}
-		for podIndex := int32(0); podIndex < int32(len(podPhysicalPlacements)); podIndex++ {
-			mbi.PodPlacements[podIndex].PhysicalGpuIndices = make(
-				[]int32, len(podPhysicalPlacements[podIndex]))
-			mbi.PodPlacements[podIndex].PreassignedCellLevels = make(
-				[]int32, len(podPhysicalPlacements[podIndex]))
-			for gpuIndex := 0; gpuIndex < len(podPhysicalPlacements[podIndex]); gpuIndex++ {
-				pGpu := podPhysicalPlacements[podIndex][gpuIndex]
-				if pGpu == nil {
-					// TODO: Should insist binding and continue to force bind, then the Pod may
-					//  run or retry, instead of stuck in PodBinding state forever here.
-					panic("Resources previously allocated has been invalid; pod should wait")
-				}
-				nodes, gpuIndices := pGpu.(*PhysicalCell).GetPhysicalPlacement()
-				// here each cell (i.e., pGpu) is only one GPU, hence we takes the first element
-				// in its "nodes" and "gpuIndices" as the node and GPU address
-				if mbi.PodPlacements[podIndex].PhysicalNode == "" {
-					mbi.PodPlacements[podIndex].PhysicalNode = nodes[0]
-				}
-				mbi.PodPlacements[podIndex].PhysicalGpuIndices[gpuIndex] = gpuIndices[0]
-				if groupVirtualPlacement != nil {
-					vGpu := groupVirtualPlacement[podGpuNum][podIndex][gpuIndex].(*VirtualCell)
-					mbi.PodPlacements[podIndex].PreassignedCellLevels[gpuIndex] = int32(
-						vGpu.GetPreAssignedCell().GetLevel())
-				} else {
-					mbi.PodPlacements[podIndex].PreassignedCellLevels[gpuIndex] = -1
-				}
-			}
-		}
-		if podGpuNum == currentGpuNum {
-			selectedNode = mbi.PodPlacements[currentPodIndex].PhysicalNode
-			selectedGpuIndices = mbi.PodPlacements[currentPodIndex].PhysicalGpuIndices
-		}
-		affinityGroupBindInfo[groupMemberIndex] = mbi
-		groupMemberIndex++
-	}
-	return affinityGroupBindInfo, selectedNode, selectedGpuIndices
+	return preemptionVictims, nodesHaveVictims
 }
 
 // buddyAlloc allocates a free cell at a certain level from a free list.

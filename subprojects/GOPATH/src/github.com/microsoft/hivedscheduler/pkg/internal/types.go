@@ -91,7 +91,7 @@ type SchedulerAlgorithm interface {
 // Notes:
 // 1. If the SchedulerAlgorithm found sufficient free resource, only PodBindInfo
 //    should be set.
-//    If the SchedulerAlgorithm found sufficient preemptable resource, only
+//    If the SchedulerAlgorithm found sufficient preemptible resource, only
 //    PodPreemptInfo should be set.
 //    Otherwise, only PodWaitInfo can be optionally set.
 // 2. The selected node in PodBindInfo requires:
@@ -146,13 +146,13 @@ const PodUnknown PodState = "Unknown"
 
 // [AllocatedState]: The Pod is considered to be allocated from the scheduler view.
 const (
-	// Pod is waiting for preemptable or free resource to appear.
+	// Pod is waiting for preemptible or free resource to appear.
 	// [StartState]
 	// -> PodPreempting
 	// -> PodBinding
 	PodWaiting PodState = "Waiting"
 
-	// Pod is waiting for the appeared preemptable resource to be free by preemption.
+	// Pod is waiting for the appeared preemptible resource to be free by preemption.
 	// -> PodBinding
 	// -> PodWaiting
 	PodPreempting PodState = "Preempting"
@@ -174,7 +174,7 @@ func IsAllocated(state PodState) bool {
 
 // No need to use it recover scheduler waiting resource
 type PodWaitInfo struct {
-	// The reason why no preemptable or free resource to allocate the Pod now.
+	// The reason why no preemptible or free resource to allocate the Pod now.
 	Reason string
 }
 

@@ -552,7 +552,7 @@ func (s *HivedScheduler) filterRoutine(args ei.ExtenderArgs) *ei.ExtenderFilterR
 		if result.PodWaitInfo != nil {
 			return &ei.ExtenderFilterResult{
 				Error: fmt.Sprintf(
-					"Pod is waiting for preemptable or free resource to appear: %v",
+					"Pod is waiting for preemptible or free resource to appear: %v",
 					result.PodWaitInfo.Reason),
 			}
 		} else {
@@ -646,7 +646,7 @@ func (s *HivedScheduler) preemptRoutine(args ei.ExtenderPreemptionArgs) *ei.Exte
 	// At this point, podState must be in:
 	// {PodWaiting}
 
-	// The Pod should keep on waiting for preemptable or free resource to appear,
+	// The Pod should keep on waiting for preemptible or free resource to appear,
 	// so do not preempt any victim.
 	return &ei.ExtenderPreemptionResult{}
 }

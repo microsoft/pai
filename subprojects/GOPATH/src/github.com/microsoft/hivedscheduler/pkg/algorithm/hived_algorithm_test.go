@@ -491,6 +491,12 @@ func testReconfiguration(t *testing.T, sConfig *api.Config) {
 	}
 	testCasesThatShouldSucceed(t, h)
 
+	// case: shorten cell chain
+	(*sConfig.PhysicalCluster).CellTypes["DGX2-V100-NODE"] = api.CellTypeSpec{
+		ChildCellType:   "DGX2-V100",
+		ChildCellNumber: 16,
+		IsNodeLevel:     true,
+	}
 	// case: physical cell not found
 	(*sConfig.PhysicalCluster).PhysicalCells[7].CellChildren[0].CellChildren[0].CellAddress = "0.0.3.100"
 	// case: insufficient VC quota
