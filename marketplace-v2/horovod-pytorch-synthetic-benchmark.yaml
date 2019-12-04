@@ -1,5 +1,5 @@
 protocolVersion: 2
-name: horovod_pytorch_synthetic_benchmark
+name: horovod_pytorch
 type: job
 version: horovod0.16.4-tf1.12.0-torch1.1.0-mxnet1.4.1-py3.5
 contributor: OpenPAI
