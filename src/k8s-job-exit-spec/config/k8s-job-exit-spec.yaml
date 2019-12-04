@@ -811,6 +811,7 @@ spec:
   pattern:
     runtimeContainerPatterns:
     - userLogRegex: "(?msi)tensorflow.*ResourceExhaustedError.*OOM.*"
+    - userLogRegex: "ran out of memory trying to allocate"
 
 - code: 222
   phrase: ContainerMPISegvFault
@@ -915,7 +916,7 @@ spec:
   - "Correct the user code"
   pattern:
     runtimeContainerPatterns:
-    - userLogRegex: "(?msi)segmentation fault"
+    - userLogRegex: "core dumped"
 
 - code: 228
   phrase: ContainerIncorrectParameterError
@@ -962,7 +963,6 @@ spec:
     - userLogRegex: "exception: unknown text header name"
     - userLogRegex: "exception: unknown label header name"
     - userLogRegex: "eoferror: ran out of input"
-    - userLogRegex: "doesn.*t reference file or directory.*it is possible that it is a race and hdfs hasn't been mounted yet"
     - userLogRegex: "utils.lua:.*input/output error"
     - userLogRegex: "tensorflow.python.framework.errors.unknownerror:.*input/output error"
     - userLogRegex: "oserror:.*input/output error"
@@ -1041,6 +1041,24 @@ spec:
   pattern:
     runtimeContainerPatterns:
     - userLogRegex: "indexerror:.*index out of range"
+
+
+- code: 234
+  phrase: ContainerSigvFault
+  issuer: PAI_RUNTIME
+  causer: USER_CONTAINER
+  type: USER_FAILURE
+  stage: RUNNING
+  behavior: PERMANENT
+  reaction: NEVER_RETRY
+  reason: "Container failed due to segmentation fault"
+  repro:
+  - "Access invalid memory address"
+  solution:
+  - "Correct the user code"
+  pattern:
+    runtimeContainerPatterns:
+    - userLogRegex: "(?msi)segmentation fault"
 
 - code: 249
   phrase: PAIRuntimeSSHBarrierTimeout
