@@ -772,20 +772,6 @@ func generatePodScheduleResult(
 	vc api.VirtualClusterName,
 	pod *core.Pod) internal.PodScheduleResult {
 
-	affinityGroupBindInfo, selectedNode, selectedGpuIndices := generateAffinityGroupBindInfo(
-		groupPhysicalPlacement, groupVirtualPlacement, cellLevelToType, currentGpuNum, currentPodIndex)
-	if affinityGroupBindInfo == nil {
-		reason := "insufficient capacity in physical cluster"
-		if groupVirtualPlacement != nil {
-			reason = fmt.Sprintf("insufficient quota in VC %v", vc)
-		}
-		return internal.PodScheduleResult{
-			PodWaitInfo: &internal.PodWaitInfo{
-				// TODO: Enrich the Pod Waiting Reason.
-				Reason: reason,
-			},
-		}
-	}
 	preemptionVictims, nodesHaveVictims := collectPreemptionVictims(groupPhysicalPlacement, newGroup)
 	if len(preemptionVictims) > 0 {
 		// we collect victims on a random node, as K8S preempts victims from only one node once.
@@ -803,10 +789,22 @@ func generatePodScheduleResult(
 			PodPreemptInfo: &internal.PodPreemptInfo{VictimPods: victimPods},
 		}
 	} else {
-		// we check suggested nodes after the preemption is done, otherwise the preemption victims
+		// we find the selected node after the preemption is done, otherwise the preemption victims
 		// may cause the selected node to be excluded from the suggested nodes
-		// TODO: Keep selectedNode within suggestedNodeSet, so here should be Unreachable
-		if !suggestedNodeSet.Contains(selectedNode) && newGroup {
+		affinityGroupBindInfo, selectedNode, selectedGpuIndices := generateAffinityGroupBindInfo(
+			groupPhysicalPlacement, groupVirtualPlacement, cellLevelToType, currentGpuNum, currentPodIndex, suggestedNodeSet)
+		if affinityGroupBindInfo == nil {
+			reason := "insufficient capacity in physical cluster"
+			if groupVirtualPlacement != nil {
+				reason = fmt.Sprintf("insufficient quota in VC %v", vc)
+			}
+			return internal.PodScheduleResult{
+				PodWaitInfo: &internal.PodWaitInfo{
+					Reason: reason,
+				},
+			}
+		}
+		if selectedNode == "" {
 			return internal.PodScheduleResult{
 				PodWaitInfo: &internal.PodWaitInfo{
 					Reason: fmt.Sprintf("node %v picked by algorithm but not in K8S candidates", selectedNode),
@@ -834,7 +832,8 @@ func generateAffinityGroupBindInfo(
 	groupVirtualPlacement map[int32][]CellList,
 	cellLevelToType map[CellChain]map[CellLevel]api.CellType,
 	currentGpuNum int32,
-	currentPodIndex int32) ([]api.AffinityGroupMemberBindInfo, string, []int32) {
+	currentPodIndex int32,
+	suggestedNodeSet common.Set) ([]api.AffinityGroupMemberBindInfo, string, []int32) {
 
 	if groupPhysicalPlacement == nil {
 		return nil, "", nil
@@ -874,7 +873,7 @@ func generateAffinityGroupBindInfo(
 				}
 			}
 		}
-		if podGpuNum == currentGpuNum {
+		if podGpuNum == currentGpuNum && suggestedNodeSet.Contains(mbi.PodPlacements[currentPodIndex].PhysicalNode) {
 			selectedNode = mbi.PodPlacements[currentPodIndex].PhysicalNode
 			selectedGpuIndices = mbi.PodPlacements[currentPodIndex].PhysicalGpuIndices
 		}
