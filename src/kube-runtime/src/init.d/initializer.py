@@ -125,7 +125,7 @@ def init_plugins(jobconfig, commands, plugins_path, runtime_path, taskrole):
 
         if os.path.isfile(plugin_scripts[1]):
             commands[1].insert(0, "/bin/bash {}".format(plugin_scripts[1]))
-        return plugin_scripts
+    return plugin_scripts
 
 
 def replace_ref(param_str, jobconfig, taskrole):
