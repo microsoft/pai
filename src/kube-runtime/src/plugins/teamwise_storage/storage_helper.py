@@ -65,20 +65,20 @@ class StorageHelper():
         """
         server_type = server_config["type"]
         if server_type == "nfs":
-            return self.__get_nfs_setup_commands(server_config, mount_point,
-                                                 relative_path, phrase)
+            return self._get_nfs_setup_commands(server_config, mount_point,
+                                                relative_path, phrase)
         if server_type == "samba":
-            return self.__get_samba_setup_commands(server_config, mount_point,
-                                                   relative_path, phrase)
+            return self._get_samba_setup_commands(server_config, mount_point,
+                                                  relative_path, phrase)
         if server_type == "azurefile":
-            return self.__get_azurefile_setup_commands(server_config,
-                                                       mount_point,
-                                                       relative_path, phrase)
+            return self._get_azurefile_setup_commands(server_config,
+                                                      mount_point,
+                                                      relative_path, phrase)
         if server_type == "azureblob":
-            return self.__get_azureblob_setup_commands(server_config,
-                                                       mount_point,
-                                                       relative_path,
-                                                       pre_mounted_dir, phrase)
+            return self._get_azureblob_setup_commands(server_config,
+                                                      mount_point,
+                                                      relative_path,
+                                                      pre_mounted_dir, phrase)
         raise RuntimeError("Not supproted server type {}".format(server_type))
 
     def generate_make_tmp_folder_command(self, tmp_folder,
@@ -89,7 +89,7 @@ class StorageHelper():
                     "mkdir --parents {}".format(
                         posixpath.normpath(mount_info["mountPoint"])),
                     "mkdir --parents {}".format(
-                        self.__render_path(
+                        self._render_path(
                             posixpath.join(tmp_folder, mount_info["path"]), ))
                 ], mount_infos))
         mkdir_commands = [
@@ -98,8 +98,8 @@ class StorageHelper():
         ]
         return mkdir_commands
 
-    def __get_nfs_setup_commands(self, server_config, mount_point,
-                                 relative_path, phrase) -> list:
+    def _get_nfs_setup_commands(self, server_config, mount_point,
+                                relative_path, phrase) -> list:
         if phrase == "pre_mount":
             return [
                 "mkdir --parents {}".format(mount_point),
@@ -107,7 +107,7 @@ class StorageHelper():
             ]
         if phrase in ("tmp_mount", "real_mount"):
             server_data = server_config["data"]
-            rendered_path = self.__render_path(
+            rendered_path = self._render_path(
                 posixpath.join(server_data["rootPath"], relative_path))
             return [
                 "mount -t nfs4 {}:{} {}".format(
@@ -121,8 +121,8 @@ class StorageHelper():
             ]
         raise RuntimeError("Unsupported phrase {}".format(phrase))
 
-    def __get_samba_setup_commands(self, server_config, mount_point,
-                                   relative_path, phrase) -> list:
+    def _get_samba_setup_commands(self, server_config, mount_point,
+                                  relative_path, phrase) -> list:
         if phrase == "pre_mount":
             return [
                 "mkdir --parents {}".format(mount_point),
@@ -130,7 +130,7 @@ class StorageHelper():
             ]
         if phrase in ("tmp_mount", "real_mount"):
             server_data = server_config["data"]
-            rendered_path = self.__render_path(
+            rendered_path = self._render_path(
                 posixpath.join(server_data["rootPath"], relative_path))
             domain = ""
             if server_data["domain"]:
@@ -148,8 +148,8 @@ class StorageHelper():
             ]
         raise RuntimeError("Unsupported phrase {}".format(phrase))
 
-    def __get_azurefile_setup_commands(self, server_config, mount_point,
-                                       relative_path, phrase) -> list:
+    def _get_azurefile_setup_commands(self, server_config, mount_point,
+                                      relative_path, phrase) -> list:
         server_data = server_config["data"]
         if phrase == "pre_mount":
             ret = [
@@ -170,7 +170,7 @@ class StorageHelper():
                 ]
             return ret
         if phrase in ("tmp_mount", "real_mount"):
-            rendered_path = self.__render_path(
+            rendered_path = self._render_path(
                 posixpath.join(server_data["fileShare"], relative_path))
             if "proxy" in server_data:
                 return [
@@ -195,9 +195,9 @@ class StorageHelper():
             ]
         raise RuntimeError("Unsupported phrase {}".format(phrase))
 
-    def __get_azureblob_setup_commands(self, server_config, mount_point,
-                                       relative_path, pre_mounted_dir,
-                                       phrase) -> list:
+    def _get_azureblob_setup_commands(self, server_config, mount_point,
+                                      relative_path, pre_mounted_dir,
+                                      phrase) -> list:
         server_data = server_config["data"]
         server_name = server_config["spn"]
         tmp_path = "/mnt/resource/blobfusetmp/{}".format(server_name)
@@ -231,7 +231,7 @@ class StorageHelper():
                 "-o entry_timeout=240 -o negative_timeout=120"
             ]
         if phrase == "real_mount":
-            rendered_path = self.__render_path(
+            rendered_path = self._render_path(
                 posixpath.join(pre_mounted_dir, relative_path))
             return [
                 "rm -r {}".format(mount_point),
@@ -241,7 +241,7 @@ class StorageHelper():
             return []
         raise RuntimeError("Unsupported phrase {}".format(phrase))
 
-    def __render_path(self, ori_path) -> str:
+    def _render_path(self, ori_path) -> str:
         rendered_path = re.compile("%USER",
                                    re.IGNORECASE).sub(self.user_name, ori_path)
         rendered_path = re.compile("%JOB",
