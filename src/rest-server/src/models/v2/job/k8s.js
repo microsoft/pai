@@ -571,15 +571,7 @@ const generateFrameworkDescription = (frameworkName, virtualCluster, config, raw
   let totalGpuNumber = 0;
   for (let taskRole of Object.keys(config.taskRoles)) {
     totalGpuNumber += config.taskRoles[taskRole].resourcePerInstance.gpu * config.taskRoles[taskRole].instances;
-<<<<<<< HEAD
-<<<<<<< HEAD
-    const taskRoleDescription = generateTaskRole(frameworkName, taskRole, frameworkLabels, config, userToken);
-=======
-    const taskRoleDescription = await generateTaskRole(taskRole, frameworkLabels, config);
->>>>>>> change to use k8s secret
-=======
-    const taskRoleDescription = generateTaskRole(taskRole, frameworkLabels, config, storageConfig);
->>>>>>> fix review comment
+    const taskRoleDescription = generateTaskRole(frameworkName, taskRole, frameworkLabels, config, storageConfig);
     taskRoleDescription.task.pod.spec.priorityClassName = `${encodeName(frameworkName)}-priority`;
     taskRoleDescription.task.pod.spec.containers[0].env.push(...envlist.concat([
       {
