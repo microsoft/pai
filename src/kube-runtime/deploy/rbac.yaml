@@ -26,9 +26,9 @@ kind: ClusterRole
 metadata:
   name: runtime-framework-role
 rules:
-  - apiGroups: ["frameworkcontroller.microsoft.com"]
-    resources: ["frameworks"]
-    verbs: ["get", "watch", "list"]
+- apiGroups: ["frameworkcontroller.microsoft.com"]
+  resources: ["frameworks"]
+  verbs: ["get", "watch", "list"]
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
