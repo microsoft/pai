@@ -218,8 +218,8 @@ def main():
     server_set_hdfs_parser = server_set_subparsers.add_parser("hdfs")
     server_set_hdfs_parser.add_argument("namenode", metavar="namenode", help="HDFS name node")
     server_set_hdfs_parser.add_argument("port", metavar="port", help="HDFS name node port")
-    server_set_hdfs_parser.add_argument("webhdfs_uri", metavar="webhdfs_uri", help="webHDFS URI")
     server_set_hdfs_parser.add_argument("root_path", metavar="root_path", help="HDFS root path")
+    server_set_hdfs_parser.add_argument("webhdfs_uri", metavar="webhdfs_uri", help="webHDFS URI")
     server_set_hdfs_parser.set_defaults(func=server_set, server_type="hdfs")
     # ./storagectl.py server list [-n SERVER_NAME_1, SERVER_NAME_2 ...]
     server_list_parser = server_subparsers.add_parser("list")
