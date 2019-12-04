@@ -126,7 +126,6 @@ export const KeyValueList = ({
       key: 'remove',
       name: 'Remove',
       minWidth: 50,
-      style: { padding: 0 },
       onRender: (item, idx) => (
         <div
           style={{

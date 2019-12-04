@@ -24,7 +24,7 @@
  */
 
 import PropTypes from 'prop-types';
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useMemo } from 'react';
 import {
   DetailsList,
   CheckboxVisibility,
@@ -41,6 +41,7 @@ import {
   PrimaryButton,
   DefaultButton,
   SpinButton,
+  FontClassNames,
 } from 'office-ui-fabric-react';
 import { BasicSection } from '../basic-section';
 import { FormShortSection } from '../form-page';
@@ -66,30 +67,55 @@ export const PortsList = React.memo(({ onChange, ports }) => {
     setShowDialog(false);
   };
 
-  const labelErrorMessage =
-    !PORT_LABEL_REGEX.test(label) &&
-    'Should be string in ^[a-zA-Z_][a-zA-Z0-9_]*$ format';
+  const labelErrorMessage = useMemo(() => {
+    if (!PORT_LABEL_REGEX.test(label)) {
+      return 'Should be string in ^[a-zA-Z_][a-zA-Z0-9_]*$ format';
+    }
+    if (ports.find(item => item.key === label)) {
+      return 'Duplicated port label';
+    }
+    return null;
+  }, [label]);
 
   const columns = [
     {
       key: 'name',
       name: 'Port Label',
       minWidth: 60,
-      fieldName: 'key',
+      className: FontClassNames.mediumPlus,
+      onRender: item => (
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            height: '100%',
+          }}
+        >
+          {item.key}
+        </div>
+      ),
     },
     {
-      // TODO: vertical align
-      // TODO: duplicate key
       key: 'value',
       name: 'Count',
-      minWidth: 60,
-      fieldName: 'value',
+      minWidth: 50,
+      className: FontClassNames.mediumPlus,
+      onRender: item => (
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            height: '100%',
+          }}
+        >
+          {item.value}
+        </div>
+      ),
     },
     {
       key: 'remove',
       name: 'Remove',
       minWidth: 50,
-      style: { padding: 0 },
       onRender: (item, idx) => (
         <div
           style={{
