@@ -24,47 +24,47 @@ metadata:
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
-  name: frameworkbarrier-role
+  name: runtime-framework-role
 rules:
-  - apiGroups: ["frameworkcontroller.microsoft.com"]
-    resources: ["frameworks"]
-    verbs: ["get", "watch", "list"]
+- apiGroups: ["frameworkcontroller.microsoft.com"]
+  resources: ["frameworks"]
+  verbs: ["get", "watch", "list"]
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:
-  name: storage-role
+  name: runtime-storage-role
   namespace: pai-storage
 rules:
-  - apiGroups: [""]
-    resources: ["secrets"]
-    resourceNames: ["storage-server", "storage-config"]
-    verbs: ["get", "list"]
+- apiGroups: [""]
+  resources: ["secrets"]
+  resourceNames: ["storage-server", "storage-config"]
+  verbs: ["get", "list"]
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
-  name: frameworkbarrier-role-binding
+  name: runtime-framework-role-binding
   namespace: default
 subjects:
-  - kind: ServiceAccount
-    name: runtime-account
-    namespace: default
+- kind: ServiceAccount
+  name: runtime-account
+  namespace: default
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
-  name: frameworkbarrier-role
+  name: runtime-framework-role
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
-  name: storage-role-binding
+  name: runtime-storage-role-binding
   namespace: pai-storage
 subjects:
-  - kind: ServiceAccount
-    name: runtime-account
-    namespace: default
+- kind: ServiceAccount
+  name: runtime-account
+  namespace: default
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: Role
-  name: storage-role
+  name: runtime-storage-role

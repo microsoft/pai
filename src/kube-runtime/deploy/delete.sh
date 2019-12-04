@@ -24,22 +24,22 @@ if kubectl get configmap | grep -q "runtime-exit-spec-configuration"; then
 fi
 
 if kubectl get serviceaccount | grep -q "runtime-account"; then
-    kubectl delete serviceaccount frameworkbarrier-account || exit $?
+    kubectl delete serviceaccount runtime-account || exit $?
 fi
 
-if kubectl get clusterrole | grep -q "frameworkbarrier-role"; then
-    kubectl delete clusterrole frameworkbarrier-role || exit $?
+if kubectl get clusterrole | grep -q "runtime-framework-role"; then
+    kubectl delete clusterrole runtime-framework-role || exit $?
 fi
 
-if kubectl get role | grep -q "storage-role"; then
-    kubectl delete role storage-role || exit $?
+if kubectl get role | grep -q "runtime-storage-role"; then
+    kubectl delete role runtime-storage-role || exit $?
 fi
 
-if kubectl get clusterrolebinding | grep -q "frameworkbarrier-role-binding"; then
-    kubectl delete clusterrolebinding frameworkbarrier-role-binding || exit $?
+if kubectl get clusterrolebinding | grep -q "runtime-framework-role-binding"; then
+    kubectl delete clusterrolebinding framework-role-binding || exit $?
 fi
 
-if kubectl get rrolebinding | grep -q "storage-role-binding"; then
+if kubectl get rrolebinding | grep -q "runtime-storage-role-binding"; then
     kubectl delete rolebinding storage-role-binding || exit $?
 fi
 

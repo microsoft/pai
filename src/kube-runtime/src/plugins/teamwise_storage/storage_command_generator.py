@@ -28,7 +28,7 @@ LOGGER = logging.getLogger(__name__)
 
 USER_NAME = os.environ.get("PAI_USER_NAME")
 JOB_NAME = os.environ.get("PAI_JOB_NAME")
-STORAGE_CONFIGS = os.environ.get("SOTRAGE_CONFIGS")
+STORAGE_CONFIGS = os.environ.get("STORAGE_CONFIGS")
 KUBE_APISERVER_ADDRESS = os.environ.get("KUBE_APISERVER_ADDRESS")
 
 KUBE_TOKEN_FILE = "/var/run/secrets/kubernetes.io/serviceaccount/token"
@@ -172,9 +172,9 @@ class StorageCommandGenerator:
                 user_storage_config)
             if not default_storage_configs:
                 LOGGER.error(
-                    "Not set default stroage config for user %s, please contect admin",
+                    "Not set default storage config for user %s, please connect admin",
                     USER_NAME)
-                raise RuntimeError("Not set default stroage")
+                raise RuntimeError("Not set default storage")
             storage_config_names = default_storage_configs
         else:
             storage_config_names = parameters["storageConfigNames"]

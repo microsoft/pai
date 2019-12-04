@@ -291,7 +291,7 @@ const convertFrameworkDetail = async (framework) => {
   return detail;
 };
 
-const generateTaskRole = (frameworkName, taskRole, labels, config) => {
+const generateTaskRole = (frameworkName, taskRole, labels, config, storageConfig) => {
   const ports = config.taskRoles[taskRole].resourcePerInstance.ports || {};
   for (let port of ['ssh', 'http']) {
     if (!(port in ports)) {
@@ -325,8 +325,6 @@ const generateTaskRole = (frameworkName, taskRole, labels, config) => {
     retryPolicy.fancyRetryPolicy = true;
     retryPolicy.maxRetryCount = config.taskRoles[taskRole].taskRetryCount || 0;
   }
-
-  const storageConfig = await userModel.getUserStorageConfigs(labels.userName);
 
   const frameworkTaskRole = {
     name: convertName(taskRole),
@@ -376,7 +374,7 @@ const generateTaskRole = (frameworkName, taskRole, labels, config) => {
                   value: `${labels.userName}~${labels.jobName}`,
                 },
                 {
-                  name: 'SOTRAGE_CONFIGS',
+                  name: 'STORAGE_CONFIGS',
                   value: JSON.stringify(storageConfig),
                 },
               ],
@@ -538,7 +536,7 @@ const generateTaskRole = (frameworkName, taskRole, labels, config) => {
   return frameworkTaskRole;
 };
 
-const generateFrameworkDescription = async (frameworkName, virtualCluster, config, rawConfig) => {
+const generateFrameworkDescription = (frameworkName, virtualCluster, config, rawConfig, storageConfig) => {
   const [userName, jobName] = frameworkName.split(/~(.+)/);
   const frameworkLabels = {
     jobName,
@@ -574,10 +572,14 @@ const generateFrameworkDescription = async (frameworkName, virtualCluster, confi
   for (let taskRole of Object.keys(config.taskRoles)) {
     totalGpuNumber += config.taskRoles[taskRole].resourcePerInstance.gpu * config.taskRoles[taskRole].instances;
 <<<<<<< HEAD
+<<<<<<< HEAD
     const taskRoleDescription = generateTaskRole(frameworkName, taskRole, frameworkLabels, config, userToken);
 =======
     const taskRoleDescription = await generateTaskRole(taskRole, frameworkLabels, config);
 >>>>>>> change to use k8s secret
+=======
+    const taskRoleDescription = generateTaskRole(taskRole, frameworkLabels, config, storageConfig);
+>>>>>>> fix review comment
     taskRoleDescription.task.pod.spec.priorityClassName = `${encodeName(frameworkName)}-priority`;
     taskRoleDescription.task.pod.spec.containers[0].env.push(...envlist.concat([
       {
@@ -841,7 +843,8 @@ const put = async (frameworkName, config, rawConfig) => {
     throw createError('Bad Request', 'BadConfigurationError', 'Job name too long, please try a shorter one.');
   }
 
-  const frameworkDescription = await generateFrameworkDescription(frameworkName, virtualCluster, config, rawConfig);
+  const storageConfig = await userModel.getUserStorageConfigs(userName);
+  const frameworkDescription = await generateFrameworkDescription(frameworkName, virtualCluster, config, rawConfig, storageConfig);
 
   // generate image pull secret
   const auths = Object.values(config.prerequisites.dockerimage)

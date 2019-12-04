@@ -22,7 +22,7 @@ import sys
 #pylint: disable=wrong-import-position
 sys.path.append(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
 from plugin_utils import plugin_init, inject_commands
-from teamwise_storage.sotrage_command_generator import StorageCommandGenerator
+from teamwise_storage.storage_command_generator import StorageCommandGenerator
 #pylint: enable=wrong-import-position
 
 logging.basicConfig(

@@ -30,7 +30,7 @@ sys.path.append(
     os.path.join(os.path.dirname(os.path.abspath(__file__)), "../src/plugins"))
 
 import initializer
-import teamwise_storage.init as storage_plugin
+from teamwise_storage import storage_command_generator
 
 #pylint: enable=wrong-import-position
 
@@ -44,10 +44,10 @@ class TestRuntime(unittest.TestCase):
         except OSError:
             pass
         # pylint: disable=line-too-long
-        sotrage_command_generator.USER_NAME = "test-user"
-        sotrage_command_generator.JOB_NAME = "job"
-        sotrage_command_generator.STORAGE_CONFIGS = "[\"STORAGE_NFS\", \"STORAGE_TEST\", \"STORAGE_SAMBA\", \"STORAGE_AZURE_FILE\", \"STORAGE_AZURE_BLOB\"]"
-        sotrage_command_generator.KUBE_APISERVER_ADDRESS = "http://api_server_url:8080"
+        storage_command_generator.USER_NAME = "test-user"
+        storage_command_generator.JOB_NAME = "job"
+        storage_command_generator.STORAGE_CONFIGS = "[\"STORAGE_NFS\", \"STORAGE_TEST\", \"STORAGE_SAMBA\", \"STORAGE_AZURE_FILE\", \"STORAGE_AZURE_BLOB\"]"
+        storage_command_generator.KUBE_APISERVER_ADDRESS = "http://api_server_url:8080"
 
     def test_cmd_plugin(self):
         job_path = "cmd_test_job.yaml"
@@ -109,7 +109,7 @@ class TestRuntime(unittest.TestCase):
         mock_get_secrets.side_effect = self.get_secret
 
         parameters = {"storageConfigNames": ["STORAGE_NFS"]}
-        command_generator = sotrage_command_generator.StorageCommandGenerator()
+        command_generator = storage_command_generator.StorageCommandGenerator()
         storage_commands = command_generator.generate_plugin_commands(
             parameters)
 
@@ -130,7 +130,7 @@ class TestRuntime(unittest.TestCase):
     @mock.patch("kubernetes.client.CoreV1Api.read_namespaced_secret")
     def test_default_storage_plugin(self, mock_get_secrets):
         mock_get_secrets.side_effect = self.get_secret
-        command_generator = sotrage_command_generator.StorageCommandGenerator()
+        command_generator = storage_command_generator.StorageCommandGenerator()
         default_storage_commands = command_generator.generate_plugin_commands(
             [])
 
@@ -152,7 +152,7 @@ class TestRuntime(unittest.TestCase):
     def test_teamwise_samba_storage_plugin(self, mock_get_secrets):
         parameters = {"storageConfigNames": ["STORAGE_SAMBA"]}
         mock_get_secrets.side_effect = self.get_secret
-        command_generator = sotrage_command_generator.StorageCommandGenerator()
+        command_generator = storage_command_generator.StorageCommandGenerator()
         storage_commands = command_generator.generate_plugin_commands(
             parameters)
 
@@ -174,7 +174,7 @@ class TestRuntime(unittest.TestCase):
     def test_teamwise_azure_file_storage_plugin(self, mock_get_secrets):
         parameters = {"storageConfigNames": ["STORAGE_AZURE_FILE"]}
         mock_get_secrets.side_effect = self.get_secret
-        command_generator = sotrage_command_generator.StorageCommandGenerator()
+        command_generator = storage_command_generator.StorageCommandGenerator()
         storage_commands = command_generator.generate_plugin_commands(
             parameters)
 
@@ -197,7 +197,7 @@ class TestRuntime(unittest.TestCase):
     def test_teamwise_azure_blob_storage_plugin(self, mock_get_secrets):
         parameters = {"storageConfigNames": ["STORAGE_AZURE_BLOB"]}
         mock_get_secrets.side_effect = self.get_secret
-        command_generator = sotrage_command_generator.StorageCommandGenerator()
+        command_generator = storage_command_generator.StorageCommandGenerator()
         storage_commands = command_generator.generate_plugin_commands(
             parameters)
 

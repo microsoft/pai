@@ -49,8 +49,8 @@ class StorageHelper():
             # Check duplicated mount points
             if mount_info["mountPoint"] in mount_points:
                 raise RuntimeError(
-                    "Mount point error! More than one mount point [" +
-                    mount_info["mountPoint"] + "]!")
+                    "Mount point error! More than one mount point [{}]!".
+                    format(mount_info["mountPoint"]))
             mount_points.append(mount_info["mountPoint"])
 
     def get_setup_command(self,
@@ -136,10 +136,10 @@ class StorageHelper():
             if server_data["domain"]:
                 domain = ",domain={}".format(server_data["domain"])
             return [
-                "mount -t cifs //{}{} {}".format(server_data["address"],
-                                                 rendered_path, mount_point) +
-                " -o vers=3.0,username={},password={}".format(
-                    server_data["userName"], server_data["password"]) + domain
+                "mount -t cifs //{}{} {} -o vers=3.0,username={},password={}".
+                format(server_data["address"], rendered_path, mount_point,
+                       server_data["userName"], server_data["password"]) +
+                domain
             ]
         if phrase == "post_mount":
             return [
