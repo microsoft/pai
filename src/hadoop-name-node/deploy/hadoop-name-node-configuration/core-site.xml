@@ -27,6 +27,12 @@
   </property>
 
   <property>
+    <name>fs.permissions.umask-mode</name>
+    <value>000</value>
+  </property>
+
+
+  <property>
     <name>hadoop.tmp.dir</name>
     <value>/var/lib/hadoopdata</value>
     <description>

@@ -348,9 +348,4 @@
   </description>
 </property>
 
-<property>
-  <name>fs.permissions.umask-mode</name>
-  <value>000</value>
-</property>
-
 </configuration>
