@@ -298,7 +298,7 @@ class Cluster:
     @exception_free(RestSrvError, None)
     def rest_api_storage_servers(self, names: list):
         return get_response(
-            'POST', [self.rest_srv, 'v2', 'storage', 'servers'],
+            'GET', [self.rest_srv, 'v2', 'storage', 'server'],
             headers={
                 'Authorization': 'Bearer {}'.format(self.token),
             },
@@ -311,7 +311,7 @@ class Cluster:
     # TODO
     def rest_api_storage_configs(self, names: list):
         return get_response(
-            'POST', [self.rest_srv, 'v2', 'storage', 'configs'],
+            'GET', [self.rest_srv, 'v2', 'storage', 'config'],
             headers={
                 'Authorization': 'Bearer {}'.format(self.token),
             },
