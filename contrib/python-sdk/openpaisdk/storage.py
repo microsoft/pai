@@ -138,7 +138,8 @@ def pai_open_fs(path: str):
         if storage['type'] == 'hdfs':
             from openpaisdk.fs_pai import WEBHDFS
             token = storage.get('extension', {}).get('token', None)
-            f = WEBHDFS(storage["webhdfs"], storage.get('user', cluster['user']), token=token)
+            print(storage)
+            f = WEBHDFS(storage["data"]["webhdfs"], storage.get('user', cluster['user']), token=token)
         elif storage['type'] == 'nfs':
             from platform import platform
             from fs.osfs import OSFS
