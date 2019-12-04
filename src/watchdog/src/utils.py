@@ -1,6 +1,3 @@
-import re
-
-
 def walk_json_field_safe(obj, *fields):
     """ for example a=[{"a": {"b": 2}}]
     walk_json_field_safe(a, 0, "a", "b") will get 2

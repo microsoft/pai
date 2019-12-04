@@ -12,10 +12,11 @@ class EventType(Enum):
 
 
 class Event:
-    def __init__(self, event_type, handler, *kargs):
+    def __init__(self, event_type, handler, *args, **kargs):
         self.event_type = event_type
         self.handler = handler
-        self.args = kargs
+        self.args = args
+        self.kargs = kargs
 
 
 class EventProssesor:
@@ -28,7 +29,7 @@ class EventProssesor:
 
     def _handle_event(self):
         event = self._queue.get_nowait()
-        event.handler(event.args)
+        event.handler(*event.args, **event.kargs)
 
     def _process_events(self):
         while True:
@@ -40,7 +41,9 @@ class EventProssesor:
                 time.sleep(1)
 
     def start(self):
-        threading.Thread(target=self._process_events, name="process events", args=(self))
+        threading.Thread(target=self._process_events,
+                         name="process events",
+                         args=(self, ))
 
     def stop(self):
         self._stop = True
