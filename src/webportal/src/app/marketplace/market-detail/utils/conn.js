@@ -13,38 +13,26 @@ export async function fetchMarketItem() {
 }
 
 export async function updateMarketItem(
-  id,
   name,
-  author,
-  createDate,
   updateDate,
   category,
   tags,
   introduction,
   description,
-  jobConfig,
-  submits,
-  stars,
 ) {
-  const url = `${serverUri}/api/v2/marketplace/items/${id}`;
+  const url = `${serverUri}/api/v2/marketplace/items/${params.get('itemId')}`;
   const res = await fetch(url, {
     method: 'PUT',
     headers: {
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({
-      id: id,
       name: name,
-      author: author,
-      createDate: createDate,
       updateDate: updateDate,
       category: category,
       tags: tags,
       introduction: introduction,
       description: description,
-      jobConfig: jobConfig,
-      submits: submits,
-      stars: stars,
     }),
   });
   const json = await res.json();

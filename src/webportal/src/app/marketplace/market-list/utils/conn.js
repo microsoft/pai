@@ -4,10 +4,9 @@ export async function fetchMarketItemList() {
   const url = `${serverUri}/api/v2/marketplace/items`;
   const res = await fetch(url);
   const json = await res.json();
-
   // order by updateDate
   json.sort(function(a, b) {
-    return new Date(b.updatedate) - new Date(a.updatedate);
+    return new Date(b.updateDate) - new Date(a.updateDate);
   });
 
   if (res.ok) {
