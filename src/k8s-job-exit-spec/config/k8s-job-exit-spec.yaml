@@ -811,7 +811,6 @@ spec:
   pattern:
     runtimeContainerPatterns:
     - userLogRegex: "(?msi)tensorflow.*ResourceExhaustedError.*OOM.*"
-    - userLogRegex: "ran out of memory trying to allocate"
 
 - code: 222
   phrase: ContainerMPISegvFault
@@ -884,7 +883,7 @@ spec:
     - userLogRegex: "dropout supported only in cudnn v"
 
 - code: 226
-  phrase: ContainerGpuOOMKilled
+  phrase: ContainerCudaOOMKilled
   issuer: PAI_RUNTIME
   causer: USER_CONTAINER
   type: USER_FAILURE
@@ -902,7 +901,7 @@ spec:
     - userLogRegex: "cuda runtime error (2) : out of memory"
 
 - code: 227
-  phrase: ContainerEnginCoreDump
+  phrase: ContainerEngineCoreDump
   issuer: PAI_RUNTIME
   causer: USER_CONTAINER
   type: USER_FAILURE
@@ -916,8 +915,7 @@ spec:
   - "Correct the user code"
   pattern:
     runtimeContainerPatterns:
-    - userLogRegex: "segmentation fault"
-    - userLogRegex: "core dumped"
+    - userLogRegex: "(?msi)segmentation fault"
 
 - code: 228
   phrase: ContainerIncorrectParameterError
@@ -936,7 +934,7 @@ spec:
     runtimeContainerPatterns:
     - userLogRegex: "(?msi)unknown option"
     - userLogRegex: "typeerror: dynamic_rnn() got multiple values for keyword argument"
-    - userLogRegex: "bad argument #2 to '\\?'"
+    - userLogRegex: "bad argument #2 to .*"
     - userLogRegex: "invalid argument:"
     - userLogRegex: "option -start_symbol has no default value"
 
@@ -948,7 +946,7 @@ spec:
   stage: RUNNING
   behavior: PERMANENT
   reaction: NEVER_RETRY
-  reason: "Container failed due to in correct data model"
+  reason: "Container failed due to incorrect data model"
   repro:
   - "Call DL framework lib with incorrect data model format"
   solution:
