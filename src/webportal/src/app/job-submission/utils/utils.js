@@ -18,7 +18,7 @@ import {
 const HIDE_SECRET = '******';
 
 export const dispatchResizeEvent = () => {
-  setTimeout(() => window.dispatchEvent(new Event('resize')), 200);
+  setTimeout(() => window.dispatchEvent(new Event('resize')), 100);
 };
 
 export const keyValueArrayReducer = (acc, cur) => {

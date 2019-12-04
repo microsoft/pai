@@ -51,19 +51,36 @@ const PORT_LABEL_REGEX = /^[a-zA-Z_][a-zA-Z0-9_]*$/;
 export const PortsList = React.memo(({ onChange, ports }) => {
   const [showDialog, setShowDialog] = useState(false);
   const [label, setLabel] = useState('');
+  const [currentIdx, setCurrentIdx] = useState();
   const countRef = useRef();
 
   const onRemove = idx => {
     onChange([...ports.slice(0, idx), ...ports.slice(idx + 1)]);
   };
 
-  const onAddPort = () => {
-    onChange([...ports, { key: label, value: countRef.current.value }]);
+  const onEdit = idx => {
+    setCurrentIdx(idx);
+    setLabel(ports[idx].key);
+    setShowDialog(true);
+  };
+
+  const onDialogSave = () => {
+    if (currentIdx == null) {
+      onChange([...ports, { key: label, value: countRef.current.value }]);
+    } else {
+      onChange([
+        ...ports.slice(0, currentIdx),
+        { key: label, value: countRef.current.value },
+        ...ports.slice(currentIdx + 1),
+      ]);
+    }
     setLabel('');
+    setCurrentIdx(null);
     setShowDialog(false);
   };
-  const onDismiss = () => {
+  const onDialogDismiss = () => {
     setLabel('');
+    setCurrentIdx(null);
     setShowDialog(false);
   };
 
@@ -71,7 +88,8 @@ export const PortsList = React.memo(({ onChange, ports }) => {
     if (!PORT_LABEL_REGEX.test(label)) {
       return 'Should be string in ^[a-zA-Z_][a-zA-Z0-9_]*$ format';
     }
-    if (ports.find(item => item.key === label)) {
+    const idx = ports.findIndex(item => item.key === label);
+    if (idx !== -1 && idx !== currentIdx) {
       return 'Duplicated port label';
     }
     return null;
@@ -113,23 +131,27 @@ export const PortsList = React.memo(({ onChange, ports }) => {
       ),
     },
     {
-      key: 'remove',
-      name: 'Remove',
-      minWidth: 50,
+      key: 'action',
+      name: 'Action',
+      minWidth: 100,
       onRender: (item, idx) => (
         <div
           style={{
             display: 'flex',
             alignItems: 'baseline',
-            justifyContent: 'center',
             height: '100%',
           }}
         >
-          <IconButton
-            key={`remove-button-${idx}`}
-            iconProps={{ iconName: 'Delete' }}
-            onClick={() => onRemove(idx)}
-          />
+          <Stack horizontal gap='s1'>
+            <IconButton
+              iconProps={{ iconName: 'Edit' }}
+              onClick={() => onEdit(idx)}
+            />
+            <IconButton
+              iconProps={{ iconName: 'Delete' }}
+              onClick={() => onRemove(idx)}
+            />
+          </Stack>
         </div>
       ),
     },
@@ -161,7 +183,7 @@ export const PortsList = React.memo(({ onChange, ports }) => {
             </CommandBarButton>
             <Dialog
               hidden={!showDialog}
-              onDismiss={onDismiss}
+              onDismiss={onDialogDismiss}
               dialogContentProps={{
                 type: DialogType.normal,
                 title: 'Add port',
@@ -193,6 +215,7 @@ export const PortsList = React.memo(({ onChange, ports }) => {
                   <SpinButton
                     label='Count'
                     labelPosition='Top'
+                    defaultValue={currentIdx != null && ports[currentIdx].value}
                     min={1}
                     max={100}
                     step={1}
@@ -202,11 +225,11 @@ export const PortsList = React.memo(({ onChange, ports }) => {
               </Stack>
               <DialogFooter>
                 <PrimaryButton
-                  onClick={onAddPort}
+                  onClick={onDialogSave}
                   text='Save'
                   disabled={labelErrorMessage}
                 />
-                <DefaultButton onClick={onDismiss} text='Cancel' />
+                <DefaultButton onClick={onDialogDismiss} text='Cancel' />
               </DialogFooter>
             </Dialog>
           </div>
