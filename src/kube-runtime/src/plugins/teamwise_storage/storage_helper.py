@@ -175,17 +175,17 @@ class StorageHelper():
             if "proxy" in server_data:
                 return [
                     "mount -t cifs //localhost/" + rendered_path +
-                    " {}".format(mount_point) +
-                    " -o vers=3.0,username={},password={}".format(
-                        server_data["accountName"], server_data["key"]) +
+                    " {} -o vers=3.0,username={},password={}".format(
+                        mount_point, server_data["accountName"],
+                        server_data["key"]) +
                     ",dir_mode=0777,file_mode=0777,serverino"
                 ]
             return [
                 "mount -t cifs //{}/{}".format(server_data["dataStore"],
                                                rendered_path) +
-                " {}".format(mount_point) +
-                " -o vers=3.0,username={},password={}".format(
-                    server_data["accountName"], server_data["key"]) +
+                " {} -o vers=3.0,username={},password={}".format(
+                    mount_point, server_data["accountName"],
+                    server_data["key"]) +
                 ",dir_mode=0777,file_mode=0777,serverino"
             ]
         if phrase == "post_mount":
