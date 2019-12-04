@@ -69,7 +69,7 @@ def cli_unset(args):
 
 @register_as_cli(
     'add-cluster',
-    ['--cluster-alias', '--pai-uri', '--user', '--password', '--authen-token', '--storage-name'],
+    ['--cluster-alias', '--pai-uri', '--user', '--password', '--authen-token'],
     'add a cluster to the clusters.yaml',
 )
 def cli_add_cluster(args):

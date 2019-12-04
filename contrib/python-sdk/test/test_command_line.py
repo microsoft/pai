@@ -77,7 +77,7 @@ testing REST APIs related to retrieving cluster info, including
         alias = get_defaults()["cluster-alias"]
         self.assertTrue(alias, "not specify a cluster")
         self.cmd_exec('opai cluster resources')
-
+    
     def step2_submit_job(self):
         import time
         to_screen("""\
@@ -88,7 +88,7 @@ testing REST APIs related to submitting a job, including
         #self.cmd_exec(['opai', 'job', 'sub', '-i', 'python:3', '-j', self.job_name, 'opai cluster resources'])
         self.cmd_exec(['pai',  'sub', '-i', 'python:3', '-j', self.job_name, 'pai cluster-resources'])
         time.sleep(10)
-
+    
     def step3_job_monitoring(self):
         to_screen("""\
 testing REST APIs related to querying a job, including
@@ -154,17 +154,19 @@ testing REST APIs related to querying a job, including
         to_screen('Please exit ssh terminal to complete the test')
     
     def step6_submit_job_with_sources(self):
+        # create test folder and files for storage testing
+        home_fs = OSFS("./")
+        home_fs.makedirs('step6Src/')
+        with open_fs('./step6Src/') as src_fs:
+            src_fs.create('testFile.txt')
+
         alias = get_defaults()["cluster-alias"]
         clusters = ClusterList().load()
-        
-        # selecting storage
-        names = [s['name'] for s in clusters.select(alias)['storages']]
-        self.cmd_exec([f'pai select-storage --cluster-alias {alias} --storage-name {names[0]}'])
-
+                
         # submitting job
         self.job_name = 'ut_test_' + randstr(10)
         self.cmd_exec(['pai', 'sub', f'--cluster-alias {alias}', f'--job-name {self.job_name}', 
-            f'--sources ./src/subSrc/testFile.txt', '--image python:3', 'sleep 5s'])
+            f'--sources ./step6Src/testFile.txt', '--image python:3', 'sleep 5s'])
        
 
     @seperated
