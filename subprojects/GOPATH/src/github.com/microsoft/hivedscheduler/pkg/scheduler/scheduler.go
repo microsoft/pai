@@ -527,19 +527,19 @@ func (s *HivedScheduler) filterRoutine(args ei.ExtenderArgs) *ei.ExtenderFilterR
 		}
 
 		// Return FailedNodes to tell K8S Default Scheduler that preemption may help.
-		failedNodeReasons := map[string]string{}
+		failedNodes := map[string]string{}
 		for _, victim := range result.PodPreemptInfo.VictimPods {
 			node := victim.Spec.NodeName
-			if _, ok := failedNodeReasons[node]; !ok {
-				failedNodeReasons[node] = fmt.Sprintf(
+			if _, ok := failedNodes[node]; !ok {
+				failedNodes[node] = fmt.Sprintf(
 					"node(%v) is waiting for victim Pod(s) to be preempted: %v",
 					node, internal.Key(victim))
 			} else {
-				failedNodeReasons[node] += ", " + internal.Key(victim)
+				failedNodes[node] += ", " + internal.Key(victim)
 			}
 		}
 		return &ei.ExtenderFilterResult{
-			FailedNodes: failedNodeReasons,
+			FailedNodes: failedNodes,
 		}
 	} else {
 		s.podScheduleStatuses[pod.UID] = &internal.PodScheduleStatus{
@@ -547,9 +547,13 @@ func (s *HivedScheduler) filterRoutine(args ei.ExtenderArgs) *ei.ExtenderFilterR
 			PodState:          internal.PodWaiting,
 			PodScheduleResult: &result,
 		}
+
+		// Return Error to tell K8S Default Scheduler that preemption must not help.
 		if result.PodWaitInfo != nil {
 			return &ei.ExtenderFilterResult{
-				FailedNodes: result.PodWaitInfo.FailedNodeReasons,
+				Error: fmt.Sprintf(
+					"Pod is waiting for preemptable or free resource to appear: %v",
+					result.PodWaitInfo.Reason),
 			}
 		} else {
 			return &ei.ExtenderFilterResult{}

@@ -188,7 +188,7 @@ var pss = map[types.UID]api.PodSchedulingSpec{
 		GpuType:              "",
 		GpuNumber:            5,
 		AffinityGroup:        group9,
-	}, "pod10": { // use a GPU type that the VC does not have; should panic BadRequest
+	}, "pod10": { // use a GPU type that the VC does not have; should User Error Panic
 		VirtualCluster:       "VC2",
 		Priority:             1,
 		LazyPreemptionEnable: true,
@@ -445,13 +445,15 @@ func testCasesThatShouldSucceed(t *testing.T, h *HivedAlgorithm) {
 func testOneCaseThatShouldFail(t *testing.T, h *HivedAlgorithm, podNames []string) {
 	defer func() {
 		if r := recover(); r != nil {
-			if err, ok := r.(*api.WebServerError); ok && err.Code == http.StatusBadRequest {
-				t.Logf("Got BadRequest as expected: %v", err)
+			if err, ok := r.(*api.WebServerError); ok &&
+				err.Code >= http.StatusBadRequest &&
+				err.Code < http.StatusInternalServerError {
+				t.Logf("Got User Error Panic as expected: %v", err)
 			} else {
-				t.Errorf("Expected BadRequest error, but got %v", r)
+				t.Errorf("Expected User Error Panic, but got %v", r)
 			}
 		} else {
-			t.Errorf("Expected BadRequest error, but got none")
+			t.Errorf("Expected User Error Panic, but got none")
 		}
 	}()
 	var psr internal.PodScheduleResult
