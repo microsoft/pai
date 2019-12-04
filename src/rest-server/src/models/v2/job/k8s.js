@@ -836,7 +836,7 @@ const put = async (frameworkName, config, rawConfig) => {
   }
 
   const storageConfig = await userModel.getUserStorageConfigs(userName);
-  const frameworkDescription = await generateFrameworkDescription(frameworkName, virtualCluster, config, rawConfig, storageConfig);
+  const frameworkDescription = generateFrameworkDescription(frameworkName, virtualCluster, config, rawConfig, storageConfig);
 
   // generate image pull secret
   const auths = Object.values(config.prerequisites.dockerimage)
