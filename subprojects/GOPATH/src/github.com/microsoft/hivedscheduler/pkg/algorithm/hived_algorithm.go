@@ -776,7 +776,7 @@ func generatePodScheduleResult(
 	if len(preemptionVictims) > 0 {
 		// we collect victims on a random node, as K8S preempts victims from only one node once.
 		// random is to let different pods preempt victims on different nodes
-		// (but we don't rely on this randomness for the eventual-completeness of preemption).
+		// (note that this randomness is not necessary for the eventual-completeness of preemption).
 		nodeToPreempt := nodesHaveVictims[rand.Int31n(int32(len(nodesHaveVictims)))]
 		var victimPods []*core.Pod
 		var victimNames []string
@@ -807,7 +807,7 @@ func generatePodScheduleResult(
 		if selectedNode == "" {
 			return internal.PodScheduleResult{
 				PodWaitInfo: &internal.PodWaitInfo{
-					Reason: fmt.Sprintf("node %v picked by algorithm but not in K8S candidates", selectedNode),
+					Reason: fmt.Sprintf("insufficient capacity in physical cluster with respect to K8s candidates"),
 				},
 			}
 		}
