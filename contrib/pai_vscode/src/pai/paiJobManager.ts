@@ -359,9 +359,10 @@ export class PAIJobManager extends Singleton {
     private static replaceVariables(jobParam: IJobParam): IPAIJobConfigV1 {
         // Replace environment variable
         const config: IPAIJobConfigV1 = <IPAIJobConfigV1>jobParam.config;
+        const cluster: IPAICluster | undefined = jobParam.cluster;
         function replaceVariable(x: string): string {
             return x.replace('$PAI_JOB_NAME', config.jobName)
-                .replace('$PAI_USER_NAME', config!.username!);
+                .replace('$PAI_USER_NAME', cluster!.username!);
         }
         for (const key of PAIJobManager.propertiesToBeReplaced) {
             const old: string | IPAITaskRole[] | undefined = config[key];
