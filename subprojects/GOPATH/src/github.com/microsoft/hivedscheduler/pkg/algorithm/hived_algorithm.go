@@ -799,11 +799,10 @@ func generatePodScheduleResult(
 			if groupVirtualPlacement != nil {
 				waitReason = fmt.Sprintf("insufficient quota in VC %v", vc)
 			}
-		}
-		if selectedNode == "" {
-			waitReason = "cannot find a K8s candidate node in physical cluster"
+		} else if selectedNode == "" {
+			waitReason = "cannot find a K8s candidate node within physical cluster"
 			if groupVirtualPlacement != nil {
-				waitReason = fmt.Sprintf("cannot find a K8s candidate node with VC %v's quota", vc)
+				waitReason = fmt.Sprintf("cannot find a K8s candidate node within VC %v's quota", vc)
 			}
 		}
 		if waitReason != "" {
