@@ -586,7 +586,7 @@ class JobStatusParser:
 
     @staticmethod
     @exception_free(KeyError, None)
-    def single_task_logs(status: dict, task_role: str = 'main', index: int = 0, log_type: dict=None, return_urls: bool=False):
+    def single_task_logs(status: dict, pai_uri: str, task_role: str = 'main', index: int = 0, log_type: dict=None, return_urls: bool=False):
         """change to use containerLog"""
         log_type = na(log_type, {
             "stdout": "user.pai.stdout/?start=0",
@@ -605,7 +605,7 @@ class JobStatusParser:
         if return_urls:
             return urls
         else:
-            html_contents = {k: get_response('GET', v).text for k, v in urls.items()}
+            html_contents = {k: get_response('GET', f'{pai_uri}/{v}').text for k, v in urls.items()}
             try:
                 from html2text import html2text
                 return {k: html2text(v) for k, v in html_contents.items()}
@@ -614,7 +614,7 @@ class JobStatusParser:
 
     @staticmethod
     @exception_free(Exception, None)
-    def all_tasks_logs(status: dict):
+    def all_tasks_logs(status: dict, pai_uri: str):
         """retrieve logs of all tasks"""
         logs = {
             'stdout': {}, 'stderr': {}
@@ -622,7 +622,7 @@ class JobStatusParser:
         for tr_name, tf_info in status['taskRoles'].items():
             for task_status in tf_info['taskStatuses']:
                 task_id = '{}[{}]'.format(tr_name, task_status['taskIndex'])
-                task_logs = JobStatusParser.single_task_logs(status, tr_name, task_status['taskIndex'])
+                task_logs = JobStatusParser.single_task_logs(status, pai_uri, tr_name, task_status['taskIndex'])
                 for k, v in task_logs.items():
                     logs.setdefault(k, {})[task_id] = v
         return logs

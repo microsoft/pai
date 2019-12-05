@@ -105,7 +105,7 @@ testing REST APIs related to querying a job, including
         to_screen(f"retrieving job status and get its state {JobStatusParser.state(status)}")
         client.rest_api_job_info(self.job_name, 'config')
         to_screen("retrieving job config")
-        logs = JobStatusParser.all_tasks_logs(status)
+        logs = JobStatusParser.all_tasks_logs(status, client.pai_uri)
         assert logs, f"failed to read logs from status \n{status}"
         for k, v in logs.items():
             for t, content in v.items():
@@ -167,7 +167,7 @@ testing REST APIs related to querying a job, including
         self.job_name = 'ut_test_' + randstr(10)
         self.cmd_exec(['pai', 'sub', f'--cluster-alias {alias}', f'--job-name {self.job_name}', 
             f'--sources ./step6Src/testFile.txt', '--image python:3', 'sleep 5s'])
-       
+    
 
     @seperated
     def test_commands_sequence(self):
