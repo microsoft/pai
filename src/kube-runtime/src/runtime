@@ -25,6 +25,6 @@ RUNTIME_WORK_DIR=/usr/local/pai
 RUNTIME_SCRIPT_DIR=${RUNTIME_WORK_DIR}/runtime.d
 RUNTIME_LOG_DIR=${RUNTIME_WORK_DIR}/logs/${FC_POD_UID}
 
-export PAI_WORD_DIR="$(pwd)"
+export PAI_WORK_DIR="$(pwd)"
 
 ${RUNTIME_SCRIPT_DIR}/runtime_entry.sh > >(tee -a -i ${RUNTIME_LOG_DIR}/runtime.pai.stdout) 2> >(tee -a -i ${RUNTIME_LOG_DIR}/runtime.pai.stderr >&2)
