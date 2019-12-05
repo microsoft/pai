@@ -566,7 +566,7 @@ export class PAIJobManager extends Singleton {
                 // Error message has been shown.
                 return;
             }
-            if (input.jobConfigPath!.toLowerCase().endsWith('yaml') || input.jobConfigPath!.toLowerCase().endsWith('yml')) {
+            if (param.jobVersion === 2) {
                 await this.simulateV2(param);
             } else {
                 await this.simulateV1(param);
