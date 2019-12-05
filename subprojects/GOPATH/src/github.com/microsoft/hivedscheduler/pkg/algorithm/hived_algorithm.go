@@ -792,24 +792,22 @@ func generatePodScheduleResult(
 		// we find the selected node after the preemption is done, otherwise the preemption victims
 		// may cause the selected node to be excluded from the suggested nodes
 		affinityGroupBindInfo, selectedNode, selectedGpuIndices := generateAffinityGroupBindInfo(
-			groupPhysicalPlacement, groupVirtualPlacement, cellLevelToType, currentGpuNum, currentPodIndex, suggestedNodeSet)
+			groupPhysicalPlacement, groupVirtualPlacement, cellLevelToType, currentGpuNum, currentPodIndex, newGroup, suggestedNodeSet)
+		var waitReason string
 		if affinityGroupBindInfo == nil {
-			reason := "insufficient capacity in physical cluster"
+			waitReason = "insufficient capacity in physical cluster"
 			if groupVirtualPlacement != nil {
-				reason = fmt.Sprintf("insufficient quota in VC %v", vc)
-			}
-			return internal.PodScheduleResult{
-				PodWaitInfo: &internal.PodWaitInfo{
-					Reason: reason,
-				},
+				waitReason = fmt.Sprintf("insufficient quota in VC %v", vc)
 			}
 		}
 		if selectedNode == "" {
-			return internal.PodScheduleResult{
-				PodWaitInfo: &internal.PodWaitInfo{
-					Reason: fmt.Sprintf("insufficient capacity in physical cluster with respect to K8s candidates"),
-				},
+			waitReason = "cannot find a K8s candidate node in physical cluster"
+			if groupVirtualPlacement != nil {
+				waitReason = fmt.Sprintf("cannot find a K8s candidate node with VC %v's quota", vc)
 			}
+		}
+		if waitReason != "" {
+			return internal.PodScheduleResult{PodWaitInfo: &internal.PodWaitInfo{Reason: waitReason}}
 		}
 		klog.Infof("[%v]: scheduled to node %v, GPUs %v",
 			internal.Key(pod), selectedNode, selectedGpuIndices)
@@ -833,6 +831,7 @@ func generateAffinityGroupBindInfo(
 	cellLevelToType map[CellChain]map[CellLevel]api.CellType,
 	currentGpuNum int32,
 	currentPodIndex int32,
+	newGroup bool,
 	suggestedNodeSet common.Set) ([]api.AffinityGroupMemberBindInfo, string, []int32) {
 
 	if groupPhysicalPlacement == nil {
@@ -873,7 +872,8 @@ func generateAffinityGroupBindInfo(
 				}
 			}
 		}
-		if podGpuNum == currentGpuNum && suggestedNodeSet.Contains(mbi.PodPlacements[currentPodIndex].PhysicalNode) {
+		if podGpuNum == currentGpuNum &&
+			(!newGroup || suggestedNodeSet.Contains(mbi.PodPlacements[currentPodIndex].PhysicalNode)) {
 			selectedNode = mbi.PodPlacements[currentPodIndex].PhysicalNode
 			selectedGpuIndices = mbi.PodPlacements[currentPodIndex].PhysicalGpuIndices
 		}
