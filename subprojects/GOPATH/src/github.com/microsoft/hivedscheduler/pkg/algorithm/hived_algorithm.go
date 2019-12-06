@@ -991,7 +991,9 @@ func collectPreemptionVictims(
 					// allow such preemption). otherwise the running pod cannot be preempted, and the pod
 					// to be scheduled will wait.
 					if pGpu.GetPriority() >= priority {
-						panic(fmt.Sprintf("Allocated resource (%v) has been used by guaranteed group %v",
+						panic(fmt.Sprintf(
+							"Resources previously allocated (%v) has been allocated to "+
+								"another non-preemptible group %v; pod should wait",
 							pGpu.GetPhysicalPlacementString(), victimGroup.name))
 					}
 					// for any victim pod, gang-preempt all the other pods from the same affinity group
