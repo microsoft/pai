@@ -1,0 +1,35 @@
+# Copyright (c) Microsoft Corporation
+# All rights reserved.
+#
+# MIT License
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
+# documentation files (the "Software"), to deal in the Software without restriction, including without limitation
+# the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and
+# to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+# The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED *AS IS*, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING
+# BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+# NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+# DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: dshuttle-config
+data:
+  ALLUXIO_JAVA_OPTS: |-
+    -Dalluxio.master.hostname=10.151.40.4 -Dalluxio.master.journal.type=UFS -Dalluxio.master.journal.folder=/journal -Dalluxio.master.mount.table.root.ufs=/opt/alluxio/underFSStorage  -Dalluxio.security.stale.channel.purge.interval=365d 
+  ALLUXIO_MASTER_JAVA_OPTS: |-
+    -Dalluxio.master.web.bind.host=0.0.0.0 
+  ALLUXIO_JOB_MASTER_JAVA_OPTS: |-
+    -Dalluxio.job.master.bind.host=0.0.0.0 
+  ALLUXIO_WORKER_JAVA_OPTS: |-
+    -Dalluxio.worker.bind.host=0.0.0.0  -Dalluxio.worker.data.server.domain.socket.address=/opt/domain -Dalluxio.worker.data.server.domain.socket.as.uuid=true -Dalluxio.worker.memory.size=2G -Dalluxio.worker.rpc.port=29999 -Dalluxio.worker.web.port=30000 -Dalluxio.worker.hostname=${ALLUXIO_WORKER_HOSTNAME} -Dalluxio.worker.tieredstore.levels=1 -Dalluxio.worker.tieredstore.level0.dirs.mediumtype=MEM -Dalluxio.worker.tieredstore.level0.dirs.path=/dev/shm -Dalluxio.worker.tieredstore.level0.dirs.quota=1G -Dalluxio.worker.tieredstore.level0.watermark.high.ratio=0.95 -Dalluxio.worker.tieredstore.level0.watermark.low.ratio=0.7 
+  ALLUXIO_JOB_WORKER_JAVA_OPTS: |-
+    -Dalluxio.job.worker.rpc.port=30001  -Dalluxio.job.worker.data.port=30002 -Dalluxio.job.worker.web.port=30003 -Dalluxio.worker.hostname=${ALLUXIO_WORKER_HOSTNAME}  
+  ALLUXIO_FUSE_JAVA_OPTS: |-
+    -Dalluxio.user.hostname=${ALLUXIO_CLIENT_HOSTNAME} -Dalluxio.worker.hostname=${ALLUXIO_CLIENT_HOSTNAME}  -XX:MaxDirectMemorySize=2g 
+  ALLUXIO_WORKER_TIEREDSTORE_LEVEL0_DIRS_PATH: /dev/shm

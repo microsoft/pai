@@ -1,0 +1,122 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: dshuttle-worker
+  labels:
+    app: dshuttle-worker
+spec:
+  selector:
+    matchLabels:
+      app: dshuttle-worker
+  template:
+    metadata:
+      labels:
+        app: dshuttle-worker
+    spec:
+      hostNetwork: true
+      hostAliases:
+      - ip: "10.151.40.4"
+        hostnames:
+        - "paigcr-a-gpu-1104"
+      dnsPolicy: ClusterFirstWithHostNet
+      securityContext:
+        fsGroup: 1000
+      nodeSelector:
+      initContainers:
+      - name: socket-chown
+        securityContext:
+          runAsUser: 0
+        image: alluxio/alluxio:2.2.0-SNAPSHOT
+        command: ["/bin/chown","-R", "1000:1000", "/opt/domain"]
+        volumeMounts:
+        - name: dshuttle-domain
+          mountPath: /opt/domain
+      containers:
+        - name: dshuttle-worker
+          image: docker.io/openpai/dshuttle:binyli
+          imagePullPolicy: IfNotPresent
+          securityContext:
+            runAsUser: 1000
+            runAsGroup: 1000
+          resources:
+            limits:
+              cpu: 1
+              memory: 2G
+            requests:
+              cpu: 1
+              memory: 2G
+          command: ["/entrypoint.sh"]
+          args:
+            - worker-only
+            - --no-format
+          env:
+          - name: ALLUXIO_WORKER_HOSTNAME
+            valueFrom:
+              fieldRef:
+                fieldPath: status.hostIP
+          envFrom:
+          - configMapRef:
+              name: dshuttle-config
+          ports:
+          - containerPort: 29999
+            name: rpc
+          - containerPort: 30000
+            name: web
+          volumeMounts:
+            - name: dshuttle-domain
+              mountPath: /opt/domain
+            - mountPath: /dev/shm
+              name: mem
+            - name: dshuttle-data
+              mountPath: /opt/alluxio/underFSStorage
+        - name: dshuttle-job-worker
+          image: docker.io/openpai/dshuttle:binyli
+          securityContext:
+            runAsUser: 1000
+            runAsGroup: 1000
+          imagePullPolicy: IfNotPresent
+          resources:
+            limits:
+              cpu: 1
+              memory: 1G
+            requests:
+              cpu: 1
+              memory: 1G
+          command: ["/entrypoint.sh"]
+          args:
+            - job-worker
+          env:
+          - name: ALLUXIO_WORKER_HOSTNAME
+            valueFrom:
+              fieldRef:
+                fieldPath: status.hostIP
+          envFrom:
+          - configMapRef:
+              name: dshuttle-config
+          ports:
+          - containerPort: 30001
+            name: job-rpc
+          - containerPort: 30002
+            name: job-data
+          - containerPort: 30003
+            name: job-web
+          volumeMounts:
+            - name: dshuttle-domain
+              mountPath: /opt/domain
+            - mountPath: /dev/shm
+              name: mem
+            - name: dshuttle-data
+              mountPath: /opt/alluxio/underFSStorage
+      restartPolicy: Always
+      volumes:
+        - name: dshuttle-domain
+          hostPath:
+            path: /tmp/alluxio-domain
+            type: DirectoryOrCreate
+        - name: mem
+          emptyDir:
+            medium: "Memory"
+            sizeLimit: 1G
+        - name: dshuttle-data
+          persistentVolumeClaim:
+            claimName: nfs
