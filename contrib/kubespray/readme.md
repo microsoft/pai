@@ -187,6 +187,16 @@ Here we assume all os in your cluster is ubuntu16.04. Or please change the follo
     - name: Run the equivalent of "apt-get update" as a separate step
 ```
 
+#### Create /etc/docker-openpai/daemon-open.json
+
+Because we can't remove some hosts' ```/etc/docker/daemon.json```. Maybe it is protected by some systems. So in our kubespray's configuration, we set the environment ```--config-file /etc/docker-openpai/daemon-openpai.json```. In this step, we will create the file and path.
+
+```bash
+
+ansible-playbook -i /path/to/host.yml copy-daemon-openpai.yml --become --become-user=root
+
+```
+
 #### kubespray 
 
 ###### Environment
