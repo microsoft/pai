@@ -65,6 +65,26 @@ class TestImageChecker(unittest.TestCase):
         self.assertEqual(res, False)
         del os.environ["FC_TASK_INDEX"]
 
+    def test_image_local(self):
+        os.environ["FC_TASK_INDEX"] = "0"
+        job_path = "docker_image_local_registry.yaml"
+        if os.path.exists(job_path):
+            with open(job_path, 'r') as f:
+                jobconfig = yaml.load(f)
+        res = image_checker._is_docker_image_valid(jobconfig)
+        self.assertEqual(res, True)
+        del os.environ["FC_TASK_INDEX"]
+
+    def test_image_auth(self):
+        os.environ["FC_TASK_INDEX"] = "0"
+        job_path = "docker_image_auth.yaml"
+        if os.path.exists(job_path):
+            with open(job_path, 'r') as f:
+                jobconfig = yaml.load(f)
+        res = image_checker._is_docker_image_valid(jobconfig)
+        self.assertEqual(res, True)
+        del os.environ["FC_TASK_INDEX"]
+
     def test_docker_hub_uri(self):
         uri = "localhost/username/repo:tag"
         self.assertFalse(image_checker._is_docker_hub_uri(uri))

@@ -925,11 +925,11 @@ spec:
   stage: LAUNCHING
   behavior: PERMANENT
   reaction: NEVER_RETRY
-  reason: "User requests image is not exists"
+  reason: "Docker image requested by user is not exists"
   repro:
-  - "Submit job with fake image uri"
+  - "Submit job with incorrect docker image uri"
   solution:
-  - "Correct image uri in job protocol"
+  - "Correct docker image uri in job protocol"
 
 - code: 255
   phrase: PAIRuntimeUnknownFailed

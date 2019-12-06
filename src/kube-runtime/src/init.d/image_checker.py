@@ -54,7 +54,7 @@ def _is_docker_image_valid(job_config):
         return True
 
     if not _is_docker_hub_uri(image_info["uri"]):
-        LOGGER.info("Not use docker hub as registry, ignore test")
+        LOGGER.info("Not use docker hub as registry, ignore checking")
         return True
 
     arr = image_info["uri"].split(":")
@@ -86,7 +86,7 @@ def main():
     args = parser.parse_args()
 
     LOGGER.info("get job config from %s", args.job_config)
-    with open(args.jobconfig_yaml) as f:
+    with open(args.job_config) as f:
         job_config = yaml.load(f)
         if not _is_docker_image_valid(job_config):
             sys.exit(1)
