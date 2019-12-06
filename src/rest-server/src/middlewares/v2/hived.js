@@ -162,14 +162,14 @@ const hivedValidate = (protocolObj, username) => {
 
       const affinityGroupName = hivedConfig.taskRoles[taskRole].affinityGroupName;
       podSpec.affinityGroup = affinityGroupName ? {
-        name: `${username}/${protocolObj.name}/${affinityGroupName}`,
+        name: `${username}~${protocolObj.name}/${affinityGroupName}`,
         members: affinityGroups[affinityGroupName].affinityTaskList,
       } : null;
     }
 
     if (defaultAffinityGroup != null) {
       podSpec.affinityGroup = {
-        name: `${username}/${protocolObj.name}/default`,
+        name: `${username}~${protocolObj.name}/default`,
         members: defaultAffinityGroup.affinityTaskList,
       };
     }
