@@ -25,6 +25,7 @@ data:
     apiVersion: kubescheduler.config.k8s.io/v1alpha1
     kind: KubeSchedulerConfiguration
     schedulerName: hivedscheduler
+    disablePreemption: false
     algorithmSource:
       policy:
         configMap:
@@ -59,6 +60,7 @@ data:
     }
   hivedscheduler.yaml: |
     webServerAddress: ":30096"
+    waitingPodSchedulingBlockMilliSec: 50
   {%- if cluster_cfg['cluster']['common']['k8s-rbac'] != 'true' %}
     kubeApiServerAddress: "{{ cluster_cfg['layout']['kubernetes']['api-servers-url'] }}"
   {%- endif %}
