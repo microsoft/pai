@@ -336,7 +336,6 @@ docker_log_opts: "--log-opt max-size=2g --log-opt max-file=2 --log-driver=json-f
 
 # add --add-runtime nvidia=/usr/bin/nvidia-container-runtime for nvidia-runtime in docker_option
 docker_options: >-
-    --config-file /etc/docker-openpai/daemon-openpai.json
     --add-runtime nvidia=/usr/bin/nvidia-container-runtime
     --default-runtime nvidia
     {%- if docker_insecure_registries is defined %}
