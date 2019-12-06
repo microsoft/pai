@@ -255,3 +255,12 @@ func SortInt32(n []int32) {
 		n[i] = int32(tmp[i])
 	}
 }
+
+func Int32SliceContains(i int32, n []int32) bool {
+	for _, j := range n {
+		if i == j {
+			return true
+		}
+	}
+	return false
+}

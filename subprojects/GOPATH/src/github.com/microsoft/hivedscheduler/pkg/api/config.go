@@ -79,8 +79,8 @@ type Config struct {
 	VirtualClusters *map[VirtualClusterName]VirtualClusterSpec `yaml:"virtualClusters"`
 }
 
-func NewConfig(configPath *string) *Config {
-	c := initConfig(configPath)
+func NewConfig(rawConfig *Config) *Config {
+	c := rawConfig
 
 	// Defaulting
 	if c.KubeApiServerAddress == nil {
@@ -178,7 +178,7 @@ func defaultVirtualClusters() *map[VirtualClusterName]VirtualClusterSpec {
 	return &map[VirtualClusterName]VirtualClusterSpec{}
 }
 
-func initConfig(configPath *string) *Config {
+func InitRawConfig(configPath *string) *Config {
 	c := Config{}
 	var configFilePath string
 
