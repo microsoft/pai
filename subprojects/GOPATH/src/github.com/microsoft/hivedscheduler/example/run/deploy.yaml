@@ -17,6 +17,7 @@ data:
     apiVersion: kubescheduler.config.k8s.io/v1alpha1
     kind: KubeSchedulerConfiguration
     schedulerName: hivedscheduler
+    disablePreemption: false
     algorithmSource:
       policy:
         configMap:
@@ -51,6 +52,7 @@ data:
     }
   hivedscheduler.yaml: |
     webServerAddress: ":30096"
+    waitingPodSchedulingBlockMilliSec: 50
     kubeApiServerAddress: http://10.151.41.15:8080
     physicalCluster:
       cellTypes:
