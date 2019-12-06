@@ -55,7 +55,7 @@ export const NotificationButton = () => {
           .catch(() => {
             throw Error('Get alerts json failed');
           });
-        // Swallow exceptions here. Since alertManager is optional and we don't have an API to get all avaliable services
+        // Swallow exceptions here. Since alertManager is optional and we don't have an API to get all available services
       })
       .catch(error => {
         if (error) {

@@ -71,7 +71,7 @@ export async function fetchJobRetries() {
   } else {
     return {
       isSucceeded: false,
-      errorMessage: 'Some errors occured!',
+      errorMessage: 'Some errors occurred!',
       jobRetries: null,
     };
   }

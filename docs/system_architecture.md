@@ -4,19 +4,19 @@
 <img src="./arch_v2.png" width="50%">
 </center>
 
-The figure above provides an overview of OpenPAI. 
+The figure above provides an overview of OpenPAI.
 OpenPAI is managede by [Kubernetes](https://kubernetes.io/),
 it assumes Kubernetes has already been deployed to the cluster by third-party tools like [Azure Kubernetes Service (AKS)](https://azure.microsoft.com/en-us/services/kubernetes-service/) or [Kubespray](https://github.com/kubernetes-sigs/kubespray).
 OpenPAI provides [paictl](./paictl/paictl-manual.md), a tool to help user deploy OpenPAI services to the k8s cluster.
 
 One key design goal of OpenPAI is to facilitate the sharing and reproducing of AI innovations. To this end, OpenPAI introduces [marketplace](../contrib/marketplace/README.md), where people can share their workloads and data within a private group or publically.
 
-The workloads and data in the marketplace are described by [OpenPAI protocol](./pai-job-protocol.yaml), a specification that describes the hardware and software requirement of a workload or dataset. 
+The workloads and data in the marketplace are described by [OpenPAI protocol](./pai-job-protocol.yaml), a specification that describes the hardware and software requirement of a workload or dataset.
 The hardware and software requirements include GPU/CPU/Memory resource requirement, docker images, data/code location, the training method (gang scheduling or elastic), job completion policy, etc.
-OpenPAI protocol facilitates platform interoperability and job portability, a job described by the protocol can run on differnt clusters managed by OpenPAI, as long as the clusters can meet the specification. 
-The OpenPAI protocol also enables great flexibility, any AI workload, being it Tensorflow, PyTorch, or your proprietory deep learning workload, can be described by the protocol.
+OpenPAI protocol facilitates platform interoperability and job portability, a job described by the protocol can run on different clusters managed by OpenPAI, as long as the clusters can meet the specification.
+The OpenPAI protocol also enables great flexibility, any AI workload, being it Tensorflow, PyTorch, or your proprietary deep learning workload, can be described by the protocol.
 
-Job orchestrator and OpenPAI runtime are two key components that understand and execute the workload specified by the OpenPAI protocol. Job orechestrator is implemented by leveraging [FrameworkController](https://github.com/Microsoft/frameworkcontroller), a general purpose k8s controller that orchestrates k8s Pods supporting all kinds of AI workloads. The [OpenPAI runtime](../src/kube-runtime) provides runtime support to the workload and implement [OpenPAI runtime parameters/variables](./job_tutorial.md) that are necessary to support the OpenPAI protocol. 
+Job orchestrator and OpenPAI runtime are two key components that understand and execute the workload specified by the OpenPAI protocol. Job orechestrator is implemented by leveraging [FrameworkController](https://github.com/Microsoft/frameworkcontroller), a general purpose k8s controller that orchestrates k8s Pods supporting all kinds of AI workloads. The [OpenPAI runtime](../src/kube-runtime) provides runtime support to the workload and implement [OpenPAI runtime parameters/variables](./job_tutorial.md) that are necessary to support the OpenPAI protocol.
 OpenPAI runtime also prebuilds with [failure analysis](../src/k8s-job-exit-spec/config/user-manual.md) rules that can detect typical runtime failure patterns. OpenPAI might take some actions against the detected failure pattens. For example, if OpenPAI finds the job failure is due to Python syntax error, it will not retry the job regardless of the job retry behavior specified by user to prevent from unnecessary retry and the corresponding waste of cluster resource.
 The failure rules can be updated on-the-fly by the cluster operaters. Wheneven new failure patterns discovered, the cluster operator can build them into the OpenPAI runtime.
 

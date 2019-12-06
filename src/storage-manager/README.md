@@ -8,7 +8,7 @@ Storage-manager is a k8s managed NFS+SMB storage service deployed on configured 
   - [Node Configuration](#Node-Configuration)
   - [Default Configuration](#Default-Configuration)
   - [Manual Configuration](#Manual-Configuration)
-  - [SMB with AAD Configuraiton](#SMBAAD-Configuration)
+  - [SMB with AAD Configuration](#SMBAAD-Configuration)
   - [Data Table](#T_config)
 
 ---
@@ -65,7 +65,7 @@ storage-manager:
 
 ---
 
-## SMB with AAD Configuraiton <a name="SMBAAD-Configuration"></a>
+## SMB with AAD Configuration <a name="SMBAAD-Configuration"></a>
 
 If you want to use storage-manager with AAD, please add these extra info in  service-configuration.yaml.
 

@@ -48,7 +48,7 @@ For more details about this release, please refer to [detailed release note](htt
 - New alerts for unhealthy GPUs, currently including following alerts #2209:
 - Admin could know all running jobs on a node. #2197
 - Filter supports in Job List View. #302
-- Hold the Env for failed jobs which are casued by user error. #2272
+- Hold the Env for failed jobs which are caused by user error. #2272
 
 For more details about this release, please refer to [detailed release note](https://github.com/microsoft/pai/releases/tag/v0.11.0).
 

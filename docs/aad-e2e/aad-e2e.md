@@ -5,11 +5,11 @@ Start from version 0.15 OpenPAI can be configured to use Azure Active Directory 
 This document will cover how to set up the integration step by step.
 #### Note
 
-Previous user data in webportal is required to be mapping/migrate to AAD. Once the integration is enabled, Instead of using built-n user managed webportal, OpenPAI will switch to use (and only use) AAD as user authentication mechanism. 
+Previous user data in webportal is required to be mapping/migrate to AAD. Once the integration is enabled, Instead of using built-n user managed webportal, OpenPAI will switch to use (and only use) AAD as user authentication mechanism.
 
 #### [Pylon] Prepare your certificate for https, self-sign cert as an example
 
-##### 1. Store your domain name (pylon address) into a linux env 
+##### 1. Store your domain name (pylon address) into a linux env
 
 ```bash
 DOMAIN={pylon address}
@@ -88,7 +88,7 @@ pylon:
 <img src="image/redirect_uri.png" alt="paictl overview picture" style="float: center; margin-right: 10px;" />
 </div>
 
-- open the app -> Certificates & secrets, and then create a new client secret. Mark the secret value as ```${secret_value}``` 
+- open the app -> Certificates & secrets, and then create a new client secret. Mark the secret value as ```${secret_value}```
 
 <div  align="center">
 <img src="image/cert_secret.png" alt="paictl overview picture" style="float: center; margin-right: 10px;" />
@@ -103,7 +103,7 @@ pylon:
 </div>
 
 - open the app -> API permissions, pls add the permission in the picture following. If the azure active directly is created by yourself and you will manage the group and user info by yourself, you could grant the permission by yourself. Or you should apply the permission through your aad's admin.
- 
+
 <div  align="center">
 <img src="image/api_permissions.png" alt="paictl overview picture" style="float: center; margin-right: 10px;" />
 </div>
@@ -131,10 +131,10 @@ authentication:
    nonceLifetime: null
    nonceMaxAmount: 10
    clockSkew: null
-  
+
   group-manager:
     group-data-source: ms-graph
-  
+
     # Admin group name and its user list
     admin-group:
       # The group named showed in OpenPAI system.
@@ -142,7 +142,7 @@ authentication:
       description: "admin's group"
       # The group alias (groupname) in Azure Active directory
       externalName: "team_alias_a"
-    
+
     # Group for default vc.
     # For yarn default queue hack.
     default-group:
@@ -151,7 +151,7 @@ authentication:
       description: "group for default vc"
       # The group alias (groupname) in Azure Active directory
       externalName: "team_alias_b"
-    
+
     # If you cluster you have configured several yarn vc, except default vc (it has been created in the default-group), you should configure group for each vc in the following list
     grouplist:
     # The group named showed in OpenPAI system.
@@ -163,7 +163,7 @@ authentication:
     - groupname: forexample2
       description: forexample2
     # The group alias (groupname) in Azure Active directory
-      externalName: "team_alias_d"    
+      externalName: "team_alias_d"
 ```
 
 ##### Optinal. Migrate restserver from basic mode to azure active directory.
@@ -181,11 +181,11 @@ authentication:
 After start rest-server, please ensure that the following task is successfully executed.
 
 - namespace named ```pai-group``` and ```pai-user-v2```are created
- 
+
 <div  align="center">
 <img src="image/dashboard-ns.png" alt="paictl overview picture" style="float: center; margin-right: 10px;" />
 </div>
- 
+
 - The group in your configuration is created, in the secret of ```pai-group``` namespace.
 
 <div  align="center">
@@ -205,13 +205,13 @@ After start rest-server, please ensure that the following task is successfully e
 <img src="image/user_created.png" alt="paictl overview picture" style="float: center; margin-right: 10px;" />
 </div>
 
-- please check the created user data. There should be an empty extension and a non-empty grouplist. 
+- please check the created user data. There should be an empty extension and a non-empty grouplist.
 
 <div  align="center">
 <img src="image/user_detail.png" alt="paictl overview picture" style="float: center; margin-right: 10px;" />
 </div>
 
-- please submit a test job in default vc, and then submit the same job to another vc. 
+- please submit a test job in default vc, and then submit the same job to another vc.
 
 - please check whether admin user can access to the administration tab.
 
@@ -249,4 +249,4 @@ After start rest-server, please ensure that the following task is successfully e
 
 ##### If test failed
 
-Pls try to delete the rest-server, and then try to deploy it again. If fail again, pls provide detail infomation and create issue ticket in github.
+Pls try to delete the rest-server, and then try to deploy it again. If fail again, pls provide detail information and create issue ticket in github.

@@ -16,7 +16,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
-from basic_test import OrderedUnitTestCase, seperated
+from basic_test import OrderedUnitTestCase, separated
 from openpaisdk import to_screen
 
 
@@ -41,6 +41,6 @@ class TestNbExtCfg(OrderedUnitTestCase):
         dic = {k: NotebookConfiguration.get(k) for k in self.settings}
         self.assertDictEqual(dic, self.settings)
 
-    @seperated
+    @separated
     def test_nbext_configuration(self):
         self.run_steps()

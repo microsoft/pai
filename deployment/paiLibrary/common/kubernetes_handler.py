@@ -53,7 +53,7 @@ def list_all_nodes(PAI_KUBE_CONFIG_PATH, include_uninitialized = True):
         sys.exit(1)
 
     except Exception as e:
-        logger.error("Error happend when calling kubernetes CoreV1Api->list_node: {0}".format(e))
+        logger.error("Error happened when calling kubernetes CoreV1Api->list_node: {0}".format(e))
         sys.exit(1)
 
     if len(node_list) == 0:

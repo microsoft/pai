@@ -10,9 +10,9 @@ In OpenPAI, this service will deploy several kinds of device plugins to support 
 - NVIDIA GPU (`nvidia.com/gpu`)
 
   NVIDIA GPU device plugin exposes GPUs `/dev/nvidia*` on host and allows user to use GPU enabled container.
-  Offical [NVIDIA GPU device plugin for Kubernetes](https://github.com/NVIDIA/k8s-device-plugin) is ued in PAI.
+  Official [NVIDIA GPU device plugin for Kubernetes](https://github.com/NVIDIA/k8s-device-plugin) is ued in PAI.
 
 - RDMA (`rdma/hca`)
 
   RDMA device plugin supports InfiniBand and RoCE, SRIOV, vHCA, and HCA. It allows user to use InfiniBand in container.
-  Offical [Mellanox RDMA SRIOV device plugin](https://github.com/Mellanox/k8s-rdma-sriov-dev-plugin) is used in PAI.
+  Official [Mellanox RDMA SRIOV device plugin](https://github.com/Mellanox/k8s-rdma-sriov-dev-plugin) is used in PAI.

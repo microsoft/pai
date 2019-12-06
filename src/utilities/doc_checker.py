@@ -46,7 +46,7 @@ class LinkCheckerExtension(markdown.Extension):
 
 def check(doc_path):
     """ check doc file in `doc_path`. return True on error occurs,
-    broken links will be outputed to stderr """
+    broken links will be outputted to stderr """
     dir_name = os.path.dirname(doc_path)
     file_name = os.path.basename(doc_path)
 
@@ -59,7 +59,7 @@ def check(doc_path):
 
 def check_all(doc_root):
     """ check_all iteratively checks docs link. return True on error occurs,
-    broken links will be outputed to stderr """
+    broken links will be outputted to stderr """
     has_error = False
     for root, dirs, files in os.walk(doc_root):
         for name in files:
