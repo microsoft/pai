@@ -29,7 +29,7 @@ RUN ${PROJECT_DIR}/build/runtime/go-build.sh && \
 
 FROM python:3.7-alpine
 
-RUN pip install PyYAML
+RUN pip install pyyaml requests
 
 ENV INSTALL_DIR=/opt/kube-runtime
 ARG BARRIER_DIR=/opt/frameworkcontroller/frameworkbarrier

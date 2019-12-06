@@ -917,6 +917,20 @@ spec:
   - "Wait result from next retry"
   - "Decrease per task ports request"
 
+- code: 254
+  phrase: ContainerImageNotExists
+  issuer: PAI_RUNTIME
+  causer: PAI_RUNTIME
+  type: USER_FAILURE
+  stage: LAUNCHING
+  behavior: PERMANENT
+  reaction: NEVER_RETRY
+  reason: "User requests image is not exists"
+  repro:
+  - "Submit job with fake image uri"
+  solution:
+  - "Correct image uri in job protocol"
+
 - code: 255
   phrase: PAIRuntimeUnknownFailed
   issuer: PAI_RUNTIME
