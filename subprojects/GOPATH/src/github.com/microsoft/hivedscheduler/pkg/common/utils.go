@@ -256,7 +256,7 @@ func SortInt32(n []int32) {
 	}
 }
 
-func Int32SliceContains(i int32, n []int32) bool {
+func Int32SliceContains(n []int32, i int32) bool {
 	for _, j := range n {
 		if i == j {
 			return true

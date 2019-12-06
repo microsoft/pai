@@ -138,6 +138,7 @@ func (h *HivedAlgorithm) Schedule(pod *core.Pod, suggestedNodes []string) intern
 	return generatePodScheduleResult(
 		groupPhysicalPlacement,
 		groupVirtualPlacement,
+		CellPriority(s.Priority),
 		h.cellTypes,
 		s.GpuNumber,
 		podIndex,
@@ -676,7 +677,7 @@ func (h *HivedAlgorithm) confirmAllocatedGpu(
 // getPodIndex finds the index of a pod in its group according to its placement.
 func getPodIndex(podPlacements []api.PodPlacementInfo, node string, gpuIndex int32) int32 {
 	for podIndex, placement := range podPlacements {
-		if placement.PhysicalNode == node && common.Int32SliceContains(gpuIndex, placement.PhysicalGpuIndices) {
+		if placement.PhysicalNode == node && common.Int32SliceContains(placement.PhysicalGpuIndices, gpuIndex) {
 			return int32(podIndex)
 		}
 	}
@@ -846,6 +847,7 @@ func (h *HivedAlgorithm) findPhysicalGpuInChain(
 func generatePodScheduleResult(
 	groupPhysicalPlacement map[int32][]CellList,
 	groupVirtualPlacement map[int32][]CellList,
+	priority CellPriority,
 	cellLevelToType map[CellChain]map[CellLevel]api.CellType,
 	currentGpuNum int32,
 	currentPodIndex int32,
@@ -855,7 +857,7 @@ func generatePodScheduleResult(
 	vc api.VirtualClusterName,
 	pod *core.Pod) internal.PodScheduleResult {
 
-	preemptionVictims, nodesHaveVictims := collectPreemptionVictims(groupPhysicalPlacement, groupVirtualPlacement == nil, groupName)
+	preemptionVictims, nodesHaveVictims := collectPreemptionVictims(groupPhysicalPlacement, priority, groupName)
 	if len(preemptionVictims) > 0 {
 		// we collect victims on a random node, as K8S preempts victims from only one node once.
 		// random is to let different pods preempt victims on different nodes
@@ -970,7 +972,7 @@ func generateAffinityGroupBindInfo(
 // we will wait for the preemption, as the group is gang-scheduled.
 func collectPreemptionVictims(
 	groupPhysicalPlacement map[int32][]CellList,
-	isOpportunistic bool,
+	priority CellPriority,
 	groupName string) (map[string]common.Set, []string) {
 
 	preemptionVictims := map[string]common.Set{}
@@ -984,11 +986,11 @@ func collectPreemptionVictims(
 					// 1. the running pod is a preemption victim.
 					// 2. the running pod used resource partially released by the current group,
 					// but the group wants to schedule a pod again.
-					// our principle is we allow preemption if the running pod is opportunistic, and
-					// the current group is guaranteed (the 2nd case may also satisfy this condition, and we
+					// our principle is we allow preemption if the running pod's priority is lower than that
+					// of the group to be scheduled (the 2nd case may also satisfy this condition, and we
 					// allow such preemption). otherwise the running pod cannot be preempted, and the pod
 					// to be scheduled will wait.
-					if pGpu.GetPriority() >= minGuaranteedPriority || isOpportunistic {
+					if pGpu.GetPriority() >= priority {
 						panic(fmt.Sprintf("Allocated resource (%v) has been used by guaranteed group %v",
 							pGpu.GetPhysicalPlacementString(), victimGroup.name))
 					}
