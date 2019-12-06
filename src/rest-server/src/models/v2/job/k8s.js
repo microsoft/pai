@@ -520,7 +520,7 @@ const generateTaskRole = (frameworkName, taskRole, labels, config, userToken) =>
       completion.minFailedInstances : 1,
     minSucceededTaskCount:
       (completion && 'minSucceededInstances' in completion && completion.minSucceededInstances) ?
-      completion.minSucceededInstances : -1,
+      completion.minSucceededInstances : frameworkTaskRole.taskNumber,
   };
   // hived spec
   if (launcherConfig.enabledHived) {
