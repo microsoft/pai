@@ -175,8 +175,9 @@ func (h *HivedAlgorithm) AddAllocatedPod(pod *core.Pod) {
 				for gpuIndex := int32(0); gpuIndex < int32(
 					len(gms.PodPlacements[podIndex].PhysicalGpuIndices)); gpuIndex++ {
 					pGpu, vGpu, _, _ := h.findAllocatedGpu(
-						gms.PodPlacements[podIndex].PhysicalGpuIndices[gpuIndex],
-						gms.PodPlacements[podIndex].PreassignedCellTypes[gpuIndex],
+						gpuIndex,
+						gms.PodPlacements[podIndex].PhysicalGpuIndices,
+						gms.PodPlacements[podIndex].PreassignedCellTypes,
 						CellChain(info.CellChain), info.Node, false, s, group, pod)
 					if pGpu == nil {
 						break
@@ -556,8 +557,9 @@ func (h *HivedAlgorithm) createAllocatedAffinityGroup(pod *core.Pod, s *api.PodS
 			for gpuIndex := int32(0); gpuIndex < int32(
 				len(gms.PodPlacements[podIndex].PhysicalGpuIndices)); gpuIndex++ {
 				pGpu, vGpu, hasVirtualPlacement, lazyPreempt := h.findAllocatedGpu(
-					gms.PodPlacements[podIndex].PhysicalGpuIndices[gpuIndex],
-					gms.PodPlacements[podIndex].PreassignedCellTypes[gpuIndex],
+					gpuIndex,
+					gms.PodPlacements[podIndex].PhysicalGpuIndices,
+					gms.PodPlacements[podIndex].PreassignedCellTypes,
 					CellChain(info.CellChain), node, shouldLazyPreempt, s, newGroup, pod)
 				if pGpu == nil {
 					break
@@ -588,8 +590,9 @@ func (h *HivedAlgorithm) createAllocatedAffinityGroup(pod *core.Pod, s *api.PodS
 
 // findAllocatedGpu finds the physical and virtual GPUs in the full cell lists for an allocate pod.
 func (h *HivedAlgorithm) findAllocatedGpu(
-	physicalGpuIndex int32,
-	preassignedType api.CellType,
+	index int32,
+	physicalGpuIndices []int32,
+	preassignedCellTypes []api.CellType,
 	chain CellChain,
 	node string,
 	lazyPreempted bool,
@@ -598,6 +601,7 @@ func (h *HivedAlgorithm) findAllocatedGpu(
 	pod *core.Pod) (*PhysicalCell, *VirtualCell, bool, bool) {
 
 	priority := CellPriority(s.Priority)
+	physicalGpuIndex := physicalGpuIndices[index]
 	if pGpu := h.findPhysicalGpu(chain, node, physicalGpuIndex); pGpu == nil {
 		klog.Warningf(
 			"[%v]: cannot find GPU %v on node %v: not found in the spec. pod ignored",
@@ -605,7 +609,12 @@ func (h *HivedAlgorithm) findAllocatedGpu(
 		return nil, nil, false, false
 	} else {
 		var vGpu *VirtualCell
+		if preassignedCellTypes == nil {
+			klog.Warningf("[%v]: cannot find virtual cell: preassigned cell not found in pod bind info", internal.Key(pod))
+			return pGpu, nil, true, true
+		}
 		if group.virtualGpuPlacement != nil && !lazyPreempted {
+			preassignedType := preassignedCellTypes[index]
 			if preassignedType != "" {
 				var preassignedLevel CellLevel
 				typeFound := false
