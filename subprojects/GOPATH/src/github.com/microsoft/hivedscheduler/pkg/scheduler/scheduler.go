@@ -40,6 +40,7 @@ import (
 	"k8s.io/klog"
 	ei "k8s.io/kubernetes/pkg/scheduler/api"
 	"sync"
+	"time"
 )
 
 // HivedScheduler is the scheduling framework which serves as the bridge between
@@ -117,7 +118,7 @@ type HivedScheduler struct {
 func NewHivedScheduler() *HivedScheduler {
 	klog.Infof("Initializing " + si.ComponentName)
 
-	sConfig := si.NewConfig(nil)
+	sConfig := si.NewConfig(si.InitRawConfig(nil))
 	klog.Infof("With Config: \n%v", common.ToYaml(sConfig))
 	kConfig := si.BuildKubeConfig(sConfig)
 
@@ -516,6 +517,8 @@ func (s *HivedScheduler) filterRoutine(args ei.ExtenderArgs) *ei.ExtenderFilterR
 		if s.shouldForceBind(s.podScheduleStatuses[pod.UID], suggestedNodes) {
 			go s.forceBindExecutor(bindingPod)
 		}
+
+		klog.Infof(logPfx + "Pod is binding: %v", common.ToJson(result.PodBindInfo))
 		return &ei.ExtenderFilterResult{
 			NodeNames: &[]string{bindingPod.Spec.NodeName},
 		}
@@ -538,6 +541,8 @@ func (s *HivedScheduler) filterRoutine(args ei.ExtenderArgs) *ei.ExtenderFilterR
 				failedNodes[node] += ", " + internal.Key(victim)
 			}
 		}
+
+		klog.Infof(logPfx + "Pod is preempting: %v", common.ToJson(failedNodes))
 		return &ei.ExtenderFilterResult{
 			FailedNodes: failedNodes,
 		}
@@ -548,15 +553,21 @@ func (s *HivedScheduler) filterRoutine(args ei.ExtenderArgs) *ei.ExtenderFilterR
 			PodScheduleResult: &result,
 		}
 
+		// Block the whole scheduling to achieve better FIFO
+		if *s.sConfig.WaitingPodSchedulingBlockMilliSec > 0 {
+			time.Sleep(time.Duration(*s.sConfig.WaitingPodSchedulingBlockMilliSec) *
+				time.Millisecond)
+		}
+
 		// Return Error to tell K8S Default Scheduler that preemption must not help.
+		waitReason := "Pod is waiting for preemptible or free resource to appear"
 		if result.PodWaitInfo != nil {
-			return &ei.ExtenderFilterResult{
-				Error: fmt.Sprintf(
-					"Pod is waiting for preemptible or free resource to appear: %v",
-					result.PodWaitInfo.Reason),
-			}
-		} else {
-			return &ei.ExtenderFilterResult{}
+			waitReason += ": " + result.PodWaitInfo.Reason
+		}
+
+		klog.Infof(logPfx + waitReason)
+		return &ei.ExtenderFilterResult{
+			Error: waitReason,
 		}
 	}
 }

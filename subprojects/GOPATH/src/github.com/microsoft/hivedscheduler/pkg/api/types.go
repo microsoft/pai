@@ -76,10 +76,11 @@ type ReservedCellSpec struct {
 type PodSchedulingSpec struct {
 	VirtualCluster       VirtualClusterName `yaml:"virtualCluster"`
 	Priority             int32              `yaml:"priority"`
-	LazyPreemptionEnable bool               `yaml:"lazyPreemptionEnable"`
 	ReservationId        ReservationId      `yaml:"reservationId"`
 	GpuType              string             `yaml:"gpuType"`
 	GpuNumber            int32              `yaml:"gpuNumber"`
+	GangReleaseEnable    bool               `yaml:"gangReleaseEnable"`
+	LazyPreemptionEnable bool               `yaml:"lazyPreemptionEnable"`
 	AffinityGroup        *AffinityGroupSpec `yaml:"affinityGroup"`
 }
 
@@ -95,11 +96,9 @@ type AffinityGroupMemberSpec struct {
 
 // Used to recover scheduler allocated resource
 type PodBindInfo struct {
-	// The node to bind
-	Node string `yaml:"node"`
-	// The GPUs to bind
-	GpuIsolation          []int32                       `yaml:"gpuIsolation"`
-	CellChain             string                        `yaml:"cellChain"`
+	Node                  string                        `yaml:"node"`         // node to bind
+	GpuIsolation          []int32                       `yaml:"gpuIsolation"` // GPUs to bind
+	CellChain             string                        `yaml:"cellChain"`    // cell chain selected
 	AffinityGroupBindInfo []AffinityGroupMemberBindInfo `yaml:"affinityGroupBindInfo"`
 }
 

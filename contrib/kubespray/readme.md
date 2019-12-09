@@ -105,7 +105,7 @@ sudo apt update
 curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py
 
 # python3
-sudo python get-pip.py
+sudo python3 get-pip.py
 
 sudo pip3 install anisble
 
@@ -144,7 +144,7 @@ ansible all -i host.yml -m ping
 
 If GPU driver has been installed, you could skip to next steps
 
-###### Install nvidia drivers-410 ( You can change the version )
+###### Install nvidia drivers-418 ( You can change the version )
 
 ```bash
 
