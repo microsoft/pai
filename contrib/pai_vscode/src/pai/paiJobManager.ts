@@ -10,9 +10,12 @@ import { injectable } from 'inversify';
 import * as yaml from 'js-yaml';
 import * as JSONC from 'jsonc-parser';
 import { isEmpty, isNil } from 'lodash';
+import { IJobConfigV1 } from 'openpai-js-sdk/lib/models/job';
+import opn = require('opn'); // tslint:disable-line
 import * as os from 'os';
 import * as path from 'path';
 import * as request from 'request-promise-native';
+import unixify = require('unixify'); // tslint:disable-line
 import * as uuid from 'uuid';
 import * as vscode from 'vscode';
 
@@ -24,13 +27,13 @@ import {
     COMMAND_SUBMIT_JOB,
     OCTICON_CLOUDUPLOAD,
     SCHEMA_JOB_CONFIG,
+    SCHEMA_YAML_JOB_CONFIG,
     SETTING_JOB_GENERATEJOBNAME_ENABLED,
     SETTING_JOB_UPLOAD_ENABLED,
     SETTING_JOB_UPLOAD_EXCLUDE,
     SETTING_JOB_UPLOAD_INCLUDE,
     SETTING_SECTION_JOB
 } from '../common/constants';
-
 import { __ } from '../common/i18n';
 import { getSingleton, Singleton } from '../common/singleton';
 import { Util } from '../common/util';
@@ -39,9 +42,6 @@ import { getClusterIdentifier, ClusterManager } from './clusterManager';
 import { ClusterExplorerChildNode } from './configurationTreeDataProvider';
 import { getHDFSUriAuthority, HDFS, HDFSFileSystemProvider } from './hdfs';
 import { IPAICluster, IPAIJobConfigV1, IPAIJobConfigV2, IPAITaskRole } from './paiInterface';
-
-import opn = require('opn'); // tslint:disable-line
-import unixify = require('unixify'); // tslint:disable-line
 import { PAIRestUri, PAIWebPortalUri } from './paiUri';
 import { RecentJobManager } from './recentJobManager';
 import { YamlJobConfigCompletionProvider } from './yamlJobConfigCompletionProvider';
@@ -53,7 +53,8 @@ interface ITokenItem {
 }
 
 interface IJobParam {
-    config: IPAIJobConfigV1;
+    config: IPAIJobConfigV1 | IPAIJobConfigV2;
+    jobVersion: number;
     cluster?: IPAICluster;
     workspace: string;
     upload?: {
@@ -272,7 +273,7 @@ export class PAIJobManager extends Singleton {
                 {
                     name: 'image',
                     type: 'dockerimage',
-                    uri: '<dockerimage uri>'
+                    uri: 'aiplatform/pai.build.base'
                 }
             ],
             taskRoles: {
@@ -355,8 +356,10 @@ export class PAIJobManager extends Singleton {
         return vscode.workspace.getConfiguration(SETTING_SECTION_JOB);
     }
 
-    private static replaceVariables({ cluster, config }: IJobParam): IPAIJobConfigV1 {
+    private static replaceVariables(jobParam: IJobParam): IPAIJobConfigV1 {
         // Replace environment variable
+        const config: IPAIJobConfigV1 = <IPAIJobConfigV1>jobParam.config;
+        const cluster: IPAICluster | undefined = jobParam.cluster;
         function replaceVariable(x: string): string {
             return x.replace('$PAI_JOB_NAME', config.jobName)
                 .replace('$PAI_USER_NAME', cluster!.username!);
@@ -382,11 +385,19 @@ export class PAIJobManager extends Singleton {
         statusBarItem.show();
 
         try {
-            await this.prepareJobConfigPath(input);
-            if (input.jobConfigPath!.toLowerCase().endsWith('yaml') || input.jobConfigPath!.toLowerCase().endsWith('yml')) {
-                await this.submitJobV2(input, statusBarItem);
+            const param: IJobParam | undefined = await this.prepareJobParam(input);
+            if (!param) {
+                // Error message has been shown.
+                return;
+            }
+            if (!param.cluster) {
+                param.cluster = await this.pickCluster();
+            }
+
+            if (param.jobVersion === 2) {
+                await this.submitJobV2(param, statusBarItem);
             } else {
-                await this.submitJobV1(input, statusBarItem);
+                await this.submitJobV1(param, statusBarItem);
             }
         } catch (e) {
             Util.err('job.submission.error', [e.message || e]);
@@ -399,24 +410,17 @@ export class PAIJobManager extends Singleton {
         await registerYamlSchemaSupport();
     }
 
-    private async submitJobV1(input: IJobInput = {}, statusBarItem: vscode.StatusBarItem): Promise<void> {
-        const param: IJobParam | undefined = await this.prepareJobParam(input);
-        if (!param) {
-            // Error message has been shown.
-            return;
-        }
-
-        if (!param.cluster) {
-            param.cluster = await this.pickCluster();
-        }
+    private async submitJobV1(param: IJobParam, statusBarItem: vscode.StatusBarItem): Promise<void> {
+        const config: IPAIJobConfigV1 = <IPAIJobConfigV1>param.config;
+        const cluster: IPAICluster = <IPAICluster>param.cluster!;
 
         // add job name suffix
         if (param.generateJobName) {
-            param.config.jobName = `${param.config.jobName}_${uuid().substring(0, 8)}`;
+            config.jobName = `${config.jobName}_${uuid().substring(0, 8)}`;
         } else {
             try {
-                await request.get(PAIRestUri.jobDetail(param.cluster, param.cluster.username!, param.config.jobName), {
-                    headers: { Authorization: `Bearer ${await this.getToken(param.cluster)}` },
+                await request.get(PAIRestUri.jobDetail(cluster, cluster.username!, config.jobName), {
+                    headers: { Authorization: `Bearer ${await this.getToken(cluster)}` },
                     timeout: PAIJobManager.TIMEOUT,
                     json: true
                 });
@@ -430,7 +434,7 @@ export class PAIJobManager extends Singleton {
                 );
                 if (res === ENABLE_GENERATE_SUFFIX) {
                     await vscode.workspace.getConfiguration(SETTING_SECTION_JOB).update(SETTING_JOB_GENERATEJOBNAME_ENABLED, true);
-                    param.config.jobName = `${param.config.jobName}_${uuid().substring(0, 8)}`;
+                    config.jobName = `${config.jobName}_${uuid().substring(0, 8)}`;
                 } else {
                     // cancel
                     return;
@@ -458,19 +462,19 @@ export class PAIJobManager extends Singleton {
         // send job submission request
         statusBarItem.text = `${OCTICON_CLOUDUPLOAD} ${__('job.request.status')}`;
         try {
-            await request.post(PAIRestUri.jobs(param.cluster, param.cluster.username), {
-                headers: { Authorization: `Bearer ${await this.getToken(param.cluster)}` },
+            await request.post(PAIRestUri.jobs(cluster, cluster.username), {
+                headers: { Authorization: `Bearer ${await this.getToken(cluster)}` },
                 form: param.config,
                 timeout: PAIJobManager.TIMEOUT,
                 json: true
             });
-            void (await getSingleton(RecentJobManager)).enqueueRecentJobs(param.cluster, param.config.jobName);
+            void (await getSingleton(RecentJobManager)).enqueueRecentJobs(cluster, config.jobName);
             const open: string = __('job.submission.success.open');
             void vscode.window.showInformationMessage(
                 __('job.submission.success'),
                 open
             ).then(async res => {
-                const url: string = await PAIWebPortalUri.jobDetail(param.cluster!, param.cluster!.username!, param.config.jobName);
+                const url: string = await PAIWebPortalUri.jobDetail(param.cluster!, param.cluster!.username!, config.jobName);
                 if (res === open) {
                     await Util.openExternally(url);
                 }
@@ -480,16 +484,9 @@ export class PAIJobManager extends Singleton {
         }
     }
 
-    private async submitJobV2(input: IJobInput = {}, statusBarItem: vscode.StatusBarItem): Promise<void> {
-        const config: IPAIJobConfigV2 = yaml.safeLoad(await fs.readFile(input.jobConfigPath!, 'utf8'));
-        let cluster: IPAICluster;
-
-        if (input.clusterIndex) {
-            const clusterManager: ClusterManager = await getSingleton(ClusterManager);
-            cluster = clusterManager.allConfigurations[input.clusterIndex];
-        } else {
-            cluster = await this.pickCluster();
-        }
+    private async submitJobV2(param: IJobParam, statusBarItem: vscode.StatusBarItem): Promise<void> {
+        const config: IPAIJobConfigV2 = <IPAIJobConfigV2>param.config;
+        const cluster: IPAICluster = param.cluster!;
 
         // add job name suffix
         const settings: vscode.WorkspaceConfiguration = await PAIJobManager.ensureSettings();
@@ -546,7 +543,7 @@ export class PAIJobManager extends Singleton {
                 __('job.submission.success'),
                 open
             ).then(async res => {
-                const url: string = await PAIWebPortalUri.jobDetail(cluster!, cluster!.username!, config.name);
+                const url: string = await PAIWebPortalUri.jobDetail(cluster, cluster.username!, config.name);
                 if (res === open) {
                     await Util.openExternally(url);
                 }
@@ -569,155 +566,278 @@ export class PAIJobManager extends Singleton {
                 // Error message has been shown.
                 return;
             }
-
-            if (!param.cluster) {
-                let pickCluster: boolean = false;
-                // pick cluster if auto upload is disabled.
-                if (!param.upload) {
-                    pickCluster = true;
-                }
-                if (PAIJobManager.envNeedClusterInfo.some(
-                    x => param.config.codeDir.includes(`$${x}`) || param.config.taskRoles.some(
-                        y => y.command.includes(`$${x}`)
-                    )
-                )) {
-                    pickCluster = true;
-                }
-
-                if (pickCluster) {
-                    param.cluster = await this.pickCluster();
-                }
-            }
-
-            // replace env variables if auto upload is disabled
-            // extension will try to download files from hdfs instead of copying local files
-            if (!param.upload) {
-                PAIJobManager.replaceVariables(param);
-            }
-
-            // generate dockerfile
-            const dockerfileDir: string = path.join(param.workspace, PAIJobManager.SIMULATION_DOCKERFILE_FOLDER);
-            const jobDir: string = path.join(dockerfileDir, param.config.jobName);
-            await fs.remove(jobDir);
-            await fs.ensureDir(jobDir);
-            let scriptName: string;
-            if (os.platform() === 'win32') {
-                scriptName = 'run-docker.cmd';
+            if (param.jobVersion === 2) {
+                await this.simulateV2(param);
             } else {
-                scriptName = 'run-docker.sh';
+                await this.simulateV1(param);
             }
-            for (const role of param.config.taskRoles) {
-                // 0. init
-                const taskDir: string = path.join(jobDir, role.name);
-                await fs.ensureDir(taskDir);
-                const dockerfile: string[] = [];
-                // 1. comments
-                dockerfile.push('# Generated by OpenPAI VS Code Client');
-                dockerfile.push(`# Job Name: ${param.config.jobName}`);
-                dockerfile.push(`# Task Name: ${role.name}`);
-                dockerfile.push('');
-                // 2. from
-                dockerfile.push(`FROM ${param.config.image}`);
-                dockerfile.push('');
-                // 3. source code
-                const codeDir: string = path.join(taskDir, param.config.jobName);
-                await fs.ensureDir(codeDir);
-                if (param.upload) {
-                    // copy from local
-                    const projectFiles: string[] = await globby(param.upload.include, {
-                        cwd: param.workspace,
-                        onlyFiles: true,
-                        absolute: true,
-                        ignore: param.upload.exclude || []
-                    });
-                    await Promise.all(projectFiles.map(async file => {
-                        await fs.copy(file, path.join(codeDir, path.relative(param.workspace, file)));
-                    }));
-                } else {
-                    // copy from remote
-                    const fsProvider: HDFSFileSystemProvider = (await getSingleton(HDFS)).provider!;
-                    let remoteCodeDir: string = param.config.codeDir;
-                    if (remoteCodeDir.startsWith('$PAI_DEFAULT_FS_URI')) {
-                        remoteCodeDir = remoteCodeDir.substring('$PAI_DEFAULT_FS_URI'.length);
-                    }
-                    const remoteCodeUri: vscode.Uri = vscode.Uri.parse(`webhdfs://${getHDFSUriAuthority(param.cluster!)}${remoteCodeDir}`);
-                    await fsProvider.copy(remoteCodeUri, vscode.Uri.file(codeDir), { overwrite: true });
-                }
-                dockerfile.push('WORKDIR /pai');
-                dockerfile.push(`COPY ${param.config.jobName} /pai/${param.config.jobName}`);
-                dockerfile.push('');
-                // 4. env var
-                dockerfile.push('ENV PAI_WORK_DIR /pai');
-                dockerfile.push(`ENV PAI_JOB_NAME ${param.config.jobName}`);
-                if (param.cluster) {
-                    dockerfile.push(`ENV PAI_DEFAULT_FS_URI ${param.cluster.hdfs_uri}`);
-                    dockerfile.push(`ENV PAI_USER_NAME ${param.cluster.username}`);
-                    dockerfile.push(`ENV PAI_DATA_DIR ${param.config.dataDir}`);
-                    dockerfile.push(`ENV PAI_CODE_DIR ${param.config.codeDir}`);
-                    dockerfile.push(`ENV PAI_OUTPUT_DIR ${param.config.outputDir}`);
-                }
-                dockerfile.push('');
-                // check unsupported env variables
-                const supportedEnvList: string[] = [
-                    'PAI_WORK_DIR',
-                    'PAI_JOB_NAME',
-                    'PAI_DEFAULT_FS_URI',
-                    'PAI_USER_NAME',
-                    'PAI_DATA_DIR',
-                    'PAI_CODE_DIR',
-                    'PAI_OUTPUT_DIR'
-                ];
-                let command: string = role.command;
-                for (const env of supportedEnvList) {
-                    command = command.replace(new RegExp(`\\$${env}`, 'g'), '');
-                }
-                if (command.includes('$PAI')) {
-                    Util.warn('job.simulation.unsupported-env-var', role.command);
-                }
-                // 5. entrypoint
-                dockerfile.push(`ENTRYPOINT ${role.command}`);
-                dockerfile.push('');
-                // 6. write dockerfile
-                await fs.writeFile(path.join(taskDir, 'dockerfile'), dockerfile.join('\n'));
-                // EX. write shell script
-                const imageName: string = `pai-simulator-${param.config.jobName}-${role.name}`;
-                await fs.writeFile(
-                    path.join(taskDir, scriptName),
-                    [
-                        `docker build -t ${imageName} ${Util.quote(taskDir)}`,
-                        `docker run --rm ${imageName}`,
-                        `docker rmi ${imageName}`,
-                        os.platform() === 'win32' ? 'pause' : 'read -p "Press [Enter] to continue ..."'
-                    ].join('\n')
-                );
-            }
-
-            const reveal: string = __('job.simulation.success-dialog.reveal');
-            const runFirstTask: string = __('job.simulation.success-dialog.run-first-task');
-            await vscode.window.showInformationMessage(
-                __('job.simulation.success', [PAIJobManager.SIMULATION_DOCKERFILE_FOLDER, param.config.jobName, scriptName]),
-                runFirstTask,
-                reveal
-            ).then((res) => {
-                if (res === reveal) {
-                    void opn(jobDir);
-                } else if (res === runFirstTask) {
-                    if (!this.simulateTerminal || !vscode.window.terminals.find(x => x.processId === this.simulateTerminal!.processId)) {
-                        this.simulateTerminal = vscode.window.createTerminal('pai-simulator');
-                    }
-                    this.simulateTerminal.show(true);
-                    if (os.platform() === 'win32') {
-                        this.simulateTerminal.sendText(`cmd /c "${path.join(jobDir, param.config.taskRoles[0].name, scriptName)}"`);
-                    } else {
-                        this.simulateTerminal.sendText(`bash '${path.join(jobDir, param.config.taskRoles[0].name, scriptName)}'`);
-                    }
-                }
-            });
         } catch (e) {
             Util.err('job.simulation.error', [e.message || e]);
         } finally {
             statusBarItem.dispose();
         }
+    }
+
+    // tslint:disable-next-line
+    public async simulateV1(param: IJobParam): Promise<void> {
+        const config: IPAIJobConfigV1 = <IPAIJobConfigV1>param.config;
+        if (!param.cluster) {
+            let pickCluster: boolean = false;
+            // pick cluster if auto upload is disabled.
+            if (!param.upload) {
+                pickCluster = true;
+            }
+            if (PAIJobManager.envNeedClusterInfo.some(
+                x => config.codeDir.includes(`$${x}`) || config.taskRoles.some(
+                    y => y.command.includes(`$${x}`)
+                )
+            )) {
+                pickCluster = true;
+            }
+
+            if (pickCluster) {
+                param.cluster = await this.pickCluster();
+            }
+        }
+
+        // replace env variables if auto upload is disabled
+        // extension will try to download files from hdfs instead of copying local files
+        if (!param.upload) {
+            PAIJobManager.replaceVariables(param);
+        }
+
+        // generate dockerfile
+        const dockerfileDir: string = path.join(param.workspace, PAIJobManager.SIMULATION_DOCKERFILE_FOLDER);
+        const jobDir: string = path.join(dockerfileDir, config.jobName);
+        await fs.remove(jobDir);
+        await fs.ensureDir(jobDir);
+        let scriptName: string;
+        if (os.platform() === 'win32') {
+            scriptName = 'run-docker.cmd';
+        } else {
+            scriptName = 'run-docker.sh';
+        }
+        for (const role of config.taskRoles) {
+            // 0. init
+            const taskDir: string = path.join(jobDir, role.name);
+            await fs.ensureDir(taskDir);
+            const dockerfile: string[] = [];
+            // 1. comments
+            dockerfile.push('# Generated by OpenPAI VS Code Client');
+            dockerfile.push(`# Job Name: ${config.jobName}`);
+            dockerfile.push(`# Task Name: ${role.name}`);
+            dockerfile.push('');
+            // 2. from
+            dockerfile.push(`FROM ${config.image}`);
+            dockerfile.push('');
+            // 3. source code
+            const codeDir: string = path.join(taskDir, config.jobName);
+            await fs.ensureDir(codeDir);
+            if (param.upload) {
+                // copy from local
+                const projectFiles: string[] = await globby(param.upload.include, {
+                    cwd: param.workspace,
+                    onlyFiles: true,
+                    absolute: true,
+                    ignore: param.upload.exclude || []
+                });
+                await Promise.all(projectFiles.map(async file => {
+                    await fs.copy(file, path.join(codeDir, path.relative(param.workspace, file)));
+                }));
+            } else {
+                // copy from remote
+                const fsProvider: HDFSFileSystemProvider = (await getSingleton(HDFS)).provider!;
+                let remoteCodeDir: string = config.codeDir;
+                if (remoteCodeDir.startsWith('$PAI_DEFAULT_FS_URI')) {
+                    remoteCodeDir = remoteCodeDir.substring('$PAI_DEFAULT_FS_URI'.length);
+                }
+                const remoteCodeUri: vscode.Uri = vscode.Uri.parse(`webhdfs://${getHDFSUriAuthority(param.cluster!)}${remoteCodeDir}`);
+                await fsProvider.copy(remoteCodeUri, vscode.Uri.file(codeDir), { overwrite: true });
+            }
+            dockerfile.push('WORKDIR /pai');
+            dockerfile.push(`COPY ${config.jobName} /pai/${config.jobName}`);
+            dockerfile.push('');
+            // 4. env var
+            dockerfile.push('ENV PAI_WORK_DIR /pai');
+            dockerfile.push(`ENV PAI_JOB_NAME ${config.jobName}`);
+            if (param.cluster) {
+                dockerfile.push(`ENV PAI_DEFAULT_FS_URI ${param.cluster.hdfs_uri}`);
+                dockerfile.push(`ENV PAI_USER_NAME ${param.cluster.username}`);
+                dockerfile.push(`ENV PAI_DATA_DIR ${config.dataDir}`);
+                dockerfile.push(`ENV PAI_CODE_DIR ${config.codeDir}`);
+                dockerfile.push(`ENV PAI_OUTPUT_DIR ${config.outputDir}`);
+            }
+            dockerfile.push('');
+            // check unsupported env variables
+            const supportedEnvList: string[] = [
+                'PAI_WORK_DIR',
+                'PAI_JOB_NAME',
+                'PAI_DEFAULT_FS_URI',
+                'PAI_USER_NAME',
+                'PAI_DATA_DIR',
+                'PAI_CODE_DIR',
+                'PAI_OUTPUT_DIR'
+            ];
+            let command: string = role.command;
+            for (const env of supportedEnvList) {
+                command = command.replace(new RegExp(`\\$${env}`, 'g'), '');
+            }
+            if (command.includes('$PAI')) {
+                Util.warn('job.simulation.unsupported-env-var', role.command);
+            }
+            // 5. entrypoint
+            dockerfile.push(`ENTRYPOINT ${role.command}`);
+            dockerfile.push('');
+            // 6. write dockerfile
+            await fs.writeFile(path.join(taskDir, 'dockerfile'), dockerfile.join('\n'));
+            // EX. write shell script
+            const imageName: string = `pai-simulator-${config.jobName}-${role.name}`;
+            await fs.writeFile(
+                path.join(taskDir, scriptName),
+                [
+                    `docker build -t ${imageName} ${Util.quote(taskDir)}`,
+                    `docker run --rm ${imageName}`,
+                    `docker rmi ${imageName}`,
+                    os.platform() === 'win32' ? 'pause' : 'read -p "Press [Enter] to continue ..."'
+                ].join('\n')
+            );
+        }
+
+        const reveal: string = __('job.simulation.success-dialog.reveal');
+        const runFirstTask: string = __('job.simulation.success-dialog.run-first-task');
+        await vscode.window.showInformationMessage(
+            __('job.simulation.success', [PAIJobManager.SIMULATION_DOCKERFILE_FOLDER, config.jobName, scriptName]),
+            runFirstTask,
+            reveal
+        ).then((res) => {
+            if (res === reveal) {
+                void opn(jobDir);
+            } else if (res === runFirstTask) {
+                if (!this.simulateTerminal || !vscode.window.terminals.find(x => x.processId === this.simulateTerminal!.processId)) {
+                    this.simulateTerminal = vscode.window.createTerminal('pai-simulator');
+                }
+                this.simulateTerminal.show(true);
+                if (os.platform() === 'win32') {
+                    this.simulateTerminal.sendText(`cmd /c "${path.join(jobDir, config.taskRoles[0].name, scriptName)}"`);
+                } else {
+                    this.simulateTerminal.sendText(`bash '${path.join(jobDir, config.taskRoles[0].name, scriptName)}'`);
+                }
+            }
+        });
+    }
+
+    // tslint:disable-next-line
+    public async simulateV2(param: IJobParam): Promise<void> {
+        const config: IPAIJobConfigV2 = <IPAIJobConfigV2>param.config;
+        // generate dockerfile
+        const dockerfileDir: string = path.join(param.workspace, PAIJobManager.SIMULATION_DOCKERFILE_FOLDER);
+        const jobDir: string = path.join(dockerfileDir, config.name);
+        await fs.remove(jobDir);
+        await fs.ensureDir(jobDir);
+        let scriptName: string;
+        if (os.platform() === 'win32') {
+            scriptName = 'run-docker.cmd';
+        } else {
+            scriptName = 'run-docker.sh';
+        }
+        for (const [name, role] of Object.entries(config.taskRoles)) {
+            // 0. init
+            const taskDir: string = path.join(jobDir, name);
+            await fs.ensureDir(taskDir);
+            const dockerfile: string[] = [];
+            // 1. comments
+            dockerfile.push('# Generated by OpenPAI VS Code Client');
+            dockerfile.push(`# Job Name: ${config.name}`);
+            dockerfile.push(`# Task Name: ${name}`);
+            dockerfile.push('');
+            // 2. from
+            let image: any;
+            for (const prerequisite of config.prerequisites!) {
+                if (prerequisite.type === 'dockerimage' && prerequisite.name === role.dockerImage) {
+                    image = prerequisite;
+                }
+            }
+            dockerfile.push(`FROM ${image.uri}`);
+            dockerfile.push('');
+            // 3. source code
+            const codeDir: string = path.join(taskDir, config.name);
+            await fs.ensureDir(codeDir);
+            if (param.upload) {
+                // copy from local
+                const projectFiles: string[] = await globby(param.upload.include, {
+                    cwd: param.workspace,
+                    onlyFiles: true,
+                    absolute: true,
+                    ignore: param.upload.exclude || []
+                });
+                await Promise.all(projectFiles.map(async file => {
+                    await fs.copy(file, path.join(codeDir, path.relative(param.workspace, file)));
+                }));
+            }
+            dockerfile.push('WORKDIR /pai');
+            dockerfile.push(`COPY ${config.name} /pai/${config.name}`);
+            dockerfile.push('');
+            // 4. env var
+            dockerfile.push('ENV PAI_WORK_DIR /pai');
+            dockerfile.push(`ENV PAI_JOB_NAME ${config.name}`);
+            if (param.cluster) {
+                dockerfile.push(`ENV PAI_DEFAULT_FS_URI ${param.cluster.hdfs_uri}`);
+                dockerfile.push(`ENV PAI_USER_NAME ${param.cluster.username}`);
+            }
+            dockerfile.push('');
+            // check unsupported env variables
+            const supportedEnvList: string[] = [
+                'PAI_WORK_DIR',
+                'PAI_JOB_NAME',
+                'PAI_DEFAULT_FS_URI',
+                'PAI_USER_NAME'
+            ];
+            let command: string = role.commands.join(' && ');
+            for (const env of supportedEnvList) {
+                command = command.replace(new RegExp(`\\$${env}`, 'g'), '');
+            }
+            if (command.includes('$PAI')) {
+                Util.warn('job.simulation.unsupported-env-var', role.commands);
+            }
+            // 5. entrypoint
+            dockerfile.push(`ENTRYPOINT ${role.commands.join(' && ')}`);
+            dockerfile.push('');
+            // 6. write dockerfile
+            await fs.writeFile(path.join(taskDir, 'dockerfile'), dockerfile.join('\n'));
+            // EX. write shell script
+            const imageName: string = `pai-simulator-${config.name}-${name}`;
+            await fs.writeFile(
+                path.join(taskDir, scriptName),
+                [
+                    `docker build -t ${imageName} ${Util.quote(taskDir)}`,
+                    `docker run --rm ${imageName}`,
+                    `docker rmi ${imageName}`,
+                    os.platform() === 'win32' ? 'pause' : 'read -p "Press [Enter] to continue ..."'
+                ].join('\n')
+            );
+        }
+
+        const reveal: string = __('job.simulation.success-dialog.reveal');
+        const runFirstTask: string = __('job.simulation.success-dialog.run-first-task');
+        await vscode.window.showInformationMessage(
+            __('job.simulation.success', [PAIJobManager.SIMULATION_DOCKERFILE_FOLDER, config.name, scriptName]),
+            runFirstTask,
+            reveal
+        ).then((res) => {
+            if (res === reveal) {
+                void opn(jobDir);
+            } else if (res === runFirstTask) {
+                if (!this.simulateTerminal || !vscode.window.terminals.find(x => x.processId === this.simulateTerminal!.processId)) {
+                    this.simulateTerminal = vscode.window.createTerminal('pai-simulator');
+                }
+                this.simulateTerminal.show(true);
+                if (os.platform() === 'win32') {
+                    this.simulateTerminal.sendText(`cmd /c "${path.join(jobDir, Object.keys(config.taskRoles)[0], scriptName)}"`);
+                } else {
+                    this.simulateTerminal.sendText(`bash '${path.join(jobDir, Object.keys(config.taskRoles)[0], scriptName)}'`);
+                }
+            }
+        });
     }
 
     private async pickCluster(): Promise<IPAICluster> {
@@ -749,30 +869,36 @@ export class PAIJobManager extends Singleton {
     private async prepareJobParam({ jobConfigPath, clusterIndex }: IJobInput): Promise<IJobParam | undefined> {
         const result: Partial<IJobParam> = {};
         // 1. job config
-        if (jobConfigPath!.toLowerCase().endsWith('yaml') || jobConfigPath!.toLowerCase().endsWith('yml')) {
-            Util.err('job.prepare.config.yaml-not-support');
-            return undefined;
-        }
-        const config: IPAIJobConfigV1 = JSONC.parse(await fs.readFile(jobConfigPath!, 'utf8'));
+        const jobVersion: number = (jobConfigPath!.toLowerCase().endsWith('yaml') || jobConfigPath!.toLowerCase().endsWith('yml')) ? 2 : 1;
+        result.jobVersion = jobVersion;
+        let config: IPAIJobConfigV1 | IPAIJobConfigV2;
+
+        let error: string | undefined;
+        config = jobVersion === 2 ?
+            yaml.safeLoad(await fs.readFile(jobConfigPath!, 'utf8')) : JSONC.parse(await fs.readFile(jobConfigPath!, 'utf8'));
         if (isNil(config)) {
             Util.err('job.prepare.config.invalid');
         }
-        const error: string | undefined = await Util.validateJSON(config, SCHEMA_JOB_CONFIG);
+        error = jobVersion === 2 ?
+            await Util.validateJSON(config, SCHEMA_YAML_JOB_CONFIG) : await Util.validateJSON(config, SCHEMA_JOB_CONFIG);
         if (error) {
             throw new Error(error);
         }
         result.config = config;
+
         // 2. workspace
         const workspace: vscode.WorkspaceFolder | undefined = vscode.workspace.getWorkspaceFolder(vscode.Uri.file(jobConfigPath!));
         if (!workspace) {
             throw new Error(__('common.workspace.nofolder'));
         }
         result.workspace = workspace.uri.fsPath;
+
         // 3. cluster
         if (clusterIndex) {
             const clusterManager: ClusterManager = await getSingleton(ClusterManager);
             result.cluster = clusterManager.allConfigurations[clusterIndex];
         }
+
         // 4. settings
         const settings: vscode.WorkspaceConfiguration = await PAIJobManager.ensureSettings();
         if (settings.get(SETTING_JOB_UPLOAD_ENABLED)) {
@@ -814,6 +940,8 @@ export class PAIJobManager extends Singleton {
     }
 
     private async uploadCode(param: IJobParam): Promise<boolean> {
+        const config: IJobConfigV1 = <IJobConfigV1>param.config;
+
         if (!param.cluster!.webhdfs_uri) {
             Util.err('pai.webhdfs.missing');
             return false;
@@ -826,7 +954,7 @@ export class PAIJobManager extends Singleton {
                 ignore: param.upload!.exclude || []
             });
             const fsProvider: HDFSFileSystemProvider = (await getSingleton(HDFS)).provider!;
-            let codeDir: string = param.config.codeDir;
+            let codeDir: string = config.codeDir;
             if (codeDir.startsWith('hdfs://') || codeDir.startsWith('webhdfs://')) {
                 throw new Error(__('job.upload.invalid-code-dir'));
             } else {
