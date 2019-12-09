@@ -16,6 +16,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 import os
+import functools
 import sys
 import unittest
 
@@ -28,81 +29,66 @@ import image_checker
 package_directory_com = os.path.dirname(os.path.abspath(__file__))
 
 
+def prepare_image_check(job_config_path):
+    def decorator(func):
+        @functools.wraps(func)
+        def wrapper(self, *args, **kwargs):
+            os.environ["FC_TASK_INDEX"] = "0"
+            if os.path.exists(job_config_path):
+                with open(job_config_path, 'r') as f:
+                    self.config = yaml.load(f, Loader=yaml.FullLoader)
+                func(self, *args, **kwargs)
+            del os.environ["FC_TASK_INDEX"]
+        return wrapper
+    return decorator
+
 class TestImageChecker(unittest.TestCase):
     def setUp(self):
         try:
             os.chdir(package_directory_com)
         except:
             pass
+        self.config = {}
 
+    @prepare_image_check("docker_image_no_user_tag.yaml")
     def test_image_without_username_tag(self):
-        os.environ["FC_TASK_INDEX"] = "0"
-        job_path = "docker_image_no_user_tag.yaml"
-        if os.path.exists(job_path):
-            with open(job_path, 'r') as f:
-                jobconfig = yaml.load(f)
-        res = image_checker._is_docker_image_valid(jobconfig)
+        res = image_checker._is_docker_image_valid(self.config)
         self.assertEqual(res, True)
-        del os.environ["FC_TASK_INDEX"]
 
+    @prepare_image_check("docker_image_no_tag.yaml")
     def test_image_without_tag(self):
-        os.environ["FC_TASK_INDEX"] = "0"
-        job_path = "docker_image_no_tag.yaml"
-        if os.path.exists(job_path):
-            with open(job_path, 'r') as f:
-                jobconfig = yaml.load(f)
-        res = image_checker._is_docker_image_valid(jobconfig)
+        res = image_checker._is_docker_image_valid(self.config)
         self.assertEqual(res, True)
-        del os.environ["FC_TASK_INDEX"]
 
+    @prepare_image_check("docker_image_no_exist.yaml")
     def test_image_not_exist(self):
-        os.environ["FC_TASK_INDEX"] = "0"
-        job_path = "docker_image_no_exist.yaml"
-        if os.path.exists(job_path):
-            with open(job_path, 'r') as f:
-                jobconfig = yaml.load(f)
-        res = image_checker._is_docker_image_valid(jobconfig)
+        res = image_checker._is_docker_image_valid(self.config)
         self.assertEqual(res, False)
-        del os.environ["FC_TASK_INDEX"]
 
+    @prepare_image_check("docker_image_local_registry.yaml")
     def test_image_local(self):
-        os.environ["FC_TASK_INDEX"] = "0"
-        job_path = "docker_image_local_registry.yaml"
-        if os.path.exists(job_path):
-            with open(job_path, 'r') as f:
-                jobconfig = yaml.load(f)
-        res = image_checker._is_docker_image_valid(jobconfig)
+        res = image_checker._is_docker_image_valid(self.config)
         self.assertEqual(res, True)
-        del os.environ["FC_TASK_INDEX"]
 
+    @prepare_image_check("docker_image_auth.yaml")
     def test_image_auth(self):
-        os.environ["FC_TASK_INDEX"] = "0"
-        job_path = "docker_image_auth.yaml"
-        if os.path.exists(job_path):
-            with open(job_path, 'r') as f:
-                jobconfig = yaml.load(f)
-        res = image_checker._is_docker_image_valid(jobconfig)
+        res = image_checker._is_docker_image_valid(self.config)
         self.assertEqual(res, True)
-        del os.environ["FC_TASK_INDEX"]
 
     def test_docker_hub_uri(self):
-        uri = "localhost/username/repo:tag"
-        self.assertFalse(image_checker._is_docker_hub_uri(uri))
+        valid_docker_hub_uris = ["user-name.domain/repo-0.domain:tag-0.domain",
+                                 "username/repo:tag",
+                                 "username/repo",
+                                 "repo"]
 
-        uri = "username/repo:tag"
-        self.assertTrue(image_checker._is_docker_hub_uri(uri))
+        for uri in valid_docker_hub_uris:
+            self.assertTrue(image_checker._is_docker_hub_uri(uri))
 
-        uri = "username/repo"
-        self.assertTrue(image_checker._is_docker_hub_uri(uri))
+        invalid_docker_hub_uris = ["localhost:5000/repo",
+                                   "localhost/username/repo:tag"]
 
-        uri = "repo"
-        self.assertTrue(image_checker._is_docker_hub_uri(uri))
-
-        uri = "localhost:5000/repo"
-        self.assertFalse(image_checker._is_docker_hub_uri(uri))
-
-        uri = "user-name.domain/repo-0.domain:tag-0.domain"
-        self.assertTrue(image_checker._is_docker_hub_uri(uri))
+        for uri in invalid_docker_hub_uris:
+            self.assertFalse(image_checker._is_docker_hub_uri(uri))
 
 
 if __name__ == '__main__':
