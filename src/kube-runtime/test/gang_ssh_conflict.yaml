@@ -32,6 +32,7 @@ taskRoles:
       - sleep infinity
 
 extras:
+  gangAllocation: false
   com.microsoft.pai.runtimeplugin:
     - plugin: ssh
       taskroles:
