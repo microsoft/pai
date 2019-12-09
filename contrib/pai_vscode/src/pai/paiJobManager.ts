@@ -784,6 +784,26 @@ export class PAIJobManager extends Singleton {
                 dockerfile.push(`ENV PAI_DEFAULT_FS_URI ${param.cluster.hdfs_uri}`);
                 dockerfile.push(`ENV PAI_USER_NAME ${param.cluster.username}`);
             }
+            // check unsupported env variables
+            const supportedEnvList: string[] = [
+                'PAI_JOB_NAME',
+                'PAI_USER_NAME',
+                'PAI_DEFAULT_FS_URI',
+                'PAI_TASK_ROLE_COUNT',
+                'PAI_TASK_ROLE_LIST',
+                'PAI_TASK_ROLE_TASK_COUNT_*',
+                'PAI_HOST_IP_*_*',
+                'PAI_PORT_LIST_*_*_*',
+                'PAI_RESOURCE_*',
+                'PAI_MIN_FAILED_TASK_COUNT_*',
+                'PAI_MIN_SUCCEEDED_TASK_COUNT_*',
+                'PAI_CURRENT_TASK_ROLE_NAME',
+                'PAI_CURRENT_TASK_ROLE_CURRENT_TASK_INDEX'
+            ];
+            const command: string = role.commands.join(' && ').replace(new RegExp(supportedEnvList.join('|'), 'g'), '');
+            if (command.includes('$PAI')) {
+                Util.warn('job.simulation.unsupported-env-var', role.commands);
+            }
             dockerfile.push('');
             // 5. entrypoint
             dockerfile.push(`ENTRYPOINT ["/bin/bash", "-c", "${role.commands.join(' && ').replace(/"/g, '\\"')}"]`);
