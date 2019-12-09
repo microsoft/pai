@@ -24,7 +24,7 @@ import yaml
 import logging
 import logging.config
 
-from initializer import init_plugins
+import initializer
 
 package_directory_com = os.path.dirname(os.path.abspath(__file__))
 
@@ -42,7 +42,7 @@ class TestRuntimeInitializer(unittest.TestCase):
             with open(job_path, 'rt') as f:
                 jobconfig = yaml.load(f)
         commands = [[],[]]
-        init_plugins(jobconfig, commands, "../src/plugins", ".", "worker")
+        initializer.init_plugins(jobconfig, commands, "../src/plugins", ".", "worker")
 
     def test_ssh_plugin(self):
         job_path = "ssh_test_job.yaml"
@@ -50,7 +50,7 @@ class TestRuntimeInitializer(unittest.TestCase):
             with open(job_path, 'rt') as f:
                 jobconfig = yaml.load(f)
         commands = [[],[]]
-        init_plugins(jobconfig, commands, "../src/plugins", ".", "worker")
+        initializer.init_plugins(jobconfig, commands, "../src/plugins", ".", "worker")
 
     def test_ssh_plugin_barrier(self):
         job_path = "sshbarrier_test_job.yaml"
@@ -58,9 +58,18 @@ class TestRuntimeInitializer(unittest.TestCase):
             with open(job_path, 'rt') as f:
                 jobconfig = yaml.load(f)
         commands = [[],[]]
-        init_plugins(jobconfig, commands, "../src/plugins", ".", "master")
+        initializer.init_plugins(jobconfig, commands, "../src/plugins", ".", "master")
         commands = [[],[]]
-        init_plugins(jobconfig, commands, "../src/plugins", ".", "worker")
+        initializer.init_plugins(jobconfig, commands, "../src/plugins", ".", "worker")
+
+    def test_plugin_prune(self):
+        os.environ["GANG_ALLOCATION"] = "false"
+        job_path = "gang_ssh_conflict.yaml"
+        if os.path.exists(job_path):
+            with open(job_path, "r") as f:
+                job_config = yaml.safe_load(f)
+        pruned_config = initializer._prune_plugins(job_config)
+        self.assertEqual(pruned_config["extras"]["com.microsoft.pai.runtimeplugin"], [])
 
 
 if __name__ == '__main__':
