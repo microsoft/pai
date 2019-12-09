@@ -166,6 +166,11 @@ class Cluster:
 
     @property
     def pai_uri(self):
+        import re
+        # remove port from "XX.XX.XX.XX:port"
+        port = re.search(':[0-9]*', pai_uri))
+        if port:
+            pai_uri = pai_uri[0 : port.span()[0]]
         return self.config["pai_uri"]
 
     @property
