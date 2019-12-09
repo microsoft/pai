@@ -39,8 +39,11 @@ def prepare_image_check(job_config_path):
                     self.config = yaml.load(f, Loader=yaml.FullLoader)
                 func(self, *args, **kwargs)
             del os.environ["FC_TASK_INDEX"]
+
         return wrapper
+
     return decorator
+
 
 class TestImageChecker(unittest.TestCase):
     def setUp(self):
@@ -76,16 +79,17 @@ class TestImageChecker(unittest.TestCase):
         self.assertEqual(res, True)
 
     def test_docker_hub_uri(self):
-        valid_docker_hub_uris = ["user-name.domain/repo-0.domain:tag-0.domain",
-                                 "username/repo:tag",
-                                 "username/repo",
-                                 "repo"]
+        valid_docker_hub_uris = [
+            "user-name.domain/repo-0.domain:tag-0.domain", "username/repo:tag",
+            "username/repo", "repo"
+        ]
 
         for uri in valid_docker_hub_uris:
             self.assertTrue(image_checker._is_docker_hub_uri(uri))
 
-        invalid_docker_hub_uris = ["localhost:5000/repo",
-                                   "localhost/username/repo:tag"]
+        invalid_docker_hub_uris = [
+            "localhost:5000/repo", "localhost/username/repo:tag"
+        ]
 
         for uri in invalid_docker_hub_uris:
             self.assertFalse(image_checker._is_docker_hub_uri(uri))
