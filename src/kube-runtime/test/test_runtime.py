@@ -25,7 +25,6 @@ import logging
 import logging.config
 
 import initializer
-from initializer import init_plugins
 
 package_directory_com = os.path.dirname(os.path.abspath(__file__))
 
@@ -43,7 +42,7 @@ class TestRuntimeInitializer(unittest.TestCase):
             with open(job_path, 'rt') as f:
                 jobconfig = yaml.load(f)
         commands = [[],[]]
-        init_plugins(jobconfig, commands, "../src/plugins", ".", "worker")
+        initializer.init_plugins(jobconfig, commands, "../src/plugins", ".", "worker")
 
     def test_ssh_plugin(self):
         job_path = "ssh_test_job.yaml"
@@ -51,7 +50,7 @@ class TestRuntimeInitializer(unittest.TestCase):
             with open(job_path, 'rt') as f:
                 jobconfig = yaml.load(f)
         commands = [[],[]]
-        init_plugins(jobconfig, commands, "../src/plugins", ".", "worker")
+        initializer.init_plugins(jobconfig, commands, "../src/plugins", ".", "worker")
 
     def test_ssh_plugin_barrier(self):
         job_path = "sshbarrier_test_job.yaml"
@@ -59,9 +58,9 @@ class TestRuntimeInitializer(unittest.TestCase):
             with open(job_path, 'rt') as f:
                 jobconfig = yaml.load(f)
         commands = [[],[]]
-        init_plugins(jobconfig, commands, "../src/plugins", ".", "master")
+        initializer.init_plugins(jobconfig, commands, "../src/plugins", ".", "master")
         commands = [[],[]]
-        init_plugins(jobconfig, commands, "../src/plugins", ".", "worker")
+        initializer.init_plugins(jobconfig, commands, "../src/plugins", ".", "worker")
 
     def test_plugin_prune(self):
         os.environ["GANG_ALLOCATION"] = "false"
