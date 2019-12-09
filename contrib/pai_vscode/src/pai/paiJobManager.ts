@@ -686,7 +686,7 @@ export class PAIJobManager extends Singleton {
                 Util.warn('job.simulation.unsupported-env-var', role.command);
             }
             // 5. entrypoint
-            dockerfile.push(`ENTRYPOINT ${role.command}`);
+            dockerfile.push(`ENTRYPOINT ["/bin/bash", "-c", "${role.command.replace(/"/g, '\\"')}}"]`);
             dockerfile.push('');
             // 6. write dockerfile
             await fs.writeFile(path.join(taskDir, 'dockerfile'), dockerfile.join('\n'));
@@ -785,22 +785,8 @@ export class PAIJobManager extends Singleton {
                 dockerfile.push(`ENV PAI_USER_NAME ${param.cluster.username}`);
             }
             dockerfile.push('');
-            // check unsupported env variables
-            const supportedEnvList: string[] = [
-                'PAI_WORK_DIR',
-                'PAI_JOB_NAME',
-                'PAI_DEFAULT_FS_URI',
-                'PAI_USER_NAME'
-            ];
-            let command: string = role.commands.join(' && ');
-            for (const env of supportedEnvList) {
-                command = command.replace(new RegExp(`\\$${env}`, 'g'), '');
-            }
-            if (command.includes('$PAI')) {
-                Util.warn('job.simulation.unsupported-env-var', role.commands);
-            }
             // 5. entrypoint
-            dockerfile.push(`ENTRYPOINT ${role.commands.join(' && ')}`);
+            dockerfile.push(`ENTRYPOINT ["/bin/bash", "-c", "${role.commands.join(' && ').replace(/"/g, '\\"')}"]`);
             dockerfile.push('');
             // 6. write dockerfile
             await fs.writeFile(path.join(taskDir, 'dockerfile'), dockerfile.join('\n'));
