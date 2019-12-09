@@ -246,7 +246,7 @@ func (h *HivedAlgorithm) DeleteAllocatedPod(pod *core.Pod) {
 				}
 			}
 			delete(h.allocatedAffinityGroups, s.AffinityGroup.Name)
-			klog.Infof("[%v]: Affinity group deleted: %v", internal.Key(pod), s.AffinityGroup.Name)
+			klog.Infof("[%v]: All pods complete, affinity group deleted: %v", internal.Key(pod), s.AffinityGroup.Name)
 		}
 	}
 }
@@ -565,14 +565,16 @@ func (h *HivedAlgorithm) createAllocatedAffinityGroup(pod *core.Pod, s *api.PodS
 					break
 				} else {
 					newGroup.physicalGpuPlacement[gpuNumber][podIndex][gpuIndex] = pGpu
-					if vGpu != nil {
+					if lazyPreempt == nil {
+						newGroup.virtualGpuPlacement = nil
+					} else if vGpu != nil {
 						newGroup.virtualGpuPlacement[gpuNumber][podIndex][gpuIndex] = vGpu
 						if vGpu.GetPhysicalCell() != nil {
 							groupToPreempt := vGpu.GetPhysicalCell().GetAffinityGroup()
 							h.lazyPreemptAffinityGroup(groupToPreempt, newGroup.name)
 						}
 					} else {
-						shouldLazyPreempt = shouldLazyPreempt || lazyPreempt
+						shouldLazyPreempt = shouldLazyPreempt || *lazyPreempt
 					}
 					h.confirmAllocatedGpu(pGpu, vGpu, CellPriority(s.Priority), newGroup)
 				}
@@ -596,20 +598,22 @@ func (h *HivedAlgorithm) findAllocatedGpu(
 	lazyPreempted bool,
 	s *api.PodSchedulingSpec,
 	group *AlgoAffinityGroup,
-	pod *core.Pod) (*PhysicalCell, *VirtualCell, bool) {
+	pod *core.Pod) (*PhysicalCell, *VirtualCell, *bool) {
 
 	priority := CellPriority(s.Priority)
 	physicalGpuIndex := physicalGpuIndices[index]
+	shouldLazyPreempt := false
 	if pGpu := h.findPhysicalGpu(chain, node, physicalGpuIndex); pGpu == nil {
 		klog.Warningf(
 			"[%v]: cannot find GPU %v on node %v: not found in the spec. pod ignored",
 			internal.Key(pod), physicalGpuIndex, node)
-		return nil, nil, false
+		return nil, nil, &shouldLazyPreempt
 	} else {
 		var vGpu *VirtualCell
 		if preassignedCellTypes == nil {
 			klog.Warningf("[%v]: cannot find virtual cell: preassigned cell not found in pod bind info", internal.Key(pod))
-			return pGpu, nil, true
+			shouldLazyPreempt = true
+			return pGpu, nil, &shouldLazyPreempt
 		}
 		if group.virtualGpuPlacement != nil && !lazyPreempted {
 			preassignedType := preassignedCellTypes[index]
@@ -642,16 +646,17 @@ func (h *HivedAlgorithm) findAllocatedGpu(
 				}
 				if vGpu == nil {
 					klog.Warningf("[%v]: cannot find virtual cell: %v", internal.Key(pod), message)
-					return pGpu, nil, true
+					shouldLazyPreempt = true
+					return pGpu, nil, &shouldLazyPreempt
 				} else {
-					return pGpu, vGpu, false
+					return pGpu, vGpu, &shouldLazyPreempt
 				}
 			} else {
-				group.virtualGpuPlacement = nil
-				return pGpu, nil, false
+				// shouldLazyPreempt == nil means this is an OT pod and has no virtual placement
+				return pGpu, nil, nil
 			}
 		} else {
-			return pGpu, nil, false
+			return pGpu, nil, &shouldLazyPreempt
 		}
 	}
 }
