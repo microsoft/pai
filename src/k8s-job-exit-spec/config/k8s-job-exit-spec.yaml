@@ -925,7 +925,7 @@ spec:
   stage: LAUNCHING
   behavior: PERMANENT
   reaction: NEVER_RETRY
-  reason: "Docker image requested by user does not exists"
+  reason: "Pull access denied, repository does not exist or may require authentication"
   repro:
   - "Submit job with incorrect docker image uri"
   solution:
