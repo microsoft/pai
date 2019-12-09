@@ -68,7 +68,7 @@ def _prune_plugins(job_config):
     for plugin in plugins:
         plugin_name = plugin["plugin"]
         if plugin_name == "ssh":
-            logger.error('ssh plugin is conflict with gang allocation, will remove ssh plugin')
+            logger.warning('ssh plugin is conflict with gang allocation, will remove ssh plugin')
             delete_plugin_names.append(plugin_name)
 
     pruned_config["extras"][RUNTIME_PLUGIN_PLACE_HOLDER] = list(
