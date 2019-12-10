@@ -136,10 +136,10 @@ class StorageHelper():
             if server_data["domain"]:
                 domain = ",domain={}".format(server_data["domain"])
             return [
-                "mount -t cifs //{}{} {} -o vers=3.0,username={},password={}".
-                format(server_data["address"], rendered_path, mount_point,
-                       server_data["userName"], server_data["password"]) +
-                domain
+                "mount -t cifs //{}{} {} -o vers=3.0,username={},password={}{}"
+                .format(server_data["address"], rendered_path, mount_point,
+                        server_data["userName"], server_data["password"],
+                        domain)
             ]
         if phrase == "post_mount":
             return [
@@ -175,18 +175,16 @@ class StorageHelper():
             if "proxy" in server_data:
                 return [
                     "mount -t cifs //localhost/" + rendered_path +
-                    " {} -o vers=3.0,username={},password={}".format(
-                        mount_point, server_data["accountName"],
-                        server_data["key"]) +
-                    ",dir_mode=0777,file_mode=0777,serverino"
+                    " {} -o vers=3.0,username={},password={},dir_mode=0777,file_mode=0777,serverino"
+                    .format(mount_point, server_data["accountName"],
+                            server_data["key"])
                 ]
             return [
                 "mount -t cifs //{}/{}".format(server_data["dataStore"],
                                                rendered_path) +
-                " {} -o vers=3.0,username={},password={}".format(
-                    mount_point, server_data["accountName"],
-                    server_data["key"]) +
-                ",dir_mode=0777,file_mode=0777,serverino"
+                " {} -o vers=3.0,username={},password={},dir_mode=0777,file_mode=0777,serverino"
+                .format(mount_point, server_data["accountName"],
+                        server_data["key"])
             ]
         if phrase == "post_mount":
             return [
@@ -212,7 +210,7 @@ class StorageHelper():
                 "wget https://packages.microsoft.com/config/ubuntu/${release}/packages-microsoft-prod.deb",
                 "dpkg -i packages-microsoft-prod.deb",
                 "apt-get update",
-                "apt-get install --assume-yes blobfuse fuse",  # blob to mount and fuse to unmount
+                "apt-get install --assume-yes blobfuse fuse",  # blob to mount and fuse to umount
                 "mkdir --parents {}".format(tmp_path),
                 # Generate mount point
                 "echo \"accountName {}\" >> {}".format(
@@ -226,9 +224,8 @@ class StorageHelper():
             ]
         if phrase == "tmp_mount":
             return [
-                "blobfuse {} --tmp-path={} --config-file={} -o attr_timeout=240 "
-                .format(mount_point, tmp_path, cfg_file) +
-                "-o entry_timeout=240 -o negative_timeout=120"
+                "blobfuse {} --tmp-path={} --config-file={} -o attr_timeout=240 -o entry_timeout=240 -o negative_timeout=120"
+                .format(mount_point, tmp_path, cfg_file)
             ]
         if phrase == "real_mount":
             rendered_path = self._render_path(

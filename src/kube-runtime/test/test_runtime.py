@@ -85,7 +85,7 @@ class TestRuntime(unittest.TestCase):
         if os.path.exists(job_path):
             with open(job_path, "r") as f:
                 job_config = yaml.safe_load(f)
-        pruned_config = initializer._prune_plugins(job_config)
+        pruned_config = initializer._prune_plugins(job_config) # pylint: disable=protected-access
         self.assertEqual(
             pruned_config["extras"]["com.microsoft.pai.runtimeplugin"], [])
 

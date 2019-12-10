@@ -61,7 +61,7 @@ class StorageCommandGenerator:
                 secrets_value.append(secrets_data[name])
             else:
                 LOGGER.warning(
-                    "Counld not find config name %s, maybe config bug", name)
+                    "Could not find config name %s, maybe config bug", name)
         storage_configs = list(
             map(lambda secret: json.loads(base64.b64decode(secret).decode()),
                 secrets_value))
