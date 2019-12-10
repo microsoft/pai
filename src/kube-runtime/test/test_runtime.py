@@ -87,7 +87,9 @@ class TestRuntime(unittest.TestCase):
                 job_config = yaml.safe_load(f)
         pruned_config = initializer._prune_plugins(job_config) # pylint: disable=protected-access
         self.assertEqual(
-            pruned_config["extras"]["com.microsoft.pai.runtimeplugin"], [])
+            pruned_config["extras"]["com.microsoft.pai.runtimeplugin"], [{
+                'plugin': 'tensorboard'
+            }])
 
     def load_json_file(self, file_name):
         with open(file_name) as f:
