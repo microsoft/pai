@@ -86,17 +86,18 @@ const vcListColumns = [
   {
     key: 'detail',
     minWidth: 230,
-    maxWidth: 530,
     name: 'Detail',
     isResizable: true,
     onRender(vc) {
       const { resourcesUsed, resourcesTotal } = vc;
+      const resourceAvailable = vc.resourceAvailable || resourcesTotal;
+      const insufficient = !(resourceAvailable.GPUs === resourcesTotal.GPUs);
       return (
         <Stack
           gap='s1'
           verticalAlign='center'
           verticalFill
-          styles={{ root: { maxWidth: 432 } }}
+          styles={{ root: { marginRight: 20 } }}
         >
           <StackItem>
             <ResourceBar
@@ -106,8 +107,8 @@ const vcListColumns = [
                 resourcesTotal.memory,
               )}
               tailInfo={`${Math.round(resourcesUsed.memory)} / ${Math.round(
-                resourcesTotal.memory,
-              )} MB`}
+                resourceAvailable.memory,
+              )}${insufficient ? ` (${resourcesTotal.memory})` : ''} MB`}
             />
           </StackItem>
           <StackItem>
@@ -118,8 +119,8 @@ const vcListColumns = [
                 resourcesTotal.vCores,
               )}
               tailInfo={`${Math.round(resourcesUsed.vCores)} / ${Math.round(
-                resourcesTotal.vCores,
-              )}`}
+                resourceAvailable.vCores,
+              )}${insufficient ? ` (${resourcesTotal.vCores})` : ''}`}
             />
           </StackItem>
           <StackItem>
@@ -130,8 +131,8 @@ const vcListColumns = [
                 resourcesTotal.GPUs,
               )}
               tailInfo={`${Math.round(resourcesUsed.GPUs)} / ${Math.round(
-                resourcesTotal.GPUs,
-              )}`}
+                resourceAvailable.GPUs,
+              )}${insufficient ? ` (${resourcesTotal.GPUs})` : ''}`}
             />
           </StackItem>
         </Stack>

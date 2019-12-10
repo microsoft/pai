@@ -205,13 +205,13 @@ $(document).ready(() => {
     const op = query.op;
     const type = query.type;
     const username = query.user;
-    const jobname = query.jobname;
+    const jobName = query.jobName;
     if (op === 'resubmit') {
-      if (type != null && username != null && jobname != null) {
+      if (type != null && username != null && jobName != null) {
         const url =
           username === ''
-            ? `${webportalConfig.restServerUri}/api/v1/jobs/${jobname}/config`
-            : `${webportalConfig.restServerUri}/api/v2/jobs/${username}~${jobname}/config`;
+            ? `${webportalConfig.restServerUri}/api/v1/jobs/${jobName}/config`
+            : `${webportalConfig.restServerUri}/api/v2/jobs/${username}~${jobName}/config`;
         $.ajax({
           url: url,
           type: 'GET',

@@ -124,6 +124,12 @@ const k8sLauncherConfigSchema = Joi.object().keys({
   priorityClassPath: Joi.func()
     .arity(1)
     .required(),
+  secretsPath: Joi.func()
+    .arity(0)
+    .required(),
+  secretPath: Joi.func()
+    .arity(1)
+    .required(),
   podPath: Joi.func()
     .arity(1)
     .required(),
@@ -219,6 +225,12 @@ if (launcherType === 'yarn') {
     },
     priorityClassPath: (priorityClassName) => {
       return `${launcherConfig.apiServerUri}/apis/scheduling.k8s.io/v1/priorityclasses/${priorityClassName}`;
+    },
+    secretsPath: (namespace='default') => {
+      return `${launcherConfig.apiServerUri}/api/v1/namespaces/${namespace}/secrets`;
+    },
+    secretPath: (secretName, namespace='default') => {
+      return `${launcherConfig.apiServerUri}/api/v1/namespaces/${namespace}/secrets/${secretName}`;
     },
     podPath: (podName, namespace='default') => {
       return `${launcherConfig.apiServerUri}/api/v1/namespaces/${namespace}/pods/${podName}`;

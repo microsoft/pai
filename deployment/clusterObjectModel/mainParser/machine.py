@@ -72,7 +72,7 @@ class Machine:
             if pai_k8s_common.ipv4_address_validation(host["hostip"]) is False:
                 return False, "Please ensure the hostip is right, in the host [{0}]".format(str(host))
             if host["hostip"] in ip_visited:
-                return False, "Duplicated IP address in machine-list. IP adress is [{0}]".format(str(host["hostip"]))
+                return False, "Duplicated IP address in machine-list. IP address is [{0}]".format(str(host["hostip"]))
             ip_visited[host["hostip"]] = True
 
             if "machine-type" not in host:

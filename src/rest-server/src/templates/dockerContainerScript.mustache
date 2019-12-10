@@ -35,8 +35,8 @@ DISK_CLEANER_ERROR_FILE=/pai/log/diskCleaner.pai.error
 touch $RUNTIME_DOCKER_ERR_LOG
 touch $RUNTIME_DOCKER_LOG
 
-# This function is duplicate between dockerContainerScript and yarnContainerScript\
-# Need to remove one if we discard the shell scirpt
+# This function is duplicate between dockerContainerScript and yarnContainerScript
+# Need to remove one if we discard the shell script
 function log_runtime_error()
 {
   local level=$1
@@ -183,7 +183,7 @@ function generate_ssh_connect_info()
   fi
 }
 
-# Check whether hdfs bianry and ssh exists, if not ignore ssh preparation and start part
+# Check whether hdfs binary and ssh exists, if not ignore ssh preparation and start part
 # Start sshd in docker container
 if service --status-all 2>&1 | grep -q ssh; then
   prepare_ssh

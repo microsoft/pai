@@ -32,8 +32,7 @@ spec:
     name: apiserver-container
     command:
     - /usr/local/bin/kube-apiserver
-    # Do not enable Priority Admission Controller
-    - --admission-control=NamespaceLifecycle,LimitRanger,DefaultStorageClass,DefaultTolerationSeconds,MutatingAdmissionWebhook,ValidatingAdmissionWebhook,ResourceQuota,DenyEscalatingExec
+    - --admission-control=NamespaceLifecycle,LimitRanger,DefaultStorageClass,DefaultTolerationSeconds,MutatingAdmissionWebhook,ValidatingAdmissionWebhook,ResourceQuota,DenyEscalatingExec,Priority
     - --insecure-bind-address
     - {{ hostcofig['hostip'] }}
     - --storage-backend

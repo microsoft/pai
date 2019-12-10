@@ -1,5 +1,24 @@
 #### Deploy kubernetes through kubespray.
 
+##### Before deployment
+###### Backup data (namespaced_secret) from the k8s deployed by paictl
+
+
+Because the kubespray will cleanup the etcd data in local disk, please backup your data every time you wanna stop your cluster.
+If you haven't deploy OpenPAI, you can skip this steps.
+If you don't want to keep the data in your cluster, you can skip this steps.
+
+
+```
+cd pai/contrib/kubespray
+
+# Before backup, please ensure there are datas in the namespaces.
+# with the command kubectl get secrets -n namespace-name
+python3 namespace_secret_backup.py -n pai-user-v2 -o pai-user-v2
+python3 namespace_secret_backup.py -n pai-group -o pai-group
+python3 namespace_secret_backup.py -n pai-storage -o pai-storage
+python3 namespace_secret_backup.py -n pai-user-token -o pai-user-token
+```
 
 #### Environment Setup
 
@@ -86,7 +105,7 @@ sudo apt update
 curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py
 
 # python3
-sudo python get-pip.py 
+sudo python3 get-pip.py
 
 sudo pip3 install anisble
 
@@ -97,6 +116,12 @@ sudo apt-get install sshpass
 
 ```
 
+###### The cluster has been deployed OpenPAI before
+
+- If you deployed OpenPAI before, especially the yarn version OpenPAI bfore. Please refer to the following link to clean up your cluster before the next steps.
+    - [Guid to Clean Your Environment](./clean-env.md)
+- If you haven't deploy openpai in your cluster, you could step to next.
+
 ###### Configure passwordless ssh  ( In your ansible control node )
 
 ```bash
@@ -105,7 +130,7 @@ ssh-keygen -t rsa
 
 # configure passwordless ssh for your cluster
 ansible-playbook -i host.yml set-passwordless-ssh.yml
-``` 
+```
 
 ###### Ansible test
 
@@ -119,7 +144,7 @@ ansible all -i host.yml -m ping
 
 If GPU driver has been installed, you could skip to next steps
 
-###### Install nvidia drivers-410 ( You can change the version )
+###### Install nvidia drivers-418 ( You can change the version )
 
 ```bash
 
@@ -139,7 +164,7 @@ ansible-playbook -i /path/to/host.yml nvidia-persistent-mode.yml --become --beco
 
 ```
 
-#### setup nvidia conatiner runtime
+#### setup nvidia container runtime
 
 
 ```bash
@@ -162,7 +187,7 @@ Here we assume all os in your cluster is ubuntu16.04. Or please change the follo
     - name: Run the equivalent of "apt-get update" as a separate step
 ```
 
-#### kubespray 
+#### kubespray
 
 ###### Environment
 
@@ -237,7 +262,7 @@ all:
       ansible_host: x.x.x.45
       ansible_ssh_pass: "Your-Password"
       ansible_ssh_extra_args: '-o StrictHostKeyChecking=no'
-``` 
+```
 
 - Enable ssh, nvidia-drivers, nvidia-persistent-mode and nvidia-docker
 
@@ -400,7 +425,7 @@ all:
         kube-master:
     calico-rr:
       hosts: {}
-``` 
+```
 
 - Add the new k8s worker node into the cluster with the following command
 
@@ -410,4 +435,22 @@ cd kubespray/
 
 ansible-playbook -i inventory/mycluster/hosts.yml upgrade-cluster.yml --become --become-user=root  --limit=node7,node8,node9 -e "@inventory/mycluster/openpai.yml"
 
+```
+
+
+#### After deployment
+
+###### Recover backup data (namespaced_secret) from the backup data after setuping k8s with kubespray.
+
+If you backup your data from the k8s deployed by openpai, you could recover the data to a specified namespace after the k8s deployment of kubespray done.
+
+```
+cd pai/contrib/kubespray
+
+# Before backup, please ensure there are datas in the namespaces.
+# with the command kubectl get secrets -n namespace-name
+python3 namespace_secret_recover.py -n pai-user-v2 -i pai-user-v2
+python3 namespace_secret_recover.py -n pai-group -i pai-group
+python3 namespace_secret_recover.py -n pai-storage -i pai-storage
+python3 namespace_secret_recover.py -n pai-user-token -i pai-user-token
 ```

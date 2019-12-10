@@ -13,7 +13,7 @@
 
 If you wanna add a new service configuration into cluster-object-model, you should do following things.
 
-- Design and write a default service configuration. 
+- Design and write a default service configuration.
 - Design and write overwrite service configuration for user to reconfigure the service in service-configuration.yaml
 - Design and write a service parser with python2.
 - Write a document to introduce your service object model.
@@ -54,13 +54,13 @@ service-a-key4:
 #### overwrite Configuration <a name="Overwrite"></a>
 
 - Reconfigure the default value
-- Some properties is mandatory, user will have to configure it. Please put those configuration into the overwrite configuraiton in service-configuration.yaml
+- Some properties is mandatory, user will have to configure it. Please put those configuration into the overwrite configuration in service-configuration.yaml
 
 ###### Update example/cluster-configuration
 
 You should add the overwrite section in [example/service-configuration.yaml](../../../../examples/cluster-configuration/services-configuration.yaml)
 
-Add the overwrite section of ```${service_name}``` like the following. Note, you could omit the default value which exists in default configuraiton.
+Add the overwrite section of ```${service_name}``` like the following. Note, you could omit the default value which exists in default configuration.
 
 ```yaml
 ${service_name}:
@@ -107,19 +107,19 @@ src/${service_name}/config/${parser_name}.py
 
 ###### parser name
 
-- Example 1 
+- Example 1
     - Service name: xxxxx
     - parse class name: xxxxx
-- Example 2 
+- Example 2
     - Service name: xxx-yyy-zzz
     - parse class name: xxx_yyy_zzz
 
 ###### Class Name
 
-- Example 1 
+- Example 1
     - Service name: xxxxx
     - parse class name: Xxxxx
-- Example 2 
+- Example 2
     - Service name: xxx-yyy-zzz
     - parse class name: XxxYyyZzz
 
@@ -130,12 +130,12 @@ You should implement the parse class like following.
 ```python
 class Cluster:
 
-    def __init__(self, cluster_configuration, service_configuration, default_service_configuraiton):
+    def __init__(self, cluster_configuration, service_configuration, default_service_configuration):
         None
 
     #### Fist check, ensure all the configured data in cluster_configuration, service_configuration, default_service_configuration is right. And nothing is miss.
     def validation_pre(self):
-        #   if error: 
+        #   if error:
         #      return False, "message"
 
         return True, None
@@ -145,9 +145,9 @@ class Cluster:
         # parse your service object model here, and return a generated dictionary
         return cluster_com
 
-    #### All service and main module (kubrenetes, machine) is generated. And in this check steps, you could refer to the service object model which you will used in your own service, and check its existence and correctness. 
+    #### All service and main module (kubrenetes, machine) is generated. And in this check steps, you could refer to the service object model which you will used in your own service, and check its existence and correctness.
     def validation_post(self, cluster_object_model):
-        #   if error: 
+        #   if error:
         #      return False, "message"l
         return True, None
 ```
@@ -185,7 +185,7 @@ Please write a document to guide others to use the generated data of your servic
 
 Introduce your default configuration here.
 
-- How to configure cluster section in service-configuraiton.yaml
+- How to configure cluster section in service-configuration.yaml
 
 Guide user to configure the mandatory properties and reconfigure the default.
 
@@ -198,7 +198,7 @@ Present your generated data in yaml style
 A table contain following content. Here I will take cluster section as an example.
 
 <table>
-  
+
 <tr>
     <td>Data in Configuration File</td>
     <td>Data in Cluster Object Model</td>
@@ -216,4 +216,4 @@ A table contain following content. Here I will take cluster section as an exampl
 #### How to write your template with cluster object model <a name="#use_link"></a>
 
 - You could find all service configuration in corresponding services' document in the path ```src/${service_name}/config/${service_name}.md```.
-- Please refer to [jinja2 document](http://jinja.pocoo.org/docs/2.10/), and learn how to write the final tempalte with the ```Data in Jinja2 Template```
+- Please refer to [jinja2 document](http://jinja.pocoo.org/docs/2.10/), and learn how to write the final template with the ```Data in Jinja2 Template```

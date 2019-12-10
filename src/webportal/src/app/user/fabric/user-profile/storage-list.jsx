@@ -122,7 +122,8 @@ const StorageList = ({ storageConfigs, storageServers }) => {
       groupProps={{
         headerProps: {
           styles: {
-            title: [FontClassNames.mediumPlus],
+            title: [FontClassNames.small],
+            expand: [FontClassNames.small],
           },
         },
       }}

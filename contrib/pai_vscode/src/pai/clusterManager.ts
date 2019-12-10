@@ -256,10 +256,14 @@ export class ClusterManager extends Singleton {
             }));
             cluster.protocol_version = '2';
         } catch (exception) {
-            const error: any = JSON.parse(exception.error);
-            if (error.code === 'NoApiError') {
-                cluster.protocol_version = '1';
-            } else {
+            try {
+                const error: any = JSON.parse(exception.error);
+                if (error.code === 'NoApiError') {
+                    cluster.protocol_version = '1';
+                } else {
+                    cluster.protocol_version = '2';
+                }
+            } catch (err) {
                 cluster.protocol_version = '2';
             }
         }

@@ -23,7 +23,6 @@ import {
   IconFontSizes,
 } from '@uifabric/styling';
 import c from 'classnames';
-import copy from 'copy-to-clipboard';
 import { get, isEmpty, isNil } from 'lodash';
 import { DateTime } from 'luxon';
 import {
@@ -36,7 +35,6 @@ import {
   TooltipHost,
   DirectionalHint,
   Icon,
-  IconButton,
 } from 'office-ui-fabric-react';
 import PropTypes from 'prop-types';
 import React from 'react';
@@ -64,6 +62,7 @@ import {
 } from '../../../../../components/util/job';
 import config from '../../../../../config/webportal.config';
 import StopJobConfirm from '../../JobList/StopJobConfirm';
+import CopyButton from '../../../../../components/copy-button';
 import CloneButton from './clone-button';
 
 const HintItem = ({ header, children }) => (
@@ -376,7 +375,7 @@ export default class Summary extends React.Component {
 
     const params = new URLSearchParams(window.location.search);
     const namespace = params.get('username');
-    const jobName = params.get('jobname');
+    const jobName = params.get('jobName');
 
     return (
       <div className={className}>
@@ -403,24 +402,22 @@ export default class Summary extends React.Component {
                     calloutProps={{
                       isBeakVisible: false,
                     }}
+                    delay={0}
                     tooltipProps={{
                       onRenderContent: () => (
-                        <div className={c(t.flex, t.itemsCenter)}>
+                        <div
+                          className={c(t.flex, t.itemsCenter)}
+                          style={{ maxWidth: 300 }}
+                        >
                           <div>FrameworkName:</div>
                           <div className={c(t.ml2, t.truncate)}>
                             {jobInfo.frameworkName}
                           </div>
-                          <div>
-                            <IconButton
-                              iconProps={{ iconName: 'Copy' }}
-                              styles={{ icon: [{ fontSize: FontSizes.small }] }}
-                              onClick={() => copy(jobInfo.frameworkName)}
-                            />
-                          </div>
+                          <CopyButton value={jobInfo.frameworkName} />
                         </div>
                       ),
                     }}
-                    directionalHint={DirectionalHint.topLeftEdge}
+                    directionalHint={DirectionalHint.topCenter}
                   >
                     <div>
                       <Icon
@@ -505,7 +502,7 @@ export default class Summary extends React.Component {
               <div className={c(t.gray, FontClassNames.medium)}>Retries</div>
               {this.checkRetryLink() ? (
                 <Link
-                  href={`job-retry.html?username=${namespace}&jobname=${jobName}`}
+                  href={`job-retry.html?username=${namespace}&jobName=${jobName}`}
                 >
                   <div className={c(t.mt3, FontClassNames.mediumPlus)}>
                     {jobInfo.jobStatus.retries}
@@ -577,7 +574,7 @@ export default class Summary extends React.Component {
               <div className={c(t.flex)}>
                 <Link
                   styles={{ root: [FontClassNames.mediumPlus] }}
-                  href={`job-retry.html?username=${namespace}&jobname=${jobName}`}
+                  href={`job-retry.html?username=${namespace}&jobName=${jobName}`}
                   disabled={!this.checkRetryLink()}
                   target='_blank'
                 >

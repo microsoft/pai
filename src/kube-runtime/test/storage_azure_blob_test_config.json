@@ -1,0 +1,14 @@
+[
+    {
+      "name": "STORAGE_AZURE_BLOB",
+      "default": false,
+      "mountInfos": [
+        {
+          "mountPoint": "/mnt/data",
+          "path": "data",
+          "server": "azure_blob_test",
+          "permission": "rw"
+        }
+      ]
+    }
+  ]

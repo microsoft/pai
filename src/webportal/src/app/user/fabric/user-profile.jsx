@@ -24,6 +24,8 @@ import React, { useEffect, useState, useCallback } from 'react';
 import ReactDOM from 'react-dom';
 import cookies from 'js-cookie';
 import PropTypes from 'prop-types';
+import { FontClassNames, FontWeights, getTheme } from '@uifabric/styling';
+import { DefaultButton, initializeIcons } from 'office-ui-fabric-react';
 
 import Card from '../../components/card';
 import { SpinnerLoading } from '../../components/loading';
@@ -40,8 +42,6 @@ import {
 } from './conn';
 
 import t from '../../components/tachyons.scss';
-import { FontClassNames, FontWeights, getTheme } from '@uifabric/styling';
-import { DefaultButton, initializeIcons } from 'office-ui-fabric-react';
 import { VirtualClusterDetailsList } from '../../home/home/virtual-cluster-statistics';
 import TokenList from './user-profile/token-list';
 import { initTheme } from '../../components/theme';
@@ -51,22 +51,25 @@ import StorageList from './user-profile/storage-list';
 initTheme();
 initializeIcons();
 
-const UserProfileItem = ({ title, children, headerButton }) => (
-  <div className={t.mt5}>
-    <div className={c(t.flex, t.justifyBetween)}>
-      <div
-        className={FontClassNames.large}
-        style={{ fontWeight: FontWeights.regular }}
-      >
-        {title}
+const UserProfileCard = ({ title, children, headerButton }) => {
+  const { spacing } = getTheme();
+  return (
+    <Card className={t.mt4} style={{ padding: `${spacing.l1} ${spacing.l2}` }}>
+      <div className={c(t.flex, t.justifyBetween)}>
+        <div
+          className={FontClassNames.xLarge}
+          style={{ fontWeight: FontWeights.regular }}
+        >
+          {title}
+        </div>
+        <div>{headerButton}</div>
       </div>
-      <div>{headerButton}</div>
-    </div>
-    <div className={t.mt3}>{children}</div>
-  </div>
-);
+      <div className={t.mt3}>{children}</div>
+    </Card>
+  );
+};
 
-UserProfileItem.propTypes = {
+UserProfileCard.propTypes = {
   headerButton: PropTypes.node,
   title: PropTypes.string,
   children: PropTypes.node,
@@ -163,17 +166,16 @@ const UserProfile = () => {
   } else {
     return (
       <div className={c(t.pv5, t.ph5)}>
-        <Card
-          className={c(t.mw9, t.center)}
-          style={{ padding: `${spacing.l1} ${spacing.l2}` }}
-        >
-          {/* summary */}
-          <UserProfileHeader
-            userInfo={userInfo}
-            onEditProfile={onEditProfile}
-            onEditPassword={onEditPassword}
-          />
-          <UserProfileItem
+        <div className={c(t.center)} style={{ maxWidth: 1200 }}>
+          <Card style={{ padding: `${spacing.l1} ${spacing.l2}` }}>
+            {/* summary */}
+            <UserProfileHeader
+              userInfo={userInfo}
+              onEditProfile={onEditProfile}
+              onEditPassword={onEditPassword}
+            />
+          </Card>
+          <UserProfileCard
             title='Tokens'
             headerButton={
               <DefaultButton
@@ -185,17 +187,17 @@ const UserProfile = () => {
             }
           >
             <TokenList tokens={tokens} onRevoke={onRevokeToken} />
-          </UserProfileItem>
-          <UserProfileItem title='Virtual Clusters'>
-            <VirtualClusterDetailsList virtualClusters={virtualClusters} />
-          </UserProfileItem>
-          <UserProfileItem title='Storage'>
+          </UserProfileCard>
+          <UserProfileCard title='Storage'>
             <StorageList
               storageConfigs={storageConfigs}
               storageServers={storageServers}
             />
-          </UserProfileItem>
-        </Card>
+          </UserProfileCard>
+          <UserProfileCard title='Virtual Clusters'>
+            <VirtualClusterDetailsList virtualClusters={virtualClusters} />
+          </UserProfileCard>
+        </div>
       </div>
     );
   }

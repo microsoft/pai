@@ -86,11 +86,11 @@ fi
 if [ ! -f "/etc/docker/daemon.json" ]; then
     cp $scriptPath/docker-daemon.json /etc/docker/daemon.json
     systemctl restart docker
-    echo Update Docker Daemon Configuraiton. Restart Docker Daemon
+    echo Update Docker Daemon Configuration. Restart Docker Daemon
 else
     if python $scriptPath/docker-config-update.py -s $scriptPath/docker-daemon.json -d /etc/docker/daemon.json ; then
         systemctl restart docker
-        echo Update Docker Daemon Configuraiton. Restart Docker Daemon
+        echo Update Docker Daemon Configuration. Restart Docker Daemon
     else
         echo There is no docker daemon configuration updated. Skip the process of restart docker daemon.
     fi

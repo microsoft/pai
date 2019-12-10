@@ -37,7 +37,7 @@ OCT2=`echo ${POD_IP} | awk -F'.' '{ print $(NF) }'`
 echo OCT1: $OCT2
 IP_ADDRESS="192.168.${OCT1}.${OCT2}"
 
-echo IB_ADRESS: $IP_ADDRESS
+echo IB_ADDRESS: $IP_ADDRESS
 
 CURRENT_DRIVER=/var/drivers/mellanox/current
 

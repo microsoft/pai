@@ -26,7 +26,7 @@ We recommend searching before asking. In case someone met the similar problem, i
 
     ![PAI_ask_question4](./images/PAI_ask_question4.PNG)
 
-Referenece:
+Reference:
 
 * [How do I ask a good question?](https://stackoverflow.com/help/how-to-ask)
 * [How to Ask a Question on Stack Overflow](https://www.wikihow.com/Ask-a-Question-on-Stack-Overflow)

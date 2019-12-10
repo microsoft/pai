@@ -24,7 +24,7 @@ import config from '../../../../config/webportal.config';
 
 const params = new URLSearchParams(window.location.search);
 const userName = params.get('username');
-const jobName = params.get('jobname');
+const jobName = params.get('jobName');
 const absoluteUrlRegExp = /^[a-z][a-z\d+.-]*:/;
 
 export class NotFoundError extends Error {
@@ -71,7 +71,7 @@ export async function fetchJobRetries() {
   } else {
     return {
       isSucceeded: false,
-      errorMessage: 'Some errors occured!',
+      errorMessage: 'Some errors occurred!',
       jobRetries: null,
     };
   }

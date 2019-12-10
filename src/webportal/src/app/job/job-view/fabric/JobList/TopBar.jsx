@@ -30,6 +30,7 @@ import Context from './Context';
 import Filter from './Filter';
 
 import webportalConfig from '../../../../config/webportal.config';
+import { clearToken } from '../../../../user/user-logout/user-logout.component';
 import FilterButton from './FilterButton';
 import { isStoppable } from '../../../../components/util/job';
 
@@ -78,46 +79,78 @@ function TopBar() {
   );
 
   useEffect(() => {
-    fetch(`${webportalConfig.restServerUri}/api/v2/user`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    })
-      .then(response => {
-        return response.json();
-      })
-      .then(body => {
-        const allUsers = Object.create(null);
-        body.forEach(userBody => {
-          allUsers[userBody.username] = true;
-        });
-        setUser(allUsers);
-      })
-      .catch(err => {
-        alert(err.message);
-      });
-
-    fetch(`${webportalConfig.restServerUri}/api/v2/virtual-clusters`)
-      .then(response => {
-        return response.json();
-      })
-      .then(body => {
-        const allVirtualClusters = Object.create(null);
-        for (const virtualCluster of Object.keys(body)) {
-          allVirtualClusters[virtualCluster] = true;
+    Promise.all([
+      fetch(`${webportalConfig.restServerUri}/api/v2/user`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }).then(async response => {
+        if (response.ok) {
+          const data = await response.json();
+          const users = {};
+          data.forEach(user => {
+            users[user.username] = true;
+          });
+          setUser(users);
+        } else {
+          const data = await response.json().catch(() => {
+            throw new Error(
+              `Failed to fetch user info: ${response.status} ${response.statusText}`,
+            );
+          });
+          if (data.message) {
+            if (data.code === 'UnauthorizedUserError') {
+              alert(data.message);
+              clearToken();
+            } else {
+              throw new Error(`Failed to fetch user info: ${data.message}`);
+            }
+          } else {
+            throw new Error(
+              `Failed to fetch user info: ${response.status} ${response.statusText}`,
+            );
+          }
         }
-        setVirtualClusters(allVirtualClusters);
-
-        const allValidVC = Object.keys(body);
-        const { keyword, users, virtualClusters, statuses } = filter;
-        const filterVC = new Set(
-          allValidVC.filter(vc => virtualClusters.has(vc)),
-        );
-        setFilter(new Filter(keyword, users, filterVC, statuses));
-      })
-      .catch(err => {
-        alert(err.message);
-      });
+      }),
+      fetch(`${webportalConfig.restServerUri}/api/v2/virtual-clusters`).then(
+        async response => {
+          if (response.ok) {
+            const data = await response.json();
+            const vcs = {};
+            for (const vcName of Object.keys(data)) {
+              vcs[vcName] = true;
+            }
+            setVirtualClusters(vcs);
+            const allValidVC = Object.keys(data);
+            const { keyword, users, virtualClusters, statuses } = filter;
+            const filterVC = new Set(
+              allValidVC.filter(vc => virtualClusters.has(vc)),
+            );
+            setFilter(new Filter(keyword, users, filterVC, statuses));
+          } else {
+            const data = await response.json().catch(() => {
+              throw new Error(
+                `Failed to fetch virtual cluster info: ${response.status} ${response.statusText}`,
+              );
+            });
+            if (data.message) {
+              if (data.code === 'UnauthorizedUserError') {
+                alert(data.message);
+                clearToken();
+              } else {
+                throw new Error(
+                  `Failed to fetch virtual cluster info: ${data.message}`,
+                );
+              }
+            } else {
+              throw new Error(
+                `Failed to fetch virtual cluster info: ${response.status} ${response.statusText}`,
+              );
+            }
+          }
+        },
+      ),
+    ]).catch(err => alert(err.message));
   }, []);
 
   /**

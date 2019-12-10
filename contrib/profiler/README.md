@@ -1,27 +1,49 @@
-# 1.Overview
+# Overview
+The profiler can collect the usage of the hardware while your model is
+running, analyze the utilization of them, and give the pattern of these
+information.
+# Usage
+Please use the shell file `run.sh` to start the Profiler.  
+##### Estimate the blocked time.
+Sometimes the deep-learning model will prepare the data when it starts
+running. If the profiler is run with the model together, it may sample
+the data that when the GPU is not training. So you can set the time to
+make the profiler blocked until your deep-learning model training. But
+different models have the different blocked time, you need to estimate
+the blocked time of your model.
+##### Insert the profiler in your command
+When you submit a job, you insert the profiler command before your
+command to use the profiler.  
+```bash
+apt update
+apt install -y curl
+mkdir profiler
+curl https://raw.githubusercontent.com/microsoft/pai/master/contrib/profiler/profiler.py -o profiler/profiler.py
+curl https://raw.githubusercontent.com/microsoft/pai/master/contrib/profiler/utils.py -o profiler/utils.py
+curl https://raw.githubusercontent.com/microsoft/pai/master/contrib/profiler/run.sh -o profiler/run.sh
+bash profiler/run.sh
+``` 
+The above command means that the profiler will run until your job is
+stopped.  
+Here is the explanation of the profiler command.
 
-The Profiler can collect the usage of the hardware while your other program is running.
-You can run the Profiler when you want to collect and analyze the information
+```bash
+./run.sh
+    [-t   The duration of the profiler]
+```
 
-1. Run your algorithm model.
-2. Run the Profiler when you need start collecting.
-
-Your model need be running on the docker, and Profiler can be run on both docker and host.
-
-We recommend to run the Profiler on host.
-
-# 2.How to Run
-Please use the shell file 'run.sh' to start the Profiler.
-
-'run.sh' need at least **2** arguments.
-
-The first argument is the SHA of your docker container where your model is running on.
-The second argument is the index of GPU that your model will use.(If there are several GPUs used, please use the ',' to separated)
-
-Such as `./run.sh 32f4 1,2,3` if your container's SHA contains `32f4` and the GPU INDEX `1,2 and 3` will be used to train.
-
-Also you can add the third argument to set the period of the sampling, add the fourth argument to set the period of the once analyzing, add the fifth argument to set the directory to store the output data,
-and add the sixth argument to set how long the profiler will execute(the unit is minute).
-
-Such as `/run.sh 32f4 1,2,3 0.02 10 My_Data 10`, then the profiler will collect the information each `0.02s`, and it will analyze the data each 10s, and store the log file at `./My_Data`,
-and it will stop after `10` minutes.
+**run.sh** can receive 1 commands.
+1. `-t`: To assign how long the profiler will run. The parameter must be
+   a number, such as `run.sh -t 30`, it means that the profiler will run
+   for 30 minutes.  
+   If not set, the profiler will not stop until the user's job is
+   stopped or the job has run for an hour. 
+# Pre-command or User-command
+If the profiler is used as the command on the user command, the user
+need to set the time that how long the profiler needs to run.  
+If the profiler is used as the command on the pre and post command, the
+admin needs to add a command `torch ./stop.flag` at the post command.
+Because the profiler will detect whether there is a file called
+'stop.flag' existing at the default directory. When the job is over, the
+file is a signal to make the profiler stopped. However, the profiler
+will stop automatically after **an hour**.

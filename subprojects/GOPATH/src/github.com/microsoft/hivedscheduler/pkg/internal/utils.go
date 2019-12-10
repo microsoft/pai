@@ -215,7 +215,7 @@ func ExtractPodSchedulingSpec(pod *core.Pod) *si.PodSchedulingSpec {
 	// Defaulting
 	if podSchedulingSpec.AffinityGroup == nil {
 		podSchedulingSpec.AffinityGroup = &si.AffinityGroupSpec{
-			Name: Key(pod),
+			Name: fmt.Sprintf("%v/%v", pod.Namespace, pod.Name),
 			Members: []si.AffinityGroupMemberSpec{{
 				PodNumber: 1,
 				GpuNumber: podSchedulingSpec.GpuNumber},
@@ -226,6 +226,12 @@ func ExtractPodSchedulingSpec(pod *core.Pod) *si.PodSchedulingSpec {
 	// Validation
 	if podSchedulingSpec.VirtualCluster == "" {
 		panic(fmt.Errorf(errPfx + "VirtualCluster is empty"))
+	}
+	if podSchedulingSpec.Priority < si.OpportunisticPriority {
+		panic(fmt.Errorf(errPfx+"Priority is less than %v", si.OpportunisticPriority))
+	}
+	if podSchedulingSpec.Priority > si.MaxGuaranteedPriority {
+		panic(fmt.Errorf(errPfx+"Priority is greater than %v", si.MaxGuaranteedPriority))
 	}
 	if podSchedulingSpec.GpuNumber <= 0 {
 		panic(fmt.Errorf(errPfx + "GpuNumber is non-positive"))

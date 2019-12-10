@@ -31,6 +31,8 @@ spec:
       tolerations:
       - key: node-role.kubernetes.io/master
         effect: NoSchedule
+      imagePullSecrets:
+      - name: {{ cluster_cfg["cluster"]["docker-registry"]["secret-name"] }}
       containers:
       - name: fluentd
         image: {{ cluster_cfg['cluster']['docker-registry']['prefix'] }}fluentd:{{ cluster_cfg['cluster']['docker-registry']['tag'] }}
@@ -43,8 +45,8 @@ spec:
         volumeMounts:
         - name: varlog
           mountPath: /var/log
-        - name: varlibdockercontainers
-          mountPath: /var/lib/docker/containers
+        - name: docker-dataroot-containers
+          mountPath: {{ cluster_cfg["cluster"]["common"]["docker-data-root"] }}/containers
           readOnly: true
         - name: config-volume
           mountPath: /etc/fluent/config.d
@@ -52,9 +54,9 @@ spec:
       - name: varlog
         hostPath:
           path: /var/log
-      - name: varlibdockercontainers
+      - name: docker-dataroot-containers
         hostPath:
-          path: /var/lib/docker/containers
+          path: {{ cluster_cfg["cluster"]["common"]["docker-data-root"] }}/containers
       - name: config-volume
         configMap:
           name: fluentd-config

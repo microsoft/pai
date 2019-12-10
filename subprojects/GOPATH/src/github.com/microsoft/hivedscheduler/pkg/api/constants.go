@@ -66,9 +66,12 @@ const (
 	// It is in PodBindInfo YAML format.
 	AnnotationKeyPodBindInfo = GroupName + "/pod-bind-info"
 
-	// Lowest priority of regular pods. A pod with a priority >= 0 will be considered
-	// as a guaranteed one; opportunistic otherwise.
-	RegularPriority = int32(0)
+	// Priority Range of Guaranteed Pod.
+	MaxGuaranteedPriority = int32(1000)
+	MinGuaranteedPriority = int32(0)
+
+	// Priority of Opportunistic Pod.
+	OpportunisticPriority = int32(-1)
 )
 
 var EnvValueKubeApiServerAddress = os.Getenv("KUBE_APISERVER_ADDRESS")
@@ -81,9 +84,17 @@ var DefaultKubeConfigFilePath = os.Getenv("HOME") + "/.kube/config"
 const (
 	RootPath    = "/"
 	VersionPath = RootPath + "v1"
+
 	// Scheduler Extender API: API with K8S Default Scheduler
 	ExtenderPath = VersionPath + "/extender"
 	FilterPath   = ExtenderPath + "/filter"
 	BindPath     = ExtenderPath + "/bind"
 	PreemptPath  = ExtenderPath + "/preempt"
+
+	// Scheduler Inspect API: API to inspect current scheduling status
+	// Notes:
+	// 1. Both Binding and Bound AffinityGroups/Pods are considered as Allocated.
+	InspectPath = VersionPath + "/inspect"
+	// Inspect current allocated AffinityGroup(s)
+	AffinityGroupsPath = InspectPath + "/affinitygroups/"
 )
