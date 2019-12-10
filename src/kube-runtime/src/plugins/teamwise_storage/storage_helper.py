@@ -173,19 +173,18 @@ class StorageHelper():
             rendered_path = self._render_path(
                 posixpath.join(server_data["fileShare"], relative_path))
             if "proxy" in server_data:
-                return [
-                    "mount -t cifs //localhost/" + rendered_path +
-                    " {} -o vers=3.0,username={},password={},dir_mode=0777,file_mode=0777,serverino"
-                    .format(mount_point, server_data["accountName"],
-                            server_data["key"])
-                ]
-            return [
-                "mount -t cifs //{}/{}".format(server_data["dataStore"],
-                                               rendered_path) +
-                " {} -o vers=3.0,username={},password={},dir_mode=0777,file_mode=0777,serverino"
-                .format(mount_point, server_data["accountName"],
-                        server_data["key"])
-            ]
+                return [(
+                    "mount -t cifs //localhost/{rendered_path} {mount_point} "
+                    "-o vers=3.0,username={accountName},password={key},dir_mode=0777,file_mode=0777,serverino"
+                ).format(**server_data,
+                         rendered_path=rendered_path,
+                         mount_point=mount_point)]
+            return [(
+                "mount -t cifs //{dataStore}/{rendered_path} {mount_point} "
+                "-o vers=3.0,username={accountName},password={key},dir_mode=0777,file_mode=0777,serverino"
+            ).format(**server_data,
+                     rendered_path=rendered_path,
+                     mount_point=mount_point)]
         if phrase == "post_mount":
             return [
                 "umount -l {}".format(mount_point),
