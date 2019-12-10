@@ -42,3 +42,13 @@ fi
 sleep 5
 
 popd > /dev/null
+
+# delete HDFS server in storage plugin
+
+pushd contrib/storage_plugin/ > /dev/null
+
+python storagectl.py server delete default_hdfs_server
+python storagectl.py config delete default_hdfs
+python storagectl.py groupsc delete default default_hdfs
+
+popd > /dev/null
