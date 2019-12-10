@@ -30,6 +30,10 @@ from plugin_utils import plugin_init, inject_commands
 
 logger = logging.getLogger(__name__)
 CLUSTER_ALIAS = 'cluster_alias'
+USER_NAME = os.environ.get("PAI_USER_NAME")
+PAI_REST_SERVER_URI = os.environ.get("PAI_REST_SERVER_URI")
+USER_TOKEN = os.environ.get("PAI_USER_TOKEN").split()[-1]
+
 
 if __name__ == "__main__":
     [parameters, pre_script, post_script] = plugin_init()
@@ -37,15 +41,15 @@ if __name__ == "__main__":
     if parameters is not None:
         sdk_version = parameters.get('sdkBranch', 'master')
         install_uri = '-e "git+https://github.com/Microsoft/pai@{}#egg=openpaisdk&subdirectory=contrib/python-sdk"'.format(sdk_version)
-        container_sync_space = parameters.get('syncSpace', '/paiSyncSpace')
-        pai_uri = parameters.get('paiUri')
-        #TODO: check DB for storage path (How to get  JOB_NAME)
-        storage_path_prefix = "pai://clusterXXX/0"
+        container_sync_space = parameters.get('syncSpace', None)
+
+        #TODO: check DB for storage path
+        storage_path_prefix = f"pai://{CLUSTER_ALIAS}/0"
         pre_commands = [
             # install openpaisdk
             f'python -m pip install {install_uri}',
-            # TODO:add cluster (How to get pai_uri)
-            f'pai add-cluster --cluster_alias {CLUSTER_ALIAS} --pai_uri {pai_uri}',
+            # add cluster
+            f'pai add-cluster --cluster-alias {CLUSTER_ALIAS} --pai-uri {PAI_REST_SERVER_URI} --user {USER_NAME} --token {USER_TOKEN}',
             # download 
             f'pai copy {storage_path_prefix}/$PAI_USER_NAME/$PAI_JOB_NAME/$PAI_CURRENT_TASK_ROLE_NAME/$PAI_CURRENT_TASK_ROLE_CURRENT_TASK_INDEX {container_sync_space}'
         ]
