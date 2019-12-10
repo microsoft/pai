@@ -244,7 +244,7 @@ The CLI tools also provides the function to change some contents of existing job
 # compatible with v1 specification
 opai job submit --update name=<job-name> -u defaults:virtualCluster=test <config-file>
 
-# compatible with v2 specificaiton
+# compatible with v2 specification
 opai job submit --update jobName=<job-name> -u virtualCluster=test <config-file>
 ```
 

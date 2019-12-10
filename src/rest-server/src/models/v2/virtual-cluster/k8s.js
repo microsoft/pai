@@ -126,7 +126,7 @@ const getNodeResource = async () => {
       nodeResource[node] = {
         gpuTotal: clusterNodeGpu[node].gpu,
         gpuUsed: 0,
-        gpuAvaiable: clusterNodeGpu[node].gpu,
+        gpuAvailable: clusterNodeGpu[node].gpu,
       };
     }
   } else {
@@ -137,7 +137,7 @@ const getNodeResource = async () => {
       nodeResource[nodeName] = {
         gpuTotal: gpuNumber,
         gpuUsed: 0,
-        gpuAvaiable: gpuNumber,
+        gpuAvailable: gpuNumber,
       };
     }
   }
@@ -148,7 +148,7 @@ const getNodeResource = async () => {
       continue;
     }
     nodeResource[pod.nodeIp].gpuUsed += pod.resourcesUsed.gpu;
-    nodeResource[pod.nodeIp].gpuAvaiable -= pod.resourcesUsed.gpu;
+    nodeResource[pod.nodeIp].gpuAvailable -= pod.resourcesUsed.gpu;
   }
   return nodeResource;
 };

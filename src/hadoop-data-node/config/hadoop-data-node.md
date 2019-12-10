@@ -2,18 +2,18 @@
 
 - [Default Configuration](#D_Config)
 - [How to Configure](#HT_Config)
-- [Generated Configuraiton](#G_Config)
+- [Generated Configuration](#G_Config)
 - [Data Table](#T_config)
 
 #### Default configuration <a name="D_Config"></a>
 
 [hadoop-data-node default configuration](hadoop-data-node.yaml)
 
-#### How to configure cluster section in service-configuraiton.yaml <a name="HT_Config"></a>
+#### How to configure cluster section in service-configuration.yaml <a name="HT_Config"></a>
 
 All configurations in this section is optional. If you want to customized these value, you can configure it in service-configuration.yaml.
-   
-- `storage_path` The hdfs storage folders, support comma-delimited list of directories. 
+
+- `storage_path` The hdfs storage folders, support comma-delimited list of directories.
 if isn't specified, will use `cluster.common.data-path/hdfs/data`
 
 

@@ -759,7 +759,7 @@ class ZombieCollector(Collector):
     def update_zombie_count(self, stats):
         """
         There are two types of zombie:
-            1. container which outputed "USER COMMAND END" but did not exist for a long period of time
+            1. container which outputted "USER COMMAND END" but did not exist for a long period of time
             2. yarn container exited but job container didn't
         return set of container id that deemed as zombie
         """

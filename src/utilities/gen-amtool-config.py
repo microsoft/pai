@@ -62,7 +62,7 @@ def gen_amtool_config(args):
         os.makedirs(amtool_dir)
     config = os.path.join(amtool_dir, "config.yml")
     if os.path.isfile(config) and not args.force:
-        sys.stderr.write("{} already exist, specify -f to overwirte\n".format(config))
+        sys.stderr.write("{} already exist, specify -f to overwrite\n".format(config))
         sys.exit(1)
 
     with codecs.open(config, "w", "utf-8") as f:
