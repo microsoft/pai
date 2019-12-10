@@ -87,7 +87,7 @@ def main():
 
     LOGGER.info("get job config from %s", args.job_config)
     with open(args.job_config) as f:
-        job_config = yaml.load(f)
+        job_config = yaml.safe_load(f)
         if not _is_docker_image_valid(job_config):
             sys.exit(1)
 
