@@ -169,7 +169,7 @@ class Cluster:
         import re
         # remove port from "XX.XX.XX.XX:port"
         pai_uri = self.config["pai_uri"]
-        port = re.search(':[0-9]*', pai_uri)
+        port = re.search(':[0-9]+', pai_uri)
         if port:
             pai_uri = pai_uri[0 : port.span()[0]]
         print(f'cluster pai_uri = {pai_uri}')
