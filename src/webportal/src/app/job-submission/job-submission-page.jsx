@@ -23,10 +23,6 @@
  * SOFTWARE.
  */
 
-import 'core-js/stable';
-import 'regenerator-runtime/runtime';
-import 'whatwg-fetch';
-
 import React, { useState, useCallback, useEffect, useMemo } from 'react';
 import { Fabric, Stack, StackItem } from 'office-ui-fabric-react';
 import { isNil, isEmpty, get, cloneDeep } from 'lodash';

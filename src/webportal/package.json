@@ -66,6 +66,7 @@
     "monaco-editor": "~0.16.1",
     "morgan": "~1.9.0",
     "node-rsa": "^1.0.5",
+    "normalize.css": "^8.0.1",
     "office-ui-fabric-react": "^6.189.0",
     "papaparse": "^4.6.3",
     "prop-types": "^15.7.2",

@@ -17,9 +17,8 @@
 
 import { FontClassNames, ColorClassNames } from '@uifabric/styling';
 import c from 'classnames';
-import { isEqual, isNil } from 'lodash';
 import { Spinner, SpinnerSize } from 'office-ui-fabric-react/lib/Spinner';
-import React, { useLayoutEffect, useState } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 
 import t from './tachyons.scss';
@@ -41,41 +40,9 @@ export const Loading = () => (
   </div>
 );
 
-// min-height issue hack
-// https://stackoverflow.com/questions/8468066/child-inside-parent-with-min-height-100-not-inheriting-height
 export const SpinnerLoading = ({ label = 'Loading...' }) => {
-  const [style, setStyle] = useState({});
-  useLayoutEffect(() => {
-    function layout() {
-      const contentWrapper = document.getElementById('content-wrapper');
-      if (isNil(contentWrapper)) {
-        return;
-      }
-      const pt = window.getComputedStyle(contentWrapper).paddingTop;
-      const rect = contentWrapper.getBoundingClientRect();
-      const nextStyle = {
-        paddingTop: pt,
-        top: rect.top,
-        left: rect.left,
-        width: rect.right - rect.left,
-        height: rect.bottom - rect.top,
-      };
-      if (!isEqual(nextStyle, style)) {
-        setStyle(nextStyle);
-      }
-    }
-    layout();
-    window.addEventListener('resize', layout);
-    return () => {
-      window.removeEventListener('resize', layout);
-    };
-  });
-
   return (
-    <div
-      className={c(t.flex, t.itemsCenter, t.justifyCenter, t.fixed)}
-      style={style}
-    >
+    <div className={c(t.flex, t.itemsCenter, t.justifyCenter, t.h100)}>
       <div className={c(t.flex, t.itemsCenter)}>
         <Spinner size={SpinnerSize.large} />
         <div className={c(t.ml4, FontClassNames.xLarge)}>{label}</div>

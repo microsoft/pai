@@ -79,15 +79,6 @@ const formatNumber = (x, precision) => {
 
 //
 const resizeContentWrapper = () => {
-  $('#content-wrapper').css({ height: $(window).height() + 'px' });
-  $('#sharedvc .dataTables_scrollBody').css(
-    'height',
-    $(window).height() - (isAdmin === 'true' ? 410 : 366) + 'px',
-  );
-  $('#dedicatedvc .dataTables_scrollBody').css(
-    'height',
-    $(window).height() - 386 + 'px',
-  );
   if (commonTable != null) {
     commonTable.columns.adjust().draw();
   }
@@ -319,7 +310,6 @@ window.convertState = convertState;
 window.nodeListShow = nodeListShow;
 
 $(document).ready(() => {
-  $('#sidebar-menu--vc').addClass('active');
   window.onresize = function(envent) {
     resizeContentWrapper();
   };
