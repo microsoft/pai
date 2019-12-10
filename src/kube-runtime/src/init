@@ -59,6 +59,10 @@ function exit_handler()
     fi
   fi
 
+  if [[ $CHILD_PROCESS = "DOCKER_IMAGE_CHECKER" ]]; then
+    exit 254
+  fi
+
   # signal triggered, do not change exit code
   case $EXIT_CODE in
     130|131|132|134|135|136|137|139|141|143)
@@ -164,6 +168,10 @@ python ${PAI_INIT_DIR}/initializer.py ${PAI_RUNTIME_DIR}/job_config.yaml ${PAI_W
 # check port conflict
 CHILD_PROCESS="PORT_CONFLICT_CHECKER"
 python ${PAI_INIT_DIR}/port.py ${PAI_RUNTIME_DIR}/runtime_env.sh
+
+# check if docker image exists
+CHILD_PROCESS="DOCKER_IMAGE_CHECKER"
+python ${PAI_INIT_DIR}/image_checker.py ${PAI_RUNTIME_DIR}/job_config.yaml
 
 # write user commands to user.sh
 # priority=100
