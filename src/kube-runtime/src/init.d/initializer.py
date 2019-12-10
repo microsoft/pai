@@ -77,7 +77,7 @@ def _prune_plugins(job_config):
             delete_plugin_names.append(plugin_name)
 
     pruned_config["extras"][RUNTIME_PLUGIN_PLACE_HOLDER] = list(
-        filter(lambda pulgin: plugin["plugin"] not in delete_plugin_names,
+        filter(lambda plugin: plugin["plugin"] not in delete_plugin_names,
                plugins))
     return pruned_config
 

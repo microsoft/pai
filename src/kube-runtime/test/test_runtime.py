@@ -69,7 +69,11 @@ class TestRuntimeInitializer(unittest.TestCase):
             with open(job_path, "r") as f:
                 job_config = yaml.safe_load(f)
         pruned_config = initializer._prune_plugins(job_config)
-        self.assertEqual(pruned_config["extras"]["com.microsoft.pai.runtimeplugin"], [])
+        self.assertEqual(
+            pruned_config["extras"]["com.microsoft.pai.runtimeplugin"],
+            [{
+                'plugin': 'tensorboard'
+            }])
 
 
 if __name__ == '__main__':

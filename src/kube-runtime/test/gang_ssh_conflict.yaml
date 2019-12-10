@@ -45,3 +45,4 @@ extras:
         - worker
       parameters:
         jobssh: true
+    - plugin: tensorboard
