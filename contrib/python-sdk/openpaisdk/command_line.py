@@ -75,7 +75,6 @@ def cli_unset(args):
 def cli_add_cluster(args):
     assert args.cluster_alias or args.pai_uri or args.user, "must specify cluster-alias, pai-uri, user"
     assert args.password or args.token, "please add an authentication credential, password or token"
-    print(f'pai_uri = {args.pai_uri}')
     ClusterList().load().add(extract_args(args)).save()
 
 

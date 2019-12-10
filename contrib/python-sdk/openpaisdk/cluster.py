@@ -172,7 +172,6 @@ class Cluster:
         port = re.search(':[0-9]+', pai_uri)
         if port:
             pai_uri = pai_uri[0 : port.span()[0]]
-        print(f'cluster pai_uri = {pai_uri}')
         return pai_uri
 
     @property
