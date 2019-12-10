@@ -22,13 +22,16 @@ import unittest
 
 import yaml
 
+# pylint: disable=wrong-import-position
 sys.path.append("{}/../src/init.d".format(
     os.path.split(os.path.realpath(__file__))[0]))
 import image_checker
+# pylint: enable=wrong-import-position
 
-package_directory_com = os.path.dirname(os.path.abspath(__file__))
+PACKAGE_DIRECTORY_COM = os.path.dirname(os.path.abspath(__file__))
 
 
+# pylint: disable=protected-access
 def prepare_image_check(job_config_path):
     def decorator(func):
         @functools.wraps(func)
@@ -48,8 +51,8 @@ def prepare_image_check(job_config_path):
 class TestImageChecker(unittest.TestCase):
     def setUp(self):
         try:
-            os.chdir(package_directory_com)
-        except:
+            os.chdir(PACKAGE_DIRECTORY_COM)
+        except Exception:  #pylint: disable=broad-except
             pass
         self.config = {}
 

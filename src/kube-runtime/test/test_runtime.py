@@ -37,6 +37,7 @@ from teamwise_storage import storage_command_generator
 PACKAGE_DIRECTORY_COM = os.path.dirname(os.path.abspath(__file__))
 
 
+# pylint: disable=no-self-use, protected-access
 class TestRuntime(unittest.TestCase):
     def setUp(self):
         try:
@@ -85,9 +86,10 @@ class TestRuntime(unittest.TestCase):
         if os.path.exists(job_path):
             with open(job_path, "r") as f:
                 job_config = yaml.safe_load(f)
-        pruned_config = initializer._prune_plugins(job_config) # pylint: disable=protected-access
+        pruned_config = initializer._prune_plugins(job_config)
         self.assertEqual(
-            pruned_config["extras"]["com.microsoft.pai.runtimeplugin"], [{
+            pruned_config["extras"]["com.microsoft.pai.runtimeplugin"],
+            [{
                 'plugin': 'tensorboard'
             }])
 
@@ -105,6 +107,7 @@ class TestRuntime(unittest.TestCase):
             resp = self.load_json_file("storage_test_server.json")
             secret.data = resp["data"]
             return secret
+        return None
 
     @mock.patch("kubernetes.client.CoreV1Api.read_namespaced_secret")
     def test_teamwise_nfs_storage_plugin(self, mock_get_secrets):

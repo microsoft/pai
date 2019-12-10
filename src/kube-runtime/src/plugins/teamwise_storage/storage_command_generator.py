@@ -36,7 +36,69 @@ KUBE_TOKEN_FILE = "/var/run/secrets/kubernetes.io/serviceaccount/token"
 STORAGE_PRE_COMMAND = ["apt-get update", "umask 000"]
 
 
-class StorageCommandGenerator:
+def _covert_secret_to_server_config(secret) -> dict:
+    data = json.loads(base64.b64decode(secret).decode())
+    return {"spn": data["spn"], "type": data["type"], "data": data}
+
+
+def _generate_mount_commands(storage_configs, servers_configs) -> list:
+    mount_commands = []
+    mount_points = []
+    storage_helper = StorageHelper(USER_NAME, JOB_NAME)
+    server_mount_dict = StorageHelper.perpare_server_mount_dict(
+        storage_configs)
+
+    for spn in server_mount_dict:
+        mount_infos = server_mount_dict[spn]
+        server_config = next(
+            (conf for conf in servers_configs if conf["spn"] == spn), None)
+        if not server_config:
+            LOGGER.error("Failed to get server config: %s", spn)
+            raise RuntimeError("Generate mount commands failed")
+
+        StorageHelper.validate_mount_point(mount_points, mount_infos)
+
+        # 1. generate prepare command for storage
+        tmp_folder = "/tmp_{}_root".format(spn)
+        premount_commands = storage_helper.get_setup_command(
+            server_config, tmp_folder, phrase="pre_mount")
+
+        # 2. mount root folder and make sub directories
+        first_round_mount_commands = storage_helper.get_setup_command(
+            server_config, tmp_folder, phrase="tmp_mount")
+        mkdir_commands = storage_helper.generate_make_tmp_folder_command(
+            tmp_folder, mount_infos)
+
+        # 3. clean 1st round mount
+        post_mount_commands = storage_helper.get_setup_command(
+            server_config, tmp_folder, phrase="post_mount")
+
+        # 4. generate real mount command
+        second_round_mount_commands = list(
+            map(
+                lambda mount_info, config=server_config, pre_mounted_dir=
+                tmp_folder: storage_helper.get_setup_command(  # pylint: disable=bad-continuation
+                    config,
+                    mount_info["mountPoint"],
+                    phrase="real_mount",
+                    relative_path=mount_info["path"],
+                    pre_mounted_dir=pre_mounted_dir),
+                mount_infos))
+
+        second_round_mount_commands = [
+            command for mount_command in second_round_mount_commands
+            for command in mount_command
+        ]
+
+        # 5 assemble all commands
+        mount_commands.extend(premount_commands + first_round_mount_commands +
+                              mkdir_commands + post_mount_commands +
+                              second_round_mount_commands)
+
+    return mount_commands
+
+
+class StorageCommandGenerator:  #pylint: disable=too-few-public-methods
     def __init__(self):
         if not os.path.isfile(KUBE_TOKEN_FILE):
             # Not enable RBAC
@@ -74,10 +136,6 @@ class StorageCommandGenerator:
             map(lambda config: config["name"],
                 filter(lambda config: config["default"], storage_configs)))
 
-    def _covert_secret_to_server_config(self, secret) -> dict:
-        data = json.loads(base64.b64decode(secret).decode())
-        return {"spn": data["spn"], "type": data["type"], "data": data}
-
     def _generate_commands(self, storage_config_names) -> list:
         storage_configs = self._get_storage_configs(storage_config_names)
 
@@ -93,67 +151,9 @@ class StorageCommandGenerator:
         secrets_data = storage_server_secrets.data
         secrets_value = [secrets_data[name] for name in server_names]
         servers_configs = list(
-            map(self._covert_secret_to_server_config, secrets_value))
+            map(_covert_secret_to_server_config, secrets_value))
 
-        return self._generate_mount_commands(storage_configs, servers_configs)
-
-    def _generate_mount_commands(self, storage_configs,
-                                 servers_configs) -> list:
-        mount_commands = []
-        mount_points = []
-        storage_helper = StorageHelper(USER_NAME, JOB_NAME)
-        server_mount_dict = StorageHelper.perpare_server_mount_dict(
-            storage_configs)
-
-        for spn in server_mount_dict:
-            mount_infos = server_mount_dict[spn]
-            server_config = next(
-                (conf for conf in servers_configs if conf["spn"] == spn), None)
-            if not server_config:
-                LOGGER.error("Failed to get server config: %s", spn)
-                raise RuntimeError("Generate mount commands failed")
-
-            StorageHelper.validate_mount_point(mount_points, mount_infos)
-
-            # 1. generate prepare command for storage
-            tmp_folder = "/tmp_{}_root".format(spn)
-            premount_commands = storage_helper.get_setup_command(
-                server_config, tmp_folder, phrase="pre_mount")
-
-            # 2. mount root folder and make sub directories
-            first_round_mount_commands = storage_helper.get_setup_command(
-                server_config, tmp_folder, phrase="tmp_mount")
-            mkdir_commands = storage_helper.generate_make_tmp_folder_command(
-                tmp_folder, mount_infos)
-
-            # 3. clean 1st round mount
-            post_mount_commands = storage_helper.get_setup_command(
-                server_config, tmp_folder, phrase="post_mount")
-
-            # 4. generate real mount command
-            second_round_mount_commands = list(
-                map(
-                    lambda mount_info, config=server_config, pre_mounted_dir=
-                    tmp_folder: storage_helper.get_setup_command(  # pylint: disable=bad-continuation
-                        config,
-                        mount_info["mountPoint"],
-                        phrase="real_mount",
-                        relative_path=mount_info["path"],
-                        pre_mounted_dir=pre_mounted_dir),
-                    mount_infos))
-
-            second_round_mount_commands = [
-                command for mount_command in second_round_mount_commands
-                for command in mount_command
-            ]
-
-            # 5 assemble all commands
-            mount_commands.extend(premount_commands +
-                                  first_round_mount_commands + mkdir_commands +
-                                  post_mount_commands +
-                                  second_round_mount_commands)
-
-        return mount_commands
+        return _generate_mount_commands(storage_configs, servers_configs)
 
     def generate_plugin_commands(self, parameters) -> list:
         try:
