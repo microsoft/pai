@@ -46,7 +46,7 @@ def _is_docker_image_valid(job_config):
 
     docker_images = list(
         filter(lambda pre: pre["name"] == docker_image_name, prerequisites))
-    assert (len(docker_images) == 1)
+    assert len(docker_images) == 1
     image_info = docker_images[0]
 
     if "auth" in image_info:
@@ -67,7 +67,7 @@ def _is_docker_image_valid(job_config):
         LOGGER.ERROR("Maybe docker uri is invalid")
         return False
     res = requests.get(uri)
-    if (res.status_code != http.HTTPStatus.OK):
+    if res.status_code != http.HTTPStatus.OK:
         LOGGER.error(
             "Failed to get docker image info from docker hub, resp: %s",
             res.text)
@@ -87,7 +87,7 @@ def main():
 
     LOGGER.info("get job config from %s", args.job_config)
     with open(args.job_config) as f:
-        job_config = yaml.load(f)
+        job_config = yaml.safe_load(f)
         if not _is_docker_image_valid(job_config):
             sys.exit(1)
 

@@ -1,38 +1,20 @@
-[
-  {
-    "name": "STORAGE_NFS",
-    "default": true,
-    "mountInfos": [
-      {
-        "mountPoint": "/mnt/data",
-        "path": "data",
-        "server": "SRV_BJ",
-        "permission": "rw"
-      },
-      {
-        "mountPoint": "/mnt/home",
-        "path": "users/${PAI_USER_NAME}",
-        "server": "SRV_BJ",
-        "permission": "rw"
-      }
-    ]
+{
+  "kind": "Secret",
+  "apiVersion": "v1",
+  "metadata": {
+    "name": "storage-config",
+    "namespace": "pai-storage",
+    "selfLink": "/api/v1/namespaces/pai-storage/secrets/storage-config",
+    "uid": "a15c4fc5-db99-11e9-b30f-000d3ab25bb6",
+    "resourceVersion": "14640879",
+    "creationTimestamp": "2019-09-20T11:27:29Z"
   },
-  {
-    "name": "STORAGE_TEST",
-    "default": false,
-    "mountInfos": [
-      {
-        "mountPoint": "/mnt/data",
-        "path": "data",
-        "server": "SRV_BJ",
-        "permission": "rw"
-      },
-      {
-        "mountPoint": "/mnt/home",
-        "path": "users/${PAI_USER_NAME}",
-        "server": "SRV_BJ",
-        "permission": "rw"
-      }
-    ]
-  }
-]
+  "data": {
+    "STORAGE_TEST": "eyJkZWZhdWx0IjpmYWxzZSwibW91bnRJbmZvcyI6W3sibW91bnRQb2ludCI6Ii9tbnQvZGF0YSIsInBhdGgiOiJkYXRhIiwic2VydmVyIjoiU1JWX0JKIiwicGVybWlzc2lvbiI6InJ3In0seyJtb3VudFBvaW50IjoiL21udC9ob21lIiwicGF0aCI6InVzZXJzLyR7UEFJX1VTRVJfTkFNRX0iLCJzZXJ2ZXIiOiJTUlZfQkoiLCJwZXJtaXNzaW9uIjoicncifV0sIm5hbWUiOiJTVE9SQUdFX1RFU1QifQ==",
+    "STORAGE_NFS": "eyJuYW1lIjoiU1RPUkFHRV9ORlMiLCJkZWZhdWx0Ijp0cnVlLCJtb3VudEluZm9zIjpbeyJtb3VudFBvaW50IjoiL21udC9kYXRhIiwicGF0aCI6ImRhdGEiLCJzZXJ2ZXIiOiJTUlZfQkoiLCJwZXJtaXNzaW9uIjoicncifSx7Im1vdW50UG9pbnQiOiIvbW50L2hvbWUiLCJwYXRoIjoidXNlcnMvJHtQQUlfVVNFUl9OQU1FfSIsInNlcnZlciI6IlNSVl9CSiIsInBlcm1pc3Npb24iOiJydyJ9XX0=",
+    "STORAGE_SAMBA": "eyJuYW1lIjoiU1RPUkFHRV9TQU1CQSIsImRlZmF1bHQiOmZhbHNlLCJtb3VudEluZm9zIjpbeyJtb3VudFBvaW50IjoiL21udC9kYXRhIiwicGF0aCI6ImRhdGEiLCJzZXJ2ZXIiOiJzYW1iYV90ZXN0IiwicGVybWlzc2lvbiI6InJ3In1dfQ==",
+    "STORAGE_AZURE_FILE": "eyJuYW1lIjoiU1RPUkFHRV9BWlVSRV9GSUxFIiwiZGVmYXVsdCI6ZmFsc2UsIm1vdW50SW5mb3MiOlt7Im1vdW50UG9pbnQiOiIvbW50L2RhdGEiLCJwYXRoIjoiZGF0YSIsInNlcnZlciI6ImF6dXJlX2ZpbGVfdGVzdCIsInBlcm1pc3Npb24iOiJydyJ9XX0=",
+    "STORAGE_AZURE_BLOB": "eyJuYW1lIjoiU1RPUkFHRV9BWlVSRV9CTE9CIiwiZGVmYXVsdCI6ZmFsc2UsIm1vdW50SW5mb3MiOlt7Im1vdW50UG9pbnQiOiIvbW50L2RhdGEiLCJwYXRoIjoiZGF0YSIsInNlcnZlciI6ImF6dXJlX2Jsb2JfdGVzdCIsInBlcm1pc3Npb24iOiJydyJ9XX0="
+  },
+  "type": "Opaque"
+}
