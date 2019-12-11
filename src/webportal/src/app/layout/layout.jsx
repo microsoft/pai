@@ -42,12 +42,11 @@ const BREAKPOINT = 600;
 
 const Layout = () => {
   const [mobileShowSidebar, setMobileShowSidebar] = useState(false);
-  const [admin, setAdmin] = useState(false);
+
+  // check token
   useEffect(() => {
     const username = cookies.get('user');
-    getUserRequest(username).then(user => {
-      setAdmin(user.admin);
-    });
+    getUserRequest(username);
   }, []);
 
   const isMobile = useMediaQuery({ query: `(max-width: ${BREAKPOINT}px)` });
@@ -71,7 +70,6 @@ const Layout = () => {
             position: isMobile ? 'absolute' : undefined,
             zIndex: 10,
           }}
-          admin={admin}
         />
         <div
           id='content-wrapper'
@@ -88,14 +86,3 @@ const Layout = () => {
 };
 
 ReactDOM.render(<Layout />, document.getElementById('wrapper'));
-
-/*
-  TODO: plugin
-  TODO: responsive
-  TODO: version
-*/
-/*
-if (Array.isArray(window.PAI_PLUGINS) && window.PAI_PLUGINS.length > 0) {
-  $('.sidebar-menu').append(pluginComponent({ plugins: window.PAI_PLUGINS }));
-}
-*/

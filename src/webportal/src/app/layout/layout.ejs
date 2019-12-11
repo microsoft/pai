@@ -10,7 +10,7 @@
 <body style="margin: 0; padding: 0">
   <div class="wrapper" id="wrapper">
   </div>
-  <script>window.PAI_WEBPORTAL_VERSION = <%=JSON.stringify(htmlWebpackPlugin.options.commitVersion || '') %></script>
+  <script>window.PAI_COMMIT_VERSION = <%=JSON.stringify(htmlWebpackPlugin.options.commitVersion || '')%></script>
   <script>window.PAI_VERSION = <%=JSON.stringify(htmlWebpackPlugin.options.version)%></script>
   <script src="/env.js"></script>
 </body>

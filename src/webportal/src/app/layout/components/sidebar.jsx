@@ -5,6 +5,9 @@ import React, { useState, useEffect, useMemo } from 'react';
 import PropTypes from 'prop-types';
 import { Nav, ColorClassNames, getTheme } from 'office-ui-fabric-react';
 import c from 'classnames';
+import cookies from 'js-cookie';
+import qs from 'querystring';
+import { isEmpty } from 'lodash';
 
 import config from '../../config/webportal.config';
 
@@ -20,6 +23,10 @@ const KEY_HARDWARE = KEY_ADMIN_PREFIX + 'HARDWARE';
 const KEY_K8S_DASHBOARD = KEY_ADMIN_PREFIX + 'K8S_DASHBOARD';
 const KEY_USER_MANAGEMENT = KEY_ADMIN_PREFIX + 'USER_MANAGEMENT';
 const KEY_FEEDBACK = 'FEEDBACK';
+const KEY_PLUGIN = 'PLUGIN';
+const KEY_PLUGIN_PREFIX = 'PLUGIN:';
+
+const PLUGIN_PATH = '/plugin.html';
 
 const KEY_DICT = {
   '/home.html': KEY_HOME,
@@ -71,12 +78,20 @@ const NavStyles = props => {
   };
 };
 
-const Sidebar = ({ className, style, admin }) => {
+const Sidebar = ({ className, style }) => {
   const [key, setKey] = useState();
   const [administrationExpanded, setAdministrationExpanded] = useState(false);
+  const [pluginExpanded, setPluginExpanded] = useState(false);
 
   useEffect(() => {
     const pathName = window.location.pathname;
+    if (pathName === PLUGIN_PATH) {
+      const params = new URLSearchParams(window.location.search);
+      const idx = params.get('index');
+      setKey(KEY_PLUGIN_PREFIX + idx);
+      setPluginExpanded(true);
+      return;
+    }
     const key = KEY_DICT[pathName];
     if (key && key.startsWith(KEY_ADMIN_PREFIX)) {
       setAdministrationExpanded(true);
@@ -87,10 +102,16 @@ const Sidebar = ({ className, style, admin }) => {
   const selectedKey = useMemo(() => {
     if (key && key.startsWith(KEY_ADMIN_PREFIX) && !administrationExpanded) {
       return KEY_ADMIN;
+    } else if (key && key.startsWith(KEY_PLUGIN_PREFIX) && !pluginExpanded) {
+      return KEY_PLUGIN;
     } else {
       return key;
     }
-  }, [key, administrationExpanded]);
+  }, [key, administrationExpanded, pluginExpanded]);
+
+  const plugins = config.PAI_PLUGINS;
+  const isAdmin = cookies.get('admin') === 'true';
+  console.log(isAdmin);
 
   return (
     <div
@@ -120,7 +141,9 @@ const Sidebar = ({ className, style, admin }) => {
                 icon: 'SpeedHigh',
                 style: {
                   display:
-                    admin && config.launcherType !== 'k8s' ? undefined : 'none',
+                    isAdmin && config.launcherType !== 'k8s'
+                      ? undefined
+                      : 'none',
                 },
                 key: KEY_DASHBOARD,
               },
@@ -142,7 +165,9 @@ const Sidebar = ({ className, style, admin }) => {
                 icon: 'Quantity',
                 style: {
                   display:
-                    admin && config.launcherType !== 'k8s' ? undefined : 'none',
+                    isAdmin && config.launcherType !== 'k8s'
+                      ? undefined
+                      : 'none',
                 },
                 key: KEY_VC,
               },
@@ -165,7 +190,7 @@ const Sidebar = ({ className, style, admin }) => {
                     url: '/cluster-view/hardware.html',
                     key: KEY_HARDWARE,
                     icon: 'HardDriveGroup',
-                    style: { display: admin ? undefined : 'none' },
+                    style: { display: isAdmin ? undefined : 'none' },
                   },
                   {
                     name: 'K8s Dashboard',
@@ -187,12 +212,28 @@ const Sidebar = ({ className, style, admin }) => {
               },
               {
                 name: 'Feedback',
-                url: `https://github.com/Microsoft/pai/issues/new?title=[Feedback%20${encodeURIComponent(
-                  window.PAI_VERSION,
-                )}]`,
+                url: `https://github.com/Microsoft/pai/issues/new?${qs.stringify(
+                  {
+                    title: `Feedback ${window.PAI_VERSION}`,
+                  },
+                )}`,
                 key: KEY_FEEDBACK,
                 icon: 'Feedback',
                 target: '_blank',
+              },
+              {
+                name: 'Plugins',
+                isExpanded: pluginExpanded,
+                onClick: () => setPluginExpanded(!pluginExpanded),
+                icon: 'Puzzle',
+                key: KEY_PLUGIN,
+                style: { display: isEmpty(plugins) ? 'none' : undefined },
+                links: (plugins || []).map((item, idx) => ({
+                  name: item.title,
+                  url: `/plugin.html?index=${idx}`,
+                  key: KEY_PLUGIN_PREFIX + idx,
+                  icon: 'Puzzle',
+                })),
               },
             ],
           },
