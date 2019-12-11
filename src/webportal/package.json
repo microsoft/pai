@@ -73,7 +73,7 @@
     "react": "^16.8.3",
     "react-dom": "^16.8.3",
     "react-monaco-editor": "^0.25.1",
-    "react-responsive": "^7.0.0",
+    "react-responsive": "^8.0.1",
     "react-router-dom": "^5.0.1",
     "regenerator-runtime": "^0.13.2",
     "serve-favicon": "~2.5.0",

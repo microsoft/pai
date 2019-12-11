@@ -6,6 +6,8 @@ import PropTypes from 'prop-types';
 import { Nav, ColorClassNames, getTheme } from 'office-ui-fabric-react';
 import c from 'classnames';
 
+import config from '../../config/webportal.config';
+
 const KEY_HOME = 'HOME';
 const KEY_DASHBOARD = 'DASHBOARD';
 const KEY_SUBMIT_JOB = 'SUBMITJOB';
@@ -27,6 +29,7 @@ const KEY_DICT = {
   '/virtual-clusters.html': KEY_VC,
   '/cluster-view/services.html': KEY_SERVICES,
   '/cluster-view/hardware.html': KEY_HARDWARE,
+  '/cluster-view/hardware/detail.html': KEY_HARDWARE,
   '/cluster-view/k8s.html': KEY_K8S_DASHBOARD,
   '/user-view.html': KEY_USER_MANAGEMENT,
 };
@@ -56,6 +59,7 @@ const NavStyles = props => {
     ],
     groupContent: {
       animation: 'none',
+      marginBottom: 0,
     },
     chevronButton: {
       display: 'none',
@@ -67,7 +71,7 @@ const NavStyles = props => {
   };
 };
 
-const Sidebar = ({ className, style }) => {
+const Sidebar = ({ className, style, admin }) => {
   const [key, setKey] = useState();
   const [administrationExpanded, setAdministrationExpanded] = useState(false);
 
@@ -81,7 +85,7 @@ const Sidebar = ({ className, style }) => {
   }, []);
 
   const selectedKey = useMemo(() => {
-    if (key && key.startsWith(KEY_ADMIN_PREFIX)) {
+    if (key && key.startsWith(KEY_ADMIN_PREFIX) && !administrationExpanded) {
       return KEY_ADMIN;
     } else {
       return key;
@@ -114,6 +118,10 @@ const Sidebar = ({ className, style }) => {
                 name: 'Dashboard',
                 url: '/dashboard.html',
                 icon: 'SpeedHigh',
+                style: {
+                  display:
+                    admin && config.launcherType !== 'k8s' ? undefined : 'none',
+                },
                 key: KEY_DASHBOARD,
               },
               {
@@ -132,6 +140,10 @@ const Sidebar = ({ className, style }) => {
                 name: 'Virtual Clusters',
                 url: '/virtual-clusters.html',
                 icon: 'Quantity',
+                style: {
+                  display:
+                    admin && config.launcherType !== 'k8s' ? undefined : 'none',
+                },
                 key: KEY_VC,
               },
               {
@@ -153,6 +165,7 @@ const Sidebar = ({ className, style }) => {
                     url: '/cluster-view/hardware.html',
                     key: KEY_HARDWARE,
                     icon: 'HardDriveGroup',
+                    style: { display: admin ? undefined : 'none' },
                   },
                   {
                     name: 'K8s Dashboard',
@@ -164,6 +177,10 @@ const Sidebar = ({ className, style }) => {
                     name: 'User Management',
                     url: '/user-view.html',
                     key: KEY_USER_MANAGEMENT,
+                    style: {
+                      display:
+                        config.authnMethod !== 'OIDC' ? undefined : 'none',
+                    },
                     icon: 'PlayerSettings',
                   },
                 ],
@@ -188,6 +205,7 @@ const Sidebar = ({ className, style }) => {
 Sidebar.propTypes = {
   className: PropTypes.string,
   style: PropTypes.object,
+  admin: PropTypes.bool,
 };
 
 export default Sidebar;

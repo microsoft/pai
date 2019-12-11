@@ -41,29 +41,32 @@ export const NotificationButton = () => {
   const [alertItems, setAlertItems] = useState([]);
 
   useEffect(() => {
+    let canceled = false;
     const alertsUrl = `${webportalConfig.alertManagerUri}/api/v1/alerts?silenced=false`;
-    fetch(alertsUrl)
-      .then(res => {
-        if (!res.ok) {
+    const work = async () => {
+      try {
+        const result = await fetch(alertsUrl);
+        if (!result.ok) {
           throw Error('Failed to get alert infos');
         }
-        res
-          .json()
-          .then(data => {
-            if (data.status !== 'success') {
-              throw Error('Failed to get alerts data');
-            }
-            setAlertItems(data.data);
-          })
-          .catch(() => {
-            throw Error('Get alerts json failed');
-          });
-        // Swallow exceptions here. Since alertManager is optional and we don't have an API to get all avaliable services
-      })
-      .catch(error => {
-        if (error) {
+        const data = await result.json().catch(() => {
+          throw new Error('Get alerts json failed');
+        });
+        if (data.status !== 'success') {
+          throw new Error('Failed to get alerts data');
         }
-      });
+        if (!canceled) {
+          setAlertItems(data.data);
+        }
+      } catch (err) {
+        console.error(`Alerts Error: ${err.message}`);
+        // Swallow exceptions here. Since alertManager is optional and we don't have an API to get all avaliable services
+      }
+    };
+    work();
+    return () => {
+      canceled = true;
+    };
   }, []);
 
   const open = useCallback(() => {
@@ -71,7 +74,7 @@ export const NotificationButton = () => {
   }, []);
   const close = useCallback(() => {
     setPanelOpened(false);
-  }, [setAlertItems]);
+  }, []);
 
   const renderNavigationContent = useCallback((props, defaultRender) => {
     return (

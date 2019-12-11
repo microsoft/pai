@@ -23,7 +23,8 @@ const Logo = ({ className, style }) => (
   >
     <a
       href='/home.html'
-      className={c(t.flex, t.justifyCenter, t.h100, t.pa2, t.noUnderline)}
+      className={c(t.flex, t.justifyCenter, t.h100, t.pa2)}
+      style={{ textDecoration: 'none' }}
     >
       <div className={c(t.flex, t.itemsCenter, t.h100)}>
         <img className={t.h100} src='/favicon.ico' />

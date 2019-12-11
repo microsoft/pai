@@ -1,4 +1,7 @@
-require('bootstrap/js/modal.js');
+require('bootstrap');
+require('admin-lte/dist/css/AdminLTE.min.css');
+require('bootstrap/dist/css/bootstrap.css');
+require('font-awesome/css/font-awesome.min.css');
 require('datatables.net/js/jquery.dataTables.js');
 require('datatables.net-bs/js/dataTables.bootstrap.js');
 require('datatables.net-bs/css/dataTables.bootstrap.css');
