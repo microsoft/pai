@@ -42,7 +42,7 @@ if __name__ == "__main__":
         sdk_version = parameters.get('sdkBranch', 'master')
         install_uri = '-e "git+https://github.com/Microsoft/pai@{}#egg=openpaisdk&subdirectory=contrib/python-sdk"'.format(sdk_version)
         container_sync_space = parameters.get('syncSpace', None)
-
+        assert container_sync_space, 'Must specify a directory to save on persistent storage'
         #TODO: check DB for storage path
         storage_path_prefix = f"pai://{CLUSTER_ALIAS}/0"
         pre_commands = [
