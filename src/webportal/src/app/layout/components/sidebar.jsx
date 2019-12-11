@@ -111,7 +111,6 @@ const Sidebar = ({ className, style }) => {
 
   const plugins = config.PAI_PLUGINS;
   const isAdmin = cookies.get('admin') === 'true';
-  console.log(isAdmin);
 
   return (
     <div
