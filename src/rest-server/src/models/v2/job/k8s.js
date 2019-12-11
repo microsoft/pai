@@ -291,7 +291,7 @@ const convertFrameworkDetail = async (framework) => {
   return detail;
 };
 
-const generateTaskRole = (taskRole, labels, config) => {
+const generateTaskRole = (frameworkName, taskRole, labels, config, storageConfig) => {
   const ports = config.taskRoles[taskRole].resourcePerInstance.ports || {};
   for (let port of ['ssh', 'http']) {
     if (!(port in ports)) {
@@ -346,7 +346,7 @@ const generateTaskRole = (taskRole, labels, config) => {
         spec: {
           privileged: false,
           restartPolicy: 'Never',
-          serviceAccountName: 'frameworkbarrier-account',
+          serviceAccountName: 'runtime-account',
           initContainers: [
             {
               name: 'init',
@@ -364,6 +364,18 @@ const generateTaskRole = (taskRole, labels, config) => {
                 {
                   name: 'GANG_ALLOCATION',
                   value: gangAllocation,
+                },
+                {
+                  name: 'PAI_USER_NAME',
+                  value: labels.userName,
+                },
+                {
+                  name: 'PAI_JOB_NAME',
+                  value: `${labels.userName}~${labels.jobName}`,
+                },
+                {
+                  name: 'STORAGE_CONFIGS',
+                  value: JSON.stringify(storageConfig),
                 },
               ],
               volumeMounts: [
@@ -386,6 +398,7 @@ const generateTaskRole = (taskRole, labels, config) => {
           containers: [
             {
               name: 'app',
+              imagePullPolicy: 'Always',
               image: config.prerequisites.dockerimage[config.taskRoles[taskRole].dockerImage].uri,
               command: ['/usr/local/pai/runtime'],
               resources: {
@@ -485,6 +498,12 @@ const generateTaskRole = (taskRole, labels, config) => {
       },
     },
   };
+  // add image pull secret
+  if (config.prerequisites.dockerimage[config.taskRoles[taskRole].dockerImage].auth) {
+    frameworkTaskRole.task.pod.spec.imagePullSecrets.push({
+      name: `${encodeName(frameworkName)}-regcred`,
+    });
+  }
   // fill in completion policy
   const completion = config.taskRoles[taskRole].completion;
   frameworkTaskRole.frameworkAttemptCompletionPolicy = {
@@ -493,7 +512,7 @@ const generateTaskRole = (taskRole, labels, config) => {
       completion.minFailedInstances : 1,
     minSucceededTaskCount:
       (completion && 'minSucceededInstances' in completion && completion.minSucceededInstances) ?
-      completion.minSucceededInstances : -1,
+      completion.minSucceededInstances : frameworkTaskRole.taskNumber,
   };
   // hived spec
   if (launcherConfig.enabledHived) {
@@ -517,7 +536,7 @@ const generateTaskRole = (taskRole, labels, config) => {
   return frameworkTaskRole;
 };
 
-const generateFrameworkDescription = (frameworkName, virtualCluster, config, rawConfig) => {
+const generateFrameworkDescription = (frameworkName, virtualCluster, config, rawConfig, storageConfig) => {
   const [userName, jobName] = frameworkName.split(/~(.+)/);
   const frameworkLabels = {
     jobName,
@@ -552,7 +571,7 @@ const generateFrameworkDescription = (frameworkName, virtualCluster, config, raw
   let totalGpuNumber = 0;
   for (let taskRole of Object.keys(config.taskRoles)) {
     totalGpuNumber += config.taskRoles[taskRole].resourcePerInstance.gpu * config.taskRoles[taskRole].instances;
-    const taskRoleDescription = generateTaskRole(taskRole, frameworkLabels, config);
+    const taskRoleDescription = generateTaskRole(frameworkName, taskRole, frameworkLabels, config, storageConfig);
     taskRoleDescription.task.pod.spec.priorityClassName = `${encodeName(frameworkName)}-priority`;
     taskRoleDescription.task.pod.spec.containers[0].env.push(...envlist.concat([
       {
@@ -620,7 +639,7 @@ const createPriorityClass = async (frameworkName, priority) => {
   }
 };
 
-const patchPriorityClass = async (frameworkName, frameworkUid) => {
+const patchPriorityClassOwner = async (frameworkName, frameworkUid) => {
   try {
     const headers = {...launcherConfig.requestHeaders};
     headers['Content-Type'] = 'application/merge-patch+json';
@@ -657,6 +676,94 @@ const deletePriorityClass = async (frameworkName) => {
     });
   } catch (error) {
     logger.warn('Failed to delete priority class', error);
+  }
+};
+
+const createSecret = async (frameworkName, auths) => {
+  const cred = {
+    auths: {},
+  };
+  for (let auth of auths) {
+    const {
+      username = '',
+      password = '',
+      registryuri = 'https://index.docker.io/v1/',
+    } = auth;
+    cred.auths[registryuri] = {
+      auth: Buffer.from(`${username}:${password}`).toString('base64'),
+    };
+  }
+  const secret = {
+    apiVersion: 'v1',
+    kind: 'Secret',
+    metadata: {
+      name: `${encodeName(frameworkName)}-regcred`,
+      namespace: 'default',
+    },
+    data: {
+      '.dockerconfigjson': Buffer.from(JSON.stringify(cred)).toString('base64'),
+    },
+    type: 'kubernetes.io/dockerconfigjson',
+  };
+
+  let response;
+  try {
+    response = await axios({
+      method: 'post',
+      url: launcherConfig.secretsPath(),
+      headers: launcherConfig.requestHeaders,
+      httpsAgent: apiserver.ca && new Agent({ca: apiserver.ca}),
+      data: secret,
+    });
+  } catch (error) {
+    if (error.response != null) {
+      response = error.response;
+    } else {
+      throw error;
+    }
+  }
+  if (response.status !== status('Created')) {
+    throw createError(response.status, 'UnknownError', response.data.message);
+  }
+};
+
+const patchSecretOwner = async (frameworkName, frameworkUid) => {
+  try {
+    const headers = {...launcherConfig.requestHeaders};
+    headers['Content-Type'] = 'application/merge-patch+json';
+    await axios({
+      method: 'patch',
+      url: launcherConfig.secretPath(`${encodeName(frameworkName)}-regcred`),
+      headers,
+      httpsAgent: apiserver.ca && new Agent({ca: apiserver.ca}),
+      data: {
+        metadata: {
+          ownerReferences: [{
+            apiVersion: launcherConfig.apiVersion,
+            kind: 'Framework',
+            name: encodeName(frameworkName),
+            uid: frameworkUid,
+            controller: true,
+            blockOwnerDeletion: true,
+          }],
+        },
+      },
+    });
+  } catch (error) {
+    logger.warn('Failed to patch owner reference for secret', error);
+  }
+};
+
+const deleteSecret = async (frameworkName) => {
+  try {
+    await axios({
+      method: 'delete',
+      url: launcherConfig.secretPath(`${encodeName(frameworkName)}-regcred`),
+      headers: launcherConfig.requestHeaders,
+      httpsAgent: apiserver.ca && new Agent({ca: apiserver.ca}),
+    });
+  } catch (error) {
+    logger.warn('Failed to delete secret', error);
   }
 };
 
@@ -728,7 +835,14 @@ const put = async (frameworkName, config, rawConfig) => {
     throw createError('Bad Request', 'BadConfigurationError', 'Job name too long, please try a shorter one.');
   }
 
-  const frameworkDescription = generateFrameworkDescription(frameworkName, virtualCluster, config, rawConfig);
+  const storageConfig = await userModel.getUserStorageConfigs(userName);
+  const frameworkDescription = generateFrameworkDescription(frameworkName, virtualCluster, config, rawConfig, storageConfig);
+
+  // generate image pull secret
+  const auths = Object.values(config.prerequisites.dockerimage)
+    .filter((dockerimage) => dockerimage.auth != null)
+    .map((dockerimage) => dockerimage.auth);
+  auths.length && await createSecret(frameworkName, auths);
 
   // calculate pod priority
   // reference: https://github.com/microsoft/pai/issues/3704
@@ -757,17 +871,20 @@ const put = async (frameworkName, config, rawConfig) => {
       response = error.response;
     } else {
       // do not await for delete
+      auths.length && deleteSecret(frameworkName);
       deletePriorityClass(frameworkName);
       throw error;
     }
   }
   if (response.status !== status('Created')) {
     // do not await for delete
+    auths.length && deleteSecret(frameworkName);
     deletePriorityClass(frameworkName);
     throw createError(response.status, 'UnknownError', response.data.message);
   }
   // do not await for patch
-  patchPriorityClass(frameworkName, response.data.metadata.uid);
+  auths.length && patchSecretOwner(frameworkName, response.data.metadata.uid);
+  patchPriorityClassOwner(frameworkName, response.data.metadata.uid);
 };
 
 const execute = async (frameworkName, executionType) => {

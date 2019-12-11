@@ -38,6 +38,8 @@ common:
   # If Pai will be deployed in aks, you should set this value to true.
   deploy-in-aks: "false"
 
+  docker-data-root: "/var/lib/docker"
+
 
 # the docker registry to store docker images that contain system services like frameworklauncher, hadoop, etc.
 docker-registry:

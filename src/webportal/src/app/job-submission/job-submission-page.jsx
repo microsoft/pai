@@ -225,7 +225,7 @@ export const JobSubmissionPage = ({
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     if (params.get('op') === 'resubmit' && !isEmpty(vcNames)) {
-      const jobName = params.get('jobname') || '';
+      const jobName = params.get('jobName') || '';
       const user = params.get('user') || '';
       if (user && jobName) {
         fetchJobConfig(user, jobName)

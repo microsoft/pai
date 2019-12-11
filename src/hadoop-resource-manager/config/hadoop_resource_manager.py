@@ -22,11 +22,11 @@ import logging.config
 
 class HadoopResourceManager:
 
-    def __init__(self, cluster_configuration, service_configuration, default_service_configuraiton):
+    def __init__(self, cluster_configuration, service_configuration, default_service_configuration):
         self.logger = logging.getLogger(__name__)
 
         self.cluster_configuration = cluster_configuration
-        self.service_configuration = self.merge_service_configuration(service_configuration, default_service_configuraiton)
+        self.service_configuration = self.merge_service_configuration(service_configuration, default_service_configuration)
 
     def merge_service_configuration(self, overwrite_srv_cfg, default_srv_cfg):
         if overwrite_srv_cfg == None:

@@ -24,7 +24,6 @@ import {
   getTheme,
 } from '@uifabric/styling';
 import c from 'classnames';
-import copy from 'copy-to-clipboard';
 import { capitalize, isEmpty, isNil, flatten } from 'lodash';
 import {
   CommandBarButton,
@@ -33,7 +32,6 @@ import {
   DirectionalHint,
   Icon,
   Stack,
-  IconButton,
 } from 'office-ui-fabric-react';
 import {
   DetailsList,
@@ -54,6 +52,7 @@ import { parseGpuAttr } from '../util';
 import config from '../../../../../config/webportal.config';
 import MonacoPanel from '../../../../../components/monaco-panel';
 import StatusBadge from '../../../../../components/status-badge';
+import CopyButton from '../../../../../components/copy-button';
 
 const theme = createTheme({
   palette: {
@@ -90,11 +89,7 @@ const IPTooltipContent = ({ ip }) => {
       <Stack horizontal verticalAlign='center'>
         <div>{`Container IP: ${ip}`}</div>
         <div>
-          <IconButton
-            iconProps={{ iconName: 'Copy' }}
-            styles={{ icon: [{ fontSize: FontSizes.small }] }}
-            onClick={() => copy(ip)}
-          />
+          <CopyButton value={ip} />
         </div>
       </Stack>
     </div>
@@ -116,11 +111,7 @@ const PortTooltipContent = ({ ports }) => {
               <td style={{ padding: spacing.s2 }}>{`${key}:`}</td>
               <td style={{ padding: spacing.s2 }}>{val}</td>
               <td>
-                <IconButton
-                  iconProps={{ iconName: 'Copy' }}
-                  styles={{ icon: [{ fontSize: FontSizes.small }] }}
-                  onClick={() => copy(val)}
-                />
+                <CopyButton value={val} />
               </td>
             </tr>
           ))}
@@ -200,7 +191,7 @@ export default class TaskRoleContainerList extends React.Component {
     } else if (config.logType === 'log-manager') {
       logHint = 'Last 200 lines';
     } else {
-      throw new Error(`Log not available`);
+      logHint = '';
     }
     switch (logType) {
       case 'stdout':

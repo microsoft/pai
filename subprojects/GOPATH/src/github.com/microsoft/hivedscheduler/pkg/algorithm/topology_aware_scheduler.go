@@ -40,8 +40,8 @@ type topologyAwareScheduler struct {
 	// pack pods cross different priorities, or inside each priority. the former is for intra-VC scheduling,
 	// because high-priority can avoid preemption in the whole cluster view,
 	// and hence we can pack pods with different priorities.
-	// the latter is for opportunistic pod scheduling (stay away from regular pods),
-	// because regular pods can avoid preempting opportunistic pods only among buddy cells (this is decided
+	// the latter is for opportunistic pod scheduling (stay away from guaranteed pods),
+	// because guaranteed pods can avoid preempting opportunistic pods only among buddy cells (this is decided
 	// by the buddy cell allocation algorithm).
 	crossPriorityPack bool
 	// whether or not the scheduler should avoid using nodes that are not suggested by K8s.
@@ -112,6 +112,8 @@ func (t *topologyAwareScheduler) Schedule(
 	for podIndex := 0; podIndex < len(sortedPodGpuNumbers); podIndex++ {
 		gpuNumber := sortedPodGpuNumbers[podIndex]
 		n := selectedNodes[podIndex]
+		// TODO: Optimize findNodesForPods and findGpusInNode together to get a better placement,
+		//  such as also aware intra node topology when findNodesForPods.
 		selectedGpus, nodeAvailableGpus[n] = findGpusInNode(n, gpuNumber, priority, nodeAvailableGpus[n], t.levelGpuNum)
 		if podPlacements[gpuNumber] == nil {
 			podPlacements[gpuNumber] = []CellList{}
@@ -227,6 +229,12 @@ func (t *topologyAwareScheduler) updateClusterView(p CellPriority, suggestedNode
 func findNodesForPods(cv clusterView, gpuNums []int32, p CellPriority) []int32 {
 	// sort the nodes according to gpu numbers in each node.
 	// this is achieved through the Less method defined in type CellList.
+	// TODO: Ensure Opportunistic Pods also can always can find the solution, regardless of
+	//  the iteration order.
+	//  For example:
+	//   1. clusterView = 2GPU Node, 1GPU Node
+	//   2. gpuNums = 1GPU Pod, 2GPU Pod
+	//   First 1GPU Pod may allocate to 2GPU Node, but the latter pod cannot be fitted anymore.
 	sort.Stable(cv)
 	currentNodeIndices := make([]int32, len(gpuNums)) // indices of the currently picked nodes
 	podIndex := 0
@@ -320,7 +328,8 @@ func findGpusInNode(
 		searchGpuIndex--
 		if searchGpuIndex < 0 {
 			if bestAffinity == highestLevel {
-				panic(fmt.Sprintf("failed to allocate %v GPUs in picked node %v", gpuNum, n.GetName()))
+				// Unreachable
+				panic(fmt.Sprintf("Assert Failure: failed to allocate %v GPUs in picked node %v", gpuNum, n.GetName()))
 			}
 			availableGpus = removePickedGpus(availableGpus, bestAffinityGpuIndices)
 			return bestAffinityGpus, availableGpus
@@ -336,7 +345,9 @@ func getOptimalAffinity(gpuNum int32, levelGpuNum map[CellLevel]int32) CellLevel
 			return l
 		}
 	}
-	panic(fmt.Sprintf("pod allocated a node but exceeds the capacity of the current chain"))
+
+	// Unreachable
+	panic(fmt.Sprintf("Assert Failure: pod allocated a node but exceeds the capacity of the current chain"))
 }
 
 // checkCurrentGpus checks if the currently picked GPUs have the lowest LCA. It also checks if the solution

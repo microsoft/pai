@@ -25,15 +25,25 @@ const k8s = require('@pai/utils/k8sUtils');
 const axios = require('axios');
 const yaml = require('js-yaml');
 
-const vcData = {
-  resourceUnits: vcConfig.resourceUnits,
-  virtualCellCapacity: vcConfig.virtualCellCapacity,
-  clusterTotalGpu: vcConfig.clusterTotalGpu,
-  clusterNodeGpu: vcConfig.clusterNodeGpu,
+const {
+  resourceUnits,
+  virtualCellCapacity,
+  clusterNodeGpu,
+} = vcConfig;
+
+const resourcesEmpty = {
+  cpu: 0,
+  memory: 0,
+  gpu: 0,
 };
 
+const mergeDict = (d1, d2, op) => {
+  for (let k of [...Object.keys(d1).filter((x) => x in d2)]) {
+    d1[k] = op(d1[k], d2[k]);
+  }
+};
 
-const fetchNodes = async () => {
+const fetchNodes = async (readiness=true) => {
   const nodes = await axios({
     method: 'get',
     url: `${apiserver.uri}/api/v1/nodes`,
@@ -48,10 +58,10 @@ const fetchNodes = async () => {
     for (let i = node.status.conditions.length - 1; i >= 0; i --) {
       const condition = node.status.conditions[i];
       if (condition.type === 'Ready' && condition.status !== 'Unknown') {
-        return true;
+        return readiness;
       }
     }
-    return false;
+    return !readiness;
   });
 };
 
@@ -68,7 +78,7 @@ const fetchPods = async () => {
 };
 
 const getResourceUnits = () => {
-  return vcData.resourceUnits;
+  return resourceUnits;
 };
 
 const getPodsInfo = async () => {
@@ -85,11 +95,7 @@ const getPodsInfo = async () => {
       virtualCluster: labels.virtualCluster,
       taskRoleName: labels.FC_TASKROLE_NAME,
       nodeIp: pod.spec.nodeName,
-      resourcesUsed: {
-        cpu: 0,
-        memory: 0,
-        gpu: 0,
-      },
+      resourcesUsed: {...resourcesEmpty},
     };
 
     const bindingInfo = annotations['hivedscheduler.microsoft.com/pod-bind-info'];
@@ -116,22 +122,22 @@ const getNodeResource = async () => {
   const nodeResource = {};
 
   if (launcherConfig.enabledHived) {
-    for (let node of Object.keys(vcData.clusterNodeGpu)) {
+    for (let node of Object.keys(clusterNodeGpu)) {
       nodeResource[node] = {
-        gpuTotal: vcData.clusterNodeGpu[node].gpu,
+        gpuTotal: clusterNodeGpu[node].gpu,
         gpuUsed: 0,
-        gpuAvaiable: vcData.clusterNodeGpu[node].gpu,
+        gpuAvailable: clusterNodeGpu[node].gpu,
       };
     }
   } else {
-    const nodes = await fetchNodes();
+    const nodes = await fetchNodes(true);
     for (let node of nodes) {
       const nodeName = node.metadata.name;
       const gpuNumber = k8s.atoi(node.status.capacity['nvidia.com/gpu']);
       nodeResource[nodeName] = {
         gpuTotal: gpuNumber,
         gpuUsed: 0,
-        gpuAvaiable: gpuNumber,
+        gpuAvailable: gpuNumber,
       };
     }
   }
@@ -142,7 +148,7 @@ const getNodeResource = async () => {
       continue;
     }
     nodeResource[pod.nodeIp].gpuUsed += pod.resourcesUsed.gpu;
-    nodeResource[pod.nodeIp].gpuAvaiable -= pod.resourcesUsed.gpu;
+    nodeResource[pod.nodeIp].gpuAvailable -= pod.resourcesUsed.gpu;
   }
   return nodeResource;
 };
@@ -155,24 +161,15 @@ const getVcList = async () => {
   const allVc = new Set([
     'default',
     ...Array.from(pods, (pod) => pod.virtualCluster),
-    ...Object.keys(vcData.virtualCellCapacity),
+    ...Object.keys(virtualCellCapacity),
   ]);
   for (let vc of allVc) {
     vcInfos[vc] = {
       capacity: 0,
       usedCapacity: 0,
       numJobs: 0,
-      resourcesUsed: {
-        memory: 0,
-        cpu: 0,
-        gpu: 0,
-      },
-      resourcesTotal: {
-        memory: 0,
-        cpu: 0,
-        gpu: 0,
-      },
       dedicated: false,
+      resourcesUsed: {...resourcesEmpty},
     };
   }
 
@@ -183,25 +180,64 @@ const getVcList = async () => {
       countedJob.add(pod.userName + '~' + pod.jobName);
       vcInfos[pod.virtualCluster].numJobs += 1;
     }
-    vcInfos[pod.virtualCluster].resourcesUsed.memory += pod.resourcesUsed.memory;
-    vcInfos[pod.virtualCluster].resourcesUsed.cpu += pod.resourcesUsed.cpu;
-    vcInfos[pod.virtualCluster].resourcesUsed.gpu += pod.resourcesUsed.gpu;
+    mergeDict(vcInfos[pod.virtualCluster].resourcesUsed, pod.resourcesUsed, (x, y) => x + y);
   }
 
   // set configured resource
   if (launcherConfig.enabledHived) {
-    for (let vc of Object.keys(vcData.virtualCellCapacity)) {
-      vcInfos[vc].resourcesTotal.memory = vcData.virtualCellCapacity[vc].resourcesTotal.memory;
-      vcInfos[vc].resourcesTotal.cpu = vcData.virtualCellCapacity[vc].resourcesTotal.cpu;
-      vcInfos[vc].resourcesTotal.gpu = vcData.virtualCellCapacity[vc].resourcesTotal.gpu;
+    const availableTypes = {};
+    for (let vc of Object.keys(virtualCellCapacity)) {
+      availableTypes[vc] = JSON.parse(JSON.stringify(virtualCellCapacity[vc].limit));
+      vcInfos[vc].resourcesTotal = {
+        cpu: Object.values(virtualCellCapacity[vc].quota).reduce((sum, resources) => sum + resources.cpu, 0),
+        memory: Object.values(virtualCellCapacity[vc].quota).reduce((sum, resources) => sum + resources.memory, 0),
+        gpu: Object.values(virtualCellCapacity[vc].quota).reduce((sum, resources) => sum + resources.gpu, 0),
+      };
+    }
+    // minus resources in preempted nodes
+    const preemptedNodes = await fetchNodes(false);
+    for (let node of preemptedNodes) {
+      if (!(node.metadata.name in clusterNodeGpu)) {
+        continue;
+      }
+      const bindings = clusterNodeGpu[node.metadata.name].bindings;
+      for (let vc of Object.keys(bindings)) {
+        if (vc in availableTypes && bindings[vc].type in availableTypes[vc]) {
+          mergeDict(availableTypes[vc][bindings[vc].type], bindings[vc], (x, y) => x - y);
+        }
+      }
+    }
+    // minus used resources in other virtual clusters
+    for (let pod of pods) {
+      const bindings = clusterNodeGpu[pod.nodeIp].bindings;
+      for (let vc of Object.keys(bindings)) {
+        if (vc !== pod.virtualCluster && vc in availableTypes && bindings[vc].type in availableTypes[vc]) {
+          mergeDict(availableTypes[vc][bindings[vc].type], pod.resourcesUsed, (x, y) => x - y);
+        }
+      }
+    }
+    // available = min(max(left resources, 0), quota)
+    for (let vc of Object.keys(virtualCellCapacity)) {
+      vcInfos[vc].resourceAvailable = {...resourcesEmpty};
+      for (let type of Object.keys(availableTypes[vc])) {
+        mergeDict(availableTypes[vc][type], virtualCellCapacity[vc].quota[type], (x, y) => Math.min(Math.max(x, 0), y));
+        mergeDict(vcInfos[vc].resourceAvailable, availableTypes[vc][type], (x, y) => x + y);
+      }
     }
   } else {
-    const nodes = await fetchNodes();
-    vcInfos['default'].resourcesTotal = {
+    const nodes = await fetchNodes(true);
+    vcInfos['default'].resourceAvailable = {
       cpu: nodes.reduce((sum, node) => sum + k8s.atoi(node.status.capacity.cpu), 0),
       memory: nodes.reduce((sum, node) => sum + k8s.convertMemoryMb(node.status.capacity.memory), 0),
       gpu: nodes.reduce((sum, node) => sum + k8s.atoi(node.status.capacity['nvidia.com/gpu']), 0),
     };
+    const preemptedNodes = await fetchNodes(false);
+    vcInfos['default'].resourcesTotal = {
+      cpu: preemptedNodes.reduce((sum, node) => sum + k8s.atoi(node.status.capacity.cpu), 0),
+      memory: preemptedNodes.reduce((sum, node) => sum + k8s.convertMemoryMb(node.status.capacity.memory), 0),
+      gpu: preemptedNodes.reduce((sum, node) => sum + k8s.atoi(node.status.capacity['nvidia.com/gpu']), 0),
+    };
+    mergeDict(vcInfos['default'].resourcesTotal, vcInfos['default'].resourceAvailable, (x, y) => x + y);
   }
 
   // add capacity, maxCapacity, usedCapacity for compatibility
@@ -216,10 +252,11 @@ const getVcList = async () => {
 
   // add GPUs, vCores for compatibility
   for (let vc of Object.keys(vcInfos)) {
-    vcInfos[vc].resourcesUsed.vCores = vcInfos[vc].resourcesUsed.cpu;
-    vcInfos[vc].resourcesUsed.GPUs = vcInfos[vc].resourcesUsed.gpu;
-    vcInfos[vc].resourcesTotal.vCores = vcInfos[vc].resourcesTotal.cpu;
-    vcInfos[vc].resourcesTotal.GPUs = vcInfos[vc].resourcesTotal.gpu;
+    for (let resource of ['resourcesUsed', 'resourceAvailable', 'resourcesTotal']) {
+      for (let [k, v] of [['vCores', 'cpu'], ['GPUs', 'gpu']]) {
+        vcInfos[vc][resource][k] = vcInfos[vc][resource][v];
+      }
+    }
   }
   return vcInfos;
 };

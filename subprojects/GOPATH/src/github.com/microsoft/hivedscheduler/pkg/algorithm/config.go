@@ -389,10 +389,24 @@ func calculateGpuType(cellChainElements map[api.CellType]*cellChainElement, chai
 	return gpuTypeToChain
 }
 
+func calculateCellType(cellChainElements map[api.CellType]*cellChainElement, chains []CellChain) map[CellChain]map[CellLevel]api.CellType {
+	cellLevelToType := map[CellChain]map[CellLevel]api.CellType{}
+	for _, chain := range chains {
+		cellLevelToType[chain] = map[CellLevel]api.CellType{}
+		ce, ok := cellChainElements[api.CellType(chain)]
+		for ok {
+			cellLevelToType[chain][ce.level] = ce.cellType
+			ce, ok = cellChainElements[ce.childCellType]
+		}
+	}
+	return cellLevelToType
+}
+
 func ParseConfig(sConfig *api.Config) (
 	map[CellChain]ChainCellList, // chain:level:[]physicalCell
 	map[CellChain]map[CellLevel]int32, // chain:level:gpuNumber
 	map[string][]CellChain, // gpuType:[]chain
+	map[CellChain]map[CellLevel]api.CellType, // chain:level:cellType
 	map[api.VirtualClusterName]map[CellChain]ChainCellList, // non reserved virtual cells, vc:chain:level:[]virtualCell
 	map[api.VirtualClusterName]map[api.ReservationId]ChainCellList, // reserved virtual cells, vc:reservationId:level:[]virtualCell
 	map[api.VirtualClusterName]map[api.ReservationId]*PhysicalCell, // vc:reservationId:PhysicalCell
@@ -409,10 +423,11 @@ func ParseConfig(sConfig *api.Config) (
 	}
 	gpuNums := calculateGpuNumber(cellChainElements, cellChains)
 	gpuTypeToChain := calculateGpuType(cellChainElements, cellChains)
+	cellLevelToType := calculateCellType(cellChainElements, cellChains)
 
 	virtualSpecs := sConfig.VirtualClusters
 	virtualNonReservedCellList, virtualReservedCellList, reservedPhysicalCells := newVirtualCellConstructor(
 		cellChainElements, *virtualSpecs, rawReservedPhysicalCells).build()
 
-	return physicalCells, gpuNums, gpuTypeToChain, virtualNonReservedCellList, virtualReservedCellList, reservedPhysicalCells
+	return physicalCells, gpuNums, gpuTypeToChain, cellLevelToType, virtualNonReservedCellList, virtualReservedCellList, reservedPhysicalCells
 }

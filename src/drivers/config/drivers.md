@@ -1,8 +1,8 @@
-## cluster section parser 
+## cluster section parser
 
 - [Default Configuration](#D_Config)
 - [How to Configure](#HT_Config)
-- [Generated Configuraiton](#G_Config)
+- [Generated Configuration](#G_Config)
 - [Data Table](#T_config)
 
 
@@ -11,7 +11,7 @@
 
 [drivers default configuration](drivers.yaml)
 
-#### How to configure cluster section in service-configuraiton.yaml <a name="HT_Config"></a>
+#### How to configure cluster section in service-configuration.yaml <a name="HT_Config"></a>
 
 All configurations in this section is optional. If you wanna customized these value, you can configure it in service-configuration.yaml.
 

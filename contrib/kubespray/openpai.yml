@@ -90,7 +90,7 @@ dns_min_replicas: 1
 
 # Netchecker
 ## Deploy netchecker app to verify DNS resolve as an HTTP service
-deploy_netchecker: true
+deploy_netchecker: false
 # netchecker_port: 31081
 # agent_report_interval: 15
 # netcheck_namespace: default
@@ -325,10 +325,12 @@ dashboard_enabled: false
 
 # docker_version: latest
 
+docker_dns_servers_strict: false
+
 ## Used to set docker daemon iptables options to true
 docker_iptables_enabled: false
 
-docker_daemon_graph: "/mnt"
+docker_daemon_graph: "/mnt/docker"
 
 docker_log_opts: "--log-opt max-size=2g --log-opt max-file=2 --log-driver=json-file"
 

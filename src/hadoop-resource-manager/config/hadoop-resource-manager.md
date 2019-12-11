@@ -2,24 +2,24 @@
 
 - [Default Configuration](#D_Config)
 - [How to Configure](#HT_Config)
-- [Generated Configuraiton](#G_Config)
+- [Generated Configuration](#G_Config)
 - [Data Table](#T_config)
 
 #### Default configuration <a name="D_Config"></a>
 
 [hadoop-resource-manager default configuration](hadoop-resource-manager.yaml)
 
-#### How to configure cluster section in service-configuraiton.yaml <a name="HT_Config"></a>
+#### How to configure cluster section in service-configuration.yaml <a name="HT_Config"></a>
 
-All configurations in this section is optional. 
-If you want to customized these value, you can configure it in service-configuration.yaml. 
+All configurations in this section is optional.
+If you want to customized these value, you can configure it in service-configuration.yaml.
 
 
 - `virtualClusters` Initial virtual cluster, containers multiple sub-clusters, the total capacity should equal to 100.
-    - `virtualClusters.{name}` Sub-cluster name. 
+    - `virtualClusters.{name}` Sub-cluster name.
         - `virtualClusters.{name}.description` Comments, no influence.
         - `virtualClusters.{name}.capacity` Resource quota.
-   
+
 - `yarn_exporter_port` The port used to export yarn metrics.
 
 
@@ -33,7 +33,7 @@ hadoop-resource-manager:
       default:
         description: Default VC.
         capacity: 100
-    
+
     yarn_exporter_port: 9459
     yarn_log_retain_seconds: 2592000
 ```

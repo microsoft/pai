@@ -2,14 +2,14 @@
 
 - [Default Configuration](#D_Config)
 - [How to Configure](#HT_Config)
-- [Generated Configuraiton](#G_Config)
+- [Generated Configuration](#G_Config)
 - [Data Table](#T_config)
 
 ## Default configuration <a name="D_Config"></a>
 
 [rest-server default configuration](rest-server.yaml)
 
-## How to configure rest-server section in service-configuraiton.yaml <a name="HT_Config"></a>
+## How to configure rest-server section in service-configuration.yaml <a name="HT_Config"></a>
 
 There are 2 mandatory config fields in rest-server section: `default-pai-admin-username` and `default-pai-admin-password`,
 other config fields are optional, includes:
@@ -20,7 +20,7 @@ other config fields are optional, includes:
 - `jwt-expire-time` The expire time for a signed jwt token.
 - `github-owner: Microsoft` The marketplace repo owner in GitHub
 - `github-repository: pai` The marketplace repo name
-- `github-path: marketplace` The marketpalce path in the repo
+- `github-path: marketplace` The marketplace path in the repo
 - `debugging-reservation-seconds: 604800` The seconds to reserved a job container to debug.
 
 ## Generated Configuration <a name="G_Config"></a>

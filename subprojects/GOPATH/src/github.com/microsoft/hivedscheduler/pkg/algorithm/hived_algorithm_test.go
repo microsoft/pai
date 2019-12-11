@@ -62,7 +62,7 @@ func initNodes(h *HivedAlgorithm) {
 	}
 }
 
-var group1, group2, group3, group4, group5, group6, group7, group8, group9, group10, group11, group12, group13, group14, group15, group16 = &api.AffinityGroupSpec{
+var group1, group2, group3, group4, group5, group6, group7, group8, group9, group10, group11, group12, group13, group14, group15, group16, group17 = &api.AffinityGroupSpec{
 	Name:    "group1",
 	Members: []api.AffinityGroupMemberSpec{{PodNumber: 1, GpuNumber: 1}},
 }, &api.AffinityGroupSpec{
@@ -110,184 +110,220 @@ var group1, group2, group3, group4, group5, group6, group7, group8, group9, grou
 }, &api.AffinityGroupSpec{
 	Name:    "group16",
 	Members: []api.AffinityGroupMemberSpec{{PodNumber: 1, GpuNumber: 2}},
+}, &api.AffinityGroupSpec{
+	Name:    "group17",
+	Members: []api.AffinityGroupMemberSpec{{PodNumber: 1, GpuNumber: 2}},
 }
 
 var pss = map[types.UID]api.PodSchedulingSpec{
 	"pod1": {
-		VirtualCluster: "VC1",
-		Priority:       0,
-		ReservationId:  "",
-		GpuType:        "DGX2-V100",
-		GpuNumber:      1,
-		AffinityGroup:  group1,
+		VirtualCluster:       "VC1",
+		Priority:             0,
+		LazyPreemptionEnable: true,
+		ReservationId:        "",
+		GpuType:              "DGX2-V100",
+		GpuNumber:            1,
+		AffinityGroup:        group1,
 	}, "pod2": { // buddy of pod1
-		VirtualCluster: "VC1",
-		Priority:       1,
-		ReservationId:  "",
-		GpuType:        "DGX2-V100",
-		GpuNumber:      1,
-		AffinityGroup:  group2,
+		VirtualCluster:       "VC1",
+		Priority:             1,
+		LazyPreemptionEnable: true,
+		ReservationId:        "",
+		GpuType:              "DGX2-V100",
+		GpuNumber:            1,
+		AffinityGroup:        group2,
 	}, "pod3": { // non-buddy of pod 1 & 2 (avoidance of preemption)
-		VirtualCluster: "VC1",
-		Priority:       2,
-		ReservationId:  "",
-		GpuType:        "DGX2-V100",
-		GpuNumber:      8,
-		AffinityGroup:  group3,
+		VirtualCluster:       "VC1",
+		Priority:             2,
+		LazyPreemptionEnable: true,
+		ReservationId:        "",
+		GpuType:              "DGX2-V100",
+		GpuNumber:            8,
+		AffinityGroup:        group3,
 	}, "pod4": { // opportunistic pod (will stay away from the guaranteed pods)
-		VirtualCluster: "VC1",
-		Priority:       -1,
-		ReservationId:  "",
-		GpuType:        "DGX2-V100",
-		GpuNumber:      1,
-		AffinityGroup:  group4,
+		VirtualCluster:       "VC1",
+		Priority:             -1,
+		LazyPreemptionEnable: true,
+		ReservationId:        "",
+		GpuType:              "DGX2-V100",
+		GpuNumber:            1,
+		AffinityGroup:        group4,
 	}, "pod5": { // use reservation
-		VirtualCluster: "VC1",
-		Priority:       1,
-		ReservationId:  "VC1-YQW-DGX2",
-		GpuType:        "DGX2-V100",
-		GpuNumber:      16,
-		AffinityGroup:  group5,
+		VirtualCluster:       "VC1",
+		Priority:             1,
+		LazyPreemptionEnable: true,
+		ReservationId:        "VC1-YQW-DGX2",
+		GpuType:              "DGX2-V100",
+		GpuNumber:            16,
+		AffinityGroup:        group5,
 	}, "pod6": { // use reservation
-		VirtualCluster: "VC1",
-		Priority:       1,
-		ReservationId:  "VC1-YQW-DGX2",
-		GpuType:        "DGX2-V100",
-		GpuNumber:      16,
-		AffinityGroup:  group5,
+		VirtualCluster:       "VC1",
+		Priority:             1,
+		LazyPreemptionEnable: true,
+		ReservationId:        "VC1-YQW-DGX2",
+		GpuType:              "DGX2-V100",
+		GpuNumber:            16,
+		AffinityGroup:        group5,
 	}, "pod7": { // out of quota; should return PodWaitInfo
-		VirtualCluster: "VC2",
-		Priority:       1,
-		ReservationId:  "",
-		GpuType:        "DGX1-P100",
-		GpuNumber:      8,
-		AffinityGroup:  group7,
+		VirtualCluster:       "VC2",
+		Priority:             1,
+		LazyPreemptionEnable: true,
+		ReservationId:        "",
+		GpuType:              "DGX1-P100",
+		GpuNumber:            8,
+		AffinityGroup:        group7,
 	}, "pod8": { // any GPU type; heterogeneous affinity group
-		VirtualCluster: "VC2",
-		Priority:       1,
-		ReservationId:  "",
-		GpuType:        "",
-		GpuNumber:      7,
-		AffinityGroup:  group9,
+		VirtualCluster:       "VC2",
+		Priority:             1,
+		LazyPreemptionEnable: true,
+		ReservationId:        "",
+		GpuType:              "",
+		GpuNumber:            7,
+		AffinityGroup:        group9,
 	}, "pod9": { // any GPU type; heterogeneous affinity group
-		VirtualCluster: "VC2",
-		Priority:       1,
-		ReservationId:  "",
-		GpuType:        "",
-		GpuNumber:      5,
-		AffinityGroup:  group9,
-	}, "pod10": { // use a GPU type that the VC does not have; should panic BadRequest
-		VirtualCluster: "VC2",
-		Priority:       1,
-		ReservationId:  "",
-		GpuType:        "DGX2-V100",
-		GpuNumber:      1,
-		AffinityGroup:  group6,
+		VirtualCluster:       "VC2",
+		Priority:             1,
+		LazyPreemptionEnable: true,
+		ReservationId:        "",
+		GpuType:              "",
+		GpuNumber:            5,
+		AffinityGroup:        group9,
+	}, "pod10": { // use a GPU type that the VC does not have; should User Error Panic
+		VirtualCluster:       "VC2",
+		Priority:             1,
+		LazyPreemptionEnable: true,
+		ReservationId:        "",
+		GpuType:              "DGX2-V100",
+		GpuNumber:            1,
+		AffinityGroup:        group6,
 	}, "pod11": { // invalid affinity group configuration
-		VirtualCluster: "VC2",
-		Priority:       1,
-		ReservationId:  "",
-		GpuType:        "DGX1-P100",
-		GpuNumber:      2,
-		AffinityGroup:  group8,
+		VirtualCluster:       "VC2",
+		Priority:             1,
+		LazyPreemptionEnable: true,
+		ReservationId:        "",
+		GpuType:              "DGX1-P100",
+		GpuNumber:            2,
+		AffinityGroup:        group8,
 	}, "pod12": { // invalid affinity group configuration
-		VirtualCluster: "VC2",
-		Priority:       1,
-		ReservationId:  "",
-		GpuType:        "DGX1-P100",
-		GpuNumber:      2,
-		AffinityGroup:  group8,
+		VirtualCluster:       "VC2",
+		Priority:             1,
+		LazyPreemptionEnable: true,
+		ReservationId:        "",
+		GpuType:              "DGX1-P100",
+		GpuNumber:            2,
+		AffinityGroup:        group8,
 	}, "pod13": { // invalid VC
-		VirtualCluster: "surprise!",
-		Priority:       1,
-		ReservationId:  "",
-		GpuType:        "DGX1-P100",
-		GpuNumber:      1,
-		AffinityGroup:  group10,
+		VirtualCluster:       "surprise!",
+		Priority:             1,
+		LazyPreemptionEnable: true,
+		ReservationId:        "",
+		GpuType:              "DGX1-P100",
+		GpuNumber:            1,
+		AffinityGroup:        group10,
 	}, "pod14": { // invalid reservation
-		VirtualCluster: "VC2",
-		Priority:       1,
-		ReservationId:  "surprise!",
-		GpuType:        "DGX1-P100",
-		GpuNumber:      1,
-		AffinityGroup:  group10,
+		VirtualCluster:       "VC2",
+		Priority:             1,
+		LazyPreemptionEnable: true,
+		ReservationId:        "surprise!",
+		GpuType:              "DGX1-P100",
+		GpuNumber:            1,
+		AffinityGroup:        group10,
 	}, "pod15": { // invalid priority
-		VirtualCluster: "VC2",
-		Priority:       1001,
-		ReservationId:  "",
-		GpuType:        "DGX1-P100",
-		GpuNumber:      1,
-		AffinityGroup:  group10,
+		VirtualCluster:       "VC2",
+		Priority:             1001,
+		LazyPreemptionEnable: true,
+		ReservationId:        "",
+		GpuType:              "DGX1-P100",
+		GpuNumber:            1,
+		AffinityGroup:        group10,
 	}, "pod16": { // trigger preemption
-		VirtualCluster: "VC1",
-		Priority:       2,
-		ReservationId:  "VC1-YQW-DGX2",
-		GpuType:        "DGX2-V100",
-		GpuNumber:      16,
-		AffinityGroup:  group11,
+		VirtualCluster:       "VC1",
+		Priority:             2,
+		LazyPreemptionEnable: true,
+		ReservationId:        "VC1-YQW-DGX2",
+		GpuType:              "DGX2-V100",
+		GpuNumber:            16,
+		AffinityGroup:        group11,
 	}, "pod17": { // trigger preemption
-		VirtualCluster: "VC1",
-		Priority:       2,
-		ReservationId:  "VC1-YQW-DGX2",
-		GpuType:        "DGX2-V100",
-		GpuNumber:      16,
-		AffinityGroup:  group11,
+		VirtualCluster:       "VC1",
+		Priority:             2,
+		LazyPreemptionEnable: true,
+		ReservationId:        "VC1-YQW-DGX2",
+		GpuType:              "DGX2-V100",
+		GpuNumber:            16,
+		AffinityGroup:        group11,
 	}, "pod18": { // used for test splitting physical cell hierarchies in reconfiguration
-		VirtualCluster: "VC1",
-		Priority:       1,
-		ReservationId:  "",
-		GpuType:        "DGX2-V100",
-		GpuNumber:      16,
-		AffinityGroup:  group12,
+		VirtualCluster:       "VC1",
+		Priority:             1,
+		LazyPreemptionEnable: true,
+		ReservationId:        "",
+		GpuType:              "DGX2-V100",
+		GpuNumber:            16,
+		AffinityGroup:        group12,
 	}, "pod19": { // used for test splitting physical cell hierarchies in reconfiguration
-		VirtualCluster: "VC1",
-		Priority:       1,
-		ReservationId:  "",
-		GpuType:        "DGX2-V100",
-		GpuNumber:      16,
-		AffinityGroup:  group12,
+		VirtualCluster:       "VC1",
+		Priority:             1,
+		LazyPreemptionEnable: true,
+		ReservationId:        "",
+		GpuType:              "DGX2-V100",
+		GpuNumber:            16,
+		AffinityGroup:        group12,
 	}, "pod20": { // guaranteed pod in splitting physical cell hierarchies
-		VirtualCluster: "VC1",
-		Priority:       1,
-		ReservationId:  "",
-		GpuType:        "DGX2-V100",
-		GpuNumber:      16,
-		AffinityGroup:  group13,
+		VirtualCluster:       "VC1",
+		Priority:             1,
+		LazyPreemptionEnable: true,
+		ReservationId:        "",
+		GpuType:              "DGX2-V100",
+		GpuNumber:            16,
+		AffinityGroup:        group13,
 	}, "pod21": { // guaranteed pod in splitting physical cell hierarchies
-		VirtualCluster: "VC1",
-		Priority:       1,
-		ReservationId:  "",
-		GpuType:        "DGX2-V100",
-		GpuNumber:      16,
-		AffinityGroup:  group13,
+		VirtualCluster:       "VC1",
+		Priority:             1,
+		LazyPreemptionEnable: true,
+		ReservationId:        "",
+		GpuType:              "DGX2-V100",
+		GpuNumber:            16,
+		AffinityGroup:        group13,
 	}, "pod22": { // opportunistic pod in splitting physical cell hierarchies
-		VirtualCluster: "VC1",
-		Priority:       -1,
-		ReservationId:  "",
-		GpuType:        "DGX2-V100",
-		GpuNumber:      16,
-		AffinityGroup:  group14,
+		VirtualCluster:       "VC1",
+		Priority:             -1,
+		LazyPreemptionEnable: true,
+		ReservationId:        "",
+		GpuType:              "DGX2-V100",
+		GpuNumber:            16,
+		AffinityGroup:        group14,
 	}, "pod23": { // opportunistic pod in splitting physical cell hierarchies
-		VirtualCluster: "VC1",
-		Priority:       -1,
-		ReservationId:  "",
-		GpuType:        "DGX2-V100",
-		GpuNumber:      16,
-		AffinityGroup:  group14,
+		VirtualCluster:       "VC1",
+		Priority:             -1,
+		LazyPreemptionEnable: true,
+		ReservationId:        "",
+		GpuType:              "DGX2-V100",
+		GpuNumber:            16,
+		AffinityGroup:        group14,
 	}, "pod24": { // used for triggering intra-VC preemption
-		VirtualCluster: "VC2",
-		Priority:       0,
-		ReservationId:  "",
-		GpuType:        "CT1",
-		GpuNumber:      2,
-		AffinityGroup:  group15,
+		VirtualCluster:       "VC2",
+		Priority:             0,
+		LazyPreemptionEnable: true,
+		ReservationId:        "",
+		GpuType:              "CT1",
+		GpuNumber:            2,
+		AffinityGroup:        group15,
 	}, "pod25": { // trigger intra-VC preemption
-		VirtualCluster: "VC2",
-		Priority:       1,
-		ReservationId:  "",
-		GpuType:        "CT1",
-		GpuNumber:      2,
-		AffinityGroup:  group16,
+		VirtualCluster:       "VC2",
+		Priority:             1,
+		LazyPreemptionEnable: false,
+		ReservationId:        "",
+		GpuType:              "CT1",
+		GpuNumber:            2,
+		AffinityGroup:        group16,
+	}, "pod26": { // will preempt pod25 immediately (as lazy preemption is not enabled)
+		VirtualCluster:       "VC2",
+		Priority:             2,
+		LazyPreemptionEnable: false,
+		ReservationId:        "",
+		GpuType:              "CT1",
+		GpuNumber:            2,
+		AffinityGroup:        group17,
 	},
 }
 
@@ -299,7 +335,7 @@ var casesThatShouldFail = [][]string{
 	{"pod10"}, {"pod11", "pod12"}, {"pod13"}, {"pod14"}, {"pod15"},
 }
 
-var casesThatShouldDowngrade = []string{
+var casesThatShouldBeLazyPreempted = []string{
 	"pod8", "pod9", "pod20", "pod21", "pod24",
 }
 
@@ -330,13 +366,14 @@ var expectedBindInfos = map[string]result{
 var expectedPreemptInfos = map[string]common.Set{
 	"pod16": common.NewSet("pod5", "pod6"),
 	"pod17": common.NewSet("pod5", "pod6"),
+	"pod26": common.NewSet("pod25"),
 }
 
 var allocatedPods []*core.Pod
 
 func TestHivedAlgorithm(t *testing.T) {
 	configFilePath := "../../example/config/design/hivedscheduler.yaml"
-	sConfig := api.NewConfig(&configFilePath)
+	sConfig := api.NewConfig(api.InitRawConfig(&configFilePath))
 	h := NewHivedAlgorithm(sConfig)
 	initNodes(h)
 	// sort chains of each GPU type for stability of the test
@@ -346,7 +383,7 @@ func TestHivedAlgorithm(t *testing.T) {
 
 	printConfig(t, h)
 	testNormalOperations(t, h)
-	testReconfiguration(t, sConfig)
+	testReconfiguration(t, configFilePath)
 	testInvalidInitialAssignment(t, sConfig)
 }
 
@@ -408,13 +445,15 @@ func testCasesThatShouldSucceed(t *testing.T, h *HivedAlgorithm) {
 func testOneCaseThatShouldFail(t *testing.T, h *HivedAlgorithm, podNames []string) {
 	defer func() {
 		if r := recover(); r != nil {
-			if err, ok := r.(*api.WebServerError); ok && err.Code == http.StatusBadRequest {
-				t.Logf("Got BadRequest as expected: %v", err)
+			if err, ok := r.(*api.WebServerError); ok &&
+				err.Code >= http.StatusBadRequest &&
+				err.Code < http.StatusInternalServerError {
+				t.Logf("Got User Error Panic as expected: %v", err)
 			} else {
-				t.Errorf("Expected BadRequest error, but got %v", r)
+				t.Errorf("Expected User Error Panic, but got %v", r)
 			}
 		} else {
-			t.Errorf("Expected BadRequest error, but got none")
+			t.Errorf("Expected User Error Panic, but got none")
 		}
 	}()
 	var psr internal.PodScheduleResult
@@ -445,36 +484,45 @@ func testDeleteAllocatedPods(t *testing.T, h *HivedAlgorithm) {
 	}
 }
 
-func testReconfiguration(t *testing.T, sConfig *api.Config) {
-	h := NewHivedAlgorithm(sConfig)
+func testReconfiguration(t *testing.T, configFilePath string) {
+	oldConfig := api.NewConfig(api.InitRawConfig(&configFilePath))
+	h := NewHivedAlgorithm(oldConfig)
 	for _, chains := range h.chains {
 		sortChains(chains)
 	}
 	testCasesThatShouldSucceed(t, h)
 
+	newConfig := api.InitRawConfig(&configFilePath)
+	// case: shorten cell chain
+	(*newConfig.PhysicalCluster).CellTypes["DGX2-V100-NODE"] = api.CellTypeSpec{
+		ChildCellType:   "DGX2-V100",
+		ChildCellNumber: 16,
+		IsNodeLevel:     true,
+	}
+	newConfig = api.NewConfig(newConfig)
 	// case: physical cell not found
-	(*sConfig.PhysicalCluster).PhysicalCells[7].CellChildren[0].CellChildren[0].CellAddress = "0.0.3.100"
+	(*newConfig.PhysicalCluster).PhysicalCells[7].CellChildren[0].CellChildren[0].CellAddress = "0.0.3.100"
 	// case: insufficient VC quota
-	(*sConfig.VirtualClusters)["VC2"].VirtualCells[0].CellNumber = 1
+	(*newConfig.VirtualClusters)["VC2"].VirtualCells[0].CellNumber = 1
 	// case: physical cells are split to smaller ones in the spec so that
 	// they cannot be bound to the virtual cells previously allocated
-	originalCell := (*sConfig.PhysicalCluster).PhysicalCells[8]
-	(*sConfig.PhysicalCluster).PhysicalCells[8] = originalCell.CellChildren[0].CellChildren[0]
-	(*sConfig.PhysicalCluster).PhysicalCells = append((*sConfig.PhysicalCluster).PhysicalCells, originalCell.CellChildren[0].CellChildren[1])
-	(*sConfig.PhysicalCluster).PhysicalCells = append((*sConfig.PhysicalCluster).PhysicalCells, originalCell.CellChildren[1].CellChildren[0])
-	(*sConfig.PhysicalCluster).PhysicalCells = append((*sConfig.PhysicalCluster).PhysicalCells, originalCell.CellChildren[1].CellChildren[1])
-	h = NewHivedAlgorithm(sConfig)
+	originalCell := (*newConfig.PhysicalCluster).PhysicalCells[8]
+	(*newConfig.PhysicalCluster).PhysicalCells[8] = originalCell.CellChildren[0].CellChildren[0]
+	(*newConfig.PhysicalCluster).PhysicalCells = append((*newConfig.PhysicalCluster).PhysicalCells, originalCell.CellChildren[0].CellChildren[1])
+	(*newConfig.PhysicalCluster).PhysicalCells = append((*newConfig.PhysicalCluster).PhysicalCells, originalCell.CellChildren[1].CellChildren[0])
+	(*newConfig.PhysicalCluster).PhysicalCells = append((*newConfig.PhysicalCluster).PhysicalCells, originalCell.CellChildren[1].CellChildren[1])
+	h = NewHivedAlgorithm(newConfig)
 	for _, chains := range h.chains {
 		sortChains(chains)
 	}
 	for _, pod := range allocatedPods {
 		h.AddAllocatedPod(pod)
 	}
-	for _, podName := range casesThatShouldDowngrade {
+	for _, podName := range casesThatShouldBeLazyPreempted {
 		pod := allPods[podName]
 		g := h.allocatedAffinityGroups[pss[pod.UID].AffinityGroup.Name]
 		if g.virtualGpuPlacement != nil {
-			t.Errorf("Group %v is expected to be downgraded, but not", g.name)
+			t.Errorf("Group %v is expected to be lazy preempted, but not", g.name)
 		}
 	}
 	testDeleteAllocatedPods(t, h)
@@ -488,7 +536,9 @@ func testInvalidInitialAssignment(t *testing.T, sConfig *api.Config) {
 			t.Errorf("Expected error in initial assignment validation, but got none")
 		}
 	}()
-	(*sConfig.VirtualClusters)["VC2"].VirtualCells[0].CellNumber = 1000
+	(*sConfig.VirtualClusters)["VC1"].VirtualCells[0].CellType = "CT1-NODE"
+	(*sConfig.VirtualClusters)["VC1"].VirtualCells[1].CellType = "CT1-NODE.CT1"
+	(*sConfig.VirtualClusters)["VC1"].VirtualCells[1].CellNumber = 2
 	NewHivedAlgorithm(sConfig)
 }
 

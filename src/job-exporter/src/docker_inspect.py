@@ -32,7 +32,7 @@ class InspectResult(object):
         self.job_name = job_name
         self.role_name = role_name
         self.task_index = task_index
-        self.gpu_ids = gpu_ids # comma seperated str, str may be minor_number or UUID
+        self.gpu_ids = gpu_ids # comma separated str, str may be minor_number or UUID
         self.pid = pid
         self.job_instance_id = job_instance_id # Used to distinguish job instance with same name but different retry number.
 
@@ -77,7 +77,7 @@ def parse_docker_inspect(inspect_output):
                 m["PAI_TASK_INDEX"] = v
             elif k == "NVIDIA_VISIBLE_DEVICES" and v != "all" and v != "void":
                 m["GPU_ID"] = v
-            
+
             if k == "FC_FRAMEWORK_ATTEMPT_INSTANCE_UID" or k == "APP_ID":
                 m["JOB_INSTANCE_ID"] = v
 
