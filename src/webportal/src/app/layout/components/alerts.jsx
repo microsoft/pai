@@ -11,6 +11,7 @@ import {
   Stack,
   StackItem,
   Icon,
+  IconFontSizes,
 } from 'office-ui-fabric-react';
 import React, { useCallback, useState, useEffect } from 'react';
 
@@ -110,7 +111,7 @@ export const NotificationButton = () => {
       onClick={open}
     >
       <div style={{ position: 'relative' }}>
-        <Icon iconName='ringer' />
+        <Icon iconName='ringer' style={{ fontSize: IconFontSizes.medium }} />
         {alertItems.length !== 0 && (
           <span
             style={{
