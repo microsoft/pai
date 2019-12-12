@@ -18,8 +18,25 @@ import {
 import config from '../../../config/webportal.config';
 import { JobData } from '../../models/data/job-data';
 import { Hint } from '../sidebar/hint';
-import { PROTOCOL_TOOLTIPS } from '../../utils/constants';
-import { isNil } from 'lodash';
+import { PROTOCOL_TOOLTIPS, PAI_PLUGIN } from '../../utils/constants';
+import { isNil, isEmpty, get } from 'lodash';
+
+const generateUpdatedRuntimePlugins = (storageConfigs, oriPlugins) => {
+  const updatedPlugins = oriPlugins.filter(
+    plugin => plugin.plugin !== 'teamwise_storage',
+  );
+
+  if (!isEmpty(storageConfigs)) {
+    const storagePlugin = {
+      plugin: 'teamwise_storage',
+      parameters: {
+        storageConfigNames: storageConfigs.map(config => config.name),
+      },
+    };
+    updatedPlugins.push(storagePlugin);
+  }
+  return updatedPlugins;
+};
 
 function reducer(state, action) {
   let jobData;
@@ -40,6 +57,17 @@ function reducer(state, action) {
         action.value,
         true,
       );
+      if (config.launcherType === 'k8s') {
+        const plugins = get(action, ['extras', PAI_PLUGIN], []);
+        const updatedExtras = {
+          ...action.extras,
+          [PAI_PLUGIN]: generateUpdatedRuntimePlugins(
+            action.value.selectedConfigs,
+            plugins,
+          ),
+        };
+        action.onExtrasChange(updatedExtras);
+      }
       action.onChange(jobData);
       return jobData;
     default:
@@ -66,7 +94,7 @@ export const DataComponent = React.memo(props => {
     port,
     apiPath,
   );
-  const { onChange, storageConfigs } = props;
+  const { onChange, storageConfigs, extras, onExtrasChange } = props;
   const [teamConfigs, setTeamConfigs] = useState();
   const [teamServers, setTeamServers] = useState();
   const [defaultTeamConfigs, setDefaultTeamConfigs] = useState();
@@ -152,9 +180,15 @@ export const DataComponent = React.memo(props => {
 
   const onMountDirChange = useCallback(
     mountDir => {
-      dispatch({ type: 'mountDir', value: mountDir, onChange: onChange });
+      dispatch({
+        type: 'mountDir',
+        value: mountDir,
+        onChange: onChange,
+        extras: extras,
+        onExtrasChange: onExtrasChange,
+      });
     },
-    [onChange],
+    [onChange, onExtrasChange],
   );
 
   return (
@@ -207,5 +241,7 @@ DataComponent.propTypes = {
   onSelect: PropTypes.func,
   jobName: PropTypes.string,
   onChange: PropTypes.func.isRequired,
+  extras: PropTypes.object,
+  onExtrasChange: PropTypes.func.isRequired,
   storageConfigs: PropTypes.array,
 };

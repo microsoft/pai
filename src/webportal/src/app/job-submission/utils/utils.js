@@ -14,6 +14,7 @@ import {
   AUTO_GENERATE_NOTIFY,
   PAI_STORAGE,
 } from './constants';
+import config from '../../config/webportal.config';
 
 const HIDE_SECRET = '******';
 
@@ -187,6 +188,11 @@ export async function populateProtocolWithDataAndTensorboard(
   protocol,
   jobData,
 ) {
+  // for k8s, we use runtime plugin and not inject code into the command
+  if (config.launcherType === 'k8s') {
+    return;
+  }
+
   // add tensorboard commands
   addTensorBoardCommandsToProtocolTaskRoles(protocol);
 

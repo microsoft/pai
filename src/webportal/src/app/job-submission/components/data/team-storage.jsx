@@ -69,11 +69,21 @@ export const TeamStorage = ({
     });
   });
 
+  const [mountPoints, setMountPoints] = useState(() => {
+    return mountDirs.selectedConfigs.flatMap(ele =>
+      ele.mountInfos.map(mountInfo => mountInfo.mountPoint),
+    );
+  });
+
   useEffect(() => {
     const names = defaultTeamConfigs.map(element => {
       return element.name;
     });
+    const mountPoints = defaultTeamConfigs.flatMap(ele =>
+      ele.mountInfos.map(mountInfo => mountInfo.mountPoint),
+    );
     setSelectedConfigNames(names);
+    setMountPoints(mountPoints);
   }, [defaultTeamConfigs]);
 
   const [teamDetail, setTeamDetail] = useState({ isOpen: false });
@@ -113,20 +123,40 @@ export const TeamStorage = ({
             }
             onChange={(ev, isChecked) => {
               let newSelectedConfigNames = [];
+              let updatedMountPoints = [...mountPoints];
               if (!isChecked && selectedConfigNames.includes(item.name)) {
                 const idx = selectedConfigNames.indexOf(item.name);
                 newSelectedConfigNames = [
                   ...selectedConfigNames.slice(0, idx),
                   ...selectedConfigNames.slice(idx + 1),
                 ];
+                const toRemovedMountPoints = item.mountInfos.map(
+                  mountInfo => mountInfo.mountPoint,
+                );
+                updatedMountPoints = updatedMountPoints.filter(
+                  mountPoint => !toRemovedMountPoints.includes(mountPoint),
+                );
               } else if (
                 isChecked &&
                 !selectedConfigNames.includes(item.name)
               ) {
+                for (const mountInfo of item.mountInfos) {
+                  if (mountPoints.includes(mountInfo.mountPoint)) {
+                    alert(
+                      `Mount point error! More than one mount point ${mountInfo.mountPoint}!`,
+                    );
+                    return;
+                  }
+                }
                 newSelectedConfigNames = cloneDeep(selectedConfigNames);
                 newSelectedConfigNames.push(item.name);
+
+                item.mountInfos.forEach(mountInfo =>
+                  updatedMountPoints.push(mountInfo.mountPoint),
+                );
               }
               setSelectedConfigNames(newSelectedConfigNames);
+              setMountPoints(updatedMountPoints);
             }}
           />
         );
