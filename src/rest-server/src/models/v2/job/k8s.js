@@ -313,7 +313,7 @@ const convertFrameworkDetail = async (framework) => {
       })).items.forEach((affinityGroup) => {
         affinityGroups[affinityGroup.metadata.name] = affinityGroup;
       });
-    } catch(err) {
+    } catch (err) {
       logger.warn('Fail to inspect affinity groups', err);
     }
     for (let taskRoleName of Object.keys(detail.taskRoles)) {
