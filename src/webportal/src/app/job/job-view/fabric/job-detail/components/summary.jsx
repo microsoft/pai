@@ -595,65 +595,65 @@ export default class Summary extends React.Component {
                   >
                     Go to Retry History Page
                   </Link>
-                {config.jobHistory !== 'true' && (
-                  <div className={t.ml2}>
-                    <TooltipHost
-                      calloutProps={{
-                        isBeakVisible: false,
-                      }}
-                      tooltipProps={{
-                        onRenderContent: () => (
-                          <div className={c(t.flex, t.itemsCenter)}>
-                            {HISTORY_DISABLE_MESSAGE}
-                          </div>
-                        ),
-                      }}
-                      directionalHint={DirectionalHint.topLeftEdge}
-                    >
-                      <div>
-                        <Icon
-                          iconName='Info'
-                          styles={{
-                            root: [
-                              { fontSize: IconFontSizes.medium },
-                              ColorClassNames.neutralSecondary,
-                            ],
-                          }}
-                        />
-                      </div>
-                    </TooltipHost>
-                  </div>
-                )}
-                {config.jobHistory === 'true' && !isRetryHealthy && (
-                  <div className={t.ml2}>
-                    <TooltipHost
-                      calloutProps={{
-                        isBeakVisible: false,
-                      }}
-                      tooltipProps={{
-                        onRenderContent: () => (
-                          <div className={c(t.flex, t.itemsCenter)}>
-                            {HISTORY_API_ERROR_MESSAGE}
-                          </div>
-                        ),
-                      }}
-                      directionalHint={DirectionalHint.topLeftEdge}
-                    >
-                      <div>
-                        <Icon
-                          iconName='Warning'
-                          styles={{
-                            root: [
-                              { fontSize: IconFontSizes.medium },
-                              ColorClassNames.neutralSecondary,
-                            ],
-                          }}
-                        />
-                      </div>
-                    </TooltipHost>
-                  </div>
-                )}
-              </div>
+                  {config.jobHistory !== 'true' && (
+                    <div className={t.ml2}>
+                      <TooltipHost
+                        calloutProps={{
+                          isBeakVisible: false,
+                        }}
+                        tooltipProps={{
+                          onRenderContent: () => (
+                            <div className={c(t.flex, t.itemsCenter)}>
+                              {HISTORY_DISABLE_MESSAGE}
+                            </div>
+                          ),
+                        }}
+                        directionalHint={DirectionalHint.topLeftEdge}
+                      >
+                        <div>
+                          <Icon
+                            iconName='Info'
+                            styles={{
+                              root: [
+                                { fontSize: IconFontSizes.medium },
+                                ColorClassNames.neutralSecondary,
+                              ],
+                            }}
+                          />
+                        </div>
+                      </TooltipHost>
+                    </div>
+                  )}
+                  {config.jobHistory === 'true' && !isRetryHealthy && (
+                    <div className={t.ml2}>
+                      <TooltipHost
+                        calloutProps={{
+                          isBeakVisible: false,
+                        }}
+                        tooltipProps={{
+                          onRenderContent: () => (
+                            <div className={c(t.flex, t.itemsCenter)}>
+                              {HISTORY_API_ERROR_MESSAGE}
+                            </div>
+                          ),
+                        }}
+                        directionalHint={DirectionalHint.topLeftEdge}
+                      >
+                        <div>
+                          <Icon
+                            iconName='Warning'
+                            styles={{
+                              root: [
+                                { fontSize: IconFontSizes.medium },
+                                ColorClassNames.neutralSecondary,
+                              ],
+                            }}
+                          />
+                        </div>
+                      </TooltipHost>
+                    </div>
+                  )}
+                </div>
               )}
             </div>
             <div>
