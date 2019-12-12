@@ -304,14 +304,18 @@ const convertFrameworkDetail = async (framework) => {
 
   if (launcherConfig.enabledHived) {
     const affinityGroups = {};
-    (await axios({
-      method: 'get',
-      url: `${launcherConfig.hivedWebserviceUri}/v1/inspect/affinitygroups/`,
-      headers: launcherConfig.requestHeaders,
-      httpsAgent: apiserver.ca && new Agent({ca: apiserver.ca}),
-    })).items.forEach((affinityGroup) => {
-      affinityGroups[affinityGroup.metadata.name] = affinityGroup;
-    });
+    try {
+      (await axios({
+        method: 'get',
+        url: `${launcherConfig.hivedWebserviceUri}/v1/inspect/affinitygroups/`,
+        headers: launcherConfig.requestHeaders,
+        httpsAgent: apiserver.ca && new Agent({ca: apiserver.ca}),
+      })).items.forEach((affinityGroup) => {
+        affinityGroups[affinityGroup.metadata.name] = affinityGroup;
+      });
+    } catch(err) {
+      logger.warn('Fail to inspect affinity groups', err);
+    }
     for (let taskRoleName of Object.keys(detail.taskRoles)) {
       detail.taskRoles[taskRoleName].taskStatuses.forEach((status, idx) => {
         const name = status.hived.affinityGroupName;
