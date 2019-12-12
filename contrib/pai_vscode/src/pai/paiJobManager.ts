@@ -686,7 +686,7 @@ export class PAIJobManager extends Singleton {
                 Util.warn('job.simulation.unsupported-env-var', role.command);
             }
             // 5. entrypoint
-            dockerfile.push(`ENTRYPOINT ${role.command}`);
+            dockerfile.push(`ENTRYPOINT ["/bin/bash", "-c", "${role.command.replace(/"/g, '\\"')}}"]`);
             dockerfile.push('');
             // 6. write dockerfile
             await fs.writeFile(path.join(taskDir, 'dockerfile'), dockerfile.join('\n'));
@@ -784,23 +784,29 @@ export class PAIJobManager extends Singleton {
                 dockerfile.push(`ENV PAI_DEFAULT_FS_URI ${param.cluster.hdfs_uri}`);
                 dockerfile.push(`ENV PAI_USER_NAME ${param.cluster.username}`);
             }
-            dockerfile.push('');
             // check unsupported env variables
             const supportedEnvList: string[] = [
-                'PAI_WORK_DIR',
                 'PAI_JOB_NAME',
+                'PAI_USER_NAME',
                 'PAI_DEFAULT_FS_URI',
-                'PAI_USER_NAME'
+                'PAI_TASK_ROLE_COUNT',
+                'PAI_TASK_ROLE_LIST',
+                'PAI_TASK_ROLE_TASK_COUNT_*',
+                'PAI_HOST_IP_*_*',
+                'PAI_PORT_LIST_*_*_*',
+                'PAI_RESOURCE_*',
+                'PAI_MIN_FAILED_TASK_COUNT_*',
+                'PAI_MIN_SUCCEEDED_TASK_COUNT_*',
+                'PAI_CURRENT_TASK_ROLE_NAME',
+                'PAI_CURRENT_TASK_ROLE_CURRENT_TASK_INDEX'
             ];
-            let command: string = role.commands.join(' && ');
-            for (const env of supportedEnvList) {
-                command = command.replace(new RegExp(`\\$${env}`, 'g'), '');
-            }
+            const command: string = role.commands.join(' && ').replace(new RegExp(supportedEnvList.join('|'), 'g'), '');
             if (command.includes('$PAI')) {
                 Util.warn('job.simulation.unsupported-env-var', role.commands);
             }
+            dockerfile.push('');
             // 5. entrypoint
-            dockerfile.push(`ENTRYPOINT ${role.commands.join(' && ')}`);
+            dockerfile.push(`ENTRYPOINT ["/bin/bash", "-c", "${role.commands.join(' && ').replace(/"/g, '\\"')}"]`);
             dockerfile.push('');
             // 6. write dockerfile
             await fs.writeFile(path.join(taskDir, 'dockerfile'), dockerfile.join('\n'));
