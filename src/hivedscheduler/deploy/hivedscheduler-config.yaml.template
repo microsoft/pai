@@ -59,7 +59,7 @@ data:
       ]
     }
   hivedscheduler.yaml: |
-    webServerAddress: ":30096"
+    webServerAddress: ":{{ cluster_cfg['hivedscheduler']['webservice-port'] }}"
     waitingPodSchedulingBlockMilliSec: 50
   {%- if cluster_cfg['cluster']['common']['k8s-rbac'] != 'true' %}
     kubeApiServerAddress: "{{ cluster_cfg['layout']['kubernetes']['api-servers-url'] }}"

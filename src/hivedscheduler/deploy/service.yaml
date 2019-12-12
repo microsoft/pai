@@ -28,6 +28,7 @@ template-list:
   - stop.sh
   - hivedscheduler.yaml
   - hivedscheduler-config.yaml
+  - hivedscheduler-service.yaml
 
 start-script: start.sh
 stop-script: stop.sh
