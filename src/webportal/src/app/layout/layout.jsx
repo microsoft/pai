@@ -50,6 +50,13 @@ const Layout = () => {
   }, []);
 
   const isMobile = useMediaQuery({ query: `(max-width: ${BREAKPOINT}px)` });
+  useEffect(() => {
+    if (!isMobile && mobileShowSidebar) {
+      // reset the flag when screen is large enough
+      setMobileShowSidebar(false);
+    }
+  }, [isMobile, mobileShowSidebar]);
+
   return (
     <div className={c(t.vh100, t.w100, t.flex, t.flexColumn)}>
       <div className={c(t.flex)}>
@@ -61,11 +68,12 @@ const Layout = () => {
           />
         </div>
       </div>
-      <div className={c(t.flex, t.flexAuto)}>
+      <div className={c(t.flex, t.flexAuto, t.relative)}>
         <Sidebar
           className={c(t.overflowYAuto)}
           style={{
             minWidth: 230,
+            height: '100%',
             display: isMobile && !mobileShowSidebar ? 'none' : undefined,
             position: isMobile ? 'absolute' : undefined,
             zIndex: 10,

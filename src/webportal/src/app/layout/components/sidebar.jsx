@@ -3,13 +3,15 @@
 
 import React, { useState, useEffect, useMemo } from 'react';
 import PropTypes from 'prop-types';
-import { Nav, ColorClassNames, getTheme } from 'office-ui-fabric-react';
+import { Nav, ColorClassNames, getTheme, Icon } from 'office-ui-fabric-react';
 import c from 'classnames';
 import cookies from 'js-cookie';
 import qs from 'querystring';
 import { isEmpty } from 'lodash';
 
 import config from '../../config/webportal.config';
+
+import t from '../../components/tachyons.scss';
 
 const KEY_HOME = 'HOME';
 const KEY_DASHBOARD = 'DASHBOARD';
@@ -124,6 +126,27 @@ const Sidebar = ({ className, style }) => {
           if (item.key === key) {
             e.preventDefault();
           }
+        }}
+        onRenderLink={link => {
+          let chevronIcon;
+          if (link.key === KEY_ADMIN) {
+            chevronIcon = (
+              <Icon
+                iconName={administrationExpanded ? 'chevronUp' : 'chevronDown'}
+              />
+            );
+          }
+          if (link.key === KEY_PLUGIN) {
+            chevronIcon = (
+              <Icon iconName={pluginExpanded ? 'chevronUp' : 'chevronDown'} />
+            );
+          }
+          return (
+            <div className={c(t.flexAuto, t.flex, t.justifyBetween)}>
+              <div className={t.ml2}>{link.name}</div>
+              <div>{chevronIcon}</div>
+            </div>
+          );
         }}
         groups={[
           {

@@ -84,7 +84,11 @@ const Navbar = ({ onToggleSidebar, mobile }) => {
         <CustomButton
           key='menu'
           text={!mobile && `Welcome, ${username}`}
-          iconProps={mobile && { iconName: 'PlayerSettings' }}
+          styles={{
+            menuIcon: mobile && { display: 'none' },
+            label: mobile && { display: 'none' },
+          }}
+          iconProps={mobile && { iconName: 'Contact' }}
           menuProps={{
             items: [
               {
