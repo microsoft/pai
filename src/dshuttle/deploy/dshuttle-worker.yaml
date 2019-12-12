@@ -27,10 +27,14 @@ spec:
         securityContext:
           runAsUser: 0
         image: alluxio/alluxio:2.2.0-SNAPSHOT
-        command: ["/bin/chown","-R", "1000:1000", "/opt/domain"]
+        command: ["/bin/chown","-R", "1000:1000", "/opt/domain", "/opt/worker-logs", "/opt/job-logs"]
         volumeMounts:
         - name: dshuttle-domain
           mountPath: /opt/domain
+        - name: job-logs
+          mountPath: /opt/worker-logs
+        - name: worker-logs
+          mountPath: /opt/job-logs
       containers:
         - name: dshuttle-worker
           image: docker.io/openpai/dshuttle:binyli
@@ -69,6 +73,8 @@ spec:
               name: mem
             - name: dshuttle-data
               mountPath: /opt/alluxio/underFSStorage
+            - name: worker-logs
+              mountPath: /opt/alluxio/logs
         - name: dshuttle-job-worker
           image: docker.io/openpai/dshuttle:binyli
           securityContext:
@@ -107,11 +113,21 @@ spec:
               name: mem
             - name: dshuttle-data
               mountPath: /opt/alluxio/underFSStorage
+            - name: job-logs
+              mountPath: /opt/alluxio/logs
       restartPolicy: Always
       volumes:
         - name: dshuttle-domain
           hostPath:
             path: /tmp/alluxio-domain
+            type: DirectoryOrCreate
+        - name: worker-logs
+          hostPath:
+            path: /tmp/dshuttle-worker-logs
+            type: DirectoryOrCreate
+        - name: job-logs
+          hostPath:
+            path: /tmp/dshuttle-job-logs
             type: DirectoryOrCreate
         - name: mem
           emptyDir:
