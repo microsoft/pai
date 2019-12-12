@@ -31,7 +31,9 @@ from plugin_utils import plugin_init, inject_commands
 logger = logging.getLogger(__name__)
 CLUSTER_ALIAS = 'cluster_alias'
 USER_NAME = os.environ.get("PAI_USER_NAME")
+# $PAI_REST_SERVER_URI = "http://XX.XX.XX.XX:XXXX"
 PAI_REST_SERVER_URI = os.environ.get("PAI_REST_SERVER_URI")
+# $PAI_USER_TOKEN = "Bearer <token>"
 USER_TOKEN = os.environ.get("PAI_USER_TOKEN").split()[-1]
 
 
@@ -39,10 +41,9 @@ if __name__ == "__main__":
     [parameters, pre_script, post_script] = plugin_init()
 
     if parameters is not None:
-        sdk_version = parameters.get('sdkBranch', 'master')
+        sdk_version = parameters.get('sdkBranch', 'pai-for-edu')
         install_uri = '-e "git+https://github.com/Microsoft/pai@{}#egg=openpaisdk&subdirectory=contrib/python-sdk"'.format(sdk_version)
-        container_sync_space = parameters.get('syncSpace', None)
-        assert container_sync_space, 'Must specify a directory to save on persistent storage'
+        container_sync_space = parameters.get('syncSpace', '/persistent')
         #TODO: check DB for storage path
         storage_path_prefix = f"pai://{CLUSTER_ALIAS}/0"
         pre_commands = [
@@ -50,14 +51,20 @@ if __name__ == "__main__":
             f'python -m pip install {install_uri}',
             # add cluster
             f'pai add-cluster --cluster-alias {CLUSTER_ALIAS} --pai-uri {PAI_REST_SERVER_URI} --user {USER_NAME} --token {USER_TOKEN}',
+            # create sync cache
+            f'pai delete {container_sync_space}',
+            f'pai makedir {container_sync_space}',
+            f'pai makedir {container_sync_space}/outputs',
+            f'pai makedir {container_sync_space}/inputs',
+            
             # download 
-            f'pai copy {storage_path_prefix}/$PAI_USER_NAME/$PAI_JOB_NAME/$PAI_CURRENT_TASK_ROLE_NAME/$PAI_CURRENT_TASK_ROLE_CURRENT_TASK_INDEX {container_sync_space}'
+            f'pai copy {storage_path_prefix}/$PAI_USER_NAME/$PAI_JOB_NAME/$PAI_CURRENT_TASK_ROLE_NAME/$PAI_CURRENT_TASK_ROLE_CURRENT_TASK_INDEX/inputs {container_sync_space}/inputs'
         ]
         post_commands = [
             # delete file 
-            f'pai delete {storage_path_prefix}/$PAI_USER_NAME/$PAI_JOB_NAME/$PAI_CURRENT_TASK_ROLE_NAME/$PAI_CURRENT_TASK_ROLE_CURRENT_TASK_INDEX',
+            f'pai delete {storage_path_prefix}/$PAI_USER_NAME/$PAI_JOB_NAME/$PAI_CURRENT_TASK_ROLE_NAME/$PAI_CURRENT_TASK_ROLE_CURRENT_TASK_INDEX/outputs',
             # upload file
-            f'pai copy {container_sync_space} {storage_path_prefix}/$PAI_USER_NAME/$PAI_JOB_NAME/$PAI_CURRENT_TASK_ROLE_NAME/$PAI_CURRENT_TASK_ROLE_CURRENT_TASK_INDEX']
+            f'pai copy {container_sync_space}/outputs {storage_path_prefix}/$PAI_USER_NAME/$PAI_JOB_NAME/$PAI_CURRENT_TASK_ROLE_NAME/$PAI_CURRENT_TASK_ROLE_CURRENT_TASK_INDEX/outputs']
         inject_commands(pre_commands, pre_script)
         inject_commands(post_commands, post_script)
 
