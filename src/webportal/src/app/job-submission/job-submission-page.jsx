@@ -53,7 +53,7 @@ import {
 } from './utils/utils';
 import { SpinnerLoading } from '../components/loading';
 import config from '../config/webportal.config';
-import { PAI_PLUGIN, PAI_STORAGE } from './utils/constants';
+import { PAI_PLUGIN } from './utils/constants';
 
 const SIDEBAR_PARAM = 'param';
 const SIDEBAR_SECRET = 'secret';
@@ -286,24 +286,37 @@ export const JobSubmissionPage = ({
 
   // Init plugins for pure k8s based PAI
   useEffect(() => {
-    if (config.launcherType === 'k8s') {
-      const plugin = get(extras, PAI_PLUGIN);
-      if (!plugin) {
-        // Init SSH default settings for old/empty jobs
-        const updatedPlugin = [
-          {
-            plugin: 'ssh',
-            parameters: {
-              jobssh: true,
-            },
-          },
-        ];
-        const updatedExtras = cloneDeep(extras);
-        updatedExtras[PAI_PLUGIN] = updatedPlugin;
-        setExtras(updatedExtras);
-      }
+    if (config.launcherType !== 'k8s') {
+      return;
+    }
 
-      setStorageConfigs(get(extras, PAI_STORAGE));
+    const plugin = get(extras, PAI_PLUGIN);
+    if (!plugin) {
+      // Init SSH default settings for old/empty jobs
+      const updatedPlugin = [
+        {
+          plugin: 'ssh',
+          parameters: {
+            jobssh: true,
+          },
+        },
+      ];
+      const updatedExtras = cloneDeep(extras);
+      updatedExtras[PAI_PLUGIN] = updatedPlugin;
+      setExtras(updatedExtras);
+    }
+
+    const storagePlugin = get(extras, [PAI_PLUGIN], []).find(
+      plugin => plugin.plugin === 'teamwise_storage',
+    );
+    const updatedStorageConfig = get(
+      storagePlugin,
+      'parameters.storageConfigNames',
+    );
+    if (
+      JSON.stringify(updatedStorageConfig) !== JSON.stringify(storageConfigs)
+    ) {
+      setStorageConfigs(updatedStorageConfig);
     }
   }, [extras]);
 
