@@ -5,8 +5,8 @@ The storage plugin offers user to save output in persistent storage
 
 ```bash
 /persistent
-    |- inputs  <- <job-storage>/inputs
-    |- outputs -> <job-stroage>/taskrole/taskindex
+    |- inputs  <- <cluster-storage>/user/job-name/taskrole/taskindex/inputs
+    |- outputs -> <cluster-storage>/user/job-name/taskrole/taskindex/outputs
 ```
 
 ## Schema
