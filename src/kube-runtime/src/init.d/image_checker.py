@@ -40,8 +40,8 @@ def _is_docker_hub_uri(uri):
 def _is_docker_image_valid(job_config):
     prerequisites = job_config["prerequisites"]
 
-    task_index = int(os.getenv("FC_TASK_INDEX"))
-    task_role = list(job_config["taskRoles"].values())[task_index]
+    task_role_name = os.getenv("FC_TASKROLE_NAME")
+    task_role = job_config["taskRoles"][task_role_name]
     docker_image_name = task_role["dockerImage"]
 
     docker_images = list(
