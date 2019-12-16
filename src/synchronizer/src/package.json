@@ -1,0 +1,22 @@
+{
+  "name": "synchronizer",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "lint": "standard.cmd --fix"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "base32": "^0.0.6",
+    "dotenv": "^8.2.0",
+    "json-stream": "^1.0.0",
+    "kubernetes-client": "^8.3.6",
+    "pg": "^7.14.0",
+    "pg-hstore": "^2.3.3",
+    "sequelize": "^5.21.2",
+    "underscore": "^1.9.1"
+  }
+}
