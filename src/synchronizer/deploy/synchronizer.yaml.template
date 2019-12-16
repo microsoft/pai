@@ -30,6 +30,7 @@ spec:
       name: synchronizer
       labels:
         app: synchronizer
+    spec:
       hostNetwork: true
       containers:
       - name: job-watch-synchronizer
