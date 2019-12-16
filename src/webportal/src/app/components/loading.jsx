@@ -65,9 +65,9 @@ export const SpinnerLoading = ({ label = 'Loading...' }) => {
       }
     }
     layout();
-    window.addEventListener('resize', layout);
+    const layoutHandle = setInterval(layout, 200);
     return () => {
-      window.removeEventListener('resize', layout);
+      clearInterval(layoutHandle);
     };
   });
 
