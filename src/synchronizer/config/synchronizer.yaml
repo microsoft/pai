@@ -1,4 +1,4 @@
-enable: False
+enable: false
 k8s-timeout-seconds: 60
 job-list-interval-seconds: 300
 job-list-db-max-connection: 10

@@ -43,7 +43,7 @@ spec:
         - name: RBAC_IN_CLUSTER
           value: "false"
 {% endif %}
-  		  - name: K8S_APISERVER_URI
+        - name: K8S_APISERVER_URI
           value: {{ cluster_cfg['layout']['kubernetes']['api-servers-url'] }}
         - name: SQL_CONNECTION_STR
           value: {{ cluster_cfg['postgresql']['connection-str'] }}
