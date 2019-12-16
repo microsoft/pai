@@ -62,7 +62,7 @@ function jobK8sObjPreprocess (obj) {
     retries: obj.status ? obj.status.retryPolicyStatus.totalRetriedCount : null,
     tasks: obj.spec.taskRoles.reduce((s, v) => s + v.taskNumber, 0),
     gpus: obj.metadata.annotations.totalGpuNumber === 'NaN' ? 0 : parseInt(obj.metadata.annotations.totalGpuNumber),
-    status: obj.status ? obj.status.state : null
+    status: status.attemptStatus.type.name ? status.attemptStatus.type.name : null
   }
 }
 
