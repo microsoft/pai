@@ -46,10 +46,10 @@ spec:
 {% endif %}
         - name: K8S_APISERVER_URI
           value: {{ cluster_cfg['layout']['kubernetes']['api-servers-url'] }}
-        - name: SQL_CONNECTION_STR
-          value: {{ cluster_cfg['postgresql']['connection-str'] }}
         - name: K8S_TIMEOUT_SECONDS
           value: "{{ cluster_cfg['synchronizer']['k8s-timeout-seconds'] }}"
+        - name: DB_CONNECTION_STR
+          value: {{ cluster_cfg['postgresql']['connection-str'] }}
         - name: DB_MAX_CONNECTION
           value: "1"
         command: ["node", "run_job_watch.js"]
