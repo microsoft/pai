@@ -16,14 +16,14 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 require('dotenv').config()
-const { k8sConfig } = require('./core/config')
+const { listIntervalSeconds, k8sConfig } = require('./core/config')
 const K8SClient = require('./core/k8s')
 const { UserModel, UserListSynchronizer } = require('./user')
 
 async function runUserListSynchronizer () {
   const client = new K8SClient(k8sConfig)
   await Promise.all([client.init(), UserModel.sync({ alter: true })])
-  const userListSynchronizer = new UserListSynchronizer(client, UserModel, config.listIntervalSeconds)
+  const userListSynchronizer = new UserListSynchronizer(client, UserModel, listIntervalSeconds)
   userListSynchronizer.run()
 }
 
