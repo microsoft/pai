@@ -18,10 +18,13 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 apiVersion: apps/v1
-kind: DaemonSet
+kind: Deployment
 metadata:
-  name: synchronizer-ds
+  name: synchronizer-dm
+  labels:
+    app: synchronizer
 spec:
+  replicas: 1
   selector:
     matchLabels:
       app: synchronizer
