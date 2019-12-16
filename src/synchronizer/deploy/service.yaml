@@ -18,6 +18,7 @@
 cluster-type:
   - k8s
   - yarn
+  - full
 
 prerequisite:
   - postgresql
