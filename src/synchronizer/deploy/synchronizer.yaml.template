@@ -36,6 +36,7 @@ spec:
     spec:
       hostNetwork: true
       containers:
+
       - name: job-watch-synchronizer
         image: {{ cluster_cfg["cluster"]["docker-registry"]["prefix"] }}synchronizer:{{ cluster_cfg["cluster"]["docker-registry"]["tag"] }}
         imagePullPolicy: Always
@@ -56,5 +57,73 @@ spec:
         - name: DB_MAX_CONNECTION
           value: "1"
         command: ["node", "run_job_watch.js"]
+
+      - name: job-list-synchronizer
+        image: {{ cluster_cfg["cluster"]["docker-registry"]["prefix"] }}synchronizer:{{ cluster_cfg["cluster"]["docker-registry"]["tag"] }}
+        imagePullPolicy: Always
+        env:
+{% if cluster_cfg['cluster']['common']['k8s-rbac'] != 'false' %}
+        - name: RBAC_IN_CLUSTER
+          value: "true"
+{% else %}
+        - name: RBAC_IN_CLUSTER
+          value: "false"
+{% endif %}
+        - name: K8S_APISERVER_URI
+          value: {{ cluster_cfg['layout']['kubernetes']['api-servers-url'] }}
+        - name: K8S_TIMEOUT_SECONDS
+          value: "{{ cluster_cfg['synchronizer']['k8s-timeout-seconds'] }}"
+        - name: DB_CONNECTION_STR
+          value: {{ cluster_cfg['postgresql']['connection-str'] }}
+        - name: DB_MAX_CONNECTION
+          value: "{{ cluster_cfg['synchronizer']['job-list-db-max-connection'] }}"
+        - name: LIST_INTERVAL_SECONDS
+          value: "{{ cluster_cfg['synchronizer']['job-list-interval-seconds'] }}"
+        command: ["node", "run_job_list.js"]
+
+      - name: user-watch-synchronizer
+        image: {{ cluster_cfg["cluster"]["docker-registry"]["prefix"] }}synchronizer:{{ cluster_cfg["cluster"]["docker-registry"]["tag"] }}
+        imagePullPolicy: Always
+        env:
+{% if cluster_cfg['cluster']['common']['k8s-rbac'] != 'false' %}
+        - name: RBAC_IN_CLUSTER
+          value: "true"
+{% else %}
+        - name: RBAC_IN_CLUSTER
+          value: "false"
+{% endif %}
+        - name: K8S_APISERVER_URI
+          value: {{ cluster_cfg['layout']['kubernetes']['api-servers-url'] }}
+        - name: K8S_TIMEOUT_SECONDS
+          value: "{{ cluster_cfg['synchronizer']['k8s-timeout-seconds'] }}"
+        - name: DB_CONNECTION_STR
+          value: {{ cluster_cfg['postgresql']['connection-str'] }}
+        - name: DB_MAX_CONNECTION
+          value: "1"
+        command: ["node", "run_user_watch.js"]
+
+      - name: user-list-synchronizer
+        image: {{ cluster_cfg["cluster"]["docker-registry"]["prefix"] }}synchronizer:{{ cluster_cfg["cluster"]["docker-registry"]["tag"] }}
+        imagePullPolicy: Always
+        env:
+{% if cluster_cfg['cluster']['common']['k8s-rbac'] != 'false' %}
+        - name: RBAC_IN_CLUSTER
+          value: "true"
+{% else %}
+        - name: RBAC_IN_CLUSTER
+          value: "false"
+{% endif %}
+        - name: K8S_APISERVER_URI
+          value: {{ cluster_cfg['layout']['kubernetes']['api-servers-url'] }}
+        - name: K8S_TIMEOUT_SECONDS
+          value: "{{ cluster_cfg['synchronizer']['k8s-timeout-seconds'] }}"
+        - name: DB_CONNECTION_STR
+          value: {{ cluster_cfg['postgresql']['connection-str'] }}
+        - name: DB_MAX_CONNECTION
+          value: "{{ cluster_cfg['synchronizer']['user-list-db-max-connection'] }}"
+        - name: LIST_INTERVAL_SECONDS
+          value: "{{ cluster_cfg['synchronizer']['user-list-interval-seconds'] }}"
+        command: ["node", "run_user_list.js"]
+
       imagePullSecrets:
       - name: {{ cluster_cfg["cluster"]["docker-registry"]["secret-name"] }}
