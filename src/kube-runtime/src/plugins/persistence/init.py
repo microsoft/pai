@@ -18,23 +18,19 @@
 
 from __future__ import print_function
 
-from plugin_utils import plugin_init, inject_commands
-import yaml
-import argparse
-import logging
-import collections
 import os
 import sys
 sys.path.append(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
+import collections
+import logging
+import argparse
+import yaml
 
+from plugin_utils import plugin_init, inject_commands
 
 logger = logging.getLogger(__name__)
 CLUSTER_ALIAS = 'cluster_alias'
 USER_NAME = os.environ.get("PAI_USER_NAME")
-JOB_NAME = os.environ.get("PAI_JOB_NAME")
-TASK_ROLE = os.environ.get("PAI_CURRENT_TASK_ROLE_NAME")
-TASK_INDEX = os.environ.get("PAI_CURRENT_TASK_ROLE_CURRENT_TASK_INDEX")
-
 # $PAI_REST_SERVER_URI = "http://XX.XX.XX.XX:XXXX"
 PAI_REST_SERVER_URI = os.environ.get("PAI_REST_SERVER_URI")
 # $PAI_USER_TOKEN = "Bearer <token>"
@@ -48,16 +44,8 @@ if __name__ == "__main__":
         sdk_version = parameters.get('sdkBranch', 'pai-for-edu')
         install_uri = '-e "git+https://github.com/Microsoft/pai@{}#egg=openpaisdk&subdirectory=contrib/python-sdk"'.format(sdk_version)
         container_sync_space = parameters.get('syncSpace', '/persistent')
-        remote_storage_space = parameters.get('storagePath', None)
-        if not remote_storage_space:
-            # TODO: check DB for storage path
-            remote_storage_space = 'system~0'
-        storage_path_prefix = f"pai://{CLUSTER_ALIAS}/{remote_storage_space}"
-
-        # remote inputs / outputs for current
-        remote_job_inputs_path = f'{storage_path_prefix}/{USER_NAME}/{JOB_NAME}/inputs'  # assume one job has only one input folder
-        remote_task_outputs_path = f'{storage_path_prefix}/{USER_NAME}/{JOB_NAME}/{TASK_ROLE}/{TASK_INDEX}'  # every task has a seperate output folder
-
+        #TODO: check DB for storage path
+        storage_path_prefix = f"pai://{CLUSTER_ALIAS}/0"
         pre_commands = [
             # install openpaisdk
             f'python -m pip install {install_uri}',
@@ -68,15 +56,15 @@ if __name__ == "__main__":
             f'pai makedir {container_sync_space}',
             f'pai makedir {container_sync_space}/outputs',
             f'pai makedir {container_sync_space}/inputs',
-
-            # download
-            f'pai copy {remote_job_inputs_path} {container_sync_space}/inputs'
+            
+            # download 
+            f'pai copy {storage_path_prefix}/$PAI_USER_NAME/$PAI_JOB_NAME/$PAI_CURRENT_TASK_ROLE_NAME/$PAI_CURRENT_TASK_ROLE_CURRENT_TASK_INDEX/inputs {container_sync_space}/inputs'
         ]
         post_commands = [
-            # delete file
-            f'pai delete {remote_task_outputs_path}',
+            # delete file 
+            f'pai delete {storage_path_prefix}/$PAI_USER_NAME/$PAI_JOB_NAME/$PAI_CURRENT_TASK_ROLE_NAME/$PAI_CURRENT_TASK_ROLE_CURRENT_TASK_INDEX/outputs',
             # upload file
-            f'pai copy {container_sync_space}/outputs {remote_task_outputs_path}'
-        ]
+            f'pai copy {container_sync_space}/outputs {storage_path_prefix}/$PAI_USER_NAME/$PAI_JOB_NAME/$PAI_CURRENT_TASK_ROLE_NAME/$PAI_CURRENT_TASK_ROLE_CURRENT_TASK_INDEX/outputs']
         inject_commands(pre_commands, pre_script)
         inject_commands(post_commands, post_script)
+
