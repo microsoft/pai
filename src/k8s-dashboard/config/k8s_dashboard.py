@@ -16,6 +16,8 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
+from urlparse import urlparse
+
 class K8SDashboard(object):
 
     def __init__(self, cluster_conf, service_conf, default_service_conf):
@@ -31,11 +33,12 @@ class K8SDashboard(object):
         com_k8s_dashboard = {}
 
         com_k8s_dashboard['api-servers-url'] = self.cluster_conf['kubernetes']['api-servers-url']
+        dash_board_url = self.cluster_conf['kubernetes']['dashboard-url']
+        res = urlparse(dash_board_url)
 
         machine_list = self.cluster_conf['machine-list']
-        master_nodename = [host['nodename'] for host in machine_list if host.get('pai-master') == 'true'][0]
+        master_nodename = [host['nodename'] for host in machine_list if host.get('hostip') == res.hostname][0]
         com_k8s_dashboard['dashboard-host'] = master_nodename
-        master_address = [host['hostip'] for host in machine_list if host.get('pai-master') == 'true'][0]
-        com_k8s_dashboard['dashboard-ip'] = master_address
+        com_k8s_dashboard['dashboard-port'] = res.port
 
         return com_k8s_dashboard

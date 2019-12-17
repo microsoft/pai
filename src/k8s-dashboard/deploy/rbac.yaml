@@ -15,19 +15,6 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-# ------------------- Dashboard Secret ------------------- #
-
-apiVersion: v1
-kind: Secret
-metadata:
-  labels:
-    k8s-app: kubernetes-dashboard-openpai
-  name: kubernetes-dashboard-certs-openpai
-  namespace: kube-system
-type: Opaque
-
----
-
 # ------------------- Dashboard Service Account ------------------- #
 
 apiVersion: v1

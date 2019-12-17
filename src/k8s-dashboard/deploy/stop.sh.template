@@ -42,6 +42,10 @@ if kubectl get ClusterRole | grep -q "kubernetes-dashboard-minimal-openpai"; the
     kubectl delete ClusterRole kubernetes-dashboard-minimal-openpai || exit $?
 fi
 
+if kubectl get secret -n kube-system | grep -q "kubernetes-dashboard-certs-openpai"; then
+    kubectl delete secret kubernetes-dashboard-certs-openpai -n kube-system || exit $?
+fi
+
 {% endif %}
 
 popd > /dev/null
