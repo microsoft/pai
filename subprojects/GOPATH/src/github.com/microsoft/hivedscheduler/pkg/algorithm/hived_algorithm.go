@@ -712,6 +712,8 @@ func (h *HivedAlgorithm) confirmReleasedGpu(pGpu *PhysicalCell, g *AlgoAffinityG
 	pGpu.DeleteAffinityGroup(g)
 }
 
+// lazyPreemptAffinityGroup removes an affinity group from its VC, clears it virtual placement,
+// and exposes this decision.
 func (h *HivedAlgorithm) lazyPreemptAffinityGroup(
 	victim *AlgoAffinityGroup, preemptor string) {
 
@@ -1054,7 +1056,8 @@ func retrieveMissingPodPlacement(group *AlgoAffinityGroup, gpuNum int32, podInde
 			}
 		}
 	}
-	panic(fmt.Sprintf("No allocated pod in an allocated group %v", group.name))
+	panic(fmt.Sprintf(
+		"No allocated pod found in an allocated group %v when retrieving placement for pod %v with GPU number %v", group.name, podIndex, gpuNum))
 }
 
 // buddyAlloc allocates a free cell at a certain level from a free list.
