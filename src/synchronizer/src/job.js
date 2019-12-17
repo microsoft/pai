@@ -51,6 +51,8 @@ function jobK8sObjValidate (obj) {
 }
 
 function jobK8sObjPreprocess (obj) {
+  console.log(obj.status ? obj.status.state : null)
+  console.log((obj.status && obj.status.attemptStatus.completionStatus) ? obj.status.attemptStatus.completionStatus.type.name : null)
   return {
     uuid: obj.metadata.uid,
     name: obj.metadata.labels.jobName,
@@ -62,7 +64,8 @@ function jobK8sObjPreprocess (obj) {
     retries: obj.status ? obj.status.retryPolicyStatus.totalRetriedCount : null,
     tasks: obj.spec.taskRoles.reduce((s, v) => s + v.taskNumber, 0),
     gpus: obj.metadata.annotations.totalGpuNumber === 'NaN' ? 0 : parseInt(obj.metadata.annotations.totalGpuNumber),
-    status: obj.status.attemptStatus.type.name ? obj.status.attemptStatus.type.name : null
+    k8sState: obj.status ? obj.status.state : null,
+    completionStatus: (obj.status && obj.status.attemptStatus.completionStatus) ? obj.status.attemptStatus.completionStatus.type.name : null
   }
 }
 

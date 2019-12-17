@@ -48,7 +48,7 @@ module.exports = {
   },
   dbConfig: {
     connectionStr: process.env.DB_CONNECTION_STR,
-    dbMaxConnection: parseInt(process.env.DB_MAX_CONNECTION)
+    dbMaxConnection: process.env.DB_MAX_CONNECTION ? parseInt(process.env.DB_MAX_CONNECTION) : 1
   },
   listIntervalSeconds: process.env.LIST_INTERVAL_SECONDS ? parseInt(process.env.LIST_INTERVAL_SECONDS) : 300
 }
