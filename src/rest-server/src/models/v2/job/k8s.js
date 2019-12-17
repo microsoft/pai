@@ -501,6 +501,10 @@ const generateTaskRole = (frameworkName, taskRole, jobInfo, frameworkEnvList, co
                   mountPath: '/mnt/data',
                 },
                 {
+                  name: 'azure-data',
+                  mountPath: '/mnt/azure',
+                },
+                {
                   name: 'host-log',
                   subPath: `${jobInfo.userName}/${jobInfo.logPathInfix}/${convertName(taskRole)}`,
                   mountPath: '/usr/local/pai/logs',
@@ -529,6 +533,12 @@ const generateTaskRole = (frameworkName, taskRole, jobInfo, frameworkEnvList, co
               name: 'data',
               hostPath: {
                 path: '/mnt/data/data',
+              },
+            },
+            {
+              name: 'azure-data',
+              hostPath: {
+                path: '/mnt/data/azure',
               },
             },
             {
