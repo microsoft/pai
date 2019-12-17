@@ -32,7 +32,7 @@ class Hivedscheduler:
     def run(self):
         machine_list = self.cluster_conf['machine-list']
         master_ip = [host['hostip'] for host in machine_list if host.get('pai-master') == 'true'][0]
-        self.service_conf['webservice'] = '{}:{}'.format(master_ip, self.service_conf['webservice-port'])
+        self.service_conf['webservice'] = 'http://{}:{}'.format(master_ip, self.service_conf['webservice-port'])
         self.service_conf['config'] = self.service_conf['config'].replace('\n', '\n    ')
         return self.service_conf
 

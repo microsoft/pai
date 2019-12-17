@@ -224,6 +224,8 @@ const convertTaskDetail = async (taskStatus, ports, userName, jobName, taskRoleN
     ...launcherConfig.enabledHived && {
       hived: {
         affinityGroupName,
+        lazyPreempted: null,
+        lazyPreemptionStatus: null,
       },
     },
   };
@@ -319,8 +321,12 @@ const convertFrameworkDetail = async (framework) => {
     for (let taskRoleName of Object.keys(detail.taskRoles)) {
       detail.taskRoles[taskRoleName].taskStatuses.forEach((status, idx) => {
         const name = status.hived.affinityGroupName;
-        detail.taskRoles[taskRoleName].taskStatuses[idx].hived.preemptionStatus =
-          (name in affinityGroups) ? affinityGroups[name].status.lazyPreemptionStatus : null;
+        if (name in affinityGroups) {
+          detail.taskRoles[taskRoleName].taskStatuses[idx].hived.lazyPreempted =
+            Boolean(affinityGroups[name].status.lazyPreemptionStatus);
+          detail.taskRoles[taskRoleName].taskStatuses[idx].hived.lazyPreemptionStatus =
+            affinityGroups[name].status.lazyPreemptionStatus;
+        }
       });
     }
   }
