@@ -33,8 +33,6 @@ logger = logging.getLogger(__name__)
 CLUSTER_ALIAS = 'cluster_alias'
 USER_NAME = os.environ.get("PAI_USER_NAME")
 JOB_NAME = os.environ.get("PAI_JOB_NAME")
-TASK_ROLE = os.environ.get("PAI_CURRENT_TASK_ROLE_NAME")
-TASK_INDEX = os.environ.get("PAI_CURRENT_TASK_ROLE_CURRENT_TASK_INDEX")
 
 # $PAI_REST_SERVER_URI = "http://XX.XX.XX.XX:XXXX"
 PAI_REST_SERVER_URI = os.environ.get("PAI_REST_SERVER_URI")
@@ -57,7 +55,7 @@ if __name__ == "__main__":
 
         # remote inputs / outputs for current
         remote_job_inputs_path = f'{storage_path_prefix}/{USER_NAME}/{JOB_NAME}/inputs'  # assume one job has only one input folder
-        remote_task_outputs_path = f'{storage_path_prefix}/{USER_NAME}/{JOB_NAME}/{TASK_ROLE}/{TASK_INDEX}'  # every task has a seperate output folder
+        remote_task_outputs_path = f'{storage_path_prefix}/{USER_NAME}/{JOB_NAME}/$PAI_CURRENT_TASK_ROLE_NAME/$PAI_CURRENT_TASK_ROLE_CURRENT_TASK_INDEX'  # every task has a seperate output folder
 
         pre_commands = [
             # install openpaisdk
