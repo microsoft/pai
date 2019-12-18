@@ -187,7 +187,11 @@ class ListWatchSynchronizer extends Synchronizer {
         logger.error(err)
         resourceVersion = null
       }
-      logger.info('start `watch` from resourceVersion ' + resourceVersion + '.')
+      if (resourceVersion) {
+        logger.info('start `watch` from resourceVersion ' + resourceVersion + '.')
+      } else {
+        logger.info('start `watch` without resourceVersion.')
+      }
       this.watch(
         (data) => this.watchDataCallBack(data),
         () => _realRun(),
