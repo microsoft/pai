@@ -1,7 +1,16 @@
-Feature History for `pai-for-edu` Branch
+Introduction to Special Edition (`pai-for-edu`)
 ----
 
-This documents is to trace the feature developing of the branch.
+The purpose of this branch is to provide a user friendly special edition of `OpenPAI`. We synced with master branch frequently, offer some essential services and features missing in master, and also hide some features and modes that are too complicated.
+
+# When to choose the special edition
+
+- Users who want to get an out-of-box experience
+- Users who want to get quickly started
+- Users who don't care too much low level details
+- Users who want to deploy `OpenPAI` in a clean environment
+
+# Features History
 
 ## Job Persistence
   
@@ -22,6 +31,66 @@ This documents is to trace the feature developing of the branch.
   
 ## Python SDK Update
 - Simply user interface of CLI (new `pai` commands) while old `opai` commands are still be supported
-  
+
+- Provide [Unified Storage Interface](../contrib/python-sdk/README.md), which could hide storage details for users 
+
 - Related pull requests
   - [#3942](https://github.com/microsoft/pai/pull/3942) adds unified filesystem interface, start-container cli, and ssh-container cli.
+
+
+# Features Backlog
+
+## Database pilot run
+
+- codes will be in separate file e.g. prefixed with `extend` in rest-server 
+- general database error handling mechanism
+
+- features under developing now
+  - marketplace
+  - user expression
+
+## `etcd` to DB synchronizer - basic job / user info
+
+- List and watch `etcd` objects changing and write them to database
+
+- handle `write-after-write` (WAW) hazard 
+
+## `etcd` to DB synchronizer - job history
+
+- Use database as a full functioned job history server
+
+## Marketplace
+
+## User expression
+
+- let users save some frequently used information (key-value) in DB
+  
+- in the beginnings, we could limit the usage of this feature by only accept allowed keys e.g. `ssh_pulic_key`, `ssh_private_key` ...
+  
+- offer APIs to let user create/update/view/delete expressions
+  - `PUT api/v2/extend/expression/user/:user` to create expressions if don't exist or update existing ones
+    - `token` in HEADER
+    - `{"key1": "val1", ...}` as body
+  - `GET api/v2/extend/expression/user/:user` to get expressions
+    - `token` in HEADER
+    - `{"keys": [...]}` as body
+  - `DELETE api/v2/extend/expression/user/:user` to get expressions
+    - `token` in HEADER
+    - `{"keys": [...]}` as body
+
+## Favorite jobs
+
+- users can star (add favorite) jobs
+
+## Job tags
+
+- add tags for a job
+
+## Quick connect to `ssh`
+
+- leverage keys in user expressions
+- start `ssh` in browser 
+
+## Official support of sleepy jobs
+
+- 
