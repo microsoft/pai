@@ -893,12 +893,12 @@ func generatePodScheduleResult(
 		var waitReason string
 		if affinityGroupBindInfo == nil {
 			waitReason = "insufficient capacity in physical cluster"
-			if groupVirtualPlacement != nil {
+			if priority >= minGuaranteedPriority {
 				waitReason = fmt.Sprintf("insufficient quota in VC %v", vc)
 			}
 		} else if selectedNode == "" {
 			waitReason = "cannot find a K8s candidate node within physical cluster"
-			if groupVirtualPlacement != nil {
+			if priority >= minGuaranteedPriority {
 				waitReason = fmt.Sprintf("cannot find a K8s candidate node within VC %v's quota", vc)
 			}
 		}

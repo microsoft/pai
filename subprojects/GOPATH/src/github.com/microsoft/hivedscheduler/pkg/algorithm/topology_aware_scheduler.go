@@ -167,6 +167,11 @@ type clusterView []*node
 
 func newClusterView(ccl ChainCellList) clusterView {
 	var l CellLevel
+	// TODO: currently if a top-level cell is lower than node level, it will be considered as a single node.
+	// For example, 2 single GPU-level cells are considered as 2 nodes each with 1 GPU.
+	// We cannot merge them because the 2 cells might be mapped to different physical nodes.
+	// We plan to support using multiple cells in a best-effort manner (for example, schedule a 2-GPU pod
+	// on 2 1-GPU cells, if we can find 2 1-GPU cells that can be mapped to the same physical node).
 	for l = CellLevel(1); l <= CellLevel(len(ccl)); l++ {
 		if ccl[l][0].AtOrHigherThanNode() {
 			break
