@@ -66,13 +66,20 @@ export function initTheme() {
   });
 }
 
-const { palette } = getTheme();
-
 export const statusColor = {
   waiting: '#fcd116',
   failed: '#eb1123',
   running: '#0071bc',
   succeeded: '#7fba00',
-  stopped: palette.neutralTertiaryAlt,
-  unknown: palette.neutralTertiary,
+  get stopped() {
+    const { palette } = getTheme();
+    return palette.neutralTertiaryAlt;
+  },
+  get unknown() {
+    const { palette } = getTheme();
+    return palette.neutralTertiary;
+  },
 };
+
+export const boxShadow =
+  'rgba(0, 0, 0, 0.06) 0px 2px 4px, rgba(0, 0, 0, 0.05) 0px 0.5px 1px';

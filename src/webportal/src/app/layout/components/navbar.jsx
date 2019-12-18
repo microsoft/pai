@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import React from 'react';
+import React, { useState, useRef } from 'react';
 import PropTypes from 'prop-types';
 import c from 'classnames';
 import cookies from 'js-cookie';
@@ -9,6 +9,14 @@ import {
   ColorClassNames,
   CommandBarButton,
   concatStyleSets,
+  Callout,
+  DirectionalHint,
+  PersonaCoin,
+  Link,
+  FontClassNames,
+  FontWeights,
+  PersonaSize,
+  getTheme,
 } from 'office-ui-fabric-react';
 
 import { userLogout } from '../../user/user-logout/user-logout.component';
@@ -40,8 +48,11 @@ CustomButton.propTypes = {
   styles: PropTypes.object,
 };
 
-const Navbar = ({ onToggleSidebar, mobile }) => {
+const Navbar = ({ onToggleSidebar, mobile, userInfo }) => {
   const username = cookies.get('user');
+  const { spacing } = getTheme();
+  const menuButtonRef = useRef();
+  const [menuVisible, setMenuVisible] = useState(false);
   return (
     <div
       className={c(
@@ -81,30 +92,61 @@ const Navbar = ({ onToggleSidebar, mobile }) => {
             display: mobile ? 'none' : undefined,
           }}
         />
-        <CustomButton
-          key='menu'
-          text={!mobile && `Welcome, ${username}`}
-          styles={{
-            menuIcon: mobile && { display: 'none' },
-            label: mobile && { display: 'none' },
+        <div ref={menuButtonRef}>
+          <CustomButton
+            key='menu'
+            text={!mobile && `Welcome, ${username}`}
+            styles={{
+              root: { height: '100%' },
+              menuIcon: mobile && { display: 'none' },
+              label: mobile && { display: 'none' },
+            }}
+            iconProps={mobile && { iconName: 'Contact' }}
+            onClick={e => {
+              setMenuVisible(!menuVisible);
+              e.preventDefault();
+            }}
+          />
+        </div>
+        <Callout
+          gapSpace={0}
+          isBeakVisible={false}
+          target={menuButtonRef.current}
+          hidden={!menuVisible}
+          minPagePadding={0}
+          directionalHint={DirectionalHint.bottomRightEdge}
+          onDismiss={e => {
+            setMenuVisible(false);
+            e.preventDefault();
           }}
-          iconProps={mobile && { iconName: 'Contact' }}
-          menuProps={{
-            items: [
-              {
-                key: 'profile',
-                text: 'My profile',
-                href: '/user-profile.html',
-                style: { textDecoration: 'none' },
-              },
-              {
-                key: 'logout',
-                text: 'Logout',
-                onClick: () => userLogout(),
-              },
-            ],
-          }}
-        />
+        >
+          <div>
+            <div className={c(t.flex)}>
+              <div className={c(t.pa3, t.flexAuto)}>Platform for AI</div>
+              <CommandBarButton
+                styles={{ root: { padding: spacing.m } }}
+                onClick={userLogout}
+              >
+                Sign Out
+              </CommandBarButton>
+            </div>
+            <div className={c(t.flex, t.pa3)}>
+              <PersonaCoin text={username} size={PersonaSize.size100} />
+              <div className={c(t.ml5)}>
+                <div
+                  className={FontClassNames.xLarge}
+                  style={{ fontWeight: FontWeights.regular }}
+                >
+                  {username}
+                </div>
+                <div className={t.mt3}>{userInfo.email}</div>
+                <div className={t.mt4}>
+                  <Link href='/user-profile.html'>View my profile</Link>
+                </div>
+              </div>
+            </div>
+          </div>
+        </Callout>
       </div>
     </div>
   );
@@ -113,6 +155,7 @@ const Navbar = ({ onToggleSidebar, mobile }) => {
 Navbar.propTypes = {
   mobile: PropTypes.bool,
   onToggleSidebar: PropTypes.func.isRequired,
+  userInfo: PropTypes.object,
 };
 
 export default Navbar;

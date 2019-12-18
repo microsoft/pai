@@ -30,7 +30,7 @@ import { useMediaQuery } from 'react-responsive';
 import Logo from './components/logo';
 import Navbar from './components/navbar';
 import Sidebar from './components/sidebar';
-import { initTheme } from '../components/theme';
+import { initTheme, boxShadow } from '../components/theme';
 import { getUserRequest } from '../user/fabric/conn';
 
 import t from '../components/tachyons.scss';
@@ -42,11 +42,14 @@ const BREAKPOINT = 600;
 
 const Layout = () => {
   const [mobileShowSidebar, setMobileShowSidebar] = useState(false);
+  const [userInfo, setUserInfo] = useState('');
 
-  // check token
+  // check token && get email
   useEffect(() => {
     const username = cookies.get('user');
-    getUserRequest(username);
+    getUserRequest(username).then(res => {
+      setUserInfo(res);
+    });
   }, []);
 
   const isMobile = useMediaQuery({ query: `(max-width: ${BREAKPOINT}px)` });
@@ -64,6 +67,7 @@ const Layout = () => {
         <div className={t.flexAuto} style={{ height: 50 }}>
           <Navbar
             onToggleSidebar={() => setMobileShowSidebar(!mobileShowSidebar)}
+            userInfo={userInfo}
             mobile={isMobile}
           />
         </div>
@@ -76,6 +80,7 @@ const Layout = () => {
             height: '100%',
             display: isMobile && !mobileShowSidebar ? 'none' : undefined,
             position: isMobile ? 'absolute' : undefined,
+            boxShadow: isMobile ? boxShadow : undefined,
             zIndex: 10,
           }}
         />
