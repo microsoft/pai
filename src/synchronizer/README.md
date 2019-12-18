@@ -1,8 +1,28 @@
 ## Synchronizer
 
-Synchronizer is designed for synchronizing from K8S object to database. It follows `list and watch` behavior. A `list` process queries certain K8S object periodically, and compares them with records in database. If any missing/redundant/inconsistent records are found, INSERT/DELETE/UPDATE will be executed correspondingly. Meanwhile, a `watch` process is always listening to object change in K8S, and synchronizing them to database.
+Synchronizer is designed for synchronizing from K8S object to database. It follows `list and watch` behavior. `list` queries K8S objects of certain kind, and compares them with records in database. If any missing/redundant/inconsistent records are found, INSERT/DELETE/UPDATE will be executed correspondingly. `watch` listens to object change in K8S, and synchronizing them to database. `list` and `watch` are executed alternately.
 
 Currently, postgresql is the only tested database.
+
+### Supported Configuration
+
+Default configuration is:
+
+```yaml
+synchronizer:
+  # whether to enable synchronizer. If it is true, postgresql must be enabled too.
+  enable: false
+  # connection timeout for k8s api server
+  k8s-timeout-seconds: 60
+  # list interval seconds for job synchronizer
+  job-list-interval-seconds: 300
+  # max connection number to database for job synchronizer
+  job-db-max-connection: 10
+  # list interval seconds for user synchronizer 
+  user-list-interval-seconds: 120
+  # max connection number to database for user synchronizer
+  user-db-max-connection: 2
+```
 
 ### Implementation
 
@@ -12,19 +32,22 @@ We make the following assumptions to simplify the problem:
   - Each k8s object only contains fields of basic DataTypes. Compound DataTypes, such as list and map, will not be synchronized.
   - Each k8s object contains a `uuid` field, which is always unique.
 
-For a `watch` process, it listens to 3 kinds of events: `ADDED`, `MODIFIED`, and `DELETED`. When any events are detected, it does the following in database:
+To ensure consistence, synchronizer leverages two mechanisms:
+
+  - The `resourceVersion` in k8s `ObjectList`. Each time, the `list` procedure queries an object list, remember its `resourceVersion`, and synchronizes all objects to database. Then, the `watch` procedure starts exactly from `resourceVersion`, to make sure we didn't miss any change. If the `watch` connection is broken or it has lasted for a certain timeout seconds, we will do `list` again. The `list` -> `watch` -> `list` -> `watch` -> ...... will repeat forever.
+  - Since multiple database connections are supported, we should ensure all database modification can be executed in order. More specifically, if a `uuid` has two `MODIFIED` events, the second modification must be executed after the first modification is done. In NodeJS, it is achieved by using queued promise. Every `uuid` has its promise queue. If the first promise is not fulfilled, the next one will never be executed.
+
+For a `watch` procedure, it listens to 3 kinds of events: `ADDED`, `MODIFIED`, and `DELETED`. When any events are detected, it does the following in database:
 
   - `ADDED` event: INSERT `uuid`
   - `MODIFIED` event: UPDATE `uuid`
   - `DELETED` event: DELETE `uuid`
 
-For a `list` process, it list all objects in k8s, and compares them with records in database. The comparison is based on `uuid`. Then it does the following in database:
+For a `list` procedure, it list all objects in k8s, and compares them with records in database. The comparison is based on `uuid`. Then it does the following in database:
 
   - `uuid` is in k8s but not in database: INSERT `uuid`
   - `uuid` is in database but not in k8s: DELETE by `uuid`
   - `uuid` is both in database and k8s, but the two records are not the same: UPDATE by `uuid`
-
-Currently, we synchronize basic job and user information. For job information, there is a `watch` process and `list` process, which is the same for user information. Therefore
 
 ### Table Schema
 
@@ -52,7 +75,8 @@ JobModel.init({
   retries: Sequelize.INTEGER,
   tasks: Sequelize.INTEGER,
   gpus: Sequelize.INTEGER,
-  status: Sequelize.STRING
+  k8sState: Sequelize.STRING,
+  completionStatus: Sequelize.STRING
 }, {
   sequelize,
   modelName: 'job'
@@ -71,9 +95,5 @@ All the following variables are read by `core/config.js`:
   - `DB_CONNECTION_STR`
   - `DB_MAX_CONNECTION`
   - `LIST_INTERVAL_SECONDS`
-
-### Known Issues
-
-Since `uuid` is unique, thus the consistence of `INSERT` and `DELETE` will be guaranteed. However, there is a risk that `UPDATE` happens in different orders. The record in database will be an old version until the next `list` happens in `LIST_INTERVAL_SECONDS`.
 
 
