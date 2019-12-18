@@ -15,20 +15,4 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-openpai_parser_type: "yarn"
-
-set-nvidia-runtime: false
-
-# You can set drivers version here. If this value is miss, default value will be 384.111
-# Current supported version list
-# 384.111
-# 390.25
-# 410.73
-# 418.56
-version: "384.111"
-
-pre-installed-nvidia-path: /usr/local/nvidia
-
-# IB driver installation will fail when VM builtin IB kernel modules into vmlinux image.
-# If IB installation is needed during deployment, you can set the following field to true.
-enable-ib-installation: false
+openpai_parser_type: "k8s"
