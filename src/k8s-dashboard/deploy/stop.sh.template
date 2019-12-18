@@ -27,16 +27,16 @@ if kubectl get deployment -n kube-system | grep -q "kubernetes-dashboard-openpai
 fi
 
 if kubectl get roleBinding -n kube-system | grep -q "kubernetes-dashboard-minimal-openpai"; then
-    kubectl delete roleBinding kubernetes-dashboard-minimal-openpai || exit $?
+    kubectl delete roleBinding kubernetes-dashboard-minimal-openpai -n kube-system || exit $?
 fi
 
 
 if kubectl get serviceAccount -n kube-system | grep -q "kubernetes-dashboard-openpai"; then
-    kubectl delete serviceAccount kubernetes-dashboard-openpai  -n kube-system || exit $?
+    kubectl delete serviceAccount kubernetes-dashboard-openpai -n kube-system || exit $?
 fi
 
 if kubectl get role -n kube-system | grep -q "kubernetes-dashboard-minimal-openpai"; then
-    kubectl delete role -n kube-system kubernetes-dashboard-minimal-openpai || exit $?
+    kubectl delete role kubernetes-dashboard-minimal-openpai -n kube-system || exit $?
 fi
 
 if kubectl get secret -n kube-system | grep -q "kubernetes-dashboard-certs-openpai"; then
