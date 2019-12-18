@@ -124,7 +124,12 @@ const Navbar = ({ onToggleSidebar, mobile, userInfo }) => {
             <div className={c(t.flex)}>
               <div className={c(t.pa3, t.flexAuto)}>Platform for AI</div>
               <CommandBarButton
-                styles={{ root: { padding: spacing.m } }}
+                styles={{
+                  root: [
+                    { padding: spacing.m },
+                    ColorClassNames.whiteBackground,
+                  ],
+                }}
                 onClick={userLogout}
               >
                 Sign Out
