@@ -17,8 +17,9 @@
 
 const { Sequelize, Model } = require('sequelize')
 const { sequelize } = require('./core/db')
-const { ListSynchronizer, WatchSynchronizer } = require('./core/sync')
+const { ListWatchSynchronizer } = require('./core/sync')
 const assert = require('assert')
+const logger = require('./core/logger')
 
 class UserModel extends Model {}
 
@@ -32,62 +33,44 @@ UserModel.init({
   modelName: 'user'
 })
 
-function userK8sObjValidate (obj) {
-  try {
-    assert('uid' in obj.metadata)
-    assert('name' in obj.metadata)
-    assert('email' in obj.data)
-    assert('grouplist' in obj.data)
-  } catch (err) {
-    console.warn('Object' + obj + 'is not a valid k8s object.')
-    return false
-  }
-  return true
-}
-
-function userK8sObjPreprocess (obj) {
-  return {
-    uuid: obj.metadata.uid,
-    name: (Buffer.from(obj.metadata.name, 'hex')).toString(),
-    email: (Buffer.from(obj.data.email, 'base64')).toString(),
-    grouplist: (Buffer.from(obj.data.grouplist, 'base64')).toString()
-  }
-}
-
-class UserListSynchronizer extends ListSynchronizer {
+class UserSynchronizer extends ListWatchSynchronizer {
   async list () {
     const [k8sRet, dbObjList] = await Promise.all([this.k8sClient.listUsers(), this.dbModel.findAll()])
     return {
       k8sObjList: k8sRet.items,
+      resourceVersion: k8sRet.metadata.resourceVersion,
       dbObjList: dbObjList
     }
   }
 
-  k8sObjValidate (obj) {
-    return userK8sObjValidate(obj)
-  }
-
-  k8sObjPreprocess (obj) {
-    return userK8sObjPreprocess(obj)
-  }
-}
-
-class UserWatchSynchronizer extends WatchSynchronizer {
-  async watch (eventCallback) {
-    this.k8sClient.watchUsers(eventCallback)
+  async watch (dataCallback, endCallback, resourceVersion, timeoutSeconds) {
+    this.k8sClient.watchUsers(dataCallback, endCallback, resourceVersion, timeoutSeconds)
   }
 
   k8sObjValidate (obj) {
-    return userK8sObjValidate(obj)
+    try {
+      assert('uid' in obj.metadata)
+      assert('name' in obj.metadata)
+      assert('email' in obj.data)
+      assert('grouplist' in obj.data)
+    } catch (err) {
+      logger.warn('Object' + obj + 'is not a valid k8s object.')
+      return false
+    }
+    return true
   }
 
   k8sObjPreprocess (obj) {
-    return userK8sObjPreprocess(obj)
+    return {
+      uuid: obj.metadata.uid,
+      name: (Buffer.from(obj.metadata.name, 'hex')).toString(),
+      email: (Buffer.from(obj.data.email, 'base64')).toString(),
+      grouplist: (Buffer.from(obj.data.grouplist, 'base64')).toString()
+    }
   }
 }
 
 module.exports = {
   UserModel: UserModel,
-  UserListSynchronizer: UserListSynchronizer,
-  UserWatchSynchronizer: UserWatchSynchronizer
+  UserSynchronizer: UserSynchronizer
 }

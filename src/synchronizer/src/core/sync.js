@@ -17,6 +17,8 @@
 
 const _ = require('underscore')
 const assert = require('assert')
+const AsyncLock = require('async-lock')
+const logger = require('./logger')
 
 class Synchronizer {
   constructor (k8sClient, dbModel) {
@@ -58,18 +60,20 @@ class Synchronizer {
   }
 }
 
-class ListSynchronizer extends Synchronizer {
+class ListWatchSynchronizer extends Synchronizer {
   constructor (k8sClient, dbModel, listIntervalSeconds = 120, deletePolicy = 'delete') {
     super(k8sClient, dbModel)
     this.listIntervalSeconds = listIntervalSeconds
     assert(['delete', 'retain'].indexOf(deletePolicy) >= 0)
     this.deletePolicy = deletePolicy
+    this.lock = new AsyncLock({ maxPending: Number.MAX_SAFE_INTEGER })
   }
 
   /*
   This function should return:
     {
       'k8sObjList': <list of k8s Object>,
+      'resourceVersion': 'k8s list resource version'
       'dbObjList': <list of db Object>
     }
    If there is any error during retrieving, this function should throw it.
@@ -78,99 +82,123 @@ class ListSynchronizer extends Synchronizer {
     throw new Error('Not Implemented.')
   }
 
-  run () {
-    // use arrow function to capture `this`
-    const realRun = () => {
-      this.list().then(({ k8sObjList, dbObjList }) => {
-        try {
-          k8sObjList = k8sObjList.filter(obj => this.k8sObjValidate(obj)).map(obj => this.k8sObjPreprocess(obj))
-          dbObjList = dbObjList.filter(obj => this.dbObjValidate(obj)).map(obj => this.dbObjPreprocess(obj))
-          const k8sUuidSet = new Set(); const dbUuidSet = new Set()
-          k8sObjList.map(obj => k8sUuidSet.add(obj.uuid))
-          dbObjList.map(obj => dbUuidSet.add(obj.uuid))
-          // DELETE from database
-          if (this.deletePolicy === 'delete') {
-            for (const obj of dbObjList) {
-              if (!(k8sUuidSet.has(obj.uuid))) {
-                console.log('[ListSynchronizer] delete uuid: ' + obj.uuid)
-                this.dbModel.destroy({ where: { uuid: obj.uuid } })
-              }
-            }
-          }
-          // INSERT to database
-          for (const obj of k8sObjList) {
-            if (!(dbUuidSet.has(obj.uuid))) {
-              console.log('[ListSynchronizer] create: ' + JSON.stringify(obj))
-              this.dbModel.create(obj)
-            }
-          }
-          // UPDATE in database
-          const dbUuidToObj = new Map()
-          for (const obj of dbObjList) {
-            dbUuidToObj.set(obj.uuid, obj)
-          }
-          for (const obj of k8sObjList) {
-            if (dbUuidToObj.has(obj.uuid)) {
-              if (!(this.isEqual(obj, dbUuidToObj.get(obj.uuid)))) {
-                console.log('[ListSynchronizer] update:' + JSON.stringify(obj))
-                this.dbModel.update(obj, { where: { uuid: obj.uuid } })
-              }
-            }
-          }
-        } catch (err) {
-          console.error(err)
-        }
-        setTimeout(realRun, this.listIntervalSeconds * 1000)
-      }, err => console.error(err))
-    }
-    realRun()
-  }
-}
-
-class WatchSynchronizer extends Synchronizer {
-  constructor (k8sClient, dbModel, deletePolicy = 'delete') {
-    super(k8sClient, dbModel)
-    assert(['delete', 'retain'].indexOf(deletePolicy) >= 0)
-    this.deletePolicy = deletePolicy
-  }
-
   /*
-  This function should be replaced with a real watch function.
+  This function should be override with a real watch function.
   However, users should not call .watch() directly.
+  It will be called by the synchronizer internally.
   */
-  async watch (eventCallback) {
+  async watch (dataCallback, endCallback, resourceVersion, timeoutSeconds) {
     throw new Error('Not Implemented.')
   }
 
-  run () {
-    this.watch(
-      event => {
-        try {
-          let obj = event.object
-          if (this.k8sObjValidate(obj)) {
-            obj = this.k8sObjPreprocess(obj)
-            if (event.type === 'ADDED') {
-              console.log('[WatchSynchronizer] create: ' + JSON.stringify(obj))
-              this.dbModel.create(obj)
-            } else if (event.type === 'MODIFIED') {
-              console.log('[WatchSynchronizer] update: ' + JSON.stringify(obj))
-              this.dbModel.update(obj, { where: { uuid: obj.uuid } })
-            } else if (event.type === 'DELETED') {
-              if (this.deletePolicy === 'delete') {
-                console.log('[WatchSynchronizer] delete uuid: ' + obj.uuid)
-                this.dbModel.destroy({ where: { uuid: obj.uuid } })
-              }
-            }
-          }
-        } catch (err) {
-          console.error(err)
+  _submit (method, obj) {
+    if (method === 'insert') {
+      this.lock.acquire(obj.uuid, () => {
+        logger.info('insert: ' + JSON.stringify(obj))
+        return this.dbModel.create(obj)
+      }).catch(err => logger.error(err))
+    } else if (method === 'update') {
+      this.lock.acquire(obj.uuid, () => {
+        logger.info('update:' + JSON.stringify(obj))
+        return this.dbModel.update(obj, { where: { uuid: obj.uuid } })
+      }).catch(err => logger.error(err))
+    } else if (method === 'delete') {
+      this.lock.acquire(obj.uuid, () => {
+        logger.info('delete uuid: ' + obj.uuid)
+        return this.dbModel.destroy({ where: { uuid: obj.uuid } })
+      }).catch(err => logger.error(err))
+    } else {
+      throw new Error('Unknown submitted method: ' + method)
+    }
+  }
+
+  /*
+  Synchronize one time by `list`.
+  If there is any error, this function should throw it.
+  */
+  async listSynchronize () {
+    let { k8sObjList, resourceVersion, dbObjList } = await this.list()
+    k8sObjList = k8sObjList.filter(obj => this.k8sObjValidate(obj)).map(obj => this.k8sObjPreprocess(obj))
+    dbObjList = dbObjList.filter(obj => this.dbObjValidate(obj)).map(obj => this.dbObjPreprocess(obj))
+    const k8sUuidSet = new Set()
+    const dbUuidSet = new Set()
+    k8sObjList.map(obj => k8sUuidSet.add(obj.uuid))
+    dbObjList.map(obj => dbUuidSet.add(obj.uuid))
+    // DELETE from database
+    if (this.deletePolicy === 'delete') {
+      for (const obj of dbObjList) {
+        if (!(k8sUuidSet.has(obj.uuid))) {
+          this._submit('delete', obj)
         }
       }
-    )
+    }
+    // INSERT to database
+    for (const obj of k8sObjList) {
+      if (!(dbUuidSet.has(obj.uuid))) {
+        this._submit('insert', obj)
+      }
+    }
+    // UPDATE in database
+    const dbUuidToObj = new Map()
+    for (const obj of dbObjList) {
+      dbUuidToObj.set(obj.uuid, obj)
+    }
+    for (const obj of k8sObjList) {
+      if (dbUuidToObj.has(obj.uuid)) {
+        if (!(this.isEqual(obj, dbUuidToObj.get(obj.uuid)))) {
+          this._submit('update', obj)
+        }
+      }
+    }
+
+    return resourceVersion
+  }
+
+  watchDataCallBack (data) {
+    try {
+      let obj = data.object
+      if (this.k8sObjValidate(obj)) {
+        obj = this.k8sObjPreprocess(obj)
+        if (data.type === 'ADDED') {
+          this._submit('insert', obj)
+        } else if (data.type === 'MODIFIED') {
+          this._submit('update', obj)
+        } else if (data.type === 'DELETED') {
+          if (this.deletePolicy === 'delete') {
+            this._submit('delete', obj)
+          }
+        }
+      }
+    } catch (err) {
+      logger.error(err)
+    }
+  }
+
+  /*
+  This function does `list` -> `watch` -> `list` ..... forever.
+  */
+  run () {
+    const _realRun = async () => {
+      let resourceVersion
+      try {
+        logger.info('start `list`.')
+        resourceVersion = await this.listSynchronize()
+      } catch (err) {
+        logger.error(err)
+        resourceVersion = null
+      }
+      logger.info('start `watch` from resourceVersion ' + resourceVersion + '.')
+      this.watch(
+        (data) => this.watchDataCallBack(data),
+        () => _realRun(),
+        resourceVersion,
+        this.listIntervalSeconds
+      )
+    }
+    _realRun()
   }
 }
 
 module.exports = {
-  ListSynchronizer: ListSynchronizer,
-  WatchSynchronizer: WatchSynchronizer
+  ListWatchSynchronizer: ListWatchSynchronizer
 }

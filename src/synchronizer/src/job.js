@@ -17,8 +17,9 @@
 
 const { Sequelize, Model } = require('sequelize')
 const { sequelize } = require('./core/db')
-const { ListSynchronizer, WatchSynchronizer } = require('./core/sync')
+const { ListWatchSynchronizer } = require('./core/sync')
 const assert = require('assert')
+const logger = require('./core/logger')
 
 class JobModel extends Model {}
 
@@ -33,80 +34,57 @@ JobModel.init({
   retries: Sequelize.INTEGER,
   tasks: Sequelize.INTEGER,
   gpus: Sequelize.INTEGER,
-  status: Sequelize.STRING
+  k8sState: Sequelize.STRING,
+  completionStatus: Sequelize.STRING
 }, {
   sequelize,
   modelName: 'job'
 })
 
-function jobK8sObjValidate (obj) {
-  try {
-    assert('uid' in obj.metadata)
-    assert('name' in obj.metadata)
-  } catch (err) {
-    console.warn('Object' + obj + 'is not a valid k8s object.')
-    return false
-  }
-  return true
-}
-
-function jobK8sObjPreprocess (obj) {
-  console.log(obj.status ? obj.status.state : null)
-  console.log((obj.status && obj.status.attemptStatus.completionStatus) ? obj.status.attemptStatus.completionStatus.type.name : null)
-  return {
-    uuid: obj.metadata.uid,
-    name: obj.metadata.labels.jobName,
-    startTime: obj.status ? new Date(obj.status.startTime) : null,
-    transitionTime: obj.status ? new Date(obj.status.transitionTime) : null,
-    completionTime: obj.status ? new Date(obj.status.completionTime) : null,
-    userName: obj.metadata.labels.userName,
-    virtualCluster: obj.metadata.labels.virtualCluster,
-    retries: obj.status ? obj.status.retryPolicyStatus.totalRetriedCount : null,
-    tasks: obj.spec.taskRoles.reduce((s, v) => s + v.taskNumber, 0),
-    gpus: obj.metadata.annotations.totalGpuNumber === 'NaN' ? 0 : parseInt(obj.metadata.annotations.totalGpuNumber),
-    k8sState: obj.status ? obj.status.state : null,
-    completionStatus: (obj.status && obj.status.attemptStatus.completionStatus) ? obj.status.attemptStatus.completionStatus.type.name : null
-  }
-}
-
-class JobListSynchronizer extends ListSynchronizer {
+class JobSynchronizer extends ListWatchSynchronizer {
   async list () {
     const [k8sRet, dbObjList] = await Promise.all([this.k8sClient.listFrameworks(), this.dbModel.findAll()])
     return {
       k8sObjList: k8sRet.items,
+      resourceVersion: k8sRet.metadata.resourceVersion,
       dbObjList: dbObjList
     }
   }
 
-  k8sObjValidate (obj) {
-    return jobK8sObjValidate(obj)
-  }
-
-  k8sObjPreprocess (obj) {
-    return jobK8sObjPreprocess(obj)
-  }
-}
-
-class JobWatchSynchronizer extends WatchSynchronizer {
-  async watch (eventCallback) {
-    this.k8sClient.watchFrameworks(eventCallback)
+  async watch (dataCallback, endCallback, resourceVersion, timeoutSeconds) {
+    this.k8sClient.watchFrameworks(dataCallback, endCallback, resourceVersion, timeoutSeconds)
   }
 
   k8sObjValidate (obj) {
-    return jobK8sObjValidate(obj)
+    try {
+      assert('uid' in obj.metadata)
+      assert('name' in obj.metadata)
+    } catch (err) {
+      logger.warn('Object' + obj + 'is not a valid k8s object.')
+      return false
+    }
+    return true
   }
 
   k8sObjPreprocess (obj) {
-    return jobK8sObjPreprocess(obj)
-  }
-
-  dbObjPreprocess (obj) {
-    return obj
+    return {
+      uuid: obj.metadata.uid,
+      name: obj.metadata.labels.jobName,
+      startTime: obj.status ? new Date(obj.status.startTime) : null,
+      transitionTime: obj.status ? new Date(obj.status.transitionTime) : null,
+      completionTime: obj.status ? new Date(obj.status.completionTime) : null,
+      userName: obj.metadata.labels.userName,
+      virtualCluster: obj.metadata.labels.virtualCluster,
+      retries: obj.status ? obj.status.retryPolicyStatus.totalRetriedCount : null,
+      tasks: obj.spec.taskRoles.reduce((s, v) => s + v.taskNumber, 0),
+      gpus: obj.metadata.annotations.totalGpuNumber === 'NaN' ? 0 : parseInt(obj.metadata.annotations.totalGpuNumber),
+      k8sState: obj.status ? obj.status.state : null,
+      completionStatus: (obj.status && obj.status.attemptStatus.completionStatus) ? obj.status.attemptStatus.completionStatus.type.name : null
+    }
   }
 }
 
 module.exports = {
   JobModel: JobModel,
-  JobListSynchronizer: JobListSynchronizer,
-  JobWatchSynchronizer: JobWatchSynchronizer
+  JobSynchronizer: JobSynchronizer
 }

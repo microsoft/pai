@@ -18,13 +18,13 @@
 require('dotenv').config()
 const { listIntervalSeconds, k8sConfig } = require('./core/config')
 const K8SClient = require('./core/k8s')
-const { JobModel, JobListSynchronizer } = require('./job')
+const { JobModel, JobSynchronizer } = require('./job')
 
-async function runJobListSynchronizer () {
+async function runJobSynchronizer () {
   const client = new K8SClient(k8sConfig)
   await Promise.all([client.init(), JobModel.sync({ alter: true })])
-  const jobListSynchronizer = new JobListSynchronizer(client, JobModel, listIntervalSeconds)
-  jobListSynchronizer.run()
+  const jobSynchronizer = new JobSynchronizer(client, JobModel, listIntervalSeconds)
+  jobSynchronizer.run()
 }
 
-runJobListSynchronizer()
+runJobSynchronizer().then(() => console.log('run exit'))

@@ -18,6 +18,6 @@
 enable: false
 k8s-timeout-seconds: 60
 job-list-interval-seconds: 300
-job-list-db-max-connection: 10
+job-db-max-connection: 10
 user-list-interval-seconds: 120
-user-list-db-max-connection: 2
+user-db-max-connection: 2

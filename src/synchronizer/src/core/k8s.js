@@ -44,15 +44,23 @@ class K8SClient {
     return userSecrets.body
   }
 
-  async watchUsers (dataCallback = (data => console.log(JSON.stringify(data)))) {
-    const userSecrets = await this.listUsers()
-    const resourceVersion = userSecrets.metadata.resourceVersion
+  async watchUsers (
+    dataCallback = (data => console.log(JSON.stringify(data))),
+    endCallback = (() => null),
+    resourceVersion = null,
+    timeoutSeconds = Number.MAX_SAFE_INTEGER) {
+    if (!(resourceVersion)) {
+      // if there is no resourceVersion, query it from `list`
+      const userSecrets = await this.listUsers()
+      resourceVersion = userSecrets.metadata.resourceVersion
+    }
     const stream = this.client.api.v1.watch.namespaces('pai-user-v2').secrets.getStream(
-      { qs: { resourceVersion: resourceVersion, timeoutSeconds: Number.MAX_SAFE_INTEGER } }
+      { qs: { resourceVersion: resourceVersion, timeoutSeconds: timeoutSeconds } }
     )
     const jsonStream = new JSONStream()
     stream.pipe(jsonStream)
     jsonStream.on('data', dataCallback)
+    jsonStream.on('end', endCallback)
   }
 
   async listFrameworks () {
@@ -62,15 +70,23 @@ class K8SClient {
     return frameworks.body
   }
 
-  async watchFrameworks (dataCallback = (data => console.log(JSON.stringify(data)))) {
-    const frameworks = await this.listFrameworks()
-    const resourceVersion = frameworks.metadata.resourceVersion
+  async watchFrameworks (
+    dataCallback = (data => console.log(JSON.stringify(data))),
+    endCallback = (() => null),
+    resourceVersion = null,
+    timeoutSeconds = Number.MAX_SAFE_INTEGER) {
+    if (!(resourceVersion)) {
+      // if there is no resourceVersion, query it from `list`
+      const frameworks = await this.listFrameworks()
+      resourceVersion = frameworks.metadata.resourceVersion
+    }
     const stream = this.client.apis['frameworkcontroller.microsoft.com'].v1.watch.namespaces('default').frameworks.getStream(
-      { qs: { resourceVersion: resourceVersion, timeoutSeconds: Number.MAX_SAFE_INTEGER } }
+      { qs: { resourceVersion: resourceVersion, timeoutSeconds: timeoutSeconds } }
     )
     const jsonStream = new JSONStream()
     stream.pipe(jsonStream)
     jsonStream.on('data', dataCallback)
+    jsonStream.on('end', endCallback)
   }
 }
 
