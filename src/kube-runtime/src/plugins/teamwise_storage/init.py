@@ -20,22 +20,19 @@ import os
 import sys
 
 #pylint: disable=wrong-import-position
-sys.path.append(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
-from plugin_utils import plugin_init, inject_commands
-from teamwise_storage.storage_command_generator import StorageCommandGenerator
+sys.path.append(
+    os.path.join(os.path.dirname(os.path.abspath(__file__)), "../.."))
+from plugins.plugin_utils import plugin_init, PluginHelper
+from plugins.teamwise_storage.storage_command_generator import StorageCommandGenerator
 #pylint: enable=wrong-import-position
 
-logging.basicConfig(
-    format=
-    "%(asctime)s - %(levelname)s - %(filename)s:%(lineno)s - %(message)s",
-    level=logging.INFO,
-)
 LOGGER = logging.getLogger(__name__)
 
 
 def main():
     LOGGER.info("Preparing storage runtime plugin commands")
-    [parameters, pre_script, _] = plugin_init()
+    [plugin_config, pre_script, _] = plugin_init()
+    parameters = plugin_config.get("parameters", "")
 
     try:
         command_generator = StorageCommandGenerator()
@@ -45,7 +42,8 @@ def main():
     pre_script_commands = command_generator.generate_plugin_commands(
         parameters)
 
-    inject_commands(pre_script_commands, pre_script)
+    PluginHelper(plugin_config).inject_commands(pre_script_commands,
+                                                pre_script)
     LOGGER.info("Storage runtime plugin perpared")
 
 

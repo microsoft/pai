@@ -23,12 +23,16 @@ import unittest
 import yaml
 
 # pylint: disable=wrong-import-position
-sys.path.append("{}/../src/init.d".format(
-    os.path.split(os.path.realpath(__file__))[0]))
+sys.path.append(
+    os.path.join(os.path.dirname(os.path.abspath(__file__)), "../src"))
+sys.path.append(
+    os.path.join(os.path.dirname(os.path.abspath(__file__)), "../src/init.d"))
 import image_checker
+from common.utils import init_logger
 # pylint: enable=wrong-import-position
 
 PACKAGE_DIRECTORY_COM = os.path.dirname(os.path.abspath(__file__))
+init_logger()
 
 
 # pylint: disable=protected-access

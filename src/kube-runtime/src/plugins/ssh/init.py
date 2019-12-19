@@ -16,44 +16,58 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-from __future__ import print_function
-
+import logging
 import os
 import sys
-sys.path.append(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
-import collections
-import logging
-import argparse
-import yaml
 
-from plugin_utils import plugin_init, inject_commands
+sys.path.append(
+    os.path.join(os.path.dirname(os.path.abspath(__file__)), "../.."))
+from plugins.plugin_utils import plugin_init, PluginHelper  #pylint: disable=wrong-import-position
 
-logger = logging.getLogger(__name__)
+LOGGER = logging.getLogger(__name__)
+
+
+def main():
+    LOGGER.info("Preparing ssh runtime plugin commands")
+    [plugin_config, pre_script, _] = plugin_init()
+    plugin_helper = PluginHelper(plugin_config)
+    parameters = plugin_config.get("parameters")
+
+    if not parameters:
+        LOGGER.info("Ssh plugin parameters is empty, ignore this")
+        return
+
+    if "jobssh" in parameters:
+        jobssh = str(parameters["jobssh"]).lower()
+    else:
+        jobssh = "false"
+    cmd_params = [jobssh]
+
+    if "userssh" in parameters:
+        if "type" in parameters["userssh"] and "value" in parameters["userssh"]:
+            cmd_params.append(str(parameters["userssh"]["type"]))
+            cmd_params.append("\'{}\'".format(parameters["userssh"]["value"]))
+
+    # write call to real executable script
+    command = [
+        "{}/sshd.sh {}\n".format(os.path.dirname(os.path.abspath(__file__)),
+                                 " ".join(cmd_params))
+    ]
+
+    # ssh barrier
+    if jobssh == "true" and "sshbarrier" in parameters and str(
+            parameters["sshbarrier"]).lower() == "true":
+        if "sshbarriertaskroles" in parameters:
+            barrier_params = " ".join(
+                '"{}"'.format(tr) for tr in parameters["sshbarriertaskroles"])
+        else:
+            barrier_params = ""
+        command.append("{}/sshbarrier.sh {}\n".format(
+            os.path.dirname(os.path.abspath(__file__)), barrier_params))
+
+    plugin_helper.inject_commands(command, pre_script)
+    LOGGER.info("Ssh runtime plugin perpared")
+
 
 if __name__ == "__main__":
-    [parameters, pre_script, post_script] = plugin_init()
-
-    if parameters is not None:
-        if "jobssh" in parameters:
-            jobssh = str(parameters["jobssh"]).lower()
-        else:
-            jobssh = "false"
-        cmdParams = [jobssh]
-
-        if "userssh" in parameters:
-            if "type" in parameters["userssh"] and "value" in parameters["userssh"]:
-                cmdParams.append(str(parameters["userssh"]["type"]))
-                cmdParams.append("\'{}\'".format(parameters["userssh"]["value"]))
-
-        # write call to real executable script
-        command = ["{}/sshd.sh {}\n".format(os.path.dirname(os.path.abspath(__file__)), " ".join(cmdParams))]
-
-        # ssh barrier
-        if jobssh == "true" and "sshbarrier" in parameters and str(parameters["sshbarrier"]).lower() == "true":
-            if "sshbarriertaskroles" in parameters:
-                barrierParams = " ".join('"{}"'.format(tr) for tr in parameters["sshbarriertaskroles"])
-            else:
-                barrierParams = ""
-            command.append("{}/sshbarrier.sh {}\n".format(os.path.dirname(os.path.abspath(__file__)), barrierParams))
-
-        inject_commands(command, pre_script)
+    main()

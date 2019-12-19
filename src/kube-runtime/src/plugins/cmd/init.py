@@ -16,25 +16,27 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-from __future__ import print_function
-
 import os
 import sys
-sys.path.append(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
-import collections
-import logging
-import argparse
-import yaml
 
-from plugin_utils import plugin_init, inject_commands
+sys.path.append(
+    os.path.join(os.path.dirname(os.path.abspath(__file__)), "../.."))
+from plugins.plugin_utils import plugin_init, PluginHelper  #pylint: disable=wrong-import-position
 
-logger = logging.getLogger(__name__)
+
+def main():
+    [plugin_config, pre_script, post_script] = plugin_init()
+
+    plugin_helper = PluginHelper(plugin_config)
+    parameters = plugin_config.get("parameters")
+    if parameters:
+        if "preCommands" in parameters:
+            plugin_helper.inject_commands(parameters["preCommands"],
+                                          pre_script)
+        if "postCommands" in parameters:
+            plugin_helper.inject_commands(parameters["postCommands"],
+                                          post_script)
+
 
 if __name__ == "__main__":
-    [parameters, pre_script, post_script] = plugin_init()
-
-    if parameters is not None:
-        if "preCommands" in parameters:
-            inject_commands(parameters["preCommands"], pre_script)
-        if "postCommands" in parameters:
-            inject_commands(parameters["postCommands"], post_script)
+    main()

@@ -16,34 +16,33 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-from __future__ import print_function
-
 import argparse
 import base64
-import collections
 import logging
 import gzip
 import json
 import os
 import sys
-import yaml
 
-logger = logging.getLogger(__name__)
+sys.path.append(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
+from common.utils import init_logger  #pylint: disable=wrong-import-position
+
+LOGGER = logging.getLogger(__name__)
 
 
 def export(k, v):
     print("export {}='{}'".format(k, v))
 
 
-def decompressField(field):
+def decompress_field(field):
     if not field:
-        return
+        return None
     data = gzip.decompress(base64.b64decode(field))
     obj = json.loads(data)
     return obj
 
 
-def generate_runtime_env(framework):
+def generate_runtime_env(framework):  #pylint: disable=too-many-locals
     """Generate runtime env variables for tasks.
 
     # current
@@ -73,16 +72,21 @@ def generate_runtime_env(framework):
     taskroles = {}
     for taskrole in framework["spec"]["taskRoles"]:
         taskroles[taskrole["name"]] = {
-            "number": taskrole["taskNumber"],
-            "ports": json.loads(taskrole["task"]["pod"]["metadata"]["annotations"]["rest-server/port-scheduling-spec"]),
+            "number":
+            taskrole["taskNumber"],
+            "ports":
+            json.loads(taskrole["task"]["pod"]["metadata"]["annotations"]
+                       ["rest-server/port-scheduling-spec"]),
         }
-    logger.info("task roles: {}".format(taskroles))
+    LOGGER.info("task roles: %s", taskroles)
 
     # decompress taskRoleStatuses for the large framework
     taskrole_instances = []
     if not framework["status"]["attemptStatus"]["taskRoleStatuses"]:
-        framework["status"]["attemptStatus"]["taskRoleStatuses"] = decompressField(
-            framework["status"]["attemptStatus"]["taskRoleStatusesCompressed"])
+        framework["status"]["attemptStatus"][
+            "taskRoleStatuses"] = decompress_field(
+                framework["status"]["attemptStatus"]
+                ["taskRoleStatusesCompressed"])
 
     for taskrole in framework["status"]["attemptStatus"]["taskRoleStatuses"]:
         name = taskrole["name"]
@@ -95,22 +99,27 @@ def generate_runtime_env(framework):
 
             taskrole_instances.append("{}:{}".format(name, index))
 
-            def get_port_base(x):
-                return int(ports[x]["start"]) + int(ports[x]["count"]) * int(index)
+            get_port_base = lambda port_name, p=ports, i=index: int(p[
+                port_name]["start"]) + int(p[port_name]["count"]) * int(i)
 
             # export ip/port for task role, current ip maybe None for non-gang-allocation
             if current_ip:
                 export("PAI_HOST_IP_{}_{}".format(name, index), current_ip)
-                host_list.append("{}:{}".format(current_ip, get_port_base("http")))
+                host_list.append("{}:{}".format(current_ip,
+                                                get_port_base("http")))
 
             for port in ports.keys():
                 start, count = get_port_base(port), int(ports[port]["count"])
-                current_port_str = ",".join(str(x) for x in range(start, start + count))
-                export("PAI_PORT_LIST_{}_{}_{}".format(name, index, port), current_port_str)
-                export("PAI_{}_{}_{}_PORT".format(name, index, port), current_port_str)
+                current_port_str = ",".join(
+                    str(x) for x in range(start, start + count))
+                export("PAI_PORT_LIST_{}_{}_{}".format(name, index, port),
+                       current_port_str)
+                export("PAI_{}_{}_{}_PORT".format(name, index, port),
+                       current_port_str)
 
             # export ip/port for current container
-            if (current_taskrole_name == name and current_task_index == str(index)):
+            if (current_taskrole_name == name
+                    and current_task_index == str(index)):
                 export("PAI_CURRENT_CONTAINER_IP", current_ip)
                 export("PAI_CURRENT_CONTAINER_PORT", get_port_base("http"))
                 export("PAI_CONTAINER_HOST_IP", current_ip)
@@ -118,9 +127,12 @@ def generate_runtime_env(framework):
                 export("PAI_CONTAINER_SSH_PORT", get_port_base("ssh"))
                 port_str = ""
                 for port in ports.keys():
-                    start, count = get_port_base(port), int(ports[port]["count"])
-                    current_port_str = ",".join(str(x) for x in range(start, start + count))
-                    export("PAI_CONTAINER_HOST_{}_PORT_LIST".format(port), current_port_str)
+                    start, count = get_port_base(port), int(
+                        ports[port]["count"])
+                    current_port_str = ",".join(
+                        str(x) for x in range(start, start + count))
+                    export("PAI_CONTAINER_HOST_{}_PORT_LIST".format(port),
+                           current_port_str)
                     port_str += "{}:{};".format(port, current_port_str)
                 export("PAI_CONTAINER_HOST_PORT_LIST", port_str)
 
@@ -136,17 +148,17 @@ def generate_jobconfig(framework):
     """
     print(framework["metadata"]["annotations"]["config"])
 
-if __name__ == "__main__":
-    logging.basicConfig(
-        format="%(asctime)s - %(levelname)s - %(filename)s:%(lineno)s - %(message)s",
-        level=logging.INFO,
-    )
+
+def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("function", choices=["genenv", "genconf"], help="parse function, could be genenv|genconf")
-    parser.add_argument("framework_json", help="framework.json generated by frameworkbarrier")
+    parser.add_argument("function",
+                        choices=["genenv", "genconf"],
+                        help="parse function, could be genenv|genconf")
+    parser.add_argument("framework_json",
+                        help="framework.json generated by frameworkbarrier")
     args = parser.parse_args()
 
-    logger.info("loading json from %s", args.framework_json)
+    LOGGER.info("loading json from %s", args.framework_json)
     with open(args.framework_json) as f:
         framework = json.load(f)
 
@@ -154,3 +166,8 @@ if __name__ == "__main__":
         generate_runtime_env(framework)
     elif args.function == 'genconf':
         generate_jobconfig(framework)
+
+
+if __name__ == "__main__":
+    init_logger()
+    main()

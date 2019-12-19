@@ -1,0 +1,15 @@
+plugin: test1
+parameters:
+  p1: p1
+failurePolicy: ignore
+
+---
+plugin: test2
+parameters:
+  p1: p1
+failurePolicy: fail
+
+---
+plugin: test3
+parameters:
+  p1: p1

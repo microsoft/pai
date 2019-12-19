@@ -27,6 +27,9 @@ import sys
 import requests
 import yaml
 
+sys.path.append(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
+from common.utils import init_logger  #pylint: disable=wrong-import-position
+
 LOGGER = logging.getLogger(__name__)
 
 
@@ -76,11 +79,6 @@ def _is_docker_image_valid(job_config):
 
 
 def main():
-    logging.basicConfig(
-        format=
-        "%(asctime)s - %(levelname)s - %(filename)s:%(lineno)s - %(message)s",
-        level=logging.INFO,
-    )
     parser = argparse.ArgumentParser()
     parser.add_argument("job_config", help="job config yaml")
     args = parser.parse_args()
@@ -93,4 +91,5 @@ def main():
 
 
 if __name__ == "__main__":
+    init_logger()
     main()
