@@ -30,6 +30,12 @@ cp hivedscheduler.yaml hivedscheduler-{{vc}}.yaml
 sed  -i "s/%VC_NAME%/{{vc}}/g" hivedscheduler-{{vc}}.yaml
 kubectl apply --overwrite=true -f hivedscheduler-{{vc}}.yaml || exit $?
 rm hivedscheduler-{{vc}}.yaml
+
+sleep 10
+# Wait until the service is ready.
+PYTHONPATH="../../../deployment" python -m k8sPaiLibrary.monitorTool.check_pod_ready_status -w -k app -v hivedscheduler-sts-{{vc}} || exit $?
+
+
 {% endfor %}
 
 sleep 10
