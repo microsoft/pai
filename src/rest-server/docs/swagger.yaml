@@ -1710,6 +1710,12 @@ paths:
       summary: Get kubernetes pod list.
       description: Get kubernetes pod list. Need administrator permission.
       operationId: getK8sPods
+      parameters:
+      - name: namespace
+        in: query
+        description: filter pods with namespace
+        schema:
+          type: string
       security:
       - bearerAuth: []
       responses:
