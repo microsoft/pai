@@ -69,7 +69,7 @@ def cli_unset(args):
 
 @register_as_cli(
     'add-cluster',
-    ['--cluster-alias', '--pai-uri', '--user', '--password', '--authen-token', '--storage-name'],
+    ['--cluster-alias', '--pai-uri', '--user', '--password', '--authen-token'],
     'add a cluster to the clusters.yaml',
 )
 def cli_add_cluster(args):
@@ -474,7 +474,10 @@ def cli_makedir(args):
 )
 def cli_remove(args):
     f1, pth1 = pai_open_fs(args.path_1)
-    assert f1.exists(pth1), f"path {f1.expand_root(pth1)} does not exist"
+    if not f1.exists(pth1):
+        to_screen(f"path {f1.expand_root(pth1)} does not exist")
+        return 
+    # assert f1.exists(pth1), f"path {f1.expand_root(pth1)} does not exist"
     if f1.isdir(pth1):
         f1.removedir(pth1)
     else:
@@ -494,7 +497,10 @@ def copy_fuc(path_1:str, path_2:str):
     from fs.copy import copy_dir, copy_file
     f1, pth1 = pai_open_fs(path_1)
     f2, pth2 = pai_open_fs(path_2)
-    assert f1.exists(pth1), f"path {f1.expand_root(pth1)} does not exist"
+    if not f1.exists(pth1):
+         to_screen(f"path {f1.expand_root(pth1)} does not exist")
+         return
+    # assert f1.exists(pth1), f"path {f1.expand_root(pth1)} does not exist"
     if f1.isdir(pth1):
         copy_dir(f1, pth1, f2, pth2)
     else:

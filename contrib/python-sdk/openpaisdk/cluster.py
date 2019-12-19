@@ -130,7 +130,6 @@ class Cluster:
             user=user,
             password=password,
             token=token,
-            storage_name=storage_name
         )
         self.config.update(
             {k: v for k, v in kwargs.items() if k in ["info", "storages", "virtual_clusters", "type", "workspace"]}
@@ -167,7 +166,13 @@ class Cluster:
 
     @property
     def pai_uri(self):
-        return self.config["pai_uri"]
+        import re
+        # remove port from "XX.XX.XX.XX:port"
+        pai_uri = self.config["pai_uri"]
+        port = re.search(':[0-9]+', pai_uri)
+        if port:
+            pai_uri = pai_uri[0 : port.span()[0]]
+        return pai_uri
 
     @property
     def user(self):
@@ -175,11 +180,11 @@ class Cluster:
     
     @property
     def workspace(self):
-        return self.config.get("workspace")
+        return self.config.get("workspace", f'/{self.user}')
     
     @property
     def storage_name(self):
-        return self.config.get("storage_name")
+        return self.config.get('storage_name', '0')
 
     @property
     def password(self):
@@ -295,10 +300,11 @@ class Cluster:
             },
         ).json()
 
+    # TODO
     @exception_free(RestSrvError, None)
     def rest_api_storage_servers(self, names: list):
         return get_response(
-            'POST', [self.rest_srv, 'v2', 'storage', 'servers'],
+            'GET', [self.rest_srv, 'v2', 'storage', 'server'],
             headers={
                 'Authorization': 'Bearer {}'.format(self.token),
             },
@@ -308,9 +314,10 @@ class Cluster:
         ).json()
 
     @exception_free(RestSrvError, None)
+    # TODO
     def rest_api_storage_configs(self, names: list):
         return get_response(
-            'POST', [self.rest_srv, 'v2', 'storage', 'configs'],
+            'GET', [self.rest_srv, 'v2', 'storage', 'config'],
             headers={
                 'Authorization': 'Bearer {}'.format(self.token),
             },
