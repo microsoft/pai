@@ -21,10 +21,6 @@ const dbUtility = require('@pai/utils/dbUtil');
 
 const db = dbUtility.getStorageObject('UserSecret', {
   'paiUserNameSpace': 'pai-user',
-  'requestConfig': {
-    baseURL: process.env.K8S_APISERVER_URI + '/api/v1/namespaces/',
-    maxRedirects: 0,
-  },
 });
 describe('k8s secret get function test', () => {
   afterEach(function() {

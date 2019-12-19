@@ -17,16 +17,14 @@
 
 // module dependencies
 const _ = require('lodash');
-const axios = require('axios');
 const {Client} = require('@elastic/elasticsearch');
 const base32 = require('base32');
-const {Agent} = require('https');
 const {isNil} = require('lodash');
 
 const {convertToJobAttempt} = require('@pai/utils/frameworkConverter');
 const launcherConfig = require('@pai/config/launcher');
-const {apiserver} = require('@pai/config/kubernetes');
 const createError = require('@pai/utils/error');
+const k8sModel = require('@pai/models/kubernetes');
 
 let elasticSearchClient;
 if (!_.isNil(process.env.ELASTICSEARCH_URI)) {
@@ -82,12 +80,12 @@ const list = async (frameworkName) => {
   // get latest framework from k8s API
   let response;
   try {
-    response = await axios({
-      method: 'get',
-      url: launcherConfig.frameworkPath(encodeName(frameworkName)),
-      headers: launcherConfig.requestHeaders,
-      httpsAgent: apiserver.ca && new Agent({ca: apiserver.ca}),
-    });
+    response = await k8sModel.getClient().get(
+      launcherConfig.frameworkPath(encodeName(frameworkName)),
+      {
+        headers: launcherConfig.requestHeaders,
+      }
+    );
   } catch (error) {
     if (error.response != null) {
       response = error.response;
@@ -188,12 +186,12 @@ const get = async (frameworkName, jobAttemptIndex) => {
   let attemptFramework;
   let response;
   try {
-    response = await axios({
-      method: 'get',
-      url: launcherConfig.frameworkPath(encodeName(frameworkName)),
-      headers: launcherConfig.requestHeaders,
-      httpsAgent: apiserver.ca && new Agent({ca: apiserver.ca}),
-    });
+    response = await k8sModel.getClient().get(
+      launcherConfig.frameworkPath(encodeName(frameworkName)),
+      {
+        headers: launcherConfig.requestHeaders,
+      }
+    );
   } catch (error) {
     if (error.response != null) {
       response = error.response;

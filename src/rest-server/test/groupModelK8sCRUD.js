@@ -18,8 +18,6 @@
 // test
 const groupK8sCRUD = require('@pai/utils/manager/group/crudK8sSecret');
 
-const groupK8sCRUDConfig = groupK8sCRUD.initConfig(process.env.K8S_APISERVER_URI);
-
 describe('Group model k8s secret get function test', () => {
   afterEach(function() {
     if (!nock.isDone()) {
@@ -107,20 +105,20 @@ describe('Group model k8s secret get function test', () => {
   // positive test case
   // get exist single key value pair
   it('Should return whole group list.', async () => {
-    const res = await groupK8sCRUD.readAll(groupK8sCRUDConfig);
+    const res = await groupK8sCRUD.readAll();
     return expect(res).to.have.lengthOf(2);
   });
 
   // negative test case
   // get non-exist user
   it('Should report user not found error', async ()=> {
-    return await expect(groupK8sCRUD.read('non_exist', groupK8sCRUDConfig)).to.be.rejected;
+    return await expect(groupK8sCRUD.read('non_exist')).to.be.rejected;
   });
 
   // positive test case
   // find specific user
   it('Should return specific group info.', async () => {
-    const res = await groupK8sCRUD.read('paitest', groupK8sCRUDConfig);
+    const res = await groupK8sCRUD.read('paitest');
     return expect(res).to.deep.equal({
       groupname: 'paitest',
       description: 'test',
@@ -216,7 +214,7 @@ describe('Group model k8s secret set function test', () => {
       'externalName': '1234',
       'extension': {},
     };
-    const res = await groupK8sCRUD.create('newuser', updateGroup, groupK8sCRUDConfig);
+    const res = await groupK8sCRUD.create('newuser', updateGroup);
     return expect(res, 'status').to.have.status(200);
   });
 
@@ -228,7 +226,7 @@ describe('Group model k8s secret set function test', () => {
       'externalName': '1234',
       'extension': {},
     };
-    const res = await groupK8sCRUD.update('existuser', updateGroup, groupK8sCRUDConfig);
+    const res = await groupK8sCRUD.update('existuser', updateGroup);
     return expect(res, 'status').to.have.status(200);
   });
 });
@@ -279,11 +277,11 @@ describe('User Model k8s secret delete function test', () => {
 
   // delete exist user
   it('should delete an exist group successfully', async () => {
-    const res = await groupK8sCRUD.remove('existuser', groupK8sCRUDConfig);
+    const res = await groupK8sCRUD.remove('existuser');
     return expect(res, 'status').to.have.status(200);
   });
 
   it('should failed to delete an non-exist user', async () => {
-    return await expect(groupK8sCRUD.remove('nonexistuser', groupK8sCRUDConfig)).to.be.rejected;
+    return await expect(groupK8sCRUD.remove('nonexistuser')).to.be.rejected;
   });
 });

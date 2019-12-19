@@ -17,16 +17,15 @@
 
 const jwt = require('jsonwebtoken');
 const uuid = require('uuid');
-const logger = require('@pai/config/logger');
 const {secret, tokenExpireTime} = require('@pai/config/token');
 const k8sSecret = require('@pai/models/k8s-secret');
+const k8sModel = require('@pai/models/kubernetes');
 
 const namespace = process.env.PAI_TOKEN_NAMESPACE || 'pai-user-token';
 
 // create namespace if not exists
 if (process.env.NODE_ENV !== 'test') {
-  logger.info(`Create token secret namespace (${namespace}) if not exist`);
-  k8sSecret.createNamespace(namespace);
+  k8sModel.createNamespace(namespace);
 }
 
 const sign = async (username, application, expiration) => {

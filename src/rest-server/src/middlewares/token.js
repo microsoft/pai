@@ -19,6 +19,7 @@ const {userProperty} = require('@pai/config/token');
 const userModel = require('@pai/models/v2/user');
 const tokenModel = require('@pai/models/token');
 const createError = require('@pai/utils/error');
+const logger = require('@pai/config/logger');
 
 const getToken = async (req) => {
   const [scheme, credentials] = req.headers.authorization.split(' ');
@@ -48,6 +49,7 @@ const check = async (req, _, next) => {
     req[userProperty].admin = await userModel.checkAdmin(req[userProperty].username);
     next();
   } catch (error) {
+    logger.debug(error);
     return next(createError('Unauthorized', 'UnauthorizedUserError', 'Your token is invalid.'));
   }
 };
