@@ -25,7 +25,13 @@ exit 0
 kubectl apply --overwrite=true -f hivedscheduler-config.yaml || exit $?
 kubectl apply --overwrite=true -f rbac.yaml || exit $?
 kubectl apply --overwrite=true -f hivedscheduler-service.yaml || exit $?
-kubectl apply --overwrite=true -f hivedscheduler.yaml || exit $?
+
+{% for vc in cluster_cfg['hivedscheduler']['structured-config']['virtualClusters'] %}
+cp hivedscheduler.yaml hivedscheduler-{{vc}}.yaml
+sed  -i "s/%VC_NAME%/{{vc}}/g" hivedscheduler-{{vc}}.yaml
+kubectl apply --overwrite=true -f hivedscheduler-{{vc}}.yaml || exit $?
+rm hivedscheduler-{{vc}}.yaml
+{% endfor %}
 
 sleep 10
 # Wait until the service is ready.
