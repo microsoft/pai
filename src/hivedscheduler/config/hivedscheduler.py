@@ -15,6 +15,7 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+import yaml
 
 class Hivedscheduler:
     def __init__(self, cluster_conf, service_conf, default_service_conf):
@@ -25,11 +26,13 @@ class Hivedscheduler:
     def validation_pre(self):
         if 'config' not in self.service_conf:
             self.service_conf['config'] = ''
-        print(self.service_conf['config'])
-            # return False, 'hived scheduler config is missing'
         return True, None
 
     def run(self):
+        self.service_conf['structured-config'] = {}
+        if self.service_conf['config'] != '':
+            self.service_conf['structured-config'] = yaml.load(self.service_conf['config'], yaml.SafeLoader)
+            print(self.service_conf['structured-config'])
         self.service_conf['config'] = self.service_conf['config'].replace('\n', '\n    ')
         return self.service_conf
 
