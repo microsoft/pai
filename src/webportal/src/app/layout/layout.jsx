@@ -42,7 +42,7 @@ const BREAKPOINT = 600;
 
 const Layout = () => {
   const [mobileShowSidebar, setMobileShowSidebar] = useState(false);
-  const [userInfo, setUserInfo] = useState('');
+  const [userInfo, setUserInfo] = useState({});
 
   // check token && get email
   useEffect(() => {

@@ -17,6 +17,7 @@ import {
   FontWeights,
   PersonaSize,
   getTheme,
+  PersonaInitialsColor,
 } from 'office-ui-fabric-react';
 
 import { userLogout } from '../../user/user-logout/user-logout.component';
@@ -50,7 +51,7 @@ CustomButton.propTypes = {
 
 const Navbar = ({ onToggleSidebar, mobile, userInfo }) => {
   const username = cookies.get('user');
-  const { spacing } = getTheme();
+  const { spacing, palette } = getTheme();
   const menuButtonRef = useRef();
   const [menuVisible, setMenuVisible] = useState(false);
   return (
@@ -136,7 +137,23 @@ const Navbar = ({ onToggleSidebar, mobile, userInfo }) => {
               </CommandBarButton>
             </div>
             <div className={c(t.flex, t.pa3)}>
-              <PersonaCoin text={username} size={PersonaSize.size100} />
+              <PersonaCoin
+                initialsColor={PersonaInitialsColor.transparent}
+                styles={{
+                  initials: [
+                    ColorClassNames.neutralSecondary,
+                    {
+                      borderRadius: '50%',
+                      border: `4px solid ${palette.neutralSecondary}`,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                    },
+                  ],
+                }}
+                text={username}
+                size={PersonaSize.size100}
+              />
               <div className={c(t.ml5)}>
                 <div
                   className={FontClassNames.xLarge}
