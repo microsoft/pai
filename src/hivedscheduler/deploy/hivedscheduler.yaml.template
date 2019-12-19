@@ -15,23 +15,21 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-{%- for vc in cluster_cfg['hivedscheduler']['structured-config']['virtualClusters'].keys() %}
-
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
-  name: hivedscheduler-ds-{{ vc }}
+  name: hivedscheduler-sts-%VC_NAME%
   namespace: default
 spec:
-  serviceName: hivedscheduler-ds-{{ vc }}
+  serviceName: hivedscheduler-sts-%VC_NAME%
   selector:
     matchLabels:
-      app: hivedscheduler-ds-{{ vc }}
+      app: hivedscheduler-sts-%VC_NAME%
   replicas: 1
   template:
     metadata:
       labels:
-        app: hivedscheduler-ds-{{ vc }}
+        app: hivedscheduler-sts-%VC_NAME%
     spec:
       serviceAccountName: hivedscheduler-account
       containers:
@@ -41,7 +39,7 @@ spec:
           "sh", "-c",
           "echo \"apiVersion: kubescheduler.config.k8s.io/v1alpha1\" >> config.yaml &&
            echo \"kind: KubeSchedulerConfiguration\" >> config.yaml &&
-           echo \"schedulerName: hivedscheduler-{{ vc }}\" >> config.yaml &&
+           echo \"schedulerName: hivedscheduler-%VC_NAME%\" >> config.yaml &&
            echo \"disablePreemption: false\" >> config.yaml &&
            echo \"algorithmSource:\" >> config.yaml &&
            echo \"  policy:\" >> config.yaml &&
@@ -58,9 +56,24 @@ spec:
            --feature-gates=PodPriority=true
            --leader-elect=false
            --v=4"]
-
-{% if not loop.last %}
----
-{% endif %}
-
-{%- endfor %}
+        volumeMounts:
+        - name: hivedscheduler-config
+          mountPath: /hivedscheduler-config
+      - name: hivedscheduler
+        image: hivedscheduler/hivedscheduler:v0.2.5
+        command: [
+          "bash", "-c",
+          "cp /hivedscheduler-config/hivedscheduler.yaml . &&
+          ./start.sh"]
+      {%- if cluster_cfg['cluster']['common']['k8s-rbac'] != 'true' %}
+        env:
+          - name: KUBE_APISERVER_ADDRESS
+            value: "{{ cluster_cfg['layout']['kubernetes']['api-servers-url'] }}"
+      {%- endif %}
+        volumeMounts:
+          - name: hivedscheduler-config
+            mountPath: /hivedscheduler-config
+      volumes:
+      - name: hivedscheduler-config
+        configMap:
+          name: hivedscheduler-config
