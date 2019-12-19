@@ -1685,7 +1685,7 @@ paths:
   /api/v1/kubernetes/nodes:
     get:
       tags:
-        - kubernetes
+      - kubernetes
       summary: Get kubernetes node list.
       description: Get kubernetes node list.
       operationId: getK8sNodes
@@ -1702,7 +1702,7 @@ paths:
   /api/v1/kubernetes/nodes:
     get:
       tags:
-        - kubernetes
+      - kubernetes
       summary: Get kubernetes pod list.
       description: Get kubernetes pod list.
       operationId: getK8sPods
