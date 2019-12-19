@@ -32,7 +32,6 @@ class Hivedscheduler:
         self.service_conf['structured-config'] = {}
         if self.service_conf['config'] != '':
             self.service_conf['structured-config'] = yaml.load(self.service_conf['config'], yaml.SafeLoader)
-            print(self.service_conf['structured-config'])
         self.service_conf['config'] = self.service_conf['config'].replace('\n', '\n    ')
         return self.service_conf
 
