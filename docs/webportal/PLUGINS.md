@@ -14,7 +14,7 @@ Before the PAI deploy / redeploy, you can configure the web portal plugins in th
 webportal:
   server-port: 9286
   log-type: yarn
-  
+
   plugins:
   - title: Marketplace
     uri: /scripts/plugins/marketplace.bundle.js
@@ -61,17 +61,17 @@ The config of the plugin will be set as the query string of the entry file, like
 The easist way is to append an iframe to the `<pai-plugin>` tag:
 
 ```JavaScript
-class ExamplePlugin extends HTMLElement { 
-  constructor() { 
-    super() 
-    const iframe = document.createElement('iframe') 
-    iframe.width = '100%' 
-    iframe.height = '480px' 
-    iframe.setAttribute('src', 'https://example.com/') 
-    this.appendChild(iframe) 
-  } 
-} 
- 
+class ExamplePlugin extends HTMLElement {
+  constructor() {
+    super()
+    const iframe = document.createElement('iframe')
+    iframe.width = '100%'
+    iframe.height = '480px'
+    iframe.setAttribute('src', 'https://example.com/')
+    this.appendChild(iframe)
+  }
+}
+
 customElements.define('pai-plugin', ExamplePlugin)
 ```
 
@@ -82,7 +82,7 @@ Because Custom Elements is in the web standard, most web libraries / frameworks 
 There are 2 simple ways to publish your plugin:
 
 1. Put your plugin entry file to the Internet, and provide the full URL of the file to the system administrator. It is encouraged to use HTTPS to access your entry file to avoid XSS security issues.
-2. Fork the PAI repo and place your plugin code to the `src/webportal/src/plugins`, add your entry file to webpack config to make your plugin outputed. And then provide the relative URL based on web portal root to the system administrator.
+2. Fork the PAI repo and place your plugin code to the `src/webportal/src/plugins`, add your entry file to webpack config to make your plugin outputted. And then provide the relative URL based on web portal root to the system administrator.
 
 For advance users, a new PAI service that exports a plugin entry file also works. This is out of the scope of web portal plugin, please follow the [add a service](../pai-management/doc/add-service.md) document.
 

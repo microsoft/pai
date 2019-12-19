@@ -762,6 +762,13 @@ spec:
 
 
 ###########################################################################
+# Range: [200, 219]
+# Owner: PAI_FC
+# Description: Reserved by PAI_FC, please do not use this range
+###########################################################################
+
+
+###########################################################################
 # Range: [220, 255]
 # Owner: PAI_RUNTIME
 # Description: User Container issued failures:
@@ -804,6 +811,7 @@ spec:
   pattern:
     runtimeContainerPatterns:
     - userLogRegex: "(?msi)tensorflow.*ResourceExhaustedError.*OOM.*"
+    - userLogRegex: "ran out of memory trying to allocate"
 
 - code: 222
   phrase: ContainerMPISegvFault
@@ -839,6 +847,218 @@ spec:
   pattern:
     runtimeContainerPatterns:
     - userLogRegex: "(?msi)CUDA_ERROR_ECC_UNCORRECTABLE.*"
+
+- code: 224
+  phrase: ContainerCudaVersionMismatch
+  issuer: PAI_RUNTIME
+  causer: USER_CONTAINER
+  type: USER_FAILURE
+  stage: RUNNING
+  behavior: PERMANENT
+  reaction: NEVER_RETRY
+  reason: "Container failed due to cude version mismatch"
+  repro:
+  - "Using cude 10 in container with driver version below 410.48"
+  solution:
+  - "Change docker image with correct cuda runtime version"
+  - "Contact Cluster Admin"
+  pattern:
+    runtimeContainerPatterns:
+    - userLogRegex: "cuda driver version is insufficient for cuda runtime version"
+
+- code: 225
+  phrase: ContainerCudaDnnVersionMismatch
+  issuer: PAI_RUNTIME
+  causer: USER_CONTAINER
+  type: USER_FAILURE
+  stage: RUNNING
+  behavior: PERMANENT
+  reaction: NEVER_RETRY
+  reason: "Container failed due to cuda dnn version mismatch"
+  repro:
+  - "Running latest pytorch with old cuDNN lib"
+  solution:
+  - "Change docker image with correct DL framework version"
+  pattern:
+    runtimeContainerPatterns:
+    - userLogRegex: "dropout supported only in cudnn v"
+
+- code: 226
+  phrase: ContainerCudaOOMKilled
+  issuer: PAI_RUNTIME
+  causer: USER_CONTAINER
+  type: USER_FAILURE
+  stage: RUNNING
+  behavior: PERMANENT
+  reaction: NEVER_RETRY
+  reason: "Container failed due to out of gpu memory"
+  repro:
+  - "Allocate GPU memory exceed hardware limit"
+  solution:
+  - "Select GPU type which has more physical memory"
+  - "Tuning the program parameter to use less memory"
+  pattern:
+    runtimeContainerPatterns:
+    - userLogRegex: "cuda runtime error (2) : out of memory"
+
+- code: 227
+  phrase: ContainerEngineCoreDump
+  issuer: PAI_RUNTIME
+  causer: USER_CONTAINER
+  type: USER_FAILURE
+  stage: RUNNING
+  behavior: PERMANENT
+  reaction: NEVER_RETRY
+  reason: "Container failed due to engine core dump"
+  repro:
+  - "Access invalid memory address"
+  solution:
+  - "Correct the user code"
+  pattern:
+    runtimeContainerPatterns:
+    - userLogRegex: "core dumped"
+
+- code: 228
+  phrase: ContainerIncorrectParameterError
+  issuer: PAI_RUNTIME
+  causer: USER_CONTAINER
+  type: USER_FAILURE
+  stage: RUNNING
+  behavior: PERMANENT
+  reaction: NEVER_RETRY
+  reason: "Container failed due to incorrect parameter"
+  repro:
+  - "Call tensorflow lib with incorrect parameters"
+  solution:
+  - "Correct the user code"
+  pattern:
+    runtimeContainerPatterns:
+    - userLogRegex: "(?msi)unknown option"
+    - userLogRegex: "typeerror: dynamic_rnn() got multiple values for keyword argument"
+    - userLogRegex: "bad argument #2 to .*"
+    - userLogRegex: "invalid argument:"
+    - userLogRegex: "option -start_symbol has no default value"
+
+- code: 229
+  phrase: ContainerIncorrectDataModelError
+  issuer: PAI_RUNTIME
+  causer: USER_CONTAINER
+  type: USER_FAILURE
+  stage: RUNNING
+  behavior: PERMANENT
+  reaction: NEVER_RETRY
+  reason: "Container failed due to incorrect data model"
+  repro:
+  - "Call DL framework lib with incorrect data model format"
+  solution:
+  - "Correct the user code, use correct data model"
+  pattern:
+    runtimeContainerPatterns:
+    - userLogRegex: "perhaps your file is in a different file format"
+    - userLogRegex: "bash: bd5/bd5_bar-train.ids"
+    - userLogRegex: "exception occurred: error opening file"
+    - userLogRegex: "filenotfounderror: [errno 2] no such file or directory"
+    - userLogRegex: "unicodeencodeerror:"
+    - userLogRegex: "unicodedecodeerror"
+    - userLogRegex: "exception: unknown text header name"
+    - userLogRegex: "exception: unknown label header name"
+    - userLogRegex: "eoferror: ran out of input"
+    - userLogRegex: "utils.lua:.*input/output error"
+    - userLogRegex: "tensorflow.python.framework.errors.unknownerror:.*input/output error"
+    - userLogRegex: "oserror:.*input/output error"
+    - userLogRegex: "cp: failed to close.*input/output error"
+    - userLogRegex: "exception occurred:.* Input/output error"
+
+- code: 230
+  phrase: ContainerInvalidSavePath
+  issuer: PAI_RUNTIME
+  causer: USER_CONTAINER
+  type: USER_FAILURE
+  stage: RUNNING
+  behavior: PERMANENT
+  reaction: NEVER_RETRY
+  reason: "Container failed due to invalid save path"
+  repro:
+  - "Use invalid save path to save model"
+  solution:
+  - "Check the save path and correct it"
+  pattern:
+    runtimeContainerPatterns:
+    - userLogRegex: "(?msi)ValueError: Restore called with invalid save path"
+
+- code: 231
+  phrase: ContainerSyntaxError
+  issuer: PAI_RUNTIME
+  causer: USER_CONTAINER
+  type: USER_FAILURE
+  stage: RUNNING
+  behavior: PERMANENT
+  reaction: NEVER_RETRY
+  reason: "Container failed due to syntax error"
+  repro:
+  - "User use invalid syntax in code"
+  solution:
+  - "Check the source code and correct the errors"
+  pattern:
+    runtimeContainerPatterns:
+    - userLogRegex: "syntaxerror: invalid syntax"
+    - userLogRegex: "unpicklingerror"
+    - userLogRegex: "assign requires shapes of both tensors to match"
+    - userLogRegex: "torch/install/share/lua.*c.* exception"
+    - userLogRegex: "attributeerror:.*has no attribute"
+    - userLogRegex: "nameerror: name.* is not defined"
+
+- code: 232
+  phrase: ContainerImportError
+  issuer: PAI_RUNTIME
+  causer: USER_CONTAINER
+  type: USER_FAILURE
+  stage: RUNNING
+  behavior: PERMANENT
+  reaction: NEVER_RETRY
+  reason: "Container failed due to error import"
+  repro:
+  - "User import invalid module"
+  solution:
+  - "Check the source code and correct it"
+  pattern:
+    runtimeContainerPatterns:
+    - userLogRegex: "importerror:.*"
+
+- code: 233
+  phrase: ContainerIndexOutOfRange
+  issuer: PAI_RUNTIME
+  causer: USER_CONTAINER
+  type: USER_FAILURE
+  stage: RUNNING
+  behavior: PERMANENT
+  reaction: NEVER_RETRY
+  reason: "User code access element which out of range"
+  repro:
+  - "Access element out of range"
+  solution:
+  - "Check the source code and correct it"
+  pattern:
+    runtimeContainerPatterns:
+    - userLogRegex: "indexerror:.*index out of range"
+
+
+- code: 234
+  phrase: ContainerSigvFault
+  issuer: PAI_RUNTIME
+  causer: USER_CONTAINER
+  type: USER_FAILURE
+  stage: RUNNING
+  behavior: PERMANENT
+  reaction: NEVER_RETRY
+  reason: "Container failed due to segmentation fault"
+  repro:
+  - "Access invalid memory address"
+  solution:
+  - "Correct the user code"
+  pattern:
+    runtimeContainerPatterns:
+    - userLogRegex: "(?msi)segmentation fault"
 
 - code: 249
   phrase: PAIRuntimeSSHBarrierTimeout
@@ -916,6 +1136,20 @@ spec:
   solution:
   - "Wait result from next retry"
   - "Decrease per task ports request"
+
+- code: 254
+  phrase: ContainerImageNotExists
+  issuer: PAI_RUNTIME
+  causer: PAI_RUNTIME
+  type: USER_FAILURE
+  stage: LAUNCHING
+  behavior: PERMANENT
+  reaction: NEVER_RETRY
+  reason: "Pull access denied, repository does not exist or may require authentication"
+  repro:
+  - "Submit job with incorrect docker image uri"
+  solution:
+  - "Correct docker image uri in job protocol"
 
 - code: 255
   phrase: PAIRuntimeUnknownFailed

@@ -19,7 +19,7 @@
 
 Prepare deployment related dependency.
 
-- [Option A. Start Dev-box contianer as the environemnt.](./how-to-setup-dev-box.md) 
+- [Option A. Start Dev-box container as the environment.](./how-to-setup-dev-box.md)
 - [Option B. Install necessary dependency software on your host.](./how-to-install-depdencey.md)
 
-Note 1: If you wanna manage the cluster in a machine belonging to OpenPAI, please choose option B. Otherwise, option A is highly recommended.
+Note 1: If you want to manage the cluster in a machine belonging to OpenPAI, please choose option B. Otherwise, option A is highly recommended.

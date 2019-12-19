@@ -36,7 +36,7 @@ import (
 
 // WebServer Callbacks with K8S Default Scheduler
 // Notes:
-// 1. Error should be passed by panic
+// 1. Error should be delivered by panic
 // 2. Should not assume previous succeeded operation also has been successfully
 //    executed by K8S Default Scheduler.
 type ExtenderHandlers struct {
@@ -53,7 +53,11 @@ type InspectHandlers struct {
 // SchedulerAlgorithm is used to make the pod schedule decision based on its whole
 // cluster scheduling view constructed from its Add/Update/Delete callbacks.
 // Notes:
-// 1. Error should be passed by panic
+// 1. Error should be delivered by panic and it will not change any state.
+//    For WebServer Callbacks, all Panics will be recovered as error responses,
+//    see HandleInformerPanic.
+//    For Informer Callbacks, only User Error Panics will be recovered as error
+//    logs, other Panics will crash the whole process, see HandleWebServerPanic.
 // 2. Should take all the input parameters as readonly and return pod schedule
 //    decision by PodScheduleResult.
 // 3. {Schedule, AddAllocatedPod, DeleteAllocatedPod} will never be executed
@@ -87,7 +91,7 @@ type SchedulerAlgorithm interface {
 // Notes:
 // 1. If the SchedulerAlgorithm found sufficient free resource, only PodBindInfo
 //    should be set.
-//    If the SchedulerAlgorithm found sufficient preemptable resource, only
+//    If the SchedulerAlgorithm found sufficient preemptible resource, only
 //    PodPreemptInfo should be set.
 //    Otherwise, only PodWaitInfo can be optionally set.
 // 2. The selected node in PodBindInfo requires:
@@ -142,13 +146,13 @@ const PodUnknown PodState = "Unknown"
 
 // [AllocatedState]: The Pod is considered to be allocated from the scheduler view.
 const (
-	// Pod is waiting for preemptable or free resource to appear.
+	// Pod is waiting for preemptible or free resource to appear.
 	// [StartState]
 	// -> PodPreempting
 	// -> PodBinding
 	PodWaiting PodState = "Waiting"
 
-	// Pod is waiting for the appeared preemptable resource to be free by preemption.
+	// Pod is waiting for the appeared preemptible resource to be free by preemption.
 	// -> PodBinding
 	// -> PodWaiting
 	PodPreempting PodState = "Preempting"
@@ -170,8 +174,8 @@ func IsAllocated(state PodState) bool {
 
 // No need to use it recover scheduler waiting resource
 type PodWaitInfo struct {
-	// NodeName ->  The reason why the node cannot be used for the Pod to allocate.
-	FailedNodeReasons map[string]string
+	// The reason why no preemptible or free resource to allocate the Pod now.
+	Reason string
 }
 
 // No need to use it recover scheduler preempting resource

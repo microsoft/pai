@@ -21,7 +21,7 @@ from openpaisdk import get_defaults, ClusterList, JobStatusParser
 from openpaisdk.utils import run_command, randstr
 from openpaisdk.io_utils import to_screen
 from typing import Union
-from basic_test import OrderedUnitTestCase, seperated
+from basic_test import OrderedUnitTestCase, separated
 
 
 def get_cmd(cmd: Union[str, list], flags: dict, args: Union[list, str] = None):
@@ -106,6 +106,6 @@ testing REST APIs related to querying a job, including
             for t, content in v.items():
                 to_screen(f"reading logs {k} for {t} and get {len(content)} Bytes")
 
-    @seperated
+    @separated
     def test_commands_sequence(self):
         self.run_steps()

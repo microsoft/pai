@@ -245,7 +245,7 @@ export const JobSubmissionPage = ({
           })
           .catch(alert);
       }
-    } else {
+    } else if (params.get('op') !== 'resubmit') {
       setLoading(false);
     }
   }, [vcNames]);

@@ -17,7 +17,7 @@
   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 -->
 
-## Single Box Deploy 
+## Single Box Deploy
 
 ### Index
 - [Step 1. Prepare Deployment Environment](#c-step-1)
@@ -37,16 +37,16 @@
 
 ***
 
-### Step 2. Prepare Configuraiton <a name="c-step-2"></a>
+### Step 2. Prepare Configuration <a name="c-step-2"></a>
 
 - [Option A. Generate the Cluster Configuration from template](./how-to-generate-cluster-config.md)
 - [Option B. Write your own Cluster Configuration](./customized-configuration.md)
 
-If this the first time for you to deploy OpenPAI, Option A is highly recommended. 
+If this the first time for you to deploy OpenPAI, Option A is highly recommended.
 
 If you wanna customize the configuration, you could firstly follow the Option A to generate a rough cluster configuration. And then you can follow Option B to customize your configuration according to your requirements.
 
-If you are very familiar with OpenPAI, you could directly write your configuraiton based on the Option B.
+If you are very familiar with OpenPAI, you could directly write your configuration based on the Option B.
 
 ***
 

@@ -25,6 +25,7 @@ const convertPriority = (priorityClass='test') => {
   // TODO: make it a cluster-wise config
   // allowed range: [-1, 126], default priority 0
   const priorityMap = {
+    crit: 120,
     prod: 100,
     test: 10,
     oppo: -1,
@@ -32,7 +33,7 @@ const convertPriority = (priorityClass='test') => {
   return priorityClass in priorityMap ? priorityMap[priorityClass] : null;
 };
 
-const hivedValidate = (protocolObj) => {
+const hivedValidate = (protocolObj, username) => {
   if (!hivedSchema.validate(protocolObj)) {
     throw createError('Bad Request', 'InvalidProtocolError', hivedSchema.validate.errors);
   }
@@ -161,14 +162,14 @@ const hivedValidate = (protocolObj) => {
 
       const affinityGroupName = hivedConfig.taskRoles[taskRole].affinityGroupName;
       podSpec.affinityGroup = affinityGroupName ? {
-        name: protocolObj.name + '/' + affinityGroupName,
+        name: `${username}~${protocolObj.name}/${affinityGroupName}`,
         members: affinityGroups[affinityGroupName].affinityTaskList,
       } : null;
     }
 
     if (defaultAffinityGroup != null) {
       podSpec.affinityGroup = {
-        name: `${protocolObj.name}/default`,
+        name: `${username}~${protocolObj.name}/default`,
         members: defaultAffinityGroup.affinityTaskList,
       };
     }

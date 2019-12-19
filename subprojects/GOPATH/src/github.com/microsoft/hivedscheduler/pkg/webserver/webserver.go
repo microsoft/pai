@@ -133,7 +133,7 @@ func (ln tcpKeepAliveListener) Accept() (net.Conn, error) {
 	return tc, nil
 }
 
-// Error should be passed by panic
+// Error should be delivered by panic
 type servePathHandler func(w http.ResponseWriter, r *http.Request)
 
 func (ws *WebServer) serve(handler servePathHandler) servePathHandler {

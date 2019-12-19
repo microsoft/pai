@@ -46,6 +46,7 @@ type defaultIntraVCScheduler struct {
 	// currently we create a topologyAwareScheduler for each cluster view (each chain, each reservation).
 	// we plan to support multiple cluster views in one scheduler, and to support schedule pods
 	// across different cluster views.
+	// TODO: Support an affinity group can relax to be allocated across multiple chains.
 	nonReservedSchedulers map[CellChain]*topologyAwareScheduler
 	reservedSchedulers    map[api.ReservationId]*topologyAwareScheduler
 }

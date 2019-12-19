@@ -63,14 +63,14 @@ path: /a/b/c
 
 - kube-config: The configuration for kubectl and other kubernetes client to access to the server. The default value is ```~/.kube/config```. For more detail information, please refer to the [link](https://kubernetes.io/docs/concepts/configuration/organize-cluster-access-kubeconfig/#the-kubeconfig-environment-variable)
 
-### Generate cluster configuratin from quick-start.yaml <a name="Config_Generate"></a>
+### Generate cluster configuration from quick-start.yaml <a name="Config_Generate"></a>
 
 ```yaml
 python paictl.py config generate -i /pai/deployment/quick-start/quick-start/quick-start.yaml -o ~/pai-config -f
 ```
 
 - quick-start.yaml: Admin could generate a complete cluster configuration with quick-start.yaml. More detailed about this file please refer to this [link](../pai-management/doc/how-to-generate-cluster-config.md).
-- More infomation about this command please refer to this [link](../pai-management/doc/how-to-generate-cluster-config.md).
+- More information about this command please refer to this [link](../pai-management/doc/how-to-generate-cluster-config.md).
 - By default, in the generated configuration, a single-master Kubernetes is configured by default.
 - Advanced users or developers can fine-tune the content of the generated configuration files according to specific environments.
 
@@ -191,7 +191,7 @@ paictl.py config get-id [-c kube-config]
 
 - Install kubectl in the deployment box.
 - Configure KUBECONFIG for kubectl or other kubernetes' client.
-- The args ```-p /path/to/cluster/configuration``` is optional. If admin don't pass this args, paictl will ask admin to input the necessary infomation to generate KUBECONFIG.
+- The args ```-p /path/to/cluster/configuration``` is optional. If admin don't pass this args, paictl will ask admin to input the necessary information to generate KUBECONFIG.
 - When in a clean dev-box, please run this command firstly.
 
 ## Appendix: An example of the `machine-list.yaml` file <a name="Machine_Nodelist_Example"></a>
