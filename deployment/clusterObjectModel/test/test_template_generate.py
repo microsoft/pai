@@ -73,7 +73,7 @@ class TestTemplateGenerate(unittest.TestCase):
                 service_conf = file_handler.load_yaml_config(service_deploy_conf_path)
                 if ("cluster-type" not in service_conf) or ("cluster-type" in service_conf and "yarn" in service_conf["cluster-type"]):
                     service_list.append(subdir)
-        print(service_list)
+
         for serv in service_list:
             service_conf = file_handler.load_yaml_config("{0}/{1}/deploy/service.yaml".format(src_path, serv))
             service_template_generater = service_template_generate(com, serv, service_conf)
