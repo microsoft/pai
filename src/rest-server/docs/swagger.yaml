@@ -26,6 +26,8 @@ tags:
   description: API endpoint for storage
 - name: job history
   description: API endpoint for job history
+- name: kubernetes
+  description: API endpoint for kubernetes info
 paths:
   /api/docs:
     get:
@@ -1680,6 +1682,40 @@ paths:
           $ref: '#/components/responses/NoJobError'
         501:
           $ref: '#/components/responses/UnknownError'
+  /api/v1/kubernetes/nodes:
+    get:
+      tags:
+        - kubernetes
+        summary: Get kubernetes node list.
+        description: Get kubernetes node list.
+        operationId: getK8sNode
+      responses:
+        200:
+          description: Succeeded
+          content:
+            application/json:
+              description: Please refer to Kubernetes API doc https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.17/
+        401:
+          $ref: '#/components/responses/UnauthorizedUserError'
+        403:
+          $ref: '#/components/responses/ForbiddenUserError'
+  /api/v1/kubernetes/nodes:
+    get:
+      tags:
+        - kubernetes
+        summary: Get kubernetes pod list.
+        description: Get kubernetes pod list.
+        operationId: getK8sNode
+      responses:
+        200:
+          description: Succeeded
+          content:
+            application/json:
+              description: Please refer to Kubernetes API doc https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.17/
+        401:
+          $ref: '#/components/responses/UnauthorizedUserError'
+        403:
+          $ref: '#/components/responses/ForbiddenUserError'
 
 components:
   parameters:
