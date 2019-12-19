@@ -21,27 +21,13 @@ metadata:
   name: hivedscheduler-config
   namespace: default
 data:
-  config.yaml: |
-    apiVersion: kubescheduler.config.k8s.io/v1alpha1
-    kind: KubeSchedulerConfiguration
-    schedulerName: hivedscheduler
-    disablePreemption: false
-    algorithmSource:
-      policy:
-        configMap:
-          name: hivedscheduler-config
-          namespace: default
-    leaderElection:
-      leaderElect: false
-      lockObjectName: hivedscheduler
-      lockObjectNamespace: default
   policy.cfg : |
     {
       "kind": "Policy",
       "apiVersion": "v1",
       "extenders": [
         {
-          "urlPrefix": "http://localhost:30096/v1/extender",
+          "urlPrefix": "{{ cluster_cfg['hivedscheduler']['webservice'] }}/v1/extender",
           "filterVerb": "filter",
           "preemptVerb": "preempt",
           "bindVerb": "bind",

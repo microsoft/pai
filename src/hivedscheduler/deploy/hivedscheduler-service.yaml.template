@@ -21,7 +21,7 @@ metadata:
   name: hivedscheduler-service
 spec:
   selector:
-    app: hivedscheduler
+    app: hivedscheduler-hs
   type: NodePort
   ports:
   - protocol: TCP
