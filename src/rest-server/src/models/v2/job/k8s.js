@@ -17,6 +17,7 @@
 
 
 // module dependencies
+const axios = require('axios');
 const zlib = require('zlib');
 const yaml = require('js-yaml');
 const base32 = require('base32');
@@ -307,10 +308,7 @@ const convertFrameworkDetail = async (framework) => {
   if (launcherConfig.enabledHived) {
     const affinityGroups = {};
     try {
-      const client = k8sModel.getClient();
-      const res = await client.get(`${launcherConfig.hivedWebserviceUri}/v1/inspect/affinitygroups/`, {
-        headers: launcherConfig.requestHeaders,
-      });
+      const res = await axios.get(`${launcherConfig.hivedWebserviceUri}/v1/inspect/affinitygroups/`);
       res.data.items.forEach((affinityGroup) => {
         affinityGroups[affinityGroup.metadata.name] = affinityGroup;
       });
