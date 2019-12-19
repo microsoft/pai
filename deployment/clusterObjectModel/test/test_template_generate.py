@@ -69,7 +69,7 @@ class TestTemplateGenerate(unittest.TestCase):
         for subdir in subdir_list:
 
             service_deploy_dir = "{0}/{1}/deploy".format(src_path, subdir)
-            service_deploy_conf_path =  "{0}/{1}/deploy/service.yaml".format(src_path, subdir)
+            service_deploy_conf_path = "{0}/{1}/deploy/service.yaml".format(src_path, subdir)
             if file_handler.directory_exits(service_deploy_dir) and file_handler.file_exist_or_not(service_deploy_conf_path):
                 service_list.append(subdir)
 
