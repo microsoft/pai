@@ -68,6 +68,8 @@ spec:
 {% else %}
           value: defaultscheduler
 {% endif %}
+        - name: HIVED_WEBSERVICE_URI
+          value: {{ cluster_cfg['hivedscheduler']['webservice'] }}
         - name: LOG_MANAGER_PORT
           value: "{{ cluster_cfg['log-manager']['port'] }}"
 {%- endif %}
