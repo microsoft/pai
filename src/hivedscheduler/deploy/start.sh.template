@@ -19,6 +19,7 @@
 
 pushd $(dirname "$0") > /dev/null
 
+sleep 1000
 exit 0
 {% if cluster_cfg['hivedscheduler']['config']|length > 1 %}
 
