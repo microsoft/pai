@@ -50,14 +50,14 @@ spec:
         - mountPath: /hived-spec
           name: hived-spec-rest-server
 {%- endif %}
-{%- if cluster_cfg['rest-server']['launcher-type'] == "k8s" %}
+{%- if cluster_cfg["cluster"]["common"]["cluster-type"] == "k8s" %}
         - mountPath: /k8s-job-exit-spec-configuration
           name: k8s-exit-spec-rest-server
 {%- endif %}
         env:
         - name: LAUNCHER_TYPE
-          value: {{ cluster_cfg['rest-server']['launcher-type'] }}
-{%- if cluster_cfg['rest-server']['launcher-type'] == "k8s" %}
+          value: {{ cluster_cfg["cluster"]["common"]["cluster-type"] }}
+{%- if cluster_cfg["cluster"]["common"]["cluster-type"] == "k8s" %}
         - name: LAUNCHER_RUNTIME_IMAGE
           value: {{ cluster_cfg['cluster']['docker-registry']['prefix'] }}kube-runtime:{{ cluster_cfg['cluster']['docker-registry']['tag'] }}
         - name: LAUNCHER_RUNTIME_IMAGE_PULL_SECRETS
@@ -145,7 +145,7 @@ spec:
         configMap:
           name: hivedscheduler-config
 {%- endif %}
-{%- if cluster_cfg['rest-server']['launcher-type'] == "k8s" %}
+{%- if cluster_cfg["cluster"]["common"]["cluster-type"] == "k8s" %}
       - name: k8s-exit-spec-rest-server
         configMap:
           name: k8s-job-exit-spec-configuration

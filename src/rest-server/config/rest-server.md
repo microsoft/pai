@@ -15,7 +15,6 @@ There are 2 mandatory config fields in rest-server section: `default-pai-admin-u
 other config fields are optional, includes:
 
 - `server-port: 9186` The port REST server service will listen
-- `launcher-type: yarn` The launcher type of REST server, should be "yarn" or "k8s". Default is "yarn"
 - `jwt-secret: pai-secret` The secret key of JSON web token
 - `jwt-expire-time` The expire time for a signed jwt token.
 - `github-owner: Microsoft` The marketplace repo owner in GitHub
@@ -31,7 +30,6 @@ After parsing, if you configured the rest-server the model will be like:
 rest-server:
     uri: http://rest-server-host:9186/
     server-port: 9186
-    launcher-type: yarn
     jwt-secret: pai-secret
     jwt-expire-time: '7d'
     default-pai-admin-username: pai-admin
@@ -62,12 +60,6 @@ rest-server:
     <td>com["rest-server"]["server-port"]</td>
     <td>cluster_cfg["rest-server"]["server-port"]</td>
     <td>Int</td>
-</tr>
-<tr>
-    <td>rest-server.launcher-type</td>
-    <td>com["rest-server"]["launcher-type"]</td>
-    <td>cluster_cfg["rest-server"]["launcher-type"]</td>
-    <td>String</td>
 </tr>
 <tr>
     <td>rest-server.jwt-secret</td>
