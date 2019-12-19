@@ -25,6 +25,7 @@ class Hivedscheduler:
     def validation_pre(self):
         if 'config' not in self.service_conf:
             self.service_conf['config'] = ''
+        print(self.service_conf['config'])
             # return False, 'hived scheduler config is missing'
         return True, None
 
