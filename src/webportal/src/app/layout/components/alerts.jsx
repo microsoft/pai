@@ -61,7 +61,7 @@ export const NotificationButton = () => {
         }
       } catch (err) {
         console.error(`Alerts Error: ${err.message}`);
-        // Swallow exceptions here. Since alertManager is optional and we don't have an API to get all avaliable services
+        // Swallow exceptions here. Since alertManager is optional and we don't have an API to get all available services
       }
     };
     work();
