@@ -25,6 +25,6 @@ spec:
   type: NodePort
   ports:
   - protocol: TCP
-    targetPort: 30096
-    port: 30096
-    nodePort: 30096
+    targetPort: {{ cluster_cfg['hivedscheduler']['webservice-port'] }}
+    port: {{ cluster_cfg['hivedscheduler']['webservice-port'] }}
+    nodePort: {{ cluster_cfg['hivedscheduler']['webservice-port'] }}
