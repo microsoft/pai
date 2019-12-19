@@ -29,7 +29,7 @@ kubectl apply --overwrite=true -f hivedscheduler-service.yaml || exit $?
 cp hivedscheduler.yaml hivedscheduler-vc-{{vc}}.yaml
 sed  -i "s/%VC_NAME%/{{vc}}/g" hivedscheduler-vc-{{vc}}.yaml
 kubectl apply --overwrite=true -f hivedscheduler-vc-{{vc}}.yaml || exit $?
-rm hivedscheduler-{{vc}}.yaml
+rm hivedscheduler-vc-{{vc}}.yaml
 
 sleep 10
 # Wait until the service is ready.
