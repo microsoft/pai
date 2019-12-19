@@ -16,7 +16,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 {%- for vc in cluster_cfg['hivedscheduler']['structured-config']['virtualClusters'].keys() %}
----
+
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
@@ -58,4 +58,9 @@ spec:
            --feature-gates=PodPriority=true
            --leader-elect=false
            --v=4"]
+
+{% if not loop.last %}
+---
+{% endif %}
+
 {%- endfor %}
