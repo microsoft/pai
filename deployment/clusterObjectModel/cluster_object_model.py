@@ -135,9 +135,10 @@ class cluster_object_model:
 
         service_model_list = self.get_service_model_list()
         for service_name in service_model_list:
-            if service_name is None:
+            parser = self.get_service_parser(service_name, cluster_type)
+            if parser is None:
                 continue
-            parser_dict[service_name] = self.get_service_parser(service_name, cluster_type)
+            parser_dict[service_name] = parser
 
         return self.load_config(parser_dict)
 
