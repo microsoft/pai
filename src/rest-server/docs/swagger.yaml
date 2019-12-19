@@ -1686,9 +1686,9 @@ paths:
     get:
       tags:
         - kubernetes
-        summary: Get kubernetes node list.
-        description: Get kubernetes node list.
-        operationId: getK8sNode
+      summary: Get kubernetes node list.
+      description: Get kubernetes node list.
+      operationId: getK8sNodes
       responses:
         200:
           description: Succeeded
@@ -1703,9 +1703,9 @@ paths:
     get:
       tags:
         - kubernetes
-        summary: Get kubernetes pod list.
-        description: Get kubernetes pod list.
-        operationId: getK8sNode
+      summary: Get kubernetes pod list.
+      description: Get kubernetes pod list.
+      operationId: getK8sPods
       responses:
         200:
           description: Succeeded
