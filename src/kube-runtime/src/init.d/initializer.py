@@ -146,6 +146,7 @@ def init_plugins(jobconfig, commands, plugins_path, runtime_path, taskrole):
             "{}/plugin_post{}.sh".format(runtime_path, index)
         ]
 
+        LOGGER.info("Starting to prepare plugin %s", plugin_name)
         # Run init script
         if "init-script" in plugin_desc:
             run_script(
