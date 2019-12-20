@@ -15,23 +15,4 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-cluster-type:
-  - k8s
-
-prerequisite:
-  - cluster-configuration
-  - device-plugin
-  - frameworkcontroller
-
-template-list:
-  - start.sh
-  - stop.sh
-  - hivedscheduler.yaml
-  - hivedscheduler-config.yaml
-  - hivedscheduler-service.yaml
-
-start-script: start.sh
-stop-script: stop.sh
-delete-script: delete.sh
-refresh-script: refresh.sh
-upgraded-script: upgraded.sh
+webservice-port: 30096
