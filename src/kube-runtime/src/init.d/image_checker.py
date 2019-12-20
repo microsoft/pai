@@ -37,6 +37,13 @@ def _is_docker_hub_uri(uri):
     return False
 
 
+def _get_docker_repository_name(image_name):
+    pathes = image_name.split("/")
+    if len(pathes) == 1:
+        return "library/{}".format(pathes[0])
+    return image_name
+
+
 def _is_docker_image_valid(job_config):
     prerequisites = job_config["prerequisites"]
 
@@ -59,10 +66,11 @@ def _is_docker_image_valid(job_config):
 
     arr = image_info["uri"].split(":")
     if len(arr) == 1:
-        uri = "http://hub.docker.com/v2/repositories/{}".format(arr[0])
+        uri = "http://hub.docker.com/v2/repositories/{}".format(
+            _get_docker_repository_name(arr[0]))
     elif len(arr) == 2:
         uri = "http://hub.docker.com/v2/repositories/{}/tags/{}".format(
-            arr[0], arr[1])
+            _get_docker_repository_name(arr[0]), arr[1])
     else:
         LOGGER.ERROR("Maybe docker uri is invalid")
         return False

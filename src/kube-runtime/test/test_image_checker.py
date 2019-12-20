@@ -94,6 +94,21 @@ class TestImageChecker(unittest.TestCase):
         for uri in invalid_docker_hub_uris:
             self.assertFalse(image_checker._is_docker_hub_uri(uri))
 
+    def test_get_docker_repository_name(self):
+        official_image_names = [
+            "ubuntu", "python:latest", "golang:1.12.6-alpine"
+        ]
+        third_party_image_name = [
+            "tensorflow/tensorflow:devel-gpu",
+            "docker pull pytorch/pytorch:1.3-cuda10.1-cudnn7-runtime"
+        ]
+        for name in official_image_names:
+            self.assertEqual("library/{}".format(name),
+                             image_checker._get_docker_repository_name(name))
+        for name in third_party_image_name:
+            self.assertEqual(name,
+                             image_checker._get_docker_repository_name(name))
+
 
 if __name__ == '__main__':
     unittest.main()
