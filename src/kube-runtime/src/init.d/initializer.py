@@ -125,10 +125,14 @@ def init_plugins(jobconfig, commands, plugins_path, runtime_path, taskrole):
     """
     if "extras" not in jobconfig or RUNTIME_PLUGIN_PLACE_HOLDER not in jobconfig[
             "extras"]:
-        return None
+        return
 
     for index in range(len(jobconfig["extras"][RUNTIME_PLUGIN_PLACE_HOLDER])):
         plugin = jobconfig["extras"][RUNTIME_PLUGIN_PLACE_HOLDER][index]
+
+        # Check taskroles
+        if "taskroles" in plugin and taskrole not in plugin["taskroles"]:
+            continue
 
         plugin_name = plugin["plugin"]
         plugin_base_path = "{}/{}".format(plugins_path, plugin_name)
@@ -158,7 +162,6 @@ def init_plugins(jobconfig, commands, plugins_path, runtime_path, taskrole):
 
         if os.path.isfile(plugin_scripts[1]):
             commands[1].insert(0, "/bin/bash {}".format(plugin_scripts[1]))
-        return plugin_scripts
 
 
 def replace_ref(param_str, jobconfig, taskrole):
