@@ -98,14 +98,14 @@ class TestImageChecker(unittest.TestCase):
         official_image_names = [
             "ubuntu", "python:latest", "golang:1.12.6-alpine"
         ]
-        third_party_image_name = [
+        third_party_image_names = [
             "tensorflow/tensorflow:devel-gpu",
             "docker pull pytorch/pytorch:1.3-cuda10.1-cudnn7-runtime"
         ]
         for name in official_image_names:
             self.assertEqual("library/{}".format(name),
                              image_checker._get_docker_repository_name(name))
-        for name in third_party_image_name:
+        for name in third_party_image_names:
             self.assertEqual(name,
                              image_checker._get_docker_repository_name(name))
 

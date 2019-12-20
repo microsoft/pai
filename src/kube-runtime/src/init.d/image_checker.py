@@ -38,9 +38,9 @@ def _is_docker_hub_uri(uri):
 
 
 def _get_docker_repository_name(image_name):
-    pathes = image_name.split("/")
-    if len(pathes) == 1:
-        return "library/{}".format(pathes[0])
+    paths = image_name.split("/")
+    if len(paths) == 1:
+        return "library/{}".format(paths[0])
     return image_name
 
 
