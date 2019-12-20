@@ -18,35 +18,23 @@
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
-  name: hivedscheduler-sts
+  name: hivedscheduler-hs
   namespace: default
 spec:
-  serviceName: hivedscheduler
+  serviceName: hivedscheduler-hs
   selector:
     matchLabels:
-      app: hivedscheduler
+      app: hivedscheduler-hs
   replicas: 1
   template:
     metadata:
       labels:
-        app: hivedscheduler
+        app: hivedscheduler-hs
     spec:
+      nodeSelector:
+        pai-master: "true"
       serviceAccountName: hivedscheduler-account
       containers:
-      - name: defaultscheduler
-        image: gcr.io/google_containers/kube-scheduler:v1.14.2
-        command: [
-          "/usr/local/bin/kube-scheduler",
-        {%- if cluster_cfg['cluster']['common']['k8s-rbac'] != 'true' %}
-          "--master={{ cluster_cfg['layout']['kubernetes']['api-servers-url'] }}",
-        {%- endif %}
-          "--config=/hivedscheduler-config/config.yaml",
-          "--feature-gates=PodPriority=true",
-          "--leader-elect=false",
-          "--v=4"]
-        volumeMounts:
-        - name: hivedscheduler-config
-          mountPath: /hivedscheduler-config
       - name: hivedscheduler
         image: hivedscheduler/hivedscheduler:v0.2.5
         command: [
@@ -59,9 +47,56 @@ spec:
             value: "{{ cluster_cfg['layout']['kubernetes']['api-servers-url'] }}"
       {%- endif %}
         volumeMounts:
-          - name: hivedscheduler-config
-            mountPath: /hivedscheduler-config
+        - name: hivedscheduler-config
+          mountPath: /hivedscheduler-config
       volumes:
       - name: hivedscheduler-config
         configMap:
           name: hivedscheduler-config
+
+{%- for vc in cluster_cfg['hivedscheduler']['structured-config']['virtualClusters'] %}
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: hivedscheduler-ds-{{ vc }}
+  namespace: default
+spec:
+  serviceName: hivedscheduler-ds-{{ vc }}
+  selector:
+    matchLabels:
+      app: hivedscheduler-ds-{{ vc }}
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: hivedscheduler-ds-{{ vc }}
+    spec:
+      nodeSelector:
+        pai-master: "true"
+      serviceAccountName: hivedscheduler-account
+      containers:
+      - name: defaultscheduler
+        image: gcr.io/google_containers/kube-scheduler:v1.14.2
+        command: [
+          "sh", "-c",
+          "echo \"apiVersion: kubescheduler.config.k8s.io/v1alpha1\" >> config.yaml &&
+           echo \"kind: KubeSchedulerConfiguration\" >> config.yaml &&
+           echo \"schedulerName: hivedscheduler-ds-{{ vc }}\" >> config.yaml &&
+           echo \"disablePreemption: false\" >> config.yaml &&
+           echo \"algorithmSource:\" >> config.yaml &&
+           echo \"  policy:\" >> config.yaml &&
+           echo \"    configMap:\" >> config.yaml &&
+           echo \"      name: hivedscheduler-config\" >> config.yaml &&
+           echo \"      namespace: default\" >> config.yaml &&
+           echo \"leaderElection:\" >> config.yaml &&
+           echo \"  leaderElect: false\" >> config.yaml &&
+           /usr/local/bin/kube-scheduler
+        {%- if cluster_cfg['cluster']['common']['k8s-rbac'] != 'true' %}
+           --master={{ cluster_cfg['layout']['kubernetes']['api-servers-url'] }}
+        {%- endif %}
+           --config=config.yaml
+           --feature-gates=PodPriority=true
+           --leader-elect=false
+           --v=4"]
+{%- endfor %}
