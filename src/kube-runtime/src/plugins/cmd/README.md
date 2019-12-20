@@ -13,4 +13,5 @@ extras:
           - pre-cmd
         postCommands:
           - post-cmd
+      failurePolicy: ignore/fail
 ```

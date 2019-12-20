@@ -13,4 +13,5 @@ extras:
         logdir:
           name1: path1
           name2: path2
+      failurePolicy: ignore/fail
 ```

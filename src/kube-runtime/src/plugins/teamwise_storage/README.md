@@ -11,4 +11,5 @@ extras:
       parameters:
         storageConfigNames:
           - PAI_SHARE  # storage config name provided by admin
+      failurePolicy: ignore/fail
 ```

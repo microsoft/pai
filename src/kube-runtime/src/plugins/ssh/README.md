@@ -16,6 +16,7 @@ extras:
         userssh: 
           type: string
           value: string
+      failurePolicy: ignore/fail
 ```
 - jobssh: true to enable job container wise ssh, false to disable.
 - sshbarrier: if set to true, wait until can ssh to all corresponding job containers. If not set, the defalut value is false.
