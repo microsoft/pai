@@ -82,7 +82,7 @@ spec:
           "sh", "-c",
           "echo \"apiVersion: kubescheduler.config.k8s.io/v1alpha1\" >> config.yaml &&
            echo \"kind: KubeSchedulerConfiguration\" >> config.yaml &&
-           echo \"schedulerName: hivedscheduler-{{ vc }}\" >> config.yaml &&
+           echo \"schedulerName: hivedscheduler-ds-{{ vc }}\" >> config.yaml &&
            echo \"disablePreemption: false\" >> config.yaml &&
            echo \"algorithmSource:\" >> config.yaml &&
            echo \"  policy:\" >> config.yaml &&
