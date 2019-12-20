@@ -64,7 +64,7 @@ const childNodeDefinitions: IChildNodeDefinition[] = [
         icon: ICON_EDIT
     },
     {
-        title: 'treeview.node.openhdfs',
+        title: 'treeview.node.storage',
         command: COMMAND_OPEN_HDFS,
         icon: ICON_HDFS,
         condition: (conf: IPAICluster): boolean => !!conf.webhdfs_uri
@@ -113,8 +113,14 @@ export class ClusterExplorerChildNode extends TreeItem {
  */
 @injectable()
 export class ConfigurationTreeDataProvider extends Singleton implements TreeDataProvider<ITreeData> {
-    private onDidChangeTreeDataEmitter: EventEmitter<ITreeData> = new EventEmitter<ITreeData>();
-    public onDidChangeTreeData: Event<ITreeData> = this.onDidChangeTreeDataEmitter.event; // tslint:disable-line
+    public onDidChangeTreeData: Event<ITreeData>;
+    private onDidChangeTreeDataEmitter: EventEmitter<ITreeData>;
+
+    constructor() {
+        super();
+        this.onDidChangeTreeDataEmitter = new EventEmitter<ITreeData>();
+        this.onDidChangeTreeData = this.onDidChangeTreeDataEmitter.event;
+    }
 
     public async refresh(): Promise<void> {
         this.onDidChangeTreeDataEmitter.fire();

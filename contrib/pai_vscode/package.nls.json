@@ -2,6 +2,7 @@
     "explorer.paiClusterExplorer": "PAI Cluster Explorer",
     "container.title": "Open Platform for AI",
     "container.hdfs.title": "HDFS Explorer",
+    "container.storage.title": "Storage Explorer",
     "container.joblist.title": "PAI Job List",
     "paiext.common.refresh": "Refresh",
     "paiext.cluster.add": "Add PAI Cluster",

@@ -145,6 +145,23 @@
                 }
             },
             {
+                "command": "paiext.container.storage.refresh",
+                "title": "%paiext.common.refresh%",
+                "icon": {
+                    "light": "icons/refresh_light.svg",
+                    "dark": "icons/refresh_dark.svg"
+                },
+                "category": "PAI"
+            },
+            {
+                "command": "paiext.container.storage.back",
+                "title": "%paiext.container.storage.back%",
+                "icon": {
+                    "light": "icons/octicon/home.svg",
+                    "dark": "icons/octicon/home_dark.svg"
+                }
+            },
+            {
                 "command": "paiext.container.hdfs.delete",
                 "title": "%paiext.container.hdfs.delete%"
             },
@@ -170,6 +187,10 @@
                 }
             ],
             "PAIContainer": [
+                {
+                    "id": "PAIContainerStorage",
+                    "name": "%container.storage.title%"
+                },
                 {
                     "id": "PAIContainerHDFS",
                     "name": "%container.hdfs.title%"
@@ -254,6 +275,16 @@
                 {
                     "command": "paiext.container.hdfs.back",
                     "when": "view == PAIContainerHDFS",
+                    "group": "navigation"
+                },
+                {
+                    "command": "paiext.container.storage.refresh",
+                    "when": "view == PAIContainerStorage",
+                    "group": "navigation"
+                },
+                {
+                    "command": "paiext.container.storage.back",
+                    "when": "view == PAIContainerStorage",
                     "group": "navigation"
                 },
                 {

@@ -2,6 +2,7 @@
     "explorer.paiClusterExplorer": "PAI 集群浏览器",
     "container.title": "AI 开发平台 (PAI)",
     "container.hdfs.title": "HDFS 浏览器",
+    "container.storage.title": "存储浏览器",
     "container.joblist.title": "PAI 任务列表",
     "paiext.common.refresh": "刷新",
     "paiext.cluster.add": "添加 PAI 集群",

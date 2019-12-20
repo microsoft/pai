@@ -27,6 +27,8 @@ export const COMMAND_CREATE_JOB_CONFIG_V1 = 'paiext.cluster.job.create-config-v1
 export const COMMAND_CREATE_JOB_CONFIG_V2 = 'paiext.cluster.job.create-config-v2';
 export const COMMAND_CONTAINER_HDFS_BACK = 'paiext.container.hdfs.back';
 export const COMMAND_CONTAINER_HDFS_REFRESH = 'paiext.container.hdfs.refresh';
+export const COMMAND_CONTAINER_STORAGE_BACK = 'paiext.container.hdfs.back';
+export const COMMAND_CONTAINER_STORAGE_REFRESH = 'paiext.container.hdfs.refresh';
 export const COMMAND_CONTAINER_HDFS_DELETE = 'paiext.container.hdfs.delete';
 export const COMMAND_CONTAINER_HDFS_MKDIR = 'paiext.container.hdfs.mkdir';
 export const COMMAND_CONTAINER_JOBLIST_REFRESH = 'paiext.container.joblist.refresh';
@@ -41,6 +43,8 @@ export const CONTEXT_HDFS_FOLDER = 'PAIHdfsFolder';
 export const CONTEXT_HDFS_ROOT = 'PAIHdfsRoot';
 export const CONTEXT_HDFS_SELECT_CLUSTER_ROOT = 'PAIHdfsSelectRoot';
 export const CONTEXT_HDFS_SELECT_CLUSTER = 'PAIHdfsSelect';
+
+export const VIEW_CONTAINER_STORAGE = 'PAIContainerStorage';
 
 export const VIEW_CONTAINER_JOBLIST = 'PAIContainerJobList';
 export const CONTEXT_JOBLIST_CLUSTER = 'PAIJobListCluster';
