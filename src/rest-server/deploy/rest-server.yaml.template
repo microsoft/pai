@@ -140,12 +140,12 @@ spec:
       - name: job-exit-spec-rest-server
         configMap:
           name: job-exit-spec-configuration
+{%- if cluster_cfg["cluster"]["common"]["cluster-type"] == "k8s" %}
 {%- if cluster_cfg['hivedscheduler']['config']|length > 1 %}
       - name: hived-spec-rest-server
         configMap:
           name: hivedscheduler-config
 {%- endif %}
-{%- if cluster_cfg["cluster"]["common"]["cluster-type"] == "k8s" %}
       - name: k8s-exit-spec-rest-server
         configMap:
           name: k8s-job-exit-spec-configuration
