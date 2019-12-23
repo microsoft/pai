@@ -44,9 +44,7 @@ for host in $(seq -s " " -f "10.0.1.%g" 5 8); do
   "sudo rm -rf /datastorage || true; \
    sudo service stop kubelet || true; \
    sudo docker stop $(sudo docker ps -q) || true; \
-   sudo docker rm $(sudo docker ps -aq) || true; \
-   sudo docker rmi $(sudo docker images -q | uniq) || true; \
-   sudo docker system prune -f || true"
+   sudo docker system prune -af || true"
 done
 
 # start registry

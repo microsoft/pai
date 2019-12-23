@@ -25,6 +25,8 @@ jenkins_timeout = 120
 // dev box agent node label
 node_label = "dev-box"
 
+sh = "bash -Eeuo pipefail"
+
 // check health for http uri
 def http_check_health(uri) {
   def status = 0
@@ -82,7 +84,7 @@ pipeline {
         label node_label
       }
       steps {
-        sh "bash ${WORKSPACE}/tests/jenkins/stage_prepare.sh"
+        sh "${sh} ${WORKSPACE}/tests/jenkins/stage_prepare.sh"
       }
     }
 
@@ -92,7 +94,7 @@ pipeline {
         label node_label
       }
       steps {
-        sh "bash ${WORKSPACE}/tests/jenkins/stage_build.sh"
+        sh "${sh} ${WORKSPACE}/tests/jenkins/stage_build.sh"
       }
     }
 
@@ -106,7 +108,7 @@ pipeline {
           steps {
             script {
               try {
-                sh "bash ${WORKSPACE}/tests/jenkins/stage_deploy.sh singlebox"
+                sh "${sh} ${WORKSPACE}/tests/jenkins/stage_deploy.sh singlebox"
               } catch (err) {
                 echo "Deploy YARN Single Box Failed: ${err}"
                 currentBuild.result = "FAILURE"
@@ -121,7 +123,7 @@ pipeline {
           steps {
             script {
               try {
-                sh "bash ${WORKSPACE}/tests/jenkins/stage_deploy.sh cluster"
+                sh "${sh} ${WORKSPACE}/tests/jenkins/stage_deploy.sh cluster"
               } catch (err) {
                 echo "Deploy YARN Cluster Failed: ${err}"
                 currentBuild.result = "FAILURE"
@@ -147,7 +149,7 @@ pipeline {
                 try {
                   timeout(time: http_timeout, unit: "MINUTES") {
                     http_check_health("${SINGLE_BOX_URI}/rest-server/api/v1")
-                    sh "bash ${WORKSPACE}/tests/jenkins/stage_test.sh ${SINGLE_BOX_URI}/rest-server"
+                    sh "${sh} ${WORKSPACE}/tests/jenkins/stage_test.sh ${SINGLE_BOX_URI}/rest-server"
                   }
                 } catch (err) {
                   echo "Test YARN Single Box Failed: ${err}"
@@ -169,7 +171,7 @@ pipeline {
                 try {
                   timeout(time: http_timeout, unit: "MINUTES") {
                     http_check_health("${CLUSTER_URI}/rest-server/api/v1")
-                    sh "bash ${WORKSPACE}/tests/jenkins/stage_test.sh ${CLUSTER_URI}/rest-server"
+                    sh "${sh} ${WORKSPACE}/tests/jenkins/stage_test.sh ${CLUSTER_URI}/rest-server"
                   }
                 } catch (err) {
                   echo "Test YARN Cluster Failed: ${err}"
@@ -220,7 +222,7 @@ pipeline {
             label node_label
           }
           steps {
-            sh "bash ${WORKSPACE}/tests/jenkins/stage_clean.sh singlebox"
+            sh "${sh} ${WORKSPACE}/tests/jenkins/stage_clean.sh singlebox"
           }
         }
         stage("YARN Cluster") {
@@ -228,7 +230,7 @@ pipeline {
             label node_label
           }
           steps {
-            sh "bash ${WORKSPACE}/tests/jenkins/stage_clean.sh cluster"
+            sh "${sh} ${WORKSPACE}/tests/jenkins/stage_clean.sh cluster"
           }
         }
       }
