@@ -10,7 +10,7 @@ User expression provides a basic key-value storage for user. Details are as foll
 
 Please note:
   - One user cannot have expressions with duplicate keys. Thus, if the requested `key` is already created, we only update its value, instead of inserting a new expression.
-  - Expression key should match the `[a-zA-Z0-9_\-]+`.
+  - Expression key should match `[a-zA-Z0-9_\-]+`.
 
 *Request*
 
@@ -81,7 +81,7 @@ Status: 404
 
 {
     "code": "NoUserExpressionError",
-    "message": "Expression xxx of user admin is not found."
+    "message": "Expression <expressionName> of user <username> is not found."
 }
 ```
 
@@ -139,6 +139,6 @@ Status: 404
 
 {
     "code": "NoUserExpressionError",
-    "message": "Expression xxx of user admin is not found."
+    "message": "Expression <expressionName> of user <username> is not found."
 }
 ```
