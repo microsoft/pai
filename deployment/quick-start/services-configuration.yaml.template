@@ -65,8 +65,6 @@ cluster:
 
 
 rest-server:
-#  # launcher type. k8s or yarn
-#  launcher-type: k8s
   # database admin username
   default-pai-admin-username: admin
   # database admin password
@@ -76,11 +74,12 @@ rest-server:
 # uncomment following section if you want to customize the port of web portal
 # webportal:
 #   server-port: 9286
-#   log-type: yarn
+
 
 # uncomment following if you want to change customeize grafana
 # grafana:
 #   port: 3000
+
 
 # uncomment following if you want to change customeize drivers
 #drivers:
