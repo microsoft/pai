@@ -29,7 +29,7 @@ import { isNil } from 'lodash';
 import EditMarketItem from './edit-market-item';
 import DeleteMarketItem from './delete-market-item';
 import Context from '../Context';
-import { fetchStarRelation, updateStarRelation } from '../utils/conn';
+import { fetchStarRelation, addStarRelation, deleteStarRelation } from '../utils/conn';
 
 const { spacing } = getTheme();
 
@@ -48,7 +48,7 @@ export default function Summary() {
         marketItem.id,
         cookies.get('user'),
       );
-      if (!isNil(status) && status.message === 'true') {
+      if (status) {
         setStared(true);
       } else {
         setStared(false);
@@ -61,12 +61,12 @@ export default function Summary() {
     if (stared) {
       setStars(stars - 1);
       setStared(false);
-      updateStarRelation(marketItem.id, cookies.get('user'));
+      deleteStarRelation(marketItem.id, cookies.get('user'));
       marketItem.stars -= 1;
     } else {
       setStars(stars + 1);
       setStared(true);
-      updateStarRelation(marketItem.id, cookies.get('user'));
+      addStarRelation(marketItem.id, cookies.get('user'));
       marketItem.stars += 1;
     }
   });

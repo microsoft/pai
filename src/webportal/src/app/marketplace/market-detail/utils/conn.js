@@ -1,4 +1,7 @@
-const serverUri = 'http://localhost:8002';
+import { MarketItem } from '../../models/market-item';
+const webportalConfig = require('../../../config/webportal.config');
+
+const serverUri = webportalConfig.postgresServerUri;
 const params = new URLSearchParams(window.location.search);
 
 export async function fetchMarketItem() {
@@ -6,7 +9,21 @@ export async function fetchMarketItem() {
   const res = await fetch(url);
   const json = await res.json();
   if (res.ok) {
-    return json;
+    const marketItem = new MarketItem(
+      json.id,
+      json.name,
+      json.author,
+      json.createAt,
+      json.updateAt,
+      json.category,
+      json.tags,
+      json.introduction,
+      json.description,
+      json.jobConfig,
+      json.submits,
+      json.starNumber,
+    );
+    return marketItem;
   } else {
     throw new Error(json.message);
   }
@@ -14,11 +31,14 @@ export async function fetchMarketItem() {
 
 export async function updateMarketItem(
   name,
-  updateDate,
+  author,
   category,
-  tags,
   introduction,
   description,
+  jobConfig,
+  submits,
+  starNumber,
+  tags,
 ) {
   const url = `${serverUri}/api/v2/marketplace/items/${params.get('itemId')}`;
   const res = await fetch(url, {
@@ -28,18 +48,21 @@ export async function updateMarketItem(
     },
     body: JSON.stringify({
       name: name,
-      updateDate: updateDate,
+      author: author,
       category: category,
-      tags: tags,
       introduction: introduction,
       description: description,
+      jobConfig: jobConfig,
+      submits: submits,
+      starNumber: starNumber,
+      tags: tags,
     }),
   });
-  const json = await res.json();
+  const text = await res.text();
   if (res.ok) {
-    return json;
+    return text;
   } else {
-    throw new Error(json.message);
+    throw new Error(text);
   }
 }
 
@@ -48,41 +71,48 @@ export async function deleteItem() {
   const res = await fetch(url, {
     method: 'DELETE',
   });
-  const json = await res.json();
+  const text = await res.text();
   if (res.ok) {
-    return json;
+    return text;
   } else {
-    throw new Error(json.message);
+    throw new Error(text);
   }
 }
 
 export async function fetchStarRelation(itemId, userName) {
-  const url = `${serverUri}/api/v2/marketplace/items/${itemId}/${userName}`;
+  const url = `${serverUri}/api/v2/user/${userName}/starItems/${itemId}`;
   const res = await fetch(url);
-  const json = await res.json();
 
   if (res.ok) {
-    return json;
+    return true;
   } else {
-    throw new Error(json.message);
+    const text = await res.text();
+    throw new Error(text);
   }
 }
 
-export async function updateStarRelation(itemId, userName) {
-  const url = `${serverUri}/api/v2/marketplace/items/${itemId}/${userName}`;
+export async function addStarRelation(itemId, userName) {
+  const url = `${serverUri}/api/v2/user/${userName}/starItems/${itemId}`;
   const res = await fetch(url, {
     method: 'PUT',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      userName: userName,
-    }),
   });
-  const json = await res.json();
+  const text = await res.text();
   if (res.ok) {
-    return json;
+    return text;
   } else {
-    throw new Error(json.message);
+    throw new Error(text);
+  }
+}
+
+export async function deleteStarRelation(itemId, userName) {
+  const url = `${serverUri}/api/v2/user/${userName}/starItems/${itemId}`;
+  const res = await fetch(url, {
+    method: 'DELETE',
+  });
+  const text = await res.text();
+  if (res.ok) {
+    return text;
+  } else {
+    throw new Error(text);
   }
 }

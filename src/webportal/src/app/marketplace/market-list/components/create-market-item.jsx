@@ -88,9 +88,8 @@ export default function CreateMarketItem(props) {
     setHideDialog(true);
 
     // post a marketitem
-    const id = uuid4();
     const marketItem = new MarketItem(
-      id,
+      uuid4(),
       name,
       author,
       new Date(),
@@ -103,9 +102,9 @@ export default function CreateMarketItem(props) {
       0,
       0,
     );
-    await createMarketItem(marketItem);
+    const itemId = await createMarketItem(marketItem);
     // refresh market-detail.html
-    window.location.href = `/market-detail.html?itemId=${id}`;
+    window.location.href = `/market-detail.html?itemId=${itemId}`;
   }
 
   const closeDialog = useCallback(() => {

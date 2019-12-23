@@ -81,11 +81,14 @@ export default function EditMarketItem(props) {
     // connect to rest-server confirm edit
     await updateMarketItem(
       name,
-      new Date().toString(),
+      marketItem.author,
       category,
-      tags,
       introduction,
       description,
+      marketItem.jobConfig,
+      marketItem.submits,
+      marketItem.stars,
+      tags,
     );
     // refresh market-detail.html
     window.location.href = `/market-detail.html?itemId=${marketItem.id}`;

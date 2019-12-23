@@ -1,4 +1,5 @@
-const serverUri = 'http://localhost:8002';
+const webportalConfig = require('../../../config/webportal.config');
+const serverUri = webportalConfig.postgresServerUri;
 
 export async function fetchMarketItemList() {
   const url = `${serverUri}/api/v2/marketplace/items`;
@@ -6,7 +7,7 @@ export async function fetchMarketItemList() {
   const json = await res.json();
   // order by updateDate
   json.sort(function(a, b) {
-    return new Date(b.updateDate) - new Date(a.updateDate);
+    return new Date(b.updatedAt) - new Date(a.updatedAt);
   });
 
   if (res.ok) {
@@ -24,24 +25,21 @@ export async function createMarketItem(marketItem) {
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({
-      id: marketItem.id,
       name: marketItem.name,
       author: marketItem.author,
-      createDate: marketItem.createDate.toString(),
-      updateDate: marketItem.updateDate.toString(),
       category: marketItem.category,
-      tags: marketItem.tags,
       introduction: marketItem.introduction,
       description: marketItem.description,
       jobConfig: marketItem.jobConfig,
       submits: marketItem.submits,
-      stars: marketItem.stars,
+      starNumber: marketItem.stars,
+      tags: marketItem.tags,
     }),
   });
   const json = await res.json();
   if (res.ok) {
     return json;
   } else {
-    throw new Error(json.message);
+    throw new Error(json);
   }
 }

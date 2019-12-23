@@ -90,15 +90,15 @@ const MarketList = () => {
         item.id,
         item.name,
         item.author,
-        item.createDate,
-        item.updateDate,
+        item.createdAt,
+        item.updatedAt,
         item.category,
         item.tags,
         item.introduction,
         item.description,
         item.jobConfig,
         item.submits,
-        item.stars,
+        item.starNumber,
       );
       nextState.itemList.push(marketItem);
     });
