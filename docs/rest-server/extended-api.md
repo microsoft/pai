@@ -55,7 +55,7 @@ Status: 400
 *Request*
 
 ```json
-GET /api/extend/:username/expression/:expressionName
+GET /api/extend/user/:username/expression/:expressionName
 Authorization: Bearer <ACCESS_TOKEN>
 ```
 
@@ -91,7 +91,7 @@ Status: 404
 *Request*
 
 ```json
-GET /api/extend/:username/expression
+GET /api/extend/user/:username/expression
 Authorization: Bearer <ACCESS_TOKEN>
 ```
 
@@ -118,7 +118,7 @@ Status: 200
 *Request*
 
 ```json
-DELETE /api/extend/:username/expression/:expressionName
+DELETE /api/extend/user/:username/expression/:expressionName
 Authorization: Bearer <ACCESS_TOKEN>
 ```
 
