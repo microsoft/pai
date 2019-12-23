@@ -25,16 +25,16 @@ const param = require('@pai/middlewares/parameter');
 const router = new express.Router();
 
 router.route('/:username/expression')
-  .put(token.check, param.validate(userInputSchema.userExpressionCreateInputSchema), userController.createUserExpression)
+  .put(token.check, param.validate(userInputSchema.userExpressionCreateInputSchema), userController.createUserExpression);
 
 router.route('/:username/expression')
-  .get(token.check, userController.getAllUserExpression)
+  .get(token.check, userController.getAllUserExpression);
 
 router.route('/:username/expression/:expressionName([a-zA-Z0-9_\\-]+)')
-  .get(token.check, userController.getUserExpression)
+  .get(token.check, userController.getUserExpression);
 
 router.route('/:username/expression/:expressionName([a-zA-Z0-9_\\-]+)')
-  .delete(token.check, userController.deleteUserExpression)
+  .delete(token.check, userController.deleteUserExpression);
 
 
 module.exports = router;

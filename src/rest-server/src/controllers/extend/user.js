@@ -16,80 +16,93 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 // module dependencies
-const { UserExpressionModel } = require('@pai/utils/extend/db');
+const {UserExpressionModel} = require('@pai/utils/extend/db');
 const createError = require('@pai/utils/error');
+const {userProperty} = require('@pai/config/token');
 
 const createUserExpression = async (req, res, next) => {
   try {
     const name = req.params.username;
     const key = req.body.key;
     const value = req.body.value;
-    const foundItem = await UserExpressionModel.findOne({ where: {name: name, key: key}});
+    if ((req[userProperty].username !== name) && (!req[userProperty].admin) ) {
+      return next(createError('Unauthorized', 'UnauthorizedUserError', 'You are not allowed to do this operation.'));
+    }
+
+    const foundItem = await UserExpressionModel.findOne({where: {name: name, key: key}});
     if (foundItem) {
       await UserExpressionModel.update(
-        { name: name, key: key , value: value },
-        { where: {name: name, key: key}}
+        {name: name, key: key, value: value},
+        {where: {name: name, key: key}}
       );
-    }
-    else {
+    } else {
       await UserExpressionModel.create(
-        { name: name, key: key , value: value }
+        {name: name, key: key, value: value}
       );
     }
     return res.status(201).json({
       message: 'User expression is created successfully.',
     });
-  } catch (error){
+  } catch (error) {
     return next(createError.unknown(error));
   }
-}
+};
 
 
 const getAllUserExpression = async (req, res, next) => {
   try {
+    if ((req[userProperty].username !== req.params.username) && (!req[userProperty].admin) ) {
+      return next(createError('Unauthorized', 'UnauthorizedUserError', 'You are not allowed to do this operation.'));
+    }
     const expressions = await UserExpressionModel.findAll(
-      { where: { name: req.params.username }}
+      {where: {name: req.params.username}}
     );
     return res.status(200).json(expressions);
-  } catch (error){
+  } catch (error) {
     return next(createError.unknown(error));
   }
-}
+};
 
 
 const getUserExpression = async (req, res, next) => {
   try {
+    if ((req[userProperty].username !== req.params.username) && (!req[userProperty].admin) ) {
+      return next(createError('Unauthorized', 'UnauthorizedUserError', 'You are not allowed to do this operation.'));
+    }
     const expression = await UserExpressionModel.findOne(
-      { where: { name: req.params.username, key: req.params.expressionName }}
-    )
+      {where: {name: req.params.username, key: req.params.expressionName}}
+    );
     if (!expression) {
       return next(createError('Not Found', 'NoUserExpressionError', `Expression ${req.params.expressionName} of user ${req.params.username} is not found.`));
     }
     return res.status(200).json(expression);
-  } catch (error){
+  } catch (error) {
     return next(createError.unknown(error));
   }
-}
+};
 
 
 const deleteUserExpression = async (req, res, next) => {
   try {
+    if ((req[userProperty].username !== req.params.username) && (!req[userProperty].admin) ) {
+      return next(createError('Unauthorized', 'UnauthorizedUserError', 'You are not allowed to do this operation.'));
+    }
     const expression = await UserExpressionModel.findOne(
-      { where: { name: req.params.username, key: req.params.expressionName }}
-    )
+      {where: {name: req.params.username, key: req.params.expressionName}}
+    );
     if (!expression) {
       return next(createError('Not Found', 'NoUserExpressionError', `Expression ${req.params.expressionName} of user ${req.params.username} is not found.`));
     }
     await UserExpressionModel.destroy(
-      { where: { name: req.params.username, key: req.params.expressionName }}
-    )
+      {where: {name: req.params.username, key: req.params.expressionName}}
+    );
     return res.status(200).json({
       message: 'User expression is deleted successfully.',
     });
-  } catch (error){
+  } catch (error) {
     return next(createError.unknown(error));
   }
-}
+};
 
 
 // module exports
@@ -97,5 +110,5 @@ module.exports = {
   createUserExpression,
   getAllUserExpression,
   getUserExpression,
-  deleteUserExpression
+  deleteUserExpression,
 };

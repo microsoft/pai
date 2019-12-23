@@ -20,10 +20,10 @@ const Joi = require('joi');
 
 const userExpressionCreateInputSchema = Joi.object().keys({
   key: Joi.string()
-    .regex(/^[A-Za-z0-9_\-]+$/, 'key')
+    .regex(/^[A-Za-z0-9_-]+$/, 'key')
     .required(),
   value: Joi.string()
-    .required()
+    .required(),
 });
 
 // module exports

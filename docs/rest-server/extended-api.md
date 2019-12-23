@@ -6,6 +6,18 @@ Rest-server exposes some APIs under `/extend/` namespace. These APIs are mostly 
 
 User expression provides a basic key-value storage for user. Details are as follows.
 
+A non-admin can only set/get/delete his own expressions. Meanwhile, an admin user can set/get/delete all users' expressions. If a user is not authorized, the following response is returned:
+
+```json
+Status: 401
+
+{
+  "code": "UnauthorizedUserError",
+  "message": "You are not allowed to do this operation."
+}
+```
+
+
 ### `Create an expression for a certain user`
 
 Please note:

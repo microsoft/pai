@@ -15,15 +15,15 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-const { Sequelize, Model, DataTypes } = require('sequelize');
-if (process.env.SQL_CONNECTION_STR){
+const {Sequelize, Model} = require('sequelize');
+if (process.env.SQL_CONNECTION_STR) {
   const sequelize = new Sequelize(
     'postgresql://root:rootpass@10.151.40.36:5432/openpai',
     {
       pool: {
         max: 10,
         min: 1,
-      }
+      },
     }
   );
 
@@ -39,17 +39,17 @@ if (process.env.SQL_CONNECTION_STR){
     modelName: 'user_expression',
     indexes: [{
       unique: true,
-      fields: ['name', 'key']
-    }]
+      fields: ['name', 'key'],
+    }],
   });
 
-  UserExpression.sync({alter: true})
+  UserExpression.sync({alter: true});
 
   module.exports = {
-    UserExpressionModel: UserExpression
-  }
+    UserExpressionModel: UserExpression,
+  };
 } else {
   module.exports = {
-    UserExpressionModel: null
-  }
+    UserExpressionModel: null,
+  };
 }

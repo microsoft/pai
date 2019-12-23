@@ -29,7 +29,7 @@ const createError = require('@pai/utils/error');
 const routers = {
   v1: require('@pai/routes/index'),
   v2: require('@pai/routes/v2/index'),
-  extend: require('@pai/routes/extend/index')
+  extend: require('@pai/routes/extend/index'),
 };
 
 const app = express();
