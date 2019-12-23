@@ -15,13 +15,9 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-import 'core-js/stable';
-import 'regenerator-runtime/runtime';
-import 'whatwg-fetch';
-
 import c from 'classnames';
 import { isEmpty } from 'lodash';
-import { initializeIcons, Stack, StackItem } from 'office-ui-fabric-react';
+import { Stack, StackItem } from 'office-ui-fabric-react';
 import React, { useState, useEffect } from 'react';
 import ReactDOM from 'react-dom';
 import MediaQuery from 'react-responsive';
@@ -43,13 +39,9 @@ import RecentJobList from './home/recent-job-list';
 import AbnormalJobList from './home/abnormal-job-list';
 import { BREAKPOINT1 } from './home/util';
 import { SpinnerLoading } from '../components/loading';
-import { initTheme } from '../components/theme';
 import { clearToken } from '../user/user-logout/user-logout.component.js';
 
 import t from '../components/tachyons.scss';
-
-initTheme();
-initializeIcons();
 
 const Home = () => {
   const [loading, setLoading] = useState(true);
@@ -166,14 +158,3 @@ const Home = () => {
 const contentWrapper = document.getElementById('content-wrapper');
 
 ReactDOM.render(<Home />, contentWrapper);
-
-document.getElementById('sidebar-menu--home').classList.add('active');
-
-function layout() {
-  setTimeout(function() {
-    contentWrapper.style.height = contentWrapper.style.minHeight;
-  }, 10);
-}
-
-window.addEventListener('resize', layout);
-window.addEventListener('load', layout);
