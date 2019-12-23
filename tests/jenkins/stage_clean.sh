@@ -17,34 +17,20 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-pushd $(dirname "$0") > /dev/null
+cluster_or_singlebox="$1"
+dev_box_name="dev-box-yarn-${cluster_or_singlebox}"
 
-{% if cluster_cfg['hivedscheduler']['config']|length > 1 %}
+# Work in dev-box
+sudo docker exec -i ${dev_box_name} /bin/bash << EOF_DEV_BOX
+set -ex
+cd /pai
 
-{% for vc in cluster_cfg['hivedscheduler']['structured-config']['virtualClusters'] %}
-PYTHONPATH="../../../deployment" python -m k8sPaiLibrary.maintaintool.update_resource \
-    --operation delete --resource statefulset --name hivedscheduler-ds-{{ vc }}
-{% endfor %}
+# 1. delete PAI services
+echo -e "Y\npai\n" | python paictl.py service delete
 
-PYTHONPATH="../../../deployment" python -m k8sPaiLibrary.maintaintool.update_resource \
-    --operation delete --resource statefulset --name hivedscheduler-hs
+# 2. cleanup k8s
+echo "Y" | python paictl.py cluster k8s-clean -p /cluster-configuration -f
 
-if kubectl get service | grep -q "hivedscheduler-service"; then
-    kubectl delete service hivedscheduler-service || exit $?
-fi
+EOF_DEV_BOX
 
-if kubectl get configmap | grep -q "hivedscheduler-config"; then
-    kubectl delete configmap hivedscheduler-config || exit $?
-fi
-
-if kubectl get clusterrolebinding | grep -q "hivedscheduler-role-binding"; then
-    kubectl delete clusterrolebinding hivedscheduler-role-binding || exit $?
-fi
-
-if kubectl get serviceaccount | grep -q "hivedscheduler-account"; then
-    kubectl delete serviceaccount hivedscheduler-account || exit $?
-fi
-
-{% endif %}
-
-popd > /dev/null
+sudo docker rm -f ${dev_box_name}

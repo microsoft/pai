@@ -118,13 +118,17 @@ const UserProfileHeader = ({ userInfo, onEditProfile, onEditPassword }) => {
             <div>
               <Icon iconName='Mail' />
             </div>
-            <div className={c(t.ml3)}>{userInfo.email}</div>
+            <div className={c(t.ml3, FontClassNames.medium)}>
+              {userInfo.email}
+            </div>
           </div>
           <div className={c(t.ml6, t.flex, t.itemsCenter)}>
             <div>
               <Icon iconName='Group' />
             </div>
-            <div className={t.ml3}>{userInfo.grouplist.join(', ')}</div>
+            <div className={c(t.ml3, FontClassNames.medium)}>
+              {userInfo.grouplist.join(', ')}
+            </div>
           </div>
         </div>
       </div>

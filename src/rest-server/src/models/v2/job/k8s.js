@@ -556,7 +556,7 @@ const generateTaskRole = (frameworkName, taskRole, labels, config, storageConfig
   };
   // hived spec
   if (launcherConfig.enabledHived) {
-    frameworkTaskRole.task.pod.spec.schedulerName = launcherConfig.scheduler;
+    frameworkTaskRole.task.pod.spec.schedulerName = `${launcherConfig.scheduler}-ds-${config.taskRoles[taskRole].hivedPodSpec.virtualCluster}`;
 
     delete frameworkTaskRole.task.pod.spec.containers[0].resources.limits['nvidia.com/gpu'];
     frameworkTaskRole.task.pod.spec.containers[0]

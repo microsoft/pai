@@ -17,34 +17,40 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-pushd $(dirname "$0") > /dev/null
+rest_server_uri="$1"
+job_name="e2e-test-$RANDOM-$RANDOM"
 
-{% if cluster_cfg['hivedscheduler']['config']|length > 1 %}
+# get token
+token=""
+until [ ! -z ${token} ]; do
+  token=$(curl -sS -X POST -d "username=admin" -d "password=admin-password" -d "expiration=36000" ${rest_server_uri}/api/v1/authn/basic/login | jq -r ".token")
+  sleep 10s
+done
 
-{% for vc in cluster_cfg['hivedscheduler']['structured-config']['virtualClusters'] %}
-PYTHONPATH="../../../deployment" python -m k8sPaiLibrary.maintaintool.update_resource \
-    --operation delete --resource statefulset --name hivedscheduler-ds-{{ vc }}
-{% endfor %}
+# submit job
+cat << EOF | curl -sS -X POST -H "Authorization: Bearer ${token}" -H "Content-Type: application/json" -d @- ${rest_server_uri}/api/v2/user/admin/jobs
+{
+  "jobName": "${job_name}",
+  "image": "docker.io/openpai/alpine:bash",
+  "taskRoles": [
+    {
+      "name": "test",
+      "taskNumber": 1,
+      "cpuNumber": 1,
+      "memoryMB": 2048,
+      "command": "/bin/bash --version"
+    }
+  ]
+}
+EOF
 
-PYTHONPATH="../../../deployment" python -m k8sPaiLibrary.maintaintool.update_resource \
-    --operation delete --resource statefulset --name hivedscheduler-hs
-
-if kubectl get service | grep -q "hivedscheduler-service"; then
-    kubectl delete service hivedscheduler-service || exit $?
-fi
-
-if kubectl get configmap | grep -q "hivedscheduler-config"; then
-    kubectl delete configmap hivedscheduler-config || exit $?
-fi
-
-if kubectl get clusterrolebinding | grep -q "hivedscheduler-role-binding"; then
-    kubectl delete clusterrolebinding hivedscheduler-role-binding || exit $?
-fi
-
-if kubectl get serviceaccount | grep -q "hivedscheduler-account"; then
-    kubectl delete serviceaccount hivedscheduler-account || exit $?
-fi
-
-{% endif %}
-
-popd > /dev/null
+# check job status
+while true; do
+  sleep 10s
+  status=$(curl -sS ${rest_server_uri}/api/v2/user/admin/jobs/${job_name} | jq -r ".jobStatus.state")
+  case $status in
+    "SUCCEEDED") break ;;
+    "WAITING"|"RUNNING") ;;
+    *) exit 1 ;;
+  esac
+done

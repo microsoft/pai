@@ -791,7 +791,7 @@ spec:
   pattern:
     runtimeContainerPatterns:
     - exitCode: 127
-      userLogRegex: "command not found"
+      userLogRegex: "(?i)command not found"
 
 - code: 221
   phrase: ContainerTensorflowOOMKilled
@@ -811,7 +811,7 @@ spec:
   pattern:
     runtimeContainerPatterns:
     - userLogRegex: "(?msi)tensorflow.*ResourceExhaustedError.*OOM.*"
-    - userLogRegex: "ran out of memory trying to allocate"
+    - userLogRegex: "(?i)ran out of memory trying to allocate"
 
 - code: 222
   phrase: ContainerMPISegvFault
@@ -864,7 +864,7 @@ spec:
   - "Contact Cluster Admin"
   pattern:
     runtimeContainerPatterns:
-    - userLogRegex: "cuda driver version is insufficient for cuda runtime version"
+    - userLogRegex: "(?i)cuda driver version is insufficient for cuda runtime version"
 
 - code: 225
   phrase: ContainerCudaDnnVersionMismatch
@@ -881,7 +881,7 @@ spec:
   - "Change docker image with correct DL framework version"
   pattern:
     runtimeContainerPatterns:
-    - userLogRegex: "dropout supported only in cudnn v"
+    - userLogRegex: "(?i)dropout supported only in cudnn v"
 
 - code: 226
   phrase: ContainerCudaOOMKilled
@@ -899,7 +899,7 @@ spec:
   - "Tuning the program parameter to use less memory"
   pattern:
     runtimeContainerPatterns:
-    - userLogRegex: "cuda runtime error (2) : out of memory"
+    - userLogRegex: "(?i)cuda runtime error (2) : out of memory"
 
 - code: 227
   phrase: ContainerEngineCoreDump
@@ -916,7 +916,7 @@ spec:
   - "Correct the user code"
   pattern:
     runtimeContainerPatterns:
-    - userLogRegex: "core dumped"
+    - userLogRegex: "(?i)core dumped"
 
 - code: 228
   phrase: ContainerIncorrectParameterError
@@ -933,11 +933,11 @@ spec:
   - "Correct the user code"
   pattern:
     runtimeContainerPatterns:
-    - userLogRegex: "(?msi)unknown option"
-    - userLogRegex: "typeerror: dynamic_rnn() got multiple values for keyword argument"
-    - userLogRegex: "bad argument #2 to .*"
-    - userLogRegex: "invalid argument:"
-    - userLogRegex: "option -start_symbol has no default value"
+    - userLogRegex: "(?i)unknown option"
+    - userLogRegex: "(?i)typeerror: dynamic_rnn() got multiple values for keyword argument"
+    - userLogRegex: "(?msi)bad argument #2 to .*"
+    - userLogRegex: "(?i)invalid argument:"
+    - userLogRegex: "(?i)option -start_symbol has no default value"
 
 - code: 229
   phrase: ContainerIncorrectDataModelError
@@ -954,20 +954,20 @@ spec:
   - "Correct the user code, use correct data model"
   pattern:
     runtimeContainerPatterns:
-    - userLogRegex: "perhaps your file is in a different file format"
-    - userLogRegex: "bash: bd5/bd5_bar-train.ids"
-    - userLogRegex: "exception occurred: error opening file"
-    - userLogRegex: "filenotfounderror: [errno 2] no such file or directory"
-    - userLogRegex: "unicodeencodeerror:"
-    - userLogRegex: "unicodedecodeerror"
-    - userLogRegex: "exception: unknown text header name"
-    - userLogRegex: "exception: unknown label header name"
-    - userLogRegex: "eoferror: ran out of input"
-    - userLogRegex: "utils.lua:.*input/output error"
-    - userLogRegex: "tensorflow.python.framework.errors.unknownerror:.*input/output error"
-    - userLogRegex: "oserror:.*input/output error"
-    - userLogRegex: "cp: failed to close.*input/output error"
-    - userLogRegex: "exception occurred:.* Input/output error"
+    - userLogRegex: "(?i)perhaps your file is in a different file format"
+    - userLogRegex: "(?i)bash: bd5/bd5_bar-train.ids"
+    - userLogRegex: "(?i)exception occurred: error opening file"
+    - userLogRegex: "(?i)filenotfounderror: [errno 2] no such file or directory"
+    - userLogRegex: "(?i)unicodeencodeerror:"
+    - userLogRegex: "(?i)unicodedecodeerror"
+    - userLogRegex: "(?i)exception: unknown text header name"
+    - userLogRegex: "(?i)exception: unknown label header name"
+    - userLogRegex: "(?i)eoferror: ran out of input"
+    - userLogRegex: "(?msi)utils.lua:.*input/output error"
+    - userLogRegex: "(?msi)tensorflow.python.framework.errors.unknownerror:.*input/output error"
+    - userLogRegex: "(?msi)oserror:.*input/output error"
+    - userLogRegex: "(?msi)cp: failed to close.*input/output error"
+    - userLogRegex: "(?msi)exception occurred:.* Input/output error"
 
 - code: 230
   phrase: ContainerInvalidSavePath
@@ -984,7 +984,7 @@ spec:
   - "Check the save path and correct it"
   pattern:
     runtimeContainerPatterns:
-    - userLogRegex: "(?msi)ValueError: Restore called with invalid save path"
+    - userLogRegex: "(?i)ValueError: Restore called with invalid save path"
 
 - code: 231
   phrase: ContainerSyntaxError
@@ -1001,12 +1001,12 @@ spec:
   - "Check the source code and correct the errors"
   pattern:
     runtimeContainerPatterns:
-    - userLogRegex: "syntaxerror: invalid syntax"
-    - userLogRegex: "unpicklingerror"
-    - userLogRegex: "assign requires shapes of both tensors to match"
-    - userLogRegex: "torch/install/share/lua.*c.* exception"
-    - userLogRegex: "attributeerror:.*has no attribute"
-    - userLogRegex: "nameerror: name.* is not defined"
+    - userLogRegex: "(?i)syntaxerror: invalid syntax"
+    - userLogRegex: "(?i)unpicklingerror"
+    - userLogRegex: "(?i)assign requires shapes of both tensors to match"
+    - userLogRegex: "(?msi)torch/install/share/lua.*c.* exception"
+    - userLogRegex: "(?msi)attributeerror:.*has no attribute"
+    - userLogRegex: "(?msi)nameerror: name.* is not defined"
 
 - code: 232
   phrase: ContainerImportError
@@ -1023,7 +1023,7 @@ spec:
   - "Check the source code and correct it"
   pattern:
     runtimeContainerPatterns:
-    - userLogRegex: "importerror:.*"
+    - userLogRegex: "(?msi)importerror:.*"
 
 - code: 233
   phrase: ContainerIndexOutOfRange
@@ -1040,7 +1040,7 @@ spec:
   - "Check the source code and correct it"
   pattern:
     runtimeContainerPatterns:
-    - userLogRegex: "indexerror:.*index out of range"
+    - userLogRegex: "(?msi)indexerror:.*index out of range"
 
 
 - code: 234
@@ -1058,7 +1058,7 @@ spec:
   - "Correct the user code"
   pattern:
     runtimeContainerPatterns:
-    - userLogRegex: "(?msi)segmentation fault"
+    - userLogRegex: "(?i)segmentation fault"
 
 - code: 249
   phrase: PAIRuntimeSSHBarrierTimeout
