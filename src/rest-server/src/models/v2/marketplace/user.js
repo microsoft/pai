@@ -1,23 +1,23 @@
-const { isNil, isEmpty } = require("lodash");
-const modelSyncHandler = require("./modelSyncHandler");
+const {isNil, isEmpty} = require('lodash');
+const modelSyncHandler = require('./modelSyncHandler');
 
 class User {
   constructor(sequelize, DataTypes) {
-    this.orm = sequelize.define("User", {
-      name: { type: DataTypes.STRING, primaryKey: true }
+    this.orm = sequelize.define('User', {
+      name: {type: DataTypes.STRING, primaryKey: true},
     });
   }
 
   associate(models) {
     this.orm.belongsToMany(models.MarketplaceItem.orm, {
-      through: "StarRelation"
+      through: 'StarRelation',
     });
     this.models = models;
   }
 
   async listItems(username) {
-    const handler = modelSyncHandler(async username => {
-      const user = await this.orm.findOne({ where: { name: username } });
+    const handler = modelSyncHandler(async (username) => {
+      const user = await this.orm.findOne({where: {name: username}});
       if (isNil(user)) {
         return null;
       } else {
@@ -30,12 +30,12 @@ class User {
 
   async getItem(username, itemId) {
     const handler = modelSyncHandler(async (username, itemId) => {
-      const user = await this.orm.findOne({ where: { name: username } });
+      const user = await this.orm.findOne({where: {name: username}});
       if (isNil(user)) {
         return null;
       } else {
         const items = await user.getMarketplaceItems({
-          where: { id: itemId }
+          where: {id: itemId},
         });
         return items;
       }
@@ -46,19 +46,19 @@ class User {
 
   async updateItem(username, itemId) {
     const handler = modelSyncHandler(async (username, itemId) => {
-      const user = await this.orm.findOne({ where: { name: username } });
+      const user = await this.orm.findOne({where: {name: username}});
       if (isNil(user)) {
         return null;
       } else {
         const items = await user.getMarketplaceItems({
-          where: { id: itemId }
+          where: {id: itemId},
         });
         if (isEmpty(items)) {
           const item = await this.models.MarketplaceItem.orm.findOne({
-            where: { id: itemId }
+            where: {id: itemId},
           });
           if (isNil(item)) {
-            return "item not exists";
+            return 'item not exists';
           }
           await user.addMarketplaceItem(item);
           return true;
@@ -73,12 +73,12 @@ class User {
 
   async deleteItem(username, itemId) {
     const handler = modelSyncHandler(async (username, itemId) => {
-      const user = await this.orm.findOne({ where: { name: username } });
+      const user = await this.orm.findOne({where: {name: username}});
       if (isNil(user)) {
         return null;
       } else {
         const items = await user.getMarketplaceItems({
-          where: { id: itemId }
+          where: {id: itemId},
         });
         if (isEmpty(items)) {
           return false;

@@ -1,8 +1,6 @@
-const { Op } = require("sequelize");
-const { isNil } = require("lodash");
-const { MarketplaceItem, Tag } = require("@pai/models/v2/marketplace");
-const { init } = require("@pai/middlewares/v2/init");
-const asyncHandler = require("@pai/middlewares/v2/asyncHandler");
+const {isNil} = require('lodash');
+const {MarketplaceItem} = require('@pai/models/v2/marketplace');
+const asyncHandler = require('@pai/middlewares/v2/asyncHandler');
 
 const list = asyncHandler(async (req, res, next) => {
   const result = await MarketplaceItem.list(
@@ -21,7 +19,7 @@ const create = asyncHandler(async (req, res, next) => {
 const get = asyncHandler(async (req, res, next) => {
   const result = await MarketplaceItem.get(req.params.itemId);
   if (isNil(result)) {
-    res.status(404).send("item not found");
+    res.status(404).send('item not found');
   } else {
     res.status(200).json(result);
   }
@@ -30,21 +28,21 @@ const get = asyncHandler(async (req, res, next) => {
 const update = asyncHandler(async (req, res, next) => {
   const result = await MarketplaceItem.update(req.params.itemId, req.body);
   if (isNil(result)) {
-    res.status(404).send("item not found");
+    res.status(404).send('item not found');
   } else {
-    res.status(200).send("updated");
+    res.status(200).send('updated');
   }
 });
 
 const del = asyncHandler(async (req, res, next) => {
   const result = await MarketplaceItem.del(req.params.itemId);
   if (isNil(result)) {
-    res.status(404).send("item not found");
+    res.status(404).send('item not found');
   } else {
-    res.status(200).send("deleted");
+    res.status(200).send('deleted');
   }
 });
-
+/*
 const listTags = asyncHandler(async (req, res, next) => {
   const tags = await MarketplaceItem.listTags(req.params.itemId);
   if (isNil(tags)) {
@@ -62,13 +60,13 @@ const updateTags = asyncHandler(async (req, res, next) => {
     res.status(200).json("updated");
   }
 });
-
+*/
 const listStarUsers = asyncHandler(async (req, res, next) => {
   const users = await MarketplaceItem.listStarUsers(req.params.itemId);
   if (isNil(users)) {
-    res.status(404).send("item not found");
+    res.status(404).send('item not found');
   } else {
-    res.status(200).json(users.map(user => user.name));
+    res.status(200).json(users.map((user) => user.name));
   }
 });
 
@@ -79,5 +77,5 @@ module.exports = {
   get,
   update,
   del,
-  listStarUsers
+  listStarUsers,
 };

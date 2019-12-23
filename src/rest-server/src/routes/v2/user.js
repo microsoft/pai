@@ -23,7 +23,7 @@ const userInputSchema = require('@pai/config/v2/user');
 const param = require('@pai/middlewares/parameter');
 const jobRouter = require('@pai/routes/job');
 const authnConfig = require('@pai/config/authn');
-const userController_marketplace = require('@pai/controllers/v2/marketplace/user-controller');
+const userControllerMarketplace = require('@pai/controllers/v2/marketplace/user-controller');
 
 const router = new express.Router();
 
@@ -76,12 +76,12 @@ if (authnConfig.authnMethod === 'basic') {
 
 router.use('/:username/jobs', jobRouter);
 
-router.route("/:username/starItems").get(userController_marketplace.list);
+router.route('/:username/starItems').get(userControllerMarketplace.list);
 
 router
-  .route("/:username/starItems/:itemId")
-  .get(userController_marketplace.get)
-  .put(userController_marketplace.update)
-  .delete(userController_marketplace.del);
+  .route('/:username/starItems/:itemId')
+  .get(userControllerMarketplace.get)
+  .put(userControllerMarketplace.update)
+  .delete(userControllerMarketplace.del);
 
 module.exports = router;

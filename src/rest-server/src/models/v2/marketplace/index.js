@@ -1,9 +1,9 @@
-const Sequelize = require("sequelize");
-const { DataTypes } = require("sequelize");
-const MarketplaceItem = require("./marketplace-item");
-const Tag = require("./tag");
-const User = require("./user");
-const dotnev = require("dotenv");
+const Sequelize = require('sequelize');
+const {DataTypes} = require('sequelize');
+const MarketplaceItem = require('./marketplace-item');
+const Tag = require('./tag');
+const User = require('./user');
+const dotnev = require('dotenv');
 
 dotnev.config();
 
@@ -13,10 +13,10 @@ const sequelize = new Sequelize(SQL_CONNECTION_STR);
 const models = {
   MarketplaceItem: new MarketplaceItem(sequelize, DataTypes),
   Tag: new Tag(sequelize, DataTypes),
-  User: new User(sequelize, DataTypes)
+  User: new User(sequelize, DataTypes),
 };
 
-Object.keys(models).forEach(modelName => {
+Object.keys(models).forEach((modelName) => {
   if (models[modelName].associate) {
     models[modelName].associate(models);
   }

@@ -1,23 +1,23 @@
-const { isNil, get } = require("lodash");
-const modelSyncHandler = require("./modelSyncHandler");
+const {isNil, get} = require('lodash');
+const modelSyncHandler = require('./modelSyncHandler');
 
 class MarketplaceItem {
   constructor(sequelize, DataTypes, models) {
-    this.orm = sequelize.define("MarketplaceItem", {
+    this.orm = sequelize.define('MarketplaceItem', {
       name: DataTypes.STRING,
       author: DataTypes.STRING,
       category: DataTypes.STRING, // eslint-disable-line new-cap
       introduction: DataTypes.STRING,
       description: DataTypes.TEXT,
       jobConfig: DataTypes.TEXT,
-      submits: DataTypes.INTEGER
+      submits: DataTypes.INTEGER,
     });
   }
 
   associate(models) {
-    this.orm.belongsToMany(models.Tag.orm, { through: "ItemTag" });
+    this.orm.belongsToMany(models.Tag.orm, {through: 'ItemTag'});
     this.orm.belongsToMany(models.User.orm, {
-      through: "StarRelation"
+      through: 'StarRelation',
     });
     this.models = models;
   }
@@ -34,14 +34,13 @@ class MarketplaceItem {
       if (category) {
         filterStatement.category = category;
       }
-      const items = await this.orm.findAll({ where: filterStatement });
+      const items = await this.orm.findAll({where: filterStatement});
       const processItems = await Promise.all(
-        items.map(async item => {
+        items.map(async (item) => {
           const tags = await this.listTags(item.id);
           const starUsers = await this.listStarUsers(item.id);
-          console.log(starUsers);
-          item.dataValues["tags"] = tags.map(tag => tag.name);
-          item.dataValues["starNumber"] = starUsers.length;
+          item.dataValues['tags'] = tags.map((tag) => tag.name);
+          item.dataValues['starNumber'] = starUsers.length;
           return item;
         })
       );
@@ -52,8 +51,8 @@ class MarketplaceItem {
   }
 
   async create(itemReq) {
-    const handler = modelSyncHandler(async itemReq => {
-      const tags = get(itemReq, "tags");
+    const handler = modelSyncHandler(async (itemReq) => {
+      const tags = get(itemReq, 'tags');
       delete itemReq.tags;
       const item = await this.orm.create(itemReq);
       if (!isNil(tags)) {
@@ -67,17 +66,17 @@ class MarketplaceItem {
   }
 
   async get(itemId) {
-    const handler = modelSyncHandler(async itemId => {
+    const handler = modelSyncHandler(async (itemId) => {
       const item = await this.orm.findOne({
-        where: { id: itemId }
+        where: {id: itemId},
       });
       if (isNil(item)) {
         return null;
       } else {
         const tags = await this.listTags(itemId);
         const starUsers = await this.listStarUsers(itemId);
-        item.dataValues["tags"] = tags.map(tag => tag.name);
-        item.dataValues["starNumber"] = starUsers.length;
+        item.dataValues['tags'] = tags.map((tag) => tag.name);
+        item.dataValues['starNumber'] = starUsers.length;
         return item;
       }
     });
@@ -88,12 +87,12 @@ class MarketplaceItem {
   async update(itemId, newItemReq) {
     const handler = modelSyncHandler(async (itemId, newItemReq) => {
       const item = await this.orm.findOne({
-        where: { id: itemId }
+        where: {id: itemId},
       });
       if (isNil(item)) {
         return null;
       } else {
-        const tags = get(newItemReq, "tags");
+        const tags = get(newItemReq, 'tags');
         delete newItemReq.tags;
         await item.update(newItemReq);
         if (!isNil(tags)) {
@@ -108,9 +107,9 @@ class MarketplaceItem {
   }
 
   async del(itemId) {
-    const handler = modelSyncHandler(async itemId => {
+    const handler = modelSyncHandler(async (itemId) => {
       const item = await this.orm.findOne({
-        where: { id: itemId }
+        where: {id: itemId},
       });
       if (isNil(item)) {
         return null;
@@ -123,9 +122,9 @@ class MarketplaceItem {
   }
 
   async listTags(itemId) {
-    const handler = modelSyncHandler(async itemId => {
+    const handler = modelSyncHandler(async (itemId) => {
       const item = await this.orm.findOne({
-        where: { id: itemId }
+        where: {id: itemId},
       });
       if (isNil(item)) {
         return null;
@@ -140,15 +139,15 @@ class MarketplaceItem {
   async updateTags(itemId, newTags) {
     const handler = modelSyncHandler(async (itemId, newTags) => {
       const item = await this.orm.findOne({
-        where: { id: itemId }
+        where: {id: itemId},
       });
       if (isNil(item)) {
         return null;
       } else {
         item.setTags([]);
-        newTags.map(async tag => {
-          const [newTag, created] = await this.models.Tag.orm.findOrCreate({
-            where: { name: tag }
+        newTags.map(async (tag) => {
+          const [newTag] = await this.models.Tag.orm.findOrCreate({
+            where: {name: tag},
           });
           await item.addTag(newTag);
         });
@@ -160,9 +159,9 @@ class MarketplaceItem {
   }
 
   async listStarUsers(itemId) {
-    const handler = modelSyncHandler(async itemId => {
+    const handler = modelSyncHandler(async (itemId) => {
       const item = await this.orm.findOne({
-        where: { id: itemId }
+        where: {id: itemId},
       });
       if (isNil(item)) {
         return null;
