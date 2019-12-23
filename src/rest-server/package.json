@@ -60,7 +60,9 @@
     "statuses": "~1.5.0",
     "unirest": "^0.6.0",
     "winston": "~2.4.0",
-    "xml2js": "~0.4.19"
+    "xml2js": "~0.4.19",
+    "pg": "^7.14.0",
+    "sequelize": "^5.21.2"
   },
   "_moduleAliases": {
     "@pai": "src"

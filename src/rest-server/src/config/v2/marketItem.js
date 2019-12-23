@@ -1,22 +1,12 @@
 const Joi = require('joi');
 
 const marketItemCreateInputSchema = Joi.object().keys({
-	id: Joi.string()
-		.uuid()
-		.required(),
 	name: Joi.string()
 		.required(),
 	author: Joi.string()
 		.required(),
-	createDate: Joi.string()
-		.required(),
-	updateDate: Joi.string()
-		.required(),
 	category: Joi.string()
 		.required(),
-	tags: Joi.array()
-		.items(Joi.string())
-		.default([]),
 	introduction: Joi.string()
 		.default(''),
 	description: Joi.string()
@@ -25,24 +15,33 @@ const marketItemCreateInputSchema = Joi.object().keys({
 		.required(),
 	submits: Joi.number()
 		.default(0),
-	stars: Joi.number()
+	starNumber: Joi.number()
 		.default(0),
+	tags: Joi.array()
+		.items(Joi.string())
+		.default([]),
 });
 
 const marketItemUpdateInputSchema = Joi.object().keys({
-  name: Joi.string()
-    .required(),
-  updateDate: Joi.string()
-    .required(),
-  category: Joi.string()
-    .required(),
-  tags: Joi.array()
-    .items(Joi.string())
-    .default([]),
-  introduction: Joi.string()
-    .default(''),
-  description: Joi.string()
-    .default(''),
+	name: Joi.string()
+		.required(),
+	author: Joi.string()
+		.required(),
+	category: Joi.string()
+		.required(),
+	introduction: Joi.string()
+		.default(''),
+	description: Joi.string()
+		.default(''),
+	jobConfig: Joi.string()
+		.required(),
+	submits: Joi.number()
+		.default(0),
+	starNumber: Joi.number()
+		.default(0),
+	tags: Joi.array()
+		.items(Joi.string())
+		.default([]),
 });
 
 module.exports = {
