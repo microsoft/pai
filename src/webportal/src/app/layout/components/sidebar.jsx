@@ -162,10 +162,7 @@ const Sidebar = ({ className, style }) => {
                 url: '/dashboard.html',
                 icon: 'SpeedHigh',
                 style: {
-                  display:
-                    isAdmin && config.launcherType !== 'k8s'
-                      ? undefined
-                      : 'none',
+                  display: isAdmin ? undefined : 'none',
                 },
                 key: KEY_DASHBOARD,
               },
