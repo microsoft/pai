@@ -76,7 +76,7 @@ class Webportal:
             ('node-exporter', 'port'),
             ('prometheus', 'scrape_interval'),
         )
-        if cluster_object_model['common']['cluster-type'] == 'yarn':
+        if cluster_object_model['cluster']['common']['cluster-type'] == 'yarn':
             check_tuple = (('hadoop-resource-manager', 'master-ip'),)+check_tuple
         for (service, config) in check_tuple:
             if service not in cluster_object_model or config not in cluster_object_model[service]:
