@@ -39,14 +39,20 @@ const loadData = specifiedVc => {
       commonTable = $('#common-table')
         .dataTable({
           scrollY: $(window).height() - 265 + 'px',
-          lengthMenu: [[20, 50, 100, -1], [20, 50, 100, 'All']],
+          lengthMenu: [
+            [20, 50, 100, -1],
+            [20, 50, 100, 'All'],
+          ],
           columnDefs: [{ type: 'natural', targets: [0, 1, 2, 3, 4, 5, 6] }],
         })
         .api();
       dedicateTable = $('#dedicated-table')
         .dataTable({
           scrollY: $(window).height() - 265 + 'px',
-          lengthMenu: [[20, 50, 100, -1], [20, 50, 100, 'All']],
+          lengthMenu: [
+            [20, 50, 100, -1],
+            [20, 50, 100, 'All'],
+          ],
           columnDefs: [
             { type: 'natural', targets: [0, 1, 2, 3, 4, 5, 6] },
             {

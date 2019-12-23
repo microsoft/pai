@@ -15,7 +15,7 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 import PropTypes from 'prop-types';
-import React, { useState, useContext, useEffect, useCallback } from 'react';
+import React, { useState, useContext, useCallback } from 'react';
 import {
   DefaultButton,
   PrimaryButton,
@@ -29,16 +29,13 @@ import {
   FontWeights,
   Text,
   getTheme,
-  Icon,
 } from 'office-ui-fabric-react';
-import { FontClassNames } from '@uifabric/styling';
-import { isNil } from 'lodash';
 
 import Context from '../Context';
 import { updateMarketItem } from '../utils/conn';
 import { TagBar } from '../../components/tag-bar';
 
-const { spacing, palette } = getTheme();
+const { spacing } = getTheme();
 
 export default function EditMarketItem(props) {
   const { hideDialog, setHideDialog } = props;

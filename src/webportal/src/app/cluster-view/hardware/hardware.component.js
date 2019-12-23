@@ -435,7 +435,10 @@ const loadData = () => {
       table = $('#hardware-table')
         .dataTable({
           scrollY: $(window).height() - 265 + 'px',
-          lengthMenu: [[20, 50, 100, -1], [20, 50, 100, 'All']],
+          lengthMenu: [
+            [20, 50, 100, -1],
+            [20, 50, 100, 'All'],
+          ],
           columnDefs: [
             { type: 'natural', targets: [0] },
             { type: 'ip-address', targets: [1] },

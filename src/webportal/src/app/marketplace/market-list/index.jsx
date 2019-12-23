@@ -29,7 +29,6 @@ import 'whatwg-fetch';
 import React, { useState, useEffect } from 'react';
 import ReactDOM from 'react-dom';
 import { initializeIcons, Fabric, Stack } from 'office-ui-fabric-react';
-import { getTheme } from '@uifabric/styling';
 import { isNil } from 'lodash';
 
 import { initTheme } from '../../components/theme';

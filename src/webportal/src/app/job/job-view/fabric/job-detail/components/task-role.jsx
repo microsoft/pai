@@ -26,7 +26,6 @@ import yaml from 'js-yaml';
 import t from '../../../../../components/tachyons.scss';
 
 import Card from './card';
-import Context from './context';
 import TaskRoleContainerList from './task-role-container-list';
 import { getTaskConfig } from '../util';
 import MonacoCallout from '../../../../../components/monaco-callout';

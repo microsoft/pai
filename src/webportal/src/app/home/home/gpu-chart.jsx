@@ -87,12 +87,15 @@ const GpuChart = ({ style, gpuPerNode, virtualClusters, userInfo }) => {
     }
     // data - stack
     stack[0] = ['shared', ...shared.slice(1)];
-    stack[1] = Object.values(dedicated).reduce((prev, val) => {
-      for (let i = 0; i <= maxGpu; i += 1) {
-        prev[i] += val[i];
-      }
-      return prev;
-    }, Array.from({ length: maxGpu + 1 }, () => 0));
+    stack[1] = Object.values(dedicated).reduce(
+      (prev, val) => {
+        for (let i = 0; i <= maxGpu; i += 1) {
+          prev[i] += val[i];
+        }
+        return prev;
+      },
+      Array.from({ length: maxGpu + 1 }, () => 0),
+    );
     stack[1][0] = 'dedicated';
 
     // c3 option

@@ -45,7 +45,6 @@ import React from 'react';
 import localCss from './task-role-container-list.scss';
 import t from '../../../../../components/tachyons.scss';
 
-import Context from './context';
 import Timer from './timer';
 import { getContainerLog } from '../conn';
 import { parseGpuAttr } from '../util';

@@ -29,7 +29,11 @@ import { isNil } from 'lodash';
 import EditMarketItem from './edit-market-item';
 import DeleteMarketItem from './delete-market-item';
 import Context from '../Context';
-import { fetchStarRelation, addStarRelation, deleteStarRelation } from '../utils/conn';
+import {
+  fetchStarRelation,
+  addStarRelation,
+  deleteStarRelation,
+} from '../utils/conn';
 
 const { spacing } = getTheme();
 
