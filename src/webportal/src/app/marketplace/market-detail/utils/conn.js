@@ -1,7 +1,7 @@
 import { MarketItem } from '../../models/market-item';
 const webportalConfig = require('../../../config/webportal.config');
 
-const serverUri = webportalConfig.postgresServerUri;
+const serverUri = webportalConfig.restServerUri;
 const params = new URLSearchParams(window.location.search);
 
 export async function fetchMarketItem() {

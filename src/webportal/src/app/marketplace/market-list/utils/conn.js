@@ -1,5 +1,5 @@
 const webportalConfig = require('../../../config/webportal.config');
-const serverUri = webportalConfig.postgresServerUri;
+const serverUri = webportalConfig.restServerUri;
 
 export async function fetchMarketItemList() {
   const url = `${serverUri}/api/v2/marketplace/items`;
