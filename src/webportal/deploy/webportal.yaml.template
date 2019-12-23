@@ -48,8 +48,10 @@ spec:
 {%- else %}
           value: yarn
 {%- endif %}
+{%- if cluster_cfg["cluster"]["common"]["cluster-type"] == "yarn" %}
         - name: YARN_WEB_PORTAL_URI
           value: http://{{ cluster_cfg['hadoop-resource-manager']['master-ip'] }}:8088
+{%- endif %}
         - name: GRAFANA_URI
           value: {{ cluster_cfg['grafana']['url'] }}
         - name: K8S_DASHBOARD_URI
