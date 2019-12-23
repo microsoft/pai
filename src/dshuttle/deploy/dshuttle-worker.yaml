@@ -27,7 +27,7 @@ spec:
         securityContext:
           runAsUser: 0
         image: alluxio/alluxio:2.2.0-SNAPSHOT
-        command: ["/bin/chown","-R", "1000:1000", "/opt/domain", "/opt/worker-logs", "/opt/job-logs"]
+        command: ["/bin/chown","-R", "1000:1000", "/opt/domain", "/opt/worker-logs", "/opt/job-logs", "/mnt/dshuttle"]
         volumeMounts:
         - name: dshuttle-domain
           mountPath: /opt/domain
@@ -35,6 +35,8 @@ spec:
           mountPath: /opt/worker-logs
         - name: worker-logs
           mountPath: /opt/job-logs
+        - name: hdd
+          mountPath: /mnt/dshuttle
       containers:
         - name: dshuttle-worker
           image: docker.io/openpai/dshuttle:binyli
@@ -71,6 +73,8 @@ spec:
               mountPath: /opt/domain
             - mountPath: /dev/shm
               name: mem
+            - mountPath: /mnt/dshuttle
+              name: hdd
             - name: dshuttle-data
               mountPath: /opt/alluxio/underFSStorage
             - name: worker-logs
@@ -129,6 +133,9 @@ spec:
           hostPath:
             path: /tmp/dshuttle-job-logs
             type: DirectoryOrCreate
+        - name: hdd
+          hostPath:
+            path: /mnt/dshuttle
         - name: mem
           emptyDir:
             medium: "Memory"
