@@ -59,7 +59,7 @@ class cluster_object_model:
         # Prepare Service Configuration
         layout = self.layout
         parser_type = "common"
-        default_service_cfg = []
+        default_service_cfg = {}
         if file_handler.file_exist_or_not(default_path):
             default_service_cfg = file_handler.load_yaml_config(default_path)
         if default_service_cfg is not None and "openpai_parser_type" in default_service_cfg:
