@@ -26,7 +26,7 @@ else
     /sbin/mkfs -t ext4 -q storage.ext4 -F
 fi
 
-ls READY &> /dev/null
+ls storage/READY &> /dev/null
 
 if [ $? -ne 0 ]; then
     if [ -d storage ]; then
@@ -38,10 +38,8 @@ if [ $? -ne 0 ]; then
     touch storage/READY
 fi
 
-sleep 30m
-
 while true; do
-    ls READY &> /dev/null
+    ls storage/READY &> /dev/null
     if [ $? -ne 0 ]; then
         echo "Cannot find storage/READY! Abort."
         exit 1

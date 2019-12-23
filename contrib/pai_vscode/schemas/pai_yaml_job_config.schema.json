@@ -265,9 +265,36 @@
             "properties": {
                 "submitFrom": {
                     "type": "string"
+                },
+                "hivedscheduler": {
+                    "type": "object",
+                    "properties": {
+                        "jobPriorityClass": {
+                            "type": "string"
+                        },
+                        "taskRoles": {
+                            "type": "object",
+                            "patternProperties": {
+                                "^[A-Za-z0-9._~]+$": {
+                                    "type": "object",
+                                    "properties": {
+                                        "gpuType/reservationId": {
+                                            "type": "string"
+                                        },
+                                        "affinityGroupName": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "additionalProperties": true
+                                }
+                            }
+                        }
+                    },
+                    "required": ["jobPriorityClass"],
+                    "additionalProperties": true
                 }
             },
-            "additionalProperties": false
+            "additionalProperties": true
         }
     },
 

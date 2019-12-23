@@ -17,34 +17,14 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-pushd $(dirname "$0") > /dev/null
+quick_start_path=${JENKINS_HOME}/${BED}/singlebox/quick-start
+config_path=${JENKINS_HOME}/${BED}/singlebox/cluster-configuration
 
-{% if cluster_cfg['hivedscheduler']['config']|length > 1 %}
+# generate config
+bash ${WORKSPACE}/tests/jenkins/test_generate_config.sh singlebox ${config_path} ${quick_start_path}
 
-{% for vc in cluster_cfg['hivedscheduler']['structured-config']['virtualClusters'] %}
-PYTHONPATH="../../../deployment" python -m k8sPaiLibrary.maintaintool.update_resource \
-    --operation delete --resource statefulset --name hivedscheduler-ds-{{ vc }}
-{% endfor %}
+# build images
+sudo python build/pai_build.py build -c ${config_path}
 
-PYTHONPATH="../../../deployment" python -m k8sPaiLibrary.maintaintool.update_resource \
-    --operation delete --resource statefulset --name hivedscheduler-hs
-
-if kubectl get service | grep -q "hivedscheduler-service"; then
-    kubectl delete service hivedscheduler-service || exit $?
-fi
-
-if kubectl get configmap | grep -q "hivedscheduler-config"; then
-    kubectl delete configmap hivedscheduler-config || exit $?
-fi
-
-if kubectl get clusterrolebinding | grep -q "hivedscheduler-role-binding"; then
-    kubectl delete clusterrolebinding hivedscheduler-role-binding || exit $?
-fi
-
-if kubectl get serviceaccount | grep -q "hivedscheduler-account"; then
-    kubectl delete serviceaccount hivedscheduler-account || exit $?
-fi
-
-{% endif %}
-
-popd > /dev/null
+# push images
+sudo python build/pai_build.py push -c ${config_path}

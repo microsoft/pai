@@ -17,34 +17,4 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-pushd $(dirname "$0") > /dev/null
-
-{% if cluster_cfg['hivedscheduler']['config']|length > 1 %}
-
-{% for vc in cluster_cfg['hivedscheduler']['structured-config']['virtualClusters'] %}
-PYTHONPATH="../../../deployment" python -m k8sPaiLibrary.maintaintool.update_resource \
-    --operation delete --resource statefulset --name hivedscheduler-ds-{{ vc }}
-{% endfor %}
-
-PYTHONPATH="../../../deployment" python -m k8sPaiLibrary.maintaintool.update_resource \
-    --operation delete --resource statefulset --name hivedscheduler-hs
-
-if kubectl get service | grep -q "hivedscheduler-service"; then
-    kubectl delete service hivedscheduler-service || exit $?
-fi
-
-if kubectl get configmap | grep -q "hivedscheduler-config"; then
-    kubectl delete configmap hivedscheduler-config || exit $?
-fi
-
-if kubectl get clusterrolebinding | grep -q "hivedscheduler-role-binding"; then
-    kubectl delete clusterrolebinding hivedscheduler-role-binding || exit $?
-fi
-
-if kubectl get serviceaccount | grep -q "hivedscheduler-account"; then
-    kubectl delete serviceaccount hivedscheduler-account || exit $?
-fi
-
-{% endif %}
-
-popd > /dev/null
+bash -Eeuxo pipefail ${WORKSPACE}/tests/jenkins/test_rest_server.sh $1

@@ -179,6 +179,8 @@ const convertTaskDetail = async (taskStatus, ports, userName, jobName, taskRoleN
       containerPorts[port] = randomPorts[port].start + taskStatus.index * randomPorts[port].count;
     }
   }
+  // get affinity group name
+  let affinityGroupName = null;
   // get container gpus
   let containerGpus = null;
   try {
@@ -189,6 +191,12 @@ const convertTaskDetail = async (taskStatus, ports, userName, jobName, taskRoleN
       httpsAgent: apiserver.ca && new Agent({ca: apiserver.ca}),
     })).data;
     if (launcherConfig.enabledHived) {
+      const hivedSpec = yaml.load(pod.metadata.annotations['hivedscheduler.microsoft.com/pod-scheduling-spec']);
+      if (hivedSpec && hivedSpec.affinityGroup && hivedSpec.affinityGroup.name) {
+        affinityGroupName = hivedSpec.affinityGroup.name;
+      } else {
+        affinityGroupName = `default/${taskStatus.attemptStatus.podName}`;
+      }
       const isolation = pod.metadata.annotations['hivedscheduler.microsoft.com/pod-gpu-isolation'];
       containerGpus = isolation.split(',').reduce((attr, id) => attr + Math.pow(2, id), 0);
     } else {
@@ -213,6 +221,13 @@ const convertTaskDetail = async (taskStatus, ports, userName, jobName, taskRoleN
     containerGpus,
     containerLog: `http://${taskStatus.attemptStatus.podHostIP}:${process.env.LOG_MANAGER_PORT}/log-manager/tail/${userName}/${jobName}/${taskRoleName}/${taskStatus.attemptStatus.podUID}/`,
     containerExitCode: completionStatus ? completionStatus.code : null,
+    ...launcherConfig.enabledHived && {
+      hived: {
+        affinityGroupName,
+        lazyPreempted: null,
+        lazyPreemptionStatus: null,
+      },
+    },
   };
 };
 
@@ -288,6 +303,34 @@ const convertFrameworkDetail = async (framework) => {
       ),
     };
   }
+
+  if (launcherConfig.enabledHived) {
+    const affinityGroups = {};
+    try {
+      (await axios({
+        method: 'get',
+        url: `${launcherConfig.hivedWebserviceUri}/v1/inspect/affinitygroups/`,
+        headers: launcherConfig.requestHeaders,
+        httpsAgent: apiserver.ca && new Agent({ca: apiserver.ca}),
+      })).items.forEach((affinityGroup) => {
+        affinityGroups[affinityGroup.metadata.name] = affinityGroup;
+      });
+    } catch (err) {
+      logger.warn('Fail to inspect affinity groups', err);
+    }
+    for (let taskRoleName of Object.keys(detail.taskRoles)) {
+      detail.taskRoles[taskRoleName].taskStatuses.forEach((status, idx) => {
+        const name = status.hived.affinityGroupName;
+        if (name in affinityGroups) {
+          detail.taskRoles[taskRoleName].taskStatuses[idx].hived.lazyPreempted =
+            Boolean(affinityGroups[name].status.lazyPreemptionStatus);
+          detail.taskRoles[taskRoleName].taskStatuses[idx].hived.lazyPreemptionStatus =
+            affinityGroups[name].status.lazyPreemptionStatus;
+        }
+      });
+    }
+  }
+
   return detail;
 };
 
@@ -516,7 +559,7 @@ const generateTaskRole = (frameworkName, taskRole, labels, config, storageConfig
   };
   // hived spec
   if (launcherConfig.enabledHived) {
-    frameworkTaskRole.task.pod.spec.schedulerName = launcherConfig.scheduler;
+    frameworkTaskRole.task.pod.spec.schedulerName = `${launcherConfig.scheduler}-ds-${config.taskRoles[taskRole].hivedPodSpec.virtualCluster}`;
 
     delete frameworkTaskRole.task.pod.spec.containers[0].resources.limits['nvidia.com/gpu'];
     frameworkTaskRole.task.pod.spec.containers[0]

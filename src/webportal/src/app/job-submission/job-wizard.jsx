@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import React, { useCallback, useEffect } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import {
   getTheme,
@@ -15,6 +15,7 @@ import { ReactComponent as IconSingle } from '../../assets/img/job-wizard-single
 import { ReactComponent as IconDistributed } from '../../assets/img/job-wizard-distributed.svg';
 import { ReactComponent as IconUpload } from '../../assets/img/job-wizard-upload.svg';
 import { JobProtocol } from './models/job-protocol';
+import { SpinnerLoading } from '../components/loading';
 
 const WizardButton = ({ children, onClick }) => {
   const { palette, spacing } = getTheme();
@@ -53,6 +54,7 @@ WizardButton.propTypes = {
 
 const JobWizard = ({ setYamlText, history }) => {
   const uploadFile = React.createRef();
+  const [loading, setLoading] = useState(true);
 
   const importFile = useCallback(event => {
     event.preventDefault();
@@ -78,15 +80,20 @@ const JobWizard = ({ setYamlText, history }) => {
     fileReader.readAsText(files[0]);
   });
 
-  // job clone
+  // redirect if job clone
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     if (params.get('op') === 'resubmit') {
       history.replace('/general');
+    } else {
+      setLoading(false);
     }
   }, []);
 
   const { spacing, palette } = getTheme();
+  if (loading) {
+    return <SpinnerLoading />;
+  }
 
   return (
     <Card style={{ height: '90%', margin: `${spacing.l2}` }}>
