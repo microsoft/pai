@@ -17,8 +17,8 @@ Status: 401
 }
 ```
 
+### `Create or update an expression for a certain user`
 
-### `Create an expression for a certain user`
 
 Please note:
   - One user cannot have expressions with duplicate keys. Thus, if the requested `key` is already created, we only update its value, instead of inserting a new expression.
@@ -67,7 +67,7 @@ Status: 400
 *Request*
 
 ```json
-GET /api/extend/:username/expression/:expressionName
+GET /api/extend/user/:username/expression/:expressionName
 Authorization: Bearer <ACCESS_TOKEN>
 ```
 
@@ -103,7 +103,7 @@ Status: 404
 *Request*
 
 ```json
-GET /api/extend/:username/expression
+GET /api/extend/user/:username/expression
 Authorization: Bearer <ACCESS_TOKEN>
 ```
 
@@ -130,7 +130,7 @@ Status: 200
 *Request*
 
 ```json
-DELETE /api/extend/:username/expression/:expressionName
+DELETE /api/extend/user/:username/expression/:expressionName
 Authorization: Bearer <ACCESS_TOKEN>
 ```
 
