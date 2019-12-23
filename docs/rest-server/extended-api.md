@@ -6,7 +6,7 @@ Rest-server exposes some APIs under `/extend/` namespace. These APIs are mostly 
 
 User expression provides a basic key-value storage for user. Details are as follows.
 
-### `Create an expression for a certain user`
+### `Create or update an expression for a certain user`
 
 Please note:
   - One user cannot have expressions with duplicate keys. Thus, if the requested `key` is already created, we only update its value, instead of inserting a new expression.
