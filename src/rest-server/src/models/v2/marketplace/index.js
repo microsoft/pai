@@ -6,9 +6,21 @@ const User = require('./user');
 const dotnev = require('dotenv');
 
 dotnev.config();
-
+/*
 const SQL_CONNECTION_STR = process.env.SQL_CONNECTION_STR;
 const sequelize = new Sequelize(SQL_CONNECTION_STR);
+*/
+
+const sequelize = new Sequelize(
+  process.env.DATABASE,
+  process.env.USERNAME,
+  process.env.PASSWORD,
+  {
+    host: process.env.HOST,
+    port: process.env.PORT,
+    dialect: 'postgres',
+  }
+);
 
 const models = {
   MarketplaceItem: new MarketplaceItem(sequelize, DataTypes),
