@@ -68,11 +68,6 @@ if (RBAC_IN_CLUSTER === 'false') {
     const cluster = kc.getCurrentCluster();
     const user = kc.getCurrentUser();
     apiserverConfig.uri = cluster.server;
-    if (cluster.caFile) {
-      apiserverConfig.ca = readFileSync(cluster.caFile);
-    } else if (cluster.caData) {
-      apiserverConfig.ca = Buffer.from(cluster.caData, 'base64').toString();
-    }
     apiserverConfig.token = user.token;
     apiserverConfig.ca = bufferFromFileOrData(cluster.caFile, cluster.caData);
     apiserverConfig.key = bufferFromFileOrData(user.keyFile, user.keyData);
