@@ -18,7 +18,7 @@
 const {Sequelize, Model} = require('sequelize');
 if (process.env.SQL_CONNECTION_STR) {
   const sequelize = new Sequelize(
-    'postgresql://root:rootpass@10.151.40.36:5432/openpai',
+    process.env.SQL_CONNECTION_STR,
     {
       pool: {
         max: 10,
@@ -33,7 +33,7 @@ if (process.env.SQL_CONNECTION_STR) {
   UserExpression.init({
     name: Sequelize.STRING,
     key: Sequelize.STRING,
-    value: Sequelize.STRING,
+    value: Sequelize.STRING(1024),
   }, {
     sequelize,
     modelName: 'user_expression',
