@@ -10,6 +10,7 @@ import {
 } from '../../utils/constants';
 import { SSHPlugin } from '../../models/plugin/ssh-plugin';
 import SSHGenerator from './ssh-generator';
+import { fetchUserSshPublicKey } from '../../utils/conn';
 
 import {
   DefaultButton,
@@ -31,13 +32,16 @@ const style = {
   },
 };
 
+
 export const JobSSH = ({ extras, onExtrasChange }) => {
   const [sshPlugin, setSshPlugin] = useState(SSHPlugin.fromProtocol(extras));
+  const [userExpressionSshKey, setUserExpressionSshKey] = useState(null);
 
   useEffect(() => {
     const updatedSSHPlugin = SSHPlugin.fromProtocol(extras);
     setSshPlugin(updatedSSHPlugin);
   }, [extras]);
+
 
   const _onChangeExtras = useCallback(
     (keyName, propValue) => {
@@ -61,6 +65,26 @@ export const JobSSH = ({ extras, onExtrasChange }) => {
     },
     [extras],
   );
+
+  // Get possible user expression ssh key asynchronously
+  // For UI, here we have two options:
+  // 1. Hide the text box, override ssh key when the expression call returns.
+  // 2. Show a loading icon until the expression call returns.
+  // We choose option 1 for simplicity. It may cause user input disappearing in some extreme cases.
+  useEffect(() => {
+    const user = cookies.get('user');
+    fetchUserSshPublicKey(user).then((sshPublicKey) => {
+      if (sshPublicKey){
+        setUserExpressionSshKey(sshPublicKey)
+        setSshPlugin(sshPlugin => {
+          if (!isEmpty(sshPlugin.userssh)) {
+            sshPlugin.userssh.value = sshPublicKey
+          }
+          return sshPlugin
+        })
+      }}
+    ).catch((err) => console.error(err));
+  }, []);
 
   const _onUsersshTypeChange = useCallback(
     (_, item) => {
@@ -87,10 +111,21 @@ export const JobSSH = ({ extras, onExtrasChange }) => {
       if (!checked) {
         _onChangeExtras('userssh', {});
       } else {
-        _onChangeExtras('userssh', {
-          type: 'custom',
-          value: '',
-        });
+        // use Callback to get latest user expression ssh key
+        setUserExpressionSshKey(userExpressionSshKey => {
+          if (userExpressionSshKey){
+            _onChangeExtras('userssh', {
+              type: 'custom',
+              value: userExpressionSshKey,
+            });
+          } else{
+            _onChangeExtras('userssh', {
+              type: 'custom',
+              value: '',
+            });
+          }
+          return userExpressionSshKey
+        })
       }
     },
     [_onChangeExtras],
@@ -135,7 +170,7 @@ export const JobSSH = ({ extras, onExtrasChange }) => {
           }
         />
       </Stack>
-      {!isEmpty(sshPlugin.userssh) && (
+      { (!userExpressionSshKey) && (!isEmpty(sshPlugin.userssh)) && (
         <Stack horizontal gap='l1'>
           <Dropdown
             placeholder='Select user ssh key type...'
