@@ -48,7 +48,7 @@ EOF
 while true; do
   sleep 10s
   status=$(curl -sS ${rest_server_uri}/api/v2/user/admin/jobs/${job_name} | jq -r ".jobStatus.state")
-  case $status in
+  case ${status} in
     "SUCCEEDED") break ;;
     "WAITING"|"RUNNING") ;;
     *) exit 1 ;;
