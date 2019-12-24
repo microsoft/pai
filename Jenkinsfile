@@ -33,7 +33,7 @@ def http_check_health(uri) {
   while (!status.equals(200)) {
     try {
       echo "Waiting for PAI to be ready ..."
-      sleep(10)
+      sleep(30)
       def response = httpRequest(uri)
       println("Status: " + response.status)
       println("Content: " + response.content)
@@ -164,7 +164,7 @@ pipeline {
                 try {
                   timeout(time: http_timeout, unit: "MINUTES") {
                     http_check_health("${YARN_SINGLEBOX_URI}/rest-server/api/v1")
-                    sh "${sh} ${WORKSPACE}/tests/jenkins/stage_test.sh ${YARN_SINGLEBOX_URI}/rest-server"
+                    sh "${sh} ${WORKSPACE}/tests/jenkins/stage_test.sh yarn ${YARN_SINGLEBOX_URI}/rest-server"
                   }
                 } catch (err) {
                   echo "Test YARN Single Box Failed: ${err}"
@@ -186,7 +186,7 @@ pipeline {
                 try {
                   timeout(time: http_timeout, unit: "MINUTES") {
                     http_check_health("${YARN_CLUSTER_URI}/rest-server/api/v1")
-                    sh "${sh} ${WORKSPACE}/tests/jenkins/stage_test.sh ${YARN_CLUSTER_URI}/rest-server"
+                    sh "${sh} ${WORKSPACE}/tests/jenkins/stage_test.sh yarn ${YARN_CLUSTER_URI}/rest-server"
                   }
                 } catch (err) {
                   echo "Test YARN Cluster Failed: ${err}"
@@ -208,7 +208,7 @@ pipeline {
                 try {
                   timeout(time: http_timeout, unit: "MINUTES") {
                     http_check_health("${K8S_CLUSTER_URI}/rest-server/api/v1")
-                    sh "${sh} ${WORKSPACE}/tests/jenkins/stage_test.sh ${K8S_CLUSTER_URI}/rest-server"
+                    sh "${sh} ${WORKSPACE}/tests/jenkins/stage_test.sh k8s ${K8S_CLUSTER_URI}/rest-server"
                   }
                 } catch (err) {
                   echo "Test Pure K8S Cluster Failed: ${err}"
