@@ -235,7 +235,7 @@ export class ClusterManager extends Singleton {
                     }
                 }
             }));
-        } catch {
+        } catch (err) {
             pylonReady = false;
         }
         await this.setClusterDefaultProperty(cluster, host, pylonReady);
