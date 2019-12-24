@@ -20,6 +20,10 @@
             "description": "PAI cluster access token, please keep it empty if use password",
             "minLength": 1
         },
+        "https": {
+            "type": "boolean",
+            "description": "Use https to access PAI cluster"
+        },
         "rest_server_uri": {
             "type": "string",
             "description": "PAI rest api endpoint",
