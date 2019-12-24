@@ -11,9 +11,8 @@ const SQL_CONNECTION_STR = process.env.SQL_CONNECTION_STR;
 const sequelize = new Sequelize(SQL_CONNECTION_STR);
 */
 
-const SQL_CONNECTION_STR = process.env.SQL_CONNECTION_STR;
 const sequelize = new Sequelize(
-  SQL_CONNECTION_STR,
+  process.env.SQL_CONNECTION_STR,
   {
     dialect: 'postgres',
   }
