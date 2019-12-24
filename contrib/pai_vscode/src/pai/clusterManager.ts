@@ -215,25 +215,19 @@ export class ClusterManager extends Singleton {
                 cancellable: true
             },
             (progress, cancellationToken) => new Promise((resolve, reject) => {
-                try {
-                    const req: request.RequestPromise = request.get(Util.fixURL(`${host}/healthz`, cluster.https), { timeout: 5 * 1000 });
+                const req: request.RequestPromise = request.get(Util.fixURL(`${host}/healthz`, cluster.https), { timeout: 5 * 1000 });
+                cancellationToken.onCancellationRequested(() => {
+                    req.abort();
+                    reject();
+                });
+                req.then(resolve).catch(() => {
+                    const httpReq: request.RequestPromise = request.get(Util.fixURL(`${host}/healthz`, false), { timeout: 5 * 1000 });
                     cancellationToken.onCancellationRequested(() => {
-                        req.abort();
+                        httpReq.abort();
                         reject();
                     });
-                    req.then(resolve).catch(reject);
-                } catch (err) {
-                    try {
-                        const req: request.RequestPromise = request.get(Util.fixURL(`${host}/healthz`, false), { timeout: 5 * 1000 });
-                        cancellationToken.onCancellationRequested(() => {
-                            req.abort();
-                            reject();
-                        });
-                        req.then(() => { cluster.https = false; resolve(); }).catch(reject);
-                    } catch {
-                        pylonReady = false;
-                    }
-                }
+                    httpReq.then(() => { cluster.https = false; resolve(); }).catch(reject);
+                });
             }));
         } catch (err) {
             pylonReady = false;
