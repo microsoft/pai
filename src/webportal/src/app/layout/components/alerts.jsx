@@ -1,4 +1,6 @@
-import c from 'classnames';
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT license.
+
 import {
   Panel,
   List,
@@ -8,10 +10,12 @@ import {
   PanelType,
   Stack,
   StackItem,
+  Icon,
+  IconFontSizes,
 } from 'office-ui-fabric-react';
 import React, { useCallback, useState, useEffect } from 'react';
 
-import webportalConfig from '../config/webportal.config';
+import webportalConfig from '../../config/webportal.config';
 
 const theme = getTheme();
 const { palette, semanticColors, spacing } = theme;
@@ -38,29 +42,32 @@ export const NotificationButton = () => {
   const [alertItems, setAlertItems] = useState([]);
 
   useEffect(() => {
+    let canceled = false;
     const alertsUrl = `${webportalConfig.alertManagerUri}/api/v1/alerts?silenced=false`;
-    fetch(alertsUrl)
-      .then(res => {
-        if (!res.ok) {
+    const work = async () => {
+      try {
+        const result = await fetch(alertsUrl);
+        if (!result.ok) {
           throw Error('Failed to get alert infos');
         }
-        res
-          .json()
-          .then(data => {
-            if (data.status !== 'success') {
-              throw Error('Failed to get alerts data');
-            }
-            setAlertItems(data.data);
-          })
-          .catch(() => {
-            throw Error('Get alerts json failed');
-          });
-        // Swallow exceptions here. Since alertManager is optional and we don't have an API to get all available services
-      })
-      .catch(error => {
-        if (error) {
+        const data = await result.json().catch(() => {
+          throw new Error('Get alerts json failed');
+        });
+        if (data.status !== 'success') {
+          throw new Error('Failed to get alerts data');
         }
-      });
+        if (!canceled) {
+          setAlertItems(data.data);
+        }
+      } catch (err) {
+        console.error(`Alerts Error: ${err.message}`);
+        // Swallow exceptions here. Since alertManager is optional and we don't have an API to get all available services
+      }
+    };
+    work();
+    return () => {
+      canceled = true;
+    };
   }, []);
 
   const open = useCallback(() => {
@@ -68,7 +75,7 @@ export const NotificationButton = () => {
   }, []);
   const close = useCallback(() => {
     setPanelOpened(false);
-  }, [setAlertItems]);
+  }, []);
 
   const renderNavigationContent = useCallback((props, defaultRender) => {
     return (
@@ -92,28 +99,33 @@ export const NotificationButton = () => {
   }, []);
 
   return (
-    <React.Fragment>
-      <i
-        className={c('fa fa-bell-o')}
-        style={{
-          fontSize: '16px',
-          cursor: 'pointer',
-        }}
-        onClick={open}
-      />
-      <span
-        style={{
-          height: '10px',
-          width: '10px',
-          backgroundColor: palette.red,
-          borderRadius: '50%',
-          display: 'inline-block',
-          position: 'relative',
-          top: '-8px',
-          left: '-7px',
-          visibility: alertItems.length > 0 ? 'visible' : 'hidden',
-        }}
-      />
+    <div
+      style={{
+        cursor: 'pointer',
+        height: '100%',
+        width: '100%',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+      }}
+      onClick={open}
+    >
+      <div style={{ position: 'relative' }}>
+        <Icon iconName='ringer' style={{ fontSize: IconFontSizes.medium }} />
+        {alertItems.length !== 0 && (
+          <span
+            style={{
+              height: '8px',
+              width: '8px',
+              backgroundColor: palette.red,
+              borderRadius: '50%',
+              position: 'absolute',
+              top: '0px',
+              left: '50%',
+            }}
+          />
+        )}
+      </div>
       <Panel
         isOpen={panelOpened}
         isLightDismiss={true}
@@ -134,6 +146,6 @@ export const NotificationButton = () => {
           }}
         />
       </Panel>
-    </React.Fragment>
+    </div>
   );
 };

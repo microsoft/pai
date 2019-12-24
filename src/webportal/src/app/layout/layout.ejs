@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title><%= htmlWebpackPlugin.options.title %></title>
+  <meta name="description" content="<%= htmlWebpackPlugin.options.title %>">
+</head>
+<body style="margin: 0; padding: 0">
+  <div class="wrapper" id="wrapper">
+  </div>
+  <script>window.PAI_COMMIT_VERSION = <%=JSON.stringify(htmlWebpackPlugin.options.commitVersion || '')%></script>
+  <script>window.PAI_VERSION = <%=JSON.stringify(htmlWebpackPlugin.options.version)%></script>
+  <script src="/env.js"></script>
+</body>
+</html>

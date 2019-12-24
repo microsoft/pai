@@ -16,7 +16,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 // module dependencies
-import { getServiceView } from './service-info';
+const { getServiceView } = require('./service-info');
 
 const breadcrumbComponent = require('../../job/breadcrumb/breadcrumb.component.ejs');
 const loadingComponent = require('../../job/loading/loading.component.ejs');
@@ -24,6 +24,9 @@ const serviceTableComponent = require('./service-table.component.ejs');
 const serviceViewComponent = require('./services.component.ejs');
 const loading = require('../../job/loading/loading.component');
 const webportalConfig = require('../../config/webportal.config.js');
+require('bootstrap');
+require('admin-lte/dist/css/AdminLTE.min.css');
+require('bootstrap/dist/css/bootstrap.css');
 require('datatables.net/js/jquery.dataTables.js');
 require('datatables.net-bs/js/dataTables.bootstrap.js');
 require('datatables.net-bs/css/dataTables.bootstrap.css');
@@ -71,9 +74,6 @@ const loadServices = () => {
 };
 
 window.loadServices = loadServices;
-
-$('#sidebar-menu--cluster-view').addClass('active');
-$('#sidebar-menu--cluster-view--services').addClass('active');
 
 $('#content-wrapper').html(serviceViewHtml);
 $(document).ready(() => {
