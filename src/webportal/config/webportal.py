@@ -67,16 +67,18 @@ class Webportal:
 
     #### All service and main module (kubrenetes, machine) is generated. And in this check steps, you could refer to the service object model which you will used in your own service, and check its existence and correctness.
     def validation_post(self, cluster_object_model):
-        for (service, config) in (
+        check_tuple = (
             ('rest-server', 'uri'),
             ('prometheus', 'url'),
-            ('hadoop-resource-manager', 'master-ip'),
             ('grafana', 'url'),
             # TODO
-            #('kubernetes', 'dashboard-url'),
+            # ('kubernetes', 'dashboard-url'),
             ('node-exporter', 'port'),
             ('prometheus', 'scrape_interval'),
-        ):
+        )
+        if cluster_object_model['cluster']['common']['cluster-type'] == 'yarn':
+            check_tuple = (('hadoop-resource-manager', 'master-ip'),)+check_tuple
+        for (service, config) in check_tuple:
             if service not in cluster_object_model or config not in cluster_object_model[service]:
                 return False, '{0}.{1} is required'.format(service, config)
 
