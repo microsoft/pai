@@ -154,3 +154,32 @@ export async function fetchStorageServers(serverNames) {
   );
   return storageServers;
 }
+
+
+export async function fetchUserSshPublicKey(user) {
+
+  try {
+    const res = await fetch(
+      `${config.restServerUri}/api/extend/user/${user}/expression/ssh-public-key`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        method: 'GET',
+      },
+    );
+    const json = await res.json();
+    if (json.value) {
+      return json.value
+    }
+    else if (json.code == 'NoUserExpressionError'){
+      // The user doesn't have a ssh-public-key expression
+      return null
+    } else {
+      throw new Error(json.message)
+    }
+  } catch (err) {
+    throw err
+  }
+}
