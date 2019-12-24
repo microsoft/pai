@@ -724,7 +724,7 @@ if (launcherConfig.type === 'yarn') {
     }
 
     generateSshKeyFilesPromise(name) {
-      return new Promise(function (res, rej) {
+      return new Promise(function(res, rej) {
         keygen({
           location: name,
           read: true,
@@ -735,7 +735,7 @@ if (launcherConfig.type === 'yarn') {
           } else {
             let sshKeyFiles = [{'content': key.pubKey, 'fileName': name + '.pub'}, {
               'content': key.key,
-              'fileName': name
+              'fileName': name,
             }];
             res(sshKeyFiles);
           }
@@ -748,13 +748,13 @@ if (launcherConfig.type === 'yarn') {
         location: name,
         read: true,
         destroy: true,
-      }, function (err, out) {
+      }, function(err, out) {
         if (err) {
           next(err);
         } else {
           let sshKeyFiles = [{'content': out.pubKey, 'fileName': name + '.pub'}, {
             'content': out.key,
-            'fileName': name
+            'fileName': name,
           }];
           next(null, sshKeyFiles);
         }
@@ -1020,5 +1020,4 @@ if (launcherConfig.type === 'yarn') {
 
   // module exports
   module.exports = Job;
-
 }

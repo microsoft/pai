@@ -37,9 +37,7 @@ const fs = require('fs');
 const _ = require('lodash');
 const logger = require('@pai/config/logger');
 
-
 if (launcherConfig.type === 'k8s') {
-
   let exitSpecPath;
   if (process.env[env.exitSpecPath]) {
     exitSpecPath = process.env[env.exitSpecPath];
