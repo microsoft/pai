@@ -44,8 +44,10 @@ spec:
 {% endif %}
         - mountPath: /group-configuration
           name: group-configuration-rest-server
+{%- if cluster_cfg["cluster"]["common"]["cluster-type"] == "yarn" %}
         - mountPath: /job-exit-spec-configuration
           name: job-exit-spec-rest-server
+{%- endif %}
 {%- if cluster_cfg["cluster"]["common"]["cluster-type"] == "k8s" %}
 {%- if cluster_cfg['hivedscheduler']['config']|length > 1 %}
         - mountPath: /hived-spec
@@ -73,6 +75,7 @@ spec:
         - name: LOG_MANAGER_PORT
           value: "{{ cluster_cfg['log-manager']['port'] }}"
 {%- endif %}
+{%- if cluster_cfg["cluster"]["common"]["cluster-type"] == "yarn" %}
         - name: LAUNCHER_WEBSERVICE_URI
           value: {{ cluster_cfg['yarn-frameworklauncher']['webservice'] }}
         - name: HDFS_URI
@@ -81,6 +84,7 @@ spec:
           value: http://{{ cluster_cfg['hadoop-name-node']['master-ip'] }}:5070
         - name: YARN_URI
           value: http://{{ cluster_cfg['hadoop-resource-manager']['master-ip'] }}:8088
+{%- endif %}
         - name: JWT_SECRET
           value: {{ cluster_cfg['rest-server']['jwt-secret'] }}
         - name: JWT_TOKEN_EXPIRE_TIME
@@ -139,9 +143,11 @@ spec:
         configMap:
           name: auth-configuration
 {% endif %}
+{%- if cluster_cfg["cluster"]["common"]["cluster-type"] == "yarn" %}
       - name: job-exit-spec-rest-server
         configMap:
           name: job-exit-spec-configuration
+{%- endif %}
 {%- if cluster_cfg["cluster"]["common"]["cluster-type"] == "k8s" %}
 {%- if cluster_cfg['hivedscheduler']['config']|length > 1 %}
       - name: hived-spec-rest-server

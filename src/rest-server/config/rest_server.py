@@ -65,12 +65,13 @@ class RestServer:
 
     #### All service and main module (kubrenetes, machine) is generated. And in this check steps, you could refer to the service object model which you will used in your own service, and check its existence and correctness.
     def validation_post(self, cluster_object_model):
-        if 'yarn-frameworklauncher' not in cluster_object_model or 'webservice' not in cluster_object_model['yarn-frameworklauncher']:
-            return False, 'yarn-frameworklauncher.webservice is required'
-        if 'hadoop-name-node' not in cluster_object_model or 'master-ip' not in cluster_object_model['hadoop-name-node']:
-            return False, 'hadoop-name-node.master-ip is required'
-        if 'hadoop-resource-manager' not in cluster_object_model or 'master-ip' not in cluster_object_model['hadoop-resource-manager']:
-            return False, 'hadoop-resource-manager.master-ip is required'
+        if cluster_object_model['cluster']['common']['cluster-type'] == 'yarn':
+            if 'yarn-frameworklauncher' not in cluster_object_model or 'webservice' not in cluster_object_model['yarn-frameworklauncher']:
+                return False, 'yarn-frameworklauncher.webservice is required'
+            if 'hadoop-name-node' not in cluster_object_model or 'master-ip' not in cluster_object_model['hadoop-name-node']:
+                return False, 'hadoop-name-node.master-ip is required'
+            if 'hadoop-resource-manager' not in cluster_object_model or 'master-ip' not in cluster_object_model['hadoop-resource-manager']:
+                return False, 'hadoop-resource-manager.master-ip is required'
         if 'kubernetes' not in cluster_object_model['layout'] or 'api-servers-url' not in cluster_object_model['layout']['kubernetes']:
             return False, 'kubernetes.api-servers-url is required'
 

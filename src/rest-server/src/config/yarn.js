@@ -18,46 +18,49 @@
 
 // module dependencies
 const Joi = require('joi');
+const launcherConfig = require('@pai/config/launcher');
 
-// get config from environment variables
-let yarnConfig = {
-  yarnUri: process.env.YARN_URI,
-  webserviceRequestHeaders: {
-    'Accept': 'application/json',
-  },
-  yarnVcInfoPath: `${process.env.YARN_URI}/ws/v1/cluster/scheduler`,
-  yarnNodeInfoPath: `${process.env.YARN_URI}/ws/v1/cluster/nodes`,
-  webserviceUpdateQueueHeaders: {
-    'Content-Type': 'application/xml',
-  },
-  yarnVcUpdatePath: `${process.env.YARN_URI}/ws/v1/cluster/scheduler-conf`,
-};
+if (launcherConfig.type === 'yarn') {
+  // get config from environment variables
+  let yarnConfig = {
+    yarnUri: process.env.YARN_URI,
+    webserviceRequestHeaders: {
+      'Accept': 'application/json',
+    },
+    yarnVcInfoPath: `${process.env.YARN_URI}/ws/v1/cluster/scheduler`,
+    yarnNodeInfoPath: `${process.env.YARN_URI}/ws/v1/cluster/nodes`,
+    webserviceUpdateQueueHeaders: {
+      'Content-Type': 'application/xml',
+    },
+    yarnVcUpdatePath: `${process.env.YARN_URI}/ws/v1/cluster/scheduler-conf`,
+  };
 
 
-const yarnConfigSchema = Joi.object().keys({
-  yarnUri: Joi.string()
-    .uri()
-    .required(),
-  webserviceRequestHeaders: Joi.object()
-    .required(),
-  yarnVcInfoPath: Joi.string()
-    .uri()
-    .required(),
-  yarnNodeInfoPath: Joi.string()
-    .uri()
-    .required(),
-  webserviceUpdateQueueHeaders: Joi.object()
-    .required(),
-  yarnVcUpdatePath: Joi.string()
-    .uri()
-    .required(),
-}).required();
+  const yarnConfigSchema = Joi.object().keys({
+    yarnUri: Joi.string()
+      .uri()
+      .required(),
+    webserviceRequestHeaders: Joi.object()
+      .required(),
+    yarnVcInfoPath: Joi.string()
+      .uri()
+      .required(),
+    yarnNodeInfoPath: Joi.string()
+      .uri()
+      .required(),
+    webserviceUpdateQueueHeaders: Joi.object()
+      .required(),
+    yarnVcUpdatePath: Joi.string()
+      .uri()
+      .required(),
+  }).required();
 
-const {error, value} = Joi.validate(yarnConfig, yarnConfigSchema);
-if (error) {
-  throw new Error(`yarn config error\n${error}`);
+  const {error, value} = Joi.validate(yarnConfig, yarnConfigSchema);
+  if (error) {
+    throw new Error(`yarn config error\n${error}`);
+  }
+  yarnConfig = value;
+
+
+  module.exports = yarnConfig;
 }
-yarnConfig = value;
-
-
-module.exports = yarnConfig;
