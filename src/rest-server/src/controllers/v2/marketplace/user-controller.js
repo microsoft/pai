@@ -1,4 +1,4 @@
-const {User} = require('@pai/models/v2/marketplace/user');
+const {User} = require('@pai/models/v2/marketplace');
 const {isEmpty, isNil} = require('lodash');
 const asyncHandler = require('@pai/middlewares/v2/asyncHandler');
 

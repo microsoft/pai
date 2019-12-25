@@ -91,4 +91,3 @@ const MarketDetail = props => {
 
 const contentWrapper = document.getElementById('content-wrapper');
 ReactDOM.render(<MarketDetail />, contentWrapper);
-document.getElementById('sidebar-menu--marketplace').classList.add('active');

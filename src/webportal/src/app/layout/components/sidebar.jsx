@@ -16,6 +16,7 @@ import t from '../../components/tachyons.scss';
 const KEY_HOME = 'HOME';
 const KEY_DASHBOARD = 'DASHBOARD';
 const KEY_SUBMIT_JOB = 'SUBMITJOB';
+const KEY_MARKETPLACE = 'MARKETPLACE';
 const KEY_JOBS = 'JOBS';
 const KEY_VC = 'VC';
 const KEY_ADMIN = 'ADMIN_MENU';
@@ -34,6 +35,7 @@ const KEY_DICT = {
   '/home.html': KEY_HOME,
   '/dashboard.html': KEY_DASHBOARD,
   '/submit.html': KEY_SUBMIT_JOB,
+  '/market-list.html': KEY_MARKETPLACE,
   '/job-list.html': KEY_JOBS,
   '/virtual-clusters.html': KEY_VC,
   '/cluster-view/services.html': KEY_SERVICES,
@@ -162,6 +164,12 @@ const Sidebar = ({ className, style }) => {
                 url: '/submit.html',
                 icon: 'NewFolder',
                 key: KEY_SUBMIT_JOB,
+              },
+              {
+                name: 'Marketplace',
+                url: '/market-list.html',
+                icon: 'Bank',
+                key: KEY_MARKETPLACE,
               },
               {
                 name: 'Jobs',

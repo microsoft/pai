@@ -139,5 +139,4 @@ const MarketList = () => {
 
 const contentWrapper = document.getElementById('content-wrapper');
 
-document.getElementById('sidebar-menu--marketplace').classList.add('active');
 ReactDOM.render(<MarketList />, contentWrapper);
