@@ -2,9 +2,6 @@ const {get} = require('lodash');
 
 const init = async (models) => {
   await models.sequelize.sync();
-  await models.User.orm.create({name: 'mintao'});
-  await models.User.orm.create({name: 'debuggy'});
-  await models.User.orm.create({name: 'test'});
 };
 
 const modelSyncHandler = (fn) => {
