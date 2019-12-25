@@ -198,7 +198,7 @@ export const PortsList = React.memo(({ onChange, ports }) => {
                   <p>The port value will be assigned randomly.</p>
                   <p>
                     <div>
-                      {`You can get the assigned port value (comma seperated list if count > 1) through the environment variable:`}
+                      {`You can get the assigned port value (comma separated list if count > 1) through the environment variable:`}
                     </div>
                     <code>PAI_PORT_LIST_$taskRole_$taskIndex_$portLabel</code>
                   </p>
