@@ -24,6 +24,7 @@
  */
 
 import Joi from 'joi-browser';
+import { PAI_PLUGIN } from '../utils/constants';
 
 export const taskRoleSchema = Joi.object().keys({
   instances: Joi.number()
@@ -148,6 +149,7 @@ export const jobProtocolSchema = Joi.object().keys({
     .keys({
       submitFrom: Joi.string(),
       tensorBoard: tensorBoardExtrasSchema,
+      [PAI_PLUGIN]: Joi.array(),
     })
     .unknown(),
 });

@@ -1,4 +1,4 @@
-import { isObject, isEmpty, isNil, isArrayLike } from 'lodash';
+import { isObject, isEmpty, isNil, isArrayLike, get } from 'lodash';
 import { basename } from 'path';
 
 import { JobBasicInfo } from '../models/job-basic-info';
@@ -13,6 +13,7 @@ import {
   TENSORBOARD_LOG_PATH,
   AUTO_GENERATE_NOTIFY,
   PAI_STORAGE,
+  PAI_PLUGIN,
 } from './constants';
 import config from '../../config/webportal.config';
 
@@ -312,4 +313,12 @@ export function isValidUpdatedTensorBoardExtras(
     return false;
   }
   return true;
+}
+
+export function getStoragePlugin(extras) {
+  const plugins = get(extras, [PAI_PLUGIN], []);
+  if (isEmpty(plugins)) {
+    return;
+  }
+  return plugins.find(plugin => plugin.plugin === 'teamwise_storage');
 }

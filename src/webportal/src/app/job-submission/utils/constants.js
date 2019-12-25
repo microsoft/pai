@@ -155,6 +155,8 @@ export const DEFAULT_DOCKER_URI = 'openpai/tensorflow-py36-cu90';
 // For PAI runtime only
 export const PAI_PLUGIN = 'com.microsoft.pai.runtimeplugin';
 
+export const STORAGE_PLUGIN = 'teamwise_storage';
+
 export const PAI_STORAGE = 'pai.storage';
 
 export const SSH_KEY_BITS = 1024;
