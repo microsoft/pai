@@ -17,18 +17,12 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-rest_server_uri="$1"
+cluster_type="$1"
+rest_server_uri="$2"
 job_name="e2e-test-$RANDOM-$RANDOM"
+pytorch_mnist_name="pytorch-mnist-$RANDOM-$RANDOM"
 
-# get token
-token=""
-until [ ! -z ${token} ]; do
-  token=$(curl -sS -X POST -d "username=admin" -d "password=admin-password" -d "expiration=36000" ${rest_server_uri}/api/v1/authn/basic/login | jq -r ".token")
-  sleep 10s
-done
-
-# submit job
-cat << EOF | curl -sS -X POST -H "Authorization: Bearer ${token}" -H "Content-Type: application/json" -d @- ${rest_server_uri}/api/v2/user/admin/jobs
+job_config=$(cat << EOF
 {
   "jobName": "${job_name}",
   "image": "docker.io/openpai/alpine:bash",
@@ -43,14 +37,44 @@ cat << EOF | curl -sS -X POST -H "Authorization: Bearer ${token}" -H "Content-Ty
   ]
 }
 EOF
+)
+
+# get token
+token=""
+until [ ! -z ${token} ]; do
+  token=$(curl -sS -X POST -d "username=admin" -d "password=admin-password" -d "expiration=36000" ${rest_server_uri}/api/v1/authn/basic/login | jq -r ".token")
+  sleep 10s
+done
 
 # check job status
-while true; do
-  sleep 10s
-  status=$(curl -sS ${rest_server_uri}/api/v2/user/admin/jobs/${job_name} | jq -r ".jobStatus.state")
-  case $status in
-    "SUCCEEDED") break ;;
-    "WAITING"|"RUNNING") ;;
-    *) exit 1 ;;
-  esac
-done
+function check_status() {
+  while true; do
+    sleep 30s
+    status=$(curl -sS "$1" | jq -r ".jobStatus.state")
+    case ${status} in
+      "SUCCEEDED") break ;;
+      "WAITING"|"RUNNING") ;;
+      *) exit 1 ;;
+    esac
+  done
+}
+
+case ${cluster_type} in
+  "yarn")
+    # submit v1 job
+    echo ${job_config} \
+      | curl -sS -X POST -H "Authorization: Bearer ${token}" -H "Content-Type: application/json" -d @- ${rest_server_uri}/api/v2/user/admin/jobs
+    check_status ${rest_server_uri}/api/v2/user/admin/jobs/${job_name}
+    ;;
+  "k8s")
+    # submit pytorch mnist example in marketplace
+    cat ${WORKSPACE}/marketplace-v2/pytorch-mnist.yaml \
+      | sed "s/pytorch_mnist/${pytorch_mnist_name}/g" \
+      | curl -sS -X POST -H "Authorization: Bearer ${token}" -H "Content-Type: text/yaml" --data-binary @- ${rest_server_uri}/api/v2/jobs
+    check_status ${rest_server_uri}/api/v2/jobs/admin~${pytorch_mnist_name}
+    ;;
+  *)
+    echo "Unknown cluster type ${cluster_type}"
+    exit 1
+    ;;
+esac

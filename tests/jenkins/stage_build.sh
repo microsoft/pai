@@ -17,11 +17,13 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-quick_start_path=${JENKINS_HOME}/${BED}/singlebox/quick-start
-config_path=${JENKINS_HOME}/${BED}/singlebox/cluster-configuration
+cluster_type="yarn"
+cluster_scale="singlebox"
+
+config_path=${WORKSPACE}/tests/jenkins/${cluster_type}/${cluster_scale}/cluster-configuration
 
 # generate config
-bash ${WORKSPACE}/tests/jenkins/test_generate_config.sh singlebox ${config_path} ${quick_start_path}
+bash -Eeuxo pipefail ${WORKSPACE}/tests/jenkins/test_generate_config.sh ${cluster_type} ${cluster_scale} ${config_path}
 
 # build images
 sudo python build/pai_build.py build -c ${config_path}
