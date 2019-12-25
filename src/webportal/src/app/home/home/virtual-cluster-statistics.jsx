@@ -33,6 +33,7 @@ import Card from '../../components/card';
 import { UtilizationChart } from './utilization-chart';
 import { zeroPaddingClass } from './util';
 import { Header } from './header';
+import config from '../../config/webportal.config';
 
 import t from '../../components/tachyons.scss';
 import { ResourceBar } from './resource-bar';
@@ -238,7 +239,7 @@ export const VirtualClusterStatistics = ({
             }
             linkHref={'/virtual-clusters.html'}
             linkName={'View all'}
-            showLink={isAdmin}
+            showLink={isAdmin && config.launcherType !== 'k8s'}
           />
         </Stack.Item>
         <Stack.Item styles={{ root: [t.relative] }} grow>
