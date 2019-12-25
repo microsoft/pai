@@ -225,9 +225,9 @@ export const JobSubmissionPage = ({
     // for import and clone, will respect original protocol
     const params = new URLSearchParams(window.location.search);
     if (
+      config.launcherType !== 'k8s' ||
       !isEmpty(yamlText) ||
-      params.get('op') === 'resubmit' ||
-      config.launcherType !== 'k8s'
+      params.get('op') === 'resubmit'
     ) {
       return;
     }
@@ -243,7 +243,7 @@ export const JobSubmissionPage = ({
           jobssh: true,
         },
       };
-      extras[PAI_PLUGIN].push(sshPlugin);
+
       // set storage plugin default value
       const defaultStorageConfig = [];
       try {
@@ -262,7 +262,8 @@ export const JobSubmissionPage = ({
           storageConfigNames: defaultStorageConfig,
         },
       };
-      extras[PAI_PLUGIN].push(storagePlugin);
+
+      extras[PAI_PLUGIN].push(sshPlugin, storagePlugin);
       setExtras(extras);
     };
     setExtrasValue();

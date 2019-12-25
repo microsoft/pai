@@ -54,6 +54,7 @@ const generateUpdatedRuntimePlugins = (storageConfigs, oriPlugins) => {
 
 function reducer(state, action) {
   let jobData;
+
   switch (action.type) {
     case 'dataList':
       jobData = new JobData(
@@ -71,20 +72,6 @@ function reducer(state, action) {
         action.value,
         true,
       );
-      if (config.launcherType === 'k8s') {
-        const plugins = get(action, ['extras', PAI_PLUGIN], []);
-        const updatedRuntimePlugins = generateUpdatedRuntimePlugins(
-          action.value.selectedConfigs,
-          plugins,
-        );
-        if (!isEqual(plugins, updatedRuntimePlugins)) {
-          const updatedExtras = {
-            ...action.extras,
-            [PAI_PLUGIN]: updatedRuntimePlugins,
-          };
-          action.onExtrasChange(updatedExtras);
-        }
-      }
       action.onChange(jobData);
       return jobData;
     default:
@@ -128,13 +115,23 @@ export const DataComponent = React.memo(props => {
     if (isEmpty(storagePlugin)) {
       return [];
     }
+
+    const defaultTeamConfigs = [];
+    if (!isEmpty(teamConfigs)) {
+      const defaultConfig = teamConfigs.find(config => config.default === true);
+      if (!isEmpty(defaultConfig)) {
+        defaultTeamConfigs.push(defaultConfig.name);
+      }
+    }
+
+    // If set storage plugin but config is empty, use default config
     const storageConfigNames = get(
       storagePlugin,
       'parameters.storageConfigNames',
-      [],
+      defaultTeamConfigs,
     );
     return storageConfigNames;
-  }, [extras]);
+  }, [extras, teamConfigs]);
 
   const selectedTeamConfigs = useMemo(() => {
     if (isEmpty(teamConfigs) || isEmpty(storageConfigs)) {
@@ -190,7 +187,7 @@ export const DataComponent = React.memo(props => {
       teamServers,
     );
 
-    onMountDirChange(mountDirectories);
+    onMountDirInit(mountDirectories);
   }, [selectedTeamConfigs, teamConfigs]);
 
   const _onDataListChange = useCallback(
@@ -200,15 +197,37 @@ export const DataComponent = React.memo(props => {
     [onChange],
   );
 
+  const onMountDirInit = useCallback(mountDir => {
+    dispatch({
+      type: 'mountDir',
+      value: mountDir,
+      onChange: onChange,
+    });
+  });
+
   const onMountDirChange = useCallback(
     mountDir => {
       dispatch({
         type: 'mountDir',
         value: mountDir,
         onChange: onChange,
-        extras: extras,
-        onExtrasChange: onExtrasChange,
       });
+      if (config.launcherType !== 'k8s') {
+        return;
+      }
+
+      const plugins = get(extras, [PAI_PLUGIN], []);
+      const updatedRuntimePlugins = generateUpdatedRuntimePlugins(
+        mountDir.selectedConfigs,
+        plugins,
+      );
+      if (!isEqual(updatedRuntimePlugins, plugins)) {
+        const updatedExtras = {
+          ...extras,
+          [PAI_PLUGIN]: updatedRuntimePlugins,
+        };
+        onExtrasChange(updatedExtras);
+      }
     },
     [onChange, onExtrasChange, extras],
   );
@@ -233,7 +252,6 @@ export const DataComponent = React.memo(props => {
           {teamConfigs && (
             <TeamStorage
               teamConfigs={teamConfigs}
-              defaultTeamConfigs={selectedTeamConfigs}
               mountDirs={jobData.mountDirs}
               onMountDirChange={onMountDirChange}
             />

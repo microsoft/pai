@@ -23,7 +23,12 @@
  * SOFTWARE.
  */
 
-import React, { useEffect, useLayoutEffect, useState } from 'react';
+import React, {
+  useEffect,
+  useLayoutEffect,
+  useState,
+  useCallback,
+} from 'react';
 
 import {
   Checkbox,
@@ -41,7 +46,7 @@ import { TooltipIcon } from '../controls/tooltip-icon';
 
 import c from 'classnames';
 import PropTypes from 'prop-types';
-import { cloneDeep } from 'lodash';
+import { cloneDeep, isEqual, isNil } from 'lodash';
 
 import { MountDirectories } from '../../models/data/mount-directories';
 import { dispatchResizeEvent } from '../../utils/utils';
@@ -51,40 +56,38 @@ import TeamDetail from './team-detail';
 
 const { spacing } = getTheme();
 
-export const TeamStorage = ({
-  teamConfigs,
-  defaultTeamConfigs,
-  mountDirs,
-  onMountDirChange,
-}) => {
+export const TeamStorage = ({ teamConfigs, mountDirs, onMountDirChange }) => {
   // workaround for fabric's bug
   // https://github.com/OfficeDev/office-ui-fabric-react/issues/5280#issuecomment-489619108
   useLayoutEffect(() => {
     dispatchResizeEvent();
   });
 
-  const [selectedConfigNames, setSelectedConfigNames] = useState(() => {
-    return mountDirs.selectedConfigs.map(element => {
-      return element.name;
-    });
-  });
-
-  const [mountPoints, setMountPoints] = useState(() => {
-    return mountDirs.selectedConfigs.flatMap(ele =>
-      ele.mountInfos.map(mountInfo => mountInfo.mountPoint),
-    );
-  });
+  const [selectedConfigNames, setSelectedConfigNames] = useState([]);
+  const [mountPoints, setMountPoints] = useState([]);
 
   useEffect(() => {
-    const names = defaultTeamConfigs.map(element => {
+    if (
+      isNil(mountDirs) ||
+      isNil(mountDirs.selectedConfigs) ||
+      isNil(mountDirs.selectedConfigs)
+    ) {
+      return;
+    }
+
+    const updatedNames = mountDirs.selectedConfigs.map(element => {
       return element.name;
     });
-    const mountPoints = defaultTeamConfigs.flatMap(ele =>
+    const updatedMountPoints = mountDirs.selectedConfigs.flatMap(ele =>
       ele.mountInfos.map(mountInfo => mountInfo.mountPoint),
     );
-    setSelectedConfigNames(names);
-    setMountPoints(mountPoints);
-  }, [defaultTeamConfigs]);
+    if (!isEqual(updatedNames, selectedConfigNames)) {
+      setSelectedConfigNames(updatedNames);
+    }
+    if (!isEqual(updatedMountPoints, mountPoints)) {
+      setMountPoints(updatedMountPoints);
+    }
+  }, [mountDirs]);
 
   const [teamDetail, setTeamDetail] = useState({ isOpen: false });
   const openTeamDetail = config => {
@@ -94,19 +97,22 @@ export const TeamStorage = ({
     setTeamDetail({ isOpen: false });
   };
 
-  useEffect(() => {
-    let selectedConfigs = [];
-    if (selectedConfigNames.length > 0) {
-      selectedConfigs = teamConfigs.filter(element => {
-        return selectedConfigNames.includes(element.name);
-      });
-    }
-    const newMountDirs = cloneDeep(mountDirs);
-    newMountDirs.selectedConfigs = selectedConfigs;
-    onMountDirChange(newMountDirs);
-  }, [selectedConfigNames]);
+  const updateMountDir = useCallback(
+    selectedConfigNames => {
+      let selectedConfigs = [];
+      if (selectedConfigNames.length > 0) {
+        selectedConfigs = teamConfigs.filter(element => {
+          return selectedConfigNames.includes(element.name);
+        });
+      }
+      const newMountDirs = cloneDeep(mountDirs);
+      newMountDirs.selectedConfigs = selectedConfigs;
+      onMountDirChange(newMountDirs);
+    },
+    [teamConfigs, mountDirs],
+  );
 
-  const columes = [
+  const columns = [
     {
       key: 'name',
       name: 'Name',
@@ -157,6 +163,7 @@ export const TeamStorage = ({
               }
               setSelectedConfigNames(newSelectedConfigNames);
               setMountPoints(updatedMountPoints);
+              updateMountDir(newSelectedConfigNames);
             }}
           />
         );
@@ -230,7 +237,7 @@ export const TeamStorage = ({
 
       <div className={c(t.mb2)}>
         <DetailsList
-          columns={columes}
+          columns={columns}
           disableSelectionZone
           selectionMode={SelectionMode.none}
           items={teamConfigs}
@@ -255,7 +262,6 @@ export const TeamStorage = ({
 
 TeamStorage.propTypes = {
   teamConfigs: PropTypes.array,
-  defaultTeamConfigs: PropTypes.array,
   mountDirs: PropTypes.instanceOf(MountDirectories),
   onMountDirChange: PropTypes.func,
 };
