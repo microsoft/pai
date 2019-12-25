@@ -56,17 +56,18 @@ class Pylon:
 
     #### All service and main module (kubrenetes, machine) is generated. And in this check steps, you could refer to the service object model which you will used in your own service, and check its existence and correctness.
     def validation_post(self, cluster_object_model):
-        for (service, config) in (
+        check_tuple = (
             ('rest-server', 'uri'),
-            ('hadoop-name-node', 'master-ip'),
             ('prometheus', 'url'),
             ('alert-manager', 'url'),
             # TODO
-            #('kubernetes', 'dashboard-url'),
-            ('hadoop-resource-manager', 'master-ip'),
+            # ('kubernetes', 'dashboard-url'),
             ('grafana', 'url'),
             ('webportal', 'uri'),
-        ):
+        )
+        if cluster_object_model['cluster']['common']['cluster-type'] == 'yarn':
+            check_tuple = (('hadoop-resource-manager', 'master-ip'), ('hadoop-name-node', 'master-ip'),) + check_tuple
+        for (service, config) in check_tuple:
             if service not in cluster_object_model or config not in cluster_object_model[service]:
                 return False, '{0}.{1} is required'.format(service, config)
 
