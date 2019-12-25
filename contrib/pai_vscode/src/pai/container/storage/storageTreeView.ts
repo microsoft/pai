@@ -6,40 +6,21 @@
 
 import { injectable } from 'inversify';
 import {
-    commands,
     window,
     Event,
     EventEmitter,
     TreeDataProvider,
     TreeItem,
-    TreeItemCollapsibleState,
     TreeView
 } from 'vscode';
 
 import {
-    COMMAND_CONTAINER_STORAGE_BACK,
-    COMMAND_CONTAINER_STORAGE_REFRESH,
     VIEW_CONTAINER_STORAGE
 } from '../../../common/constants';
 import { __ } from '../../../common/i18n';
 import { Singleton } from '../../../common/singleton';
+import { SelectClusterRootNode } from '../common/rootNode';
 import { TreeNode } from '../common/treeNode';
-
-// tslint:disable-next-line: completed-docs
-export class TestNode extends TreeNode {
-    constructor(label: string) {
-        super(label, TreeItemCollapsibleState.Collapsed);
-        this.contextValue = 'dddd';
-    }
-
-    get description(): string {
-        return 'kitty';
-    }
-
-    get tooltip(): string {
-        return 'hello';
-    }
-}
 
 /**
  * Contributes to the tree view of storage explorer.
@@ -56,15 +37,11 @@ export class StorageTreeDataProvider extends Singleton implements TreeDataProvid
         super();
         this.onDidChangeTreeDataEmitter = new EventEmitter<TreeNode>();
         this.onDidChangeTreeData = this.onDidChangeTreeDataEmitter.event;
-        this.root = new TestNode('test');
+        this.root = new SelectClusterRootNode();
         this.view = window.createTreeView(VIEW_CONTAINER_STORAGE, { treeDataProvider: this });
     }
 
     public async onActivate(): Promise<void> {
-        this.context.subscriptions.push(
-            commands.registerCommand(COMMAND_CONTAINER_STORAGE_REFRESH, () => this.refresh()),
-            commands.registerCommand(COMMAND_CONTAINER_STORAGE_BACK, () => this.reset())
-        );
         this.refresh();
     }
 
@@ -76,13 +53,7 @@ export class StorageTreeDataProvider extends Singleton implements TreeDataProvid
         if (!element) {
             return [this.root];
         } else {
-            if (element.label === 'test') {
-                const child: TreeNode = new TestNode('child');
-                child.parent = element;
-                return [ child ];
-            } else {
-                return undefined;
-            }
+            return undefined;
         }
     }
 
@@ -95,7 +66,7 @@ export class StorageTreeDataProvider extends Singleton implements TreeDataProvid
     }
 
     public reset(): void {
-        this.root = new TestNode('test');
+        this.root = new SelectClusterRootNode();
         this.refresh();
         void this.view.reveal(this.root);
     }

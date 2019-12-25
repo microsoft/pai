@@ -11,7 +11,7 @@ import { ClusterManager } from './pai/clusterManager';
 import { ConfigurationTreeDataProvider } from './pai/configurationTreeDataProvider';
 import { HDFSTreeDataProvider } from './pai/container/hdfsTreeView';
 import { JobListTreeDataProvider } from './pai/container/jobListTreeView';
-import { StorageTreeDataProvider } from './pai/container/storage/storageTreeDataProvider';
+import { StorageTreeDataProvider } from './pai/container/storage/storageTreeView';
 import { HDFS } from './pai/hdfs';
 import { PAIJobManager } from './pai/paiJobManager';
 import { PAIWebpages } from './pai/paiWebpages';
