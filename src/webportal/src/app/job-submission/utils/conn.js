@@ -175,11 +175,13 @@ export async function fetchUserSshPublicKey(user) {
     }
     else if (json.code == 'NoUserExpressionError'){
       // The user doesn't have a ssh-public-key expression
-      return null
+      return 'NotFound'
     } else {
-      throw new Error(json.message)
+      console.error(json.message)
+      return 'NotFound'
     }
   } catch (err) {
-    throw err
+    console.error(err)
+    return 'NotFound'
   }
 }
