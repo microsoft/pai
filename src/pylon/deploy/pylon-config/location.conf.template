@@ -58,6 +58,7 @@ location ~ ^/kubernetes/api(.*)$ {
   proxy_pass {{K8S_API_SERVER_URI}}/api$1$is_args$args;
 }
 
+{% if CLUSTER_TYPE == 'yarn' %}
 # WebHDFS API server.
 location ~ ^/webhdfs/api(.*)$ {
   proxy_pass {{WEBHDFS_URI}}/webhdfs$1$is_args$args;
@@ -73,6 +74,7 @@ location @handle_webhdfs_api_redirect {
     return 300 "";
   }
 }
+{% endif %}
 
 # Prometheus API server.
 location ~ ^/prometheus(.*)$ {
@@ -89,6 +91,7 @@ location ~ ^/log-manager/([^/]+):(\d+)/(.*)$ {
   proxy_pass http://$1:$2/log-manager/$3$is_args$args;
 }
 
+{% if CLUSTER_TYPE == 'yarn' %}
 #
 # YARN web portal
 #
@@ -178,6 +181,7 @@ location @handle_yarn_redirect {
     return 301 $scheme://$http_host/yarn/$1:$2/$3$4;
   }
 }
+{% endif %}
 
 #
 # Other web portals
@@ -192,6 +196,7 @@ location ~ ^/kubernetes-dashboard(.*)$ {
   proxy_pass {{K8S_DASHBOARD_URI}}$1$is_args$args;
 }
 
+{% if CLUSTER_TYPE == 'yarn' %}
 # WebHDFS dashboard
 location ~ ^/webhdfs$ {
   # Add '/' to the end of the URL, otherwise there will be a 404 error.
@@ -221,6 +226,7 @@ location ~ ^/webhdfs(.*)$ {
     "get('/startupProgress'"
     "get('${base}startupProgress'";
 }
+{% endif %}
 
 # Grafana
 location ~ ^/grafana$ {
@@ -268,10 +274,12 @@ location ~ ^(.*)$ {
   sub_filter
     '{{PROMETHEUS_URI}}/prometheus'
     '/prometheus';
+{%- if CLUSTER_TYPE == "yarn" %}
   sub_filter
     '{{YARN_WEB_PORTAL_URI}}'
     '/yarn';
   # Add '/' to the end of the URL is used to adapt the envrionent with Azure gateway
+{%- endif %}
   sub_filter
     '{{K8S_DASHBOARD_URI}}'
     '/kubernetes-dashboard/';
