@@ -43,7 +43,6 @@ ${service_name}.yaml
 # If the key is missing, default value will be 'common'.
 openpai_parser_type: "yarn"
 
-
 # key : value
 service-a-key1: default—value1
 
