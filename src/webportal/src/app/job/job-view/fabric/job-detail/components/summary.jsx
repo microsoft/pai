@@ -396,7 +396,7 @@ export default class Summary extends React.Component {
               >
                 {jobInfo.name}
               </div>
-              {jobInfo.frameworkName && (
+              {jobInfo.debugId && (
                 <div className={t.ml2}>
                   <TooltipHost
                     calloutProps={{
@@ -409,11 +409,11 @@ export default class Summary extends React.Component {
                           className={c(t.flex, t.itemsCenter)}
                           style={{ maxWidth: 300 }}
                         >
-                          <div>FrameworkName:</div>
+                          <div>DebugID:</div>
                           <div className={c(t.ml2, t.truncate)}>
-                            {jobInfo.frameworkName}
+                            {jobInfo.debugId}
                           </div>
-                          <CopyButton value={jobInfo.frameworkName} />
+                          <CopyButton value={jobInfo.debugId} />
                         </div>
                       ),
                     }}
