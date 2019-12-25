@@ -13,7 +13,7 @@ const sequelize = new Sequelize(SQL_CONNECTION_STR);
 
 const sqlConnectionStr = process.env.SQL_CONNECTION_STR;
 const sequelize = new Sequelize(
-  sqlConnectionStr,
+  `${sqlConnectionStr}`,
   {
     dialect: 'postgres',
   }
