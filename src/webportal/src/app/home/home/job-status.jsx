@@ -61,7 +61,7 @@ const StatusItem = ({ className, icon, name, count, link }) => {
             <div
               className={c(
                 ColorClassNames.neutralSecondary,
-                FontClassNames.large,
+                FontClassNames.mediumPlus,
               )}
               style={{ marginLeft: spacing.m }}
             >
@@ -69,8 +69,8 @@ const StatusItem = ({ className, icon, name, count, link }) => {
             </div>
           </div>
           <div
-            className={c(FontClassNames.xLarge)}
-            style={{ fontWeight: FontWeights.semibold }}
+            className={c(FontClassNames.large)}
+            style={{ fontWeight: FontWeights.bold }}
           >
             {count}
           </div>
