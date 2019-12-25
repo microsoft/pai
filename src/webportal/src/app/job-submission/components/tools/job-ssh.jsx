@@ -8,6 +8,7 @@ import {
   USERSSH_TYPE_OPTIONS,
   SSH_KEY_BITS,
 } from '../../utils/constants';
+import { Spinner, SpinnerSize } from 'office-ui-fabric-react/lib/Spinner';
 import { SSHPlugin } from '../../models/plugin/ssh-plugin';
 import SSHGenerator from './ssh-generator';
 import { fetchUserSshPublicKey } from '../../utils/conn';
@@ -35,7 +36,12 @@ const style = {
 
 export const JobSSH = ({ extras, onExtrasChange }) => {
   const [sshPlugin, setSshPlugin] = useState(SSHPlugin.fromProtocol(extras));
-  const [userExpressionSshKey, setUserExpressionSshKey] = useState(null);
+  // For Expression UI, here we have two options:
+  // 1. Hide the text box, override ssh key when the expression call returns.
+  // 2. Show a loading icon until the expression call returns.
+  // We choose option 2. Option 1 may cause user input disappearing in some extreme cases.
+  // userExpressionSshKey will have 3 kinds of values: "NotReady", "NotFound", and real SSH key.
+  const [userExpressionSshKey, setUserExpressionSshKey] = useState('NotReady');
 
   useEffect(() => {
     const updatedSSHPlugin = SSHPlugin.fromProtocol(extras);
@@ -66,16 +72,11 @@ export const JobSSH = ({ extras, onExtrasChange }) => {
     [extras],
   );
 
-  // Get possible user expression ssh key asynchronously
-  // For UI, here we have two options:
-  // 1. Hide the text box, override ssh key when the expression call returns.
-  // 2. Show a loading icon until the expression call returns.
-  // We choose option 1 for simplicity. It may cause user input disappearing in some extreme cases.
   useEffect(() => {
     const user = cookies.get('user');
     fetchUserSshPublicKey(user).then((sshPublicKey) => {
-      if (sshPublicKey){
-        setUserExpressionSshKey(sshPublicKey)
+      setUserExpressionSshKey(sshPublicKey)
+      if (sshPublicKey != 'NotFound'){
         setSshPlugin(sshPlugin => {
           if (!isEmpty(sshPlugin.userssh)) {
             sshPlugin.userssh.value = sshPublicKey
@@ -113,7 +114,7 @@ export const JobSSH = ({ extras, onExtrasChange }) => {
       } else {
         // use Callback to get latest user expression ssh key
         setUserExpressionSshKey(userExpressionSshKey => {
-          if (userExpressionSshKey){
+          if (userExpressionSshKey != 'NotFound'){
             _onChangeExtras('userssh', {
               type: 'custom',
               value: userExpressionSshKey,
@@ -149,14 +150,17 @@ export const JobSSH = ({ extras, onExtrasChange }) => {
     });
   };
 
-  return (
-    <Stack gap='m' styles={{ root: { height: '100%' } }}>
-      <Stack horizontal gap='s1'>
-        <Text styles={style.headerText}>SSH</Text>
-        <TooltipIcon
-          content={`Choose SSH public key for job. Users should maintain the SSH private key themselves.`}
-        />
+  let SshToggle, SshTextField;
+  if (userExpressionSshKey == 'NotReady') {
+    SshToggle = (
+      <Stack horizontal>
+        <Spinner size={SpinnerSize.large}> </Spinner>
       </Stack>
+    );
+    SshTextField = <Stack></Stack>
+  }
+  else if (userExpressionSshKey == 'NotFound') {
+    SshToggle = (
       <Stack horizontal gap='s1'>
         <Toggle
           label={'Enable User SSH'}
@@ -170,39 +174,73 @@ export const JobSSH = ({ extras, onExtrasChange }) => {
           }
         />
       </Stack>
-      { (!userExpressionSshKey) && (!isEmpty(sshPlugin.userssh)) && (
-        <Stack horizontal gap='l1'>
-          <Dropdown
-            placeholder='Select user ssh key type...'
-            options={USERSSH_TYPE_OPTIONS}
-            onChange={_onUsersshTypeChange}
-            selectedKey={sshPlugin.userssh.type}
-            disabled={Object.keys(USERSSH_TYPE_OPTIONS).length <= 1}
+    );
+    if (!isEmpty(sshPlugin.userssh)){
+      SshTextField = (
+      <Stack horizontal gap='l1'>
+        <Dropdown
+          placeholder='Select user ssh key type...'
+          options={USERSSH_TYPE_OPTIONS}
+          onChange={_onUsersshTypeChange}
+          selectedKey={sshPlugin.userssh.type}
+          disabled={Object.keys(USERSSH_TYPE_OPTIONS).length <= 1}
+        />
+        <TextField
+          placeholder='Enter ssh public key'
+          disabled={sshPlugin.userssh.type === 'none'}
+          errorMessage={
+            isEmpty(sshPlugin.getUserSshValue())
+              ? 'Please Enter Valid SSH public key'
+              : null
+          }
+          onChange={_onUsersshValueChange}
+          value={sshPlugin.getUserSshValue()}
+        />
+        <DefaultButton onClick={ev => openSshGenerator(ev)}>
+          SSH Key Generator
+        </DefaultButton>
+        {sshGenerator.isOpen && (
+          <SSHGenerator
+            isOpen={sshGenerator.isOpen}
+            bits={sshGenerator.bits}
+            hide={hideSshGenerator}
+            onSshKeysChange={_onSshKeysGenerated}
           />
-          <TextField
-            placeholder='Enter ssh public key'
-            disabled={sshPlugin.userssh.type === 'none'}
-            errorMessage={
-              isEmpty(sshPlugin.getUserSshValue())
-                ? 'Please Enter Valid SSH public key'
-                : null
+        )}
+      </Stack>
+      );
+    } else {
+      SshTextField = ''
+    }
+  } else {
+      SshToggle = (
+        <Stack horizontal gap='s1'>
+          <Toggle
+            label={'Using Predefined SSH public key'}
+            inlineLabel={true}
+            checked={!isEmpty(sshPlugin.userssh)}
+            onChange={_onUsersshEnable}
+          />
+          <TooltipIcon
+            content={
+              'If enabled, your predefined SSH public will be written into job containers.'
             }
-            onChange={_onUsersshValueChange}
-            value={sshPlugin.getUserSshValue()}
           />
-          <DefaultButton onClick={ev => openSshGenerator(ev)}>
-            SSH Key Generator
-          </DefaultButton>
-          {sshGenerator.isOpen && (
-            <SSHGenerator
-              isOpen={sshGenerator.isOpen}
-              bits={sshGenerator.bits}
-              hide={hideSshGenerator}
-              onSshKeysChange={_onSshKeysGenerated}
-            />
-          )}
         </Stack>
-      )}
+      );
+      SshTextField = ''
+  }
+
+  return (
+    <Stack gap='m' styles={{ root: { height: '100%' } }}>
+      <Stack horizontal gap='s1'>
+        <Text styles={style.headerText}>SSH</Text>
+        <TooltipIcon
+          content={`Choose SSH public key for job. Users should maintain the SSH private key themselves.`}
+        />
+      </Stack>
+      {SshToggle}
+      {SshTextField}
     </Stack>
   );
 };
