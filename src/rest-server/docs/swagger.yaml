@@ -26,6 +26,8 @@ tags:
   description: API endpoint for storage
 - name: job history
   description: API endpoint for job history
+- name: kubernetes
+  description: API endpoint for kubernetes info
 paths:
   /api/docs:
     get:
@@ -1680,6 +1682,54 @@ paths:
           $ref: '#/components/responses/NoJobError'
         501:
           $ref: '#/components/responses/UnknownError'
+  /api/v1/kubernetes/nodes:
+    get:
+      tags:
+      - kubernetes
+      summary: Get kubernetes node list.
+      description: Get kubernetes node list. Need administrator permission.
+      operationId: getK8sNodes
+      security:
+      - bearerAuth: []
+      responses:
+        200:
+          description: Succeeded
+          content:
+            application/json:
+              example:
+              - Please refer to Kubernetes API doc
+              - https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.17/#list-node-v1-core
+        401:
+          $ref: '#/components/responses/UnauthorizedUserError'
+        403:
+          $ref: '#/components/responses/ForbiddenUserError'
+  /api/v1/kubernetes/pods:
+    get:
+      tags:
+      - kubernetes
+      summary: Get kubernetes pod list.
+      description: Get kubernetes pod list. Need administrator permission.
+      operationId: getK8sPods
+      parameters:
+      - name: namespace
+        in: query
+        description: filter pods with namespace
+        schema:
+          type: string
+      security:
+      - bearerAuth: []
+      responses:
+        200:
+          description: Succeeded
+          content:
+            application/json:
+              example:
+              - Please refer to Kubernetes API doc
+              - https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.17/#list-all-namespaces-pod-v1-core
+        401:
+          $ref: '#/components/responses/UnauthorizedUserError'
+        403:
+          $ref: '#/components/responses/ForbiddenUserError'
 
 components:
   parameters:

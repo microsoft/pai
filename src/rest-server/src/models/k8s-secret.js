@@ -15,31 +15,14 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-const axios = require('axios');
 const _ = require('lodash');
-const {Agent} = require('https');
-const {URL} = require('url');
-
-const {apiserver} = require('@pai/config/kubernetes');
+const {encodeSelector, getClient} = require('@pai/models/kubernetes');
 
 const initClient = (namespace) => {
   if (!namespace) {
     throw new Error('K8S SECRET: invalid namespace');
   }
-  const config = {
-    baseURL: new URL(`/api/v1/namespaces/${namespace}/secrets`, apiserver.uri).href,
-    maxRedirects: 0,
-    headers: {
-      'Accept': 'application/json',
-    },
-  };
-  if (apiserver.ca) {
-    config.httpsAgent = new Agent({ca: apiserver.ca});
-  }
-  if (apiserver.token) {
-    config.headers['Authorization'] = `Bearer ${apiserver.token}`;
-  }
-  return axios.create(config);
+  return getClient(`/api/v1/namespaces/${namespace}/secrets`);
 };
 
 
@@ -77,43 +60,6 @@ const deserialize = (object) => {
   return result;
 };
 
-const encodeLabeLSelector = (labelSelector) => {
-  const builder = [];
-  for (const [key, val] of Object.entries(labelSelector)) {
-    builder.push(`${key}=${val}`);
-  }
-  return builder.join(',');
-};
-
-const createNamespace = async (namespace) => {
-  const url = new URL(`/api/v1/namespaces/`, apiserver.uri).href;
-  const config = {
-    maxRedirects: 0,
-    headers: {
-      'Accept': 'application/json',
-    },
-  };
-  if (apiserver.ca) {
-    config.httpsAgent = new Agent({ca: apiserver.ca});
-  }
-  if (apiserver.token) {
-    config.headers['Authorization'] = `Bearer ${apiserver.token}`;
-  }
-  try {
-    await axios.post(url, {
-      metadata: {
-        name: namespace,
-      },
-    }, config);
-  } catch (err) {
-    if (err.response && err.response.status === 409 && err.response.data.reason === 'AlreadyExists') {
-      // pass
-    } else {
-      throw err;
-    }
-  }
-};
-
 const get = async (namespace, key) => {
   if (!key) {
     return list(namespace);
@@ -136,7 +82,7 @@ const get = async (namespace, key) => {
 };
 
 const list = async (namespace, labelSelector) => {
-  const labelSelectorStr = encodeLabeLSelector(labelSelector);
+  const labelSelectorStr = encodeSelector(labelSelector);
   const client = initClient(namespace);
   let continueValue = null;
   let result = [];
@@ -215,7 +161,6 @@ const remove = async (namespace, key) => {
 };
 
 module.exports = {
-  createNamespace,
   get,
   list,
   create,

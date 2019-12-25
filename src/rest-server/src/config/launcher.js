@@ -18,7 +18,6 @@
 
 // module dependencies
 const Joi = require('joi');
-const {apiserver} = require('@pai/config/kubernetes');
 
 
 // define yarn launcher config schema
@@ -90,9 +89,6 @@ const yarnLauncherConfigSchema = Joi.object().keys({
 
 // define k8s launcher config schema
 const k8sLauncherConfigSchema = Joi.object().keys({
-  apiServerUri: Joi.string()
-    .uri()
-    .required(),
   hivedWebserviceUri: Joi.string()
     .uri()
     .required(),
@@ -201,7 +197,6 @@ if (launcherType === 'yarn') {
   launcherConfig.type = launcherType;
 } else if (launcherType === 'k8s') {
   launcherConfig = {
-    apiServerUri: apiserver.uri,
     hivedWebserviceUri: process.env.HIVED_WEBSERVICE_URI,
     apiVersion: 'frameworkcontroller.microsoft.com/v1',
     podGracefulDeletionTimeoutSec: 1800,
@@ -213,31 +208,30 @@ if (launcherType === 'yarn') {
     requestHeaders: {
       'Accept': 'application/json',
       'Content-Type': 'application/json',
-      ...apiserver.token && {Authorization: `Bearer ${apiserver.token}`},
     },
     healthCheckPath: () => {
-      return `${launcherConfig.apiServerUri}/apis/${launcherConfig.apiVersion}`;
+      return `/apis/${launcherConfig.apiVersion}`;
     },
     frameworksPath: (namespace='default') => {
-      return `${launcherConfig.apiServerUri}/apis/${launcherConfig.apiVersion}/namespaces/${namespace}/frameworks`;
+      return `/apis/${launcherConfig.apiVersion}/namespaces/${namespace}/frameworks`;
     },
     frameworkPath: (frameworkName, namespace='default') => {
-      return `${launcherConfig.apiServerUri}/apis/${launcherConfig.apiVersion}/namespaces/${namespace}/frameworks/${frameworkName}`;
+      return `/apis/${launcherConfig.apiVersion}/namespaces/${namespace}/frameworks/${frameworkName}`;
     },
     priorityClassesPath: () => {
-      return `${launcherConfig.apiServerUri}/apis/scheduling.k8s.io/v1/priorityclasses`;
+      return `/apis/scheduling.k8s.io/v1/priorityclasses`;
     },
     priorityClassPath: (priorityClassName) => {
-      return `${launcherConfig.apiServerUri}/apis/scheduling.k8s.io/v1/priorityclasses/${priorityClassName}`;
+      return `/apis/scheduling.k8s.io/v1/priorityclasses/${priorityClassName}`;
     },
     secretsPath: (namespace='default') => {
-      return `${launcherConfig.apiServerUri}/api/v1/namespaces/${namespace}/secrets`;
+      return `/api/v1/namespaces/${namespace}/secrets`;
     },
     secretPath: (secretName, namespace='default') => {
-      return `${launcherConfig.apiServerUri}/api/v1/namespaces/${namespace}/secrets/${secretName}`;
+      return `/api/v1/namespaces/${namespace}/secrets/${secretName}`;
     },
     podPath: (podName, namespace='default') => {
-      return `${launcherConfig.apiServerUri}/api/v1/namespaces/${namespace}/pods/${podName}`;
+      return `/api/v1/namespaces/${namespace}/pods/${podName}`;
     },
   };
 

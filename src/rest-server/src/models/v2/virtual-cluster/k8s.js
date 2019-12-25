@@ -16,14 +16,12 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 // module dependencies
-const {Agent} = require('https');
+const yaml = require('js-yaml');
 const createError = require('@pai/utils/error');
 const vcConfig = require('@pai/config/vc');
 const launcherConfig = require('@pai/config/launcher');
-const {apiserver} = require('@pai/config/kubernetes');
+const kubernetes = require('@pai/models/kubernetes');
 const k8s = require('@pai/utils/k8sUtils');
-const axios = require('axios');
-const yaml = require('js-yaml');
 
 const {
   resourceUnits,
@@ -44,35 +42,27 @@ const mergeDict = (d1, d2, op) => {
 };
 
 const fetchNodes = async (readiness=true) => {
-  const nodes = await axios({
-    method: 'get',
-    url: `${apiserver.uri}/api/v1/nodes`,
-    httpsAgent: apiserver.ca && new Agent({ca: apiserver.ca}),
-    headers: apiserver.token && {Authorization: `Bearer ${apiserver.token}`},
-  });
-  return nodes.data.items.filter((node) => {
+  const nodes = await kubernetes.getNodes();
+  return nodes.items.filter((node) => {
     if (node.metadata.labels['pai-worker'] !== 'true') {
       return false;
     }
+
     // check node readiness
-    for (let i = node.status.conditions.length - 1; i >= 0; i --) {
-      const condition = node.status.conditions[i];
-      if (condition.type === 'Ready' && condition.status !== 'Unknown') {
-        return readiness;
-      }
+    const readyCondition = node.status.conditions.find((x) => x.type === 'Ready');
+    if (readyCondition && readyCondition.status !== 'Unknown') {
+      return readiness;
+    } else {
+      return !readiness;
     }
-    return !readiness;
   });
 };
 
 const fetchPods = async () => {
-  const pods = await axios({
-    method: 'get',
-    url: `${apiserver.uri}/api/v1/pods?labelSelector=type=kube-launcher-task`,
-    httpsAgent: apiserver.ca && new Agent({ca: apiserver.ca}),
-    headers: apiserver.token && {Authorization: `Bearer ${apiserver.token}`},
+  const pods = await kubernetes.getPods({
+    labelSelector: {type: 'kube-launcher-task'},
   });
-  return pods.data.items.filter((pod) => {
+  return pods.items.filter((pod) => {
     return (pod.spec.nodeName && !(pod.status.phase === 'Succeeded' || pod.status.phase === 'Failed'));
   });
 };

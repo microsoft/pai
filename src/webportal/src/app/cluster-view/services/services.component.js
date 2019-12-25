@@ -16,7 +16,10 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 // module dependencies
-const { getServiceView } = require('./service-info');
+import 'core-js/stable';
+import 'regenerator-runtime/runtime';
+import 'whatwg-fetch';
+import { getServiceView } from './service-info';
 
 const breadcrumbComponent = require('../../job/breadcrumb/breadcrumb.component.ejs');
 const loadingComponent = require('../../job/loading/loading.component.ejs');
@@ -43,31 +46,27 @@ const serviceViewHtml = serviceViewComponent({
 
 const loadServices = () => {
   loading.showLoading();
-  getServiceView(
-    webportalConfig.restServerUri + '/api/v1/kubernetes',
-    'default',
-    data => {
-      loading.hideLoading();
-      $('#service-table').html(
-        serviceTableComponent({
-          data,
-          k8sUri: webportalConfig.k8sDashboardUri,
-          grafanaUri: webportalConfig.grafanaUri,
-          exporterPort: webportalConfig.exporterPort,
-        }),
-      );
-      $('#service-datatable')
-        .dataTable({
-          scrollY: $(window).height() - 265 + 'px',
-          lengthMenu: [[20, 50, 100, -1], [20, 50, 100, 'All']],
-          columnDefs: [
-            { orderDataType: 'dom-text', targets: [1, 2] },
-            { type: 'ip-address', targets: [0] },
-          ],
-        })
-        .api();
-    },
-  );
+  getServiceView(data => {
+    loading.hideLoading();
+    $('#service-table').html(
+      serviceTableComponent({
+        data,
+        k8sUri: webportalConfig.k8sDashboardUri,
+        grafanaUri: webportalConfig.grafanaUri,
+        exporterPort: webportalConfig.exporterPort,
+      }),
+    );
+    $('#service-datatable')
+      .dataTable({
+        scrollY: $(window).height() - 265 + 'px',
+        lengthMenu: [[20, 50, 100, -1], [20, 50, 100, 'All']],
+        columnDefs: [
+          { orderDataType: 'dom-text', targets: [1, 2] },
+          { type: 'ip-address', targets: [0] },
+        ],
+      })
+      .api();
+  });
 };
 
 window.loadServices = loadServices;
@@ -76,5 +75,3 @@ $('#content-wrapper').html(serviceViewHtml);
 $(document).ready(() => {
   loadServices();
 });
-
-module.exports = { loadServices };
