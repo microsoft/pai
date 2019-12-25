@@ -158,18 +158,6 @@ const Sidebar = ({ className, style }) => {
                 key: KEY_HOME,
               },
               {
-                name: 'Dashboard',
-                url: '/dashboard.html',
-                icon: 'SpeedHigh',
-                style: {
-                  display:
-                    isAdmin && config.launcherType !== 'k8s'
-                      ? undefined
-                      : 'none',
-                },
-                key: KEY_DASHBOARD,
-              },
-              {
                 name: 'Submit Job',
                 url: '/submit.html',
                 icon: 'NewFolder',
@@ -200,7 +188,16 @@ const Sidebar = ({ className, style }) => {
                   setAdministrationExpanded(!administrationExpanded),
                 icon: 'Settings',
                 key: KEY_ADMIN,
+                style: {
+                  display: isAdmin ? undefined : 'none',
+                },
                 links: [
+                  {
+                    name: 'Dashboard',
+                    url: '/dashboard.html',
+                    icon: 'SpeedHigh',
+                    key: KEY_DASHBOARD,
+                  },
                   {
                     name: 'Services',
                     url: '/cluster-view/services.html',
@@ -212,7 +209,6 @@ const Sidebar = ({ className, style }) => {
                     url: '/cluster-view/hardware.html',
                     key: KEY_HARDWARE,
                     icon: 'HardDriveGroup',
-                    style: { display: isAdmin ? undefined : 'none' },
                   },
                   {
                     name: 'K8s Dashboard',

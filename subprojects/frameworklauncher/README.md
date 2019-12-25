@@ -19,7 +19,7 @@
 
 # Microsoft FrameworkLauncher
 
-FrameworkLauncher (or Launcher for short) is built to orchestrate all kinds of applications on [YARN](http://hadoop.apache.org/) and [Kubernetes](https://kubernetes.io/) through the same interface without making changes to the applications themselves.
+FrameworkLauncher (or Launcher for short) is an OpenPAI subproject and standalone component, that is built to orchestrate all kinds of applications on [YARN](http://hadoop.apache.org/) and [Kubernetes](https://kubernetes.io/) through the same interface without making changes to the applications themselves.
 
 These applications include but not limited to:
 * Long-Running Services (DeepLearning Serving, HBase, Kafka, etc)

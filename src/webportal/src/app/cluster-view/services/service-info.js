@@ -15,50 +15,58 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-// This function will call kubernetes restful api to get node - podlist - label info, to support service view monitor page.
+const userAuth = require('../../user/user-auth/user-auth.component');
+const loading = require('../../job/loading/loading.component');
+const webportalConfig = require('../../config/webportal.config.js');
+const { clearToken } = require('../../user/user-logout/user-logout.component');
 
-import { isNil } from 'lodash';
-
-export const getServiceView = (kubeURL, namespace, callback) => {
-  $.ajax({
-    type: 'GET',
-    url: kubeURL + '/api/v1/nodes',
-    dataType: 'json',
-    success: function(data) {
-      const items = data.items;
-      const nodeList = [];
-      for (const item of items) {
-        nodeList.push(item);
-      }
-      getNodePods(kubeURL, namespace, nodeList, callback);
+const fetchWrapper = async url => {
+  const token = userAuth.checkToken();
+  const res = await fetch(url, {
+    headers: {
+      Authorization: `Bearer ${token}`,
     },
   });
+  if (res.ok) {
+    const data = await res.json();
+    return data.items;
+  } else {
+    loading.hideLoading();
+    if (res.status === 401) {
+      clearToken();
+    } else {
+      const data = await res.json();
+      alert(data.message);
+    }
+  }
 };
 
-const getNodePods = (kubeURL, namespace, nodeList, callback) => {
-  $.ajax({
-    type: 'GET',
-    url: kubeURL + '/api/v1/namespaces/' + namespace + '/pods/',
-    dataType: 'json',
-    success: function(pods) {
-      const podsItems = pods.items;
-      const nodeDic = [];
-
-      for (const pod of podsItems) {
-        const nodeName = pod.spec.nodeName;
-        if (nodeDic[nodeName] == null) {
-          nodeDic[nodeName] = [];
-        }
-        nodeDic[nodeName].push(pod);
-      }
-      const resultDic = [];
-      for (const node of nodeList) {
-        if (isNil(nodeDic[node.metadata.name])) {
-          nodeDic[node.metadata.name] = [];
-        }
-        resultDic.push({ node: node, podList: nodeDic[node.metadata.name] });
-      }
-      callback(resultDic);
-    },
-  });
+export const getServiceView = async callback => {
+  const nodeUrl = new URL(
+    '/api/v1/kubernetes/nodes',
+    webportalConfig.restServerUri,
+  );
+  const podUrl = new URL(
+    '/api/v1/kubernetes/pods',
+    webportalConfig.restServerUri,
+  );
+  podUrl.searchParams.set('namespace', 'default');
+  const [nodes, pods] = await Promise.all([
+    fetchWrapper(nodeUrl),
+    fetchWrapper(podUrl),
+  ]);
+  const resultDict = {};
+  for (const node of nodes) {
+    resultDict[node.metadata.name] = {
+      node: node,
+      podList: [],
+    };
+  }
+  for (const pod of pods) {
+    const nodeName = pod.spec.nodeName;
+    if (resultDict[nodeName]) {
+      resultDict[nodeName].podList.push(pod);
+    }
+  }
+  callback(Object.values(resultDict));
 };

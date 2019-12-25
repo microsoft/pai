@@ -17,25 +17,25 @@
 
 
 // module dependencies
-const {Agent} = require('https');
-const zlib = require('zlib');
 const axios = require('axios');
+const zlib = require('zlib');
 const yaml = require('js-yaml');
 const base32 = require('base32');
 const status = require('statuses');
 const querystring = require('querystring');
 const runtimeEnv = require('./runtime-env');
 const launcherConfig = require('@pai/config/launcher');
-const {apiserver} = require('@pai/config/kubernetes');
 const createError = require('@pai/utils/error');
 const protocolSecret = require('@pai/utils/protocolSecret');
 const userModel = require('@pai/models/v2/user');
+const k8sModel = require('@pai/models/kubernetes');
 const env = require('@pai/utils/env');
 const k8s = require('@pai/utils/k8sUtils');
 const path = require('path');
 const fs = require('fs');
 const _ = require('lodash');
 const logger = require('@pai/config/logger');
+const {apiserver} = require('@pai/config/kubernetes');
 
 let exitSpecPath;
 if (process.env[env.exitSpecPath]) {
@@ -184,12 +184,13 @@ const convertTaskDetail = async (taskStatus, ports, userName, jobName, taskRoleN
   // get container gpus
   let containerGpus = null;
   try {
-    const pod = (await axios({
-      method: 'get',
-      url: launcherConfig.podPath(taskStatus.attemptStatus.podName),
-      headers: launcherConfig.requestHeaders,
-      httpsAgent: apiserver.ca && new Agent({ca: apiserver.ca}),
-    })).data;
+    const response = await k8sModel.getClient().get(
+      launcherConfig.podPath(taskStatus.attemptStatus.podName),
+      {
+        headers: launcherConfig.requestHeaders,
+      }
+    );
+    const pod = response.data;
     if (launcherConfig.enabledHived) {
       const hivedSpec = yaml.load(pod.metadata.annotations['hivedscheduler.microsoft.com/pod-scheduling-spec']);
       if (hivedSpec && hivedSpec.affinityGroup && hivedSpec.affinityGroup.name) {
@@ -307,12 +308,8 @@ const convertFrameworkDetail = async (framework) => {
   if (launcherConfig.enabledHived) {
     const affinityGroups = {};
     try {
-      (await axios({
-        method: 'get',
-        url: `${launcherConfig.hivedWebserviceUri}/v1/inspect/affinitygroups/`,
-        headers: launcherConfig.requestHeaders,
-        httpsAgent: apiserver.ca && new Agent({ca: apiserver.ca}),
-      })).items.forEach((affinityGroup) => {
+      const res = await axios.get(`${launcherConfig.hivedWebserviceUri}/v1/inspect/affinitygroups/`);
+      res.data.items.forEach((affinityGroup) => {
         affinityGroups[affinityGroup.metadata.name] = affinityGroup;
       });
     } catch (err) {
@@ -402,7 +399,7 @@ const generateTaskRole = (frameworkName, taskRole, labels, config, storageConfig
                 },
                 {
                   name: 'KUBE_APISERVER_ADDRESS',
-                  value: launcherConfig.apiServerUri,
+                  value: apiserver.uri,
                 },
                 {
                   name: 'GANG_ALLOCATION',
@@ -663,13 +660,13 @@ const createPriorityClass = async (frameworkName, priority) => {
 
   let response;
   try {
-    response = await axios({
-      method: 'post',
-      url: launcherConfig.priorityClassesPath(),
-      headers: launcherConfig.requestHeaders,
-      httpsAgent: apiserver.ca && new Agent({ca: apiserver.ca}),
-      data: priorityClass,
-    });
+    response = await k8sModel.getClient().post(
+      launcherConfig.priorityClassesPath(),
+      {
+        headers: launcherConfig.requestHeaders,
+        data: priorityClass,
+      }
+    );
   } catch (error) {
     if (error.response != null) {
       response = error.response;
@@ -686,24 +683,24 @@ const patchPriorityClassOwner = async (frameworkName, frameworkUid) => {
   try {
     const headers = {...launcherConfig.requestHeaders};
     headers['Content-Type'] = 'application/merge-patch+json';
-    await axios({
-      method: 'patch',
-      url: launcherConfig.priorityClassPath(`${encodeName(frameworkName)}-priority`),
-      headers,
-      httpsAgent: apiserver.ca && new Agent({ca: apiserver.ca}),
-      data: {
-        metadata: {
-          ownerReferences: [{
-            apiVersion: launcherConfig.apiVersion,
-            kind: 'Framework',
-            name: encodeName(frameworkName),
-            uid: frameworkUid,
-            controller: false,
-            blockOwnerDeletion: false,
-          }],
+    await k8sModel.getClient().patch(
+      launcherConfig.priorityClassPath(`${encodeName(frameworkName)}-priority`),
+      {
+        headers,
+        data: {
+          metadata: {
+            ownerReferences: [{
+              apiVersion: launcherConfig.apiVersion,
+              kind: 'Framework',
+              name: encodeName(frameworkName),
+              uid: frameworkUid,
+              controller: false,
+              blockOwnerDeletion: false,
+            }],
+          },
         },
-      },
-    });
+      }
+    );
   } catch (error) {
     logger.warn('Failed to patch owner reference for priority class', error);
   }
@@ -711,12 +708,12 @@ const patchPriorityClassOwner = async (frameworkName, frameworkUid) => {
 
 const deletePriorityClass = async (frameworkName) => {
   try {
-    await axios({
-      method: 'delete',
-      url: launcherConfig.priorityClassPath(`${encodeName(frameworkName)}-priority`),
-      headers: launcherConfig.requestHeaders,
-      httpsAgent: apiserver.ca && new Agent({ca: apiserver.ca}),
-    });
+    await k8sModel.getClient().delete(
+      launcherConfig.priorityClassPath(`${encodeName(frameworkName)}-priority`),
+      {
+        headers: launcherConfig.requestHeaders,
+      }
+    );
   } catch (error) {
     logger.warn('Failed to delete priority class', error);
   }
@@ -751,13 +748,13 @@ const createSecret = async (frameworkName, auths) => {
 
   let response;
   try {
-    response = await axios({
-      method: 'post',
-      url: launcherConfig.secretsPath(),
-      headers: launcherConfig.requestHeaders,
-      httpsAgent: apiserver.ca && new Agent({ca: apiserver.ca}),
-      data: secret,
-    });
+    response = await k8sModel.getClient().post(
+      launcherConfig.secretsPath(),
+      {
+        headers: launcherConfig.requestHeaders,
+        data: secret,
+      }
+    );
   } catch (error) {
     if (error.response != null) {
       response = error.response;
@@ -774,24 +771,24 @@ const patchSecretOwner = async (frameworkName, frameworkUid) => {
   try {
     const headers = {...launcherConfig.requestHeaders};
     headers['Content-Type'] = 'application/merge-patch+json';
-    await axios({
-      method: 'patch',
-      url: launcherConfig.secretPath(`${encodeName(frameworkName)}-regcred`),
-      headers,
-      httpsAgent: apiserver.ca && new Agent({ca: apiserver.ca}),
-      data: {
-        metadata: {
-          ownerReferences: [{
-            apiVersion: launcherConfig.apiVersion,
-            kind: 'Framework',
-            name: encodeName(frameworkName),
-            uid: frameworkUid,
-            controller: true,
-            blockOwnerDeletion: true,
-          }],
+    await k8sModel.getClient().patch(
+      launcherConfig.secretPath(`${encodeName(frameworkName)}-regcred`),
+      {
+        headers,
+        data: {
+          metadata: {
+            ownerReferences: [{
+              apiVersion: launcherConfig.apiVersion,
+              kind: 'Framework',
+              name: encodeName(frameworkName),
+              uid: frameworkUid,
+              controller: true,
+              blockOwnerDeletion: true,
+            }],
+          },
         },
-      },
-    });
+      }
+    );
   } catch (error) {
     logger.warn('Failed to patch owner reference for secret', error);
   }
@@ -799,12 +796,12 @@ const patchSecretOwner = async (frameworkName, frameworkUid) => {
 
 const deleteSecret = async (frameworkName) => {
   try {
-    await axios({
-      method: 'delete',
-      url: launcherConfig.secretPath(`${encodeName(frameworkName)}-regcred`),
-      headers: launcherConfig.requestHeaders,
-      httpsAgent: apiserver.ca && new Agent({ca: apiserver.ca}),
-    });
+    await k8sModel.getClient().delete(
+      launcherConfig.secretPath(`${encodeName(frameworkName)}-regcred`),
+      {
+        headers: launcherConfig.requestHeaders,
+      }
+    );
   } catch (error) {
     logger.warn('Failed to delete secret', error);
   }
@@ -814,12 +811,12 @@ const list = async (filters) => {
   // send request to framework controller
   let response;
   try {
-    response = await axios({
-      method: 'get',
-      url: `${launcherConfig.frameworksPath()}?${querystring.stringify(filters)}`,
-      headers: launcherConfig.requestHeaders,
-      httpsAgent: apiserver.ca && new Agent({ca: apiserver.ca}),
-    });
+    response = await k8sModel.getClient().get(
+      `${launcherConfig.frameworksPath()}?${querystring.stringify(filters)}`,
+      {
+        headers: launcherConfig.requestHeaders,
+      }
+    );
   } catch (error) {
     if (error.response != null) {
       response = error.response;
@@ -841,12 +838,12 @@ const get = async (frameworkName) => {
   // send request to framework controller
   let response;
   try {
-    response = await axios({
-      method: 'get',
-      url: launcherConfig.frameworkPath(encodeName(frameworkName)),
-      headers: launcherConfig.requestHeaders,
-      httpsAgent: apiserver.ca && new Agent({ca: apiserver.ca}),
-    });
+    response = await k8sModel.getClient().get(
+      launcherConfig.frameworkPath(encodeName(frameworkName)),
+      {
+        headers: launcherConfig.requestHeaders,
+      }
+    );
   } catch (error) {
     if (error.response != null) {
       response = error.response;
@@ -902,13 +899,13 @@ const put = async (frameworkName, config, rawConfig) => {
   // send request to framework controller
   let response;
   try {
-    response = await axios({
-      method: 'post',
-      url: launcherConfig.frameworksPath(),
-      headers: launcherConfig.requestHeaders,
-      httpsAgent: apiserver.ca && new Agent({ca: apiserver.ca}),
-      data: frameworkDescription,
-    });
+    response = await k8sModel.getClient().post(
+      launcherConfig.frameworksPath(),
+      {
+        headers: launcherConfig.requestHeaders,
+        data: frameworkDescription,
+      }
+    );
   } catch (error) {
     if (error.response != null) {
       response = error.response;
@@ -936,17 +933,17 @@ const execute = async (frameworkName, executionType) => {
   try {
     const headers = {...launcherConfig.requestHeaders};
     headers['Content-Type'] = 'application/merge-patch+json';
-    response = await axios({
-      method: 'patch',
-      url: launcherConfig.frameworkPath(encodeName(frameworkName)),
-      headers,
-      httpsAgent: apiserver.ca && new Agent({ca: apiserver.ca}),
-      data: {
-        spec: {
-          executionType: `${executionType.charAt(0)}${executionType.slice(1).toLowerCase()}`,
+    response = await k8sModel.getClient().patch(
+      launcherConfig.frameworkPath(encodeName(frameworkName)),
+      {
+        headers,
+        data: {
+          spec: {
+            executionType: `${executionType.charAt(0)}${executionType.slice(1).toLowerCase()}`,
+          },
         },
-      },
-    });
+      }
+    );
   } catch (error) {
     if (error.response != null) {
       response = error.response;
@@ -963,12 +960,12 @@ const getConfig = async (frameworkName) => {
   // send request to framework controller
   let response;
   try {
-    response = await axios({
-      method: 'get',
-      url: launcherConfig.frameworkPath(encodeName(frameworkName)),
-      headers: launcherConfig.requestHeaders,
-      httpsAgent: apiserver.ca && new Agent({ca: apiserver.ca}),
-    });
+    response = await k8sModel.getClient().get(
+      launcherConfig.frameworkPath(encodeName(frameworkName)),
+      {
+        headers: launcherConfig.requestHeaders,
+      }
+    );
   } catch (error) {
     if (error.response != null) {
       response = error.response;

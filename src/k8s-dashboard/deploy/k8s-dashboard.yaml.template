@@ -38,11 +38,14 @@ spec:
       containers:
       - name: kubernetes-dashboard-openpai
         image: k8s.gcr.io/kubernetes-dashboard-amd64:v1.10.1
-        command:
-          - /dashboard
-          - --insecure-bind-address=0.0.0.0
         args:
-          - --insecure-port=9090
+          - --auto-generate-certificates
+          - --port={{ cluster_cfg['k8s-dashboard']['dashboard-port'] }}
+          - --tls-cert-file=/tls.crt
+          - --tls-key-file=/tls.key
+        {%- if cluster_cfg['cluster']['common']['k8s-rbac'] == 'false' %}
+          - --apiserver-host={{ cluster_cfg['k8s-dashboard']['api-servers-url'] }}
+        {%- endif %}
         volumeMounts:
           - name: kubernetes-dashboard-certs-openpai
             mountPath: /certs
@@ -54,11 +57,12 @@ spec:
             memory: 1000Mi
         {%- endif %}
         ports:
-        - containerPort: 9090
+        - containerPort: {{ cluster_cfg['k8s-dashboard']['dashboard-port'] }}
         livenessProbe:
           httpGet:
+            scheme: HTTPS
             path: /
-            port: 9090
+            port: {{ cluster_cfg['k8s-dashboard']['dashboard-port'] }}
           initialDelaySeconds: 30
           timeoutSeconds: 30
       tolerations:

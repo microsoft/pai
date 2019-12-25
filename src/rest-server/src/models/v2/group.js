@@ -23,43 +23,33 @@ const adapter = require('@pai/utils/manager/group/adapter/externalUtil');
 const config = require('@pai/config/index');
 const logger = require('@pai/config/logger');
 const vcModel = require('@pai/models/v2/virtual-cluster');
-const k8sConfig = require('@pai/config/kubernetes');
 
 const crudType = 'k8sSecret';
 const crudGroup = crudUtil.getStorageObject(crudType);
-let optionConfig = {};
-if (k8sConfig.apiserver.ca) {
-  optionConfig.k8sAPIServerCaFile = k8sConfig.apiserver.ca;
-}
-if (k8sConfig.apiserver.token) {
-  optionConfig.k8sAPIServerTokenFile = k8sConfig.apiserver.token;
-}
-
-const crudConfig = crudGroup.initConfig(k8sConfig.apiserver.uri, optionConfig);
 
 let externalName2Groupname = {};
 
 // crud groups
 const getGroup = async (groupname) => {
-  return await crudGroup.read(groupname, crudConfig);
+  return await crudGroup.read(groupname);
 };
 
 const getAllGroup = async () => {
-  return await crudGroup.readAll(crudConfig);
+  return await crudGroup.readAll();
 };
 
 const createGroup = async (groupname, groupValue) => {
-  return await crudGroup.create(groupname, groupValue, crudConfig);
+  return await crudGroup.create(groupname, groupValue);
 };
 
 const updateGroup = async (groupname, groupValue) => {
-  return await crudGroup.update(groupname, groupValue, crudConfig);
+  return await crudGroup.update(groupname, groupValue);
 };
 
 const deleteGroup = async (groupname) => {
   // TODO: workaround for circular dependencies, need redesign module structure
   const userModel = require('@pai/models/v2/user');
-  const ret = await crudGroup.remove(groupname, crudConfig);
+  const ret = await crudGroup.remove(groupname);
   // delete group from all user info
   let userList = await userModel.getAllUser();
   let updateUserList = [];
