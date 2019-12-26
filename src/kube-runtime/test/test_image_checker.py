@@ -36,12 +36,12 @@ def prepare_image_check(job_config_path):
     def decorator(func):
         @functools.wraps(func)
         def wrapper(self, *args, **kwargs):
-            os.environ["FC_TASK_INDEX"] = "0"
+            os.environ["FC_TASKROLE_NAME"] = "worker"
             if os.path.exists(job_config_path):
                 with open(job_config_path, 'r') as f:
                     self.config = yaml.load(f, Loader=yaml.FullLoader)
                 func(self, *args, **kwargs)
-            del os.environ["FC_TASK_INDEX"]
+            del os.environ["FC_TASKROLE_NAME"]
 
         return wrapper
 

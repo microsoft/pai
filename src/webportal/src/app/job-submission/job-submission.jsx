@@ -26,14 +26,10 @@
 import React, { useState } from 'react';
 import ReactDOM from 'react-dom';
 import { HashRouter as Router, Route } from 'react-router-dom';
-import { initializeIcons, Fabric } from 'office-ui-fabric-react';
+import { Fabric } from 'office-ui-fabric-react';
 
-import { initTheme } from '../components/theme';
 import { JobSubmissionPage } from './job-submission-page';
 import JobWizard from './job-wizard';
-
-initTheme();
-initializeIcons();
 
 const App = () => {
   const [yamlText, setYamlText] = useState();
@@ -73,15 +69,4 @@ const App = () => {
 };
 
 const contentWrapper = document.getElementById('content-wrapper');
-
-document.getElementById('sidebar-menu--job-submission').classList.add('active');
 ReactDOM.render(<App />, contentWrapper);
-
-function layout() {
-  setTimeout(function() {
-    contentWrapper.style.height = contentWrapper.style.minHeight;
-  }, 10);
-}
-
-window.addEventListener('resize', layout);
-window.addEventListener('load', layout);

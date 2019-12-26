@@ -1,13 +1,11 @@
 const zlib = require('zlib');
-const axios = require('axios');
-const {Agent} = require('https');
 const _ = require('lodash');
 const yaml = require('js-yaml');
 const path = require('path');
 const fs = require('fs');
 
 const launcherConfig = require('@pai/config/launcher');
-const {apiserver} = require('@pai/config/kubernetes');
+const k8sModel = require('@pai/models/kubernetes');
 const k8s = require('@pai/utils/k8sUtils');
 const logger = require('@pai/config/logger');
 const env = require('@pai/utils/env');
@@ -318,12 +316,13 @@ const convertTaskDetail = async (
   // get container gpus
   let containerGpus = null;
   try {
-    const pod = (await axios({
-      method: 'get',
-      url: launcherConfig.podPath(taskStatus.attemptStatus.podName),
-      headers: launcherConfig.requestHeaders,
-      httpsAgent: apiserver.ca && new Agent({ca: apiserver.ca}),
-    })).data;
+    const response = await k8sModel.getClient().get(
+      launcherConfig.podPath(taskStatus.attemptStatus.podName),
+      {
+        headers: launcherConfig.requestHeaders,
+      }
+    );
+    const pod = response.data;
     if (launcherConfig.enabledHived) {
       const isolation =
         pod.metadata.annotations[

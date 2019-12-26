@@ -16,19 +16,10 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 const Group = require('./group');
-const axios = require('axios');
-const {Agent} = require('https');
 const logger = require('@pai/config/logger');
+const k8sModel = require('@pai/models/kubernetes');
 
-/**
- * @typedef Config
- * @property {string} namespace - kubernetes namespace
- * @property {Object} requestConfig - RequestConfig
- * @property {string} requestConfig.baseURL - BaseURL for axios
- * @property {Number} requestConfig.maxRedirects - maxRedirects for axios
- * @property {Object} requestConfig.httpsAgent - For kubernetes authn
- * @property {Object} requestConfig.headers - For kubernetes authn
- */
+const GROUP_NAMESPACE = process.env.PAI_GROUP_NAMESPACE || 'pai-group';
 
 /**
  * @typedef Group
@@ -39,46 +30,16 @@ const logger = require('@pai/config/logger');
  */
 
 /**
- * @function initConfig - Init the kubernetes configuration for user manager's crud.
- * @param {string} apiServerUri - Required config, the uri of kubernetes APIServer.
- * @param {Object} option - Config for kubernetes APIServer's authn.
- * @param {string} option.k8sAPIServerCaFile - Optional config, the ca file path of kubernetes APIServer.
- * @param {string} option.k8sAPIServerTokenFile - Optional config, the token file path of kubernetes APIServer.
- * @return {Config} config
- */
-function initConfig(apiServerUri, option = {}) {
-  const namespaces = process.env.PAI_GROUP_NAMESPACE;
-  const config = {
-    'apiServerUri': apiServerUri,
-    'namespace': namespaces? namespaces : 'pai-group',
-    'requestConfig': {
-      'baseURL': `${apiServerUri}/api/v1/namespaces/`,
-      'maxRedirects': 0,
-    },
-  };
-  if ('k8sAPIServerCaFile' in option) {
-    const ca = option.k8sAPIServerCaFile;
-    config.requestConfig.httpsAgent = new Agent({ca});
-  }
-  if ('k8sAPIServerTokenFile' in option) {
-    const token = option.k8sAPIServerTokenFile;
-    config.requestConfig.headers = {Authorization: `Bearer ${token}`};
-  }
-  return config;
-}
-
-/**
  * @function read - return a Group's info based on the GroupName.
  * @async
  * @param {string} key - Group name
- * @param {Config} config - Config for kubernetes APIServer. You could generate it from initConfig(apiServerUri, option).
  * @return {Promise<Group>} A promise to the Group instance
  */
-async function read(key, config) {
+async function read(key) {
   try {
-    const request = axios.create(config.requestConfig);
+    const request = k8sModel.getClient('/api/v1/namespaces');
     const hexKey = Buffer.from(key).toString('hex');
-    const response = await request.get(`${config.namespace}/secrets/${hexKey}`, {
+    const response = await request.get(`${GROUP_NAMESPACE}/secrets/${hexKey}`, {
       headers: {
         'Accept': 'application/json',
       },
@@ -103,13 +64,12 @@ async function read(key, config) {
 /**
  * @function readAll - return all Groups' info.
  * @async
- * @param {Config} config - Config for kubernetes APIServer. You could generate it from initConfig(apiServerUri, option).
  * @return {Promise<Group[]>} A promise to all Group instance list.
  */
-async function readAll(config) {
+async function readAll() {
   try {
-    const request = axios.create(config.requestConfig);
-    const response = await request.get(`${config.namespace}/secrets`, {
+    const request = k8sModel.getClient('/api/v1/namespaces');
+    const response = await request.get(`${GROUP_NAMESPACE}/secrets`, {
       headers: {
         'Accept': 'application/json',
       },
@@ -126,7 +86,7 @@ async function readAll(config) {
         });
         allGroupInstance.push(groupInstance);
       } catch (error) {
-        logger.debug(`secret ${item['metadata']['name']} is filtered in ${config.namespace} due to group schema`);
+        logger.debug(`secret ${item['metadata']['name']} is filtered in ${GROUP_NAMESPACE} due to group schema`);
       }
     }
     return allGroupInstance;
@@ -144,12 +104,11 @@ async function readAll(config) {
  * @async
  * @param {string} key - Group name
  * @param {User} value - Group info
- * @param {Config} config - Config for kubernetes APIServer. You could generate it from initConfig(apiServerUri, option).
  * @return {Promise<Group>} A promise to the Group instance.
  */
-async function create(key, value, config) {
+async function create(key, value) {
   try {
-    const request = axios.create(config.requestConfig);
+    const request = k8sModel.getClient('/api/v1/namespaces');
     const hexKey = key ? Buffer.from(key).toString('hex') : '';
     let groupInstance = Group.createGroup({
       'groupname': value['groupname'],
@@ -166,7 +125,7 @@ async function create(key, value, config) {
         'extension': Buffer.from(JSON.stringify(groupInstance['extension'])).toString('base64'),
       },
     };
-    return await request.post(`${config.namespace}/secrets`, groupData);
+    return await request.post(`${GROUP_NAMESPACE}/secrets`, groupData);
   } catch (error) {
     if (error.response) {
       throw error.response;
@@ -181,12 +140,11 @@ async function create(key, value, config) {
  * @async
  * @param {string} key - Group name
  * @param {User} value - Group info
- * @param {Config} config - Config for kubernetes APIServer. You could generate it from initConfig(apiServerUri, option).
  * @return {Promise<Group>} A promise to the User instance.
  */
-async function update(key, value, config) {
+async function update(key, value) {
   try {
-    const request = axios.create(config.requestConfig);
+    const request = k8sModel.getClient('/api/v1/namespaces');
     const hexKey = Buffer.from(key).toString('hex');
     let groupInstance = Group.createGroup({
       'groupname': value['groupname'],
@@ -203,7 +161,7 @@ async function update(key, value, config) {
         'extension': Buffer.from(JSON.stringify(groupInstance['extension'])).toString('base64'),
       },
     };
-    return await request.put(`${config.namespace}/secrets/${hexKey}`, groupData);
+    return await request.put(`${GROUP_NAMESPACE}/secrets/${hexKey}`, groupData);
   } catch (error) {
     if (error.response) {
       throw error.response;
@@ -217,14 +175,13 @@ async function update(key, value, config) {
  * @function Remove - Remove a group entry to kubernetes secrets.
  * @async
  * @param {string} key - Group name
- * @param {Config} config - Config for kubernetes APIServer. You could generate it from initConfig(apiServerUri, option).
  * @return {Promise<void>}
  */
-async function remove(key, config) {
+async function remove(key) {
   try {
-    const request = axios.create(config.requestConfig);
+    const request = k8sModel.getClient('/api/v1/namespaces');
     const hexKey = Buffer.from(key).toString('hex');
-    return await request.delete(`${config.namespace}/secrets/${hexKey}`, {
+    return await request.delete(`${GROUP_NAMESPACE}/secrets/${hexKey}`, {
       headers: {
         'Content-Type': 'application/json',
         'Accept': 'application/json',
@@ -239,4 +196,4 @@ async function remove(key, config) {
   }
 }
 
-module.exports = {initConfig, create, read, readAll, update, remove};
+module.exports = {create, read, readAll, update, remove};

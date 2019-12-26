@@ -57,6 +57,7 @@ export class ClusterManager extends Singleton {
         username: '',
         password: '',
         token: '',
+        https: true,
         rest_server_uri: '127.0.0.1:9186',
         hdfs_uri: 'hdfs://127.0.0.1:9000',
         webhdfs_uri: '127.0.0.1:50070',
@@ -116,8 +117,9 @@ export class ClusterManager extends Singleton {
         this.configuration!.pais.forEach((config: IPAICluster, i, pais) => {
             if (!config.protocol_version) {
                 updated = true;
+                const url: string = Util.fixURL(`${config.rest_server_uri}/api/v2/jobs/protocolversion/config`, config.https);
                 list.push(request
-                    .get(`http://${config.rest_server_uri}/api/v2/jobs/protocolversion/config`, { timeout: 5 * 1000 })
+                    .get(url, { timeout: 5 * 1000 })
                     .then(() => {
                         pais[i].protocol_version = '2';
                     })
@@ -144,7 +146,7 @@ export class ClusterManager extends Singleton {
     public async autoAddOIDCUserInfo(cluster: IPAICluster): Promise<void> {
         try {
             const client: OpenPAIClient = new OpenPAIClient({
-                rest_server_uri: cluster.rest_server_uri
+                rest_server_uri: Util.fixURL(cluster.rest_server_uri, cluster.https)
             });
 
             const authnInfo: IAuthnInfo = await client.authn.info();
@@ -202,6 +204,8 @@ export class ClusterManager extends Singleton {
             return;
         }
 
+        let pylonReady: boolean = true;
+
         const cluster: IPAICluster = clone(ClusterManager.paiDefault);
         try {
             await vscode.window.withProgress(
@@ -211,31 +215,24 @@ export class ClusterManager extends Singleton {
                 cancellable: true
             },
             (progress, cancellationToken) => new Promise((resolve, reject) => {
-                const req: request.RequestPromise = request.get(`http://${host}/healthz`, { timeout: 5 * 1000 });
+                const req: request.RequestPromise = request.get(Util.fixURL(`${host}/healthz`, cluster.https), { timeout: 5 * 1000 });
                 cancellationToken.onCancellationRequested(() => {
                     req.abort();
                     reject();
                 });
-                req.then(resolve).catch(reject);
+                req.then(resolve).catch(() => {
+                    const httpReq: request.RequestPromise = request.get(Util.fixURL(`${host}/healthz`, false), { timeout: 5 * 1000 });
+                    cancellationToken.onCancellationRequested(() => {
+                        httpReq.abort();
+                        reject();
+                    });
+                    httpReq.then(() => { cluster.https = false; resolve(); }).catch(reject);
+                });
             }));
-            cluster.name = host;
-            cluster.rest_server_uri = `${host}/rest-server`;
-            cluster.k8s_dashboard_uri = `${host}/kubernetes-dashboard`;
-            cluster.grafana_uri = `${host}/grafana`;
-            cluster.web_portal_uri = `${host}`;
-            cluster.hdfs_uri = `hdfs://${host}:9000`;
-            cluster.webhdfs_uri = `${host}/webhdfs/api/v1`;
-            await this.autoAddOIDCUserInfo(cluster);
-        } catch {
-            cluster.name = host;
-            cluster.rest_server_uri = `${host}:9186`;
-            cluster.webhdfs_uri = `${host}:50070/webhdfs/v1`;
-            cluster.grafana_uri = `${host}:3000`;
-            cluster.web_portal_uri = `${host}`;
-            cluster.hdfs_uri = `hdfs://${host}:9000`;
-            cluster.k8s_dashboard_uri = `${host}:9090`;
-            await this.autoAddOIDCUserInfo(cluster);
+        } catch (err) {
+            pylonReady = false;
         }
+        await this.setClusterDefaultProperty(cluster, host, pylonReady);
 
         // Config the protocol version.
         try {
@@ -247,7 +244,8 @@ export class ClusterManager extends Singleton {
             },
             (_progress, cancellationToken) => new Promise((resolve, reject) => {
                 const req: request.RequestPromise = request
-                    .get(`http://${cluster.rest_server_uri}/api/v2/jobs/protocolversion/config`, { timeout: 5 * 1000 });
+                    .get(Util.fixURL(`${cluster.rest_server_uri}/api/v2/jobs/protocolversion/config`, cluster.https),
+                         { timeout: 5 * 1000 });
                 cancellationToken.onCancellationRequested(() => {
                     req.abort();
                     reject();
@@ -269,6 +267,27 @@ export class ClusterManager extends Singleton {
         }
 
         return this.edit(this.allConfigurations.length, cluster);
+    }
+
+    public async setClusterDefaultProperty(cluster: IPAICluster, host: string, pylonReady: boolean): Promise<void> {
+        if (pylonReady) {
+            cluster.name = host;
+            cluster.rest_server_uri = `${host}/rest-server`;
+            cluster.k8s_dashboard_uri = `${host}/kubernetes-dashboard`;
+            cluster.grafana_uri = `${host}/grafana`;
+            cluster.web_portal_uri = `${host}`;
+            cluster.hdfs_uri = `hdfs://${host}:9000`;
+            cluster.webhdfs_uri = `${host}/webhdfs/api/v1`;
+        } else {
+            cluster.name = host;
+            cluster.rest_server_uri = `${host}:9186`;
+            cluster.webhdfs_uri = `${host}:50070/webhdfs/v1`;
+            cluster.grafana_uri = `${host}:3000`;
+            cluster.web_portal_uri = `${host}`;
+            cluster.hdfs_uri = `hdfs://${host}:9000`;
+            cluster.k8s_dashboard_uri = `${host}:9090`;
+        }
+        await this.autoAddOIDCUserInfo(cluster);
     }
 
     public async edit(index: number, defaultConfiguration: IPAICluster = ClusterManager.paiDefault): Promise<void> {

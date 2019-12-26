@@ -20,38 +20,29 @@
 const crudUtil = require('@pai/utils/manager/user/crudUtil');
 const user = require('@pai/utils/manager/user/user');
 const groupModel = require('@pai/models/v2/group');
-const k8sConfig = require('@pai/config/kubernetes');
 
 const crudType = 'k8sSecret';
 const crudUser = crudUtil.getStorageObject(crudType);
-let optionConfig = {};
-if (k8sConfig.apiserver.ca) {
-  optionConfig.k8sAPIServerCaFile = k8sConfig.apiserver.ca;
-}
-if (k8sConfig.apiserver.token) {
-  optionConfig.k8sAPIServerTokenFile = k8sConfig.apiserver.token;
-}
-const crudConfig = crudUser.initConfig(k8sConfig.apiserver.uri, optionConfig);
 
 // crud user wrappers
 const getUser = async (username) => {
-  return await crudUser.read(username, crudConfig);
+  return await crudUser.read(username);
 };
 
 const getAllUser = async () => {
-  return await crudUser.readAll(crudConfig);
+  return await crudUser.readAll();
 };
 
 const createUser = async (username, value) => {
-  return await crudUser.create(username, value, crudConfig);
+  return await crudUser.create(username, value);
 };
 
 const updateUser = async (username, value, updatePassword = false) => {
-  return await crudUser.update(username, value, crudConfig, updatePassword);
+  return await crudUser.update(username, value, updatePassword);
 };
 
 const deleteUser = async (username) => {
-  return await crudUser.remove(username, crudConfig);
+  return await crudUser.remove(username);
 };
 
 // it's an inplace encrypt!
