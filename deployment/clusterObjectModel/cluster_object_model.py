@@ -58,20 +58,20 @@ class cluster_object_model:
 
         # Prepare Service Configuration
         layout = self.layout
-        parser_type = "common"
+        service_type = "common"
         default_service_cfg = {}
         if file_handler.file_exist_or_not(default_path):
             default_service_cfg = file_handler.load_yaml_config(default_path)
-        if default_service_cfg is not None and "openpai_parser_type" in default_service_cfg:
-            parser_type = default_service_cfg["openpai_parser_type"]
+        if default_service_cfg is not None and "service_type" in default_service_cfg:
+            service_type = default_service_cfg["service_type"]
 
         overwrite_service_cfg = {}
         if self.overwrite_service_configuration is not None and service_name in self.overwrite_service_configuration:
             overwrite_service_cfg = self.overwrite_service_configuration[service_name]
-        if "openpai_parser_type" in overwrite_service_cfg:
-            parser_type = overwrite_service_cfg["openpai_parser_type"]
+        if "service_type" in overwrite_service_cfg:
+            service_type = overwrite_service_cfg["service_type"]
 
-        if parser_type != "common" and parser_type != cluster_type:
+        if service_type != "common" and service_type != cluster_type:
             return None
 
         # Init parser instance

@@ -16,7 +16,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
-openpai_parser_type: "k8s"
+service_type: "k8s"
 
 webservice-port: 30096
 
