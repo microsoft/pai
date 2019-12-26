@@ -15,8 +15,8 @@ while getopts "w:m:c:" opt; do
       echo "Invalid option: -$OPTARG"
       exit 1
       ;;
+  esac
 done
-
 
 echo "worker list ${WORKER_LIST}"
 echo "master list ${MASTER_LIST}"
