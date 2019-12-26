@@ -66,7 +66,6 @@ const AbnormalJobList = ({ jobs, style }) => {
       name: 'Name',
       fieldName: 'name',
       className: FontClassNames.mediumPlus,
-      headerClassName: FontClassNames.medium,
       isResizable: true,
       onRender(job) {
         const { legacy, name, namespace, username } = job;
@@ -83,7 +82,6 @@ const AbnormalJobList = ({ jobs, style }) => {
       name: 'GPUs',
       fieldName: 'totalGpuNumber',
       className: FontClassNames.mediumPlus,
-      headerClassName: FontClassNames.medium,
       isResizable: true,
       onRender(job) {
         if (isLowGpuUsageJob(job)) {
@@ -101,7 +99,6 @@ const AbnormalJobList = ({ jobs, style }) => {
       minWidth: 150,
       name: 'Date Modified',
       className: FontClassNames.mediumPlus,
-      headerClassName: FontClassNames.medium,
       isResizable: true,
       onRender(job) {
         return getJobModifiedTimeString(job);
@@ -113,7 +110,6 @@ const AbnormalJobList = ({ jobs, style }) => {
       name: 'User',
       fieldName: 'username',
       className: FontClassNames.mediumPlus,
-      headerClassName: FontClassNames.medium,
       isResizable: true,
     },
     {
@@ -121,7 +117,6 @@ const AbnormalJobList = ({ jobs, style }) => {
       minWidth: 120,
       name: 'Duration',
       className: FontClassNames.mediumPlus,
-      headerClassName: FontClassNames.medium,
       isResizable: true,
       onRender(job) {
         if (isLongRunJob(job)) {
@@ -140,14 +135,12 @@ const AbnormalJobList = ({ jobs, style }) => {
       name: 'Virtual Cluster',
       fieldName: 'virtualCluster',
       className: FontClassNames.mediumPlus,
-      headerClassName: FontClassNames.medium,
       isResizable: true,
     },
     {
       key: 'status',
       minWidth: 100,
       name: 'Status',
-      headerClassName: FontClassNames.medium,
       isResizable: true,
       onRender(job) {
         return <StatusBadge status={getHumanizedJobStateString(job)} />;
@@ -157,7 +150,6 @@ const AbnormalJobList = ({ jobs, style }) => {
       key: 'action',
       minWidth: 100,
       name: 'Action',
-      headerClassName: FontClassNames.medium,
       className: zeroPaddingClass,
       isResizable: true,
       onRender(job) {
