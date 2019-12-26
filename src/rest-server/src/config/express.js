@@ -29,6 +29,7 @@ const createError = require('@pai/utils/error');
 const routers = {
   v1: require('@pai/routes/index'),
   v2: require('@pai/routes/v2/index'),
+  extend: require('@pai/routes/extend/index'),
 };
 
 const app = express();
@@ -50,6 +51,9 @@ app.use('/api/v1', routers.v1);
 
 // mount all v2 APIs to /api/v2
 app.use('/api/v2', routers.v2);
+
+// mount all extend APIs to /api/extend
+app.use('/api/extend', routers.extend);
 
 // catch 404 and forward to error handler
 app.use((req, res, next) => {
