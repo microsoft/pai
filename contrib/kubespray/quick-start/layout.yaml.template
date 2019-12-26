@@ -55,7 +55,7 @@ machine-list:
     - hostname: vm["hostname"]
       nodename: vm["hostname"]
       hostip: vm["ip"]
-      machine-type: GENERIC-MASTER
+      machine-type: GENERIC-WORKER
       pai-worker: "true"
 {%- endfor %}
 
