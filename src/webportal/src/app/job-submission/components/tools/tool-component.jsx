@@ -34,7 +34,7 @@ import { PROTOCOL_TOOLTIPS } from '../../utils/constants';
 import config from '../../../config/webportal.config';
 
 export const ToolComponent = React.memo(
-  ({ jobData, taskRoles, extras, onExtrasChange, selected, onSelect }) => {
+  ({ extras, onExtrasChange, selected, onSelect }) => {
     return (
       <SidebarCard
         title='Tools'
@@ -48,12 +48,7 @@ export const ToolComponent = React.memo(
             jobs.
           </Hint>
           <div>
-            <TensorBoard
-              jobData={jobData}
-              taskRoles={taskRoles}
-              extras={extras}
-              onChange={onExtrasChange}
-            />
+            <TensorBoard extras={extras} onChange={onExtrasChange} />
           </div>
           {config.launcherType === 'k8s' && (
             <div>
@@ -67,8 +62,6 @@ export const ToolComponent = React.memo(
 );
 
 ToolComponent.propTypes = {
-  jobData: PropTypes.object.isRequired,
-  taskRoles: PropTypes.array.isRequired,
   extras: PropTypes.object,
   onExtrasChange: PropTypes.func.isRequired,
   selected: PropTypes.bool,

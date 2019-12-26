@@ -52,10 +52,7 @@ import { JobBasicInfo } from './models/job-basic-info';
 import { JobTaskRole } from './models/job-task-role';
 import { JobData } from './models/data/job-data';
 import { JobProtocol } from './models/job-protocol';
-import {
-  getJobComponentsFromConfig,
-  isValidUpdatedTensorBoardExtras,
-} from './utils/utils';
+import { getJobComponentsFromConfig } from './utils/utils';
 import { SpinnerLoading } from '../components/loading';
 import config from '../config/webportal.config';
 import { PAI_PLUGIN, STORAGE_PLUGIN } from './utils/constants';
@@ -317,17 +314,7 @@ export const JobSubmissionPage = ({
         updatedSecrets,
         updatedExtras,
       ] = getJobComponentsFromConfig(updatedJob, { vcNames });
-      if (extras.tensorBoard) {
-        const updatedTensorBoardExtras = updatedExtras.tensorBoard || {};
-        if (
-          !isValidUpdatedTensorBoardExtras(
-            extras.tensorBoard,
-            updatedTensorBoardExtras,
-          )
-        ) {
-          updatedExtras.tensorBoard = extras.tensorBoard;
-        }
-      }
+
       setJobInformation(updatedJobInformation);
       setJobTaskRolesState(updatedTaskRoles);
       setParameters(updatedParameters);
@@ -462,8 +449,6 @@ export const JobSubmissionPage = ({
                   <ToolComponent
                     selected={selected === SIDEBAR_TOOL}
                     onSelect={selectTool}
-                    jobData={jobData}
-                    taskRoles={jobTaskRoles}
                     extras={extras}
                     onExtrasChange={setExtras}
                   />
