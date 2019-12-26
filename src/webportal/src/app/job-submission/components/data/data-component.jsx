@@ -1,13 +1,7 @@
-import React, {
-  useCallback,
-  useReducer,
-  useEffect,
-  useState,
-  useMemo,
-} from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { Stack } from 'office-ui-fabric-react';
-import { isNil, isEmpty, get, isEqual } from 'lodash';
+import { isEmpty, get, isEqual } from 'lodash';
 
 import { TeamStorage } from './team-storage';
 import { CustomStorage } from './custom-storage';
@@ -52,33 +46,6 @@ const generateUpdatedRuntimePlugins = (storageConfigs, oriPlugins) => {
   return updatedPlugins;
 };
 
-function reducer(state, action) {
-  let jobData;
-
-  switch (action.type) {
-    case 'dataList':
-      jobData = new JobData(
-        state.hdfsClient,
-        action.value,
-        state.mountDirs,
-        true,
-      );
-      action.onChange(jobData);
-      return jobData;
-    case 'mountDir':
-      jobData = new JobData(
-        state.hdfsClient,
-        state.customDataList,
-        action.value,
-        true,
-      );
-      action.onChange(jobData);
-      return jobData;
-    default:
-      throw new Error('Unrecognized type');
-  }
-}
-
 export const DataComponent = React.memo(props => {
   const envsubRegex = /^\${.*}$/; // the template string ${xx} will be reserved in envsub if not provide value
   let hdfsHost;
@@ -99,18 +66,82 @@ export const DataComponent = React.memo(props => {
     apiPath,
   );
   const { onChange, extras, onExtrasChange } = props;
-  const [teamConfigs, setTeamConfigs] = useState();
-  const [teamServers, setTeamServers] = useState();
+  const [teamStorageConfig, setTeamStorageConfig] = useState({});
+  const [jobData, setJobData] = useState(new JobData(hdfsClient, [], null));
   const [dataError, setDataError] = useState({
     customContainerPathError: false,
     customDataSourceError: false,
   });
-  const [jobData, dispatch] = useReducer(
-    reducer,
-    new JobData(hdfsClient, [], null),
-  );
 
-  const storageConfigs = useMemo(() => {
+  useEffect(() => {
+    const user = cookies.get('user');
+
+    const initialize = async () => {
+      try {
+        const userConfigNames = await listUserStorageConfigs(user);
+        const storageConfigs = await fetchStorageConfigs(userConfigNames);
+        let serverNames = new Set();
+        for (const config of storageConfigs) {
+          if (config.mountInfos === undefined) continue;
+          for (const mountInfo of config.mountInfos) {
+            serverNames = serverNames.add(mountInfo.server);
+          }
+        }
+
+        const rawStorageServers = await fetchStorageServers([...serverNames]);
+        const storageServers = [];
+        for (const rawServer of rawStorageServers) {
+          const server = {
+            spn: rawServer.spn,
+            type: rawServer.type,
+            ...rawServer.data,
+            extension: rawServer.extension,
+          };
+          storageServers.push(server);
+        }
+        setTeamStorageConfig({
+          storageServers: storageServers,
+          storageConfigs: storageConfigs,
+        });
+      } catch {}
+    };
+    initialize();
+  }, []);
+
+  useEffect(() => {
+    // Not initialized
+    if (isEmpty(teamStorageConfig)) return;
+
+    const storageConfig = getStorageConfigs(
+      extras,
+      teamStorageConfig.storageConfigs,
+    );
+    const selectedTeamConfigs = getSelectedTeamConfigs(
+      storageConfig,
+      teamStorageConfig.storageConfigs,
+    );
+
+    const user = cookies.get('user');
+    const mountDirectories = new MountDirectories(
+      user,
+      props.jobName,
+      selectedTeamConfigs,
+      teamStorageConfig.storageServers,
+    );
+
+    setJobData(jobData => {
+      const updatedJobData = new JobData(
+        jobData.hdfsClient,
+        jobData.customDataList,
+        mountDirectories,
+        true,
+      );
+      onChange(updatedJobData);
+      return updatedJobData;
+    });
+  }, [extras, teamStorageConfig, onChange]);
+
+  const getStorageConfigs = useCallback((extras, teamConfigs) => {
     const storagePlugin = getStoragePlugin(extras);
     if (isEmpty(storagePlugin)) {
       return [];
@@ -131,87 +162,36 @@ export const DataComponent = React.memo(props => {
       defaultTeamConfigs,
     );
     return storageConfigNames;
-  }, [extras, teamConfigs]);
+  }, []);
 
-  const selectedTeamConfigs = useMemo(() => {
+  const getSelectedTeamConfigs = useCallback((storageConfigs, teamConfigs) => {
     if (isEmpty(teamConfigs) || isEmpty(storageConfigs)) {
       return [];
     }
     return teamConfigs.filter(
       config => storageConfigs.indexOf(config.name) > -1,
     );
-  }, [storageConfigs, teamConfigs]);
-
-  useEffect(() => {
-    const user = cookies.get('user');
-
-    const initialize = async () => {
-      try {
-        const userConfigNames = await listUserStorageConfigs(user);
-        const storageConfigs = await fetchStorageConfigs(userConfigNames);
-        let serverNames = new Set();
-        for (const config of storageConfigs) {
-          if (config.mountInfos === undefined) continue;
-          for (const mountInfo of config.mountInfos) {
-            serverNames = new Set([...serverNames, mountInfo.server]);
-          }
-        }
-
-        const rawStorageServers = await fetchStorageServers([...serverNames]);
-        const storageServers = [];
-        for (const rawServer of rawStorageServers) {
-          const server = {
-            spn: rawServer.spn,
-            type: rawServer.type,
-            ...rawServer.data,
-            extension: rawServer.extension,
-          };
-          storageServers.push(server);
-        }
-        setTeamServers(storageServers);
-        setTeamConfigs(storageConfigs);
-      } catch {}
-    };
-    initialize();
   }, []);
 
-  useEffect(() => {
-    // Not initialized
-    if (isNil(teamConfigs)) return;
-
-    const user = cookies.get('user');
-    const mountDirectories = new MountDirectories(
-      user,
-      props.jobName,
-      selectedTeamConfigs,
-      teamServers,
-    );
-
-    onMountDirInit(mountDirectories);
-  }, [selectedTeamConfigs, teamConfigs]);
-
-  const _onDataListChange = useCallback(
+  const onDataListChange = useCallback(
     dataList => {
-      dispatch({ type: 'dataList', value: dataList, onChange: onChange });
+      setJobData(jobData => {
+        const updatedJobData = new JobData(
+          jobData.hdfsClient,
+          dataList,
+          jobData.mountDirs,
+          true,
+        );
+        onChange(updatedJobData);
+        return updatedJobData;
+      });
     },
     [onChange],
   );
 
-  const onMountDirInit = useCallback(mountDir => {
-    dispatch({
-      type: 'mountDir',
-      value: mountDir,
-      onChange: onChange,
-    });
-  });
-
   const onMountDirChange = useCallback(
+    // Will only update extra field, jobData will be updated by useEffect function
     mountDir => {
-      dispatch({
-        type: 'mountDir',
-        value: mountDir,
-        onChange: onChange,
-      });
       if (config.launcherType !== 'k8s') {
         return;
       }
@@ -249,18 +229,20 @@ export const DataComponent = React.memo(props => {
             container. You could use them with <code>{'Container Path'}</code>{' '}
             value below.
           </Hint>
-          {teamConfigs && (
+          {!isEmpty(teamStorageConfig) && (
             <TeamStorage
-              teamConfigs={teamConfigs}
+              teamConfigs={teamStorageConfig.storageConfigs}
               mountDirs={jobData.mountDirs}
               onMountDirChange={onMountDirChange}
             />
           )}
-          <CustomStorage
-            dataList={jobData.customDataList}
-            setDataList={_onDataListChange}
-            setDataError={setDataError}
-          />
+          {config.launcherType !== 'k8s' && (
+            <CustomStorage
+              dataList={jobData.customDataList}
+              setDataList={onDataListChange}
+              setDataError={setDataError}
+            />
+          )}
           <MountTreeView
             dataList={
               jobData.mountDirs == null

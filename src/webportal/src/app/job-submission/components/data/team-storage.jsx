@@ -23,12 +23,7 @@
  * SOFTWARE.
  */
 
-import React, {
-  useEffect,
-  useLayoutEffect,
-  useState,
-  useCallback,
-} from 'react';
+import React, { useLayoutEffect, useState, useCallback, useMemo } from 'react';
 
 import {
   Checkbox,
@@ -46,7 +41,7 @@ import { TooltipIcon } from '../controls/tooltip-icon';
 
 import c from 'classnames';
 import PropTypes from 'prop-types';
-import { cloneDeep, isEqual, isNil } from 'lodash';
+import { cloneDeep, isNil } from 'lodash';
 
 import { MountDirectories } from '../../models/data/mount-directories';
 import { dispatchResizeEvent } from '../../utils/utils';
@@ -63,39 +58,33 @@ export const TeamStorage = ({ teamConfigs, mountDirs, onMountDirChange }) => {
     dispatchResizeEvent();
   });
 
-  const [selectedConfigNames, setSelectedConfigNames] = useState([]);
-  const [mountPoints, setMountPoints] = useState([]);
-
-  useEffect(() => {
-    if (
-      isNil(mountDirs) ||
-      isNil(mountDirs.selectedConfigs) ||
-      isNil(mountDirs.selectedConfigs)
-    ) {
-      return;
+  const selectedConfigNames = useMemo(() => {
+    if (isNil(mountDirs) || isNil(mountDirs.selectedConfigs)) {
+      return [];
     }
-
-    const updatedNames = mountDirs.selectedConfigs.map(element => {
+    return mountDirs.selectedConfigs.map(element => {
       return element.name;
     });
-    const updatedMountPoints = mountDirs.selectedConfigs.flatMap(ele =>
+  }, [mountDirs]);
+
+  const mountPoints = useMemo(() => {
+    if (isNil(mountDirs) || isNil(mountDirs.selectedConfigs)) {
+      return [];
+    }
+    return mountDirs.selectedConfigs.flatMap(ele =>
       ele.mountInfos.map(mountInfo => mountInfo.mountPoint),
     );
-    if (!isEqual(updatedNames, selectedConfigNames)) {
-      setSelectedConfigNames(updatedNames);
-    }
-    if (!isEqual(updatedMountPoints, mountPoints)) {
-      setMountPoints(updatedMountPoints);
-    }
   }, [mountDirs]);
 
   const [teamDetail, setTeamDetail] = useState({ isOpen: false });
-  const openTeamDetail = config => {
+
+  const openTeamDetail = useCallback(config => {
     setTeamDetail({ isOpen: true, config: config, servers: mountDirs.servers });
-  };
-  const hideTeamDetail = () => {
+  });
+
+  const hideTeamDetail = useCallback(() => {
     setTeamDetail({ isOpen: false });
-  };
+  });
 
   const updateMountDir = useCallback(
     selectedConfigNames => {
@@ -161,8 +150,6 @@ export const TeamStorage = ({ teamConfigs, mountDirs, onMountDirChange }) => {
                   updatedMountPoints.push(mountInfo.mountPoint),
                 );
               }
-              setSelectedConfigNames(newSelectedConfigNames);
-              setMountPoints(updatedMountPoints);
               updateMountDir(newSelectedConfigNames);
             }}
           />
