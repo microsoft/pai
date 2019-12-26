@@ -42,7 +42,7 @@ fi
 
 echo "Create working folder in ${HOME}/pai-deploy"
 mkdir -p ~/pai-deploy/
-cd ~/pai-deploy
+cd ${HOME}/pai-deploy
 
 echo "Clone kubespray source code from github"
 git clone https://github.com/kubernetes-sigs/kubespray.git
@@ -69,4 +69,5 @@ echo "Clone OpenPAI source code from github"
 git clone https://github.com/microsoft/pai.git
 
 echo "Checkout to the release branch "
+cd ${HOME}/pai-deploy/pai/contri/kubespray
 
