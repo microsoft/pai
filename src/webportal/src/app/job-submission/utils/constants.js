@@ -157,8 +157,6 @@ export const PAI_PLUGIN = 'com.microsoft.pai.runtimeplugin';
 
 export const STORAGE_PLUGIN = 'teamwise_storage';
 
-export const PAI_STORAGE = 'pai.storage';
-
 export const SSH_KEY_BITS = 1024;
 
 export const USERSSH_TYPE_OPTIONS = [

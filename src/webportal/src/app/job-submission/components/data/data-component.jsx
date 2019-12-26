@@ -192,10 +192,6 @@ export const DataComponent = React.memo(props => {
   const onMountDirChange = useCallback(
     // Will only update extra field, jobData will be updated by useEffect function
     mountDir => {
-      if (config.launcherType !== 'k8s') {
-        return;
-      }
-
       const plugins = get(extras, [PAI_PLUGIN], []);
       const updatedRuntimePlugins = generateUpdatedRuntimePlugins(
         mountDir.selectedConfigs,

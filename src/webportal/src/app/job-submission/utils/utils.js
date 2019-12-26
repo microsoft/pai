@@ -12,7 +12,6 @@ import {
   TENSORBOARD_CMD_END,
   TENSORBOARD_LOG_PATH,
   AUTO_GENERATE_NOTIFY,
-  PAI_STORAGE,
   PAI_PLUGIN,
 } from './constants';
 import config from '../../config/webportal.config';
@@ -207,16 +206,6 @@ export async function populateProtocolWithDataAndTensorboard(
     protocol.name || '',
   );
   addPreCommandsToProtocolTaskRoles(protocol, preCommands);
-
-  if (protocol.extras) {
-    if (isEmpty(jobData.mountDirs.selectedConfigs)) {
-      protocol.extras[PAI_STORAGE] = [];
-    } else {
-      protocol.extras[PAI_STORAGE] = jobData.mountDirs.selectedConfigs.map(
-        config => config.name,
-      );
-    }
-  }
 }
 
 function removeTagSection(commands, beginTag, endTag) {
