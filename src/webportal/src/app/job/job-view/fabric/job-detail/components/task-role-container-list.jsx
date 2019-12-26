@@ -218,40 +218,65 @@ export default class TaskRoleContainerList extends React.Component {
     );
   }
 
-  showSshInfo(id) {
+  showSshInfo(id, containerPorts, containerIp) {
     const { sshInfo } = this.context;
     const containerSshInfo =
       sshInfo && sshInfo.containers.find(x => x.id === id);
-    if (!containerSshInfo) {
-      const res = [];
-      res.push('This job does not contain SSH info.');
-      res.push(
-        'Please note that if your docker image does not have openssh-server and curl packages, SSH will not be enabled.\n',
-      );
-      res.push(
-        'Solution 1: Use one of the recommended docker images on the submission page.',
-      );
-      res.push(
-        'Solution 2: Use your own image, but enable SSH for it. Please follow the instructions on https://aka.ms/AA5u4sq to do such work.',
-      );
-      this.setState({
-        monacoProps: { value: res.join('\n') },
-        monacoTitle: `SSH to ${id}`,
-      });
+    if (config.launcherType !== 'k8s'){
+      if (!containerSshInfo) {
+        const res = [];
+        res.push('This job does not contain SSH info.');
+        res.push(
+          'Please note that if your docker image does not have openssh-server and curl packages, SSH will not be enabled.\n',
+        );
+        res.push(
+          'Solution 1: Use one of the recommended docker images on the submission page.',
+        );
+        res.push(
+          'Solution 2: Use your own image, but enable SSH for it. Please follow the instructions on https://aka.ms/AA5u4sq to do such work.',
+        );
+        this.setState({
+          monacoProps: { value: res.join('\n') },
+          monacoTitle: `SSH to ${id}`,
+        });
+      } else {
+        const res = [];
+        res.push('# Step 1. Open a Bash shell terminal.');
+        res.push('# Step 2: Download the private key:');
+        res.push(
+          `wget '${sshInfo.keyPair.privateKeyDirectDownloadLink}' -O ${sshInfo.keyPair.privateKeyFileName}`,
+        );
+        res.push('# Step 3: Set correct permission for the key file:');
+        res.push(`chmod 600 ${sshInfo.keyPair.privateKeyFileName}`);
+        res.push('# Step 4: Connect to the container:');
+        res.push(
+          `ssh -i ${sshInfo.keyPair.privateKeyFileName} -p ${containerSshInfo.sshPort} root@${containerSshInfo.sshIp}`,
+        );
+        res.push('');
+        this.setState({
+          monacoProps: {
+            value: res.join('\n'),
+            options: {
+              wordWrap: 'off',
+              readOnly: true,
+            },
+          },
+          monacoTitle: `SSH to ${id}`,
+        });
+      }
     } else {
       const res = [];
-      res.push('# Step 1. Open a Bash shell terminal.');
-      res.push('# Step 2: Download the private key:');
-      res.push(
-        `wget '${sshInfo.keyPair.privateKeyDirectDownloadLink}' -O ${sshInfo.keyPair.privateKeyFileName}`,
-      );
-      res.push('# Step 3: Set correct permission for the key file:');
-      res.push(`chmod 600 ${sshInfo.keyPair.privateKeyFileName}`);
-      res.push('# Step 4: Connect to the container:');
-      res.push(
-        `ssh -i ${sshInfo.keyPair.privateKeyFileName} -p ${containerSshInfo.sshPort} root@${containerSshInfo.sshIp}`,
-      );
-      res.push('');
+      if ('ssh' in containerPorts){
+        res.push('You can use SSH to connect this container by one of the following commands: \n')
+        res.push(`1. Use your default SSH private key:\n`)
+        res.push(`ssh -p ${containerPorts.ssh} root@${containerIp}\n`)
+        res.push(`2. Use a pre-downloaded SSH private key:\n`)
+        res.push(`ssh -p ${containerPorts.ssh} -i <your-path-to-the-private-key> root@${containerIp}\n\n`)
+        res.push(`If you are using a different username in your docker, please change "root" to your pre-defined username.`)
+      } else {
+        res.push('This job does not contain SSH info.')
+        res.push('If you want to use SSH, please enable it in the "Tools -> SSH" Section on the Job Submission Page.')
+      }
       this.setState({
         monacoProps: {
           value: res.join('\n'),
@@ -446,7 +471,6 @@ export default class TaskRoleContainerList extends React.Component {
             className={c(t.h100, t.flex, t.justifyStart, t.itemsCenter, t.ml1)}
           >
             <div className={c(t.flex, t.h3)}>
-              {config.launcherType !== 'k8s' && (
                 <CommandBarButton
                   className={c(FontClassNames.mediumPlus)}
                   styles={{
@@ -455,12 +479,11 @@ export default class TaskRoleContainerList extends React.Component {
                   }}
                   iconProps={{ iconName: 'CommandPrompt' }}
                   text='View SSH Info'
-                  onClick={() => this.showSshInfo(item.containerId)}
+                  onClick={() => this.showSshInfo(item.containerId, item.containerPorts, item.containerIp)}
                   disabled={
                     isNil(item.containerId) || item.taskState !== 'RUNNING'
                   }
                 />
-              )}
               <CommandBarButton
                 className={FontClassNames.mediumPlus}
                 styles={{
