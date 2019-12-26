@@ -26,20 +26,21 @@ if kubectl get deployment -n kube-system | grep -q "kubernetes-dashboard-openpai
     kubectl delete deployment kubernetes-dashboard-openpai -n kube-system || exit $?
 fi
 
-if kubectl get ClusterRoleBinding | grep -q "kubernetes-dashboard-minimal-openpai"; then
-    kubectl delete ClusterRoleBinding kubernetes-dashboard-minimal-openpai || exit $?
+if kubectl get roleBinding -n kube-system | grep -q "kubernetes-dashboard-minimal-openpai"; then
+    kubectl delete roleBinding kubernetes-dashboard-minimal-openpai -n kube-system || exit $?
 fi
 
-if kubectl get ClusterRoleBinding | grep -q "kubernetes-dashboard-edit-openpai"; then
-    kubectl delete ClusterRoleBinding kubernetes-dashboard-edit-openpai || exit $?
+
+if kubectl get serviceAccount -n kube-system | grep -q "kubernetes-dashboard-openpai"; then
+    kubectl delete serviceAccount kubernetes-dashboard-openpai -n kube-system || exit $?
 fi
 
-if kubectl get ServiceAccount -n kube-system | grep -q "kubernetes-dashboard-openpai"; then
-    kubectl delete ServiceAccount kubernetes-dashboard-openpai  -n kube-system || exit $?
+if kubectl get role -n kube-system | grep -q "kubernetes-dashboard-minimal-openpai"; then
+    kubectl delete role kubernetes-dashboard-minimal-openpai -n kube-system || exit $?
 fi
 
-if kubectl get ClusterRole | grep -q "kubernetes-dashboard-minimal-openpai"; then
-    kubectl delete ClusterRole kubernetes-dashboard-minimal-openpai || exit $?
+if kubectl get secret -n kube-system | grep -q "kubernetes-dashboard-certs-openpai"; then
+    kubectl delete secret kubernetes-dashboard-certs-openpai -n kube-system || exit $?
 fi
 
 {% endif %}

@@ -169,6 +169,6 @@ testing REST APIs related to querying a job, including
             f'--sources ./step6Src/testFile.txt', '--image python:3', 'sleep 5s'])
     
 
-    @seperated
+    @separated
     def test_commands_sequence(self):
         self.run_steps()

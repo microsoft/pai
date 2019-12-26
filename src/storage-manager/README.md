@@ -8,7 +8,7 @@ Storage-manager is a k8s managed NFS+SMB storage service deployed on configured 
   - [Node Configuration](#Node-Configuration)
   - [Default Configuration](#Default-Configuration)
   - [Manual Configuration](#Manual-Configuration)
-  - [SMB with AAD Configuraiton](#SMBAAD-Configuration)
+  - [SMB with AAD Configuration](#SMBAAD-Configuration)
   - [Data Table](#T_config)
 
 ---
@@ -38,6 +38,18 @@ The storage-manager will be deployed on that node.
 
 [storage-manager default configuration](config/storage-manager.yaml)
 
+NFS default root path: `/share/pai`
+
+Samba default share paths:
+
+| Share path | Acctully path in the storage machine |
+| --- | --- |
+| `/root` | `/share/pai` |
+| `/users`  | `/share/pai/users` |
+| `/data` | `/share/pai/data` |
+| `/home` | `/share/pai/users/${user_name}` |
+
+
 ---
 
 ## Manual Configuration <a name="Manual-Configuration"></a>
@@ -53,7 +65,7 @@ storage-manager:
 
 ---
 
-## SMB with AAD Configuraiton <a name="SMBAAD-Configuration"></a>
+## SMB with AAD Configuration <a name="SMBAAD-Configuration"></a>
 
 If you want to use storage-manager with AAD, please add these extra info in  service-configuration.yaml.
 
@@ -86,41 +98,11 @@ storage-manager:
 
 ## Configuration Table <a name="T_Config"></a>
 
-<table>
-<tr>
-    <td>Data in Configuration File</td>
-    <td>Data in Cluster Object Model</td>
-    <td>Data in Jinja2 Template</td>
-    <td>Data type</td>
-</tr>
-<tr>
-    <td>storage-manager.localpath</td>
-    <td>com["storage-manager"]["localpath"]</td>
-    <td>cluster_cfg["storage-manager"]["localpath"]</td>
-    <td>String</td>
-</tr>
-<tr>
-    <td>storage-manager.workgroup</td>
-    <td>com["storage-manager"]["workgroup"]</td>
-    <td>cluster_cfg["storage-manager"]["workgroup"]</td>
-    <td>String</td>
-</tr>
-<tr>
-    <td>storage-manager.security-type</td>
-    <td>com["storage-manager"]["security-type"]</td>
-    <td>cluster_cfg["storage-manager"]["security-type"]</td>
-    <td>Can only be `Auto` or `ADS`</td>
-</tr>
-<tr>
-    <td>storage-manager.smbuser</td>
-    <td>com["storage-manager"]["smbuser"]</td>
-    <td>cluster_cfg["storage-manager"]["smbuser"]</td>
-    <td>String</td>
-</tr>
-<tr>
-    <td>storage-manager.smbpwd</td>
-    <td>com["storage-manager"]["smbpwd"]</td>
-    <td>cluster_cfg["storage-manager"]["smbpwd"]</td>
-    <td>String</td>
-</tr>
-</table>
+| Data in Configuration File | Data in Cluster Object Model | Data in Jinja2 Template | Data type |
+| --- | --- | --- | --- |
+| storage-manager.localpath | com["storage-manager"]["localpath"] | cluster_cfg["storage-manager"]["localpath"] | String |
+| storage-manager.workgroup | com["storage-manager"]["workgroup"] | cluster_cfg["storage-manager"]["workgroup"] | String |
+| storage-manager.security-type | com["storage-manager"]["security-type"] | cluster_cfg["storage-manager"]["security-type"] | Can only be `Auto` or `ADS` |
+| storage-manager.smbuser | com["storage-manager"]["smbuser"] | cluster_cfg["storage-manager"]["smbuser"] | String |
+| storage-manager.smbpwd | com["storage-manager"]["smbpwd"] | cluster_cfg["storage-manager"]["smbpwd"] | String |
+

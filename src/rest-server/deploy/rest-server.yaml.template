@@ -68,6 +68,8 @@ spec:
 {% else %}
           value: defaultscheduler
 {% endif %}
+        - name: HIVED_WEBSERVICE_URI
+          value: {{ cluster_cfg['hivedscheduler']['webservice'] }}
         - name: LOG_MANAGER_PORT
           value: "{{ cluster_cfg['log-manager']['port'] }}"
 {%- endif %}
@@ -100,8 +102,6 @@ spec:
         - name: ELASTICSEARCH_URI
           value: http://{{ cluster_cfg['elasticsearch']['master-ip'] }}:30100
 {%- endif %}
-        - name: REST_SERVER_URI
-          value: {{ cluster_cfg['rest-server']['uri'] }}
         - name: K8S_APISERVER_URI
           value: {{ cluster_cfg['layout']['kubernetes']['api-servers-url'] }}
         - name: AZ_RDMA

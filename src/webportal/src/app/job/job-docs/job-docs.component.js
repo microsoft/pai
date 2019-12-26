@@ -16,6 +16,12 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 // module dependencies
+
+require('bootstrap');
+require('admin-lte/dist/css/AdminLTE.min.css');
+require('bootstrap/dist/css/bootstrap.css');
+require('font-awesome/css/font-awesome.min.css');
+
 const breadcrumbComponent = require('../breadcrumb/breadcrumb.component.ejs');
 const jobDocsComponent = require('./job-docs.component.ejs');
 

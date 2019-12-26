@@ -37,11 +37,12 @@ type (
 )
 
 type schedulingRequest struct {
-	vc            api.VirtualClusterName
-	reservationId api.ReservationId
-	chain         CellChain
-	affinityGroup map[int32]int32 // gpu number -> pod number
-	priority      CellPriority
+	vc                   api.VirtualClusterName
+	reservationId        api.ReservationId
+	chain                CellChain
+	affinityGroupName    string
+	affinityGroupPodNums map[int32]int32 // gpu number -> pod number
+	priority             CellPriority
 }
 
 // CellList is a list of cells at a certain level of a chain.
@@ -104,20 +105,23 @@ func (ccl ChainCellList) remove(c Cell, l CellLevel) {
 // AlgoAffinityGroup is the algorithm-internal representation of an affinity group.
 type AlgoAffinityGroup struct {
 	name                 string
+	gangReleaseEnable    bool
 	lazyPreemptionEnable bool
 	totalPodNums         map[int32]int32       // GpuNum -> PodNum
 	allocatedPods        map[int32][]*core.Pod // GpuNum -> a list of allocated pods and node addresses
 	physicalGpuPlacement map[int32][]CellList  // GpuNum -> a list of pods -> a list of physical GPUs of each pod
 	virtualGpuPlacement  map[int32][]CellList  // GpuNum -> a list of pods -> a list of virtual GPUs of each pod
+	lazyPreemptionStatus *api.LazyPreemptionStatus
 }
 
-func newAlgoAffinityGroup(g *api.AffinityGroupSpec, lazyPreemptionEnable bool) *AlgoAffinityGroup {
+func newAlgoAffinityGroup(g *api.AffinityGroupSpec, gangReleaseEnable bool, lazyPreemptionEnable bool) *AlgoAffinityGroup {
 	podNums := make(map[int32]int32)
 	for _, m := range g.Members {
 		podNums[m.GpuNumber] += m.PodNumber
 	}
 	group := &AlgoAffinityGroup{
 		name:                 g.Name,
+		gangReleaseEnable:    gangReleaseEnable,
 		lazyPreemptionEnable: lazyPreemptionEnable,
 		totalPodNums:         podNums,
 		allocatedPods:        map[int32][]*core.Pod{},
@@ -127,10 +131,18 @@ func newAlgoAffinityGroup(g *api.AffinityGroupSpec, lazyPreemptionEnable bool) *
 	for gpuNum, podNum := range podNums {
 		group.physicalGpuPlacement[gpuNum] = make([]CellList, podNum)
 		group.virtualGpuPlacement[gpuNum] = make([]CellList, podNum)
+		group.allocatedPods[gpuNum] = make([]*core.Pod, podNum)
 		for i := int32(0); i < podNum; i++ {
 			group.physicalGpuPlacement[gpuNum][i] = make(CellList, gpuNum)
 			group.virtualGpuPlacement[gpuNum][i] = make(CellList, gpuNum)
 		}
 	}
 	return group
+}
+
+func (aag *AlgoAffinityGroup) ToAffinityGroup() api.AffinityGroup {
+	ag := api.AffinityGroup{}
+	ag.Name = aag.name
+	ag.Status.LazyPreemptionStatus = aag.lazyPreemptionStatus
+	return ag
 }

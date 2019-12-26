@@ -195,7 +195,7 @@ rest-server:
   #  # winbind: If you set group-data-source as the value winbind, the user's grouplist will get from winbind server based on your configuration.
   #  group-data-source: basic
   #
-  #  # If you set winbind as your data source, you should configure this configuraiton.
+  #  # If you set winbind as your data source, you should configure this configuration.
   #  # winbind-server-address: xxxxxxx
   #
   #  # Admin group name and its user list

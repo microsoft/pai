@@ -15,14 +15,9 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-import 'core-js/stable';
-import 'regenerator-runtime/runtime';
-import 'whatwg-fetch';
-
 import classNames from 'classnames';
 import { get, isEmpty, isNil } from 'lodash';
 import {
-  initializeIcons,
   FontClassNames,
   MessageBar,
   MessageBarType,
@@ -46,8 +41,6 @@ import {
   fetchRawJobConfig,
 } from './job-detail/conn';
 import { getHumanizedJobStateString } from '../../../components/util/job';
-
-initializeIcons();
 
 class JobDetail extends React.Component {
   constructor(props) {
@@ -231,5 +224,3 @@ class JobDetail extends React.Component {
 }
 
 ReactDOM.render(<JobDetail />, document.getElementById('content-wrapper'));
-
-document.getElementById('sidebar-menu--job-view').classList.add('active');

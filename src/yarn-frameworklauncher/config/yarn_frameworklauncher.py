@@ -22,11 +22,11 @@ import logging.config
 
 class YarnFrameworklauncher:
 
-    def __init__(self, cluster_configuration, service_configuration, default_service_configuraiton):
+    def __init__(self, cluster_configuration, service_configuration, default_service_configuration):
         self.logger = logging.getLogger(__name__)
 
         self.cluster_configuration = cluster_configuration
-        self.service_configuration = self.merge_service_configuration(service_configuration, default_service_configuraiton)
+        self.service_configuration = self.merge_service_configuration(service_configuration, default_service_configuration)
 
     def merge_service_configuration(self, overwrite_srv_cfg, default_srv_cfg):
         if overwrite_srv_cfg == None:
@@ -51,7 +51,7 @@ class YarnFrameworklauncher:
         yarn_launcher_com["node-list"] = list()
         yarn_launcher_com["webservice"] = ""
 
-        # This properites is designed for single Instance, unable to support multiple launcher.
+        # This properties is designed for single Instance, unable to support multiple launcher.
         yarn_launcher_com["launcher-address"] = ""
 
         for host in self.cluster_configuration["machine-list"]:

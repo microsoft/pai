@@ -17,16 +17,10 @@
 
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 
-import {
-  Fabric,
-  Stack,
-  initializeIcons,
-  getTheme,
-} from 'office-ui-fabric-react';
+import { Fabric, Stack, getTheme } from 'office-ui-fabric-react';
 import { debounce, findIndex } from 'lodash';
 
 import { MaskSpinnerLoading } from '../../../components/loading';
-import { initTheme } from '../../../components/theme';
 import MessageBox from '../components/MessageBox';
 
 import t from '../../../components/tachyons.scss';
@@ -46,9 +40,6 @@ import {
   getAllVcsRequest,
   removeUserRequest,
 } from '../conn';
-
-initTheme();
-initializeIcons();
 
 export default function UserView() {
   const [loading, setLoading] = useState({ show: false, text: '' });

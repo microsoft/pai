@@ -23,7 +23,6 @@
  * SOFTWARE.
  */
 
-import { camelCase, isEmpty, isNil } from 'lodash';
 import {
   IconButton,
   Stack,
@@ -35,116 +34,52 @@ import {
   SelectionMode,
 } from 'office-ui-fabric-react';
 import PropTypes from 'prop-types';
-import React, {
-  useCallback,
-  useLayoutEffect,
-  useMemo,
-  useState,
-  useContext,
-} from 'react';
+import { countBy, isEmpty } from 'lodash';
+import React, { useCallback, useLayoutEffect } from 'react';
 import { DebouncedTextField } from './debounced-text-field';
 import { dispatchResizeEvent } from '../../utils/utils';
-import context from '../context';
 
 export const KeyValueList = ({
-  name,
-  value,
+  items,
   onChange,
-  onError,
-  columnWidth,
-  keyName,
-  keyField,
-  valueName,
-  valueField,
   secret,
-  onValidateKey,
-  onValidateValue,
+  keyHeader,
+  valueHeader,
 }) => {
-  columnWidth = columnWidth || 180;
-  keyName = keyName || 'Key';
-  keyField = keyField || camelCase(keyName);
-  valueName = valueName || 'Value';
-  valueField = valueField || camelCase(valueName);
-
-  const [dupList, setDupList] = useState([]);
-  const { setErrorMessage } = useContext(context);
-
-  useMemo(() => {
-    const keyCount = value.reduce((res, x) => {
-      if (res[x[keyField]] === undefined) {
-        res[x[keyField]] = 0;
-      }
-      res[x[keyField]] += 1;
-      return res;
-    }, {});
-    const newDupList = value
-      .filter(x => keyCount[x[keyField]] > 1)
-      .map(x => x[keyField]);
-
-    const msgId = `KeyValueList ${name}`;
-    let errorMessage = '';
-    if (newDupList.length > 0) {
-      errorMessage = `${name || 'KeyValueList'} has duplicated keys.`;
-    }
-    if (value.some(x => isEmpty(x[keyField]) && !isEmpty(x[valueField]))) {
-      errorMessage = `${name || 'KeyValueList'} has value with empty key.`;
-    }
-    if (!isNil(onValidateKey) || !isNil(onValidateValue)) {
-      for (const item of value) {
-        if (!isNil(onValidateKey)) {
-          const key = item[keyField];
-          const res = onValidateKey(key);
-          if (!isEmpty(res)) {
-            errorMessage = res;
-          }
-        }
-        if (!isNil(onValidateValue)) {
-          const value = item[valueField];
-          const res = onValidateValue(value);
-          if (!isEmpty(res)) {
-            errorMessage = res;
-          }
-        }
-      }
-    }
-    if (onError) {
-      onError(errorMessage);
-    }
-    setErrorMessage(msgId, errorMessage);
-    setDupList(newDupList);
-  }, [value]);
+  keyHeader = keyHeader || 'Key';
+  valueHeader = valueHeader || 'Value';
 
   const onAdd = useCallback(() => {
-    onChange([...value, { [keyField]: '', [valueField]: '' }]);
-  }, [onChange, value, keyField, valueField]);
+    onChange([...items, { key: '', value: '' }]);
+  }, [onChange, items]);
 
   const onRemove = useCallback(
     idx => {
-      onChange([...value.slice(0, idx), ...value.slice(idx + 1)]);
+      onChange([...items.slice(0, idx), ...items.slice(idx + 1)]);
     },
-    [onChange, value],
+    [onChange, items],
   );
 
   const onKeyChange = useCallback(
     (idx, val) => {
       onChange([
-        ...value.slice(0, idx),
-        { ...value[idx], [keyField]: val },
-        ...value.slice(idx + 1),
+        ...items.slice(0, idx),
+        { ...items[idx], key: val },
+        ...items.slice(idx + 1),
       ]);
     },
-    [onChange, value, keyField],
+    [onChange, items],
   );
 
   const onValueChange = useCallback(
     (idx, val) => {
       onChange([
-        ...value.slice(0, idx),
-        { ...value[idx], [valueField]: val },
-        ...value.slice(idx + 1),
+        ...items.slice(0, idx),
+        { ...items[idx], value: val },
+        ...items.slice(idx + 1),
       ]);
     },
-    [onChange, value, valueField],
+    [onChange, items],
   );
 
   const getKey = useCallback((item, idx) => idx, []);
@@ -159,48 +94,28 @@ export const KeyValueList = ({
 
   const columns = [
     {
-      key: keyName,
-      name: keyName,
-      minWidth: columnWidth,
+      key: 'key',
+      name: keyHeader,
+      minWidth: 180,
       onRender: (item, idx) => {
-        let errorMessage = null;
-        if (dupList.includes(item[keyField])) {
-          errorMessage = 'duplicated key';
-        }
-        if (isEmpty(item[keyField]) && !isEmpty(item[valueField])) {
-          errorMessage = 'empty key';
-        }
-        if (!isNil(onValidateKey)) {
-          const res = onValidateKey(item[keyField]);
-          if (!isEmpty(res)) {
-            errorMessage = res;
-          }
-        }
         return (
           <DebouncedTextField
-            errorMessage={errorMessage}
-            value={item[keyField]}
+            errorMessage={item.keyError}
+            value={item.key}
             onChange={(e, val) => onKeyChange(idx, val)}
           />
         );
       },
     },
     {
-      key: valueName,
-      name: valueName,
-      minWidth: columnWidth,
+      key: 'value',
+      name: valueHeader,
+      minWidth: 180,
       onRender: (item, idx) => {
-        let errorMessage = null;
-        if (!isNil(onValidateValue)) {
-          const res = onValidateValue(item[valueField]);
-          if (!isEmpty(res)) {
-            errorMessage = res;
-          }
-        }
         return (
           <DebouncedTextField
-            errorMessage={errorMessage}
-            value={item[valueField]}
+            errorMessage={item.valueError}
+            value={item.value}
             type={secret && 'password'}
             onChange={(e, val) => onValueChange(idx, val)}
           />
@@ -211,7 +126,6 @@ export const KeyValueList = ({
       key: 'remove',
       name: 'Remove',
       minWidth: 50,
-      style: { padding: 0 },
       onRender: (item, idx) => (
         <div
           style={{
@@ -235,7 +149,7 @@ export const KeyValueList = ({
     <Stack gap='m'>
       <div>
         <DetailsList
-          items={value}
+          items={items}
           columns={columns}
           getKey={getKey}
           checkboxVisibility={CheckboxVisibility.hidden}
@@ -258,18 +172,37 @@ export const KeyValueList = ({
 };
 
 KeyValueList.propTypes = {
-  name: PropTypes.string,
-  value: PropTypes.array.isRequired,
+  items: PropTypes.array.isRequired,
   onChange: PropTypes.func.isRequired,
-  onError: PropTypes.func,
   // custom field
   secret: PropTypes.bool,
-  columnWidth: PropTypes.number,
-  keyName: PropTypes.string,
-  keyField: PropTypes.string,
-  valueName: PropTypes.string,
-  valueField: PropTypes.string,
-  // validation
-  onValidateKey: PropTypes.func,
-  onValidateValue: PropTypes.func,
+  keyHeader: PropTypes.string,
+  valueHeader: PropTypes.string,
+};
+
+export const getItemsWithError = items => {
+  const result = [];
+  // remove old errors
+  for (const item of items) {
+    if (item.keyError || item.valueError) {
+      result.push({ key: item.key, value: item.value });
+    } else {
+      result.push(item);
+    }
+  }
+  // duplicate key
+  const keyCount = countBy(result, x => x.key);
+  for (const [idx, item] of result.entries()) {
+    if (keyCount[item.key] > 1) {
+      result[idx] = { ...item, keyError: 'Duplicated key' };
+    }
+  }
+  // empty key
+  for (const [idx, item] of result.entries()) {
+    if (isEmpty(item.key) && !isEmpty(item.value) && isEmpty(item.keyError)) {
+      result[idx] = { ...item, keyError: 'Empty key' };
+    }
+  }
+
+  return result;
 };

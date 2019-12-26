@@ -24,7 +24,7 @@ import c from 'classnames';
 import { isEmpty } from 'lodash';
 import { initializeIcons } from 'office-ui-fabric-react';
 import querystring from 'querystring';
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import ReactDOM from 'react-dom';
 
 import Bottom from './index/bottom';
@@ -33,6 +33,7 @@ import Jumbotron from './index/jumbotron';
 import LoginModal from './index/login-modal';
 import { checkToken } from '../user/user-auth/user-auth.component';
 import config from '../config/webportal.config';
+import { SpinnerLoading } from '../components/loading';
 import t from 'tachyons-sass/tachyons.scss';
 
 let loginTarget = '/home.html';
@@ -55,16 +56,14 @@ if (config.authnMethod === 'OIDC') {
   }
 }
 
-if (checkToken(false)) {
-  window.location.replace(loginTarget);
-}
-
 initializeIcons();
 
 const Index = () => {
   const [loginModal, setLoginModal] = useState(false);
   const [error, setError] = useState(null);
   const [lock, setLock] = useState(false);
+  const [loading, setLoading] = useState(true);
+
   const onLogin = useCallback((username, password) => {
     setLock(true);
     login(username, password)
@@ -87,7 +86,7 @@ const Index = () => {
         config.restServerUri +
         `/api/v1/authn/oidc/login?${querystring.stringify({
           redirect_uri: new URL('/index.html', window.location.href).href,
-          callback: window.location.href,
+          from: new URL(loginTarget, window.location.href).href,
         })}`;
     }
   }, []);
@@ -96,6 +95,18 @@ const Index = () => {
     setLoginModal(false);
     setError(null);
   }, []);
+
+  useEffect(() => {
+    if (checkToken(false)) {
+      window.location.replace(loginTarget);
+    } else {
+      setLoading(false);
+    }
+  }, []);
+
+  if (loading) {
+    return <SpinnerLoading />;
+  }
 
   return (
     <div

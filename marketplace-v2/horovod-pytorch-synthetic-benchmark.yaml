@@ -1,5 +1,5 @@
 protocolVersion: 2
-name: horovod_pytorch_synthetic_benchmark
+name: horovod_pytorch
 type: job
 version: horovod0.16.4-tf1.12.0-torch1.1.0-mxnet1.4.1-py3.5
 contributor: OpenPAI
@@ -9,6 +9,19 @@ description: |
 parameters:
   model: resnet50
   batchsize: 64
+  # Make sure IFNAME fits the node
+  # NCCL options for Ethernet
+  nccl: >-
+    -x NCCL_DEBUG=INFO
+    -x NCCL_SOCKET_IFNAME=eth0
+  # NCCL options for InfiniBand
+  # nccl: >-
+  #   -x NCCL_DEBUG=INFO
+  #   -x NCCL_IB_DISABLE=0
+  #   -x NCCL_IB_GDR_LEVEL=1
+  #   -x NCCL_IB_HCA=mlx5_0:1
+  #   -x NCCL_SOCKET_IFNAME=ib0
+  #   -x HOROVOD_MPI_THREADS_DISABLE=1
 
 prerequisites:
   - protocolVersion: 2
@@ -30,7 +43,14 @@ taskRoles:
     commands:
       - sleep 10
       - >
-        horovodrun -np 8 -H master-0:4,worker-0:4
+        mpirun --allow-run-as-root
+        -np 8 -H master-0:4,worker-0:4
+        -bind-to none -map-by slot
+        -mca pml ob1
+        -mca btl ^openib
+        -mca btl_tcp_if_exclude lo,docker0
+        <% $parameters.nccl %>
+        -x PATH -x LD_LIBRARY_PATH
         python pytorch_synthetic_benchmark.py
         --model <% $parameters.model %>
         --batch-size <% $parameters.batchsize %>
@@ -49,3 +69,4 @@ extras:
     - plugin: ssh
       parameters:
         jobssh: true
+        sshbarrier: true

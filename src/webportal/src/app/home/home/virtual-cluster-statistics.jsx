@@ -33,6 +33,7 @@ import Card from '../../components/card';
 import { UtilizationChart } from './utilization-chart';
 import { zeroPaddingClass } from './util';
 import { Header } from './header';
+import config from '../../config/webportal.config';
 
 import t from '../../components/tachyons.scss';
 import { ResourceBar } from './resource-bar';
@@ -90,6 +91,8 @@ const vcListColumns = [
     isResizable: true,
     onRender(vc) {
       const { resourcesUsed, resourcesTotal } = vc;
+      const resourceAvailable = vc.resourceAvailable || resourcesTotal;
+      const insufficient = !(resourceAvailable.GPUs === resourcesTotal.GPUs);
       return (
         <Stack
           gap='s1'
@@ -105,8 +108,8 @@ const vcListColumns = [
                 resourcesTotal.memory,
               )}
               tailInfo={`${Math.round(resourcesUsed.memory)} / ${Math.round(
-                resourcesTotal.memory,
-              )} MB`}
+                resourceAvailable.memory,
+              )}${insufficient ? ` (${resourcesTotal.memory})` : ''} MB`}
             />
           </StackItem>
           <StackItem>
@@ -117,8 +120,8 @@ const vcListColumns = [
                 resourcesTotal.vCores,
               )}
               tailInfo={`${Math.round(resourcesUsed.vCores)} / ${Math.round(
-                resourcesTotal.vCores,
-              )}`}
+                resourceAvailable.vCores,
+              )}${insufficient ? ` (${resourcesTotal.vCores})` : ''}`}
             />
           </StackItem>
           <StackItem>
@@ -129,8 +132,8 @@ const vcListColumns = [
                 resourcesTotal.GPUs,
               )}
               tailInfo={`${Math.round(resourcesUsed.GPUs)} / ${Math.round(
-                resourcesTotal.GPUs,
-              )}`}
+                resourceAvailable.GPUs,
+              )}${insufficient ? ` (${resourcesTotal.GPUs})` : ''}`}
             />
           </StackItem>
         </Stack>
@@ -236,7 +239,7 @@ export const VirtualClusterStatistics = ({
             }
             linkHref={'/virtual-clusters.html'}
             linkName={'View all'}
-            showLink={isAdmin}
+            showLink={isAdmin && config.launcherType !== 'k8s'}
           />
         </Stack.Item>
         <Stack.Item styles={{ root: [t.relative] }} grow>

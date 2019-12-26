@@ -1,0 +1,3 @@
+machines: ["10.0.1.8", "10.0.1.7", "10.0.1.5"]
+ssh-username: $ACCOUNT_USR
+ssh-password: $ACCOUNT_PSW

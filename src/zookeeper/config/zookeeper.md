@@ -1,6 +1,6 @@
-## zookeeper section parser 
+## zookeeper section parser
 
-- [Generated Configuraiton](#G_Config)
+- [Generated Configuration](#G_Config)
 - [Data Table](#T_config)
 
 #### Generated Configuration <a name="G_Config"></a>
@@ -12,7 +12,7 @@ zookeeper:
       - hostname1
       - hostname2
       - hostname3
-    
+
     quorum: hostip1:2181,hostip2:2181,hostip3:2181
 ```
 

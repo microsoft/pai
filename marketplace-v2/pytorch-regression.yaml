@@ -28,4 +28,4 @@ taskRoles:
       memoryMB: 8192
       gpu: 1
     commands:
-      - cd examples/regression && python main.py
+      - cd examples/regression && python3 main.py

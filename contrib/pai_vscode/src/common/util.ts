@@ -307,9 +307,9 @@ export class UtilClass extends Singleton {
         }));
     }
 
-    public fixURL(url: string): string {
+    public fixURL(url: string, https?: boolean): string {
         if (!/^[a-zA-Z]+?\:\/\//.test(url)) {
-            url = 'http://' + url;
+            url = `http${https ? 's' : ''}://` + url;
         }
         return url;
     }

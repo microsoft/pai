@@ -17,26 +17,25 @@
 
 
 // module dependencies
-const {Agent} = require('https');
-const zlib = require('zlib');
 const axios = require('axios');
+const zlib = require('zlib');
 const yaml = require('js-yaml');
 const base32 = require('base32');
 const status = require('statuses');
 const querystring = require('querystring');
 const runtimeEnv = require('./runtime-env');
 const launcherConfig = require('@pai/config/launcher');
-const {apiserver} = require('@pai/config/kubernetes');
 const createError = require('@pai/utils/error');
 const protocolSecret = require('@pai/utils/protocolSecret');
 const userModel = require('@pai/models/v2/user');
+const k8sModel = require('@pai/models/kubernetes');
 const env = require('@pai/utils/env');
 const k8s = require('@pai/utils/k8sUtils');
 const path = require('path');
 const fs = require('fs');
 const _ = require('lodash');
 const logger = require('@pai/config/logger');
-const restServerConfig = require('@pai/config');
+const {apiserver} = require('@pai/config/kubernetes');
 
 let exitSpecPath;
 if (process.env[env.exitSpecPath]) {
@@ -180,16 +179,25 @@ const convertTaskDetail = async (taskStatus, ports, userName, jobName, taskRoleN
       containerPorts[port] = randomPorts[port].start + taskStatus.index * randomPorts[port].count;
     }
   }
+  // get affinity group name
+  let affinityGroupName = null;
   // get container gpus
   let containerGpus = null;
   try {
-    const pod = (await axios({
-      method: 'get',
-      url: launcherConfig.podPath(taskStatus.attemptStatus.podName),
-      headers: launcherConfig.requestHeaders,
-      httpsAgent: apiserver.ca && new Agent({ca: apiserver.ca}),
-    })).data;
+    const response = await k8sModel.getClient().get(
+      launcherConfig.podPath(taskStatus.attemptStatus.podName),
+      {
+        headers: launcherConfig.requestHeaders,
+      }
+    );
+    const pod = response.data;
     if (launcherConfig.enabledHived) {
+      const hivedSpec = yaml.load(pod.metadata.annotations['hivedscheduler.microsoft.com/pod-scheduling-spec']);
+      if (hivedSpec && hivedSpec.affinityGroup && hivedSpec.affinityGroup.name) {
+        affinityGroupName = hivedSpec.affinityGroup.name;
+      } else {
+        affinityGroupName = `default/${taskStatus.attemptStatus.podName}`;
+      }
       const isolation = pod.metadata.annotations['hivedscheduler.microsoft.com/pod-gpu-isolation'];
       containerGpus = isolation.split(',').reduce((attr, id) => attr + Math.pow(2, id), 0);
     } else {
@@ -214,6 +222,13 @@ const convertTaskDetail = async (taskStatus, ports, userName, jobName, taskRoleN
     containerGpus,
     containerLog: `http://${taskStatus.attemptStatus.podHostIP}:${process.env.LOG_MANAGER_PORT}/log-manager/tail/${userName}/${jobName}/${taskRoleName}/${taskStatus.attemptStatus.podUID}/`,
     containerExitCode: completionStatus ? completionStatus.code : null,
+    ...launcherConfig.enabledHived && {
+      hived: {
+        affinityGroupName,
+        lazyPreempted: null,
+        lazyPreemptionStatus: null,
+      },
+    },
   };
 };
 
@@ -289,10 +304,34 @@ const convertFrameworkDetail = async (framework) => {
       ),
     };
   }
+
+  if (launcherConfig.enabledHived) {
+    const affinityGroups = {};
+    try {
+      const res = await axios.get(`${launcherConfig.hivedWebserviceUri}/v1/inspect/affinitygroups/`);
+      res.data.items.forEach((affinityGroup) => {
+        affinityGroups[affinityGroup.metadata.name] = affinityGroup;
+      });
+    } catch (err) {
+      logger.warn('Fail to inspect affinity groups', err);
+    }
+    for (let taskRoleName of Object.keys(detail.taskRoles)) {
+      detail.taskRoles[taskRoleName].taskStatuses.forEach((status, idx) => {
+        const name = status.hived.affinityGroupName;
+        if (name in affinityGroups) {
+          detail.taskRoles[taskRoleName].taskStatuses[idx].hived.lazyPreempted =
+            Boolean(affinityGroups[name].status.lazyPreemptionStatus);
+          detail.taskRoles[taskRoleName].taskStatuses[idx].hived.lazyPreemptionStatus =
+            affinityGroups[name].status.lazyPreemptionStatus;
+        }
+      });
+    }
+  }
+
   return detail;
 };
 
-const generateTaskRole = (taskRole, labels, config, userToken) => {
+const generateTaskRole = (frameworkName, taskRole, labels, config, storageConfig) => {
   const ports = config.taskRoles[taskRole].resourcePerInstance.ports || {};
   for (let port of ['ssh', 'http']) {
     if (!(port in ports)) {
@@ -347,7 +386,7 @@ const generateTaskRole = (taskRole, labels, config, userToken) => {
         spec: {
           privileged: false,
           restartPolicy: 'Never',
-          serviceAccountName: 'frameworkbarrier-account',
+          serviceAccountName: 'runtime-account',
           initContainers: [
             {
               name: 'init',
@@ -360,18 +399,11 @@ const generateTaskRole = (taskRole, labels, config, userToken) => {
                 },
                 {
                   name: 'KUBE_APISERVER_ADDRESS',
-                  value: launcherConfig.apiServerUri,
+                  value: apiserver.uri,
                 },
                 {
                   name: 'GANG_ALLOCATION',
                   value: gangAllocation,
-                },
-                // Pass user token to runtime to give runtime permission to call rest server
-                // Actually we should provide service token for kube-runtime and do not let
-                // runtime personate as a real user.
-                {
-                  name: 'PAI_USER_TOKEN',
-                  value: userToken,
                 },
                 {
                   name: 'PAI_USER_NAME',
@@ -382,8 +414,8 @@ const generateTaskRole = (taskRole, labels, config, userToken) => {
                   value: `${labels.userName}~${labels.jobName}`,
                 },
                 {
-                  name: 'PAI_REST_SERVER_URI',
-                  value: restServerConfig.restServerUri,
+                  name: 'STORAGE_CONFIGS',
+                  value: JSON.stringify(storageConfig),
                 },
               ],
               volumeMounts: [
@@ -406,6 +438,7 @@ const generateTaskRole = (taskRole, labels, config, userToken) => {
           containers: [
             {
               name: 'app',
+              imagePullPolicy: 'Always',
               image: config.prerequisites.dockerimage[config.taskRoles[taskRole].dockerImage].uri,
               command: ['/usr/local/pai/runtime'],
               resources: {
@@ -505,6 +538,12 @@ const generateTaskRole = (taskRole, labels, config, userToken) => {
       },
     },
   };
+  // add image pull secret
+  if (config.prerequisites.dockerimage[config.taskRoles[taskRole].dockerImage].auth) {
+    frameworkTaskRole.task.pod.spec.imagePullSecrets.push({
+      name: `${encodeName(frameworkName)}-regcred`,
+    });
+  }
   // fill in completion policy
   const completion = config.taskRoles[taskRole].completion;
   frameworkTaskRole.frameworkAttemptCompletionPolicy = {
@@ -513,11 +552,11 @@ const generateTaskRole = (taskRole, labels, config, userToken) => {
       completion.minFailedInstances : 1,
     minSucceededTaskCount:
       (completion && 'minSucceededInstances' in completion && completion.minSucceededInstances) ?
-      completion.minSucceededInstances : -1,
+      completion.minSucceededInstances : frameworkTaskRole.taskNumber,
   };
   // hived spec
   if (launcherConfig.enabledHived) {
-    frameworkTaskRole.task.pod.spec.schedulerName = launcherConfig.scheduler;
+    frameworkTaskRole.task.pod.spec.schedulerName = `${launcherConfig.scheduler}-ds-${config.taskRoles[taskRole].hivedPodSpec.virtualCluster}`;
 
     delete frameworkTaskRole.task.pod.spec.containers[0].resources.limits['nvidia.com/gpu'];
     frameworkTaskRole.task.pod.spec.containers[0]
@@ -537,7 +576,7 @@ const generateTaskRole = (taskRole, labels, config, userToken) => {
   return frameworkTaskRole;
 };
 
-const generateFrameworkDescription = (frameworkName, virtualCluster, config, rawConfig, userToken) => {
+const generateFrameworkDescription = (frameworkName, virtualCluster, config, rawConfig, storageConfig) => {
   const [userName, jobName] = frameworkName.split(/~(.+)/);
   const frameworkLabels = {
     jobName,
@@ -572,7 +611,7 @@ const generateFrameworkDescription = (frameworkName, virtualCluster, config, raw
   let totalGpuNumber = 0;
   for (let taskRole of Object.keys(config.taskRoles)) {
     totalGpuNumber += config.taskRoles[taskRole].resourcePerInstance.gpu * config.taskRoles[taskRole].instances;
-    const taskRoleDescription = generateTaskRole(taskRole, frameworkLabels, config, userToken);
+    const taskRoleDescription = generateTaskRole(frameworkName, taskRole, frameworkLabels, config, storageConfig);
     taskRoleDescription.task.pod.spec.priorityClassName = `${encodeName(frameworkName)}-priority`;
     taskRoleDescription.task.pod.spec.containers[0].env.push(...envlist.concat([
       {
@@ -621,13 +660,13 @@ const createPriorityClass = async (frameworkName, priority) => {
 
   let response;
   try {
-    response = await axios({
-      method: 'post',
-      url: launcherConfig.priorityClassesPath(),
-      headers: launcherConfig.requestHeaders,
-      httpsAgent: apiserver.ca && new Agent({ca: apiserver.ca}),
-      data: priorityClass,
-    });
+    response = await k8sModel.getClient().post(
+      launcherConfig.priorityClassesPath(),
+      {
+        headers: launcherConfig.requestHeaders,
+        data: priorityClass,
+      }
+    );
   } catch (error) {
     if (error.response != null) {
       response = error.response;
@@ -640,28 +679,28 @@ const createPriorityClass = async (frameworkName, priority) => {
   }
 };
 
-const patchPriorityClass = async (frameworkName, frameworkUid) => {
+const patchPriorityClassOwner = async (frameworkName, frameworkUid) => {
   try {
     const headers = {...launcherConfig.requestHeaders};
     headers['Content-Type'] = 'application/merge-patch+json';
-    await axios({
-      method: 'patch',
-      url: launcherConfig.priorityClassPath(`${encodeName(frameworkName)}-priority`),
-      headers,
-      httpsAgent: apiserver.ca && new Agent({ca: apiserver.ca}),
-      data: {
-        metadata: {
-          ownerReferences: [{
-            apiVersion: launcherConfig.apiVersion,
-            kind: 'Framework',
-            name: encodeName(frameworkName),
-            uid: frameworkUid,
-            controller: false,
-            blockOwnerDeletion: false,
-          }],
+    await k8sModel.getClient().patch(
+      launcherConfig.priorityClassPath(`${encodeName(frameworkName)}-priority`),
+      {
+        headers,
+        data: {
+          metadata: {
+            ownerReferences: [{
+              apiVersion: launcherConfig.apiVersion,
+              kind: 'Framework',
+              name: encodeName(frameworkName),
+              uid: frameworkUid,
+              controller: false,
+              blockOwnerDeletion: false,
+            }],
+          },
         },
-      },
-    });
+      }
+    );
   } catch (error) {
     logger.warn('Failed to patch owner reference for priority class', error);
   }
@@ -669,14 +708,102 @@ const patchPriorityClass = async (frameworkName, frameworkUid) => {
 
 const deletePriorityClass = async (frameworkName) => {
   try {
-    await axios({
-      method: 'delete',
-      url: launcherConfig.priorityClassPath(`${encodeName(frameworkName)}-priority`),
-      headers: launcherConfig.requestHeaders,
-      httpsAgent: apiserver.ca && new Agent({ca: apiserver.ca}),
-    });
+    await k8sModel.getClient().delete(
+      launcherConfig.priorityClassPath(`${encodeName(frameworkName)}-priority`),
+      {
+        headers: launcherConfig.requestHeaders,
+      }
+    );
   } catch (error) {
     logger.warn('Failed to delete priority class', error);
+  }
+};
+
+const createSecret = async (frameworkName, auths) => {
+  const cred = {
+    auths: {},
+  };
+  for (let auth of auths) {
+    const {
+      username = '',
+      password = '',
+      registryuri = 'https://index.docker.io/v1/',
+    } = auth;
+    cred.auths[registryuri] = {
+      auth: Buffer.from(`${username}:${password}`).toString('base64'),
+    };
+  }
+  const secret = {
+    apiVersion: 'v1',
+    kind: 'Secret',
+    metadata: {
+      name: `${encodeName(frameworkName)}-regcred`,
+      namespace: 'default',
+    },
+    data: {
+      '.dockerconfigjson': Buffer.from(JSON.stringify(cred)).toString('base64'),
+    },
+    type: 'kubernetes.io/dockerconfigjson',
+  };
+
+  let response;
+  try {
+    response = await k8sModel.getClient().post(
+      launcherConfig.secretsPath(),
+      {
+        headers: launcherConfig.requestHeaders,
+        data: secret,
+      }
+    );
+  } catch (error) {
+    if (error.response != null) {
+      response = error.response;
+    } else {
+      throw error;
+    }
+  }
+  if (response.status !== status('Created')) {
+    throw createError(response.status, 'UnknownError', response.data.message);
+  }
+};
+
+const patchSecretOwner = async (frameworkName, frameworkUid) => {
+  try {
+    const headers = {...launcherConfig.requestHeaders};
+    headers['Content-Type'] = 'application/merge-patch+json';
+    await k8sModel.getClient().patch(
+      launcherConfig.secretPath(`${encodeName(frameworkName)}-regcred`),
+      {
+        headers,
+        data: {
+          metadata: {
+            ownerReferences: [{
+              apiVersion: launcherConfig.apiVersion,
+              kind: 'Framework',
+              name: encodeName(frameworkName),
+              uid: frameworkUid,
+              controller: true,
+              blockOwnerDeletion: true,
+            }],
+          },
+        },
+      }
+    );
+  } catch (error) {
+    logger.warn('Failed to patch owner reference for secret', error);
+  }
+};
+
+const deleteSecret = async (frameworkName) => {
+  try {
+    await k8sModel.getClient().delete(
+      launcherConfig.secretPath(`${encodeName(frameworkName)}-regcred`),
+      {
+        headers: launcherConfig.requestHeaders,
+      }
+    );
+  } catch (error) {
+    logger.warn('Failed to delete secret', error);
   }
 };
 
@@ -684,12 +811,12 @@ const list = async (filters) => {
   // send request to framework controller
   let response;
   try {
-    response = await axios({
-      method: 'get',
-      url: `${launcherConfig.frameworksPath()}?${querystring.stringify(filters)}`,
-      headers: launcherConfig.requestHeaders,
-      httpsAgent: apiserver.ca && new Agent({ca: apiserver.ca}),
-    });
+    response = await k8sModel.getClient().get(
+      `${launcherConfig.frameworksPath()}?${querystring.stringify(filters)}`,
+      {
+        headers: launcherConfig.requestHeaders,
+      }
+    );
   } catch (error) {
     if (error.response != null) {
       response = error.response;
@@ -711,12 +838,12 @@ const get = async (frameworkName) => {
   // send request to framework controller
   let response;
   try {
-    response = await axios({
-      method: 'get',
-      url: launcherConfig.frameworkPath(encodeName(frameworkName)),
-      headers: launcherConfig.requestHeaders,
-      httpsAgent: apiserver.ca && new Agent({ca: apiserver.ca}),
-    });
+    response = await k8sModel.getClient().get(
+      launcherConfig.frameworkPath(encodeName(frameworkName)),
+      {
+        headers: launcherConfig.requestHeaders,
+      }
+    );
   } catch (error) {
     if (error.response != null) {
       response = error.response;
@@ -735,7 +862,7 @@ const get = async (frameworkName) => {
   }
 };
 
-const put = async (frameworkName, config, rawConfig, userToken) => {
+const put = async (frameworkName, config, rawConfig) => {
   const [userName] = frameworkName.split(/~(.+)/);
 
   const virtualCluster = ('defaults' in config && config.defaults.virtualCluster != null) ?
@@ -748,7 +875,14 @@ const put = async (frameworkName, config, rawConfig, userToken) => {
     throw createError('Bad Request', 'BadConfigurationError', 'Job name too long, please try a shorter one.');
   }
 
-  const frameworkDescription = generateFrameworkDescription(frameworkName, virtualCluster, config, rawConfig, userToken);
+  const storageConfig = await userModel.getUserStorageConfigs(userName);
+  const frameworkDescription = generateFrameworkDescription(frameworkName, virtualCluster, config, rawConfig, storageConfig);
+
+  // generate image pull secret
+  const auths = Object.values(config.prerequisites.dockerimage)
+    .filter((dockerimage) => dockerimage.auth != null)
+    .map((dockerimage) => dockerimage.auth);
+  auths.length && await createSecret(frameworkName, auths);
 
   // calculate pod priority
   // reference: https://github.com/microsoft/pai/issues/3704
@@ -765,29 +899,32 @@ const put = async (frameworkName, config, rawConfig, userToken) => {
   // send request to framework controller
   let response;
   try {
-    response = await axios({
-      method: 'post',
-      url: launcherConfig.frameworksPath(),
-      headers: launcherConfig.requestHeaders,
-      httpsAgent: apiserver.ca && new Agent({ca: apiserver.ca}),
-      data: frameworkDescription,
-    });
+    response = await k8sModel.getClient().post(
+      launcherConfig.frameworksPath(),
+      {
+        headers: launcherConfig.requestHeaders,
+        data: frameworkDescription,
+      }
+    );
   } catch (error) {
     if (error.response != null) {
       response = error.response;
     } else {
       // do not await for delete
+      auths.length && deleteSecret(frameworkName);
       deletePriorityClass(frameworkName);
       throw error;
     }
   }
   if (response.status !== status('Created')) {
     // do not await for delete
+    auths.length && deleteSecret(frameworkName);
     deletePriorityClass(frameworkName);
     throw createError(response.status, 'UnknownError', response.data.message);
   }
   // do not await for patch
-  patchPriorityClass(frameworkName, response.data.metadata.uid);
+  auths.length && patchSecretOwner(frameworkName, response.data.metadata.uid);
+  patchPriorityClassOwner(frameworkName, response.data.metadata.uid);
 };
 
 const execute = async (frameworkName, executionType) => {
@@ -796,17 +933,17 @@ const execute = async (frameworkName, executionType) => {
   try {
     const headers = {...launcherConfig.requestHeaders};
     headers['Content-Type'] = 'application/merge-patch+json';
-    response = await axios({
-      method: 'patch',
-      url: launcherConfig.frameworkPath(encodeName(frameworkName)),
-      headers,
-      httpsAgent: apiserver.ca && new Agent({ca: apiserver.ca}),
-      data: {
-        spec: {
-          executionType: `${executionType.charAt(0)}${executionType.slice(1).toLowerCase()}`,
+    response = await k8sModel.getClient().patch(
+      launcherConfig.frameworkPath(encodeName(frameworkName)),
+      {
+        headers,
+        data: {
+          spec: {
+            executionType: `${executionType.charAt(0)}${executionType.slice(1).toLowerCase()}`,
+          },
         },
-      },
-    });
+      }
+    );
   } catch (error) {
     if (error.response != null) {
       response = error.response;
@@ -823,12 +960,12 @@ const getConfig = async (frameworkName) => {
   // send request to framework controller
   let response;
   try {
-    response = await axios({
-      method: 'get',
-      url: launcherConfig.frameworkPath(encodeName(frameworkName)),
-      headers: launcherConfig.requestHeaders,
-      httpsAgent: apiserver.ca && new Agent({ca: apiserver.ca}),
-    });
+    response = await k8sModel.getClient().get(
+      launcherConfig.frameworkPath(encodeName(frameworkName)),
+      {
+        headers: launcherConfig.requestHeaders,
+      }
+    );
   } catch (error) {
     if (error.response != null) {
       response = error.response;

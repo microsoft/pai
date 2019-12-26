@@ -16,20 +16,12 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 const Storage = require('./storage');
-const axios = require('axios');
-const {Agent} = require('https');
 const logger = require('@pai/config/logger');
 const createError = require('@pai/utils/error');
+const k8sModel = require('@pai/models/kubernetes');
 
-/**
- * @typedef Config
- * @property {string} namespace - kubernetes namespace
- * @property {Object} requestConfig - RequestConfig
- * @property {string} requestConfig.baseURL - BaseURL for axios
- * @property {Number} requestConfig.maxRedirects - maxRedirects for axios
- * @property {Object} requestConfig.httpsAgent - For kubernetes authn
- * @property {Object} requestConfig.headers - For kubernetes authn
- */
+const STORAGE_NAMESPACE = process.env.PAI_STORAGE_NAMESPACE || 'pai-storage';
+
 
 /**
  * @typedef StorageServer
@@ -47,47 +39,18 @@ const createError = require('@pai/utils/error');
  */
 
 /**
- * @function initConfig - Init the kubernetes configuration for user manager's crud.
- * @param {string} apiServerUri - Required config, the uri of kubernetes APIServer.
- * @param {Object} option - Config for kubernetes APIServer's authn.
- * @param {string} option.k8sAPIServerCaFile - Optional config, the ca file path of kubernetes APIServer.
- * @param {string} option.k8sAPIServerTokenFile - Optional config, the token file path of kubernetes APIServer.
- * @return {Config} config
- */
-function initConfig(apiServerUri, option = {}) {
-  const namespaces = process.env.PAI_STORAGE_NAMESPACE;
-  const config = {
-    namespace: namespaces ? namespaces : 'pai-storage',
-    requestConfig: {
-      baseURL: `${apiServerUri}/api/v1/namespaces/`,
-      maxRedirects: 0,
-    },
-  };
-  if ('k8sAPIServerCaFile' in option) {
-    const ca = option.k8sAPIServerCaFile;
-    config.requestConfig.httpsAgent = new Agent({ca});
-  }
-  if ('k8sAPIServerTokenFile' in option) {
-    const token = option.k8sAPIServerTokenFile;
-    config.requestConfig.headers = {Authorization: `Bearer ${token}`};
-  }
-  return config;
-}
-
-/**
  * @function readStorageServer - return a Storage Server's info based on spn.
  * @async
  * @param {string} key - Server spn
- * @param {Config} config - Config for kubernetes APIServer. You could generate it from initConfig(apiServerUri, option).
  * @return {Promise<StorageServer>} A promise to the StorageServer instance
  */
-async function readStorageServer(key, config) {
+async function readStorageServer(key) {
   try {
-    const request = axios.create(config.requestConfig);
+    const request = k8sModel.getClient('/api/v1/namespaces');
 
-    logger.info(`${config.namespace}/secrets/storage-server`);
+    logger.info(`${STORAGE_NAMESPACE}/secrets/storage-server`);
     const response = await request.get(
-      `${config.namespace}/secrets/storage-server`,
+      `${STORAGE_NAMESPACE}/secrets/storage-server`,
       {
         headers: {
           Accept: 'application/json',
@@ -123,14 +86,13 @@ async function readStorageServer(key, config) {
  * @function readStorageServers - return Storage Server's infos based on spns.
  * @async
  * @param {string[]} keys - An array of server spns. If array is empty, return all StorageServers.
- * @param {Config} config - Config for kubernetes APIServer. You could generate it from initConfig(apiServerUri, option).
  * @return {Promise<StorageServer[]>} A promise to the StorageServer instances
  */
-async function readStorageServers(keys, config) {
+async function readStorageServers(keys) {
   try {
-    const request = axios.create(config.requestConfig);
+    const request = k8sModel.getClient('/api/v1/namespaces');
     const response = await request.get(
-      `${config.namespace}/secrets/storage-server`,
+      `${STORAGE_NAMESPACE}/secrets/storage-server`,
       {
         headers: {
           Accept: 'application/json',
@@ -180,14 +142,13 @@ async function readStorageServers(keys, config) {
  * @function readStorageConfig - return a Storage Config's info based on config name.
  * @async
  * @param {string} key - Config name
- * @param {Config} config - Config for kubernetes APIServer. You could generate it from initConfig(apiServerUri, option).
  * @return {Promise<StorageConfig>} A promise to the StorageConfig instance
  */
-async function readStorageConfig(key, config) {
+async function readStorageConfig(key) {
   try {
-    const request = axios.create(config.requestConfig);
+    const request = k8sModel.getClient('/api/v1/namespaces');
     const response = await request.get(
-      `${config.namespace}/secrets/storage-config`,
+      `${STORAGE_NAMESPACE}/secrets/storage-config`,
       {
         headers: {
           Accept: 'application/json',
@@ -217,14 +178,13 @@ async function readStorageConfig(key, config) {
  * @function readStorageConfigs - return Storage Configs's infos based on config names.
  * @async
  * @param {string[]} keys - An array of config names. If array is empty, return all StorageConfigs.
- * @param {Config} config - Config for kubernetes APIServer. You could generate it from initConfig(apiServerUri, option).
  * @return {Promise<StorageConfig[]>} A promise to the StorageConfig instances
  */
-async function readStorageConfigs(keys, config) {
+async function readStorageConfigs(keys) {
   try {
-    const request = axios.create(config.requestConfig);
+    const request = k8sModel.getClient('/api/v1/namespaces');
     const response = await request.get(
-      `${config.namespace}/secrets/storage-config`,
+      `${STORAGE_NAMESPACE}/secrets/storage-config`,
       {
         headers: {
           Accept: 'application/json',
@@ -269,16 +229,15 @@ async function readStorageConfigs(keys, config) {
  * @param {string} op - Patch operation type, could be add, replace or remove
  * @param {string} key - Storage Server name
  * @param {StorageServer} value - Storage Server info, should be null when op is remove
- * @param {Config} config - Config for kubernetes APIServer. You could generate it from initConfig(apiServerUri, option).
  * @return {Promise<Object>} A promise to patch result.
  */
-async function patchStorageServer(op, key, value, config) {
+async function patchStorageServer(op, key, value) {
   if (key === 'empty') {
     throw createError('Forbidden', 'ForbiddenKeyError', 'Key \'empty\' is system reserved and should not be modified!');
   }
 
   try {
-    const request = axios.create(config.requestConfig);
+    const request = k8sModel.getClient('/api/v1/namespaces');
     let serverData = {
       op: op,
       path: `/data/${key}`,
@@ -299,7 +258,7 @@ async function patchStorageServer(op, key, value, config) {
     }
     logger.info(serverData);
     return await request.patch(
-      `${config.namespace}/secrets/storage-server`,
+      `${STORAGE_NAMESPACE}/secrets/storage-server`,
       [serverData],
       {
         headers: {
@@ -324,16 +283,15 @@ async function patchStorageServer(op, key, value, config) {
  * @param {string} op - Patch operation type, could be add, replace or remove
  * @param {string} key - Storage Config name
  * @param {StorageServer} value - Storage Config info, should be null when op is remove
- * @param {Config} config - Config for kubernetes APIServer. You could generate it from initConfig(apiServerUri, option).
  * @return {Promise<Object>} A promise to patch result.
  */
-async function patchStorageConfig(op, key, value, config) {
+async function patchStorageConfig(op, key, value) {
   if (key === 'empty') {
     throw createError('Forbidden', 'ForbiddenKeyError', 'Key \'empty\' is system reserved and should not be modified!');
   }
 
   try {
-    const request = axios.create(config.requestConfig);
+    const request = k8sModel.getClient('/api/v1/namespaces');
     let configData = {
       op: op,
       path: `/data/${key}`,
@@ -345,7 +303,7 @@ async function patchStorageConfig(op, key, value, config) {
       );
     }
     return await request.patch(
-      `${config.namespace}/secrets/storage-config`,
+      `${STORAGE_NAMESPACE}/secrets/storage-config`,
       [configData],
       {
         headers: {
@@ -369,11 +327,10 @@ async function patchStorageConfig(op, key, value, config) {
  * @async
  * @param {string} key - Storage Server name
  * @param {StorageServer} value - Storage Server info
- * @param {Config} config - Config for kubernetes APIServer. You could generate it from initConfig(apiServerUri, option).
  * @return {Promise<Object>} A promise to patch result.
  */
-async function createStorageServer(key, value, config) {
-  return await patchStorageServer('add', key, value, config);
+async function createStorageServer(key, value) {
+  return await patchStorageServer('add', key, value);
 }
 
 /**
@@ -381,11 +338,10 @@ async function createStorageServer(key, value, config) {
  * @async
  * @param {string} key - Storage config name
  * @param {StorageConfig} value - Storage config info
- * @param {Config} config - Config for kubernetes APIServer. You could generate it from initConfig(apiServerUri, option).
  * @return {Promise<Object>} A promise to patch result.
  */
-async function createStorageConfig(key, value, config) {
-  return await patchStorageConfig('add', key, value, config);
+async function createStorageConfig(key, value) {
+  return await patchStorageConfig('add', key, value);
 }
 
 /**
@@ -393,11 +349,10 @@ async function createStorageConfig(key, value, config) {
  * @async
  * @param {string} key - Stroage server name
  * @param {StorageServer} value - Stroage server info
- * @param {Config} config - Config for kubernetes APIServer. You could generate it from initConfig(apiServerUri, option).
  * @return {Promise<Object>} A promise to patch result.
  */
-async function updateStorageServer(key, value, config) {
-  return await patchStorageServer('replace', key, value, config);
+async function updateStorageServer(key, value) {
+  return await patchStorageServer('replace', key, value);
 }
 
 /**
@@ -405,37 +360,33 @@ async function updateStorageServer(key, value, config) {
  * @async
  * @param {string} key - Stroage Config name
  * @param {StorageConfig} value - Stroage Config info
- * @param {Config} config - Config for kubernetes APIServer. You could generate it from initConfig(apiServerUri, option).
  * @return {Promise<Object>} A promise to patch result.
  */
-async function updateStorageConfig(key, value, config) {
-  return await patchStorageConfig('replace', key, value, config);
+async function updateStorageConfig(key, value) {
+  return await patchStorageConfig('replace', key, value);
 }
 
 /**
  * @function removeStorageServer - Remove a Storage Server entry from kubernetes secrets.
  * @async
  * @param {string} key - Storage Server name
- * @param {Config} config - Config for kubernetes APIServer. You could generate it from initConfig(apiServerUri, option).
  * @return {Promise<Object>} A promise to patch result.
  */
-async function removeStorageServer(key, config) {
-  return await patchStorageServer('remove', key, null, config);
+async function removeStorageServer(key) {
+  return await patchStorageServer('remove', key, null);
 }
 
 /**
  * @function removeStorageConfig - Remove a Storage Config entry from kubernetes secrets.
  * @async
  * @param {string} key - Storage Config name
- * @param {Config} config - Config for kubernetes APIServer. You could generate it from initConfig(apiServerUri, option).
  * @return {Promise<Object>} A promise to patch result.
  */
-async function removeStorageConfig(key, config) {
-  return await patchStorageConfig('remove', key, null, config);
+async function removeStorageConfig(key) {
+  return await patchStorageConfig('remove', key, null);
 }
 
 module.exports = {
-  initConfig,
   createStorageServer,
   createStorageConfig,
   readStorageServer,

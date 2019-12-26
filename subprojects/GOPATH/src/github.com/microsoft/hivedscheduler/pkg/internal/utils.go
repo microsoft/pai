@@ -215,7 +215,7 @@ func ExtractPodSchedulingSpec(pod *core.Pod) *si.PodSchedulingSpec {
 	// Defaulting
 	if podSchedulingSpec.AffinityGroup == nil {
 		podSchedulingSpec.AffinityGroup = &si.AffinityGroupSpec{
-			Name: Key(pod),
+			Name: fmt.Sprintf("%v/%v", pod.Namespace, pod.Name),
 			Members: []si.AffinityGroupMemberSpec{{
 				PodNumber: 1,
 				GpuNumber: podSchedulingSpec.GpuNumber},

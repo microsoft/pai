@@ -25,11 +25,11 @@ import logging.config
 class Cluster:
 
 
-    def __init__(self, cluster_configuration, service_configuration, default_service_configuraiton):
+    def __init__(self, cluster_configuration, service_configuration, default_service_configuration):
         self.logger = logging.getLogger(__name__)
 
         self.cluster_configuration = cluster_configuration
-        self.service_configuration = self.merge_service_configuration(service_configuration, default_service_configuraiton)
+        self.service_configuration = self.merge_service_configuration(service_configuration, default_service_configuration)
 
 
 

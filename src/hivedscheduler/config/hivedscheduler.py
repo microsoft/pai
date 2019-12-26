@@ -15,20 +15,27 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+import yaml
 
 class Hivedscheduler:
     def __init__(self, cluster_conf, service_conf, default_service_conf):
         self.cluster_conf = cluster_conf
-        self.service_conf = service_conf
-        self.default_service_conf = default_service_conf
+        self.service_conf = dict(default_service_conf, **service_conf)
 
     def validation_pre(self):
+        if 'webservice-port' not in self.service_conf:
+            return False, 'webservice-port is missing in hivedscheduler service configuration'
         if 'config' not in self.service_conf:
             self.service_conf['config'] = ''
-            # return False, 'hived scheduler config is missing'
         return True, None
 
     def run(self):
+        self.service_conf['structured-config'] = {}
+        if self.service_conf['config'] != '':
+            self.service_conf['structured-config'] = yaml.load(self.service_conf['config'], yaml.SafeLoader)
+        machine_list = self.cluster_conf['machine-list']
+        master_ip = [host['hostip'] for host in machine_list if host.get('pai-master') == 'true'][0]
+        self.service_conf['webservice'] = 'http://{}:{}'.format(master_ip, self.service_conf['webservice-port'])
         self.service_conf['config'] = self.service_conf['config'].replace('\n', '\n    ')
         return self.service_conf
 
