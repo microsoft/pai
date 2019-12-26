@@ -1,0 +1,45 @@
+all:
+  hosts:
+{%- for vm in env["master"] %}
+    {{ vm["hostname"] }}:
+      ip: {{ vm["ip"] }}
+      access_ip: {{ vm["ip"] }}
+      ansible_host: {{ vm["ip"] }}
+      ansible_ssh_user: {{ env["cfg"]['user'] }}
+      ansible_ssh_pass: "{{ env["cfg"]['password'] }}"
+      ansible_ssh_extra_args: '-o StrictHostKeyChecking=no'
+{%- endfor %}
+{%- for vm in env["worker"] %}
+    {{ vm["hostname"] }}:
+      ip: {{ vm["ip"] }}
+      access_ip: {{ vm["ip"] }}
+      ansible_host: {{ vm["ip"] }}
+      ansible_ssh_user: {{ env["cfg"]['user'] }}
+      ansible_ssh_pass: "{{ env["cfg"]['password'] }}"
+      ansible_ssh_extra_args: '-o StrictHostKeyChecking=no'
+{%- endfor %}
+  children:
+    kube-master:
+      hosts:
+{%- for vm in env["master"] %}
+        {{ vm["hostname"] }}:
+{%- endfor %}
+    kube-node:
+      hosts:
+{%- for vm in env["master"] %}
+        {{ vm["hostname"] }}:
+{%- endfor %}
+{%- for vm in env["worker"] %}
+        {{ vm["hostname"] }}:
+{%- endfor %}
+    etcd:
+      hosts:
+{%- for vm in env["master"] %}
+        {{ vm["hostname"] }}:
+{%- endfor %}
+    k8s-cluster:
+      children:
+        kube-node:
+        kube-master:
+    calico-rr:
+      hosts: {}
