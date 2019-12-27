@@ -2,7 +2,7 @@
     "name": "pai-vscode",
     "displayName": "OpenPAI VS Code Client",
     "description": "Interact with Open Platform for AI (OpenPAI) from inside your editor",
-    "version": "0.2.2",
+    "version": "0.2.3",
     "publisher": "OpenPAIVSCodeClient",
     "preview": true,
     "icon": "assets/pai_logo.png",
