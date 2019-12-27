@@ -660,13 +660,12 @@ const createPriorityClass = async (frameworkName, priority) => {
 
   let response;
   try {
-    response = await k8sModel.getClient().post(
-      launcherConfig.priorityClassesPath(),
-      {
-        headers: launcherConfig.requestHeaders,
-        data: priorityClass,
-      }
-    );
+    response = await k8sModel.getClient().request({
+      method: 'post',
+      url: launcherConfig.priorityClassesPath(),
+      headers: launcherConfig.requestHeaders,
+      data: priorityClass,
+    });
   } catch (error) {
     if (error.response != null) {
       response = error.response;
@@ -683,24 +682,23 @@ const patchPriorityClassOwner = async (frameworkName, frameworkUid) => {
   try {
     const headers = {...launcherConfig.requestHeaders};
     headers['Content-Type'] = 'application/merge-patch+json';
-    await k8sModel.getClient().patch(
-      launcherConfig.priorityClassPath(`${encodeName(frameworkName)}-priority`),
-      {
-        headers,
-        data: {
-          metadata: {
-            ownerReferences: [{
-              apiVersion: launcherConfig.apiVersion,
-              kind: 'Framework',
-              name: encodeName(frameworkName),
-              uid: frameworkUid,
-              controller: false,
-              blockOwnerDeletion: false,
-            }],
-          },
+    await k8sModel.getClient().request({
+      method: 'patch',
+      url: launcherConfig.priorityClassPath(`${encodeName(frameworkName)}-priority`),
+      headers,
+      data: {
+        metadata: {
+          ownerReferences: [{
+            apiVersion: launcherConfig.apiVersion,
+            kind: 'Framework',
+            name: encodeName(frameworkName),
+            uid: frameworkUid,
+            controller: false,
+            blockOwnerDeletion: false,
+          }],
         },
-      }
-    );
+      },
+    });
   } catch (error) {
     logger.warn('Failed to patch owner reference for priority class', error);
   }
@@ -748,13 +746,12 @@ const createSecret = async (frameworkName, auths) => {
 
   let response;
   try {
-    response = await k8sModel.getClient().post(
-      launcherConfig.secretsPath(),
-      {
-        headers: launcherConfig.requestHeaders,
-        data: secret,
-      }
-    );
+    response = await k8sModel.getClient().request({
+      method: 'post',
+      url: launcherConfig.secretsPath(),
+      headers: launcherConfig.requestHeaders,
+      data: secret,
+    });
   } catch (error) {
     if (error.response != null) {
       response = error.response;
@@ -771,24 +768,23 @@ const patchSecretOwner = async (frameworkName, frameworkUid) => {
   try {
     const headers = {...launcherConfig.requestHeaders};
     headers['Content-Type'] = 'application/merge-patch+json';
-    await k8sModel.getClient().patch(
-      launcherConfig.secretPath(`${encodeName(frameworkName)}-regcred`),
-      {
-        headers,
-        data: {
-          metadata: {
-            ownerReferences: [{
-              apiVersion: launcherConfig.apiVersion,
-              kind: 'Framework',
-              name: encodeName(frameworkName),
-              uid: frameworkUid,
-              controller: true,
-              blockOwnerDeletion: true,
-            }],
-          },
+    await k8sModel.getClient().request({
+      method: 'patch',
+      url: launcherConfig.secretPath(`${encodeName(frameworkName)}-regcred`),
+      headers,
+      data: {
+        metadata: {
+          ownerReferences: [{
+            apiVersion: launcherConfig.apiVersion,
+            kind: 'Framework',
+            name: encodeName(frameworkName),
+            uid: frameworkUid,
+            controller: true,
+            blockOwnerDeletion: true,
+          }],
         },
-      }
-    );
+      },
+    });
   } catch (error) {
     logger.warn('Failed to patch owner reference for secret', error);
   }
@@ -899,13 +895,12 @@ const put = async (frameworkName, config, rawConfig) => {
   // send request to framework controller
   let response;
   try {
-    response = await k8sModel.getClient().post(
-      launcherConfig.frameworksPath(),
-      {
-        headers: launcherConfig.requestHeaders,
-        data: frameworkDescription,
-      }
-    );
+    response = await k8sModel.getClient().request({
+      method: 'post',
+      url: launcherConfig.frameworksPath(),
+      headers: launcherConfig.requestHeaders,
+      data: frameworkDescription,
+    });
   } catch (error) {
     if (error.response != null) {
       response = error.response;
@@ -933,17 +928,16 @@ const execute = async (frameworkName, executionType) => {
   try {
     const headers = {...launcherConfig.requestHeaders};
     headers['Content-Type'] = 'application/merge-patch+json';
-    response = await k8sModel.getClient().patch(
-      launcherConfig.frameworkPath(encodeName(frameworkName)),
-      {
-        headers,
-        data: {
-          spec: {
-            executionType: `${executionType.charAt(0)}${executionType.slice(1).toLowerCase()}`,
-          },
+    response = await k8sModel.getClient().request({
+      method: 'patch',
+      url: launcherConfig.frameworkPath(encodeName(frameworkName)),
+      headers,
+      data: {
+        spec: {
+          executionType: `${executionType.charAt(0)}${executionType.slice(1).toLowerCase()}`,
         },
-      }
-    );
+      },
+    });
   } catch (error) {
     if (error.response != null) {
       response = error.response;
