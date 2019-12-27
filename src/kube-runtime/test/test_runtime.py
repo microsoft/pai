@@ -239,7 +239,7 @@ class TestRuntime(unittest.TestCase):
             os.remove(test_script_file)
 
         with open("plugin_with_failure_policy.yaml", 'r') as f:
-            plugins = list(yaml.load_all(f, Loader=yaml.SafeLoader))
+            plugins = list(yaml.safe_load_all(f))
             helpers = list(map(PluginHelper, plugins))
             self.assertEqual(helpers[0]._failure_policy, "ignore")
             self.assertEqual(helpers[1]._failure_policy, "fail")

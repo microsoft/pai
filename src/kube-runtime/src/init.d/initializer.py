@@ -203,7 +203,7 @@ def main():
 
     LOGGER.info("loading yaml from %s", args.jobconfig_yaml)
     with open(args.jobconfig_yaml) as j:
-        job_config = yaml.load(j, Loader=yaml.SafeLoader)
+        job_config = yaml.safe_load(j)
 
     pruned_config = _prune_plugins(job_config)
 

@@ -51,6 +51,6 @@ def plugin_init():
     parser.add_argument("post_script", help="script for post commands")
     args = parser.parse_args()
 
-    plugin_config = yaml.load(args.plugin_config, Loader=yaml.SafeLoader)
+    plugin_config = yaml.safe_load(args.plugin_config)
 
     return [plugin_config, args.pre_script, args.post_script]
