@@ -119,9 +119,7 @@ const runtimePluginSchema = Joi.object().keys({
     then: Joi.object()
       .keys({
         port: Joi.number().required(),
-        logdir: Joi.array()
-          .min(1)
-          .required(),
+        logdir: Joi.object().required(),
       })
       .required(),
   })
@@ -138,8 +136,13 @@ const runtimePluginSchema = Joi.object().keys({
       then: Joi.object()
         .keys({
           jobssh: Joi.boolean().required(),
+          sshbarrier: Joi.boolean(),
+          sshbarriertaskroles: Joi.array(),
+          userssh: Joi.object().keys({
+            type: Joi.string(),
+            value: Joi.string(),
+          }),
         })
-        .unknown()
         .required(),
     }),
   failurePolicy: Joi.string().allow('fail', 'ignore'),

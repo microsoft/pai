@@ -30,7 +30,9 @@ const generateDefaultTensorBoardExtras = () => {
     plugin: 'tensorboard',
     parameters: {
       port: TENSORBOARD_PORT,
-      logdir: [TENSORBOARD_LOG_PATH],
+      logdir: {
+        path: TENSORBOARD_LOG_PATH,
+      },
     },
   };
   return tensorBoardExtras;

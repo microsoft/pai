@@ -36,27 +36,23 @@ import config from '../../../config/webportal.config';
 export const ToolComponent = React.memo(
   ({ extras, onExtrasChange, selected, onSelect }) => {
     return (
-      <SidebarCard
-        title='Tools'
-        tooltip={PROTOCOL_TOOLTIPS.tools}
-        selected={selected}
-        onSelect={onSelect}
-      >
-        <Stack gap='m'>
-          <Hint>
-            Tools section is used to configure the tools that are useful for
-            jobs.
-          </Hint>
-          <div>
+      config.launcherType === 'k8s' && (
+        <SidebarCard
+          title='Tools'
+          tooltip={PROTOCOL_TOOLTIPS.tools}
+          selected={selected}
+          onSelect={onSelect}
+        >
+          <Stack gap='m'>
+            <Hint>
+              Tools section is used to configure the tools that are useful for
+              jobs.
+            </Hint>
             <TensorBoard extras={extras} onChange={onExtrasChange} />
-          </div>
-          {config.launcherType === 'k8s' && (
-            <div>
-              <JobSSH extras={extras} onExtrasChange={onExtrasChange} />
-            </div>
-          )}
-        </Stack>
-      </SidebarCard>
+            <JobSSH extras={extras} onExtrasChange={onExtrasChange} />
+          </Stack>
+        </SidebarCard>
+      )
     );
   },
 );
