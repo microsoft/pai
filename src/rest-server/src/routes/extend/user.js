@@ -36,5 +36,13 @@ router.route('/:username/expression/:expressionName([a-zA-Z0-9_\\-]+)')
 router.route('/:username/expression/:expressionName([a-zA-Z0-9_\\-]+)')
   .delete(token.check, userController.deleteUserExpression);
 
+router.route('/:username/ssh-key/system')
+  .get(token.check, userController.getUserSystemSshKey)
+
+router.route('/:username/ssh-key/custom')
+  .get(token.check, userController.getUserCustomSshKey)
+
+router.route('/:username/ssh-key/custom')
+  .put(token.check, param.validate(userInputSchema.userSshKeyCreateInputSchema), userController.createUserCustomSshKey)
 
 module.exports = router;
