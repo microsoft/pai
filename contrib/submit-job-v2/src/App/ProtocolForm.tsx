@@ -28,7 +28,6 @@ import yaml from "js-yaml";
 
 import monacoStyles from "./monaco.scss";
 import MarketplaceForm from "./MarketplaceForm";
-import TensorBoard from "./TensorBoard";
 
 const MonacoEditor = lazy(() => import("react-monaco-editor"));
 const styles = mergeStyleSets({
@@ -115,12 +114,11 @@ const styles = mergeStyleSets({
 
   fileInput: {
     position: "absolute",
-    width: "1px",
-    height: "1px",
+    width: "0",
+    height: "0",
     padding: "0",
     margin: "-1px",
     overflow: "hidden",
-    clip: "rect(0, 0, 0, 0)",
     border: "0",
   },
 });
@@ -328,12 +326,6 @@ export default class ProtocolForm extends React.Component<IProtocolProps, IProto
               />
               {this.renderParameters()}
             </Stack>
-            <Stack className={styles.item}>
-              <TensorBoard
-                protocol={this.state.protocol}
-                setProtocol={this.setProtocol}
-              />
-            </Stack>
             <Stack gap={20} horizontal={true} horizontalAlign="end" className={styles.footer}>
               <PrimaryButton text="Submit Job" onClick={this.submitProtocol} />
               <DefaultButton text="Edit YAML" onClick={this.openEditor} />
@@ -539,49 +531,17 @@ export default class ProtocolForm extends React.Component<IProtocolProps, IProto
     });
   }
 
-  private setProtocol = (protocol: any) => {
-    this.setState({
-      protocol,
-      protocolYAML: yaml.safeDump(protocol),
-    });
-  }
-
   private submitProtocol = async (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
     event.preventDefault();
     if (!this.state.protocolYAML) {
       return;
     }
     const protocol = yaml.safeLoad(this.state.protocolYAML);
-    let tensorBoardConfig;
-    if (protocol && protocol.extras && protocol.extras.tensorBoard) {
-      tensorBoardConfig = protocol.extras.tensorBoard;
-    }
-    if (tensorBoardConfig !== undefined) {
-      const storage = tensorBoardConfig.storage;
-      switch (storage.type) {
-        case "HDFS":
-          if (storage.hostIP === "" || storage.port === "" || storage.remotePath === "") {
-            alert("Please complete the external storage config!");
-            return;
-          }
-          break;
-        case "NFS":
-          if (storage.hostIP === "" || storage.remotePath === "") {
-            alert("Please complete the external storage config!");
-            return;
-          }
-          break;
-        default:
-          alert("Unsupport external storage type!");
-          return;
-      }
-    }
-    if (protocol.hasOwnProperty("extras")) {
+    if ("extras" in protocol) {
       protocol.extras.submitFrom = this.props.pluginId;
     } else {
       protocol.extras = { submitFrom: this.props.pluginId };
     }
-
     try {
       const res = await fetch(`${this.props.api}/api/v2/jobs`, {
         body: yaml.safeDump(protocol),
