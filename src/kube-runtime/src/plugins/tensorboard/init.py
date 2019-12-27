@@ -20,6 +20,8 @@ import logging
 import os
 import sys
 
+from jinja2 import Template
+
 sys.path.append(
     os.path.join(os.path.dirname(os.path.abspath(__file__)), "../.."))
 from plugins.plugin_utils import plugin_init, PluginHelper  #pylint: disable=wrong-import-position
@@ -36,11 +38,20 @@ def main():
         LOGGER.info("Tensorboard plugin parameters is empty, ignore this")
         return
 
-    commands = []
+    current_dir = os.path.dirname(os.path.abspath(__file__))
     logdir = ",".join(
         ["{}:{}".format(k, v) for k, v in parameters["logdir"].items()])
-    commands.append("tensorboard --logdir={} --port={} &\n".format(
-        logdir, parameters["port"]))
+
+    with open("{}/tensorboard.sh.template".format(current_dir)) as f:
+        template = Template(f.read())
+    output = template.render(logdir=logdir, port=parameters["port"])
+    with open("{}/tensorboard.sh".format(current_dir), "w+") as f:
+        f.write(output)
+
+    commands = [
+        "{}/tensorboard.sh \n".format(
+            os.path.dirname(os.path.abspath(__file__)))
+    ]
 
     PluginHelper(plugin_config).inject_commands(commands, pre_script)
     LOGGER.info("Tensorboard runtime plugin perpared")
