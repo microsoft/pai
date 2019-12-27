@@ -65,6 +65,12 @@ def write_generated_file(file_path, content_data):
         fout.write(content_data)
 
 
+def generate_template_file(template_file_path, output_path, map_table):
+    template = read_template(template_file_path)
+    generated_template = generate_from_template_dict(template, map_table)
+    write_generated_file(output_path, generated_template)
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('-w', '--worker-list-csv', dest="worklist", required=True,
@@ -73,7 +79,11 @@ def main():
                         help="master-list")
     parser.add_argument('-c', '--configuration', dest="configuration", required=True,
                         help="cluster configuration")
+    parser.add_argument('-o', '--output', dest="Path to save the generated file", required=True,
+                        help="cluster configuration")
     args = parser.parse_args()
+
+    output_path = os.path.expanduser(args.output)
 
     master_list = csv_reader(args.masterlist)
     head_node = master_list[0]
@@ -84,11 +94,13 @@ def main():
         'cfg': load_yaml_config(args.configuration),
         'head_node': head_node
     }
-    template = read_template("hosts.yml.template")
-    generated_template = generate_from_template_dict(template, {
+
+    map_table = {
         "env": environment
-    })
-    write_generated_file("hosts.yml", generated_template)
+    }
+    generate_template_file("hosts.yml.template", "{0}/hosts.yml".format(args.output), map_table)
+    generate_template_file("layout.yaml.template", "{0}/layout.yaml".format(args.output), map_table)
+    generate_template_file("services-configuration.yaml.template", "{0}/services-configuration.yaml".format(args.output), map_table)
 
 
 if __name__ == "__main__":

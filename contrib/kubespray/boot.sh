@@ -71,5 +71,6 @@ git clone https://github.com/microsoft/pai.git
 echo "Checkout to the release branch "
 cd ${HOME}/pai-deploy/pai/contrib/kubespray
 
-
+echo "Generate SSH Key"
+ssh-keygen -t rsa -f ~/.ssh/id_rsa -P ""
 
