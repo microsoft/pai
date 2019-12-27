@@ -61,7 +61,7 @@ sudo python3 get-pip.py
 echo "Install paramiko"
 sudo pip3 install paramiko
 
-echo "Install kubespray"
+echo "Install kubespray's requirements and ansible is included"
 cd ${HOME}/pai-deploy/kubespray
 sudo pip3 install -r requirements.txt
 
@@ -69,5 +69,7 @@ echo "Clone OpenPAI source code from github"
 git clone https://github.com/microsoft/pai.git
 
 echo "Checkout to the release branch "
-cd ${HOME}/pai-deploy/pai/contri/kubespray
+cd ${HOME}/pai-deploy/pai/contrib/kubespray
+
+
 
