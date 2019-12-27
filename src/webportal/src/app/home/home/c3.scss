@@ -1,7 +1,7 @@
 :global {
   /*-- Chart --*/
   .c3 svg {
-    font: 12px sans-serif;
+    font: 12px "Segoe UI" sans-serif;
     line-height: 1.4;
     -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
   }
@@ -240,5 +240,9 @@
   }
   .c3-axis-x .tick line {
     display: none;
+  }
+
+  .c3-chart-text {
+    font-size: 15px;
   }
 }

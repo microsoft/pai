@@ -87,7 +87,7 @@ const Home = () => {
     return (
       <div
         className={c(t.w100, t.h100)}
-        style={{ minWidth: 500, overflowY: 'auto' }}
+        style={{ minWidth: 375, overflowY: 'auto' }}
       >
         {/* small */}
         <MediaQuery maxWidth={BREAKPOINT1}>

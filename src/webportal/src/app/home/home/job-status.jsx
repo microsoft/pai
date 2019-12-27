@@ -29,6 +29,7 @@ import {
   FontWeights,
 } from 'office-ui-fabric-react';
 import React from 'react';
+import styled from 'styled-components';
 
 import Card from '../../components/card';
 import { getHumanizedJobStateString } from '../../components/util/job';
@@ -36,59 +37,55 @@ import { getHumanizedJobStateString } from '../../components/util/job';
 import t from '../../components/tachyons.scss';
 
 const isAdmin = cookies.get('admin') === 'true';
-const StatusItem = ({ className, icon, name, count, link }) => {
+const StatusRow = ({ cellClassName, icon, name, count, link }) => {
   const { spacing } = getTheme();
+  const TableRow = styled.tr`
+    td {
+      padding: ${spacing.s1};
+    }
+  `;
   return (
-    <Stack
-      styles={{ root: [{ minWidth: 280 }, className] }}
-      horizontal
-      verticalAlign='center'
-      padding='s1'
-      gap='m'
-    >
-      <Stack.Item grow>
-        <Stack horizontal verticalAlign='center' gap='l1'>
-          <div
-            className={c(t.flex, t.itemsCenter, t.justifyStart)}
-            style={{ width: '33%', minWidth: 120 }}
-          >
-            <div>
-              <Icon
-                className={ColorClassNames.neutralSecondary}
-                iconName={icon}
-              />
-            </div>
-            <div
-              className={c(
-                ColorClassNames.neutralSecondary,
-                FontClassNames.large,
-              )}
-              style={{ marginLeft: spacing.m }}
-            >
-              {name}
-            </div>
+    <TableRow>
+      <td className={cellClassName}>
+        <div className={c(t.flex, t.itemsCenter, t.justifyStart)}>
+          <div>
+            <Icon
+              className={ColorClassNames.neutralSecondary}
+              iconName={icon}
+            />
           </div>
           <div
-            className={c(FontClassNames.xLarge)}
-            style={{ fontWeight: FontWeights.semibold }}
+            className={c(
+              ColorClassNames.neutralSecondary,
+              FontClassNames.mediumPlus,
+            )}
+            style={{ marginLeft: spacing.m }}
           >
-            {count}
+            {name}
           </div>
-        </Stack>
-      </Stack.Item>
-      <Stack.Item>
+        </div>
+      </td>
+      <td className={cellClassName}>
+        <div
+          className={c(FontClassNames.large)}
+          style={{ fontWeight: FontWeights.bold }}
+        >
+          {count}
+        </div>
+      </td>
+      <td style={{ textAlign: 'right' }} className={cellClassName}>
         <DefaultButton
           styles={{ root: [{ width: 100 }] }}
           text='View all'
           href={link}
         />
-      </Stack.Item>
-    </Stack>
+      </td>
+    </TableRow>
   );
 };
 
-StatusItem.propTypes = {
-  className: PropTypes.string,
+StatusRow.propTypes = {
+  cellClassName: PropTypes.string,
   icon: PropTypes.string.isRequired,
   name: PropTypes.string.isRequired,
   count: PropTypes.number.isRequired,
@@ -117,15 +114,13 @@ const JobStatus = ({ className, style, jobs }) => {
   return (
     <Card className={c(className, t.ph5)} style={style}>
       <Stack gap='l1'>
-        <Stack.Item>
-          <div className={FontClassNames.mediumPlus}>
-            {isAdmin ? 'Job Status' : 'My job status'}
-          </div>
-        </Stack.Item>
-        <Stack.Item>
-          <div className={t.overflowXAuto}>
-            <StatusItem
-              className={c(t.bb, ColorClassNames.neutralQuaternaryBorder)}
+        <div className={FontClassNames.mediumPlus}>
+          {isAdmin ? 'Job Status' : 'My job status'}
+        </div>
+        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+          <tbody>
+            <StatusRow
+              cellClassName={c(t.bb, ColorClassNames.neutralQuaternaryBorder)}
               icon='Clock'
               name='Waiting'
               count={waiting}
@@ -134,8 +129,8 @@ const JobStatus = ({ className, style, jobs }) => {
                 user: isAdmin ? undefined : cookies.get('user'),
               })}`}
             />
-            <StatusItem
-              className={c(t.bb, ColorClassNames.neutralQuaternaryBorder)}
+            <StatusRow
+              cellClassName={c(t.bb, ColorClassNames.neutralQuaternaryBorder)}
               icon='Running'
               name='Running'
               count={running}
@@ -144,8 +139,8 @@ const JobStatus = ({ className, style, jobs }) => {
                 user: isAdmin ? undefined : cookies.get('user'),
               })}`}
             />
-            <StatusItem
-              className={c(t.bb, ColorClassNames.neutralQuaternaryBorder)}
+            <StatusRow
+              cellClassName={c(t.bb, ColorClassNames.neutralQuaternaryBorder)}
               icon='ErrorBadge'
               name='Stopped'
               count={stopped}
@@ -154,8 +149,8 @@ const JobStatus = ({ className, style, jobs }) => {
                 user: isAdmin ? undefined : cookies.get('user'),
               })}`}
             />
-            <StatusItem
-              className={c(t.bb, ColorClassNames.neutralQuaternaryBorder)}
+            <StatusRow
+              cellClassName={c(t.bb, ColorClassNames.neutralQuaternaryBorder)}
               icon='Blocked'
               name='Failed'
               count={failed}
@@ -164,7 +159,7 @@ const JobStatus = ({ className, style, jobs }) => {
                 user: isAdmin ? undefined : cookies.get('user'),
               })}`}
             />
-            <StatusItem
+            <StatusRow
               icon='Completed'
               name='Succeeded'
               count={succeeded}
@@ -173,8 +168,8 @@ const JobStatus = ({ className, style, jobs }) => {
                 user: isAdmin ? undefined : cookies.get('user'),
               })}`}
             />
-          </div>
-        </Stack.Item>
+          </tbody>
+        </table>
       </Stack>
     </Card>
   );
