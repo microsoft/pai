@@ -51,7 +51,11 @@ import TeamDetail from './team-detail';
 
 const { spacing } = getTheme();
 
-export const TeamStorage = ({ teamConfigs, mountDirs, onMountDirChange }) => {
+export const TeamStorage = ({
+  teamStorageConfigs,
+  mountDirs,
+  onMountDirChange,
+}) => {
   // workaround for fabric's bug
   // https://github.com/OfficeDev/office-ui-fabric-react/issues/5280#issuecomment-489619108
   useLayoutEffect(() => {
@@ -90,7 +94,7 @@ export const TeamStorage = ({ teamConfigs, mountDirs, onMountDirChange }) => {
     selectedConfigNames => {
       let selectedConfigs = [];
       if (selectedConfigNames.length > 0) {
-        selectedConfigs = teamConfigs.filter(element => {
+        selectedConfigs = teamStorageConfigs.filter(element => {
           return selectedConfigNames.includes(element.name);
         });
       }
@@ -98,7 +102,7 @@ export const TeamStorage = ({ teamConfigs, mountDirs, onMountDirChange }) => {
       newMountDirs.selectedConfigs = selectedConfigs;
       onMountDirChange(newMountDirs);
     },
-    [teamConfigs, mountDirs],
+    [teamStorageConfigs, mountDirs],
   );
 
   const columns = [
@@ -118,19 +122,12 @@ export const TeamStorage = ({ teamConfigs, mountDirs, onMountDirChange }) => {
             }
             onChange={(ev, isChecked) => {
               let newSelectedConfigNames = [];
-              let updatedMountPoints = [...mountPoints];
               if (!isChecked && selectedConfigNames.includes(item.name)) {
                 const idx = selectedConfigNames.indexOf(item.name);
                 newSelectedConfigNames = [
                   ...selectedConfigNames.slice(0, idx),
                   ...selectedConfigNames.slice(idx + 1),
                 ];
-                const toRemovedMountPoints = item.mountInfos.map(
-                  mountInfo => mountInfo.mountPoint,
-                );
-                updatedMountPoints = updatedMountPoints.filter(
-                  mountPoint => !toRemovedMountPoints.includes(mountPoint),
-                );
               } else if (
                 isChecked &&
                 !selectedConfigNames.includes(item.name)
@@ -145,10 +142,6 @@ export const TeamStorage = ({ teamConfigs, mountDirs, onMountDirChange }) => {
                 }
                 newSelectedConfigNames = cloneDeep(selectedConfigNames);
                 newSelectedConfigNames.push(item.name);
-
-                item.mountInfos.forEach(mountInfo =>
-                  updatedMountPoints.push(mountInfo.mountPoint),
-                );
               }
               updateMountDir(newSelectedConfigNames);
             }}
@@ -227,7 +220,7 @@ export const TeamStorage = ({ teamConfigs, mountDirs, onMountDirChange }) => {
           columns={columns}
           disableSelectionZone
           selectionMode={SelectionMode.none}
-          items={teamConfigs}
+          items={teamStorageConfigs}
           layoutMode={DetailsListLayoutMode.fixedColumns}
           compact
         />
@@ -248,7 +241,7 @@ export const TeamStorage = ({ teamConfigs, mountDirs, onMountDirChange }) => {
 };
 
 TeamStorage.propTypes = {
-  teamConfigs: PropTypes.array,
+  teamStorageConfigs: PropTypes.array,
   mountDirs: PropTypes.instanceOf(MountDirectories),
   onMountDirChange: PropTypes.func,
 };

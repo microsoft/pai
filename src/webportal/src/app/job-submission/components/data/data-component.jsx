@@ -46,6 +46,46 @@ const generateUpdatedRuntimePlugins = (storageConfigs, oriPlugins) => {
   return updatedPlugins;
 };
 
+const getStorageConfigNamesFromExtras = (extras, teamStorageConfigs) => {
+  const storagePlugin = getStoragePlugin(extras);
+  if (isEmpty(storagePlugin)) {
+    return [];
+  }
+
+  let defaultTeamStorageConfigName;
+  if (!isEmpty(teamStorageConfigs)) {
+    const defaultConfig = teamStorageConfigs.find(
+      config => config.default === true,
+    );
+    if (!isEmpty(defaultConfig)) {
+      defaultTeamStorageConfigName = defaultConfig.name;
+    }
+  }
+
+  // If set storage plugin but config is empty, use default config
+  const storageConfigNames = get(
+    storagePlugin,
+    'parameters.storageConfigNames',
+    isEmpty(defaultTeamStorageConfigName) ? [] : [defaultTeamStorageConfigName],
+  );
+  return storageConfigNames;
+};
+
+const getValidStorageConfigs = (extras, teamStorageConfigs) => {
+  const storageConfigNames = getStorageConfigNamesFromExtras(
+    extras,
+    teamStorageConfigs,
+  );
+
+  const validStorageConfigs = teamStorageConfigs.filter(
+    config => storageConfigNames.indexOf(config.name) > -1,
+  );
+  if (storageConfigNames.length !== validStorageConfigs.length) {
+    alert('Some storage configs is invalid, please check');
+  }
+  return validStorageConfigs;
+};
+
 export const DataComponent = React.memo(props => {
   const envsubRegex = /^\${.*}$/; // the template string ${xx} will be reserved in envsub if not provide value
   let hdfsHost;
@@ -112,12 +152,8 @@ export const DataComponent = React.memo(props => {
     // Not initialized
     if (isEmpty(teamStorageConfig)) return;
 
-    const storageConfig = getStorageConfigs(
+    const selectedTeamStorageConfigs = getValidStorageConfigs(
       extras,
-      teamStorageConfig.storageConfigs,
-    );
-    const selectedTeamConfigs = getSelectedTeamConfigs(
-      storageConfig,
       teamStorageConfig.storageConfigs,
     );
 
@@ -125,7 +161,7 @@ export const DataComponent = React.memo(props => {
     const mountDirectories = new MountDirectories(
       user,
       props.jobName,
-      selectedTeamConfigs,
+      selectedTeamStorageConfigs,
       teamStorageConfig.storageServers,
     );
 
@@ -140,38 +176,6 @@ export const DataComponent = React.memo(props => {
       return updatedJobData;
     });
   }, [extras, teamStorageConfig, onChange]);
-
-  const getStorageConfigs = useCallback((extras, teamConfigs) => {
-    const storagePlugin = getStoragePlugin(extras);
-    if (isEmpty(storagePlugin)) {
-      return [];
-    }
-
-    const defaultTeamConfigs = [];
-    if (!isEmpty(teamConfigs)) {
-      const defaultConfig = teamConfigs.find(config => config.default === true);
-      if (!isEmpty(defaultConfig)) {
-        defaultTeamConfigs.push(defaultConfig.name);
-      }
-    }
-
-    // If set storage plugin but config is empty, use default config
-    const storageConfigNames = get(
-      storagePlugin,
-      'parameters.storageConfigNames',
-      defaultTeamConfigs,
-    );
-    return storageConfigNames;
-  }, []);
-
-  const getSelectedTeamConfigs = useCallback((storageConfigs, teamConfigs) => {
-    if (isEmpty(teamConfigs) || isEmpty(storageConfigs)) {
-      return [];
-    }
-    return teamConfigs.filter(
-      config => storageConfigs.indexOf(config.name) > -1,
-    );
-  }, []);
 
   const onDataListChange = useCallback(
     dataList => {
@@ -227,7 +231,7 @@ export const DataComponent = React.memo(props => {
           </Hint>
           {!isEmpty(teamStorageConfig) && (
             <TeamStorage
-              teamConfigs={teamStorageConfig.storageConfigs}
+              teamStorageConfigs={teamStorageConfig.storageConfigs}
               mountDirs={jobData.mountDirs}
               onMountDirChange={onMountDirChange}
             />
