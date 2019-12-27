@@ -98,9 +98,21 @@ def main():
     map_table = {
         "env": environment
     }
-    generate_template_file("hosts.yml.template", "{0}/hosts.yml".format(args.output), map_table)
-    generate_template_file("layout.yaml.template", "{0}/layout.yaml".format(args.output), map_table)
-    generate_template_file("services-configuration.yaml.template", "{0}/services-configuration.yaml".format(args.output), map_table)
+    generate_template_file(
+        "hosts.yml.template",
+        "{0}/hosts.yml".format(output_path),
+        map_table
+    )
+    generate_template_file(
+        "layout.yaml.template",
+        "{0}/layout.yaml".format(output_path),
+        map_table
+    )
+    generate_template_file(
+        "services-configuration.yaml.template",
+        "{0}/services-configuration.yaml".format(output_path),
+        map_table
+    )
 
 
 if __name__ == "__main__":

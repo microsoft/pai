@@ -69,8 +69,15 @@ echo "Clone OpenPAI source code from github"
 git clone https://github.com/microsoft/pai.git
 
 echo "Checkout to the release branch "
-cd ${HOME}/pai-deploy/pai/contrib/kubespray
+cd ${HOME}/pai-deploy/pai/contrib/kubespray/quick-start
+mkdir ${HOME}/pai-deploy/cluster-cfg
+python3 generator.py -m ${MASTER_LIST} -w ${WORKER_LIST} -c ${CLUSTER_CONFIG} -o ${HOME}/pai-deploy/cluster-cfg
 
 echo "Generate SSH Key"
 ssh-keygen -t rsa -f ~/.ssh/id_rsa -P ""
+
+CURRENT_USER=`whoami`
+REMOTE_USER=`cat config.yml | grep user | tr -d "[:space:]" | cut -d ':' -f 2`
+
+
 
