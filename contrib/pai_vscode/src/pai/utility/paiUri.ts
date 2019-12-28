@@ -7,7 +7,7 @@
 import * as querystring from 'querystring';
 import * as request from 'request-promise-native';
 
-import { Util } from '../common/util';
+import { Util } from '../../common/util';
 
 import { IPAICluster } from './paiInterface';
 

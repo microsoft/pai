@@ -17,15 +17,15 @@ import * as vscode from 'vscode';
 import {
     COMMAND_HDFS_DOWNLOAD, COMMAND_HDFS_UPLOAD_FILES, COMMAND_HDFS_UPLOAD_FOLDERS, COMMAND_OPEN_HDFS,
     ENUM_HDFS_EXPLORER_LOCATION, OCTICON_CLOUDUPLOAD, SETTING_HDFS_EXPLORER_LOCATION, SETTING_SECTION_HDFS
-} from '../common/constants';
-import { __ } from '../common/i18n';
-import { getSingleton, Singleton } from '../common/singleton';
-import { Util } from '../common/util';
+} from '../../common/constants';
+import { __ } from '../../common/i18n';
+import { getSingleton, Singleton } from '../../common/singleton';
+import { Util } from '../../common/util';
+import { ClusterManager } from '../clusterManager';
+import { ClusterExplorerChildNode } from '../container/configurationTreeDataProvider';
+import { HDFSTreeDataProvider } from '../container/hdfsTreeView';
+import { IPAICluster } from '../utility/paiInterface';
 
-import { ClusterManager } from './clusterManager';
-import { ClusterExplorerChildNode } from './configurationTreeDataProvider';
-import { HDFSTreeDataProvider } from './container/hdfsTreeView';
-import { IPAICluster } from './paiInterface';
 import { createWebHDFSClient, IHDFSClient, IHDFSStatResult } from './webhdfs-workaround';
 
 const stat: (path: string) => Promise<fs.Stats> = promisify(fs.stat);

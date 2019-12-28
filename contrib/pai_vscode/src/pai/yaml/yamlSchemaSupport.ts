@@ -16,7 +16,7 @@ import {
     SCHEMA_YAML_JOB_CONFIG,
     SCHEMA_YAML_JOB_CONFIG_PATH,
     YAML_EXTENSION_ID
-} from '../common/constants';
+} from '../../common/constants';
 
 /**
  * The yaml schema holder.

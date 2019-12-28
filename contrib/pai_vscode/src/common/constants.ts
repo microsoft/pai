@@ -12,6 +12,7 @@ export const COMMAND_EDIT_CLUSTER = 'paiext.cluster.edit';
 export const COMMAND_DELETE_CLUSTER = 'paiext.cluster.delete';
 export const COMMAND_REFRESH_CLUSTER = 'paiext.cluster.refresh';
 export const COMMAND_OPEN_HDFS = 'paiext.hdfs.open';
+export const COMMAND_OPEN_NFS = 'paiext.storage.nfs.open';
 export const COMMAND_HDFS_UPLOAD_FILES = 'paiext.hdfs.upload.files';
 export const COMMAND_HDFS_UPLOAD_FOLDERS = 'paiext.hdfs.upload.folders';
 export const COMMAND_HDFS_DOWNLOAD = 'paiext.hdfs.download';
@@ -27,8 +28,8 @@ export const COMMAND_CREATE_JOB_CONFIG_V1 = 'paiext.cluster.job.create-config-v1
 export const COMMAND_CREATE_JOB_CONFIG_V2 = 'paiext.cluster.job.create-config-v2';
 export const COMMAND_CONTAINER_HDFS_BACK = 'paiext.container.hdfs.back';
 export const COMMAND_CONTAINER_HDFS_REFRESH = 'paiext.container.hdfs.refresh';
-export const COMMAND_CONTAINER_STORAGE_BACK = 'paiext.container.hdfs.back';
-export const COMMAND_CONTAINER_STORAGE_REFRESH = 'paiext.container.hdfs.refresh';
+export const COMMAND_CONTAINER_STORAGE_BACK = 'paiext.container.storage.back';
+export const COMMAND_CONTAINER_STORAGE_REFRESH = 'paiext.container.storage.refresh';
 export const COMMAND_CONTAINER_HDFS_DELETE = 'paiext.container.hdfs.delete';
 export const COMMAND_CONTAINER_HDFS_MKDIR = 'paiext.container.hdfs.mkdir';
 export const COMMAND_CONTAINER_JOBLIST_REFRESH = 'paiext.container.joblist.refresh';
@@ -45,6 +46,7 @@ export const CONTEXT_HDFS_SELECT_CLUSTER_ROOT = 'PAIHdfsSelectRoot';
 export const CONTEXT_HDFS_SELECT_CLUSTER = 'PAIHdfsSelect';
 
 export const CONTEXT_STORAGE_CLUSTER_ROOT = 'PAIStorageClusterRoot';
+export const CONTEXT_STORAGE_CLUSTER = 'PAIStorageCluster';
 
 export const VIEW_CONTAINER_STORAGE = 'PAIContainerStorage';
 

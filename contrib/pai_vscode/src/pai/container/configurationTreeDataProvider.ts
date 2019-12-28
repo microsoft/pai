@@ -17,13 +17,13 @@ import {
     CONTEXT_CONFIGURATION_ITEM,
     ICON_CREATE_CONFIG, ICON_DASHBOARD, ICON_EDIT, ICON_HDFS, ICON_LIST_JOB, ICON_PAI, ICON_SIMULATE_JOB, ICON_SUBMIT_JOB,
     VIEW_CONFIGURATION_TREE
-} from '../common/constants';
-import { __ } from '../common/i18n';
-import { getSingleton, Singleton } from '../common/singleton';
-import { Util } from '../common/util';
+} from '../../common/constants';
+import { __ } from '../../common/i18n';
+import { getSingleton, Singleton } from '../../common/singleton';
+import { Util } from '../../common/util';
 
-import { getClusterName, ClusterManager } from './clusterManager';
-import { IPAICluster } from './paiInterface';
+import { getClusterName, ClusterManager } from '../clusterManager';
+import { IPAICluster } from '../utility/paiInterface';
 
 interface IChildNodeDefinition {
     title: string;

@@ -39,13 +39,13 @@ import { getSingleton, Singleton } from '../common/singleton';
 import { Util } from '../common/util';
 
 import { getClusterIdentifier, ClusterManager } from './clusterManager';
-import { ClusterExplorerChildNode } from './configurationTreeDataProvider';
-import { getHDFSUriAuthority, HDFS, HDFSFileSystemProvider } from './hdfs';
-import { IPAICluster, IPAIJobConfigV1, IPAIJobConfigV2, IPAITaskRole } from './paiInterface';
-import { PAIRestUri, PAIWebPortalUri } from './paiUri';
+import { ClusterExplorerChildNode } from './container/configurationTreeDataProvider';
 import { RecentJobManager } from './recentJobManager';
-import { YamlJobConfigCompletionProvider } from './yamlJobConfigCompletionProvider';
-import { registerYamlSchemaSupport } from './yamlSchemaSupport';
+import { getHDFSUriAuthority, HDFS, HDFSFileSystemProvider } from './storage/hdfs';
+import { IPAICluster, IPAIJobConfigV1, IPAIJobConfigV2, IPAITaskRole } from './utility/paiInterface';
+import { PAIRestUri, PAIWebPortalUri } from './utility/paiUri';
+import { YamlJobConfigCompletionProvider } from './yaml/yamlJobConfigCompletionProvider';
+import { registerYamlSchemaSupport } from './yaml/yamlSchemaSupport';
 
 interface ITokenItem {
     token: string;

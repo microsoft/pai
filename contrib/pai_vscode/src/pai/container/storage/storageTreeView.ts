@@ -7,25 +7,31 @@
 import { injectable } from 'inversify';
 import { OpenPAIClient } from 'openpai-js-sdk';
 import {
+    commands,
     window,
     Event,
     EventEmitter,
     TreeDataProvider,
     TreeItem,
-    TreeView} from 'vscode';
+    TreeView
+} from 'vscode';
 
 import {
-    CONTEXT_STORAGE_CLUSTER_ROOT, VIEW_CONTAINER_STORAGE
+    COMMAND_CONTAINER_STORAGE_BACK,
+    COMMAND_CONTAINER_STORAGE_REFRESH,
+    CONTEXT_STORAGE_CLUSTER,
+    CONTEXT_STORAGE_CLUSTER_ROOT,
+    VIEW_CONTAINER_STORAGE
 } from '../../../common/constants';
 import { __ } from '../../../common/i18n';
 import { getSingleton, Singleton } from '../../../common/singleton';
 import { Util } from '../../../common/util';
 import { ClusterManager } from '../../clusterManager';
-import { IPAICluster } from '../../paiInterface';
+import { IPAICluster } from '../../utility/paiInterface';
 import { LoadingState, TreeDataType } from '../common/treeDataEnum';
 import { TreeNode } from '../common/treeNode';
 
-import { PAIClusterStorageRootItem, PAIStorageTreeItem } from './storageTreeItem';
+import { PAIClusterStorageRootItem, PAIStorageTreeItem, StorageToTreeItem } from './storageTreeItem';
 
 /**
  * Contributes to the tree view of storage explorer.
@@ -49,6 +55,10 @@ export class StorageTreeDataProvider extends Singleton implements TreeDataProvid
     }
 
     public onActivate(): Promise<void> {
+        this.context.subscriptions.push(
+            commands.registerCommand(COMMAND_CONTAINER_STORAGE_REFRESH, () => this.refresh()),
+            commands.registerCommand(COMMAND_CONTAINER_STORAGE_BACK, () => this.reset())
+        );
         return this.refresh();
     }
 
@@ -61,6 +71,13 @@ export class StorageTreeDataProvider extends Singleton implements TreeDataProvid
             return [this.root];
         } else if (element.contextValue === CONTEXT_STORAGE_CLUSTER_ROOT) {
             return this.clusters;
+        } else if (element.contextValue === CONTEXT_STORAGE_CLUSTER) {
+            return (<PAIStorageTreeItem>element).storages.map(storage => {
+                const res: TreeNode | undefined = StorageToTreeItem(storage, element);
+                return res ? res : <TreeNode> {
+                    label: 'Load failed.'
+                };
+            });
         }
 
         return undefined;
@@ -72,15 +89,8 @@ export class StorageTreeDataProvider extends Singleton implements TreeDataProvid
 
     public async refresh(reload: boolean = true): Promise<void> {
         const allConfigurations: IPAICluster[] = (await getSingleton(ClusterManager)).allConfigurations;
-        this.clusters = allConfigurations.map((config, i) => <PAIStorageTreeItem>({
-            type: TreeDataType.ClusterStorage,
-            index: i,
-            config,
-            loadingState: LoadingState.Finished,
-            storages: [],
-            shownAmount: 0,
-            label: config.name
-        }));
+        this.clusters = allConfigurations.map((config, i) =>
+            new PAIStorageTreeItem(TreeDataType.ClusterStorage, config, i));
         if (this.clusterLoadError.length !== this.clusters.length) {
             this.clusterLoadError = new Array(this.clusters.length).fill(false);
         }

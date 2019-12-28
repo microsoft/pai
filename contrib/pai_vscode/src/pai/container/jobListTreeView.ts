@@ -33,8 +33,8 @@ import { __ } from '../../common/i18n';
 import { getSingleton, Singleton } from '../../common/singleton';
 import { Util } from '../../common/util';
 import { ClusterManager } from '../clusterManager';
-import { IPAICluster, IPAIJobInfo } from '../paiInterface';
-import { PAIRestUri } from '../paiUri';
+import { IPAICluster, IPAIJobInfo } from '../utility/paiInterface';
+import { PAIRestUri } from '../utility/paiUri';
 import { RecentJobManager } from '../recentJobManager';
 
 import { ClusterNode } from './common/clusterNode';

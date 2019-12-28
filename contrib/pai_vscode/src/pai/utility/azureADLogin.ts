@@ -13,7 +13,7 @@ import { stringify } from 'querystring';
 import * as url from 'url';
 import * as vscode from 'vscode';
 
-import { __ } from '../common/i18n';
+import { __ } from '../../common/i18n';
 
 async function callback(reqUrl: url.Url): Promise<ILoginInfo> {
     let error: string | string[] | undefined;

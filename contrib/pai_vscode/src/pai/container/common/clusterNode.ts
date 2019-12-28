@@ -13,7 +13,7 @@ import {
 import { __ } from '../../../common/i18n';
 import { Util } from '../../../common/util';
 import { getClusterName } from '../../clusterManager';
-import { IPAICluster } from '../../paiInterface';
+import { IPAICluster } from '../../utility/paiInterface';
 
 /**
  * Root node representing PAI cluster

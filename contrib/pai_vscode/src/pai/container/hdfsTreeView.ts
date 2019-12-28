@@ -19,8 +19,8 @@ import { __ } from '../../common/i18n';
 import { getSingleton, Singleton } from '../../common/singleton';
 import { Util } from '../../common/util';
 import { ClusterManager } from '../clusterManager';
-import { HDFS, HDFSFileSystemProvider } from '../hdfs';
-import { IPAICluster } from '../paiInterface';
+import { HDFS, HDFSFileSystemProvider } from '../storage/hdfs';
+import { IPAICluster } from '../utility/paiInterface';
 
 import { FileNode } from './common/fileNode';
 import { FolderNode } from './common/folderNode';
