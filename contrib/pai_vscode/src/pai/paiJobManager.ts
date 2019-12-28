@@ -872,9 +872,12 @@ export class PAIJobManager extends Singleton {
         }
     }
 
-    private async prepareJobParam({ jobConfigPath, clusterIndex }: IJobInput): Promise<IJobParam | undefined> {
+    private async prepareJobParam(jobInput: IJobInput): Promise<IJobParam | undefined> {
         const result: Partial<IJobParam> = {};
         // 1. job config
+        await this.prepareJobConfigPath(jobInput);
+        const jobConfigPath: string | undefined = jobInput.jobConfigPath;
+        const clusterIndex: number | undefined = jobInput.clusterIndex;
         const jobVersion: number = (jobConfigPath!.toLowerCase().endsWith('yaml') || jobConfigPath!.toLowerCase().endsWith('yml')) ? 2 : 1;
         result.jobVersion = jobVersion;
         let config: IPAIJobConfigV1 | IPAIJobConfigV2;
