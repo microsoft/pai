@@ -20,62 +20,53 @@ import * as dirtyChai from 'dirty-chai';
 import * as nock from 'nock';
 
 import { expect } from 'chai';
-import { AuthnClient } from '../../src/client/authnClient';
-import { IAuthnInfo } from '../../src/models/authn';
+import { StorageClient } from '../../src/client/storageClient';
 import { IPAICluster } from '../../src/models/cluster';
+import { IStorage } from '../../src/models/storage';
 
 const testUri = 'openpai-js-sdk.test/rest-server';
 
 const cluster: IPAICluster = {
-    password: 'test',
+    https: true,
     rest_server_uri: testUri,
-    username: 'test'
+    token: 'token',
 };
-const authnClient = new AuthnClient(cluster);
+const storageClient = new StorageClient(cluster);
 
 chai.use(dirtyChai);
-nock(`http://${testUri}`).post(`/api/v1/token`).reply(200, { token: 'token' });
 nock(`http://${testUri}`).post(`/api/v1/authn/basic/login`).reply(200, { token: 'token' });
 
-describe('Get authn infomation', () => {
-    const response: IAuthnInfo = {
-        'authn_type': 'basic',
-        'loginURI': '/api/v1/authn/basic/login',
-        'loginURIMethod': 'post'
+describe('Get storage infomation by storage name', () => {
+    const response: IStorage = {
+        'data': {
+            'test': 'test'
+        },
+        'extension': {},
+        'spn': 'test',
+        'type': 'azureblob'
     };
-    nock(`http://${testUri}`).get(`/api/v1/authn/info`).reply(200, response);
+    const testName = 'testStorage';
+    nock(`https://${testUri}`).get(`/api/v2/storage/server/${testName}`).reply(200, response);
 
-    it('should return the user info', async () => {
-        const result = await authnClient.info();
+    it('should return the storage info', async () => {
+        const result = await storageClient.getByName(testName);
         expect(result).to.be.eql(response);
     });
 });
 
-describe('Basic login', () => {
-    const response = {
-        token: 'token'
-    };
+describe('Get storage information list', () => {
+    const response: IStorage[] = [{
+        'data': {
+            'test': 'test'
+        },
+        'extension': {},
+        'spn': 'test',
+        'type': 'azureblob'
+    }];
+    nock(`https://${testUri}`).get(`/api/v2/storage/server`).reply(200, response);
 
-    it('should return the login info', async () => {
-        const result = await authnClient.login();
+    it('should return the storage info', async () => {
+        const result = await storageClient.get();
         expect(result).to.be.eql(response);
     });
-});
-
-describe('OIDC login', () => {
-    it('should return something', async () => {
-        nock(`http://${testUri}`).get(`/api/v1/authn/oidc/login`).reply(200, 'test');
-        const result = await authnClient.oidcLogin();
-
-        expect(result).to.be.a('string');
-    })
-});
-
-describe('OIDC logout', () => {
-    it('should return something', async () => {
-        nock(`http://${testUri}`).get(`/api/v1/authn/oidc/logout`).reply(200, 'test');
-        const result = await authnClient.oidcLogout();
-
-        expect(result).to.be.a('string');
-    })
 });

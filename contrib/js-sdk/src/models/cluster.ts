@@ -22,6 +22,8 @@ export interface IPAICluster {
     info?: IPAIClusterInfo;
     username?: string;
     password?: string;
+    token?: string;
+    https?: boolean;
     rest_server_uri?: string;
     webhdfs_uri?: string;
     grafana_uri?: string;

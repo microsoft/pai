@@ -36,11 +36,12 @@ const cluster: IPAICluster = {
 const virtualClusterClient = new VirtualClusterClient(cluster);
 
 chai.use(dirtyChai);
-nock(`http://${testUri}`).post(`/api/v1/token`).reply(200, { token: 'token' });
+nock(`http://${testUri}`).post(`/api/v1/authn/basic/login`).reply(200, { token: 'token' });
 
 describe('List all virtual clusters', () => {
     const response = testAllVirtualClusters;
     nock(`http://${testUri}`).get(`/api/v2/virtual-clusters`).reply(200, response);
+    nock(`http://${testUri}`).post(`/api/v1/authn/basic/login`).reply(200, { token: 'token' });
 
     it('should return all virtual clusters', async () => {
         const result = await virtualClusterClient.list();

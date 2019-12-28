@@ -10,7 +10,8 @@
   "scripts": {
     "format": "prettier --write \"src/**/*.ts\" \"src/**/*.js\"",
     "lint": "tslint -p tsconfig.json",
-    "test": "mocha -r ts-node/register tests/**/*.spec.ts"
+    "test": "mocha -r ts-node/register tests/**/*.spec.ts",
+    "test2": "mocha -r ts-node/register tests/unit_tests/storageClient.spec.ts"
   },
   "homepage": "https://github.com/Microsoft/pai",
   "repository": {
@@ -41,6 +42,7 @@
     "typescript": "^3.5.3"
   },
   "dependencies": {
+    "axios": "^0.19.0",
     "js-yaml": "^3.13.1",
     "request": "^2.88.0",
     "request-promise-native": "^1.0.7"

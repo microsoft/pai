@@ -15,49 +15,14 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-import { AuthnClient } from '..';
-import { IPAICluster } from '../models/cluster';
-import { OpenPAIBaseClient } from './baseClient';
-import { JobClient } from './jobClient';
-import { UserClient} from './userClient';
-import { VirtualClusterClient } from './virtualClusterClient';
-import { StorageClient } from './storageClient';
-
 /**
- * OpenPAI Client.
+ * OpenPAI storage information.
  */
-export class OpenPAIClient extends OpenPAIBaseClient {
-    /**
-     * OpenPAI Job Client.
-     */
-    public job: JobClient;
-
-    /**
-     * OpenPAI User Client.
-     */
-    public user: UserClient;
-
-    /**
-     * OpenPAI Virtual Cluster Client.
-     */
-    public virtualCluster: VirtualClusterClient;
-
-    /**
-     * OpenPAI Authn Client.
-     */
-    public authn: AuthnClient;
-
-    /**
-     * OpenPAI Storage Client.
-     */
-    public storage: StorageClient;
-
-    constructor(cluster: IPAICluster) {
-        super(cluster);
-        this.job = new JobClient(cluster);
-        this.user = new UserClient(cluster);
-        this.virtualCluster = new VirtualClusterClient(cluster);
-        this.authn = new AuthnClient(cluster);
-        this.storage = new StorageClient(cluster);
-    }
+export interface IStorage {
+    spn: string;
+    type: "nfs" | "samba" | "azurefile" | "azureblob";
+    data: {
+        [prop: string]: string;
+    };
+    extension: any;
 }

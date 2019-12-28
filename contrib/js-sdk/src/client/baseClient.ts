@@ -39,7 +39,9 @@ export class OpenPAIBaseClient {
      * Get OpenPAI access token, will call /api/v1/token.
      */
     public async token(): Promise<string> {
-        if (!this.cacheToken || this.cacheToken.expireTime < Date.now()) {
+        if (this.cluster.token) {
+            return this.cluster.token;
+        } else if (!this.cacheToken || this.cacheToken.expireTime < Date.now()) {
             const res = await this.login();
             this.cacheToken = {
                 expireTime: Date.now() + 3600 * 1000,

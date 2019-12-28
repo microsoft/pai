@@ -35,12 +35,13 @@ const cluster: IPAICluster = {
 const userClient = new UserClient(cluster);
 
 chai.use(dirtyChai);
-nock(`http://${testUri}`).post(`/api/v1/token`).reply(200, { token: 'token' });
+nock(`http://${testUri}`).post(`/api/v1/authn/basic/login`).reply(200, { token: 'token' });
 
 describe('Get user infomation', () => {
     const response = testUserInfo;
     const userName = 'core';
     nock(`http://${testUri}`).get(`/api/v2/user/${userName}`).reply(200, response);
+    nock(`http://${testUri}`).post(`/api/v1/authn/basic/login`).reply(200, { token: 'token' });
 
     it('should return the user info', async () => {
         const result = await userClient.get(userName);
