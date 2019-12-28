@@ -490,7 +490,7 @@
         "jsonc-parser": "^2.1.1",
         "lodash": "^4.17.15",
         "node-yaml-parser": "^0.0.9",
-        "openpai-js-sdk": "yiyione/pai#openpai-js-sdk",
+        "openpai-js-sdk": "microsoft/pai#openpai-js-sdk",
         "opn": "^5.4.0",
         "reflect-metadata": "^0.1.12",
         "request": "^2.88.0",

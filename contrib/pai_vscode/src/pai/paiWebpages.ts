@@ -16,7 +16,7 @@ import { Util } from '../common/util';
 
 import { getClusterName, ClusterManager } from './clusterManager';
 import { ClusterExplorerChildNode } from './configurationTreeDataProvider';
-import { ClusterNode } from './container/jobListTreeView';
+import { ClusterNode } from './container/common/clusterNode';
 import { IPAICluster, IPAIJobInfo } from './paiInterface';
 import { PAIWebPortalUri } from './paiUri';
 

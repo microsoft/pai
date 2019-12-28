@@ -44,6 +44,8 @@ export const CONTEXT_HDFS_ROOT = 'PAIHdfsRoot';
 export const CONTEXT_HDFS_SELECT_CLUSTER_ROOT = 'PAIHdfsSelectRoot';
 export const CONTEXT_HDFS_SELECT_CLUSTER = 'PAIHdfsSelect';
 
+export const CONTEXT_STORAGE_CLUSTER_ROOT = 'PAIStorageClusterRoot';
+
 export const VIEW_CONTAINER_STORAGE = 'PAIContainerStorage';
 
 export const VIEW_CONTAINER_JOBLIST = 'PAIContainerJobList';
