@@ -16,6 +16,7 @@ import { PAIJobManager } from './pai/paiJobManager';
 import { PAIWebpages } from './pai/paiWebpages';
 import { RecentJobManager } from './pai/recentJobManager';
 import { HDFS } from './pai/storage/hdfs';
+import { NFS } from './pai/storage/nfs';
 
 export const allSingletonClasses: { new(...arg: any[]): Singleton }[] = [
     UtilClass,
@@ -26,6 +27,7 @@ export const allSingletonClasses: { new(...arg: any[]): Singleton }[] = [
     PAIJobManager,
     PAIWebpages,
     HDFS,
+    NFS,
     HDFSTreeDataProvider,
     StorageTreeDataProvider,
     JobListTreeDataProvider

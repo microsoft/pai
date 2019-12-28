@@ -7,12 +7,18 @@
 import { IStorage } from 'openpai-js-sdk';
 import { TreeItemCollapsibleState } from 'vscode';
 
-import { CONTEXT_STORAGE_CLUSTER, CONTEXT_STORAGE_CLUSTER_ROOT, ICON_PAI, COMMAND_TREEVIEW_DOUBLECLICK, COMMAND_OPEN_NFS } from '../../../common/constants';
+import {
+    CONTEXT_STORAGE_CLUSTER,
+    CONTEXT_STORAGE_CLUSTER_ROOT,
+    ICON_PAI
+} from '../../../common/constants';
+
 import { __ } from '../../../common/i18n';
 import { Util } from '../../../common/util';
 import { IPAICluster } from '../../utility/paiInterface';
 import { LoadingState, TreeDataType } from '../common/treeDataEnum';
 import { TreeNode } from '../common/treeNode';
+import { NFSTreeItem } from './nfsTreeItem';
 
 /**
  * PAI storage tree item.
@@ -37,6 +43,31 @@ export class PAIStorageTreeItem extends TreeNode {
             this.contextValue = CONTEXT_STORAGE_CLUSTER;
         }
     }
+
+    public getChildren(): TreeNode[] {
+        return this.storages.map(storage => {
+            switch (storage.type) {
+                case 'azureblob':
+                    return <TreeNode> {
+                        label: 'Unsupport type.'
+                    };
+                case 'azurefile':
+                    return <TreeNode> {
+                        label: 'Unsupport type.'
+                    };
+                case 'nfs':
+                    return new NFSTreeItem(storage, this);
+                case 'samba':
+                    return <TreeNode> {
+                        label: 'Unsupport type.'
+                    };
+                default:
+                    return <TreeNode> {
+                        label: 'Load failed.'
+                    };
+            }
+        });
+    }
 }
 
 /**
@@ -47,23 +78,4 @@ export class PAIClusterStorageRootItem extends TreeNode {
     constructor() {
         super(__('treeview.storage.cluster-root.label'), TreeItemCollapsibleState.Expanded);
     }
-}
-
-/**
- * Convert storage information to vscode tree item.
- * @param storage The storage information.
- */
-export function StorageToTreeItem(storage: IStorage, parent: TreeNode): TreeNode | undefined {
-    if (storage.type === 'nfs') {
-        return <TreeNode> {
-            parent: parent,
-            label: storage.spn,
-            command: {
-                title: __('treeview.node.storage'),
-                command: COMMAND_TREEVIEW_DOUBLECLICK,
-                arguments: [COMMAND_OPEN_NFS, storage]
-            }
-        };
-    }
-    return undefined;
 }

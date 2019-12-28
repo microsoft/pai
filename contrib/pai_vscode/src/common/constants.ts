@@ -47,6 +47,7 @@ export const CONTEXT_HDFS_SELECT_CLUSTER = 'PAIHdfsSelect';
 
 export const CONTEXT_STORAGE_CLUSTER_ROOT = 'PAIStorageClusterRoot';
 export const CONTEXT_STORAGE_CLUSTER = 'PAIStorageCluster';
+export const CONTEXT_STORAGE_NFS = 'PAIStorageCluster';
 
 export const VIEW_CONTAINER_STORAGE = 'PAIContainerStorage';
 

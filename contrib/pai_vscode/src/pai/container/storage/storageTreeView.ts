@@ -21,6 +21,7 @@ import {
     COMMAND_CONTAINER_STORAGE_REFRESH,
     CONTEXT_STORAGE_CLUSTER,
     CONTEXT_STORAGE_CLUSTER_ROOT,
+    CONTEXT_STORAGE_NFS,
     VIEW_CONTAINER_STORAGE
 } from '../../../common/constants';
 import { __ } from '../../../common/i18n';
@@ -31,7 +32,8 @@ import { IPAICluster } from '../../utility/paiInterface';
 import { LoadingState, TreeDataType } from '../common/treeDataEnum';
 import { TreeNode } from '../common/treeNode';
 
-import { PAIClusterStorageRootItem, PAIStorageTreeItem, StorageToTreeItem } from './storageTreeItem';
+import { NFSTreeItem } from './nfsTreeItem';
+import { PAIClusterStorageRootItem, PAIStorageTreeItem } from './storageTreeItem';
 
 /**
  * Contributes to the tree view of storage explorer.
@@ -72,12 +74,9 @@ export class StorageTreeDataProvider extends Singleton implements TreeDataProvid
         } else if (element.contextValue === CONTEXT_STORAGE_CLUSTER_ROOT) {
             return this.clusters;
         } else if (element.contextValue === CONTEXT_STORAGE_CLUSTER) {
-            return (<PAIStorageTreeItem>element).storages.map(storage => {
-                const res: TreeNode | undefined = StorageToTreeItem(storage, element);
-                return res ? res : <TreeNode> {
-                    label: 'Load failed.'
-                };
-            });
+            return (<PAIStorageTreeItem>element).getChildren();
+        } else if (element.contextValue === CONTEXT_STORAGE_NFS) {
+            return (<NFSTreeItem>element).getChildren();
         }
 
         return undefined;

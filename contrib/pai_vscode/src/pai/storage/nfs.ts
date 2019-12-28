@@ -5,7 +5,8 @@
  */
 
 import { injectable } from 'inversify';
-import * as vscode from 'vscode';
+import { IStorage } from 'openpai-js-sdk';
+import { commands, env } from 'vscode';
 
 import {
     COMMAND_OPEN_NFS
@@ -21,10 +22,10 @@ export class NFS extends Singleton {
     constructor() {
         super();
         this.context.subscriptions.push(
-            vscode.commands.registerCommand(
+            commands.registerCommand(
                 COMMAND_OPEN_NFS,
-                async () => {
-                    return undefined;
+                async (storage: IStorage) => {
+                    await env.clipboard.writeText(`nfs://${storage.data.address}${storage.data.rootPath}`);
                 }
             )
         );
