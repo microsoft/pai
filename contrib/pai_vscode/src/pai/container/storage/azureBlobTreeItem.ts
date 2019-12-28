@@ -120,7 +120,18 @@ export class AzureBlobRootItem extends TreeNode {
         }
 
         try {
-            this.blobs = [];
+            this.blobs = [
+                <TreeNode> {
+                    parent: this,
+                    label: __('treeview.node.storage.server-type'),
+                    description: 'Azure Blob'
+                },
+                <TreeNode> {
+                    parent: this,
+                    label: __('treeview.node.storage.mount-point'),
+                    description: '/data'
+                }
+            ];
             const prefix: string = '/';
             const iter: BlobIter = this.client.listBlobsByHierarchy(prefix);
             let blobItem: BlobEntity = await iter.next();

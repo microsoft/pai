@@ -22,7 +22,7 @@ export class NFSTreeItem extends TreeNode {
     public nfsUrl: string;
 
     public constructor(storage: IStorage, parent: TreeNode) {
-        super(storage.spn, TreeItemCollapsibleState.Expanded);
+        super(storage.spn, TreeItemCollapsibleState.Collapsed);
         this.storage = storage;
         this.contextValue = CONTEXT_STORAGE_NFS;
         this.parent = parent;

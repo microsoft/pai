@@ -10,6 +10,7 @@ import { TreeItemCollapsibleState } from 'vscode';
 import {
     CONTEXT_STORAGE_CLUSTER,
     CONTEXT_STORAGE_CLUSTER_ROOT,
+    CONTEXT_STORAGE_PERSONAL_ROOT,
     ICON_PAI
 } from '../../../common/constants';
 import { __ } from '../../../common/i18n';
@@ -76,5 +77,15 @@ export class PAIClusterStorageRootItem extends TreeNode {
     public readonly contextValue: string = CONTEXT_STORAGE_CLUSTER_ROOT;
     constructor() {
         super(__('treeview.storage.cluster-root.label'), TreeItemCollapsibleState.Expanded);
+    }
+}
+
+/**
+ * PAI cluster storage root item.
+ */
+export class PAIPersonalStorageRootItem extends TreeNode {
+    public readonly contextValue: string = CONTEXT_STORAGE_PERSONAL_ROOT;
+    constructor() {
+        super(__('treeview.storage.personal-root.label'), TreeItemCollapsibleState.Expanded);
     }
 }

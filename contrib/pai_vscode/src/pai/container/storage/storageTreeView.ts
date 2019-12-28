@@ -36,7 +36,7 @@ import { TreeNode } from '../common/treeNode';
 
 import { AzureBlobRootItem, AzureBlobTreeItem } from './azureBlobTreeItem';
 import { NFSTreeItem } from './nfsTreeItem';
-import { PAIClusterStorageRootItem, PAIStorageTreeItem } from './storageTreeItem';
+import { PAIClusterStorageRootItem, PAIStorageTreeItem, PAIPersonalStorageRootItem } from './storageTreeItem';
 
 /**
  * Contributes to the tree view of storage explorer.
@@ -44,7 +44,7 @@ import { PAIClusterStorageRootItem, PAIStorageTreeItem } from './storageTreeItem
 @injectable()
 export class StorageTreeDataProvider extends Singleton implements TreeDataProvider<TreeNode> {
     public readonly view: TreeView<TreeNode>;
-    public root: TreeNode;
+    public root: TreeNode[];
     public onDidChangeTreeData: Event<TreeNode>;
 
     private onDidChangeTreeDataEmitter: EventEmitter<TreeNode>;
@@ -55,7 +55,10 @@ export class StorageTreeDataProvider extends Singleton implements TreeDataProvid
         super();
         this.onDidChangeTreeDataEmitter = new EventEmitter<TreeNode>();
         this.onDidChangeTreeData = this.onDidChangeTreeDataEmitter.event;
-        this.root = new PAIClusterStorageRootItem();
+        this.root = [
+            new PAIClusterStorageRootItem(),
+            new PAIPersonalStorageRootItem()
+        ];
         this.view = window.createTreeView(VIEW_CONTAINER_STORAGE, { treeDataProvider: this });
     }
 
@@ -73,7 +76,7 @@ export class StorageTreeDataProvider extends Singleton implements TreeDataProvid
 
     public async getChildren(element?: TreeNode | undefined): Promise<TreeNode[] | undefined> {
         if (!element) {
-            return [this.root];
+            return this.root;
         } else if (element.contextValue === CONTEXT_STORAGE_CLUSTER_ROOT) {
             return this.clusters;
         } else if (element.contextValue === CONTEXT_STORAGE_CLUSTER) {
@@ -108,9 +111,11 @@ export class StorageTreeDataProvider extends Singleton implements TreeDataProvid
     }
 
     public async reset(): Promise<void> {
-        this.root = new PAIClusterStorageRootItem();
+        this.root = [
+            new PAIClusterStorageRootItem(),
+            new PAIPersonalStorageRootItem()
+        ];
         await this.refresh();
-        void this.view.reveal(this.root);
     }
 
     private async reloadStorages(index: number = -1): Promise<void> {
