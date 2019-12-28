@@ -12,12 +12,13 @@ import {
     CONTEXT_STORAGE_CLUSTER_ROOT,
     ICON_PAI
 } from '../../../common/constants';
-
 import { __ } from '../../../common/i18n';
 import { Util } from '../../../common/util';
 import { IPAICluster } from '../../utility/paiInterface';
 import { LoadingState, TreeDataType } from '../common/treeDataEnum';
 import { TreeNode } from '../common/treeNode';
+
+import { AzureBlobRootItem } from './azureBlobTreeItem';
 import { NFSTreeItem } from './nfsTreeItem';
 
 /**
@@ -48,9 +49,7 @@ export class PAIStorageTreeItem extends TreeNode {
         return this.storages.map(storage => {
             switch (storage.type) {
                 case 'azureblob':
-                    return <TreeNode> {
-                        label: 'Unsupport type.'
-                    };
+                    return new AzureBlobRootItem(storage, this);
                 case 'azurefile':
                     return <TreeNode> {
                         label: 'Unsupport type.'

@@ -15,17 +15,18 @@ import { __ } from '../../../common/i18n';
 import { TreeNode } from '../common/treeNode';
 
 /**
- * PAI storage tree item.
+ * PAI NFS storage tree item.
  */
 export class NFSTreeItem extends TreeNode {
     public storage: IStorage;
+    public nfsUrl: string;
 
     public constructor(storage: IStorage, parent: TreeNode) {
         super(storage.spn, TreeItemCollapsibleState.Expanded);
         this.storage = storage;
         this.contextValue = CONTEXT_STORAGE_NFS;
         this.parent = parent;
-        this.description = `nfs://${storage.data.address}${storage.data.rootPath}`;
+        this.nfsUrl = `nfs://${storage.data.address}${storage.data.rootPath}`;
     }
 
     public getChildren(): TreeNode[] {
@@ -49,7 +50,7 @@ export class NFSTreeItem extends TreeNode {
             <TreeNode> {
                 parent: this,
                 label: 'URL',
-                description: this.description,
+                description: this.nfsUrl,
                 command: clipboardCommand
             },
             <TreeNode> {

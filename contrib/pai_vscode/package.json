@@ -479,6 +479,7 @@
         "vscode": "^1.1.36"
     },
     "dependencies": {
+        "@azure/storage-blob": "^12.0.1",
         "ajv": "^6.5.4",
         "fs-extra": "^7.0.0",
         "globalize": "^1.4.0",

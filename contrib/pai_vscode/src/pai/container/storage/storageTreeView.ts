@@ -19,6 +19,8 @@ import {
 import {
     COMMAND_CONTAINER_STORAGE_BACK,
     COMMAND_CONTAINER_STORAGE_REFRESH,
+    CONTEXT_STORAGE_AZURE_BLOB,
+    CONTEXT_STORAGE_AZURE_BLOB_ITEM,
     CONTEXT_STORAGE_CLUSTER,
     CONTEXT_STORAGE_CLUSTER_ROOT,
     CONTEXT_STORAGE_NFS,
@@ -32,6 +34,7 @@ import { IPAICluster } from '../../utility/paiInterface';
 import { LoadingState, TreeDataType } from '../common/treeDataEnum';
 import { TreeNode } from '../common/treeNode';
 
+import { AzureBlobRootItem, AzureBlobTreeItem } from './azureBlobTreeItem';
 import { NFSTreeItem } from './nfsTreeItem';
 import { PAIClusterStorageRootItem, PAIStorageTreeItem } from './storageTreeItem';
 
@@ -77,6 +80,10 @@ export class StorageTreeDataProvider extends Singleton implements TreeDataProvid
             return (<PAIStorageTreeItem>element).getChildren();
         } else if (element.contextValue === CONTEXT_STORAGE_NFS) {
             return (<NFSTreeItem>element).getChildren();
+        } else if (element.contextValue === CONTEXT_STORAGE_AZURE_BLOB) {
+            return (<AzureBlobRootItem>element).getChildren();
+        } else if (element.contextValue === CONTEXT_STORAGE_AZURE_BLOB_ITEM) {
+            return (<AzureBlobTreeItem>element).getChildren();
         }
 
         return undefined;
