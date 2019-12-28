@@ -273,6 +273,26 @@ const openPAIClient = new OpenPAIClient(cluster);
       (POST /api/v2/group/:groupname/externalname)
 - [ ] Delete a group from system (DELETE /api/v2/group/:groupname)
 
+### Storage
+
+- [ ] Get storage server data in the system (GET /api/v2/storage/server/{storage})
+- [ ] Remove storage server in the system (DELETE /api/v2/storage/server/{storage})
+- [ ] Get storage server data in the system (GET /api/v2/storage/server)
+- [ ] Create storage server in the system (POST /api/v2/storage/server)
+- [ ] Update storage server in the system (PUT /api/v2/storage/server)
+- [ ] Get storage config data in the system (GET /api/v2/storage/config/{storage})
+- [ ] Remove storage config in the system (DELETE /api/v2/storage/config/{storage})
+- [ ] Get storage config data in the system (GET /api/v2/storage/config)
+- [ ] Create storage config in system (POST /api/v2/storage/config)
+- [ ] Update storage config in system (PUT /api/v2/storage/config)
+
+### Job history
+
+- [ ] Check if job attempts is healthy (GET /api/v2/jobs/{user}~{job}/job-attempts/healthz)
+- [ ] Get all attempts of a job (GET /api/v2/jobs/{user}~{job}/job-attempts)
+- [ ] Get a specific attempt by attempt index
+      (GET /api/v2/jobs/{user}~{job}/job-attempts/{attempt})
+
 ## Useful tools
 
 - [ ] To be added...

@@ -19,9 +19,11 @@
  * Utility class.
  */
 class UtilClass {
-    public fixUrl(url: string): string {
+    public https: boolean = false;
+
+    public fixUrl(url: string, https?: boolean): string {
         if (!/^[a-zA-Z]+?\:\/\//.test(url)) {
-            url = `http://${url}`;
+            url = `http${https ? 's' : ''}://` + url;
         }
         return url;
     }
