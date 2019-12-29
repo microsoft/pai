@@ -43,6 +43,11 @@ export const TopBar = React.memo(() => {
       {
         key: 'myJob',
         text: 'From my jobs',
+        onClick() {
+          window.location.href = `/success-job-list.html?username=${cookies.get(
+            'user',
+          )}`;
+        },
       },
     ],
   };

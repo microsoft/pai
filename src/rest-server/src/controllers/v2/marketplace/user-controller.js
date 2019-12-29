@@ -16,9 +16,9 @@ const get = asyncHandler(async (req, res, next) => {
   if (isNil(items)) {
     res.status(404).send('user not found');
   } else if (isEmpty(items)) {
-    res.status(404).send('item not found');
+    res.status(200).send(false);
   } else {
-    res.status(200).json(items[0]);
+    res.status(200).send(true);
   }
 });
 

@@ -21,7 +21,7 @@ class Filter {
     }
     // initial state
     if (
-      keyword.length === '' &&
+      keyword.length === 0 &&
       authors.size === 0 &&
       custom === false &&
       official === false

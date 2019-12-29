@@ -166,12 +166,6 @@ const Sidebar = ({ className, style }) => {
                 key: KEY_SUBMIT_JOB,
               },
               {
-                name: 'Marketplace',
-                url: '/market-list.html',
-                icon: 'Bank',
-                key: KEY_MARKETPLACE,
-              },
-              {
                 name: 'Jobs',
                 url: '/job-list.html',
                 icon: 'CheckList',
@@ -235,6 +229,12 @@ const Sidebar = ({ className, style }) => {
                     icon: 'PlayerSettings',
                   },
                 ],
+              },
+              {
+                name: 'Marketplace',
+                url: '/market-list.html',
+                icon: 'Bank',
+                key: KEY_MARKETPLACE,
               },
               {
                 name: 'Feedback',

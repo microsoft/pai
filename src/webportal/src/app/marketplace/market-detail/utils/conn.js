@@ -82,12 +82,12 @@ export async function deleteItem() {
 export async function fetchStarRelation(itemId, userName) {
   const url = `${serverUri}/api/v2/user/${userName}/starItems/${itemId}`;
   const res = await fetch(url);
+  const json = await res.json();
 
   if (res.ok) {
-    return true;
+    return json;
   } else {
-    const text = await res.text();
-    throw new Error(text);
+    throw new Error(json);
   }
 }
 
