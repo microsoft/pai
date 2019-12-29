@@ -76,6 +76,16 @@
                 "category": "PAI"
             },
             {
+                "command": "paiext.storage.personal.delete",
+                "title": "%paiext.storage.personal.delete%",
+                "category": "PAI"
+            },
+            {
+                "command": "paiext.storage.personal.edit",
+                "title": "%paiext.storage.personal.edit%",
+                "category": "PAI"
+            },
+            {
                 "command": "paiext.storage.open",
                 "title": "%paiext.storage.open%",
                 "category": "PAI"
@@ -145,6 +155,11 @@
                     "light": "icons/add_light.svg",
                     "dark": "icons/add_dark.svg"
                 },
+                "category": "PAI"
+            },
+            {
+                "command": "paiext.storage.personal.add",
+                "title": "%paiext.storage.personal.add%",
                 "category": "PAI"
             },
             {
@@ -371,6 +386,18 @@
                     "when": "view == PAIExplorer && viewItem == PAIConfiguration"
                 },
                 {
+                    "command": "paiext.storage.personal.edit",
+                    "when": "view == PAIContainerStorage && viewItem == PAIStoragePersonalItem"
+                },
+                {
+                    "command": "paiext.storage.personal.delete",
+                    "when": "view == PAIContainerStorage && viewItem == PAIStoragePersonalItem"
+                },
+                {
+                    "command": "paiext.storage.personal.add",
+                    "when": "view == PAIContainerStorage && viewItem == PAIStoragePersonalRoot"
+                },
+                {
                     "command": "paiext.container.hdfs.mkdir",
                     "when": "view == PAIContainerHDFS && viewItem && viewItem != PAIHdfsFile",
                     "group": "1@1"
@@ -428,6 +455,11 @@
                     "command": "paiext.azure-blob.create.folder",
                     "when": "view == PAIContainerStorage && viewItem && viewItem == PAIStorageAzureBlob",
                     "group": "azure@2"
+                },
+                {
+                    "command": "paiext.azure-blob.create.folder",
+                    "when": "view == PAIContainerStorage && viewItem && viewItem == PAIStoragePersonalItem",
+                    "group": "azure@9"
                 },
                 {
                     "command": "paiext.azure-blob.download",

@@ -24,6 +24,7 @@ import {
     CONTEXT_STORAGE_AZURE_BLOB,
     CONTEXT_STORAGE_AZURE_BLOB_FOLDER,
     CONTEXT_STORAGE_AZURE_BLOB_ITEM,
+    CONTEXT_STORAGE_PERSONAL_ITEM,
     ICON_FILE,
     ICON_FOLDER
 } from '../../../common/constants';
@@ -218,13 +219,14 @@ export class AzureBlobRootItem extends TreeNode {
 
         const children: Map<string, AzureBlobTreeItem> = new Map<string, AzureBlobTreeItem>();
         try {
-            this.blobs = [
-                <TreeNode> {
+            this.blobs = [];
+            if (this.contextValue === CONTEXT_STORAGE_AZURE_BLOB) {
+                this.blobs.push(<TreeNode> {
                     parent: this,
                     label: __('treeview.node.storage.mount-point'),
                     description: '/data'
-                }
-            ];
+                });
+            }
             const prefix: string = '/';
             const iter: BlobIter = this.client.listBlobsByHierarchy(prefix);
             let blobItem: BlobEntity = await iter.next();
@@ -246,5 +248,17 @@ export class AzureBlobRootItem extends TreeNode {
 
         distinctChildren(children).forEach(item => this.blobs!.push(item));
         return this.blobs;
+    }
+}
+
+/**
+ * PAI azure blob personal storage root item.
+ */
+export class PersonalAzureBlobRootItem extends AzureBlobRootItem {
+    public index: number;
+    public constructor(storage: IStorage, index: number, parent: TreeNode) {
+        super(storage, parent);
+        this.index = index;
+        this.contextValue = CONTEXT_STORAGE_PERSONAL_ITEM;
     }
 }

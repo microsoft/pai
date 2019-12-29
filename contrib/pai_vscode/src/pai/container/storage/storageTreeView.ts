@@ -5,7 +5,7 @@
  */
 
 import { injectable } from 'inversify';
-import { OpenPAIClient } from 'openpai-js-sdk';
+import { IStorage, OpenPAIClient } from 'openpai-js-sdk';
 import {
     commands,
     window,
@@ -13,8 +13,8 @@ import {
     EventEmitter,
     TreeDataProvider,
     TreeItem,
-    TreeView,
-    TreeItemCollapsibleState
+    TreeItemCollapsibleState,
+    TreeView
 } from 'vscode';
 
 import {
@@ -27,18 +27,21 @@ import {
     CONTEXT_STORAGE_CLUSTER,
     CONTEXT_STORAGE_CLUSTER_ROOT,
     CONTEXT_STORAGE_NFS,
+    CONTEXT_STORAGE_PERSONAL_ITEM,
+    CONTEXT_STORAGE_PERSONAL_ROOT,
     VIEW_CONTAINER_STORAGE
 } from '../../../common/constants';
 import { __ } from '../../../common/i18n';
 import { getSingleton, Singleton } from '../../../common/singleton';
 import { Util } from '../../../common/util';
 import { ClusterManager } from '../../clusterManager';
+import { IPersonalStorage, PersonalStorageManager } from '../../storage/personalStorageManager';
 import { IPAICluster } from '../../utility/paiInterface';
 import { LoadingState, TreeDataType } from '../common/treeDataEnum';
 import { TreeNode } from '../common/treeNode';
 import { ClusterExplorerChildNode } from '../configurationTreeDataProvider';
 
-import { AzureBlobRootItem, AzureBlobTreeItem } from './azureBlobTreeItem';
+import { AzureBlobRootItem, AzureBlobTreeItem, PersonalAzureBlobRootItem } from './azureBlobTreeItem';
 import { NFSTreeItem } from './nfsTreeItem';
 import { PAIClusterStorageRootItem, PAIPersonalStorageRootItem, PAIStorageTreeItem } from './storageTreeItem';
 
@@ -53,6 +56,7 @@ export class StorageTreeDataProvider extends Singleton implements TreeDataProvid
 
     private onDidChangeTreeDataEmitter: EventEmitter<TreeNode>;
     private clusters: PAIStorageTreeItem[] = [];
+    private personalStorages: PersonalAzureBlobRootItem[] = [];
     private clusterLoadError: boolean[] = [];
 
     constructor() {
@@ -110,11 +114,14 @@ export class StorageTreeDataProvider extends Singleton implements TreeDataProvid
             return this.root;
         } else if (element.contextValue === CONTEXT_STORAGE_CLUSTER_ROOT) {
             return this.clusters;
+        } else if (element.contextValue === CONTEXT_STORAGE_PERSONAL_ROOT) {
+            return this.personalStorages;
         } else if (element.contextValue === CONTEXT_STORAGE_CLUSTER) {
             return (<PAIStorageTreeItem>element).getChildren();
         } else if (element.contextValue === CONTEXT_STORAGE_NFS) {
             return (<NFSTreeItem>element).getChildren();
-        } else if (element.contextValue === CONTEXT_STORAGE_AZURE_BLOB) {
+        } else if (element.contextValue === CONTEXT_STORAGE_AZURE_BLOB ||
+            element.contextValue === CONTEXT_STORAGE_PERSONAL_ITEM) {
             return (<AzureBlobRootItem>element).getChildren();
         } else if (element.contextValue === CONTEXT_STORAGE_AZURE_BLOB_ITEM ||
                 element.contextValue === CONTEXT_STORAGE_AZURE_BLOB_FOLDER) {
@@ -135,8 +142,23 @@ export class StorageTreeDataProvider extends Singleton implements TreeDataProvid
         if (this.clusterLoadError.length !== this.clusters.length) {
             this.clusterLoadError = new Array(this.clusters.length).fill(false);
         }
+        const allPersonalStorages: IPersonalStorage[] =
+            (await getSingleton(PersonalStorageManager)).allConfigurations;
+        this.personalStorages = allPersonalStorages.map((config, index) => {
+            const storage: IStorage = {
+                spn: config.name,
+                type: 'azureblob',
+                data: {
+                    containerName: config.containerName,
+                    accountName: config.accountName,
+                    key: config.key
+                },
+                extension: {}
+            };
+            return new PersonalAzureBlobRootItem(storage, index, {});
+        });
         if (reload) {
-            void this.reloadStorages();
+            void this.reloadClusterStorages();
         }
         this.onDidChangeTreeDataEmitter.fire();
     }
@@ -149,8 +171,8 @@ export class StorageTreeDataProvider extends Singleton implements TreeDataProvid
         await this.refresh();
     }
 
-    private async reloadStorages(index: number = -1): Promise<void> {
-        const clusters: PAIStorageTreeItem[] = index !== -1 ? [this.clusters[index]] : this.clusters ;
+    private async reloadClusterStorages(index: number = -1): Promise<void> {
+        const clusters: PAIStorageTreeItem[] = index !== -1 ? [this.clusters[index]] : this.clusters;
         await Promise.all(clusters.map(async cluster => {
             cluster.loadingState = LoadingState.Loading;
             this.onDidChangeTreeDataEmitter.fire(cluster);

@@ -1,0 +1,26 @@
+{
+    "type": "object",
+    "properties": {
+        "name": {
+            "type": "string",
+            "description": "Personal storage display name",
+            "minLength": 1
+        },
+        "accountName": {
+            "type": "string",
+            "description": "Account name.",
+            "minLength": 1
+        },
+        "containerName": {
+            "type": "string",
+            "description": "Container name.",
+            "minLength": 1
+        },
+        "key": {
+            "type": "string",
+            "description": "Access key",
+            "minLength": 1
+        }
+    },
+    "required": ["name", "accountName", "containerName", "key"]
+}

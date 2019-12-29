@@ -15,7 +15,7 @@ import { __ } from '../../common/i18n';
 import { Singleton } from '../../common/singleton';
 
 /**
- * HDFS management module
+ * NFS management module
  */
 @injectable()
 export class NFSManager extends Singleton {

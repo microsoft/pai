@@ -18,6 +18,7 @@ import {
     COMMAND_HDFS_DOWNLOAD,
     COMMAND_HDFS_UPLOAD_FILES,
     COMMAND_HDFS_UPLOAD_FOLDERS,
+    COMMAND_OPEN_HDFS,
     ENUM_HDFS_EXPLORER_LOCATION,
     OCTICON_CLOUDUPLOAD,
     SETTING_HDFS_EXPLORER_LOCATION,
@@ -27,6 +28,7 @@ import { __ } from '../../common/i18n';
 import { getSingleton, Singleton } from '../../common/singleton';
 import { Util } from '../../common/util';
 import { ClusterManager } from '../clusterManager';
+import { ClusterExplorerChildNode } from '../container/configurationTreeDataProvider';
 import { HDFSTreeDataProvider } from '../container/hdfsTreeView';
 import { IPAICluster } from '../utility/paiInterface';
 
@@ -361,14 +363,14 @@ export class HDFSFileSystemProvider implements vscode.FileSystemProvider {
                 await this.copyFileToFolder(source, sourceStat.size, destination, options);
                 return;
             } else {
-                await this.copyFileToFile(source, sourceStat.size, destination);
+                await this.copyFileToFile(source, sourceStat.size, destination, options);
                 return;
             }
         }
     }
 
     private async copyFileToFile(
-        source: vscode.Uri, sourceSize: number, destination: vscode.Uri): Promise<void> {
+        source: vscode.Uri, sourceSize: number, destination: vscode.Uri, options: { overwrite: boolean }): Promise<void> {
 
         let from: fs.ReadStream;
         let to: fs.WriteStream;
@@ -454,7 +456,7 @@ export class HDFSFileSystemProvider implements vscode.FileSystemProvider {
 
         const fileName: string = path.basename(source.path);
         destination = Util.uriPathAppend(destination, fileName);
-        return this.copyFileToFile(source, sourceSize, destination);
+        return this.copyFileToFile(source, sourceSize, destination, options);
     }
 
     private copyFolderToFolder(source: vscode.Uri, destination: vscode.Uri, options: { overwrite: boolean }): Promise<void> {
@@ -490,6 +492,23 @@ export class HDFS extends Singleton {
         );
         console.log('HDFS registered as webhdfs:/...');
         this.context.subscriptions.push(
+            vscode.commands.registerCommand(
+                COMMAND_OPEN_HDFS,
+                async (node?: ClusterExplorerChildNode | IPAICluster) => {
+                    if (!node) {
+                        const manager: ClusterManager = await getSingleton(ClusterManager);
+                        const index: number | undefined = await manager.pick();
+                        if (index === undefined) {
+                            return;
+                        }
+                        await this.open(manager.allConfigurations[index]);
+                    } else if (node instanceof ClusterExplorerChildNode) {
+                        await this.open((await getSingleton(ClusterManager)).allConfigurations[node.index]);
+                    } else {
+                        await this.open(node);
+                    }
+                }
+            ),
             vscode.commands.registerCommand(COMMAND_HDFS_UPLOAD_FILES, async (param: vscode.Uri | vscode.TreeItem) => {
                 await this.uploadFiles(this.unpackParam(param));
             }),

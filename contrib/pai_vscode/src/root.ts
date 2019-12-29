@@ -18,6 +18,7 @@ import { RecentJobManager } from './pai/recentJobManager';
 import { AzureBlobManager } from './pai/storage/azureBlobManager';
 import { HDFS } from './pai/storage/hdfs';
 import { NFSManager } from './pai/storage/nfsManager';
+import { PersonalStorageManager } from './pai/storage/personalStorageManager';
 
 export const allSingletonClasses: { new(...arg: any[]): Singleton }[] = [
     UtilClass,
@@ -30,6 +31,7 @@ export const allSingletonClasses: { new(...arg: any[]): Singleton }[] = [
     HDFS,
     NFSManager,
     AzureBlobManager,
+    PersonalStorageManager,
     HDFSTreeDataProvider,
     StorageTreeDataProvider,
     JobListTreeDataProvider

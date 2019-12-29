@@ -11,7 +11,8 @@ import {
     CONTEXT_STORAGE_CLUSTER,
     CONTEXT_STORAGE_CLUSTER_ROOT,
     CONTEXT_STORAGE_PERSONAL_ROOT,
-    ICON_PAI
+    ICON_PAI,
+    CONTEXT_STORAGE_AZURE_BLOB
 } from '../../../common/constants';
 import { __ } from '../../../common/i18n';
 import { Util } from '../../../common/util';
@@ -81,7 +82,7 @@ export class PAIClusterStorageRootItem extends TreeNode {
 }
 
 /**
- * PAI cluster storage root item.
+ * PAI personal storage root item.
  */
 export class PAIPersonalStorageRootItem extends TreeNode {
     public readonly contextValue: string = CONTEXT_STORAGE_PERSONAL_ROOT;
