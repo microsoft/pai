@@ -8,7 +8,7 @@
     "paiext.cluster.add": "添加 PAI 集群",
     "paiext.cluster.edit": "编辑 PAI 集群配置",
     "paiext.cluster.delete": "删除 PAI 集群配置",
-    "paiext.hdfs.open": "打开 HDFS",
+    "paiext.storage.open": "打开共享存储",
     "paiext.hdfs.upload.files": "上传文件",
     "paiext.hdfs.upload.folders": "上传文件夹",
     "paiext.hdfs.download": "下载",

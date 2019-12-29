@@ -76,8 +76,8 @@
                 "category": "PAI"
             },
             {
-                "command": "paiext.hdfs.open",
-                "title": "%paiext.hdfs.open%",
+                "command": "paiext.storage.open",
+                "title": "%paiext.storage.open%",
                 "category": "PAI"
             },
             {

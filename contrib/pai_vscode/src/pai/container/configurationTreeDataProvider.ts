@@ -11,7 +11,7 @@ import {
 } from 'vscode';
 
 import {
-    COMMAND_CREATE_JOB_CONFIG, COMMAND_EDIT_CLUSTER, COMMAND_LIST_JOB, COMMAND_OPEN_HDFS,
+    COMMAND_CREATE_JOB_CONFIG, COMMAND_EDIT_CLUSTER, COMMAND_LIST_JOB, COMMAND_OPEN_STORAGE,
     COMMAND_REFRESH_CLUSTER, COMMAND_SIMULATE_JOB, COMMAND_SUBMIT_JOB,
     COMMAND_TREEVIEW_DOUBLECLICK, COMMAND_TREEVIEW_OPEN_PORTAL,
     CONTEXT_CONFIGURATION_ITEM,
@@ -65,7 +65,7 @@ const childNodeDefinitions: IChildNodeDefinition[] = [
     },
     {
         title: 'treeview.node.storage',
-        command: COMMAND_OPEN_HDFS,
+        command: COMMAND_OPEN_STORAGE,
         icon: ICON_HDFS,
         condition: (conf: IPAICluster): boolean => !!conf.webhdfs_uri
     }

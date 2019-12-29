@@ -19,6 +19,7 @@ import {
 import {
     COMMAND_CONTAINER_STORAGE_BACK,
     COMMAND_CONTAINER_STORAGE_REFRESH,
+    COMMAND_OPEN_STORAGE,
     CONTEXT_STORAGE_AZURE_BLOB,
     CONTEXT_STORAGE_AZURE_BLOB_FOLDER,
     CONTEXT_STORAGE_AZURE_BLOB_ITEM,
@@ -34,6 +35,7 @@ import { ClusterManager } from '../../clusterManager';
 import { IPAICluster } from '../../utility/paiInterface';
 import { LoadingState, TreeDataType } from '../common/treeDataEnum';
 import { TreeNode } from '../common/treeNode';
+import { ClusterExplorerChildNode } from '../configurationTreeDataProvider';
 
 import { AzureBlobRootItem, AzureBlobTreeItem } from './azureBlobTreeItem';
 import { NFSTreeItem } from './nfsTreeItem';
@@ -66,9 +68,30 @@ export class StorageTreeDataProvider extends Singleton implements TreeDataProvid
     public onActivate(): Promise<void> {
         this.context.subscriptions.push(
             commands.registerCommand(COMMAND_CONTAINER_STORAGE_REFRESH, () => this.refresh()),
-            commands.registerCommand(COMMAND_CONTAINER_STORAGE_BACK, () => this.reset())
+            commands.registerCommand(COMMAND_CONTAINER_STORAGE_BACK, () => this.reset()),
+            commands.registerCommand(
+                COMMAND_OPEN_STORAGE,
+                async (node?: ClusterExplorerChildNode | IPAICluster) => {
+                    if (!node) {
+                        const manager: ClusterManager = await getSingleton(ClusterManager);
+                        const index: number | undefined = await manager.pick();
+                        if (index === undefined) {
+                            return;
+                        }
+                        await this.openStorage(manager.allConfigurations[index]);
+                    } else if (node instanceof ClusterExplorerChildNode) {
+                        await this.openStorage((await getSingleton(ClusterManager)).allConfigurations[node.index]);
+                    } else {
+                        await this.openStorage(node);
+                    }
+                }
+            )
         );
         return this.refresh();
+    }
+
+    public async openStorage(cluster: IPAICluster): Promise<void> {
+        await commands.executeCommand('PAIContainerStorage.focus');
     }
 
     public getTreeItem(element: TreeNode): TreeItem | Thenable<TreeItem> {

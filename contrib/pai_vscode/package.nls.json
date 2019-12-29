@@ -8,7 +8,7 @@
     "paiext.cluster.add": "Add PAI Cluster",
     "paiext.cluster.edit": "Edit PAI Cluster Configuration",
     "paiext.cluster.delete": "Delete PAI Cluster Configuration",
-    "paiext.hdfs.open": "Open HDFS",
+    "paiext.storage.open": "Open Share Storage",
     "paiext.hdfs.upload.files": "Upload Files",
     "paiext.hdfs.upload.folders": "Upload Folders",
     "paiext.hdfs.download": "Download",

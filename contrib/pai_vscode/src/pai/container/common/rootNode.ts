@@ -10,7 +10,7 @@ import {
 } from 'vscode';
 
 import {
-    COMMAND_OPEN_HDFS, COMMAND_TREEVIEW_DOUBLECLICK,
+    COMMAND_OPEN_STORAGE, COMMAND_TREEVIEW_DOUBLECLICK,
     CONTEXT_HDFS_ROOT, CONTEXT_HDFS_SELECT_CLUSTER, CONTEXT_HDFS_SELECT_CLUSTER_ROOT,
     ICON_PAI
 } from '../../../common/constants';
@@ -56,7 +56,7 @@ export class SelectClusterNode extends TreeNode {
         this.command = {
             title: __('treeview.node.storage'),
             command: COMMAND_TREEVIEW_DOUBLECLICK,
-            arguments: [COMMAND_OPEN_HDFS, this.cluster]
+            arguments: [COMMAND_OPEN_STORAGE, this.cluster]
         };
         this.iconPath = Util.resolvePath(ICON_PAI);
     }
