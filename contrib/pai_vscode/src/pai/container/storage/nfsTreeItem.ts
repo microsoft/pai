@@ -27,6 +27,7 @@ export class NFSTreeItem extends TreeNode {
         this.contextValue = CONTEXT_STORAGE_NFS;
         this.parent = parent;
         this.nfsUrl = `nfs://${storage.data.address}${storage.data.rootPath}`;
+        this.description = 'NFS';
     }
 
     public getChildren(): TreeNode[] {
@@ -37,11 +38,6 @@ export class NFSTreeItem extends TreeNode {
         };
 
         return [
-            <TreeNode> {
-                parent: this,
-                label: __('treeview.node.storage.server-type'),
-                description: 'NFS'
-            },
             <TreeNode> {
                 parent: this,
                 label: __('treeview.node.storage.mount-point'),

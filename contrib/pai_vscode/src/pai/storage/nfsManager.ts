@@ -18,7 +18,7 @@ import { Singleton } from '../../common/singleton';
  * HDFS management module
  */
 @injectable()
-export class NFS extends Singleton {
+export class NFSManager extends Singleton {
     constructor() {
         super();
         this.context.subscriptions.push(

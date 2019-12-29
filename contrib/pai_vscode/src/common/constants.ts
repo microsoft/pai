@@ -16,6 +16,11 @@ export const COMMAND_OPEN_NFS = 'paiext.storage.nfs.open';
 export const COMMAND_HDFS_UPLOAD_FILES = 'paiext.hdfs.upload.files';
 export const COMMAND_HDFS_UPLOAD_FOLDERS = 'paiext.hdfs.upload.folders';
 export const COMMAND_HDFS_DOWNLOAD = 'paiext.hdfs.download';
+export const COMMAND_AZURE_BLOB_CREATE_FOLDER = 'paiext.azure-blob.create.folder';
+export const COMMAND_AZURE_BLOB_UPLOAD_FILES = 'paiext.azure-blob.upload.files';
+export const COMMAND_AZURE_BLOB_UPLOAD_FOLDERS = 'paiext.azure-blob.upload.folders';
+export const COMMAND_AZURE_BLOB_DOWNLOAD = 'paiext.azure-blob.download';
+export const COMMAND_AZURE_BLOB_DELETE = 'paiext.azure-blob.delete';
 export const COMMAND_OPEN_DASHBOARD = 'paiext.cluster.dashboard.open';
 export const COMMAND_LIST_JOB = 'paiext.cluster.job.list';
 export const COMMAND_VIEW_JOB = 'paiext.cluster.job.view';
@@ -51,6 +56,7 @@ export const CONTEXT_STORAGE_CLUSTER = 'PAIStorageCluster';
 export const CONTEXT_STORAGE_NFS = 'PAIStorageNfs';
 export const CONTEXT_STORAGE_AZURE_BLOB = 'PAIStorageAzureBlob';
 export const CONTEXT_STORAGE_AZURE_BLOB_ITEM = 'PAIStorageAzureBlobItem';
+export const CONTEXT_STORAGE_AZURE_BLOB_FOLDER = 'PAIStorageAzureBlobFolder';
 
 export const VIEW_CONTAINER_STORAGE = 'PAIContainerStorage';
 
@@ -110,6 +116,7 @@ export const ICON_LOADING = {
     light: 'icons/loading.svg',
     dark: 'icons/loading_dark.svg'
 };
+export const ICON_FOLDER = 'icons/folder.svg';
 
 export const OCTICON_CLOUDUPLOAD = '$(cloud-upload)';
 

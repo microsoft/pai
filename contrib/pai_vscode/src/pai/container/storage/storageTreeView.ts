@@ -20,6 +20,7 @@ import {
     COMMAND_CONTAINER_STORAGE_BACK,
     COMMAND_CONTAINER_STORAGE_REFRESH,
     CONTEXT_STORAGE_AZURE_BLOB,
+    CONTEXT_STORAGE_AZURE_BLOB_FOLDER,
     CONTEXT_STORAGE_AZURE_BLOB_ITEM,
     CONTEXT_STORAGE_CLUSTER,
     CONTEXT_STORAGE_CLUSTER_ROOT,
@@ -36,7 +37,7 @@ import { TreeNode } from '../common/treeNode';
 
 import { AzureBlobRootItem, AzureBlobTreeItem } from './azureBlobTreeItem';
 import { NFSTreeItem } from './nfsTreeItem';
-import { PAIClusterStorageRootItem, PAIStorageTreeItem, PAIPersonalStorageRootItem } from './storageTreeItem';
+import { PAIClusterStorageRootItem, PAIPersonalStorageRootItem, PAIStorageTreeItem } from './storageTreeItem';
 
 /**
  * Contributes to the tree view of storage explorer.
@@ -85,7 +86,8 @@ export class StorageTreeDataProvider extends Singleton implements TreeDataProvid
             return (<NFSTreeItem>element).getChildren();
         } else if (element.contextValue === CONTEXT_STORAGE_AZURE_BLOB) {
             return (<AzureBlobRootItem>element).getChildren();
-        } else if (element.contextValue === CONTEXT_STORAGE_AZURE_BLOB_ITEM) {
+        } else if (element.contextValue === CONTEXT_STORAGE_AZURE_BLOB_ITEM ||
+                element.contextValue === CONTEXT_STORAGE_AZURE_BLOB_FOLDER) {
             return (<AzureBlobTreeItem>element).getChildren();
         }
 
@@ -103,7 +105,6 @@ export class StorageTreeDataProvider extends Singleton implements TreeDataProvid
         if (this.clusterLoadError.length !== this.clusters.length) {
             this.clusterLoadError = new Array(this.clusters.length).fill(false);
         }
-        this.onDidChangeTreeDataEmitter.fire();
         if (reload) {
             void this.reloadStorages();
         }

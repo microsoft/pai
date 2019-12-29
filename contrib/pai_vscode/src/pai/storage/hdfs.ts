@@ -473,8 +473,8 @@ export class HDFSFileSystemProvider implements vscode.FileSystemProvider {
 @injectable()
 export class HDFS extends Singleton {
     public readonly provider: HDFSFileSystemProvider;
-    private UPLOADFILES: string = __('hdfs.dialog.label.upload-files');
-    private UPLOADFOLDER: string = __('hdfs.dialog.label.upload-folders');
+    private UPLOADFILES: string = __('storage.dialog.label.upload-files');
+    private UPLOADFOLDER: string = __('storage.dialog.label.upload-folders');
     private DOWNLOADHERE: string = __('hdfs.dialog.label.download');
 
     constructor() {

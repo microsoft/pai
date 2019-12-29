@@ -96,6 +96,21 @@
                 "category": "PAI"
             },
             {
+                "command": "paiext.azure-blob.delete",
+                "title": "%paiext.azure-blob.delete%",
+                "category": "PAI"
+            },
+            {
+                "command": "paiext.azure-blob.upload.files",
+                "title": "%paiext.azure-blob.upload.files%",
+                "category": "PAI"
+            },
+            {
+                "command": "paiext.azure-blob.create.folder",
+                "title": "%paiext.azure-blob.create.folder%",
+                "category": "PAI"
+            },
+            {
                 "command": "paiext.container.joblist.refresh",
                 "title": "%paiext.common.refresh%",
                 "icon": {
@@ -378,6 +393,36 @@
                 {
                     "command": "paiext.cluster.job.list",
                     "when": "view == PAIContainerJobList && viewItem && viewItem == PAIJobListCluster"
+                },
+                {
+                    "command": "paiext.azure-blob.delete",
+                    "when": "view == PAIContainerStorage && viewItem && viewItem == PAIStorageAzureBlobFolder",
+                    "group": "azure@5"
+                },
+                {
+                    "command": "paiext.azure-blob.delete",
+                    "when": "view == PAIContainerStorage && viewItem && viewItem == PAIStorageAzureBlobItem",
+                    "group": "azure@6"
+                },
+                {
+                    "command": "paiext.azure-blob.upload.files",
+                    "when": "view == PAIContainerStorage && viewItem && viewItem == PAIStorageAzureBlobFolder",
+                    "group": "azure@3"
+                },
+                {
+                    "command": "paiext.azure-blob.upload.files",
+                    "when": "view == PAIContainerStorage && viewItem && viewItem == PAIStorageAzureBlob",
+                    "group": "azure@4"
+                },
+                {
+                    "command": "paiext.azure-blob.create.folder",
+                    "when": "view == PAIContainerStorage && viewItem && viewItem == PAIStorageAzureBlobFolder",
+                    "group": "azure@1"
+                },
+                {
+                    "command": "paiext.azure-blob.create.folder",
+                    "when": "view == PAIContainerStorage && viewItem && viewItem == PAIStorageAzureBlob",
+                    "group": "azure@2"
                 }
             ]
         },
