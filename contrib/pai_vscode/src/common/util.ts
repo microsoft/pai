@@ -167,6 +167,18 @@ export class UtilClass extends Singleton {
         return selection;
     }
 
+    public getRandomString(length: number = 10): string {
+        // tslint:disable-next-line: insecure-random
+        return Math.random().toString(36).substring(2, length + 2);
+    }
+
+    public async createTemporaryFile(fileName: string): Promise<string> {
+        const folderName: string = this.getRandomString(12);
+        const filePath: string = path.join(os.tmpdir(), folderName, fileName);
+        await fs.ensureFile(filePath);
+        return filePath;
+    }
+
     public async editJSON<T>(obj: T, fileName: string, schemaFile?: string, highlightKey?: string): Promise<T | undefined> {
         const tempPath: string = await this.getNewTempDirectory();
         let filePath: string = path.join(tempPath, fileName.replace(/\//g, ''));

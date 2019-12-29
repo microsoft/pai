@@ -12,7 +12,8 @@ export const COMMAND_EDIT_CLUSTER = 'paiext.cluster.edit';
 export const COMMAND_DELETE_CLUSTER = 'paiext.cluster.delete';
 export const COMMAND_REFRESH_CLUSTER = 'paiext.cluster.refresh';
 export const COMMAND_OPEN_HDFS = 'paiext.hdfs.open';
-export const COMMAND_OPEN_NFS = 'paiext.storage.nfs.open';
+export const COMMAND_OPEN_NFS = 'paiext.nfs.open';
+export const COMMAND_OPEN_AZURE_BLOB = 'paiext.azure-blob.open';
 export const COMMAND_HDFS_UPLOAD_FILES = 'paiext.hdfs.upload.files';
 export const COMMAND_HDFS_UPLOAD_FOLDERS = 'paiext.hdfs.upload.folders';
 export const COMMAND_HDFS_DOWNLOAD = 'paiext.hdfs.download';
@@ -117,8 +118,10 @@ export const ICON_LOADING = {
     dark: 'icons/loading_dark.svg'
 };
 export const ICON_FOLDER = 'icons/folder.svg';
+export const ICON_FILE = 'icons/file.svg';
 
 export const OCTICON_CLOUDUPLOAD = '$(cloud-upload)';
+export const OCTICON_CLOUDDOWNLOAD = '$(cloud-download)';
 
 export const SCHEMA_JOB_CONFIG = 'pai_job_config.schema.json';
 export const SCHEMA_YAML_JOB_CONFIG = 'pai_yaml_job_config.schema.json';

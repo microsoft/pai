@@ -475,7 +475,7 @@ export class HDFS extends Singleton {
     public readonly provider: HDFSFileSystemProvider;
     private UPLOADFILES: string = __('storage.dialog.label.upload-files');
     private UPLOADFOLDER: string = __('storage.dialog.label.upload-folders');
-    private DOWNLOADHERE: string = __('hdfs.dialog.label.download');
+    private DOWNLOADHERE: string = __('storage.dialog.label.download');
 
     constructor() {
         super();

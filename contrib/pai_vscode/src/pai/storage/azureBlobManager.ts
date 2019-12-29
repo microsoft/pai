@@ -7,34 +7,43 @@
 import { BlockBlobClient, ContainerClient } from '@azure/storage-blob';
 import { injectable } from 'inversify';
 import * as path from 'path';
-import { commands, window, StatusBarAlignment, StatusBarItem, Uri } from 'vscode';
+import { commands, window, StatusBarAlignment, StatusBarItem, Uri, TextDocument, workspace } from 'vscode';
 
 import {
+    COMMAND_AZURE_BLOB_CREATE_FOLDER,
     COMMAND_AZURE_BLOB_DELETE,
     COMMAND_AZURE_BLOB_DOWNLOAD,
     COMMAND_AZURE_BLOB_UPLOAD_FILES,
     COMMAND_AZURE_BLOB_UPLOAD_FOLDERS,
-    OCTICON_CLOUDUPLOAD,
-    COMMAND_AZURE_BLOB_CREATE_FOLDER
+    COMMAND_OPEN_AZURE_BLOB,
+    OCTICON_CLOUDDOWNLOAD,
+    OCTICON_CLOUDUPLOAD
 } from '../../common/constants';
 import { __ } from '../../common/i18n';
 import { Singleton } from '../../common/singleton';
 import { Util } from '../../common/util';
 import { AzureBlobRootItem, AzureBlobTreeItem, BlobEntity, BlobIter, BlobValue } from '../container/storage/azureBlobTreeItem';
-import { util } from 'node-yaml-parser';
 
 /**
  * Azure blob management module
  */
 @injectable()
 export class AzureBlobManager extends Singleton {
+    private fileMap: { [key: string]: [TextDocument, AzureBlobTreeItem] } = {};
+
     constructor() {
         super();
         this.context.subscriptions.push(
             commands.registerCommand(
                 COMMAND_AZURE_BLOB_DOWNLOAD,
-                async (item: AzureBlobTreeItem) => {
-                    console.log('not implemented');
+                async (target: AzureBlobTreeItem) => {
+                    const uri: Uri | undefined = await window.showSaveDialog({
+                        saveLabel: __('storage.dialog.label.download'),
+                        defaultUri: Uri.file(target.blob.name)
+                    });
+                    if (uri && uri.scheme === 'file') {
+                        await this.downloadFile(target, uri);
+                    }
                 }
             ),
             commands.registerCommand(
@@ -48,13 +57,21 @@ export class AzureBlobManager extends Singleton {
                     if (!files) {
                         return;
                     }
-                    return this.upload(files, target);
+                    return this.uploadFiles(files, target);
                 }
             ),
             commands.registerCommand(
                 COMMAND_AZURE_BLOB_UPLOAD_FOLDERS,
-                async (prefix: AzureBlobTreeItem | AzureBlobRootItem) => {
-                    console.log('not implemented');
+                async (target: AzureBlobTreeItem | AzureBlobRootItem) => {
+                    const folders: Uri[] | undefined = await window.showOpenDialog({
+                        canSelectFolders: true,
+                        canSelectMany: true,
+                        openLabel: __('storage.dialog.label.upload-folders')
+                    });
+                    if (!folders) {
+                        return;
+                    }
+                    return this.uploadFolders(folders, target);
                 }
             ),
             commands.registerCommand(
@@ -74,8 +91,59 @@ export class AzureBlobManager extends Singleton {
                     } else {
                         await this.createFolder(res, target);
                     }
-            })
+            }),
+            commands.registerCommand(
+                COMMAND_OPEN_AZURE_BLOB,
+                async (item: AzureBlobTreeItem) => await this.showEditor(item)
+                // todo: need to register onDidSaveTextDocument to auto upload.
+            )
         );
+    }
+
+    public async showEditor(item: AzureBlobTreeItem): Promise<void> {
+        const fileName: string = item.blob.name;
+
+        try {
+            const parsedPath: path.ParsedPath = path.posix.parse(fileName);
+            const temporaryFilePath: string = await Util.createTemporaryFile(parsedPath.base);
+            await this.downloadFile(item, Uri.file(temporaryFilePath));
+            const document: TextDocument | undefined = <TextDocument | undefined>
+                await workspace.openTextDocument(temporaryFilePath);
+            if (document) {
+                this.fileMap[temporaryFilePath] = [document, item];
+                await window.showTextDocument(document);
+            } else {
+                Util.err('storage.download.error', 'Unable to open');
+            }
+        } catch (err) {
+            Util.err('storage.download.error', [err]);
+        }
+    }
+
+    public async downloadFile(target: AzureBlobTreeItem, filePath: Uri): Promise<void> {
+        const client: BlockBlobClient = target.client.getBlockBlobClient(target.blob.name);
+        let totalBytes: number = 1;
+        if (target.properties && target.properties.contentLength) {
+            totalBytes = target.properties.contentLength;
+        }
+
+        const statusBarItem: StatusBarItem =
+        window.createStatusBarItem(StatusBarAlignment.Right, Number.MAX_VALUE);
+        statusBarItem.text =
+            `${OCTICON_CLOUDUPLOAD} ${__('storage.download.status', [0, totalBytes])}`;
+        statusBarItem.show();
+        try {
+            await client.downloadToFile(filePath.fsPath, undefined, undefined, {
+                onProgress: event => {
+                    statusBarItem.text =
+                    `${OCTICON_CLOUDDOWNLOAD} ${__('storage.download.status', [event.loadedBytes, totalBytes])}`;
+                }
+            });
+            Util.info('storage.download.success');
+        } catch (err) {
+            Util.err('storage.download.error', [err]);
+        }
+        statusBarItem.dispose();
     }
 
     public async createFolder(name: string, target: AzureBlobTreeItem | AzureBlobRootItem): Promise<void> {
@@ -93,7 +161,7 @@ export class AzureBlobManager extends Singleton {
         }
     }
 
-    public async upload(files: Uri[], target: AzureBlobTreeItem | AzureBlobRootItem): Promise<void> {
+    public async uploadFiles(files: Uri[], target: AzureBlobTreeItem | AzureBlobRootItem): Promise<void> {
         const statusBarItem: StatusBarItem =
             window.createStatusBarItem(StatusBarAlignment.Right, Number.MAX_VALUE);
         statusBarItem.text =
@@ -116,6 +184,10 @@ export class AzureBlobManager extends Singleton {
         statusBarItem.dispose();
 
         await (<AzureBlobTreeItem> target).refresh();
+    }
+
+    public async uploadFolders(folders: Uri[], target: AzureBlobTreeItem | AzureBlobRootItem): Promise<void> {
+        console.log('not implemented.');
     }
 
     public async delete(target: AzureBlobTreeItem): Promise<void> {

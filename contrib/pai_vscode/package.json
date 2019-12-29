@@ -111,6 +111,11 @@
                 "category": "PAI"
             },
             {
+                "command": "paiext.azure-blob.download",
+                "title": "%paiext.azure-blob.download%",
+                "category": "PAI"
+            },
+            {
                 "command": "paiext.container.joblist.refresh",
                 "title": "%paiext.common.refresh%",
                 "icon": {
@@ -397,12 +402,12 @@
                 {
                     "command": "paiext.azure-blob.delete",
                     "when": "view == PAIContainerStorage && viewItem && viewItem == PAIStorageAzureBlobFolder",
-                    "group": "azure@5"
+                    "group": "azure@7"
                 },
                 {
                     "command": "paiext.azure-blob.delete",
                     "when": "view == PAIContainerStorage && viewItem && viewItem == PAIStorageAzureBlobItem",
-                    "group": "azure@6"
+                    "group": "azure@8"
                 },
                 {
                     "command": "paiext.azure-blob.upload.files",
@@ -423,6 +428,11 @@
                     "command": "paiext.azure-blob.create.folder",
                     "when": "view == PAIContainerStorage && viewItem && viewItem == PAIStorageAzureBlob",
                     "group": "azure@2"
+                },
+                {
+                    "command": "paiext.azure-blob.download",
+                    "when": "view == PAIContainerStorage && viewItem && viewItem == PAIStorageAzureBlobItem",
+                    "group": "azure@5"
                 }
             ]
         },

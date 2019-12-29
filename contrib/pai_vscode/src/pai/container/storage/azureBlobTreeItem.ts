@@ -15,12 +15,16 @@ import {
     StorageSharedKeyCredential
 } from '@azure/storage-blob';
 import { IStorage } from 'openpai-js-sdk';
+import * as path from 'path';
 import { Event, EventEmitter, TreeItemCollapsibleState, Uri } from 'vscode';
 
 import {
+    COMMAND_OPEN_AZURE_BLOB,
+    COMMAND_TREEVIEW_DOUBLECLICK,
     CONTEXT_STORAGE_AZURE_BLOB,
     CONTEXT_STORAGE_AZURE_BLOB_FOLDER,
     CONTEXT_STORAGE_AZURE_BLOB_ITEM,
+    ICON_FILE,
     ICON_FOLDER
 } from '../../../common/constants';
 import { __ } from '../../../common/i18n';
@@ -52,14 +56,13 @@ export type BlobMetadata = {
         [propertyName: string]: string;
     } | undefined;
 
-async function getMetadata(blob: BlobValue, client: ContainerClient): Promise<BlobMetadata> {
+async function getProperties(blob: BlobValue, client: ContainerClient): Promise<BlobGetPropertiesResponse | undefined> {
     if (blob.kind === 'prefix') {
         return undefined;
     }
 
     try {
-        const res: BlobGetPropertiesResponse = await client.getBlobClient(blob.name).getProperties();
-        return res.metadata;
+        return await client.getBlobClient(blob.name).getProperties();
     } catch (err) {
         return undefined;
     }
@@ -76,17 +79,13 @@ function isFolder(blob: BlobValue, metadata: BlobMetadata): boolean {
     return false;
 }
 
-function getBlobName(blob: BlobValue, metadata: BlobMetadata): string {
-    if (isFolder(blob, metadata) && !blob.name.endsWith('/')) {
-        return `${blob.name}/`;
-    }
-    return blob.name;
-}
-
 function distinctChildren(children: Map<string, AzureBlobTreeItem>): TreeNode[] {
     const blobs: TreeNode[] = [];
     for (const [name, item] of children) {
-        if (item.metadata && item.metadata.hdi_isfolder && item.metadata.hdi_isfolder === 'true') {
+        if (item.properties &&
+            item.properties.metadata &&
+            item.properties.metadata.hdi_isfolder &&
+            item.properties.metadata.hdi_isfolder === 'true') {
             if (children.has(`${name}/`)) {
                 continue;
             }
@@ -104,30 +103,47 @@ export class AzureBlobTreeItem extends TreeNode {
     public client: ContainerClient;
 
     public blob: BlobValue;
-    public metadata: BlobMetadata;
+    public properties?: BlobGetPropertiesResponse;
     public onDidChangeTreeData: Event<TreeNode>;
+    public path: string;
 
     private onDidChangeTreeDataEmitter: EventEmitter<TreeNode>;
 
-    public constructor(blob: BlobValue, metadata: BlobMetadata, client: ContainerClient, parent: TreeNode) {
+    public constructor(
+            blob: BlobValue,
+            properties: BlobGetPropertiesResponse | undefined,
+            client: ContainerClient,
+            parent: TreeNode) {
+        const metadata: BlobMetadata = properties ? properties.metadata : undefined;
         const folder: boolean = isFolder(blob, metadata);
-        super(getBlobName(blob, metadata), folder ?
+        const name: string | undefined = path.basename(blob.name);
+        super(name ? name : path.dirname(blob.name), blob.kind === 'prefix' ?
             TreeItemCollapsibleState.Collapsed : TreeItemCollapsibleState.None);
-        this.metadata = metadata;
+        this.properties = properties;
         this.contextValue = folder ?
             CONTEXT_STORAGE_AZURE_BLOB_FOLDER : CONTEXT_STORAGE_AZURE_BLOB_ITEM;
-        if (folder) {
-            this.iconPath = Uri.file(Util.resolvePath(ICON_FOLDER));
-        }
         this.parent = parent;
         this.client = client;
         this.blob = blob;
+        this.path = blob.name;
+        this.description = this.path;
         this.onDidChangeTreeDataEmitter = new EventEmitter<TreeNode>();
         this.onDidChangeTreeData = this.onDidChangeTreeDataEmitter.event;
+
+        if (folder) {
+            this.iconPath = Uri.file(Util.resolvePath(ICON_FOLDER));
+        } else {
+            this.iconPath = Uri.file(Util.resolvePath(ICON_FILE));
+            this.command = {
+                title: __('treeview.node.storage.openfile'),
+                command: COMMAND_TREEVIEW_DOUBLECLICK,
+                arguments: [COMMAND_OPEN_AZURE_BLOB, this]
+            };
+        }
     }
 
     public async getChildren(): Promise<TreeNode[] | undefined> {
-        if (!isFolder(this.blob, this.metadata)) {
+        if (!isFolder(this.blob, this.properties ? this.properties.metadata : undefined)) {
             return undefined;
         } else if (this.blobs) {
             return this.blobs;
@@ -138,16 +154,20 @@ export class AzureBlobTreeItem extends TreeNode {
     }
 
     public async reloadChildren(): Promise<void> {
+        if (this.blob.kind === 'blob') {
+            return;
+        }
+
         const children: Map<string, AzureBlobTreeItem> = new Map<string, AzureBlobTreeItem>();
         try {
             const iter: BlobIter = this.client.listBlobsByHierarchy('/', {
-                prefix: <string> this.label
+                prefix: <string> this.path
             });
             let blobItem: BlobEntity = await iter.next();
             while (!blobItem.done) {
                 const blob: BlobValue = blobItem.value;
-                const metadata: BlobMetadata = await getMetadata(blob, this.client);
-                children.set(blob.name, new AzureBlobTreeItem(blob, metadata, this.client, this));
+                const properties: BlobGetPropertiesResponse | undefined = await getProperties(blob, this.client);
+                children.set(blob.name, new AzureBlobTreeItem(blob, properties, this.client, this));
                 blobItem = await iter.next();
             }
         } catch (err) {
@@ -210,8 +230,8 @@ export class AzureBlobRootItem extends TreeNode {
             let blobItem: BlobEntity = await iter.next();
             while (!blobItem.done) {
                 const blob: BlobValue = blobItem.value;
-                const metadata: BlobMetadata = await getMetadata(blob, this.client);
-                children.set(blob.name, new AzureBlobTreeItem(blob, metadata, this.client, this));
+                const properties: BlobGetPropertiesResponse | undefined = await getProperties(blob, this.client);
+                children.set(blob.name, new AzureBlobTreeItem(blob, properties, this.client, this));
                 blobItem = await iter.next();
             }
         } catch (err) {
