@@ -13,7 +13,8 @@ import {
     EventEmitter,
     TreeDataProvider,
     TreeItem,
-    TreeView
+    TreeView,
+    TreeItemCollapsibleState
 } from 'vscode';
 
 import {
@@ -92,6 +93,12 @@ export class StorageTreeDataProvider extends Singleton implements TreeDataProvid
 
     public async openStorage(cluster: IPAICluster): Promise<void> {
         await commands.executeCommand('PAIContainerStorage.focus');
+        for (const node of this.clusters) {
+            if (node.config!.name === cluster.name) {
+                node.collapsibleState = TreeItemCollapsibleState.Expanded;
+                // todo: should trigger expanded.
+            }
+        }
     }
 
     public getTreeItem(element: TreeNode): TreeItem | Thenable<TreeItem> {
