@@ -16,23 +16,35 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-from __future__ import print_function
-
+import logging
 import os
 import sys
-sys.path.append(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
-import logging
 
-from plugin_utils import plugin_init, inject_commands
+sys.path.append(
+    os.path.join(os.path.dirname(os.path.abspath(__file__)), "../.."))
+from plugins.plugin_utils import plugin_init, PluginHelper  #pylint: disable=wrong-import-position
 
-logger = logging.getLogger(__name__)
+LOGGER = logging.getLogger(__name__)
 
-if __name__ == "__main__":
-    [parameters, pre_script, post_script] = plugin_init()
+
+def main():
+    LOGGER.info("Preparing tensorboard runtime plugin commands")
+    [plugin_config, pre_script, _] = plugin_init()
+    parameters = plugin_config.get("parameters")
+
+    if not parameters:
+        LOGGER.info("Tensorboard plugin parameters is empty, ignore this")
+        return
 
     commands = []
-    if parameters is not None:
-        logdir = ",".join(["{}:{}".format(k, v) for k, v in parameters["logdir"].items()])
-        commands.append("tensorboard --logdir={} --port={} &\n".format(logdir, parameters["port"]))
+    logdir = ",".join(
+        ["{}:{}".format(k, v) for k, v in parameters["logdir"].items()])
+    commands.append("tensorboard --logdir={} --port={} &\n".format(
+        logdir, parameters["port"]))
 
-    inject_commands(commands, pre_script)
+    PluginHelper(plugin_config).inject_commands(commands, pre_script)
+    LOGGER.info("Tensorboard runtime plugin perpared")
+
+
+if __name__ == "__main__":
+    main()

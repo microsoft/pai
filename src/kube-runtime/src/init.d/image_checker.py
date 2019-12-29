@@ -27,6 +27,9 @@ import sys
 import requests
 import yaml
 
+sys.path.append(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
+from common.utils import init_logger  #pylint: disable=wrong-import-position
+
 LOGGER = logging.getLogger(__name__)
 
 
@@ -35,6 +38,13 @@ def _is_docker_hub_uri(uri):
                     uri):
         return True
     return False
+
+
+def _get_docker_repository_name(image_name):
+    paths = image_name.split("/")
+    if len(paths) == 1:
+        return "library/{}".format(paths[0])
+    return image_name
 
 
 def _is_docker_image_valid(job_config):
@@ -59,10 +69,11 @@ def _is_docker_image_valid(job_config):
 
     arr = image_info["uri"].split(":")
     if len(arr) == 1:
-        uri = "http://hub.docker.com/v2/repositories/{}".format(arr[0])
+        uri = "http://hub.docker.com/v2/repositories/{}".format(
+            _get_docker_repository_name(arr[0]))
     elif len(arr) == 2:
         uri = "http://hub.docker.com/v2/repositories/{}/tags/{}".format(
-            arr[0], arr[1])
+            _get_docker_repository_name(arr[0]), arr[1])
     else:
         LOGGER.ERROR("Maybe docker uri is invalid")
         return False
@@ -76,11 +87,6 @@ def _is_docker_image_valid(job_config):
 
 
 def main():
-    logging.basicConfig(
-        format=
-        "%(asctime)s - %(levelname)s - %(filename)s:%(lineno)s - %(message)s",
-        level=logging.INFO,
-    )
     parser = argparse.ArgumentParser()
     parser.add_argument("job_config", help="job config yaml")
     args = parser.parse_args()
@@ -93,4 +99,5 @@ def main():
 
 
 if __name__ == "__main__":
+    init_logger()
     main()
