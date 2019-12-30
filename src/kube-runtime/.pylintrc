@@ -1,6 +1,9 @@
 [SETTINGS]
 max-args=8
 
+# Ignore imports when computing similarities.
+ignore-imports=yes
+
 [FORMAT]
 max-line-length=130
 
@@ -8,11 +11,11 @@ max-line-length=130
 init-hook="from pylint.config import find_pylintrc;\
            import os, sys;\
            sys.path.append(os.path.join(os.path.dirname(find_pylintrc()), './src/init.d'));\
-           sys.path.append(os.path.join(os.path.dirname(find_pylintrc()), './src/plugins'));"
+           sys.path.append(os.path.join(os.path.dirname(find_pylintrc()), './src'));"
 
 # Disable docstring check
 disable=C0111
 
 [BASIC]
 # Good variable names which should always be accepted, separated by a comma
-good-names=i,j,k,f
+good-names=i,j,k,f,v

@@ -10,5 +10,6 @@ extras:
     - plugin: teamwiase_storage
       parameters:
         storageConfigNames:
-          - PAI_SAHRE  # storage config name provided by admin
+          - PAI_SHARE  # storage config name provided by admin
+      failurePolicy: ignore/fail
 ```

@@ -42,7 +42,17 @@ const WizardButton = ({ children, onClick }) => {
       }}
       onClick={onClick}
     >
-      <div style={{ padding: spacing.l3 }}>{children}</div>
+      <div
+        style={{
+          padding: spacing.l3,
+          width: '100%',
+          height: '100%',
+          display: 'flex',
+          alignItems: 'center',
+        }}
+      >
+        <div style={{ width: '100%' }}>{children}</div>
+      </div>
     </DefaultButton>
   );
 };
@@ -96,86 +106,88 @@ const JobWizard = ({ setYamlText, history }) => {
   }
 
   return (
-    <Card style={{ height: '90%', margin: `${spacing.l2}` }}>
-      <Stack horizontalAlign='center' padding={100} gap={100}>
-        <div
-          style={{
-            color: palette.themePrimary,
-            fontSize: FontSizes.xxLarge,
-            fontWeight: FontWeights.semibold,
-            alignItems: 'center',
-            position: 'absolute',
-          }}
-        >
-          Select your job type
-        </div>
-        <Stack
-          horizontal
-          horizontalAlign='center'
-          gap={120}
-          style={{ width: '100%', marginTop: 100 }}
-        >
-          <Stack horizontalAlign='center' gap={50}>
-            <WizardButton
-              onClick={() => {
-                uploadFile.current.click();
-              }}
-            >
-              <IconUpload />
-            </WizardButton>
-            <input
-              type='file'
-              ref={uploadFile}
-              style={{ display: 'none' }}
-              accept='.yml,.yaml'
-              onChange={importFile}
-            />
-            <div
-              style={{
-                fontSize: FontSizes.large,
-                fontWeight: FontWeights.semibold,
-              }}
-            >
-              Import Config
-            </div>
-          </Stack>
-          <Stack horizontalAlign='center' gap={50}>
-            <WizardButton
-              onClick={() => {
-                history.push('/single');
-              }}
-            >
-              <IconSingle />
-            </WizardButton>
-            <div
-              style={{
-                fontSize: FontSizes.large,
-                fontWeight: FontWeights.semibold,
-              }}
-            >
-              Single Job
-            </div>
-          </Stack>
-          <Stack horizontalAlign='center' gap={50}>
-            <WizardButton
-              onClick={() => {
-                history.push('/general');
-              }}
-            >
-              <IconDistributed />
-            </WizardButton>
-            <div
-              style={{
-                fontSize: FontSizes.large,
-                fontWeight: FontWeights.semibold,
-              }}
-            >
-              Distributed Job
-            </div>
+    <div style={{ display: 'flex', height: '100%' }}>
+      <Card style={{ margin: `${spacing.l2}`, width: '100%' }}>
+        <Stack horizontalAlign='center' padding={100} gap={100}>
+          <div
+            style={{
+              color: palette.themePrimary,
+              fontSize: FontSizes.xxLarge,
+              fontWeight: FontWeights.semibold,
+              alignItems: 'center',
+              position: 'absolute',
+            }}
+          >
+            Select your job type
+          </div>
+          <Stack
+            horizontal
+            horizontalAlign='center'
+            gap={120}
+            style={{ width: '100%', marginTop: 100 }}
+          >
+            <Stack horizontalAlign='center' gap={50}>
+              <WizardButton
+                onClick={() => {
+                  uploadFile.current.click();
+                }}
+              >
+                <IconUpload />
+              </WizardButton>
+              <input
+                type='file'
+                ref={uploadFile}
+                style={{ display: 'none' }}
+                accept='.yml,.yaml'
+                onChange={importFile}
+              />
+              <div
+                style={{
+                  fontSize: FontSizes.large,
+                  fontWeight: FontWeights.semibold,
+                }}
+              >
+                Import Config
+              </div>
+            </Stack>
+            <Stack horizontalAlign='center' gap={50}>
+              <WizardButton
+                onClick={() => {
+                  history.push('/single');
+                }}
+              >
+                <IconSingle />
+              </WizardButton>
+              <div
+                style={{
+                  fontSize: FontSizes.large,
+                  fontWeight: FontWeights.semibold,
+                }}
+              >
+                Single Job
+              </div>
+            </Stack>
+            <Stack horizontalAlign='center' gap={50}>
+              <WizardButton
+                onClick={() => {
+                  history.push('/general');
+                }}
+              >
+                <IconDistributed />
+              </WizardButton>
+              <div
+                style={{
+                  fontSize: FontSizes.large,
+                  fontWeight: FontWeights.semibold,
+                }}
+              >
+                Distributed Job
+              </div>
+            </Stack>
           </Stack>
         </Stack>
-      </Stack>
-    </Card>
+      </Card>
+    </div>
   );
 };
 

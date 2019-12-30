@@ -3,7 +3,7 @@
 # OpenPAI Job Protocol YAML
 
 protocolVersion: String, required # Protocol version, current version is 2.
-name: String, required # String in ^[a-zA-Z0-9_-]+$ format.
+name: String, required # String in ^([a-zA-Z0-9][a-zA-Z0-9_-]*)?[a-zA-Z0-9]$ format, no longer than 63 characters.
 type: String, required # Component type, should be "job" here.
 version: String, optional # Component version, default is latest.
 contributor: String, optional
@@ -70,7 +70,7 @@ taskRoles:
       - String, required
 
 # To handle that a component may interact with different component differently, user is encouraged to place the codes handling such difference in the "deployments" field,
-# e.g., a job may get input data through wget, hdfc -dfs cp, copy, or just directly read from remote storage. This logic can be placed here.
+# e.g., a job may get input data through wget, hdfs -dfs cp, copy, or just directly read from remote storage. This logic can be placed here.
 # In summary, the deployments field is responsible to make sure the job to run properly in a deployment specific runtime environment.
 # One could have many deployments, but only one deployment can be activated at runtime by specifying in "defaults". User can choose the deployment and specify in "defaults" at submission time.
 deployments:

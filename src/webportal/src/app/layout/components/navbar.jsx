@@ -28,20 +28,24 @@ import t from '../../components/tachyons.scss';
 const CustomButton = props => (
   <CommandBarButton
     {...props}
-    styles={concatStyleSets(props.styles, {
-      root: [ColorClassNames.themePrimaryBackground, ColorClassNames.white],
-      rootHovered: [
-        ColorClassNames.themeDarkAltBackground,
-        ColorClassNames.white,
-      ],
-      rootPressed: [ColorClassNames.themeDarkBackground, ColorClassNames.white],
-      rootExpanded: [
-        ColorClassNames.themeDarkBackground,
-        ColorClassNames.white,
-      ],
-      icon: [ColorClassNames.white],
-      menuIcon: [ColorClassNames.white],
-    })}
+    styles={concatStyleSets(
+      {
+        root: [ColorClassNames.themePrimaryBackground, ColorClassNames.white],
+        rootHovered: [
+          ColorClassNames.themeDarkAltBackground,
+          ColorClassNames.white,
+        ],
+        rootPressed: [
+          ColorClassNames.themeDarkBackground,
+          ColorClassNames.white,
+        ],
+        icon: [ColorClassNames.white],
+        iconHovered: [ColorClassNames.white],
+        iconPressed: [ColorClassNames.white],
+        iconFocused: [ColorClassNames.white],
+      },
+      props.styles,
+    )}
   />
 );
 
@@ -97,11 +101,20 @@ const Navbar = ({ onToggleSidebar, mobile, userInfo }) => {
           <CustomButton
             key='menu'
             text={!mobile && `Welcome, ${username}`}
-            styles={{
-              root: { height: '100%' },
-              menuIcon: mobile && { display: 'none' },
-              label: mobile && { display: 'none' },
-            }}
+            styles={concatStyleSets(
+              {
+                root: { height: '100%' },
+              },
+              mobile && {
+                menuIcon: { display: 'none' },
+                label: { display: 'none' },
+              },
+              menuVisible && {
+                root: [ColorClassNames.themeDarkBackground],
+                rootHovered: [ColorClassNames.themeDarkBackground],
+                rootPressed: [ColorClassNames.themeDarkBackground],
+              },
+            )}
             iconProps={mobile && { iconName: 'Contact' }}
             onClick={e => {
               setMenuVisible(!menuVisible);

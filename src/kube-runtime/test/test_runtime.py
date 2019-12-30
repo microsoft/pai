@@ -20,17 +20,18 @@ import os
 import sys
 import unittest
 from unittest import mock
-
 import yaml
 
 #pylint: disable=wrong-import-position
 sys.path.append(
-    os.path.join(os.path.dirname(os.path.abspath(__file__)), "../src/init.d"))
+    os.path.join(os.path.dirname(os.path.abspath(__file__)), "../src"))
 sys.path.append(
-    os.path.join(os.path.dirname(os.path.abspath(__file__)), "../src/plugins"))
+    os.path.join(os.path.dirname(os.path.abspath(__file__)), "../src/init.d"))
 
+from common.utils import init_logger
 import initializer
-from teamwise_storage import storage_command_generator
+from plugins.teamwise_storage import storage_command_generator
+from plugins.plugin_utils import PluginHelper
 
 #pylint: enable=wrong-import-position
 
@@ -40,6 +41,7 @@ PACKAGE_DIRECTORY_COM = os.path.dirname(os.path.abspath(__file__))
 # pylint: disable=no-self-use, protected-access
 class TestRuntime(unittest.TestCase):
     def setUp(self):
+        init_logger()
         try:
             os.chdir(PACKAGE_DIRECTORY_COM)
         except OSError:
@@ -230,6 +232,27 @@ class TestRuntime(unittest.TestCase):
             "rm -r /mnt/data", "ln -s /tmp_azure_blob_test_root/data /mnt/data"
         ]
         assert storage_commands == expect_commands
+
+    def test_plugin_failure_policy(self):
+        test_script_file = "test.sh"
+        if os.path.exists(test_script_file):
+            os.remove(test_script_file)
+
+        with open("plugin_with_failure_policy.yaml", 'r') as f:
+            plugins = list(yaml.safe_load_all(f))
+            helpers = list(map(PluginHelper, plugins))
+            self.assertEqual(helpers[0]._failure_policy, "ignore")
+            self.assertEqual(helpers[1]._failure_policy, "fail")
+            self.assertEqual(helpers[2]._failure_policy, "fail")
+
+            helpers[0].inject_commands(["test"], test_script_file)
+            with open(test_script_file) as f:
+                lines = f.read().splitlines()
+                first_line = lines[0]
+                last_line = lines[-1]
+                self.assertEqual(first_line, "set +o errexit")
+                self.assertEqual(last_line, "set -o errexit")
+            os.remove(test_script_file)
 
 
 if __name__ == '__main__':
