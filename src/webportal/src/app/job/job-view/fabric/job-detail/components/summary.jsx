@@ -59,11 +59,13 @@ import {
   getDurationString,
   getHumanizedJobStateString,
   isStoppable,
+  isPublishable,
 } from '../../../../../components/util/job';
 import config from '../../../../../config/webportal.config';
 import StopJobConfirm from '../../JobList/StopJobConfirm';
 import CopyButton from '../../../../../components/copy-button';
 import CloneButton from './clone-button';
+import PublishDialog from './publish-dialog';
 
 const HintItem = ({ header, children }) => (
   <div className={c(t.flex, t.justifyStart)}>
@@ -94,6 +96,7 @@ export default class Summary extends React.Component {
       autoReloadInterval: 10 * 1000,
       hideDialog: true,
       isRetryHealthy: false,
+      hidePublishDialog: true,
     };
 
     this.onChangeInterval = this.onChangeInterval.bind(this);
@@ -105,6 +108,8 @@ export default class Summary extends React.Component {
     this.setHideDialog = this.setHideDialog.bind(this);
     this.checkRetryHealthy = this.checkRetryHealthy.bind(this);
     this.checkRetryLink = this.checkRetryLink.bind(this);
+    this.setHidePublishDialog = this.setHidePublishDialog.bind(this);
+    this.showPublishDialog = this.showPublishDialog.bind(this);
   }
 
   async componentDidMount() {
@@ -139,6 +144,14 @@ export default class Summary extends React.Component {
 
   setHideDialog() {
     this.setState({ hideDialog: true });
+  }
+
+  showPublishDialog() {
+    this.setState({ hidePublishDialog: false });
+  }
+
+  setHidePublishDialog() {
+    this.setState({ hidePublishDialog: true });
   }
 
   showExitDiagnostics() {
@@ -368,6 +381,7 @@ export default class Summary extends React.Component {
       monacoProps,
       hideDialog,
       isRetryHealthy,
+      hidePublishDialog,
     } = this.state;
     const { className, jobInfo, reloading, onStopJob, onReload } = this.props;
     const { rawJobConfig } = this.context;
@@ -658,6 +672,18 @@ export default class Summary extends React.Component {
                   hideDialog={hideDialog}
                   setHideDialog={this.setHideDialog}
                   stopJob={onStopJob}
+                />
+              </span>
+              <span className={c(t.ml2)}>
+                <DefaultButton
+                  text='Publish'
+                  onClick={this.showPublishDialog}
+                  disabled={!isPublishable(jobInfo.jobStatus, rawJobConfig)}
+                />
+                <PublishDialog
+                  hidePublishDialog={hidePublishDialog}
+                  setHidePublishDialog={this.setHidePublishDialog}
+                  currentJob={jobInfo}
                 />
               </span>
             </div>

@@ -267,3 +267,30 @@ export async function getContainerLog(logUrl) {
     throw new Error(`Log not available`);
   }
 }
+
+export async function createMarketItem(marketItem) {
+  const url = `${config.restServerUri}/api/v2/marketplace/items`;
+  const res = await fetch(url, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      name: marketItem.name,
+      author: marketItem.author,
+      category: marketItem.category,
+      introduction: marketItem.introduction,
+      description: marketItem.description,
+      jobConfig: marketItem.jobConfig,
+      submits: marketItem.submits,
+      starNumber: marketItem.stars,
+      tags: marketItem.tags,
+    }),
+  });
+  const json = await res.json();
+  if (res.ok) {
+    return json;
+  } else {
+    throw new Error(json);
+  }
+}

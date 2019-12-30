@@ -27,6 +27,10 @@ export function isStoppable(job) {
   );
 }
 
+export function isPublishable(job, rawJobConfig) {
+  return job.state === 'SUCCEEDED' && isNil(rawJobConfig.extras);
+}
+
 export function getHumanizedJobStateString(job) {
   if (job.state === 'JOB_NOT_FOUND') {
     return 'N/A';
