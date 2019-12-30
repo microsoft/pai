@@ -132,12 +132,16 @@ deployments:
     taskRoles:
       worker:
         preCommands:
+          # remove in the image otherwise cannot find gpu
+          - rm /usr/local/cuda/lib64/stubs/libcuda.so.1
           - wget -qO- <% $data.uri[0] %> | tar xvz && mv cifar-10-batches-py data_<% $data.name %>
           - >
             git clone <% $script.uri %> script_<% $script.name %> &&
             cd script_<% $script.name %> && git checkout <% $script.version %> && cd ..
       psserver:
         preCommands:
+          # remove in the image otherwise cannot find gpu
+          - rm /usr/local/cuda/lib64/stubs/libcuda.so.1
           - wget -qO- <% $data.uri[0] %> | tar xvz && mv cifar-10-batches-py data_<% $data.name %>
           - >
             git clone <% $script.uri %> script_<% $script.name %> &&

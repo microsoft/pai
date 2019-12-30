@@ -10,18 +10,18 @@ This is a proof-of-concept SDK (Python) and CLI (command-line-interface) tool fo
 
 Besides above benefits, this project also provides powerful runtime support, which bridges users' (local) working environments and jobs' running environments (inside the containers started by remote cluster). See more about[ the scenarios and user stories](docs/scenarios-and-user-stories.md).
 
-- [Get started](#get-started) 
-  - [Installation](#installation) 
+- [Get started](#get-started)
+  - [Installation](#installation)
     - [Dependencies](#dependencies)
   - [Define your clusters](#define-your-clusters)
-- [How-to guide for the CLI tool](#how-to-guide-for-the-cli-tool) 
-  - [Cluster and storage management](#cluster-and-storage-management) 
+- [How-to guide for the CLI tool](#how-to-guide-for-the-cli-tool)
+  - [Cluster and storage management](#cluster-and-storage-management)
     - [How to list existing clusters](#how-to-list-existing-clusters)
     - [How to open and edit the cluster configuration file](#how-to-open-and-edit-the-cluster-configuration-file)
-  - [How to check the available resources of clusters](#how-to-check-the-available-resources-of-clusters) 
+  - [How to check the available resources of clusters](#how-to-check-the-available-resources-of-clusters)
     - [How to add / delete a cluster](#how-to-add--delete-a-cluster)
     - [How to access storages of a cluster](#how-to-access-storages-of-a-cluster)
-  - [Job operations](#job-operations) 
+  - [Job operations](#job-operations)
     - [How to query my jobs in a cluster](#how-to-query-my-jobs-in-a-cluster)
     - [How to submit a job from existing job config file](#how-to-submit-a-job-from-existing-job-config-file)
     - [How to change the configuration before submitting](#how-to-change-the-configuration-before-submitting)
@@ -31,18 +31,18 @@ Besides above benefits, this project also provides powerful runtime support, whi
     - [How to submit a job given a sequence of commands](#how-to-submit-a-job-given-a-sequence-of-commands)
     - [How to add `pip install` packages](#how-to-add-pip-install-packages)
     - [How to preview the generated job config but not submit it](#how-to-preview-the-generated-job-config-but-not-submit-it)
-  - [`Jupyter` notebook](#jupyter-notebook) 
+  - [`Jupyter` notebook](#jupyter-notebook)
     - [How to run a local notebook with remote resources](#how-to-run-a-local-notebook-with-remote-resources)
     - [How to launch a remote `Jupyter` server and connect it](#how-to-launch-a-remote-jupyter-server-and-connect-it)
-  - [Other FAQ of CLI](#other-faq-of-cli) 
+  - [Other FAQ of CLI](#other-faq-of-cli)
     - [How to select a cluster to use until I change it](#how-to-select-a-cluster-to-use-until-i-change-it)
     - [How to simplify the command](#how-to-simplify-the-command)
     - [How to install a different version of SDK](#how-to-install-a-different-version-of-sdk)
     - [How to specify the `python` environment I want to use in the job container](#how-to-specify-the-python-environment-i-want-to-use-in-the-job-container)
-- [Python binding](#python-binding) 
+- [Python binding](#python-binding)
   - [Cluster management](#cluster-management)
   - [Job management](#job-management)
-- [Make contributions](#make-contributions) 
+- [Make contributions](#make-contributions)
   - [Release plan](#release-plan)
   - [Debug the SDK](#debug-the-sdk)
   - [Unit tests](#unit-tests)
@@ -223,7 +223,7 @@ The CLI tools also provides the function to change some contents of existing job
 # compatible with v1 specification
 opai job submit --update name=<job-name> -u defaults:virtualCluster=test <config-file>
 
-# compatible with v2 specificaiton
+# compatible with v2 specification
 opai job submit --update jobName=<job-name> -u virtualCluster=test <config-file>
 ```
 
@@ -301,7 +301,7 @@ Sometimes user may want to launch a remote `Jupyter` server and do some work on 
 As shown in above examples, `--cluster-alias, -a` is required by lots of commands, but it may not be changed frequently. So it is annoying to type it every time. The CLI tool provides a command to select a cluster to use by
 
     opai cluster select [-g] <cluster-alias>
-    
+
 
 Commands after `opai cluster select` will have a default option (if necessary) `--cluster-alias <cluster-alias>`, which can be overwritten explicitly. The mechanism and priority sequence is the same to below section.
 

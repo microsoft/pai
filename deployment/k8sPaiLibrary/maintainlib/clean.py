@@ -100,7 +100,7 @@ class clean:
         com = self.cluster_object_model
 
         self.logger.warning("Begin to destroy whole cluster.")
-        self.logger.warning("After destorying, all kubenretes's metadata will be deleted and etcd will be cleaned too.")
+        self.logger.warning("After destroying, all kubenretes's metadata will be deleted and etcd will be cleaned too.")
         for role in ["proxy", "master", "worker"]:
             if "{0}-list".format(role) not in com["kubernetes"]:
                 continue

@@ -43,7 +43,8 @@ function generateHtml(opt) {
         title: title,
         version: version,
         commitVersion: commitVersion,
-        template: './src/app/layout/layout.component.ejs',
+        template: './src/app/layout/layout.ejs',
+        chunksSortMode: 'manual',
         minify: {
           collapseWhitespace: true,
           html5: true,
@@ -61,7 +62,7 @@ const config = (env, argv) => ({
   entry: {
     index: './src/app/home/index.jsx',
     home: './src/app/home/home.jsx',
-    layout: './src/app/layout/layout.component.js',
+    layout: './src/app/layout/layout.jsx',
     userView: './src/app/user/fabric/user-view.jsx',
     batchRegister: './src/app/user/fabric/batch-register.jsx',
     dashboard: './src/app/dashboard/dashboard.component.js',
@@ -231,8 +232,22 @@ const config = (env, argv) => ({
         ],
       },
       {
-        test: /\.(eot|woff2?|svg|ttf)([?]?.*)$/,
+        test: /\.(eot|woff2?|ttf)([?]?.*)$/,
         use: [
+          {
+            loader: 'file-loader',
+            options: {
+              name: '[name].[ext]',
+              publicPath: '/assets/font/',
+              outputPath: 'assets/font/',
+            },
+          },
+        ],
+      },
+      {
+        test: /\.svg$/,
+        use: [
+          '@svgr/webpack',
           {
             loader: 'file-loader',
             options: {

@@ -17,9 +17,9 @@
 
 class RestServer:
 
-    def __init__(self, cluster_configuration, service_configuration, default_service_configuraiton):
+    def __init__(self, cluster_configuration, service_configuration, default_service_configuration):
         self.cluster_configuration = cluster_configuration
-        self.service_configuration = dict(default_service_configuraiton,
+        self.service_configuration = dict(default_service_configuration,
                                           **service_configuration)
 
     #### Fist check, ensure all the configured data in cluster_configuration, service_configuration, default_service_configuration is right. And nothing is miss.

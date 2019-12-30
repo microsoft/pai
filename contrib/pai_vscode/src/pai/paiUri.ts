@@ -32,7 +32,7 @@ export namespace PAIRestUri {
             url += apiPrefix;
         }
 
-        return Util.fixURL(url);
+        return Util.fixURL(url, cluster.https);
     }
 
     export function token(cluster: IPAICluster): string {
@@ -63,7 +63,7 @@ export namespace PAIWebPortalUri {
     export async function isOldJobLinkAvailable(cluster: IPAICluster): Promise<boolean> {
         const link: string = `${getClusterWebPortalUri(cluster)}/view.html`;
         try {
-            await request.get(Util.fixURL(link));
+            await request.get(Util.fixURL(link, cluster.https));
             return true;
         } catch {
             return false;
@@ -72,10 +72,11 @@ export namespace PAIWebPortalUri {
 
     export async function jobDetail(cluster: IPAICluster, username: string, jobName: string): Promise<string> {
         const oldLink: boolean = await isOldJobLinkAvailable(cluster);
-        return `${getClusterWebPortalUri(cluster)}/${oldLink ? 'view' : 'job-detail'}.html?${querystring.stringify({
+        const url: string = `${getClusterWebPortalUri(cluster)}/${oldLink ? 'view' : 'job-detail'}.html?${querystring.stringify({
             username,
             jobName
         })}`;
+        return Util.fixURL(url, cluster.https);
     }
 
     export async function jobs(cluster: IPAICluster): Promise<string> {

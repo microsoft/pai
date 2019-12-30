@@ -23,10 +23,6 @@
  * SOFTWARE.
  */
 
-import 'core-js/stable';
-import 'regenerator-runtime/runtime';
-import 'whatwg-fetch';
-
 import React, { useState, useCallback, useEffect, useMemo } from 'react';
 import { Fabric, Stack, StackItem } from 'office-ui-fabric-react';
 import { isNil, isEmpty, get, cloneDeep } from 'lodash';
@@ -224,7 +220,7 @@ export const JobSubmissionPage = ({
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     if (params.get('op') === 'resubmit' && !isEmpty(vcNames)) {
-      const jobName = params.get('jobname') || '';
+      const jobName = params.get('jobName') || '';
       const user = params.get('user') || '';
       if (user && jobName) {
         fetchJobConfig(user, jobName)
@@ -249,7 +245,7 @@ export const JobSubmissionPage = ({
           })
           .catch(alert);
       }
-    } else {
+    } else if (params.get('op') !== 'resubmit') {
       setLoading(false);
     }
   }, [vcNames]);

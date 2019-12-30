@@ -2,13 +2,13 @@
 
 - [Default Configuration](#D_Config)
 - [How to Configure](#HT_Config)
-- [Generated Configuraiton](#G_Config)
+- [Generated Configuration](#G_Config)
 
 #### Default configuration <a name="D_Config"></a>
 
 [alert-manager default configuration](alert-manager.yaml)
 
-#### How to configure cluster section in service-configuraiton.yaml <a name="HT_Config"></a>
+#### How to configure cluster section in service-configuration.yaml <a name="HT_Config"></a>
 
 Port configurations in this section is optional which default to 9093. All other config is mandatory. If not receiver is configured, the alert manager will not start.
 

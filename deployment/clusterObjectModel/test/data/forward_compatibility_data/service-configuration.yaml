@@ -1,6 +1,6 @@
 cluster:
   cluster-id: pai_ut
-  docker-verison: 17.06.2
+  docker-version: 17.06.2
   data-path: "/datastorage"
   docker-registry-info:
     docker-namespace: ut

@@ -42,7 +42,7 @@ const generateFrameworkEnv = (frameworkName, config) => {
       tasks.completion.minFailedInstances : 1;
     env[`PAI_MIN_SUCCEEDED_TASK_COUNT_${taskRole}`] =
       (tasks.completion && 'minSucceededInstances' in tasks.completion && tasks.completion.minSucceededInstances) ?
-      tasks.completion.minSucceededInstances : -1;
+      tasks.completion.minSucceededInstances : (tasks.instances || 1);
   }
   return {
     ...env,

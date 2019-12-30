@@ -35,7 +35,7 @@ We need to build a Open MPI base image with GPU support to run Open MPI workload
 ## Advanced environment
 
 You can build runtime CNTK Docker images based on the MPI base image,
-for example, we prepared [CNTK mpi Dockerfile](./Dockerfile.example.cntk-mpi) which can be refered to.
+for example, we prepared [CNTK mpi Dockerfile](./Dockerfile.example.cntk-mpi) which can be referred to.
 
 Push the Docker image to a Docker registry, we use CNTK mpi Docker image as an example:
 

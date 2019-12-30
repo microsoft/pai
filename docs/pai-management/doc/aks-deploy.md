@@ -81,7 +81,7 @@ Merged "myAKSCluster" as current context in /root/.kube/config
 
 ***
 
-### Step 2. Prepare Configuraiton <a name="c-step-2"></a>
+### Step 2. Prepare Configuration <a name="c-step-2"></a>
 
 - [A guide to generate layout](./generate_layout.md)
 

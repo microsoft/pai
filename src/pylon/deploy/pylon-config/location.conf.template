@@ -183,7 +183,7 @@ location @handle_yarn_redirect {
 # Other web portals
 #
 
-# Kubernetes dashbaord
+# Kubernetes dashboard
 location ~ ^/kubernetes-dashboard$ {
   # Add '/' to the end of the URL, otherwise there will be a 404 error.
   return 301 $scheme://$http_host$request_uri/;

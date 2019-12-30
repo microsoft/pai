@@ -40,6 +40,7 @@ import (
 	"k8s.io/klog"
 	ei "k8s.io/kubernetes/pkg/scheduler/api"
 	"sync"
+	"time"
 )
 
 // HivedScheduler is the scheduling framework which serves as the bridge between
@@ -117,7 +118,7 @@ type HivedScheduler struct {
 func NewHivedScheduler() *HivedScheduler {
 	klog.Infof("Initializing " + si.ComponentName)
 
-	sConfig := si.NewConfig(nil)
+	sConfig := si.NewConfig(si.InitRawConfig(nil))
 	klog.Infof("With Config: \n%v", common.ToYaml(sConfig))
 	kConfig := si.BuildKubeConfig(sConfig)
 
@@ -176,7 +177,12 @@ func NewHivedScheduler() *HivedScheduler {
 			FilterHandler:  s.filterRoutine,
 			BindHandler:    s.bindRoutine,
 			PreemptHandler: s.preemptRoutine,
-		})
+		},
+		internal.InspectHandlers{
+			GetAffinityGroupsHandler: s.getAffinityGroups,
+			GetAffinityGroupHandler:  s.getAffinityGroup,
+		},
+	)
 
 	return s
 }
@@ -511,6 +517,8 @@ func (s *HivedScheduler) filterRoutine(args ei.ExtenderArgs) *ei.ExtenderFilterR
 		if s.shouldForceBind(s.podScheduleStatuses[pod.UID], suggestedNodes) {
 			go s.forceBindExecutor(bindingPod)
 		}
+
+		klog.Infof(logPfx + "Pod is binding: %v", common.ToJson(result.PodBindInfo))
 		return &ei.ExtenderFilterResult{
 			NodeNames: &[]string{bindingPod.Spec.NodeName},
 		}
@@ -522,19 +530,21 @@ func (s *HivedScheduler) filterRoutine(args ei.ExtenderArgs) *ei.ExtenderFilterR
 		}
 
 		// Return FailedNodes to tell K8S Default Scheduler that preemption may help.
-		failedNodeReasons := map[string]string{}
+		failedNodes := map[string]string{}
 		for _, victim := range result.PodPreemptInfo.VictimPods {
 			node := victim.Spec.NodeName
-			if _, ok := failedNodeReasons[node]; !ok {
-				failedNodeReasons[node] = fmt.Sprintf(
+			if _, ok := failedNodes[node]; !ok {
+				failedNodes[node] = fmt.Sprintf(
 					"node(%v) is waiting for victim Pod(s) to be preempted: %v",
 					node, internal.Key(victim))
 			} else {
-				failedNodeReasons[node] += ", " + internal.Key(victim)
+				failedNodes[node] += ", " + internal.Key(victim)
 			}
 		}
+
+		klog.Infof(logPfx + "Pod is preempting: %v", common.ToJson(failedNodes))
 		return &ei.ExtenderFilterResult{
-			FailedNodes: failedNodeReasons,
+			FailedNodes: failedNodes,
 		}
 	} else {
 		s.podScheduleStatuses[pod.UID] = &internal.PodScheduleStatus{
@@ -542,12 +552,22 @@ func (s *HivedScheduler) filterRoutine(args ei.ExtenderArgs) *ei.ExtenderFilterR
 			PodState:          internal.PodWaiting,
 			PodScheduleResult: &result,
 		}
+
+		// Block the whole scheduling to achieve better FIFO
+		if *s.sConfig.WaitingPodSchedulingBlockMilliSec > 0 {
+			time.Sleep(time.Duration(*s.sConfig.WaitingPodSchedulingBlockMilliSec) *
+				time.Millisecond)
+		}
+
+		// Return Error to tell K8S Default Scheduler that preemption must not help.
+		waitReason := "Pod is waiting for preemptible or free resource to appear"
 		if result.PodWaitInfo != nil {
-			return &ei.ExtenderFilterResult{
-				FailedNodes: result.PodWaitInfo.FailedNodeReasons,
-			}
-		} else {
-			return &ei.ExtenderFilterResult{}
+			waitReason += ": " + result.PodWaitInfo.Reason
+		}
+
+		klog.Infof(logPfx + waitReason)
+		return &ei.ExtenderFilterResult{
+			Error: waitReason,
 		}
 	}
 }
@@ -637,7 +657,15 @@ func (s *HivedScheduler) preemptRoutine(args ei.ExtenderPreemptionArgs) *ei.Exte
 	// At this point, podState must be in:
 	// {PodWaiting}
 
-	// The Pod should keep on waiting for preemptable or free resource to appear,
+	// The Pod should keep on waiting for preemptible or free resource to appear,
 	// so do not preempt any victim.
 	return &ei.ExtenderPreemptionResult{}
+}
+
+func (s *HivedScheduler) getAffinityGroups() si.AffinityGroupList {
+	return s.schedulerAlgorithm.GetAffinityGroups()
+}
+
+func (s *HivedScheduler) getAffinityGroup(name string) si.AffinityGroup {
+	return s.schedulerAlgorithm.GetAffinityGroup(name)
 }

@@ -173,7 +173,6 @@ export const MountList = ({ dataList, setDataList, setDataError }) => {
       key: 'remove',
       name: 'Remove',
       minWidth: 50,
-      style: { padding: 0 },
       headerClassName: FontClassNames.medium,
       onRender: (item, idx) => (
         <div

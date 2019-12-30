@@ -1,0 +1,19 @@
+{
+  "kind": "Secret",
+  "apiVersion": "v1",
+  "metadata": {
+    "name": "storage-server",
+    "namespace": "pai-storage",
+    "selfLink": "/api/v1/namespaces/pai-storage/secrets/storage-server",
+    "uid": "0b2b6a97-db99-11e9-b30f-000d3ab25bb6",
+    "resourceVersion": "14633250",
+    "creationTimestamp": "2019-09-20T11:23:17Z"
+  },
+  "data": {
+    "SRV_BJ": "eyJzcG4iOiJTUlZfQkoiLCJ0eXBlIjoibmZzIiwiYWRkcmVzcyI6IjEwLjE1MS40MS4xNCIsInJvb3RQYXRoIjoiL2RhdGEvc2hhcmUvZHJiZGhhIiwiZXh0ZW5zaW9uIjp7fX0=",
+    "azure_blob_test": "eyJzcG4iOiJhenVyZV9ibG9iX3Rlc3QiLCJ0eXBlIjoiYXp1cmVibG9iIiwiY29udGFpbmVyTmFtZSI6ImNvbnRhaW5lcm5hbWUiLCJhY2NvdW50TmFtZSI6ImFjY291bnRuYW1lIiwia2V5Ijoia2V5IiwiZXh0ZW5zaW9uIjp7fX0=",
+    "azure_file_test": "eyJzcG4iOiJhenVyZV9maWxlX3Rlc3QiLCJ0eXBlIjoiYXp1cmVmaWxlIiwiZGF0YVN0b3JlIjoiZGF0YXN0b3JlIiwiZmlsZVNoYXJlIjoiZmlsZXNoYXJlIiwiYWNjb3VudE5hbWUiOiJhY2NvdW50bmFtZSIsImtleSI6ImtleSIsImV4dGVuc2lvbiI6e319",
+    "samba_test": "eyJzcG4iOiJzYW1iYV90ZXN0IiwidHlwZSI6InNhbWJhIiwiYWRkcmVzcyI6IjEwLjE1MS40MS4xNCIsInJvb3RQYXRoIjoiL2RhdGEvc2hhcmUvZHJiZGhhIiwidXNlck5hbWUiOiJ1c2VyIiwicGFzc3dvcmQiOiJwYXNzd29yZCIsImRvbWFpbiI6ImRvbWFpbiIsImV4dGVuc2lvbiI6e319"
+  },
+  "type": "Opaque"
+}

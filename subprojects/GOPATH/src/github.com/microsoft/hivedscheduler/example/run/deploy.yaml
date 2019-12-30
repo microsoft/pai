@@ -1,7 +1,7 @@
 # Setup hivedscheduler by "kubectl apply -f deploy.yaml"
 # Notes:
 # 1. This will create an additional K8S default scheduler which pointers to
-#    hivedscheduler serving at http://localhost:9096/v1/extender. So, Pod should
+#    hivedscheduler serving at http://localhost:30096/v1/extender. So, Pod should
 #    specify schedulerName to be hivedscheduler.
 #    You can also adjust the existing K8S default scheduler without creating the
 #    additional one. So, Pod does not have to specify schedulerName to be
@@ -17,13 +17,14 @@ data:
     apiVersion: kubescheduler.config.k8s.io/v1alpha1
     kind: KubeSchedulerConfiguration
     schedulerName: hivedscheduler
+    disablePreemption: false
     algorithmSource:
       policy:
         configMap:
           name: hivedscheduler-config
           namespace: default
     leaderElection:
-      leaderElect: true
+      leaderElect: false
       lockObjectName: hivedscheduler
       lockObjectNamespace: default
   policy.cfg : |
@@ -32,7 +33,7 @@ data:
       "apiVersion": "v1",
       "extenders": [
         {
-          "urlPrefix": "http://localhost:9096/v1/extender",
+          "urlPrefix": "http://localhost:30096/v1/extender",
           "filterVerb": "filter",
           "preemptVerb": "preempt",
           "bindVerb": "bind",
@@ -50,6 +51,8 @@ data:
       ]
     }
   hivedscheduler.yaml: |
+    webServerAddress: ":30096"
+    waitingPodSchedulingBlockMilliSec: 50
     kubeApiServerAddress: http://10.151.41.15:8080
     physicalCluster:
       cellTypes:
@@ -127,6 +130,7 @@ spec:
           "--master=http://10.151.41.15:8080",
           "--config=/hivedscheduler-config/config.yaml",
           "--feature-gates=PodPriority=true",
+          "--leader-elect=false",
           "--v=4"]
         volumeMounts:
         - name: hivedscheduler-config
@@ -147,3 +151,17 @@ spec:
       - name: hivedscheduler-config
         configMap:
           name: hivedscheduler-config
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: hivedscheduler-service
+spec:
+  selector:
+    app: hivedscheduler
+  type: NodePort
+  ports:
+  - protocol: TCP
+    targetPort: 30096
+    port: 30096
+    nodePort: 30096

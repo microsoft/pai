@@ -23,7 +23,7 @@
 
 The RDMA-capable instances (Important): https://docs.microsoft.com/en-us/azure/virtual-machines/linux/sizes-hpc#rdma-capable-instances
 
-The cluster configuraiton options to enable rdma (Important): https://docs.microsoft.com/en-us/azure/virtual-machines/linux/sizes-hpc#cluster-configuration-options
+The cluster configuration options to enable rdma (Important): https://docs.microsoft.com/en-us/azure/virtual-machines/linux/sizes-hpc#cluster-configuration-options
 
 The network topology considerations(Important): https://docs.microsoft.com/en-us/azure/virtual-machines/linux/sizes-hpc#network-topology-considerations
 
@@ -92,7 +92,7 @@ cluster:
 
 ###### Note
 
-- If you wanna enable azure rdma feature in your cluster, please ensure all the worker machines in your cluster is azure rdma capable! 
+- If you wanna enable azure rdma feature in your cluster, please ensure all the worker machines in your cluster is azure rdma capable!
     - TODO: YARN should only schedule the rdma job to the machine with azure rdma machine.
-- After enabling azure rdma feature in your cluster, everytime adding new machine or remove machine from the cluster, you should restart restserver to refresh the machinelist in it. 
+- After enabling azure rdma feature in your cluster, everytime adding new machine or remove machine from the cluster, you should restart restserver to refresh the machinelist in it.
     - TODO: Make restserver able to update the machinelist through configmap in a loop.

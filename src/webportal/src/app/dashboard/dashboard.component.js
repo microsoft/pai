@@ -23,16 +23,6 @@ const dashboardHtml = dashboardComponent({
   grafanaUri: webportalConfig.grafanaUri,
 });
 
-function resizeContentWrapper() {
-  $('#content-wrapper').css({ height: $(window).height() + 'px' });
-}
-
-window.onresize = function(envent) {
-  resizeContentWrapper();
-};
-
 $(document).ready(function() {
-  document.getElementById('sidebar-menu--dashboard').classList.add('active');
-  resizeContentWrapper();
   $('#content-wrapper').html(dashboardHtml);
 });

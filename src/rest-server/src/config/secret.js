@@ -18,48 +18,25 @@
 
 // module dependencies
 const Joi = require('joi');
-const {readFileSync} = require('fs');
-const {Agent} = require('https');
 const authnConfig = require('@pai/config/authn');
 
 let userSecretConfig = {};
 
 if (authnConfig.authnMethod !== 'OIDC') {
   userSecretConfig = {
-    apiServerUri: process.env.K8S_APISERVER_URI,
     paiUserNameSpace: 'pai-user',
     adminName: process.env.DEFAULT_PAI_ADMIN_USERNAME,
     adminPass: process.env.DEFAULT_PAI_ADMIN_PASSWORD,
   };
 } else {
   userSecretConfig = {
-    apiServerUri: process.env.K8S_APISERVER_URI,
     paiUserNameSpace: 'pai-user',
   };
 }
 
-userSecretConfig.requestConfig = () => {
-  const config = {
-    baseURL: `${userSecretConfig.apiServerUri}/api/v1/namespaces/`,
-    maxRedirects: 0,
-  };
-  if ('K8S_APISERVER_CA_FILE' in process.env) {
-    const ca = readFileSync(process.env.K8S_APISERVER_CA_FILE);
-    config.httpsAgent = new Agent({ca});
-  }
-
-  if ('K8S_APISERVER_TOKEN_FILE' in process.env) {
-    const token = readFileSync(process.env.K8S_APISERVER_TOKEN_FILE, 'ascii');
-    config.headers = {Authorization: `Bearer ${token}`};
-  }
-  return config;
-};
-
 let userSecretConfigSchema = {};
 if (authnConfig.authnMethod !== 'OIDC') {
   userSecretConfigSchema = Joi.object().keys({
-    apiServerUri: Joi.string()
-      .required(),
     paiUserNameSpace: Joi.string()
       .default('pai-user'),
     adminName: Joi.string()
@@ -68,19 +45,11 @@ if (authnConfig.authnMethod !== 'OIDC') {
     adminPass: Joi.string()
       .min(6)
       .required(),
-    requestConfig: Joi.func()
-      .arity(0)
-      .required(),
   }).required();
 } else {
   userSecretConfigSchema = Joi.object().keys({
-    apiServerUri: Joi.string()
-      .required(),
     paiUserNameSpace: Joi.string()
       .default('pai-user'),
-    requestConfig: Joi.func()
-      .arity(0)
-      .required(),
   }).required();
 }
 

@@ -28,12 +28,10 @@ template-list:
   - stop.sh
   - hivedscheduler.yaml
   - hivedscheduler-config.yaml
+  - hivedscheduler-service.yaml
 
 start-script: start.sh
 stop-script: stop.sh
 delete-script: delete.sh
 refresh-script: refresh.sh
 upgraded-script: upgraded.sh
-
-deploy-rules:
-  - in: pai-master

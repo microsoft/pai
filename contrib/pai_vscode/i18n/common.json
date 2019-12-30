@@ -39,7 +39,7 @@
         "container.hdfs.mkdir.prompt": "Please enter a folder name",
         "container.hdfs.mkdir.cancelled": "Cancelled creating new folder",
         "hdfs.workspace.title": "HDFS Explorer - {0}",
-        "hdfs.progress": "Transfering file - {0}% ({1} bytes / {2} bytes)",
+        "hdfs.progress": "Transferring file - {0}% ({1} bytes / {2} bytes)",
         "hdfs.downloading": "Downloading {0}",
         "hdfs.copying": "Copying {0} to {1}",
         "hdfs.uploading": "Uploading {0}",

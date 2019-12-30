@@ -18,7 +18,7 @@ import {
 const HIDE_SECRET = '******';
 
 export const dispatchResizeEvent = () => {
-  window.dispatchEvent(new Event('resize'));
+  setTimeout(() => window.dispatchEvent(new Event('resize')), 100);
 };
 
 export const keyValueArrayReducer = (acc, cur) => {
@@ -143,7 +143,6 @@ export function getPortFromUrl(url) {
 }
 
 function addPreCommandsToProtocolTaskRoles(protocol, preCommands) {
-  addTensorBoardCommandsToProtocolTaskRoles(protocol);
   Object.keys(protocol.taskRoles).forEach(taskRoleKey => {
     const taskRole = protocol.taskRoles[taskRoleKey];
     const commands = preCommands.concat(taskRole.commands || []);
@@ -183,11 +182,19 @@ function addTensorBoardCommandsToProtocolTaskRoles(protocol) {
   }
 }
 
-export async function populateProtocolWithDataCli(user, protocol, jobData) {
+export async function populateProtocolWithDataAndTensorboard(
+  user,
+  protocol,
+  jobData,
+) {
+  // add tensorboard commands
+  addTensorBoardCommandsToProtocolTaskRoles(protocol);
+
   if (!jobData.containData) {
     return;
   }
 
+  // add data commands
   const preCommands = await jobData.generateDataCommands(
     user,
     protocol.name || '',

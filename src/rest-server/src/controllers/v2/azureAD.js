@@ -32,9 +32,13 @@ const requestAuthCode = async (req, res, next) => {
   if (authnConfig.groupConfig.groupDataSource === 'ms-graph') {
     scope = `${scope} https://${authnConfig.OIDCConfig.msgraph_host}/directory.read.all`;
   }
-  let state = 'http://' + process.env.WEBPORTAL_URL + '/index.html';
+  let state = {};
+  state.redirect = 'http://' + process.env.WEBPORTAL_URL + '/index.html';
   if (req.query.redirect_uri) {
-    state = decodeURIComponent(req.query.redirect_uri);
+    state.redirect = req.query.redirect_uri;
+  }
+  if (req.query.from) {
+    state.from = req.query.from;
   }
   const requestURL = authnConfig.OIDCConfig.authorization_endpoint;
   return res.redirect(`${requestURL}?`+ querystring.stringify({
@@ -43,7 +47,7 @@ const requestAuthCode = async (req, res, next) => {
     redirect_uri: redirectUri,
     response_mode: responseMode,
     scope: scope,
-    state: state,
+    state: JSON.stringify(state),
   }));
 };
 
@@ -74,7 +78,9 @@ const requestTokenWithCode = async (req, res, next) => {
     req.accessToken = jwt.decode(response.data.access_token);
     req.undecodedRefreshToken = response.data.refresh_token;
     req.refreshToken = jwt.decode(response.data.refresh_token);
-    req.returnBackURI = req.body.state;
+    const state = JSON.parse(req.body.state);
+    req.returnBackURI = state.redirect;
+    req.fromURI = state.from;
     next();
   } catch (error) {
     return next(createError.unknown(error));

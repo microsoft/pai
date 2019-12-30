@@ -19,10 +19,10 @@
 
 # 在 OpenPAI 上提交作业
 
-- [在 OpenPAI 上提交作业](#submit-jobs-on-openpai) 
+- [在 OpenPAI 上提交作业](#submit-jobs-on-openpai)
   - [提交 Hello World Job](#submit-a-hello-world-job)
   - [理解 Hello World Job](#learn-the-hello-world-job)
-  - [Manage Your Data](#manage-your-data) 
+  - [Manage Your Data](#manage-your-data)
     - [Make Use of Team-wise Storage](#make-use-of-team-wise-storage)
     - [Additional Data Sources](#additional-data-sources)
   - [Use Parameters and Secrets](#use-parameters-and-secrets)
@@ -45,7 +45,7 @@ The following process submits a model training job implemented by TensorFlow on 
 1. Login to OpenPAI web portal.
 
 2. Click **Submit Job** on the left pane and reach this page.
-  
+
     ![hello_world1](imgs/submit_hello_world_1.png)
 
 3. Fill in the name of your virtual cluster, and give a name of your job and your task role. Then copy the following commands into the command box.
@@ -60,14 +60,14 @@ The following process submits a model training job implemented by TensorFlow on 
    ```
 
     Note: Please **Do Not** use # for comments or use \ for line continuation in the command box. These symbols may break the syntax and will be supported in the future.
-    
+
     ![hello_world2](imgs/submit_hello_world_2.png)
-    
+
 
 4. Specify the resources you need. By default only gpu number could be set. Toggle the "custom" button if you need to customize CPU number and memory. Here we use the default setting which utilizes one GPU.
 
 5. Specify the docker image. You can either use the listed docker images or take advantage of your own one. Here we use "openpai/tensorflow-py36-cu90" as the docker image. OpenPAI will pull images from the [official Docker Hub](https://hub.docker.com/). If you want to use your own Docker registry, please click the "Auth" button and fill in the required information.
-  
+
     <img src="imgs/submit_hello_world_3.png" width="60%" height="60%" alt="hello_world3" />
 
 6. Click **Submit** to kick off your first OpenPAI job!
@@ -79,9 +79,9 @@ The Hello World job is set to download the CIFAR-10 dataset and train a simple m
 - **Job name** 是当前 Job 的名称。 在每个用户账号中，其必需是唯一的。 有意义的名称有助于管理 Job。
 
 - **Task role name** defines names of different roles in a job.
-  
+
     对于单机运行的 Job，在 taskRoles 中只有一个角色。
-  
+
     对于分布式的 Job，taskRoles 中可能会有多个角色。 例如，在使用 TensorFlow 来运行分布式 Job 时，需要两个角色，包括参数服务器和工作节点。 There are two task roles in the corresponding job configuration. The names of task roles can be used in environment variables in distributed jobs.
 
 - **Instances** is the number of instances of this task role. In single server jobs, it should be 1. 在分布式 Job 中，根据任务角色需要多少个实例来定。 例如，其在 TensorFlow 的工作阶段角色中为 8。 这表示 worker 角色会被实例化出 8 个 Docker 容器。
@@ -91,13 +91,13 @@ The Hello World job is set to download the CIFAR-10 dataset and train a simple m
 - **Command** 是此任务角色要运行的命令。 支持多行。 例如，在 hello-world Job 中，命令会从 GitHub 中克隆代码，下载数据，然后执行训练过程。 If one command fails (exits with a nonzero code), the following commands will not be executed. This behavior may be changed in the future.
 
 - **Docker 映像**
-  
+
     OpenPAI uses [Docker](https://www.docker.com/why-docker) to provide consistent and independent environments. With Docker, OpenPAI can serve multiple job requests on the same server. The job environment depends significantly on the docker image you select.
-  
+
     The hub.docker.com is a public Docker repository. In the hello-world example, it uses a TensorFlow image, *openpai/tensorflow-py36-cu90*. You can also set your own image from private repository by toggling custom button.
-  
+
     If an appropriate Docker image isn't found, you could [build a Docker image](../job_docker_env.md) by your self.
-  
+
     **Important Note: if you'd like to ssh to the docker within OpenPAI, make sure *openssh-server* and *curl* packages are included by the docker image.** If SSH is needed, a new Docker image can be built and includes *openssh-server* and *curl* on top of the existing Docker image. Please refer to [this tutorial](../job_docker_env.md#enable-ssh-for-your-image) for details.
 
 ## 管理数据
@@ -171,7 +171,7 @@ After receiving job configuration, OpenPAI processes it as below steps:
 
 2. Initialize Docker container. OpenPAI pulls the Docker image, which is specified in configuration, if the image doesn't exist locally. After that OpenPAI will initialize the Docker container.
 
-3. run the command in configuration. During the command is executing, OpenPAI outputs [stdout and stderr](troubleshooting_job.md) near real-time. Some metrices can be used to [monitor workload](troubleshooting_job.md#how-to-check-job-log).
+3. run the command in configuration. During the command is executing, OpenPAI outputs [stdout and stderr](troubleshooting_job.md) near real-time. Some metrics can be used to [monitor workload](troubleshooting_job.md#how-to-check-job-log).
 
 4. Finish job. Once the command is completed, OpenPAI use latest exit code as signal to decide the job is success or not. 0 means success, others mean failure. Then OpenPAI recycles resources for next jobs.
 

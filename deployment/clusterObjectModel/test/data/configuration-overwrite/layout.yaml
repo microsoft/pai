@@ -17,7 +17,7 @@
 
 kubernetes:
   api-servers-url: http://10.0.0.1:8080
-  dashboard-host: 10.0.0.1
+  dashboard-url: http://10.0.0.1:9090
 
 # If corresponding values aren't be set in the machine list, the default value will be filled in.
 default-machine-properties:

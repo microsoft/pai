@@ -445,7 +445,7 @@ export default class TaskRoleContainerList extends React.Component {
           <div
             className={c(t.h100, t.flex, t.justifyStart, t.itemsCenter, t.ml1)}
           >
-            <div className={c(t.flex, t.h3)}>
+            <div className={c(t.flex)} style={{ height: 40 }}>
               {config.launcherType !== 'k8s' && (
                 <CommandBarButton
                   className={c(FontClassNames.mediumPlus)}

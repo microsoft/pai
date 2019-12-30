@@ -26,7 +26,6 @@ from basic_test import OrderedUnitTestCase, seperated
 from fs.osfs import OSFS
 from fs import open_fs
 
-
 def get_cmd(cmd: Union[str, list], flags: dict, args: Union[list, str] = None):
     lst = []
     lst.extend(cmd if isinstance(cmd, list) else cmd.split())
@@ -169,6 +168,6 @@ testing REST APIs related to querying a job, including
             f'--sources ./step6Src/testFile.txt', '--image python:3', 'sleep 5s'])
     
 
-    @seperated
+    @separated
     def test_commands_sequence(self):
         self.run_steps()

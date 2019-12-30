@@ -78,8 +78,8 @@ function TopBar() {
     Context,
   );
 
-  useEffect(async () => {
-    await Promise.all([
+  useEffect(() => {
+    Promise.all([
       fetch(`${webportalConfig.restServerUri}/api/v2/user`, {
         headers: {
           Authorization: `Bearer ${token}`,

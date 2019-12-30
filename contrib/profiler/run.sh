@@ -16,52 +16,54 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-PYTHON_VERSION=`python -V 2>&1|awk '{print $2}'|awk -F '.' '{print $1}'`
+case $1 in
+  -h|--help)
+    echo "usage: run.sh [-t      The duration of the profiler]"
+    exit 0
+    ;;
+esac
+
+# Install NFS
+apt update
+
+pip install --upgrade pip
+#PYTHON_VERSION=`python -V 2>&1|awk '{print $2}'|awk -F '.' '{print $1}'`
+PYTHON_VERSION=`pip -V 2>&1 | awk '{print $6}' | awk -F '.' '{print $1}'`
 if [ $PYTHON_VERSION -eq 3 ];then
     pip install nvidia-ml-py3
 elif [ $PYTHON_VERSION -eq 2 ];then
     pip install nvidia-ml-py
 fi
 pip install numpy
-param_num=$#
+pip install pandas
+pip install matplotlib
 
-CONTAINER_ID=$1
-GPU_INDEX=$2
-CONTAINER_PID=-1
+OUTPUT_DIR=/usr/local/pai/logs/${FC_POD_UID}
+CONTAINER_ID="Self"
+SAMPLE_PERIOD=0.02
+ANALYZE_PERIOD=10
+DURATION=-1
 HOST_DOCKER=Host
-if grep -q $CONTAINER_ID /proc/1/cgroup
-then
-    HOST_DOCKER=Docker
-else
-    CONTAINER_PID=`docker inspect -f {{.State.Pid}} $CONTAINER_ID`
-fi
-
-SAMPLE_PERIOD=0.03
-if [ $param_num -ge 3 ];then
-    SAMPLE_PERIOD=$3
-fi
-
-ANALYZE_PERIOD=20
-if [ $param_num -ge 4 ];then
-    ANALYZE_PERIOD=$4
-fi
-
-OUTPUT_DIR=./Profiling_dir
-if [ $param_num -ge 5 ];then
-    OUTPUT_DIR=$5
-fi
-
-DURATION=10
-if [ $param_num -ge 6 ];then
-    DURATION=$6
-fi
+CONTAINER_PID=-1
+while getopts "t:" OPT;do
+  case $OPT in
+  t)
+    # -t:The duration of the profiler
+    DURATION=$OPTARG
+  esac
+done
 
 echo 'container_id:' $CONTAINER_ID
 echo 'container_pid:' $CONTAINER_PID
-echo 'sample_period:' $SAMPLE_PERIOD
-echo 'analyze_period:' $ANALYZE_PERIOD
+echo 'sample_period:' $SAMPLE_PERIOD's'
+echo 'analyze_period:' $ANALYZE_PERIOD's'
 echo 'platform:' $HOST_DOCKER
 echo 'duration:' $DURATION
 echo 'output_dir:' $OUTPUT_DIR
 echo 'gpu_index:' $GPU_INDEX
-exec python profiler.py --container_id $CONTAINER_ID --container_pid $CONTAINER_PID --sample_period $SAMPLE_PERIOD --analyze_period $ANALYZE_PERIOD --duration $DURATION --output_dir $OUTPUT_DIR --gpu_index $GPU_INDEX
+
+if [ $PYTHON_VERSION -eq 3 ];then
+  exec nohup python3 -u `dirname $0`/profiler.py --container_id $CONTAINER_ID --container_pid $CONTAINER_PID --sample_period $SAMPLE_PERIOD --analyze_period $ANALYZE_PERIOD --output_dir $OUTPUT_DIR --duration_time $DURATION >$OUTPUT_DIR/log.txt 2>&1 &
+elif [ $PYTHON_VERSION -eq 2 ];then
+  exec nohup python -u `dirname $0`/profiler.py --container_id $CONTAINER_ID --container_pid $CONTAINER_PID --sample_period $SAMPLE_PERIOD --analyze_period $ANALYZE_PERIOD --output_dir $OUTPUT_DIR --duration_time $DURATION >$OUTPUT_DIR/log.txt 2>&1 &
+fi

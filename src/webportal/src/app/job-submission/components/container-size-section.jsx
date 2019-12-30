@@ -68,7 +68,6 @@ export const ContainerSizeSection = props => {
             label='GPU count'
             value={gpu}
             min={0}
-            max={8}
             onChange={
               isContainerSizeEnabled
                 ? value => _onChange('gpu', value)

@@ -77,7 +77,7 @@ export async function getAvailableGpuPerNode() {
     try {
       const result = {};
       for (const ip of Object.keys(json)) {
-        result[ip] = json[ip].gpuAvaiable;
+        result[ip] = json[ip].gpuAvailable;
       }
       return result;
     } catch {

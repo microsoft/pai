@@ -45,7 +45,7 @@ group-manager:
   # ms-graph: If you manage your group through azure ad. And you have the permission directory.read.all. You could choose this solution.
   group-data-source: basic
 
-  # If you set winbind as your data source, you should configure this configuraiton.
+  # If you set winbind as your data source, you should configure this configuration.
   # winbind-server-address: xxxxxxx
 
   # Admin group name and its user list

@@ -22,7 +22,7 @@ from typing import Union
 from openpaisdk.io_utils import to_screen, safe_chdir
 import shutil
 
-def seperated(method):
+def separated(method):
     "run the each test in a separated directory"
     def func(*args, **kwargs):
         dir_name = 'utdir_' + method.__name__

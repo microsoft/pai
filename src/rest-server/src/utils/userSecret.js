@@ -16,21 +16,20 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 // module dependencies
-const axios = require('axios');
+const {getClient} = require('@pai/models/kubernetes');
 const StorageBase = require('./storageBase');
 
 class UserSecret extends StorageBase {
   constructor(options) {
     super();
-    this.secretRootUri = `${options.paiUserNameSpace}/secrets`;
-    this.request = axios.create(options.requestConfig);
+    this.request = getClient(`/api/v1/namespaces/${options.paiUserNameSpace}/secrets`);
     this.options = options;
   }
 
   async get(key, options) {
     try {
       const hexKey = key ? Buffer.from(key).toString('hex') : '';
-      const response = await this.request.get(`${this.secretRootUri}/${hexKey}`, {
+      const response = await this.request.get(`/${hexKey}`, {
         headers: {
           'Accept': 'application/json',
         },
@@ -81,9 +80,9 @@ class UserSecret extends StorageBase {
       }
       let response = null;
       if (options && options['update']) {
-        response = await this.request.put(`${this.secretRootUri}/${hexKey}`, userData);
+        response = await this.request.put(`/${hexKey}`, userData);
       } else {
-        response = await this.request.post(`${this.secretRootUri}`, userData);
+        response = await this.request.post('', userData);
       }
       return response;
     } catch (error) {
@@ -94,7 +93,7 @@ class UserSecret extends StorageBase {
   async delete(key, options) {
     try {
       const hexKey = key ? Buffer.from(key).toString('hex') : '';
-      let response = await this.request.delete(`${this.secretRootUri}/${hexKey}`, {
+      let response = await this.request.delete(`/${hexKey}`, {
         headers: {
           'Content-Type': 'application/json',
           'Accept': 'application/json',

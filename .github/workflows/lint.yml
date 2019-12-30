@@ -28,3 +28,18 @@ jobs:
     - name: Lint
       run: |
         python src/utilities/doc_checker.py .
+
+  spelling:
+    name: Spelling check
+    runs-on: ubuntu-16.04
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v1
+    - name: Install dependencies
+      run: |
+        curl -L https://git.io/misspell | sudo bash -s -- -b /bin
+    - name: Check spelling
+      run: |
+        rm -rf ./subprojects/GOPATH/src/github.com/microsoft/hivedscheduler/vendor/
+        misspell -error .

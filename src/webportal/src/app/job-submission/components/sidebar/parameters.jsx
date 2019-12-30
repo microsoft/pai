@@ -23,25 +23,61 @@
  * SOFTWARE.
  */
 
-import React, { useState } from 'react';
-import { isEmpty } from 'lodash';
+import React, {
+  useEffect,
+  useContext,
+  useCallback,
+  useMemo,
+  useState,
+} from 'react';
 import { Stack } from 'office-ui-fabric-react';
 import PropTypes from 'prop-types';
+import Context from '../context';
 import { Hint } from './hint';
 import { SidebarCard } from './sidebar-card';
-import { KeyValueList } from '../controls/key-value-list';
+import { KeyValueList, getItemsWithError } from '../controls/key-value-list';
 import { PROTOCOL_TOOLTIPS } from '../../utils/constants';
+
+const ERROR_ID = 'Parameters List';
 
 export const Parameters = React.memo(
   ({ parameters, onChange, selected, onSelect }) => {
-    const [error, setError] = useState('');
+    const { setErrorMessage } = useContext(Context);
+    const [items, setItems] = useState([]);
+
+    useEffect(() => {
+      setItems(parameters);
+      setErrorMessage(ERROR_ID, null);
+    }, [parameters]);
+
+    const onListChange = useCallback(
+      newItems => {
+        const itemsWithError = getItemsWithError(newItems);
+        const idx = itemsWithError.findIndex(
+          item => item.keyError || item.valueError,
+        );
+        if (idx === -1) {
+          onChange(itemsWithError);
+          setErrorMessage(ERROR_ID, null);
+        } else {
+          setItems(itemsWithError);
+          setErrorMessage(ERROR_ID, `Invalid item ${idx}`);
+        }
+      },
+      [onChange, setErrorMessage],
+    );
+
+    const hasError = useMemo(() => {
+      return items.findIndex(item => item.keyError || item.valueError) !== -1;
+    }, [items]);
+
     return (
       <SidebarCard
         title='Parameters'
         tooltip={PROTOCOL_TOOLTIPS.parameters}
         selected={selected}
         onSelect={onSelect}
-        error={!isEmpty(error)}
+        error={hasError}
       >
         <Stack gap='m'>
           <Hint>
@@ -49,12 +85,7 @@ export const Parameters = React.memo(
             <code>{'<% $parameters.paramKey %>'}</code>.
           </Hint>
           <div>
-            <KeyValueList
-              name='Parameter List'
-              value={parameters}
-              onChange={onChange}
-              onError={setError}
-            />
+            <KeyValueList items={items} onChange={onListChange} />
           </div>
         </Stack>
       </SidebarCard>

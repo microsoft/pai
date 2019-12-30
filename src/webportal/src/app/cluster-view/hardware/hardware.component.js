@@ -15,7 +15,10 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-//
+require('bootstrap');
+require('admin-lte/dist/css/AdminLTE.min.css');
+require('bootstrap/dist/css/bootstrap.css');
+require('font-awesome/css/font-awesome.min.css');
 
 require('datatables.net/js/jquery.dataTables.js');
 require('datatables.net-bs/js/dataTables.bootstrap.js');
@@ -490,21 +493,13 @@ const loadData = () => {
   });
 };
 
-//
-
 const resizeContentWrapper = () => {
-  $('#content-wrapper').css({ height: $(window).height() + 'px' });
   if (table != null) {
-    $('.dataTables_scrollBody').css('height', $(window).height() - 265 + 'px');
     table.columns.adjust().draw();
   }
 };
 
-//
-
 $(document).ready(() => {
-  $('#sidebar-menu--cluster-view').addClass('active');
-  $('#sidebar-menu--cluster-view--hardware').addClass('active');
   loadData();
   window.onresize = function(envent) {
     resizeContentWrapper();

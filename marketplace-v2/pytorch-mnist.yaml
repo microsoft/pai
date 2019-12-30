@@ -37,7 +37,7 @@ taskRoles:
       gpu: 1
     commands:
       - >
-        python examples/mnist/main.py
+        python3 examples/mnist/main.py
         --epochs <% $parameters.epochs %>
         --lr <% $parameters.lr %>
         --batch-size <% $parameters.batchsize %>

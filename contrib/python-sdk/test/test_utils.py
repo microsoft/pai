@@ -24,12 +24,12 @@ from openpaisdk.utils import Nested
 from openpaisdk.utils import randstr
 from openpaisdk.io_utils import __flags__, from_file, to_screen
 from openpaisdk import get_defaults, update_default, LayeredSettings
-from basic_test import seperated
+from basic_test import separated
 
 
 class TestIOUtils(unittest.TestCase):
 
-    @seperated
+    @separated
     def test_reading_failures(self):
         with self.assertRaises(Exception):  # non existing file
             from_file(randstr(8) + '.yaml')
@@ -40,7 +40,7 @@ class TestIOUtils(unittest.TestCase):
             os.system(f"touch {fname}")
             from_file(fname)
 
-    @seperated
+    @separated
     def test_returning_default(self):
         for dval in [[], ['a', 'b'], {}, {'a': 'b'}]:
             ass_fn = self.assertListEqual if isinstance(dval, list) else self.assertDictEqual
@@ -67,7 +67,7 @@ class TestDefaults(unittest.TestCase):
         to_screen(f"random select {ret} in {lst}")
         return ret
 
-    @seperated
+    @separated
     def test_update_defaults(self):
         # ! not test global defaults updating, test it in integration tests
         test_key, test_value = self.get_random_var_name(), randstr(10)
@@ -88,7 +88,7 @@ class TestDefaults(unittest.TestCase):
         with self.assertRaises(KeyError):
             from_file(self.local_default_file, {})[test_key]
 
-    @seperated
+    @separated
     def test_layered_settings(self):
         from openpaisdk import LayeredSettings, __flags__
         __flags__.custom_predefined = [
@@ -118,7 +118,7 @@ class TestDefaults(unittest.TestCase):
         __flags__.custom_predefined = []
         LayeredSettings.reset()
 
-    @seperated
+    @separated
     def test_unknown_variable_defined(self):
         from openpaisdk import LayeredSettings, __flags__
         test_key, test_value = 'test-key-long-existing', randstr(10)

@@ -24,7 +24,7 @@
 The RDMA-capable instances
  (Important): https://docs.microsoft.com/en-us/azure/virtual-machines/linux/sizes-hpc#rdma-capable-instances
 
-The cluster configuraiton options to enable rdma (Important): https://docs.microsoft.com/en-us/azure/virtual-machines/linux/sizes-hpc#cluster-configuration-options
+The cluster configuration options to enable rdma (Important): https://docs.microsoft.com/en-us/azure/virtual-machines/linux/sizes-hpc#cluster-configuration-options
 
 The network topology considerations(Important): https://docs.microsoft.com/en-us/azure/virtual-machines/linux/sizes-hpc#network-topology-considerations
 

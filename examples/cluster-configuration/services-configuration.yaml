@@ -15,7 +15,7 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-#uncomment following if you want to change customize cluster overall configuraiton
+#uncomment following if you want to change customize cluster overall configuration
 #cluster:
 #
 #  common:
@@ -37,7 +37,7 @@
 #    # If RBAC is enabled in your cluster, you should set this value to true.
 #    # If RBAC is enabled in your cluster, please ensure the kubeconfig for paictl has enough permission.
 #    k8s-rbac: "false"
-#    
+#
 #    # If Pai will be deployed in aks, you should set this value to true.
 #    deploy-in-aks: "false"
 #
@@ -211,7 +211,7 @@ rest-server:
   #  # winbind: If you set group-data-source as the value winbind, the user's grouplist will get from winbind server based on your configuration.
   #  group-data-source: basic
   #
-  #  # If you set winbind as your data source, you should configure this configuraiton.
+  #  # If you set winbind as your data source, you should configure this configuration.
   #  # winbind-server-address: xxxxxxx
   #
   #  # Admin group name and its user list

@@ -90,7 +90,7 @@ You can add path to `LD_LIBRARY_PATH` in your Dockerfile like:
 ENV LD_LIBRARY_PATH=/usr/local/nvidia/lib:/usr/local/nvidia/lib64:/usr/local/cuda/extras/CUPTI/lib:/usr/local/cuda/extras/CUPTI/lib64:$LD_LIBRARY_PATH
 ```
 
-If probelm remains, you can try [this script](https://gist.github.com/f0k/63a664160d016a491b2cbea15913d549) to self diagnose the problem.
+If problem remains, you can try [this script](https://gist.github.com/f0k/63a664160d016a491b2cbea15913d549) to self diagnose the problem.
 
 
 ## Deploy and maintenance related FAQs
@@ -114,39 +114,39 @@ A: By webportal
 
 ### Q: What should the admin do when get NodeFilesystemUsage firing?
 
-A: NodeFilesystemUsage firing is caused by disk pressure. The root cause may be HDFS, docker data cache or user data cache. when this firing happens, the admin should do the following steps mitigate the data load. 
+A: NodeFilesystemUsage firing is caused by disk pressure. The root cause may be HDFS, docker data cache or user data cache. when this firing happens, the admin should do the following steps mitigate the data load.
 
 - (1) Check HDFS.
 
-Check Hadoop Datanodes (url example: http:// hadoop namenode/dfshealth.html#tab-datanode). 
-If only a few nodes are overused, run "hdfs balancer -policy datanode" to rebalance the data among data nodes via HDFS balancer. 
+Check Hadoop Datanodes (url example: http:// hadoop namenode/dfshealth.html#tab-datanode).
+If only a few nodes are overused, run "hdfs balancer -policy datanode" to rebalance the data among data nodes via HDFS balancer.
 If most nodes are in heavy usage, manually clean some data before do rebalance.
 
 - (2) Check docker cached data.
 
 Run "docker system df" to see how much space can be reclaimed. If the space is large, run command "docker system prune -a" to clean the cache.
 
-- (3) Check /tmp directory. 
+- (3) Check /tmp directory.
 
-Run command "du -h / | awk '$1~/[0-9]*G/{print $0}'" to list all the directory which consumes more than 1G spaces. Clean the data not used any more. 
+Run command "du -h / | awk '$1~/[0-9]*G/{print $0}'" to list all the directory which consumes more than 1G spaces. Clean the data not used any more.
 
 ### Q: How to change Docker cache path for OpenPAI?
 
 A: If default Docker cache path is set to a disk with small disk space, the path can be changed with below steps:
 
-1.	Stop ALL service of the cluster.  
+1.	Stop ALL service of the cluster.
   ```sudo ./paictl.py service stop```
-2.	Uninstall k8s cluster. This operation will not delete your data.  
+2.	Uninstall k8s cluster. This operation will not delete your data.
   ```sudo ./paictl.py cluster k8s-clean –p /path/to/config```
-3.	Change the Docker cache path on OpenPAI node using data-root flag. Please refer to [Docker docs](https://docs.docker.com/config/daemon/systemd/)  
-4.  Modify your config file layout.yaml. Change "docker-data" to new Docker cache path configured in step 3. See sample [layout.yaml](../examples/cluster-configuration/layout.yaml#L55)  
-5.	Restart k8s cluster with updated config.  
+3.	Change the Docker cache path on OpenPAI node using data-root flag. Please refer to [Docker docs](https://docs.docker.com/config/daemon/systemd/)
+4.  Modify your config file layout.yaml. Change "docker-data" to new Docker cache path configured in step 3. See sample [layout.yaml](../examples/cluster-configuration/layout.yaml#L55)
+5.	Restart k8s cluster with updated config.
   ```sudo ./paictl.py cluster k8s-bootup –p /path/to/new/config```
-6.	Push the latest config to cluster.  
+6.	Push the latest config to cluster.
   ```sudo ./paictl.py config push –p /path/to/new/config```
-7.	Restart all service.  
+7.	Restart all service.
   ```sudo ./paictl.py service start```
 
-Note: 
+Note:
 1. The cluster is unavailable during this change, it may take long time due to pull all images again.
 2. The legacy docker cache path won’t be automatically cleaned. Manually clean up is needed.

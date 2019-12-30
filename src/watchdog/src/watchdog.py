@@ -192,7 +192,7 @@ class PodInfo(object):
 
 def parse_pod_item(pod, pai_pod_gauge, pai_container_gauge, pai_job_pod_gauge, pods_info):
     """ add metrics to pai_pod_gauge or pai_container_gauge if successfully parse pod.
-    Because we are parsing json outputed by k8s, its format is subjected to change,
+    Because we are parsing json outputted by k8s, its format is subjected to change,
     we should test if field exists before accessing it to avoid KeyError """
 
     pod_name = pod["metadata"]["name"]
@@ -512,7 +512,7 @@ def get_apiserver_address():
     if (not os.environ.get(KUBE_INCLUSTER_HOST) or not os.environ.get(KUBE_INCLUSTER_PORT)):
         raise Exception("Counld not get api server address")
     return "https://{}:{}".format(os.environ.get(KUBE_INCLUSTER_HOST), os.environ.get(KUBE_INCLUSTER_PORT))
-    
+
 
 def main(args):
     register_stack_trace_dump()

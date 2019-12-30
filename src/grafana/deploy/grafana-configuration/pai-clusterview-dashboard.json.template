@@ -22,6 +22,7 @@
   "links": [],
   "refresh": "30s",
   "rows": [
+    {%- if cluster_cfg["rest-server"]["launcher-type"] != "k8s" %}
     {
       "collapse": false,
       "height": 315,
@@ -428,6 +429,7 @@
       "title": "Dashboard Row",
       "titleSize": "h6"
     },
+    {%- endif %}
     {
       "collapse": false,
       "height": 252,

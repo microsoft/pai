@@ -63,6 +63,14 @@ type Config struct {
 	// Pod binding will be executed forcefully.
 	ForcePodBindThreshold *int32 `yaml:"forcePodBindThreshold"`
 
+	// If a Pod is decided to be PodWaiting, it will block the whole scheduling by
+	// WaitingPodSchedulingBlockMilliSec.
+	// Large value can be used to achieve stronger FIFO scheduling by sacrificing
+	// the scheduling throughput.
+	// This is a workaround until PodMaxBackoffSeconds can be configured for
+	// K8S Default Scheduler.
+	WaitingPodSchedulingBlockMilliSec *int64 `yaml:"waitingPodSchedulingBlockMilliSec"`
+
 	// Specify the whole physical cluster
 	// TODO: Automatically construct it based on node info from GPU and Network Device Plugins
 	PhysicalCluster *PhysicalClusterSpec `yaml:"physicalCluster"`
@@ -71,8 +79,8 @@ type Config struct {
 	VirtualClusters *map[VirtualClusterName]VirtualClusterSpec `yaml:"virtualClusters"`
 }
 
-func NewConfig(configPath *string) *Config {
-	c := initConfig(configPath)
+func NewConfig(rawConfig *Config) *Config {
+	c := rawConfig
 
 	// Defaulting
 	if c.KubeApiServerAddress == nil {
@@ -86,6 +94,9 @@ func NewConfig(configPath *string) *Config {
 	}
 	if c.ForcePodBindThreshold == nil {
 		c.ForcePodBindThreshold = common.PtrInt32(3)
+	}
+	if c.WaitingPodSchedulingBlockMilliSec == nil {
+		c.WaitingPodSchedulingBlockMilliSec = common.PtrInt64(0)
 	}
 	if c.PhysicalCluster == nil {
 		c.PhysicalCluster = defaultPhysicalCluster()
@@ -167,7 +178,7 @@ func defaultVirtualClusters() *map[VirtualClusterName]VirtualClusterSpec {
 	return &map[VirtualClusterName]VirtualClusterSpec{}
 }
 
-func initConfig(configPath *string) *Config {
+func InitRawConfig(configPath *string) *Config {
 	c := Config{}
 	var configFilePath string
 

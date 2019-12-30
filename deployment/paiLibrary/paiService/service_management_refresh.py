@@ -90,7 +90,7 @@ class service_management_refresh:
                     for nodename in nodes:
                         cmd_checkservice = "kubectl get po -o wide | grep " + nodename + " | grep -q " + service_name
                         if not linux_shell.execute_shell_return(cmd_checkservice, ""):
-                            self.logger.info("Start service " + service_name + " frome Node " + nodename +
+                            self.logger.info("Start service " + service_name + " from Node " + nodename +
                                              " for its deployment label is labeled on this node according to the cluster-configuration machinelist but service isn't running.")
                             start_script = "src/{0}/deploy/{1}".format(service_name, service_conf["start-script"])
                             linux_shell.execute_shell("/bin/bash " + start_script, err_msg_prefix + " start service " + service_name)

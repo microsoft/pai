@@ -17,14 +17,13 @@
 
 
 // module dependencies
-const {Agent} = require('https');
 const axios = require('axios');
 const status = require('statuses');
 const config = require('@pai/config/index');
 const logger = require('@pai/config/logger');
 const yarnConfig = require('@pai/config/yarn');
 const launcherConfig = require('@pai/config/launcher');
-const {apiserver} = require('@pai/config/kubernetes');
+const k8sModel = require('@pai/models/kubernetes');
 
 if (launcherConfig.type === 'yarn') {
   if (config.env !== 'test') {
@@ -52,12 +51,12 @@ if (launcherConfig.type === 'yarn') {
   if (config.env !== 'test') {
     // framework controller health check
     (async () => {
-      const response = await axios({
-        method: 'get',
-        url: launcherConfig.healthCheckPath(),
-        headers: launcherConfig.requestHeaders,
-        httpsAgent: apiserver.ca && new Agent({ca: apiserver.ca}),
-      });
+      const response = await k8sModel.getClient().get(
+        launcherConfig.healthCheckPath(),
+        {
+          headers: launcherConfig.requestHeaders,
+        }
+      );
       if (response.status === status('OK')) {
         logger.info('connected to framework controller successfully');
       } else {

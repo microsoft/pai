@@ -53,7 +53,6 @@ let config = {
   logLevel: process.env.LOG_LEVEL,
   serverPort: process.env.SERVER_PORT,
   jwtSecret: process.env.JWT_SECRET,
-  restServerUri: process.env.REST_SERVER_URI,
 };
 
 // define config schema
@@ -72,8 +71,6 @@ const configSchema = Joi.object().keys({
   jwtSecret: Joi.string()
     .required()
     .description('JWT Secret required to sign'),
-  restServerUri: Joi.string()
-    .required(),
 }).required();
 
 const {error, value} = Joi.validate(config, configSchema);

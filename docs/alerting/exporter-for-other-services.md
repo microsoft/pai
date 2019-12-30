@@ -38,7 +38,7 @@ is helpful in rolling update and cache server to prefill its caches before servi
 
 # Runtime metrics
 
-Readiness probe can help operator know if service is healthy or not directly. We alse defined an alert
+Readiness probe can help operator know if service is healthy or not directly. We defined an alert
 rule for readiness status. But operator and other still do not know what happened to service if
 something wrong. To be more observable, service needs expose its runtime metrics.
 

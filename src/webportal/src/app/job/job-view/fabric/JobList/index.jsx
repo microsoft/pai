@@ -27,7 +27,6 @@ import React, {
 import { debounce, isEmpty, isNil } from 'lodash';
 
 import { ColorClassNames, getTheme } from '@uifabric/styling';
-import { initializeIcons } from 'office-ui-fabric-react/lib/Icons';
 import { Fabric } from 'office-ui-fabric-react/lib/Fabric';
 import {
   MessageBar,
@@ -46,10 +45,6 @@ import TopBar from './TopBar';
 import webportalConfig from '../../../../config/webportal.config';
 import { clearToken } from '../../../../user/user-logout/user-logout.component';
 import userAuth from '../../../../user/user-auth/user-auth.component';
-import { initTheme } from '../../../../components/theme';
-
-initTheme();
-initializeIcons();
 
 export default function JobList() {
   const admin = userAuth.checkAdmin();

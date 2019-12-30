@@ -16,7 +16,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
-from basic_test import OrderedUnitTestCase, seperated
+from basic_test import OrderedUnitTestCase, separated
 from openpaisdk import to_screen
 
 

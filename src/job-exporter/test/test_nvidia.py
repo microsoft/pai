@@ -58,6 +58,21 @@ class TestNvidia(base.TestBase):
         target_smi_info = {"0": zero, "GPU-57567e11-0be2-381b-5132-2ad95c262e58": zero, "1": one, "GPU-ef1d0068-5bfd-f1e4-7e79-ff35d71d44b8": one}
 
         self.assertEqual(target_smi_info, nvidia_smi_parse_result)
+    
+    def test_parse_smi_out_of_order_xml_result(self):
+        sample_path = "data/nvidia_smi_out_of_order.xml"
+        with open(sample_path, "r") as f:
+            nvidia_smi_result = f.read()
+
+        os.environ["LAUNCHER_TYPE"] = "k8s"
+        nvidia_smi_parse_result = nvidia.parse_smi_xml_result(nvidia_smi_result)
+
+        self.assertEqual(nvidia_smi_parse_result["0"].gpu_util, 99.0)
+        self.assertEqual(nvidia_smi_parse_result["1"].gpu_util, 99.0)
+        self.assertEqual(nvidia_smi_parse_result["2"].gpu_util, 0.0)
+        self.assertEqual(nvidia_smi_parse_result["3"].gpu_util, 0.0)
+
+        del os.environ["LAUNCHER_TYPE"]
 
     def test_exporter_will_not_report_unsupported_gpu(self):
         sample_path = "data/nvidia_smi_outdated_gpu.xml"

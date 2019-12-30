@@ -46,6 +46,7 @@ type defaultIntraVCScheduler struct {
 	// currently we create a topologyAwareScheduler for each cluster view (each chain, each reservation).
 	// we plan to support multiple cluster views in one scheduler, and to support schedule pods
 	// across different cluster views.
+	// TODO: Support an affinity group can relax to be allocated across multiple chains.
 	nonReservedSchedulers map[CellChain]*topologyAwareScheduler
 	reservedSchedulers    map[api.ReservationId]*topologyAwareScheduler
 }
@@ -91,14 +92,14 @@ func (s *defaultIntraVCScheduler) schedule(sr schedulingRequest) map[int32][]Cel
 	}
 	var placement map[int32][]CellList
 	if scheduler != nil {
-		placement = scheduler.Schedule(sr.affinityGroup, sr.priority, common.NewSet())
+		placement = scheduler.Schedule(sr.affinityGroupPodNums, sr.priority, common.NewSet())
 	}
 	if placement == nil {
 		klog.Infof("Insufficient quota in VC %v for scheduling request: %v, GPU numbers %v, priority %v",
-			sr.vc, str, sr.affinityGroup, sr.priority)
+			sr.vc, str, sr.affinityGroupPodNums, sr.priority)
 	} else {
 		klog.Infof("Succeeded in scheduling in VC %v for scheduling request: %v, GPU numbers %v, priority %v",
-			sr.vc, str, sr.affinityGroup, sr.priority)
+			sr.vc, str, sr.affinityGroupPodNums, sr.priority)
 	}
 	return placement
 }

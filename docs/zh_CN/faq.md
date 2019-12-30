@@ -28,7 +28,7 @@ authfile content:
     userprivateimage.azurecr.io
     username
     password
-    
+
 
 Note: userprivateimage.azurecr.io is docker_registry_server
 
@@ -58,7 +58,7 @@ OpenPAI job json file example:
         }
       ]
     }
-    
+
 
 *NOTE*:
 
@@ -85,9 +85,9 @@ You should check `LD_LIBRARY_PATH` in your job container by using `export` comma
 You can add path to `LD_LIBRARY_PATH` in your Dockerfile like:
 
     ENV LD_LIBRARY_PATH=/usr/local/nvidia/lib:/usr/local/nvidia/lib64:/usr/local/cuda/extras/CUPTI/lib:/usr/local/cuda/extras/CUPTI/lib64:$LD_LIBRARY_PATH
-    
 
-If probelm remains, you can try [this script](https://gist.github.com/f0k/63a664160d016a491b2cbea15913d549) to self diagnose the problem.
+
+If problem remains, you can try [this script](https://gist.github.com/f0k/63a664160d016a491b2cbea15913d549) to self diagnose the problem.
 
 ## Deploy and maintenance related FAQs
 
@@ -119,7 +119,7 @@ Check Hadoop Datanodes (url example: http:// hadoop namenode/dfshealth.html#tab-
 
 Run "docker system df" to see how much space can be reclaimed. If the space is large, run command "docker system prune -a" to clean the cache.
 
-- (3) Check /tmp directory. 
+- (3) Check /tmp directory.
 
 Run command "du -h / | awk '$1~/[0-9]*G/{print $0}'" to list all the directory which consumes more than 1G spaces. Clean the data not used any more.
 
@@ -127,23 +127,23 @@ Run command "du -h / | awk '$1~/[0-9]*G/{print $0}'" to list all the directory w
 
 A: If default Docker cache path is set to a disk with small disk space, the path can be changed with below steps:
 
-1. Stop ALL service of the cluster.  
+1. Stop ALL service of the cluster.
         sudo ./paictl.py service stop
 
-2. Uninstall k8s cluster. This operation will not delete your data.  
+2. Uninstall k8s cluster. This operation will not delete your data.
         sudo ./paictl.py cluster k8s-clean –p /path/to/config
 
 3. Change the Docker cache path on OpenPAI node using data-root flag. Please refer to [Docker docs](https://docs.docker.com/config/daemon/systemd/)
 
 4. Modify your config file layout.yaml. Change "docker-data" to new Docker cache path configured in step 3. 参考示例：[layout.yaml](../../examples/cluster-configuration/layout.yaml#L55)
 
-5. Restart k8s cluster with updated config.  
+5. Restart k8s cluster with updated config.
         sudo ./paictl.py cluster k8s-bootup –p /path/to/new/config
 
-6. Push the latest config to cluster.  
+6. Push the latest config to cluster.
         sudo ./paictl.py config push –p /path/to/new/config
 
-7. Restart all service.  
+7. Restart all service.
         sudo ./paictl.py service start
 
 Note:

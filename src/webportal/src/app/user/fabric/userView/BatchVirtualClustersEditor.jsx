@@ -78,7 +78,7 @@ export default function BatchVirtualClustersEditor({ isOpen = false, hide }) {
         return;
       }
     }
-    await showMessageBox('Update vitrual clusters successfully');
+    await showMessageBox('Update virtual clusters successfully');
     setLock(false);
     hide();
     refreshAllUsers();

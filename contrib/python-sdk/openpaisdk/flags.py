@@ -82,7 +82,7 @@ class __flags__(object):
             },
             {
                 "name": "memoryMB",
-                "help": f"memory (MB) per instance (default is {__flags__.resources_requirements['memoryMB']}) (will be overriden by --mem)"
+                "help": f"memory (MB) per instance (default is {__flags__.resources_requirements['memoryMB']}) (will be overridden by --mem)"
             },
             {
                 "name": "mem",

@@ -17,12 +17,7 @@
 
 import React, { useState, useEffect } from 'react';
 
-import {
-  Fabric,
-  Stack,
-  initializeIcons,
-  getTheme,
-} from 'office-ui-fabric-react';
+import { Fabric, Stack, getTheme } from 'office-ui-fabric-react';
 import { isNil, countBy, findIndex } from 'lodash';
 
 import t from '../../../components/tachyons.scss';
@@ -41,7 +36,6 @@ import {
 } from '../conn';
 
 import { MaskSpinnerLoading } from '../../../components/loading';
-import { initTheme } from '../../../components/theme';
 
 import { checkAdmin } from '../../user-auth/user-auth.component';
 
@@ -52,9 +46,6 @@ const columnPassword = 'password';
 const columnEmail = 'email';
 const columnAdmin = 'admin';
 const columnVC = 'virtual cluster';
-
-initTheme();
-initializeIcons();
 
 export default function BatchRegister() {
   const [userInfos, setUserInfos] = useState([]);

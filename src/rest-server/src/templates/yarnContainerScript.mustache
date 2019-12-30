@@ -473,7 +473,7 @@ echo PAI_CURRENT_CONTAINER_PORT="$(cut -f 1 -d"," <<< $PAI_CONTAINER_HOST_http_P
 
 export $(grep -v '^#' $ENV_LIST | xargs)
 # put it after the 'export', so we won't source it into yarn container.
-# we want job environment parameters to be available only in job contianer.
+# we want job environment parameters to be available only in job container.
 {{# jobEnvs }}
 PAI_TEMP={{ key }}={{ value }} && echo $PAI_TEMP >> $ENV_LIST
 {{/ jobEnvs }}

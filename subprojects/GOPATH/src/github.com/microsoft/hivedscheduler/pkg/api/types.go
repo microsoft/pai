@@ -24,6 +24,7 @@ package api
 
 import (
 	"fmt"
+	meta "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -75,10 +76,11 @@ type ReservedCellSpec struct {
 type PodSchedulingSpec struct {
 	VirtualCluster       VirtualClusterName `yaml:"virtualCluster"`
 	Priority             int32              `yaml:"priority"`
-	LazyPreemptionEnable bool               `yaml:"lazyPreemptionEnable"`
 	ReservationId        ReservationId      `yaml:"reservationId"`
 	GpuType              string             `yaml:"gpuType"`
 	GpuNumber            int32              `yaml:"gpuNumber"`
+	GangReleaseEnable    bool               `yaml:"gangReleaseEnable"`
+	LazyPreemptionEnable bool               `yaml:"lazyPreemptionEnable"`
 	AffinityGroup        *AffinityGroupSpec `yaml:"affinityGroup"`
 }
 
@@ -94,11 +96,9 @@ type AffinityGroupMemberSpec struct {
 
 // Used to recover scheduler allocated resource
 type PodBindInfo struct {
-	// The node to bind
-	Node string `yaml:"node"`
-	// The GPUs to bind
-	GpuIsolation          []int32                       `yaml:"gpuIsolation"`
-	CellChain             string                        `yaml:"cellChain"`
+	Node                  string                        `yaml:"node"`         // node to bind
+	GpuIsolation          []int32                       `yaml:"gpuIsolation"` // GPUs to bind
+	CellChain             string                        `yaml:"cellChain"`    // cell chain selected
 	AffinityGroupBindInfo []AffinityGroupMemberBindInfo `yaml:"affinityGroupBindInfo"`
 }
 
@@ -109,9 +109,9 @@ type AffinityGroupMemberBindInfo struct {
 type PodPlacementInfo struct {
 	PhysicalNode       string  `yaml:"physicalNode"`
 	PhysicalGpuIndices []int32 `yaml:"physicalGpuIndices"`
-	// levels of the preassigned cells used by the pods. used to locate the virtual cells
+	// preassigned cell types used by the pods. used to locate the virtual cells
 	// when adding an allocated pod
-	PreassignedCellLevels []int32 `yaml:"preassignedCellLevels"`
+	PreassignedCellTypes []CellType `yaml:"preassignedCellTypes"`
 }
 
 type WebServerPaths struct {
@@ -132,4 +132,29 @@ func NewWebServerError(code int, message string) *WebServerError {
 
 func (err *WebServerError) Error() string {
 	return fmt.Sprintf("Code: %v, Message: %v", err.Code, err.Message)
+}
+
+// WebServer Exposed Objects: Align with K8S Objects
+type ObjectMeta struct {
+	Name string `json:"name"`
+}
+
+type AffinityGroupList struct {
+	Items []AffinityGroup `json:"items"`
+}
+
+type AffinityGroup struct {
+	ObjectMeta `json:"metadata"`
+	Status     AffinityGroupStatus `json:"status"`
+}
+
+type AffinityGroupStatus struct {
+	LazyPreemptionStatus *LazyPreemptionStatus `json:"lazyPreemptionStatus"`
+}
+
+type LazyPreemptionStatus struct {
+	// The AffinityGroup who has lazy preempted it.
+	Preemptor string `json:"preemptor"`
+	// It was lazy preempted at PreemptionTime.
+	PreemptionTime meta.Time `json:"preemptionTime"`
 }

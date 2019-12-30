@@ -16,14 +16,12 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 // module dependencies
-const axios = require('axios');
-const {Agent} = require('https');
 const Joi = require('joi');
 const yaml = require('js-yaml');
 const {get} = require('lodash');
 const fs = require('fs');
 const logger = require('@pai/config/logger');
-const {apiserver} = require('@pai/config/kubernetes');
+const k8sModel = require('@pai/models/kubernetes');
 
 let paiMachineList = [];
 try {
@@ -57,14 +55,8 @@ paiConfigData = value;
 
 const fetchPAIVersion = async () => {
     try {
-        const res = await axios.request({
-            url: '/api/v1/namespaces/default/configmaps/pai-version',
-            baseURL: apiserver.uri,
-            maxRedirects: 0,
-            httpsAgent: apiserver.ca && new Agent({ca: apiserver.ca}),
-            headers: apiserver.token && {Authorization: `Bearer ${apiserver.token}`},
-        });
-
+        const client = k8sModel.getClient();
+        const res = await client.get('/api/v1/namespaces/default/configmaps/pai-version');
         const version = get(res.data, 'data["PAI.VERSION"]');
         if (version) {
             return version.trim();

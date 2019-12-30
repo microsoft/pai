@@ -32,7 +32,7 @@
 
 ### Step 1. Prepare Deployment Environment <a name="c-step-1"></a>
 
-- [Option A. Start Dev-box contianer as the environment.](./how-to-setup-dev-box.md)
+- [Option A. Start Dev-box container as the environment.](./how-to-setup-dev-box.md)
 - [Option B. Install necessary dependency software on your host.](./how-to-install-depdencey.md)
 
 Note 1: If you wanna manage the cluster in a machine belonging to OpenPAI, please choose Option B. Otherwise, Option A is highly recommended.
@@ -59,7 +59,7 @@ If you are very familiar with OpenPAI, you could directly write your configurati
 If your cluster is deployed in Azure, and there are azure rdma capable machines. Please go to this [section](#az_rdma) first.
 
 Suggest to deploy kubernetes and maintain it with [kubespray](https://github.com/kubernetes-sigs/kubespray). We have written a document for user to deploy a k8s cluster. And when deploy k8s through this way, please choose an VM which is not belong to the cluster.
- - [Deploy kubernetes with Kubespray](./../../../contrib/kubespray/readme.md) 
+ - [Deploy kubernetes with Kubespray](./../../../contrib/kubespray/readme.md)
 
 
 Of course, you could deploy kubernetes through paictl. But the kubernetes doesn't have rbac and tls. And due to its risk, deploying k8s with kubespray is highly recommanded.

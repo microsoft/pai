@@ -15,10 +15,10 @@ For more details about this release, please refer to [detailed release note](htt
 
 ## June 2019 (version 0.13.0)
 
-- OpenPAI protocol: 
+- OpenPAI protocol:
   - Introduce OpenPAI protocol and job submission v2 (#2260)
   - Add new job submission v2 plugin (#2461)
-- Web portal: 
+- Web portal:
   - Add login page for guests (#2544)
   - Add user home page (#2614)
   - Add new user management page (#2726, #2796)
@@ -28,11 +28,11 @@ For more details about this release, please refer to [detailed release note](htt
 
 ## April 2019 (version 0.12.0)
 
-- Web portal: 
+- Web portal:
   - Display error message in job detail page #2456
   - Import users from CSV file directly and show the final results #2495
   - Add TotalGpuCount and TotalTaskCount into job list #2499
-- Deployment 
+- Deployment
   - Add cluster version info #2528
   - Check if the nodes are ubuntu 16.04 #2520
   - Check duplicate hostname #2403
@@ -41,14 +41,14 @@ For more details about this release, please refer to [detailed release note](htt
 
 ## April 2019 (version 0.11.0)
 
-- Support team wise NFS storage, including: 
+- Support team wise NFS storage, including:
   - An NFS configuration plug-in and a commandline tool. #2346
   - A simple NFS-job submit plug-in. #2358
 - Refer to Simplified Job Submission for OpenPAI + NFS deployment for more details.
 - New alerts for unhealthy GPUs, currently including following alerts #2209:
 - Admin could know all running jobs on a node. #2197
 - Filter supports in Job List View. #302
-- Hold the Env for failed jobs which are casued by user error. #2272
+- Hold the Env for failed jobs which are caused by user error. #2272
 
 For more details about this release, please refer to [detailed release note](https://github.com/microsoft/pai/releases/tag/v0.11.0).
 

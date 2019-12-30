@@ -15,10 +15,6 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-import 'core-js/stable';
-import 'regenerator-runtime/runtime';
-import 'whatwg-fetch';
-
 import React from 'react';
 import ReactDOM from 'react-dom';
 
@@ -27,16 +23,3 @@ import BatchRegister from './batchRegister';
 const contentWrapper = document.getElementById('content-wrapper');
 
 ReactDOM.render(<BatchRegister />, contentWrapper);
-
-document
-  .getElementById('sidebar-menu--cluster-view--user-management')
-  .classList.add('active');
-
-function layout() {
-  setTimeout(function() {
-    contentWrapper.style.height = contentWrapper.style.minHeight;
-  }, 10);
-}
-
-window.addEventListener('resize', layout);
-window.addEventListener('load', layout);

@@ -33,7 +33,7 @@
 
 ### Step 1. Prepare Deployment Environment <a name="c-step-1"></a>
 
-- [Option A. Start Dev-box contianer as the environment.](./how-to-setup-dev-box.md)
+- [Option A. Start Dev-box container as the environment.](./how-to-setup-dev-box.md)
 - [Option B. Install necessary dependency software on your host.](./how-to-install-depdencey.md)
 
 Note 1: If you wanna manage the cluster in a machine belonging to OpenPAI, please choose Option B. Otherwise, Option A is highly recommended.

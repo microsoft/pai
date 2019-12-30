@@ -27,7 +27,7 @@ Readiness probe determine if frontend can send traffic to this pod through servi
 
 # Runtime metrics
 
-Readiness probe can help operator know if service is healthy or not directly. We alse defined an alert rule for readiness status. But operator and other still do not know what happened to service if something wrong. To be more observable, service needs expose its runtime metrics.
+Readiness probe can help operator know if service is healthy or not directly. We defined an alert rule for readiness status. But operator and other still do not know what happened to service if something wrong. To be more observable, service needs expose its runtime metrics.
 
 ## What to collect
 
@@ -82,7 +82,7 @@ There are two possible ways for exporting metrics to prometheus:
 They have pros and cons:
 
 <table>
-  
+
 <tr>
     <td>Method</td>
     <td>Pros</td>

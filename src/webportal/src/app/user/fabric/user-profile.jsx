@@ -15,17 +15,13 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-import 'core-js/stable';
-import 'regenerator-runtime/runtime';
-import 'whatwg-fetch';
-
 import c from 'classnames';
 import React, { useEffect, useState, useCallback } from 'react';
 import ReactDOM from 'react-dom';
 import cookies from 'js-cookie';
 import PropTypes from 'prop-types';
 import { FontClassNames, FontWeights, getTheme } from '@uifabric/styling';
-import { DefaultButton, initializeIcons } from 'office-ui-fabric-react';
+import { DefaultButton } from 'office-ui-fabric-react';
 
 import Card from '../../components/card';
 import { SpinnerLoading } from '../../components/loading';
@@ -44,12 +40,8 @@ import {
 import t from '../../components/tachyons.scss';
 import { VirtualClusterDetailsList } from '../../home/home/virtual-cluster-statistics';
 import TokenList from './user-profile/token-list';
-import { initTheme } from '../../components/theme';
 import UserProfileHeader from './user-profile/header';
 import StorageList from './user-profile/storage-list';
-
-initTheme();
-initializeIcons();
 
 const UserProfileCard = ({ title, children, headerButton }) => {
   const { spacing } = getTheme();
@@ -204,5 +196,3 @@ const UserProfile = () => {
 };
 
 ReactDOM.render(<UserProfile />, document.getElementById('content-wrapper'));
-
-document.getElementById('sidebar-menu--user-profile').classList.add('active');

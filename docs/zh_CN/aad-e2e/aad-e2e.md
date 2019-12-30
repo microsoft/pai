@@ -58,7 +58,7 @@ You should get the following 4 files in your current path
           crt_path: /path/to/xxxxxx
           key_name: yyyyyy
           key_path: /path/to/yyyyyy
-    
+
 
 #### [Rest-server] Configuration AAD
 
@@ -89,7 +89,7 @@ You should get the following 4 files in your current path
 <img src="image/redirect_uri.png" alt="paictl overview picture" style="float: center; margin-right: 10px;" />
 </div>
 
-- open the app -> Certificates & secrets, and then create a new client secret. Mark the secret value as ```${secret_value}``` 
+- open the app -> Certificates & secrets, and then create a new client secret. Mark the secret value as ```${secret_value}```
 
 <div  align="center">
 <img src="image/cert_secret.png" alt="paictl overview picture" style="float: center; margin-right: 10px;" />
@@ -109,7 +109,7 @@ You should get the following 4 files in your current path
 <img src="image/api_permissions.png" alt="paictl overview picture" style="float: center; margin-right: 10px;" />
 </div>
 
-- open the app -> quickstart, then get the following value: 
+- open the app -> quickstart, then get the following value:
     - Application (client) ID, mark it as ```${app_id}```
     - Directory (tenant) ID, mark it as ```${tenant_id}```
     - In the endpoints' view, you will find the OpenID Connect metadata document and mark it as ```${well_known}```
@@ -165,12 +165,12 @@ authentication:
     - groupname: forexample2
       description: forexample2
     # The group alias (groupname) in Azure Active directory
-      externalName: "team_alias_d"    
+      externalName: "team_alias_d"
 ```
 
 ##### Optinal. Migrate restserver from basic mode to azure active directory.
 
-- Please clean all user's data. Because in this mode, user's permission will be managed by azure active directory. The local data is useless. 
+- Please clean all user's data. Because in this mode, user's permission will be managed by azure active directory. The local data is useless.
     -     sudo ./paictl.py service delete -n rest-server
 
 - If server vc has been configured in yarn, pls remember configure them in grouplist in authentication.
@@ -207,7 +207,7 @@ After start rest-server, please ensure that the following task is successfully e
 <img src="image/user_created.png" alt="paictl overview picture" style="float: center; margin-right: 10px;" />
 </div>
 
-- please check the created user data. There should be an empty extension and a non-empty grouplist. 
+- please check the created user data. There should be an empty extension and a non-empty grouplist.
 
 <div  align="center">
 <img src="image/user_detail.png" alt="paictl overview picture" style="float: center; margin-right: 10px;" />
@@ -251,4 +251,4 @@ After start rest-server, please ensure that the following task is successfully e
 
 ##### If test failed
 
-Pls try to delete the rest-server, and then try to deploy it again. If fail again, pls provide detail infomation and create issue ticket in github.
+Pls try to delete the rest-server, and then try to deploy it again. If fail again, pls provide detail information and create issue ticket in github.

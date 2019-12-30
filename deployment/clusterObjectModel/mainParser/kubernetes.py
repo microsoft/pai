@@ -157,7 +157,7 @@ class Kubernetes:
             return False, "etcd-version is miss in kubernetes-configuration -> kubernetes."
 
         if "apiserver-version" not in k8s_cfg:
-            return False, "apiserver-version is miss in kuberentes-configuraiton -> kubernetes."
+            return False, "apiserver-version is miss in kuberentes-configuration -> kubernetes."
 
         if "kube-scheduler-version" not in k8s_cfg:
             return False, "kube-scheduler-version is miss in kubernetes-configuration -> kubernetes."

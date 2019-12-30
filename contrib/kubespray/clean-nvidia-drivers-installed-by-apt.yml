@@ -8,7 +8,7 @@
 
     - name: uninstall nvidia-opencl-icd
       apt:
-        name: nvidia-opencl-icd-410
+        name: nvidia-opencl-icd-418
         state: absent
 
     - name: uninstall nvidia-prime

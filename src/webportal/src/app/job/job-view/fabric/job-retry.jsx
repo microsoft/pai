@@ -15,17 +15,8 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-import 'core-js/stable';
-import 'regenerator-runtime/runtime';
-import 'whatwg-fetch';
-
 import { isNil } from 'lodash';
-import {
-  initializeIcons,
-  Fabric,
-  Stack,
-  getTheme,
-} from 'office-ui-fabric-react';
+import { Fabric, Stack, getTheme } from 'office-ui-fabric-react';
 import React, { useEffect, useState } from 'react';
 import ReactDOM from 'react-dom';
 
@@ -33,8 +24,6 @@ import Top from './job-retry/top';
 import { SpinnerLoading } from '../../../components/loading';
 import { JobRetryCard } from './job-retry/job-retry-card';
 import { fetchJobRetries } from './job-detail/conn';
-
-initializeIcons();
 const { spacing } = getTheme();
 
 const JobRetryPage = () => {
@@ -89,5 +78,3 @@ const JobRetryPage = () => {
 };
 
 ReactDOM.render(<JobRetryPage />, document.getElementById('content-wrapper'));
-
-document.getElementById('sidebar-menu--job-view').classList.add('active');

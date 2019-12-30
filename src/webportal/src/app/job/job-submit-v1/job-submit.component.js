@@ -16,6 +16,12 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 // module dependencies
+
+require('bootstrap');
+require('admin-lte/dist/css/AdminLTE.min.css');
+require('bootstrap/dist/css/bootstrap.css');
+require('font-awesome/css/font-awesome.min.css');
+
 require('./job-submit.component.scss');
 require('json-editor'); /* global JSONEditor */
 const breadcrumbComponent = require('../breadcrumb/breadcrumb.component.ejs');
@@ -134,13 +140,6 @@ const loadEditor = () => {
   jobDefaultConfig = editor.getValue();
 };
 
-const resize = () => {
-  const heights = window.innerHeight;
-  $('#editor-holder')[0].style.height = heights - 300 + 'px';
-};
-
-$('#sidebar-menu--submit-job').addClass('active');
-
 $('#content-wrapper').html(jobSubmitHtml);
 $(document).ready(() => {
   userAuth.checkToken(function(token) {
@@ -197,21 +196,17 @@ $(document).ready(() => {
         'application/json',
       );
     });
-    resize();
-    window.onresize = function() {
-      resize();
-    };
     const query = querystring.parse(window.location.search.replace(/^\?+/, ''));
     const op = query.op;
     const type = query.type;
     const username = query.user;
-    const jobname = query.jobname;
+    const jobName = query.jobName;
     if (op === 'resubmit') {
-      if (type != null && username != null && jobname != null) {
+      if (type != null && username != null && jobName != null) {
         const url =
           username === ''
-            ? `${webportalConfig.restServerUri}/api/v1/jobs/${jobname}/config`
-            : `${webportalConfig.restServerUri}/api/v2/jobs/${username}~${jobname}/config`;
+            ? `${webportalConfig.restServerUri}/api/v1/jobs/${jobName}/config`
+            : `${webportalConfig.restServerUri}/api/v2/jobs/${username}~${jobName}/config`;
         $.ajax({
           url: url,
           type: 'GET',

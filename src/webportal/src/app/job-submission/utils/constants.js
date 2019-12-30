@@ -112,7 +112,7 @@ export const PROTOCOL_TOOLTIPS = {
 
 export const COMMAND_PLACEHOLDER = `'You could define your own Parameters, Secrets or Data mount point on the right sidebar.
 
-All lines will be concatenated by "&&". So do not use characters like "#", "\\" in your command`;
+All lines will be concatenated by "&&". So do not use characters like "#", "\\" in your command'`;
 
 export const DOCKER_OPTIONS = [
   {

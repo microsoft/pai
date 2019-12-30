@@ -32,13 +32,13 @@ There are two situations in which a user's AKS cluster can be ***[built from scr
 
 ***Precautions***:
 
-- For api-server RBAC: 
+- For api-server RBAC:
   - When deploy AKS from scratch: Disable api-server RBAC when create cluster by param ["--disable-rbac"](https://docs.microsoft.com/en-us/cli/azure/aks?view=azure-cli-latest#az-aks-create).
   - When use existing enabled RBAC AKS cluster: OpenPAI service pod will be mounted default service account. User could [create role binding refer aks doc](https://docs.microsoft.com/en-us/azure/aks/kubernetes-dashboard#for-rbac-enabled-clusters) to"default:default" [service account](https://kubernetes.io/docs/reference/access-authn-authz/rbac/#service-account-permissions) and "kube-system:k8s-dashboard" service account. As OpenPAI service restserver / prometheus etc & k8s dashboard will access api-server.
 
 ***Recommended considerations***:
 
-- For node disk: 
+- For node disk:
   - When deploy AKS from scratch: Use the ***az aks create*** command to create an AKS cluster. Configure the node os disk through the configuration item ***--node-osdisk-size to*** have large disk space. It is better > 500GB.
   - When user existing AKS cluster: If the disk is small, the user can mount a larger disk through the AKS VM and change the disk path "data-path: "/datastorage" item in service-configuration.yaml used by the PAI service to a larger disk in step-3 below.
 
@@ -58,20 +58,20 @@ There are two situations in which a user's AKS cluster can be ***[built from scr
 - Step 1.1. [A guide to prepare deployment env](./prepare_dev_env.md)
 
 - Step 1.2. Prepare kubectl for AKS env
-  
+
   - 1.2.1 [install Azure CLI](https://docs.microsoft.com/en-us/cli/azure/install-azure-cli-apt?view=azure-cli-latest).
-  
+
   - 1.2.2 [config kubectl](https://docs.microsoft.com/en-us/azure/aks/kubernetes-walkthrough#connect-to-the-cluster)
 
 To manage a Kubernetes cluster, you use kubectl, the Kubernetes command-line client. If you use Azure Cloud Shell, kubectl is already installed. To install kubectl locally, use the az aks install-cli command:
 
     az aks install-cli
-    
+
 
 To configure kubectl to connect to your Kubernetes cluster, use the az aks get-credentials command. This command downloads credentials and configures the Kubernetes CLI to use them. User could get "myResourceGroup", "myAKSCluster" from your Azure portal or Azure CLI.
 
     az aks get-credentials --resource-group myResourceGroup --name myAKSCluster
-    
+
 
 output logs:
 
@@ -79,7 +79,7 @@ Merged "myAKSCluster" as current context in /root/.kube/config
 
 * * *
 
-### Step 2. Prepare Configuraiton <a name="c-step-2"></a>
+### Step 2. Prepare Configuration <a name="c-step-2"></a>
 
 - [A guide to generate layout](./generate_layout.md)
 
@@ -108,7 +108,7 @@ For [this step](https://docs.microsoft.com/en-us/azure/aks/static-ip#create-a-se
     spec:
       selector:
         app: pylon
-    
+
 
 - OpenPAI master use GPU node
 

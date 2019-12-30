@@ -22,12 +22,12 @@ import urlparse
 
 class Webportal:
 
-    def __init__(self, cluster_configuration, service_configuration, default_service_configuraiton):
+    def __init__(self, cluster_configuration, service_configuration, default_service_configuration):
         self.cluster_configuration = cluster_configuration
-        self.service_configuration = dict(default_service_configuraiton,
+        self.service_configuration = dict(default_service_configuration,
                                           **service_configuration)
         self.service_configuration['plugins'] = []
-        self.service_configuration['plugins'].extend(default_service_configuraiton.get('plugins', []))
+        self.service_configuration['plugins'].extend(default_service_configuration.get('plugins', []))
         self.service_configuration['plugins'].extend(service_configuration.get('plugins', []))
 
     #### Fist check, ensure all the configured data in cluster_configuration, service_configuration, default_service_configuration is right. And nothing is miss.

@@ -244,7 +244,7 @@ class VirtualCluster {
             nodeResource[node.nodeHostName] = {
               gpuTotal: node.usedGPUs + node.availableGPUs,
               gpuUsed: node.usedGPUs,
-              gpuAvaiable: node.availableGPUs,
+              gpuAvailable: node.availableGPUs,
             };
           }
           next(null, nodeResource);

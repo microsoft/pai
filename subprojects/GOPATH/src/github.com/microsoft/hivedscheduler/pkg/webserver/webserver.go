@@ -34,6 +34,7 @@ import (
 	ei "k8s.io/kubernetes/pkg/scheduler/api"
 	"net"
 	"net/http"
+	"strings"
 	"time"
 )
 
@@ -53,9 +54,14 @@ type WebServer struct {
 
 	// Scheduler Extender Callbacks from K8S Default Scheduler
 	eHandlers internal.ExtenderHandlers
+
+	// Scheduler Inspect Callbacks
+	iHandlers internal.InspectHandlers
 }
 
-func NewWebServer(sConfig *si.Config, eHandlers internal.ExtenderHandlers) *WebServer {
+func NewWebServer(sConfig *si.Config,
+	eHandlers internal.ExtenderHandlers,
+	iHandlers internal.InspectHandlers) *WebServer {
 	klog.Infof("Initializing " + ComponentName)
 
 	ws := &WebServer{
@@ -65,19 +71,14 @@ func NewWebServer(sConfig *si.Config, eHandlers internal.ExtenderHandlers) *WebS
 		},
 		paths:     si.WebServerPaths{Paths: []string{}},
 		eHandlers: eHandlers,
+		iHandlers: iHandlers,
 	}
 
 	ws.route(si.RootPath, ws.serve(ws.serveRootPath))
-	if eHandlers.FilterHandler != nil {
-		ws.route(si.FilterPath, ws.serve(ws.serveFilterPath))
-	}
-	if eHandlers.BindHandler != nil {
-		ws.route(si.BindPath, ws.serve(ws.serveBindPath))
-	}
-	if eHandlers.PreemptHandler != nil {
-		ws.route(si.PreemptPath, ws.serve(ws.servePreemptPath))
-	}
-
+	ws.route(si.FilterPath, ws.serve(ws.serveFilterPath))
+	ws.route(si.BindPath, ws.serve(ws.serveBindPath))
+	ws.route(si.PreemptPath, ws.serve(ws.servePreemptPath))
+	ws.route(si.AffinityGroupsPath, ws.serve(ws.serveAffinityGroups))
 	return ws
 }
 
@@ -132,7 +133,7 @@ func (ln tcpKeepAliveListener) Accept() (net.Conn, error) {
 	return tc, nil
 }
 
-// Error should be passed by panic
+// Error should be delivered by panic
 type servePathHandler func(w http.ResponseWriter, r *http.Request)
 
 func (ws *WebServer) serve(handler servePathHandler) servePathHandler {
@@ -233,4 +234,23 @@ func (ws *WebServer) servePreemptPath(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Write(common.ToJsonBytes(ws.eHandlers.PreemptHandler(args)))
+}
+
+func (ws *WebServer) serveAffinityGroups(w http.ResponseWriter, r *http.Request) {
+	name := strings.TrimPrefix(r.URL.Path, si.AffinityGroupsPath)
+	if name == "" {
+		if r.Method == http.MethodGet {
+			w.Write(common.ToJsonBytes(ws.iHandlers.GetAffinityGroupsHandler()))
+			return
+		}
+	} else {
+		if r.Method == http.MethodGet {
+			w.Write(common.ToJsonBytes(ws.iHandlers.GetAffinityGroupHandler(name)))
+			return
+		}
+	}
+
+	panic(internal.NewBadRequestError(fmt.Sprintf(
+		"NotImplemented: %v: %v",
+		r.Method, r.URL.Path)))
 }

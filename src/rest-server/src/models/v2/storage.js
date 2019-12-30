@@ -17,61 +17,49 @@
 
 // module dependencies
 const crudUtil = require('@pai/utils/manager/storage/crudUtil');
-const k8sConfig = require('@pai/config/kubernetes');
 
 const crudType = 'k8sSecret';
 const crudStorage = crudUtil.getStorageObject(crudType);
-let optionConfig = {};
-if (k8sConfig.apiserver.ca) {
-  optionConfig.k8sAPIServerCaFile = k8sConfig.apiserver.ca;
-}
-if (k8sConfig.apiserver.token) {
-  optionConfig.k8sAPIServerTokenFile = k8sConfig.apiserver.token;
-}
-const crudConfig = crudStorage.initConfig(
-  k8sConfig.apiserver.uri,
-  optionConfig
-);
 
 // crud storage wrappers
 const getStorageServer = async (name) => {
-  return await crudStorage.readStorageServer(name, crudConfig);
+  return await crudStorage.readStorageServer(name);
 };
 
 const getStorageServers = async (names) => {
-  return await crudStorage.readStorageServers(names, crudConfig);
+  return await crudStorage.readStorageServers(names);
 };
 
 const getStorageConfig = async (name) => {
-  return await crudStorage.readStorageConfig(name, crudConfig);
+  return await crudStorage.readStorageConfig(name);
 };
 
 const getStorageConfigs = async (names) => {
-  return await crudStorage.readStorageConfigs(names, crudConfig);
+  return await crudStorage.readStorageConfigs(names);
 };
 
 const createStorageServer = async (name, value) => {
-  return await crudStorage.createStorageServer(name, value, crudConfig);
+  return await crudStorage.createStorageServer(name, value);
 };
 
 const createStorageConfig = async (name, value) => {
-  return await crudStorage.createStorageConfig(name, value, crudConfig);
+  return await crudStorage.createStorageConfig(name, value);
 };
 
 const updateStorageServer = async (name, value) => {
-  return await crudStorage.updateStorageServer(name, value, crudConfig);
+  return await crudStorage.updateStorageServer(name, value);
 };
 
 const updateStorageConfig = async (name, value) => {
-  return await crudStorage.updateStorageConfig(name, value, crudConfig);
+  return await crudStorage.updateStorageConfig(name, value);
 };
 
 const deleteStorageServer = async (name) => {
-  return await crudStorage.removeStorageServer(name, crudConfig);
+  return await crudStorage.removeStorageServer(name);
 };
 
 const deleteStorageConfig = async (name) => {
-  return await crudStorage.removeStorageConfig(name, crudConfig);
+  return await crudStorage.removeStorageConfig(name);
 };
 
 // module exports
