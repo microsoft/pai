@@ -19,6 +19,13 @@
 import logging
 import argparse
 import yaml
+import os
+import requests
+try:
+    from urlparse import urljoin
+except Exception:
+    import urllib.parse
+    from urllib.parse import urljoin
 
 from common.utils import init_logger
 
@@ -42,6 +49,11 @@ class PluginHelper:  #pylint: disable=too-few-public-methods
                 f.writelines(new_commands)
 
 
+
+PAI_REST_SERVER_URI = os.environ.get("PAI_REST_SERVER_URI")
+USER_TOKEN_HEADER = os.environ.get("PAI_USER_TOKEN")
+
+
 def plugin_init():
     init_logger()
     parser = argparse.ArgumentParser()
@@ -50,7 +62,14 @@ def plugin_init():
     parser.add_argument("pre_script", help="script for pre commands")
     parser.add_argument("post_script", help="script for post commands")
     args = parser.parse_args()
-
     plugin_config = yaml.safe_load(args.plugin_config)
 
     return [plugin_config, args.pre_script, args.post_script]
+
+
+def request_rest_server(method, url, data, timeout_secs=30):
+    headers = {'Authorization': USER_TOKEN_HEADER}
+    url = urljoin(PAI_REST_SERVER_URI, url)
+    response = requests.request(method, url, data=data, headers=headers)
+    response.raise_for_status()
+    return response

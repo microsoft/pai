@@ -11,7 +11,6 @@ import {
 import { Spinner, SpinnerSize } from 'office-ui-fabric-react/lib/Spinner';
 import { SSHPlugin } from '../../models/plugin/ssh-plugin';
 import SSHGenerator from './ssh-generator';
-import { fetchUserSshPublicKey } from '../../utils/conn';
 
 import {
   DefaultButton,
@@ -36,29 +35,14 @@ const style = {
 
 export const JobSSH = ({ extras, onExtrasChange }) => {
   // Decouple toggle logic from ssh data source
-  // We have two data sources: expression ssh key and input ssh key
-  const [enableSsh, setEnableSsh] = useState(!isEmpty(SSHPlugin.fromProtocol(extras).userssh));
-  // Data Source 1: input ssh key
-  // Input ssh key is initialized from extras. Thus, it will be kept by cloning jobs.
+  const [enableSsh, setEnableSsh] = useState(SSHPlugin.fromProtocol(extras).enable);
   const [inputSshPlugin, setInputSshPlugin] = useState(SSHPlugin.fromProtocol(extras));
-  // Data Source 2: expression ssh key. `expressionSshState` could be: Init, Fetching, NotFound and Found
-  // Expression ssh key will always be initialized.
-  const [expressionSshState, setExpressionSshState] = useState('Init')
-  const [expressionSshValue, setExpressionSshValue] = useState('')
-  const [expressionSshPlugin, setExpressionSshPlugin] = useState(
-    new SSHPlugin({
-      jobssh: true,
-      userssh: {type: 'custom', value: ''}
-    }));
+
 
   useEffect(() => {
     const updatedSSHPlugin = SSHPlugin.fromProtocol(extras);
-    if (expressionSshState === 'Found'){
-      setExpressionSshPlugin(updatedSSHPlugin);
-    } else {
-      setInputSshPlugin(updatedSSHPlugin)
-    }
-    setEnableSsh(!isEmpty(updatedSSHPlugin.userssh))
+    setInputSshPlugin(updatedSSHPlugin)
+    setEnableSsh(updatedSSHPlugin.enable)
   }, [extras]);
 
   // We do not use a `useEffect` here, since it will cause infinite loop to update `extras`.
@@ -77,38 +61,33 @@ export const JobSSH = ({ extras, onExtrasChange }) => {
       pluginBase.push(sshPlugin.convertToProtocolFormat());
     }
     onExtrasChange(updatedExtras);
-  }, [extras, expressionSshState, inputSshPlugin, expressionSshPlugin])
+  }, [extras, inputSshPlugin])
 
-  const _updateInputPlugin = useCallback((keyName, propValue) => {
+  const _updateInputPlugin = useCallback((updatedKV) => {
     const updatedSSHPlugin = new SSHPlugin(inputSshPlugin);
-    updatedSSHPlugin[keyName] = propValue;
+    for (let keyName in updatedKV){
+      updatedSSHPlugin[keyName] = updatedKV[keyName]
+    }
     setInputSshPlugin(updatedSSHPlugin);
     _updateExtras(updatedSSHPlugin)
   }, [inputSshPlugin, _updateExtras]);
 
-  const _updateExpressionPlugin = useCallback((keyName, propValue) => {
-    const updatedSSHPlugin = new SSHPlugin(expressionSshPlugin);
-    updatedSSHPlugin[keyName] = propValue;
-    setExpressionSshPlugin(updatedSSHPlugin);
-    _updateExtras(updatedSSHPlugin)
-  }, [expressionSshPlugin, _updateExtras]);
-
   const _onUsersshTypeChange = useCallback(
     (_, item) => {
-      _updateInputPlugin('userssh', {
+      _updateInputPlugin({'userssh': {
         type: item.key,
         value: '',
-      });
+      }});
     },
     [_updateInputPlugin],
   );
 
   const _onUsersshValueChange = useCallback(
     e => {
-      _updateInputPlugin('userssh', {
+      _updateInputPlugin({'userssh': {
         ...inputSshPlugin.userssh,
         value: e.target.value,
-      });
+      }});
     },
     [_updateInputPlugin],
   );
@@ -116,46 +95,15 @@ export const JobSSH = ({ extras, onExtrasChange }) => {
 
   const _onUsersshEnable = (_, checked) => {
     setEnableSsh(checked)
-    // if we have not got expression ssh key, try to fetch it.
-    if (expressionSshState === 'Init'){
-      setExpressionSshState('Fetching')
-      const user = cookies.get('user');
-        fetchUserSshPublicKey(user).then((sshPublicKey) => {
-          if (sshPublicKey != 'NotFound') {
-            setExpressionSshState('Found')
-            setExpressionSshValue(sshPublicKey)
-            _updateExpressionPlugin('userssh', {
-              type: 'custom',
-              value: sshPublicKey
-            })
-          } else {
-            setExpressionSshState('NotFound')
-          }
-      }).catch(err => {
-        console.error(err)
-        setExpressionSshState('NotFound')
-      });
-    }
-    if (expressionSshState === 'Found'){
-      // if we found the expression ssh, use it
-      if (!checked){
-        _updateExpressionPlugin('userssh', {});
-      } else {
-        _updateExpressionPlugin('userssh', {
-          type: 'custom',
-          value: expressionSshValue
-        });
-      }
+    if (!checked) {
+      _updateInputPlugin({'userssh': {}, 'enable': false});
     } else {
-      // use input ssh key
-      if (!checked) {
-        _updateInputPlugin('userssh', {});
-      } else {
-        _updateInputPlugin('userssh', {
+      _updateInputPlugin({
+        'userssh': {
           type: 'custom',
           value: '',
-        });
-      }
+        },
+        'enable': true});
     }
   }
 
@@ -171,10 +119,10 @@ export const JobSSH = ({ extras, onExtrasChange }) => {
   };
 
   const _onSshKeysGenerated = sshKeys => {
-    _updateInputPlugin('userssh', {
+    _updateInputPlugin({'userssh': {
       ...inputSshPlugin.userssh,
       value: sshKeys.public,
-    });
+    }});
   };
 
 
@@ -186,60 +134,49 @@ export const JobSSH = ({ extras, onExtrasChange }) => {
           content={`Choose SSH public key for job. Users should maintain the SSH private key themselves.`}
         />
       </Stack>
-      <Stack horizontal gap='s1'>
-        <Toggle
-          label={'Enable User SSH'}
-          inlineLabel={true}
-          checked={enableSsh}
-          onChange={_onUsersshEnable}
-        />
-        <TooltipIcon
-          content={
-            'Enable User SSH to allow user attach job containers through corresponding ssh private key. You can enter your own ssh pub key or use SSH Key Generator to generate ssh key pair.'
-          }
-        />
-      </Stack>
-      { (enableSsh && (expressionSshState === 'Fetching')) && (
-        <Stack horizontal>
-          <Spinner size={SpinnerSize.large}>Trying to load predefined SSH key...</Spinner>
-        </Stack>
-      )}
-      { (enableSsh && (expressionSshState === 'Found')) && (
-        <Stack horizontal>
-          <p>Use predefined SSH key.</p>
-        </Stack>
-      )}
-      { (enableSsh && (expressionSshState === 'NotFound' || expressionSshState === 'Init')) && (
-        <Stack horizontal gap='l1'>
-          <Dropdown
-            placeholder='Select user ssh key type...'
-            options={USERSSH_TYPE_OPTIONS}
-            onChange={_onUsersshTypeChange}
-            selectedKey={inputSshPlugin.userssh.type}
-            disabled={Object.keys(USERSSH_TYPE_OPTIONS).length <= 1}
+      <Stack gap='s1'>
+        <Stack horizontal gap='s1'>
+          <Toggle
+            label={'Enable User SSH'}
+            inlineLabel={true}
+            checked={enableSsh}
+            onChange={_onUsersshEnable}
           />
-          <TextField
-            placeholder='Enter ssh public key'
-            disabled={inputSshPlugin.userssh.type === 'none'}
-            errorMessage={
-              isEmpty(inputSshPlugin.getUserSshValue())
-                ? 'Please Enter Valid SSH public key'
-                : null
+          <TooltipIcon
+            content={
+              'Enable User SSH to allow user attach job containers through corresponding ssh private key. You can enter your own ssh pub key or use SSH Key Generator to generate ssh key pair.'
             }
-            onChange={_onUsersshValueChange}
-            value={inputSshPlugin.getUserSshValue()}
           />
-          <DefaultButton onClick={ev => openSshGenerator(ev)}>
-            SSH Key Generator
-          </DefaultButton>
-          {sshGenerator.isOpen && (
-            <SSHGenerator
-              isOpen={sshGenerator.isOpen}
-              bits={sshGenerator.bits}
-              hide={hideSshGenerator}
-              onSshKeysChange={_onSshKeysGenerated}
+        </Stack>
+        { (enableSsh) && (
+        <Text>Your pre-defined SSH public keys on the <a href="/user-profile.html" target="_blank" >User Profile</a> page will be set automatically.</Text>
+        )}
+      </Stack>
+
+      { (enableSsh ) && (
+        <Stack gap='s1'>
+          <Text>Add additional SSH key:</Text>
+          <Stack horizontal gap='l1'>
+            <TextField
+              placeholder='Additional ssh public key'
+              disabled={inputSshPlugin.userssh.type === 'none'}
+              errorMessage={null}
+              onChange={_onUsersshValueChange}
+              value={inputSshPlugin.getUserSshValue()}
+              styles={{ fieldGroup: { width: 300 } }}
             />
-          )}
+            <DefaultButton onClick={ev => openSshGenerator(ev)}>
+              Generator
+            </DefaultButton>
+            {sshGenerator.isOpen && (
+              <SSHGenerator
+                isOpen={sshGenerator.isOpen}
+                bits={sshGenerator.bits}
+                hide={hideSshGenerator}
+                onSshKeysChange={_onSshKeysGenerated}
+              />
+            )}
+          </Stack>
         </Stack>
       )}
     </Stack>

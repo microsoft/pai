@@ -22,7 +22,10 @@ import sys
 
 sys.path.append(
     os.path.join(os.path.dirname(os.path.abspath(__file__)), "../.."))
-from plugins.plugin_utils import plugin_init, PluginHelper  #pylint: disable=wrong-import-position
+from plugins.plugin_utils import plugin_init, PluginHelper, request_rest_server  #pylint: disable=wrong-import-position
+import shlex
+import json
+import traceback
 
 LOGGER = logging.getLogger(__name__)
 
@@ -43,10 +46,31 @@ def main():
         jobssh = "false"
     cmd_params = [jobssh]
 
+    ssh_keys = []
     if "userssh" in parameters:
         if "type" in parameters["userssh"] and "value" in parameters["userssh"]:
             cmd_params.append(str(parameters["userssh"]["type"]))
-            cmd_params.append("\'{}\'".format(parameters["userssh"]["value"]))
+            ssh_keys.append(parameters["userssh"]["value"])
+
+    if "enable" in parameters and parameters["enable"] is True:
+        try:
+            USER_NAME = os.environ.get("PAI_USER_NAME")
+            # system-level public key
+            ssh_keys.append(
+                json.loads(
+                    request_rest_server("GET", "api/extend/user/{}/ssh-key/system".format(USER_NAME)).text
+                )['public-key']
+            )
+            # user's custom public keys
+            ssh_keys.extend([
+                entry['public-key'] for _, entry in
+                json.loads(
+                    request_rest_server("GET", "api/extend/user/{}/ssh-key/custom".format(USER_NAME)).text
+                ).items()
+            ])
+        except Exception:
+            traceback.print_exc()
+    cmd_params.append(shlex.quote('\n'.join(ssh_keys)))
 
     # write call to real executable script
     command = [
@@ -69,5 +93,7 @@ def main():
     LOGGER.info("Ssh runtime plugin perpared")
 
 
-if __name__ == "__main__":
-    main()
+
+
+    # write call to real executable script
+    command = ["{}/sshd.sh {}\n".format(os.path.dirname(os.path.abspath(__file__)), " ".join(cmdParams))]
