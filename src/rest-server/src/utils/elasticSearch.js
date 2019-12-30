@@ -19,54 +19,59 @@
 const elasticsearch = require('@elastic/elasticsearch');
 
 const client = new elasticsearch.Client({nodes: process.env.Elasticsearch_URI});
+const logger = require('@pai/config/logger');
 
 /**
  *  search framework
  */
 async function search(index = '*', body = '{}', req) {
-  const esResult = await client.search({
-    index: index,
-    body: body,
-  });
-  let res;
-  if (req == 'attemptID') {
-    if (esResult.body.hits.hits.length == 0) {
-      res = {
-        status: 404,
-        data: {
-          message: `The specified ${index} is not found`,
-        },
-      };
-    } else {
-      res = {
-        status: 200,
-        data: esResult.body.hits.hits[0]._source.ObjectSnapshot,
-      };
-    }
-  } else {
-    let aggResults = esResult.body.aggregations.attemptID_group.buckets;
-    if (aggResults.length == 0) {
-      res = {
-        status: 404,
-        data: {
-          message: `The specified ${index} is not found`,
-        },
-      };
-    } else {
-      let resultObj = {items: []};
-      for (let i = 0; i < aggResults.length; i++) {
-        resultObj['items'].push(
-          aggResults[i].CollectTime_sort.buckets[0].top.hits.hits[0]._source
-            .ObjectSnapshot,
-        );
+  try {
+    const esResult = await client.search({
+      index: index,
+      body: body,
+    });
+    let res;
+    if (req == 'attemptID') {
+      if (esResult.body.hits.hits.length == 0) {
+        res = {
+          status: 404,
+          data: {
+            message: `The specified ${index} is not found`,
+          },
+        };
+      } else {
+        res = {
+          status: 200,
+          data: esResult.body.hits.hits[0]._source.ObjectSnapshot,
+        };
       }
-      res = {
-        status: 200,
-        data: resultObj,
-      };
+    } else {
+      let aggResults = esResult.body.aggregations.attemptID_group.buckets;
+      if (aggResults.length == 0) {
+        res = {
+          status: 404,
+          data: {
+            message: `The specified ${index} is not found`,
+          },
+        };
+      } else {
+        let resultObj = {items: []};
+        for (let i = 0; i < aggResults.length; i++) {
+          resultObj['items'].push(
+            aggResults[i].CollectTime_sort.buckets[0].top.hits.hits[0]._source
+              .ObjectSnapshot,
+          );
+        }
+        res = {
+          status: 200,
+          data: resultObj,
+        };
+      }
     }
+    return res;
+  } catch (error) {
+    logger.error(`error when requesting elastic search: ${error.message}`);
   }
-  return res;
 }
 
 // module exports

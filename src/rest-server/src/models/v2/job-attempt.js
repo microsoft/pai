@@ -25,6 +25,7 @@ const {convertToJobAttempt} = require('@pai/utils/frameworkConverter');
 const launcherConfig = require('@pai/config/launcher');
 const createError = require('@pai/utils/error');
 const k8sModel = require('@pai/models/kubernetes');
+const logger = require('@pai/config/logger');
 
 let elasticSearchClient;
 if (!_.isNil(process.env.ELASTICSEARCH_URI)) {
@@ -60,9 +61,11 @@ const healthCheck = async () => {
       if (result.statusCode === 200) {
         return true;
       } else {
+        logger.warn(`elastic search return status: ${result.statusCode}`);
         return false;
       }
     } catch (e) {
+      logger.error(e.message);
       return false;
     }
   }
@@ -87,6 +90,7 @@ const list = async (frameworkName) => {
       }
     );
   } catch (error) {
+    logger.error(`error when getting framework from k8s api: ${error.message}`);
     if (error.response != null) {
       response = error.response;
     } else {
@@ -102,6 +106,7 @@ const list = async (frameworkName) => {
       isLatest: true,
     });
   } else if (response.status === 404) {
+    logger.warn(`could not get framework ${uid} from k8s`);
     return {status: 404, data: null};
   } else {
     throw createError(response.status, 'UnknownError', response.data.message);
@@ -193,6 +198,7 @@ const get = async (frameworkName, jobAttemptIndex) => {
       }
     );
   } catch (error) {
+    logger.error(`error when getting framework from k8s api: ${error.message}`);
     if (error.response != null) {
       response = error.response;
     } else {
@@ -205,6 +211,7 @@ const get = async (frameworkName, jobAttemptIndex) => {
     uid = response.data.metadata.uid;
     attemptFramework = response.data;
   } else if (response.status === 404) {
+    logger.warn(`could not find framework: ${uid}`);
     return {status: 404, data: null};
   } else {
     throw createError(response.status, 'UnknownError', response.data.message);
