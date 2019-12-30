@@ -94,6 +94,13 @@ const GpuChart = ({ style, gpuPerNode, virtualClusters, userInfo }) => {
       return prev;
     }, Array.from({ length: maxGpu + 1 }, () => 0));
     stack[1][0] = 'dedicated';
+    const maxValue = Math.max(...stack[0].slice(1), ...stack[1].slice(1)) - 1;
+    const ylines = [
+      { value: maxValue / 4 },
+      { value: (maxValue * 2) / 4 },
+      { value: (maxValue * 3) / 4 },
+      { value: maxValue },
+    ];
 
     // c3 option
     const defaultOption = {
@@ -105,6 +112,7 @@ const GpuChart = ({ style, gpuPerNode, virtualClusters, userInfo }) => {
         labels: {
           format: x => (x === 0 ? '' : x),
         },
+        empty: { label: { text: 'No available GPU nodes now' } },
       },
       padding: {
         left: 20,
@@ -132,6 +140,11 @@ const GpuChart = ({ style, gpuPerNode, virtualClusters, userInfo }) => {
             values: [],
           },
           inner: true,
+        },
+      },
+      grid: {
+        y: {
+          lines: ylines,
         },
       },
       legend: {

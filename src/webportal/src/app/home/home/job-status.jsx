@@ -20,16 +20,15 @@ import { isEmpty } from 'lodash';
 import PropTypes from 'prop-types';
 import querystring from 'querystring';
 import {
-  Icon,
   Stack,
   FontClassNames,
   ColorClassNames,
   DefaultButton,
-  getTheme,
   FontWeights,
 } from 'office-ui-fabric-react';
 import React from 'react';
 
+import StatusBadge from '../../components/status-badge';
 import Card from '../../components/card';
 import { getHumanizedJobStateString } from '../../components/util/job';
 
@@ -37,45 +36,24 @@ import t from '../../components/tachyons.scss';
 
 const isAdmin = cookies.get('admin') === 'true';
 const StatusItem = ({ className, icon, name, count, link }) => {
-  const { spacing } = getTheme();
   return (
     <Stack
       styles={{ root: [{ minWidth: 280 }, className] }}
       horizontal
       verticalAlign='center'
+      horizontalAlign='space-between'
       padding='s1'
       gap='m'
     >
-      <Stack.Item grow>
-        <Stack horizontal verticalAlign='center' gap='l1'>
-          <div
-            className={c(t.flex, t.itemsCenter, t.justifyStart)}
-            style={{ width: '33%', minWidth: 120 }}
-          >
-            <div>
-              <Icon
-                className={ColorClassNames.neutralSecondary}
-                iconName={icon}
-              />
-            </div>
-            <div
-              className={c(
-                ColorClassNames.neutralSecondary,
-                FontClassNames.large,
-              )}
-              style={{ marginLeft: spacing.m }}
-            >
-              {name}
-            </div>
-          </div>
-          <div
-            className={c(FontClassNames.xLarge)}
-            style={{ fontWeight: FontWeights.semibold }}
-          >
-            {count}
-          </div>
-        </Stack>
-      </Stack.Item>
+      <div className={c(t.w4)}>
+        <StatusBadge status={name} />
+      </div>
+      <div
+        className={c(FontClassNames.xLarge)}
+        style={{ fontWeight: FontWeights.semibold }}
+      >
+        {count}
+      </div>
       <Stack.Item>
         <DefaultButton
           styles={{ root: [{ width: 100 }] }}
