@@ -91,9 +91,3 @@ def main():
 
     plugin_helper.inject_commands(command, pre_script)
     LOGGER.info("Ssh runtime plugin perpared")
-
-
-
-
-    # write call to real executable script
-    command = ["{}/sshd.sh {}\n".format(os.path.dirname(os.path.abspath(__file__)), " ".join(cmdParams))]
