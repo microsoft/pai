@@ -31,7 +31,7 @@ RUN apt-get -y update && \
       libpam-winbind \
       libnss-winbind
 
-# Use defualt config for Kerberos
+# Use default config for Kerberos
 RUN DEBIAN_FRONTEND=noninteractive apt-get -y install \
       libpam-krb5 \
       krb5-config \
