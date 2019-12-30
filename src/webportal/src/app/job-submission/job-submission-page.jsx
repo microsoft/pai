@@ -25,14 +25,19 @@
 
 import React, { useState, useCallback, useEffect, useMemo } from 'react';
 import { Fabric, Stack, StackItem } from 'office-ui-fabric-react';
-import { isNil, isEmpty, get, cloneDeep } from 'lodash';
+import { isNil, isEmpty, get } from 'lodash';
 import PropTypes from 'prop-types';
 
 import { JobInformation } from './components/job-information';
 import { SubmissionSection } from './components/submission-section';
 import { TaskRoles } from './components/task-roles';
 import Context from './components/context';
-import { fetchJobConfig, listUserVirtualClusters } from './utils/conn';
+import {
+  fetchJobConfig,
+  listUserVirtualClusters,
+  listUserStorageConfigs,
+  fetchStorageConfigs,
+} from './utils/conn';
 import { TaskRolesManager } from './utils/task-roles-manager';
 
 // sidebar
@@ -53,7 +58,7 @@ import {
 } from './utils/utils';
 import { SpinnerLoading } from '../components/loading';
 import config from '../config/webportal.config';
-import { PAI_PLUGIN, PAI_STORAGE } from './utils/constants';
+import { PAI_PLUGIN, STORAGE_PLUGIN } from './utils/constants';
 
 const SIDEBAR_PARAM = 'param';
 const SIDEBAR_SECRET = 'secret';
@@ -117,7 +122,6 @@ export const JobSubmissionPage = ({
 
   // Context variables
   const [vcNames, setVcNames] = useState([]);
-  const [storageConfigs, setStorageConfigs] = useState(undefined);
   const [errorMessages, setErrorMessages] = useState({});
 
   const setJobTaskRoles = useCallback(
@@ -216,6 +220,55 @@ export const JobSubmissionPage = ({
     }
   }, [jobTaskRoles]);
 
+  // init extras
+  useEffect(() => {
+    // for import and clone, will respect original protocol
+    const params = new URLSearchParams(window.location.search);
+    if (
+      config.launcherType !== 'k8s' ||
+      !isEmpty(yamlText) ||
+      params.get('op') === 'resubmit'
+    ) {
+      return;
+    }
+
+    const setExtrasValue = async () => {
+      const extras = {
+        [PAI_PLUGIN]: [],
+      };
+      // set ssh plugin default value
+      const sshPlugin = {
+        plugin: 'ssh',
+        parameters: {
+          jobssh: true,
+        },
+      };
+
+      // set storage plugin default value
+      const defaultStorageConfig = [];
+      try {
+        const configNames = await listUserStorageConfigs(loginUser);
+        const storageConfigs = await fetchStorageConfigs(configNames);
+        for (const config of storageConfigs) {
+          if (config.default === true) {
+            defaultStorageConfig.push(config.name);
+            break;
+          }
+        }
+      } catch {} // ignore all exceptions here
+      const storagePlugin = {
+        plugin: STORAGE_PLUGIN,
+        parameters: {
+          storageConfigNames: defaultStorageConfig,
+        },
+      };
+
+      extras[PAI_PLUGIN].push(sshPlugin, storagePlugin);
+      setExtras(extras);
+    };
+    setExtrasValue();
+  }, []);
+
   // fill protocol if cloned job
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -283,29 +336,6 @@ export const JobSubmissionPage = ({
       setJobProtocol(updatedJob);
     }
   }, []);
-
-  // Init plugins for pure k8s based PAI
-  useEffect(() => {
-    if (config.launcherType === 'k8s') {
-      const plugin = get(extras, PAI_PLUGIN);
-      if (!plugin) {
-        // Init SSH default settings for old/empty jobs
-        const updatedPlugin = [
-          {
-            plugin: 'ssh',
-            parameters: {
-              jobssh: true,
-            },
-          },
-        ];
-        const updatedExtras = cloneDeep(extras);
-        updatedExtras[PAI_PLUGIN] = updatedPlugin;
-        setExtras(updatedExtras);
-      }
-
-      setStorageConfigs(get(extras, PAI_STORAGE));
-    }
-  }, [extras]);
 
   useEffect(() => {
     const taskRolesManager = new TaskRolesManager(jobTaskRoles);
@@ -426,7 +456,8 @@ export const JobSubmissionPage = ({
                     onSelect={selectData}
                     jobName={jobInformation.name}
                     onChange={setJobData}
-                    storageConfigs={storageConfigs}
+                    extras={extras}
+                    onExtrasChange={setExtras}
                   />
                   <ToolComponent
                     selected={selected === SIDEBAR_TOOL}
