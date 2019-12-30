@@ -45,4 +45,7 @@ router.route('/:username/ssh-key/custom')
 router.route('/:username/ssh-key/custom')
   .put(token.check, param.validate(userInputSchema.userSshKeyCreateInputSchema), userController.createUserCustomSshKey)
 
+router.route('/:username/ssh-key/custom/:sshKeyName([a-zA-Z0-9_\\-]+)')
+  .delete(token.check, userController.deleteUserCustomSshKey)
+
 module.exports = router;

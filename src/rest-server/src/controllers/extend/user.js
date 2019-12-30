@@ -205,6 +205,32 @@ const createUserCustomSshKey = async (req, res, next) => {
   }
 }
 
+const deleteUserCustomSshKey = async (req, res, next) => {
+  try {
+    if (req[userProperty].username !== req.params.username) {
+      return next(createError('Unauthorized', 'UnauthorizedUserError', 'You are not allowed to do this operation.'));
+    }
+    const name = req.params.username;
+    const key = `ssh-key-custom-public-${req.params.sshKeyName}`;
+
+    const expression = await UserExpressionModel.findOne(
+      {where: {name: name, key: key}}
+    );
+    if (!expression) {
+      return next(createError('Not Found', 'NoSuchSshKeyError', `Custom SSH key ${key} of user ${name} is not found.`));
+    }
+    await UserExpressionModel.destroy(
+      {where: {name: name, key: key}}
+    );
+    return res.status(200).json({
+      message: 'User custom SSH key is deleted successfully.',
+    });
+  } catch (error) {
+    return next(createError.unknown(error));
+  }
+};
+
+
 // module exports
 module.exports = {
   createUserExpression,
@@ -213,5 +239,6 @@ module.exports = {
   deleteUserExpression,
   getUserSystemSshKey,
   getUserCustomSshKey,
-  createUserCustomSshKey
+  createUserCustomSshKey,
+  deleteUserCustomSshKey
 };

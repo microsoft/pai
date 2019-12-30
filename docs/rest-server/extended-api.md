@@ -228,6 +228,8 @@ Status: 200
 
 ### `Set a Custom SSH key for a certain user`
 
+The name of your ssh key should match `[a-zA-Z0-9_\-]+`.
+
 *Request*
 
 ```json
@@ -260,4 +262,34 @@ Status: 201
   "message": "The public key is successfully set."
 }
 
+```
+
+### `Delete a custom SSH key of a certain user`
+
+*Request*
+
+```json
+DELETE /api/extend/user/:username/ssh-key/:sshKeyName
+Authorization: Bearer <ACCESS_TOKEN>
+```
+
+*Response if succeeded*
+
+```json
+Status: 200
+
+{
+    "message": "User custom SSH key is deleted successfully."
+}
+```
+
+*Response if the key is not found*
+
+```json
+Status: 404
+
+{
+    "code": "NoSuchSshKeyError",
+    "message": "Custom SSH key <sshKeyName> of user <username> is not found."
+}
 ```
