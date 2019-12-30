@@ -26,7 +26,16 @@ RUN apt-get -y update && \
       nfs-common \
       netbase \
       nfs-kernel-server \
-      kmod
+      kmod \
+      winbind \
+      libpam-winbind \
+      libnss-winbind
+
+# Use default config for Kerberos
+RUN DEBIAN_FRONTEND=noninteractive apt-get -y install \
+      libpam-krb5 \
+      krb5-config \
+      krb5-user
 
 ENV SHARE_ROOT=/share/pai
 
