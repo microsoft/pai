@@ -26,9 +26,13 @@ import logging
 import argparse
 import yaml
 
-from plugin_utils import plugin_init, inject_commands
+from plugin_utils import plugin_init, inject_commands, request_rest_server
+import shlex
+import json
+import traceback
 
 logger = logging.getLogger(__name__)
+
 
 if __name__ == "__main__":
     [parameters, pre_script, post_script] = plugin_init()
@@ -40,10 +44,31 @@ if __name__ == "__main__":
             jobssh = "false"
         cmdParams = [jobssh]
 
+        sshKeys = []
         if "userssh" in parameters:
             if "type" in parameters["userssh"] and "value" in parameters["userssh"]:
                 cmdParams.append(str(parameters["userssh"]["type"]))
-                cmdParams.append("\'{}\'".format(parameters["userssh"]["value"]))
+                sshKeys.append(parameters["userssh"]["value"])
+
+        if "enable" in parameters and parameters["enable"] is True:
+            try:
+                USER_NAME = os.environ.get("PAI_USER_NAME")
+                # system-level public key
+                sshKeys.append(
+                    json.loads(
+                        request_rest_server("GET", "api/extend/user/{}/ssh-key/system".format(USER_NAME)).text
+                    )['public-key']
+                )
+                # user's custom public keys
+                sshKeys.extend([
+                    entry['public-key'] for _, entry in
+                    json.loads(
+                        request_rest_server("GET", "api/extend/user/{}/ssh-key/custom".format(USER_NAME)).text
+                    ).items()
+                ])
+            except Exception:
+                traceback.print_exc()
+        cmdParams.append(shlex.quote('\n'.join(sshKeys)))
 
         # write call to real executable script
         command = ["{}/sshd.sh {}\n".format(os.path.dirname(os.path.abspath(__file__)), " ".join(cmdParams))]

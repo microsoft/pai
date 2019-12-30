@@ -228,7 +228,7 @@ Status: 200
 
 ### `Set a Custom SSH key for a certain user`
 
- *Request*
+*Request*
 
 ```json
 PUT /api/extend/user/:username/ssh-key/custom

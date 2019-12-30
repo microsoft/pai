@@ -21,8 +21,20 @@ from __future__ import print_function
 import logging
 import argparse
 import yaml
+import os
+import requests
+try:
+    from urlparse import urljoin
+except Exception:
+    import urllib.parse
+    from urllib.parse import urljoin
 
 logger = logging.getLogger(__name__)
+
+
+PAI_REST_SERVER_URI = os.environ.get("PAI_REST_SERVER_URI")
+USER_TOKEN_HEADER = os.environ.get("PAI_USER_TOKEN")
+
 
 def plugin_init():
     logging.basicConfig(
@@ -39,11 +51,20 @@ def plugin_init():
 
     return [parameters, args.pre_script, args.post_script]
 
+
 def inject_commands(commands, script):
     if commands is not None and len(commands) > 0:
-        new_commands = [x+"\n" for x in commands]
+        new_commands = [x + "\n" for x in commands]
         with open(script, 'a+') as f:
             f.writelines(new_commands)
+
+
+def request_rest_server(method, url, data, timeout_secs=30):
+    headers = {'Authorization': USER_TOKEN_HEADER}
+    url = urljoin(PAI_REST_SERVER_URI, url)
+    response = requests.request(method, url, data=data, headers=headers)
+    response.raise_for_status()
+    return response
 
 
 if __name__ == "__main__":
