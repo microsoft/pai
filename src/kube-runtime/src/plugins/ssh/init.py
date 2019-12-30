@@ -91,3 +91,7 @@ def main():
 
     plugin_helper.inject_commands(command, pre_script)
     LOGGER.info("Ssh runtime plugin perpared")
+
+
+if __name__ == "__main__":
+    main()
