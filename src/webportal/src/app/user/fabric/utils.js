@@ -52,3 +52,32 @@ export const checkEmail = value => {
     return error;
   }
 };
+
+const sshKeyNameSchema = Joi.string()
+  .regex(/^[0-9A-Za-z_\-]+$/, 'SSH key name')
+  .required();
+export const checkSshKeyName = value => {
+  const { error } = Joi.validate(value, sshKeyNameSchema);
+  if (error) {
+    return error.message.replace('"value"', 'SSH key name');
+  } else {
+    return error;
+  }
+};
+
+
+const sshKeyValueSchema = Joi.string()
+  .replace(/\r/g, ' ')
+  .replace(/\n/g, ' ')
+  .regex(/^ssh-rsa AAAA[0-9A-Za-z+/]+[=]{0,3}.*$/, 'SSH public key value')
+  .required();
+export const checkSshKeyValue = value => {
+  const { error } = Joi.validate(value, sshKeyValueSchema);
+  console.log(value)
+  if (error) {
+    return error.message.replace('"value"', 'SSH public key value');
+  } else {
+    return error;
+  }
+};
+
