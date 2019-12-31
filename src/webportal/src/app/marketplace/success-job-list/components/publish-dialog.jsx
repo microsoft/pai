@@ -43,9 +43,9 @@ import Context from '../Context';
 const PublishDialog = props => {
   const { spacing } = getTheme();
 
-  const { currentJobConfig } = useContext(Context);
+  const { currentJob, currentJobConfig } = useContext(Context);
 
-  const { hideDialog, setHideDialog, currentJob } = props;
+  const { hideDialog, setHideDialog } = props;
 
   const [name, setName] = useState('');
   const [category, setCategory] = useState('custom');
@@ -170,10 +170,11 @@ const PublishDialog = props => {
         />
         <TextField
           label='Author'
-          value={author}
+          value={cookies.get('user')}
           onChange={e => {
             setAuthor(e.target.value);
           }}
+          disabled
           required
         />
         <TextField
@@ -199,7 +200,6 @@ const PublishDialog = props => {
 PublishDialog.propTypes = {
   hideDialog: PropTypes.bool.isRequired,
   setHideDialog: PropTypes.func.isRequired,
-  currentJob: PropTypes.object,
 };
 
 export default PublishDialog;

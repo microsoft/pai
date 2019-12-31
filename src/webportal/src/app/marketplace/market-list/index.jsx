@@ -126,7 +126,7 @@ const MarketList = () => {
                 <FilterBar />
                 <ItemList />
               </Stack>
-              {!isNil(filteredItems) && filteredItems.length !== 0 && (
+              {!isNil(filteredItems) && filteredItems.length > 5 && (
                 <Paginator />
               )}
             </Stack.Item>

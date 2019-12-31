@@ -23,6 +23,7 @@ import {
   CommandBarButton,
   SearchBox,
   Stack,
+  FontSizes,
 } from 'office-ui-fabric-react';
 
 import FilterButton from './filter-button';
@@ -32,7 +33,7 @@ import Filter from '../Filter';
 export const FilterBar = () => {
   const { spacing } = getTheme();
 
-  const { itemList, filter, setFilter } = useContext(Context);
+  const { itemList, filteredItems, filter, setFilter } = useContext(Context);
 
   const changeKeyword = useCallback(keyword => {
     const { authors, custom, official } = filter;
@@ -55,48 +56,55 @@ export const FilterBar = () => {
   });
 
   return (
-    <Stack
-      horizontal
-      verticalAlign='stretch'
-      horizontalAlign='space-between'
-      styles={{
-        root: [
-          ColorClassNames.neutralLightBackground,
-          {
-            marginTop: spacing.s2,
-            padding: spacing.m,
-          },
-        ],
-      }}
-    >
-      <SearchBox
-        underlined={true}
-        placeholder='Search'
-        onChange={changeKeyword}
-      />
-      <Stack horizontal>
-        <FilterButton
-          styles={{ root: { backgroundColor: 'transparent' } }}
-          text='Author'
-          iconProps={{ iconName: 'Contact' }}
-          items={authorItems}
-          selectedItems={Array.from(filter.authors)}
-          onSelect={authors => {
-            const { keyword, custom, official } = filter;
-            const authorsFilter = new Set(authors);
-            setFilter(new Filter(keyword, authorsFilter, custom, official));
-          }}
-          searchBox
-          clearButton
+    <Stack>
+      <Stack
+        horizontal
+        verticalAlign='stretch'
+        horizontalAlign='space-between'
+        styles={{
+          root: [
+            ColorClassNames.neutralLightBackground,
+            {
+              marginTop: spacing.s2,
+              padding: spacing.m,
+            },
+          ],
+        }}
+      >
+        <SearchBox
+          underlined={true}
+          placeholder='Search'
+          onChange={changeKeyword}
         />
-        <CommandBarButton
-          styles={{
-            root: { backgroundColor: 'transparent', height: '100%' },
-          }}
-          iconProps={{ iconName: 'Cancel' }}
-          onClick={clickCancel}
-        />
+        <Stack horizontal>
+          <FilterButton
+            styles={{ root: { backgroundColor: 'transparent' } }}
+            text='Author'
+            iconProps={{ iconName: 'Contact' }}
+            items={authorItems}
+            selectedItems={Array.from(filter.authors)}
+            onSelect={authors => {
+              const { keyword, custom, official } = filter;
+              const authorsFilter = new Set(authors);
+              setFilter(new Filter(keyword, authorsFilter, custom, official));
+            }}
+            searchBox
+            clearButton
+          />
+          <CommandBarButton
+            styles={{
+              root: { backgroundColor: 'transparent', height: '100%' },
+            }}
+            iconProps={{ iconName: 'Cancel' }}
+            onClick={clickCancel}
+          />
+        </Stack>
       </Stack>
+      {!isNil(filteredItems) && (
+        <Stack padding={spacing.s2} style={{ fontSize: FontSizes.mediumPlus }}>
+          {filteredItems.length} results
+        </Stack>
+      )}
     </Stack>
   );
 };

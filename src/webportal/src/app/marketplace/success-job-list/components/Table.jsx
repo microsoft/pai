@@ -1,4 +1,4 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useMemo, useCallback } from 'react';
 import {
   ShimmeredDetailsList,
   FontClassNames,
@@ -9,21 +9,25 @@ import {
   FontWeights,
   DefaultButton,
   mergeStyles,
+  Stack,
+  SelectionMode,
+  Selection,
 } from 'office-ui-fabric-react';
 import { isNil } from 'lodash';
 import c from 'classNames';
 import { DateTime } from 'luxon';
+import PropTypes from 'prop-types';
 
 import t from '../../../components/tachyons.scss';
 import PublishDialog from './publish-dialog';
 import Context from '../Context';
-import { fetchJobConfig } from '../utils/conn';
 import { getModified, getStatusText } from '../utils/utils';
 import {
   getDurationString,
   getJobDuration,
 } from '../../../components/util/job';
 import StatusBadge from '../../../components/status-badge';
+import JobDetailDialog from './job-detail-dialog';
 
 const zeroPaddingClass = mergeStyles({
   paddingTop: '0px !important',
@@ -32,10 +36,29 @@ const zeroPaddingClass = mergeStyles({
   paddingBottom: '0px !important',
 });
 
-const Table = () => {
-  const { filteredJobs, pagination, setCurrentJobConfig } = useContext(Context);
-  const [hideDialog, setHideDialog] = useState(true);
-  const [currentJob, setCurrentJob] = useState(null);
+const Table = props => {
+  const { setHideSuccessJobsDialog } = props;
+  const { filteredJobs, pagination, currentJob, setCurrentJob } = useContext(
+    Context,
+  );
+  const [hideJobDetailDialog, setHideJobDetailDialog] = useState(true);
+
+  const selection = useMemo(() => {
+    return new Selection({
+      onSelectionChanged() {
+        setCurrentJob(selection.getSelection()[0]);
+        console.log(selection.getSelection()[0]);
+        console.log(currentJob);
+      },
+    });
+  }, []);
+
+  const openJobDetailDialog = useCallback(() => {
+    // close job-list dialog
+    setHideSuccessJobsDialog(true);
+    // open job-detail dialog
+    setHideJobDetailDialog(false);
+  }, []);
 
   const nameColumn = {
     key: 'name',
@@ -47,10 +70,13 @@ const Table = () => {
     isResizable: true,
     onRender(job) {
       const { legacy, name, namespace, username } = job;
+      /*
       const href = legacy
         ? `/job-detail.html?jobName=${name}`
         : `/job-detail.html?username=${namespace || username}&jobName=${name}`;
       return <Link href={href}>{name}</Link>;
+      */
+      return <Link onClick={openJobDetailDialog}>{name}</Link>;
     },
   };
 
@@ -66,16 +92,6 @@ const Table = () => {
         DateTime.DATETIME_SHORT_WITH_SECONDS,
       );
     },
-  };
-
-  const userColumn = {
-    key: 'user',
-    minWidth: 100,
-    name: 'User',
-    fieldName: 'username',
-    className: FontClassNames.mediumPlus,
-    headerClassName: FontClassNames.medium,
-    isResizable: true,
   };
 
   const durationColumn = {
@@ -151,7 +167,7 @@ const Table = () => {
       );
     },
   };
-
+  /*
   const actionsColumn = {
     key: 'publish',
     minWidth: 100,
@@ -206,18 +222,16 @@ const Table = () => {
       );
     },
   };
-
+*/
   const columns = [
     nameColumn,
     modifiedColumn,
-    userColumn,
     durationColumn,
     virtualClusterColumn,
     retriesColumn,
     taskCountColumn,
     gpuCountColumn,
     statusColumn,
-    actionsColumn,
   ];
 
   if (!isNil(filteredJobs) && filteredJobs.length === 0) {
@@ -250,15 +264,21 @@ const Table = () => {
           columns={columns}
           enableShimmer={items.length === 0}
           shimmerLines={pagination.itemsPerPage}
+          selectionMode={SelectionMode.single}
+          selection={selection}
         />
-        <PublishDialog
-          hideDialog={hideDialog}
-          setHideDialog={setHideDialog}
-          currentJob={currentJob}
+        <JobDetailDialog
+          job={currentJob}
+          hideJobDetailDialog={hideJobDetailDialog}
+          setHideJobDetailDialog={setHideJobDetailDialog}
         />
       </div>
     );
   }
+};
+
+Table.propTypes = {
+  setHideSuccessJobsDialog: PropTypes.func,
 };
 
 export default Table;

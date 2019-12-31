@@ -64,7 +64,7 @@ const ItemCard = props => {
               {item.author} updated {populateUpdatedTime()}
             </Stack>
           </Stack>
-          <Stack gap='l1'>
+          <Stack gap='l2'>
             <Stack horizontal gap='l2'>
               <TooltipHost content='submits'>
                 <Stack horizontal gap='s1'>

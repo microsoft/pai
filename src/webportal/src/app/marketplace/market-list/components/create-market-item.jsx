@@ -37,6 +37,7 @@ import { createMarketItem } from '../utils/conn';
 import { MarketItem } from '../../models/market-item';
 import { TagBar } from '../../components/tag-bar';
 import ImportYamlFile from './import-yaml-file';
+import cookieParser from 'cookie-parser';
 
 export default function CreateMarketItem(props) {
   const { spacing } = getTheme();
@@ -167,10 +168,11 @@ export default function CreateMarketItem(props) {
         />
         <TextField
           label='Author'
-          value={author}
+          value={cookies.get('user')}
           onChange={e => {
             setAuthor(e.target.value);
           }}
+          disabled
           required
         />
         <TextField

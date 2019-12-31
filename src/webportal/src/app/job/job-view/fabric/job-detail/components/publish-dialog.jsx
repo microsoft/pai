@@ -170,10 +170,11 @@ const PublishDialog = props => {
         />
         <TextField
           label='Author'
-          value={author}
+          value={cookies.get('user')}
           onChange={e => {
             setAuthor(e.target.value);
           }}
+          disabled
           required
         />
         <TextField

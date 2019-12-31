@@ -23,45 +23,43 @@
  * SOFTWARE.
  */
 
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { Stack, CommandButton } from 'office-ui-fabric-react';
 
 import CreateMarketItem from './create-market-item';
+import SuccessJobsDialog from '../../success-job-list/components/success-jobs-dialog';
 
 export const TopBar = React.memo(() => {
   const [hideDialog, setHideDialog] = useState(true);
+  const [hideSuccessJobListDialog, setHideSuccessJobListDialog] = useState(
+    true,
+  );
 
-  const menuProps = {
-    items: [
-      {
-        key: 'new',
-        text: 'New',
-        onClick() {
-          setHideDialog(false);
-        },
-      },
-      {
-        key: 'myJob',
-        text: 'From my jobs',
-        onClick() {
-          window.location.href = `/success-job-list.html?username=${cookies.get(
-            'user',
-          )}`;
-        },
-      },
-    ],
-  };
+  /*
+  const clickCreate = useCallback(() => {
+    window.location.href = `/success-job-list.html?username=${cookies.get(
+      'user',
+    )}`;
+  }, []);
+  */
 
   return (
     <Stack>
-      <Stack horizontal horizontalAlign='end'>
+      <Stack horizontal horizontalAlign='begin'>
         <CommandButton
           text='Create'
           iconProps={{ iconName: 'Add' }}
-          menuProps={menuProps}
+          onClick={e => {
+            setHideSuccessJobListDialog(false);
+          }}
         />
       </Stack>
-      <CreateMarketItem hideDialog={hideDialog} setHideDialog={setHideDialog} />
+      <SuccessJobsDialog
+        hideDialog={hideSuccessJobListDialog}
+        setHideDialog={setHideSuccessJobListDialog}
+      />
+
+      {/*<CreateMarketItem hideDialog={hideDialog} setHideDialog={setHideDialog} />*/}
     </Stack>
   );
 });
