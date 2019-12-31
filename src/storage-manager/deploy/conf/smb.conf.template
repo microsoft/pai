@@ -49,7 +49,8 @@
     encrypt passwords = Yes
     restrict anonymous = 2
     log level = 2
-    log file = /var/log/samba/samba.log
+    log file = /var/log/storage/samba.log
+    max log size = 10000 # 10MB
     smb2 max read = 8388608
     smb2 max write = 8388608
     smb2 max trans = 8388608
