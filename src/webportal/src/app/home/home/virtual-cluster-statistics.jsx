@@ -25,6 +25,7 @@ import {
   SelectionMode,
   StackItem,
   FontClassNames,
+  Link,
 } from 'office-ui-fabric-react';
 import React, { useMemo } from 'react';
 
@@ -56,12 +57,12 @@ const vcListColumns = [
       return (
         <Stack verticalAlign='center' verticalFill>
           {isAdmin ? (
-            <a
+            <Link
               href={'/job-list.html?vcName=' + vc.name}
               className={FontClassNames.mediumPlus}
             >
               {vc.dedicated ? vc.name + ' (dedicated)' : vc.name}
-            </a>
+            </Link>
           ) : (
             <div className={FontClassNames.mediumPlus}>
               {vc.dedicated ? vc.name + ' (dedicated)' : vc.name}

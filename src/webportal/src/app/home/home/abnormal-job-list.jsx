@@ -28,7 +28,6 @@ import {
 import PropTypes from 'prop-types';
 import React, { useCallback, useState } from 'react';
 
-import Card from '../../components/card';
 import {
   getJobDuration,
   getDurationString,
@@ -73,7 +72,7 @@ const AbnormalJobList = ({ jobs, style }) => {
     },
     {
       key: 'gpuCount',
-      minWidth: 150,
+      minWidth: 50,
       name: 'GPUs',
       fieldName: 'totalGpuNumber',
       className: FontClassNames.mediumPlus,
@@ -200,7 +199,7 @@ const AbnormalJobList = ({ jobs, style }) => {
   );
 
   return (
-    <Card className={c(t.h100, t.ph5)} style={style}>
+    <div className={c(t.mv3, t.ph5, t.h100, t.overflowYAuto)}>
       <DetailsList
         styles={{ root: { minHeight: 200, overflow: 'unset' } }}
         columns={jobListColumns}
@@ -215,7 +214,7 @@ const AbnormalJobList = ({ jobs, style }) => {
         setHideDialog={setHideDialog}
         stopJob={stopAbnormalJob}
       />
-    </Card>
+    </div>
   );
 };
 

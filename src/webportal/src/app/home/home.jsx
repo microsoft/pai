@@ -110,11 +110,41 @@ const Home = () => {
                 virtualClusters={virtualClusters}
               />
             </React.Fragment>
-            {isAdmin ? (
-              <AbnormalJobList jobs={listAbnormalJobs(jobs, lowGpuJobInfo)} />
-            ) : (
-              <RecentJobList jobs={jobs} />
-            )}
+            <Card className={c(t.h100, t.ph5)}>
+              {isAdmin ? (
+                <Pivot>
+                  <PivotItem
+                    headerText='Abnormal jobs'
+                    onRenderItemLink={(link, defaultRenderer) => {
+                      return (
+                        <Stack horizontal gap='s1'>
+                          {defaultRenderer(link)}
+                          <TooltipIcon
+                            content={
+                              'A job is treaded as an abnormal job if running more than 5 days or GPU usage is lower than 10%'
+                            }
+                          />
+                        </Stack>
+                      );
+                    }}
+                  >
+                    <AbnormalJobList
+                      style={{ minHeight: 0 }}
+                      jobs={listAbnormalJobs(jobs, lowGpuJobInfo)}
+                    />
+                  </PivotItem>
+                  <PivotItem headerText='My recent jobs'>
+                    <RecentJobList style={{ minHeight: 0 }} jobs={userJobs} />
+                  </PivotItem>
+                </Pivot>
+              ) : (
+                <Pivot>
+                  <PivotItem headerText='My recent jobs'>
+                    <RecentJobList style={{ minHeight: 0 }} jobs={userJobs} />
+                  </PivotItem>
+                </Pivot>
+              )}
+            </Card>
           </Stack>
         </MediaQuery>
         {/* large */}
