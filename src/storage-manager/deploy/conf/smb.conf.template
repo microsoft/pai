@@ -48,8 +48,9 @@
     client ntlmv2 auth = Yes
     encrypt passwords = Yes
     restrict anonymous = 2
-    log level = 2
-    log file = /var/log/samba/samba.log
+    log level = 3
+    log file = /var/log/storage/%m.log
+    max log size = 2000000
     smb2 max read = 8388608
     smb2 max write = 8388608
     smb2 max trans = 8388608
