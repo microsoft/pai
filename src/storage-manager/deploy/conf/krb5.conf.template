@@ -47,5 +47,6 @@
 
 [logging]
   kdc = SYSLOG:INFO:DAEMON
-  kdc = FILE:/var/log/storage/krb5kdc.log
-  admin_server = FILE:/var/log/storage/kadmin.log
+  kdc = FILE:/var/log/krb5kdc.log
+  admin_server = FILE:/var/log/kadmin.log
+  default = FILE:/var/log/krb5lib.log
