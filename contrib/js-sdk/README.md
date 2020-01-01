@@ -291,9 +291,20 @@ const openPAIClient = new OpenPAIClient(cluster);
 
 - [ ] Create storage server in the system (POST /api/v2/storage/server)
 - [ ] Update storage server in the system (PUT /api/v2/storage/server)
-- [ ] Get storage config data in the system (GET /api/v2/storage/config/{storage})
+- [x] Get storage config data in the system (GET /api/v2/storage/config/{storage})
+
+    ```ts
+    await openPAIClient.storage.getConfigByName(storage);
+    ```
+
 - [ ] Remove storage config in the system (DELETE /api/v2/storage/config/{storage})
-- [ ] Get storage config data in the system (GET /api/v2/storage/config)
+- [x] Get storage config data in the system (GET /api/v2/storage/config)
+
+    ```ts
+    await openPAIClient.storage.getConfig();
+    await openPAIClient.storage.getConfig(names);
+    ```
+
 - [ ] Create storage config in system (POST /api/v2/storage/config)
 - [ ] Update storage config in system (PUT /api/v2/storage/config)
 

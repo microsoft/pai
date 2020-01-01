@@ -22,7 +22,7 @@ import * as nock from 'nock';
 import { expect } from 'chai';
 import { StorageClient } from '../../src/client/storageClient';
 import { IPAICluster } from '../../src/models/cluster';
-import { IStorage } from '../../src/models/storage';
+import { IStorage, IStorageConfig } from '../../src/models/storage';
 
 const testUri = 'openpai-js-sdk.test/rest-server';
 
@@ -67,6 +67,56 @@ describe('Get storage information list', () => {
 
     it('should return the storage info', async () => {
         const result = await storageClient.get();
+        expect(result).to.be.eql(response);
+    });
+});
+
+describe('Get storage config by storage name', () => {
+    const response: IStorage = {
+        'data': {
+            'test': 'test'
+        },
+        'extension': {},
+        'spn': 'test',
+        'type': 'azureblob'
+    };
+    const testName = 'testStorage';
+    nock(`https://${testUri}`).get(`/api/v2/storage/config/${testName}`).reply(200, response);
+
+    it('should return the storage info', async () => {
+        const result = await storageClient.getConfigByName(testName);
+        expect(result).to.be.eql(response);
+    });
+});
+
+describe('Get storage config list', () => {
+    const response: IStorageConfig[] = [
+        {
+            "name": "PAI_SHARE",
+            "default": true,
+            "servers": [
+                "PAI_SHARE_SERVER"
+            ],
+            "mountInfos": [
+                {
+                    "mountPoint": "/data",
+                    "path": "data",
+                    "server": "PAI_SHARE_SERVER",
+                    "permission": "rw"
+                },
+                {
+                    "mountPoint": "/home",
+                    "path": "users/${PAI_USER_NAME}",
+                    "server": "PAI_SHARE_SERVER",
+                    "permission": "rw"
+                }
+            ]
+        }
+    ]
+    nock(`https://${testUri}`).get(`/api/v2/storage/config`).reply(200, response);
+
+    it('should return the storage info', async () => {
+        const result = await storageClient.getConfig();
         expect(result).to.be.eql(response);
     });
 });

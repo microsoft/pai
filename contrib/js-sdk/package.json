@@ -10,8 +10,7 @@
   "scripts": {
     "format": "prettier --write \"src/**/*.ts\" \"src/**/*.js\"",
     "lint": "tslint -p tsconfig.json",
-    "test": "mocha -r ts-node/register tests/**/*.spec.ts",
-    "test2": "mocha -r ts-node/register tests/unit_tests/storageClient.spec.ts"
+    "test": "mocha -r ts-node/register tests/**/*.spec.ts"
   },
   "homepage": "https://github.com/Microsoft/pai",
   "repository": {
