@@ -17,7 +17,7 @@
 
 import { Util } from '../commom/util';
 import { IPAICluster } from '../models/cluster';
-import { IStorage, IStorageConfig } from '../models/storage';
+import { IStorageConfig, IStorageServer } from '../models/storage';
 import { OpenPAIBaseClient } from './baseClient';
 
 import axios from 'axios';
@@ -34,13 +34,13 @@ export class StorageClient extends OpenPAIBaseClient {
      * Get storage informations.
      * @param names Filter storage server with names, default name empty will be ignored.
      */
-    public async get(names?: string, token?: string): Promise<IStorage[]> {
+    public async getServer(names?: string, token?: string): Promise<IStorageServer[]> {
         const query = names ? `?names=${names}` : '';
         const url = Util.fixUrl(`${this.cluster.rest_server_uri}/api/v2/storage/server${query}`, this.cluster.https);
         if(token === undefined) {
             token = await super.token();
         }
-        const res = await axios.get<IStorage[]>(url, {
+        const res = await axios.get<IStorageServer[]>(url, {
             headers: {
                 Authorization: `Bearer ${token}`,
                 'content-type': 'application/json'
@@ -53,12 +53,12 @@ export class StorageClient extends OpenPAIBaseClient {
      * Get storage information.
      * @param storage The storage name.
      */
-    public async getByName(storage: string, token?: string): Promise<IStorage> {
+    public async getServerByName(storage: string, token?: string): Promise<IStorageServer> {
         const url = Util.fixUrl(`${this.cluster.rest_server_uri}/api/v2/storage/server/${storage}`, this.cluster.https);
         if(token === undefined) {
             token = await super.token();
         }
-        const res = await axios.get<IStorage>(url, {
+        const res = await axios.get<IStorageServer>(url, {
             headers: {
                 Authorization: `Bearer ${token}`,
                 'content-type': 'application/json'

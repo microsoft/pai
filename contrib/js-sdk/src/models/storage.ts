@@ -18,7 +18,7 @@
 /**
  * OpenPAI storage information.
  */
-export interface IStorage {
+export interface IStorageServer {
     spn: string;
     type: "nfs" | "samba" | "azurefile" | "azureblob";
     data: {

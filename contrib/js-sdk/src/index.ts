@@ -24,7 +24,7 @@ import { VirtualClusterClient } from './client/virtualClusterClient';
 import { IAuthnInfo, ILoginInfo } from './models/authn';
 import { IPAICluster } from './models/cluster';
 import { IJobConfig, IJobFrameworkInfo, IJobInfo, IJobSshInfo } from './models/job';
-import { IStorage, IStorageConfig } from './models/storage';
+import { IStorageConfig, IStorageServer } from './models/storage';
 import { ITokenItem } from './models/token';
 import { IUserInfo } from './models/user';
 import { INodeResource, IVirtualCluster } from './models/virtualCluster';
@@ -47,6 +47,6 @@ export {
     INodeResource,
     IAuthnInfo,
     ILoginInfo,
-    IStorage,
+    IStorageServer as IStorage,
     IStorageConfig
 };

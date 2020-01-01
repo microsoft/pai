@@ -22,7 +22,7 @@ import * as nock from 'nock';
 import { expect } from 'chai';
 import { StorageClient } from '../../src/client/storageClient';
 import { IPAICluster } from '../../src/models/cluster';
-import { IStorage, IStorageConfig } from '../../src/models/storage';
+import { IStorageConfig, IStorageServer } from '../../src/models/storage';
 
 const testUri = 'openpai-js-sdk.test/rest-server';
 
@@ -37,7 +37,7 @@ chai.use(dirtyChai);
 nock(`http://${testUri}`).post(`/api/v1/authn/basic/login`).reply(200, { token: 'token' });
 
 describe('Get storage infomation by storage name', () => {
-    const response: IStorage = {
+    const response: IStorageServer = {
         'data': {
             'test': 'test'
         },
@@ -49,13 +49,13 @@ describe('Get storage infomation by storage name', () => {
     nock(`https://${testUri}`).get(`/api/v2/storage/server/${testName}`).reply(200, response);
 
     it('should return the storage info', async () => {
-        const result = await storageClient.getByName(testName);
+        const result = await storageClient.getServerByName(testName);
         expect(result).to.be.eql(response);
     });
 });
 
 describe('Get storage information list', () => {
-    const response: IStorage[] = [{
+    const response: IStorageServer[] = [{
         'data': {
             'test': 'test'
         },
@@ -66,7 +66,7 @@ describe('Get storage information list', () => {
     nock(`https://${testUri}`).get(`/api/v2/storage/server`).reply(200, response);
 
     it('should return the storage info', async () => {
-        const result = await storageClient.get();
+        const result = await storageClient.getServer();
         expect(result).to.be.eql(response);
     });
 });

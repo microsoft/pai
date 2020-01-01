@@ -278,15 +278,15 @@ const openPAIClient = new OpenPAIClient(cluster);
 - [x] Get storage server data in the system (GET /api/v2/storage/server/{storage})
 
     ```ts
-    await openPAIClient.storage.getByName(storage);
+    await openPAIClient.storage.getServerByName(storage);
     ```
 
 - [ ] Remove storage server in the system (DELETE /api/v2/storage/server/{storage})
 - [x] Get storage server data in the system (GET /api/v2/storage/server)
 
     ```ts
-    await openPAIClient.storage.get();
-    await openPAIClient.storage.get(names);
+    await openPAIClient.storage.getServer();
+    await openPAIClient.storage.getServer(names);
     ```
 
 - [ ] Create storage server in the system (POST /api/v2/storage/server)
