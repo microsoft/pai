@@ -47,6 +47,6 @@ export {
     INodeResource,
     IAuthnInfo,
     ILoginInfo,
-    IStorageServer as IStorage,
+    IStorageServer,
     IStorageConfig
 };
