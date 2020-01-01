@@ -124,7 +124,7 @@ describe('Submit a v1 job', () => {
     })
 });
 
-describe('Get job ssh infomation with user name and job name', () => {
+describe('Get job ssh information with user name and job name', () => {
     const response = testJobSshInfo;
     const userName = 'core';
     const jobName = 'tensorflow_serving_mnist_2019_6585ba19';
@@ -136,7 +136,7 @@ describe('Get job ssh infomation with user name and job name', () => {
     });
 });
 
-describe('Get job ssh infomation with job name', () => {
+describe('Get job ssh information with job name', () => {
     const response = testJobSshInfo;
     const jobName = 'tensorflow_serving_mnist_2019_6585ba19';
     nock(`http://${testUri}`).get(`/api/v1/jobs/${jobName}/ssh`).reply(200, response);
