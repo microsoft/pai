@@ -72,14 +72,27 @@ describe('Get storage information list', () => {
 });
 
 describe('Get storage config by storage name', () => {
-    const response: IStorage = {
-        'data': {
-            'test': 'test'
-        },
-        'extension': {},
-        'spn': 'test',
-        'type': 'azureblob'
-    };
+    const response: IStorageConfig = {
+        "name": "PAI_SHARE",
+        "default": true,
+        "servers": [
+            "PAI_SHARE_SERVER"
+        ],
+        "mountInfos": [
+            {
+                "mountPoint": "/data",
+                "path": "data",
+                "server": "PAI_SHARE_SERVER",
+                "permission": "rw"
+            },
+            {
+                "mountPoint": "/home",
+                "path": "users/${PAI_USER_NAME}",
+                "server": "PAI_SHARE_SERVER",
+                "permission": "rw"
+            }
+        ]
+    }
     const testName = 'testStorage';
     nock(`https://${testUri}`).get(`/api/v2/storage/config/${testName}`).reply(200, response);
 

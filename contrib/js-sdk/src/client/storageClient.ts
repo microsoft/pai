@@ -71,13 +71,13 @@ export class StorageClient extends OpenPAIBaseClient {
      * Get storage config.
      * @param names Filter storage server with names, default name empty will be ignored.
      */
-    public async getConfig(names?: string, token?: string): Promise<IStorage[]> {
+    public async getConfig(names?: string, token?: string): Promise<IStorageConfig[]> {
         const query = names ? `?names=${names}` : '';
         const url = Util.fixUrl(`${this.cluster.rest_server_uri}/api/v2/storage/config${query}`, this.cluster.https);
         if(token === undefined) {
             token = await super.token();
         }
-        const res = await axios.get<IStorage[]>(url, {
+        const res = await axios.get<IStorageConfig[]>(url, {
             headers: {
                 Authorization: `Bearer ${token}`,
                 'content-type': 'application/json'
