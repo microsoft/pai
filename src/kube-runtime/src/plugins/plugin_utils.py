@@ -67,7 +67,7 @@ def plugin_init():
     return [plugin_config, args.pre_script, args.post_script]
 
 
-def request_rest_server(method, url, data, timeout_secs=30):
+def request_rest_server(method, url, data='', timeout_secs=30):
     headers = {'Authorization': USER_TOKEN_HEADER}
     url = urljoin(PAI_REST_SERVER_URI, url)
     response = requests.request(method, url, data=data, headers=headers)
