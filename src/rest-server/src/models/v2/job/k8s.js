@@ -416,8 +416,16 @@ const generateTaskRole = (frameworkName, taskRole, labels, config, storageConfig
                   value: labels.userName,
                 },
                 {
+                  name: 'PAI_USER_TOKEN',
+                  value: userToken,
+                },
+                {
                   name: 'PAI_JOB_NAME',
                   value: `${labels.userName}~${labels.jobName}`,
+                },
+                {
+                  name: 'PAI_REST_SERVER_URI',
+                  value: restServerConfig.restServerUri,
                 },
                 {
                   name: 'STORAGE_CONFIGS',
