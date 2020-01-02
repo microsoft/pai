@@ -69,6 +69,7 @@ export const checkSshKeyName = value => {
 const sshKeyValueSchema = Joi.string()
   .replace(/\r/g, ' ')
   .replace(/\n/g, ' ')
+  .strip()
   .regex(/^ssh-rsa AAAA[0-9A-Za-z+/]+[=]{0,3}.*$/, 'SSH public key value')
   .required();
 export const checkSshKeyValue = value => {
