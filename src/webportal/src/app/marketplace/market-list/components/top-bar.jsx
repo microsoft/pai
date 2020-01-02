@@ -30,7 +30,6 @@ import CreateMarketItem from './create-market-item';
 import SuccessJobsDialog from '../../success-job-list/components/success-jobs-dialog';
 
 export const TopBar = React.memo(() => {
-  const [hideDialog, setHideDialog] = useState(true);
   const [hideSuccessJobListDialog, setHideSuccessJobListDialog] = useState(
     true,
   );

@@ -1,22 +1,36 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useState, useEffect } from 'react';
 import {
   Dialog,
   DialogType,
   DialogFooter,
   PrimaryButton,
   DefaultButton,
+  SemanticColorSlots,
+  Stack,
 } from 'office-ui-fabric-react';
 import { getTheme } from '@uifabric/styling';
 import { isNil } from 'lodash';
 import PropTypes from 'prop-types';
+import uuid4 from 'uuid/v4';
+import yaml from 'js-yaml';
 
 import SuccessJobList from './success-job-list';
 import { isPublishable } from '../../../components/util/job';
 import Context from '../Context';
 import Filter from '../Filter';
 import Pagination from '../Pagination';
-import { fetchJobConfig } from '../utils/conn';
+import {
+  createMarketItem,
+  fetchJobConfig,
+  fetchJobInfo,
+  fetchRawJobConfig,
+  fetchSshInfo,
+  NotFoundError,
+} from '../utils/conn';
 import PublishDialog from './publish-dialog';
+import JobDetail from './job-detail';
+import PublishView from './publish-view';
+import { MarketItem } from '../../models/market-item';
 
 const SuccessJobsDialog = props => {
   const { spacing } = getTheme();
@@ -30,18 +44,38 @@ const SuccessJobsDialog = props => {
   const [currentJob, setCurrentJob] = useState(null);
   const [currentJobConfig, setCurrentJobConfig] = useState(null);
 
-  const [hidePublishDialog, setHidePublishDialog] = useState(true);
+  const [openJobDetail, setOpenJobDetail] = useState(false);
+  const [openPublish, setOpenPublish] = useState(false);
+  //const [hidePublishDialog, setHidePublishDialog] = useState(true);
 
-  const closeDialog = useCallback(() => {
-    setHideDialog(true);
-  }, []);
+  // published market iten info
+  const [name, setName] = useState('');
+  const [category, setCategory] = useState('custom');
+  const [tags, setTags] = useState([]);
+  const [introduction, setIntroduction] = useState('');
+  const [description, setDescription] = useState('');
+
+  /*
+  useEffect(() => {
+    console.log('useEffect', openJobDetail);
+    console.log('useEffect', currentJob);
+    if (isNil(currentJob)) {
+      return;
+    }
+    reload(false);
+  }, [openJobDetail]);
+  */
 
   const publishJob = useCallback(() => {
+    /*
     setHideDialog(true);
     setHidePublishDialog(false);
+    */
+    setOpenPublish(true);
   }, []);
 
   const onPublish = useCallback(async () => {
+    setOpenJobDetail(false);
     if (isNil(currentJob)) {
       return;
     }
@@ -60,7 +94,65 @@ const SuccessJobsDialog = props => {
     } else {
       publishJob(currentJob);
     }
+  }, [currentJob]);
+
+  const closeDialog = useCallback(() => {
+    setHideDialog(true);
+    setOpenJobDetail(false);
+    setOpenPublish(false);
   }, []);
+
+  const onBack = useCallback(() => {
+    setOpenJobDetail(false);
+  }, []);
+
+  const checkRequired = () => {
+    if (name === '') {
+      alert('Title required');
+      return false;
+    }
+    if (introduction === '') {
+      alert('introduction required');
+      return false;
+    }
+    if (description === '') {
+      alert('description required');
+      return false;
+    }
+    if (isNil(currentJobConfig)) {
+      alert('yaml file required');
+      return false;
+    }
+    return true;
+  };
+
+  async function onConfirm() {
+    // check required
+    if (!checkRequired()) {
+      return;
+    }
+    setHideDialog(true);
+    setOpenPublish(false);
+
+    // post a marketitem
+    const marketItem = new MarketItem(
+      uuid4(),
+      name,
+      cookies.get('user'),
+      new Date(),
+      new Date(),
+      category,
+      tags,
+      introduction,
+      description,
+      yaml.safeDump(currentJobConfig),
+      0,
+      0,
+    );
+    const itemId = await createMarketItem(marketItem);
+    // refresh market-detail.html
+    window.location.href = `/market-detail.html?itemId=${itemId}`;
+  }
 
   const context = {
     successJobs,
@@ -75,6 +167,26 @@ const SuccessJobsDialog = props => {
     setCurrentJob,
     currentJobConfig,
     setCurrentJobConfig,
+
+    // open job detail
+    openJobDetail,
+    setOpenJobDetail,
+
+    // open publish view
+    openPublish,
+    setOpenPublish,
+
+    // published market item info
+    name,
+    setName,
+    category,
+    setCategory,
+    tags,
+    setTags,
+    introduction,
+    setIntroduction,
+    description,
+    setDescription,
   };
 
   return (
@@ -82,7 +194,8 @@ const SuccessJobsDialog = props => {
       <Dialog
         hidden={hideDialog}
         onDismiss={closeDialog}
-        minWidth={1200}
+        minWidth={800}
+        maxWidth={1200}
         dialogContentProps={{
           type: DialogType.normal,
           showCloseButton: false,
@@ -91,16 +204,38 @@ const SuccessJobsDialog = props => {
           isBlocking: true,
         }}
       >
-        <SuccessJobList setHideSuccessJobsDialog={setHideDialog} />
-        <DialogFooter>
-          <PrimaryButton onClick={onPublish} text='Publish' />
-          <DefaultButton onClick={closeDialog} text='Cancel' />
-        </DialogFooter>
+        <Stack styles={{ root: { height: '100%', minHeight: 640 } }}>
+          {!openJobDetail && !openPublish && (
+            <SuccessJobList setHideSuccessJobsDialog={setHideDialog} />
+          )}
+          {openJobDetail && <JobDetail />}
+          {openPublish && <PublishView />}
+        </Stack>
+        {!openJobDetail && !openPublish && (
+          <DialogFooter>
+            <PrimaryButton onClick={onPublish} text='Publish' />
+            <DefaultButton onClick={closeDialog} text='Cancel' />
+          </DialogFooter>
+        )}
+        {openJobDetail && (
+          <DialogFooter>
+            <DefaultButton onClick={onBack} text='Back' />
+            <PrimaryButton onClick={onPublish} text='Publish' />
+          </DialogFooter>
+        )}
+        {openPublish && (
+          <DialogFooter>
+            <PrimaryButton onClick={onConfirm} text='Confirm' />
+            <DefaultButton onClick={closeDialog} text='Cancel' />
+          </DialogFooter>
+        )}
       </Dialog>
+      {/*
       <PublishDialog
         hideDialog={hidePublishDialog}
         setHideDialog={setHidePublishDialog}
       />
+      */}
     </Context.Provider>
   );
 };

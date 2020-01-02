@@ -27,6 +27,45 @@ const Context = React.createContext({
   setCurrentJobConfig(jobConfig) {
     this.currentJobConfig = jobConfig;
   },
+
+  // job detail
+  jobInfo: null,
+  rawJobConfig: null,
+  sshInfo: null,
+
+  // open job detail
+  openJobDetail: false,
+  setOpenJobDetail(flag) {
+    this.openJobDetail = flag;
+  },
+
+  // open publish view
+  openPublish: false,
+  setOpenPublish(flag) {
+    this.openPublish = flag;
+  },
+
+  // published market item info
+  name: '',
+  setName(name) {
+    this.name = name;
+  },
+  category: 'custom',
+  setCategory(category) {
+    this.category = category;
+  },
+  tags: [],
+  setTags(tags) {
+    this.tags = tags;
+  },
+  introduction: '',
+  setIntroduction(introduction) {
+    this.introduction = introduction;
+  },
+  description: '',
+  setDescription(description) {
+    this.description = description;
+  },
 });
 
 export default Context;

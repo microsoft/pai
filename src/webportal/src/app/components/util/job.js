@@ -28,11 +28,14 @@ export function isStoppable(job) {
 }
 
 export function isPublishable(job, rawJobConfig) {
+  /*
   return (
     job.username === cookies.get('user') &&
     job.state === 'SUCCEEDED' &&
     isNil(rawJobConfig.extras)
   );
+  */
+  return true;
 }
 
 export function getHumanizedJobStateString(job) {

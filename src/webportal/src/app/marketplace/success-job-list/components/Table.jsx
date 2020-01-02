@@ -19,7 +19,6 @@ import { DateTime } from 'luxon';
 import PropTypes from 'prop-types';
 
 import t from '../../../components/tachyons.scss';
-import PublishDialog from './publish-dialog';
 import Context from '../Context';
 import { getModified, getStatusText } from '../utils/utils';
 import {
@@ -27,7 +26,6 @@ import {
   getJobDuration,
 } from '../../../components/util/job';
 import StatusBadge from '../../../components/status-badge';
-import JobDetailDialog from './job-detail-dialog';
 
 const zeroPaddingClass = mergeStyles({
   paddingTop: '0px !important',
@@ -36,28 +34,26 @@ const zeroPaddingClass = mergeStyles({
   paddingBottom: '0px !important',
 });
 
-const Table = props => {
-  const { setHideSuccessJobsDialog } = props;
-  const { filteredJobs, pagination, currentJob, setCurrentJob } = useContext(
-    Context,
-  );
-  const [hideJobDetailDialog, setHideJobDetailDialog] = useState(true);
+const Table = () => {
+  const {
+    filteredJobs,
+    pagination,
+    currentJob,
+    setCurrentJob,
+    openJobDetail,
+    setOpenJobDetail,
+  } = useContext(Context);
 
   const selection = useMemo(() => {
     return new Selection({
       onSelectionChanged() {
         setCurrentJob(selection.getSelection()[0]);
-        console.log(selection.getSelection()[0]);
-        console.log(currentJob);
       },
     });
   }, []);
 
-  const openJobDetailDialog = useCallback(() => {
-    // close job-list dialog
-    setHideSuccessJobsDialog(true);
-    // open job-detail dialog
-    setHideJobDetailDialog(false);
+  const onOpenJobDetail = useCallback(() => {
+    setOpenJobDetail(true);
   }, []);
 
   const nameColumn = {
@@ -76,7 +72,7 @@ const Table = props => {
         : `/job-detail.html?username=${namespace || username}&jobName=${name}`;
       return <Link href={href}>{name}</Link>;
       */
-      return <Link onClick={openJobDetailDialog}>{name}</Link>;
+      return <Link onClick={e => onOpenJobDetail()}>{name}</Link>;
     },
   };
 
@@ -267,18 +263,9 @@ const Table = props => {
           selectionMode={SelectionMode.single}
           selection={selection}
         />
-        <JobDetailDialog
-          job={currentJob}
-          hideJobDetailDialog={hideJobDetailDialog}
-          setHideJobDetailDialog={setHideJobDetailDialog}
-        />
       </div>
     );
   }
-};
-
-Table.propTypes = {
-  setHideSuccessJobsDialog: PropTypes.func,
 };
 
 export default Table;

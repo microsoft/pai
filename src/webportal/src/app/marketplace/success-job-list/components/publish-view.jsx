@@ -15,7 +15,6 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 import uuid4 from 'uuid/v4';
-import PropTypes from 'prop-types';
 import React, { useState, useCallback, useContext } from 'react';
 import {
   DefaultButton,
@@ -40,26 +39,31 @@ import { TagBar } from '../../components/tag-bar';
 import PreviewYamlFile from '../components/preview-yamlFile';
 import Context from '../Context';
 
-const PublishDialog = props => {
+const PublishView = () => {
   const { spacing } = getTheme();
 
-  const { currentJob, currentJobConfig, setOpenJobDetail } = useContext(
-    Context,
-  );
-
-  const { hideDialog, setHideDialog } = props;
-
-  const [name, setName] = useState('');
-  const [category, setCategory] = useState('custom');
-  const [tags, setTags] = useState([]);
-  const [introduction, setIntroduction] = useState('');
-  const [description, setDescription] = useState('');
+  const {
+    currentJob,
+    currentJobConfig,
+    setOpenJobDetail,
+    name,
+    setName,
+    category,
+    setCategory,
+    tags,
+    setTags,
+    introduction,
+    setIntroduction,
+    description,
+    setDescription,
+  } = useContext(Context);
 
   const CATEGORY_OPTIONS = [
     { key: 'custom', text: 'custom' },
     { key: 'official', text: 'official' },
   ];
 
+  /*
   const checkRequired = () => {
     if (name === '') {
       alert('Title required');
@@ -79,7 +83,6 @@ const PublishDialog = props => {
     }
     return true;
   };
-
   async function onConfirm() {
     // check required
     if (!checkRequired()) {
@@ -111,90 +114,50 @@ const PublishDialog = props => {
     setOpenJobDetail(false);
     setHideDialog(true);
   }, []);
-
+  */
   return (
-    <Dialog
-      hidden={hideDialog}
-      onDismiss={closeDialog}
-      minWidth={800}
-      dialogContentProps={{
-        type: DialogType.normal,
-        showCloseButton: false,
-        title: (
-          <Text
-            styles={{
-              root: {
-                fontSize: FontSizes.large,
-                fontWeight: FontWeights.semibold,
-                paddingBottom: spacing.m,
-              },
-            }}
-          >
-            Publish Job [{!isNil(currentJob) && currentJob.name}] to Marketplace
-          </Text>
-        ),
-      }}
-      modalProps={{
-        isBlocking: true,
-      }}
-    >
-      <Stack gap='m'>
-        <TextField
-          label='Name'
-          value={name}
-          onChange={e => {
-            setName(e.target.value);
-          }}
-          required
-        />
-        <Dropdown
-          label='Category'
-          options={CATEGORY_OPTIONS}
-          defaultSelectedKey={'custom'}
-          onChange={(e, item) => setCategory(item.text)}
-          required
-        />
-        <Stack gap='s1'>
-          <span>Tags</span>
-          <TagBar tags={tags} setTags={setTags} />
-        </Stack>
-        <TextField
-          label='Introduction'
-          value={introduction}
-          onChange={e => {
-            setIntroduction(e.target.value);
-          }}
-          required
-        />
-        <TextField
-          label='Author'
-          value={cookies.get('user')}
-          disabled
-          required
-        />
-        <TextField
-          label='Description'
-          value={description}
-          multiline
-          rows={20}
-          onChange={e => {
-            setDescription(e.target.value);
-          }}
-          required
-        />
-        <PreviewYamlFile />
+    <Stack gap='m'>
+      <TextField
+        label='Name'
+        value={name}
+        onChange={e => {
+          setName(e.target.value);
+        }}
+        required
+      />
+      <Dropdown
+        label='Category'
+        options={CATEGORY_OPTIONS}
+        defaultSelectedKey={'custom'}
+        onChange={(e, item) => setCategory(item.text)}
+        required
+      />
+      <Stack gap='s1'>
+        <span>Tags</span>
+        <TagBar tags={tags} setTags={setTags} />
       </Stack>
-      <DialogFooter>
-        <PrimaryButton onClick={onConfirm} text='Confirm' />
-        <DefaultButton onClick={closeDialog} text='Cancel' />
-      </DialogFooter>
-    </Dialog>
+      <TextField
+        label='Introduction'
+        value={introduction}
+        onChange={e => {
+          setIntroduction(e.target.value);
+        }}
+        required
+      />
+      <TextField label='Author' value={cookies.get('user')} disabled required />
+      <TextField
+        label='Description'
+        value={description}
+        multiline
+        rows={20}
+        onChange={e => {
+          setDescription(e.target.value);
+        }}
+        required
+      />
+      <PreviewYamlFile />
+    </Stack>
   );
 };
 
-PublishDialog.propTypes = {
-  hideDialog: PropTypes.bool.isRequired,
-  setHideDialog: PropTypes.func.isRequired,
-};
-
-export default PublishDialog;
+export default PublishView;
