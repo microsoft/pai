@@ -69,8 +69,8 @@ def main():
                 ).items()
             ])
         except Exception:
-            traceback.print_exc()
-    cmd_params.append(shlex.quote('\n'.join(ssh_keys)))
+            LOGGER.error(traceback.format_exc())
+    cmd_params.append(shlex.quote('\\n'.join(ssh_keys)))
 
     # write call to real executable script
     command = [
