@@ -37,15 +37,15 @@ router.route('/:username/expression/:expressionName([a-zA-Z0-9_\\-]+)')
   .delete(token.check, userController.deleteUserExpression);
 
 router.route('/:username/ssh-key/system')
-  .get(token.check, userController.getUserSystemSshKey)
+  .get(token.check, userController.getUserSystemSshKey);
 
 router.route('/:username/ssh-key/custom')
-  .get(token.check, userController.getUserCustomSshKey)
+  .get(token.check, userController.getUserCustomSshKey);
 
 router.route('/:username/ssh-key/custom')
-  .put(token.check, param.validate(userInputSchema.userSshKeyCreateInputSchema), userController.createUserCustomSshKey)
+  .put(token.check, param.validate(userInputSchema.userSshKeyCreateInputSchema), userController.createUserCustomSshKey);
 
 router.route('/:username/ssh-key/custom/:sshKeyName([a-zA-Z0-9_\\-]+)')
-  .delete(token.check, userController.deleteUserCustomSshKey)
+  .delete(token.check, userController.deleteUserCustomSshKey);
 
 module.exports = router;

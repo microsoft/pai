@@ -108,78 +108,79 @@ const deleteUserExpression = async (req, res, next) => {
 };
 
 
-
 const generateSshKey = (username) => {
-  const key = new NodeRSA({ b: 1024 });
+  const key = new NodeRSA({b: 1024});
   const pemPub = key.exportKey('pkcs1-public-pem');
   const pemPri = key.exportKey('pkcs1-private-pem');
 
   const sshKey = SSHPk.parseKey(pemPub, 'pem');
   sshKey.comment = `${username}@pai-system`;
   const sshPub = sshKey.toString('ssh');
-  return [sshPub, pemPri]
-}
+  return [sshPub, pemPri];
+};
 
 const getUserSystemSshKey = async (req, res, next) => {
   try {
-    if (req[userProperty].username !== req.params.username){
+    if (req[userProperty].username !== req.params.username) {
       return next(createError('Unauthorized', 'UnauthorizedUserError', 'You are not allowed to do this operation.'));
     }
 
     let [publicKey, privateKey] = await Promise.all([
         UserExpressionModel.findOne({where: {name: req.params.username, key: 'ssh-key-system-public'}}),
-        UserExpressionModel.findOne({where: {name: req.params.username, key: 'ssh-key-system-private'}})
+        UserExpressionModel.findOne({where: {name: req.params.username, key: 'ssh-key-system-private'}}),
       ]);
-    if (!(req.query && ('reset' in req.query) && (req.query.reset === 'true'))){
-      if (publicKey !== null  && privateKey !== null){
+    if (!(req.query && ('reset' in req.query) && (req.query.reset === 'true'))) {
+      if (publicKey !== null && privateKey !== null) {
         return res.status(200).json({
           'public-key': publicKey.value,
-          'private-key': privateKey.value
-        })
+          'private-key': privateKey.value,
+        });
       }
     }
-    if (publicKey !== null)
-      await UserExpressionModel.destroy({where: {name: req.params.username, key: 'ssh-key-system-public'}});
-    if (privateKey !== null)
-      await UserExpressionModel.destroy({where: {name: req.params.username, key: 'ssh-key-system-private'}});
+    if (publicKey !== null) {
+await UserExpressionModel.destroy({where: {name: req.params.username, key: 'ssh-key-system-public'}});
+}
+    if (privateKey !== null) {
+await UserExpressionModel.destroy({where: {name: req.params.username, key: 'ssh-key-system-private'}});
+}
     [publicKey, privateKey] = generateSshKey(req.params.username);
     await UserExpressionModel.bulkCreate([
         {name: req.params.username, key: 'ssh-key-system-public', value: publicKey},
-        {name: req.params.username, key: 'ssh-key-system-private', value: privateKey}
+        {name: req.params.username, key: 'ssh-key-system-private', value: privateKey},
     ]);
     return res.status(200).json({
           'public-key': publicKey,
-          'private-key': privateKey
-    })
+          'private-key': privateKey,
+    });
   } catch (error) {
     return next(createError.unknown(error));
   }
-}
+};
 
 const getUserCustomSshKey = async (req, res, next) => {
   try {
-    if (req[userProperty].username !== req.params.username){
+    if (req[userProperty].username !== req.params.username) {
       return next(createError('Unauthorized', 'UnauthorizedUserError', 'You are not allowed to do this operation.'));
     }
-    const prefix = 'ssh-key-custom-public-'
+    const prefix = 'ssh-key-custom-public-';
     const expressions = await UserExpressionModel.findAll(
-      {where: {name: req.params.username, key: {[Sequelize.Op.startsWith]: prefix}}})
+      {where: {name: req.params.username, key: {[Sequelize.Op.startsWith]: prefix}}});
     const jsonRes = expressions.reduce((jsonRes, {key, value, updatedAt}) => {
       jsonRes[key.substring(prefix.length)] = {
         'public-key': value,
-        'updated-at': updatedAt
+        'updated-at': updatedAt,
       };
       return jsonRes;
-    }, {})
-    return res.status(200).json(jsonRes)
+    }, {});
+    return res.status(200).json(jsonRes);
   } catch (error) {
     return next(createError.unknown(error));
   }
-}
+};
 
 const createUserCustomSshKey = async (req, res, next) => {
   try {
-    if (req[userProperty].username !== req.params.username){
+    if (req[userProperty].username !== req.params.username) {
       return next(createError('Unauthorized', 'UnauthorizedUserError', 'You are not allowed to do this operation.'));
     }
     const name = req.params.username;
@@ -203,7 +204,7 @@ const createUserCustomSshKey = async (req, res, next) => {
   } catch (error) {
     return next(createError.unknown(error));
   }
-}
+};
 
 const deleteUserCustomSshKey = async (req, res, next) => {
   try {
@@ -240,5 +241,5 @@ module.exports = {
   getUserSystemSshKey,
   getUserCustomSshKey,
   createUserCustomSshKey,
-  deleteUserCustomSshKey
+  deleteUserCustomSshKey,
 };
