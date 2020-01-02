@@ -67,17 +67,42 @@ sudo pip3 install -r requirements.txt
 
 echo "Clone OpenPAI source code from github"
 git clone https://github.com/microsoft/pai.git
+git checkout
 
-echo "Checkout to the release branch "
-cd ${HOME}/pai-deploy/pai/contrib/kubespray/quick-start
+cd ${HOME}/pai-deploy/pai/contrib/kubespray
 mkdir ${HOME}/pai-deploy/cluster-cfg
 python3 generator.py -m ${MASTER_LIST} -w ${WORKER_LIST} -c ${CLUSTER_CONFIG} -o ${HOME}/pai-deploy/cluster-cfg
+cp openpai.yml ${HOME}/pai-deploy/cluster-cfg
 
 echo "Generate SSH Key"
 ssh-keygen -t rsa -f ~/.ssh/id_rsa -P ""
 
-CURRENT_USER=`whoami`
+LOCAL_USER=`whoami`
 REMOTE_USER=`cat config.yml | grep user | tr -d "[:space:]" | cut -d ':' -f 2`
+
+cp ${HOME}/pai-deploy/pai/contrib/kubespray/quick-start/set-passwordless-ssh.yml.template ${HOME}/pai-deploy/pai/contrib/kubespray/quick-start/set-passwordless-ssh.yml
+sed  -i "s/%REMOTE_USER%/${REMOTE_USER}/g" ${HOME}/pai-deploy/pai/contrib/kubespray/quick-start/set-passwordless-ssh.yml
+sed  -i "s/%LOCAL_USER%/${LOCAL_USER}/g" ${HOME}/pai-deploy/pai/contrib/kubespray/quick-start/set-passwordless-ssh.yml
+
+ansible-playbook -i ${HOME}/pai-deploy/cluster-cfg/hosts.yml ${HOME}/pai-deploy/pai/contrib/kubespray/quick-start/set-passwordless-ssh.yml
+
+echo "Install nvidia drivers to the machine"
+ansible-playbook -i ${HOME}/pai-deploy/cluster-cfg/gpu-hosts.yml nvidia-drivers.yml --become --become-user=root
+
+echo "Enable nvidia persistent mode"
+ansible-playbook -i ${HOME}/pai-deploy/cluster-cfg/gpu-hosts.yml nvidia-persistent-mode.yml --become --become-user=root
+
+echo "Install nvidia docker runtime"
+ansible-playbook -i ${HOME}/pai-deploy/cluster-cfg/gpu-hosts.yml nvidia-docker.yml --become --become-user=root
+
+echo "Copy docker configuration"
+ansible-playbook -i ${HOME}/pai-deploy/cluster-cfg/gpu-hosts.yml copy-daemon-openpai.yml --become --become-user=root
+echo "Setup cluster environment is done"
+
+
+echo "setup k8s cluster"
+cd ${HOME}/pai-deploy/kubespray
+ansible-playbook -i ${HOME}/pai-deploy/cluster-cfg/hosts.yml cluster.yml --become --become-user=root -e "@${HOME}/pai-deploy/cluster-cfg/openpai.yml"
 
 
 

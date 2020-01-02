@@ -104,6 +104,11 @@ def main():
         map_table
     )
     generate_template_file(
+        "gpu-hosts.yml.template",
+        "{0}/gpu-hosts.yml".format(output_path),
+        map_table
+    )
+    generate_template_file(
         "layout.yaml.template",
         "{0}/layout.yaml".format(output_path),
         map_table
