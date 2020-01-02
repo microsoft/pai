@@ -92,6 +92,7 @@ http {
   }
   {% endif %}
 
+  {% if CLUSTER_TYPE == 'yarn' %}
   {% if WEBHDFS_LEGACY_PORT %}
   # Proxy 50070 to webhdfs for backward compatibility
   server {
@@ -121,5 +122,6 @@ http {
       proxy_send_timeout 1h;
     }
   }
+  {% endif %}
   {% endif %}
 }

@@ -49,12 +49,8 @@ spec:
               value: {{ cluster_cfg['rest-server']['uri'] }}
             - name: K8S_API_SERVER_URI
               value: {{ cluster_cfg['layout']['kubernetes']['api-servers-url'] }}
-            - name: WEBHDFS_URI
-              value: http://{{ cluster_cfg['hadoop-name-node']['master-ip'] }}:5070
-{% if cluster_cfg['pylon']['webhdfs-legacy-port'] %}
-            - name: WEBHDFS_LEGACY_PORT
-              value: '{{ cluster_cfg['pylon']['webhdfs-legacy-port'] }}'
-{% endif %}
+            - name: CLUSTER_TYPE
+              value: cluster_cfg["cluster"]["common"]["cluster-type"]
 {% if cluster_cfg['authentication']['OIDC'] %}
             - name: AUTH_MODE
               value: OIDC
@@ -69,8 +65,16 @@ spec:
               value: {{ cluster_cfg['alert-manager']['url'] }}
             - name: K8S_DASHBOARD_URI
               value: {{ cluster_cfg['layout']['kubernetes']['dashboard-url'] }}
+{% if cluster_cfg["cluster"]["common"]["cluster-type"] == "yarn" %}
+{% if cluster_cfg['pylon']['webhdfs-legacy-port'] %}
+            - name: WEBHDFS_LEGACY_PORT
+              value: '{{ cluster_cfg['pylon']['webhdfs-legacy-port'] }}'
+{% endif %}
+            - name: WEBHDFS_URI
+              value: http://{{ cluster_cfg['hadoop-name-node']['master-ip'] }}:5070
             - name: YARN_WEB_PORTAL_URI
               value: http://{{ cluster_cfg['hadoop-resource-manager']['master-ip'] }}:8088
+{% endif %}
             - name: GRAFANA_URI
               value: {{ cluster_cfg['grafana']['url'] }}
             - name: PAI_WEB_PORTAL_URI
@@ -82,10 +86,12 @@ spec:
             - name: pylon-https
               containerPort: 443
               hostPort: 443
+{% if cluster_cfg["cluster"]["common"]["cluster-type"] == "yarn" %}
 {% if cluster_cfg['pylon']['webhdfs-legacy-port'] %}
             - name: pylon-webhdfs
               containerPort: {{ cluster_cfg['pylon']['webhdfs-legacy-port'] }}
               hostPort: {{ cluster_cfg['pylon']['webhdfs-legacy-port'] }}
+{% endif %}
 {% endif %}
           livenessProbe:
             httpGet:
