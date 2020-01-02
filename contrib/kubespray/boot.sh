@@ -104,5 +104,3 @@ echo "setup k8s cluster"
 cd ${HOME}/pai-deploy/kubespray
 ansible-playbook -i ${HOME}/pai-deploy/cluster-cfg/hosts.yml cluster.yml --become --become-user=root -e "@${HOME}/pai-deploy/cluster-cfg/openpai.yml"
 
-
-
