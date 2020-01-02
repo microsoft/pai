@@ -99,8 +99,6 @@ echo "Copy docker configuration"
 ansible-playbook -i ${HOME}/pai-deploy/cluster-cfg/gpu-hosts.yml copy-daemon-openpai.yml --become --become-user=root
 echo "Setup cluster environment is done"
 
-
 echo "setup k8s cluster"
 cd ${HOME}/pai-deploy/kubespray
 ansible-playbook -i ${HOME}/pai-deploy/cluster-cfg/hosts.yml cluster.yml --become --become-user=root -e "@${HOME}/pai-deploy/cluster-cfg/openpai.yml"
-
