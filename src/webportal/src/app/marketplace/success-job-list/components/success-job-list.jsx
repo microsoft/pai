@@ -16,8 +16,6 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 import * as querystring from 'querystring';
-import PropTypes from 'prop-types';
-
 import React, { useState, useCallback, useEffect, useContext } from 'react';
 import { ColorClassNames, getTheme } from '@uifabric/styling';
 import { Fabric } from 'office-ui-fabric-react/lib/Fabric';
@@ -39,12 +37,12 @@ import FilterBar from './filter-bar';
 
 const SuccessJobList = props => {
   const username = 'binyli';
-  const [error, setError] = useState(null);
 
-  const { setHideSuccessJobsDialog } = props;
   const { successJobs, setSuccessJobs, setFilteredJobs, filter } = useContext(
     Context,
   );
+
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     setFilteredJobs(filter.apply(successJobs));
@@ -122,7 +120,7 @@ const SuccessJobList = props => {
             },
           }}
         >
-          <Table setHideSuccessJobsDialog={setHideSuccessJobsDialog} />
+          <Table />
         </Stack.Item>
         <Stack.Item
           styles={{
@@ -134,10 +132,6 @@ const SuccessJobList = props => {
       </Stack>
     </Stack>
   );
-};
-
-SuccessJobList.propTypes = {
-  setHideSuccessJobsDialog: PropTypes.func,
 };
 
 export default SuccessJobList;

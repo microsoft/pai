@@ -34,6 +34,7 @@ import {
   addStarRelation,
   deleteStarRelation,
 } from '../utils/conn';
+import { TagBar } from '../../components/tag-bar';
 
 const { spacing } = getTheme();
 
@@ -146,6 +147,8 @@ export default function Summary() {
           {/* summary-row-3 */}
           <div className={c(t.gray)}>{marketItem.introduction}</div>
           {/* summary-row-4 */}
+          <TagBar tags={marketItem.tags} />
+          {/* summary-row-5 */}
           <Stack horizontal gap='m'>
             <PrimaryButton text='Submit' onClick={clickSubmit} />
             <DefaultButton

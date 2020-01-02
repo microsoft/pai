@@ -21,7 +21,9 @@ import {
   ColorClassNames,
   SearchBox,
   Stack,
+  FontSizes,
 } from 'office-ui-fabric-react';
+import { isNil } from 'lodash';
 
 import Context from '../Context';
 import Filter from '../Filter';
@@ -29,32 +31,39 @@ import Filter from '../Filter';
 const FilterBar = () => {
   const { spacing } = getTheme();
 
-  const { setFilter } = useContext(Context);
+  const { filteredJobs, setFilter } = useContext(Context);
 
   const changeKeyword = useCallback(keyword => {
     setFilter(new Filter(keyword));
   });
 
   return (
-    <Stack
-      horizontal
-      verticalAlign='stretch'
-      horizontalAlign='space-between'
-      styles={{
-        root: [
-          ColorClassNames.neutralLightBackground,
-          {
-            marginTop: spacing.s2,
-            padding: spacing.m,
-          },
-        ],
-      }}
-    >
-      <SearchBox
-        underlined={true}
-        placeholder='Search'
-        onChange={changeKeyword}
-      />
+    <Stack>
+      <Stack
+        horizontal
+        verticalAlign='stretch'
+        horizontalAlign='space-between'
+        styles={{
+          root: [
+            ColorClassNames.neutralLightBackground,
+            {
+              marginTop: spacing.s2,
+              padding: spacing.m,
+            },
+          ],
+        }}
+      >
+        <SearchBox
+          underlined={true}
+          placeholder='Search'
+          onChange={changeKeyword}
+        />
+      </Stack>
+      {!isNil(filteredJobs) && (
+        <Stack padding={spacing.s2} style={{ fontSize: FontSizes.mediumPlus }}>
+          {filteredJobs.length} results
+        </Stack>
+      )}
     </Stack>
   );
 };

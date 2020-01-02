@@ -270,8 +270,8 @@ export default class TaskRoleContainerList extends React.Component {
         key: 'number',
         name: 'No.',
         headerClassName: FontClassNames.medium,
-        minWidth: 50,
-        maxWidth: 50,
+        minWidth: 25,
+        maxWidth: 25,
         isResizable: true,
         onRender: (item, idx) => {
           return (
@@ -286,7 +286,7 @@ export default class TaskRoleContainerList extends React.Component {
         name: 'Container ID',
         headerClassName: FontClassNames.medium,
         minWidth: 100,
-        maxWidth: 500,
+        maxWidth: 250,
         isResizable: true,
         onRender: item => {
           const id = item.containerId;
@@ -305,7 +305,7 @@ export default class TaskRoleContainerList extends React.Component {
         className: FontClassNames.mediumPlus,
         headerClassName: FontClassNames.medium,
         minWidth: 80,
-        maxWidth: 140,
+        maxWidth: 100,
         isResizable: true,
         fieldName: 'containerIp',
         onRender: item => {
@@ -335,7 +335,7 @@ export default class TaskRoleContainerList extends React.Component {
         className: FontClassNames.mediumPlus,
         headerClassName: FontClassNames.medium,
         minWidth: 120,
-        maxWidth: 180,
+        maxWidth: 200,
         isResizable: true,
         onRender: item => {
           const ports = item.containerPorts;
@@ -373,7 +373,7 @@ export default class TaskRoleContainerList extends React.Component {
         className: FontClassNames.mediumPlus,
         headerClassName: FontClassNames.medium,
         minWidth: 40,
-        maxWidth: 60,
+        maxWidth: 40,
         isResizable: true,
         onRender: item => {
           const gpuAttr = isNil(item.containerGpus)
@@ -423,15 +423,6 @@ export default class TaskRoleContainerList extends React.Component {
             );
           }
         },
-      },
-      {
-        key: 'status',
-        name: 'Status',
-        headerClassName: FontClassNames.medium,
-        minWidth: 100,
-        maxWidth: 100,
-        isResizable: true,
-        onRender: item => <StatusBadge status={capitalize(item.taskState)} />,
       },
       {
         key: 'info',

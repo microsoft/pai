@@ -39,12 +39,6 @@ const Context = React.createContext({
     this.openJobDetail = flag;
   },
 
-  // open publish view
-  openPublish: false,
-  setOpenPublish(flag) {
-    this.openPublish = flag;
-  },
-
   // published market item info
   name: '',
   setName(name) {

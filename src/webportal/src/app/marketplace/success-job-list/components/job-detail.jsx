@@ -19,9 +19,7 @@ import {
   NotFoundError,
 } from '../utils/conn';
 import { SpinnerLoading } from '../../../components/loading';
-import TaskRole from './task-role';
 import TaskRoles from './task-roles';
-import getHumanizedJobStateString from '../../../components/util/job';
 
 const JobDetail = () => {
   const { currentJob } = useContext(Context);

@@ -66,47 +66,63 @@ const SuccessJobsDialog = props => {
   }, [openJobDetail]);
   */
 
-  const publishJob = useCallback(() => {
-    /*
-    setHideDialog(true);
-    setHidePublishDialog(false);
-    */
-    setOpenPublish(true);
-  }, []);
+  const onPublish = useCallback(() => {
+    if (openJobDetail) {
+      setOpenJobDetail(false);
+    }
+    openPublishViewWrapper();
+  }, [currentJob, openJobDetail]);
 
-  const onPublish = useCallback(async () => {
-    setOpenJobDetail(false);
-    if (isNil(currentJob)) {
-      return;
-    }
-    // check if this job can be published
-    const { legacy, name, namespace, username } = currentJob;
-    if (legacy) {
-      alert('This job can not be published because of legacy');
-      return;
-    }
-    // fetch jobConfig
-    const jobConfig = await fetchJobConfig(namespace || username, name);
-    setCurrentJobConfig(jobConfig);
+  async function openPublishViewWrapper() {
+    const openPublishView = async () => {
+      if (isNil(currentJob)) {
+        return;
+      }
+      // check if this job can be published
+      const { legacy, name, namespace, username } = currentJob;
+      if (legacy) {
+        alert('This job can not be published because of legacy');
+        return;
+      }
+      // fetch jobConfig
+      const jobConfig = await fetchJobConfig(namespace || username, name);
+      setCurrentJobConfig(jobConfig);
 
-    if (!isPublishable(currentJob, jobConfig)) {
-      alert('This job cannot be published because of extras');
-    } else {
-      publishJob(currentJob);
+      if (!isPublishable(currentJob, jobConfig)) {
+        alert('This job cannot be published because of extras');
+      } else {
+        setOpenPublish(true);
+      }
+    };
+
+    await openPublishView();
+  }
+
+  const closePublishView = useCallback(() => {
+    if (openJobDetail === true) {
+      setOpenJobDetail(false);
     }
-  }, [currentJob]);
+    if (openPublish === true) {
+      setOpenPublish(false);
+    }
+    //setHideDialog(true);
+  }, [openPublish]);
 
   const closeDialog = useCallback(() => {
+    if (openJobDetail === true) {
+      setOpenJobDetail(false);
+    }
+    if (openPublish === true) {
+      setOpenPublish(false);
+    }
     setHideDialog(true);
-    setOpenJobDetail(false);
-    setOpenPublish(false);
   }, []);
 
   const onBack = useCallback(() => {
     setOpenJobDetail(false);
   }, []);
 
-  const checkRequired = () => {
+  const checkRequired = useCallback(() => {
     if (name === '') {
       alert('Title required');
       return false;
@@ -124,9 +140,9 @@ const SuccessJobsDialog = props => {
       return false;
     }
     return true;
-  };
+  }, [name, category, tags, introduction, description]);
 
-  async function onConfirm() {
+  const onConfirm = useCallback(async () => {
     // check required
     if (!checkRequired()) {
       return;
@@ -152,7 +168,7 @@ const SuccessJobsDialog = props => {
     const itemId = await createMarketItem(marketItem);
     // refresh market-detail.html
     window.location.href = `/market-detail.html?itemId=${itemId}`;
-  }
+  }, [currentJob, name, category, tags, introduction, description]);
 
   const context = {
     successJobs,
@@ -171,10 +187,6 @@ const SuccessJobsDialog = props => {
     // open job detail
     openJobDetail,
     setOpenJobDetail,
-
-    // open publish view
-    openPublish,
-    setOpenPublish,
 
     // published market item info
     name,
@@ -195,7 +207,7 @@ const SuccessJobsDialog = props => {
         hidden={hideDialog}
         onDismiss={closeDialog}
         minWidth={800}
-        maxWidth={1200}
+        maxWidth={2000}
         dialogContentProps={{
           type: DialogType.normal,
           showCloseButton: false,
@@ -205,9 +217,7 @@ const SuccessJobsDialog = props => {
         }}
       >
         <Stack styles={{ root: { height: '100%', minHeight: 640 } }}>
-          {!openJobDetail && !openPublish && (
-            <SuccessJobList setHideSuccessJobsDialog={setHideDialog} />
-          )}
+          {!openJobDetail && !openPublish && <SuccessJobList />}
           {openJobDetail && <JobDetail />}
           {openPublish && <PublishView />}
         </Stack>
@@ -226,7 +236,7 @@ const SuccessJobsDialog = props => {
         {openPublish && (
           <DialogFooter>
             <PrimaryButton onClick={onConfirm} text='Confirm' />
-            <DefaultButton onClick={closeDialog} text='Cancel' />
+            <DefaultButton onClick={closePublishView} text='Cancel' />
           </DialogFooter>
         )}
       </Dialog>

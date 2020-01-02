@@ -58,6 +58,8 @@ const PublishView = () => {
     setDescription,
   } = useContext(Context);
 
+  console.log(name, category, tags, introduction);
+
   const CATEGORY_OPTIONS = [
     { key: 'custom', text: 'custom' },
     { key: 'official', text: 'official' },

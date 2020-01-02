@@ -63,7 +63,7 @@ export const TagBar = props => {
                   padding: spacing.s1,
                 }}
               >
-                # {tag}
+                #{tag}
               </div>
               {!isNil(setTags) && (
                 <button

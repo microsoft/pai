@@ -3,7 +3,7 @@ import { isNil, isEmpty, get } from 'lodash';
 import PropTypes from 'prop-types';
 
 import t from '../../../components/tachyons.scss';
-import getHumanizedJobStateString from '../../../components/util/job';
+import { getHumanizedJobStateString } from '../../../components/util/job';
 import TaskRole from './task-role';
 
 const TaskRoles = props => {
