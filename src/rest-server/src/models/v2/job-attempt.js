@@ -61,7 +61,7 @@ const healthCheck = async () => {
       if (result.statusCode === 200) {
         return true;
       } else {
-        logger.warn(`elastic search return status: ${result.statusCode}`);
+        logger.warn(`elastic search does not found index 'framework': ${result.statusCode}`);
         return false;
       }
     } catch (e) {
@@ -106,7 +106,7 @@ const list = async (frameworkName) => {
       isLatest: true,
     });
   } else if (response.status === 404) {
-    logger.warn(`could not get framework ${uid} from k8s`);
+    logger.warn(`could not get framework ${uid} from k8s: ${response.status} ${response.data.message}`);
     return {status: 404, data: null};
   } else {
     throw createError(response.status, 'UnknownError', response.data.message);
@@ -211,7 +211,7 @@ const get = async (frameworkName, jobAttemptIndex) => {
     uid = response.data.metadata.uid;
     attemptFramework = response.data;
   } else if (response.status === 404) {
-    logger.warn(`could not find framework: ${uid}`);
+    logger.warn(`could not get framework ${uid} from k8s: ${response.status} ${response.data.message}`);
     return {status: 404, data: null};
   } else {
     throw createError(response.status, 'UnknownError', response.data.message);
