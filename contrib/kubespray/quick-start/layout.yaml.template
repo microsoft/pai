@@ -46,7 +46,7 @@ machine-list:
       nodename: vm["hostname"]
       hostip: vm["ip"]
       machine-type: GENERIC-MASTER
-{%- if vm["hostname"] == head_node["hostname"] %}
+{%- if vm["hostname"] == env['head_node']["hostname"] %}
       dashboard: "true"
       pai-master: "true"
 {%- endif %}
