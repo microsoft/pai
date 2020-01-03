@@ -17,8 +17,8 @@
 
 # kubernetes api server and dashboard
 kubernetes:
-  api-servers-url: https://{{head_node['ip']}}:6443
-  dashboard-url: https://head_node['ip']:9090
+  api-servers-url: https://{{env['head_node']['ip']}}:6443
+  dashboard-url: https://{{env['head_node']['ip']}}:9090
 
 # TODO please modify it according to your own hardware
 machine-sku:
