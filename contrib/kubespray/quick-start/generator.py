@@ -109,6 +109,11 @@ def main():
         map_table
     )
     generate_template_file(
+        "quick-start/infra-hosts.yml.template",
+        "{0}/infra-hosts.yml".format(output_path),
+        map_table
+    )
+    generate_template_file(
         "quick-start/layout.yaml.template",
         "{0}/layout.yaml".format(output_path),
         map_table
