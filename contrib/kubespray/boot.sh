@@ -124,3 +124,24 @@ echo "Setup cluster environment is done"
 echo "setup k8s cluster"
 cd ${HOME}/pai-deploy/kubespray
 ansible-playbook -i inventory/pai/hosts.yml cluster.yml --become --become-user=root -e "@inventory/pai/openpai.yml" || exit $?
+
+echo "K8s is setup"
+echo "Starting dev-box on your local host"
+
+echo "Install docker ce"
+
+mkdir -p ${HOME}/pai-deploy/kube
+cp -rf ${HOME}/pai-deploy/kubespray/inventory/pai/artifacts/admin.conf ${HOME}/pai-deploy/kube/config
+
+sudo docker run -itd \
+        -e COLUMNS=$COLUMNS -e LINES=$LINES -e TERM=$TERM \
+        -v /var/run/docker.sock:/var/run/docker.sock \
+        -v ${HOME}/pai-deploy/cluster-cfg:/cluster-configuration  \
+        -v ${HOME}/pai-deploy/kube:/root/.kube \
+        --pid=host \
+        --privileged=true \
+        --net=host \
+        --name=dev-box-quick-start \
+        openpai/dev-box:preview-v0.16
+
+sudo docker exec -it dev-box-quick-start kubectl get node
