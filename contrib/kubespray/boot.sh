@@ -104,21 +104,19 @@ echo "Ping Test"
 
 ansible all -i ${HOME}/pai-deploy/cluster-cfg/hosts.yml -m ping || exit $?
 
-exit 0
-
 echo "Install nvidia drivers to the machine"
-ansible-playbook -i ${HOME}/pai-deploy/cluster-cfg/gpu-hosts.yml nvidia-drivers.yml --become --become-user=root
+ansible-playbook -i ${HOME}/pai-deploy/cluster-cfg/gpu-hosts.yml nvidia-drivers.yml --become --become-user=root || exit $?
 
 echo "Enable nvidia persistent mode"
-ansible-playbook -i ${HOME}/pai-deploy/cluster-cfg/gpu-hosts.yml nvidia-persistent-mode.yml --become --become-user=root
+ansible-playbook -i ${HOME}/pai-deploy/cluster-cfg/gpu-hosts.yml nvidia-persistent-mode.yml --become --become-user=root || exit $?
 
 echo "Install nvidia docker runtime"
-ansible-playbook -i ${HOME}/pai-deploy/cluster-cfg/gpu-hosts.yml nvidia-docker.yml --become --become-user=root
+ansible-playbook -i ${HOME}/pai-deploy/cluster-cfg/gpu-hosts.yml nvidia-docker.yml --become --become-user=root || exit $?
 
 echo "Copy docker configuration"
-ansible-playbook -i ${HOME}/pai-deploy/cluster-cfg/gpu-hosts.yml copy-daemon-openpai.yml --become --become-user=root
+ansible-playbook -i ${HOME}/pai-deploy/cluster-cfg/hosts.yml copy-daemon-openpai.yml --become --become-user=root || exit $?
 echo "Setup cluster environment is done"
 
 echo "setup k8s cluster"
 cd ${HOME}/pai-deploy/kubespray
-ansible-playbook -i inventory/pai/hosts.yml cluster.yml --become --become-user=root -e "@inventory/pai/openpai.yml"
+ansible-playbook -i inventory/pai/hosts.yml cluster.yml --become --become-user=root -e "@inventory/pai/openpai.yml" || exit $?
