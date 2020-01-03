@@ -80,6 +80,8 @@ cp openpai.yml ${HOME}/pai-deploy/cluster-cfg
 cp openpai.yml ${HOME}/pai-deploy/kubespray/inventory/pai/
 cp ${HOME}/pai-deploy/cluster-cfg/hosts.yml ${HOME}/pai-deploy/kubespray/inventory/pai/
 
+exit 0
+
 echo "Generate SSH Key"
 ssh-keygen -t rsa -f ~/.ssh/id_rsa -P ""
 
