@@ -23,7 +23,7 @@ import {
   Stack,
   FontSizes,
 } from 'office-ui-fabric-react';
-import { isNil } from 'lodash';
+import { isNil, isEmpty } from 'lodash';
 
 import Context from '../Context';
 import Filter from '../Filter';
@@ -59,7 +59,7 @@ const FilterBar = () => {
           onChange={changeKeyword}
         />
       </Stack>
-      {!isNil(filteredJobs) && (
+      {!isNil(filteredJobs) && !isEmpty(filteredJobs) && (
         <Stack padding={spacing.s2} style={{ fontSize: FontSizes.mediumPlus }}>
           {filteredJobs.length} results
         </Stack>

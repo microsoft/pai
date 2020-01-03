@@ -75,6 +75,7 @@
     "react-dnd": "^5.0.0",
     "react-dnd-html5-backend": "^3.0.2",
     "react-dom": "^16.8.3",
+    "react-infinite-scroller": "^1.2.4",
     "react-markdown": "^4.2.2",
     "react-monaco-editor": "^0.25.1",
     "react-responsive": "^8.0.1",

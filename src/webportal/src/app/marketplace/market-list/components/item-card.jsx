@@ -1,4 +1,4 @@
-import propTypes from 'prop-types';
+import PropTypes from 'prop-types';
 import React, { useCallback } from 'react';
 import {
   Text,
@@ -94,7 +94,7 @@ const ItemCard = props => {
 };
 
 ItemCard.propTypes = {
-  item: propTypes.object.isRequired,
+  item: PropTypes.object.isRequired,
 };
 
 export default ItemCard;

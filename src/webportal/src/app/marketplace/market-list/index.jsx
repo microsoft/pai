@@ -42,6 +42,7 @@ import Context from './Context';
 import Filter from './Filter';
 import Paginator from './components/paginator';
 import Pagination from './Pagination';
+import ItemListScroller from './components/item-list-scroller';
 
 initTheme();
 initializeIcons();
@@ -124,6 +125,7 @@ const MarketList = () => {
             <Stack.Item grow>
               <Stack gap='s' styles={{ root: [{ minWidth: 0 }] }}>
                 <FilterBar />
+                {/* <ItemListScroller /> */}
                 <ItemList />
               </Stack>
               {!isNil(filteredItems) && filteredItems.length > 5 && (

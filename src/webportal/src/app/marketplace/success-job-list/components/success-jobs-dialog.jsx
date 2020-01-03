@@ -105,6 +105,11 @@ const SuccessJobsDialog = props => {
     if (openPublish === true) {
       setOpenPublish(false);
     }
+    setName('');
+    setCategory('custom');
+    setTags([]);
+    setIntroduction('');
+    setDescription('');
     //setHideDialog(true);
   }, [openPublish]);
 

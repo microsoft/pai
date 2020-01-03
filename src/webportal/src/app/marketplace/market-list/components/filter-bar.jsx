@@ -15,7 +15,7 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-import { isNil } from 'lodash';
+import { isNil, isEmpty } from 'lodash';
 import React, { useContext, useCallback } from 'react';
 import {
   getTheme,
@@ -100,7 +100,7 @@ export const FilterBar = () => {
           />
         </Stack>
       </Stack>
-      {!isNil(filteredItems) && (
+      {!isNil(filteredItems) && !isEmpty(filteredItems) && (
         <Stack padding={spacing.s2} style={{ fontSize: FontSizes.mediumPlus }}>
           {filteredItems.length} results
         </Stack>
