@@ -21,7 +21,7 @@
 
     1. Using `kubectl describe nodes` to check if these `K80` nodes have nearly the same [Allocatable Resources](https://kubernetes.io/docs/tasks/administer-cluster/reserve-compute-resources), especially for gpu, cpu, memory. If not, please fix it. Assume the aligned resources are: 4 gpus, 23 cpus, and 219GB memory.
 
-    2. Then proportionally, each gpu request should also has ceil(23/4)=5 cpus and ceil(219/4)=54GB memory along with it, so config the `K80` `gpuType` as below:
+    2. Then proportionally, each gpu request should also has floor(23/4)=5 cpus and floor(219/4)=54GB memory along with it, so config the `K80` `gpuType` as below:
         ```yaml
         physicalCluster:
           gpuTypes:
@@ -112,6 +112,44 @@
         Notes:
         1. The name of `virtualCluster` should be constrained by the [K8S naming convention](https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names).
         2. The `virtualCells.cellType` should be full qualified and should be started with a `cellType` which is explicitly referred in `physicalCells`.
+
+5. Put it together
+
+    **Example:**
+    
+    Finally, after above steps, your config would be:
+    ```yaml
+    physicalCluster:
+      gpuTypes:
+        K80:
+          gpu: 1
+          cpu: 5
+          memory: 54Gi
+      cellTypes:
+        K80-NODE:
+          childCellType: K80
+          childCellNumber: 4
+          isNodeLevel: true
+        K80-NODE-POOL:
+          childCellType: K80-NODE
+          childCellNumber: 3
+      physicalCells:
+      - cellType: K80-NODE-POOL
+        cellChildren:
+        - cellAddress: node1
+        - cellAddress: node2
+        - cellAddress: node3
+
+    virtualClusters:
+      vc1:
+        virtualCells:
+        - cellType: K80-NODE-POOL.K80-NODE
+          cellNumber: 1
+      vc2:
+        virtualCells:
+        - cellType: K80-NODE-POOL.K80-NODE
+          cellNumber: 2
+    ```
 
 
 ### <a name="ConfigDetail">Config Detail</a>
