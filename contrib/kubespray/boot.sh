@@ -72,7 +72,7 @@ sudo pip3 install -r requirements.txt
 echo "Clone OpenPAI source code from github"
 cd ${HOME}/pai-deploy
 git clone https://github.com/microsoft/pai.git
-git checkout
+git checkout yuye/quick-start-script
 
 cd ${HOME}/pai-deploy/pai/contrib/kubespray
 mkdir ${HOME}/pai-deploy/cluster-cfg
