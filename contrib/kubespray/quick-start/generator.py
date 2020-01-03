@@ -79,7 +79,7 @@ def main():
                         help="master-list")
     parser.add_argument('-c', '--configuration', dest="configuration", required=True,
                         help="cluster configuration")
-    parser.add_argument('-o', '--output', dest="Path to save the generated file", required=True,
+    parser.add_argument('-o', '--output', dest="output", required=True,
                         help="cluster configuration")
     args = parser.parse_args()
 
