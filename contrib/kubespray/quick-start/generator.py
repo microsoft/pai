@@ -99,22 +99,22 @@ def main():
         "env": environment
     }
     generate_template_file(
-        "hosts.yml.template",
+        "quick-start/hosts.yml.template",
         "{0}/hosts.yml".format(output_path),
         map_table
     )
     generate_template_file(
-        "gpu-hosts.yml.template",
+        "quick-start/gpu-hosts.yml.template",
         "{0}/gpu-hosts.yml".format(output_path),
         map_table
     )
     generate_template_file(
-        "layout.yaml.template",
+        "quick-start/layout.yaml.template",
         "{0}/layout.yaml".format(output_path),
         map_table
     )
     generate_template_file(
-        "services-configuration.yaml.template",
+        "quick-start/services-configuration.yaml.template",
         "{0}/services-configuration.yaml".format(output_path),
         map_table
     )
