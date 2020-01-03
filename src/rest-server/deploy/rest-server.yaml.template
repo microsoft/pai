@@ -44,20 +44,22 @@ spec:
 {% endif %}
         - mountPath: /group-configuration
           name: group-configuration-rest-server
+{%- if cluster_cfg["cluster"]["common"]["cluster-type"] == "yarn" %}
         - mountPath: /job-exit-spec-configuration
           name: job-exit-spec-rest-server
+{%- endif %}
+{%- if cluster_cfg["cluster"]["common"]["cluster-type"] == "k8s" %}
 {%- if cluster_cfg['hivedscheduler']['config']|length > 1 %}
         - mountPath: /hived-spec
           name: hived-spec-rest-server
 {%- endif %}
-{%- if cluster_cfg['rest-server']['launcher-type'] == "k8s" %}
         - mountPath: /k8s-job-exit-spec-configuration
           name: k8s-exit-spec-rest-server
 {%- endif %}
         env:
         - name: LAUNCHER_TYPE
-          value: {{ cluster_cfg['rest-server']['launcher-type'] }}
-{%- if cluster_cfg['rest-server']['launcher-type'] == "k8s" %}
+          value: {{ cluster_cfg["cluster"]["common"]["cluster-type"] }}
+{%- if cluster_cfg["cluster"]["common"]["cluster-type"] == "k8s" %}
         - name: LAUNCHER_RUNTIME_IMAGE
           value: {{ cluster_cfg['cluster']['docker-registry']['prefix'] }}kube-runtime:{{ cluster_cfg['cluster']['docker-registry']['tag'] }}
         - name: LAUNCHER_RUNTIME_IMAGE_PULL_SECRETS
@@ -73,6 +75,7 @@ spec:
         - name: LOG_MANAGER_PORT
           value: "{{ cluster_cfg['log-manager']['port'] }}"
 {%- endif %}
+{%- if cluster_cfg["cluster"]["common"]["cluster-type"] == "yarn" %}
         - name: LAUNCHER_WEBSERVICE_URI
           value: {{ cluster_cfg['yarn-frameworklauncher']['webservice'] }}
         - name: HDFS_URI
@@ -81,6 +84,7 @@ spec:
           value: http://{{ cluster_cfg['hadoop-name-node']['master-ip'] }}:5070
         - name: YARN_URI
           value: http://{{ cluster_cfg['hadoop-resource-manager']['master-ip'] }}:8088
+{%- endif %}
         - name: JWT_SECRET
           value: {{ cluster_cfg['rest-server']['jwt-secret'] }}
         - name: JWT_TOKEN_EXPIRE_TIME
@@ -98,7 +102,7 @@ spec:
         - name: AUTHN_METHOD
           value: OIDC
 {% endif %}
-{%- if cluster_cfg['elasticsearch']['master-ip'] %}
+{%- if 'elasticsearch' in cluster_cfg and cluster_cfg['elasticsearch']['master-ip'] %}
         - name: ELASTICSEARCH_URI
           value: http://{{ cluster_cfg['elasticsearch']['master-ip'] }}:30100
 {%- endif %}
@@ -139,15 +143,17 @@ spec:
         configMap:
           name: auth-configuration
 {% endif %}
+{%- if cluster_cfg["cluster"]["common"]["cluster-type"] == "yarn" %}
       - name: job-exit-spec-rest-server
         configMap:
           name: job-exit-spec-configuration
+{%- endif %}
+{%- if cluster_cfg["cluster"]["common"]["cluster-type"] == "k8s" %}
 {%- if cluster_cfg['hivedscheduler']['config']|length > 1 %}
       - name: hived-spec-rest-server
         configMap:
           name: hivedscheduler-config
 {%- endif %}
-{%- if cluster_cfg['rest-server']['launcher-type'] == "k8s" %}
       - name: k8s-exit-spec-rest-server
         configMap:
           name: k8s-job-exit-spec-configuration

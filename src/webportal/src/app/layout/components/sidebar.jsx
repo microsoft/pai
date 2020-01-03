@@ -14,17 +14,20 @@ import config from '../../config/webportal.config';
 import t from '../../components/tachyons.scss';
 
 const KEY_HOME = 'HOME';
-const KEY_DASHBOARD = 'DASHBOARD';
 const KEY_SUBMIT_JOB = 'SUBMITJOB';
 const KEY_JOBS = 'JOBS';
 const KEY_VC = 'VC';
+const KEY_FEEDBACK = 'FEEDBACK';
+// admin menu
 const KEY_ADMIN = 'ADMIN_MENU';
 const KEY_ADMIN_PREFIX = 'ADMIN:';
+// admin menu items
+const KEY_DASHBOARD = KEY_ADMIN_PREFIX + 'DASHBOARD';
 const KEY_SERVICES = KEY_ADMIN_PREFIX + 'SERVICES';
 const KEY_HARDWARE = KEY_ADMIN_PREFIX + 'HARDWARE';
 const KEY_K8S_DASHBOARD = KEY_ADMIN_PREFIX + 'K8S_DASHBOARD';
 const KEY_USER_MANAGEMENT = KEY_ADMIN_PREFIX + 'USER_MANAGEMENT';
-const KEY_FEEDBACK = 'FEEDBACK';
+// plugin menu
 const KEY_PLUGIN = 'PLUGIN';
 const KEY_PLUGIN_PREFIX = 'PLUGIN:';
 

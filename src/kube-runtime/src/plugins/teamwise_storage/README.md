@@ -7,8 +7,9 @@ The teamwise storage plugin offer user to mount storage provided by admin.
 ```yaml
 extras:
   com.microsoft.pai.runtimeplugin:
-    - plugin: teamwiase_storage
+    - plugin: teamwise_storage
       parameters:
         storageConfigNames:
-          - PAI_SAHRE  # storage config name provided by admin
+          - PAI_SHARE  # storage config name provided by admin
+      failurePolicy: ignore/fail
 ```

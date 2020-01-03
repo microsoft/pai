@@ -16,36 +16,41 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-from __future__ import print_function
-
 import logging
 import argparse
 import yaml
 
-logger = logging.getLogger(__name__)
+from common.utils import init_logger
+
+LOGGER = logging.getLogger(__name__)
+
+
+class PluginHelper:  #pylint: disable=too-few-public-methods
+    def __init__(self, plugin_config: dict):
+        self._parameters = plugin_config.get("parameters", "")
+        self._plugin_name = plugin_config.get("plugin", "")
+        self._failure_policy = plugin_config.get("failurePolicy", "fail")
+
+    def inject_commands(self, commands, script):
+        new_commands = []
+        if commands:
+            new_commands = [x + "\n" for x in commands]
+            if self._failure_policy.lower() == "ignore":
+                new_commands.insert(0, "set +o errexit\n")
+                new_commands.append("set -o errexit\n")
+            with open(script, 'a+') as f:
+                f.writelines(new_commands)
+
 
 def plugin_init():
-    logging.basicConfig(
-        format="%(asctime)s - %(levelname)s - %(filename)s:%(lineno)s - %(message)s",
-        level=logging.INFO,
-    )
+    init_logger()
     parser = argparse.ArgumentParser()
-    parser.add_argument("parameters", help="parameters for runtime plugin in yaml")
+    parser.add_argument("plugin_config",
+                        help="plugin config for runtime plugin in yaml")
     parser.add_argument("pre_script", help="script for pre commands")
     parser.add_argument("post_script", help="script for post commands")
     args = parser.parse_args()
 
-    parameters = yaml.load(args.parameters, Loader=yaml.SafeLoader)
+    plugin_config = yaml.safe_load(args.plugin_config)
 
-    return [parameters, args.pre_script, args.post_script]
-
-def inject_commands(commands, script):
-    if commands is not None and len(commands) > 0:
-        new_commands = [x+"\n" for x in commands]
-        with open(script, 'a+') as f:
-            f.writelines(new_commands)
-
-
-if __name__ == "__main__":
-    input_data = plugin_init()
-    logger.info(input_data)
+    return [plugin_config, args.pre_script, args.post_script]

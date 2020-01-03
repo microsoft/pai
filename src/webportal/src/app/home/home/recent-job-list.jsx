@@ -95,7 +95,6 @@ const jobListColumns = [
     name: 'Name',
     fieldName: 'name',
     className: FontClassNames.mediumPlus,
-    headerClassName: FontClassNames.medium,
     isResizable: true,
     onRender(job) {
       const { legacy, name, namespace, username } = job;
@@ -110,7 +109,6 @@ const jobListColumns = [
     minWidth: 150,
     name: 'Date Modified',
     className: FontClassNames.mediumPlus,
-    headerClassName: FontClassNames.medium,
     isResizable: true,
     onRender(job) {
       return getJobModifiedTimeString(job);
@@ -121,7 +119,6 @@ const jobListColumns = [
     minWidth: 120,
     name: 'Duration',
     className: FontClassNames.mediumPlus,
-    headerClassName: FontClassNames.medium,
     isResizable: true,
     onRender(job) {
       return getDurationString(getJobDuration(job));
@@ -133,14 +130,12 @@ const jobListColumns = [
     name: 'Virtual Cluster',
     fieldName: 'virtualCluster',
     className: FontClassNames.mediumPlus,
-    headerClassName: FontClassNames.medium,
     isResizable: true,
   },
   {
     key: 'status',
     minWidth: 100,
     name: 'Status',
-    headerClassName: FontClassNames.medium,
     isResizable: true,
     onRender(job) {
       return <StatusBadge status={getHumanizedJobStateString(job)} />;

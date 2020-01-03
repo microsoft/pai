@@ -23,12 +23,16 @@ import unittest
 import yaml
 
 # pylint: disable=wrong-import-position
-sys.path.append("{}/../src/init.d".format(
-    os.path.split(os.path.realpath(__file__))[0]))
+sys.path.append(
+    os.path.join(os.path.dirname(os.path.abspath(__file__)), "../src"))
+sys.path.append(
+    os.path.join(os.path.dirname(os.path.abspath(__file__)), "../src/init.d"))
 import image_checker
+from common.utils import init_logger
 # pylint: enable=wrong-import-position
 
 PACKAGE_DIRECTORY_COM = os.path.dirname(os.path.abspath(__file__))
+init_logger()
 
 
 # pylint: disable=protected-access
@@ -96,6 +100,21 @@ class TestImageChecker(unittest.TestCase):
 
         for uri in invalid_docker_hub_uris:
             self.assertFalse(image_checker._is_docker_hub_uri(uri))
+
+    def test_get_docker_repository_name(self):
+        official_image_names = [
+            "ubuntu", "python:latest", "golang:1.12.6-alpine"
+        ]
+        third_party_image_names = [
+            "tensorflow/tensorflow:devel-gpu",
+            "docker pull pytorch/pytorch:1.3-cuda10.1-cudnn7-runtime"
+        ]
+        for name in official_image_names:
+            self.assertEqual("library/{}".format(name),
+                             image_checker._get_docker_repository_name(name))
+        for name in third_party_image_names:
+            self.assertEqual(name,
+                             image_checker._get_docker_repository_name(name))
 
 
 if __name__ == '__main__':

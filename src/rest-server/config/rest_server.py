@@ -29,8 +29,6 @@ class RestServer:
             return False, '"default-pai-admin-username" is required in rest-server'
         if 'default-pai-admin-password' not in self.service_configuration:
             return False, '"default-pai-admin-password" is required in rest-server'
-        if 'launcher-type' in self.service_configuration and self.service_configuration['launcher-type'] not in ['yarn', 'k8s']:
-            return False, '"launcher-type" should be "yarn" or "k8s"'
         try:
             reservation_time = int(self.service_configuration['debugging-reservation-seconds'])
         except ValueError:
@@ -56,7 +54,6 @@ class RestServer:
         service_object_model['jwt-expire-time'] = self.service_configuration['jwt-expire-time']
         service_object_model['default-pai-admin-username'] = self.service_configuration['default-pai-admin-username']
         service_object_model['default-pai-admin-password'] = self.service_configuration['default-pai-admin-password']
-        service_object_model['launcher-type'] = self.service_configuration['launcher-type']
         service_object_model['github-owner'] = self.service_configuration['github-owner']
         service_object_model['github-repository'] = self.service_configuration['github-repository']
         service_object_model['github-path'] = self.service_configuration['github-path']
@@ -68,12 +65,13 @@ class RestServer:
 
     #### All service and main module (kubrenetes, machine) is generated. And in this check steps, you could refer to the service object model which you will used in your own service, and check its existence and correctness.
     def validation_post(self, cluster_object_model):
-        if 'yarn-frameworklauncher' not in cluster_object_model or 'webservice' not in cluster_object_model['yarn-frameworklauncher']:
-            return False, 'yarn-frameworklauncher.webservice is required'
-        if 'hadoop-name-node' not in cluster_object_model or 'master-ip' not in cluster_object_model['hadoop-name-node']:
-            return False, 'hadoop-name-node.master-ip is required'
-        if 'hadoop-resource-manager' not in cluster_object_model or 'master-ip' not in cluster_object_model['hadoop-resource-manager']:
-            return False, 'hadoop-resource-manager.master-ip is required'
+        if cluster_object_model['cluster']['common']['cluster-type'] == 'yarn':
+            if 'yarn-frameworklauncher' not in cluster_object_model or 'webservice' not in cluster_object_model['yarn-frameworklauncher']:
+                return False, 'yarn-frameworklauncher.webservice is required'
+            if 'hadoop-name-node' not in cluster_object_model or 'master-ip' not in cluster_object_model['hadoop-name-node']:
+                return False, 'hadoop-name-node.master-ip is required'
+            if 'hadoop-resource-manager' not in cluster_object_model or 'master-ip' not in cluster_object_model['hadoop-resource-manager']:
+                return False, 'hadoop-resource-manager.master-ip is required'
         if 'kubernetes' not in cluster_object_model['layout'] or 'api-servers-url' not in cluster_object_model['layout']['kubernetes']:
             return False, 'kubernetes.api-servers-url is required'
 

@@ -1,4 +1,4 @@
-import { isObject, isEmpty, isNil, isArrayLike } from 'lodash';
+import { isObject, isEmpty, isNil, isArrayLike, get } from 'lodash';
 import { basename } from 'path';
 
 import { JobBasicInfo } from '../models/job-basic-info';
@@ -12,8 +12,9 @@ import {
   TENSORBOARD_CMD_END,
   TENSORBOARD_LOG_PATH,
   AUTO_GENERATE_NOTIFY,
-  PAI_STORAGE,
+  PAI_PLUGIN,
 } from './constants';
+import config from '../../config/webportal.config';
 
 const HIDE_SECRET = '******';
 
@@ -187,6 +188,11 @@ export async function populateProtocolWithDataAndTensorboard(
   protocol,
   jobData,
 ) {
+  // for k8s, we use runtime plugin and not inject code into the command
+  if (config.launcherType === 'k8s') {
+    return;
+  }
+
   // add tensorboard commands
   addTensorBoardCommandsToProtocolTaskRoles(protocol);
 
@@ -200,16 +206,6 @@ export async function populateProtocolWithDataAndTensorboard(
     protocol.name || '',
   );
   addPreCommandsToProtocolTaskRoles(protocol, preCommands);
-
-  if (protocol.extras) {
-    if (isEmpty(jobData.mountDirs.selectedConfigs)) {
-      protocol.extras[PAI_STORAGE] = [];
-    } else {
-      protocol.extras[PAI_STORAGE] = jobData.mountDirs.selectedConfigs.map(
-        config => config.name,
-      );
-    }
-  }
 }
 
 function removeTagSection(commands, beginTag, endTag) {
@@ -306,4 +302,12 @@ export function isValidUpdatedTensorBoardExtras(
     return false;
   }
   return true;
+}
+
+export function getStoragePlugin(extras) {
+  const plugins = get(extras, [PAI_PLUGIN], []);
+  if (isEmpty(plugins)) {
+    return;
+  }
+  return plugins.find(plugin => plugin.plugin === 'teamwise_storage');
 }

@@ -17,4 +17,4 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-bash -Eeuxo pipefail ${WORKSPACE}/tests/jenkins/test_rest_server.sh $1
+bash -Eeuxo pipefail ${WORKSPACE}/tests/jenkins/test_rest_server.sh $1 $2

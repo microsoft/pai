@@ -26,25 +26,19 @@ sudo docker rm $(sudo docker ps -aq) || true
 # prune docker system
 sudo docker system prune -f
 
-# clean tmp directories
-[ $(ls /pathHadoop | wc -l) -gt 2 ] && rm /pathHadoop/*
-mkdir -p /pathHadoop
-rm -rf /mnt/pathConfiguration
-mkdir -p /mnt/pathConfiguration
-
 # change permissions
-sudo chown ${ACCOUNT_USR}:${ACCOUNT_USR} -R /pathHadoop/
 sudo chown ${ACCOUNT_USR}:${ACCOUNT_USR} -R ${WORKSPACE}
 sudo chown ${ACCOUNT_USR}:${ACCOUNT_USR} -R ${JENKINS_HOME}
 
 # clean remote nodes
-for host in $(seq -s " " -f "10.0.1.%g" 5 8); do
+for host in $(seq -s " " -f "10.0.1.%g" 5 8) $(seq -s " " -f "10.0.3.%g" 4 6); do
   echo "clean node ${host}:"
   ssh ${ACCOUNT_USR}@${host} -o StrictHostKeyChecking=no -i /home/${ACCOUNT_USR}/.ssh/id_rsa \
-  "sudo rm -rf /datastorage || true; \
+  'sudo rm -rf /datastorage || true; \
+   sudo rm -rf /mnt/datastorage || true; \
    sudo service stop kubelet || true; \
    sudo docker stop $(sudo docker ps -q) || true; \
-   sudo docker system prune -af || true"
+   sudo docker system prune -af || true'
 done
 
 # start registry
@@ -52,7 +46,7 @@ ssh ${ACCOUNT_USR}@$(echo ${REGISTRY_URI} | cut -d: -f1) -o StrictHostKeyCheckin
   sudo docker run -d \
   --name registry2 \
   --restart unless-stopped \
-  -p 5000:5000 \
+  -p $(echo ${REGISTRY_URI} | cut -d: -f2):5000 \
   -e REGISTRY_HTTP_ADDR=0.0.0.0:5000 \
   -v /var/lib/docker/registry/data:/var/lib/registry \
   registry:2 || true

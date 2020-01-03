@@ -18,6 +18,7 @@
 
 // module dependencies
 const Joi = require('joi');
+const launcherConfig = require('@pai/config/launcher');
 
 // get config from environment variables
 let yarnConfig = {
@@ -53,11 +54,12 @@ const yarnConfigSchema = Joi.object().keys({
     .required(),
 }).required();
 
-const {error, value} = Joi.validate(yarnConfig, yarnConfigSchema);
-if (error) {
-  throw new Error(`yarn config error\n${error}`);
+if (launcherConfig.type === 'yarn') {
+  const {error, value} = Joi.validate(yarnConfig, yarnConfigSchema);
+  if (error) {
+    throw new Error(`yarn config error\n${error}`);
+  }
+  yarnConfig = value;
 }
-yarnConfig = value;
-
 
 module.exports = yarnConfig;
