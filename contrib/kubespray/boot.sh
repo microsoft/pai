@@ -76,7 +76,7 @@ git checkout yuye/quick-start-script
 
 cd ${HOME}/pai-deploy/pai/contrib/kubespray
 mkdir ${HOME}/pai-deploy/cluster-cfg
-python3 generator.py -m ${MASTER_LIST} -w ${WORKER_LIST} -c ${CLUSTER_CONFIG} -o ${HOME}/pai-deploy/cluster-cfg
+python3 quick-start/generator.py -m ${MASTER_LIST} -w ${WORKER_LIST} -c ${CLUSTER_CONFIG} -o ${HOME}/pai-deploy/cluster-cfg
 cp openpai.yml ${HOME}/pai-deploy/cluster-cfg
 cp openpai.yml ${HOME}/pai-deploy/kubespray/inventory/pai/
 cp ${HOME}/pai-deploy/cluster-cfg/hosts.yml ${HOME}/pai-deploy/kubespray/inventory/pai/
