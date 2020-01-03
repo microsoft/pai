@@ -89,7 +89,7 @@ rm -rf ${HOME}/.ssh/known_hosts
 ssh-keygen -t rsa -f ~/.ssh/id_rsa -P ""
 
 LOCAL_USER=`whoami`
-REMOTE_USER=`cat config.yml | grep user | tr -d "[:space:]" | cut -d ':' -f 2`
+REMOTE_USER=`cat ${CLUSTER_CONFIG} | grep user | tr -d "[:space:]" | cut -d ':' -f 2`
 
 cp ${HOME}/pai-deploy/pai/contrib/kubespray/quick-start/set-passwordless-ssh.yml.template ${HOME}/pai-deploy/pai/contrib/kubespray/quick-start/set-passwordless-ssh.yml
 sed  -i "s/%REMOTE_USER%/${REMOTE_USER}/g" ${HOME}/pai-deploy/pai/contrib/kubespray/quick-start/set-passwordless-ssh.yml
