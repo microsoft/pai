@@ -83,6 +83,9 @@ cp openpai.yml ${HOME}/pai-deploy/kubespray/inventory/pai/
 cp ${HOME}/pai-deploy/cluster-cfg/hosts.yml ${HOME}/pai-deploy/kubespray/inventory/pai/
 
 echo "Generate SSH Key"
+
+rm -rf ${HOME}/.ssh/known_hosts
+
 ssh-keygen -t rsa -f ~/.ssh/id_rsa -P ""
 
 LOCAL_USER=`whoami`
@@ -93,6 +96,10 @@ sed  -i "s/%REMOTE_USER%/${REMOTE_USER}/g" ${HOME}/pai-deploy/pai/contrib/kubesp
 sed  -i "s/%LOCAL_USER%/${LOCAL_USER}/g" ${HOME}/pai-deploy/pai/contrib/kubespray/quick-start/set-passwordless-ssh.yml
 
 ansible-playbook -i ${HOME}/pai-deploy/cluster-cfg/hosts.yml ${HOME}/pai-deploy/pai/contrib/kubespray/quick-start/set-passwordless-ssh.yml
+
+echo "Ping Test"
+
+ansible all -i host.yml -m ping || exit $?
 
 exit 0
 
