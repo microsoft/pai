@@ -42,9 +42,9 @@ machine-sku:
 
 machine-list:
 {%- for vm in env["master"] %}
-    - hostname: vm["hostname"]
-      nodename: vm["hostname"]
-      hostip: vm["ip"]
+    - hostname: {{ vm["hostname"] }}
+      nodename: {{ vm["hostname"] }}
+      hostip: {{ vm["ip"] }}
       machine-type: GENERIC-MASTER
 {%- if vm["hostname"] == env['head_node']["hostname"] %}
       dashboard: "true"
@@ -52,9 +52,9 @@ machine-list:
 {%- endif %}
 {%- endfor %}
 {%- for vm in env["worker"] %}
-    - hostname: vm["hostname"]
-      nodename: vm["hostname"]
-      hostip: vm["ip"]
+    - hostname: {{ vm["hostname"] }}
+      nodename: {{ vm["hostname"] }}
+      hostip: {{ vm["ip"] }}
       machine-type: GENERIC-WORKER
       pai-worker: "true"
 {%- endfor %}

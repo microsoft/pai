@@ -201,16 +201,6 @@ hivedscheduler:
 #   port: 9091
 #   # How frequently to scrape targets
 #   scrape_interval: 30
-#
-#   # if you want to use key file to login nodes
-#   {% if 'ssh-keyfile-path' in env -%}
-#   ssh-keyfile-path: {{ env['ssh-keyfile-path'] }}
-#   {% if 'ssh-secret-name' in env -%}
-#   ssh-secret-name: {{ env['ssh-secret-name'] }}
-#   {% else -%}
-#   ssh-secret-name: ssh-key-secret
-#   {% endif %}
-#   {% endif %}
 
 
 # uncomment following section if you want to customize the threshold of cleaner
