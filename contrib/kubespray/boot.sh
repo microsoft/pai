@@ -41,7 +41,7 @@ then
 fi
 
 echo "Create working folder in ${HOME}/pai-deploy"
-mkdir -p ~/pai-deploy/
+mkdir -p ${HOME}/pai-deploy/
 cd ${HOME}/pai-deploy
 
 echo "Clone kubespray source code from github"
@@ -49,6 +49,10 @@ git clone https://github.com/kubernetes-sigs/kubespray.git
 
 echo "Checkout to the Release Branch"
 git checkout release-2.11
+
+echo "Copy inventory folder, and save it "
+cp -rfp ${HOME}/pai-deploy/kubespray/inventory/sample ${HOME}/pai-deploy/kubespray/inventory/pai
+
 
 echo "Install necessray packages"
 
@@ -73,6 +77,8 @@ cd ${HOME}/pai-deploy/pai/contrib/kubespray
 mkdir ${HOME}/pai-deploy/cluster-cfg
 python3 generator.py -m ${MASTER_LIST} -w ${WORKER_LIST} -c ${CLUSTER_CONFIG} -o ${HOME}/pai-deploy/cluster-cfg
 cp openpai.yml ${HOME}/pai-deploy/cluster-cfg
+cp openpai.yml ${HOME}/pai-deploy/kubespray/inventory/pai/
+cp ${HOME}/pai-deploy/cluster-cfg/hosts.yml ${HOME}/pai-deploy/kubespray/inventory/pai/
 
 echo "Generate SSH Key"
 ssh-keygen -t rsa -f ~/.ssh/id_rsa -P ""
@@ -101,4 +107,4 @@ echo "Setup cluster environment is done"
 
 echo "setup k8s cluster"
 cd ${HOME}/pai-deploy/kubespray
-ansible-playbook -i ${HOME}/pai-deploy/cluster-cfg/hosts.yml cluster.yml --become --become-user=root -e "@${HOME}/pai-deploy/cluster-cfg/openpai.yml"
+ansible-playbook -i inventory/pai/hosts.yml cluster.yml --become --become-user=root -e "@inventory/pai/openpai.yml"
