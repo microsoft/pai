@@ -82,8 +82,6 @@ cp openpai.yml ${HOME}/pai-deploy/cluster-cfg
 cp openpai.yml ${HOME}/pai-deploy/kubespray/inventory/pai/
 cp ${HOME}/pai-deploy/cluster-cfg/hosts.yml ${HOME}/pai-deploy/kubespray/inventory/pai/
 
-exit 0
-
 echo "Generate SSH Key"
 ssh-keygen -t rsa -f ~/.ssh/id_rsa -P ""
 
@@ -95,6 +93,8 @@ sed  -i "s/%REMOTE_USER%/${REMOTE_USER}/g" ${HOME}/pai-deploy/pai/contrib/kubesp
 sed  -i "s/%LOCAL_USER%/${LOCAL_USER}/g" ${HOME}/pai-deploy/pai/contrib/kubespray/quick-start/set-passwordless-ssh.yml
 
 ansible-playbook -i ${HOME}/pai-deploy/cluster-cfg/hosts.yml ${HOME}/pai-deploy/pai/contrib/kubespray/quick-start/set-passwordless-ssh.yml
+
+exit 0
 
 echo "Install nvidia drivers to the machine"
 ansible-playbook -i ${HOME}/pai-deploy/cluster-cfg/gpu-hosts.yml nvidia-drivers.yml --become --become-user=root
