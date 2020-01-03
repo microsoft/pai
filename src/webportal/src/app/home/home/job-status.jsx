@@ -20,17 +20,17 @@ import { isEmpty } from 'lodash';
 import PropTypes from 'prop-types';
 import querystring from 'querystring';
 import {
-  Icon,
   Stack,
   FontClassNames,
   ColorClassNames,
   DefaultButton,
-  getTheme,
   FontWeights,
+  getTheme,
 } from 'office-ui-fabric-react';
 import React from 'react';
 import styled from 'styled-components';
 
+import StatusBadge from '../../components/status-badge';
 import Card from '../../components/card';
 import { getHumanizedJobStateString } from '../../components/util/job';
 
@@ -47,22 +47,8 @@ const StatusRow = ({ cellClassName, icon, name, count, link }) => {
   return (
     <TableRow>
       <td className={cellClassName}>
-        <div className={c(t.flex, t.itemsCenter, t.justifyStart)}>
-          <div>
-            <Icon
-              className={ColorClassNames.neutralSecondary}
-              iconName={icon}
-            />
-          </div>
-          <div
-            className={c(
-              ColorClassNames.neutralSecondary,
-              FontClassNames.mediumPlus,
-            )}
-            style={{ marginLeft: spacing.m }}
-          >
-            {name}
-          </div>
+        <div className={c(t.w4)}>
+          <StatusBadge status={name} />
         </div>
       </td>
       <td className={cellClassName}>

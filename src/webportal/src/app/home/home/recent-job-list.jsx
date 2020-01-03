@@ -31,7 +31,6 @@ import {
 import PropTypes from 'prop-types';
 import React from 'react';
 
-import Card from '../../components/card';
 import {
   getJobDuration,
   getDurationString,
@@ -39,7 +38,6 @@ import {
   getHumanizedJobStateString,
   getJobModifiedTime,
 } from '../../components/util/job';
-import { Header } from './header';
 
 import t from '../../components/tachyons.scss';
 import StatusBadge from '../../components/status-badge';
@@ -47,7 +45,7 @@ import StatusBadge from '../../components/status-badge';
 const DummyContent = () => {
   const { spacing } = getTheme();
   return (
-    <div className={c(t.h100, t.flex, t.itemsCenter, t.justifyCenter)}>
+    <div className={c(t.mv3, t.h100, t.flex, t.itemsCenter, t.justifyCenter)}>
       <div
         className={c(t.overflowAuto, t.w100)}
         style={{ maxHeight: '100%', padding: spacing.m }}
@@ -152,7 +150,7 @@ const Content = ({ jobs }) => {
       .sort((a, b) => getJobModifiedTime(b) - getJobModifiedTime(a))
       .slice(0, 10);
     return (
-      <div className={c(t.h100, t.overflowYAuto)}>
+      <div className={c(t.mv3, t.ph5, t.h100, t.overflowYAuto)}>
         <DetailsList
           columns={jobListColumns}
           disableSelectionZone
@@ -166,23 +164,7 @@ const Content = ({ jobs }) => {
 };
 
 const RecentJobList = ({ style, jobs }) => {
-  return (
-    <Card className={c(t.h100, t.ph5)} style={style}>
-      <Stack styles={{ root: [t.h100] }} gap='l1'>
-        <Stack.Item>
-          <Header
-            headerName='My recent jobs'
-            linkHref={`/job-list.html?user=${cookies.get('user')}`}
-            linkName='More'
-            showLink={isEmpty(jobs)}
-          />
-        </Stack.Item>
-        <Stack.Item styles={{ root: [{ minHeight: 0 }] }} grow>
-          <Content jobs={jobs} />
-        </Stack.Item>
-      </Stack>
-    </Card>
-  );
+  return <Content jobs={jobs} />;
 };
 
 RecentJobList.propTypes = {
