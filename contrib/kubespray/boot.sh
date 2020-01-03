@@ -65,6 +65,9 @@ sudo python3 get-pip.py
 echo "Install paramiko"
 sudo pip3 install paramiko
 
+echo "Install sshpass"
+sudo apt-get -y install sshpass
+
 echo "Install kubespray's requirements and ansible is included"
 cd ${HOME}/pai-deploy/kubespray
 sudo pip3 install -r requirements.txt
