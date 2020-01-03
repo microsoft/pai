@@ -102,7 +102,7 @@ ansible-playbook -i ${HOME}/pai-deploy/cluster-cfg/hosts.yml ${HOME}/pai-deploy/
 
 echo "Ping Test"
 
-ansible all -i host.yml -m ping || exit $?
+ansible all -i ${HOME}/pai-deploy/cluster-cfg/hosts.yml -m ping || exit $?
 
 exit 0
 
