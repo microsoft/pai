@@ -21,9 +21,9 @@ import { AzureBlobRootItem } from './azureBlobTreeItem';
  */
 export class MountPointTreeNode extends StorageTreeNode {
     public contextValue: string = CONTEXT_STORAGE_MOUNTPOINT_ITEM;
+    public data: StorageTreeNode;
 
     private cluster: IPAICluster;
-    private data: StorageTreeNode;
 
     constructor(
         info: IMountInfo,
@@ -40,7 +40,11 @@ export class MountPointTreeNode extends StorageTreeNode {
     }
 
     public async refresh(): Promise<void> {
-        this.children = await this.data.getChildren();
+        return this.data.refresh();
+    }
+
+    public async getChildren(): Promise<StorageTreeNode[]> {
+        return this.data.getChildren();
     }
 
     public async loadMore(): Promise<void> {

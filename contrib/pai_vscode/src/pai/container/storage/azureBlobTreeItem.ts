@@ -21,18 +21,17 @@ import {
     COMMAND_OPEN_AZURE_BLOB,
     COMMAND_TREEVIEW_DOUBLECLICK,
     CONTEXT_STORAGE_AZURE_BLOB,
-    CONTEXT_STORAGE_FOLDER,
     CONTEXT_STORAGE_FILE,
+    CONTEXT_STORAGE_FOLDER,
+    CONTEXT_STORAGE_LOAD_MORE,
     CONTEXT_STORAGE_PERSONAL_ITEM,
     ICON_FILE,
     ICON_FOLDER,
-    ICON_STORAGE,
-    CONTEXT_STORAGE_LOAD_MORE
+    ICON_STORAGE
 } from '../../../common/constants';
 import { __ } from '../../../common/i18n';
 import { Util } from '../../../common/util';
-import { StorageTreeNode, StorageLoadMoreTreeNode } from '../common/treeNode';
-import { load } from 'js-yaml';
+import { StorageLoadMoreTreeNode, StorageTreeNode } from '../common/treeNode';
 
 export type BlobIter = PagedAsyncIterableIterator<({
         kind: 'prefix';
@@ -68,22 +67,6 @@ function isFolder(blob: BlobValue, metadata: BlobMetadata): boolean {
         return true;
     }
     return false;
-}
-
-function distinctChildren(children: Map<string, AzureBlobTreeItem>): StorageTreeNode[] {
-    const blobs: StorageTreeNode[] = [];
-    for (const [name, item] of children) {
-        if (item.blob.kind === 'blob' &&
-            item.blob.metadata &&
-            item.blob.metadata.hdi_isfolder &&
-            item.blob.metadata.hdi_isfolder === 'true') {
-            if (children.has(`${name}/`)) {
-                continue;
-            }
-        }
-        blobs.push(item);
-    }
-    return blobs;
 }
 
 /**

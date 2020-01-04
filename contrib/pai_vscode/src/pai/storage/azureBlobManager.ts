@@ -20,9 +20,11 @@ import {
     OCTICON_CLOUDUPLOAD
 } from '../../common/constants';
 import { __ } from '../../common/i18n';
-import { Singleton } from '../../common/singleton';
+import { Singleton, getSingleton } from '../../common/singleton';
 import { Util } from '../../common/util';
 import { AzureBlobRootItem, AzureBlobTreeItem, BlobEntity, BlobIter, BlobValue } from '../container/storage/azureBlobTreeItem';
+import { MountPointTreeNode } from '../container/storage/mountPointTreeItem';
+import { StorageTreeDataProvider } from '../container/storage/storageTreeView';
 
 /**
  * Azure blob management module
@@ -57,7 +59,19 @@ export class AzureBlobManager extends Singleton {
                     if (!files) {
                         return;
                     }
-                    return this.uploadFiles(files, target);
+                    await this.uploadFiles(files, target);
+                    const treeView: StorageTreeDataProvider = await getSingleton(StorageTreeDataProvider);
+                    await treeView.refresh(target.parent);
+                }
+            ),
+            commands.registerCommand(
+                COMMAND_AZURE_BLOB_DELETE,
+                async (target: AzureBlobTreeItem) => {
+                    await AzureBlobManager.delete(target);
+                    if (target.parent) {
+                        const treeView: StorageTreeDataProvider = await getSingleton(StorageTreeDataProvider);
+                        await treeView.refresh(target.parent);
+                    }
                 }
             ),
             commands.registerCommand(
@@ -71,13 +85,7 @@ export class AzureBlobManager extends Singleton {
                     if (!folders) {
                         return;
                     }
-                    return this.uploadFolders(folders, target);
-                }
-            ),
-            commands.registerCommand(
-                COMMAND_AZURE_BLOB_DELETE,
-                async (target: AzureBlobTreeItem) => {
-                    return this.delete(target);
+                    await this.uploadFolders(folders, target);
                 }
             ),
             commands.registerCommand(
@@ -98,6 +106,40 @@ export class AzureBlobManager extends Singleton {
                 // todo: need to register onDidSaveTextDocument to auto upload.
             )
         );
+    }
+
+    public static async delete(target: AzureBlobTreeItem): Promise<void> {
+        try {
+            if (target.blob.kind === 'blob') {
+                await target.client.deleteBlob(target.blob.name);
+            } else {
+                await this.deleteBlobsByHierarchy(target.client, target.blob.name);
+            }
+            Util.info('storage.delete.success');
+        } catch (err) {
+            Util.err('storage.delete.error', [err]);
+        }
+
+        await (<AzureBlobTreeItem> target.parent).refresh();
+    }
+
+    public static async deleteBlobsByHierarchy(client: ContainerClient, prefix: string): Promise<void> {
+        const iter: BlobIter = client.listBlobsByHierarchy('/', {
+            prefix: <string> prefix
+        });
+        let blobItem: BlobEntity = await iter.next();
+        while (!blobItem.done) {
+            const blob: BlobValue = blobItem.value;
+            if (blob.kind === 'blob') {
+                await client.deleteBlob(blob.name);
+            } else {
+                try {
+                    await client.deleteBlob(blob.name.slice(0, -1));
+                } catch { }
+                await this.deleteBlobsByHierarchy(client, blob.name);
+            }
+            blobItem = await iter.next();
+        }
     }
 
     public async showEditor(item: AzureBlobTreeItem): Promise<void> {
@@ -162,7 +204,10 @@ export class AzureBlobManager extends Singleton {
         }
     }
 
-    public async uploadFiles(files: Uri[], target: AzureBlobTreeItem | AzureBlobRootItem): Promise<void> {
+    public async uploadFiles(files: Uri[], target: AzureBlobTreeItem | AzureBlobRootItem | MountPointTreeNode): Promise<void> {
+        if (target instanceof MountPointTreeNode) {
+            target = <AzureBlobRootItem>target.data;
+        }
         const statusBarItem: StatusBarItem =
             window.createStatusBarItem(StatusBarAlignment.Right, Number.MAX_VALUE);
         statusBarItem.text =
@@ -171,8 +216,7 @@ export class AzureBlobManager extends Singleton {
         try {
             for (const [i, file] of files.entries()) {
                 const name: string = path.basename(file.fsPath);
-                const blobName: string =
-                    target instanceof AzureBlobRootItem ? name : `${target.label}${name}`;
+                const blobName: string = `${target.rootPath}${name}`;
                 statusBarItem.text =
                     `${OCTICON_CLOUDUPLOAD} ${__('storage.upload.status', [i, files.length])}`;
                 const client: BlockBlobClient = target.client.getBlockBlobClient(blobName);
@@ -183,45 +227,9 @@ export class AzureBlobManager extends Singleton {
             Util.err('storage.upload.error', [err]);
         }
         statusBarItem.dispose();
-
-        await (<AzureBlobTreeItem> target).refresh();
     }
 
     public async uploadFolders(folders: Uri[], target: AzureBlobTreeItem | AzureBlobRootItem): Promise<void> {
         console.log('not implemented.');
-    }
-
-    public async delete(target: AzureBlobTreeItem): Promise<void> {
-        try {
-            if (target.blob.kind === 'blob') {
-                await target.client.deleteBlob(target.blob.name);
-            } else {
-                await this.deleteBlobsByHierarchy(target.client, target.blob.name);
-            }
-            Util.info('storage.delete.success');
-        } catch (err) {
-            Util.err('storage.delete.error', [err]);
-        }
-
-        await (<AzureBlobTreeItem> target.parent).refresh();
-    }
-
-    public async deleteBlobsByHierarchy(client: ContainerClient, prefix: string): Promise<void> {
-        const iter: BlobIter = client.listBlobsByHierarchy('/', {
-            prefix: <string> prefix
-        });
-        let blobItem: BlobEntity = await iter.next();
-        while (!blobItem.done) {
-            const blob: BlobValue = blobItem.value;
-            if (blob.kind === 'blob') {
-                await client.deleteBlob(blob.name);
-            } else {
-                try {
-                    await client.deleteBlob(blob.name.slice(0, -1));
-                } catch { }
-                await this.deleteBlobsByHierarchy(client, blob.name);
-            }
-            blobItem = await iter.next();
-        }
     }
 }

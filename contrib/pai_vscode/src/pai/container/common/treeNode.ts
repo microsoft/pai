@@ -53,7 +53,9 @@ export class StorageTreeNode extends TreeNode {
     /**
      * Refresh.
      */
-    public async refresh(): Promise<void> { }
+    public async refresh(): Promise<void> {
+        console.log('kitty');
+    }
 
     /**
      * Load more items.

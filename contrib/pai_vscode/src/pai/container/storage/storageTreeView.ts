@@ -121,9 +121,9 @@ export class StorageTreeDataProvider extends Singleton implements TreeDataProvid
         return element.parent;
     }
 
-    public async refresh(element?: TreeNode): Promise<void> {
+    public async refresh(element?: StorageTreeNode): Promise<void> {
         if (element) {
-            await (<StorageTreeNode>element).refresh();
+            await element.refresh();
             this.onDidChangeTreeDataEmitter.fire(element);
         } else {
             this.onDidChangeTreeDataEmitter.fire();
