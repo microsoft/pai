@@ -4,13 +4,13 @@
  * @author Microsoft
  */
 
-import * as fs from 'fs';
+import * as fs from 'fs-extra';
 import { IStorageServer } from 'openpai-js-sdk';
 import * as path from 'path';
 import { TreeItemCollapsibleState, Uri } from 'vscode';
 
 import {
-    COMMAND_OPEN_NFS,
+    COMMAND_STORAGE_OPEN_FILE,
     COMMAND_TREEVIEW_DOUBLECLICK,
     CONTEXT_STORAGE_FILE,
     CONTEXT_STORAGE_FOLDER,
@@ -21,6 +21,7 @@ import {
 
 import { __ } from '../../../common/i18n';
 import { Util } from '../../../common/util';
+import { NFSManager } from '../../storage/nfsManager';
 import { StorageTreeNode } from '../common/treeNode';
 
 /**
@@ -28,14 +29,18 @@ import { StorageTreeNode } from '../common/treeNode';
  */
 export class NFSTreeNode extends StorageTreeNode {
     public rootPath: string;
+    public name: string;
     public isFolder: boolean;
 
     constructor(name: string, rootPath: string, parent: StorageTreeNode) {
-        super(name, parent, TreeItemCollapsibleState.Collapsed);
         const stat: fs.Stats = fs.statSync(rootPath);
-        this.isFolder = stat.isDirectory();
+        const isFolder: boolean = stat.isDirectory();
+        super(name, parent, isFolder ?
+            TreeItemCollapsibleState.Collapsed : TreeItemCollapsibleState.None);
+        this.isFolder = isFolder;
         this.contextValue = this.isFolder ? CONTEXT_STORAGE_FOLDER : CONTEXT_STORAGE_FILE;
         this.rootPath = rootPath;
+        this.name = name;
 
         if (this.isFolder) {
             this.iconPath = Uri.file(Util.resolvePath(ICON_FOLDER));
@@ -44,7 +49,7 @@ export class NFSTreeNode extends StorageTreeNode {
             this.command = {
                 title: __('treeview.node.storage.openfile'),
                 command: COMMAND_TREEVIEW_DOUBLECLICK,
-                arguments: [COMMAND_OPEN_NFS, this]
+                arguments: [COMMAND_STORAGE_OPEN_FILE, this]
             };
         }
     }
@@ -65,6 +70,30 @@ export class NFSTreeNode extends StorageTreeNode {
             this.children.push(child);
         }
     }
+
+    public async download(): Promise<void> {
+        await NFSManager.downloadFile(this);
+    }
+
+    public async uploadFile(): Promise<void> {
+        await NFSManager.uploadFiles(this);
+    }
+
+    public async delete(): Promise<void> {
+        await NFSManager.delete(this);
+    }
+
+    public async openFile(): Promise<void> {
+        await NFSManager.showEditor(this);
+    }
+
+    public async uploadFolder(): Promise<void> {
+        await NFSManager.uploadFolders(this);
+    }
+
+    public async createFolder(): Promise<void> {
+        await NFSManager.createFolder(this);
+    }
 }
 
 /**
@@ -72,27 +101,42 @@ export class NFSTreeNode extends StorageTreeNode {
  */
 export class NFSRootNode extends StorageTreeNode {
     public storageServer: IStorageServer;
+    public mountPath: string;
     public rootPath: string;
 
-    constructor(storage: IStorageServer, rootPath: string, parent: StorageTreeNode) {
+    constructor(storage: IStorageServer, mountPath: string, parent: StorageTreeNode) {
         super(storage.spn, parent, TreeItemCollapsibleState.Collapsed);
         this.contextValue = CONTEXT_STORAGE_NFS;
         this.storageServer = storage;
         this.description = 'NFS';
-        this.rootPath = rootPath;
+        this.mountPath = mountPath;
+        const rootUrl: string =
+            `//${this.storageServer.data.address}${this.storageServer.data.rootPath}`;
+        this.rootPath = path.join(rootUrl, this.mountPath);
     }
 
     public async refresh(): Promise<void> {
         try {
-            const rootUrl: string = `//${this.storageServer.data.address}${this.storageServer.data.rootPath}`;
-            const url: string = path.join(rootUrl, this.rootPath);
-            const list: string[] = fs.readdirSync(url);
-            this.children = list.map(name => new NFSTreeNode(name, path.join(url, name), this));
+            const list: string[] = fs.readdirSync(this.rootPath);
+            this.children = list.map(name =>
+                new NFSTreeNode(name, path.join(this.rootPath, name), this));
         } catch (err) {
             const child: StorageTreeNode =
                 new StorageTreeNode(__('treeview.node.storage.load-error'), this.parent);
             child.description = err.message;
             this.children.push(child);
         }
+    }
+
+    public async uploadFile(): Promise<void> {
+        await NFSManager.uploadFiles(this);
+    }
+
+    public async uploadFolder(): Promise<void> {
+        await NFSManager.uploadFolders(this);
+    }
+
+    public async createFolder(): Promise<void> {
+        await NFSManager.createFolder(this);
     }
 }

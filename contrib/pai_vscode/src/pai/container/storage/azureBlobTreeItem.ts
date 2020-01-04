@@ -27,11 +27,13 @@ import {
     CONTEXT_STORAGE_PERSONAL_ITEM,
     ICON_FILE,
     ICON_FOLDER,
-    ICON_STORAGE
+    ICON_STORAGE,
+    COMMAND_STORAGE_OPEN_FILE
 } from '../../../common/constants';
 import { __ } from '../../../common/i18n';
 import { Util } from '../../../common/util';
 import { StorageLoadMoreTreeNode, StorageTreeNode } from '../common/treeNode';
+import { AzureBlobManager } from '../../storage/azureBlobManager';
 
 export type BlobIter = PagedAsyncIterableIterator<({
         kind: 'prefix';
@@ -92,7 +94,7 @@ export class AzureBlobTreeItem extends StorageTreeNode {
         super(
             name ? name : path.dirname(blob.name),
             parent,
-            blob.kind === 'prefix' ? TreeItemCollapsibleState.Collapsed : TreeItemCollapsibleState.None
+            folder ? TreeItemCollapsibleState.Collapsed : TreeItemCollapsibleState.None
         );
 
         this.contextValue = folder ?
@@ -110,7 +112,7 @@ export class AzureBlobTreeItem extends StorageTreeNode {
             this.command = {
                 title: __('treeview.node.storage.openfile'),
                 command: COMMAND_TREEVIEW_DOUBLECLICK,
-                arguments: [COMMAND_OPEN_AZURE_BLOB, this]
+                arguments: [COMMAND_STORAGE_OPEN_FILE, this]
             };
         }
     }
@@ -177,6 +179,30 @@ export class AzureBlobTreeItem extends StorageTreeNode {
             child.description = err.message;
             this.children.push(child);
         }
+    }
+
+    public async download(): Promise<void> {
+        await AzureBlobManager.downloadFile(this);
+    }
+
+    public async uploadFile(): Promise<void> {
+        await AzureBlobManager.uploadFiles(this);
+    }
+
+    public async delete(): Promise<void> {
+        await AzureBlobManager.delete(this);
+    }
+
+    public async openFile(): Promise<void> {
+        await AzureBlobManager.showEditor(this);
+    }
+
+    public async uploadFolder(): Promise<void> {
+        await AzureBlobManager.uploadFolders(this);
+    }
+
+    public async createFolder(): Promise<void> {
+        await AzureBlobManager.createFolder(this);
     }
 }
 
@@ -264,6 +290,18 @@ export class AzureBlobRootItem extends StorageTreeNode {
             child.description = err.message;
             this.children.push(child);
         }
+    }
+
+    public async uploadFile(): Promise<void> {
+        await AzureBlobManager.uploadFiles(this);
+    }
+
+    public async uploadFolder(): Promise<void> {
+        await AzureBlobManager.uploadFolders(this);
+    }
+
+    public async createFolder(): Promise<void> {
+        await AzureBlobManager.createFolder(this);
     }
 }
 

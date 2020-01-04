@@ -7,7 +7,12 @@
 import {
     TreeItem, TreeItemCollapsibleState
 } from 'vscode';
-import { CONTEXT_STORAGE_LOAD_MORE, COMMAND_TREEVIEW_LOAD_MORE, COMMAND_TREEVIEW_DOUBLECLICK } from '../../../common/constants';
+
+import {
+    COMMAND_TREEVIEW_DOUBLECLICK,
+    COMMAND_TREEVIEW_LOAD_MORE,
+    CONTEXT_STORAGE_LOAD_MORE
+} from '../../../common/constants';
 import { __ } from '../../../common/i18n';
 
 /**
@@ -33,7 +38,7 @@ export class StorageTreeNode extends TreeNode {
     }
 
     /**
-     * Get children.
+     * Get children
      */
     public async getChildren(): Promise<StorageTreeNode[]> {
         if (!this.initialized) {
@@ -44,23 +49,67 @@ export class StorageTreeNode extends TreeNode {
     }
 
     /**
-     * Get parent.
+     * Get parent
      */
     public getParent(): StorageTreeNode | undefined {
         return this.parent;
     }
 
     /**
-     * Refresh.
+     * Refresh
      */
     public async refresh(): Promise<void> {
-        console.log('kitty');
+        console.log('Refresh not implemented.');
     }
 
     /**
-     * Load more items.
+     * Load more items
      */
-    public async loadMore(): Promise<void> { }
+    public async loadMore(): Promise<void> {
+        console.log('Load more not implemented.');
+    }
+
+    /**
+     * Create folder
+     */
+    public async createFolder(): Promise<void> {
+        console.log('Create folder not implemented.');
+    }
+
+    /**
+     * Upload file
+     */
+    public async uploadFile(): Promise<void> {
+        console.log('Upload file not implemented.');
+    }
+
+    /**
+     * Upload folder
+     */
+    public async uploadFolder(): Promise<void> {
+        console.log('Upload folder not implemented.');
+    }
+
+    /**
+     * Download
+     */
+    public async download(): Promise<void> {
+        console.log('Download not implemented.');
+    }
+
+    /**
+     * Delete
+     */
+    public async delete(): Promise<void> {
+        console.log('Delete not implemented.');
+    }
+
+    /**
+     * Open file
+     */
+    public async openFile(): Promise<void> {
+        console.log('Open file not implemented.');
+    }
 }
 
 /**

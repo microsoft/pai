@@ -4,30 +4,168 @@
  * @author Microsoft
  */
 
-import { injectable } from 'inversify';
-import { IStorageServer } from 'openpai-js-sdk';
-import { commands, env } from 'vscode';
+import * as fs from 'fs-extra';
+import * as path from 'path';
+import {
+    window, workspace, StatusBarAlignment, StatusBarItem, TextDocument, Uri
+} from 'vscode';
 
 import {
-    COMMAND_OPEN_NFS
+    OCTICON_CLOUDDOWNLOAD, OCTICON_CLOUDUPLOAD
 } from '../../common/constants';
 import { __ } from '../../common/i18n';
-import { Singleton } from '../../common/singleton';
+import { Util } from '../../common/util';
+import { MountPointTreeNode } from '../container/storage/mountPointTreeItem';
+import { NFSRootNode, NFSTreeNode } from '../container/storage/nfsTreeItem';
 
 /**
  * NFS management module
  */
-@injectable()
-export class NFSManager extends Singleton {
-    constructor() {
-        super();
-        this.context.subscriptions.push(
-            commands.registerCommand(
-                COMMAND_OPEN_NFS,
-                async (storage: IStorageServer) => {
-                    await env.clipboard.writeText(`nfs://${storage.data.address}${storage.data.rootPath}`);
-                }
-            )
-        );
+// tslint:disable-next-line: no-unnecessary-class
+export class NFSManager {
+    private static fileMap: { [key: string]: [TextDocument, NFSTreeNode] } = {};
+
+    public static async delete(target: NFSTreeNode): Promise<void> {
+        try {
+            await fs.remove(target.rootPath);
+            Util.info('storage.delete.success');
+        } catch (err) {
+            Util.err('storage.delete.error', [err]);
+        }
+    }
+
+    public static async showEditor(target: NFSTreeNode): Promise<void> {
+        const fileName: string = target.name;
+
+        try {
+            const parsedPath: path.ParsedPath = path.posix.parse(fileName);
+            const temporaryFilePath: string = await Util.createTemporaryFile(parsedPath.base);
+            await this.downloadFile(target, Uri.file(temporaryFilePath));
+            const document: TextDocument | undefined = <TextDocument | undefined>
+                await workspace.openTextDocument(temporaryFilePath);
+            if (document) {
+                this.fileMap[temporaryFilePath] = [document, target];
+                await window.showTextDocument(document);
+            } else {
+                Util.err('storage.download.error', 'Unable to open');
+            }
+        } catch (err) {
+            Util.err('storage.download.error', [err]);
+        }
+    }
+
+    public static async downloadFile(target: NFSTreeNode, dest?: Uri): Promise<void> {
+        const uri: Uri | undefined = dest ? dest : await window.showSaveDialog({
+            saveLabel: __('storage.dialog.label.download'),
+            defaultUri: Uri.file(target.name)
+        });
+        if (uri && uri.scheme === 'file') {
+            const totalBytes: number = 1;
+
+            const statusBarItem: StatusBarItem =
+            window.createStatusBarItem(StatusBarAlignment.Right, Number.MAX_VALUE);
+            statusBarItem.text =
+                `${OCTICON_CLOUDUPLOAD} ${__('storage.download.status', [0, totalBytes])}`;
+            statusBarItem.show();
+            try {
+                await fs.copy(target.rootPath, uri.fsPath);
+                statusBarItem.text =
+                    `${OCTICON_CLOUDDOWNLOAD} ${__('storage.download.status', [1, totalBytes])}`;
+                Util.info('storage.download.success');
+            } catch (err) {
+                Util.err('storage.download.error', [err]);
+            }
+            statusBarItem.dispose();
+        }
+    }
+
+    public static async createFolder(target: NFSTreeNode | NFSRootNode | MountPointTreeNode): Promise<void> {
+        const res: string | undefined = await window.showInputBox({
+            prompt: __('container.azure.blob.mkdir.prompt')
+        });
+        if (res === undefined) {
+            Util.warn('container.azure.blob.mkdir.cancelled');
+            return;
+        }
+        if (target instanceof MountPointTreeNode) {
+            target = <NFSRootNode>target.data;
+        }
+
+        try {
+            const dirName: string = path.join(target.rootPath, res);
+            await fs.mkdirp(dirName);
+            Util.info('storage.create.folder.success');
+        } catch (err) {
+            Util.err('storage.create.folder.error', [err]);
+        }
+    }
+
+    public static async uploadFiles(target: NFSTreeNode | NFSRootNode | MountPointTreeNode): Promise<void> {
+        const files: Uri[] | undefined = await window.showOpenDialog({
+            canSelectFiles: true,
+            canSelectMany: true,
+            openLabel: __('storage.dialog.label.upload-files')
+        });
+        if (!files) {
+            return;
+        }
+
+        if (target instanceof MountPointTreeNode) {
+            target = <NFSRootNode>target.data;
+        }
+        const statusBarItem: StatusBarItem =
+            window.createStatusBarItem(StatusBarAlignment.Right, Number.MAX_VALUE);
+        statusBarItem.text =
+            `${OCTICON_CLOUDUPLOAD} ${__('storage.upload.status', [0, files.length])}`;
+        statusBarItem.show();
+        try {
+            for (const [i, file] of files.entries()) {
+                const name: string = path.basename(file.fsPath);
+                const targetPath: string = path.join((<any>target).rootPath, name);
+                statusBarItem.text =
+                    `${OCTICON_CLOUDUPLOAD} ${__('storage.upload.status', [i, files.length])}`;
+                await fs.copy(file.fsPath, targetPath);
+            }
+            Util.info('storage.upload.success');
+        } catch (err) {
+            Util.err('storage.upload.error', [err]);
+        }
+        statusBarItem.dispose();
+    }
+
+    public static async uploadFolders(
+        target: NFSTreeNode | NFSRootNode | MountPointTreeNode,
+        src?: Uri[]
+    ): Promise<void> {
+        const folders: Uri[] | undefined = src ? src : await window.showOpenDialog({
+            canSelectFolders: true,
+            canSelectMany: true,
+            openLabel: __('storage.dialog.label.upload-folders')
+        });
+        if (!folders) {
+            return;
+        }
+
+        if (target instanceof MountPointTreeNode) {
+            target = <NFSRootNode>target.data;
+        }
+        const statusBarItem: StatusBarItem =
+            window.createStatusBarItem(StatusBarAlignment.Right, Number.MAX_VALUE);
+        statusBarItem.text =
+            `${OCTICON_CLOUDUPLOAD} ${__('storage.upload.status', [0, folders.length])}`;
+        statusBarItem.show();
+        try {
+            for (const [i, folder] of folders.entries()) {
+                const name: string = path.basename(folder.fsPath);
+                const targetPath: string = path.join((<any>target).rootPath, name);
+                statusBarItem.text =
+                    `${OCTICON_CLOUDUPLOAD} ${__('storage.upload.status', [i, folders.length])}`;
+                await fs.copy(folder.fsPath, targetPath);
+            }
+            Util.info('storage.upload.success');
+        } catch (err) {
+            Util.err('storage.upload.error', [err]);
+        }
+        statusBarItem.dispose();
     }
 }

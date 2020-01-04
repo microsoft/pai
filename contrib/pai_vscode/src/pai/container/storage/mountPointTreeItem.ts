@@ -52,15 +52,25 @@ export class MountPointTreeNode extends StorageTreeNode {
         await this.data.loadMore();
     }
 
+    public async uploadFile(): Promise<void> {
+        await this.data.uploadFile();
+    }
+
+    public async uploadFolder(): Promise<void> {
+        await this.data.uploadFolder();
+    }
+
+    public async createFolder(): Promise<void> {
+        await this.data.createFolder();
+    }
+
     private initializeData(info: IMountInfo, server: IStorageServer): StorageTreeNode {
         switch (server.type) {
             case 'azureblob':
-                this.contextValue = CONTEXT_STORAGE_AZURE_BLOB;
                 return new AzureBlobRootItem(server, this.getRootPath(info, this.cluster), this);
             case 'azurefile':
                 return new StorageTreeNode('Azure File');
             case 'nfs':
-                this.contextValue = CONTEXT_STORAGE_NFS;
                 return new NFSRootNode(server, this.getRootPath(info, this.cluster), this);
             case 'samba':
                 return new StorageTreeNode('Samba');

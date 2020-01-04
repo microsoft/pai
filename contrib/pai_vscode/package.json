@@ -111,18 +111,18 @@
                 "category": "PAI"
             },
             {
-                "command": "paiext.azure-blob.upload.files",
-                "title": "%paiext.azure-blob.upload.files%",
+                "command": "paiext.storage.upload.files",
+                "title": "%paiext.storage.upload.files%",
                 "category": "PAI"
             },
             {
-                "command": "paiext.azure-blob.create.folder",
-                "title": "%paiext.azure-blob.create.folder%",
+                "command": "paiext.storage.create.folder",
+                "title": "%paiext.storage.create.folder%",
                 "category": "PAI"
             },
             {
-                "command": "paiext.azure-blob.download",
-                "title": "%paiext.azure-blob.download%",
+                "command": "paiext.storage.download",
+                "title": "%paiext.storage.download%",
                 "category": "PAI"
             },
             {
@@ -447,42 +447,47 @@
                     "group": "refresh"
                 },
                 {
-                    "command": "paiext.container.storage.refresh",
-                    "when": "view == PAIContainerStorage && viewItem && viewItem == PAIStorageAzureBlob",
-                    "group": "refresh"
-                },
-                {
                     "command": "paiext.storage.delete",
                     "when": "view == PAIContainerStorage && viewItem && viewItem == PAIStorageFile",
-                    "group": "azure@8"
+                    "group": "delete"
                 },
                 {
-                    "command": "paiext.azure-blob.upload.files",
+                    "command": "paiext.storage.upload.files",
                     "when": "view == PAIContainerStorage && viewItem && viewItem == PAIStorageFolder",
-                    "group": "azure@3"
+                    "group": "upload"
                 },
                 {
-                    "command": "paiext.azure-blob.upload.files",
-                    "when": "view == PAIContainerStorage && viewItem && viewItem == PAIStorageAzureBlob",
-                    "group": "azure@4"
+                    "command": "paiext.storage.upload.files",
+                    "when": "view == PAIContainerStorage && viewItem && viewItem == PAIStorageMountPointItem",
+                    "group": "upload"
                 },
                 {
-                    "command": "paiext.azure-blob.create.folder",
+                    "command": "paiext.storage.upload.files",
+                    "when": "view == PAIContainerStorage && viewItem && viewItem == PAIStorageNFS",
+                    "group": "upload"
+                },
+                {
+                    "command": "paiext.storage.create.folder",
                     "when": "view == PAIContainerStorage && viewItem && viewItem == PAIStorageFolder",
-                    "group": "azure@1"
+                    "group": "mkdir"
                 },
                 {
-                    "command": "paiext.azure-blob.create.folder",
-                    "when": "view == PAIContainerStorage && viewItem && viewItem == PAIStorageAzureBlob",
-                    "group": "azure@2"
+                    "command": "paiext.storage.create.folder",
+                    "when": "view == PAIContainerStorage && viewItem && viewItem == PAIStorageMountPointItem",
+                    "group": "mkdir"
                 },
                 {
-                    "command": "paiext.azure-blob.create.folder",
+                    "command": "paiext.storage.create.folder",
+                    "when": "view == PAIContainerStorage && viewItem && viewItem == PAIStorageNFS",
+                    "group": "mkdir"
+                },
+                {
+                    "command": "paiext.storage.create.folder",
                     "when": "view == PAIContainerStorage && viewItem && viewItem == PAIStoragePersonalItem",
-                    "group": "azure@9"
+                    "group": "mkdir"
                 },
                 {
-                    "command": "paiext.azure-blob.download",
+                    "command": "paiext.storage.download",
                     "when": "view == PAIContainerStorage && viewItem && viewItem == PAIStorageFile",
                     "group": "azure@5"
                 }

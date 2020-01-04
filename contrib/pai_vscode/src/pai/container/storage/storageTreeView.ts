@@ -19,6 +19,12 @@ import {
     COMMAND_CONTAINER_STORAGE_BACK,
     COMMAND_CONTAINER_STORAGE_REFRESH,
     COMMAND_OPEN_STORAGE,
+    COMMAND_STORAGE_CREATE_FOLDER,
+    COMMAND_STORAGE_DELETE,
+    COMMAND_STORAGE_DOWNLOAD,
+    COMMAND_STORAGE_OPEN_FILE,
+    COMMAND_STORAGE_UPLOAD_FILES,
+    COMMAND_STORAGE_UPLOAD_FOLDERS,
     COMMAND_TREEVIEW_LOAD_MORE,
     CONTEXT_STORAGE_CLUSTER_ROOT,
     VIEW_CONTAINER_STORAGE
@@ -60,27 +66,51 @@ export class StorageTreeDataProvider extends Singleton implements TreeDataProvid
             commands.registerCommand(COMMAND_CONTAINER_STORAGE_BACK, () => this.reset()),
             commands.registerCommand(
                 COMMAND_OPEN_STORAGE,
-                async (node?: ClusterExplorerChildNode | IPAICluster) => {
-                    if (!node) {
-                        const manager: ClusterManager = await getSingleton(ClusterManager);
-                        const index: number | undefined = await manager.pick();
-                        if (index === undefined) {
-                            return;
-                        }
-                        await this.openStorage(manager.allConfigurations[index]);
-                    } else if (node instanceof ClusterExplorerChildNode) {
-                        await this.openStorage((await getSingleton(ClusterManager)).allConfigurations[node.index]);
-                    } else {
-                        await this.openStorage(node);
-                    }
+                async (node?: ClusterExplorerChildNode | IPAICluster) => this.openStorage(node)
+            ),
+            commands.registerCommand(
+                COMMAND_STORAGE_DOWNLOAD,
+                async (target: StorageTreeNode) => target.download()
+            ),
+            commands.registerCommand(
+                COMMAND_STORAGE_UPLOAD_FILES,
+                async (target: StorageTreeNode) => {
+                    await target.uploadFile();
+                    await this.refresh(target);
                 }
             ),
             commands.registerCommand(
+                COMMAND_STORAGE_DELETE,
+                async (target: StorageTreeNode) => {
+                    await target.delete();
+                    await this.refresh(target.parent);
+                }
+            ),
+            commands.registerCommand(
+                COMMAND_STORAGE_UPLOAD_FOLDERS,
+                async (target: StorageTreeNode) => {
+                    await target.uploadFolder();
+                    await this.refresh(target);
+                }
+            ),
+            commands.registerCommand(
+                COMMAND_STORAGE_CREATE_FOLDER,
+                async (target: StorageTreeNode) => {
+                    await target.createFolder();
+                    await this.refresh(target);
+                }
+            ),
+            commands.registerCommand(
+                COMMAND_STORAGE_OPEN_FILE,
+                async (target: StorageTreeNode) => target.openFile()
+                // todo: need to register onDidSaveTextDocument to auto upload.
+            ),
+            commands.registerCommand(
                 COMMAND_TREEVIEW_LOAD_MORE,
-                async (node?: StorageTreeNode) => {
-                    if (node) {
-                        await node.loadMore();
-                        this.onDidChangeTreeDataEmitter.fire(node);
+                async (target?: StorageTreeNode) => {
+                    if (target) {
+                        await target.loadMore();
+                        this.onDidChangeTreeDataEmitter.fire(target);
                     }
                 }
             )
@@ -88,10 +118,24 @@ export class StorageTreeDataProvider extends Singleton implements TreeDataProvid
         return this.refresh();
     }
 
-    public async openStorage(cluster: IPAICluster): Promise<void> {
-        for (const node of this.root) {
-            if (node.contextValue === CONTEXT_STORAGE_CLUSTER_ROOT) {
-                const clusters: StorageTreeNode[] = await (<StorageTreeNode>node).getChildren();
+    public async openStorage(node?: ClusterExplorerChildNode | IPAICluster): Promise<void> {
+        let cluster: IPAICluster;
+        if (!node) {
+            const manager: ClusterManager = await getSingleton(ClusterManager);
+            const index: number | undefined = await manager.pick();
+            if (index === undefined) {
+                return;
+            }
+            cluster = manager.allConfigurations[index];
+        } else if (node instanceof ClusterExplorerChildNode) {
+            cluster = (await getSingleton(ClusterManager)).allConfigurations[node.index];
+        } else {
+            cluster = node;
+        }
+
+        for (const currentNode of this.root) {
+            if (currentNode.contextValue === CONTEXT_STORAGE_CLUSTER_ROOT) {
+                const clusters: StorageTreeNode[] = await (<StorageTreeNode>currentNode).getChildren();
                 for (const item of clusters) {
                     if (item.label === cluster.name!) {
                         void this.view.reveal(item, {

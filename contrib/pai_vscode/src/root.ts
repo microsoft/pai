@@ -15,9 +15,7 @@ import { StorageTreeDataProvider } from './pai/container/storage/storageTreeView
 import { PAIJobManager } from './pai/paiJobManager';
 import { PAIWebpages } from './pai/paiWebpages';
 import { RecentJobManager } from './pai/recentJobManager';
-import { AzureBlobManager } from './pai/storage/azureBlobManager';
 import { HDFS } from './pai/storage/hdfs';
-import { NFSManager } from './pai/storage/nfsManager';
 import { PersonalStorageManager } from './pai/storage/personalStorageManager';
 
 export const allSingletonClasses: { new(...arg: any[]): Singleton }[] = [
@@ -29,8 +27,6 @@ export const allSingletonClasses: { new(...arg: any[]): Singleton }[] = [
     PAIJobManager,
     PAIWebpages,
     HDFS,
-    NFSManager,
-    AzureBlobManager,
     PersonalStorageManager,
     HDFSTreeDataProvider,
     StorageTreeDataProvider,
