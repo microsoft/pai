@@ -8,13 +8,14 @@ import { IMountInfo, IStorageServer } from 'openpai-js-sdk';
 import { TreeItemCollapsibleState } from 'vscode';
 
 import {
-    CONTEXT_STORAGE_MOUNTPOINT_ITEM, CONTEXT_STORAGE_AZURE_BLOB
+    CONTEXT_STORAGE_MOUNTPOINT_ITEM, CONTEXT_STORAGE_AZURE_BLOB, CONTEXT_STORAGE_NFS
 } from '../../../common/constants';
 import { __ } from '../../../common/i18n';
 import { IPAICluster } from '../../utility/paiInterface';
 import { StorageTreeNode } from '../common/treeNode';
 
 import { AzureBlobRootItem } from './azureBlobTreeItem';
+import { NFSRootNode } from './nfsTreeItem';
 
 /**
  * PAI storage mount point tree node.
@@ -59,7 +60,8 @@ export class MountPointTreeNode extends StorageTreeNode {
             case 'azurefile':
                 return new StorageTreeNode('Azure File');
             case 'nfs':
-                return new StorageTreeNode('NFS');
+                this.contextValue = CONTEXT_STORAGE_NFS;
+                return new NFSRootNode(server, this.getRootPath(info, this.cluster), this);
             case 'samba':
                 return new StorageTreeNode('Samba');
             default:

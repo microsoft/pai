@@ -192,12 +192,11 @@ export class AzureBlobRootItem extends StorageTreeNode {
     private currentPrefixes: Map<string, AzureBlobTreeItem>;
 
     public constructor(storage: IStorageServer, rootPath: string, parent: StorageTreeNode) {
-        super(storage.spn, undefined, TreeItemCollapsibleState.Collapsed);
+        super(storage.spn, parent, TreeItemCollapsibleState.Collapsed);
         this.storage = storage;
         this.contextValue = CONTEXT_STORAGE_AZURE_BLOB;
         this.description = 'Azure Blob';
         this.rootPath = rootPath;
-        this.parent = parent;
         this.iconPath = Uri.file(Util.resolvePath(ICON_STORAGE));
         this.currentPrefixes = new Map<string, AzureBlobTreeItem>();
 
