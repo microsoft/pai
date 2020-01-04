@@ -5,7 +5,7 @@
  */
 
 import { injectable } from 'inversify';
-import { IStorage } from 'openpai-js-sdk';
+import { IStorageServer } from 'openpai-js-sdk';
 import { commands, env } from 'vscode';
 
 import {
@@ -24,7 +24,7 @@ export class NFSManager extends Singleton {
         this.context.subscriptions.push(
             commands.registerCommand(
                 COMMAND_OPEN_NFS,
-                async (storage: IStorage) => {
+                async (storage: IStorageServer) => {
                     await env.clipboard.writeText(`nfs://${storage.data.address}${storage.data.rootPath}`);
                 }
             )

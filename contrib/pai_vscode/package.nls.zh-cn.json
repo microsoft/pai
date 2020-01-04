@@ -18,7 +18,7 @@
     "paiext.azure-blob.create.folder": "新建文件夹",
     "paiext.azure-blob.upload.files": "上传文件",
     "paiext.azure-blob.upload.folders": "上传文件夹",
-    "paiext.azure-blob.delete": "删除",
+    "paiext.storage.delete": "删除",
     "paiext.azure-blob.download": "下载",
     "paiext.azure-blob.open": "打开 Azure Blob",
     "paiext.nfs.open": "打开 NFS",

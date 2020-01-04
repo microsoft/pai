@@ -4,7 +4,7 @@
  * @author Microsoft
  */
 
-import { IStorage } from 'openpai-js-sdk';
+import { IStorageServer } from 'openpai-js-sdk';
 import { Command, TreeItemCollapsibleState } from 'vscode';
 
 import {
@@ -18,10 +18,10 @@ import { TreeNode } from '../common/treeNode';
  * PAI NFS storage tree item.
  */
 export class NFSTreeItem extends TreeNode {
-    public storage: IStorage;
+    public storage: IStorageServer;
     public nfsUrl: string;
 
-    public constructor(storage: IStorage, parent: TreeNode) {
+    public constructor(storage: IStorageServer, parent: TreeNode) {
         super(storage.spn, TreeItemCollapsibleState.Collapsed);
         this.storage = storage;
         this.contextValue = CONTEXT_STORAGE_NFS;

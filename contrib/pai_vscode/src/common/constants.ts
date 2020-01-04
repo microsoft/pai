@@ -26,12 +26,13 @@ export const COMMAND_AZURE_BLOB_CREATE_FOLDER = 'paiext.azure-blob.create.folder
 export const COMMAND_AZURE_BLOB_UPLOAD_FILES = 'paiext.azure-blob.upload.files';
 export const COMMAND_AZURE_BLOB_UPLOAD_FOLDERS = 'paiext.azure-blob.upload.folders';
 export const COMMAND_AZURE_BLOB_DOWNLOAD = 'paiext.azure-blob.download';
-export const COMMAND_AZURE_BLOB_DELETE = 'paiext.azure-blob.delete';
+export const COMMAND_AZURE_BLOB_DELETE = 'paiext.storage.delete';
 export const COMMAND_OPEN_DASHBOARD = 'paiext.cluster.dashboard.open';
 export const COMMAND_LIST_JOB = 'paiext.cluster.job.list';
 export const COMMAND_VIEW_JOB = 'paiext.cluster.job.view';
 export const COMMAND_TREEVIEW_OPEN_PORTAL = 'paiext.treeview.openPortal';
 export const COMMAND_TREEVIEW_DOUBLECLICK = 'paiext.treeview.doubleclick';
+export const COMMAND_TREEVIEW_LOAD_MORE = 'paiext.treeview.load-more';
 export const COMMAND_SUBMIT_JOB = 'paiext.cluster.job.submit';
 export const COMMAND_SIMULATE_JOB = 'paiext.cluster.job.simulate';
 export const COMMAND_CREATE_JOB_CONFIG = 'paiext.cluster.job.create-config';
@@ -57,13 +58,17 @@ export const CONTEXT_HDFS_SELECT_CLUSTER_ROOT = 'PAIHdfsSelectRoot';
 export const CONTEXT_HDFS_SELECT_CLUSTER = 'PAIHdfsSelect';
 
 export const CONTEXT_STORAGE_CLUSTER_ROOT = 'PAIStorageClusterRoot';
-export const CONTEXT_STORAGE_CLUSTER = 'PAIStorageCluster';
+export const CONTEXT_STORAGE_CLUSTER_FOLDER = 'PAIStorageClusterFolder';
+export const CONTEXT_STORAGE_CLUSTER_ITEM = 'PAIStorageClusterItem';
+export const CONTEXT_STORAGE_TEAM_ITEM = 'PAIStorageTeamItem';
+export const CONTEXT_STORAGE_MOUNTPOINT_ITEM = 'PAIStorageMountPointItem';
 export const CONTEXT_STORAGE_PERSONAL_ROOT = 'PAIStoragePersonalRoot';
 export const CONTEXT_STORAGE_PERSONAL_ITEM = 'PAIStoragePersonalItem';
 export const CONTEXT_STORAGE_NFS = 'PAIStorageNfs';
 export const CONTEXT_STORAGE_AZURE_BLOB = 'PAIStorageAzureBlob';
-export const CONTEXT_STORAGE_AZURE_BLOB_ITEM = 'PAIStorageAzureBlobItem';
-export const CONTEXT_STORAGE_AZURE_BLOB_FOLDER = 'PAIStorageAzureBlobFolder';
+export const CONTEXT_STORAGE_FILE = 'PAIStorageFile';
+export const CONTEXT_STORAGE_FOLDER = 'PAIStorageFolder';
+export const CONTEXT_STORAGE_LOAD_MORE = 'PAIStorageLoadMore';
 
 export const VIEW_CONTAINER_STORAGE = 'PAIContainerStorage';
 
@@ -125,6 +130,7 @@ export const ICON_LOADING = {
 };
 export const ICON_FOLDER = 'icons/folder.svg';
 export const ICON_FILE = 'icons/file.svg';
+export const ICON_STORAGE = 'icons/storage.svg';
 
 export const OCTICON_CLOUDUPLOAD = '$(cloud-upload)';
 export const OCTICON_CLOUDDOWNLOAD = '$(cloud-download)';

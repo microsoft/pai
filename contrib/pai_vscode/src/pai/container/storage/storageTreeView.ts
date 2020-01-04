@@ -5,7 +5,6 @@
  */
 
 import { injectable } from 'inversify';
-import { IStorage, OpenPAIClient } from 'openpai-js-sdk';
 import {
     commands,
     window,
@@ -13,7 +12,6 @@ import {
     EventEmitter,
     TreeDataProvider,
     TreeItem,
-    TreeItemCollapsibleState,
     TreeView
 } from 'vscode';
 
@@ -21,29 +19,18 @@ import {
     COMMAND_CONTAINER_STORAGE_BACK,
     COMMAND_CONTAINER_STORAGE_REFRESH,
     COMMAND_OPEN_STORAGE,
-    CONTEXT_STORAGE_AZURE_BLOB,
-    CONTEXT_STORAGE_AZURE_BLOB_FOLDER,
-    CONTEXT_STORAGE_AZURE_BLOB_ITEM,
-    CONTEXT_STORAGE_CLUSTER,
+    COMMAND_TREEVIEW_LOAD_MORE,
     CONTEXT_STORAGE_CLUSTER_ROOT,
-    CONTEXT_STORAGE_NFS,
-    CONTEXT_STORAGE_PERSONAL_ITEM,
-    CONTEXT_STORAGE_PERSONAL_ROOT,
     VIEW_CONTAINER_STORAGE
 } from '../../../common/constants';
 import { __ } from '../../../common/i18n';
 import { getSingleton, Singleton } from '../../../common/singleton';
-import { Util } from '../../../common/util';
 import { ClusterManager } from '../../clusterManager';
-import { IPersonalStorage, PersonalStorageManager } from '../../storage/personalStorageManager';
 import { IPAICluster } from '../../utility/paiInterface';
-import { LoadingState, TreeDataType } from '../common/treeDataEnum';
-import { TreeNode } from '../common/treeNode';
+import { StorageTreeNode, TreeNode } from '../common/treeNode';
 import { ClusterExplorerChildNode } from '../configurationTreeDataProvider';
 
-import { AzureBlobRootItem, AzureBlobTreeItem, PersonalAzureBlobRootItem } from './azureBlobTreeItem';
-import { NFSTreeItem } from './nfsTreeItem';
-import { PAIClusterStorageRootItem, PAIPersonalStorageRootItem, PAIStorageTreeItem } from './storageTreeItem';
+import { ClusterStorageRootNode } from './clusterStorageTreeItem';
 
 /**
  * Contributes to the tree view of storage explorer.
@@ -55,24 +42,21 @@ export class StorageTreeDataProvider extends Singleton implements TreeDataProvid
     public onDidChangeTreeData: Event<TreeNode>;
 
     private onDidChangeTreeDataEmitter: EventEmitter<TreeNode>;
-    private clusters: PAIStorageTreeItem[] = [];
-    private personalStorages: PersonalAzureBlobRootItem[] = [];
-    private clusterLoadError: boolean[] = [];
 
     constructor() {
         super();
         this.onDidChangeTreeDataEmitter = new EventEmitter<TreeNode>();
         this.onDidChangeTreeData = this.onDidChangeTreeDataEmitter.event;
         this.root = [
-            new PAIClusterStorageRootItem(),
-            new PAIPersonalStorageRootItem()
+            new ClusterStorageRootNode()
         ];
+        this.initializeRoot();
         this.view = window.createTreeView(VIEW_CONTAINER_STORAGE, { treeDataProvider: this });
     }
 
-    public onActivate(): Promise<void> {
+    public async onActivate(): Promise<void> {
         this.context.subscriptions.push(
-            commands.registerCommand(COMMAND_CONTAINER_STORAGE_REFRESH, () => this.refresh()),
+            commands.registerCommand(COMMAND_CONTAINER_STORAGE_REFRESH, element => this.refresh(element)),
             commands.registerCommand(COMMAND_CONTAINER_STORAGE_BACK, () => this.reset()),
             commands.registerCommand(
                 COMMAND_OPEN_STORAGE,
@@ -90,17 +74,33 @@ export class StorageTreeDataProvider extends Singleton implements TreeDataProvid
                         await this.openStorage(node);
                     }
                 }
+            ),
+            commands.registerCommand(
+                COMMAND_TREEVIEW_LOAD_MORE,
+                async (node?: StorageTreeNode) => {
+                    if (node) {
+                        await node.loadMore();
+                        this.onDidChangeTreeDataEmitter.fire(node);
+                    }
+                }
             )
         );
         return this.refresh();
     }
 
     public async openStorage(cluster: IPAICluster): Promise<void> {
-        await commands.executeCommand('PAIContainerStorage.focus');
-        for (const node of this.clusters) {
-            if (node.config!.name === cluster.name) {
-                node.collapsibleState = TreeItemCollapsibleState.Expanded;
-                // todo: should trigger expanded.
+        for (const node of this.root) {
+            if (node.contextValue === CONTEXT_STORAGE_CLUSTER_ROOT) {
+                const clusters: StorageTreeNode[] = await (<StorageTreeNode>node).getChildren();
+                for (const item of clusters) {
+                    if (item.label === cluster.name!) {
+                        void this.view.reveal(item, {
+                            select: true,
+                            focus: true,
+                            expand: true
+                        });
+                    }
+                }
             }
         }
     }
@@ -112,89 +112,32 @@ export class StorageTreeDataProvider extends Singleton implements TreeDataProvid
     public async getChildren(element?: TreeNode | undefined): Promise<TreeNode[] | undefined> {
         if (!element) {
             return this.root;
-        } else if (element.contextValue === CONTEXT_STORAGE_CLUSTER_ROOT) {
-            return this.clusters;
-        } else if (element.contextValue === CONTEXT_STORAGE_PERSONAL_ROOT) {
-            return this.personalStorages;
-        } else if (element.contextValue === CONTEXT_STORAGE_CLUSTER) {
-            return (<PAIStorageTreeItem>element).getChildren();
-        } else if (element.contextValue === CONTEXT_STORAGE_NFS) {
-            return (<NFSTreeItem>element).getChildren();
-        } else if (element.contextValue === CONTEXT_STORAGE_AZURE_BLOB ||
-            element.contextValue === CONTEXT_STORAGE_PERSONAL_ITEM) {
-            return (<AzureBlobRootItem>element).getChildren();
-        } else if (element.contextValue === CONTEXT_STORAGE_AZURE_BLOB_ITEM ||
-                element.contextValue === CONTEXT_STORAGE_AZURE_BLOB_FOLDER) {
-            return (<AzureBlobTreeItem>element).getChildren();
+        } else {
+            return (<StorageTreeNode>element).getChildren();
         }
-
-        return undefined;
     }
 
     public getParent(element: TreeNode): TreeNode | undefined {
         return element.parent;
     }
 
-    public async refresh(reload: boolean = true): Promise<void> {
-        const allConfigurations: IPAICluster[] = (await getSingleton(ClusterManager)).allConfigurations;
-        this.clusters = allConfigurations.map((config, i) =>
-            new PAIStorageTreeItem(TreeDataType.ClusterStorage, config, i));
-        if (this.clusterLoadError.length !== this.clusters.length) {
-            this.clusterLoadError = new Array(this.clusters.length).fill(false);
+    public async refresh(element?: TreeNode): Promise<void> {
+        if (element) {
+            await (<StorageTreeNode>element).refresh();
+            this.onDidChangeTreeDataEmitter.fire(element);
+        } else {
+            this.onDidChangeTreeDataEmitter.fire();
         }
-        const allPersonalStorages: IPersonalStorage[] =
-            (await getSingleton(PersonalStorageManager)).allConfigurations;
-        this.personalStorages = allPersonalStorages.map((config, index) => {
-            const storage: IStorage = {
-                spn: config.name,
-                type: 'azureblob',
-                data: {
-                    containerName: config.containerName,
-                    accountName: config.accountName,
-                    key: config.key
-                },
-                extension: {}
-            };
-            return new PersonalAzureBlobRootItem(storage, index, {});
-        });
-        if (reload) {
-            void this.reloadClusterStorages();
-        }
-        this.onDidChangeTreeDataEmitter.fire();
     }
 
     public async reset(): Promise<void> {
-        this.root = [
-            new PAIClusterStorageRootItem(),
-            new PAIPersonalStorageRootItem()
-        ];
+        this.initializeRoot();
         await this.refresh();
     }
 
-    private async reloadClusterStorages(index: number = -1): Promise<void> {
-        const clusters: PAIStorageTreeItem[] = index !== -1 ? [this.clusters[index]] : this.clusters;
-        await Promise.all(clusters.map(async cluster => {
-            cluster.loadingState = LoadingState.Loading;
-            this.onDidChangeTreeDataEmitter.fire(cluster);
-            try {
-                const client: OpenPAIClient = new OpenPAIClient({
-                    rest_server_uri: cluster.config!.rest_server_uri,
-                    token: cluster.config!.token,
-                    username: cluster.config!.username,
-                    password: cluster.config!.password,
-                    https: cluster.config!.https
-                });
-                cluster.storages = await client.storage.get();
-                cluster.loadingState = LoadingState.Finished;
-                this.clusterLoadError[cluster.index] = false;
-            } catch (e) {
-                if (!this.clusterLoadError[cluster.index]) {
-                    Util.err('treeview.storage.error', [e.message || e]);
-                    this.clusterLoadError[cluster.index] = true;
-                }
-                cluster.loadingState = LoadingState.Error;
-            }
-            this.onDidChangeTreeDataEmitter.fire(cluster);
-        }));
+    public initializeRoot(): void {
+        this.root = [
+            new ClusterStorageRootNode()
+        ];
     }
 }

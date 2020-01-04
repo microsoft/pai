@@ -6,7 +6,6 @@
 
 import { PagedAsyncIterableIterator } from '@azure/core-paging';
 import {
-    BlobGetPropertiesResponse,
     BlobItem,
     BlobPrefix,
     BlobServiceClient,
@@ -14,23 +13,26 @@ import {
     ContainerListBlobHierarchySegmentResponse,
     StorageSharedKeyCredential
 } from '@azure/storage-blob';
-import { IStorage } from 'openpai-js-sdk';
+import { IStorageServer } from 'openpai-js-sdk';
 import * as path from 'path';
-import { Event, EventEmitter, TreeItemCollapsibleState, Uri } from 'vscode';
+import { TreeItemCollapsibleState, Uri } from 'vscode';
 
 import {
     COMMAND_OPEN_AZURE_BLOB,
     COMMAND_TREEVIEW_DOUBLECLICK,
     CONTEXT_STORAGE_AZURE_BLOB,
-    CONTEXT_STORAGE_AZURE_BLOB_FOLDER,
-    CONTEXT_STORAGE_AZURE_BLOB_ITEM,
+    CONTEXT_STORAGE_FOLDER,
+    CONTEXT_STORAGE_FILE,
     CONTEXT_STORAGE_PERSONAL_ITEM,
     ICON_FILE,
-    ICON_FOLDER
+    ICON_FOLDER,
+    ICON_STORAGE,
+    CONTEXT_STORAGE_LOAD_MORE
 } from '../../../common/constants';
 import { __ } from '../../../common/i18n';
 import { Util } from '../../../common/util';
-import { TreeNode } from '../common/treeNode';
+import { StorageTreeNode, StorageLoadMoreTreeNode } from '../common/treeNode';
+import { load } from 'js-yaml';
 
 export type BlobIter = PagedAsyncIterableIterator<({
         kind: 'prefix';
@@ -57,18 +59,6 @@ export type BlobMetadata = {
         [propertyName: string]: string;
     } | undefined;
 
-async function getProperties(blob: BlobValue, client: ContainerClient): Promise<BlobGetPropertiesResponse | undefined> {
-    if (blob.kind === 'prefix') {
-        return undefined;
-    }
-
-    try {
-        return await client.getBlobClient(blob.name).getProperties();
-    } catch (err) {
-        return undefined;
-    }
-}
-
 function isFolder(blob: BlobValue, metadata: BlobMetadata): boolean {
     if (blob.kind === 'prefix') {
         return true;
@@ -80,13 +70,13 @@ function isFolder(blob: BlobValue, metadata: BlobMetadata): boolean {
     return false;
 }
 
-function distinctChildren(children: Map<string, AzureBlobTreeItem>): TreeNode[] {
-    const blobs: TreeNode[] = [];
+function distinctChildren(children: Map<string, AzureBlobTreeItem>): StorageTreeNode[] {
+    const blobs: StorageTreeNode[] = [];
     for (const [name, item] of children) {
-        if (item.properties &&
-            item.properties.metadata &&
-            item.properties.metadata.hdi_isfolder &&
-            item.properties.metadata.hdi_isfolder === 'true') {
+        if (item.blob.kind === 'blob' &&
+            item.blob.metadata &&
+            item.blob.metadata.hdi_isfolder &&
+            item.blob.metadata.hdi_isfolder === 'true') {
             if (children.has(`${name}/`)) {
                 continue;
             }
@@ -99,37 +89,36 @@ function distinctChildren(children: Map<string, AzureBlobTreeItem>): TreeNode[] 
 /**
  * PAI azure blob storage tree item.
  */
-export class AzureBlobTreeItem extends TreeNode {
-    public blobs?: TreeNode[];
+export class AzureBlobTreeItem extends StorageTreeNode {
     public client: ContainerClient;
-
     public blob: BlobValue;
-    public properties?: BlobGetPropertiesResponse;
-    public onDidChangeTreeData: Event<TreeNode>;
-    public path: string;
+    public rootPath: string;
 
-    private onDidChangeTreeDataEmitter: EventEmitter<TreeNode>;
+    private currentContinuationToken?: string;
+    private currentPrefixes: Map<string, AzureBlobTreeItem>;
 
     public constructor(
-            blob: BlobValue,
-            properties: BlobGetPropertiesResponse | undefined,
-            client: ContainerClient,
-            parent: TreeNode) {
-        const metadata: BlobMetadata = properties ? properties.metadata : undefined;
+        blob: BlobValue,
+        client: ContainerClient,
+        parent: StorageTreeNode
+    ) {
+        const metadata: BlobMetadata = blob.kind === 'blob' ? blob.metadata : undefined;
         const folder: boolean = isFolder(blob, metadata);
         const name: string | undefined = path.basename(blob.name);
-        super(name ? name : path.dirname(blob.name), blob.kind === 'prefix' ?
-            TreeItemCollapsibleState.Collapsed : TreeItemCollapsibleState.None);
-        this.properties = properties;
+
+        super(
+            name ? name : path.dirname(blob.name),
+            parent,
+            blob.kind === 'prefix' ? TreeItemCollapsibleState.Collapsed : TreeItemCollapsibleState.None
+        );
+
         this.contextValue = folder ?
-            CONTEXT_STORAGE_AZURE_BLOB_FOLDER : CONTEXT_STORAGE_AZURE_BLOB_ITEM;
-        this.parent = parent;
+            CONTEXT_STORAGE_FOLDER : CONTEXT_STORAGE_FILE;
         this.client = client;
         this.blob = blob;
-        this.path = blob.name;
-        this.description = this.path;
-        this.onDidChangeTreeDataEmitter = new EventEmitter<TreeNode>();
-        this.onDidChangeTreeData = this.onDidChangeTreeDataEmitter.event;
+        this.rootPath = blob.name;
+        this.description = this.rootPath;
+        this.currentPrefixes = new Map<string, AzureBlobTreeItem>();
 
         if (folder) {
             this.iconPath = Uri.file(Util.resolvePath(ICON_FOLDER));
@@ -143,67 +132,91 @@ export class AzureBlobTreeItem extends TreeNode {
         }
     }
 
-    public async getChildren(): Promise<TreeNode[] | undefined> {
-        if (!isFolder(this.blob, this.properties ? this.properties.metadata : undefined)) {
-            return undefined;
-        } else if (this.blobs) {
-            return this.blobs;
-        }
-
-        await this.reloadChildren();
-        return this.blobs;
-    }
-
-    public async reloadChildren(): Promise<void> {
+    public async refresh(): Promise<void> {
         if (this.blob.kind === 'blob') {
             return;
         }
 
-        const children: Map<string, AzureBlobTreeItem> = new Map<string, AzureBlobTreeItem>();
-        try {
-            const iter: BlobIter = this.client.listBlobsByHierarchy('/', {
-                prefix: <string> this.path
-            });
-            let blobItem: BlobEntity = await iter.next();
-            while (!blobItem.done) {
-                const blob: BlobValue = blobItem.value;
-                const properties: BlobGetPropertiesResponse | undefined = await getProperties(blob, this.client);
-                children.set(blob.name, new AzureBlobTreeItem(blob, properties, this.client, this));
-                blobItem = await iter.next();
-            }
-        } catch (err) {
-            this.blobs = [
-                <TreeNode> {
-                    parent: this,
-                    label: __('treeview.node.storage.load-error'),
-                    description: err.message || err
-                }
-            ];
-        }
+        this.currentContinuationToken = undefined;
+        this.currentPrefixes.clear();
+        this.children = [];
 
-        this.blobs = distinctChildren(children);
+        await this.loadMore();
     }
 
-    public async refresh(): Promise<void> {
-        await this.reloadChildren();
-        this.onDidChangeTreeDataEmitter.fire();
+    public async loadMore(): Promise<void> {
+        if (this.children.length > 0 &&
+            this.children[this.children.length - 1].contextValue === CONTEXT_STORAGE_LOAD_MORE
+        ) {
+            this.children.pop();
+        }
+
+        try {
+            const iter: IteratorResult<ContainerListBlobHierarchySegmentResponse> =
+                await this.client.listBlobsByHierarchy('/', {
+                    prefix: <string> this.rootPath,
+                    includeMetadata: true
+                }).byPage({
+                    continuationToken: this.currentContinuationToken,
+                    maxPageSize: AzureBlobTreeItem.pageSize
+                }).next();
+            this.currentContinuationToken = iter.value.continuationToken;
+            const prefixes: BlobPrefix[] | undefined = iter.value.segment.blobPrefixes;
+            if (prefixes) {
+                prefixes.forEach(item => {
+                    const value: BlobValue = <BlobValue>item;
+                    value.kind = 'prefix';
+                    const node: AzureBlobTreeItem =
+                        new AzureBlobTreeItem(value, this.client, this);
+                    this.currentPrefixes.set(item.name, node);
+                    this.children.push(node);
+                });
+            }
+            const blobs: BlobItem[] = iter.value.segment.blobItems;
+
+            for (const blob of blobs) {
+                if (blob.metadata && blob.metadata.hdi_isfolder && blob.metadata.hdi_isfolder === 'true') {
+                    if (this.currentPrefixes.has(`${blob.name}/`)) {
+                        continue;
+                    }
+                }
+                const value: BlobValue = <BlobValue>blob;
+                value.kind = 'blob';
+                this.children.push(new AzureBlobTreeItem(value, this.client, this));
+            }
+
+            if (this.currentContinuationToken) {
+                this.children.push(new StorageLoadMoreTreeNode(this));
+            }
+        } catch (err) {
+            const child: StorageTreeNode =
+                new StorageTreeNode(__('treeview.node.storage.load-error'), this);
+            child.description = err.message;
+            this.children.push(child);
+        }
     }
 }
 
 /**
  * PAI azure blob storage root item.
  */
-export class AzureBlobRootItem extends TreeNode {
-    public storage: IStorage;
+export class AzureBlobRootItem extends StorageTreeNode {
+    public storage: IStorageServer;
     public client: ContainerClient;
-    public blobs?: TreeNode[];
+    public rootPath: string;
 
-    public constructor(storage: IStorage, parent: TreeNode) {
-        super(storage.spn, TreeItemCollapsibleState.Collapsed);
+    private currentContinuationToken?: string;
+    private currentPrefixes: Map<string, AzureBlobTreeItem>;
+
+    public constructor(storage: IStorageServer, rootPath: string, parent: StorageTreeNode) {
+        super(storage.spn, undefined, TreeItemCollapsibleState.Collapsed);
         this.storage = storage;
         this.contextValue = CONTEXT_STORAGE_AZURE_BLOB;
         this.description = 'Azure Blob';
+        this.rootPath = rootPath;
         this.parent = parent;
+        this.iconPath = Uri.file(Util.resolvePath(ICON_STORAGE));
+        this.currentPrefixes = new Map<string, AzureBlobTreeItem>();
 
         const credential: StorageSharedKeyCredential =
             new StorageSharedKeyCredential(storage.data.accountName, storage.data.key);
@@ -212,42 +225,63 @@ export class AzureBlobRootItem extends TreeNode {
         this.client = blobClient.getContainerClient(storage.data.containerName);
     }
 
-    public async getChildren(): Promise<TreeNode[]> {
-        if (this.blobs) {
-            return this.blobs;
+    public async refresh(): Promise<void> {
+        this.currentContinuationToken = undefined;
+        this.currentPrefixes.clear();
+        this.children = [];
+        await this.loadMore();
+    }
+
+    public async loadMore(): Promise<void> {
+        if (this.children.length > 0 &&
+            this.children[this.children.length - 1].contextValue === CONTEXT_STORAGE_LOAD_MORE
+        ) {
+            this.children.pop();
         }
 
-        const children: Map<string, AzureBlobTreeItem> = new Map<string, AzureBlobTreeItem>();
         try {
-            this.blobs = [];
-            if (this.contextValue === CONTEXT_STORAGE_AZURE_BLOB) {
-                this.blobs.push(<TreeNode> {
-                    parent: this,
-                    label: __('treeview.node.storage.mount-point'),
-                    description: '/data'
+            const iter: IteratorResult<ContainerListBlobHierarchySegmentResponse> =
+                await this.client.listBlobsByHierarchy('/', {
+                    prefix: this.rootPath,
+                    includeMetadata: true
+                }).byPage({
+                    continuationToken: this.currentContinuationToken,
+                    maxPageSize: AzureBlobTreeItem.pageSize
+                }).next();
+            this.currentContinuationToken = iter.value.continuationToken;
+            const prefixes: BlobPrefix[] | undefined = iter.value.segment.blobPrefixes;
+            if (prefixes) {
+                prefixes.forEach(item => {
+                    const value: BlobValue = <BlobValue>item;
+                    value.kind = 'prefix';
+                    const node: AzureBlobTreeItem =
+                        new AzureBlobTreeItem(value, this.client, this.parent!);
+                    this.currentPrefixes.set(item.name, node);
+                    this.children.push(node);
                 });
             }
-            const prefix: string = '/';
-            const iter: BlobIter = this.client.listBlobsByHierarchy(prefix);
-            let blobItem: BlobEntity = await iter.next();
-            while (!blobItem.done) {
-                const blob: BlobValue = blobItem.value;
-                const properties: BlobGetPropertiesResponse | undefined = await getProperties(blob, this.client);
-                children.set(blob.name, new AzureBlobTreeItem(blob, properties, this.client, this));
-                blobItem = await iter.next();
+            const blobs: BlobItem[] = iter.value.segment.blobItems;
+
+            for (const blob of blobs) {
+                if (blob.metadata && blob.metadata.hdi_isfolder && blob.metadata.hdi_isfolder === 'true') {
+                    if (this.currentPrefixes.has(`${blob.name}/`)) {
+                        continue;
+                    }
+                }
+                const value: BlobValue = <BlobValue>blob;
+                value.kind = 'blob';
+                this.children.push(new AzureBlobTreeItem(value, this.client, this.parent!));
+            }
+
+            if (this.currentContinuationToken) {
+                this.children.push(new StorageLoadMoreTreeNode(this.parent!));
             }
         } catch (err) {
-            return [
-                <TreeNode> {
-                    parent: this,
-                    label: __('treeview.node.storage.load-error'),
-                    description: err.message || err
-                }
-            ];
+            const child: StorageTreeNode =
+                new StorageTreeNode(__('treeview.node.storage.load-error'), this.parent);
+            child.description = err.message;
+            this.children.push(child);
         }
-
-        distinctChildren(children).forEach(item => this.blobs!.push(item));
-        return this.blobs;
     }
 }
 
@@ -256,9 +290,9 @@ export class AzureBlobRootItem extends TreeNode {
  */
 export class PersonalAzureBlobRootItem extends AzureBlobRootItem {
     public index: number;
-    public constructor(storage: IStorage, index: number, parent: TreeNode) {
-        super(storage, parent);
-        this.index = index;
+    public constructor(storage: IStorageServer, index: number, parent: StorageTreeNode) {
+        super(storage, '/', parent);
         this.contextValue = CONTEXT_STORAGE_PERSONAL_ITEM;
+        this.index = index;
     }
 }

@@ -1,0 +1,79 @@
+/**
+ * Copyright (c) Microsoft Corporation. All rights reserved.
+ * Licensed under the MIT License. See License in the project root for license information.
+ * @author Microsoft
+ */
+
+import { IMountInfo, IStorageServer } from 'openpai-js-sdk';
+import { TreeItemCollapsibleState } from 'vscode';
+
+import {
+    CONTEXT_STORAGE_MOUNTPOINT_ITEM, CONTEXT_STORAGE_AZURE_BLOB
+} from '../../../common/constants';
+import { __ } from '../../../common/i18n';
+import { IPAICluster } from '../../utility/paiInterface';
+import { StorageTreeNode } from '../common/treeNode';
+
+import { AzureBlobRootItem } from './azureBlobTreeItem';
+
+/**
+ * PAI storage mount point tree node.
+ */
+export class MountPointTreeNode extends StorageTreeNode {
+    public contextValue: string = CONTEXT_STORAGE_MOUNTPOINT_ITEM;
+
+    private cluster: IPAICluster;
+    private data: StorageTreeNode;
+
+    constructor(
+        info: IMountInfo,
+        cluster: IPAICluster,
+        server: IStorageServer,
+        parent?: StorageTreeNode,
+        collapsibleState: TreeItemCollapsibleState = TreeItemCollapsibleState.Collapsed
+    ) {
+        super('Mount Point', parent, collapsibleState);
+        this.description = info.mountPoint;
+
+        this.cluster = cluster;
+        this.data = this.initializeData(info, server);
+    }
+
+    public async refresh(): Promise<void> {
+        this.children = await this.data.getChildren();
+    }
+
+    public async loadMore(): Promise<void> {
+        await this.data.loadMore();
+    }
+
+    private initializeData(info: IMountInfo, server: IStorageServer): StorageTreeNode {
+        switch (server.type) {
+            case 'azureblob':
+                this.contextValue = CONTEXT_STORAGE_AZURE_BLOB;
+                return new AzureBlobRootItem(server, this.getRootPath(info, this.cluster), this);
+            case 'azurefile':
+                return new StorageTreeNode('Azure File');
+            case 'nfs':
+                return new StorageTreeNode('NFS');
+            case 'samba':
+                return new StorageTreeNode('Samba');
+            default:
+                return new StorageTreeNode('Unsupported storage');
+        }
+    }
+
+    private getRootPath(info: IMountInfo, cluster: IPAICluster): string {
+        const envs: Map<string, string> = new Map<string, string>([
+            ['\${PAI_USER_NAME}', cluster.username!]
+        ]);
+        let path: string = info.path;
+        for (const [key, value] of envs) {
+            path = path.replace(key, value);
+        }
+        if (!path.endsWith('/')) {
+            path = path + '/';
+        }
+        return path;
+    }
+}

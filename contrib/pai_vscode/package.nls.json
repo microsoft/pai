@@ -18,7 +18,7 @@
     "paiext.azure-blob.create.folder": "New folder",
     "paiext.azure-blob.upload.files": "Upload Files",
     "paiext.azure-blob.upload.folders": "Upload Folders",
-    "paiext.azure-blob.delete": "Delete",
+    "paiext.storage.delete": "Delete",
     "paiext.azure-blob.download": "Download",
     "paiext.nfs.open": "Open NFS",
     "paiext.azure-blob.open": "Open Azure Blob",

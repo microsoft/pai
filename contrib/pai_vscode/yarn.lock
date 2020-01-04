@@ -1359,8 +1359,9 @@ ono@^4.0.10:
 
 openpai-js-sdk@microsoft/pai#openpai-js-sdk:
   version "0.0.0"
-  resolved "https://codeload.github.com/microsoft/pai/tar.gz/7fdd1b0806fe03c8fa2dfc97d05c1f2e4e157ce8"
+  resolved "https://codeload.github.com/microsoft/pai/tar.gz/491c71981628084695b7b73d5555f2b05dae42d9"
   dependencies:
+    axios "^0.19.0"
     js-yaml "^3.13.1"
     request "^2.88.0"
     request-promise-native "^1.0.7"

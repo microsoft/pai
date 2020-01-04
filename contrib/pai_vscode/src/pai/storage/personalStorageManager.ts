@@ -10,12 +10,10 @@ import { commands, window } from 'vscode';
 import {
     COMMAND_ADD_PERSONAL_STORAGE, COMMAND_DELETE_PERSONAL_STORAGE, COMMAND_EDIT_PERSONAL_STORAGE} from '../../common/constants';
 import { __ } from '../../common/i18n';
-import { Singleton, getSingleton } from '../../common/singleton';
-import { ClusterExplorerChildNode, ITreeData } from '../container/configurationTreeDataProvider';
+import { getSingleton, Singleton } from '../../common/singleton';
 import { Util } from '../../common/util';
-import semverCompare = require('semver-compare');
-import { StorageTreeDataProvider } from '../container/storage/storageTreeView';
 import { PersonalAzureBlobRootItem } from '../container/storage/azureBlobTreeItem';
+import { StorageTreeDataProvider } from '../container/storage/storageTreeView';
 
 export interface IPersonalStorage {
     name: string;

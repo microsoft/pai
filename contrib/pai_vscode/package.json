@@ -106,8 +106,8 @@
                 "category": "PAI"
             },
             {
-                "command": "paiext.azure-blob.delete",
-                "title": "%paiext.azure-blob.delete%",
+                "command": "paiext.storage.delete",
+                "title": "%paiext.storage.delete%",
                 "category": "PAI"
             },
             {
@@ -427,18 +427,33 @@
                     "when": "view == PAIContainerJobList && viewItem && viewItem == PAIJobListCluster"
                 },
                 {
-                    "command": "paiext.azure-blob.delete",
-                    "when": "view == PAIContainerStorage && viewItem && viewItem == PAIStorageAzureBlobFolder",
-                    "group": "azure@7"
+                    "command": "paiext.storage.delete",
+                    "when": "view == PAIContainerStorage && viewItem && viewItem == PAIStorageFolder",
+                    "group": "delete"
                 },
                 {
-                    "command": "paiext.azure-blob.delete",
-                    "when": "view == PAIContainerStorage && viewItem && viewItem == PAIStorageAzureBlobItem",
+                    "command": "paiext.container.storage.refresh",
+                    "when": "view == PAIContainerStorage && viewItem && viewItem == PAIStorageTeamItem",
+                    "group": "refresh"
+                },
+                {
+                    "command": "paiext.container.storage.refresh",
+                    "when": "view == PAIContainerStorage && viewItem && viewItem == PAIStorageMountPointItem",
+                    "group": "refresh"
+                },
+                {
+                    "command": "paiext.container.storage.refresh",
+                    "when": "view == PAIContainerStorage && viewItem && viewItem == PAIStorageFolder",
+                    "group": "refresh"
+                },
+                {
+                    "command": "paiext.storage.delete",
+                    "when": "view == PAIContainerStorage && viewItem && viewItem == PAIStorageFile",
                     "group": "azure@8"
                 },
                 {
                     "command": "paiext.azure-blob.upload.files",
-                    "when": "view == PAIContainerStorage && viewItem && viewItem == PAIStorageAzureBlobFolder",
+                    "when": "view == PAIContainerStorage && viewItem && viewItem == PAIStorageFolder",
                     "group": "azure@3"
                 },
                 {
@@ -448,7 +463,7 @@
                 },
                 {
                     "command": "paiext.azure-blob.create.folder",
-                    "when": "view == PAIContainerStorage && viewItem && viewItem == PAIStorageAzureBlobFolder",
+                    "when": "view == PAIContainerStorage && viewItem && viewItem == PAIStorageFolder",
                     "group": "azure@1"
                 },
                 {
@@ -463,7 +478,7 @@
                 },
                 {
                     "command": "paiext.azure-blob.download",
-                    "when": "view == PAIContainerStorage && viewItem && viewItem == PAIStorageAzureBlobItem",
+                    "when": "view == PAIContainerStorage && viewItem && viewItem == PAIStorageFile",
                     "group": "azure@5"
                 }
             ]

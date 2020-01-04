@@ -4,7 +4,7 @@
  * @author Microsoft
  */
 
-import { BlockBlobClient, ContainerClient } from '@azure/storage-blob';
+import { BlockBlobClient, ContainerClient, BlobGetPropertiesResponse } from '@azure/storage-blob';
 import { injectable } from 'inversify';
 import * as path from 'path';
 import { commands, window, StatusBarAlignment, StatusBarItem, Uri, TextDocument, workspace } from 'vscode';
@@ -122,9 +122,10 @@ export class AzureBlobManager extends Singleton {
 
     public async downloadFile(target: AzureBlobTreeItem, filePath: Uri): Promise<void> {
         const client: BlockBlobClient = target.client.getBlockBlobClient(target.blob.name);
+        const properties: BlobGetPropertiesResponse = await client.getProperties();
         let totalBytes: number = 1;
-        if (target.properties && target.properties.contentLength) {
-            totalBytes = target.properties.contentLength;
+        if (properties && properties.contentLength) {
+            totalBytes = properties.contentLength;
         }
 
         const statusBarItem: StatusBarItem =
