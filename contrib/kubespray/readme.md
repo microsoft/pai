@@ -25,6 +25,10 @@ python3 namespace_secret_backup.py -n pai-user-token -o pai-user-token
 ###### Writing inventory
 
 An example
+
+
+###### ```host.yaml for kubespray deploy```
+
 ```yaml
 all:
   hosts:
@@ -97,6 +101,56 @@ ansible_ssh_pass: "your-password-here"
 ansible_ssh_extra_args: '-o StrictHostKeyChecking
 ```
 
+###### ```infra.yaml for infra node```
+
+```yaml
+all:
+  hosts:
+    node1:
+      ip: x.x.x.37
+      access_ip: x.x.x.37
+      ansible_host: x.x.x.37
+      ansible_ssh_pass: "your-password-here"
+      ansible_ssh_extra_args: '-o StrictHostKeyChecking=no'
+    node2:
+      ip: x.x.x.38
+      access_ip: x.x.x.38
+      ansible_host: x.x.x.38
+      ansible_ssh_pass: "your-password-here"
+      ansible_ssh_extra_args: '-o StrictHostKeyChecking=no'
+    node3:
+      ip: x.x.x.39
+      access_ip: x.x.x.39
+      ansible_host: x.x.x.39
+      ansible_ssh_pass: "your-password-here"
+      ansible_ssh_extra_args: '-o StrictHostKeyChecking=no'
+```
+
+###### ```worker.yaml for worker (GPU) node```
+
+```yaml
+all:
+  hosts:
+    node4:
+      ip: x.x.x.40
+      access_ip: x.x.x.40
+      ansible_host: x.x.x.40
+      ansible_ssh_pass: "your-password-here"
+      ansible_ssh_extra_args: '-o StrictHostKeyChecking=no'
+    node5:
+      ip: x.x.x.41
+      access_ip: x.x.x.41
+      ansible_host: x.x.x.41
+      ansible_ssh_pass: "your-password-here"
+      ansible_ssh_extra_args: '-o StrictHostKeyChecking=no'
+    node6:
+      ip: x.x.x.42
+      access_ip: x.x.x.42
+      ansible_host: x.x.x.42
+      ansible_ssh_pass: "your-password-here"
+      ansible_ssh_extra_args: '-o StrictHostKeyChecking=no'
+```
+
 ###### Prepare ansible environment
 
 ```bash
@@ -152,7 +206,7 @@ git clone https://github.com/microsoft/pai.git
 
 cd pai/contrib/kubespray/
 
-ansible-playbook -i /path/to/host.yml nvidia-drivers.yml --become --become-user=root
+ansible-playbook -i /path/to/worker.yml nvidia-drivers.yml --become --become-user=root
 
 ```
 
@@ -160,7 +214,7 @@ ansible-playbook -i /path/to/host.yml nvidia-drivers.yml --become --become-user=
 
 ```bash
 
-ansible-playbook -i /path/to/host.yml nvidia-persistent-mode.yml --become --become-user=root
+ansible-playbook -i /path/to/worker.yml nvidia-persistent-mode.yml --become --become-user=root
 
 ```
 
@@ -169,7 +223,7 @@ ansible-playbook -i /path/to/host.yml nvidia-persistent-mode.yml --become --beco
 
 ```bash
 
-ansible-playbook -i /path/to/host.yml nvidia-docker.yml --become --become-user=root
+ansible-playbook -i /path/to/worker.yml nvidia-docker.yml --become --become-user=root
 
 ```
 
@@ -187,6 +241,20 @@ Here we assume all os in your cluster is ubuntu16.04. Or please change the follo
     - name: Run the equivalent of "apt-get update" as a separate step
 ```
 
+###### Create docker configuration for OpenPAI
+
+```shell script
+ansible-playbook -i /path/to/infra.yml copy-daemon-openpai-default-runtime.yml --become --become-user=root 
+
+ansible-playbook -i /path/to/worker.yml copy-daemon-openpai-nvidia-runtime.yml --become --become-user=root 
+```
+
+###### Notice
+
+We assume that your infra node doesn't have GPU card. So in our tutorial, nvidia drivers and nvidia runtime isn't installed on the infra node.
+If your infra node is GPU VM, and you wanna install drivers and runtime on those machine. You should do the same steps for your infra node as what you have done for the worker nodes.
+And be careful, at the last step named create docker configuration for OpenPAI, you should use the playbook named copy-daemon-openpai-nvidia-runtime.yml for your infra node.
+ 
 #### kubespray
 
 ###### Environment
