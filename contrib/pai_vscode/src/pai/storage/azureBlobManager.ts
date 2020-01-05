@@ -23,10 +23,10 @@ import {
 } from '../../common/constants';
 import { __ } from '../../common/i18n';
 import { Util } from '../../common/util';
+import { StorageTreeNode } from '../container/common/treeNode';
 import {
     AzureBlobRootItem, AzureBlobTreeItem, BlobEntity, BlobIter, BlobValue
 } from '../container/storage/azureBlobTreeItem';
-import { StorageTreeNode } from '../container/common/treeNode';
 
 /**
  * Azure blob management module
