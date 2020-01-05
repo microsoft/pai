@@ -107,7 +107,6 @@ export class StorageTreeDataProvider extends Singleton implements TreeDataProvid
             commands.registerCommand(
                 COMMAND_STORAGE_OPEN_FILE,
                 async (target: StorageTreeNode) => target.openFile()
-                // todo: need to register onDidSaveTextDocument to auto upload.
             ),
             commands.registerCommand(
                 COMMAND_TREEVIEW_LOAD_MORE,
