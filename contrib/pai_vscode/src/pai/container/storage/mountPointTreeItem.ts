@@ -8,7 +8,7 @@ import { IMountInfo, IStorageServer } from 'openpai-js-sdk';
 import { TreeItemCollapsibleState } from 'vscode';
 
 import {
-    CONTEXT_STORAGE_MOUNTPOINT_ITEM, CONTEXT_STORAGE_AZURE_BLOB, CONTEXT_STORAGE_NFS
+    CONTEXT_STORAGE_MOUNTPOINT_ITEM
 } from '../../../common/constants';
 import { __ } from '../../../common/i18n';
 import { IPAICluster } from '../../utility/paiInterface';

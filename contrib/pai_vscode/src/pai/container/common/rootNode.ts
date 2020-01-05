@@ -10,8 +10,11 @@ import {
 } from 'vscode';
 
 import {
-    COMMAND_OPEN_STORAGE, COMMAND_TREEVIEW_DOUBLECLICK,
-    CONTEXT_HDFS_ROOT, CONTEXT_HDFS_SELECT_CLUSTER, CONTEXT_HDFS_SELECT_CLUSTER_ROOT,
+    COMMAND_OPEN_HDFS,
+    COMMAND_TREEVIEW_DOUBLECLICK,
+    CONTEXT_HDFS_ROOT,
+    CONTEXT_HDFS_SELECT_CLUSTER,
+    CONTEXT_HDFS_SELECT_CLUSTER_ROOT,
     ICON_PAI
 } from '../../../common/constants';
 import { __ } from '../../../common/i18n';
@@ -54,9 +57,9 @@ export class SelectClusterNode extends TreeNode {
         this.cluster = cluster;
         this.parent = parent;
         this.command = {
-            title: __('treeview.node.storage'),
+            title: __('treeview.node.openhdfs'),
             command: COMMAND_TREEVIEW_DOUBLECLICK,
-            arguments: [COMMAND_OPEN_STORAGE, this.cluster]
+            arguments: [COMMAND_OPEN_HDFS, this.cluster]
         };
         this.iconPath = Util.resolvePath(ICON_PAI);
     }

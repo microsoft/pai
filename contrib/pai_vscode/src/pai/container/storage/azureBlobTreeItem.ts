@@ -18,7 +18,7 @@ import * as path from 'path';
 import { TreeItemCollapsibleState, Uri } from 'vscode';
 
 import {
-    COMMAND_OPEN_AZURE_BLOB,
+    COMMAND_STORAGE_OPEN_FILE,
     COMMAND_TREEVIEW_DOUBLECLICK,
     CONTEXT_STORAGE_AZURE_BLOB,
     CONTEXT_STORAGE_FILE,
@@ -27,13 +27,12 @@ import {
     CONTEXT_STORAGE_PERSONAL_ITEM,
     ICON_FILE,
     ICON_FOLDER,
-    ICON_STORAGE,
-    COMMAND_STORAGE_OPEN_FILE
+    ICON_STORAGE
 } from '../../../common/constants';
 import { __ } from '../../../common/i18n';
 import { Util } from '../../../common/util';
-import { StorageLoadMoreTreeNode, StorageTreeNode } from '../common/treeNode';
 import { AzureBlobManager } from '../../storage/azureBlobManager';
+import { StorageLoadMoreTreeNode, StorageTreeNode } from '../common/treeNode';
 
 export type BlobIter = PagedAsyncIterableIterator<({
         kind: 'prefix';
