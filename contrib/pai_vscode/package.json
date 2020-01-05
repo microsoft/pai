@@ -447,6 +447,11 @@
                     "group": "refresh"
                 },
                 {
+                    "command": "paiext.container.storage.refresh",
+                    "when": "view == PAIContainerStorage && viewItem && viewItem == PAIStorageClusterRoot",
+                    "group": "refresh"
+                },
+                {
                     "command": "paiext.storage.delete",
                     "when": "view == PAIContainerStorage && viewItem && viewItem == PAIStorageFile",
                     "group": "delete"
