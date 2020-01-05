@@ -37,6 +37,7 @@ import { StorageTreeNode, TreeNode } from '../common/treeNode';
 import { ClusterExplorerChildNode } from '../configurationTreeDataProvider';
 
 import { ClusterStorageRootNode } from './clusterStorageTreeItem';
+import { PersonalStorageRootNode } from './personalStorageTreeItem';
 
 /**
  * Contributes to the tree view of storage explorer.
@@ -181,7 +182,8 @@ export class StorageTreeDataProvider extends Singleton implements TreeDataProvid
 
     public initializeRoot(): void {
         this.root = [
-            new ClusterStorageRootNode()
+            new ClusterStorageRootNode(),
+            new PersonalStorageRootNode()
         ];
     }
 }

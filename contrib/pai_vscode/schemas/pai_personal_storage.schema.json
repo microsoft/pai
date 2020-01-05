@@ -1,26 +1,44 @@
 {
     "type": "object",
     "properties": {
-        "name": {
+        "spn": {
             "type": "string",
-            "description": "Personal storage display name",
+            "description": "storage server display name",
             "minLength": 1
         },
-        "accountName": {
-            "type": "string",
-            "description": "Account name.",
-            "minLength": 1
-        },
-        "containerName": {
-            "type": "string",
-            "description": "Container name.",
-            "minLength": 1
-        },
-        "key": {
-            "type": "string",
-            "description": "Access key",
-            "minLength": 1
+        "data": {
+            "oneOf": [
+                {
+                    "type": "object",
+                    "description": "Azure blob",
+                    "properties": {
+                        "containerName": {
+                            "type": "string"
+                        },
+                        "accountName": {
+                            "type": "string"
+                        },
+                        "key": {
+                            "type": "string"
+                        }
+                    },
+                    "required": ["containerName", "accountName", "key"]
+                },
+                {
+                    "type": "object",
+                    "description": "NFS",
+                    "properties": {
+                        "rootPath": {
+                            "type": "string"
+                        },
+                        "address": {
+                            "type": "string"
+                        }
+                    },
+                    "required": ["rootPath", "address"]
+                }
+            ]
         }
     },
-    "required": ["name", "accountName", "containerName", "key"]
+    "required": ["spn", "data"]
 }

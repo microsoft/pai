@@ -5,6 +5,7 @@
  */
 
 import { injectable } from 'inversify';
+import { IStorageServer } from 'openpai-js-sdk';
 import { commands, window } from 'vscode';
 
 import {
@@ -15,16 +16,9 @@ import { Util } from '../../common/util';
 import { PersonalAzureBlobRootItem } from '../container/storage/azureBlobTreeItem';
 import { StorageTreeDataProvider } from '../container/storage/storageTreeView';
 
-export interface IPersonalStorage {
-    name: string;
-    accountName: string;
-    containerName: string;
-    key: string;
-}
-
 export interface IStorageConfiguration {
     readonly version: string;
-    storages: IPersonalStorage[];
+    storages: IStorageServer[];
 }
 
 /**
@@ -43,7 +37,7 @@ export class PersonalStorageManager extends Singleton {
         super();
     }
 
-    public get allConfigurations(): IPersonalStorage[] {
+    public get allConfigurations(): IStorageServer[] {
         return this.configuration!.storages;
     }
 
@@ -94,21 +88,26 @@ export class PersonalStorageManager extends Singleton {
             return;
         }
 
-        const config: IPersonalStorage = {
-            name: name,
-            accountName: '',
-            containerName: '',
-            key: ''
+        const config: IStorageServer = {
+            spn: name,
+            type: 'azureblob',
+            data: {
+                dataStore: 'dataStore',
+                containerName: '<container name>',
+                accountName: '<account name>',
+                key: '<key>'
+            },
+            extension: { }
         };
 
         await this.edit(this.allConfigurations.length, config);
     }
 
-    public async edit(index: number, config?: IPersonalStorage): Promise<void> {
-        const original: IPersonalStorage = this.allConfigurations[index] || config;
-        const editResult: IPersonalStorage | undefined = await Util.editJSON(
+    public async edit(index: number, config?: IStorageServer): Promise<void> {
+        const original: IStorageServer = this.allConfigurations[index] || config;
+        const editResult: IStorageServer | undefined = await Util.editJSON(
             original,
-            `pai_personal_storage_${original.name}.json`,
+            `pai_personal_storage_${original.spn}.json`,
             'pai_personal_storage.schema.json'
         );
         if (editResult) {
