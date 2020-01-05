@@ -13,7 +13,7 @@ import {
 import { __ } from '../../common/i18n';
 import { getSingleton, Singleton } from '../../common/singleton';
 import { Util } from '../../common/util';
-import { PersonalAzureBlobRootItem } from '../container/storage/azureBlobTreeItem';
+import { PersonalStorageRootNode, PersonalStorageTreeNode } from '../container/storage/personalStorageTreeItem';
 import { StorageTreeDataProvider } from '../container/storage/storageTreeView';
 
 export interface IStorageConfiguration {
@@ -43,16 +43,29 @@ export class PersonalStorageManager extends Singleton {
 
     public async onActivate(): Promise<void> {
         this.context.subscriptions.push(
-            commands.registerCommand(COMMAND_ADD_PERSONAL_STORAGE, async () => this.add()),
+            commands.registerCommand(
+                COMMAND_ADD_PERSONAL_STORAGE,
+                async (node: PersonalStorageRootNode) => {
+                    await this.add();
+                    const provider: StorageTreeDataProvider =
+                        await getSingleton(StorageTreeDataProvider);
+                    await provider.refresh(node);
+                }),
             commands.registerCommand(
                 COMMAND_EDIT_PERSONAL_STORAGE,
-                async (node: PersonalAzureBlobRootItem) => {
+                async (node: PersonalStorageTreeNode) => {
                     await this.edit(node.index);
+                    const provider: StorageTreeDataProvider =
+                        await getSingleton(StorageTreeDataProvider);
+                    await provider.refresh(node);
                 }),
             commands.registerCommand(
                 COMMAND_DELETE_PERSONAL_STORAGE,
-                async (node: PersonalAzureBlobRootItem) => {
+                async (node: PersonalStorageTreeNode) => {
                     await this.delete(node.index);
+                    const provider: StorageTreeDataProvider =
+                        await getSingleton(StorageTreeDataProvider);
+                    await provider.refresh(node.getParent());
                 })
         );
         this.configuration = this.context.globalState.get<IStorageConfiguration>(
@@ -65,7 +78,8 @@ export class PersonalStorageManager extends Singleton {
     }
 
     public async validateConfiguration(): Promise<void> {
-        const validateResult: string | undefined = await Util.validateJSON(this.configuration!, 'pai_personal_storage.schema.json');
+        const validateResult: string | undefined =
+            await Util.validateJSON(this.configuration!, 'pai_personal_storage.schema.json');
         if (validateResult) {
             throw validateResult;
         }

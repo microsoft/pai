@@ -452,8 +452,23 @@
                     "group": "refresh"
                 },
                 {
+                    "command": "paiext.container.storage.refresh",
+                    "when": "view == PAIContainerStorage && viewItem && viewItem == PAIStoragePersonalRoot",
+                    "group": "refresh"
+                },
+                {
+                    "command": "paiext.container.storage.refresh",
+                    "when": "view == PAIContainerStorage && viewItem && viewItem == PAIStoragePersonalItem",
+                    "group": "refresh"
+                },
+                {
                     "command": "paiext.storage.delete",
                     "when": "view == PAIContainerStorage && viewItem && viewItem == PAIStorageFile",
+                    "group": "delete"
+                },
+                {
+                    "command": "paiext.storage.delete",
+                    "when": "view == PAIContainerStorage && viewItem && viewItem == PAIStorageFolder",
                     "group": "delete"
                 },
                 {
@@ -468,7 +483,7 @@
                 },
                 {
                     "command": "paiext.storage.upload.files",
-                    "when": "view == PAIContainerStorage && viewItem && viewItem == PAIStorageNFS",
+                    "when": "view == PAIContainerStorage && viewItem && viewItem == PAIStoragePersonalItem",
                     "group": "upload"
                 },
                 {
@@ -479,11 +494,6 @@
                 {
                     "command": "paiext.storage.create.folder",
                     "when": "view == PAIContainerStorage && viewItem && viewItem == PAIStorageMountPointItem",
-                    "group": "mkdir"
-                },
-                {
-                    "command": "paiext.storage.create.folder",
-                    "when": "view == PAIContainerStorage && viewItem && viewItem == PAIStorageNFS",
                     "group": "mkdir"
                 },
                 {

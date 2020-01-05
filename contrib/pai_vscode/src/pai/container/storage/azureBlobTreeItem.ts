@@ -303,15 +303,3 @@ export class AzureBlobRootItem extends StorageTreeNode {
         await AzureBlobManager.createFolder(this);
     }
 }
-
-/**
- * PAI azure blob personal storage root item.
- */
-export class PersonalAzureBlobRootItem extends AzureBlobRootItem {
-    public index: number;
-    public constructor(storage: IStorageServer, index: number, parent: StorageTreeNode) {
-        super(storage, '/', parent);
-        this.contextValue = CONTEXT_STORAGE_PERSONAL_ITEM;
-        this.index = index;
-    }
-}
