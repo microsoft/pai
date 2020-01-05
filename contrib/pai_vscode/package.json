@@ -427,11 +427,6 @@
                     "when": "view == PAIContainerJobList && viewItem && viewItem == PAIJobListCluster"
                 },
                 {
-                    "command": "paiext.storage.delete",
-                    "when": "view == PAIContainerStorage && viewItem && viewItem == PAIStorageFolder",
-                    "group": "delete"
-                },
-                {
                     "command": "paiext.container.storage.refresh",
                     "when": "view == PAIContainerStorage && viewItem && viewItem == PAIStorageTeamItem",
                     "group": "refresh"

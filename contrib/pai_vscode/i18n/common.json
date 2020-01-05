@@ -2,6 +2,7 @@
     "root": {
         "common.yes": "Yes",
         "common.no": "No",
+        "common.upload": "Upload",
         "common.finish": "Finish",
         "common.cancel": "Cancel",
         "common.edit": "Edit",
@@ -12,6 +13,7 @@
         "util.editjson.previousexpired": "Last session of editing configuration has expired.",
         "util.validatejson.error": "Error validating JSON",
         "util.openexternally.fail": "Failed to open default browser: {0}",
+        "util.remote.editor.save.prompt": "Please make sure you will change the remote file and click 'Upload' to save.",
         "cluster.activate.error": "{0}\nPAI cluster configurations has been cleared due to validation error(s). You may edit the previous configurations.",
         "cluster.activate.fix.discard": "Discard Configurations",
         "cluster.version.warning": "The version of the configurations is higher than supported. Would you like to edit or reset them?",
@@ -112,6 +114,7 @@
     "zh": {
         "common.yes": "是",
         "common.no": "否",
+        "common.upload": "上传",
         "common.finish": "完成",
         "common.cancel": "取消",
         "common.edit": "编辑",
@@ -122,6 +125,7 @@
         "util.editjson.previousexpired": "上一个修改配置的会话已经过期。",
         "util.validatejson.error": "JSON 校验失败",
         "util.openexternally.fail": "无法启动默认浏览器：{0}",
+        "util.remote.editor.save.prompt": "请确认你将修改这个远程文件，点击“上传”来保存。",
         "cluster.activate.error": "{0}\nPAI 集群配置校验失败，已经重置，您也可以编辑原有的配置",
         "cluster.activate.fix.discard": "放弃原有配置",
         "cluster.version.warning": "配置的版本高于当前支持的版本。您希望编辑或重置配置吗？",

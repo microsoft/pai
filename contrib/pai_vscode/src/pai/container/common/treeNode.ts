@@ -5,7 +5,7 @@
  */
 
 import {
-    TreeItem, TreeItemCollapsibleState
+    TreeItem, TreeItemCollapsibleState, Uri
 } from 'vscode';
 
 import {
@@ -79,7 +79,7 @@ export class StorageTreeNode extends TreeNode {
     /**
      * Upload file
      */
-    public async uploadFile(): Promise<void> {
+    public async uploadFile(file?: Uri[]): Promise<void> {
         console.log('Upload file not implemented.');
     }
 
@@ -93,7 +93,7 @@ export class StorageTreeNode extends TreeNode {
     /**
      * Download
      */
-    public async download(): Promise<void> {
+    public async download(dest?: Uri): Promise<void> {
         console.log('Download not implemented.');
     }
 

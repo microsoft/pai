@@ -20,8 +20,10 @@ import {
 } from '../../../common/constants';
 
 import { __ } from '../../../common/i18n';
+import { getSingleton } from '../../../common/singleton';
 import { Util } from '../../../common/util';
 import { NFSManager } from '../../storage/nfsManager';
+import { RemoteFileEditor } from '../../utility/remoteFileEditor';
 import { StorageTreeNode } from '../common/treeNode';
 
 /**
@@ -71,12 +73,12 @@ export class NFSTreeNode extends StorageTreeNode {
         }
     }
 
-    public async download(): Promise<void> {
-        await NFSManager.downloadFile(this);
+    public async download(dest?: Uri): Promise<void> {
+        await NFSManager.downloadFile(this, dest);
     }
 
-    public async uploadFile(): Promise<void> {
-        await NFSManager.uploadFiles(this);
+    public async uploadFile(files?: Uri[]): Promise<void> {
+        await NFSManager.uploadFiles(this, files);
     }
 
     public async delete(): Promise<void> {
@@ -84,7 +86,9 @@ export class NFSTreeNode extends StorageTreeNode {
     }
 
     public async openFile(): Promise<void> {
-        await NFSManager.showEditor(this);
+        const remoteFileEditor: RemoteFileEditor =
+            await getSingleton(RemoteFileEditor);
+        await remoteFileEditor.showEditor(this);
     }
 
     public async uploadFolder(): Promise<void> {
@@ -128,8 +132,8 @@ export class NFSRootNode extends StorageTreeNode {
         }
     }
 
-    public async uploadFile(): Promise<void> {
-        await NFSManager.uploadFiles(this);
+    public async uploadFile(files?: Uri[]): Promise<void> {
+        await NFSManager.uploadFiles(this, files);
     }
 
     public async uploadFolder(): Promise<void> {

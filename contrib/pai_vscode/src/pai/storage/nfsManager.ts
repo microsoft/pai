@@ -7,7 +7,7 @@
 import * as fs from 'fs-extra';
 import * as path from 'path';
 import {
-    window, workspace, StatusBarAlignment, StatusBarItem, TextDocument, Uri
+    window, StatusBarAlignment, StatusBarItem, Uri
 } from 'vscode';
 
 import {
@@ -23,34 +23,12 @@ import { NFSRootNode, NFSTreeNode } from '../container/storage/nfsTreeItem';
  */
 // tslint:disable-next-line: no-unnecessary-class
 export class NFSManager {
-    private static fileMap: { [key: string]: [TextDocument, NFSTreeNode] } = {};
-
     public static async delete(target: NFSTreeNode): Promise<void> {
         try {
             await fs.remove(target.rootPath);
             Util.info('storage.delete.success');
         } catch (err) {
             Util.err('storage.delete.error', [err]);
-        }
-    }
-
-    public static async showEditor(target: NFSTreeNode): Promise<void> {
-        const fileName: string = target.name;
-
-        try {
-            const parsedPath: path.ParsedPath = path.posix.parse(fileName);
-            const temporaryFilePath: string = await Util.createTemporaryFile(parsedPath.base);
-            await this.downloadFile(target, Uri.file(temporaryFilePath));
-            const document: TextDocument | undefined = <TextDocument | undefined>
-                await workspace.openTextDocument(temporaryFilePath);
-            if (document) {
-                this.fileMap[temporaryFilePath] = [document, target];
-                await window.showTextDocument(document);
-            } else {
-                Util.err('storage.download.error', 'Unable to open');
-            }
-        } catch (err) {
-            Util.err('storage.download.error', [err]);
         }
     }
 
@@ -100,12 +78,17 @@ export class NFSManager {
         }
     }
 
-    public static async uploadFiles(target: NFSTreeNode | NFSRootNode | MountPointTreeNode): Promise<void> {
-        const files: Uri[] | undefined = await window.showOpenDialog({
-            canSelectFiles: true,
-            canSelectMany: true,
-            openLabel: __('storage.dialog.label.upload-files')
-        });
+    public static async uploadFiles(
+        target: NFSTreeNode | NFSRootNode | MountPointTreeNode,
+        files?: Uri[]
+    ): Promise<void> {
+        if (!files) {
+            files = await window.showOpenDialog({
+                canSelectFiles: true,
+                canSelectMany: true,
+                openLabel: __('storage.dialog.label.upload-files')
+            });
+        }
         if (!files) {
             return;
         }

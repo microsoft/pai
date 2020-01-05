@@ -5,7 +5,7 @@
  */
 
 import { IStorageServer } from 'openpai-js-sdk';
-import { TreeItemCollapsibleState } from 'vscode';
+import { TreeItemCollapsibleState, Uri } from 'vscode';
 
 import {
     CONTEXT_STORAGE_PERSONAL_ITEM,
@@ -55,8 +55,8 @@ export class PersonalStorageTreeNode extends StorageTreeNode {
         await this.data.loadMore();
     }
 
-    public async uploadFile(): Promise<void> {
-        await this.data.uploadFile();
+    public async uploadFile(files?: Uri[]): Promise<void> {
+        await this.data.uploadFile(files);
     }
 
     public async uploadFolder(): Promise<void> {

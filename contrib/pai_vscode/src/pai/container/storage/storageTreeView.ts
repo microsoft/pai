@@ -8,8 +8,10 @@ import { injectable } from 'inversify';
 import {
     commands,
     window,
+    workspace,
     Event,
     EventEmitter,
+    TextDocument,
     TreeDataProvider,
     TreeItem,
     TreeView
@@ -33,6 +35,7 @@ import { __ } from '../../../common/i18n';
 import { getSingleton, Singleton } from '../../../common/singleton';
 import { ClusterManager } from '../../clusterManager';
 import { IPAICluster } from '../../utility/paiInterface';
+import { RemoteFileEditor } from '../../utility/remoteFileEditor';
 import { StorageTreeNode, TreeNode } from '../common/treeNode';
 import { ClusterExplorerChildNode } from '../configurationTreeDataProvider';
 
@@ -113,6 +116,13 @@ export class StorageTreeDataProvider extends Singleton implements TreeDataProvid
                         await target.loadMore();
                         this.onDidChangeTreeDataEmitter.fire(target);
                     }
+                }
+            ),
+            workspace.onDidSaveTextDocument(
+                async (doc: TextDocument) => {
+                    const remoteFileEditor: RemoteFileEditor =
+                        await getSingleton(RemoteFileEditor);
+                    await remoteFileEditor.onDidSaveTextDocument(doc);
                 }
             )
         );

@@ -12,10 +12,8 @@ import {
 import * as path from 'path';
 import {
     window,
-    workspace,
     StatusBarAlignment,
     StatusBarItem,
-    TextDocument,
     Uri
 } from 'vscode';
 
@@ -28,14 +26,13 @@ import { Util } from '../../common/util';
 import {
     AzureBlobRootItem, AzureBlobTreeItem, BlobEntity, BlobIter, BlobValue
 } from '../container/storage/azureBlobTreeItem';
+import { StorageTreeNode } from '../container/common/treeNode';
 
 /**
  * Azure blob management module
  */
 // tslint:disable-next-line: no-unnecessary-class
 export class AzureBlobManager {
-    public static fileMap: { [key: string]: [TextDocument, AzureBlobTreeItem] } = {};
-
     public static async delete(target: AzureBlobTreeItem): Promise<void> {
         try {
             if (target.blob.kind === 'blob') {
@@ -67,26 +64,6 @@ export class AzureBlobManager {
                 await this.deleteBlobsByHierarchy(client, blob.name);
             }
             blobItem = await iter.next();
-        }
-    }
-
-    public static async showEditor(item: AzureBlobTreeItem): Promise<void> {
-        const fileName: string = item.blob.name;
-
-        try {
-            const parsedPath: path.ParsedPath = path.posix.parse(fileName);
-            const temporaryFilePath: string = await Util.createTemporaryFile(parsedPath.base);
-            await this.downloadFile(item, Uri.file(temporaryFilePath));
-            const document: TextDocument | undefined = <TextDocument | undefined>
-                await workspace.openTextDocument(temporaryFilePath);
-            if (document) {
-                this.fileMap[temporaryFilePath] = [document, item];
-                await window.showTextDocument(document);
-            } else {
-                Util.err('storage.download.error', 'Unable to open');
-            }
-        } catch (err) {
-            Util.err('storage.download.error', [err]);
         }
     }
 
@@ -184,7 +161,7 @@ export class AzureBlobManager {
     }
 
     public static async uploadFolders(
-        target: AzureBlobTreeItem | AzureBlobRootItem,
+        target: StorageTreeNode,
         folders?: Uri[]
     ): Promise<void> {
         if (!folders) {

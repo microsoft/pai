@@ -24,14 +24,15 @@ import {
     CONTEXT_STORAGE_FILE,
     CONTEXT_STORAGE_FOLDER,
     CONTEXT_STORAGE_LOAD_MORE,
-    CONTEXT_STORAGE_PERSONAL_ITEM,
     ICON_FILE,
     ICON_FOLDER,
     ICON_STORAGE
 } from '../../../common/constants';
 import { __ } from '../../../common/i18n';
+import { getSingleton } from '../../../common/singleton';
 import { Util } from '../../../common/util';
 import { AzureBlobManager } from '../../storage/azureBlobManager';
+import { RemoteFileEditor } from '../../utility/remoteFileEditor';
 import { StorageLoadMoreTreeNode, StorageTreeNode } from '../common/treeNode';
 
 export type BlobIter = PagedAsyncIterableIterator<({
@@ -180,12 +181,12 @@ export class AzureBlobTreeItem extends StorageTreeNode {
         }
     }
 
-    public async download(): Promise<void> {
-        await AzureBlobManager.downloadFile(this);
+    public async download(dest?: Uri): Promise<void> {
+        await AzureBlobManager.downloadFile(this, dest);
     }
 
-    public async uploadFile(): Promise<void> {
-        await AzureBlobManager.uploadFiles(this);
+    public async uploadFile(files?: Uri[]): Promise<void> {
+        await AzureBlobManager.uploadFiles(this, files);
     }
 
     public async delete(): Promise<void> {
@@ -193,7 +194,9 @@ export class AzureBlobTreeItem extends StorageTreeNode {
     }
 
     public async openFile(): Promise<void> {
-        await AzureBlobManager.showEditor(this);
+        const remoteFileEditor: RemoteFileEditor =
+            await getSingleton(RemoteFileEditor);
+        await remoteFileEditor.showEditor(this);
     }
 
     public async uploadFolder(): Promise<void> {
@@ -291,8 +294,8 @@ export class AzureBlobRootItem extends StorageTreeNode {
         }
     }
 
-    public async uploadFile(): Promise<void> {
-        await AzureBlobManager.uploadFiles(this);
+    public async uploadFile(files?: Uri[]): Promise<void> {
+        await AzureBlobManager.uploadFiles(this, files);
     }
 
     public async uploadFolder(): Promise<void> {

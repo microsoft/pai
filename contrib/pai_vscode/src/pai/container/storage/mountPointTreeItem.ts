@@ -5,7 +5,7 @@
  */
 
 import { IMountInfo, IStorageServer } from 'openpai-js-sdk';
-import { TreeItemCollapsibleState } from 'vscode';
+import { TreeItemCollapsibleState, Uri } from 'vscode';
 
 import {
     CONTEXT_STORAGE_MOUNTPOINT_ITEM
@@ -52,12 +52,8 @@ export class MountPointTreeNode extends StorageTreeNode {
         await this.data.loadMore();
     }
 
-    public async uploadFile(): Promise<void> {
-        await this.data.uploadFile();
-    }
-
-    public async uploadFolder(): Promise<void> {
-        await this.data.uploadFolder();
+    public async uploadFile(files?: Uri[]): Promise<void> {
+        await this.data.uploadFile(files);
     }
 
     public async createFolder(): Promise<void> {
