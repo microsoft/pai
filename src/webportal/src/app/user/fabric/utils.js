@@ -74,7 +74,6 @@ const sshKeyValueSchema = Joi.string()
   .required();
 export const checkSshKeyValue = value => {
   const { error } = Joi.validate(value, sshKeyValueSchema);
-  console.log(value)
   if (error) {
     return error.message.replace('"value"', 'SSH public key value');
   } else {
