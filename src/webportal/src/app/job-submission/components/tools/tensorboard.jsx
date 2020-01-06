@@ -1,13 +1,9 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import PropTypes from 'prop-types';
 import { cloneDeep, isNil, get } from 'lodash';
 import { Hint } from '../sidebar/hint';
 import { TooltipIcon } from '../controls/tooltip-icon';
-import {
-  TENSORBOARD_LOG_PATH,
-  TENSORBOARD_PORT,
-  PAI_PLUGIN,
-} from '../../utils/constants';
+import { TENSORBOARD_LOG_PATH, PAI_PLUGIN } from '../../utils/constants';
 import {
   FontWeights,
   Toggle,
@@ -25,11 +21,11 @@ const style = {
   },
 };
 
-const generateDefaultTensorBoardExtras = () => {
+const generateDefaultTensorBoardExtras = port => {
   const tensorBoardExtras = {
     plugin: 'tensorboard',
     parameters: {
-      port: TENSORBOARD_PORT,
+      port: port,
       logdir: {
         path: TENSORBOARD_LOG_PATH,
       },
@@ -41,6 +37,12 @@ const generateDefaultTensorBoardExtras = () => {
 export const TensorBoard = props => {
   const { extras, onChange } = props;
 
+  // TensorBoard will use random port in [10000, 10100)
+  const tensorBoardPort = useMemo(
+    () => Math.floor(Math.random() * 100 + 10000),
+    [],
+  );
+
   const onTensorBoardChange = useCallback(
     (_, isChecked) => {
       let updatedExtras = cloneDeep(extras);
@@ -50,7 +52,7 @@ export const TensorBoard = props => {
       let plugins = get(updatedExtras, [PAI_PLUGIN], []);
 
       if (isChecked) {
-        const tensorBoard = generateDefaultTensorBoardExtras();
+        const tensorBoard = generateDefaultTensorBoardExtras(tensorBoardPort);
         plugins.push(tensorBoard);
       } else {
         plugins = plugins.filter(plugin => plugin.plugin !== 'tensorboard');
@@ -58,7 +60,7 @@ export const TensorBoard = props => {
       updatedExtras[PAI_PLUGIN] = plugins;
       onChange(updatedExtras);
     },
-    [onChange, extras],
+    [onChange, extras, tensorBoardPort],
   );
 
   return (
@@ -72,8 +74,8 @@ export const TensorBoard = props => {
       </Stack>
       <Hint>
         By default, tensorBoard will read logs under{' '}
-        <code>{TENSORBOARD_LOG_PATH}</code> and use port{' '}
-        <code>{TENSORBOARD_PORT}</code>.
+        <code>{TENSORBOARD_LOG_PATH}</code> and use random port in{' '}
+        <code>[10000, 10100)</code>.
       </Hint>
       <Toggle
         label='Enable TensorBoard'

@@ -20,7 +20,6 @@ export const SECRET_PATTERN = /^<% \$secrets.([a-zA-Z_][a-zA-Z0-9_]*) %>/;
 
 export const ERROR_MARGIN = 22.15;
 export const TENSORBOARD_LOG_PATH = '/mnt/tensorboard';
-export const TENSORBOARD_PORT = 10000;
 // Wrap comments with `` just a workaround, we may need to change rest-server or
 // runtime to support comments in commands filed
 export const CUSTOM_STORAGE_START = '`#CUSTOM_STORAGE_START`';

@@ -29,7 +29,7 @@ from plugins.plugin_utils import plugin_init, PluginHelper  #pylint: disable=wro
 LOGGER = logging.getLogger(__name__)
 TASK_ROLE_NAME = os.getenv("PAI_CURRENT_TASK_ROLE_NAME")
 TASK_ROLE_LIST = os.getenv("PAI_TASK_ROLE_LIST").split(",")
-TASK_ROLE_INDEX = int(os.getenv("PAI_TASK_INDEX"))
+TASK_ROLE_INDEX = int(os.getenv("PAI_CURRENT_TASK_ROLE_CURRENT_TASK_INDEX"))
 
 
 def generate_tensorboard_commands(template_file, parameters):

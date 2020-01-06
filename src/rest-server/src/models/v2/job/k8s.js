@@ -438,7 +438,7 @@ const generateTaskRole = (frameworkName, taskRole, jobInfo, config, storageConfi
                   value: taskRole,
                 },
                 {
-                  name: 'PAI_TASK_INDEX',
+                  name: 'PAI_CURRENT_TASK_ROLE_CURRENT_TASK_INDEX',
                   valueFrom: {
                     fieldRef: {
                       fieldPath: `metadata.annotations['FC_TASK_INDEX']`,

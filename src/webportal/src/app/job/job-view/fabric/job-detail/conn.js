@@ -156,13 +156,12 @@ export function getTensorBoardUrl(jobInfo, rawJobConfig) {
   }
 
   const taskRoles = jobInfo.taskRoles;
-  Object.keys(taskRoles).forEach(taskRoleKey => {
-    const taskStatuses = taskRoles[taskRoleKey].taskStatuses[0];
-    if (taskStatuses.taskState === 'RUNNING') {
-      port = get(tensorBoardPlugin, 'parameters.port');
-      ip = taskStatuses.containerIp;
-    }
-  });
+  const firstTaskRoleName = Object.keys(taskRoles)[0];
+  const taskStatuses = taskRoles[firstTaskRoleName].taskStatuses[0];
+  if (taskStatuses.taskState === 'RUNNING') {
+    port = get(tensorBoardPlugin, 'parameters.port');
+    ip = taskStatuses.containerIp;
+  }
 
   if (isNil(port) || isNil(ip)) {
     return null;
