@@ -48,6 +48,7 @@ echo "Clone kubespray source code from github"
 git clone https://github.com/kubernetes-sigs/kubespray.git
 
 echo "Checkout to the Release Branch"
+cd kubespray
 git checkout release-2.11
 
 echo "Copy inventory folder, and save it "
