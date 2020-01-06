@@ -105,6 +105,7 @@ export default class Summary extends React.Component {
     this.setHideDialog = this.setHideDialog.bind(this);
     this.checkRetryHealthy = this.checkRetryHealthy.bind(this);
     this.checkRetryLink = this.checkRetryLink.bind(this);
+    this.hasRetries = this.hasRetries.bind(this);
   }
 
   async componentDidMount() {
@@ -361,6 +362,16 @@ export default class Summary extends React.Component {
     }
   }
 
+  hasRetries() {
+    const { jobInfo } = this.props;
+
+    if (isNil(jobInfo.jobStatus.retries) || jobInfo.jobStatus.retries === 0) {
+      return false;
+    } else {
+      return true;
+    }
+  }
+
   render() {
     const {
       autoReloadInterval,
@@ -561,84 +572,89 @@ export default class Summary extends React.Component {
               >
                 Go to Job Metrics Page
               </Link>
-              <div className={c(t.bl, t.mh3)}></div>
-              <Link
-                styles={{ root: [FontClassNames.mediumPlus] }}
-                href={getTensorBoardUrl(jobInfo, rawJobConfig)}
-                disabled={isNil(getTensorBoardUrl(jobInfo, rawJobConfig))}
-                target='_blank'
-              >
-                Go to TensorBoard Page
-              </Link>
-              <div className={c(t.bl, t.mh3)}></div>
-              <div className={c(t.flex)}>
-                <Link
-                  styles={{ root: [FontClassNames.mediumPlus] }}
-                  href={`job-retry.html?username=${namespace}&jobName=${jobName}`}
-                  disabled={!this.checkRetryLink()}
-                  target='_blank'
-                >
-                  Go to Retry History Page
-                </Link>
-                {config.jobHistory !== 'true' && (
-                  <div className={t.ml2}>
-                    <TooltipHost
-                      calloutProps={{
-                        isBeakVisible: false,
-                      }}
-                      tooltipProps={{
-                        onRenderContent: () => (
-                          <div className={c(t.flex, t.itemsCenter)}>
-                            {HISTORY_DISABLE_MESSAGE}
-                          </div>
-                        ),
-                      }}
-                      directionalHint={DirectionalHint.topLeftEdge}
-                    >
-                      <div>
-                        <Icon
-                          iconName='Info'
-                          styles={{
-                            root: [
-                              { fontSize: IconFontSizes.medium },
-                              ColorClassNames.neutralSecondary,
-                            ],
-                          }}
-                        />
-                      </div>
-                    </TooltipHost>
-                  </div>
-                )}
-                {config.jobHistory === 'true' && !isRetryHealthy && (
-                  <div className={t.ml2}>
-                    <TooltipHost
-                      calloutProps={{
-                        isBeakVisible: false,
-                      }}
-                      tooltipProps={{
-                        onRenderContent: () => (
-                          <div className={c(t.flex, t.itemsCenter)}>
-                            {HISTORY_API_ERROR_MESSAGE}
-                          </div>
-                        ),
-                      }}
-                      directionalHint={DirectionalHint.topLeftEdge}
-                    >
-                      <div>
-                        <Icon
-                          iconName='Warning'
-                          styles={{
-                            root: [
-                              { fontSize: IconFontSizes.medium },
-                              ColorClassNames.neutralSecondary,
-                            ],
-                          }}
-                        />
-                      </div>
-                    </TooltipHost>
-                  </div>
-                )}
-              </div>
+              {!isNil(getTensorBoardUrl(jobInfo, rawJobConfig)) && (
+                <div className={c(t.flex)}>
+                  <div className={c(t.bl, t.mh3)}></div>
+                  <Link
+                    styles={{ root: [FontClassNames.mediumPlus] }}
+                    href={getTensorBoardUrl(jobInfo, rawJobConfig)}
+                    target='_blank'
+                  >
+                    Go to TensorBoard Page
+                  </Link>
+                </div>
+              )}
+              {this.hasRetries() && (
+                <div className={c(t.flex)}>
+                  <div className={c(t.bl, t.mh3)}></div>
+                  <Link
+                    styles={{ root: [FontClassNames.mediumPlus] }}
+                    href={`job-retry.html?username=${namespace}&jobName=${jobName}`}
+                    disabled={!this.checkRetryLink()}
+                    target='_blank'
+                  >
+                    Go to Retry History Page
+                  </Link>
+                  {config.jobHistory !== 'true' && (
+                    <div className={t.ml2}>
+                      <TooltipHost
+                        calloutProps={{
+                          isBeakVisible: false,
+                        }}
+                        tooltipProps={{
+                          onRenderContent: () => (
+                            <div className={c(t.flex, t.itemsCenter)}>
+                              {HISTORY_DISABLE_MESSAGE}
+                            </div>
+                          ),
+                        }}
+                        directionalHint={DirectionalHint.topLeftEdge}
+                      >
+                        <div>
+                          <Icon
+                            iconName='Info'
+                            styles={{
+                              root: [
+                                { fontSize: IconFontSizes.medium },
+                                ColorClassNames.neutralSecondary,
+                              ],
+                            }}
+                          />
+                        </div>
+                      </TooltipHost>
+                    </div>
+                  )}
+                  {config.jobHistory === 'true' && !isRetryHealthy && (
+                    <div className={t.ml2}>
+                      <TooltipHost
+                        calloutProps={{
+                          isBeakVisible: false,
+                        }}
+                        tooltipProps={{
+                          onRenderContent: () => (
+                            <div className={c(t.flex, t.itemsCenter)}>
+                              {HISTORY_API_ERROR_MESSAGE}
+                            </div>
+                          ),
+                        }}
+                        directionalHint={DirectionalHint.topLeftEdge}
+                      >
+                        <div>
+                          <Icon
+                            iconName='Warning'
+                            styles={{
+                              root: [
+                                { fontSize: IconFontSizes.medium },
+                                ColorClassNames.neutralSecondary,
+                              ],
+                            }}
+                          />
+                        </div>
+                      </TooltipHost>
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
             <div>
               <span>
