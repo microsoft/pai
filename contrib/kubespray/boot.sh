@@ -145,3 +145,17 @@ sudo docker run -itd \
         openpai/dev-box:preview-v0.16
 
 sudo docker exec -it dev-box-quick-start kubectl get node
+
+# Work in dev-box
+sudo docker exec -i dev-box-quick-start /bin/bash << EOF_DEV_BOX
+cd /pai
+
+git checkout master
+git pull
+
+# 1. Push cluster config to cluster
+echo -e "pai\n" | python paictl.py config push -p /cluster-configuration -m service
+
+# 2. Start OpenPAI service
+echo -e "pai\n" | python paictl.py service start
+EOF_DEV_BOX
