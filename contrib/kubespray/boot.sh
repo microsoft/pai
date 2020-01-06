@@ -151,6 +151,8 @@ sudo docker exec -it dev-box-quick-start kubectl get node
 sudo docker exec -i dev-box-quick-start /bin/bash << EOF_DEV_BOX
 cd /pai
 
+rm -f ./.git/index.lock
+
 git checkout master
 git pull
 
