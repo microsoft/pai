@@ -75,9 +75,9 @@ const encodeName = (name) => {
   }
 };
 
-const decodeName = (name, labels) => {
-  if (labels && labels.jobName) {
-    return labels.jobName;
+const decodeName = (name, annotations) => {
+  if (annotations && annotations.jobName) {
+    return annotations.jobName;
   } else {
     // framework name has not been encoded
     return name;
@@ -149,7 +149,7 @@ const convertFrameworkSummary = (framework) => {
   const completionStatus = framework.status.attemptStatus.completionStatus;
   return {
     debugId: framework.metadata.name,
-    name: decodeName(framework.metadata.name, framework.metadata.labels),
+    name: decodeName(framework.metadata.name, framework.metadata.annotations),
     username: framework.metadata.labels ? framework.metadata.labels.userName : 'unknown',
     state: convertState(
       framework.status.state,
@@ -252,7 +252,7 @@ const convertFrameworkDetail = async (framework) => {
   const exitDiagnostics = generateExitDiagnostics(diagnostics);
   const detail = {
     debugId: framework.metadata.name,
-    name: decodeName(framework.metadata.name, framework.metadata.labels),
+    name: decodeName(framework.metadata.name, framework.metadata.annotations),
     jobStatus: {
       username: framework.metadata.labels ? framework.metadata.labels.userName : 'unknown',
       state: convertState(
@@ -298,7 +298,7 @@ const convertFrameworkDetail = async (framework) => {
   }
 
   const userName = framework.metadata.labels ? framework.metadata.labels.userName : 'unknown';
-  const jobName = decodeName(framework.metadata.name, framework.metadata.labels);
+  const jobName = decodeName(framework.metadata.name, framework.metadata.annotations);
 
   for (let taskRoleStatus of framework.status.attemptStatus.taskRoleStatuses) {
     detail.taskRoles[taskRoleStatus.name] = {
@@ -381,7 +381,8 @@ const generateTaskRole = (frameworkName, taskRole, labels, config, storageConfig
       pod: {
         metadata: {
           labels: {
-            ...labels,
+            userName: labels.userName,
+            virtualCluster: labels.virtualCluster,
             type: 'kube-launcher-task',
           },
           annotations: {
@@ -594,8 +595,12 @@ const generateFrameworkDescription = (frameworkName, virtualCluster, config, raw
     kind: 'Framework',
     metadata: {
       name: encodeName(frameworkName),
-      labels: frameworkLabels,
+      labels: {
+        userName: frameworkLabels.userName,
+        virtualCluster: frameworkLabels.virtualCluster,
+      },
       annotations: {
+        jobName: frameworkLabels.jobName,
         config: protocolSecret.mask(rawConfig),
       },
     },
