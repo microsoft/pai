@@ -153,6 +153,7 @@ interface IProtocolState {
   protocol: any;
   protocolYAML: string;
   fileOption: string | number | undefined;
+  fileName: string | undefined;
   marketplaceOption: string | number | undefined;
   loading: boolean;
   showParameters: boolean;
@@ -165,6 +166,7 @@ export default class ProtocolForm extends React.Component<IProtocolProps, IProto
     protocol: Object.create(null),
     protocolYAML: "",
     fileOption: "local",
+    fileName: undefined,
     marketplaceOption: undefined,
     loading: true,
     showParameters: true,
@@ -224,18 +226,27 @@ export default class ProtocolForm extends React.Component<IProtocolProps, IProto
             <Stack gap={10} horizontal={true} verticalAlign="baseline">
               {render!(props)}
               <Label>Upload from local disk</Label>
-              <label className={styles.fileLabel}>
-                <a className={cx({fileBtn: true, fileDisabled: !(props && props.checked)})}>
-                  Import
-                </a>
-                <input
-                  type="file"
-                  className={styles.fileInput}
-                  accept=".yml,.yaml"
-                  onChange={this.importFile}
-                  disabled={props ? !props.checked : false}
-                />
-              </label>
+              <Stack gap={5} wrap={true} horizontal={true} verticalAlign="center">
+                <Stack>
+                  <label className={styles.fileLabel}>
+                    <a className={cx({fileBtn: true, fileDisabled: !(props && props.checked)})}>
+                      Import
+                    </a>
+                    <input
+                      type="file"
+                      className={styles.fileInput}
+                      accept=".yml,.yaml"
+                      onChange={this.importFile}
+                      disabled={props ? !props.checked : false}
+                    />
+                  </label>
+                </Stack>
+                <Stack>
+                  <Label disabled={props ? !props.checked : false}>
+                    {this.state.fileName}
+                  </Label>
+                </Stack>
+              </Stack>
             </Stack>
           );
         },
@@ -424,6 +435,7 @@ export default class ProtocolForm extends React.Component<IProtocolProps, IProto
       }
     });
     fileReader.readAsText(files[0]);
+    this.setState({ fileName: files[0].name });
   }
 
   private changeFileOption = (event?: React.FormEvent<HTMLElement>, option?: IChoiceGroupOption) => {
