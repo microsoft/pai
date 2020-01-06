@@ -142,7 +142,7 @@ sudo docker run -itd \
         --privileged=true \
         --net=host \
         --name=dev-box-quick-start \
-        openpai/dev-box:preview-v0.16
+        openpai/dev-box:quick-start
 
 sudo docker exec -it dev-box-quick-start kubectl get node
 
