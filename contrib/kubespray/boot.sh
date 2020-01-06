@@ -156,6 +156,9 @@ rm -f ./.git/index.lock
 git checkout master
 git pull
 
+# TODO: This should be done at our source code.
+kubectl create namespace pai-storage
+
 # 1. Push cluster config to cluster
 echo -e "pai\n" | python paictl.py config push -p /cluster-configuration -m service
 
