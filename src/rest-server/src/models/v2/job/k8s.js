@@ -36,6 +36,7 @@ const fs = require('fs');
 const _ = require('lodash');
 const logger = require('@pai/config/logger');
 const {apiserver} = require('@pai/config/kubernetes');
+const restServerConfig = require('@pai/config');
 
 let exitSpecPath;
 if (process.env[env.exitSpecPath]) {
@@ -337,7 +338,7 @@ const convertFrameworkDetail = async (framework) => {
   return detail;
 };
 
-const generateTaskRole = (frameworkName, taskRole, labels, config, storageConfig) => {
+const generateTaskRole = (frameworkName, taskRole, labels, config, userToken, storageConfig) => {
   const ports = config.taskRoles[taskRole].resourcePerInstance.ports || {};
   for (let port of ['ssh', 'http']) {
     if (!(port in ports)) {
@@ -416,8 +417,16 @@ const generateTaskRole = (frameworkName, taskRole, labels, config, storageConfig
                   value: labels.userName,
                 },
                 {
+                  name: 'PAI_USER_TOKEN',
+                  value: userToken,
+                },
+                {
                   name: 'PAI_JOB_NAME',
                   value: `${labels.userName}~${labels.jobName}`,
+                },
+                {
+                  name: 'PAI_REST_SERVER_URI',
+                  value: restServerConfig.restServerUri,
                 },
                 {
                   name: 'STORAGE_CONFIGS',
@@ -582,7 +591,7 @@ const generateTaskRole = (frameworkName, taskRole, labels, config, storageConfig
   return frameworkTaskRole;
 };
 
-const generateFrameworkDescription = (frameworkName, virtualCluster, config, rawConfig, storageConfig) => {
+const generateFrameworkDescription = (frameworkName, virtualCluster, config, rawConfig, userToken, storageConfig) => {
   const [userName, jobName] = frameworkName.split(/~(.+)/);
   const frameworkLabels = {
     jobName,
@@ -617,7 +626,7 @@ const generateFrameworkDescription = (frameworkName, virtualCluster, config, raw
   let totalGpuNumber = 0;
   for (let taskRole of Object.keys(config.taskRoles)) {
     totalGpuNumber += config.taskRoles[taskRole].resourcePerInstance.gpu * config.taskRoles[taskRole].instances;
-    const taskRoleDescription = generateTaskRole(frameworkName, taskRole, frameworkLabels, config, storageConfig);
+    const taskRoleDescription = generateTaskRole(frameworkName, taskRole, frameworkLabels, config, userToken, storageConfig);
     taskRoleDescription.task.pod.spec.priorityClassName = `${encodeName(frameworkName)}-priority`;
     taskRoleDescription.task.pod.spec.containers[0].env.push(...envlist.concat([
       {
@@ -865,7 +874,7 @@ const get = async (frameworkName) => {
   }
 };
 
-const put = async (frameworkName, config, rawConfig) => {
+const put = async (frameworkName, config, rawConfig, userToken) => {
   const [userName] = frameworkName.split(/~(.+)/);
 
   const virtualCluster = ('defaults' in config && config.defaults.virtualCluster != null) ?
@@ -876,7 +885,7 @@ const put = async (frameworkName, config, rawConfig) => {
   }
 
   const storageConfig = await userModel.getUserStorageConfigs(userName);
-  const frameworkDescription = generateFrameworkDescription(frameworkName, virtualCluster, config, rawConfig, storageConfig);
+  const frameworkDescription = generateFrameworkDescription(frameworkName, virtualCluster, config, rawConfig, userToken, storageConfig);
 
   // generate image pull secret
   const auths = Object.values(config.prerequisites.dockerimage)

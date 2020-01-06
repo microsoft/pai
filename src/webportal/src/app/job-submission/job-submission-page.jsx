@@ -295,6 +295,7 @@ export const JobSubmissionPage = ({
             plugin: 'ssh',
             parameters: {
               jobssh: true,
+              enable: false
             },
           },
         ];

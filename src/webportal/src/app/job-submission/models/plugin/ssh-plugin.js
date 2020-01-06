@@ -23,15 +23,16 @@
  * SOFTWARE.
  */
 
-import { get } from 'lodash';
+import { get, isEmpty } from 'lodash';
 import { removeEmptyProperties } from '../../utils/utils';
 import { PAI_PLUGIN } from '../../utils/constants';
 
 export class SSHPlugin {
   constructor(props) {
-    const { jobssh, userssh } = props;
+    const { jobssh, userssh, enable} = props;
     this.jobssh = jobssh || false;
     this.userssh = userssh || {};
+    this.enable = enable || !(isEmpty(userssh)) || false;
   }
 
   static fromProtocol(extras) {
@@ -45,11 +46,13 @@ export class SSHPlugin {
     } else {
       const jobssh = get(sshPluginProtocol, 'parameters.jobssh', false);
       const userssh = get(sshPluginProtocol, 'parameters.userssh', {});
+      const enable = get(sshPluginProtocol, 'parameters.enable', false) || !(isEmpty(userssh));
 
       return new SSHPlugin({
         ...sshPluginProtocol,
         jobssh: jobssh,
         userssh: userssh,
+        enable: enable
       });
     }
   }
@@ -60,6 +63,7 @@ export class SSHPlugin {
       parameters: {
         jobssh: this.jobssh,
         userssh: this.userssh,
+        enable: this.enable,
       },
     });
   }

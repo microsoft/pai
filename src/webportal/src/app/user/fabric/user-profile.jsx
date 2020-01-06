@@ -35,13 +35,18 @@ import {
   updateUserEmailRequest,
   listStorageServerRequest,
   listStorageConfigRequest,
+  createSshKeyRequest,
+  getSshKeyRequest,
+  deleteSshKeyRequest
 } from './conn';
 
 import t from '../../components/tachyons.scss';
 import { VirtualClusterDetailsList } from '../../home/home/virtual-cluster-statistics';
 import TokenList from './user-profile/token-list';
 import UserProfileHeader from './user-profile/header';
+import SshKeyHeader from './user-profile/ssh-key-header';
 import StorageList from './user-profile/storage-list';
+import SshKeyList from './user-profile/ssh-key-list';
 
 const UserProfileCard = ({ title, children, headerButton }) => {
   const { spacing } = getTheme();
@@ -72,6 +77,7 @@ const UserProfile = () => {
   const [userInfo, setUserInfo] = useState(null);
   const [virtualClusters, setVirtualClusters] = useState(null);
   const [tokens, setTokens] = useState(null);
+  const [sshKeys, setSshKeys] = useState(null);
   const [storageConfigs, setStorageConfigs] = useState(null);
   const [storageServers, setStorageServers] = useState(null);
 
@@ -84,12 +90,14 @@ const UserProfile = () => {
       const tokenPromise = getTokenRequest();
       const storageConfigPromise = listStorageConfigRequest();
       const storageServerPromise = listStorageServerRequest();
+      const sshKeyPromise = getSshKeyRequest(cookies.get('user'));
       await Promise.all([
         userPromise,
         vcPromise,
         tokenPromise,
         storageConfigPromise,
         storageServerPromise,
+        sshKeyPromise,
       ]).catch(err => {
         alert(err);
         throw err;
@@ -120,6 +128,9 @@ const UserProfile = () => {
         ),
       );
       setStorageServers(storageServers);
+      // ssh keys
+      const sshKeys = await sshKeyPromise;
+      setSshKeys(sshKeys);
       setLoading(false);
     };
     fetchData();
@@ -151,6 +162,16 @@ const UserProfile = () => {
     await getTokenRequest().then(res => setTokens(res.tokens));
   });
 
+  const onCreateSshCustomKey = useCallback(async ( { sshKeyName, sshKeyValue } ) => {
+    await createSshKeyRequest(userInfo.username, sshKeyName, sshKeyValue);
+    await getSshKeyRequest(userInfo.username).then(res => setSshKeys(res));
+  })
+
+  const onRevokeSshKey = useCallback(async sshKeyName => {
+    await deleteSshKeyRequest(userInfo.username, sshKeyName);
+    await getSshKeyRequest(userInfo.username).then(res => setSshKeys(res));
+  });
+
   const { spacing } = getTheme();
 
   if (loading) {
@@ -167,6 +188,17 @@ const UserProfile = () => {
               onEditPassword={onEditPassword}
             />
           </Card>
+          <UserProfileCard
+            title='SSH Public Keys'
+            headerButton={
+              <SshKeyHeader
+                onCreateSshCustomKey={onCreateSshCustomKey}
+              >
+              </SshKeyHeader>
+            }
+          >
+            <SshKeyList sshKeys={sshKeys} onRevoke={onRevokeSshKey} />
+          </UserProfileCard>
           <UserProfileCard
             title='Tokens'
             headerButton={

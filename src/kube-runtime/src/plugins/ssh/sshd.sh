@@ -92,7 +92,7 @@ function prepare_system_user_ssh()
 
 function prepare_custom_user_ssh()
 {
-  echo $1 >> ${SSH_DIR}/authorized_keys
+  echo -e $1 >> ${SSH_DIR}/authorized_keys
 }
 
 function start_ssh()

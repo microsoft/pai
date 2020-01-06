@@ -26,7 +26,17 @@ const userExpressionCreateInputSchema = Joi.object().keys({
     .required(),
 });
 
+const userSshKeyCreateInputSchema = Joi.object().keys({
+  'name': Joi.string()
+    .regex(/^[A-Za-z0-9_-]+$/, 'key')
+    .required(),
+  'public-key': Joi.string()
+    .required(),
+});
+
+
 // module exports
 module.exports = {
   userExpressionCreateInputSchema,
+  userSshKeyCreateInputSchema,
 };

@@ -8,6 +8,7 @@ import {
   USERSSH_TYPE_OPTIONS,
   SSH_KEY_BITS,
 } from '../../utils/constants';
+import { Spinner, SpinnerSize } from 'office-ui-fabric-react/lib/Spinner';
 import { SSHPlugin } from '../../models/plugin/ssh-plugin';
 import SSHGenerator from './ssh-generator';
 
@@ -31,70 +32,80 @@ const style = {
   },
 };
 
+
 export const JobSSH = ({ extras, onExtrasChange }) => {
-  const [sshPlugin, setSshPlugin] = useState(SSHPlugin.fromProtocol(extras));
+  // Decouple toggle logic from ssh data source
+  const [enableSsh, setEnableSsh] = useState(SSHPlugin.fromProtocol(extras).enable);
+  const [inputSshPlugin, setInputSshPlugin] = useState(SSHPlugin.fromProtocol(extras));
+
 
   useEffect(() => {
     const updatedSSHPlugin = SSHPlugin.fromProtocol(extras);
-    setSshPlugin(updatedSSHPlugin);
+    setInputSshPlugin(updatedSSHPlugin)
+    setEnableSsh(updatedSSHPlugin.enable)
   }, [extras]);
 
-  const _onChangeExtras = useCallback(
-    (keyName, propValue) => {
-      const updatedSSHPlugin = new SSHPlugin(sshPlugin);
-      updatedSSHPlugin[keyName] = propValue;
-      setSshPlugin(updatedSSHPlugin);
-      const updatedExtras = cloneDeep(extras);
-      if (isNil(updatedExtras[PAI_PLUGIN])) {
-        updatedExtras[PAI_PLUGIN] = [];
-      }
-      const pluginBase = updatedExtras[PAI_PLUGIN];
-      const oriSshIndex = pluginBase.findIndex(
-        plugin => plugin.plugin === 'ssh',
-      );
-      if (oriSshIndex >= 0) {
-        pluginBase[oriSshIndex] = updatedSSHPlugin.convertToProtocolFormat();
-      } else {
-        pluginBase.push(updatedSSHPlugin.convertToProtocolFormat());
-      }
-      onExtrasChange(updatedExtras);
-    },
-    [extras],
-  );
+  // We do not use a `useEffect` here, since it will cause infinite loop to update `extras`.
+  const _updateExtras = useCallback((sshPlugin) => {
+    const updatedExtras = cloneDeep(extras);
+    if (isNil(updatedExtras[PAI_PLUGIN])) {
+      updatedExtras[PAI_PLUGIN] = [];
+    }
+    const pluginBase = updatedExtras[PAI_PLUGIN];
+    const oriSshIndex = pluginBase.findIndex(
+      plugin => plugin.plugin === 'ssh',
+    );
+    if (oriSshIndex >= 0) {
+      pluginBase[oriSshIndex] = sshPlugin.convertToProtocolFormat();
+    } else {
+      pluginBase.push(sshPlugin.convertToProtocolFormat());
+    }
+    onExtrasChange(updatedExtras);
+  }, [extras, inputSshPlugin])
+
+  const _updateInputPlugin = useCallback((updatedKV) => {
+    const updatedSSHPlugin = new SSHPlugin(inputSshPlugin);
+    for (let keyName in updatedKV){
+      updatedSSHPlugin[keyName] = updatedKV[keyName]
+    }
+    setInputSshPlugin(updatedSSHPlugin);
+    _updateExtras(updatedSSHPlugin)
+  }, [inputSshPlugin, _updateExtras]);
 
   const _onUsersshTypeChange = useCallback(
     (_, item) => {
-      _onChangeExtras('userssh', {
+      _updateInputPlugin({'userssh': {
         type: item.key,
         value: '',
-      });
+      }});
     },
-    [extras, _onChangeExtras],
+    [_updateInputPlugin],
   );
 
   const _onUsersshValueChange = useCallback(
     e => {
-      _onChangeExtras('userssh', {
-        ...sshPlugin.userssh,
+      _updateInputPlugin({'userssh': {
+        ...inputSshPlugin.userssh,
         value: e.target.value,
-      });
+      }});
     },
-    [extras, _onChangeExtras],
+    [_updateInputPlugin],
   );
 
-  const _onUsersshEnable = useCallback(
-    (_, checked) => {
-      if (!checked) {
-        _onChangeExtras('userssh', {});
-      } else {
-        _onChangeExtras('userssh', {
+
+  const _onUsersshEnable = (_, checked) => {
+    setEnableSsh(checked)
+    if (!checked) {
+      _updateInputPlugin({'userssh': {}, 'enable': false});
+    } else {
+      _updateInputPlugin({
+        'userssh': {
           type: 'custom',
           value: '',
-        });
-      }
-    },
-    [_onChangeExtras],
-  );
+        },
+        'enable': true});
+    }
+  }
 
   const [sshGenerator, setSshGenerator] = useState({ isOpen: false });
   const openSshGenerator = (bits, ev) => {
@@ -108,11 +119,12 @@ export const JobSSH = ({ extras, onExtrasChange }) => {
   };
 
   const _onSshKeysGenerated = sshKeys => {
-    _onChangeExtras('userssh', {
-      ...sshPlugin.userssh,
+    _updateInputPlugin({'userssh': {
+      ...inputSshPlugin.userssh,
       value: sshKeys.public,
-    });
+    }});
   };
+
 
   return (
     <Stack gap='m' styles={{ root: { height: '100%' } }}>
@@ -122,50 +134,49 @@ export const JobSSH = ({ extras, onExtrasChange }) => {
           content={`Choose SSH public key for job. Users should maintain the SSH private key themselves.`}
         />
       </Stack>
-      <Stack horizontal gap='s1'>
-        <Toggle
-          label={'Enable User SSH'}
-          inlineLabel={true}
-          checked={!isEmpty(sshPlugin.userssh)}
-          onChange={_onUsersshEnable}
-        />
-        <TooltipIcon
-          content={
-            'Enable User SSH to allow user attach job containers through corresponding ssh private key. You can enter your own ssh pub key or use SSH Key Generator to generate ssh key pair.'
-          }
-        />
-      </Stack>
-      {!isEmpty(sshPlugin.userssh) && (
-        <Stack horizontal gap='l1'>
-          <Dropdown
-            placeholder='Select user ssh key type...'
-            options={USERSSH_TYPE_OPTIONS}
-            onChange={_onUsersshTypeChange}
-            selectedKey={sshPlugin.userssh.type}
-            disabled={Object.keys(USERSSH_TYPE_OPTIONS).length <= 1}
+      <Stack gap='s1'>
+        <Stack horizontal gap='s1'>
+          <Toggle
+            label={'Enable User SSH'}
+            inlineLabel={true}
+            checked={enableSsh}
+            onChange={_onUsersshEnable}
           />
-          <TextField
-            placeholder='Enter ssh public key'
-            disabled={sshPlugin.userssh.type === 'none'}
-            errorMessage={
-              isEmpty(sshPlugin.getUserSshValue())
-                ? 'Please Enter Valid SSH public key'
-                : null
+          <TooltipIcon
+            content={
+              'Enable User SSH to allow user attach job containers through corresponding ssh private key. You can enter your own ssh pub key or use SSH Key Generator to generate ssh key pair.'
             }
-            onChange={_onUsersshValueChange}
-            value={sshPlugin.getUserSshValue()}
           />
-          <DefaultButton onClick={ev => openSshGenerator(ev)}>
-            SSH Key Generator
-          </DefaultButton>
-          {sshGenerator.isOpen && (
-            <SSHGenerator
-              isOpen={sshGenerator.isOpen}
-              bits={sshGenerator.bits}
-              hide={hideSshGenerator}
-              onSshKeysChange={_onSshKeysGenerated}
+        </Stack>
+        { (enableSsh) && (
+        <Text>Your pre-defined SSH public keys on the <a href="/user-profile.html" target="_blank" >User Profile</a> page will be set automatically.</Text>
+        )}
+      </Stack>
+
+      { (enableSsh ) && (
+        <Stack gap='s1'>
+          <Text>Add additional SSH key:</Text>
+          <Stack horizontal gap='l1'>
+            <TextField
+              placeholder='Additional ssh public key'
+              disabled={inputSshPlugin.userssh.type === 'none'}
+              errorMessage={null}
+              onChange={_onUsersshValueChange}
+              value={inputSshPlugin.getUserSshValue()}
+              styles={{ fieldGroup: { width: 300 } }}
             />
-          )}
+            <DefaultButton onClick={ev => openSshGenerator(ev)}>
+              Generator
+            </DefaultButton>
+            {sshGenerator.isOpen && (
+              <SSHGenerator
+                isOpen={sshGenerator.isOpen}
+                bits={sshGenerator.bits}
+                hide={hideSshGenerator}
+                onSshKeysChange={_onSshKeysGenerated}
+              />
+            )}
+          </Stack>
         </Stack>
       )}
     </Stack>

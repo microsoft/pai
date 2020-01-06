@@ -197,3 +197,45 @@ export const listStorageServerRequest = async () => {
     },
   });
 };
+
+export const createSshKeyRequest = async (username, sshKeyName, sshKeyValue) => {
+  const url = `${config.restServerUri}/api/extend/user/${username}/ssh-key/custom`;
+  const currentToken = checkToken();
+  await fetchWrapper(url, {
+    method: 'PUT',
+    headers: {
+      Authorization: `Bearer ${currentToken}`,
+    },
+    body: JSON.stringify({ name: sshKeyName, 'public-key': sshKeyValue })
+  });
+};
+
+export const getSshKeyRequest = async (username) => {
+  const url = `${config.restServerUri}/api/extend/user/${username}/ssh-key/custom`;
+  const currentToken = checkToken();
+  const dictRes = await fetchWrapper(url, {
+    method: 'GET',
+    headers: {
+      Authorization: `Bearer ${currentToken}`,
+    },
+  });
+  const listRes = [];
+  for (let keyName in dictRes){
+    listRes.push({
+      ...dictRes[keyName],
+      'name': keyName
+    });
+  }
+  return listRes;
+};
+
+export const deleteSshKeyRequest = async (username, sshKeyName) => {
+  const url = `${config.restServerUri}/api/extend/user/${username}/ssh-key/custom/${sshKeyName}`;
+  const currentToken = checkToken();
+  await fetchWrapper(url, {
+    method: 'DELETE',
+    headers: {
+      Authorization: `Bearer ${currentToken}`,
+    },
+  });
+};

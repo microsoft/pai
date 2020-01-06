@@ -154,3 +154,142 @@ Status: 404
     "message": "Expression <expressionName> of user <username> is not found."
 }
 ```
+
+## User SSH Keys
+
+### `Get System-level SSH keys of a certain user`
+
+If the user doesn't have system-level SSH keys, we will generate the keys automatically. The SSH keys are stored as `ssh-key-system-public` and `ssh-key-system-private` in the user's expressions. A user can only get his or her keys, getting others' keys are strictly prohibited. 
+
+If query the url with `?reset=true`, the system SSH keys will be reset.
+
+*Request*
+
+```json
+GET /api/extend/user/:username/ssh-key/system
+Authorization: Bearer <ACCESS_TOKEN>
+```
+
+*Response if the user is not authorized*
+
+```json
+Status: 401
+
+{
+  "code": "UnauthorizedUserError",
+  "message": "You are not allowed to do this operation."
+}
+```
+
+*Response if succeeded*
+
+```json
+Status: 200
+{
+  "public-key": "<user's public key>",
+  "private-key": "<user's private key>"
+}
+```
+
+### `Get Custom SSH keys of a certain user`
+
+A system-level SSH keys can have a private and a public key pair. Meanwhile, a user can add custom public keys (private key is not supported). 
+
+ *Request*
+
+```json
+GET /api/extend/user/:username/ssh-key/custom
+Authorization: Bearer <ACCESS_TOKEN>
+```
+
+*Response if the user is not authorized*
+
+```json
+Status: 401
+
+{
+  "code": "UnauthorizedUserError",
+  "message": "You are not allowed to do this operation."
+}
+```
+
+*Response if succeeded*
+
+```json
+Status: 200
+
+{
+  "name-of-the-key": {
+    "public-key": "<public key>",
+    "updated-at": "date the key is updated at",
+  },
+}
+```
+
+### `Set a Custom SSH key for a certain user`
+
+The name of your ssh key should match `[a-zA-Z0-9_\-]+`.
+
+*Request*
+
+```json
+PUT /api/extend/user/:username/ssh-key/custom
+Authorization: Bearer <ACCESS_TOKEN>
+
+{
+  "name": "<name-of-the-key>",
+  "public-key": "<public-key-of-a-user>"
+}
+```
+
+*Response if the user is not authorized*
+
+```json
+Status: 401
+
+{
+  "code": "UnauthorizedUserError",
+  "message": "You are not allowed to do this operation."
+}
+```
+
+*Response if succeeded*
+
+```json
+Status: 201
+
+{
+  "message": "The public key is successfully set."
+}
+
+```
+
+### `Delete a custom SSH key of a certain user`
+
+*Request*
+
+```json
+DELETE /api/extend/user/:username/ssh-key/:sshKeyName
+Authorization: Bearer <ACCESS_TOKEN>
+```
+
+*Response if succeeded*
+
+```json
+Status: 200
+
+{
+    "message": "User custom SSH key is deleted successfully."
+}
+```
+
+*Response if the key is not found*
+
+```json
+Status: 404
+
+{
+    "code": "NoSuchSshKeyError",
+    "message": "Custom SSH key <sshKeyName> of user <username> is not found."
+}
+```
