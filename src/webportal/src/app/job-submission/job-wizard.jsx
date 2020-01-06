@@ -27,8 +27,8 @@ const WizardButton = ({ children, onClick }) => {
           borderRadius: '100%',
           backgroundColor: palette.white,
           boxShadow: `rgba(0, 0, 0, 0.06) 0px 2px 4px, rgba(0, 0, 0, 0.05) 0px 0.5px 1px`,
-          width: 215,
-          height: 215,
+          width: 150,
+          height: 150,
           stroke: palette.black,
         },
         rootHovered: {
@@ -112,7 +112,7 @@ const JobWizard = ({ setYamlText, history }) => {
         <Stack
           horizontal
           horizontalAlign='center'
-          gap={120}
+          gap={100}
           style={{ width: '100%', marginTop: 100 }}
         >
           <Stack horizontalAlign='center' gap={50}>
@@ -154,6 +154,23 @@ const JobWizard = ({ setYamlText, history }) => {
               }}
             >
               Single Job
+            </div>
+          </Stack>
+          <Stack horizontalAlign='center' gap={50}>
+            <WizardButton
+              onClick={() => {
+                history.push('/jupyter');
+              }}
+            >
+              <IconSingle />
+            </WizardButton>
+            <div
+              style={{
+                fontSize: FontSizes.large,
+                fontWeight: FontWeights.semibold,
+              }}
+            >
+              Jupyter NoteBook
             </div>
           </Stack>
           <Stack horizontalAlign='center' gap={50}>
