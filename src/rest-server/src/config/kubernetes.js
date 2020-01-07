@@ -22,6 +22,7 @@ const k8s = require('@kubernetes/client-node');
 const logger = require('@pai/config/logger');
 
 const apiserverConfig = {};
+let initPromise = Promise.resolve();
 
 const {
   K8S_APISERVER_URI,
@@ -63,7 +64,7 @@ if (RBAC_IN_CLUSTER === 'false') {
     const httpsOptions = {headers: {}};
     const cluster = kc.getCurrentCluster();
     apiserverConfig.uri = cluster.server;
-    kc.applytoHTTPSOptions(httpsOptions).then(() => {
+    initPromise = kc.applytoHTTPSOptions(httpsOptions).then(() => {
       apiserverConfig.headers = httpsOptions.headers;
       apiserverConfig.ca = httpsOptions.ca;
       apiserverConfig.key = httpsOptions.key;
@@ -84,4 +85,5 @@ assert(apiserverConfig.uri, 'K8S_APISERVER_URI should be set in environments');
 
 module.exports = {
   apiserver: apiserverConfig,
+  initPromise,
 };

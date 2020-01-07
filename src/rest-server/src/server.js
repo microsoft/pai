@@ -25,14 +25,17 @@
 require('module-alias/register');
 const config = require('@pai/config');
 const logger = require('@pai/config/logger');
-const app = require('@pai/config/express');
+const {initPromise} = require('@pai/config/kubernetes');
 
+initPromise.then(() => {
+  const app = require('@pai/config/express');
 
-logger.info('config: %j', config);
+  logger.info('config: %j', config);
 
-// start the server
-app.listen(config.serverPort, () => {
-  logger.info('RESTful API server starts on port %d', config.serverPort);
+  // start the server
+  app.listen(config.serverPort, () => {
+    logger.info('RESTful API server starts on port %d', config.serverPort);
+  });
+
+  module.exports = app;
 });
-
-module.exports = app;
