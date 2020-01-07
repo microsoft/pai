@@ -61,13 +61,19 @@ if (RBAC_IN_CLUSTER === 'false') {
 
     // https://github.com/kubernetes-client/javascript/blob/da9f3d872bdebaebf37fe22f089b2a1c655fe591/src/config.ts#L373
     const httpsOptions = {};
-    kc.applyHTTPSOptions(httpsOptions);
     const cluster = kc.getCurrentCluster();
     apiserverConfig.uri = cluster.server;
-    apiserverConfig.headers = httpsOptions.headers;
-    apiserverConfig.ca = httpsOptions.ca;
-    apiserverConfig.key = httpsOptions.key;
-    apiserverConfig.cert = httpsOptions.cert;
+    kc.applytoHTTPSOptions(httpsOptions).then(() => {
+      apiserverConfig.headers = httpsOptions.headers;
+      apiserverConfig.ca = httpsOptions.ca;
+      apiserverConfig.key = httpsOptions.key;
+      apiserverConfig.cert = httpsOptions.cert;
+    }).catch((e) => {
+      logger.error('failed to init rbac config. Please check your clusters\' config');
+      logger.error(e.stack);
+      // hard rejection
+      process.exit(1);
+    });
   } catch (error) {
     logger.error('failed to init rbac config. Please check your clusters\' config');
     throw error;
