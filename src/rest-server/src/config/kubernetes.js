@@ -21,14 +21,6 @@ const {readFileSync} = require('fs');
 const k8s = require('@kubernetes/client-node');
 const logger = require('@pai/config/logger');
 
-const bufferFromFileOrData = (path, data) => {
-  if (path) {
-    return readFileSync(path);
-  } else if (data) {
-    return Buffer.from(data, 'base64');
-  }
-};
-
 const apiserverConfig = {};
 
 const {
@@ -47,8 +39,9 @@ if (RBAC_IN_CLUSTER === 'false') {
     apiserverConfig.ca = readFileSync(K8S_APISERVER_CA_FILE, 'utf8');
   }
   if (K8S_APISERVER_TOKEN_FILE) {
-    // Will be a string since http header can only receive a string.
-    apiserverConfig.token = readFileSync(K8S_APISERVER_TOKEN_FILE, 'utf8');
+    apiserverConfig.headers = {
+      Authorization: `Bearer ${readFileSync(K8S_APISERVER_TOKEN_FILE, 'utf8')}`,
+    };
   }
 } else {
   if (K8S_APISERVER_CA_FILE) {
@@ -65,13 +58,17 @@ if (RBAC_IN_CLUSTER === 'false') {
     } else {
       kc.loadFromDefault();
     }
+
+    // https://github.com/kubernetes-client/javascript/blob/da9f3d872bdebaebf37fe22f089b2a1c655fe591/src/config.ts#L373
+    const httpsOptions = {};
+    kc.applyHTTPSOptions(httpsOptions);
     const cluster = kc.getCurrentCluster();
-    const user = kc.getCurrentUser();
     apiserverConfig.uri = cluster.server;
-    apiserverConfig.token = user.token;
-    apiserverConfig.ca = bufferFromFileOrData(cluster.caFile, cluster.caData);
-    apiserverConfig.key = bufferFromFileOrData(user.keyFile, user.keyData);
-    apiserverConfig.cert = bufferFromFileOrData(user.certFile, user.certData);
+    apiserverConfig.headers = httpsOptions.headers;
+    apiserverConfig.ca = httpsOptions.ca;
+    apiserverConfig.key = httpsOptions.key;
+    apiserverConfig.cert = httpsOptions.cert;
+    apiserverConfig.rejectUnauthorized = httpsOptions.rejectUnauthorized;
   } catch (error) {
     logger.error('failed to init rbac config. Please check your clusters\' config');
     throw error;
