@@ -149,10 +149,11 @@ sudo docker exec -it dev-box-quick-start kubectl get node
 
 # Work in dev-box
 sudo docker exec -i dev-box-quick-start /bin/bash << EOF_DEV_BOX
-cd /pai
 
-rm -f ./.git/index.lock
+cd /root
 
+git clone https://github.com/microsoft/pai.git
+cd pai
 git checkout master
 git pull
 
