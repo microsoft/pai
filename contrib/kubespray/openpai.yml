@@ -121,7 +121,7 @@ deploy_netchecker: false
 # kube_image_repo: "gcr.io/google-containers"
 
 ## Cluster Loglevel configuration
-# kube_log_level: 2
+kube_log_level: 2
 
 #kube_token_auth: true
 #kube_basic_auth: true
@@ -146,7 +146,6 @@ kubectl_localhost: true
 ## Support custom flags to be passed to kubelet
 kubelet_custom_flags:
   - "--image-pull-progress-deadline=10m"
-  - "--v=2"
 
 # kube_feature_gates: []
 
