@@ -27,7 +27,7 @@ const config = require('@pai/config');
 const logger = require('@pai/config/logger');
 const {initPromise} = require('@pai/config/kubernetes');
 
-initPromise.then(() => {
+module.exports = initPromise.then(() => {
   const app = require('@pai/config/express');
 
   logger.info('config: %j', config);
@@ -37,5 +37,5 @@ initPromise.then(() => {
     logger.info('RESTful API server starts on port %d', config.serverPort);
   });
 
-  module.exports = app;
+  return app;
 });
