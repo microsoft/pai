@@ -146,6 +146,7 @@ kubectl_localhost: true
 ## Support custom flags to be passed to kubelet
 kubelet_custom_flags:
   - "--image-pull-progress-deadline=10m"
+  - "--v=2"
 
 # kube_feature_gates: []
 
@@ -197,6 +198,7 @@ kube_kubeadm_apiserver_extra_args:
   storage-media-type: "application/json"
   max-requests-inflight: 1500
   max-mutating-requests-inflight: 500
+  v: 2
 
 ## Extra control plane host volume mounts
 ## Example:
@@ -248,7 +250,8 @@ kube_apiserver_cpu_requests: 1000m
 
 ##### controller
 
-# kube_kubeadm_controller_extra_args: {}
+kube_kubeadm_controller_extra_args:
+  v: 2
 
 # controller_manager_extra_volumes: {}
 
@@ -265,7 +268,8 @@ kube_controller_cpu_requests: 1000m
 
 ##### scheduler
 
-# kube_kubeadm_scheduler_extra_args: {}
+kube_kubeadm_scheduler_extra_args:
+  v: 2
 
 # scheduler_extra_volumes: {}
 
