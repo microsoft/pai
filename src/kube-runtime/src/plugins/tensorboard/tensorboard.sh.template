@@ -21,10 +21,10 @@ set -o nounset
 set -o pipefail
 
 TENSORFLOW_VERSION=$(python -c 'import tensorflow as tf; print(tf.__version__)')
-FRIST_VERSION_NUMBER=${TENSORFLOW_VERSION:0:1}
-if [[ $FRIST_VERSION_NUMBER -eq 1 ]]; then
+FIRST_VERSION_NUMBER=${TENSORFLOW_VERSION:0:1}
+if [[ "$FIRST_VERSION_NUMBER" = "1" ]]; then
     tensorboard --logdir={{ logdir }} --port={{ port }} &
-elif [[ $FRIST_VERSION_NUMBER -eq 2 ]]; then
+elif [[ "$FIRST_VERSION_NUMBER" = "2" ]]; then
     tensorboard --logdir={{ logdir }} --port={{ port }} --bind_all &
 else
     echo "Tensorflow version is ${TENSORFLOW_VERSION}, not support"

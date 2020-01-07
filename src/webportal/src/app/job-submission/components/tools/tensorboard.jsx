@@ -37,9 +37,9 @@ const generateDefaultTensorBoardExtras = port => {
 export const TensorBoard = props => {
   const { extras, onChange } = props;
 
-  // TensorBoard will use random port in [10000, 10100)
+  // TensorBoard will use random port in [10000, 15000)
   const tensorBoardPort = useMemo(
-    () => Math.floor(Math.random() * 100 + 10000),
+    () => Math.floor(Math.random() * 5000 + 10000),
     [],
   );
 
@@ -75,7 +75,7 @@ export const TensorBoard = props => {
       <Hint>
         By default, tensorBoard will read logs under{' '}
         <code>{TENSORBOARD_LOG_PATH}</code> and use random port in{' '}
-        <code>[10000, 10100)</code>.
+        <code>[10000, 15000)</code>.
       </Hint>
       <Toggle
         label='Enable TensorBoard'
