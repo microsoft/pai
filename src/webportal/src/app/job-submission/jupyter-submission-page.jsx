@@ -166,14 +166,14 @@ function generateJupyterJobName(){
 
 const ENVIRONMENT_OPTIONS = [
 {
-  key: "pytorch1.1py3",
-  text: "Python 3.6 + PyTorch 1.1 + Jupyter Notebook",
-  image: "openpai/jupyter_py36_pytorch1.1",
+  key: "pytorch1.3py3",
+  text: "Python 3.6 + PyTorch 1.3 + Jupyter Notebook",
+  image: "openpai/jupyter_py36_pytorch1.3",
 },
 {
-  key: "tf1.14py3",
-  text: "Python 3.6 + TensorFlow 1.14 + Jupyter Notebook",
-  image: "openpai/jupyter_py36_tf1.14",
+  key: "tf1.15py3",
+  text: "Python 3.6 + TensorFlow 1.15 + Jupyter Notebook",
+  image: "openpai/jupyter_py36_tf1.15",
 },
 ];
 
@@ -227,7 +227,7 @@ export const JupyterSubmissionPage = ({
   }, []);
 
   const onVcNameChange = useCallback((_, item) => {
-    setVcName(item);
+    setVcName(item.key);
   }, []);
 
   const onEnvironmentChange = useCallback((_, item) => {
