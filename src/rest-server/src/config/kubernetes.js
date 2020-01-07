@@ -68,7 +68,6 @@ if (RBAC_IN_CLUSTER === 'false') {
     apiserverConfig.ca = httpsOptions.ca;
     apiserverConfig.key = httpsOptions.key;
     apiserverConfig.cert = httpsOptions.cert;
-    apiserverConfig.rejectUnauthorized = httpsOptions.rejectUnauthorized;
   } catch (error) {
     logger.error('failed to init rbac config. Please check your clusters\' config');
     throw error;

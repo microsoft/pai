@@ -15,12 +15,11 @@ const getClient = (baseURL = '') => {
       'Accept': 'application/json',
     },
   };
-  if (apiserver.ca || apiserver.cert || apiserver.key || apiserver.rejectUnauthorized) {
+  if (apiserver.ca || apiserver.cert || apiserver.key) {
     config.httpsAgent = new Agent({
       ca: apiserver.ca,
       cert: apiserver.cert,
       key: apiserver.key,
-      rejectUnauthorized: apiserver.rejectUnauthorized,
     });
   }
   if (apiserver.headers) {
