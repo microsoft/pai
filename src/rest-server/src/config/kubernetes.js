@@ -60,7 +60,7 @@ if (RBAC_IN_CLUSTER === 'false') {
     }
 
     // https://github.com/kubernetes-client/javascript/blob/da9f3d872bdebaebf37fe22f089b2a1c655fe591/src/config.ts#L373
-    const httpsOptions = {};
+    const httpsOptions = {headers: {}};
     const cluster = kc.getCurrentCluster();
     apiserverConfig.uri = cluster.server;
     kc.applytoHTTPSOptions(httpsOptions).then(() => {
