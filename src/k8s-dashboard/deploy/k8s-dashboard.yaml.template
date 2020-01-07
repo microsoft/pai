@@ -43,9 +43,6 @@ spec:
           - --port={{ cluster_cfg['k8s-dashboard']['dashboard-port'] }}
           - --tls-cert-file=/tls.crt
           - --tls-key-file=/tls.key
-        {%- if cluster_cfg['cluster']['common']['k8s-rbac'] == 'false' %}
-          - --apiserver-host={{ cluster_cfg['k8s-dashboard']['api-servers-url'] }}
-        {%- endif %}
         volumeMounts:
           - name: kubernetes-dashboard-certs-openpai
             mountPath: /certs
