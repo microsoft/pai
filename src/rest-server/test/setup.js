@@ -51,6 +51,7 @@ chai.use(chaiAsPromised);
 
 
 before((done) => {
+  this.timeout(10000);
   require('@pai').then((server) => {
     global.server = server;
     done();
