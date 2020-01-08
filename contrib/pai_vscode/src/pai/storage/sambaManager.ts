@@ -19,7 +19,7 @@ import { MountPointTreeNode } from '../container/storage/mountPointTreeItem';
 import { SambaRootNode, SambaTreeNode } from '../container/storage/sambaTreeItem';
 
 /**
- * NFS management module
+ * Samba management module
  */
 // tslint:disable-next-line: no-unnecessary-class
 export class SambaManager {

@@ -67,9 +67,9 @@ export class MountPointTreeNode extends StorageTreeNode {
             case 'azurefile':
                 return new StorageTreeNode('Azure File');
             case 'nfs':
-                return new SambaRootNode(server, this.getRootPath(info, this.cluster), this);
+                return new StorageTreeNode('NFS');
             case 'samba':
-                return new StorageTreeNode('Samba');
+                return new SambaRootNode(server, this.getRootPath(info, this.cluster), this);
             default:
                 return new StorageTreeNode('Unsupported storage');
         }

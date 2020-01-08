@@ -36,6 +36,28 @@
                         }
                     },
                     "required": ["rootPath", "address"]
+                },
+                {
+                    "type": "object",
+                    "description": "Samba",
+                    "properties": {
+                        "rootPath": {
+                            "type": "string"
+                        },
+                        "address": {
+                            "type": "string"
+                        },
+                        "userName": {
+                            "type": "string"
+                        },
+                        "password": {
+                            "type": "string"
+                        },
+                        "domain": {
+                            "type": "string"
+                        }
+                    },
+                    "required": ["rootPath", "address"]
                 }
             ]
         }

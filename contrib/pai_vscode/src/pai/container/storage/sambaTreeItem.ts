@@ -27,7 +27,7 @@ import { RemoteFileEditor } from '../../utility/remoteFileEditor';
 import { StorageTreeNode } from '../common/treeNode';
 
 /**
- * PAI NFS storage tree node.
+ * PAI Samba storage tree node.
  */
 export class SambaTreeNode extends StorageTreeNode {
     public rootPath: string;
@@ -101,7 +101,7 @@ export class SambaTreeNode extends StorageTreeNode {
 }
 
 /**
- * PAI NFS storage root node.
+ * PAI Samba storage root node.
  */
 export class SambaRootNode extends StorageTreeNode {
     public storageServer: IStorageServer;
