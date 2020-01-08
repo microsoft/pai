@@ -14,7 +14,7 @@ import {
     COMMAND_TREEVIEW_DOUBLECLICK,
     CONTEXT_STORAGE_FILE,
     CONTEXT_STORAGE_FOLDER,
-    CONTEXT_STORAGE_NFS,
+    CONTEXT_STORAGE_SAMBA,
     ICON_FILE,
     ICON_FOLDER
 } from '../../../common/constants';
@@ -22,14 +22,14 @@ import {
 import { __ } from '../../../common/i18n';
 import { getSingleton } from '../../../common/singleton';
 import { Util } from '../../../common/util';
-import { NFSManager } from '../../storage/nfsManager';
+import { SambaManager } from '../../storage/sambaManager';
 import { RemoteFileEditor } from '../../utility/remoteFileEditor';
 import { StorageTreeNode } from '../common/treeNode';
 
 /**
  * PAI NFS storage tree node.
  */
-export class NFSTreeNode extends StorageTreeNode {
+export class SambaTreeNode extends StorageTreeNode {
     public rootPath: string;
     public name: string;
     public isFolder: boolean;
@@ -64,7 +64,7 @@ export class NFSTreeNode extends StorageTreeNode {
         try {
             const list: string[] = fs.readdirSync(this.rootPath);
             this.children = list.map(name =>
-                new NFSTreeNode(name, path.join(this.rootPath, name), this));
+                new SambaTreeNode(name, path.join(this.rootPath, name), this));
         } catch (err) {
             const child: StorageTreeNode =
                 new StorageTreeNode(__('treeview.node.storage.load-error'), this.parent);
@@ -74,15 +74,15 @@ export class NFSTreeNode extends StorageTreeNode {
     }
 
     public async download(dest?: Uri): Promise<void> {
-        await NFSManager.downloadFile(this, dest);
+        await SambaManager.downloadFile(this, dest);
     }
 
     public async uploadFile(files?: Uri[]): Promise<void> {
-        await NFSManager.uploadFiles(this, files);
+        await SambaManager.uploadFiles(this, files);
     }
 
     public async delete(): Promise<void> {
-        await NFSManager.delete(this);
+        await SambaManager.delete(this);
     }
 
     public async openFile(): Promise<void> {
@@ -92,27 +92,27 @@ export class NFSTreeNode extends StorageTreeNode {
     }
 
     public async uploadFolder(): Promise<void> {
-        await NFSManager.uploadFolders(this);
+        await SambaManager.uploadFolders(this);
     }
 
     public async createFolder(): Promise<void> {
-        await NFSManager.createFolder(this);
+        await SambaManager.createFolder(this);
     }
 }
 
 /**
  * PAI NFS storage root node.
  */
-export class NFSRootNode extends StorageTreeNode {
+export class SambaRootNode extends StorageTreeNode {
     public storageServer: IStorageServer;
     public mountPath: string;
     public rootPath: string;
 
     constructor(storage: IStorageServer, mountPath: string, parent: StorageTreeNode) {
         super(storage.spn, parent, TreeItemCollapsibleState.Collapsed);
-        this.contextValue = CONTEXT_STORAGE_NFS;
+        this.contextValue = CONTEXT_STORAGE_SAMBA;
         this.storageServer = storage;
-        this.description = 'NFS';
+        this.description = 'Samba';
         this.mountPath = mountPath;
         const rootUrl: string =
             `//${this.storageServer.data.address}${this.storageServer.data.rootPath}`;
@@ -123,7 +123,7 @@ export class NFSRootNode extends StorageTreeNode {
         try {
             const list: string[] = fs.readdirSync(this.rootPath);
             this.children = list.map(name =>
-                new NFSTreeNode(name, path.join(this.rootPath, name), this));
+                new SambaTreeNode(name, path.join(this.rootPath, name), this));
         } catch (err) {
             const child: StorageTreeNode =
                 new StorageTreeNode(__('treeview.node.storage.load-error'), this.parent);
@@ -133,14 +133,14 @@ export class NFSRootNode extends StorageTreeNode {
     }
 
     public async uploadFile(files?: Uri[]): Promise<void> {
-        await NFSManager.uploadFiles(this, files);
+        await SambaManager.uploadFiles(this, files);
     }
 
     public async uploadFolder(): Promise<void> {
-        await NFSManager.uploadFolders(this);
+        await SambaManager.uploadFolders(this);
     }
 
     public async createFolder(): Promise<void> {
-        await NFSManager.createFolder(this);
+        await SambaManager.createFolder(this);
     }
 }

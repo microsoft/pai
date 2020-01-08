@@ -16,14 +16,14 @@ import {
 import { __ } from '../../common/i18n';
 import { Util } from '../../common/util';
 import { MountPointTreeNode } from '../container/storage/mountPointTreeItem';
-import { NFSRootNode, NFSTreeNode } from '../container/storage/nfsTreeItem';
+import { SambaRootNode, SambaTreeNode } from '../container/storage/sambaTreeItem';
 
 /**
  * NFS management module
  */
 // tslint:disable-next-line: no-unnecessary-class
-export class NFSManager {
-    public static async delete(target: NFSTreeNode): Promise<void> {
+export class SambaManager {
+    public static async delete(target: SambaTreeNode): Promise<void> {
         try {
             await fs.remove(target.rootPath);
             Util.info('storage.delete.success');
@@ -32,7 +32,7 @@ export class NFSManager {
         }
     }
 
-    public static async downloadFile(target: NFSTreeNode, dest?: Uri): Promise<void> {
+    public static async downloadFile(target: SambaTreeNode, dest?: Uri): Promise<void> {
         const uri: Uri | undefined = dest ? dest : await window.showSaveDialog({
             saveLabel: __('storage.dialog.label.download'),
             defaultUri: Uri.file(target.name)
@@ -57,7 +57,7 @@ export class NFSManager {
         }
     }
 
-    public static async createFolder(target: NFSTreeNode | NFSRootNode | MountPointTreeNode): Promise<void> {
+    public static async createFolder(target: SambaTreeNode | SambaRootNode | MountPointTreeNode): Promise<void> {
         const res: string | undefined = await window.showInputBox({
             prompt: __('container.azure.blob.mkdir.prompt')
         });
@@ -66,7 +66,7 @@ export class NFSManager {
             return;
         }
         if (target instanceof MountPointTreeNode) {
-            target = <NFSRootNode>target.data;
+            target = <SambaRootNode>target.data;
         }
 
         try {
@@ -79,7 +79,7 @@ export class NFSManager {
     }
 
     public static async uploadFiles(
-        target: NFSTreeNode | NFSRootNode | MountPointTreeNode,
+        target: SambaTreeNode | SambaRootNode | MountPointTreeNode,
         files?: Uri[]
     ): Promise<void> {
         if (!files) {
@@ -94,7 +94,7 @@ export class NFSManager {
         }
 
         if (target instanceof MountPointTreeNode) {
-            target = <NFSRootNode>target.data;
+            target = <SambaRootNode>target.data;
         }
         const statusBarItem: StatusBarItem =
             window.createStatusBarItem(StatusBarAlignment.Right, Number.MAX_VALUE);
@@ -117,7 +117,7 @@ export class NFSManager {
     }
 
     public static async uploadFolders(
-        target: NFSTreeNode | NFSRootNode | MountPointTreeNode,
+        target: SambaTreeNode | SambaRootNode | MountPointTreeNode,
         src?: Uri[]
     ): Promise<void> {
         const folders: Uri[] | undefined = src ? src : await window.showOpenDialog({
@@ -130,7 +130,7 @@ export class NFSManager {
         }
 
         if (target instanceof MountPointTreeNode) {
-            target = <NFSRootNode>target.data;
+            target = <SambaRootNode>target.data;
         }
         const statusBarItem: StatusBarItem =
             window.createStatusBarItem(StatusBarAlignment.Right, Number.MAX_VALUE);
