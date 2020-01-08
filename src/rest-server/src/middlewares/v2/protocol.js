@@ -56,6 +56,8 @@ const render = (template, dict, tags=['<%', '%>']) => {
       const value = context.lookup(tokenStr);
       if (value != null) {
         result += value;
+      } else {
+        result += tokenStr;
       }
     }
   }
@@ -156,10 +158,10 @@ const protocolRender = (protocolObj) => {
         commands = commands.concat(deployment.taskRoles[taskRole].postCommands);
       }
     }
-    commands = commands.map((command) => command.trim()).join(' && ');
+    commands = commands.map((command) => command.trim()).join('\n');
+    // Will not render secret here for security issue
     const entrypoint = render(commands, {
       '$parameters': protocolObj.parameters,
-      '$secrets': protocolObj.secrets,
       '$script': protocolObj.prerequisites['script'][protocolObj.taskRoles[taskRole].script],
       '$output': protocolObj.prerequisites['output'][protocolObj.taskRoles[taskRole].output],
       '$data': protocolObj.prerequisites['data'][protocolObj.taskRoles[taskRole].data],
