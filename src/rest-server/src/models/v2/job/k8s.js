@@ -75,9 +75,9 @@ const encodeName = (name) => {
   }
 };
 
-const decodeName = (name, labels) => {
-  if (labels && labels.jobName) {
-    return labels.jobName;
+const decodeName = (name, annotations) => {
+  if (annotations && annotations.jobName) {
+    return annotations.jobName;
   } else {
     // framework name has not been encoded
     return name;
@@ -149,7 +149,7 @@ const convertFrameworkSummary = (framework) => {
   const completionStatus = framework.status.attemptStatus.completionStatus;
   return {
     debugId: framework.metadata.name,
-    name: decodeName(framework.metadata.name, framework.metadata.labels),
+    name: decodeName(framework.metadata.name, framework.metadata.annotations),
     username: framework.metadata.labels ? framework.metadata.labels.userName : 'unknown',
     state: convertState(
       framework.status.state,
@@ -252,7 +252,7 @@ const convertFrameworkDetail = async (framework) => {
   const exitDiagnostics = generateExitDiagnostics(diagnostics);
   const detail = {
     debugId: framework.metadata.name,
-    name: decodeName(framework.metadata.name, framework.metadata.labels),
+    name: decodeName(framework.metadata.name, framework.metadata.annotations),
     jobStatus: {
       username: framework.metadata.labels ? framework.metadata.labels.userName : 'unknown',
       state: convertState(
@@ -298,7 +298,7 @@ const convertFrameworkDetail = async (framework) => {
   }
 
   const userName = framework.metadata.labels ? framework.metadata.labels.userName : 'unknown';
-  const jobName = decodeName(framework.metadata.name, framework.metadata.labels);
+  const jobName = decodeName(framework.metadata.name, framework.metadata.annotations);
 
   for (let taskRoleStatus of framework.status.attemptStatus.taskRoleStatuses) {
     detail.taskRoles[taskRoleStatus.name] = {
@@ -337,7 +337,7 @@ const convertFrameworkDetail = async (framework) => {
   return detail;
 };
 
-const generateTaskRole = (frameworkName, taskRole, labels, config, storageConfig) => {
+const generateTaskRole = (frameworkName, taskRole, jobInfo, config, storageConfig) => {
   const ports = config.taskRoles[taskRole].resourcePerInstance.ports || {};
   for (let port of ['ssh', 'http']) {
     if (!(port in ports)) {
@@ -381,7 +381,8 @@ const generateTaskRole = (frameworkName, taskRole, labels, config, storageConfig
       pod: {
         metadata: {
           labels: {
-            ...labels,
+            userName: jobInfo.userName,
+            virtualCluster: jobInfo.virtualCluster,
             type: 'kube-launcher-task',
           },
           annotations: {
@@ -413,11 +414,11 @@ const generateTaskRole = (frameworkName, taskRole, labels, config, storageConfig
                 },
                 {
                   name: 'PAI_USER_NAME',
-                  value: labels.userName,
+                  value: jobInfo.userName,
                 },
                 {
                   name: 'PAI_JOB_NAME',
-                  value: `${labels.userName}~${labels.jobName}`,
+                  value: `${jobInfo.userName}~${jobInfo.jobName}`,
                 },
                 {
                   name: 'STORAGE_CONFIGS',
@@ -431,7 +432,7 @@ const generateTaskRole = (frameworkName, taskRole, labels, config, storageConfig
                 },
                 {
                   name: 'host-log',
-                  subPath: `${labels.userName}/${labels.jobName}/${convertName(taskRole)}`,
+                  subPath: `${jobInfo.userName}/${jobInfo.jobName}/${convertName(taskRole)}`,
                   mountPath: '/usr/local/pai/logs',
                 },
                 {
@@ -475,7 +476,7 @@ const generateTaskRole = (frameworkName, taskRole, labels, config, storageConfig
                 },
                 {
                   name: 'host-log',
-                  subPath: `${labels.userName}/${labels.jobName}/${convertName(taskRole)}`,
+                  subPath: `${jobInfo.userName}/${jobInfo.jobName}/${convertName(taskRole)}`,
                   mountPath: '/usr/local/pai/logs',
                 },
                 {
@@ -584,7 +585,7 @@ const generateTaskRole = (frameworkName, taskRole, labels, config, storageConfig
 
 const generateFrameworkDescription = (frameworkName, virtualCluster, config, rawConfig, storageConfig) => {
   const [userName, jobName] = frameworkName.split(/~(.+)/);
-  const frameworkLabels = {
+  const jobInfo = {
     jobName,
     userName,
     virtualCluster,
@@ -594,8 +595,12 @@ const generateFrameworkDescription = (frameworkName, virtualCluster, config, raw
     kind: 'Framework',
     metadata: {
       name: encodeName(frameworkName),
-      labels: frameworkLabels,
+      labels: {
+        userName: jobInfo.userName,
+        virtualCluster: jobInfo.virtualCluster,
+      },
       annotations: {
+        jobName: jobInfo.jobName,
         config: protocolSecret.mask(rawConfig),
       },
     },
@@ -617,7 +622,7 @@ const generateFrameworkDescription = (frameworkName, virtualCluster, config, raw
   let totalGpuNumber = 0;
   for (let taskRole of Object.keys(config.taskRoles)) {
     totalGpuNumber += config.taskRoles[taskRole].resourcePerInstance.gpu * config.taskRoles[taskRole].instances;
-    const taskRoleDescription = generateTaskRole(frameworkName, taskRole, frameworkLabels, config, storageConfig);
+    const taskRoleDescription = generateTaskRole(frameworkName, taskRole, jobInfo, config, storageConfig);
     taskRoleDescription.task.pod.spec.priorityClassName = `${encodeName(frameworkName)}-priority`;
     taskRoleDescription.task.pod.spec.containers[0].env.push(...envlist.concat([
       {
