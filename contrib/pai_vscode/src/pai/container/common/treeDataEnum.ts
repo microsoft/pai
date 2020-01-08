@@ -8,9 +8,7 @@ export enum TreeDataType {
     Cluster = 0,
     Filter = 1,
     Job = 2,
-    More = 3,
-    ClusterStorage = 4,
-    PrivateStorage = 5
+    More = 3
 }
 
 export enum FilterType {
