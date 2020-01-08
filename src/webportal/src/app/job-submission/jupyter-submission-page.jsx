@@ -30,36 +30,12 @@ import { Fabric, Stack, StackItem, DefaultPalette, Text, TextField,
 import { isNil, isEmpty, get, cloneDeep } from 'lodash';
 import PropTypes from 'prop-types';
 import { VirtualCluster } from './components/virtual-cluster';
-import { FormTextField } from './components/form-text-field';
+import { FormTextField, TEXT_FILED_REGX } from './components/form-text-field';
 import { BasicSection } from './components/basic-section';
 import { FormShortSection } from './components/form-page';
 import { SpinnerLoading } from '../components/loading';
-
-import { JobInformation } from './components/job-information';
-import { SubmissionSection } from './components/submission-section';
-import { TaskRoles } from './components/task-roles';
-import Context from './components/context';
-import { fetchJobConfig, listUserVirtualClusters } from './utils/conn';
-import { TaskRolesManager } from './utils/task-roles-manager';
-
-// sidebar
-import { Parameters } from './components/sidebar/parameters';
-import { Secrets } from './components/sidebar/secrets';
-import { EnvVar } from './components/sidebar/env-var';
-import { DataComponent } from './components/data/data-component';
-import { ToolComponent } from './components/tools/tool-component';
-// models
-import { Topbar } from './components/topbar/topbar';
-import { JobBasicInfo } from './models/job-basic-info';
-import { JobTaskRole } from './models/job-task-role';
-import { JobData } from './models/data/job-data';
-import { JobProtocol } from './models/job-protocol';
-import {
-  getJobComponentsFromConfig,
-  isValidUpdatedTensorBoardExtras,
-} from './utils/utils';
-import config from '../config/webportal.config';
-import { PAI_PLUGIN, PAI_STORAGE } from './utils/constants';
+import { JupyterJobProtocol } from './models/jupyter-job-protocol';
+import { submitJob, listUserVirtualClusters } from './utils/conn';
 
 const styles = mergeStyleSets({
   form: {
@@ -75,12 +51,6 @@ const styles = mergeStyleSets({
 
   title: {
     fontWeight: "500",
-  },
-
-  subTitle: {
-    fontSize: "16px",
-    fontWeight: "300",
-    color: DefaultPalette.neutralSecondary,
   },
 
   header: {
@@ -100,59 +70,6 @@ const styles = mergeStyleSets({
     paddingLeft: "10%",
   },
 
-  fileItem: {
-    width: "80%",
-    paddingRight: "5%",
-  },
-
-  fileLabel: {
-    width: "25%",
-    position: "relative",
-    minHeight: "1px",
-    padding: "0",
-  },
-
-  fileBtn: {
-    fontSize: "14px",
-    fontWeight: "400",
-    boxSizing: "border-box",
-    display: "inline-block",
-    textAlign: "center",
-    verticalAlign: "middle",
-    whiteSpace: "nowrap",
-    cursor: "pointer !important",
-    touchAction: "manipulation",
-    padding: "4px 16px",
-    minWidth: "80px",
-    height: "32px",
-    backgroundColor: DefaultPalette.neutralLighter,
-    color: `${DefaultPalette.black} !important`,
-    userSelect: "none",
-    outline: "transparent",
-    border: "1px solid transparent",
-    borderRadius: "0px",
-    textDecoration: "none !important",
-  },
-
-  fileDisabled: {
-    cursor: "not-allowed",
-    filter: "alpha(opacity=60)",
-    opacity: "0.60",
-    boxShadow: "none",
-    color: DefaultPalette.neutralLighterAlt,
-    pointerEvents: "none",
-  },
-
-  fileInput: {
-    position: "absolute",
-    width: "1px",
-    height: "1px",
-    padding: "0",
-    margin: "-1px",
-    overflow: "hidden",
-    clip: "rect(0, 0, 0, 0)",
-    border: "0",
-  },
 });
 
 const loginUser = cookies.get('user');
@@ -166,14 +83,14 @@ function generateJupyterJobName(){
 
 const ENVIRONMENT_OPTIONS = [
 {
-  key: "pytorch1.3py3",
-  text: "Python 3.6 + PyTorch 1.3 + Jupyter Notebook",
-  image: "openpai/jupyter_py36_pytorch1.3",
+  key: "pytorch1.2py3",
+  text: "Python 3.6 + PyTorch 1.2 + Jupyter Notebook",
+  image: "openpai/jupyter_python36_pytorch1.2",
 },
 {
   key: "tf1.15py3",
   text: "Python 3.6 + TensorFlow 1.15 + Jupyter Notebook",
-  image: "openpai/jupyter_py36_tf1.15",
+  image: "openpai/jupyter_python36_tensorflow1.15",
 },
 ];
 
@@ -181,22 +98,15 @@ const RESOURCE_OPTIONS = [
 {
   key: "1gpu4cpu8g",
   gpuNum: 1,
-  cpuNum: 1,
+  cpuNum: 4,
   memoryMB: 8192,
   text: "1 GPU + 4 CPUs + 8G Memory",
 },
 {
-  key: "0gpu4cpu8g",
-  gpuNum: 0,
-  cpuNum: 1,
-  memoryMB: 8192,
-  text: "0 GPU + 4 CPUs + 8G Memory",
-},
-{
   key: "1gpu4cpu16g",
   gpuNum: 1,
-  cpuNum: 1,
-  memoryMB: 8192,
+  cpuNum: 4,
+  memoryMB: 16384,
   text: "1 GPU + 4 CPUs + 16G Memory",
 },
 ];
@@ -212,6 +122,7 @@ export const JupyterSubmissionPage = ({
   const [vcName, setVcName] = useState("");
   const [resource, setResource] = useState(RESOURCE_OPTIONS[0]);
   const [environment, setEnvironment] = useState(ENVIRONMENT_OPTIONS[0]);
+
   useEffect(() =>{
     setJobName(generateJupyterJobName());
   }, []);
@@ -226,6 +137,10 @@ export const JupyterSubmissionPage = ({
       .catch(alert);
   }, []);
 
+  const onJobNameChange = useCallback(val => {
+    setJobName(val);
+  }, []);
+
   const onVcNameChange = useCallback((_, item) => {
     setVcName(item.key);
   }, []);
@@ -238,9 +153,39 @@ export const JupyterSubmissionPage = ({
     setResource(item);
   }, []);
 
+  const getJobProtocol = useCallback(() => {
+    const protocol = new JupyterJobProtocol({
+      name: jobName,
+      virtualCluster: vcName,
+      gpuNum: resource.gpuNum,
+      cpuNum: resource.cpuNum,
+      memoryMB: resource.memoryMB,
+      dockerImage: environment.image,
+    });
+    return protocol;
+  }, [jobName, vcName, resource, environment]);
+
+  const [jobProtocol, setJobProtocol] = useState(getJobProtocol());
+
   useEffect(() => {
-    console.log(jobName, vcName, resource, environment);
-  }, [jobName, vcName, resource, environment])
+    setJobProtocol(getJobProtocol());
+  }, [jobName, vcName, resource, environment]);
+
+  useEffect(() => {
+    console.log(jobProtocol);
+    console.log(JupyterJobProtocol.validateFromObject(jobProtocol));
+  }, [jobProtocol]);
+
+  const _submitJob = async event => {
+    event.preventDefault();
+    const protocol = cloneDeep(jobProtocol);
+    try {
+      await submitJob(protocol.toYaml());
+      window.location.href = `/job-detail.html?username=${loginUser}&jobName=${protocol.name}`;
+    } catch (err) {
+      alert(err);
+    }
+  };
 
   return (
     <Fabric>
@@ -260,6 +205,7 @@ export const JupyterSubmissionPage = ({
                 sectionLabel={'Job name'}
                 value={jobName}
                 shortStyle
+                onChange={onJobNameChange}
                 placeholder='Enter job name'
               />
             </Stack>
@@ -303,7 +249,12 @@ export const JupyterSubmissionPage = ({
               </BasicSection>
             </Stack>
             <Stack gap={20} horizontal={true} horizontalAlign="end" className={styles.footer}>
-              <PrimaryButton text="Submit" />
+              <PrimaryButton
+                text="Submit"
+                disabled={(!isEmpty(JupyterJobProtocol.validateFromObject(jobProtocol)))
+                  || (isEmpty(TEXT_FILED_REGX.exec(jobName)))}
+                onClick={_submitJob}
+              />
             </Stack>
           </Stack>
         )}
@@ -313,8 +264,5 @@ export const JupyterSubmissionPage = ({
 };
 
 JupyterSubmissionPage.propTypes = {
-  isSingle: PropTypes.bool,
   history: PropTypes.object,
-  yamlText: PropTypes.string,
-  setYamlText: PropTypes.func,
 };

@@ -30,7 +30,7 @@ import { BasicSection } from './basic-section';
 import { FormShortSection } from './form-page';
 import { DebouncedTextField } from './controls/debounced-text-field';
 
-const TEXT_FILED_REGX = /^[A-Za-z0-9\-._~]+$/;
+export const TEXT_FILED_REGX = /^[A-Za-z0-9\-._~]+$/;
 
 export const FormTextField = React.memo(props => {
   const {

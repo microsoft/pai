@@ -58,9 +58,7 @@ const App = () => {
           path='/jupyter'
           render={({ history }) => (
             <JupyterSubmissionPage
-              isSingle={true}
               history={history}
-              setYamlText={setYamlText}
             />
           )}
         />

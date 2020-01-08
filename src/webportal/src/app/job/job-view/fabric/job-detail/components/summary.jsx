@@ -35,6 +35,7 @@ import {
   TooltipHost,
   DirectionalHint,
   Icon,
+  Spinner,
 } from 'office-ui-fabric-react';
 import PropTypes from 'prop-types';
 import React from 'react';
@@ -370,12 +371,14 @@ export default class Summary extends React.Component {
       isRetryHealthy,
     } = this.state;
     const { className, jobInfo, reloading, onStopJob, onReload } = this.props;
-    const { rawJobConfig } = this.context;
+    const { rawJobConfig, jupyterNotebook } = this.context;
     const hintMessage = this.renderHintMessage();
 
     const params = new URLSearchParams(window.location.search);
     const namespace = params.get('username');
     const jobName = params.get('jobName');
+
+    console.log(jupyterNotebook);
 
     return (
       <div className={className}>
@@ -528,18 +531,19 @@ export default class Summary extends React.Component {
               >
                 View Job Config
               </Link>
-              <div className={c(t.bl, t.mh3)}></div>
-              <Link
-                styles={{ root: [FontClassNames.mediumPlus] }}
-                href='#'
-                disabled={
-                  isNil(jobInfo.jobStatus.appExitDiagnostics) &&
-                  isNil(jobInfo.jobStatus.appExitSpec)
-                }
-                onClick={this.showExitDiagnostics}
-              >
-                View Exit Diagnostics
-              </Link>
+                {(!isNil(jobInfo.jobStatus.appExitDiagnostics) ||
+                    !isNil(jobInfo.jobStatus.appExitSpec)) && (
+                      <div className={c(t.flex)}>
+                        <div className={c(t.bl, t.mh3)}></div>
+                        <Link
+                          styles={{ root: [FontClassNames.mediumPlus] }}
+                          href='#'
+                          onClick={this.showExitDiagnostics}
+                        >
+                          View Exit Diagnostics
+                        </Link>
+                      </div>
+                )}
               {config.launcherType !== 'k8s' && (
                 <React.Fragment>
                   <div className={c(t.bl, t.mh3)}></div>
@@ -561,15 +565,47 @@ export default class Summary extends React.Component {
               >
                 Go to Job Metrics Page
               </Link>
-              <div className={c(t.bl, t.mh3)}></div>
-              <Link
-                styles={{ root: [FontClassNames.mediumPlus] }}
-                href={getTensorBoardUrl(jobInfo, rawJobConfig)}
-                disabled={isNil(getTensorBoardUrl(jobInfo, rawJobConfig))}
-                target='_blank'
-              >
-                Go to TensorBoard Page
-              </Link>
+              {
+                (jupyterNotebook.isEnable) && (jupyterNotebook.isRunningOrWaiting) && (
+                  (!jupyterNotebook.isReady) && (
+                    <div className={c(t.flex)}>
+                      <div className={c(t.bl, t.mh2)}></div>
+                      <Spinner className={c(t.mh2)} />
+                      <Link
+                        styles={{ root: [FontClassNames.mediumPlus] }}
+                      >
+                        Open Jupyter Notebook (Waiting)
+                      </Link>
+                    </div>
+                  )
+              )}
+              {
+                (jupyterNotebook.isEnable) && (jupyterNotebook.isRunningOrWaiting) && (
+                  (jupyterNotebook.isReady) && (
+                    <div className={c(t.flex)}>
+                      <div className={c(t.bl, t.mh3)}></div>
+                      <Link
+                        styles={{ root: [FontClassNames.mediumPlus] }}
+                        href={jupyterNotebook.url}
+                        target='_blank'
+                      >
+                        Open Jupyter Notebook
+                      </Link>
+                    </div>
+                  )
+              )}
+              { (!isNil(getTensorBoardUrl(jobInfo, rawJobConfig))) && (
+                <div className={c(t.flex)}>
+                  <div className={c(t.bl, t.mh3)}></div>
+                  <Link
+                    styles={{ root: [FontClassNames.mediumPlus] }}
+                    href={getTensorBoardUrl(jobInfo, rawJobConfig)}
+                    target='_blank'
+                  >
+                    Go to TensorBoard Page
+                  </Link>
+                </div>
+              )}
               <div className={c(t.bl, t.mh3)}></div>
               <div className={c(t.flex)}>
                 <Link

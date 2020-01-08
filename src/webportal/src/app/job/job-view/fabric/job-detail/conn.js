@@ -267,3 +267,23 @@ export async function getContainerLog(logUrl) {
     throw new Error(`Log not available`);
   }
 }
+
+export async function getFullContainerStderrLog(containerLogUrl) {
+  if (config.logType === 'log-manager'){
+    const logUrl = containerLogUrl.replace('/tail/', '/full/');
+    const stderrLogUrl = `${logUrl}user.pai.stderr`
+    try {
+      const res = await fetch(stderrLogUrl);
+      const text = await res.text();
+      if (!res.ok) {
+        throw new Error(res.statusText);
+      }
+      return text
+    } catch (e) {
+      throw new Error(`Log not available`);
+    }
+  } else {
+    throw new Error(`Not Supported`)
+  }
+}
+
