@@ -578,7 +578,7 @@ const generateTaskRole = (frameworkName, taskRole, labels, config, storageConfig
         },
       },
       {
-        name: 'HIP_VISIBLE_DEVICES',
+        name: 'PAI_AMD_VISIBLE_DEVICES',
         valueFrom: {
           fieldRef: {
             fieldPath: `metadata.annotations['hivedscheduler.microsoft.com/pod-gpu-isolation']`,

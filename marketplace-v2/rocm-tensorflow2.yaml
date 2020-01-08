@@ -26,5 +26,5 @@ taskRoles:
     commands:
       - apt update
       - apt install -y rocm-libs miopen-hip cxlactivitylogger rccl
-      - pip3 install tensorflow-rocm tensorflow_datasets
+      - pip3 install tensorflow-rocm==2.0.1 tensorflow_datasets==1.3.2
       - python3 examples/tensorflow_examples/models/dcgan/dcgan.py --epochs <% $parameters.epochs %>
