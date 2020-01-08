@@ -336,13 +336,11 @@ export const JobSubmissionPage = ({
   const selectEnv = useCallback(() => onSelect(SIDEBAR_ENVVAR), [onSelect]);
   const selectData = useCallback(() => onSelect(SIDEBAR_DATA), [onSelect]);
   const selectTool = useCallback(() => onSelect(SIDEBAR_TOOL), [onSelect]);
-  useEffect(() => {
-    console.log(jobProtocol);
-  }, [jobProtocol]);
 
   if (loading) {
     return <SpinnerLoading />;
   }
+
   return (
     <Context.Provider value={contextValue}>
       <Fabric style={{ height: '100%', overflowX: 'auto' }}>

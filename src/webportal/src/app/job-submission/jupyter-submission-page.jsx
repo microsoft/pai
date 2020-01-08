@@ -171,11 +171,6 @@ export const JupyterSubmissionPage = ({
     setJobProtocol(getJobProtocol());
   }, [jobName, vcName, resource, environment]);
 
-  useEffect(() => {
-    console.log(jobProtocol);
-    console.log(JupyterJobProtocol.validateFromObject(jobProtocol));
-  }, [jobProtocol]);
-
   const _submitJob = async event => {
     event.preventDefault();
     const protocol = cloneDeep(jobProtocol);

@@ -378,8 +378,6 @@ export default class Summary extends React.Component {
     const namespace = params.get('username');
     const jobName = params.get('jobName');
 
-    console.log(jupyterNotebook);
-
     return (
       <div className={className}>
         {/* summary */}
