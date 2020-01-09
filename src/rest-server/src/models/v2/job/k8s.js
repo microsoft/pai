@@ -606,33 +606,6 @@ const createPriorityClass = async (frameworkName, priority) => {
   }
 };
 
-const patchPriorityClassOwner = async (frameworkName, frameworkUid) => {
-  try {
-    const headers = {...launcherConfig.requestHeaders};
-    headers['Content-Type'] = 'application/merge-patch+json';
-    await axios({
-      method: 'patch',
-      url: launcherConfig.priorityClassPath(`${encodeName(frameworkName)}-priority`),
-      headers,
-      httpsAgent: apiserver.ca && new Agent({ca: apiserver.ca}),
-      data: {
-        metadata: {
-          ownerReferences: [{
-            apiVersion: launcherConfig.apiVersion,
-            kind: 'Framework',
-            name: encodeName(frameworkName),
-            uid: frameworkUid,
-            controller: false,
-            blockOwnerDeletion: false,
-          }],
-        },
-      },
-    });
-  } catch (error) {
-    logger.warn('Failed to patch owner reference for priority class', error);
-  }
-};
-
 const deletePriorityClass = async (frameworkName) => {
   try {
     await axios({
@@ -850,7 +823,6 @@ const put = async (frameworkName, config, rawConfig) => {
   }
   // do not await for patch
   auths.length && patchSecretOwner(frameworkName, response.data.metadata.uid);
-  patchPriorityClassOwner(frameworkName, response.data.metadata.uid);
 };
 
 const execute = async (frameworkName, executionType) => {
