@@ -1,0 +1,10 @@
+user: forexample
+password: forexample
+pai-version: quick-start
+
+# Optional
+# docker-registry-domain: docker.io
+# docker-registry-namespace: openpai
+# docker-registry-username: exampleuser
+# docker-registry-password: examplepasswd
+

@@ -166,3 +166,4 @@ echo -e "pai\n" | python paictl.py config push -p /cluster-configuration -m serv
 # 2. Start OpenPAI service
 echo -e "pai\n" | python paictl.py service start
 EOF_DEV_BOX
+-e "@/home/core/int/openpai.yml"

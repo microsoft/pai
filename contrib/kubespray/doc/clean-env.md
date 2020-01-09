@@ -21,9 +21,6 @@ ansible-playbook -i /path/to/host.yml clean-nvidia-drivers-installed-by-paictl.y
 
 ```
 
-- Important, especially the step to rm docker daemon json 
-
-
 ###### Cleanup docker env
 
 Please modify [the playbooks clean-docker.yml](./clean-docker.yml) based on your cluster.
