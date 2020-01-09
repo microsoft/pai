@@ -11,19 +11,19 @@ import {
 } from 'vscode';
 
 import {
-    COMMAND_CREATE_JOB_CONFIG, COMMAND_EDIT_CLUSTER, COMMAND_LIST_JOB, COMMAND_OPEN_HDFS,
+    COMMAND_CREATE_JOB_CONFIG, COMMAND_EDIT_CLUSTER, COMMAND_LIST_JOB, COMMAND_OPEN_STORAGE,
     COMMAND_REFRESH_CLUSTER, COMMAND_SIMULATE_JOB, COMMAND_SUBMIT_JOB,
     COMMAND_TREEVIEW_DOUBLECLICK, COMMAND_TREEVIEW_OPEN_PORTAL,
     CONTEXT_CONFIGURATION_ITEM,
     ICON_CREATE_CONFIG, ICON_DASHBOARD, ICON_EDIT, ICON_HDFS, ICON_LIST_JOB, ICON_PAI, ICON_SIMULATE_JOB, ICON_SUBMIT_JOB,
     VIEW_CONFIGURATION_TREE
-} from '../common/constants';
-import { __ } from '../common/i18n';
-import { getSingleton, Singleton } from '../common/singleton';
-import { Util } from '../common/util';
+} from '../../common/constants';
+import { __ } from '../../common/i18n';
+import { getSingleton, Singleton } from '../../common/singleton';
+import { Util } from '../../common/util';
 
-import { getClusterName, ClusterManager } from './clusterManager';
-import { IPAICluster } from './paiInterface';
+import { getClusterName, ClusterManager } from '../clusterManager';
+import { IPAICluster } from '../utility/paiInterface';
 
 interface IChildNodeDefinition {
     title: string;
@@ -64,8 +64,8 @@ const childNodeDefinitions: IChildNodeDefinition[] = [
         icon: ICON_EDIT
     },
     {
-        title: 'treeview.node.openhdfs',
-        command: COMMAND_OPEN_HDFS,
+        title: 'treeview.node.storage',
+        command: COMMAND_OPEN_STORAGE,
         icon: ICON_HDFS,
         condition: (conf: IPAICluster): boolean => !!conf.webhdfs_uri
     }
@@ -113,8 +113,14 @@ export class ClusterExplorerChildNode extends TreeItem {
  */
 @injectable()
 export class ConfigurationTreeDataProvider extends Singleton implements TreeDataProvider<ITreeData> {
-    private onDidChangeTreeDataEmitter: EventEmitter<ITreeData> = new EventEmitter<ITreeData>();
-    public onDidChangeTreeData: Event<ITreeData> = this.onDidChangeTreeDataEmitter.event; // tslint:disable-line
+    public onDidChangeTreeData: Event<ITreeData>;
+    private onDidChangeTreeDataEmitter: EventEmitter<ITreeData>;
+
+    constructor() {
+        super();
+        this.onDidChangeTreeDataEmitter = new EventEmitter<ITreeData>();
+        this.onDidChangeTreeData = this.onDidChangeTreeDataEmitter.event;
+    }
 
     public async refresh(): Promise<void> {
         this.onDidChangeTreeDataEmitter.fire();

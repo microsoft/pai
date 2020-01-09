@@ -12,7 +12,7 @@ import { FileType, Uri } from 'vscode';
 
 import { getSingleton, waitForAllSingletonFinish } from '../common/singleton';
 import { ClusterManager } from '../pai/clusterManager';
-import { HDFSFileSystemProvider } from '../pai/hdfs';
+import { HDFSFileSystemProvider } from '../pai/storage/hdfs';
 
 // /out/test/../../src/test/fixures
 nockBack.fixtures = join(__dirname, '../../src/test', 'fixtures');

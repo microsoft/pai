@@ -16,11 +16,11 @@ import { __ } from '../common/i18n';
 import { getSingleton, Singleton } from '../common/singleton';
 import { Util } from '../common/util';
 
-import { ClusterExplorerChildNode, ConfigurationTreeDataProvider, ITreeData } from './configurationTreeDataProvider';
-import { IPAICluster } from './paiInterface';
+import { ClusterExplorerChildNode, ConfigurationTreeDataProvider, ITreeData } from './container/configurationTreeDataProvider';
+import { IPAICluster } from './utility/paiInterface';
 
 import semverCompare = require('semver-compare'); // tslint:disable-line
-import { login } from './azureADLogin';
+import { login } from './utility/azureADLogin';
 
 export interface IConfiguration {
     readonly version: string;
