@@ -337,7 +337,7 @@ const convertFrameworkDetail = async (framework) => {
   return detail;
 };
 
-const generateTaskRole = (frameworkName, taskRole, jobInfo, config, storageConfig, frameworkEnvList) => {
+const generateTaskRole = (frameworkName, taskRole, jobInfo, frameworkEnvList, config, storageConfig) => {
   const ports = config.taskRoles[taskRole].resourcePerInstance.ports || {};
   for (let port of ['ssh', 'http']) {
     if (!(port in ports)) {
@@ -371,6 +371,21 @@ const generateTaskRole = (frameworkName, taskRole, jobInfo, config, storageConfi
     retryPolicy.fancyRetryPolicy = true;
     retryPolicy.maxRetryCount = config.taskRoles[taskRole].taskRetryCount || 0;
   }
+
+  const taskRoleEnvList = [
+    {
+      name: 'PAI_CURRENT_TASK_ROLE_NAME',
+      value: taskRole,
+    },
+    {
+      name: 'PAI_CURRENT_TASK_ROLE_CURRENT_TASK_INDEX',
+      valueFrom: {
+        fieldRef: {
+          fieldPath: `metadata.annotations['FC_TASK_INDEX']`,
+        },
+      },
+    },
+  ];
 
   const frameworkTaskRole = {
     name: convertName(taskRole),
@@ -413,33 +428,11 @@ const generateTaskRole = (frameworkName, taskRole, jobInfo, config, storageConfi
                   value: gangAllocation,
                 },
                 {
-                  name: 'PAI_USER_NAME',
-                  value: jobInfo.userName,
-                },
-                {
-                  name: 'PAI_JOB_NAME',
-                  value: `${jobInfo.userName}~${jobInfo.jobName}`,
-                },
-                {
                   name: 'STORAGE_CONFIGS',
                   value: JSON.stringify(storageConfig),
                 },
-                {
-                  name: 'PAI_TASK_ROLE_LIST',
-                  value: Object.keys(config.taskRoles).join(','),
-                },
-                {
-                  name: 'PAI_CURRENT_TASK_ROLE_NAME',
-                  value: taskRole,
-                },
-                {
-                  name: 'PAI_CURRENT_TASK_ROLE_CURRENT_TASK_INDEX',
-                  valueFrom: {
-                    fieldRef: {
-                      fieldPath: `metadata.annotations['FC_TASK_INDEX']`,
-                    },
-                  },
-                },
+                ...frameworkEnvList,
+                ...taskRoleEnvList,
               ],
               volumeMounts: [
                 {
@@ -475,18 +468,7 @@ const generateTaskRole = (frameworkName, taskRole, jobInfo, config, storageConfi
               },
               env: [
                 ...frameworkEnvList,
-                {
-                  name: 'PAI_CURRENT_TASK_ROLE_NAME',
-                  value: taskRole,
-                },
-                {
-                  name: 'PAI_CURRENT_TASK_ROLE_CURRENT_TASK_INDEX',
-                  valueFrom: {
-                    fieldRef: {
-                      fieldPath: `metadata.annotations['FC_TASK_INDEX']`,
-                    },
-                  },
-                },
+                ...taskRoleEnvList,
                 // backward compatibility
                 {
                   name: 'PAI_TASK_INDEX',
@@ -656,14 +638,14 @@ const generateFrameworkDescription = (frameworkName, virtualCluster, config, raw
   // generate framework env
   const frameworkEnv = runtimeEnv.generateFrameworkEnv(frameworkName, config);
   const frameworkEnvList = Object.keys(frameworkEnv).map((name) => {
-    return {name, value: `${env[name]}`};
+    return {name, value: `${frameworkEnv[name]}`};
   });
 
   // fill in task roles
   let totalGpuNumber = 0;
   for (let taskRole of Object.keys(config.taskRoles)) {
     totalGpuNumber += config.taskRoles[taskRole].resourcePerInstance.gpu * config.taskRoles[taskRole].instances;
-    const taskRoleDescription = generateTaskRole(frameworkName, taskRole, jobInfo, config, storageConfig, frameworkEnvList);
+    const taskRoleDescription = generateTaskRole(frameworkName, taskRole, jobInfo, frameworkEnvList, config, storageConfig);
     taskRoleDescription.task.pod.spec.priorityClassName = `${encodeName(frameworkName)}-priority`;
     frameworkDescription.spec.taskRoles.push(taskRoleDescription);
   }
