@@ -60,6 +60,8 @@ spec:
         - name: LAUNCHER_TYPE
           value: {{ cluster_cfg["cluster"]["common"]["cluster-type"] }}
 {%- if cluster_cfg["cluster"]["common"]["cluster-type"] == "k8s" %}
+        - name: LAUNCHER_PRIORITY_CLASS
+          value: "{{ cluster_cfg['rest-server']['enable-priority-class'] }}"
         - name: LAUNCHER_RUNTIME_IMAGE
           value: {{ cluster_cfg['cluster']['docker-registry']['prefix'] }}kube-runtime:{{ cluster_cfg['cluster']['docker-registry']['tag'] }}
         - name: LAUNCHER_RUNTIME_IMAGE_PULL_SECRETS
