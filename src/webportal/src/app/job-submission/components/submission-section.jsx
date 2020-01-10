@@ -44,9 +44,8 @@ import { submitJob } from '../utils/conn';
 import MonacoPanel from '../../components/monaco-panel';
 import Card from '../../components/card';
 import {
-  populateProtocolWithDataAndTensorboard,
+  populateProtocolWithData,
   getJobComponentsFromConfig,
-  isValidUpdatedTensorBoardExtras,
 } from '../utils/utils';
 import Context from './context';
 import { FormShortSection } from './form-page';
@@ -120,7 +119,7 @@ export const SubmissionSection = props => {
     );
     _protocolAndErrorUpdate(protocol);
     try {
-      await populateProtocolWithDataAndTensorboard(user, protocol, jobData);
+      await populateProtocolWithData(user, protocol, jobData);
       setProtocolYaml(protocol.toYaml());
     } catch (err) {
       alert(err);
@@ -145,18 +144,6 @@ export const SubmissionSection = props => {
       updatedSecrets,
       updatedExtras,
     ] = getJobComponentsFromConfig(updatedJob, { vcNames });
-
-    if (extras.tensorBoard) {
-      const updatedTensorBoardExtras = updatedExtras.tensorBoard || {};
-      if (
-        !isValidUpdatedTensorBoardExtras(
-          extras.tensorBoard,
-          updatedTensorBoardExtras,
-        )
-      ) {
-        updatedExtras.tensorBoard = extras.tensorBoard;
-      }
-    }
 
     onChange(
       updatedJobInformation,
@@ -199,7 +186,7 @@ export const SubmissionSection = props => {
     event.preventDefault();
     const protocol = cloneDeep(jobProtocol);
     try {
-      await populateProtocolWithDataAndTensorboard(user, protocol, jobData);
+      await populateProtocolWithData(user, protocol, jobData);
       await submitJob(protocol.toYaml());
       window.location.href = `/job-detail.html?username=${user}&jobName=${protocol.name}`;
     } catch (err) {
