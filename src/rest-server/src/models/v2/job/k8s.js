@@ -623,7 +623,9 @@ const generateFrameworkDescription = (frameworkName, virtualCluster, config, raw
   for (let taskRole of Object.keys(config.taskRoles)) {
     totalGpuNumber += config.taskRoles[taskRole].resourcePerInstance.gpu * config.taskRoles[taskRole].instances;
     const taskRoleDescription = generateTaskRole(frameworkName, taskRole, jobInfo, config, storageConfig);
-    taskRoleDescription.task.pod.spec.priorityClassName = `${encodeName(frameworkName)}-priority`;
+    if (launcherConfig.enabledPriorityClass) {
+      taskRoleDescription.task.pod.spec.priorityClassName = `${encodeName(frameworkName)}-priority`;
+    }
     taskRoleDescription.task.pod.spec.containers[0].env.push(...envlist.concat([
       {
         name: 'PAI_CURRENT_TASK_ROLE_NAME',
