@@ -29,6 +29,13 @@ PYTHONPATH="../../../deployment" python -m k8sPaiLibrary.maintaintool.update_res
 
 {% endif %}
 
+{% if 'amd.com/gpu' in cluster_cfg['device-plugin']['devices'] %}
+
+PYTHONPATH="../../../deployment" python -m k8sPaiLibrary.maintaintool.update_resource \
+    --operation delete --resource daemonset --name amdgpu-device-plugin-daemonset --namespace kube-system
+
+{% endif %}
+
 {% if 'rdma/hca' in cluster_cfg['device-plugin']['devices'] %}
 
 PYTHONPATH="../../../deployment" python -m k8sPaiLibrary.maintaintool.update_resource \

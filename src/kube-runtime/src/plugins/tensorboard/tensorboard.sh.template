@@ -1,5 +1,4 @@
 #!/bin/bash
-
 # Copyright (c) Microsoft Corporation
 # All rights reserved.
 #
@@ -17,31 +16,16 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-pushd $(dirname "$0") > /dev/null
+set -o errexit
+set -o nounset
+set -o pipefail
 
-# host device plugin
-kubectl apply --overwrite=true -f device-plugin.yaml || exit $?
-
-# NVIDIA GPU device plugin
-{% if 'nvidia.com/gpu' in cluster_cfg['device-plugin']['devices'] %}
-
-kubectl apply --overwrite=true -f https://raw.githubusercontent.com/NVIDIA/k8s-device-plugin/1.0.0-beta/nvidia-device-plugin.yml || exit $?
-
-{% endif %}
-
-# AMD GPU device plugin
-{% if 'amd.com/gpu' in cluster_cfg['device-plugin']['devices'] %}
-
-kubectl apply --overwrite=true -f https://raw.githubusercontent.com/RadeonOpenCompute/k8s-device-plugin/master/k8s-ds-amdgpu-dp.yaml || exit $?
-
-{% endif %}
-
-# Mellanox InfiniBand device plugin
-{% if 'rdma/hca' in cluster_cfg['device-plugin']['devices'] %}
-
-kubectl apply --overwrite=true -f https://raw.githubusercontent.com/Mellanox/k8s-rdma-sriov-dev-plugin/master/example/hca/rdma-hca-node-config.yaml || exit $?
-kubectl apply --overwrite=true -f https://raw.githubusercontent.com/Mellanox/k8s-rdma-sriov-dev-plugin/master/example/device-plugin.yaml || exit $?
-
-{% endif %}
-
-popd > /dev/null
+TENSORFLOW_VERSION=$(python -c 'import tensorflow as tf; print(tf.__version__)')
+MAJOR_VERSION=${TENSORFLOW_VERSION:0:1}
+if [[ "$MAJOR_VERSION" = "1" ]]; then
+    tensorboard --logdir={{ logdir }} --port={{ port }} &
+elif [[ "$MAJOR_VERSION" = "2" ]]; then
+    tensorboard --logdir={{ logdir }} --port={{ port }} --bind_all &
+else
+    echo "Tensorflow version is ${TENSORFLOW_VERSION}, not support"
+fi
