@@ -24,3 +24,4 @@ github-owner: Microsoft
 github-repository: pai
 github-path: marketplace
 debugging-reservation-seconds: 604800
+enable-priority-class: false

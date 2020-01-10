@@ -655,7 +655,9 @@ const generateFrameworkDescription = (frameworkName, virtualCluster, config, raw
   for (let taskRole of Object.keys(config.taskRoles)) {
     totalGpuNumber += config.taskRoles[taskRole].resourcePerInstance.gpu * config.taskRoles[taskRole].instances;
     const taskRoleDescription = generateTaskRole(frameworkName, taskRole, jobInfo, frameworkEnvList, config, storageConfig);
-    taskRoleDescription.task.pod.spec.priorityClassName = `${encodeName(frameworkName)}-priority`;
+    if (launcherConfig.enabledPriorityClass) {
+      taskRoleDescription.task.pod.spec.priorityClassName = `${encodeName(frameworkName)}-priority`;
+    }
     frameworkDescription.spec.taskRoles.push(taskRoleDescription);
   }
   frameworkDescription.metadata.annotations.totalGpuNumber = `${totalGpuNumber}`;
@@ -691,32 +693,6 @@ const createPriorityClass = async (frameworkName, priority) => {
   }
   if (response.status !== status('Created')) {
     throw createError(response.status, 'UnknownError', response.data.message);
-  }
-};
-
-const patchPriorityClassOwner = async (frameworkName, frameworkUid) => {
-  try {
-    const headers = {...launcherConfig.requestHeaders};
-    headers['Content-Type'] = 'application/merge-patch+json';
-    await k8sModel.getClient().request({
-      method: 'patch',
-      url: launcherConfig.priorityClassPath(`${encodeName(frameworkName)}-priority`),
-      headers,
-      data: {
-        metadata: {
-          ownerReferences: [{
-            apiVersion: launcherConfig.apiVersion,
-            kind: 'Framework',
-            name: encodeName(frameworkName),
-            uid: frameworkUid,
-            controller: false,
-            blockOwnerDeletion: false,
-          }],
-        },
-      },
-    });
-  } catch (error) {
-    logger.warn('Failed to patch owner reference for priority class', error);
   }
 };
 
@@ -896,15 +872,17 @@ const put = async (frameworkName, config, rawConfig) => {
 
   // calculate pod priority
   // reference: https://github.com/microsoft/pai/issues/3704
-  let jobPriority = 0;
-  if (launcherConfig.enabledHived) {
-    jobPriority = parseInt(Object.values(config.taskRoles)[0].hivedPodSpec.priority);
-    jobPriority = Math.min(Math.max(jobPriority, -1), 126);
+  if (launcherConfig.enabledPriorityClass) {
+    let jobPriority = 0;
+    if (launcherConfig.enabledHived) {
+      jobPriority = parseInt(Object.values(config.taskRoles)[0].hivedPodSpec.priority);
+      jobPriority = Math.min(Math.max(jobPriority, -1), 126);
+    }
+    const jobCreationTime = Math.floor(new Date() / 1000) & (Math.pow(2, 23) - 1);
+    const podPriority = - (((126 - jobPriority) << 23) + jobCreationTime);
+    // create priority class
+    await createPriorityClass(frameworkName, podPriority);
   }
-  const jobCreationTime = Math.floor(new Date() / 1000) & (Math.pow(2, 23) - 1);
-  const podPriority = - (((126 - jobPriority) << 23) + jobCreationTime);
-  // create priority class
-  await createPriorityClass(frameworkName, podPriority);
 
   // send request to framework controller
   let response;
@@ -921,19 +899,18 @@ const put = async (frameworkName, config, rawConfig) => {
     } else {
       // do not await for delete
       auths.length && deleteSecret(frameworkName);
-      deletePriorityClass(frameworkName);
+      launcherConfig.enabledPriorityClass && deletePriorityClass(frameworkName);
       throw error;
     }
   }
   if (response.status !== status('Created')) {
     // do not await for delete
     auths.length && deleteSecret(frameworkName);
-    deletePriorityClass(frameworkName);
+    launcherConfig.enabledPriorityClass && deletePriorityClass(frameworkName);
     throw createError(response.status, 'UnknownError', response.data.message);
   }
   // do not await for patch
   auths.length && patchSecretOwner(frameworkName, response.data.metadata.uid);
-  patchPriorityClassOwner(frameworkName, response.data.metadata.uid);
 };
 
 const execute = async (frameworkName, executionType) => {
