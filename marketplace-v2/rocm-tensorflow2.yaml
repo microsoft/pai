@@ -1,0 +1,30 @@
+protocolVersion: 2
+name: rocm_tensorflow2
+type: job
+version: 1.0
+contributor: OpenPAI
+description: |
+  TensorFlow2 example on AMD GPUs.
+
+parameters:
+  epochs: 10
+
+prerequisites:
+  - protocolVersion: 2
+    name: rocm_tf
+    type: dockerimage
+    uri : rocm/tensorflow:rocm2.10.0-tf2.0-dev
+
+taskRoles:
+  example:
+    instances: 1
+    dockerImage: rocm_tf
+    resourcePerInstance:
+      cpu: 4
+      memoryMB: 8192
+      gpu: 1
+    commands:
+      - apt update
+      - apt install -y rocm-libs miopen-hip cxlactivitylogger rccl
+      - pip3 install tensorflow-rocm==2.0.1 tensorflow_datasets==1.3.2
+      - python3 examples/tensorflow_examples/models/dcgan/dcgan.py --epochs <% $parameters.epochs %>

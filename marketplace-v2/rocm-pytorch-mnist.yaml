@@ -1,0 +1,40 @@
+protocolVersion: 2
+name: rocm_pytorch_mnist
+type: job
+version: 1.0
+contributor: OpenPAI
+description: |
+  PyTorch MNIST example on AMD GPUs.
+
+parameters:
+  epochs: 1
+  batchsize: 64
+  lr: 0.01
+
+prerequisites:
+  - protocolVersion: 2
+    name: rocm_torch
+    type: dockerimage
+    uri : rocm/pytorch:rocm2.10_ubuntu16.04_py3.6_pytorch
+
+taskRoles:
+  worker:
+    instances: 1
+    completion:
+      minSucceededInstances: 1
+    dockerImage: rocm_torch
+    extraContainerOptions:
+      shmMB: 4096
+    resourcePerInstance:
+      cpu: 4
+      memoryMB: 8192
+      gpu: 1
+    commands:
+      - git clone https://github.com/pytorch/examples
+      - cd examples/mnist
+      - pip install -r requirements.txt
+      - >
+        /usr/bin/python3.6 main.py
+        --epochs <% $parameters.epochs %>
+        --lr <% $parameters.lr %>
+        --batch-size <% $parameters.batchsize %>
