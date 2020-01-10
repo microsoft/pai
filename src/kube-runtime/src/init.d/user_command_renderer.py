@@ -46,6 +46,8 @@ def _convert_to_dict(obj):
 
 
 def _render_user_command(user_command, secrets) -> str:
+    if not secrets:
+        return user_command
     LOGGER.info("not rendered user command is %s", user_command)
     secret_dict = _convert_to_dict(secrets)
     parsed = pystache.parse(user_command, delimiters=("<%", "%>"))
@@ -54,8 +56,7 @@ def _render_user_command(user_command, secrets) -> str:
             token.key = re.sub(
                 r"\[(\d+)\]", r".\1",
                 token.key)  # make format such as $secrets.data[0] works
-    return pystache.Renderer().render(parsed,
-                                      {"$secrets": secret_dict["secrets"]})
+    return pystache.Renderer().render(parsed, {"$secrets": secret_dict})
 
 
 def _output_user_command(user_command, output_file):
@@ -65,16 +66,20 @@ def _output_user_command(user_command, output_file):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("user_command", help="user command")
+
     parser.add_argument("secret_file", help="file which contains secret info")
     parser.add_argument("output_file", help="output file name")
     args = parser.parse_args()
 
     logging.info("Starting to render user command")
-    with open(args.secret_file) as f:
-        secrets = yaml.safe_load(f.read())
+    if not os.path.isfile(args.secret_file):
+        secrets = None
+    else:
+        with open(args.secret_file) as f:
+            secrets = yaml.safe_load(f.read())
 
-    rendered_user_command = _render_user_command(args.user_command, secrets)
+    user_command = os.getenv("USER_CMD")
+    rendered_user_command = _render_user_command(user_command, secrets)
     _output_user_command(rendered_user_command, args.output_file)
     logging.info("User command already rendered and output to %s",
                  args.output_file)

@@ -5,7 +5,15 @@ const axios = require('axios');
 const {Agent} = require('https');
 const {URL} = require('url');
 const {apiserver} = require('@pai/config/kubernetes');
+const status = require('statuses');
+const createError = require('@pai/utils/error');
 const logger = require('@pai/config/logger');
+
+const patchOption = {
+  headers: {
+    'Content-Type': 'application/merge-patch+json',
+  },
+};
 
 const getClient = (baseURL = '') => {
   const config = {
@@ -50,10 +58,14 @@ const createNamespace = async (namespace) => {
         name: namespace,
       },
     });
-    logger.info('Token secret namespace created');
+    logger.info(`Namespace ${namespace} created`);
   } catch (err) {
-    if (err.response && err.response.status === 409 && err.response.data.reason === 'AlreadyExists') {
-      logger.info('Token secret namespace already exists');
+    if (
+      err.response &&
+      err.response.status === status('Conflict') &&
+      err.response.data.reason === 'AlreadyExists'
+    ) {
+      logger.info(`Namespace ${namespace} already exists`);
       // pass
     } else {
       throw err;
@@ -85,10 +97,50 @@ const getPods = async (options = {}) => {
   return res.data;
 };
 
+const createSecret = async (namespace, name, data, type) => {
+  const client = getClient();
+  const url = `/api/v1/namespaces/${namespace}/secrets`;
+  try {
+    const response = await client.post(url, {
+      metadata: {
+        name: name,
+        namespace: namespace,
+      },
+      data: data,
+      type: type,
+    });
+    if (response.status !== status('Created')) {
+      logger.warn('Failed to create secret');
+      throw createError(response.status, 'UnknownError', response.data.message);
+    }
+    logger.debug(`create secret ${name} successfully`);
+  } catch (err) {
+    logger.warn('Failed to create secret, err is: ', err);
+    throw err;
+  }
+};
+
+const deleteSecret = async (namespace, name) => {
+  const client = getClient();
+  const url = `/api/v1/namespaces/${namespace}/secrets/${name}`;
+  await client.delete(url);
+  logger.debug(`delete secret ${name} successfully`);
+};
+
+const patchSecret = async (namespace, name, data) => {
+  const client = getClient();
+  const url = `/api/v1/namespaces/${namespace}/secrets/${name}`;
+  await client.patch(url, data, patchOption);
+  logger.debug(`Patch secret ${name} successfully`);
+};
+
 module.exports = {
   getClient,
   encodeSelector,
   createNamespace,
   getNodes,
   getPods,
+  createSecret,
+  deleteSecret,
+  patchSecret,
 };

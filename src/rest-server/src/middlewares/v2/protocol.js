@@ -57,7 +57,7 @@ const render = (template, dict, tags=['<%', '%>']) => {
       if (value != null) {
         result += value;
       } else {
-        result += tokenStr;
+        result += `<% ${tokenStr} %>`;
       }
     }
   }

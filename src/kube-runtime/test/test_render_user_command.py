@@ -26,7 +26,7 @@ sys.path.append(
     os.path.join(os.path.dirname(os.path.abspath(__file__)), "../src"))
 sys.path.append(
     os.path.join(os.path.dirname(os.path.abspath(__file__)), "../src/init.d"))
-import user_command_render
+import user_command_renderer
 from common.utils import init_logger
 # pylint: enable=wrong-import-position
 
@@ -49,16 +49,16 @@ class TestUserCommandRender(unittest.TestCase):
         ]
         with open("render_test_secrets.yaml") as f:
             secrets = list(yaml.safe_load_all(f.read()))
-        res = user_command_render._render_user_command(user_commands[0],
-                                                       secrets[0])
+        res = user_command_renderer._render_user_command(
+            user_commands[0], secrets[0])
         self.assertEqual(res, "sleep 10")
 
-        res = user_command_render._render_user_command(user_commands[1],
-                                                       secrets[1])
+        res = user_command_renderer._render_user_command(
+            user_commands[1], secrets[1])
         self.assertEqual(res, "sleep 10")
 
-        res = user_command_render._render_user_command(user_commands[2],
-                                                       secrets[2])
+        res = user_command_renderer._render_user_command(
+            user_commands[2], secrets[2])
         self.assertEqual(res, "sleep 10")
 
 
