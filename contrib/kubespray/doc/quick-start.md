@@ -32,4 +32,16 @@ user: forexample
 password: forexample
 ```
 
-###### 
+###### start kubernetes
+
+```shell script
+/bin/bash quick-start-kubespray.sh -m /path/to/master.csv -w /path/tp/worker.csv -c /path/to/config
+```
+
+######  start OpenPAI
+
+This script should be executed after ```start kubernetes```
+
+```shell script
+/bin/bash quick-start-service.sh
+```

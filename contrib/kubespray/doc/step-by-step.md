@@ -64,13 +64,9 @@ all:
     kube-master:
       hosts:
         node1:
-        node2:
-        node3:
     kube-node:
       hosts:
         node1:
-        node2:
-        node3:
         node4:
         node5:
         node6:
@@ -111,6 +107,8 @@ all:
       ansible_ssh_pass: "your-password-here"
       ansible_ssh_extra_args: '-o StrictHostKeyChecking=no'
 ```
+
+Notice: OpenPAI need 3 master nodes. An etcd cluster will be setup on the three nodes, and one of them will be master node of kubernetes. 
 
 ###### ```worker.yaml for worker (GPU) node```
 
@@ -162,15 +160,6 @@ sudo pip3 install -r requirements.txt
     - [Guid to Clean Your Environment](./doc/clean-env.md)
 - If you haven't deploy openpai in your cluster, you could step to next.
 
-###### Configure passwordless ssh  ( In your ansible control node )
-
-```bash
-# generate key
-ssh-keygen -t rsa
-
-# configure passwordless ssh for your cluster
-ansible-playbook -i host.yml set-passwordless-ssh.yml
-```
 
 ###### Ansible test
 
@@ -178,53 +167,6 @@ ansible-playbook -i host.yml set-passwordless-ssh.yml
 
 ansible all -i host.yml -m ping
 
-```
-
-#### Install nvidia drivers
-
-If GPU driver has been installed, you could skip to next steps
-
-###### Install nvidia drivers-418 ( You can change the version )
-
-```bash
-
-git clone https://github.com/microsoft/pai.git
-
-cd pai/contrib/kubespray/
-
-ansible-playbook -i /path/to/worker.yml nvidia-drivers.yml --become --become-user=root
-
-```
-
-###### Enable nvidia persistent mode
-
-```bash
-
-ansible-playbook -i /path/to/worker.yml nvidia-persistent-mode.yml --become --become-user=root
-
-```
-
-#### setup nvidia container runtime
-
-
-```bash
-
-ansible-playbook -i /path/to/worker.yml nvidia-docker.yml --become --become-user=root
-
-```
-
-Here we assume all os in your cluster is ubuntu16.04. Or please change the following task in playbook.
-
-```yaml
-    - name: add repo
-      get_url:
-        url: https://nvidia.github.io/nvidia-container-runtime/ubuntu16.04/nvidia-container-runtime.list
-        dest: /etc/apt/sources.list.d/nvidia-container-runtime.list
-        mode: 0644
-        owner: root
-        group: root
-
-    - name: Run the equivalent of "apt-get update" as a separate step
 ```
 
 ###### Create docker configuration for OpenPAI
@@ -370,13 +312,9 @@ all:
     kube-master:
       hosts:
         node1:
-        node2:
-        node3:
     kube-node:
       hosts:
         node1:
-        node2:
-        node3:
         node4:
         node5:
         node6:
@@ -455,13 +393,9 @@ all:
     kube-master:
       hosts:
         node1:
-        node2:
-        node3:
     kube-node:
       hosts:
         node1:
-        node2:
-        node3:
         node4:
         node5:
         node6:

@@ -17,10 +17,16 @@ cluster:
     # if the registry is hub.docker, please fill this value with docker.io
     domain: {{ env["cfg"]['docker-registry-domain'] | default('docker.io') }}
     # If the docker registry doesn't require authentication, please comment username and password
-    {% if %}
+    {% if "docker-registry-username" in env["cfg"] %}
+    username: env["cfg"]["docker-registry-username"]
+    {% else %}
     #username: <username>
     {% endif %}
+    {% if "docker-registry-password:" in env["cfg"] %}
+    password: env["cfg"]["docker-registry-password"]
+    {% else %}
     #password: <password>
+    {% endif %}
 
     tag: {{ env["cfg"]['pai-version'] }}
 
@@ -148,42 +154,9 @@ hivedscheduler:
 #   smtp_auth_password: password_for_alert_sender
 #   port: 9093 # this is optional, you should not write this if you do not want to change the port alert-manager is listening on
 
-
-#Uncomment following lines if you want to customize yarn
-#hadoop-resource-manager:
-#  # job log retain time
-#  yarn_log_retain_seconds: 2592000
-#  # port for yarn exporter
-#  yarn_exporter_port: 9459
-
-
-#Uncomment following lines if you want to customize hdfs
-#hadoop-data-node:
-#  # storage path for hdfs, support comma-delimited list of directories, eg. /path/to/folder1,/path/to/folder2 ...
-#  # if left empty, will use cluster.common.data-path/hdfs/data
-#  storage_path:
-
-
-# uncomment following if you want to change customeize yarn-frameworklauncher
-#yarn-frameworklauncher:
-#  frameworklauncher-port: 9086
-
-
 # uncomment following if you want to change customeize grafana
 # grafana:
 #   port: 3000
-
-
-# uncomment following if you want to change customeize drivers
-#drivers:
-#  set-nvidia-runtime: false
-#  # You can set drivers version here. If this value is miss, default value will be 384.111
-#  # Current supported version list
-#  # 384.111
-#  # 390.25
-#  # 410.73
-#  # 418.56
-#  version: "384.111"
 
 
 # uncomment following if you want node-exporter listen to different port
