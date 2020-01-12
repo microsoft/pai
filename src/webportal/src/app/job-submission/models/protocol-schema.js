@@ -112,13 +112,40 @@ const deploymentSchema = Joi.object().keys({
     .required(),
 });
 
-const tensorBoardExtrasSchema = Joi.object().keys({
-  randomStr: Joi.string()
-    .regex(/^[a-z0-9]{8}$/)
-    .required(),
-  logDirectories: Joi.object()
-    .min(1)
-    .required(),
+const runtimePluginSchema = Joi.object().keys({
+  plugin: Joi.string().required(),
+  parameters: Joi.when('plugin', {
+    is: 'tensorboard',
+    then: Joi.object()
+      .keys({
+        port: Joi.number().required(),
+        logdir: Joi.object().required(),
+      })
+      .required(),
+  })
+    .when('plugin', {
+      is: 'teamwise_storage',
+      then: Joi.object().keys({
+        storageConfigNames: Joi.array()
+          .min(1)
+          .items(Joi.string()),
+      }),
+    })
+    .when('plugin', {
+      is: 'ssh',
+      then: Joi.object()
+        .keys({
+          jobssh: Joi.boolean().required(),
+          sshbarrier: Joi.boolean(),
+          sshbarriertaskroles: Joi.array(),
+          userssh: Joi.object().keys({
+            type: Joi.string(),
+            value: Joi.string(),
+          }),
+        })
+        .required(),
+    }),
+  failurePolicy: Joi.string().allow('fail', 'ignore'),
 });
 
 export const jobProtocolSchema = Joi.object().keys({
@@ -148,8 +175,7 @@ export const jobProtocolSchema = Joi.object().keys({
   extras: Joi.object()
     .keys({
       submitFrom: Joi.string(),
-      tensorBoard: tensorBoardExtrasSchema,
-      [PAI_PLUGIN]: Joi.array(),
+      [PAI_PLUGIN]: Joi.array().items(runtimePluginSchema),
     })
     .unknown(),
 });

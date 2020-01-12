@@ -50,7 +50,7 @@ def _get_docker_repository_name(image_name):
 def _is_docker_image_valid(job_config):
     prerequisites = job_config["prerequisites"]
 
-    task_role_name = os.getenv("FC_TASKROLE_NAME")
+    task_role_name = os.getenv("PAI_CURRENT_TASK_ROLE_NAME")
     task_role = job_config["taskRoles"][task_role_name]
     docker_image_name = task_role["dockerImage"]
 

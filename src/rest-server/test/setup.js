@@ -45,11 +45,18 @@ const nock = require('nock');
 const chai = require('chai');
 const chaiAsPromised = require('chai-as-promised');
 const chaiHttp = require('chai-http');
-const server = require('@pai');
 
 chai.use(chaiHttp);
 chai.use(chaiAsPromised);
 
+
+before(function(done) {
+  this.timeout(10000);
+  require('@pai').then((server) => {
+    global.server = server;
+    done();
+  }).catch((err) => done(err));
+});
 
 global.jwt = jwt;
 global.mustache = mustache;
@@ -58,7 +65,6 @@ global.chai = chai;
 global.assert = chai.assert;
 global.expect = chai.expect;
 global.should = chai.should;
-global.server = server;
 global.webhdfsUri = process.env.WEBHDFS_URI;
 global.launcherWebserviceUri = process.env.LAUNCHER_WEBSERVICE_URI;
 global.apiServerRootUri = process.env.K8S_APISERVER_URI;

@@ -58,6 +58,7 @@ class RestServer:
         service_object_model['github-repository'] = self.service_configuration['github-repository']
         service_object_model['github-path'] = self.service_configuration['github-path']
         service_object_model['debugging-reservation-seconds'] = self.service_configuration['debugging-reservation-seconds']
+        service_object_model['enable-priority-class'] = self.service_configuration['enable-priority-class']
         service_object_model['etcd-uris'] = ','.join('http://{0}:4001'.format(host['hostip'])
                                                      for host in machine_list
                                                      if host.get('k8s-role') == 'master')

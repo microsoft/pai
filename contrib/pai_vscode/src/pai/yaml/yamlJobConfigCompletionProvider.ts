@@ -36,7 +36,7 @@ export class YamlJobConfigCompletionProvider implements vscode.CompletionItemPro
     }
 
     private loadSnippets(): void {
-        const root: string = path.join(__dirname, '../../snippets');
+        const root: string = path.join(__dirname, '../../../snippets');
         this.snippets = fs
             .readdirSync(root)
             .filter(x => x.endsWith('.yaml'))

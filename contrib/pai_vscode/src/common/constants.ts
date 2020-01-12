@@ -11,15 +11,33 @@ export const COMMAND_ADD_CLUSTER = 'paiext.cluster.add';
 export const COMMAND_EDIT_CLUSTER = 'paiext.cluster.edit';
 export const COMMAND_DELETE_CLUSTER = 'paiext.cluster.delete';
 export const COMMAND_REFRESH_CLUSTER = 'paiext.cluster.refresh';
+export const COMMAND_ADD_PERSONAL_STORAGE = 'paiext.storage.personal.add';
+export const COMMAND_EDIT_PERSONAL_STORAGE = 'paiext.storage.personal.edit';
+export const COMMAND_DELETE_PERSONAL_STORAGE = 'paiext.storage.personal.delete';
+export const COMMAND_REFRESH_PERSONAL_STORAGE = 'paiext.storage.personal.refresh';
+export const COMMAND_OPEN_STORAGE = 'paiext.storage.open';
+export const COMMAND_OPEN_NFS = 'paiext.nfs.open';
 export const COMMAND_OPEN_HDFS = 'paiext.hdfs.open';
+export const COMMAND_OPEN_AZURE_BLOB = 'paiext.azure-blob.open';
 export const COMMAND_HDFS_UPLOAD_FILES = 'paiext.hdfs.upload.files';
 export const COMMAND_HDFS_UPLOAD_FOLDERS = 'paiext.hdfs.upload.folders';
 export const COMMAND_HDFS_DOWNLOAD = 'paiext.hdfs.download';
+export const COMMAND_AZURE_BLOB_CREATE_FOLDER = 'paiext.azure-blob.create.folder';
+export const COMMAND_AZURE_BLOB_UPLOAD_FILES = 'paiext.azure-blob.upload.files';
+export const COMMAND_AZURE_BLOB_UPLOAD_FOLDERS = 'paiext.azure-blob.upload.folders';
+export const COMMAND_AZURE_BLOB_DOWNLOAD = 'paiext.azure-blob.download';
+export const COMMAND_STORAGE_CREATE_FOLDER = 'paiext.storage.create.folder';
+export const COMMAND_STORAGE_UPLOAD_FILES = 'paiext.storage.upload.files';
+export const COMMAND_STORAGE_UPLOAD_FOLDERS = 'paiext.storage.upload.folders';
+export const COMMAND_STORAGE_DOWNLOAD = 'paiext.storage.download';
+export const COMMAND_STORAGE_DELETE = 'paiext.storage.delete';
+export const COMMAND_STORAGE_OPEN_FILE = 'paiext.storage.open.file';
 export const COMMAND_OPEN_DASHBOARD = 'paiext.cluster.dashboard.open';
 export const COMMAND_LIST_JOB = 'paiext.cluster.job.list';
 export const COMMAND_VIEW_JOB = 'paiext.cluster.job.view';
 export const COMMAND_TREEVIEW_OPEN_PORTAL = 'paiext.treeview.openPortal';
 export const COMMAND_TREEVIEW_DOUBLECLICK = 'paiext.treeview.doubleclick';
+export const COMMAND_TREEVIEW_LOAD_MORE = 'paiext.treeview.load-more';
 export const COMMAND_SUBMIT_JOB = 'paiext.cluster.job.submit';
 export const COMMAND_SIMULATE_JOB = 'paiext.cluster.job.simulate';
 export const COMMAND_CREATE_JOB_CONFIG = 'paiext.cluster.job.create-config';
@@ -27,6 +45,8 @@ export const COMMAND_CREATE_JOB_CONFIG_V1 = 'paiext.cluster.job.create-config-v1
 export const COMMAND_CREATE_JOB_CONFIG_V2 = 'paiext.cluster.job.create-config-v2';
 export const COMMAND_CONTAINER_HDFS_BACK = 'paiext.container.hdfs.back';
 export const COMMAND_CONTAINER_HDFS_REFRESH = 'paiext.container.hdfs.refresh';
+export const COMMAND_CONTAINER_STORAGE_BACK = 'paiext.container.storage.back';
+export const COMMAND_CONTAINER_STORAGE_REFRESH = 'paiext.container.storage.refresh';
 export const COMMAND_CONTAINER_HDFS_DELETE = 'paiext.container.hdfs.delete';
 export const COMMAND_CONTAINER_HDFS_MKDIR = 'paiext.container.hdfs.mkdir';
 export const COMMAND_CONTAINER_JOBLIST_REFRESH = 'paiext.container.joblist.refresh';
@@ -41,6 +61,20 @@ export const CONTEXT_HDFS_FOLDER = 'PAIHdfsFolder';
 export const CONTEXT_HDFS_ROOT = 'PAIHdfsRoot';
 export const CONTEXT_HDFS_SELECT_CLUSTER_ROOT = 'PAIHdfsSelectRoot';
 export const CONTEXT_HDFS_SELECT_CLUSTER = 'PAIHdfsSelect';
+
+export const CONTEXT_STORAGE_CLUSTER_ROOT = 'PAIStorageClusterRoot';
+export const CONTEXT_STORAGE_CLUSTER_ITEM = 'PAIStorageClusterItem';
+export const CONTEXT_STORAGE_TEAM_ITEM = 'PAIStorageTeamItem';
+export const CONTEXT_STORAGE_MOUNTPOINT_ITEM = 'PAIStorageMountPointItem';
+export const CONTEXT_STORAGE_PERSONAL_ROOT = 'PAIStoragePersonalRoot';
+export const CONTEXT_STORAGE_PERSONAL_ITEM = 'PAIStoragePersonalItem';
+export const CONTEXT_STORAGE_SAMBA = 'PAIStorageSamba';
+export const CONTEXT_STORAGE_AZURE_BLOB = 'PAIStorageAzureBlob';
+export const CONTEXT_STORAGE_FILE = 'PAIStorageFile';
+export const CONTEXT_STORAGE_FOLDER = 'PAIStorageFolder';
+export const CONTEXT_STORAGE_LOAD_MORE = 'PAIStorageLoadMore';
+
+export const VIEW_CONTAINER_STORAGE = 'PAIContainerStorage';
 
 export const VIEW_CONTAINER_JOBLIST = 'PAIContainerJobList';
 export const CONTEXT_JOBLIST_CLUSTER = 'PAIJobListCluster';
@@ -98,8 +132,12 @@ export const ICON_LOADING = {
     light: 'icons/loading.svg',
     dark: 'icons/loading_dark.svg'
 };
+export const ICON_FOLDER = 'icons/folder.svg';
+export const ICON_FILE = 'icons/file.svg';
+export const ICON_STORAGE = 'icons/storage.svg';
 
 export const OCTICON_CLOUDUPLOAD = '$(cloud-upload)';
+export const OCTICON_CLOUDDOWNLOAD = '$(cloud-download)';
 
 export const SCHEMA_JOB_CONFIG = 'pai_job_config.schema.json';
 export const SCHEMA_YAML_JOB_CONFIG = 'pai_yaml_job_config.schema.json';

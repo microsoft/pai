@@ -29,6 +29,13 @@ kubectl apply --overwrite=true -f https://raw.githubusercontent.com/NVIDIA/k8s-d
 
 {% endif %}
 
+# AMD GPU device plugin
+{% if 'amd.com/gpu' in cluster_cfg['device-plugin']['devices'] %}
+
+kubectl apply --overwrite=true -f https://raw.githubusercontent.com/RadeonOpenCompute/k8s-device-plugin/master/k8s-ds-amdgpu-dp.yaml || exit $?
+
+{% endif %}
+
 # Mellanox InfiniBand device plugin
 {% if 'rdma/hca' in cluster_cfg['device-plugin']['devices'] %}
 

@@ -15,10 +15,10 @@ import { getSingleton, Singleton } from '../common/singleton';
 import { Util } from '../common/util';
 
 import { getClusterName, ClusterManager } from './clusterManager';
-import { ClusterExplorerChildNode } from './configurationTreeDataProvider';
-import { ClusterNode } from './container/jobListTreeView';
-import { IPAICluster, IPAIJobInfo } from './paiInterface';
-import { PAIWebPortalUri } from './paiUri';
+import { ClusterNode } from './container/common/clusterNode';
+import { ClusterExplorerChildNode } from './container/configurationTreeDataProvider';
+import { IPAICluster, IPAIJobInfo } from './utility/paiInterface';
+import { PAIWebPortalUri } from './utility/paiUri';
 
 const paiDashboardPropertyLabelMapping: { [propertyName: string]: string } = {
     grafana_uri: 'Grafana',

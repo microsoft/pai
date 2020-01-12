@@ -3,12 +3,25 @@ A [Kubernetes Scheduler Extender](https://github.com/kubernetes/community/blob/m
 
 *TODO: Add Features, Architecture and UserManual*
 
+## Feature
+1. Multi-Tenant: Virtual Cluster (VC)
+2. Fine-grained VC Quota Guarantee (VC Safety): HW Quantity, Topology, Type, etc
+3. Flexible Intra-VC Job Scheduling: HW Quantity, Topology, (Any) Type, Reservation, Customization, etc
+4. Few Resource Fragmentation and Starvation
+5. Priority, Overuse and Inter/Intra-VC Preemption
+6. Job (Full/Partial) Gang Scheduling/Preemption
+7. Reconfiguration, Fault-tolerance, Bad HW Awareness, K8S Scheduler Compatible, etc
+
 ## Prerequisite
 1. A Kubernetes cluster, v1.14.2 or above, on-cloud or on-premise.
 
 ## Quick Start
-1. [Run Scheduler](example/run)
-2. [Submit Workload to Scheduler](example/request)
+1. [Config Scheduler](doc/user-manual.md#ConfigQuickStart)
+2. [Run Scheduler](example/run)
+3. [Submit Workload to Scheduler](example/request)
+
+## Doc
+1. [User Manual](doc/user-manual.md)
 
 ## Official Image
 * [DockerHub](https://hub.docker.com/u/hivedscheduler)

@@ -3,116 +3,49 @@
  * Licensed under the MIT License. See License in the project root for license information.
  * @author Microsoft
  */
-/* tslint:disable:max-classes-per-file */
 
 import { injectable } from 'inversify';
 import {
     commands, window, Event, EventEmitter, FileType,
-    TreeDataProvider, TreeItem, TreeItemCollapsibleState,
-    TreeView, Uri
+    TreeDataProvider, TreeItem, TreeView, Uri
 } from 'vscode';
 
 import {
     COMMAND_CONTAINER_HDFS_BACK, COMMAND_CONTAINER_HDFS_DELETE, COMMAND_CONTAINER_HDFS_MKDIR, COMMAND_CONTAINER_HDFS_REFRESH,
-    COMMAND_OPEN_HDFS, COMMAND_TREEVIEW_DOUBLECLICK,
-    CONTEXT_HDFS_FILE, CONTEXT_HDFS_FOLDER, CONTEXT_HDFS_ROOT, CONTEXT_HDFS_SELECT_CLUSTER, CONTEXT_HDFS_SELECT_CLUSTER_ROOT,
-    ICON_PAI, VIEW_CONTAINER_HDFS
+    CONTEXT_HDFS_FOLDER, CONTEXT_HDFS_ROOT, CONTEXT_HDFS_SELECT_CLUSTER_ROOT,
+    VIEW_CONTAINER_HDFS
 } from '../../common/constants';
 import { __ } from '../../common/i18n';
 import { getSingleton, Singleton } from '../../common/singleton';
 import { Util } from '../../common/util';
+import { ClusterManager } from '../clusterManager';
+import { HDFS, HDFSFileSystemProvider } from '../storage/hdfs';
+import { IPAICluster } from '../utility/paiInterface';
 
-import { getClusterName, ClusterManager } from '../clusterManager';
-import { HDFS, HDFSFileSystemProvider } from '../hdfs';
-import { IPAICluster } from '../paiInterface';
+import { FileNode } from './common/fileNode';
+import { FolderNode } from './common/folderNode';
+import { RootNode, SelectClusterNode, SelectClusterRootNode } from './common/rootNode';
+import { TreeNode } from './common/treeNode';
 
 type IFileList = [string, FileType][];
 
 /**
- * Abstract tree node
- */
-abstract class TreeNode extends TreeItem {
-    public parent?: TreeNode;
-}
-
-/**
- * File node
- */
-class FileNode extends TreeNode {
-    public readonly contextValue: string = CONTEXT_HDFS_FILE;
-    constructor(uri: Uri, parent: TreeNode) {
-        super(uri, TreeItemCollapsibleState.None);
-        this.parent = parent;
-    }
-}
-
-/**
- * Folder node
- */
-class FolderNode extends TreeNode {
-    public readonly contextValue: string = CONTEXT_HDFS_FOLDER;
-    constructor(uri: Uri, parent: TreeNode) {
-        super(uri, TreeItemCollapsibleState.Collapsed);
-        this.parent = parent;
-    }
-}
-
-/**
- * Root node
- */
-class RootNode extends TreeNode {
-    public readonly contextValue: string = CONTEXT_HDFS_ROOT;
-    constructor(uri: Uri) {
-        super(uri, TreeItemCollapsibleState.Expanded);
-        this.label = uri.toString();
-        this.iconPath = Util.resolvePath(ICON_PAI);
-    }
-}
-
-/**
- * Cluster root node
- */
-class SelectClusterRootNode extends TreeNode {
-    public readonly contextValue: string = CONTEXT_HDFS_SELECT_CLUSTER_ROOT;
-    constructor() {
-        super(__('treeview.hdfs.select-cluster.label'), TreeItemCollapsibleState.Expanded);
-    }
-}
-
-/**
- * Cluster node (when no cluster is selected)
- */
-class SelectClusterNode extends TreeNode {
-    public readonly contextValue: string = CONTEXT_HDFS_SELECT_CLUSTER;
-    public readonly cluster: IPAICluster;
-    constructor(cluster: IPAICluster, parent: TreeNode) {
-        super(getClusterName(cluster));
-        this.cluster = cluster;
-        this.parent = parent;
-        this.command = {
-            title: __('treeview.node.openhdfs'),
-            command: COMMAND_TREEVIEW_DOUBLECLICK,
-            arguments: [COMMAND_OPEN_HDFS, this.cluster]
-        };
-        this.iconPath = Util.resolvePath(ICON_PAI);
-    }
-}
-
-/**
- * Contributes to the tree view of cluster configurations
+ * Contributes to the tree view of HDFS explorer.
  */
 @injectable()
 export class HDFSTreeDataProvider extends Singleton implements TreeDataProvider<TreeNode> {
     public readonly view: TreeView<TreeNode>;
     public root: TreeNode;
+    public onDidChangeTreeData: Event<TreeNode>;
 
-    private onDidChangeTreeDataEmitter: EventEmitter<TreeNode> = new EventEmitter<TreeNode>();
-    public onDidChangeTreeData: Event<TreeNode> = this.onDidChangeTreeDataEmitter.event; // tslint:disable-line
+    private onDidChangeTreeDataEmitter: EventEmitter<TreeNode>;
 
     private uri?: Uri;
 
     constructor() {
         super();
+        this.onDidChangeTreeDataEmitter = new EventEmitter<TreeNode>();
+        this.onDidChangeTreeData = this.onDidChangeTreeDataEmitter.event;
         this.root = new SelectClusterRootNode();
         this.view = window.createTreeView(VIEW_CONTAINER_HDFS, { treeDataProvider: this });
     }
@@ -191,18 +124,18 @@ export class HDFSTreeDataProvider extends Singleton implements TreeDataProvider<
                 const res: IFileList = await provider.readDirectory(uri);
                 return [
                     ...res.filter(
-                        ([name, type]) => type === FileType.Directory
+                        ([, type]) => type === FileType.Directory
                     ).sort(
-                        ([name1, type1], [name2, type2]) => name1.localeCompare(name2)
+                        ([name1], [name2]) => name1.localeCompare(name2)
                     ).map(
-                        ([name, type]) => new FolderNode(Util.uriPathAppend(uri, name), element)
+                        ([name]) => new FolderNode(Util.uriPathAppend(uri, name), element)
                     ),
                     ...res.filter(
-                        ([name, type]) => type === FileType.File
+                        ([, type]) => type === FileType.File
                     ).sort(
-                        ([name1, type1], [name2, type2]) => name1.localeCompare(name2)
+                        ([name1], [name2]) => name1.localeCompare(name2)
                     ).map(
-                        ([name, type]) => new FileNode(Util.uriPathAppend(uri, name), element)
+                        ([name]) => new FileNode(Util.uriPathAppend(uri, name), element)
                     )
                 ];
             } else {

@@ -16,88 +16,70 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 import { FontClassNames, ColorClassNames } from '@uifabric/styling';
+import { PrimaryButton } from 'office-ui-fabric-react';
+import MediaQuery from 'react-responsive';
 import c from 'classnames';
 import PropTypes from 'prop-types';
 import React from 'react';
-import styled from 'styled-components';
 
+import { ReactComponent as SignInBackground } from '../../../assets/img/sign-in-background.svg';
 import t from 'tachyons-sass/tachyons.scss';
 
-const JumbotronBackground = styled.div`
-  background-image: url('/assets/img/home-background.svg');
-  background-repeat: repeat;
-  z-index: -2;
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  &::before {
-    content: '';
-    display: block;
-    z-index: -1;
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(
-      to right,
-      rgba(0, 113, 188, 1),
-      rgba(0, 113, 188, 0.65) 70%,
-      rgba(0, 113, 188, 0.07)
-    );
-  }
-`;
+const BREAKPOINT = 960;
 
 const Jumbotron = ({ showLoginModal }) => (
-  <div className={c(t.flexAuto, t.relative, t.flex)}>
-    <JumbotronBackground></JumbotronBackground>
-    <div
-      className={c(
-        t.flexAuto,
-        t.z0,
-        t.pa5,
-        t.relative,
-        t.flex,
-        t.flexColumn,
-        t.itemsCenter,
-        t.justifyCenter,
-      )}
-    >
-      <div className={c(FontClassNames.superLarge, t.white)}>
-        Platform for AI
-      </div>
-      <div
-        className={c(
-          FontClassNames.mediumPlus,
-          t.mv5,
-          t.mw7,
-          t.tc,
-          t.lhCopy,
-          t.white,
-        )}
-      >
-        Platform for AI is an open source platform that provides complete AI
-        model training and resource management capabilities, it is easy to
-        extend and supports on-premise, cloud and hybrid environments in various
-        scale.
-      </div>
-      <div
-        className={c(
-          ColorClassNames.neutralLightBackgroundHover,
-          t.pointer,
-          t.pv2,
-          t.ph4,
-          t.br1,
-          t.bgWhite,
-          t.flex,
-          t.justifyCenter,
-          t.itemsCenter,
-        )}
-        onClick={showLoginModal}
-      >
-        <div className={c(ColorClassNames.themePrimary, FontClassNames.medium)}>
-          Sign in
+  <div className={c(ColorClassNames.neutralLightBackground, t.ph6)}>
+    {/* small */}
+    <MediaQuery maxWidth={BREAKPOINT}>
+      <div className={c(t.flex, t.flexColumn, t.itemsCenter, t.pv4)}>
+        <SignInBackground style={{ maxWidth: '20rem' }} />
+        <div className={c(t.flex, t.flexColumn, t.itemsCenter)}>
+          <div className={c(FontClassNames.superLarge, t.pt3)}>
+            Platform for AI
+          </div>
+          <div
+            className={c(FontClassNames.mediumPlus, t.tc, t.lhCopy, t.mv4)}
+            style={{ maxWidth: '20rem' }}
+          >
+            Platform for AI is an open source platform that provides complete AI
+            model training and resource management capabilities, it is easy to
+            extend and supports on-premise, cloud and hybrid environments in
+            various scale.
+          </div>
+          <PrimaryButton
+            styles={{ root: { maxWidth: '6rem' } }}
+            text='Sign in'
+            onClick={showLoginModal}
+          />
         </div>
       </div>
-    </div>
+    </MediaQuery>
+    {/* large */}
+    <MediaQuery minWidth={BREAKPOINT + 1}>
+      <div
+        className={c(t.flex, t.itemsCenter, t.justifyBetween, t.pv5, t.center)}
+        style={{ maxWidth: '60rem' }}
+      >
+        <div
+          className={c(t.flex, t.flexColumn, t.pr4)}
+          style={{ minWidth: '20rem' }}
+        >
+          <div className={c(FontClassNames.superLarge)}>Platform for AI</div>
+          <div className={c(FontClassNames.mediumPlus, t.lhCopy, t.mv4)}>
+            Platform for AI is an open source platform that provides complete AI
+            model training and resource management capabilities, it is easy to
+            extend and supports on-premise, cloud and hybrid environments in
+            various scale.
+          </div>
+          <PrimaryButton
+            styles={{ root: { maxWidth: '6rem' } }}
+            text='Sign in'
+            onClick={showLoginModal}
+          />
+        </div>
+        <SignInBackground style={{ maxWidth: '28rem', minWidth: '25rem' }} />
+      </div>
+    </MediaQuery>
   </div>
 );
 

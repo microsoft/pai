@@ -75,9 +75,9 @@ const encodeName = (name) => {
   }
 };
 
-const decodeName = (name, labels) => {
-  if (labels && labels.jobName) {
-    return labels.jobName;
+const decodeName = (name, annotations) => {
+  if (annotations && annotations.jobName) {
+    return annotations.jobName;
   } else {
     // framework name has not been encoded
     return name;
@@ -149,7 +149,7 @@ const convertFrameworkSummary = (framework) => {
   const completionStatus = framework.status.attemptStatus.completionStatus;
   return {
     debugId: framework.metadata.name,
-    name: decodeName(framework.metadata.name, framework.metadata.labels),
+    name: decodeName(framework.metadata.name, framework.metadata.annotations),
     username: framework.metadata.labels ? framework.metadata.labels.userName : 'unknown',
     state: convertState(
       framework.status.state,
@@ -252,7 +252,7 @@ const convertFrameworkDetail = async (framework) => {
   const exitDiagnostics = generateExitDiagnostics(diagnostics);
   const detail = {
     debugId: framework.metadata.name,
-    name: decodeName(framework.metadata.name, framework.metadata.labels),
+    name: decodeName(framework.metadata.name, framework.metadata.annotations),
     jobStatus: {
       username: framework.metadata.labels ? framework.metadata.labels.userName : 'unknown',
       state: convertState(
@@ -298,7 +298,7 @@ const convertFrameworkDetail = async (framework) => {
   }
 
   const userName = framework.metadata.labels ? framework.metadata.labels.userName : 'unknown';
-  const jobName = decodeName(framework.metadata.name, framework.metadata.labels);
+  const jobName = decodeName(framework.metadata.name, framework.metadata.annotations);
 
   for (let taskRoleStatus of framework.status.attemptStatus.taskRoleStatuses) {
     detail.taskRoles[taskRoleStatus.name] = {
@@ -337,7 +337,7 @@ const convertFrameworkDetail = async (framework) => {
   return detail;
 };
 
-const generateTaskRole = (frameworkName, taskRole, labels, config, storageConfig) => {
+const generateTaskRole = (frameworkName, taskRole, jobInfo, frameworkEnvList, config, storageConfig) => {
   const ports = config.taskRoles[taskRole].resourcePerInstance.ports || {};
   for (let port of ['ssh', 'http']) {
     if (!(port in ports)) {
@@ -372,6 +372,21 @@ const generateTaskRole = (frameworkName, taskRole, labels, config, storageConfig
     retryPolicy.maxRetryCount = config.taskRoles[taskRole].taskRetryCount || 0;
   }
 
+  const taskRoleEnvList = [
+    {
+      name: 'PAI_CURRENT_TASK_ROLE_NAME',
+      value: taskRole,
+    },
+    {
+      name: 'PAI_CURRENT_TASK_ROLE_CURRENT_TASK_INDEX',
+      valueFrom: {
+        fieldRef: {
+          fieldPath: `metadata.annotations['FC_TASK_INDEX']`,
+        },
+      },
+    },
+  ];
+
   const frameworkTaskRole = {
     name: convertName(taskRole),
     taskNumber: config.taskRoles[taskRole].instances || 1,
@@ -381,7 +396,8 @@ const generateTaskRole = (frameworkName, taskRole, labels, config, storageConfig
       pod: {
         metadata: {
           labels: {
-            ...labels,
+            userName: jobInfo.userName,
+            virtualCluster: jobInfo.virtualCluster,
             type: 'kube-launcher-task',
           },
           annotations: {
@@ -412,17 +428,11 @@ const generateTaskRole = (frameworkName, taskRole, labels, config, storageConfig
                   value: gangAllocation,
                 },
                 {
-                  name: 'PAI_USER_NAME',
-                  value: labels.userName,
-                },
-                {
-                  name: 'PAI_JOB_NAME',
-                  value: `${labels.userName}~${labels.jobName}`,
-                },
-                {
                   name: 'STORAGE_CONFIGS',
                   value: JSON.stringify(storageConfig),
                 },
+                ...frameworkEnvList,
+                ...taskRoleEnvList,
               ],
               volumeMounts: [
                 {
@@ -431,7 +441,7 @@ const generateTaskRole = (frameworkName, taskRole, labels, config, storageConfig
                 },
                 {
                   name: 'host-log',
-                  subPath: `${labels.userName}/${labels.jobName}/${convertName(taskRole)}`,
+                  subPath: `${jobInfo.userName}/${jobInfo.jobName}/${convertName(taskRole)}`,
                   mountPath: '/usr/local/pai/logs',
                 },
                 {
@@ -456,7 +466,19 @@ const generateTaskRole = (frameworkName, taskRole, labels, config, storageConfig
                   ...infinibandDevice && {'rdma/hca': 1},
                 },
               },
-              env: [],
+              env: [
+                ...frameworkEnvList,
+                ...taskRoleEnvList,
+                // backward compatibility
+                {
+                  name: 'PAI_TASK_INDEX',
+                  valueFrom: {
+                    fieldRef: {
+                      fieldPath: `metadata.annotations['FC_TASK_INDEX']`,
+                    },
+                  },
+                },
+              ],
               securityContext: {
                 capabilities: {
                   add: ['SYS_ADMIN', 'IPC_LOCK', 'DAC_READ_SEARCH'],
@@ -475,7 +497,7 @@ const generateTaskRole = (frameworkName, taskRole, labels, config, storageConfig
                 },
                 {
                   name: 'host-log',
-                  subPath: `${labels.userName}/${labels.jobName}/${convertName(taskRole)}`,
+                  subPath: `${jobInfo.userName}/${jobInfo.jobName}/${convertName(taskRole)}`,
                   mountPath: '/usr/local/pai/logs',
                 },
                 {
@@ -576,7 +598,16 @@ const generateTaskRole = (frameworkName, taskRole, labels, config, storageConfig
             fieldPath: `metadata.annotations['hivedscheduler.microsoft.com/pod-gpu-isolation']`,
           },
         },
-      });
+      },
+      {
+        name: 'PAI_AMD_VISIBLE_DEVICES',
+        valueFrom: {
+          fieldRef: {
+            fieldPath: `metadata.annotations['hivedscheduler.microsoft.com/pod-gpu-isolation']`,
+          },
+        },
+      },
+    );
   }
 
   return frameworkTaskRole;
@@ -584,7 +615,7 @@ const generateTaskRole = (frameworkName, taskRole, labels, config, storageConfig
 
 const generateFrameworkDescription = (frameworkName, virtualCluster, config, rawConfig, storageConfig) => {
   const [userName, jobName] = frameworkName.split(/~(.+)/);
-  const frameworkLabels = {
+  const jobInfo = {
     jobName,
     userName,
     virtualCluster,
@@ -594,8 +625,12 @@ const generateFrameworkDescription = (frameworkName, virtualCluster, config, raw
     kind: 'Framework',
     metadata: {
       name: encodeName(frameworkName),
-      labels: frameworkLabels,
+      labels: {
+        userName: jobInfo.userName,
+        virtualCluster: jobInfo.virtualCluster,
+      },
       annotations: {
+        jobName: jobInfo.jobName,
         config: protocolSecret.mask(rawConfig),
       },
     },
@@ -608,44 +643,21 @@ const generateFrameworkDescription = (frameworkName, virtualCluster, config, raw
       taskRoles: [],
     },
   };
-  // generate runtime env
-  const env = runtimeEnv.generateFrameworkEnv(frameworkName, config);
-  const envlist = Object.keys(env).map((name) => {
-    return {name, value: `${env[name]}`};
+
+  // generate framework env
+  const frameworkEnv = runtimeEnv.generateFrameworkEnv(frameworkName, config);
+  const frameworkEnvList = Object.keys(frameworkEnv).map((name) => {
+    return {name, value: `${frameworkEnv[name]}`};
   });
+
   // fill in task roles
   let totalGpuNumber = 0;
   for (let taskRole of Object.keys(config.taskRoles)) {
     totalGpuNumber += config.taskRoles[taskRole].resourcePerInstance.gpu * config.taskRoles[taskRole].instances;
-    const taskRoleDescription = generateTaskRole(frameworkName, taskRole, frameworkLabels, config, storageConfig);
-    taskRoleDescription.task.pod.spec.priorityClassName = `${encodeName(frameworkName)}-priority`;
-    taskRoleDescription.task.pod.spec.containers[0].env.push(...envlist.concat([
-      {
-        name: 'PAI_CURRENT_TASK_ROLE_NAME',
-        valueFrom: {
-          fieldRef: {
-            fieldPath: `metadata.annotations['FC_TASKROLE_NAME']`,
-          },
-        },
-      },
-      {
-        name: 'PAI_CURRENT_TASK_ROLE_CURRENT_TASK_INDEX',
-        valueFrom: {
-          fieldRef: {
-            fieldPath: `metadata.annotations['FC_TASK_INDEX']`,
-          },
-        },
-      },
-      // backward compatibility
-      {
-        name: 'PAI_TASK_INDEX',
-        valueFrom: {
-          fieldRef: {
-            fieldPath: `metadata.annotations['FC_TASK_INDEX']`,
-          },
-        },
-      },
-    ]));
+    const taskRoleDescription = generateTaskRole(frameworkName, taskRole, jobInfo, frameworkEnvList, config, storageConfig);
+    if (launcherConfig.enabledPriorityClass) {
+      taskRoleDescription.task.pod.spec.priorityClassName = `${encodeName(frameworkName)}-priority`;
+    }
     frameworkDescription.spec.taskRoles.push(taskRoleDescription);
   }
   frameworkDescription.metadata.annotations.totalGpuNumber = `${totalGpuNumber}`;
@@ -681,32 +693,6 @@ const createPriorityClass = async (frameworkName, priority) => {
   }
   if (response.status !== status('Created')) {
     throw createError(response.status, 'UnknownError', response.data.message);
-  }
-};
-
-const patchPriorityClassOwner = async (frameworkName, frameworkUid) => {
-  try {
-    const headers = {...launcherConfig.requestHeaders};
-    headers['Content-Type'] = 'application/merge-patch+json';
-    await k8sModel.getClient().request({
-      method: 'patch',
-      url: launcherConfig.priorityClassPath(`${encodeName(frameworkName)}-priority`),
-      headers,
-      data: {
-        metadata: {
-          ownerReferences: [{
-            apiVersion: launcherConfig.apiVersion,
-            kind: 'Framework',
-            name: encodeName(frameworkName),
-            uid: frameworkUid,
-            controller: false,
-            blockOwnerDeletion: false,
-          }],
-        },
-      },
-    });
-  } catch (error) {
-    logger.warn('Failed to patch owner reference for priority class', error);
   }
 };
 
@@ -886,15 +872,17 @@ const put = async (frameworkName, config, rawConfig) => {
 
   // calculate pod priority
   // reference: https://github.com/microsoft/pai/issues/3704
-  let jobPriority = 0;
-  if (launcherConfig.enabledHived) {
-    jobPriority = parseInt(Object.values(config.taskRoles)[0].hivedPodSpec.priority);
-    jobPriority = Math.min(Math.max(jobPriority, -1), 126);
+  if (launcherConfig.enabledPriorityClass) {
+    let jobPriority = 0;
+    if (launcherConfig.enabledHived) {
+      jobPriority = parseInt(Object.values(config.taskRoles)[0].hivedPodSpec.priority);
+      jobPriority = Math.min(Math.max(jobPriority, -1), 126);
+    }
+    const jobCreationTime = Math.floor(new Date() / 1000) & (Math.pow(2, 23) - 1);
+    const podPriority = - (((126 - jobPriority) << 23) + jobCreationTime);
+    // create priority class
+    await createPriorityClass(frameworkName, podPriority);
   }
-  const jobCreationTime = Math.floor(new Date() / 1000) & (Math.pow(2, 23) - 1);
-  const podPriority = - (((126 - jobPriority) << 23) + jobCreationTime);
-  // create priority class
-  await createPriorityClass(frameworkName, podPriority);
 
   // send request to framework controller
   let response;
@@ -911,19 +899,18 @@ const put = async (frameworkName, config, rawConfig) => {
     } else {
       // do not await for delete
       auths.length && deleteSecret(frameworkName);
-      deletePriorityClass(frameworkName);
+      launcherConfig.enabledPriorityClass && deletePriorityClass(frameworkName);
       throw error;
     }
   }
   if (response.status !== status('Created')) {
     // do not await for delete
     auths.length && deleteSecret(frameworkName);
-    deletePriorityClass(frameworkName);
+    launcherConfig.enabledPriorityClass && deletePriorityClass(frameworkName);
     throw createError(response.status, 'UnknownError', response.data.message);
   }
   // do not await for patch
   auths.length && patchSecretOwner(frameworkName, response.data.metadata.uid);
-  patchPriorityClassOwner(frameworkName, response.data.metadata.uid);
 };
 
 const execute = async (frameworkName, executionType) => {
