@@ -1,8 +1,11 @@
-#### Configuration prepare
+#### Prepare configuration 
 
-- [layout.yaml](../../../examples/cluster-configuration/layout.yaml)
-- [service.yaml](../../../examples/cluster-configuration/services-configuration.yaml)
-
+- layout.yaml
+    - [layout.yaml example](../../../examples/cluster-configuration/layout.yaml)
+    - [How to write a layout.yaml](../../../docs/pai-management/doc/how-to-configure-layout.md)
+- service-configuration.yaml 
+    - [service-configuration.yaml example](../../../examples/cluster-configuration/services-configuration.yaml)
+    - [How to write a service-configuration.yaml](../../../docs/pai-management/doc/how-to-congiure-service-config.md)
 
 #### Start up  dev-box
 

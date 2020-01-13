@@ -2,6 +2,11 @@
 
 #### Prepare configuration
 
+- master.csv: machine-list of infra nodes. Infra nodes is used to deploy etcd cluster and k8s-master node (single master).
+- worker.csv: machine-list of worker nodes. Worker nodes is used to deploy kubernetes worker nodes
+- config: Configuration of OpenPAI service.
+
+
 ##### Write master.csv
 
 ###### master.csv format
