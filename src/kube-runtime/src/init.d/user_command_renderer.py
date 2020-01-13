@@ -32,17 +32,17 @@ from common.utils import init_logger  #pylint: disable=wrong-import-position
 LOGGER = logging.getLogger(__name__)
 
 
-def _convert_to_dict(obj):
-    coverted_obj = {}
+def _convert_to_dict(obj) -> dict:
+    converted_obj = {}
     if isinstance(obj, list):
         for i, value in enumerate(obj):
-            coverted_obj[str(i)] = value
+            converted_obj[str(i)] = value
     elif isinstance(obj, dict):
         for key, value in obj.items():
-            coverted_obj[key] = _convert_to_dict(value)
+            converted_obj[key] = _convert_to_dict(value)
     else:
-        coverted_obj = obj
-    return coverted_obj
+        converted_obj = obj
+    return converted_obj
 
 
 def _render_user_command(user_command, secrets) -> str:
