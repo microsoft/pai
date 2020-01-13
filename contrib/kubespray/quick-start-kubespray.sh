@@ -40,7 +40,7 @@ then
   exit 1
 fi
 
-/bin/bash script/environment.sh || exit $?
+/bin/bash script/environment.sh -c ${CLUSTER_CONFIG} || exit $?
 
 /bin/bash script/configuration.sh -m ${MASTER_LIST} -w ${WORKER_LIST} -c ${CLUSTER_CONFIG} || exit $?
 

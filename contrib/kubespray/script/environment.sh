@@ -1,5 +1,19 @@
 #!/bin/bash
 
+while getopts "c:" opt; do
+  case $opt in
+    c)
+      CLUSTER_CONFIG=$OPTARG
+      ;;
+    \?)
+      echo "Invalid option: -$OPTARG"
+      exit 1
+      ;;
+  esac
+done
+
+OPENPAI_BRANCH_NAME=`cat ${CLUSTER_CONFIG} | grep branch-name | tr -d "[:space:]" | cut -d ':' -f 2`
+
 echo "Create working folder in ${HOME}/pai-deploy"
 mkdir -p ${HOME}/pai-deploy/
 cd ${HOME}/pai-deploy
@@ -37,4 +51,6 @@ echo "Clone OpenPAI source code from github"
 cd ${HOME}/pai-deploy
 git clone https://github.com/microsoft/pai.git
 cd pai
-git checkout yuye/quick-start-script
+
+echo "switch to the branch ${OPENPAI_BRANCH_NAME}"
+git checkout ${OPENPAI_BRANCH_NAME}

@@ -27,7 +27,8 @@ openpai-004,10.0.0.4
 ##### Write config
 
 ```yaml
-pai-version: :quick-start
+branch-name: master
+docker-image-tag: quick-start
 user: forexample
 password: forexample
 ```
@@ -43,5 +44,5 @@ password: forexample
 This script should be executed after ```start kubernetes```
 
 ```shell script
-/bin/bash quick-start-service.sh
+/bin/bash quick-start-service.sh -c /path/to/config
 ```

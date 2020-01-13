@@ -1,6 +1,7 @@
 user: forexample
 password: forexample
-pai-version: quick-start
+branch-name: master
+docker-image-tag: quick-start
 
 # Optional
 # docker-registry-domain: docker.io

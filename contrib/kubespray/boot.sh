@@ -40,7 +40,7 @@ then
   exit 1
 fi
 
-/bin/bash script/environment.sh || exit $?
+/bin/bash script/environment.sh -c ${CLUSTER_CONFIG} || exit $?
 
 /bin/bash script/configuration.sh -m ${MASTER_LIST} -w ${WORKER_LIST} -c ${CLUSTER_CONFIG} || exit $?
 
@@ -58,4 +58,4 @@ ansible all -i ${HOME}/pai-deploy/cluster-cfg/hosts.yml -m ping || exit $?
 
 /bin/bash script/kubernetes-boot.sh || exit $?
 
-/bin/bash script/service-boot.sh || exit $?
+/bin/bash script/service-boot.sh -c ${CLUSTER_CONFIG} || exit $?
