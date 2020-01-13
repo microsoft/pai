@@ -56,8 +56,6 @@ ansible all -i ${HOME}/pai-deploy/cluster-cfg/hosts.yml -m ping || exit $?
 
 /bin/bash script/docker-config-prepare.sh || exit $?
 
-exit 0
-
 /bin/bash script/kubernetes-boot.sh || exit $?
 
 /bin/bash script/service-boot.sh -c ${CLUSTER_CONFIG} || exit $?
