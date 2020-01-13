@@ -15,6 +15,9 @@ done
 OPENPAI_BRANCH_NAME=`cat ${CLUSTER_CONFIG} | grep branch-name | tr -d "[:space:]" | cut -d ':' -f 2`
 OPENPAI_IMAGE_TAG=`cat ${CLUSTER_CONFIG} | grep docker-image-tag | tr -d "[:space:]" | cut -d ':' -f 2`
 
+echo "Branch Name ${OPENPAI_BRANCH_NAME}"
+echo "OpenPAI Image Tag ${OPENPAI_IMAGE_TAG}"
+
 sudo docker run -itd \
         -e COLUMNS=$COLUMNS -e LINES=$LINES -e TERM=$TERM \
         -e BRANCH_NAME=${OPENPAI_BRANCH_NAME}
