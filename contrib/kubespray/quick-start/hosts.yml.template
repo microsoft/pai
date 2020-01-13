@@ -23,9 +23,7 @@ all:
   children:
     kube-master:
       hosts:
-{%- for vm in env["master"] %}
-        {{ vm["hostname"] }}:
-{%- endfor %}
+        {{ head_node["hostname"]}}
     kube-node:
       hosts:
 {%- for vm in env["master"] %}

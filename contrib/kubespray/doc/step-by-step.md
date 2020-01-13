@@ -67,6 +67,8 @@ all:
     kube-node:
       hosts:
         node1:
+        node2:
+        node3:
         node4:
         node5:
         node6:
@@ -108,7 +110,9 @@ all:
       ansible_ssh_extra_args: '-o StrictHostKeyChecking=no'
 ```
 
-Notice: OpenPAI need 3 master nodes. An etcd cluster will be setup on the three nodes, and one of them will be master node of kubernetes. 
+Notice: 
+   - OpenPAI need 3 master nodes. An etcd cluster will be setup on the three nodes, and one of them will be master node of kubernetes. 
+   - We assume all master nodes in your cluster is none-gpu machine.
 
 ###### ```worker.yaml for worker (GPU) node```
 
@@ -157,8 +161,8 @@ sudo pip3 install -r requirements.txt
 ###### The cluster has been deployed OpenPAI before
 
 - If you deployed OpenPAI before, especially the yarn version OpenPAI bfore. Please refer to the following link to clean up your cluster before the next steps.
-    - [Guid to Clean Your Environment](./doc/clean-env.md)
-- If you haven't deploy openpai in your cluster, you could step to next.
+    - [Guid to Clean Your Environment](./clean-env.md)
+- If you haven't deployed openpai in your cluster before, you could step to next.
 
 
 ###### Ansible test
@@ -192,9 +196,9 @@ cd ~
 
 git clone https://github.com/kubernetes-sigs/kubespray
 
-git checkout release-2.11
-
 cd kubespray
+
+git checkout release-2.11
 
 sudo pip3 install -r requirements.txt
 
@@ -210,7 +214,7 @@ cp /path/to/your/host.yml ~/kubespray/inventory/mycluster
 ##### Deploy k8s
 
 ```bash
-cd kubespray/
+cd ~/kubespray/
 
 ansible-playbook -i inventory/mycluster/hosts.yml cluster.yml --become --become-user=root -e "@inventory/mycluster/openpai.yml"
 ```
@@ -259,8 +263,6 @@ all:
       ansible_ssh_pass: "Your-Password"
       ansible_ssh_extra_args: '-o StrictHostKeyChecking=no'
 ```
-
-- Enable ssh, nvidia-drivers, nvidia-persistent-mode and nvidia-docker
 
 - Append the new worker nodes into the host.yml in the inventory which was kept after the cluster deployment.
 
@@ -315,6 +317,8 @@ all:
     kube-node:
       hosts:
         node1:
+        node2:
+        node3:
         node4:
         node5:
         node6:
@@ -396,6 +400,8 @@ all:
     kube-node:
       hosts:
         node1:
+        node2:
+        node3:
         node4:
         node5:
         node6:
