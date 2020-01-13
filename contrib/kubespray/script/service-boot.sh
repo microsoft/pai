@@ -39,6 +39,9 @@ cd /root
 
 git clone https://github.com/microsoft/pai.git
 cd pai
+
+echo "branch name: ${BRANCH_NAME}"
+
 git checkout ${BRANCH_NAME}
 git pull
 
