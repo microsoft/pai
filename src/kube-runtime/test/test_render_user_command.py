@@ -45,7 +45,8 @@ class TestUserCommandRender(unittest.TestCase):
     def test_user_command_render(self):
         user_commands = [
             "sleep <% $secrets.time %>", "sleep <% $secrets.time[0] %>",
-            "sleep <% $secrets.time.time1 %>"
+            "sleep <% $secrets.time.time1 %>",
+            "echo <% $secrets.time.date.year %> && sleep <% $secrets.time.date.workingDay.0 %>"
         ]
         with open("render_test_secrets.yaml") as f:
             secrets = list(yaml.safe_load_all(f.read()))
@@ -60,6 +61,10 @@ class TestUserCommandRender(unittest.TestCase):
         res = user_command_renderer._render_user_command(
             user_commands[2], secrets[2])
         self.assertEqual(res, "sleep 10")
+
+        res = user_command_renderer._render_user_command(
+            user_commands[3], secrets[3])
+        self.assertEqual(res, "echo 2019 && sleep 1")
 
 
 if __name__ == '__main__':

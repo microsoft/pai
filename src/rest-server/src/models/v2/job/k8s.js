@@ -669,6 +669,10 @@ const generateFrameworkDescription = (frameworkName, virtualCluster, config, raw
         name: 'job-secrets',
         mountPath: '/usr/local/pai/secrets',
       });
+      taskRoleDescription.task.pod.spec.containers[0].volumeMounts.push({
+        name: 'job-secrets',
+        mountPath: '/usr/local/pai/secrets',
+      });
     }
     frameworkDescription.spec.taskRoles.push(taskRoleDescription);
   }
@@ -738,12 +742,17 @@ const createDockerSecret = async (frameworkName, auths) => {
   const data = {
     '.dockerconfigjson': Buffer.from(JSON.stringify(cred)).toString('base64'),
   };
-  await k8sModel.createSecret(
+  const response = await k8sModel.createSecret(
     'default',
     `${encodeName(frameworkName)}-regcred`,
     data,
     'kubernetes.io/dockerconfigjson',
   );
+
+  if (response.status !== status('Created')) {
+    logger.warn('Failed to create secret');
+    throw createError(response.status, 'UnknownError', response.data.message);
+  }
 };
 
 const patchDockerSecretOwner = async (frameworkName, frameworkUid) => {
@@ -780,12 +789,17 @@ const createJobConfigSecret = async (frameworkName, secrets) => {
   const data = {
     'secrets.yaml': Buffer.from(yaml.safeDump(secrets)).toString('base64'),
   };
-  await k8sModel.createSecret(
+  const response = await k8sModel.createSecret(
     'default',
     `${encodeName(frameworkName)}-configcred`,
     data,
     'Opaque',
   );
+
+  if (response.status !== status('Created')) {
+    logger.warn('Failed to create secret');
+    throw createError(response.status, 'UnknownError', response.data.message);
+  }
 };
 
 const patchJobConfigSecretOwner = async (frameworkName, frameworkUid) => {

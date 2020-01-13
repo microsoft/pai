@@ -81,7 +81,7 @@ def main():
     user_command = os.getenv("USER_CMD")
     rendered_user_command = _render_user_command(user_command, secrets)
     _output_user_command(rendered_user_command, args.output_file)
-    logging.info("User command already rendered and output to %s",
+    logging.info("User command already rendered and outputted to %s",
                  args.output_file)
 
 

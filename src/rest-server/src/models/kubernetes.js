@@ -15,6 +15,15 @@ const patchOption = {
   },
 };
 
+const rethrowResponseError = (error) => {
+  const response = error.response;
+  if (response !== null) {
+    return Promise.reject(createError(response.status, 'UnknownError', response.data.message));
+  } else {
+    return Promise.reject(error);
+  }
+};
+
 const getClient = (baseURL = '') => {
   const config = {
     baseURL: new URL(baseURL, apiserver.uri).toString(),
@@ -100,38 +109,29 @@ const getPods = async (options = {}) => {
 const createSecret = async (namespace, name, data, type) => {
   const client = getClient();
   const url = `/api/v1/namespaces/${namespace}/secrets`;
-  try {
-    const response = await client.post(url, {
-      metadata: {
-        name: name,
-        namespace: namespace,
-      },
-      data: data,
-      type: type,
-    });
-    if (response.status !== status('Created')) {
-      logger.warn('Failed to create secret');
-      throw createError(response.status, 'UnknownError', response.data.message);
-    }
-    logger.debug(`create secret ${name} successfully`);
-  } catch (err) {
-    logger.warn('Failed to create secret, err is: ', err);
-    throw err;
-  }
+  client.interceptors.response.use((resp) => resp, rethrowResponseError);
+  return await client.post(url, {
+    metadata: {
+      name: name,
+      namespace: namespace,
+    },
+    data: data,
+    type: type,
+  });
 };
 
 const deleteSecret = async (namespace, name) => {
   const client = getClient();
   const url = `/api/v1/namespaces/${namespace}/secrets/${name}`;
+  client.interceptors.response.use((resp) => resp, rethrowResponseError);
   await client.delete(url);
-  logger.debug(`delete secret ${name} successfully`);
 };
 
 const patchSecret = async (namespace, name, data) => {
   const client = getClient();
   const url = `/api/v1/namespaces/${namespace}/secrets/${name}`;
+  client.interceptors.response.use((resp) => resp, rethrowResponseError);
   await client.patch(url, data, patchOption);
-  logger.debug(`Patch secret ${name} successfully`);
 };
 
 module.exports = {
