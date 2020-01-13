@@ -781,7 +781,7 @@ const deleteDockerSecret = async (frameworkName) => {
       .getClient()
       .deleteSecret('default', `${encodeName(frameworkName)}-regcred`);
   } catch (error) {
-    logger.warn('Failed to delete protocol secret', error);
+    logger.warn('Failed to delete docker secret', error);
   }
 };
 
