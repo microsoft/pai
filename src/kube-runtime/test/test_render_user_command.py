@@ -48,23 +48,17 @@ class TestUserCommandRender(unittest.TestCase):
             "sleep <% $secrets.time.time1 %>",
             "echo <% $secrets.time.date.year %> && sleep <% $secrets.time.date.workingDay.0 %>"
         ]
+        expected_commands = [
+            "sleep 10", "sleep 10", "sleep 10", "echo 2019 && sleep 1"
+        ]
         with open("render_test_secrets.yaml") as f:
             secrets = list(yaml.safe_load_all(f.read()))
-        res = user_command_renderer._render_user_command(
-            user_commands[0], secrets[0])
-        self.assertEqual(res, "sleep 10")
 
-        res = user_command_renderer._render_user_command(
-            user_commands[1], secrets[1])
-        self.assertEqual(res, "sleep 10")
-
-        res = user_command_renderer._render_user_command(
-            user_commands[2], secrets[2])
-        self.assertEqual(res, "sleep 10")
-
-        res = user_command_renderer._render_user_command(
-            user_commands[3], secrets[3])
-        self.assertEqual(res, "echo 2019 && sleep 1")
+        for user_command, expected_command, secret in zip(
+                user_commands, expected_commands, secrets):
+            res = user_command_renderer._render_user_command(
+                user_command, secret)
+            self.assertEqual(res, expected_command)
 
 
 if __name__ == '__main__':

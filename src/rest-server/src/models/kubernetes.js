@@ -17,7 +17,7 @@ const patchOption = {
 
 const rethrowResponseError = (error) => {
   const response = error.response;
-  if (response !== null) {
+  if (response != null) { // check null and undefined
     return Promise.reject(createError(response.status, 'UnknownError', response.data.message));
   } else {
     return Promise.reject(error);
