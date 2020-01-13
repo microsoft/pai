@@ -65,12 +65,16 @@ type HivedScheduler struct {
 	// Client.
 	kClient kubeClient.Interface
 
-	// Informer is used to sync remote objects to local cached objects, and deliver
-	// events of object changes.
+	// Informer is used to sync remote objects to local cached objects, and then
+	// deliver corresponding events of the object changes.
 	//
-	// The event delivery is level driven, not edge driven.
-	// For example, the Informer may not deliver any event if a create is immediately
-	// followed by a delete.
+	// The event delivery for an object is level driven instead of edge driven,
+	// and the object is identified by its name instead of its UID.
+	// For example:
+	// 1. Informer may not deliver any event if a create is immediately followed
+	//    by a delete.
+	// 2. Informer may deliver an Update event with UID changed if a delete is
+	//    immediately followed by a create.
 	//
 	// Platform Error Panic in Informer Callbacks will not be recovered, i.e. it will
 	// crash the whole process, since generally it is a ground truth failure that
@@ -156,11 +160,8 @@ func NewHivedScheduler() *HivedScheduler {
 	s.podInformer.AddEventHandler(
 		cache.FilteringResourceEventHandler{
 			FilterFunc: func(obj interface{}) bool {
-				if pod := internal.ToPod(obj); pod != nil {
-					return internal.IsInterested(pod)
-				} else {
-					return false
-				}
+				pod := internal.ToPod(obj)
+				return internal.IsInterested(pod)
 			},
 			Handler: cache.ResourceEventHandlerFuncs{
 				AddFunc:    s.addPod,
@@ -210,80 +211,88 @@ func (s *HivedScheduler) Run(stopCh <-chan struct{}) {
 }
 
 func (s *HivedScheduler) addNode(obj interface{}) {
-	if node := internal.ToNode(obj); node != nil {
-		logPfx := fmt.Sprintf("[%v]: addNode: ", node.Name)
-		klog.Infof(logPfx + "Started")
-		defer internal.HandleInformerPanic(logPfx, true)
+	node := internal.ToNode(obj)
+	logPfx := fmt.Sprintf("[%v]: addNode: ", node.Name)
+	klog.Infof(logPfx + "Started")
+	defer internal.HandleInformerPanic(logPfx, true)
 
-		s.schedulerAlgorithm.AddNode(node)
-	}
+	s.schedulerAlgorithm.AddNode(node)
 }
 
 func (s *HivedScheduler) updateNode(oldObj, newObj interface{}) {
 	oldNode := internal.ToNode(oldObj)
 	newNode := internal.ToNode(newObj)
-	if oldNode != nil && newNode != nil {
-		logPfx := fmt.Sprintf("[%v]: updateNode: ", newNode.Name)
-		defer internal.HandleInformerPanic(logPfx, false)
-
-		s.schedulerAlgorithm.UpdateNode(oldNode, newNode)
+	// Informer may deliver an Update event with UID changed if a delete is
+	// immediately followed by a create, so manually decompose it.
+	if oldNode.UID != newNode.UID {
+		s.deleteNode(oldObj)
+		s.addNode(newObj)
+		return
 	}
+
+	logPfx := fmt.Sprintf("[%v]: updateNode: ", newNode.Name)
+	defer internal.HandleInformerPanic(logPfx, false)
+
+	s.schedulerAlgorithm.UpdateNode(oldNode, newNode)
 }
 
 func (s *HivedScheduler) deleteNode(obj interface{}) {
-	if node := internal.ToNode(obj); node != nil {
-		logPfx := fmt.Sprintf("[%v]: deleteNode: ", node.Name)
-		klog.Infof(logPfx + "Started")
-		defer internal.HandleInformerPanic(logPfx, true)
+	node := internal.ToNode(obj)
+	logPfx := fmt.Sprintf("[%v]: deleteNode: ", node.Name)
+	klog.Infof(logPfx + "Started")
+	defer internal.HandleInformerPanic(logPfx, true)
 
-		s.schedulerAlgorithm.DeleteNode(node)
-	}
+	s.schedulerAlgorithm.DeleteNode(node)
 }
 
 func (s *HivedScheduler) addPod(obj interface{}) {
-	if pod := internal.ToPod(obj); pod != nil {
-		if internal.IsBound(pod) {
-			s.addBoundPod(pod)
-		} else {
-			s.addUnboundPod(pod)
-		}
+	pod := internal.ToPod(obj)
+	if internal.IsBound(pod) {
+		s.addBoundPod(pod)
+	} else {
+		s.addUnboundPod(pod)
 	}
 }
 
 func (s *HivedScheduler) updatePod(oldObj, newObj interface{}) {
 	oldPod := internal.ToPod(oldObj)
 	newPod := internal.ToPod(newObj)
-	if oldPod != nil && newPod != nil {
-		oldBound := internal.IsBound(oldPod)
-		newBound := internal.IsBound(newPod)
-		if !oldBound && newBound {
-			s.addBoundPod(newPod)
-		} else if oldBound && !newBound {
-			// Unreachable
-			panic(fmt.Errorf(
-				"[%v]: Pod updated from bound to unbound: previous bound node: %v",
-				internal.Key(newPod), oldPod.Spec.NodeName))
-		}
+	// Informer may deliver an Update event with UID changed if a delete is
+	// immediately followed by a create, so manually decompose it.
+	if oldPod.UID != newPod.UID {
+		s.deletePod(oldObj)
+		s.addPod(newObj)
+		return
+	}
+
+	oldBound := internal.IsBound(oldPod)
+	newBound := internal.IsBound(newPod)
+	if !oldBound && newBound {
+		s.addBoundPod(newPod)
+	} else if oldBound && !newBound {
+		// Unreachable
+		panic(fmt.Errorf(
+			"[%v]: Pod updated from bound to unbound: previous bound node: %v",
+			internal.Key(newPod), oldPod.Spec.NodeName))
 	}
 }
 
 func (s *HivedScheduler) deletePod(obj interface{}) {
-	if pod := internal.ToPod(obj); pod != nil {
-		s.schedulerLock.Lock()
-		defer s.schedulerLock.Unlock()
+	pod := internal.ToPod(obj)
+	s.schedulerLock.Lock()
+	defer s.schedulerLock.Unlock()
 
-		logPfx := fmt.Sprintf("[%v]: deletePod: ", internal.Key(pod))
-		klog.Infof(logPfx + "Started")
-		defer internal.HandleInformerPanic(logPfx, true)
+	logPfx := fmt.Sprintf("[%v]: deletePod: ", internal.Key(pod))
+	klog.Infof(logPfx + "Started")
+	defer internal.HandleInformerPanic(logPfx, true)
 
-		podStatus := s.podScheduleStatuses[pod.UID]
-		if podStatus != nil {
-			if internal.IsAllocated(podStatus.PodState) {
-				s.schedulerAlgorithm.DeleteAllocatedPod(podStatus.Pod)
-			}
-
-			delete(s.podScheduleStatuses, pod.UID)
+	podStatus := s.podScheduleStatuses[pod.UID]
+	if podStatus != nil {
+		if internal.IsAllocated(podStatus.PodState) {
+			s.schedulerAlgorithm.DeleteAllocatedPod(podStatus.Pod)
 		}
+
+		delete(s.podScheduleStatuses, pod.UID)
 	}
 }
 
@@ -518,7 +527,7 @@ func (s *HivedScheduler) filterRoutine(args ei.ExtenderArgs) *ei.ExtenderFilterR
 			go s.forceBindExecutor(bindingPod)
 		}
 
-		klog.Infof(logPfx + "Pod is binding: %v", common.ToJson(result.PodBindInfo))
+		klog.Infof(logPfx+"Pod is binding: %v", common.ToJson(result.PodBindInfo))
 		return &ei.ExtenderFilterResult{
 			NodeNames: &[]string{bindingPod.Spec.NodeName},
 		}
@@ -542,7 +551,7 @@ func (s *HivedScheduler) filterRoutine(args ei.ExtenderArgs) *ei.ExtenderFilterR
 			}
 		}
 
-		klog.Infof(logPfx + "Pod is preempting: %v", common.ToJson(failedNodes))
+		klog.Infof(logPfx+"Pod is preempting: %v", common.ToJson(failedNodes))
 		return &ei.ExtenderFilterResult{
 			FailedNodes: failedNodes,
 		}
