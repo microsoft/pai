@@ -251,6 +251,8 @@ kube_apiserver_cpu_requests: 1000m
 
 kube_kubeadm_controller_extra_args:
   v: 2
+  large-cluster-size-threshold: 0
+  secondary-node-eviction-rate: 0.05
 
 # controller_manager_extra_volumes: {}
 
