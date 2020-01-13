@@ -50,13 +50,13 @@ echo "Ping Test"
 
 ansible all -i ${HOME}/pai-deploy/cluster-cfg/hosts.yml -m ping || exit $?
 
-exit 0
-
 /bin/bash script/nvidia-drivers-install.sh || exit $?
 
 /bin/bash script/nvidia-docker-runtime-install.sh || exit $?
 
 /bin/bash script/docker-config-prepare.sh || exit $?
+
+exit 0
 
 /bin/bash script/kubernetes-boot.sh || exit $?
 
