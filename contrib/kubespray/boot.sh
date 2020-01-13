@@ -42,6 +42,8 @@ fi
 
 /bin/bash script/environment.sh -c ${CLUSTER_CONFIG} || exit $?
 
+exit 0
+
 /bin/bash script/configuration.sh -m ${MASTER_LIST} -w ${WORKER_LIST} -c ${CLUSTER_CONFIG} || exit $?
 
 /bin/bash script/passwordless-ssh-setup.sh -c ${CLUSTER_CONFIG} || exit $?
