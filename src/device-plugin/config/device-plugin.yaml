@@ -19,4 +19,3 @@ service_type: "k8s"
 
 devices:
   - "nvidia.com/gpu"
-  - "rdma/hca"

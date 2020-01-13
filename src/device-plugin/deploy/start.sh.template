@@ -33,10 +33,7 @@ kubectl apply --overwrite=true -f https://raw.githubusercontent.com/NVIDIA/k8s-d
 {% if 'rdma/hca' in cluster_cfg['device-plugin']['devices'] %}
 
 kubectl apply --overwrite=true -f https://raw.githubusercontent.com/Mellanox/k8s-rdma-sriov-dev-plugin/master/example/hca/rdma-hca-node-config.yaml || exit $?
-curl -s https://raw.githubusercontent.com/Mellanox/k8s-rdma-sriov-dev-plugin/master/example/device-plugin.yaml \
-  | sed "s/extensions\/v1beta1/apps\/v1/g" \
-  | kubectl apply --overwrite=true -f - \
-  || exit $?
+kubectl apply --overwrite=true -f https://raw.githubusercontent.com/Mellanox/k8s-rdma-sriov-dev-plugin/master/example/device-plugin.yaml || exit $?
 
 {% endif %}
 
