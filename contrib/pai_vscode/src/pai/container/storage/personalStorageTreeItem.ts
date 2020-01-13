@@ -19,7 +19,8 @@ import { PersonalStorageManager } from '../../storage/personalStorageManager';
 import { StorageTreeNode } from '../common/treeNode';
 
 import { AzureBlobRootItem } from './azureBlobTreeItem';
-import { SambaRootNode } from './sambaTreeItem';
+import { SambaRootNode } from './SambaTreeItem';
+import { NfsRootNode } from './NfsTreeItem';
 
 /**
  * PAI personal storage tree node.
@@ -74,7 +75,7 @@ export class PersonalStorageTreeNode extends StorageTreeNode {
             case 'azurefile':
                 return new StorageTreeNode('Azure File');
             case 'nfs':
-                return new StorageTreeNode('NFS');
+                return new NfsRootNode(this.storage, '', this);
             case 'samba':
                 return new SambaRootNode(this.storage, '', this);
             default:
