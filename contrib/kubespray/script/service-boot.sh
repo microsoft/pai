@@ -36,6 +36,12 @@ sudo docker exec -it dev-box-quick-start kubectl get node
 # Work in dev-box
 sudo docker exec -i dev-box-quick-start /bin/bash << EOF_DEV_BOX
 
+apt-get -y update
+apt-get -y install python3 python-dev software-properties-common
+curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py
+python3 get-pip.py
+pip3 install kubernetes jinja2
+
 cd /root
 
 git clone https://github.com/microsoft/pai.git
