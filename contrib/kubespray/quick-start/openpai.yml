@@ -251,6 +251,8 @@ kube_apiserver_cpu_requests: 1000m
 
 kube_kubeadm_controller_extra_args:
   v: 2
+  large-cluster-size-threshold: 0
+  secondary-node-eviction-rate: 0.05
 
 # controller_manager_extra_volumes: {}
 
@@ -337,10 +339,8 @@ docker_daemon_graph: "/mnt/docker"
 
 docker_log_opts: "--log-opt max-size=2g --log-opt max-file=2 --log-driver=json-file"
 
-# add --add-runtime nvidia=/usr/bin/nvidia-container-runtime for nvidia-runtime in docker_option
 docker_options: >-
-    --add-runtime nvidia=/usr/bin/nvidia-container-runtime
-    --default-runtime nvidia
+    --config-file /etc/docker-openpai/daemon-openpai.json
     {%- if docker_insecure_registries is defined %}
     {{ docker_insecure_registries | map('regex_replace', '^(.*)$', '--insecure-registry=\1' ) | list | join(' ') }}
     {%- endif %}
