@@ -137,7 +137,6 @@ authentication:
 
 #Uncomment following and config it if you want to use hivedscheduler
 #Check https://github.com/microsoft/pai/blob/master/docs/hivedscheduler/devops.md
-#hivedscheduler:
 hivedscheduler:
   config: |
 
