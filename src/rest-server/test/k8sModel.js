@@ -3,7 +3,7 @@
 
 const chai = require('chai');
 const nockUtils = require('./utils/nock');
-const k8sModel = require('@pai/models/kubernetes');
+const k8sModel = require('@pai/models/kubernetes/kubernetes');
 
 describe('kubernetes model', () => {
   afterEach(function() {

@@ -20,7 +20,7 @@ const yaml = require('js-yaml');
 const createError = require('@pai/utils/error');
 const vcConfig = require('@pai/config/vc');
 const launcherConfig = require('@pai/config/launcher');
-const kubernetes = require('@pai/models/kubernetes');
+const kubernetes = require('@pai/models/kubernetes/kubernetes');
 const k8s = require('@pai/utils/k8sUtils');
 
 const {

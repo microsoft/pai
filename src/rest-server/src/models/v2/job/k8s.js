@@ -28,7 +28,8 @@ const launcherConfig = require('@pai/config/launcher');
 const createError = require('@pai/utils/error');
 const protocolSecret = require('@pai/utils/protocolSecret');
 const userModel = require('@pai/models/v2/user');
-const k8sModel = require('@pai/models/kubernetes');
+const k8sModel = require('@pai/models/kubernetes/kubernetes');
+const k8sSecret = require('@pai/models/kubernetes/k8s-secret');
 const env = require('@pai/utils/env');
 const k8s = require('@pai/utils/k8sUtils');
 const path = require('path');
@@ -739,37 +740,27 @@ const createDockerSecret = async (frameworkName, auths) => {
       auth: Buffer.from(`${username}:${password}`).toString('base64'),
     };
   }
-  const data = {
-    '.dockerconfigjson': Buffer.from(JSON.stringify(cred)).toString('base64'),
-  };
-  const response = await k8sModel.createSecret(
+  await k8sSecret.create(
     'default',
     `${encodeName(frameworkName)}-regcred`,
-    data,
-    'kubernetes.io/dockerconfigjson',
+    {'.dockerconfigjson': JSON.stringify(cred)},
+    {type: 'kubernetes.io/dockerconfigjson'},
   );
-
-  if (response.status !== status('Created')) {
-    logger.warn('Failed to create secret');
-    throw createError(response.status, 'UnknownError', response.data.message);
-  }
 };
 
 const patchDockerSecretOwner = async (frameworkName, frameworkUid) => {
-  const data = {
-    metadata: {
-      ownerReferences: [{
-        apiVersion: launcherConfig.apiVersion,
-        kind: 'Framework',
-        name: encodeName(frameworkName),
-        uid: frameworkUid,
-        controller: true,
-        blockOwnerDeletion: true,
-      }],
-    },
+  const metadata = {
+    ownerReferences: [{
+      apiVersion: launcherConfig.apiVersion,
+      kind: 'Framework',
+      name: encodeName(frameworkName),
+      uid: frameworkUid,
+      controller: true,
+      blockOwnerDeletion: true,
+    }],
   };
   try {
-    await k8sModel.patchSecret('default', `${encodeName(frameworkName)}-regcred`, data);
+    await k8sSecret.patchMetadata('default', `${encodeName(frameworkName)}-regcred`, metadata);
   } catch (error) {
     logger.warn('Failed to patch owner reference for secret', error);
   }
@@ -777,9 +768,7 @@ const patchDockerSecretOwner = async (frameworkName, frameworkUid) => {
 
 const deleteDockerSecret = async (frameworkName) => {
   try {
-    await k8sModel
-      .getClient()
-      .deleteSecret('default', `${encodeName(frameworkName)}-regcred`);
+    await k8sSecret.remove('default', `${encodeName(frameworkName)}-regcred`);
   } catch (error) {
     logger.warn('Failed to delete docker secret', error);
   }
@@ -787,36 +776,28 @@ const deleteDockerSecret = async (frameworkName) => {
 
 const createJobConfigSecret = async (frameworkName, secrets) => {
   const data = {
-    'secrets.yaml': Buffer.from(yaml.safeDump(secrets)).toString('base64'),
+    'secrets.yaml': yaml.safeDump(secrets),
   };
-  const response = await k8sModel.createSecret(
+  await k8sSecret.create(
     'default',
     `${encodeName(frameworkName)}-configcred`,
     data,
-    'Opaque',
   );
-
-  if (response.status !== status('Created')) {
-    logger.warn('Failed to create secret');
-    throw createError(response.status, 'UnknownError', response.data.message);
-  }
 };
 
 const patchJobConfigSecretOwner = async (frameworkName, frameworkUid) => {
-  const data = {
-    metadata: {
-      ownerReferences: [{
-        apiVersion: launcherConfig.apiVersion,
-        kind: 'Framework',
-        name: encodeName(frameworkName),
-        uid: frameworkUid,
-        controller: true,
-        blockOwnerDeletion: true,
-      }],
-    },
+  const metadata = {
+    ownerReferences: [{
+      apiVersion: launcherConfig.apiVersion,
+      kind: 'Framework',
+      name: encodeName(frameworkName),
+      uid: frameworkUid,
+      controller: true,
+      blockOwnerDeletion: true,
+    }],
   };
   try {
-    await k8sModel.patchSecret('default', `${encodeName(frameworkName)}-configcred`, data);
+    await k8sSecret.patchMetadata('default', `${encodeName(frameworkName)}-configcred`, metadata);
   } catch (error) {
     logger.warn('Failed to patch owner reference for secret', error);
   }
@@ -824,7 +805,7 @@ const patchJobConfigSecretOwner = async (frameworkName, frameworkUid) => {
 
 const deleteJobConfigSecret = async (frameworkName) => {
   try {
-    await k8sModel.getClient().deleteSecret('default', `${encodeName(frameworkName)}-configcred`);
+    await k8sSecret.remove('default', `${encodeName(frameworkName)}-configcred`);
   } catch (error) {
     logger.warn('Failed to delete protocol secret', error);
   }

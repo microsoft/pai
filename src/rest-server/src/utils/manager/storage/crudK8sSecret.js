@@ -18,7 +18,7 @@
 const Storage = require('./storage');
 const logger = require('@pai/config/logger');
 const createError = require('@pai/utils/error');
-const k8sModel = require('@pai/models/kubernetes');
+const k8sModel = require('@pai/models/kubernetes/kubernetes');
 
 const STORAGE_NAMESPACE = process.env.PAI_STORAGE_NAMESPACE || 'pai-storage';
 

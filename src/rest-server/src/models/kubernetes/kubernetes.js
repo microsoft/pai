@@ -6,22 +6,12 @@ const {Agent} = require('https');
 const {URL} = require('url');
 const {apiserver} = require('@pai/config/kubernetes');
 const status = require('statuses');
-const createError = require('@pai/utils/error');
 const logger = require('@pai/config/logger');
 
 const patchOption = {
   headers: {
     'Content-Type': 'application/merge-patch+json',
   },
-};
-
-const rethrowResponseError = (error) => {
-  const response = error.response;
-  if (response != null) { // check null and undefined
-    return Promise.reject(createError(response.status, 'UnknownError', response.data.message));
-  } else {
-    return Promise.reject(error);
-  }
 };
 
 const getClient = (baseURL = '') => {
@@ -106,41 +96,11 @@ const getPods = async (options = {}) => {
   return res.data;
 };
 
-const createSecret = async (namespace, name, data, type) => {
-  const client = getClient();
-  const url = `/api/v1/namespaces/${namespace}/secrets`;
-  client.interceptors.response.use((resp) => resp, rethrowResponseError);
-  return await client.post(url, {
-    metadata: {
-      name: name,
-      namespace: namespace,
-    },
-    data: data,
-    type: type,
-  });
-};
-
-const deleteSecret = async (namespace, name) => {
-  const client = getClient();
-  const url = `/api/v1/namespaces/${namespace}/secrets/${name}`;
-  client.interceptors.response.use((resp) => resp, rethrowResponseError);
-  await client.delete(url);
-};
-
-const patchSecret = async (namespace, name, data) => {
-  const client = getClient();
-  const url = `/api/v1/namespaces/${namespace}/secrets/${name}`;
-  client.interceptors.response.use((resp) => resp, rethrowResponseError);
-  await client.patch(url, data, patchOption);
-};
-
 module.exports = {
   getClient,
   encodeSelector,
   createNamespace,
   getNodes,
   getPods,
-  createSecret,
-  deleteSecret,
-  patchSecret,
+  patchOption,
 };

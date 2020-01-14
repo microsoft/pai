@@ -180,7 +180,5 @@ CHILD_PROCESS="RENDER_USER_COMMAND"
 python ${PAI_INIT_DIR}/user_command_renderer.py ${PAI_SECRET_DIR}/secrets.yaml ${PAI_RUNTIME_DIR}/user.sh
 
 # for debug
-echo -e "finished entry\nuser.sh has:"
-cat ${PAI_RUNTIME_DIR}/user.sh
 echo -e "\nruntime_env.sh has:"
 cat ${PAI_RUNTIME_DIR}/runtime_env.sh
