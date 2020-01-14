@@ -113,16 +113,6 @@ def main():
         "{0}/infra-hosts.yml".format(output_path),
         map_table
     )
-    generate_template_file(
-        "quick-start/layout.yaml.template",
-        "{0}/layout.yaml".format(output_path),
-        map_table
-    )
-    generate_template_file(
-        "quick-start/services-configuration.yaml.template",
-        "{0}/services-configuration.yaml".format(output_path),
-        map_table
-    )
 
 
 if __name__ == "__main__":

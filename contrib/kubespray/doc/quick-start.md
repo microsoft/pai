@@ -49,5 +49,5 @@ password: forexample
 This script should be executed after ```start kubernetes```
 
 ```shell script
-/bin/bash quick-start-service.sh -c /path/to/config
+/bin/bash quick-start-service.sh -m /path/to/master.csv -w /path/tp/worker.csv -c /path/to/config
 ```

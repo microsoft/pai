@@ -22,6 +22,7 @@ sudo docker run -itd \
         -e COLUMNS=$COLUMNS -e LINES=$LINES -e TERM=$TERM \
         -e BRANCH_NAME=${OPENPAI_BRANCH_NAME} \
         -v /var/run/docker.sock:/var/run/docker.sock \
+        -v ${HOME}/pai-deploy/quick-start-config/:/quick-start-config \
         -v ${HOME}/pai-deploy/cluster-cfg:/cluster-configuration  \
         -v ${HOME}/pai-deploy/kube:/root/.kube \
         --pid=host \
@@ -44,6 +45,8 @@ echo "branch name: ${BRANCH_NAME}"
 
 git checkout ${BRANCH_NAME}
 git pull
+
+python3 /root/pai/contrib/kubespray/script/openpai-generator.py -m /quick-start-config/master.csv -w /quick-start-config/worker.csv -c /quick-start-config/config.yml -o /cluster-configuration
 
 # TODO: This should be done at our source code.
 kubectl create namespace pai-storage
