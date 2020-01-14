@@ -5,6 +5,7 @@ import os
 import argparse
 import csv
 import jinja2
+import kubernetes
 import sys
 import time
 
@@ -99,27 +100,12 @@ def main():
         "env": environment
     }
     generate_template_file(
-        "quick-start/hosts.yml.template",
-        "{0}/hosts.yml".format(output_path),
-        map_table
-    )
-    generate_template_file(
-        "quick-start/gpu-hosts.yml.template",
-        "{0}/gpu-hosts.yml".format(output_path),
-        map_table
-    )
-    generate_template_file(
-        "quick-start/infra-hosts.yml.template",
-        "{0}/infra-hosts.yml".format(output_path),
-        map_table
-    )
-    generate_template_file(
-        "quick-start/layout.yaml.template",
+        "/quick-start-config/layout.yaml.template",
         "{0}/layout.yaml".format(output_path),
         map_table
     )
     generate_template_file(
-        "quick-start/services-configuration.yaml.template",
+        "/quick-start-config/services-configuration.yaml.template",
         "{0}/services-configuration.yaml".format(output_path),
         map_table
     )

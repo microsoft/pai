@@ -22,6 +22,7 @@ sudo docker run -itd \
         -e COLUMNS=$COLUMNS -e LINES=$LINES -e TERM=$TERM \
         -e BRANCH_NAME=${OPENPAI_BRANCH_NAME} \
         -v /var/run/docker.sock:/var/run/docker.sock \
+        -v ${HOME}/pai-deploy/quick-start-config/:/quick-start-config \
         -v ${HOME}/pai-deploy/cluster-cfg:/cluster-configuration  \
         -v ${HOME}/pai-deploy/kube:/root/.kube \
         --pid=host \
@@ -35,6 +36,12 @@ sudo docker exec -it dev-box-quick-start kubectl get node
 # Work in dev-box
 sudo docker exec -i dev-box-quick-start /bin/bash << EOF_DEV_BOX
 
+apt-get -y update
+apt-get -y install python3 python-dev software-properties-common
+curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py
+python3 get-pip.py
+pip3 install kubernetes jinja2
+
 cd /root
 
 git clone https://github.com/microsoft/pai.git
@@ -44,6 +51,8 @@ echo "branch name: ${BRANCH_NAME}"
 
 git checkout ${BRANCH_NAME}
 git pull
+
+python3 /root/pai/contrib/kubespray/script/openpai-generator.py -m /quick-start-config/master.csv -w /quick-start-config/worker.csv -c /quick-start-config/config.yml -o /cluster-configuration
 
 # TODO: This should be done at our source code.
 kubectl create namespace pai-storage
