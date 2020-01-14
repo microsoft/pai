@@ -12,12 +12,13 @@ import * as path from 'path';
 import { workspace, Uri, WorkspaceConfiguration } from 'vscode';
 
 import {
+    COMMAND_STORAGE_NFS_MOUNT,
     COMMAND_STORAGE_NFS_MOUNT_POINT,
     COMMAND_TREEVIEW_DOUBLECLICK,
+    CONTEXT_STORAGE_MOUNTPOINT_ITEM,
     CONTEXT_STORAGE_NFS,
     SETTING_SECTION_STORAGE_NFS,
-    SETTING_STORAGE_NFS_MOUNT_POINT,
-    COMMAND_STORAGE_NFS_MOUNT
+    SETTING_STORAGE_NFS_MOUNT_POINT
 } from '../../../common/constants';
 import { __ } from '../../../common/i18n';
 import { PathBaseStorageManager } from '../../storage/pathBaseStorageManager';
@@ -47,13 +48,14 @@ export class NfsRootNode extends StorageTreeNode {
     public loadRootPath(): void {
         const settings: WorkspaceConfiguration =
             workspace.getConfiguration(SETTING_SECTION_STORAGE_NFS);
-        const clusterName: string = (<MountPointTreeNode>this.parent).cluster.name!;
+        const clusterName: string = (<MountPointTreeNode>this.parent).contextValue === CONTEXT_STORAGE_MOUNTPOINT_ITEM ?
+                (<MountPointTreeNode>this.parent).cluster.name! : 'personal_storage';
         const storageName: string = this.storageServer.spn;
         const key: string = `${clusterName}_${storageName}`;
         const map: Dictionary<string> | undefined =
             settings.get(SETTING_STORAGE_NFS_MOUNT_POINT);
         if (map !== null && map![key]) {
-            this.rootPath = path.join(map![key], this.mountPath);
+            this.rootPath = path.join(map![key], '/', this.mountPath);
             this.setupMountPoint = true;
         }
     }
@@ -68,10 +70,18 @@ export class NfsRootNode extends StorageTreeNode {
             } catch (err) {
                 const setupNfsMountPoint: StorageTreeNode =
                     new StorageTreeNode(__('treeview.storage.nfs.mount'), this.parent);
+                const clusterName: string = (<MountPointTreeNode>this.parent).contextValue === CONTEXT_STORAGE_MOUNTPOINT_ITEM ?
+                    (<MountPointTreeNode>this.parent).cluster.name! : 'personal_storage';
+                const storageName: string = this.storageServer.spn;
+                const key: string = `${clusterName}_${storageName}`;
+                const settings: WorkspaceConfiguration =
+                    workspace.getConfiguration(SETTING_SECTION_STORAGE_NFS);
+                const map: Dictionary<string> | undefined =
+                    settings.get(SETTING_STORAGE_NFS_MOUNT_POINT);
                 setupNfsMountPoint.command = {
                     title: __('pai.storage.nfs.mountPoint'),
                     command: COMMAND_TREEVIEW_DOUBLECLICK,
-                    arguments: [COMMAND_STORAGE_NFS_MOUNT, this]
+                    arguments: [COMMAND_STORAGE_NFS_MOUNT, this, map![key]]
                 };
                 this.children = [
                     setupNfsMountPoint
@@ -80,7 +90,8 @@ export class NfsRootNode extends StorageTreeNode {
         } else {
             const setupNfsMountPoint: StorageTreeNode =
                 new StorageTreeNode(__('treeview.storage.nfs.setup.mount.point'), this.parent);
-            const clusterName: string = (<MountPointTreeNode>this.parent).cluster.name!;
+            const clusterName: string = (<MountPointTreeNode>this.parent).contextValue === CONTEXT_STORAGE_MOUNTPOINT_ITEM ?
+                (<MountPointTreeNode>this.parent).cluster.name! : 'personal_storage';
             const storageName: string = this.storageServer.spn;
             const key: string = `${clusterName}_${storageName}`;
             setupNfsMountPoint.command = {
