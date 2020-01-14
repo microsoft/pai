@@ -110,9 +110,6 @@ all:
       ansible_ssh_extra_args: '-o StrictHostKeyChecking=no'
 ```
 
-- Notice: 
-   - OpenPAI need 3 master nodes. An etcd cluster will be setup on the three nodes, and one of them will be master node of kubernetes. 
-   - We assume all master nodes in your cluster is none-gpu machine.
 
 ###### ```worker.yaml for worker (GPU) node```
 
@@ -181,12 +178,6 @@ ansible-playbook -i /path/to/infra.yml copy-daemon-openpai-default-runtime.yml -
 ansible-playbook -i /path/to/worker.yml copy-daemon-openpai-nvidia-runtime.yml --become --become-user=root 
 ```
 
-- Notice
-
-    We assume that your infra nodes don't have GPU card. So in our tutorial, nvidia drivers and nvidia runtime isn't installed on the infra node.
-    If your infra nodes are GPU machines, and you wanna install driver and runtime on those machine. You should do the same steps for your infra nodes as what you have done for the worker nodes.
-    And be careful, at the last step named ```create docker configuration for OpenPAI```, you should use the playbook named ```copy-daemon-openpai-nvidia-runtime.yml``` for your infra node.
- 
 #### kubespray
 
 ###### Environment
