@@ -110,6 +110,9 @@ all:
       ansible_ssh_extra_args: '-o StrictHostKeyChecking=no'
 ```
 
+- Notice: 
+   - OpenPAI need 3 master nodes. An etcd cluster will be setup on the three nodes, and one of them will be master node of kubernetes. 
+   - We assume all master nodes in your cluster is none-gpu machine.
 
 ###### ```worker.yaml for worker (GPU) node```
 
