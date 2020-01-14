@@ -172,7 +172,7 @@ python ${PAI_INIT_DIR}/port.py ${PAI_RUNTIME_DIR}/runtime_env.sh
 
 # check if docker image exists
 CHILD_PROCESS="DOCKER_IMAGE_CHECKER"
-python ${PAI_INIT_DIR}/image_checker.py ${PAI_RUNTIME_DIR}/job_config.yaml
+python ${PAI_INIT_DIR}/image_checker.py ${PAI_RUNTIME_DIR}/job_config.yaml ${PAI_SECRET_DIR}/secrets.yaml
 
 # write user commands to user.sh
 # priority=100
