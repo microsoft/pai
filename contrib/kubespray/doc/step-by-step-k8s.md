@@ -1,4 +1,4 @@
-#### Deploy kubernetes with kubespray.
+#### Deploy kubernetes with kubespray
 
 #### Backup data (namespaced_secret) from the k8s deployed by paictl
 
@@ -110,7 +110,7 @@ all:
       ansible_ssh_extra_args: '-o StrictHostKeyChecking=no'
 ```
 
-Notice: 
+- Notice: 
    - OpenPAI need 3 master nodes. An etcd cluster will be setup on the three nodes, and one of them will be master node of kubernetes. 
    - We assume all master nodes in your cluster is none-gpu machine.
 
@@ -181,11 +181,11 @@ ansible-playbook -i /path/to/infra.yml copy-daemon-openpai-default-runtime.yml -
 ansible-playbook -i /path/to/worker.yml copy-daemon-openpai-nvidia-runtime.yml --become --become-user=root 
 ```
 
-###### Notice
+- Notice
 
-We assume that your infra node doesn't have GPU card. So in our tutorial, nvidia drivers and nvidia runtime isn't installed on the infra node.
-If your infra node is GPU VM, and you wanna install drivers and runtime on those machine. You should do the same steps for your infra node as what you have done for the worker nodes.
-And be careful, at the last step named create docker configuration for OpenPAI, you should use the playbook named copy-daemon-openpai-nvidia-runtime.yml for your infra node.
+    We assume that your infra nodes don't have GPU card. So in our tutorial, nvidia drivers and nvidia runtime isn't installed on the infra node.
+    If your infra nodes are GPU machines, and you wanna install driver and runtime on those machine. You should do the same steps for your infra nodes as what you have done for the worker nodes.
+    And be careful, at the last step named ```create docker configuration for OpenPAI```, you should use the playbook named ```copy-daemon-openpai-nvidia-runtime.yml``` for your infra node.
  
 #### kubespray
 
@@ -436,7 +436,7 @@ ansible-playbook -i inventory/mycluster/hosts.yml upgrade-cluster.yml --become -
 
 ###### Recover backup data (namespaced_secret) from the backup data after setuping k8s with kubespray.
 
-If you backup your data from the k8s deployed by openpai, you could recover the data to a specified namespace after the k8s deployment of kubespray done.
+If you had backup your data from the k8s deployed by openpai, you could recover the data to a specified namespace after the k8s deployment of kubespray done.
 
 ```
 cd pai/contrib/kubespray

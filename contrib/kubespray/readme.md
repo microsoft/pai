@@ -1,4 +1,4 @@
-### Deploy Kubernetes with kubepsray
+### Deploy Kubernetes with [kubespray](https://kubespray.io/#/).
 
 #### Machine Requirement
 
