@@ -44,6 +44,8 @@ fi
 
 /bin/bash script/configuration.sh -m ${MASTER_LIST} -w ${WORKER_LIST} -c ${CLUSTER_CONFIG} || exit $?
 
+exit 0
+
 echo "Ping Test"
 
 ansible all -i ${HOME}/pai-deploy/cluster-cfg/hosts.yml -m ping || exit $?
