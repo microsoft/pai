@@ -60,6 +60,12 @@ const Context = React.createContext({
   setDescription(description) {
     this.description = description;
   },
+
+  // success dialog title
+  successDialogTitle: 'Publish to Marketplace',
+  setSuccessDialogTitle(title) {
+    this.successDialogTitle = title;
+  },
 });
 
 export default Context;

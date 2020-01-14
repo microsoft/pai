@@ -17,7 +17,7 @@
 
 import { FontClassNames, getTheme } from '@uifabric/styling';
 import c from 'classnames';
-import { DefaultButton, PrimaryButton, Stack } from 'office-ui-fabric-react';
+import { Text, DefaultButton, PrimaryButton, Stack, FontWeights } from 'office-ui-fabric-react';
 import React, { useState, useEffect, useContext, useCallback } from 'react';
 import t from '../../../components/tachyons.scss';
 import Card from './card';
@@ -108,22 +108,47 @@ export default function Summary() {
       <Card className={c(t.pv4, t.ph5)}>
         <Stack gap={'l1'}>
           {/* summary-row-1 */}
-          <div className={FontClassNames.xLarge}>{marketItem.name}</div>
+          <Text
+            styles={{
+              root: {
+                fontSize: 16,
+                fontWeight: FontWeights.semibold,
+              },
+            }}
+          >
+            {marketItem.name}
+          </Text>
           {/* summary-row-2 */}
           <Stack horizontal gap={'m'}>
             <TooltipHost content='Author'>
               <Stack horizontal gap='s1'>
                 <Icon iconName='Contact' />
-                <span className={c(t.gray, FontClassNames.medium)}>
+                <Text
+                  styles={{
+                    root: {
+                      fontSize: 14,
+                      fontWeight: FontWeights.regular,
+                    },
+                  }}
+                >
                   {marketItem.author}
-                </span>
+                </Text>
               </Stack>
             </TooltipHost>
             <Stack className={c(t.gray, FontClassNames.medium)}>
               <TooltipHost content='submits'>
                 <Stack horizontal gap={'s1'}>
                   <Icon iconName='Copy' />
-                  <span>{marketItem.submits}</span>
+                  <Text
+                    styles={{
+                      root: {
+                        fontSize: 14,
+                        fontWeight: FontWeights.regular,
+                      },
+                    }}
+                  >
+                    {marketItem.submits}
+                  </Text>
                 </Stack>
               </TooltipHost>
             </Stack>
@@ -139,7 +164,16 @@ export default function Summary() {
                     )}
                     {!stared && <Icon iconName='Like' />}
                   </button>
-                  <span>{stars}</span>
+                  <Text
+                    styles={{
+                      root: {
+                        fontSize: 14,
+                        fontWeight: FontWeights.regular,
+                      },
+                    }}
+                  >
+                    {stars}
+                  </Text>
                 </Stack>
               </TooltipHost>
             </Stack>
@@ -150,9 +184,24 @@ export default function Summary() {
           <TagBar tags={marketItem.tags} />
           {/* summary-row-5 */}
           <Stack horizontal gap='m'>
-            <PrimaryButton text='Submit' onClick={clickSubmit} />
+            <PrimaryButton
+              text='Submit'
+              styles={{
+                root: {
+                  fontSize: 14,
+                  fontWeight: FontWeights.regular,
+                },
+              }}
+              onClick={clickSubmit}
+            />
             <DefaultButton
               text='Edit'
+              styles={{
+                root: {
+                  fontSize: 14,
+                  fontWeight: FontWeights.regular,
+                },
+              }}
               onClick={e => {
                 setHideDialog(false);
               }}
@@ -163,6 +212,12 @@ export default function Summary() {
             />
             <DefaultButton
               text='Delete'
+              styles={{
+                root: {
+                  fontSize: 14,
+                  fontWeight: FontWeights.regular,
+                },
+              }}
               onClick={e => {
                 setHideDeleteDialog(false);
               }}

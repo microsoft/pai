@@ -42,6 +42,7 @@ const Table = () => {
     setCurrentJob,
     openJobDetail,
     setOpenJobDetail,
+    setSuccessDialogTitle,
   } = useContext(Context);
 
   const selection = useMemo(() => {
@@ -54,6 +55,7 @@ const Table = () => {
 
   const onOpenJobDetail = useCallback(() => {
     setOpenJobDetail(true);
+    setSuccessDialogTitle('');
   }, []);
 
   const nameColumn = {

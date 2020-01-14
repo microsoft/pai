@@ -24,7 +24,7 @@
  */
 
 import React, { useState, useCallback } from 'react';
-import { Stack, CommandButton } from 'office-ui-fabric-react';
+import { Stack, CommandButton, FontWeights } from 'office-ui-fabric-react';
 
 import CreateMarketItem from './create-market-item';
 import SuccessJobsDialog from '../../success-job-list/components/success-jobs-dialog';
@@ -48,6 +48,12 @@ export const TopBar = React.memo(() => {
         <CommandButton
           text='Create'
           iconProps={{ iconName: 'Add' }}
+          styles={{
+            root: {
+              fontSize: 14,
+              fontWeight: FontWeights.regular,
+            },
+          }}
           onClick={e => {
             setHideSuccessJobListDialog(false);
           }}

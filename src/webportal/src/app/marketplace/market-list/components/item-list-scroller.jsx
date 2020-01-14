@@ -43,7 +43,7 @@ import Filter from '../Filter';
 import ItemCard from './item-card';
 
 const ItemListScroller = () => {
-  const { filteredItems, setFilter, pagination } = useContext(Context);
+  const { filteredItems, setFilter } = useContext(Context);
 
   const [cards, setCards] = useState([]);
   const [hasMoreItems, setHasMoreItems] = useState(true);
@@ -53,7 +53,7 @@ const ItemListScroller = () => {
   console.log(index);
   console.log(cards);
 
-  function loadItems() {
+  function loadItems(page) {
     if (index < filteredItems.length - 1) {
       var newCards = cards;
       for (var i = index + 1; i <= index + 5 && i < filteredItems.length; i++) {
@@ -96,19 +96,23 @@ const ItemListScroller = () => {
       </div>
     );
   } else {
-    //const items = pagination.apply(filteredItems);
+    // const items = pagination.apply(filteredItems);
 
     var items = [];
     cards.map((item, id) => {
       items.push(<ItemCard key={id} item={item} />);
     });
 
-    const loader = <div className='loader'>Loading...</div>;
+    const loader = (
+      <div className='loader' key={0}>
+        Loading...
+      </div>
+    );
 
     return (
       <InfiniteScroll
         pageStart={0}
-        loadMore={loadItems}
+        loadMore={e => loadItems(e)}
         hasMore={hasMoreItems}
         loader={loader}
       >

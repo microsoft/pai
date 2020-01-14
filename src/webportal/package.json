@@ -82,6 +82,7 @@
     "react-router-dom": "^5.0.1",
     "react-tag-autocomplete": "^5.11.2",
     "react-tag-input": "^6.4.1",
+    "react-vertical-infinite-scrolling": "^1.0.4",
     "regenerator-runtime": "^0.13.2",
     "serve-favicon": "~2.5.0",
     "sshpk": "^1.16.1",

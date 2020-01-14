@@ -6,6 +6,7 @@ import {
   DefaultButton,
   PrimaryButton,
   TooltipHost,
+  FontWeights,
 } from 'office-ui-fabric-react';
 import { getTheme, FontClassNames } from '@uifabric/styling';
 import { Icon } from 'office-ui-fabric-react/lib/Icon';
@@ -56,11 +57,40 @@ const ItemCard = props => {
       <Stack>
         <Stack horizontal horizontalAlign='space-between' gap='l2'>
           <Stack gap='l1' styles={{ root: [{ width: '80%' }] }}>
-            <div className={FontClassNames.xLarge}>{item.name}</div>
-            <div>Author: {item.author}</div>
-            <Text nowrap>{item.introduction}</Text>
+            <Text
+              styles={{
+                root: {
+                  fontSize: 16,
+                  fontWeight: FontWeights.semibold,
+                },
+              }}
+            >{item.name}</Text>
+            <Text
+              styles={{
+                root: {
+                  fontSize: 14,
+                  fontWeight: FontWeights.regular,
+                },
+              }}
+            >Author: {item.author}</Text>
+            <Text
+              nowrap
+              styles={{
+                root: {
+                  fontSize: 14,
+                  fontWeight: FontWeights.regular,
+                },
+              }}
+            >{item.introduction}</Text>
             <TagBar tags={item.tags} />
-            <Stack>
+            <Stack
+              styles={{
+                root: {
+                  fontSize: 12,
+                  fontWeight: FontWeights.regular,
+                },
+              }}
+            >
               {item.author} updated {populateUpdatedTime()}
             </Stack>
           </Stack>
@@ -69,20 +99,52 @@ const ItemCard = props => {
               <TooltipHost content='submits'>
                 <Stack horizontal gap='s1'>
                   <Icon iconName='Copy' />
-                  <div>{item.submits}</div>
+                  <div
+                    style={{
+                      fontSize: 12,
+                      fontWeight: FontWeights.regular,
+                    }}
+                  >
+                    {item.submits}
+                  </div>
                 </Stack>
               </TooltipHost>
               <TooltipHost content='stars'>
                 <Stack horizontal gap='s1'>
                   <Icon iconName='Like' />
-                  <div>{item.stars}</div>
+                  <div
+                    style={{
+                      fontSize: 12,
+                      FontWeights: FontWeights.regular,
+                    }}
+                  >
+                    {item.stars}
+                  </div>
                 </Stack>
               </TooltipHost>
             </Stack>
 
             <Stack gap='m' styles={{ root: [{ paddingRight: spacing.l2 }] }}>
-              <PrimaryButton onClick={clickSubmit}>Submit</PrimaryButton>
-              <DefaultButton href={`market-detail.html?itemId=${item.id}`}>
+              <PrimaryButton
+                styles={{
+                  root: {
+                    fontSize: 14,
+                    fontWeight: FontWeights.regular,
+                  },
+                }}
+                onClick={clickSubmit}
+              >
+                Submit
+              </PrimaryButton>
+              <DefaultButton
+                styles={{
+                  root: {
+                    fontSize: 14,
+                    fontWeight: FontWeights.regular,
+                  },
+                }}
+                href={`market-detail.html?itemId=${item.id}`}
+              >
                 View
               </DefaultButton>
             </Stack>

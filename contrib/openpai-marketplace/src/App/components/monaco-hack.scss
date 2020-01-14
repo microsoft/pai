@@ -1,0 +1,16 @@
+// admin lte's global margin class conflicts with monaco editor
+.monaco-hack {
+  :global {
+    .margin {
+      margin: 0
+    }
+  }
+}
+
+:global {
+  .monaco-aria-container {
+    position: absolute;
+    left: -999em;
+    top: -999em;
+  }
+}

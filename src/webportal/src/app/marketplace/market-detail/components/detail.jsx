@@ -17,7 +17,7 @@
 
 import c from 'classnames';
 
-import { Pivot, PivotItem } from 'office-ui-fabric-react/lib/Pivot';
+import { Pivot, PivotItem, FontWeights } from 'office-ui-fabric-react';
 import React from 'react';
 import t from '../../../components/tachyons.scss';
 
@@ -32,13 +32,37 @@ export default function Detail() {
       {/* summary */}
       <Card className={c(t.pv4, t.ph5)}>
         <Pivot>
-          <PivotItem headerText='Description'>
+          <PivotItem
+            headerText='Description'
+            styles={{
+              root: {
+                fontSize: 14,
+                fontWeight: FontWeights.regular,
+              },
+            }}
+          >
             <Description />
           </PivotItem>
-          <PivotItem headerText='Task Roles'>
+          <PivotItem
+            headerText='Task Roles'
+            styles={{
+              root: {
+                fontSize: 14,
+                fontWeight: FontWeights.regular,
+              },
+            }}
+          >
             <TaskRoles />
           </PivotItem>
-          <PivotItem headerText='Yaml File'>
+          <PivotItem
+            headerText='Yaml File'
+            styles={{
+              root: {
+                fontSize: 14,
+                fontWeight: FontWeights.regular,
+              },
+            }}
+          >
             <YamlFile />
           </PivotItem>
         </Pivot>

@@ -50,7 +50,6 @@ import {
 } from '../utils/utils';
 import Context from './context';
 import { FormShortSection } from './form-page';
-import { updateMarketItem } from '../../marketplace/market-detail/utils/conn';
 
 const JOB_PROTOCOL_SCHEMA_URL =
   'https://github.com/microsoft/pai/blob/master/docs/pai-job-protocol.yaml';
@@ -236,6 +235,44 @@ export const SubmissionSection = props => {
       );
     }
   };
+
+  async function updateMarketItem(
+    name,
+    author,
+    category,
+    introduction,
+    description,
+    jobConfig,
+    submits,
+    starNumber,
+    tags,
+  ) {
+    const params = new URLSearchParams(window.location.search);
+    const url = `${window.ENV.restServerUri}/api/v2/marketplace/items/${params.get('itemId')}`;
+    const res = await fetch(url, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        name: name,
+        author: author,
+        category: category,
+        introduction: introduction,
+        description: description,
+        jobConfig: jobConfig,
+        submits: submits,
+        starNumber: starNumber,
+        tags: tags,
+      }),
+    });
+    const text = await res.text();
+    if (res.ok) {
+      return text;
+    } else {
+      throw new Error(text);
+    }
+  }
 
   return (
     <Card>

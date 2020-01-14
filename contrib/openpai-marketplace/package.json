@@ -1,0 +1,71 @@
+{
+  "name": "openpai-marketplace",
+  "version": "1.0.0",
+  "description": "A web portal plugin for openpai marketplace.",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "webpack-dev-server --mode=development",
+    "prebuild": "npm run clean",
+    "build": "webpack --mode=production"
+  },
+  "author": "Microsoft Corporation",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Microsoft/pai.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Microsoft/pai/issues"
+  },
+  "homepage": "https://github.com/Microsoft/pai#readme",
+  "license": "MIT",
+  "dependencies": {
+    "@loadable/component": "^5.10.3",
+    "classnames": "^2.2.6",
+    "compression": "~1.7.1",
+    "cookie-parser": "~1.4.3",
+    "copy-to-clipboard": "^3.2.0",
+    "core-js": "^3.0.1",
+    "github-markdown-css": "^3.0.1",
+    "joi-browser": "^13.4.0",
+    "js-cookie": "^2.2.0",
+    "js-yaml": "^3.13.1",
+    "luxon": "^1.11.3",
+    "monaco-editor": "^0.17.0",
+    "office-ui-fabric-react": "^6.162.1",
+    "react": "^16.8.4",
+    "react-dom": "^16.8.4",
+    "react-infinite-scroller": "^1.2.4",
+    "react-markdown": "^4.3.1",
+    "react-monaco-editor": "^0.25.1",
+    "react-router-dom": "^5.1.2",
+    "regenerator-runtime": "^0.13.2",
+    "styled-components": "^4.2.0",
+    "tachyons-sass": "^4.9.5",
+    "whatwg-fetch": "^3.0.0"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.4.3",
+    "@babel/plugin-syntax-dynamic-import": "^7.2.0",
+    "@babel/preset-env": "^7.4.3",
+    "@babel/preset-react": "^7.0.0",
+    "@types/js-cookie": "^2.2.2",
+    "@types/js-yaml": "^3.12.1",
+    "@types/react": "^16.8.7",
+    "@types/react-dom": "^16.8.2",
+    "autoprefixer": "^9.5.1",
+    "babel-loader": "^8.0.5",
+    "babel-plugin-lodash": "^3.3.4",
+    "css-loader": "^2.1.1",
+    "file-loader": "~1.1.5",
+    "monaco-editor-webpack-plugin": "^1.7.0",
+    "node-sass": "^4.12.0",
+    "postcss-loader": "^3.0.0",
+    "raw-loader": "~0.5.1",
+    "sass-loader": "^7.1.0",
+    "style-loader": "^0.23.1",
+    "typescript": "^3.3.3333",
+    "webpack": "^4.29.6",
+    "webpack-cli": "^3.2.3",
+    "webpack-dev-server": "^3.2.1"
+  }
+}

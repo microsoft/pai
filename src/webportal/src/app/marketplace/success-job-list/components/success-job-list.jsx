@@ -23,7 +23,7 @@ import {
   MessageBar,
   MessageBarType,
 } from 'office-ui-fabric-react/lib/MessageBar';
-import { Stack } from 'office-ui-fabric-react/lib/Stack';
+import { Stack, Text, FontSizes } from 'office-ui-fabric-react';
 
 import Context from '../Context';
 import Filter from '../Filter';
@@ -103,9 +103,6 @@ const SuccessJobList = props => {
           },
         }}
       >
-        <Stack.Item>
-          <div style={{ height: spacing.s1 }}></div>
-        </Stack.Item>
         <Stack.Item>
           <FilterBar />
         </Stack.Item>

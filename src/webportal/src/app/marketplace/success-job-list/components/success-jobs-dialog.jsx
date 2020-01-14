@@ -1,40 +1,34 @@
-import React, { useCallback, useState, useEffect } from 'react';
+import React, { useCallback, useState } from 'react';
 import {
   Dialog,
   DialogType,
   DialogFooter,
   PrimaryButton,
   DefaultButton,
-  SemanticColorSlots,
   Stack,
+  FontClassNames,
+  FontSizes,
+  FontWeights,
 } from 'office-ui-fabric-react';
-import { getTheme } from '@uifabric/styling';
 import { isNil } from 'lodash';
 import PropTypes from 'prop-types';
 import uuid4 from 'uuid/v4';
 import yaml from 'js-yaml';
+import c from 'classnames';
+
+import t from '../../../components/tachyons.scss';
 
 import SuccessJobList from './success-job-list';
 import { isPublishable } from '../../../components/util/job';
 import Context from '../Context';
 import Filter from '../Filter';
 import Pagination from '../Pagination';
-import {
-  createMarketItem,
-  fetchJobConfig,
-  fetchJobInfo,
-  fetchRawJobConfig,
-  fetchSshInfo,
-  NotFoundError,
-} from '../utils/conn';
-import PublishDialog from './publish-dialog';
+import { createMarketItem, fetchJobConfig } from '../utils/conn';
 import JobDetail from './job-detail';
 import PublishView from './publish-view';
 import { MarketItem } from '../../models/market-item';
 
 const SuccessJobsDialog = props => {
-  const { spacing } = getTheme();
-
   const { hideDialog, setHideDialog } = props;
 
   const [successJobs, setSuccessJobs] = useState(null);
@@ -46,7 +40,6 @@ const SuccessJobsDialog = props => {
 
   const [openJobDetail, setOpenJobDetail] = useState(false);
   const [openPublish, setOpenPublish] = useState(false);
-  //const [hidePublishDialog, setHidePublishDialog] = useState(true);
 
   // published market iten info
   const [name, setName] = useState('');
@@ -55,16 +48,10 @@ const SuccessJobsDialog = props => {
   const [introduction, setIntroduction] = useState('');
   const [description, setDescription] = useState('');
 
-  /*
-  useEffect(() => {
-    console.log('useEffect', openJobDetail);
-    console.log('useEffect', currentJob);
-    if (isNil(currentJob)) {
-      return;
-    }
-    reload(false);
-  }, [openJobDetail]);
-  */
+  // success dialog title
+  const [successDialogTitle, setSuccessDialogTitle] = useState(
+    'Publish to Marketplace',
+  );
 
   const onPublish = useCallback(() => {
     if (openJobDetail) {
@@ -92,6 +79,7 @@ const SuccessJobsDialog = props => {
         alert('This job cannot be published because of extras');
       } else {
         setOpenPublish(true);
+        setSuccessDialogTitle('Create a market item');
       }
     };
 
@@ -110,6 +98,8 @@ const SuccessJobsDialog = props => {
     setTags([]);
     setIntroduction('');
     setDescription('');
+
+    setSuccessDialogTitle('Publish to Marketplace');
     //setHideDialog(true);
   }, [openPublish]);
 
@@ -125,6 +115,7 @@ const SuccessJobsDialog = props => {
 
   const onBack = useCallback(() => {
     setOpenJobDetail(false);
+    setSuccessDialogTitle('Publish to Marketplace');
   }, []);
 
   const checkRequired = useCallback(() => {
@@ -204,6 +195,9 @@ const SuccessJobsDialog = props => {
     setIntroduction,
     description,
     setDescription,
+
+    // success dialog title
+    setSuccessDialogTitle,
   };
 
   return (
@@ -214,6 +208,22 @@ const SuccessJobsDialog = props => {
         minWidth={800}
         maxWidth={2000}
         dialogContentProps={{
+          styles: {
+            title: { padding: '20px 36px 12px 20px' },
+            inner: { padding: '0px 40px 20px 20px' },
+            topButton: { padding: '20px 20px 0px 0px' },
+          },
+          title: (
+            <span
+              className={c(t.mb2, t.fw6, FontClassNames.semibold)}
+              style={{
+                fontSize: 16,
+                fontWeight: FontWeights.semibold,
+              }}
+            >
+              {successDialogTitle}
+            </span>
+          ),
           type: DialogType.normal,
           showCloseButton: false,
         }}
@@ -221,7 +231,7 @@ const SuccessJobsDialog = props => {
           isBlocking: true,
         }}
       >
-        <Stack styles={{ root: { height: '100%', minHeight: 640 } }}>
+        <Stack styles={{ root: { height: '100%', minHeight: 500 } }}>
           {!openJobDetail && !openPublish && <SuccessJobList />}
           {openJobDetail && <JobDetail />}
           {openPublish && <PublishView />}

@@ -21,7 +21,7 @@ import {
   ColorClassNames,
   SearchBox,
   Stack,
-  FontSizes,
+  FontWeights,
 } from 'office-ui-fabric-react';
 import { isNil, isEmpty } from 'lodash';
 
@@ -56,11 +56,25 @@ const FilterBar = () => {
         <SearchBox
           underlined={true}
           placeholder='Search'
+          styles={{
+            root: {
+              fontSize: 14,
+              fontWeight: FontWeights.regular,
+            },
+          }}
           onChange={changeKeyword}
         />
       </Stack>
       {!isNil(filteredJobs) && !isEmpty(filteredJobs) && (
-        <Stack padding={spacing.s2} style={{ fontSize: FontSizes.mediumPlus }}>
+        <Stack
+          padding={spacing.s2}
+          styles={{
+            root: {
+              fontSize: 14,
+              fontWeight: FontWeights.regular,
+            },
+          }}
+        >
           {filteredJobs.length} results
         </Stack>
       )}

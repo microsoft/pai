@@ -49,7 +49,9 @@ $(document).ready(function() {
     if (cookies.get('token')) {
       $plugin
         .attr('pai-user', cookies.get('user'))
-        .attr('pai-rest-server-token', cookies.get('token'));
+        .attr('pai-rest-server-token', cookies.get('token'))
+        .attr('pai-grafana-uri', window.ENV.grafanaUri)
+        .attr('pai-logType', window.ENV.logType);
     }
     $('#content-wrapper')
       .empty()

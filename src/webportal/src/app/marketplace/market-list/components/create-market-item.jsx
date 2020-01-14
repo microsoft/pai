@@ -173,7 +173,6 @@ export default function CreateMarketItem(props) {
             setAuthor(e.target.value);
           }}
           disabled
-          required
         />
         <TextField
           label='Description'

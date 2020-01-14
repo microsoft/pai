@@ -15,7 +15,7 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 import React, { useContext, useCallback } from 'react';
-import { Stack, Text, Checkbox } from 'office-ui-fabric-react';
+import { Stack, Text, Checkbox, FontWeights } from 'office-ui-fabric-react';
 
 import Context from '../Context';
 import Filter from '../Filter';
@@ -43,11 +43,42 @@ export const CategorySideBar = () => {
 
   return (
     <Stack gap='m'>
-      <Text> Categories </Text>
-      <Checkbox label='Custom' onChange={changeCustomCheckbox}></Checkbox>
+      <Text
+        styles={{
+          root: {
+            fontSize: 16,
+            fontWeight: FontWeights.semibold,
+          },
+        }}
+      >
+        Filter
+      </Text>
+      <Text
+        styles={{
+          root: {
+            fontSize: 14,
+            fontWeight: FontWeights.regular,
+          },
+        }}
+      > Categories </Text>
       <Checkbox
-        styles={{ root: [{ maxWidth: 200 }] }}
+        label='Custom'
+        styles={{
+          root: {
+            fontSize: 14,
+            fontWeight: FontWeights.regular,
+          },
+        }}
+        onChange={changeCustomCheckbox}
+        ></Checkbox>
+      <Checkbox
         label='OpenPAI Official'
+        styles={{
+          root: {
+            fontSize: 14,
+            fontWeight: FontWeights.regular,
+          },
+        }}
         onChange={changeOfficialCheckbox}
       ></Checkbox>
     </Stack>
