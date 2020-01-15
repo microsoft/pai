@@ -104,6 +104,8 @@ def get_kubernetes_node_info_from_API():
     except ApiException as e:
         logger.error("Exception when calling CoreV1Api->list_node: %s\n" % e)
 
+    print(ret)
+
     return ret
 
 
@@ -120,7 +122,7 @@ def hived_config_prepare(worker_dict, node_resource_dict):
             continue
         if node_resource_dict[key]["allocatable-gpu-resource"] == 0:
             logger.error("Allocatable GPU number in {0} is 0, Hived doesn't support worker node with 0 GPU".format(key))
-            logger.error("Please remove {0} from your worklist".format(key))
+            logger.error("Please remove {0} from your workerlist, or check if the NVIDIA device plugin is running healthy on the node.".format(key))
             sys.exit(1)
         min_cpu = min(min_cpu, node_resource_dict[key]["cpu-resource"])
         min_mem = min(min_mem, node_resource_dict[key]["mem-resource"])
@@ -130,7 +132,7 @@ def hived_config_prepare(worker_dict, node_resource_dict):
         logger.error("No worker node is detected.")
         sys.exit(1)
 
-    hived_config["min-allocatable-gpu"] = min_gpu
+    hived_config["min-gpu"] = min_gpu
     hived_config["unit-cpu"] = int( min_cpu / min_gpu )
     hived_config["unit-mem"] = int( min_mem / min_gpu )
 

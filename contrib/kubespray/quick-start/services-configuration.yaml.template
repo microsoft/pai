@@ -68,7 +68,7 @@ hivedscheduler:
       cellTypes:
         DT-NODE:
           childCellType: DT
-          childCellNumber: {{ env["hived"]["min-allocatable-gpu"] }}
+          childCellNumber: {{ env["hived"]["min-gpu"] }}
           isNodeLevel: true
         DT-NODE-POOL:
           childCellType: DT-NODE
