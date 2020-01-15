@@ -5,7 +5,9 @@ import os
 import argparse
 import csv
 import jinja2
-import kubernetes
+from kubernetes import client, config
+from kubernetes.client.rest import ApiException
+from pprint import pprint
 import sys
 import time
 
@@ -72,6 +74,23 @@ def generate_template_file(template_file_path, output_path, map_table):
     write_generated_file(output_path, generated_template)
 
 
+def get_kubernetes_node_info_from_API():
+    config.load_kube_config()
+
+    api_instance  = client.CoreV1Api()
+
+    # https://github.com/kubernetes-client/python/blob/master/kubernetes/docs/CoreV1Api.md#list_node
+    pretty = 'true'
+    allow_watch_bookmarks = True
+    watch = True  # bool | Watch for changes to the described resources and return them as a stream of add, update, and remove notifications. Specify resourceVersion. (optional)
+
+    try:
+        api_response = api_instance .list_node(pretty=pretty, allow_watch_bookmarks=allow_watch_bookmarks, watch=watch)
+        pprint(api_response)
+    except ApiException as e:
+        print("Exception when calling CoreV1Api->list_node: %s\n" % e)
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('-w', '--worker-list-csv', dest="worklist", required=True,
@@ -112,4 +131,6 @@ def main():
 
 
 if __name__ == "__main__":
+    get_kubernetes_node_info_from_API()
+    sys.exit(0)
     main()
