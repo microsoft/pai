@@ -6,6 +6,7 @@ import argparse
 import csv
 import jinja2
 from kubernetes import client, config
+from kubernetes.utils import parse_quantity
 from kubernetes.client.rest import ApiException
 from pprint import pprint
 import sys
@@ -86,6 +87,14 @@ def get_kubernetes_node_info_from_API():
     try:
         api_response = api_instance.list_node(pretty=pretty, timeout_seconds=timeout_seconds)
         for node in api_response.items:
+            cpu_resource_allocatable = parse_quantity(node.status.allocatable['cpu'])
+            mem_resource_allocatable = parse_quantity(node.status.allocatable['memory'])
+            gpu_resource_allocatable = parse_quantity(node.status.allocatable['nvidia.com/gpu'])
+            node_name = node.metadata.name
+            print("{0} {1}".format(node.status.allocatable['cpu'], cpu_resource_allocatable))
+            print("{0} {1}".format(node.status.allocatable['memory'], mem_resource_allocatable))
+            print("{0} {1}".format(node.status.allocatable['nvidia.com/gpu'], gpu_resource_allocatable))
+            print("{0}".format(node_name))
             pprint(node.status.allocatable)
             pprint(node.status.capacity)
     except ApiException as e:
