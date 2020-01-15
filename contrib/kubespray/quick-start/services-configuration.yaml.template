@@ -55,8 +55,8 @@ webportal:
   server-port: 9286
 
 
-#If you want to customize the hivedscheduler vc config or add a new vc,
-#pls check https://github.com/microsoft/pai/blob/master/docs/hivedscheduler/devops.md
+#If you want to customize the scheduling config, such add more virtual clusters or more gpu types, check:
+#https://github.com/microsoft/pai/blob/master/docs/hivedscheduler/devops.md
 hivedscheduler:
   config: |
     physicalCluster:
