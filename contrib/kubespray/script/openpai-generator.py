@@ -183,6 +183,4 @@ def main():
 
 
 if __name__ == "__main__":
-    get_kubernetes_node_info_from_API()
-    sys.exit(0)
     main()
