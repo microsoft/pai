@@ -29,6 +29,7 @@ import { HashRouter as Router, Route } from 'react-router-dom';
 import { Fabric } from 'office-ui-fabric-react';
 
 import { JobSubmissionPage } from './job-submission-page';
+import { JupyterSubmissionPage } from './jupyter-submission-page';
 import JobWizard from './job-wizard';
 
 const App = () => {
@@ -50,6 +51,14 @@ const App = () => {
               isSingle={true}
               history={history}
               setYamlText={setYamlText}
+            />
+          )}
+        />
+        <Route
+          path='/jupyter'
+          render={({ history }) => (
+            <JupyterSubmissionPage
+              history={history}
             />
           )}
         />
