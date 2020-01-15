@@ -14,6 +14,20 @@ const patchOption = {
   },
 };
 
+const rethrowResponseError = (error) => {
+  let message = error.message;
+  const response = error.response;
+  const request = error.request;
+  if (request && request.path) {
+    message = message + ` Url: ${request.path}`;
+  }
+  if (response && response.data && response.data.message) {
+    message = message + ` Response message: ${response.data.message}`;
+  }
+  error.message = message;
+  return Promise.reject(error);
+};
+
 const getClient = (baseURL = '') => {
   const config = {
     baseURL: new URL(baseURL, apiserver.uri).toString(),
@@ -35,7 +49,9 @@ const getClient = (baseURL = '') => {
       ...config.headers,
     };
   }
-  return axios.create(config);
+  const client = axios.create(config);
+  client.interceptors.response.use((resp) => resp, rethrowResponseError);
+  return client;
 };
 
 const encodeSelector = (selector = {}, negativeSelector = {}) => {

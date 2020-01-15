@@ -16,26 +16,13 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 const _ = require('lodash');
-const createError = require('@pai/utils/error');
 const {encodeSelector, getClient, patchOption} = require('@pai/models/kubernetes/kubernetes');
-
-// TODO: we should use more specific error for k8s api error.
-const rethrowResponseError = (error) => {
-  const response = error.response;
-  if (response != null) {
-    return Promise.reject(createError(response.status, 'UnknownError', response.data.message));
-  } else {
-    return Promise.reject(error);
-  }
-};
 
 const initClient = (namespace) => {
   if (!namespace) {
     throw new Error('K8S SECRET: invalid namespace');
   }
-  const client = getClient(`/api/v1/namespaces/${namespace}/secrets`);
-  client.interceptors.response.use((resp) => resp, rethrowResponseError);
-  return client;
+  return getClient(`/api/v1/namespaces/${namespace}/secrets`);
 };
 
 
@@ -90,7 +77,7 @@ const get = async (namespace, name, options = {}) => {
     const response = await client.get(`/${secretName}`);
     return deserialize(response.data.data);
   } catch (err) {
-    if (err.status === 404 && err.message) {
+    if (err.response && err.response.status === 404 && err.response.data) {
       return null;
     } else {
       throw err;
@@ -116,7 +103,7 @@ const list = async (namespace, labelSelector) => {
       // request
       response = await client.get('/', {params});
     } catch (err) {
-      if (err.status === 410) {
+      if (err.response && err.response.status === 410) {
         // restart
         continueValue = null;
         result = [];
