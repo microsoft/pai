@@ -77,7 +77,7 @@ hivedscheduler:
       - cellType: DT-NODE-POOL
         cellChildren:
         {%- for nodename in env["cfg"]["hived"]["nodelist"] %}
-        - cellAddress: {{nodename}
+        - cellAddress: {{nodename}}
         {%- endfor %}
     virtualClusters:
       default:
