@@ -84,8 +84,9 @@ def get_kubernetes_node_info_from_API():
     #allow_watch_bookmarks = True
     timeout_seconds = 56
     try:
-        api_response = api_instance .list_node(pretty=pretty, timeout_seconds=timeout_seconds)
-        pprint(api_response)
+        api_response = api_instance.list_node(pretty=pretty, timeout_seconds=timeout_seconds)
+        for node in api_response.items:
+            pprint(node)
     except ApiException as e:
         print("Exception when calling CoreV1Api->list_node: %s\n" % e)
 
