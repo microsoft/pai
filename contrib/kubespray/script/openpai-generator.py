@@ -97,9 +97,9 @@ def get_kubernetes_node_info_from_API():
         api_response = api_instance.list_node(pretty=pretty, timeout_seconds=timeout_seconds)
         for node in api_response.items:
             ret[node.metadata.name] = {
-                "allocatable-cpu-resource": int(parse_quantity(node.status.allocatable['cpu'])),
-                "allocatable-mem-resource": int(parse_quantity(node.status.allocatable['memory']) / 1024 / 1024 / 1024),
-                "allocatable-gpu-resource": int(parse_quantity(node.status.allocatable['nvidia.com/gpu'])),
+                "cpu-resource": int(parse_quantity(node.status.allocatable['cpu'])),
+                "mem-resource": int(parse_quantity(node.status.allocatable['memory']) / 1024 / 1024 ),
+                "gpu-resource": int(parse_quantity(node.status.allocatable['nvidia.com/gpu'])),
             }
     except ApiException as e:
         logger.error("Exception when calling CoreV1Api->list_node: %s\n" % e)
@@ -111,7 +111,7 @@ def hived_config_prepare(worker_dict, node_resource_dict):
     hived_config = dict()
     hived_config["nodelist"] = []
 
-    min_mem = 100000000
+    min_mem = 100000000 * 1024
     min_gpu = 100000000
     min_cpu = 100000000
 
@@ -122,9 +122,9 @@ def hived_config_prepare(worker_dict, node_resource_dict):
             logger.error("Allocatable GPU number in {0} is 0, Hived doesn't support worker node with 0 GPU".format(key))
             logger.error("Please remove {0} from your worklist".format(key))
             sys.exit(1)
-        min_cpu = min(min_cpu, node_resource_dict[key]["allocatable-cpu-resource"])
-        min_mem = min(min_mem, node_resource_dict[key]["allocatable-mem-resource"])
-        min_gpu = min(min_gpu, node_resource_dict[key]["allocatable-gpu-resource"])
+        min_cpu = min(min_cpu, node_resource_dict[key]["cpu-resource"])
+        min_mem = min(min_mem, node_resource_dict[key]["mem-resource"])
+        min_gpu = min(min_gpu, node_resource_dict[key]["gpu-resource"])
         hived_config["nodelist"].append(key)
     if not hived_config["nodelist"]:
         logger.error("No worker node is detected.")

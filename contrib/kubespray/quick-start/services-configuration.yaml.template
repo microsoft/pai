@@ -64,7 +64,7 @@ hivedscheduler:
         DT:
           gpu: 1
           cpu: {{ env["hived"]["unit-cpu"] }}
-          memory: {{ env["hived"]["unit-mem"] }}
+          memory: {{ env["hived"]["unit-mem"] }}Mi
       cellTypes:
         DT-NODE:
           childCellType: DT
