@@ -167,8 +167,6 @@ def main():
         'hived': hived_config
     }
 
-    print(environment)
-
     map_table = {
         "env": environment
     }
