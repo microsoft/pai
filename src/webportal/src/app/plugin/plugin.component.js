@@ -51,7 +51,9 @@ $(document).ready(function() {
         .attr('pai-user', cookies.get('user'))
         .attr('pai-rest-server-token', cookies.get('token'))
         .attr('pai-grafana-uri', window.ENV.grafanaUri)
-        .attr('pai-logType', window.ENV.logType);
+        .attr('pai-logType', window.ENV.logType)
+        .attr('pai-launcherType', window.ENV.launcherType)
+        .attr('pai-jobHistory', window.ENV.jobHistory);
     }
     $('#content-wrapper')
       .empty()

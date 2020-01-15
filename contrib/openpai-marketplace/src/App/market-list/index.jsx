@@ -27,7 +27,6 @@ import 'regenerator-runtime/runtime';
 import 'whatwg-fetch';
 
 import React, { useState, useEffect } from 'react';
-import ReactDOM from 'react-dom';
 import { initializeIcons, Fabric, Stack } from 'office-ui-fabric-react';
 import { isNil } from 'lodash';
 
@@ -37,7 +36,6 @@ import { CategorySideBar } from './components/category-side-bar';
 import { FilterBar } from './components/filter-bar';
 import { ItemList } from './components/item-list';
 import { MarketItem } from '../models/market-item';
-import { fetchMarketItemList } from './utils/conn';
 import Context from './Context';
 import Filter from './Filter';
 import Paginator from './components/paginator';
@@ -48,7 +46,7 @@ initTheme();
 initializeIcons();
 
 const MarketList = props => {
-  const { api, user, token, grafanaUri, logType, history } = props;
+  const { api, user, token, grafanaUri, logType, launcherType, jobHistory, history } = props;
 
   const [itemList, setItemList] = useState(null);
   const [filteredItems, setFilteredItems] = useState(null);
@@ -120,6 +118,8 @@ const MarketList = props => {
     token,
     grafanaUri,
     logType,
+    launcherType,
+    jobHistory,
     history,
   };
 

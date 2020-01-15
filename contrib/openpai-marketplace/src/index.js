@@ -15,11 +15,13 @@ class PAIMarketplacePluginElement extends HTMLElement {
     const token = this.getAttribute("pai-rest-server-token");
     const grafanaUri = this.getAttribute("pai-grafana-uri");
     const logType = this.getAttribute("pai-logType");
+    const launcherType = this.getAttribute("pai-launcherType");
+    const jobHistory = this.getAttribute("pai-jobHistory");
     if (user === null || token === null) {
       window.location.href = "/login.html";
       return;
     }
-    ReactDOM.render(React.createElement(App, { api, user, token, grafanaUri, logType }), this);
+    ReactDOM.render(React.createElement(App, { api, user, token, grafanaUri, logType, launcherType, jobHistory }), this);
   }
 
   disconnectedCallback() {

@@ -33,8 +33,6 @@ import { getTheme } from '@uifabric/styling';
 import { isNil } from 'lodash';
 import yaml from 'js-yaml';
 
-import { createMarketItem } from '../utils/conn';
-import { MarketItem } from '../../models/market-item';
 import { TagBar } from '../../components/tag-bar';
 import PreviewYamlFile from '../components/preview-yamlFile';
 import Context from '../Context';

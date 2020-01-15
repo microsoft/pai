@@ -46,12 +46,12 @@ import localCss from './task-role-container-list.scss';
 import t from '../../components/tachyons.scss';
 
 import Timer from './timer';
-import { getContainerLog } from '../utils/conn';
 import { parseGpuAttr } from '../utils/utils';
 //import config from '../../../config/webportal.config';
 import MonacoPanel from '../../components/monaco-panel';
 import StatusBadge from '../../components/status-badge';
 import CopyButton from '../../components/copy-button';
+import ContextMarketList from '../../market-list/Context';
 
 const theme = createTheme({
   palette: {
@@ -140,6 +140,66 @@ export default class TaskRoleContainerList extends React.Component {
     this.onRenderRow = this.onRenderRow.bind(this);
     this.logAutoRefresh = this.logAutoRefresh.bind(this);
   }
+  async getContainerLog(logUrl) {
+    const { logType } = this.props;
+    const ret = {
+      fullLogLink: logUrl,
+      text: null,
+    };
+    const res = await fetch(logUrl);
+    const text = await res.text();
+    if (!res.ok) {
+      throw new Error(res.statusText);
+    }
+  
+    const contentType = res.headers.get('content-type');
+    if (!contentType) {
+      throw new Error(`Log not available`);
+    }
+  
+    // Check log type. The log type is in LOG_TYPE and should be yarn|log-manager.
+    if (logType === 'yarn') {
+      try {
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(text, 'text/html');
+        const content = doc.getElementsByClassName('content')[0];
+        const pre = content.getElementsByTagName('pre')[0];
+        ret.text = pre.innerText;
+        // fetch full log link
+        if (pre.previousElementSibling) {
+          const link = pre.previousElementSibling.getElementsByTagName('a');
+          if (link.length === 1) {
+            ret.fullLogLink = link[0].getAttribute('href');
+            // relative link
+            if (ret.fullLogLink && !absoluteUrlRegExp.test(ret.fullLogLink)) {
+              let baseUrl = res.url;
+              // check base tag
+              const baseTags = doc.getElementsByTagName('base');
+              // There can be only one <base> element in a document.
+              if (baseTags.length > 0 && baseTags[0].hasAttribute('href')) {
+                baseUrl = baseTags[0].getAttribute('href');
+                // relative base tag url
+                if (!absoluteUrlRegExp.test(baseUrl)) {
+                  baseUrl = new URL(baseUrl, res.url);
+                }
+              }
+              const url = new URL(ret.fullLogLink, baseUrl);
+              ret.fullLogLink = url.href;
+            }
+          }
+        }
+        return ret;
+      } catch (e) {
+        throw new Error(`Log not available`);
+      }
+    } else if (logType === 'log-manager') {
+      ret.text = text;
+      ret.fullLogLink = logUrl.replace('/tail/', '/full/');
+      return ret;
+    } else {
+      throw new Error(`Log not available`);
+    }
+  }
 
   logAutoRefresh() {
     const { logUrl } = this.state;
@@ -185,9 +245,9 @@ export default class TaskRoleContainerList extends React.Component {
     let title;
     let logHint;
 
-    if (config.logType === 'yarn') {
+    if (logType === 'yarn') {
       logHint = 'Last 4096 bytes';
-    } else if (config.logType === 'log-manager') {
+    } else if (logType === 'log-manager') {
       logHint = 'Last 200 lines';
     } else {
       logHint = '';
@@ -265,6 +325,7 @@ export default class TaskRoleContainerList extends React.Component {
   }
 
   getColumns() {
+    const { launcherType } = this.props;
     const columns = [
       {
         key: 'number',
@@ -436,7 +497,7 @@ export default class TaskRoleContainerList extends React.Component {
             className={c(t.h100, t.flex, t.justifyStart, t.itemsCenter, t.ml1)}
           >
             <div className={c(t.flex)} style={{ height: 40 }}>
-              {config.launcherType !== 'k8s' && (
+              {launcherType !== 'k8s' && (
                 <CommandBarButton
                   className={c(FontClassNames.mediumPlus)}
                   styles={{
@@ -506,7 +567,7 @@ export default class TaskRoleContainerList extends React.Component {
                     {
                       key: 'trackingPage',
                       name:
-                        config.launcherType === 'yarn'
+                        launcherType === 'yarn'
                           ? 'Go to Yarn Tracking Page'
                           : 'Browse log folder',
                       iconProps: { iconName: 'Link' },
@@ -582,4 +643,6 @@ TaskRoleContainerList.propTypes = {
   className: PropTypes.string,
   style: PropTypes.object,
   taskInfo: PropTypes.object,
+  logType: PropTypes.string,
+  launcherType: PropTypes.string,
 };

@@ -7,15 +7,18 @@ import {
   Stack,
 } from 'office-ui-fabric-react';
 import { isEmpty, isNil, get } from 'lodash';
+import yaml from 'js-yaml';
 
 import t from '../../components/tachyons.scss';
 import Context from '../Context';
+import ContextMarketList from '../../market-list/Context';
 import Summary from './summary';
 import { SpinnerLoading } from '../../components/loading';
 import TaskRoles from './task-roles';
 
 const JobDetail = () => {
-  const { currentJob, api } = useContext(Context);
+  const { currentJob } = useContext(Context);
+  const { api, grafanaUri, logType, launcherType, jobHistory } = useContext(ContextMarketList);
 
   const [currentJobConfig, setCurrentJobConfig] = useState(null);
   const [jobInfo, setJobInfo] = useState(null);
@@ -24,8 +27,6 @@ const JobDetail = () => {
 
   const [loading, setLoading] = useState(true);
   const [reloading, setReloading] = useState(false);
-
-  console.log(currentJobConfig, jobInfo, rawJobConfig);
 
   useEffect(() => {
     reload(true);
@@ -114,8 +115,6 @@ const JobDetail = () => {
     const res = await fetch(url);
     const text = await res.text();
     const json = yaml.safeLoad(text);
-    console.log('****************');
-    console.log(json);
     if (res.ok) {
       return json;
     } else {
@@ -187,8 +186,12 @@ const JobDetail = () => {
           onReload={reload}
           currentJob={currentJob}
           rawJobConfig={rawJobConfig}
+          api={api}
+          grafanaUri={grafanaUri}
+          launcherType={launcherType}
+          jobHistory={jobHistory}
         />
-        <TaskRoles jobConfig={currentJobConfig} jobInfo={jobInfo} />
+        <TaskRoles jobConfig={currentJobConfig} jobInfo={jobInfo} logType={logType} launcherType={launcherType}/>
       </div>
     );
   }

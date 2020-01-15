@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useState, useContext } from 'react';
 import {
   Dialog,
   DialogType,
@@ -25,9 +25,11 @@ import Pagination from '../Pagination';
 import JobDetail from './job-detail';
 import PublishView from './publish-view';
 import { MarketItem } from '../../models/market-item';
+import ContextMarketList from '../../market-list/Context';
 
 const SuccessJobsDialog = props => {
-  const { hideDialog, setHideDialog, api } = props;
+  const { hideDialog, setHideDialog } = props;
+  const { api } = useContext(ContextMarketList);
 
   const [successJobs, setSuccessJobs] = useState(null);
   const [filteredJobs, setFilteredJobs] = useState(null);
@@ -241,9 +243,6 @@ const SuccessJobsDialog = props => {
 
     // success dialog title
     setSuccessDialogTitle,
-
-    // restServerUri
-    api,
   };
 
   return (

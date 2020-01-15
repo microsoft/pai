@@ -7,7 +7,7 @@ import MarketList from '../App/market-list';
 import MarketDetail from '../App/market-detail';
 
 const App = props => {
-    const { api, user, token, grafanaUri, logType } = props;
+    const { api, user, token, grafanaUri, logType, launcherType, jobHistory } = props;
 
     return (
         <Fabric style={{ height: '100%' }}>
@@ -16,7 +16,7 @@ const App = props => {
             path='/'
             exact
             render={({ history }) => (
-                <MarketList api={api} user={user} token={token} grafanaUri={grafanaUri} logType={logType} history={history} />
+                <MarketList api={api} user={user} token={token} grafanaUri={grafanaUri} logType={logType} launcherType={launcherType} jobHistory={jobHistory} history={history} />
             )}
             />
             <Route

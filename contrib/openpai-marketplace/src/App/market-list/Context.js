@@ -18,5 +18,7 @@ export default React.createContext({
   token: null,
   grafanaUri: null,
   logType: null,
+  launcherType: null,
+  jobHistory: null,
   history: null,
 });

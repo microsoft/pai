@@ -91,7 +91,7 @@ const configuration = {
     ],
   },
   resolve: {
-    extensions: [".jsx", ".js"],
+    extensions: [".jsx", ".js", "json"],
   },
   plugins: [
     new webpack.IgnorePlugin({

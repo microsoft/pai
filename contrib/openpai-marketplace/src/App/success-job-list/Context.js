@@ -66,9 +66,6 @@ const Context = React.createContext({
   setSuccessDialogTitle(title) {
     this.successDialogTitle = title;
   },
-
-  // restServerUri
-  api: null,
 });
 
 export default Context;

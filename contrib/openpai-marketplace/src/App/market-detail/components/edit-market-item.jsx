@@ -32,7 +32,6 @@ import {
 } from 'office-ui-fabric-react';
 
 import Context from '../Context';
-import { updateMarketItem } from '../utils/conn';
 import { TagBar } from '../../components/tag-bar';
 
 const { spacing } = getTheme();

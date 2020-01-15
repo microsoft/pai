@@ -26,6 +26,7 @@ import {
 import { Stack, Text, FontSizes } from 'office-ui-fabric-react';
 
 import Context from '../Context';
+import ContextMarketList from '../../market-list/Context';
 import Filter from '../Filter';
 import Pagination from '../Pagination';
 import Paginator from './Paginator';
@@ -38,9 +39,10 @@ import FilterBar from './filter-bar';
 const SuccessJobList = props => {
   const username = 'binyli';
 
-  const { successJobs, setSuccessJobs, setFilteredJobs, filter, api } = useContext(
+  const { successJobs, setSuccessJobs, setFilteredJobs, filter } = useContext(
     Context,
   );
+  const { api } = useContext(ContextMarketList);
 
   const [error, setError] = useState(null);
 

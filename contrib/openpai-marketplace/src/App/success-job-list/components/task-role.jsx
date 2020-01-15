@@ -115,7 +115,7 @@ export default class TaskRole extends React.Component {
   }
 
   render() {
-    const { className, name, taskInfo, isFailed } = this.props;
+    const { className, name, taskInfo, isFailed, logType, launcherType } = this.props;
     const { containerListExpanded } = this.state;
     const { semanticColors } = getTheme();
     const { rawJobConfig } = this.context;
@@ -184,7 +184,7 @@ export default class TaskRole extends React.Component {
             </div>
           </div>
           {containerListExpanded && (
-            <TaskRoleContainerList className={t.ph5} taskInfo={taskInfo} />
+            <TaskRoleContainerList className={t.ph5} taskInfo={taskInfo} logType={logType} launcherType={launcherType} />
           )}
         </Card>
       </div>
@@ -197,4 +197,6 @@ TaskRole.propTypes = {
   name: PropTypes.string.isRequired,
   taskInfo: PropTypes.object.isRequired,
   isFailed: PropTypes.bool,
+  logType: PropTypes.string,
+  launcherType: PropTypes.string,
 };

@@ -32,18 +32,10 @@ import Context from '../Context';
 
 export const TopBar = React.memo(() => {
   
-  const { api } = useContext(Context); 
+  const { api, launcherType, jobHistory } = useContext(Context); 
   const [hideSuccessJobListDialog, setHideSuccessJobListDialog] = useState(
     true,
   );
-
-  /*
-  const clickCreate = useCallback(() => {
-    window.location.href = `/success-job-list.html?username=${cookies.get(
-      'user',
-    )}`;
-  }, []);
-  */
 
   return (
     <Stack>
@@ -66,7 +58,8 @@ export const TopBar = React.memo(() => {
         hideDialog={hideSuccessJobListDialog}
         setHideDialog={setHideSuccessJobListDialog}
         api={api}
-
+        launcherType={launcherType}
+        jobHistory={jobHistory}
       />
 
       {/*<CreateMarketItem hideDialog={hideDialog} setHideDialog={setHideDialog} />*/}

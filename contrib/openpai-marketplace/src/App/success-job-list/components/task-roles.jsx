@@ -7,7 +7,7 @@ import { getHumanizedJobStateString } from '../utils/job';
 import TaskRole from './task-role';
 
 const TaskRoles = props => {
-  const { jobConfig, jobInfo } = props;
+  const { jobConfig, jobInfo, logType, launcherType } = props;
 
   if (!isEmpty(jobInfo.taskRoles)) {
     const failedTaskRole =
@@ -43,6 +43,8 @@ const TaskRoles = props => {
           name={name}
           className={t.mt3}
           taskInfo={dummyTaskInfo}
+          logType={logType}
+          launcherType={launcherType}
         />
       );
     });
@@ -54,6 +56,8 @@ const TaskRoles = props => {
 TaskRoles.propTypes = {
   jobConfig: PropTypes.object.isRequired,
   jobInfo: PropTypes.object.isRequired,
+  logType: PropTypes.string,
+  launcherType: PropTypes.string,
 };
 
 export default TaskRoles;

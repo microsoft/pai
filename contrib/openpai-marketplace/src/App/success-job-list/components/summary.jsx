@@ -44,11 +44,6 @@ import t from '../../components/tachyons.scss';
 import Card from './card';
 import Timer from './timer';
 import {
-  getTensorBoardUrl,
-  getJobMetricsUrl,
-  checkAttemptAPI,
-} from '../utils/conn';
-import {
   printDateTime,
   isJobV2,
   HISTORY_API_ERROR_MESSAGE,
@@ -61,7 +56,6 @@ import {
   getDurationString,
   getHumanizedJobStateString,
 } from '../utils/job';
-//import config from '../../../config/webportal.config';
 import CopyButton from '../../components/copy-button';
 
 const HintItem = ({ header, children }) => (
@@ -279,13 +273,14 @@ export default class Summary extends React.Component {
   }
 
   async checkRetryHealthy() {
-    if (config.launcherType !== 'k8s') {
+    const { launcherType } = this.props;
+    if (launcherType !== 'k8s') {
       return false;
     }
 
     const { currentJob } = this.props;
     const { name, namespace, username } = currentJob;
-    if (!(await checkAttemptAPI(namespace || username, name))) {
+    if (!(await this.checkAttemptAPI(namespace || username, name))) {
       return false;
     }
     return true;
@@ -358,11 +353,11 @@ export default class Summary extends React.Component {
   }
 
   checkRetryLink() {
-    const { jobInfo } = this.props;
+    const { jobInfo, jobHistory } = this.props;
     const { isRetryHealthy } = this.state;
 
     if (
-      config.jobHistory !== 'true' ||
+      jobHistory !== 'true' ||
       !isRetryHealthy ||
       isNil(jobInfo.jobStatus.retries) ||
       jobInfo.jobStatus.retries === 0
@@ -373,6 +368,57 @@ export default class Summary extends React.Component {
     }
   }
 
+  getJobMetricsUrl(jobInfo, userName, jobName) {
+    const { grafanaUri } = this.props;
+    const from = jobInfo.jobStatus.createdTime;
+    let to = '';
+    const { state } = jobInfo.jobStatus;
+    if (state === 'RUNNING') {
+      to = Date.now();
+    } else {
+      to = jobInfo.jobStatus.completedTime;
+    }
+    return `${grafanaUri}/dashboard/db/joblevelmetrics?var-job=${
+      userName ? `${userName}~${jobName}` : jobName
+    }&from=${from}&to=${to}`;
+  }
+
+  async checkAttemptAPI(userName, jobName) {
+    const { api } = this.props;
+    const healthEndpoint = `${api}/api/v2/jobs/${userName}~${jobName}/job-attempts/healthz`;
+    const healthRes = await fetch(healthEndpoint);
+    if (healthRes.status !== 200) {
+      return false;
+    } else {
+      return true;
+    }
+  }
+  
+  getTensorBoardUrl(jobInfo, rawJobConfig) {
+    let port = null;
+    let ip = null;
+    if (rawJobConfig.extras && rawJobConfig.extras.tensorBoard) {
+      const randomStr = rawJobConfig.extras.tensorBoard.randomStr;
+      const tensorBoardPortStr = `tensorBoardPort_${randomStr}`;
+      const taskRoles = jobInfo.taskRoles;
+      Object.keys(taskRoles).forEach(taskRoleKey => {
+        const taskStatuses = taskRoles[taskRoleKey].taskStatuses[0];
+        if (
+          taskStatuses.taskState === 'RUNNING' &&
+          taskStatuses.containerPorts &&
+          !isNil(taskStatuses.containerPorts[tensorBoardPortStr])
+        ) {
+          port = taskStatuses.containerPorts[tensorBoardPortStr];
+          ip = taskStatuses.containerIp;
+        }
+      });
+    }
+    if (isNil(port) || isNil(ip)) {
+      return null;
+    }
+    return `http://${ip}:${port}`;
+  }
+
   render() {
     const {
       autoReloadInterval,
@@ -380,7 +426,7 @@ export default class Summary extends React.Component {
       monacoProps,
       isRetryHealthy,
     } = this.state;
-    const { className, jobInfo, reloading, onReload } = this.props;
+    const { className, jobInfo, reloading, onReload, launcherType, jobHistory } = this.props;
     const { rawJobConfig } = this.props;
     const hintMessage = this.renderHintMessage();
 
@@ -407,7 +453,7 @@ export default class Summary extends React.Component {
               >
                 {jobInfo.name}
               </div>
-              {jobInfo.frameworkName && (
+              {jobInfo.debugId && (
                 <div className={t.ml2}>
                   <TooltipHost
                     calloutProps={{
@@ -420,11 +466,11 @@ export default class Summary extends React.Component {
                           className={c(t.flex, t.itemsCenter)}
                           style={{ maxWidth: 300 }}
                         >
-                          <div>FrameworkName:</div>
+                          <div>debugID:</div>
                           <div className={c(t.ml2, t.truncate)}>
-                            {jobInfo.frameworkName}
+                            {jobInfo.debugId}
                           </div>
-                          <CopyButton value={jobInfo.frameworkName} />
+                          <CopyButton value={jobInfo.debugId} />
                         </div>
                       ),
                     }}
@@ -551,7 +597,7 @@ export default class Summary extends React.Component {
               >
                 View Exit Diagnostics
               </Link>
-              {config.launcherType !== 'k8s' && (
+              {launcherType !== 'k8s' && (
                 <React.Fragment>
                   <div className={c(t.bl, t.mh3)}></div>
                   <Link
@@ -567,7 +613,7 @@ export default class Summary extends React.Component {
               <div className={c(t.bl, t.mh3)}></div>
               <Link
                 styles={{ root: [FontClassNames.mediumPlus] }}
-                href={getJobMetricsUrl(jobInfo)}
+                href={this.getJobMetricsUrl(jobInfo)}
                 target='_blank'
               >
                 Go to Job Metrics Page
@@ -575,8 +621,8 @@ export default class Summary extends React.Component {
               <div className={c(t.bl, t.mh3)}></div>
               <Link
                 styles={{ root: [FontClassNames.mediumPlus] }}
-                href={getTensorBoardUrl(jobInfo, rawJobConfig)}
-                disabled={isNil(getTensorBoardUrl(jobInfo, rawJobConfig))}
+                href={this.getTensorBoardUrl(jobInfo, rawJobConfig)}
+                disabled={isNil(this.getTensorBoardUrl(jobInfo, rawJobConfig))}
                 target='_blank'
               >
                 Go to TensorBoard Page
@@ -591,7 +637,7 @@ export default class Summary extends React.Component {
                 >
                   Go to Retry History Page
                 </Link>
-                {config.jobHistory !== 'true' && (
+                {jobHistory !== 'true' && (
                   <div className={t.ml2}>
                     <TooltipHost
                       calloutProps={{
@@ -620,7 +666,7 @@ export default class Summary extends React.Component {
                     </TooltipHost>
                   </div>
                 )}
-                {config.jobHistory === 'true' && !isRetryHealthy && (
+                {jobHistory === 'true' && !isRetryHealthy && (
                   <div className={t.ml2}>
                     <TooltipHost
                       calloutProps={{
@@ -677,4 +723,8 @@ Summary.propTypes = {
   onReload: PropTypes.func.isRequired,
   currentJob: PropTypes.object.isRequired,
   rawJobConfig: PropTypes.object.isRequired,
+  api: PropTypes.string.isRequired,
+  grafanaUri: PropTypes.string.isRequired,
+  launcherType: PropTypes.string.isRequired,
+  jobHistory: PropTypes.string.isRequired,
 };
