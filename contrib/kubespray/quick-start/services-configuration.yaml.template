@@ -55,6 +55,37 @@ webportal:
   server-port: 9286
 
 
+#Uncomment following and config it if you want to use hivedscheduler
+#Check https://github.com/microsoft/pai/blob/master/docs/hivedscheduler/devops.md
+hivedscheduler:
+  config: |
+    physicalCluster:
+      gpuTypes:
+        DT:
+          gpu: 1
+          cpu: {{ env["cfg"]["hived"]["unit-cpu"] }}
+          memory: {{ env["cfg"]["hived"]["unit-mem"] }}
+      cellTypes:
+        DT-NODE:
+          childCellType: DT
+          childCellNumber: {{ env["cfg"]["hived"]["min-allocatable-gpu"] }}
+          isNodeLevel: true
+        DT-NODE-POOL:
+          childCellType: DT-NODE
+          childCellNumber: {{ env["cfg"]["hived"]["nodelist"]|length }}
+      physicalCells:
+      - cellType: DT-NODE-POOL
+        cellChildren:
+        {%- for nodename in env["cfg"]["hived"]["nodelist"] %}
+        - cellAddress: {{nodename}
+        {%- endfor %}
+    virtualClusters:
+      default:
+        virtualCells:
+        - cellType: DT-NODE-POOL.DT-NODE
+          cellNumber: {{ env["cfg"]["hived"]["nodelist"]|length }}
+
+
 # uncomment following section, if you want to customize the authentication solution.
 authentication:
   OIDC: false
@@ -133,12 +164,6 @@ authentication:
   #      externalName: ""
   #      # external name, it should be set if your group-data-source is winbind. And the name will be used to query and match the group from
   #      # the result of winbind. If the group-data-source is basic, this field is useless.
-
-
-#Uncomment following and config it if you want to use hivedscheduler
-#Check https://github.com/microsoft/pai/blob/master/docs/hivedscheduler/devops.md
-hivedscheduler:
-  config: |
 
 
 # uncomment following section if you want to customize the port of pylon
