@@ -6,6 +6,7 @@
  */
 
 import * as fs from 'fs-extra';
+import * as os from 'os';
 import { Dictionary } from 'lodash';
 import { IStorageServer } from 'openpai-js-sdk';
 import * as path from 'path';
@@ -55,9 +56,16 @@ export class NfsRootNode extends StorageTreeNode {
         const map: Dictionary<string> | undefined =
             settings.get(SETTING_STORAGE_NFS_MOUNT_POINT);
         if (map !== null && map![key]) {
-            this.rootPath = path.join(map![key], '/', this.mountPath);
+            this.rootPath = this.resolveHome(path.join(map![key], '/', this.mountPath));
             this.setupMountPoint = true;
         }
+    }
+
+    public resolveHome(filepath: string): string {
+        if (filepath[0] === '~') {
+            return path.join(os.homedir(), filepath.slice(1));
+        }
+        return filepath;
     }
 
     public async refresh(): Promise<void> {

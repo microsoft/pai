@@ -9,7 +9,7 @@ import { Dictionary } from 'lodash';
 import { IStorageServer } from 'openpai-js-sdk';
 import * as os from 'os';
 import {
-    commands, window, workspace, WorkspaceConfiguration
+    commands, window, workspace, WorkspaceConfiguration, Terminal
 } from 'vscode';
 
 import {
@@ -85,25 +85,44 @@ export class NfsStorageManager extends Singleton {
                 cmdStr = `cmd /c "mount -o anon ${server.data.address}:${server.data.rootPath} ${mountPath}"`;
                 break;
             case 'darwin':
-                cmdStr = `sudo mkdir ${mountPath}` +
-                    `sudo mount -t nfs ${server.data.address}:${server.data.rootPath} ${mountPath}`;
+                cmdStr = `sudo mkdir -p ${mountPath} && ` +
+                    `sudo mount -t nfs -o resvport,hard,nolock ${server.data.address}:${server.data.rootPath} ${mountPath}`;
+                break;
             default:
                 Util.err('container.nfs.mount.unsupport.os');
                 return;
         }
         const provider: StorageTreeDataProvider = await getSingleton(StorageTreeDataProvider);
 
-        child.exec(cmdStr, (err, stdout, stderr) => {
-            if (err) {
-                Util.err('container.nfs.mount.failed', err);
+        if (os.platform() === 'win32') {
+            child.exec(cmdStr, (err, stdout, stderr) => {
+                if (err) {
+                    Util.err('container.nfs.mount.failed', err);
+                }
+                if (stdout) {
+                    Util.info(stdout);
+                }
+                if (stderr) {
+                    Util.warn(stderr);
+                }
+                void provider.refresh(node.parent);
+            });
+        } else {
+            const terminal: Terminal = window.createTerminal('PAI Mount NFS');
+            terminal.show();
+            terminal.sendText(cmdStr);
+            const FINISH: string = __('common.finish');
+            const CANCEL: string = __('common.cancel');
+            
+            const result: string | undefined = await window.showWarningMessage(
+                __('util.editjson.prompt'),
+                FINISH,
+                CANCEL
+            );
+
+            if (result === FINISH) {
+                await provider.refresh(node.parent);
             }
-            if (stdout) {
-                Util.info('container.nfs.mount.finish', stdout);
-            }
-            if (stderr) {
-                Util.warn('container.nfs.mount.finish', stderr);
-            }
-            void provider.refresh(node.parent);
-        });
+        }
     }
 }
