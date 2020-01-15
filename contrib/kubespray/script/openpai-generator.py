@@ -77,28 +77,28 @@ def generate_template_file(template_file_path, output_path, map_table):
 
 def get_kubernetes_node_info_from_API():
     config.load_kube_config()
-
-    api_instance  = client.CoreV1Api()
+    api_instance = client.CoreV1Api()
 
     # https://github.com/kubernetes-client/python/blob/master/kubernetes/docs/CoreV1Api.md#list_node
     pretty = 'true'
-    #allow_watch_bookmarks = True
     timeout_seconds = 56
+
+    ret = list()
     try:
         api_response = api_instance.list_node(pretty=pretty, timeout_seconds=timeout_seconds)
         for node in api_response.items:
-            cpu_resource_allocatable = parse_quantity(node.status.allocatable['cpu'])
-            mem_resource_allocatable = parse_quantity(node.status.allocatable['memory']) / 1024 / 1024 / 1024
-            gpu_resource_allocatable = parse_quantity(node.status.allocatable['nvidia.com/gpu'])
-            node_name = node.metadata.name
-            print("{0} {1}".format(node.status.allocatable['cpu'], cpu_resource_allocatable))
-            print("{0} {1}".format(node.status.allocatable['memory'], mem_resource_allocatable))
-            print("{0} {1}".format(node.status.allocatable['nvidia.com/gpu'], gpu_resource_allocatable))
-            print("{0}".format(node_name))
-            pprint(node.status.allocatable)
-            pprint(node.status.capacity)
+            ret.append({
+                "allocatable-cpu-resource": parse_quantity(node.status.allocatable['cpu']),
+                "allocatable-mem-resource": parse_quantity(node.status.allocatable['memory']) / 1024 / 1024 / 1024,
+                "allocatable-gpu-resource": parse_quantity(node.status.allocatable['nvidia.com/gpu']),
+                "nodename": node.metadata.name
+            })
+
     except ApiException as e:
-        print("Exception when calling CoreV1Api->list_node: %s\n" % e)
+        logger.error("Exception when calling CoreV1Api->list_node: %s\n" % e)
+
+    print(ret)
+    return ret
 
 
 def main():
