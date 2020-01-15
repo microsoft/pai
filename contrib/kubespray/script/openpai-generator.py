@@ -133,7 +133,7 @@ def hived_config_prepare(worker_dict, node_resource_dict):
     hived_config["min-allocatable-gpu"] = min_gpu
     hived_config["unit-cpu"] = min_cpu / min_gpu
     hived_config["unit-mem"] = min_mem / min_gpu
-
+    print(hived_config)
     return hived_config
 
 
@@ -158,6 +158,8 @@ def main():
     worker_dict = csv_reader_ret_dict(args.worklist)
     node_resource_dict = get_kubernetes_node_info_from_API()
     hived_config = hived_config_prepare(worker_dict, node_resource_dict)
+
+    print
 
     environment = {
         'master': master_list,
