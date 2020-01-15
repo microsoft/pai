@@ -81,11 +81,11 @@ def get_kubernetes_node_info_from_API():
 
     # https://github.com/kubernetes-client/python/blob/master/kubernetes/docs/CoreV1Api.md#list_node
     pretty = 'true'
-    allow_watch_bookmarks = True
+    #allow_watch_bookmarks = True
     watch = True  # bool | Watch for changes to the described resources and return them as a stream of add, update, and remove notifications. Specify resourceVersion. (optional)
 
     try:
-        api_response = api_instance .list_node(pretty=pretty, allow_watch_bookmarks=allow_watch_bookmarks, watch=watch)
+        api_response = api_instance .list_node(pretty=pretty, watch=watch)
         pprint(api_response)
     except ApiException as e:
         print("Exception when calling CoreV1Api->list_node: %s\n" % e)
