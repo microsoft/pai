@@ -159,8 +159,6 @@ def main():
     node_resource_dict = get_kubernetes_node_info_from_API()
     hived_config = hived_config_prepare(worker_dict, node_resource_dict)
 
-    print
-
     environment = {
         'master': master_list,
         'worker': worker_list,
