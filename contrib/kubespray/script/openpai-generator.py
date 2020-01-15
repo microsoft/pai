@@ -131,8 +131,8 @@ def hived_config_prepare(worker_dict, node_resource_dict):
         sys.exit(1)
 
     hived_config["min-allocatable-gpu"] = min_gpu
-    hived_config["unit-cpu"] = min_cpu / min_gpu
-    hived_config["unit-mem"] = min_mem / min_gpu
+    hived_config["unit-cpu"] = int( min_cpu / min_gpu )
+    hived_config["unit-mem"] = int( min_mem / min_gpu )
 
     return hived_config
 
