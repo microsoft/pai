@@ -1,0 +1,66 @@
+{
+    "type": "object",
+    "properties": {
+        "spn": {
+            "type": "string",
+            "description": "storage server display name",
+            "minLength": 1
+        },
+        "data": {
+            "oneOf": [
+                {
+                    "type": "object",
+                    "description": "Azure blob",
+                    "properties": {
+                        "containerName": {
+                            "type": "string"
+                        },
+                        "accountName": {
+                            "type": "string"
+                        },
+                        "key": {
+                            "type": "string"
+                        }
+                    },
+                    "required": ["containerName", "accountName", "key"]
+                },
+                {
+                    "type": "object",
+                    "description": "NFS",
+                    "properties": {
+                        "rootPath": {
+                            "type": "string"
+                        },
+                        "address": {
+                            "type": "string"
+                        }
+                    },
+                    "required": ["rootPath", "address"]
+                },
+                {
+                    "type": "object",
+                    "description": "Samba",
+                    "properties": {
+                        "rootPath": {
+                            "type": "string"
+                        },
+                        "address": {
+                            "type": "string"
+                        },
+                        "userName": {
+                            "type": "string"
+                        },
+                        "password": {
+                            "type": "string"
+                        },
+                        "domain": {
+                            "type": "string"
+                        }
+                    },
+                    "required": ["rootPath", "address"]
+                }
+            ]
+        }
+    },
+    "required": ["spn", "data"]
+}

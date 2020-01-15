@@ -38,3 +38,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Support AAD login to OpenPAI cluster
   - User can use access token instead of password in cluster config file.
+
+## [0.2.3] - 2019-12
+
+### Added
+
+- Add local simulation for YAML job config file
+- Add https in cluster config
+  - User can use https connect to OpenPAI cluster

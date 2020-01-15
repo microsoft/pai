@@ -7,7 +7,6 @@ import {
   DefaultButton,
   Stack,
   FontClassNames,
-  FontSizes,
   FontWeights,
 } from 'office-ui-fabric-react';
 import { isNil } from 'lodash';
@@ -23,7 +22,6 @@ import { isPublishable } from '../utils/job';
 import Context from '../Context';
 import Filter from '../Filter';
 import Pagination from '../Pagination';
-import { createMarketItem, fetchJobConfig } from '../utils/conn';
 import JobDetail from './job-detail';
 import PublishView from './publish-view';
 import { MarketItem } from '../../models/market-item';

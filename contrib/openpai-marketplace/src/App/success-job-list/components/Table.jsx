@@ -68,12 +68,6 @@ const Table = () => {
     isResizable: true,
     onRender(job) {
       const { legacy, name, namespace, username } = job;
-      /*
-      const href = legacy
-        ? `/job-detail.html?jobName=${name}`
-        : `/job-detail.html?username=${namespace || username}&jobName=${name}`;
-      return <Link href={href}>{name}</Link>;
-      */
       return <Link onClick={e => onOpenJobDetail()}>{name}</Link>;
     },
   };
@@ -165,62 +159,7 @@ const Table = () => {
       );
     },
   };
-  /*
-  const actionsColumn = {
-    key: 'publish',
-    minWidth: 100,
-    name: 'Publish',
-    headerClassName: FontClassNames.medium,
-    className: zeroPaddingClass,
-    onRender(job) {
-      async function showDialog(event) {
-        event.stopPropagation();
-        // check if this job can be published
-        const { legacy, name, namespace, username } = job;
-        if (legacy) {
-          alert('This job can not be published because of legacy');
-          return;
-        }
-        // fetch jobConfig
-        const jobConfig = await fetchJobConfig(namespace || username, name);
-        // check extras
-        if (jobConfig.extras) {
-          alert('This job can not be published because of extras');
-          return;
-        }
-        setCurrentJobConfig(jobConfig);
-        setCurrentJob(job);
-        setHideDialog(false);
-      }
-
-      return (
-        <div
-          style={{
-            height: '100%',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-          }}
-          data-selection-disabled
-        >
-          <DefaultButton
-            iconProps={{ iconName: 'PublisherLogo16' }}
-            styles={{
-              root: { backgroundColor: '#e5e5e5' },
-              rootFocused: { backgroundColor: '#e5e5e5' },
-              rootDisabled: { backgroundColor: '#eeeeee' },
-              rootCheckedDisabled: { backgroundColor: '#eeeeee' },
-              icon: { fontSize: 12 },
-            }}
-            onClick={showDialog}
-          >
-            publish
-          </DefaultButton>
-        </div>
-      );
-    },
-  };
-*/
+  
   const columns = [
     nameColumn,
     modifiedColumn,

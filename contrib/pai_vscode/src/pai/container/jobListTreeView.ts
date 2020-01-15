@@ -3,7 +3,6 @@
  * Licensed under the MIT License. See License in the project root for license information.
  * @author Microsoft
  */
-/* tslint:disable:max-classes-per-file */
 
 import { injectable } from 'inversify';
 import * as request from 'request-promise-native';
@@ -15,14 +14,12 @@ import {
 import {
     COMMAND_CONTAINER_JOBLIST_MORE, COMMAND_CONTAINER_JOBLIST_REFRESH,
     COMMAND_TREEVIEW_DOUBLECLICK, COMMAND_VIEW_JOB,
-    CONTEXT_JOBLIST_CLUSTER,
     ICON_ELLIPSIS,
     ICON_ERROR,
     ICON_HISTORY,
     ICON_LATEST,
     ICON_LOADING,
     ICON_OK,
-    ICON_PAI,
     ICON_QUEUE,
     ICON_RUN,
     ICON_STOP,
@@ -35,28 +32,13 @@ import {
 import { __ } from '../../common/i18n';
 import { getSingleton, Singleton } from '../../common/singleton';
 import { Util } from '../../common/util';
-import { getClusterName, ClusterManager } from '../clusterManager';
-import { IPAICluster, IPAIJobInfo } from '../paiInterface';
-import { PAIRestUri } from '../paiUri';
+import { ClusterManager } from '../clusterManager';
 import { RecentJobManager } from '../recentJobManager';
+import { IPAICluster, IPAIJobInfo } from '../utility/paiInterface';
+import { PAIRestUri } from '../utility/paiUri';
 
-enum FilterType {
-    Recent = 0,
-    All = 1
-}
-
-enum LoadingState {
-    Finished = 0,
-    Loading = 1,
-    Error = 2
-}
-
-enum TreeDataType {
-    Cluster = 0,
-    Filter = 1,
-    Job = 2,
-    More = 3
-}
+import { ClusterNode } from './common/clusterNode';
+import { FilterType, LoadingState, TreeDataType } from './common/treeDataEnum';
 
 /**
  * Leaf node representing job on PAI
@@ -114,19 +96,6 @@ class FilterNode extends TreeItem {
             loadingState === LoadingState.Loading ? ICON_LOADING :
                 loadingState === LoadingState.Error ? ICON_ERROR :
                     type === FilterType.Recent ? ICON_LATEST : ICON_HISTORY);
-    }
-}
-
-/**
- * Root node representing PAI cluster
- */
-export class ClusterNode extends TreeItem {
-    public readonly index: number;
-    public constructor(configuration: IPAICluster, index: number) {
-        super(getClusterName(configuration), TreeItemCollapsibleState.Collapsed);
-        this.index = index;
-        this.iconPath = Util.resolvePath(ICON_PAI);
-        this.contextValue = CONTEXT_JOBLIST_CLUSTER;
     }
 }
 

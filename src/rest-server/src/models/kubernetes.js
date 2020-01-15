@@ -15,11 +15,18 @@ const getClient = (baseURL = '') => {
       'Accept': 'application/json',
     },
   };
-  if (apiserver.ca) {
-    config.httpsAgent = new Agent({ca: apiserver.ca, cert: apiserver.cert, key: apiserver.key});
+  if (apiserver.ca || apiserver.cert || apiserver.key) {
+    config.httpsAgent = new Agent({
+      ca: apiserver.ca,
+      cert: apiserver.cert,
+      key: apiserver.key,
+    });
   }
-  if (apiserver.token) {
-    config.headers['Authorization'] = `Bearer ${apiserver.token}`;
+  if (apiserver.headers) {
+    config.headers = {
+      ...apiserver.headers,
+      ...config.headers,
+    };
   }
   return axios.create(config);
 };

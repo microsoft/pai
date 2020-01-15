@@ -17,11 +17,12 @@
 
 import c from 'classnames';
 import { isEmpty } from 'lodash';
-import { Stack, StackItem } from 'office-ui-fabric-react';
+import { Stack, StackItem, Pivot, PivotItem } from 'office-ui-fabric-react';
 import React, { useState, useEffect } from 'react';
 import ReactDOM from 'react-dom';
 import MediaQuery from 'react-responsive';
 
+import Card from '../components/card';
 import JobStatus from './home/job-status';
 import { VirtualClusterStatistics } from './home/virtual-cluster-statistics';
 import GpuChart from './home/gpu-chart';
@@ -40,12 +41,14 @@ import AbnormalJobList from './home/abnormal-job-list';
 import { BREAKPOINT1 } from './home/util';
 import { SpinnerLoading } from '../components/loading';
 import { clearToken } from '../user/user-logout/user-logout.component.js';
+import { TooltipIcon } from '../job-submission/components/controls/tooltip-icon';
 
 import t from '../components/tachyons.scss';
 
 const Home = () => {
   const [loading, setLoading] = useState(true);
   const [jobs, setJobs] = useState(null);
+  const [userJobs, setUserJobs] = useState(null);
   const [userInfo, setUserInfo] = useState(null);
   const [virtualClusters, setVirtualClusters] = useState(null);
   const [gpuPerNode, setGpuPerNode] = useState(null);
@@ -61,6 +64,7 @@ const Home = () => {
       }
       Promise.all([
         isAdmin ? listAllJobs().then(setJobs) : listJobs().then(setJobs),
+        listJobs().then(setUserJobs),
         getUserInfo().then(setUserInfo),
         listVirtualClusters().then(setVirtualClusters),
         getAvailableGpuPerNode().then(setGpuPerNode),
@@ -87,11 +91,11 @@ const Home = () => {
     return (
       <div
         className={c(t.w100, t.h100)}
-        style={{ minWidth: 500, overflowY: 'auto' }}
+        style={{ minWidth: 375, overflowY: 'auto' }}
       >
         {/* small */}
         <MediaQuery maxWidth={BREAKPOINT1}>
-          <Stack padding='l2' gap='l2' styles={{ minHeight: '100%' }}>
+          <Stack padding='l2' gap='l1' styles={{ minHeight: '100%' }}>
             <JobStatus style={{ height: 320 }} jobs={jobs} />
             <React.Fragment>
               <VirtualClusterStatistics
@@ -106,32 +110,62 @@ const Home = () => {
                 virtualClusters={virtualClusters}
               />
             </React.Fragment>
-            {isAdmin ? (
-              <AbnormalJobList jobs={listAbnormalJobs(jobs, lowGpuJobInfo)} />
-            ) : (
-              <RecentJobList jobs={jobs} />
-            )}
+            <Card className={c(t.h100, t.ph5)}>
+              {isAdmin ? (
+                <Pivot>
+                  <PivotItem
+                    headerText='Abnormal jobs'
+                    onRenderItemLink={(link, defaultRenderer) => {
+                      return (
+                        <Stack horizontal gap='s1'>
+                          {defaultRenderer(link)}
+                          <TooltipIcon
+                            content={
+                              'A job is treaded as an abnormal job if running more than 5 days or GPU usage is lower than 10%'
+                            }
+                          />
+                        </Stack>
+                      );
+                    }}
+                  >
+                    <AbnormalJobList
+                      style={{ minHeight: 0 }}
+                      jobs={listAbnormalJobs(jobs, lowGpuJobInfo)}
+                    />
+                  </PivotItem>
+                  <PivotItem headerText='My recent jobs'>
+                    <RecentJobList style={{ minHeight: 0 }} jobs={userJobs} />
+                  </PivotItem>
+                </Pivot>
+              ) : (
+                <Pivot>
+                  <PivotItem headerText='My recent jobs'>
+                    <RecentJobList style={{ minHeight: 0 }} jobs={userJobs} />
+                  </PivotItem>
+                </Pivot>
+              )}
+            </Card>
           </Stack>
         </MediaQuery>
         {/* large */}
         <MediaQuery minWidth={BREAKPOINT1 + 1}>
           <Stack
             padding='l2'
-            gap='l2'
+            gap='l1'
             styles={{ root: { height: '100%', minHeight: 640 } }}
           >
             {/* top */}
             <StackItem disableShrink>
-              <Stack gap='l2' horizontal>
+              <Stack gap='l1' horizontal>
                 <React.Fragment>
-                  <JobStatus style={{ width: '25%' }} jobs={jobs} />
+                  <JobStatus style={{ width: '33%' }} jobs={jobs} />
                   <VirtualClusterStatistics
-                    style={{ width: '41%' }}
+                    style={{ width: '33%' }}
                     userInfo={userInfo}
                     virtualClusters={virtualClusters}
                   />
                   <GpuChart
-                    style={{ width: '33%' }}
+                    style={{ width: '34%' }}
                     gpuPerNode={gpuPerNode}
                     userInfo={userInfo}
                     virtualClusters={virtualClusters}
@@ -140,14 +174,41 @@ const Home = () => {
               </Stack>
             </StackItem>
             {/* bottom */}
-            {isAdmin ? (
-              <AbnormalJobList
-                style={{ minHeight: 0 }}
-                jobs={listAbnormalJobs(jobs, lowGpuJobInfo)}
-              />
-            ) : (
-              <RecentJobList style={{ minHeight: 0 }} jobs={jobs} />
-            )}
+            <Card className={c(t.h100, t.ph5)}>
+              {isAdmin ? (
+                <Pivot>
+                  <PivotItem
+                    headerText='Abnormal jobs'
+                    onRenderItemLink={(link, defaultRenderer) => {
+                      return (
+                        <Stack horizontal gap='s1'>
+                          {defaultRenderer(link)}
+                          <TooltipIcon
+                            content={
+                              'A job is treaded as an abnormal job if running more than 5 days or GPU usage is lower than 10%'
+                            }
+                          />
+                        </Stack>
+                      );
+                    }}
+                  >
+                    <AbnormalJobList
+                      style={{ minHeight: 0 }}
+                      jobs={listAbnormalJobs(jobs, lowGpuJobInfo)}
+                    />
+                  </PivotItem>
+                  <PivotItem headerText='My recent jobs'>
+                    <RecentJobList style={{ minHeight: 0 }} jobs={userJobs} />
+                  </PivotItem>
+                </Pivot>
+              ) : (
+                <Pivot>
+                  <PivotItem headerText='My recent jobs'>
+                    <RecentJobList style={{ minHeight: 0 }} jobs={userJobs} />
+                  </PivotItem>
+                </Pivot>
+              )}
+            </Card>
           </Stack>
         </MediaQuery>
       </div>

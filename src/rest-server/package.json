@@ -30,7 +30,6 @@
     "ajv-merge-patch": "~4.1.0",
     "async": "~2.5.0",
     "axios": "^0.18.1",
-    "base32": "^0.0.6",
     "chai": "~4.1.2",
     "chai-as-promised": "~7.1.1",
     "chai-http": "^4.3.0",
@@ -71,7 +70,7 @@
   "scripts": {
     "coveralls": "nyc report --reporter=text-lcov | coveralls ..",
     "lint": "eslint .",
-    "mocha": "mocha --require ./test/setup --ui bdd --recursive --timeout 1000 --exit",
+    "mocha": "mocha --file ./test/setup --ui bdd --recursive --timeout 1000 --exit",
     "start": "node index.js",
     "test": "npm run lint && nyc npm run mocha"
   }

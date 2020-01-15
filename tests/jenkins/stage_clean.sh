@@ -17,20 +17,21 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-cluster_or_singlebox="$1"
-dev_box_name="dev-box-yarn-${cluster_or_singlebox}"
+cluster_type="$1"
+cluster_scale="$2"
+
+dev_box_name="dev-box-${cluster_type}-${cluster_scale}"
 
 # Work in dev-box
 sudo docker exec -i ${dev_box_name} /bin/bash << EOF_DEV_BOX
-set -ex
-cd /pai
+set -Eeuxo pipefail
+cd /root/pai
 
 # 1. delete PAI services
 echo -e "Y\npai\n" | python paictl.py service delete
 
 # 2. cleanup k8s
 echo "Y" | python paictl.py cluster k8s-clean -p /cluster-configuration -f
-
 EOF_DEV_BOX
 
 sudo docker rm -f ${dev_box_name}

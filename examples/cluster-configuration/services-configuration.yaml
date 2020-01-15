@@ -79,10 +79,14 @@
 
 
 
-#uncomment following if you want to change customize yarn-frameworklauncher
+#Uncomment following if you want to change customize yarn-frameworklauncher
 #yarn-frameworklauncher:
 #  frameworklauncher-port: 9086
 
+#Uncomment following and config it if you want to use hivedscheduler
+#Check ../../docs/hivedscheduler/devops.md to config it.
+#hivedscheduler:
+#  config: |
 
 rest-server:
   # secret for signing authentication tokens, e.g., hello
@@ -123,6 +127,7 @@ rest-server:
 # device-plugin:
 #   devices:
 #     - "nvidia.com/gpu"
+#     - "amd.com/gpu"
 #     - "rdma/hca"
 
 # uncomment following if you want node-exporter listen to different port

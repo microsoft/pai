@@ -18,7 +18,6 @@
 import c from 'classnames';
 import {
   Link,
-  Stack,
   FontClassNames,
   DetailsList,
   DetailsListLayoutMode,
@@ -29,7 +28,6 @@ import {
 import PropTypes from 'prop-types';
 import React, { useCallback, useState } from 'react';
 
-import Card from '../../components/card';
 import {
   getJobDuration,
   getDurationString,
@@ -40,14 +38,10 @@ import {
   isStoppable,
 } from '../../components/util/job';
 import { zeroPaddingClass } from './util';
-import { Header } from './header';
 import userAuth from '../../user/user-auth/user-auth.component';
 import { stopJob } from './conn';
 import { cloneDeep } from 'lodash';
 import StopJobConfirm from '../../job/job-view/fabric/JobList/StopJobConfirm';
-
-// Move it to common folder
-import { TooltipIcon } from '../../job-submission/components/controls/tooltip-icon';
 
 import t from '../../components/tachyons.scss';
 import StatusBadge from '../../components/status-badge';
@@ -66,7 +60,6 @@ const AbnormalJobList = ({ jobs, style }) => {
       name: 'Name',
       fieldName: 'name',
       className: FontClassNames.mediumPlus,
-      headerClassName: FontClassNames.medium,
       isResizable: true,
       onRender(job) {
         const { legacy, name, namespace, username } = job;
@@ -79,11 +72,10 @@ const AbnormalJobList = ({ jobs, style }) => {
     },
     {
       key: 'gpuCount',
-      minWidth: 150,
+      minWidth: 50,
       name: 'GPUs',
       fieldName: 'totalGpuNumber',
       className: FontClassNames.mediumPlus,
-      headerClassName: FontClassNames.medium,
       isResizable: true,
       onRender(job) {
         if (isLowGpuUsageJob(job)) {
@@ -101,7 +93,6 @@ const AbnormalJobList = ({ jobs, style }) => {
       minWidth: 150,
       name: 'Date Modified',
       className: FontClassNames.mediumPlus,
-      headerClassName: FontClassNames.medium,
       isResizable: true,
       onRender(job) {
         return getJobModifiedTimeString(job);
@@ -113,7 +104,6 @@ const AbnormalJobList = ({ jobs, style }) => {
       name: 'User',
       fieldName: 'username',
       className: FontClassNames.mediumPlus,
-      headerClassName: FontClassNames.medium,
       isResizable: true,
     },
     {
@@ -121,7 +111,6 @@ const AbnormalJobList = ({ jobs, style }) => {
       minWidth: 120,
       name: 'Duration',
       className: FontClassNames.mediumPlus,
-      headerClassName: FontClassNames.medium,
       isResizable: true,
       onRender(job) {
         if (isLongRunJob(job)) {
@@ -140,14 +129,12 @@ const AbnormalJobList = ({ jobs, style }) => {
       name: 'Virtual Cluster',
       fieldName: 'virtualCluster',
       className: FontClassNames.mediumPlus,
-      headerClassName: FontClassNames.medium,
       isResizable: true,
     },
     {
       key: 'status',
       minWidth: 100,
       name: 'Status',
-      headerClassName: FontClassNames.medium,
       isResizable: true,
       onRender(job) {
         return <StatusBadge status={getHumanizedJobStateString(job)} />;
@@ -157,7 +144,6 @@ const AbnormalJobList = ({ jobs, style }) => {
       key: 'action',
       minWidth: 100,
       name: 'Action',
-      headerClassName: FontClassNames.medium,
       className: zeroPaddingClass,
       isResizable: true,
       onRender(job) {
@@ -213,40 +199,22 @@ const AbnormalJobList = ({ jobs, style }) => {
   );
 
   return (
-    <Card className={c(t.h100, t.ph5)} style={style}>
-      <Stack gap='l1' styles={{ root: [t.h100] }}>
-        <Stack.Item>
-          <Header
-            headerName='Abnormal jobs'
-            linkName='All jobs'
-            linkHref='/job-list.html'
-            showLink
-          >
-            <TooltipIcon
-              content={
-                'A job is treaded as an abnormal job if running more than 5 days or GPU usage is lower than 10%'
-              }
-            />
-          </Header>
-        </Stack.Item>
-        <Stack.Item styles={{ root: { overflow: 'auto' } }} grow>
-          <DetailsList
-            styles={{ root: { minHeight: 200, overflow: 'unset' } }}
-            columns={jobListColumns}
-            disableSelectionZone
-            items={abnormalJobs}
-            layoutMode={DetailsListLayoutMode.justified}
-            selectionMode={SelectionMode.none}
-          />
-        </Stack.Item>
-      </Stack>
+    <div className={c(t.mv3, t.ph5, t.h100, t.overflowYAuto)}>
+      <DetailsList
+        styles={{ root: { minHeight: 200, overflow: 'unset' } }}
+        columns={jobListColumns}
+        disableSelectionZone
+        items={abnormalJobs}
+        layoutMode={DetailsListLayoutMode.justified}
+        selectionMode={SelectionMode.none}
+      />
       <StopJobConfirm
         hideDialog={hideDialog}
         currentJob={currentJob}
         setHideDialog={setHideDialog}
         stopJob={stopAbnormalJob}
       />
-    </Card>
+    </div>
   );
 };
 

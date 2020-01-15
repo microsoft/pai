@@ -17,44 +17,38 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-cluster_or_singlebox="$1"
-dev_box_name="dev-box-yarn-${cluster_or_singlebox}"
+cluster_type="$1"
+cluster_scale="$2"
 
-config_path=${JENKINS_HOME}/${BED}/${cluster_or_singlebox}/cluster-configuration
-quick_start_path=${JENKINS_HOME}/${BED}/${cluster_or_singlebox}/quick-start
+dev_box_name="dev-box-${cluster_type}-${cluster_scale}"
+config_path=${WORKSPACE}/tests/jenkins/${cluster_type}/${cluster_scale}/cluster-configuration
 
 # generate config
-bash ${WORKSPACE}/tests/jenkins/test_generate_config.sh ${cluster_or_singlebox} ${config_path} ${quick_start_path}
+bash -Eeuxo pipefail ${WORKSPACE}/tests/jenkins/test_generate_config.sh ${cluster_type} ${cluster_scale} ${config_path}
 
 # Run dev-box
-# Assume the path of custom-hadoop-binary-path in service-configuration is /pathHadoop.
-# Assume the directory path of cluster-configuration is /pathConfiguration.
-# By now, you can leave it as it is, we only mount those two directories into docker container for later usage.
 sudo docker run -it -d \
   --name=${dev_box_name} \
-  -v /var/run/docker.sock:/var/run/docker.sock \
-  -v /var/lib/jenkins/scripts:/jenkins/scripts \
-  -v /pathHadoop:/pathHadoop \
-  -v ${config_path}:/cluster-configuration \
-  -v ${quick_start_path}:/quick-start \
   --privileged=true \
-  ${REGISTRY_URI}/openpai/dev-box:${IMAGE_TAG} nofetch
+  -v /var/run/docker.sock:/var/run/docker.sock \
+  --entrypoint /bin/bash \
+  ${REGISTRY_URI}/openpai/dev-box:${IMAGE_TAG}
 
-sudo docker exec ${dev_box_name} rm -rf /pai
-sudo docker cp ${WORKSPACE} ${dev_box_name}:/pai
+sudo docker cp ${WORKSPACE}/. ${dev_box_name}:/root/pai
+sudo docker cp ${config_path}/. ${dev_box_name}:/cluster-configuration
 
 # Work in dev-box
 sudo docker exec -i ${dev_box_name} /bin/bash << EOF_DEV_BOX
-set -ex
-cd /pai
+set -Eeuxo pipefail
+cd /root/pai
 
 # 1. bootup kubernetes
 python paictl.py cluster k8s-bootup -p /cluster-configuration
-sleep 10s
 
 # 2. push cluster configuration
 echo "pai" | python paictl.py config push -p /cluster-configuration
 
 # 3. start PAI services
+kubectl create ns pai-storage || true
 echo "pai" | python paictl.py service start
 EOF_DEV_BOX

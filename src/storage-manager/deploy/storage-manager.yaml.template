@@ -68,6 +68,8 @@ spec:
         - name: host-modules
           mountPath: /lib/modules
           readOnly: true
+        - name: log-folder
+          mountPath: /var/log/storage
         ports:
         - containerPort: 445
           hostPort: 445
@@ -86,6 +88,10 @@ spec:
         - name: pai-config
           configMap:
             name: storage-configuration
+        - name: log-folder
+          hostPath:
+            path: /var/log/storage
+            type: DirectoryOrCreate
       imagePullSecrets:
       - name: {{ cluster_cfg["cluster"]["docker-registry"]["secret-name"] }}
       tolerations:

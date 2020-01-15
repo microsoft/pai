@@ -25,6 +25,8 @@ const JobDetail = () => {
   const [loading, setLoading] = useState(true);
   const [reloading, setReloading] = useState(false);
 
+  console.log(currentJobConfig, jobInfo, rawJobConfig);
+
   useEffect(() => {
     reload(true);
   }, []);
@@ -112,6 +114,8 @@ const JobDetail = () => {
     const res = await fetch(url);
     const text = await res.text();
     const json = yaml.safeLoad(text);
+    console.log('****************');
+    console.log(json);
     if (res.ok) {
       return json;
     } else {

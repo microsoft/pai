@@ -35,10 +35,7 @@ import PropTypes from 'prop-types';
 
 import { JobProtocol } from '../../models/job-protocol';
 import Context from '../context';
-import {
-  getJobComponentsFromConfig,
-  isValidUpdatedTensorBoardExtras,
-} from '../../utils/utils';
+import { getJobComponentsFromConfig } from '../../utils/utils';
 
 export const ImportConfig = React.memo(
   ({ extras, onChange, isSingle, history, setYamlText }) => {
@@ -61,18 +58,6 @@ export const ImportConfig = React.memo(
         updatedSecrets,
         updatedExtras,
       ] = getJobComponentsFromConfig(updatedJob, { vcNames });
-
-      if (extras.tensorBoard) {
-        const updatedTensorBoardExtras = updatedExtras.tensorBoard || {};
-        if (
-          !isValidUpdatedTensorBoardExtras(
-            extras.tensorBoard,
-            updatedTensorBoardExtras,
-          )
-        ) {
-          updatedExtras.tensorBoard = extras.tensorBoard;
-        }
-      }
 
       onChange(
         updatedJobInformation,

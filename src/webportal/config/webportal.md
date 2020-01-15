@@ -18,7 +18,6 @@ For example, if you want to use different port than the default 9286, add follow
 ```yaml
 webportal:
     server-port: new-value
-    log-type: yarn
 ```
 
 About config the web portal plugin, see [PLUGINS.md](../../../docs/webportal/PLUGINS.md)
@@ -30,7 +29,6 @@ After parsing, object model looks like:
 ```yaml
 webportal:
     server-port: 9286
-    log-type: yarn
     uri: "http://master_ip:9286"
 ```
 
@@ -48,12 +46,6 @@ webportal:
     <td>com["webportal"]["server-port"]</td>
     <td>cluster_cfg["webportal"]["server-port"]</td>
     <td>Int</td>
-</tr>
-<tr>
-    <td>webportal.log-type</td>
-    <td>com["webportal"]["log-type"]</td>
-    <td>cluster_cfg["webportal"]["log-type"]</td>
-    <td>String</td>
 </tr>
 <tr>
     <td>webportal.uri</td>

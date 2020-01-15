@@ -19,7 +19,7 @@ import 'core-js/stable';
 import 'regenerator-runtime/runtime';
 import 'whatwg-fetch';
 
-import { FontClassNames } from '@uifabric/styling';
+import { FontClassNames, ColorClassNames } from '@uifabric/styling';
 import c from 'classnames';
 import { isEmpty } from 'lodash';
 import { initializeIcons } from 'office-ui-fabric-react';
@@ -119,7 +119,15 @@ const Index = () => {
       )}
     >
       {/* top */}
-      <div className={c(t.bgBlack, t.pv3, t.ph4, t.flex, t.justifyBetween)}>
+      <div
+        className={c(
+          ColorClassNames.themePrimaryBackground,
+          t.pv3,
+          t.ph4,
+          t.flex,
+          t.justifyBetween,
+        )}
+      >
         <div className={c(FontClassNames.large, t.white)}>Platform for AI</div>
         <div
           className={c(FontClassNames.large, t.white, t.dim, t.pointer)}

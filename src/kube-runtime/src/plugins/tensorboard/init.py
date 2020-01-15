@@ -16,23 +16,58 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-from __future__ import print_function
-
+import logging
 import os
 import sys
-sys.path.append(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
-import logging
 
-from plugin_utils import plugin_init, inject_commands
+from jinja2 import Template
 
-logger = logging.getLogger(__name__)
+sys.path.append(
+    os.path.join(os.path.dirname(os.path.abspath(__file__)), "../.."))
+from plugins.plugin_utils import plugin_init, PluginHelper  #pylint: disable=wrong-import-position
+
+LOGGER = logging.getLogger(__name__)
+TASK_ROLE_NAME = os.getenv("PAI_CURRENT_TASK_ROLE_NAME")
+TASK_ROLE_LIST = os.getenv("PAI_TASK_ROLE_LIST").split(",")
+TASK_ROLE_INDEX = int(os.getenv("PAI_CURRENT_TASK_ROLE_CURRENT_TASK_INDEX"))
+
+
+def generate_tensorboard_commands(template_file, parameters):
+    logdir = ",".join(
+        ["{}:{}".format(k, v) for k, v in parameters["logdir"].items()])
+    with open(template_file) as f:
+        template = Template(f.read())
+    return template.render(logdir=logdir, port=parameters["port"])
+
+
+def main():
+    LOGGER.info("Preparing tensorboard runtime plugin commands")
+
+    [plugin_config, pre_script, _] = plugin_init()
+    parameters = plugin_config.get("parameters")
+
+    if TASK_ROLE_LIST[0] != TASK_ROLE_NAME or TASK_ROLE_INDEX != 0:
+        LOGGER.info(
+            "Not first taskrole or not first task instance, ignore this plugin"
+        )
+        return
+    if not parameters:
+        LOGGER.info("Tensorboard plugin parameters is empty, ignore this")
+        return
+
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    template_file = "{}/tensorboard.sh.template".format(current_dir)
+    with open("{}/tensorboard.sh".format(current_dir), "w+") as f:
+        f.write(generate_tensorboard_commands(template_file, parameters))
+
+    tensorboard_exec_path = "{}/tensorboard.sh".format(current_dir)
+    commands = [
+        "chmod u+x {}".format(tensorboard_exec_path), tensorboard_exec_path
+    ]
+
+    PluginHelper(plugin_config).inject_commands(commands, pre_script)
+    LOGGER.info("Tensorboard runtime plugin perpared")
+
 
 if __name__ == "__main__":
-    [parameters, pre_script, post_script] = plugin_init()
-
-    commands = []
-    if parameters is not None:
-        logdir = ",".join(["{}:{}".format(k, v) for k, v in parameters["logdir"].items()])
-        commands.append("tensorboard --logdir={} --port={} &\n".format(logdir, parameters["port"]))
-
-    inject_commands(commands, pre_script)
+    main()

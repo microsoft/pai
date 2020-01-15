@@ -1,0 +1,11 @@
+user: forexample
+password: forexample
+branch-name: master
+docker-image-tag: quick-start
+
+# Optional
+# docker-registry-domain: docker.io
+# docker-registry-namespace: openpai
+# docker-registry-username: exampleuser
+# docker-registry-password: examplepasswd
+

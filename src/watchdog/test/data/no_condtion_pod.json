@@ -18,7 +18,7 @@
                 },
                 "ownerReferences": [
                     {
-                        "apiVersion": "extensions/v1beta1",
+                        "apiVersion": "apps/v1",
                         "kind": "DaemonSet",
                         "name": "yarn-frameworklauncher-ds",
                         "uid": "b4918fda-8a77-11e8-a8fc-000d3ab25bb6",

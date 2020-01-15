@@ -28,7 +28,7 @@ import { DefaultButton, ColorClassNames } from 'office-ui-fabric-react';
 import { cloneDeep } from 'lodash';
 import PropTypes from 'prop-types';
 
-import { populateProtocolWithDataAndTensorboard } from '../../utils/utils';
+import { populateProtocolWithData } from '../../utils/utils';
 
 const user = cookies.get('user');
 
@@ -57,7 +57,7 @@ export const ExportConfig = React.memo(({ jobData, jobProtocol }) => {
     event.preventDefault();
     const protocol = cloneDeep(jobProtocol);
     try {
-      await populateProtocolWithDataAndTensorboard(user, protocol, jobData);
+      await populateProtocolWithData(user, protocol, jobData);
       _exportFile(
         protocol.toYaml(),
         (protocol.name || 'job') + '.yaml',
