@@ -9,28 +9,3 @@ docker-image-tag: quick-start
 # docker-registry-username: exampleuser
 # docker-registry-password: examplepasswd
 
-physicalCluster:
-  gpuTypes:
-    DT:
-      gpu: {unit-gpu}
-      cpu: {unit-cpu}
-      memory: {unit-mem}
-  cellTypes:
-    DT-NODE:
-      childCellType: DT
-      childCellNumber: {min-gpu}
-      isNodeLevel: true
-    DT-NODE-POOL:
-      childCellType: DT-NODE
-      childCellNumber: {Node-Num}
-  physicalCells:
-  - cellType: DT-NODE-POOL
-    cellChildren:
-    - cellAddress: {node1}
-    - cellAddress: {node2}
-    - cellAddress: {node3}
-virtualClusters:
-  default:
-    virtualCells:
-    - cellType: DT-NODE-POOL.DT-NODE
-      cellNumber: {Node-Num}
