@@ -88,7 +88,7 @@ def get_kubernetes_node_info_from_API():
         api_response = api_instance.list_node(pretty=pretty, timeout_seconds=timeout_seconds)
         for node in api_response.items:
             cpu_resource_allocatable = parse_quantity(node.status.allocatable['cpu'])
-            mem_resource_allocatable = parse_quantity(node.status.allocatable['memory'])
+            mem_resource_allocatable = parse_quantity(node.status.allocatable['memory']) / (1024 * 3)
             gpu_resource_allocatable = parse_quantity(node.status.allocatable['nvidia.com/gpu'])
             node_name = node.metadata.name
             print("{0} {1}".format(node.status.allocatable['cpu'], cpu_resource_allocatable))
