@@ -63,27 +63,27 @@ hivedscheduler:
       gpuTypes:
         DT:
           gpu: 1
-          cpu: {{ env["cfg"]["hived"]["unit-cpu"] }}
-          memory: {{ env["cfg"]["hived"]["unit-mem"] }}
+          cpu: {{ env["hived"]["unit-cpu"] }}
+          memory: {{ env["hived"]["unit-mem"] }}
       cellTypes:
         DT-NODE:
           childCellType: DT
-          childCellNumber: {{ env["cfg"]["hived"]["min-allocatable-gpu"] }}
+          childCellNumber: {{ env["hived"]["min-allocatable-gpu"] }}
           isNodeLevel: true
         DT-NODE-POOL:
           childCellType: DT-NODE
-          childCellNumber: {{ env["cfg"]["hived"]["nodelist"]|length }}
+          childCellNumber: {{ env["hived"]["nodelist"]|length }}
       physicalCells:
       - cellType: DT-NODE-POOL
         cellChildren:
-        {%- for nodename in env["cfg"]["hived"]["nodelist"] %}
+        {%- for nodename in env["hived"]["nodelist"] %}
         - cellAddress: {{nodename}}
         {%- endfor %}
     virtualClusters:
       default:
         virtualCells:
         - cellType: DT-NODE-POOL.DT-NODE
-          cellNumber: {{ env["cfg"]["hived"]["nodelist"]|length }}
+          cellNumber: {{ env["hived"]["nodelist"]|length }}
 
 
 # uncomment following section, if you want to customize the authentication solution.
