@@ -104,8 +104,6 @@ def get_kubernetes_node_info_from_API():
     except ApiException as e:
         logger.error("Exception when calling CoreV1Api->list_node: %s\n" % e)
 
-    print(ret)
-
     return ret
 
 
@@ -113,7 +111,7 @@ def hived_config_prepare(worker_dict, node_resource_dict):
     hived_config = dict()
     hived_config["nodelist"] = []
 
-    min_mem = 100000000 * 1024
+    min_mem = 100000000
     min_gpu = 100000000
     min_cpu = 100000000
 
