@@ -86,7 +86,7 @@ def get_kubernetes_node_info_from_API():
     try:
         api_response = api_instance.list_node(pretty=pretty, timeout_seconds=timeout_seconds)
         for node in api_response.items:
-            pprint(node)
+            pprint(node.status)
     except ApiException as e:
         print("Exception when calling CoreV1Api->list_node: %s\n" % e)
 
