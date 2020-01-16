@@ -169,7 +169,7 @@
         "treeview.storage.nfs.setup.mount.point": "双击以设置 NFS mount point",
         "treeview.storage.nfs.mount": "双击以挂载 NFS",
         "treeview.storage.error": "载入存储时发生错误: {0}",
-        "treeview.storage.nfs.sudo.prompt": "Please enter the password and click 'Finish' to mount.",
+        "treeview.storage.nfs.sudo.prompt": "请输入密码后点击‘完成’以完成挂载。",
         "treeview.joblist.recent": "近期从 VS Code 提交的任务",
         "treeview.joblist.all": "所有任务",
         "treeview.joblist.view": "查看任务详情",
