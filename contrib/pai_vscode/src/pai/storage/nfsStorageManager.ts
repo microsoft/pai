@@ -9,7 +9,7 @@ import { Dictionary } from 'lodash';
 import { IStorageServer } from 'openpai-js-sdk';
 import * as os from 'os';
 import {
-    commands, window, workspace, WorkspaceConfiguration, Terminal
+    commands, window, workspace, Terminal, WorkspaceConfiguration
 } from 'vscode';
 
 import {
@@ -113,7 +113,7 @@ export class NfsStorageManager extends Singleton {
             terminal.sendText(cmdStr);
             const FINISH: string = __('common.finish');
             const CANCEL: string = __('common.cancel');
-            
+
             const result: string | undefined = await window.showWarningMessage(
                 __('util.editjson.prompt'),
                 FINISH,

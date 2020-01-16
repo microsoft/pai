@@ -6,9 +6,9 @@
  */
 
 import * as fs from 'fs-extra';
-import * as os from 'os';
 import { Dictionary } from 'lodash';
 import { IStorageServer } from 'openpai-js-sdk';
+import * as os from 'os';
 import * as path from 'path';
 import { workspace, Uri, WorkspaceConfiguration } from 'vscode';
 
