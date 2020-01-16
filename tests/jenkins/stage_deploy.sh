@@ -49,6 +49,5 @@ python paictl.py cluster k8s-bootup -p /cluster-configuration
 echo "pai" | python paictl.py config push -p /cluster-configuration
 
 # 3. start PAI services
-kubectl create ns pai-storage || true
 echo "pai" | python paictl.py service start
 EOF_DEV_BOX

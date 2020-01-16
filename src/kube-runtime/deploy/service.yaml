@@ -20,6 +20,8 @@ cluster-type:
 
 prerequisite:
   - cluster-configuration
+  - frameworkcontroller
+  - rest-server
 
 template-list:
   - runtime-exit-spec.yaml
