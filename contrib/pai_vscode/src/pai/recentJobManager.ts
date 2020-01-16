@@ -13,7 +13,7 @@ import {
 import { __ } from '../common/i18n';
 import { getSingleton, Singleton } from '../common/singleton';
 
-import { IPAICluster } from './paiInterface';
+import { IPAICluster } from './utility/paiInterface';
 
 import { ClusterManager } from './clusterManager';
 import { JobListTreeDataProvider } from './container/jobListTreeView';

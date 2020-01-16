@@ -54,20 +54,25 @@ class cluster_object_model:
     def get_service_parser(self, service_name, cluster_type):
 
         sys.path.insert(0, '{0}/../../src/{1}/config'.format(package_directory_com, service_name))
-        default_path = "{0}/../../src/{1}/config/{1}.{2}.yaml".format(package_directory_com, service_name, cluster_type)
-        if not file_handler.file_exist_or_not(default_path):
-            default_path = "{0}/../../src/{1}/config/{1}.yaml".format(package_directory_com, service_name)
+        default_path = "{0}/../../src/{1}/config/{1}.yaml".format(package_directory_com, service_name)
 
         # Prepare Service Configuration
         layout = self.layout
-
-        default_service_cfg = []
+        service_type = "common"
+        default_service_cfg = {}
         if file_handler.file_exist_or_not(default_path):
             default_service_cfg = file_handler.load_yaml_config(default_path)
+        if default_service_cfg is not None and "service_type" in default_service_cfg:
+            service_type = default_service_cfg["service_type"]
 
         overwrite_service_cfg = {}
         if self.overwrite_service_configuration is not None and service_name in self.overwrite_service_configuration:
             overwrite_service_cfg = self.overwrite_service_configuration[service_name]
+        if "service_type" in overwrite_service_cfg:
+            service_type = overwrite_service_cfg["service_type"]
+
+        if service_type != "common" and service_type != cluster_type:
+            return None
 
         # Init parser instance
         parser_module = importlib.import_module(service_name.replace("-", "_"))
@@ -128,7 +133,11 @@ class cluster_object_model:
 
         service_model_list = self.get_service_model_list()
         for service_name in service_model_list:
-            parser_dict[service_name] = self.get_service_parser(service_name, cluster_type)
+            parser = self.get_service_parser(service_name, cluster_type)
+            if parser is None:
+                continue
+            parser_dict[service_name] = parser
+
         return self.load_config(parser_dict)
 
     def kubernetes_config(self):

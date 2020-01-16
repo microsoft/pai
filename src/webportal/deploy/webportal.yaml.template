@@ -37,15 +37,21 @@ spec:
         imagePullPolicy: Always
         env:
         - name: LAUNCHER_TYPE
-          value: {{ cluster_cfg['rest-server']['launcher-type'] }}
+          value: {{ cluster_cfg["cluster"]["common"]["cluster-type"] }}
         - name: REST_SERVER_URI
           value: {{ cluster_cfg['rest-server']['uri'] }}
         - name: PROMETHEUS_URI
           value: {{ cluster_cfg['prometheus']['url'] }}
         - name: LOG_TYPE
-          value: {{ cluster_cfg['webportal']['log-type'] }}
+{%- if cluster_cfg["cluster"]["common"]["cluster-type"] == "k8s" %}
+          value: log-manager
+{%- else %}
+          value: yarn
+{%- endif %}
+{%- if cluster_cfg["cluster"]["common"]["cluster-type"] == "yarn" %}
         - name: YARN_WEB_PORTAL_URI
           value: http://{{ cluster_cfg['hadoop-resource-manager']['master-ip'] }}:8088
+{%- endif %}
         - name: GRAFANA_URI
           value: {{ cluster_cfg['grafana']['url'] }}
         - name: K8S_DASHBOARD_URI

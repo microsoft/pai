@@ -71,7 +71,7 @@ spec:
         - name: NVIDIA_VISIBLE_DEVICES
           value: all
         - name: LAUNCHER_TYPE
-          value: {{ cluster_cfg['rest-server']['launcher-type'] }}
+          value: {{ cluster_cfg["cluster"]["common"]["cluster-type"] }}
         {%- if cluster_cfg['cluster']['common']['deploy-in-aks'] == "true" %}
         - name: DEPLOY_ENV
           value: aks

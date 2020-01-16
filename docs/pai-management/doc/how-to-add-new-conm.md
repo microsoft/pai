@@ -35,6 +35,14 @@ src/${service_name}/config/${service_name}.yaml
 
 ${service_name}.yaml
 ```yaml
+# The key `service_type` is designed for cluster-object-model. And don't use it in other place.
+# Now, you could configure this key with one of ['yarn', 'common', 'k8s'].
+# When service_type is yarn, the service's configuration will be generated if the cluster-type is yarn.
+# When service_type is k8s, the service's configuration will be generated if the cluster-type is k8s.
+# When service_type is common, the service's configuration will be generated in both of the cluster-type.
+# If the key is missing, default value will be 'common'.
+service_type: "yarn"
+
 # key : value
 service-a-key1: default—value1
 

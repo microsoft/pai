@@ -23,7 +23,7 @@ import React from 'react';
 import t from 'tachyons-sass/tachyons.scss';
 
 const Bottom = () => (
-  <div className={c(t.bgWhite, t.pt5, t.pb6, t.ph6, t.flexL)}>
+  <div className={c(t.bgWhite, t.pt5, t.pb6, t.ph6, t.flexL, t.center)}>
     <div
       className={c(
         t.w33L,
@@ -56,7 +56,7 @@ const Bottom = () => (
         target='_blank'
         style={{ fontWeight: FontWeights.semibold }}
       >
-        Learn more
+        Learn more &gt;
       </Link>
     </div>
     <div
@@ -94,7 +94,7 @@ const Bottom = () => (
         target='_blank'
         style={{ fontWeight: FontWeights.semibold }}
       >
-        Learn more
+        Learn more &gt;
       </Link>
     </div>
     <div
@@ -115,7 +115,7 @@ const Bottom = () => (
           className={c(FontClassNames.xxLarge)}
           style={{ fontWeight: FontWeights.semibold }}
         >
-          Use VS Code Extension to work with Jobs
+          Use VS Code Extension
         </div>
         <div
           className={c(FontClassNames.mediumPlus, t.lhCopy, t.mv4)}
@@ -131,7 +131,7 @@ const Bottom = () => (
         target='_blank'
         style={{ fontWeight: FontWeights.semibold }}
       >
-        Learn more
+        Learn more &gt;
       </Link>
     </div>
   </div>

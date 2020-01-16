@@ -34,41 +34,30 @@ import { PROTOCOL_TOOLTIPS } from '../../utils/constants';
 import config from '../../../config/webportal.config';
 
 export const ToolComponent = React.memo(
-  ({ jobData, taskRoles, extras, onExtrasChange, selected, onSelect }) => {
+  ({ extras, onExtrasChange, selected, onSelect }) => {
     return (
-      <SidebarCard
-        title='Tools'
-        tooltip={PROTOCOL_TOOLTIPS.tools}
-        selected={selected}
-        onSelect={onSelect}
-      >
-        <Stack gap='m'>
-          <Hint>
-            Tools section is used to configure the tools that are useful for
-            jobs.
-          </Hint>
-          <div>
-            <TensorBoard
-              jobData={jobData}
-              taskRoles={taskRoles}
-              extras={extras}
-              onChange={onExtrasChange}
-            />
-          </div>
-          {config.launcherType === 'k8s' && (
-            <div>
-              <JobSSH extras={extras} onExtrasChange={onExtrasChange} />
-            </div>
-          )}
-        </Stack>
-      </SidebarCard>
+      config.launcherType === 'k8s' && (
+        <SidebarCard
+          title='Tools'
+          tooltip={PROTOCOL_TOOLTIPS.tools}
+          selected={selected}
+          onSelect={onSelect}
+        >
+          <Stack gap='m'>
+            <Hint>
+              Tools section is used to configure the tools that are useful for
+              jobs.
+            </Hint>
+            <TensorBoard extras={extras} onChange={onExtrasChange} />
+            <JobSSH extras={extras} onExtrasChange={onExtrasChange} />
+          </Stack>
+        </SidebarCard>
+      )
     );
   },
 );
 
 ToolComponent.propTypes = {
-  jobData: PropTypes.object.isRequired,
-  taskRoles: PropTypes.array.isRequired,
   extras: PropTypes.object,
   onExtrasChange: PropTypes.func.isRequired,
   selected: PropTypes.bool,

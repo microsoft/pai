@@ -26,8 +26,6 @@ export const CUSTOM_STORAGE_START = '`#CUSTOM_STORAGE_START`';
 export const CUSTOM_STORAGE_END = '`#CUSTOM_STORAGE_END`';
 export const TEAMWISE_DATA_CMD_START = '`#TEAMWISE_STORAGE_START`';
 export const TEAMWISE_DATA_CMD_END = '`#TEAMWISE_STORAGE_END`';
-export const TENSORBOARD_CMD_START = '`#TENSORBOARD_START`';
-export const TENSORBOARD_CMD_END = '`#TENSORBOARD_END`';
 export const AUTO_GENERATE_NOTIFY =
   '`#Auto generated code, please do not modify`';
 export const PAI_ENV_VAR = [
@@ -155,7 +153,7 @@ export const DEFAULT_DOCKER_URI = 'openpai/tensorflow-py36-cu90';
 // For PAI runtime only
 export const PAI_PLUGIN = 'com.microsoft.pai.runtimeplugin';
 
-export const PAI_STORAGE = 'pai.storage';
+export const STORAGE_PLUGIN = 'teamwise_storage';
 
 export const SSH_KEY_BITS = 1024;
 

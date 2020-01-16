@@ -3,7 +3,7 @@
 # OpenPAI Job Protocol YAML
 
 protocolVersion: String, required # Protocol version, current version is 2.
-name: String, required # String in ^([a-zA-Z0-9][a-zA-Z0-9_-]*)?[a-zA-Z0-9]$ format, no longer than 63 characters.
+name: String, required # String in ^[a-zA-Z0-9_-]+$ format.
 type: String, required # Component type, should be "job" here.
 version: String, optional # Component version, default is latest.
 contributor: String, optional

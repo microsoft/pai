@@ -29,7 +29,7 @@ RUN ${PROJECT_DIR}/build/runtime/go-build.sh && \
 
 FROM python:3.7-alpine
 
-RUN pip install kubernetes pyyaml requests
+RUN pip install kubernetes pyyaml requests jinja2
 
 ENV INSTALL_DIR=/opt/kube-runtime
 ARG BARRIER_DIR=/opt/frameworkcontroller/frameworkbarrier

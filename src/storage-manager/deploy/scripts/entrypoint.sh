@@ -32,16 +32,9 @@ cp /etc/pai-config/smb.conf /etc/samba/smb.conf
 
 # install krb5 and join domain
 if [[ $SECURETYPE == "ADS" ]]; then
-  echo "install krb5 ----------"
+  echo "init krb5 ----------"
   cp /etc/pai-config/krb5.conf /etc/krb5.conf
   cp /etc/pai-config/nsswitch.conf /etc/nsswitch.conf
-  apt update && apt install -y \
-    winbind \
-    libpam-winbind \
-    libnss-winbind \
-    libpam-krb5 \
-    krb5-config \
-    krb5-user
   echo "join domain ----------"
   net ads join -U "$DOMAINUSER"%"$DOMAINPWD"
   echo "domain info ----------"

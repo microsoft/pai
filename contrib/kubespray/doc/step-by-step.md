@@ -1,0 +1,2 @@
+- [kubrnetes deployment](./step-by-step-k8s.md)
+- [OpenPAI service deployment](./step-by-step-openpai.md)

@@ -33,8 +33,7 @@ const baseSchema = {
     },
     name: {
       type: 'string',
-      pattern: '^([a-zA-Z0-9][a-zA-Z0-9_-]*)?[a-zA-Z0-9]$',
-      maxLength: 63,
+      pattern: '^[a-zA-Z0-9_-]+$',
     },
     version: {
       type: ['string', 'number'],

@@ -18,12 +18,15 @@ data:
       ]
     }
 ---
-apiVersion: extensions/v1beta1
+apiVersion: apps/v1
 kind: DaemonSet
 metadata:
   name: k8s-host-device-plugin-daemonset
   namespace: kube-system
 spec:
+  selector:
+    matchLabels:
+      name: k8s-host-device-plugin-ds
   template:
     metadata:
       annotations:

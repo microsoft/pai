@@ -39,13 +39,13 @@ import { getSingleton, Singleton } from '../common/singleton';
 import { Util } from '../common/util';
 
 import { getClusterIdentifier, ClusterManager } from './clusterManager';
-import { ClusterExplorerChildNode } from './configurationTreeDataProvider';
-import { getHDFSUriAuthority, HDFS, HDFSFileSystemProvider } from './hdfs';
-import { IPAICluster, IPAIJobConfigV1, IPAIJobConfigV2, IPAITaskRole } from './paiInterface';
-import { PAIRestUri, PAIWebPortalUri } from './paiUri';
+import { ClusterExplorerChildNode } from './container/configurationTreeDataProvider';
 import { RecentJobManager } from './recentJobManager';
-import { YamlJobConfigCompletionProvider } from './yamlJobConfigCompletionProvider';
-import { registerYamlSchemaSupport } from './yamlSchemaSupport';
+import { getHDFSUriAuthority, HDFS, HDFSFileSystemProvider } from './storage/hdfs';
+import { IPAICluster, IPAIJobConfigV1, IPAIJobConfigV2, IPAITaskRole } from './utility/paiInterface';
+import { PAIRestUri, PAIWebPortalUri } from './utility/paiUri';
+import { YamlJobConfigCompletionProvider } from './yaml/yamlJobConfigCompletionProvider';
+import { registerYamlSchemaSupport } from './yaml/yamlSchemaSupport';
 
 interface ITokenItem {
     token: string;
@@ -872,9 +872,12 @@ export class PAIJobManager extends Singleton {
         }
     }
 
-    private async prepareJobParam({ jobConfigPath, clusterIndex }: IJobInput): Promise<IJobParam | undefined> {
+    private async prepareJobParam(jobInput: IJobInput): Promise<IJobParam | undefined> {
         const result: Partial<IJobParam> = {};
         // 1. job config
+        await this.prepareJobConfigPath(jobInput);
+        const jobConfigPath: string | undefined = jobInput.jobConfigPath;
+        const clusterIndex: number | undefined = jobInput.clusterIndex;
         const jobVersion: number = (jobConfigPath!.toLowerCase().endsWith('yaml') || jobConfigPath!.toLowerCase().endsWith('yml')) ? 2 : 1;
         result.jobVersion = jobVersion;
         let config: IPAIJobConfigV1 | IPAIJobConfigV2;

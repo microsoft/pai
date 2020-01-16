@@ -15,7 +15,7 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-
+{% if cluster_cfg["cluster"]["common"]["cluster-type"] == "k8s" %}
 {% for spec_item in cluster_cfg['k8s-job-exit-spec']['spec'] %}
 - code: {{ spec_item['code'] }}
 {%- if 'phrase' in spec_item %}
@@ -59,7 +59,7 @@
   {%- if 'controllerPodPatterns' in spec_item['pattern'] %}
     controllerPodPatterns:
     {%- for pod_pattern in spec_item['pattern']['controllerPodPatterns'] %}
-    - 
+    -
       {%- if 'reasonRegex' in pod_pattern %}
       reasonRegex: '{{ pod_pattern['reasonRegex'] }}'
       {%- endif %}
@@ -69,7 +69,7 @@
       {%- if 'containers' in pod_pattern %}
       containers:
       {%- for container in pod_pattern['containers'] %}
-      - 
+      -
         {%- if 'nameRegex' in container %}
         nameRegex: '{{ container['nameRegex'] }}'
         {%- endif %}
@@ -89,7 +89,7 @@
   {%- if 'runtimeContainerPatterns' in spec_item['pattern'] %}
     runtimeContainerPatterns:
     {%- for runtime_pattern in spec_item['pattern']['runtimeContainerPatterns'] %}
-    - 
+    -
       {%- if 'exitCode' in runtime_pattern %}
       exitCode: {{ runtime_pattern['exitCode'] }}
       {%- endif %}
@@ -104,3 +104,4 @@
 {%- endif %}
 
 {% endfor %}
+{% endif %}

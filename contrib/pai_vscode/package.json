@@ -76,8 +76,18 @@
                 "category": "PAI"
             },
             {
-                "command": "paiext.hdfs.open",
-                "title": "%paiext.hdfs.open%",
+                "command": "paiext.storage.personal.delete",
+                "title": "%paiext.storage.personal.delete%",
+                "category": "PAI"
+            },
+            {
+                "command": "paiext.storage.personal.edit",
+                "title": "%paiext.storage.personal.edit%",
+                "category": "PAI"
+            },
+            {
+                "command": "paiext.storage.open",
+                "title": "%paiext.storage.open%",
                 "category": "PAI"
             },
             {
@@ -93,6 +103,26 @@
             {
                 "command": "paiext.hdfs.download",
                 "title": "%paiext.hdfs.download%",
+                "category": "PAI"
+            },
+            {
+                "command": "paiext.storage.delete",
+                "title": "%paiext.storage.delete%",
+                "category": "PAI"
+            },
+            {
+                "command": "paiext.storage.upload.files",
+                "title": "%paiext.storage.upload.files%",
+                "category": "PAI"
+            },
+            {
+                "command": "paiext.storage.create.folder",
+                "title": "%paiext.storage.create.folder%",
+                "category": "PAI"
+            },
+            {
+                "command": "paiext.storage.download",
+                "title": "%paiext.storage.download%",
                 "category": "PAI"
             },
             {
@@ -128,6 +158,11 @@
                 "category": "PAI"
             },
             {
+                "command": "paiext.storage.personal.add",
+                "title": "%paiext.storage.personal.add%",
+                "category": "PAI"
+            },
+            {
                 "command": "paiext.container.hdfs.refresh",
                 "title": "%paiext.common.refresh%",
                 "icon": {
@@ -139,6 +174,23 @@
             {
                 "command": "paiext.container.hdfs.back",
                 "title": "%paiext.container.hdfs.back%",
+                "icon": {
+                    "light": "icons/octicon/home.svg",
+                    "dark": "icons/octicon/home_dark.svg"
+                }
+            },
+            {
+                "command": "paiext.container.storage.refresh",
+                "title": "%paiext.common.refresh%",
+                "icon": {
+                    "light": "icons/refresh_light.svg",
+                    "dark": "icons/refresh_dark.svg"
+                },
+                "category": "PAI"
+            },
+            {
+                "command": "paiext.container.storage.back",
+                "title": "%paiext.container.storage.back%",
                 "icon": {
                     "light": "icons/octicon/home.svg",
                     "dark": "icons/octicon/home_dark.svg"
@@ -170,6 +222,10 @@
                 }
             ],
             "PAIContainer": [
+                {
+                    "id": "PAIContainerStorage",
+                    "name": "%container.storage.title%"
+                },
                 {
                     "id": "PAIContainerHDFS",
                     "name": "%container.hdfs.title%"
@@ -257,6 +313,16 @@
                     "group": "navigation"
                 },
                 {
+                    "command": "paiext.container.storage.refresh",
+                    "when": "view == PAIContainerStorage",
+                    "group": "navigation"
+                },
+                {
+                    "command": "paiext.container.storage.back",
+                    "when": "view == PAIContainerStorage",
+                    "group": "navigation"
+                },
+                {
                     "command": "paiext.container.joblist.refresh",
                     "when": "view == PAIContainerJobList",
                     "group": "navigation"
@@ -320,6 +386,18 @@
                     "when": "view == PAIExplorer && viewItem == PAIConfiguration"
                 },
                 {
+                    "command": "paiext.storage.personal.edit",
+                    "when": "view == PAIContainerStorage && viewItem == PAIStoragePersonalItem"
+                },
+                {
+                    "command": "paiext.storage.personal.delete",
+                    "when": "view == PAIContainerStorage && viewItem == PAIStoragePersonalItem"
+                },
+                {
+                    "command": "paiext.storage.personal.add",
+                    "when": "view == PAIContainerStorage && viewItem == PAIStoragePersonalRoot"
+                },
+                {
                     "command": "paiext.container.hdfs.mkdir",
                     "when": "view == PAIContainerHDFS && viewItem && viewItem != PAIHdfsFile",
                     "group": "1@1"
@@ -347,6 +425,81 @@
                 {
                     "command": "paiext.cluster.job.list",
                     "when": "view == PAIContainerJobList && viewItem && viewItem == PAIJobListCluster"
+                },
+                {
+                    "command": "paiext.container.storage.refresh",
+                    "when": "view == PAIContainerStorage && viewItem && viewItem == PAIStorageTeamItem",
+                    "group": "refresh"
+                },
+                {
+                    "command": "paiext.container.storage.refresh",
+                    "when": "view == PAIContainerStorage && viewItem && viewItem == PAIStorageMountPointItem",
+                    "group": "refresh"
+                },
+                {
+                    "command": "paiext.container.storage.refresh",
+                    "when": "view == PAIContainerStorage && viewItem && viewItem == PAIStorageFolder",
+                    "group": "refresh"
+                },
+                {
+                    "command": "paiext.container.storage.refresh",
+                    "when": "view == PAIContainerStorage && viewItem && viewItem == PAIStorageClusterRoot",
+                    "group": "refresh"
+                },
+                {
+                    "command": "paiext.container.storage.refresh",
+                    "when": "view == PAIContainerStorage && viewItem && viewItem == PAIStoragePersonalRoot",
+                    "group": "refresh"
+                },
+                {
+                    "command": "paiext.container.storage.refresh",
+                    "when": "view == PAIContainerStorage && viewItem && viewItem == PAIStoragePersonalItem",
+                    "group": "refresh"
+                },
+                {
+                    "command": "paiext.storage.delete",
+                    "when": "view == PAIContainerStorage && viewItem && viewItem == PAIStorageFile",
+                    "group": "delete"
+                },
+                {
+                    "command": "paiext.storage.delete",
+                    "when": "view == PAIContainerStorage && viewItem && viewItem == PAIStorageFolder",
+                    "group": "delete"
+                },
+                {
+                    "command": "paiext.storage.upload.files",
+                    "when": "view == PAIContainerStorage && viewItem && viewItem == PAIStorageFolder",
+                    "group": "upload"
+                },
+                {
+                    "command": "paiext.storage.upload.files",
+                    "when": "view == PAIContainerStorage && viewItem && viewItem == PAIStorageMountPointItem",
+                    "group": "upload"
+                },
+                {
+                    "command": "paiext.storage.upload.files",
+                    "when": "view == PAIContainerStorage && viewItem && viewItem == PAIStoragePersonalItem",
+                    "group": "upload"
+                },
+                {
+                    "command": "paiext.storage.create.folder",
+                    "when": "view == PAIContainerStorage && viewItem && viewItem == PAIStorageFolder",
+                    "group": "mkdir"
+                },
+                {
+                    "command": "paiext.storage.create.folder",
+                    "when": "view == PAIContainerStorage && viewItem && viewItem == PAIStorageMountPointItem",
+                    "group": "mkdir"
+                },
+                {
+                    "command": "paiext.storage.create.folder",
+                    "when": "view == PAIContainerStorage && viewItem && viewItem == PAIStoragePersonalItem",
+                    "group": "mkdir"
+                },
+                {
+                    "command": "paiext.storage.download",
+                    "when": "view == PAIContainerStorage && viewItem && viewItem == PAIStorageFile",
+                    "group": "azure@5"
                 }
             ]
         },
@@ -448,6 +601,7 @@
         "vscode": "^1.1.36"
     },
     "dependencies": {
+        "@azure/storage-blob": "^12.0.1",
         "ajv": "^6.5.4",
         "fs-extra": "^7.0.0",
         "globalize": "^1.4.0",
@@ -459,7 +613,7 @@
         "jsonc-parser": "^2.1.1",
         "lodash": "^4.17.15",
         "node-yaml-parser": "^0.0.9",
-        "openpai-js-sdk": "yiyione/pai#openpai-js-sdk",
+        "openpai-js-sdk": "microsoft/pai#openpai-js-sdk",
         "opn": "^5.4.0",
         "reflect-metadata": "^0.1.12",
         "request": "^2.88.0",

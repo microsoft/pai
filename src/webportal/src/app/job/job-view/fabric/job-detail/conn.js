@@ -16,7 +16,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 import yaml from 'js-yaml';
-import { isNil } from 'lodash';
+import { isNil, get } from 'lodash';
 
 import { clearToken } from '../../../../user/user-logout/user-logout.component';
 import { checkToken } from '../../../../user/user-auth/user-auth.component';
@@ -146,22 +146,23 @@ export async function fetchSshInfo() {
 export function getTensorBoardUrl(jobInfo, rawJobConfig) {
   let port = null;
   let ip = null;
-  if (rawJobConfig.extras && rawJobConfig.extras.tensorBoard) {
-    const randomStr = rawJobConfig.extras.tensorBoard.randomStr;
-    const tensorBoardPortStr = `tensorBoardPort_${randomStr}`;
-    const taskRoles = jobInfo.taskRoles;
-    Object.keys(taskRoles).forEach(taskRoleKey => {
-      const taskStatuses = taskRoles[taskRoleKey].taskStatuses[0];
-      if (
-        taskStatuses.taskState === 'RUNNING' &&
-        taskStatuses.containerPorts &&
-        !isNil(taskStatuses.containerPorts[tensorBoardPortStr])
-      ) {
-        port = taskStatuses.containerPorts[tensorBoardPortStr];
-        ip = taskStatuses.containerIp;
-      }
-    });
+  const tensorBoardPlugin = get(
+    rawJobConfig,
+    ['extras', 'com.microsoft.pai.runtimeplugin'],
+    [],
+  ).find(plugin => plugin.plugin === 'tensorboard');
+  if (isNil(tensorBoardPlugin)) {
+    return null;
   }
+
+  const taskRoles = jobInfo.taskRoles;
+  const firstTaskRoleName = Object.keys(taskRoles)[0];
+  const taskStatuses = taskRoles[firstTaskRoleName].taskStatuses[0];
+  if (taskStatuses.taskState === 'RUNNING') {
+    port = get(tensorBoardPlugin, 'parameters.port');
+    ip = taskStatuses.containerIp;
+  }
+
   if (isNil(port) || isNil(ip)) {
     return null;
   }

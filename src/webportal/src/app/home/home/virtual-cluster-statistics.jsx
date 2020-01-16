@@ -24,8 +24,8 @@ import {
   DetailsListLayoutMode,
   SelectionMode,
   StackItem,
-  Text,
-  DefaultButton,
+  FontClassNames,
+  Link,
 } from 'office-ui-fabric-react';
 import React, { useMemo } from 'react';
 
@@ -45,6 +45,7 @@ const getResouceUtilization = (used, total) => {
   return used / total;
 };
 
+const isAdmin = cookies.get('admin') === 'true';
 const vcListColumns = [
   {
     key: 'name',
@@ -55,9 +56,18 @@ const vcListColumns = [
     onRender(vc) {
       return (
         <Stack verticalAlign='center' verticalFill>
-          <Text variant='mediumPlus'>
-            {vc.dedicated ? vc.name + ' (dedicated)' : vc.name}
-          </Text>
+          {isAdmin ? (
+            <Link
+              href={'/job-list.html?vcName=' + vc.name}
+              className={FontClassNames.mediumPlus}
+            >
+              {vc.dedicated ? vc.name + ' (dedicated)' : vc.name}
+            </Link>
+          ) : (
+            <div className={FontClassNames.mediumPlus}>
+              {vc.dedicated ? vc.name + ' (dedicated)' : vc.name}
+            </div>
+          )}
         </Stack>
       );
     },
@@ -86,7 +96,7 @@ const vcListColumns = [
   },
   {
     key: 'detail',
-    minWidth: 230,
+    minWidth: 200,
     name: 'Detail',
     isResizable: true,
     onRender(vc) {
@@ -141,46 +151,6 @@ const vcListColumns = [
     },
   },
 ];
-
-const action = {
-  key: 'action',
-  minWidth: 50,
-  name: 'Action',
-  isResizable: true,
-  onRender(vc) {
-    return (
-      <div
-        style={{
-          height: '100%',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'left',
-        }}
-        data-selection-disabled
-      >
-        <DefaultButton
-          styles={{
-            root: {
-              backgroundColor: '#e5e5e5',
-              minWidth: 50,
-            },
-            rootFocused: { backgroundColor: '#e5e5e5' },
-            rootDisabled: { backgroundColor: '#eeeeee' },
-            rootCheckedDisabled: { backgroundColor: '#eeeeee' },
-          }}
-          href={'/job-list.html?vcName=' + vc.name}
-        >
-          View
-        </DefaultButton>
-      </div>
-    );
-  },
-};
-
-const isAdmin = cookies.get('admin') === 'true';
-if (isAdmin) {
-  vcListColumns.push(action);
-}
 
 export const VirtualClusterDetailsList = props => {
   const virtualClusters = props.virtualClusters;
