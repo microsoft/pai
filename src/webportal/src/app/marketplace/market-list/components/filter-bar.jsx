@@ -61,15 +61,7 @@ export const FilterBar = () => {
         horizontal
         verticalAlign='stretch'
         horizontalAlign='space-between'
-        styles={{
-          root: [
-            ColorClassNames.neutralLightBackground,
-            {
-              marginTop: spacing.s2,
-              padding: spacing.m,
-            },
-          ],
-        }}
+
       >
         <SearchBox
           underlined={true}

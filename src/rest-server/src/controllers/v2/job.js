@@ -85,7 +85,6 @@ const execute = asyncHandler(async (req, res) => {
 const getConfig = asyncHandler(async (req, res) => {
   try {
     const data = await job.getConfig(req.params.frameworkName);
-    console.log(data);
     return res.status(200).type('text/yaml').send(data);
   } catch (error) {
     if (error.message.startsWith('[WebHDFS] 404')) {
