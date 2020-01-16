@@ -19,8 +19,8 @@ import { PersonalStorageManager } from '../../storage/personalStorageManager';
 import { StorageTreeNode } from '../common/treeNode';
 
 import { AzureBlobRootItem } from './azureBlobTreeItem';
-import { SambaRootNode } from './SambaTreeItem';
 import { NfsRootNode } from './NfsTreeItem';
+import { SambaRootNode } from './SambaTreeItem';
 
 /**
  * PAI personal storage tree node.
