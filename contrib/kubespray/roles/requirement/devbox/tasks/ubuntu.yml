@@ -1,5 +1,4 @@
 ---
-
 - name: 1. Check if docker is installed on your dev-box or not.
   raw: command -v docker
   register: command_docker
