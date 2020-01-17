@@ -84,7 +84,7 @@ def generate_template_file(template_file_path, output_path, map_table):
     write_generated_file(output_path, generated_template)
 
 
-def get_kubernetes_node_info_from_API(worker_dict):
+def get_kubernetes_node_info_from_API():
     config.load_kube_config()
     api_instance = client.CoreV1Api()
 
@@ -96,12 +96,13 @@ def get_kubernetes_node_info_from_API(worker_dict):
     try:
         api_response = api_instance.list_node(pretty=pretty, timeout_seconds=timeout_seconds)
         for node in api_response.items:
-            if node.metadata.name not in worker_dict:
-                continue
+            gpu_resource = 0
+            if 'nvidia.com/gpu' in node.status.allocatable:
+                gpu_resource = int(parse_quantity(node.status.allocatable['nvidia.com/gpu']))
             ret[node.metadata.name] = {
                 "cpu-resource": int(parse_quantity(node.status.allocatable['cpu'])),
                 "mem-resource": int(parse_quantity(node.status.allocatable['memory']) / 1024 / 1024 ),
-                "gpu-resource": int(parse_quantity(node.status.allocatable['nvidia.com/gpu'])),
+                "gpu-resource": gpu_resource,
             }
     except ApiException as e:
         logger.error("Exception when calling CoreV1Api->list_node: %s\n" % e)
@@ -109,7 +110,7 @@ def get_kubernetes_node_info_from_API(worker_dict):
     return ret
 
 
-def hived_config_prepare(node_resource_dict):
+def hived_config_prepare(worker_dict, node_resource_dict):
     hived_config = dict()
     hived_config["nodelist"] = []
 
@@ -118,6 +119,8 @@ def hived_config_prepare(node_resource_dict):
     min_cpu = 100000000
 
     for key in node_resource_dict:
+        if key not in worker_dict:
+            continue
         if node_resource_dict[key]["gpu-resource"] == 0:
             logger.error("Allocatable GPU number in {0} is 0, Hived doesn't support worker node with 0 GPU".format(key))
             logger.error("Please remove {0} from your workerlist, or check if the NVIDIA device plugin is running healthy on the node.".format(key))
@@ -156,8 +159,8 @@ def main():
     head_node = master_list[0]
 
     worker_dict = csv_reader_ret_dict(args.worklist)
-    node_resource_dict = get_kubernetes_node_info_from_API(worker_dict)
-    hived_config = hived_config_prepare(node_resource_dict)
+    node_resource_dict = get_kubernetes_node_info_from_API()
+    hived_config = hived_config_prepare(worker_dict, node_resource_dict)
 
     environment = {
         'master': master_list,
