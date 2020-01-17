@@ -20,7 +20,6 @@ echo "OpenPAI Image Tag ${OPENPAI_IMAGE_TAG}"
 
 sudo docker run -itd \
         -e COLUMNS=$COLUMNS -e LINES=$LINES -e TERM=$TERM \
-        -e BRANCH_NAME=${OPENPAI_BRANCH_NAME} \
         -v /var/run/docker.sock:/var/run/docker.sock \
         -v ${HOME}/pai-deploy/quick-start-config/:/quick-start-config \
         -v ${HOME}/pai-deploy/cluster-cfg:/cluster-configuration  \
@@ -47,9 +46,9 @@ cd /root
 git clone https://github.com/microsoft/pai.git
 cd pai
 
-echo "branch name: ${BRANCH_NAME}"
+echo "branch name: ${OPENPAI_BRANCH_NAME}"
 
-git checkout ${BRANCH_NAME}
+git checkout ${OPENPAI_BRANCH_NAME}
 git pull
 
 kubectl apply --overwrite=true -f https://raw.githubusercontent.com/NVIDIA/k8s-device-plugin/1.0.0-beta4/nvidia-device-plugin.yml || exit $?
