@@ -18,6 +18,7 @@ release-2.11
         - Server can communicate with all other machine (infra and worker)
         - SSH service is enabled and share the same username/password and have sudo privilege
         - Passwordless ssh to all other machine (infra and worker)
+        - Be separate from cluster which contains infra machines and worker machines   
     - OpenPAI Requirement
         - Docker is installed, and it is used to start up dev-box container for service deployment
     

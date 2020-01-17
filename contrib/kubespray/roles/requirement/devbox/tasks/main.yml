@@ -1,0 +1,20 @@
+---
+- name: Output dev-box's os distribution
+  debug:
+    var: ansible_distribution
+
+- name: output dev-box's os distribution version
+  debug:
+    var: ansible_distribution_version
+
+#- name: Check ubuntu requirement. OpenPAI only supports ubuntu now.
+#  include_tasks: ubuntu.yml
+#  when: '"ubuntu" in os_release.stdout'
+
+#- name: Dev-box's os is not ubuntu.
+#  fail:
+#    msg: 'Please ensure your devbox os is ubuntu 16.04 lts. 18.04 should be ok, but have not tested it yet'
+#  when: '"ubuntu" not in os_release.stdout'
+
+
+

@@ -1,0 +1,14 @@
+---
+- hosts: localhost
+  roles:
+    - { role: requirement/devbox }
+
+#- hosts: infra
+#  gather_facts: false
+#  roles:
+#    - { role: requirement/infra }
+
+#- hosts: worker
+#  gather_facts: false
+#  roles:
+#    - { role: requirement/worker }
