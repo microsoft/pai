@@ -15,7 +15,8 @@ import { IPAICluster } from '../../utility/paiInterface';
 import { StorageTreeNode } from '../common/treeNode';
 
 import { AzureBlobRootItem } from './azureBlobTreeItem';
-import { SambaRootNode } from './sambaTreeItem';
+import { NfsRootNode } from './NfsTreeItem';
+import { SambaRootNode } from './SambaTreeItem';
 
 /**
  * PAI storage mount point tree node.
@@ -23,8 +24,7 @@ import { SambaRootNode } from './sambaTreeItem';
 export class MountPointTreeNode extends StorageTreeNode {
     public contextValue: string = CONTEXT_STORAGE_MOUNTPOINT_ITEM;
     public data: StorageTreeNode;
-
-    private cluster: IPAICluster;
+    public cluster: IPAICluster;
 
     constructor(
         info: IMountInfo,
@@ -67,7 +67,7 @@ export class MountPointTreeNode extends StorageTreeNode {
             case 'azurefile':
                 return new StorageTreeNode('Azure File');
             case 'nfs':
-                return new StorageTreeNode('NFS');
+                return new NfsRootNode(server, this.getRootPath(info, this.cluster), this);
             case 'samba':
                 return new SambaRootNode(server, this.getRootPath(info, this.cluster), this);
             default:

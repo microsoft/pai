@@ -43,5 +43,6 @@
     "config.job.jobList.recentJobsLength": "Controls the number of recently submitted jobs to keep in history for each PAI cluster",
     "config.job.jobList.allJobsPageSize": "Controls the page size of list when listing jobs for each PAI cluster",
     "config.job.jobList.refreshInterval": "Controls the refresh interval of job list (in seconds)",
-    "config.hdfs.location": "Location where hdfs explorer will be shown"
+    "config.hdfs.location": "Location where hdfs explorer will be shown",
+    "pai.storage.nfs.mountPoint": "OpenPAI NFS storage mount point, '<clusterName>_<storageName>: <path>'"
 }

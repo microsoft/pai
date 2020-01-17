@@ -32,6 +32,8 @@ export const COMMAND_STORAGE_UPLOAD_FOLDERS = 'paiext.storage.upload.folders';
 export const COMMAND_STORAGE_DOWNLOAD = 'paiext.storage.download';
 export const COMMAND_STORAGE_DELETE = 'paiext.storage.delete';
 export const COMMAND_STORAGE_OPEN_FILE = 'paiext.storage.open.file';
+export const COMMAND_STORAGE_NFS_MOUNT_POINT = 'paiext.storage.nfs.setup.mount.point';
+export const COMMAND_STORAGE_NFS_MOUNT = 'paiext.storage.nfs.mount';
 export const COMMAND_OPEN_DASHBOARD = 'paiext.cluster.dashboard.open';
 export const COMMAND_LIST_JOB = 'paiext.cluster.job.list';
 export const COMMAND_VIEW_JOB = 'paiext.cluster.job.view';
@@ -69,6 +71,7 @@ export const CONTEXT_STORAGE_MOUNTPOINT_ITEM = 'PAIStorageMountPointItem';
 export const CONTEXT_STORAGE_PERSONAL_ROOT = 'PAIStoragePersonalRoot';
 export const CONTEXT_STORAGE_PERSONAL_ITEM = 'PAIStoragePersonalItem';
 export const CONTEXT_STORAGE_SAMBA = 'PAIStorageSamba';
+export const CONTEXT_STORAGE_NFS = 'PAIStorageNFS';
 export const CONTEXT_STORAGE_AZURE_BLOB = 'PAIStorageAzureBlob';
 export const CONTEXT_STORAGE_FILE = 'PAIStorageFile';
 export const CONTEXT_STORAGE_FOLDER = 'PAIStorageFolder';
@@ -93,6 +96,8 @@ export const SETTING_JOB_GENERATEJOBNAME_ENABLED = 'generateJobName.enabled';
 export const SETTING_JOB_JOBLIST_RECENTJOBSLENGTH = 'jobList.recentJobsLength';
 export const SETTING_JOB_JOBLIST_ALLJOBSPAGESIZE = 'jobList.allJobsPageSize';
 export const SETTING_JOB_JOBLIST_REFERSHINTERVAL = 'jobList.refreshInterval';
+export const SETTING_SECTION_STORAGE_NFS = 'pai.storage.nfs';
+export const SETTING_STORAGE_NFS_MOUNT_POINT = 'mountPoint';
 
 export const ICON_PAI = {
     light: 'icons/PAI_light.png',
