@@ -1,7 +1,7 @@
 ---
 - hosts: all
   gather_facts: false
-  task:
+  tasks:
     - name: "SSH test from dev-box to all machine of infra and worker"
       ping:
 
