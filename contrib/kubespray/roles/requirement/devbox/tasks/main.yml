@@ -11,8 +11,6 @@
   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "16.04"
 
 - name: Dev-box's os is not ubuntu.
-  hosts: localhost
-  connection: local
   fail:
     msg: "Please ensure your devbox os is ubuntu 16.04 lts. 18.04 should be ok, but have not tested it yet"
   when: ansible_distribution != "Ubuntu" or ansible_distribution_version != "16.04"
