@@ -1,1 +1,17 @@
 ---
+
+- name: 1. Check if docker is installed on your dev-box or not.
+  raw: command -v docker
+  register: command_docker
+  failed_when: false
+  changed_when: false
+  check_mode: false
+  environment: {}
+
+
+- name: 2. Check if docker is installed on your dev-box or not.
+  failed:
+    msg: "Unable to find docker in your dev-box machine"
+  when:
+    - command_docker.rc != 0
+

@@ -2,9 +2,12 @@
 - hosts: all
   gather_facts: false
   task:
-    - ping
+    - name: "SSH test from dev-box to all machine of infra and worker"
+      ping:
 
 - hosts: localhost
+  become: true
+  become_user: root
   roles:
     - { role: requirement/devbox }
 
