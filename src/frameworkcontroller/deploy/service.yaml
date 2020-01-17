@@ -21,7 +21,6 @@ cluster-type:
 
 prerequisite:
   - cluster-configuration
-  - kube-runtime
 
 template-list:
   - frameworkcontroller.yaml

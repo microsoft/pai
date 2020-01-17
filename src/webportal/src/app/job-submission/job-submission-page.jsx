@@ -240,6 +240,7 @@ export const JobSubmissionPage = ({
           jobssh: true,
         },
       };
+      extras[PAI_PLUGIN].push(sshPlugin);
 
       // set storage plugin default value
       const defaultStorageConfig = [];
@@ -253,14 +254,16 @@ export const JobSubmissionPage = ({
           }
         }
       } catch {} // ignore all exceptions here
-      const storagePlugin = {
-        plugin: STORAGE_PLUGIN,
-        parameters: {
-          storageConfigNames: defaultStorageConfig,
-        },
-      };
+      if (!isEmpty(defaultStorageConfig)) {
+        const storagePlugin = {
+          plugin: STORAGE_PLUGIN,
+          parameters: {
+            storageConfigNames: defaultStorageConfig,
+          },
+        };
+        extras[PAI_PLUGIN].push(storagePlugin);
+      }
 
-      extras[PAI_PLUGIN].push(sshPlugin, storagePlugin);
       setExtras(extras);
     };
     setExtrasValue();

@@ -5,7 +5,10 @@ import os
 import argparse
 import csv
 import jinja2
-import kubernetes
+from kubernetes import client, config
+from kubernetes.utils import parse_quantity
+from kubernetes.client.rest import ApiException
+from pprint import pprint
 import sys
 import time
 
@@ -42,6 +45,15 @@ def csv_reader(csv_path):
     return hosts_list
 
 
+def csv_reader_ret_dict(csv_path):
+    hosts_dict = {}
+    with open(csv_path) as fin:
+        hosts_csv = csv.reader(fin)
+        for row in hosts_csv:
+            hosts_dict[row[0]] = row[1]
+    return hosts_dict
+
+
 def load_yaml_config(config_path):
     with open(config_path, "r") as f:
         config_data = yaml.load(f, yaml.SafeLoader)
@@ -72,6 +84,59 @@ def generate_template_file(template_file_path, output_path, map_table):
     write_generated_file(output_path, generated_template)
 
 
+def get_kubernetes_node_info_from_API():
+    config.load_kube_config()
+    api_instance = client.CoreV1Api()
+
+    # https://github.com/kubernetes-client/python/blob/master/kubernetes/docs/CoreV1Api.md#list_node
+    pretty = 'true'
+    timeout_seconds = 56
+
+    ret = dict()
+    try:
+        api_response = api_instance.list_node(pretty=pretty, timeout_seconds=timeout_seconds)
+        for node in api_response.items:
+            ret[node.metadata.name] = {
+                "cpu-resource": int(parse_quantity(node.status.allocatable['cpu'])),
+                "mem-resource": int(parse_quantity(node.status.allocatable['memory']) / 1024 / 1024 ),
+                "gpu-resource": int(parse_quantity(node.status.allocatable['nvidia.com/gpu'])),
+            }
+    except ApiException as e:
+        logger.error("Exception when calling CoreV1Api->list_node: %s\n" % e)
+
+    return ret
+
+
+def hived_config_prepare(worker_dict, node_resource_dict):
+    hived_config = dict()
+    hived_config["nodelist"] = []
+
+    min_mem = 100000000
+    min_gpu = 100000000
+    min_cpu = 100000000
+
+    for key in node_resource_dict:
+        if key not in worker_dict:
+            continue
+        if node_resource_dict[key]["gpu-resource"] == 0:
+            logger.error("Allocatable GPU number in {0} is 0, Hived doesn't support worker node with 0 GPU".format(key))
+            logger.error("Please remove {0} from your workerlist, or check if the NVIDIA device plugin is running healthy on the node.".format(key))
+            sys.exit(1)
+        min_cpu = min(min_cpu, node_resource_dict[key]["cpu-resource"])
+        min_mem = min(min_mem, node_resource_dict[key]["mem-resource"])
+        min_gpu = min(min_gpu, node_resource_dict[key]["gpu-resource"])
+        hived_config["nodelist"].append(key)
+    if not hived_config["nodelist"]:
+        logger.error("No worker node is detected.")
+        sys.exit(1)
+
+    hived_config["min-gpu"] = min_gpu
+    hived_config["unit-cpu"] = int( min_cpu / min_gpu )
+    hived_config["unit-mem"] = int( min_mem / min_gpu )
+
+    return hived_config
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('-w', '--worker-list-csv', dest="worklist", required=True,
@@ -87,13 +152,19 @@ def main():
     output_path = os.path.expanduser(args.output)
 
     master_list = csv_reader(args.masterlist)
+    worker_list = csv_reader(args.worklist)
     head_node = master_list[0]
+
+    worker_dict = csv_reader_ret_dict(args.worklist)
+    node_resource_dict = get_kubernetes_node_info_from_API()
+    hived_config = hived_config_prepare(worker_dict, node_resource_dict)
 
     environment = {
         'master': master_list,
-        'worker': csv_reader(args.worklist),
+        'worker': worker_list,
         'cfg': load_yaml_config(args.configuration),
-        'head_node': head_node
+        'head_node': head_node,
+        'hived': hived_config
     }
 
     map_table = {

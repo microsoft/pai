@@ -40,7 +40,7 @@ apt-get -y update
 apt-get -y install python3 python-dev software-properties-common
 curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py
 python3 get-pip.py
-pip3 install kubernetes jinja2
+pip3 install kubernetes==11.0.0b2 jinja2
 
 cd /root
 
@@ -52,7 +52,10 @@ echo "branch name: ${BRANCH_NAME}"
 git checkout ${BRANCH_NAME}
 git pull
 
-python3 /root/pai/contrib/kubespray/script/openpai-generator.py -m /quick-start-config/master.csv -w /quick-start-config/worker.csv -c /quick-start-config/config.yml -o /cluster-configuration
+python3 /root/pai/contrib/kubespray/script/openpai-generator.py -m /quick-start-config/master.csv -w /quick-start-config/worker.csv -c /quick-start-config/config.yml -o /cluster-configuration || exit $?
+
+echo y | pip3 uninstall kubernetes==11.0.0b2
+pip3 install kubernetes
 
 # TODO: This should be done at our source code.
 kubectl create namespace pai-storage
