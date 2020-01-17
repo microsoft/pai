@@ -5,7 +5,7 @@ const path = require('path');
 const fs = require('fs');
 
 const launcherConfig = require('@pai/config/launcher');
-const k8sModel = require('@pai/models/kubernetes');
+const k8sModel = require('@pai/models/kubernetes/kubernetes');
 const k8s = require('@pai/utils/k8sUtils');
 const logger = require('@pai/config/logger');
 const env = require('@pai/utils/env');

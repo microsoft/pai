@@ -16,7 +16,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 // module dependencies
-const {getClient} = require('@pai/models/kubernetes');
+const {getClient} = require('@pai/models/kubernetes/kubernetes');
 const StorageBase = require('./storageBase');
 
 class UserSecret extends StorageBase {

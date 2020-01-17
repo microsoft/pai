@@ -16,7 +16,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 const _ = require('lodash');
-const {encodeSelector, getClient} = require('@pai/models/kubernetes');
+const {encodeSelector, getClient, patchOption} = require('@pai/models/kubernetes/kubernetes');
 
 const initClient = (namespace) => {
   if (!namespace) {
@@ -60,17 +60,21 @@ const deserialize = (object) => {
   return result;
 };
 
-const get = async (namespace, key) => {
-  if (!key) {
+const get = async (namespace, name, options = {}) => {
+  if (!name) {
     return list(namespace);
   }
   const client = initClient(namespace);
-  // k8s resource's name must consisst of only digits (0-9), lower case letters (a-z), -, and ..
-  // We encode the key here to ensure it is valid.
-  const hexKey = Buffer.from(key).toString('hex');
+  const {encode} = options;
+  let secretName = name;
+  if (encode != null) {
+    // k8s resource's name must consisst of only digits (0-9), lower case letters (a-z), -, and ..
+    // We encode the key here to ensure it is valid.
+    secretName = Buffer.from(name).toString('hex');
+  }
 
   try {
-    const response = await client.get(`/${hexKey}`);
+    const response = await client.get(`/${secretName}`);
     return deserialize(response.data.data);
   } catch (err) {
     if (err.response && err.response.status === 404 && err.response.data) {
@@ -121,43 +125,63 @@ const list = async (namespace, labelSelector) => {
   return output;
 };
 
-const create = async (namespace, key, data, labels) => {
+const create = async (namespace, name, data, options = {}) => {
+  const {labels, encode, type} = options;
   const client = initClient(namespace);
-  const hexKey = Buffer.from(key).toString('hex');
+
+  let secretName = name;
+  if (encode != null) {
+    secretName = Buffer.from(name).toString(encode);
+  }
 
   const response = await client.post('/', {
     metadata: {
-      name: hexKey,
-      namespace,
-      labels,
+      name: secretName,
+      namespace: namespace,
+      labels: labels,
     },
+    type: type,
     data: serialize(data),
   });
-
   return response.data;
 };
 
-const replace = async (namespace, key, data, labels) => {
+const replace = async (namespace, name, data, options = {}) => {
+  const {encode, labels} = options;
+  let secretName = name;
+  if (encode != null) {
+    secretName = Buffer.from(secretName).toString(encode);
+  }
   const client = initClient(namespace);
-  const hexKey = Buffer.from(key).toString('hex');
-
-  const response = await client.put(`/${hexKey}`, {
+  const response = client.put(`/${secretName}`, {
     metadata: {
-      name: hexKey,
-      namespace,
-      labels,
+      name: secretName,
+      namespace: namespace,
+      labels: labels,
     },
     data: serialize(data),
   });
-
   return response.data;
 };
 
-const remove = async (namespace, key) => {
+const remove = async (namespace, name, options = {}) => {
+  const {encode} = options;
+  let secretName = name;
+  if (encode != null) {
+    secretName = Buffer.from(name).toString(encode);
+  }
   const client = initClient(namespace);
-  const hexKey = Buffer.from(key).toString('hex');
+  await client.delete(`/${secretName}`);
+};
 
-  await client.delete(`/${hexKey}`);
+const patchMetadata = async (namespace, name, metadata, options = {}) => {
+  const {encode} = options;
+  let secretName = name;
+  if (encode != null) {
+    secretName = Buffer.from(name).toString(encode);
+  }
+  const client = initClient(namespace);
+  await client.patch(`/${secretName}`, {metadata: metadata}, patchOption);
 };
 
 module.exports = {
@@ -166,4 +190,5 @@ module.exports = {
   create,
   replace,
   remove,
+  patchMetadata,
 };
