@@ -6,11 +6,12 @@
       ping:
 
 - hosts: localhost
-  connection: local
   become: true
   become_user: root
   roles:
     - { role: requirement/devbox }
+  vars:
+    ansible_connection: local
 
 #- hosts: infra
 #  gather_facts: false
