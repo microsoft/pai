@@ -22,7 +22,7 @@
   "links": [],
   "refresh": "30s",
   "rows": [
-    {%- if cluster_cfg["rest-server"]["launcher-type"] != "k8s" %}
+    {%- if cluster_cfg["cluster"]["common"]["cluster-type"] != "k8s" %}
     {
       "collapse": false,
       "height": 315,
