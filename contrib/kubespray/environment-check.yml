@@ -1,4 +1,9 @@
 ---
+- hosts: all
+  gather_facts: false
+  task:
+    - ping
+
 - hosts: localhost
   roles:
     - { role: requirement/devbox }
