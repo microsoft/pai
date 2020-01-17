@@ -1,7 +1,10 @@
 ---
 - name: Output dev-box's os distribution
   debug:
-    var: ansible_distribution
+    var: {{ item }}
+  with_items:
+    - ansible_distribution
+    - ansible_distribution_version
 
 - name: output dev-box's os distribution version
   debug:
