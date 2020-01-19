@@ -40,6 +40,10 @@ import (
 // Note that the topologyAwareScheduler used in this struct is not another implementation of SchedulerAlgorithm;
 // that is a specific algorithm for pod placement, used in intra-VC scheduling and opportunistic pod scheduling.
 type HivedAlgorithm struct {
+	// capacity and usage of the cluster
+	clusterCapacity api.ClusterCapacity
+	// status of each VC
+	vcStatus map[api.VirtualClusterName]api.VirtualCluster
 	// scheduler in each VC
 	vcSchedulers map[api.VirtualClusterName]intraVCScheduler
 	// scheduler for opportunistic pods
@@ -52,10 +56,14 @@ type HivedAlgorithm struct {
 	chains map[string][]CellChain
 	// map each level in a chain to the specific cell type name
 	cellTypes map[CellChain]map[CellLevel]api.CellType
+	// map each level in a chain to the GPU number of this cell type
+	gpuNums map[CellChain]map[CellLevel]int32
 	// all affinity groups that have been allocated cells
 	allocatedAffinityGroups map[string]*AlgoAffinityGroup
 	// all reserved physical cells (VC -> reservation ID -> cells)
 	reservedCells map[api.VirtualClusterName]map[api.ReservationId]*PhysicalCell
+	// number of failed GPUs in the cluster
+	failedGpuNum int32
 	// lock
 	algorithmLock sync.RWMutex
 }
@@ -64,23 +72,31 @@ type HivedAlgorithm struct {
 func NewHivedAlgorithm(sConfig *api.Config) *HivedAlgorithm {
 	pcl, gpuNums, gpuTypeToChain, cellLevelToType, nonReservedVcl, reservedVcl, reservedPc := ParseConfig(sConfig)
 	h := &HivedAlgorithm{
+		clusterCapacity:         api.ClusterCapacity{},
+		vcStatus:                map[api.VirtualClusterName]api.VirtualCluster{},
 		vcSchedulers:            make(map[api.VirtualClusterName]intraVCScheduler),
 		opportunisticSchedulers: map[CellChain]*topologyAwareScheduler{},
 		fullCellList:            pcl,
 		freeCellList:            make(map[CellChain]ChainCellList),
 		chains:                  gpuTypeToChain,
 		cellTypes:               cellLevelToType,
+		gpuNums:                 gpuNums,
 		allocatedAffinityGroups: make(map[string]*AlgoAffinityGroup),
 		reservedCells:           reservedPc,
 	}
-	for vc := range nonReservedVcl {
+	for vcName := range nonReservedVcl {
+		h.vcStatus[vcName] = api.VirtualCluster{
+			ObjectMeta: api.ObjectMeta{Name: string(vcName)},
+			Status:     api.VirtualClusterStatus{VirtualClusterCapacity: &api.ClusterCapacity{}},
+		}
 		// TODO: Support per-VC configurable intra VC scheduling algo.
-		h.vcSchedulers[vc] = newDefaultIntraVCScheduler(nonReservedVcl[vc], reservedVcl[vc], gpuNums)
+		h.vcSchedulers[vcName] = newDefaultIntraVCScheduler(nonReservedVcl[vcName], reservedVcl[vcName], gpuNums)
 	}
 	for chain, ccl := range h.fullCellList {
 		h.opportunisticSchedulers[chain] = NewTopologyAwareScheduler(ccl, gpuNums[chain], false, true)
 	}
 	h.validateInitialAssignment()
+	h.initVcStatus()
 	h.initFreeCellList()
 	h.initReservations()
 	return h
@@ -95,7 +111,14 @@ func (h *HivedAlgorithm) UpdateNode(oldNode, newNode *core.Node) {
 }
 
 func (h *HivedAlgorithm) DeleteNode(node *core.Node) {
-	// TODO
+	for _, ccl := range h.fullCellList {
+		for _, c := range ccl[1] {
+			nodes, _ := c.(*PhysicalCell).GetPhysicalPlacement()
+			if nodes[0] == node.Name {
+				h.failedGpuNum++
+			}
+		}
+	}
 }
 
 func (h *HivedAlgorithm) Schedule(pod *core.Pod, suggestedNodes []string) internal.PodScheduleResult {
@@ -171,6 +194,7 @@ func (h *HivedAlgorithm) AddAllocatedPod(pod *core.Pod) {
 				}
 				// if this pod was previously added, then deleted, and we are now re-adding it,
 				// we should return the resources to the pod (i.e., re-execute h.confirmAllocatedGpu)
+				isGuaranteed := group.virtualGpuPlacement != nil
 				for gpuIndex := int32(0); gpuIndex < int32(
 					len(gms.PodPlacements[podIndex].PhysicalGpuIndices)); gpuIndex++ {
 					pGpu, vGpu, _ := h.findAllocatedGpu(
@@ -179,8 +203,10 @@ func (h *HivedAlgorithm) AddAllocatedPod(pod *core.Pod) {
 						gms.PodPlacements[podIndex].PreassignedCellTypes,
 						CellChain(info.CellChain), info.Node, false, s, group, pod)
 					if pGpu == nil {
-						break
+						continue
 					} else if pGpu.GetAffinityGroup() == nil {
+						h.clusterCapacity.IncreaseUsage(1, isGuaranteed)
+						h.vcStatus[s.VirtualCluster].Status.VirtualClusterCapacity.IncreaseUsage(1, isGuaranteed)
 						if vGpu != nil && vGpu.GetPhysicalCell() != nil {
 							groupToPreempt := vGpu.GetPhysicalCell().GetAffinityGroup()
 							h.lazyPreemptAffinityGroup(groupToPreempt, group.name)
@@ -220,11 +246,14 @@ func (h *HivedAlgorithm) DeleteAllocatedPod(pod *core.Pod) {
 			}
 		}
 		group.allocatedPods[s.GpuNumber][podIndex] = nil
+		isGuaranteed := group.virtualGpuPlacement != nil
 		if !group.gangReleaseEnable {
 			klog.Infof("[%v]: gang release NOT enabled for group %v, releasing resources for this pod",
 				internal.Key(pod), s.AffinityGroup.Name)
 			for _, gpu := range group.physicalGpuPlacement[s.GpuNumber][podIndex] {
 				if gpu != nil {
+					h.clusterCapacity.IncreaseUsage(-1, isGuaranteed)
+					h.vcStatus[s.VirtualCluster].Status.VirtualClusterCapacity.IncreaseUsage(-1, isGuaranteed)
 					h.confirmReleasedGpu(gpu.(*PhysicalCell), group)
 				}
 			}
@@ -238,6 +267,8 @@ func (h *HivedAlgorithm) DeleteAllocatedPod(pod *core.Pod) {
 					for _, podPlacement := range podPlacements {
 						for _, gpu := range podPlacement {
 							if gpu != nil {
+								h.clusterCapacity.IncreaseUsage(-1, isGuaranteed)
+								h.vcStatus[s.VirtualCluster].Status.VirtualClusterCapacity.IncreaseUsage(-1, isGuaranteed)
 								h.confirmReleasedGpu(gpu.(*PhysicalCell), group)
 							}
 						}
@@ -250,7 +281,7 @@ func (h *HivedAlgorithm) DeleteAllocatedPod(pod *core.Pod) {
 	}
 }
 
-func (h *HivedAlgorithm) GetAffinityGroups() api.AffinityGroupList {
+func (h *HivedAlgorithm) GetAllAffinityGroups() api.AffinityGroupList {
 	h.algorithmLock.RLock()
 	defer h.algorithmLock.RUnlock()
 
@@ -273,6 +304,30 @@ func (h *HivedAlgorithm) GetAffinityGroup(name string) api.AffinityGroup {
 	panic(internal.NewBadRequestError(fmt.Sprintf(
 		"Affinity group %v does not exist since it is not allocated",
 		name)))
+}
+
+func (h *HivedAlgorithm) GetAllVirtualClusters() api.VirtualClusterList {
+	h.algorithmLock.RLock()
+	defer h.algorithmLock.RUnlock()
+
+	vcs := api.VirtualClusterList{}
+	for _, vc := range h.vcStatus {
+		h.updateVirtualClusterCapacity(vc.Status.VirtualClusterCapacity)
+		vcs.Items = append(vcs.Items, vc)
+	}
+	return vcs
+}
+
+func (h *HivedAlgorithm) GetVirtualCluster(name string) api.VirtualCluster {
+	h.algorithmLock.RLock()
+	defer h.algorithmLock.RUnlock()
+
+	if vc, ok := h.vcStatus[api.VirtualClusterName(name)]; ok {
+		h.updateVirtualClusterCapacity(vc.Status.VirtualClusterCapacity)
+		return vc
+	}
+
+	panic(internal.NewBadRequestError(fmt.Sprintf("VC %v does not exist", name)))
 }
 
 // validateInitialAssignment makes sure that the initial cell assignments
@@ -317,6 +372,19 @@ func (h *HivedAlgorithm) validateInitialAssignment() {
 	}
 }
 
+// initVcStatus calculates the initial capacity for each VC.
+func (h *HivedAlgorithm) initVcStatus() {
+	for vcName, vc := range h.vcStatus {
+		for chain, ccl := range h.vcSchedulers[vcName].getNonReservedCellList() {
+			l := CellLevel(len(ccl))
+			vc.Status.VirtualClusterCapacity.Total += int32(len(ccl[l])) * h.gpuNums[chain][l]
+		}
+		for _, reserved := range h.reservedCells[vcName] {
+			vc.Status.VirtualClusterCapacity.Total += h.gpuNums[reserved.GetChain()][reserved.GetLevel()]
+		}
+	}
+}
+
 // initFreeCellList initializes the free cell list (i.e., top level cells in each chain).
 func (h *HivedAlgorithm) initFreeCellList() {
 	for chain, ccl := range h.fullCellList {
@@ -324,6 +392,7 @@ func (h *HivedAlgorithm) initFreeCellList() {
 		h.freeCellList[chain] = NewChainCellList(topLevel - 1)
 		h.freeCellList[chain][topLevel] = make(CellList, len(ccl[topLevel]))
 		copy(h.freeCellList[chain][topLevel], ccl[topLevel])
+		h.clusterCapacity.Total += h.gpuNums[chain][topLevel] * int32(len(ccl[topLevel]))
 	}
 }
 
@@ -547,8 +616,9 @@ func (h *HivedAlgorithm) getTmpFreeCellList(chain CellChain) ChainCellList {
 
 // createAllocatedAffinityGroup creates a new affinity group, and confirms the allocated resources.
 func (h *HivedAlgorithm) createAllocatedAffinityGroup(pod *core.Pod, s *api.PodSchedulingSpec, info *api.PodBindInfo) {
-	newGroup := newAlgoAffinityGroup(s.AffinityGroup, s.GangReleaseEnable, s.LazyPreemptionEnable)
+	newGroup := newAlgoAffinityGroup(s.AffinityGroup, s.VirtualCluster, s.GangReleaseEnable, s.LazyPreemptionEnable)
 	shouldLazyPreempt := false
+	usage := int32(0)
 	for _, gms := range info.AffinityGroupBindInfo {
 		gpuNumber := int32(len(gms.PodPlacements[0].PhysicalGpuIndices))
 		for podIndex := int32(0); podIndex < int32(len(gms.PodPlacements)); podIndex++ {
@@ -561,8 +631,13 @@ func (h *HivedAlgorithm) createAllocatedAffinityGroup(pod *core.Pod, s *api.PodS
 					gms.PodPlacements[podIndex].PreassignedCellTypes,
 					CellChain(info.CellChain), node, shouldLazyPreempt, s, newGroup, pod)
 				if pGpu == nil {
-					break
+					// pGpu not being found means that this GPU address does not exist in the spec.
+					// we simply ignore this GPU, and let the job run normally
+					// (but we cannot ignore the other GPUs of this pod that are still in the spec,
+					// otherwise it may cause resource conflicts)
+					continue
 				} else {
+					usage++
 					newGroup.physicalGpuPlacement[gpuNumber][podIndex][gpuIndex] = pGpu
 					if lazyPreempt == nil {
 						newGroup.virtualGpuPlacement = nil
@@ -580,6 +655,8 @@ func (h *HivedAlgorithm) createAllocatedAffinityGroup(pod *core.Pod, s *api.PodS
 			}
 		}
 	}
+	h.clusterCapacity.IncreaseUsage(usage, newGroup.virtualGpuPlacement != nil)
+	h.vcStatus[s.VirtualCluster].Status.VirtualClusterCapacity.IncreaseUsage(usage, newGroup.virtualGpuPlacement != nil)
 	if shouldLazyPreempt {
 		h.lazyPreemptAffinityGroup(newGroup, newGroup.name)
 	}
@@ -734,6 +811,22 @@ func (h *HivedAlgorithm) lazyPreemptAffinityGroup(
 		Preemptor:      preemptor,
 		PreemptionTime: meta.Now(),
 	}
+
+	usage := int32(0)
+	for _, podPhysicalPlacements := range victim.physicalGpuPlacement {
+		for _, podPhysicalPlacement := range podPhysicalPlacements {
+			for _, gpu := range podPhysicalPlacement {
+				if gpu != nil {
+					usage++
+				}
+			}
+		}
+	}
+	h.clusterCapacity.IncreaseUsage(-usage, true)
+	h.clusterCapacity.IncreaseUsage(usage, false)
+	h.vcStatus[victim.vc].Status.VirtualClusterCapacity.IncreaseUsage(-usage, true)
+	h.vcStatus[victim.vc].Status.VirtualClusterCapacity.IncreaseUsage(usage, false)
+
 	klog.Infof("Affinity group %v is lazy preempted from VC by %v", victim.name, preemptor)
 }
 
@@ -853,6 +946,23 @@ func (h *HivedAlgorithm) findPhysicalGpuInChain(
 		}
 	}
 	return nil
+}
+
+// updateVirtualClusterCapacity calculates the remaining capacity in a VC in case of failures.
+// In the best case, a VC can use all the remaining quota as long as the physical cluster still has
+// as much capacity after counting failures (assuming other VCs will not compete for these GPUs).
+// In the worst case, a VC's capacity is the remaining quota minus the number of failed GPUs
+// (assuming all the normal GPUs are used by other VCs).
+func (h *HivedAlgorithm) updateVirtualClusterCapacity(vc *api.ClusterCapacity) {
+	vc.RemainingCapacityBestCase = h.clusterCapacity.Total - h.clusterCapacity.GuaranteedUsage - h.failedGpuNum
+	if vc.Total-vc.GuaranteedUsage < vc.RemainingCapacityBestCase {
+		vc.RemainingCapacityBestCase = vc.Total - vc.GuaranteedUsage
+	}
+
+	vc.RemainingCapacityWorstCase = vc.Total - vc.GuaranteedUsage - h.failedGpuNum
+	if vc.RemainingCapacityWorstCase < 0 {
+		vc.RemainingCapacityWorstCase = 0
+	}
 }
 
 // generatePodScheduleResult writes the scheduling result into a PodScheduleResult.

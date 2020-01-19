@@ -96,5 +96,6 @@ const (
 	// 1. Both Binding and Bound AffinityGroups/Pods are considered as Allocated.
 	InspectPath = VersionPath + "/inspect"
 	// Inspect current allocated AffinityGroup(s)
-	AffinityGroupsPath = InspectPath + "/affinitygroups/"
+	AffinityGroupsPath  = InspectPath + "/affinitygroups/"
+	VirtualClustersPath = InspectPath + "/virtualclusters/"
 )

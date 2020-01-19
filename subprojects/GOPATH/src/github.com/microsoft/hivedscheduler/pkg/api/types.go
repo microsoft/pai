@@ -158,3 +158,32 @@ type LazyPreemptionStatus struct {
 	// It was lazy preempted at PreemptionTime.
 	PreemptionTime meta.Time `json:"preemptionTime"`
 }
+
+type VirtualClusterList struct {
+	Items []VirtualCluster `json:"items"`
+}
+
+type VirtualCluster struct {
+	ObjectMeta `json:"metadata"`
+	Status     VirtualClusterStatus `json:"status"`
+}
+
+type VirtualClusterStatus struct {
+	VirtualClusterCapacity *ClusterCapacity `json:"virtualClusterCapacity"`
+}
+
+type ClusterCapacity struct {
+	Total                      int32 `json:"total"`
+	GuaranteedUsage            int32 `json:"guaranteedUsage"`
+	OpportunisticUsage         int32 `json:"opportunisticUsage"`
+	RemainingCapacityBestCase  int32 `json:"remainingCapacityBestCase"`
+	RemainingCapacityWorstCase int32 `json:"remainingCapacityWorstCase"`
+}
+
+func (c *ClusterCapacity) IncreaseUsage(usage int32, isGuaranteed bool) {
+	if isGuaranteed {
+		c.GuaranteedUsage += usage
+	} else {
+		c.OpportunisticUsage += usage
+	}
+}

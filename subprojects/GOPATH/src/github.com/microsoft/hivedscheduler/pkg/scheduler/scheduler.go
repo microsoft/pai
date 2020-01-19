@@ -180,8 +180,10 @@ func NewHivedScheduler() *HivedScheduler {
 			PreemptHandler: s.preemptRoutine,
 		},
 		internal.InspectHandlers{
-			GetAffinityGroupsHandler: s.getAffinityGroups,
-			GetAffinityGroupHandler:  s.getAffinityGroup,
+			GetAllAffinityGroupsHandler:  s.getAllAffinityGroups,
+			GetAffinityGroupHandler:      s.getAffinityGroup,
+			GetAllVirtualClustersHandler: s.getAllVirtualClusters,
+			GetVirtualClusterHandler:     s.getVirtualCluster,
 		},
 	)
 
@@ -671,10 +673,18 @@ func (s *HivedScheduler) preemptRoutine(args ei.ExtenderPreemptionArgs) *ei.Exte
 	return &ei.ExtenderPreemptionResult{}
 }
 
-func (s *HivedScheduler) getAffinityGroups() si.AffinityGroupList {
-	return s.schedulerAlgorithm.GetAffinityGroups()
+func (s *HivedScheduler) getAllAffinityGroups() si.AffinityGroupList {
+	return s.schedulerAlgorithm.GetAllAffinityGroups()
 }
 
 func (s *HivedScheduler) getAffinityGroup(name string) si.AffinityGroup {
 	return s.schedulerAlgorithm.GetAffinityGroup(name)
+}
+
+func (s *HivedScheduler) getAllVirtualClusters() si.VirtualClusterList {
+	return s.schedulerAlgorithm.GetAllVirtualClusters()
+}
+
+func (s *HivedScheduler) getVirtualCluster(name string) si.VirtualCluster {
+	return s.schedulerAlgorithm.GetVirtualCluster(name)
 }

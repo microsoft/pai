@@ -46,8 +46,10 @@ type ExtenderHandlers struct {
 }
 
 type InspectHandlers struct {
-	GetAffinityGroupsHandler func() si.AffinityGroupList
-	GetAffinityGroupHandler  func(name string) si.AffinityGroup
+	GetAllAffinityGroupsHandler  func() si.AffinityGroupList
+	GetAffinityGroupHandler      func(name string) si.AffinityGroup
+	GetAllVirtualClustersHandler func() si.VirtualClusterList
+	GetVirtualClusterHandler     func(name string) si.VirtualCluster
 }
 
 // SchedulerAlgorithm is used to make the pod schedule decision based on its whole
@@ -84,8 +86,10 @@ type SchedulerAlgorithm interface {
 	DeleteAllocatedPod(pod *core.Pod)
 
 	// Expose current scheduling status
-	GetAffinityGroups() si.AffinityGroupList
+	GetAllAffinityGroups() si.AffinityGroupList
 	GetAffinityGroup(name string) si.AffinityGroup
+	GetAllVirtualClusters() si.VirtualClusterList
+	GetVirtualCluster(name string) si.VirtualCluster
 }
 
 // Notes:

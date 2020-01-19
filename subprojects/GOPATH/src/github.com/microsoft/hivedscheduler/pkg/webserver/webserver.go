@@ -79,6 +79,7 @@ func NewWebServer(sConfig *si.Config,
 	ws.route(si.BindPath, ws.serve(ws.serveBindPath))
 	ws.route(si.PreemptPath, ws.serve(ws.servePreemptPath))
 	ws.route(si.AffinityGroupsPath, ws.serve(ws.serveAffinityGroups))
+	ws.route(si.VirtualClustersPath, ws.serve(ws.serveVirtualClusters))
 	return ws
 }
 
@@ -240,12 +241,31 @@ func (ws *WebServer) serveAffinityGroups(w http.ResponseWriter, r *http.Request)
 	name := strings.TrimPrefix(r.URL.Path, si.AffinityGroupsPath)
 	if name == "" {
 		if r.Method == http.MethodGet {
-			w.Write(common.ToJsonBytes(ws.iHandlers.GetAffinityGroupsHandler()))
+			w.Write(common.ToJsonBytes(ws.iHandlers.GetAllAffinityGroupsHandler()))
 			return
 		}
 	} else {
 		if r.Method == http.MethodGet {
 			w.Write(common.ToJsonBytes(ws.iHandlers.GetAffinityGroupHandler(name)))
+			return
+		}
+	}
+
+	panic(internal.NewBadRequestError(fmt.Sprintf(
+		"NotImplemented: %v: %v",
+		r.Method, r.URL.Path)))
+}
+
+func (ws *WebServer) serveVirtualClusters(w http.ResponseWriter, r *http.Request) {
+	name := strings.TrimPrefix(r.URL.Path, si.VirtualClustersPath)
+	if name == "" {
+		if r.Method == http.MethodGet {
+			w.Write(common.ToJsonBytes(ws.iHandlers.GetAllVirtualClustersHandler()))
+			return
+		}
+	} else {
+		if r.Method == http.MethodGet {
+			w.Write(common.ToJsonBytes(ws.iHandlers.GetVirtualClusterHandler(name)))
 			return
 		}
 	}
