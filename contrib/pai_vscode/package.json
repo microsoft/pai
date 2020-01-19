@@ -561,6 +561,10 @@
                     ],
                     "default": "sidebar",
                     "description": "%config.hdfs.location%"
+                },
+                "pai.storage.nfs.mountPoint": {
+                    "type": "object",
+                    "default": null
                 }
             }
         }

@@ -17,7 +17,7 @@
 
 const User = require('./user');
 const logger = require('@pai/config/logger');
-const k8sModel = require('@pai/models/kubernetes');
+const k8sModel = require('@pai/models/kubernetes/kubernetes');
 
 const USER_NAMESPACE = process.env.PAI_USER_NAMESPACE || 'pai-user-v2';
 

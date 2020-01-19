@@ -16,14 +16,16 @@ import {
 import { __ } from '../../common/i18n';
 import { Util } from '../../common/util';
 import { MountPointTreeNode } from '../container/storage/mountPointTreeItem';
-import { SambaRootNode, SambaTreeNode } from '../container/storage/sambaTreeItem';
+import { NfsRootNode } from '../container/storage/NfsTreeItem';
+import { PathBaseTreeNode } from '../container/storage/pathBaseTreeItem';
+import { SambaRootNode } from '../container/storage/SambaTreeItem';
 
 /**
- * Samba management module
+ * Path base storage management module, used in Samba and NFS.
  */
 // tslint:disable-next-line: no-unnecessary-class
-export class SambaManager {
-    public static async delete(target: SambaTreeNode): Promise<void> {
+export class PathBaseStorageManager {
+    public static async delete(target: PathBaseTreeNode): Promise<void> {
         try {
             await fs.remove(target.rootPath);
             Util.info('storage.delete.success');
@@ -32,7 +34,7 @@ export class SambaManager {
         }
     }
 
-    public static async downloadFile(target: SambaTreeNode, dest?: Uri): Promise<void> {
+    public static async downloadFile(target: PathBaseTreeNode, dest?: Uri): Promise<void> {
         const uri: Uri | undefined = dest ? dest : await window.showSaveDialog({
             saveLabel: __('storage.dialog.label.download'),
             defaultUri: Uri.file(target.name)
@@ -57,7 +59,9 @@ export class SambaManager {
         }
     }
 
-    public static async createFolder(target: SambaTreeNode | SambaRootNode | MountPointTreeNode): Promise<void> {
+    public static async createFolder(
+        target: PathBaseTreeNode | SambaRootNode | NfsRootNode | MountPointTreeNode
+    ): Promise<void> {
         const res: string | undefined = await window.showInputBox({
             prompt: __('container.azure.blob.mkdir.prompt')
         });
@@ -70,7 +74,7 @@ export class SambaManager {
         }
 
         try {
-            const dirName: string = path.join(target.rootPath, res);
+            const dirName: string = path.join(target.rootPath!, res);
             await fs.mkdirp(dirName);
             Util.info('storage.create.folder.success');
         } catch (err) {
@@ -79,7 +83,7 @@ export class SambaManager {
     }
 
     public static async uploadFiles(
-        target: SambaTreeNode | SambaRootNode | MountPointTreeNode,
+        target: PathBaseTreeNode | SambaRootNode | NfsRootNode |MountPointTreeNode,
         files?: Uri[]
     ): Promise<void> {
         if (!files) {
@@ -117,7 +121,7 @@ export class SambaManager {
     }
 
     public static async uploadFolders(
-        target: SambaTreeNode | SambaRootNode | MountPointTreeNode,
+        target: PathBaseTreeNode | SambaRootNode | NfsRootNode | MountPointTreeNode,
         src?: Uri[]
     ): Promise<void> {
         const folders: Uri[] | undefined = src ? src : await window.showOpenDialog({

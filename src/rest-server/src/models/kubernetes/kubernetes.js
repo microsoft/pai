@@ -5,7 +5,28 @@ const axios = require('axios');
 const {Agent} = require('https');
 const {URL} = require('url');
 const {apiserver} = require('@pai/config/kubernetes');
+const status = require('statuses');
 const logger = require('@pai/config/logger');
+
+const patchOption = {
+  headers: {
+    'Content-Type': 'application/merge-patch+json',
+  },
+};
+
+const rethrowResponseError = (error) => {
+  let message = error.message;
+  const response = error.response;
+  const request = error.request;
+  if (request && request.path) {
+    message = message + ` Url: ${request.path}`;
+  }
+  if (response && response.data && response.data.message) {
+    message = message + ` Response message: ${response.data.message}`;
+  }
+  error.message = message;
+  return Promise.reject(error);
+};
 
 const getClient = (baseURL = '') => {
   const config = {
@@ -28,7 +49,9 @@ const getClient = (baseURL = '') => {
       ...config.headers,
     };
   }
-  return axios.create(config);
+  const client = axios.create(config);
+  client.interceptors.response.use((resp) => resp, rethrowResponseError);
+  return client;
 };
 
 const encodeSelector = (selector = {}, negativeSelector = {}) => {
@@ -50,10 +73,14 @@ const createNamespace = async (namespace) => {
         name: namespace,
       },
     });
-    logger.info('Token secret namespace created');
+    logger.info(`Namespace ${namespace} created`);
   } catch (err) {
-    if (err.response && err.response.status === 409 && err.response.data.reason === 'AlreadyExists') {
-      logger.info('Token secret namespace already exists');
+    if (
+      err.response &&
+      err.response.status === status('Conflict') &&
+      err.response.data.reason === 'AlreadyExists'
+    ) {
+      logger.info(`Namespace ${namespace} already exists`);
       // pass
     } else {
       throw err;
@@ -91,4 +118,5 @@ module.exports = {
   createNamespace,
   getNodes,
   getPods,
+  patchOption,
 };

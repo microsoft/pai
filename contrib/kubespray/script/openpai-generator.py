@@ -96,10 +96,13 @@ def get_kubernetes_node_info_from_API():
     try:
         api_response = api_instance.list_node(pretty=pretty, timeout_seconds=timeout_seconds)
         for node in api_response.items:
+            gpu_resource = 0
+            if 'nvidia.com/gpu' in node.status.allocatable:
+                gpu_resource = int(parse_quantity(node.status.allocatable['nvidia.com/gpu']))
             ret[node.metadata.name] = {
                 "cpu-resource": int(parse_quantity(node.status.allocatable['cpu'])),
                 "mem-resource": int(parse_quantity(node.status.allocatable['memory']) / 1024 / 1024 ),
-                "gpu-resource": int(parse_quantity(node.status.allocatable['nvidia.com/gpu'])),
+                "gpu-resource": gpu_resource,
             }
     except ApiException as e:
         logger.error("Exception when calling CoreV1Api->list_node: %s\n" % e)

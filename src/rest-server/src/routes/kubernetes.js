@@ -3,7 +3,7 @@
 
 const express = require('express');
 const token = require('@pai/middlewares/token');
-const kubernetes = require('@pai/models/kubernetes');
+const kubernetes = require('@pai/models/kubernetes/kubernetes');
 const createError = require('@pai/utils/error');
 
 const router = new express.Router();

@@ -23,7 +23,7 @@ const config = require('@pai/config/index');
 const logger = require('@pai/config/logger');
 const yarnConfig = require('@pai/config/yarn');
 const launcherConfig = require('@pai/config/launcher');
-const k8sModel = require('@pai/models/kubernetes');
+const k8sModel = require('@pai/models/kubernetes/kubernetes');
 
 if (launcherConfig.type === 'yarn') {
   if (config.env !== 'test') {

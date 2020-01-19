@@ -89,6 +89,7 @@ PAI_INIT_DIR=${PAI_WORK_DIR}/init.d
 PAI_RUNTIME_DIR=${PAI_WORK_DIR}/runtime.d
 
 PAI_LOG_DIR=${PAI_WORK_DIR}/logs/${FC_POD_UID}
+PAI_SECRET_DIR=${PAI_WORK_DIR}/secrets
 
 # Move previous logs to another folder. Notice: exclude for init.log, new log will append to previous log file
 LOG_FILES=$(find $PAI_LOG_DIR -maxdepth 1 -type f ! -name "init.log")
@@ -175,10 +176,9 @@ python ${PAI_INIT_DIR}/image_checker.py ${PAI_RUNTIME_DIR}/job_config.yaml
 
 # write user commands to user.sh
 # priority=100
-echo "${USER_CMD}" >> ${PAI_RUNTIME_DIR}/user.sh
+CHILD_PROCESS="RENDER_USER_COMMAND"
+python ${PAI_INIT_DIR}/user_command_renderer.py ${PAI_SECRET_DIR}/secrets.yaml ${PAI_RUNTIME_DIR}/user.sh
 
 # for debug
-echo -e "finished entry\nuser.sh has:"
-cat ${PAI_RUNTIME_DIR}/user.sh
 echo -e "\nruntime_env.sh has:"
 cat ${PAI_RUNTIME_DIR}/runtime_env.sh

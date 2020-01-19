@@ -17,8 +17,7 @@
         },
         "token": {
             "type": "string",
-            "description": "PAI cluster access token, please keep it empty if use password",
-            "minLength": 1
+            "description": "PAI cluster access token, please remove it if use password"
         },
         "https": {
             "type": "boolean",
