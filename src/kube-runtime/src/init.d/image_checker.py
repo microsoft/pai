@@ -23,21 +23,23 @@ import copy
 import http
 import logging
 import os
+import re
 import sys
 
 import requests
 import yaml
 
 sys.path.append(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
-from common.utils import init_logger  #pylint: disable=wrong-import-position
+import common.utils as utils  #pylint: disable=wrong-import-position
 
 LOGGER = logging.getLogger(__name__)
 
-# The workflow:
-# 1. try v2 function, if not v2 support, ignore
-# 2. use WWW-Authenticate to get auth method if schema is Bearer
-# 3. get token by modify the request
-# 4. Try to get image manifest, use HEAD, don't need response body
+# The workflow, refer to: https://docs.docker.com/registry/spec/auth/token/
+# 1. send registry v2 request, if registry doesn't support v2 api, ignore image check
+# 2. try to call v2 api to get image manifest. If return 401, do following steps
+# 3. use WWW-Authenticate header returned from previous request to generate auth info
+# 4. use generated auth info to get token
+# 5. try to get image manifest with returned token. If succeed, the image is found in registry
 
 BEARER_AUTH = "Bearer"
 BASIC_AUTH = "Basic"
@@ -56,36 +58,39 @@ class ImageChecker():
         assert len(docker_images) == 1
         image_info = docker_images[0]
 
-        self.image_uri = image_info["uri"]
-        self.registry_uri = "https://index.docker.io/v2/"
-        self.basic_auth_headers = {}
-        self.bearer_auth_headers = {}
-        self.registry_auth_type = BASIC_AUTH
+        self._image_uri = image_info["uri"]
+        self._registry_uri = "https://index.docker.io/v2/"
+        self._basic_auth_headers = {}
+        self._bearer_auth_headers = {}
+        self._registry_auth_type = BASIC_AUTH
 
-        if "auth" in image_info:
+        if "auth" in image_info and secret:
             auth = image_info["auth"]
-            self._init_auth_info(auth, secret, self.image_uri)
+            self._init_auth_info(auth, secret)
 
-    def _init_auth_info(self, auth, secret, image_uri) -> None:
+    def _init_auth_info(self, auth, secret) -> None:
         if "registryuri" in auth:
-            self.registry_uri = self._get_registry_uri(auth["registryuri"],
-                                                       image_uri)
+            self._registry_uri = self._get_registry_uri(auth["registryuri"])
         username = auth["username"] if "username" in auth else ""
-        password = secret[auth["password"]] if "password" in auth and auth[
-            "password"] in secret else ""
+        password = utils.render_string_with_secrets(
+            auth["password"], secret) if "password" in auth else ""
         if username and password:
-            basic_auth_token = base64.b64decode("{}:{}".format(
-                username, password)).decode()
-            self.basic_auth_headers["Authorization"] = "{} {}".format(
+            basic_auth_token = base64.b64encode(
+                bytes("{}:{}".format(username, password), "utf8")).decode()
+            self._basic_auth_headers["Authorization"] = "{} {}".format(
                 BASIC_AUTH, basic_auth_token)
 
-    def _get_registry_uri(self, uri, image_uri) -> str:
+    # Refer: https://github.com/docker/distribution/blob/a8371794149d1d95f1e846744b05c87f2f825e5a/reference/normalize.go#L91
+    def _is_use_default_domain(self) -> bool:
+        index = self._image_uri.find("/")
+        return index == -1 or all(ch not in [".", ":"]
+                                  for ch in self._image_uri[:index])
+
+    def _get_registry_uri(self, uri) -> str:
         ret_uri = uri.strip().rstrip("/")
-        chunks = image_uri.split("/")
-        if ret_uri.lstrip("http://") != chunks[0] and ret_uri.lstrip(
-                "http://") != chunks[0]:
+        if self._is_use_default_domain():
             LOGGER.info("Using default registry")
-            return self.registry_uri
+            return self._registry_uri
 
         if not ret_uri.startswith("http") and not ret_uri.startswith("https"):
             ret_uri = "https://{}".format(ret_uri)
@@ -102,37 +107,38 @@ class ImageChecker():
             LOGGER.info("Challenge not supported, ignore this")
             return {}
 
-        chunks = challenge.strip().split(",")
+        chunks = challenge.strip()[len(BEARER_AUTH):].split(",")
         challenge_dir = {}
         for chunk in chunks:
             pair = chunk.strip().split("=")
             challenge_dir[pair[0]] = pair[1].strip("\"")
         return challenge_dir
 
-    def _get_and_set_token(self, challenge):
+    def _get_and_set_token(self, challenge) -> None:
         if not challenge:
             return
         if "realm" not in challenge:
             LOGGER.warning("realm not in challenge, use basic auth")
             return
         url = challenge["realm"]
-        paramters: dict = copy.deepcopy(challenge)
+        paramters = copy.deepcopy(challenge)
         del paramters["realm"]
         resp = requests.get(url,
-                            headers=self.basic_auth_headers,
+                            headers=self._basic_auth_headers,
                             params=paramters)
         if not resp.ok:
             raise RuntimeError(
                 "Failed to get auth token, status code: {}".format(
                     resp.status_code))
         body = resp.json()
-        self.bearer_auth_headers = "{} {}".format(BEARER_AUTH, body["token"])
-        self.registry_auth_type = BEARER_AUTH
+        self._bearer_auth_headers["Authorization"] = "{} {}".format(
+            BEARER_AUTH, body["token"])
+        self._registry_auth_type = BEARER_AUTH
 
     def _is_registry_v2_supportted(self) -> bool:
         try:
-            resp = requests.head(self.registry_uri,
-                                 headers=self.basic_auth_headers,
+            resp = requests.head(self._registry_uri,
+                                 headers=self._basic_auth_headers,
                                  timeout=10)
             if resp.ok or resp.status_code == http.HTTPStatus.UNAUTHORIZED:
                 return True
@@ -140,15 +146,14 @@ class ImageChecker():
         except (TimeoutError, ConnectionError):
             return False
 
-    def _login_v2_registry(self) -> None:
+    def _login_v2_registry(self, attempt_url) -> None:
         if not self._is_registry_v2_supportted():
             LOGGER.warning(
                 "Registry %s not support v2 api, ignore image check",
-                self.registry_uri)
+                self._registry_uri)
             return
-        resp = requests.head(self.registry_uri,
-                             headers=self.basic_auth_headers)
-        if not resp.ok:
+        resp = requests.head(attempt_url, headers=self._basic_auth_headers)
+        if not resp.ok and resp.status_code != http.HTTPStatus.UNAUTHORIZED:
             LOGGER.error("Failed to login registry, resp code is %d",
                          resp.status_code)
             raise RuntimeError("Failed to login registry")
@@ -157,31 +162,55 @@ class ImageChecker():
             challenge = self._parse_auth_challenge(headers["Www-Authenticate"])
             self._get_and_set_token(challenge)
 
+    def _get_normalized_image_info(self) -> dict:
+        uri = self._image_uri
+        if not self._is_use_default_domain():
+            assert "/" in self._image_uri
+            index = self._image_uri.find("/")
+            uri = self._image_uri[index + 1:]
+
+        uri_chunks = uri.split(":")
+        tag = "latest" if len(uri_chunks) == 1 else uri_chunks[1]
+        repository = uri_chunks[0]
+        if not re.fullmatch(r"(?:[a-z\-_.0-9]+\/)?[a-z\-_.0-9]+",
+                            repository) or not re.fullmatch(
+                                r"[a-z\-_.0-9]+", tag):
+            raise RuntimeError("image uri {} is invalid".format(
+                self._image_uri))
+
+        repo_chunks = uri_chunks[0].split("/")
+        if len(repo_chunks) == 1:
+            return {"repo": "library/{}".format(repository), "tag": tag}
+        return {"repo": repository, "tag": tag}
+
+    @utils.enable_request_debug_log
     def is_docker_image_accessible(self):
-        if self.registry_auth_type == BEARER_AUTH:
-            resp = requests.head(self.registry_uri,
-                                 headers=self.bearer_auth_headers)
+        try:
+            image_info = self._get_normalized_image_info()
+        except RuntimeError:
+            LOGGER.error("docker image uri: %s is invalid",
+                         self._image_uri,
+                         exc_info=True)
+            return False
+
+        url = "{}{repo}/manifests/{tag}".format(self._registry_uri,
+                                                **image_info)
+        self._login_v2_registry(url)
+        if self._registry_auth_type == BEARER_AUTH:
+            resp = requests.head(url, headers=self._bearer_auth_headers)
         else:
-            resp = requests.head(self.registry_auth_type,
-                                 headers=self.basic_auth_headers)
+            resp = requests.head(url, headers=self._basic_auth_headers)
         if resp.ok:
-            LOGGER.info("image %s found in registry", self.image_uri)
+            LOGGER.info("image %s found in registry", self._image_uri)
             return True
         if resp.status_code == http.HTTPStatus.NOT_FOUND or resp.status_code == http.HTTPStatus.UNAUTHORIZED:
             LOGGER.info(
                 "image %s not found or user unauthorized, registry is %s, resp code is %d",
-                self.image_uri, self.registry_uri, resp.status_code)
+                self._image_uri, self._registry_uri, resp.status_code)
             return False
         LOGGER.warning("resp with code %d, ignore image check",
                        resp.status_code)
         raise RuntimeError("Unknown response from registry")
-
-
-def _get_docker_repository_name(image_name) -> str:
-    paths = image_name.split("/")
-    if len(paths) == 1:
-        return "library/{}".format(paths[0])
-    return image_name
 
 
 def main():
@@ -191,18 +220,24 @@ def main():
     args = parser.parse_args()
 
     LOGGER.info("get job config from %s", args.job_config)
-    with open(args.job_config) as config, open(args.secret_file) as secret:
+    with open(args.job_config) as config:
         job_config = yaml.safe_load(config)
-        job_secret = yaml.safe_load(secret)
 
-        image_checker = ImageChecker(job_config, job_secret)
-        try:
-            if not image_checker.is_docker_image_accessible():
-                sys.exit(1)
-        except Exception:  #pylint: disable=broad-except
-            LOGGER.warning("Failed to check image", exc_info=True)
+    if not os.path.isfile(args.secret_file):
+        job_secret = None
+    else:
+        with open(args.secret_file) as f:
+            job_secret = yaml.safe_load(f.read())
+
+    LOGGER.info("Start checking docker image")
+    image_checker = ImageChecker(job_config, job_secret)
+    try:
+        if not image_checker.is_docker_image_accessible():
+            sys.exit(1)
+    except Exception:  #pylint: disable=broad-except
+        LOGGER.warning("Failed to check image", exc_info=True)
 
 
 if __name__ == "__main__":
-    init_logger()
+    utils.init_logger()
     main()
