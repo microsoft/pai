@@ -13,10 +13,12 @@
   vars:
     ansible_connection: local
 
-#- hosts: infra
-#  gather_facts: false
-#  roles:
-#    - { role: requirement/infra }
+- hosts: infra
+  become: true
+  become_user: root
+  gather_facts: true
+  roles:
+    - { role: requirement/infra }
 
 #- hosts: worker
 #  gather_facts: false
