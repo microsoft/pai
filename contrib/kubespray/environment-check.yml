@@ -20,7 +20,9 @@
   roles:
     - { role: requirement/infra }
 
-#- hosts: worker
-#  gather_facts: false
-#  roles:
-#    - { role: requirement/worker }
+- hosts: worker
+  become: true
+  become_user: root
+  gather_facts: true
+  roles:
+    - { role: requirement/worker }
