@@ -43,9 +43,22 @@ LOGGER = logging.getLogger(__name__)
 
 BEARER_AUTH = "Bearer"
 BASIC_AUTH = "Basic"
+DEAULT_REGISTRY = "https://index.docker.io/v2/"
 
 
 class ImageChecker():
+    @staticmethod
+    def _get_registry_uri(uri) -> str:
+        ret_uri = uri.strip().rstrip("/")
+        if not ret_uri.startswith("http") and not ret_uri.startswith("https"):
+            ret_uri = "https://{}".format(ret_uri)
+        chunks = ret_uri.split('/')
+        api_version_str = chunks[-1]
+        if api_version_str == "v1" or api_version_str == "v2":
+            ret_uri = "/".join(chunks[:-1])
+        ret_uri = ret_uri.rstrip("/") + "/v2/"
+        return ret_uri
+
     def __init__(self, job_config, secret):
         prerequisites = job_config["prerequisites"]
         task_role_name = os.getenv("PAI_CURRENT_TASK_ROLE_NAME")
@@ -59,7 +72,7 @@ class ImageChecker():
         image_info = docker_images[0]
 
         self._image_uri = image_info["uri"]
-        self._registry_uri = "https://index.docker.io/v2/"
+        self._registry_uri = DEAULT_REGISTRY
         self._basic_auth_headers = {}
         self._bearer_auth_headers = {}
         self._registry_auth_type = BASIC_AUTH
@@ -70,7 +83,15 @@ class ImageChecker():
 
     def _init_auth_info(self, auth, secret) -> None:
         if "registryuri" in auth:
-            self._registry_uri = self._get_registry_uri(auth["registryuri"])
+            registry_uri = self._get_registry_uri(auth["registryuri"])
+            if self._is_image_use_default_domain(
+            ) and registry_uri != DEAULT_REGISTRY:
+                LOGGER.info(
+                    "Using default registry for image %s, ignore auth info",
+                    self._image_uri)
+                return
+            self._registry_uri = registry_uri
+
         username = auth["username"] if "username" in auth else ""
         password = utils.render_string_with_secrets(
             auth["password"], secret) if "password" in auth else ""
@@ -81,25 +102,10 @@ class ImageChecker():
                 BASIC_AUTH, basic_auth_token)
 
     # Refer: https://github.com/docker/distribution/blob/a8371794149d1d95f1e846744b05c87f2f825e5a/reference/normalize.go#L91
-    def _is_use_default_domain(self) -> bool:
+    def _is_image_use_default_domain(self) -> bool:
         index = self._image_uri.find("/")
         return index == -1 or all(ch not in [".", ":"]
                                   for ch in self._image_uri[:index])
-
-    def _get_registry_uri(self, uri) -> str:
-        ret_uri = uri.strip().rstrip("/")
-        if self._is_use_default_domain():
-            LOGGER.info("Using default registry")
-            return self._registry_uri
-
-        if not ret_uri.startswith("http") and not ret_uri.startswith("https"):
-            ret_uri = "https://{}".format(ret_uri)
-        chunks = ret_uri.split('/')
-        api_version_str = chunks[-1]
-        if api_version_str == "v1" or api_version_str == "v2":
-            ret_uri = "/".join(chunks[:-1])
-        ret_uri = ret_uri.rstrip("/") + "/v2/"
-        return ret_uri
 
     # Parse the challenge field, refer to: https://tools.ietf.org/html/rfc6750#section-3
     def _parse_auth_challenge(self, challenge) -> dict:
@@ -164,7 +170,7 @@ class ImageChecker():
 
     def _get_normalized_image_info(self) -> dict:
         uri = self._image_uri
-        if not self._is_use_default_domain():
+        if not self._is_image_use_default_domain():
             assert "/" in self._image_uri
             index = self._image_uri.find("/")
             uri = self._image_uri[index + 1:]
@@ -195,7 +201,13 @@ class ImageChecker():
 
         url = "{}{repo}/manifests/{tag}".format(self._registry_uri,
                                                 **image_info)
-        self._login_v2_registry(url)
+        try:
+            self._login_v2_registry(url)
+        except RuntimeError:
+            LOGGER.error("login failed, username or password incorrect",
+                         exc_info=True)
+            return False
+
         if self._registry_auth_type == BEARER_AUTH:
             resp = requests.head(url, headers=self._bearer_auth_headers)
         else:

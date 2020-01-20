@@ -124,7 +124,7 @@ class TestImageChecker(unittest.TestCase):
 
     @prepare_image_check("docker_official_image.yaml")
     @responses.activate
-    def test_image_without_username_tag(self):
+    def test_official_image(self):
         image_checker = ImageChecker(self.job_config, self.secret)
         image_info = image_checker._get_normalized_image_info()
         add_official_registry_v2_response(image_info)
@@ -149,7 +149,7 @@ class TestImageChecker(unittest.TestCase):
 
     @prepare_image_check("docker_image_auth.yaml")
     @responses.activate
-    def test_image_auth(self):
+    def test_image_with_auth(self):
         image_checker = ImageChecker(self.job_config, self.secret)
         image_info = image_checker._get_normalized_image_info()
         add_official_registry_v2_response(image_info)
