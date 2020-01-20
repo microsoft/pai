@@ -43,22 +43,36 @@ LOGGER = logging.getLogger(__name__)
 
 BEARER_AUTH = "Bearer"
 BASIC_AUTH = "Basic"
-DEAULT_REGISTRY = "https://index.docker.io/v2/"
+DEFAULT_REGISTRY = "https://index.docker.io/v2/"
 
 
-class ImageChecker():
-    @staticmethod
-    def _get_registry_uri(uri) -> str:
-        ret_uri = uri.strip().rstrip("/")
-        if not ret_uri.startswith("http") and not ret_uri.startswith("https"):
-            ret_uri = "https://{}".format(ret_uri)
-        chunks = ret_uri.split('/')
-        api_version_str = chunks[-1]
-        if api_version_str == "v1" or api_version_str == "v2":
-            ret_uri = "/".join(chunks[:-1])
-        ret_uri = ret_uri.rstrip("/") + "/v2/"
-        return ret_uri
+def _get_registry_uri(uri) -> str:
+    ret_uri = uri.strip().rstrip("/")
+    if not ret_uri.startswith("http") and not ret_uri.startswith("https"):
+        ret_uri = "https://{}".format(ret_uri)
+    chunks = ret_uri.split('/')
+    api_version_str = chunks[-1]
+    if api_version_str in ("v1", "v2"):
+        ret_uri = "/".join(chunks[:-1])
+    ret_uri = ret_uri.rstrip("/") + "/v2/"
+    return ret_uri
 
+
+# Parse the challenge field, refer to: https://tools.ietf.org/html/rfc6750#section-3
+def _parse_auth_challenge(challenge) -> dict:
+    if not challenge.strip().startswith(BEARER_AUTH):
+        LOGGER.info("Challenge not supported, ignore this")
+        return {}
+
+    chunks = challenge.strip()[len(BEARER_AUTH):].split(",")
+    challenge_dir = {}
+    for chunk in chunks:
+        pair = chunk.strip().split("=")
+        challenge_dir[pair[0]] = pair[1].strip("\"")
+    return challenge_dir
+
+
+class ImageChecker():  #pylint: disable=too-few-public-methods
     def __init__(self, job_config, secret):
         prerequisites = job_config["prerequisites"]
         task_role_name = os.getenv("PAI_CURRENT_TASK_ROLE_NAME")
@@ -72,7 +86,7 @@ class ImageChecker():
         image_info = docker_images[0]
 
         self._image_uri = image_info["uri"]
-        self._registry_uri = DEAULT_REGISTRY
+        self._registry_uri = DEFAULT_REGISTRY
         self._basic_auth_headers = {}
         self._bearer_auth_headers = {}
         self._registry_auth_type = BASIC_AUTH
@@ -83,9 +97,9 @@ class ImageChecker():
 
     def _init_auth_info(self, auth, secret) -> None:
         if "registryuri" in auth:
-            registry_uri = self._get_registry_uri(auth["registryuri"])
+            registry_uri = _get_registry_uri(auth["registryuri"])
             if self._is_image_use_default_domain(
-            ) and registry_uri != DEAULT_REGISTRY:
+            ) and registry_uri != DEFAULT_REGISTRY:
                 LOGGER.info(
                     "Using default registry for image %s, ignore auth info",
                     self._image_uri)
@@ -107,19 +121,6 @@ class ImageChecker():
         return index == -1 or all(ch not in [".", ":"]
                                   for ch in self._image_uri[:index])
 
-    # Parse the challenge field, refer to: https://tools.ietf.org/html/rfc6750#section-3
-    def _parse_auth_challenge(self, challenge) -> dict:
-        if not challenge.strip().startswith(BEARER_AUTH):
-            LOGGER.info("Challenge not supported, ignore this")
-            return {}
-
-        chunks = challenge.strip()[len(BEARER_AUTH):].split(",")
-        challenge_dir = {}
-        for chunk in chunks:
-            pair = chunk.strip().split("=")
-            challenge_dir[pair[0]] = pair[1].strip("\"")
-        return challenge_dir
-
     def _get_and_set_token(self, challenge) -> None:
         if not challenge:
             return
@@ -127,11 +128,11 @@ class ImageChecker():
             LOGGER.warning("realm not in challenge, use basic auth")
             return
         url = challenge["realm"]
-        paramters = copy.deepcopy(challenge)
-        del paramters["realm"]
+        parameters = copy.deepcopy(challenge)
+        del parameters["realm"]
         resp = requests.get(url,
                             headers=self._basic_auth_headers,
-                            params=paramters)
+                            params=parameters)
         if not resp.ok:
             raise RuntimeError(
                 "Failed to get auth token, status code: {}".format(
@@ -165,7 +166,7 @@ class ImageChecker():
             raise RuntimeError("Failed to login registry")
         headers = resp.headers
         if "Www-Authenticate" in headers:
-            challenge = self._parse_auth_challenge(headers["Www-Authenticate"])
+            challenge = _parse_auth_challenge(headers["Www-Authenticate"])
             self._get_and_set_token(challenge)
 
     def _get_normalized_image_info(self) -> dict:
