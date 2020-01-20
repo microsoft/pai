@@ -29,15 +29,6 @@ spec:
       labels:
         app: postgresql
     spec:
-      affinity:
-        nodeAffinity:
-          requiredDuringSchedulingIgnoredDuringExecution:
-            nodeSelectorTerms:
-            - matchExpressions:
-              - key: kubernetes.io/hostname
-                operator: In
-                values:
-                - {{ cluster_cfg["postgresql"]["host"] }}
       hostNetwork: true
       containers:
       - name: postgresql
