@@ -112,10 +112,14 @@ func (h *HivedAlgorithm) UpdateNode(oldNode, newNode *core.Node) {
 
 func (h *HivedAlgorithm) DeleteNode(node *core.Node) {
 	for _, ccl := range h.fullCellList {
-		for _, c := range ccl[1] {
-			nodes, _ := c.(*PhysicalCell).GetPhysicalPlacement()
+		for _, gpu := range ccl[1] {
+			pGpu := gpu.(*PhysicalCell)
+			nodes, _ := pGpu.GetPhysicalPlacement()
 			if nodes[0] == node.Name {
-				h.failedGpuNum++
+				pGpu.SetHealthy(false)
+				if pGpu.GetAffinityGroup() == nil {
+					h.failedGpuNum++
+				}
 			}
 		}
 	}
@@ -205,6 +209,9 @@ func (h *HivedAlgorithm) AddAllocatedPod(pod *core.Pod) {
 					if pGpu == nil {
 						continue
 					} else if pGpu.GetAffinityGroup() == nil {
+						if !pGpu.IsHealthy() {
+							h.failedGpuNum--
+						}
 						h.clusterCapacity.IncreaseUsage(1, isGuaranteed)
 						h.vcStatus[s.VirtualCluster].Status.VirtualClusterCapacity.IncreaseUsage(1, isGuaranteed)
 						if vGpu != nil && vGpu.GetPhysicalCell() != nil {
@@ -254,7 +261,11 @@ func (h *HivedAlgorithm) DeleteAllocatedPod(pod *core.Pod) {
 				if gpu != nil {
 					h.clusterCapacity.IncreaseUsage(-1, isGuaranteed)
 					h.vcStatus[s.VirtualCluster].Status.VirtualClusterCapacity.IncreaseUsage(-1, isGuaranteed)
-					h.confirmReleasedGpu(gpu.(*PhysicalCell), group)
+					pGpu := gpu.(*PhysicalCell)
+					if !pGpu.IsHealthy() {
+						h.failedGpuNum++
+					}
+					h.confirmReleasedGpu(pGpu, group)
 				}
 			}
 		}
@@ -269,7 +280,11 @@ func (h *HivedAlgorithm) DeleteAllocatedPod(pod *core.Pod) {
 							if gpu != nil {
 								h.clusterCapacity.IncreaseUsage(-1, isGuaranteed)
 								h.vcStatus[s.VirtualCluster].Status.VirtualClusterCapacity.IncreaseUsage(-1, isGuaranteed)
-								h.confirmReleasedGpu(gpu.(*PhysicalCell), group)
+								pGpu := gpu.(*PhysicalCell)
+								if !pGpu.IsHealthy() {
+									h.failedGpuNum++
+								}
+								h.confirmReleasedGpu(pGpu, group)
 							}
 						}
 					}
@@ -638,6 +653,9 @@ func (h *HivedAlgorithm) createAllocatedAffinityGroup(pod *core.Pod, s *api.PodS
 					continue
 				} else {
 					usage++
+					if !pGpu.IsHealthy() {
+						h.failedGpuNum--
+					}
 					newGroup.physicalGpuPlacement[gpuNumber][podIndex][gpuIndex] = pGpu
 					if lazyPreempt == nil {
 						newGroup.virtualGpuPlacement = nil

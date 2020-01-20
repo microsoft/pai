@@ -128,6 +128,7 @@ type PhysicalCell struct {
 	preBoundVirtualCell *VirtualCell       // points to the temporarily bound virtual cell (before the binding is confirmed)
 	split               bool               // true when the cell has been split
 	reserved            bool               // true when this is a reserved cell
+	healthy             bool               // true when the cell is running normally (failed otherwise)
 }
 
 func NewPhysicalCell(c CellChain, l CellLevel, g bool, n int32) *PhysicalCell {
@@ -140,6 +141,7 @@ func NewPhysicalCell(c CellChain, l CellLevel, g bool, n int32) *PhysicalCell {
 			totalGpuNum:            n,
 			usedGpuNumAtPriorities: map[CellPriority]int32{},
 		},
+		healthy: true,
 	}
 }
 
@@ -209,6 +211,14 @@ func (c *PhysicalCell) IsReserved() bool {
 
 func (c *PhysicalCell) SetReserved(reserved bool) {
 	c.reserved = reserved
+}
+
+func (c *PhysicalCell) IsHealthy() bool {
+	return c.healthy
+}
+
+func (c *PhysicalCell) SetHealthy(healthy bool) {
+	c.healthy = healthy
 }
 
 // VirtualCell defines a cell in a VC.
