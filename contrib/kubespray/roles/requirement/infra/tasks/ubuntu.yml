@@ -27,7 +27,7 @@
 - name: "Infra-Task-2-[2/3] Check whether the NTP is installed and enabled."
   raw: ntpq -p
   register: infra_ntpq
-  faled_when: false
+  failed_when: false
   changed_when: false
   check_mode: false
   environment: {}
