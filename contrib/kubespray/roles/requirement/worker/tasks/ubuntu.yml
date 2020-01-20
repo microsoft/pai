@@ -92,3 +92,11 @@
   when:
     - worker_nvidia_container_runtime.rc != 0
 
+- name: "Worker-Task-6-[1/1] Ensure dev-box is not an worker machines"
+  fail:
+    msg: "Dev-box should be a separated machine from the cluster."
+  when:
+    - ansible_control_host_address == ansible_default_ipv4.address
+
+
+

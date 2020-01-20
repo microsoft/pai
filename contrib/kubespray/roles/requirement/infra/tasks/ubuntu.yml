@@ -41,3 +41,9 @@
   when:
     - infra_ntpq.rc != 0 or infra_nslookup_docker_io.rc != 0
 
+- name: "Infra-Task-3-[1/1] Ensure dev-box is not an infra machines"
+  fail:
+    msg: "Dev-box should be a separated machine from the cluster."
+  when:
+    - ansible_control_host_address == ansible_default_ipv4.address
+

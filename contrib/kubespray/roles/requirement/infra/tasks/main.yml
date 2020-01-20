@@ -5,7 +5,6 @@
   with_items:
     - ansible_distribution
     - ansible_distribution_version
-    - ansible_control_host_address
 
 - name: Check ubuntu requirement. OpenPAI only supports ubuntu now.
   include_tasks: ubuntu.yml
