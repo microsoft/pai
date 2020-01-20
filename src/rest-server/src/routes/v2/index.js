@@ -38,6 +38,7 @@ router.use('/user', userRouter);
 
 router.use('/group', groupRouter);
 
-router.use('/storage', storageRouter);
+router.use('/storages', storageRouter);
+
 // module exports
 module.exports = router;

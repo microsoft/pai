@@ -112,12 +112,12 @@ const getStorageConfigsWithGroupInfo = async (groupItems) => {
   return [...storageConfigs];
 };
 
-const getGroupStorageConfigs = async (groupname) => {
+const getGroupStorages = async (groupname) => {
   const groupItem = await getGroup(groupname);
   return getStorageConfigsWithGroupInfo([groupItem]);
 };
 
-const getGroupsStorageConfigs = async (grouplist) => {
+const getGroupsStorages = async (grouplist) => {
   const groupItems = await getListGroup(grouplist);
   return getStorageConfigsWithGroupInfo(groupItems);
 };
@@ -489,8 +489,8 @@ module.exports = {
   getGroupVCs,
   getGroupsVCs,
   getVCsWithGroupInfo,
-  getGroupStorageConfigs,
-  getGroupsStorageConfigs,
+  getGroupStorages,
+  getGroupsStorages,
   getStorageConfigsWithGroupInfo,
   filterExistGroups,
 };
