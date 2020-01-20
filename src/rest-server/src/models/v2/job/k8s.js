@@ -579,7 +579,7 @@ const generateTaskRole = (frameworkName, taskRole, jobInfo, frameworkEnvList, co
       frameworkTaskRole.task.pod.spec.containers[0].volumeMounts.push({
         name: `${storage.name}-volume`,
         mountPath: storage.mountPath || `/mnt/${storage.name}`,
-        ...storage.share === false && {subPath: `${jobInfo.userName}`},
+        ...(storage.share === false) && {subPath: jobInfo.userName},
       });
       frameworkTaskRole.task.pod.spec.volumes.push({
         name: `${storage.name}-volume`,
@@ -897,7 +897,7 @@ const put = async (frameworkName, config, rawConfig) => {
   if ('extras' in config && config.extras.storages) {
     const userStorages = {};
     (await storageModel.list()).storages
-      .forEach(userStorage => userStorages[userStorage.name] = userStorage);
+      .forEach((userStorage) => userStorages[userStorage.name] = userStorage);
     for (let storage of config.extras.storages) {
       if (!storage.name) {
         continue;

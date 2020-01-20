@@ -28,7 +28,7 @@ const list = asyncHandler(async (req, res) => {
 });
 
 const get = asyncHandler(async (req, res) => {
-  const storageName = req.params.storageName
+  const storageName = req.params.storageName;
   const userName = req.user.username;
   const admin = req.user.admin;
   const data = await storage.get(storageName, admin ? undefined : userName);
