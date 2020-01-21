@@ -16,3 +16,22 @@
   when:
     - command_docker.rc != 0
 
+- name: "Get docker version"
+  raw: "docker info -f '{{json .ServerVersion}}'"
+  register: dev_box_docker_version
+  failed_when: false
+  changed_when: false
+  check_mode: false
+  environment: {}
+
+- name: "Compare docker version in dev-box"
+  fail:
+    msg: "The docker version in your dev-box is too low, please update it. And make sure its higher then 1.10"
+  changed_when: false
+  check_mode: false
+  environment: {}
+  when:
+    - dev_box_docker_version.stdout is version('1.10.0', '<=')
+
+
+
