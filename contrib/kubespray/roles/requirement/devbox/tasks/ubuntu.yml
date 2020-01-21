@@ -35,7 +35,7 @@
   check_mode: false
   environment: {}
   when:
-    - dev_box_docker_version.stdout is version('1.10.0', '<=')
+    - {{ dev_box_docker_version.stdout | replace('\"','') }} is version('1.10.0', '<=')
 
 
 
