@@ -15,7 +15,7 @@
   debug:
     msg: "The tested version of ubuntu is 16.04 LTS. Higher version should be ok, but have not tested it yet."
   when:
-    - dev_box_docker_version_replace is version('16.04', '>')
+    - ansible_distribution_version is version('16.04', '>')
 
 - name: Check ubuntu requirement. OpenPAI only supports ubuntu now.
   include_tasks: ubuntu.yml
