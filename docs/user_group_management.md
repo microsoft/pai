@@ -31,7 +31,7 @@ To add a new user to the cluster,cluster admins needs to do:
 
   
 
-In basic authentication mode,admin can update the existing users' infomation directly.
+In basic authentication mode,admin can update the existing users' information directly.
 
   
 
@@ -59,7 +59,7 @@ In basic authentication mode,group is bind to virtual cluster.Admin can not crea
 #### Update a group
 - Update teamwise storages,using command line tool or webportal to update storage configs in the group.
 - Update VCs. Using webportal or rest api to change the VCs that this group have access to.
-- Update adminrole. Using webportal or rest apis to update group's adminrole information,only users in admin group have access to adminstration.
+- Update adminrole. Using webportal or rest apis to update group's adminrole information,only users in admin group have access to administration.
 #### Delete a group
 - Use webportal or rest apis to remove a group from a cluster,the users in this group will be updated.
 
