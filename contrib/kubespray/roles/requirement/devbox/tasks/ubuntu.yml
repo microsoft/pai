@@ -17,7 +17,7 @@
     - command_docker.rc != 0
 
 - name: "Get docker version"
-  raw: "docker info -f '\{\{json .ServerVersion\}\}'"
+  raw: "{% raw %} docker info -f '{{json .ServerVersion}}'{% endraw %}"
   register: dev_box_docker_version
   failed_when: false
   changed_when: false
