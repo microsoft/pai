@@ -26,7 +26,7 @@
 
 - name: Output dev-box's docker  variables
   debug:
-    var: dev_box_docker_version
+    var: dev_box_docker_version.stdout
 
 - name: "Check docker version in dev-box"
   fail:
