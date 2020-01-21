@@ -89,7 +89,7 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install kubernetes pyyaml requests jinja2 pystache pylint
+        pip install kubernetes pyyaml requests jinja2 pystache pylint responses
     - name: Lint kube-runtime
       run: |
         cd src/kube-runtime

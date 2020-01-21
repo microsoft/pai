@@ -10,7 +10,7 @@ prerequisites:
     auth:
       username: user
       password: <% $secrets.docker_password_0 %>
-      registryuri: uri
+      registryuri: https://index.docker.io/v1/
 
 taskRoles:
   worker:
@@ -22,3 +22,5 @@ taskRoles:
       gpu: 2
     commands:
       - sleep infinity
+---
+docker_password_0: password

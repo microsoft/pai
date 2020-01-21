@@ -24,10 +24,7 @@ import yaml
 # pylint: disable=wrong-import-position
 sys.path.append(
     os.path.join(os.path.dirname(os.path.abspath(__file__)), "../src"))
-sys.path.append(
-    os.path.join(os.path.dirname(os.path.abspath(__file__)), "../src/init.d"))
-import user_command_renderer
-from common.utils import init_logger
+from common.utils import init_logger, render_string_with_secrets
 # pylint: enable=wrong-import-position
 
 PACKAGE_DIRECTORY_COM = os.path.dirname(os.path.abspath(__file__))
@@ -35,14 +32,14 @@ init_logger()
 
 
 # pylint: disable=protected-access
-class TestUserCommandRender(unittest.TestCase):
+class TestRenderWithSecret(unittest.TestCase):
     def setUp(self):
         try:
             os.chdir(PACKAGE_DIRECTORY_COM)
         except Exception:  #pylint: disable=broad-except
             pass
 
-    def test_user_command_render(self):
+    def test_render_with_secret(self):
         user_commands = [
             "sleep <% $secrets.time %>", "sleep <% $secrets.time[0] %>",
             "sleep <% $secrets.time.time1 %>",
@@ -56,8 +53,7 @@ class TestUserCommandRender(unittest.TestCase):
 
         for user_command, expected_command, secret in zip(
                 user_commands, expected_commands, secrets):
-            res = user_command_renderer._render_user_command(
-                user_command, secret)
+            res = render_string_with_secrets(user_command, secret)
             self.assertEqual(res, expected_command)
 
 
