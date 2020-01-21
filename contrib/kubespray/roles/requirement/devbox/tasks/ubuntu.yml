@@ -28,6 +28,11 @@
   debug:
     var: dev_box_docker_version.stdout
 
+- name: set ansible control host IP fact
+  set_fact:
+      dev_box_docker_version_replace: "{{ dev_box_docker_version.stdout | replace('\"','') }}"
+  delegate_to: 127.0.0.1
+
 - name: "Check docker version in dev-box"
   fail:
     msg: "The docker version in your dev-box is too low, please update it. And make sure its higher then 1.10"
@@ -35,7 +40,7 @@
   check_mode: false
   environment: {}
   when:
-    - "{{ dev_box_docker_version.stdout |replace('\"','') }}" is version('1.10.0', '<=')
+    - dev_box_docker_version_replace is version('1.10.0', '<=')
 
 
 
