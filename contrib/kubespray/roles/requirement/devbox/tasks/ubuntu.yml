@@ -24,6 +24,10 @@
   check_mode: false
   environment: {}
 
+- name: Output dev-box's docker  variables
+  debug:
+    var: dev_box_docker_version
+
 - name: "Check docker version in dev-box"
   fail:
     msg: "The docker version in your dev-box is too low, please update it. And make sure its higher then 1.10"
