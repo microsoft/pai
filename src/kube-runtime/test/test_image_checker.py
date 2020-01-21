@@ -157,37 +157,49 @@ class TestImageChecker(unittest.TestCase):
         mock.return_value = None
         mock_image_checker = ImageChecker({}, {})
 
-        valid_docker_hub_uris = [
-            "registry.domain/user-name/repo-0:tag-0.version",
-            "username/repo:tag", "username/repo", "ubuntu",
-            "golang:1.12.6-alpine",
-            "pytorch/pytorch:1.3-cuda10.1-cudnn7-runtime"
-        ]
-        expect_image_infos = [{
-            "repo": "user-name/repo-0",
-            "tag": "tag-0.version"
+        test_cases = [{
+            "image_uri": "registry.domain/user-name/repo-0:tag-0.version",
+            "expect_image_info": {
+                "repo": "user-name/repo-0",
+                "tag": "tag-0.version"
+            }
         }, {
-            "repo": "username/repo",
-            "tag": "tag"
+            "image_uri": "username/repo:tag",
+            "expect_image_info": {
+                "repo": "username/repo",
+                "tag": "tag"
+            }
         }, {
-            "repo": "username/repo",
-            "tag": "latest"
+            "image_uri": "username/repo",
+            "expect_image_info": {
+                "repo": "username/repo",
+                "tag": "latest"
+            }
         }, {
-            "repo": "library/ubuntu",
-            "tag": "latest"
+            "image_uri": "ubuntu",
+            "expect_image_info": {
+                "repo": "library/ubuntu",
+                "tag": "latest"
+            }
         }, {
-            "repo": "library/golang",
-            "tag": "1.12.6-alpine"
+            "image_uri": "golang:1.12.6-alpine",
+            "expect_image_info": {
+                "repo": "library/golang",
+                "tag": "1.12.6-alpine"
+            }
         }, {
-            "repo": "pytorch/pytorch",
-            "tag": "1.3-cuda10.1-cudnn7-runtime"
+            "image_uri": "pytorch/pytorch:1.3-cuda10.1-cudnn7-runtime",
+            "expect_image_info": {
+                "repo": "pytorch/pytorch",
+                "tag": "1.3-cuda10.1-cudnn7-runtime"
+            }
         }]
 
-        for uri, expect_info in zip(valid_docker_hub_uris, expect_image_infos):
-            mock_image_checker._image_uri = uri
+        for test_case in test_cases:
+            mock_image_checker._image_uri = test_case["image_uri"]
             image_info = ImageChecker._get_normalized_image_info(
                 mock_image_checker)
-            self.assertDictEqual(image_info, expect_info)
+            self.assertDictEqual(image_info, test_case["expect_image_info"])
 
         invalid_docker_hub_uris = [
             "localhost:5000/~repo", "localhost/user@name/repo:tag"
