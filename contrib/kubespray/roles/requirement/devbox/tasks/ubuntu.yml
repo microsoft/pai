@@ -24,7 +24,7 @@
   check_mode: false
   environment: {}
 
-- name: "Compare docker version in dev-box"
+- name: "Check docker version in dev-box"
   fail:
     msg: "The docker version in your dev-box is too low, please update it. And make sure its higher then 1.10"
   changed_when: false
