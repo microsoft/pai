@@ -7,7 +7,7 @@ MAX_QUEUE_SIZE = 10000
 
 
 class EventType(Enum):
-    DELETE_ORPHAN_PRIOPRITY_CLASS = 1,
+    DELETE_ORPHAN_PRIORITY_CLASS = 1,
     DELETE_HANG_POD = 2
 
 
@@ -19,7 +19,7 @@ class Event:
         self.kargs = kargs
 
 
-class EventProssesor:
+class EventProcessor:
     def __init__(self):
         self._queue = queue.Queue(MAX_QUEUE_SIZE)
         self._stop = False

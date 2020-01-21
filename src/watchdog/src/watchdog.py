@@ -128,7 +128,7 @@ def metric_collection_loop(atomic_ref, interval):
 
 
 def start_watchdog(args) -> None:
-    LOGGER.info("Watchdog Sarting")
+    LOGGER.info("Watchdog Starting")
     log_dir = args.log
     interval = args.interval
     try_remove_old_prom_file(log_dir)

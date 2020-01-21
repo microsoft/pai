@@ -28,7 +28,7 @@ import prometheus_client
 import yaml
 
 sys.path.append(os.path.abspath("./src"))
-import watchdog
+import prom_metric_generator
 
 log = logging.getLogger(__name__)
 
@@ -40,7 +40,7 @@ class TestJobExporter(unittest.TestCase):
     def setUp(self):
         try:
             os.chdir(os.path.abspath("test"))
-        except:
+        except IOError:
             pass
 
         configuration_path = "logging.yaml"
@@ -54,7 +54,7 @@ class TestJobExporter(unittest.TestCase):
     def tearDown(self):
         try:
             os.chdir(os.path.abspath(".."))
-        except:
+        except IOError:
             pass
 
     def get_data_test_input(self, path):
@@ -66,13 +66,11 @@ class TestJobExporter(unittest.TestCase):
         pod_list = kubernetes.client.V1PodList()
         pod_list.__dict__.update(**obj)
 
+        pod_info = collections.defaultdict(lambda: [])
+        prom_metric_generator._process_pods_status(pod_list, pod_info)
         pod_gauge = watchdog.gen_pai_pod_gauge()
         container_gauge = watchdog.gen_pai_container_gauge()
         job_pod_gauge = watchdog.gen_pai_job_pod_gauge()
-        pod_info = collections.defaultdict(lambda: [])
-
-        watchdog.process_pods_status(obj, pod_gauge, container_gauge,
-                                     job_pod_gauge, pod_info)
 
         self.assertTrue(len(pod_gauge.samples) > 0)
         self.assertEqual('10.151.40.4', pod_gauge.samples[0].labels['host_ip'])
