@@ -53,6 +53,9 @@ def prepare_image_check(job_config_path):
                     if len(configs) == 2:
                         self.job_config = configs[0]
                         self.secret = configs[1]
+                self.image_checker = ImageChecker(self.job_config, self.secret)
+                self.image_info = self.image_checker._get_normalized_image_info(
+                )
                 func(self, *args, **kwargs)
             del os.environ["PAI_CURRENT_TASK_ROLE_NAME"]
 
@@ -121,39 +124,33 @@ class TestImageChecker(unittest.TestCase):
             pass
         self.job_config = {}
         self.secret = {}
+        self.image_checker = None
+        self.image_info = None
 
     @prepare_image_check("docker_official_image.yaml")
     @responses.activate
     def test_official_image(self):
-        image_checker = ImageChecker(self.job_config, self.secret)
-        image_info = image_checker._get_normalized_image_info()
-        add_official_registry_v2_response(image_info)
-        self.assertTrue(image_checker.is_docker_image_accessible())
+        add_official_registry_v2_response(self.image_info)
+        self.assertTrue(self.image_checker.is_docker_image_accessible())
 
     @prepare_image_check("docker_image_no_exist.yaml")
     @responses.activate
     def test_image_not_exist(self):
-        image_checker = ImageChecker(self.job_config, self.secret)
-        image_info = image_checker._get_normalized_image_info()
-        add_official_registry_v2_response(image_info,
+        add_official_registry_v2_response(self.image_info,
                                           options={"image_not_found": True})
-        self.assertFalse(image_checker.is_docker_image_accessible())
+        self.assertFalse(self.image_checker.is_docker_image_accessible())
 
     @prepare_image_check("docker_image_acr_registry.yaml")
     @responses.activate
     def test_acr_image(self):
-        image_checker = ImageChecker(self.job_config, self.secret)
-        image_info = image_checker._get_normalized_image_info()
-        add_azure_registry_v2_response(image_info)
-        self.assertTrue(image_checker.is_docker_image_accessible())
+        add_azure_registry_v2_response(self.image_info)
+        self.assertTrue(self.image_checker.is_docker_image_accessible())
 
     @prepare_image_check("docker_image_auth.yaml")
     @responses.activate
     def test_image_with_auth(self):
-        image_checker = ImageChecker(self.job_config, self.secret)
-        image_info = image_checker._get_normalized_image_info()
-        add_official_registry_v2_response(image_info)
-        self.assertTrue(image_checker.is_docker_image_accessible())
+        add_official_registry_v2_response(self.image_info)
+        self.assertTrue(self.image_checker.is_docker_image_accessible())
 
     @patch.object(ImageChecker, "__init__")
     def test_is_use_default_domain(self, mock):
