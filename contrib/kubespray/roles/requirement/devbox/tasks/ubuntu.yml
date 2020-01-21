@@ -31,7 +31,6 @@
 - name: set ansible control host IP fact
   set_fact:
       dev_box_docker_version_replace: "{{ dev_box_docker_version.stdout | replace('\"','') }}"
-  delegate_to: 127.0.0.1
 
 - name: "Check docker version in dev-box"
   fail:
