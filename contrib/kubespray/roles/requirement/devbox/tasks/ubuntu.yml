@@ -24,13 +24,13 @@
   check_mode: false
   environment: {}
 
-- name: Output dev-box's docker  variables
-  debug:
-    var: dev_box_docker_version.stdout
-
-- name: set ansible control host IP fact
+- name: set dev-box docker version fact
   set_fact:
       dev_box_docker_version_replace: "{{ dev_box_docker_version.stdout | replace('\"','') }}"
+
+- name: Output dev-box's docker  variables
+  debug:
+    var: dev_box_docker_version_replace
 
 - name: "Check docker version in dev-box"
   fail:
