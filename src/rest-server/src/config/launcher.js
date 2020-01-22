@@ -110,6 +110,10 @@ const k8sLauncherConfigSchema = Joi.object().keys({
   runtimeImagePullSecrets: Joi.string()
     .required(),
   requestHeaders: Joi.object(),
+  sqlConnectionString: Joi.string()
+    .required(),
+  jobAttemptStorageEngine: Joi.string()
+    .required(),
   healthCheckPath: Joi.func()
     .arity(0)
     .required(),
@@ -212,6 +216,8 @@ if (launcherType === 'yarn') {
       'Accept': 'application/json',
       'Content-Type': 'application/json',
     },
+    sqlConnectionString: process.env.SQL_CONNECTION_STR || 'unset',
+    jobAttemptStorageEngine: process.env.JOB_ATTEMPT_STORAGE_ENGINE || 'elasticsearch',
     healthCheckPath: () => {
       return `/apis/${launcherConfig.apiVersion}`;
     },

@@ -25,3 +25,4 @@ github-repository: pai
 github-path: marketplace
 debugging-reservation-seconds: 604800
 enable-priority-class: false
+job-attempt-storage-engine: "elasticsearch"  # set it to "db" to use database backend
