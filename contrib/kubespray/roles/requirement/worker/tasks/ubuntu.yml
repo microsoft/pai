@@ -19,7 +19,6 @@
   when:
     - ansible_processor_vcpus < 1
 
-
 - name: "Worker 1.1 Check whether the vm can access to docker.io"
   raw: nslookup index.docker.io
   register: worker_nslookup_docker_io
