@@ -19,7 +19,8 @@ FROM fluent/fluentd:v1.7-1
 
 USER root
 RUN apk add --no-cache --update --virtual .build-deps \
-        sudo build-base ruby-dev make gcc libc-dev postgresql-dev libpq \
+        sudo build-base ruby-dev make gcc libc-dev postgresql-dev \
+ && apk add --no-cache --update libpq \
  && sudo gem install fluent-plugin-elasticsearch \
  && sudo gem install fluent-plugin-concat \
  && sudo gem install fluent-plugin-pgjson \
