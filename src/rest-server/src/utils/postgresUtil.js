@@ -35,7 +35,7 @@
 const {Sequelize} = require('sequelize');
 const launcherConfig = require('@pai/config/launcher');
 
-if (launcherConfig.sqlConnectionString !== "unset") {
+if (launcherConfig.sqlConnectionString !== 'unset') {
   const sequelize = new Sequelize(
     process.env.SQL_CONNECTION_STR,
     {

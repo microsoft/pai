@@ -16,9 +16,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 const launcherConfig = require('@pai/config/launcher');
 
-if (launcherConfig.jobAttemptStorageEngine === 'db'){
+if (launcherConfig.jobAttemptStorageEngine === 'db') {
   module.exports = require('@pai/models/v2/job-attempt-db');
-}
-else {
+} else {
   module.exports = require('@pai/models/v2/job-attempt-es');
 }
