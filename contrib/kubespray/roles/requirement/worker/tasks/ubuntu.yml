@@ -4,7 +4,7 @@
   fail:
     msg: "OpenPAI's worker node should have 16Gi Mem for service. "
   when:
-    - {{ ansible_memfree_mb/1024 }} < 16
+    - "{{ ansible_memfree_mb/1024 }} < 16"
 
 - name: Print Mem
   debug:
