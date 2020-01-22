@@ -1,17 +1,17 @@
 ---
 - name: Worker 7.1 Check resource requirement for openpai service
   set_fact:
-    host_free_mem: {{ ansible_memfree_mb/1024 }}
+    host_free_mem: "{{ ansible_memfree_mb/1024 }}"
+
+- name: Print Mem
+  debug:
+    var: host_free_mem
 
 - name: Worker 7.2 Check resource requirement for openpai service.
   fail:
     msg: "OpenPAI's worker node should have 16 Gi free memory for service. "
   when:
     - host_free_mem < 16
-
-- name: Print Mem
-  debug:
-    var: ansible_memfree_mb
 
 - name: Print CPU core
   debug:
