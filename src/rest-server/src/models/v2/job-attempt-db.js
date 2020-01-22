@@ -26,8 +26,6 @@ const createError = require('@pai/utils/error');
 const k8sModel = require('@pai/models/kubernetes/kubernetes');
 const logger = require('@pai/config/logger');
 const { sequelize } = require('@pai/utils/postgresUtil');
-const { Sequelize, Model } = require('Sequelize');
-
 
 const convertName = (name) => {
   // convert framework name to fit framework controller spec
