@@ -1,7 +1,7 @@
 ---
 - name: Print Mem
   debug:
-    var: hostvars[inventory_hostname]
+    var: ansible_memfree_mb
 
 - name: Print CPU core
   debug:
