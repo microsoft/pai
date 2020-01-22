@@ -1,4 +1,17 @@
 ---
+- name: Print Mem
+  debug:
+    var: ansible_memtotal_mb
+
+- name: Print CPU count
+  debug:
+    var: ansible_processor
+
+- name: Print CPU core
+  debug:
+    var: ansible_processor_cores
+
+
 - name: "Worker 1.1 Check whether the vm can access to docker.io"
   raw: nslookup index.docker.io
   register: worker_nslookup_docker_io
@@ -97,6 +110,7 @@
     msg: "Dev-box should be a separated machine from the cluster."
   when:
     - ansible_control_host_address == ansible_default_ipv4.address
+
 
 
 
