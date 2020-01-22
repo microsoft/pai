@@ -1,2 +1,6 @@
-CREATE TABLE job(name VARCHAR(20), create_date DATE);
-
+CREATE TABLE IF NOT EXISTS fc_objectsnapshots (
+   tag Text,
+   time Timestamptz,
+   record JsonB
+);
+CREATE INDEX recordgin ON fc_objectsnapshots USING gin (record);

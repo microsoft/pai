@@ -143,4 +143,26 @@ data:
           overflow_action block
         </buffer>
       </store>
+{% if (cluster_cfg['internal-storage']['enable']) and (cluster_cfg['postgresql']['enable']) %}
+      <store>
+        @type pgjson
+        host {{ cluster_cfg['postgresql']['host'] }}
+        port {{ cluster_cfg['postgresql']['port'] }}
+        user {{ cluster_cfg['postgresql']['user'] }}
+        password {{ cluster_cfg['postgresql']['passwd'] }}
+        database {{ cluster_cfg['postgresql']['db'] }}
+        table fc_objectsnapshots
+        record_col record
+        <buffer>
+          @type memory
+          flush_mode immediate
+          flush_thread_count 8
+          chunk_limit_size 96m
+          queue_limit_length 96
+          retry_forever
+          retry_max_interval 30
+          overflow_action block
+        </buffer>
+      </store>
+{% endif %}
     </match>
