@@ -1,24 +1,4 @@
 ---
-- name: Worker 7.1 Check memory resource requirement for openpai service
-  set_fact:
-    host_free_mem: "{{ ansible_memfree_mb/1024 }}"
-
-- name: Print Mem
-  debug:
-    var: host_free_mem
-
-- name: Worker 7.2 Check memory resource requirement for openpai service
-  fail:
-    msg: "OpenPAI's worker node should have 16 Gi free memory for service "
-  when:
-    - host_free_mem|int < 16
-
-- name: worker 8.1 Check cpu resource requirement for openpai service
-  fail:
-    msg: "OpenPAI's worker node should have 1 CPU vcore for service "
-  when:
-    - ansible_processor_vcpus < 1
-
 - name: "Worker 1.1 Check whether the vm can access to docker.io"
   raw: nslookup index.docker.io
   register: worker_nslookup_docker_io
@@ -117,6 +97,16 @@
     msg: "Dev-box should be a separated machine from the cluster."
   when:
     - ansible_control_host_address == ansible_default_ipv4.address
+
+- name: Worker 7.1 Check memory resource requirement for openpai service
+  set_fact:
+    host_free_mem: "{{ ansible_memfree_mb/1024 }}"
+
+- name: Worker 7.2 Check memory resource requirement for openpai service
+  fail:
+    msg: "OpenPAI's worker node should have 16 Gi free memory for service "
+  when:
+    - host_free_mem|int < 16
 
 
 
