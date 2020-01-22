@@ -11,7 +11,7 @@
   fail:
     msg: "OpenPAI's worker node should have 16 Gi free memory for service "
   when:
-    - "host_free_mem < 16"
+    - host_free_mem|int < 16
 
 - name: Print CPU core
   debug:
