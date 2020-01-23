@@ -3,4 +3,4 @@ CREATE TABLE IF NOT EXISTS fc_objectsnapshots (
    time Timestamptz,
    record JsonB
 );
-CREATE INDEX recordgin ON fc_objectsnapshots USING gin (record);
+CREATE INDEX uidindex ON fc_objectsnapshots USING gin ((record -> 'objectSnapshot' -> 'metadata' -> 'uid'));
