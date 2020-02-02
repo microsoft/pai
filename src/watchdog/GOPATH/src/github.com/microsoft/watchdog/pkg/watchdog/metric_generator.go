@@ -1,19 +1,19 @@
 package watchdog
 
 import (
+	"math"
 	"strings"
 
 	v1 "k8s.io/api/core/v1"
 	"k8s.io/klog"
 )
 
-type MetricGenerator struct{}
+type metricGenerator struct{}
 
-type NodeMetric struct {
+type nodeMetric struct {
+	name               string
 	ip                 string
 	gpuTotal           int
-	gpuAvaliable       int
-	gpuReserved        int
 	diskPressure       string
 	memoryPressure     string
 	ready              string
@@ -26,9 +26,10 @@ type NodeMetric struct {
 type containerMetric struct {
 	name   string
 	status string
+	ready  bool
 }
 
-type PodMetric struct {
+type podMetric struct {
 	name               string
 	namespace          string
 	nodeName           string
@@ -39,15 +40,15 @@ type PodMetric struct {
 	ready              string
 	containersReady    string
 	isConditionUnknown bool
-	podBound           bool
-	isService          bool
-	serviceName        string // valid if isService is True
-	jobName            string // valid if isService is False
+	bound              bool
+	serviceName        string
+	jobName            string
+	gpuUsed            int
 	containers         []containerMetric
 }
 
-func (mg *MetricGenerator) GeneratePodMetrics(podList *v1.PodList) []PodMetric {
-	var metrics []PodMetric
+func (mg *metricGenerator) generatePodMetrics(podList *v1.PodList) []podMetric {
+	var metrics []podMetric
 	for _, pod := range podList.Items {
 		podMetric := mg.generatePodMetric(&pod)
 		metrics = append(metrics, podMetric)
@@ -55,7 +56,7 @@ func (mg *MetricGenerator) GeneratePodMetrics(podList *v1.PodList) []PodMetric {
 	return metrics
 }
 
-func (mg *MetricGenerator) generatePodMetric(pod *v1.Pod) PodMetric {
+func (mg *metricGenerator) generatePodMetric(pod *v1.Pod) podMetric {
 	hostIP := pod.Status.HostIP
 	if hostIP == "" {
 		hostIP = "unscheduled"
@@ -85,18 +86,14 @@ func (mg *MetricGenerator) generatePodMetric(pod *v1.Pod) PodMetric {
 		}
 	}
 
-	podBound := false
+	bound := false
 	if pod.Spec.NodeName != "" {
-		podBound = true
+		bound = true
 	}
 
 	labels := pod.ObjectMeta.Labels
 	serviceName := labels["app"]
 	jobName := labels["jobName"]
-	isService := false
-	if serviceName != "" {
-		isService = true
-	}
 
 	var containerStatuses []containerMetric
 	for _, cStatus := range pod.Status.ContainerStatuses {
@@ -110,10 +107,18 @@ func (mg *MetricGenerator) generatePodMetric(pod *v1.Pod) PodMetric {
 		} else {
 			status.status = "unknown"
 		}
+		status.ready = cStatus.Ready
 		containerStatuses = append(containerStatuses, status)
 	}
 
-	return PodMetric{
+	var gpuUsed int
+	for _, c := range pod.Spec.Containers {
+		limit := mg.getGpuNumber(c.Resources.Limits)
+		request := mg.getGpuNumber(c.Resources.Requests)
+		gpuUsed = int(math.Max(float64(limit), float64(request)))
+	}
+
+	return podMetric{
 		name:               pod.ObjectMeta.Name,
 		namespace:          pod.ObjectMeta.Namespace,
 		nodeName:           pod.Spec.NodeName,
@@ -124,24 +129,24 @@ func (mg *MetricGenerator) generatePodMetric(pod *v1.Pod) PodMetric {
 		ready:              ready,
 		containersReady:    containersReady,
 		isConditionUnknown: isConditionUnknown,
-		podBound:           podBound,
-		isService:          isService,
+		bound:              bound,
 		serviceName:        serviceName,
 		jobName:            jobName,
 		containers:         containerStatuses,
+		gpuUsed:            gpuUsed,
 	}
 }
 
-func (mg *MetricGenerator) GenerateNodeToPodsMap(podMetrics []PodMetric) map[string][]PodMetric {
-	m := make(map[string][]PodMetric)
+func (mg *metricGenerator) generateNodeToPodsMap(podMetrics []podMetric) map[string][]podMetric {
+	m := make(map[string][]podMetric)
 	for _, podMetric := range podMetrics {
 		m[podMetric.nodeName] = append(m[podMetric.nodeName], podMetric)
 	}
 	return m
 }
 
-func (mg *MetricGenerator) GenerateNodeMetrics(nodeList *v1.NodeList) []NodeMetric {
-	var metrics []NodeMetric
+func (mg *metricGenerator) generateNodeMetrics(nodeList *v1.NodeList) []nodeMetric {
+	var metrics []nodeMetric
 	for _, node := range nodeList.Items {
 		nodeMetric := mg.generateNodeMetric(&node)
 		metrics = append(metrics, nodeMetric)
@@ -149,7 +154,7 @@ func (mg *MetricGenerator) GenerateNodeMetrics(nodeList *v1.NodeList) []NodeMetr
 	return metrics
 }
 
-func (mg *MetricGenerator) getGpuNumber(resourceList v1.ResourceList) int {
+func (mg *metricGenerator) getGpuNumber(resourceList v1.ResourceList) int {
 	if resourceList == nil {
 		return 0
 	}
@@ -160,9 +165,9 @@ func (mg *MetricGenerator) getGpuNumber(resourceList v1.ResourceList) int {
 	return int(gpuNumber.Value())
 }
 
-func (mg *MetricGenerator) generateNodeMetric(node *v1.Node) NodeMetric {
+func (mg *metricGenerator) generateNodeMetric(node *v1.Node) nodeMetric {
 	var ip string
-	var gpuTotal, gpuAvaliable, gpuReserved int
+	var gpuTotal int
 	var diskPressure, memoryPressure, ready, pidPressure,
 		networkUnavailable = "unknown", "unknown", "unknown", "unknown", "unknown"
 	for _, v := range node.Status.Addresses {
@@ -204,11 +209,10 @@ func (mg *MetricGenerator) generateNodeMetric(node *v1.Node) NodeMetric {
 		gpuTotal = mg.getGpuNumber(node.Status.Capacity)
 	}
 
-	return NodeMetric{
+	return nodeMetric{
+		name:               node.ObjectMeta.Name,
 		ip:                 ip,
 		gpuTotal:           gpuTotal,
-		gpuAvaliable:       gpuAvaliable,
-		gpuReserved:        gpuReserved,
 		diskPressure:       diskPressure,
 		memoryPressure:     memoryPressure,
 		pidPressure:        pidPressure,
