@@ -175,16 +175,7 @@ func (p *PromMetricCollector) Collect() {
 		}
 
 		p.metrics = append(p.metrics, p.getNodeGpuMetrics(nodeMetric, npMap)...)
-		p.metrics = append(p.metrics, prometheus.MustNewConstMetric(
-			paiMetrics["paiNodeCount"],
-			prometheus.GaugeValue,
-			1,
-			nodeMetric.ip,
-			nodeMetric.diskPressure,
-			nodeMetric.memoryPressure,
-			nodeMetric.ready,
-			strconv.FormatBool(nodeMetric.unschedulable),
-		))
+		p.metrics = append(p.metrics, p.getPaiNodeMetrics(nodeMetric)...)
 	}
 
 	for _, podMetric := range podMetrics {
@@ -215,6 +206,21 @@ func (p *PromMetricCollector) getMetrics() []prometheus.Metric {
 	dst := make([]prometheus.Metric, len(p.metrics))
 	copy(dst, p.metrics)
 	return dst
+}
+
+func (p *PromMetricCollector) getPaiNodeMetrics(nodeMetric nodeMetric) []prometheus.Metric {
+	metrics := make([]prometheus.Metric, 0, 1)
+	metrics = append(metrics, prometheus.MustNewConstMetric(
+		paiMetrics["paiNodeCount"],
+		prometheus.GaugeValue,
+		1,
+		nodeMetric.ip,
+		nodeMetric.diskPressure,
+		nodeMetric.memoryPressure,
+		nodeMetric.ready,
+		strconv.FormatBool(nodeMetric.unschedulable),
+	))
+	return metrics
 }
 
 func (p *PromMetricCollector) getNodeGpuMetrics(

@@ -103,6 +103,14 @@
   version = "1.0.1"
 
 [[projects]]
+  digest = "1:0028cb19b2e4c3112225cd871870f2d9cf49b9b4276531f03438a88e94be86fe"
+  name = "github.com/pmezard/go-difflib"
+  packages = ["difflib"]
+  pruneopts = "UT"
+  revision = "792786c7400a136282c1664665ae0a8db921c6c2"
+  version = "v1.0.0"
+
+[[projects]]
   digest = "1:eb04f69c8991e52eff33c428bd729e04208bf03235be88e4df0d88497c6861b9"
   name = "github.com/prometheus/client_golang"
   packages = [
@@ -153,6 +161,14 @@
   pruneopts = "UT"
   revision = "2e9d26c8c37aae03e3f9d4e90b7116f5accb7cab"
   version = "v1.0.5"
+
+[[projects]]
+  digest = "1:8548c309c65a85933a625be5e7d52b6ac927ca30c56869fae58123b8a77a75e1"
+  name = "github.com/stretchr/testify"
+  packages = ["assert"]
+  pruneopts = "UT"
+  revision = "221dbe5ed46703ee255b1da0dec05086f5035f62"
+  version = "v1.4.0"
 
 [[projects]]
   branch = "master"
@@ -310,7 +326,7 @@
   version = "v0.17.1"
 
 [[projects]]
-  digest = "1:1b775d940e07417ad1f31983d974c9637ba2fce71ef8b8710dd66d5d656b1a7c"
+  digest = "1:44f52384bd5906809631cb711a4677a1aa2ba0e079a50bf839fd498cab3f39da"
   name = "k8s.io/apimachinery"
   packages = [
     "pkg/api/errors",
@@ -343,7 +359,6 @@
     "pkg/util/sets",
     "pkg/util/validation",
     "pkg/util/validation/field",
-    "pkg/util/wait",
     "pkg/util/yaml",
     "pkg/version",
     "pkg/watch",
@@ -354,7 +369,7 @@
   version = "v0.17.1"
 
 [[projects]]
-  digest = "1:e5d8989815d89d9f174258688311c9d28550f506a4417aa707d915892f1730b5"
+  digest = "1:3d090f853403f5f24fc5ddd14149409476f4759fb59a5a505b328c9040dc6ad2"
   name = "k8s.io/client-go"
   packages = [
     "discovery",
@@ -416,7 +431,6 @@
     "util/flowcontrol",
     "util/homedir",
     "util/keyutil",
-    "util/retry",
   ]
   pruneopts = "UT"
   revision = "8cba805ad12d699a43f2fe96dbfbcf3042133e89"
@@ -452,15 +466,13 @@
   input-imports = [
     "github.com/prometheus/client_golang/prometheus",
     "github.com/prometheus/client_golang/prometheus/promhttp",
-    "k8s.io/api/apps/v1",
+    "github.com/stretchr/testify/assert",
     "k8s.io/api/core/v1",
     "k8s.io/api/scheduling/v1",
     "k8s.io/apimachinery/pkg/apis/meta/v1",
     "k8s.io/client-go/kubernetes",
     "k8s.io/client-go/rest",
     "k8s.io/client-go/tools/clientcmd",
-    "k8s.io/client-go/util/homedir",
-    "k8s.io/client-go/util/retry",
     "k8s.io/klog",
   ]
   solver-name = "gps-cdcl"

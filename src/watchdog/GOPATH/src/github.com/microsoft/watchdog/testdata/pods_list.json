@@ -7,15 +7,184 @@
     "items": [
       {
         "metadata": {
-          "name": "drivers-one-shot-ndldh",
-          "generateName": "drivers-one-shot-",
+          "name": "log-manager-ds-nxm2k",
+          "generateName": "log-manager-ds-",
           "namespace": "default",
-          "creationTimestamp": "2018-07-18T06:27:22Z",
+          "selfLink": "/api/v1/namespaces/default/pods/log-manager-ds-nxm2k",
+          "uid": "82292418-d523-11e9-b30f-000d3ab25bb6",
+          "resourceVersion": "15481409",
+          "creationTimestamp": "2019-09-12T06:06:49Z",
           "labels": {
-              "app": "drivers-one-shot",
-              "controller-revision-hash": "2607302775",
-              "pod-template-generation": "1"
-          }
+            "app": "log-manager",
+            "controller-revision-hash": "9c99f9ccf",
+            "pod-template-generation": "1"
+          },
+          "annotations": {
+            "port": "9103"
+          },
+          "ownerReferences": [
+            {
+              "apiVersion": "apps/v1",
+              "kind": "DaemonSet",
+              "name": "log-manager-ds",
+              "uid": "8216b6f1-d523-11e9-b30f-000d3ab25bb6",
+              "controller": true,
+              "blockOwnerDeletion": true
+            }
+          ]
+        },
+        "spec": {
+          "volumes": [
+            {
+              "name": "pai-log",
+              "hostPath": {
+                "path": "/var/log/pai",
+                "type": ""
+              }
+            },
+            {
+              "name": "pai-log-backup",
+              "hostPath": {
+                "path": "/var/log/pai-backup",
+                "type": ""
+              }
+            }
+          ],
+          "containers": [
+            {
+              "name": "log-manager-logrotate",
+              "image": "docker.io/openpai/log-manager-logrotate:vnext-k8s",
+              "env": [
+                {
+                  "name": "LOGROTATE_CRONSCHEDULE",
+                  "value": "daily"
+                }
+              ],
+              "resources": {},
+              "volumeMounts": [
+                {
+                  "name": "pai-log",
+                  "mountPath": "/usr/local/pai/logs"
+                },
+                {
+                  "name": "pai-log-backup",
+                  "mountPath": "/usr/local/pai/logs-backup"
+                }
+              ],
+              "terminationMessagePath": "/dev/termination-log",
+              "terminationMessagePolicy": "File",
+              "imagePullPolicy": "Always"
+            },
+            {
+              "name": "log-manager-nginx",
+              "image": "docker.io/openpai/log-manager-nginx:vnext-k8s",
+              "ports": [
+                {
+                  "name": "log-manager",
+                  "hostPort": 9103,
+                  "containerPort": 80,
+                  "protocol": "TCP"
+                }
+              ],
+              "resources": {},
+              "volumeMounts": [
+                {
+                  "name": "pai-log",
+                  "mountPath": "/usr/local/pai/logs"
+                },
+                {
+                  "name": "pai-log-backup",
+                  "mountPath": "/usr/local/pai/logs-backup"
+                }
+              ],
+              "livenessProbe": {
+                "httpGet": {
+                  "path": "/healthz",
+                  "port": "log-manager",
+                  "scheme": "HTTP"
+                },
+                "initialDelaySeconds": 10,
+                "timeoutSeconds": 1,
+                "periodSeconds": 60,
+                "successThreshold": 1,
+                "failureThreshold": 3
+              },
+              "terminationMessagePath": "/dev/termination-log",
+              "terminationMessagePolicy": "File",
+              "imagePullPolicy": "Always"
+            }
+          ],
+          "restartPolicy": "Always",
+          "terminationGracePeriodSeconds": 30,
+          "dnsPolicy": "ClusterFirst",
+          "nodeName": "10.151.41.8",
+          "securityContext": {},
+          "imagePullSecrets": [
+            {
+              "name": "pai-secret"
+            }
+          ],
+          "affinity": {
+            "nodeAffinity": {
+              "requiredDuringSchedulingIgnoredDuringExecution": {
+                "nodeSelectorTerms": [
+                  {
+                    "matchFields": [
+                      {
+                        "key": "metadata.name",
+                        "operator": "In",
+                        "values": [
+                          "10.151.41.8"
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          },
+          "schedulerName": "default-scheduler",
+          "tolerations": [
+            {
+              "key": "node.kubernetes.io/memory-pressure",
+              "operator": "Exists"
+            },
+            {
+              "key": "node.kubernetes.io/disk-pressure",
+              "operator": "Exists"
+            },
+            {
+              "key": "node.kubernetes.io/not-ready",
+              "operator": "Exists",
+              "effect": "NoExecute"
+            },
+            {
+              "key": "node.kubernetes.io/unreachable",
+              "operator": "Exists",
+              "effect": "NoExecute"
+            },
+            {
+              "key": "node.kubernetes.io/disk-pressure",
+              "operator": "Exists",
+              "effect": "NoSchedule"
+            },
+            {
+              "key": "node.kubernetes.io/memory-pressure",
+              "operator": "Exists",
+              "effect": "NoSchedule"
+            },
+            {
+              "key": "node.kubernetes.io/pid-pressure",
+              "operator": "Exists",
+              "effect": "NoSchedule"
+            },
+            {
+              "key": "node.kubernetes.io/unschedulable",
+              "operator": "Exists",
+              "effect": "NoSchedule"
+            }
+          ],
+          "enableServiceLinks": true
         },
         "status": {
           "phase": "Running",
@@ -24,37 +193,66 @@
               "type": "Initialized",
               "status": "True",
               "lastProbeTime": null,
-              "lastTransitionTime": "2018-07-18T06:27:22Z"
+              "lastTransitionTime": "2019-09-12T06:07:31Z"
             },
             {
               "type": "Ready",
               "status": "True",
               "lastProbeTime": null,
-              "lastTransitionTime": "2018-07-18T10:37:56Z"
+              "lastTransitionTime": "2019-11-25T14:23:16Z"
+            },
+            {
+              "type": "ContainersReady",
+              "status": "True",
+              "lastProbeTime": null,
+              "lastTransitionTime": "2019-11-25T14:23:16Z"
             },
             {
               "type": "PodScheduled",
               "status": "True",
               "lastProbeTime": null,
-              "lastTransitionTime": "2018-07-18T06:28:48Z"
+              "lastTransitionTime": "2019-09-12T06:06:49Z"
             }
           ],
-          "hostIP": "10.151.40.4",
-          "podIP": "10.151.40.4",
-          "startTime": "2018-07-18T06:27:22Z",
+          "hostIP": "10.151.41.8",
+          "podIP": "172.17.0.3",
+          "startTime": "2019-09-12T06:07:31Z",
           "containerStatuses": [
             {
-              "name": "nvidia-drivers",
+              "name": "log-manager-logrotate",
               "state": {
                 "running": {
-                  "startedAt": "2018-07-18T10:36:16Z"
+                  "startedAt": "2019-11-25T14:23:12Z"
+                }
+              },
+              "lastState": {
+                "terminated": {
+                  "exitCode": 137,
+                  "reason": "Error",
+                  "startedAt": "2019-11-25T14:22:07Z",
+                  "finishedAt": "2019-11-25T14:22:47Z",
+                  "containerID": "docker://f8703e85c2403b605779c72743d80c8b67ee98835c12c01645a03581141c9c7f"
                 }
               },
               "ready": true,
-              "restartCount": 0,
-              "image": "xudifsd/drivers:latest",
-              "imageID": "docker-pullable://xudifsd/drivers@sha256:24e359fe5b3811fbf7fa55534f8272481e62f53565aa44f8a6f6623f9cc3cd52",
-              "containerID": "docker://c1ad78c03611eb1ca835be0d169e2724f509f317ddf4431ffce8c0bb90665a19"
+              "restartCount": 5,
+              "image": "openpai/log-manager-logrotate:vnext-k8s",
+              "imageID": "docker-pullable://openpai/log-manager-logrotate@sha256:7bede480936aa47de239c4a15af5a37d8b60a9d519a0f2d46a5d29428fbe4b2c",
+              "containerID": "docker://0651a070987ccd58b36ad9638c2c7acdc1c5ac8117910ebd3da131b3e2e40c13"
+            },
+            {
+              "name": "log-manager-nginx",
+              "state": {
+                "running": {
+                  "startedAt": "2019-11-25T14:23:14Z"
+                }
+              },
+              "lastState": {},
+              "ready": true,
+              "restartCount": 5,
+              "image": "openpai/log-manager-nginx:vnext-k8s",
+              "imageID": "docker-pullable://openpai/log-manager-nginx@sha256:6f91b3019c895f749d0faa82f3c48e9ffa75f84e871ad9d117f0824e917b4014",
+              "containerID": "docker://92bc27eac6d018c699ddc25f773089e843a32fb21e0509023bf180d87facc750"
             }
           ],
           "qosClass": "BestEffort"
