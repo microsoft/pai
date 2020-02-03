@@ -48,10 +48,17 @@ spec:
         - name: internal-data-dir
           mountPath: /var/lib/postgresql/data/
           mountPropagation: "None"
-        # ports:
-        # - containerPort: {{ cluster_cfg["postgresql"]["port"] }}
-        #   hostPort: {{ cluster_cfg["postgresql"]["port"] }}
-        #   name: postgresql-port
+      - name: postgressql-init-client
+        image: {{ cluster_cfg["cluster"]["docker-registry"]["prefix"] }}postgresql-init-client:{{ cluster_cfg["cluster"]["docker-registry"]["tag"] }}
+        imagePullPolicy: Always
+        - name: POSTGRES_USER
+          value: {{ cluster_cfg["postgresql"]["user"] }}
+        - name: PGPASSWORD
+          value: {{ cluster_cfg["postgresql"]["passwd"] }}
+        - name: POSTGRES_DB
+          value: {{ cluster_cfg["postgresql"]["db"] }}
+        - name: POSTGRES_PORT
+          value: '{{ cluster_cfg["postgresql"]["port"] }}'
       volumes:
         - name: internal-data-dir
           hostPath:

@@ -1,3 +1,5 @@
+#!/bin/bash
+
 # Copyright (c) Microsoft Corporation
 # All rights reserved.
 #
@@ -15,8 +17,8 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-FROM postgres:12.0
+pushd $(dirname "$0") > /dev/null
 
-RUN mkdir -p /docker-entrypoint-initdb.d
+psql -h localhost -p ${POSTGRES_PORT} -U ${POSTGRES_USER} ${POSTGRES_DB} -f init_table.sql || exit $?
 
-COPY src/once_init_table.sql /docker-entrypoint-initdb.d
+popd > /dev/null
