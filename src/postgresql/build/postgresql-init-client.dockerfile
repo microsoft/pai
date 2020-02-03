@@ -31,6 +31,6 @@ RUN apt install -y postgresql-client-12
 
 RUN mkdir -p /postgresql_init
 
-COPY src/init_table.sql src/init_table.sh /postgresql_init
+COPY src/init_table.sql src/init_table.sh /postgresql_init/
 
 ENTRYPOINT sleep infinity
