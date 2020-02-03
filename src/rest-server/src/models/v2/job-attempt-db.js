@@ -16,7 +16,6 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 // module dependencies
-const _ = require('lodash');
 const crypto = require('crypto');
 const {isNil} = require('lodash');
 
@@ -25,7 +24,7 @@ const launcherConfig = require('@pai/config/launcher');
 const createError = require('@pai/utils/error');
 const k8sModel = require('@pai/models/kubernetes/kubernetes');
 const logger = require('@pai/config/logger');
-const { sequelize } = require('@pai/utils/postgresUtil');
+const {sequelize} = require('@pai/utils/postgresUtil');
 
 const convertName = (name) => {
   // convert framework name to fit framework controller spec
@@ -42,12 +41,12 @@ const encodeName = (name) => {
   }
 };
 
-if (sequelize){
+if (sequelize) {
   const healthCheck = async () => {
     try {
       await sequelize.authenticate();
       return true;
-    } catch(e) {
+    } catch (e) {
       logger.error(e.message);
       return false;
     }
@@ -97,7 +96,7 @@ if (sequelize){
       `record->'objectSnapshot'->'metadata'->'uid' ? '${uid}' and ` +
       `record->'objectSnapshot'->'kind' ? 'Framework' ` +
       `ORDER BY cast(record->'objectSnapshot'->'status'->'attemptStatus'->>'id' as INTEGER) ASC;`;
-    const [pgResult, metadata] = await sequelize.query(sqlSentence);
+    const pgResult = (await sequelize.query(sqlSentence))[0];
     const jobRetries = await Promise.all(
       pgResult.map((row) => {
         return convertToJobAttempt(row.data);
@@ -109,7 +108,7 @@ if (sequelize){
       }),
     );
 
-    return {status: 200, data: attemptData}
+    return {status: 200, data: attemptData};
   };
 
   const get = async (frameworkName, jobAttemptIndex) => {
@@ -152,7 +151,7 @@ if (sequelize){
         `record->'objectSnapshot'->'status'->'attemptStatus'->>'id' = '${jobAttemptIndex}' and ` +
         `record->'objectSnapshot'->'kind' ? 'Framework' ` +
         `ORDER BY cast(record->'objectSnapshot'->'status'->'attemptStatus'->>'id' as INTEGER) ASC;`;
-      const [pgResult, metadata] = await sequelize.query(sqlSentence);
+      const pgResult = (await sequelize.query(sqlSentence))[0];
 
       if (pgResult.length === 0) {
         return {status: 404, data: null};
@@ -180,7 +179,11 @@ if (sequelize){
 } else {
   module.exports = {
     healthCheck: () => false,
-    list: () => { throw Error('Unexpected Call') },
-    get: () => { throw Error('Unexpected Call') },
+    list: () => {
+ throw Error('Unexpected Call');
+},
+    get: () => {
+ throw Error('Unexpected Call');
+},
   };
 }
