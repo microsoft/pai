@@ -65,6 +65,8 @@ spec:
             command:
             - '/bin/bash'
             - '/postgresql_init/init_table.sh'
+          initialDelaySeconds: 5
+          periodSeconds: 10
       volumes:
         - name: internal-data-dir
           hostPath:
