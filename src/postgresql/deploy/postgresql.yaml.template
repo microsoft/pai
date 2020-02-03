@@ -48,9 +48,10 @@ spec:
         - name: internal-data-dir
           mountPath: /var/lib/postgresql/data/
           mountPropagation: "None"
-      - name: postgressql-init-client
+      - name: postgresql-init-client
         image: {{ cluster_cfg["cluster"]["docker-registry"]["prefix"] }}postgresql-init-client:{{ cluster_cfg["cluster"]["docker-registry"]["tag"] }}
         imagePullPolicy: Always
+        env:
         - name: POSTGRES_USER
           value: {{ cluster_cfg["postgresql"]["user"] }}
         - name: PGPASSWORD
