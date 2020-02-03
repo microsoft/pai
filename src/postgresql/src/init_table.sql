@@ -1,4 +1,4 @@
-# This init script will be run every time when the database container is started.
+/* This init script will be run every time when the database container is started. */
 
 CREATE TABLE IF NOT EXISTS fc_objectsnapshots (
    tag Text,

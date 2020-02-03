@@ -60,6 +60,11 @@ spec:
           value: {{ cluster_cfg["postgresql"]["db"] }}
         - name: POSTGRES_PORT
           value: '{{ cluster_cfg["postgresql"]["port"] }}'
+        readinessProbe:
+          exec:
+            command:
+            - '/bin/bash'
+            - '/postgresql_init/init_table.sh'
       volumes:
         - name: internal-data-dir
           hostPath:
