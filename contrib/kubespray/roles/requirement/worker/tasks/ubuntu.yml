@@ -16,32 +16,7 @@
   when:
     - worker_nslookup_docker_io.rc != 0
 
-- name: "Worker 2.1 Check whether the NTP is installed and enabled."
-  raw: pgrep ntpd
-  register: worker_pgrep_ntpd
-  failed_when: false
-  changed_when: false
-  check_mode: false
-  environment: {}
-
-- name: "Worker 2.2 Check whether the NTP is installed and enabled."
-  raw: ntpq -p
-  register: worker_ntpq
-  failed_when: false
-  changed_when: false
-  check_mode: false
-  environment: {}
-
-- name: "Worker 2.3 Check whether the NTP is installed and enabled."
-  fail:
-    msg: "NTP is not enabled on your worker machines."
-  changed_when: false
-  check_mode: false
-  environment: {}
-  when:
-    - worker_ntpq.rc != 0 or worker_nslookup_docker_io.rc != 0
-
-- name: "Worker 3.1 Check GPU card info"
+- name: "Worker 2.1 Check GPU card info"
   raw: "lspci | grep -E '[0-9a-fA-F][0-9a-fA-F]:[0-9a-fA-F][0-9a-fA-F].[0-9] (3D|VGA compatible) controller: NVIDIA Corporation.*'"
   register: worker_lspci_grep
   failed_when: false
@@ -49,7 +24,7 @@
   check_mode: false
   environment: {}
 
-- name: "Worker 3.2 Check GPU card info"
+- name: "Worker 2.2 Check GPU card info"
   fail:
     msg: "NVIDIA GPU card is not detected in your worker machines."
   changed_when: false
@@ -58,7 +33,7 @@
   when:
     - worker_lspci_grep.rc != 0
 
-- name: "Worker 4.1 Check NVIDIA GPU drivers"
+- name: "Worker 3.1 Check NVIDIA GPU drivers"
   raw: "nvidia-smi"
   register: worker_nvidia_smi
   failed_when: false
@@ -66,7 +41,7 @@
   check_mode: false
   environment: {}
 
-- name: "Worker 4.2 Check NVIDIA GPU drivers "
+- name: "Worker 3.2 Check NVIDIA GPU drivers "
   fail:
     msg: "NVIDIA GPU drivers is not detected in your worker machines."
   changed_when: false
@@ -75,7 +50,7 @@
   when:
     - worker_nvidia_smi.rc != 0
 
-- name: "Worker 5.1 Check NVIDIA container runtime"
+- name: "Worker 4.1 Check NVIDIA container runtime"
   raw: "command -v nvidia-container-runtime "
   register: worker_nvidia_container_runtime
   failed_when: false
@@ -83,7 +58,7 @@
   check_mode: false
   environment: {}
 
-- name: "Worker 5.2 Check NVIDIA container runtime"
+- name: "Worker 4.2 Check NVIDIA container runtime"
   fail:
     msg: "NVIDIA container runtime is not detected in your worker machines."
   changed_when: false
@@ -92,17 +67,17 @@
   when:
     - worker_nvidia_container_runtime.rc != 0
 
-- name: "Worker 6.1 Ensure dev-box is not an worker machines"
+- name: "Worker 5.1 Ensure dev-box is not an worker machines"
   fail:
     msg: "Dev-box should be a separated machine from the cluster."
   when:
     - ansible_control_host_address == ansible_default_ipv4.address
 
-- name: Worker 7.1 Check memory resource requirement for openpai service
+- name: Worker 6.1 Check memory resource requirement for openpai service
   set_fact:
     host_free_mem: "{{ ansible_memfree_mb/1024 }}"
 
-- name: Worker 7.2 Check memory resource requirement for openpai service
+- name: Worker 6.2 Check memory resource requirement for openpai service
   fail:
     msg: "OpenPAI's worker node should have 16 Gi free memory for service "
   when:
