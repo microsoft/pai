@@ -35,3 +35,5 @@ else
   echo "Faild: Please check the output, and modify the cluster setting to meet the requirement"
 fi
 
+rm -rf ${HOME}/pai-pre-check/
+
