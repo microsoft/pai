@@ -51,7 +51,7 @@
   fail:
     msg: "OpenPAI's infra node should have 40 Gi free memory for service "
   when:
-    - ansible_memfree_mb < 400
+    - ansible_memfree_mb < 40000
 
 - name: worker 5.1 Check cpu resource requirement for openpai service
   fail:
