@@ -45,6 +45,10 @@ release-2.11
         - OpenPAI reserves memory and CPU for service running, so make sure there are enough resource to run machine learning jobs. Check hardware requirements for details.
         - Dedicated servers for OpenPAI. OpenPAI manages all CPU, memory and GPU resources of servers. If there is any other workload, it may cause unknown problem due to insufficient resource.
 
+#### Check requirement
+
+- [Tutorial of checking environment](./doc/requirement.md)
+
 #### Deployment
 
 - Deploy OpenPAI with kubespray. **Recommended**.
