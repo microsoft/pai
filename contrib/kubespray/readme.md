@@ -47,7 +47,7 @@ release-2.11
 
 #### Check requirement
 
-- [Tutorial of ching environment](./doc/requirement.md)
+- [Tutorial of checkingg environment](./doc/requirement.md)
 
 #### Deployment
 
