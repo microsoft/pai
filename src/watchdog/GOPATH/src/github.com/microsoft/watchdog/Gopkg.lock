@@ -87,6 +87,20 @@
   version = "v1.0.1"
 
 [[projects]]
+  digest = "1:596910a9a705936d363abc9ffed8eddcecd84ee332acf11bc340db0bf16920c4"
+  name = "github.com/microsoft/frameworkcontroller"
+  packages = [
+    "pkg/apis/frameworkcontroller/v1",
+    "pkg/client/clientset/versioned",
+    "pkg/client/clientset/versioned/scheme",
+    "pkg/client/clientset/versioned/typed/frameworkcontroller/v1",
+    "pkg/common",
+  ]
+  pruneopts = "UT"
+  revision = "429fa5498e9780667fb175fc6b0517230bd1ebfe"
+  version = "v0.5.1"
+
+[[projects]]
   digest = "1:33422d238f147d247752996a26574ac48dcf472976eda7f5134015f06bf16563"
   name = "github.com/modern-go/concurrent"
   packages = ["."]
@@ -281,7 +295,7 @@
   version = "v2.2.7"
 
 [[projects]]
-  digest = "1:57858c910b7c29c64f742c34df7bc6ce76ea72e561276c80c0eda16980443736"
+  digest = "1:86ad5797d1189de342ed6988fbb76b92dc0429a4d677ad69888d6137efa5712e"
   name = "k8s.io/api"
   packages = [
     "admissionregistration/v1beta1",
@@ -322,11 +336,22 @@
     "storage/v1beta1",
   ]
   pruneopts = "UT"
-  revision = "7643814f1c97f24ccfb38c2b85a7bb3c7f494346"
-  version = "v0.17.1"
+  revision = "a675ac48af67cf21d815b5f8df288462096eb9c9"
+  version = "kubernetes-1.14.2"
 
 [[projects]]
-  digest = "1:44f52384bd5906809631cb711a4677a1aa2ba0e079a50bf839fd498cab3f39da"
+  digest = "1:a0ac3d2549ab736b793e58f479c4dddf78f0a462ac6d7c40ed47c7f7a901b6b3"
+  name = "k8s.io/apiextensions-apiserver"
+  packages = [
+    "pkg/apis/apiextensions",
+    "pkg/apis/apiextensions/v1beta1",
+  ]
+  pruneopts = "UT"
+  revision = "bf6753f2aa24fe1d69a2abeea1c106042bcf3f5f"
+  version = "kubernetes-1.14.2"
+
+[[projects]]
+  digest = "1:78f6a824d205c6cb0d011cce241407646b773cb57ee27e8c7e027753b4111075"
   name = "k8s.io/apimachinery"
   packages = [
     "pkg/api/errors",
@@ -334,6 +359,7 @@
     "pkg/api/resource",
     "pkg/apis/meta/v1",
     "pkg/apis/meta/v1/unstructured",
+    "pkg/apis/meta/v1beta1",
     "pkg/conversion",
     "pkg/conversion/queryparams",
     "pkg/fields",
@@ -365,11 +391,11 @@
     "third_party/forked/golang/reflect",
   ]
   pruneopts = "UT"
-  revision = "79c2a76c473a20cdc4ce59cae4b72529b5d9d16b"
-  version = "v0.17.1"
+  revision = "6a84e37a896db9780c75367af8d2ed2bb944022e"
+  version = "kubernetes-1.14.2"
 
 [[projects]]
-  digest = "1:3d090f853403f5f24fc5ddd14149409476f4759fb59a5a505b328c9040dc6ad2"
+  digest = "1:49350e3456577f754e365ec213a486cff158622a06f6117a825222db8a1ce2c4"
   name = "k8s.io/client-go"
   packages = [
     "discovery",
@@ -433,8 +459,8 @@
     "util/keyutil",
   ]
   pruneopts = "UT"
-  revision = "8cba805ad12d699a43f2fe96dbfbcf3042133e89"
-  version = "kubernetes-1.15.6"
+  revision = "ae8359b20417914b73a4b514b7a3d642597700bb"
+  version = "kubernetes-1.14.2"
 
 [[projects]]
   digest = "1:93e82f25d75aba18436ad1ac042cb49493f096011f2541075721ed6f9e05c044"
@@ -464,8 +490,10 @@
   analyzer-name = "dep"
   analyzer-version = 1
   input-imports = [
+    "github.com/microsoft/frameworkcontroller/pkg/client/clientset/versioned",
     "github.com/prometheus/client_golang/prometheus",
     "github.com/prometheus/client_golang/prometheus/promhttp",
+    "github.com/prometheus/client_model/go",
     "github.com/stretchr/testify/assert",
     "k8s.io/api/core/v1",
     "k8s.io/api/scheduling/v1",

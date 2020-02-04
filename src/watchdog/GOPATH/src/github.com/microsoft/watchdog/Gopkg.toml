@@ -31,7 +31,7 @@
 
 [[constraint]]
   name = "k8s.io/client-go"
-  version = "kubernetes-1.15.6"
+  version = "kubernetes-1.14.2"
 
 
 [[constraint]]
@@ -41,3 +41,7 @@
 [[constraint]]
   name = "github.com/stretchr/testify"
   version = "1.4.0"
+
+[[constraint]]
+  name = "github.com/microsoft/frameworkcontroller"
+  version = "0.5.1"
