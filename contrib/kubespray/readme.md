@@ -18,6 +18,7 @@ release-2.11
         - Server can communicate with all other machine (infra and worker)
         - SSH service is enabled and share the same username/password and have sudo privilege
         - Passwordless ssh to all other machine (infra and worker)
+        - Be separate from cluster which contains infra machines and worker machines   
     - OpenPAI Requirement
         - Docker is installed, and it is used to start up dev-box container for service deployment
     
@@ -41,7 +42,6 @@ release-2.11
         - Ubuntu 16.04 (18.04 should work, but not fully tested.)
         - **GPU driver is installed.** 
         - **Nvidia docker runtime is installed.**
-        - NTP service is enabled, and some workloads have time synchronization requirement.
         - OpenPAI reserves memory and CPU for service running, so make sure there are enough resource to run machine learning jobs. Check hardware requirements for details.
         - Dedicated servers for OpenPAI. OpenPAI manages all CPU, memory and GPU resources of servers. If there is any other workload, it may cause unknown problem due to insufficient resource.
 

@@ -1,0 +1,60 @@
+---
+- name: "Infra 1.1 Check whether the vm can access to docker.io"
+  raw: nslookup index.docker.io
+  register: infra_nslookup_docker_io
+  failed_when: false
+  changed_when: false
+  check_mode: false
+  environment: {}
+
+- name: "Infra 1.2 Check whether the vm can access to docker.io"
+  fail:
+    msg: "Unable to access docker.io"
+  changed_when: false
+  check_mode: false
+  environment: {}
+  when:
+    - infra_nslookup_docker_io.rc != 0
+
+- name: "Infra 2.1 Check whether the NTP is installed and enabled."
+  raw: pgrep ntpd
+  register: infra_pgrep_ntpd
+  failed_when: false
+  changed_when: false
+  check_mode: false
+  environment: {}
+
+- name: "Infra 2.2 Check whether the NTP is installed and enabled."
+  raw: ntpq -p
+  register: infra_ntpq
+  failed_when: false
+  changed_when: false
+  check_mode: false
+  environment: {}
+
+- name: "Infra 2.3 Check whether the NTP is installed and enabled."
+  fail:
+    msg: "NTP is not enabled on your infra machines."
+  changed_when: false
+  check_mode: false
+  environment: {}
+  when:
+    - infra_ntpq.rc != 0 or infra_nslookup_docker_io.rc != 0
+
+- name: "Infra 3.1 Ensure dev-box is not an infra machines"
+  fail:
+    msg: "Dev-box should be a separated machine from the cluster."
+  when:
+    - ansible_control_host_address == ansible_default_ipv4.address
+
+- name: Worker 4.1 Check memory resource requirement for openpai service
+  fail:
+    msg: "OpenPAI's infra node should have 40 Gi free memory for service "
+  when:
+    - ansible_memfree_mb < 40000
+
+- name: worker 5.1 Check cpu resource requirement for openpai service
+  fail:
+    msg: "OpenPAI's infra node should have 1 CPU vcore for service "
+  when:
+    - ansible_processor_vcpus < 1
