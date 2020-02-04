@@ -59,8 +59,7 @@ jobs:
         pip install paramiko pyyaml requests prometheus_client twisted
     - name: Test watchdog
       run: |
-        cd src/watchdog/test
-        python -m unittest discover .
+        cd src/watchdog
     - name: Test job exporter
       run: |
         cd src/job-exporter/test

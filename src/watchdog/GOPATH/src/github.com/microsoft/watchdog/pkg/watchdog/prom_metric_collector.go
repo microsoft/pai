@@ -4,6 +4,7 @@ import (
 	"math"
 	"strconv"
 	"sync"
+	"time"
 
 	v1 "k8s.io/api/core/v1"
 	"k8s.io/klog"
@@ -73,9 +74,11 @@ var (
 )
 
 var (
-	errorTyeParse           = "parse"
-	errorTypeUnkownPodCond  = "unknown_pod_cond"
-	errorTypeUnkownNodeCond = "unknown_node_cond"
+	errorTyeParse                     = "parse"
+	errorTypeUnkownPodCond            = "unknown_pod_cond"
+	errorTypeUnkownNodeCond           = "unknown_node_cond"
+	errorTypeHeathz                   = "healthz"
+	errorTypeUnexpectedContainerState = "unexpected_container_state"
 )
 
 func observeTime(h prometheus.Histogram, f func()) {
@@ -85,26 +88,24 @@ func observeTime(h prometheus.Histogram, f func()) {
 }
 
 type PromMetricCollector struct {
-	mutex              sync.Mutex
-	k8sClient          *k8sClient
-	metricGenerator    *metricGenerator
-	collectErrorTypes  []string
-	collectErrors      *prometheus.CounterVec
-	healthzHistogram   prometheus.Histogram
-	listPodsHistogram  prometheus.Histogram
-	listNodesHistogram prometheus.Histogram
-	metrics            []prometheus.Metric
+	mutex                sync.Mutex
+	k8sClient            *K8sClient
+	metricGenerator      *metricGenerator
+	collectionErrorTypes []string
+	collectionErrors     *prometheus.CounterVec
+	healthzHistogram     prometheus.Histogram
+	listPodsHistogram    prometheus.Histogram
+	listNodesHistogram   prometheus.Histogram
+	metrics              []prometheus.Metric
+	collectionInterval   time.Duration
+	stopCh               chan bool
+	finishCh             chan bool
 }
 
-func NewPromMetricCollector() (*PromMetricCollector, error) {
-	k8sClient, err := newK8sClient()
-	if err != nil {
-		klog.Errorf("Failed to create exporter")
-		return nil, err
-	}
+func NewPromMetricCollector(c *K8sClient, i time.Duration) *PromMetricCollector {
 	return &PromMetricCollector{
-		k8sClient: k8sClient,
-		collectErrors: prometheus.NewCounterVec(prometheus.CounterOpts{
+		k8sClient: c,
+		collectionErrors: prometheus.NewCounterVec(prometheus.CounterOpts{
 			Name: "process_error_log_total",
 			Help: "total count of error log",
 		}, []string{"type"}),
@@ -121,11 +122,41 @@ func NewPromMetricCollector() (*PromMetricCollector, error) {
 			Name: "k8s_api_list_nodes_latency_seconds",
 			Help: "Response latency for list nodes from k8s api (seconds)",
 		}),
-		collectErrorTypes: []string{errorTyeParse, errorTypeUnkownPodCond, errorTypeUnkownNodeCond},
-	}, nil
+		collectionErrorTypes: []string{
+			errorTyeParse,
+			errorTypeUnkownPodCond,
+			errorTypeUnkownNodeCond,
+			errorTypeHeathz,
+			errorTypeUnexpectedContainerState},
+		collectionInterval: i,
+		stopCh:             make(chan bool),
+		finishCh:           make(chan bool),
+	}
 }
 
-func (p *PromMetricCollector) Collect() {
+func (p *PromMetricCollector) Start() {
+	go func() {
+		tick := time.Tick(p.collectionInterval)
+		for {
+			select {
+			case <-tick:
+				klog.V(3).Infof("Start new a loop to collect metrics")
+				p.collect()
+			case <-p.stopCh:
+				klog.Info("Stopping prom metric collector")
+				p.finishCh <- true
+				return
+			}
+		}
+	}()
+}
+
+func (p *PromMetricCollector) Stop() {
+	p.stopCh <- true
+	<-p.finishCh
+}
+
+func (p *PromMetricCollector) collect() {
 	p.mutex.Lock() // To protect metrics from concurrent collects.
 	defer p.mutex.Unlock()
 
@@ -137,7 +168,7 @@ func (p *PromMetricCollector) Collect() {
 	f = func() { health, err = p.k8sClient.getServerHealth() }
 	observeTime(p.healthzHistogram, f)
 	if err != nil {
-		p.collectErrors.WithLabelValues(errorTyeParse).Inc()
+		p.collectionErrors.WithLabelValues(errorTypeHeathz).Inc()
 		klog.Errorf("Failed to check api server health, error %v", err.Error())
 	}
 
@@ -145,7 +176,7 @@ func (p *PromMetricCollector) Collect() {
 	f = func() { nodeList, err = p.k8sClient.listNodes() }
 	observeTime(p.listNodesHistogram, f)
 	if err != nil {
-		p.collectErrors.WithLabelValues(errorTyeParse).Inc()
+		p.collectionErrors.WithLabelValues(errorTyeParse).Inc()
 		klog.Errorf("Failed to list nodes, error %v", err.Error())
 	}
 
@@ -153,7 +184,7 @@ func (p *PromMetricCollector) Collect() {
 	f = func() { podList, err = p.k8sClient.listPods() }
 	observeTime(p.listPodsHistogram, f)
 	if err != nil {
-		p.collectErrors.WithLabelValues(errorTyeParse).Inc()
+		p.collectionErrors.WithLabelValues(errorTyeParse).Inc()
 		klog.Errorf("Failed to list pods, error %v", err.Error())
 	}
 
@@ -171,7 +202,7 @@ func (p *PromMetricCollector) Collect() {
 
 	for _, nodeMetric := range nodeMetrics {
 		if nodeMetric.isConditionUnknown {
-			p.collectErrors.WithLabelValues(errorTypeUnkownNodeCond).Inc()
+			p.collectionErrors.WithLabelValues(errorTypeUnkownNodeCond).Inc()
 		}
 
 		p.metrics = append(p.metrics, p.getNodeGpuMetrics(nodeMetric, npMap)...)
@@ -180,18 +211,18 @@ func (p *PromMetricCollector) Collect() {
 
 	for _, podMetric := range podMetrics {
 		if podMetric.isConditionUnknown {
-			p.collectErrors.WithLabelValues(errorTypeUnkownPodCond).Inc()
+			p.collectionErrors.WithLabelValues(errorTypeUnkownPodCond).Inc()
 		}
 
 		if podMetric.serviceName == "" && podMetric.jobName == "" {
-			klog.V(2).Infof("Unknown pod %v", podMetric.name)
+			klog.V(4).Infof("Unknown pod %v", podMetric.name)
 			continue
 		}
 		p.metrics = append(p.metrics, p.getPodMetrics(podMetric)...)
 	}
 
-	for _, t := range p.collectErrorTypes {
-		p.metrics = append(p.metrics, p.collectErrors.WithLabelValues(t))
+	for _, t := range p.collectionErrorTypes {
+		p.metrics = append(p.metrics, p.collectionErrors.WithLabelValues(t))
 	}
 	p.metrics = append(p.metrics, p.healthzHistogram)
 	p.metrics = append(p.metrics, p.listNodesHistogram)
@@ -289,6 +320,9 @@ func (p *PromMetricCollector) getPodMetrics(podMetric podMetric) []prometheus.Me
 			podMetric.ready,
 		))
 		for _, c := range podMetric.containers {
+			if c.status == "unknown" {
+				p.collectionErrors.WithLabelValues(errorTypeUnexpectedContainerState).Inc()
+			}
 			metrics = append(metrics, prometheus.MustNewConstMetric(
 				paiMetrics["paiContainerCount"],
 				prometheus.GaugeValue,
