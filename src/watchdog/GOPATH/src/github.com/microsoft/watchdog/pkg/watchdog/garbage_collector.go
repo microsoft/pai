@@ -109,7 +109,7 @@ func (gc *GarbageCollector) Stop() {
 }
 
 func (gc *GarbageCollector) removeOrphanPriorityClasses() int {
-	removeNum := 0
+	removedNum := 0 // used for UT
 	for _, pc := range gc.priorityClasses {
 		if !gc.priorityClassNameRegex.MatchString(pc.Name) {
 			if !isContains(buildInPriorityClasses, pc.Name) {
@@ -122,17 +122,18 @@ func (gc *GarbageCollector) removeOrphanPriorityClasses() int {
 		if !exist {
 			klog.Infof("Delete orphan priority class %v", pc.Name)
 			err := gc.k8sClient.deletePriorityClass(pc.Name)
-			removeNum++
 			if err != nil {
 				klog.Warningf("Failed to delete priority class, err: %v", err)
+			} else {
+				removedNum++
 			}
 		}
 	}
-	return removeNum
+	return removedNum
 }
 
 func (gc *GarbageCollector) removeOrphanSecrets() int {
-	removeNum := 0
+	removedNum := 0 // used for UT
 	for _, s := range gc.secrets {
 		var frameworkName string
 		if gc.registrySecretNameRegex.MatchString(s.Name) {
@@ -158,11 +159,11 @@ func (gc *GarbageCollector) removeOrphanSecrets() int {
 			if err != nil {
 				klog.Warningf("Failed to delete priority class, err: %v", err)
 			} else {
-				removeNum++
+				removedNum++
 			}
 		}
 	}
-	return removeNum
+	return removedNum
 }
 
 func (gc *GarbageCollector) collect() {

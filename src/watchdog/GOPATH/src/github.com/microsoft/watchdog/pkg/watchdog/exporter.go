@@ -43,7 +43,7 @@ func NewExporter(c *PromMetricCollector) (*Exporter, error) {
 	}, nil
 }
 
-// Collect will called by prometheus, put the collected metrics into the channnel
+// Collect will called by prometheus, put the collected metrics into the channel
 func (e *Exporter) Collect(ch chan<- prometheus.Metric) {
 	metrics := e.collector.getMetrics()
 	for _, m := range metrics {

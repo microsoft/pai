@@ -45,7 +45,7 @@ func init() {
 	klog.InitFlags(nil)
 	flag.Set("v", "2")
 
-	flag.IntVar(&collectionInterval, "collection-interval", 180, "Interval betweem two collections (seconds)")
+	flag.IntVar(&collectionInterval, "collection-interval", 180, "Interval between two collections (seconds)")
 	flag.IntVar(&gcInterval, "gc-interval", 60, "Interval between two garbage collections (minutes)")
 	flag.IntVar(&port, "port", 9101, "exporter port number")
 

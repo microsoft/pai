@@ -33,14 +33,14 @@ import (
 
 func TestGarbageCollection(t *testing.T) {
 	m := newMockK8sServer()
-	m.addReuqestByFile("/apis/scheduling.k8s.io/v1/priorityclasses",
+	m.addResponseByFile("/apis/scheduling.k8s.io/v1/priorityclasses",
 		"../../testdata/priority_class_list.json", http.MethodGet)
-	m.addReuqestByFile("/api/v1/namespaces/default/secrets", "../../testdata/secret_list.json", http.MethodGet)
-	m.addReuqestByFile("/apis/frameworkcontroller.microsoft.com/v1/namespaces/default/frameworks",
+	m.addResponseByFile("/api/v1/namespaces/default/secrets", "../../testdata/secret_list.json", http.MethodGet)
+	m.addResponseByFile("/apis/frameworkcontroller.microsoft.com/v1/namespaces/default/frameworks",
 		"../../testdata/framework_list.json", http.MethodGet)
-	m.addReuqest("/api/v1/namespaces/default/secrets/059cf3d85cb5f6280e9606d47551554c-configcred", "",
+	m.addResponse("/api/v1/namespaces/default/secrets/059cf3d85cb5f6280e9606d47551554c-configcred", "",
 		http.MethodDelete)
-	m.addReuqest("/apis/scheduling.k8s.io/v1/priorityclasses/059cf3d85cb5f6280e9606d47551554c", "", http.MethodDelete)
+	m.addResponse("/apis/scheduling.k8s.io/v1/priorityclasses/059cf3d85cb5f6280e9606d47551554c", "", http.MethodDelete)
 	url := m.start()
 	defer m.stop()
 

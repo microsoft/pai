@@ -96,7 +96,7 @@ jobs:
         python -m unittest discover .
 
   watchdog:
-    name: Test watchdog on go-${{ matrix.go}}-${{ matrix.os }}
+    name: Test watchdog on go-${{ matrix.go }}-${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:

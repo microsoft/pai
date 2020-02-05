@@ -22,7 +22,7 @@ func newMockK8sServer() *mockK8sServer {
 	}
 }
 
-func (m *mockK8sServer) addReuqestByFile(url string, respFileName string, method string) {
+func (m *mockK8sServer) addResponseByFile(url string, respFileName string, method string) {
 	data, _ := ioutil.ReadFile(respFileName)
 	m.urlToResponse[url] = &response{
 		httpMethod: method,
@@ -30,7 +30,7 @@ func (m *mockK8sServer) addReuqestByFile(url string, respFileName string, method
 	}
 }
 
-func (m *mockK8sServer) addReuqest(url string, resp string, method string) {
+func (m *mockK8sServer) addResponse(url string, resp string, method string) {
 	m.urlToResponse[url] = &response{
 		httpMethod: method,
 		data:       []byte(resp),

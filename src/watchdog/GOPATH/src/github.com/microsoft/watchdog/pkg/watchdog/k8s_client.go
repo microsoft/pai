@@ -102,7 +102,7 @@ func (c *K8sClient) getAPIServerHostName() string {
 	return c.config.Host
 }
 
-// NewK8sClient used to create k8s instance
+// NewK8sClient used to create k8s client instance
 func NewK8sClient() (*K8sClient, error) {
 	k8sClient := K8sClient{}
 	err := k8sClient.initK8sClient()

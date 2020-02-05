@@ -213,9 +213,9 @@ func TestParseDLWSUnschedulableNodes(t *testing.T) {
 
 func TestCollectMetrics(t *testing.T) {
 	m := newMockK8sServer()
-	m.addReuqestByFile("/api/v1/pods", "../../testdata/pod_list.json", http.MethodGet)
-	m.addReuqestByFile("/api/v1/nodes", "../../testdata/node_list.json", http.MethodGet)
-	m.addReuqest("/healthz", "ok", http.MethodGet)
+	m.addResponseByFile("/api/v1/pods", "../../testdata/pod_list.json", http.MethodGet)
+	m.addResponseByFile("/api/v1/nodes", "../../testdata/node_list.json", http.MethodGet)
+	m.addResponse("/healthz", "ok", http.MethodGet)
 
 	url := m.start()
 	defer m.stop()
@@ -227,7 +227,7 @@ func TestCollectMetrics(t *testing.T) {
 	pc.collect()
 	metrics := pc.getMetrics()
 
-	// 3 gpu metrics + 1 api server metric + 1 pai node metrics +
-	//  4 pod/container related metrics + 5 error metrics + 3 histogram time metrics
+	// 3 gpu metrics + 1 api server metric + 1 pai node metric +
+	//  4 pod/container related metrics + 5 error metrics + 3 histogram metrics
 	assert.Equal(t, 17, len(metrics))
 }

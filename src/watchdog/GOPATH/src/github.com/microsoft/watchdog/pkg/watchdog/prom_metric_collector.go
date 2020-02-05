@@ -95,11 +95,11 @@ var (
 	}
 )
 
-var (
+const (
 	errorTyeParse                     = "parse"
-	errorTypeUnkownPodCond            = "unknown_pod_cond"
-	errorTypeUnkownNodeCond           = "unknown_node_cond"
-	errorTypeHeathz                   = "healthz"
+	errorTypeUnknownPodCond           = "unknown_pod_cond"
+	errorTypeUnknownNodeCond          = "unknown_node_cond"
+	errorTypeHealthz                  = "healthz"
 	errorTypeUnexpectedContainerState = "unexpected_container_state"
 )
 
@@ -148,9 +148,9 @@ func NewPromMetricCollector(c *K8sClient, i time.Duration) *PromMetricCollector 
 		}),
 		collectionErrorTypes: []string{
 			errorTyeParse,
-			errorTypeUnkownPodCond,
-			errorTypeUnkownNodeCond,
-			errorTypeHeathz,
+			errorTypeUnknownPodCond,
+			errorTypeUnknownNodeCond,
+			errorTypeHealthz,
 			errorTypeUnexpectedContainerState},
 		collectionInterval: i,
 		stopCh:             make(chan bool),
@@ -195,7 +195,7 @@ func (p *PromMetricCollector) collect() {
 	f = func() { health, err = p.k8sClient.getServerHealth() }
 	observeTime(p.healthzHistogram, f)
 	if err != nil {
-		p.collectionErrors.WithLabelValues(errorTypeHeathz).Inc()
+		p.collectionErrors.WithLabelValues(errorTypeHealthz).Inc()
 		klog.Errorf("Failed to check api server health, error %v", err.Error())
 	}
 
@@ -229,7 +229,7 @@ func (p *PromMetricCollector) collect() {
 
 	for _, nodeMetric := range nodeMetrics {
 		if nodeMetric.isConditionUnknown {
-			p.collectionErrors.WithLabelValues(errorTypeUnkownNodeCond).Inc()
+			p.collectionErrors.WithLabelValues(errorTypeUnknownNodeCond).Inc()
 		}
 
 		p.metrics = append(p.metrics, p.getNodeGpuMetrics(nodeMetric, npMap)...)
@@ -238,7 +238,7 @@ func (p *PromMetricCollector) collect() {
 
 	for _, podMetric := range podMetrics {
 		if podMetric.isConditionUnknown {
-			p.collectionErrors.WithLabelValues(errorTypeUnkownPodCond).Inc()
+			p.collectionErrors.WithLabelValues(errorTypeUnknownPodCond).Inc()
 		}
 
 		if podMetric.serviceName == "" && podMetric.jobName == "" {
