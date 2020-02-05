@@ -40,7 +40,11 @@ const (
 	jobConfigSecretSuffix    = "-configcred"
 )
 
-var buildInPriorityClasses = []string{"system-cluster-critical", "system-node-critical"}
+var buildInPriorityClasses = []string{
+	"system-cluster-critical",
+	"system-node-critical",
+	"k8s-cluster-critical",
+}
 
 func isContains(arr []string, ele string) bool {
 	for _, s := range arr {

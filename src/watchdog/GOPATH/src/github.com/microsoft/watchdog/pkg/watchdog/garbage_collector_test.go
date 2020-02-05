@@ -40,7 +40,8 @@ func TestGarbageCollection(t *testing.T) {
 		"../../testdata/framework_list.json", http.MethodGet)
 	m.addResponse("/api/v1/namespaces/default/secrets/059cf3d85cb5f6280e9606d47551554c-configcred", "",
 		http.MethodDelete)
-	m.addResponse("/apis/scheduling.k8s.io/v1/priorityclasses/059cf3d85cb5f6280e9606d47551554c", "", http.MethodDelete)
+	m.addResponse("/apis/scheduling.k8s.io/v1/priorityclasses/059cf3d85cb5f6280e9606d47551554c-priority",
+		"", http.MethodDelete)
 	url := m.start()
 	defer m.stop()
 
