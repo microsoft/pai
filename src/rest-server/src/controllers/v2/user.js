@@ -105,7 +105,7 @@ const createUserIfUserNotExist = async (req, res, next) => {
       if (grouplist && grouplist.length === 0) {
         let forbiddenMessage = `User ${userData.username} is not in configured groups.`;
         if (authConfig.groupConfig.groupDataSource === 'ms-graph') {
-          forbiddenMessage = forbiddenMessage + `Please contact your admin, and join the AAD group named [ ${authConfig.groupConfig.defaultGroup.externalName} ].`
+          forbiddenMessage = forbiddenMessage + `Please contact your admin, and join the AAD group named [ ${authConfig.groupConfig.defaultGroup.externalName} ].`;
         }
         return next(createError('Forbidden', 'ForbiddenUserError', forbiddenMessage));
       }
