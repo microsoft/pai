@@ -12,15 +12,6 @@ matrix:
         - python -m unittest discover test/
 
     - language: python
-      python: 3.6
-      before_install:
-        - cd src/watchdog/test
-      install:
-        - pip install paramiko pyyaml requests prometheus_client twisted
-      script:
-        - python -m unittest discover .
-
-    - language: python
       python: 2.7
       install:
       - pip install paramiko pyyaml jinja2 python-etcd kubernetes GitPython

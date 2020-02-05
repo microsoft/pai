@@ -15,8 +15,21 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-FROM python:3.7
+FROM golang:1.12.6-alpine as builder
 
-RUN pip install pyyaml requests prometheus_client twisted kubernetes
+ENV PROJECT_DIR=${GOPATH}/src/github.com/microsoft/watchdog
+ENV INSTALL_DIR=/opt/watchdog
 
-COPY src/watchdog.py /
+RUN apk update && apk add --no-cache bash && \
+  mkdir -p ${PROJECT_DIR} ${INSTALL_DIR}
+COPY GOPATH/src/github.com/microsoft/watchdog/ ${PROJECT_DIR}
+RUN ${PROJECT_DIR}/build/watchdog/go-build.sh && \
+  mv ${PROJECT_DIR}/dist/watchdog/ ${INSTALL_DIR}
+
+FROM alpine:3.10.1
+
+ENV INSTALL_DIR=/opt/watchdog
+
+RUN apk update && apk add --no-cache bash
+COPY --from=builder ${INSTALL_DIR} ${INSTALL_DIR}
+WORKDIR ${INSTALL_DIR}
