@@ -23,6 +23,7 @@ type kubeClientInterface interface {
 	RESTClient() rest.Interface
 }
 
+// K8sClient used to query k8s api server
 type K8sClient struct {
 	kClient kubeClientInterface
 	fClient frameworkClient.Interface
@@ -101,6 +102,7 @@ func (c *K8sClient) getAPIServerHostName() string {
 	return c.config.Host
 }
 
+// NewK8sClient used to create k8s instance
 func NewK8sClient() (*K8sClient, error) {
 	k8sClient := K8sClient{}
 	err := k8sClient.initK8sClient()

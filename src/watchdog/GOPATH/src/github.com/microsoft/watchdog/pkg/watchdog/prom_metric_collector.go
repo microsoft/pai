@@ -109,6 +109,7 @@ func observeTime(h prometheus.Histogram, f func()) {
 	f()
 }
 
+// PromMetricCollector used to collect metrics for prometheus
 type PromMetricCollector struct {
 	mutex                sync.Mutex
 	k8sClient            *K8sClient
@@ -124,6 +125,7 @@ type PromMetricCollector struct {
 	finishCh             chan bool
 }
 
+// NewPromMetricCollector used to create PromMetricCollector instance
 func NewPromMetricCollector(c *K8sClient, i time.Duration) *PromMetricCollector {
 	return &PromMetricCollector{
 		k8sClient: c,
@@ -156,8 +158,9 @@ func NewPromMetricCollector(c *K8sClient, i time.Duration) *PromMetricCollector 
 	}
 }
 
+// Start used to start metrics collection
 func (p *PromMetricCollector) Start() {
-	klog.Info("Start collect metrics")
+	klog.Info("Start collect prom metrics")
 	go func() {
 		tick := time.Tick(p.collectionInterval)
 		for {
@@ -174,6 +177,7 @@ func (p *PromMetricCollector) Start() {
 	}()
 }
 
+// Stop used to stop metrics collection
 func (p *PromMetricCollector) Stop() {
 	p.stopCh <- true
 	<-p.finishCh

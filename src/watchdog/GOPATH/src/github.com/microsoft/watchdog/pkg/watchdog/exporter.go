@@ -28,10 +28,12 @@ import (
 	"github.com/prometheus/client_golang/prometheus"
 )
 
+// Exporter used to export collected metrics
 type Exporter struct {
 	collector *PromMetricCollector
 }
 
+// NewExporter create exporter instance
 func NewExporter(c *PromMetricCollector) (*Exporter, error) {
 	if c == nil {
 		return nil, errors.New("Invalid collector")
@@ -41,6 +43,7 @@ func NewExporter(c *PromMetricCollector) (*Exporter, error) {
 	}, nil
 }
 
+// Collect will called by promethus, put the collected metrics into the channnel
 func (e *Exporter) Collect(ch chan<- prometheus.Metric) {
 	metrics := e.collector.getMetrics()
 	for _, m := range metrics {
@@ -48,6 +51,7 @@ func (e *Exporter) Collect(ch chan<- prometheus.Metric) {
 	}
 }
 
+// Describe will called by promethues
 func (e *Exporter) Describe(ch chan<- *prometheus.Desc) {
 	metrics := e.collector.getMetrics()
 	for _, m := range metrics {

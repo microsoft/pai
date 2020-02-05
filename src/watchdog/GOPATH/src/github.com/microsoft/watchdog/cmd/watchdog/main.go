@@ -53,7 +53,7 @@ func init() {
 }
 
 func main() {
-	klog.Infof("Watchdog service starts with collection interval: %v, gc interval: %v",
+	klog.Infof("Watchdog service starts with collection interval: %v seconds, gc interval: %v minutes",
 		collectionInterval, gcInterval)
 	client, err := watchdog.NewK8sClient()
 	if err != nil {

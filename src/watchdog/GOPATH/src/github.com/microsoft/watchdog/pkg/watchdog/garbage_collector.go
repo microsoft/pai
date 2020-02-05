@@ -34,11 +34,13 @@ import (
 )
 
 const (
+	frameworkPattern         = "^[0-9a-f]{32}"
 	priorityClassNameSuffix  = "-priority"
 	registrySecretNameSuffix = "-regcred"
 	jobConfigSecretSuffix    = "-configcred"
 )
 
+// GarbageCollector a struct used to recycle k8s garbage instaces
 type GarbageCollector struct {
 	k8sClient                *K8sClient
 	frameworkMap             map[string]fc.Framework
@@ -52,6 +54,7 @@ type GarbageCollector struct {
 	jobConfigSecretNameRegex *regexp.Regexp
 }
 
+// NewGarbageCollector create GarbageCollector instance
 func NewGarbageCollector(c *K8sClient, interval time.Duration) *GarbageCollector {
 	// The priorityClass/Secret name will be frameworkName-{priority|regcred|configcred}
 	// And frameworkName = hex(md5(realName))
@@ -61,12 +64,13 @@ func NewGarbageCollector(c *K8sClient, interval time.Duration) *GarbageCollector
 		stopCh:                   make(chan bool),
 		finishCh:                 make(chan bool),
 		frameworkMap:             make(map[string]fc.Framework),
-		priorityClassNameRegex:   regexp.MustCompile("^[0-9a-f]{32}" + priorityClassNameSuffix),
-		registrySecretNameRegex:  regexp.MustCompile("^[0-9a-f]{32}-regcred" + registrySecretNameSuffix),
-		jobConfigSecretNameRegex: regexp.MustCompile("^[0-9a-f]{32}-configcred" + jobConfigSecretSuffix),
+		priorityClassNameRegex:   regexp.MustCompile(frameworkPattern + priorityClassNameSuffix),
+		registrySecretNameRegex:  regexp.MustCompile(frameworkPattern + registrySecretNameSuffix),
+		jobConfigSecretNameRegex: regexp.MustCompile(frameworkPattern + jobConfigSecretSuffix),
 	}
 }
 
+// Start used to start garbage collection
 func (gc *GarbageCollector) Start() {
 	klog.Info("Garbage collection starts")
 	go func() {
@@ -87,6 +91,7 @@ func (gc *GarbageCollector) Start() {
 	}()
 }
 
+// Stop used to stop garbage collection
 func (gc *GarbageCollector) Stop() {
 	gc.stopCh <- true
 	<-gc.finishCh
