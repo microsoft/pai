@@ -490,6 +490,7 @@
   analyzer-name = "dep"
   analyzer-version = 1
   input-imports = [
+    "github.com/microsoft/frameworkcontroller/pkg/apis/frameworkcontroller/v1",
     "github.com/microsoft/frameworkcontroller/pkg/client/clientset/versioned",
     "github.com/prometheus/client_golang/prometheus",
     "github.com/prometheus/client_golang/prometheus/promhttp",
