@@ -123,7 +123,7 @@ func (gc *GarbageCollector) removeOrphanSecrets() {
 		} else if gc.jobConfigSecretNameRegex.MatchString(s.Name) {
 			frameworkName = strings.TrimSuffix(s.Name, jobConfigSecretSuffix)
 		} else {
-			klog.V(3).Infof("Unkown secret: %v", s.Name)
+			klog.V(3).Infof("Unknown secret: %v", s.Name)
 			continue
 		}
 

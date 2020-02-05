@@ -11,6 +11,17 @@ matrix:
       script:
         - python -m unittest discover test/
 
+    - language: go
+      go: 1.12.6
+      before_install:
+        - cp -R src/watchdog/GOPATH/* ${GOPATH}
+        - cd ${GOPATH}/src
+      install:
+        - echo "Skipping default install phase"
+      script:
+        - go build github.com/microsoft/watchdog/cmd/watchdog/main.go
+        - go test github.com/microsoft/watchdog/pkg/watchdog
+
     - language: python
       python: 2.7
       install:
