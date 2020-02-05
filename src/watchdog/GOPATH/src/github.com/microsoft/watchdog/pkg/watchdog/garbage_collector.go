@@ -40,6 +40,17 @@ const (
 	jobConfigSecretSuffix    = "-configcred"
 )
 
+var buildInPriorityClasses = []string{"system-cluster-critical", "system-node-critical"}
+
+func isContains(arr []string, ele string) bool {
+	for _, s := range arr {
+		if s == ele {
+			return true
+		}
+	}
+	return false
+}
+
 // GarbageCollector a struct used to recycle k8s garbage instaces
 type GarbageCollector struct {
 	k8sClient                *K8sClient
@@ -97,10 +108,13 @@ func (gc *GarbageCollector) Stop() {
 	<-gc.finishCh
 }
 
-func (gc *GarbageCollector) removeOrphanPriorityClasses() {
+func (gc *GarbageCollector) removeOrphanPriorityClasses() int {
+	removeNum := 0
 	for _, pc := range gc.priorityClasses {
 		if !gc.priorityClassNameRegex.MatchString(pc.Name) {
-			klog.Infof("Unknown priority class: %v", pc.Name)
+			if !isContains(buildInPriorityClasses, pc.Name) {
+				klog.V(2).Infof("Unknown priority class: %v", pc.Name)
+			}
 			continue
 		}
 		frameworkName := strings.TrimSuffix(pc.Name, priorityClassNameSuffix)
@@ -108,14 +122,17 @@ func (gc *GarbageCollector) removeOrphanPriorityClasses() {
 		if !exist {
 			klog.Infof("Delete orphan priority class %v", pc.Name)
 			err := gc.k8sClient.deletePriorityClass(pc.Name)
+			removeNum++
 			if err != nil {
 				klog.Warningf("Failed to delete priority class, err: %v", err)
 			}
 		}
 	}
+	return removeNum
 }
 
-func (gc *GarbageCollector) removeOrphanSecrets() {
+func (gc *GarbageCollector) removeOrphanSecrets() int {
+	removeNum := 0
 	for _, s := range gc.secrets {
 		var frameworkName string
 		if gc.registrySecretNameRegex.MatchString(s.Name) {
@@ -140,9 +157,12 @@ func (gc *GarbageCollector) removeOrphanSecrets() {
 			err := gc.k8sClient.deleteSecret("default", s.Name)
 			if err != nil {
 				klog.Warningf("Failed to delete priority class, err: %v", err)
+			} else {
+				removeNum++
 			}
 		}
 	}
+	return removeNum
 }
 
 func (gc *GarbageCollector) collect() {

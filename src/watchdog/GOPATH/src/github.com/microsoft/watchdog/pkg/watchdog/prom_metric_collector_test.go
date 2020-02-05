@@ -25,8 +25,11 @@ package watchdog
 import (
 	"encoding/json"
 	"io/ioutil"
+	"net/http"
+	"os"
 	"reflect"
 	"testing"
+	"time"
 
 	dto "github.com/prometheus/client_model/go"
 	"github.com/stretchr/testify/assert"
@@ -36,8 +39,8 @@ import (
 type mockObjectType int
 
 const (
-	podListType mockObjectType = iota
-	nodeListType
+	mockPodListType mockObjectType = iota
+	mockNodeListType
 )
 
 type mockObject struct {
@@ -49,11 +52,11 @@ type mockObject struct {
 func newMockObject(filename string, t mockObjectType) *mockObject {
 	list, _ := ioutil.ReadFile(filename)
 	mo := mockObject{}
-	if t == podListType {
+	if t == mockPodListType {
 		podList := v1.PodList{}
 		json.Unmarshal(list, &podList)
 		mo.podList = &podList
-	} else if t == nodeListType {
+	} else if t == mockNodeListType {
 		nodeList := v1.NodeList{}
 		json.Unmarshal(list, &nodeList)
 		mo.nodeList = &nodeList
@@ -63,7 +66,7 @@ func newMockObject(filename string, t mockObjectType) *mockObject {
 }
 
 func TestGeneratePodsMetrics(t *testing.T) {
-	mo := newMockObject("../../testdata/pods_list.json", podListType)
+	mo := newMockObject("../../testdata/pod_list.json", mockPodListType)
 
 	mg := metricGenerator{}
 	podMetrics := mg.generatePodMetrics(mo.podList)
@@ -106,7 +109,7 @@ func TestGeneratePodsMetrics(t *testing.T) {
 }
 
 func TestGenerateNodesMetrics(t *testing.T) {
-	mo := newMockObject("../../testdata/nodes_list.json", nodeListType)
+	mo := newMockObject("../../testdata/node_list.json", mockNodeListType)
 
 	mg := metricGenerator{}
 	nodeMetrics := mg.generateNodeMetrics(mo.nodeList)
@@ -128,7 +131,7 @@ func TestGenerateNodesMetrics(t *testing.T) {
 		}
 	}
 
-	mo = newMockObject("../../testdata/pods_list.json", podListType)
+	mo = newMockObject("../../testdata/pod_list.json", mockPodListType)
 
 	podMetrics := mg.generatePodMetrics(mo.podList)
 	npMap := mg.generateNodeToPodsMap(podMetrics)
@@ -164,7 +167,7 @@ func TestGenerateNodesMetrics(t *testing.T) {
 }
 
 func TestParseNoConditionPods(t *testing.T) {
-	mo := newMockObject("../../testdata/no_condition_pod.json", podListType)
+	mo := newMockObject("../../testdata/no_condition_pod.json", mockPodListType)
 
 	mg := metricGenerator{}
 	podMetrics := mg.generatePodMetrics(mo.podList)
@@ -187,7 +190,7 @@ func TestParseNoConditionPods(t *testing.T) {
 }
 
 func TestParseDLWSUnschedulableNodes(t *testing.T) {
-	mo := newMockObject("../../testdata/dlws_nodes_list_with_unschedulable.json", nodeListType)
+	mo := newMockObject("../../testdata/dlws_node_list_with_unschedulable.json", mockNodeListType)
 	mg := metricGenerator{}
 
 	nodeMetrics := mg.generateNodeMetrics(mo.nodeList)
@@ -206,4 +209,25 @@ func TestParseDLWSUnschedulableNodes(t *testing.T) {
 			assert.Equal(t, expectLables[i][l.GetName()], l.GetValue())
 		}
 	}
+}
+
+func TestCollectMetrics(t *testing.T) {
+	m := newMockK8sServer()
+	m.addReuqestByFile("/api/v1/pods", "../../testdata/pod_list.json", http.MethodGet)
+	m.addReuqestByFile("/api/v1/nodes", "../../testdata/node_list.json", http.MethodGet)
+	m.addReuqest("/healthz", "ok", http.MethodGet)
+
+	url := m.start()
+	defer m.stop()
+
+	os.Setenv("KUBE_APISERVER_ADDRESS", url)
+	c, _ := NewK8sClient()
+	pc := NewPromMetricCollector(c, time.Minute)
+
+	pc.collect()
+	metrics := pc.getMetrics()
+
+	// 3 gpu metrics + 1 api server metric + 1 pai node metrics +
+	//  4 pod/container related metrics + 5 error metrics + 3 histogram time metrics
+	assert.Equal(t, 17, len(metrics))
 }
