@@ -24,7 +24,7 @@ RUN apk update && apk add --no-cache bash && \
   mkdir -p ${PROJECT_DIR} ${INSTALL_DIR}
 COPY GOPATH/src/github.com/microsoft/watchdog/ ${PROJECT_DIR}
 RUN ${PROJECT_DIR}/build/watchdog/go-build.sh && \
-  mv ${PROJECT_DIR}/dist/watchdog/ ${INSTALL_DIR}
+  mv ${PROJECT_DIR}/dist/watchdog/* ${INSTALL_DIR}
 
 FROM alpine:3.10.1
 

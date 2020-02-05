@@ -25,7 +25,6 @@ package main
 import (
 	"flag"
 	"net/http"
-	"os"
 	"strconv"
 	"time"
 
@@ -54,8 +53,8 @@ func init() {
 }
 
 func main() {
-	klog.Info("Watchdog service starts")
-	os.Setenv("KUBE_APISERVER_ADDRESS", "http://10.151.40.4:8080")
+	klog.Infof("Watchdog service starts with collection interval: %v, gc interval: %v",
+		collectionInterval, gcInterval)
 	client, err := watchdog.NewK8sClient()
 	if err != nil {
 		panic(err.Error())
@@ -74,5 +73,6 @@ func main() {
 	gc := watchdog.NewGarbageCollector(client, time.Duration(gcInterval)*time.Minute)
 	pc.Start()
 	gc.Start()
+	klog.Infof("Start service at port: %v", port)
 	http.ListenAndServe(":"+strconv.FormatInt(int64(port), 10), nil)
 }

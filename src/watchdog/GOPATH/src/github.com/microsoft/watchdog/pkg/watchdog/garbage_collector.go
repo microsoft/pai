@@ -68,6 +68,7 @@ func NewGarbageCollector(c *K8sClient, interval time.Duration) *GarbageCollector
 }
 
 func (gc *GarbageCollector) Start() {
+	klog.Info("Garbage collection starts")
 	go func() {
 		tick := time.Tick(gc.collectionInterval)
 		for {

@@ -157,6 +157,7 @@ func NewPromMetricCollector(c *K8sClient, i time.Duration) *PromMetricCollector 
 }
 
 func (p *PromMetricCollector) Start() {
+	klog.Info("Start collect metrics")
 	go func() {
 		tick := time.Tick(p.collectionInterval)
 		for {
