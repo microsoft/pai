@@ -1,0 +1,7 @@
+---
+- name: output ssh key path
+  debug:
+    var: ssh_key_path
+
+#- name: Non secret authentication
+#  authorized_key: user=core key="{{ lookup('file', '/home/core/.ssh/id_rsa.pub') }}"  state=present
