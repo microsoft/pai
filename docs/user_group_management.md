@@ -2,7 +2,7 @@
 
   
 In the old version of OpenPai, when deployed in basic authentication mode, pai
-didn't provide explicit group information for the admins, thus raising confusion when managing the platform.In latest version(>=0.16.0), pai will provide direct group management.
+didn't provide explicit group information for the admins, thus raising confusion when managing the platform. In latest version(>=0.16.0), pai will provide direct group management.
 
 This document will introduce how to manage user, group and teamwise storage in Openpai basic authentication mode in the latest version(>=0.16.0).
 
@@ -11,7 +11,6 @@ This document will introduce how to manage user, group and teamwise storage in O
 #### Create a new user
 
   
-
 To add a new user to the cluster, cluster admin needs to do:
 
   
