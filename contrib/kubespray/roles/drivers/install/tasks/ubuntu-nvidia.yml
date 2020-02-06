@@ -1,4 +1,21 @@
 ---
+- name: "Check NVIDIA GPU drivers"
+  raw: "nvidia-smi"
+  register: nvidia_smi_check
+  failed_when: false
+  changed_when: false
+  check_mode: false
+  environment: {}
+
+- name: "Quit playbooks, if NVIDIA GPU drivers exit."
+  fail:
+    msg: "NVIDIA GPU drivers is detected in your machines, please uninstall it first."
+  changed_when: false
+  check_mode: false
+  environment: {}
+  when:
+    - nvidia_smi_check.rc == 0
+
 - name: Add the drivers repository to Ubuntu
   apt_repository:
     repo: ppa:graphics-drivers/ppa
