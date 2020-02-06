@@ -15,7 +15,3 @@
 [[constraint]]
   name = "github.com/stretchr/testify"
   version = "1.4.0"
-
-[[constraint]]
-  name = "github.com/microsoft/frameworkcontroller"
-  version = "0.5.1"

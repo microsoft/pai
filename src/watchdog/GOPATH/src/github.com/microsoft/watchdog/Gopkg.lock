@@ -87,20 +87,6 @@
   version = "v1.0.1"
 
 [[projects]]
-  digest = "1:596910a9a705936d363abc9ffed8eddcecd84ee332acf11bc340db0bf16920c4"
-  name = "github.com/microsoft/frameworkcontroller"
-  packages = [
-    "pkg/apis/frameworkcontroller/v1",
-    "pkg/client/clientset/versioned",
-    "pkg/client/clientset/versioned/scheme",
-    "pkg/client/clientset/versioned/typed/frameworkcontroller/v1",
-    "pkg/common",
-  ]
-  pruneopts = "NUT"
-  revision = "429fa5498e9780667fb175fc6b0517230bd1ebfe"
-  version = "v0.5.1"
-
-[[projects]]
   digest = "1:2f42fa12d6911c7b7659738758631bec870b7e9b4c6be5444f963cdcfccc191f"
   name = "github.com/modern-go/concurrent"
   packages = ["."]
@@ -340,17 +326,6 @@
   version = "kubernetes-1.14.2"
 
 [[projects]]
-  digest = "1:1d6160800196e00fc394f13ca8c1c0cdc360a170c1b6a9db0f0a1f9f1c4e9342"
-  name = "k8s.io/apiextensions-apiserver"
-  packages = [
-    "pkg/apis/apiextensions",
-    "pkg/apis/apiextensions/v1beta1",
-  ]
-  pruneopts = "NUT"
-  revision = "bf6753f2aa24fe1d69a2abeea1c106042bcf3f5f"
-  version = "kubernetes-1.14.2"
-
-[[projects]]
   digest = "1:8bcd63053adfbb2547a71424b03e09d19392ffed1010cb4643781d9ebfe3b900"
   name = "k8s.io/apimachinery"
   packages = [
@@ -395,10 +370,11 @@
   version = "kubernetes-1.14.2"
 
 [[projects]]
-  digest = "1:bb8ec2b3f430dfda97e3b39a89361e280b4c323d8e45b835c2c4df00f6d2f339"
+  digest = "1:3bcab4f3355ed5f1f8bf04c84ec0664e63f9761f5390e328a291b94eb2c1c091"
   name = "k8s.io/client-go"
   packages = [
     "discovery",
+    "dynamic",
     "kubernetes",
     "kubernetes/scheme",
     "kubernetes/typed/admissionregistration/v1beta1",
@@ -490,8 +466,6 @@
   analyzer-name = "dep"
   analyzer-version = 1
   input-imports = [
-    "github.com/microsoft/frameworkcontroller/pkg/apis/frameworkcontroller/v1",
-    "github.com/microsoft/frameworkcontroller/pkg/client/clientset/versioned",
     "github.com/prometheus/client_golang/prometheus",
     "github.com/prometheus/client_golang/prometheus/promhttp",
     "github.com/prometheus/client_model/go",
@@ -499,6 +473,9 @@
     "k8s.io/api/core/v1",
     "k8s.io/api/scheduling/v1",
     "k8s.io/apimachinery/pkg/apis/meta/v1",
+    "k8s.io/apimachinery/pkg/apis/meta/v1/unstructured",
+    "k8s.io/apimachinery/pkg/runtime/schema",
+    "k8s.io/client-go/dynamic",
     "k8s.io/client-go/kubernetes",
     "k8s.io/client-go/rest",
     "k8s.io/client-go/tools/clientcmd",

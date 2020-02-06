@@ -1,15 +1,38 @@
+// MIT License
+//
+// Copyright (c) Microsoft Corporation. All rights reserved.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE
+
 package watchdog
 
 import (
 	"os"
 
-	fc "github.com/microsoft/frameworkcontroller/pkg/apis/frameworkcontroller/v1"
-	frameworkClient "github.com/microsoft/frameworkcontroller/pkg/client/clientset/versioned"
 	v1 "k8s.io/api/core/v1"
 	shedulev1 "k8s.io/api/scheduling/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
+	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/klog"
 
+	"k8s.io/client-go/dynamic"
 	"k8s.io/client-go/rest"
 
 	"k8s.io/client-go/kubernetes"
@@ -26,7 +49,7 @@ type kubeClientInterface interface {
 // K8sClient used to query k8s api server
 type K8sClient struct {
 	kClient kubeClientInterface
-	fClient frameworkClient.Interface
+	dClient dynamic.Interface
 	config  *rest.Config
 }
 
@@ -53,7 +76,7 @@ func (c *K8sClient) initK8sClient() error {
 		klog.Errorf("Failed to init kube client")
 		return err
 	}
-	c.fClient, err = frameworkClient.NewForConfig(kConfig)
+	c.dClient, err = dynamic.NewForConfig(kConfig)
 	if err != nil {
 		klog.Error("Failed to create framework client")
 	}
@@ -94,8 +117,10 @@ func (c *K8sClient) deleteSecret(namespace string, name string) error {
 	return c.kClient.CoreV1().Secrets(namespace).Delete(name, nil)
 }
 
-func (c *K8sClient) listFrameworks(namespace string) (*fc.FrameworkList, error) {
-	return c.fClient.FrameworkcontrollerV1().Frameworks(namespace).List(metav1.ListOptions{})
+func (c *K8sClient) listFrameworks(namespace string) (*unstructured.UnstructuredList, error) {
+	frameworkRes := schema.GroupVersionResource{Group: "frameworkcontroller.microsoft.com",
+		Version: "v1", Resource: "frameworks"}
+	return c.dClient.Resource(frameworkRes).Namespace(namespace).List(metav1.ListOptions{})
 }
 
 func (c *K8sClient) getAPIServerHostName() string {
@@ -111,3 +136,4 @@ func NewK8sClient() (*K8sClient, error) {
 	}
 	return &k8sClient, nil
 }
+

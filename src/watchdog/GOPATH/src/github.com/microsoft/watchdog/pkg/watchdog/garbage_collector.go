@@ -27,7 +27,6 @@ import (
 	"strings"
 	"time"
 
-	fc "github.com/microsoft/frameworkcontroller/pkg/apis/frameworkcontroller/v1"
 	v1 "k8s.io/api/core/v1"
 	shedulev1 "k8s.io/api/scheduling/v1"
 	"k8s.io/klog"
@@ -58,7 +57,7 @@ func isContains(arr []string, ele string) bool {
 // GarbageCollector a struct used to recycle k8s garbage instaces
 type GarbageCollector struct {
 	k8sClient                *K8sClient
-	frameworkMap             map[string]fc.Framework
+	frameworkExistMap        map[string]bool
 	priorityClasses          []shedulev1.PriorityClass
 	secrets                  []v1.Secret
 	collectionInterval       time.Duration
@@ -78,7 +77,7 @@ func NewGarbageCollector(c *K8sClient, interval time.Duration) *GarbageCollector
 		collectionInterval:       interval,
 		stopCh:                   make(chan bool),
 		finishCh:                 make(chan bool),
-		frameworkMap:             make(map[string]fc.Framework),
+		frameworkExistMap:        make(map[string]bool),
 		priorityClassNameRegex:   regexp.MustCompile(frameworkPattern + priorityClassNameSuffix),
 		registrySecretNameRegex:  regexp.MustCompile(frameworkPattern + registrySecretNameSuffix),
 		jobConfigSecretNameRegex: regexp.MustCompile(frameworkPattern + jobConfigSecretSuffix),
@@ -122,7 +121,7 @@ func (gc *GarbageCollector) removeOrphanPriorityClasses() int {
 			continue
 		}
 		frameworkName := strings.TrimSuffix(pc.Name, priorityClassNameSuffix)
-		_, exist := gc.frameworkMap[frameworkName]
+		_, exist := gc.frameworkExistMap[frameworkName]
 		if !exist {
 			klog.Infof("Delete orphan priority class %v", pc.Name)
 			err := gc.k8sClient.deletePriorityClass(pc.Name)
@@ -156,7 +155,7 @@ func (gc *GarbageCollector) removeOrphanSecrets() int {
 			}
 		}
 
-		_, exist := gc.frameworkMap[frameworkName]
+		_, exist := gc.frameworkExistMap[frameworkName]
 		if !exist {
 			klog.Infof("Delete orphan secret %v", s.Name)
 			err := gc.k8sClient.deleteSecret("default", s.Name)
@@ -172,14 +171,14 @@ func (gc *GarbageCollector) removeOrphanSecrets() int {
 
 func (gc *GarbageCollector) collect() {
 	namespace := "default"
-	gc.frameworkMap, gc.priorityClasses, gc.secrets = make(map[string]fc.Framework), nil, nil
+	gc.frameworkExistMap, gc.priorityClasses, gc.secrets = make(map[string]bool), nil, nil
 	fList, err := gc.k8sClient.listFrameworks(namespace)
 	if err != nil {
 		klog.Warningf("Failed to get frameworks, err: %v", err)
 		return
 	}
 	for _, f := range fList.Items {
-		gc.frameworkMap[f.Name] = f
+		gc.frameworkExistMap[f.GetName()] = true
 	}
 
 	var pcList *shedulev1.PriorityClassList
@@ -196,3 +195,4 @@ func (gc *GarbageCollector) collect() {
 	}
 	gc.secrets = sList.Items
 }
+
