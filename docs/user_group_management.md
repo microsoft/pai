@@ -36,7 +36,7 @@ It is possible to create a user without assigning any group to it. This user wil
 #### Create a new group
 
 In basic authentication mode, group is bind to virtual cluster. Admin can not create group directly in this mode. To create a new group, admin needs to do:
-- Create a new group by using [create group api](https://redocly.github.io/redoc/?url=https://raw.githubusercontent.com/microsoft/pai/master/src/rest-server/docs/swagger.yaml#operation/createGroup) or webportal.
+- Create a new group by using [create group api](https://redocly.github.io/redoc/?url=https://raw.githubusercontent.com/microsoft/pai/master/src/rest-server/docs/swagger.yaml#operation/createGroup).
 
 #### Update a group
 
@@ -46,7 +46,7 @@ In basic authentication mode, group is bind to virtual cluster. Admin can not cr
 
 #### Delete a group
 
-- Use webportal or [delete group api](https://redocly.github.io/redoc/?url=https://raw.githubusercontent.com/microsoft/pai/master/src/rest-server/docs/swagger.yaml#operation/deleteGroup) to remove a group from a cluster, the users in this group will be updated.
+- Use [delete group api](https://redocly.github.io/redoc/?url=https://raw.githubusercontent.com/microsoft/pai/master/src/rest-server/docs/swagger.yaml#operation/deleteGroup) to remove a group from a cluster, the users in this group will be updated.
 
 
 ### Storage management
