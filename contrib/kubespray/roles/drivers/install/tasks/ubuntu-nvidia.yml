@@ -16,29 +16,13 @@
   when:
     - nvidia_smi_check.rc == 0
 
-- name: Add the drivers repository to Ubuntu
-  apt_repository:
-    repo: ppa:graphics-drivers/ppa
-    state: present
-
-- name: Run the equivalent of "apt-get update" as a separate step
-  apt:
-    update_cache: yes
-
-- name: Install nvidia drivers on ubuntu 16.04, we will install {{ nvidia_version }} version
-  apt:
-    name: nvidia-{{ nvidia_version }}
-    state: present
+- name: Install nvidia drivers on ubuntu 16.04
+  include_tasks: ubuntu-1604-install-nvidia.yml
   when: ansible_distribution_version == '16.04'
 
-- name: Install nvidia drivers on ubuntu 18.04, we will install {{ nvidia_version }} version
-  apt:
-    name: nvidia-driver-{{ nvidia_version }}
-    state: present
+- name: Install nvidia drivers on ubuntu 18.04
+  include_tasks: ubuntu-1804-install-nvidia.yml
   when: ansible_distribution_version == '18.04'
-
-- name: reboot vm
-  reboot:
 
 - name: create persistenced override dir
   file:
