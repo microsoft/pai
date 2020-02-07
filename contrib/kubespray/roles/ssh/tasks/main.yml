@@ -1,6 +1,7 @@
 ---
-- name: output ssh key path
+- name: output ssh user
   debug:
-    var: "{% raw %} ssh_key_path {% endraw %}"
+    var: {{ ansible_ssh_user }}
+
 #- name: Non secret authentication
-#  authorized_key: user=core key="{{ lookup('file', '/home/core/.ssh/id_rsa.pub') }}"  state=present
+#  authorized_key: user={{ ansible_ssh_user }} key="{{ lookup('file', ssh_key_path) }}"  state=present
