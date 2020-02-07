@@ -1,36 +1,11 @@
 ---
-- name: uninstall nvidia-drivers
-  apt:
-    name: nvidia-{{ nvidia_version }}
-    state: absent
+- name: Uninstall nvidia drivers on ubuntu 16.04
+  include_tasks: ubuntu-1604-uninstall-nvidia.yml
+  when: ansible_distribution_version == '16.04'
 
-- name: uninstall nvidia-opencl-icd
-  apt:
-    name: nvidia-opencl-icd-{{ nvidia_version }}
-    state: absent
-
-- name: uninstall nvidia-prime
-  apt:
-    name: nvidia-prime
-    state: absent
-
-- name: uninstall nvidia-settings
-  apt:
-    name: nvidia-settings
-    state: absent
-
-- name: uninstall libcuda1
-  apt:
-    name: libcuda1-{{ nvidia_version }}
-    state: absent
-
-- name: Remove dependencies that are no longer required
-  apt:
-    autoremove: yes
-
-- name: Remove useless packages from the cache
-  apt:
-    autoclean: yes
+- name: Uninstall nvidia drivers on ubuntu 18.04
+  include_tasks: ubuntu-1804-uninstall-nvidia.yml
+  when: ansible_distribution_version == '18.04'
 
 - name: Remove the drivers repository from Ubuntu
   apt_repository:
@@ -40,6 +15,41 @@
 - name: Run the equivalent of "apt-get update" as a separate step
   apt:
     update_cache: yes
+
+- name: "stop NVIDIA persistent mode"
+  raw: "systemctl stop nvidia-persistenced"
+  failed_when: false
+  changed_when: false
+  check_mode: false
+  environment: {}
+
+- name: "disable NVIDIA persistent mode"
+  raw: "systemctl disable nvidia-persistenced"
+  failed_when: false
+  changed_when: false
+  check_mode: false
+  environment: {}
+
+- name: "remove NVIDIA persistent mode's file"
+  raw: "rm -rf /etc/systemd/system/nvidia-persistenced.service.d"
+  failed_when: false
+  changed_when: false
+  check_mode: false
+  environment: {}
+
+- name: "systemd reload"
+  raw: "systemctl daemon-reload"
+  failed_when: false
+  changed_when: false
+  check_mode: false
+  environment: {}
+
+- name: "systemd reset-failed"
+  raw: "systemctl reset-failed"
+  failed_when: false
+  changed_when: false
+  check_mode: false
+  environment: {}
 
 - name: reboot vm
   reboot:
