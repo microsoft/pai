@@ -22,7 +22,6 @@ In basic authentication mode, admin can update the existing users' information d
 - User name, password and email can be changed in webportal or using [user apis](https://redocly.github.io/redoc/?url=https://raw.githubusercontent.com/microsoft/pai/master/src/rest-server/docs/swagger.yaml#tag/user).
 
 
-- Admin can also update users' grouplist in webportal. A user can belong to more than one group in basic authentication mode. Admin can add a group or remove a group from users' grouplist.
 #### Delete a user
 - delete user using webportal or using [delete user api](https://redocly.github.io/redoc/?url=https://raw.githubusercontent.com/microsoft/pai/master/src/rest-server/docs/swagger.yaml#operation/deleteUser)
 
