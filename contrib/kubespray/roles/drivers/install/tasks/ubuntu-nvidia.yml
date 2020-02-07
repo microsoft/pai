@@ -29,6 +29,13 @@
   apt:
     name: nvidia-{{ nvidia_version }}
     state: present
+  when: ansible_distribution_version == '16.04'
+
+- name: Install nvidia drivers, we will install {{ nvidia_version }} version
+  apt:
+    name: nvidia-driver-{{ nvidia_version }}
+    state: present
+  when: ansible_distribution_version == '18.04'
 
 - name: reboot vm
   reboot:
