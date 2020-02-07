@@ -11,14 +11,16 @@ matrix:
       script:
         - python -m unittest discover test/
 
-    - language: python
-      python: 3.6
+    - language: go
+      go: 1.12.6
       before_install:
-        - cd src/watchdog/test
+        - cp -R src/watchdog/GOPATH/* ${GOPATH}
+        - cd ${GOPATH}/src
       install:
-        - pip install paramiko pyyaml requests prometheus_client twisted
+        - echo "Skipping default install phase"
       script:
-        - python -m unittest discover .
+        - go build github.com/microsoft/watchdog/cmd/watchdog/main.go
+        - go test github.com/microsoft/watchdog/pkg/watchdog
 
     - language: python
       python: 2.7
