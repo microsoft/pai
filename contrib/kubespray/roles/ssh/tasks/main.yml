@@ -1,7 +1,4 @@
 ---
-- name: output ssh user
-  debug:
-    var: ansible_ssh_user
 
-#- name: Non secret authentication
-#  authorized_key: user={{ ansible_ssh_user }} key="{{ lookup('file', ssh_key_path) }}"  state=present
+- name: Non secret authentication
+  authorized_key: user="{{ ansible_ssh_user }}" key="{{ lookup('file', ssh_key_path) }}"  state=present
