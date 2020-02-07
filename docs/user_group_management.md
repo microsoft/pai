@@ -10,7 +10,7 @@ This document will introduce how to manage user, group and teamwise storage in O
 
 To add a new user to the cluster, cluster admin needs to do:
 
-- create user using webportal or using [create user api](https://redocly.github.io/redoc/?url=https://raw.githubusercontent.com/microsoft/pai/master/src/rest-server/docs/swagger.yaml#operation/createUser)
+- create user using [create user api](https://redocly.github.io/redoc/?url=https://raw.githubusercontent.com/microsoft/pai/master/src/rest-server/docs/swagger.yaml#operation/createUser)
 - users' username and password must be given when creating a user. 
 
 #### Update existing user
@@ -19,11 +19,12 @@ To add a new user to the cluster, cluster admin needs to do:
 In basic authentication mode, admin can update the existing users' information directly.
 
 
-- User name, password and email can be changed in webportal or using [user apis](https://redocly.github.io/redoc/?url=https://raw.githubusercontent.com/microsoft/pai/master/src/rest-server/docs/swagger.yaml#tag/user).
+- User name, password and email can be changed by using [user apis](https://redocly.github.io/redoc/?url=https://raw.githubusercontent.com/microsoft/pai/master/src/rest-server/docs/swagger.yaml#tag/user).
+- User's grouplist can be updated by using [user group apis](https://redocly.github.io/redoc/?url=https://raw.githubusercontent.com/microsoft/pai/master/src/rest-server/docs/swagger.yaml#operation/updateUserGrouplist). Only admins can update users' group information.
 
 
 #### Delete a user
-- delete user using webportal or using [delete user api](https://redocly.github.io/redoc/?url=https://raw.githubusercontent.com/microsoft/pai/master/src/rest-server/docs/swagger.yaml#operation/deleteUser)
+- delete user using [delete user api](https://redocly.github.io/redoc/?url=https://raw.githubusercontent.com/microsoft/pai/master/src/rest-server/docs/swagger.yaml#operation/deleteUser)
 
 
 ### Group management
