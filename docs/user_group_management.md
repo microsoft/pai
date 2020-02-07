@@ -30,8 +30,9 @@ In basic authentication mode, admin can update the existing users' information d
 ### Group management
 
 
-In basic authentication mode, a group named 'default' and a group named 'admingroup' will be created when deploy OpenPAI. Every user needs to be in a group to have access to VCs and teamwise storages.
-It is possible to create a user without assigning any group to it. This user will be assigned to group default. Groups that are admin have access to all the VCs and teamwise storages.
+In basic authentication mode, a group named `default` and a group named `admingroup` will be created when deploy OpenPAI. Every user needs to be in a group to have access to VCs and teamwise storages.
+When creating a user without assigning any group to it. The user will be assigned to group `default`.
+For the `admingroup`, it has the permission to access all VCs and teamwise storages.
 
 #### Create a new group
 
