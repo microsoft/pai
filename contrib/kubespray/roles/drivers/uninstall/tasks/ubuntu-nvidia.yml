@@ -23,15 +23,14 @@
     enable: no
 
 - name: "remove NVIDIA persistent mode's file"
-  raw: "rm -rf /etc/systemd/system/nvidia-persistenced.service.d"
-  failed_when: false
-  changed_when: false
-  check_mode: false
-  environment: {}
+  command: "rm -rf /etc/systemd/system/nvidia-persistenced.service.d"
 
 - name: just force systemd to reread configs
   systemd:
     daemon_reload: yes
+
+- name: make sure Collector service is really running
+  command: systemctl reset-failed
 
 - name: reboot vm
   reboot:
