@@ -13,40 +13,5 @@
     name: nvidia-driver-{{ nvidia_version }}
     state: present
 
-- name: Install nvidia-dkms-{{ nvidia_version }} on ubuntu 18.04
-  apt:
-    name: nvidia-dkms-{{ nvidia_version }}
-    state: present
-
-- name: Install nvidia-compute-utils-{{ nvidia_version }} on ubuntu 18.04
-  apt:
-    name: nvidia-compute-utils-{{ nvidia_version }}
-    state: present
-
-- name: Install nvidia-utils-{{ nvidia_version }} on ubuntu 18.04
-  apt:
-    name: nvidia-utils-{{ nvidia_version }}
-    state: present
-
-- name: Install nvidia-kernel-common-{{ nvidia_version }} on ubuntu 18.04
-  apt:
-    name: nvidia-kernel-common-{{ nvidia_version }}
-    state: present
-
-- name: Install nvidia-kernel-source-{{ nvidia_version }}  on ubuntu 18.04
-  apt:
-    name: nvidia-kernel-source-{{ nvidia_version }}
-    state: present
-
-- name: Install nvidia-prime on ubuntu 18.04
-  apt:
-    name: nvidia-prime
-    state: present
-
-- name: Install nvidia-settings on ubuntu 18.04
-  apt:
-    name: nvidia-settings
-    state: present
-
 - name: reboot vm
   reboot:

@@ -16,19 +16,11 @@
   apt:
     update_cache: yes
 
-- name: "stop NVIDIA persistent mode"
-  raw: "systemctl stop nvidia-persistenced"
-  failed_when: false
-  changed_when: false
-  check_mode: false
-  environment: {}
-
-- name: "disable NVIDIA persistent mode"
-  raw: "systemctl disable nvidia-persistenced"
-  failed_when: false
-  changed_when: false
-  check_mode: false
-  environment: {}
+- name: stop NVIDIA persistent mode service on ubuntu, if running
+  systemd:
+    name: nvidia-persistenced
+    state: stopped
+    enable: no
 
 - name: "remove NVIDIA persistent mode's file"
   raw: "rm -rf /etc/systemd/system/nvidia-persistenced.service.d"
@@ -37,19 +29,9 @@
   check_mode: false
   environment: {}
 
-- name: "systemd reload"
-  raw: "systemctl daemon-reload"
-  failed_when: false
-  changed_when: false
-  check_mode: false
-  environment: {}
-
-- name: "systemd reset-failed"
-  raw: "systemctl reset-failed"
-  failed_when: false
-  changed_when: false
-  check_mode: false
-  environment: {}
+- name: just force systemd to reread configs
+  systemd:
+    daemon_reload: yes
 
 - name: reboot vm
   reboot:
