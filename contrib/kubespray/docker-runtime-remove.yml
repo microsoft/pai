@@ -4,4 +4,4 @@
   become_user: root
   gather_facts: true
   roles:
-    - { role: docker-runtime/install }
+    - { role: docker-runtime/uninstall }
