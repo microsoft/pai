@@ -44,8 +44,8 @@ const fetchWrapper = async url => {
 export const getServiceView = async callback => {
   const restServerUrl = new URL(
     webportalConfig.restServerUri,
-    window.location.href
-  )
+    window.location.href,
+  );
   const nodeUrl = new URL(
     '/api/v1/kubernetes/nodes',
     restServerUrl,
