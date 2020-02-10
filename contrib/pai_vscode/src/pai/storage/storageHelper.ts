@@ -9,7 +9,7 @@ import { IStorageConfig, OpenPAIClient } from 'openpai-js-sdk';
 import * as path from 'path';
 import { Uri } from 'vscode';
 
-import { getSingleton, Singleton } from '../../common/singleton';
+import { delay, getSingleton, Singleton } from '../../common/singleton';
 import { StorageTreeNode } from '../container/common/treeNode';
 import { StorageTreeDataProvider } from '../container/storage/storageTreeView';
 import { IPAICluster, IUploadConfig } from '../utility/paiInterface';
@@ -78,6 +78,7 @@ export class StorageHelperClass extends Singleton {
         }
 
         await targetNode!.createFolder(baseFolder);
+        await treeView.refresh(targetNode);
         return targetNode!;
     }
 
@@ -86,11 +87,20 @@ export class StorageHelperClass extends Singleton {
     ): Promise<void> {
         const treeView: StorageTreeDataProvider = await getSingleton(StorageTreeDataProvider);
         const dirname: string = path.dirname(target);
-        const folderName: string = path.join(jobName, dirname).replace('\\', '/');
+        const folderName: string = path.join(jobName, dirname).replace(/\\/g, '/');
         const baseNode: StorageTreeNode =
             await this.createFolder(uploadConfig, clusterName, folderName);
-        const targetNode: StorageTreeNode = await this.getFolder(baseNode, folderName);
-        await targetNode.uploadFile([file]);
-        await treeView.refresh(targetNode);
+        let targetNode: StorageTreeNode = await this.getFolder(baseNode, folderName);
+        for (let i: number = 0; i < 10 && targetNode === undefined; ++i) {
+            await delay(100);
+            targetNode = await this.getFolder(baseNode, folderName);
+        }
+        try {
+            await targetNode.uploadFile([file]);
+            await treeView.refresh(targetNode);
+        } catch (err) {
+            console.log(err);
+            throw err;
+        }
     }
 }
