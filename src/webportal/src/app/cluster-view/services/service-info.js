@@ -46,14 +46,8 @@ export const getServiceView = async callback => {
     webportalConfig.restServerUri,
     window.location.href,
   );
-  const nodeUrl = new URL(
-    '/api/v1/kubernetes/nodes',
-    restServerUrl,
-  );
-  const podUrl = new URL(
-    '/api/v1/kubernetes/pods',
-    restServerUrl,
-  );
+  const nodeUrl = new URL('/api/v1/kubernetes/nodes', restServerUrl);
+  const podUrl = new URL('/api/v1/kubernetes/pods', restServerUrl);
   podUrl.searchParams.set('namespace', 'default');
   const [nodes, pods] = await Promise.all([
     fetchWrapper(nodeUrl),
