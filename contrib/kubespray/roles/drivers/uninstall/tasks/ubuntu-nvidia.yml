@@ -1,0 +1,36 @@
+---
+- name: Uninstall nvidia drivers on ubuntu 16.04
+  include_tasks: ubuntu-1604-uninstall-nvidia.yml
+  when: ansible_distribution_version == '16.04'
+
+- name: Uninstall nvidia drivers on ubuntu 18.04
+  include_tasks: ubuntu-1804-uninstall-nvidia.yml
+  when: ansible_distribution_version == '18.04'
+
+- name: Remove the drivers repository from Ubuntu
+  apt_repository:
+    repo: ppa:graphics-drivers/ppa
+    state: absent
+
+- name: Run the equivalent of "apt-get update" as a separate step
+  apt:
+    update_cache: yes
+
+#- name: stop NVIDIA persistent mode service on ubuntu, if running
+#  systemd:
+#    name: nvidia-persistenced
+#    state: stopped
+#    enabled: no
+
+- name: "remove NVIDIA persistent mode's file"
+  command: "rm -rf /etc/systemd/system/nvidia-persistenced.service.d"
+
+- name: just force systemd to reread configs
+  systemd:
+    daemon_reload: yes
+
+- name: make sure Collector service is really running
+  command: systemctl reset-failed
+
+- name: reboot vm
+  reboot:
