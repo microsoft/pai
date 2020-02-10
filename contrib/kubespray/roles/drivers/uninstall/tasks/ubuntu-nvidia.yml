@@ -20,7 +20,7 @@
   systemd:
     name: nvidia-persistenced
     state: stopped
-    enable: no
+    enabled: no
 
 - name: "remove NVIDIA persistent mode's file"
   command: "rm -rf /etc/systemd/system/nvidia-persistenced.service.d"
