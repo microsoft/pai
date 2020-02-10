@@ -15,10 +15,10 @@ import { StorageTreeDataProvider } from './pai/container/storage/storageTreeView
 import { PAIJobManager } from './pai/paiJobManager';
 import { PAIWebpages } from './pai/paiWebpages';
 import { RecentJobManager } from './pai/recentJobManager';
-import { AutoUploadManager } from './pai/storage/autoUploadManager';
 import { HDFS } from './pai/storage/hdfs';
 import { NfsStorageManager } from './pai/storage/nfsStorageManager';
 import { PersonalStorageManager } from './pai/storage/personalStorageManager';
+import { StorageHelperClass } from './pai/storage/storageHelper';
 import { RemoteFileEditor } from './pai/utility/remoteFileEditor';
 
 export const allSingletonClasses: { new(...arg: any[]): Singleton }[] = [
@@ -36,5 +36,5 @@ export const allSingletonClasses: { new(...arg: any[]): Singleton }[] = [
     StorageTreeDataProvider,
     JobListTreeDataProvider,
     RemoteFileEditor,
-    AutoUploadManager
+    StorageHelperClass
 ];

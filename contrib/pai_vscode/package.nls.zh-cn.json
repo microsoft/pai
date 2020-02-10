@@ -43,6 +43,7 @@
     "config.job.jobList.recentJobsLength": "控制每个 PAI 集群保留最近提交任务的数量",
     "config.job.jobList.allJobsPageSize": "控制 PAI 集群任务列表的分页大小",
     "config.job.jobList.refreshInterval": "控制任务列表的刷新间隔（秒）",
+    "config.job.v2.upload": "设置插件自动将项目文件上传至 PAI 的存储服务器",
     "config.hdfs.location": "HDFS 浏览器显示的位置",
     "pai.storage.nfs.mountPoint": "OpenPAI NFS 存储挂载点, '<集群名称>_<NFS存储名称>: <挂载路径>'"
 }

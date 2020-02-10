@@ -52,6 +52,18 @@ export interface IPAIJobInfo {
     virtualCluster: string;
 }
 
+export interface IPAIJobV2UploadConfig {
+    [cluster: string]: {
+        enable: boolean;
+        include: string[];
+        exclude: string[];
+        storageType?: 'cluster' | 'personal';
+        storageName?: string;
+        storageMountPoint?: string;
+        storagePath?: string;
+    };
+}
+
 /**
  * OpenPAI Job Protocol.
  */
