@@ -1,40 +1,40 @@
 ---
-- name: Install nvidia-drivers-{{ nvidia_version }} on ubuntu 18.04
+- name: Uninstall nvidia-drivers-{{ nvidia_version }} on ubuntu 18.04
   apt:
     name: nvidia-driver-{{ nvidia_version }}
     state: absent
 
-- name: Install nvidia-dkms-{{ nvidia_version }} on ubuntu 18.04
+- name: Uninstall nvidia-dkms-{{ nvidia_version }} on ubuntu 18.04
   apt:
     name: nvidia-dkms-{{ nvidia_version }}
     state: absent
 
-- name: Install nvidia-compute-utils-{{ nvidia_version }} on ubuntu 18.04
+- name: Uninstall nvidia-compute-utils-{{ nvidia_version }} on ubuntu 18.04
   apt:
     name: nvidia-compute-utils-{{ nvidia_version }}
     state: absent
 
-- name: Install nvidia-utils-{{ nvidia_version }} on ubuntu 18.04
+- name: Uninstall nvidia-utils-{{ nvidia_version }} on ubuntu 18.04
   apt:
     name: nvidia-utils-{{ nvidia_version }}
     state: absent
 
-- name: Install nvidia-kernel-common-{{ nvidia_version }} on ubuntu 18.04
+- name: Uninstall nvidia-kernel-common-{{ nvidia_version }} on ubuntu 18.04
   apt:
     name: nvidia-kernel-common-{{ nvidia_version }}
     state: absent
 
-- name: Install nvidia-kernel-source-{{ nvidia_version }}  on ubuntu 18.04
+- name: Uninstall nvidia-kernel-source-{{ nvidia_version }}  on ubuntu 18.04
   apt:
     name: nvidia-kernel-source-{{ nvidia_version }}
     state: absent
 
-- name: Install nvidia-prime on ubuntu 18.04
+- name: Uninstall nvidia-prime on ubuntu 18.04
   apt:
     name: nvidia-prime
     state: absent
 
-- name: Install nvidia-settings on ubuntu 18.04
+- name: Uninstall nvidia-settings on ubuntu 18.04
   apt:
     name: nvidia-settings
     state: absent
