@@ -53,15 +53,17 @@ export interface IPAIJobInfo {
 }
 
 export interface IPAIJobV2UploadConfig {
-    [cluster: string]: {
-        enable: boolean;
-        include: string[];
-        exclude: string[];
-        storageType?: 'cluster' | 'personal';
-        storageName?: string;
-        storageMountPoint?: string;
-        storagePath?: string;
-    };
+    [cluster: string]: IUploadConfig;
+}
+
+export interface IUploadConfig {
+    enable: boolean;
+    include: string[];
+    exclude: string[];
+    storageType?: 'cluster' | 'personal';
+    storageName?: string;
+    storageMountPoint?: string;
+    storagePath?: string;
 }
 
 /**

@@ -125,9 +125,9 @@ export class NfsRootNode extends StorageTreeNode {
         }
     }
 
-    public async createFolder(): Promise<void> {
+    public async createFolder(folder?: string): Promise<void> {
         if (this.setupMountPoint) {
-            await PathBaseStorageManager.createFolder(this);
+            await PathBaseStorageManager.createFolder(this, folder);
         }
     }
 }

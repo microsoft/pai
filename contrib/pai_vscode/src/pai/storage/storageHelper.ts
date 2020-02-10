@@ -6,9 +6,13 @@
 
 import { injectable } from 'inversify';
 import { IStorageConfig, OpenPAIClient } from 'openpai-js-sdk';
+import * as path from 'path';
+import { Uri } from 'vscode';
 
 import { getSingleton, Singleton } from '../../common/singleton';
-import { IPAICluster } from '../utility/paiInterface';
+import { StorageTreeNode } from '../container/common/treeNode';
+import { StorageTreeDataProvider } from '../container/storage/storageTreeView';
+import { IPAICluster, IUploadConfig } from '../utility/paiInterface';
 
 import { PersonalStorageManager } from './personalStorageManager';
 
@@ -49,5 +53,44 @@ export class StorageHelperClass extends Singleton {
     public async getPersonalStorages(): Promise<string[]> {
         const personalStorageManager: PersonalStorageManager = await getSingleton(PersonalStorageManager);
         return personalStorageManager.allConfigurations.map(config => config.spn);
+    }
+
+    public async getFolder(baseFolder: StorageTreeNode, target: string): Promise<StorageTreeNode> {
+        for (const name of target.split('/')) {
+            baseFolder = (await baseFolder.getChildren()).find(child => child.label === name)!;
+        }
+        return baseFolder;
+    }
+
+    public async createFolder(
+        uploadConfig: IUploadConfig, clusterName: string, baseFolder: string
+    ): Promise<StorageTreeNode> {
+        const treeView: StorageTreeDataProvider = await getSingleton(StorageTreeDataProvider);
+        let targetNode: StorageTreeNode | undefined;
+        if (uploadConfig.storageType === 'cluster') {
+            const clusterRoot: StorageTreeNode = <StorageTreeNode>(await treeView.getChildren())![0];
+            const clusterNode: StorageTreeNode = (await clusterRoot.getChildren()).find(child => child.label === clusterName)!;
+            const storageNode: StorageTreeNode = (await clusterNode.getChildren()).find(child => child.label === uploadConfig.storageName)!;
+            targetNode = (await storageNode.getChildren()).find(child => child.description === uploadConfig.storageMountPoint);
+        } else {
+            const personalRoot: StorageTreeNode = <StorageTreeNode>(await treeView.getChildren())![1];
+            targetNode = (await personalRoot.getChildren()).find(child => child.label === uploadConfig.storageName)!;
+        }
+
+        await targetNode!.createFolder(baseFolder);
+        return targetNode!;
+    }
+
+    public async uploadFile(
+        uploadConfig: IUploadConfig, clusterName: string, jobName: string, file: Uri, target: string
+    ): Promise<void> {
+        const treeView: StorageTreeDataProvider = await getSingleton(StorageTreeDataProvider);
+        const dirname: string = path.dirname(target);
+        const folderName: string = path.join(jobName, dirname).replace('\\', '/');
+        const baseNode: StorageTreeNode =
+            await this.createFolder(uploadConfig, clusterName, folderName);
+        const targetNode: StorageTreeNode = await this.getFolder(baseNode, folderName);
+        await targetNode.uploadFile([file]);
+        await treeView.refresh(targetNode);
     }
 }

@@ -44,7 +44,7 @@ import { ClusterExplorerChildNode } from './container/configurationTreeDataProvi
 import { RecentJobManager } from './recentJobManager';
 import { getHDFSUriAuthority, HDFS, HDFSFileSystemProvider } from './storage/hdfs';
 import { StorageHelper } from './storage/storageHelper';
-import { IPAICluster, IPAIJobConfigV1, IPAIJobConfigV2, IPAIJobV2UploadConfig, IPAITaskRole } from './utility/paiInterface';
+import { IPAICluster, IPAIJobConfigV1, IPAIJobConfigV2, IPAIJobV2UploadConfig, IPAITaskRole, IUploadConfig } from './utility/paiInterface';
 import { PAIRestUri, PAIWebPortalUri } from './utility/paiUri';
 import { YamlJobConfigCompletionProvider } from './yaml/yamlJobConfigCompletionProvider';
 import { registerYamlSchemaSupport } from './yaml/yamlSchemaSupport';
@@ -62,7 +62,7 @@ interface IJobParam {
     upload?: {
         exclude: string[];
         include: string[];
-    };
+    } | IUploadConfig;
     generateJobName: boolean;
 }
 
@@ -578,6 +578,14 @@ export class PAIJobManager extends Singleton {
             }
         }
 
+        // auto upload
+        statusBarItem.text = `${OCTICON_CLOUDUPLOAD} ${__('job.upload.status')}`;
+        if (param.upload) {
+            if (!await this.uploadCodeV2(param)) {
+                return;
+            }
+        }
+
         statusBarItem.text = `${OCTICON_CLOUDUPLOAD} ${__('job.request.status')}`;
         try {
             await request.post(
@@ -914,7 +922,7 @@ export class PAIJobManager extends Singleton {
             mountPoint: string;
         }[] = await StorageHelper.getStorageMountPoints(cluster);
 
-        let pickPersonalStorage: boolean = false;
+        let pickPersonalStorage: boolean = true;
 
         if (mountPoints.length > 0) {
             const CLUSTER: vscode.QuickPickItem = {
@@ -934,7 +942,7 @@ export class PAIJobManager extends Singleton {
                         const str: string = mountPoints[index].storage + ':' + mountPoints[index].mountPoint;
                         return {label: str};
                     });
-                if (pickStorage) {
+                if (pickStorage !== undefined) {
                     config[cluster.name!] = {
                         enable: true,
                         include: ['**/*.py'],
@@ -950,8 +958,7 @@ export class PAIJobManager extends Singleton {
                         exclude: []
                     };
                 }
-            } else {
-                pickPersonalStorage = true;
+                pickPersonalStorage = false;
             }
         }
 
@@ -962,7 +969,7 @@ export class PAIJobManager extends Singleton {
                     const str: string = personalStorages[index];
                     return {label: str};
                 });
-            if (pickStorage) {
+            if (pickStorage !== undefined) {
                 config[cluster.name!] = {
                     enable: true,
                     include: ['**/*.py'],
@@ -1033,6 +1040,8 @@ export class PAIJobManager extends Singleton {
         if (clusterIndex) {
             const clusterManager: ClusterManager = await getSingleton(ClusterManager);
             result.cluster = clusterManager.allConfigurations[clusterIndex];
+        } else {
+            result.cluster = await this.pickCluster();
         }
 
         // 4. settings
@@ -1043,6 +1052,12 @@ export class PAIJobManager extends Singleton {
                 include: settings.get<string[]>(SETTING_JOB_UPLOAD_INCLUDE)!,
                 exclude: settings.get<string[]>(SETTING_JOB_UPLOAD_EXCLUDE)!
             };
+        }
+        if (jobVersion === 2) {
+            const uploadConfig: IPAIJobV2UploadConfig | undefined = settings.get(SETTING_JOB_V2_UPLOAD);
+            if (uploadConfig && uploadConfig[result.cluster!.name!] && uploadConfig[result.cluster!.name!].enable) {
+                result.upload = uploadConfig[result.cluster!.name!];
+            }
         }
         result.generateJobName = settings.get(SETTING_JOB_GENERATEJOBNAME_ENABLED);
 
@@ -1128,6 +1143,42 @@ export class PAIJobManager extends Singleton {
                             increment: 1 / total * 100
                         });
                         await fsProvider.copy(vscode.Uri.file(file), Util.uriPathAppend(codeUri, suffix), { overwrite: true });
+                    }
+                }
+            );
+
+            return true;
+        } catch (e) {
+            Util.err('job.upload.error', [e.message]);
+            return false;
+        }
+    }
+
+    private async uploadCodeV2(param: IJobParam): Promise<boolean> {
+        const config: IPAIJobConfigV2 = <IPAIJobConfigV2>param.config;
+
+        try {
+            const projectFiles: string[] = await globby(param.upload!.include, {
+                cwd: param.workspace, onlyFiles: true, absolute: true,
+                ignore: param.upload!.exclude || []
+            });
+
+            const uploadConfig: IUploadConfig = <IUploadConfig>param.upload;
+            const total: number = projectFiles.length;
+
+            await vscode.window.withProgress(
+                {
+                    location: vscode.ProgressLocation.Notification,
+                    title: __('job.upload.status')
+                },
+                async (progress) => {
+                    for (const [i, file] of projectFiles.entries()) {
+                        progress.report({
+                            message: __('job.upload.progress', [i + 1, total]),
+                            increment: 1 / total * 100
+                        });
+                        const suffix: string = path.relative(param.workspace, file);
+                        await StorageHelper.uploadFile(uploadConfig, param.cluster!.name!, config.name, vscode.Uri.file(file), suffix);
                     }
                 }
             );
