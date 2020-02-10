@@ -16,11 +16,11 @@
   apt:
     update_cache: yes
 
-- name: stop NVIDIA persistent mode service on ubuntu, if running
-  systemd:
-    name: nvidia-persistenced
-    state: stopped
-    enabled: no
+#- name: stop NVIDIA persistent mode service on ubuntu, if running
+#  systemd:
+#    name: nvidia-persistenced
+#    state: stopped
+#    enabled: no
 
 - name: "remove NVIDIA persistent mode's file"
   command: "rm -rf /etc/systemd/system/nvidia-persistenced.service.d"
