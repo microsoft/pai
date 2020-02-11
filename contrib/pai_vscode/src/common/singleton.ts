@@ -4,9 +4,8 @@
  * @author Microsoft
  */
 
-import 'reflect-metadata'; // tslint:disable-line
-
 import { injectable, Container } from 'inversify';
+import 'reflect-metadata'; // tslint:disable-line
 import * as vscode from 'vscode';
 
 import { __ } from './i18n';

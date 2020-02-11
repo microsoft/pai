@@ -210,8 +210,7 @@ export class JobListTreeDataProvider extends Singleton implements TreeDataProvid
             return this.clusters;
         }
         switch (element.type) {
-            case TreeDataType.Cluster:
-            {
+            case TreeDataType.Cluster: {
                 return [
                     { type: TreeDataType.Filter, filterType: FilterType.Recent, clusterIndex: element.index },
                     { type: TreeDataType.Filter, filterType: FilterType.All, clusterIndex: element.index }
