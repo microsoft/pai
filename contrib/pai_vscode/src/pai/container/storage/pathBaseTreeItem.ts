@@ -16,7 +16,6 @@ import {
     ICON_FILE,
     ICON_FOLDER
 } from '../../../common/constants';
-
 import { __ } from '../../../common/i18n';
 import { getSingleton } from '../../../common/singleton';
 import { Util } from '../../../common/util';
