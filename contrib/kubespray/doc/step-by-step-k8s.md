@@ -200,7 +200,7 @@ cp -rfp inventory/sample inventory/mycluster
 
 cd ~
 
-cp ~/pai/contrib/kubespray/openpai.yml ~/kubespray/inventory/mycluster
+cp ~/pai/contrib/kubespray/quick-start/openpai.yml ~/kubespray/inventory/mycluster
 
 cp /path/to/your/host.yml ~/kubespray/inventory/mycluster
 ```
