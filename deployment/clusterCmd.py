@@ -39,7 +39,7 @@ logger = logging.getLogger(__name__)
 class ClusterCmd():
     def register(self, parser):
 
-        logger.warning("Kubernetes deployment in paictl maybe be deprecated in the future!")
+        logger.warning("Kubernetes deployment in paictl will be deprecated in the future!")
         logger.warning("We highly recommend deploying kubernetes with kubespray.")
         logger.warning("If you wanna deploy k8s with kubespray, please refer to https://github.com/microsoft/pai/tree/master/contrib/kubespray")
         logger.warning("paictl cluster command will sleep here for 10 seconds.")
