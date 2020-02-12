@@ -2,9 +2,11 @@
 
 This doc is for ops/admin users. If ops/admin deployed OpenPAI with k8s RBAC enabled. The k8s dashboard with `https` enabled  will be deployed. And authentication is needed to access k8s-dashboard.
 
-Currently, we only support access k8s dashboard through service token.
+Currently, we only support accessing k8s dashboard through service token.
 
-***Please make sure your OpenPAI cluster is enabled HTTPS. Otherwise you need to access dashboard through kube-proxy (refer to [access dashboard](https://github.com/kubernetes/dashboard/blob/master/docs/user/accessing-dashboard/1.7.x-and-above.md))***
+## Prerequisite
+1. Have the valid kube-config and can use kubectl to access k8s cluster. For setup kubectl, please refer to [setup kubectl](https://github.com/microsoft/pai/blob/master/contrib/kubespray/doc/step-by-step-k8s.md#setup-kubectl).
+2. OpenPAI cluster enables HTTPS. Otherwise you need to access dashboard through kube-proxy (refer to [access dashboard](https://github.com/kubernetes/dashboard/blob/master/docs/user/accessing-dashboard/1.7.x-and-above.md)).
 
 ## Access K8S Dashboard with service token
 To access k8s dashboard, we need to do following steps.
@@ -32,4 +34,4 @@ To access k8s dashboard, we need to do following steps.
 2. Run `kubectl apply -f admin-user.yaml`
 3. Run `kubectl -n kube-system describe secret $(kubectl -n kube-system get secret | grep admin-user | awk '{print $1}')`. It will print the token which can be used to login k8s-dashboard
 
-For further information, please visit [Creating sample user](https://github.com/kubernetes/dashboard/blob/master/docs/user/access-control/creating-sample-user.md)
+For further information, please visit [Creating sample user](https://github.com/kubernetes/dashboard/blob/master/docs/user/access-control/creating-sample-user.md).
