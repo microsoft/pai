@@ -594,7 +594,7 @@
         "@types/request-promise-native": "^1.0.15",
         "@types/semver-compare": "^1.0.0",
         "@types/uuid": "^3.4.4",
-        "@types/vscode": "^1.42.0",
+        "@types/vscode": "^1.39.2",
         "mocha": "^7.0.1",
         "nock": "^11.8.2",
         "tslint": "^6.0.0",
