@@ -56,8 +56,8 @@ export class MountPointTreeNode extends StorageTreeNode {
         await this.data.uploadFile(files);
     }
 
-    public async createFolder(): Promise<void> {
-        await this.data.createFolder();
+    public async createFolder(folder?: string): Promise<void> {
+        await this.data.createFolder(folder);
     }
 
     private initializeData(info: IMountInfo, server: IStorageServer): StorageTreeNode {

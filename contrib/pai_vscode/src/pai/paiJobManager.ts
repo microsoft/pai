@@ -9,7 +9,7 @@ import * as globby from 'globby';
 import { injectable } from 'inversify';
 import * as yaml from 'js-yaml';
 import * as JSONC from 'jsonc-parser';
-import { isEmpty, isNil } from 'lodash';
+import { isEmpty, isNil, range } from 'lodash';
 import { IJobConfigV1 } from 'openpai-js-sdk/lib/models/job';
 import opn = require('opn'); // tslint:disable-line
 import * as os from 'os';
@@ -32,6 +32,7 @@ import {
     SETTING_JOB_UPLOAD_ENABLED,
     SETTING_JOB_UPLOAD_EXCLUDE,
     SETTING_JOB_UPLOAD_INCLUDE,
+    SETTING_JOB_V2_UPLOAD,
     SETTING_SECTION_JOB
 } from '../common/constants';
 import { __ } from '../common/i18n';
@@ -42,7 +43,8 @@ import { getClusterIdentifier, ClusterManager } from './clusterManager';
 import { ClusterExplorerChildNode } from './container/configurationTreeDataProvider';
 import { RecentJobManager } from './recentJobManager';
 import { getHDFSUriAuthority, HDFS, HDFSFileSystemProvider } from './storage/hdfs';
-import { IPAICluster, IPAIJobConfigV1, IPAIJobConfigV2, IPAITaskRole } from './utility/paiInterface';
+import { StorageHelper } from './storage/storageHelper';
+import { IPAICluster, IPAIJobConfigV1, IPAIJobConfigV2, IPAIJobV2UploadConfig, IPAITaskRole, IUploadConfig } from './utility/paiInterface';
 import { PAIRestUri, PAIWebPortalUri } from './utility/paiUri';
 import { YamlJobConfigCompletionProvider } from './yaml/yamlJobConfigCompletionProvider';
 import { registerYamlSchemaSupport } from './yaml/yamlSchemaSupport';
@@ -60,7 +62,7 @@ interface IJobParam {
     upload?: {
         exclude: string[];
         include: string[];
-    };
+    } | IUploadConfig;
     generateJobName: boolean;
 }
 
@@ -98,19 +100,19 @@ export class PAIJobManager extends Singleton {
             vscode.commands.registerCommand(
                 COMMAND_CREATE_JOB_CONFIG,
                 async (input?: ClusterExplorerChildNode | vscode.Uri) => {
-                    await PAIJobManager.generateJobConfig(input);
+                    await this.generateJobConfig(input);
                 }
             ),
             vscode.commands.registerCommand(
                 COMMAND_CREATE_JOB_CONFIG_V1,
                 async (input: vscode.Uri) => {
-                    await PAIJobManager.generateJobConfigV1(input.fsPath);
+                    await this.generateJobConfigV1(input.fsPath);
                 }
             ),
             vscode.commands.registerCommand(
                 COMMAND_CREATE_JOB_CONFIG_V2,
                 async (input: vscode.Uri) => {
-                    await PAIJobManager.generateJobConfigV2(input.fsPath);
+                    await this.generateJobConfigV2(input.fsPath);
                 }
             ),
             vscode.commands.registerCommand(
@@ -141,7 +143,133 @@ export class PAIJobManager extends Singleton {
         );
     }
 
-    public static async generateJobConfig(input?: ClusterExplorerChildNode | vscode.Uri): Promise<void> {
+    private static async ensureGenerateJobNameSetting(): Promise<vscode.WorkspaceConfiguration> {
+        const settings: vscode.WorkspaceConfiguration = vscode.workspace.getConfiguration(SETTING_SECTION_JOB);
+        if (settings.get(SETTING_JOB_GENERATEJOBNAME_ENABLED) === null) {
+            const YES: vscode.QuickPickItem = {
+                label: __('common.yes'),
+                description: __('job.prepare.generate-job-name.yes.detail')
+            };
+            const NO: vscode.QuickPickItem = {
+                label: __('common.no')
+            };
+            const item: vscode.QuickPickItem | undefined = await Util.pick(
+                [YES, NO],
+                __('job.prepare.generate-job-name.prompt')
+            );
+            if (item === YES) {
+                await settings.update(SETTING_JOB_GENERATEJOBNAME_ENABLED, true);
+            } else if (item === NO) {
+                await settings.update(SETTING_JOB_GENERATEJOBNAME_ENABLED, false);
+            } else {
+                Util.info('job.prepare.generate-job-name.undefined.hint');
+            }
+        }
+        // reload settings
+        return vscode.workspace.getConfiguration(SETTING_SECTION_JOB);
+    }
+
+    private static async ensureSettingsV1(): Promise<vscode.WorkspaceConfiguration> {
+        const settings: vscode.WorkspaceConfiguration = vscode.workspace.getConfiguration(SETTING_SECTION_JOB);
+        if (settings.get(SETTING_JOB_UPLOAD_ENABLED) === null) {
+            const YES: vscode.QuickPickItem = {
+                label: __('common.yes'),
+                description: __('job.prepare.upload.yes.detail')
+            };
+            const NO: vscode.QuickPickItem = {
+                label: __('common.no')
+            };
+            const item: vscode.QuickPickItem | undefined = await Util.pick(
+                [YES, NO],
+                __('job.prepare.upload.prompt')
+            );
+            if (item === YES) {
+                await settings.update(SETTING_JOB_UPLOAD_ENABLED, true);
+                await settings.update(SETTING_JOB_UPLOAD_EXCLUDE, []);
+                await settings.update(SETTING_JOB_UPLOAD_INCLUDE, ['**/*.py']);
+            } else if (item === NO) {
+                await settings.update(SETTING_JOB_UPLOAD_ENABLED, false);
+            } else {
+                await settings.update(SETTING_JOB_UPLOAD_ENABLED, true);
+                await settings.update(SETTING_JOB_UPLOAD_EXCLUDE, []);
+                await settings.update(SETTING_JOB_UPLOAD_INCLUDE, ['**/*.py']);
+                Util.info('job.prepare.upload.undefined.hint');
+            }
+        }
+        return await this.ensureGenerateJobNameSetting();
+    }
+
+    private static replaceVariables(jobParam: IJobParam): IPAIJobConfigV1 {
+        // Replace environment variable
+        const config: IPAIJobConfigV1 = <IPAIJobConfigV1>jobParam.config;
+        const cluster: IPAICluster | undefined = jobParam.cluster;
+        function replaceVariable(x: string): string {
+            return x.replace('$PAI_JOB_NAME', config.jobName)
+                .replace('$PAI_USER_NAME', cluster!.username!);
+        }
+        for (const key of PAIJobManager.propertiesToBeReplaced) {
+            const old: string | IPAITaskRole[] | undefined = config[key];
+            if (typeof old === 'string') {
+                config[key] = replaceVariable(old);
+            }
+        }
+        if (config.taskRoles) {
+            for (const role of config.taskRoles) {
+                role.command = replaceVariable(role.command);
+            }
+        }
+        return config;
+    }
+
+    public async ensureSettingsV2(cluster?: IPAICluster): Promise<vscode.WorkspaceConfiguration> {
+        const settings: vscode.WorkspaceConfiguration = vscode.workspace.getConfiguration(SETTING_SECTION_JOB);
+        if (!settings.get(SETTING_JOB_V2_UPLOAD)) {
+            const YES: vscode.QuickPickItem = {
+                label: __('common.yes'),
+                description: __('job.prepare.upload.yes.detail')
+            };
+            const NO: vscode.QuickPickItem = {
+                label: __('common.no')
+            };
+            const item: vscode.QuickPickItem | undefined = await Util.pick(
+                [YES, NO],
+                __('job.prepare.upload.prompt')
+            );
+            if (!cluster) {
+                cluster = await this.pickCluster();
+            }
+            if (item === YES) {
+                let uploadConfig: IPAIJobV2UploadConfig = {};
+                uploadConfig = await this.pickUploadStorage(cluster, uploadConfig);
+                await settings.update(SETTING_JOB_V2_UPLOAD, uploadConfig);
+            }
+        } else {
+            let uploadConfig: any = settings.get(SETTING_JOB_V2_UPLOAD)!;
+            if (!cluster) {
+                cluster = await this.pickCluster();
+            }
+            if (!uploadConfig[cluster.name!]) {
+                const YES: vscode.QuickPickItem = {
+                    label: __('common.yes'),
+                    description: __('job.prepare.upload.yes.detail')
+                };
+                const NO: vscode.QuickPickItem = {
+                    label: __('common.no')
+                };
+                const item: vscode.QuickPickItem | undefined = await Util.pick(
+                    [YES, NO],
+                    __('job.prepare.upload.prompt')
+                );
+                if (item === YES) {
+                    uploadConfig = await this.pickUploadStorage(cluster, uploadConfig);
+                    await settings.update(SETTING_JOB_V2_UPLOAD, uploadConfig);
+                }
+            }
+        }
+        return await PAIJobManager.ensureGenerateJobNameSetting();
+    }
+
+    public async generateJobConfig(input?: ClusterExplorerChildNode | vscode.Uri): Promise<void> {
         if (input instanceof ClusterExplorerChildNode) {
             const clusterManager: ClusterManager = await getSingleton(ClusterManager);
             const cluster: IPAICluster = clusterManager.allConfigurations[input.index];
@@ -158,7 +286,7 @@ export class PAIJobManager extends Singleton {
         }
     }
 
-    public static async generateJobConfigV1(script?: string): Promise<void> {
+    public async generateJobConfigV1(script?: string): Promise<void> {
         let defaultSaveDir: string;
         let config: IPAIJobConfigV1 | undefined;
         if (!script) {
@@ -239,7 +367,8 @@ export class PAIJobManager extends Singleton {
      * Generate a YAML job config file.
      * @param script the file path.
      */
-    public static async generateJobConfigV2(script?: string): Promise<void> {
+    public async generateJobConfigV2(script?: string): Promise<void> {
+        await this.ensureSettingsV2();
         let parent: string;
         if (script) {
             const workspace: any = script ?
@@ -303,79 +432,6 @@ export class PAIJobManager extends Singleton {
             await fs.writeFile(saveDir.fsPath, yaml.safeDump(config));
             await vscode.window.showTextDocument(saveDir);
         }
-    }
-
-    private static async ensureSettings(): Promise<vscode.WorkspaceConfiguration> {
-        const settings: vscode.WorkspaceConfiguration = vscode.workspace.getConfiguration(SETTING_SECTION_JOB);
-        if (settings.get(SETTING_JOB_UPLOAD_ENABLED) === null) {
-            const YES: vscode.QuickPickItem = {
-                label: __('common.yes'),
-                description: __('job.prepare.upload.yes.detail')
-            };
-            const NO: vscode.QuickPickItem = {
-                label: __('common.no')
-            };
-            const item: vscode.QuickPickItem | undefined = await Util.pick(
-                [YES, NO],
-                __('job.prepare.upload.prompt')
-            );
-            if (item === YES) {
-                await settings.update(SETTING_JOB_UPLOAD_ENABLED, true);
-                await settings.update(SETTING_JOB_UPLOAD_EXCLUDE, []);
-                await settings.update(SETTING_JOB_UPLOAD_INCLUDE, ['**/*.py']);
-            } else if (item === NO) {
-                await settings.update(SETTING_JOB_UPLOAD_ENABLED, false);
-            } else {
-                await settings.update(SETTING_JOB_UPLOAD_ENABLED, true);
-                await settings.update(SETTING_JOB_UPLOAD_EXCLUDE, []);
-                await settings.update(SETTING_JOB_UPLOAD_INCLUDE, ['**/*.py']);
-                Util.info('job.prepare.upload.undefined.hint');
-            }
-        }
-        if (settings.get(SETTING_JOB_GENERATEJOBNAME_ENABLED) === null) {
-            const YES: vscode.QuickPickItem = {
-                label: __('common.yes'),
-                description: __('job.prepare.generate-job-name.yes.detail')
-            };
-            const NO: vscode.QuickPickItem = {
-                label: __('common.no')
-            };
-            const item: vscode.QuickPickItem | undefined = await Util.pick(
-                [YES, NO],
-                __('job.prepare.generate-job-name.prompt')
-            );
-            if (item === YES) {
-                await settings.update(SETTING_JOB_GENERATEJOBNAME_ENABLED, true);
-            } else if (item === NO) {
-                await settings.update(SETTING_JOB_GENERATEJOBNAME_ENABLED, false);
-            } else {
-                Util.info('job.prepare.generate-job-name.undefined.hint');
-            }
-        }
-        // reload settings
-        return vscode.workspace.getConfiguration(SETTING_SECTION_JOB);
-    }
-
-    private static replaceVariables(jobParam: IJobParam): IPAIJobConfigV1 {
-        // Replace environment variable
-        const config: IPAIJobConfigV1 = <IPAIJobConfigV1>jobParam.config;
-        const cluster: IPAICluster | undefined = jobParam.cluster;
-        function replaceVariable(x: string): string {
-            return x.replace('$PAI_JOB_NAME', config.jobName)
-                .replace('$PAI_USER_NAME', cluster!.username!);
-        }
-        for (const key of PAIJobManager.propertiesToBeReplaced) {
-            const old: string | IPAITaskRole[] | undefined = config[key];
-            if (typeof old === 'string') {
-                config[key] = replaceVariable(old);
-            }
-        }
-        if (config.taskRoles) {
-            for (const role of config.taskRoles) {
-                role.command = replaceVariable(role.command);
-            }
-        }
-        return config;
     }
 
     // tslint:disable-next-line
@@ -489,10 +545,7 @@ export class PAIJobManager extends Singleton {
         const cluster: IPAICluster = param.cluster!;
 
         // add job name suffix
-        const settings: vscode.WorkspaceConfiguration = await PAIJobManager.ensureSettings();
-        const generateJobName: boolean | undefined = settings.get(SETTING_JOB_GENERATEJOBNAME_ENABLED);
-
-        if (generateJobName) {
+        if (param.generateJobName) {
             config.name = `${config.name}_${uuid().substring(0, 8)}`;
         } else {
             try {
@@ -522,6 +575,14 @@ export class PAIJobManager extends Singleton {
                 } else {
                     throw new Error(e.status ? `${e.status}: ${e.response.body.message}` : e);
                 }
+            }
+        }
+
+        // auto upload
+        statusBarItem.text = `${OCTICON_CLOUDUPLOAD} ${__('job.upload.status')}`;
+        if (param.upload) {
+            if (!await this.uploadCodeV2(param)) {
+                return;
             }
         }
 
@@ -855,6 +916,79 @@ export class PAIJobManager extends Singleton {
         return clusterManager.allConfigurations[pickResult];
     }
 
+    private async pickUploadStorage(cluster: IPAICluster, config: IPAIJobV2UploadConfig): Promise<IPAIJobV2UploadConfig> {
+        const mountPoints: {
+            storage: string;
+            mountPoint: string;
+        }[] = await StorageHelper.getStorageMountPoints(cluster);
+
+        let pickPersonalStorage: boolean = true;
+
+        if (mountPoints.length > 0) {
+            const CLUSTER: vscode.QuickPickItem = {
+                label: __('common.cluster.storage')
+            };
+            const PERSONAL: vscode.QuickPickItem = {
+                label: __('common.personal.storage')
+            };
+            const item: vscode.QuickPickItem | undefined = await Util.pick(
+                [CLUSTER, PERSONAL],
+                __('job.prepare.upload.storage.type')
+            );
+
+            if (item !== PERSONAL) {
+                const pickStorage: number | undefined =
+                    await Util.pick(range(mountPoints.length), __('storage.upload.pick.prompt'), (index: number) => {
+                        const str: string = mountPoints[index].storage + ':' + mountPoints[index].mountPoint;
+                        return {label: str};
+                    });
+                if (pickStorage !== undefined) {
+                    config[cluster.name!] = {
+                        enable: true,
+                        include: ['**/*.py'],
+                        exclude: [],
+                        storageType: 'cluster',
+                        storageName: mountPoints[pickStorage].storage,
+                        storageMountPoint: mountPoints[pickStorage].mountPoint
+                    };
+                } else {
+                    config[cluster.name!] = {
+                        enable: false,
+                        include: ['**/*.py'],
+                        exclude: []
+                    };
+                }
+                pickPersonalStorage = false;
+            }
+        }
+
+        if (pickPersonalStorage) {
+            const personalStorages: string[] = await StorageHelper.getPersonalStorages();
+            const pickStorage: number | undefined =
+                await Util.pick(range(personalStorages.length), __('storage.upload.pick.prompt'), (index: number) => {
+                    const str: string = personalStorages[index];
+                    return {label: str};
+                });
+            if (pickStorage !== undefined) {
+                config[cluster.name!] = {
+                    enable: true,
+                    include: ['**/*.py'],
+                    exclude: [],
+                    storageType: 'personal',
+                    storageName: personalStorages[pickStorage]
+                };
+            } else {
+                config[cluster.name!] = {
+                    enable: false,
+                    include: ['**/*.py'],
+                    exclude: []
+                };
+            }
+        }
+
+        return config;
+    }
+
     private async prepareJobConfigPath(jobInput: IJobInput): Promise<void> {
         if (!jobInput.jobConfigPath) {
             Util.info('job.prepare.config.prompt');
@@ -906,15 +1040,24 @@ export class PAIJobManager extends Singleton {
         if (clusterIndex) {
             const clusterManager: ClusterManager = await getSingleton(ClusterManager);
             result.cluster = clusterManager.allConfigurations[clusterIndex];
+        } else {
+            result.cluster = await this.pickCluster();
         }
 
         // 4. settings
-        const settings: vscode.WorkspaceConfiguration = await PAIJobManager.ensureSettings();
-        if (settings.get(SETTING_JOB_UPLOAD_ENABLED)) {
+        const settings: vscode.WorkspaceConfiguration = jobVersion === 1 ?
+            await PAIJobManager.ensureSettingsV1() : await this.ensureSettingsV2(result.cluster);
+        if (jobVersion === 1 && settings.get(SETTING_JOB_UPLOAD_ENABLED)) {
             result.upload = {
                 include: settings.get<string[]>(SETTING_JOB_UPLOAD_INCLUDE)!,
                 exclude: settings.get<string[]>(SETTING_JOB_UPLOAD_EXCLUDE)!
             };
+        }
+        if (jobVersion === 2) {
+            const uploadConfig: IPAIJobV2UploadConfig | undefined = settings.get(SETTING_JOB_V2_UPLOAD);
+            if (uploadConfig && uploadConfig[result.cluster!.name!] && uploadConfig[result.cluster!.name!].enable) {
+                result.upload = uploadConfig[result.cluster!.name!];
+            }
         }
         result.generateJobName = settings.get(SETTING_JOB_GENERATEJOBNAME_ENABLED);
 
@@ -1000,6 +1143,42 @@ export class PAIJobManager extends Singleton {
                             increment: 1 / total * 100
                         });
                         await fsProvider.copy(vscode.Uri.file(file), Util.uriPathAppend(codeUri, suffix), { overwrite: true });
+                    }
+                }
+            );
+
+            return true;
+        } catch (e) {
+            Util.err('job.upload.error', [e.message]);
+            return false;
+        }
+    }
+
+    private async uploadCodeV2(param: IJobParam): Promise<boolean> {
+        const config: IPAIJobConfigV2 = <IPAIJobConfigV2>param.config;
+
+        try {
+            const projectFiles: string[] = await globby(param.upload!.include, {
+                cwd: param.workspace, onlyFiles: true, absolute: true,
+                ignore: param.upload!.exclude || []
+            });
+
+            const uploadConfig: IUploadConfig = <IUploadConfig>param.upload;
+            const total: number = projectFiles.length;
+
+            await vscode.window.withProgress(
+                {
+                    location: vscode.ProgressLocation.Notification,
+                    title: __('job.upload.status')
+                },
+                async (progress) => {
+                    for (const [i, file] of projectFiles.entries()) {
+                        progress.report({
+                            message: __('job.upload.progress', [i + 1, total]),
+                            increment: 1 / total * 100
+                        });
+                        const suffix: string = path.relative(param.workspace, file);
+                        await StorageHelper.uploadFile(uploadConfig, param.cluster!.name!, config.name, vscode.Uri.file(file), suffix);
                     }
                 }
             );

@@ -92,6 +92,7 @@ export const SETTING_SECTION_JOB = 'pai.job';
 export const SETTING_JOB_UPLOAD_ENABLED = 'upload.enabled';
 export const SETTING_JOB_UPLOAD_EXCLUDE = 'upload.exclude';
 export const SETTING_JOB_UPLOAD_INCLUDE = 'upload.include';
+export const SETTING_JOB_V2_UPLOAD = 'v2.upload';
 export const SETTING_JOB_GENERATEJOBNAME_ENABLED = 'generateJobName.enabled';
 export const SETTING_JOB_JOBLIST_RECENTJOBSLENGTH = 'jobList.recentJobsLength';
 export const SETTING_JOB_JOBLIST_ALLJOBSPAGESIZE = 'jobList.allJobsPageSize';

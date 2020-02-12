@@ -13,7 +13,7 @@
         "url": "https://github.com/Microsoft/pai/issues"
     },
     "engines": {
-        "vscode": "^1.39.2"
+        "vscode": "^1.40.0"
     },
     "categories": [
         "Other"
@@ -552,6 +552,11 @@
                     "type": "number",
                     "description": "%config.job.jobList.refreshInterval%",
                     "default": 10
+                },
+                "pai.job.v2.upload": {
+                    "type": "object",
+                    "description": "%config.job.v2.upload%",
+                    "default": null
                 },
                 "pai.hdfs.location": {
                     "type": "string",

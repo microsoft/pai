@@ -93,7 +93,7 @@ export class PathBaseTreeNode extends StorageTreeNode {
         await PathBaseStorageManager.uploadFolders(this);
     }
 
-    public async createFolder(): Promise<void> {
-        await PathBaseStorageManager.createFolder(this);
+    public async createFolder(folder?: string): Promise<void> {
+        await PathBaseStorageManager.createFolder(this, folder);
     }
 }

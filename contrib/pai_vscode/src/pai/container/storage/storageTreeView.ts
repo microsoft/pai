@@ -150,8 +150,7 @@ export class StorageTreeDataProvider extends Singleton implements TreeDataProvid
                     if (item.label === cluster.name!) {
                         void this.view.reveal(item, {
                             select: true,
-                            focus: true,
-                            expand: true
+                            focus: true
                         });
                     }
                 }

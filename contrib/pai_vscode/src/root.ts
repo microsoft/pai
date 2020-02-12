@@ -18,6 +18,7 @@ import { RecentJobManager } from './pai/recentJobManager';
 import { HDFS } from './pai/storage/hdfs';
 import { NfsStorageManager } from './pai/storage/nfsStorageManager';
 import { PersonalStorageManager } from './pai/storage/personalStorageManager';
+import { StorageHelperClass } from './pai/storage/storageHelper';
 import { RemoteFileEditor } from './pai/utility/remoteFileEditor';
 
 export const allSingletonClasses: { new(...arg: any[]): Singleton }[] = [
@@ -34,5 +35,6 @@ export const allSingletonClasses: { new(...arg: any[]): Singleton }[] = [
     HDFSTreeDataProvider,
     StorageTreeDataProvider,
     JobListTreeDataProvider,
-    RemoteFileEditor
+    RemoteFileEditor,
+    StorageHelperClass
 ];
