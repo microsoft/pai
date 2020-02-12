@@ -581,9 +581,8 @@
         "vscode:prepublish": "yarn compile",
         "compile": "tsc -p ./",
         "watch": "tsc -watch -p ./",
-        "package": "vsce package  --yarn",
-        "postinstall": "node ./node_modules/vscode/bin/install",
-        "test": "yarn compile && node ./installYamlExtension.js && node ./node_modules/vscode/bin/test"
+        "package": "vsce package --yarn",
+        "test": "yarn compile && node ./installYamlExtension.js && node ./out/test/runTest.js"
     },
     "devDependencies": {
         "@types/fs-extra": "^5.0.4",
@@ -600,14 +599,15 @@
         "@types/request-promise-native": "^1.0.15",
         "@types/semver-compare": "^1.0.0",
         "@types/uuid": "^3.4.4",
-        "@types/vscode": "^1.27.0",
-        "nock": "^10.0.1",
-        "tslint": "^5.8.0",
+        "@types/vscode": "^1.39.2",
+        "mocha": "^7.0.1",
+        "nock": "^11.8.2",
+        "tslint": "^6.0.0",
         "tslint-microsoft-contrib": "^5.2.1",
         "typescript": "^3.5.1",
         "typescript-tslint-plugin": "^0.4.0",
-        "vsce": "^1.53.0",
-        "vscode": "^1.1.36"
+        "vsce": "^1.73.0",
+        "vscode-test": "^1.3.0"
     },
     "dependencies": {
         "@azure/storage-blob": "^12.0.1",
@@ -618,7 +618,7 @@
         "inversify": "^5.0.1",
         "js-yaml": "^3.13.1",
         "json-inline-doc": "^2.0.1",
-        "json-schema-ref-parser": "^6.0.2",
+        "json-schema-ref-parser": "^7.1.3",
         "jsonc-parser": "^2.1.1",
         "lodash": "^4.17.15",
         "node-yaml-parser": "^0.0.9",
@@ -626,7 +626,7 @@
         "opn": "^5.4.0",
         "reflect-metadata": "^0.1.12",
         "request": "^2.88.0",
-        "request-promise-native": "^1.0.7",
+        "request-promise-native": "^1.0.8",
         "semver-compare": "^1.0.0",
         "streamifier": "^0.1.1",
         "unixify": "^1.0.0",

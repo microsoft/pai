@@ -21,7 +21,7 @@ import { PersonalStorageManager } from './pai/storage/personalStorageManager';
 import { StorageHelperClass } from './pai/storage/storageHelper';
 import { RemoteFileEditor } from './pai/utility/remoteFileEditor';
 
-export const allSingletonClasses: { new(...arg: any[]): Singleton }[] = [
+export const allSingletonClasses: (new(...arg: any[]) => Singleton)[] = [
     UtilClass,
     ClusterManager,
     RecentJobManager,
