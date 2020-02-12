@@ -47,7 +47,7 @@ export const getServiceView = async callback => {
     window.location.href,
   );
   if (!restServerUrl.pathname.endsWith('/')) {
-    restServerUrl.pathname += '/'
+    restServerUrl.pathname += '/';
   }
   const nodeUrl = new URL('api/v1/kubernetes/nodes', restServerUrl);
   const podUrl = new URL('api/v1/kubernetes/pods', restServerUrl);
