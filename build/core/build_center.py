@@ -106,7 +106,7 @@ class BuildCenter:
 
         # Resolve dependency
         self.resolve_dependency()
-        self.graph.dump()
+
         # Build topology sequence
         services = self.graph.topology()
         self.logger.info("topological sequence:{0}".format(services))
@@ -140,7 +140,6 @@ class BuildCenter:
 
         # Find services and map dockfile to services
         self.construct_graph()
-        self.graph.dump()
 
         if self.process_list is not None:
             for image in self.process_list:

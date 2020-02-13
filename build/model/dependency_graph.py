@@ -69,7 +69,7 @@ class ServiceGraph(object):
             self.logger.error("Duplication image belongs to service:{0} and service:{1}".format(service_name, self.image_to_service[image_name]))
             sys.exit(1)
         self.image_to_service[image_name] = service_name
-        self.services[service_name].docker_files.append(image_name)
+        self.services[service_name].docker_files.append(image_docker_file_prefix)
 
 
     def add_dependency(self, prev_service, succ_service):
