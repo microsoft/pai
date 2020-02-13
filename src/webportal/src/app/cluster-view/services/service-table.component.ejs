@@ -1,6 +1,7 @@
 <table id="service-datatable" class="table table-bordered table-hover" style="vertical-align:middle">
   <thead>
     <tr>
+      <th>IP Address</th>
       <th>Node Name</th>
       <th>PAI Roles</th>
       <th>Services</th>
@@ -10,8 +11,20 @@
 <%
     for (let i = 0; i < data.length; i++) {
       let node = data[i].node.metadata;
+      let addresses = data[i].node.status.addresses;
 %>
       <tr>
+        <td>
+<%
+          for (let addr in addresses) {
+            if (addr.type === "InternalIP") {
+%>
+              <a href="hardware/detail.html?instance=<%= addr.address%>"> <%= addr.address %></a>
+<%
+            }
+          }
+%>
+        </td>
         <td><a href="hardware/detail.html?instance=<%= node.name%>"> <%= node.name %></a></td>
         <td>   
 <%
