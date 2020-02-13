@@ -90,11 +90,8 @@ func (c *K8sClient) listPods() (*v1.PodList, error) {
 func (c *K8sClient) getServerHealth() (string, error) {
 	resp := c.kClient.RESTClient().Get().Suffix("healthz").Do()
 	err := resp.Error()
-	if resp.Error() != nil {
-		return "", err
-	}
 	body, _ := resp.Raw()
-	return string(body), nil
+	return string(body), err
 }
 
 func (c *K8sClient) listNodes() (*v1.NodeList, error) {
@@ -136,4 +133,3 @@ func NewK8sClient() (*K8sClient, error) {
 	}
 	return &k8sClient, nil
 }
-
