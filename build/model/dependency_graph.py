@@ -62,7 +62,8 @@ class ServiceGraph(object):
             self.services[service_name] = ServiceNode(path, service_name)
 
 
-    def add_image_to_service(self, image_name, service_name):
+    def add_image_to_service(self, image_docker_file_prefix, service_name):
+        image_name = os.path.splitext(image_docker_file_prefix)[0]
         if image_name in self.image_to_service:
             self.logger.error("Same image name:{0} detected! Please check!".format(image_name))
             self.logger.error("Duplication image belongs to service:{0} and service:{1}".format(service_name, self.image_to_service[image_name]))
