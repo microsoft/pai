@@ -16,16 +16,16 @@
       <tr>
         <td>
 <%
-          for (let addr in addresses) {
+          addresses.forEach(addr => {
             if (addr.type === "InternalIP") {
 %>
               <a href="hardware/detail.html?instance=<%= addr.address%>"> <%= addr.address %></a>
 <%
             }
-          }
+          })
 %>
         </td>
-        <td><a href="hardware/detail.html?instance=<%= node.name%>"> <%= node.name %></a></td>
+        <td><%= node.name %></td>
         <td>   
 <%
           for (let x in data[i].node.metadata.labels) {
