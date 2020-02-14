@@ -52,11 +52,11 @@ export class NfsRootNode extends StorageTreeNode {
         const clusterName: string = (<MountPointTreeNode>this.parent).contextValue === CONTEXT_STORAGE_MOUNTPOINT_ITEM ?
                 (<MountPointTreeNode>this.parent).cluster.name! : 'personal_storage';
         const storageName: string = this.storageServer.spn;
-        const key: string = `${clusterName}_${storageName}`;
+        const key: string = this.generateMountConfigKey(clusterName, storageName, this.mountPath);
         const map: Dictionary<string> | undefined =
             settings.get(SETTING_STORAGE_NFS_MOUNT_POINT);
         if (map !== null && map![key]) {
-            this.rootPath = this.resolveHome(path.join(map![key], '/', this.mountPath));
+            this.rootPath = this.resolveHome(path.join(map![key], '/'));
             this.setupMountPoint = true;
         }
     }
@@ -81,7 +81,7 @@ export class NfsRootNode extends StorageTreeNode {
                 const clusterName: string = (<MountPointTreeNode>this.parent).contextValue === CONTEXT_STORAGE_MOUNTPOINT_ITEM ?
                     (<MountPointTreeNode>this.parent).cluster.name! : 'personal_storage';
                 const storageName: string = this.storageServer.spn;
-                const key: string = `${clusterName}_${storageName}`;
+                const key: string = this.generateMountConfigKey(clusterName, storageName, this.mountPath);
                 const settings: WorkspaceConfiguration =
                     workspace.getConfiguration(SETTING_SECTION_STORAGE_NFS);
                 const map: Dictionary<string> | undefined =
@@ -101,7 +101,7 @@ export class NfsRootNode extends StorageTreeNode {
             const clusterName: string = (<MountPointTreeNode>this.parent).contextValue === CONTEXT_STORAGE_MOUNTPOINT_ITEM ?
                 (<MountPointTreeNode>this.parent).cluster.name! : 'personal_storage';
             const storageName: string = this.storageServer.spn;
-            const key: string = `${clusterName}_${storageName}`;
+            const key: string = this.generateMountConfigKey(clusterName, storageName, this.mountPath);
             setupNfsMountPoint.command = {
                 title: __('pai.storage.nfs.mountPoint'),
                 command: COMMAND_TREEVIEW_DOUBLECLICK,
@@ -129,5 +129,9 @@ export class NfsRootNode extends StorageTreeNode {
         if (this.setupMountPoint) {
             await PathBaseStorageManager.createFolder(this, folder);
         }
+    }
+
+    private generateMountConfigKey(clusterName: string, storageName: string, mountPoint: string): string {
+        return `${clusterName}~${storageName}~${mountPoint}`;
     }
 }
