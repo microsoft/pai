@@ -16,14 +16,9 @@
       <tr>
         <td>
 <%
-          addresses.forEach(addr => {
-            if (addr.type === "InternalIP") {
+          const internalIP = addresses.find(addr => addr.type === "InternalIP")
 %>
-              <a href="hardware/detail.html?instance=<%= addr.address%>"> <%= addr.address %></a>
-<%
-            }
-          })
-%>
+          <a href="hardware/detail.html?instance=<%= internalIP.address%>"> <%= internalIP.address %></a>
         </td>
         <td><%= node.name %></td>
         <td>   
