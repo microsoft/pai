@@ -83,7 +83,6 @@ export class NfsStorageManager extends Singleton {
         let cmdStr: string = '';
         switch (os.platform()) {
             case 'win32':
-                // cmdStr = `cmd /c "mount -o anon ${server.data.address}:${server.data.rootPath} ${mountPath}"`;
                 cmdStr = `cmd /c "net use ${mountPath} \\\\${server.data.address}${mountPoint.replace(/\//g, '\\')} /P:Yes"`;
                 break;
             case 'darwin':
