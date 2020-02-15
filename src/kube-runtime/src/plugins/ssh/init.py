@@ -37,7 +37,11 @@ def main():
         LOGGER.info("Ssh plugin parameters is empty, ignore this")
         return
 
-    if "jobssh" in parameters:
+    gang_allocation = os.environ.get("GANG_ALLOCATION", "true")
+    if gang_allocation == "false":
+        LOGGER.warning("Job ssh is conflict with gang allocation, set job ssh to false")
+        jobssh = "false"
+    elif "jobssh" in parameters:
         jobssh = str(parameters["jobssh"]).lower()
     else:
         jobssh = "false"
