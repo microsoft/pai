@@ -53,10 +53,14 @@ def main():
             cmd_params.append("\'{}\'".format(parameters["userssh"]["value"]))
 
     # write call to real executable script
-    command = [
-        "{}/sshd.sh {}\n".format(os.path.dirname(os.path.abspath(__file__)),
-                                 " ".join(cmd_params))
-    ]
+    command = []
+    if len(cmd_params) == 1 and cmd_params[0] == "false":
+        LOGGER.info("Skip sshd script since neither jobssh or userssh is set")
+    else:
+        command = [
+            "{}/sshd.sh {}\n".format(os.path.dirname(os.path.abspath(__file__)),
+                                     " ".join(cmd_params))
+        ]
 
     # ssh barrier
     if jobssh == "true" and "sshbarrier" in parameters and str(
