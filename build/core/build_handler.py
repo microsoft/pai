@@ -50,9 +50,10 @@ class BuildHandler:
             build_utility.execute_shell(chmod_command)
             build_utility.execute_shell(pre_build)
 
-        for docker in service.docker_files:
-            dockerfile = os.path.join(service.path, 'build/' + docker + '.dockerfile')
-            self.docker_cli.docker_image_build(docker, dockerfile, service.path)
+        for dockerfile_prefix in service.docker_files:
+            image_name = os.path.splitext(dockerfile_prefix)[0]
+            dockerfile = os.path.join(service.path, 'build/' + dockerfile_prefix + '.dockerfile')
+            self.docker_cli.docker_image_build(image_name, dockerfile, service.path)
 
         post_build = os.path.join(service.path, self.build_post)
         if os.path.exists(post_build):
