@@ -53,7 +53,7 @@ export class NfsStorageManager extends Singleton {
                 switch (os.platform()) {
                     case 'win32':
                         if (!/[a-zA-Z]:/.test(val)) {
-                            Util.err('container.nfs.mount.invalid.device.name');
+                            Util.warn('container.nfs.mount.invalid.device.name');
                         }
                         break;
                     default:
