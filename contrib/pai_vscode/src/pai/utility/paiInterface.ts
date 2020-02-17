@@ -232,5 +232,8 @@ export interface IPAIJobConfigV2 {
     /** Optional, extra field, object, save any information that plugin may use. */
     extras?: {
         submitFrom?: string;
+        hivedscheduler?: any;
+        'com.microsoft.pai.runtimeplugin'?: any[];
+        [name: string]: any;
     };
 }

@@ -373,7 +373,7 @@
                 },
                 {
                     "command": "paiext.cluster.job.simulate",
-                    "when": "resourceFilename =~ /\\.jsonc?$/ && resourceScheme == file"
+                    "when": "resourceFilename =~ /\\.(jsonc?|yaml|yml)?$/ && resourceScheme == file"
                 }
             ],
             "view/item/context": [
