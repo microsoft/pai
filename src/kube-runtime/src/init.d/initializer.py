@@ -18,7 +18,6 @@
 
 import os
 import sys
-import copy
 import logging
 import argparse
 import subprocess
