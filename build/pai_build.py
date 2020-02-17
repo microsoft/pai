@@ -39,11 +39,11 @@ def load_build_config(config_dir):
     return configModel
 
 def build_service(args,config_model):
-    pai_build = build_center.BuildCenter(config_model,args.service,args.mode)
+    pai_build = build_center.BuildCenter(config_model, args.service, args.mode)
     pai_build.build_center()
 
 def push_image(args,config_model):
-    pai_push = build_center.BuildCenter(config_model,args.imagelist,args.mode)
+    pai_push = build_center.BuildCenter(config_model, args.imagelist, args.mode)
     pai_push.push_center()
 
 def main():
