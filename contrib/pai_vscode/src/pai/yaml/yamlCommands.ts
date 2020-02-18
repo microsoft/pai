@@ -114,7 +114,7 @@ export class YamlCommands extends Singleton {
             } else {
                 const component: IYamlJobConfigSnippet = this.componentSnippets[pick];
                 const editor: TextEditor = await window.showTextDocument(document);
-                editor.insertSnippet(new SnippetString(component.insertText.trimRight()));
+                await editor.insertSnippet(new SnippetString(component.insertText.trimRight()));
                 if (component.name === 'openPaiRunetimePlugin') {
                     await this.insertRuntimePlugin(document, position, true);
                 }
@@ -141,30 +141,30 @@ export class YamlCommands extends Singleton {
                     if (await this.enableUserSSH()) {
                         const publicKey: string | undefined = await this.getSshPublicKey();
                         if (publicKey === undefined) {
-                            editor.insertSnippet(new SnippetString(prefix + plugin.insertText));
+                            await editor.insertSnippet(new SnippetString(prefix + plugin.insertText));
                         } else {
-                            editor.insertSnippet(
+                            await editor.insertSnippet(
                                 new SnippetString(prefix + plugin.insertText.replace('\${1:<public key>}', publicKey)
                             ));
                         }
                     } else {
-                        editor.insertSnippet(
+                        await editor.insertSnippet(
                             new SnippetString(prefix + plugin.insertText.substr(0, plugin.insertText.search('userssh:'))
                         ));
                     }
                 } else if (plugin.label === 'teamwise_storage') {
                     const storage: string | undefined = await this.pickStorage();
                     if (storage === undefined) {
-                        editor.insertSnippet(new SnippetString(prefix + plugin.insertText));
+                        await editor.insertSnippet(new SnippetString(prefix + plugin.insertText));
                     } else {
-                        editor.insertSnippet(
+                        await editor.insertSnippet(
                             new SnippetString(prefix + plugin.insertText.replace('\${1:<storage name>}', storage))
                         );
                     }
                 } else if (plugin.label === 'tensorboard') {
                     // tslint:disable-next-line:insecure-random
                     const port: number = Math.floor(Math.random() * 5000 + 10000);
-                    editor.insertSnippet(
+                    await editor.insertSnippet(
                         new SnippetString(prefix + plugin.insertText.replace('{port}', port.toString(10)))
                     );
                 }
