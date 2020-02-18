@@ -108,7 +108,7 @@ const createUserIfUserNotExist = async (req, res, next) => {
           forbiddenMessage = forbiddenMessage + `Please contact your admin, and join the AAD group named [ ${authConfig.groupConfig.defaultGroup.externalName} ].`;
         }
         return res.redirect(req.returnBackURI + '?'+ querystring.stringify({
-          from: fromURI,
+          from: req.fromURI,
           loginFailMsg: forbiddenMessage
         }));
         return next(createError('Forbidden', 'ForbiddenUserError', forbiddenMessage));

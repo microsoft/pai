@@ -57,7 +57,7 @@ if (config.authnMethod === 'OIDC') {
 }
 
 if (query.has('loginFailMsg')) {
-  alert(query.has('loginFailMsg'));
+  alert(query.get('loginFailMsg'));
 }
 
 initializeIcons();
