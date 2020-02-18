@@ -161,6 +161,12 @@ export class YamlCommands extends Singleton {
                             new SnippetString(prefix + plugin.insertText.replace('\${1:<storage name>}', storage))
                         );
                     }
+                } else if (plugin.label === 'tensorboard') {
+                    // tslint:disable-next-line:insecure-random
+                    const port: number = Math.floor(Math.random() * 5000 + 10000);
+                    editor.insertSnippet(
+                        new SnippetString(prefix + plugin.insertText.replace('{port}', port.toString(10)))
+                    );
                 }
             }
         }
