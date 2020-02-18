@@ -42,6 +42,7 @@ export const COMMAND_TREEVIEW_DOUBLECLICK = 'paiext.treeview.doubleclick';
 export const COMMAND_TREEVIEW_LOAD_MORE = 'paiext.treeview.load-more';
 export const COMMAND_SUBMIT_JOB = 'paiext.cluster.job.submit';
 export const COMMAND_SIMULATE_JOB = 'paiext.cluster.job.simulate';
+export const COMMAND_INSERT_JOB_CONFIG = 'paiext.job.config.insert.menu';
 export const COMMAND_CREATE_JOB_CONFIG = 'paiext.cluster.job.create-config';
 export const COMMAND_CREATE_JOB_CONFIG_V1 = 'paiext.cluster.job.create-config-v1';
 export const COMMAND_CREATE_JOB_CONFIG_V2 = 'paiext.cluster.job.create-config-v2';
@@ -53,6 +54,7 @@ export const COMMAND_CONTAINER_HDFS_DELETE = 'paiext.container.hdfs.delete';
 export const COMMAND_CONTAINER_HDFS_MKDIR = 'paiext.container.hdfs.mkdir';
 export const COMMAND_CONTAINER_JOBLIST_REFRESH = 'paiext.container.joblist.refresh';
 export const COMMAND_CONTAINER_JOBLIST_MORE = 'paiext.container.joblist.more';
+export const COMMAND_JOB_CONFIG_INSERT_RUNTIME_PLUGIN = 'paiext.job.config.insert.runtime.plugin';
 
 export const VIEW_CONFIGURATION_TREE = 'PAIExplorer';
 export const CONTEXT_CONFIGURATION_ITEM = 'PAIConfiguration';

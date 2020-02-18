@@ -46,7 +46,6 @@ import { getHDFSUriAuthority, HDFS, HDFSFileSystemProvider } from './storage/hdf
 import { StorageHelper } from './storage/storageHelper';
 import { IPAICluster, IPAIJobConfigV1, IPAIJobConfigV2, IPAIJobV2UploadConfig, IPAITaskRole, IUploadConfig } from './utility/paiInterface';
 import { PAIRestUri, PAIWebPortalUri } from './utility/paiUri';
-import { YamlJobConfigCompletionProvider } from './yaml/yamlJobConfigCompletionProvider';
 import { registerYamlSchemaSupport } from './yaml/yamlSchemaSupport';
 
 interface ITokenItem {
@@ -138,8 +137,7 @@ export class PAIJobManager extends Singleton {
                         await this.submitJob();
                     }
                 }
-            ),
-            vscode.languages.registerCompletionItemProvider('yaml', new YamlJobConfigCompletionProvider())
+            )
         );
     }
 

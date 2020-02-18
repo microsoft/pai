@@ -122,7 +122,15 @@
         "job.simulation.success": "Dockerfile has been generated in {0}/{1}. Please run {2} to simulate the job running. (docker is required)",
         "job.simulation.success-dialog.reveal": "Reveal in Explorer",
         "job.simulation.success-dialog.run-first-task": "Simulate first task in VS Code terminal",
-        "job.simulation.unsupported-env-var": "Job Simulation：Command {0} contains unsupported pai env variable"
+        "job.simulation.unsupported-env-var": "Job Simulation：Command {0} contains unsupported pai env variable",
+        "job.runtime.plugin.select": "Please choose a runtime plugin...",
+        "job.runtime.plugin.user-ssh.enable": "Enable user SSH?",
+        "job.runtime.plugin.insert": "OpenPAI: Insert a runtime plugin config.",
+        "job.runtime.plugin.ssh.key.select": "Please choose your SSH public key.",
+        "job.runtime.plugin.ssh.key.generator": "Generate new SSH key pair",
+        "job.runtime.plugin.ssh.key.import": "Import from file",
+        "job.runtime.plugin.ssh.key.input": "Input manully",
+        "job.config.component.select": "Please choose a job config component."
     },
     "en": {},
     "zh": {
@@ -251,6 +259,14 @@
         "job.simulation.success": "Dockerfile 已经自动生成在 {0}/{1}。 请执行脚本 {2} 来模拟执行任务。 (需要 docker)",
         "job.simulation.success-dialog.reveal": "在浏览器中打开",
         "job.simulation.success-dialog.run-first-task": "在 VS Code 终端中模拟第一个任务",
-        "job.simulation.unsupported-env-var": "模拟运行：命令 {0} 中包含未支持的PAI环境变量"
+        "job.simulation.unsupported-env-var": "模拟运行：命令 {0} 中包含未支持的PAI环境变量",
+        "job.runtime.plugin.select": "请选择一个 runtime plugin...",
+        "job.runtime.plugin.user-ssh.enable": "是否开启用户 SSH ?",
+        "job.runtime.plugin.insert": "OpenPAI: 插入一个 runtime plugin 设置",
+        "job.runtime.plugin.ssh.key.select": "请选择你的 SSH 公钥",
+        "job.runtime.plugin.ssh.key.generator": "生成新的 SSH 密钥对",
+        "job.runtime.plugin.ssh.key.import": "从文件中载入 SSH 公钥",
+        "job.runtime.plugin.ssh.key.input": "手动输入",
+        "job.config.component.select": "请选择一个任务配置文件中的组件"
     }
 }
