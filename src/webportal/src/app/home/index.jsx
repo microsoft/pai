@@ -56,6 +56,10 @@ if (config.authnMethod === 'OIDC') {
   }
 }
 
+if (query.has('loginFailMsg')) {
+  alert(query.has('loginFailMsg'));
+}
+
 initializeIcons();
 
 const Index = () => {
