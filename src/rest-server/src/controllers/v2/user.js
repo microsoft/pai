@@ -110,9 +110,8 @@ const createUserIfUserNotExist = async (req, res, next) => {
         }
         return res.redirect(req.returnBackURI + '?'+ querystring.stringify({
           from: req.fromURI,
-          loginFailMsg: forbiddenMessage
+          loginFailMsg: forbiddenMessage,
         }));
-        return next(createError('Forbidden', 'ForbiddenUserError', forbiddenMessage));
       }
     }
     const userValue = {
