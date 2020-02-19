@@ -50,6 +50,18 @@ export class StorageHelperClass extends Singleton {
         return result;
     }
 
+    public async getStorages(cluster: IPAICluster): Promise<string[]> {
+        const client: OpenPAIClient = new OpenPAIClient({
+            rest_server_uri: cluster.rest_server_uri,
+            token: cluster.token,
+            username: cluster.username,
+            password: cluster.password,
+            https: cluster.https
+        });
+        const storageConfigs: IStorageConfig[] = await client.storage.getConfig();
+        return storageConfigs.map(x => x.name);
+    }
+
     public async getPersonalStorages(): Promise<string[]> {
         const personalStorageManager: PersonalStorageManager = await getSingleton(PersonalStorageManager);
         return personalStorageManager.allConfigurations.map(config => config.spn);

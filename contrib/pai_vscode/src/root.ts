@@ -20,6 +20,7 @@ import { NfsStorageManager } from './pai/storage/nfsStorageManager';
 import { PersonalStorageManager } from './pai/storage/personalStorageManager';
 import { StorageHelperClass } from './pai/storage/storageHelper';
 import { RemoteFileEditor } from './pai/utility/remoteFileEditor';
+import { YamlCommands } from './pai/yaml/yamlCommands';
 
 export const allSingletonClasses: (new(...arg: any[]) => Singleton)[] = [
     UtilClass,
@@ -36,5 +37,6 @@ export const allSingletonClasses: (new(...arg: any[]) => Singleton)[] = [
     StorageTreeDataProvider,
     JobListTreeDataProvider,
     RemoteFileEditor,
-    StorageHelperClass
+    StorageHelperClass,
+    YamlCommands
 ];

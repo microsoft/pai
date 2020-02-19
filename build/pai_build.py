@@ -39,11 +39,11 @@ def load_build_config(config_dir):
     return configModel
 
 def build_service(args,config_model):
-    pai_build = build_center.BuildCenter(config_model,args.service)
+    pai_build = build_center.BuildCenter(config_model, args.service, args.mode)
     pai_build.build_center()
 
 def push_image(args,config_model):
-    pai_push = build_center.BuildCenter(config_model,args.imagelist)
+    pai_push = build_center.BuildCenter(config_model, args.imagelist, args.mode)
     pai_push.push_center()
 
 def main():
@@ -72,6 +72,13 @@ def main():
         nargs='+',
         help="The service list you want to build"
     )
+    build_parser.add_argument(
+        '-m', '--mode',
+        type=bytes,
+        default='all',
+        choices=['all', 'yarn', 'k8s'],
+        help='Choose image type to build. Available Option: all, yarn, k8s'
+    )
     build_parser.set_defaults(func = build_service)
 
     # Push commands
@@ -87,6 +94,13 @@ def main():
         type=bytes,
         nargs='+',
         help="The image list you want to push"
+    )
+    push_parser.add_argument(
+        '-m', '--mode',
+        type=bytes,
+        default='all',
+        choices=['all', 'yarn', 'k8s'],
+        help='Choose image type to push. Available Option: all, yarn, k8s'
     )
     push_parser.set_defaults(func = push_image)
 
