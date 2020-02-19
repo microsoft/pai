@@ -1,0 +1,8 @@
+name: storagePlugin
+label: teamwise_storage
+documentation: teamwise storage plugin
+insertText: |1
+  teamwise_storage
+   parameters:
+     storageConfigNames:
+       - ${1:<storage name>}

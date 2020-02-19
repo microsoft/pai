@@ -40,7 +40,11 @@ def main():
         LOGGER.info("Ssh plugin parameters is empty, ignore this")
         return
 
-    if "jobssh" in parameters:
+    gang_allocation = os.environ.get("GANG_ALLOCATION", "true")
+    if gang_allocation == "false":
+        LOGGER.warning("Job ssh is conflict with gang allocation, set job ssh to false")
+        jobssh = "false"
+    elif "jobssh" in parameters:
         jobssh = str(parameters["jobssh"]).lower()
     else:
         jobssh = "false"
@@ -73,10 +77,14 @@ def main():
     cmd_params.append(shlex.quote('\\n'.join(ssh_keys)))
 
     # write call to real executable script
-    command = [
-        "{}/sshd.sh {}\n".format(os.path.dirname(os.path.abspath(__file__)),
-                                 " ".join(cmd_params))
-    ]
+    command = []
+    if len(cmd_params) == 1 and cmd_params[0] == "false":
+        LOGGER.info("Skip sshd script since neither jobssh or userssh is set")
+    else:
+        command = [
+            "{}/sshd.sh {}\n".format(os.path.dirname(os.path.abspath(__file__)),
+                                     " ".join(cmd_params))
+        ]
 
     # ssh barrier
     if jobssh == "true" and "sshbarrier" in parameters and str(

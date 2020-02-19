@@ -1,0 +1,11 @@
+---
+- name: create docker-openpai in /etc
+  file:
+    path: /etc/docker-openpai
+    state: directory
+    recurse: yes
+
+- name: copy nvidia runtime configuration file into /etc/docker-openpai
+  copy:
+    src: daemon-openpai-default-runtime.json
+    dest: /etc/docker-openpai/daemon-openpai.json

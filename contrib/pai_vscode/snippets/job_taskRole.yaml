@@ -6,14 +6,12 @@ insertText: |2
     instances: 1
     completion:
       minFailedInstances: 1
+      minSucceededInstances: -1
     taskRetryCount: 0
     dockerImage: ${2:<image>}
-    data: ${3:<data>}
-    output: ${4:<output>}
-    script: ${5:<script>}
     resourcePerInstance:
-      cpu: ${6:1}
-      memoryMB: ${7:16384}
-      gpu: ${8:1}
+      cpu: ${3:1}
+      memoryMB: ${4:16384}
+      gpu: ${5:1}
     commands:
-      - ${9:<script>}
+      - ${6:<script>}

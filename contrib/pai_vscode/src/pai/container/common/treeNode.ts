@@ -72,7 +72,7 @@ export class StorageTreeNode extends TreeNode {
     /**
      * Create folder
      */
-    public async createFolder(): Promise<void> {
+    public async createFolder(folder?: string): Promise<void> {
         console.log('Create folder not implemented.');
     }
 

@@ -1,0 +1,10 @@
+{
+  "storage-driver": "overlay2",
+  "default-runtime": "nvidia",
+  "runtimes": {
+      "nvidia": {
+          "path": "/usr/bin/nvidia-container-runtime",
+          "runtimeArgs": []
+      }
+  }
+}

@@ -13,10 +13,9 @@ import {
 import { __ } from '../common/i18n';
 import { getSingleton, Singleton } from '../common/singleton';
 
-import { IPAICluster } from './utility/paiInterface';
-
 import { ClusterManager } from './clusterManager';
 import { JobListTreeDataProvider } from './container/jobListTreeView';
+import { IPAICluster } from './utility/paiInterface';
 
 /**
  * Manager class for cluster configurations
@@ -27,6 +26,10 @@ export class RecentJobManager extends Singleton {
 
     private onClusterChangeDisposable: vscode.Disposable | undefined;
     private recentJobs: (string[] | undefined)[] | undefined;
+
+    public get allRecentJobs(): (string[] | undefined)[] {
+        return this.recentJobs!;
+    }
 
     public async onActivate(): Promise<void> {
         this.onClusterChangeDisposable = (await getSingleton(ClusterManager)).onDidChange(modification => {
@@ -45,10 +48,6 @@ export class RecentJobManager extends Singleton {
             void this.saveRecentJobs();
         });
         this.recentJobs = this.context.globalState.get<string[][]>(RecentJobManager.RECENT_JOBS_KEY) || [];
-    }
-
-    public get allRecentJobs(): (string[] | undefined)[] {
-        return this.recentJobs!;
     }
 
     public async saveRecentJobs(index: number = -1): Promise<void> {

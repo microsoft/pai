@@ -10,6 +10,7 @@ import * as Singleton from './common/singleton';
 import { allSingletonClasses } from './root';
 
 export async function activate(context: vscode.ExtensionContext): Promise<void> {
+    process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
     Singleton.bindExtensionContext(context);
     await Singleton.initializeAll(allSingletonClasses);
 }

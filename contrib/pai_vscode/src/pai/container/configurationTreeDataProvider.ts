@@ -21,7 +21,6 @@ import {
 import { __ } from '../../common/i18n';
 import { getSingleton, Singleton } from '../../common/singleton';
 import { Util } from '../../common/util';
-
 import { getClusterName, ClusterManager } from '../clusterManager';
 import { IPAICluster } from '../utility/paiInterface';
 

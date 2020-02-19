@@ -185,14 +185,15 @@ func (gc *GarbageCollector) collect() {
 	pcList, err = gc.k8sClient.listPriorityClasses()
 	if err != nil {
 		klog.Warningf("Failed to get priority classes, err %v", err)
+	} else {
+		gc.priorityClasses = pcList.Items
 	}
-	gc.priorityClasses = pcList.Items
 
 	var sList *v1.SecretList
 	sList, err = gc.k8sClient.listSecrets(namespace)
 	if err != nil {
 		klog.Warningf("Failed to get secrets from, err %v", err)
+	} else {
+		gc.secrets = sList.Items
 	}
-	gc.secrets = sList.Items
 }
-
