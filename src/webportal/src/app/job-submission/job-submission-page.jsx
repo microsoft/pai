@@ -268,7 +268,6 @@ export const JobSubmissionPage = ({
     };
     setExtrasValue();
   }, []);
-  console.log(extras);
 
   // fill protocol if cloned job
   useEffect(() => {

@@ -138,9 +138,10 @@ const runtimePluginSchema = Joi.object().keys({
           jobssh: Joi.boolean().required(),
           sshbarrier: Joi.boolean(),
           sshbarriertaskroles: Joi.array(),
+          enable: Joi.boolean().optional(),
           userssh: Joi.object().keys({
             type: Joi.string(),
-            value: Joi.string(),
+            value: Joi.string().allow('').optional(),
           }),
         })
         .required(),
