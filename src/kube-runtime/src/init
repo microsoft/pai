@@ -179,6 +179,10 @@ python ${PAI_INIT_DIR}/image_checker.py ${PAI_RUNTIME_DIR}/job_config.yaml ${PAI
 CHILD_PROCESS="RENDER_USER_COMMAND"
 python ${PAI_INIT_DIR}/user_command_renderer.py ${PAI_SECRET_DIR}/secrets.yaml ${PAI_RUNTIME_DIR}/user.sh
 
+# copy needed dependency cache
+CHILD_PROCESS="COPY_PLUGIN_DEPENDENCY"
+python ${PAI_INIT_DIR}/copy_plugin_dependency.py ${PAI_RUNTIME_DIR}/job_config.yaml /opt/package_cache ${PAI_WORK_DIR}/package_cache
+
 # for debug
 echo -e "\nruntime_env.sh has:"
 cat ${PAI_RUNTIME_DIR}/runtime_env.sh
