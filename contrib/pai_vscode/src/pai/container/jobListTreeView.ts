@@ -310,26 +310,29 @@ export class JobListTreeDataProvider extends Singleton implements TreeDataProvid
             clearTimeout(this.refreshTimer);
         }
 
-        const clusters: IClusterData[] = index !== -1 ? [this.clusters[index]] : this.clusters ;
-        await Promise.all(clusters.map(async cluster => {
-            cluster.loadingState = LoadingState.Loading;
-            this.onDidChangeTreeDataEmitter.fire(cluster);
-            try {
-                cluster.jobs = await request.get(
-                    PAIRestUri.jobs(cluster.config),
-                    { json: true }
-                );
-                cluster.loadingState = LoadingState.Finished;
-                this.clusterLoadError[cluster.index] = false;
-            } catch (e) {
-                if (!this.clusterLoadError[cluster.index]) {
-                    Util.err('treeview.joblist.error', [e.message || e]);
-                    this.clusterLoadError[cluster.index] = true;
+        if (this.treeView.visible) {
+            const clusters: IClusterData[] = index !== -1 ? [this.clusters[index]] : this.clusters ;
+            await Promise.all(clusters.map(async cluster => {
+                cluster.loadingState = LoadingState.Loading;
+                this.onDidChangeTreeDataEmitter.fire(cluster);
+                try {
+                    cluster.jobs = await request.get(
+                        PAIRestUri.jobs(cluster.config),
+                        { json: true }
+                    );
+                    cluster.loadingState = LoadingState.Finished;
+                    this.clusterLoadError[cluster.index] = false;
+                } catch (e) {
+                    if (!this.clusterLoadError[cluster.index]) {
+                        Util.err('treeview.joblist.error', [e.message || e]);
+                        this.clusterLoadError[cluster.index] = true;
+                    }
+                    cluster.loadingState = LoadingState.Error;
                 }
-                cluster.loadingState = LoadingState.Error;
-            }
-            this.onDidChangeTreeDataEmitter.fire(cluster);
-        }));
+                this.onDidChangeTreeDataEmitter.fire(cluster);
+            }));
+        }
+
         const settings: WorkspaceConfiguration = workspace.getConfiguration(SETTING_SECTION_JOB);
         const interval: number = settings.get<number>(SETTING_JOB_JOBLIST_REFERSHINTERVAL)!;
         this.refreshTimer = setTimeout(this.reloadJobs.bind(this), interval * 1000);
