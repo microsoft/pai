@@ -20,6 +20,7 @@
 const querystring = require('querystring');
 const logger = require('@pai/config/logger');
 const app = require('@pai/config/express');
+const authnConfig = require('@pai/config/authn');
 const express = require('express');
 const launcherConfig = require('@pai/config/launcher');
 const controller = require('@pai/controllers/index');
