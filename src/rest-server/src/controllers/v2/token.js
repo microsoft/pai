@@ -80,9 +80,7 @@ const getAAD = async (err, req, res, next) => {
       from: fromURI,
     }));
   } catch (error) {
-    return res.redirect(req.returnBackURI + '?'+ querystring.stringify({
-      errorMessage: error.message,
-    }));
+    return next(createError.unknown(error));
   }
 };
 
