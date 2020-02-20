@@ -69,7 +69,7 @@ app.use((err, req, res, next) => {
   logger.warn(err);
   logger.warn(err.stack);
   if (err.targetURI) {
-    return res.redirect(req.targetURI + '?' + querystring.stringify({
+    return res.redirect(err.targetURI + '?' + querystring.stringify({
       errorMessage: err.message,
     }));
   } else {
