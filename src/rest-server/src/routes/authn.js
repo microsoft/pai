@@ -16,8 +16,6 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 // module dependencies
-const querystring = require('querystring');
-const logger = require('@pai/config/logger');
 const express = require('@pai/config/express');
 const tokenConfig = require('@pai/config/token');
 const param = require('@pai/middlewares/parameter');
@@ -55,16 +53,6 @@ if (authnConfig.authnMethod === 'OIDC') {
     .get(
       azureADController.signoutAzureAD
     );
-
-  express.use('/api/v1/authn/oidc/return', (err, req, res, next) => {
-    logger.warn(err);
-    let qsData = {
-      errorMessage: err.message,
-    };
-    let redirectURI = err.targetURI ? err.targetURI : process.env.WEBPORTAL_URL;
-    redirectURI = redirectURI + '?' + querystring.stringify(qsData);
-    return res.redirect(redirectURI);
-  });
 
   router.route('/oidc/return')
   /** GET /api/v1/authn/oidc/return - AAD AUTH RETURN */

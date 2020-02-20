@@ -17,6 +17,9 @@
 
 
 // module dependencies
+const querystring = require('querystring');
+const logger = require('@pai/config/logger');
+const app = require('@pai/config/express');
 const express = require('express');
 const launcherConfig = require('@pai/config/launcher');
 const controller = require('@pai/controllers/index');
@@ -43,6 +46,18 @@ if (launcherConfig.type === 'yarn') {
   router.use('/jobs', require('@pai/routes/job'));
 } else if (launcherConfig.type === 'k8s') {
   router.use('/jobs', require('@pai/routes/v2/job'));
+}
+
+if (authnConfig.authnMethod === 'OIDC') {
+  app.use('/api/v1/authn/oidc/return', (err, req, res, next) => {
+    logger.warn(err);
+    let qsData = {
+      errorMessage: err.message,
+    };
+    let redirectURI = err.targetURI ? err.targetURI : process.env.WEBPORTAL_URL;
+    redirectURI = redirectURI + '?' + querystring.stringify(qsData);
+    return res.redirect(redirectURI);
+  });
 }
 
 // module exports
