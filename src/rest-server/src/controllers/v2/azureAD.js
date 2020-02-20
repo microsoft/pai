@@ -22,6 +22,7 @@ const querystring = require('querystring');
 const axios = require('axios');
 const createError = require('@pai/utils/error');
 const jwt = require('jsonwebtoken');
+const logger = require('@pai/config/logger');
 
 const requestAuthCode = async (req, res, next) => {
   const clientId = authnConfig.OIDCConfig.clientID;
@@ -52,7 +53,7 @@ const requestAuthCode = async (req, res, next) => {
 };
 
 const requestTokenWithCode = async (req, res, next) => {
-  console.log("in")
+  logger.info(`begin test`);
   try {
     const authCode = req.body.code;
     let scope = `https://${authnConfig.OIDCConfig.msgraph_host}/user.read`;
