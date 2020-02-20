@@ -86,7 +86,6 @@ if (authnConfig.authnMethod === 'OIDC') {
     redirectURI = redirectURI + '?' + querystring.stringify(qsData);
     return res.redirect(redirectURI);
   });
-
 } else {
   router.route('/basic/login')
   /** POST /api/v1/authn/basic/login - Return a token if username and password is correct */
