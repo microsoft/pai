@@ -366,7 +366,8 @@ export class PAIJobManager extends Singleton {
      * @param script the file path.
      */
     public async generateJobConfigV2(script?: string): Promise<void> {
-        await this.ensureSettingsV2();
+        const cluster: IPAICluster = await this.pickCluster();
+        const settings: vscode.WorkspaceConfiguration = await this.ensureSettingsV2(cluster);
         let parent: string;
         if (script) {
             const workspace: any = script ?
@@ -392,6 +393,35 @@ export class PAIJobManager extends Singleton {
         const jobName: string = script ? path.basename(script, path.extname(script)) : 'new_job';
         const defaultSaveDir: string = path.join(parent, `${jobName}.pai.yaml`);
 
+        const runtimeplugin: any[] = [{
+            plugin: 'ssh',
+            parameters: {
+                jobssh: true
+            }
+        }];
+
+        let sourceCodePath: string = '$PAI_JOB_NAME';
+        const commands: string[] = [];
+        const uploadConfig: IPAIJobV2UploadConfig | undefined = settings.get(SETTING_JOB_V2_UPLOAD);
+        if (uploadConfig && uploadConfig[cluster.name!] && uploadConfig[cluster.name!].enable) {
+            const upload: IUploadConfig = uploadConfig[cluster!.name!];
+            commands.push(`export PAI_AUTO_UPLOAD_DIR="${upload.storageMountPoint}"`);
+            sourceCodePath = '$PAI_AUTO_UPLOAD_DIR/$PAI_JOB_NAME';
+
+            runtimeplugin.push({
+                plugin: 'teamwise_storage',
+                parameters: {
+                    storageConfigNames: [upload.storageName]
+                }
+            });
+        }
+
+        if (script) {
+            commands.push(`python ${sourceCodePath}/${unixify(script)}`);
+        } else {
+            commands.push('python <start up script>');
+        }
+
         const config: IPAIJobConfigV2 = {
             protocolVersion: 2,
             name: jobName,
@@ -412,10 +442,11 @@ export class PAIJobManager extends Singleton {
                       memoryMB: 16384,
                       gpu: 1
                     },
-                    commands: [
-                        script ? `python ${jobName}/${unixify(script)}` : 'python <start up script>'
-                    ]
+                    commands: commands
                 }
+            },
+            extras: {
+                'com.microsoft.pai.runtimeplugin': runtimeplugin
             }
         };
 
@@ -834,7 +865,14 @@ export class PAIJobManager extends Singleton {
                 }));
             }
             dockerfile.push('WORKDIR /pai');
-            dockerfile.push(`COPY ${config.name} /pai/${config.name}`);
+            if (param.upload) {
+                const upload: IUploadConfig = <IUploadConfig>param.upload;
+                if (upload.enable) {
+                    dockerfile.push(`COPY ${config.name} /${upload.storageMountPoint}/${config.name}`);
+                }
+            } else {
+                dockerfile.push(`COPY ${config.name} /pai/${config.name}`);
+            }
             dockerfile.push('');
             // 4. env var
             dockerfile.push('ENV PAI_WORK_DIR /pai');
@@ -857,7 +895,8 @@ export class PAIJobManager extends Singleton {
                 'PAI_MIN_FAILED_TASK_COUNT_*',
                 'PAI_MIN_SUCCEEDED_TASK_COUNT_*',
                 'PAI_CURRENT_TASK_ROLE_NAME',
-                'PAI_CURRENT_TASK_ROLE_CURRENT_TASK_INDEX'
+                'PAI_CURRENT_TASK_ROLE_CURRENT_TASK_INDEX',
+                'PAI_AUTO_UPLOAD_DIR'
             ];
             const command: string = role.commands.join(' && ').replace(new RegExp(supportedEnvList.join('|'), 'g'), '');
             if (command.includes('$PAI')) {
@@ -1176,7 +1215,13 @@ export class PAIJobManager extends Singleton {
                             increment: 1 / total * 100
                         });
                         const suffix: string = path.relative(param.workspace, file);
-                        await StorageHelper.uploadFile(uploadConfig, param.cluster!.name!, config.name, vscode.Uri.file(file), suffix);
+                        await StorageHelper.uploadFile(
+                            uploadConfig,
+                            param.cluster!.name!,
+                            `${param.cluster!.username!}~${config.name}`,
+                            vscode.Uri.file(file),
+                            suffix
+                        );
                     }
                 }
             );
