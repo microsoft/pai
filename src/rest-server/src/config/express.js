@@ -74,17 +74,5 @@ app.use((err, req, res, next) => {
   });
 });
 
-app.use("/api/v1/authn/oidc/return", (err, req, res, next) => {
-    logger.warn(err);
-    let qsData = {};
-    qsData.errorMessage = err.message;
-    if (err.fromURI) {
-      qsData.from = err.fromURI;
-    }
-    let redirectURI = err.targetURI ? err.targetURI : process.env.WEBPORTAL_URL;
-    redirectURI = redirectURI + '?' + querystring.stringify(qsData);
-    return res.redirect(redirectURI);
-});
-
 // module exports
 module.exports = app;
