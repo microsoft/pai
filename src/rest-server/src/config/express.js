@@ -66,6 +66,7 @@ app.use((req, res, next) => {
 
 // error handler
 app.use((err, req, res, next) => {
+  logger.warn(err);
   logger.warn(err.stack);
   if (err.targetURI) {
     return res.redirect(req.targetURI + '?' + querystring.stringify({
