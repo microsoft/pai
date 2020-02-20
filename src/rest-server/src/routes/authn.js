@@ -17,6 +17,7 @@
 
 // module dependencies
 const querystring = require('querystring');
+const logger = require('@pai/config/logger');
 const express = require('@pai/config/express');
 const tokenConfig = require('@pai/config/token');
 const param = require('@pai/middlewares/parameter');
