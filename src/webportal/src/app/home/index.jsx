@@ -44,7 +44,7 @@ if (query.has('errorMessage')) {
   const errorMessage = query.get('errorMessage');
   const errorStatus = query.get('errorStatus');
   const errorCode = query.get('errorCode');
-  alert(`Status: ${errorStatus} \n Code: ${errorCode} \n Message: ${errorMessage}`);
+  alert('Status:' + errorStatus + '\nCode:' + errorCode + '\n Message' + errorMessage);
   location.href = '/index.html';
 }
 
