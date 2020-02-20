@@ -67,13 +67,17 @@ app.use((req, res, next) => {
 // error handler
 app.use((err, req, res, next) => {
   logger.warn(err);
-  logger.warn(err.stack);
-  if (err.targetURI) {
-    return res.redirect(err.targetURI + '?' + querystring.stringify({
-      errorMessage: err.message,
-    }));
+  if (err.status) {
+    let qsData = {};
+    qsData.errorMessage = err.message;
+    if (err.fromURI) {
+      qsData.from = err.fromURI;
+    }
+    let redirectURI = err.targetURI ? err.targetURI : process.env.WEBPORTAL_URL;
+    redirectURI = redirectURI + '?' + querystring.stringify(qsData);
+    return res.redirect(redirectURI);
   } else {
-    res.status(err.status || 500).json({
+    res.status(500).json({
       code: err.code,
       message: err.message,
       stack: config.env === 'development' ? err.stack.split('\n') : void 0,
