@@ -79,7 +79,7 @@ const getAAD = async (err, req, res, next) => {
     }));
   } catch (error) {
     return res.redirect(req.returnBackURI + '?'+ querystring.stringify({
-      errorMessage: JSON.stringify(error),
+      errorMessage: error.message,
     }));
   }
 };
