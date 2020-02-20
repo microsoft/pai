@@ -36,6 +36,10 @@ import config from '../config/webportal.config';
 import { SpinnerLoading } from '../components/loading';
 import t from 'tachyons-sass/tachyons.scss';
 
+let loginTarget = '/home.html';
+
+const query = new URLSearchParams(window.location.search);
+
 if (query.has('errorMessage')) {
   const errorMessage =  query.get('errorMessage');
   const errorStatus = query.get('errorStatus');
@@ -44,9 +48,6 @@ if (query.has('errorMessage')) {
   location.href = '/index.html'
 }
 
-let loginTarget = '/home.html';
-
-const query = new URLSearchParams(window.location.search);
 const from = query.get('from');
 if (!isEmpty(from)) {
   loginTarget = from;
