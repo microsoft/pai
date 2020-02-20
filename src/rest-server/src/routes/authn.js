@@ -23,6 +23,10 @@ const userController = require('@pai/controllers/v2/user');
 const tokenController = require('@pai/controllers/v2/token');
 const azureADController = require('@pai/controllers/v2/azureAD');
 const authnConfig = require('@pai/config/authn');
+const logger = require('@pai/config/logger');
+const querystring = require('querystring');
+const app = require('@pai/config/express');
+
 
 const router = new express.Router();
 
@@ -71,6 +75,18 @@ if (authnConfig.authnMethod === 'OIDC') {
       userController.updateUserGroupListFromExternal,
       tokenController.getAAD
     );
+
+  // error handler for /api/v1/authn/oidc/return
+  app.use('/api/v1/authn/oidc/return', (err, req, res, next) => {
+    logger.warn(err);
+    let qsData = {
+      errorMessage: err.message,
+    };
+    let redirectURI = err.targetURI ? err.targetURI : process.env.WEBPORTAL_URL;
+    redirectURI = redirectURI + '?' + querystring.stringify(qsData);
+    return res.redirect(redirectURI);
+  });
+
 } else {
   router.route('/basic/login')
   /** POST /api/v1/authn/basic/login - Return a token if username and password is correct */
