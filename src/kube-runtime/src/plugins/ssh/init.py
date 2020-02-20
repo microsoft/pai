@@ -82,7 +82,7 @@ def main():
         LOGGER.info("Skip sshd script since neither jobssh or userssh is set")
     else:
         command = [
-            try_install_by_cache('ssh') + ' || { apt-get update; apt-get install -y openssh-client openssh-server; }'
+            try_install_by_cache('ssh') + ' || { apt-get update; apt-get install -y openssh-client openssh-server; }',
             "{}/sshd.sh {}\n".format(os.path.dirname(os.path.abspath(__file__)),
                                      " ".join(cmd_params))
         ]
