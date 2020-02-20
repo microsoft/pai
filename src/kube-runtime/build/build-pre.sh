@@ -60,8 +60,8 @@ if [ "$ENABLE_PACKAGE_CACHE" == "true" ]; then
                        cd /mount && \
                        apt-get -y install --print-uris \`cat ./packages\` | cut -d " " -f 1-2 | grep http:// > /aptinfo && \
                        cat /aptinfo | cut -d\' -f 2 > /apturl && \
-                       apt-get -y install \`cat ./packages\` &> /install_log && \
-                       cat /install_log  | grep Setting | cut -d " " -f 3 | cut -d ":" -f 1 > ./order && \
+                       apt-get -y install --dry-run \`cat ./packages\` &> /install_log && \
+                       cat /install_log  | grep Conf | cut -d " " -f 2 > ./order && \
                        apt-get -y install wget && \
                        wget -i /apturl --tries 3 -P ./ && \
                        ls -la *.deb | awk '{print \$9}' | while read filename; do mv \$filename \`echo \$filename | cut -d "_" -f1\`".deb"; done;
