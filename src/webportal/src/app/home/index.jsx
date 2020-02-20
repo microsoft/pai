@@ -36,6 +36,14 @@ import config from '../config/webportal.config';
 import { SpinnerLoading } from '../components/loading';
 import t from 'tachyons-sass/tachyons.scss';
 
+if (query.has('errorMessage')) {
+  const errorMessage =  query.get('errorMessage');
+  const errorStatus = query.get('errorStatus');
+  const errorCode = query.get('errorCode');
+  alert(`Status: ${errorStatus} \n Code: ${errorCode} \n Message: ${errorMessage}`);
+  location.href = '/index.html'
+}
+
 let loginTarget = '/home.html';
 
 const query = new URLSearchParams(window.location.search);
@@ -54,10 +62,6 @@ if (config.authnMethod === 'OIDC') {
       expires: expiration,
     });
   }
-}
-
-if (query.has('loginFailMsg')) {
-  alert(query.get('loginFailMsg'));
 }
 
 initializeIcons();

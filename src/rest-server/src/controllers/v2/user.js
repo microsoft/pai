@@ -108,10 +108,7 @@ const createUserIfUserNotExist = async (req, res, next) => {
         if (authConfig.groupConfig.groupDataSource === 'ms-graph') {
           forbiddenMessage = forbiddenMessage + `Please contact your admin, and join the AAD group named [ ${authConfig.groupConfig.defaultGroup.externalName} ].`;
         }
-        return res.redirect(req.returnBackURI + '?'+ querystring.stringify({
-          from: req.fromURI,
-          loginFailMsg: forbiddenMessage,
-        }));
+        return next(createError('Forbidden', 'ForbiddenUserError', forbiddenMessage));
       }
     }
     const userValue = {
