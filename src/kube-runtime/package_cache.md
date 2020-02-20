@@ -24,9 +24,10 @@ The first column is `group_name`. One group can contain multiple packages. The s
 ```python
 from plugins.plugin_utils import try_to_install_by_cache
 command = [
-try_to_install_by_cache('<group_name>', fallback_cmds=[
-    '<fallback commands>',
-]),
+    try_to_install_by_cache('<group_name>', fallback_cmds=[
+        '<fallback commands>',
+    ])
+]    
 ```
 
 `try_to_install_by_cache(group_name, fallback_cmds)` will generate a script to install all packages of a certain group name. It guarantees:
