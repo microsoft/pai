@@ -66,11 +66,17 @@ app.use((req, res, next) => {
 // error handler
 app.use((err, req, res, next) => {
   logger.warn(err.stack);
-  res.status(err.status || 500).json({
-    code: err.code,
-    message: err.message,
-    stack: config.env === 'development' ? err.stack.split('\n') : void 0,
-  });
+  if (err.targetURI) {
+    return res.redirect(req.targetURI + '?' + querystring.stringify({
+      errorMessage: err.message,
+    }));
+  } else {
+    res.status(err.status || 500).json({
+      code: err.code,
+      message: err.message,
+      stack: config.env === 'development' ? err.stack.split('\n') : void 0,
+    });
+  }
 });
 
 // module exports
