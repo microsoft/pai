@@ -102,12 +102,6 @@ function start_ssh()
   service ssh restart
 }
 
-# Try to install openssh if sshd is not found
-if [ ! -f /usr/sbin/sshd ] ; then
-  /bin/bash ${PAI_WORK_DIR}/runtime.d/install_dependency.sh ssh || \
-  { apt-get update; apt-get install -y openssh-client openssh-server; }
-fi
-
 
 if [ -f /usr/sbin/sshd ] ; then
     if [ -z "$PAI_CONTAINER_SSH_PORT" ] ; then

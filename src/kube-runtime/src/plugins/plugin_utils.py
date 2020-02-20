@@ -21,6 +21,7 @@ import argparse
 import yaml
 import os
 import requests
+import shutil
 try:
     from urlparse import urljoin
 except Exception:
@@ -65,6 +66,20 @@ def plugin_init():
     plugin_config = yaml.safe_load(args.plugin_config)
 
     return [plugin_config, args.pre_script, args.post_script]
+
+
+def try_install_by_cache(group_name):
+    PAI_WORK_DIR = '/usr/local/pai'
+    source_folder = '/opt/package_cache'
+    target_folder = os.path.join(PAI_WORK_DIR, 'package_cache')
+    exists_group_names = os.listdir(source_folder)
+    needed_group_names = [name for name in exists_group_names if name.startswith(group_name + '-')]
+    for name in needed_group_names:
+        name_source_folder = os.path.join(source_folder, name)
+        name_target_folder = os.path.join(target_folder, name)
+        if not(os.path.exists(name_target_folder)):  # avoid duplicate copy
+            shutil.copytree(name_source_folder, name_target_folder)
+    return '/bin/bash ${PAI_WORK_DIR}/runtime.d/install_dependency.sh ' + group_name
 
 
 def request_rest_server(method, url, data='', timeout_secs=30):

@@ -1,4 +1,4 @@
-# name, os, packages(space-gapped), precommands
+# group_name, os, packages(space-gapped), precommands
 # "#" can be used for comments
 ssh,ubuntu16.04,openssh-client openssh-server,
 ssh,ubuntu18.04,openssh-client openssh-server,
