@@ -52,6 +52,7 @@ const requestAuthCode = async (req, res, next) => {
 };
 
 const requestTokenWithCode = async (req, res, next) => {
+  console.log("in")
   try {
     const authCode = req.body.code;
     let scope = `https://${authnConfig.OIDCConfig.msgraph_host}/user.read`;
