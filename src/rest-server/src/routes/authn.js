@@ -16,7 +16,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 // module dependencies
-const express = require('@pai/config/express');
+const express = require('express');
 const tokenConfig = require('@pai/config/token');
 const param = require('@pai/middlewares/parameter');
 const userController = require('@pai/controllers/v2/user');
