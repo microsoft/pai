@@ -69,7 +69,7 @@ def plugin_init():
     return [plugin_config, args.pre_script, args.post_script]
 
 
-def try_install_by_cache(group_name):
+def try_to_install_by_cache(group_name):
     source_folder = '/opt/package_cache'
     target_folder = os.path.join(PAI_WORK_DIR, 'package_cache')
     exists_group_names = os.listdir(source_folder)
