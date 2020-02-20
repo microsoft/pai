@@ -32,7 +32,7 @@ ubuntu_is_successfully_installed(){
 }
 
 if [ $# -ne 1 ]; then
-  echo "Usage: bash -x install_dependency.sh <dependency_name>"
+  echo "Usage: bash -x install_group.sh <group_name>"
   exit 1
 else
   name=$1
@@ -51,18 +51,18 @@ if [ -d $CACHE_ROOT_DIR"/${name}-${os}" ]; then
   packages=`cat ${package_dir}"/packages"`
   ubuntu_is_successfully_installed "${packages}"
   if [ $? -eq 0 ]; then
-    echo "[package_cache] Skip installation of dependency ${name}."
+    echo "[package_cache] Skip installation of group ${name}."
     exit 0
   fi
-  echo "[package_cache] Install dependency ${name} from cache ${package_dir}."
+  echo "[package_cache] Install group ${name} from cache ${package_dir}."
   cat ${package_dir}"/order" | while read file; do dpkg -i ${package_dir}"/"$file".deb"; done;
   apt-get install -f
   # check if packages are installed
   ubuntu_is_successfully_installed "${packages}"
   if [ $? -eq 0 ]; then
-    echo "[package_cache] Install dependency ${name} from cache ${package_dir} succeeded!"
+    echo "[package_cache] Install group ${name} from cache ${package_dir} succeeded!"
   else
-    echo "[package_cache] Install dependency ${name} from cache ${package_dir} failed. Fallback to apt-get."
+    echo "[package_cache] Install group ${name} from cache ${package_dir} failed. Fallback to apt-get."
     /bin/bash ${package_dir}"/precommands.sh"
     apt-get update
     apt-get install -y ${packages}

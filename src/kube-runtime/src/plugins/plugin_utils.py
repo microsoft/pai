@@ -53,6 +53,7 @@ class PluginHelper:  #pylint: disable=too-few-public-methods
 
 PAI_REST_SERVER_URI = os.environ.get("PAI_REST_SERVER_URI")
 USER_TOKEN_HEADER = os.environ.get("PAI_USER_TOKEN")
+PAI_WORK_DIR = '/usr/local/pai'
 
 
 def plugin_init():
@@ -69,7 +70,6 @@ def plugin_init():
 
 
 def try_install_by_cache(group_name):
-    PAI_WORK_DIR = '/usr/local/pai'
     source_folder = '/opt/package_cache'
     target_folder = os.path.join(PAI_WORK_DIR, 'package_cache')
     exists_group_names = os.listdir(source_folder)
@@ -79,7 +79,7 @@ def try_install_by_cache(group_name):
         name_target_folder = os.path.join(target_folder, name)
         if not(os.path.exists(name_target_folder)):  # avoid duplicate copy
             shutil.copytree(name_source_folder, name_target_folder)
-    return '/bin/bash ${PAI_WORK_DIR}/runtime.d/install_dependency.sh ' + group_name
+    return '/bin/bash {}/runtime.d/install_group.sh '.format(PAI_WORK_DIR) + group_name
 
 
 def request_rest_server(method, url, data='', timeout_secs=30):
