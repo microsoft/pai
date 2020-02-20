@@ -66,8 +66,16 @@ app.use((req, res, next) => {
 
 // error handler
 app.use((err, req, res, next) => {
-  logger.warn(err);
-  if (err.status) {
+  logger.warn(err.stack);
+  res.status(err.status || 500).json({
+    code: err.code,
+    message: err.message,
+    stack: config.env === 'development' ? err.stack.split('\n') : void 0,
+  });
+});
+
+app.use("/api/v1/authn/oidc/return", (err, req, res, next) => {
+    logger.warn(err);
     let qsData = {};
     qsData.errorMessage = err.message;
     if (err.fromURI) {
@@ -76,13 +84,6 @@ app.use((err, req, res, next) => {
     let redirectURI = err.targetURI ? err.targetURI : process.env.WEBPORTAL_URL;
     redirectURI = redirectURI + '?' + querystring.stringify(qsData);
     return res.redirect(redirectURI);
-  } else {
-    res.status(500).json({
-      code: err.code,
-      message: err.message,
-      stack: config.env === 'development' ? err.stack.split('\n') : void 0,
-    });
-  }
 });
 
 // module exports
