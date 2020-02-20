@@ -42,11 +42,7 @@ const query = new URLSearchParams(window.location.search);
 
 if (query.has('errorMessage')) {
   const errorMessage = query.get('errorMessage');
-  const errorStatus = query.get('errorStatus');
-  const errorCode = query.get('errorCode');
-  alert(
-    `Status: ${errorStatus} \n Code: ${errorCode} \n Message: ${errorMessage}`,
-  );
+  alert(errorMessage);
   location.href = '/index.html';
 }
 
