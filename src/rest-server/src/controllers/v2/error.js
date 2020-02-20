@@ -16,6 +16,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 // module dependencies
+const querystring = require('querystring');
 
 const aadLoginErrorHandler = async (err, req, res, next) => {
   return res.redirect(req.returnBackURI + '?'+ querystring.stringify({

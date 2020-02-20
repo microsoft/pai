@@ -17,7 +17,6 @@
 
 // module dependencies
 const jwt = require('jsonwebtoken');
-const querystring = require('querystring');
 const userModel = require('@pai/models/v2/user');
 const createError = require('@pai/utils/error');
 const authConfig = require('@pai/config/authn');
