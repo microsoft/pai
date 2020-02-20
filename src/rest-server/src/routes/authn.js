@@ -55,15 +55,22 @@ if (authnConfig.authnMethod === 'OIDC') {
     );
 
   router.route('/oidc/return')
-  /** POST /api/v1/authn/oidc/return - AAD AUTH RETURN */
-    .post(
+  /** GET /api/v1/authn/oidc/return - AAD AUTH RETURN */
+    .get(
       azureADController.requestTokenWithCode,
       azureADController.parseTokenData,
       userController.createUserIfUserNotExist,
       userController.updateUserGroupListFromExternal,
       tokenController.getAAD
     )
-
+    /** POST /api/v1/authn/oidc/return - AAD AUTH RETURN */
+    .post(
+      azureADController.requestTokenWithCode,
+      azureADController.parseTokenData,
+      userController.createUserIfUserNotExist,
+      userController.updateUserGroupListFromExternal,
+      tokenController.getAAD
+    );
 } else {
   router.route('/basic/login')
   /** POST /api/v1/authn/basic/login - Return a token if username and password is correct */
