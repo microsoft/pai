@@ -61,7 +61,7 @@ if (authnConfig.authnMethod === 'OIDC') {
       azureADController.parseTokenData,
       userController.createUserIfUserNotExist,
       userController.updateUserGroupListFromExternal,
-      tokenController.getAAD,
+      tokenController.getAAD
     )
     /** POST /api/v1/authn/oidc/return - AAD AUTH RETURN */
     .post(
@@ -69,7 +69,7 @@ if (authnConfig.authnMethod === 'OIDC') {
       azureADController.parseTokenData,
       userController.createUserIfUserNotExist,
       userController.updateUserGroupListFromExternal,
-      tokenController.getAAD,
+      tokenController.getAAD
     );
 } else {
   router.route('/basic/login')

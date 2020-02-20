@@ -59,13 +59,13 @@ const get = async (req, res, next) => {
 /**
  *  Get the token in AAD Mode.
  */
-const getAAD = async (req, res, next) => {
-  //logger.info(JSON.stringify(err))
-  //if (err) {
-  //  return res.redirect(req.returnBackURI + '?'+ querystring.stringify({
-  //    errorMessage: err.message,
-  //  }));
-  //}
+const getAAD = async (err, req, res, next) => {
+  logger.info(JSON.stringify(err))
+  if (err) {
+    return res.redirect(req.returnBackURI + '?'+ querystring.stringify({
+      errorMessage: err.message,
+    }));
+  }
   try {
     const username = req.username;
     const userInfo = await userModel.getUser(username);
