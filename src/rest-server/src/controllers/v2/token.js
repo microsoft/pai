@@ -22,6 +22,7 @@ const groupModel = require('@pai/models/v2/group');
 const tokenModel = require('@pai/models/token');
 const createError = require('@pai/utils/error');
 const {encrypt} = require('@pai/utils/manager/user/user');
+const logger = require('@pai/config/logger');
 
 /**
  * Get the token.
@@ -58,7 +59,13 @@ const get = async (req, res, next) => {
 /**
  *  Get the token in AAD Mode.
  */
-const getAAD = async (req, res, next) => {
+const getAAD = async (err, req, res, next) => {
+  logger.info(JSON.stringify(err));
+  if (err) {
+    return res.redirect(req.returnBackURI + '?'+ querystring.stringify({
+      errorMessage: err.message,
+    }));
+  }
   try {
     const username = req.username;
     const userInfo = await userModel.getUser(username);
