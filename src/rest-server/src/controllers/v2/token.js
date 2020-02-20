@@ -60,7 +60,7 @@ const get = async (req, res, next) => {
  *  Get the token in AAD Mode.
  */
 const getAAD = async (err, req, res, next) => {
-  logger.info(JSON.stringify(err))
+  logger.info(JSON.stringify(err));
   if (err) {
     return res.redirect(req.returnBackURI + '?'+ querystring.stringify({
       errorMessage: err.message,
