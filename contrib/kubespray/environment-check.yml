@@ -1,0 +1,37 @@
+---
+- hosts: all
+  gather_facts: false
+  tasks:
+    - name: setup
+      setup:
+      delegate_to: localhost
+
+    - name: set ansible control host IP fact
+      set_fact:
+        ansible_control_host_address: "{{ hostvars[inventory_hostname]['ansible_eth0']['ipv4']['address'] }}"
+      delegate_to: 127.0.0.1
+
+    - name: "SSH test from dev-box to all machine of infra and worker"
+      ping:
+
+- hosts: localhost
+  become: true
+  become_user: root
+  roles:
+    - { role: requirement/devbox }
+  vars:
+    ansible_connection: local
+
+- hosts: infra
+  become: true
+  become_user: root
+  gather_facts: true
+  roles:
+    - { role: requirement/infra }
+
+- hosts: worker
+  become: true
+  become_user: root
+  gather_facts: true
+  roles:
+    - { role: requirement/worker }

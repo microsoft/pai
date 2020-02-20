@@ -1,0 +1,18 @@
+---
+- name: "Check NVIDIA GPU drivers"
+  raw: "nvidia-smi"
+  register: nvidia_smi_check
+  failed_when: false
+  changed_when: false
+  check_mode: false
+  environment: {}
+
+- name: "Nvidia-smi is detected, include nvidia docker runtime task"
+  include_tasks: nvidia-runtime.yml
+  when:
+    - nvidia_smi_check.rc == 0
+
+- name: "Nvidia-smi is not detected, include default docker runtime task"
+  include_tasks: default-runtime.yml
+  when:
+    - nvidia_smi_check.rc != 0

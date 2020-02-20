@@ -60,25 +60,39 @@ export class PathBaseStorageManager {
     }
 
     public static async createFolder(
-        target: PathBaseTreeNode | SambaRootNode | NfsRootNode | MountPointTreeNode
+        target: PathBaseTreeNode | SambaRootNode | NfsRootNode | MountPointTreeNode,
+        folder?: string
     ): Promise<void> {
-        const res: string | undefined = await window.showInputBox({
-            prompt: __('container.azure.blob.mkdir.prompt')
-        });
-        if (res === undefined) {
-            Util.warn('container.azure.blob.mkdir.cancelled');
-            return;
-        }
-        if (target instanceof MountPointTreeNode) {
-            target = <SambaRootNode>target.data;
-        }
+        if (folder) {
+            if (target instanceof MountPointTreeNode) {
+                target = <SambaRootNode>target.data;
+            }
+            try {
+                const dirName: string = path.join(target.rootPath!, folder);
+                await fs.mkdirp(dirName);
+                Util.info('storage.create.folder.success');
+            } catch (err) {
+                Util.err('storage.create.folder.error', [err]);
+            }
+        } else {
+            const res: string | undefined = await window.showInputBox({
+                prompt: __('container.azure.blob.mkdir.prompt')
+            });
+            if (res === undefined) {
+                Util.warn('container.azure.blob.mkdir.cancelled');
+                return;
+            }
+            if (target instanceof MountPointTreeNode) {
+                target = <SambaRootNode>target.data;
+            }
 
-        try {
-            const dirName: string = path.join(target.rootPath!, res);
-            await fs.mkdirp(dirName);
-            Util.info('storage.create.folder.success');
-        } catch (err) {
-            Util.err('storage.create.folder.error', [err]);
+            try {
+                const dirName: string = path.join(target.rootPath!, res);
+                await fs.mkdirp(dirName);
+                Util.info('storage.create.folder.success');
+            } catch (err) {
+                Util.err('storage.create.folder.error', [err]);
+            }
         }
     }
 

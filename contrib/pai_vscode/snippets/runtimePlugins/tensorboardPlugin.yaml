@@ -1,0 +1,9 @@
+name: tensorboardPlugin
+label: tensorboard
+documentation: tensorboard plugin
+insertText: |1
+  tensorboard
+   parameters:
+     port: {port}
+     logdir:
+       path: ${3:/mnt/tensorboard}

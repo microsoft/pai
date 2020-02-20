@@ -1,0 +1,10 @@
+---
+- name: Output machines' os variables
+  debug:
+    var: "{{ item }}"
+  with_items:
+    - ansible_distribution
+
+- name: Check ubuntu requirement. OpenPAI only supports ubuntu now.
+  include_tasks: ubuntu.yml
+  when: ansible_distribution == "Ubuntu" and ansible_distribution_version is version('16.04', '>=')

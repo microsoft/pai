@@ -22,7 +22,7 @@ Cluster-configuration.
 
 * Manual build
 
-refer to [dockerfile](../../../src/zookeeper/build/zookeeper.dockerfile).
+refer to [dockerfile](../../../src/zookeeper/build/zookeeper.yarn.dockerfile).
 
 ### Configuration
 
