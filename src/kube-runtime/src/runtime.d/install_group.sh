@@ -23,7 +23,7 @@ CACHE_ROOT_DIR=${PAI_WORK_DIR}/package_cache
 function ubuntu_is_installed(){
   for package in $1
   do
-    dpkg -l $package &> /dev/null
+    dpkg -V $package &> /dev/null
     if [ $? -ne 0 ]; then
       return 1
     fi
