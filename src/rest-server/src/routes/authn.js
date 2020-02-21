@@ -56,6 +56,16 @@ if (authnConfig.authnMethod === 'OIDC') {
       azureADController.signoutAzureAD
     );
 
+  router.use('/oidc/return', function(err, req, res, next) {
+    logger.warn(err);
+    let qsData = {
+      errorMessage: err.message,
+    };
+    let redirectURI = err.targetURI ? err.targetURI : process.env.WEBPORTAL_URL;
+    redirectURI = redirectURI + '?' + querystring.stringify(qsData);
+    return res.redirect(redirectURI);
+  });
+
   router.route('/oidc/return')
   /** GET /api/v1/authn/oidc/return - AAD AUTH RETURN */
     .get(
@@ -73,16 +83,6 @@ if (authnConfig.authnMethod === 'OIDC') {
       userController.updateUserGroupListFromExternal,
       tokenController.getAAD
     );
-
-  router.use('/oidc/return', function(err, req, res, next) {
-    logger.warn(err);
-    let qsData = {
-      errorMessage: err.message,
-    };
-    let redirectURI = err.targetURI ? err.targetURI : process.env.WEBPORTAL_URL;
-    redirectURI = redirectURI + '?' + querystring.stringify(qsData);
-    return res.redirect(redirectURI);
-  });
 } else {
   router.route('/basic/login')
   /** POST /api/v1/authn/basic/login - Return a token if username and password is correct */
