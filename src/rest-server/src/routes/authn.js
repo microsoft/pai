@@ -71,6 +71,15 @@ if (authnConfig.authnMethod === 'OIDC') {
       userController.updateUserGroupListFromExternal,
       tokenController.getAAD
     );
+  router.route('/oidc/return').use(function (err, req, res, next) {
+    logger.warn(err);
+    let qsData = {
+      errorMessage: err.message,
+    };
+    let redirectURI = err.targetURI ? err.targetURI : process.env.WEBPORTAL_URL;
+    redirectURI = redirectURI + '?' + querystring.stringify(qsData);
+    return res.redirect(redirectURI);
+  });
 } else {
   router.route('/basic/login')
   /** POST /api/v1/authn/basic/login - Return a token if username and password is correct */
