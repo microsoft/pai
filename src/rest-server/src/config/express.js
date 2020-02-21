@@ -78,7 +78,6 @@ if (authnConfig.authnMethod === 'OIDC') {
   });
 }
 
-
 // error handler
 app.use((err, req, res, next) => {
   logger.warn(err.stack);
