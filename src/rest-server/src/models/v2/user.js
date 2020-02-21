@@ -84,9 +84,9 @@ const checkUserVC = async (username, vcname) => {
   return userVCs.includes(vcname);
 };
 
-const getUserStorages = async (username) => {
+const getUserStorages = async (username, filterDefault=false) => {
   const userItem = await getUser(username);
-  return groupModel.getGroupsStorages(userItem.grouplist);
+  return groupModel.getGroupsStorages(userItem.grouplist, filterDefault);
 };
 
 const checkUserStorage = async (username, storageName) => {

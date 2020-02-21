@@ -100,26 +100,25 @@ const getGroupsVCs = async (grouplist) => {
   return getVCsWithGroupInfo(groupItems);
 };
 
-const getStorageConfigsWithGroupInfo = async (groupItems) => {
+const getStorageConfigsWithGroupInfo = async (groupItems, filterDefault=false) => {
   let storageConfigs = new Set();
   for (const groupItem of groupItems) {
     if (groupItem.extension && groupItem.extension.acls) {
       if (groupItem.extension.acls.storageConfigs) {
-        storageConfigs = new Set([...storageConfigs, ...groupItem.extension.acls.storageConfigs]);
+        if (filterDefault) {
+          storageConfigs.add(groupItem.extension.acls.storageConfigs[0]);
+        } else {
+          storageConfigs = new Set([...storageConfigs, ...groupItem.extension.acls.storageConfigs]);
+        }
       }
     }
   }
   return [...storageConfigs];
 };
 
-const getGroupStorages = async (groupname) => {
-  const groupItem = await getGroup(groupname);
-  return getStorageConfigsWithGroupInfo([groupItem]);
-};
-
-const getGroupsStorages = async (grouplist) => {
+const getGroupsStorages = async (grouplist, filterDefault=false) => {
   const groupItems = await getListGroup(grouplist);
-  return getStorageConfigsWithGroupInfo(groupItems);
+  return getStorageConfigsWithGroupInfo(groupItems, filterDefault);
 };
 
 const getAdminWithGroupInfo = (groupItems) => {
@@ -489,7 +488,6 @@ module.exports = {
   getGroupVCs,
   getGroupsVCs,
   getVCsWithGroupInfo,
-  getGroupStorages,
   getGroupsStorages,
   getStorageConfigsWithGroupInfo,
   filterExistGroups,

@@ -19,6 +19,7 @@
 const status = require('statuses');
 const createError = require('@pai/utils/error');
 const user = require('@pai/models/v2/user');
+const secret = require('@pai/models/kubernetes/k8s-secret');
 const kubernetes = require('@pai/models/kubernetes/kubernetes');
 
 
@@ -91,6 +92,21 @@ const convertVolumeDetail = async (pvc) => {
     storage.type = 'unknown';
     storage.data = {};
   }
+
+  if (storage.secretName) {
+    const secretData = await secret.get('default', storage.secretName);
+    if (storage.type === 'azureFile') {
+      storage.data.accountName = secretData.azurestorageaccountname;
+      storage.data.accountKey = secretData.azurestorageaccountkey;
+    } else if (storage.type === 'azureBlob') {
+      storage.data.accountName = secretData.accountname;
+      storage.data.accountKey = secretData.accountkey;
+    } else if (storage.type === 'samba') {
+      storage.data.username = secretData.username;
+      storage.data.password = secretData.password;
+    }
+  }
+
   return storage;
 };
 

@@ -1650,9 +1650,20 @@ components:
           - samba
           - azureFile
           - azureBlob
+          - other
           - unknown
         data:
           type: object
+          properties:
+            server: string
+            path: string
+            address: string
+            username: string
+            password: string
+            shareName: string
+            containerName: string
+            accountName: string
+            accountKey: string
         secretName:
           type: string
         mountOptions:
