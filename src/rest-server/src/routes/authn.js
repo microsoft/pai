@@ -73,7 +73,8 @@ if (authnConfig.authnMethod === 'OIDC') {
       userController.updateUserGroupListFromExternal,
       tokenController.getAAD
     );
-  router.route('/oidc/return').use( function (err, req, res, next) {
+
+  router.route('/oidc/return').use(function(err, req, res, next) {
     logger.warn(err);
     let qsData = {
       errorMessage: err.message,
