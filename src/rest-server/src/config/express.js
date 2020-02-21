@@ -65,6 +65,7 @@ app.use((req, res, next) => {
   next(createError('Not Found', 'NoApiError', `API ${req.url} is not found.`));
 });
 
+/*
 if (authnConfig.authnMethod === 'OIDC') {
   // error handler for /api/v1/authn/oidc/return
   app.use('/api/v1/authn/oidc/return', function(err, req, res, next) {
@@ -77,6 +78,7 @@ if (authnConfig.authnMethod === 'OIDC') {
     return res.redirect(redirectURI);
   });
 }
+*/
 
 // error handler
 app.use((err, req, res, next) => {
