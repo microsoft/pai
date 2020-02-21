@@ -67,7 +67,7 @@ app.use((req, res, next) => {
 
 if (authnConfig.authnMethod === 'OIDC') {
   // error handler for /api/v1/authn/oidc/return
-  app.use('/api/v1/authn/oidc/return', function (err, req, res, next) {
+  app.use('/api/v1/authn/oidc/return', function(err, req, res, next) {
     logger.warn(err);
     let qsData = {
       errorMessage: err.message,
