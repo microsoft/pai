@@ -17,6 +17,13 @@
 
 import posixpath
 import re
+import sys
+import os
+
+#pylint: disable=wrong-import-position
+sys.path.append(
+    os.path.join(os.path.dirname(os.path.abspath(__file__)), "../.."))
+from plugins.plugin_utils import try_to_install_by_cache
 
 
 class StorageHelper():
@@ -103,7 +110,10 @@ class StorageHelper():
         if phrase == "pre_mount":
             return [
                 "mkdir --parents {}".format(mount_point),
-                "apt-get install --assume-yes nfs-common",
+                try_to_install_by_cache("nfs", fallback_cmds=[
+                    "apt-get update",
+                    "apt-get install --assume-yes nfs-common",
+                ])
             ]
         if phrase in ("tmp_mount", "real_mount"):
             server_data = server_config["data"]
@@ -126,7 +136,10 @@ class StorageHelper():
         if phrase == "pre_mount":
             return [
                 "mkdir --parents {}".format(mount_point),
-                "apt-get install --assume-yes cifs-utils",
+                try_to_install_by_cache("samba", fallback_cmds=[
+                    "apt-get update",
+                    "apt-get install --assume-yes cifs-utils",
+                ])
             ]
         if phrase in ("tmp_mount", "real_mount"):
             server_data = server_config["data"]
@@ -154,10 +167,12 @@ class StorageHelper():
         if phrase == "pre_mount":
             ret = [
                 "mkdir --parents {}".format(mount_point),
-                "apt-get install --assume-yes cifs-utils",
+                try_to_install_by_cache("azurefile", fallback_cmds=[
+                    "apt-get update",
+                    "apt-get install --assume-yes cifs-utils sshpass",
+                ])
             ]
             if "proxy" in server_data and len(server_data["proxy"]) == 2:
-                ret.append("apt-get install --assume-yes sshpass")
                 proxy_info: str = server_data["proxy"][0]
                 proxy_password: str = server_data["proxy"][1]
                 proxy_ip = proxy_info if proxy_info.find(
@@ -201,6 +216,7 @@ class StorageHelper():
         cfg_file = "/{}.cfg".format(server_name)
         if phrase == "pre_mount":
             return [
+                "apt-get update",
                 "apt-get install --assume-yes wget curl lsb-release apt-transport-https",
                 "valid_release=('14.04' '15.10' '16.04' '16.10' '17.04' '17.10' '18.04' '18.10' '19.04')",
                 "release=`lsb_release -r | cut -f 2`",
