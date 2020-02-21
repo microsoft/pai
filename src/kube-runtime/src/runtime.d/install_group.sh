@@ -20,7 +20,7 @@
 PAI_WORK_DIR=/usr/local/pai
 CACHE_ROOT_DIR=${PAI_WORK_DIR}/package_cache
 
-function ubuntu_is_installed(){
+function is_ubuntu_package_installed(){
   for package in $1
   do
     dpkg -V $package &> /dev/null
@@ -49,7 +49,7 @@ fi
 if [ -d $CACHE_ROOT_DIR"/${name}-${os}" ]; then
   package_dir=$CACHE_ROOT_DIR"/${name}-${os}"
   packages=`cat ${package_dir}"/packages"`
-  ubuntu_is_installed "${packages}"
+  is_ubuntu_package_installed "${packages}"
   if [ $? -eq 0 ]; then
     echo "[package_cache] Skip installation of group ${name}."
     exit 0
@@ -59,7 +59,7 @@ if [ -d $CACHE_ROOT_DIR"/${name}-${os}" ]; then
     cat ${package_dir}"/order" | while read file; do dpkg -i ${package_dir}"/"$file".deb"; done;
     apt-get install -f
     # check if packages are installed
-    ubuntu_is_installed "${packages}"
+    is_ubuntu_package_installed "${packages}"
     if [ $? -eq 0 ]; then
       echo "[package_cache] Install group ${name} from cache ${package_dir} succeeded!"
     else
