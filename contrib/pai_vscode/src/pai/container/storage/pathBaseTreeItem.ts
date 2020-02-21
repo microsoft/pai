@@ -16,7 +16,6 @@ import {
     ICON_FILE,
     ICON_FOLDER
 } from '../../../common/constants';
-
 import { __ } from '../../../common/i18n';
 import { getSingleton } from '../../../common/singleton';
 import { Util } from '../../../common/util';
@@ -93,7 +92,7 @@ export class PathBaseTreeNode extends StorageTreeNode {
         await PathBaseStorageManager.uploadFolders(this);
     }
 
-    public async createFolder(): Promise<void> {
-        await PathBaseStorageManager.createFolder(this);
+    public async createFolder(folder?: string): Promise<void> {
+        await PathBaseStorageManager.createFolder(this, folder);
     }
 }

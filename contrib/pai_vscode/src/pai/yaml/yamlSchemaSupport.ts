@@ -6,9 +6,8 @@
 
 import * as fs from 'fs-extra';
 import * as _ from 'lodash';
-import * as vscode from 'vscode';
-
 import { parse, util, YamlDocument, YamlNode } from 'node-yaml-parser';
+import * as vscode from 'vscode';
 
 import {
     OPENPAI_SCHEMA,

@@ -53,7 +53,7 @@ export class NfsStorageManager extends Singleton {
                 switch (os.platform()) {
                     case 'win32':
                         if (!/[a-zA-Z]:/.test(val)) {
-                            Util.err('container.nfs.mount.invalid.device.name');
+                            Util.warn('container.nfs.mount.invalid.device.name');
                         }
                         break;
                     default:
@@ -79,10 +79,11 @@ export class NfsStorageManager extends Singleton {
 
     public async mountNfs(node: NfsRootNode, mountPath: string): Promise<void> {
         const server: IStorageServer = node.storageServer;
+        const mountPoint: string = node.mountPath;
         let cmdStr: string = '';
         switch (os.platform()) {
             case 'win32':
-                cmdStr = `cmd /c "mount -o anon ${server.data.address}:${server.data.rootPath} ${mountPath}"`;
+                cmdStr = `cmd /c "net use ${mountPath} \\\\${server.data.address}${mountPoint.replace(/\//g, '\\')} /P:Yes"`;
                 break;
             case 'darwin':
                 cmdStr = `sudo mkdir -p ${mountPath} && ` +

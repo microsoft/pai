@@ -26,7 +26,7 @@ paictl.py image push -p /path/to/cluster/config -n zookeeper
 
 * Manual build
 
-refer to [dockerfile](../../src/zookeeper/build/zookeeper.dockerfile).
+refer to [dockerfile](../../src/zookeeper/build/zookeeper.yarn.dockerfile).
 
 
 ### Configuration  

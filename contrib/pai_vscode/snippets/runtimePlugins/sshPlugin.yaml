@@ -1,0 +1,10 @@
+name: sshPlugin
+label: ssh
+documentation: ssh plugin
+insertText: |1
+  ssh
+   parameters:
+     jobssh: true
+     userssh:
+       type: custom
+       value: ${1:<public key>}

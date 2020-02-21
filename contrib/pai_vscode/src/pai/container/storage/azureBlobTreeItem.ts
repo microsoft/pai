@@ -203,8 +203,8 @@ export class AzureBlobTreeItem extends StorageTreeNode {
         await AzureBlobManager.uploadFolders(this);
     }
 
-    public async createFolder(): Promise<void> {
-        await AzureBlobManager.createFolder(this);
+    public async createFolder(folder?: string): Promise<void> {
+        await AzureBlobManager.createFolder(this, folder);
     }
 }
 
@@ -302,7 +302,7 @@ export class AzureBlobRootItem extends StorageTreeNode {
         await AzureBlobManager.uploadFolders(this);
     }
 
-    public async createFolder(): Promise<void> {
-        await AzureBlobManager.createFolder(this);
+    public async createFolder(folder?: string): Promise<void> {
+        await AzureBlobManager.createFolder(this, folder);
     }
 }

@@ -12,7 +12,7 @@
         },
         "password": {
             "type": "string",
-            "description": "PAI cluster password, please keep it empty if use token",
+            "description": "PAI cluster password, please remove it if use token",
             "minLength": 1
         },
         "token": {

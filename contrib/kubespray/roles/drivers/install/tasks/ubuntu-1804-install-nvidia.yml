@@ -1,0 +1,17 @@
+---
+- name: Add the drivers repository to Ubuntu
+  apt_repository:
+    repo: ppa:graphics-drivers/ppa
+    state: present
+
+- name: Run the equivalent of "apt-get update" as a separate step
+  apt:
+    update_cache: yes
+
+- name: Install nvidia-drivers-{{ nvidia_version }} on ubuntu 18.04
+  apt:
+    name: nvidia-driver-{{ nvidia_version }}
+    state: present
+
+- name: reboot vm
+  reboot:

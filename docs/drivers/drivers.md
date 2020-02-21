@@ -60,4 +60,8 @@ drivers-${version}.dockerfile
 ./paictl service start -n node-exporter
 ./paictl service start -n end-to-end-test
 ```
-
+##### 5 Restart job-exporter service
+```
+./paictl.py service stop -n job-exporter
+./paictl.py service start -n job-exporter
+```
