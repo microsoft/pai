@@ -74,7 +74,7 @@ if (authnConfig.authnMethod === 'OIDC') {
       tokenController.getAAD
     );
 
-  router.route('/oidc/return').use(function(err, req, res, next) {
+  router.use('/oidc/return', function(err, req, res, next) {
     logger.warn(err);
     let qsData = {
       errorMessage: err.message,
