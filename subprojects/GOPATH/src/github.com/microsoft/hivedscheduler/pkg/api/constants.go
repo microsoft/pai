@@ -72,6 +72,10 @@ const (
 
 	// Priority of Opportunistic Pod.
 	OpportunisticPriority = int32(-1)
+
+	FreeState = "Free"
+	UsedState = "Used"
+	BadState  = "Bad"
 )
 
 var EnvValueKubeApiServerAddress = os.Getenv("KUBE_APISERVER_ADDRESS")
@@ -96,6 +100,7 @@ const (
 	// 1. Both Binding and Bound AffinityGroups/Pods are considered as Allocated.
 	InspectPath = VersionPath + "/inspect"
 	// Inspect current allocated AffinityGroup(s)
-	AffinityGroupsPath  = InspectPath + "/affinitygroups/"
-	VirtualClustersPath = InspectPath + "/virtualclusters/"
+	AffinityGroupsPath = InspectPath + "/affinitygroups/"
+	// Inspect current cluster status
+	ClusterStatusPath = InspectPath + "/clusterstatus"
 )

@@ -159,31 +159,28 @@ type LazyPreemptionStatus struct {
 	PreemptionTime meta.Time `json:"preemptionTime"`
 }
 
-type VirtualClusterList struct {
-	Items []VirtualCluster `json:"items"`
+type ClusterStatus struct {
+	PhysicalCluster []*PhysicalCellStatus           `json:"physicalCluster"`
+	VirtualClusters map[string][]*VirtualCellStatus `json:"virtualClusters"`
 }
 
-type VirtualCluster struct {
-	ObjectMeta `json:"metadata"`
-	Status     VirtualClusterStatus `json:"status"`
+type CellStatus struct {
+	GpuType     string `json:"gpuType,omitempty"`
+	CellType    string `json:"cellType"`
+	CellAddress string `json:"cellAddress"`
+	State       string `json:"state"`
+	Priority    int32  `json:"priority"`
 }
 
-type VirtualClusterStatus struct {
-	VirtualClusterCapacity *ClusterCapacity `json:"virtualClusterCapacity"`
+type PhysicalCellStatus struct {
+	CellStatus
+	Children    []*PhysicalCellStatus `json:"children,omitempty"`
+	Vc          string                `json:"vc"`
+	VirtualCell *VirtualCellStatus    `json:"virtualCell,omitempty"`
 }
 
-type ClusterCapacity struct {
-	Total                      int32 `json:"total"`
-	GuaranteedUsage            int32 `json:"guaranteedUsage"`
-	OpportunisticUsage         int32 `json:"opportunisticUsage"`
-	RemainingCapacityBestCase  int32 `json:"remainingCapacityBestCase"`
-	RemainingCapacityWorstCase int32 `json:"remainingCapacityWorstCase"`
-}
-
-func (c *ClusterCapacity) IncreaseUsage(usage int32, isGuaranteed bool) {
-	if isGuaranteed {
-		c.GuaranteedUsage += usage
-	} else {
-		c.OpportunisticUsage += usage
-	}
+type VirtualCellStatus struct {
+	CellStatus
+	Children     []*VirtualCellStatus `json:"children,omitempty"`
+	PhysicalCell *PhysicalCellStatus  `json:"physicalCell,omitempty"`
 }

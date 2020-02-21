@@ -52,9 +52,9 @@ func (cl CellList) String() string {
 	names := make([]string, len(cl))
 	for i, c := range cl {
 		if cc, ok := c.(*PhysicalCell); ok {
-			names[i] = fmt.Sprintf("%v(%v)(%v)", cc.GetName(), cc.GetPriority(), cc.GetPhysicalPlacementString())
+			names[i] = fmt.Sprintf("%v(%v)(%v)", cc.GetAddress(), cc.GetPriority(), cc.GetPhysicalPlacementString())
 		} else {
-			names[i] = fmt.Sprintf("%v(%v)", c.GetName(), c.GetPriority())
+			names[i] = fmt.Sprintf("%v(%v)", c.GetAddress(), c.GetPriority())
 		}
 	}
 	return strings.Join(names, ", ")
@@ -70,7 +70,7 @@ func (cl CellList) remove(c Cell) CellList {
 	}
 	if index < 0 {
 		panic(fmt.Sprintf("Cell not not found in list when removing: %v",
-			c.GetName()))
+			c.GetAddress()))
 	}
 	length := len(cl)
 	cl[index] = cl[length-1]
@@ -99,7 +99,7 @@ func (ccl ChainCellList) String() string {
 
 func (ccl ChainCellList) remove(c Cell, l CellLevel) {
 	ccl[l] = ccl[l].remove(c)
-	klog.Infof("Cell removed from cell list: %v", c.GetName())
+	klog.Infof("Cell removed from cell list: %v", c.GetAddress())
 }
 
 // AlgoAffinityGroup is the algorithm-internal representation of an affinity group.

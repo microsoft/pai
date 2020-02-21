@@ -334,7 +334,7 @@ func findGpusInNode(
 		if searchGpuIndex < 0 {
 			if bestAffinity == highestLevel {
 				// Unreachable
-				panic(fmt.Sprintf("Assert Failure: failed to allocate %v GPUs in picked node %v", gpuNum, n.GetName()))
+				panic(fmt.Sprintf("Assert Failure: failed to allocate %v GPUs in picked node %v", gpuNum, n.GetAddress()))
 			}
 			availableGpus = removePickedGpus(availableGpus, bestAffinityGpuIndices)
 			return bestAffinityGpus, availableGpus
