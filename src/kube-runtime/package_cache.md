@@ -4,6 +4,8 @@ Some runtime plugins use `apt update` and `apt install ...` to install packages.
 
 Since we use kube runtime to initialize the environment before job container, it is possible to use the runtime container as a "cache" of some frequently-needed packages.
 
+Note: `Package Cache` only stores packages for systems of arch `x64`.
+
 ## How to enable cache for your plugin
 
 **1. Add packages you want to store cache for in the file [`package_cache_info`](src/package_cache/package_cache_info)**:
