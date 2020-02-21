@@ -23,8 +23,6 @@ const userController = require('@pai/controllers/v2/user');
 const tokenController = require('@pai/controllers/v2/token');
 const azureADController = require('@pai/controllers/v2/azureAD');
 const authnConfig = require('@pai/config/authn');
-const querystring = require('querystring');
-const logger = require('@pai/config/logger');
 
 const router = new express.Router();
 
@@ -55,16 +53,6 @@ if (authnConfig.authnMethod === 'OIDC') {
     .get(
       azureADController.signoutAzureAD
     );
-
-  router.use('/oidc/return', function(err, req, res, next) {
-    logger.warn(err);
-    let qsData = {
-      errorMessage: err.message,
-    };
-    let redirectURI = err.targetURI ? err.targetURI : process.env.WEBPORTAL_URL;
-    redirectURI = redirectURI + '?' + querystring.stringify(qsData);
-    return res.redirect(redirectURI);
-  });
 
   router.route('/oidc/return')
   /** GET /api/v1/authn/oidc/return - AAD AUTH RETURN */
