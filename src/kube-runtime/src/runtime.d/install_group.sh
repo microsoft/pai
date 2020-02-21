@@ -54,15 +54,21 @@ if [ -d $CACHE_ROOT_DIR"/${name}-${os}" ]; then
     echo "[package_cache] Skip installation of group ${name}."
     exit 0
   fi
-  echo "[package_cache] Install group ${name} from cache ${package_dir}."
-  cat ${package_dir}"/order" | while read file; do dpkg -i ${package_dir}"/"$file".deb"; done;
-  apt-get install -f
-  # check if packages are installed
-  ubuntu_is_successfully_installed "${packages}"
-  if [ $? -eq 0 ]; then
-    echo "[package_cache] Install group ${name} from cache ${package_dir} succeeded!"
+  if [ `getconf LONG_BIT` -eq 64 ]; then
+    echo "[package_cache] Install group ${name} from cache ${package_dir}."
+    cat ${package_dir}"/order" | while read file; do dpkg -i ${package_dir}"/"$file".deb"; done;
+    apt-get install -f
+    # check if packages are installed
+    ubuntu_is_successfully_installed "${packages}"
+    if [ $? -eq 0 ]; then
+      echo "[package_cache] Install group ${name} from cache ${package_dir} succeeded!"
+    else
+      echo "[package_cache] Install group ${name} from cache ${package_dir} failed. Fallback to apt-get."
+      apt-get update
+      apt-get install -y ${packages}
+    fi
   else
-    echo "[package_cache] Install group ${name} from cache ${package_dir} failed. Fallback to apt-get."
+    echo "[package_cache] 32-Bit OS is not supported! Fallback to apt-get."
     apt-get update
     apt-get install -y ${packages}
   fi
