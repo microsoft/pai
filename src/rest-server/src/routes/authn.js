@@ -23,6 +23,8 @@ const userController = require('@pai/controllers/v2/user');
 const tokenController = require('@pai/controllers/v2/token');
 const azureADController = require('@pai/controllers/v2/azureAD');
 const authnConfig = require('@pai/config/authn');
+const querystring = require('querystring');
+const logger = require('@pai/config/logger');
 
 const router = new express.Router();
 

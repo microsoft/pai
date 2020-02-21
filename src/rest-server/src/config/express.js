@@ -29,8 +29,6 @@ const swaggerUi = require('swagger-ui-express');
 const config = require('@pai/config');
 const logger = require('@pai/config/logger');
 const createError = require('@pai/utils/error');
-const authnConfig = require('@pai/config/authn');
-const querystring = require('querystring');
 const routers = {
   v1: require('@pai/routes/index'),
   v2: require('@pai/routes/v2/index'),
@@ -74,20 +72,6 @@ app.use((err, req, res, next) => {
     stack: config.env === 'development' ? err.stack.split('\n') : void 0,
   });
 });
-
-
-if (authnConfig.authnMethod === 'OIDC') {
-  // error handler for /api/v1/authn/oidc/return
-  app.use('/api/v1/authn/oidc/return', (err, req, res, next) => {
-    logger.warn(err);
-    let qsData = {
-      errorMessage: err.message,
-    };
-    let redirectURI = err.targetURI ? err.targetURI : process.env.WEBPORTAL_URL;
-    redirectURI = redirectURI + '?' + querystring.stringify(qsData);
-    return res.redirect(redirectURI);
-  });
-}
 
 // module exports
 module.exports = app;
