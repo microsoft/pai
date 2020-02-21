@@ -20,7 +20,7 @@
 PAI_WORK_DIR=/usr/local/pai
 CACHE_ROOT_DIR=${PAI_WORK_DIR}/package_cache
 
-ubuntu_is_successfully_installed(){
+function ubuntu_is_successfully_installed(){
   for package in $1
   do
     dpkg -l $package &> /dev/null
@@ -63,7 +63,6 @@ if [ -d $CACHE_ROOT_DIR"/${name}-${os}" ]; then
     echo "[package_cache] Install group ${name} from cache ${package_dir} succeeded!"
   else
     echo "[package_cache] Install group ${name} from cache ${package_dir} failed. Fallback to apt-get."
-    /bin/bash ${package_dir}"/precommands.sh"
     apt-get update
     apt-get install -y ${packages}
   fi

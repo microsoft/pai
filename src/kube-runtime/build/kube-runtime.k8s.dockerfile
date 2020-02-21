@@ -15,17 +15,7 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-
-FROM golang:1.12.6-alpine as builder
-
-ENV PROJECT_DIR=${GOPATH}/src/github.com/microsoft/runtime
-ENV INSTALL_DIR=/opt/kube-runtime
-
-RUN apk update && apk add --no-cache bash && \
-  mkdir -p ${PROJECT_DIR} ${INSTALL_DIR}
-COPY GOPATH/src/github.com/microsoft/runtime/ ${PROJECT_DIR}
-RUN ${PROJECT_DIR}/build/runtime/go-build.sh && \
-  mv ${PROJECT_DIR}/dist/runtime/ ${INSTALL_DIR}
+# Package Cache Data Layer Starts
 
 FROM ubuntu:16.04 as ubuntu_16_04_cache
 
@@ -42,6 +32,18 @@ COPY src/package_cache ./
 RUN chmod -R +x ./
 RUN /bin/bash ubuntu_build.sh package_cache_info ubuntu18.04
 
+# Package Cache Data Layer Ends
+
+FROM golang:1.12.6-alpine as builder
+
+ENV PROJECT_DIR=${GOPATH}/src/github.com/microsoft/runtime
+ENV INSTALL_DIR=/opt/kube-runtime
+
+RUN apk update && apk add --no-cache bash && \
+  mkdir -p ${PROJECT_DIR} ${INSTALL_DIR}
+COPY GOPATH/src/github.com/microsoft/runtime/ ${PROJECT_DIR}
+RUN ${PROJECT_DIR}/build/runtime/go-build.sh && \
+  mv ${PROJECT_DIR}/dist/runtime/ ${INSTALL_DIR}
 
 FROM python:3.7-alpine
 
