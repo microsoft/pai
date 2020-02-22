@@ -246,9 +246,8 @@ func (h *HivedAlgorithm) DeleteAllocatedPod(pod *core.Pod) {
 			klog.Infof("[%v]: gang release NOT enabled for group %v, releasing resources for this pod",
 				internal.Key(pod), s.AffinityGroup.Name)
 			for _, gpu := range group.physicalGpuPlacement[s.GpuNumber][podIndex] {
-				if gpu != nil {
-					pGpu := gpu.(*PhysicalCell)
-					h.confirmReleasedGpu(pGpu, group)
+				if gpu != nil && gpu.GetPriority() != freePriority {
+					h.confirmReleasedGpu(gpu.(*PhysicalCell), group)
 				}
 			}
 		}
@@ -257,13 +256,12 @@ func (h *HivedAlgorithm) DeleteAllocatedPod(pod *core.Pod) {
 			if group.gangReleaseEnable {
 				klog.Infof("[%v]: gang release enabled for group %v, releasing resources for all the pods",
 					internal.Key(pod), s.AffinityGroup.Name)
-				for _, podPlacements := range group.physicalGpuPlacement {
-					for _, podPlacement := range podPlacements {
-						for _, gpu := range podPlacement {
-							if gpu != nil {
-								pGpu := gpu.(*PhysicalCell)
-								h.confirmReleasedGpu(pGpu, group)
-							}
+			}
+			for _, podPlacements := range group.physicalGpuPlacement {
+				for _, podPlacement := range podPlacements {
+					for _, gpu := range podPlacement {
+						if gpu != nil && gpu.GetPriority() != freePriority {
+							h.confirmReleasedGpu(gpu.(*PhysicalCell), group)
 						}
 					}
 				}
@@ -397,6 +395,7 @@ func (h *HivedAlgorithm) initReservations() {
 
 // watchNodes periodically checks the healthiness of nodes.
 func (h *HivedAlgorithm) watchNodes() {
+	defer h.algorithmLock.RUnlock()
 	for {
 		h.algorithmLock.RLock()
 		h.watchHealthyNodes()
@@ -802,8 +801,10 @@ func (h *HivedAlgorithm) confirmAllocatedGpu(
 	} else {
 		setPriority(pGpu, opportunisticPriority)
 		updateUsedGpuNumAtPriority(pGpu, opportunisticPriority, true)
-		h.clusterStatus.VirtualClusters[string(g.vc)] = append(
-			h.clusterStatus.VirtualClusters[string(g.vc)], api.GenerateOpporVirtualCell(pGpu.GetStatus()))
+		vc := string(g.vc)
+		pGpu.GetStatus().Vc = vc
+		h.clusterStatus.VirtualClusters[vc] = append(
+			h.clusterStatus.VirtualClusters[vc], api.GenerateOpporVirtualCell(pGpu.GetStatus()))
 	}
 	pGpu.AddAffinityGroup(g)
 }
@@ -824,7 +825,7 @@ func (h *HivedAlgorithm) confirmReleasedGpu(pGpu *PhysicalCell, g *AlgoAffinityG
 		var opporVirtualCellIdx int32
 		vc := string(g.vc)
 		for i, ovc := range h.clusterStatus.VirtualClusters[vc] {
-			if ovc.PhysicalCell.CellAddress == pGpu.GetAddress() {
+			if ovc.PhysicalCell != nil && ovc.PhysicalCell.CellAddress == pGpu.GetAddress() {
 				opporVirtualCellIdx = int32(i)
 				break
 			}
@@ -833,9 +834,10 @@ func (h *HivedAlgorithm) confirmReleasedGpu(pGpu *PhysicalCell, g *AlgoAffinityG
 		h.clusterStatus.VirtualClusters[vc][opporVirtualCellIdx] = h.clusterStatus.VirtualClusters[vc][novc-1]
 		h.clusterStatus.VirtualClusters[vc][novc-1] = nil
 		h.clusterStatus.VirtualClusters[vc] = h.clusterStatus.VirtualClusters[vc][:novc-1]
+		pGpu.GetStatus().Vc = ""
 	}
-	updateUsedGpuNumAtPriority(pGpu, pGpu.GetPriority(), false)
 	setPriority(pGpu, freePriority)
+	updateUsedGpuNumAtPriority(pGpu, pGpu.GetPriority(), false)
 	pGpu.DeleteAffinityGroup(g)
 }
 
