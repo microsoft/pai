@@ -58,8 +58,6 @@ type HivedAlgorithm struct {
 	allocatedAffinityGroups map[string]*AlgoAffinityGroup
 	// all reserved physical cells (VC -> reservation ID -> cells)
 	reservedCells map[api.VirtualClusterName]map[api.ReservationId]*PhysicalCell
-	// number of failed GPUs in the cluster
-	failedGpuNum int32
 	// cluster status (exposed to users in .json format)
 	clusterStatus api.ClusterStatus
 	// lock
@@ -113,10 +111,6 @@ func (h *HivedAlgorithm) DeleteNode(node *core.Node) {
 			nodes, _ := pGpu.GetPhysicalPlacement()
 			if nodes[0] == node.Name {
 				setBad(pGpu)
-				pGpu.SetHealthy(false)
-				if pGpu.GetAffinityGroup() == nil {
-					h.failedGpuNum++
-				}
 			}
 		}
 	}
@@ -205,9 +199,6 @@ func (h *HivedAlgorithm) AddAllocatedPod(pod *core.Pod) {
 					if pGpu == nil {
 						continue
 					} else if pGpu.GetAffinityGroup() == nil {
-						if !pGpu.IsHealthy() {
-							h.failedGpuNum--
-						}
 						if vGpu != nil && vGpu.GetPhysicalCell() != nil {
 							groupToPreempt := vGpu.GetPhysicalCell().GetAffinityGroup()
 							h.lazyPreemptAffinityGroup(groupToPreempt, group.name)
@@ -253,9 +244,6 @@ func (h *HivedAlgorithm) DeleteAllocatedPod(pod *core.Pod) {
 			for _, gpu := range group.physicalGpuPlacement[s.GpuNumber][podIndex] {
 				if gpu != nil {
 					pGpu := gpu.(*PhysicalCell)
-					if !pGpu.IsHealthy() {
-						h.failedGpuNum++
-					}
 					h.confirmReleasedGpu(pGpu, group)
 				}
 			}
@@ -270,9 +258,6 @@ func (h *HivedAlgorithm) DeleteAllocatedPod(pod *core.Pod) {
 						for _, gpu := range podPlacement {
 							if gpu != nil {
 								pGpu := gpu.(*PhysicalCell)
-								if !pGpu.IsHealthy() {
-									h.failedGpuNum++
-								}
 								h.confirmReleasedGpu(pGpu, group)
 							}
 						}
@@ -613,7 +598,6 @@ func (h *HivedAlgorithm) getTmpFreeCellList(chain CellChain) ChainCellList {
 func (h *HivedAlgorithm) createAllocatedAffinityGroup(pod *core.Pod, s *api.PodSchedulingSpec, info *api.PodBindInfo) {
 	newGroup := newAlgoAffinityGroup(s.AffinityGroup, s.VirtualCluster, s.GangReleaseEnable, s.LazyPreemptionEnable)
 	shouldLazyPreempt := false
-	usage := int32(0)
 	for _, gms := range info.AffinityGroupBindInfo {
 		gpuNumber := int32(len(gms.PodPlacements[0].PhysicalGpuIndices))
 		for podIndex := int32(0); podIndex < int32(len(gms.PodPlacements)); podIndex++ {
@@ -632,10 +616,6 @@ func (h *HivedAlgorithm) createAllocatedAffinityGroup(pod *core.Pod, s *api.PodS
 					// otherwise it may cause resource conflicts)
 					continue
 				} else {
-					usage++
-					if !pGpu.IsHealthy() {
-						h.failedGpuNum--
-					}
 					newGroup.physicalGpuPlacement[gpuNumber][podIndex][gpuIndex] = pGpu
 					if lazyPreempt == nil {
 						newGroup.virtualGpuPlacement = nil
@@ -747,26 +727,16 @@ func (h *HivedAlgorithm) confirmAllocatedGpu(
 			// remove the allocated cell from the free list (possibly splitting cells)
 			h.removeCellFromFreeList(vGpu.GetPreAssignedCell().GetPhysicalCell())
 		}
-		setPriorityAndState(vGpu, p)
+		setPriority(vGpu, p)
 		updateUsedGpuNumAtPriority(vGpu, p, true)
-		vGpu.GetStatus().State = api.UsedState
 	} else {
 		physicalPriority = opportunisticPriority
+		h.clusterStatus.VirtualClusters[string(g.vc)] = append(
+			h.clusterStatus.VirtualClusters[string(g.vc)], api.GenerateOpporVirtualCell(pGpu.GetStatus()))
 	}
-	setPriorityAndState(pGpu, physicalPriority)
+	setPriority(pGpu, physicalPriority)
 	updateUsedGpuNumAtPriority(pGpu, physicalPriority, true)
 	pGpu.AddAffinityGroup(g)
-	pGpu.GetStatus().State = api.UsedState
-}
-
-// getPodIndex finds the index of a pod in its group according to its placement.
-func getPodIndex(podPlacements []api.PodPlacementInfo, node string, gpuIndex int32) int32 {
-	for podIndex, placement := range podPlacements {
-		if placement.PhysicalNode == node && common.Int32SliceContains(placement.PhysicalGpuIndices, gpuIndex) {
-			return int32(podIndex)
-		}
-	}
-	return -1
 }
 
 // confirmReleasedGpu destroys the cell bindings, adds the physical cell back to the free list
@@ -780,11 +750,34 @@ func (h *HivedAlgorithm) confirmReleasedGpu(pGpu *PhysicalCell, g *AlgoAffinityG
 			h.addCellToFreeList(preassignedPhysical)
 		}
 		updateUsedGpuNumAtPriority(vGpu, vGpu.GetPriority(), false)
-		setPriorityAndState(vGpu, freePriority)
+		setPriority(vGpu, freePriority)
+	} else {
+		var opporVirtualCellIdx int32
+		vc := string(g.vc)
+		for i, ovc := range h.clusterStatus.VirtualClusters[vc] {
+			if ovc.PhysicalCell.CellAddress == pGpu.GetAddress() {
+				opporVirtualCellIdx = int32(i)
+				break
+			}
+		}
+		novc := len(h.clusterStatus.VirtualClusters[vc])
+		h.clusterStatus.VirtualClusters[vc][opporVirtualCellIdx] = h.clusterStatus.VirtualClusters[vc][novc-1]
+		h.clusterStatus.VirtualClusters[vc][novc-1] = nil
+		h.clusterStatus.VirtualClusters[vc] = h.clusterStatus.VirtualClusters[vc][:novc-1]
 	}
 	updateUsedGpuNumAtPriority(pGpu, pGpu.GetPriority(), false)
-	setPriorityAndState(pGpu, freePriority)
+	setPriority(pGpu, freePriority)
 	pGpu.DeleteAffinityGroup(g)
+}
+
+// getPodIndex finds the index of a pod in its group according to its placement.
+func getPodIndex(podPlacements []api.PodPlacementInfo, node string, gpuIndex int32) int32 {
+	for podIndex, placement := range podPlacements {
+		if placement.PhysicalNode == node && common.Int32SliceContains(placement.PhysicalGpuIndices, gpuIndex) {
+			return int32(podIndex)
+		}
+	}
+	return -1
 }
 
 // lazyPreemptAffinityGroup removes an affinity group from its VC, clears it virtual placement,
@@ -1329,20 +1322,15 @@ func unbindCell(c *PhysicalCell) {
 	}
 }
 
-// setPriorityAndState sets priority and state for a cell and its parent recursively, guaranteeing that
+// setPriority sets priority and state for a cell and its parent recursively, guaranteeing that
 // (i) the priority of a cell is the max of those of its children.
 // (ii) a cell is in "Used" state if any of its children is "Used", otherwise "Free".
-func setPriorityAndState(c Cell, p CellPriority) {
+func setPriority(c Cell, p CellPriority) {
 	originalPriority := c.GetPriority()
 	c.SetPriority(p)
-	if p == freePriority {
-		c.SetState(api.FreeState)
-	} else {
-		c.SetState(api.UsedState)
-	}
 	if parent := c.GetParent(); parent != nil {
 		if p > parent.GetPriority() {
-			setPriorityAndState(parent, p)
+			setPriority(parent, p)
 		} else if originalPriority == parent.GetPriority() && p < originalPriority {
 			maxBuddyPriority := freePriority
 			for _, buddy := range parent.GetChildren() {
@@ -1350,7 +1338,7 @@ func setPriorityAndState(c Cell, p CellPriority) {
 					maxBuddyPriority = buddy.GetPriority()
 				}
 			}
-			setPriorityAndState(parent, maxBuddyPriority)
+			setPriority(parent, maxBuddyPriority)
 		}
 	}
 }

@@ -160,22 +160,30 @@ type LazyPreemptionStatus struct {
 }
 
 type ClusterStatus struct {
-	PhysicalCluster []*PhysicalCellStatus           `json:"physicalCluster"`
+	// Status of cells in the physical cluster
+	PhysicalCluster []*PhysicalCellStatus `json:"physicalCluster"`
+	// Status of cells in each VC
 	VirtualClusters map[string][]*VirtualCellStatus `json:"virtualClusters"`
 }
 
 type CellStatus struct {
-	GpuType     string `json:"gpuType,omitempty"`
-	CellType    string `json:"cellType"`
+	GpuType  string `json:"gpuType,omitempty"`
+	CellType string `json:"cellType"`
+	// Address of a physical cell consists of its address (or index) in each level
+	// (e.g., node0/0/0/0 may represent node0, CPU socket 0, PCIe switch 0, GPU 0.
+	// Address of a virtual cell consists of its VC name, index of the preassigned cell,
+	// and the relative index in each level inside the preassigned cell
+	// (e.g., VC1/0/0 may represent VC1, preassigned cell 0, index 0 among its children)
 	CellAddress string `json:"cellAddress"`
-	State       string `json:"state"`
-	Priority    int32  `json:"priority"`
+	// State can be one of "Free", "Used", and "Bad"
+	State    string `json:"state"`
+	Priority int32  `json:"priority"`
 }
 
 type PhysicalCellStatus struct {
 	CellStatus
 	Children    []*PhysicalCellStatus `json:"children,omitempty"`
-	Vc          string                `json:"vc"`
+	Vc          string                `json:"vc,omitempty"`
 	VirtualCell *VirtualCellStatus    `json:"virtualCell,omitempty"`
 }
 
@@ -183,4 +191,18 @@ type VirtualCellStatus struct {
 	CellStatus
 	Children     []*VirtualCellStatus `json:"children,omitempty"`
 	PhysicalCell *PhysicalCellStatus  `json:"physicalCell,omitempty"`
+}
+
+func GenerateOpporVirtualCell(pc *PhysicalCellStatus) *VirtualCellStatus {
+	vc := &VirtualCellStatus{
+		CellStatus: CellStatus{
+			GpuType:     pc.GpuType,
+			CellType:    pc.CellType,
+			CellAddress: pc.CellAddress + "-opp",
+			State:       UsedState,
+			Priority:    OpportunisticPriority,
+		},
+		PhysicalCell: pc,
+	}
+	return vc
 }

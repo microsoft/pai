@@ -40,7 +40,6 @@ type Cell interface {
 	SetParent(Cell)
 	GetChildren() CellList
 	SetChildren(CellList)
-	SetState(string)
 	AtOrHigherThanNode() bool
 
 	GetTotalGpuNum() int32
@@ -126,7 +125,6 @@ type PhysicalCell struct {
 	preBoundVirtualCell *VirtualCell            // points to the temporarily bound virtual cell (before the binding is confirmed)
 	split               bool                    // true when the cell has been split
 	reserved            bool                    // true when this is a reserved cell
-	healthy             bool                    // true when the cell is running normally (failed otherwise)
 	status              *api.PhysicalCellStatus // json representation of the status of this cell to expose to users
 }
 
@@ -141,7 +139,6 @@ func NewPhysicalCell(c CellChain, l CellLevel, g bool, n int32, cellType string,
 			totalGpuNum:            n,
 			usedGpuNumAtPriorities: map[CellPriority]int32{},
 		},
-		healthy: true,
 		status: &api.PhysicalCellStatus{
 			CellStatus: api.CellStatus{
 				CellType:    cellType,
@@ -156,6 +153,11 @@ func NewPhysicalCell(c CellChain, l CellLevel, g bool, n int32, cellType string,
 func (c *PhysicalCell) SetPriority(p CellPriority) {
 	c.priority = p
 	c.status.Priority = int32(p)
+	if p == freePriority {
+		c.status.State = api.FreeState
+	} else {
+		c.status.State = api.UsedState
+	}
 }
 
 func (c *PhysicalCell) SetChildren(children CellList) {
@@ -164,10 +166,6 @@ func (c *PhysicalCell) SetChildren(children CellList) {
 		child := cc.(*PhysicalCell)
 		c.status.Children = append(c.status.Children, child.status)
 	}
-}
-
-func (c *PhysicalCell) SetState(state string) {
-	c.status.State = state
 }
 
 func (c *PhysicalCell) GetPhysicalPlacement() ([]string, []int32) {
@@ -246,14 +244,6 @@ func (c *PhysicalCell) SetReserved(reserved bool) {
 	c.reserved = reserved
 }
 
-func (c *PhysicalCell) IsHealthy() bool {
-	return c.healthy
-}
-
-func (c *PhysicalCell) SetHealthy(healthy bool) {
-	c.healthy = healthy
-}
-
 func (c *PhysicalCell) GetStatus() *api.PhysicalCellStatus {
 	return c.status
 }
@@ -310,6 +300,11 @@ func NewVirtualCell(
 func (c *VirtualCell) SetPriority(p CellPriority) {
 	c.priority = p
 	c.status.Priority = int32(p)
+	if p == freePriority {
+		c.status.State = api.FreeState
+	} else {
+		c.status.State = api.UsedState
+	}
 }
 
 func (c *VirtualCell) SetChildren(children CellList) {
@@ -318,10 +313,6 @@ func (c *VirtualCell) SetChildren(children CellList) {
 		child := cc.(*VirtualCell)
 		c.status.Children = append(c.status.Children, child.status)
 	}
-}
-
-func (c *VirtualCell) SetState(state string) {
-	c.status.State = state
 }
 
 func (c *VirtualCell) SetReservation(rid api.ReservationId) {
