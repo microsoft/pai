@@ -374,7 +374,7 @@ var allocatedPods []*core.Pod
 func TestHivedAlgorithm(t *testing.T) {
 	configFilePath := "../../example/config/design/hivedscheduler.yaml"
 	sConfig := api.NewConfig(api.InitRawConfig(&configFilePath))
-	h := NewHivedAlgorithm(sConfig)
+	h := NewHivedAlgorithm(sConfig, nil)
 	initNodes(h)
 	// sort chains of each GPU type for stability of the test
 	for _, chains := range h.chains {
@@ -486,7 +486,7 @@ func testDeleteAllocatedPods(t *testing.T, h *HivedAlgorithm) {
 
 func testReconfiguration(t *testing.T, configFilePath string) {
 	oldConfig := api.NewConfig(api.InitRawConfig(&configFilePath))
-	h := NewHivedAlgorithm(oldConfig)
+	h := NewHivedAlgorithm(oldConfig, nil)
 	for _, chains := range h.chains {
 		sortChains(chains)
 	}
@@ -511,7 +511,7 @@ func testReconfiguration(t *testing.T, configFilePath string) {
 	(*newConfig.PhysicalCluster).PhysicalCells = append((*newConfig.PhysicalCluster).PhysicalCells, originalCell.CellChildren[0].CellChildren[1])
 	(*newConfig.PhysicalCluster).PhysicalCells = append((*newConfig.PhysicalCluster).PhysicalCells, originalCell.CellChildren[1].CellChildren[0])
 	(*newConfig.PhysicalCluster).PhysicalCells = append((*newConfig.PhysicalCluster).PhysicalCells, originalCell.CellChildren[1].CellChildren[1])
-	h = NewHivedAlgorithm(newConfig)
+	h = NewHivedAlgorithm(newConfig, nil)
 	for _, chains := range h.chains {
 		sortChains(chains)
 	}
@@ -539,7 +539,7 @@ func testInvalidInitialAssignment(t *testing.T, sConfig *api.Config) {
 	(*sConfig.VirtualClusters)["VC1"].VirtualCells[0].CellType = "CT1-NODE"
 	(*sConfig.VirtualClusters)["VC1"].VirtualCells[1].CellType = "CT1-NODE.CT1"
 	(*sConfig.VirtualClusters)["VC1"].VirtualCells[1].CellNumber = 2
-	NewHivedAlgorithm(sConfig)
+	NewHivedAlgorithm(sConfig, nil)
 }
 
 func compareGpuIsolation(a []int32, b []int32) bool {

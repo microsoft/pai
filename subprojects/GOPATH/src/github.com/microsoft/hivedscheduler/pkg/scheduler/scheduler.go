@@ -145,7 +145,7 @@ func NewHivedScheduler() *HivedScheduler {
 		podLister:           podLister,
 		schedulerLock:       &sync.RWMutex{},
 		podScheduleStatuses: internal.PodScheduleStatuses{},
-		schedulerAlgorithm:  algorithm.NewHivedAlgorithm(sConfig),
+		schedulerAlgorithm:  algorithm.NewHivedAlgorithm(sConfig, nodeLister),
 	}
 
 	// Setup Informer Callbacks

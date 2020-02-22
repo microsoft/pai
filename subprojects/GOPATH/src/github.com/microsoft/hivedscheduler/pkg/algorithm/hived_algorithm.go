@@ -29,11 +29,13 @@ import (
 	"github.com/microsoft/hivedscheduler/pkg/internal"
 	core "k8s.io/api/core/v1"
 	meta "k8s.io/apimachinery/pkg/apis/meta/v1"
+	coreLister "k8s.io/client-go/listers/core/v1"
 	"k8s.io/klog"
 	"math"
 	"math/rand"
 	"strings"
 	"sync"
+	"time"
 )
 
 // HivedAlgorithm implements an internal.SchedulerAlgorithm. It schedules pods using the algorithm of HiveD.
@@ -60,12 +62,18 @@ type HivedAlgorithm struct {
 	reservedCells map[api.VirtualClusterName]map[api.ReservationId]*PhysicalCell
 	// cluster status (exposed to users in .json format)
 	clusterStatus api.ClusterStatus
+	// node lister to track the status of nodes
+	nodeLister coreLister.NodeLister
+	// healthy nodes in the cluster
+	healthyNodes []string
+	// bad nodes in the cluster
+	badNodes []string
 	// lock
 	algorithmLock sync.RWMutex
 }
 
 // NewHivedAlgorithm initializes a HivedAlgorithm from the config file
-func NewHivedAlgorithm(sConfig *api.Config) *HivedAlgorithm {
+func NewHivedAlgorithm(sConfig *api.Config, nl coreLister.NodeLister) *HivedAlgorithm {
 	pcl, gpuNums, gpuTypeToChain, cellLevelToType, nonReservedVcl, reservedVcl, reservedPc := ParseConfig(sConfig)
 	h := &HivedAlgorithm{
 		vcSchedulers:            make(map[api.VirtualClusterName]intraVCScheduler),
@@ -81,6 +89,7 @@ func NewHivedAlgorithm(sConfig *api.Config) *HivedAlgorithm {
 			PhysicalCluster: []*api.PhysicalCellStatus{},
 			VirtualClusters: map[string][]*api.VirtualCellStatus{},
 		},
+		nodeLister: nl,
 	}
 	for vcName := range nonReservedVcl {
 		// TODO: Support per-VC configurable intra VC scheduling algo.
@@ -93,11 +102,14 @@ func NewHivedAlgorithm(sConfig *api.Config) *HivedAlgorithm {
 	h.initClusterStatus()
 	h.initFreeCellList()
 	h.initReservations()
+	if h.nodeLister != nil {
+		go h.watchNodes()
+	}
 	return h
 }
 
 func (h *HivedAlgorithm) AddNode(node *core.Node) {
-	// TODO
+	h.healthyNodes = append(h.healthyNodes, node.Name)
 }
 
 func (h *HivedAlgorithm) UpdateNode(oldNode, newNode *core.Node) {
@@ -105,15 +117,7 @@ func (h *HivedAlgorithm) UpdateNode(oldNode, newNode *core.Node) {
 }
 
 func (h *HivedAlgorithm) DeleteNode(node *core.Node) {
-	for _, ccl := range h.fullCellList {
-		for _, gpu := range ccl[1] {
-			pGpu := gpu.(*PhysicalCell)
-			nodes, _ := pGpu.GetPhysicalPlacement()
-			if nodes[0] == node.Name {
-				setBad(pGpu)
-			}
-		}
-	}
+	// TODO
 }
 
 func (h *HivedAlgorithm) Schedule(pod *core.Pod, suggestedNodes []string) internal.PodScheduleResult {
@@ -389,6 +393,71 @@ func (h *HivedAlgorithm) initReservations() {
 			bindCell(physical, virtual)
 		}
 	}
+}
+
+// watchNodes periodically checks the healthiness of nodes.
+func (h *HivedAlgorithm) watchNodes() {
+	for {
+		h.algorithmLock.RLock()
+		h.watchHealthyNodes()
+		h.watchBadNodes()
+		h.algorithmLock.RUnlock()
+		time.Sleep(time.Duration(internal.WatchNodesInternal) * time.Second)
+	}
+}
+
+// watchHealthyNodes checks the healthiness of nodes. If a bad node is found,
+// it will be added to the bad nodes, and the cells in it will be marked as bad.
+func (h *HivedAlgorithm) watchHealthyNodes() {
+	var badNodeIndices []int32
+	for i, n := range h.healthyNodes {
+		if _, err := h.nodeLister.Get(n); err != nil {
+			badNodeIndices = append(badNodeIndices, int32(i))
+			for _, ccl := range h.fullCellList {
+				for _, gpu := range ccl[1] {
+					pGpu := gpu.(*PhysicalCell)
+					nodes, _ := pGpu.GetPhysicalPlacement()
+					if nodes[0] == n {
+						setBad(pGpu)
+					}
+				}
+			}
+		}
+	}
+	oriHealthyNodeNum := len(h.healthyNodes)
+	for i, bni := range badNodeIndices {
+		h.badNodes = append(h.badNodes, h.healthyNodes[bni])
+		h.healthyNodes[bni] = h.healthyNodes[oriHealthyNodeNum-1-i]
+		h.healthyNodes[oriHealthyNodeNum-1-i] = ""
+	}
+	h.healthyNodes = h.healthyNodes[:oriHealthyNodeNum-len(badNodeIndices)]
+}
+
+// watchBadNodes checks the healthiness of bad nodes. If a bad node is found to be healthy again,
+// it will be added to the healthy nodes, and the cells in it will be marked as healthy.
+func (h *HivedAlgorithm) watchBadNodes() {
+	var healthyNodeIndices []int32
+	for i, n := range h.badNodes {
+		if _, err := h.nodeLister.Get(n); err == nil {
+			healthyNodeIndices = append(healthyNodeIndices, int32(i))
+			for _, ccl := range h.fullCellList {
+				for _, gpu := range ccl[1] {
+					pGpu := gpu.(*PhysicalCell)
+					nodes, _ := pGpu.GetPhysicalPlacement()
+					if nodes[0] == n {
+						setHealthy(pGpu)
+					}
+				}
+			}
+		}
+	}
+	oriBadNodeNum := len(h.badNodes)
+	for i, hni := range healthyNodeIndices {
+		h.healthyNodes = append(h.healthyNodes, h.badNodes[hni])
+		h.badNodes[hni] = h.badNodes[oriBadNodeNum-1-i]
+		h.badNodes[oriBadNodeNum-1-i] = ""
+	}
+	h.badNodes = h.badNodes[:oriBadNodeNum-len(healthyNodeIndices)]
 }
 
 // scheduleNewAffinityGroup schedules each pod of a new affinity group to a set of GPUs
@@ -1344,12 +1413,14 @@ func setPriority(c Cell, p CellPriority) {
 }
 
 // setBad marks a physical cell as bad and recursively for its parent, guaranteeing that
-// a cell is bad if all of its children are bad. The virtual cell that this phycial cell
+// a cell is bad if all of its children are bad. The virtual cell that this physical cell
 // is bound to will also be marked as bad.
 func setBad(c *PhysicalCell) {
 	c.GetStatus().State = api.BadState
 	if c.virtualCell != nil {
 		c.virtualCell.GetStatus().State = api.BadState
+		c.virtualCell.GetStatus().PhysicalCell.State = api.BadState
+		c.GetStatus().VirtualCell.State = api.BadState
 	}
 	if parent := c.GetParent(); parent != nil {
 		for _, buddy := range parent.GetChildren() {
@@ -1358,6 +1429,27 @@ func setBad(c *PhysicalCell) {
 			}
 		}
 		setBad(parent.(*PhysicalCell))
+	}
+}
+
+// setHealthy marks a physical cell as healthy and recursively for its parent, guaranteeing that
+// a cell is healthy if any of its children is healthy. The virtual cell that this physical cell
+// is bound to will also be marked as healthy.
+func setHealthy(c *PhysicalCell) {
+	newState := api.FreeState
+	if c.GetPriority() != freePriority {
+		newState = api.UsedState
+	}
+	c.GetStatus().State = newState
+	if c.virtualCell != nil {
+		c.virtualCell.GetStatus().State = newState
+		c.virtualCell.GetStatus().PhysicalCell.State = newState
+		c.GetStatus().VirtualCell.State = newState
+	}
+	if parent := c.GetParent(); parent != nil {
+		if pp := parent.(*PhysicalCell); pp.GetStatus().State == api.BadState {
+			setHealthy(pp)
+		}
 	}
 }
 
