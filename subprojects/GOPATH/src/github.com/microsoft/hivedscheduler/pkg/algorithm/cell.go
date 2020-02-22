@@ -153,10 +153,14 @@ func NewPhysicalCell(c CellChain, l CellLevel, g bool, n int32, cellType string,
 func (c *PhysicalCell) SetPriority(p CellPriority) {
 	c.priority = p
 	c.status.Priority = int32(p)
+	state := api.UsedState
 	if p == freePriority {
-		c.status.State = api.FreeState
-	} else {
-		c.status.State = api.UsedState
+		state = api.FreeState
+	}
+	c.status.State = state
+	if c.status.VirtualCell != nil {
+		c.status.VirtualCell.Priority = int32(p)
+		c.status.VirtualCell.State = state
 	}
 }
 
@@ -300,10 +304,14 @@ func NewVirtualCell(
 func (c *VirtualCell) SetPriority(p CellPriority) {
 	c.priority = p
 	c.status.Priority = int32(p)
+	state := api.UsedState
 	if p == freePriority {
-		c.status.State = api.FreeState
-	} else {
-		c.status.State = api.UsedState
+		state = api.FreeState
+	}
+	c.status.State = state
+	if c.status.PhysicalCell != nil {
+		c.status.PhysicalCell.Priority = int32(p)
+		c.status.PhysicalCell.State = state
 	}
 }
 
