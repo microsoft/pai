@@ -307,7 +307,12 @@ func (c *virtualCellConstructor) buildChildCell(ct api.CellType, address string)
 	}
 	var currentCellChildren CellList
 	splitAddress := strings.Split(address, "/")
-	offset := common.StringToInt32(splitAddress[len(splitAddress)-1]) * ce.childNumber
+	var offset int32
+	if len(splitAddress) == 2 {
+		offset = 0 // offset starts from 0 for each preassigned cell in a VC
+	} else {
+		offset = common.StringToInt32(splitAddress[len(splitAddress)-1]) * ce.childNumber
+	}
 	for i := int32(0); i < ce.childNumber; i++ {
 		childCellInstance := c.buildChildCell(ce.childCellType, fmt.Sprintf("%v/%v", address, offset+i))
 		childCellInstance.SetParent(cellInstance)

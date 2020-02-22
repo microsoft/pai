@@ -719,23 +719,23 @@ func (h *HivedAlgorithm) confirmAllocatedGpu(
 	p CellPriority,
 	g *AlgoAffinityGroup) {
 
-	physicalPriority := p
 	if vGpu != nil {
+		setPriority(vGpu, p)
+		updateUsedGpuNumAtPriority(vGpu, p, true)
+		setPriority(pGpu, p)
+		updateUsedGpuNumAtPriority(pGpu, p, true)
 		preassignedNewlyBound := vGpu.GetPreAssignedCell().GetPhysicalCell() == nil
 		bindCell(pGpu, vGpu)
 		if preassignedNewlyBound {
 			// remove the allocated cell from the free list (possibly splitting cells)
 			h.removeCellFromFreeList(vGpu.GetPreAssignedCell().GetPhysicalCell())
 		}
-		setPriority(vGpu, p)
-		updateUsedGpuNumAtPriority(vGpu, p, true)
 	} else {
-		physicalPriority = opportunisticPriority
+		setPriority(pGpu, opportunisticPriority)
+		updateUsedGpuNumAtPriority(pGpu, opportunisticPriority, true)
 		h.clusterStatus.VirtualClusters[string(g.vc)] = append(
 			h.clusterStatus.VirtualClusters[string(g.vc)], api.GenerateOpporVirtualCell(pGpu.GetStatus()))
 	}
-	setPriority(pGpu, physicalPriority)
-	updateUsedGpuNumAtPriority(pGpu, physicalPriority, true)
 	pGpu.AddAffinityGroup(g)
 }
 
