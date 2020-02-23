@@ -55,7 +55,7 @@ class ClusterCmd():
             count_input = count_input + 1
             if count_input == 3:
                 logger.warning("3 Times.........  Sorry,  we will force stopping your operation.")
-                return
+                sys.exit(0)
 
         cluster_parser = parser.add_subparsers(help="cluster operations")
 
