@@ -43,7 +43,9 @@ set -Eeuxo pipefail
 cd /root/pai
 
 # 1. bootup kubernetes
-echo "Y\n" | python paictl.py cluster k8s-bootup -p /cluster-configuration
+python paictl.py cluster k8s-bootup -p /cluster-configuration << EOF_PAI_CLUSTER
+Y
+EOF_PAI_CLUSTER
 
 # 2. push cluster configuration
 echo "pai" | python paictl.py config push -p /cluster-configuration
