@@ -25,6 +25,7 @@ package algorithm
 import (
 	"github.com/microsoft/hivedscheduler/pkg/api"
 	"math"
+	"time"
 )
 
 const (
@@ -37,4 +38,7 @@ const (
 	// lowest and highest levels in a cell chain
 	lowestLevel  = CellLevel(1)
 	highestLevel = CellLevel(math.MaxInt32)
+
+	// the interval of node healthiness checking
+	watchNodesInterval = time.Duration(60)
 )

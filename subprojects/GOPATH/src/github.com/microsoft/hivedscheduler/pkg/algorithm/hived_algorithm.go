@@ -401,7 +401,7 @@ func (h *HivedAlgorithm) watchNodes() {
 		h.watchHealthyNodes()
 		h.watchBadNodes()
 		h.algorithmLock.RUnlock()
-		time.Sleep(time.Duration(internal.WatchNodesInternal) * time.Second)
+		time.Sleep(watchNodesInterval * time.Second)
 	}
 }
 
