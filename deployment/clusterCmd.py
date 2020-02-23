@@ -47,7 +47,7 @@ class ClusterCmd():
         while True:
             user_input = raw_input("Do you want to continue this operation? (Y/N) ")
             if user_input == "N":
-                return
+                sys.exit(0)
             elif user_input == "Y":
                 break
             else:
