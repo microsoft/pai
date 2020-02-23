@@ -42,9 +42,20 @@ class ClusterCmd():
         logger.warning("Kubernetes deployment in paictl will be deprecated in the future!")
         logger.warning("We highly recommend deploying kubernetes with kubespray.")
         logger.warning("If you wanna deploy k8s with kubespray, please refer to https://github.com/microsoft/pai/tree/master/contrib/kubespray")
-        logger.warning("paictl cluster command will sleep here for 10 seconds.")
-        logger.warning("If you wanna quit this process, please type ctrl + c")
-        time.sleep(10)
+        count_input = 0
+
+        while True:
+            user_input = raw_input("Do you want to continue this operation? (Y/N) ")
+            if user_input == "N":
+                return
+            elif user_input == "Y":
+                break
+            else:
+                print(" Please type Y or N.")
+            count_input = count_input + 1
+            if count_input == 3:
+                logger.warning("3 Times.........  Sorry,  we will force stopping your operation.")
+                return
 
         cluster_parser = parser.add_subparsers(help="cluster operations")
 
