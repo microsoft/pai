@@ -35,6 +35,7 @@ python paictl.py cluster k8s-clean -p /cluster-configuration -f << EOF_PAI_CLUST
 Y
 Y
 EOF_PAI_CLUSTER
+
 EOF_DEV_BOX
 
 sudo docker rm -f ${dev_box_name}
