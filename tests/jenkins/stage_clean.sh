@@ -31,10 +31,7 @@ cd /root/pai
 echo -e "Y\npai\n" | python paictl.py service delete
 
 # 2. cleanup k8s
-python paictl.py cluster k8s-clean -p /cluster-configuration -f << EOF_PAI_CLUSTER
-Y
-Y
-EOF_PAI_CLUSTER
+yes Y | python paictl.py cluster k8s-clean -p /cluster-configuration -f
 
 EOF_DEV_BOX
 
