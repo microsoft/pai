@@ -115,23 +115,31 @@ func NewConfig(rawConfig *Config) *Config {
 func defaultingPhysicalCells(pc *PhysicalClusterSpec) {
 	cts := pc.CellTypes
 	pcs := pc.PhysicalCells
-	for idx := range pcs {
-		_, ok := cts[pcs[idx].CellType]
+	for idx, pc := range pcs {
+		_, ok := cts[pc.CellType]
 		if !ok {
 			// unknown cell type
-			panic(fmt.Sprintf("physicalCells contains unknown cellType: %v", pcs[idx].CellType))
+			panic(fmt.Sprintf("physicalCells contains unknown cellType: %v", pc.CellType))
 		}
-		inferPhysicalCellSpec(&pcs[idx], cts, pcs[idx].CellType, "0")
+		inferPhysicalCellSpec(&pcs[idx], cts, pc.CellType, int32(idx), "")
 	}
 	return
 }
 
-func inferPhysicalCellSpec(spec *PhysicalCellSpec, cts map[CellType]CellTypeSpec, cellType CellType, defaultAddress CellAddress) {
+func inferPhysicalCellSpec(
+	spec *PhysicalCellSpec,
+	cts map[CellType]CellTypeSpec,
+	cellType CellType,
+	defaultAddress int32,
+	addressPrefix CellAddress) {
+
 	if spec.CellType == "" {
 		spec.CellType = cellType
 	}
 	if spec.CellAddress == "" {
-		spec.CellAddress = defaultAddress
+		spec.CellAddress = addressPrefix + CellAddress(common.Int32ToString(defaultAddress))
+	} else {
+		spec.CellAddress = addressPrefix + spec.CellAddress
 	}
 
 	ct, ok := cts[cellType]
@@ -141,14 +149,14 @@ func inferPhysicalCellSpec(spec *PhysicalCellSpec, cts map[CellType]CellTypeSpec
 	}
 	if ct.IsNodeLevel {
 		// reset default address to 0 when found a node level cell, leaf cell will use it as gpu indices
-		defaultAddress = "0"
+		defaultAddress = 0
 	}
 	if ct.ChildCellNumber > 0 && len(spec.CellChildren) == 0 {
 		spec.CellChildren = make([]PhysicalCellSpec, ct.ChildCellNumber)
 	}
 	for i := range spec.CellChildren {
-		childDefaultAddress := common.Int32ToString(common.StringToInt32(string(defaultAddress))*ct.ChildCellNumber + int32(i))
-		inferPhysicalCellSpec(&spec.CellChildren[i], cts, ct.ChildCellType, CellAddress(childDefaultAddress))
+		inferPhysicalCellSpec(&spec.CellChildren[i], cts, ct.ChildCellType,
+			defaultAddress*ct.ChildCellNumber+int32(i), spec.CellAddress+"/")
 	}
 	return
 }

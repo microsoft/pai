@@ -138,30 +138,25 @@ func (c *physicalCellConstructor) updateInternalStatus(buildingChain CellChain, 
 func (c *physicalCellConstructor) buildChildCell(
 	spec api.PhysicalCellSpec,
 	ct api.CellType,
-	currentNode api.CellAddress,
-	addressPrefix string) *PhysicalCell {
+	currentNode api.CellAddress) *PhysicalCell {
 
 	ce := c.cellChainElements[ct]
-	var address string
 	if ce.hasNode && !ce.isMultiNodes {
 		// node-level cell pass address to children as node
 		currentNode = spec.CellAddress
-		address = string(spec.CellAddress)
 	}
-	if !ce.hasNode {
-		address = addressPrefix + "/" + string(spec.CellAddress)
-	}
-	cellInstance := c.addCell(c.buildingChain, ce, spec.ReservationId, address)
+	cellInstance := c.addCell(c.buildingChain, ce, spec.ReservationId, string(spec.CellAddress))
 	if ce.level == 1 {
+		splitAddress := strings.Split(string(spec.CellAddress), "/")
 		cellInstance.SetPhysicalResources(
-			[]string{string(currentNode)}, []int32{common.StringToInt32(string(spec.CellAddress))})
+			[]string{string(currentNode)}, []int32{common.StringToInt32(splitAddress[len(splitAddress)-1])})
 		return cellInstance
 	}
 	var currentCellNodes []string
 	var currentCellGpuIndices []int32
 	var currentCellChildren CellList
 	for _, childSpec := range spec.CellChildren {
-		childCellInstance := c.buildChildCell(childSpec, ce.childCellType, currentNode, address)
+		childCellInstance := c.buildChildCell(childSpec, ce.childCellType, currentNode)
 		childCellInstance.SetParent(cellInstance)
 		currentCellChildren = append(currentCellChildren, childCellInstance)
 		if ce.isMultiNodes {
@@ -176,7 +171,6 @@ func (c *physicalCellConstructor) buildChildCell(
 	cellInstance.SetChildren(currentCellChildren)
 	if ce.isMultiNodes {
 		currentCellGpuIndices = []int32{-1}
-		cellInstance.SetAddress(strings.Join(currentCellNodes, ":"))
 	} else {
 		currentCellNodes = []string{string(currentNode)}
 	}
@@ -213,7 +207,7 @@ func (c *physicalCellConstructor) buildFullTree() {
 	if !ce.hasNode {
 		panic(fmt.Sprintf("top cell must be node-level or above: %v", cc))
 	}
-	cellInstance := c.buildChildCell(c.buildingSpec, api.CellType(cc), c.buildingSpec.CellAddress, "")
+	cellInstance := c.buildChildCell(c.buildingSpec, api.CellType(cc), c.buildingSpec.CellAddress)
 	// set GPU type only for top-level cells (as a chain shares the same GPU type)
 	cellInstance.GetStatus().GpuType = ce.gpuType
 }

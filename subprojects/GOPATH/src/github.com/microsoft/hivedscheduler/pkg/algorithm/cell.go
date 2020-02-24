@@ -252,11 +252,6 @@ func (c *PhysicalCell) GetStatus() *api.PhysicalCellStatus {
 	return c.status
 }
 
-func (c *PhysicalCell) SetAddress(address string) {
-	c.address = address
-	c.status.CellAddress = address
-}
-
 // VirtualCell defines a cell in a VC.
 type VirtualCell struct {
 	GenericCell
