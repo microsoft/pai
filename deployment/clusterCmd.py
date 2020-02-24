@@ -38,25 +38,6 @@ logger = logging.getLogger(__name__)
 
 class ClusterCmd():
     def register(self, parser):
-
-        logger.warning("Kubernetes deployment in paictl will be deprecated in the future!")
-        logger.warning("We highly recommend deploying kubernetes with kubespray.")
-        logger.warning("If you wanna deploy k8s with kubespray, please refer to https://github.com/microsoft/pai/tree/master/contrib/kubespray")
-        count_input = 0
-
-        while True:
-            user_input = raw_input("Do you want to continue this operation? (Y/N) ")
-            if user_input == "N":
-                sys.exit(0)
-            elif user_input == "Y":
-                break
-            else:
-                print(" Please type Y or N.")
-            count_input = count_input + 1
-            if count_input == 3:
-                logger.warning("3 Times.........  Sorry,  we will force stopping your operation.")
-                sys.exit(0)
-
         cluster_parser = parser.add_subparsers(help="cluster operations")
 
         # ./paictl.py cluster k8s-bootup ...
@@ -76,6 +57,26 @@ class ClusterCmd():
         env_parser.set_defaults(handler=self.k8s_set_environment)
 
     def k8s_bootup(self, args):
+
+        logger.warning("Kubernetes deployment in paictl will be deprecated in the future!")
+        logger.warning("We highly recommend deploying kubernetes with kubespray.")
+        logger.warning(
+            "If you wanna deploy k8s with kubespray, please refer to https://github.com/microsoft/pai/tree/master/contrib/kubespray")
+        count_input_deprecated = 0
+
+        while True:
+            user_input_deprecated = raw_input("Do you want to continue this operation? (Y/N) ")
+            if user_input_deprecated == "N":
+                sys.exit(0)
+            elif user_input_deprecated == "Y":
+                break
+            else:
+                print(" Please type Y or N.")
+            count_input_deprecated = count_input_deprecated + 1
+            if count_input_deprecated == 3:
+                logger.warning("3 Times.........  Sorry,  we will force stopping your operation.")
+                sys.exit(0)
+
         cluster_object_model_instance = cluster_object_model(args.config_path)
         com = cluster_object_model_instance.kubernetes_config()
         logger.info("Begin to initialize PAI k8s cluster.")
@@ -83,6 +84,26 @@ class ClusterCmd():
         logger.info("Finish initializing PAI k8s cluster.")
 
     def k8s_clean(self, args):
+
+        logger.warning("Kubernetes deployment in paictl will be deprecated in the future!")
+        logger.warning("We highly recommend deploying kubernetes with kubespray.")
+        logger.warning(
+            "If you wanna deploy k8s with kubespray, please refer to https://github.com/microsoft/pai/tree/master/contrib/kubespray")
+        count_input_deprecated = 0
+
+        while True:
+            user_input_deprecated = raw_input("Do you want to continue this operation? (Y/N) ")
+            if user_input_deprecated == "N":
+                sys.exit(0)
+            elif user_input_deprecated == "Y":
+                break
+            else:
+                print(" Please type Y or N.")
+            count_input_deprecated = count_input_deprecated + 1
+            if count_input_deprecated == 3:
+                logger.warning("3 Times.........  Sorry,  we will force stopping your operation.")
+                sys.exit(0)
+
         # just use 'k8s-clean' for testing temporarily.
         cluster_object_model_instance = cluster_object_model(args.config_path)
         com = cluster_object_model_instance.kubernetes_config()
@@ -126,6 +147,26 @@ class ClusterCmd():
         logger.info("Clean up job finished")
 
     def k8s_set_environment(self, args):
+
+        logger.warning("Kubernetes deployment in paictl will be deprecated in the future!")
+        logger.warning("We highly recommend deploying kubernetes with kubespray.")
+        logger.warning(
+            "If you wanna deploy k8s with kubespray, please refer to https://github.com/microsoft/pai/tree/master/contrib/kubespray")
+        count_input_deprecated = 0
+
+        while True:
+            user_input_deprecated = raw_input("Do you want to continue this operation? (Y/N) ")
+            if user_input_deprecated == "N":
+                sys.exit(0)
+            elif user_input_deprecated == "Y":
+                break
+            else:
+                print(" Please type Y or N.")
+            count_input_deprecated = count_input_deprecated + 1
+            if count_input_deprecated == 3:
+                logger.warning("3 Times.........  Sorry,  we will force stopping your operation.")
+                sys.exit(0)
+
         if args.config_path != None:
             args.config_path = os.path.expanduser(args.config_path)
             cluster_object_model_instance = cluster_object_model(args.config_path)
