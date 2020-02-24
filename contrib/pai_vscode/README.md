@@ -66,24 +66,13 @@ After added a cluster configuration, you can find the cluster in *PAI CLUSTER EX
 
 ![pai cluster explorer](https://raw.githubusercontent.com/Microsoft/pai/master/contrib/pai_vscode/assets/pai_cluster_explorer.png)
 
-Submit V1 job:
-
-You can create a job configuration and submit to OpenPAI as below steps.
-
-1. Make sure the value of `protocol_version` property in cluster configuration is `'1'`. Double click `Create Job Config...` in OpenPAI cluster Explorer, and then specify file name and location to create a job configuration file.
-2. Update job configuration as needed. If you are not familiar with this configuration file, learn from [here](https://github.com/Microsoft/pai/blob/master/docs/user/training.md#learn-hello-world-job).
-3. Right click on the created job configuration file, then click on `Submit Job to PAI Cluster`. The client will upload files to OpenPAI and create a job. Once it's done, there is a notification at right bottom corner, you can click to open the job detail page.
-
-    If there are multiple OpenPAI clusters, you need to choose one.
-
-    This animation shows above steps.
-    ![submit job](https://raw.githubusercontent.com/Microsoft/pai/master/contrib/pai_vscode/assets/submit-job.gif)
-
-Submit V2 job:
+Submit V2 job (For OpenPAI v0.13.0 and above):
 
 You can create a job v2 configuration and submit to OpenPAI as below steps.
 
-1. Make sure the value of `protocol_version` property in cluster configuration is `'2'`. Double click `Create Job Config...` in OpenPAI cluster Explorer, and then specify file name and location to create a job configuration file.
+1. Create job config file:
+    1. Double click `Create Job Config...` in OpenPAI cluster Explorer, and then specify file name and location to create a job configuration file (Make sure the value of `protocol_version` property in cluster configuration is `'2'`).
+    2. Right click python or cntk file in VSCode Explorer and select `Create PAI Job Config V2`, and then specify file name and location to create a job configuration file.
 2. Update job configuration as needed. If you are not familiar with this configuration file, learn from [here](https://github.com/microsoft/pai/blob/master/docs/marketplace-and-submit-job-v2/marketplace-and-submit-job-v2.md#introduction-to-yaml-file).
 3. Right click on the created job v2 configuration file, then click on `Submit Job to PAI Cluster`. The client will upload files to OpenPAI and create a job. Once it's done, there is a notification at right bottom corner, you can click to open the job detail page.
 
@@ -91,6 +80,21 @@ You can create a job v2 configuration and submit to OpenPAI as below steps.
 
     This animation shows above steps.
     ![submit job](https://raw.githubusercontent.com/Microsoft/pai/master/contrib/pai_vscode/assets/submit-job-v2.gif)
+
+Submit V1 job:
+
+You can create a job configuration and submit to OpenPAI as below steps.
+
+1. Create job config file:
+    1. Double click `Create Job Config...` in OpenPAI cluster Explorer, and then specify file name and location to create a job configuration file (Make sure the value of `protocol_version` property in cluster configuration is `'1'`).
+    2. Right click python or cntk file in VSCode Explorer and select `Create PAI Job Config V1`, and then specify file name and location to create a job configuration file.
+2. Update job configuration as needed. If you are not familiar with this configuration file, learn from [here](https://github.com/Microsoft/pai/blob/master/docs/user/training.md#learn-hello-world-job).
+3. Right click on the created job configuration file, then click on `Submit Job to PAI Cluster`. The client will upload files to OpenPAI and create a job. Once it's done, there is a notification at right bottom corner, you can click to open the job detail page.
+
+    If there are multiple OpenPAI clusters, you need to choose one.
+
+    This animation shows above steps.
+    ![submit job](https://raw.githubusercontent.com/Microsoft/pai/master/contrib/pai_vscode/assets/submit-job.gif)
 
 ## Local simulation
 
@@ -120,6 +124,7 @@ As local simulation is a close but still different environment with OpenPAI clus
 - The job may need GPU, but local computer may not have one. It may need code logic to handle this situation. It also needs a different docker image if you are using TensorFlow. As TensorFlow has different package for GPU and non-GPU runtime.
 - The job may run much more time locally. In most case, the computing power of local computer is much lower than servers in the OpenPAI cluster. If you need to simulate a job end-to-end, it may need to reduce iterations to get result faster.
 - Local machine may not be able to access some storage. The OpenPAI cluster may be deployed in a private environment, so that local computer may not able to access resource of cluster.
+- Local simulated can't support OpenPAI cluster runtime plugin (e.g. SSH plugin, teamwise storage plugin, tensorboard plugin), user should install them manully.
 
 ## Reference
 
