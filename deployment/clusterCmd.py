@@ -56,7 +56,28 @@ class ClusterCmd():
         env_parser.add_argument("-p", "--config-path", dest="config_path", help="path of cluster configuration file")
         env_parser.set_defaults(handler=self.k8s_set_environment)
 
+    def prompt_deprecated(self):
+        logger.warning("Kubernetes deployment in paictl will be deprecated in the future!")
+        logger.warning("We highly recommend deploying kubernetes with kubespray.")
+        logger.warning(
+            "If you wanna deploy k8s with kubespray, please refer to https://github.com/microsoft/pai/tree/master/contrib/kubespray")
+        count_input_deprecated = 0
+
+        while True:
+            user_input_deprecated = raw_input("Do you want to continue this operation? (Y/N) ")
+            if user_input_deprecated == "N":
+                sys.exit(0)
+            elif user_input_deprecated == "Y":
+                break
+            else:
+                print(" Please type Y or N.")
+            count_input_deprecated = count_input_deprecated + 1
+            if count_input_deprecated == 3:
+                logger.warning("3 Times.........  Sorry,  we will force stopping your operation.")
+                sys.exit(0)
+
     def k8s_bootup(self, args):
+        self.prompt_deprecated()
         cluster_object_model_instance = cluster_object_model(args.config_path)
         com = cluster_object_model_instance.kubernetes_config()
         logger.info("Begin to initialize PAI k8s cluster.")
@@ -64,6 +85,7 @@ class ClusterCmd():
         logger.info("Finish initializing PAI k8s cluster.")
 
     def k8s_clean(self, args):
+        self.prompt_deprecated()
         # just use 'k8s-clean' for testing temporarily.
         cluster_object_model_instance = cluster_object_model(args.config_path)
         com = cluster_object_model_instance.kubernetes_config()
@@ -107,6 +129,7 @@ class ClusterCmd():
         logger.info("Clean up job finished")
 
     def k8s_set_environment(self, args):
+        self.prompt_deprecated()
         if args.config_path != None:
             args.config_path = os.path.expanduser(args.config_path)
             cluster_object_model_instance = cluster_object_model(args.config_path)
