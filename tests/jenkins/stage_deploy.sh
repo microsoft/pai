@@ -43,7 +43,7 @@ set -Eeuxo pipefail
 cd /root/pai
 
 # 1. bootup kubernetes
-python paictl.py cluster k8s-clean -p /cluster-configuration << EOF_PAI_CLUSTER
+python paictl.py cluster k8s-bootup -p /cluster-configuration << EOF_PAI_CLUSTER
 Y
 EOF_PAI_CLUSTER
 
