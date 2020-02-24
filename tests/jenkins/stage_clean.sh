@@ -32,7 +32,6 @@ echo -e "Y\npai\n" | python paictl.py service delete
 
 # 2. cleanup k8s
 yes Y | python paictl.py cluster k8s-clean -p /cluster-configuration -f
-
 EOF_DEV_BOX
 
 sudo docker rm -f ${dev_box_name}
