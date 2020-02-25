@@ -42,4 +42,5 @@ jobs:
     - name: Check spelling
       run: |
         rm -rf ./subprojects/GOPATH/src/github.com/microsoft/hivedscheduler/vendor/
+        rm -rf ./src/watchdog/GOPATH/src/github.com/microsoft/watchdog/vendor/
         misspell -error .

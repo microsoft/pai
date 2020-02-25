@@ -82,19 +82,6 @@ class TestRuntime(unittest.TestCase):
         initializer.init_plugins(jobconfig, commands, "../src/plugins", ".",
                                  "worker")
 
-    def test_plugin_prune(self):
-        os.environ["GANG_ALLOCATION"] = "false"
-        job_path = "gang_ssh_conflict.yaml"
-        if os.path.exists(job_path):
-            with open(job_path, "r") as f:
-                job_config = yaml.safe_load(f)
-        pruned_config = initializer._prune_plugins(job_config)
-        self.assertEqual(
-            pruned_config["extras"]["com.microsoft.pai.runtimeplugin"],
-            [{
-                'plugin': 'tensorboard'
-            }])
-
     def load_json_file(self, file_name):
         with open(file_name) as f:
             return json.load(f)

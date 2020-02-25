@@ -92,7 +92,11 @@ spec:
         - name: JWT_TOKEN_EXPIRE_TIME
           value: {{ cluster_cfg['rest-server']['jwt-expire-time'] }}
         - name: WEBPORTAL_URL
-          value: "{{ cluster_cfg['webportal']['webportal-address']}}"
+{%- if "ssl" in cluster_cfg["pylon"] and cluster_cfg["pylon"]["ssl"] %}
+          value: "{{ cluster_cfg['pylon']['uriHttps']}}"
+{%- else %}
+          value: "{{ cluster_cfg['pylon']['uri']}}"
+{%- endif %}
 {% if not cluster_cfg['authentication']['OIDC'] %}
         - name: AUTHN_METHOD
           value: basic

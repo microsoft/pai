@@ -1,0 +1,21 @@
+{
+    "kind": "PriorityClassList",
+    "apiVersion": "scheduling.k8s.io/v1",
+    "metadata": {
+        "selfLink": "/apis/scheduling.k8s.io/v1/priorityclasses",
+        "resourceVersion": "28846485"
+    },
+    "items": [
+        {
+            "metadata": {
+                "name": "059cf3d85cb5f6280e9606d47551554c-priority",
+                "selfLink": "/apis/scheduling.k8s.io/v1/priorityclasses/059cf3d85cb5f6280e9606d47551554c-priority",
+                "uid": "6cf16bf3-3373-11ea-9b7f-000d3ab25bb6",
+                "resourceVersion": "23986944",
+                "generation": 1,
+                "creationTimestamp": "2020-01-10T06:35:43Z"
+            },
+            "value": -1058544452
+        }
+    ]
+}

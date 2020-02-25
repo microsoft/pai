@@ -1,0 +1,30 @@
+---
+- name: Output infra machines' os variables
+  debug:
+    var: "{{ item }}"
+  with_items:
+    - ansible_distribution
+    - ansible_distribution_version
+
+- name: Check whether OS is ubuntu or not
+  fail:
+    msg: "Please ensure your infra machines' os is ubuntu 16.04 LTS. Higher version should be ok, but have not tested it yet."
+  when: ansible_distribution != "Ubuntu"
+
+- name: Print message if the ubuntu version is higher then 16.04
+  debug:
+    msg: "The tested version of ubuntu is 16.04 LTS. Higher version should be ok, but have not tested it yet."
+  when:
+    - ansible_distribution_version is version('16.04', '>')
+
+- name: Check ubuntu requirement. OpenPAI only supports ubuntu now.
+  include_tasks: ubuntu.yml
+  when: ansible_distribution == "Ubuntu" and ansible_distribution_version is version('16.04', '>=')
+
+- name: Infra machines' os is not ubuntu.
+  fail:
+    msg: "Please ensure your infra machines’ os is ubuntu 16.04 lts. 18.04 should be ok, but have not tested it yet"
+  when: ansible_distribution != "Ubuntu" or ansible_distribution_version is version('16.04', '<')
+
+
+

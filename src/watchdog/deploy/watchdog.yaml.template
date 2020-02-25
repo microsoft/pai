@@ -58,24 +58,14 @@ spec:
         - name: KUBE_APISERVER_ADDRESS
           value: "{{ cluster_cfg['layout']['kubernetes']['api-servers-url'] }}"
         {%- endif %}
-        volumeMounts:
-        - mountPath: /datastorage/prometheus
-          name: collector-mount
         command:
-          - "python"
-          - "/watchdog.py"
-          - "--interval"
+          - "./watchdog"
+          - "-collection-interval"
           - "180"
-          - "--port"
+          - "-gc-interval"
+          - "60"
+          - "-port"
           - "9101"
-          - "--ca"
-          - "/var/run/secrets/kubernetes.io/serviceaccount/ca.crt"
-          - "--bearer"
-          - "/var/run/secrets/kubernetes.io/serviceaccount/token"
-      volumes:
-        - name: collector-mount
-          hostPath:
-            path: {{ cluster_cfg["cluster"]["common"]["data-path"] }}/prometheus
       imagePullSecrets:
       - name: {{ cluster_cfg["cluster"]["docker-registry"]["secret-name"] }}
       tolerations:

@@ -116,6 +116,10 @@ const Sidebar = ({ className, style }) => {
 
   const plugins = config.PAI_PLUGINS;
   const isAdmin = cookies.get('admin') === 'true';
+  const versionTag =
+    window.PAI_COMMIT_VERSION === ''
+      ? `${window.PAI_VERSION}`
+      : `${window.PAI_VERSION} ${window.PAI_COMMIT_VERSION}`;
 
   return (
     <div
@@ -232,7 +236,7 @@ const Sidebar = ({ className, style }) => {
                 ],
               },
               {
-                name: 'Feedback',
+                name: `Feedback (version ${versionTag})`,
                 url: `https://github.com/Microsoft/pai/issues/new?${qs.stringify(
                   {
                     title: `Feedback ${window.PAI_VERSION}`,

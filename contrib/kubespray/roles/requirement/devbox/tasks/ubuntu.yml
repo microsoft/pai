@@ -1,0 +1,41 @@
+---
+- name: "Dev-box 1.1 Check if docker is installed on your dev-box or not."
+  raw: command -v docker
+  register: command_docker
+  failed_when: false
+  changed_when: false
+  check_mode: false
+  environment: {}
+
+- name: "Dev-box 1.2 Check if docker is installed on your dev-box or not."
+  fail:
+    msg: "Unable to find docker in your dev-box machine"
+  changed_when: false
+  check_mode: false
+  environment: {}
+  when:
+    - command_docker.rc != 0
+
+- name: "Dev-box 2.1 Get docker version"
+  raw: "{% raw %} docker info -f '{{json .ServerVersion}}'{% endraw %}"
+  register: dev_box_docker_version
+  failed_when: false
+  changed_when: false
+  check_mode: false
+  environment: {}
+
+- name: "Dev-box 2.2 set dev-box docker version fact"
+  set_fact:
+      dev_box_docker_version_replace: "{{ dev_box_docker_version.stdout | replace('\"','') }}"
+
+- name: "Dev-box 2.3 Check docker version in dev-box"
+  fail:
+    msg: "The docker version in your dev-box is too low, please update it. And make sure its higher then 1.10"
+  changed_when: false
+  check_mode: false
+  environment: {}
+  when:
+    - dev_box_docker_version_replace is version('1.10.0', '<=')
+
+
+

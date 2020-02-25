@@ -140,7 +140,23 @@ export async function login(restServerUrl: string, webportalUrl: string, redirec
                 throw loginRes.err;
             }
 
-            response.writeHead(302, { Location: `${webportalUrl}/index.html?${stringify(loginRes.loginInfo)}` });
+            response.writeHead(200, {'Content-Type': 'text/html'});
+            response.write(
+                '<!DOCTYPE html>' +
+                '<html lang=\'en\' dir=\'ltr\'>' +
+                  '<head>' +
+                    '<met charset=\'utf-8\'>' +
+                    '<title>Login success</title>' +
+                  '</head>' +
+                  '<body>' +
+                    `<script type=\'text/javascript\'>
+                        if (confirm('${__('cluster.login.success')}')) {
+                            location.replace('${webportalUrl}/index.html?${stringify(loginRes.loginInfo)}')
+                        }
+                    </script>` +
+                '</body>' +
+                '</html>'
+            );
             response.end();
             return loginRes.loginInfo;
         } catch (err) {

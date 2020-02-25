@@ -65,7 +65,6 @@
     "no-unsafe-any": false,
     "no-unsafe-finally": true,
     "no-unused-expression": true,
-    "no-use-before-declare": true,
     "no-with-statement": true,
     "promise-function-async": false,
     "promise-must-complete": true,

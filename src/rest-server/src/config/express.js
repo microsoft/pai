@@ -28,6 +28,8 @@ const cookieParser = require('cookie-parser');
 const swaggerUi = require('swagger-ui-express');
 const config = require('@pai/config');
 const logger = require('@pai/config/logger');
+const authnConfig = require('@pai/config/authn');
+const querystring = require('querystring');
 const createError = require('@pai/utils/error');
 const routers = {
   v1: require('@pai/routes/index'),
@@ -62,6 +64,19 @@ app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 app.use((req, res, next) => {
   next(createError('Not Found', 'NoApiError', `API ${req.url} is not found.`));
 });
+
+if (authnConfig.authnMethod === 'OIDC') {
+  // error handler for /api/v1/authn/oidc/return
+  app.use('/api/v1/authn/oidc/return', function(err, req, res, next) {
+    logger.warn(err);
+    let qsData = {
+      errorMessage: err.message,
+    };
+    let redirectURI = err.targetURI ? err.targetURI : process.env.WEBPORTAL_URL;
+    redirectURI = redirectURI + '?' + querystring.stringify(qsData);
+    return res.redirect(redirectURI);
+  });
+}
 
 // error handler
 app.use((err, req, res, next) => {
