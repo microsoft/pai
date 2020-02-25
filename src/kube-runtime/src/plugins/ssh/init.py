@@ -22,7 +22,7 @@ import sys
 
 sys.path.append(
     os.path.join(os.path.dirname(os.path.abspath(__file__)), "../.."))
-from plugins.plugin_utils import plugin_init, PluginHelper  #pylint: disable=wrong-import-position
+from plugins.plugin_utils import plugin_init, PluginHelper, try_to_install_by_cache  #pylint: disable=wrong-import-position
 
 LOGGER = logging.getLogger(__name__)
 
@@ -58,6 +58,10 @@ def main():
         LOGGER.info("Skip sshd script since neither jobssh or userssh is set")
     else:
         command = [
+            try_to_install_by_cache("ssh", fallback_cmds=[
+                "apt-get update",
+                "apt-get install -y openssh-client openssh-server",
+            ]),
             "{}/sshd.sh {}\n".format(os.path.dirname(os.path.abspath(__file__)),
                                      " ".join(cmd_params))
         ]

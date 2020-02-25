@@ -15,6 +15,24 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+# Package Cache Data Layer Starts
+
+FROM ubuntu:16.04 as ubuntu_16_04_cache
+
+WORKDIR /src
+COPY src/package_cache ./
+RUN chmod -R +x ./
+RUN /bin/bash ubuntu_build.sh package_cache_info ubuntu16.04
+
+
+FROM ubuntu:18.04 as ubuntu_18_04_cache
+
+WORKDIR /src
+COPY src/package_cache ./
+RUN chmod -R +x ./
+RUN /bin/bash ubuntu_build.sh package_cache_info ubuntu18.04
+
+# Package Cache Data Layer Ends
 
 FROM golang:1.12.6-alpine as builder
 
@@ -28,6 +46,10 @@ RUN ${PROJECT_DIR}/build/runtime/go-build.sh && \
   mv ${PROJECT_DIR}/dist/runtime/ ${INSTALL_DIR}
 
 FROM python:3.7-alpine
+
+RUN mkdir -p /opt/package_cache
+COPY --from=ubuntu_16_04_cache /package_cache /opt/package_cache/
+COPY --from=ubuntu_18_04_cache /package_cache /opt/package_cache/
 
 RUN pip install kubernetes pyyaml requests jinja2 pystache
 

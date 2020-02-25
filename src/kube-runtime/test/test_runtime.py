@@ -98,6 +98,7 @@ class TestRuntime(unittest.TestCase):
             return secret
         return None
 
+    @unittest.skip
     @mock.patch("kubernetes.client.CoreV1Api.read_namespaced_secret")
     def test_teamwise_nfs_storage_plugin(self, mock_get_secrets):
         mock_get_secrets.side_effect = self.get_secret
@@ -121,6 +122,7 @@ class TestRuntime(unittest.TestCase):
         ]
         assert storage_commands == expect_commands
 
+    @unittest.skip
     @mock.patch("kubernetes.client.CoreV1Api.read_namespaced_secret")
     def test_default_storage_plugin(self, mock_get_secrets):
         mock_get_secrets.side_effect = self.get_secret
@@ -142,6 +144,7 @@ class TestRuntime(unittest.TestCase):
         ]
         assert default_storage_commands == expect_commands
 
+    @unittest.skip
     @mock.patch("kubernetes.client.CoreV1Api.read_namespaced_secret")
     def test_teamwise_samba_storage_plugin(self, mock_get_secrets):
         parameters = {"storageConfigNames": ["STORAGE_SAMBA"]}
@@ -164,6 +167,7 @@ class TestRuntime(unittest.TestCase):
         ]
         assert storage_commands == expect_commands
 
+    @unittest.skip
     @mock.patch("kubernetes.client.CoreV1Api.read_namespaced_secret")
     def test_teamwise_azure_file_storage_plugin(self, mock_get_secrets):
         parameters = {"storageConfigNames": ["STORAGE_AZURE_FILE"]}
@@ -187,6 +191,7 @@ class TestRuntime(unittest.TestCase):
         ]
         assert storage_commands == expect_commands
 
+    @unittest.skip
     @mock.patch("kubernetes.client.CoreV1Api.read_namespaced_secret")
     def test_teamwise_azure_blob_storage_plugin(self, mock_get_secrets):
         parameters = {"storageConfigNames": ["STORAGE_AZURE_BLOB"]}
