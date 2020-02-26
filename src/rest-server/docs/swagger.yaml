@@ -1653,24 +1653,55 @@ components:
           - other
           - unknown
         data:
-          type: object
-          properties:
-            server: string
-            path: string
-            address: string
-            username: string
-            password: string
-            shareName: string
-            containerName: string
-            accountName: string
-            accountKey: string
+          oneOf:
+          - type: object
+            description: nfs type
+            properties:
+              server:
+                type: string
+              path:
+                type: string
+            required: [server, path]
+          - type: object
+            description: samba type
+            properties:
+              address:
+                type: string
+              username:
+                type: string
+              password:
+                type: string
+            required: [address]
+          - type: object
+            description: azureFile type
+            properties:
+              shareName:
+                type: string
+              accountName:
+                type: string
+              accountKey:
+                type: string
+            required: [shareName]
+          - type: object
+            description: azureBlob type
+            properties:
+              containerName:
+                type: string
+              accountName:
+                type: string
+              accountKey:
+                type: string
+            required: [containerName]
+          - type: object
+            description: other/unknown type
+            properties: null
         secretName:
           type: string
         mountOptions:
           type: array
           items:
             type: string
-      required: [name, share, volumeName]
+      required: [name, share, volumeName, type, data]
     JobAttempt:
       type: object
       description: TODO
