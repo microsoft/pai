@@ -299,6 +299,30 @@
                 {
                     "command": "paiext.container.hdfs.mkdir",
                     "when": "false"
+                },
+                {
+                    "command": "paiext.job.config.insert.menu",
+                    "when": "false"
+                },
+                {
+                    "command": "paiext.job.config.insert.runtime.plugin",
+                    "when": "false"
+                },
+                {
+                    "command": "paiext.storage.personal.edit",
+                    "when": "false"
+                },
+                {
+                    "command": "paiext.storage.personal.delete",
+                    "when": "false"
+                },
+                {
+                    "command": "paiext.cluster.job.create-config-v1",
+                    "when": "false"
+                },
+                {
+                    "command": "paiext.cluster.job.create-config-v2",
+                    "when": "false"
                 }
             ],
             "view/title": [

@@ -4,6 +4,8 @@ OpenPAI VS Code Client is an extension to connect OpenPAI clusters, submit AI jo
 
 - [OpenPAI VS Code Client](#openpai-vs-code-client)
   - [Connect to an OpenPAI cluster](#connect-to-an-openpai-cluster)
+    - [Basic login](#basic-login)
+    - [AAD login](#aad-login)
   - [Submit job](#submit-job)
   - [Local simulation](#local-simulation)
     - [Prerequisites](#prerequisites)
