@@ -19,6 +19,7 @@ For more details about the protocol of OpenPAI job, please refer to [PAI Job Pro
   - [Insert OpenPAI Runtime Plugin](#insert-openpai-runtime-plugin)
     - [Insert by code snippet](#insert-by-code-snippet)
     - [Right click to insert](#right-click-to-insert)
+  - [Reference](#reference)
 
 ## Create job config file
 
@@ -120,3 +121,9 @@ Typing `"- plugin:"` will trigger `OpenPAI: Insert a runtime plugin config`, it 
 Right click the editor and select `OpenPAI: Insert job config`, and select `OpenPAI Runtime Plugin` or `OpenPAI Runtime Plugin Item` will help user generate their plugin config and insert it.
 
 ![Right click to insert](../assets/auto_completion_runtime_plugin_right_click.gif)
+
+## Reference
+
+[PAI Job Protocol](https://github.com/microsoft/pai/blob/master/docs/pai-job-protocol.yaml)
+[Submit Jobs on OpenPAI](https://github.com/microsoft/pai/blob/master/docs/user/job_submission.md#job-workflow)
+[Troubleshoot jobs](https://github.com/microsoft/pai/blob/master/docs/user/troubleshooting_job.md)
