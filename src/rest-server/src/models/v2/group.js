@@ -101,14 +101,14 @@ const getGroupsVCs = async (grouplist) => {
 };
 
 const getStorageConfigsWithGroupInfo = async (groupItems, filterDefault=false) => {
-  let storageConfigs = new Set();
+  const storageConfigs = new Set();
   for (const groupItem of groupItems) {
     if (groupItem.extension && groupItem.extension.acls) {
       if (groupItem.extension.acls.storageConfigs) {
         if (filterDefault) {
           storageConfigs.add(groupItem.extension.acls.storageConfigs[0]);
         } else {
-          storageConfigs = new Set([...storageConfigs, ...groupItem.extension.acls.storageConfigs]);
+          groupItem.extension.acls.storageConfigs.forEach(storageConfigs.add, storageConfigs);
         }
       }
     }

@@ -24,11 +24,11 @@ const {getUserStorages} = require('@pai/models/v2/user');
 const convertConfig = (storage, userDefaultStorages) => {
   const config = {
     name: storage.name,
-    default: (storage.name in userDefaultStorages),
+    default: (userDefaultStorages.includes(storage.name)),
     servers: [storage.volumeName],
     mountInfos: [],
   };
-  if (storage.share === 'false') {
+  if (storage.share === false) {
     config.mountInfos = [
       {
         mountPoint: '/data',
@@ -47,7 +47,7 @@ const convertConfig = (storage, userDefaultStorages) => {
     config.mountInfos = [
       {
         mountPoint: `/mnt/${storage.name}`,
-        path: 'data',
+        path: '',
         server: storage.volumeName,
         permission: 'rw',
       },
@@ -67,7 +67,9 @@ const convertServer = async (storage) => {
   if (server.type === 'nfs') {
     server.data = {
       address: detail.data.server,
-      rootPath: detail.data.path,
+      rootPath: detail.share === false ?
+        detail.data.path.replace(/\/users\/?$/, '') :
+        detail.data.path,
     };
   } else if (server.type === 'samba') {
     const address = detail.data.address.replace(/^\/\//, '');
@@ -97,36 +99,42 @@ const convertServer = async (storage) => {
 };
 
 const getConfig = asyncHandler(async (req, res) => {
-  let name = null;
+  let names = null;
   if (req.params.name) {
-    name = req.params.name;
+    names = req.params.name;
   } else if (req.query.names) {
-    name = req.query.names;
+    names = req.query.names;
+  }
+  if (typeof names === 'string') {
+    names = [names];
   }
 
   const userName = req.user.username;
   const admin = req.user.admin;
   const userDefaultStorages = await getUserStorages(userName, true);
   const storages = (await list(admin ? undefined : userName)).storages
-    .filter((item) => name ? item.name === name : true)
+    .filter((item) => names ? names.includes(item.name) : true)
     .map((item) => convertConfig(item, userDefaultStorages));
 
   res.json(storages);
 });
 
 const getServer = asyncHandler(async (req, res) => {
-  let name = null;
+  let names = null;
   if (req.params.name) {
-    name = req.params.name;
+    names = req.params.name;
   } else if (req.query.names) {
-    name = req.query.names;
+    names = req.query.names;
+  }
+  if (typeof names === 'string') {
+    names = [names];
   }
 
   const userName = req.user.username;
   const admin = req.user.admin;
   const storages = await Promise.all(
     (await list(admin ? undefined : userName)).storages
-      .filter((item) => name ? item.volumeName === name : true)
+      .filter((item) => names ? names.includes(item.volumeName) : true)
       .map(convertServer));
 
   res.json(storages);
