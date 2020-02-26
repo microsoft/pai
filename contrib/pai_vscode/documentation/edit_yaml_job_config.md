@@ -1,7 +1,9 @@
 # OpenPAI job config file edit features
 
 In OpenPAI, all jobs are represented by YAML, a markup language.
+
 Base on VSCode editor [IntelliSense](https://code.visualstudio.com/docs/editor/intellisense) and [YAML extension](https://marketplace.visualstudio.com/items?itemName=redhat.vscode-yaml), OpenPAI VS Code Client support some features to improve user experience for editing job config file.
+
 For more details about the protocol of OpenPAI job, please refer to [PAI Job Protocol](https://github.com/microsoft/pai/blob/master/docs/pai-job-protocol.yaml).
 
 - [OpenPAI job config file edit features](#openpai-job-config-file-edit-features)
