@@ -14,6 +14,8 @@
   apt_key:
     url: https://nvidia.github.io/nvidia-container-runtime/gpgkey
     state: present
+  when:
+    - install_run_time
 
 - name: add repo
   get_url:
@@ -22,14 +24,20 @@
     mode: 0644
     owner: root
     group: root
+  when:
+    - install_run_time
 
 - name: Run the equivalent of "apt-get update" as a separate step
   apt:
     update_cache: yes
+  when:
+    - install_run_time
 
 - name: install packages
   apt:
     name: nvidia-container-runtime
     state: present
     update_cache: yes
+  when:
+    - install_run_time
 

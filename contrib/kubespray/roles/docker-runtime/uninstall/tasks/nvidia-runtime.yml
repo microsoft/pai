@@ -7,3 +7,5 @@
     name: nvidia-container-runtime
     state: absent
     update_cache: yes
+  when:
+    - uninstall_run_time
