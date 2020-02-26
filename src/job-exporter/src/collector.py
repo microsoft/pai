@@ -29,12 +29,14 @@ import collections
 from prometheus_client import make_wsgi_app, Counter, Gauge, Histogram
 from prometheus_client.core import GaugeMetricFamily
 
+import amd
 import network
-import utils
 import docker_inspect
 import docker_stats
 import nvidia
 import ps
+import utils
+from utils import GpuVendor
 
 logger = logging.getLogger(__name__)
 
@@ -50,29 +52,46 @@ def gen_docker_daemon_counter():
             "count of docker daemon",
             labels=["error"])
 
-def gen_gpu_util_gauge():
+# NVIDIA GPU metrics
+def gen_nvidia_gpu_util_gauge():
     return GaugeMetricFamily("nvidiasmi_utilization_gpu",
             "gpu core utilization of card",
             labels=["minor_number"])
 
-def gen_gpu_mem_util_gauge():
+def gen_nvidia_gpu_mem_util_gauge():
     return GaugeMetricFamily("nvidiasmi_utilization_memory",
             "gpu memory utilization of card",
             labels=["minor_number"])
 
-def gen_gpu_temperature_gauge():
+def gen_nvidia_gpu_temperature_gauge():
     return GaugeMetricFamily("nvidiasmi_temperature",
             "gpu temperature of card",
             labels=["minor_number"])
 
-def gen_gpu_ecc_counter():
+def gen_nvidia_gpu_ecc_counter():
     return GaugeMetricFamily("nvidiasmi_ecc_error_count",
             "count of nvidia ecc error",
             labels=["minor_number", "type"])
 
-def gen_gpu_memory_leak_counter():
+def gen_nvidia_gpu_memory_leak_counter():
     return GaugeMetricFamily("nvidiasmi_memory_leak_count",
             "count of nvidia memory leak",
+            labels=["minor_number"])
+
+# AMD GPU metrics
+def gen_amd_gpu_util_gauge():
+    return GaugeMetricFamily("rocmsmi_utilization_gpu",
+            "gpu core utilization of card",
+            labels=["minor_number"])
+
+def gen_amd_gpu_mem_util_gauge():
+    return GaugeMetricFamily("rocmsmi_utilization_memory",
+            "gpu memory utilization of card",
+            labels=["minor_number"])
+
+def gen_amd_gpu_temperature_gauge():
+    return GaugeMetricFamily("rocmsmi_temperature",
+            "gpu temperature of card",
             labels=["minor_number"])
 
 def gen_zombie_process_counter():
@@ -219,7 +238,7 @@ class Collector(object):
         self.atomic_ref = atomic_ref
         self.iteration_counter = iteration_counter
 
-        histogram_key = "collector_%s_iteration_lantecy_seconds" % self.name
+        histogram_key = "collector_%s_iteration_latency_seconds" % self.name
         histogram_desc = "latency for execute one interation of %s collector (seconds)" % \
                 self.name
         self.collector_histogram = Histogram(histogram_key, histogram_desc,
@@ -236,10 +255,10 @@ class Collector(object):
                 self.iteration_counter.labels(name=self.name).inc()
                 try:
                     self.atomic_ref.set(self.collect_impl(), datetime.datetime.now())
-                except Exception as e:
+                except Exception:
                     logger.exception("%s collector get an exception", self.name)
 
-                logger.debug("finished collect metrcis from %s, will sleep for %s",
+                logger.debug("finished collect metrics from %s, will sleep for %s",
                         self.name, self.sleep_time)
 
             time.sleep(self.sleep_time)
@@ -297,7 +316,7 @@ class DockerCollector(Collector):
             logger.warning("check docker active timeout")
             error = "timeout"
         except Exception as e:
-            error = e.message
+            error = str(e)
 
         counter = gen_docker_daemon_counter()
         counter.add_metric([error], 1)
@@ -306,17 +325,23 @@ class DockerCollector(Collector):
 
 
 class GpuCollector(Collector):
-    cmd_histogram = Histogram("cmd_nvidia_smi_latency_seconds",
-            "Command call latency for nvidia-smi (seconds)")
+    nvidia_cmd_histogram = Histogram(
+        "cmd_nvidia_smi_latency_seconds",
+        "Command call latency for nvidia-smi (seconds)")
+    amd_cmd_hostogram = Histogram(
+        "cmd_rocm_smi_latency_seconds",
+        "Command call latency for rocm-smi (seconds)")
 
     cmd_timeout = 60 # 99th latency is 0.97s
 
     def __init__(self, name, sleep_time, atomic_ref, iteration_counter,
-            gpu_info_ref, zombie_info_ref, mem_leak_thrashold):
-        Collector.__init__(self, name, sleep_time, atomic_ref, iteration_counter)
+                 gpu_info_ref, zombie_info_ref, mem_leak_thrashold):
+        Collector.__init__(self, name, sleep_time, atomic_ref,
+                           iteration_counter)
         self.gpu_info_ref = gpu_info_ref
         self.zombie_info_ref = zombie_info_ref
         self.mem_leak_thrashold = mem_leak_thrashold
+        self.gpu_vendor = utils.get_gpu_vendor()
 
     @staticmethod
     def get_container_id(pid):
@@ -346,14 +371,14 @@ class GpuCollector(Collector):
         return False, ""
 
     @staticmethod
-    def convert_to_metrics(gpu_info, zombie_info, pid_to_cid_fn, mem_leak_thrashold):
+    def convert_nvidia_gpu_info_to_metrics(gpu_info, zombie_info, pid_to_cid_fn, mem_leak_thrashold):
         """ This fn used to convert gpu_info & zombie_info into metrics, used to make
         it easier to do unit test """
-        core_utils = gen_gpu_util_gauge()
-        mem_utils = gen_gpu_mem_util_gauge()
-        gpu_temp = gen_gpu_temperature_gauge()
-        ecc_errors = gen_gpu_ecc_counter()
-        mem_leak = gen_gpu_memory_leak_counter()
+        core_utils = gen_nvidia_gpu_util_gauge()
+        mem_utils = gen_nvidia_gpu_mem_util_gauge()
+        gpu_temp = gen_nvidia_gpu_temperature_gauge()
+        ecc_errors = gen_nvidia_gpu_ecc_counter()
+        mem_leak = gen_nvidia_gpu_memory_leak_counter()
         external_process = gen_gpu_used_by_external_process_counter()
         zombie_container = gen_gpu_used_by_zombie_container_counter()
 
@@ -369,6 +394,9 @@ class GpuCollector(Collector):
                 gpu_temp.add_metric([minor], info.temperature)
             ecc_errors.add_metric([minor, "single"], info.ecc_errors.single)
             ecc_errors.add_metric([minor, "double"], info.ecc_errors.double)
+
+            # TODO: this piece of code seems not corret, gpu_mem_util is
+            # a percentage number but mem_leak_thrashold is memory size. Need to fix it.
             if info.gpu_mem_util > mem_leak_thrashold and len(info.pids) == 0:
                 # we found memory leak less than 20M can be mitigated automatically
                 mem_leak.add_metric([minor], 1)
@@ -401,19 +429,46 @@ class GpuCollector(Collector):
         return [core_utils, mem_utils, ecc_errors, mem_leak,
             external_process, zombie_container, gpu_temp]
 
+    @staticmethod
+    def convert_amd_gpu_info_to_metrics(gpu_info):
+        core_utils = gen_amd_gpu_util_gauge()
+        mem_utils = gen_amd_gpu_mem_util_gauge()
+        gpu_temp = gen_amd_gpu_temperature_gauge()
+        for minor, info in gpu_info.items():
+            core_utils.add_metric([minor], info.gpu_util)
+            mem_utils.add_metric([minor], info.gpu_mem_util)
+            gpu_temp.add_metric([minor], info.temperature)
+        return [core_utils, mem_utils, gpu_temp]
+
     def collect_impl(self):
-        gpu_info = nvidia.nvidia_smi(GpuCollector.cmd_histogram,
-                GpuCollector.cmd_timeout)
+        if self.gpu_vendor == GpuVendor.UNKNOWN:
+            logger.warning(
+                "Couldn't identify the GPU vendor, please make sure the GPU driver install correctly"
+            )
+            return None
+        if self.gpu_vendor == GpuVendor.NVIDIA:
+            gpu_info = nvidia.nvidia_smi(GpuCollector.nvidia_cmd_histogram,
+                    GpuCollector.cmd_timeout)
 
-        logger.debug("get gpu_info %s", gpu_info)
+            logger.debug("get nvidia gpu_info %s", gpu_info)
 
-        now = datetime.datetime.now()
-        self.gpu_info_ref.set(gpu_info, now)
-        zombie_info = self.zombie_info_ref.get(now)
+            now = datetime.datetime.now()
+            self.gpu_info_ref.set(gpu_info, now)
+            zombie_info = self.zombie_info_ref.get(now)
 
-        if gpu_info is not None:
-            return GpuCollector.convert_to_metrics(gpu_info, zombie_info,
-                    GpuCollector.get_container_id, self.mem_leak_thrashold)
+            if gpu_info:
+                return GpuCollector.convert_nvidia_gpu_info_to_metrics(gpu_info, zombie_info,
+                        GpuCollector.get_container_id, self.mem_leak_thrashold)
+            return None
+        if self.gpu_vendor == GpuVendor.AMD:
+            gpu_info = amd.rocm_smi(GpuCollector.amd_cmd_hostogram,
+                         GpuCollector.cmd_timeout)
+            logger.debug("get amd gpu info %s", gpu_info)
+
+            self.gpu_info_ref.set(gpu_info, datetime.datetime.now())
+            if gpu_info:
+                return GpuCollector.convert_amd_gpu_info_to_metrics(gpu_info)
+            return None
         return None
 
 
@@ -727,7 +782,7 @@ class ZombieCollector(Collector):
             else:
                 pass # ignore
 
-        for job_name, val in job_containers.items():
+        for _, val in job_containers.items():
             yarn_name, job_id = val
             if yarn_name not in yarn_containers:
                 zombie_ids.add(job_id)

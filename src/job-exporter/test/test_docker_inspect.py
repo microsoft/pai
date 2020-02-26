@@ -19,16 +19,24 @@ import sys
 import os
 import unittest
 
-import base
-
-sys.path.append(os.path.abspath("../src/"))
+sys.path.append(
+    os.path.join(os.path.dirname(os.path.abspath(__file__)), "../src"))
 
 from docker_inspect import parse_docker_inspect, InspectResult
 
-class TestDockerInspect(base.TestBase):
+PACKAGE_DIRECTORY_COM = os.path.dirname(os.path.abspath(__file__))
+
+
+class TestDockerInspect(unittest.TestCase):
     """
     Test docker_inspect.py
     """
+
+    def setUp(self):
+        try:
+            os.chdir(PACKAGE_DIRECTORY_COM)
+        except OSError:
+            pass
 
     def test_parse_docker_inspect(self):
         sample_path = "data/docker_inspect_sample.json"
@@ -36,14 +44,11 @@ class TestDockerInspect(base.TestBase):
             docker_inspect = f.read()
 
         inspect_info = parse_docker_inspect(docker_inspect)
-        target_inspect_info = InspectResult(
-                "openmindstudio",
-                "trialslot_nnimain_d65bc5ac",
-                "tuner",
-                "0",
-                "0,1,",
-                "application_1522829300813_1943",
-                95539)
+        target_inspect_info = InspectResult("openmindstudio",
+                                            "trialslot_nnimain_d65bc5ac",
+                                            "tuner", "0", "0,1,",
+                                            "application_1522829300813_1943",
+                                            95539)
 
         self.assertEqual(target_inspect_info, inspect_info)
 
@@ -54,13 +59,9 @@ class TestDockerInspect(base.TestBase):
 
         inspect_info = parse_docker_inspect(docker_inspect)
         target_inspect_info = InspectResult(
-                "core",
-                "core~tensorflowcifar10",
-                "worker",
-                "0",
-                "GPU-dc0671b0-61a4-443e-f456-f8fa6359b788",
-                "0_69c05215-46fa-11e9-8937-000d3ab38724",
-                23774)
+            "core", "core~tensorflowcifar10", "worker", "0",
+            "GPU-dc0671b0-61a4-443e-f456-f8fa6359b788",
+            "0_69c05215-46fa-11e9-8937-000d3ab38724", 23774)
         self.assertEqual(target_inspect_info, inspect_info)
 
     def test_parse_docker_inspect_BUGFIX(self):
@@ -70,13 +71,9 @@ class TestDockerInspect(base.TestBase):
 
         inspect_info = parse_docker_inspect(docker_inspect)
         target_inspect_info = InspectResult(
-                "sokoya",
-                "sokoya~train-exp_offrl_sc_discard_0231-10th-beta07-lrfixed_13e9bf5_gCYv",
-                "train",
-                "0",
-                "3,2,1,0",
-                "application_1553664769226_0080",
-                30332)
+            "sokoya",
+            "sokoya~train-exp_offrl_sc_discard_0231-10th-beta07-lrfixed_13e9bf5_gCYv",
+            "train", "0", "3,2,1,0", "application_1553664769226_0080", 30332)
         self.assertEqual(target_inspect_info, inspect_info)
 
     def test_adapt_dlts_jobs(self):
@@ -86,14 +83,21 @@ class TestDockerInspect(base.TestBase):
 
         inspect_info = parse_docker_inspect(docker_inspect)
         target_inspect_info = InspectResult(
-                "dixu",
-                "0c435eee-d31f-43d5-a1b3-442845fa1d0c",
-                None,
-                None,
-                "GPU-7c583998-b3ff-a885-8979-2d32d334cde4",
-                None,
-                3533)
+            "dixu", "0c435eee-d31f-43d5-a1b3-442845fa1d0c", None, None,
+            "GPU-7c583998-b3ff-a885-8979-2d32d334cde4", None, 3533)
         self.assertEqual(target_inspect_info, inspect_info)
+
+    def test_parse_docker_inspect_amd(self):
+        sample_path = "data/docker_inspect_amd.json"
+        with open(sample_path, "r") as f:
+            docker_inspect = f.read()
+
+        inspect_info = parse_docker_inspect(docker_inspect)
+        target_inspect_info = InspectResult(
+            "core", "core~tensorflowcifar10", "worker", "0",
+            "0,1", "0_69c05215-46fa-11e9-8937-000d3ab38724", 23774)
+        self.assertEqual(target_inspect_info, inspect_info)
+
 
 if __name__ == '__main__':
     unittest.main()

@@ -75,8 +75,11 @@ def parse_docker_inspect(inspect_output):
             # for kube-launcher tasks
             if k == "FC_TASK_INDEX":
                 m["PAI_TASK_INDEX"] = v
-            elif k == "NVIDIA_VISIBLE_DEVICES" and v != "all" and v != "void":
-                m["GPU_ID"] = v
+            else:
+                if k == "NVIDIA_VISIBLE_DEVICES" and v and v != "all" and v != "void":
+                    m["GPU_ID"] = v
+                if k == "PAI_AMD_VISIBLE_DEVICES" and v:
+                    m["GPU_ID"] = v
 
             if k == "FC_FRAMEWORK_ATTEMPT_INSTANCE_UID" or k == "APP_ID":
                 m["JOB_INSTANCE_ID"] = v
