@@ -1,9 +1,7 @@
 # OpenPAI job config file edit features
 
-In OpenPAI, all jobs are represented by YAML, a markup language.
-
-Base on VSCode editor [IntelliSense](https://code.visualstudio.com/docs/editor/intellisense) and [YAML extension](https://marketplace.visualstudio.com/items?itemName=redhat.vscode-yaml), OpenPAI VS Code Client support some features to improve user experience for editing job config file.
-
+In OpenPAI, all jobs are represented by YAML, a markup language.  
+Base on VSCode editor [IntelliSense](https://code.visualstudio.com/docs/editor/intellisense) and [YAML extension](https://marketplace.visualstudio.com/items?itemName=redhat.vscode-yaml), OpenPAI VS Code Client support some features to improve user experience for editing job config file.  
 For more details about the protocol of OpenPAI job, please refer to [PAI Job Protocol](https://github.com/microsoft/pai/blob/master/docs/pai-job-protocol.yaml).
 
 - [OpenPAI job config file edit features](#openpai-job-config-file-edit-features)
@@ -76,7 +74,7 @@ Base on VSCode editor [IntelliSense](https://code.visualstudio.com/docs/editor/i
 
 ### 2. Code snippets
 
-We provide several code snippets for VSCode YAML editor, user can use it to form their job config easily.
+We provide several code snippets for VSCode YAML editor, user can use it to form their job config easily.  
 It could be trigger by typing or right click in the editor and select `OpenPAI: Insert job config`
 
 #### Trigger by typing
@@ -89,7 +87,7 @@ It could be trigger by typing or right click in the editor and select `OpenPAI: 
 
 ## Insert OpenPAI Runtime Plugin
 
-OpenPAI support some runtime plugins, such as SSH plugin, Storage plugin and Tensorboard plugin, user can config it in their job and setup the service.
+OpenPAI support some runtime plugins, such as SSH plugin, Storage plugin and Tensorboard plugin, user can config it in their job and setup the service.  
 Here is an example of runtime plugin config:
 
 ```yaml
@@ -113,7 +111,7 @@ We provide several ways to help user insert the plugin config in YAML file.
 
 ### Insert by code snippet
 
-The snippet `OpenPAI Runtime Plugin` will include `"com.microsoft.pai.runtimeplugin:"` line, and will ask user to select the first plugin type and generate it.
+The snippet `OpenPAI Runtime Plugin` will include `"com.microsoft.pai.runtimeplugin:"` line, and will ask user to select the first plugin type and generate it.  
 Typing `"- plugin:"` will trigger `OpenPAI: Insert a runtime plugin config`, it will help user to add other plugins.
 
 ![Insert by code snippet](../assets/auto_completion_runtime_plugin_snippet.gif)
@@ -126,6 +124,6 @@ Right click the editor and select `OpenPAI: Insert job config`, and select `Open
 
 ## Reference
 
-[PAI Job Protocol](https://github.com/microsoft/pai/blob/master/docs/pai-job-protocol.yaml)
-[Submit Jobs on OpenPAI](https://github.com/microsoft/pai/blob/master/docs/user/job_submission.md#job-workflow)
+[PAI Job Protocol](https://github.com/microsoft/pai/blob/master/docs/pai-job-protocol.yaml)  
+[Submit Jobs on OpenPAI](https://github.com/microsoft/pai/blob/master/docs/user/job_submission.md#job-workflow)  
 [Troubleshoot jobs](https://github.com/microsoft/pai/blob/master/docs/user/troubleshooting_job.md)
