@@ -113,6 +113,11 @@ def main():
         "{0}/infra-hosts.yml".format(output_path),
         map_table
     )
+    generate_template_file(
+        "quick-start/openpai.yml.template",
+        "{0}/openpai.yml".format(output_path),
+        map_table
+    )
 
 
 if __name__ == "__main__":
