@@ -5,7 +5,7 @@
   - Based on `Ubuntu 18.04` and `Python 3.6`.
   - Fixed version number for different deep learning frameworks.
   - Different dockers for `CPU` and `CUDA (GPU)`.
-  - Built-in `SSH` and `jupyter notebook` support.
+  - Built-in `SSH` and `Jupyter Notebook` support.
 
 The following table shows all provided images. The tag indicates the version of the built-in deep learning framework and whether it supports GPU. Some GPU-supported docker requires a high version of your NVIDIA driver, because of the requirement of using different versions of `CUDA`.
 
