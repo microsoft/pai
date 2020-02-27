@@ -17,6 +17,7 @@
 
 // module dependencies
 const asyncHandler = require('@pai/middlewares/v2/asyncHandler');
+const createError = require('@pai/utils/error');
 const {get, list} = require('@pai/models/v2/storage');
 const {getUserStorages} = require('@pai/models/v2/user');
 
@@ -116,7 +117,15 @@ const getConfig = asyncHandler(async (req, res) => {
     .filter((item) => names ? names.includes(item.name) : true)
     .map((item) => convertConfig(item, userDefaultStorages));
 
-  res.json(storages);
+  if (req.params.name) {
+    if (storages.length === 1) {
+      res.json(storages[0]);
+    } else {
+      throw createError(500, 'UnknownError', 'Config not found.');
+    }
+  } else {
+    res.json(storages);
+  }
 });
 
 const getServer = asyncHandler(async (req, res) => {
@@ -137,7 +146,15 @@ const getServer = asyncHandler(async (req, res) => {
       .filter((item) => names ? names.includes(item.volumeName) : true)
       .map(convertServer));
 
-  res.json(storages);
+  if (req.params.name) {
+    if (storages.length === 1) {
+      res.json(storages[0]);
+    } else {
+      throw createError(500, 'UnknownError', 'Server not found.');
+    }
+  } else {
+    res.json(storages);
+  }
 });
 
 // module exports
