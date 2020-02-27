@@ -11,6 +11,7 @@ OpenPAI VS Code Client is an extension to connect OpenPAI clusters, submit AI jo
     - [Prerequisites](#prerequisites)
     - [Steps](#steps)
     - [Limitations](#limitations)
+  - [Source code auto upload](#source-code-auto-upload)
   - [Reference](#reference)
     - [GUI](#gui)
     - [Command Palette](#command-palette)
@@ -64,6 +65,7 @@ If there are multiple OpenPAI clusters, you can follow above steps again to conn
 
 ## Submit job
 
+There is a tutorial for OpenPAI job submission, please refer to [Submit job to OpenPAI](documentation/submit_job.md).
 After added a cluster configuration, you can find the cluster in *PAI CLUSTER EXPLORER* pane as below.
 
 ![pai cluster explorer](https://raw.githubusercontent.com/Microsoft/pai/master/contrib/pai_vscode/assets/pai_cluster_explorer.png)
@@ -128,6 +130,10 @@ As local simulation is a close but still different environment with OpenPAI clus
 - Local machine may not be able to access some storage. The OpenPAI cluster may be deployed in a private environment, so that local computer may not able to access resource of cluster.
 - Local simulated can't support OpenPAI cluster runtime plugin (e.g. SSH plugin, teamwise storage plugin, tensorboard plugin), user should install them manully.
 
+## Source code auto upload
+
+Please refer to [Auto Upload](https://raw.githubusercontent.com/Microsoft/pai/master/contrib/pai_vscode/documentation/storage_explorer_and_auto_upload.md#Auto-Upload).
+
 ## Reference
 
 ### GUI
@@ -136,9 +142,13 @@ The client has two GUI parts. First is the *PAI CLUSTER EXPLORER* in explorer an
 
 ![activity bar](https://raw.githubusercontent.com/Microsoft/pai/master/contrib/pai_vscode/assets/activity_bar.png)
 
-There are two parts in the side bar.
+There are three parts in the side bar.
 
-- HDFS Explorer
+- Storage Explorer (For PAI > 0.14.0)
+  
+    Please refer to [Storage Explorer](https://raw.githubusercontent.com/Microsoft/pai/master/contrib/pai_vscode/documentation/storage_explorer_and_auto_upload.md#Storage-Explorer).
+
+- HDFS Explorer (For PAI <= 0.14.0)
 
     You can view, upload and download folder and files of the OpenPAI cluster storage.
 
