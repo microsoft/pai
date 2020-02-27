@@ -151,7 +151,7 @@ The field `"pai.job.v2.upload"` is the auto upload config, contains objects as:
   "exclude": [],  // filter files not to upload
   "storageType": "cluster",         // "cluster" or "personal"
   "storageName": "<storage_name>",  // storage name
-  "storageMountPoint": "/home"      // storage mount point
+  "storageMountPoint": "/home"      // storage mount point, ignore it if storageType is "personal"
 }
 ```
 
