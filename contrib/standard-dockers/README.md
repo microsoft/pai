@@ -44,7 +44,7 @@ Also, you can launch them locally, in your terminal. If you are using a GPU dock
 docker run -it openpai/standard:python_3.6-pytorch_1.1.0-gpu python
 ```
 
-Using the docker images to start a `jupyter notebook` is also feasible:
+Using the docker images to start a `Jupyter Notebook` is also feasible:
 
 ```bash
 # you can access the notebook from <your-server-ip>:8888
