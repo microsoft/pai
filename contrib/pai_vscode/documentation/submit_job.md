@@ -10,6 +10,9 @@ Before learning this document, make sure you have an OpenPAI cluster already, an
     - [Create a job config file](#create-a-job-config-file)
     - [Edit the config file](#edit-the-config-file)
     - [Submit it](#submit-it)
+  - [Manage Your Data](#manage-your-data)
+    - [Teamwise Storage](#teamwise-storage)
+    - [Storage explorer and auto upload](#storage-explorer-and-auto-upload)
   - [Reference](#reference)
 
 ## Install OpenPAI VSCode Client
@@ -82,6 +85,23 @@ Finish editing the config file, save it and right click on the editor and select
 After the information `Successfully submitted job.` pop up, you can click the `Open job page` button at right bottom corner, and view you job on website.
 
 ![Submit](../assets/submit.gif)
+
+## Manage Your Data
+
+Most model training and other kinds of jobs need to transfer files between running environments and outside. Files include dataset, code, scripts, trained model, and so on.
+
+### Teamwise Storage
+
+OpenPAI admin can define Team-wise storage through [Storage Plugin](https://github.com/microsoft/pai/tree/master/contrib/storage_plugin).  
+User's job container can mount to the storage if user add it in job config file, for how to insert storage plugin into job config, please refer to [Insert OpenPAI Runtime Plugin](edit_yaml_job_config.md#Insert-OpenPAI-Runtime-Plugin).
+
+### Storage explorer and auto upload
+
+To manage user's data in Team-wise storage, `OpenPAI VS Code Client` support a `STORAGE EXPLORER` in vscode, User can manage data in the explorer.  
+We also support an `Auto Upload` feature in VSCode, the client will auto upload user's project file to the storage before submit job.  
+For more info, refer to [Storage Explorer and Auto Upload](storage_explorer_and_auto_upload.md)
+
+![Storage Explorer](../assets/storage.gif)
 
 ## Reference
 
