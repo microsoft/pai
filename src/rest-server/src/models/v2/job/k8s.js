@@ -900,15 +900,15 @@ const put = async (frameworkName, config, rawConfig) => {
     'com.microsoft.pai.runtimeplugin' in config.extras
   ) {
     for (let plugin of config.extras['com.microsoft.pai.runtimeplugin']) {
-      if (
-        plugin.plugin === 'teamwise_storage' &&
-        'parameters' in plugin &&
-        plugin.parameters.storageConfigNames
-      ) {
-        config.extras.storages =
-          plugin.parameters.storageConfigNames.map((name) => {
-            return {name};
-          });
+      if (plugin.plugin === 'teamwise_storage') {
+        if ('parameters' in plugin && plugin.parameters.storageConfigNames) {
+          config.extras.storages =
+            plugin.parameters.storageConfigNames.map((name) => {
+              return {name};
+            });
+        } else {
+          config.extras.storages = [];
+        }
       }
     }
   }

@@ -100,7 +100,11 @@ const convertVolumeDetail = async (pvc) => {
       storage.data.accountKey = secretData.azurestorageaccountkey;
     } else if (storage.type === 'azureBlob') {
       storage.data.accountName = secretData.accountname;
-      storage.data.accountKey = secretData.accountkey;
+      if (secretData.accountkey) {
+        storage.data.accountKey = secretData.accountkey;
+      } else if (secretData.accountsastoken) {
+        storage.data.accountSASToken = secretData.accountsastoken;
+      }
     } else if (storage.type === 'samba') {
       storage.data.username = secretData.username;
       storage.data.password = secretData.password;

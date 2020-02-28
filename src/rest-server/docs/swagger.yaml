@@ -1691,6 +1691,8 @@ components:
                 type: string
               accountKey:
                 type: string
+              accountSASToken:
+                type: string
             required: [containerName]
           - type: object
             description: other/unknown type
