@@ -35,6 +35,10 @@ Lastly, HiveD is **fault-tolerant**. It can handle random machine failures and c
 ## Official Image
 * [DockerHub](https://hub.docker.com/u/hivedscheduler)
 
+## Related Project
+* [FrameworkController](https://github.com/microsoft/frameworkcontroller): A General-Purpose Kubernetes Pod Controller, which can easily leverage HiveD to schedule jobs .
+* [OpenPAI](https://github.com/microsoft/pai): A complete solution for AI platform, which makes HiveD more user friendly.
+
 ## Contributing
 This project welcomes contributions and suggestions. Most contributions require you to agree to a
 Contributor License Agreement (CLA) declaring that you have the right to, and actually do, grant us
