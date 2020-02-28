@@ -27,33 +27,13 @@ const convertConfig = (storage, userDefaultStorages) => {
     name: storage.name,
     default: (userDefaultStorages.includes(storage.name)),
     servers: [storage.volumeName],
-    mountInfos: [],
+    mountInfos: [{
+      mountPoint: `/mnt/${storage.name}`,
+      path: storage.share === false ? '${PAI_USER_NAME}' : '',
+      server: storage.volumeName,
+      permission: 'rw',
+    }],
   };
-  if (storage.share === false) {
-    config.mountInfos = [
-      {
-        mountPoint: '/data',
-        path: 'data',
-        server: storage.volumeName,
-        permission: 'rw',
-      },
-      {
-        mountPoint: '/home',
-        path: 'users/${PAI_USER_NAME}',
-        server: storage.volumeName,
-        permission: 'rw',
-      },
-    ];
-  } else {
-    config.mountInfos = [
-      {
-        mountPoint: `/mnt/${storage.name}`,
-        path: '',
-        server: storage.volumeName,
-        permission: 'rw',
-      },
-    ];
-  }
   return config;
 };
 
@@ -68,9 +48,7 @@ const convertServer = async (storage) => {
   if (server.type === 'nfs') {
     server.data = {
       address: detail.data.server,
-      rootPath: detail.share === false ?
-        detail.data.path.replace(/\/users\/?$/, '') :
-        detail.data.path,
+      rootPath: detail.data.path,
     };
   } else if (server.type === 'samba') {
     const address = detail.data.address.replace(/^\/\//, '');
