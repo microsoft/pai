@@ -893,19 +893,49 @@ const put = async (frameworkName, config, rawConfig) => {
     throw createError('Forbidden', 'ForbiddenUserError', `User ${userName} is not allowed to do operation in ${virtualCluster}`);
   }
 
+  // check deprecated storages config
+  if (
+    'extras' in config &&
+    !config.extras.storages &&
+    'com.microsoft.pai.runtimeplugin' in config.extras
+  ) {
+    for (let plugin of config.extras['com.microsoft.pai.runtimeplugin']) {
+      if (
+        plugin.plugin === 'teamwise_storage' &&
+        'parameters' in plugin &&
+        plugin.parameters.storageConfigNames
+      ) {
+        config.extras.storages =
+          plugin.parameters.storageConfigNames.map((name) => {
+            return {name};
+          });
+      }
+    }
+  }
   // check storages for current user
   if ('extras' in config && config.extras.storages) {
-    const userStorages = {};
-    (await storageModel.list()).storages
-      .forEach((userStorage) => userStorages[userStorage.name] = userStorage);
-    for (let storage of config.extras.storages) {
-      if (!storage.name) {
-        continue;
-      }
-      if (!(storage.name in userStorages)) {
-        throw createError('Not Found', 'NoStorageError', `Storage ${storage.name} is not found.`);
-      } else {
-        storage.share = userStorages[storage.name].share;
+    // add default storages if config is empty
+    if (config.extras.storages.length === 0) {
+      (await storageModel.list(userName, true)).storages
+        .forEach((userStorage) => {
+          config.extras.storages.push({
+            name: userStorage.name,
+            share: userStorage.share,
+          });
+        });
+    } else {
+      const userStorages = {};
+      (await storageModel.list(userName)).storages
+        .forEach((userStorage) => userStorages[userStorage.name] = userStorage);
+      for (let storage of config.extras.storages) {
+        if (!storage.name) {
+          continue;
+        }
+        if (!(storage.name in userStorages)) {
+          throw createError('Not Found', 'NoStorageError', `Storage ${storage.name} is not found.`);
+        } else {
+          storage.share = userStorages[storage.name].share;
+        }
       }
     }
   }

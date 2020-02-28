@@ -110,7 +110,7 @@ const convertVolumeDetail = async (pvc) => {
   return storage;
 };
 
-const list = async (userName) => {
+const list = async (userName, filterDefault=false) => {
   let response;
   try {
     response = await kubernetes.getClient().get(
@@ -127,7 +127,7 @@ const list = async (userName) => {
     throw createError(response.status, 'UnknownError', response.data.message);
   }
 
-  const userStorages = userName ? await user.getUserStorages(userName) : undefined;
+  const userStorages = userName ? await user.getUserStorages(userName, filterDefault) : undefined;
   const storages = response.data.items
     .filter((item) => item.status.phase === 'Bound')
     .filter((item) => userStorages === undefined || userStorages.includes(item.metadata.name))
