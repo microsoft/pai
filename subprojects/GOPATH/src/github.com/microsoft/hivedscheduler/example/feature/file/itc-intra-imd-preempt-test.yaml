@@ -1,0 +1,32 @@
+protocolVersion: 2
+name: itc-intra-imd-preempt-test
+type: job
+prerequisites:
+  - protocolVersion: 2
+    name: keras_tensorflow_example
+    type: dockerimage
+    uri: openpai/pai.example.keras.tensorflow
+taskRoles:
+  train:
+    instances: 1
+    completion:
+      minFailedInstances: 1
+      minSucceededInstances: 1
+    dockerImage: keras_tensorflow_example
+    resourcePerInstance:
+      cpu: 16
+      memoryMB: 32768
+      gpu: 4
+    commands:
+      - rm /usr/local/cuda/lib64/stubs/libcuda.so.1
+      - python mnist_cnn.py
+      - sleep 10000
+defaults:
+  virtualCluster: VC1
+extras:
+  hivedScheduler:
+    jobPriorityClass: test
+    taskRoles:
+      train:
+        gpuType: M60
+  submitFrom: submit-job-v2
