@@ -511,6 +511,12 @@ func testReconfiguration(t *testing.T, configFilePath string) {
 	(*newConfig.PhysicalCluster).PhysicalCells = append((*newConfig.PhysicalCluster).PhysicalCells, originalCell.CellChildren[0].CellChildren[1])
 	(*newConfig.PhysicalCluster).PhysicalCells = append((*newConfig.PhysicalCluster).PhysicalCells, originalCell.CellChildren[1].CellChildren[0])
 	(*newConfig.PhysicalCluster).PhysicalCells = append((*newConfig.PhysicalCluster).PhysicalCells, originalCell.CellChildren[1].CellChildren[1])
+	originalCell.CellChildren[0].CellChildren[0].CellAddress = "0.0.4.100"
+	originalCell.CellChildren[0].CellChildren[1].CellAddress = "0.0.4.101"
+	originalCell.CellChildren[1].CellChildren[0].CellAddress = "0.0.4.102"
+	originalCell.CellChildren[1].CellChildren[1].CellAddress = "0.0.4.103"
+	(*newConfig.PhysicalCluster).PhysicalCells = append((*newConfig.PhysicalCluster).PhysicalCells, originalCell)
+
 	h = NewHivedAlgorithm(newConfig, nil)
 	for _, chains := range h.chains {
 		sortChains(chains)
