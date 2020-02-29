@@ -52,6 +52,9 @@ type HivedAlgorithm struct {
 	freeCellList map[CellChain]ChainCellList
 	// remaining quota of each VC of each cell type
 	vcRemainingQuotas map[api.VirtualClusterName]map[CellChain]map[CellLevel]int32
+	// total remaining quota of each cell type
+	totalRemainingQuotas map[CellChain]map[CellLevel]int32
+	// number of available cells left in the physical cluster of each cell type
 	numAvailableCells map[CellChain]map[CellLevel]int32
 	// quota headroom of each cell type (i.e., the capacity in the physical cluster that exceeds the total quota)
 	quotaHeadroom map[CellChain]map[CellLevel]int32
@@ -312,64 +315,44 @@ func (h *HivedAlgorithm) GetClusterStatus() api.ClusterStatus {
 
 // validateInitialAssignment makes sure that the initial cell assignments
 // to all VCs can be fit into the configured physical cells.
-// This function also calculates the quota headroom for each cell type,
-// i.e., the number of cells in the physical cluster minus the total quota.
 func (h *HivedAlgorithm) validateInitialAssignment() {
 
-	totalQuota := map[CellChain]map[CellLevel]int32{}
+	h.totalRemainingQuotas = map[CellChain]map[CellLevel]int32{}
 	for _, vcQuota := range h.vcRemainingQuotas {
 		for chain, chainQuota := range vcQuota {
-			if totalQuota[chain] == nil {
-				totalQuota[chain] = map[CellLevel]int32{}
+			if h.totalRemainingQuotas[chain] == nil {
+				h.totalRemainingQuotas[chain] = map[CellLevel]int32{}
 			}
 			for level, quota := range chainQuota {
-				totalQuota[chain][level] += quota
+				h.totalRemainingQuotas[chain][level] += quota
 			}
 		}
 	}
-	for chain, chainQuota := range totalQuota {
+	for chain, chainQuota := range h.totalRemainingQuotas {
 		if ccl := h.fullCellList[chain]; ccl == nil {
 			panic(fmt.Sprintf(
 				"Illegal initial VC assignment: Chain %v does not exists in physical cluster", chain))
 		} else {
-			h.quotaHeadroom[chain] = map[CellLevel]int32{}
 			top := CellLevel(len(ccl))
-			topCellNum := int32(len(ccl[top]))
-			h.calculateQuotaHeadroom(chain, chainQuota, top, topCellNum, topCellNum)
+			available := int32(len(ccl[top]))
+			h.numAvailableCells[chain] = map[CellLevel]int32{}
+			h.numAvailableCells[chain][top] = available
+			for l := top; l >= lowestLevel; l-- {
+				left := available - chainQuota[l]
+				if left < 0 {
+					panic(fmt.Sprintf(
+						"Illegal initial VC assignment: "+
+							"Insufficient physical cells at chain %v level %v: %v needed, %v available",
+						chain, l, chainQuota[l], available))
+				}
+				if l > lowestLevel {
+					childNum := int32(len(ccl[l][0].GetChildren()))
+					available = left * childNum
+					h.numAvailableCells[chain][l-1] = h.numAvailableCells[chain][l] * childNum
+				}
+			}
 		}
 	}
-}
-
-func (h *HivedAlgorithm) calculateQuotaHeadroom(
-	chain CellChain,
-	quota map[CellLevel]int32,
-	level CellLevel,
-	available int32,
-	buddyNum int32) int32 {
-
-	leftForLowerLevel := available - quota[level]
-	if leftForLowerLevel < 0 {
-		panic(fmt.Sprintf(
-			"Illegal initial VC assignment: "+
-				"Insufficient physical cells at chain %v level %v: %v needed, %v available",
-			chain, level, quota[level], available))
-	}
-	totalUsed := quota[level]
-	if level > lowestLevel {
-		childNum := int32(len(h.fullCellList[chain][level][0].GetChildren()))
-		totalUsed += h.calculateQuotaHeadroom(chain, quota, level-1, leftForLowerLevel*childNum, childNum)
-	}
-	usedFromHigherLevel := int32(0)
-	if totalUsed > 0 {
-		usedFromHigherLevel = (totalUsed-1)/buddyNum + 1
-	}
-	headroom := usedFromHigherLevel*buddyNum - totalUsed
-	if headroom > 0 {
-		klog.Infof("Cell type %v has a headroom of %v cells in the physical cluster",
-			h.cellTypes[chain][level], headroom)
-	}
-	h.quotaHeadroom[chain][level] = headroom
-	return usedFromHigherLevel
 }
 
 // initClusterStatus initiates the status of the physical cluster and the VCs.
@@ -408,6 +391,8 @@ func (h *HivedAlgorithm) initClusterStatus() {
 func (h *HivedAlgorithm) initReservations() {
 	for vc, vcReservation := range h.reservedCells {
 		for rid, physical := range vcReservation {
+			h.vcRemainingQuotas[vc][physical.GetChain()][physical.GetLevel()]--
+			h.totalRemainingQuotas[physical.GetChain()][physical.GetLevel()]--
 			h.removeCellFromFreeList(physical)
 			virtualList := h.vcSchedulers[vc].getReservedCellList()[rid]
 			virtual := virtualList[CellLevel(len(virtualList))][0].(*VirtualCell)
@@ -827,9 +812,10 @@ func (h *HivedAlgorithm) confirmAllocatedGpu(
 		preassignedNewlyBound := vGpu.GetPreAssignedCell().GetPhysicalCell() == nil
 		bindCell(pGpu, vGpu)
 		if preassignedNewlyBound {
+			h.vcRemainingQuotas[g.vc][vGpu.GetChain()][vGpu.GetPreAssignedCell().GetLevel()]--
+			h.totalRemainingQuotas[vGpu.GetChain()][vGpu.GetPreAssignedCell().GetLevel()]--
 			// remove the allocated cell from the free list (possibly splitting cells)
 			h.removeCellFromFreeList(vGpu.GetPreAssignedCell().GetPhysicalCell())
-			h.vcRemainingQuotas[g.vc][vGpu.GetChain()][vGpu.GetPreAssignedCell().GetLevel()]--
 		}
 	} else {
 		setPriority(pGpu, opportunisticPriority)
@@ -849,9 +835,10 @@ func (h *HivedAlgorithm) confirmReleasedGpu(pGpu *PhysicalCell, g *AlgoAffinityG
 		preassignedPhysical := vGpu.GetPreAssignedCell().GetPhysicalCell()
 		unbindCell(pGpu)
 		if vGpu.GetPreAssignedCell().GetPhysicalCell() == nil {
+			h.vcRemainingQuotas[g.vc][vGpu.GetChain()][vGpu.GetPreAssignedCell().GetLevel()]++
+			h.totalRemainingQuotas[vGpu.GetChain()][vGpu.GetPreAssignedCell().GetLevel()]++
 			// add the released cell back to the free list (possibly merging cells)
 			h.addCellToFreeList(preassignedPhysical)
-			h.vcRemainingQuotas[g.vc][vGpu.GetChain()][vGpu.GetPreAssignedCell().GetLevel()]++
 		}
 		updateUsedGpuNumAtPriority(vGpu, vGpu.GetPriority(), false)
 		setPriority(vGpu, freePriority)
@@ -924,8 +911,16 @@ func (h *HivedAlgorithm) lazyPreemptAffinityGroup(
 // removeCellFromFreeList removes a cell from the free cell list and splits its parent recursively if needed.
 func (h *HivedAlgorithm) removeCellFromFreeList(c *PhysicalCell) {
 	chain := c.GetChain()
-	terminate := false
-	for {
+	// reduce the available cell numbers for the lower levels
+	numToRemove := int32(len(h.fullCellList[chain][c.GetLevel()][0].GetChildren()))
+	for l := c.GetLevel() - 1; l >= lowestLevel; l-- {
+		h.numAvailableCells[chain][l] -= numToRemove
+		if h.numAvailableCells[chain][l] < h.totalRemainingQuotas[chain][l] {
+			panic("Safety broken")
+		}
+		numToRemove *= int32(len(h.fullCellList[chain][l][0].GetChildren()))
+	}
+	for terminate := false; ; {
 		l := c.GetLevel()
 		parent := c.GetParent()
 		if parent != nil {
@@ -940,6 +935,10 @@ func (h *HivedAlgorithm) removeCellFromFreeList(c *PhysicalCell) {
 			terminate = true
 		}
 		h.freeCellList[chain].remove(c, l)
+		h.numAvailableCells[chain][l]--
+		if h.numAvailableCells[chain][l] < h.totalRemainingQuotas[chain][l] {
+			panic(fmt.Sprintf("Safety broken: chain %v, level %v, available %v, remaining quota %v", chain, l, h.numAvailableCells[chain][l], h.totalRemainingQuotas[chain][l]))
+		}
 		if terminate {
 			break
 		} else {
@@ -951,8 +950,13 @@ func (h *HivedAlgorithm) removeCellFromFreeList(c *PhysicalCell) {
 // addCellToFreeList adds a cell to the free cell list and merges its buddies recursively if needed.
 func (h *HivedAlgorithm) addCellToFreeList(c *PhysicalCell) {
 	chain := c.GetChain()
-	terminate := false
-	for {
+	// increase the available cell numbers for the lower levels
+	numToAdd := int32(len(h.fullCellList[chain][c.GetLevel()][0].GetChildren()))
+	for l := c.GetLevel() - 1; l >= lowestLevel; l-- {
+		h.numAvailableCells[chain][l] += numToAdd
+		numToAdd *= int32(len(h.fullCellList[chain][l][0].GetChildren()))
+	}
+	for terminate := false; ; {
 		l := c.GetLevel()
 		parent := c.GetParent()
 		if parent != nil {
@@ -976,6 +980,7 @@ func (h *HivedAlgorithm) addCellToFreeList(c *PhysicalCell) {
 		} else {
 			terminate = true
 		}
+		h.numAvailableCells[chain][l]++
 		if terminate {
 			h.freeCellList[chain][l] = append(h.freeCellList[chain][l], c)
 			break
