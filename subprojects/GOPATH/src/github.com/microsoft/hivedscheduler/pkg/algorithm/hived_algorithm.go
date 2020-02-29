@@ -80,7 +80,7 @@ type HivedAlgorithm struct {
 
 // NewHivedAlgorithm initializes a HivedAlgorithm from the config file
 func NewHivedAlgorithm(sConfig *api.Config, nl coreLister.NodeLister) *HivedAlgorithm {
-	fullPcl, freePcl, vcQuotas, nonReservedVcl, reservedVcl, reservedPc,
+	fullPcl, freePcl, vcQuotas, nonReservedFullVcl, nonReservedFreeVcl, reservedVcl, reservedPc,
 		gpuNums, gpuTypeToChain, cellLevelToType := ParseConfig(sConfig)
 
 	h := &HivedAlgorithm{
@@ -101,9 +101,10 @@ func NewHivedAlgorithm(sConfig *api.Config, nl coreLister.NodeLister) *HivedAlgo
 		},
 		nodeLister: nl,
 	}
-	for vcName := range nonReservedVcl {
+	for vcName := range nonReservedFullVcl {
 		// TODO: Support per-VC configurable intra VC scheduling algo.
-		h.vcSchedulers[vcName] = newDefaultIntraVCScheduler(nonReservedVcl[vcName], reservedVcl[vcName], gpuNums)
+		h.vcSchedulers[vcName] = newDefaultIntraVCScheduler(
+			nonReservedFullVcl[vcName], nonReservedFreeVcl[vcName], reservedVcl[vcName], gpuNums)
 	}
 	for chain, ccl := range h.fullCellList {
 		h.opportunisticSchedulers[chain] = NewTopologyAwareScheduler(ccl, gpuNums[chain], false, true)
@@ -365,7 +366,7 @@ func (h *HivedAlgorithm) initClusterStatus() {
 	}
 	for vc, vcs := range h.vcSchedulers {
 		h.clusterStatus.VirtualClusters[string(vc)] = []*api.VirtualCellStatus{}
-		for _, ccl := range vcs.getNonReservedCellList() {
+		for _, ccl := range vcs.getNonReservedFullCellList() {
 			for _, cl := range ccl {
 				for _, c := range cl {
 					if CellEqual(c, c.(*VirtualCell).GetPreAssignedCell()) {
@@ -534,7 +535,7 @@ func (h *HivedAlgorithm) scheduleAffinityGroupForGpuType(
 		} else {
 			vcHasType := false
 			for _, chain := range chains {
-				if h.vcSchedulers[sr.vc].getNonReservedCellList()[chain] != nil {
+				if h.vcSchedulers[sr.vc].getNonReservedFullCellList()[chain] != nil {
 					vcHasType = true
 				}
 				sr.chain = chain
@@ -769,7 +770,7 @@ func (h *HivedAlgorithm) findAllocatedGpu(
 				} else if vcs := h.vcSchedulers[s.VirtualCluster]; vcs == nil {
 					message = fmt.Sprintf("VC %v not found", s.VirtualCluster)
 				} else {
-					vccl := vcs.getNonReservedCellList()[pGpu.GetChain()]
+					vccl := vcs.getNonReservedFreeCellList()[pGpu.GetChain()]
 					str := string(pGpu.GetChain())
 					if s.ReservationId != "" {
 						vccl = vcs.getReservedCellList()[s.ReservationId]
@@ -1325,14 +1326,14 @@ func mapNonPreassignedCellToPhysical(c *VirtualCell, suggestedNodeSet common.Set
 // used for finding the virtual cell when adding an allocated pod.
 func mapNonPreassignedCellToVirtual(
 	c *PhysicalCell,
-	ccl ChainCellList,
+	vccl ChainCellList,
 	preassignedLevel CellLevel,
 	p CellPriority) (*VirtualCell, string) {
 
 	if c.GetVirtualCell() != nil {
 		return c.GetVirtualCell(), ""
 	} else if c.GetLevel() == preassignedLevel {
-		if preassignedVirtual := getLowestPriorityCell(ccl[preassignedLevel], p); preassignedVirtual == nil {
+		if preassignedVirtual := getLowestPriorityCell(vccl[preassignedLevel], p); preassignedVirtual == nil {
 			return nil, fmt.Sprintf("insufficient quota in the VC at the preassigned level (%v)", preassignedLevel)
 		} else {
 			return preassignedVirtual.(*VirtualCell), ""
@@ -1342,7 +1343,7 @@ func mapNonPreassignedCellToVirtual(
 			"physical and virtual cell hierarchies not match (cannot reach the preassigned level %v in physical)",
 			preassignedLevel)
 	} else {
-		parentVirtual, message := mapNonPreassignedCellToVirtual(c.GetParent().(*PhysicalCell), ccl, preassignedLevel, p)
+		parentVirtual, message := mapNonPreassignedCellToVirtual(c.GetParent().(*PhysicalCell), vccl, preassignedLevel, p)
 		if parentVirtual == nil {
 			return nil, message
 		} else {

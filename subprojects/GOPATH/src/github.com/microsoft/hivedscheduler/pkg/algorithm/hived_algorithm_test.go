@@ -405,7 +405,7 @@ func printConfig(t *testing.T, h *HivedAlgorithm) {
 	}
 	for vc, vcs := range h.vcSchedulers {
 		t.Logf("%v", vc)
-		for chain, ccl := range vcs.getNonReservedCellList() {
+		for chain, ccl := range vcs.getNonReservedFullCellList() {
 			t.Logf("%v", chain)
 			t.Logf("%v", ccl)
 		}
