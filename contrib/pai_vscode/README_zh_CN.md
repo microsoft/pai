@@ -3,7 +3,7 @@
 OpenPAI VS Code Client 是一个 Visual Studio Code 的扩展组件，可以连接 OpenPAI 集群，提交 Job，在本地模拟运行 Job，管理文件等等。
 
 - [OpenPAI VS Code Client](#openpai-vs-code-client)
-  - [连接到 OpenPAI 群集](#%e8%bf%9e%e6%8e%a5%e5%88%b0-openpai-%e7%be%a4%e9%9b%86)
+  - [连接到 OpenPAI 集群](#%e8%bf%9e%e6%8e%a5%e5%88%b0-openpai-%e9%9b%86%e7%be%a4)
   - [提交 Job](#%e6%8f%90%e4%ba%a4-job)
   - [本机模拟](#%e6%9c%ac%e6%9c%ba%e6%a8%a1%e6%8b%9f)
     - [先决条件](#%e5%85%88%e5%86%b3%e6%9d%a1%e4%bb%b6)
@@ -19,7 +19,7 @@ OpenPAI VS Code Client 是一个 Visual Studio Code 的扩展组件，可以连�
   - [贡献](#%e8%b4%a1%e7%8c%ae)
   - [许可证](#%e8%ae%b8%e5%8f%af%e8%af%81)
 
-## 连接到 OpenPAI 群集
+## 连接到 OpenPAI 集群
 
 使用 OpenPAI VS Code Client 之前，按照以下步骤连接到 OpenPAI 集群。
 
@@ -41,7 +41,7 @@ OpenPAI VS Code Client 是一个 Visual Studio Code 的扩展组件，可以连�
       ![添加集群配置](https://raw.githubusercontent.com/Microsoft/pai/master/contrib/pai_vscode/assets/add-cluster-finish.png)
       
 
-如果有多个 OpenPAI 群集，可以多次按照上述步骤进行。
+如果有多个 OpenPAI 集群，可以多次按照上述步骤进行。
 
 ## 提交 Job
 
@@ -64,7 +64,7 @@ OpenPAI VS Code Client 是一个 Visual Studio Code 的扩展组件，可以连�
       此动画显示了上述步骤。
       ![提交 Job](https://raw.githubusercontent.com/Microsoft/pai/master/contrib/pai_vscode/assets/submit-job-v2.gif)
 
-提交 v1 Job：
+提交 v1 Job (deprecating, OpenPAI < 0.13.0)：
 
 可通过以下步骤创建 Job 配置，并提交到 OpenPAI。
 

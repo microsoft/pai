@@ -85,7 +85,7 @@ You can create a job v2 configuration and submit to OpenPAI as below steps.
     This animation shows above steps.
     ![submit job](https://raw.githubusercontent.com/Microsoft/pai/master/contrib/pai_vscode/assets/submit-job-v2.gif)
 
-Submit V1 job:
+Submit V1 Job (deprecating, only for OpenPAI version under 0.13.0):
 
 You can create a job configuration and submit to OpenPAI as below steps.
 
