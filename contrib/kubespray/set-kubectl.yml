@@ -1,0 +1,8 @@
+---
+- hosts: localhost
+  become: true
+  become_user: root
+  roles:
+    - { role: kubectl }
+  vars:
+    ansible_connection: local
