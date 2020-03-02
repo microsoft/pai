@@ -37,3 +37,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 - Support AAD login to OpenPAI cluster
   - User can use access token instead of password in cluster config file.
+
+## [0.3.0] - 2020-03
+
+### Added
+
+- Add storage explorer
+  - User can use storage explorer to manage data in OpenPAI teamwise storage
+  - User can add personal storage to storage explorer
+- Add auto upload feature to teamwise storage and personal storage
+- New job list auto refresh rule
+  - Job list auto refresh will be trigger only when the `PAI JOB LIST` view is visible.
+- Add notification to website after AAD login success
