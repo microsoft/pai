@@ -32,9 +32,9 @@ const generateSpecMap = () => {
   return exitSpecMap;
 };
 
-const decodeName = (name, labels) => {
-  if (labels && labels.jobName) {
-    return labels.jobName;
+const decodeName = (name, annotations) => {
+  if (annotations && annotations.jobName) {
+    return annotations.jobName;
   } else {
     // framework name has not been encoded
     return name;
@@ -186,7 +186,7 @@ const convertToJobAttempt = async (framework) => {
   const completionStatus = framework.status.attemptStatus.completionStatus;
   const jobName = decodeName(
     framework.metadata.name,
-    framework.metadata.labels,
+    framework.metadata.annotations,
   );
   const frameworkName = framework.metadata.name;
   const uid = framework.metadata.uid;
