@@ -1,6 +1,6 @@
 # Upgrade to v0.18.0
 
-There are breaking changes between OpenPAI v0.14.0 and v0.18.0. Before v0.18.0, OpenPAI was based on Yarn and Kubernetes, and data was managed by HDFS. In v0.18.0, it has switched to a pure kubernetes-based architecture. Many new features, such as `AAD authorization`, `hivedscheduler`, `kube-runtime`, `marketplace`, etc., are also included in this release.
+There are breaking changes between OpenPAI v0.14.0 and v0.18.0. Before v0.18.0, OpenPAI was based on Yarn and Kubernetes, and data was managed by HDFS. In v0.18.0, it has switched to a pure Kubernetes-based architecture. Many new features, such as `AAD authorization`, `Hivedscheduler`, `Kube Runtime`, `Marketplace`, etc., are also included in this release.
 
 The upgrade contains three phases:
 
@@ -11,11 +11,11 @@ The upgrade contains three phases:
 
 ## Save your Data to a Different Place
 
-The upgrade from older version to `v0.18.0` cannot preserve only any useful data: all jobs, user information, dataset will be lost inevitably and irreversibly. Thus, if you have any usefult data in previous deployment, please make sure you have saved them to a different place.
+The upgrade from older version to `v0.18.0` cannot preserve any useful data: all jobs, user information, dataset will be lost inevitably and irreversibly. Thus, if you have any useful data in previous deployment, please make sure you have saved them to a different place.
 
 #### HDFS Data
 
-Before v0.18.0, PAI will deploy an HDFS server for you. In v0.18.0, the HDFS server won't be deployed and previous data will be removed in upgrade. Please use the following command to transfer your HDFS data:
+Before v0.18.0, PAI will deploy an HDFS server for you. In v0.18.0, the HDFS server won't be deployed and previous data will be removed in upgrade. The following commands could be used to transfer your HDFS data:
 
 ```bash
 # check data structure
