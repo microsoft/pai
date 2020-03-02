@@ -78,6 +78,8 @@ type SchedulerAlgorithm interface {
 	AddNode(node *core.Node)
 	UpdateNode(oldNode, newNode *core.Node)
 	DeleteNode(node *core.Node)
+	SetBadNode(nodeName string)
+	SetHealthyNode(nodeName string)
 
 	// Track all current allocated Pods in the whole cluster.
 	// Allocated Pod includes both PodBound and PodBinding Pods.

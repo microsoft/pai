@@ -43,6 +43,10 @@ import (
 	"time"
 )
 
+const (
+	watchNodesInterval = time.Duration(60)
+)
+
 // HivedScheduler is the scheduling framework which serves as the bridge between
 // the scheduling algorithm and K8S.
 // It provides the whole cluster scheduling view and the interested pod scheduling
@@ -117,6 +121,11 @@ type HivedScheduler struct {
 	// SchedulerAlgorithm is used to make the pod schedule decision based on the
 	// scheduling view.
 	schedulerAlgorithm internal.SchedulerAlgorithm
+
+	// healthyNodes and badNodes are used to track the healthiness of nodes
+	// (so as to inform the scheduler algorithm)
+	healthyNodes []string
+	badNodes     []string
 }
 
 func NewHivedScheduler() *HivedScheduler {
@@ -145,7 +154,7 @@ func NewHivedScheduler() *HivedScheduler {
 		podLister:           podLister,
 		schedulerLock:       &sync.RWMutex{},
 		podScheduleStatuses: internal.PodScheduleStatuses{},
-		schedulerAlgorithm:  algorithm.NewHivedAlgorithm(sConfig, nodeLister),
+		schedulerAlgorithm:  algorithm.NewHivedAlgorithm(sConfig),
 	}
 
 	// Setup Informer Callbacks
@@ -208,6 +217,9 @@ func (s *HivedScheduler) Run(stopCh <-chan struct{}) {
 	s.webServer.AsyncRun(stopCh)
 	klog.Infof("Running " + si.ComponentName)
 
+	// Watch node healthiness
+	go s.watchNodes()
+
 	<-stopCh
 }
 
@@ -217,6 +229,7 @@ func (s *HivedScheduler) addNode(obj interface{}) {
 	klog.Infof(logPfx + "Started")
 	defer internal.HandleInformerPanic(logPfx, true)
 
+	s.healthyNodes = append(s.healthyNodes, node.Name)
 	s.schedulerAlgorithm.AddNode(node)
 }
 
@@ -682,4 +695,56 @@ func (s *HivedScheduler) getAffinityGroup(name string) si.AffinityGroup {
 
 func (s *HivedScheduler) getClusterStatus() si.ClusterStatus {
 	return s.schedulerAlgorithm.GetClusterStatus()
+}
+
+func (s *HivedScheduler) watchNodes() {
+	for {
+		s.watchHealthyNodes()
+		s.watchBadNodes()
+		time.Sleep(watchNodesInterval * time.Second)
+	}
+}
+
+// watchHealthyNodes checks the healthiness of nodes. It it found a bad node,
+// it will call the scheduler algorithm to mark it as node.
+func (s *HivedScheduler) watchHealthyNodes() {
+	s.schedulerLock.Lock()
+	defer s.schedulerLock.Unlock()
+
+	var badNodeIndices []int32
+	for i, n := range s.healthyNodes {
+		if _, err := s.nodeLister.Get(n); err != nil {
+			s.schedulerAlgorithm.SetBadNode(n)
+			badNodeIndices = append(badNodeIndices, int32(i))
+		}
+	}
+	oriHealthyNodeNum := len(s.healthyNodes)
+	for i, bni := range badNodeIndices {
+		s.badNodes = append(s.badNodes, s.healthyNodes[bni])
+		s.healthyNodes[bni] = s.healthyNodes[oriHealthyNodeNum-1-i]
+		s.healthyNodes[oriHealthyNodeNum-1-i] = ""
+	}
+	s.healthyNodes = s.healthyNodes[:oriHealthyNodeNum-len(badNodeIndices)]
+}
+
+// watchBadNodes checks the healthiness of bad nodes. If a bad node is found to be healthy again,
+// we will call the scheduler algorithm to mark it as healthy.
+func (s *HivedScheduler) watchBadNodes() {
+	s.schedulerLock.Lock()
+	defer s.schedulerLock.Unlock()
+
+	var healthyNodeIndices []int32
+	for i, n := range s.badNodes {
+		if _, err := s.nodeLister.Get(n); err == nil {
+			s.schedulerAlgorithm.SetHealthyNode(n)
+			healthyNodeIndices = append(healthyNodeIndices, int32(i))
+		}
+	}
+	oriBadNodeNum := len(s.badNodes)
+	for i, hni := range healthyNodeIndices {
+		s.healthyNodes = append(s.healthyNodes, s.badNodes[hni])
+		s.badNodes[hni] = s.badNodes[oriBadNodeNum-1-i]
+		s.badNodes[oriBadNodeNum-1-i] = ""
+	}
+	s.badNodes = s.badNodes[:oriBadNodeNum-len(healthyNodeIndices)]
 }
