@@ -11,8 +11,8 @@ while true; do
     read -p "Do you wish to setup kubectl on you local host?" yn
     case $yn in
         [Yy]* )
-            cd ${HOME}/pai-deploy/pai/conrib/kubespray
-            ansible-playbooks -i inventory/pai/hosts.yml set-kubectl.yml
+            cd ${HOME}/pai-deploy/pai/contrib/kubespray
+            ansible-playbook -i ${HOME}/pai-deploy/kubespray/inventory/pai/hosts.yml set-kubectl.yml --ask-become-pass
             exit 0
             ;;
         [Nn]* )
