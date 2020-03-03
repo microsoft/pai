@@ -94,8 +94,8 @@ class TestDockerInspect(unittest.TestCase):
 
         inspect_info = parse_docker_inspect(docker_inspect)
         target_inspect_info = InspectResult(
-            "core", "core~tensorflowcifar10", "worker", "0",
-            "0,1", "0_69c05215-46fa-11e9-8937-000d3ab38724", 23774)
+            "dgxadmin", "dgxadmin~dgxadmin_97bfbf45", "taskrole", "0",
+            "0,1", "0_eb1bb9f9-59f7-11ea-8a2a-90b11c27f535", 24728)
         self.assertEqual(target_inspect_info, inspect_info)
 
 

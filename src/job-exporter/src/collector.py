@@ -52,6 +52,18 @@ def gen_docker_daemon_counter():
             "count of docker daemon",
             labels=["error"])
 
+# GPU Common metrics
+def gen_gpu_util_gauge():
+    return GaugeMetricFamily("gpu_utilization",
+                             "gpu core utilization of card",
+                             labels=["minor_number", "vender"])
+
+
+def gen_gpu_mem_util_gauge():
+    return GaugeMetricFamily("gpu_mem_utilization",
+                             "gpu memory utilization of card",
+                             labels=["minor_number", "vender"])
+
 # NVIDIA GPU metrics
 def gen_nvidia_gpu_util_gauge():
     return GaugeMetricFamily("nvidiasmi_utilization_gpu",
@@ -371,14 +383,21 @@ class GpuCollector(Collector):
         return False, ""
 
     @staticmethod
+    def gen_common_gpu_gauge():
+        return gen_gpu_util_gauge(), gen_gpu_mem_util_gauge()
+
+    @staticmethod
     def convert_nvidia_gpu_info_to_metrics(gpu_info, zombie_info, pid_to_cid_fn, mem_leak_thrashold):
         """ This fn used to convert gpu_info & zombie_info into metrics, used to make
         it easier to do unit test """
-        core_utils = gen_nvidia_gpu_util_gauge()
-        mem_utils = gen_nvidia_gpu_mem_util_gauge()
-        gpu_temp = gen_nvidia_gpu_temperature_gauge()
-        ecc_errors = gen_nvidia_gpu_ecc_counter()
-        mem_leak = gen_nvidia_gpu_memory_leak_counter()
+        # common gpu metrics
+        gpu_core_util, gpu_mem_util = GpuCollector.gen_common_gpu_gauge()
+        # nvidia metrics
+        nvidia_core_utils = gen_nvidia_gpu_util_gauge()
+        nvidia_mem_utils = gen_nvidia_gpu_mem_util_gauge()
+        nvidia_gpu_temp = gen_nvidia_gpu_temperature_gauge()
+        nvidia_ecc_errors = gen_nvidia_gpu_ecc_counter()
+        nvidia_mem_leak = gen_nvidia_gpu_memory_leak_counter()
         external_process = gen_gpu_used_by_external_process_counter()
         zombie_container = gen_gpu_used_by_zombie_container_counter()
 
@@ -388,18 +407,20 @@ class GpuCollector(Collector):
             if not minor.isdigit():
                 continue # ignore UUID
 
-            core_utils.add_metric([minor], info.gpu_util)
-            mem_utils.add_metric([minor], info.gpu_mem_util)
+            gpu_core_util.add_metric([minor, GpuVendor.NVIDIA.value], info.gpu_util)
+            gpu_mem_util.add_metric([minor, GpuVendor.NVIDIA.value], info.gpu_mem_util)
+            nvidia_core_utils.add_metric([minor], info.gpu_util)
+            nvidia_mem_utils.add_metric([minor], info.gpu_mem_util)
             if info.temperature is not None:
-                gpu_temp.add_metric([minor], info.temperature)
-            ecc_errors.add_metric([minor, "single"], info.ecc_errors.single)
-            ecc_errors.add_metric([minor, "double"], info.ecc_errors.double)
+                nvidia_gpu_temp.add_metric([minor], info.temperature)
+            nvidia_ecc_errors.add_metric([minor, "single"], info.ecc_errors.single)
+            nvidia_ecc_errors.add_metric([minor, "double"], info.ecc_errors.double)
 
             # TODO: this piece of code seems not corret, gpu_mem_util is
             # a percentage number but mem_leak_thrashold is memory size. Need to fix it.
             if info.gpu_mem_util > mem_leak_thrashold and len(info.pids) == 0:
                 # we found memory leak less than 20M can be mitigated automatically
-                mem_leak.add_metric([minor], 1)
+                nvidia_mem_leak.add_metric([minor], 1)
 
             if len(info.pids) > 0:
                 pids_use_gpu[minor]= info.pids
@@ -426,15 +447,25 @@ class GpuCollector(Collector):
                 logger.warning("found gpu used by external %s, zombie container %s",
                         external_process, zombie_container)
 
-        return [core_utils, mem_utils, ecc_errors, mem_leak,
-            external_process, zombie_container, gpu_temp]
+        return [
+            nvidia_core_utils, nvidia_mem_utils, nvidia_ecc_errors,
+            nvidia_mem_leak, external_process, zombie_container,
+            nvidia_gpu_temp, gpu_core_util, gpu_mem_util
+        ]
 
     @staticmethod
     def convert_amd_gpu_info_to_metrics(gpu_info):
+        # common gpu metrics
+        gpu_core_util, gpu_mem_util = GpuCollector.gen_common_gpu_gauge()
+
+        # amd metrics
         core_utils = gen_amd_gpu_util_gauge()
         mem_utils = gen_amd_gpu_mem_util_gauge()
         gpu_temp = gen_amd_gpu_temperature_gauge()
+
         for minor, info in gpu_info.items():
+            gpu_core_util.add_metric([minor, GpuVendor.AMD.value], info.gpu_util)
+            gpu_mem_util.add_metric([minor, GpuVendor.AMD.value], info.gpu_mem_util)
             core_utils.add_metric([minor], info.gpu_util)
             mem_utils.add_metric([minor], info.gpu_mem_util)
             gpu_temp.add_metric([minor], info.temperature)

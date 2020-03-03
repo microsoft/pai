@@ -55,9 +55,9 @@ def walk_json_field_safe(obj, *fields):
 
 
 class GpuVendor(Enum):
-    UNKNOWN = 0
-    NVIDIA = 1
-    AMD = 2
+    UNKNOWN = "unknown"
+    NVIDIA = "nvidia"
+    AMD = "amd"
 
 def get_gpu_vendor():
     nvidia_device_path = "/dev/nvidiactl"
