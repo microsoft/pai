@@ -1,4 +1,8 @@
 ---
+- name: debug home path
+  set_fact:
+    var: local_home_path
+
 - name: set kubeconfig path
   set_fact:
     kubeconfig_path: "{{ local_home_path }}/.kube"

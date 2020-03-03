@@ -1,5 +1,5 @@
 ---
-- hosts: all
+- hosts: localhost
   gather_facts: false
   tasks:
     - name: setup
