@@ -13,7 +13,7 @@ The killer feature that distinguishes HiveD is that it provides resource guarant
 
 HiveD protects VCs' resources in terms of **cell**, a user-defined resource type that encodes both the quantity and the topology of the GPUs (among other specific hardware configurations, such as GPU type, networking). In the above example, a user can define a cell type of 8-GPU node, and the VC can be assigned one of such cell. Then, HiveD will ensure that *there is always one 8-GPU node available for the VC*, regardless of the other workloads in the cluster.
 
-HiveD allows flexible cell definitions and assignments. For example, users can define cells at multiple topology levels (e.g., PCI-e switch) for fine-grained allocations. Users can also create different cell types for different GPU models (e.g., V100) or networking configuration (e.g.,InfiniBand domain) in a heterogeneous cluster.
+HiveD allows flexible cell definitions and assignments. For example, users can define cells at multiple topology levels (e.g., PCI-e switch) for finer-grained allocations. Users can also create different cell types for different GPU models (e.g., V100) or networking configuration (e.g., InfiniBand domain) in a heterogeneous cluster.
 
 ### Gang Scheduling
 
@@ -54,9 +54,9 @@ HiveD is **fault-tolerant**. It can handle random failures of both the scheduler
 ## Official Image
 * [DockerHub](https://hub.docker.com/u/hivedscheduler)
 
-## Related Projects
+## Related Project
 * [FrameworkController](https://github.com/microsoft/frameworkcontroller): A General-Purpose Kubernetes Pod Controller, which can easily leverage HiveD to schedule jobs .
-* [OpenPAI](https://github.com/microsoft/pai): A complete solution for AI platform, which makes HiveD more user friendly.
+* [OpenPAI](https://github.com/microsoft/pai): A complete solution for AI platform. HiveD will be easier to use and more user-friendly when working in tendem with OpenPAI.
 
 ## Contributing
 This project welcomes contributions and suggestions. Most contributions require you to agree to a
