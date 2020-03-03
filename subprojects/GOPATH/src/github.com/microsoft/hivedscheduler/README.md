@@ -1,4 +1,4 @@
-# HiveD Scheduler
+# HiveDScheduler
 **HiveD is a scheduler for deep learning workloads.**
 
 It is designed to be a [Kubernetes Scheduler **Extender**](https://github.com/kubernetes/community/blob/master/contributors/design-proposals/scheduling/scheduler_extender.md) for **Multi-Tenant** **GPU** clusters. A multi-tenant GPU cluster assumes multiple tenants (teams) share the same GPU pool in a single physical cluster (PC) and provides some resource guarantees to each tenant. HiveD models each tenant as a virtual cluster (VC), so that one tenant can use its own VC as if it is a private cluster, while it can also use other VCs' free resource at lower priority. 
@@ -9,11 +9,11 @@ HiveD provides essential features for deep learning workloads as follows.
 
 ### Topology-Aware Resource Guarantee
 
-A key feature that differentiates HiveD from a traditional multi-tenant scheduler is that HiveD can provide resource guarantee to each VC, not only in terms of quantity, a numeric value, but also in terms of **[topology](example/feature/README.md#VC-Safety)**. For example, a traditional scheduler guarantees that a VC can use 8 GPUs. However, it does not know the topology of these 8 GPUs. It is possible that an 8-GPU training job which has to run within a single node, cannot be allocated even if its VC still has 8 free GPUs. This is because these 8 free GPUs may belong to multiple nodes in the physical cluster.
+The killer feature that distinguishes HiveD is that it provides resource guarantee to each VC, not only in terms of quantity, a numeric value, but also in terms of **[topology](example/feature/README.md#VC-Safety)**, a key requirement of GPU-based training jobs. For example, a traditional scheduler guarantees that a VC can use 8 GPUs. However, it does not know the topology of these 8 GPUs. It is possible that an 8-GPU training job which has to run within a single node, cannot be allocated even if its VC still has 8 free GPUs. This is because these 8 free GPUs may belong to multiple nodes in the physical cluster.
 
-HiveD provides VCs with resource guarantees in terms of **cell**, a user-defined resource type that encodes both the quantity and the topology of the GPUs (among other specific hardware configurations, such as GPU type, networking). In the above example, a user can define a cell type of 8-GPU node, and the VC can be assigned one of such cell. Then, HiveD will ensure that *there is always one 8-GPU node available for the VC*, regardless of the other workloads in the cluster.
+HiveD protects VCs' resources in terms of **cell**, a user-defined resource type that encodes both the quantity and the topology of the GPUs (among other specific hardware configurations, such as GPU type, networking). In the above example, a user can define a cell type of 8-GPU node, and the VC can be assigned one of such cell. Then, HiveD will ensure that *there is always one 8-GPU node available for the VC*, regardless of the other workloads in the cluster.
 
-HiveD allows flexible cell definitions and assignments. For example, users can define cells at multiple topology levels (e.g., PCI-e switch). Users can also create different cell types for different GPU models (e.g., V100) or networking configuration (e.g.,InfiniBand domain) in a heterogeneous cluster. HiveD can then provide fine-grained resource guarantees with the cells.
+HiveD allows flexible cell definitions and assignments. For example, users can define cells at multiple topology levels (e.g., PCI-e switch) for fine-grained allocations. Users can also create different cell types for different GPU models (e.g., V100) or networking configuration (e.g.,InfiniBand domain) in a heterogeneous cluster.
 
 ### Gang Scheduling
 
@@ -23,21 +23,21 @@ HiveD schedules all containers within a job in a *transactional* manner, i.e., a
 
 ### Priorities
 
-HiveD supports multiple job **priorities**. Higher-priority jobs can **[preempt](example/feature/README.md#Intra-VC-Preemption)** lower-priority jobs. HiveD also introduces **[opportunistic jobs](example/feature/README.md#Opportunistic-Job)**, i.e., jobs with lowest priority which can use other VCs' free resource when possible (without breaking the resource guarantees to other VCs).
+HiveD supports multiple job **priorities**. Higher-priority jobs can **[preempt](example/feature/README.md#Intra-VC-Preemption)** lower-priority jobs. HiveD also introduces **[opportunistic jobs](example/feature/README.md#Opportunistic-Job)**, i.e., jobs with the lowest priority which can use other VCs' free resource when possible (without breaking the resource guarantees to other VCs).
 
 ### Fault-Tolerance
 
-HiveD is **fault-tolerant**. It can candle random failures of both the scheduler itself and the resource it manages.
+HiveD is **fault-tolerant**. It can handle random failures of both the scheduler itself and the resource it manages.
 
-## Features
-1. [Multi-tenancy: Virtual Cluster (VC)](example/feature/README.md#VC-Safety)
-2. [Fine-grained VC resource guarantee](example/feature/README.md#VC-Safety): Quantity, [Topology](example/feature/README.md#VC-Safety), [Type](example/feature/README.md#GPU-Type), [Static Reservation](example/feature/README.md#Reservation), etc.
-3. Flexible intra-VC scheduling: [Topology-awareness](example/feature/README.md#Topology-Aware-Scheduling), [Flexible GPU types](example/feature/README.md#GPU-Type), [Reservation](example/feature/README.md#Reservation), Scheduling policy customization, etc.
-4. Optimized resource fragmentation and less starvation
-5. [Priorities](example/feature/README.md#Guaranteed-Job), [Opportunistic jobs](example/feature/README.md#Opportunistic-Job) and [Inter-](example/feature/README.md#Inter-VC-Preemption)/[Intra-VC preemption](example/feature/README.md#Intra-VC-Preemption)
-6. [Job (Full/Partial) gang scheduling/preemption](example/feature/README.md#Gang-Scheduling)
-7. Scheduler fault-tolerance, [Hardware failure-awareness](example/feature/README.md#Bad-Hardware-Awareness), [Work preserving reconfiguration](example/feature/README.md#Work-Preserving-Reconfiguration)
-8. [Leverage K8s default scheduler](example/feature/README.md#Leverage-K8S-Default-Scheduler)
+## Feature
+1. [Multi-Tenancy: Virtual Cluster (VC)](example/feature/README.md#VC-Safety)
+2. [Fine-Grained VC Resource Guarantee](example/feature/README.md#VC-Safety): Quantity, [Topology](example/feature/README.md#VC-Safety), [Type](example/feature/README.md#GPU-Type), [Static Reservation](example/feature/README.md#Reservation), etc.
+3. Flexible Intra-VC Scheduling: [Topology-Awareness](example/feature/README.md#Topology-Aware-Scheduling), [Flexible GPU Types](example/feature/README.md#GPU-Type), [Reservation](example/feature/README.md#Reservation), Scheduling Policy Customization, etc.
+4. Optimized Resource Fragmentation and Less Starvation
+5. [Priorities](example/feature/README.md#Guaranteed-Job), [Opportunistic Jobs](example/feature/README.md#Opportunistic-Job) and [Inter-](example/feature/README.md#Inter-VC-Preemption)/[Intra-VC Preemption](example/feature/README.md#Intra-VC-Preemption)
+6. [Job (Full/Partial) Gang Scheduling/Preemption](example/feature/README.md#Gang-Scheduling)
+7. Scheduler Fault-Tolerance, [Hardware Failure-Awareness](example/feature/README.md#Bad-Hardware-Awareness), [Work Preserving Reconfiguration](example/feature/README.md#Work-Preserving-Reconfiguration)
+8. [Leverage K8s Default Scheduler](example/feature/README.md#Leverage-K8S-Default-Scheduler)
 
 ## Prerequisite
 1. A Kubernetes cluster, v1.14.2 or above, on-cloud or on-premise.
