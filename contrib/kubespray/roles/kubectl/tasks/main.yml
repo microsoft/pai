@@ -1,5 +1,5 @@
 ---
-- name: debug home path
+- name: output home path of local machine
   debug:
     var: local_home_path
 
