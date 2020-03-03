@@ -41,6 +41,11 @@
   check_mode: false
   environment: {}
 
+- name: remove previous sources list of kubernetes
+  file:
+    path: /etc/apt/sources.list.d/kubernetes.list
+    state: absent
+
 # https://kubernetes.io/docs/tasks/tools/install-kubectl/#install-using-native-package-management
 - name: Update source with packages.cloud.google.com
   include_tasks: cloud.google.yml
