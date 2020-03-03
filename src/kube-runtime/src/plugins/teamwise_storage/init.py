@@ -30,6 +30,15 @@ LOGGER = logging.getLogger(__name__)
 
 
 def main():
+    '''
+    Teamwise plugin is deperated. Keep this piece of code since we may reuse them to
+    support user defined storage.
+    '''
+
+    LOGGER.warning("This plugin is deperated, will ignore this plugin")
+    return
+
+    #pylint: disable=unreachable
     LOGGER.info("Preparing storage runtime plugin commands")
     [plugin_config, pre_script, _] = plugin_init()
     parameters = plugin_config.get("parameters", "")
