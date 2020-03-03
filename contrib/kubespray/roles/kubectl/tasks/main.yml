@@ -44,7 +44,7 @@
 
 - name: Update source with mirrors.aliyun.com
   include_tasks: cloud.google.yml
-  when: ping_cloud_google.rc == 0
+  when: ping_cloud_google.rc != 0
 
 - name: run the equivalent of "apt-get update" as a separate step
   apt:
