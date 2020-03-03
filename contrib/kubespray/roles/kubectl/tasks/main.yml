@@ -1,6 +1,6 @@
 ---
 - name: debug home path
-  set_fact:
+  debug:
     var: local_home_path
 
 - name: set kubeconfig path
