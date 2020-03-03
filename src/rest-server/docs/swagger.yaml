@@ -1326,6 +1326,12 @@ paths:
       operationId: getStorages
       security:
         - bearerAuth: []
+      parameters:
+      - name: default
+        in: query
+        description: Return default storage or not.
+        schema:
+          type: boolean
       responses:
         200:
           description: Succeeded

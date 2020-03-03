@@ -22,16 +22,15 @@ const storage = require('@pai/models/v2/storage');
 
 const list = asyncHandler(async (req, res) => {
   const userName = req.user.username;
-  const admin = req.user.admin;
-  const data = await storage.list(admin ? undefined : userName);
+  const filterDefault = Boolean(req.query.default);
+  const data = await storage.list(userName, filterDefault);
   res.json(data);
 });
 
 const get = asyncHandler(async (req, res) => {
   const storageName = req.params.storageName;
   const userName = req.user.username;
-  const admin = req.user.admin;
-  const data = await storage.get(storageName, admin ? undefined : userName);
+  const data = await storage.get(storageName, userName);
   res.json(data);
 });
 

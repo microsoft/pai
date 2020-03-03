@@ -89,9 +89,8 @@ const getConfig = asyncHandler(async (req, res) => {
   }
 
   const userName = req.user.username;
-  const admin = req.user.admin;
   const userDefaultStorages = await getUserStorages(userName, true);
-  const storages = (await list(admin ? undefined : userName)).storages
+  const storages = (await list(userName)).storages
     .filter((item) => names ? names.includes(item.name) : true)
     .map((item) => convertConfig(item, userDefaultStorages));
 
@@ -118,9 +117,8 @@ const getServer = asyncHandler(async (req, res) => {
   }
 
   const userName = req.user.username;
-  const admin = req.user.admin;
   const storages = await Promise.all(
-    (await list(admin ? undefined : userName)).storages
+    (await list(userName)).storages
       .filter((item) => names ? names.includes(item.volumeName) : true)
       .map(convertServer));
 
