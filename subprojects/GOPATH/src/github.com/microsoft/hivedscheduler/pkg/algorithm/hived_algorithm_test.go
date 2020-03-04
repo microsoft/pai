@@ -424,6 +424,7 @@ func testNormalOperations(t *testing.T, h *HivedAlgorithm) {
 	testCasesThatShouldSucceed(t, h)
 	testCasesThatShouldFail(t, h)
 	testDeleteAllocatedPods(t, h)
+	testSuggestedNodes(t, h)
 }
 
 func testCasesThatShouldSucceed(t *testing.T, h *HivedAlgorithm) {
@@ -482,6 +483,27 @@ func testDeleteAllocatedPods(t *testing.T, h *HivedAlgorithm) {
 			t.Errorf("Group %v is expected to be deleted in scheduler, but not", g.name)
 		}
 	}
+}
+
+func testSuggestedNodes(t *testing.T, h *HivedAlgorithm) {
+	var idx int32
+	for i, node := range allNodes {
+		if node == "0.0.3.1" {
+			idx = int32(i)
+			break
+		}
+	}
+	allNodes[idx] = allNodes[len(allNodes)-1]
+	allNodes[len(allNodes)-1] = ""
+	allNodes = allNodes[:len(allNodes)-1]
+	pod := allPods["pod5"]
+	pod.Annotations[api.AnnotationKeyPodSchedulingSpec] = common.ToYaml(pss[pod.UID])
+	psr := h.Schedule(pod, allNodes)
+	if psr.PodBindInfo != nil {
+		t.Errorf("[%v]: wrong pod scheduling result: expected empty, but got %v:%v",
+			internal.Key(pod), psr.PodBindInfo.Node, psr.PodBindInfo.GpuIsolation)
+	}
+	allNodes = append(allNodes, "0.0.3.1")
 }
 
 func testReconfiguration(t *testing.T, configFilePath string) {
