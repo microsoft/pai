@@ -29,4 +29,4 @@ sudo chmod 644 /etc/hosts
 
 **2. Commands with `sudo` become very slow**
 
-The same as **1** .
+The same as `1. Ansible playbook exits because of timeout.` .
