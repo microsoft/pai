@@ -1,6 +1,6 @@
 # Upgrade to v0.18.0
 
-There are breaking changes between OpenPAI v0.14.0 and v0.18.0. Before v0.18.0, OpenPAI was based on Yarn and Kubernetes, and data was managed by HDFS. In v0.18.0, it has switched to a pure Kubernetes-based architecture. Many new features, such as `AAD authorization`, `Hivedscheduler`, `Kube Runtime`, `Marketplace`, etc., are also included in this release.
+There are breaking changes between OpenPAI v0.14.0 and v0.18.0. Before v0.18.0, OpenPAI was based on Yarn and Kubernetes, and data was managed by HDFS. Since v0.18.0 ( we might want to change this to v1.0 later after release), OpenPAI has switched to a pure Kubernetes-based architecture. Many new features, such as `AAD authorization`, `Hivedscheduler`, `Kube Runtime`, `Marketplace`, etc., are also included in this release.
 
 The upgrade contains three phases:
 
