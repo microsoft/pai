@@ -6,7 +6,7 @@
       setup:
       delegate_to: localhost
 
-    - name: set ansible control host IP fact
+    - name: set local user's home path
       set_fact:
         local_home_path: "{{ hostvars[inventory_hostname]['ansible_env']['HOME'] }}"
       delegate_to: 127.0.0.1

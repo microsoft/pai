@@ -171,8 +171,8 @@ def hived_config_prepare(worker_dict, node_resource_dict):
         if key not in worker_dict:
             continue
         if node_resource_dict[key]["gpu-resource"] == 0:
-            logger.error("Allocatable GPU number in {0} is 0, Hived doesn't support worker node with 0 GPU".format(key))
-            logger.error("Please remove {0} from your workerlist, or check if the NVIDIA device plugin is running healthy on the node.".format(key))
+            logger.error("Allocatable GPU number in {0} is 0, current quick start script does not allow.".format(key))
+            logger.error("Please remove {0} from your workerlist, or check if the device plugin is running healthy on the node.".format(key))
             sys.exit(1)
         min_cpu = min(min_cpu, node_resource_dict[key]["cpu-resource"])
         min_mem = min(min_mem, node_resource_dict[key]["mem-resource"])
