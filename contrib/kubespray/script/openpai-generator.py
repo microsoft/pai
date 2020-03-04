@@ -150,14 +150,22 @@ def get_kubernetes_node_info_from_API():
 
 
 def wait_nvidia_device_plugin_ready(total_time=3600):
-
     while pod_is_ready_or_not("name", "nvidia-device-plugin-ds", "Nvidia-Device-Plugin") != True:
-        logger.info("Nvidia-Device-Plugin is not ready yet. Please wait for a moment!".format(label_value))
+        logger.info("Nvidia-Device-Plugin is not ready yet. Please wait for a moment!")
         time.sleep(10)
         total_time = total_time - 10
-
         if total_time < 0:
             logger.error("An issue occure when starting up Nvidia-Device-Plugin")
+            sys.exit(1)
+
+
+def wait_amd_device_plugin_ready(total_time=3600):
+    while pod_is_ready_or_not("name", "amdgpu-dp-ds", "AMD-Device-Plugin") != True:
+        logger.info("AMD-Device-Plugin is not ready yet. Please wait for a moment!")
+        time.sleep(10)
+        total_time = total_time - 10
+        if total_time < 0:
+            logger.error("An issue occure when starting up AMD-Device-Plugin")
             sys.exit(1)
 
 
@@ -211,6 +219,7 @@ def main():
 
     worker_dict = csv_reader_ret_dict(args.worklist)
     wait_nvidia_device_plugin_ready()
+    wait_amd_device_plugin_ready()
     node_resource_dict = get_kubernetes_node_info_from_API()
     hived_config = hived_config_prepare(worker_dict, node_resource_dict)
 
