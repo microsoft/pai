@@ -900,12 +900,12 @@ func generatePodScheduleResult(
 			if group == nil {
 				// for a new group, we will keep it waiting if not all of its pods are scheduled to suggested nodes
 				waitReason = fmt.Sprintf(
-					"affinity group is scheduled to some nodes not within K8s candidate nodes: %v",
+					"affinity group is scheduled to some nodes not within K8s suggested nodes: %v",
 					strings.Join(nodesNotInSuggested, ", "))
 			} else {
 				// for an existing group, we always insist the previous scheduling decision
 				// even if some pods are now not within suggested nodes
-				klog.Warningf("Some nodes used by affinity group %v are now not within suggested nodes: %v",
+				klog.Warningf("Some nodes used by affinity group %v are no longer within K8s suggested nodes: %v",
 					group.name, strings.Join(nodesNotInSuggested, ", "))
 			}
 		}
