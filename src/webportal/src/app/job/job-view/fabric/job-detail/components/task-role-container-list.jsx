@@ -222,7 +222,7 @@ export default class TaskRoleContainerList extends React.Component {
     const { sshInfo } = this.context;
     const containerSshInfo =
       sshInfo && sshInfo.containers.find(x => x.id === id);
-    if (config.launcherType !== 'k8s'){
+    if (config.launcherType !== 'k8s') {
       if (!containerSshInfo) {
         const res = [];
         res.push('This job does not contain SSH info.');
@@ -266,16 +266,24 @@ export default class TaskRoleContainerList extends React.Component {
       }
     } else {
       const res = [];
-      if ('ssh' in containerPorts){
-        res.push('You can connect to this container by one of the following commands if SSH is set up properly: \n')
-        res.push(`1. Use your default SSH private key:\n`)
-        res.push(`ssh -p ${containerPorts.ssh} root@${containerIp}\n`)
-        res.push(`2. Use a pre-downloaded SSH private key:\n`)
-        res.push(`ssh -p ${containerPorts.ssh} -i <your-path-to-the-private-key> root@${containerIp}\n\n`)
-        res.push(`If you are using a different username in your docker, please change "root" to your pre-defined username.`)
+      if ('ssh' in containerPorts) {
+        res.push(
+          'You can connect to this container by one of the following commands if SSH is set up properly: \n',
+        );
+        res.push(`1. Use your default SSH private key:\n`);
+        res.push(`ssh -p ${containerPorts.ssh} root@${containerIp}\n`);
+        res.push(`2. Use a pre-downloaded SSH private key:\n`);
+        res.push(
+          `ssh -p ${containerPorts.ssh} -i <your-path-to-the-private-key> root@${containerIp}\n\n`,
+        );
+        res.push(
+          `If you are using a different username in your docker, please change "root" to your pre-defined username.`,
+        );
       } else {
-        res.push('This job does not contain SSH info.')
-        res.push('If you want to use SSH, please enable it in the "Tools -> SSH" Section on the Job Submission Page.')
+        res.push('This job does not contain SSH info.');
+        res.push(
+          'If you want to use SSH, please enable it in the "Tools -> SSH" Section on the Job Submission Page.',
+        );
       }
       this.setState({
         monacoProps: {
@@ -471,19 +479,25 @@ export default class TaskRoleContainerList extends React.Component {
             className={c(t.h100, t.flex, t.justifyStart, t.itemsCenter, t.ml1)}
           >
             <div className={c(t.flex)} style={{ height: 40 }}>
-                <CommandBarButton
-                  className={c(FontClassNames.mediumPlus)}
-                  styles={{
-                    root: { backgroundColor: 'transparent' },
-                    rootDisabled: { backgroundColor: 'transparent' },
-                  }}
-                  iconProps={{ iconName: 'CommandPrompt' }}
-                  text='View SSH Info'
-                  onClick={() => this.showSshInfo(item.containerId, item.containerPorts, item.containerIp)}
-                  disabled={
-                    isNil(item.containerId) || item.taskState !== 'RUNNING'
-                  }
-                />
+              <CommandBarButton
+                className={c(FontClassNames.mediumPlus)}
+                styles={{
+                  root: { backgroundColor: 'transparent' },
+                  rootDisabled: { backgroundColor: 'transparent' },
+                }}
+                iconProps={{ iconName: 'CommandPrompt' }}
+                text='View SSH Info'
+                onClick={() =>
+                  this.showSshInfo(
+                    item.containerId,
+                    item.containerPorts,
+                    item.containerIp,
+                  )
+                }
+                disabled={
+                  isNil(item.containerId) || item.taskState !== 'RUNNING'
+                }
+              />
               <CommandBarButton
                 className={FontClassNames.mediumPlus}
                 styles={{
