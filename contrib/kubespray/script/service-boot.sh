@@ -18,6 +18,11 @@ OPENPAI_IMAGE_TAG=`cat ${CLUSTER_CONFIG} | grep docker-image-tag | tr -d "[:spac
 echo "Branch Name ${OPENPAI_BRANCH_NAME}"
 echo "OpenPAI Image Tag ${OPENPAI_IMAGE_TAG}"
 
+function cleanup(){
+  sudo docker stop dev-box-quick-start &> /dev/null
+  sudo docker rm dev-box-quick-start &> /dev/null
+}
+
 sudo docker run -itd \
         -e COLUMNS=$COLUMNS -e LINES=$LINES -e TERM=$TERM \
         -v /var/run/docker.sock:/var/run/docker.sock \
@@ -30,7 +35,7 @@ sudo docker run -itd \
         --name=dev-box-quick-start \
         openpai/dev-box:${OPENPAI_IMAGE_TAG}
 
-sudo docker exec -it dev-box-quick-start kubectl get node
+sudo docker exec -it dev-box-quick-start kubectl get node || { cleanup; exit 1; }
 
 # Work in dev-box
 sudo docker exec -i dev-box-quick-start /bin/bash << EOF_DEV_BOX
@@ -68,5 +73,9 @@ echo -e "pai\n" | python paictl.py config push -p /cluster-configuration -m serv
 echo -e "pai\n" | python paictl.py service start
 EOF_DEV_BOX
 
-sudo docker stop dev-box-quick-start
-sudo docker rm dev-box-quick-start
+if [ $? -eq 0 ]; then
+  cleanup
+  exit 1
+else
+  cleanup
+fi
