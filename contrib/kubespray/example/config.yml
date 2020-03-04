@@ -1,7 +1,7 @@
 user: forexample
 password: forexample
 branch-name: master
-docker-image-tag: quick-start
+docker-image-tag: v0.17.0
 
 # Optional
 # docker-registry-domain: docker.io
