@@ -267,7 +267,7 @@ export default class TaskRoleContainerList extends React.Component {
     } else {
       const res = [];
       if ('ssh' in containerPorts){
-        res.push('You can use SSH to connect this container by one of the following commands: \n')
+        res.push('You can connect to this container by one of the following commands if SSH is set up properly: \n')
         res.push(`1. Use your default SSH private key:\n`)
         res.push(`ssh -p ${containerPorts.ssh} root@${containerIp}\n`)
         res.push(`2. Use a pre-downloaded SSH private key:\n`)
