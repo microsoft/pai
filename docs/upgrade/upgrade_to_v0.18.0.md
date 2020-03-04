@@ -58,6 +58,40 @@ If you cannot find the old config, the following command can help you to retriev
 ./paictl.py config pull -o <path-to-your-old-config>
 ```
 
+You should also remove the GPU driver installed by OpenPAI, by executing the following commands on every GPU node, using a `root` user:
+
+```bash
+#!/bin/bash
+
+lsmod | grep -qE "^nvidia" &&
+{
+    DEP_MODS=`lsmod | tr -s " " | grep -E "^nvidia" | cut -f 4 -d " "`
+    for mod in ${DEP_MODS//,/ }
+    do
+        rmmod $mod ||
+        {
+            echo "The driver $mod is still in use, can't unload it."
+            exit 1
+        }
+    done
+    rmmod nvidia ||
+    {
+        echo "The driver nvidia is still in use, can't unload it."
+        exit 1
+    }
+}
+
+rm -rf /var/drivers
+reboot
+```
+
+
 ##  Deploy PAI v0.18.0
 
-In v0.18.0, we recommend to use kubespray to deploy Kubernetes cluster and start PAI service. Please refer to the [doc](../../contrib/kubespray) for help.
+Before deployment, you should install NVIDIA driver by yourself for every GPU node.
+
+To determin which version of driver should be installed, check out the [NVIDIA site](https://www.nvidia.com/Download/index.aspx) to verify the newest driver version of your GPU card first. Then, check out [this table](https://docs.nvidia.com/deploy/cuda-compatibility/index.html#binary-compatibility__table-toolkit-driver) to see the CUDA requirement of driver version.
+
+Please note that, some docker images with new CUDA version cannot be used on machine with old driver. As for now, we recommend to install the NVIDIA driver 418 as it supports CUDA 9.0 \~ CUDA 10.1, which is used by most deep learning frameworks.
+
+After you install GPU driver, we recommend to use kubespray to deploy Kubernetes cluster and start PAI service. Please refer to the [doc](../../contrib/kubespray) for help.
