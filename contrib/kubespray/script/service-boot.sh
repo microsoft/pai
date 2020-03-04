@@ -55,7 +55,7 @@ kubectl apply --overwrite=true -f https://raw.githubusercontent.com/NVIDIA/k8s-d
 
 python3 /root/pai/contrib/kubespray/script/openpai-generator.py -m /quick-start-config/master.csv -w /quick-start-config/worker.csv -c /quick-start-config/config.yml -o /cluster-configuration || exit $?
 
-kubectl delete ds nvidia-device-plugin-daemonset
+kubectl delete ds nvidia-device-plugin-daemonset -n kube-system
 
 echo y | pip3 uninstall kubernetes==11.0.0b2
 pip3 install kubernetes
