@@ -50,7 +50,7 @@ def parse_smi_json_result(smi_output):
         gpu_temperature = float(value["Temperature (Sensor edge) (C)"])
         gpu_uuid = str(value["Unique ID"]).strip()
         pci_addr = value["PCI Bus"]
-        res[index] = AMDGpuStatus(gpu_util, gpu_mem_vram_util, gpu_uuid,
-                                  gpu_temperature, pci_addr)
+        res[str(index)] = AMDGpuStatus(gpu_util, gpu_mem_vram_util, gpu_uuid,
+                                       gpu_temperature, pci_addr)
 
     return res

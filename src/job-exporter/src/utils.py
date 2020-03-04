@@ -62,8 +62,8 @@ class GpuVendor(Enum):
 def get_gpu_vendor():
     nvidia_device_path = "/dev/nvidiactl"
     amd_device_path = "/dev/kfd"
-    if os.path.isfile(nvidia_device_path):
+    if os.path.exists(nvidia_device_path):
         return GpuVendor.NVIDIA
-    if os.path.isfile(amd_device_path):
+    if os.path.exists(amd_device_path):
         return GpuVendor.AMD
     return GpuVendor.UNKNOWN

@@ -459,17 +459,22 @@ class GpuCollector(Collector):
         gpu_core_util, gpu_mem_util = GpuCollector.gen_common_gpu_gauge()
 
         # amd metrics
-        core_utils = gen_amd_gpu_util_gauge()
-        mem_utils = gen_amd_gpu_mem_util_gauge()
-        gpu_temp = gen_amd_gpu_temperature_gauge()
+        amd_core_utils = gen_amd_gpu_util_gauge()
+        amd_mem_utils = gen_amd_gpu_mem_util_gauge()
+        amd_gpu_temp = gen_amd_gpu_temperature_gauge()
 
         for minor, info in gpu_info.items():
-            gpu_core_util.add_metric([minor, GpuVendor.AMD.value], info.gpu_util)
-            gpu_mem_util.add_metric([minor, GpuVendor.AMD.value], info.gpu_mem_util)
-            core_utils.add_metric([minor], info.gpu_util)
-            mem_utils.add_metric([minor], info.gpu_mem_util)
-            gpu_temp.add_metric([minor], info.temperature)
-        return [core_utils, mem_utils, gpu_temp]
+            gpu_core_util.add_metric([minor, GpuVendor.AMD.value],
+                                     info.gpu_util)
+            gpu_mem_util.add_metric([minor, GpuVendor.AMD.value],
+                                    info.gpu_mem_util)
+            amd_core_utils.add_metric([minor], info.gpu_util)
+            amd_mem_utils.add_metric([minor], info.gpu_mem_util)
+            amd_gpu_temp.add_metric([minor], info.temperature)
+        return [
+            amd_core_utils, amd_mem_utils, amd_gpu_temp, gpu_core_util,
+            gpu_mem_util
+        ]
 
     def collect_impl(self):
         if self.gpu_vendor == GpuVendor.UNKNOWN:
