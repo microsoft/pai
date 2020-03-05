@@ -6,7 +6,7 @@
 
 import * as child from 'child_process';
 import { Dictionary } from 'lodash';
-import { IStorageServer, IMountInfo } from 'openpai-js-sdk';
+import { IStorageServer } from 'openpai-js-sdk';
 import * as os from 'os';
 import * as path from 'path';
 import {
@@ -20,10 +20,9 @@ import { __ } from '../../common/i18n';
 import { getSingleton, Singleton } from '../../common/singleton';
 import { Util } from '../../common/util';
 import { StorageTreeNode } from '../container/common/treeNode';
+import { MountPointTreeNode } from '../container/storage/mountPointTreeItem';
 import { NfsRootNode } from '../container/storage/NfsTreeItem';
 import { StorageTreeDataProvider } from '../container/storage/storageTreeView';
-import { IPAICluster } from '../utility/paiInterface';
-import { MountPointTreeNode } from '../container/storage/mountPointTreeItem';
 
 /**
  * Nfs storage management module.
