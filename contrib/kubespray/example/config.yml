@@ -4,13 +4,31 @@ branch-name: master
 docker-image-tag: quick-start
 
 # Optional
+
+#####################################
+# OpenPAI's service image registry. #
+#####################################
 # docker-registry-domain: docker.io
 # docker-registry-namespace: openpai
 # docker-registry-username: exampleuser
 # docker-registry-password: examplepasswd
 
+###########################################################################################
+# By default, we assume your gpu environment is nvidia. So your runtime should be nvidia. #
+# If you are using AMD or other environment, you should modify it.                        #
+###########################################################################################
+# worker-default-docker-runtime: nvidia
+
+########################################################################################
+# Advanced docker configuration. If you are not familiar with them, don't change them. #
+########################################################################################
 # docker-data-root: /mnt/docker
+# docker-config-file-path: /etc/docker/daemon.json
 # docker-iptables-enabled: false
+
+#######################################################################
+# If you couldn't access to gcr.io or docker.io, please configure it. #
+#######################################################################
 # gcr-image-repo: "gcr.io"
 # kube-image-repo: "gcr.io/google-containers"
 # quay-image-repo: "quay.io"

@@ -336,7 +336,6 @@ docker_dns_servers_strict: false
 docker_log_opts: "--log-opt max-size=2g --log-opt max-file=2 --log-driver=json-file"
 
 docker_options: >-
-    --config-file /etc/docker-openpai/daemon-openpai.json
     {%- if docker_insecure_registries is defined %}
     {{ docker_insecure_registries | map('regex_replace', '^(.*)$', '--insecure-registry=\1' ) | list | join(' ') }}
     {%- endif %}
@@ -353,7 +352,10 @@ docker_options: >-
     --default-runtime=docker-runc --exec-opt native.cgroupdriver=systemd
     --userland-proxy-path=/usr/libexec/docker/docker-proxy-current --signature-verification=false
     {%- endif -%}
-{% endraw %}
+{%- endraw %}
+    {%- if 'docker-config-file-path' in env['cfg'] %}
+    --config-file {{ env['cfg']['docker-config-file-path'] }}
+    {%- endif  %}
 
 docker_daemon_graph: "{{ env['cfg']['docker-data-root'] | default('/mnt/docker') }}"
 
