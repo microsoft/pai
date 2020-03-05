@@ -7,7 +7,7 @@
   - Different dockers for `CPU` and `CUDA (GPU)`.
   - Built-in `SSH` and `Jupyter Notebook` support.
 
-The following table shows all provided images. The tag indicates the version of the built-in deep learning framework and whether it supports GPU. Some GPU-supported docker requires a high version of your NVIDIA driver, because of the requirement of using different versions of `CUDA`.
+The following table shows all provided images. The tag indicates the version of the built-in deep learning framework and whether it supports GPU. Some GPU-supported dockers require a high version of your NVIDIA driver, because of the requirement of using different versions of `CUDA`.
 
 |       image      |                tag               | CUDA version | required Driver version |
 |:----------------:|:--------------------------------:|:------------:|:-----------------------:|
@@ -53,7 +53,7 @@ docker run -p 8888:8888 -it openpai/standard:python_3.6-pytorch_1.1.0-gpu jupyte
 
 ## Build and Push
 
-You can build all the images for scratch by the following command. Please replace the name `openpai/standard` to your customized docker image name, such as `<your-username-in-dockerhub>/<docker-image-name>`.
+You can build all the images from scratch by the following commands. Please replace the name `openpai/standard` to your customized docker image name, such as `<your-username-in-dockerhub>/<docker-image-name>`.
 
 ```bash
 # build images
