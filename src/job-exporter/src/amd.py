@@ -37,7 +37,7 @@ def rocm_smi(histogram, timeout):
 
 
 def parse_smi_json_result(smi_output):
-    """ return a map, key is PCI bus index/PCI bus address, value is AMDGpuStatus """
+    """ return a map, key is PCI bus index, value is AMDGpuStatus """
     res = {}
     output = json.loads(smi_output)
     gpu_infos = [v for k, v in output.items() if k.startswith("card")]

@@ -94,8 +94,8 @@ class TestDockerInspect(unittest.TestCase):
 
         inspect_info = parse_docker_inspect(docker_inspect)
         target_inspect_info = InspectResult(
-            "dgxadmin", "dgxadmin~dgxadmin_97bfbf45", "taskrole", "0",
-            "0,1", "0_eb1bb9f9-59f7-11ea-8a2a-90b11c27f535", 24728)
+            "dgxadmin", "dgxadmin~rocm_pytorch_mnist_a", "worker", "0",
+            "0,1", "0_a12d82af-5ea6-11ea-8a2a-90b11c27f535", 29647)
         self.assertEqual(target_inspect_info, inspect_info)
 
 
