@@ -479,7 +479,7 @@ class GpuCollector(Collector):
     def collect_impl(self):
         if self.gpu_vendor == GpuVendor.UNKNOWN:
             logger.warning(
-                "Couldn't identify the GPU vendor, please make sure the GPU driver install correctly"
+                "Couldn't identify the GPU vendor, please make sure the GPU driver installed correctly"
             )
             return None
         if self.gpu_vendor == GpuVendor.NVIDIA:

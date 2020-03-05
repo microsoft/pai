@@ -48,8 +48,8 @@ Other pai component also used some metrics for display, they are:
     <td>
         <ul>
             <li>node_uname_info</li>
-            <li>nvidiasmi_utilization_gpu</li>
-            <li>nvidiasmi_utilization_memory</li>
+            <li>gpu_utilization</li>
+            <li>gpu_mem_utilization</li>
             <li>configured_gpu_count</li>
             <li>node_cpu_seconds_total</li>
             <li>node_memory_MemTotal_bytes</li>
