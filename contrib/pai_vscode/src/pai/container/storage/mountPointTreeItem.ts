@@ -67,7 +67,7 @@ export class MountPointTreeNode extends StorageTreeNode {
             case 'azurefile':
                 return new StorageTreeNode('Azure File');
             case 'nfs':
-                return new NfsRootNode(server, info.mountPoint, this);
+                return new NfsRootNode(server, info, this);
             case 'samba':
                 return new SambaRootNode(server, info.mountPoint, this);
             default:
