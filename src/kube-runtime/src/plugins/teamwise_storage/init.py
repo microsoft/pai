@@ -31,11 +31,11 @@ LOGGER = logging.getLogger(__name__)
 
 def main():
     '''
-    Teamwise plugin is deperated. Keep this piece of code since we may reuse them to
+    Teamwise plugin is deprecated. Keep this piece of code since we may reuse them to
     support user defined storage.
     '''
 
-    LOGGER.warning("This plugin is deperated, will ignore this plugin")
+    LOGGER.warning("This plugin is deprecated, will ignore this plugin")
     return
 
     #pylint: disable=unreachable
