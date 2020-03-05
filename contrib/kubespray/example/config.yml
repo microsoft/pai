@@ -1,7 +1,7 @@
 user: forexample
 password: forexample
-branch-name: master
-docker-image-tag: v0.17.0
+branch-name: <% latest-release %>
+docker-image-tag: <% latest-release %>
 
 # Optional
 # docker-registry-domain: docker.io
