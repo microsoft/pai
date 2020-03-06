@@ -19,8 +19,7 @@
 
 cluster_type="$1"
 rest_server_uri="$2"
-job_name="e2e-test-$RANDOM-$RANDOM"
-pytorch_mnist_name="pytorch-mnist-$RANDOM-$RANDOM"
+job_name="ci-test-$RANDOM-$RANDOM"
 
 job_config=$(cat << EOF
 {
@@ -67,11 +66,11 @@ case ${cluster_type} in
     check_status ${rest_server_uri}/api/v2/user/admin/jobs/${job_name}
     ;;
   "k8s")
-    # submit pytorch mnist example in marketplace
-    cat ${WORKSPACE}/marketplace-v2/pytorch-mnist.yaml \
-      | sed "s/pytorch_mnist/${pytorch_mnist_name}/g" \
+    # submit keras mnist example in marketplace
+    cat ${WORKSPACE}/marketplace-v2/keras-tensorflow-mnist.yaml \
+      | sed "s/keras_tensorflow_mnist/${job_name}/g" \
       | curl -sS -X POST -H "Authorization: Bearer ${token}" -H "Content-Type: text/yaml" --data-binary @- ${rest_server_uri}/api/v2/jobs
-    check_status ${rest_server_uri}/api/v2/jobs/admin~${pytorch_mnist_name}
+    check_status ${rest_server_uri}/api/v2/jobs/admin~${job_name}
     ;;
   *)
     echo "Unknown cluster type ${cluster_type}"
