@@ -274,7 +274,10 @@ export default class TaskRoleContainerList extends React.Component {
         res.push(`ssh -p ${containerPorts.ssh} root@${containerIp}\n`);
         res.push(`2. Use a pre-downloaded SSH private key:\n`);
         res.push(
-          `ssh -p ${containerPorts.ssh} -i <your-path-to-the-private-key> root@${containerIp}\n\n`,
+          `On Windows:\nssh -p ${containerPorts.ssh} -i <your-private-key-file-path> root@${containerIp}\n`,
+        );
+        res.push(
+          `On Unix-like System:\nchmod 400 <your-private-key-file-path> && ssh -p ${containerPorts.ssh} -i <your-private-key-file-path> root@${containerIp}\n\n`,
         );
         res.push(
           `If you are using a different username in your docker, please change "root" to your pre-defined username.`,
@@ -487,12 +490,14 @@ export default class TaskRoleContainerList extends React.Component {
                 }}
                 iconProps={{ iconName: 'CommandPrompt' }}
                 text='View SSH Info'
-                onClick={() =>
+                onClick={() => {
                   this.showSshInfo(
                     item.containerId,
                     item.containerPorts,
                     item.containerIp,
                   )
+                }
+
                 }
                 disabled={
                   isNil(item.containerId) || item.taskState !== 'RUNNING'
