@@ -4,7 +4,7 @@
  * @author Microsoft
  */
 
-import { IStorageServer } from 'openpai-js-sdk';
+import { IMountInfo, IStorageServer } from 'openpai-js-sdk';
 import { TreeItemCollapsibleState, Uri } from 'vscode';
 
 import {
@@ -75,7 +75,7 @@ export class PersonalStorageTreeNode extends StorageTreeNode {
             case 'azurefile':
                 return new StorageTreeNode('Azure File');
             case 'nfs':
-                return new NfsRootNode(this.storage, '', this);
+                return new NfsRootNode(this.storage, <IMountInfo>{ mountPoint: '' }, this);
             case 'samba':
                 return new SambaRootNode(this.storage, '', this);
             default:

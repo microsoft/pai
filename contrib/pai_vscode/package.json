@@ -2,7 +2,7 @@
     "name": "pai-vscode",
     "displayName": "OpenPAI VS Code Client",
     "description": "Interact with Open Platform for AI (OpenPAI) from inside your editor",
-    "version": "0.2.3",
+    "version": "0.3.0",
     "publisher": "OpenPAIVSCodeClient",
     "preview": true,
     "icon": "assets/pai_logo.png",
@@ -298,6 +298,30 @@
                 },
                 {
                     "command": "paiext.container.hdfs.mkdir",
+                    "when": "false"
+                },
+                {
+                    "command": "paiext.job.config.insert.menu",
+                    "when": "false"
+                },
+                {
+                    "command": "paiext.job.config.insert.runtime.plugin",
+                    "when": "false"
+                },
+                {
+                    "command": "paiext.storage.personal.edit",
+                    "when": "false"
+                },
+                {
+                    "command": "paiext.storage.personal.delete",
+                    "when": "false"
+                },
+                {
+                    "command": "paiext.cluster.job.create-config-v1",
+                    "when": "false"
+                },
+                {
+                    "command": "paiext.cluster.job.create-config-v2",
                     "when": "false"
                 }
             ],
