@@ -218,8 +218,8 @@ export default class TaskRoleContainerList extends React.Component {
     );
   }
 
-  showSshInfo(hasUserSsh, id, containerPorts, containerIp) {
-    const { sshInfo } = this.context;
+  showSshInfo(id, containerPorts, containerIp) {
+    const { sshInfo, jobConfig} = this.context;
     const containerSshInfo =
       sshInfo && sshInfo.containers.find(x => x.id === id);
     if (config.launcherType !== 'k8s') {
@@ -266,6 +266,26 @@ export default class TaskRoleContainerList extends React.Component {
       }
     } else {
       const res = [];
+      let hasUserSsh = false;
+      if (
+        'extras' in jobConfig &&
+        'com.microsoft.pai.runtimeplugin' in jobConfig.extras
+      ) {
+        for (const pluginSetting of jobConfig.extras[
+          'com.microsoft.pai.runtimeplugin'
+        ]) {
+          if (pluginSetting.plugin === 'ssh') {
+            if (
+              'parameters' in pluginSetting &&
+              'userssh' in pluginSetting.parameters &&
+              !isEmpty(pluginSetting.parameters.userssh)
+            ) {
+              hasUserSsh = true;
+              break;
+            }
+          }
+        }
+      }
       if (hasUserSsh) {
         res.push(
           'You can connect to this container by one of the following commands if SSH is set up properly: \n',
