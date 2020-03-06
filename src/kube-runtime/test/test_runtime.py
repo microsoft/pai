@@ -98,7 +98,6 @@ class TestRuntime(unittest.TestCase):
             return secret
         return None
 
-    @unittest.skip
     @mock.patch("kubernetes.client.CoreV1Api.read_namespaced_secret")
     def test_teamwise_nfs_storage_plugin(self, mock_get_secrets):
         mock_get_secrets.side_effect = self.get_secret
@@ -109,8 +108,8 @@ class TestRuntime(unittest.TestCase):
             parameters)
 
         expect_commands = [
-            "apt-get update", "umask 000", "mkdir --parents /tmp_SRV_BJ_root",
-            "apt-get install --assume-yes nfs-common",
+            "umask 000", "mkdir --parents /tmp_SRV_BJ_root",
+            "apt-get update;apt-get install --assume-yes nfs-common;",
             "mount -t nfs4 10.151.41.14:/data/share/drbdha /tmp_SRV_BJ_root",
             "mkdir --parents /mnt/data",
             "mkdir --parents /tmp_SRV_BJ_root/data",
@@ -122,7 +121,6 @@ class TestRuntime(unittest.TestCase):
         ]
         assert storage_commands == expect_commands
 
-    @unittest.skip
     @mock.patch("kubernetes.client.CoreV1Api.read_namespaced_secret")
     def test_default_storage_plugin(self, mock_get_secrets):
         mock_get_secrets.side_effect = self.get_secret
@@ -131,8 +129,8 @@ class TestRuntime(unittest.TestCase):
             [])
 
         expect_commands = [
-            "apt-get update", "umask 000", "mkdir --parents /tmp_SRV_BJ_root",
-            "apt-get install --assume-yes nfs-common",
+            "umask 000", "mkdir --parents /tmp_SRV_BJ_root",
+            "apt-get update;apt-get install --assume-yes nfs-common;",
             "mount -t nfs4 10.151.41.14:/data/share/drbdha /tmp_SRV_BJ_root",
             "mkdir --parents /mnt/data",
             "mkdir --parents /tmp_SRV_BJ_root/data",
@@ -144,7 +142,6 @@ class TestRuntime(unittest.TestCase):
         ]
         assert default_storage_commands == expect_commands
 
-    @unittest.skip
     @mock.patch("kubernetes.client.CoreV1Api.read_namespaced_secret")
     def test_teamwise_samba_storage_plugin(self, mock_get_secrets):
         parameters = {"storageConfigNames": ["STORAGE_SAMBA"]}
@@ -154,9 +151,8 @@ class TestRuntime(unittest.TestCase):
             parameters)
 
         expect_commands = [
-            "apt-get update", "umask 000",
-            "mkdir --parents /tmp_samba_test_root",
-            "apt-get install --assume-yes cifs-utils",
+            "umask 000", "mkdir --parents /tmp_samba_test_root",
+            "apt-get update;apt-get install --assume-yes cifs-utils;",
             "mount -t cifs //10.151.41.14/data/share/drbdha /tmp_samba_test_root"
             + " -o vers=3.0,username=user,password=password,domain=domain",
             "mkdir --parents /mnt/data",
@@ -167,7 +163,6 @@ class TestRuntime(unittest.TestCase):
         ]
         assert storage_commands == expect_commands
 
-    @unittest.skip
     @mock.patch("kubernetes.client.CoreV1Api.read_namespaced_secret")
     def test_teamwise_azure_file_storage_plugin(self, mock_get_secrets):
         parameters = {"storageConfigNames": ["STORAGE_AZURE_FILE"]}
@@ -177,9 +172,8 @@ class TestRuntime(unittest.TestCase):
             parameters)
 
         expect_commands = [
-            "apt-get update", "umask 000",
-            "mkdir --parents /tmp_azure_file_test_root",
-            "apt-get install --assume-yes cifs-utils",
+            "umask 000", "mkdir --parents /tmp_azure_file_test_root",
+            "apt-get update;apt-get install --assume-yes cifs-utils sshpass;",
             "mount -t cifs //datastore/fileshare /tmp_azure_file_test_root" +
             " -o vers=3.0,username=accountname,password=key,dir_mode=0777,file_mode=0777,serverino",
             "mkdir --parents /mnt/data",
@@ -191,7 +185,6 @@ class TestRuntime(unittest.TestCase):
         ]
         assert storage_commands == expect_commands
 
-    @unittest.skip
     @mock.patch("kubernetes.client.CoreV1Api.read_namespaced_secret")
     def test_teamwise_azure_blob_storage_plugin(self, mock_get_secrets):
         parameters = {"storageConfigNames": ["STORAGE_AZURE_BLOB"]}
@@ -201,7 +194,7 @@ class TestRuntime(unittest.TestCase):
             parameters)
 
         expect_commands = [
-            "apt-get update", "umask 000",
+            "umask 000", "apt-get update",
             "apt-get install --assume-yes wget curl lsb-release apt-transport-https",
             "valid_release=('14.04' '15.10' '16.04' '16.10' '17.04' '17.10' '18.04' '18.10' '19.04')",
             "release=`lsb_release -r | cut -f 2`",
