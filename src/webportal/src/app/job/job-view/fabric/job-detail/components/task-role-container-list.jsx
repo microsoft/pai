@@ -497,10 +497,10 @@ export default class TaskRoleContainerList extends React.Component {
                     'extras' in jobConfig &&
                     'com.microsoft.pai.runtimeplugin' in jobConfig.extras
                   ) {
-                    for (let pluginSetting of jobConfig.extras[
+                    for (const pluginSetting of jobConfig.extras[
                       'com.microsoft.pai.runtimeplugin'
                     ]) {
-                      if (pluginSetting['plugin'] === 'ssh') {
+                      if (pluginSetting.plugin === 'ssh') {
                         if (
                           'parameters' in pluginSetting &&
                           'userssh' in pluginSetting.parameters &&
