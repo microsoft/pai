@@ -3,6 +3,7 @@
 
 const axios = require('axios');
 const {Agent} = require('https');
+const {cloneDeep} = require('lodash');
 const {URL} = require('url');
 const {apiserver} = require('@pai/config/kubernetes');
 const status = require('statuses');
@@ -95,15 +96,12 @@ const getNodes = async () => {
 };
 
 const getPods = async (options = {}) => {
-  const {labelSelector, negativeLabelSelector, namespace} = options;
+  const {namespace} = options;
   const client = getClient();
-  const labelSelectorStr = encodeSelector(labelSelector, negativeLabelSelector);
-  const requestOptions = {};
-  if (labelSelectorStr) {
-    requestOptions.params = {
-      labelSelector: labelSelectorStr,
-    };
-  }
+
+  const requestOptions = {}
+  requestOptions.params = cloneDeep(options);
+  delete requestOptions.params.namespace
   let url = '/api/v1/pods';
   if (namespace) {
     url = `/api/v1/namespaces/${namespace}/pods`;
