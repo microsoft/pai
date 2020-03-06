@@ -218,7 +218,7 @@ export default class TaskRoleContainerList extends React.Component {
     );
   }
 
-  showSshInfo(id, containerPorts, containerIp) {
+  showSshInfo(hasUserSsh, id, containerPorts, containerIp) {
     const { sshInfo } = this.context;
     const containerSshInfo =
       sshInfo && sshInfo.containers.find(x => x.id === id);
@@ -266,7 +266,7 @@ export default class TaskRoleContainerList extends React.Component {
       }
     } else {
       const res = [];
-      if ('ssh' in containerPorts) {
+      if (hasUserSsh) {
         res.push(
           'You can connect to this container by one of the following commands if SSH is set up properly: \n',
         );
@@ -491,14 +491,34 @@ export default class TaskRoleContainerList extends React.Component {
                 iconProps={{ iconName: 'CommandPrompt' }}
                 text='View SSH Info'
                 onClick={() => {
+                  let hasUserSsh = false;
+                  const jobConfig = this.context.jobConfig;
+                  if (
+                    'extras' in jobConfig &&
+                    'com.microsoft.pai.runtimeplugin' in jobConfig.extras
+                  ) {
+                    for (let pluginSetting of jobConfig.extras[
+                      'com.microsoft.pai.runtimeplugin'
+                    ]) {
+                      if (pluginSetting['plugin'] === 'ssh') {
+                        if (
+                          'parameters' in pluginSetting &&
+                          'userssh' in pluginSetting.parameters &&
+                          !isEmpty(pluginSetting.parameters.userssh)
+                        ) {
+                          hasUserSsh = true;
+                          break;
+                        }
+                      }
+                    }
+                  }
                   this.showSshInfo(
+                    hasUserSsh,
                     item.containerId,
                     item.containerPorts,
                     item.containerIp,
-                  )
-                }
-
-                }
+                  );
+                }}
                 disabled={
                   isNil(item.containerId) || item.taskState !== 'RUNNING'
                 }
