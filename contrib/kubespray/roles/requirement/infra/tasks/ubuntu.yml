@@ -58,3 +58,7 @@
     msg: "OpenPAI's infra node should have 1 CPU vcore for service "
   when:
     - ansible_processor_vcpus < 1
+
+- name: check docker requirement
+  include_tasks: ubuntu-docker.yml
+  when: docker_check

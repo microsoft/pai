@@ -79,6 +79,8 @@
   when:
     - ansible_memfree_mb < 16000
 
-
+- name: check docker requirement
+  include_tasks: ubuntu-docker.yml
+  when: docker_check
 
 

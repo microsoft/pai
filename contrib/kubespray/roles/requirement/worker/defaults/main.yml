@@ -1,1 +1,2 @@
-worker-default-docker-runtime: nvidia
+docker_check: true
+worker_default_docker_runtime: nvidia
