@@ -99,9 +99,9 @@ const getPods = async (options = {}) => {
   const {namespace} = options;
   const client = getClient();
 
-  const requestOptions = {}
+  const requestOptions = {};
   requestOptions.params = cloneDeep(options);
-  delete requestOptions.params.namespace
+  delete requestOptions.params.namespace;
   let url = '/api/v1/pods';
   if (namespace) {
     url = `/api/v1/namespaces/${namespace}/pods`;
