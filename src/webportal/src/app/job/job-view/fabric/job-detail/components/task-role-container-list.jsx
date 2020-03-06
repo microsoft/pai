@@ -247,7 +247,7 @@ export default class TaskRoleContainerList extends React.Component {
           `wget '${sshInfo.keyPair.privateKeyDirectDownloadLink}' -O ${sshInfo.keyPair.privateKeyFileName}`,
         );
         res.push('# Step 3: Set correct permission for the key file:');
-        res.push(`chmod 600 ${sshInfo.keyPair.privateKeyFileName}`);
+        res.push(`chmod 400 ${sshInfo.keyPair.privateKeyFileName}`);
         res.push('# Step 4: Connect to the container:');
         res.push(
           `ssh -i ${sshInfo.keyPair.privateKeyFileName} -p ${containerSshInfo.sshPort} root@${containerSshInfo.sshIp}`,
@@ -491,29 +491,7 @@ export default class TaskRoleContainerList extends React.Component {
                 iconProps={{ iconName: 'CommandPrompt' }}
                 text='View SSH Info'
                 onClick={() => {
-                  let hasUserSsh = false;
-                  const jobConfig = this.context.jobConfig;
-                  if (
-                    'extras' in jobConfig &&
-                    'com.microsoft.pai.runtimeplugin' in jobConfig.extras
-                  ) {
-                    for (const pluginSetting of jobConfig.extras[
-                      'com.microsoft.pai.runtimeplugin'
-                    ]) {
-                      if (pluginSetting.plugin === 'ssh') {
-                        if (
-                          'parameters' in pluginSetting &&
-                          'userssh' in pluginSetting.parameters &&
-                          !isEmpty(pluginSetting.parameters.userssh)
-                        ) {
-                          hasUserSsh = true;
-                          break;
-                        }
-                      }
-                    }
-                  }
                   this.showSshInfo(
-                    hasUserSsh,
                     item.containerId,
                     item.containerPorts,
                     item.containerIp,
