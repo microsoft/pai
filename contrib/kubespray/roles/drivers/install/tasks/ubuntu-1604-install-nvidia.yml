@@ -13,10 +13,5 @@
     name: nvidia-{{ nvidia_version }}
     state: present
 
-- name: Install nvidia drivers on ubuntu 18.04, we will install {{ nvidia_version }} version
-  apt:
-    name: nvidia-driver-{{ nvidia_version }}
-    state: present
-
 - name: reboot vm
   reboot:
