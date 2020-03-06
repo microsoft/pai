@@ -32,6 +32,11 @@ all:
 {%- for vm in env["worker"] %}
         {{ vm["hostname"] }}:
 {%- endfor %}
+    gpu:
+      hosts:
+{%- for vm in env["worker"] %}
+        {{ vm["hostname"] }}:
+{%- endfor %}
     etcd:
       hosts:
 {%- for vm in env["master"] %}

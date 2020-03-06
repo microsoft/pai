@@ -17,6 +17,8 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+# remove unused packages especially linux headers/image/modules
+sudo apt autoremove -y || true
 # stop all docker containers
 sudo docker stop $(sudo docker ps -q) || true
 # remove all docker containers
@@ -34,7 +36,7 @@ sudo chown ${ACCOUNT_USR}:${ACCOUNT_USR} -R ${JENKINS_HOME}
 for host in $(seq -s " " -f "10.0.1.%g" 5 8) $(seq -s " " -f "10.0.3.%g" 4 6); do
   echo "clean node ${host}:"
   ssh ${ACCOUNT_USR}@${host} -o StrictHostKeyChecking=no -i /home/${ACCOUNT_USR}/.ssh/id_rsa \
-  'sudo apt autoremove || true; \
+  'sudo apt autoremove -y || true; \
    sudo rm -rf /datastorage || true; \
    sudo rm -rf /mnt/datastorage || true; \
    sudo service stop kubelet || true; \

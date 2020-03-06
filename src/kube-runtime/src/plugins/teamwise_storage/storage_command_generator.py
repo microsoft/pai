@@ -33,7 +33,7 @@ KUBE_APISERVER_ADDRESS = os.environ.get("KUBE_APISERVER_ADDRESS")
 
 KUBE_TOKEN_FILE = "/var/run/secrets/kubernetes.io/serviceaccount/token"
 
-STORAGE_PRE_COMMAND = ["apt-get update", "umask 000"]
+STORAGE_PRE_COMMAND = ["umask 000"]
 
 
 def _covert_secret_to_server_config(secret) -> dict:

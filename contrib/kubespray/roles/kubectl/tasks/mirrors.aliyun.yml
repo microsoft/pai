@@ -1,0 +1,6 @@
+---
+- name: Add apt-key
+  raw: 'curl -s https://mirrors.aliyun.com/kubernetes/apt/doc/apt-key.gpg | sudo apt-key add -'
+
+- name: update sourcelist
+  raw: 'echo "deb https://mirrors.aliyun.com/kubernetes/apt/ kubernetes-xenial main" | sudo tee -a /etc/apt/sources.list.d/kubernetes.list'

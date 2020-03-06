@@ -335,9 +335,9 @@ docker_dns_servers_strict: false
 ## Used to set docker daemon iptables options to true
 docker_iptables_enabled: false
 
-docker_daemon_graph: "/mnt/docker"
-
 docker_log_opts: "--log-opt max-size=2g --log-opt max-file=2 --log-driver=json-file"
+
+docker_daemon_graph: "/mnt/docker"
 
 docker_options: >-
     --config-file /etc/docker-openpai/daemon-openpai.json
