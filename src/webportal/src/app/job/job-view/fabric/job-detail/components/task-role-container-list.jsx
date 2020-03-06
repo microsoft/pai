@@ -219,7 +219,7 @@ export default class TaskRoleContainerList extends React.Component {
   }
 
   showSshInfo(id, containerPorts, containerIp) {
-    const { sshInfo, jobConfig} = this.context;
+    const { sshInfo, jobConfig } = this.context;
     const containerSshInfo =
       sshInfo && sshInfo.containers.find(x => x.id === id);
     if (config.launcherType !== 'k8s') {
