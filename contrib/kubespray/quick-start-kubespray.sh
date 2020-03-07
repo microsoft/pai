@@ -48,6 +48,8 @@ echo "Ping Test"
 
 ansible all -i ${HOME}/pai-deploy/cluster-cfg/hosts.yml -m ping || exit $?
 
+/bin/bash requirement.sh -m ${MASTER_LIST} -w ${WORKER_LIST} -c ${CLUSTER_CONFIG} || exit $?
+
 /bin/bash script/kubernetes-boot.sh || exit $?
 
 

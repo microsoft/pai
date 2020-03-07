@@ -53,11 +53,16 @@ docker_image_tag: <% latest-release %>
 # docker_registry_password: examplepasswd
 
 ###########################################################################################
+#                         Pre-check setting                                               #
 # By default, we assume your gpu environment is nvidia. So your runtime should be nvidia. #
 # If you are using AMD or other environment, you should modify it.                        #
 ###########################################################################################
 # worker_default_docker_runtime: nvidia
 # docke_check: true
+
+# resource_check: true
+
+# gpu_type: nvidia
 
 ########################################################################################
 # Advanced docker configuration. If you are not familiar with them, don't change them. #
