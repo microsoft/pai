@@ -4,6 +4,9 @@ branch-name: <% latest-release %>
 docker-image-tag: <% latest-release %>
 
 # Optional
+
+# ssh_key_file_path: /path/to/you/key/file
+
 # docker-registry-domain: docker.io
 # docker-registry-namespace: openpai
 # docker-registry-username: exampleuser
