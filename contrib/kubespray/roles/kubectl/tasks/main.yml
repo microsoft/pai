@@ -21,7 +21,7 @@
   copy:
     src: "{{ kube_admin_conf_path }}"
     dest: "{{ kubeconfig_path }}/config"
-    mode: preserve
+    mode: "0644"
     backup: yes
 
 - name: run the equivalent of "apt-get update" as a separate step
