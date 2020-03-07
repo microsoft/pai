@@ -68,6 +68,7 @@ release-2.11
 - Deploy OpenPAI with kubespray. **Recommended**.
     - [Quick Start](./doc/quick-start.md)
     - [Step by Step](./doc/step-by-step.md)
+    - [FAQs and Troubleshooting](./doc/faqs-and-troubleshooting.md)
 - [Deploy OpenPAI with paictl from end to end. **Not Recommended**.](../../docs/pai-management/README.md)
 
     

@@ -1,9 +1,14 @@
 user: forexample
 password: forexample
-branch-name: master
-docker-image-tag: quick-start
+branch-name: <% latest-release %>
+docker-image-tag: <% latest-release %>
 
 # Optional
+
+#############################################
+# Ansible-playbooks' inventory hosts' vars. #
+#############################################
+# ssh_key_file_path: /path/to/you/key/file
 
 #####################################
 # OpenPAI's service image registry. #
