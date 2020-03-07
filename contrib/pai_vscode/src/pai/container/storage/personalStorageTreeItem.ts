@@ -4,7 +4,7 @@
  * @author Microsoft
  */
 
-import { IStorageServer } from 'openpai-js-sdk';
+import { IMountInfo, IStorageServer } from 'openpai-js-sdk';
 import { TreeItemCollapsibleState, Uri } from 'vscode';
 
 import {
@@ -64,8 +64,8 @@ export class PersonalStorageTreeNode extends StorageTreeNode {
         await this.data.uploadFolder();
     }
 
-    public async createFolder(): Promise<void> {
-        await this.data.createFolder();
+    public async createFolder(folder?: string): Promise<void> {
+        await this.data.createFolder(folder);
     }
 
     public initializeData(): StorageTreeNode {
@@ -75,7 +75,7 @@ export class PersonalStorageTreeNode extends StorageTreeNode {
             case 'azurefile':
                 return new StorageTreeNode('Azure File');
             case 'nfs':
-                return new NfsRootNode(this.storage, '', this);
+                return new NfsRootNode(this.storage, <IMountInfo>{ mountPoint: '' }, this);
             case 'samba':
                 return new SambaRootNode(this.storage, '', this);
             default:

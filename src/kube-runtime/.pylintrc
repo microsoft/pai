@@ -4,6 +4,8 @@ max-args=8
 # Ignore imports when computing similarities.
 ignore-imports=yes
 
+ignored-modules=responses
+
 [FORMAT]
 max-line-length=130
 

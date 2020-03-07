@@ -33,7 +33,7 @@ const requestAuthCode = async (req, res, next) => {
     scope = `${scope} https://${authnConfig.OIDCConfig.msgraph_host}/directory.read.all`;
   }
   let state = {};
-  state.redirect = 'http://' + process.env.WEBPORTAL_URL + '/index.html';
+  state.redirect = process.env.WEBPORTAL_URL + '/index.html';
   if (req.query.redirect_uri) {
     state.redirect = req.query.redirect_uri;
   }

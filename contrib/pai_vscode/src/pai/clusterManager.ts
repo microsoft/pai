@@ -74,6 +74,10 @@ export class ClusterManager extends Singleton {
 
     private configuration: IConfiguration | undefined;
 
+    public get allConfigurations(): IPAICluster[] {
+        return this.configuration!.pais;
+    }
+
     public async onActivate(): Promise<void> {
         this.context.subscriptions.push(
             vscode.commands.registerCommand(COMMAND_ADD_CLUSTER, () => this.add()),
@@ -137,10 +141,6 @@ export class ClusterManager extends Singleton {
         if (updated) {
             await Promise.all(list).then(async () => await this.save());
         }
-    }
-
-    public get allConfigurations(): IPAICluster[] {
-        return this.configuration!.pais;
     }
 
     public async autoAddOIDCUserInfo(cluster: IPAICluster): Promise<void> {

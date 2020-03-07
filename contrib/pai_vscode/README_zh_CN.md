@@ -2,30 +2,31 @@
 
 OpenPAI VS Code Client 是一个 Visual Studio Code 的扩展组件，可以连接 OpenPAI 集群，提交 Job，在本地模拟运行 Job，管理文件等等。
 
-- [OpenPAI VS Code Client](#openpai-vs-code-client) 
-  - [连接到 OpenPAI 集群](#连接到-openpai-群集)
-  - [提交 Job](#提交-job)
-  - [本机模拟](#本机模拟) 
-    - [先决条件](#先决条件)
-    - [步骤](#步骤)
-    - [局限性](#局限性)
-  - [参考](#参考) 
+- [OpenPAI VS Code Client](#openpai-vs-code-client)
+  - [连接到 OpenPAI 集群](#%e8%bf%9e%e6%8e%a5%e5%88%b0-openpai-%e9%9b%86%e7%be%a4)
+  - [提交 Job](#%e6%8f%90%e4%ba%a4-job)
+  - [本机模拟](#%e6%9c%ac%e6%9c%ba%e6%a8%a1%e6%8b%9f)
+    - [先决条件](#%e5%85%88%e5%86%b3%e6%9d%a1%e4%bb%b6)
+    - [步骤](#%e6%ad%a5%e9%aa%a4)
+    - [局限性](#%e5%b1%80%e9%99%90%e6%80%a7)
+  - [任务代码自动上传](#%e4%bb%bb%e5%8a%a1%e4%bb%a3%e7%a0%81%e8%87%aa%e5%8a%a8%e4%b8%8a%e4%bc%a0)
+  - [参考](#%e5%8f%82%e8%80%83)
     - [GUI](#gui)
-    - [命令面板](#command-palette)
-    - [PAI Cluster Explorer](#pai-cluster-explorer)
-    - [设置](#settings)
-  - [问题和建议](#问题和建议)
-  - [贡献](#贡献)
-  - [许可证](#许可证)
+    - [命令面板](#%e5%91%bd%e4%bb%a4%e9%9d%a2%e6%9d%bf)
+    - [PAI 集群浏览器](#pai-%e9%9b%86%e7%be%a4%e6%b5%8f%e8%a7%88%e5%99%a8)
+    - [设置](#%e8%ae%be%e7%bd%ae)
+  - [问题和建议](#%e9%97%ae%e9%a2%98%e5%92%8c%e5%bb%ba%e8%ae%ae)
+  - [贡献](#%e8%b4%a1%e7%8c%ae)
+  - [许可证](#%e8%ae%b8%e5%8f%af%e8%af%81)
 
-## 连接到 OpenPAI 群集
+## 连接到 OpenPAI 集群
 
 使用 OpenPAI VS Code Client 之前，按照以下步骤连接到 OpenPAI 集群。
 
 注意， OpenPAI 集群的版本必须大于或等于 0.8.0。
 
 1. 使用快捷键 <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>P</kbd> 打开命令面板。
-2. 如下输入并查找 *PAI: Add PAI Cluster*。
+2. 如下输入并查找 *PAI: 添加 PAI 集群*。
   
       ![添加集群](https://raw.githubusercontent.com/Microsoft/pai/master/contrib/pai_vscode/assets/add_cluster.png)
       
@@ -35,24 +36,41 @@ OpenPAI VS Code Client 是一个 Visual Studio Code 的扩展组件，可以连�
       ![添加集群](https://raw.githubusercontent.com/Microsoft/pai/master/contrib/pai_vscode/assets/add_cluster.png)
       
 
-4. 配置文件将会被打开，至少需要填入 username 和 password 字段。 完成后，点击右下角的 *Finish* 按钮。 注意，如果直接保存并关闭文件，则无法生效。
+4. 配置文件将会被打开，至少需要填入 username 和 password 字段。 完成后，点击右下角的 *完成* 按钮。 注意，如果直接保存并关闭文件，则无法生效。
   
       ![添加集群配置](https://raw.githubusercontent.com/Microsoft/pai/master/contrib/pai_vscode/assets/add-cluster-finish.png)
       
 
-如果有多个 OpenPAI 群集，可以多次按照上述步骤进行。
+如果有多个 OpenPAI 集群，可以多次按照上述步骤进行。
 
 ## 提交 Job
 
-添加完集群配置后，可以在*PAI CLUSTER EXPLORER* 面板找到该集群。
+添加完集群配置后，可以在*PAI 集群浏览器* 面板找到该集群。
 
 ![pai cluster explorer](https://raw.githubusercontent.com/Microsoft/pai/master/contrib/pai_vscode/assets/pai_cluster_explorer.png)
 
-提交 v1 Job：
+提交 v2 Job (OpenPAI >= v0.13.0)：
+
+可通过以下步骤创建 v2 Job 配置，并提交到 OpenPAI。
+
+1. 创建 Job 配置文件:
+    1. 在 `PAI 集群浏览器` 中双击 `创建任务配置文件...`, 并指定文件名和路径来创建 Job 配置文件(请确保集群配置中的 `protocol_version` 属性的值为 `'2'`)。
+    2. 在 `VSCode 资源管理器` 中右击 python 或 cntk 文件，并选取 `创建 PAI 任务配置文件 V2`, 并指定文件名和路径来创建 Job 配置文件。
+2. 根据需要更新 Job 配置。 如果不熟悉配置文件，可参考[这里](https://github.com/microsoft/pai/blob/master/docs/zh_CN/marketplace-and-submit-job-v2/marketplace-and-submit-job-v2.md#introduction-to-yaml-file)。
+3. 右击创建的 Job v2 配置文件，然后点击 `在 PAI 集群上提交任务`。 客户端会将文件上传到 OpenPAI 并创建 Job。 完成后，在右下角会有通知，可点击打开 Job 详情页面。
+  
+      如果有多个 OpenPAI 集群，需要选择其中一个。
+      
+      此动画显示了上述步骤。
+      ![提交 Job](https://raw.githubusercontent.com/Microsoft/pai/master/contrib/pai_vscode/assets/submit-job-v2.gif)
+
+提交 v1 Job (deprecating, OpenPAI < 0.13.0)：
 
 可通过以下步骤创建 Job 配置，并提交到 OpenPAI。
 
-1. 确保集群配置中的 `protocol_version` 属性的值为 `'1'`。 在 OpenPAI cluster Explorer 中双击 `Create Job Config...`，并指定文件名和路径来创建 Job 配置文件。
+1. 创建 Job 配置文件：
+    1. 在 `PAI 集群浏览器` 中双击 `创建任务配置文件...`, 并指定文件名和路径来创建 Job 配置文件(请确保集群配置中的 `protocol_version` 属性的值为 `'1'`)。
+    2. 在 `VSCode 资源管理器` 中右击 python 或 cntk 文件，并选取 `创建 PAI 任务配置文件 V1`, 并指定文件名和路径来创建 Job 配置文件。
 2. 根据需要更新 Job 配置。 如果不熟悉配置文件，可参考[这里](https://github.com/Microsoft/pai/blob/master/docs/zh_CN/user/training.md)。
 3. 右击创建的 Job 配置文件，然后点击 `Submit Job to PAI Cluster`。 客户端会将文件上传到 OpenPAI 并创建 Job。 完成后，在右下角会有通知，可点击打开 Job 详情页面。
   
@@ -60,20 +78,6 @@ OpenPAI VS Code Client 是一个 Visual Studio Code 的扩展组件，可以连�
       
       此动画显示了上述步骤。
       ![提交 Job](https://raw.githubusercontent.com/Microsoft/pai/master/contrib/pai_vscode/assets/submit-job.gif)
-      
-
-提交 v2 Job：
-
-可通过以下步骤创建 v2 Job 配置，并提交到 OpenPAI。
-
-1. 确保集群配置中的 `protocol_version` 属性的值为 `'2'`。 在 OpenPAI cluster Explorer 中双击 `Create Job Config...`，并指定文件名和路径来创建 Job 配置文件。
-2. 根据需要更新 Job 配置。 如果不熟悉配置文件，可参考[这里](https://github.com/microsoft/pai/blob/master/docs/zh_CN/marketplace-and-submit-job-v2/marketplace-and-submit-job-v2.md#introduction-to-yaml-file)。
-3. 右击创建的 Job v2 配置文件，然后点击 `Submit Job to PAI Cluster`。 客户端会将文件上传到 OpenPAI 并创建 Job。 完成后，在右下角会有通知，可点击打开 Job 详情页面。
-  
-      如果有多个 OpenPAI 集群，需要选择其中一个。
-      
-      此动画显示了上述步骤。
-      ![提交 Job](https://raw.githubusercontent.com/Microsoft/pai/master/contrib/pai_vscode/assets/submit-job-v2.gif)
       
 
 ## 本机模拟
@@ -105,6 +109,10 @@ OpenPAI VS Code Client 是一个 Visual Studio Code 的扩展组件，可以连�
 - Job 可能会在本地运行很长的时间。 在大多数情况下，本机的算力都远低于 OpenPAI 集群中的服务器。 如果需要端到端的模拟 Job，则需要减少迭代次数来更快的获得结果。
 - 本机可能无法访问一些存储。 OpenPAI 集群有可能部署在私有环境中，因此本机可能无法访问一些集群的存储。
 
+## 任务代码自动上传
+
+请参考 [Auto Upload](https://raw.githubusercontent.com/Microsoft/pai/master/contrib/pai_vscode/documentation/storage_explorer_and_auto_upload.md#Auto-Upload).
+
 ## 参考
 
 ### GUI
@@ -115,16 +123,18 @@ OpenPAI VS Code Client 是一个 Visual Studio Code 的扩展组件，可以连�
 
 打开后可看到两个部分。
 
-- HDFS Explorer
+- 存储浏览器 (PAI > 0.14.0)
+  
+    请参考 [Storage Explorer](https://raw.githubusercontent.com/Microsoft/pai/master/contrib/pai_vscode/documentation/storage_explorer_and_auto_upload.md#Storage-Explorer).
+
+- HDFS 浏览器 (PAI <= 0.14.0)
   
       可查看、上传或下载 OpenPAI 集群存储中的文件。
       
-
-- Job List
+- PAI 任务列表
   
       可查看 OpenPAI 集群中的 Job。 列表会定期刷新，前面的图标显示了 Job 的状态。 可双击 Job 在浏览器中查看。
       
-
 ![job list](https://raw.githubusercontent.com/Microsoft/pai/master/contrib/pai_vscode/assets/job-list.png)
 
 ### 命令面板
@@ -137,7 +147,7 @@ OpenPAI VS Code Client 是一个 Visual Studio Code 的扩展组件，可以连�
 | PAI: Create PAI Job Config File | 创建 OpenPAI 配置文件     |
 | PAI: Simulate PAI Job Running   | 生成 Docker 文件并进行本机模拟 |
 
-### PAI Cluster Explorer
+### PAI 集群浏览器
 
 | 名称                      | 说明                        |
 | ----------------------- | ------------------------- |
@@ -149,7 +159,7 @@ OpenPAI VS Code Client 是一个 Visual Studio Code 的扩展组件，可以连�
 | Edit Configuration...   | 编辑 OpenPAI 集群配置           |
 | Open HDFS...            | 打开 OpenPAI 集群的 HDFS 存储管理器 |
 
-### Settings
+### 设置
 
 | 标识                               | 说明                                         |
 | -------------------------------- | ------------------------------------------ |

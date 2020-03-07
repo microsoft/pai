@@ -32,10 +32,23 @@ openpai-004,10.0.0.4
 ##### Write config
 
 ```yaml
-branch-name: master
-docker-image-tag: quick-start
+branch-name: <% latest-release %>
+docker-image-tag: <% latest-release %>
 user: forexample
 password: forexample
+
+# Optional
+# docker-registry-domain: docker.io
+# docker-registry-namespace: openpai
+# docker-registry-username: exampleuser
+# docker-registry-password: examplepasswd
+
+# docker-data-root: /mnt/docker
+# docker-iptables-enabled: false
+# gcr-image-repo: "gcr.io"
+# kube-image-repo: "gcr.io/google-containers"
+# quay-image-repo: "quay.io"
+# docker-image-repo: "docker.io"
 ```
 
 ###### start kubernetes

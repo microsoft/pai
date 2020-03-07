@@ -29,15 +29,6 @@ spec:
       labels:
         app: internal-storage-delete
     spec:
-      affinity:
-        nodeAffinity:
-          requiredDuringSchedulingIgnoredDuringExecution:
-            nodeSelectorTerms:
-            - matchExpressions:
-              - key: kubernetes.io/hostname
-                operator: In
-                values:
-                - {{ cluster_cfg["internal-storage"]["master-ip"] }}
       hostNetwork: false
       containers:
       - name: internal-storage-delete

@@ -6,6 +6,8 @@ insertText: |2
   name: ${1:<name>}
   type: job
   prerequisites:
-    <prerequisite>
+    ${2:prerequisite}
   taskRoles:
-    <taskRole>
+    ${3:taskRole}
+  extras:
+    ${4:runtimePlugin}

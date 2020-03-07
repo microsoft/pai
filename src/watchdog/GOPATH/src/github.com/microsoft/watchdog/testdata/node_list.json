@@ -1,0 +1,115 @@
+{
+  "kind": "NodeList",
+  "apiVersion": "v1",
+  "metadata": {
+    "selfLink": "/api/v1/nodes/",
+    "resourceVersion": "197728"
+  },
+  "items": [
+    {
+      "apiVersion": "v1",
+      "kind": "Node",
+      "metadata": {
+        "annotations": {
+          "node.alpha.kubernetes.io/ttl": "0",
+          "volumes.kubernetes.io/controller-managed-attach-detach": "true"
+        },
+        "creationTimestamp": "2019-09-06T03:28:24Z",
+        "labels": {
+          "beta.kubernetes.io/arch": "amd64",
+          "beta.kubernetes.io/os": "linux",
+          "kubernetes.io/arch": "amd64",
+          "kubernetes.io/hostname": "10.151.41.8",
+          "kubernetes.io/os": "linux",
+          "pai-worker": "true"
+        },
+        "name": "10.151.41.8",
+        "resourceVersion": "28455741",
+        "selfLink": "/api/v1/nodes/10.151.41.8",
+        "uid": "62340679-d056-11e9-97f6-000d3ab25bb6"
+      },
+      "spec": {},
+      "status": {
+        "addresses": [
+          {
+            "address": "10.151.41.8",
+            "type": "InternalIP"
+          },
+          {
+            "address": "10.151.41.8",
+            "type": "Hostname"
+          }
+        ],
+        "allocatable": {
+          "cpu": "24",
+          "ephemeral-storage": "520385188Ki",
+          "github.com/fuse": "20",
+          "hugepages-1Gi": "0",
+          "hugepages-2Mi": "0",
+          "memory": "227951272Ki",
+          "nvidia.com/gpu": "4",
+          "pods": "110",
+          "rdma/hca": "1k"
+        },
+        "capacity": {
+          "cpu": "24",
+          "ephemeral-storage": "520385188Ki",
+          "github.com/fuse": "20",
+          "hugepages-1Gi": "0",
+          "hugepages-2Mi": "0",
+          "memory": "231097000Ki",
+          "nvidia.com/gpu": "4",
+          "pods": "110",
+          "rdma/hca": "1k"
+        },
+        "conditions": [
+          {
+            "lastHeartbeatTime": "2020-02-03T05:57:03Z",
+            "lastTransitionTime": "2019-10-09T08:59:35Z",
+            "message": "kubelet has sufficient memory available",
+            "reason": "KubeletHasSufficientMemory",
+            "status": "False",
+            "type": "MemoryPressure"
+          },
+          {
+            "lastHeartbeatTime": "2020-02-03T05:57:03Z",
+            "lastTransitionTime": "2019-10-09T08:59:35Z",
+            "message": "kubelet has no disk pressure",
+            "reason": "KubeletHasNoDiskPressure",
+            "status": "False",
+            "type": "DiskPressure"
+          },
+          {
+            "lastHeartbeatTime": "2020-02-03T05:57:03Z",
+            "lastTransitionTime": "2019-10-09T08:59:35Z",
+            "message": "kubelet has sufficient PID available",
+            "reason": "KubeletHasSufficientPID",
+            "status": "False",
+            "type": "PIDPressure"
+          },
+          {
+            "lastHeartbeatTime": "2020-02-03T05:57:03Z",
+            "lastTransitionTime": "2020-01-25T17:39:27Z",
+            "message": "kubelet is posting ready status",
+            "reason": "KubeletReady",
+            "status": "True",
+            "type": "Ready"
+          }
+        ],
+        "daemonEndpoints": {
+          "kubeletEndpoint": {
+            "Port": 10250
+          }
+        },
+        "images": [
+          {
+            "names": [
+              "openpai/log-manager-nginx@sha256:73f7f0f3ea9a512164608a67f77516127f51354a0a0ef855b7c1b0ae854fc458"
+            ],
+            "sizeBytes": 109359903
+          }
+        ]
+      }
+    }
+  ]
+}

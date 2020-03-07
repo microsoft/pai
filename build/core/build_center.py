@@ -28,12 +28,13 @@ import logging.config
 
 class BuildCenter:
 
-    def __init__(self, build_config, process_list):
+    def __init__(self, build_config, process_list, type):
 
         self.logger = logging.getLogger(__name__)
         build_utility.setup_logger_config(self.logger)
 
         self.build_config = build_config
+        self.task_type = type
 
         self.process_list = [service.lower() for service in process_list] if process_list is not None else None
 
@@ -65,7 +66,14 @@ class BuildCenter:
             service_name = service_name[-2] if len(service_name) > 1 else None
             for file_name in file_list:
                 if file_name.endswith(".dockerfile"):
-                    self.graph.add_image_to_service(str(os.path.splitext(file_name)[0]), service_name)
+                    passed = False
+                    if self.task_type == 'all':
+                        passed = True
+                    elif file_name.endswith(".common.dockerfile") or file_name.endswith(
+                            ".{0}.dockerfile".format(self.task_type)):
+                        passed = True
+                    if passed:
+                        self.graph.add_image_to_service(str(os.path.splitext(file_name)[0]), service_name)
         self.logger.info("Construct service graph successfully")
 
     def resolve_dependency(self):
@@ -77,11 +85,18 @@ class BuildCenter:
             service_name = service_name[-2] if len(service_name) > 1 else None
             for file_name in file_list:
                 if file_name.endswith(".dockerfile"):
-                    with open(os.path.join(path, file_name), 'r') as fin:
-                        for line in fin:
-                            if line.strip().startswith("FROM"):
-                                image = line.split()[1]
-                                self.graph.add_dependency(self.graph.image_to_service.get(image), service_name)
+                    passed = False
+                    if self.task_type == 'all':
+                        passed = True
+                    elif file_name.endswith(".common.dockerfile") or file_name.endswith(
+                            ".{0}.dockerfile".format(self.task_type)):
+                        passed = True
+                    if passed:
+                        with open(os.path.join(path, file_name), 'r') as fin:
+                            for line in fin:
+                                if line.strip().startswith("FROM"):
+                                    image = line.split()[1]
+                                    self.graph.add_dependency(self.graph.image_to_service.get(image), service_name)
                 elif file_name == "component.dep":
                     with open(os.path.join(path, file_name), "r") as fin:
                         for line in fin:

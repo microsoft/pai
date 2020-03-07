@@ -1,0 +1,69 @@
+---
+- name: output home path of local machine
+  debug:
+    var: local_home_path
+
+- name: set kubeconfig path
+  set_fact:
+    kubeconfig_path: "{{ local_home_path }}/.kube"
+
+- name: create kubeconfig path
+  file:
+    path: "{{ kubeconfig_path }}"
+    state: directory
+    recurse: true
+
+- name: set cluster admin.conf path
+  set_fact:
+    kube_admin_conf_path: "{{ local_home_path }}/pai-deploy/kubespray/inventory/pai/artifacts/admin.conf"
+
+- name: copy admin.conf into kubeconfig path, and rename it as config
+  copy:
+    src: "{{ kube_admin_conf_path }}"
+    dest: "{{ kubeconfig_path }}/config"
+    mode: "0644"
+    backup: yes
+
+- name: run the equivalent of "apt-get update" as a separate step
+  apt:
+    update_cache: yes
+
+- name: install apt-transport-https
+  apt:
+    name: apt-transport-https
+    state: present
+
+- name: "Test accessibility to packages.cloud.google.com"
+  raw: ping packages.cloud.google.com -c 3
+  register: ping_cloud_google
+  failed_when: false
+  changed_when: false
+  check_mode: false
+  environment: {}
+
+- name: remove previous sources list of kubernetes
+  file:
+    path: /etc/apt/sources.list.d/kubernetes.list
+    state: absent
+
+# https://kubernetes.io/docs/tasks/tools/install-kubectl/#install-using-native-package-management
+- name: Update source with packages.cloud.google.com
+  include_tasks: cloud.google.yml
+  when: ping_cloud_google.rc == 0
+
+- name: Update source with mirrors.aliyun.com
+  include_tasks: cloud.google.yml
+  when: ping_cloud_google.rc != 0
+
+- name: run the equivalent of "apt-get update" as a separate step
+  apt:
+    update_cache: yes
+
+- name: install kubectl
+  apt:
+    name: "kubectl={{ kubectl_version }}"
+    state: present
+
+
+
+

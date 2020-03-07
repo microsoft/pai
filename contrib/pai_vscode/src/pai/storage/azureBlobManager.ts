@@ -104,26 +104,39 @@ export class AzureBlobManager {
         statusBarItem.dispose();
     }
 
-    public static async createFolder(target: AzureBlobTreeItem | AzureBlobRootItem): Promise<void> {
-        const name: string | undefined = await window.showInputBox({
-            prompt: __('container.azure.blob.mkdir.prompt')
-        });
-        if (name === undefined) {
-            Util.warn('container.azure.blob.mkdir.cancelled');
-            return;
-        }
-
-        const blobName: string = path.join(target.rootPath, name);
-        try {
-            await target.client.getBlockBlobClient(blobName).upload('', 0, {
-                metadata: {
-                    hdi_isfolder: 'true'
-                }
+    public static async createFolder(target: AzureBlobTreeItem | AzureBlobRootItem, folder?: string): Promise<void> {
+        if (folder) {
+            const blobName: string = path.join(target.rootPath, folder);
+            try {
+                await target.client.getBlockBlobClient(blobName).upload('', 0, {
+                    metadata: {
+                        hdi_isfolder: 'true'
+                    }
+                });
+            } catch (err) {
+                Util.err('storage.create.folder.error', [err]);
+            }
+        } else {
+            const name: string | undefined = await window.showInputBox({
+                prompt: __('container.azure.blob.mkdir.prompt')
             });
+            if (name === undefined) {
+                Util.warn('container.azure.blob.mkdir.cancelled');
+                return;
+            }
 
-            Util.info('storage.create.folder.success');
-        } catch (err) {
-            Util.err('storage.create.folder.error', [err]);
+            const blobName: string = path.join(target.rootPath, name);
+            try {
+                await target.client.getBlockBlobClient(blobName).upload('', 0, {
+                    metadata: {
+                        hdi_isfolder: 'true'
+                    }
+                });
+
+                Util.info('storage.create.folder.success');
+            } catch (err) {
+                Util.err('storage.create.folder.error', [err]);
+            }
         }
     }
 

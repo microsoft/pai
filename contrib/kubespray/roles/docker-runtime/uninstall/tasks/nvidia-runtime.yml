@@ -1,0 +1,11 @@
+---
+- name: "remove NVIDIA persistent mode's file"
+  command: "rm -rf /etc/docker-openpai"
+
+- name: uninstall packages
+  apt:
+    name: nvidia-container-runtime
+    state: absent
+    update_cache: yes
+  when:
+    - uninstall_run_time

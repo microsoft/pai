@@ -1,0 +1,17 @@
+---
+- name: Add the drivers repository to Ubuntu
+  apt_repository:
+    repo: ppa:graphics-drivers/ppa
+    state: present
+
+- name: Run the equivalent of "apt-get update" as a separate step
+  apt:
+    update_cache: yes
+
+- name: Install nvidia drivers on ubuntu 16.04, we will install {{ nvidia_version }} version
+  apt:
+    name: nvidia-{{ nvidia_version }}
+    state: present
+
+- name: reboot vm
+  reboot:

@@ -28,37 +28,49 @@ all:
       ip: x.x.x.37
       access_ip: x.x.x.37
       ansible_host: x.x.x.37
+      ansible_ssh_user: "username"
       ansible_ssh_pass: "your-password-here"
+      ansible_become_pass: "your-password-here"
       ansible_ssh_extra_args: '-o StrictHostKeyChecking=no'
     node2:
       ip: x.x.x.38
       access_ip: x.x.x.38
       ansible_host: x.x.x.38
+      ansible_ssh_user: "username"
       ansible_ssh_pass: "your-password-here"
+      ansible_become_pass: "your-password-here"
       ansible_ssh_extra_args: '-o StrictHostKeyChecking=no'
     node3:
       ip: x.x.x.39
       access_ip: x.x.x.39
       ansible_host: x.x.x.39
+      ansible_ssh_user: "username"
       ansible_ssh_pass: "your-password-here"
+      ansible_become_pass: "your-password-here"
       ansible_ssh_extra_args: '-o StrictHostKeyChecking=no'
     node4:
       ip: x.x.x.40
       access_ip: x.x.x.40
       ansible_host: x.x.x.40
+      ansible_ssh_user: "username"
       ansible_ssh_pass: "your-password-here"
+      ansible_become_pass: "your-password-here"
       ansible_ssh_extra_args: '-o StrictHostKeyChecking=no'
     node5:
       ip: x.x.x.41
       access_ip: x.x.x.41
       ansible_host: x.x.x.41
+      ansible_ssh_user: "username"
       ansible_ssh_pass: "your-password-here"
+      ansible_become_pass: "your-password-here"
       ansible_ssh_extra_args: '-o StrictHostKeyChecking=no'
     node6:
       ip: x.x.x.42
       access_ip: x.x.x.42
       ansible_host: x.x.x.42
+      ansible_ssh_user: "username"
       ansible_ssh_pass: "your-password-here"
+      ansible_become_pass: "your-password-here"
       ansible_ssh_extra_args: '-o StrictHostKeyChecking=no'
   children:
     kube-master:
@@ -69,6 +81,11 @@ all:
         node1:
         node2:
         node3:
+        node4:
+        node5:
+        node6:
+    gpu:
+      hosts:
         node4:
         node5:
         node6:
@@ -85,59 +102,10 @@ all:
       hosts: {}
 ```
 
-###### ```infra.yaml for infra node```
-
-```yaml
-all:
-  hosts:
-    node1:
-      ip: x.x.x.37
-      access_ip: x.x.x.37
-      ansible_host: x.x.x.37
-      ansible_ssh_pass: "your-password-here"
-      ansible_ssh_extra_args: '-o StrictHostKeyChecking=no'
-    node2:
-      ip: x.x.x.38
-      access_ip: x.x.x.38
-      ansible_host: x.x.x.38
-      ansible_ssh_pass: "your-password-here"
-      ansible_ssh_extra_args: '-o StrictHostKeyChecking=no'
-    node3:
-      ip: x.x.x.39
-      access_ip: x.x.x.39
-      ansible_host: x.x.x.39
-      ansible_ssh_pass: "your-password-here"
-      ansible_ssh_extra_args: '-o StrictHostKeyChecking=no'
-```
-
 - Notice: 
-   - OpenPAI need 3 master nodes. An etcd cluster will be setup on the three nodes, and one of them will be master node of kubernetes. 
-   - We assume all master nodes in your cluster is none-gpu machine.
+    - Please set only one kube-master. We found the HA feature is unstable when scheduling task
+    - Etcd group should have at least 3 nodes.
 
-###### ```worker.yaml for worker (GPU) node```
-
-```yaml
-all:
-  hosts:
-    node4:
-      ip: x.x.x.40
-      access_ip: x.x.x.40
-      ansible_host: x.x.x.40
-      ansible_ssh_pass: "your-password-here"
-      ansible_ssh_extra_args: '-o StrictHostKeyChecking=no'
-    node5:
-      ip: x.x.x.41
-      access_ip: x.x.x.41
-      ansible_host: x.x.x.41
-      ansible_ssh_pass: "your-password-here"
-      ansible_ssh_extra_args: '-o StrictHostKeyChecking=no'
-    node6:
-      ip: x.x.x.42
-      access_ip: x.x.x.42
-      ansible_host: x.x.x.42
-      ansible_ssh_pass: "your-password-here"
-      ansible_ssh_extra_args: '-o StrictHostKeyChecking=no'
-```
 
 ###### Prepare ansible environment
 
@@ -176,9 +144,7 @@ ansible all -i host.yml -m ping
 ###### Create docker configuration for OpenPAI
 
 ```shell script
-ansible-playbook -i /path/to/infra.yml copy-daemon-openpai-default-runtime.yml --become --become-user=root 
-
-ansible-playbook -i /path/to/worker.yml copy-daemon-openpai-nvidia-runtime.yml --become --become-user=root 
+ansible-playbook -i /path/to/hosts.yml docker-runtime-setup.yml -e install_run_time=false
 ```
 
 #### kubespray
@@ -200,7 +166,7 @@ cp -rfp inventory/sample inventory/mycluster
 
 cd ~
 
-cp ~/pai/contrib/kubespray/openpai.yml ~/kubespray/inventory/mycluster
+cp ~/pai/contrib/kubespray/quick-start/openpai.yml ~/kubespray/inventory/mycluster
 
 cp /path/to/your/host.yml ~/kubespray/inventory/mycluster
 ```
@@ -242,19 +208,25 @@ all:
       ip: x.x.x.43
       access_ip: x.x.x.43
       ansible_host: x.x.x.43
-      ansible_ssh_pass: "Your-Password"
+      ansible_ssh_user: "username"
+      ansible_ssh_pass: "your-password-here"
+      ansible_become_pass: "your-password-here"
       ansible_ssh_extra_args: '-o StrictHostKeyChecking=no'
     node8:
       ip: x.x.x.44
       access_ip: x.x.x.44
       ansible_host: x.x.x.44
-      ansible_ssh_pass: "Your-Password"
+      ansible_ssh_user: "username"
+      ansible_ssh_pass: "your-password-here"
+      ansible_become_pass: "your-password-here"
       ansible_ssh_extra_args: '-o StrictHostKeyChecking=no'
     node9:
       ip: x.x.x.45
       access_ip: x.x.x.45
       ansible_host: x.x.x.45
-      ansible_ssh_pass: "Your-Password"
+      ansible_ssh_user: "username"
+      ansible_ssh_pass: "your-password-here"
+      ansible_become_pass: "your-password-here"
       ansible_ssh_extra_args: '-o StrictHostKeyChecking=no'
 ```
 
@@ -272,37 +244,49 @@ all:
       ip: x.x.x.37
       access_ip: x.x.x.37
       ansible_host: x.x.x.37
+      ansible_ssh_user: "username"
       ansible_ssh_pass: "your-password-here"
+      ansible_become_pass: "your-password-here"
       ansible_ssh_extra_args: '-o StrictHostKeyChecking=no'
     node2:
       ip: x.x.x.38
       access_ip: x.x.x.38
       ansible_host: x.x.x.38
+      ansible_ssh_user: "username"
       ansible_ssh_pass: "your-password-here"
+      ansible_become_pass: "your-password-here"
       ansible_ssh_extra_args: '-o StrictHostKeyChecking=no'
     node3:
       ip: x.x.x.39
       access_ip: x.x.x.39
       ansible_host: x.x.x.39
+      ansible_ssh_user: "username"
       ansible_ssh_pass: "your-password-here"
+      ansible_become_pass: "your-password-here"
       ansible_ssh_extra_args: '-o StrictHostKeyChecking=no'
     node4:
       ip: x.x.x.40
       access_ip: x.x.x.40
       ansible_host: x.x.x.40
+      ansible_ssh_user: "username"
       ansible_ssh_pass: "your-password-here"
+      ansible_become_pass: "your-password-here"
       ansible_ssh_extra_args: '-o StrictHostKeyChecking=no'
     node5:
       ip: x.x.x.41
       access_ip: x.x.x.41
       ansible_host: x.x.x.41
+      ansible_ssh_user: "username"
       ansible_ssh_pass: "your-password-here"
+      ansible_become_pass: "your-password-here"
       ansible_ssh_extra_args: '-o StrictHostKeyChecking=no'
     node6:
       ip: x.x.x.42
       access_ip: x.x.x.42
       ansible_host: x.x.x.42
+      ansible_ssh_user: "username"
       ansible_ssh_pass: "your-password-here"
+      ansible_become_pass: "your-password-here"
       ansible_ssh_extra_args: '-o StrictHostKeyChecking=no'
   children:
     kube-master:
@@ -313,6 +297,11 @@ all:
         node1:
         node2:
         node3:
+        node4:
+        node5:
+        node6:
+    gpu:
+      hosts:
         node4:
         node5:
         node6:
@@ -337,55 +326,73 @@ all:
       ip: x.x.x.37
       access_ip: x.x.x.37
       ansible_host: x.x.x.37
+      ansible_ssh_user: "username"
       ansible_ssh_pass: "your-password-here"
+      ansible_become_pass: "your-password-here"
       ansible_ssh_extra_args: '-o StrictHostKeyChecking=no'
     node2:
       ip: x.x.x.38
       access_ip: x.x.x.38
       ansible_host: x.x.x.38
+      ansible_ssh_user: "username"
       ansible_ssh_pass: "your-password-here"
+      ansible_become_pass: "your-password-here"
       ansible_ssh_extra_args: '-o StrictHostKeyChecking=no'
     node3:
       ip: x.x.x.39
       access_ip: x.x.x.39
       ansible_host: x.x.x.39
+      ansible_ssh_user: "username"
       ansible_ssh_pass: "your-password-here"
+      ansible_become_pass: "your-password-here"
       ansible_ssh_extra_args: '-o StrictHostKeyChecking=no'
     node4:
       ip: x.x.x.40
       access_ip: x.x.x.40
       ansible_host: x.x.x.40
+      ansible_ssh_user: "username"
       ansible_ssh_pass: "your-password-here"
+      ansible_become_pass: "your-password-here"
       ansible_ssh_extra_args: '-o StrictHostKeyChecking=no'
     node5:
       ip: x.x.x.41
       access_ip: x.x.x.41
       ansible_host: x.x.x.41
+      ansible_ssh_user: "username"
       ansible_ssh_pass: "your-password-here"
+      ansible_become_pass: "your-password-here"
       ansible_ssh_extra_args: '-o StrictHostKeyChecking=no'
     node6:
       ip: x.x.x.42
       access_ip: x.x.x.42
       ansible_host: x.x.x.42
+      ansible_ssh_user: "username"
       ansible_ssh_pass: "your-password-here"
+      ansible_become_pass: "your-password-here"
       ansible_ssh_extra_args: '-o StrictHostKeyChecking=no'
     node7:
       ip: x.x.x.43
       access_ip: x.x.x.43
       ansible_host: x.x.x.43
-      ansible_ssh_pass: "Your-Password"
+      ansible_ssh_user: "username"
+      ansible_ssh_pass: "your-password-here"
+      ansible_become_pass: "your-password-here"
       ansible_ssh_extra_args: '-o StrictHostKeyChecking=no'
     node8:
       ip: x.x.x.44
       access_ip: x.x.x.44
       ansible_host: x.x.x.44
-      ansible_ssh_pass: "Your-Password"
+      ansible_ssh_user: "username"
+      ansible_ssh_pass: "your-password-here"
+      ansible_become_pass: "your-password-here"
       ansible_ssh_extra_args: '-o StrictHostKeyChecking=no'
     node9:
       ip: x.x.x.45
       access_ip: x.x.x.45
       ansible_host: x.x.x.45
-      ansible_ssh_pass: "Your-Password"
+      ansible_ssh_user: "username"
+      ansible_ssh_pass: "your-password-here"
+      ansible_become_pass: "your-password-here"
       ansible_ssh_extra_args: '-o StrictHostKeyChecking=no'
   children:
     kube-master:
@@ -396,6 +403,14 @@ all:
         node1:
         node2:
         node3:
+        node4:
+        node5:
+        node6:
+        node7:
+        node8:
+        node9:
+    gpu:
+      hosts:
         node4:
         node5:
         node6:
@@ -418,6 +433,9 @@ all:
 - Add the new k8s worker node into the cluster with the following command
 
 ```bash
+cd pai/contrib/kubespray
+ansible-playbook -i /path/to/hosts.yml docker-runtime-setup.yml -e install_run_time=false
+
 
 cd kubespray/
 

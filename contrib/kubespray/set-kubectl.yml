@@ -1,0 +1,20 @@
+---
+- hosts: localhost
+  gather_facts: false
+  tasks:
+    - name: setup
+      setup:
+      delegate_to: localhost
+
+    - name: set local user's home path
+      set_fact:
+        local_home_path: "{{ hostvars[inventory_hostname]['ansible_env']['HOME'] }}"
+      delegate_to: 127.0.0.1
+
+- hosts: localhost
+  become: true
+  become_user: root
+  roles:
+    - { role: kubectl }
+  vars:
+    ansible_connection: local

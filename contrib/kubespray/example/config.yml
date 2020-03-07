@@ -1,11 +1,20 @@
 user: forexample
 password: forexample
-branch-name: master
-docker-image-tag: quick-start
+branch-name: <% latest-release %>
+docker-image-tag: <% latest-release %>
 
 # Optional
+
+# ssh_key_file_path: /path/to/you/key/file
+
 # docker-registry-domain: docker.io
 # docker-registry-namespace: openpai
 # docker-registry-username: exampleuser
 # docker-registry-password: examplepasswd
 
+# docker-data-root: /mnt/docker
+# docker-iptables-enabled: false
+# gcr-image-repo: "gcr.io"
+# kube-image-repo: "gcr.io/google-containers"
+# quay-image-repo: "quay.io"
+# docker-image-repo: "docker.io"

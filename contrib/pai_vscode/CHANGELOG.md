@@ -46,3 +46,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add local simulation for YAML job config file
 - Add https in cluster config
   - User can use https connect to OpenPAI cluster
+
+## [0.3.0] - 2020-03
+
+### Added
+
+- Add storage explorer
+  - User can use storage explorer to manage data in OpenPAI teamwise storage
+  - User can add personal storage to storage explorer
+- Add auto upload feature to teamwise storage and personal storage
+- New job list auto refresh rule
+  - Job list auto refresh will be trigger only when the `PAI JOB LIST` view is visible.
+- Add notification to website after AAD login success

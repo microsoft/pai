@@ -1,0 +1,12 @@
+---
+- name: "Detect NVIDIA gpu card"
+  raw: lspci | grep NVIDIA
+  register: nvidia_detect_result
+  failed_when: false
+  changed_when: false
+  check_mode: false
+  environment: {}
+
+- name: "If NVIDIA card exits, import NVIDIA drivers installation task"
+  include_tasks: ubuntu-nvidia.yml
+  when: nvidia_detect_result.rc == 0

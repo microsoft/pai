@@ -20,43 +20,14 @@
 import argparse
 import logging
 import os
-import re
 import sys
 
-import pystache
 import yaml
 
 sys.path.append(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
-from common.utils import init_logger  #pylint: disable=wrong-import-position
+from common.utils import init_logger, render_string_with_secrets  #pylint: disable=wrong-import-position
 
 LOGGER = logging.getLogger(__name__)
-
-
-def _convert_to_dict(obj) -> dict:
-    converted_obj = {}
-    if isinstance(obj, list):
-        for i, value in enumerate(obj):
-            converted_obj[str(i)] = value
-    elif isinstance(obj, dict):
-        for key, value in obj.items():
-            converted_obj[key] = _convert_to_dict(value)
-    else:
-        converted_obj = obj
-    return converted_obj
-
-
-def _render_user_command(user_command, secrets) -> str:
-    if not secrets:
-        return user_command
-    LOGGER.info("not rendered user command is %s", user_command)
-    secret_dict = _convert_to_dict(secrets)
-    parsed = pystache.parse(user_command, delimiters=("<%", "%>"))
-    for token in parsed._parse_tree:  #pylint: disable=protected-access
-        if isinstance(token, pystache.parser._EscapeNode):  #pylint: disable=protected-access
-            token.key = re.sub(
-                r"\[(\d+)\]", r".\1",
-                token.key)  # make format such as $secrets.data[0] works
-    return pystache.Renderer().render(parsed, {"$secrets": secret_dict})
 
 
 def _output_user_command(user_command, output_file):
@@ -79,7 +50,8 @@ def main():
             secrets = yaml.safe_load(f.read())
 
     user_command = os.getenv("USER_CMD")
-    rendered_user_command = _render_user_command(user_command, secrets)
+    LOGGER.info("not rendered user command is %s", user_command)
+    rendered_user_command = render_string_with_secrets(user_command, secrets)
     _output_user_command(rendered_user_command, args.output_file)
     logging.info("User command already rendered and outputted to %s",
                  args.output_file)

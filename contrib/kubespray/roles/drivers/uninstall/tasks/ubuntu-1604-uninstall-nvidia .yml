@@ -1,0 +1,34 @@
+---
+- name: uninstall nvidia-drivers
+  apt:
+    name: nvidia-{{ nvidia_version }}
+    state: absent
+
+- name: uninstall nvidia-opencl-icd
+  apt:
+    name: nvidia-opencl-icd-{{ nvidia_version }}
+    state: absent
+
+- name: uninstall nvidia-prime
+  apt:
+    name: nvidia-prime
+    state: absent
+
+- name: uninstall nvidia-settings
+  apt:
+    name: nvidia-settings
+    state: absent
+
+- name: uninstall libcuda1
+  apt:
+    name: libcuda1-{{ nvidia_version }}
+    state: absent
+
+- name: Remove dependencies that are no longer required
+  apt:
+    autoremove: yes
+
+- name: Remove useless packages from the cache
+  apt:
+    autoclean: yes
+
