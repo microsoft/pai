@@ -25,7 +25,9 @@ echo "cluster config file path: ${CLUSTER_CONFIG}"
 mkdir ${HOME}/pai-pre-check/
 python3 script/pre-check-generator.py -m ${MASTER_LIST} -w ${WORKER_LIST} -c ${CLUSTER_CONFIG} -o ${HOME}/pai-pre-check
 
-ansible-playbook -i ${HOME}/pai-pre-check/pre-check.yml environment-check.yml
+ABS_CONFIG_PATH="$(cd "$CLUSTER_CONFIG" && pwd -P)"
+echo "Config path is: ${ABS_CONFIG_PATH}"
+ansible-playbook -i ${HOME}/pai-pre-check/pre-check.yml environment-check.yml -e "@${ABS_CONFIG_PATH}"
 ret_code_check=$?
 
 if [ $ret_code_check -eq 0 ]

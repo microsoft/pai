@@ -57,6 +57,7 @@ docker_image_tag: <% latest-release %>
 # If you are using AMD or other environment, you should modify it.                        #
 ###########################################################################################
 # worker_default_docker_runtime: nvidia
+# docke_check: true
 
 ########################################################################################
 # Advanced docker configuration. If you are not familiar with them, don't change them. #
