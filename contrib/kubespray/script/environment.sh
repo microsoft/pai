@@ -12,7 +12,7 @@ while getopts "c:" opt; do
   esac
 done
 
-OPENPAI_BRANCH_NAME=`cat ${CLUSTER_CONFIG} | grep branch-name | tr -d "[:space:]" | cut -d ':' -f 2`
+OPENPAI_BRANCH_NAME=`cat ${CLUSTER_CONFIG} | grep branch_name | tr -d "[:space:]" | cut -d ':' -f 2`
 
 echo "Create working folder in ${HOME}/pai-deploy"
 mkdir -p ${HOME}/pai-deploy/

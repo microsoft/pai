@@ -30,41 +30,46 @@ openpai-004,10.0.0.4
 ##### Write config
 
 ```yaml
-branch-name: <% latest-release %>
-docker-image-tag: <% latest-release %>
 user: forexample
 password: forexample
+branch_name: <% latest-release %>
+docker_image_tag: <% latest-release %>
 
 # Optional
+
+#############################################
+# Ansible-playbooks' inventory hosts' vars. #
+#############################################
+# ssh_key_file_path: /path/to/you/key/file
 
 #####################################
 # OpenPAI's service image registry. #
 #####################################
-# docker-registry-domain: docker.io
-# docker-registry-namespace: openpai
-# docker-registry-username: exampleuser
-# docker-registry-password: examplepasswd
+# docker_registry_domain: docker.io
+# docker_registry_namespace: openpai
+# docker_registry_username: exampleuser
+# docker_registry_password: examplepasswd
 
 ###########################################################################################
 # By default, we assume your gpu environment is nvidia. So your runtime should be nvidia. #
 # If you are using AMD or other environment, you should modify it.                        #
 ###########################################################################################
-# worker-default-docker-runtime: nvidia
+# worker_default_docker_runtime: nvidia
 
 ########################################################################################
 # Advanced docker configuration. If you are not familiar with them, don't change them. #
 ########################################################################################
-# docker-data-root: /mnt/docker
-# docker-config-file-path: /etc/docker/daemon.json
-# docker-iptables-enabled: false
+# docker_data_root: /mnt/docker
+# docker_config_file_path: /etc/docker/daemon.json
+# docker_iptables_enabled: false
 
 #######################################################################
 # If you couldn't access to gcr.io or docker.io, please configure it. #
 #######################################################################
-# gcr-image-repo: "gcr.io"
-# kube-image-repo: "gcr.io/google-containers"
-# quay-image-repo: "quay.io"
-# docker-image-repo: "docker.io"
+# gcr_image_repo: "gcr.io"
+# kube_image_repo: "gcr.io/google-containers"
+# quay_image_repo: "quay.io"
+# docker_image_repo: "docker.io"
 ```
 
 ###### Check environment requirement
