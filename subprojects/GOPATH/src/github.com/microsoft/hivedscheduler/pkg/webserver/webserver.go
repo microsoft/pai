@@ -80,6 +80,8 @@ func NewWebServer(sConfig *si.Config,
 	ws.route(si.PreemptPath, ws.serve(ws.servePreemptPath))
 	ws.route(si.AffinityGroupsPath, ws.serve(ws.serveAffinityGroups))
 	ws.route(si.ClusterStatusPath, ws.serve(ws.serveClusterStatus))
+	ws.route(si.PCStatusPath, ws.serve(ws.servePCStatus))
+	ws.route(si.VCsStatusPath, ws.serve(ws.serveVCsStatus))
 	return ws
 }
 
@@ -260,6 +262,36 @@ func (ws *WebServer) serveClusterStatus(w http.ResponseWriter, r *http.Request) 
 	if r.Method == http.MethodGet {
 		w.Write(common.ToJsonBytes(ws.iHandlers.GetClusterStatusHandler()))
 		return
+	}
+
+	panic(internal.NewBadRequestError(fmt.Sprintf(
+		"NotImplemented: %v: %v",
+		r.Method, r.URL.Path)))
+}
+
+func (ws *WebServer) servePCStatus(w http.ResponseWriter, r *http.Request) {
+	if r.Method == http.MethodGet {
+		w.Write(common.ToJsonBytes(ws.iHandlers.GetPCStatusHandler()))
+		return
+	}
+
+	panic(internal.NewBadRequestError(fmt.Sprintf(
+		"NotImplemented: %v: %v",
+		r.Method, r.URL.Path)))
+}
+
+func (ws *WebServer) serveVCsStatus(w http.ResponseWriter, r *http.Request) {
+	name := strings.TrimPrefix(r.URL.Path, si.VCsStatusPath)
+	if name == "" {
+		if r.Method == http.MethodGet {
+			w.Write(common.ToJsonBytes(ws.iHandlers.GetAllVCsStatusHandler()))
+			return
+		}
+	} else {
+		if r.Method == http.MethodGet {
+			w.Write(common.ToJsonBytes(ws.iHandlers.GetVCStatus(si.VirtualClusterName(name))))
+			return
+		}
 	}
 
 	panic(internal.NewBadRequestError(fmt.Sprintf(

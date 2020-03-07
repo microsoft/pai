@@ -159,32 +159,56 @@ type LazyPreemptionStatus struct {
 	PreemptionTime meta.Time `json:"preemptionTime"`
 }
 
-type ClusterStatus struct {
-	// Status of cells in the physical cluster
-	PhysicalCluster []*PhysicalCellStatus `json:"physicalCluster"`
-	// Status of cells in each VC
-	VirtualClusters map[string][]*VirtualCellStatus `json:"virtualClusters"`
-}
+type CellState string
+
+const (
+	CellFree CellState = "Free"
+	CellUsed CellState = "Used"
+)
+
+type CellHealthiness string
+
+const (
+	CellHealthy CellHealthiness = "Healthy"
+	CellBad     CellHealthiness = "Bad"
+)
 
 type CellStatus struct {
-	GpuType  string `json:"gpuType,omitempty"`
-	CellType string `json:"cellType"`
+	GpuType  string   `json:"gpuType,omitempty"`
+	CellType CellType `json:"cellType"`
 	// Address of a physical cell consists of its address (or index) in each level
 	// (e.g., node0/0/0/0 may represent node0, CPU socket 0, PCIe switch 0, GPU 0.
 	// Address of a virtual cell consists of its VC name, index of the preassigned cell,
 	// and the relative index in each level inside the preassigned cell
 	// (e.g., VC1/0/0 may represent VC1, preassigned cell 0, index 0 among its children)
-	CellAddress string `json:"cellAddress"`
-	// State can be one of "Free", "Used", and "Bad"
-	State    string `json:"state"`
-	Priority int32  `json:"priority"`
+	CellAddress     CellAddress     `json:"cellAddress"`
+	CellState       CellState       `json:"cellState"`
+	CellHealthiness CellHealthiness `json:"cellHealthiness"`
+	CellPriority    int32           `json:"cellPriority"`
 }
 
 type PhysicalCellStatus struct {
 	CellStatus
-	Children    []*PhysicalCellStatus `json:"children,omitempty"`
-	Vc          string                `json:"vc,omitempty"`
-	VirtualCell *VirtualCellStatus    `json:"virtualCell,omitempty"`
+	CellChildren []*PhysicalCellStatus `json:"cellChildren,omitempty"`
+	VC           VirtualClusterName    `json:"vc,omitempty"`
+	VirtualCell  *VirtualCellStatus    `json:"virtualCell,omitempty"`
+}
+
+func (pcs *PhysicalCellStatus) copy() *PhysicalCellStatus {
+	copied := &PhysicalCellStatus{
+		CellStatus: pcs.CellStatus,
+		VC:         pcs.VC,
+	}
+	if pcs.CellChildren != nil {
+		copied.CellChildren = make([]*PhysicalCellStatus, len(pcs.CellChildren))
+		for i, child := range pcs.CellChildren {
+			copied.CellChildren[i] = child.copy()
+		}
+	}
+	if pcs.VirtualCell != nil {
+		copied.VirtualCell = pcs.VirtualCell.copy()
+	}
+	return copied
 }
 
 type VirtualCellStatus struct {
@@ -193,16 +217,45 @@ type VirtualCellStatus struct {
 	PhysicalCell *PhysicalCellStatus  `json:"physicalCell,omitempty"`
 }
 
-func GenerateOpporVirtualCell(pc *PhysicalCellStatus) *VirtualCellStatus {
-	vc := &VirtualCellStatus{
-		CellStatus: CellStatus{
-			GpuType:     pc.GpuType,
-			CellType:    pc.CellType,
-			CellAddress: pc.CellAddress + "-opp",
-			State:       UsedState,
-			Priority:    OpportunisticPriority,
-		},
-		PhysicalCell: pc,
+func (vcs *VirtualCellStatus) copy() *VirtualCellStatus {
+	copied := &VirtualCellStatus{
+		CellStatus: vcs.CellStatus,
 	}
-	return vc
+	if vcs.Children != nil {
+		copied.Children = make([]*VirtualCellStatus, len(vcs.Children))
+		for i, child := range vcs.Children {
+			copied.Children[i] = child.copy()
+		}
+	}
+	if vcs.PhysicalCell != nil {
+		copied.PhysicalCell = vcs.PhysicalCell.copy()
+	}
+	return copied
+}
+
+type PhysicalClusterStatus []*PhysicalCellStatus
+
+func (pcs PhysicalClusterStatus) Copy() PhysicalClusterStatus {
+	copied := make(PhysicalClusterStatus, len(pcs))
+	for i, c := range pcs {
+		copied[i] = c.copy()
+	}
+	return copied
+}
+
+type VirtualClusterStatus []*VirtualCellStatus
+
+func (vcs VirtualClusterStatus) Copy() VirtualClusterStatus {
+	copied := make(VirtualClusterStatus, len(vcs))
+	for i, c := range vcs {
+		copied[i] = c.copy()
+	}
+	return copied
+}
+
+type ClusterStatus struct {
+	// Status of cells in the physical cluster
+	PhysicalCluster PhysicalClusterStatus `json:"physicalCluster"`
+	// Status of cells in each VC
+	VirtualClusters map[VirtualClusterName]VirtualClusterStatus `json:"virtualClusters"`
 }

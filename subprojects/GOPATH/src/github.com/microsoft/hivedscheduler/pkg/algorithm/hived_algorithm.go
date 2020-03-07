@@ -40,6 +40,8 @@ import (
 // Note that the topologyAwareScheduler used in this struct is not another implementation of SchedulerAlgorithm;
 // that is a specific algorithm for pod placement, used in intra-VC scheduling and opportunistic pod scheduling.
 type HivedAlgorithm struct {
+	// data structures for the scheduling algorithm
+
 	// scheduler in each VC
 	vcSchedulers map[api.VirtualClusterName]intraVCScheduler
 	// scheduler for opportunistic pods
@@ -48,26 +50,30 @@ type HivedAlgorithm struct {
 	fullCellList map[CellChain]ChainCellList
 	// ChainCellLists of free physical cells of each cell chain (used in buddy alloc)
 	freeCellList map[CellChain]ChainCellList
-	// remaining quota of each VC of each cell type
-	vcRemainingQuotas map[api.VirtualClusterName]map[CellChain]map[CellLevel]int32
-	// total remaining quota of each cell type
-	totalRemainingQuotas map[CellChain]map[CellLevel]int32
+	// all affinity groups that have been allocated cells
+	allocatedAffinityGroups map[string]*AlgoAffinityGroup
+
+	// The three cell numbers below are used to track cell usage of the VCs.
+	// Note that these numbers count both healthy and bad cells.
+
+	// number of free cells of each VC of each cell type
+	numVCFreeCells map[api.VirtualClusterName]map[CellChain]map[CellLevel]int32
+	// total number of free cells in the VCs of each cell type
+	totalNumVCFreeCells map[CellChain]map[CellLevel]int32
 	// number of cells left in the physical cluster of each cell type
-	// (i.e., the cell is either in the free list or could be obtained by splitting
-	// such a free cell. Note that these cells include both healthy and bad cells)
+	// (i.e., the cell is either in the free list or could be obtained by splitting such a free cell.)
 	numLeftCells map[CellChain]map[CellLevel]int32
+
 	// number of bad cells in the physical cluster of each cell type
 	numBadCells map[CellChain]map[CellLevel]int32
+	// bad nodes in the physical cluster
+	badNodes common.Set
 	// map each GPU type to all chains that contain this type
 	chains map[string][]CellChain
 	// map each level in a chain to the specific cell type name
 	cellTypes map[CellChain]map[CellLevel]api.CellType
-	// all affinity groups that have been allocated cells
-	allocatedAffinityGroups map[string]*AlgoAffinityGroup
-	// all reserved physical cells (VC -> reservation ID -> cells)
-	reservedCells map[api.VirtualClusterName]map[api.ReservationId]*PhysicalCell
-	// cluster status (exposed to users in .json format)
-	clusterStatus api.ClusterStatus
+	// cluster status exposed to external
+	apiClusterStatus api.ClusterStatus
 	// lock
 	algorithmLock sync.RWMutex
 }
@@ -82,16 +88,16 @@ func NewHivedAlgorithm(sConfig *api.Config) *HivedAlgorithm {
 		opportunisticSchedulers: map[CellChain]*topologyAwareScheduler{},
 		fullCellList:            fullPcl,
 		freeCellList:            freePcl,
-		vcRemainingQuotas:       vcQuotas,
+		numVCFreeCells:          vcQuotas,
 		numLeftCells:            map[CellChain]map[CellLevel]int32{},
 		numBadCells:             map[CellChain]map[CellLevel]int32{},
+		badNodes:                common.NewSet(),
 		chains:                  gpuTypeToChain,
 		cellTypes:               cellLevelToType,
 		allocatedAffinityGroups: map[string]*AlgoAffinityGroup{},
-		reservedCells:           reservedPc,
-		clusterStatus: api.ClusterStatus{
-			PhysicalCluster: []*api.PhysicalCellStatus{},
-			VirtualClusters: map[string][]*api.VirtualCellStatus{},
+		apiClusterStatus: api.ClusterStatus{
+			PhysicalCluster: api.PhysicalClusterStatus{},
+			VirtualClusters: map[api.VirtualClusterName]api.VirtualClusterStatus{},
 		},
 	}
 	for vcName := range nonReservedFullVcl {
@@ -103,45 +109,34 @@ func NewHivedAlgorithm(sConfig *api.Config) *HivedAlgorithm {
 		h.opportunisticSchedulers[chain] = NewTopologyAwareScheduler(ccl, gpuNums[chain], false, true)
 	}
 	h.validateInitialAssignment()
-	h.initClusterStatus()
-	h.initReservations()
+	h.initAPIClusterStatus()
+	h.initReservations(reservedPc)
 	return h
 }
 
 func (h *HivedAlgorithm) AddNode(node *core.Node) {
-	// TODO
+	h.algorithmLock.Lock()
+	defer h.algorithmLock.Unlock()
+
+	if !nodeHealthy(node) {
+		// adding a bad node
+		h.setBadNode(node.Name)
+	} else {
+		// possibly a bad node comes back again
+		h.setHealthyNode(node.Name)
+	}
 }
 
 func (h *HivedAlgorithm) UpdateNode(oldNode, newNode *core.Node) {
-	// TODO
+	h.DeleteNode(oldNode)
+	h.AddNode(newNode)
 }
 
 func (h *HivedAlgorithm) DeleteNode(node *core.Node) {
-	// TODO
-}
+	h.algorithmLock.Lock()
+	defer h.algorithmLock.Unlock()
 
-func (h *HivedAlgorithm) SetBadNode(nodeName string) {
-	for _, ccl := range h.fullCellList {
-		for _, gpu := range ccl[1] {
-			pGpu := gpu.(*PhysicalCell)
-			nodes, _ := pGpu.GetPhysicalPlacement()
-			if nodes[0] == nodeName {
-				h.setBad(pGpu)
-			}
-		}
-	}
-}
-
-func (h *HivedAlgorithm) SetHealthyNode(nodeName string) {
-	for _, ccl := range h.fullCellList {
-		for _, gpu := range ccl[1] {
-			pGpu := gpu.(*PhysicalCell)
-			nodes, _ := pGpu.GetPhysicalPlacement()
-			if nodes[0] == nodeName {
-				h.setHealthy(pGpu)
-			}
-		}
-	}
+	h.setBadNode(node.Name)
 }
 
 func (h *HivedAlgorithm) Schedule(pod *core.Pod, suggestedNodes []string) internal.PodScheduleResult {
@@ -325,7 +320,39 @@ func (h *HivedAlgorithm) GetClusterStatus() api.ClusterStatus {
 	h.algorithmLock.RLock()
 	defer h.algorithmLock.RUnlock()
 
-	return h.clusterStatus
+	s := api.ClusterStatus{
+		PhysicalCluster: h.apiClusterStatus.PhysicalCluster.Copy(),
+		VirtualClusters: map[api.VirtualClusterName]api.VirtualClusterStatus{},
+	}
+	for vcn, vcs := range h.apiClusterStatus.VirtualClusters {
+		s.VirtualClusters[vcn] = vcs.Copy()
+	}
+	return s
+}
+
+func (h *HivedAlgorithm) GetPCStatus() api.PhysicalClusterStatus {
+	h.algorithmLock.RLock()
+	defer h.algorithmLock.RUnlock()
+
+	return h.apiClusterStatus.PhysicalCluster.Copy()
+}
+
+func (h *HivedAlgorithm) GetAllVCsStatus() map[api.VirtualClusterName]api.VirtualClusterStatus {
+	h.algorithmLock.RLock()
+	defer h.algorithmLock.RUnlock()
+
+	allVcs := map[api.VirtualClusterName]api.VirtualClusterStatus{}
+	for vcn, vcs := range h.apiClusterStatus.VirtualClusters {
+		allVcs[vcn] = vcs.Copy()
+	}
+	return allVcs
+}
+
+func (h *HivedAlgorithm) GetVCStatus(vcn api.VirtualClusterName) api.VirtualClusterStatus {
+	h.algorithmLock.RLock()
+	defer h.algorithmLock.RUnlock()
+
+	return h.apiClusterStatus.VirtualClusters[vcn].Copy()
 }
 
 // validateInitialAssignment makes sure that the initial cell assignments
@@ -333,18 +360,18 @@ func (h *HivedAlgorithm) GetClusterStatus() api.ClusterStatus {
 // This method also initiates the numLeftCells and numBadCells structures.
 func (h *HivedAlgorithm) validateInitialAssignment() {
 
-	h.totalRemainingQuotas = map[CellChain]map[CellLevel]int32{}
-	for _, vcQuota := range h.vcRemainingQuotas {
+	h.totalNumVCFreeCells = map[CellChain]map[CellLevel]int32{}
+	for _, vcQuota := range h.numVCFreeCells {
 		for chain, chainQuota := range vcQuota {
-			if h.totalRemainingQuotas[chain] == nil {
-				h.totalRemainingQuotas[chain] = map[CellLevel]int32{}
+			if h.totalNumVCFreeCells[chain] == nil {
+				h.totalNumVCFreeCells[chain] = map[CellLevel]int32{}
 			}
 			for level, quota := range chainQuota {
-				h.totalRemainingQuotas[chain][level] += quota
+				h.totalNumVCFreeCells[chain][level] += quota
 			}
 		}
 	}
-	for chain, chainQuota := range h.totalRemainingQuotas {
+	for chain, chainQuota := range h.totalNumVCFreeCells {
 		if ccl := h.fullCellList[chain]; ccl == nil {
 			panic(fmt.Sprintf(
 				"Illegal initial VC assignment: Chain %v does not exists in physical cluster", chain))
@@ -374,22 +401,22 @@ func (h *HivedAlgorithm) validateInitialAssignment() {
 	}
 }
 
-// initClusterStatus initiates the status of the physical cluster and the VCs that will be exposed to users.
-func (h *HivedAlgorithm) initClusterStatus() {
+// initAPIClusterStatus initiates the status of the physical cluster and the VCs that will be exposed to users.
+func (h *HivedAlgorithm) initAPIClusterStatus() {
 
 	for _, ccl := range h.fullCellList {
 		for _, c := range ccl[CellLevel(len(ccl))] {
-			h.clusterStatus.PhysicalCluster = append(h.clusterStatus.PhysicalCluster, c.(*PhysicalCell).GetStatus())
+			h.apiClusterStatus.PhysicalCluster = append(h.apiClusterStatus.PhysicalCluster, c.(*PhysicalCell).GetAPIStatus())
 		}
 	}
 	for vc, vcs := range h.vcSchedulers {
-		h.clusterStatus.VirtualClusters[string(vc)] = []*api.VirtualCellStatus{}
+		h.apiClusterStatus.VirtualClusters[vc] = []*api.VirtualCellStatus{}
 		for _, ccl := range vcs.getNonReservedFullCellList() {
 			for _, cl := range ccl {
 				for _, c := range cl {
 					if CellEqual(c, c.(*VirtualCell).GetPreAssignedCell()) {
-						h.clusterStatus.VirtualClusters[string(vc)] = append(
-							h.clusterStatus.VirtualClusters[string(vc)], c.(*VirtualCell).GetStatus())
+						h.apiClusterStatus.VirtualClusters[vc] = append(
+							h.apiClusterStatus.VirtualClusters[vc], c.(*VirtualCell).GetAPIStatus())
 					}
 				}
 			}
@@ -397,8 +424,8 @@ func (h *HivedAlgorithm) initClusterStatus() {
 		for _, ccl := range vcs.getReservedCellList() {
 			for _, cl := range ccl {
 				for _, c := range cl {
-					h.clusterStatus.VirtualClusters[string(vc)] = append(
-						h.clusterStatus.VirtualClusters[string(vc)], c.(*VirtualCell).GetStatus())
+					h.apiClusterStatus.VirtualClusters[vc] = append(
+						h.apiClusterStatus.VirtualClusters[vc], c.(*VirtualCell).GetAPIStatus())
 				}
 			}
 		}
@@ -407,50 +434,81 @@ func (h *HivedAlgorithm) initClusterStatus() {
 
 // initReservations creates static bindings for the reserved cells, and removes the
 // reserved physical cells from the free cell list.
-func (h *HivedAlgorithm) initReservations() {
-	for vc, vcReservation := range h.reservedCells {
+func (h *HivedAlgorithm) initReservations(reservedCells map[api.VirtualClusterName]map[api.ReservationId]*PhysicalCell) {
+	for vcn, vcReservation := range reservedCells {
 		for rid, physical := range vcReservation {
-			h.vcRemainingQuotas[vc][physical.GetChain()][physical.GetLevel()]--
-			h.totalRemainingQuotas[physical.GetChain()][physical.GetLevel()]--
+			h.numVCFreeCells[vcn][physical.GetChain()][physical.GetLevel()]--
+			h.totalNumVCFreeCells[physical.GetChain()][physical.GetLevel()]--
 			h.removeCellFromFreeList(physical)
-			virtualList := h.vcSchedulers[vc].getReservedCellList()[rid]
+			virtualList := h.vcSchedulers[vcn].getReservedCellList()[rid]
 			virtual := virtualList[CellLevel(len(virtualList))][0].(*VirtualCell)
 			bindCell(physical, virtual)
 		}
 	}
 }
 
-// setBad marks a physical cell as bad and recursively for its parent, guaranteeing that
+func (h *HivedAlgorithm) setBadNode(nodeName string) {
+	if h.badNodes.Contains(nodeName) {
+		return
+	}
+	h.badNodes.Add(nodeName)
+	for _, ccl := range h.fullCellList {
+		for _, gpu := range ccl[1] {
+			pGpu := gpu.(*PhysicalCell)
+			nodes, _ := pGpu.GetPhysicalPlacement()
+			if nodes[0] == nodeName {
+				h.setBadCell(pGpu)
+			}
+		}
+	}
+}
+
+func (h *HivedAlgorithm) setHealthyNode(nodeName string) {
+	if !h.badNodes.Contains(nodeName) {
+		return
+	}
+	h.badNodes.Delete(nodeName)
+	for _, ccl := range h.fullCellList {
+		for _, gpu := range ccl[1] {
+			pGpu := gpu.(*PhysicalCell)
+			nodes, _ := pGpu.GetPhysicalPlacement()
+			if nodes[0] == nodeName {
+				h.setHealthyCell(pGpu)
+			}
+		}
+	}
+}
+
+// setBadCell marks a physical cell as bad and recursively for its parent, guaranteeing that
 // a cell is bad if all of its children are bad. The virtual cell that this physical cell
 // is bound to will also be marked as bad. If the cell has not been bound to a virtual cell,
 // but the scheduler finds that a VC will be allocated such a bad cell,
-// one of the cell in that VC will be marked as bad.
-func (h *HivedAlgorithm) setBad(c *PhysicalCell) {
-	c.GetStatus().State = api.BadState
+// one of the cell in that VC will be marked as bad (the first free cell of this type in the VC).
+func (h *HivedAlgorithm) setBadCell(c *PhysicalCell) {
+	c.GetAPIStatus().CellHealthiness = api.CellBad
 	if c.virtualCell != nil {
-		c.virtualCell.GetStatus().State = api.BadState
-		c.virtualCell.GetStatus().PhysicalCell.State = api.BadState
-		c.GetStatus().VirtualCell.State = api.BadState
+		c.GetAPIStatus().VirtualCell.CellHealthiness = api.CellBad
+		c.virtualCell.GetAPIStatus().CellHealthiness = api.CellBad
+		c.virtualCell.GetAPIStatus().PhysicalCell.CellHealthiness = api.CellBad
 	}
 	chain, level := c.GetChain(), c.GetLevel()
 	h.numBadCells[chain][level]++
-	if h.totalRemainingQuotas[chain][level] > h.numLeftCells[chain][level]-h.numBadCells[chain][level] {
-		klog.Warningf("Cell type %v (chain %v level %v) now has fewer healthy cells than "+
-			"the total remaining quota of the VCs (total quota %v, healthy %v, bad %v). "+
-			"Certain VCs may be allocated bad cells.",
-			h.cellTypes[chain][level], chain, level, h.totalRemainingQuotas[chain][level],
-			h.numLeftCells[chain][level]-h.numBadCells[chain][level], h.numBadCells[chain][level])
-		for vcName, vcQuota := range h.vcRemainingQuotas {
+	if h.totalNumVCFreeCells[chain][level] > h.numLeftCells[chain][level]-h.numBadCells[chain][level] {
+		klog.Warningf("Cell type %v (chain %v level %v) now has fewer healthy cells (healthy %v, bad %v) "+
+			"than the total free cells of all the VCs (%v). Certain VCs may be allocated bad cells.",
+			h.cellTypes[chain][level], chain, level, h.numLeftCells[chain][level]-h.numBadCells[chain][level],
+			h.numBadCells[chain][level], h.totalNumVCFreeCells[chain][level])
+		for vcName, vcQuota := range h.numVCFreeCells {
 			if vcQuota[chain][level] > h.numLeftCells[chain][level]-h.numBadCells[chain][level] {
-				klog.Warningf("Cell type %v (chain %v level %v) now has fewer healthy cells than "+
-					"the remaining quota of the VC %v (total quota %v, healthy %v, bad %v). "+
-					"VC %v would expect being allocated bad cells.",
-					h.cellTypes[chain][level], chain, level, vcName, h.totalRemainingQuotas[chain][level],
-					h.numLeftCells[chain][level]-h.numBadCells[chain][level], h.numBadCells[chain][level], vcName)
+				klog.Warningf("Cell type %v (chain %v level %v) now has fewer healthy cells (healthy %v, bad %v) "+
+					"than the free cells of the VC %v (%v). The VC would expect being allocated bad cells.",
+					h.cellTypes[chain][level], chain, level,
+					h.numLeftCells[chain][level]-h.numBadCells[chain][level], h.numBadCells[chain][level],
+					vcName, h.totalNumVCFreeCells[chain][level])
 				for _, vc := range h.vcSchedulers[vcName].getNonReservedFreeCellList()[chain][level] {
 					virtualCell := vc.(*VirtualCell)
-					if virtualCell.GetPhysicalCell() == nil && virtualCell.GetStatus().State != api.BadState {
-						virtualCell.GetStatus().State = api.BadState
+					if virtualCell.GetPhysicalCell() == nil && virtualCell.GetAPIStatus().CellHealthiness != api.CellBad {
+						virtualCell.GetAPIStatus().CellHealthiness = api.CellBad
 						break
 					}
 				}
@@ -460,49 +518,49 @@ func (h *HivedAlgorithm) setBad(c *PhysicalCell) {
 
 	if parent := c.GetParent(); parent != nil {
 		for _, buddy := range parent.GetChildren() {
-			if buddy.(*PhysicalCell).GetStatus().State != api.BadState {
+			if buddy.(*PhysicalCell).GetAPIStatus().CellHealthiness != api.CellBad {
 				return
 			}
 		}
-		h.setBad(parent.(*PhysicalCell))
+		h.setBadCell(parent.(*PhysicalCell))
 	}
 }
 
-// setHealthy marks a physical cell as healthy and recursively for its parent, guaranteeing that
+// setHealthyCell marks a physical cell as healthy and recursively for its parent, guaranteeing that
 // a cell is healthy if any of its children is healthy. The virtual cell that this physical cell
 // is bound to will also be marked as healthy.
-func (h *HivedAlgorithm) setHealthy(c *PhysicalCell) {
-	newState := api.FreeState
+func (h *HivedAlgorithm) setHealthyCell(c *PhysicalCell) {
+	newState := api.CellFree
 	if c.GetPriority() != freePriority {
-		newState = api.UsedState
+		newState = api.CellUsed
 	}
-	c.GetStatus().State = newState
+	c.GetAPIStatus().CellState = newState
 	if c.virtualCell != nil {
-		c.virtualCell.GetStatus().State = newState
-		c.virtualCell.GetStatus().PhysicalCell.State = newState
-		c.GetStatus().VirtualCell.State = newState
+		c.virtualCell.GetAPIStatus().CellState = newState
+		c.virtualCell.GetAPIStatus().PhysicalCell.CellState = newState
+		c.GetAPIStatus().VirtualCell.CellState = newState
 	}
 	chain, level := c.GetChain(), c.GetLevel()
 	h.numBadCells[chain][level]--
-	if h.totalRemainingQuotas[chain][level] >= h.numLeftCells[chain][level]-h.numBadCells[chain][level] {
-		if h.totalRemainingQuotas[chain][level] == h.numLeftCells[chain][level]-h.numBadCells[chain][level] {
+	if h.totalNumVCFreeCells[chain][level] >= h.numLeftCells[chain][level]-h.numBadCells[chain][level] {
+		if h.totalNumVCFreeCells[chain][level] == h.numLeftCells[chain][level]-h.numBadCells[chain][level] {
 			klog.Infof("Cell type %v (chain %v level %v) now has sufficient healthy cells for "+
-				"satisfying the total remaining quota of the VCs (quota %v, healthy %v, bad %v).",
-				h.cellTypes[chain][level], chain, level, h.totalRemainingQuotas[chain][level],
+				"allocating the total free cells of all the VCs (quota %v, healthy %v, bad %v).",
+				h.cellTypes[chain][level], chain, level, h.totalNumVCFreeCells[chain][level],
 				h.numLeftCells[chain][level]-h.numBadCells[chain][level], h.numBadCells[chain][level])
 		}
-		for vcName, vcQuota := range h.vcRemainingQuotas {
+		for vcName, vcQuota := range h.numVCFreeCells {
 			if vcQuota[chain][level] >= h.numLeftCells[chain][level]-h.numBadCells[chain][level] {
 				if vcQuota[chain][level] == h.numLeftCells[chain][level]-h.numBadCells[chain][level] {
 					klog.Infof("Cell type %v (chain %v level %v) now has sufficient healthy cells for "+
-						"satisfying the remaining quota of the VC %v (quota %v, healthy %v, bad %v).",
-						h.cellTypes[chain][level], chain, level, vcName, h.totalRemainingQuotas[chain][level],
+						"allocating the free cells of the VC %v (quota %v, healthy %v, bad %v).",
+						h.cellTypes[chain][level], chain, level, vcName, h.totalNumVCFreeCells[chain][level],
 						h.numLeftCells[chain][level]-h.numBadCells[chain][level], h.numBadCells[chain][level])
 				}
 				for _, vc := range h.vcSchedulers[vcName].getNonReservedFreeCellList()[chain][level] {
 					virtualCell := vc.(*VirtualCell)
-					if virtualCell.GetPhysicalCell() == nil && virtualCell.GetStatus().State == api.BadState {
-						virtualCell.GetStatus().State = api.FreeState
+					if virtualCell.GetPhysicalCell() == nil && virtualCell.GetAPIStatus().CellHealthiness == api.CellBad {
+						virtualCell.GetAPIStatus().CellState = api.CellFree
 						break
 					}
 				}
@@ -511,8 +569,8 @@ func (h *HivedAlgorithm) setHealthy(c *PhysicalCell) {
 	}
 
 	if parent := c.GetParent(); parent != nil {
-		if pp := parent.(*PhysicalCell); pp.GetStatus().State == api.BadState {
-			h.setHealthy(pp)
+		if pp := parent.(*PhysicalCell); pp.GetAPIStatus().CellHealthiness == api.CellBad {
+			h.setHealthyCell(pp)
 		}
 	}
 }
@@ -539,7 +597,6 @@ func (h *HivedAlgorithm) scheduleNewAffinityGroup(
 	h.validateSchedulingRequest(sr, pod)
 	if sr.reservationId != "" {
 		klog.Infof("Use reservation %v", s.ReservationId)
-		sr.chain = h.reservedCells[sr.vc][sr.reservationId].GetChain()
 		physicalPlacement, virtualPlacement = h.processSchedulingRequest(sr, suggestedNodeSet)
 	} else {
 		physicalPlacement, virtualPlacement = h.scheduleAffinityGroupForGpuType(sr, s.GpuType, pod, suggestedNodeSet)
@@ -857,18 +914,17 @@ func (h *HivedAlgorithm) confirmAllocatedGpu(
 		preassignedNewlyBound := vGpu.GetPreAssignedCell().GetPhysicalCell() == nil
 		bindCell(pGpu, vGpu)
 		if preassignedNewlyBound {
-			h.vcRemainingQuotas[g.vc][vGpu.GetChain()][vGpu.GetPreAssignedCell().GetLevel()]--
-			h.totalRemainingQuotas[vGpu.GetChain()][vGpu.GetPreAssignedCell().GetLevel()]--
+			h.numVCFreeCells[g.vc][vGpu.GetChain()][vGpu.GetPreAssignedCell().GetLevel()]--
+			h.totalNumVCFreeCells[vGpu.GetChain()][vGpu.GetPreAssignedCell().GetLevel()]--
 			// remove the allocated cell from the free list (possibly splitting cells)
 			success, message = h.removeCellFromFreeList(vGpu.GetPreAssignedCell().GetPhysicalCell())
 		}
 	} else {
 		setPriority(pGpu, opportunisticPriority)
 		updateUsedGpuNumAtPriority(pGpu, opportunisticPriority, true)
-		vc := string(g.vc)
-		pGpu.GetStatus().Vc = vc
-		h.clusterStatus.VirtualClusters[vc] = append(
-			h.clusterStatus.VirtualClusters[vc], api.GenerateOpporVirtualCell(pGpu.GetStatus()))
+		pGpu.GetAPIStatus().VC = g.vc
+		h.apiClusterStatus.VirtualClusters[g.vc] = append(
+			h.apiClusterStatus.VirtualClusters[g.vc], generateOpporVirtualCell(pGpu.GetAPIStatus()))
 	}
 	pGpu.AddAffinityGroup(g)
 	return success, message
@@ -881,8 +937,8 @@ func (h *HivedAlgorithm) confirmReleasedGpu(pGpu *PhysicalCell, g *AlgoAffinityG
 		preassignedPhysical := vGpu.GetPreAssignedCell().GetPhysicalCell()
 		unbindCell(pGpu)
 		if vGpu.GetPreAssignedCell().GetPhysicalCell() == nil {
-			h.vcRemainingQuotas[g.vc][vGpu.GetChain()][vGpu.GetPreAssignedCell().GetLevel()]++
-			h.totalRemainingQuotas[vGpu.GetChain()][vGpu.GetPreAssignedCell().GetLevel()]++
+			h.numVCFreeCells[g.vc][vGpu.GetChain()][vGpu.GetPreAssignedCell().GetLevel()]++
+			h.totalNumVCFreeCells[vGpu.GetChain()][vGpu.GetPreAssignedCell().GetLevel()]++
 			// add the released cell back to the free list (possibly merging cells)
 			h.addCellToFreeList(preassignedPhysical)
 		}
@@ -890,18 +946,17 @@ func (h *HivedAlgorithm) confirmReleasedGpu(pGpu *PhysicalCell, g *AlgoAffinityG
 		setPriority(vGpu, freePriority)
 	} else {
 		var opporVirtualCellIdx int32
-		vc := string(g.vc)
-		for i, ovc := range h.clusterStatus.VirtualClusters[vc] {
+		for i, ovc := range h.apiClusterStatus.VirtualClusters[g.vc] {
 			if ovc.PhysicalCell != nil && ovc.PhysicalCell.CellAddress == pGpu.GetAddress() {
 				opporVirtualCellIdx = int32(i)
 				break
 			}
 		}
-		novc := len(h.clusterStatus.VirtualClusters[vc])
-		h.clusterStatus.VirtualClusters[vc][opporVirtualCellIdx] = h.clusterStatus.VirtualClusters[vc][novc-1]
-		h.clusterStatus.VirtualClusters[vc][novc-1] = nil
-		h.clusterStatus.VirtualClusters[vc] = h.clusterStatus.VirtualClusters[vc][:novc-1]
-		pGpu.GetStatus().Vc = ""
+		novc := len(h.apiClusterStatus.VirtualClusters[g.vc])
+		h.apiClusterStatus.VirtualClusters[g.vc][opporVirtualCellIdx] = h.apiClusterStatus.VirtualClusters[g.vc][novc-1]
+		h.apiClusterStatus.VirtualClusters[g.vc][novc-1] = nil
+		h.apiClusterStatus.VirtualClusters[g.vc] = h.apiClusterStatus.VirtualClusters[g.vc][:novc-1]
+		pGpu.GetAPIStatus().VC = ""
 	}
 	setPriority(pGpu, freePriority)
 	updateUsedGpuNumAtPriority(pGpu, pGpu.GetPriority(), false)
@@ -931,12 +986,10 @@ func (h *HivedAlgorithm) lazyPreemptAffinityGroup(
 		PreemptionTime: meta.Now(),
 	}
 
-	usage := int32(0)
 	for _, podPhysicalPlacements := range victim.physicalGpuPlacement {
 		for _, podPhysicalPlacement := range podPhysicalPlacements {
 			for _, gpu := range podPhysicalPlacement {
 				if gpu != nil {
-					usage++
 				}
 			}
 		}
@@ -952,10 +1005,10 @@ func (h *HivedAlgorithm) removeCellFromFreeList(c *PhysicalCell) (success bool, 
 	numToRemove := int32(len(h.fullCellList[chain][c.GetLevel()][0].GetChildren()))
 	for l := c.GetLevel() - 1; l >= lowestLevel; l-- {
 		h.numLeftCells[chain][l] -= numToRemove
-		if h.numLeftCells[chain][l] < h.totalRemainingQuotas[chain][l] {
+		if h.numLeftCells[chain][l] < h.totalNumVCFreeCells[chain][l] {
 			success = false
 			message = fmt.Sprintf("adding pod would lead to broken safety: cell type %v, left %v, remaining quota %v",
-				h.cellTypes[chain][l], h.numLeftCells[chain][l], h.totalRemainingQuotas[chain][l])
+				h.cellTypes[chain][l], h.numLeftCells[chain][l], h.totalNumVCFreeCells[chain][l])
 		}
 		numToRemove *= int32(len(h.fullCellList[chain][l][0].GetChildren()))
 	}
@@ -975,10 +1028,10 @@ func (h *HivedAlgorithm) removeCellFromFreeList(c *PhysicalCell) (success bool, 
 		}
 		h.freeCellList[chain].remove(c, l)
 		h.numLeftCells[chain][l]--
-		if h.numLeftCells[chain][l] < h.totalRemainingQuotas[chain][l] {
+		if h.numLeftCells[chain][l] < h.totalNumVCFreeCells[chain][l] {
 			success = false
 			message = fmt.Sprintf("Adding pod would lead to broken safety: cell type %v, left %v, remaining quota %v",
-				h.cellTypes[chain][l], h.numLeftCells[chain][l], h.totalRemainingQuotas[chain][l])
+				h.cellTypes[chain][l], h.numLeftCells[chain][l], h.totalNumVCFreeCells[chain][l])
 		}
 		if terminate {
 			break
@@ -1084,6 +1137,15 @@ func (h *HivedAlgorithm) findPhysicalGpuInChain(
 		}
 	}
 	return nil
+}
+
+func nodeHealthy(node *core.Node) bool {
+	for _, c := range node.Status.Conditions {
+		if c.Type == "Ready" && c.Status != "Unknown" {
+			return false
+		}
+	}
+	return true
 }
 
 // generatePodScheduleResult writes the scheduling result into a PodScheduleResult.
@@ -1529,4 +1591,19 @@ func allPodsReleased(allocatedPods map[int32][]*core.Pod) bool {
 		}
 	}
 	return true
+}
+
+func generateOpporVirtualCell(pc *api.PhysicalCellStatus) *api.VirtualCellStatus {
+	vc := &api.VirtualCellStatus{
+		CellStatus: api.CellStatus{
+			GpuType:         pc.GpuType,
+			CellType:        pc.CellType,
+			CellAddress:     pc.CellAddress + "-opp",
+			CellState:       api.CellUsed,
+			CellHealthiness: pc.CellHealthiness,
+			CellPriority:    api.OpportunisticPriority,
+		},
+		PhysicalCell: pc,
+	}
+	return vc
 }

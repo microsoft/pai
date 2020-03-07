@@ -192,6 +192,9 @@ func NewHivedScheduler() *HivedScheduler {
 			GetAllAffinityGroupsHandler: s.getAllAffinityGroups,
 			GetAffinityGroupHandler:     s.getAffinityGroup,
 			GetClusterStatusHandler:     s.getClusterStatus,
+			GetPCStatusHandler:          s.getPCStatus,
+			GetAllVCsStatusHandler:      s.getAllVCsStatus,
+			GetVCStatus:                 s.getVCStatus,
 		},
 	)
 
@@ -216,9 +219,6 @@ func (s *HivedScheduler) Run(stopCh <-chan struct{}) {
 	// Previous bound pods recovery completed, start to accept scheduling request.
 	s.webServer.AsyncRun(stopCh)
 	klog.Infof("Running " + si.ComponentName)
-
-	// Watch node healthiness
-	go s.watchNodes()
 
 	<-stopCh
 }
@@ -697,54 +697,14 @@ func (s *HivedScheduler) getClusterStatus() si.ClusterStatus {
 	return s.schedulerAlgorithm.GetClusterStatus()
 }
 
-func (s *HivedScheduler) watchNodes() {
-	for {
-		s.watchHealthyNodes()
-		s.watchBadNodes()
-		time.Sleep(watchNodesInterval * time.Second)
-	}
+func (s *HivedScheduler) getPCStatus() si.PhysicalClusterStatus {
+	return s.schedulerAlgorithm.GetPCStatus()
 }
 
-// watchHealthyNodes checks the healthiness of nodes. It it found a bad node,
-// it will call the scheduler algorithm to mark it as node.
-func (s *HivedScheduler) watchHealthyNodes() {
-	s.schedulerLock.Lock()
-	defer s.schedulerLock.Unlock()
-
-	var badNodeIndices []int32
-	for i, n := range s.healthyNodes {
-		if _, err := s.nodeLister.Get(n); err != nil {
-			s.schedulerAlgorithm.SetBadNode(n)
-			badNodeIndices = append(badNodeIndices, int32(i))
-		}
-	}
-	oriHealthyNodeNum := len(s.healthyNodes)
-	for i, bni := range badNodeIndices {
-		s.badNodes = append(s.badNodes, s.healthyNodes[bni])
-		s.healthyNodes[bni] = s.healthyNodes[oriHealthyNodeNum-1-i]
-		s.healthyNodes[oriHealthyNodeNum-1-i] = ""
-	}
-	s.healthyNodes = s.healthyNodes[:oriHealthyNodeNum-len(badNodeIndices)]
+func (s *HivedScheduler) getAllVCsStatus() map[si.VirtualClusterName]si.VirtualClusterStatus {
+	return s.schedulerAlgorithm.GetAllVCsStatus()
 }
 
-// watchBadNodes checks the healthiness of bad nodes. If a bad node is found to be healthy again,
-// we will call the scheduler algorithm to mark it as healthy.
-func (s *HivedScheduler) watchBadNodes() {
-	s.schedulerLock.Lock()
-	defer s.schedulerLock.Unlock()
-
-	var healthyNodeIndices []int32
-	for i, n := range s.badNodes {
-		if _, err := s.nodeLister.Get(n); err == nil {
-			s.schedulerAlgorithm.SetHealthyNode(n)
-			healthyNodeIndices = append(healthyNodeIndices, int32(i))
-		}
-	}
-	oriBadNodeNum := len(s.badNodes)
-	for i, hni := range healthyNodeIndices {
-		s.healthyNodes = append(s.healthyNodes, s.badNodes[hni])
-		s.badNodes[hni] = s.badNodes[oriBadNodeNum-1-i]
-		s.badNodes[oriBadNodeNum-1-i] = ""
-	}
-	s.badNodes = s.badNodes[:oriBadNodeNum-len(healthyNodeIndices)]
+func (s *HivedScheduler) getVCStatus(vcn si.VirtualClusterName) si.VirtualClusterStatus {
+	return s.schedulerAlgorithm.GetVCStatus(vcn)
 }

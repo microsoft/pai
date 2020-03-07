@@ -148,7 +148,7 @@ func (c *physicalCellConstructor) buildChildCell(
 		// node-level cell pass address to children as node
 		currentNode = splitAddress[len(splitAddress)-1]
 	}
-	cellInstance := c.addCell(c.buildingChain, ce, spec.ReservationId, string(spec.CellAddress))
+	cellInstance := c.addCell(c.buildingChain, ce, spec.ReservationId, spec.CellAddress)
 	if ce.level == 1 {
 		cellInstance.SetPhysicalResources(
 			[]string{currentNode}, []int32{common.StringToInt32(splitAddress[len(splitAddress)-1])})
@@ -185,9 +185,9 @@ func (c *physicalCellConstructor) addCell(
 	chain CellChain,
 	ce *cellChainElement,
 	reservationId api.ReservationId,
-	address string) *PhysicalCell {
+	address api.CellAddress) *PhysicalCell {
 
-	cellInstance := NewPhysicalCell(c.buildingChain, ce.level, ce.hasNode, ce.gpuNumber, string(ce.cellType), address)
+	cellInstance := NewPhysicalCell(c.buildingChain, ce.level, ce.hasNode, ce.gpuNumber, ce.cellType, address)
 	if _, ok := c.fullCellList[chain]; !ok {
 		c.fullCellList[chain] = ChainCellList{}
 	}
@@ -211,7 +211,7 @@ func (c *physicalCellConstructor) buildFullTree() *PhysicalCell {
 	}
 	cellInstance := c.buildChildCell(c.buildingSpec, api.CellType(cc), "")
 	// set GPU type only for top-level cells (as a chain shares the same GPU type)
-	cellInstance.GetStatus().GpuType = ce.gpuType
+	cellInstance.GetAPIStatus().GpuType = ce.gpuType
 	return cellInstance
 }
 
@@ -281,10 +281,10 @@ func (c *virtualCellConstructor) addCell(
 	chain CellChain,
 	vc api.VirtualClusterName,
 	ce *cellChainElement,
-	address string) *VirtualCell {
+	address api.CellAddress) *VirtualCell {
 
 	cellInstance := NewVirtualCell(
-		vc, c.buildingChain, ce.level, ce.hasNode, ce.gpuNumber, nil, string(ce.cellType), address)
+		vc, c.buildingChain, ce.level, ce.hasNode, ce.gpuNumber, nil, ce.cellType, address)
 	if c.buildingReservation == "" {
 		if _, ok := c.nonReservedFullList[vc][chain]; !ok {
 			c.nonReservedFullList[vc][chain] = ChainCellList{}
@@ -306,14 +306,14 @@ func (c *virtualCellConstructor) addCell(
 	return cellInstance
 }
 
-func (c *virtualCellConstructor) buildChildCell(ct api.CellType, address string) *VirtualCell {
+func (c *virtualCellConstructor) buildChildCell(ct api.CellType, address api.CellAddress) *VirtualCell {
 	ce := c.cellChainElements[ct]
 	cellInstance := c.addCell(c.buildingChain, c.buildingVc, ce, address)
 	if ce.level == 1 {
 		return cellInstance
 	}
 	var currentCellChildren CellList
-	splitAddress := strings.Split(address, "/")
+	splitAddress := strings.Split(string(address), "/")
 	var offset int32
 	if len(splitAddress) == 2 {
 		offset = 0 // offset starts from 0 for each preassigned cell in a VC
@@ -321,7 +321,8 @@ func (c *virtualCellConstructor) buildChildCell(ct api.CellType, address string)
 		offset = common.StringToInt32(splitAddress[len(splitAddress)-1]) * ce.childNumber
 	}
 	for i := int32(0); i < ce.childNumber; i++ {
-		childCellInstance := c.buildChildCell(ce.childCellType, fmt.Sprintf("%v/%v", address, offset+i))
+		childCellInstance := c.buildChildCell(ce.childCellType,
+			api.CellAddress(fmt.Sprintf("%v/%v", address, offset+i)))
 		childCellInstance.SetParent(cellInstance)
 		currentCellChildren = append(currentCellChildren, childCellInstance)
 	}
@@ -329,14 +330,14 @@ func (c *virtualCellConstructor) buildChildCell(ct api.CellType, address string)
 	return cellInstance
 }
 
-func (c *virtualCellConstructor) buildFullTree(address string) *VirtualCell {
+func (c *virtualCellConstructor) buildFullTree(address api.CellAddress) *VirtualCell {
 	ce, ok := c.cellChainElements[c.buildingChild]
 	if !ok {
 		panic(fmt.Sprintf("cellType %v in VirtualCells is not found in cell types definition", c.buildingChild))
 	}
 	cellInstance := c.buildChildCell(c.buildingChild, address)
 	// set GPU type only for top-level cells (as a chain shares the same GPU type)
-	cellInstance.GetStatus().GpuType = ce.gpuType
+	cellInstance.GetAPIStatus().GpuType = ce.gpuType
 	return cellInstance
 }
 
@@ -366,7 +367,7 @@ func (c *virtualCellConstructor) build() (
 			c.vcQuotas[vc][chain][rootLevel] += virtualCell.CellNumber
 			for i := int32(0); i < virtualCell.CellNumber; i++ {
 				c.updateInternalStatus(vc, CellChain(sl[0]), rootType, nil, "")
-				rootCell := c.buildFullTree(fmt.Sprintf("%v/%v", vc, numCells))
+				rootCell := c.buildFullTree(api.CellAddress(fmt.Sprintf("%v/%v", vc, numCells)))
 				if _, ok := c.nonReservedFreeList[vc][rootCell.chain]; !ok {
 					c.nonReservedFreeList[vc][rootCell.chain] = ChainCellList{}
 				}
@@ -394,7 +395,7 @@ func (c *virtualCellConstructor) build() (
 			}
 			c.vcQuotas[vc][pc.chain][pc.level]++
 			c.updateInternalStatus(vc, pc.chain, buildingChild, nil, rid)
-			c.buildFullTree(fmt.Sprintf("%v/%v", vc, numCells))
+			c.buildFullTree(api.CellAddress(fmt.Sprintf("%v/%v", vc, numCells)))
 			numCells++
 		}
 	}

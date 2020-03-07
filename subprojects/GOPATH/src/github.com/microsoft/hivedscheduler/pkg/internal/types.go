@@ -49,6 +49,9 @@ type InspectHandlers struct {
 	GetAllAffinityGroupsHandler func() si.AffinityGroupList
 	GetAffinityGroupHandler     func(name string) si.AffinityGroup
 	GetClusterStatusHandler     func() si.ClusterStatus
+	GetPCStatusHandler          func() si.PhysicalClusterStatus
+	GetAllVCsStatusHandler      func() map[si.VirtualClusterName]si.VirtualClusterStatus
+	GetVCStatus                 func(si.VirtualClusterName) si.VirtualClusterStatus
 }
 
 // SchedulerAlgorithm is used to make the pod schedule decision based on its whole
@@ -78,8 +81,6 @@ type SchedulerAlgorithm interface {
 	AddNode(node *core.Node)
 	UpdateNode(oldNode, newNode *core.Node)
 	DeleteNode(node *core.Node)
-	SetBadNode(nodeName string)
-	SetHealthyNode(nodeName string)
 
 	// Track all current allocated Pods in the whole cluster.
 	// Allocated Pod includes both PodBound and PodBinding Pods.
@@ -90,6 +91,9 @@ type SchedulerAlgorithm interface {
 	GetAllAffinityGroups() si.AffinityGroupList
 	GetAffinityGroup(name string) si.AffinityGroup
 	GetClusterStatus() si.ClusterStatus
+	GetPCStatus() si.PhysicalClusterStatus
+	GetAllVCsStatus() map[si.VirtualClusterName]si.VirtualClusterStatus
+	GetVCStatus(si.VirtualClusterName) si.VirtualClusterStatus
 }
 
 // Notes:
