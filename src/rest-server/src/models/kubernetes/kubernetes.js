@@ -3,7 +3,6 @@
 
 const axios = require('axios');
 const {Agent} = require('https');
-const {cloneDeep} = require('lodash');
 const {URL} = require('url');
 const {apiserver} = require('@pai/config/kubernetes');
 const status = require('statuses');
@@ -99,14 +98,11 @@ const getPods = async (options = {}) => {
   const {namespace} = options;
   const client = getClient();
 
-  const requestOptions = {};
-  requestOptions.params = cloneDeep(options);
-  delete requestOptions.params.namespace;
   let url = '/api/v1/pods';
   if (namespace) {
     url = `/api/v1/namespaces/${namespace}/pods`;
   }
-  const res = await client.get(url, requestOptions);
+  const res = await client.get(url, {params: options});
   return res.data;
 };
 
