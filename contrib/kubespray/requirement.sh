@@ -22,7 +22,7 @@ echo "worker list file path: ${WORKER_LIST}"
 echo "master list file path: ${MASTER_LIST}"
 echo "cluster config file path: ${CLUSTER_CONFIG}"
 
-mkdir ${HOME}/pai-pre-check/
+mkdir -p ${HOME}/pai-pre-check/
 python3 script/pre-check-generator.py -m ${MASTER_LIST} -w ${WORKER_LIST} -c ${CLUSTER_CONFIG} -o ${HOME}/pai-pre-check
 
 ABS_CONFIG_PATH="$(cd "$CLUSTER_CONFIG" && pwd -P)"
