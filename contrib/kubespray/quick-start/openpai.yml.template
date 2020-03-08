@@ -157,11 +157,6 @@ k8s_image_pull_policy: Always
 
 ##### networking
 
-# Choose network plugin (cilium, calico, contiv, weave or flannel. Use cni for generic cni plugin)
-# Can also be set to 'cloud', which lets the cloud provider setup appropriate routing
-kube_network_plugin: weave
-
-
 # Setting multi_networking to true will install Multus: https://github.com/intel/multus-cni
 # kube_network_plugin_multus: false
 
@@ -378,3 +373,7 @@ quay_image_repo: "{{ env['cfg']['quay_image_repo'] }}"
 {%- if 'docker_image_repo' in env['cfg'] %}
 docker_image_repo: "{{ env['cfg']['docker_image_repo'] }}"
 {%- endif %}
+
+# Choose network plugin (cilium, calico, contiv, weave or flannel. Use cni for generic cni plugin)
+# Can also be set to 'cloud', which lets the cloud provider setup appropriate routing
+kube_network_plugin: {{ env["cfg"]['openpai_kube_network_plugin'] | default('weave') }}
