@@ -1,0 +1,12 @@
+---
+- name: Check memory resource requirement for openpai service
+  fail:
+    msg: "OpenPAI's infra node should have 40 Gi free memory for service "
+  when:
+    - ansible_memfree_mb < 40000
+
+- name: Check cpu resource requirement for openpai service
+  fail:
+    msg: "OpenPAI's infra node should have 1 CPU vcore for service "
+  when:
+    - ansible_processor_vcpus < 1

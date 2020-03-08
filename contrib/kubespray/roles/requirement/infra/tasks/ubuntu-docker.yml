@@ -1,0 +1,17 @@
+---
+- name: "Check if docker is installed on your master machine."
+  raw: command -v docker
+  register: command_docker_master
+  failed_when: false
+  changed_when: false
+  check_mode: false
+  environment: {}
+
+- name: "Fail, if docker is not installed on your master machine."
+  fail:
+    msg: "Unable to find docker in your master machine"
+  changed_when: false
+  check_mode: false
+  environment: {}
+  when:
+    - command_docker_master.rc != 0

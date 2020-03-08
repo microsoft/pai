@@ -1,0 +1,34 @@
+---
+- name: "Check if docker is installed on your worker machine."
+  raw: command -v docker
+  register: command_docker_worker
+  failed_when: false
+  changed_when: false
+  check_mode: false
+  environment: {}
+
+- name: "Failed, if docker is not installed on your worker machine."
+  fail:
+    msg: "Unable to find docker in your master machine"
+  changed_when: false
+  check_mode: false
+  environment: {}
+  when:
+    - command_docker_worker.rc != 0
+
+- name: "Get default docker runtime"
+  raw: "{% raw %} docker info -f '{{json .DefaultRuntime}}'{% endraw %}"
+  register: default_runtime
+  failed_when: false
+  changed_when: false
+  check_mode: false
+  environment: {}
+
+- name: "Check the default runtime is set correctly"
+  fail:
+    msg: "The default runtime is not set correctly"
+  changed_when: false
+  check_mode: false
+  environment: {}
+  when:
+    - "default_runtime.stdout != {{ worker_default_docker_runtime }}"

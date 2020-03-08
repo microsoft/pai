@@ -1,0 +1,51 @@
+---
+- name: "Check GPU card info with lspci"
+  raw: "lspci | grep -E '[0-9a-fA-F][0-9a-fA-F]:[0-9a-fA-F][0-9a-fA-F].[0-9] (3D|VGA compatible) controller: NVIDIA Corporation.*'"
+  register: worker_lspci_grep
+  failed_when: false
+  changed_when: false
+  check_mode: false
+  environment: {}
+
+- name: "Check NVIDIA GPU exits or not"
+  fail:
+    msg: "NVIDIA GPU card is not detected in your worker machines."
+  changed_when: false
+  check_mode: false
+  environment: {}
+  when:
+    - worker_lspci_grep.rc != 0
+
+- name: "Check NVIDIA GPU drivers with nvidia-smi"
+  raw: "nvidia-smi"
+  register: worker_nvidia_smi
+  failed_when: false
+  changed_when: false
+  check_mode: false
+  environment: {}
+
+- name: "Check NVIDIA GPU drivers is installed or not "
+  fail:
+    msg: "NVIDIA GPU drivers is not detected in your worker machines."
+  changed_when: false
+  check_mode: false
+  environment: {}
+  when:
+    - worker_nvidia_smi.rc != 0
+
+- name: "Check NVIDIA container runtime with command"
+  raw: "command -v nvidia-container-runtime "
+  register: worker_nvidia_container_runtime
+  failed_when: false
+  changed_when: false
+  check_mode: false
+  environment: {}
+
+- name: "Check NVIDIA container runtime is installed or not"
+  fail:
+    msg: "NVIDIA container runtime is not detected in your worker machines."
+  changed_when: false
+  check_mode: false
+  environment: {}
+  when:
+    - worker_nvidia_container_runtime.rc != 0

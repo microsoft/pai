@@ -48,7 +48,7 @@ echo "Ping Test"
 
 ansible all -i ${HOME}/pai-deploy/cluster-cfg/hosts.yml -m ping || exit $?
 
-ansible-playbook -i ${HOME}/pai-deploy/cluster-cfg/hosts.yml docker-runtime-setup.yml -e install_run_time=false || exit $?
+/bin/bash requirement.sh -m ${MASTER_LIST} -w ${WORKER_LIST} -c ${CLUSTER_CONFIG} || exit $?
 
 /bin/bash script/kubernetes-boot.sh || exit $?
 

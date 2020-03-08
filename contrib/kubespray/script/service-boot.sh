@@ -12,8 +12,8 @@ while getopts "c:" opt; do
   esac
 done
 
-OPENPAI_BRANCH_NAME=`cat ${CLUSTER_CONFIG} | grep branch-name | tr -d "[:space:]" | cut -d ':' -f 2`
-OPENPAI_IMAGE_TAG=`cat ${CLUSTER_CONFIG} | grep docker-image-tag | tr -d "[:space:]" | cut -d ':' -f 2`
+OPENPAI_BRANCH_NAME=`cat ${CLUSTER_CONFIG} | grep branch_name | tr -d "[:space:]" | cut -d ':' -f 2`
+OPENPAI_IMAGE_TAG=`cat ${CLUSTER_CONFIG} | grep docker_image_tag | tr -d "[:space:]" | cut -d ':' -f 2`
 
 echo "Branch Name ${OPENPAI_BRANCH_NAME}"
 echo "OpenPAI Image Tag ${OPENPAI_IMAGE_TAG}"

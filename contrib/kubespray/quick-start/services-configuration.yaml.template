@@ -6,30 +6,30 @@ cluster:
     job-history: "true"
     data-path: "/datastorage"
     qos-switch: "false"
-    docker-data-root: "{{ env['cfg']['docker-data-root'] | default('/mnt/docker') }}"
+    docker-data-root: "{{ env['cfg']['docker_data_root'] | default('/mnt/docker') }}"
 
   # the docker registry to store docker images that contain system services like frameworklauncher, hadoop, etc.
   docker-registry:
 
     # The namespace in your registry. If the registry is docker.io, the namespace will be your user account.
-    namespace: {{ env["cfg"]['docker-registry-namespace'] | default('openpai') }}
+    namespace: {{ env["cfg"]['docker_registry_namespace'] | default('openpai') }}
 
     # E.g., gcr.io.
     # if the registry is hub.docker, please fill this value with docker.io
-    domain: {{ env["cfg"]['docker-registry-domain'] | default('docker.io') }}
+    domain: {{ env["cfg"]['docker_registry_domain'] | default('docker.io') }}
     # If the docker registry doesn't require authentication, please comment username and password
-    {% if "docker-registry-username" in env["cfg"] %}
-    username: env["cfg"]["docker-registry-username"]
+    {% if "docker_registry_username" in env["cfg"] %}
+    username: env["cfg"]["docker_registry_username"]
     {% else %}
     #username: <username>
     {% endif %}
-    {% if "docker-registry-password:" in env["cfg"] %}
-    password: env["cfg"]["docker-registry-password"]
+    {% if "docker_registry_password:" in env["cfg"] %}
+    password: env["cfg"]["docker_registry_password"]
     {% else %}
     #password: <password>
     {% endif %}
 
-    tag: {{ env["cfg"]['docker-image-tag'] }}
+    tag: {{ env["cfg"]['docker_image_tag'] }}
 
     # The name of the secret in kubernetes will be created in your cluster
     # Must be lower case, e.g., regsecret.
