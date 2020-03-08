@@ -31,4 +31,4 @@
   check_mode: false
   environment: {}
   when:
-    - "default_runtime.stdout != '{{ worker_default_docker_runtime }}'"
+    - default_runtime.stdout != worker_default_docker_runtime
