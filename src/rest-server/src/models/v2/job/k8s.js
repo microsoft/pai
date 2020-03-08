@@ -28,6 +28,7 @@ const launcherConfig = require('@pai/config/launcher');
 const createError = require('@pai/utils/error');
 const protocolSecret = require('@pai/utils/protocolSecret');
 const userModel = require('@pai/models/v2/user');
+const storageModel = require('@pai/models/v2/storage');
 const k8sModel = require('@pai/models/kubernetes/kubernetes');
 const k8sSecret = require('@pai/models/kubernetes/k8s-secret');
 const env = require('@pai/utils/env');
@@ -338,7 +339,7 @@ const convertFrameworkDetail = async (framework) => {
   return detail;
 };
 
-const generateTaskRole = (frameworkName, taskRole, jobInfo, frameworkEnvList, config, storageConfig) => {
+const generateTaskRole = (frameworkName, taskRole, jobInfo, frameworkEnvList, config) => {
   const ports = config.taskRoles[taskRole].resourcePerInstance.ports || {};
   for (let port of ['ssh', 'http']) {
     if (!(port in ports)) {
@@ -427,10 +428,6 @@ const generateTaskRole = (frameworkName, taskRole, jobInfo, frameworkEnvList, co
                 {
                   name: 'GANG_ALLOCATION',
                   value: gangAllocation,
-                },
-                {
-                  name: 'STORAGE_CONFIGS',
-                  value: JSON.stringify(storageConfig),
                 },
                 ...frameworkEnvList,
                 ...taskRoleEnvList,
@@ -573,6 +570,25 @@ const generateTaskRole = (frameworkName, taskRole, jobInfo, frameworkEnvList, co
       name: `${encodeName(frameworkName)}-regcred`,
     });
   }
+  // add storages
+  if ('extras' in config && config.extras.storages) {
+    for (let storage of config.extras.storages) {
+      if (!storage.name) {
+        continue;
+      }
+      frameworkTaskRole.task.pod.spec.containers[0].volumeMounts.push({
+        name: `${storage.name}-volume`,
+        mountPath: storage.mountPath || `/mnt/${storage.name}`,
+        ...(storage.share === false) && {subPath: jobInfo.userName},
+      });
+      frameworkTaskRole.task.pod.spec.volumes.push({
+        name: `${storage.name}-volume`,
+        persistentVolumeClaim: {
+          claimName: `${storage.name}`,
+        },
+      });
+    }
+  }
   // fill in completion policy
   const completion = config.taskRoles[taskRole].completion;
   frameworkTaskRole.frameworkAttemptCompletionPolicy = {
@@ -614,7 +630,7 @@ const generateTaskRole = (frameworkName, taskRole, jobInfo, frameworkEnvList, co
   return frameworkTaskRole;
 };
 
-const generateFrameworkDescription = (frameworkName, virtualCluster, config, rawConfig, storageConfig) => {
+const generateFrameworkDescription = (frameworkName, virtualCluster, config, rawConfig) => {
   const [userName, jobName] = frameworkName.split(/~(.+)/);
   const jobInfo = {
     jobName,
@@ -655,7 +671,7 @@ const generateFrameworkDescription = (frameworkName, virtualCluster, config, raw
   let totalGpuNumber = 0;
   for (let taskRole of Object.keys(config.taskRoles)) {
     totalGpuNumber += config.taskRoles[taskRole].resourcePerInstance.gpu * config.taskRoles[taskRole].instances;
-    const taskRoleDescription = generateTaskRole(frameworkName, taskRole, jobInfo, frameworkEnvList, config, storageConfig);
+    const taskRoleDescription = generateTaskRole(frameworkName, taskRole, jobInfo, frameworkEnvList, config);
     if (launcherConfig.enabledPriorityClass) {
       taskRoleDescription.task.pod.spec.priorityClassName = `${encodeName(frameworkName)}-priority`;
     }
@@ -877,8 +893,54 @@ const put = async (frameworkName, config, rawConfig) => {
     throw createError('Forbidden', 'ForbiddenUserError', `User ${userName} is not allowed to do operation in ${virtualCluster}`);
   }
 
-  const storageConfig = await userModel.getUserStorageConfigs(userName);
-  const frameworkDescription = generateFrameworkDescription(frameworkName, virtualCluster, config, rawConfig, storageConfig);
+  // check deprecated storages config
+  if (
+    'extras' in config &&
+    !config.extras.storages &&
+    'com.microsoft.pai.runtimeplugin' in config.extras
+  ) {
+    for (let plugin of config.extras['com.microsoft.pai.runtimeplugin']) {
+      if (plugin.plugin === 'teamwise_storage') {
+        if ('parameters' in plugin && plugin.parameters.storageConfigNames) {
+          config.extras.storages =
+            plugin.parameters.storageConfigNames.map((name) => {
+              return {name};
+            });
+        } else {
+          config.extras.storages = [];
+        }
+      }
+    }
+  }
+  // check storages for current user
+  if ('extras' in config && config.extras.storages) {
+    // add default storages if config is empty
+    if (config.extras.storages.length === 0) {
+      (await storageModel.list(userName, true)).storages
+        .forEach((userStorage) => {
+          config.extras.storages.push({
+            name: userStorage.name,
+            share: userStorage.share,
+          });
+        });
+    } else {
+      const userStorages = {};
+      (await storageModel.list(userName)).storages
+        .forEach((userStorage) => userStorages[userStorage.name] = userStorage);
+      for (let storage of config.extras.storages) {
+        if (!storage.name) {
+          continue;
+        }
+        if (!(storage.name in userStorages)) {
+          throw createError('Not Found', 'NoStorageError', `Storage ${storage.name} is not found.`);
+        } else {
+          storage.share = userStorages[storage.name].share;
+        }
+      }
+    }
+  }
+
+  const frameworkDescription = generateFrameworkDescription(frameworkName, virtualCluster, config, rawConfig);
 
   // generate image pull secret
   const auths = Object.values(config.prerequisites.dockerimage)

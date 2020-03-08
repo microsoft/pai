@@ -16,206 +16,26 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 // module dependencies
-const createError = require('@pai/utils/error');
-const storageModel = require('@pai/models/v2/storage');
-const {isArray, isEmpty} = require('lodash');
+const asyncHandler = require('@pai/middlewares/v2/asyncHandler');
+const storage = require('@pai/models/v2/storage');
 
-const getStorageServer = async (req, res, next) => {
-  try {
-    const name = req.params.name;
-    const storageServerInfo = await storageModel.getStorageServer(name);
-    return res.status(200).json(storageServerInfo);
-  } catch (error) {
-    return next(createError.unknown(error));
-  }
-};
 
-const getStorageServers = async (req, res, next) => {
-  try {
-    const names = isEmpty(req.query.names)
-      ? []
-      : isArray(req.query.names)
-      ? req.query.names
-      : [req.query.names];
-    const storageServerList = await storageModel.getStorageServers(names);
-    return res.status(200).json(storageServerList);
-  } catch (error) {
-    return next(createError.unknown(error));
-  }
-};
+const list = asyncHandler(async (req, res) => {
+  const userName = req.user.username;
+  const filterDefault = Boolean(req.query.default);
+  const data = await storage.list(userName, filterDefault);
+  res.json(data);
+});
 
-const getStorageConfig = async (req, res, next) => {
-  try {
-    const name = req.params.name;
-    const storageConfigInfo = await storageModel.getStorageConfig(name);
-    return res.status(200).json(storageConfigInfo);
-  } catch (error) {
-    return next(createError.unknown(error));
-  }
-};
-
-const getStorageConfigs = async (req, res, next) => {
-  try {
-    const names = isEmpty(req.query.names)
-      ? []
-      : isArray(req.query.names)
-      ? req.query.names
-      : [req.query.names];
-    const storageConfigList = await storageModel.getStorageConfigs(names);
-    return res.status(200).json(storageConfigList);
-  } catch (error) {
-    return next(createError.unknown(error));
-  }
-};
-
-const createStorageServer = async (req, res, next) => {
-  try {
-    if (!req.user.admin) {
-      next(
-        createError(
-          'Forbidden',
-          'ForbiddenUserError',
-          `Non-admin is not allow to do this operation.`
-        )
-      );
-    }
-    const name = req.body.spn;
-    const value = {
-      spn: req.body.spn,
-      type: req.body.type,
-      data: req.body.data,
-    };
-    await storageModel.createStorageServer(name, value);
-    return res.status(201).json({
-      message: 'Storage Server is created successfully',
-    });
-  } catch (error) {
-    return next(createError.unknown(error));
-  }
-};
-
-const updateStorageServer = async (req, res, next) => {
-  try {
-    if (!req.user.admin) {
-      next(
-        createError(
-          'Forbidden',
-          'ForbiddenUserError',
-          `Non-admin is not allow to do this operation.`
-        )
-      );
-    }
-    const name = req.body.spn;
-    const value = {
-      spn: req.body.spn,
-      type: req.body.type,
-      data: req.body.data,
-    };
-    await storageModel.updateStorageServer(name, value);
-    return res.status(201).json({
-      message: 'Storage Server is updated successfully',
-    });
-  } catch (error) {
-    return next(createError.unknown(error));
-  }
-};
-
-const deleteStorageServer = async (req, res, next) => {
-  try {
-    if (!req.user.admin) {
-      next(
-        createError(
-          'Forbidden',
-          'ForbiddenUserError',
-          `Non-admin is not allow to do this operation.`
-        )
-      );
-    }
-    const name = req.params.name;
-    await storageModel.deleteStorageServer(name);
-    return res.status(201).json({
-      message: 'Storage Server is deleted successfully',
-    });
-  } catch (error) {
-    return next(createError.unknown(error));
-  }
-};
-
-const createStorageConfig = async (req, res, next) => {
-  try {
-    if (!req.user.admin) {
-      next(
-        createError(
-          'Forbidden',
-          'ForbiddenUserError',
-          `Non-admin is not allow to do this operation.`
-        )
-      );
-    }
-    const name = req.body.name;
-    const value = req.body;
-    await storageModel.createStorageConfig(name, value);
-    return res.status(201).json({
-      message: 'Storage Config is created successfully',
-    });
-  } catch (error) {
-    return next(createError.unknown(error));
-  }
-};
-
-const updateStorageConfig = async (req, res, next) => {
-  try {
-    if (!req.user.admin) {
-      next(
-        createError(
-          'Forbidden',
-          'ForbiddenUserError',
-          `Non-admin is not allow to do this operation.`
-        )
-      );
-    }
-    const name = req.body.name;
-    const value = req.body;
-    await storageModel.updateStorageConfig(name, value);
-    return res.status(201).json({
-      message: 'Storage Config is updated successfully',
-    });
-  } catch (error) {
-    return next(createError.unknown(error));
-  }
-};
-
-const deleteStorageConfig = async (req, res, next) => {
-  try {
-    if (!req.user.admin) {
-      next(
-        createError(
-          'Forbidden',
-          'ForbiddenUserError',
-          `Non-admin is not allow to do this operation.`
-        )
-      );
-    }
-    const name = req.params.name;
-    await storageModel.deleteStorageConfig(name);
-    return res.status(201).json({
-      message: 'Storage Config is deleted successfully',
-    });
-  } catch (error) {
-    return next(createError.unknown(error));
-  }
-};
+const get = asyncHandler(async (req, res) => {
+  const storageName = req.params.storageName;
+  const userName = req.user.username;
+  const data = await storage.get(storageName, userName);
+  res.json(data);
+});
 
 // module exports
 module.exports = {
-  getStorageServer,
-  getStorageServers,
-  getStorageConfig,
-  getStorageConfigs,
-  createStorageServer,
-  updateStorageServer,
-  deleteStorageServer,
-  createStorageConfig,
-  updateStorageConfig,
-  deleteStorageConfig,
+  list,
+  get,
 };

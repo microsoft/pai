@@ -17,60 +17,15 @@
 
 // module dependencies
 const express = require('express');
-const storageController = require('@pai/controllers/v2/storage');
 const token = require('@pai/middlewares/token');
-// const storageInputSchema = require('@pai/config/v2/storage');
+const controller = require('@pai/controllers/v2/storage');
 
 const router = new express.Router();
 
-router
-  .route('/server/:name')
-  /** Get /api/v2/storage/server/:name */
-  .get(token.check, storageController.getStorageServer);
+router.route('/')
+  .get(token.check, controller.list);
 
-router
-  .route('/server')
-  /** Get /api/v2/storage/server */
-  .get(token.check, storageController.getStorageServers);
-
-router
-  .route('/server')
-  /** Post /api/v2/storage/server */
-  .post(token.check, storageController.createStorageServer);
-
-router
-  .route('/server')
-  /** Put /api/v2/storage/server */
-  .put(token.check, storageController.updateStorageServer);
-
-router
-  .route('/server/:name')
-  /** Post /api/v2/storage/server/delete */
-  .delete(token.check, storageController.deleteStorageServer);
-
-router
-  .route('/config/:name')
-  /** Get /api/v2/storage/config/:name */
-  .get(token.check, storageController.getStorageConfig);
-
-router
-  .route('/config')
-  /** Get /api/v2/storage/config */
-  .get(token.check, storageController.getStorageConfigs);
-
-router
-  .route('/config')
-  /** Post /api/v2/storage/config */
-  .post(token.check, storageController.createStorageConfig);
-
-router
-  .route('/config')
-  /** Put /api/v2/storage/config */
-  .put(token.check, storageController.updateStorageConfig);
-
-router
-  .route('/config/:name')
-  /** Delete /api/v2/storage/config/:name */
-  .delete(token.check, storageController.deleteStorageConfig);
+router.route('/:storageName')
+  .get(token.check, controller.get);
 
 module.exports = router;

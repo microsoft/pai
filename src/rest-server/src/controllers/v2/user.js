@@ -35,16 +35,6 @@ const getUserVCs = async (username) => {
   return [...virtualClusters];
 };
 
-const getUserStorageConfigs = async (username) => {
-  const userInfo = await userModel.getUser(username);
-  let storageConfigs = new Set();
-  for (const group of userInfo.grouplist) {
-    const groupStorageConfigs = await groupModel.getGroupStorageConfigs(group);
-    storageConfigs = new Set([...storageConfigs, ...groupStorageConfigs]);
-  }
-  return [...storageConfigs];
-};
-
 const getUser = async (req, res, next) => {
   try {
     const username = req.params.username;
@@ -478,5 +468,4 @@ module.exports = {
   updateUserPassword,
   createUser,
   getUserVCs,
-  getUserStorageConfigs,
 };
