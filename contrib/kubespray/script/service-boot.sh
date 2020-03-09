@@ -88,4 +88,13 @@ if [ $? -eq 0 ]; then
   exit 1
 else
   cleanup
+  echo ""
+  echo "OpenPAI is successfully deployed, please check the following information:"
+  echo "Kubernetes cluster config :     ~/pai-deploy/kube/config"
+  echo "OpenPAI cluster config    :     ~/pai-deploy/kube/config"
+  echo "OpenPAI cluster ID        :     pai"
+  echo "Default username          :     admin"
+  echo "Default password          :     admin-password"
+  echo ""
+  echo "You can go to http://<your-master-ip>, then use the default username and password to log in."
 fi
