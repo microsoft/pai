@@ -194,7 +194,7 @@ type PhysicalCellStatus struct {
 	VirtualCell  *VirtualCellStatus    `json:"virtualCell,omitempty"`
 }
 
-func (pcs *PhysicalCellStatus) copy() *PhysicalCellStatus {
+func (pcs *PhysicalCellStatus) deepCopy() *PhysicalCellStatus {
 	copied := &PhysicalCellStatus{
 		CellStatus: pcs.CellStatus,
 		VC:         pcs.VC,
@@ -202,11 +202,11 @@ func (pcs *PhysicalCellStatus) copy() *PhysicalCellStatus {
 	if pcs.CellChildren != nil {
 		copied.CellChildren = make([]*PhysicalCellStatus, len(pcs.CellChildren))
 		for i, child := range pcs.CellChildren {
-			copied.CellChildren[i] = child.copy()
+			copied.CellChildren[i] = child.deepCopy()
 		}
 	}
 	if pcs.VirtualCell != nil {
-		copied.VirtualCell = pcs.VirtualCell.copy()
+		copied.VirtualCell = pcs.VirtualCell.deepCopy()
 	}
 	return copied
 }
@@ -217,38 +217,38 @@ type VirtualCellStatus struct {
 	PhysicalCell *PhysicalCellStatus  `json:"physicalCell,omitempty"`
 }
 
-func (vcs *VirtualCellStatus) copy() *VirtualCellStatus {
+func (vcs *VirtualCellStatus) deepCopy() *VirtualCellStatus {
 	copied := &VirtualCellStatus{
 		CellStatus: vcs.CellStatus,
 	}
 	if vcs.Children != nil {
 		copied.Children = make([]*VirtualCellStatus, len(vcs.Children))
 		for i, child := range vcs.Children {
-			copied.Children[i] = child.copy()
+			copied.Children[i] = child.deepCopy()
 		}
 	}
 	if vcs.PhysicalCell != nil {
-		copied.PhysicalCell = vcs.PhysicalCell.copy()
+		copied.PhysicalCell = vcs.PhysicalCell.deepCopy()
 	}
 	return copied
 }
 
 type PhysicalClusterStatus []*PhysicalCellStatus
 
-func (pcs PhysicalClusterStatus) Copy() PhysicalClusterStatus {
+func (pcs PhysicalClusterStatus) DeepCopy() PhysicalClusterStatus {
 	copied := make(PhysicalClusterStatus, len(pcs))
 	for i, c := range pcs {
-		copied[i] = c.copy()
+		copied[i] = c.deepCopy()
 	}
 	return copied
 }
 
 type VirtualClusterStatus []*VirtualCellStatus
 
-func (vcs VirtualClusterStatus) Copy() VirtualClusterStatus {
+func (vcs VirtualClusterStatus) DeepCopy() VirtualClusterStatus {
 	copied := make(VirtualClusterStatus, len(vcs))
 	for i, c := range vcs {
-		copied[i] = c.copy()
+		copied[i] = c.deepCopy()
 	}
 	return copied
 }

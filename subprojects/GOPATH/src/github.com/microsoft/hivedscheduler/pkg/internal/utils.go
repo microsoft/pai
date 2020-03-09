@@ -154,6 +154,15 @@ func IsUnbound(pod *core.Pod) bool {
 	return pod.Spec.NodeName == "" && IsLive(pod)
 }
 
+func IsNodeHealthy(node *core.Node) bool {
+	for _, c := range node.Status.Conditions {
+		if c.Type == core.NodeReady && c.Status == core.ConditionTrue {
+			return true
+		}
+	}
+	return false
+}
+
 func NewBindingPod(pod *core.Pod, podBindInfo *si.PodBindInfo) *core.Pod {
 	bindingPod := pod.DeepCopy()
 

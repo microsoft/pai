@@ -43,10 +43,6 @@ import (
 	"time"
 )
 
-const (
-	watchNodesInterval = time.Duration(60)
-)
-
 // HivedScheduler is the scheduling framework which serves as the bridge between
 // the scheduling algorithm and K8S.
 // It provides the whole cluster scheduling view and the interested pod scheduling
@@ -121,11 +117,6 @@ type HivedScheduler struct {
 	// SchedulerAlgorithm is used to make the pod schedule decision based on the
 	// scheduling view.
 	schedulerAlgorithm internal.SchedulerAlgorithm
-
-	// healthyNodes and badNodes are used to track the healthiness of nodes
-	// (so as to inform the scheduler algorithm)
-	healthyNodes []string
-	badNodes     []string
 }
 
 func NewHivedScheduler() *HivedScheduler {
@@ -229,7 +220,6 @@ func (s *HivedScheduler) addNode(obj interface{}) {
 	klog.Infof(logPfx + "Started")
 	defer internal.HandleInformerPanic(logPfx, true)
 
-	s.healthyNodes = append(s.healthyNodes, node.Name)
 	s.schedulerAlgorithm.AddNode(node)
 }
 
