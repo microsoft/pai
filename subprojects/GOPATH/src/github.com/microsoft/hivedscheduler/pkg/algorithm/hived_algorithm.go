@@ -1094,6 +1094,7 @@ func getFewestOpporPhysicalCell(cl CellList, suggestedNodeSet common.Set) *Physi
 	fewestOpporNumSuggested := int32(math.MaxInt32)
 	var fewestOpporCell *PhysicalCell
 	var fewestOpporSuggested *PhysicalCell
+	preemptibleCells := common.NewSet()
 	for _, c := range cl {
 		if pc := c.(*PhysicalCell); pc.GetVirtualCell() == nil && pc.GetPreBoundVirtualCell() == nil {
 			numOppor := pc.GetUsedGpuNumAtPriorities()[opportunisticPriority]
@@ -1113,13 +1114,20 @@ func getFewestOpporPhysicalCell(cl CellList, suggestedNodeSet common.Set) *Physi
 				fewestOpporNumSuggested = numOppor
 				fewestOpporSuggested = pc
 			}
+			if numOppor > 0 {
+				preemptibleCells.Add(pc)
+			}
 		}
 	}
-	if fewestOpporSuggested == nil {
-		return fewestOpporCell
-	} else {
+	if fewestOpporSuggested != nil {
 		return fewestOpporSuggested
 	}
+	if !preemptibleCells.IsEmpty() {
+		for c := range preemptibleCells.Items() {
+			return c.(*PhysicalCell)
+		}
+	}
+	return fewestOpporCell
 }
 
 // mapNonPreassignedCellToPhysical maps a virtual cell (possibly inside a preassigned one) to the
