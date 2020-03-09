@@ -163,6 +163,21 @@ func (n *node) UpdateUsedGpuNumForPriority(p CellPriority, crossPriorityPack boo
 	}
 }
 
+func (n *node) isInSuggested(suggestedNodeSet common.Set) bool {
+	var pc *PhysicalCell
+	switch v := n.c.(type) {
+	case *PhysicalCell:
+		pc = v
+	case *VirtualCell:
+		pc = v.GetPhysicalCell()
+	}
+	if pc != nil {
+		nodeNames, _ := pc.GetPhysicalPlacement()
+		return suggestedNodeSet.Contains(nodeNames[0])
+	}
+	return true
+}
+
 type clusterView []*node
 
 func newClusterView(ccl ChainCellList) clusterView {
@@ -221,11 +236,7 @@ func (cv clusterView) Swap(i int, j int) {
 // updateClusterView updates the GPU numbers of the nodes for the sorting.
 func (t *topologyAwareScheduler) updateClusterView(p CellPriority, suggestedNodeSet common.Set) {
 	for _, n := range t.cv {
-		inSuggested := true
-		if t.considerSuggestedNodes {
-			nodeNames, _ := n.c.(*PhysicalCell).GetPhysicalPlacement()
-			inSuggested = suggestedNodeSet.Contains(nodeNames[0])
-		}
+		inSuggested := !t.considerSuggestedNodes || n.isInSuggested(suggestedNodeSet)
 		n.UpdateUsedGpuNumForPriority(p, t.crossPriorityPack, inSuggested)
 	}
 }

@@ -59,7 +59,7 @@ func newDefaultIntraVCScheduler(
 	snr := map[CellChain]*topologyAwareScheduler{}
 	sr := map[api.ReservationId]*topologyAwareScheduler{}
 	for chain, ccl := range nonReservedVcl {
-		snr[chain] = NewTopologyAwareScheduler(ccl, gpuNums[chain], true, false)
+		snr[chain] = NewTopologyAwareScheduler(ccl, gpuNums[chain], true, true)
 	}
 	for rid, ccl := range reservedVcl {
 		sr[rid] = NewTopologyAwareScheduler(ccl, gpuNums[ccl[CellLevel(1)][0].GetChain()], true, false)
