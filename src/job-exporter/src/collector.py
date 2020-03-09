@@ -570,6 +570,8 @@ class ContainerCollector(Collector):
         logger.info("found %s as potential network interface to listen network traffic",
                 self.network_interface)
 
+        self.gpu_vendor = utils.get_gpu_vendor()
+
         # k8s will prepend "k8s_" to pod name. There will also be a container name
         # prepend with "k8s_POD_" which is a docker container used to construct
         # network & pid namespace for specific container. These container prepend
@@ -651,7 +653,7 @@ class ContainerCollector(Collector):
 
         inspect_info = docker_inspect.inspect(container_id,
                 ContainerCollector.inspect_histogram,
-                ContainerCollector.inspect_timeout)
+                ContainerCollector.inspect_timeout, self.gpu_vendor)
 
         pid = inspect_info.pid
         job_name = inspect_info.job_name

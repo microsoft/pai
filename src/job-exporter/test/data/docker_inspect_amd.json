@@ -208,7 +208,7 @@
             }
         ],
         "Config": {
-            "Hostname": "srgsora-05",
+            "Hostname": "host1",
             "Domainname": "",
             "User": "0",
             "AttachStdin": false,
