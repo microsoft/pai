@@ -16,16 +16,22 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 // module dependencies
+const express = require('express');
+const token = require('@pai/middlewares/token');
+const controller = require('@pai/controllers/v2/storage-deprecated');
 
+const router = new express.Router();
 
-class StorageBase {
-  get(key, options, callback) { }
+router.route('/config')
+  .get(token.check, controller.getConfig);
 
-  set(key, value, options, callback) { }
+router.route('/config/:name')
+  .get(token.check, controller.getConfig);
 
-  delete(key, options, callback) { }
+router.route('/server')
+  .get(token.check, controller.getServer);
 
-  has(key, options, callback) { }
-}
+router.route('/server/:name')
+  .get(token.check, controller.getServer);
 
-module.exports = StorageBase;
+module.exports = router;

@@ -8,6 +8,7 @@ import * as child from 'child_process';
 import { Dictionary } from 'lodash';
 import { IStorageServer } from 'openpai-js-sdk';
 import * as os from 'os';
+import * as path from 'path';
 import {
     commands, window, workspace, Terminal, WorkspaceConfiguration
 } from 'vscode';
@@ -19,6 +20,7 @@ import { __ } from '../../common/i18n';
 import { getSingleton, Singleton } from '../../common/singleton';
 import { Util } from '../../common/util';
 import { StorageTreeNode } from '../container/common/treeNode';
+import { MountPointTreeNode } from '../container/storage/mountPointTreeItem';
 import { NfsRootNode } from '../container/storage/NfsTreeItem';
 import { StorageTreeDataProvider } from '../container/storage/storageTreeView';
 
@@ -79,15 +81,19 @@ export class NfsStorageManager extends Singleton {
 
     public async mountNfs(node: NfsRootNode, mountPath: string): Promise<void> {
         const server: IStorageServer = node.storageServer;
-        const mountPoint: string = node.mountPath;
+        let serverPath: string = path.join(server.data.rootPath, node.mountInfo.path).replace(/\\/g, '/');
+        if (serverPath.includes('\${PAI_USER_NAME}')) {
+            serverPath = serverPath.replace('\${PAI_USER_NAME}', (<MountPointTreeNode>node.parent).cluster.username!);
+        }
+
         let cmdStr: string = '';
         switch (os.platform()) {
             case 'win32':
-                cmdStr = `cmd /c "net use ${mountPath} \\\\${server.data.address}${mountPoint.replace(/\//g, '\\')} /P:Yes"`;
+                cmdStr = `cmd /c mount -o anon ${server.data.address}:${serverPath} ${mountPath}`;
                 break;
             case 'darwin':
                 cmdStr = `sudo mkdir -p ${mountPath} && ` +
-                    `sudo mount -t nfs -o resvport,hard,nolock ${server.data.address}:${server.data.rootPath} ${mountPath}`;
+                    `sudo mount -t nfs -o resvport,hard,nolock ${server.data.address}:${serverPath} ${mountPath}`;
                 break;
             default:
                 Util.err('container.nfs.mount.unsupport.os');

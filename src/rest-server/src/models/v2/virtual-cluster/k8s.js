@@ -60,7 +60,7 @@ const fetchNodes = async (readiness=true) => {
 
 const fetchPods = async () => {
   const pods = await kubernetes.getPods({
-    labelSelector: {type: 'kube-launcher-task'},
+    labelSelector: 'type=kube-launcher-task',
   });
   return pods.items.filter((pod) => {
     return (pod.spec.nodeName && !(pod.status.phase === 'Succeeded' || pod.status.phase === 'Failed'));

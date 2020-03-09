@@ -12,11 +12,16 @@ while getopts "c:" opt; do
   esac
 done
 
-OPENPAI_BRANCH_NAME=`cat ${CLUSTER_CONFIG} | grep branch-name | tr -d "[:space:]" | cut -d ':' -f 2`
-OPENPAI_IMAGE_TAG=`cat ${CLUSTER_CONFIG} | grep docker-image-tag | tr -d "[:space:]" | cut -d ':' -f 2`
+OPENPAI_BRANCH_NAME=`cat ${CLUSTER_CONFIG} | grep branch_name | tr -d "[:space:]" | cut -d ':' -f 2`
+OPENPAI_IMAGE_TAG=`cat ${CLUSTER_CONFIG} | grep docker_image_tag | tr -d "[:space:]" | cut -d ':' -f 2`
 
 echo "Branch Name ${OPENPAI_BRANCH_NAME}"
 echo "OpenPAI Image Tag ${OPENPAI_IMAGE_TAG}"
+
+function cleanup(){
+  sudo docker stop dev-box-quick-start &> /dev/null
+  sudo docker rm dev-box-quick-start &> /dev/null
+}
 
 sudo docker run -itd \
         -e COLUMNS=$COLUMNS -e LINES=$LINES -e TERM=$TERM \
@@ -30,7 +35,7 @@ sudo docker run -itd \
         --name=dev-box-quick-start \
         openpai/dev-box:${OPENPAI_IMAGE_TAG}
 
-sudo docker exec -it dev-box-quick-start kubectl get node
+sudo docker exec -it dev-box-quick-start kubectl get node || { cleanup; exit 1; }
 
 # Work in dev-box
 sudo docker exec -i dev-box-quick-start /bin/bash << EOF_DEV_BOX
@@ -51,9 +56,19 @@ echo "branch name: ${OPENPAI_BRANCH_NAME}"
 git checkout ${OPENPAI_BRANCH_NAME}
 git pull
 
+echo "starting nvidia device plugin to detect nvidia gpu resource"
 kubectl apply --overwrite=true -f https://raw.githubusercontent.com/NVIDIA/k8s-device-plugin/1.0.0-beta4/nvidia-device-plugin.yml || exit $?
+sleep 5
+
+echo "starting AMD device plugin to detect AMD gpu resource"
+kubectl apply --overwrite=true -f https://raw.githubusercontent.com/RadeonOpenCompute/k8s-device-plugin/master/k8s-ds-amdgpu-dp.yaml || exit $?
+sleep5
 
 python3 /root/pai/contrib/kubespray/script/openpai-generator.py -m /quick-start-config/master.csv -w /quick-start-config/worker.csv -c /quick-start-config/config.yml -o /cluster-configuration || exit $?
+
+kubectl delete ds nvidia-device-plugin-daemonset -n kube-system || exit $?
+kubectl delete ds amdgpu-device-plugin-daemonset -n kube-system || exit $?
+sleep 5
 
 echo y | pip3 uninstall kubernetes==11.0.0b2
 pip3 install kubernetes
@@ -68,5 +83,9 @@ echo -e "pai\n" | python paictl.py config push -p /cluster-configuration -m serv
 echo -e "pai\n" | python paictl.py service start
 EOF_DEV_BOX
 
-sudo docker stop dev-box-quick-start
-sudo docker rm dev-box-quick-start
+if [ $? -eq 0 ]; then
+  cleanup
+  exit 1
+else
+  cleanup
+fi

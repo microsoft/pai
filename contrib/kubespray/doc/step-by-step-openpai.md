@@ -34,7 +34,7 @@ sudo docker exec -it dev-box-quick-start /bin/bash
 cd root/
 git clone https://github.com/microsoft/pai.git
 cd pai
-git checkout ${branch-name}
+git checkout ${branch_name}
 ```
 
 #### Push configuration into k8s

@@ -84,6 +84,43 @@ def generate_template_file(template_file_path, output_path, map_table):
     write_generated_file(output_path, generated_template)
 
 
+def pod_is_ready_or_not(label_key, label_value, service_name):
+
+    label_selector_str="{0}={1}".format(label_key, label_value)
+
+    config.load_kube_config()
+    v1 = client.CoreV1Api()
+
+    try:
+        pod_list = v1.list_pod_for_all_namespaces(label_selector=label_selector_str, watch=False)
+    except ApiException as e:
+        logger.error("Exception when calling CoreV1Api->list_pod_for_all_namespaces: %s\n" % e)
+        return False
+
+    if len(pod_list.items) == 0:
+        logger.warning("No pod can be dectected.")
+        return False
+
+    ready = 0
+    unready = 0
+    for pod in pod_list.items:
+        if pod.status.container_statuses is None:
+            unready = unready + 1
+        for container in pod.status.container_statuses:
+            if container.ready != True:
+                unready = unready + 1
+            else:
+                ready = ready + 1
+
+    if unready != 0:
+        logger.info("{0} is not ready.".format(service_name))
+        logger.info("Total: {0}".format(ready + unready))
+        logger.info("Ready: {1}",format(ready))
+        return False
+
+    return True
+
+
 def get_kubernetes_node_info_from_API():
     config.load_kube_config()
     api_instance = client.CoreV1Api()
@@ -99,6 +136,8 @@ def get_kubernetes_node_info_from_API():
             gpu_resource = 0
             if 'nvidia.com/gpu' in node.status.allocatable:
                 gpu_resource = int(parse_quantity(node.status.allocatable['nvidia.com/gpu']))
+            if 'amd.com/gpu' in node.status.allocatable:
+                gpu_resource = int(parse_quantity(node.status.allocatable['amd.com/gpu']))
             ret[node.metadata.name] = {
                 "cpu-resource": int(parse_quantity(node.status.allocatable['cpu'])),
                 "mem-resource": int(parse_quantity(node.status.allocatable['memory']) / 1024 / 1024 ),
@@ -108,6 +147,26 @@ def get_kubernetes_node_info_from_API():
         logger.error("Exception when calling CoreV1Api->list_node: %s\n" % e)
 
     return ret
+
+
+def wait_nvidia_device_plugin_ready(total_time=3600):
+    while pod_is_ready_or_not("name", "nvidia-device-plugin-ds", "Nvidia-Device-Plugin") != True:
+        logger.info("Nvidia-Device-Plugin is not ready yet. Please wait for a moment!")
+        time.sleep(10)
+        total_time = total_time - 10
+        if total_time < 0:
+            logger.error("An issue occure when starting up Nvidia-Device-Plugin")
+            sys.exit(1)
+
+
+def wait_amd_device_plugin_ready(total_time=3600):
+    while pod_is_ready_or_not("name", "amdgpu-dp-ds", "AMD-Device-Plugin") != True:
+        logger.info("AMD-Device-Plugin is not ready yet. Please wait for a moment!")
+        time.sleep(10)
+        total_time = total_time - 10
+        if total_time < 0:
+            logger.error("An issue occure when starting up AMD-Device-Plugin")
+            sys.exit(1)
 
 
 def hived_config_prepare(worker_dict, node_resource_dict):
@@ -122,8 +181,8 @@ def hived_config_prepare(worker_dict, node_resource_dict):
         if key not in worker_dict:
             continue
         if node_resource_dict[key]["gpu-resource"] == 0:
-            logger.error("Allocatable GPU number in {0} is 0, Hived doesn't support worker node with 0 GPU".format(key))
-            logger.error("Please remove {0} from your workerlist, or check if the NVIDIA device plugin is running healthy on the node.".format(key))
+            logger.error("Allocatable GPU number in {0} is 0, current quick start script does not allow.".format(key))
+            logger.error("Please remove {0} from your workerlist, or check if the device plugin is running healthy on the node.".format(key))
             sys.exit(1)
         min_cpu = min(min_cpu, node_resource_dict[key]["cpu-resource"])
         min_mem = min(min_mem, node_resource_dict[key]["mem-resource"])
@@ -159,6 +218,8 @@ def main():
     head_node = master_list[0]
 
     worker_dict = csv_reader_ret_dict(args.worklist)
+    wait_nvidia_device_plugin_ready()
+    wait_amd_device_plugin_ready()
     node_resource_dict = get_kubernetes_node_info_from_API()
     hived_config = hived_config_prepare(worker_dict, node_resource_dict)
 

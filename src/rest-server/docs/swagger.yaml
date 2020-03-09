@@ -1317,165 +1317,37 @@ paths:
                   $ref: '#/components/responses/NoJobConfigError/content/application~1json/examples/NoJobConfigError'
         500:
           $ref: '#/components/responses/UnknownError'
-  /api/v2/storage/server/{storage}:
+  /api/v2/storages:
     get:
       tags:
       - storage
-      summary: Get storage server data in the system.
-      description: Get storage server data in the system.
-      operationId: getStorageServer
+      summary: Get storage list (persistent volume claims) for current user.
+      description: Get storage list for which current user has permissions.
+      operationId: getStorages
       security:
         - bearerAuth: []
       parameters:
-      - $ref: '#/components/parameters/storage'
-      responses:
-        200:
-          description: Succeeded
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Storage'
-        500:
-          $ref: '#/components/responses/UnknownError'
-    delete:
-      tags:
-      - storage
-      summary: Remove storage server in the system.
-      description: Remove storage server in the system. Storage server empty is system reserved and cannot be removed.
-      operationId: removeStorageServer
-      security:
-        - bearerAuth: []
-      parameters:
-      - $ref: '#/components/parameters/storage'
-      responses:
-        200:
-          description: Succeeded
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Response'
-              example:
-                message: Storage Server is deleted successfully
-        403:
-          description: ForbiddenUserError or ForbiddenKeyError
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Response'
-              examples:
-                ForbiddenUserError:
-                  $ref: '#/components/responses/ForbiddenUserError/content/application~1json/examples/ForbiddenUserError'
-                ForbiddenKeyError:
-                  $ref: '#/components/responses/ForbiddenKeyError/content/application~1json/examples/ForbiddenKeyError'
-        500:
-          $ref: '#/components/responses/UnknownError'
-  /api/v2/storage/server:
-    get:
-      tags:
-      - storage
-      summary: Get storage server data in the system.
-      description: Given storage server names, find server data.
-      operationId: getStorageServers
-      security:
-        - bearerAuth: []
-      parameters:
-      - name: names
+      - name: default
         in: query
-        description: filter storage server with names, default name empty will be ignored
+        description: Return default storage or not.
         schema:
-          type: string
+          type: boolean
       responses:
         200:
           description: Succeeded
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Storage'
+                $ref: '#/components/schemas/StorageSummary'
         500:
           $ref: '#/components/responses/UnknownError'
-    post:
-      tags:
-      - storage
-      summary: Create storage server in system.
-      description: Create storage server in system.
-      operationId: createStorageServer
-      security:
-        - bearerAuth: []
-      requestBody:
-        description: Storage server
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Storage'
-        required: true
-      responses:
-        201:
-          description: Succeeded
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Response'
-              example:
-                message: Storage Server is created successfully
-        403:
-          description: ForbiddenUserError or ForbiddenKeyError
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Response'
-              examples:
-                ForbiddenUserError:
-                  $ref: '#/components/responses/ForbiddenUserError/content/application~1json/examples/ForbiddenUserError'
-                ForbiddenKeyError:
-                  $ref: '#/components/responses/ForbiddenKeyError/content/application~1json/examples/ForbiddenKeyError'
-        500:
-          $ref: '#/components/responses/UnknownError'
-    put:
-      tags:
-      - storage
-      summary: Update storage server in system.
-      description: Update storage server in system. Storage server empty is system reserved and cannot be updated.
-      operationId: updateStorageServer
-      security:
-        - bearerAuth: []
-      requestBody:
-        description: Storage server
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Storage'
-        required: true
-      responses:
-        201:
-          description: Succeeded
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Response'
-              example:
-                message: Storage Server is updated successfully
-        403:
-          description: ForbiddenUserError or ForbiddenKeyError
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Response'
-              examples:
-                ForbiddenUserError:
-                  $ref: '#/components/responses/ForbiddenUserError/content/application~1json/examples/ForbiddenUserError'
-                ForbiddenKeyError:
-                  $ref: '#/components/responses/ForbiddenKeyError/content/application~1json/examples/ForbiddenKeyError'
-        500:
-          $ref: '#/components/responses/UnknownError'
-  /api/v2/storage/config/{storage}:
+  /api/v2/storages/{storage}:
     get:
       tags:
       - storage
-      summary: Get storage config data in the system.
-      description: Get storage config data in the system.
-      operationId: getStorageConfig
+      summary: Get storage (persistent volume claim) for the given name.
+      description: Get storage for the given name.
+      operationId: getStorage
       security:
         - bearerAuth: []
       parameters:
@@ -1486,139 +1358,20 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/StorageConfig'
-        500:
-          $ref: '#/components/responses/UnknownError'
-    delete:
-      tags:
-      - storage
-      summary: Remove storage config in the system.
-      description: Remove storage config in the system. Storage config empty is system reserved and cannot be removed.
-      operationId: removeStorageConfig
-      security:
-        - bearerAuth: []
-      parameters:
-      - $ref: '#/components/parameters/storage'
-      responses:
-        201:
-          description: Succeeded
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Response'
-              example:
-                message: Storage Config is deleted successfully
+                $ref: '#/components/schemas/StorageDetail'
         403:
-          description: ForbiddenUserError or ForbiddenKeyError
+          description: ForbiddenUserError
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Response'
               examples:
                 ForbiddenUserError:
-                  $ref: '#/components/responses/ForbiddenUserError/content/application~1json/examples/ForbiddenUserError'
-                ForbiddenKeyError:
-                  $ref: '#/components/responses/ForbiddenKeyError/content/application~1json/examples/ForbiddenKeyError'
-        500:
-          $ref: '#/components/responses/UnknownError'
-  /api/v2/storage/config:
-    get:
-      tags:
-      - storage
-      summary: Get storage config data in the system.
-      description: Given storage config names, find server data.
-      operationId: getStorageConfigs
-      security:
-        - bearerAuth: []
-      parameters:
-      - name: names
-        in: query
-        description: filter storage server with names, default name empty will be ignored
-        schema:
-          type: string
-      responses:
-        200:
-          description: Succeeded
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/StorageConfig'
-        500:
-          $ref: '#/components/responses/UnknownError'
-    post:
-      tags:
-      - storage
-      summary: Create storage config in system.
-      description: Create storage config in system.
-      operationId: createStorageConfig
-      security:
-        - bearerAuth: []
-      requestBody:
-        description: Storage config
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/StorageConfig'
-        required: true
-      responses:
-        201:
-          description: Succeeded
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Response'
-              example:
-                message: Storage Config is created successfully
-        403:
-          description: ForbiddenUserError or ForbiddenKeyError
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Response'
-              examples:
-                ForbiddenUserError:
-                  $ref: '#/components/responses/ForbiddenUserError/content/application~1json/examples/ForbiddenUserError'
-                ForbiddenKeyError:
-                  $ref: '#/components/responses/ForbiddenKeyError/content/application~1json/examples/ForbiddenKeyError'
-        500:
-          $ref: '#/components/responses/UnknownError'
-    put:
-      tags:
-      - storage
-      summary: Update storage config in system.
-      description: Update storage config in system. Storage config empty is system reserved and cannot be updated.
-      operationId: updateStorageConfig
-      security:
-        - bearerAuth: []
-      requestBody:
-        description: Storage config
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Storage'
-        required: true
-      responses:
-        201:
-          description: Succeeded
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Response'
-              example:
-                message: Storage Config is updated successfully
-        403:
-          description: ForbiddenUserError or ForbiddenKeyError
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Response'
-              examples:
-                ForbiddenUserError:
-                  $ref: '#/components/responses/ForbiddenUserError/content/application~1json/examples/ForbiddenUserError'
-                ForbiddenKeyError:
-                  $ref: '#/components/responses/ForbiddenKeyError/content/application~1json/examples/ForbiddenKeyError'
+                  value:
+                    code: ForbiddenUserError
+                    message: User {user} is not allowed to access {storage}.
+        404:
+          $ref: '#/components/responses/NoStorageError'
         500:
           $ref: '#/components/responses/UnknownError'
   /api/v2/jobs/{user}~{job}/job-attempts/healthz:
@@ -1871,52 +1624,92 @@ components:
           type: string
           enum: ['RUNNING', 'STOPPED', 'DRAINING']
           description: RUNNING -> vc is enabled, STOPPED -> vc is disabled, without either new job or running job, DRAINING -> intermedia state from RUNNING to STOPPED, in waiting on existing job.
-    Storage:
+    StorageSummary:
       type: object
       properties:
-        spn:
-          type: string
-        type:
-          type: string
-        data:
-          type: object
-          properties:
-            spn:
-              type: string
-            type:
-              type: string
-            address:
-              type: string
-            rootPath:
-              type: string
-        extension:
-          type: object
-      required: [spn, type, data, extension]
-    StorageConfig:
-      type: object
-      properties:
-        name:
-          type: string
-        default:
-          type: boolean
-        servers:
-          type: array
-          items:
-            type: string
-        mountInfos:
+        storages:
           type: array
           items:
             type: object
             properties:
-              mountPoint:
+              name:
+                type: string
+              share:
+                type: boolean
+              volumeName:
+                type: string
+            required: [name, share, volumeName]
+      required: [storages]
+    StorageDetail:
+      type: object
+      properties:
+        name:
+          type: string
+        share:
+          type: boolean
+        volumeName:
+          type: string
+        type:
+          type: string
+          enum:
+          - nfs
+          - samba
+          - azureFile
+          - azureBlob
+          - other
+          - unknown
+        data:
+          oneOf:
+          - type: object
+            description: nfs type
+            properties:
+              server:
                 type: string
               path:
                 type: string
-              server:
+            required: [server, path]
+          - type: object
+            description: samba type
+            properties:
+              address:
                 type: string
-              permission:
+              username:
                 type: string
-      required: [name, default, servers, mountInfos]
+              password:
+                type: string
+            required: [address]
+          - type: object
+            description: azureFile type
+            properties:
+              shareName:
+                type: string
+              accountName:
+                type: string
+              accountKey:
+                type: string
+            required: [shareName]
+          - type: object
+            description: azureBlob type
+            properties:
+              containerName:
+                type: string
+              accountName:
+                type: string
+              accountKey:
+                type: string
+              accountSASToken:
+                type: string
+            required: [containerName]
+          - type: object
+            description: other/unknown type
+            properties: null
+        secretName:
+          type: string
+        mountOptions:
+          type: array
+          items:
+            type: string
+      required: [name, share, volumeName, type, data]
     JobAttempt:
       type: object
       description: TODO
@@ -1943,6 +1736,17 @@ components:
               value:
                 code: NoVirtualClusterError
                 message: Virtual cluster {vc} is not found.
+    NoStorageError:
+      description: NoStorageError
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Response'
+          examples:
+            NoVirtualClusterError:
+              value:
+                code: NoStorageError
+                message: Storage {storage} is not found.
     UnauthorizedUserError:
       description: UnauthorizedUserError
       content:

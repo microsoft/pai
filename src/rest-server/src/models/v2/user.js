@@ -74,11 +74,6 @@ const getUserVCs = async (username) => {
   return groupModel.getGroupsVCs(userItem.grouplist);
 };
 
-const getUserStorageConfigs = async (username) => {
-  const userItem = await getUser(username);
-  return groupModel.getGroupsStorageConfigs(userItem.grouplist);
-};
-
 const checkAdmin = async (username) => {
   const userItem = await getUser(username);
   return groupModel.getGroupsAdmin(userItem.grouplist);
@@ -89,9 +84,14 @@ const checkUserVC = async (username, vcname) => {
   return userVCs.includes(vcname);
 };
 
-const checkUserStorageConfig = async (username, storagConfigName) => {
-  const userStorageConfigs = await getUserStorageConfigs(username);
-  return userStorageConfigs.includes(storagConfigName);
+const getUserStorages = async (username, filterDefault=false) => {
+  const userItem = await getUser(username);
+  return groupModel.getGroupsStorages(userItem.grouplist, filterDefault);
+};
+
+const checkUserStorage = async (username, storageName) => {
+  const userStorages = await getUserStorages(username);
+  return userStorages.includes(storageName);
 };
 
 // module exports
@@ -107,6 +107,6 @@ module.exports = {
   getUserVCs,
   checkAdmin,
   batchUpdateUsers,
-  getUserStorageConfigs,
-  checkUserStorageConfig,
+  getUserStorages,
+  checkUserStorage,
 };

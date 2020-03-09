@@ -30,23 +30,56 @@ openpai-004,10.0.0.4
 ##### Write config
 
 ```yaml
-branch-name: master
-docker-image-tag: quick-start
 user: forexample
 password: forexample
+branch_name: <% latest-release %>
+docker_image_tag: <% latest-release %>
 
 # Optional
-# docker-registry-domain: docker.io
-# docker-registry-namespace: openpai
-# docker-registry-username: exampleuser
-# docker-registry-password: examplepasswd
 
-# docker-data-root: /mnt/docker
-# docker-iptables-enabled: false
-# gcr-image-repo: "gcr.io"
-# kube-image-repo: "gcr.io/google-containers"
-# quay-image-repo: "quay.io"
-# docker-image-repo: "docker.io"
+#############################################
+# Ansible-playbooks' inventory hosts' vars. #
+#############################################
+# ssh_key_file_path: /path/to/you/key/file
+
+#####################################
+# OpenPAI's service image registry. #
+#####################################
+# docker_registry_domain: docker.io
+# docker_registry_namespace: openpai
+# docker_registry_username: exampleuser
+# docker_registry_password: examplepasswd
+
+###########################################################################################
+#                         Pre-check setting                                               #
+# By default, we assume your gpu environment is nvidia. So your runtime should be nvidia. #
+# If you are using AMD or other environment, you should modify it.                        #
+###########################################################################################
+# worker_default_docker_runtime: nvidia
+# docker_check: true
+
+# resource_check: true
+
+# gpu_type: nvidia
+
+########################################################################################
+# Advanced docker configuration. If you are not familiar with them, don't change them. #
+########################################################################################
+# docker_data_root: /mnt/docker
+# docker_config_file_path: /etc/docker/daemon.json
+# docker_iptables_enabled: false
+
+#######################################################################
+#                       kubespray setting                             #
+#######################################################################
+
+# If you couldn't access to gcr.io or docker.io, please configure it. 
+# gcr_image_repo: "gcr.io"
+# kube_image_repo: "gcr.io/google-containers"
+# quay_image_repo: "quay.io"
+# docker_image_repo: "docker.io"
+
+# openpai_kube_network_plugin: weave
 ```
 
 ###### Check environment requirement

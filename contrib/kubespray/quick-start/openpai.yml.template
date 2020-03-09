@@ -157,11 +157,6 @@ k8s_image_pull_policy: Always
 
 ##### networking
 
-# Choose network plugin (cilium, calico, contiv, weave or flannel. Use cni for generic cni plugin)
-# Can also be set to 'cloud', which lets the cloud provider setup appropriate routing
-kube_network_plugin: weave
-
-
 # Setting multi_networking to true will install Multus: https://github.com/intel/multus-cni
 # kube_network_plugin_multus: false
 
@@ -336,7 +331,6 @@ docker_dns_servers_strict: false
 docker_log_opts: "--log-opt max-size=2g --log-opt max-file=2 --log-driver=json-file"
 
 docker_options: >-
-    --config-file /etc/docker-openpai/daemon-openpai.json
     {%- if docker_insecure_registries is defined %}
     {{ docker_insecure_registries | map('regex_replace', '^(.*)$', '--insecure-registry=\1' ) | list | join(' ') }}
     {%- endif %}
@@ -353,26 +347,33 @@ docker_options: >-
     --default-runtime=docker-runc --exec-opt native.cgroupdriver=systemd
     --userland-proxy-path=/usr/libexec/docker/docker-proxy-current --signature-verification=false
     {%- endif -%}
-{% endraw %}
+{%- endraw %}
+    {%- if 'docker_config_file_path' in env['cfg'] %}
+    --config-file {{ env['cfg']['docker_config_file_path'] }}
+    {%- endif  %}
 
-docker_daemon_graph: "{{ env['cfg']['docker-data-root'] | default('/mnt/docker') }}"
+docker_daemon_graph: "{{ env['cfg']['docker_data_root'] | default('/mnt/docker') }}"
 
-{%- if 'docker-iptables-enabled' in env['cfg'] %}
-docker_iptables_enabled: {{ env['cfg']['docker-iptables-enabled'] }}
+{%- if 'docker_iptables_enabled' in env['cfg'] %}
+docker_iptables_enabled: {{ env['cfg']['docker_iptables_enabled'] }}
 {%- endif %}
 
-{%- if 'gcr-image-repo' in env['cfg'] %}
-gcr_image_repo: "{{ env['cfg']['gcr-image-repo'] }}"
+{%- if 'gcr_image_repo' in env['cfg'] %}
+gcr_image_repo: "{{ env['cfg']['gcr_image_repo'] }}"
 {%- endif %}
 
-{%- if 'kube-image-repo' in env['cfg'] %}
-kube_image_repo: "{{ env['cfg']['kube-image-repo'] }}"
+{%- if 'kube_image_repo' in env['cfg'] %}
+kube_image_repo: "{{ env['cfg']['kube_image_repo'] }}"
 {%- endif %}
 
-{%- if 'quay-image-repo' in env['cfg'] %}
-quay_image_repo: "{{ env['cfg']['quay-image-repo'] }}"
+{%- if 'quay_image_repo' in env['cfg'] %}
+quay_image_repo: "{{ env['cfg']['quay_image_repo'] }}"
 {%- endif %}
 
-{%- if 'docker-image-repo' in env['cfg'] %}
-docker_image_repo: "{{ env['cfg']['docker-image-repo'] }}"
+{%- if 'docker_image_repo' in env['cfg'] %}
+docker_image_repo: "{{ env['cfg']['docker_image_repo'] }}"
 {%- endif %}
+
+# Choose network plugin (cilium, calico, contiv, weave or flannel. Use cni for generic cni plugin)
+# Can also be set to 'cloud', which lets the cloud provider setup appropriate routing
+kube_network_plugin: {{ env["cfg"]['openpai_kube_network_plugin'] | default('weave') }}
