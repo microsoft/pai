@@ -1123,8 +1123,12 @@ func getFewestOpporPhysicalCell(cl CellList, suggestedNodeSet common.Set) *Physi
 		}
 	}
 	if fewestOpporSuggested == nil {
+		if fewestOpporCell != nil {
+			klog.Infof("Returning a cell NOT within suggested nodes: %v", fewestOpporCell.nodes[0])
+		}
 		return fewestOpporCell
 	} else {
+		klog.Infof("Returning a cell within suggested nodes: %v", fewestOpporSuggested.nodes[0])
 		return fewestOpporSuggested
 	}
 }
