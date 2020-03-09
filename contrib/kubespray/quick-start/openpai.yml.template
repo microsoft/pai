@@ -354,6 +354,14 @@ docker_options: >-
 
 docker_daemon_graph: "{{ env['cfg']['docker_data_root'] | default('/mnt/docker') }}"
 
+{%- if 'openpai_docker_insecure_registries' in env['cfg'] %}
+docker_insecure_registries: {{ env['cfg']['openpai_docker_insecure_registries'] }}
+{%- endif %}
+
+{%- if 'openpai_docker_registry_mirrors' in env['cfg'] %}
+docker_registry_mirrors: {{ env['cfg']['openpai_docker_registry_mirrors'] }}
+{%- endif %}
+
 {%- if 'docker_iptables_enabled' in env['cfg'] %}
 docker_iptables_enabled: {{ env['cfg']['docker_iptables_enabled'] }}
 {%- endif %}
