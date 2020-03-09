@@ -869,6 +869,11 @@ func generatePodScheduleResult(
 	vc api.VirtualClusterName,
 	pod *core.Pod) internal.PodScheduleResult {
 
+	var allSuggestedNodes []string
+	for node := range suggestedNodeSet.Items() {
+		allSuggestedNodes = append(allSuggestedNodes, node.(string))
+	}
+	klog.Infof("All suggested nodes: %v", strings.Join(allSuggestedNodes, ", "))
 	preemptionVictims, nodesHaveVictims := collectPreemptionVictims(groupPhysicalPlacement, priority, groupName)
 	if len(preemptionVictims) > 0 {
 		// we collect victims on a random node, as K8S preempts victims from only one node once.
@@ -888,14 +893,10 @@ func generatePodScheduleResult(
 	} else {
 		// we find the selected node after the preemption is done, otherwise the preemption victims
 		// may cause the selected node to be excluded from the suggested nodes
-		affinityGroupBindInfo, selectedNode, selectedGpuIndices, cellChain, physicalPlacementString := generateAffinityGroupBindInfo(
+		affinityGroupBindInfo, selectedNode, selectedGpuIndices, cellChain, physicalPlacementString, virtualPlacementString := generateAffinityGroupBindInfo(
 			groupPhysicalPlacement, groupVirtualPlacement, cellLevelToType, currentGpuNum, currentPodIndex, group, groupName, suggestedNodeSet)
 		klog.Infof("Physical placement: %v", physicalPlacementString)
-		var allSuggestedNodes []string
-		for node := range suggestedNodeSet.Items() {
-			allSuggestedNodes = append(allSuggestedNodes, node.(string))
-		}
-		klog.Infof("All suggested nodes: %v", strings.Join(allSuggestedNodes, ", "))
+		klog.Infof("Virtual placement: %v", virtualPlacementString)
 		var waitReason string
 		if affinityGroupBindInfo == nil {
 			waitReason = "insufficient capacity in physical cluster"
@@ -935,12 +936,13 @@ func generateAffinityGroupBindInfo(
 	currentPodIndex int32,
 	group *AlgoAffinityGroup,
 	groupName string,
-	suggestedNodeSet common.Set) ([]api.AffinityGroupMemberBindInfo, string, []int32, string, string) {
+	suggestedNodeSet common.Set) ([]api.AffinityGroupMemberBindInfo, string, []int32, string, string, string) {
 
 	if groupPhysicalPlacement == nil {
-		return nil, "", nil, "", ""
+		return nil, "", nil, "", "", ""
 	}
 	physicalPlacementStrings := map[string][]string{}
+	var virtualPlacementStrings []string
 	affinityGroupBindInfo := make([]api.AffinityGroupMemberBindInfo, len(groupPhysicalPlacement))
 	var selectedNode string
 	var selectedGpuIndices []int32
@@ -981,6 +983,7 @@ func generateAffinityGroupBindInfo(
 						vGpu := groupVirtualPlacement[podGpuNum][podIndex][gpuIndex].(*VirtualCell)
 						mbi.PodPlacements[podIndex].PreassignedCellTypes[gpuIndex] =
 							cellLevelToType[vGpu.GetChain()][vGpu.GetPreAssignedCell().GetLevel()]
+						virtualPlacementStrings = append(virtualPlacementStrings, vGpu.GetName())
 					} else {
 						mbi.PodPlacements[podIndex].PreassignedCellTypes[gpuIndex] = ""
 					}
@@ -1002,7 +1005,7 @@ func generateAffinityGroupBindInfo(
 	for node, gpuIndices := range physicalPlacementStrings {
 		physicalPlacementString += fmt.Sprintf("%v: %v, ", node, strings.Join(gpuIndices, ","))
 	}
-	return affinityGroupBindInfo, selectedNode, selectedGpuIndices, chain, physicalPlacementString
+	return affinityGroupBindInfo, selectedNode, selectedGpuIndices, chain, physicalPlacementString, strings.Join(virtualPlacementStrings, ", ")
 }
 
 // collectPreemptionVictims collects preemption victims of an affinity group.
