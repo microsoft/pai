@@ -24,6 +24,10 @@
   check_mode: false
   environment: {}
 
+- name: "Remove unnecessary char in the end of the output"
+  set_fact:
+    default_runtime_processed: "{{ default_runtime.stdout_lines[0] | replace('\"','') }}"
+
 - name: "Check the default runtime is set correctly"
   fail:
     msg: "The default runtime is not set correctly"
@@ -31,4 +35,4 @@
   check_mode: false
   environment: {}
   when:
-    - "default_runtime.stdout != {{ worker_default_docker_runtime }}"
+    - default_runtime_processed != worker_default_docker_runtime

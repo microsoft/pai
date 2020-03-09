@@ -56,7 +56,7 @@ docker_image_tag: <% latest-release %>
 # If you are using AMD or other environment, you should modify it.                        #
 ###########################################################################################
 # worker_default_docker_runtime: nvidia
-# docke_check: true
+# docker_check: true
 
 # resource_check: true
 
@@ -70,12 +70,16 @@ docker_image_tag: <% latest-release %>
 # docker_iptables_enabled: false
 
 #######################################################################
-# If you couldn't access to gcr.io or docker.io, please configure it. #
+#                       kubespray setting                             #
 #######################################################################
+
+# If you couldn't access to gcr.io or docker.io, please configure it. 
 # gcr_image_repo: "gcr.io"
 # kube_image_repo: "gcr.io/google-containers"
 # quay_image_repo: "quay.io"
 # docker_image_repo: "docker.io"
+
+# openpai_kube_network_plugin: weave
 ```
 
 ###### Check environment requirement
