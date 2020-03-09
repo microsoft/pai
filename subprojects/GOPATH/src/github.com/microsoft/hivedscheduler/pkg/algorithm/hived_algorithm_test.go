@@ -424,6 +424,7 @@ func testNormalOperations(t *testing.T, h *HivedAlgorithm) {
 	testCasesThatShouldSucceed(t, h)
 	testCasesThatShouldFail(t, h)
 	testDeleteAllocatedPods(t, h)
+	testSuggestedNodes(t, h)
 }
 
 func testCasesThatShouldSucceed(t *testing.T, h *HivedAlgorithm) {
@@ -481,6 +482,22 @@ func testDeleteAllocatedPods(t *testing.T, h *HivedAlgorithm) {
 		if g, ok := h.allocatedAffinityGroups[pss[pod.UID].AffinityGroup.Name]; ok {
 			t.Errorf("Group %v is expected to be deleted in scheduler, but not", g.name)
 		}
+	}
+}
+
+func testSuggestedNodes(t *testing.T, h *HivedAlgorithm) {
+	var nodes []string
+	for _, node := range allNodes {
+		if node != "0.0.3.1" {
+			nodes = append(nodes, node)
+		}
+	}
+	pod := allPods["pod5"]
+	pod.Annotations[api.AnnotationKeyPodSchedulingSpec] = common.ToYaml(pss[pod.UID])
+	psr := h.Schedule(pod, nodes)
+	if psr.PodBindInfo != nil {
+		t.Errorf("[%v]: wrong pod scheduling result: expected empty, but got %v:%v",
+			internal.Key(pod), psr.PodBindInfo.Node, psr.PodBindInfo.GpuIsolation)
 	}
 }
 
