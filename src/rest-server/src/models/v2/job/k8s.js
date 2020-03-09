@@ -298,9 +298,9 @@ const convertFrameworkDetail = async (framework) => {
   try {
     const podList = await k8sModel.getPods({
       namespace: 'default',
-      labelSelector: `FC_FRAMEWORK_NAME=${framework.metadata.name}`
+      labelSelector: `FC_FRAMEWORK_NAME=${framework.metadata.name}`,
     });
-    pods = _.keyBy(podList.items, obj => obj.metadata.name);
+    pods = _.keyBy(podList.items, (obj) => obj.metadata.name);
   } catch (err) {
     pods = {};
   }
@@ -320,7 +320,7 @@ const convertFrameworkDetail = async (framework) => {
       taskRoleStatus: {
         name: taskRoleStatus.name,
       },
-      taskStatuses: taskStatuses
+      taskStatuses: taskStatuses,
     };
   }
 
