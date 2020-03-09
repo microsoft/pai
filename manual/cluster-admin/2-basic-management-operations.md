@@ -10,7 +10,7 @@
 
 ### Abnormal Jobs
 
-### Access k8s dashboard
+### Access Kubernetes Dashboard
 
 ## How to Manage User Group and Virtual Cluster
 

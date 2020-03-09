@@ -2,7 +2,7 @@
 
 ## Retry Policy and Job Exit Spec
 
-## Job example with multiple task roles
+## A Job Example with Multiple Task Roles
 
 ## Port Reservation, Environmental Variables, Parameters, and Secrets
 

@@ -4,6 +4,6 @@
 
 ## How to use SSH 
 
-### Enable SSH for a docker image
+### Enable SSH for a Docker Image
 
-## How to use TensorBoard plugin
+## How to use TensorBoard Plugin
