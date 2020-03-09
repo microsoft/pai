@@ -59,7 +59,8 @@ RUN $PIP_INSTALL \
         matplotlib \
         Cython \
         tqdm \
-        jupyter
+        jupyter \
+        contextlib2
 
 # ==================================================================
 # jupyter-config
