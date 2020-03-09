@@ -95,20 +95,16 @@ const getNodes = async () => {
 };
 
 const getPods = async (options = {}) => {
-  const {labelSelector, negativeLabelSelector, namespace} = options;
+  const {namespace} = options;
   const client = getClient();
-  const labelSelectorStr = encodeSelector(labelSelector, negativeLabelSelector);
-  const requestOptions = {};
-  if (labelSelectorStr) {
-    requestOptions.params = {
-      labelSelector: labelSelectorStr,
-    };
-  }
+
+  const requestOptions = Object.assign({}, options);
+  delete requestOptions.namespace;
   let url = '/api/v1/pods';
   if (namespace) {
     url = `/api/v1/namespaces/${namespace}/pods`;
   }
-  const res = await client.get(url, requestOptions);
+  const res = await client.get(url, {params: requestOptions});
   return res.data;
 };
 

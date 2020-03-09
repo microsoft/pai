@@ -29,7 +29,7 @@ router.route('/pods')
       return next(createError('Forbidden', 'ForbiddenUserError', `Non-admin is not allow to do this operation.`));
     }
     try {
-      const pods = await kubernetes.getPods({namespace: req.query.namespace});
+      const pods = await kubernetes.getPods(req.query);
       res.status(200).json(pods);
     } catch (err) {
       next(err);
