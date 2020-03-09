@@ -19,8 +19,6 @@
 # no set -o errexit because use exitcode to judge ssh connectivity
 # no set -o nounset because use empty array to judge end
 set -o pipefail
-set -o errexit
-set -o nounset
 
 readonly RETRY_INTERVAL=10
 
@@ -65,14 +63,12 @@ function main() {
 
     instanceFailed=()
     
-    set +o errexit
     for instance in "${instancesToCheck[@]}"; do
       check_ssh_connection "$instance"
       if [[ $? != 0 ]]; then
         instanceFailed+=("$instance")
       fi
     done
-    set -o errexit
 
     [[ ${#instanceFailed[@]} = 0 ]] && break
 
