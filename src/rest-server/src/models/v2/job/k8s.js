@@ -178,7 +178,7 @@ const convertFrameworkSummary = (framework) => {
   };
 };
 
-const convertTaskDetail = async (taskStatus, ports, userName, jobName, taskRoleName) => {
+const convertTaskDetail = async (taskStatus, ports, userName, jobName, taskRoleName, pod) => {
   // get container ports
   const containerPorts = {};
   if (ports) {
@@ -192,13 +192,6 @@ const convertTaskDetail = async (taskStatus, ports, userName, jobName, taskRoleN
   // get container gpus
   let containerGpus = null;
   try {
-    const response = await k8sModel.getClient().get(
-      launcherConfig.podPath(taskStatus.attemptStatus.podName),
-      {
-        headers: launcherConfig.requestHeaders,
-      }
-    );
-    const pod = response.data;
     if (launcherConfig.enabledHived) {
       const hivedSpec = yaml.load(pod.metadata.annotations['hivedscheduler.microsoft.com/pod-scheduling-spec']);
       if (hivedSpec && hivedSpec.affinityGroup && hivedSpec.affinityGroup.name) {
@@ -301,15 +294,33 @@ const convertFrameworkDetail = async (framework) => {
 
   const userName = framework.metadata.labels ? framework.metadata.labels.userName : 'unknown';
   const jobName = decodeName(framework.metadata.name, framework.metadata.annotations);
+  let pods = {};
+  try {
+    const podList = await k8sModel.getPods({
+      namespace: 'default',
+      labelSelector: `FC_FRAMEWORK_NAME=${framework.metadata.name}`
+    });
+    pods = _.keyBy(podList.items, obj => obj.metadata.name);
+  } catch (err) {
+    pods = {};
+  }
 
   for (let taskRoleStatus of framework.status.attemptStatus.taskRoleStatuses) {
+    const taskStatuses = await Promise.all(taskRoleStatus.taskStatuses.map(
+      async (status) => await convertTaskDetail(
+        status,
+        ports[taskRoleStatus.name],
+        userName,
+        jobName,
+        taskRoleStatus.name,
+        pods[status.attemptStatus.podName]
+      )
+    ));
     detail.taskRoles[taskRoleStatus.name] = {
       taskRoleStatus: {
         name: taskRoleStatus.name,
       },
-      taskStatuses: await Promise.all(taskRoleStatus.taskStatuses.map(
-        async (status) => await convertTaskDetail(status, ports[taskRoleStatus.name], userName, jobName, taskRoleStatus.name))
-      ),
+      taskStatuses: taskStatuses
     };
   }
 
