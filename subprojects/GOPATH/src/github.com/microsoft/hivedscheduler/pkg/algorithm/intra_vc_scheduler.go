@@ -37,7 +37,7 @@ type intraVCScheduler interface {
 	getReservedCellList() map[api.ReservationId]ChainCellList
 
 	// Scheduling an affinity group inside a VC. We use topologyAwareScheduler by default.
-	schedule(schedulingRequest) map[int32][]CellList
+	schedule(sr schedulingRequest, suggestedNodeSet common.Set) map[int32][]CellList
 }
 
 type defaultIntraVCScheduler struct {
@@ -80,7 +80,7 @@ func (s *defaultIntraVCScheduler) getReservedCellList() map[api.ReservationId]Ch
 	return s.virtualReservedCellList
 }
 
-func (s *defaultIntraVCScheduler) schedule(sr schedulingRequest) map[int32][]CellList {
+func (s *defaultIntraVCScheduler) schedule(sr schedulingRequest, suggestedNodeSet common.Set) map[int32][]CellList {
 	var scheduler *topologyAwareScheduler
 	var str string
 	if sr.reservationId != "" {
@@ -92,7 +92,7 @@ func (s *defaultIntraVCScheduler) schedule(sr schedulingRequest) map[int32][]Cel
 	}
 	var placement map[int32][]CellList
 	if scheduler != nil {
-		placement = scheduler.Schedule(sr.affinityGroupPodNums, sr.priority, common.NewSet())
+		placement = scheduler.Schedule(sr.affinityGroupPodNums, sr.priority, suggestedNodeSet)
 	}
 	if placement == nil {
 		klog.Infof("Insufficient quota in VC %v for scheduling request: %v, GPU numbers %v, priority %v",
