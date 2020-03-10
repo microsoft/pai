@@ -347,7 +347,7 @@ func (h *HivedAlgorithm) initReservations() {
 func (h *HivedAlgorithm) scheduleNewAffinityGroup(
 	pod *core.Pod,
 	s *api.PodSchedulingSpec,
-	suggestedNodeSet common.Set) (map[int32][]CellList, map[int32][]CellList) {
+	suggestedNodes common.Set) (map[int32][]CellList, map[int32][]CellList) {
 
 	var (
 		physicalPlacement map[int32][]CellList
@@ -371,9 +371,9 @@ func (h *HivedAlgorithm) scheduleNewAffinityGroup(
 	if sr.reservationId != "" {
 		klog.Infof("Use reservation %v", s.ReservationId)
 		sr.chain = h.reservedCells[sr.vc][sr.reservationId].GetChain()
-		physicalPlacement, virtualPlacement = h.processSchedulingRequest(sr, suggestedNodeSet)
+		physicalPlacement, virtualPlacement = h.processSchedulingRequest(sr, suggestedNodes)
 	} else {
-		physicalPlacement, virtualPlacement = h.scheduleAffinityGroupForGpuType(sr, s.GpuType, pod, suggestedNodeSet)
+		physicalPlacement, virtualPlacement = h.scheduleAffinityGroupForGpuType(sr, s.GpuType, pod, suggestedNodes)
 	}
 	if physicalPlacement != nil {
 		klog.Infof("Succeeded in scheduling group %v", s.AffinityGroup.Name)
@@ -390,7 +390,7 @@ func (h *HivedAlgorithm) scheduleAffinityGroupForGpuType(
 	sr schedulingRequest,
 	gpuType string,
 	pod *core.Pod,
-	suggestedNodeSet common.Set) (map[int32][]CellList, map[int32][]CellList) {
+	suggestedNodes common.Set) (map[int32][]CellList, map[int32][]CellList) {
 
 	if gpuType != "" {
 		if chains := h.chains[gpuType]; chains == nil {
@@ -404,7 +404,7 @@ func (h *HivedAlgorithm) scheduleAffinityGroupForGpuType(
 					vcHasType = true
 				}
 				sr.chain = chain
-				if physicalPlacement, virtualPlacement := h.processSchedulingRequest(sr, suggestedNodeSet); physicalPlacement != nil {
+				if physicalPlacement, virtualPlacement := h.processSchedulingRequest(sr, suggestedNodes); physicalPlacement != nil {
 					return physicalPlacement, virtualPlacement
 				}
 			}
@@ -418,7 +418,7 @@ func (h *HivedAlgorithm) scheduleAffinityGroupForGpuType(
 		for _, chains := range h.chains {
 			for _, chain := range chains {
 				sr.chain = chain
-				if physicalPlacement, virtualPlacement := h.processSchedulingRequest(sr, suggestedNodeSet); physicalPlacement != nil {
+				if physicalPlacement, virtualPlacement := h.processSchedulingRequest(sr, suggestedNodes); physicalPlacement != nil {
 					return physicalPlacement, virtualPlacement
 				}
 			}
@@ -448,12 +448,12 @@ func (h *HivedAlgorithm) validateSchedulingRequest(sr schedulingRequest, pod *co
 // or the opportunistic scheduler according to its priority.
 func (h *HivedAlgorithm) processSchedulingRequest(
 	sr schedulingRequest,
-	suggestedNodeSet common.Set) (map[int32][]CellList, map[int32][]CellList) {
+	suggestedNodes common.Set) (map[int32][]CellList, map[int32][]CellList) {
 
 	if sr.priority >= minGuaranteedPriority {
-		return h.scheduleGuaranteedAffinityGroup(sr, suggestedNodeSet)
+		return h.scheduleGuaranteedAffinityGroup(sr, suggestedNodes)
 	} else {
-		return h.scheduleOpportunisticAffinityGroup(sr, suggestedNodeSet), nil
+		return h.scheduleOpportunisticAffinityGroup(sr, suggestedNodes), nil
 	}
 }
 
@@ -461,10 +461,10 @@ func (h *HivedAlgorithm) processSchedulingRequest(
 // then maps the placement in VC to the physical cluster.
 func (h *HivedAlgorithm) scheduleGuaranteedAffinityGroup(
 	sr schedulingRequest,
-	suggestedNodeSet common.Set) (map[int32][]CellList, map[int32][]CellList) {
+	suggestedNodes common.Set) (map[int32][]CellList, map[int32][]CellList) {
 
 	// schedule in VC
-	virtualPlacement := h.vcSchedulers[sr.vc].schedule(sr, suggestedNodeSet)
+	virtualPlacement := h.vcSchedulers[sr.vc].schedule(sr, suggestedNodes)
 	if virtualPlacement == nil {
 		return nil, nil
 	}
@@ -498,7 +498,7 @@ func (h *HivedAlgorithm) scheduleGuaranteedAffinityGroup(
 				if preassignedPhysical == nil {
 					// allocate a new physical cell to the preassigned cell. input a copy of the free cell list
 					// because during the scheduling we should not make in-place change to the data structures
-					c := buddyAlloc(h.getTmpFreeCellList(sr.chain), pac.GetLevel(), suggestedNodeSet)
+					c := buddyAlloc(h.getTmpFreeCellList(sr.chain), pac.GetLevel(), suggestedNodes)
 					if c == nil {
 						panic(fmt.Sprintf(
 							"VC Safety Broken: Cannot find physical cell for a VC cell: %v", pac.GetName()))
@@ -510,7 +510,7 @@ func (h *HivedAlgorithm) scheduleGuaranteedAffinityGroup(
 						preassignedPhysical.SetPreBoundVirtualCell(pac)
 					}
 				}
-				physicalPlacement[podGpuNum][i][j] = mapNonPreassignedCellToPhysical(vGpu, suggestedNodeSet)
+				physicalPlacement[podGpuNum][i][j] = mapNonPreassignedCellToPhysical(vGpu, suggestedNodes)
 			}
 		}
 	}
@@ -521,10 +521,10 @@ func (h *HivedAlgorithm) scheduleGuaranteedAffinityGroup(
 // scheduleOpportunisticAffinityGroup calls the opportunistic pod scheduler to schedule an affinity group.
 func (h *HivedAlgorithm) scheduleOpportunisticAffinityGroup(
 	sr schedulingRequest,
-	suggestedNodeSet common.Set) map[int32][]CellList {
+	suggestedNodes common.Set) map[int32][]CellList {
 
 	placement := h.opportunisticSchedulers[sr.chain].Schedule(
-		sr.affinityGroupPodNums, opportunisticPriority, suggestedNodeSet)
+		sr.affinityGroupPodNums, opportunisticPriority, suggestedNodes)
 	if placement == nil {
 		klog.Infof("Insufficient capacity in PC for scheduling request: GPU numbers %v, priority %v",
 			sr.affinityGroupPodNums, sr.priority)
@@ -865,7 +865,7 @@ func generatePodScheduleResult(
 	currentPodIndex int32,
 	group *AlgoAffinityGroup,
 	groupName string,
-	suggestedNodeSet common.Set,
+	suggestedNodes common.Set,
 	vc api.VirtualClusterName,
 	pod *core.Pod) internal.PodScheduleResult {
 
@@ -889,7 +889,7 @@ func generatePodScheduleResult(
 		// we find the selected node after the preemption is done, otherwise the preemption victims
 		// may cause the selected node to be excluded from the suggested nodes
 		affinityGroupBindInfo, nodesNotInSuggested, selectedNode, selectedGpuIndices, cellChain := generateAffinityGroupBindInfo(
-			groupPhysicalPlacement, groupVirtualPlacement, cellLevelToType, currentGpuNum, currentPodIndex, group, groupName, suggestedNodeSet)
+			groupPhysicalPlacement, groupVirtualPlacement, cellLevelToType, currentGpuNum, currentPodIndex, group, groupName, suggestedNodes)
 		var waitReason string
 		if affinityGroupBindInfo == nil {
 			waitReason = "insufficient capacity in physical cluster"
@@ -936,7 +936,7 @@ func generateAffinityGroupBindInfo(
 	currentPodIndex int32,
 	group *AlgoAffinityGroup,
 	groupName string,
-	suggestedNodeSet common.Set) (
+	suggestedNodes common.Set) (
 	affinityGroupBindInfo []api.AffinityGroupMemberBindInfo,
 	nodesNotInSuggested []string,
 	selectedNode string,
@@ -973,7 +973,7 @@ func generateAffinityGroupBindInfo(
 					// in its "nodes" and "gpuIndices" as the node and GPU address
 					if mbi.PodPlacements[podIndex].PhysicalNode == "" {
 						mbi.PodPlacements[podIndex].PhysicalNode = nodes[0]
-						if !suggestedNodeSet.Contains(nodes[0]) {
+						if !suggestedNodes.Contains(nodes[0]) {
 							nodesNotInSuggested = append(nodesNotInSuggested, nodes[0])
 						}
 					}
@@ -1075,9 +1075,9 @@ func retrieveMissingPodPlacement(group *AlgoAffinityGroup, gpuNum int32, podInde
 // It splits a higher-level cell when there is no free cell at the current level.
 // As the input cell list is a copy of the real free list and hence is one-off,
 // we won't remove a returned cell from it.
-func buddyAlloc(freeList ChainCellList, level CellLevel, suggestedNodeSet common.Set) *PhysicalCell {
+func buddyAlloc(freeList ChainCellList, level CellLevel, suggestedNodes common.Set) *PhysicalCell {
 	if len(freeList[level]) == 0 && level < CellLevel(len(freeList)) {
-		higherCell := buddyAlloc(freeList, level+1, suggestedNodeSet)
+		higherCell := buddyAlloc(freeList, level+1, suggestedNodes)
 		if higherCell != nil {
 			freeList[level] = append(freeList[level], higherCell.GetChildren()...)
 		}
@@ -1085,47 +1085,50 @@ func buddyAlloc(freeList ChainCellList, level CellLevel, suggestedNodeSet common
 	if len(freeList[level]) == 0 {
 		return nil
 	}
-	return getFewestOpporPhysicalCell(freeList[level], suggestedNodeSet)
+	return getFewestOpporPhysicalCell(freeList[level], suggestedNodes)
 }
 
 // getFewestOpporPhysicalCell selects a physical cell with the minimum number of opportunistic pods from a cell list.
-func getFewestOpporPhysicalCell(cl CellList, suggestedNodeSet common.Set) *PhysicalCell {
+func getFewestOpporPhysicalCell(cl CellList, suggestedNodes common.Set) *PhysicalCell {
 	fewestOpporNum := int32(math.MaxInt32)
 	fewestOpporNumSuggested := int32(math.MaxInt32)
 	var fewestOpporCell *PhysicalCell
-	var fewestOpporSuggested *PhysicalCell
-	preemptibleCells := common.NewSet()
+	var fewestOpporCellSuggested *PhysicalCell
+	var preemptibleCells []*PhysicalCell
 	for _, c := range cl {
 		if pc := c.(*PhysicalCell); pc.GetVirtualCell() == nil && pc.GetPreBoundVirtualCell() == nil {
-			numOppor := pc.GetUsedGpuNumAtPriorities()[opportunisticPriority]
-			if numOppor < fewestOpporNum {
-				fewestOpporNum = numOppor
+			opporNum := pc.GetUsedGpuNumAtPriorities()[opportunisticPriority]
+			if opporNum < fewestOpporNum {
+				fewestOpporNum = opporNum
 				fewestOpporCell = pc
 			}
 			allNodesInSuggested := true
 			nodes, _ := pc.GetPhysicalPlacement()
 			for _, n := range nodes {
-				if !suggestedNodeSet.Contains(n) {
+				if !suggestedNodes.Contains(n) {
 					allNodesInSuggested = false
 					break
 				}
 			}
-			if allNodesInSuggested && numOppor < fewestOpporNumSuggested {
-				fewestOpporNumSuggested = numOppor
-				fewestOpporSuggested = pc
+			if allNodesInSuggested && opporNum < fewestOpporNumSuggested {
+				fewestOpporNumSuggested = opporNum
+				fewestOpporCellSuggested = pc
 			}
-			if numOppor > 0 {
-				preemptibleCells.Add(pc)
+			if opporNum > 0 {
+				preemptibleCells = append(preemptibleCells, pc)
 			}
 		}
 	}
-	if fewestOpporSuggested != nil {
-		return fewestOpporSuggested
+	if fewestOpporCellSuggested != nil {
+		return fewestOpporCellSuggested
 	}
-	if !preemptibleCells.IsEmpty() {
-		for c := range preemptibleCells.Items() {
-			return c.(*PhysicalCell)
-		}
+	// If we cannot find a cell within suggested nodes, we will try to preempt some pods instead of
+	// directly returning the fewestOpporCell (because this cell could be a bad node, we should not return it).
+	// Also, we will choose a random cell, to avoid always returning the same cell (similar to above,
+	// if we always return the same cell, it might be a bad node, preempting pods on a bad node won't bring
+	// it back the suggested nodes)
+	if len(preemptibleCells) > 0 {
+		return preemptibleCells[rand.Intn(len(preemptibleCells))]
 	}
 	return fewestOpporCell
 }
@@ -1133,14 +1136,14 @@ func getFewestOpporPhysicalCell(cl CellList, suggestedNodeSet common.Set) *Physi
 // mapNonPreassignedCellToPhysical maps a virtual cell (possibly inside a preassigned one) to the
 // physical cell of the preassigned cell. This operation keeps the inner-cell topology equivalent,
 // by recursively binding the cells inside the preassigned one.
-func mapNonPreassignedCellToPhysical(c *VirtualCell, suggestedNodeSet common.Set) *PhysicalCell {
+func mapNonPreassignedCellToPhysical(c *VirtualCell, suggestedNodes common.Set) *PhysicalCell {
 	if c.GetPhysicalCell() != nil {
 		return c.GetPhysicalCell()
 	} else if c.GetPreBoundPhysicalCell() != nil {
 		return c.GetPreBoundPhysicalCell()
 	} else {
-		parentPhysical := mapNonPreassignedCellToPhysical(c.GetParent().(*VirtualCell), suggestedNodeSet)
-		pc := getFewestOpporPhysicalCell(parentPhysical.GetChildren(), suggestedNodeSet)
+		parentPhysical := mapNonPreassignedCellToPhysical(c.GetParent().(*VirtualCell), suggestedNodes)
+		pc := getFewestOpporPhysicalCell(parentPhysical.GetChildren(), suggestedNodes)
 		if pc == nil || pc.GetPriority() > opportunisticPriority {
 			panic(fmt.Sprintf("VC Safety Broken: Cannot find physical cell for %v", c.GetName()))
 		}

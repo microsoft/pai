@@ -76,7 +76,7 @@ func ancestorNoHigherThanNode(c Cell) Cell {
 func (t *topologyAwareScheduler) Schedule(
 	podGpuNumbers map[int32]int32,
 	p CellPriority,
-	suggestedNodeSet common.Set) map[int32][]CellList {
+	suggestedNodes common.Set) map[int32][]CellList {
 
 	// GPU numbers of the pods to schedule
 	var sortedPodGpuNumbers []int32
@@ -89,13 +89,13 @@ func (t *topologyAwareScheduler) Schedule(
 
 	// disable preemption first (reduce preemption)
 	priority := opportunisticPriority
-	t.updateClusterView(priority, suggestedNodeSet)
+	t.updateClusterView(priority, suggestedNodes)
 	// try to fit the pods to a set of nodes
 	selectedNodeIndices := findNodesForPods(t.cv, sortedPodGpuNumbers, priority)
 	// enable preemption if scheduling failed
 	if selectedNodeIndices == nil && p > opportunisticPriority {
 		priority = p
-		t.updateClusterView(priority, suggestedNodeSet)
+		t.updateClusterView(priority, suggestedNodes)
 		selectedNodeIndices = findNodesForPods(t.cv, sortedPodGpuNumbers, priority)
 	}
 	if selectedNodeIndices == nil {
@@ -163,7 +163,7 @@ func (n *node) UpdateUsedGpuNumForPriority(p CellPriority, crossPriorityPack boo
 	}
 }
 
-func (n *node) isInSuggested(suggestedNodeSet common.Set) bool {
+func (n *node) isInSuggested(suggestedNodes common.Set) bool {
 	var pc *PhysicalCell
 	switch v := n.c.(type) {
 	case *PhysicalCell:
@@ -173,7 +173,7 @@ func (n *node) isInSuggested(suggestedNodeSet common.Set) bool {
 	}
 	if pc != nil {
 		nodeNames, _ := pc.GetPhysicalPlacement()
-		return suggestedNodeSet.Contains(nodeNames[0])
+		return suggestedNodes.Contains(nodeNames[0])
 	}
 	return true
 }
@@ -234,9 +234,9 @@ func (cv clusterView) Swap(i int, j int) {
 }
 
 // updateClusterView updates the GPU numbers of the nodes for the sorting.
-func (t *topologyAwareScheduler) updateClusterView(p CellPriority, suggestedNodeSet common.Set) {
+func (t *topologyAwareScheduler) updateClusterView(p CellPriority, suggestedNodes common.Set) {
 	for _, n := range t.cv {
-		inSuggested := !t.considerSuggestedNodes || n.isInSuggested(suggestedNodeSet)
+		inSuggested := !t.considerSuggestedNodes || n.isInSuggested(suggestedNodes)
 		n.UpdateUsedGpuNumForPriority(p, t.crossPriorityPack, inSuggested)
 	}
 }
