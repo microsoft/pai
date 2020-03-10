@@ -299,6 +299,8 @@ const convertFrameworkDetail = async (framework) => {
     const podList = await k8sModel.getPods({
       namespace: 'default',
       labelSelector: `FC_FRAMEWORK_NAME=${framework.metadata.name}`,
+    }, {
+      accept: 'application/json;as=PartialObjectMetadataList;g=meta.k8s.io;v=v1beta1',
     });
     pods = _.keyBy(podList.items, (obj) => obj.metadata.name);
   } catch (err) {

@@ -94,7 +94,7 @@ const getNodes = async () => {
   return res.data;
 };
 
-const getPods = async (options = {}) => {
+const getPods = async (options = {}, headers={}) => {
   const {namespace, ...params} = options;
   const client = getClient();
 
@@ -102,7 +102,7 @@ const getPods = async (options = {}) => {
   if (namespace) {
     url = `/api/v1/namespaces/${namespace}/pods`;
   }
-  const res = await client.get(url, {params});
+  const res = await client.get(url, {params, headers});
   return res.data;
 };
 
