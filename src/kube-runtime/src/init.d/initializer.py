@@ -34,8 +34,11 @@ EXIT_PLUGIN_INVALIDATE = 100
 RUNTIME_PLUGIN_PLACE_HOLDER = "com.microsoft.pai.runtimeplugin"
 
 
-def run_script(script_path, parameters, plugin_scripts):
-    args = [sys.executable, script_path, "{}".format(parameters)]
+def run_script(script_path, plugin_config, plugin_scripts):
+    failure_policy = plugin_config.get("failurePolicy", "fail")
+    args = [
+        sys.executable, script_path, "{}".format(yaml.safe_dump(plugin_config))
+    ]
     args += plugin_scripts
     proc = subprocess.Popen(args,
                             stdout=subprocess.PIPE,
@@ -50,7 +53,11 @@ def run_script(script_path, parameters, plugin_scripts):
     if proc.returncode:
         LOGGER.error("failed to run %s, error code is %s", script_path,
                      proc.returncode)
-        raise Exception("Failed to run init script")
+        if failure_policy == "ignore":
+            LOGGER.info("ignore runtime error according to failure policy %s",
+                        failure_policy)
+        else:
+            raise Exception("Failed to run init script")
 
 
 def init_deployment(jobconfig, commands, taskrole):
@@ -121,7 +128,7 @@ def init_plugins(jobconfig, commands, plugins_path, runtime_path, taskrole):
         if "init-script" in plugin_desc:
             run_script(
                 "{}/{}".format(plugin_base_path, plugin_desc["init-script"]),
-                yaml.safe_dump(plugin), plugin_scripts)
+                plugin, plugin_scripts)
 
         if os.path.isfile(plugin_scripts[0]):
             commands[0].append("/bin/bash {}".format(plugin_scripts[0]))
