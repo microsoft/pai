@@ -178,7 +178,7 @@ const convertFrameworkSummary = (framework) => {
   };
 };
 
-const convertTaskDetail = async (taskStatus, ports, userName, jobName, taskRoleName, pod) => {
+const convertTaskDetail = async (taskStatus, ports, userName, jobName, taskRoleName, pod, gpuNumber) => {
   // get container ports
   const containerPorts = {};
   if (ports) {
@@ -202,7 +202,6 @@ const convertTaskDetail = async (taskStatus, ports, userName, jobName, taskRoleN
       const isolation = pod.metadata.annotations['hivedscheduler.microsoft.com/pod-gpu-isolation'];
       containerGpus = isolation.split(',').reduce((attr, id) => attr + Math.pow(2, id), 0);
     } else {
-      const gpuNumber = k8s.atoi(pod.spec.containers[0].resources.limits['nvidia.com/gpu']);
       // mock GPU ids from 0 to (gpuNumber - 1)
       containerGpus = Math.pow(2, gpuNumber) - 1;
     }
@@ -288,8 +287,12 @@ const convertFrameworkDetail = async (framework) => {
     taskRoles: {},
   };
   const ports = {};
+  const gpuNumbers = {};
   for (let taskRoleSpec of framework.spec.taskRoles) {
     ports[taskRoleSpec.name] = taskRoleSpec.task.pod.metadata.annotations['rest-server/port-scheduling-spec'];
+    gpuNumbers[taskRoleSpec.name] = k8s.atoi(
+      taskRoleSpec.task.pod.spec.containers[0].resources.limits['nvidia.com/gpu']
+    );
   }
 
   const userName = framework.metadata.labels ? framework.metadata.labels.userName : 'unknown';
@@ -299,6 +302,8 @@ const convertFrameworkDetail = async (framework) => {
     const podList = await k8sModel.getPods({
       namespace: 'default',
       labelSelector: `FC_FRAMEWORK_NAME=${framework.metadata.name}`,
+    }, {
+      accept: 'application/json;as=PartialObjectMetadataList;g=meta.k8s.io;v=v1beta1',
     });
     pods = _.keyBy(podList.items, (obj) => obj.metadata.name);
   } catch (err) {
@@ -313,7 +318,8 @@ const convertFrameworkDetail = async (framework) => {
         userName,
         jobName,
         taskRoleStatus.name,
-        pods[status.attemptStatus.podName]
+        pods[status.attemptStatus.podName],
+        gpuNumbers[taskRoleStatus.name]
       )
     ));
     detail.taskRoles[taskRoleStatus.name] = {
