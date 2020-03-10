@@ -24,7 +24,8 @@ import logging
 
 import base
 
-sys.path.append(os.path.abspath("../src/"))
+sys.path.append(
+    os.path.join(os.path.dirname(os.path.abspath(__file__)), "../src"))
 
 import collector
 import nvidia
@@ -218,25 +219,25 @@ class TestGpuCollector(base.TestBase):
 
         pid_to_cid_mapping = {33: "def", 22: "ghi"} # only 33 is zombie
 
-        metrics = GpuCollector.convert_to_metrics(gpu_info, zombie_info,
+        metrics = GpuCollector.convert_nvidia_gpu_info_to_metrics(gpu_info, zombie_info,
                 self.make_pid_to_cid_fn(pid_to_cid_mapping), 20 * 1024)
 
-        core_utils, mem_utils, ecc_errors, mem_leak, external_process, zombie_container, gpu_temp = metrics
+        core_utils, mem_utils, ecc_errors, mem_leak, external_process, zombie_container, gpu_temp, _, _ = metrics
 
-        target_core_utils = collector.gen_gpu_util_gauge()
+        target_core_utils = collector.gen_nvidia_gpu_util_gauge()
         target_core_utils.add_metric(["0"], 20)
         self.assertEqual(target_core_utils, core_utils)
 
-        target_mem_utils = collector.gen_gpu_mem_util_gauge()
+        target_mem_utils = collector.gen_nvidia_gpu_mem_util_gauge()
         target_mem_utils.add_metric(["0"], 21)
         self.assertEqual(target_mem_utils, mem_utils)
 
-        target_ecc_errors = collector.gen_gpu_ecc_counter()
+        target_ecc_errors = collector.gen_nvidia_gpu_ecc_counter()
         target_ecc_errors.add_metric(["0", "single"], 0)
         target_ecc_errors.add_metric(["0", "double"], 0)
         self.assertEqual(target_ecc_errors, ecc_errors)
 
-        target_mem_leak = collector.gen_gpu_memory_leak_counter()
+        target_mem_leak = collector.gen_nvidia_gpu_memory_leak_counter()
         self.assertEqual(target_mem_leak, mem_leak)
 
         target_external_process = collector.gen_gpu_used_by_external_process_counter()
@@ -247,7 +248,7 @@ class TestGpuCollector(base.TestBase):
         target_zombie_container.add_metric(["0", "def"], 1)
         self.assertEqual(target_zombie_container, zombie_container)
 
-        target_gpu_temp = collector.gen_gpu_temperature_gauge()
+        target_gpu_temp = collector.gen_nvidia_gpu_temperature_gauge()
         target_gpu_temp.add_metric(["0"], 37.0)
         self.assertEqual(target_gpu_temp, gpu_temp)
 
@@ -255,25 +256,25 @@ class TestGpuCollector(base.TestBase):
         gpu_info = nvidia.construct_gpu_info([
             nvidia.NvidiaGpuStatus(30, 31, [55, 123], nvidia.EccError(single=2, double=3), "1", "GPU-uuid1", 24.0)])
 
-        metrics = GpuCollector.convert_to_metrics(gpu_info, zombie_info,
+        metrics = GpuCollector.convert_nvidia_gpu_info_to_metrics(gpu_info, zombie_info,
                 self.make_pid_to_cid_fn(pid_to_cid_mapping), 20 * 1024)
 
-        core_utils, mem_utils, ecc_errors, mem_leak, external_process, zombie_container, gpu_temp = metrics
+        core_utils, mem_utils, ecc_errors, mem_leak, external_process, zombie_container, gpu_temp, _, _ = metrics
 
-        target_core_utils = collector.gen_gpu_util_gauge()
+        target_core_utils = collector.gen_nvidia_gpu_util_gauge()
         target_core_utils.add_metric(["1"], 30)
         self.assertEqual(target_core_utils, core_utils)
 
-        target_mem_utils = collector.gen_gpu_mem_util_gauge()
+        target_mem_utils = collector.gen_nvidia_gpu_mem_util_gauge()
         target_mem_utils.add_metric(["1"], 31)
         self.assertEqual(target_mem_utils, mem_utils)
 
-        target_ecc_errors = collector.gen_gpu_ecc_counter()
+        target_ecc_errors = collector.gen_nvidia_gpu_ecc_counter()
         target_ecc_errors.add_metric(["1", "single"], 2)
         target_ecc_errors.add_metric(["1", "double"], 3)
         self.assertEqual(target_ecc_errors, ecc_errors)
 
-        target_mem_leak = collector.gen_gpu_memory_leak_counter()
+        target_mem_leak = collector.gen_nvidia_gpu_memory_leak_counter()
         self.assertEqual(target_mem_leak, mem_leak)
 
         target_external_process = collector.gen_gpu_used_by_external_process_counter()
@@ -284,7 +285,7 @@ class TestGpuCollector(base.TestBase):
         target_zombie_container = collector.gen_gpu_used_by_zombie_container_counter()
         self.assertEqual(target_zombie_container, zombie_container)
 
-        target_gpu_temp = collector.gen_gpu_temperature_gauge()
+        target_gpu_temp = collector.gen_nvidia_gpu_temperature_gauge()
         target_gpu_temp.add_metric(["1"], 24.0)
         self.assertEqual(target_gpu_temp, gpu_temp)
 
@@ -292,25 +293,25 @@ class TestGpuCollector(base.TestBase):
         gpu_info = nvidia.construct_gpu_info([
             nvidia.NvidiaGpuStatus(40, 20 * 1024 * 1024, [], nvidia.EccError(), "2", "GPU-uuid2", 30.0)])
 
-        metrics = GpuCollector.convert_to_metrics(gpu_info, zombie_info,
+        metrics = GpuCollector.convert_nvidia_gpu_info_to_metrics(gpu_info, zombie_info,
                 self.make_pid_to_cid_fn(pid_to_cid_mapping), 20 * 1024 * 1024)
 
-        core_utils, mem_utils, ecc_errors, mem_leak, external_process, zombie_container, gpu_temp = metrics
+        core_utils, mem_utils, ecc_errors, mem_leak, external_process, zombie_container, gpu_temp, _, _ = metrics
 
-        target_core_utils = collector.gen_gpu_util_gauge()
+        target_core_utils = collector.gen_nvidia_gpu_util_gauge()
         target_core_utils.add_metric(["2"], 40)
         self.assertEqual(target_core_utils, core_utils)
 
-        target_mem_utils = collector.gen_gpu_mem_util_gauge()
+        target_mem_utils = collector.gen_nvidia_gpu_mem_util_gauge()
         target_mem_utils.add_metric(["2"], 20 * 1024 * 1024)
         self.assertEqual(target_mem_utils, mem_utils)
 
-        target_ecc_errors = collector.gen_gpu_ecc_counter()
+        target_ecc_errors = collector.gen_nvidia_gpu_ecc_counter()
         target_ecc_errors.add_metric(["2", "single"], 0)
         target_ecc_errors.add_metric(["2", "double"], 0)
         self.assertEqual(target_ecc_errors, ecc_errors)
 
-        target_mem_leak = collector.gen_gpu_memory_leak_counter()
+        target_mem_leak = collector.gen_nvidia_gpu_memory_leak_counter()
         self.assertEqual(target_mem_leak, mem_leak)
 
         target_external_process = collector.gen_gpu_used_by_external_process_counter()
@@ -319,7 +320,7 @@ class TestGpuCollector(base.TestBase):
         target_zombie_container = collector.gen_gpu_used_by_zombie_container_counter()
         self.assertEqual(target_zombie_container, zombie_container)
 
-        target_gpu_temp = collector.gen_gpu_temperature_gauge()
+        target_gpu_temp = collector.gen_nvidia_gpu_temperature_gauge()
         target_gpu_temp.add_metric(["2"], 30.0)
         self.assertEqual(target_gpu_temp, gpu_temp)
 
@@ -327,12 +328,12 @@ class TestGpuCollector(base.TestBase):
         gpu_info = nvidia.construct_gpu_info([
             nvidia.NvidiaGpuStatus(40, 20 * 1024 * 1024 + 1, [], nvidia.EccError(), "3", "GPU-uuid3", 30.0)])
 
-        metrics = GpuCollector.convert_to_metrics(gpu_info, zombie_info,
+        metrics = GpuCollector.convert_nvidia_gpu_info_to_metrics(gpu_info, zombie_info,
                 self.make_pid_to_cid_fn(pid_to_cid_mapping), 20 * 1024)
 
-        core_utils, mem_utils, ecc_errors, mem_leak, external_process, zombie_container, gpu_temp = metrics
+        core_utils, mem_utils, ecc_errors, mem_leak, external_process, zombie_container, gpu_temp, _, _ = metrics
 
-        target_mem_leak = collector.gen_gpu_memory_leak_counter()
+        target_mem_leak = collector.gen_nvidia_gpu_memory_leak_counter()
         target_mem_leak.add_metric(["3"], 1)
         self.assertEqual(target_mem_leak, mem_leak)
 
@@ -345,10 +346,10 @@ class TestGpuCollector(base.TestBase):
 
         pid_to_cid_mapping = {33: "def", 22: "ghi"} # only 44 is external process
 
-        metrics = GpuCollector.convert_to_metrics(gpu_info, zombie_info,
+        metrics = GpuCollector.convert_nvidia_gpu_info_to_metrics(gpu_info, zombie_info,
                 self.make_pid_to_cid_fn(pid_to_cid_mapping), 20 * 1024)
 
-        core_utils, mem_utils, ecc_errors, mem_leak, external_process, zombie_container, gpu_temp = metrics
+        _, _, _, _, external_process, zombie_container, _, _, _ = metrics
 
         self.assertEqual(0, len(zombie_container.samples))
         self.assertEqual(1, len(external_process.samples))
@@ -358,10 +359,10 @@ class TestGpuCollector(base.TestBase):
         # zombie_info is None should also have external process metric
         zombie_info = None
 
-        metrics = GpuCollector.convert_to_metrics(gpu_info, zombie_info,
+        metrics = GpuCollector.convert_nvidia_gpu_info_to_metrics(gpu_info, zombie_info,
                 self.make_pid_to_cid_fn(pid_to_cid_mapping), 20 * 1024)
 
-        core_utils, mem_utils, ecc_errors, mem_leak, external_process, zombie_container, gpu_temp = metrics
+        _, _, _, _, external_process, zombie_container, _, _, _ = metrics
 
         self.assertEqual(0, len(zombie_container.samples))
         self.assertEqual(1, len(external_process.samples))
@@ -377,10 +378,10 @@ class TestGpuCollector(base.TestBase):
 
         pid_to_cid_mapping = {22: "ce5de12d6275dc05c9ec5b7f58484f075f4775d8f54f6a4be3dc1439344df356"}
 
-        metrics = GpuCollector.convert_to_metrics(gpu_info, zombie_info,
+        metrics = GpuCollector.convert_nvidia_gpu_info_to_metrics(gpu_info, zombie_info,
                 self.make_pid_to_cid_fn(pid_to_cid_mapping), 20 * 1024)
 
-        core_utils, mem_utils, ecc_errors, mem_leak, external_process, zombie_container, gpu_temp = metrics
+        _, _, _, _, _, zombie_container, _, _, _ = metrics
 
         self.assertEqual(1, len(zombie_container.samples))
         self.assertEqual("0", zombie_container.samples[0].labels["minor_number"])

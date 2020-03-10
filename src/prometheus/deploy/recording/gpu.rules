@@ -20,5 +20,5 @@
 groups:
     - name: gpu_related
       rules:
-      - record: node:nvidiasmi_utilization_gpu:count
-        expr: count(nvidiasmi_utilization_gpu) by (instance)
+      - record: node:gpu_utilization:count
+        expr: count(gpu_utilization) by (instance)
