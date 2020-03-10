@@ -84,6 +84,7 @@ spec:
            echo \"kind: KubeSchedulerConfiguration\" >> config.yaml &&
            echo \"schedulerName: hivedscheduler-ds-{{ vc }}\" >> config.yaml &&
            echo \"disablePreemption: false\" >> config.yaml &&
+           echo \"percentageOfNodesToScore: 100\" >> config.yaml &&
            echo \"algorithmSource:\" >> config.yaml &&
            echo \"  policy:\" >> config.yaml &&
            echo \"    configMap:\" >> config.yaml &&
