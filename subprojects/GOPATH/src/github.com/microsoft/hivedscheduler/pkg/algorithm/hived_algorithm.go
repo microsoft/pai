@@ -1128,7 +1128,7 @@ func getFewestOpporPhysicalCell(cl CellList, suggestedNodes common.Set) *Physica
 	// if we always return the same cell, it might be a bad node, preempting pods on a bad node won't bring
 	// it back the suggested nodes)
 	if len(preemptibleCells) > 0 {
-		return preemptibleCells[rand.Intn(len(preemptibleCells))]
+		return preemptibleCells[rand.Int31n(int32(len(preemptibleCells)))]
 	}
 	return fewestOpporCell
 }
