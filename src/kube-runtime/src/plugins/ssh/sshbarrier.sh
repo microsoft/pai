@@ -16,9 +16,9 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-# no set -o errexit because use exitcode to judge ssh connectivity
 # no set -o nounset because use empty array to judge end
 set -o pipefail
+set -o errexit
 
 readonly RETRY_INTERVAL=10
 
@@ -52,11 +52,13 @@ function main() {
   if [[ $# -eq 1 ]]; then
     MAX_RETRY_COUNT=$(( $1 * 60 / RETRY_INTERVAL ))
   fi
-  echo "Setting ssh barrier MAX_RETRY_COUNT to ${MAX_RETRY_COUNT}, pool interval is ${RETRY_INTERVAL} seconds"
+  echo "Setting ssh barrier MAX_RETRY_COUNT to ${MAX_RETRY_COUNT}, poll interval is ${RETRY_INTERVAL} seconds"
 
   retryCount=0
   instancesToCheck="$(get_check_instances)"
 
+  # set +o errexit because use exitcode to judge ssh connectivity
+  set +o errexit
   while true
   do
     echo "Trying to SSH to instances: ${instancesToCheck[*]}"
@@ -82,6 +84,7 @@ function main() {
 
     sleep $RETRY_INTERVAL
   done
+  set -o errexit
 
   echo "All ssh connections are established, continue..."
 }

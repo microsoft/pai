@@ -19,5 +19,5 @@ extras:
 ```
 - jobssh: true to enable job container wise ssh, false to disable.
 - sshbarrier: if set to true, wait until can ssh to all corresponding job containers. If not set, the defalut value is false.
-- sshbarrierTimeout: the timeout minutes for ssh barrier, default is 30 mins.
+- sshbarrierTimeout: the timeout (in minutes) of ssh barrier, default is 30 mins.
 - userssh: currently the userssh type should be ```custom```. Type ```custom``` means use the userssh value as the SSH public key to run job. User can use the corresponding SSH private key to connect to job container.
