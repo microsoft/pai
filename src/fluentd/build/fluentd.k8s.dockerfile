@@ -19,12 +19,26 @@ FROM fluent/fluentd:v1.7-1
 
 USER root
 RUN apk add --no-cache --update --virtual .build-deps \
-        sudo build-base ruby-dev make gcc libc-dev postgresql-dev \
+        sudo build-base ruby-dev make gcc libc-dev postgresql-dev git \
  && apk add --no-cache --update libpq \
  && sudo gem install fluent-plugin-elasticsearch \
  && sudo gem install fluent-plugin-concat \
- && sudo gem install fluent-plugin-pgjson \
- && sudo gem sources --clear-all \
+ && sudo gem install rake
+
+# Build fluent-plugin-pgjson from scratch
+# See: https://github.com/fluent-plugins-nursery/fluent-plugin-pgjson/pull/28
+RUN cd /fluentd/plugins && \
+ git clone https://github.com/jdevalk2/fluent-plugin-pgjson && \
+ cd fluent-plugin-pgjson && \
+ git checkout e0c9ca41227 && \
+ gem install bundler && \
+ rake build && \
+ gem install --local ./pkg/fluent-plugin-pgjson-1.0.0.gem && \
+ cd .. && rm fluent-plugin-pgjson -rf
+
+
+# cleanup
+RUN sudo gem sources --clear-all \
  && apk del .build-deps \
  && rm -rf /tmp/* /var/tmp/* /usr/lib/ruby/gems/*/cache/*.gem
 
