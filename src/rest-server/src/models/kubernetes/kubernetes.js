@@ -94,17 +94,15 @@ const getNodes = async () => {
   return res.data;
 };
 
-const getPods = async (options = {}) => {
-  const {namespace} = options;
+const getPods = async (options = {}, headers={}) => {
+  const {namespace, ...params} = options;
   const client = getClient();
 
-  const requestOptions = Object.assign({}, options);
-  delete requestOptions.namespace;
   let url = '/api/v1/pods';
   if (namespace) {
     url = `/api/v1/namespaces/${namespace}/pods`;
   }
-  const res = await client.get(url, {params: requestOptions});
+  const res = await client.get(url, {params, headers});
   return res.data;
 };
 
