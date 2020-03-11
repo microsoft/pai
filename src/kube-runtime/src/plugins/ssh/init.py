@@ -39,7 +39,8 @@ def main():
 
     gang_allocation = os.environ.get("GANG_ALLOCATION", "true")
     if gang_allocation == "false":
-        LOGGER.warning("Job ssh is conflict with gang allocation, set job ssh to false")
+        LOGGER.warning(
+            "Job ssh is conflict with gang allocation, set job ssh to false")
         jobssh = "false"
     elif "jobssh" in parameters:
         jobssh = str(parameters["jobssh"]).lower()
@@ -58,20 +59,21 @@ def main():
         LOGGER.info("Skip sshd script since neither jobssh or userssh is set")
     else:
         command = [
-            try_to_install_by_cache("ssh", fallback_cmds=[
-                "apt-get update",
-                "apt-get install -y openssh-client openssh-server",
-            ]),
-            "{}/sshd.sh {}\n".format(os.path.dirname(os.path.abspath(__file__)),
-                                     " ".join(cmd_params))
+            try_to_install_by_cache(
+                "ssh",
+                fallback_cmds=[
+                    "apt-get update",
+                    "apt-get install -y openssh-client openssh-server",
+                ]), "{}/sshd.sh {}\n".format(
+                    os.path.dirname(os.path.abspath(__file__)),
+                    " ".join(cmd_params))
         ]
 
     # ssh barrier
     if jobssh == "true" and "sshbarrier" in parameters and str(
             parameters["sshbarrier"]).lower() == "true":
-        if "sshbarriertaskroles" in parameters:
-            barrier_params = " ".join(
-                '"{}"'.format(tr) for tr in parameters["sshbarriertaskroles"])
+        if "sshbarrierTimeout" in parameters:
+            barrier_params = str(parameters["sshbarrierTimeout"])
         else:
             barrier_params = ""
         command.append("{}/sshbarrier.sh {}\n".format(
