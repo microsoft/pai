@@ -1,0 +1,17 @@
+language: ruby
+
+rvm:
+  - 2.2
+  - 2.3
+  - 2.4
+  - 2.5
+
+addons:
+  postgresql: "9.6"
+
+services:
+  - postgresql
+
+before_script:
+  - psql -c "create role fluentd with LOGIN CREATEDB password 'fluentd';" -U postgres
+  - psql -c "create database pgjsontest owner fluentd encoding 'utf-8'" -U postgres

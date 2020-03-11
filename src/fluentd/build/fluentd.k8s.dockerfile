@@ -23,19 +23,17 @@ RUN apk add --no-cache --update --virtual .build-deps \
  && apk add --no-cache --update libpq \
  && sudo gem install fluent-plugin-elasticsearch \
  && sudo gem install fluent-plugin-concat \
- && sudo gem install rake
+ && sudo gem install rake bundler pg
 
 # Build fluent-plugin-pgjson from scratch
-# See: https://github.com/fluent-plugins-nursery/fluent-plugin-pgjson/pull/28
-RUN cd /fluentd/plugins && \
- git clone https://github.com/jdevalk2/fluent-plugin-pgjson && \
- cd fluent-plugin-pgjson && \
- git checkout e0c9ca41227 && \
- gem install bundler && \
- rake build && \
- gem install --local ./pkg/fluent-plugin-pgjson-1.0.0.gem && \
- cd .. && rm fluent-plugin-pgjson -rf
-
+# Original fluent-plugin-pgjson is from https://github.com/fluent-plugins-nursery/fluent-plugin-pgjson
+COPY src/fluent-plugin-pgjson /fluent-plugin-pgjson
+RUN cd /fluent-plugin-pgjson && \
+      git init && \
+      git add . && \
+      rake build && \
+      gem install --local ./pkg/fluent-plugin-pgjson-1.0.0.gem && \
+      rm -rf /fluent-plugin-pgjson
 
 # cleanup
 RUN sudo gem sources --clear-all \
