@@ -103,7 +103,7 @@ data:
     # Output to elasticsearch
     <match fc-objectsnapshots>
       @type copy
-{%- if cluster_cfg['cluster']['common']['job-history'] == 'true' %}
+{%- if not((cluster_cfg['internal-storage']['enable']) and (cluster_cfg['postgresql']['enable'])) %}
       # index by kind
       <store>
         @type elasticsearch_dynamic
