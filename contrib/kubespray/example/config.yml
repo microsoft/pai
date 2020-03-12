@@ -37,6 +37,18 @@ docker_image_tag: <% latest-release %>
 # docker_config_file_path: /etc/docker/daemon.json
 # docker_iptables_enabled: false
 
+## An obvious use case is allowing insecure-registry access to self hosted registries.
+## Can be ipaddress and domain_name.
+## example define 172.19.16.11 or mirror.registry.io
+# openpai_docker_insecure_registries:
+#   - mirror.registry.io
+#   - 172.19.16.11
+
+## Add other registry,example China registry mirror.
+# openpai_docker_registry_mirrors:
+#   - https://registry.docker-cn.com
+#   - https://mirror.aliyuncs.com
+
 #######################################################################
 #                       kubespray setting                             #
 #######################################################################
