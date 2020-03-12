@@ -111,7 +111,7 @@ data:
     # Output to elasticsearch
     <match fc-objectsnapshots>
       @type copy
-{%- if not((cluster_cfg['internal-storage']['enable']) and (cluster_cfg['postgresql']['enable'])) %}
+{%- if cluster_cfg['cluster']['common']['job-attempt-storage-engine'] != 'db' %}
       # index by kind
       <store>
         @type elasticsearch_dynamic
@@ -144,8 +144,7 @@ data:
           overflow_action block
         </buffer>
       </store>
-{% endif %}
-{% if (cluster_cfg['internal-storage']['enable']) and (cluster_cfg['postgresql']['enable']) %}
+{% else %}
       <store>
         @type pgjson
         host {{ cluster_cfg['postgresql']['host'] }}
