@@ -27,6 +27,8 @@ RUN apk add --no-cache --update --virtual .build-deps \
 
 # Build fluent-plugin-pgjson from scratch
 # Original fluent-plugin-pgjson is from https://github.com/fluent-plugins-nursery/fluent-plugin-pgjson
+# Original plugin cannot retry connecting when database connection is lost, 
+# and is not thread-safe. These two problems are fixed by modifying codes.
 COPY src/fluent-plugin-pgjson /fluent-plugin-pgjson
 RUN cd /fluent-plugin-pgjson && \
       git init && \
