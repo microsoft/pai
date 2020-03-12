@@ -100,6 +100,14 @@ data:
       remove_keys log,time,stream,logSeverity,logPid,logSite
     </filter>
 
+    # # Just for debugging
+    # <filter fc-objectsnapshots>
+    #   @type stdout
+    #   <format>
+    #     @type json
+    #   </format>
+    # </filter>
+
     # Output to elasticsearch
     <match fc-objectsnapshots>
       @type copy
