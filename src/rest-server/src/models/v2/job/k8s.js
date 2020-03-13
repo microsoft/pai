@@ -187,9 +187,9 @@ const convertTaskDetail = async (taskStatus, ports, userName, jobName, taskRoleN
     }
   }
   // get affinity group name
-  let affinityGroupName = null;
+  const affinityGroupName = `default/${taskStatus.attemptStatus.podName}`;
   // get container gpus
-  let containerGpus = null;
+  const containerGpus = null;
 
   const completionStatus = taskStatus.attemptStatus.completionStatus;
   return {
