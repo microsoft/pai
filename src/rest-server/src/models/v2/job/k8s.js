@@ -581,10 +581,18 @@ const generateTaskRole = (frameworkName, taskRole, jobInfo, frameworkEnvList, co
       (completion && 'minSucceededInstances' in completion && completion.minSucceededInstances) ?
       completion.minSucceededInstances : frameworkTaskRole.taskNumber,
   };
+  // check cpu job
+  if (!launcherConfig.enabledHived && config.taskRoles[taskRole].resourcePerInstance.gpu === 0) {
+    frameworkTaskRole.task.pod.spec.containers[0].env.push(
+      {
+        name: 'NVIDIA_VISIBLE_DEVICES',
+        value: 'none',
+      },
+    );
+  }
   // hived spec
   if (launcherConfig.enabledHived) {
     frameworkTaskRole.task.pod.spec.schedulerName = `${launcherConfig.scheduler}-ds-${config.taskRoles[taskRole].hivedPodSpec.virtualCluster}`;
-
     delete frameworkTaskRole.task.pod.spec.containers[0].resources.limits['nvidia.com/gpu'];
     frameworkTaskRole.task.pod.spec.containers[0]
       .resources.limits['hivedscheduler.microsoft.com/pod-scheduling-enable'] = 1;
