@@ -32,7 +32,6 @@ const storageModel = require('@pai/models/v2/storage');
 const k8sModel = require('@pai/models/kubernetes/kubernetes');
 const k8sSecret = require('@pai/models/kubernetes/k8s-secret');
 const env = require('@pai/utils/env');
-const k8s = require('@pai/utils/k8sUtils');
 const path = require('path');
 const fs = require('fs');
 const _ = require('lodash');
@@ -178,7 +177,7 @@ const convertFrameworkSummary = (framework) => {
   };
 };
 
-const convertTaskDetail = async (taskStatus, ports, userName, jobName, taskRoleName, pod, gpuNumber) => {
+const convertTaskDetail = async (taskStatus, ports, userName, jobName, taskRoleName) => {
   // get container ports
   const containerPorts = {};
   if (ports) {
@@ -188,26 +187,10 @@ const convertTaskDetail = async (taskStatus, ports, userName, jobName, taskRoleN
     }
   }
   // get affinity group name
-  let affinityGroupName = null;
+  const affinityGroupName = `default/${taskStatus.attemptStatus.podName}`;
   // get container gpus
-  let containerGpus = null;
-  try {
-    if (launcherConfig.enabledHived) {
-      const hivedSpec = yaml.load(pod.metadata.annotations['hivedscheduler.microsoft.com/pod-scheduling-spec']);
-      if (hivedSpec && hivedSpec.affinityGroup && hivedSpec.affinityGroup.name) {
-        affinityGroupName = hivedSpec.affinityGroup.name;
-      } else {
-        affinityGroupName = `default/${taskStatus.attemptStatus.podName}`;
-      }
-      const isolation = pod.metadata.annotations['hivedscheduler.microsoft.com/pod-gpu-isolation'];
-      containerGpus = isolation.split(',').reduce((attr, id) => attr + Math.pow(2, id), 0);
-    } else {
-      // mock GPU ids from 0 to (gpuNumber - 1)
-      containerGpus = Math.pow(2, gpuNumber) - 1;
-    }
-  } catch (err) {
-    containerGpus = null;
-  }
+  const containerGpus = null;
+
   const completionStatus = taskStatus.attemptStatus.completionStatus;
   return {
     taskIndex: taskStatus.index,
@@ -287,28 +270,12 @@ const convertFrameworkDetail = async (framework) => {
     taskRoles: {},
   };
   const ports = {};
-  const gpuNumbers = {};
   for (let taskRoleSpec of framework.spec.taskRoles) {
     ports[taskRoleSpec.name] = taskRoleSpec.task.pod.metadata.annotations['rest-server/port-scheduling-spec'];
-    gpuNumbers[taskRoleSpec.name] = k8s.atoi(
-      taskRoleSpec.task.pod.spec.containers[0].resources.limits['nvidia.com/gpu']
-    );
   }
 
   const userName = framework.metadata.labels ? framework.metadata.labels.userName : 'unknown';
   const jobName = decodeName(framework.metadata.name, framework.metadata.annotations);
-  let pods = {};
-  try {
-    const podList = await k8sModel.getPods({
-      namespace: 'default',
-      labelSelector: `FC_FRAMEWORK_NAME=${framework.metadata.name}`,
-    }, {
-      accept: 'application/json;as=PartialObjectMetadataList;g=meta.k8s.io;v=v1beta1',
-    });
-    pods = _.keyBy(podList.items, (obj) => obj.metadata.name);
-  } catch (err) {
-    pods = {};
-  }
 
   for (let taskRoleStatus of framework.status.attemptStatus.taskRoleStatuses) {
     const taskStatuses = await Promise.all(taskRoleStatus.taskStatuses.map(
@@ -317,9 +284,7 @@ const convertFrameworkDetail = async (framework) => {
         ports[taskRoleStatus.name],
         userName,
         jobName,
-        taskRoleStatus.name,
-        pods[status.attemptStatus.podName],
-        gpuNumbers[taskRoleStatus.name]
+        taskRoleStatus.name
       )
     ));
     detail.taskRoles[taskRoleStatus.name] = {
