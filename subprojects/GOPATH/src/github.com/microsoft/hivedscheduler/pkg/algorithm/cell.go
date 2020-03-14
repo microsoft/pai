@@ -212,19 +212,19 @@ func (c *PhysicalCell) GetVirtualCell() *VirtualCell {
 	return c.virtualCell
 }
 
-func (c *PhysicalCell) SetVirtualCell(virtual *VirtualCell) {
-	c.virtualCell = virtual
-	if virtual == nil {
+func (c *PhysicalCell) SetVirtualCell(cell *VirtualCell) {
+	c.virtualCell = cell
+	if cell == nil {
 		c.apiStatus.VirtualCell = nil
 		c.apiStatus.VC = ""
 	} else {
 		vcs := &api.VirtualCellStatus{}
 		// shallow copy the status, clear the pointers to avoid reference
-		*vcs = *(virtual.apiStatus)
+		*vcs = *(cell.apiStatus)
 		vcs.Children = nil
 		vcs.PhysicalCell = nil
 		c.apiStatus.VirtualCell = vcs
-		c.apiStatus.VC = virtual.vc
+		c.apiStatus.VC = cell.vc
 	}
 }
 
@@ -232,8 +232,8 @@ func (c *PhysicalCell) GetPreBoundVirtualCell() *VirtualCell {
 	return c.preBoundVirtualCell
 }
 
-func (c *PhysicalCell) SetPreBoundVirtualCell(vc *VirtualCell) {
-	c.preBoundVirtualCell = vc
+func (c *PhysicalCell) SetPreBoundVirtualCell(cell *VirtualCell) {
+	c.preBoundVirtualCell = cell
 }
 
 func (c *PhysicalCell) IsSplit() bool {
@@ -294,10 +294,11 @@ func NewVirtualCell(
 		preAssignedCell: pac,
 		apiStatus: &api.VirtualCellStatus{
 			CellStatus: api.CellStatus{
-				CellType:     cellType,
-				CellAddress:  address,
-				CellState:    api.CellFree,
-				CellPriority: int32(freePriority),
+				CellType:        cellType,
+				CellAddress:     address,
+				CellState:       api.CellFree,
+				CellHealthiness: api.CellHealthy,
+				CellPriority:    int32(freePriority),
 			},
 		},
 	}
@@ -333,22 +334,22 @@ func (c *VirtualCell) GetPreAssignedCell() *VirtualCell {
 	return c.preAssignedCell
 }
 
-func (c *VirtualCell) SetPreAssignedCell(vc *VirtualCell) {
-	c.preAssignedCell = vc
+func (c *VirtualCell) SetPreAssignedCell(cell *VirtualCell) {
+	c.preAssignedCell = cell
 }
 
 func (c *VirtualCell) GetPhysicalCell() *PhysicalCell {
 	return c.physicalCell
 }
 
-func (c *VirtualCell) SetPhysicalCell(pc *PhysicalCell) {
-	c.physicalCell = pc
-	if pc == nil {
+func (c *VirtualCell) SetPhysicalCell(cell *PhysicalCell) {
+	c.physicalCell = cell
+	if cell == nil {
 		c.apiStatus.PhysicalCell = nil
 	} else {
 		pcs := &api.PhysicalCellStatus{}
 		// shallow copy the status, clear the pointers to avoid reference
-		*pcs = *(pc.apiStatus)
+		*pcs = *(cell.apiStatus)
 		pcs.CellChildren = nil
 		pcs.VirtualCell = nil
 		c.apiStatus.PhysicalCell = pcs
@@ -359,8 +360,8 @@ func (c *VirtualCell) GetPreBoundPhysicalCell() *PhysicalCell {
 	return c.preBoundPhysicalCell
 }
 
-func (c *VirtualCell) SetPreBoundPhysicalCell(pc *PhysicalCell) {
-	c.preBoundPhysicalCell = pc
+func (c *VirtualCell) SetPreBoundPhysicalCell(cell *PhysicalCell) {
+	c.preBoundPhysicalCell = cell
 }
 
 func (c *VirtualCell) GetAPIStatus() *api.VirtualCellStatus {

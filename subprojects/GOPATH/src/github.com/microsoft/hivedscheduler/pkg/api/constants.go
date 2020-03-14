@@ -100,7 +100,7 @@ const (
 	// Inspect current cluster status
 	ClusterStatusPath = InspectPath + "/clusterstatus/"
 	// Inspect current physical cluster status
-	PCStatusPath = ClusterStatusPath + "physicalcluster"
-	// Inspect current virtual clusters' status
-	VCsStatusPath = ClusterStatusPath + "virtualclusters/"
+	PhysicalClusterPath = ClusterStatusPath + "physicalcluster"
+	// Inspect current virtual cluster(s)' status
+	VirtualClustersPath = ClusterStatusPath + "virtualclusters/"
 )

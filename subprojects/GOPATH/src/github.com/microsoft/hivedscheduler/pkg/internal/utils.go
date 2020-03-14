@@ -154,7 +154,11 @@ func IsUnbound(pod *core.Pod) bool {
 	return pod.Spec.NodeName == "" && IsLive(pod)
 }
 
+// A node is considered healthy if it is not unschedulable and in ready condition.
 func IsNodeHealthy(node *core.Node) bool {
+	if node.Spec.Unschedulable {
+		return false
+	}
 	for _, c := range node.Status.Conditions {
 		if c.Type == core.NodeReady && c.Status == core.ConditionTrue {
 			return true

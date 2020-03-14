@@ -194,6 +194,23 @@ type PhysicalCellStatus struct {
 	VirtualCell  *VirtualCellStatus    `json:"virtualCell,omitempty"`
 }
 
+type VirtualCellStatus struct {
+	CellStatus
+	Children     []*VirtualCellStatus `json:"children,omitempty"`
+	PhysicalCell *PhysicalCellStatus  `json:"physicalCell,omitempty"`
+}
+
+type PhysicalClusterStatus []*PhysicalCellStatus
+
+type VirtualClusterStatus []*VirtualCellStatus
+
+type ClusterStatus struct {
+	// Status of cells in the physical cluster
+	PhysicalCluster PhysicalClusterStatus `json:"physicalCluster"`
+	// Status of cells in each VC
+	VirtualClusters map[VirtualClusterName]VirtualClusterStatus `json:"virtualClusters"`
+}
+
 func (pcs *PhysicalCellStatus) deepCopy() *PhysicalCellStatus {
 	copied := &PhysicalCellStatus{
 		CellStatus: pcs.CellStatus,
@@ -211,10 +228,12 @@ func (pcs *PhysicalCellStatus) deepCopy() *PhysicalCellStatus {
 	return copied
 }
 
-type VirtualCellStatus struct {
-	CellStatus
-	Children     []*VirtualCellStatus `json:"children,omitempty"`
-	PhysicalCell *PhysicalCellStatus  `json:"physicalCell,omitempty"`
+func (pcs PhysicalClusterStatus) DeepCopy() PhysicalClusterStatus {
+	copied := make(PhysicalClusterStatus, len(pcs))
+	for i, c := range pcs {
+		copied[i] = c.deepCopy()
+	}
+	return copied
 }
 
 func (vcs *VirtualCellStatus) deepCopy() *VirtualCellStatus {
@@ -233,29 +252,10 @@ func (vcs *VirtualCellStatus) deepCopy() *VirtualCellStatus {
 	return copied
 }
 
-type PhysicalClusterStatus []*PhysicalCellStatus
-
-func (pcs PhysicalClusterStatus) DeepCopy() PhysicalClusterStatus {
-	copied := make(PhysicalClusterStatus, len(pcs))
-	for i, c := range pcs {
-		copied[i] = c.deepCopy()
-	}
-	return copied
-}
-
-type VirtualClusterStatus []*VirtualCellStatus
-
 func (vcs VirtualClusterStatus) DeepCopy() VirtualClusterStatus {
 	copied := make(VirtualClusterStatus, len(vcs))
 	for i, c := range vcs {
 		copied[i] = c.deepCopy()
 	}
 	return copied
-}
-
-type ClusterStatus struct {
-	// Status of cells in the physical cluster
-	PhysicalCluster PhysicalClusterStatus `json:"physicalCluster"`
-	// Status of cells in each VC
-	VirtualClusters map[VirtualClusterName]VirtualClusterStatus `json:"virtualClusters"`
 }
