@@ -464,7 +464,7 @@ func (h *HivedAlgorithm) scheduleGuaranteedAffinityGroup(
 	suggestedNodes common.Set) (map[int32][]CellList, map[int32][]CellList) {
 
 	// schedule in VC
-	virtualPlacement := h.vcSchedulers[sr.vc].schedule(sr, suggestedNodes)
+	virtualPlacement := h.vcSchedulers[sr.vc].schedule(sr)
 	if virtualPlacement == nil {
 		return nil, nil
 	}

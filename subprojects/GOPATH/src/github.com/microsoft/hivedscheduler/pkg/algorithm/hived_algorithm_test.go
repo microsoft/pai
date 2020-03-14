@@ -62,7 +62,7 @@ func initNodes(h *HivedAlgorithm) {
 	}
 }
 
-var group1, group2, group3, group4, group5, group6, group7, group8, group9, group10, group11, group12, group13, group14, group15, group16, group17, group18, group19, group20 = &api.AffinityGroupSpec{
+var group1, group2, group3, group4, group5, group6, group7, group8, group9, group10, group11, group12, group13, group14, group15, group16, group17, group18 = &api.AffinityGroupSpec{
 	Name:    "group1",
 	Members: []api.AffinityGroupMemberSpec{{PodNumber: 1, GpuNumber: 1}},
 }, &api.AffinityGroupSpec{
@@ -116,12 +116,6 @@ var group1, group2, group3, group4, group5, group6, group7, group8, group9, grou
 }, &api.AffinityGroupSpec{
 	Name:    "group18",
 	Members: []api.AffinityGroupMemberSpec{{PodNumber: 2, GpuNumber: 16}},
-}, &api.AffinityGroupSpec{
-	Name:    "group19",
-	Members: []api.AffinityGroupMemberSpec{{PodNumber: 1, GpuNumber: 1}},
-}, &api.AffinityGroupSpec{
-	Name:    "group20",
-	Members: []api.AffinityGroupMemberSpec{{PodNumber: 1, GpuNumber: 1}},
 }
 
 var pss = map[types.UID]api.PodSchedulingSpec{
@@ -342,23 +336,6 @@ var pss = map[types.UID]api.PodSchedulingSpec{
 		GpuNumber:            16,
 		AffinityGroup:        group18,
 	},
-	"pod28": { // add this pod then remove its node from suggested nodes
-		VirtualCluster:       "VC1",
-		Priority:             0,
-		LazyPreemptionEnable: true,
-		ReservationId:        "",
-		GpuType:              "DGX2-V100",
-		GpuNumber:            1,
-		AffinityGroup:        group19,
-	}, "pod29": { // will not be buddy of pod28 because the node is excluded from suggested nodes
-		VirtualCluster:       "VC1",
-		Priority:             1,
-		LazyPreemptionEnable: true,
-		ReservationId:        "",
-		GpuType:              "DGX2-V100",
-		GpuNumber:            1,
-		AffinityGroup:        group20,
-	},
 }
 
 var casesThatShouldSucceed = []string{
@@ -395,8 +372,6 @@ var expectedBindInfos = map[string]result{
 	"pod23": {node: "0.0.4.3", gpuIsolation: []int32{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15}},
 	"pod24": {node: "0.0.0.0", gpuIsolation: []int32{0, 1}},
 	"pod25": {node: "0.0.0.1", gpuIsolation: []int32{0, 1}},
-	"pod28": {node: "0.0.5.0", gpuIsolation: []int32{0}},
-	"pod29": {node: "0.0.1.0", gpuIsolation: []int32{0}},
 }
 
 var expectedPreemptInfos = map[string]common.Set{
@@ -417,10 +392,10 @@ func TestHivedAlgorithm(t *testing.T) {
 		sortChains(chains)
 	}
 
-	printConfig(t, h)
+	//printConfig(t, h)
 	testNormalOperations(t, h)
-	testReconfiguration(t, configFilePath)
-	testInvalidInitialAssignment(t, sConfig)
+	//testReconfiguration(t, configFilePath)
+	//testInvalidInitialAssignment(t, sConfig)
 }
 
 func sortChains(chains []CellChain) {
@@ -531,20 +506,6 @@ func testSuggestedNodes(t *testing.T, h *HivedAlgorithm) {
 	pod := allPods["pod27"]
 	pod.Annotations[api.AnnotationKeyPodSchedulingSpec] = common.ToYaml(pss[pod.UID])
 	psr := h.Schedule(pod, nodes)
-	compareSchedulingResult(t, pod, psr)
-
-	pod = allPods["pod28"]
-	pod.Annotations[api.AnnotationKeyPodSchedulingSpec] = common.ToYaml(pss[pod.UID])
-	psr = h.Schedule(pod, nodes)
-	compareSchedulingResult(t, pod, psr)
-	for i, node := range nodes {
-		if node == "0.0.5.0" {
-			nodes[i] = "0.0.1.100"
-		}
-	}
-	pod = allPods["pod29"]
-	pod.Annotations[api.AnnotationKeyPodSchedulingSpec] = common.ToYaml(pss[pod.UID])
-	psr = h.Schedule(pod, nodes)
 	compareSchedulingResult(t, pod, psr)
 }
 
