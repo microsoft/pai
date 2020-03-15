@@ -133,7 +133,7 @@ There're many approches to create PV/PVC, you could refer to [Kubernetes docs](h
 ## Assign Storage to PAI Groups
 
 PAI uses Kubernetes PVC name as storage name.
-To use Kubernetes volumes in PAI, amdin need to assign storage to PAI groups first.
+To use Kubernetes volumes in PAI, admin need to assign storage to PAI groups first.
 
 1. Service configuration file
 
