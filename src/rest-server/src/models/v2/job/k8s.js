@@ -32,7 +32,6 @@ const storageModel = require('@pai/models/v2/storage');
 const k8sModel = require('@pai/models/kubernetes/kubernetes');
 const k8sSecret = require('@pai/models/kubernetes/k8s-secret');
 const env = require('@pai/utils/env');
-const k8s = require('@pai/utils/k8sUtils');
 const path = require('path');
 const fs = require('fs');
 const _ = require('lodash');
@@ -188,34 +187,10 @@ const convertTaskDetail = async (taskStatus, ports, userName, jobName, taskRoleN
     }
   }
   // get affinity group name
-  let affinityGroupName = null;
+  const affinityGroupName = `default/${taskStatus.attemptStatus.podName}`;
   // get container gpus
-  let containerGpus = null;
-  try {
-    const response = await k8sModel.getClient().get(
-      launcherConfig.podPath(taskStatus.attemptStatus.podName),
-      {
-        headers: launcherConfig.requestHeaders,
-      }
-    );
-    const pod = response.data;
-    if (launcherConfig.enabledHived) {
-      const hivedSpec = yaml.load(pod.metadata.annotations['hivedscheduler.microsoft.com/pod-scheduling-spec']);
-      if (hivedSpec && hivedSpec.affinityGroup && hivedSpec.affinityGroup.name) {
-        affinityGroupName = hivedSpec.affinityGroup.name;
-      } else {
-        affinityGroupName = `default/${taskStatus.attemptStatus.podName}`;
-      }
-      const isolation = pod.metadata.annotations['hivedscheduler.microsoft.com/pod-gpu-isolation'];
-      containerGpus = isolation.split(',').reduce((attr, id) => attr + Math.pow(2, id), 0);
-    } else {
-      const gpuNumber = k8s.atoi(pod.spec.containers[0].resources.limits['nvidia.com/gpu']);
-      // mock GPU ids from 0 to (gpuNumber - 1)
-      containerGpus = Math.pow(2, gpuNumber) - 1;
-    }
-  } catch (err) {
-    containerGpus = null;
-  }
+  const containerGpus = null;
+
   const completionStatus = taskStatus.attemptStatus.completionStatus;
   return {
     taskIndex: taskStatus.index,
@@ -303,13 +278,20 @@ const convertFrameworkDetail = async (framework) => {
   const jobName = decodeName(framework.metadata.name, framework.metadata.annotations);
 
   for (let taskRoleStatus of framework.status.attemptStatus.taskRoleStatuses) {
+    const taskStatuses = await Promise.all(taskRoleStatus.taskStatuses.map(
+      async (status) => await convertTaskDetail(
+        status,
+        ports[taskRoleStatus.name],
+        userName,
+        jobName,
+        taskRoleStatus.name
+      )
+    ));
     detail.taskRoles[taskRoleStatus.name] = {
       taskRoleStatus: {
         name: taskRoleStatus.name,
       },
-      taskStatuses: await Promise.all(taskRoleStatus.taskStatuses.map(
-        async (status) => await convertTaskDetail(status, ports[taskRoleStatus.name], userName, jobName, taskRoleStatus.name))
-      ),
+      taskStatuses: taskStatuses,
     };
   }
 
@@ -599,10 +581,18 @@ const generateTaskRole = (frameworkName, taskRole, jobInfo, frameworkEnvList, co
       (completion && 'minSucceededInstances' in completion && completion.minSucceededInstances) ?
       completion.minSucceededInstances : frameworkTaskRole.taskNumber,
   };
+  // check cpu job
+  if (!launcherConfig.enabledHived && config.taskRoles[taskRole].resourcePerInstance.gpu === 0) {
+    frameworkTaskRole.task.pod.spec.containers[0].env.push(
+      {
+        name: 'NVIDIA_VISIBLE_DEVICES',
+        value: 'none',
+      },
+    );
+  }
   // hived spec
   if (launcherConfig.enabledHived) {
     frameworkTaskRole.task.pod.spec.schedulerName = `${launcherConfig.scheduler}-ds-${config.taskRoles[taskRole].hivedPodSpec.virtualCluster}`;
-
     delete frameworkTaskRole.task.pod.spec.containers[0].resources.limits['nvidia.com/gpu'];
     frameworkTaskRole.task.pod.spec.containers[0]
       .resources.limits['hivedscheduler.microsoft.com/pod-scheduling-enable'] = 1;

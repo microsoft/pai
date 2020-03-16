@@ -1,5 +1,5 @@
 sudo: required
-dist: trusty
+dict: xenial
 matrix:
   include:
     - language: python
@@ -12,15 +12,14 @@ matrix:
         - python -m unittest discover test/
 
     - language: go
-      go: 1.12.6
+      go: 1.13.8
       before_install:
-        - cp -R src/watchdog/GOPATH/* ${GOPATH}
-        - cd ${GOPATH}/src
+        - cd src/watchdog/src
       install:
         - echo "Skipping default install phase"
       script:
-        - go build github.com/microsoft/watchdog/cmd/watchdog/main.go
-        - go test github.com/microsoft/watchdog/pkg/watchdog
+        - go build ./cmd/watchdog/main.go
+        - go test ./pkg/watchdog
 
     - language: python
       python: 2.7
@@ -44,7 +43,7 @@ matrix:
         - python -m unittest deployment.clusterObjectModel.test.test_forward_compatibility
 
     - language: python
-      python: 3.6
+      python: 3.7
       before_install:
         - cd src/job-exporter/test
       install:
@@ -69,6 +68,7 @@ matrix:
         - python src/utilities/doc_checker.py .
 
     - language: java
+      dist: trusty
       jdk: oraclejdk8
       before_install:
         - cd subprojects/frameworklauncher/yarn

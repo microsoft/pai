@@ -13,6 +13,45 @@ By default, `Ansible` uses 5 forks to execute commands parallelly on all hosts. 
 To fasten the deploy speed, you can add `-f <parallel-number>` to all commands using `ansible` or `ansible-playbook`. See [ansible doc](https://docs.ansible.com/ansible/latest/cli/ansible.html#cmdoption-ansible-f) for reference.
 
 
+**3. How to remove k8s network plugin**
+
+By default, we use [weave](https://github.com/weaveworks/weave) as k8s network plugin. After installation, if you encounter some errors about the network, such as some pods failed to connect internet, you could remove network plugin to solve this issue.
+
+To remove the network plugin, you could use following `ansible-playbook`:
+```yaml
+---
+- hosts: all
+  tasks:
+    - name: remove cni
+      shell: |
+        sed -i '/KUBELET_NETWORK_PLUGIN/d' /etc/kubernetes/kubelet.env
+        echo KUBELET_NETWORK_PLUGIN=\"\" >> /etc/kubernetes/kubelet.env
+      args:
+        executable: /bin/bash
+
+    - name: remove weave
+      shell: ip link delete weave
+      args:
+        executable: /bin/bash
+
+    - name: restart network
+      shell: systemctl restart networking
+      args:
+        executable: /bin/bash
+
+    - name: stop kubelet
+      shell: systemctl stop kubelet
+      args:
+        executable: /bin/bash
+
+    - name: start kubelet
+      shell: systemctl start kubelet
+      args:
+        executable: /bin/bash
+```
+
+After this step, if your pod still can not access internet, please change the pod spec to use `hostNetwork`.
+
 ## Troubleshooting
 
 **1. Ansible playbook exits because of timeout.**

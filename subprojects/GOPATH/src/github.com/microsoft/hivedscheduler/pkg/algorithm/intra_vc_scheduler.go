@@ -33,7 +33,8 @@ import (
 // It stores two maps of ChainCellList, one for reserved cells, the other for non-reserved ones.
 // It should be able to return a set of GPU placements in the VC for a scheduling request.
 type intraVCScheduler interface {
-	getNonReservedCellList() map[CellChain]ChainCellList
+	getNonReservedFullCellList() map[CellChain]ChainCellList
+	getNonReservedFreeCellList() map[CellChain]ChainCellList
 	getReservedCellList() map[api.ReservationId]ChainCellList
 
 	// Scheduling an affinity group inside a VC. We use topologyAwareScheduler by default.
@@ -41,8 +42,9 @@ type intraVCScheduler interface {
 }
 
 type defaultIntraVCScheduler struct {
-	virtualNonReservedCellList map[CellChain]ChainCellList
-	virtualReservedCellList    map[api.ReservationId]ChainCellList
+	nonReservedFullCellList map[CellChain]ChainCellList
+	nonReservedFreeCellList map[CellChain]ChainCellList
+	reservedCellList        map[api.ReservationId]ChainCellList
 	// currently we create a topologyAwareScheduler for each cluster view (each chain, each reservation).
 	// we plan to support multiple cluster views in one scheduler, and to support schedule pods
 	// across different cluster views.
@@ -52,32 +54,38 @@ type defaultIntraVCScheduler struct {
 }
 
 func newDefaultIntraVCScheduler(
-	nonReservedVcl map[CellChain]ChainCellList,
+	nonReservedFull map[CellChain]ChainCellList,
+	nonReservedFree map[CellChain]ChainCellList,
 	reservedVcl map[api.ReservationId]ChainCellList,
 	gpuNums map[CellChain]map[CellLevel]int32) *defaultIntraVCScheduler {
 
 	snr := map[CellChain]*topologyAwareScheduler{}
 	sr := map[api.ReservationId]*topologyAwareScheduler{}
-	for chain, ccl := range nonReservedVcl {
+	for chain, ccl := range nonReservedFull {
 		snr[chain] = NewTopologyAwareScheduler(ccl, gpuNums[chain], true, false)
 	}
 	for rid, ccl := range reservedVcl {
 		sr[rid] = NewTopologyAwareScheduler(ccl, gpuNums[ccl[CellLevel(1)][0].GetChain()], true, false)
 	}
 	return &defaultIntraVCScheduler{
-		virtualNonReservedCellList: nonReservedVcl,
-		virtualReservedCellList:    reservedVcl,
-		nonReservedSchedulers:      snr,
-		reservedSchedulers:         sr,
+		nonReservedFullCellList: nonReservedFull,
+		nonReservedFreeCellList: nonReservedFree,
+		reservedCellList:        reservedVcl,
+		nonReservedSchedulers:   snr,
+		reservedSchedulers:      sr,
 	}
 }
 
-func (s *defaultIntraVCScheduler) getNonReservedCellList() map[CellChain]ChainCellList {
-	return s.virtualNonReservedCellList
+func (s *defaultIntraVCScheduler) getNonReservedFullCellList() map[CellChain]ChainCellList {
+	return s.nonReservedFullCellList
+}
+
+func (s *defaultIntraVCScheduler) getNonReservedFreeCellList() map[CellChain]ChainCellList {
+	return s.nonReservedFreeCellList
 }
 
 func (s *defaultIntraVCScheduler) getReservedCellList() map[api.ReservationId]ChainCellList {
-	return s.virtualReservedCellList
+	return s.reservedCellList
 }
 
 func (s *defaultIntraVCScheduler) schedule(sr schedulingRequest) map[int32][]CellList {
@@ -95,7 +103,7 @@ func (s *defaultIntraVCScheduler) schedule(sr schedulingRequest) map[int32][]Cel
 		placement = scheduler.Schedule(sr.affinityGroupPodNums, sr.priority, common.NewSet())
 	}
 	if placement == nil {
-		klog.Infof("Insufficient quota in VC %v for scheduling request: %v, GPU numbers %v, priority %v",
+		klog.Infof("Insufficient capacity in VC %v for scheduling request: %v, GPU numbers %v, priority %v",
 			sr.vc, str, sr.affinityGroupPodNums, sr.priority)
 	} else {
 		klog.Infof("Succeeded in scheduling in VC %v for scheduling request: %v, GPU numbers %v, priority %v",

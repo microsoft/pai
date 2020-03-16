@@ -174,7 +174,7 @@ class Cluster:
         domain = str(docker_registry_configuration["domain"])
         namespace = str(docker_registry_configuration["namespace"])
 
-        if domain != "public":
+        if domain != "docker.io":
             prefix = "{0}/{1}/".format(domain, namespace)
         else:
             prefix = "{0}/".format(namespace)

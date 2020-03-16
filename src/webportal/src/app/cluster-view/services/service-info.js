@@ -52,6 +52,7 @@ export const getServiceView = async callback => {
   const nodeUrl = new URL('api/v1/kubernetes/nodes', restServerUrl);
   const podUrl = new URL('api/v1/kubernetes/pods', restServerUrl);
   podUrl.searchParams.set('namespace', 'default');
+  podUrl.searchParams.set('labelSelector', 'app');
   const [nodes, pods] = await Promise.all([
     fetchWrapper(nodeUrl),
     fetchWrapper(podUrl),

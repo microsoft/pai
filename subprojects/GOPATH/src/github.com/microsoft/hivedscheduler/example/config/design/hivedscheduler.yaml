@@ -136,24 +136,34 @@ physicalCluster:
 
   # Instantiate physical cell by mapping physical devices to the cell structure
   # defined by cellType.
+  # User can specify an address for each cell. User MUST specify the addresses
+  # for node-level cells (i.e., K8s node names).
+  # For levels lower than node, if a cell is not specified with an address,
+  # we will assign it a default address using its relative index in this node (e.g., GPU index).
+  # For levels higher than node, the default address is the relative index among the cells
+  # at the same level within the same top-level cell.
+  # For a top-level cell, its default address is its index among all the top-level cells
+  # (i.e., in the array "physicalCells").
   physicalCells:
   - cellType: CT1-NODE
     cellAddress: 0.0.0.0
   - cellType: CT1-NODE
     cellAddress: 0.0.0.1
-  # One node has multiple gpu types and not standard gpu indices
+  # One node has multiple gpu types and
+  # non-standard gpu indices (by explicitly specifying cell addresses)
   - cellType: CT1-NODE
     cellAddress: 1.0.0.2  # NODE Name
     cellChildren:
     - cellAddress: 8  # GPU Index
       reservationId: VC1-YQW-CT1
     - cellAddress: 9  # GPU Index
-  # One cell has not standard gpu indices
+  # One cell has non-standard gpu indices
   - cellType: 3-DGX1-P100-NODE
     cellChildren:
-    # cellAddress can be omitted for not node level cellType, which defaults to
+    # cellAddress can be omitted for non-node level cellType, which defaults to
     # ascending integers started from 0 for the same cellType.
-    # Such as the cellChildren for below cell is the same as 1.0.0.1.
+    # For example, the children of the cell below (1.0.0.2) will be inferred
+    # just as 1.0.0.1.
     - cellAddress: 1.0.0.2  # NODE Name
       cellChildren: null # null, empty or not specified
     - cellAddress: 1.0.0.1  # NODE Name

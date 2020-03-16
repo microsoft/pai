@@ -807,7 +807,7 @@
           "steppedLine": false,
           "targets": [
             {
-              "expr": "avg(nvidiasmi_utilization_gpu)",
+              "expr": "avg(gpu_utilization)",
               "format": "time_series",
               "intervalFactor": 2,
               "legendFormat": "avg gpu utilization",
@@ -882,7 +882,7 @@
           "steppedLine": false,
           "targets": [
             {
-              "expr": "avg(nvidiasmi_utilization_memory)",
+              "expr": "avg(gpu_mem_utilization)",
               "format": "time_series",
               "intervalFactor": 2,
               "legendFormat": "gpu memory",

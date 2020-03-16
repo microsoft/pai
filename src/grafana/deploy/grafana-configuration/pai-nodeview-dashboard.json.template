@@ -493,7 +493,7 @@
           "steppedLine": false,
           "targets": [
             {
-              "expr": "avg(nvidiasmi_utilization_gpu{instance=~\"$node(:[0-9]*)?$\"})",
+              "expr": "avg(gpu_utilization{instance=~\"$node(:[0-9]*)?$\"})",
               "format": "time_series",
               "interval": "",
               "intervalFactor": 2,
@@ -575,7 +575,7 @@
           "steppedLine": false,
           "targets": [
             {
-              "expr": "avg(nvidiasmi_utilization_memory{instance=~\"$node(:[0-9]*)?$\"})",
+              "expr": "avg(gpu_mem_utilization{instance=~\"$node(:[0-9]*)?$\"})",
               "format": "time_series",
               "intervalFactor": 2,
               "refId": "B"

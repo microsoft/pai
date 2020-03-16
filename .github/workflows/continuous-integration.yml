@@ -42,7 +42,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        python: [3.6]
+        python: [3.7]
         os: [ubuntu-16.04, ubuntu-latest]
 
     steps:
@@ -100,7 +100,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        go: [1.12.6]
+        go: [1.13.8]
         os: [ubuntu-16.04, ubuntu-latest]
 
     steps:
@@ -113,14 +113,12 @@ jobs:
         architecture: x64
     - name: Build watchdog
       run: |
-        export GOPATH=${GITHUB_WORKSPACE}/src/watchdog/GOPATH
-        cd ${GOPATH}/src
-        go build github.com/microsoft/watchdog/cmd/watchdog/main.go
+        cd src/watchdog/src
+        go build ./cmd/watchdog/main.go
     - name: Test watchdog
       run: |
-        export GOPATH=${GITHUB_WORKSPACE}/src/watchdog/GOPATH
-        cd ${GOPATH}/src
-        go test -cover github.com/microsoft/watchdog/pkg/watchdog
+        cd src/watchdog/src
+        go test -cover ./pkg/watchdog
 
   framework-launcher:
     name: Test framework launcher on java-${{ matrix.java }}-${{ matrix.os }}

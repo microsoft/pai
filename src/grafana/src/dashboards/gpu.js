@@ -99,7 +99,7 @@ for (var i = 0; i < gpuNum; i++) {
           "steppedLine": false,
           "targets": [
             {
-              "expr": "nvidiasmi_utilization_gpu{instance=\"" + hostName+ "\",minor_number=\""+ i + "\"}",
+              "expr": "gpu_utilization{instance=\"" + hostName+ "\",minor_number=\""+ i + "\"}",
               "format": "time_series",
               "intervalFactor": 2,
               "legendFormat": "Gpu Utilization",
@@ -175,7 +175,7 @@ for (var i = 0; i < gpuNum; i++) {
           "steppedLine": false,
           "targets": [
             {
-              "expr": "nvidiasmi_utilization_memory{instance=\"" + hostName+ "\",minor_number=\""+ i + "\"}",
+              "expr": "gpu_mem_utilization{instance=\"" + hostName+ "\",minor_number=\""+ i + "\"}",
               "format": "time_series",
               "intervalFactor": 2,
               "legendFormat": "Gpu Mem Utilization",

@@ -16,6 +16,8 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+from enum import Enum
+import os
 import subprocess
 
 import logging
@@ -50,3 +52,18 @@ def walk_json_field_safe(obj, *fields):
         return obj
     except:
         return None
+
+
+class GpuVendor(Enum):
+    UNKNOWN = "unknown"
+    NVIDIA = "nvidia"
+    AMD = "amd"
+
+def get_gpu_vendor():
+    nvidia_device_path = "/dev/nvidiactl"
+    amd_device_path = "/dev/kfd"
+    if os.path.exists(nvidia_device_path):
+        return GpuVendor.NVIDIA
+    if os.path.exists(amd_device_path):
+        return GpuVendor.AMD
+    return GpuVendor.UNKNOWN

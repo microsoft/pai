@@ -180,8 +180,12 @@ func NewHivedScheduler() *HivedScheduler {
 			PreemptHandler: s.preemptRoutine,
 		},
 		internal.InspectHandlers{
-			GetAffinityGroupsHandler: s.getAffinityGroups,
-			GetAffinityGroupHandler:  s.getAffinityGroup,
+			GetAllAffinityGroupsHandler: s.getAllAffinityGroups,
+			GetAffinityGroupHandler:     s.getAffinityGroup,
+			GetClusterStatusHandler:     s.getClusterStatus,
+			GetPCStatusHandler:          s.getPCStatus,
+			GetAllVCsStatusHandler:      s.getAllVCsStatus,
+			GetVCStatus:                 s.getVCStatus,
 		},
 	)
 
@@ -568,15 +572,18 @@ func (s *HivedScheduler) filterRoutine(args ei.ExtenderArgs) *ei.ExtenderFilterR
 				time.Millisecond)
 		}
 
-		// Return Error to tell K8S Default Scheduler that preemption must not help.
+		// Return fake FailedNodes, so that the waitReason can be exposed along with
+		// other waitReasons generated from K8S Default Scheduler.
+		failedNodes := map[string]string{}
 		waitReason := "Pod is waiting for preemptible or free resource to appear"
 		if result.PodWaitInfo != nil {
 			waitReason += ": " + result.PodWaitInfo.Reason
 		}
+		failedNodes[si.ComponentName] = waitReason
 
 		klog.Infof(logPfx + waitReason)
 		return &ei.ExtenderFilterResult{
-			Error: waitReason,
+			FailedNodes: failedNodes,
 		}
 	}
 }
@@ -671,10 +678,26 @@ func (s *HivedScheduler) preemptRoutine(args ei.ExtenderPreemptionArgs) *ei.Exte
 	return &ei.ExtenderPreemptionResult{}
 }
 
-func (s *HivedScheduler) getAffinityGroups() si.AffinityGroupList {
-	return s.schedulerAlgorithm.GetAffinityGroups()
+func (s *HivedScheduler) getAllAffinityGroups() si.AffinityGroupList {
+	return s.schedulerAlgorithm.GetAllAffinityGroups()
 }
 
 func (s *HivedScheduler) getAffinityGroup(name string) si.AffinityGroup {
 	return s.schedulerAlgorithm.GetAffinityGroup(name)
+}
+
+func (s *HivedScheduler) getClusterStatus() si.ClusterStatus {
+	return s.schedulerAlgorithm.GetClusterStatus()
+}
+
+func (s *HivedScheduler) getPCStatus() si.PhysicalClusterStatus {
+	return s.schedulerAlgorithm.GetPCStatus()
+}
+
+func (s *HivedScheduler) getAllVCsStatus() map[si.VirtualClusterName]si.VirtualClusterStatus {
+	return s.schedulerAlgorithm.GetAllVCsStatus()
+}
+
+func (s *HivedScheduler) getVCStatus(vcn si.VirtualClusterName) si.VirtualClusterStatus {
+	return s.schedulerAlgorithm.GetVCStatus(vcn)
 }

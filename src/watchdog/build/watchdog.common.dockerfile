@@ -15,14 +15,14 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-FROM golang:1.12.6-alpine as builder
+FROM golang:1.13.8-alpine as builder
 
-ENV PROJECT_DIR=${GOPATH}/src/github.com/microsoft/watchdog
+ENV PROJECT_DIR=/src
 ENV INSTALL_DIR=/opt/watchdog
 
 RUN apk update && apk add --no-cache bash && \
   mkdir -p ${PROJECT_DIR} ${INSTALL_DIR}
-COPY GOPATH/src/github.com/microsoft/watchdog/ ${PROJECT_DIR}
+COPY src ${PROJECT_DIR}
 RUN ${PROJECT_DIR}/build/watchdog/go-build.sh && \
   mv ${PROJECT_DIR}/dist/watchdog/* ${INSTALL_DIR}
 

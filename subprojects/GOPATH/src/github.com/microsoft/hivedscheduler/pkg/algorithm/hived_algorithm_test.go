@@ -39,7 +39,7 @@ var allPods = map[string]*core.Pod{}
 
 func init() {
 	common.InitAll()
-	for i := 1; i <= 25; i++ {
+	for i := 1; i <= len(pss); i++ {
 		podName := fmt.Sprintf("pod%v", i)
 		allPods[podName] = &core.Pod{
 			ObjectMeta: meta.ObjectMeta{
@@ -62,7 +62,7 @@ func initNodes(h *HivedAlgorithm) {
 	}
 }
 
-var group1, group2, group3, group4, group5, group6, group7, group8, group9, group10, group11, group12, group13, group14, group15, group16, group17 = &api.AffinityGroupSpec{
+var group1, group2, group3, group4, group5, group6, group7, group8, group9, group10, group11, group12, group13, group14, group15, group16, group17, group18 = &api.AffinityGroupSpec{
 	Name:    "group1",
 	Members: []api.AffinityGroupMemberSpec{{PodNumber: 1, GpuNumber: 1}},
 }, &api.AffinityGroupSpec{
@@ -113,6 +113,9 @@ var group1, group2, group3, group4, group5, group6, group7, group8, group9, grou
 }, &api.AffinityGroupSpec{
 	Name:    "group17",
 	Members: []api.AffinityGroupMemberSpec{{PodNumber: 1, GpuNumber: 2}},
+}, &api.AffinityGroupSpec{
+	Name:    "group18",
+	Members: []api.AffinityGroupMemberSpec{{PodNumber: 2, GpuNumber: 16}},
 }
 
 var pss = map[types.UID]api.PodSchedulingSpec{
@@ -164,7 +167,7 @@ var pss = map[types.UID]api.PodSchedulingSpec{
 		GpuType:              "DGX2-V100",
 		GpuNumber:            16,
 		AffinityGroup:        group5,
-	}, "pod7": { // out of quota; should return PodWaitInfo
+	}, "pod7": { // insufficient VC cells; should return PodWaitInfo
 		VirtualCluster:       "VC2",
 		Priority:             1,
 		LazyPreemptionEnable: true,
@@ -324,6 +327,14 @@ var pss = map[types.UID]api.PodSchedulingSpec{
 		GpuType:              "CT1",
 		GpuNumber:            2,
 		AffinityGroup:        group17,
+	}, "pod27": { // will be rejected because one of the pod in this group is allocated a non-suggested node
+		VirtualCluster:       "VC1",
+		Priority:             1,
+		LazyPreemptionEnable: true,
+		ReservationId:        "VC1-YQW-DGX2",
+		GpuType:              "DGX2-V100",
+		GpuNumber:            16,
+		AffinityGroup:        group18,
 	},
 }
 
@@ -405,7 +416,7 @@ func printConfig(t *testing.T, h *HivedAlgorithm) {
 	}
 	for vc, vcs := range h.vcSchedulers {
 		t.Logf("%v", vc)
-		for chain, ccl := range vcs.getNonReservedCellList() {
+		for chain, ccl := range vcs.getNonReservedFullCellList() {
 			t.Logf("%v", chain)
 			t.Logf("%v", ccl)
 		}
@@ -424,6 +435,7 @@ func testNormalOperations(t *testing.T, h *HivedAlgorithm) {
 	testCasesThatShouldSucceed(t, h)
 	testCasesThatShouldFail(t, h)
 	testDeleteAllocatedPods(t, h)
+	testSuggestedNodes(t, h)
 }
 
 func testCasesThatShouldSucceed(t *testing.T, h *HivedAlgorithm) {
@@ -484,6 +496,19 @@ func testDeleteAllocatedPods(t *testing.T, h *HivedAlgorithm) {
 	}
 }
 
+func testSuggestedNodes(t *testing.T, h *HivedAlgorithm) {
+	var nodes []string
+	for _, node := range allNodes {
+		if node != "0.0.3.1" {
+			nodes = append(nodes, node)
+		}
+	}
+	pod := allPods["pod27"]
+	pod.Annotations[api.AnnotationKeyPodSchedulingSpec] = common.ToYaml(pss[pod.UID])
+	psr := h.Schedule(pod, nodes)
+	compareSchedulingResult(t, pod, psr)
+}
+
 func testReconfiguration(t *testing.T, configFilePath string) {
 	oldConfig := api.NewConfig(api.InitRawConfig(&configFilePath))
 	h := NewHivedAlgorithm(oldConfig)
@@ -502,7 +527,7 @@ func testReconfiguration(t *testing.T, configFilePath string) {
 	newConfig = api.NewConfig(newConfig)
 	// case: physical cell not found
 	(*newConfig.PhysicalCluster).PhysicalCells[7].CellChildren[0].CellChildren[0].CellAddress = "0.0.3.100"
-	// case: insufficient VC quota
+	// case: insufficient VC cells
 	(*newConfig.VirtualClusters)["VC2"].VirtualCells[0].CellNumber = 1
 	// case: physical cells are split to smaller ones in the spec so that
 	// they cannot be bound to the virtual cells previously allocated
@@ -511,6 +536,12 @@ func testReconfiguration(t *testing.T, configFilePath string) {
 	(*newConfig.PhysicalCluster).PhysicalCells = append((*newConfig.PhysicalCluster).PhysicalCells, originalCell.CellChildren[0].CellChildren[1])
 	(*newConfig.PhysicalCluster).PhysicalCells = append((*newConfig.PhysicalCluster).PhysicalCells, originalCell.CellChildren[1].CellChildren[0])
 	(*newConfig.PhysicalCluster).PhysicalCells = append((*newConfig.PhysicalCluster).PhysicalCells, originalCell.CellChildren[1].CellChildren[1])
+	originalCell.CellChildren[0].CellChildren[0].CellAddress = "0.0.4.100"
+	originalCell.CellChildren[0].CellChildren[1].CellAddress = "0.0.4.101"
+	originalCell.CellChildren[1].CellChildren[0].CellAddress = "0.0.4.102"
+	originalCell.CellChildren[1].CellChildren[1].CellAddress = "0.0.4.103"
+	(*newConfig.PhysicalCluster).PhysicalCells = append((*newConfig.PhysicalCluster).PhysicalCells, originalCell)
+
 	h = NewHivedAlgorithm(newConfig)
 	for _, chains := range h.chains {
 		sortChains(chains)

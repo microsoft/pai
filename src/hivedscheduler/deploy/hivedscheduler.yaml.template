@@ -36,7 +36,7 @@ spec:
       serviceAccountName: hivedscheduler-account
       containers:
       - name: hivedscheduler
-        image: hivedscheduler/hivedscheduler:v0.2.6
+        image: {{ cluster_cfg["cluster"]["docker-registry"]["prefix"] }}hivedscheduler:{{ cluster_cfg["cluster"]["docker-registry"]["tag"] }}
         command: [
           "bash", "-c",
           "cp /hivedscheduler-config/hivedscheduler.yaml . &&
@@ -77,13 +77,14 @@ spec:
       serviceAccountName: hivedscheduler-account
       containers:
       - name: defaultscheduler
-        image: gcr.io/google_containers/kube-scheduler:v1.14.2
+        image: {{ cluster_cfg["cluster"]["docker-registry"]["prefix"] }}kube-scheduler:{{ cluster_cfg["cluster"]["docker-registry"]["tag"] }}
         command: [
           "sh", "-c",
           "echo \"apiVersion: kubescheduler.config.k8s.io/v1alpha1\" >> config.yaml &&
            echo \"kind: KubeSchedulerConfiguration\" >> config.yaml &&
            echo \"schedulerName: hivedscheduler-ds-{{ vc }}\" >> config.yaml &&
            echo \"disablePreemption: false\" >> config.yaml &&
+           echo \"percentageOfNodesToScore: 100\" >> config.yaml &&
            echo \"algorithmSource:\" >> config.yaml &&
            echo \"  policy:\" >> config.yaml &&
            echo \"    configMap:\" >> config.yaml &&
