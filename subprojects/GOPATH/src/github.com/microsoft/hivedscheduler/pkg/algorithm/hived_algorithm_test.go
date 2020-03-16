@@ -392,10 +392,10 @@ func TestHivedAlgorithm(t *testing.T) {
 		sortChains(chains)
 	}
 
-	//printConfig(t, h)
+	printConfig(t, h)
 	testNormalOperations(t, h)
-	//testReconfiguration(t, configFilePath)
-	//testInvalidInitialAssignment(t, sConfig)
+	testReconfiguration(t, configFilePath)
+	testInvalidInitialAssignment(t, sConfig)
 }
 
 func sortChains(chains []CellChain) {
