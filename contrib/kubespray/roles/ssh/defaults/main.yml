@@ -1,0 +1,1 @@
+ssh_key_path: "{{ local_home_path }}/.ssh/id_rsa.pub"

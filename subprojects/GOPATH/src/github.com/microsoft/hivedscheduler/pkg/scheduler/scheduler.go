@@ -572,15 +572,18 @@ func (s *HivedScheduler) filterRoutine(args ei.ExtenderArgs) *ei.ExtenderFilterR
 				time.Millisecond)
 		}
 
-		// Return Error to tell K8S Default Scheduler that preemption must not help.
+		// Return fake FailedNodes, so that the waitReason can be exposed along with
+		// other waitReasons generated from K8S Default Scheduler.
+		failedNodes := map[string]string{}
 		waitReason := "Pod is waiting for preemptible or free resource to appear"
 		if result.PodWaitInfo != nil {
 			waitReason += ": " + result.PodWaitInfo.Reason
 		}
+		failedNodes[si.ComponentName] = waitReason
 
 		klog.Infof(logPfx + waitReason)
 		return &ei.ExtenderFilterResult{
-			Error: waitReason,
+			FailedNodes: failedNodes,
 		}
 	}
 }

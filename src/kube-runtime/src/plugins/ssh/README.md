@@ -11,14 +11,13 @@ extras:
       parameters:
         jobssh: boolean
         sshbarrier: boolean
-        sshbarriertaskroles:
-          - taskrole
-        userssh: 
+        sshbarrierTimeout: number
+        userssh:
           type: string
           value: string
       failurePolicy: ignore/fail
 ```
 - jobssh: true to enable job container wise ssh, false to disable.
 - sshbarrier: if set to true, wait until can ssh to all corresponding job containers. If not set, the defalut value is false.
-- sshbarriertaskroles: only valid if sshbarrier set to true. Defines the task roles that the barrier will test ssh to. If not defind, all taskroles will be included.
+- sshbarrierTimeout: the timeout (in minutes) of ssh barrier, default is 30 mins.
 - userssh: currently the userssh type should be ```custom```. Type ```custom``` means use the userssh value as the SSH public key to run job. User can use the corresponding SSH private key to connect to job container.

@@ -10,6 +10,7 @@ import faulthandler
 import gc
 import datetime
 import shutil
+import sys
 
 import prometheus_client
 from prometheus_client import Gauge
@@ -103,8 +104,8 @@ def try_remove_old_prom_file(path):
     if os.path.isfile(path):
         try:
             os.unlink(path)
-        except Exception as e:
-            log.warning("can not remove old prom file %s", path)
+        except Exception:
+            logger.warning("can not remove old prom file %s", path)
 
 
 def get_gpu_count(path):
@@ -130,20 +131,6 @@ def register_stack_trace_dump():
     faulthandler.register(signal.SIGTRAP, all_threads=True, chain=False)
 
 
-# https://github.com/prometheus/client_python/issues/322#issuecomment-428189291
-def burninate_gc_collector():
-    for callback in gc.callbacks[:]:
-        if callback.__qualname__.startswith("GCCollector."):
-            gc.callbacks.remove(callback)
-
-    for name, collector in list(prometheus_client.REGISTRY._names_to_collectors.items()):
-        if name.startswith("python_gc_"):
-            try:
-                prometheus_client.REGISTRY.unregister(collector)
-            except KeyError:  # probably gone already
-                pass
-
-
 class HealthResource(Resource):
     def render_GET(self, request):
         request.setHeader("Content-Type", "text/html; charset=utf-8")
@@ -152,7 +139,6 @@ class HealthResource(Resource):
 
 def main(args):
     register_stack_trace_dump()
-    burninate_gc_collector()
     config_environ()
     try_remove_old_prom_file(args.log + "/gpu_exporter.prom")
     try_remove_old_prom_file(args.log + "/job_exporter.prom")

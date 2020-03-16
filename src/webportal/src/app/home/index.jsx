@@ -39,6 +39,13 @@ import t from 'tachyons-sass/tachyons.scss';
 let loginTarget = '/home.html';
 
 const query = new URLSearchParams(window.location.search);
+
+if (query.has('errorMessage')) {
+  const errorMessage = query.get('errorMessage');
+  alert(errorMessage);
+  location.href = '/index.html';
+}
+
 const from = query.get('from');
 if (!isEmpty(from)) {
   loginTarget = from;

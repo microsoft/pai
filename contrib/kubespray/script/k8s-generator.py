@@ -104,13 +104,8 @@ def main():
         map_table
     )
     generate_template_file(
-        "quick-start/gpu-hosts.yml.template",
-        "{0}/gpu-hosts.yml".format(output_path),
-        map_table
-    )
-    generate_template_file(
-        "quick-start/infra-hosts.yml.template",
-        "{0}/infra-hosts.yml".format(output_path),
+        "quick-start/openpai.yml.template",
+        "{0}/openpai.yml".format(output_path),
         map_table
     )
 

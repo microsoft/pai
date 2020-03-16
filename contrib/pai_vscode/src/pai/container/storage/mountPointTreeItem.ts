@@ -15,7 +15,8 @@ import { IPAICluster } from '../../utility/paiInterface';
 import { StorageTreeNode } from '../common/treeNode';
 
 import { AzureBlobRootItem } from './azureBlobTreeItem';
-import { SambaRootNode } from './sambaTreeItem';
+import { NfsRootNode } from './NfsTreeItem';
+import { SambaRootNode } from './SambaTreeItem';
 
 /**
  * PAI storage mount point tree node.
@@ -23,8 +24,7 @@ import { SambaRootNode } from './sambaTreeItem';
 export class MountPointTreeNode extends StorageTreeNode {
     public contextValue: string = CONTEXT_STORAGE_MOUNTPOINT_ITEM;
     public data: StorageTreeNode;
-
-    private cluster: IPAICluster;
+    public cluster: IPAICluster;
 
     constructor(
         info: IMountInfo,
@@ -56,8 +56,8 @@ export class MountPointTreeNode extends StorageTreeNode {
         await this.data.uploadFile(files);
     }
 
-    public async createFolder(): Promise<void> {
-        await this.data.createFolder();
+    public async createFolder(folder?: string): Promise<void> {
+        await this.data.createFolder(folder);
     }
 
     private initializeData(info: IMountInfo, server: IStorageServer): StorageTreeNode {
@@ -67,9 +67,9 @@ export class MountPointTreeNode extends StorageTreeNode {
             case 'azurefile':
                 return new StorageTreeNode('Azure File');
             case 'nfs':
-                return new StorageTreeNode('NFS');
+                return new NfsRootNode(server, info, this);
             case 'samba':
-                return new SambaRootNode(server, this.getRootPath(info, this.cluster), this);
+                return new SambaRootNode(server, info.mountPoint, this);
             default:
                 return new StorageTreeNode('Unsupported storage');
         }

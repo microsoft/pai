@@ -3,7 +3,7 @@
 
 const express = require('express');
 const token = require('@pai/middlewares/token');
-const kubernetes = require('@pai/models/kubernetes');
+const kubernetes = require('@pai/models/kubernetes/kubernetes');
 const createError = require('@pai/utils/error');
 
 const router = new express.Router();
@@ -29,7 +29,7 @@ router.route('/pods')
       return next(createError('Forbidden', 'ForbiddenUserError', `Non-admin is not allow to do this operation.`));
     }
     try {
-      const pods = await kubernetes.getPods({namespace: req.query.namespace});
+      const pods = await kubernetes.getPods(req.query);
       res.status(200).json(pods);
     } catch (err) {
       next(err);

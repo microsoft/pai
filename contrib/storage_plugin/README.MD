@@ -1,11 +1,14 @@
 # Team wise storage
 
+*NOTICE: This tool has been deprecated, please refer to [Setup Kubernetes Persistent Volumes as Storage on PAI](../../docs/setup-persistent-volumes-on-pai.md).*
+
+
 A tool to manage external storage in PAI.
 
 ## Index
 - [ What is team wise storage](#Team_storage)
 - [ Team wise storage usages ](#Usages)
-    - [ Setup server ](#Usages_setup_server)	
+    - [ Setup server ](#Usages_setup_server)
     - [ Create storage server in PAI ](#Usages_server)
     - [ Create storage config in PAI ](#Usages_config)
     - [ Set storage config access for group ](#Usages_groupsc)
@@ -34,9 +37,9 @@ Team wise storage solution offers:
 ### Setup server <a name="Usages_setup_server"></a>
 - NFS
 
-Edit /etc/exports, export /root/path/to/share 
+Edit /etc/exports, export /root/path/to/share
 ```
-/root/path/to/share (rw, sync, no_root_squash) 
+/root/path/to/share (rw, sync, no_root_squash)
 ```
 no_root_squash is needed for storage plugin to creae folders.
 
@@ -58,7 +61,7 @@ Create Azurefile share through azure web portal.
 Create Azureblob share through azure web portal.
 
 
-### Create storage server in PAI <a name="Usages_server"></a>  
+### Create storage server in PAI <a name="Usages_server"></a>
 In PAI dev-box, swith to folder pai/contrib/storage-plugin
 
 Create server config using command:
@@ -78,16 +81,16 @@ python storagectl.py server set NAME azurefile DATASTORE FILESHARE ACCOUNTNAME K
   ```
 
 - Azureblob:
-``` 
+```
 python storagectl.py server set NAME azureblob DATASTORE CONTAINERNAME ACCOUNTNAME KEY
 ```
 
 - HDFS:
-``` 
+```
 python storagectl.py server set NAME hdfs NAMENODE PORT
 ```
 
-### Create storage config in PAI <a name="Usages_config"></a>  
+### Create storage config in PAI <a name="Usages_config"></a>
 In PAI dev-box, swith to folder pai/contrib/storage-plugin
 
 Create config using command:

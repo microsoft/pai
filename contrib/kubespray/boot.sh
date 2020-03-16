@@ -44,17 +44,19 @@ fi
 
 /bin/bash script/configuration.sh -m ${MASTER_LIST} -w ${WORKER_LIST} -c ${CLUSTER_CONFIG} || exit $?
 
-/bin/bash script/passwordless-ssh-setup.sh -c ${CLUSTER_CONFIG} || exit $?
+echo "Generate SSH Key"
 
-echo "Ping Test"
+rm -rf ${HOME}/.ssh/known_hosts
 
-ansible all -i ${HOME}/pai-deploy/cluster-cfg/hosts.yml -m ping || exit $?
+ssh-keygen -t rsa -f ~/.ssh/id_rsa -P ""
 
-/bin/bash script/nvidia-drivers-install.sh || exit $?
+ansible-playbook -i ${HOME}/pai-deploy/cluster-cfg/hosts.yml passwordless-ssh.yml || exit $?
 
-/bin/bash script/nvidia-docker-runtime-install.sh || exit $?
+ansible-playbook -i ${HOME}/pai-deploy/cluster-cfg/hosts.yml drivers-install.yml || exit $?
 
-/bin/bash script/docker-config-prepare.sh || exit $?
+ansible-playbook -i ${HOME}/pai-deploy/cluster-cfg/hosts.yml docker-runtime-setup.yml || exit $?
+
+/bin/bash requirement.sh -m ${MASTER_LIST} -w ${WORKER_LIST} -c ${CLUSTER_CONFIG} || exit $?
 
 /bin/bash script/kubernetes-boot.sh || exit $?
 

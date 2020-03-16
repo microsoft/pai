@@ -17,7 +17,7 @@
 
 const Group = require('./group');
 const logger = require('@pai/config/logger');
-const k8sModel = require('@pai/models/kubernetes');
+const k8sModel = require('@pai/models/kubernetes/kubernetes');
 
 const GROUP_NAMESPACE = process.env.PAI_GROUP_NAMESPACE || 'pai-group';
 

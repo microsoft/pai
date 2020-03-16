@@ -93,7 +93,9 @@ export const ContainerList = ({ taskStatuses }) => {
       minWidth: 100,
       maxWidth: 100,
       onRender: item => {
-        const logUrl = item.containerLog;
+        const logUrl = isNil(item.containerLog)
+          ? item.containerLog
+          : item.containerLog.replace('/tail/', '/');
         const allLogUrl = `${logUrl}user.pai.all`;
         return (
           !isNil(logUrl) && (
@@ -115,7 +117,9 @@ export const ContainerList = ({ taskStatuses }) => {
       minWidth: 100,
       maxWidth: 100,
       onRender: item => {
-        const logUrl = item.containerLog;
+        const logUrl = isNil(item.containerLog)
+          ? item.containerLog
+          : item.containerLog.replace('/tail/', '/');
         return (
           !isNil(logUrl) && (
             <Link

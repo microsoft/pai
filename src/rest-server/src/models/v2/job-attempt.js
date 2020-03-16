@@ -24,7 +24,7 @@ const {isNil} = require('lodash');
 const {convertToJobAttempt} = require('@pai/utils/frameworkConverter');
 const launcherConfig = require('@pai/config/launcher');
 const createError = require('@pai/utils/error');
-const k8sModel = require('@pai/models/kubernetes');
+const k8sModel = require('@pai/models/kubernetes/kubernetes');
 const logger = require('@pai/config/logger');
 
 let elasticSearchClient;

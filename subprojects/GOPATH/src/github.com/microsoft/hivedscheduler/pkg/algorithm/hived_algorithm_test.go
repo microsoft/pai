@@ -39,7 +39,7 @@ var allPods = map[string]*core.Pod{}
 
 func init() {
 	common.InitAll()
-	for i := 1; i <= 25; i++ {
+	for i := 1; i <= len(pss); i++ {
 		podName := fmt.Sprintf("pod%v", i)
 		allPods[podName] = &core.Pod{
 			ObjectMeta: meta.ObjectMeta{
@@ -62,7 +62,7 @@ func initNodes(h *HivedAlgorithm) {
 	}
 }
 
-var group1, group2, group3, group4, group5, group6, group7, group8, group9, group10, group11, group12, group13, group14, group15, group16, group17 = &api.AffinityGroupSpec{
+var group1, group2, group3, group4, group5, group6, group7, group8, group9, group10, group11, group12, group13, group14, group15, group16, group17, group18 = &api.AffinityGroupSpec{
 	Name:    "group1",
 	Members: []api.AffinityGroupMemberSpec{{PodNumber: 1, GpuNumber: 1}},
 }, &api.AffinityGroupSpec{
@@ -113,6 +113,9 @@ var group1, group2, group3, group4, group5, group6, group7, group8, group9, grou
 }, &api.AffinityGroupSpec{
 	Name:    "group17",
 	Members: []api.AffinityGroupMemberSpec{{PodNumber: 1, GpuNumber: 2}},
+}, &api.AffinityGroupSpec{
+	Name:    "group18",
+	Members: []api.AffinityGroupMemberSpec{{PodNumber: 2, GpuNumber: 16}},
 }
 
 var pss = map[types.UID]api.PodSchedulingSpec{
@@ -324,6 +327,14 @@ var pss = map[types.UID]api.PodSchedulingSpec{
 		GpuType:              "CT1",
 		GpuNumber:            2,
 		AffinityGroup:        group17,
+	}, "pod27": { // will be rejected because one of the pod in this group is allocated a non-suggested node
+		VirtualCluster:       "VC1",
+		Priority:             1,
+		LazyPreemptionEnable: true,
+		ReservationId:        "VC1-YQW-DGX2",
+		GpuType:              "DGX2-V100",
+		GpuNumber:            16,
+		AffinityGroup:        group18,
 	},
 }
 
@@ -424,6 +435,7 @@ func testNormalOperations(t *testing.T, h *HivedAlgorithm) {
 	testCasesThatShouldSucceed(t, h)
 	testCasesThatShouldFail(t, h)
 	testDeleteAllocatedPods(t, h)
+	testSuggestedNodes(t, h)
 }
 
 func testCasesThatShouldSucceed(t *testing.T, h *HivedAlgorithm) {
@@ -482,6 +494,19 @@ func testDeleteAllocatedPods(t *testing.T, h *HivedAlgorithm) {
 			t.Errorf("Group %v is expected to be deleted in scheduler, but not", g.name)
 		}
 	}
+}
+
+func testSuggestedNodes(t *testing.T, h *HivedAlgorithm) {
+	var nodes []string
+	for _, node := range allNodes {
+		if node != "0.0.3.1" {
+			nodes = append(nodes, node)
+		}
+	}
+	pod := allPods["pod27"]
+	pod.Annotations[api.AnnotationKeyPodSchedulingSpec] = common.ToYaml(pss[pod.UID])
+	psr := h.Schedule(pod, nodes)
+	compareSchedulingResult(t, pod, psr)
 }
 
 func testReconfiguration(t *testing.T, configFilePath string) {

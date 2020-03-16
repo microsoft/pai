@@ -42,7 +42,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        python: [3.6]
+        python: [3.7]
         os: [ubuntu-16.04, ubuntu-latest]
 
     steps:
@@ -57,10 +57,6 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install paramiko pyyaml requests prometheus_client twisted
-    - name: Test watchdog
-      run: |
-        cd src/watchdog/test
-        python -m unittest discover .
     - name: Test job exporter
       run: |
         cd src/job-exporter/test
@@ -89,7 +85,7 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install kubernetes pyyaml requests jinja2 pylint
+        pip install kubernetes pyyaml requests jinja2 pystache pylint responses
     - name: Lint kube-runtime
       run: |
         cd src/kube-runtime
@@ -98,6 +94,31 @@ jobs:
       run: |
         cd src/kube-runtime/test
         python -m unittest discover .
+
+  watchdog:
+    name: Test watchdog on go-${{ matrix.go }}-${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        go: [1.13.8]
+        os: [ubuntu-16.04, ubuntu-latest]
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+    - name: Use Go ${{ matrix.go }}
+      uses: actions/setup-go@v1
+      with:
+        go-version: ${{ matrix.go }}
+        architecture: x64
+    - name: Build watchdog
+      run: |
+        cd src/watchdog/src
+        go build ./cmd/watchdog/main.go
+    - name: Test watchdog
+      run: |
+        cd src/watchdog/src
+        go test -cover ./pkg/watchdog
 
   framework-launcher:
     name: Test framework launcher on java-${{ matrix.java }}-${{ matrix.os }}

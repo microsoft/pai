@@ -16,62 +16,160 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 // module dependencies
-const crudUtil = require('@pai/utils/manager/storage/crudUtil');
+const status = require('statuses');
+const createError = require('@pai/utils/error');
+const user = require('@pai/models/v2/user');
+const secret = require('@pai/models/kubernetes/k8s-secret');
+const kubernetes = require('@pai/models/kubernetes/kubernetes');
 
-const crudType = 'k8sSecret';
-const crudStorage = crudUtil.getStorageObject(crudType);
 
-// crud storage wrappers
-const getStorageServer = async (name) => {
-  return await crudStorage.readStorageServer(name);
+const convertVolumeSummary = (pvc) => {
+  return {
+    name: pvc.metadata.name,
+    share: (pvc.metadata.labels && pvc.metadata.labels.share === 'false') ? false : true,
+    volumeName: pvc.spec.volumeName,
+  };
 };
 
-const getStorageServers = async (names) => {
-  return await crudStorage.readStorageServers(names);
+const convertVolumeDetail = async (pvc) => {
+  const storage = convertVolumeSummary(pvc);
+  if (!storage.volumeName) {
+    return storage;
+  }
+
+  let response;
+  try {
+    response = await kubernetes.getClient().get(
+      `/api/v1/persistentvolumes/${storage.volumeName}`,
+    );
+  } catch (error) {
+    if (error.response != null) {
+      response = error.response;
+    } else {
+      throw error;
+    }
+  }
+  if (response.status !== status('OK')) {
+    throw createError(response.status, 'UnknownError', response.data.message);
+  }
+
+  const pv = response.data;
+  if (pv.spec.nfs) {
+    storage.type = 'nfs';
+    storage.data = {
+      server: pv.spec.nfs.server,
+      path: pv.spec.nfs.path,
+    };
+    storage.mountOptions = pv.spec.mountOptions;
+  } else if (pv.spec.azureFile) {
+    storage.type = 'azureFile';
+    storage.data = {
+      shareName: pv.spec.shareName,
+    };
+    storage.secretName = pv.spec.secretName;
+  } else if (pv.spec.flexVolume) {
+    if (pv.spec.flexVolume.driver === 'azure/blobfuse') {
+      storage.type = 'azureBlob';
+      storage.data = {
+        containerName: pv.spec.flexVolume.options.container,
+      };
+    } else if (pv.spec.flexVolume.driver === 'microsoft.com/smb') {
+      storage.type = 'samba';
+      storage.data = {
+        address: pv.spec.flexVolume.options.source,
+      };
+    } else {
+      storage.type = 'other';
+      storage.data = {};
+    }
+    if (pv.spec.flexVolume.secretRef) {
+      storage.secretName = pv.spec.flexVolume.secretRef.name;
+    }
+    if (pv.spec.flexVolume.options.mountoptions) {
+      storage.mountOptions = pv.spec.flexVolume.options.mountoptions.split(',');
+    }
+  } else {
+    storage.type = 'unknown';
+    storage.data = {};
+  }
+
+  if (storage.secretName) {
+    const secretData = await secret.get('default', storage.secretName);
+    if (storage.type === 'azureFile') {
+      storage.data.accountName = secretData.azurestorageaccountname;
+      storage.data.accountKey = secretData.azurestorageaccountkey;
+    } else if (storage.type === 'azureBlob') {
+      storage.data.accountName = secretData.accountname;
+      if (secretData.accountkey) {
+        storage.data.accountKey = secretData.accountkey;
+      } else if (secretData.accountsastoken) {
+        storage.data.accountSASToken = secretData.accountsastoken;
+      }
+    } else if (storage.type === 'samba') {
+      storage.data.username = secretData.username;
+      storage.data.password = secretData.password;
+    }
+  }
+
+  return storage;
 };
 
-const getStorageConfig = async (name) => {
-  return await crudStorage.readStorageConfig(name);
+const list = async (userName, filterDefault=false) => {
+  let response;
+  try {
+    response = await kubernetes.getClient().get(
+      '/api/v1/namespaces/default/persistentvolumeclaims',
+    );
+  } catch (error) {
+    if (error.response != null) {
+      response = error.response;
+    } else {
+      throw error;
+    }
+  }
+  if (response.status !== status('OK')) {
+    throw createError(response.status, 'UnknownError', response.data.message);
+  }
+
+  const userStorages = userName ? await user.getUserStorages(userName, filterDefault) : undefined;
+  const storages = response.data.items
+    .filter((item) => item.status.phase === 'Bound')
+    .filter((item) => userStorages === undefined || userStorages.includes(item.metadata.name))
+    .map(convertVolumeSummary);
+  return {storages};
 };
 
-const getStorageConfigs = async (names) => {
-  return await crudStorage.readStorageConfigs(names);
-};
+const get = async (storageName, userName) => {
+  let response;
+  try {
+    response = await kubernetes.getClient().get(
+      `/api/v1/namespaces/default/persistentvolumeclaims/${storageName}`,
+    );
+  } catch (error) {
+    if (error.response != null) {
+      response = error.response;
+    } else {
+      throw error;
+    }
+  }
 
-const createStorageServer = async (name, value) => {
-  return await crudStorage.createStorageServer(name, value);
-};
-
-const createStorageConfig = async (name, value) => {
-  return await crudStorage.createStorageConfig(name, value);
-};
-
-const updateStorageServer = async (name, value) => {
-  return await crudStorage.updateStorageServer(name, value);
-};
-
-const updateStorageConfig = async (name, value) => {
-  return await crudStorage.updateStorageConfig(name, value);
-};
-
-const deleteStorageServer = async (name) => {
-  return await crudStorage.removeStorageServer(name);
-};
-
-const deleteStorageConfig = async (name) => {
-  return await crudStorage.removeStorageConfig(name);
+  if (response.status === status('OK')) {
+    const pvc = response.data;
+    if (!userName || (await user.checkUserStorage(userName, pvc.metadata.name))) {
+      return convertVolumeDetail(pvc);
+    } else {
+      throw createError('Forbidden', 'ForbiddenUserError', `User ${userName} is not allowed to access ${storageName}.`);
+    }
+  }
+  if (response.status === status('Not Found')) {
+    throw createError('Not Found', 'NoStorageError', `Storage ${storageName} is not found.`);
+  } else {
+    throw createError(response.status, 'UnknownError', response.data.message);
+  }
 };
 
 // module exports
 module.exports = {
-  getStorageServer,
-  getStorageServers,
-  getStorageConfig,
-  getStorageConfigs,
-  createStorageServer,
-  createStorageConfig,
-  updateStorageServer,
-  updateStorageConfig,
-  deleteStorageServer,
-  deleteStorageConfig,
+  list,
+  get,
 };

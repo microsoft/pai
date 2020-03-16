@@ -1,0 +1,788 @@
+{
+    "kind": "PodList",
+    "apiVersion": "v1",
+    "metadata": {
+      "resourceVersion": "196784"
+    },
+    "items": [
+      {
+        "metadata": {
+          "name": "log-manager-ds-nxm2k",
+          "generateName": "log-manager-ds-",
+          "namespace": "default",
+          "selfLink": "/api/v1/namespaces/default/pods/log-manager-ds-nxm2k",
+          "uid": "82292418-d523-11e9-b30f-000d3ab25bb6",
+          "resourceVersion": "15481409",
+          "creationTimestamp": "2019-09-12T06:06:49Z",
+          "labels": {
+            "app": "log-manager",
+            "controller-revision-hash": "9c99f9ccf",
+            "pod-template-generation": "1"
+          },
+          "annotations": {
+            "port": "9103"
+          },
+          "ownerReferences": [
+            {
+              "apiVersion": "apps/v1",
+              "kind": "DaemonSet",
+              "name": "log-manager-ds",
+              "uid": "8216b6f1-d523-11e9-b30f-000d3ab25bb6",
+              "controller": true,
+              "blockOwnerDeletion": true
+            }
+          ]
+        },
+        "spec": {
+          "volumes": [
+            {
+              "name": "pai-log",
+              "hostPath": {
+                "path": "/var/log/pai",
+                "type": ""
+              }
+            },
+            {
+              "name": "pai-log-backup",
+              "hostPath": {
+                "path": "/var/log/pai-backup",
+                "type": ""
+              }
+            }
+          ],
+          "containers": [
+            {
+              "name": "log-manager-logrotate",
+              "image": "docker.io/openpai/log-manager-logrotate:vnext-k8s",
+              "env": [
+                {
+                  "name": "LOGROTATE_CRONSCHEDULE",
+                  "value": "daily"
+                }
+              ],
+              "resources": {},
+              "volumeMounts": [
+                {
+                  "name": "pai-log",
+                  "mountPath": "/usr/local/pai/logs"
+                },
+                {
+                  "name": "pai-log-backup",
+                  "mountPath": "/usr/local/pai/logs-backup"
+                }
+              ],
+              "terminationMessagePath": "/dev/termination-log",
+              "terminationMessagePolicy": "File",
+              "imagePullPolicy": "Always"
+            },
+            {
+              "name": "log-manager-nginx",
+              "image": "docker.io/openpai/log-manager-nginx:vnext-k8s",
+              "ports": [
+                {
+                  "name": "log-manager",
+                  "hostPort": 9103,
+                  "containerPort": 80,
+                  "protocol": "TCP"
+                }
+              ],
+              "resources": {},
+              "volumeMounts": [
+                {
+                  "name": "pai-log",
+                  "mountPath": "/usr/local/pai/logs"
+                },
+                {
+                  "name": "pai-log-backup",
+                  "mountPath": "/usr/local/pai/logs-backup"
+                }
+              ],
+              "livenessProbe": {
+                "httpGet": {
+                  "path": "/healthz",
+                  "port": "log-manager",
+                  "scheme": "HTTP"
+                },
+                "initialDelaySeconds": 10,
+                "timeoutSeconds": 1,
+                "periodSeconds": 60,
+                "successThreshold": 1,
+                "failureThreshold": 3
+              },
+              "terminationMessagePath": "/dev/termination-log",
+              "terminationMessagePolicy": "File",
+              "imagePullPolicy": "Always"
+            }
+          ],
+          "restartPolicy": "Always",
+          "terminationGracePeriodSeconds": 30,
+          "dnsPolicy": "ClusterFirst",
+          "nodeName": "10.151.41.8",
+          "securityContext": {},
+          "imagePullSecrets": [
+            {
+              "name": "pai-secret"
+            }
+          ],
+          "affinity": {
+            "nodeAffinity": {
+              "requiredDuringSchedulingIgnoredDuringExecution": {
+                "nodeSelectorTerms": [
+                  {
+                    "matchFields": [
+                      {
+                        "key": "metadata.name",
+                        "operator": "In",
+                        "values": [
+                          "10.151.41.8"
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          },
+          "schedulerName": "default-scheduler",
+          "tolerations": [
+            {
+              "key": "node.kubernetes.io/memory-pressure",
+              "operator": "Exists"
+            },
+            {
+              "key": "node.kubernetes.io/disk-pressure",
+              "operator": "Exists"
+            },
+            {
+              "key": "node.kubernetes.io/not-ready",
+              "operator": "Exists",
+              "effect": "NoExecute"
+            },
+            {
+              "key": "node.kubernetes.io/unreachable",
+              "operator": "Exists",
+              "effect": "NoExecute"
+            },
+            {
+              "key": "node.kubernetes.io/disk-pressure",
+              "operator": "Exists",
+              "effect": "NoSchedule"
+            },
+            {
+              "key": "node.kubernetes.io/memory-pressure",
+              "operator": "Exists",
+              "effect": "NoSchedule"
+            },
+            {
+              "key": "node.kubernetes.io/pid-pressure",
+              "operator": "Exists",
+              "effect": "NoSchedule"
+            },
+            {
+              "key": "node.kubernetes.io/unschedulable",
+              "operator": "Exists",
+              "effect": "NoSchedule"
+            }
+          ],
+          "enableServiceLinks": true
+        },
+        "status": {
+          "phase": "Running",
+          "conditions": [
+            {
+              "type": "Initialized",
+              "status": "True",
+              "lastProbeTime": null,
+              "lastTransitionTime": "2019-09-12T06:07:31Z"
+            },
+            {
+              "type": "Ready",
+              "status": "True",
+              "lastProbeTime": null,
+              "lastTransitionTime": "2019-11-25T14:23:16Z"
+            },
+            {
+              "type": "ContainersReady",
+              "status": "True",
+              "lastProbeTime": null,
+              "lastTransitionTime": "2019-11-25T14:23:16Z"
+            },
+            {
+              "type": "PodScheduled",
+              "status": "True",
+              "lastProbeTime": null,
+              "lastTransitionTime": "2019-09-12T06:06:49Z"
+            }
+          ],
+          "hostIP": "10.151.41.8",
+          "podIP": "172.17.0.3",
+          "startTime": "2019-09-12T06:07:31Z",
+          "containerStatuses": [
+            {
+              "name": "log-manager-logrotate",
+              "state": {
+                "running": {
+                  "startedAt": "2019-11-25T14:23:12Z"
+                }
+              },
+              "lastState": {
+                "terminated": {
+                  "exitCode": 137,
+                  "reason": "Error",
+                  "startedAt": "2019-11-25T14:22:07Z",
+                  "finishedAt": "2019-11-25T14:22:47Z",
+                  "containerID": "docker://f8703e85c2403b605779c72743d80c8b67ee98835c12c01645a03581141c9c7f"
+                }
+              },
+              "ready": true,
+              "restartCount": 5,
+              "image": "openpai/log-manager-logrotate:vnext-k8s",
+              "imageID": "docker-pullable://openpai/log-manager-logrotate@sha256:7bede480936aa47de239c4a15af5a37d8b60a9d519a0f2d46a5d29428fbe4b2c",
+              "containerID": "docker://0651a070987ccd58b36ad9638c2c7acdc1c5ac8117910ebd3da131b3e2e40c13"
+            },
+            {
+              "name": "log-manager-nginx",
+              "state": {
+                "running": {
+                  "startedAt": "2019-11-25T14:23:14Z"
+                }
+              },
+              "lastState": {},
+              "ready": true,
+              "restartCount": 5,
+              "image": "openpai/log-manager-nginx:vnext-k8s",
+              "imageID": "docker-pullable://openpai/log-manager-nginx@sha256:6f91b3019c895f749d0faa82f3c48e9ffa75f84e871ad9d117f0824e917b4014",
+              "containerID": "docker://92bc27eac6d018c699ddc25f773089e843a32fb21e0509023bf180d87facc750"
+            }
+          ],
+          "qosClass": "BestEffort"
+        }
+      },
+      {
+        "metadata": {
+          "name": "end-to-end-test-deployment-6d865cf95c-tm68r",
+          "generateName": "end-to-end-test-deployment-6d865cf95c-",
+          "namespace": "default",
+          "creationTimestamp": "2018-07-18T10:45:40Z"
+        },
+        "status": {
+          "phase": "Running",
+          "conditions": [
+            {
+              "type": "Initialized",
+              "status": "True",
+              "lastProbeTime": null,
+              "lastTransitionTime": "2018-07-18T10:45:40Z"
+            },
+            {
+              "type": "Ready",
+              "status": "True",
+              "lastProbeTime": null,
+              "lastTransitionTime": "2018-07-18T10:50:33Z"
+            },
+            {
+              "type": "PodScheduled",
+              "status": "True",
+              "lastProbeTime": null,
+              "lastTransitionTime": "2018-07-18T10:45:40Z"
+            }
+          ],
+          "hostIP": "10.151.40.4",
+          "podIP": "172.17.0.5",
+          "startTime": "2018-07-18T10:45:40Z",
+          "containerStatuses": [
+            {
+              "name": "end-to-end-test",
+              "state": {
+                "running": {
+                  "startedAt": "2018-07-18T10:50:32Z"
+                }
+              },
+              "ready": true,
+              "restartCount": 0,
+              "image": "xudifsd/end-to-end-test:latest",
+              "imageID": "docker-pullable://xudifsd/end-to-end-test@sha256:40a0e6527814058f332fc72c661d4493f8de962a9431fd0f80428d6ce468c59a",
+              "containerID": "docker://ff2c3e2e75330e0d4ef87ab646bb353f79329cd2c17b27744efd7508bac1036f"
+            }
+          ],
+          "qosClass": "BestEffort"
+        }
+      },
+      {
+        "metadata": {
+          "name": "f1up4zk9ehfpjx2zc9gq8rv860uk4qv9dtk6awjz70r2uc9n75fp4wtjbxb32-taskrole-28",
+          "namespace": "default",
+          "selfLink": "/api/v1/namespaces/default/pods/f1up4zk9ehfpjx2zc9gq8rv860uk4qv9dtk6awjz70r2uc9n75fp4wtjbxb32-taskrole-28",
+          "uid": "25d34d53-f1b3-11e9-a614-000d3a6e838d",
+          "resourceVersion": "21832379",
+          "creationTimestamp": "2019-10-18T14:25:34Z",
+          "labels": {
+            "FC_FRAMEWORK_NAME": "f1up4zk9ehfpjx2zc9gq8rv860uk4qv9dtk6awjz70r2uc9n75fp4wtjbxb32",
+            "FC_TASKROLE_NAME": "taskrole",
+            "jobName": "it_it_batch052_infer_80-159_bs2_V1",
+            "type": "kube-launcher-task",
+            "userName": "xub",
+            "virtualCluster": "default"
+          },
+          "annotations": {
+            "FC_CONFIGMAP_NAME": "f1up4zk9ehfpjx2zc9gq8rv860uk4qv9dtk6awjz70r2uc9n75fp4wtjbxb32-attempt",
+            "FC_CONFIGMAP_UID": "1fa05b3a-f1b3-11e9-a614-000d3a6e838d",
+            "FC_FRAMEWORK_ATTEMPT_ID": "0",
+            "FC_FRAMEWORK_ATTEMPT_INSTANCE_UID": "0_1fa05b3a-f1b3-11e9-a614-000d3a6e838d",
+            "FC_FRAMEWORK_NAME": "f1up4zk9ehfpjx2zc9gq8rv860uk4qv9dtk6awjz70r2uc9n75fp4wtjbxb32",
+            "FC_FRAMEWORK_NAMESPACE": "default",
+            "FC_POD_NAME": "f1up4zk9ehfpjx2zc9gq8rv860uk4qv9dtk6awjz70r2uc9n75fp4wtjbxb32-taskrole-28",
+            "FC_TASKROLE_NAME": "taskrole",
+            "FC_TASK_ATTEMPT_ID": "0",
+            "FC_TASK_INDEX": "28",
+            "container.apparmor.security.beta.kubernetes.io/app": "unconfined",
+            "rest-server/port-scheduling-spec": "{\"ssh\":{\"start\":21914,\"count\":1},\"http\":{\"start\":37075,\"count\":1}}"
+          },
+          "ownerReferences": [
+            {
+              "apiVersion": "v1",
+              "kind": "ConfigMap",
+              "name": "f1up4zk9ehfpjx2zc9gq8rv860uk4qv9dtk6awjz70r2uc9n75fp4wtjbxb32-attempt",
+              "uid": "1fa05b3a-f1b3-11e9-a614-000d3a6e838d",
+              "controller": true,
+              "blockOwnerDeletion": true
+            }
+          ]
+        },
+        "spec": {
+          "volumes": [
+            {
+              "name": "dshm",
+              "emptyDir": {
+                "medium": "Memory",
+                "sizeLimit": "512Mi"
+              }
+            },
+            {
+              "name": "pai-vol",
+              "emptyDir": {}
+            },
+            {
+              "name": "host-log",
+              "hostPath": {
+                "path": "/var/log/pai",
+                "type": ""
+              }
+            },
+            {
+              "name": "job-ssh-secret-volume",
+              "secret": {
+                "secretName": "job-ssh-secret",
+                "defaultMode": 420
+              }
+            },
+            {
+              "name": "job-exit-spec",
+              "configMap": {
+                "name": "runtime-exit-spec-configuration",
+                "defaultMode": 420
+              }
+            }
+          ],
+          "initContainers": [
+            {
+              "name": "init",
+              "image": "docker.io/openpai/kube-runtime:vnext-k8s",
+              "env": [
+                {
+                  "name": "FC_FRAMEWORK_NAMESPACE",
+                  "value": "default"
+                },
+                {
+                  "name": "FC_FRAMEWORK_NAME",
+                  "value": "f1up4zk9ehfpjx2zc9gq8rv860uk4qv9dtk6awjz70r2uc9n75fp4wtjbxb32"
+                },
+                {
+                  "name": "FC_TASKROLE_NAME",
+                  "value": "taskrole"
+                },
+                {
+                  "name": "FC_TASK_INDEX",
+                  "value": "28"
+                },
+                {
+                  "name": "FC_CONFIGMAP_NAME",
+                  "value": "f1up4zk9ehfpjx2zc9gq8rv860uk4qv9dtk6awjz70r2uc9n75fp4wtjbxb32-attempt"
+                },
+                {
+                  "name": "FC_POD_NAME",
+                  "value": "f1up4zk9ehfpjx2zc9gq8rv860uk4qv9dtk6awjz70r2uc9n75fp4wtjbxb32-taskrole-28"
+                },
+                {
+                  "name": "FC_FRAMEWORK_ATTEMPT_ID",
+                  "value": "0"
+                },
+                {
+                  "name": "FC_FRAMEWORK_ATTEMPT_INSTANCE_UID",
+                  "value": "0_1fa05b3a-f1b3-11e9-a614-000d3a6e838d"
+                },
+                {
+                  "name": "FC_CONFIGMAP_UID",
+                  "value": "1fa05b3a-f1b3-11e9-a614-000d3a6e838d"
+                },
+                {
+                  "name": "FC_TASK_ATTEMPT_ID",
+                  "value": "0"
+                },
+                {
+                  "name": "FC_POD_UID",
+                  "valueFrom": {
+                    "fieldRef": {
+                      "apiVersion": "v1",
+                      "fieldPath": "metadata.uid"
+                    }
+                  }
+                },
+                {
+                  "name": "FC_TASK_ATTEMPT_INSTANCE_UID",
+                  "value": "0_$(FC_POD_UID)"
+                },
+                {
+                  "name": "USER_CMD",
+                  "value": "slee0 30m"
+                },
+                {
+                  "name": "KUBE_APISERVER_ADDRESS",
+                  "value": "http://10.1.2.7:8080"
+                },
+                {
+                  "name": "GANG_ALLOCATION",
+                  "value": "false"
+                }
+              ],
+              "resources": {},
+              "volumeMounts": [
+                {
+                  "name": "pai-vol",
+                  "mountPath": "/usr/local/pai"
+                },
+                {
+                  "name": "host-log",
+                  "mountPath": "/usr/local/pai/logs",
+                  "subPath": "xub/it_it_batch052_infer_80-159_bs2_V1/taskrole"
+                },
+                {
+                  "name": "job-exit-spec",
+                  "mountPath": "/usr/local/pai-config"
+                }
+              ],
+              "terminationMessagePath": "/dev/termination-log",
+              "terminationMessagePolicy": "FallbackToLogsOnError",
+              "imagePullPolicy": "Always"
+            }
+          ],
+          "containers": [
+            {
+              "name": "app",
+              "image": "openpai/pytorch-xlm",
+              "command": [
+                "/usr/local/pai/runtime"
+              ],
+              "env": [
+                {
+                  "name": "FC_FRAMEWORK_NAMESPACE",
+                  "value": "default"
+                },
+                {
+                  "name": "FC_FRAMEWORK_NAME",
+                  "value": "f1up4zk9ehfpjx2zc9gq8rv860uk4qv9dtk6awjz70r2uc9n75fp4wtjbxb32"
+                },
+                {
+                  "name": "FC_TASKROLE_NAME",
+                  "value": "taskrole"
+                },
+                {
+                  "name": "FC_TASK_INDEX",
+                  "value": "28"
+                },
+                {
+                  "name": "FC_CONFIGMAP_NAME",
+                  "value": "f1up4zk9ehfpjx2zc9gq8rv860uk4qv9dtk6awjz70r2uc9n75fp4wtjbxb32-attempt"
+                },
+                {
+                  "name": "FC_POD_NAME",
+                  "value": "f1up4zk9ehfpjx2zc9gq8rv860uk4qv9dtk6awjz70r2uc9n75fp4wtjbxb32-taskrole-28"
+                },
+                {
+                  "name": "FC_FRAMEWORK_ATTEMPT_ID",
+                  "value": "0"
+                },
+                {
+                  "name": "FC_FRAMEWORK_ATTEMPT_INSTANCE_UID",
+                  "value": "0_1fa05b3a-f1b3-11e9-a614-000d3a6e838d"
+                },
+                {
+                  "name": "FC_CONFIGMAP_UID",
+                  "value": "1fa05b3a-f1b3-11e9-a614-000d3a6e838d"
+                },
+                {
+                  "name": "FC_TASK_ATTEMPT_ID",
+                  "value": "0"
+                },
+                {
+                  "name": "FC_POD_UID",
+                  "valueFrom": {
+                    "fieldRef": {
+                      "apiVersion": "v1",
+                      "fieldPath": "metadata.uid"
+                    }
+                  }
+                },
+                {
+                  "name": "FC_TASK_ATTEMPT_INSTANCE_UID",
+                  "value": "0_$(FC_POD_UID)"
+                },
+                {
+                  "name": "PAI_FRAMEWORK_NAME",
+                  "value": "xub~it_it_batch052_infer_80-159_bs2_V1"
+                },
+                {
+                  "name": "PAI_JOB_NAME",
+                  "value": "xub~it_it_batch052_infer_80-159_bs2_V1"
+                },
+                {
+                  "name": "PAI_USER_NAME",
+                  "value": "xub"
+                },
+                {
+                  "name": "PAI_DEFAULT_FS_URI"
+                },
+                {
+                  "name": "PAI_TASK_ROLE_COUNT",
+                  "value": "1"
+                },
+                {
+                  "name": "PAI_TASK_ROLE_LIST",
+                  "value": "taskrole"
+                },
+                {
+                  "name": "PAI_TASK_ROLE_TASK_COUNT_taskrole",
+                  "value": "80"
+                },
+                {
+                  "name": "PAI_RESOURCE_taskrole",
+                  "value": "1,4,40960,0"
+                },
+                {
+                  "name": "PAI_MIN_FAILED_TASK_COUNT_taskrole",
+                  "value": "-1"
+                },
+                {
+                  "name": "PAI_MIN_SUCCEEDED_TASK_COUNT_taskrole",
+                  "value": "-1"
+                },
+                {
+                  "name": "PAI_USERNAME",
+                  "value": "xub"
+                },
+                {
+                  "name": "PAI_TASKS_NUM",
+                  "value": "80"
+                },
+                {
+                  "name": "PAI_JOB_TASK_COUNT",
+                  "value": "80"
+                },
+                {
+                  "name": "PAI_TASK_ROLES_NUM",
+                  "value": "1"
+                },
+                {
+                  "name": "PAI_JOB_TASK_ROLE_COUNT",
+                  "value": "1"
+                },
+                {
+                  "name": "PAI_JOB_TASK_ROLE_LIST",
+                  "value": "taskrole"
+                },
+                {
+                  "name": "PAI_CURRENT_TASK_ROLE_NAME",
+                  "valueFrom": {
+                    "fieldRef": {
+                      "apiVersion": "v1",
+                      "fieldPath": "metadata.annotations['FC_TASKROLE_NAME']"
+                    }
+                  }
+                },
+                {
+                  "name": "PAI_CURRENT_TASK_ROLE_CURRENT_TASK_INDEX",
+                  "valueFrom": {
+                    "fieldRef": {
+                      "apiVersion": "v1",
+                      "fieldPath": "metadata.annotations['FC_TASK_INDEX']"
+                    }
+                  }
+                },
+                {
+                  "name": "PAI_TASK_INDEX",
+                  "valueFrom": {
+                    "fieldRef": {
+                      "apiVersion": "v1",
+                      "fieldPath": "metadata.annotations['FC_TASK_INDEX']"
+                    }
+                  }
+                }
+              ],
+              "resources": {
+                "limits": {
+                  "cpu": "4",
+                  "github.com/fuse": "1",
+                  "memory": "40Gi",
+                  "nvidia.com/gpu": "1"
+                },
+                "requests": {
+                  "cpu": "4",
+                  "github.com/fuse": "1",
+                  "memory": "40Gi",
+                  "nvidia.com/gpu": "1"
+                }
+              },
+              "volumeMounts": [
+                {
+                  "name": "dshm",
+                  "mountPath": "/dev/shm"
+                },
+                {
+                  "name": "pai-vol",
+                  "mountPath": "/usr/local/pai"
+                },
+                {
+                  "name": "host-log",
+                  "mountPath": "/usr/local/pai/logs",
+                  "subPath": "xub/it_it_batch052_infer_80-159_bs2_V1/taskrole"
+                },
+                {
+                  "name": "job-ssh-secret-volume",
+                  "readOnly": true,
+                  "mountPath": "/usr/local/pai/ssh-secret"
+                }
+              ],
+              "terminationMessagePath": "/tmp/pai-termination-log",
+              "terminationMessagePolicy": "FallbackToLogsOnError",
+              "imagePullPolicy": "Always",
+              "securityContext": {
+                "capabilities": {
+                  "add": [
+                    "SYS_ADMIN",
+                    "IPC_LOCK",
+                    "DAC_READ_SEARCH"
+                  ],
+                  "drop": [
+                    "MKNOD"
+                  ]
+                },
+                "procMount": "Default"
+              }
+            }
+          ],
+          "restartPolicy": "Never",
+          "terminationGracePeriodSeconds": 30,
+          "dnsPolicy": "ClusterFirst",
+          "serviceAccountName": "frameworkbarrier",
+          "serviceAccount": "frameworkbarrier",
+          "nodeName": "10.1.3.29",
+          "hostNetwork": true,
+          "securityContext": {},
+          "imagePullSecrets": [
+            {
+              "name": "pai-secret"
+            }
+          ],
+          "schedulerName": "default-scheduler",
+          "tolerations": [
+            {
+              "key": "node.kubernetes.io/not-ready",
+              "operator": "Exists",
+              "effect": "NoExecute",
+              "tolerationSeconds": 300
+            },
+            {
+              "key": "node.kubernetes.io/unreachable",
+              "operator": "Exists",
+              "effect": "NoExecute",
+              "tolerationSeconds": 300
+            }
+          ],
+          "enableServiceLinks": true
+        },
+        "status": {
+          "phase": "Pending",
+          "conditions": [
+            {
+              "type": "Initialized",
+              "status": "True",
+              "lastProbeTime": null,
+              "lastTransitionTime": "2019-10-19T08:04:06Z"
+            },
+            {
+              "type": "Ready",
+              "status": "False",
+              "lastProbeTime": null,
+              "lastTransitionTime": "2019-10-19T08:03:59Z",
+              "reason": "ContainersNotReady",
+              "message": "containers with unready status: [app]"
+            },
+            {
+              "type": "ContainersReady",
+              "status": "False",
+              "lastProbeTime": null,
+              "lastTransitionTime": "2019-10-19T08:03:59Z",
+              "reason": "ContainersNotReady",
+              "message": "containers with unready status: [app]"
+            },
+            {
+              "type": "PodScheduled",
+              "status": "True",
+              "lastProbeTime": null,
+              "lastTransitionTime": "2019-10-19T08:03:59Z"
+            }
+          ],
+          "hostIP": "10.1.3.29",
+          "podIP": "10.1.3.29",
+          "startTime": "2019-10-19T08:03:59Z",
+          "initContainerStatuses": [
+            {
+              "name": "init",
+              "state": {
+                "terminated": {
+                  "exitCode": 0,
+                  "reason": "Completed",
+                  "startedAt": "2019-10-19T08:04:05Z",
+                  "finishedAt": "2019-10-19T08:04:06Z",
+                  "containerID": "docker://6d9de4ea533ba30fc006e7c17efacee9b330725a01da5aff1155fcb7600032ab"
+                }
+              },
+              "lastState": {},
+              "ready": true,
+              "restartCount": 0,
+              "image": "openpai/kube-runtime:vnext-k8s",
+              "imageID": "docker-pullable://openpai/kube-runtime@sha256:df26f56d11f928e64d1c8f120f0ad0455607cb13e2cc9484f7ed1a3be7731114",
+              "containerID": "docker://6d9de4ea533ba30fc006e7c17efacee9b330725a01da5aff1155fcb7600032ab"
+            }
+          ],
+          "containerStatuses": [
+            {
+              "name": "app",
+              "state": {
+                "waiting": {
+                  "reason": "PodInitializing"
+                }
+              },
+              "lastState": {},
+              "ready": false,
+              "restartCount": 0,
+              "image": "openpai/pytorch-xlm",
+              "imageID": ""
+            }
+          ],
+          "qosClass": "Guaranteed"
+        }
+      }
+    ]
+  }
+  

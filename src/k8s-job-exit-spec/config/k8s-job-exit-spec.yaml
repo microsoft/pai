@@ -242,14 +242,14 @@ spec:
   - "Contact Cluster Admin"
 
 - code: -200
-  phrase: PodSpecInvalid
+  phrase: PodSpecPermanentError
   issuer: PAI_FC
   causer: USER_SUBMISSION
   type: USER_FAILURE
   stage: SUBMITTING
   behavior: PERMANENT
   reaction: NEVER_RETRY
-  reason: "Pod spec is invalid"
+  reason: "Pod spec contains permanent error"
   repro:
   - "Specify a Pod in Framework with duplicated container names"
   solution:

@@ -21,7 +21,7 @@ const yaml = require('js-yaml');
 const {get} = require('lodash');
 const fs = require('fs');
 const logger = require('@pai/config/logger');
-const k8sModel = require('@pai/models/kubernetes');
+const k8sModel = require('@pai/models/kubernetes/kubernetes');
 
 let paiMachineList = [];
 try {

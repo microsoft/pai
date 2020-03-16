@@ -82,19 +82,6 @@ class TestRuntime(unittest.TestCase):
         initializer.init_plugins(jobconfig, commands, "../src/plugins", ".",
                                  "worker")
 
-    def test_plugin_prune(self):
-        os.environ["GANG_ALLOCATION"] = "false"
-        job_path = "gang_ssh_conflict.yaml"
-        if os.path.exists(job_path):
-            with open(job_path, "r") as f:
-                job_config = yaml.safe_load(f)
-        pruned_config = initializer._prune_plugins(job_config)
-        self.assertEqual(
-            pruned_config["extras"]["com.microsoft.pai.runtimeplugin"],
-            [{
-                'plugin': 'tensorboard'
-            }])
-
     def load_json_file(self, file_name):
         with open(file_name) as f:
             return json.load(f)
@@ -121,8 +108,8 @@ class TestRuntime(unittest.TestCase):
             parameters)
 
         expect_commands = [
-            "apt-get update", "umask 000", "mkdir --parents /tmp_SRV_BJ_root",
-            "apt-get install --assume-yes nfs-common",
+            "umask 000", "mkdir --parents /tmp_SRV_BJ_root",
+            "apt-get update;apt-get install --assume-yes nfs-common;",
             "mount -t nfs4 10.151.41.14:/data/share/drbdha /tmp_SRV_BJ_root",
             "mkdir --parents /mnt/data",
             "mkdir --parents /tmp_SRV_BJ_root/data",
@@ -142,8 +129,8 @@ class TestRuntime(unittest.TestCase):
             [])
 
         expect_commands = [
-            "apt-get update", "umask 000", "mkdir --parents /tmp_SRV_BJ_root",
-            "apt-get install --assume-yes nfs-common",
+            "umask 000", "mkdir --parents /tmp_SRV_BJ_root",
+            "apt-get update;apt-get install --assume-yes nfs-common;",
             "mount -t nfs4 10.151.41.14:/data/share/drbdha /tmp_SRV_BJ_root",
             "mkdir --parents /mnt/data",
             "mkdir --parents /tmp_SRV_BJ_root/data",
@@ -164,9 +151,8 @@ class TestRuntime(unittest.TestCase):
             parameters)
 
         expect_commands = [
-            "apt-get update", "umask 000",
-            "mkdir --parents /tmp_samba_test_root",
-            "apt-get install --assume-yes cifs-utils",
+            "umask 000", "mkdir --parents /tmp_samba_test_root",
+            "apt-get update;apt-get install --assume-yes cifs-utils;",
             "mount -t cifs //10.151.41.14/data/share/drbdha /tmp_samba_test_root"
             + " -o vers=3.0,username=user,password=password,domain=domain",
             "mkdir --parents /mnt/data",
@@ -186,9 +172,8 @@ class TestRuntime(unittest.TestCase):
             parameters)
 
         expect_commands = [
-            "apt-get update", "umask 000",
-            "mkdir --parents /tmp_azure_file_test_root",
-            "apt-get install --assume-yes cifs-utils",
+            "umask 000", "mkdir --parents /tmp_azure_file_test_root",
+            "apt-get update;apt-get install --assume-yes cifs-utils sshpass;",
             "mount -t cifs //datastore/fileshare /tmp_azure_file_test_root" +
             " -o vers=3.0,username=accountname,password=key,dir_mode=0777,file_mode=0777,serverino",
             "mkdir --parents /mnt/data",
@@ -209,7 +194,7 @@ class TestRuntime(unittest.TestCase):
             parameters)
 
         expect_commands = [
-            "apt-get update", "umask 000",
+            "umask 000", "apt-get update",
             "apt-get install --assume-yes wget curl lsb-release apt-transport-https",
             "valid_release=('14.04' '15.10' '16.04' '16.10' '17.04' '17.10' '18.04' '18.10' '19.04')",
             "release=`lsb_release -r | cut -f 2`",

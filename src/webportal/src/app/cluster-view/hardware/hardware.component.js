@@ -205,7 +205,7 @@ const loadGpuUtilData = (
     url:
       prometheusUri +
       '/api/v1/query_range?' +
-      'query=avg+by+(instance)(nvidiasmi_utilization_gpu)' +
+      'query=avg+by+(instance)(gpu_utilization)' +
       '&start=' +
       currentEpochTimeInSeconds +
       '&end=' +
@@ -242,7 +242,7 @@ const loadGpuMemUtilData = (
     url:
       prometheusUri +
       '/api/v1/query_range?' +
-      'query=avg+by+(instance)(nvidiasmi_utilization_memory)' +
+      'query=avg+by+(instance)(gpu_mem_utilization)' +
       '&start=' +
       currentEpochTimeInSeconds +
       '&end=' +

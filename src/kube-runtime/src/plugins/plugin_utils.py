@@ -18,6 +18,8 @@
 
 import logging
 import argparse
+import os
+import shutil
 import yaml
 
 from common.utils import init_logger
@@ -54,3 +56,22 @@ def plugin_init():
     plugin_config = yaml.safe_load(args.plugin_config)
 
     return [plugin_config, args.pre_script, args.post_script]
+
+
+PAI_WORK_DIR = "/usr/local/pai"
+
+
+def try_to_install_by_cache(group_name: str, fallback_cmds: list):
+    source_folder = "/opt/package_cache"
+    target_folder = os.path.join(PAI_WORK_DIR, "package_cache")
+    if not os.path.exists(source_folder):
+        return "{};".format(";".join(fallback_cmds))
+    exists_group_names = os.listdir(source_folder)
+    needed_group_names = [name for name in exists_group_names if name.startswith(group_name + '-')]
+    for name in needed_group_names:
+        name_source_folder = os.path.join(source_folder, name)
+        name_target_folder = os.path.join(target_folder, name)
+        if not os.path.exists(name_target_folder):  # avoid duplicate copy
+            shutil.copytree(name_source_folder, name_target_folder)
+    cached_cmd = "/bin/bash {}/runtime.d/install_group.sh ".format(PAI_WORK_DIR) + group_name
+    return "{} || {{ {}; }}".format(cached_cmd, ";".join(fallback_cmds))

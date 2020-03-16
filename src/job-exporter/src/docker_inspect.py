@@ -22,6 +22,7 @@ import sys
 import logging
 
 import utils
+from utils import GpuVendor
 
 logger = logging.getLogger(__name__)
 
@@ -54,7 +55,7 @@ keys = {"PAI_JOB_NAME", "PAI_USER_NAME", "PAI_CURRENT_TASK_ROLE_NAME", "GPU_ID",
         "PAI_TASK_INDEX", "DLWS_JOB_ID", "DLWS_USER_NAME"}
 
 
-def parse_docker_inspect(inspect_output):
+def parse_docker_inspect(inspect_output, gpu_vender):
     obj = json.loads(inspect_output)
 
     m = {}
@@ -75,8 +76,12 @@ def parse_docker_inspect(inspect_output):
             # for kube-launcher tasks
             if k == "FC_TASK_INDEX":
                 m["PAI_TASK_INDEX"] = v
-            elif k == "NVIDIA_VISIBLE_DEVICES" and v != "all" and v != "void":
-                m["GPU_ID"] = v
+            else:
+                if k == "NVIDIA_VISIBLE_DEVICES" and gpu_vender == GpuVendor.NVIDIA and v \
+                    and v != "all" and v != "void" and v != "none":
+                    m["GPU_ID"] = v
+                if k == "PAI_AMD_VISIBLE_DEVICES" and gpu_vender == GpuVendor.AMD and v:
+                    m["GPU_ID"] = v
 
             if k == "FC_FRAMEWORK_ATTEMPT_INSTANCE_UID" or k == "APP_ID":
                 m["JOB_INSTANCE_ID"] = v
@@ -92,13 +97,13 @@ def parse_docker_inspect(inspect_output):
             m.get("JOB_INSTANCE_ID"),
             pid)
 
-def inspect(container_id, histogram, timeout):
+def inspect(container_id, histogram, timeout, gpu_vender):
     try:
         result = utils.exec_cmd(
                 ["docker", "inspect", container_id],
                 histogram=histogram,
                 timeout=timeout)
-        return parse_docker_inspect(result)
+        return parse_docker_inspect(result, gpu_vender)
     except subprocess.CalledProcessError as e:
         logger.exception("command '%s' return with error (code %d): %s",
                 e.cmd, e.returncode, e.output)

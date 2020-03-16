@@ -1,0 +1,6 @@
+---
+- name: Check memory resource requirement for openpai service
+  fail:
+    msg: "OpenPAI's worker node should have 16 Gi free memory for service "
+  when:
+    - ansible_memfree_mb < 16000

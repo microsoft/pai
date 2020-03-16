@@ -21,6 +21,7 @@ const express = require('express');
 const userRouter = require('@pai/routes/v2/user');
 const groupRouter = require('@pai/routes/v2/group');
 const storageRouter = require('@pai/routes/v2/storage');
+const storageDeprecatedRouter = require('@pai/routes/v2/storage-deprecated');
 const controller = require('@pai/controllers/v2');
 const jobRouter = require('@pai/routes/v2/job');
 const virtualClusterRouter = require('@pai/routes/v2/virtual-cluster');
@@ -38,6 +39,8 @@ router.use('/user', userRouter);
 
 router.use('/group', groupRouter);
 
-router.use('/storage', storageRouter);
+router.use('/storages', storageRouter);
+router.use('/storage', storageDeprecatedRouter);
+
 // module exports
 module.exports = router;

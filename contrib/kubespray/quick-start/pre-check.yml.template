@@ -1,0 +1,39 @@
+all:
+  hosts:
+{%- for vm in env["master"] %}
+    {{ vm["hostname"] }}:
+      ip: {{ vm["ip"] }}
+      access_ip: {{ vm["ip"] }}
+      ansible_host: {{ vm["ip"] }}
+      ansible_ssh_user: {{ env["cfg"]['user'] }}
+      ansible_ssh_pass: "{{ env["cfg"]['password'] }}"
+      ansible_become_pass: "{{ env["cfg"]['password'] }}"
+{%- if "ssh_key_file_path" in env["cfg"]%}
+      ansible_ssh_private_key_file: "{{ env["cfg"]["ssh_key_file_path"] }}"
+{%- endif %}
+      ansible_ssh_extra_args: '-o StrictHostKeyChecking=no'
+{%- endfor %}
+{%- for vm in env["worker"] %}
+    {{ vm["hostname"] }}:
+      ip: {{ vm["ip"] }}
+      access_ip: {{ vm["ip"] }}
+      ansible_host: {{ vm["ip"] }}
+      ansible_ssh_user: {{ env["cfg"]['user'] }}
+      ansible_ssh_pass: "{{ env["cfg"]['password'] }}"
+      ansible_become_pass: "{{ env["cfg"]['password'] }}"
+{%- if "ssh_key_file_path" in env["cfg"]%}
+      ansible_ssh_private_key_file: "{{ env["cfg"]["ssh_key_file_path"] }}"
+{%- endif %}
+      ansible_ssh_extra_args: '-o StrictHostKeyChecking=no'
+{%- endfor %}
+  children:
+    infra:
+      hosts:
+{%- for vm in env["master"] %}
+        {{ vm["hostname"] }}:
+{%- endfor %}
+    worker:
+      hosts:
+{%- for vm in env["worker"] %}
+        {{ vm["hostname"] }}:
+{%- endfor %}

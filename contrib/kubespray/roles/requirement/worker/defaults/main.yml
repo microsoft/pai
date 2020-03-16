@@ -1,0 +1,6 @@
+docker_check: true
+worker_default_docker_runtime: nvidia
+
+resource_check: true
+
+gpu_type: nvidia

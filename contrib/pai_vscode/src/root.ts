@@ -16,10 +16,13 @@ import { PAIJobManager } from './pai/paiJobManager';
 import { PAIWebpages } from './pai/paiWebpages';
 import { RecentJobManager } from './pai/recentJobManager';
 import { HDFS } from './pai/storage/hdfs';
+import { NfsStorageManager } from './pai/storage/nfsStorageManager';
 import { PersonalStorageManager } from './pai/storage/personalStorageManager';
+import { StorageHelperClass } from './pai/storage/storageHelper';
 import { RemoteFileEditor } from './pai/utility/remoteFileEditor';
+import { YamlCommands } from './pai/yaml/yamlCommands';
 
-export const allSingletonClasses: { new(...arg: any[]): Singleton }[] = [
+export const allSingletonClasses: (new(...arg: any[]) => Singleton)[] = [
     UtilClass,
     ClusterManager,
     RecentJobManager,
@@ -28,9 +31,12 @@ export const allSingletonClasses: { new(...arg: any[]): Singleton }[] = [
     PAIJobManager,
     PAIWebpages,
     HDFS,
+    NfsStorageManager,
     PersonalStorageManager,
     HDFSTreeDataProvider,
     StorageTreeDataProvider,
     JobListTreeDataProvider,
-    RemoteFileEditor
+    RemoteFileEditor,
+    StorageHelperClass,
+    YamlCommands
 ];
