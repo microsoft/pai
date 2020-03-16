@@ -25,6 +25,7 @@ package algorithm
 import (
 	"fmt"
 	"github.com/microsoft/hivedscheduler/pkg/api"
+	"github.com/microsoft/hivedscheduler/pkg/common"
 	core "k8s.io/api/core/v1"
 	"k8s.io/klog"
 	"strings"
@@ -108,10 +109,10 @@ type AlgoAffinityGroup struct {
 	vc                   api.VirtualClusterName
 	gangReleaseEnable    bool
 	lazyPreemptionEnable bool
-	totalPodNums         map[int32]int32       // GpuNum -> PodNum
-	allocatedPods        map[int32][]*core.Pod // GpuNum -> a list of allocated pods and node addresses
-	physicalGpuPlacement map[int32][]CellList  // GpuNum -> a list of pods -> a list of physical GPUs of each pod
-	virtualGpuPlacement  map[int32][]CellList  // GpuNum -> a list of pods -> a list of virtual GPUs of each pod
+	totalPodNums         map[int32]int32        // GpuNum -> PodNum
+	allocatedPods        map[int32][]*core.Pod  // GpuNum -> a list of allocated pods and node addresses
+	physicalGpuPlacement affinityGroupPlacement // GpuNum -> a list of pods -> a list of physical GPUs of each pod
+	virtualGpuPlacement  affinityGroupPlacement // GpuNum -> a list of pods -> a list of virtual GPUs of each pod
 	lazyPreemptionStatus *api.LazyPreemptionStatus
 }
 
@@ -132,8 +133,8 @@ func newAlgoAffinityGroup(
 		lazyPreemptionEnable: lazyPreemptionEnable,
 		totalPodNums:         podNums,
 		allocatedPods:        map[int32][]*core.Pod{},
-		physicalGpuPlacement: map[int32][]CellList{},
-		virtualGpuPlacement:  map[int32][]CellList{},
+		physicalGpuPlacement: affinityGroupPlacement{},
+		virtualGpuPlacement:  affinityGroupPlacement{},
 	}
 	for gpuNum, podNum := range podNums {
 		group.physicalGpuPlacement[gpuNum] = make([]CellList, podNum)
@@ -152,4 +153,42 @@ func (aag *AlgoAffinityGroup) ToAffinityGroup() api.AffinityGroup {
 	ag.Name = aag.name
 	ag.Status.LazyPreemptionStatus = aag.lazyPreemptionStatus
 	return ag
+}
+
+type affinityGroupPlacement map[int32][]CellList
+
+func physicalPlacementToString(placement affinityGroupPlacement) string {
+	nodeToGpuIndices := map[string][]int32{}
+	for _, podPlacements := range placement {
+		for _, pod := range podPlacements {
+			for _, gpu := range pod {
+				pGpu := gpu.(*PhysicalCell)
+				nodes, gpuIndices := pGpu.GetPhysicalPlacement()
+				if _, ok := nodeToGpuIndices[nodes[0]]; !ok {
+					nodeToGpuIndices[nodes[0]] = []int32{}
+				}
+				nodeToGpuIndices[nodes[0]] = append(nodeToGpuIndices[nodes[0]], gpuIndices[0])
+			}
+		}
+	}
+	return common.ToJson(nodeToGpuIndices)
+}
+
+func virtualPlacementToString(placement affinityGroupPlacement) string {
+	preassignedCellToLeafCells := map[api.CellAddress][]api.CellAddress{}
+	for _, podPlacements := range placement {
+		for _, pod := range podPlacements {
+			for _, gpu := range pod {
+				vGpu := gpu.(*VirtualCell)
+				address := vGpu.GetAddress()
+				preassignedAddress := vGpu.GetPreAssignedCell().GetAddress()
+				if _, ok := preassignedCellToLeafCells[preassignedAddress]; !ok {
+					preassignedCellToLeafCells[preassignedAddress] = []api.CellAddress{}
+				}
+				preassignedCellToLeafCells[preassignedAddress] = append(
+					preassignedCellToLeafCells[preassignedAddress], address)
+			}
+		}
+	}
+	return common.ToJson(preassignedCellToLeafCells)
 }

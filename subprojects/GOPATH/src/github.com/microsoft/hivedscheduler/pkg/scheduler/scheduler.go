@@ -180,12 +180,12 @@ func NewHivedScheduler() *HivedScheduler {
 			PreemptHandler: s.preemptRoutine,
 		},
 		internal.InspectHandlers{
-			GetAllAffinityGroupsHandler: s.getAllAffinityGroups,
-			GetAffinityGroupHandler:     s.getAffinityGroup,
-			GetClusterStatusHandler:     s.getClusterStatus,
-			GetPCStatusHandler:          s.getPCStatus,
-			GetAllVCsStatusHandler:      s.getAllVCsStatus,
-			GetVCStatus:                 s.getVCStatus,
+			GetAllAffinityGroupsHandler:        s.getAllAffinityGroups,
+			GetAffinityGroupHandler:            s.getAffinityGroup,
+			GetClusterStatusHandler:            s.getClusterStatus,
+			GetPhysicalClusterStatusHandler:    s.getPCStatus,
+			GetAllVirtualClustersStatusHandler: s.getAllVCsStatus,
+			GetVirtualClusterStatusHandler:     s.getVCStatus,
 		},
 	)
 
@@ -691,13 +691,13 @@ func (s *HivedScheduler) getClusterStatus() si.ClusterStatus {
 }
 
 func (s *HivedScheduler) getPCStatus() si.PhysicalClusterStatus {
-	return s.schedulerAlgorithm.GetPCStatus()
+	return s.schedulerAlgorithm.GetPhysicalClusterStatus()
 }
 
 func (s *HivedScheduler) getAllVCsStatus() map[si.VirtualClusterName]si.VirtualClusterStatus {
-	return s.schedulerAlgorithm.GetAllVCsStatus()
+	return s.schedulerAlgorithm.GetAllVirtualClustersStatus()
 }
 
 func (s *HivedScheduler) getVCStatus(vcn si.VirtualClusterName) si.VirtualClusterStatus {
-	return s.schedulerAlgorithm.GetVCStatus(vcn)
+	return s.schedulerAlgorithm.GetVirtualClusterStatus(vcn)
 }

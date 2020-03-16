@@ -64,6 +64,20 @@ func (s Set) Items() map[T]Empty {
 	return s.items
 }
 
+func (s Set) ToStringSlice() []string {
+	ss := make([]string, len(s.items))
+	n := int32(0)
+	for item := range s.items {
+		if str, ok := item.(string); !ok {
+			panic("Converting a non-string item in Set to string")
+		} else {
+			ss[n] = str
+			n++
+		}
+	}
+	return ss
+}
+
 type ImmutableSet struct {
 	set Set
 }

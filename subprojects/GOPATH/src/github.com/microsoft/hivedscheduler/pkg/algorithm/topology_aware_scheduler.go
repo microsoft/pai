@@ -67,7 +67,7 @@ func NewTopologyAwareScheduler(
 func (t *topologyAwareScheduler) Schedule(
 	podGpuNumbers map[int32]int32,
 	p CellPriority,
-	suggestedNodes common.Set) map[int32][]CellList {
+	suggestedNodes common.Set) affinityGroupPlacement {
 
 	// GPU numbers of the pods to schedule
 	var sortedPodGpuNumbers []int32
@@ -99,7 +99,7 @@ func (t *topologyAwareScheduler) Schedule(
 	}
 	selectedGpus := CellList{}
 	nodeAvailableGpus := map[Cell]CellList{}
-	podPlacements := map[int32][]CellList{}
+	podPlacements := affinityGroupPlacement{}
 	for podIndex := 0; podIndex < len(sortedPodGpuNumbers); podIndex++ {
 		gpuNumber := sortedPodGpuNumbers[podIndex]
 		n := selectedNodes[podIndex]

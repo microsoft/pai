@@ -271,7 +271,7 @@ func (ws *WebServer) serveClusterStatus(w http.ResponseWriter, r *http.Request) 
 
 func (ws *WebServer) servePhysicalClusterStatus(w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodGet {
-		w.Write(common.ToJsonBytes(ws.iHandlers.GetPCStatusHandler()))
+		w.Write(common.ToJsonBytes(ws.iHandlers.GetPhysicalClusterStatusHandler()))
 		return
 	}
 
@@ -284,12 +284,12 @@ func (ws *WebServer) serveVirtualClustersStatus(w http.ResponseWriter, r *http.R
 	name := strings.TrimPrefix(r.URL.Path, si.VirtualClustersPath)
 	if name == "" {
 		if r.Method == http.MethodGet {
-			w.Write(common.ToJsonBytes(ws.iHandlers.GetAllVCsStatusHandler()))
+			w.Write(common.ToJsonBytes(ws.iHandlers.GetAllVirtualClustersStatusHandler()))
 			return
 		}
 	} else {
 		if r.Method == http.MethodGet {
-			w.Write(common.ToJsonBytes(ws.iHandlers.GetVCStatus(si.VirtualClusterName(name))))
+			w.Write(common.ToJsonBytes(ws.iHandlers.GetVirtualClusterStatusHandler(si.VirtualClusterName(name))))
 			return
 		}
 	}
