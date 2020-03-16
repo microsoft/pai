@@ -21,7 +21,7 @@ const launcherConfig = require('@pai/config/launcher');
 
 if (launcherConfig.sqlConnectionString !== 'unset') {
   const sequelize = new Sequelize(
-    process.env.SQL_CONNECTION_STR,
+    launcherConfig.sqlConnectionString,
     {
       pool: {
         max: 10,

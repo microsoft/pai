@@ -62,10 +62,6 @@ class RestServer:
         service_object_model['etcd-uris'] = ','.join('http://{0}:4001'.format(host['hostip'])
                                                      for host in machine_list
                                                      if host.get('k8s-role') == 'master')
-        if 'job-attempt-storage-engine' in self.service_configuration:
-            service_object_model['job-attempt-storage-engine'] = self.service_configuration['job-attempt-storage-engine']
-        else:
-            service_object_model['job-attempt-storage-engine'] = 'elasticsearch'
         return service_object_model
 
     #### All service and main module (kubrenetes, machine) is generated. And in this check steps, you could refer to the service object model which you will used in your own service, and check its existence and correctness.
