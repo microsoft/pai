@@ -39,7 +39,7 @@ var allPods = map[string]*core.Pod{}
 
 func init() {
 	common.InitAll()
-	for i := 1; i <= 25; i++ {
+	for i := 1; i <= len(pss); i++ {
 		podName := fmt.Sprintf("pod%v", i)
 		allPods[podName] = &core.Pod{
 			ObjectMeta: meta.ObjectMeta{
@@ -62,7 +62,7 @@ func initNodes(h *HivedAlgorithm) {
 	}
 }
 
-var group1, group2, group3, group4, group5, group6, group7, group8, group9, group10, group11, group12, group13, group14, group15, group16, group17 = &api.AffinityGroupSpec{
+var group1, group2, group3, group4, group5, group6, group7, group8, group9, group10, group11, group12, group13, group14, group15, group16, group17, group18 = &api.AffinityGroupSpec{
 	Name:    "group1",
 	Members: []api.AffinityGroupMemberSpec{{PodNumber: 1, GpuNumber: 1}},
 }, &api.AffinityGroupSpec{
@@ -113,6 +113,9 @@ var group1, group2, group3, group4, group5, group6, group7, group8, group9, grou
 }, &api.AffinityGroupSpec{
 	Name:    "group17",
 	Members: []api.AffinityGroupMemberSpec{{PodNumber: 1, GpuNumber: 2}},
+}, &api.AffinityGroupSpec{
+	Name:    "group18",
+	Members: []api.AffinityGroupMemberSpec{{PodNumber: 2, GpuNumber: 16}},
 }
 
 var pss = map[types.UID]api.PodSchedulingSpec{
@@ -324,6 +327,14 @@ var pss = map[types.UID]api.PodSchedulingSpec{
 		GpuType:              "CT1",
 		GpuNumber:            2,
 		AffinityGroup:        group17,
+	}, "pod27": { // will be rejected because one of the pod in this group is allocated a non-suggested node
+		VirtualCluster:       "VC1",
+		Priority:             1,
+		LazyPreemptionEnable: true,
+		ReservationId:        "VC1-YQW-DGX2",
+		GpuType:              "DGX2-V100",
+		GpuNumber:            16,
+		AffinityGroup:        group18,
 	},
 }
 
@@ -492,13 +503,10 @@ func testSuggestedNodes(t *testing.T, h *HivedAlgorithm) {
 			nodes = append(nodes, node)
 		}
 	}
-	pod := allPods["pod5"]
+	pod := allPods["pod27"]
 	pod.Annotations[api.AnnotationKeyPodSchedulingSpec] = common.ToYaml(pss[pod.UID])
 	psr := h.Schedule(pod, nodes)
-	if psr.PodBindInfo != nil {
-		t.Errorf("[%v]: wrong pod scheduling result: expected empty, but got %v:%v",
-			internal.Key(pod), psr.PodBindInfo.Node, psr.PodBindInfo.GpuIsolation)
-	}
+	compareSchedulingResult(t, pod, psr)
 }
 
 func testReconfiguration(t *testing.T, configFilePath string) {
