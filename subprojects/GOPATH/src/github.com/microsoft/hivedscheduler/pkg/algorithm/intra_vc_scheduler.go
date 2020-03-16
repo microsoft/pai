@@ -103,7 +103,7 @@ func (s *defaultIntraVCScheduler) schedule(sr schedulingRequest) map[int32][]Cel
 		placement = scheduler.Schedule(sr.affinityGroupPodNums, sr.priority, common.NewSet())
 	}
 	if placement == nil {
-		klog.Infof("Insufficient quota in VC %v for scheduling request: %v, GPU numbers %v, priority %v",
+		klog.Infof("Insufficient capacity in VC %v for scheduling request: %v, GPU numbers %v, priority %v",
 			sr.vc, str, sr.affinityGroupPodNums, sr.priority)
 	} else {
 		klog.Infof("Succeeded in scheduling in VC %v for scheduling request: %v, GPU numbers %v, priority %v",

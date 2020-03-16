@@ -181,7 +181,10 @@ type CellStatus struct {
 	// Address of a virtual cell consists of its VC name, index of the preassigned cell,
 	// and the relative index in each level inside the preassigned cell
 	// (e.g., VC1/0/0 may represent VC1, preassigned cell 0, index 0 among its children)
-	CellAddress     CellAddress     `json:"cellAddress"`
+	CellAddress CellAddress `json:"cellAddress"`
+	// CellState and CellHealthiness are two orthogonal fields.
+	// That means, there are four possible combinations of them: a cell may be in
+	// (1) used and healthy, (2) used and bad, (3) free and healthy, and (4) free and bad.
 	CellState       CellState       `json:"cellState"`
 	CellHealthiness CellHealthiness `json:"cellHealthiness"`
 	CellPriority    int32           `json:"cellPriority"`

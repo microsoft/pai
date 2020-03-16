@@ -80,8 +80,8 @@ func NewWebServer(sConfig *si.Config,
 	ws.route(si.PreemptPath, ws.serve(ws.servePreemptPath))
 	ws.route(si.AffinityGroupsPath, ws.serve(ws.serveAffinityGroups))
 	ws.route(si.ClusterStatusPath, ws.serve(ws.serveClusterStatus))
-	ws.route(si.PhysicalClusterPath, ws.serve(ws.servePCStatus))
-	ws.route(si.VirtualClustersPath, ws.serve(ws.serveVCsStatus))
+	ws.route(si.PhysicalClusterPath, ws.serve(ws.servePhysicalClusterStatus))
+	ws.route(si.VirtualClustersPath, ws.serve(ws.serveVirtualClustersStatus))
 	return ws
 }
 
@@ -269,7 +269,7 @@ func (ws *WebServer) serveClusterStatus(w http.ResponseWriter, r *http.Request) 
 		r.Method, r.URL.Path)))
 }
 
-func (ws *WebServer) servePCStatus(w http.ResponseWriter, r *http.Request) {
+func (ws *WebServer) servePhysicalClusterStatus(w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodGet {
 		w.Write(common.ToJsonBytes(ws.iHandlers.GetPCStatusHandler()))
 		return
@@ -280,7 +280,7 @@ func (ws *WebServer) servePCStatus(w http.ResponseWriter, r *http.Request) {
 		r.Method, r.URL.Path)))
 }
 
-func (ws *WebServer) serveVCsStatus(w http.ResponseWriter, r *http.Request) {
+func (ws *WebServer) serveVirtualClustersStatus(w http.ResponseWriter, r *http.Request) {
 	name := strings.TrimPrefix(r.URL.Path, si.VirtualClustersPath)
 	if name == "" {
 		if r.Method == http.MethodGet {
