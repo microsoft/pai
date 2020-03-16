@@ -158,3 +158,107 @@ type LazyPreemptionStatus struct {
 	// It was lazy preempted at PreemptionTime.
 	PreemptionTime meta.Time `json:"preemptionTime"`
 }
+
+type CellState string
+
+const (
+	CellFree CellState = "Free"
+	CellUsed CellState = "Used"
+)
+
+type CellHealthiness string
+
+const (
+	CellHealthy CellHealthiness = "Healthy"
+	CellBad     CellHealthiness = "Bad"
+)
+
+type CellStatus struct {
+	GpuType  string   `json:"gpuType,omitempty"`
+	CellType CellType `json:"cellType"`
+	// Address of a physical cell consists of its address (or index) in each level
+	// (e.g., node0/0/0/0 may represent node0, CPU socket 0, PCIe switch 0, GPU 0.
+	// Address of a virtual cell consists of its VC name, index of the preassigned cell,
+	// and the relative index in each level inside the preassigned cell
+	// (e.g., VC1/0/0 may represent VC1, preassigned cell 0, index 0 among its children)
+	CellAddress CellAddress `json:"cellAddress"`
+	// CellState and CellHealthiness are two orthogonal fields.
+	// That means, there are four possible combinations of them: a cell may be in
+	// (1) used and healthy, (2) used and bad, (3) free and healthy, and (4) free and bad.
+	CellState       CellState       `json:"cellState"`
+	CellHealthiness CellHealthiness `json:"cellHealthiness"`
+	CellPriority    int32           `json:"cellPriority"`
+}
+
+type PhysicalCellStatus struct {
+	CellStatus
+	CellChildren []*PhysicalCellStatus `json:"cellChildren,omitempty"`
+	VC           VirtualClusterName    `json:"vc,omitempty"`
+	VirtualCell  *VirtualCellStatus    `json:"virtualCell,omitempty"`
+}
+
+type VirtualCellStatus struct {
+	CellStatus
+	Children     []*VirtualCellStatus `json:"children,omitempty"`
+	PhysicalCell *PhysicalCellStatus  `json:"physicalCell,omitempty"`
+}
+
+type PhysicalClusterStatus []*PhysicalCellStatus
+
+type VirtualClusterStatus []*VirtualCellStatus
+
+type ClusterStatus struct {
+	// Status of cells in the physical cluster
+	PhysicalCluster PhysicalClusterStatus `json:"physicalCluster"`
+	// Status of cells in each VC
+	VirtualClusters map[VirtualClusterName]VirtualClusterStatus `json:"virtualClusters"`
+}
+
+func (pcs *PhysicalCellStatus) deepCopy() *PhysicalCellStatus {
+	copied := &PhysicalCellStatus{
+		CellStatus: pcs.CellStatus,
+		VC:         pcs.VC,
+	}
+	if pcs.CellChildren != nil {
+		copied.CellChildren = make([]*PhysicalCellStatus, len(pcs.CellChildren))
+		for i, child := range pcs.CellChildren {
+			copied.CellChildren[i] = child.deepCopy()
+		}
+	}
+	if pcs.VirtualCell != nil {
+		copied.VirtualCell = pcs.VirtualCell.deepCopy()
+	}
+	return copied
+}
+
+func (pcs PhysicalClusterStatus) DeepCopy() PhysicalClusterStatus {
+	copied := make(PhysicalClusterStatus, len(pcs))
+	for i, c := range pcs {
+		copied[i] = c.deepCopy()
+	}
+	return copied
+}
+
+func (vcs *VirtualCellStatus) deepCopy() *VirtualCellStatus {
+	copied := &VirtualCellStatus{
+		CellStatus: vcs.CellStatus,
+	}
+	if vcs.Children != nil {
+		copied.Children = make([]*VirtualCellStatus, len(vcs.Children))
+		for i, child := range vcs.Children {
+			copied.Children[i] = child.deepCopy()
+		}
+	}
+	if vcs.PhysicalCell != nil {
+		copied.PhysicalCell = vcs.PhysicalCell.deepCopy()
+	}
+	return copied
+}
+
+func (vcs VirtualClusterStatus) DeepCopy() VirtualClusterStatus {
+	copied := make(VirtualClusterStatus, len(vcs))
+	for i, c := range vcs {
+		copied[i] = c.deepCopy()
+	}
+	return copied
+}

@@ -35,7 +35,7 @@ type Cell interface {
 	GetLevel() CellLevel
 	GetPriority() CellPriority
 	SetPriority(CellPriority)
-	GetName() string
+	GetAddress() api.CellAddress
 	GetParent() Cell
 	SetParent(Cell)
 	GetChildren() CellList
@@ -51,7 +51,7 @@ func CellEqual(c1 Cell, c2 Cell) bool {
 	if c1 == nil || c2 == nil {
 		return c1 == nil && c2 == nil
 	} else {
-		return c1.GetName() == c2.GetName()
+		return c1.GetAddress() == c2.GetAddress()
 	}
 }
 
@@ -59,6 +59,7 @@ type GenericCell struct {
 	chain              CellChain
 	level              CellLevel
 	priority           CellPriority
+	address            api.CellAddress
 	parent             Cell     // pointer to its parent cell
 	children           CellList // pointer to its children cells
 	atOrHigherThanNode bool     // true if the cell is at or higher than node level
@@ -75,12 +76,12 @@ func (c *GenericCell) GetLevel() CellLevel {
 	return c.level
 }
 
-func (c *GenericCell) GetPriority() CellPriority {
-	return c.priority
+func (c *GenericCell) GetAddress() api.CellAddress {
+	return c.address
 }
 
-func (c *GenericCell) SetPriority(p CellPriority) {
-	c.priority = p
+func (c *GenericCell) GetPriority() CellPriority {
+	return c.priority
 }
 
 func (c *GenericCell) GetParent() Cell {
@@ -93,10 +94,6 @@ func (c *GenericCell) SetParent(p Cell) {
 
 func (c *GenericCell) GetChildren() CellList {
 	return c.children
-}
-
-func (c *GenericCell) SetChildren(children CellList) {
-	c.children = children
 }
 
 func (c *GenericCell) AtOrHigherThanNode() bool {
@@ -128,23 +125,55 @@ type PhysicalCell struct {
 	preBoundVirtualCell *VirtualCell       // points to the temporarily bound virtual cell (before the binding is confirmed)
 	split               bool               // true when the cell has been split
 	reserved            bool               // true when this is a reserved cell
+
+	// This status only contains the statuses that need to be exposed to external,
+	// and should not be used for internal status management
+	apiStatus *api.PhysicalCellStatus
 }
 
-func NewPhysicalCell(c CellChain, l CellLevel, g bool, n int32) *PhysicalCell {
+func NewPhysicalCell(c CellChain, l CellLevel, g bool, n int32, cellType api.CellType, address api.CellAddress) *PhysicalCell {
 	return &PhysicalCell{
 		GenericCell: GenericCell{
 			chain:                  c,
 			level:                  l,
 			priority:               freePriority,
+			address:                address,
 			atOrHigherThanNode:     g,
 			totalGpuNum:            n,
 			usedGpuNumAtPriorities: map[CellPriority]int32{},
 		},
+		apiStatus: &api.PhysicalCellStatus{
+			CellStatus: api.CellStatus{
+				CellType:        cellType,
+				CellAddress:     address,
+				CellState:       api.CellFree,
+				CellHealthiness: api.CellHealthy,
+				CellPriority:    int32(freePriority),
+			},
+		},
 	}
 }
 
-func (c *PhysicalCell) GetName() string {
-	return fmt.Sprintf("physical.%v.L%d.%v", c.chain, c.level, c.GetPhysicalPlacementString())
+func (c *PhysicalCell) SetPriority(p CellPriority) {
+	c.priority = p
+	c.apiStatus.CellPriority = int32(p)
+	state := api.CellUsed
+	if p == freePriority {
+		state = api.CellFree
+	}
+	c.apiStatus.CellState = state
+	if c.apiStatus.VirtualCell != nil {
+		c.apiStatus.VirtualCell.CellPriority = int32(p)
+		c.apiStatus.VirtualCell.CellState = state
+	}
+}
+
+func (c *PhysicalCell) SetChildren(children CellList) {
+	c.children = children
+	for _, cc := range children {
+		child := cc.(*PhysicalCell)
+		c.apiStatus.CellChildren = append(c.apiStatus.CellChildren, child.apiStatus)
+	}
 }
 
 func (c *PhysicalCell) GetPhysicalPlacement() ([]string, []int32) {
@@ -163,14 +192,14 @@ func (c *PhysicalCell) SetPhysicalResources(nodes []string, gpuIndices []int32) 
 func (c *PhysicalCell) AddAffinityGroup(g *AlgoAffinityGroup) {
 	if c.affinityGroup != nil {
 		klog.Errorf("Error when adding affinity group %v to cell %v: cell already has group %v",
-			g.name, c.GetName(), c.affinityGroup.name)
+			g.name, c.GetAddress(), c.affinityGroup.name)
 	}
 	c.affinityGroup = g
 }
 
 func (c *PhysicalCell) DeleteAffinityGroup(g *AlgoAffinityGroup) {
 	if c.affinityGroup == nil || c.affinityGroup.name != g.name {
-		klog.Errorf("Error when deleting affinity group %v from cell %v: not found", g.name, c.GetName())
+		klog.Errorf("Error when deleting affinity group %v from cell %v: not found", g.name, c.GetAddress())
 	}
 	c.affinityGroup = nil
 }
@@ -183,16 +212,28 @@ func (c *PhysicalCell) GetVirtualCell() *VirtualCell {
 	return c.virtualCell
 }
 
-func (c *PhysicalCell) SetVirtualCell(vc *VirtualCell) {
-	c.virtualCell = vc
+func (c *PhysicalCell) SetVirtualCell(cell *VirtualCell) {
+	c.virtualCell = cell
+	if cell == nil {
+		c.apiStatus.VirtualCell = nil
+		c.apiStatus.VC = ""
+	} else {
+		vcs := &api.VirtualCellStatus{}
+		// shallow copy the status, clear the pointers to avoid reference
+		*vcs = *(cell.apiStatus)
+		vcs.Children = nil
+		vcs.PhysicalCell = nil
+		c.apiStatus.VirtualCell = vcs
+		c.apiStatus.VC = cell.vc
+	}
 }
 
 func (c *PhysicalCell) GetPreBoundVirtualCell() *VirtualCell {
 	return c.preBoundVirtualCell
 }
 
-func (c *PhysicalCell) SetPreBoundVirtualCell(vc *VirtualCell) {
-	c.preBoundVirtualCell = vc
+func (c *PhysicalCell) SetPreBoundVirtualCell(cell *VirtualCell) {
+	c.preBoundVirtualCell = cell
 }
 
 func (c *PhysicalCell) IsSplit() bool {
@@ -211,80 +252,118 @@ func (c *PhysicalCell) SetReserved(reserved bool) {
 	c.reserved = reserved
 }
 
+func (c *PhysicalCell) GetAPIStatus() *api.PhysicalCellStatus {
+	return c.apiStatus
+}
+
 // VirtualCell defines a cell in a VC.
 type VirtualCell struct {
 	GenericCell
 	vc                   api.VirtualClusterName // name of its VC
 	rid                  api.ReservationId      // reservation ID
-	indexInChain         int32                  // index of the cell in the ChainCellList it belongs to (assigned in initialization)
 	preAssignedCell      *VirtualCell           // top level cell of this cell chain
 	physicalCell         *PhysicalCell          // points to the bound physical cell
 	preBoundPhysicalCell *PhysicalCell          // points to the temporarily bound physical cell (before the binding is confirmed)
+
+	// This status only contains the statuses that need to be exposed to external,
+	// and should not be used for internal status management
+	apiStatus *api.VirtualCellStatus
 }
 
-func NewVirtualCell(vc api.VirtualClusterName,
+func NewVirtualCell(
+	vcn api.VirtualClusterName,
 	c CellChain,
 	l CellLevel,
 	g bool,
 	n int32,
-	i int32,
-	pac *VirtualCell) *VirtualCell {
+	pac *VirtualCell,
+	cellType api.CellType,
+	address api.CellAddress) *VirtualCell {
 
 	return &VirtualCell{
 		GenericCell: GenericCell{
 			chain:                  c,
 			level:                  l,
 			priority:               freePriority,
+			address:                address,
 			atOrHigherThanNode:     g,
 			totalGpuNum:            n,
 			usedGpuNumAtPriorities: map[CellPriority]int32{},
 		},
-		vc:              vc,
-		indexInChain:    i,
+		vc:              vcn,
 		preAssignedCell: pac,
+		apiStatus: &api.VirtualCellStatus{
+			CellStatus: api.CellStatus{
+				CellType:        cellType,
+				CellAddress:     address,
+				CellState:       api.CellFree,
+				CellHealthiness: api.CellHealthy,
+				CellPriority:    int32(freePriority),
+			},
+		},
 	}
 }
 
-func (c *VirtualCell) GetName() string {
-	str := string(c.chain)
-	if c.rid != "" {
-		str = string(c.rid)
+func (c *VirtualCell) SetPriority(p CellPriority) {
+	c.priority = p
+	c.apiStatus.CellPriority = int32(p)
+	state := api.CellUsed
+	if p == freePriority {
+		state = api.CellFree
 	}
-	return fmt.Sprintf("virtual-%v-%v.L%d.%d", c.vc, str, c.level, c.indexInChain)
+	c.apiStatus.CellState = state
+	if c.apiStatus.PhysicalCell != nil {
+		c.apiStatus.PhysicalCell.CellPriority = int32(p)
+		c.apiStatus.PhysicalCell.CellState = state
+	}
+}
+
+func (c *VirtualCell) SetChildren(children CellList) {
+	c.children = children
+	for _, cc := range children {
+		child := cc.(*VirtualCell)
+		c.apiStatus.Children = append(c.apiStatus.Children, child.apiStatus)
+	}
 }
 
 func (c *VirtualCell) SetReservation(rid api.ReservationId) {
 	c.rid = rid
 }
 
-func (c *VirtualCell) GetIndex() int32 {
-	return c.indexInChain
-}
-
-func (c *VirtualCell) SetIndex(i int32) {
-	c.indexInChain = i
-}
-
 func (c *VirtualCell) GetPreAssignedCell() *VirtualCell {
 	return c.preAssignedCell
 }
 
-func (c *VirtualCell) SetPreAssignedCell(vc *VirtualCell) {
-	c.preAssignedCell = vc
+func (c *VirtualCell) SetPreAssignedCell(cell *VirtualCell) {
+	c.preAssignedCell = cell
 }
 
 func (c *VirtualCell) GetPhysicalCell() *PhysicalCell {
 	return c.physicalCell
 }
 
-func (c *VirtualCell) SetPhysicalCell(pc *PhysicalCell) {
-	c.physicalCell = pc
+func (c *VirtualCell) SetPhysicalCell(cell *PhysicalCell) {
+	c.physicalCell = cell
+	if cell == nil {
+		c.apiStatus.PhysicalCell = nil
+	} else {
+		pcs := &api.PhysicalCellStatus{}
+		// shallow copy the status, clear the pointers to avoid reference
+		*pcs = *(cell.apiStatus)
+		pcs.CellChildren = nil
+		pcs.VirtualCell = nil
+		c.apiStatus.PhysicalCell = pcs
+	}
 }
 
 func (c *VirtualCell) GetPreBoundPhysicalCell() *PhysicalCell {
 	return c.preBoundPhysicalCell
 }
 
-func (c *VirtualCell) SetPreBoundPhysicalCell(pc *PhysicalCell) {
-	c.preBoundPhysicalCell = pc
+func (c *VirtualCell) SetPreBoundPhysicalCell(cell *PhysicalCell) {
+	c.preBoundPhysicalCell = cell
+}
+
+func (c *VirtualCell) GetAPIStatus() *api.VirtualCellStatus {
+	return c.apiStatus
 }

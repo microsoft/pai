@@ -32,10 +32,10 @@ import (
 // It first tries to place pods to nodes with fewer free GPUs (i.e., packing), while trying to avoid preemptions.
 // Then inside each node, it tries to allocate GPUs with better affinity.
 type topologyAwareScheduler struct {
-	// a list of nodes (top level cells that are lower than node level will be treated as nodes)
+	// a list of nodes (node-level cells or top-level cells that are lower than node level)
 	cv clusterView
-	// GPU number at each level in the cell hierarchy. we use this to calculate the optimal affinity
-	// for a given GPU number.
+	// GPU number at each level in the cell hierarchy. we use this to
+	// calculate the optimal affinity for a given GPU number.
 	levelGpuNum map[CellLevel]int32
 	// pack pods cross different priorities, or inside each priority. the former is for intra-VC scheduling,
 	// because high-priority can avoid preemption in the whole cluster view,
@@ -50,8 +50,9 @@ type topologyAwareScheduler struct {
 }
 
 // NewTopologyAwareScheduler initializes the scheduler by extracting node-level cells
-// (lower-level if no node-level) from a chain cell list.
-func NewTopologyAwareScheduler(ccl ChainCellList,
+// (lower-level if no node-level) from a free cell list.
+func NewTopologyAwareScheduler(
+	ccl ChainCellList,
 	levelGpuNum map[CellLevel]int32,
 	crossPriorityPack bool,
 	considerSuggestedNodes bool) *topologyAwareScheduler {
@@ -61,16 +62,6 @@ func NewTopologyAwareScheduler(ccl ChainCellList,
 		levelGpuNum:            levelGpuNum,
 		crossPriorityPack:      crossPriorityPack,
 		considerSuggestedNodes: considerSuggestedNodes}
-}
-
-// ancestorNoHigherThanNode finds an ancestor at a level no higher than node level for a cell.
-// If the input cell is at node (or higher) level, will return the cell itself.
-func ancestorNoHigherThanNode(c Cell) Cell {
-	if c.AtOrHigherThanNode() || c.GetParent() == nil {
-		return c
-	} else {
-		return ancestorNoHigherThanNode(c.GetParent())
-	}
 }
 
 func (t *topologyAwareScheduler) Schedule(
@@ -124,7 +115,7 @@ func (t *topologyAwareScheduler) Schedule(
 }
 
 type node struct {
-	c                        Cell  // a cell at node level (or lower than node level if no node level in the chain)
+	c                        Cell  // a top-level cell at node or lower levels
 	freeGpuNumAtPriority     int32 // free GPU number at the priority of the pod to be scheduled (lower priority considered as free)
 	usedGpuNumSamePriority   int32 // GPU number used by the same priority as that of the pod to be scheduled
 	usedGpuNumHigherPriority int32 // GPU number used by higher priorities than that of the pod to be scheduled
@@ -186,6 +177,16 @@ func newClusterView(ccl ChainCellList) clusterView {
 		}
 	}
 	return cv
+}
+
+// ancestorNoHigherThanNode finds an ancestor at a level no higher than node level for a cell.
+// If the input cell is at node (or higher) level, will return the cell itself.
+func ancestorNoHigherThanNode(c Cell) Cell {
+	if c.AtOrHigherThanNode() || c.GetParent() == nil {
+		return c
+	} else {
+		return ancestorNoHigherThanNode(c.GetParent())
+	}
 }
 
 func (cv clusterView) containsCell(c Cell) bool {
@@ -334,7 +335,7 @@ func findGpusInNode(
 		if searchGpuIndex < 0 {
 			if bestAffinity == highestLevel {
 				// Unreachable
-				panic(fmt.Sprintf("Assert Failure: failed to allocate %v GPUs in picked node %v", gpuNum, n.GetName()))
+				panic(fmt.Sprintf("Assert Failure: failed to allocate %v GPUs in picked node %v", gpuNum, n.GetAddress()))
 			}
 			availableGpus = removePickedGpus(availableGpus, bestAffinityGpuIndices)
 			return bestAffinityGpus, availableGpus

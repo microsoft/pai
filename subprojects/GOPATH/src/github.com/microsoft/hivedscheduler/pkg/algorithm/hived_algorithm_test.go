@@ -167,7 +167,7 @@ var pss = map[types.UID]api.PodSchedulingSpec{
 		GpuType:              "DGX2-V100",
 		GpuNumber:            16,
 		AffinityGroup:        group5,
-	}, "pod7": { // out of quota; should return PodWaitInfo
+	}, "pod7": { // insufficient VC cells; should return PodWaitInfo
 		VirtualCluster:       "VC2",
 		Priority:             1,
 		LazyPreemptionEnable: true,
@@ -416,7 +416,7 @@ func printConfig(t *testing.T, h *HivedAlgorithm) {
 	}
 	for vc, vcs := range h.vcSchedulers {
 		t.Logf("%v", vc)
-		for chain, ccl := range vcs.getNonReservedCellList() {
+		for chain, ccl := range vcs.getNonReservedFullCellList() {
 			t.Logf("%v", chain)
 			t.Logf("%v", ccl)
 		}
@@ -527,7 +527,7 @@ func testReconfiguration(t *testing.T, configFilePath string) {
 	newConfig = api.NewConfig(newConfig)
 	// case: physical cell not found
 	(*newConfig.PhysicalCluster).PhysicalCells[7].CellChildren[0].CellChildren[0].CellAddress = "0.0.3.100"
-	// case: insufficient VC quota
+	// case: insufficient VC cells
 	(*newConfig.VirtualClusters)["VC2"].VirtualCells[0].CellNumber = 1
 	// case: physical cells are split to smaller ones in the spec so that
 	// they cannot be bound to the virtual cells previously allocated
@@ -536,6 +536,12 @@ func testReconfiguration(t *testing.T, configFilePath string) {
 	(*newConfig.PhysicalCluster).PhysicalCells = append((*newConfig.PhysicalCluster).PhysicalCells, originalCell.CellChildren[0].CellChildren[1])
 	(*newConfig.PhysicalCluster).PhysicalCells = append((*newConfig.PhysicalCluster).PhysicalCells, originalCell.CellChildren[1].CellChildren[0])
 	(*newConfig.PhysicalCluster).PhysicalCells = append((*newConfig.PhysicalCluster).PhysicalCells, originalCell.CellChildren[1].CellChildren[1])
+	originalCell.CellChildren[0].CellChildren[0].CellAddress = "0.0.4.100"
+	originalCell.CellChildren[0].CellChildren[1].CellAddress = "0.0.4.101"
+	originalCell.CellChildren[1].CellChildren[0].CellAddress = "0.0.4.102"
+	originalCell.CellChildren[1].CellChildren[1].CellAddress = "0.0.4.103"
+	(*newConfig.PhysicalCluster).PhysicalCells = append((*newConfig.PhysicalCluster).PhysicalCells, originalCell)
+
 	h = NewHivedAlgorithm(newConfig)
 	for _, chains := range h.chains {
 		sortChains(chains)
