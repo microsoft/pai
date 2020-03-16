@@ -8,17 +8,17 @@ OpenPAI provides SSH plugin for you to connect to job containers. To use it, you
 
 It is feasible to create an SSH key pair when you submit the job. First, open the `Tools` panel, enable the SSH plugin, then click `SSH Key Generator`:
 
-   <img src="/manual/cluster-user/ssh-click-generator.png" width="60%" height="60%" />
+   <img src="/manual/cluster-user/imgs/ssh-click-generator.png" width="60%" height="60%" />
 
 The generator will generate one public key and one private key for you. Please download SSH private key then click `Use Public Key` button to use this key pair in job. 
 
 
-   <img src="/manual/cluster-user/ssh-generator.png" width="60%" height="60%" />
+   <img src="/manual/cluster-user/imgs/ssh-generator.png" width="60%" height="60%" />
 
 After job submitted, you can ssh to job containers as user root with the downloaded private key through container ip and ssh port. The `View SSH Info` button will help you:
 
 
-   <img src="/manual/cluster-user/view-ssh-info.png" width="100%" height="100%" />
+   <img src="/manual/cluster-user/imgs/view-ssh-info.png" width="100%" height="100%" />
 
 To be detailed, you should refer to the `Use a pre-downloaded SSH private key` section.
 
@@ -41,7 +41,7 @@ If you are familiar with SSH key authorization, you would probably have generate
 
 To use them, open the `id_rsa.pub` and copy its content to the SSH plugin, then submit the job. Do not use the key generator.
 
-   <img src="/manual/cluster-user/copy-ssh-public-key.png" width="60%" height="60%" />
+   <img src="/manual/cluster-user/imgs/copy-ssh-public-key.png" width="60%" height="60%" />
 
 After submission, you can use `ssh -p <ssh-port> root@<container-ip>` to connect to the job container, directly.
 

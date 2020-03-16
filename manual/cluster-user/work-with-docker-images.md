@@ -38,4 +38,4 @@ By default, OpenPAI will pull images from the [official Docker Hub](https://hub.
 
 If you want to use a private registry, please toggle the `custom` botton, then click the `auth` button, and fill in the required information. If your authorization information is invalid, OpenPAI will inform you of the authorization failure after you submit the job.
 
-   <img src="/manual/cluster-user/docker-image-auth.png" width="60%" height="60%" />
+   <img src="/manual/cluster-user/imgs/docker-image-auth.png" width="60%" height="60%" />
