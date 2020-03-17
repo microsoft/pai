@@ -32,7 +32,6 @@ import (
 	"k8s.io/klog"
 	"math"
 	"math/rand"
-	"strings"
 	"sync"
 )
 
@@ -153,8 +152,8 @@ func (h *HivedAlgorithm) Schedule(pod *core.Pod, suggestedNodes []string) intern
 	klog.Infof("[%v]: Scheduling pod...", internal.Key(pod))
 	s := internal.ExtractPodSchedulingSpec(pod)
 	// gpu number -> a set of pods -> a set of GPUs of each pod
-	groupPhysicalPlacement := map[int32][]CellList{}
-	groupVirtualPlacement := map[int32][]CellList{}
+	groupPhysicalPlacement := groupPhysicalPlacement{}
+	groupVirtualPlacement := groupVirtualPlacement{}
 	podIndex := int32(0)
 	suggestedNodeSet := common.NewSet()
 	for _, n := range suggestedNodes {
@@ -340,14 +339,14 @@ func (h *HivedAlgorithm) GetClusterStatus() api.ClusterStatus {
 	return s
 }
 
-func (h *HivedAlgorithm) GetPCStatus() api.PhysicalClusterStatus {
+func (h *HivedAlgorithm) GetPhysicalClusterStatus() api.PhysicalClusterStatus {
 	h.algorithmLock.RLock()
 	defer h.algorithmLock.RUnlock()
 
 	return h.apiClusterStatus.PhysicalCluster.DeepCopy()
 }
 
-func (h *HivedAlgorithm) GetAllVCsStatus() map[api.VirtualClusterName]api.VirtualClusterStatus {
+func (h *HivedAlgorithm) GetAllVirtualClustersStatus() map[api.VirtualClusterName]api.VirtualClusterStatus {
 	h.algorithmLock.RLock()
 	defer h.algorithmLock.RUnlock()
 
@@ -358,7 +357,7 @@ func (h *HivedAlgorithm) GetAllVCsStatus() map[api.VirtualClusterName]api.Virtua
 	return allVcs
 }
 
-func (h *HivedAlgorithm) GetVCStatus(vcn api.VirtualClusterName) api.VirtualClusterStatus {
+func (h *HivedAlgorithm) GetVirtualClusterStatus(vcn api.VirtualClusterName) api.VirtualClusterStatus {
 	h.algorithmLock.RLock()
 	defer h.algorithmLock.RUnlock()
 
@@ -608,7 +607,7 @@ func (h *HivedAlgorithm) setHealthyCell(c *PhysicalCell) {
 func (h *HivedAlgorithm) scheduleNewAffinityGroup(
 	pod *core.Pod,
 	s *api.PodSchedulingSpec,
-	suggestedNodes common.Set) (physicalPlacement map[int32][]CellList, virtualPlacement map[int32][]CellList) {
+	suggestedNodes common.Set) (physicalPlacement groupPhysicalPlacement, virtualPlacement groupVirtualPlacement) {
 
 	priority := CellPriority(s.Priority)
 	sr := schedulingRequest{
@@ -644,7 +643,7 @@ func (h *HivedAlgorithm) scheduleAffinityGroupForGpuType(
 	sr schedulingRequest,
 	gpuType string,
 	pod *core.Pod,
-	suggestedNodes common.Set) (physicalPlacement map[int32][]CellList, virtualPlacement map[int32][]CellList) {
+	suggestedNodes common.Set) (physicalPlacement groupPhysicalPlacement, virtualPlacement groupVirtualPlacement) {
 
 	if gpuType != "" {
 		if chains := h.chains[gpuType]; chains == nil {
@@ -702,7 +701,7 @@ func (h *HivedAlgorithm) validateSchedulingRequest(sr schedulingRequest, pod *co
 // or the opportunistic scheduler according to its priority.
 func (h *HivedAlgorithm) processSchedulingRequest(
 	sr schedulingRequest,
-	suggestedNodes common.Set) (physicalPlacement map[int32][]CellList, virtualPlacement map[int32][]CellList) {
+	suggestedNodes common.Set) (physicalPlacement groupPhysicalPlacement, virtualPlacement groupVirtualPlacement) {
 
 	if sr.priority >= minGuaranteedPriority {
 		return h.scheduleGuaranteedAffinityGroup(sr, suggestedNodes)
@@ -715,7 +714,7 @@ func (h *HivedAlgorithm) processSchedulingRequest(
 // then maps the placement in VC to the physical cluster.
 func (h *HivedAlgorithm) scheduleGuaranteedAffinityGroup(
 	sr schedulingRequest,
-	suggestedNodes common.Set) (physicalPlacement map[int32][]CellList, virtualPlacement map[int32][]CellList) {
+	suggestedNodes common.Set) (physicalPlacement groupPhysicalPlacement, virtualPlacement groupVirtualPlacement) {
 
 	// schedule in VC
 	virtualPlacement = h.vcSchedulers[sr.vc].schedule(sr)
@@ -730,7 +729,7 @@ func (h *HivedAlgorithm) scheduleGuaranteedAffinityGroup(
 		i++
 	}
 	common.SortInt32(gpuNums)
-	physicalPlacement = map[int32][]CellList{}
+	physicalPlacement = groupPhysicalPlacement{}
 	for _, podGpuNum := range gpuNums {
 		podPlacements := virtualPlacement[podGpuNum]
 		physicalPlacement[podGpuNum] = make([]CellList, len(podPlacements))
@@ -776,7 +775,7 @@ func (h *HivedAlgorithm) scheduleGuaranteedAffinityGroup(
 // scheduleOpportunisticAffinityGroup calls the opportunistic pod scheduler to schedule an affinity group.
 func (h *HivedAlgorithm) scheduleOpportunisticAffinityGroup(
 	sr schedulingRequest,
-	suggestedNodes common.Set) (physicalPlacement map[int32][]CellList) {
+	suggestedNodes common.Set) (physicalPlacement groupPhysicalPlacement) {
 
 	physicalPlacement = h.opportunisticSchedulers[sr.chain].Schedule(
 		sr.affinityGroupPodNums, opportunisticPriority, suggestedNodes)
@@ -1177,8 +1176,8 @@ func (h *HivedAlgorithm) findPhysicalGpuInChain(
 
 // generatePodScheduleResult writes the scheduling result into a PodScheduleResult.
 func generatePodScheduleResult(
-	groupPhysicalPlacement map[int32][]CellList,
-	groupVirtualPlacement map[int32][]CellList,
+	groupPhysicalPlacement groupPhysicalPlacement,
+	groupVirtualPlacement groupVirtualPlacement,
 	priority CellPriority,
 	cellLevelToType map[CellChain]map[CellLevel]api.CellType,
 	currentGpuNum int32,
@@ -1189,6 +1188,11 @@ func generatePodScheduleResult(
 	vc api.VirtualClusterName,
 	pod *core.Pod) internal.PodScheduleResult {
 
+	klog.V(4).Infof("[%v]: Got K8s suggested nodes: %v", internal.Key(pod), suggestedNodes.ToString())
+	klog.Infof("[%v]: Physical placement: %v", internal.Key(pod), groupPhysicalPlacement.toString())
+	if groupVirtualPlacement != nil {
+		klog.Infof("[%v]: Virtual placement: %v", internal.Key(pod), groupVirtualPlacement.toString())
+	}
 	preemptionVictims, nodesHaveVictims := collectPreemptionVictims(groupPhysicalPlacement, priority, groupName)
 	if len(preemptionVictims) > 0 {
 		// We collect victims on a random node, as K8S preempts victims from only one node once.
@@ -1201,7 +1205,7 @@ func generatePodScheduleResult(
 			victimPods = append(victimPods, v.(*core.Pod))
 			victimNames = append(victimNames, internal.Key(v.(*core.Pod)))
 		}
-		klog.Infof("[%v]: need to preempt pods %v", internal.Key(pod), strings.Join(victimNames, ", "))
+		klog.Infof("[%v]: need to preempt pods %v", internal.Key(pod), common.ToJson(victimNames))
 		return internal.PodScheduleResult{
 			PodPreemptInfo: &internal.PodPreemptInfo{VictimPods: victimPods},
 		}
@@ -1221,15 +1225,16 @@ func generatePodScheduleResult(
 				// for a new group, we will keep it waiting if not all of its pods are scheduled to suggested nodes
 				waitReason = fmt.Sprintf(
 					"affinity group is scheduled to some nodes not within K8s suggested nodes: %v",
-					strings.Join(nodesNotInSuggested, ", "))
+					common.ToJson(nodesNotInSuggested))
 			} else {
 				// for an existing group, we always insist the previous scheduling decision
 				// even if some pods are now not within suggested nodes
 				klog.Warningf("Some nodes used by affinity group %v are no longer within K8s suggested nodes: %v",
-					group.name, strings.Join(nodesNotInSuggested, ", "))
+					group.name, common.ToJson(nodesNotInSuggested))
 			}
 		}
 		if waitReason != "" {
+			klog.Infof("[%v]: need to wait because %v", internal.Key(pod), waitReason)
 			return internal.PodScheduleResult{PodWaitInfo: &internal.PodWaitInfo{Reason: waitReason}}
 		}
 		klog.Infof("[%v]: scheduled to node %v, GPUs %v",
@@ -1249,8 +1254,8 @@ func generatePodScheduleResult(
 // into a a series of AffinityGroupMemberBindInfos, and returns the allocated node and GPU addresses
 // of the current pod.
 func generateAffinityGroupBindInfo(
-	groupPhysicalPlacement map[int32][]CellList,
-	groupVirtualPlacement map[int32][]CellList,
+	groupPhysicalPlacement groupPhysicalPlacement,
+	groupVirtualPlacement groupVirtualPlacement,
 	cellLevelToType map[CellChain]map[CellLevel]api.CellType,
 	currentGpuNum int32,
 	currentPodIndex int32,
@@ -1325,7 +1330,7 @@ func generateAffinityGroupBindInfo(
 // If any of the GPUs allocated for the whole group is still used by a pod,
 // we will wait for the preemption, as a group is gang-scheduled.
 func collectPreemptionVictims(
-	groupPhysicalPlacement map[int32][]CellList,
+	groupPhysicalPlacement groupPhysicalPlacement,
 	priority CellPriority,
 	groupName string) (map[string]common.Set, []string) {
 
@@ -1443,18 +1448,30 @@ func getFewestOpporPhysicalCell(cl CellList, suggestedNodes common.Set) *Physica
 			}
 		}
 	}
+	var selectedCell *PhysicalCell
 	if fewestOpporCellSuggested != nil {
-		return fewestOpporCellSuggested
+		selectedCell = fewestOpporCellSuggested
+		nodes, _ := selectedCell.GetPhysicalPlacement()
+		klog.Infof("Selected a cell within suggested nodes: %v, nodes %v", selectedCell.GetAddress(), common.ToJson(nodes))
+	} else if len(preemptibleCells) > 0 {
+		// If we cannot find a cell within suggested nodes, we will try to preempt some pods instead of
+		// directly returning the fewestOpporCell (because this cell could be a bad node, we should not return it).
+		// Also, we will choose a random cell, to avoid always returning the same cell (similar to above,
+		// if we always return the same cell, it might be a bad node, preempting pods on a bad node won't bring
+		// it back to the suggested nodes)
+		selectedCell = preemptibleCells[rand.Int31n(int32(len(preemptibleCells)))]
+		nodes, _ := selectedCell.GetPhysicalPlacement()
+		klog.Infof("Selected a cell not within suggested nodes but preempting opportunistic pods may help: %v, nodes %v",
+			selectedCell.GetAddress(), common.ToJson(nodes))
+	} else if fewestOpporCell == nil {
+		panic("VC Safety Broken: Cannot find any physical cell that has not been bound to a virtual cell")
+	} else {
+		selectedCell = fewestOpporCell
+		nodes, _ := selectedCell.GetPhysicalPlacement()
+		klog.Infof("Selected a cell not within suggested nodes and no preemption can help: %v, nodes %v",
+			selectedCell.GetAddress(), common.ToJson(nodes))
 	}
-	// If we cannot find a cell within suggested nodes, we will try to preempt some pods instead of
-	// directly returning the fewestOpporCell (because this cell could be a bad node, we should not return it).
-	// Also, we will choose a random cell, to avoid always returning the same cell (similar to above,
-	// if we always return the same cell, it might be a bad node, preempting pods on a bad node won't bring
-	// it back to the suggested nodes)
-	if len(preemptibleCells) > 0 {
-		return preemptibleCells[rand.Int31n(int32(len(preemptibleCells)))]
-	}
-	return fewestOpporCell
+	return selectedCell
 }
 
 // mapNonPreassignedCellToPhysical maps a virtual cell (possibly inside a preassigned one) to
@@ -1478,7 +1495,7 @@ func mapNonPreassignedCellToPhysical(c *VirtualCell, suggestedNodes common.Set) 
 }
 
 // clearPreBindings clears the temporary bindings created during scheduling.
-func clearPreBindings(virtualPlacement map[int32][]CellList) {
+func clearPreBindings(virtualPlacement groupVirtualPlacement) {
 	for _, podPlacements := range virtualPlacement {
 		for _, podGpus := range podPlacements {
 			for _, gpu := range podGpus {

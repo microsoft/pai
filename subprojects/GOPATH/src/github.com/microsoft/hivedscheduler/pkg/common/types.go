@@ -23,6 +23,7 @@
 package common
 
 import (
+	"fmt"
 	"k8s.io/klog"
 )
 
@@ -62,6 +63,16 @@ func (s Set) IsEmpty() bool {
 
 func (s Set) Items() map[T]Empty {
 	return s.items
+}
+
+func (s Set) ToString() string {
+	ss := make([]string, len(s.items))
+	n := int32(0)
+	for item := range s.items {
+		ss[n] = fmt.Sprintf("%v", item)
+		n++
+	}
+	return ToJson(ss)
 }
 
 type ImmutableSet struct {
