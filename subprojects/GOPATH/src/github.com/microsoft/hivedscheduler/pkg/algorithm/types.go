@@ -111,8 +111,8 @@ type AlgoAffinityGroup struct {
 	lazyPreemptionEnable bool
 	totalPodNums         map[int32]int32        // GpuNum -> PodNum
 	allocatedPods        map[int32][]*core.Pod  // GpuNum -> a list of allocated pods and node addresses
-	physicalGpuPlacement affinityGroupPlacement // GpuNum -> a list of pods -> a list of physical GPUs of each pod
-	virtualGpuPlacement  affinityGroupPlacement // GpuNum -> a list of pods -> a list of virtual GPUs of each pod
+	physicalGpuPlacement groupPhysicalPlacement // GpuNum -> a list of pods -> a list of physical GPUs of each pod
+	virtualGpuPlacement  groupVirtualPlacement  // GpuNum -> a list of pods -> a list of virtual GPUs of each pod
 	lazyPreemptionStatus *api.LazyPreemptionStatus
 }
 
@@ -133,8 +133,8 @@ func newAlgoAffinityGroup(
 		lazyPreemptionEnable: lazyPreemptionEnable,
 		totalPodNums:         podNums,
 		allocatedPods:        map[int32][]*core.Pod{},
-		physicalGpuPlacement: affinityGroupPlacement{},
-		virtualGpuPlacement:  affinityGroupPlacement{},
+		physicalGpuPlacement: groupPhysicalPlacement{},
+		virtualGpuPlacement:  groupVirtualPlacement{},
 	}
 	for gpuNum, podNum := range podNums {
 		group.physicalGpuPlacement[gpuNum] = make([]CellList, podNum)
@@ -155,11 +155,12 @@ func (aag *AlgoAffinityGroup) ToAffinityGroup() api.AffinityGroup {
 	return ag
 }
 
-type affinityGroupPlacement map[int32][]CellList
+type groupPhysicalPlacement map[int32][]CellList
+type groupVirtualPlacement map[int32][]CellList
 
-func physicalPlacementToString(placement affinityGroupPlacement) string {
+func (p groupPhysicalPlacement) toString() string {
 	nodeToGpuIndices := map[string][]int32{}
-	for _, podPlacements := range placement {
+	for _, podPlacements := range p {
 		for _, pod := range podPlacements {
 			for _, gpu := range pod {
 				pGpu := gpu.(*PhysicalCell)
@@ -174,9 +175,9 @@ func physicalPlacementToString(placement affinityGroupPlacement) string {
 	return common.ToJson(nodeToGpuIndices)
 }
 
-func virtualPlacementToString(placement affinityGroupPlacement) string {
+func (p groupVirtualPlacement) toString() string {
 	preassignedCellToLeafCells := map[api.CellAddress][]api.CellAddress{}
-	for _, podPlacements := range placement {
+	for _, podPlacements := range p {
 		for _, pod := range podPlacements {
 			for _, gpu := range pod {
 				vGpu := gpu.(*VirtualCell)

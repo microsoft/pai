@@ -38,7 +38,7 @@ type intraVCScheduler interface {
 	getReservedCellList() map[api.ReservationId]ChainCellList
 
 	// Scheduling an affinity group inside a VC. We use topologyAwareScheduler by default.
-	schedule(schedulingRequest) affinityGroupPlacement
+	schedule(schedulingRequest) groupVirtualPlacement
 }
 
 type defaultIntraVCScheduler struct {
@@ -88,7 +88,7 @@ func (s *defaultIntraVCScheduler) getReservedCellList() map[api.ReservationId]Ch
 	return s.reservedCellList
 }
 
-func (s *defaultIntraVCScheduler) schedule(sr schedulingRequest) affinityGroupPlacement {
+func (s *defaultIntraVCScheduler) schedule(sr schedulingRequest) groupVirtualPlacement {
 	var scheduler *topologyAwareScheduler
 	var str string
 	if sr.reservationId != "" {
@@ -98,7 +98,7 @@ func (s *defaultIntraVCScheduler) schedule(sr schedulingRequest) affinityGroupPl
 		scheduler = s.nonReservedSchedulers[sr.chain]
 		str = fmt.Sprintf("chain %v", sr.chain)
 	}
-	var placement affinityGroupPlacement
+	var placement groupVirtualPlacement
 	if scheduler != nil {
 		placement = scheduler.Schedule(sr.affinityGroupPodNums, sr.priority, common.NewSet())
 	}
