@@ -1,14 +1,12 @@
 # Use VSCode Extension
 
-OpenPAI VS Code Client is an extension to connect OpenPAI clusters, submit AI jobs, simulate jobs locally, manage files, and so on.
+OpenPAI VS Code Client is a VSCode extension to connect OpenPAI clusters, submit AI jobs, simulate jobs locally, manage files, and so on.
 
 ## Connect to an OpenPAI cluster
 
-Before using OpenPAI VS Code Client, follow below steps connecting to an OpenPAI cluster.
+Before using OpenPAI VS Code Client, follow below steps connecting to an OpenPAI cluster. If you are using username and password to login to the cluster, then you should follow `Basic login`. If you are using AAD to login to the cluster, please follow `AAD login`.
 
 ### Basic login
-
-If you are using username and password to login to the cluster. Then you should follow this guide.
 
 1. Use shortcut key <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>P</kbd> to open command palette.
 2. Input and look for *PAI: Add PAI Cluster* as below.
@@ -26,8 +24,6 @@ If you are using username and password to login to the cluster. Then you should 
 If there are multiple OpenPAI clusters, you can follow above steps again to connect with them.
 
 ### AAD login
-
-If you are using AAD to login to the cluster. Then you should follow this guide.
 
 1. Use shortcut key <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>P</kbd> to open command palette.
 2. Input and look for *PAI: Add PAI Cluster* as below.
@@ -64,4 +60,4 @@ To submit a job yaml, please follow the steps below:
 
 ## Reference
 
-  - [Full documentation of VSCode Extension](https://github.com/microsoft/openpaivscode/blob/master/README.md): Please note that, in the full documentation, two kinds of jobs are mentioned: V1 job and V2 job. You can safely skip contents about V1 job since it is deprecated.
+  - [Full documentation of VSCode Extension](https://github.com/microsoft/openpaivscode/blob/master/README.md): Please note two kinds of jobs are mentioned in this full documentation: V1 and V2 job. You can safely skip contents about V1 job since it is deprecated.

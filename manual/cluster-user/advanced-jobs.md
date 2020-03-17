@@ -2,7 +2,7 @@
 
 ## Parameters and Secrets
 
-It is common to train models with different parameters. OpenPAI supports parameter definition and reference, which provides a flexible way of training and comparing models. You can define your parameters in the Parameters section and reference them by using <% $parameters.paramKey %> in your commands. For example, the following picture shows how to define the [Quick Start](/manual/cluster-user/advanced-jobs.md) job using a `stepNum` parameter.
+It is common to train models with different parameters. OpenPAI supports parameter definition and reference, which provides a flexible way of training and comparing models. You can define your parameters in `Parameters` section and reference them by using `<% $parameters.paramKey %>` in your commands. For example, the following picture shows how to define the [Quick Start](/manual/cluster-user/advanced-jobs.md) job using a `stepNum` parameter.
 
    <img src="/manual/cluster-user/imgs/use-parameters.png" width="100%" height="100%" />
 
@@ -12,15 +12,13 @@ In some cases, it is desired to define some secret messages such as password, to
 
 ## Multiple Task Roles
 
-If you use the `Distributed` button to submit jobs, the job can be defined as a multi-taskrole job.
+If you use the `Distributed` button to submit jobs, then you can add different task roles for your job.
 
    <img src="/manual/cluster-user/imgs/distributed-job.png" width="60%" height="60%" />
 
-For single server jobs, there is only one role.
+What is task role? For single server jobs, there is only one task role. For distributed jobs, there may be multiple task roles. For example, when TensorFlow is used to running distributed jobs, it has two roles, including the parameter server and the worker.
 
-For distributed jobs, there may be multiple task roles. For example, when TensorFlow is used to running distributed job, it has two roles, including parameter server and worker. There are two task roles in the corresponding job configuration.
-
-Instances is the number of instances of this task role. In distributed jobs, it depends on how many instances are needed for a task role. For example, if it's 8 in a worker role of TensorFlow. It means there should be 8 Docker containers for the worker role.
+Instances is the number of instances of certain task role. In distributed jobs, it depends on how many instances are needed for a task role. For example, if it's 8 in a worker role of TensorFlow. It means there should be 8 Docker containers for the worker role.
 
 The picture below shows how to define task roles and instance numbers in a distributed job.
 
@@ -28,7 +26,7 @@ The picture below shows how to define task roles and instance numbers in a distr
 
 ### Environmental Variables and Port Reservation
 
-In a distributed, one task might communicate with others. So a task need to be aware of other tasks' runtime information such as IP, port, etc. The system exposes such runtime information as environment variables to each task's Docker container. For mutual communication, user can write code in the container to access those runtime environment variables.
+In a distributed job, one task might communicate with others (When we say task, we mean a single instance of a task role). So a task need to be aware of other tasks' runtime information such as IP, port, etc. The system exposes such runtime information as environment variables to each task's Docker container. For mutual communication, users can write code in the container to access those runtime environment variables.
 
 Below we show a complete list of environment variables accessible in a Docker container:
 
@@ -48,7 +46,7 @@ Below we show a complete list of environment variables accessible in a Docker co
 | Current task role | PAI_CURRENT_TASK_ROLE_NAME                            | `taskRole.name` of current task role                                               |
 | Current task      | PAI_CURRENT_TASK_ROLE_CURRENT_TASK_INDEX              | Index of current task in current task role, starting from 0                        |
 
-Some environmental variables are in association with ports. In OpenPAI, you can reserve ports for each container in advanced settings, as shown in the image below:
+Some environmental variables are in association with ports. In OpenPAI, you can reserve ports for each task in advanced settings, as shown in the image below:
 
    <img src="/manual/cluster-user/imgs/advanced-and-port.png" width="100%" height="100%" />
 
@@ -62,7 +60,7 @@ There are always different kinds of errors in jobs. In OpenPAI, errors are class
   2. Permanent Error: This kind of error is considered permanent. Retries may not help.
   3. Unknown Error: Errors besides transient error and permanent error.
 
-In jobs, transient error will be always retried, and permanent error will never be retried. If unknown error happens, PAI will retry it according to user settings. To set a retry policy and completion policy for your job, please toggle the `Advanced` mode, as shown in the following image:
+In jobs, transient error will be always retried, and permanent error will never be retried. If unknown error happens, PAI will retry the job according to user settings. To set a retry policy and completion policy for your job, please toggle the `Advanced` mode, as shown in the following image:
 
    <img src="/manual/cluster-user/imgs/advanced-and-retry.png" width="100%" height="100%" />
 
@@ -70,11 +68,11 @@ Here we have 3 settings: `Retry count`, `Task retry count`, and `Completion poli
 
 Firstly, let's look at `Retry count` and `Completion policy`. 
 
-In `Completion policy`, there is settings for `Min Failed Instances` and `Min Succeed Instances`. `Min Failed Instances` means number of failed tasks to fail the entire job. It should be -1 or no less than 1. If it is set to -1, the job will always succeed regardless any task failure. Default value is 1, which means 1 failed task will cause an entire failure. `Min Succeed Instances` means number of succeeded tasks to succeed the entire job. It should be -1 or no less than 1. If it is set to -1, the job will only succeed until all tasks are completed and minFailedInstances is not triggered. Default value is -1. 
+In `Completion policy`, there are settings for `Min Failed Instances` and `Min Succeed Instances`. `Min Failed Instances` means the number of failed tasks to fail the entire job. It should be -1 or no less than 1. If it is set to -1, the job will always succeed regardless of any task failure. Default value is 1, which means 1 failed task will cause an entire job failure. `Min Succeed Instances` means the number of succeeded tasks to succeed the entire job. It should be -1 or no less than 1. If it is set to -1, the job will only succeed until all tasks are completed and `Min Failed Instances` is not triggered. Default value is -1. 
 
-If a job doesn't succeed after the check of `Completion policy`, the failure is caused by an unknown error, and `Retry count` is larger than 0, the whole job will be retried. Set `Retry count` to a larger number if you need more retries.
+If a job doesn't succeed after it satisfies `Completion policy`, the failure is caused by an unknown error, and `Retry count` is larger than 0, the whole job will be retried. Set `Retry count` to a larger number if you need more retries.
 
-Finally, for `Task retry count`, it is the desired retry number for a single task. A special notice is that, this setting won't work unless you set `extras.gangAllocation` to `false` in the [job protocol](#Job-Protocol-Export-and-Import-Jobs).
+Finally, for `Task retry count`, it is the maximum retry number for a single task. A special notice is that, this setting won't work unless you set `extras.gangAllocation` to `false` in the [job protocol](#Job-Protocol-Export-and-Import-Jobs).
 
 ## Job Protocol, Export and Import Jobs
 
@@ -82,17 +80,17 @@ In OpenPAI, all jobs are represented by [YAML](https://yaml.org/), a markup lang
 
    <img src="/manual/cluster-user/imgs/export-and-import.png" width="100%" height="100%" />
 
-To see a full reference of job protocol, please check [openpai-protocol](https://github.com/microsoft/openpai-protocol/blob/master/schemas/v2/schema.yaml).
+To see a full reference of job protocol, please check [job protocol](https://github.com/microsoft/openpai-protocol/blob/master/schemas/v2/schema.yaml).
 
 ## Distributed Job Examples
 
 ### TensorFlow CIFAR10
 
-This example is a TensorFlow CIFAR-10 training job, which runs a parameter server and a worker. This job needs at least 5 GPUs to run. Please refer to [tensorflow-cifar10.yaml](https://github.com/microsoft/pai/blob/master/marketplace-v2/tensorflow-cifar10.yaml).
+This example is a TensorFlow CIFAR-10 training job, which runs a parameter server and a worker. This job needs at least 5 GPUs. Please refer to [tensorflow-cifar10.yaml](https://github.com/microsoft/pai/blob/master/marketplace-v2/tensorflow-cifar10.yaml).
 
 ### Horovod PyTorch
 
-This example, [horovod-pytorch-synthetic-benchmark.yaml](https://github.com/microsoft/pai/blob/master/marketplace-v2/horovod-pytorch-synthetic-benchmark.yaml), is a Horovod benchmark using PyTorch and Open MPI. Please make sure the IFNAME settings fit your environment. It needs at least 8 GPUs to run this job. 
+This example, [horovod-pytorch-synthetic-benchmark.yaml](https://github.com/microsoft/pai/blob/master/marketplace-v2/horovod-pytorch-synthetic-benchmark.yaml), is a Horovod benchmark using PyTorch and Open MPI. Please make sure the `IFNAME` setting in the job yaml fits your environment. It needs at least 8 GPUs. 
 
 ## RDMA Jobs
 

@@ -2,20 +2,20 @@
 
 ## How to use SSH
 
-OpenPAI provides SSH plugin for you to connect to job containers. To use it, you can either create an SSH key pair, or use your own pre-generated keys.
+OpenPAI provides SSH plugin for you to connect to job containers. To use SSH, you can either create an SSH key pair, or use your own pre-generated keys.
 
 **Option 1. Create an SSH Key Pair**
 
-It is feasible to create an SSH key pair when you submit the job. First, open the `Tools` panel, enable the SSH plugin, then click `SSH Key Generator`:
+It is feasible to create a new SSH key pair when you submit the job. First, open the `Tools` panel, enable the SSH plugin, then click `SSH Key Generator`:
 
    <img src="/manual/cluster-user/imgs/ssh-click-generator.png" width="60%" height="60%" />
 
-The generator will generate one public key and one private key for you. Please download SSH private key then click `Use Public Key` button to use this key pair in job. 
+The generator will generate one public key and one private key for you. Please download SSH private key then click `Use Public Key` button to use this key pair in your job. 
 
 
    <img src="/manual/cluster-user/imgs/ssh-generator.png" width="60%" height="60%" />
 
-After job submitted, you can ssh to job containers as user root with the downloaded private key through container ip and ssh port. The `View SSH Info` button will help you:
+After job submission, you can ssh to job containers as user root with the downloaded private key through container ip and ssh port. The `View SSH Info` button will give you the corresponding command:
 
 
    <img src="/manual/cluster-user/imgs/view-ssh-info.png" width="100%" height="100%" />
@@ -25,19 +25,19 @@ To be detailed, you should refer to the `Use a pre-downloaded SSH private key` s
 If you are using Windows, the following command is for you:
 
 ```bash
-ssh -p <ssh-port> -i <your-private-key-file-path> root@10.a.b.c
+ssh -p <ssh-port> -i <your-private-key-file-path> root@<container-ip>
 ```
 
 On a Unix-like System, the command is:
 
 ```bash
-chmod 400 <your-private-key-file-path> && ssh -p <ssh-port> -i <your-private-key-file-path> root@10.a.b.c
+chmod 400 <your-private-key-file-path> && ssh -p <ssh-port> -i <your-private-key-file-path> <container-ip>
 ```
 
 
 **Option 2. Use your Own Keys**
 
-If you are familiar with SSH key authorization, you would probably have generated a public key and a private key already, in the folder `C:\Users\<your-user-name>\.ssh` (it is `~/.ssh/` on a Unix-like system). In such folder, there is an `id_rsa.pub` file and an `id_rsa` file, which are the public key and the private key, respectively. 
+If you are familiar with SSH key authorization, you would probably have generated a public key and a private key already, in the folder `C:\Users\<your-user-name>\.ssh` (it is `~/.ssh/` on a Unix-like system). There is an `id_rsa.pub` file and an `id_rsa` file in such folder, which are the public key and the private key, respectively. 
 
 To use them, open the `id_rsa.pub` and copy its content to the SSH plugin, then submit the job. Do not use the key generator.
 
@@ -68,10 +68,10 @@ After submission, you will see a `Go to TensorBoard Page` button on the job deta
 
 The button will bring you to the TensorBoard page. You might wait a few minutes until the log is ready:
 
-   <img src="/manual/cluster-user/imgs/go-to-tensorboard-page.png" width="100%" height="100%" />
+   <img src="/manual/cluster-user/imgs/tensorboard-ok.png" width="100%" height="100%" />
 
 Generally speaking, to use the TensorBoard plugin, you should:
 
   1. Save your TensorFlow summary logs to `/mnt/tensorboard`
   2. Make sure `tensorboard` is installed in the docker image you use.
-  3. If the job completes, the TensorBoard will not be available. You could use the `sleep` command to extend the job lifetime.
+  3. Use the `sleep` command to extend the job lifetime, if you want TensorBoard available after job completes. 

@@ -34,8 +34,8 @@ The tag of these images indicates the version of the built-in deep learning fram
 
 ## How to use Images from Private Registry
 
-By default, OpenPAI will pull images from the [official Docker Hub](https://hub.docker.com/), which is a public docker registry. For example, the pre-built dockers are all available in the public registory. 
+By default, OpenPAI will pull images from the [official Docker Hub](https://hub.docker.com/), which is a public docker registry. For example, the pre-built images are all available in the public registry. 
 
-If you want to use a private registry, please toggle the `custom` botton, then click the `auth` button, and fill in the required information. If your authorization information is invalid, OpenPAI will inform you of the authorization failure after you submit the job.
+If you want to use a private registry, please toggle the `Custom` botton, then click the `Auth` button, and fill in the required information. If your authorization information is invalid, OpenPAI will inform you of an authorization failure after job submission.
 
    <img src="/manual/cluster-user/imgs/docker-image-auth.png" width="60%" height="60%" />
