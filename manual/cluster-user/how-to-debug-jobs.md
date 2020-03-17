@@ -46,3 +46,32 @@ To use them, open the `id_rsa.pub` and copy its content to the SSH plugin, then 
 After submission, you can use `ssh -p <ssh-port> root@<container-ip>` to connect to the job container, directly.
 
 ## How to use TensorBoard Plugin
+
+[TensorBoard](https://www.tensorflow.org/guide/summaries_and_tensorboard) is a suite of web applications for inspecting and understanding your TensorFlow runs and graphs.
+
+Here we leverage an example to show you how to use TensorBoard in OpenPAI. First, open the job submission page, input the following commands in the `Command` box:
+
+```bash
+git clone https://github.com/microsoft/pai.git
+cd pai/docs/user/samples/
+python minist_tensorboard.py --data_dir ./data --log_dir /mnt/tensorboard
+sleep 30m
+```
+
+Then, please fill in the `Docker image` box with image name `openpai/standard:python_3.6-tensorflow_1.15.0-gpu`. Last but not least, toggle the `Enable TensorBoard` button in the `Tools` section.
+
+   <img src="/manual/cluster-user/imgs/enable-tensorboard.png" width="100%" height="100%" />
+
+After submission, you will see a `Go to TensorBoard Page` button on the job detail page.
+
+   <img src="/manual/cluster-user/imgs/go-to-tensorboard-page.png" width="100%" height="100%" />
+
+The button will bring you to the TensorBoard page. You might wait a few minutes until the log is ready:
+
+   <img src="/manual/cluster-user/imgs/go-to-tensorboard-page.png" width="100%" height="100%" />
+
+Generally speaking, to use the TensorBoard plugin, you should:
+
+  1. Save your TensorFlow summary logs to `/mnt/tensorboard`
+  2. Make sure `tensorboard` is installed in the docker image you use.
+  3. If the job completes, the TensorBoard will not be available. You could use the `sleep` command to extend the job lifetime.
