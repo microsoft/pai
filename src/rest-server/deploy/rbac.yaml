@@ -27,7 +27,7 @@ metadata:
   name: rest-server-role
 rules:
   - apiGroups: [""]
-    resources: ["nodes", "pods"]
+    resources: ["nodes", "pods", "persistentvolumes", "persistentvolumeclaims"]
     verbs: ["get", "list", "watch"]
   - apiGroups: [""]
     resources: ["configmaps", "namespaces", "secrets"]
