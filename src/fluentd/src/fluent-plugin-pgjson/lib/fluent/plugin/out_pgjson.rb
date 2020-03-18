@@ -1,3 +1,8 @@
+# Copyright (c) 2012 OKUNO Akihiro
+# Portions Copyright (c) Microsoft Corporation
+#
+# Apache License, Version 2.0
+
 require "fluent/plugin/output"
 require "pg"
 require "yajl"
