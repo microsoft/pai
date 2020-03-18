@@ -45,10 +45,10 @@ function getStorageServerUri(server) {
     case 'samba':
       return `smb://${data.address}/${normalizePath(data.rootPath)}`;
     case 'azurefile':
-      fileAddress = `${data.accountName}.file.core.windows.net`;
+      fileAddress = `${data.accountName}.<AZURE_STORAGE_DNS_SUFFIX>`;
       return `smb://${fileAddress}/${normalizePath(data.fileShare)}`;
     case 'azureblob':
-      blobAddress = `${data.accountName}.blob.core.windows.net`;
+      blobAddress = `${data.accountName}.<AZURE_STORAGE_DNS_SUFFIX>`;
       return `http://${blobAddress}/${normalizePath(data.containerName)}`;
     case 'hdfs':
       return `hdfs://${data.namenode}:${data.port}`;
