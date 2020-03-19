@@ -219,12 +219,13 @@ export const JobSubmissionPage = ({
 
   // init extras
   useEffect(() => {
-    // for import and clone, will respect original protocol
+    // for import, localstorage or clone, will respect original protocol
     const params = new URLSearchParams(window.location.search);
     if (
       config.launcherType !== 'k8s' ||
       !isEmpty(yamlText) ||
-      params.get('op') === 'resubmit'
+      params.get('op') === 'resubmit' ||
+      !isNil(window.localStorage.getItem('marketItem'))
     ) {
       return;
     }
@@ -269,7 +270,7 @@ export const JobSubmissionPage = ({
     setExtrasValue();
   }, []);
 
-  // fill protocol if cloned job
+  // fill protocol if cloned job or local storage
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     if (params.get('op') === 'resubmit' && !isEmpty(vcNames)) {
@@ -298,7 +299,27 @@ export const JobSubmissionPage = ({
           })
           .catch(alert);
       }
-    } else if (params.get('op') !== 'resubmit') {
+    } else if (!isNil(window.localStorage.getItem('marketItem'))) {
+      const jobConfig = JSON.parse(localStorage.getItem('marketItem'));
+      localStorage.removeItem('marketItem');
+      const [
+        jobInfo,
+        taskRoles,
+        parameters,
+        ,
+        extras,
+      ] = getJobComponentsFromConfig(jobConfig, { vcNames });
+      jobInfo.name = generateJobName(jobInfo.name);
+      if (get(jobConfig, 'extras.submitFrom')) {
+        delete jobConfig.extras.submitFrom;
+      }
+      setJobProtocol(new JobProtocol(jobConfig));
+      setJobTaskRoles(taskRoles);
+      setParameters(parameters);
+      setJobInformation(jobInfo);
+      setExtras(extras);
+      setLoading(false);
+    } else {
       setLoading(false);
     }
   }, [vcNames]);

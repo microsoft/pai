@@ -10,6 +10,8 @@ import {
   FontSizes,
   FontWeights,
 } from 'office-ui-fabric-react';
+import { isNil } from 'lodash';
+
 import Card from '../components/card';
 import { ReactComponent as IconSingle } from '../../assets/img/job-wizard-single.svg';
 import { ReactComponent as IconDistributed } from '../../assets/img/job-wizard-distributed.svg';
@@ -90,10 +92,12 @@ const JobWizard = ({ setYamlText, history }) => {
     fileReader.readAsText(files[0]);
   });
 
-  // redirect if job clone
+  // redirect if job clone or local storage
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     if (params.get('op') === 'resubmit') {
+      history.replace('/general');
+    } else if (!isNil(window.localStorage.getItem('marketItem'))) {
       history.replace('/general');
     } else {
       setLoading(false);
