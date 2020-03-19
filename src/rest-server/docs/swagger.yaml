@@ -1589,6 +1589,26 @@ components:
           description: job name
         jobStatus:
           type: object
+          properties:
+            createdTime:
+              type: integer
+              description: job created time, in number of milliseconds since the Unix Epoch.
+            completedTime:
+              type: integer
+              description: job completed time, in number of milliseconds since the Unix Epoch.
+            appLaunchedTime:
+              type: integer
+              description: job launched time for last attempt, in number of milliseconds since the Unix Epoch.
+            appCompletedTime:
+              type: integer
+              description: >
+                job completed time for last attempt, in number of milliseconds since the Unix Epoch.
+                to get durations for last attempt:
+                  wholeDuration = completedTime - createdTime;
+                  runningDuration = appCompletedTime - appLaunchedTime;
+                  waitingDuration = wholeDuration - runningDuration.
+                to get durations for all attempts:
+                  runningDuration = sum(appCompletedTime - appLaunchedTime) for all attempts.
         taskRoles:
           type: object
       description: TODO

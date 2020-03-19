@@ -219,12 +219,13 @@ const convertFrameworkDetail = async (framework) => {
   if (!framework.status) {
     framework.status = mockFrameworkStatus();
   }
+  const attemptStatus = framework.status.attemptStatus;
   // check fields which may be compressed
-  if (framework.status.attemptStatus.taskRoleStatuses == null) {
-    framework.status.attemptStatus.taskRoleStatuses = decompressField(framework.status.attemptStatus.taskRoleStatusesCompressed);
+  if (attemptStatus.taskRoleStatuses == null) {
+    attemptStatus.taskRoleStatuses = decompressField(attemptStatus.taskRoleStatusesCompressed);
   }
 
-  const completionStatus = framework.status.attemptStatus.completionStatus;
+  const completionStatus = attemptStatus.completionStatus;
   const diagnostics = completionStatus ? completionStatus.diagnostics : null;
   const exitDiagnostics = generateExitDiagnostics(diagnostics);
   const detail = {
@@ -248,11 +249,11 @@ const convertFrameworkDetail = async (framework) => {
       retryDelayTime: framework.status.retryPolicyStatus.retryDelaySec,
       createdTime: new Date(framework.metadata.creationTimestamp).getTime(),
       completedTime: new Date(framework.status.completionTime).getTime(),
-      appId: framework.status.attemptStatus.instanceUID,
+      appId: attemptStatus.instanceUID,
       appProgress: completionStatus ? 1 : 0,
       appTrackingUrl: '',
-      appLaunchedTime: new Date(framework.metadata.creationTimestamp).getTime(),
-      appCompletedTime: new Date(framework.status.completionTime).getTime(),
+      appLaunchedTime: new Date(attemptStatus.runTime || attemptStatus.completionTime).getTime(),
+      appCompletedTime: new Date(attemptStatus.completionTime).getTime(),
       appExitCode: completionStatus ? completionStatus.code : null,
       appExitSpec: completionStatus ? generateExitSpec(completionStatus.code) : generateExitSpec(null),
       appExitDiagnostics: exitDiagnostics ? exitDiagnostics.diagnosticsSummary : null,
