@@ -1,9 +1,9 @@
 # Quick Start
 
-1. [Quick Start](/manual/cluster-user/quick-start.md)
-  - [Submit a Hello World Job](#submit-a-hello-world-job)
-  - [Learn the Hello World Job](#learn-the-hello-world-job)
-  - [Browse Stdout, Stderr, Full Logs, and Metrics](#browse-stdout-stderr-full-logs-and-metrics)
+1. [Quick Start](/manual/cluster-user/quick-start.md) (this document)
+    - [Submit a Hello World Job](#submit-a-hello-world-job)
+    - [Learn the Hello World Job](#learn-the-hello-world-job)
+    - [Browse Stdout, Stderr, Full Logs, and Metrics](#browse-stdout-stderr-full-logs-and-metrics)
 2. [Work with Docker Images](/manual/cluster-user/quick-start.md)
 3. [How to Manage Data](/manual/cluster-user/how-to-manage-data.md)
 4. [How to Debug Jobs](/manual/cluster-user/how-to-debug-jobs.md)
