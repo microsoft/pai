@@ -25,7 +25,15 @@ pushd $(dirname "$0") > /dev/null
 # Create secret for job ssh keys
 /bin/bash secret-create.sh || exit $?
 
-kubectl apply --overwrite=true -f secret.yaml || exit $?
+cp secret.yaml secret-default.yaml
+sed  -i "s/%NAMESPACE%/default/g" secret-default.yaml
+kubectl apply --overwrite=true -f secret-default.yaml || exit $?
+rm -rf secret-default.yaml
+
+cp secret.yaml secret-system.yaml
+sed  -i "s/%NAMESPACE%/kube-system/g" secret-system.yaml
+kubectl apply --overwrite=true -f secret-system.yaml || exit $?
+rm -rf secret-system.yaml
 
 # Label all the machines
 {% for host in cluster_cfg['layout']['machine-list'] %}
