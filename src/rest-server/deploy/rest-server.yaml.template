@@ -108,10 +108,6 @@ spec:
         - name: AUTHN_METHOD
           value: OIDC
 {% endif %}
-{%- if 'elasticsearch' in cluster_cfg and cluster_cfg['elasticsearch']['master-ip'] %}
-        - name: ELASTICSEARCH_URI
-          value: http://{{ cluster_cfg['elasticsearch']['master-ip'] }}:30100
-{%- endif %}
         - name: K8S_APISERVER_URI
           value: {{ cluster_cfg['layout']['kubernetes']['api-servers-url'] }}
         - name: AZ_RDMA
@@ -129,12 +125,12 @@ spec:
         - name: SQL_CONNECTION_STR
           value: {{ cluster_cfg['postgresql']['connection-str'] }}
 {% endif %}
-{% if cluster_cfg['cluster']['common']['job-attempt-storage-engine'] == 'db' %}
-        - name: JOB_ATTEMPT_STORAGE_ENGINE
-          value: "db"
+{% if cluster_cfg['cluster']['common']['job-history'] != 'false' %}
+        - name: JOB_HISTORY
+          value: "true"
 {% else %}
-        - name: JOB_ATTEMPT_STORAGE_ENGINE
-          value: "elasticsearch"
+        - name: JOB_HISTORY
+          value: "false"
 {% endif %}
         ports:
         - name: rest-server

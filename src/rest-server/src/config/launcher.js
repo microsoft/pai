@@ -112,7 +112,7 @@ const k8sLauncherConfigSchema = Joi.object().keys({
   requestHeaders: Joi.object(),
   sqlConnectionString: Joi.string()
     .required(),
-  jobAttemptStorageEngine: Joi.string()
+  enabledJobHistory: Joi.boolean()
     .required(),
   healthCheckPath: Joi.func()
     .arity(0)
@@ -217,7 +217,7 @@ if (launcherType === 'yarn') {
       'Content-Type': 'application/json',
     },
     sqlConnectionString: process.env.SQL_CONNECTION_STR || 'unset',
-    jobAttemptStorageEngine: process.env.JOB_ATTEMPT_STORAGE_ENGINE || 'elasticsearch',
+    enabledJobHistory: process.env.JOB_HISTORY === 'true',
     healthCheckPath: () => {
       return `/apis/${launcherConfig.apiVersion}`;
     },
