@@ -20,7 +20,6 @@ cluster-type:
 
 prerequisite:
   - cluster-configuration
-  - elasticsearch
 
 template-list:
   - fluentd.yaml
