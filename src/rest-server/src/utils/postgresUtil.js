@@ -14,10 +14,27 @@
 // NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+
+const {Sequelize} = require('sequelize');
 const launcherConfig = require('@pai/config/launcher');
 
-if (launcherConfig.jobAttemptStorageEngine === 'db') {
-  module.exports = require('@pai/models/v2/job-attempt-db');
+if (launcherConfig.sqlConnectionString !== 'unset') {
+  const sequelize = new Sequelize(
+    launcherConfig.sqlConnectionString,
+    {
+      pool: {
+        max: 10,
+        min: 1,
+      },
+    }
+  );
+
+  module.exports = {
+    sequelize: sequelize,
+  };
 } else {
-  module.exports = require('@pai/models/v2/job-attempt-es');
+  module.exports = {
+    sequelize: null,
+  };
 }

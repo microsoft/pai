@@ -100,17 +100,18 @@ data:
       remove_keys log,time,stream,logSeverity,logPid,logSite
     </filter>
 
-    # Just for debugging
-    <filter fc-objectsnapshots>
-      @type stdout
-      <format>
-        @type json
-      </format>
-    </filter>
+    # # Just for debugging
+    # <filter fc-objectsnapshots>
+    #   @type stdout
+    #   <format>
+    #     @type json
+    #   </format>
+    # </filter>
 
     # Output to elasticsearch
     <match fc-objectsnapshots>
       @type copy
+{%- if cluster_cfg['cluster']['common']['job-attempt-storage-engine'] != 'db' %}
       # index by kind
       <store>
         @type elasticsearch_dynamic
@@ -143,4 +144,26 @@ data:
           overflow_action block
         </buffer>
       </store>
+{% else %}
+      <store>
+        @type pgjson
+        host {{ cluster_cfg['postgresql']['host'] }}
+        port {{ cluster_cfg['postgresql']['port'] }}
+        user {{ cluster_cfg['postgresql']['user'] }}
+        password {{ cluster_cfg['postgresql']['passwd'] }}
+        database {{ cluster_cfg['postgresql']['db'] }}
+        table fc_objectsnapshots
+        record_col record
+        <buffer>
+          @type memory
+          flush_mode immediate
+          flush_thread_count 8
+          chunk_limit_size 96m
+          queue_limit_length 96
+          retry_forever
+          retry_max_interval 30
+          overflow_action block
+        </buffer>
+      </store>
+{% endif %}
     </match>

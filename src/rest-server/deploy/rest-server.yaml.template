@@ -129,6 +129,13 @@ spec:
         - name: SQL_CONNECTION_STR
           value: {{ cluster_cfg['postgresql']['connection-str'] }}
 {% endif %}
+{% if cluster_cfg['cluster']['common']['job-attempt-storage-engine'] == 'db' %}
+        - name: JOB_ATTEMPT_STORAGE_ENGINE
+          value: "db"
+{% else %}
+        - name: JOB_ATTEMPT_STORAGE_ENGINE
+          value: "elasticsearch"
+{% endif %}
         ports:
         - name: rest-server
           containerPort: 8080

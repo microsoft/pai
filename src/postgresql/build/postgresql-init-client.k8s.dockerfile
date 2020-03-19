@@ -15,8 +15,22 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-FROM postgres:12.0
+FROM ubuntu:16.04
 
-RUN mkdir -p /docker-entrypoint-initdb.d
+RUN apt update
 
-COPY src/init_table.sql /docker-entrypoint-initdb.d
+RUN apt install -y wget
+
+RUN wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | apt-key add -
+
+RUN echo "deb http://apt.postgresql.org/pub/repos/apt/ xenial-pgdg main" | tee  /etc/apt/sources.list.d/pgdg.list
+
+RUN apt update
+
+RUN apt install -y postgresql-client-12
+
+RUN mkdir -p /postgresql_init
+
+COPY src/init_table.sql src/init_table.sh /postgresql_init/
+
+ENTRYPOINT sleep infinity
