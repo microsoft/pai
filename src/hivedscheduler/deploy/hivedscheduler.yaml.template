@@ -34,6 +34,8 @@ spec:
       nodeSelector:
         pai-master: "true"
       serviceAccountName: hivedscheduler-account
+      imagePullSecrets:
+      - name: {{ cluster_cfg["cluster"]["docker-registry"]["secret-name"] }}
       containers:
       - name: hivedscheduler
         image: {{ cluster_cfg["cluster"]["docker-registry"]["prefix"] }}hivedscheduler:{{ cluster_cfg["cluster"]["docker-registry"]["tag"] }}
