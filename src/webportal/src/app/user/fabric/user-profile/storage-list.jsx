@@ -43,9 +43,21 @@ function getStorageServerUri(server) {
     case 'samba':
       return `smb://${data.address}/${normalizePath(data.rootPath)}`;
     case 'azurefile':
-      return `StorageAccount: ${data.accountName}; FileShare: ${data.fileShare}; Path: `;
+      return (
+        <>
+          <b>{'StorageAccount: '}</b>
+          {data.accountName}; <b>{'FileShare: '}</b>
+          {data.fileShare}; <b>{'Path: '}</b>
+        </>
+      );
     case 'azureblob':
-      return `StorageAccount: ${data.accountName}; Container: ${data.accountName}; Path: `;
+      return (
+        <>
+          <b>{'StorageAccount: '}</b>
+          {data.accountName}; <b>{'Container: '}</b>
+          {data.containerName}; <b>{'Path: '}</b>
+        </>
+      );
     case 'hdfs':
       return `hdfs://${data.namenode}:${data.port}`;
     default:
@@ -69,9 +81,11 @@ const StorageList = ({ storageConfigs, storageServers }) => {
           name: `${config.name}:${item.mountPoint}`,
           mountPoint: item.mountPoint,
           type: server.type,
-          serverUri: `${getStorageServerUri(server)}/${normalizePath(
-            item.path,
-          )}`,
+          serverUri: (
+            <>
+              {getStorageServerUri(server)}/{normalizePath(item.path)}
+            </>
+          ),
           permission: item.permission,
         });
       }
