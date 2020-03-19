@@ -43,13 +43,9 @@ function getStorageServerUri(server) {
     case 'samba':
       return `smb://${data.address}/${normalizePath(data.rootPath)}`;
     case 'azurefile':
-      return `AccountName: ${data.accountName} Path: ${normalizePath(
-        data.fileShare,
-      )}`;
+      return `StorageAccount: ${data.accountName}; FileShare: ${data.fileShare}; Path: `;
     case 'azureblob':
-      return `AccountName: ${data.accountName} Path: ${normalizePath(
-        data.containerName,
-      )}`;
+      return `StorageAccount: ${data.accountName}; Container: ${data.accountName}; Path: `;
     case 'hdfs':
       return `hdfs://${data.namenode}:${data.port}`;
     default:
