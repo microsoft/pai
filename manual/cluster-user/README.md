@@ -6,4 +6,11 @@ This manual is for cluster users to learn how to submit job, debug job, manage d
 
 ## Table of Content
 
-TBD.
+1. [Quick Start](/manual/user_manual/quick-start.md)
+2. [Work with Docker Images](/manual/user_manual/quick-start.md)
+3. [How to Manage Data](/manual/user_manual/how-to-manage-data.md)
+4. [How to Debug Jobs](/manual/user_manual/how-to-debug-jobs.md)
+5. [Advanced Jobs](/manual/user_manual/advanced-jobs.md)
+6. [Use Marketplace](/manual/user_manual/use-marketplace.md)
+7. [Use VSCode Extension](/manual/user_manual/use-marketplace.md)
+8. [Use Jupyter Notebook Extension](/manual/user_manual/use-jupyter-notebook-extension.md)
