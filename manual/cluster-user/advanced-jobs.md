@@ -1,5 +1,25 @@
 # Advanced Job Settings
 
+1. [Quick Start](/manual/cluster-user/quick-start.md)
+2. [Work with Docker Images](/manual/cluster-user/work-with-docker-images.md)
+3. [How to Manage Data](/manual/cluster-user/how-to-manage-data.md)
+4. [How to Debug Jobs](/manual/cluster-user/how-to-debug-jobs.md)
+5. [Advanced Jobs](/manual/cluster-user/advanced-jobs.md) (this document)
+    - [Parameters and Secrets](#parameters-and-secrets)
+    - [Multiple Task Roles](#multiple-task-roles)
+      - [Environmental Variables and Port Reservation](#environmental-variables-and-port-reservation)
+    - [Job Exit Spec, Retry Policy, and Completion Policy](#job-exit-spec-retry-policy-and-completion-policy)
+    - [Job Protocol, Export and Import Jobs](#job-protocol-export-and-import-jobs)
+    - [Distributed Job Examples](#distributed-job-examples)
+      - [TensorFlow CIFAR10](#tensorflow-cifar10)
+      - [Horovod PyTorch](#horovod-pytorch)
+    - [RDMA Jobs](#rdma-jobs)
+    - [InfiniBand Jobs](#infiniband-jobs)
+    - [Reference](#reference)
+6. [Use Marketplace](/manual/cluster-user/use-marketplace.md)
+7. [Use VSCode Extension](/manual/cluster-user/use-vscode-extension.md)
+8. [Use Jupyter Notebook Extension](/manual/cluster-user/use-jupyter-notebook-extension.md)
+
 ## Parameters and Secrets
 
 It is common to train models with different parameters. OpenPAI supports parameter definition and reference, which provides a flexible way of training and comparing models. You can define your parameters in `Parameters` section and reference them by using `<% $parameters.paramKey %>` in your commands. For example, the following picture shows how to define the [Quick Start](/manual/cluster-user/advanced-jobs.md) job using a `stepNum` parameter.

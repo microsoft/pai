@@ -1,5 +1,20 @@
 # Use VSCode Extension
 
+1. [Quick Start](/manual/cluster-user/quick-start.md)
+2. [Work with Docker Images](/manual/cluster-user/work-with-docker-images.md)
+3. [How to Manage Data](/manual/cluster-user/how-to-manage-data.md)
+4. [How to Debug Jobs](/manual/cluster-user/how-to-debug-jobs.md)
+5. [Advanced Jobs](/manual/cluster-user/advanced-jobs.md)
+6. [Use Marketplace](/manual/cluster-user/use-marketplace.md)
+7. [Use VSCode Extension](/manual/cluster-user/use-vscode-extension.md) (this document)
+    - [Connect to an OpenPAI cluster](#connect-to-an-openpai-cluster)
+      - [Basic login](#basic-login)
+      - [AAD login](#aad-login)
+    - [Submit job](#submit-job)
+    - [Reference](#reference)
+8. [Use Jupyter Notebook Extension](/manual/cluster-user/use-jupyter-notebook-extension.md)
+
+
 OpenPAI VS Code Client is a VSCode extension to connect OpenPAI clusters, submit AI jobs, simulate jobs locally, manage files, and so on.
 
 ## Connect to an OpenPAI cluster
