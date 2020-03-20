@@ -51,7 +51,7 @@ import Context from './context';
 import { FormShortSection } from './form-page';
 
 const JOB_PROTOCOL_SCHEMA_URL =
-  'https://github.com/microsoft/pai/blob/master/docs/pai-job-protocol.yaml';
+  'https://github.com/microsoft/openpai-protocol/blob/master/schemas/v2/schema.yaml';
 
 const user = cookies.get('user');
 const { palette } = getTheme();

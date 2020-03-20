@@ -45,7 +45,7 @@ HTTP://restserver/api/v1/authn/oidc/return
 HTTP GET the redirect URL of Azure AD to sign out the authentication:
 
 ```url
-http://restserver/api/v1/authn/oidc/login 
+http://restserver/api/v1/authn/oidc/login
 ```
 
 ## 3. Submit a job
@@ -70,27 +70,27 @@ curl -H "Content-Type: application/json" \
 Check the list of jobs at:
 
     http://restserver/api/v1/jobs
-    
+
 
 or
 
     http://restserver/api/v1/user/:username/jobs
-    
+
 
 Check your exampleJob status at:
 
     http://restserver/api/v1/user/:username/jobs/exampleJob
-    
+
 
 Get the job config JSON content:
 
     http://restserver/api/v1/user/:username/jobs/exampleJob/config
-    
+
 
 Get the job's SSH info:
 
     http://restserver/api/v1/user/:username/jobs/exampleJob/ssh
-    
+
 
 # RestAPI
 
@@ -196,7 +196,7 @@ Admin can create a user in system.
 
     POST /api/v2/user
     Authorization: Bearer <ACCESS_TOKEN>
-    
+
 
 *Parameters*
 
@@ -207,7 +207,7 @@ Admin can create a user in system.
   "admin": true | false,
   "email": "email address or empty string",
   "virtualCluster": ["vcname1 in [A-Za-z0-9_]+ format", "vcname2 in [A-Za-z0-9_]+ format"],
-  "extension": { 
+  "extension": {
     "extension-key1": "extension-value1"
   }
 }
@@ -874,7 +874,7 @@ Admin can create a group in system.
 
     POST /api/v2/group
     Authorization: Bearer <ACCESS_TOKEN>
-    
+
 
 *Parameters*
 
@@ -883,7 +883,7 @@ Admin can create a group in system.
   "groupname": "username in [A-Za-z0-9_]++ format",
   "description": "description for the group",
   "externalName": "the external group name binding with the group in OpenPAI",
-  "extension": { 
+  "extension": {
     "extension-key1": "extension-value1"
   }
 }
@@ -940,13 +940,13 @@ Admin can change a group's extension.
 
     PUT /api/v2/group/:groupname/extension
     Authorization: Bearer <ACCESS_TOKEN>
-    
+
 
 *Parameters*
 
 ```json
 {
-  "extension": { 
+  "extension": {
     "key-create-or-update-1": "extension-value1",
     "key-create-or-update-2": [ ... ],
     "key-create-or-update-3": { ... }
@@ -1005,7 +1005,7 @@ Admin can change a specific attribute in a nested group extension. Admin could c
 
     PUT /api/v2/group/:groupname/extension/path/to/attr
     Authorization: Bearer <ACCESS_TOKEN>
-    
+
 
 *Body*
 
@@ -1021,12 +1021,12 @@ Admin can change a specific attribute in a nested group extension. Admin could c
     PUT /api/v2/group/:groupname/extension/acls/virtualClusters
     Authorization: Bearer <ACCESS_TOKEN>
     Body {"data": ["vc1", "vc2"]}
-    
+
     Update group admin privilege
     PUT /api/v2/group/:groupname/extension/acls/admin
     Authorization: Bearer <ACCESS_TOKEN>
     Body {"data": true/false}
-    
+
 
 *Response if succeeded*
 
@@ -1079,7 +1079,7 @@ Admin can change a group's description.
 
     PUT /api/v2/group/:groupname/description
     Authorization: Bearer <ACCESS_TOKEN>
-    
+
 
 *Parameters*
 
@@ -1140,7 +1140,7 @@ Admin can change a group's externalname, and bind it with another external group
 
     PUT /api/v2/group/:groupname/externalname
     Authorization: Bearer <ACCESS_TOKEN>
-    
+
 
 *Parameters*
 
@@ -1201,7 +1201,7 @@ Admin can delete a group from system.
 
     DELETE /api/v2/group/:groupname
     Authorization: Bearer <ACCESS_TOKEN>
-    
+
 
 *Parameters*
 
@@ -2020,7 +2020,7 @@ Authorization: Bearer <ACCESS_TOKEN>
 
 *Parameters*
 
-[job protocol yaml](../pai-job-protocol.yaml)
+[job protocol yaml](https://github.com/microsoft/openpai-protocol/blob/master/schemas/v2/schema.yaml)
 
 *Response if succeeded*
 
@@ -2046,12 +2046,12 @@ Status: 400
 *Response if user has no permission*
 
     Status: 403
-    
+
     {
       "code": "ForbiddenUserError",
       "message": "User $username is not allowed to add job to $vcname
     }
-    
+
 
 *Response if there is a duplicated job submission*
 

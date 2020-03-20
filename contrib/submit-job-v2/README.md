@@ -8,7 +8,7 @@ This plugin is used to submit PAI job v2 on web portal.
 
 User can upload a job v2 yaml file from disk, choose a job v2 from marketplace, or use the submission form to fill in a job v2 config.
 
-Please refer to [PAI protocol spec](../../docs/pai-job-protocol.yaml) for more details.
+Please refer to [PAI protocol spec](https://github.com/microsoft/openpai-protocol/blob/master/schemas/v2/schema.yaml) for more details.
 
 ## Build
 
