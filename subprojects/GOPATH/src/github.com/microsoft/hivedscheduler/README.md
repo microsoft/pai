@@ -13,7 +13,7 @@ The killer feature that distinguishes HiveD is that it provides resource guarant
 
 HiveD protects VCs' resources in terms of **cell**, a user-defined resource type that encodes both the quantity and other kinds of information, such as topology and hardware type. In the above example, a user can define a cell type of 8-GPU node, and the VC can be assigned one of such cell. Then, HiveD will ensure that *there is always one 8-GPU node available for the VC*, regardless of the other workloads in the cluster.
 
-HiveD allows flexible cell definitions and assignments. For example, users can define cells at multiple topology levels (e.g., PCI-e switch) for more fine-grained assignments. Users can also create different cell types for different GPU models (e.g., V100) or networking configuration (e.g., InfiniBand domain) in a heterogeneous cluster.
+HiveD allows flexible cell definitions for fine-grained resource guarantees. For example, users can define cells at multiple topology levels (e.g., PCI-e switch), for different GPU models, or networking configurations (e.g., InfiniBand domain). A VC can have various types of cells, and HiveD will guarantee all of them.
 
 ### [Gang Scheduling](example/feature/README.md#Gang-Scheduling)
 
@@ -25,10 +25,6 @@ HiveD schedules all containers within a job in a *transactional* manner, i.e., a
 
 HiveD supports multiple job **priorities**. Higher-priority jobs can **[preempt](example/feature/README.md#Intra-VC-Preemption)** lower-priority jobs. HiveD also introduces **[opportunistic jobs](example/feature/README.md#Opportunistic-Job)**, i.e., jobs with the lowest priority which can use other VCs' free resource when possible (without breaking the resource guarantees to other VCs).
 
-### Fault-Tolerance
-
-HiveD is **fault-tolerant**. It can handle random machine failures and crash recovery.
-
 ## Feature
 1. [Multi-Tenancy: Virtual Cluster (VC)](example/feature/README.md#VC-Safety)
 2. [Fine-Grained VC Resource Guarantee](example/feature/README.md#VC-Safety): Quantity, [Topology](example/feature/README.md#VC-Safety), [Type](example/feature/README.md#GPU-Type), [Reservation](example/feature/README.md#Reservation), etc.
@@ -36,7 +32,7 @@ HiveD is **fault-tolerant**. It can handle random machine failures and crash rec
 4. Optimized Resource Fragmentation and Less Starvation
 5. [Priorities](example/feature/README.md#Guaranteed-Job), [Overuse with Low Priority](example/feature/README.md#Opportunistic-Job), and [Inter-](example/feature/README.md#Inter-VC-Preemption)/[Intra-VC Preemption](example/feature/README.md#Intra-VC-Preemption)
 6. [Job (Full/Partial) Gang Scheduling/Preemption](example/feature/README.md#Gang-Scheduling)
-7. Fault-Tolerance, [Hardware Failure-Awareness](example/feature/README.md#Bad-Hardware-Awareness), [Work Preserving Reconfiguration](example/feature/README.md#Work-Preserving-Reconfiguration)
+7. Fault-Tolerance, [Hardware Failure-Awareness](example/feature/README.md#Bad-Hardware-Awareness), [Work-Preserving Reconfiguration](example/feature/README.md#Work-Preserving-Reconfiguration)
 8. [Leverage K8s Default Scheduler](example/feature/README.md#Leverage-K8S-Default-Scheduler)
 
 ## Prerequisite
