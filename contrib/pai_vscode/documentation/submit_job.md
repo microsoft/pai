@@ -1,6 +1,6 @@
 # Submit job to OpenPAI by VSCode Extension
 
-This document is a tutorial for OpenPAI job submission on VSCode Extension.  
+This document is a tutorial for OpenPAI job submission on VSCode Extension.
 Before learning this document, make sure you have an OpenPAI cluster already, and already install VSCode.
 
 - [Submit job to OpenPAI by VSCode Extension](#submit-job-to-openpai-by-vscode-extension)
@@ -33,7 +33,7 @@ In VSCode Extension Marketplace search [OpenPAI VS Code Client](https://marketpl
 
 ## Submit a Hello World Job
 
-The job of OpenPAI defines how to execute code(s) and command(s) in specified environment(s). A job can be run on single node or distributedly.  
+The job of OpenPAI defines how to execute code(s) and command(s) in specified environment(s). A job can be run on single node or distributedly.
 The following process submits a model training job implemented by TensorFlow on CIFAR-10 dataset. It downloads data and code from internet and helps getting started with OpenPAI.
 
 ### Create a job config file
@@ -77,12 +77,12 @@ taskRoles:
       - python train_image_classifier.py --dataset_name=cifar10 --dataset_dir=/tmp/data --max_number_of_steps=1000
 ```
 
-The `OpenPAI VS Code Client` support some features to improve user experience for editing job config file, please refer to [OpenPAI job config file edit features](edit_yaml_job_config.md).  
+The `OpenPAI VS Code Client` support some features to improve user experience for editing job config file, please refer to [OpenPAI job config file edit features](edit_yaml_job_config.md).
 To learn more about this job, please refer to [Learn the Hello World Job](https://github.com/microsoft/pai/blob/master/docs/user/job_submission.md#Learn-the-Hello-World-Job)
 
 ### Submit it
 
-Finish editing the config file, save it and right click on the editor and select `Submit Job to PAI Cluster`.  
+Finish editing the config file, save it and right click on the editor and select `Submit Job to PAI Cluster`.
 After the information `Successfully submitted job.` pop up, you can click the `Open job page` button at right bottom corner, and view you job on website.
 
 ![Submit](../assets/submit.gif)
@@ -93,26 +93,26 @@ Most model training and other kinds of jobs need to transfer files between runni
 
 ### Teamwise Storage
 
-OpenPAI admin can define Team-wise storage through [Storage Plugin](https://github.com/microsoft/pai/tree/master/contrib/storage_plugin).  
+OpenPAI admin can define Team-wise storage through [Storage Plugin](https://github.com/microsoft/pai/tree/master/contrib/storage_plugin).
 User's job container can mount to the storage if user add it in job config file, for how to insert storage plugin into job config, please refer to [Insert OpenPAI Runtime Plugin](edit_yaml_job_config.md#Insert-OpenPAI-Runtime-Plugin).
 
 ### Storage explorer
 
-To manage user's data in Team-wise storage, `OpenPAI VS Code Client` support a `STORAGE EXPLORER` in vscode, User can manage data in the explorer.  
-We also support an `Auto Upload` feature in VSCode, the client will auto upload user's project file to the storage before submit job.  
+To manage user's data in Team-wise storage, `OpenPAI VS Code Client` support a `STORAGE EXPLORER` in vscode, User can manage data in the explorer.
+We also support an `Auto Upload` feature in VSCode, the client will auto upload user's project file to the storage before submit job.
 For more detail, refer to [Storage Explorer and Auto Upload](storage_explorer_and_auto_upload.md)
 
 ![Storage Explorer](../assets/storage.gif)
 
 ### Source code auto upload
 
-VSCode is a very powerful editor, user can use it to edit their source code, the auto upload feature make the source code to PAI job easily.  
+VSCode is a very powerful editor, user can use it to edit their source code, the auto upload feature make the source code to PAI job easily.
 For more detail, refer to [Storage Explorer and Auto Upload](storage_explorer_and_auto_upload.md#Auto-Upload)
 
 ![Source code auto upload](../assets/source_code_auto_upload.gif)
 
 ## Reference
 
-[PAI Job Protocol](https://github.com/microsoft/pai/blob/master/docs/pai-job-protocol.yaml)  
-[Submit Jobs on OpenPAI](https://github.com/microsoft/pai/blob/master/docs/user/job_submission.md#job-workflow)  
+[PAI Job Protocol](https://github.com/microsoft/openpai-protocol/blob/master/schemas/v2/schema.yaml)
+[Submit Jobs on OpenPAI](https://github.com/microsoft/pai/blob/master/docs/user/job_submission.md#job-workflow)
 [Troubleshoot jobs](https://github.com/microsoft/pai/blob/master/docs/user/troubleshooting_job.md)

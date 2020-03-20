@@ -11,7 +11,7 @@ OpenPAI provides [paictl](./paictl/paictl-manual.md), a tool to help user deploy
 
 One key design goal of OpenPAI is to facilitate the sharing and reproducing of AI innovations. To this end, OpenPAI introduces [marketplace](../contrib/marketplace/README.md), where people can share their workloads and data within a private group or publically.
 
-The workloads and data in the marketplace are described by [OpenPAI protocol](./pai-job-protocol.yaml), a specification that describes the hardware and software requirement of a workload or dataset.
+The workloads and data in the marketplace are described by [OpenPAI protocol](https://github.com/microsoft/openpai-protocol/blob/master/schemas/v2/schema.yaml), a specification that describes the hardware and software requirement of a workload or dataset.
 The hardware and software requirements include GPU/CPU/Memory resource requirement, docker images, data/code location, the training method (gang scheduling or elastic), job completion policy, etc.
 OpenPAI protocol facilitates platform interoperability and job portability, a job described by the protocol can run on different clusters managed by OpenPAI, as long as the clusters can meet the specification.
 The OpenPAI protocol also enables great flexibility, any AI workload, being it Tensorflow, PyTorch, or your proprietary deep learning workload, can be described by the protocol.

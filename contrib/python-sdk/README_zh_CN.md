@@ -207,7 +207,7 @@ opai job list -a <cluster-alias> [<job-name>]
 
 ### How to submit a job from existing job config file
 
-If you already has a job config file, you could submit a job based on it directly. The job config file could be in the format of `json` or `yaml`, and it must be compatible with [job configuration specification v1](https://github.com/microsoft/pai/blob/master/docs/job_tutorial.md) or [pai-job-protocol v2](https://github.com/Microsoft/pai/blob/master/docs/pai-job-protocol.yaml).
+If you already has a job config file, you could submit a job based on it directly. The job config file could be in the format of `json` or `yaml`, and it must be compatible with [job configuration specification v1](https://github.com/microsoft/pai/blob/master/docs/job_tutorial.md) or [pai-job-protocol v2](https://github.com/microsoft/openpai-protocol/blob/master/schemas/v2/schema.yaml).
 
 ```bash
 opai job submit -a <cluster-alias> <config-file>

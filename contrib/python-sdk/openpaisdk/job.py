@@ -114,7 +114,7 @@ class JobResource:
 
 class Job:
     """
-    the data structure and methods to describe a job compatible with https://github.com/microsoft/pai/blob/master/docs/pai-job-protocol.yaml
+    the data structure and methods to describe a job compatible with https://github.com/microsoft/openpai-protocol/blob/master/schemas/v2/schema.yaml
     external methods:
     - I/O
         - save(...) / load(...): store and restore to the disk
@@ -131,7 +131,7 @@ class Job:
     """
 
     def __init__(self, name: str=None, **kwargs):
-        self.protocol = dict()  # follow the schema of https://github.com/microsoft/pai/blob/master/docs/pai-job-protocol.yaml
+        self.protocol = dict()  # follow the schema of https://github.com/microsoft/openpai-protocol/blob/master/schemas/v2/schema.yaml
         self._client = None  # cluster client
         self.new(name, **kwargs)
 

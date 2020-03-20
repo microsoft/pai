@@ -4,7 +4,7 @@
 
 - **User can easily access `OpenPAI` resources in scripts (`Python` or `Shell`) and `Jupyter` notebooks**
 
-The SDK provides classes to describe the clusters (`openpaisdk.core.Cluster`) and jobs (`openpaisdk.job.Job`). The Cluster class wraps necessary REST apis for convenient operations. The Job class is an implementation of the [protocol](https://github.com/microsoft/pai/blob/master/docs/pai-job-protocol.yaml), with which user can easily organize (add or edit) the content of job `yaml` and `json` configuration.
+The SDK provides classes to describe the clusters (`openpaisdk.core.Cluster`) and jobs (`openpaisdk.job.Job`). The Cluster class wraps necessary REST apis for convenient operations. The Job class is an implementation of the [protocol](https://github.com/microsoft/openpai-protocol/blob/master/schemas/v2/schema.yaml), with which user can easily organize (add or edit) the content of job `yaml` and `json` configuration.
 
 Besides the wrapping of APIs, the SDK also provides functions to facilitate user to utilize `OpenPAI`. Such functions includes *cluster management*, *storage accessing*, *execution environment detection (local or in a job container)*.
 

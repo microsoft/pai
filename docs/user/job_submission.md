@@ -34,7 +34,7 @@
 
 This document is a tutorial for job submission on OpenPAI (If you are using OpenPAI <= 0.13.0, please refer to [this document](./training.md)). Before learning this document, make sure you have an OpenPAI cluster already. If there isn't yet, refer to [here](../../README.md#deploy-openpai) to deploy one.
 
-There are several ways of submitting pai job, including webportal, [OpenPAI VS Code Client](https://github.com/microsoft/pai/tree/master/contrib/pai_vscode), and [python sdk](https://github.com/microsoft/pai/tree/master/contrib/python-sdk). And all the job configs follow [Pai Job Protocol](https://github.com/microsoft/pai/blob/master/docs/pai-job-protocol.yaml). Here we use webportal to submit a hello world job.
+There are several ways of submitting pai job, including webportal, [OpenPAI VS Code Client](https://github.com/microsoft/pai/tree/master/contrib/pai_vscode), and [python sdk](https://github.com/microsoft/pai/tree/master/contrib/python-sdk). And all the job configs follow [OpenPAI Job Protocol](https://github.com/microsoft/openpai-protocol/blob/master/schemas/v2/schema.yaml). Here we use webportal to submit a hello world job.
 
 ## Submit a Hello World Job
 
@@ -130,7 +130,7 @@ In some cases, it is desired to define some secret messages such as password, to
 
 ## Advanced Mode
 
-You can set more detailed configs by enabling advanced mode. In the advanced mode, you could define ```retry time```, ```ports```, ```completion policy``` before submitting job. For more details about the fields, please refer to [Pai Job Protocol](../pai-job-protocol.yaml).
+You can set more detailed configs by enabling advanced mode. In the advanced mode, you could define ```retry time```, ```ports```, ```completion policy``` before submitting job. For more details about the fields, please refer to [OpenPAI Job Protocol](https://github.com/microsoft/openpai-protocol/blob/master/schemas/v2/schema.yaml).
 
 ## PAI Environment Variables
 
