@@ -135,7 +135,7 @@ One VC's [Guaranteed Job](#Guaranteed-Job) can preempt other VCs' [Opportunistic
 
 ## Topology-Aware Intra-VC Scheduling
 ### Description
-Within one VC, HiveD chooses GPUs with nearest topology for one `AffinityGroup` in best effort.
+Within one VC, HiveD chooses nearest GPUs for one `AffinityGroup` in best effort.
 
 ### Reproduce Steps
 1. Use [hived-config-2](file/hived-config-2.yaml).
