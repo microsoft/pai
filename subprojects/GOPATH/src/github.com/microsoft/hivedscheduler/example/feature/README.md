@@ -140,6 +140,7 @@ Within one VC, HiveD chooses nearest GPUs for one `AffinityGroup` in best effort
 ### Reproduce Steps
 1. Use [hived-config-2](file/hived-config-2.yaml).
 2. Submit job [itc-buddy](file/itc-buddy.yaml), which requests for 2 single GPU tasks in the same `AffinityGroup`, tasks will be allocated to 2 buddy GPUs.
+
    <img src="file/itc-buddy-1.png" width="600"/>
    <img src="file/itc-buddy-2.png" width="600"/>
    <img src="file/itc-buddy-3.png" width="500"/>
