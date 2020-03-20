@@ -85,6 +85,8 @@ const yarnLauncherConfigSchema = Joi.object().keys({
       .min(0)
       .default(0),
   }),
+  sqlConnectionString: Joi.string()
+    .required(),
 }).required();
 
 // define k8s launcher config schema
@@ -169,6 +171,7 @@ if (launcherType === 'yarn') {
       diskType: 0,
       diskMB: 0,
     },
+    sqlConnectionString: 'unset',
     healthCheckPath: () => {
       return `${launcherConfig.webserviceUri}/v1`;
     },
