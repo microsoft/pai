@@ -28,12 +28,12 @@ HiveD supports multiple job **priorities**. Higher-priority jobs can **[preempt]
 ## Feature
 1. [Multi-Tenancy: Virtual Cluster (VC)](example/feature/README.md#VC-Safety)
 2. [Fine-Grained VC Resource Guarantee](example/feature/README.md#VC-Safety): Quantity, [Topology](example/feature/README.md#VC-Safety), [Type](example/feature/README.md#GPU-Type), [Reservation](example/feature/README.md#Reservation), etc.
-3. Flexible Intra-VC Scheduling: [Topology-Awareness](example/feature/README.md#Topology-Aware-Scheduling), [Flexible GPU Types](example/feature/README.md#GPU-Type), [Reservation](example/feature/README.md#Reservation), Scheduling Policy Customization, etc.
+3. Flexible Intra-VC Scheduling: [Topology-Awareness](example/feature/README.md#Topology-Aware-Intra-VC-Scheduling), [Flexible GPU Types](example/feature/README.md#GPU-Type), [Reservation](example/feature/README.md#Reservation), Scheduling Policy Customization, etc.
 4. Optimized Resource Fragmentation and Less Starvation
 5. [Priorities](example/feature/README.md#Guaranteed-Job), [Overuse with Low Priority](example/feature/README.md#Opportunistic-Job), and [Inter-](example/feature/README.md#Inter-VC-Preemption)/[Intra-VC Preemption](example/feature/README.md#Intra-VC-Preemption)
 6. [Job (Full/Partial) Gang Scheduling/Preemption](example/feature/README.md#Gang-Scheduling)
 7. Fault-Tolerance, [Hardware Failure-Awareness](example/feature/README.md#Bad-Hardware-Awareness), [Work-Preserving Reconfiguration](example/feature/README.md#Work-Preserving-Reconfiguration)
-8. [Leverage K8s Default Scheduler](example/feature/README.md#Leverage-K8S-Default-Scheduler)
+8. [Leverage K8S Default Scheduler](example/feature/README.md#Leverage-K8S-Default-Scheduler)
 
 ## Prerequisite
 1. A Kubernetes cluster, v1.14.2 or above, on-cloud or on-premise.

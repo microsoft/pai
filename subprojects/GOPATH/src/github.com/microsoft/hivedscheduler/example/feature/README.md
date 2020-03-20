@@ -7,9 +7,9 @@
 ## VC Safety
 ### Description
 
-HiveD guarantees **safety** for the VCs, in the sense that the requests to cells defined in each VC can always be satisfied.
+HiveD guarantees **quota safety for all VCs**, in the sense that the requests to cells defined in each VC can always be satisfied.
 
-VC's cells can be described by Hardware Quantity, [Topology](#VC-Safety), [Type](#GPU-Type), [Reservation](#Reservation), etc. To guarantee safety, HiveD never allows a VC to "invade" other VCs' cells. For example, to guarantee all VCs' topology, one VC's [guaranteed jobs](#Guaranteed-Job) should never make excessive fragmentation inside other VCs:
+VC's cells can be described by Hardware Quantity, [Topology](#VC-Safety), [Type](#GPU-Type), [Reservation](#Reservation), etc. To guarantee safety, HiveD never allows a VC to "invade" other VCs' cells. For example, to guarantee all VCs' topology, one VC's [guaranteed jobs](#Guaranteed-Job) should never make fragmentation inside other VCs:
 
 Two DGX-2s, two VCs each owns one DGX-2 node. For normal scheduler, this will translate into two VCs each owning 16 GPUs. When user submits 16 1-GPU jobs to VC1, the user in VC2 might not be able to run a 16-GPU job, due to possible fragmentation issue caused by VC1. While HiveD can guarantee each VC always has one entire node reserved for its dedicated use.
 
@@ -85,7 +85,7 @@ This is used for jobs that can still perform useful works, such as making progre
 
 ## Guaranteed Job
 ### Description
-Guaranteed Job: Job whose priority is non-negative, it can only use its own VC's cells. Once it is allocated, it will not be preempted by other VCs' jobs.
+Guaranteed Job: Job whose priority is non-negative, it can only use its own VC's quota, however, once it is allocated, it will not be preempted by other VCs' jobs.
 
 ### Reproduce Steps
 1. Use [hived-config-1](file/hived-config-1.yaml).
@@ -94,7 +94,7 @@ Guaranteed Job: Job whose priority is non-negative, it can only use its own VC's
 
 ## Opportunistic Job
 ### Description
-Opportunistic Job: Job whose priority is -1, it can use other VCs' cells, however, once it is allocated, it may be preempted by other VCs' guaranteed jobs.
+Opportunistic Job: Job whose priority is -1, it can use other VCs' quota, however, once it is allocated, it may be preempted by other VCs' guaranteed jobs.
 
 ### Reproduce Steps
 1. Use [hived-config-1](file/hived-config-1.yaml).
@@ -135,11 +135,11 @@ One VC's [Guaranteed Job](#Guaranteed-Job) can preempt other VCs' [Opportunistic
 
 ## Topology-Aware Intra-VC Scheduling
 ### Description
-Within one VC, HiveD chooses GPUs with better topology for one job in best effort.
+Within one VC, HiveD chooses nearest GPUs for one `AffinityGroup` in best effort.
 
 ### Reproduce Steps
 1. Use [hived-config-2](file/hived-config-2.yaml).
-2. Submit job [itc-buddy](file/itc-buddy.yaml), which requests for 2 single GPU tasks, tasks will be allocated to 2 buddy GPUs.
+2. Submit job [itc-buddy](file/itc-buddy.yaml), which requests for 2 single GPU tasks in the same `AffinityGroup`, tasks will be allocated to 2 buddy GPUs.
    <img src="file/itc-buddy-1.png" width="600"/>
    <img src="file/itc-buddy-2.png" width="600"/>
    <img src="file/itc-buddy-3.png" width="500"/>
