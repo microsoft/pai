@@ -24,7 +24,6 @@
     "node": "^8.9.0"
   },
   "dependencies": {
-    "@elastic/elasticsearch": "^7.4.0",
     "@kubernetes/client-node": "^0.11.0",
     "ajv": "^6.10.0",
     "ajv-merge-patch": "~4.1.0",

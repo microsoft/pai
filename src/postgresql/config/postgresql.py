@@ -54,4 +54,6 @@ class Postgresql(object):
         return result
 
     def validation_post(self, conf):
+        if conf['internal-storage']['enable'] is False and conf['postgresql']['enable'] is True:
+            return False, "You must set internal-storage.enable=true to use postgresql!"
         return True, None

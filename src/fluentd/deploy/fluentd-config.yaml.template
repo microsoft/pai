@@ -108,43 +108,9 @@ data:
     #   </format>
     # </filter>
 
-    # Output to elasticsearch
+    # Output to postgresql
     <match fc-objectsnapshots>
       @type copy
-{%- if cluster_cfg['cluster']['common']['job-attempt-storage-engine'] != 'db' %}
-      # index by kind
-      <store>
-        @type elasticsearch_dynamic
-        type_name _doc
-        # elasticsearch_host
-        host {{ cluster_cfg['elasticsearch']['master-ip'] }}
-        # elasticsearch-service_port
-        port 30100
-        index_name ${record['objectSnapshot']['kind']}
-        customize_template {
-          "index_patterns": ["framework", "pod"],
-          "settings": {
-            "number_of_shards": 3,
-            "number_of_replicas": 1,
-            "index.refresh_interval": "1s"
-          },
-          "mappings": {
-            "properties": {
-            }
-          }
-        }
-        <buffer>
-          @type memory
-          flush_mode immediate
-          flush_thread_count 8
-          chunk_limit_size 96m
-          queue_limit_length 96
-          retry_forever
-          retry_max_interval 30
-          overflow_action block
-        </buffer>
-      </store>
-{% else %}
       <store>
         @type pgjson
         host {{ cluster_cfg['postgresql']['host'] }}
@@ -165,5 +131,4 @@ data:
           overflow_action block
         </buffer>
       </store>
-{% endif %}
     </match>
