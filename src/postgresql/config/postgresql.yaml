@@ -17,7 +17,7 @@
 
 service_type: "common"
 
-enable: false
+enable: true
 user: root
 passwd: rootpass
 db: openpai
