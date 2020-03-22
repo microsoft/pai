@@ -1,4 +1,5 @@
 #!/bin/bash
+
 # Copyright (c) Microsoft Corporation
 # All rights reserved.
 #
@@ -16,16 +17,11 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-set -o errexit
-set -o nounset
-set -o pipefail
+pushd $(dirname "$0") > /dev/null
+git clone --depth 1 https://github.com/microsoft/openpai-runtime.git ../openpai-runtime
+cp -R ../openpai-runtime/src ..
+cp -R ../openpai-runtime/GOPATH ..
 
-TENSORFLOW_VERSION=$(python -c 'import tensorflow as tf; print(tf.__version__)')
-MAJOR_VERSION=${TENSORFLOW_VERSION:0:1}
-if [[ "$MAJOR_VERSION" = "1" ]]; then
-    tensorboard --logdir={{ logdir }} --port={{ port }} &
-elif [[ "$MAJOR_VERSION" = "2" ]]; then
-    tensorboard --logdir={{ logdir }} --port={{ port }} --bind_all &
-else
-    echo "Tensorflow version is ${TENSORFLOW_VERSION}, not support"
-fi
+rm -rf ../openpai-runtime
+
+popd > /dev/null

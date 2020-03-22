@@ -17,8 +17,7 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-set -o errexit
-set -o nounset
-set -o pipefail
-
-# post-commands here
+pushd $(dirname "$0") > /dev/null
+rm -rf ../GOPATH
+rm -rf ../src
+popd > /dev/null
