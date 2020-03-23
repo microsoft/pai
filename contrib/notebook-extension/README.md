@@ -1,5 +1,7 @@
  # OpenPAI Submitter
 
+***Note: OpenPAI Submitter is deprecated. New plugin support for Jupyter Notebook is under development.***
+
 ***OpenPAI Submitter*** is a Jupyter Notebook extension, created for easy-to-use job submission and management on OpenPAI clusters. Users can submit Jupyter job in one click, and manage recent jobs by a flexible dialog.
 
 ![](docs_img/submitter-1.gif)
