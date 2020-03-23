@@ -13,7 +13,6 @@
     - [Distributed Job Examples](#distributed-job-examples)
       - [TensorFlow CIFAR10](#tensorflow-cifar10)
       - [Horovod PyTorch](#horovod-pytorch)
-    - [RDMA Jobs](#rdma-jobs)
     - [InfiniBand Jobs](#infiniband-jobs)
     - [Reference](#reference)
 6. [Use Marketplace](/manual/cluster-user/use-marketplace.md)
@@ -76,7 +75,7 @@ The ports you reserved are available in environmental variables like `PAI_PORT_L
 
 There are always different kinds of errors in jobs. In OpenPAI, errors are classified into 3 categories automatically:
 
-  1. Transient Error: This kind of error is considered transient. There is high chance to bypass it through a retry. 
+  1. Transient Error: This kind of error is considered transient. There is high chance to bypass it through a retry.
   2. Permanent Error: This kind of error is considered permanent. Retries may not help.
   3. Unknown Error: Errors besides transient error and permanent error.
 
@@ -86,9 +85,9 @@ In jobs, transient error will be always retried, and permanent error will never 
 
 Here we have 3 settings: `Retry count`, `Task retry count`, and `Completion policy`. To date, we should be aware that a job is made up by multiple tasks. One task stands for a single instance in a task role. `Task retry count` is used for task-level retry. `Retry count` and `Completion policy` are used for job-level retry.
 
-Firstly, let's look at `Retry count` and `Completion policy`. 
+Firstly, let's look at `Retry count` and `Completion policy`.
 
-In `Completion policy`, there are settings for `Min Failed Instances` and `Min Succeed Instances`. `Min Failed Instances` means the number of failed tasks to fail the entire job. It should be -1 or no less than 1. If it is set to -1, the job will always succeed regardless of any task failure. Default value is 1, which means 1 failed task will cause an entire job failure. `Min Succeed Instances` means the number of succeeded tasks to succeed the entire job. It should be -1 or no less than 1. If it is set to -1, the job will only succeed until all tasks are completed and `Min Failed Instances` is not triggered. Default value is -1. 
+In `Completion policy`, there are settings for `Min Failed Instances` and `Min Succeed Instances`. `Min Failed Instances` means the number of failed tasks to fail the entire job. It should be -1 or no less than 1. If it is set to -1, the job will always succeed regardless of any task failure. Default value is 1, which means 1 failed task will cause an entire job failure. `Min Succeed Instances` means the number of succeeded tasks to succeed the entire job. It should be -1 or no less than 1. If it is set to -1, the job will only succeed until all tasks are completed and `Min Failed Instances` is not triggered. Default value is -1.
 
 If a job doesn't succeed after it satisfies `Completion policy`, the failure is caused by an unknown error, and `Retry count` is larger than 0, the whole job will be retried. Set `Retry count` to a larger number if you need more retries.
 
@@ -110,11 +109,84 @@ This example is a TensorFlow CIFAR-10 training job, which runs a parameter serve
 
 ### Horovod PyTorch
 
-This example, [horovod-pytorch-synthetic-benchmark.yaml](https://github.com/microsoft/pai/blob/master/marketplace-v2/horovod-pytorch-synthetic-benchmark.yaml), is a Horovod benchmark using PyTorch and Open MPI. Please make sure the `IFNAME` setting in the job yaml fits your environment. It needs at least 8 GPUs. 
-
-## RDMA Jobs
+This example, [horovod-pytorch-synthetic-benchmark.yaml](https://github.com/microsoft/pai/blob/master/marketplace-v2/horovod-pytorch-synthetic-benchmark.yaml), is a Horovod benchmark using PyTorch and Open MPI. Please make sure the `IFNAME` setting in the job yaml fits your environment. It needs at least 8 GPUs.
 
 ## InfiniBand Jobs
+
+Here's an example for InfiniBand job:
+
+```yaml
+protocolVersion: 2
+name: horovod_pytorch
+type: job
+version: horovod0.16.4-tf1.12.0-torch1.1.0-mxnet1.4.1-py3.5
+contributor: OpenPAI
+description: |
+  This is a distributed synthetic benchmark for Horovod with PyTorch backend running on OpenPAI.
+  It runs [Horovod with Open MPI](https://github.com/horovod/horovod/blob/master/docs/mpirun.rst).
+parameters:
+  model: resnet50
+  batchsize: 64
+  # Make sure IFNAME fits the node
+  NCCL options for InfiniBand
+  nccl: >-
+    -x NCCL_DEBUG=INFO
+    -x NCCL_IB_DISABLE=0
+    -x NCCL_IB_GDR_LEVEL=1
+    -x NCCL_IB_HCA=mlx5_0:1
+    -x NCCL_SOCKET_IFNAME=ib0
+    -x HOROVOD_MPI_THREADS_DISABLE=1
+prerequisites:
+  - protocolVersion: 2
+    name: horovod_official
+    type: dockerimage
+    contributor : Horovod
+    uri : horovod/horovod:0.16.4-tf1.12.0-torch1.1.0-mxnet1.4.1-py3.5
+taskRoles:
+  master:
+    instances: 1
+    completion:
+      minSucceededInstances: 1
+    dockerImage: horovod_official
+    resourcePerInstance:
+      cpu: 16
+      memoryMB: 16384
+      gpu: 4
+    extraContainerOptions:
+      infiniband: true
+    commands:
+      - sleep 10
+      - >
+        mpirun --allow-run-as-root
+        -np 8 -H master-0:4,worker-0:4
+        -bind-to none -map-by slot
+        -mca pml ob1
+        -mca btl ^openib
+        -mca btl_tcp_if_exclude lo,docker0
+        <% $parameters.nccl %>
+        -x PATH -x LD_LIBRARY_PATH
+        python pytorch_synthetic_benchmark.py
+        --model <% $parameters.model %>
+        --batch-size <% $parameters.batchsize %>
+  worker:
+    instances: 1
+    dockerImage: horovod_official
+    resourcePerInstance:
+      cpu: 16
+      memoryMB: 16384
+      gpu: 4
+    commands:
+      - sleep infinity
+extras:
+  com.microsoft.pai.runtimeplugin:
+    - plugin: ssh
+      parameters:
+        jobssh: true
+        sshbarrier: true
+```
+
+Make sure the InfiniBand driver has been installed successfully on the worker nodes,
+and HCA name and network interface name are set correctly.
 
 ## Reference
 
