@@ -63,7 +63,7 @@ spec:
         - name: LAUNCHER_PRIORITY_CLASS
           value: "{{ cluster_cfg['rest-server']['enable-priority-class'] }}"
         - name: LAUNCHER_RUNTIME_IMAGE
-          value: {{ cluster_cfg['cluster']['docker-registry']['prefix'] }}openpai-runtime:v0.18.0
+          value: {{ cluster_cfg['cluster']['docker-registry']['prefix'] }}openpai-runtime:{{ cluster_cfg['cluster']['docker-registry']['tag'] }}
         - name: LAUNCHER_RUNTIME_IMAGE_PULL_SECRETS
           value: {{ cluster_cfg["cluster"]["docker-registry"]["secret-name"] }}
         - name: LAUNCHER_SCHEDULER
