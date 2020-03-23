@@ -23,7 +23,7 @@ Update Scheduling Config, such as CRUD for virtual clusters and gpu types.
         virtualClusters: <your_virtual_clusters_config>
     ```
 
-    For how to config them, please check [Config HivedScheduler](../../subprojects/GOPATH/src/github.com/microsoft/hivedscheduler/doc/user-manual.md#Config)
+    For how to config them, please check [Config HivedScheduler](https://github.com/microsoft/hivedscheduler/blob/master/doc/user-manual.md#config)
 
 3. Push Config and Start Services
     ```bash
