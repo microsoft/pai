@@ -92,7 +92,7 @@ else
   echo ""
   echo "OpenPAI is successfully deployed, please check the following information:"
   echo "Kubernetes cluster config :     ~/pai-deploy/kube/config"
-  echo "OpenPAI cluster config    :     ~/pai-deploy/kube/config"
+  echo "OpenPAI cluster config    :     ~/pai-deploy/cluster-cfg"
   echo "OpenPAI cluster ID        :     pai"
   echo "Default username          :     admin"
   echo "Default password          :     admin-password"
