@@ -1,6 +1,0 @@
-name: openPaiRunetimePlugin
-label: OpenPAI Runtime Plugin
-documentation: OpenPAI Job Runtime Plugin 
-insertText: |2
-    com.microsoft.pai.runtimeplugin:
-      - plugin:
