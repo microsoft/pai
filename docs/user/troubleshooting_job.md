@@ -74,7 +74,7 @@ This simulation can cover most situations at remote, but still limited.  For exa
 - The resource specification in configuration is ignored, as in most case, the local computer is not powerful like a GPU server.
 - When code is simulating locally, it may be much slower, or out of memory. The code or command should be modified to avoid this kind of issues and reduce training times to disclose more potential issues quickly.
 
-Before using the simulator, [Docker](https://www.docker.com/get-started) needs to be installed. Refer to learn how to [install Visual Studio Code Client](../../contrib/pai_vscode/VSCodeExt.md) and [simulate job running](../../contrib/pai_vscode/README.md#local-simulation).
+Before using the simulator, [Docker](https://www.docker.com/get-started) needs to be installed. Refer to learn how to [install Visual Studio Code Client](https://github.com/Microsoft/openpaivscode/blob/master/VSCodeExt.md) and [simulate job running](https://github.com/microsoft/openpaivscode/blob/master/README.md#local-simulation).
 
 Note, as Docker on Windows doesn't support GPU, so TensorFlow needs a docker image with TensorFlow CPU edition for local simulation.
 
