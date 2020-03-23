@@ -1,24 +1,40 @@
 # How to Add and Remove Nodes
 
-## Table of Contents
+OpenPAI doesn't support adding master node, thus, only the solution of adding worker nodes is provided.
 
-1. [Add node](#addnode)
-2. [Remove node](#removenode)
+## How to Add Nodes
 
-## Add the nodes into kubernetes <a name="addnode"></a>
+### Preparation
 
-- Due to openpai only support one master cluster, only the solution of adding worker node is provided.
-- Due to the future deprecation k8s command of paictl, the solution of adding worker node by paictl is not provided. If your cluster is still running on the k8s deployed by paictl, it's highly recommended to [re-deploy the k8s cluster with kubespray](./../../contrib/kubespray/readme.md).  
+To add worker nodes, please check if the nodes meet the following requirements:
 
-#### Before add nodes
+  - Ubuntu 16.04 (18.04 should work, but not fully tested.)
+  - Assign each node a **static IP address**, and make sure nodes can communicate with each other. 
+  - The nodes can access internet, especially need to have access to the docker hub registry service or its mirror. Deployment process will pull Docker images.
+  - SSH service is enabled and share the same username/password and have sudo privilege.
+  - **GPU driver is installed.** 
+  - **Docker is installed.**
+  - **Nvidia docker runtime or other device runtime is installed. And be configured as the default runtime of docker. Please configure it in [docker-config-file](https://docs.docker.com/config/daemon/#configure-the-docker-daemon), because kubespray will overwrite systemd's env.**
+      - An example of ```/etc/docker/daemon.json``` to configure nvidia-runtime as default runtime.
+          ```json
+          {
+            "default-runtime": "nvidia",
+            "runtimes": {
+                "nvidia": {
+                    "path": "/usr/bin/nvidia-container-runtime",
+                    "runtimeArgs": []
+                }
+            }
+          }
+          ```
+  - OpenPAI reserves memory and CPU for service running, so make sure there are enough resource to run machine learning jobs. Check hardware requirements for details.
+  - Dedicated servers for OpenPAI. OpenPAI manages all CPU, memory and GPU resources of servers. If there is any other workload, it may cause unknown problem due to insufficient resource.
 
-Please check following Preparation
+Log in to your dev box machine, find [the pre-kept folder `~/pai-deploy`](./installation-guide.md#keep-a-folder).
 
-- [Machine requirement](./../../contrib/kubespray/readme.md#machine-requirement)
-- Inventory folder which is used when you setup the cluster.
-    - In quick-start cluster: ```${HOME}/pai-deploy/kubespray/inventory/pai```
+### Add the Nodes into Kubernetes
 
-#### Add the new nodes into host.yml
+Find the file `~/pai-deploy/kubespray/inventory/pai/host.yml`, and follow the steps below to modify it.
 
 - Suppose you want to add 2 worker nodes into your cluster and they are named ```a``` and ```b```. 
 - Add these 2 nodes into the host.yml, which could be found in your inventory folder.
@@ -98,16 +114,17 @@ Please check following Preparation
           hosts: {}
     ``` 
 
-#### Add the new nodes into cluster with kubespray.
+Go into folder `~/pai-deploy/kubespray/`, run:
 
-Go into the kubespray's root path. If you deploy cluster following quick-start. The path should be ```${HOME}/pai-deploy/kubespray/```
-```shell script
-ansible-playbook -i inventory/mycluster/hosts.yml upgrade-cluster.yml --become --become-user=root  --limit=node7,node8,node9 -e "@inventory/mycluster/openpai.yml"
+```bash
+ansible-playbook -i inventory/mycluster/hosts.yml upgrade-cluster.yml --become --become-user=root  --limit=a,b -e "@inventory/mycluster/openpai.yml"
 ```
 
-#### Update OpenPAI cluster configuration.
+### Update OpenPAI Service Configuration
 
-- Add the new node into layout.yaml
+Find your service configuration file `layout.yaml` and `services-configuration.yaml` in  `~/pai-deploy/cluster-cfg`. You can find more information about the two files in [PAI Service Management and Paictl](./basic-management-operations.md#pai-ervice-management-and-paictl), here we only foucus on how to modify the files to add nodes.
+
+- Add the new node into `layout.yaml`
 
 ```yaml
 ...
@@ -132,40 +149,45 @@ machine-list:
       pai-worker: "true"
 ```
 
-- If your cluster type is pure-k8s, add the new nodes into hived configuration in the service-configuration.yaml. TODO: Add hived tutorial link here.
+- If your cluster type uses hivedscheduler, you should modify the scheduler setting in `services-configuration.yaml`. 
 
-- Push the latest openpai configuration into k8s
+TODO: Add hived tutorial link here.
 
-```shell script
-./paictl config push -p /path/to/your/clusterconfig -m service
+- Push the latest configuration by:
+
+```bash
+./paictl config push -p ~/pai-deploy/cluster-cfg -m service
 ```
 
-#### Restart OpenPAI service
+- Now, restart the cluster:
 
-###### Pure k8s cluster
-```shell script
+```bash
 ./paictl.py service stop -n rest-server hivedscheduler
 ./paictl.py service start -n cluster-configuartion
 ./paictl.py service start -n hivedscheduler rest-server
 ```
 
-###### Yarn cluster
-```shell script
-./paictl.py service stop -n rest-server hadoop-resource-manager
-./paictl.py service start -n cluster-configuartion
-./paictl.py service start -n rest-server hadoop-resource-manager
-```
 
-## Remove the nodes <a name="removenode"></a>
+## How to Remove Nodes
 
 Please refer to the operation of add nodes. They are very similar.
 
-##### Remove nodes from host.yml
-##### Upgrade cluster with kubespray
+First, modify `host.yml` accordingly, then go into `~/pai-deploy/kubespray/`, run
 
-Go into the kubespray's root path. If you deploy cluster following quick-start. The path should be ```${HOME}/pai-deploy/kubespray/```
-```shell script
-ansible-playbook -i inventory/mycluster/hosts.yml upgrade-cluster.yml --become --become-user=root  --limit=node7,node8,node9 -e "@inventory/mycluster/openpai.yml"
+```bash
+ansible-playbook -i inventory/mycluster/hosts.yml upgrade-cluster.yml --become --become-user=root  --limit=a,b -e "@inventory/mycluster/openpai.yml"
 ``` 
-##### update your OpenPAI's cluster configuration.
-##### restart service
+
+Modify the `layout.yaml` and `services-configuration.yaml`, then push them to the cluster:
+
+```bash
+./paictl config push -p ~/pai-deploy/cluster-cfg -m service
+```
+
+Restart the cluster:
+
+```bash
+./paictl.py service stop -n rest-server hivedscheduler
+./paictl.py service start -n cluster-configuartion
+./paictl.py service start -n hivedscheduler rest-server
+```

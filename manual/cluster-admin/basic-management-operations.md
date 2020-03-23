@@ -66,9 +66,75 @@ To access it, we need to do following steps on the dev box machine.
 2. Run `kubectl apply -f admin-user.yaml`
 3. Run `kubectl -n kube-system describe secret $(kubectl -n kube-system get secret | grep admin-user | awk '{print $1}')`. It will print the token which can be used to login k8s-dashboard.
 
-## PAI service management and paictl
+## PAI Service Management and Paictl
 
-### What is PAI Service?
+Generally speaking, PAI services are daemon sets, deployments or stateful pods created by PAI system, running on Kubernetes. You can find them on the [k8s dashboard](#access-kubernetes-dashboard). For example, `webportal` is a PAI service which provides front-end interface, and `rest-server` is another one for back-end APIs.
 
-### Use Paictl to Customize Config, and Restart PAI Services
+All PAI services are configurable. If you have followed the [installation-guide](/manual/cluster-admin/installation-guide.md), you can find two files, `layout.yaml` and `services-configuration.yaml`, in folder `~/pai-deploy/cluster-cfg` on the dev box machine. These two files are the default service configuration.
 
+If you have lost the configuration, you can retrieve them back by the following command:
+
+```
+git clone https://github.com/microsoft/pai.git
+cd pai
+./paictl.py config pull -o ~/test
+``` 
+
+The command will ask you for the cluster id for confirmation. If you forget it, another command `./paictl.py config get-id` will help you.
+
+The `layout.yaml` and `services-configuration.yaml` will be written to `~/test` after `./paictl.py config pull -o ~/test`.
+
+You might have noticed the `./paictl.py` script. Actually it is a tool to help manage your PAI services. Here are some usage examples of `paictl`:
+
+```bash
+# get cluster id
+./paictl.py config get-id
+
+# pull service config to a certain folder
+./paictl.py config pull -o <config-folder>
+
+# push service config to the cluster
+./paictl.py config push -p <config-folder> -m service
+
+# stop all PAI services
+./paictl.py service stop
+
+# start all PAI services
+./paictl.py service start
+
+# stop several PAI services
+./paictl.py service stop -n <service-name-1> <service-name-2>
+
+# start several PAI services
+./paictl.py service start -n <service-name-1> <service-name-2>
+```
+
+If you want to change configuration of some services, please follow the process of `service stop`, `config push` and `service start`.
+
+For example, in the default configuration, you can find the following section in your `services-configuration.yaml`:
+
+```yaml
+webportal:
+  plugins:
+  - id: submit-job-v2
+    title: Submit Job v2
+    uri: https://gerhut.github.io/store/submit-job-v2/plugin.js
+  - id: marketplace
+    title: Marketplace
+    uri: https://gerhut.github.io/store/marketplace/plugin.js
+  server-port: 9286
+```
+
+It is the configuration of webportal. Now let's change the title of one plugin: modify `title: Marketplace` to `title: MyMarketplace`, and save the file.
+
+Use the following command to push the configuration and restart webportal:
+
+```bash
+./paictl.py service stop -n webportal
+./paictl.py config push -p <config-folder> -m service
+./paictl.py service start -n webportal
+```
+
+Then you will find the plugin title is changed:
+
+   <img src="/manual/cluster-admin/imgs/change-title.png" width="100%" height="100%" />

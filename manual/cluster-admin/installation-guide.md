@@ -87,13 +87,26 @@ Your checklist:
 
 - Worker Machines:
     - Kubespray Requirement
-        - Assign each server a **static IP address**, and make sure servers can communicate each other. 
+        - Assign each server a **static IP address**, and make sure servers can communicate with each other. 
         - Server can access internet, especially need to have access to the docker hub registry service or its mirror. Deployment process will pull Docker images.
         - SSH service is enabled and share the same username/password and have sudo privilege.
     - OpenPAI Requirement
         - Ubuntu 16.04 (18.04 should work, but not fully tested.)
         - **GPU driver is installed.** 
-        - **Nvidia docker runtime is installed.**
+        - **Docker is installed.**
+        - **Nvidia docker runtime or other device runtime is installed. And be configured as the default runtime of docker. Please configure it in [docker-config-file](https://docs.docker.com/config/daemon/#configure-the-docker-daemon), because kubespray will overwrite systemd's env.**
+            - An example of ```/etc/docker/daemon.json``` to configure nvidia-runtime as default runtime.
+                ```json
+                {
+                  "default-runtime": "nvidia",
+                  "runtimes": {
+                      "nvidia": {
+                          "path": "/usr/bin/nvidia-container-runtime",
+                          "runtimeArgs": []
+                      }
+                  }
+                }
+                ```
         - OpenPAI reserves memory and CPU for service running, so make sure there are enough resource to run machine learning jobs. Check hardware requirements for details.
         - Dedicated servers for OpenPAI. OpenPAI manages all CPU, memory and GPU resources of servers. If there is any other workload, it may cause unknown problem due to insufficient resource.
 
@@ -144,13 +157,16 @@ You can go to http://<your-master-ip>, then use the default username and passwor
 
 As the message says, you can use `admin` and `admin-password` to login to the webportal, then submit a job to validate your installation.
 
-### Keep Artifacts
+### Keep a Folder
 
-After installation, you should keep some artifacts for future operations such as upgrade, maintainence, and uninstallation. The critical arifacts are shown in the message after installation. They are:
+We highly recommend you to keep the folder `~/pai-deploy` for future operations such as upgrade, maintainence, and uninstallation. The most important contents in this folder are:
 
   - Kubernetes cluster config (the default is `~/pai-deploy/kube/config`): K8s config file. It is used to connect to K8s api server.
   - OpenPAI cluster config (the default is  `~/pai-deploy/cluster-cfg`): It is a folder containing machine layout and OpenPAI service configurations.
-  - OpenPAI cluster ID (default value is `pai`): It is a string, used to indicate your OpenPAI cluster.
+
+If it is possible, you can make a backup of `~/pai-deploy` in case it is deleted unexpectly.
+
+Apart from the folder, you should remember your openPAI cluster ID, which is used to indicate your OpenPAI cluster. The default value is `pai`. Some manegement operation needs a confirmation of this cluster ID.
 
 ## From Previous Deployment
 
@@ -178,7 +194,6 @@ Metadata of jobs and users will also be lost, including job records, job log, us
 #### Other Resources on Kubernetes
 
 If you have deployed any other resources on Kubernetes, please make a proper backup for them, because the Kubernetes cluster will be destroyed, too.
-
 
 ### Remove Previous PAI deployment
 
