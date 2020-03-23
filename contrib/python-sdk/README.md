@@ -1,6 +1,8 @@
 The `Python` SDK and CLI for `OpenPAI`
 ----
 
+***Note: Python SDK is deprecated and will be removed in the future. New SDK and CLI support is available at [openpaisdk](https://github.com/microsoft/openpaisdk).***
+
 This is a proof-of-concept SDK (Python) and CLI (command-line-interface) tool for the [OpenPAI](http://github.com/microsoft/pai). This project provides some facilities to make `OpenPAI` more easily accessible and usable for users. With it,
 
 - User can easily access `OpenPAI` resources in scripts (`Python` or `Shell`) and `Jupyter` notebooks
