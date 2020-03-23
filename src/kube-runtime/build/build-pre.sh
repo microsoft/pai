@@ -18,7 +18,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 pushd $(dirname "$0") > /dev/null
-git clone --depth 1 https://github.com/microsoft/openpai-runtime.git ../openpai-runtime
+git clone -b v0.1.0 --depth 1 https://github.com/microsoft/openpai-runtime.git ../openpai-runtime
 cp -R ../openpai-runtime/src ..
 cp -R ../openpai-runtime/GOPATH ..
 
