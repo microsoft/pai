@@ -1,7 +1,0 @@
-protocol_version : v2
-name : cntk
-type : dockerimage
-version : 1.0.0
-contributor : Yanli
-description: cntk
-uri : openpai/pai.example.cntk

@@ -64,7 +64,7 @@ According to your requirements, choose the component which you wanna customized.
 | drivers <a name="ref_drivers"></a>| Configure drivers version and nvidia runtime. | [Link](../../../src/drivers/config/drivers.md)|
 | hadoop-resource-manager <a name="configure_vc_capacity"></a>| yarn exporter port and default vc configuration | [Link](../../../src/hadoop-resource-manager/config/hadoop-resource-manager.md)|
 | yarn-frameworklauncher | frameworklauncher port configuration | [Link](../../../src/yarn-frameworklauncher/config/yarn-frameworkerlauncher.md)|
-| rest-server <a name="ref_rest_server"></a>| admin account, github for marketplace, jwt-secret | [Link](../../../src/rest-server/config/rest-server.md)|
+| rest-server <a name="ref_rest_server"></a>| admin account, jwt-secret | [Link](../../../src/rest-server/config/rest-server.md)|
 | webportal | webportal port configuration| [Link](../../../src/webportal/config/webportal.md)|
 | grafana | grafana port configuration| [Link](../../../src/grafana/config/grafana.md)|
 | node-exporter | node-exporter port configuration| [Link](../../../src/node-exporter/config/node-exporter.md)|

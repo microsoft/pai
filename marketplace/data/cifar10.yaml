@@ -1,7 +1,0 @@
-protocol_version : v2
-name : cifar10
-type : data
-version : 1.0
-contributor : Alice
-description: cifar10 dataset, image classification
-uri : https://www.cs.toronto.edu/~kriz/cifar-10-python.tar.gz

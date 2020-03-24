@@ -17,9 +17,6 @@ other config fields are optional, includes:
 - `server-port: 9186` The port REST server service will listen
 - `jwt-secret: pai-secret` The secret key of JSON web token
 - `jwt-expire-time` The expire time for a signed jwt token.
-- `github-owner: Microsoft` The marketplace repo owner in GitHub
-- `github-repository: pai` The marketplace repo name
-- `github-path: marketplace` The marketplace path in the repo
 - `debugging-reservation-seconds: 604800` The seconds to reserved a job container to debug.
 
 ## Generated Configuration <a name="G_Config"></a>
@@ -28,16 +25,13 @@ After parsing, if you configured the rest-server the model will be like:
 
 ```yaml
 rest-server:
-    uri: http://rest-server-host:9186/
-    server-port: 9186
-    jwt-secret: pai-secret
-    jwt-expire-time: '7d'
-    default-pai-admin-username: pai-admin
-    default-pai-admin-password: pai-admin-password
-    github-owner: Microsoft
-    github-repository: pai
-    github-path: marketplace
-    debugging-reservation-seconds: 604800
+  uri: http://rest-server-host:9186/
+  server-port: 9186
+  jwt-secret: pai-secret
+  jwt-expire-time: "7d"
+  default-pai-admin-username: pai-admin
+  default-pai-admin-password: pai-admin-password
+  debugging-reservation-seconds: 604800
 ```
 
 ## Table <a name="T_Config"></a>
@@ -85,24 +79,8 @@ rest-server:
     <td>cluster_cfg["rest-server"]["default-pai-admin-password"]</td>
     <td>String</td>
 </tr>
-<tr>
-    <td>rest-server.github-owner</td>
-    <td>com["rest-server"]["github-owner"]</td>
-    <td>cluster_cfg["rest-server"]["github-owner"]</td>
-    <td>String</td>
-</tr>
-<tr>
-    <td>rest-server.github-repository</td>
-    <td>com["rest-server"]["github-repository"]</td>
-    <td>cluster_cfg["rest-server"]["github-repository"]</td>
-    <td>String</td>
-</tr>
-<tr>
-    <td>rest-server.github-path</td>
-    <td>com["rest-server"]["github-path"]</td>
-    <td>cluster_cfg["rest-server"]["github-path"]</td>
-    <td>String</td>
-</tr>
+>
+
 <tr>
     <td>rest-server.etcd-uris</td>
     <td>com["rest-server"]["etcd-uris"]</td>

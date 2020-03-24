@@ -1,7 +1,0 @@
-protocol_version : v2
-name : caffe2
-type : dockerimage
-version : 1.0.0
-contributor : Yanli
-description: caffe2
-uri : openpai/pai.example.caffe2
