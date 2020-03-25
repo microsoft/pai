@@ -117,7 +117,7 @@ Find the file `~/pai-deploy/kubespray/inventory/pai/host.yml`, and follow the st
 Go into folder `~/pai-deploy/kubespray/`, run:
 
 ```bash
-ansible-playbook -i inventory/mycluster/hosts.yml upgrade-cluster.yml --become --become-user=root  --limit=a,b -e "@inventory/mycluster/openpai.yml"
+ansible-playbook -i inventory/pai/hosts.yml upgrade-cluster.yml --become --become-user=root  --limit=a,b -e "@inventory/pai/openpai.yml"
 ```
 
 ### Update OpenPAI Service Configuration
@@ -134,7 +134,7 @@ machine-list:
     ...
 
     - hostname: a
-      hostip: IP
+      hostip: x.x.x.x
       machine-type: sku
       nodename: a
       k8s-role: worker
@@ -142,7 +142,7 @@ machine-list:
 
 
     - hostname: b
-      hostip: IP
+      hostip: x.x.x.x
       machine-type: sku
       nodename: b
       k8s-role: worker
