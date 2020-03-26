@@ -114,42 +114,58 @@ All lines will be concatenated by "&&". So do not use characters like "#", "\\" 
 
 export const DOCKER_OPTIONS = [
   {
-    key: 'tensorflow-gpu-python3.6',
-    text:
-      'tensorflow1.12 + python3.6 with gpu, cuda 9.0 (image: openpai/tensorflow-py36-cu90)',
-    image: 'openpai/tensorflow-py36-cu90',
+    key: 'python_3.6-pytorch_1.4.0-gpu',
+    text: 'PyTorch 1.4.0 + Python 3.6 with GPU, CUDA 10.1',
+    image: 'openpai/standard:python_3.6-pytorch_1.4.0-gpu',
   },
   {
-    key: 'tensorflow-cpu-python3.6',
-    text:
-      'tensorflow2.0dev + python3.6 with cpu (image: openpai/tensorflow-py36-cpu)',
-    image: 'openpai/tensorflow-py36-cpu',
+    key: 'python_3.6-pytorch_1.2.0-gpu',
+    text: 'PyTorch 1.2.0 + Python 3.6 with GPU, CUDA 10.0',
+    image: 'openpai/standard:python_3.6-pytorch_1.2.0-gpu',
   },
   {
-    key: 'tensorflow-gpu-python2.7',
-    text:
-      'tensorflow1.12 + python2.7 with gpu, cuda 9.0 (image: openpai/tensorflow-py27-cu90)',
-    image: 'openpai/tensorflow-py27-cu90',
+    key: 'python_3.6-tensorflow_2.1.0-gpu',
+    text: 'TensorFlow 2.1.0 + Python 3.6 with GPU, CUDA 10.1',
+    image: 'openpai/standard:python_3.6-tensorflow_2.1.0-gpu',
   },
   {
-    key: 'tensorflow-cpu-python2.7',
-    text:
-      'tensorflow1.12 + python2.7 with cpu (image: openpai/tensorflow-py27-cpu)',
-    image: 'openpai/tensorflow-py27-cpu',
+    key: 'python_3.6-tensorflow_1.15.0-gpu',
+    text: 'TensorFlow 1.15.0 + Python 3.6 with GPU, CUDA 10.0',
+    image: 'openpai/standard:python_3.6-tensorflow_1.15.0-gpu',
   },
   {
-    key: 'pytorch-gpu',
-    text:
-      'pytorch1.0 + python3.6 with gpu, cuda 9.0 (image: openpai/pytorch-py36-cu90)',
-    image: 'openpai/pytorch-py36-cu90',
+    key: 'python_3.6-mxnet_1.5.1-gpu',
+    text: 'MXNet 1.5.1 + Python 3.6 with GPU, CUDA 10.1',
+    image: 'openpai/standard:python_3.6-mxnet_1.5.1-gpu',
   },
   {
-    key: 'pytorch-cpu',
-    text: 'pytorch1.2 + python3.6 with cpu (image: openpai/pytorch-py36-cpu)',
-    image: 'openpai/pytorch-py36-cpu',
+    key: 'python_3.6-cntk_2.7-gpu',
+    text: 'CNTK 2.7 + Python 3.6 with GPU, CUDA 10.1',
+    image: 'openpai/standard:python_3.6-cntk_2.7-gpu',
+  },
+  {
+    key: 'python_3.6-pytorch_1.4.0-cpu',
+    text: 'PyTorch 1.4.0 + Python 3.6 with CPU',
+    image: 'openpai/standard:python_3.6-pytorch_1.4.0-cpu',
+  },
+  {
+    key: 'python_3.6-pytorch_1.2.0-cpu',
+    text: 'PyTorch 1.2.0 + Python 3.6 with CPU',
+    image: 'openpai/standard:python_3.6-pytorch_1.2.0-cpu',
+  },
+  {
+    key: 'python_3.6-tensorflow_2.1.0-cpu',
+    text: 'TensorFlow 2.1.0 + Python 3.6 with CPU',
+    image: 'openpai/standard:python_3.6-tensorflow_2.1.0-cpu',
+  },
+  {
+    key: 'python_3.6-tensorflow_1.15.0-cpu',
+    text: 'TensorFlow 1.15.0 + Python 3.6 with CPU',
+    image: 'openpai/standard:python_3.6-tensorflow_1.15.0-cpu',
   },
 ];
-export const DEFAULT_DOCKER_URI = 'openpai/tensorflow-py36-cu90';
+export const DEFAULT_DOCKER_URI =
+  'openpai/standard:python_3.6-pytorch_1.2.0-gpu';
 // For PAI runtime only
 export const PAI_PLUGIN = 'com.microsoft.pai.runtimeplugin';
 
