@@ -164,7 +164,8 @@ export const DOCKER_OPTIONS = [
     image: 'openpai/standard:python_3.6-tensorflow_1.15.0-cpu',
   },
 ];
-export const DEFAULT_DOCKER_URI = 'openpai/standard:python_3.6-pytorch_1.2.0-gpu';
+export const DEFAULT_DOCKER_URI =
+  'openpai/standard:python_3.6-pytorch_1.2.0-gpu';
 // For PAI runtime only
 export const PAI_PLUGIN = 'com.microsoft.pai.runtimeplugin';
 
