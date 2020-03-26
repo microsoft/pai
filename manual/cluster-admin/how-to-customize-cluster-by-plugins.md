@@ -2,7 +2,7 @@
 
 ## How to Install a Webportal Plugin
 
-Web portal plugin provides a way to add custom web pages to the web portal of PAI deployments, and easy to communicate with other PAI services, like REST server. It could provide customized solutions to different requirements.
+Webportal plugin provides a way to add custom web pages to the OpenPAI webportal. It can communicate with other PAI services, like the rest-server. It could provide customized solutions to different requirements.
 
 As an administrator, you can configure the web portal plugins in the `webportal.plugins` field of `service-configuration.yaml` (If you don't know what `service-configuration.yaml` is, please refer to [PAI Service Management and Paictl](./basic-management-operations.md#pai-service-management-and-paictl)):
 

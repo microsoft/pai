@@ -2,8 +2,9 @@
 
 1. [Quick Start](/manual/cluster-user/quick-start.md) (this document)
     - [Submit a Hello World Job](#submit-a-hello-world-job)
-    - [Learn the Hello World Job](#learn-the-hello-world-job)
     - [Browse Stdout, Stderr, Full Logs, and Metrics](#browse-stdout-stderr-full-logs-and-metrics)
+    - [Submit a Hello World Job Step by Step](#submit-a-hello-world-job-step-by-step)
+    - [Learn the Hello World Job](#learn-the-hello-world-job)
 2. [Work with Docker Images](/manual/cluster-user/work-with-docker-images.md)
 3. [How to Manage Data](/manual/cluster-user/how-to-manage-data.md)
 4. [How to Debug Jobs](/manual/cluster-user/how-to-debug-jobs.md)
@@ -14,9 +15,30 @@
 
 ## Submit a Hello World Job
 
-The **job** of OpenPAI defines how to execute code(s) and command(s) in specified environment(s). A job can be run on single node or distributedly.
+The **job** of OpenPAI defines how to execute code(s) and command(s) in specified environment(s). It can be run on single node or distributedly.
 
-The following process submits a model training job implemented by TensorFlow on CIFAR-10 dataset. It downloads data and code from internet and helps getting started with OpenPAI. [Next Section](#Learn-the-Hello-World-Job) includes more details about this job config.
+For a quick start, please download [`hello-world-job.yaml`](./examples/hello-world-job.yaml).
+
+Then login to OpenPAI webportal, click `Submit Job` -> `Import Config`:
+
+<img src="/manual/cluster-user/imgs/quick-start-click-import.png" width="90%" height="90%" />
+
+Select the downloaded `hello-world-job.yaml` file, and submit the job:
+
+<img src="/manual/cluster-user/imgs/quick-start-click-submit.png" width="90%" height="90%" />
+
+Now your first OpenPAI job has been kicked off!
+
+
+## Browse Stdout, Stderr, Full logs, and Metrics
+
+The hello world job is implemented by TensorFlow. It trains a simple model on CIFAR-10 dataset for 1,000 steps with downloaded data and code from the Internet.
+
+TBD.
+
+## Submit the Hello World Job Step by Step
+
+Instead of importing a job configuration file, you can submit the hello world job directly through the web page. The following is a step-by-step guide:
 
 1. Login to OpenPAI web portal.
 
@@ -37,17 +59,17 @@ The following process submits a model training job implemented by TensorFlow on 
 
     <img src="/manual/cluster-user/imgs/hello-world-command.png" width="90%" height="90%" alt="hello_world2" />
 
-4. Specify the resources you need. By default only GPU number could be set. Toggle the `custom` button if you need to customize CPU number and memory. Here we use the default setting which utilizes 1 GPU, 4 CPU vCores, and 8192 MB memory.
+4. Specify the resources you need. By default only GPU number could be set. Toggle the `custom` button if you need to customize CPU number and memory. Here we use a customized setting: 1 GPU, 1 CPU, and 6500 MB memory.
 
-5. Specify the docker image. You can either use the listed docker images or take advantage of your own one. Here we use `openpai/standard:python_3.6-tensorflow_1.15.0-gpu`, which is one of the OpenPAI pre-built images. We will introduce more about docker images in [Work with Docker Images](/manual/cluster-user/work-with-docker-images.md).
+5. Specify the docker image. You can either use the listed docker images or take advantage of your own one. Here we select `TensorFlow 1.15.0 + Python 3.6 with GPU, CUDA 10.0`, which is a pre-built image. We will introduce more about docker images in [Work with Docker Images](/manual/cluster-user/work-with-docker-images.md).
 
    <img src="/manual/cluster-user/imgs/hello-world-resource-and-dockers.png" width="60%" height="60%" alt="hello_world3" />
 
-6. Click **Submit** to kick off your first OpenPAI job!
+6. Click **Submit** to submit the job.
 
 ## Learn the Hello World Job
 
-The Hello World job is set to download the CIFAR-10 dataset and train a simple model with 1,000 steps. Here are some detailed explanations about configs on the submission page:
+Here are some detailed explanations about configs on the submission page:
 
 - **Job name** is the name of current job. It must be unique in each user account. A meaningful name helps manage jobs well.
 
@@ -55,4 +77,4 @@ The Hello World job is set to download the CIFAR-10 dataset and train a simple m
 
 - **GPU count**, **CPU vcore count**, **Memory (MB)** are easy to understand. They specify corresponding hardware resources including the number of GPUs, the number of CPU cores, and MB of memory.
 
-## Browse Stdout, Stderr, Full logs, and Metrics
+We will introduce more details about the job configuration in [`Advanced Jobs`](./advanced-jobs.md).
