@@ -9,7 +9,7 @@ OpenPAI is managede by [Kubernetes](https://kubernetes.io/),
 it assumes Kubernetes has already been deployed to the cluster by third-party tools like [Azure Kubernetes Service (AKS)](https://azure.microsoft.com/en-us/services/kubernetes-service/) or [Kubespray](https://github.com/kubernetes-sigs/kubespray).
 OpenPAI provides [paictl](./paictl/paictl-manual.md), a tool to help user deploy OpenPAI services to the k8s cluster.
 
-One key design goal of OpenPAI is to facilitate the sharing and reproducing of AI innovations. To this end, OpenPAI introduces [marketplace](../contrib/marketplace/README.md), where people can share their workloads and data within a private group or publically.
+One key design goal of OpenPAI is to facilitate the sharing and reproducing of AI innovations. To this end, OpenPAI introduces [marketplace](https://github.com/microsoft/openpaimarketplace), where people can share their workloads and data within a private group or publically.
 
 The workloads and data in the marketplace are described by [OpenPAI protocol](https://github.com/microsoft/openpai-protocol/blob/master/schemas/v2/schema.yaml), a specification that describes the hardware and software requirement of a workload or dataset.
 The hardware and software requirements include GPU/CPU/Memory resource requirement, docker images, data/code location, the training method (gang scheduling or elastic), job completion policy, etc.

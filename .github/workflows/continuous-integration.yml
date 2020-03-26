@@ -183,8 +183,3 @@ jobs:
         cd contrib/submit-job-v2
         yarn install --frozen-lockfiles
         yarn build
-    - name: Test contrib/marketplace
-      run: |
-        cd contrib/marketplace
-        yarn install --frozen-lockfiles
-        yarn build
