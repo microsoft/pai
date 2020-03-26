@@ -1,22 +1,22 @@
 # Work with Docker Images
 
-1. [Quick Start](/manual/cluster-user/quick-start.md)
-2. [Work with Docker Images](/manual/cluster-user/work-with-docker-images.md) (this document)
+1. [Quick Start](./quick-start.md)
+2. [Work with Docker Images](./work-with-docker-images.md) (this document)
     - [Introduction to Pre-built Docker Images](#introduction-to-pre-built-docker-images)
     - [How to use Images from Private Registry](#how-to-use-images-from-private-registry)
-3. [How to Manage Data](/manual/cluster-user/how-to-manage-data.md)
-4. [How to Debug Jobs](/manual/cluster-user/how-to-debug-jobs.md)
-5. [Advanced Jobs](/manual/cluster-user/advanced-jobs.md)
-6. [Use Marketplace](/manual/cluster-user/use-marketplace.md)
-7. [Use VSCode Extension](/manual/cluster-user/use-vscode-extension.md)
-8. [Use Jupyter Notebook Extension](/manual/cluster-user/use-jupyter-notebook-extension.md)
+3. [How to Manage Data](./how-to-manage-data.md)
+4. [How to Debug Jobs](./how-to-debug-jobs.md)
+5. [Advanced Jobs](./advanced-jobs.md)
+6. [Use Marketplace](./use-marketplace.md)
+7. [Use VSCode Extension](./use-vscode-extension.md)
+8. [Use Jupyter Notebook Extension](./use-jupyter-notebook-extension.md)
 
 
 OpenPAI uses [Docker](https://www.docker.com/why-docker) to provide consistent and independent environments. With Docker, OpenPAI can serve multiple job requests on the same server. The job environment depends significantly on the docker image you select.
 
 ## Introduction to Pre-built Docker Images
 
-The [quick start](/manual/cluster-user/quick-start.md) tutorial uses a pre-built TensorFlow image, `openpai/standard:python_3.6-tensorflow_1.15.0-gpu`. 
+The [quick start](./quick-start.md) tutorial uses a pre-built TensorFlow image, `openpai/standard:python_3.6-tensorflow_1.15.0-gpu`. 
 Apart from it, OpenPAI provides many out-of-the-box images for different deep learning frameworks. Here is a table for them:
 
 |       image      |                tag               | CUDA version | required Driver version |
@@ -50,4 +50,4 @@ By default, OpenPAI will pull images from the [official Docker Hub](https://hub.
 
 If you want to use a private registry, please toggle the `Custom` botton, then click the `Auth` button, and fill in the required information. If your authorization information is invalid, OpenPAI will inform you of an authorization failure after job submission.
 
-   <img src="/manual/cluster-user/imgs/docker-image-auth.png" width="60%" height="60%" />
+   <img src="./imgs/docker-image-auth.png" width="60%" height="60%" />

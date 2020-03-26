@@ -1,10 +1,10 @@
 # Advanced Job Settings
 
-1. [Quick Start](/manual/cluster-user/quick-start.md)
-2. [Work with Docker Images](/manual/cluster-user/work-with-docker-images.md)
-3. [How to Manage Data](/manual/cluster-user/how-to-manage-data.md)
-4. [How to Debug Jobs](/manual/cluster-user/how-to-debug-jobs.md)
-5. [Advanced Jobs](/manual/cluster-user/advanced-jobs.md) (this document)
+1. [Quick Start](./quick-start.md)
+2. [Work with Docker Images](./work-with-docker-images.md)
+3. [How to Manage Data](./how-to-manage-data.md)
+4. [How to Debug Jobs](./how-to-debug-jobs.md)
+5. [Advanced Jobs](./advanced-jobs.md) (this document)
     - [Parameters and Secrets](#parameters-and-secrets)
     - [Multiple Task Roles](#multiple-task-roles)
       - [Environmental Variables and Port Reservation](#environmental-variables-and-port-reservation)
@@ -15,15 +15,15 @@
       - [Horovod PyTorch](#horovod-pytorch)
     - [InfiniBand Jobs](#infiniband-jobs)
     - [Reference](#reference)
-6. [Use Marketplace](/manual/cluster-user/use-marketplace.md)
-7. [Use VSCode Extension](/manual/cluster-user/use-vscode-extension.md)
-8. [Use Jupyter Notebook Extension](/manual/cluster-user/use-jupyter-notebook-extension.md)
+6. [Use Marketplace](./use-marketplace.md)
+7. [Use VSCode Extension](./use-vscode-extension.md)
+8. [Use Jupyter Notebook Extension](./use-jupyter-notebook-extension.md)
 
 ## Parameters and Secrets
 
-It is common to train models with different parameters. OpenPAI supports parameter definition and reference, which provides a flexible way of training and comparing models. You can define your parameters in `Parameters` section and reference them by using `<% $parameters.paramKey %>` in your commands. For example, the following picture shows how to define the [Quick Start](/manual/cluster-user/advanced-jobs.md) job using a `stepNum` parameter.
+It is common to train models with different parameters. OpenPAI supports parameter definition and reference, which provides a flexible way of training and comparing models. You can define your parameters in `Parameters` section and reference them by using `<% $parameters.paramKey %>` in your commands. For example, the following picture shows how to define the [Quick Start](./advanced-jobs.md) job using a `stepNum` parameter.
 
-   <img src="/manual/cluster-user/imgs/use-parameters.png" width="100%" height="100%" />
+   <img src="./imgs/use-parameters.png" width="100%" height="100%" />
 
 You can define batch size, learning rate, or whatever you want as parameters to accelerate your job submission.
 
@@ -33,7 +33,7 @@ In some cases, it is desired to define some secret messages such as password, to
 
 If you use the `Distributed` button to submit jobs, then you can add different task roles for your job.
 
-   <img src="/manual/cluster-user/imgs/distributed-job.png" width="60%" height="60%" />
+   <img src="./imgs/distributed-job.png" width="60%" height="60%" />
 
 What is task role? For single server jobs, there is only one task role. For distributed jobs, there may be multiple task roles. For example, when TensorFlow is used to running distributed jobs, it has two roles, including the parameter server and the worker.
 
@@ -41,7 +41,7 @@ Instances is the number of instances of certain task role. In distributed jobs, 
 
 The picture below shows how to define task roles and instance numbers in a distributed job.
 
-   <img src="/manual/cluster-user/imgs/taskrole-and-instance.png" width="100%" height="100%" />
+   <img src="./imgs/taskrole-and-instance.png" width="100%" height="100%" />
 
 ### Environmental Variables and Port Reservation
 
@@ -67,7 +67,7 @@ Below we show a complete list of environment variables accessible in a Docker co
 
 Some environmental variables are in association with ports. In OpenPAI, you can reserve ports for each task in advanced settings, as shown in the image below:
 
-   <img src="/manual/cluster-user/imgs/advanced-and-port.png" width="100%" height="100%" />
+   <img src="./imgs/advanced-and-port.png" width="100%" height="100%" />
 
 The ports you reserved are available in environmental variables like `PAI_PORT_LIST_$taskRole_$taskIndex_$portLabel`, where `$taskIndex` means the instance index of that task role.
 
@@ -97,7 +97,7 @@ There are always different kinds of errors in jobs. In OpenPAI, errors are class
 
 In jobs, transient error will be always retried, and permanent error will never be retried. If unknown error happens, PAI will retry the job according to user settings. To set a retry policy and completion policy for your job, please toggle the `Advanced` mode, as shown in the following image:
 
-   <img src="/manual/cluster-user/imgs/advanced-and-retry.png" width="100%" height="100%" />
+   <img src="./imgs/advanced-and-retry.png" width="100%" height="100%" />
 
 Here we have 3 settings: `Retry count`, `Task retry count`, and `Completion policy`. To date, we should be aware that a job is made up by multiple tasks. One task stands for a single instance in a task role. `Task retry count` is used for task-level retry. `Retry count` and `Completion policy` are used for job-level retry.
 
@@ -113,7 +113,7 @@ Finally, for `Task retry count`, it is the maximum retry number for a single tas
 
 In OpenPAI, all jobs are represented by [YAML](https://yaml.org/), a markup language. You can click the button Edit YAML below to edit the YAML definition directly. You can also export and import YAML files using the `Export` and `Import` button.
 
-   <img src="/manual/cluster-user/imgs/export-and-import.png" width="100%" height="100%" />
+   <img src="./imgs/export-and-import.png" width="100%" height="100%" />
 
 To see a full reference of job protocol, please check [job protocol](https://github.com/microsoft/openpai-protocol/blob/master/schemas/v2/schema.yaml).
 

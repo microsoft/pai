@@ -1,15 +1,15 @@
 # How to Debug Jobs
 
-1. [Quick Start](/manual/cluster-user/quick-start.md)
-2. [Work with Docker Images](/manual/cluster-user/work-with-docker-images.md)
-3. [How to Manage Data](/manual/cluster-user/how-to-manage-data.md)
-4. [How to Debug Jobs](/manual/cluster-user/how-to-debug-jobs.md) (this document)
+1. [Quick Start](./quick-start.md)
+2. [Work with Docker Images](./work-with-docker-images.md)
+3. [How to Manage Data](./how-to-manage-data.md)
+4. [How to Debug Jobs](./how-to-debug-jobs.md) (this document)
     - [How to use SSH](#how-to-use-ssh)
     - [How to use TensorBoard Plugin](#how-to-use-tensorboard-plugin)
-5. [Advanced Jobs](/manual/cluster-user/advanced-jobs.md)
-6. [Use Marketplace](/manual/cluster-user/use-marketplace.md)
-7. [Use VSCode Extension](/manual/cluster-user/use-vscode-extension.md)
-8. [Use Jupyter Notebook Extension](/manual/cluster-user/use-jupyter-notebook-extension.md)
+5. [Advanced Jobs](./advanced-jobs.md)
+6. [Use Marketplace](./use-marketplace.md)
+7. [Use VSCode Extension](./use-vscode-extension.md)
+8. [Use Jupyter Notebook Extension](./use-jupyter-notebook-extension.md)
 
 
 ## How to use SSH
@@ -20,17 +20,17 @@ OpenPAI provides SSH plugin for you to connect to job containers. To use SSH, yo
 
 It is feasible to create a new SSH key pair when you submit the job. First, open the `Tools` panel, enable the SSH plugin, then click `SSH Key Generator`:
 
-   <img src="/manual/cluster-user/imgs/ssh-click-generator.png" width="60%" height="60%" />
+   <img src="./imgs/ssh-click-generator.png" width="60%" height="60%" />
 
 The generator will generate one public key and one private key for you. Please download SSH private key then click `Use Public Key` button to use this key pair in your job. 
 
 
-   <img src="/manual/cluster-user/imgs/ssh-generator.png" width="60%" height="60%" />
+   <img src="./imgs/ssh-generator.png" width="60%" height="60%" />
 
 After job submission, you can ssh to job containers as user root with the downloaded private key through container ip and ssh port. The `View SSH Info` button will give you the corresponding command:
 
 
-   <img src="/manual/cluster-user/imgs/view-ssh-info.png" width="100%" height="100%" />
+   <img src="./imgs/view-ssh-info.png" width="100%" height="100%" />
 
 To be detailed, you should refer to the `Use a pre-downloaded SSH private key` section.
 
@@ -52,7 +52,7 @@ If you are familiar with SSH key authorization, you would probably have generate
 
 To use them, open the `id_rsa.pub` and copy its content to the SSH plugin, then submit the job. Do not use the key generator.
 
-   <img src="/manual/cluster-user/imgs/copy-ssh-public-key.png" width="60%" height="60%" />
+   <img src="./imgs/copy-ssh-public-key.png" width="60%" height="60%" />
 
 After submission, you can use `ssh -p <ssh-port> root@<container-ip>` to connect to the job container, directly.
 
@@ -71,15 +71,15 @@ sleep 30m
 
 Then, please fill in the `Docker image` box with image name `openpai/standard:python_3.6-tensorflow_1.15.0-gpu`. Last but not least, toggle the `Enable TensorBoard` button in the `Tools` section.
 
-   <img src="/manual/cluster-user/imgs/enable-tensorboard.png" width="100%" height="100%" />
+   <img src="./imgs/enable-tensorboard.png" width="100%" height="100%" />
 
 After submission, you will see a `Go to TensorBoard Page` button on the job detail page.
 
-   <img src="/manual/cluster-user/imgs/go-to-tensorboard-page.png" width="100%" height="100%" />
+   <img src="./imgs/go-to-tensorboard-page.png" width="100%" height="100%" />
 
 The button will bring you to the TensorBoard page. You might wait a few minutes until the log is ready:
 
-   <img src="/manual/cluster-user/imgs/tensorboard-ok.png" width="100%" height="100%" />
+   <img src="./imgs/tensorboard-ok.png" width="100%" height="100%" />
 
 Generally speaking, to use the TensorBoard plugin, you should:
 

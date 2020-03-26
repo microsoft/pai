@@ -1,17 +1,17 @@
 # Quick Start
 
-1. [Quick Start](/manual/cluster-user/quick-start.md) (this document)
+1. [Quick Start](./quick-start.md) (this document)
     - [Submit a Hello World Job](#submit-a-hello-world-job)
     - [Browse Stdout, Stderr, Full Logs, and Metrics](#browse-stdout-stderr-full-logs-and-metrics)
     - [Submit a Hello World Job Step by Step](#submit-a-hello-world-job-step-by-step)
     - [Learn the Hello World Job](#learn-the-hello-world-job)
-2. [Work with Docker Images](/manual/cluster-user/work-with-docker-images.md)
-3. [How to Manage Data](/manual/cluster-user/how-to-manage-data.md)
-4. [How to Debug Jobs](/manual/cluster-user/how-to-debug-jobs.md)
-5. [Advanced Jobs](/manual/cluster-user/advanced-jobs.md)
-6. [Use Marketplace](/manual/cluster-user/use-marketplace.md)
-7. [Use VSCode Extension](/manual/cluster-user/use-vscode-extension.md)
-8. [Use Jupyter Notebook Extension](/manual/cluster-user/use-jupyter-notebook-extension.md)
+2. [Work with Docker Images](./work-with-docker-images.md)
+3. [How to Manage Data](./how-to-manage-data.md)
+4. [How to Debug Jobs](./how-to-debug-jobs.md)
+5. [Advanced Jobs](./advanced-jobs.md)
+6. [Use Marketplace](./use-marketplace.md)
+7. [Use VSCode Extension](./use-vscode-extension.md)
+8. [Use Jupyter Notebook Extension](./use-jupyter-notebook-extension.md)
 
 ## Submit a Hello World Job
 
@@ -21,11 +21,11 @@ For a quick start, please download [`hello-world-job.yaml`](./examples/hello-wor
 
 Then login to OpenPAI webportal, click `Submit Job` -> `Import Config`:
 
-<img src="/manual/cluster-user/imgs/quick-start-click-import.png" width="90%" height="90%" />
+<img src="./imgs/quick-start-click-import.png" width="90%" height="90%" />
 
 Select the downloaded `hello-world-job.yaml` file, and submit the job:
 
-<img src="/manual/cluster-user/imgs/quick-start-click-submit.png" width="90%" height="90%" />
+<img src="./imgs/quick-start-click-submit.png" width="90%" height="90%" />
 
 Now your first OpenPAI job has been kicked off!
 
@@ -44,7 +44,7 @@ Instead of importing a job configuration file, you can submit the hello world jo
 
 2. Click **Submit Job** on the left pane, then click `Single` to reach this page.
 
-    <img src="/manual/cluster-user/imgs/hello-world-click-submit.png" width="90%" height="90%" alt="hello_world1" />
+    <img src="./imgs/hello-world-click-submit.png" width="90%" height="90%" alt="hello_world1" />
 
 3. Select your virtual cluster, and give a name of your job. Then copy the following commands into the command box.
 
@@ -57,13 +57,13 @@ Instead of importing a job configuration file, you can submit the hello world jo
 
    Note: Please **Do Not** use `#` for comments or use `\` for line continuation in the command box. These symbols may break the syntax and will be supported in the future.
 
-    <img src="/manual/cluster-user/imgs/hello-world-command.png" width="90%" height="90%" alt="hello_world2" />
+    <img src="./imgs/hello-world-command.png" width="90%" height="90%" alt="hello_world2" />
 
 4. Specify the resources you need. By default only GPU number could be set. Toggle the `custom` button if you need to customize CPU number and memory. Here we use a customized setting: 1 GPU, 1 CPU, and 6500 MB memory.
 
-5. Specify the docker image. You can either use the listed docker images or take advantage of your own one. Here we select `TensorFlow 1.15.0 + Python 3.6 with GPU, CUDA 10.0`, which is a pre-built image. We will introduce more about docker images in [Work with Docker Images](/manual/cluster-user/work-with-docker-images.md).
+5. Specify the docker image. You can either use the listed docker images or take advantage of your own one. Here we select `TensorFlow 1.15.0 + Python 3.6 with GPU, CUDA 10.0`, which is a pre-built image. We will introduce more about docker images in [Work with Docker Images](./work-with-docker-images.md).
 
-   <img src="/manual/cluster-user/imgs/hello-world-resource-and-dockers.png" width="60%" height="60%" alt="hello_world3" />
+   <img src="./imgs/hello-world-resource-and-dockers.png" width="60%" height="60%" alt="hello_world3" />
 
 6. Click **Submit** to submit the job.
 
