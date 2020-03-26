@@ -71,6 +71,22 @@ Some environmental variables are in association with ports. In OpenPAI, you can 
 
 The ports you reserved are available in environmental variables like `PAI_PORT_LIST_$taskRole_$taskIndex_$portLabel`, where `$taskIndex` means the instance index of that task role.
 
+For a detailed summary, there are two ways to reference a declared port (list)
+
+- use [Indirection](https://stackoverflow.com/a/16553351/1012014) supported by `bash` as below 
+```bash
+MY_PORT="PAI_PORT_LIST_${PAI_CURRENT_TASK_ROLE_NAME}_${PAI_CURRENT_TASK_ROLE_CURRENT_TASK_INDEX}_<port-label>"`
+PORT = ${!MY_PORT}
+```
+
+*Note that you need use `$PAI_CURRENT_TASK_ROLE_NAME` and `$PAI_CURRENT_TASK_ROLE_CURRENT_TASK_INDEX`*
+
+- use a **to-be-deprecated** environmental variable to get port (list) in current container like 
+```bash
+PAI_CONTAINER_HOST_<port-label>_PORT_LIST
+```
+
+
 ## Job Exit Spec, Retry Policy, and Completion Policy
 
 There are always different kinds of errors in jobs. In OpenPAI, errors are classified into 3 categories automatically:
