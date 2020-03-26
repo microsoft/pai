@@ -7,7 +7,7 @@ Welcome to the July 2019 release of OpenPAI. There are a number of updates in th
 - [New webportal job submission experience](./docs/user/job_submission.md) - Update submit job UI to version 2.
 - [Python sdk of openpai is now ready!](https://github.com/microsoft/pai/tree/master/contrib/python-sdk) - You can config, submit and debug your job easily with python sdk.
 - [New yarn schedular to improve resource efficiency](./docs/tools/dedicated_vc.md) - Admin can bind dedicated Virtual Cluster to 1 or more physical nodes.
-- [vscode extension now supports submitting v2 job](https://github.com/microsoft/pai/tree/master/contrib/pai_vscode).
+- [vscode extension now supports submitting v2 job](https://github.com/microsoft/openpaivscode/tree/master).
 - [Provide team storage plugin to manage data shared by team](https://github.com/microsoft/pai/tree/master/contrib/storage_plugin).
 - [How to upgrade to OpenPAI v-0.14.0?](./docs/upgrade/upgrade_to_v0.14.0.md)
 

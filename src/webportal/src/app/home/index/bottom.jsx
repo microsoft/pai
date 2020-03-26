@@ -127,7 +127,7 @@ const Bottom = () => (
         </div>
       </div>
       <Link
-        href='https://github.com/Microsoft/pai/blob/master/contrib/pai_vscode/VSCodeExt.md'
+        href='https://github.com/Microsoft/openpaivscode/blob/master/VSCodeExt.md'
         target='_blank'
         style={{ fontWeight: FontWeights.semibold }}
       >

@@ -125,7 +125,7 @@ Follow [the job submission tutorial](docs/user/job_submission.md) to learn more 
 
 ### Client tool
 
-[OpenPAI VS Code Client](contrib/pai_vscode/VSCodeExt.md) is a friendly, GUI based client tool of OpenPAI, and it's highly recommended. It's an extension of Visual Studio Code. It can submit job, simulate jobs locally, manage multiple OpenPAI environments, and so on.
+[OpenPAI VS Code Client](https://github.com/Microsoft/openpaivscode/blob/master/VSCodeExt.md) is a friendly, GUI based client tool of OpenPAI, and it's highly recommended. It's an extension of Visual Studio Code. It can submit job, simulate jobs locally, manage multiple OpenPAI environments, and so on.
 
 ### Troubleshooting job failure
 
@@ -143,7 +143,7 @@ Refer to [here](docs/user/troubleshooting_job.md) for more information about tro
 
 ### Users
 
-* [Client tool](contrib/pai_vscode/VSCodeExt.md)
+* [Client tool](https://github.com/Microsoft/openpaivscode/blob/master/VSCodeExt.md)
 * [Use Storage](docs/user/storage.md)
 * [Job configuration](docs/job_tutorial.md)
 * [RESTful API](docs/rest-server/API.md)

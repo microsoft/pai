@@ -119,7 +119,7 @@ OpenPAI 的一般用法是提交 Job 请求，等到 Job 获得计算资源后�
 
 ### 客户端
 
-[OpenPAI VS Code Client](contrib/pai_vscode/VSCodeExt_zh_CN.md) 是推荐的 OpenPAI 客户端工具，其基于图形界面，易于使用。 它是 Visual Studio Code 的扩展。 支持提交 Job，在本地模拟运行 Job，管理多个 OpenPAI 环境等等。
+[OpenPAI VS Code Client](https://github.com/microsoft/openpaivscode/blob/master/VSCodeExt_zh_CN.md) 是推荐的 OpenPAI 客户端工具，其基于图形界面，易于使用。 它是 Visual Studio Code 的扩展。 支持提交 Job，在本地模拟运行 Job，管理多个 OpenPAI 环境等等。
 
 ### 调研 Job 错误
 
@@ -137,7 +137,7 @@ Web 界面和 Job 日志有助于分析错误，OpenPAI 也支持通过 SSH 登�
 
 ### 用户
 
-* [客户端](contrib/pai_vscode/VSCodeExt_zh_CN.md)
+* [客户端](https://github.com/microsoft/openpaivscode/blob/master/VSCodeExt_zh_CN.md)
 * [使用存储](docs/zh_CN/user/storage.md)
 * [Job 配置](docs/zh_CN/job_tutorial.md)
 * [RESTful API](docs/zh_CN/rest-server/API.md)

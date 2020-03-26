@@ -21,18 +21,18 @@
 
 与其它远程平台一样，OpenPAI 中 Job 失败的诊断和调试上需要更多精力。 本文有助于诊断 OpenPAI 上发生的问题。
 
-- [诊断调试 Job](#诊断调试-job) 
-  - [最佳实践](#最佳实践) 
+- [诊断调试 Job](#诊断调试-job)
+  - [最佳实践](#最佳实践)
     - [在本机修复问题](#在本机修复问题)
     - [编写易于理解的日志](#编写易于理解的日志)
     - [通过本机模拟验证 Job](#通过本机模拟验证-job)
     - [充分了解资源瓶颈](#充分了解资源瓶颈)
-  - [诊断问题](#诊断问题) 
+  - [诊断问题](#诊断问题)
     - [Job 等待了数小时](#job-等待了数小时)
     - [Job 重试了很多次](#job-重试了很多次)
     - [Job 执行较慢](#job-执行较慢)
     - [Job 失败](#job-失败)
-  - [指南](#指南) 
+  - [指南](#指南)
     - [查看 Job 指标](#查看-job-指标)
     - [查看 Job 日志](#查看-job-日志)
     - [使用 SSH 远程连接](#使用-ssh-远程连接)
@@ -74,7 +74,7 @@ OpenPAI Visual Studio Code Client 可以解析 OpenPAI Job 配置文件，并在
 - 例如，配置文件中的资源请求数量会被忽略掉，因为本机通常不会像远端 GPU 服务器那样强大。
 - 在本地模拟运行代码时，可能会非常慢，或者内存不够。 这时候，需要修改一下代码或命令行来避免这类问题，并减少训练时间来更快的发现更多问题。
 
-在使用模拟器之前，需要先安装 [Docker](https://www.docker.com/get-started)。 参考如何[安装 Visual Studio Code Client](../../../contrib/pai_vscode/VSCodeExt_zh_CN.md) 以及[运行模拟 Job](../../../contrib/pai_vscode/README_zh_CN.md#本机模拟)。
+在使用模拟器之前，需要先安装 [Docker](https://www.docker.com/get-started)。 参考如何[安装 Visual Studio Code Client](https://github.com/microsoft/openpaivscode/blob/master/VSCodeExt_zh_CN.md) 以及[运行模拟 Job](https://github.com/microsoft/openpaivscode/blob/master/README_zh_CN.md#本机模拟)。
 
 注意，由于 Docker 在 Windows上不支持 GPU，因此在本机模拟时 TensorFlow 需要使用 CPU 版本的 Docker 映像。
 
@@ -115,21 +115,21 @@ Job 运行快慢是主观的，因此在试着“修复”这个问题前，需�
 Job 失败的原因很多。 一般根据它发生的阶段，将其归为两种类型。
 
 1. **运行之前的失败**，例如，请求的资源超过了限制。 如果 Job 请求的资源超过了集群可提供的，Job 很快就会失败。 例如，如果服务器只有 24 个 CPU 内核，但 Job 配置中请求了 48 个内核，就会造成 Job 失败。
-  
+
   这种系统级的失败，错误类型为 *System Error*。
-  
+
   ![over requested 1](imgs/web_job_details_over1.png)
-  
+
   点击 *application summary* 可看到如下的错误详情。 这里解释了哪项资源超出了限制。
-  
+
   ![over requested 1](imgs/web_job_details_over2.png)
 
 2. **Job 运行时的失败**。 如果错误类型是 *User Error*，标准输出 stdout 和 stderr 可提供失败的更多细节。 通过[查看 Job 日志](#查看-job-日志)来了解更多细节。
-  
+
   注意，OpenPAI 通过 Task 实例的退出代码来决定 Job 是否运行成功。 退出代码通常是 Job 配置中由用户所编写的 command 返回的。 但偶尔也会是 OpenPAI 的系统错误代码。
-  
+
   错误代码的意义取决于具体的命令。 Linux 的系统命令，可参考[退出代码规范](http://www.tldp.org/LDP/abs/html/exitcodes.html)。
-  
+
   ![job user error](imgs/web_job_details_exitcode.png)
 
 ## 指南
@@ -155,15 +155,15 @@ Job 失败的原因很多。 一般根据它发生的阶段，将其归为两种
 ### 查看 Job 日志
 
 - 点击 Job 详情页面的 *stdout* 或 *stderr*。
-  
+
   ![job link](imgs/web_job_details_loglink.png)
 
 - 会显示如下内容，包含了最新的 4096 字节。 它每 10 秒会自动刷新。
-  
+
   如果需要查看完整日志，点击 *View Full Log*。
-  
+
   ![job link](imgs/web_job_details_logview.png)
-  
+
   *stderr* 和 *stdout* 都是 Task 实例的屏幕输出。 所有输出到屏幕的内容都会近实时的显示在这里。 大多数 Job 运行时的错误都能在这两个文件中找到。
 
 注意，如果 Task 实例还被未分配资源，就不会有日志文件。
