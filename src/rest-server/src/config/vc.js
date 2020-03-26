@@ -159,7 +159,6 @@ if (launcherConfig.enabledHived) {
   for (let vc of Object.keys(virtualClusters)) {
     virtualCellCapacity[vc] = {
       quota: {},
-      limit: {},
     };
     if (virtualClusters[vc].hasOwnProperty('virtualCells')) {
       for (let vCell of virtualClusters[vc].virtualCells) {
@@ -169,7 +168,6 @@ if (launcherConfig.enabledHived) {
         }
         if (!(cellType in virtualCellCapacity[vc].quota)) {
           virtualCellCapacity[vc].quota[cellType] = {...resourcesEmpty};
-          virtualCellCapacity[vc].limit[cellType] = {...resourcesEmpty};
         }
         const cellGpu = cellTypeMap[cellType].gpuNumber * vCell.cellNumber;
         virtualCellCapacity[vc].quota[cellType].gpu += cellGpu;
@@ -186,7 +184,6 @@ if (launcherConfig.enabledHived) {
         }
         if (!(rId in virtualCellCapacity[vc].quota)) {
           virtualCellCapacity[vc].quota[rId] = {...resourcesEmpty};
-          virtualCellCapacity[vc].limit[cellType] = {...resourcesEmpty};
         }
         const cellGpu = cellTypeMap[cellType].gpuNumber;
         virtualCellCapacity[vc].quota[rId].gpu += cellGpu;
@@ -203,7 +200,6 @@ if (launcherConfig.enabledHived) {
       const cellGpu = cellTypeMap[cellType].gpuNumber;
       clusterNodeGpu[cellIp] = {
         gpu: cellGpu,
-        bindings: {},
       };
     }
 
@@ -216,73 +212,6 @@ if (launcherConfig.enabledHived) {
   };
   for (let cellInstance of physicalCells) {
     addNodesInfo(cellInstance, cellInstance.cellType);
-  }
-
-  const bindings = {
-    virtual: {},
-    reserved: {},
-  };
-  for (let physicalCell of physicalCells) {
-    if (!(physicalCell.cellType in bindings.virtual)) {
-      bindings.virtual[physicalCell.cellType] = [];
-    }
-    for (let cellChild of physicalCell.cellChildren) {
-      if (cellChild.reservationId) {
-        if (!(cellChild.reservationId in bindings.reserved)) {
-          bindings.reserved[cellChild.reservationId] = [];
-        }
-        bindings.reserved[cellChild.reservationId].push(cellChild.cellAddress);
-      } else if (cellChild.cellAddress) {
-        bindings.virtual[physicalCell.cellType].push(cellChild.cellAddress);
-      }
-    }
-  }
-  for (let vc of Object.keys(virtualClusters)) {
-    if ('virtualCells' in virtualClusters[vc]) {
-      for (let virtualCell of virtualClusters[vc].virtualCells) {
-        for (let node of bindings.virtual[virtualCell.cellType.split('.')[0]]) {
-          const cellType = virtualCell.cellType.split('.').slice(-1)[0];
-          if (!(vc in clusterNodeGpu[node].bindings)) {
-            clusterNodeGpu[node].bindings[vc] = {
-              type: cellType,
-              ...resourcesEmpty,
-            };
-          }
-          const cellGpu = cellTypeMap[cellType].gpuNumber;
-          clusterNodeGpu[node].bindings[vc].gpu += cellGpu;
-          clusterNodeGpu[node].bindings[vc].cpu += resourceUnits[(cellTypeMap[cellType].gpuType)].cpu * cellGpu;
-          clusterNodeGpu[node].bindings[vc].memory += resourceUnits[(cellTypeMap[cellType].gpuType)].memory * cellGpu;
-          if (cellType in virtualCellCapacity[vc].limit) {
-            virtualCellCapacity[vc].limit[cellType].gpu += cellGpu;
-            virtualCellCapacity[vc].limit[cellType].cpu += resourceUnits[(cellTypeMap[cellType].gpuType)].cpu * cellGpu;
-            virtualCellCapacity[vc].limit[cellType].memory += resourceUnits[(cellTypeMap[cellType].gpuType)].memory * cellGpu;
-          }
-        }
-      }
-    }
-    if ('reservedCells' in virtualClusters[vc]) {
-      for (let reservedCell of virtualClusters[vc].reservedCells) {
-        const rId = reservedCell.reservationId;
-        for (let node of bindings.reserved[rId]) {
-          const cellType = reservationCells[rId];
-          if (!(vc in clusterNodeGpu[node].bindings)) {
-            clusterNodeGpu[node].bindings[vc] = {
-              type: rId,
-              ...resourcesEmpty,
-            };
-          }
-          const cellGpu = cellTypeMap[cellType].gpuNumber;
-          clusterNodeGpu[node].bindings[vc].gpu += cellGpu;
-          clusterNodeGpu[node].bindings[vc].cpu += resourceUnits[(cellTypeMap[cellType].gpuType)].cpu * cellGpu;
-          clusterNodeGpu[node].bindings[vc].memory += resourceUnits[(cellTypeMap[cellType].gpuType)].memory * cellGpu;
-          if (rId in virtualCellCapacity[vc].limit) {
-            virtualCellCapacity[vc].limit[rId].gpu += cellGpu;
-            virtualCellCapacity[vc].limit[rId].cpu += resourceUnits[(cellTypeMap[cellType].gpuType)].cpu * cellGpu;
-            virtualCellCapacity[vc].limit[rId].memory += resourceUnits[(cellTypeMap[cellType].gpuType)].memory * cellGpu;
-          }
-        }
-      }
-    }
   }
 }
 

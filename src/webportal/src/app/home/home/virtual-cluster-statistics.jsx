@@ -101,8 +101,8 @@ const vcListColumns = [
     isResizable: true,
     onRender(vc) {
       const { resourcesUsed, resourcesTotal } = vc;
-      const resourceAvailable = vc.resourceAvailable || resourcesTotal;
-      const insufficient = !(resourceAvailable.GPUs === resourcesTotal.GPUs);
+      const resourcesGuaranteed = vc.resourcesGuaranteed || resourcesTotal;
+      const insufficient = !(resourcesGuaranteed.GPUs === resourcesTotal.GPUs);
       return (
         <Stack
           gap='s1'
@@ -118,7 +118,7 @@ const vcListColumns = [
                 resourcesTotal.memory,
               )}
               tailInfo={`${Math.round(resourcesUsed.memory)} / ${Math.round(
-                resourceAvailable.memory,
+                resourcesGuaranteed.memory,
               )}${insufficient ? ` (${resourcesTotal.memory})` : ''} MB`}
             />
           </StackItem>
@@ -130,7 +130,7 @@ const vcListColumns = [
                 resourcesTotal.vCores,
               )}
               tailInfo={`${Math.round(resourcesUsed.vCores)} / ${Math.round(
-                resourceAvailable.vCores,
+                resourcesGuaranteed.vCores,
               )}${insufficient ? ` (${resourcesTotal.vCores})` : ''}`}
             />
           </StackItem>
@@ -142,7 +142,7 @@ const vcListColumns = [
                 resourcesTotal.GPUs,
               )}
               tailInfo={`${Math.round(resourcesUsed.GPUs)} / ${Math.round(
-                resourceAvailable.GPUs,
+                resourcesGuaranteed.GPUs,
               )}${insufficient ? ` (${resourcesTotal.GPUs})` : ''}`}
             />
           </StackItem>
