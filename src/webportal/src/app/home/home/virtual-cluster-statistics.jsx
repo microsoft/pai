@@ -103,7 +103,6 @@ const vcListColumns = [
     onRender(vc) {
       const { resourcesUsed, resourcesTotal } = vc;
       const resourcesGuaranteed = vc.resourcesGuaranteed || resourcesTotal;
-      const insufficient = !(resourcesGuaranteed.GPUs === resourcesTotal.GPUs);
       return (
         <Stack
           gap='s1'
@@ -118,16 +117,11 @@ const vcListColumns = [
                 resourcesUsed.memory,
                 resourcesGuaranteed.memory,
               )}
-              tailInfo={`${Math.round(resourcesUsed.memory / 1024)} / ${
-                insufficient
-                  ? `(${Math.round(
-                      resourcesTotal.memory / 1024,
-                    )} - ${Math.round(
-                      (resourcesTotal.memory - resourcesGuaranteed.memory) /
-                        1024,
-                    )})`
-                  : `${Math.round(resourcesTotal.memory / 1024)}`
-              }`}
+              tailInfo={`${Math.round(resourcesUsed.memory / 1024)} /
+                (${Math.round(resourcesTotal.memory / 1024)} - ${Math.round(
+                (resourcesTotal.memory - resourcesGuaranteed.memory) / 1024,
+              )})
+              `}
             />
           </StackItem>
           <StackItem>
@@ -137,13 +131,11 @@ const vcListColumns = [
                 resourcesUsed.vCores,
                 resourcesGuaranteed.vCores,
               )}
-              tailInfo={`${Math.round(resourcesUsed.vCores)} / ${
-                insufficient
-                  ? `(${Math.round(resourcesTotal.vCores)} - ${Math.round(
-                      resourcesTotal.vCores - resourcesGuaranteed.vCores,
-                    )})`
-                  : `${Math.round(resourcesTotal.vCores)}`
-              }`}
+              tailInfo={`${Math.round(resourcesUsed.vCores)} /
+                (${Math.round(resourcesTotal.vCores)} - ${Math.round(
+                resourcesTotal.vCores - resourcesGuaranteed.vCores,
+              )})
+              `}
             />
           </StackItem>
           <StackItem>
@@ -153,13 +145,11 @@ const vcListColumns = [
                 resourcesUsed.GPUs,
                 resourcesGuaranteed.GPUs,
               )}
-              tailInfo={`${Math.round(resourcesUsed.GPUs)} / ${
-                insufficient
-                  ? `(${Math.round(resourcesTotal.GPUs)} - ${Math.round(
-                      resourcesTotal.GPUs - resourcesGuaranteed.GPUs,
-                    )})`
-                  : `${Math.round(resourcesTotal.GPUs)}`
-              }`}
+              tailInfo={`${Math.round(resourcesUsed.GPUs)} /
+                (${Math.round(resourcesTotal.GPUs)} - ${Math.round(
+                resourcesTotal.GPUs - resourcesGuaranteed.GPUs,
+              )})
+              `}
             />
           </StackItem>
         </Stack>
