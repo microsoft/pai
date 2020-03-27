@@ -101,7 +101,9 @@ const getPodsInfo = async () => {
         podInfo.resourcesUsed.gpu = info.gpuIsolation.length;
       }
     } else {
-      podInfo.resourcesUsed.gpu = k8s.atoi(resourceRequest['nvidia.com/gpu']);
+      podInfo.resourcesUsed.gpu =
+        k8s.atoi(resourceRequest['nvidia.com/gpu']) +
+        k8s.atoi(resourceRequest['amd.com/gpu']);
     }
     return podInfo;
   });
@@ -164,7 +166,9 @@ const getNodeResource = async () => {
     const nodes = await fetchNodes(true);
     for (let node of nodes) {
       const nodeName = node.metadata.name;
-      const gpuNumber = k8s.atoi(node.status.capacity['nvidia.com/gpu']);
+      const gpuNumber =
+        k8s.atoi(node.status.capacity['nvidia.com/gpu']) +
+        k8s.atoi(node.status.capacity['amd.com/gpu']);
       nodeResource[nodeName] = {
         gpuUsed: 0,
         gpuAvailable: gpuNumber,
@@ -258,14 +262,16 @@ const getVcList = async () => {
     vcInfos['default'].resourcesGuaranteed = {
       cpu: nodes.reduce((sum, node) => sum + k8s.atoi(node.status.capacity.cpu), 0),
       memory: nodes.reduce((sum, node) => sum + k8s.convertMemoryMb(node.status.capacity.memory), 0),
-      gpu: nodes.reduce((sum, node) => sum + k8s.atoi(node.status.capacity['nvidia.com/gpu']), 0),
+      gpu: nodes.reduce((sum, node) =>
+        sum + k8s.atoi(node.status.capacity['nvidia.com/gpu']) + k8s.atoi(node.status.capacity['amd.com/gpu']), 0),
     };
     // total resources
     const preemptedNodes = await fetchNodes(false);
     vcInfos['default'].resourcesTotal = {
       cpu: preemptedNodes.reduce((sum, node) => sum + k8s.atoi(node.status.capacity.cpu), 0),
       memory: preemptedNodes.reduce((sum, node) => sum + k8s.convertMemoryMb(node.status.capacity.memory), 0),
-      gpu: preemptedNodes.reduce((sum, node) => sum + k8s.atoi(node.status.capacity['nvidia.com/gpu']), 0),
+      gpu: preemptedNodes.reduce((sum, node) =>
+        sum + k8s.atoi(node.status.capacity['nvidia.com/gpu']) + k8s.atoi(node.status.capacity['amd.com/gpu']), 0),
     };
     mergeDict(vcInfos['default'].resourcesTotal, vcInfos['default'].resourcesGuaranteed, add);
   }
