@@ -239,9 +239,8 @@ const getVcList = async () => {
               if (curr.cellHealthiness === 'Healthy') {
                 if (curr.cellState === 'Used') {
                   mergeDict(vcInfos[vc].resourcesUsed, sku, add);
-                } else {
-                  mergeDict(vcInfos[vc].resourcesGuaranteed, sku, add);
                 }
+                mergeDict(vcInfos[vc].resourcesGuaranteed, sku, add);
               }
               mergeDict(vcInfos[vc].resourcesTotal, sku, add);
             }
