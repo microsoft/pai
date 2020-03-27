@@ -27,7 +27,6 @@ const k8s = require('@pai/utils/k8sUtils');
 const {
   resourceUnits,
   virtualCellCapacity,
-  clusterNodeGpu,
 } = vcConfig;
 
 const resourcesEmpty = {
@@ -87,7 +86,7 @@ const getPodsInfo = async () => {
       userName: labels.userName,
       virtualCluster: labels.virtualCluster,
       taskRoleName: labels.FC_TASKROLE_NAME,
-      nodeIp: pod.spec.nodeName,
+      nodeName: pod.spec.nodeName,
       resourcesUsed: {...resourcesEmpty},
     };
 
@@ -111,16 +110,55 @@ const getPodsInfo = async () => {
 };
 
 const getNodeResource = async () => {
-  const pods = await getPodsInfo();
   const nodeResource = {};
 
   if (launcherConfig.enabledHived) {
-    for (let node of Object.keys(clusterNodeGpu)) {
-      nodeResource[node] = {
-        gpuTotal: clusterNodeGpu[node].gpu,
-        gpuUsed: 0,
-        gpuAvailable: clusterNodeGpu[node].gpu,
-      };
+    let pcStatus;
+    try {
+      pcStatus = (await axios.get(`${launcherConfig.hivedWebserviceUri}/v1/inspect/clusterstatus/physicalcluster`)).data;
+    } catch (error) {
+      if (error.response != null) {
+        throw createError(
+          error.response.status,
+          'UnknownError',
+          error.response.data || 'Hived scheduler cannot inspect physical cluster.',
+        );
+      } else {
+        throw error;
+      }
+    }
+    const cellQueue = [...pcStatus];
+    while (cellQueue.length > 0) {
+      const curr = cellQueue.shift();
+      if (curr.isNodeLevel) {
+        const nodeName = curr.cellAddress.split('/').slice(-1)[0];
+        nodeResource[nodeName] = {
+          gpuUsed: 0,
+          gpuAvailable: 0,
+          gpuTotal: 0,
+        };
+        const cellQueueOnNode = [curr];
+        while (cellQueueOnNode.length > 0) {
+          const currOnNode = cellQueueOnNode.shift();
+          if (currOnNode.cellChildren) {
+            cellQueueOnNode.push(...currOnNode.cellChildren);
+          } else {
+            if (currOnNode.cellType in resourceUnits) {
+              const gpuNumber = resourceUnits[currOnNode.cellType].gpu;
+              if (currOnNode.cellHealthiness === 'Healthy') {
+                if (currOnNode.cellState === 'Used') {
+                  nodeResource[nodeName].gpuUsed += gpuNumber;
+                } else {
+                  nodeResource[nodeName].gpuAvailable += gpuNumber;
+                }
+              }
+              nodeResource[nodeName].gpuTotal += gpuNumber;
+            }
+          }
+        }
+      } else if (curr.cellChildren) {
+        cellQueue.push(...curr.cellChildren);
+      }
     }
   } else {
     const nodes = await fetchNodes(true);
@@ -128,21 +166,20 @@ const getNodeResource = async () => {
       const nodeName = node.metadata.name;
       const gpuNumber = k8s.atoi(node.status.capacity['nvidia.com/gpu']);
       nodeResource[nodeName] = {
-        gpuTotal: gpuNumber,
         gpuUsed: 0,
         gpuAvailable: gpuNumber,
+        gpuTotal: gpuNumber,
       };
+    }
+    const pods = await getPodsInfo();
+    for (let pod of pods) {
+      if (pod.nodeName in nodeResource) {
+        nodeResource[pod.nodeName].gpuUsed += pod.resourcesUsed.gpu;
+        nodeResource[pod.nodeName].gpuAvailable -= pod.resourcesUsed.gpu;
+      }
     }
   }
 
-  for (let pod of pods) {
-    if (!nodeResource.hasOwnProperty(pod.nodeIp)) {
-      // pod not in configured nodes
-      continue;
-    }
-    nodeResource[pod.nodeIp].gpuUsed += pod.resourcesUsed.gpu;
-    nodeResource[pod.nodeIp].gpuAvailable -= pod.resourcesUsed.gpu;
-  }
   return nodeResource;
 };
 

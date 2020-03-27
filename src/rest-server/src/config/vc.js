@@ -20,7 +20,6 @@ const Joi = require('joi');
 const launcherConfig = require('@pai/config/launcher');
 const yaml = require('js-yaml');
 const fs = require('fs');
-const logger = require('@pai/config/logger');
 const k8s = require('@pai/utils/k8sUtils');
 
 // define the input schema for the 'create vc' api
@@ -48,8 +47,6 @@ const vcStatusPutInputSchema = Joi.object().keys({
 
 const resourceUnits = {};
 const virtualCellCapacity = {};
-let clusterTotalGpu = 0;
-const clusterNodeGpu = {};
 
 const resourcesEmpty = {
   cpu: 0,
@@ -58,31 +55,7 @@ const resourcesEmpty = {
 };
 
 if (launcherConfig.enabledHived) {
-  let hivedObj;
-  try {
-    hivedObj = yaml.safeLoad(fs.readFileSync(launcherConfig.hivedSpecPath));
-  } catch (_) {
-    // TODO: this is a hardcode for demo, this exception shouldn't be catch and ignored
-    hivedObj = {
-      physicalCluster: {
-        gpuTypes: {
-          K80: {
-            gpu: 1,
-            cpu: 4,
-            memory: '8192Mi',
-          },
-        },
-        cellTypes: {
-        },
-        physicalCells: [],
-      },
-      virtualClusters: {
-        default: {},
-        },
-    };
-    logger.warn(`Hived spec not found or illegal: ${launcherConfig.hivedSpecPath}`);
-    logger.warn(`Init hived spec to: `, JSON.stringify(hivedObj, undefined, 2));
-  }
+  const hivedObj = yaml.safeLoad(fs.readFileSync(launcherConfig.hivedSpecPath));
 
   const gpuTypes = hivedObj.physicalCluster.gpuTypes;
   const cellTypes = hivedObj.physicalCluster.cellTypes;
@@ -151,7 +124,6 @@ if (launcherConfig.enabledHived) {
     }
   };
   for (let cellInstance of physicalCells) {
-    clusterTotalGpu += cellTypeMap[cellInstance.cellType].gpuNumber;
     addReservation(cellInstance, cellInstance.cellType);
   }
 
@@ -192,27 +164,6 @@ if (launcherConfig.enabledHived) {
       }
     }
   }
-
-  // calculate every node resource, stored in clusterNodeGpu
-  const addNodesInfo = (cellInstance, cellType) => {
-    if (cellTypeMap[cellType].isNode) {
-      const cellIp = cellInstance.cellAddress;
-      const cellGpu = cellTypeMap[cellType].gpuNumber;
-      clusterNodeGpu[cellIp] = {
-        gpu: cellGpu,
-      };
-    }
-
-    // recursively check cellChildren if not null or empty
-    if (cellInstance.cellChildren) {
-      for (let childCellInstance of cellInstance.cellChildren) {
-        addNodesInfo(childCellInstance, cellTypeMap[cellType].childCellType);
-      }
-    }
-  };
-  for (let cellInstance of physicalCells) {
-    addNodesInfo(cellInstance, cellInstance.cellType);
-  }
 }
 
 const vcExports = {
@@ -223,8 +174,6 @@ const vcExports = {
 if (launcherConfig.type === 'k8s') {
   vcExports.resourceUnits = resourceUnits;
   vcExports.virtualCellCapacity = virtualCellCapacity;
-  vcExports.clusterTotalGpu = clusterTotalGpu;
-  vcExports.clusterNodeGpu = clusterNodeGpu;
 }
 
 // module exports
