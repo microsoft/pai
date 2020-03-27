@@ -1093,7 +1093,7 @@ const generateExitDiagnostics = (diag) => {
 };
 
 const extractRuntimeOutput = (podCompletionStatus) => {
-  if (_.isEmpty(podCompletionStatus)) {
+  if (!podCompletionStatus || !Array.isArray(podCompletionStatus.containers)) {
     return null;
   }
 
