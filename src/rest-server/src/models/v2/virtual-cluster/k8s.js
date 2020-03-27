@@ -19,15 +19,10 @@
 const axios = require('axios');
 const yaml = require('js-yaml');
 const createError = require('@pai/utils/error');
-const vcConfig = require('@pai/config/vc');
-const launcherConfig = require('@pai/config/launcher');
+const {resourceUnits} = require('@pai/config/vc');
+const {enabledHived, hivedWebserviceUri} = require('@pai/config/launcher');
 const kubernetes = require('@pai/models/kubernetes/kubernetes');
 const k8s = require('@pai/utils/k8sUtils');
-
-const {
-  resourceUnits,
-  virtualCellCapacity,
-} = vcConfig;
 
 const resourcesEmpty = {
   cpu: 0,
@@ -114,10 +109,10 @@ const getPodsInfo = async () => {
 const getNodeResource = async () => {
   const nodeResource = {};
 
-  if (launcherConfig.enabledHived) {
+  if (enabledHived) {
     let pcStatus;
     try {
-      pcStatus = (await axios.get(`${launcherConfig.hivedWebserviceUri}/v1/inspect/clusterstatus/physicalcluster`)).data;
+      pcStatus = (await axios.get(`${hivedWebserviceUri}/v1/inspect/clusterstatus/physicalcluster`)).data;
     } catch (error) {
       if (error.response != null) {
         throw createError(
@@ -188,25 +183,21 @@ const getNodeResource = async () => {
 };
 
 const getVcList = async () => {
-  const vcInfos = {};
-  Object.keys(virtualCellCapacity)
-    .concat(['default'])
-    .forEach((vc) => {
-      vcInfos[vc] = {
-        capacity: 0,
-        usedCapacity: 0,
-        dedicated: false,
-        resourcesUsed: {...resourcesEmpty},
-        resourcesGuaranteed: {...resourcesEmpty},
-        resourcesTotal: {...resourcesEmpty},
-      };
-    });
+  const vcEmpty = {
+    capacity: 0,
+    usedCapacity: 0,
+    dedicated: false,
+    resourcesUsed: {...resourcesEmpty},
+    resourcesGuaranteed: {...resourcesEmpty},
+    resourcesTotal: {...resourcesEmpty},
+  };
+  const vcInfos = {'default': JSON.parse(JSON.stringify(vcEmpty))};
 
   // set resources
-  if (launcherConfig.enabledHived) {
+  if (enabledHived) {
     let vcStatus;
     try {
-      vcStatus = (await axios.get(`${launcherConfig.hivedWebserviceUri}/v1/inspect/clusterstatus/virtualclusters/`)).data;
+      vcStatus = (await axios.get(`${hivedWebserviceUri}/v1/inspect/clusterstatus/virtualclusters/`)).data;
     } catch (error) {
       if (error.response != null) {
         throw createError(
@@ -219,31 +210,32 @@ const getVcList = async () => {
       }
     }
     // used, guaranteed, total resources
-    for (let vc of Object.keys(virtualCellCapacity)) {
-      if (vc in vcStatus) {
-        const cellQueue = [...vcStatus[vc]];
-        while (cellQueue.length > 0) {
-          const curr = cellQueue.shift();
-          if (curr.cellPriority === -1) {
-            continue;
-          }
-          if (curr.children) {
-            curr.children.forEach((child) => {
-              child.gpuType = curr.gpuType;
-              child.cellHealthiness = curr.cellHealthiness;
-              cellQueue.push(child);
-            });
-          } else {
-            if (curr.gpuType in resourceUnits) {
-              const sku = resourceUnits[curr.gpuType];
-              if (curr.cellHealthiness === 'Healthy') {
-                if (curr.cellState === 'Used') {
-                  mergeDict(vcInfos[vc].resourcesUsed, sku, add);
-                }
-                mergeDict(vcInfos[vc].resourcesGuaranteed, sku, add);
+    for (let vc of Object.keys(vcStatus)) {
+      if (!(vc in vcInfos)) {
+        vcInfos[vc] = JSON.parse(JSON.stringify(vcEmpty));
+      }
+      const cellQueue = [...vcStatus[vc]];
+      while (cellQueue.length > 0) {
+        const curr = cellQueue.shift();
+        if (curr.cellPriority === -1) {
+          continue;
+        }
+        if (curr.children) {
+          curr.children.forEach((child) => {
+            child.gpuType = curr.gpuType;
+            child.cellHealthiness = curr.cellHealthiness;
+            cellQueue.push(child);
+          });
+        } else {
+          if (curr.gpuType in resourceUnits) {
+            const sku = resourceUnits[curr.gpuType];
+            if (curr.cellHealthiness === 'Healthy') {
+              if (curr.cellState === 'Used') {
+                mergeDict(vcInfos[vc].resourcesUsed, sku, add);
               }
-              mergeDict(vcInfos[vc].resourcesTotal, sku, add);
+              mergeDict(vcInfos[vc].resourcesGuaranteed, sku, add);
             }
+            mergeDict(vcInfos[vc].resourcesTotal, sku, add);
           }
         }
       }

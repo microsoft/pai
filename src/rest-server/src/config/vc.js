@@ -16,11 +16,11 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 // module dependencies
-const Joi = require('joi');
-const launcherConfig = require('@pai/config/launcher');
-const yaml = require('js-yaml');
 const fs = require('fs');
+const Joi = require('joi');
+const yaml = require('js-yaml');
 const k8s = require('@pai/utils/k8sUtils');
+const {enabledHived, hivedSpecPath} = require('@pai/config/launcher');
 
 // define the input schema for the 'create vc' api
 const vcCreateInputSchema = Joi.object().keys({
@@ -46,135 +46,21 @@ const vcStatusPutInputSchema = Joi.object().keys({
 }).required();
 
 const resourceUnits = {};
-const virtualCellCapacity = {};
 
-const resourcesEmpty = {
-  cpu: 0,
-  memory: 0,
-  gpu: 0,
-};
-
-if (launcherConfig.enabledHived) {
-  const hivedObj = yaml.safeLoad(fs.readFileSync(launcherConfig.hivedSpecPath));
-
-  const gpuTypes = hivedObj.physicalCluster.gpuTypes;
-  const cellTypes = hivedObj.physicalCluster.cellTypes;
-  const physicalCells = hivedObj.physicalCluster.physicalCells;
-  const virtualClusters = hivedObj.virtualClusters;
-  // generate gputype resource unit
-  for (let gpuType of Object.keys(gpuTypes)) {
-    resourceUnits[gpuType] = {
-      cpu: k8s.atoi(gpuTypes[gpuType].cpu),
-      memory: k8s.convertMemoryMb(gpuTypes[gpuType].memory),
-      gpu: k8s.atoi(gpuTypes[gpuType].gpu),
+if (enabledHived) {
+  const hivedSpec = yaml.safeLoad(fs.readFileSync(hivedSpecPath));
+  for (let [key, val] of Object.entries(hivedSpec.physicalCluster.gpuTypes)) {
+    resourceUnits[key] = {
+      cpu: k8s.atoi(val.cpu),
+      memory: k8s.convertMemoryMb(val.memory),
+      gpu: k8s.atoi(val.gpu),
     };
   }
-
-  // generate cell type map, stored in cellTypeMap
-  const cellTypeMap = {};
-  // initialize cellTypeMap to leaves
-  for (let gpuType of Object.keys(gpuTypes)) {
-    cellTypeMap[gpuType] = {
-      gpuType: gpuType,
-      gpuNumber: gpuTypes[gpuType].gpu,
-      childCellType: null,
-    };
-  }
-  const addCellType = (cellType) => {
-    if (cellTypeMap.hasOwnProperty(cellType)) {
-      // already added
-      return;
-    }
-    const spec = cellTypes[cellType];
-    if (spec == null) {
-      throw new Error(`hived error: leaf cell: ${cellType} not found in cell types`);
-    }
-    addCellType(spec.childCellType);
-    const childEle = cellTypeMap[spec.childCellType];
-    cellTypeMap[cellType] = {
-      gpuType: childEle.gpuType,
-      gpuNumber: childEle.gpuNumber * spec.childCellNumber,
-      childCellType: spec.childCellType,
-      isNode: spec.isNodeLevel === true,
-    };
-  };
-  for (let cellType of Object.keys(cellTypes)) {
-    addCellType(cellType);
-  }
-
-  // generate reservation info, stored in reservationCells
-  const reservationCells = {};
-  const addReservation = (cellInstance, cellType) => {
-    if (!cellTypeMap.hasOwnProperty(cellType)) {
-      throw new Error(`hived error: cellType: ${cellType} not found in cell types`);
-    }
-    if (cellInstance.hasOwnProperty('reservationId')) {
-      const rId = cellInstance.reservationId;
-      if (reservationCells.hasOwnProperty(rId)) {
-        throw new Error(`hived error: duplicate reservationId found: ${rId}`);
-      }
-      reservationCells[rId] = cellType;
-    }
-
-    // recursively check cellChildren if not null or empty
-    if (cellInstance.cellChildren) {
-      for (let childCellInstance of cellInstance.cellChildren) {
-        addReservation(childCellInstance, cellTypeMap[cellType].childCellType);
-      }
-    }
-  };
-  for (let cellInstance of physicalCells) {
-    addReservation(cellInstance, cellInstance.cellType);
-  }
-
-  // calculate vc quota
-  for (let vc of Object.keys(virtualClusters)) {
-    virtualCellCapacity[vc] = {
-      quota: {},
-    };
-    if (virtualClusters[vc].hasOwnProperty('virtualCells')) {
-      for (let vCell of virtualClusters[vc].virtualCells) {
-        const cellType = vCell.cellType.split('.').slice(-1)[0];
-        if (!cellTypeMap.hasOwnProperty(cellType)) {
-          throw new Error(`hived error: cellType: ${cellType} not found in cell types`);
-        }
-        if (!(cellType in virtualCellCapacity[vc].quota)) {
-          virtualCellCapacity[vc].quota[cellType] = {...resourcesEmpty};
-        }
-        const cellGpu = cellTypeMap[cellType].gpuNumber * vCell.cellNumber;
-        virtualCellCapacity[vc].quota[cellType].gpu += cellGpu;
-        virtualCellCapacity[vc].quota[cellType].cpu += resourceUnits[(cellTypeMap[cellType].gpuType)].cpu * cellGpu;
-        virtualCellCapacity[vc].quota[cellType].memory += resourceUnits[(cellTypeMap[cellType].gpuType)].memory * cellGpu;
-      }
-    }
-    if (virtualClusters[vc].hasOwnProperty('reservedCells')) {
-      for (let vCell of virtualClusters[vc].reservedCells) {
-        const rId = vCell.reservationId;
-        const cellType = reservationCells[rId];
-        if (!reservationCells.hasOwnProperty(rId)) {
-          throw new Error(`hived error: reservationId: ${rId} not found in physical cells`);
-        }
-        if (!(rId in virtualCellCapacity[vc].quota)) {
-          virtualCellCapacity[vc].quota[rId] = {...resourcesEmpty};
-        }
-        const cellGpu = cellTypeMap[cellType].gpuNumber;
-        virtualCellCapacity[vc].quota[rId].gpu += cellGpu;
-        virtualCellCapacity[vc].quota[rId].cpu += resourceUnits[(cellTypeMap[cellType].gpuType)].cpu * cellGpu;
-        virtualCellCapacity[vc].quota[rId].memory += resourceUnits[(cellTypeMap[cellType].gpuType)].memory * cellGpu;
-      }
-    }
-  }
-}
-
-const vcExports = {
-  vcCreateInputSchema,
-  vcStatusPutInputSchema,
-};
-
-if (launcherConfig.type === 'k8s') {
-  vcExports.resourceUnits = resourceUnits;
-  vcExports.virtualCellCapacity = virtualCellCapacity;
 }
 
 // module exports
-module.exports = vcExports;
+module.exports = {
+  vcCreateInputSchema,
+  vcStatusPutInputSchema,
+  resourceUnits,
+};
