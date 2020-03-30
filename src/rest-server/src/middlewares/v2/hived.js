@@ -20,6 +20,8 @@ const createError = require('@pai/utils/error');
 const hivedSchema = require('@pai/config/v2/hived');
 const {resourceUnits, virtualCellCapacity} = require('@pai/config/vc');
 
+const cpuUnits = Object.values(resourceUnits).filter((v) => v.gpu === 0);
+const gpuUnits = Object.values(resourceUnits).filter((v) => v.gpu > 0);
 
 const convertPriority = (priorityClass='test') => {
   // TODO: make it a cluster-wise config
@@ -37,8 +39,6 @@ const hivedValidate = (protocolObj, username) => {
   if (!hivedSchema.validate(protocolObj)) {
     throw createError('Bad Request', 'InvalidProtocolError', hivedSchema.validate.errors);
   }
-  const minCpu = Math.min(...Array.from(Object.values(resourceUnits), (v) => v.cpu));
-  const minMemoryMB = Math.min(...Array.from(Object.values(resourceUnits), (v) => v.memory));
   let hivedConfig = null;
   const affinityGroups = {};
   const gangAllocation = ('extras' in protocolObj && protocolObj.extras.gangAllocation === false) ? false : true;
@@ -56,8 +56,6 @@ const hivedValidate = (protocolObj, username) => {
           `Hived error: ${taskRole} does not exist.`
         );
       }
-      const instances = protocolObj.taskRoles[taskRole].instances;
-      const gpu = protocolObj.taskRoles[taskRole].resourcePerInstance.gpu || 0;
 
       const taskRoleConfig = hivedConfig.taskRoles[taskRole];
       // at most one of [reservationId, gpuType] allowed
@@ -102,11 +100,11 @@ const hivedValidate = (protocolObj, username) => {
             affinityTaskList: [],
           };
         }
-        const currentItem = {
-          podNumber: instances,
-          gpuNumber: gpu,
-        };
-        affinityGroups[affinityGroupName].affinityTaskList.push(currentItem);
+        const {gpu = 0, cpu} = protocolObj.taskRoles[taskRole].resourcePerInstance;
+        affinityGroups[affinityGroupName].affinityTaskList.push({
+          podNumber: protocolObj.taskRoles[taskRole].instances,
+          gpuNumber: gpu === 0 ? cpu : gpu,
+        });
       }
     }
 
@@ -127,36 +125,44 @@ const hivedValidate = (protocolObj, username) => {
   if (!Object.keys(affinityGroups).length && gangAllocation) {
     defaultAffinityGroup = {
       affinityTaskList: Object.keys(protocolObj.taskRoles).map((taskRole) => {
+        const {gpu = 0, cpu} = protocolObj.taskRoles[taskRole].resourcePerInstance;
         return {
           podNumber: protocolObj.taskRoles[taskRole].instances,
-          gpuNumber: protocolObj.taskRoles[taskRole].resourcePerInstance.gpu,
+          gpuNumber: gpu === 0 ? cpu : gpu,
         };
       }),
     };
   }
 
   // generate podSpec for every taskRole
-  let totalGpuNumber = 0;
+  let requestCellNumber = 0;
   for (let taskRole of Object.keys(protocolObj.taskRoles)) {
-    const gpu = protocolObj.taskRoles[taskRole].resourcePerInstance.gpu || 0;
-    const cpu = protocolObj.taskRoles[taskRole].resourcePerInstance.cpu;
-    const memoryMB = protocolObj.taskRoles[taskRole].resourcePerInstance.memoryMB;
-    let allowedCpu = minCpu * gpu;
-    let allowedMemoryMB = minMemoryMB * gpu;
-    totalGpuNumber += protocolObj.taskRoles[taskRole].instances * gpu;
+    const {gpu = 0, cpu, memoryMB} = protocolObj.taskRoles[taskRole].resourcePerInstance;
+    const cellNumber = gpu === 0 ? cpu : gpu;
+    requestCellNumber += protocolObj.taskRoles[taskRole].instances * cellNumber;
+
+    let cpuPerCell, memoryMBPerCell;
+    if (gpu === 0) {
+      cpuPerCell = 1;
+      memoryMBPerCell = Math.min(...Array.from(cpuUnits, (v) => v.memory));
+    } else {
+      cpuPerCell = Math.min(...Array.from(gpuUnits, (v) => v.cpu));
+      memoryMBPerCell = Math.min(...Array.from(gpuUnits, (v) => v.memory));
+    }
+
     const podSpec = {
       virtualCluster,
       priority: convertPriority(hivedConfig ? hivedConfig.jobPriorityClass : undefined),
       gpuType: null,
       reservationId: null,
-      gpuNumber: protocolObj.taskRoles[taskRole].resourcePerInstance.gpu,
+      gpuNumber: cellNumber,
       affinityGroup: null,
     };
     if (hivedConfig && hivedConfig.taskRoles && taskRole in hivedConfig.taskRoles) {
       podSpec.gpuType = hivedConfig.taskRoles[taskRole].gpuType;
       if (podSpec.gpuType !== null) {
-        allowedCpu = resourceUnits[podSpec.gpuType].cpu * gpu;
-        allowedMemoryMB = resourceUnits[podSpec.gpuType].memory * gpu;
+        cpuPerCell = resourceUnits[podSpec.gpuType].cpu;
+        memoryMBPerCell = resourceUnits[podSpec.gpuType].memory;
       }
       podSpec.reservationId = hivedConfig.taskRoles[taskRole].reservationId;
 
@@ -175,19 +181,33 @@ const hivedValidate = (protocolObj, username) => {
     }
 
     if (gpu === 0) {
-      throw createError('Bad Request', 'InvalidProtocolError', 'Hived error: does not allow 0 GPU in hived scheduler.');
+      if (cpuUnits.length === 0) {
+        throw createError('Bad Request', 'InvalidProtocolError', 'Hived error: No CPU cell configured.');
+      }
+      if (memoryMB > memoryMBPerCell * cellNumber) {
+        throw createError(
+          'Bad Request',
+          'InvalidProtocolError',
+          `Hived error: ${taskRole} requests ${memoryMB}MB memory; allow ${memoryMBPerCell}MB memory per CPU.`
+        );
+      }
+    } else {
+      if (gpuUnits.length === 0) {
+        throw createError('Bad Request', 'InvalidProtocolError', 'Hived error: No GPU cell configured.');
+      }
+      if (cpu > cpuPerCell * cellNumber || memoryMB > memoryMBPerCell * cellNumber) {
+        throw createError(
+          'Bad Request',
+          'InvalidProtocolError',
+          `Hived error: ${taskRole} requests ${cpu} CPU, ${memoryMB}MB memory; allow ${cpuPerCell} CPU, ${memoryMBPerCell}MB memory per GPU.`
+        );
+      }
     }
-    if (cpu > allowedCpu || memoryMB > allowedMemoryMB) {
-      throw createError(
-        'Bad Request',
-        'InvalidProtocolError',
-        `Hived error: ${taskRole} requests (${cpu} CPU, ${memoryMB}MB memory), allow (${allowedCpu} CPU, ${allowedMemoryMB}MB memory) with ${gpu} GPU.`
-      );
-    }
+
     protocolObj.taskRoles[taskRole].hivedPodSpec = podSpec;
   }
   const maxGpuNumber = Object.values(virtualCellCapacity[virtualCluster].quota).reduce((sum, resources) => sum + resources.gpu, 0);
-  if (totalGpuNumber > maxGpuNumber && gangAllocation && !(hivedConfig && hivedConfig.jobPriorityClass === 'oppo')) {
+  if (requestCellNumber > maxGpuNumber && gangAllocation && !(hivedConfig && hivedConfig.jobPriorityClass === 'oppo')) {
     throw createError('Bad Request', 'InvalidProtocolError', `Hived error: exceed ${maxGpuNumber} GPU quota in ${virtualCluster} VC.`);
   }
   return protocolObj;
