@@ -141,14 +141,8 @@ const hivedValidate = (protocolObj, username) => {
     const cellNumber = gpu === 0 ? cpu : gpu;
     requestCellNumber += protocolObj.taskRoles[taskRole].instances * cellNumber;
 
-    let cpuPerCell, memoryMBPerCell;
-    if (gpu === 0) {
-      cpuPerCell = 1;
-      memoryMBPerCell = Math.min(...Array.from(cpuUnits, (v) => v.memory));
-    } else {
-      cpuPerCell = Math.min(...Array.from(gpuUnits, (v) => v.cpu));
-      memoryMBPerCell = Math.min(...Array.from(gpuUnits, (v) => v.memory));
-    }
+    let cpuPerCell = gpu === 0 ? 1 : Math.min(...Array.from(gpuUnits, (v) => v.cpu));
+    let memoryMBPerCell = Math.min(...Array.from(gpu === 0 ? cpuUnits : gpuUnits, (v) => v.memory));
 
     const podSpec = {
       virtualCluster,

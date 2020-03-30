@@ -289,10 +289,10 @@ if (launcherConfig.enabledHived) {
 const vcExports = {
   vcCreateInputSchema,
   vcStatusPutInputSchema,
+  resourceUnits,
 };
 
 if (launcherConfig.type === 'k8s') {
-  vcExports.resourceUnits = resourceUnits;
   vcExports.virtualCellCapacity = virtualCellCapacity;
   vcExports.clusterTotalGpu = clusterTotalGpu;
   vcExports.clusterNodeGpu = clusterNodeGpu;
