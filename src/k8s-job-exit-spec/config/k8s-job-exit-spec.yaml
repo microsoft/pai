@@ -580,6 +580,28 @@ spec:
         nameRegex: '(?ms).*'
         messageRegex: '(?ms).*'
 
+- code: -1205
+  phrase: ContainerGpuDeviceNotFoundError
+  issuer: PAI_DOCKER
+  causer: PAI_HW
+  type: PLATFORM_FAILURE
+  stage: LAUNCHING
+  behavior: TRANSIENT
+  reaction: ALWAYS_RETRY
+  reason: "Container failed due to the allocated GPU device is not found on node"
+  repro:
+  - "Run tensorflow on GPU index 3 while the node only has 3 GPUs"
+  solution:
+  - "Wait result from next retry"
+  - "Contact Cluster Admin"
+  pattern:
+    controllerPodPatterns:
+    - containers:
+      - reasonRegex: '(?i)^ContainerCannotRun$'
+        exitCode: 128
+        nameRegex: '(?ms).*'
+        messageRegex: '(?msi).*(nvidia-container-cli: device error: unknown device id).*'
+
 
 ###########################################################################
 # Range: [129, 192]
