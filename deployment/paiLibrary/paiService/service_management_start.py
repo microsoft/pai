@@ -46,8 +46,9 @@ class serivce_management_start:
             self.service_list = service_list
         if self.cluster_type == 'yarn':
             user_input = raw_input(
-                "Cluster type `yarn` is not well tested. We recommend you to stay with version 0.14.0 " +
-                "and stop installation. If you still want to continue, please input Y. " +
+                "Cluster type `yarn` is not well tested. We recommend you to use `k8s` version or " +
+                "stick to 0.14.0 if you prefer yarn version. " +
+                "If you still want to continue, please input Y. " +
                 "Other inputs will stop installation immediately: ")
             if user_input != "Y":
                 sys.exit(1)
