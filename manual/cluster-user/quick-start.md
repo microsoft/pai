@@ -3,7 +3,7 @@
 1. [Quick Start](./quick-start.md) (this document)
     - [Submit a Hello World Job](#submit-a-hello-world-job)
     - [Browse Stdout, Stderr, Full Logs, and Metrics](#browse-stdout-stderr-full-logs-and-metrics)
-    - [Submit a Hello World Job Step by Step](#submit-a-hello-world-job-step-by-step)
+    - [Submit a Hello World Job Step by Step](#submit-the-hello-world-job-step-by-step)
     - [Learn the Hello World Job](#learn-the-hello-world-job)
 2. [Work with Docker Images](./work-with-docker-images.md)
 3. [How to Manage Data](./how-to-manage-data.md)
