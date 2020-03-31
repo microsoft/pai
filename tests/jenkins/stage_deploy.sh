@@ -49,5 +49,5 @@ echo "Y" | python paictl.py cluster k8s-bootup -p /cluster-configuration
 echo "pai" | python paictl.py config push -p /cluster-configuration
 
 # 3. start PAI services
-echo "pai" | python paictl.py service start
+echo -e "pai\nY\n" | python paictl.py service start
 EOF_DEV_BOX
