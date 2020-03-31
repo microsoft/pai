@@ -75,8 +75,8 @@ For a detailed summary, there are two ways to reference a declared port (list)
 
 - use [Indirection](https://stackoverflow.com/a/16553351/1012014) supported by `bash` as below 
 ```bash
-MY_PORT="PAI_PORT_LIST_${PAI_CURRENT_TASK_ROLE_NAME}_${PAI_CURRENT_TASK_ROLE_CURRENT_TASK_INDEX}_<port-label>"`
-PORT = ${!MY_PORT}
+MY_PORT="PAI_PORT_LIST_${PAI_CURRENT_TASK_ROLE_NAME}_${PAI_CURRENT_TASK_ROLE_CURRENT_TASK_INDEX}_<port-label>"
+PORT=${!MY_PORT}
 ```
 
 *Note that you need use `$PAI_CURRENT_TASK_ROLE_NAME` and `$PAI_CURRENT_TASK_ROLE_CURRENT_TASK_INDEX`*
