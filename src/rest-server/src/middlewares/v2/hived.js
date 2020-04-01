@@ -16,9 +16,12 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 // module dependencies
+const axios = require('axios');
 const createError = require('@pai/utils/error');
+const logger = require('@pai/config/logger');
 const hivedSchema = require('@pai/config/v2/hived');
-const {resourceUnits, virtualCellCapacity} = require('@pai/config/vc');
+const {resourceUnits} = require('@pai/config/vc');
+const {hivedWebserviceUri} = require('@pai/config/launcher');
 
 const cpuUnits = Object.values(resourceUnits).filter((v) => v.gpu === 0);
 const gpuUnits = Object.values(resourceUnits).filter((v) => v.gpu > 0);
@@ -35,7 +38,32 @@ const convertPriority = (priorityClass='test') => {
   return priorityClass in priorityMap ? priorityMap[priorityClass] : null;
 };
 
-const hivedValidate = (protocolObj, username) => {
+const getCellQuota = async (virtualCluster) => {
+  let vcStatus;
+  try {
+    vcStatus = (await axios.get(`${hivedWebserviceUri}/v1/inspect/clusterstatus/virtualclusters/${virtualCluster}`)).data;
+  } catch (error) {
+    logger.warn('Failed to inspect vc from hived scheduler: ', error.response ? error.response.data : error);
+    return Number.MAX_SAFE_INTEGER;
+  }
+
+  let cellQuota = 0;
+  const cellQueue = [...vcStatus];
+  while (cellQueue.length > 0) {
+    const curr = cellQueue.shift();
+    if (curr.cellPriority === -1) {
+      continue;
+    }
+    if (curr.cellChildren) {
+      cellQueue.push(...curr.cellChildren);
+    } else {
+      cellQuota += 1;
+    }
+  }
+  return cellQuota;
+};
+
+const hivedValidate = async (protocolObj, username) => {
   if (!hivedSchema.validate(protocolObj)) {
     throw createError('Bad Request', 'InvalidProtocolError', hivedSchema.validate.errors);
   }
@@ -200,10 +228,12 @@ const hivedValidate = (protocolObj, username) => {
 
     protocolObj.taskRoles[taskRole].hivedPodSpec = podSpec;
   }
-  const maxGpuNumber = Object.values(virtualCellCapacity[virtualCluster].quota).reduce((sum, resources) => sum + resources.gpu, 0);
-  if (requestCellNumber > maxGpuNumber && gangAllocation && !(hivedConfig && hivedConfig.jobPriorityClass === 'oppo')) {
-    throw createError('Bad Request', 'InvalidProtocolError', `Hived error: exceed ${maxGpuNumber} GPU quota in ${virtualCluster} VC.`);
+
+  const totalCellNumber = await getCellQuota(virtualCluster);
+  if (requestCellNumber > totalCellNumber && gangAllocation && !(hivedConfig && hivedConfig.jobPriorityClass === 'oppo')) {
+    throw createError('Bad Request', 'InvalidProtocolError', `Hived error: exceed ${totalCellNumber} GPU quota in ${virtualCluster} VC.`);
   }
+
   return protocolObj;
 };
 

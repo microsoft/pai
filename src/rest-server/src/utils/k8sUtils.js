@@ -24,18 +24,18 @@ const convertMemoryMb = (memoryStr) => {
   let memoryMb = atoi(memoryStr);
   switch (memoryStr.replace(/[0-9]/g, '')) {
     case 'Ti':
-      memoryMb *= 1000000;
+      memoryMb *= (1 << 20);
       break;
     case 'Gi':
-      memoryMb *= 1000;
+      memoryMb *= (1 << 10);
       break;
     case 'Mi':
       break;
     case 'Ki':
-      memoryMb /= 1000;
+      memoryMb /= (1 << 10);
       break;
     default:
-      memoryMb /= 1000000;
+      memoryMb /= (1 << 20);
   }
   return atoi(memoryMb);
 };

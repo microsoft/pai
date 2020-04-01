@@ -38,11 +38,11 @@ import config from '../../config/webportal.config';
 import t from '../../components/tachyons.scss';
 import { ResourceBar } from './resource-bar';
 
-const getResouceUtilization = (used, total) => {
-  if (Math.abs(total) < 1e-5) {
+const getResouceUtilization = (used, guaranteed) => {
+  if (Math.abs(guaranteed) < 1e-5) {
     return 0;
   }
-  return used / total;
+  return used / guaranteed;
 };
 
 const isAdmin = cookies.get('admin') === 'true';
@@ -81,11 +81,12 @@ const vcListColumns = [
     className: zeroPaddingClass,
     onRender(vc) {
       const { resourcesUsed, resourcesTotal } = vc;
+      const resourcesGuaranteed = vc.resourcesGuaranteed || resourcesTotal;
 
       const resouceUtilization = Math.max(
-        getResouceUtilization(resourcesUsed.GPUs, resourcesTotal.GPUs),
-        getResouceUtilization(resourcesUsed.memory, resourcesTotal.memory),
-        getResouceUtilization(resourcesUsed.vCores, resourcesTotal.vCores),
+        getResouceUtilization(resourcesUsed.GPUs, resourcesGuaranteed.GPUs),
+        getResouceUtilization(resourcesUsed.memory, resourcesGuaranteed.memory),
+        getResouceUtilization(resourcesUsed.vCores, resourcesGuaranteed.vCores),
       );
       return (
         <Stack styles={{ root: [{ height: 98 }] }}>
@@ -97,12 +98,11 @@ const vcListColumns = [
   {
     key: 'detail',
     minWidth: 200,
-    name: 'Detail',
+    name: 'Detail: Used / (Total - Bad)',
     isResizable: true,
     onRender(vc) {
       const { resourcesUsed, resourcesTotal } = vc;
-      const resourceAvailable = vc.resourceAvailable || resourcesTotal;
-      const insufficient = !(resourceAvailable.GPUs === resourcesTotal.GPUs);
+      const resourcesGuaranteed = vc.resourcesGuaranteed || resourcesTotal;
       return (
         <Stack
           gap='s1'
@@ -112,14 +112,16 @@ const vcListColumns = [
         >
           <StackItem>
             <ResourceBar
-              name={'Memory'}
+              name={'MEM GB'}
               percentage={getResouceUtilization(
                 resourcesUsed.memory,
-                resourcesTotal.memory,
+                resourcesGuaranteed.memory,
               )}
-              tailInfo={`${Math.round(resourcesUsed.memory)} / ${Math.round(
-                resourceAvailable.memory,
-              )}${insufficient ? ` (${resourcesTotal.memory})` : ''} MB`}
+              tailInfo={`${Math.round(resourcesUsed.memory / 1024)} /
+                (${Math.round(resourcesTotal.memory / 1024)} - ${Math.round(
+                (resourcesTotal.memory - resourcesGuaranteed.memory) / 1024,
+              )})
+              `}
             />
           </StackItem>
           <StackItem>
@@ -127,11 +129,13 @@ const vcListColumns = [
               name={'CPU'}
               percentage={getResouceUtilization(
                 resourcesUsed.vCores,
-                resourcesTotal.vCores,
+                resourcesGuaranteed.vCores,
               )}
-              tailInfo={`${Math.round(resourcesUsed.vCores)} / ${Math.round(
-                resourceAvailable.vCores,
-              )}${insufficient ? ` (${resourcesTotal.vCores})` : ''}`}
+              tailInfo={`${Math.round(resourcesUsed.vCores)} /
+                (${Math.round(resourcesTotal.vCores)} - ${Math.round(
+                resourcesTotal.vCores - resourcesGuaranteed.vCores,
+              )})
+              `}
             />
           </StackItem>
           <StackItem>
@@ -139,11 +143,13 @@ const vcListColumns = [
               name={'GPU'}
               percentage={getResouceUtilization(
                 resourcesUsed.GPUs,
-                resourcesTotal.GPUs,
+                resourcesGuaranteed.GPUs,
               )}
-              tailInfo={`${Math.round(resourcesUsed.GPUs)} / ${Math.round(
-                resourceAvailable.GPUs,
-              )}${insufficient ? ` (${resourcesTotal.GPUs})` : ''}`}
+              tailInfo={`${Math.round(resourcesUsed.GPUs)} /
+                (${Math.round(resourcesTotal.GPUs)} - ${Math.round(
+                resourcesTotal.GPUs - resourcesGuaranteed.GPUs,
+              )})
+              `}
             />
           </StackItem>
         </Stack>

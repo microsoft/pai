@@ -16,10 +16,10 @@ jobs:
     steps:
     - name: Checkout
       uses: actions/checkout@v1
-    - name: Use Python 2.7
-      uses: actions/setup-python@v1
+    - name: Use Python 3.8
+      uses: actions/setup-python@v1.2.0
       with:
-        python-version: 2.7
+        python-version: 3.8
         architecture: x64
     - name: Install dependencies
       run: |
