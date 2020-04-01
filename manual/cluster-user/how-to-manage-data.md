@@ -50,13 +50,13 @@ User can also use job submission page to select desired storage:
 
 ### 3. Upload data
 
-Currently, we support `NFS`, `AzureBlob`, `AzureFile`.
+Currently, we support `NFS`, `AzureBlob` and `AzureFile`.
 
 #### 3.1 Upload data to NFS
 
 ##### Upload data to NFS server in Ubuntu (16.04 or above)
 
-For Ubuntu user. To upload your data to `NFS`, please run following commands first to install nfs dependencies.
+For Ubuntu user. To upload data to `NFS`, please run following commands first to install nfs dependencies.
 ```bash
 sudo apt-get update
 sudo apt-get install --assume-yes nfs-common
@@ -71,18 +71,20 @@ sudo mount -t nfs4 NFS_SERVER:/NFS_PATH MOUNT_PATH
 
 Copy your data to the mount point will upload your data to `NFS`
 
-To get the `NFS_SERVER` and `NFS_PATH`, please read [Get permitted storage](#get-permitted-storage)
+To get the `NFS_SERVER` and `NFS_PATH`, please read [get permitted storage](#1-get-permitted-storage)
 
 ##### Upload data to NFS server in Windows
 
 If admin setup `NFS` by `storage-manager`. User could access `NFS` by `Windows File Explore` directly.
-For `AAD` user. Just change the file location to: `\\NFS_SERVER_ADDRESS` in `File Explore`. 
+For `AAD` user. Just change the file location to: `\\NFS_SERVER_ADDRESS` in `File Explore`. (Please make sure the `network discovery` is on)
+
 
 For `Basic Authentication` user or using `NFS` not through `storage-manager`. Please try to mount NFS into the Windows or using Linux vm to upload data.
 
 #### 3.2 Upload data to Azure Blob or Azure File
 
 For Azure Blob, user can get the `storage account name` and `container name` in the profile page.
+
 For Azure File, user can get the `storage account name` and `file share name` in the profile page.
 
 To upload data to Azure Blob or Azure File, please:
