@@ -61,7 +61,7 @@ matrix:
         - python3 -m unittest discover .
 
     - language: python
-      python: 2.7
+      python: 3.8
       install:
         - pip install markdown==2.6.11
       script:
