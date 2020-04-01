@@ -149,9 +149,7 @@ machine-list:
       pai-worker: "true"
 ```
 
-- If your cluster type uses hivedscheduler, you should modify the scheduler setting in `services-configuration.yaml`. 
-
-TODO: Add hived tutorial link here.
+- You should modify the hived scheduler setting in `services-configuration.yaml` properly. Please refer to [how to set up virtual clusters](./how-to-set-up-virtual-clusters) and the [hived scheduler doc](https://github.com/microsoft/hivedscheduler/blob/master/doc/user-manual.md) for details. 
 
 - Push the latest configuration by:
 
@@ -166,7 +164,6 @@ TODO: Add hived tutorial link here.
 ./paictl.py service start -n cluster-configuartion
 ./paictl.py service start -n hivedscheduler rest-server
 ```
-
 
 ## How to Remove Nodes
 
@@ -191,3 +188,4 @@ Restart the cluster:
 ./paictl.py service start -n cluster-configuartion
 ./paictl.py service start -n hivedscheduler rest-server
 ```
+

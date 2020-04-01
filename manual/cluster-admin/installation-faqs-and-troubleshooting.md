@@ -1,115 +1,28 @@
 # Installation FAQs and Troubleshooting
 
-## How to Write Hived Scheduler Configuration for a Heterogeneous Cluster
+## Installation FAQs
 
-### Include CPU-only Nodes
+**1. How to include worker nodes with different hardwares?**
 
-To config CPU nodes in cluster using hived scheduler, you need to mock one GPU for each CPU in `gpuTypes`. Here's an example of a 3 CPU nodes cluster:
+In the [installation guide](./installation-guide.md), we assume all worker nodes should have the same hardware. If it is not your case, we recommend you to include only one type during installation, then follow [How to Add Nodes](#how-to-add-nodes) to add nodes with different types. There is also [an example](./how-to-set-up-virutal-clusters.md#different-hardwares-in-worker-nodes) about how to configure hived scheduler when you have different GPU types in worker nodes.
 
-```yaml
-hivedscheduler:
-config: |
-  physicalCluster:
-    gpuTypes:
-      CPU:
-        gpu: 1
-        cpu: 1
-        memory: 2048Mi
-    cellTypes:
-      CPU-NODE:
-        childCellType: CPU
-        childCellNumber: 24
-        isNodeLevel: true
-      CPU-NODE-POOL:
-        childCellType: CPU-NODE
-        childCellNumber: 3
-    physicalCells:
-    - cellType: CPU-NODE-POOL
-      cellChildren:
-      - cellAddress: 192.168.0.1
-      - cellAddress: 192.168.0.2
-      - cellAddress: 192.168.0.3
-  virtualClusters:
-    default:
-      virtualCells:
-      - cellType: CPU-NODE-POOL
-        cellNumber: 1
-    cpu:
-      virtualCells:
-      - cellType: CPU-NODE-POOL
-        cellNumber: 2
-```
+**2. How to include CPU-only worker nodes?**
 
-## Include Multi-type GPUs
+In current release, the support for CPU nodes is limited. Please refer to [How to Use CPU Nodes](./how-to-use-cpu-nodes.md) for details.
 
-To config multiple types GPU nodes in cluster using hived scheduler, you need to specify all types in `gpuTypes` and config virtual clusters accordingly. Here's an example of 2 P100 nodes and 1 V100 node cluster:
-
-```yaml
-hivedscheduler:
-config: |
-  physicalCluster:
-    gpuTypes:
-      P100:
-        gpu: 1
-        cpu: 4
-        memory: 8192Mi
-      V100:
-        gpu: 1
-        cpu: 6
-        memory: 12288Mi
-    cellTypes:
-      P100-NODE:
-        childCellType: P100
-        childCellNumber: 8
-        isNodeLevel: true
-      V100-NODE:
-        childCellType: V100
-        childCellNumber: 8
-        isNodeLevel: true
-      P100-NODE-POOL:
-        childCellType: P100-NODE
-        childCellNumber: 2
-      V100-NODE-POOL:
-        childCellType: P100-NODE
-        childCellNumber: 1
-    physicalCells:
-    - cellType: P100-NODE-POOL
-      cellChildren:
-      - cellAddress: 192.168.1.1
-      - cellAddress: 192.168.1.2
-    - cellType: V100-NODE-POOL
-      cellChildren:
-      - cellAddress: 192.168.2.1
-  virtualClusters:
-    default:
-      virtualCells:
-      - cellType: P100-NODE-POOL
-        cellNumber: 1
-    vc1:
-      virtualCells:
-      - cellType: P100-NODE-POOL
-        cellNumber: 1
-    vc2:
-      virtualCells:
-      - cellType: V100-NODE-POOL
-        cellNumber: 1
-```
-
-## Other Questions about Installation
-
-**1. Which NVIDIA driver should I install?**
+**3. Which NVIDIA driver should I install?**
 
 First, check out the [NVIDIA site](https://www.nvidia.com/Download/index.aspx) to verify the newest driver version of your GPU card. Then, check out [this table](https://docs.nvidia.com/deploy/cuda-compatibility/index.html#binary-compatibility__table-toolkit-driver) to see the CUDA requirement of driver version.
 
 Please note that, some docker images with new CUDA version cannot be used on machine with old driver. As for now, we recommend to install the NVIDIA driver 418 as it supports CUDA 9.0 \~ CUDA 10.1, which is used by most deep learning frameworks.
 
-**2. How to fasten deploy speed on large cluster?**
+**4. How to fasten deploy speed on large cluster?**
 
 By default, `Ansible` uses 5 forks to execute commands parallelly on all hosts. If your cluster is a large one, it may be slow for you.
 
 To fasten the deploy speed, you can add `-f <parallel-number>` to all commands using `ansible` or `ansible-playbook`. See [ansible doc](https://docs.ansible.com/ansible/latest/cli/ansible.html#cmdoption-ansible-f) for reference.
 
-**3. How to remove k8s network plugin**
+**5. How to remove k8s network plugin**
 
 By default, we use [weave](https://github.com/weaveworks/weave) as k8s network plugin. After installation, if you encounter some errors about the network, such as some pods failed to connect internet, you could remove network plugin to solve this issue.
 

@@ -4,14 +4,13 @@ There are breaking changes since OpenPAI `v0.18.0`. Before `v0.18.0`, OpenPAI wa
 
 Here we provide installation guides of two situations: 1. [Installation from fresh new machines](#from-scratch) 2. [Installation from deployment of old OpenPAI version](#from-previous-deployment).
 
-
 ## From Scratch
 
-Starting from OpenPAI 0.18.0, we recommend to use kubespray to deploy OpenPAI cluster. You should have at least 3 separate machines: one dev box machine, one master machine, and one worker machine. 
+Starting from OpenPAI `v0.18.0`, we recommend to use kubespray to deploy OpenPAI cluster. You should have at least 3 separate machines: one dev box machine, one master machine, and one worker machine. 
 
 Dev box machine controls master machines and worker machines through SSH during installation, maintainence, and uninstallation. Master machine is used to run core Kubernetes components and core OpenPAI services. You could use CPU-only machines for dev box and master. However, worker machines should all have GPUs, and have GPU driver correctly installed. 
 
-There should be one, and only one dev box machine. The number of master and worker machines could be more than one. One master machine is suitable for most cases. You should use more than one master machines if you have a lot of workers, and want the cluster to be highly-available.
+There should be one, and only one dev box machine. The number of master and worker machines could be more than one. One master machine is suitable for most cases. You should use more than one master machines if you have a lot of workers, and want the cluster to be highly-available. **All workers should have the same hardware, e.g. CPU type and number, GPU type and number, memory size. Please refer to [FAQs](./installation-faqs-and-troubleshooting.md#installation-faqs) if you have any question.**
 
 ### Create Configurations
 
