@@ -16,24 +16,21 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 // module dependencies
+const axios = require('axios');
 const yaml = require('js-yaml');
 const createError = require('@pai/utils/error');
-const vcConfig = require('@pai/config/vc');
-const launcherConfig = require('@pai/config/launcher');
+const {resourceUnits} = require('@pai/config/vc');
+const {enabledHived, hivedWebserviceUri} = require('@pai/config/launcher');
 const kubernetes = require('@pai/models/kubernetes/kubernetes');
 const k8s = require('@pai/utils/k8sUtils');
-
-const {
-  resourceUnits,
-  virtualCellCapacity,
-  clusterNodeGpu,
-} = vcConfig;
 
 const resourcesEmpty = {
   cpu: 0,
   memory: 0,
   gpu: 0,
 };
+
+const add = (x, y) => x + y;
 
 const mergeDict = (d1, d2, op) => {
   for (let k of [...Object.keys(d1).filter((x) => x in d2)]) {
@@ -84,7 +81,7 @@ const getPodsInfo = async () => {
       userName: labels.userName,
       virtualCluster: labels.virtualCluster,
       taskRoleName: labels.FC_TASKROLE_NAME,
-      nodeIp: pod.spec.nodeName,
+      nodeName: pod.spec.nodeName,
       resourcesUsed: {...resourcesEmpty},
     };
 
@@ -99,7 +96,9 @@ const getPodsInfo = async () => {
         podInfo.resourcesUsed.gpu = info.gpuIsolation.length;
       }
     } else {
-      podInfo.resourcesUsed.gpu = k8s.atoi(resourceRequest['nvidia.com/gpu']);
+      podInfo.resourcesUsed.gpu =
+        k8s.atoi(resourceRequest['nvidia.com/gpu']) +
+        k8s.atoi(resourceRequest['amd.com/gpu']);
     }
     return podInfo;
   });
@@ -108,126 +107,163 @@ const getPodsInfo = async () => {
 };
 
 const getNodeResource = async () => {
-  const pods = await getPodsInfo();
   const nodeResource = {};
 
-  if (launcherConfig.enabledHived) {
-    for (let node of Object.keys(clusterNodeGpu)) {
-      nodeResource[node] = {
-        gpuTotal: clusterNodeGpu[node].gpu,
-        gpuUsed: 0,
-        gpuAvailable: clusterNodeGpu[node].gpu,
-      };
+  if (enabledHived) {
+    let pcStatus;
+    try {
+      pcStatus = (await axios.get(`${hivedWebserviceUri}/v1/inspect/clusterstatus/physicalcluster`)).data;
+    } catch (error) {
+      if (error.response != null) {
+        throw createError(
+          error.response.status,
+          'UnknownError',
+          error.response.data || 'Hived scheduler cannot inspect physical cluster.',
+        );
+      } else {
+        throw error;
+      }
+    }
+    const cellQueue = [...pcStatus];
+    while (cellQueue.length > 0) {
+      const curr = cellQueue.shift();
+      if (curr.isNodeLevel) {
+        const nodeName = curr.cellAddress.split('/').slice(-1)[0];
+        nodeResource[nodeName] = {
+          gpuUsed: 0,
+          gpuAvailable: 0,
+          gpuTotal: 0,
+        };
+        const cellQueueOnNode = [curr];
+        while (cellQueueOnNode.length > 0) {
+          const currOnNode = cellQueueOnNode.shift();
+          if (currOnNode.cellChildren) {
+            cellQueueOnNode.push(...currOnNode.cellChildren);
+          } else {
+            if (currOnNode.cellType in resourceUnits) {
+              const gpuNumber = resourceUnits[currOnNode.cellType].gpu;
+              if (currOnNode.cellHealthiness === 'Healthy') {
+                if (currOnNode.cellState === 'Used') {
+                  nodeResource[nodeName].gpuUsed += gpuNumber;
+                } else {
+                  nodeResource[nodeName].gpuAvailable += gpuNumber;
+                }
+              }
+              nodeResource[nodeName].gpuTotal += gpuNumber;
+            }
+          }
+        }
+      } else if (curr.cellChildren) {
+        cellQueue.push(...curr.cellChildren);
+      }
     }
   } else {
     const nodes = await fetchNodes(true);
     for (let node of nodes) {
       const nodeName = node.metadata.name;
-      const gpuNumber = k8s.atoi(node.status.capacity['nvidia.com/gpu']);
+      const gpuNumber =
+        k8s.atoi(node.status.capacity['nvidia.com/gpu']) +
+        k8s.atoi(node.status.capacity['amd.com/gpu']);
       nodeResource[nodeName] = {
-        gpuTotal: gpuNumber,
         gpuUsed: 0,
         gpuAvailable: gpuNumber,
+        gpuTotal: gpuNumber,
       };
+    }
+    const pods = await getPodsInfo();
+    for (let pod of pods) {
+      if (pod.nodeName in nodeResource) {
+        nodeResource[pod.nodeName].gpuUsed += pod.resourcesUsed.gpu;
+        nodeResource[pod.nodeName].gpuAvailable -= pod.resourcesUsed.gpu;
+      }
     }
   }
 
-  for (let pod of pods) {
-    if (!nodeResource.hasOwnProperty(pod.nodeIp)) {
-      // pod not in configured nodes
-      continue;
-    }
-    nodeResource[pod.nodeIp].gpuUsed += pod.resourcesUsed.gpu;
-    nodeResource[pod.nodeIp].gpuAvailable -= pod.resourcesUsed.gpu;
-  }
   return nodeResource;
 };
 
 const getVcList = async () => {
-  const pods = await getPodsInfo();
+  const vcEmpty = {
+    capacity: 0,
+    usedCapacity: 0,
+    dedicated: false,
+    resourcesUsed: {...resourcesEmpty},
+    resourcesGuaranteed: {...resourcesEmpty},
+    resourcesTotal: {...resourcesEmpty},
+  };
+  const vcInfos = {'default': JSON.parse(JSON.stringify(vcEmpty))};
 
-  // get vc usage
-  const vcInfos = {};
-  const allVc = new Set([
-    'default',
-    ...Array.from(pods, (pod) => pod.virtualCluster),
-    ...Object.keys(virtualCellCapacity),
-  ]);
-  for (let vc of allVc) {
-    vcInfos[vc] = {
-      capacity: 0,
-      usedCapacity: 0,
-      numJobs: 0,
-      dedicated: false,
-      resourcesUsed: {...resourcesEmpty},
-    };
-  }
-
-  // set used resource
-  const countedJob = new Set();
-  for (let pod of pods) {
-    if (!countedJob.has(pod.userName + '~' + pod.jobName)) {
-      countedJob.add(pod.userName + '~' + pod.jobName);
-      vcInfos[pod.virtualCluster].numJobs += 1;
-    }
-    mergeDict(vcInfos[pod.virtualCluster].resourcesUsed, pod.resourcesUsed, (x, y) => x + y);
-  }
-
-  // set configured resource
-  if (launcherConfig.enabledHived) {
-    const availableTypes = {};
-    for (let vc of Object.keys(virtualCellCapacity)) {
-      availableTypes[vc] = JSON.parse(JSON.stringify(virtualCellCapacity[vc].limit));
-      vcInfos[vc].resourcesTotal = {
-        cpu: Object.values(virtualCellCapacity[vc].quota).reduce((sum, resources) => sum + resources.cpu, 0),
-        memory: Object.values(virtualCellCapacity[vc].quota).reduce((sum, resources) => sum + resources.memory, 0),
-        gpu: Object.values(virtualCellCapacity[vc].quota).reduce((sum, resources) => sum + resources.gpu, 0),
-      };
-    }
-    // minus resources in preempted nodes
-    const preemptedNodes = await fetchNodes(false);
-    for (let node of preemptedNodes) {
-      if (!(node.metadata.name in clusterNodeGpu)) {
-        continue;
+  // set resources
+  if (enabledHived) {
+    let vcStatus;
+    try {
+      vcStatus = (await axios.get(`${hivedWebserviceUri}/v1/inspect/clusterstatus/virtualclusters/`)).data;
+    } catch (error) {
+      if (error.response != null) {
+        throw createError(
+          error.response.status,
+          'UnknownError',
+          error.response.data || 'Hived scheduler cannot inspect virtual clusters.',
+        );
+      } else {
+        throw error;
       }
-      const bindings = clusterNodeGpu[node.metadata.name].bindings;
-      for (let vc of Object.keys(bindings)) {
-        if (vc in availableTypes && bindings[vc].type in availableTypes[vc]) {
-          mergeDict(availableTypes[vc][bindings[vc].type], bindings[vc], (x, y) => x - y);
+    }
+    // used, guaranteed, total resources
+    for (let vc of Object.keys(vcStatus)) {
+      if (!(vc in vcInfos)) {
+        vcInfos[vc] = JSON.parse(JSON.stringify(vcEmpty));
+      }
+      const cellQueue = [...vcStatus[vc]];
+      while (cellQueue.length > 0) {
+        const curr = cellQueue.shift();
+        if (curr.cellPriority === -1) {
+          continue;
         }
-      }
-    }
-    // minus used resources in other virtual clusters
-    for (let pod of pods) {
-      const bindings = clusterNodeGpu[pod.nodeIp].bindings;
-      for (let vc of Object.keys(bindings)) {
-        if (vc !== pod.virtualCluster && vc in availableTypes && bindings[vc].type in availableTypes[vc]) {
-          mergeDict(availableTypes[vc][bindings[vc].type], pod.resourcesUsed, (x, y) => x - y);
+        if (curr.cellChildren) {
+          curr.cellChildren.forEach((cellChild) => {
+            cellChild.gpuType = curr.gpuType;
+            cellQueue.push(cellChild);
+          });
+        } else {
+          if (curr.gpuType in resourceUnits) {
+            const sku = resourceUnits[curr.gpuType];
+            if (curr.cellHealthiness === 'Healthy') {
+              if (curr.cellState === 'Used') {
+                mergeDict(vcInfos[vc].resourcesUsed, sku, add);
+              }
+              mergeDict(vcInfos[vc].resourcesGuaranteed, sku, add);
+            }
+            mergeDict(vcInfos[vc].resourcesTotal, sku, add);
+          }
         }
-      }
-    }
-    // available = min(max(left resources, 0), quota)
-    for (let vc of Object.keys(virtualCellCapacity)) {
-      vcInfos[vc].resourceAvailable = {...resourcesEmpty};
-      for (let type of Object.keys(availableTypes[vc])) {
-        mergeDict(availableTypes[vc][type], virtualCellCapacity[vc].quota[type], (x, y) => Math.min(Math.max(x, 0), y));
-        mergeDict(vcInfos[vc].resourceAvailable, availableTypes[vc][type], (x, y) => x + y);
       }
     }
   } else {
+    // used resources
+    const pods = await getPodsInfo();
+    for (let pod of pods) {
+      if (pod.virtualCluster in vcInfos) {
+        mergeDict(vcInfos[pod.virtualCluster].resourcesUsed, pod.resourcesUsed, add);
+      }
+    }
+    // guaranteed resources
     const nodes = await fetchNodes(true);
-    vcInfos['default'].resourceAvailable = {
+    vcInfos['default'].resourcesGuaranteed = {
       cpu: nodes.reduce((sum, node) => sum + k8s.atoi(node.status.capacity.cpu), 0),
       memory: nodes.reduce((sum, node) => sum + k8s.convertMemoryMb(node.status.capacity.memory), 0),
-      gpu: nodes.reduce((sum, node) => sum + k8s.atoi(node.status.capacity['nvidia.com/gpu']), 0),
+      gpu: nodes.reduce((sum, node) =>
+        sum + k8s.atoi(node.status.capacity['nvidia.com/gpu']) + k8s.atoi(node.status.capacity['amd.com/gpu']), 0),
     };
+    // total resources
     const preemptedNodes = await fetchNodes(false);
     vcInfos['default'].resourcesTotal = {
       cpu: preemptedNodes.reduce((sum, node) => sum + k8s.atoi(node.status.capacity.cpu), 0),
       memory: preemptedNodes.reduce((sum, node) => sum + k8s.convertMemoryMb(node.status.capacity.memory), 0),
-      gpu: preemptedNodes.reduce((sum, node) => sum + k8s.atoi(node.status.capacity['nvidia.com/gpu']), 0),
+      gpu: preemptedNodes.reduce((sum, node) =>
+        sum + k8s.atoi(node.status.capacity['nvidia.com/gpu']) + k8s.atoi(node.status.capacity['amd.com/gpu']), 0),
     };
-    mergeDict(vcInfos['default'].resourcesTotal, vcInfos['default'].resourceAvailable, (x, y) => x + y);
+    mergeDict(vcInfos['default'].resourcesTotal, vcInfos['default'].resourcesGuaranteed, add);
   }
 
   // add capacity, maxCapacity, usedCapacity for compatibility
@@ -242,7 +278,7 @@ const getVcList = async () => {
 
   // add GPUs, vCores for compatibility
   for (let vc of Object.keys(vcInfos)) {
-    for (let resource of ['resourcesUsed', 'resourceAvailable', 'resourcesTotal']) {
+    for (let resource of ['resourcesUsed', 'resourcesGuaranteed', 'resourcesTotal']) {
       for (let [k, v] of [['vCores', 'cpu'], ['GPUs', 'gpu']]) {
         vcInfos[vc][resource][k] = vcInfos[vc][resource][v];
       }
