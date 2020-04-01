@@ -24,6 +24,7 @@ const createError = require('@pai/utils/error');
 const hived = require('@pai/middlewares/v2/hived');
 const {enabledHived} = require('@pai/config/launcher');
 const protocolSchema = require('@pai/config/v2/protocol');
+const asyncHandler = require('@pai/middlewares/v2/asyncHandler');
 
 const mustacheWriter = new mustache.Writer();
 
@@ -185,12 +186,12 @@ const protocolSubmitMiddleware = [
     res.locals.protocol = protocolRender(res.locals.protocol);
     next();
   },
-  async (req, res, next) => {
+  asyncHandler(async (req, res, next) => {
     if (enabledHived) {
       res.locals.protocol = await hived.validate(res.locals.protocol, req.user.username);
     }
     next();
-  },
+  }),
 ];
 
 // module exports

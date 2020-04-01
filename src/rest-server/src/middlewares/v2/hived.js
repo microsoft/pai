@@ -52,8 +52,8 @@ const getCellQuota = async (virtualCluster) => {
     if (curr.cellPriority === -1) {
       continue;
     }
-    if (curr.children) {
-      cellQueue.push(...curr.children);
+    if (curr.cellChildren) {
+      cellQueue.push(...curr.cellChildren);
     } else {
       cellQuota += 1;
     }

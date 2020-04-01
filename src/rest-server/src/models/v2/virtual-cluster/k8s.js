@@ -220,11 +220,10 @@ const getVcList = async () => {
         if (curr.cellPriority === -1) {
           continue;
         }
-        if (curr.children) {
-          curr.children.forEach((child) => {
-            child.gpuType = curr.gpuType;
-            child.cellHealthiness = curr.cellHealthiness;
-            cellQueue.push(child);
+        if (curr.cellChildren) {
+          curr.cellChildren.forEach((cellChild) => {
+            cellChild.gpuType = curr.gpuType;
+            cellQueue.push(cellChild);
           });
         } else {
           if (curr.gpuType in resourceUnits) {
