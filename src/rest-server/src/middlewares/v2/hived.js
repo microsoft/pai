@@ -23,8 +23,6 @@ const hivedSchema = require('@pai/config/v2/hived');
 const {resourceUnits} = require('@pai/config/vc');
 const {hivedWebserviceUri} = require('@pai/config/launcher');
 
-const cpuUnits = Object.values(resourceUnits).filter((v) => v.gpu === 0);
-const gpuUnits = Object.values(resourceUnits).filter((v) => v.gpu > 0);
 
 const convertPriority = (priorityClass='test') => {
   // TODO: make it a cluster-wise config
@@ -38,16 +36,22 @@ const convertPriority = (priorityClass='test') => {
   return priorityClass in priorityMap ? priorityMap[priorityClass] : null;
 };
 
-const getCellQuota = async (virtualCluster) => {
+const getCellStatus = async (virtualCluster) => {
   let vcStatus;
   try {
     vcStatus = (await axios.get(`${hivedWebserviceUri}/v1/inspect/clusterstatus/virtualclusters/${virtualCluster}`)).data;
   } catch (error) {
     logger.warn('Failed to inspect vc from hived scheduler: ', error.response ? error.response.data : error);
-    return Number.MAX_SAFE_INTEGER;
+    return {
+      cellQuota: Number.MAX_SAFE_INTEGER,
+      cellUnits: Object.values(resourceUnits),
+    };
   }
 
   let cellQuota = 0;
+  const cellUnits = [...new Set(vcStatus.map((cell) => cell.gpuType))]
+    .filter((key) => key in resourceUnits)
+    .reduce((arr, key) => ([...arr, resourceUnits[key]]), []);
   const cellQueue = [...vcStatus];
   while (cellQueue.length > 0) {
     const curr = cellQueue.shift();
@@ -60,7 +64,7 @@ const getCellQuota = async (virtualCluster) => {
       cellQuota += 1;
     }
   }
-  return cellQuota;
+  return {cellQuota, cellUnits};
 };
 
 const hivedValidate = async (protocolObj, username) => {
@@ -69,12 +73,17 @@ const hivedValidate = async (protocolObj, username) => {
   }
   let hivedConfig = null;
   const affinityGroups = {};
+  let opportunistic = false;
   const gangAllocation = ('extras' in protocolObj && protocolObj.extras.gangAllocation === false) ? false : true;
   const virtualCluster = ('defaults' in protocolObj && protocolObj.defaults.virtualCluster != null) ?
     protocolObj.defaults.virtualCluster : 'default';
 
   if ('extras' in protocolObj && 'hivedScheduler' in protocolObj.extras) {
     hivedConfig = protocolObj.extras.hivedScheduler;
+    if (hivedConfig && hivedConfig.jobPriorityClass === 'oppo') {
+      opportunistic = true;
+    }
+
     for (let taskRole of Object.keys(hivedConfig.taskRoles || {})) {
       // must be a valid taskRole
       if (!(taskRole in protocolObj.taskRoles)) {
@@ -164,13 +173,17 @@ const hivedValidate = async (protocolObj, username) => {
 
   // generate podSpec for every taskRole
   let requestCellNumber = 0;
+  const {cellQuota, cellUnits} = await getCellStatus(virtualCluster);
   for (let taskRole of Object.keys(protocolObj.taskRoles)) {
     const {gpu = 0, cpu, memoryMB} = protocolObj.taskRoles[taskRole].resourcePerInstance;
     const cellNumber = gpu === 0 ? cpu : gpu;
     requestCellNumber += protocolObj.taskRoles[taskRole].instances * cellNumber;
 
-    let cpuPerCell = gpu === 0 ? 1 : Math.min(...Array.from(gpuUnits, (v) => v.cpu));
-    let memoryMBPerCell = Math.min(...Array.from(gpu === 0 ? cpuUnits : gpuUnits, (v) => v.memory));
+    const resourcePerCell = {};
+    for (const t of ['gpu', 'cpu', 'memory']) {
+      resourcePerCell[t] = Math.min(
+        ...Array.from(opportunistic ? Object.values(resourceUnits) : cellUnits, (v) => v[t]));
+    }
 
     const podSpec = {
       virtualCluster,
@@ -183,8 +196,9 @@ const hivedValidate = async (protocolObj, username) => {
     if (hivedConfig && hivedConfig.taskRoles && taskRole in hivedConfig.taskRoles) {
       podSpec.gpuType = hivedConfig.taskRoles[taskRole].gpuType;
       if (podSpec.gpuType !== null) {
-        cpuPerCell = resourceUnits[podSpec.gpuType].cpu;
-        memoryMBPerCell = resourceUnits[podSpec.gpuType].memory;
+        for (const t of ['gpu', 'cpu', 'memory']) {
+          resourcePerCell[t] = resourceUnits[podSpec.gpuType][t];
+        }
       }
       podSpec.reservationId = hivedConfig.taskRoles[taskRole].reservationId;
 
@@ -202,36 +216,26 @@ const hivedValidate = async (protocolObj, username) => {
       };
     }
 
-    if (gpu === 0) {
-      if (cpuUnits.length === 0) {
-        throw createError('Bad Request', 'InvalidProtocolError', 'Hived error: No CPU cell configured.');
-      }
-      if (memoryMB > memoryMBPerCell * cellNumber) {
-        throw createError(
-          'Bad Request',
-          'InvalidProtocolError',
-          `Hived error: ${taskRole} requests ${memoryMB}MB memory; allow ${memoryMBPerCell}MB memory per CPU.`
-        );
-      }
-    } else {
-      if (gpuUnits.length === 0) {
-        throw createError('Bad Request', 'InvalidProtocolError', 'Hived error: No GPU cell configured.');
-      }
-      if (cpu > cpuPerCell * cellNumber || memoryMB > memoryMBPerCell * cellNumber) {
-        throw createError(
-          'Bad Request',
-          'InvalidProtocolError',
-          `Hived error: ${taskRole} requests ${cpu} CPU, ${memoryMB}MB memory; allow ${cpuPerCell} CPU, ${memoryMBPerCell}MB memory per GPU.`
-        );
-      }
+    if (gpu > resourcePerCell.gpu * cellNumber ||
+        cpu > resourcePerCell.cpu * cellNumber ||
+        memoryMB > resourcePerCell.memory * cellNumber) {
+      throw createError(
+        'Bad Request',
+        'InvalidProtocolError',
+        `Hived error: ${taskRole} requests ${gpu} GPU, ${cpu} CPU, ${memoryMB}MB memory; ` +
+        `sku allows ${resourcePerCell.gpu} GPU, ${resourcePerCell.cpu} CPU, ${resourcePerCell.memory}MB memory per cell.`
+      );
     }
 
     protocolObj.taskRoles[taskRole].hivedPodSpec = podSpec;
   }
 
-  const totalCellNumber = await getCellQuota(virtualCluster);
-  if (requestCellNumber > totalCellNumber && gangAllocation && !(hivedConfig && hivedConfig.jobPriorityClass === 'oppo')) {
-    throw createError('Bad Request', 'InvalidProtocolError', `Hived error: exceed ${totalCellNumber} GPU quota in ${virtualCluster} VC.`);
+  if (requestCellNumber > cellQuota && gangAllocation && !opportunistic) {
+    throw createError(
+      'Bad Request',
+      'InvalidProtocolError',
+      `Hived error: exceed ${cellQuota} GPU quota in ${virtualCluster} VC.`
+    );
   }
 
   return protocolObj;
