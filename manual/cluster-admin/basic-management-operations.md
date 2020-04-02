@@ -38,7 +38,7 @@ On the homepage, there is an `abnormal jobs` section for administrators. A job i
 
 There is a shortcut to k8s dashboard on the webportal. However, it needs special authentication for security issues.
 
-   <img src="./imgs/abnormal-jobs.png" width="100%" height="100%" />
+   <img src="./imgs/k8s-dashboard.png" width="100%" height="100%" />
 
 To access it, we need to do following steps on the dev box machine.
 

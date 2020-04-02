@@ -1,4 +1,4 @@
-# How to Install OpenPAI
+# Installation Guide
 
 There are breaking changes since OpenPAI `v0.18.0`. Before `v0.18.0`, OpenPAI was based on Yarn and Kubernetes, and data was managed by HDFS. Since `v0.18.0` (we might want to change this to v1.0 later after release), OpenPAI has switched to a pure Kubernetes-based architecture. Many new features, such as `AAD authorization`, `Hivedscheduler`, `Kube Runtime`, `Marketplace`, etc., are also included. If you want to install the Yarn-based OpenPAI, please stay with `v0.14.0`.
 
