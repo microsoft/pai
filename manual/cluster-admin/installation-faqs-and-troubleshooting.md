@@ -4,7 +4,7 @@
 
 **1. How to include worker nodes with different hardwares?**
 
-In the [installation guide](./installation-guide.md), we assume all worker nodes should have the same hardware. If it is not your case, we recommend you to include only one type during installation, then follow [How to Add Nodes](#how-to-add-nodes) to add nodes with different types. There is also [an example](./how-to-set-up-virutal-clusters.md#different-hardwares-in-worker-nodes) about how to configure hived scheduler when you have different GPU types in worker nodes.
+In the [installation guide](./installation-guide.md), we assume all worker nodes should have the same hardware. If it is not your case, we recommend you to include only one type during installation, then follow [How to Add Nodes](#how-to-add-nodes) to add nodes with different types. There is also [an example](./how-to-set-up-virtual-clusters.md#different-hardwares-in-worker-nodes) about how to configure hived scheduler when you have different GPU types in worker nodes.
 
 **2. How to include CPU-only worker nodes?**
 
