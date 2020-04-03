@@ -38,7 +38,7 @@ const hivedSchema = {
                 '^[A-Za-z0-9._~]+$': {
                   type: 'object',
                   properties: {
-                    gpuType: {
+                    skuType: {
                       type: ['string', 'null'],
                       default: null,
                     },
