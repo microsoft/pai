@@ -6,7 +6,7 @@
 4. [How to Manage Users and Groups](./how-to-manage-users-and-groups.md)
 5. [How to Setup Kubernetes Persistent Volumes as Storage](./how-to-set-up-pv-storage.md) (this document)
     - [Create PV/PVC on Kubernetes](#create-pvpvc-on-kubernetes)
-    - [Confirm Worker Nodes Environment](#confirm-worker-nodes-environment)
+    - [Confirm Environment on Worker Nodes](#confirm-environment-on-worker-nodes)
     - [Assign Storage to PAI Groups](#assign-storage-to-pai-groups)
 6. [How to Set Up Virtual Clusters](./how-to-set-up-virtual-clusters.md)
 7. [How to Add and Remove Nodes](./how-to-add-and-remove-nodes.md)
@@ -140,7 +140,7 @@ selector:
 
 More details on Azure File volume could be found in [this document](https://docs.microsoft.com/en-us/azure/aks/azure-files-volume).
 
-## Confirm Worker Nodes Environment
+## Confirm Environment on Worker Nodes
 
 The [notice in Kubernetes' document](https://kubernetes.io/docs/concepts/storage/persistent-volumes/#persistent-volumes) mentions: helper program may be required to consume certain type of PersistentVolume. For example, all worker nodes should have `nfs-common` installed if you want to use `NFS` PV. You can confirm it using the command `apt install nfs-common` on every worker node.
 

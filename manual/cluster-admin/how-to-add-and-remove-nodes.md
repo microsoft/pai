@@ -180,7 +180,7 @@ machine-list:
 ./paictl.py service start -n hivedscheduler rest-server
 ```
 
-If you have configured any PV/PVC storage, please confirm the added worker node meets the PV's requirements. See [Confirm Worker Nodes Environment](./how-to-set-up-pv-storage.md#confirm-worker-nodes-environment) for details.
+If you have configured any PV/PVC storage, please confirm the added worker node meets the PV's requirements. See [Confirm Worker Nodes Environment](./how-to-set-up-pv-storage.md#confirm-environment-on-worker-nodes) for details.
 
 ## How to Remove Nodes
 
