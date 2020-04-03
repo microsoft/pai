@@ -1,5 +1,22 @@
 # How to Set Up Virtual Clusters
 
+1. [Installation Guide](./installation-guide.md)
+2. [Installation FAQs and Troubleshooting](./installation-faqs-and-troubleshooting.md)
+3. [Basic Management Operations](./basic-management-operations.md)
+4. [How to Manage Users and Groups](./how-to-manage-users-and-groups.md)
+5. [How to Setup Kubernetes Persistent Volumes as Storage](./how-to-set-up-pv-storage.md)
+6. [How to Set Up Virtual Clusters](./how-to-set-up-virtual-clusters.md) (this document)
+    - [What is Hived Scheduler and How to Configure it](#what-is-hived-scheduler-and-how-to-configure-it)
+    - [How to Set Up Virtuall Clusters](#how-to-set-up-virtuall-clusters)
+    - [How to Grant VC to Users](#how-to-grant-vc-to-users)
+    - [Different Hardwares in Worker Nodes](#different-hardwares-in-worker-nodes)
+7. [How to Add and Remove Nodes](./how-to-add-and-remove-nodes.md)
+8. [How to use CPU Nodes](./how-to-use-cpu-nodes.md)
+9. [How to Customize Cluster by Plugins](./how-to-customize-cluster-by-plugins.md)
+10. [Troubleshooting](./troubleshooting.md)
+11. [How to Uninstall OpenPAI](./how-to-uninstall-openpai.md)
+12. [Upgrade Guide](./upgrade-guide.md)
+
 ## What is Hived Scheduler and How to Configure it
 
 HiveD is a standalone component of OpenPAI, designed to be a Kubernetes Scheduler Extender for Multi-Tenant GPU clusters. A multi-tenant GPU cluster assumes multiple tenants (teams) share the same GPU pool in a single physical cluster (PC) and provides some resource guarantees to each tenant. HiveD models each tenant as a virtual cluster (VC), so that one tenant can use its own VC as if it is a private cluster, while it can also use other VCs' free resource at lower priority.

@@ -1,8 +1,23 @@
 # Installation Guide
 
+1. [Installation Guide](./installation-guide.md) (this document)
+    - [From Scratch](#from-scratch)
+    - [From Previous Deployment](#from-previous-deployment)
+2. [Installation FAQs and Troubleshooting](./installation-faqs-and-troubleshooting.md)
+3. [Basic Management Operations](./basic-management-operations.md)
+4. [How to Manage Users and Groups](./how-to-manage-users-and-groups.md)
+5. [How to Setup Kubernetes Persistent Volumes as Storage](./how-to-set-up-pv-storage.md)
+6. [How to Set Up Virtual Clusters](./how-to-set-up-virtual-clusters.md)
+7. [How to Add and Remove Nodes](./how-to-add-and-remove-nodes.md)
+8. [How to use CPU Nodes](./how-to-use-cpu-nodes.md)
+9. [How to Customize Cluster by Plugins](./how-to-customize-cluster-by-plugins.md)
+10. [Troubleshooting](./troubleshooting.md)
+11. [How to Uninstall OpenPAI](./how-to-uninstall-openpai.md)
+12. [Upgrade Guide](./upgrade-guide.md)
+
 There are breaking changes since OpenPAI `v0.18.0`. Before `v0.18.0`, OpenPAI was based on Yarn and Kubernetes, and data was managed by HDFS. Since `v0.18.0` (we might want to change this to v1.0 later after release), OpenPAI has switched to a pure Kubernetes-based architecture. Many new features, such as `AAD authorization`, `Hivedscheduler`, `Kube Runtime`, `Marketplace`, etc., are also included. If you want to install the Yarn-based OpenPAI, please stay with `v0.14.0`.
 
-Here we provide installation guides of two situations: 1. [Installation from fresh new machines](#from-scratch) 2. [Installation from deployment of old OpenPAI version](#from-previous-deployment).
+Here we provide installation guides of two situations: 1. [Installation from fresh new machines](#from-scratch) 2. [Installation from old OpenPAI version](#from-previous-deployment).
 
 ## From Scratch
 

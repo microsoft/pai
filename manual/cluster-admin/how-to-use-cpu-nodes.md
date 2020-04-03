@@ -1,5 +1,20 @@
 # How to use CPU Nodes
 
+1. [Installation Guide](./installation-guide.md)
+2. [Installation FAQs and Troubleshooting](./installation-faqs-and-troubleshooting.md)
+3. [Basic Management Operations](./basic-management-operations.md)
+4. [How to Manage Users and Groups](./how-to-manage-users-and-groups.md)
+5. [How to Setup Kubernetes Persistent Volumes as Storage](./how-to-set-up-pv-storage.md)
+6. [How to Set Up Virtual Clusters](./how-to-set-up-virtual-clusters.md)
+7. [How to Add and Remove Nodes](./how-to-add-and-remove-nodes.md)
+8. [How to use CPU Nodes](./how-to-use-cpu-nodes.md) (this document)
+  - [How to Add CPU Nodes and Set Up CPU-only VC](#how-to-add-cpu-nodes-and-set-up-cpu-only-vc)
+  - [Submit CPU-only Jobs](#submit-cpu-only-jobs)
+9. [How to Customize Cluster by Plugins](./how-to-customize-cluster-by-plugins.md)
+10. [Troubleshooting](./troubleshooting.md)
+11. [How to Uninstall OpenPAI](./how-to-uninstall-openpai.md)
+12. [Upgrade Guide](./upgrade-guide.md)
+
 ## How to Add CPU Nodes and Set Up CPU-only VC
 
 In current release, support for CPU nodes is limited. The [installation guide](./installation-guide.md) won't work if you only have CPU worker nodes. However, after you set up the cluster with GPU worker nodes, you can add CPU worker nodes and CPU-only virtual cluster. This section is a detailed guide.

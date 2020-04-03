@@ -1,5 +1,22 @@
 # How to Setup Kubernetes Persistent Volumes as Storage
 
+1. [Installation Guide](./installation-guide.md)
+2. [Installation FAQs and Troubleshooting](./installation-faqs-and-troubleshooting.md)
+3. [Basic Management Operations](./basic-management-operations.md)
+4. [How to Manage Users and Groups](./how-to-manage-users-and-groups.md)
+5. [How to Setup Kubernetes Persistent Volumes as Storage](./how-to-set-up-pv-storage.md) (this document)
+    - [Create PV/PVC on Kubernetes](#create-pvpvc-on-kubernetes)
+    - [Confirm Worker Nodes Environment](#confirm-worker-nodes-environment)
+    - [Assign Storage to PAI Groups](#assign-storage-to-pai-groups)
+6. [How to Set Up Virtual Clusters](./how-to-set-up-virtual-clusters.md)
+7. [How to Add and Remove Nodes](./how-to-add-and-remove-nodes.md)
+8. [How to use CPU Nodes](./how-to-use-cpu-nodes.md)
+9. [How to Customize Cluster by Plugins](./how-to-customize-cluster-by-plugins.md)
+10. [Troubleshooting](./troubleshooting.md)
+11. [How to Uninstall OpenPAI](./how-to-uninstall-openpai.md)
+12. [Upgrade Guide](./upgrade-guide.md)
+
+
 This document describes how to use Kubernetes Persistent Volumes (PV) as storage on PAI. To set up existing storage (nfs, samba, Azure blob, etc.), you need:
 
   1. Create PV and PVC as PAI storage on Kubernetes.
@@ -14,118 +31,118 @@ There're many approches to create PV/PVC, you could refer to [Kubernetes docs](h
 
 ### NFS
 
-    ```yaml
-    # NFS Persistent Volume
-    apiVersion: v1
-    kind: PersistentVolume
-    metadata:
-      name: nfs-storage-pv
-      labels:
-        name: nfs-storage
-    spec:
-      capacity:
-        storage: 10Gi
-      volumeMode: Filesystem
-      accessModes:
-        - ReadWriteMany
-      persistentVolumeReclaimPolicy: Retain
-      mountOptions:
-        - nfsvers=4.1
-      nfs:
-        path: /data
-        server: 10.0.0.1
-    ---
-    # NFS Persistent Volume Claim
-    apiVersion: v1
-    kind: PersistentVolumeClaim
-    metadata:
-      name: nfs-storage
-    # labels:
-    #   share: "false"      # to mount sub path on PAI
-    spec:
-      accessModes:
-        - ReadWriteMany
-      volumeMode: Filesystem
-      resources:
-        requests:
-          storage: 10Gi    # no more than PV capacity
-      selector:
-        matchLabels:
-          name: nfs-storage # corresponding to PV label
-    ```
+```yaml
+# NFS Persistent Volume
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: nfs-storage-pv
+  labels:
+    name: nfs-storage
+spec:
+  capacity:
+    storage: 10Gi
+  volumeMode: Filesystem
+  accessModes:
+    - ReadWriteMany
+  persistentVolumeReclaimPolicy: Retain
+  mountOptions:
+    - nfsvers=4.1
+  nfs:
+    path: /data
+    server: 10.0.0.1
+---
+# NFS Persistent Volume Claim
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: nfs-storage
+# labels:
+#   share: "false"      # to mount sub path on PAI
+spec:
+  accessModes:
+    - ReadWriteMany
+  volumeMode: Filesystem
+  resources:
+    requests:
+      storage: 10Gi    # no more than PV capacity
+  selector:
+    matchLabels:
+      name: nfs-storage # corresponding to PV label
+```
 
-    Save the above file as `nfs-storage.yaml` and run `kubectl apply -f nfs-storage.yaml` to create a PV named `nfs-storage-pv` and a PVC named `nfs-storage` for nfs server `nfs://10.0.0.1:/data`. The PVC will be bound to specific PV through label selector, using label `name: nfs-storage`.
+Save the above file as `nfs-storage.yaml` and run `kubectl apply -f nfs-storage.yaml` to create a PV named `nfs-storage-pv` and a PVC named `nfs-storage` for nfs server `nfs://10.0.0.1:/data`. The PVC will be bound to specific PV through label selector, using label `name: nfs-storage`.
 
-    Users could use PVC name `nfs-storage` as storage name to mount this nfs storage in their jobs.
+Users could use PVC name `nfs-storage` as storage name to mount this nfs storage in their jobs.
 
-    If you want to configure the above nfs as personal storage so that each user could only visit their own directory on PAI like Linux home directory, for example, Alice can only mount `/data/Alice` while Bob can only mount `/data/Bob`, you could add a `share: "false"` label to PVC. In this case, PAI will use `${PAI_USER_NAME}` as sub path when mounting to job containers.
+If you want to configure the above nfs as personal storage so that each user could only visit their own directory on PAI like Linux home directory, for example, Alice can only mount `/data/Alice` while Bob can only mount `/data/Bob`, you could add a `share: "false"` label to PVC. In this case, PAI will use `${PAI_USER_NAME}` as sub path when mounting to job containers.
 
 ### Samba
 
-    Please refer to [this document](https://github.com/Azure/kubernetes-volume-drivers/blob/master/flexvolume/smb/README.md) to install cifs/smb FlexVolume driver and create PV/PVC for Samba.
+Please refer to [this document](https://github.com/Azure/kubernetes-volume-drivers/blob/master/flexvolume/smb/README.md) to install cifs/smb FlexVolume driver and create PV/PVC for Samba.
 
 ### Azure Blob
 
-    Please refer to [this document](https://github.com/Azure/kubernetes-volume-drivers/blob/master/flexvolume/blobfuse/README.md) to install blobfuse FlexVolume driver and create PV/PVC for Azure Blob.
+Please refer to [this document](https://github.com/Azure/kubernetes-volume-drivers/blob/master/flexvolume/blobfuse/README.md) to install blobfuse FlexVolume driver and create PV/PVC for Azure Blob.
 
 ### Azure File
 
-    First create a Kubernetes secret to access the Azure file share.
+First create a Kubernetes secret to access the Azure file share.
 
-    ```sh
-    kubectl create secret generic azure-secret --from-literal=azurestorageaccountname=$AKS_PERS_STORAGE_ACCOUNT_NAME --from-literal=azurestorageaccountkey=$STORAGE_KEY
-    ```
+```sh
+kubectl create secret generic azure-secret --from-literal=azurestorageaccountname=$AKS_PERS_STORAGE_ACCOUNT_NAME --from-literal=azurestorageaccountkey=$STORAGE_KEY
+```
 
-    Then create PV/PVC for the file azure.
+Then create PV/PVC for the file azure.
 
-    ```yaml
-    # Azure File Persistent Volume
-    apiVersion: v1
-    kind: PersistentVolume
-    metadata:
-      name: azure-file-storage-pv
-      labels:
-        name: azure-file-storage
-    spec:
-    capacity:
-      storage: 5Gi
-    accessModes:
-      - ReadWriteMany
-    storageClassName: azurefile
-    azureFile:
-      secretName: azure-secret
-      shareName: aksshare
-      readOnly: false
-    mountOptions:
-      - dir_mode=0777
-      - file_mode=0777
-      - uid=1000
-      - gid=1000
-      - mfsymlinks
-      - nobrl
-    ---
-    # Azure File Persistent Volume Claim
-    apiVersion: v1
-    kind: PersistentVolumeClaim
-    metadata:
-      name: azure-file-storage
-    spec:
-      accessModes:
-        - ReadWriteMany
-    storageClassName: azurefile
-    resources:
-      requests:
-        storage: 5Gi
-    selector:
-      matchLabels:
-        name: azure-file-storage
-    ```
+```yaml
+# Azure File Persistent Volume
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: azure-file-storage-pv
+  labels:
+    name: azure-file-storage
+spec:
+capacity:
+  storage: 5Gi
+accessModes:
+  - ReadWriteMany
+storageClassName: azurefile
+azureFile:
+  secretName: azure-secret
+  shareName: aksshare
+  readOnly: false
+mountOptions:
+  - dir_mode=0777
+  - file_mode=0777
+  - uid=1000
+  - gid=1000
+  - mfsymlinks
+  - nobrl
+---
+# Azure File Persistent Volume Claim
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: azure-file-storage
+spec:
+  accessModes:
+    - ReadWriteMany
+storageClassName: azurefile
+resources:
+  requests:
+    storage: 5Gi
+selector:
+  matchLabels:
+    name: azure-file-storage
+```
 
-    More details on Azure File volume could be found in [this document](https://docs.microsoft.com/en-us/azure/aks/azure-files-volume).
+More details on Azure File volume could be found in [this document](https://docs.microsoft.com/en-us/azure/aks/azure-files-volume).
 
 ## Confirm Worker Nodes Environment
 
-The [notice in Kubernetes' document](https://kubernetes.io/docs/concepts/storage/persistent-volumes/#persistent-volumes) mentions: helper program may be required to consume certain type of PersistentVolume. For example, `nfs-common` package is needed to mount `NFS` PV on Ubuntu. Specifically, in OpenPAI, all worker nodes should have `nfs-common` installed if you want to use `NFS` PV. Please confirm it using the command `apt install nfs-common` on every worker node. 
+The [notice in Kubernetes' document](https://kubernetes.io/docs/concepts/storage/persistent-volumes/#persistent-volumes) mentions: helper program may be required to consume certain type of PersistentVolume. For example, all worker nodes should have `nfs-common` installed if you want to use `NFS` PV. You can confirm it using the command `apt install nfs-common` on every worker node.
 
 Since different PVs have different requirements, you should check the environment according to document of the PV.
 
