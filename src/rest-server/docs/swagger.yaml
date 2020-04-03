@@ -67,6 +67,32 @@ paths:
                   - version
                   - launcherType
                   - authnMethod
+  /api/v2/token:
+    get:
+      tags:
+        - token
+      summary: Get your currently signed tokens.
+      description: Get your currently signed tokens.
+      operationId: getToken
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Succeeded
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  tokens:
+                    type: array
+                    items:
+                      type: string
+                    description: JWT string list
+                required:
+                  - tokens
+        '401':
+          $ref: '#/components/responses/UnauthorizedUserError'
   '/api/v2/token/{token}':
     delete:
       tags:
@@ -137,6 +163,66 @@ paths:
         '200':
           description: Succeeded
           content: {}
+  /api/v2/basic/login:
+    post:
+      tags:
+        - authen
+      summary: Get an access token using username and password.
+      description: >-
+        Authenticated and get an access token in the system (basic
+        authentication mode only).
+      operationId: requestToken
+      requestBody:
+        description: Basic authentication account
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                  description: your username
+                password:
+                  type: string
+                  description: your password
+                expiration:
+                  type: integer
+                  description: expiration time in seconds
+                hasGitHubPAT:
+                  type: boolean
+              required:
+                - username
+                - password
+        required: true
+      responses:
+        '200':
+          description: Succeeded
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+                    description: your access token
+                  user:
+                    type: string
+                    description: username
+                  admin:
+                    type: boolean
+                    description: true if user is admin
+                required:
+                  - token
+                  - user
+                  - admin
+        '400':
+          description: NoUserError or IncorrectPassworkError
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
+        '500':
+          $ref: '#/components/responses/UnknownError'
   /api/v2/basic/logout:
     post:
       tags:
