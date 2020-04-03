@@ -17,7 +17,7 @@ Then, the groups will be shown on that page (refer to the red box in the followi
 
 ## Users and Groups in AAD Mode
 
-OpenPAI can be configured to use Azure Active Directory (AAD) for user authentication instead of the default username/password authentication. In AAD mode, you can sign in to an OpenPAI cluster by using your AAD authentication token.
+OpenPAI can be configured to use Azure Active Directory (AAD) for user authentication instead of the default basic authentication. In AAD mode, you can sign in to an OpenPAI cluster by using your AAD authentication token.
 
 ### How to Set Up AAD
 

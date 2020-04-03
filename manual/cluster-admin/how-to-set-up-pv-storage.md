@@ -1,24 +1,18 @@
 # How to Setup Kubernetes Persistent Volumes as Storage
 
-This document describes how to use Kubernetes Persistent Volumes (PV) as storage on PAI.
+This document describes how to use Kubernetes Persistent Volumes (PV) as storage on PAI. To set up existing storage (nfs, samba, Azure blob, etc.), you need:
 
-A pure k8s version PAI v0.18.0 cluster or later is required before you start.
+  1. Create PV and PVC as PAI storage on Kubernetes.
+  2. Confirm the worker nodes have proper package to mount the PVC. For example, the `NFS` PVC requires package `nfs-common` to work on Ubuntu.
+  3. Assign PVC to specific user groups.
 
-
-## Introduction
-
-To use existing storage (nfs, samba, Azure blob, etc.) on PAI, admin could create PV on Kubernetes and claim as PAI storage. Then users could use those PV/PVC as storage in their jobs.
-Here's a detailed walkthrough.
-
+Users could mount those PV/PVC their jobs after you set up the storage properly. The name of PVC is used to onboard on PAI.
 
 ## Create PV/PVC on Kubernetes
 
-Admin need to create PV for storage and create PVC bound to corresponding PV.
-The name of PVC is used to onboard on PAI.
-
 There're many approches to create PV/PVC, you could refer to [Kubernetes docs](https://kubernetes.io/docs/concepts/storage/persistent-volumes/) if you are not familiar yet. Followings are some commonly used PV/PVC examples.
 
-* NFS
+### NFS
 
     ```yaml
     # NFS Persistent Volume
@@ -66,15 +60,15 @@ There're many approches to create PV/PVC, you could refer to [Kubernetes docs](h
 
     If you want to configure the above nfs as personal storage so that each user could only visit their own directory on PAI like Linux home directory, for example, Alice can only mount `/data/Alice` while Bob can only mount `/data/Bob`, you could add a `share: "false"` label to PVC. In this case, PAI will use `${PAI_USER_NAME}` as sub path when mounting to job containers.
 
-* Samba
+### Samba
 
     Please refer to [this document](https://github.com/Azure/kubernetes-volume-drivers/blob/master/flexvolume/smb/README.md) to install cifs/smb FlexVolume driver and create PV/PVC for Samba.
 
-* Azure Blob
+### Azure Blob
 
     Please refer to [this document](https://github.com/Azure/kubernetes-volume-drivers/blob/master/flexvolume/blobfuse/README.md) to install blobfuse FlexVolume driver and create PV/PVC for Azure Blob.
 
-* Azure File
+### Azure File
 
     First create a Kubernetes secret to access the Azure file share.
 
@@ -129,50 +123,66 @@ There're many approches to create PV/PVC, you could refer to [Kubernetes docs](h
 
     More details on Azure File volume could be found in [this document](https://docs.microsoft.com/en-us/azure/aks/azure-files-volume).
 
+## Confirm Worker Nodes Environment
+
+The [notice in Kubernetes' document](https://kubernetes.io/docs/concepts/storage/persistent-volumes/#persistent-volumes) mentions: helper program may be required to consume certain type of PersistentVolume. For example, `nfs-common` package is needed to mount `NFS` PV on Ubuntu. Specifically, in OpenPAI, all worker nodes should have `nfs-common` installed if you want to use `NFS` PV. Please confirm it using the command `apt install nfs-common` on every worker node. 
+
+Since different PVs have different requirements, you should check the environment according to document of the PV.
 
 ## Assign Storage to PAI Groups
 
-PAI uses Kubernetes PVC name as storage name.
-To use Kubernetes volumes in PAI, admin need to assign storage to PAI groups first.
+The PVC name is used as storage name in OpenPAI. After you have set up the PV/PVC and checked the environment, you need to assign storage to users. In OpenPAI, the name of the PVC is used as the storage name, and the access of different storages is managed by [user groups](./how-to-manage-users-and-groups.md). 
 
-1. Service configuration file
+There are two ways to assign storage to user groups: 
 
-    For AAD mode, storage could be configured in `service-configuration.yaml` file.
+### 1. Modify service configuration. 
 
-    ```yaml
-    authentication:
+It is only feasible in [AAD authentication clusters](./how-to-manage-users-and-groups.md#users-and-groups-in-aad-mode). If you are using [basic authentication](./how-to-manage-users-and-groups.md#users-and-groups-in-basic-authentication-mode), please refer to [Use RESTful API](#use-restful-api).
+
+To assign storage to groups, modify your [`services-configuration.yaml` file](./basic-management-operations.md#pai-service-management-and-paictl):
+
+```yaml
+authentication:
+...
+group-manager:
     ...
-    group-manager:
-        ...
-        grouplist:
-        - groupname: group1
-            externalName: sg1
-            extension:
-              acls:
-                admin: false
-                virtualClusters: ["vc1"]
-                storageConfigs: ["azure-file-storage"]
-        - groupname: group2
-            externalName: sg2
-            extension:
-              acls:
-                admin: false
-                virtualClusters: ["vc1", "vc2"]
-                storageConfigs: ["nfs-storage"]
-    ```
+    grouplist:
+    - groupname: group1
+        externalName: sg1
+        extension:
+          acls:
+            admin: false
+            virtualClusters: ["vc1"]
+            storageConfigs: ["azure-file-storage"]
+    - groupname: group2
+        externalName: sg2
+        extension:
+          acls:
+            admin: false
+            virtualClusters: ["vc1", "vc2"]
+            storageConfigs: ["nfs-storage"]
+```
 
-    The first storage in `storageConfigs` list will be treated as default storage for this group.
+The `storageConfigs` field is used to assign storage. You should fill in the corresponding PVC name. After you modify the file, push it to the cluster and restart rest-server:
 
-2. RESTful API
+```bash
+./paictl.py service stop -n rest-server
+./paictl.py config push -p <config-folder> -m service
+./paictl.py service start -n rest-server
+```
 
-    [Group extension API](https://redocly.github.io/redoc/?url=https://raw.githubusercontent.com/microsoft/pai/master/src/rest-server/docs/swagger.yaml#operation/updateGroupExtension) could be used to create or update `storageConfigs` in a given group. Here's an example for request body:
+### 2. Use RESTful API
 
-    ```json
-    {
-      "acls": {
-        "admin": false,
-        "virtualClusters": ["vc1", "vc2"],
-        "storageConfigs": ["nfs-storage"]
-      }
-    }
-    ```
+This way is feasible in all clusters, including [AAD authentication clusters](./how-to-manage-users-and-groups.md#users-and-groups-in-aad-mode) and [basic authentication clusters](./how-to-manage-users-and-groups.md#users-and-groups-in-basic-authentication-mode).
+
+[Group extension API](https://redocly.github.io/redoc/?url=https://raw.githubusercontent.com/microsoft/pai/master/src/rest-server/docs/swagger.yaml#operation/updateGroupExtension) could be used to create or update `storageConfigs` in a given group. Here's an example for request body:
+
+```json
+{
+  "acls": {
+    "admin": false,
+    "virtualClusters": ["vc1", "vc2"],
+    "storageConfigs": ["nfs-storage"]
+  }
+}
+```

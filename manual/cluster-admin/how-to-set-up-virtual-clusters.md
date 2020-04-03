@@ -2,9 +2,9 @@
 
 ## What is Hived Scheduler and How to Configure it
 
-HiveD is a scheduler for deep learning workloads. As one standalone component of Microsoft OpenPAI, HiveD is designed to be a Kubernetes Scheduler Extender for Multi-Tenant GPU clusters. A multi-tenant GPU cluster assumes multiple tenants (teams) share the same GPU pool in a single physical cluster (PC) and provides some resource guarantees to each tenant. HiveD models each tenant as a virtual cluster (VC), so that one tenant can use its own VC as if it is a private cluster, while it can also use other VCs' free resource at lower priority.
+HiveD is a standalone component of OpenPAI, designed to be a Kubernetes Scheduler Extender for Multi-Tenant GPU clusters. A multi-tenant GPU cluster assumes multiple tenants (teams) share the same GPU pool in a single physical cluster (PC) and provides some resource guarantees to each tenant. HiveD models each tenant as a virtual cluster (VC), so that one tenant can use its own VC as if it is a private cluster, while it can also use other VCs' free resource at lower priority.
 
-Please refer to [this doc](https://github.com/microsoft/hivedscheduler/blob/master/doc/user-manual.md) to learn how to write hived scheduler configuration.
+Before we start, please read [this doc](https://github.com/microsoft/hivedscheduler/blob/master/doc/user-manual.md) to learn how to write hived scheduler configuration.
 
 ## How to Set Up Virtuall Clusters
 
@@ -43,9 +43,7 @@ hivedscheduler:
 ……
 ```
 
-If you have followed the [installation guide](./installation-guide.md), you would find similar setting in your [`services-configuration.yaml`](./basic-management-operations.md#pai-service-management-and-paictl). The detailed explanation of these fields are in the [hived scheduler document](https://github.com/microsoft/hivedscheduler/blob/master/doc/user-manual.md).
-
-You can update the configuration and set up virtual clusters. For example, in the above settings, we have 3 nodes, `worker1`, `worker2` and `worker3`. They are all in the `default` virtual cluster. If we want to create two VCs, one is called `default` and has 2 nodes, the other is called `new` and has 1 node, we can first modify `services-configuration.yaml`:
+If you have followed the [installation guide](./installation-guide.md), you would find similar setting in your [`services-configuration.yaml`](./basic-management-operations.md#pai-service-management-and-paictl). The detailed explanation of these fields are in the [hived scheduler document](https://github.com/microsoft/hivedscheduler/blob/master/doc/user-manual.md). You can update the configuration and set up virtual clusters. For example, in the above settings, we have 3 nodes, `worker1`, `worker2` and `worker3`. They are all in the `default` virtual cluster. If we want to create two VCs, one is called `default` and has 2 nodes, the other is called `new` and has 1 node, we can first modify `services-configuration.yaml`:
 
 ```yaml
 # service-configuration.yaml
@@ -97,19 +95,19 @@ You can now test the `default` VC and `new` VC, with any admin accounts in OpenP
 
 ## How to Grant VC to Users
 
-Admin users have access to all VCs. Thus, if you set up a new VC, you can use an admin account to test it. As for non-admin users, administrators should grant VC access to them manually. The specific way depends on [authentication mode](./how-to-manage-users-and-groups.md) of your cluster.
+Admin users have access to all VCs. Thus, if you set up a new VC, you can use an admin account to test it. For non-admin users, administrators should grant VC access to them manually. The specific way depends on [authentication mode](./how-to-manage-users-and-groups.md) of your cluster.
 
 ### In Basic Authentication Mode
 
-In basic authentication mode, administrators can grant VC access to users on the [`User Management` page](./basic-management-operations.md#user-management). First, click `Edit` on this page. Then you can configure VC access permission for each user as follows.
+In basic authentication mode, administrators can grant VC access to users on the [`User Management` page](./basic-management-operations.md#user-management). First, click `Edit` on the page. Then you can configure VC access permission for each user as follows.
 
    <img src="./imgs/edit-user.png" width="100%" height="100%" />
 
-Please note you cannot revoke access to `default` VC.
+Please note you cannot revoke `default` VC from users.
 
 ### In AAD Mode
 
-In AAD mode, users are grouped by the AAD service. In OpenPAI, you should assign access to VCs for each group.
+Users are grouped by the AAD service in AAD mode. You should assign VC access to each group.
 
 First, find the following section in your [`services-configuration.yaml`](./basic-management-operations.md#pai-service-management-and-paictl):
 
@@ -136,7 +134,7 @@ group-manager:
 ……
 ``` 
 
-This should be self-explanatory. The `virtualClusters` field is used to manage VC access for different groups. Apply any change by the following commands:
+This should be self-explanatory. The `virtualClusters` field is used to manage VC access for different groups. Use the following commands to apply your configuration change:
 
 ```bash
 ./paictl.py service stop -n rest-server hivedscheduler
@@ -147,7 +145,7 @@ This should be self-explanatory. The `virtualClusters` field is used to manage V
 
 ## Different Hardwares in Worker Nodes
 
-We recommend one VC should have the same hardware, which leads to one `skuType` in one VC in the hived scheduler setting. If you have different types of worker nodes (e.g. different GPU types on different nodes), please configure them in different VCs. Here is an example of 2 kinds of nodes:
+We recommend one VC should have the same hardware, which leads to one `skuType` of one VC in the hived scheduler setting. If you have different types of worker nodes (e.g. different GPU types on different nodes), please configure them in different VCs. Here is an example of 2 kinds of nodes:
 
 ```yaml
 hivedscheduler:

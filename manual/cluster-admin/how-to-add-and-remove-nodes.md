@@ -1,6 +1,6 @@
 # How to Add and Remove Nodes
 
-OpenPAI doesn't support adding master node, thus, only the solution of adding worker nodes is provided.
+OpenPAI doesn't support changing master nodes, thus, only the solution of adding/removing worker nodes is provided.
 
 ## How to Add Nodes
 
@@ -36,8 +36,8 @@ Log in to your dev box machine, find [the pre-kept folder `~/pai-deploy`](./inst
 
 Find the file `~/pai-deploy/kubespray/inventory/pai/host.yml`, and follow the steps below to modify it.
 
-- Suppose you want to add 2 worker nodes into your cluster and they are named ```a``` and ```b```. 
-- Add these 2 nodes into the host.yml, which could be found in your inventory folder.
+- Suppose you want to add 2 worker nodes into your cluster and their hostnames are `a` and `b`. 
+- Add these 2 nodes into the `host.yml`.
     - An example
     ```yaml
     all:
@@ -122,7 +122,7 @@ ansible-playbook -i inventory/pai/hosts.yml upgrade-cluster.yml --become --becom
 
 ### Update OpenPAI Service Configuration
 
-Find your service configuration file `layout.yaml` and `services-configuration.yaml` in  `~/pai-deploy/cluster-cfg`. You can find more information about the two files in [PAI Service Management and Paictl](./basic-management-operations.md#pai-ervice-management-and-paictl), here we only foucus on how to modify the files to add nodes.
+Find your [service configuration file `layout.yaml` and `services-configuration.yaml`](./basic-management-operations.md#pai-ervice-management-and-paictl) in  `~/pai-deploy/cluster-cfg`.
 
 - Add the new node into `layout.yaml`
 
@@ -157,13 +157,15 @@ machine-list:
 ./paictl config push -p ~/pai-deploy/cluster-cfg -m service
 ```
 
-- Now, restart the cluster:
+- Now, restart services:
 
 ```bash
 ./paictl.py service stop -n rest-server hivedscheduler
 ./paictl.py service start -n cluster-configuartion
 ./paictl.py service start -n hivedscheduler rest-server
 ```
+
+If you have configured any PV/PVC storage, please confirm the added worker node meets the PV's requirements. See [Confirm Worker Nodes Environment](./how-to-set-up-pv-storage.md#confirm-worker-nodes-environment) for details.
 
 ## How to Remove Nodes
 
@@ -181,7 +183,7 @@ Modify the `layout.yaml` and `services-configuration.yaml`, then push them to th
 ./paictl config push -p ~/pai-deploy/cluster-cfg -m service
 ```
 
-Restart the cluster:
+Restart services:
 
 ```bash
 ./paictl.py service stop -n rest-server hivedscheduler
