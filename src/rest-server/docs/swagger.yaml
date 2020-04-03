@@ -12,6 +12,8 @@ externalDocs:
 tags:
 - name: api
   description: API information
+- name: authn
+  description: API endpoint for authentication
 - name: token
   description: API endpoint for token
 - name: user
@@ -200,6 +202,73 @@ paths:
                     description: 'true'
         401:
           $ref: '#/components/responses/UnauthorizedUserError'
+  /api/v2/basic/login:
+    get:
+      tags:
+        - authn
+      summary: Get an access token using username and password.
+      description: Authenticated and get an access token in the system (basic authentication mode only).
+      operationId: requestToken
+      requestBody:
+        description: Basic authentication account
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                  description: your username
+                password:
+                  type: string
+                  description: your password
+                expiration:
+                  type: integer
+                  description: expiration time in seconds
+              required: [username, password]
+        required: true
+      responses:
+        200:
+          description: Succeeded
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+                    description: your access token
+                  user:
+                    type: string
+                    description: username
+                  admin:
+                    type: boolean
+                    description: true if user is admin
+                required: [token, user, admin]
+        400:
+          $ref: '#/components/responses/IncorrectPasswordError'
+        404:
+          $ref: '#/components/responses/NoUserError'
+  /api/v2/oidc/login:
+    get:
+      tags:
+      - authn
+      summary: User login with Azure AD.
+      description: After call this API in web browser, restserver will redirect your page to Azure AD for authentication. Only be used in webportal.
+      operationID: oidcLogin
+      responses:
+        302:
+          description: Redirect
+  /api/v2/oidc/logout:
+    get:
+      tags:
+        - authn
+      summary: User logout from Azure AD.
+      description: After call this API in web browser, restserver will redirect your page to Azure AD for logout.
+      operationID: oidcLogout
+      responses:
+        302:
+          description: Redirect
   /api/v2/user:
     post:
       tags:
