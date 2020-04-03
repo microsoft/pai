@@ -233,7 +233,8 @@ export default function UserEditor({
    * @type {import('office-ui-fabric-react').IDropdownOption[]}
    */
   const vcsOptions = allVCs.map(vc => {
-    return { key: vc, text: vc };
+    if (vc === 'default') return { key: vc, text: vc, disabled: true };
+    else return { key: vc, text: vc };
   });
 
   const { spacing } = getTheme();
