@@ -6,15 +6,13 @@ Here we provide installation guides of two situations: 1. [Installation from fre
 
 ## From Scratch
 
-Starting from OpenPAI `v0.18.0`, we recommend to use kubespray to deploy OpenPAI cluster. You should have at least 3 separate machines: one dev box machine, one master machine, and one worker machine. 
+We recommend to use kubespray to deploy OpenPAI cluster. You should have at least 3 separate machines: one dev box machine, one master machine, and one worker machine. 
 
-Dev box machine controls master machines and worker machines through SSH during installation, maintainence, and uninstallation. Master machine is used to run core Kubernetes components and core OpenPAI services. You could use CPU-only machines for dev box and master. However, worker machines should all have GPUs, and have GPU driver correctly installed. 
-
-There should be one, and only one dev box machine. The number of master and worker machines could be more than one. One master machine is suitable for most cases. You should use more than one master machines if you have a lot of workers, and want the cluster to be highly-available. **All workers should have the same hardware, e.g. CPU type and number, GPU type and number, memory size. Please refer to [FAQs](./installation-faqs-and-troubleshooting.md#installation-faqs) if you have any question.**
+Dev box machine controls masters and workers through SSH during installation, maintainence, and uninstallation. There should be one, and only one dev box. Master machine is used to run core Kubernetes components and core OpenPAI services. In most cases, one master machine is enough. You may set multiple masters if you want the cluster to be highly-available. We recommend you to use CPU-only machines for dev box and master. For worker machines, all of them should have GPUs, and have GPU driver correctly installed. **Also, they must have the same hardware, e.g. CPU type and number, GPU type and number, memory size. Please refer to [FAQs](./installation-faqs-and-troubleshooting.md#installation-faqs) if you have any question.**
 
 ### Create Configurations
 
-After you have decided machines of the cluster, please create a `master.csv`, a `worker.csv`, and a `config` file on the dev box machine. The following is the format and example of these 3 files.
+After you have decided all of the machines, please create a `master.csv`, a `worker.csv`, and a `config` file on the dev box. The following is the format and example of these 3 files.
 
 ###### `master.csv` format
 ```
@@ -121,11 +119,11 @@ cd pai/contrib/kubespray
 /bin/bash requirement.sh -m /path/to/master.csv -w /path/tp/worker.csv -c /path/to/config
 ```
 
-Since all worker machines should have GPU driver installed, you might wonder which version of GPU driver you should install. To resolve this question, please check out the [NVIDIA site](https://www.nvidia.com/Download/index.aspx) to verify the newest driver version of your GPU card. Then, check out [this table](https://docs.nvidia.com/deploy/cuda-compatibility/index.html#binary-compatibility__table-toolkit-driver) to see the CUDA requirement of driver version. Some docker images with new CUDA version cannot be used on machine with old driver. As for now, we recommend to install the NVIDIA driver 418 as it supports CUDA 9.0 \~ CUDA 10.1, which is used by most deep learning frameworks.
+Since all worker machines should have GPU driver installed, you might wonder which version of GPU driver you should install. Please refer to [FAQs](./installation-faqs-and-troubleshooting.md#installation-faqs) for this question.
 
 ### Start Installation
 
-On the dev box machine, use the following command to clone the OpenPAI repo if you have not done it yet:
+On the dev box machine, use the following commands to clone the OpenPAI repo if you have not done it yet:
 
 ```bash
 git clone https://github.com/microsoft/pai.git
@@ -133,13 +131,13 @@ git checkout pai-0.18.y  # change to a different branch if you want to deploy a 
 cd pai/contrib/kubespray
 ```
 
-The folder `pai/contrib/kubespray` contains installation scripts, both for kubespray and OpenPAI services. Please run the following script to start Kubernetes:
+The folder `pai/contrib/kubespray` contains installation scripts, both for kubespray and OpenPAI services. Please run the following script to deploy Kubernetes first:
 
 ```bash
 /bin/bash quick-start-kubespray.sh -m /path/to/master.csv -w /path/tp/worker.csv -c /path/to/config
 ```
 
-After Kubernetes is successfully started, run the following scipt to start OpenPAI services:
+After Kubernetes is successfully started, run the following script to start OpenPAI services:
 
 ```bash
 /bin/bash quick-start-service.sh -m /path/to/master.csv -w /path/tp/worker.csv -c /path/to/config

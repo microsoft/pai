@@ -2,13 +2,13 @@
 
 ## Users and Groups in Basic Authentication Mode
 
-OpenPAI is deployed in basic authentication mode by default. Groups in basic authentication mode are bind to virtual cluster (please refer to [how to set up virtual clusters](./how-to-set-up-virtual-clusters.md) to configure virtual clusters). Two groups, `default` and `admingroup` will be created when OpenPAI is deployed. All users belong to `default` group, and has access to the `default` virtual cluster. All administrators belong to `admingroup`, and has access to all virtual clusters. If there is another virtual cluster named `test-vc`, and an administrator grants it to a user, the user will be in group `test-vc` and have access to the corresponding virtual cluster.
+OpenPAI is deployed in basic authentication mode by default. Groups in basic authentication mode are bound to virtual cluster (please refer to [how to set up virtual clusters](./how-to-set-up-virtual-clusters.md) to configure virtual clusters). Two groups, `default` and `admingroup` will be created once OpenPAI is deployed. All users belong to `default` group, and have access to the `default` virtual cluster. All administrators belong to `admingroup`, and have access to all virtual clusters. If there is another virtual cluster named `test-vc`, and an administrator grants it to a user, the user will be in group `test-vc` and have access to the corresponding virtual cluster.
 
-For example, if you create an admin user [on the webportal](./basic-management-operations.md#user-management), he will be in `default` and `admingroup`. A non-admin user will be only in `default` group once created. If administrator gives the non-admin user access to `test-vc`, he will be in `default` and `test-vc` group.
+For example, if you create an admin user [on the webportal](./basic-management-operations.md#user-management), he will be in `default` and `admingroup`. A non-admin user will be only in `default` group once created. If administrator gives the non-admin user access to `new-vc`, he will be in `default` and `new-vc` group.
 
 A user can see his groups in the profile page. First click `View my profile` in the right-top corner.
 
-   <img src="./imgs/view-profile.png" width="40%" height="40%" />
+   <img src="./imgs/view-profile.png" width="100%" height="100%" />
 
 Then, the groups will be shown on that page (refer to the red box in the following picture):
 
