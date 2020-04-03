@@ -208,9 +208,9 @@ paths:
         - authn
       summary: Get an access token using username and password.
       description: Authenticated and get an access token in the system (basic authentication mode only).
-      operationId: requestToken
+      operationId: basicLogin
       requestBody:
-        description: Basic authentication account
+        description: Basic authentication.
         content:
           application/json:
             schema:
