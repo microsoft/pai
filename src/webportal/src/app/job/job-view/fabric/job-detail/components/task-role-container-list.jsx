@@ -189,7 +189,7 @@ export default class TaskRoleContainerList extends React.Component {
     if (config.logType === 'yarn') {
       logHint = 'Last 4096 bytes';
     } else if (config.logType === 'log-manager') {
-      logHint = 'Last 200 lines';
+      logHint = 'Last 16384 bytes';
     } else {
       logHint = '';
     }
