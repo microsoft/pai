@@ -11,6 +11,6 @@
 9. [How to Customize Cluster by Plugins](./how-to-customize-cluster-by-plugins.md)
 10. [Troubleshooting](./troubleshooting.md)
 11. [How to Uninstall OpenPAI](./how-to-uninstall-openpai.md)
-12. [Upgrade Guide](./upgrade-guide.md)
+12. [Upgrade Guide](./upgrade-guide.md) (this document)
 
 The `v0.18.0` is the first release based on pure Kubernetes. If you want to upgrade older version to `v0.18.0`, please refer to [Installation Guide](./installation-guide.md#from-previous-deployment). Upgrade guide from `v0.18.0` will be added in the future. 
