@@ -38,6 +38,7 @@ router.use('/virtual-clusters', virtualClusterRouter);
 router.use('/user', userRouter);
 
 router.use('/group', groupRouter);
+router.use('/groups', groupRouter);
 
 router.use('/storages', storageRouter);
 router.use('/storage', storageDeprecatedRouter);
