@@ -10,6 +10,7 @@
 8. [How to use CPU Nodes](./how-to-use-cpu-nodes.md)
 9. [How to Customize Cluster by Plugins](./how-to-customize-cluster-by-plugins.md) (this document)
     - [How to Install a Webportal Plugin](#how-to-install-a-webportal-plugin)
+    - [Deploy Openpaimarketplace as Webportal Plugin](#deploy-openpaimarketplace-as-webportal-plugin)
 10. [Troubleshooting](./troubleshooting.md)
 11. [How to Uninstall OpenPAI](./how-to-uninstall-openpai.md)
 12. [Upgrade Guide](./upgrade-guide.md)
@@ -43,3 +44,13 @@ After modifying the configuration, push it to the cluster and restart webportal 
 ./paictl.py config push -p <config-folder> -m service
 ./paictl.py service start -n webportal
 ```
+
+## Deploy Openpaimarketplace as webportal plugin
+
+[Openpaimarketplace](https://github.com/microsoft/openpaimarketplace) is a place which stores examples and job templates of openpai. Users could use openpaimarketplace to share their jobs or run-and-learn others' sharing job.
+
+To deploy openpaimarketplace, please refer to [the project doc](https://github.com/microsoft/openpaimarketplace#deployment) about how to deploy the marketplace service and webportal plugin.
+
+After deploy openpaimarketplace, follow the previous part to change the webportal configuration with marketplace plugin url and restart webportal. Then you could use marketplace from the sidebar.
+
+   <img src="./imgs/marketplace.png" width="100%" height="100%" /> 
