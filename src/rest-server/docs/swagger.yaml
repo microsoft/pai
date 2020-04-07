@@ -420,6 +420,8 @@ paths:
       summary: Get the list of virtual clusters.
       description: Get the list of virtual clusters.
       operationId: v2getVirtualClusters
+      security:
+        - bearerAuth: []
       responses:
         '200':
           description: Succeeded
@@ -438,6 +440,8 @@ paths:
       summary: Get virtual cluster status in the system.
       description: Get virtual cluster status in the system.
       operationId: v2getVirtualCluster
+      security:
+        - bearerAuth: []
       parameters:
         - $ref: '#/components/parameters/vc'
       responses:
@@ -458,6 +462,8 @@ paths:
       summary: Get sku types in the virtual cluster.
       description: Get sku types in the virtual cluster.
       operationId: v2getVirtualClusterSkuTypes
+      security:
+        - bearerAuth: []
       parameters:
         - $ref: '#/components/parameters/vc'
       responses:
@@ -580,6 +586,8 @@ paths:
       summary: Get the list of jobs.
       description: Get the list of jobs.
       operationId: v2listJobs
+      security:
+        - bearerAuth: []
       parameters:
         - name: user
           in: query
@@ -602,6 +610,8 @@ paths:
       summary: Get job status.
       description: Get job status.
       operationId: v2getJob
+      security:
+        - bearerAuth: []
       parameters:
         - $ref: '#/components/parameters/user'
         - $ref: '#/components/parameters/job'
@@ -623,6 +633,8 @@ paths:
       summary: Get job configuration.
       description: This API always returns job config in v2 format (text/yaml). Old job config in v1 format will be converted automatically.
       operationId: v2getJobConfig
+      security:
+        - bearerAuth: []
       parameters:
         - $ref: '#/components/parameters/user'
         - $ref: '#/components/parameters/job'
@@ -653,6 +665,8 @@ paths:
       summary: Start or stop a job.
       description: Start or stop a job.
       operationId: v2updateJobExecutionType
+      security:
+        - bearerAuth: []
       parameters:
         - $ref: '#/components/parameters/user'
         - $ref: '#/components/parameters/job'
