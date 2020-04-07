@@ -166,7 +166,7 @@ paths:
         '302':
           description: Redirect
   /api/v2/basic/login:
-    get:
+    post:
       tags:
         - authn
       summary: Get an access token using username and password.
