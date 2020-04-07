@@ -127,7 +127,7 @@ RUN wget --no-verbose -O - https://github.com/01org/mkl-dnn/releases/download/v0
     cp mklml*/* /usr/local -r
 
 RUN wget --no-verbose -O - https://github.com/01org/mkl-dnn/archive/v0.14.tar.gz | tar -xzf - && \
-    cd mkl-dnn-0.14 && mkdir build && cd build && \
+    cd oneDNN-0.14 && mkdir build && cd build && \
     ln -s /usr/local external && \
     cmake -D CMAKE_BUILD_TYPE=RELEASE \
           -D CMAKE_INSTALL_PREFIX=/usr/local \
