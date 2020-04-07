@@ -419,7 +419,7 @@ paths:
         - virtual cluster
       summary: Get the list of virtual clusters.
       description: Get the list of virtual clusters.
-      operationId: v2getVirtualClusters
+      operationId: listVirtualClusters
       security:
         - bearerAuth: []
       responses:
@@ -439,7 +439,7 @@ paths:
         - virtual cluster
       summary: Get virtual cluster status in the system.
       description: Get virtual cluster status in the system.
-      operationId: v2getVirtualCluster
+      operationId: getVirtualCluster
       security:
         - bearerAuth: []
       parameters:
@@ -461,7 +461,7 @@ paths:
         - virtual cluster
       summary: Get sku types in the virtual cluster.
       description: Get sku types in the virtual cluster.
-      operationId: v2getVirtualClusterSkuTypes
+      operationId: getVirtualClusterSkuTypes
       security:
         - bearerAuth: []
       parameters:
@@ -553,7 +553,7 @@ paths:
         - job
       summary: Submit a job in the system.
       description: Submit a job in the system.
-      operationId: v2createJob
+      operationId: createJob
       security:
         - bearerAuth: []
       requestBody:
@@ -585,7 +585,7 @@ paths:
         - job
       summary: Get the list of jobs.
       description: Get the list of jobs.
-      operationId: v2listJobs
+      operationId: listJobs
       security:
         - bearerAuth: []
       parameters:
@@ -609,7 +609,7 @@ paths:
         - job
       summary: Get job status.
       description: Get job status.
-      operationId: v2getJob
+      operationId: getJob
       security:
         - bearerAuth: []
       parameters:
@@ -632,7 +632,7 @@ paths:
         - job
       summary: Get job configuration.
       description: This API always returns job config in v2 format (text/yaml). Old job config in v1 format will be converted automatically.
-      operationId: v2getJobConfig
+      operationId: getJobConfig
       security:
         - bearerAuth: []
       parameters:
@@ -664,7 +664,7 @@ paths:
         - job
       summary: Start or stop a job.
       description: Start or stop a job.
-      operationId: v2updateJobExecutionType
+      operationId: updateJobExecutionType
       security:
         - bearerAuth: []
       parameters:
