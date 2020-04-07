@@ -35,7 +35,7 @@ router.route('/')
 router.use('/jobs', jobRouter);
 router.use('/virtual-clusters', virtualClusterRouter);
 
-router.use('/auth', authnRouter);
+router.use('/authn', authnRouter);
 router.use('/user', userRouter);
 router.use('/group', groupRouter);
 
