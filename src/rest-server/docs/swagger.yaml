@@ -153,7 +153,7 @@ paths:
       description: After call this API in web browser, restserver will redirect your page to Azure AD for authentication. Only be used in webportal.
       operationID: oidcLogin
       responses:
-        302:
+        '302':
           description: Redirect
   /api/v2/authn/oidc/logout:
     get:
@@ -163,7 +163,7 @@ paths:
       description: After call this API in web browser, restserver will redirect your page to Azure AD for logout.
       operationID: oidcLogout
       responses:
-        302:
+        '302':
           description: Redirect
   /api/v2/basic/login:
     get:
@@ -195,7 +195,7 @@ paths:
                 - password
         required: true
       responses:
-        200:
+        '200':
           description: Succeeded
           content:
             application/json:
@@ -221,7 +221,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Response'
-        404:
+        '404':
           $ref: '#/components/responses/NoUserError'
   /api/v2/user:
     post:
