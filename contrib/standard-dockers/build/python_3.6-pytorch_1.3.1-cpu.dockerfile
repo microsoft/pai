@@ -80,8 +80,9 @@ RUN $PIP_INSTALL \
         enum34 \
         pyyaml \
         typing
-RUN $PIP_INSTALL torch==1.3.1 torchvision==0.5.0 \
+RUN $PIP_INSTALL torch==1.3.1 torchvision==0.4.2 \
     -f https://download.pytorch.org/whl/cpu/torch_stable.html
+RUN $PIP_INSTALL Pillow==6.2.2  # fix for https://github.com/pytorch/vision/issues/1712
 
 
 # ==================================================================

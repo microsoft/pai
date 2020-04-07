@@ -82,6 +82,7 @@ RUN $PIP_INSTALL \
         typing
 RUN $PIP_INSTALL torch==1.1.0 torchvision==0.3.0 \
     -f https://download.pytorch.org/whl/cpu/torch_stable.html
+RUN $PIP_INSTALL Pillow==6.2.2  # fix for https://github.com/pytorch/vision/issues/1712
 
 # ==================================================================
 # config & cleanup

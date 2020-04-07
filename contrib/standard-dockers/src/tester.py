@@ -75,6 +75,7 @@ class Tester(object):
 
     def pytorch_cpu(self):
         import torch
+        import torchvision
         assert str(torch.__version__).startswith(self.version)
         assert torch.cuda.is_available() is False
         a = torch.tensor(1)
