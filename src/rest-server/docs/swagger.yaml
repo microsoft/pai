@@ -14,8 +14,8 @@ tags:
     description: API information
   - name: token
     description: API endpoint for token
-  - name: authen
-    description: Authentication and authorization
+  - name: authn
+    description: Authentication
   - name: user
     description: API endpoint for user
   - name: group
@@ -145,35 +145,37 @@ paths:
                     description: 'true'
         '401':
           $ref: '#/components/responses/UnauthorizedUserError'
-  /api/v2/authn/login:
+  /api/v2/authn/oidc/login:
     get:
       tags:
-        - authen
-      summary: FIXME
+      - authn
+      summary: User login with Azure AD.
+      description: After call this API in web browser, restserver will redirect your page to Azure AD for authentication. Only be used in webportal.
+      operationID: oidcLogin
       responses:
-        '200':
-          description: Succeeded
-          content: {}
-  /api/v2/authn/logout:
+        '302':
+          description: Redirect
+  /api/v2/authn/oidc/logout:
     get:
       tags:
-        - authen
-      summary: FIXME
+        - authn
+      summary: User logout from Azure AD.
+      description: After call this API in web browser, restserver will redirect your page to Azure AD for logout.
+      operationID: oidcLogout
       responses:
-        '200':
-          description: Succeeded
-          content: {}
+        '302':
+          description: Redirect
   /api/v2/basic/login:
     post:
       tags:
-        - authen
+        - authn
       summary: Get an access token using username and password.
       description: >-
         Authenticated and get an access token in the system (basic
         authentication mode only).
-      operationId: requestToken
+      operationId: basicLogin
       requestBody:
-        description: Basic authentication account
+        description: Basic authentication.
         content:
           application/x-www-form-urlencoded:
             schema:
@@ -188,8 +190,6 @@ paths:
                 expiration:
                   type: integer
                   description: expiration time in seconds
-                hasGitHubPAT:
-                  type: boolean
               required:
                 - username
                 - password
@@ -221,17 +221,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Response'
-        '500':
-          $ref: '#/components/responses/UnknownError'
-  /api/v2/basic/logout:
-    post:
-      tags:
-        - authen
-      summary: FIXME
-      responses:
-        '200':
-          description: Succeeded
-          content: {}
+        '404':
+          $ref: '#/components/responses/NoUserError'
   /api/v2/user:
     post:
       tags:
