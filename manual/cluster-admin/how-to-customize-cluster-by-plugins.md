@@ -51,6 +51,6 @@ After modifying the configuration, push it to the cluster and restart webportal 
 
 To deploy openpaimarketplace, please refer to [the project doc](https://github.com/microsoft/openpaimarketplace#deployment) about how to deploy the marketplace service and webportal plugin.
 
-After deploy openpaimarketplace, follow the previous part to change the webportal configuration with marketplace plugin url and restart webportal. Then you could use marketplace from the sidebar.
+After deploy openpaimarketplace, follow the [previous part](#how-to-install-a-webportal-plugin) to change the webportal configuration with marketplace plugin url and restart webportal. Then you could use marketplace from the sidebar.
 
    <img src="./imgs/marketplace.png" width="100%" height="100%" /> 
