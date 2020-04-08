@@ -1,5 +1,5 @@
 protocolVersion: 2
-name: cifar10_tf2_1gpu_5beb4132_6537b1d
+name: cifar10_tf2_1gpu_example
 type: job
 jobRetryCount: 0
 prerequisites:

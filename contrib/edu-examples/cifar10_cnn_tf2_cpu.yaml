@@ -1,5 +1,5 @@
 protocolVersion: 2
-name: cifar10_tf2_cpu_e1b85b3e
+name: cifar10_tf2_cpu_example
 type: job
 jobRetryCount: 0
 prerequisites:
