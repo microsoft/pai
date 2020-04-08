@@ -40,27 +40,27 @@ router.route('/')
 /** Create /api/v2/group */
   .post(token.checkNotApplication, param.validate(groupInputSchema.groupCreateInputSchema), groupController.createGroup);
 
-router.route('/')
-/** Update /api/v2/group */
-  .put(token.checkNotApplication, param.validate(groupInputSchema.groupUpdateInputSchema), groupController.updateGroup);
+router.route('/:groupname')
+/** Patch /api/v2/group/:groupname */
+  .patch(token.checkNotApplication, param.validate(groupInputSchema.groupUpdateInputSchema), groupController.updateGroup);
 
 router.route('/:groupname/userlist')
 /** get /api/v2/group/:groupname/userlist */
   .get(token.check, groupController.getGroupUserList);
 
-/** Legacy API and will be deprecated in the future. Please use put /api/v2/group */
+/** Legacy API and will be deprecated in the future. Please use Patch /api/v2/group */
 router.route('/:groupname/extension')
   .put(token.checkNotApplication, param.validate(groupInputSchema.groupExtensionUpdateInputSchema), groupController.updateGroupExtension);
 
-/** Legacy API and will be deprecated in the future. Please use put /api/v2/group */
+/** Legacy API and will be deprecated in the future. Please use Patch /api/v2/group */
 router.route('/:groupname/extension/*')
   .put(token.checkNotApplication, param.validate(groupInputSchema.groupExtensionAttrUpdateInputSchema), groupController.updateGroupExtensionAttr);
 
-/** Legacy API and will be deprecated in the future. Please use put /api/v2/group */
+/** Legacy API and will be deprecated in the future. Please use Patch /api/v2/group */
 router.route('/:groupname/description')
   .put(token.checkNotApplication, param.validate(groupInputSchema.groupDescriptionUpdateInputSchema), groupController.updateGroupDescription);
 
-/** Legacy API and will be deprecated in the future. Please use put /api/v2/group */
+/** Legacy API and will be deprecated in the future. Please use Patch /api/v2/group */
 router.route('/:groupname/externalname')
   .put(token.checkNotApplication, param.validate(groupInputSchema.groupExternalNameUpdateInputSchema), groupController.updateGroupExternalName);
 
