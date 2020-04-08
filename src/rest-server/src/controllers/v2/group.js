@@ -91,7 +91,7 @@ const updateGroup = async (req, res, next) => {
   try {
     if (req.user.admin) {
       let groupInfo = await groupModel.getGroup(groupname);
-      if (req.body.patchExtension) {
+      if (req.body.patch) {
         if (req.body.description !== '') {
           groupInfo['description'] = req.body.description;
         }

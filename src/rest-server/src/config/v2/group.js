@@ -64,8 +64,8 @@ const groupUpdateInputSchema = Joi.object().keys({
   extension: Joi.object()
     .pattern(/\w+/, Joi.required())
     .default(),
-  patchExtension: Joi.boolean()
-    .default(true),
+  patch: Joi.boolean()
+    .default(false),
 });
 
 // module exports

@@ -488,9 +488,9 @@ paths:
                   description: the external group name binding with the group in OpenPAI
                 extension:
                   type: object
-                patchExtension:
+                patch:
                   type: Boolean
-                  default: true
+                  default: false
               required:
                 - groupname
         required: true
