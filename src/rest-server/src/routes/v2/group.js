@@ -41,7 +41,7 @@ router.route('/')
   .post(token.checkNotApplication, param.validate(groupInputSchema.groupCreateInputSchema), groupController.createGroup);
 
 router.route('/')
-/** Patch /api/v2/group/ */
+/** put /api/v2/group/ */
   .put(token.checkNotApplication, param.validate(groupInputSchema.groupUpdateInputSchema), groupController.updateGroup);
 
 router.route('/:groupname/userlist')
