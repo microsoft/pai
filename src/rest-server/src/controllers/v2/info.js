@@ -2,9 +2,11 @@
 // Licensed under the MIT License.
 
 // module dependencies
-const status = require('statuses');
+const authnConfig = require('@pai/config/authn');
+const launcherConfig = require('@pai/config/launcher');
+const paiConfig = require('@pai/config/paiConfig');
 
-const get = (req, res) => {
+const info = (req, res) => {
   return res.status(200).json({
     name: 'PAI RESTful API',
     version: paiConfig.version,
@@ -14,4 +16,4 @@ const get = (req, res) => {
 };
 
 // module exports
-module.exports = {get};
+module.exports = {info};
