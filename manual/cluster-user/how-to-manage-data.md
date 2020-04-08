@@ -3,65 +3,41 @@
 1. [Quick Start](./quick-start.md)
 2. [Work with Docker Images](./work-with-docker-images.md)
 3. [How to Manage Data](./how-to-manage-data.md) (this document)
+    - [Get Permitted Storage](#get-permitted-storage)
+    - [Upload data](#upload-data)
+    - [Use Storage in Jobs](#use-storage-in-jobs)
 4. [How to Debug Jobs](./how-to-debug-jobs.md)
 5. [Advanced Jobs](./advanced-jobs.md)
 6. [Use Marketplace](./use-marketplace.md)
 7. [Use VSCode Extension](./use-vscode-extension.md)
 8. [Use Jupyter Notebook Extension](./use-jupyter-notebook-extension.md)
 
-## Team-wise storage
+## Get Permitted Storage
 
-### 1. Get permitted storage
+You should first have at least one permitted storage to manage data in OpenPAI. To view your peritted storage, first, go to your profile page:
 
-User can get the permitted storage name in the user profile page. If you don't find any storage in the profile page, please contact the admin.
+![view profile](./imgs/view-profile.png "view profile")
+
+Then all storage you have access to will be shown:
 
 ![storage config](./imgs/storage-config.png "storage config")
 
-### 2. Use storage in the job
+If you don't find any storage, please contact the cluster administrator.
 
-#### 2.1 Use job configuration file
+## Upload data
 
-To use one or more storage in job, user could specify storage names in `extras.storages` section in job configuration file:
+There are multiple types for storage. We introduce how to upload data to `NFS`, `AzureBlob` and `AzureFile` storage as examples.
 
-```yaml
-extras:
-    storages:
-    - name: confignfs
-        mountPath: /data
-    - name: azure-file-storage
-```
+### Upload data to NFS
 
-Their are two fields for each storage, `name` and `mountPath`. `name` refers to storage name while `mountPath` is the mount path inside job container, which has default value `/mnt/${name}` and is optional.
+#### Upload data to NFS server on Ubuntu (16.04 or above)
 
-```yaml
-extras:
-    storages: []
-```
+For Ubuntu users. To upload data to an `NFS` storage, please run following commands first to install nfs dependencies.
 
-Setting it to an empty list will mount default storage for current user in the job.
-
-#### 2.2 Use job submission page
-
-User can also use job submission page to select desired storage:
-
-![storage submit](./imgs/storage-submit-data.png "storage submit")
-
-***NOTICE: The generated protocol is different with above method. They are equivalent***
-
-### 3. Upload data
-
-Currently, we support `NFS`, `AzureBlob` and `AzureFile`.
-
-#### 3.1 Upload data to NFS
-
-##### Upload data to NFS server in Ubuntu (16.04 or above)
-
-For Ubuntu user. To upload data to `NFS`, please run following commands first to install nfs dependencies.
 ```bash
 sudo apt-get update
 sudo apt-get install --assume-yes nfs-common
 ```
-
 
 Then you can run following commands to mount nfs into your machine
 ```bash
@@ -69,26 +45,60 @@ sudo mkdir -p MOUNT_PATH
 sudo mount -t nfs4 NFS_SERVER:/NFS_PATH MOUNT_PATH
 ```
 
-Copy your data to the mount point will upload your data to `NFS`
+Copy your data to the mount point will upload your data to `NFS`.
 
-To get the `NFS_SERVER` and `NFS_PATH`, please read [get permitted storage](#1-get-permitted-storage)
+The `NFS_SERVER` and `NFS_PATH` can be found in the storage section on your profile page.
 
-##### Upload data to NFS server in Windows
+#### Upload data to NFS server in Windows
 
-If admin setup `NFS` by `storage-manager`. User could access `NFS` by `Windows File Explore` directly.
-For `AAD` user. Just change the file location to: `\\NFS_SERVER_ADDRESS` in `File Explore`. (Please make sure the `network discovery` is on)
+You could access `NFS` by `Windows File Explore` directly if:
 
+  - The cluster administrator setup `NFS` by `storage-manager`.
+  - The cluster administrator enables AAD authentication mode.
 
-For `Basic Authentication` user or using `NFS` not through `storage-manager`. Please try to mount NFS into the Windows or using Linux vm to upload data.
+Please contact your administrator to confirm. If the administrator's setting is correct, you can use the file location `\\NFS_SERVER_ADDRESS` in `File Explore` to access data. (Please make sure the `network discovery` is on)
 
-#### 3.2 Upload data to Azure Blob or Azure File
+If you cannot use direct access, please try to mount NFS into the Windows or using Linux vm to upload data.
 
-For Azure Blob, user can get the `storage account name` and `container name` in the profile page.
+### Upload data to Azure Blob or Azure File
 
-For Azure File, user can get the `storage account name` and `file share name` in the profile page.
+For Azure Blob, you can get the `storage account name` and `container name` on the profile page.
+
+For Azure File, you can get the `storage account name` and `file share name` on the profile page.
 
 To upload data to Azure Blob or Azure File, please:
 
 1. Download [Azure Storage Explore](https://azure.microsoft.com/en-us/features/storage-explorer/)
-2. If you use AAD to login PAI portal, admin should already grant you the permission to access storage. User can get the `storage account name`, `container name` and `file share name` in the profile page. And please use these info to access storage in `Storage Explore`. For more details, please refer to [storage explore: add resource via azure ad](https://docs.microsoft.com/en-us/azure/vs-azure-tools-storage-manage-with-storage-explorer?tabs=windows#add-a-resource-via-azure-ad)
-3. If you use basic authenticate to login PAI portal. Please ask admin for the storage `access key`. Then you can add the storage by `access key` and `storage account name`. For more details, please refer to: [storage explore: use name and key](https://docs.microsoft.com/en-us/azure/vs-azure-tools-storage-manage-with-storage-explorer?tabs=windows#use-a-name-and-key)
+2. If you use AAD to login to PAI portal, the administrator should already grant you the permission to access storage. You can get the `storage account name`, `container name` and `file share name` in the profile page. And please use these info to access storage in `Storage Explore`. For more details, please refer to [storage explore: add resource via azure ad](https://docs.microsoft.com/en-us/azure/vs-azure-tools-storage-manage-with-storage-explorer?tabs=windows#add-a-resource-via-azure-ad)
+3. If you use basic authentication (username/password) to login to PAI portal. Please ask your administrator for the storage `access key`. Then you can add the storage by `access key` and `storage account name`. For more details, please refer to: [storage explore: use name and key](https://docs.microsoft.com/en-us/azure/vs-azure-tools-storage-manage-with-storage-explorer?tabs=windows#use-a-name-and-key)
+
+## Use Storage in Jobs
+
+### Use Data Section UI
+
+You can use the `Data` Section on the job submission page to select desired storage:
+
+![storage submit](./imgs/storage-submit-data.png "storage submit")
+
+As shown in the picture, corresponding storage will be mounted to `/mnt/confignfs` folder. Please note the real mounted location might be different.
+
+### Use Job Configuration File
+
+You can also specify storage names in `extras.storages` section in the [job configuration file](./advanced-jobs.md#job-protocol-export-and-import-jobs):
+
+```yaml
+extras:
+    storages:
+    - name: confignfs
+      mountPath: /data
+    - name: azure-file-storage
+```
+
+There are two fields for each storage, `name` and `mountPath`. `name` refers to storage name while `mountPath` is the mount path inside job container. `mountPath` has default value `/mnt/${name}` and is optional.
+
+```yaml
+extras:
+    storages: []
+```
+
+Set it to an empty list will mount default storage for current user in the job.

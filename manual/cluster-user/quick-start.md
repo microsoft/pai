@@ -29,12 +29,25 @@ Select the downloaded `hello-world-job.yaml` file, and submit the job:
 
 Now your first OpenPAI job has been kicked off!
 
-
 ## Browse Stdout, Stderr, Full logs, and Metrics
 
-The hello world job is implemented by TensorFlow. It trains a simple model on CIFAR-10 dataset for 1,000 steps with downloaded data and code from the Internet.
+The hello world job is implemented by TensorFlow. It trains a simple model on CIFAR-10 dataset for 1,000 steps with downloaded data and code from the Internet. You can monitor the job by checking its logs and running metrics.
 
-TBD.
+You can click `Stdout` and `Stderr` button to see the stdout and stderr logs for a job on the job detail page. If you want to see a merged log, you can click `...` on the right and then select `Stdout + Stderr`. The order of this merged log is not guaranteed.
+
+<img src="./imgs/view-logs.png" width="90%" height="90%" />
+
+As shown in the following picture, we will only show last 16KB logs in the dialog. Click `View Full Log` for a full log.
+
+<img src="./imgs/view-stderr.png" width="90%" height="90%" />
+
+On the job detail page, you can also see metrics by clicking `Go to Job Metrics Page`.
+
+<img src="./imgs/go-to-job-metrics.png" width="90%" height="90%" />
+
+Then the CPU/GPU utilization and network will be shown in a new window:
+
+<img src="./imgs/grafana.png" width="90%" height="90%" />
 
 ## Submit the Hello World Job Step by Step
 
