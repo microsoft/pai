@@ -27,6 +27,9 @@ const getGroup = async (req, res, next) => {
     const groupInfo = await groupModel.getGroup(groupname);
     return res.status(200).json(groupInfo);
   } catch (error) {
+    if (error.status === 404) {
+      return next(createError('Bad Request', 'NoGroupError', `Group ${req.params.groupname} is not found.`));
+    }
     return next(createError.unknown(error));
   }
 };

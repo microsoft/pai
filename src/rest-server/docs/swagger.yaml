@@ -387,21 +387,45 @@ paths:
     get:
       tags:
         - group
-      summary: FIXME
+      summary: Get all group objects in the system.
+      description: Get all group objects in the system.
+      operationId: getAllGroup
       responses:
         '200':
           description: Succeeded
-          content: {}
+          content:
+            application/json:
+              schema:
+                description: Array with all groups in the system.
+                type: array
+                items:
+                  type: object
+                  properties:
+                    groupname:
+                      type: string
+                      description: group name
+                    description:
+                      type: string
+                      description: description for the group
+                    externalName:
+                      type: string
+                      description: the external group name binding with the group in OpenPAI
+                    extension:
+                      type: object
+        '500':
+          $ref: '#/components/responses/UnknownError'
     post:
       tags:
         - group
       summary: Create a group in the system.
-      description: Create a group in the system by admin.
+      description: >-
+        Create a group in the system.
+        Admin only.
       operationId: createGroup
       security:
         - bearerAuth: []
       requestBody:
-        description: Group
+        description: Create a group
         content:
           application/json:
             schema:
@@ -420,7 +444,6 @@ paths:
                   type: object
               required:
                 - groupname
-                - externalName
         required: true
       responses:
         '201':
@@ -437,30 +460,104 @@ paths:
           $ref: '#/components/responses/ForbiddenUserError'
         '500':
           $ref: '#/components/responses/UnknownError'
+    put:
+      tags:
+        - group
+      summary: Update a group in the system.
+      description: >-
+        Update a group in the system.
+        Admin only.
+      operationId: updateGroup
+      security:
+        - bearerAuth: []
+      requestBody:
+        description: Update a group
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                groupname:
+                  type: string
+                  description: group name
+                description:
+                  type: string
+                  description: description for the group
+                externalName:
+                  type: string
+                  description: the external group name binding with the group in OpenPAI
+                extension:
+                  type: object
+                patchExtension:
+                  type: Boolean
+                  default: true
+              required:
+                - groupname
+        required: true
+      responses:
+        '201':
+          description: Succeeded
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
+              example:
+                message: 'update group {groupname} successfully.'
+        '401':
+          $ref: '#/components/responses/UnauthorizedUserError'
+        '403':
+          $ref: '#/components/responses/ForbiddenUserError'
+        '404':
+          $ref: '#/components/responses/NoGroupError'
+        '500':
+          $ref: '#/components/responses/UnknownError'
   '/api/v2/group/{group}':
     parameters:
       - $ref: '#/components/parameters/group'
     get:
       tags:
         - group
-      summary: FIXME
+      summary: Get a group in the system.
+      description: >-
+          Get a group in the system.
+      operationId: getGroup
       responses:
         '200':
           description: Succeeded
-          content: {}
-    put:
-      tags:
-        - group
-      summary: FIXME
-      responses:
-        '200':
-          description: Succeeded
-          content: {}
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  groupname:
+                    type: string
+                    description: group name
+                  description:
+                    type: string
+                    description: description for the group
+                  externalName:
+                    type: string
+                    description: the external group name binding with the group in OpenPAI
+                  extension:
+                    type: object
+                required:
+                  - groupname
+                  - description
+                  - externalName
+                  - extension
+        '401':
+          $ref: '#/components/responses/UnauthorizedUserError'
+        '404':
+          $ref: '#/components/responses/NoGroupError'
+        '500':
+          $ref: '#/components/responses/UnknownError'
     delete:
       tags:
         - group
       summary: Deelete a group in the system.
-      description: Delete a group in the system by admin.
+      description: >-
+        Delete a group in the system.
+        Admin only.
       operationId: deleteGroup
       security:
         - bearerAuth: []
@@ -485,11 +582,30 @@ paths:
     get:
       tags:
         - group
-      summary: FIXME
+      summary: Get the user array of a group in the system.
+      description: Get the user array of a group in the system.
+      operationId: updateGroup
       responses:
         '200':
           description: Succeeded
-          content: {}
+          content:
+            application/json:
+              schema:
+                description: Array with all groups in the system.
+                type: array
+                items:
+                  type: object
+                  properties:
+                    username:
+                      type: string
+                      description: user name
+                    clusterAdmin:
+                      type: boolean
+                      description: Cluster admin or not.
+        '401':
+          $ref: '#/components/responses/UnauthorizedUserError'
+        '500':
+          $ref: '#/components/responses/UnknownError'
   /api/v2/virtual-clusters:
     get:
       tags:
@@ -1680,6 +1796,17 @@ components:
               value:
                 code: NoVirtualClusterError
                 message: 'Virtual cluster {vc} is not found.'
+    NoGroupError:
+      description: NoGroupError
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Response'
+          examples:
+            NoGroupError:
+              value:
+                code: NoGroupError
+                message: 'Group {groupname} is not found.'
     NoStorageError:
       description: NoStorageError
       content:
