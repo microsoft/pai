@@ -116,7 +116,6 @@ paths:
         '401':
           $ref: '#/components/responses/UnauthorizedUserError'
         '403':
-
           $ref: '#/components/responses/ForbiddenUserError'
   /api/v2/token/application:
     post:
