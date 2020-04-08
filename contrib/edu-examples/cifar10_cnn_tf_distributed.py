@@ -22,7 +22,8 @@ example of cnn-cifar10 (multiple GPUs)
 
 import tensorflow as tf
 
-from tensorflow.keras import datasets, layers, models
+from tensorflow.keras import datasets, layers
+from tensorflow.keras.applications.vgg16 import VGG16
 
 
 (train_images, train_labels), (test_images, test_labels) = datasets.cifar10.load_data()
@@ -34,23 +35,19 @@ strategy = tf.distribute.MirroredStrategy()
 print('Number of devices: {}'.format(strategy.num_replicas_in_sync))
 
 with strategy.scope():
-    model = models.Sequential()
-    model.add(layers.Conv2D(32, (3, 3), activation='relu', input_shape=(32, 32, 3)))
-    model.add(layers.MaxPooling2D((2, 2)))
-    model.add(layers.Conv2D(64, (3, 3), activation='relu'))
-    model.add(layers.MaxPooling2D((2, 2)))
-    model.add(layers.Conv2D(64, (3, 3), activation='relu'))
-
-    model.add(layers.Flatten())
-    model.add(layers.Dense(64, activation='relu'))
-    model.add(layers.Dense(10))
+    model = VGG16(
+    weights=None, 
+    include_top=True, 
+    classes=10,
+    input_shape=(32,32,3)
+)
 
     model.compile(optimizer='adam',
                 loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True),
                 metrics=['accuracy'])
 
 # use the extra computing power effectively by increasing the batch size
-history = model.fit(train_images, train_labels, epochs=10, batch_size=32*strategy.num_replicas_in_sync,
+history = model.fit(train_images, train_labels, epochs=30, batch_size=32*strategy.num_replicas_in_sync,
                     validation_data=(test_images, test_labels))
 
 test_loss, test_acc = model.evaluate(test_images,  test_labels, verbose=2)

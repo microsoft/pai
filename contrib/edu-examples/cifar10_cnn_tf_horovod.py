@@ -24,8 +24,8 @@ import tensorflow as tf
 import horovod.tensorflow.keras as hvd
 import math
 
-from tensorflow.keras import datasets, layers, models
-
+from tensorflow.keras import datasets, layers
+from tensorflow.keras.applications.vgg16 import VGG16
 
 # Initialize Horovod
 hvd.init()
@@ -43,16 +43,12 @@ if gpus:
 train_images, test_images = train_images / 255.0, test_images / 255.0
 
 
-model = models.Sequential()
-model.add(layers.Conv2D(32, (3, 3), activation='relu', input_shape=(32, 32, 3)))
-model.add(layers.MaxPooling2D((2, 2)))
-model.add(layers.Conv2D(64, (3, 3), activation='relu'))
-model.add(layers.MaxPooling2D((2, 2)))
-model.add(layers.Conv2D(64, (3, 3), activation='relu'))
-
-model.add(layers.Flatten())
-model.add(layers.Dense(64, activation='relu'))
-model.add(layers.Dense(10))
+model = VGG16(
+    weights=None, 
+    include_top=True, 
+    classes=10,
+    input_shape=(32,32,3)
+)
 
 # Horovod: adjust learning rate based on number of GPUs.
 opt =tf.optimizers.Adam(0.001 * hvd.size())
@@ -82,7 +78,7 @@ verbose = 1 if hvd.rank() == 0 else 0
 
 # Horovod: adjust number of steps based on number of GPUs.
 model.fit(train_images, train_labels,
-            epochs=int(math.ceil(hvd.size())), batch_size=32,callbacks=callbacks)
+            epochs=int(math.ceil(30/hvd.size())), batch_size=32,callbacks=callbacks)
 
 test_loss, test_acc = model.evaluate(test_images,  test_labels, verbose=2)
 
