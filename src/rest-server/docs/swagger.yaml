@@ -116,6 +116,7 @@ paths:
         '401':
           $ref: '#/components/responses/UnauthorizedUserError'
         '403':
+
           $ref: '#/components/responses/ForbiddenUserError'
   /api/v2/token/application:
     post:
@@ -1713,6 +1714,10 @@ components:
               value:
                 code: ForbiddenUserError
                 message: Non-admin is not allow to do this operation.
+            ForbiddenTokenError:
+              value:
+                code: ForbiddenUserError
+                message: Applications are not allowed to do this operation.
     ForbiddenKeyError:
       description: ForbiddenKeyError
       content:
