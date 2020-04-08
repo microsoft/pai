@@ -103,7 +103,7 @@ const updateGroup = async (req, res, next) => {
       } else {
         groupInfo['description'] = req.body.description;
         groupInfo['externalName'] = req.body.externalName;
-        groupInfo['extension'] = req.body.extension
+        groupInfo['extension'] = req.body.extension;
       }
       await groupModel.updateGroup(groupname, groupInfo);
       return res.status(201).json({
