@@ -148,10 +148,10 @@ paths:
   /api/v2/authn/oidc/login:
     get:
       tags:
-      - authn
+        - authn
       summary: User login with Azure AD.
       description: After call this API in web browser, restserver will redirect your page to Azure AD for authentication. Only be used in webportal.
-      operationID: oidcLogin
+      operationId: oidcLogin
       responses:
         '302':
           description: Redirect
@@ -161,7 +161,7 @@ paths:
         - authn
       summary: User logout from Azure AD.
       description: After call this API in web browser, restserver will redirect your page to Azure AD for logout.
-      operationID: oidcLogout
+      operationId: oidcLogout
       responses:
         '302':
           description: Redirect
