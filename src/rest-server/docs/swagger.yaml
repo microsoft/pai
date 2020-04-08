@@ -505,7 +505,9 @@ paths:
         - virtual cluster
       summary: Get the list of virtual clusters.
       description: Get the list of virtual clusters.
-      operationId: getVirtualClusters
+      operationId: listVirtualClusters
+      security:
+        - bearerAuth: []
       responses:
         '200':
           description: Succeeded
@@ -513,6 +515,8 @@ paths:
             application/json:
               schema:
                 type: object
+                additionalProperties:
+                  $ref: '#/components/schemas/VirtualCluster'
         '500':
           $ref: '#/components/responses/UnknownError'
   '/api/v2/virtual-clusters/{vc}':
@@ -522,6 +526,8 @@ paths:
       summary: Get virtual cluster status in the system.
       description: Get virtual cluster status in the system.
       operationId: getVirtualCluster
+      security:
+        - bearerAuth: []
       parameters:
         - $ref: '#/components/parameters/vc'
       responses:
@@ -536,16 +542,40 @@ paths:
         '500':
           $ref: '#/components/responses/UnknownError'
   '/api/v2/virtual-clusters/{vc}/sku-types':
-    parameters:
-      - $ref: '#/components/parameters/vc'
     get:
       tags:
         - virtual cluster
-      summary: FIXME
+      summary: Get sku types in the virtual cluster.
+      description: Get sku types in the virtual cluster.
+      operationId: getVirtualClusterSkuTypes
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/vc'
       responses:
         '200':
           description: Succeeded
-          content: {}
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties:
+                  type: object
+                  properties:
+                    cpu:
+                      type: integer
+                    memory:
+                      type: integer
+                    gpu:
+                      type: integer
+                  required:
+                    - cpu
+                    - memory
+                    - gpu
+        '404':
+          $ref: '#/components/responses/NoVirtualClusterError'
+        '500':
+          $ref: '#/components/responses/UnknownError'
   /api/v2/storages:
     get:
       tags:
@@ -607,9 +637,9 @@ paths:
     post:
       tags:
         - job
-      summary: Submit a job v2 in the system.
-      description: Submit a job v2 in the system.
-      operationId: v2createJob
+      summary: Submit a job in the system.
+      description: Submit a job in the system.
+      operationId: createJob
       security:
         - bearerAuth: []
       requestBody:
@@ -639,23 +669,35 @@ paths:
     get:
       tags:
         - job
-      summary: FIXME
+      summary: Get the list of jobs.
+      description: Get the list of jobs.
+      operationId: listJobs
+      security:
+        - bearerAuth: []
       parameters:
         - name: user
           in: query
+          description: filter jobs with username
           schema:
             type: string
       responses:
         '200':
           description: Succeeded
-          content: {}
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JobSummary'
+        '500':
+          $ref: '#/components/responses/UnknownError'
   '/api/v2/jobs/{user}~{job}':
     get:
       tags:
         - job
       summary: Get job status.
       description: Get job status.
-      operationId: getJobByUser
+      operationId: getJob
+      security:
+        - bearerAuth: []
       parameters:
         - $ref: '#/components/parameters/user'
         - $ref: '#/components/parameters/job'
@@ -674,26 +716,75 @@ paths:
     get:
       tags:
         - job
-      summary: FIXME
+      summary: Get job configuration.
+      description: This API always returns job config in v2 format (text/yaml). Old job config in v1 format will be converted automatically.
+      operationId: getJobConfig
+      security:
+        - bearerAuth: []
       parameters:
         - $ref: '#/components/parameters/user'
         - $ref: '#/components/parameters/job'
       responses:
         '200':
           description: Succeeded
-          content: {}
+          content:
+            text/yaml:
+              schema:
+                $ref: '#/components/schemas/JobProtocol'
+        '404':
+          description: NoJobError or NoJobConfigError
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
+              examples:
+                NoJobError:
+                  $ref: '#/components/responses/NoJobError/content/application~1json/examples/NoJobError'
+                NoJobConfigError:
+                  $ref: '#/components/responses/NoJobConfigError/content/application~1json/examples/NoJobConfigError'
+        '500':
+          $ref: '#/components/responses/UnknownError'
   '/api/v2/jobs/{user}~{job}/exectionType':
     put:
       tags:
         - job
-      summary: FIXME
+      summary: Start or stop a job.
+      description: Start or stop a job.
+      operationId: updateJobExecutionType
+      security:
+        - bearerAuth: []
       parameters:
         - $ref: '#/components/parameters/user'
         - $ref: '#/components/parameters/job'
+      requestBody:
+        description: Execution type
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                value:
+                  type: string
+                  enum:
+                    - START
+                    - STOP
+                  description: execution type
+              required:
+                - value
+        required: true
       responses:
-        '200':
+        '202':
           description: Succeeded
-          content: {}
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
+              example:
+                message: execute job {job} successfully
+        '404':
+          $ref: '#/components/responses/NoJobError'
+        '500':
+          $ref: '#/components/responses/UnknownError'
   '/api/v2/jobs/{user}~{job}/job-attempts/healthz':
     get:
       tags:
@@ -901,29 +992,338 @@ components:
           type: string
       required:
         - message
-    JobConfig:
-      type: object
-      description: TODO
-      properties: {}
     JobProtocol:
       type: object
-      description: TODO
-    JobSummary:
-      type: object
+      description: openpai job protocol
       properties:
+        protocolVersion:
+          type: string
+          description: Protocol version, current version is 2.
         name:
           type: string
-          description: job name
-      description: TODO
+          description: String in ^([a-zA-Z0-9][a-zA-Z0-9_-]*)?[a-zA-Z0-9]$ format, no longer than 63 characters.
+        type:
+          type: string
+          description: Component type, should be "job" here.
+        version:
+          type: string
+          description: Component version, default is latest.
+        contributor:
+          type: string
+        description:
+          type: string
+        prerequisites:
+          type: array
+          items:
+            type: object
+            properties:
+              name:
+                type: string
+              type:
+                type: string
+                enum:
+                  - data
+                  - script
+                  - dockerimage
+                  - output
+              version:
+                type: string
+              contributor:
+                type: string
+              description:
+                type: string
+              auth:
+                type: object
+                properties:
+                  username:
+                    type: string
+                  password:
+                    type: string
+                  registryuri:
+                    type: string
+              uri:
+                oneOf:
+                  - type: string
+                  - type: array
+                    items:
+                      type: string
+        parameters:
+          type: object
+          additionalProperties: true
+        secrets:
+          type: object
+          additionalProperties: true
+        jobRetryCount:
+          type: integer
+          description: Default is 0.
+        taskRoles:
+          type: object
+          additionalProperties:
+            type: object
+            properties:
+              instances:
+                type: integer
+                description: Default is 1, instances of a taskRole, no less than 1.
+              completion:
+                type: object
+                description: Completion poclicy for the job.
+                properties:
+                  minFailedInstances:
+                    type: integer
+                  minSucceededInstances:
+                    type: integer
+              taskRetryCount:
+                type: integer
+                description: Default is 0.
+              dockerImage:
+                type: string
+                description: Should reference to a dockerimage defined in prerequisites.
+              data:
+                type: string
+              output:
+                type: string
+              script:
+                type: string
+              extraContainerOptions:
+                type: object
+                properties:
+                  shmMB:
+                    type: integer
+                    description: Config the /dev/shm in a docker container.
+                  infiniband:
+                    type: boolean
+                    description: Use InfiniBand devices or not in a docker container.
+              resourcePerInstance:
+                type: object
+                properties:
+                  cpu:
+                    type: integer
+                    description: CPU number, unit is CPU vcore.
+                  memoryMB:
+                    type: integer
+                    description: Memory number, unit is MB.
+                  gpu:
+                    type: integer
+                    description: GPU number, unit is GPU card.
+                  ports:
+                    type: object
+                    additionalProperties:
+                      type: integer
+                      description: Port number for the port label.
+              commands:
+                type: array
+                items:
+                  type: string
+            required:
+              - dockerImage
+              - resourcePerInstance
+              - commands
+        deployments:
+          type: array
+          items:
+            type: object
+            properties:
+              name:
+                type: string
+              taskRoles:
+                type: object
+                additionalProperties:
+                  type: object
+                  properties:
+                    preCommands:
+                      type: array
+                      items:
+                        type: string
+                    postCommands:
+                      type: array
+                      items:
+                        type: string
+        defaults:
+          type: object
+          description: Default cluster specific settings.
+          properties:
+            virtualCluster:
+              type: string
+            deployment:
+              type: string
+        extras:
+          type: object
+          description: Extra field, save any information that plugin may use.
+          properties:
+            submitFrom:
+              type: string
+            hivedscheduler:
+              type: object
+              properties:
+                jobPriorityClass:
+                  type: string
+                taskRoles:
+                  type: object
+                  additionalProperties:
+                    type: object
+                    properties:
+                      gpuType:
+                        type: string
+                      reservationId:
+                        type: string
+                      affinityGroupName:
+                        type: string
+      required:
+        - protocolVersion
+        - name
+        - type
+        - taskRoles
+    JobSummary:
+      type: array
+      description: job summary list
+      items:
+        type: object
+        properties:
+          name:
+            type: string
+            description: job name
+          username:
+            type: string
+            description: user name
+          state:
+            type: string
+            description: general job state
+            enum:
+              - WAITING
+              - RUNNING
+              - STOPPING
+              - STOPPED
+              - SUCCEEDED
+              - FAILED
+              - UNKNOWN
+          subState:
+            type: string
+            description: job state in framework controller
+            enum:
+              - AttemptCreationPending
+              - AttemptCreationRequested
+              - AttemptPreparing
+              - AttemptRunning
+              - AttemptDeletionPending
+              - AttemptDeletionRequested
+              - AttemptDeleting
+              - AttemptCompleted
+              - Completed
+          executionType:
+            type: string
+            description: start or stop
+            enum:
+              - START
+              - STOP
+          retries:
+            type: integer
+            description: job retried times
+          retryDetails:
+            type: object
+            properties:
+              user:
+                type: integer
+              platform:
+                type: integer
+              resource:
+                type: integer
+          retryDelayTime:
+            type: integer
+            description: retry delay time
+          createdTime:
+            type: integer
+            description: job created time, in number of milliseconds since the Unix Epoch.
+          completedTime:
+            type: integer
+            description: job completed time, in number of milliseconds since the Unix Epoch.
+          appExitCode:
+            type: integer
+            description: job exit code
+          virtualCluster:
+            type: string
+            description: virtual cluster to which the job submitted
+          totalGpuNumber:
+            type: integer
+            description: total gpu number used in the job
+          totalTaskNumber:
+            type: integer
+            description: total task number used in the job
+          totalTaskRoleNumber:
+            type: integer
+            description: total task role number used in the job
+          debugId:
+            type: string
+            description: md5 hash name for the job in framework controller, used for debug purpose
+        required:
+          - name
+          - username
+          - virtualCluster
+          - state
+          - subState
+          - executionType
+          - retries
+          - createdTime
+          - completedTime
+          - appExitCode
     JobDetail:
       type: object
+      description: job details
       properties:
         name:
           type: string
           description: job name
         jobStatus:
           type: object
+          description: job status
           properties:
+            username:
+              type: string
+              description: user name
+            state:
+              type: string
+              description: general job state
+              enum:
+                - WAITING
+                - RUNNING
+                - STOPPING
+                - STOPPED
+                - SUCCEEDED
+                - FAILED
+                - UNKNOWN
+            subState:
+              type: string
+              description: job state in framework controller
+              enum:
+                - AttemptCreationPending
+                - AttemptCreationRequested
+                - AttemptPreparing
+                - AttemptRunning
+                - AttemptDeletionPending
+                - AttemptDeletionRequested
+                - AttemptDeleting
+                - AttemptCompleted
+                - Completed
+            executionType:
+              type: string
+              description: start or stop
+              enum:
+                - START
+                - STOP
+            retries:
+              type: integer
+              description: job retried times
+            retryDetails:
+              type: object
+              properties:
+                user:
+                  type: integer
+                platform:
+                  type: integer
+                resource:
+                  type: integer
+            retryDelayTime:
+              type: integer
+              description: retry delay time
             createdTime:
               type: integer
               description: >-
@@ -934,6 +1334,9 @@ components:
               description: >-
                 job completed time, in number of milliseconds since the Unix
                 Epoch.
+            appId:
+              type: string
+              description: unique id for the job
             appLaunchedTime:
               type: integer
               description: >-
@@ -949,58 +1352,223 @@ components:
                   waitingDuration = wholeDuration - runningDuration.
                 to get durations for all attempts:
                   runningDuration = sum(appCompletedTime - appLaunchedTime) for all attempts.
+            appExitCode:
+              type: integer
+              description: job exit code
+            appExitSpec:
+              type: object
+              description: job exit spec
+              properties:
+                code:
+                  type: integer
+                phrase:
+                  type: string
+                issuer:
+                  type: string
+                causer:
+                  type: string
+                type:
+                  type: string
+                stage:
+                  type: string
+                behavior:
+                  type: string
+                reaction:
+                  type: string
+                repro:
+                  type: array
+                  items:
+                    type: string
+            appExitDiagnostics:
+              type: string
+              description: job exit diagnostics
+            appExitMessages:
+              type: object
+              properties:
+                container:
+                  type: string
+                runtime:
+                  type: string
+                launcher:
+                  type: string
+            appExitTriggerMessage:
+              type: string
+              description: job completion message
+            appExitTriggerTaskRoleName:
+              type: string
+              description: task role name which triggered job completion
+            appExitTriggerTaskIndex:
+              type: integer
+              description: task index which triggered job completion
+            appExitType:
+              type: string
+              description: job completion type
+            virtualCluster:
+              type: string
+              description: virtual cluster to which the job submitted
+          required:
+            - username
+            - virtualCluster
+            - state
+            - subState
+            - executionType
+            - retries
+            - createdTime
+            - completedTime
+            - appId
+            - appLaunchedTime
+            - appCompletedTime
+            - appExitCode
         taskRoles:
           type: object
-      description: TODO
+          additionalProperties:
+            type: object
+            description: task role status
+            properties:
+              taskRoleStatus:
+                type: object
+                properties:
+                  name:
+                    type: string
+                    description: task role name
+                required:
+                  - name
+              taskStatuses:
+                type: array
+                description: task statuses in the task role
+                items:
+                  type: object
+                  properties:
+                    taskIndex:
+                      type: integer
+                      description: task index
+                    taskState:
+                      type: string
+                      description: task state
+                      enum:
+                        - WAITING
+                        - RUNNING
+                        - STOPPING
+                        - STOPPED
+                        - SUCCEEDED
+                        - FAILED
+                        - UNKNOWN
+                    containerId:
+                      type: string
+                      description: uid of the task container
+                    containerIp:
+                      type: string
+                      description: ip of the task container
+                    containerPorts:
+                      type: object
+                      description: ports of the task container
+                    containerGpus:
+                      type: string
+                      description: gpu of the task container
+                    containerLog:
+                      type: string
+                      description: log url of the task container
+                    containerExitCode:
+                      type: integer
+                      description: exit code the task container
+            required:
+              - taskRoleStatus
+              - taskStatuses
+        debugId:
+          type: string
+          description: md5 hash name for the job in framework controller, used for debug purpose
+      required:
+        - name
+        - jobStatus
+        - taskRoles
     VirtualCluster:
       type: object
       properties:
         capacity:
           type: integer
           description: capacity percentage this virtual cluster can use of entire cluster
-        maxCapacity:
-          type: integer
-          description: >-
-            max capacity percentage this virtual cluster can use of entire
-            cluster
         usedCapacity:
           type: integer
-          description: >-
-            used capacity percentage this virtual cluster can use of entire
-            cluster
-        numActiveJobs:
+          description: used capacity percentage this virtual cluster can use of entire cluster
+        maxCapacity:
           type: integer
-        numJobs:
-          type: integer
-        numPendingJobs:
-          type: integer
-        resourcesUsed:
-          type: object
-        resourcesTotal:
-          type: object
+          description: max capacity percentage this virtual cluster can use of entire cluster
         dedicated:
           type: boolean
-        nodeList:
-          type: array
-          items:
-            type: string
-        status:
-          type: string
-          enum:
-            - RUNNING
-            - STOPPED
-            - DRAINING
-          description: >-
-            RUNNING -> vc is enabled, STOPPED -> vc is disabled, without either
-            new job or running job, DRAINING -> intermedia state from RUNNING to
-            STOPPED, in waiting on existing job.
+          description: dedicated virtual cluster or not
+        resourcesUsed:
+          type: object
+          description: used resources
+          properties:
+            cpu:
+              type: integer
+              description: used cpu number
+            vCores:
+              type: integer
+              description: same as cpu
+            memory:
+              type: integer
+              description: used memory in MB
+            gpu:
+              type: integer
+              description: used gpu number
+            GPUs:
+              type: integer
+              description: same as gpu
+        resourcesGuaranteed:
+          type: object
+          description: guaranteed resources, including used and free
+          properties:
+            cpu:
+              type: integer
+              description: guaranteed cpu number
+            vCores:
+              type: integer
+              description: same as cpu
+            memory:
+              type: integer
+              description: guaranteed memory in MB
+            gpu:
+              type: integer
+              description: guaranteed gpu number
+            GPUs:
+              type: integer
+              description: same as gpu
+        resourcesTotal:
+          type: object
+          description: total resources, including guaranteed and bad
+          properties:
+            cpu:
+              type: integer
+              description: total cpu number
+            vCores:
+              type: integer
+              description: same as cpu
+            memory:
+              type: integer
+              description: total memory in MB
+            gpu:
+              type: integer
+              description: total gpu number
+            GPUs:
+              type: integer
+              description: same as gpu
+      required:
+        - capacity
+        - usedCapacity
+        - maxCapacity
+        - resourcesUsed
+        - resourcesGuaranteed
+        - resourcesTotal
     StorageSummary:
       type: object
+      description: summary of configured PV storage
       properties:
         storages:
           type: array
           items:
             type: object
+            description: summary of each storage
             properties:
               name:
                 type: string
@@ -1016,6 +1584,7 @@ components:
         - storages
     StorageDetail:
       type: object
+      description: detail of configured PV storage
       properties:
         name:
           type: string
