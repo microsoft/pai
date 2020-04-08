@@ -34,6 +34,8 @@ const router = new express.Router();
 
 router.route('/')
   .all(controller.index);
+router.route('/info')
+  .all(infoController.info);
 
 router.use('/jobs', jobRouter);
 router.use('/virtual-clusters', virtualClusterRouter);
@@ -45,7 +47,6 @@ router.use('/groups', groupRouter);
 
 router.use('/storages', storageRouter);
 router.use('/storage', storageDeprecatedRouter);
-router.use('/info').all(infoController.info);
 router.use('/token', tokenRouter);
 router.use('/kubernetes', k8sRouter);
 
