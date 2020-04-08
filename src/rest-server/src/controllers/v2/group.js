@@ -88,16 +88,22 @@ const updateGroup = async (req, res, next) => {
   try {
     if (req.user.admin) {
       let groupInfo = await groupModel.getGroup(groupname);
-      if (req.body.description !== '') {
-        groupInfo['description'] = req.body.description;
-      }
-      if (req.body.externalName !== '') {
-        groupInfo['externalName'] = req.body.externalName;
-      }
-      if (Object.keys(req.body.extension) > 0) {
-        for (let [key, value] of Object.entries(req.body.extension)) {
-          groupInfo['extension'][key] = value;
+      if (req.body.patchExtension) {
+        if (req.body.description !== '') {
+          groupInfo['description'] = req.body.description;
         }
+        if (req.body.externalName !== '') {
+          groupInfo['externalName'] = req.body.externalName;
+        }
+        if (Object.keys(req.body.extension) > 0) {
+          for (let [key, value] of Object.entries(req.body.extension)) {
+            groupInfo['extension'][key] = value;
+          }
+        }
+      } else {
+        groupInfo['description'] = req.body.description;
+        groupInfo['externalName'] = req.body.externalName;
+        groupInfo['extension'] = req.body.extension
       }
       await groupModel.updateGroup(groupname, groupInfo);
       return res.status(201).json({

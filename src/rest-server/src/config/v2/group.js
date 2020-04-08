@@ -50,6 +50,8 @@ const groupCreateInputSchema = Joi.object().keys({
   extension: Joi.object()
     .pattern(/\w+/, Joi.required())
     .default(),
+  patchExtension: Joi.boolean()
+    .default(true),
 });
 
 // define the input schema for the 'Update group' api
