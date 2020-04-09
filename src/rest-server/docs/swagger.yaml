@@ -902,6 +902,8 @@ paths:
       summary: Check if job attempts is healthy.
       description: Check if job attempts is healthy.
       operationId: getJobAttemptsHealthz
+      security:
+        - bearerAuth: []
       parameters:
         - $ref: '#/components/parameters/user'
         - $ref: '#/components/parameters/job'
@@ -917,6 +919,8 @@ paths:
       summary: Get all attempts of a job.
       description: Get all attempts of a job.
       operationId: getJobAttempts
+      security:
+        - bearerAuth: []
       parameters:
         - $ref: '#/components/parameters/user'
         - $ref: '#/components/parameters/job'
@@ -941,6 +945,8 @@ paths:
       summary: Get a specific attempt by attempt index.
       description: Get a specific attempt by attempt index.
       operationId: getJobAttempt
+      security:
+        - bearerAuth: []
       parameters:
         - $ref: '#/components/parameters/user'
         - $ref: '#/components/parameters/job'
