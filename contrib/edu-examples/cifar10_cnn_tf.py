@@ -24,13 +24,21 @@ example of cnn-cifar10 (single CPU/GPU)
 import tensorflow as tf
 
 from tensorflow.keras import datasets, layers
-from tensorflow.keras.applications.vgg16 import VGG16
+from tensorflow.keras.applications.vgg16 import VGG16, preprocess_input
+from tensorflow.keras.utils import to_categorical
 
 
 (train_images, train_labels), (test_images, test_labels) = datasets.cifar10.load_data()
 
 # Normalize pixel values to be between 0 and 1
-train_images, test_images = train_images / 255.0, test_images / 255.0
+# train_images, test_images = train_images / 255.0, test_images / 255.0
+
+# normalize the input according to the methods used in the paper
+X_train = preprocess_input(train_images)
+X_test = preprocess_input(test_images)
+# one-hot-encode the labels for training
+y_train = to_categorical(train_labels)
+y_test = to_categorical(test_labels)
 
 model = VGG16(
     weights=None, 
@@ -43,7 +51,7 @@ model.compile(optimizer='adam',
               loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True),
               metrics=['accuracy'])
 
-model.fit(train_images, train_labels, epochs=30, batch_size=32,
+model.fit(train_images, train_labels, epochs=3, batch_size=32,
                     validation_data=(test_images, test_labels))
 
 test_loss, test_acc = model.evaluate(test_images,  test_labels, verbose=2)
