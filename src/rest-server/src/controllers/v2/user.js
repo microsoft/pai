@@ -181,15 +181,21 @@ const createUser = async (req, res, next) => {
   });
 };
 
+const updateExtensionInternal = async (oldExtension, newExtension) => {
+  let retExtension = JSON.parse(JSON.stringify(oldExtension));
+  for (let [key, value] of Object.entries(newExtension)) {
+        retExtension[key] = value;
+  }
+  return retExtension
+};
+
 const updateUserExtension = async (req, res, next) => {
   try {
     const username = req.params.username;
     const extensionData = req.body.extension;
     if (req.user.admin || req.user.username === username) {
       let userInfo = await userModel.getUser(username);
-      for (let [key, value] of Object.entries(extensionData)) {
-        userInfo['extension'][key] = value;
-      }
+      userInfo['extension'] = updateExtensionInternal(userInfo['extension'], extensionData);
       await userModel.updateUser(username, userInfo);
       return res.status(201).json({
         message: 'Update user extension data successfully.',
@@ -205,19 +211,27 @@ const updateUserExtension = async (req, res, next) => {
   }
 };
 
+const updateVirtualClusterInternal = async (newVc) => {
+  let groupList;
+  try {
+    groupList = await groupModel.virtualCluster2GroupList(newVc);
+  } catch (error) {
+    throw createError('Bad Request', 'NoVirtualClusterError', `Try to update nonexist: ${newVc}`);
+  }
+  if (groupList.length !== newVc.length) {
+    throw createError('Bad Request', 'NoVirtualClusterError', `Try to update: ${newVc}, but found: ${groupList}`);
+  }
+  if (!groupList.includes(authConfig.groupConfig.defaultGroup.groupname)) {
+        groupList.push(authConfig.groupConfig.defaultGroup.groupname);
+  }
+  return groupList;
+};
+
 const updateUserVirtualCluster = async (req, res, next) => {
   try {
     const username = req.params.username;
     if (req.user.admin) {
-      let grouplist;
-      try {
-        grouplist = await groupModel.virtualCluster2GroupList(req.body.virtualCluster);
-      } catch (error) {
-        return next(createError('Bad Request', 'NoVirtualClusterError', `Try to update nonexist: ${req.body.virtualCluster}`));
-      }
-      if (grouplist.length !== req.body.virtualCluster.length) {
-        return next(createError('Bad Request', 'NoVirtualClusterError', `Try to update: ${req.body.virtualCluster}, but found: ${grouplist}`));
-      }
+      let newGroupList = updateVirtualClusterInternal(req.body.virtualCluster);
       let userInfo;
       try {
          userInfo = await userModel.getUser(username);
@@ -230,42 +244,49 @@ const updateUserVirtualCluster = async (req, res, next) => {
       if (await userModel.checkAdmin(username)) {
         return next(createError('Forbidden', 'ForbiddenUserError', 'Admin\'s virtual clusters cannot be updated.'));
       }
-      if (!grouplist.includes(authConfig.groupConfig.defaultGroup.groupname)) {
-        grouplist.push(authConfig.groupConfig.defaultGroup.groupname);
-      }
-      userInfo['grouplist'] = grouplist;
+      userInfo['grouplist'] = newGroupList;
       await userModel.updateUser(username, userInfo);
       return res.status(201).json({
         message: 'Update user virtualCluster data successfully.',
       });
     } else {
-      next(createError('Forbidden', 'ForbiddenUserError', `Non-admin is not allow to do this operation.`));
+      return next(createError('Forbidden', 'ForbiddenUserError', `Non-admin is not allow to do this operation.`));
     }
   } catch (error) {
+    if (error.code === 'NoVirtualClusterError') {
+      return next(error);
+    }
     return next(createError.unknown((error)));
   }
+};
+
+const updateGroupList = async (groupList) => {
+  let retGroupList = await groupModel.filterExistGroups(groupList);
+   if (retGroupList.length !== req.body.grouplist) {
+    const nonExistGrouplist = req.body.grouplist.filter((groupname) => !existGrouplist.includes(groupname));
+    throw createError('Not Found', 'NoGroupError', `Updated nonexistent grouplist: ${nonExistGrouplist}`);
+  }
+   return retGroupList
 };
 
 const updateUserGroupList = async (req, res, next) => {
   if (!req.user.admin) {
     next(createError('Forbidden', 'ForbiddenUserError', `Non-admin is not allow to do this operation.`));
   }
-  const existGrouplist = await groupModel.filterExistGroups(req.body.grouplist);
-  if (existGrouplist.length !== req.body.grouplist) {
-    const nonExistGrouplist = req.body.grouplist.filter((groupname) => !existGrouplist.includes(groupname));
-    return next(createError('Not Found', 'NoGroupError', `Updated nonexistent grouplist: ${nonExistGrouplist}`));
-  }
   const username = req.params.username;
   let userValue;
   try {
     userValue = await userModel.getUser(username);
+    userValue.grouplist = updateGroupList(userValue.grouplist);
   } catch (error) {
+    if (error.code === 'NoGroupError') {
+      return next(error);
+    }
     if (error.status === 404) {
       return next(createError('Not Found', 'NoUserError', `User ${req.params.username} not found.`));
     }
     return next(createError.unknown(error));
   }
-  userValue.grouplist = req.body.grouplist;
   await userModel.updateUser(username, userValue);
   return res.status(201).json({
     message: 'update user grouplist successfully.',

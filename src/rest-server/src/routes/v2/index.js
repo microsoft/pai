@@ -27,6 +27,7 @@ router.use('/virtual-clusters', virtualClusterRouter);
 
 router.use('/authn', authnRouter);
 router.use('/user', userRouter);
+router.use('/users', userRouter);
 router.use('/group', groupRouter);
 router.use('/groups', groupRouter);
 

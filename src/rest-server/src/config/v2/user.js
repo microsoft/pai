@@ -77,14 +77,58 @@ const userCreateInputSchema = Joi.object().keys({
     .default(),
 });
 
+// define the input schema for the 'update user' api in basic mode for admin user
+const basicAdminUserUpdateInputSchema = Joi.object().keys({
+  data: Joi.object().keys({
+    username: Joi.string()
+      .regex(/^[\w.-]+$/, 'username')
+      .required(),
+    email: Joi.string()
+      .email()
+      .empty(''),
+    virtualCluster: Joi.array()
+      .items(Joi.string())
+      .default([]),
+    admin: Joi.boolean()
+      .default(false),
+    password: Joi.string()
+      .min(6)
+      .required(),
+    extension: Joi.object()
+      .pattern(/\w+/, Joi.required())
+      .default(),
+    oldPassword: Joi.string()
+      .min(6)
+      .default('defaultpai'),
+  }),
+  patch: Joi.boolean()
+    .default(false),
+});
+
+// define the input schema for the 'update user' api in oidc mode
+const oidcUserUpdateInputSchema = Joi.object().keys({
+  data: Joi.object().keys({
+    username: Joi.string()
+      .regex(/^[\w.-]+$/, 'username')
+      .required(),
+    extension: Joi.object()
+      .pattern(/\w+/, Joi.required())
+      .default(),
+  }),
+  patch: Joi.boolean()
+    .default(false),
+});
+
 // module exports
 module.exports = {
+  userCreateInputSchema,
+  basicAdminUserUpdateInputSchema,
+  oidcUserUpdateInputSchema,
   userExtensionUpdateInputSchema,
   userVirtualClusterUpdateInputSchema,
   userGrouplistUpdateInputSchema,
   userPasswordUpdateInputSchema,
   userEmailUpdateInputSchema,
-  userCreateInputSchema,
   userAdminPermissionUpdateInputSchema,
   addOrRemoveGroupInputSchema,
 };

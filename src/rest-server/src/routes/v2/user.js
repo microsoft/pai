@@ -27,52 +27,62 @@ const authnConfig = require('@pai/config/authn');
 const router = new express.Router();
 
 router.route('/:username/')
-  /** Get /api/v2/user/:username */
+  /** Get /api/v2/users/:username */
   .get(token.check, userController.getUser);
 
 router.route('/')
-  /** Get /api/v2/user */
+  /** Get /api/v2/users */
   .get(token.check, userController.getAllUser);
 
+/** Legacy API and will be deprecated in the future. Please use put /api/v2/users */
 router.route('/:username/extension')
-  /** Put /api/v2/user/:username/extension */
+  /** Put /api/v2/users/:username/extension */
   .put(token.checkNotApplication, param.validate(userInputSchema.userExtensionUpdateInputSchema), userController.updateUserExtension);
 
 if (authnConfig.authnMethod === 'basic') {
   router.route('/:username')
-  /** Delete /api/v2/user/:username */
+  /** Delete /api/v2/users/:username */
     .delete(token.checkNotApplication, userController.deleteUser);
 
-  router.route('/:username/virtualcluster')
-  /** Update /api/v2/user/:username/virtualcluster */
-    .put(token.checkNotApplication, param.validate(userInputSchema.userVirtualClusterUpdateInputSchema), userController.updateUserVirtualCluster);
-
-  router.route('/:username/password')
-  /** Update /api/v2/user/:username/password */
-    .put(token.checkNotApplication, param.validate(userInputSchema.userPasswordUpdateInputSchema), userController.updateUserPassword);
-
   router.route('/')
-  /** Create /api/v2/user */
+  /** Create /api/v2/users */
     .post(token.checkNotApplication, param.validate(userInputSchema.userCreateInputSchema), userController.createUser);
 
-  router.route('/:username/email')
-  /** Update /api/v2/user/:username/email */
-    .put(token.checkNotApplication, param.validate(userInputSchema.userEmailUpdateInputSchema), userController.updateUserEmail);
-
-  router.route('/:username/admin')
-  /** Update /api/v2/user/:username/admin */
-    .put(token.checkNotApplication, param.validate(userInputSchema.userAdminPermissionUpdateInputSchema), userController.updateUserAdminPermission);
+  router.route('/')
+  /** Put /api/v2/users */
+    .put(token.checkNotApplication, param.validate(userInputSchema.basicUserUpdateInputSchema), userController.basicUpdateUser);
 
   router.route('/:username/grouplist')
+  /** put /api/v2/users/:username/grouplist */
     .put(token.checkNotApplication, param.validate(userInputSchema.userGrouplistUpdateInputSchema), userController.updateUserGroupList);
 
   router.route('/:username/group')
+  /** put /api/v2/users/:username/group */
     .put(token.checkNotApplication, param.validate(userInputSchema.addOrRemoveGroupInputSchema), userController.addGroupIntoUserGrouplist);
 
   router.route('/:username/group')
+  /** delete /api/v2/users/:username/group */
     .delete(token.checkNotApplication, param.validate(userInputSchema.addOrRemoveGroupInputSchema), userController.removeGroupFromUserGrouplist);
-}
 
-router.use('/:username/jobs', jobRouter);
+  /** Legacy API and will be deprecated in the future. Please use put /api/v2/users */
+  router.route('/:username/virtualcluster')
+  /** Update /api/v2/users/:username/virtualcluster */
+    .put(token.checkNotApplication, param.validate(userInputSchema.userVirtualClusterUpdateInputSchema), userController.updateUserVirtualCluster);
+
+  /** Legacy API and will be deprecated in the future. Please use put /api/v2/users */
+  router.route('/:username/password')
+  /** Update /api/v2/users/:username/password */
+    .put(token.checkNotApplication, param.validate(userInputSchema.userPasswordUpdateInputSchema), userController.updateUserPassword);
+
+  /** Legacy API and will be deprecated in the future. Please use put /api/v2/users */
+  router.route('/:username/email')
+  /** Update /api/v2/users/:username/email */
+    .put(token.checkNotApplication, param.validate(userInputSchema.userEmailUpdateInputSchema), userController.updateUserEmail);
+
+  /** Legacy API and will be deprecated in the future. Please use put /api/v2/users */
+  router.route('/:username/admin')
+  /** Update /api/v2/users/:username/admin */
+    .put(token.checkNotApplication, param.validate(userInputSchema.userAdminPermissionUpdateInputSchema), userController.updateUserAdminPermission);
+}
 
 module.exports = router;
