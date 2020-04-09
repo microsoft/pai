@@ -90,50 +90,50 @@ const hivedValidate = async (protocolObj, username) => {
         throw createError(
           'Bad Request',
           'InvalidProtocolError',
-          `Hived error: ${taskRole} does not exist.`
+          `Taskrole ${taskRole} does not exist.`
         );
       }
 
       const taskRoleConfig = hivedConfig.taskRoles[taskRole];
-      // at most one of [reservationId, gpuType] allowed
-      if (taskRoleConfig.reservationId !== null && taskRoleConfig.gpuType !== null) {
+      // at most one of [reservationId, skuType] allowed
+      if (taskRoleConfig.reservationId !== null && taskRoleConfig.skuType !== null) {
         throw createError(
           'Bad Request',
           'InvalidProtocolError',
-          `Hived error: ${taskRole} has both reservationId and gpuType, only one allowed.`
+          `Taskrole ${taskRole} has both reservationId and skuType, only one allowed.`
         );
       }
 
-      if (taskRoleConfig.gpuType !== null && !(taskRoleConfig.gpuType in resourceUnits)) {
+      if (taskRoleConfig.skuType !== null && !(taskRoleConfig.skuType in resourceUnits)) {
         throw createError(
           'Bad Request',
           'InvalidProtocolError',
-          `Hived error: ${taskRole} has unknown gpuType ${taskRoleConfig.gpuType}, allow ${Object.keys(resourceUnits)}.`
+          `Taskrole ${taskRole} has unknown skuType ${taskRoleConfig.skuType}, allow ${Object.keys(resourceUnits)}.`
         );
       }
 
       const affinityGroupName = taskRoleConfig.affinityGroupName;
-      // affinityGroup should have uniform reservationId and gpuType
+      // affinityGroup should have uniform reservationId and skuType
       if (affinityGroupName !== null) {
         if (affinityGroupName in affinityGroups) {
           if (taskRoleConfig.reservationId === null) {
             taskRoleConfig.reservationId = affinityGroups[affinityGroupName].reservationId;
           }
-          if (taskRoleConfig.gpuType === null) {
-            taskRoleConfig.gpuType = affinityGroups[affinityGroupName].gpuType;
+          if (taskRoleConfig.skuType === null) {
+            taskRoleConfig.skuType = affinityGroups[affinityGroupName].skuType;
           }
           if (taskRoleConfig.reservationId !== affinityGroups[affinityGroupName].reservationId ||
-            taskRoleConfig.gpuType !== affinityGroups[affinityGroupName].gpuType) {
+            taskRoleConfig.skuType !== affinityGroups[affinityGroupName].skuType) {
             throw createError(
               'Bad Request',
               'InvalidProtocolError',
-              `Hived error: affinityGroup: ${affinityGroupName} has inconsistent gpuType or reservationId.`
+              `AffinityGroup ${affinityGroupName} has inconsistent skuType or reservationId.`
             );
           }
         } else {
           affinityGroups[affinityGroupName] = {
             reservationId: taskRoleConfig.reservationId,
-            gpuType: taskRoleConfig.gpuType,
+            skuType: taskRoleConfig.skuType,
             affinityTaskList: [],
           };
         }
@@ -146,12 +146,12 @@ const hivedValidate = async (protocolObj, username) => {
     }
 
     for (let affinityGroupName of Object.keys(affinityGroups)) {
-      if (affinityGroups[affinityGroupName].gpuType !== null &&
+      if (affinityGroups[affinityGroupName].skuType !== null &&
         affinityGroups[affinityGroupName].reservationId !== null) {
         throw createError(
           'Bad Request',
           'InvalidProtocolError',
-          `Hived error: affinityGroup: ${affinityGroupName} has both reservationId and gpuType, only one allowed.`
+          `AffinityGroup ${affinityGroupName} has both reservationId and skuType, only one allowed.`
         );
       }
     }
@@ -194,7 +194,7 @@ const hivedValidate = async (protocolObj, username) => {
       affinityGroup: null,
     };
     if (hivedConfig && hivedConfig.taskRoles && taskRole in hivedConfig.taskRoles) {
-      podSpec.gpuType = hivedConfig.taskRoles[taskRole].gpuType;
+      podSpec.gpuType = hivedConfig.taskRoles[taskRole].skuType;
       if (podSpec.gpuType !== null) {
         for (const t of ['gpu', 'cpu', 'memory']) {
           resourcePerCell[t] = resourceUnits[podSpec.gpuType][t];
@@ -222,7 +222,7 @@ const hivedValidate = async (protocolObj, username) => {
       throw createError(
         'Bad Request',
         'InvalidProtocolError',
-        `Hived error: ${taskRole} requests ${gpu} GPU, ${cpu} CPU, ${memoryMB}MB memory; ` +
+        `Taskrole ${taskRole} requests ${gpu} GPU, ${cpu} CPU, ${memoryMB}MB memory; ` +
         `sku allows ${resourcePerCell.gpu} GPU, ${resourcePerCell.cpu} CPU, ${resourcePerCell.memory}MB memory per cell.`
       );
     }
@@ -234,7 +234,7 @@ const hivedValidate = async (protocolObj, username) => {
     throw createError(
       'Bad Request',
       'InvalidProtocolError',
-      `Hived error: exceed ${cellQuota} GPU quota in ${virtualCluster} VC.`
+      `Exceed ${cellQuota} GPU quota in ${virtualCluster} VC.`
     );
   }
 

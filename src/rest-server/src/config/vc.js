@@ -48,8 +48,15 @@ const vcStatusPutInputSchema = Joi.object().keys({
 const resourceUnits = {};
 
 if (enabledHived) {
-  const hivedSpec = yaml.safeLoad(fs.readFileSync(hivedSpecPath));
-  for (let [key, val] of Object.entries(hivedSpec.physicalCluster.gpuTypes)) {
+  const hivedConfig = yaml.safeLoad(fs.readFileSync(hivedSpecPath));
+  if (!('physicalCluster' in hivedConfig &&
+      !!hivedConfig.physicalCluster.skuTypes &&
+      hivedConfig.physicalCluster.skuTypes.constructor === Object &&
+      Object.keys(hivedConfig.physicalCluster.skuTypes).length > 0)) {
+    throw new Error('Cannot find skuTypes in hivedscheduler config.');
+  }
+
+  for (let [key, val] of Object.entries(hivedConfig.physicalCluster.skuTypes)) {
     resourceUnits[key] = {
       cpu: k8s.atoi(val.cpu),
       memory: k8s.convertMemoryMb(val.memory),
