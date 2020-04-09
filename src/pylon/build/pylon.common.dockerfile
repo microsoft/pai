@@ -41,7 +41,7 @@ RUN wget http://www.zlib.net/zlib-1.2.11.tar.gz && \
     tar -zxf zlib-1.2.11.tar.gz
 
 # OpenSSL version 1.0.2 - 1.1.0
-RUN wget https://www.openssl.org/source/openssl-1.1.0f.tar.gz && \
+RUN wget https://www.openssl.org/source/old/1.1.0/openssl-1.1.0f.tar.gz && \
     tar -zxf openssl-1.1.0f.tar.gz
 
 # subs_filter
