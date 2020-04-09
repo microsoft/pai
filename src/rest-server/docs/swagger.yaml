@@ -479,6 +479,8 @@ paths:
               properties:
                 data:
                   type: object
+                  required:
+                    - groupname
                   properties:
                     groupname:
                       type: string
@@ -494,8 +496,6 @@ paths:
                 patch:
                   type: Boolean
                   default: false
-              required:
-                - groupname
         required: true
       responses:
         '201':
