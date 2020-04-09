@@ -27,6 +27,9 @@ const getGroup = async (req, res, next) => {
     const groupInfo = await groupModel.getGroup(groupname);
     return res.status(200).json(groupInfo);
   } catch (error) {
+    if (error.status === 404) {
+      return next(createError('Bad Request', 'NoGroupError', `Group ${req.params.groupname} is not found.`));
+    }
     return next(createError.unknown(error));
   }
 };
@@ -84,26 +87,26 @@ const createGroup = async (req, res, next) => {
 };
 
 const updateGroup = async (req, res, next) => {
-  const groupname = req.body.groupname;
+  const groupname = req.body.data.groupname;
   try {
     if (req.user.admin) {
       let groupInfo = await groupModel.getGroup(groupname);
-      if (req.body.patchExtension) {
-        if (req.body.description !== '') {
-          groupInfo['description'] = req.body.description;
+      if (req.body.patch) {
+        if (req.body.data.description !== '') {
+          groupInfo['description'] = req.body.data.description;
         }
-        if (req.body.externalName !== '') {
-          groupInfo['externalName'] = req.body.externalName;
+        if (req.body.data.externalName !== '') {
+          groupInfo['externalName'] = req.body.data.externalName;
         }
-        if (Object.keys(req.body.extension) > 0) {
-          for (let [key, value] of Object.entries(req.body.extension)) {
+        if (Object.keys(req.body.data.extension) > 0) {
+          for (let [key, value] of Object.entries(req.body.data.extension)) {
             groupInfo['extension'][key] = value;
           }
         }
       } else {
-        groupInfo['description'] = req.body.description;
-        groupInfo['externalName'] = req.body.externalName;
-        groupInfo['extension'] = req.body.extension;
+        groupInfo['description'] = req.body.data.description;
+        groupInfo['externalName'] = req.body.data.externalName;
+        groupInfo['extension'] = req.body.data.extension;
       }
       await groupModel.updateGroup(groupname, groupInfo);
       return res.status(201).json({
