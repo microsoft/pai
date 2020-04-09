@@ -934,7 +934,7 @@ paths:
           $ref: '#/components/responses/NoJobError'
         '501':
           $ref: '#/components/responses/UnknownError'
-  '/api/v2/jobs/{user}~{job}/job-attempts/{attempt}':
+  '/api/v2/jobs/{user}~{job}/job-attempts/{attemptIndex}':
     get:
       tags:
         - job history
@@ -1775,7 +1775,157 @@ components:
         - data
     JobAttempt:
       type: object
-      description: TODO
+      description: job attempt
+      properties:
+        jobName:
+          type: string
+        frameworkName:
+          type: string
+        uid:
+          type: string
+        userName:
+          type: string
+        state:
+          type: string
+        originState:
+          type: string
+        maxAttemptCount:
+          type: integer
+        attemptIndex:
+          type: integer
+        jobStartedTime:
+          type: integer
+        attemptStartedTime:
+          type: integer
+        attemptCompletedTime:
+          type: integer
+        exitCode:
+          type: integer
+        exitPhrase:
+          type: string
+        exitType:
+          type: string
+        exitDiagnostics:
+          type: object
+          properties:
+            diagnosticsSummary:
+              type: string
+            runtime:
+              type: object
+              properties:
+                exitCode:
+                  type: integer
+                originUserExitCode:
+                  type: integer
+                errorLogs:
+                  type: object
+                  properties:
+                    user:
+                      type: string
+                    platform:
+                      type: string
+                name:
+                  type: string
+            launcher:
+              type: string
+        appExitTriggerMessage:
+          type: string
+        appExitTriggerTaskRoleName:
+          type: string
+        appExitTriggerTaskIndex:
+          type: integer
+        appExitSpec:
+          type: object
+          properties:
+            code:
+              type: integer
+            phrase:
+              type: string
+            issuer:
+              type: string
+            causer:
+              type: string
+            type:
+              type: string
+            stage:
+              type: string
+            behavior:
+              type: string
+            reaction:
+              type: string
+            reason:
+              type: string
+            repro:
+              type: array
+              items:
+                type: string
+            solution:
+              type: array
+              items:
+                type: string
+        appExitDiagnostics:
+          type: string
+        appExitMessages:
+          type: object
+          properties:
+            container:
+              type: string
+            runtime:
+              type: object
+              properties:
+                exitCode:
+                  type: integer
+                originUserExitCode:
+                  type: integer
+                errorLogs:
+                  type: object
+                  properties:
+                    user:
+                      type: string
+                    platform:
+                      type: string
+                name:
+                  type: string
+            launcher:
+              type: string
+        totalGpuNumber:
+          type: integer
+        totalTasknumber:
+          type: integer
+        totalTaskRoleNumber:
+          type: integer
+        taskRoles:
+          type: object
+          properties:
+            taskrole:
+              type: object
+              properties:
+                taskRoleStatus:
+                  type: object
+                  properties:
+                    name:
+                      type: string
+                taskStatuses:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      taskIndex:
+                        type: integer
+                      taskState:
+                        type: string
+                      containerId:
+                        type: string
+                      containerIp:
+                        type: string
+                      containerGpus:
+                        type: string
+                      containerLog:
+                        type: string
+                      containerExitCode:
+                        type: integer
+        isLatest:
+          type: boolean
   responses:
     IncorrectPassworkError:
       description: IncorrectPassworkError
