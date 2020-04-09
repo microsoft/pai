@@ -950,7 +950,7 @@ paths:
       parameters:
         - $ref: '#/components/parameters/user'
         - $ref: '#/components/parameters/job'
-        - $ref: '#/components/parameters/attempt'
+        - $ref: '#/components/parameters/attemptIndex'
       responses:
         '200':
           description: Succeeded
@@ -1067,8 +1067,8 @@ components:
       required: true
       schema:
         type: string
-    attempt:
-      name: attempt
+    attemptIndex:
+      name: attemptIndex
       in: path
       description: attempt index
       required: true
