@@ -23,39 +23,21 @@ example of cnn-cifar10 (single CPU/GPU)
 
 import tensorflow as tf
 
-from tensorflow.keras import datasets, layers
-from tensorflow.keras.applications.vgg16 import VGG16, preprocess_input
+from tensorflow.keras import datasets, layers, Model
+from tensorflow.keras.applications.vgg16 import VGG16
 from tensorflow.keras.utils import to_categorical
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
 from tensorflow.keras.layers import Dropout, Flatten, Dense
-from tensorflow.keras import callbacks
-from tensorflow.keras import Model
 
-
-
-# (train_images, train_labels), (test_images, test_labels) = datasets.cifar10.load_data()
-
-# Normalize pixel values to be between 0 and 1
-# train_images, test_images = train_images / 255.0, test_images / 255.0
-
-# # normalize the input according to the methods used in the paper
-# X_train = preprocess_input(train_images)
-# X_test = preprocess_input(test_images)
-# # one-hot-encode the labels for training
-# y_train = to_categorical(train_labels)
-# y_test = to_categorical(test_labels)
 
 base_model = VGG16(weights='imagenet', include_top=False, input_shape=(32, 32, 3))
 
 epochs = 50
-nb_classes = 10
+num_classes = 10
 
 (X_train, y_train), (X_test, y_test) = datasets.cifar10.load_data()
-Y_train = to_categorical(y_train, nb_classes)
-Y_test = to_categorical(y_test, nb_classes)
-
-nb_train_samples = X_train.shape[0]
-nb_validation_samples = X_test.shape[0]
+Y_train = to_categorical(y_train, num_classes)
+Y_test = to_categorical(y_test, num_classes)
 
 # Extract the last layer from third block of vgg16 model
 last = base_model.get_layer('block3_pool').output
@@ -92,32 +74,11 @@ train_generator = train_datagen.flow(X_train, Y_train, batch_size=32)
 test_datagen = ImageDataGenerator(rescale=1. / 255)
 validation_generator = test_datagen.flow(X_test, Y_test, batch_size=32)
 
-# callback for tensorboard integration
-tb = callbacks.TensorBoard(log_dir='./logs', histogram_freq=0, write_graph=True, write_images=False)
-
 # fine-tune the model
 model.fit(
     train_generator,
-    # samples_per_epoch=nb_train_samples,
-    epochs=epochs,
-    validation_data=validation_generator,
-    # nb_val_samples=nb_validation_samples,
-    callbacks=[tb])
+    epochs=1,
+    validation_data=validation_generator)
 
-# model = VGG16(
-#     weights=None, 
-#     include_top=True, 
-#     classes=10,
-#     input_shape=(32,32,3)
-# )
-
-# model.compile(optimizer='sgd',
-#               loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True),
-#               metrics=['accuracy'])
-
-# model.fit(train_images, train_labels, epochs=30, batch_size=256,
-#                     validation_data=(test_images, test_labels))
-
-test_loss, test_acc = model.evaluate(test_images, test_labels, verbose=2)
-
+test_loss, test_acc = model.evaluate(X_test, Y_test, verbose=2)
 print("The test accuracy is: ", test_acc)

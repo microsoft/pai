@@ -37,7 +37,3 @@ extras:
       parameters:
         storageConfigNames:
           - nfs-storage
-  hivedScheduler:
-    taskRoles:
-      taskrole:
-        gpuType: DT

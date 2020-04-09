@@ -34,8 +34,3 @@ extras:
       parameters:
         storageConfigNames:
           - nfs-storage
-  # To submit a GPU-only job
-  hivedScheduler:
-    taskRoles:
-      taskrole:
-        gpuType: DT
