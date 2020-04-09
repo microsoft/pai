@@ -477,17 +477,20 @@ paths:
             schema:
               type: object
               properties:
-                groupname:
-                  type: string
-                  description: group name
-                description:
-                  type: string
-                  description: description for the group
-                externalName:
-                  type: string
-                  description: the external group name binding with the group in OpenPAI
-                extension:
+                data:
                   type: object
+                  properties:
+                    groupname:
+                      type: string
+                      description: group name
+                    description:
+                      type: string
+                      description: description for the group
+                    externalName:
+                      type: string
+                      description: the external group name binding with the group in OpenPAI
+                    extension:
+                      type: object
                 patch:
                   type: Boolean
                   default: false
