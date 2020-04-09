@@ -111,7 +111,17 @@ Finally, for `Task retry count`, it is the maximum retry number for a single tas
 
 ## Job Protocol, Export and Import Jobs
 
-In OpenPAI, all jobs are represented by [YAML](https://yaml.org/), a markup language. You can click the button Edit YAML below to edit the YAML definition directly. You can also export and import YAML files using the `Export` and `Import` button.
+In OpenPAI, all jobs are represented by [YAML](https://yaml.org/), a markup language. You can click the button Edit YAML below to edit the YAML definition directly.
+
+To edit job configuration directly, first, click `Edit YAML`:
+
+   <img src="./imgs/click-edit-yaml.png" width="100%" height="100%" />
+
+Then modify the YAML definition, and use the `Save` button to apply changes:
+
+   <img src="./imgs/click-save-yaml.png" width="100%" height="100%" />
+
+You can also export and import YAML files using the `Export` and `Import` button.
 
    <img src="./imgs/export-and-import.png" width="100%" height="100%" />
 

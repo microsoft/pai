@@ -14,11 +14,11 @@
 
 ## Get Permitted Storage
 
-You should first have at least one permitted storage to manage data in OpenPAI. To view your peritted storage, first, go to your profile page:
+You should first have at least one permitted storage to manage data in OpenPAI. To view your permitted storage, first, go to your profile page:
 
 ![view profile](./imgs/view-profile.png "view profile")
 
-Then all storage you have access to will be shown:
+Then all storages you have access to will be shown:
 
 ![storage config](./imgs/storage-config.png "storage config")
 
@@ -26,7 +26,7 @@ If you don't find any storage, please contact the cluster administrator.
 
 ## Upload data
 
-There are multiple types for storage. We introduce how to upload data to `NFS`, `AzureBlob` and `AzureFile` storage as examples.
+There are multiple types of storage. We introduce how to upload data to `NFS`, `AzureBlob` and `AzureFile` storage as examples.
 
 ### Upload data to NFS
 
@@ -39,7 +39,7 @@ sudo apt-get update
 sudo apt-get install --assume-yes nfs-common
 ```
 
-Then you can run following commands to mount nfs into your machine
+Then you can mount nfs into your machine:
 ```bash
 sudo mkdir -p MOUNT_PATH
 sudo mount -t nfs4 NFS_SERVER:/NFS_PATH MOUNT_PATH
@@ -69,7 +69,7 @@ For Azure File, you can get the `storage account name` and `file share name` on 
 To upload data to Azure Blob or Azure File, please:
 
 1. Download [Azure Storage Explore](https://azure.microsoft.com/en-us/features/storage-explorer/)
-2. If you use AAD to login to PAI portal, the administrator should already grant you the permission to access storage. You can get the `storage account name`, `container name` and `file share name` in the profile page. And please use these info to access storage in `Storage Explore`. For more details, please refer to [storage explore: add resource via azure ad](https://docs.microsoft.com/en-us/azure/vs-azure-tools-storage-manage-with-storage-explorer?tabs=windows#add-a-resource-via-azure-ad)
+2. If you use AAD to login to PAI portal, the administrator should already grant you the permission to access storage. You can get the `storage account name`, `container name` and `file share name` in the profile page. And please use them to access storage in `Storage Explore`. For more details, please refer to [storage explore: add resource via azure ad](https://docs.microsoft.com/en-us/azure/vs-azure-tools-storage-manage-with-storage-explorer?tabs=windows#add-a-resource-via-azure-ad)
 3. If you use basic authentication (username/password) to login to PAI portal. Please ask your administrator for the storage `access key`. Then you can add the storage by `access key` and `storage account name`. For more details, please refer to: [storage explore: use name and key](https://docs.microsoft.com/en-us/azure/vs-azure-tools-storage-manage-with-storage-explorer?tabs=windows#use-a-name-and-key)
 
 ## Use Storage in Jobs

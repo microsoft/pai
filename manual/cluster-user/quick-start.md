@@ -31,9 +31,9 @@ Now your first OpenPAI job has been kicked off!
 
 ## Browse Stdout, Stderr, Full logs, and Metrics
 
-The hello world job is implemented by TensorFlow. It trains a simple model on CIFAR-10 dataset for 1,000 steps with downloaded data and code from the Internet. You can monitor the job by checking its logs and running metrics.
+The hello world job is implemented by TensorFlow. It trains a simple model on CIFAR-10 dataset for 1,000 steps with downloaded data. You can monitor the job by checking its logs and running metrics on Webportal.
 
-You can click `Stdout` and `Stderr` button to see the stdout and stderr logs for a job on the job detail page. If you want to see a merged log, you can click `...` on the right and then select `Stdout + Stderr`. The order of this merged log is not guaranteed.
+Click `Stdout` and `Stderr` button to see the stdout and stderr logs for a job on the job detail page. If you want to see a merged log, you can click `...` on the right and then select `Stdout + Stderr`.
 
 <img src="./imgs/view-logs.png" width="90%" height="90%" />
 
