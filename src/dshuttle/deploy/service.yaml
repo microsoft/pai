@@ -26,7 +26,6 @@ template-list:
 
 start-script: start.sh
 stop-script: stop.sh
-delete-script: delete.sh
 
 deploy-rules:
   - in: pai-master

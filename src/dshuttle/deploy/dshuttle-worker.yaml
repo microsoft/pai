@@ -14,10 +14,6 @@ spec:
         app: dshuttle-worker
     spec:
       hostNetwork: true
-      hostAliases:
-      - ip: "10.151.40.4"
-        hostnames:
-        - "paigcr-a-gpu-1104"
       dnsPolicy: ClusterFirstWithHostNet
       securityContext:
         fsGroup: 1000
@@ -26,20 +22,16 @@ spec:
       - name: socket-chown
         securityContext:
           runAsUser: 0
-        image: alluxio/alluxio:2.1.0
-        command: ["/bin/chown","-R", "1000:1000", "/opt/domain", "/opt/worker-logs", "/opt/job-logs", "/mnt/dshuttle"]
+        image: dshuttle/dshuttle:latest
+        command: ["/bin/chown","-R", "1000:1000", "/opt/domain", "/opt/logs"]
         volumeMounts:
         - name: dshuttle-domain
           mountPath: /opt/domain
-        - name: job-logs
-          mountPath: /opt/worker-logs
         - name: worker-logs
-          mountPath: /opt/job-logs
-        - name: hdd
-          mountPath: /mnt/dshuttle
+          mountPath: /opt/logs
       containers:
         - name: dshuttle-worker
-          image: alluxio/alluxio:2.1.0
+          image: dshuttle/dshuttle:latest
           imagePullPolicy: IfNotPresent
           securityContext:
             runAsUser: 1000
@@ -73,14 +65,10 @@ spec:
               mountPath: /opt/domain
             - mountPath: /dev/shm
               name: mem
-            - mountPath: /mnt/dshuttle
-              name: hdd
-            - name: dshuttle-data
-              mountPath: /opt/alluxio/underFSStorage
             - name: worker-logs
               mountPath: /opt/alluxio/logs
         - name: dshuttle-job-worker
-          image: alluxio/alluxio:2.1.0
+          image: dshuttle/dshuttle:latest
           securityContext:
             runAsUser: 1000
             runAsGroup: 1000
@@ -115,9 +103,7 @@ spec:
               mountPath: /opt/domain
             - mountPath: /dev/shm
               name: mem
-            - name: dshuttle-data
-              mountPath: /opt/alluxio/underFSStorage
-            - name: job-logs
+            - name: worker-logs
               mountPath: /opt/alluxio/logs
       restartPolicy: Always
       volumes:
@@ -127,19 +113,9 @@ spec:
             type: DirectoryOrCreate
         - name: worker-logs
           hostPath:
-            path: /tmp/dshuttle-worker-logs
+            path: /var/logs/dshuttle/worker-logs
             type: DirectoryOrCreate
-        - name: job-logs
-          hostPath:
-            path: /tmp/dshuttle-job-logs
-            type: DirectoryOrCreate
-        - name: hdd
-          hostPath:
-            path: /mnt/dshuttle
         - name: mem
           emptyDir:
             medium: "Memory"
             sizeLimit: 1G
-        - name: dshuttle-data
-          persistentVolumeClaim:
-            claimName: nfs

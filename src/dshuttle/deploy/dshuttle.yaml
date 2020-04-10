@@ -32,14 +32,10 @@ spec:
       labels:
         app: dshuttle-master
     spec:
-      hostAliases:
-      - ip: "10.151.40.4"
-        hostnames:
-        - "paigcr-a-gpu-1104"
       hostNetwork: true
       containers:
       - name: dshuttle
-        image: {{ cluster_cfg['cluster']['docker-registry']['prefix'] }}dshuttle:{{ cluster_cfg['cluster']['docker-registry']['tag'] }}
+        image: dshuttle/dshuttle:latest
         imagePullPolicy: Always
         securityContext:
           runAsUser: 1000
@@ -62,7 +58,7 @@ spec:
         - name: dshuttle-data
           mountPath: /opt/alluxio/underFSStorage
       - name: dshuttle-job-master
-        image: {{ cluster_cfg['cluster']['docker-registry']['prefix'] }}dshuttle:{{ cluster_cfg['cluster']['docker-registry']['tag'] }}
+        image: dshuttle/dshuttle:latest
         imagePullPolicy: Always
         securityContext:
           runAsUser: 1000
@@ -90,14 +86,15 @@ spec:
       volumes:
       - name: alluxio-journal
         hostPath:
-          path: /dshuttle/journal
+          path: /mnt/dshuttle/journal
           type: DirectoryOrCreate
       - name: dshuttle-data
-        persistentVolumeClaim:
-          claimName: nfs
+        hostPath:
+          path: /mnt/dshuttle/ufs
+          type: DirectoryOrCreate
       initContainers:
       - name: journal-chown
-        image: alluxio/alluxio:2.2.0-SNAPSHOT
+        image: dshuttle/dshuttle:latest
         imagePullPolicy: IfNotPresent
         securityContext:
           runAsUser: 0
