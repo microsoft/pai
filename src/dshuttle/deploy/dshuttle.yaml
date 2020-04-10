@@ -32,6 +32,15 @@ spec:
       labels:
         app: dshuttle-master
     spec:
+      affinity:
+          nodeAffinity:
+            requiredDuringSchedulingIgnoredDuringExecution:
+              nodeSelectorTerms:
+              - matchExpressions:
+                - key: pai-master
+                  operator: In
+                  values:
+                  - "true"
       hostNetwork: true
       containers:
       - name: dshuttle
