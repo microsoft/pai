@@ -17,7 +17,7 @@
 
 
 """
-example of cnn-cifar10 (single CPU/GPU)
+example of vgg16-cifar10 (single CPU/GPU)
 """
 
 
@@ -80,10 +80,10 @@ train_datagen = ImageDataGenerator(
     horizontal_flip=True)
 
 train_datagen.fit(X_train)
-train_generator = train_datagen.flow(X_train, Y_train, batch_size=32)
+train_generator = train_datagen.flow(X_train, Y_train, batch_size=args.batch_size*strategy.num_replicas_in_sync)
 
 test_datagen = ImageDataGenerator(rescale=1. / 255)
-validation_generator = test_datagen.flow(X_test, Y_test, batch_size=32)
+validation_generator = test_datagen.flow(X_test, Y_test, batch_size=args.batch_size*strategy.num_replicas_in_sync)
 
 # fine-tune the model
 model.fit(
