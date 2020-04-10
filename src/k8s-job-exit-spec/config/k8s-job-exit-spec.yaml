@@ -926,14 +926,14 @@ spec:
     - userLogRegex: "(?i)cuda runtime error (2) : out of memory"
 
 - code: 227
-  phrase: ContainerGpuDeviceEccError
+  phrase: ContainerMayFailDueToGpuDeviceEccError
   issuer: PAI_RUNTIME
   causer: PAI_HW
   type: PLATFORM_FAILURE
   stage: RUNNING
   behavior: TRANSIENT
   reaction: RETRY_TO_MAX
-  reason: "Container failed due GPU ecc error"
+  reason: "Container failed due to GPU ecc error"
   repro:
   - "Initialize tensorflow streamExecutor in GPU with ECC error"
   solution:
@@ -941,7 +941,6 @@ spec:
   - "Contact Cluster Admin"
   pattern:
     runtimeContainerPatterns:
-    - userLogRegex: "(?i)CUDA_ERROR_ECC_UNCORRECTABLE: uncorrectable ECC error encountered"
     - gpuInfo:
         nvidiaDoubleEccError: true
 
