@@ -260,7 +260,7 @@ const updateUserVirtualCluster = async (req, res, next) => {
   }
 };
 
-const updateGroupList = async (groupList) => {
+const updateGroupListInternal = async (groupList) => {
   let retGroupList = await groupModel.filterExistGroups(groupList);
    if (retGroupList.length !== req.body.grouplist) {
     const nonExistGrouplist = req.body.grouplist.filter((groupname) => !existGrouplist.includes(groupname));
@@ -277,7 +277,7 @@ const updateUserGroupList = async (req, res, next) => {
   let userValue;
   try {
     userValue = await userModel.getUser(username);
-    userValue.grouplist = updateGroupList(userValue.grouplist);
+    userValue.grouplist = updateGroupListInternal(userValue.grouplist);
   } catch (error) {
     if (error.code === 'NoGroupError') {
       return next(error);
@@ -407,6 +407,23 @@ const updateUserEmail = async (req, res, next) => {
   }
 };
 
+const updateAdminPermissionInternal = async (user, admin) => {
+  const groupInfo = await groupModel.getListGroup(user.grouplist);
+  const existed = groupModel.getAdminWithGroupInfo(groupInfo);
+  let newGroupList = [];
+  if (!existed && admin) {
+    // non-admin -> admin, add into adminGroup
+    newGroupList = [...user.grouplist, authConfig.groupConfig.adminGroup.groupname];
+  } else if (existed && !admin) {
+    for (const groupItem of groupInfo) {
+      if (!groupModel.getAdminWithGroupInfo([groupItem])) {
+        newGroupList.push(groupItem.groupname);
+      }
+    }
+  }
+  return newGroupList;
+};
+
 const updateUserAdminPermission = async (req, res, next) => {
   try {
     const username = req.params.username;
@@ -423,23 +440,7 @@ const updateUserAdminPermission = async (req, res, next) => {
         }
         return next(createError.unknown((error)));
       }
-      const groupInfo = await groupModel.getListGroup(userInfo.grouplist);
-      const existed = groupModel.getAdminWithGroupInfo(groupInfo);
-      let newGrouplist = [];
-      if (!existed && admin) {
-        // non-admin -> admin, add into adminGroup
-        newGrouplist = [...userInfo.grouplist, authConfig.groupConfig.adminGroup.groupname];
-      } else if (existed && !admin) {
-        // admin -> non-admin, remove all admin group
-        for (const groupItem of groupInfo) {
-          if (!groupModel.getAdminWithGroupInfo([groupItem])) {
-            newGrouplist.push(groupItem.groupname);
-          }
-        }
-      } else {
-        newGrouplist = userInfo.grouplist;
-      }
-      userInfo.grouplist = newGrouplist;
+      userInfo.grouplist = updateAdminPermissionInternal(userInfo, admin);
       await userModel.updateUser(username, userInfo);
       return res.status(201).json({
         message: 'Update user admin permission successfully.',
@@ -448,6 +449,66 @@ const updateUserAdminPermission = async (req, res, next) => {
   } catch (error) {
     return next(createError.unknown((error)));
   }
+};
+
+const basicAdminUserUpdateInputSchema = async (req, res, next) => {
+  const username = req.body.data.username;
+  if (!req.user.admin) {
+    next(createError('Forbidden', 'ForbiddenUserError', `Non-admin is not allow to do this operation.`));
+  }
+  let userInfo;
+  try {
+    userInfo = await userModel.getUser(username);
+  } catch (error) {
+    if (error.status === 404) {
+      return next(createError('Not Found', 'NoUserError', `User ${username} not found.`));
+    }
+    return next(createError.unknown((error)));
+  }
+  try {
+    if (req.body.patch) {
+      let updatePassword = false;
+      if ('email' in req.body.data) {
+        userInfo['email'] = req.body.data.email;
+      }
+      if ('virtualCluster' in req.body.data) {
+        try {
+          userInfo['grouplist'] = updateVirtualClusterInternal(req.body.data.virtualCluster);
+        } catch (error) {
+          if (error.code === 'NoVirtualClusterError') {
+            return next(error);
+          }
+          return next(createError.unknown((error)));
+        }
+      }
+      if ('admin' in req.body.data) {
+        userInfo['grouplist'] = updateAdminPermissionInternal(userInfo, req.body.data.admin);
+      }
+      if ('password' in req.body.data) {
+        updatePassword = true;
+        userInfo['password'] = req.body.data.password;
+      }
+      if ('extension' in req.body.data) {
+        userInfo['extension'] = updateExtensionInternal(userInfo['extension'], req.body.data.extension);
+      }
+      await userModel.updateUser(username, userInfo, updatePassword);
+      if (updatePassword) {
+        // try to revoke browser tokens
+        try {
+          await tokenModel.batchRevoke(username, (token) => {
+            const data = jwt.decode(token);
+            return !data.application;
+          });
+        } catch (err) {
+          logger.error('Failed to revoke tokens after password is updated', err);
+          // pass
+        }
+      }
+    }
+  } catch (error) {
+    return next(createError.unknown((error)));
+  }
+
 };
 
 const deleteUser = async (req, res, next) => {
@@ -477,6 +538,7 @@ module.exports = {
   getUser,
   getAllUser,
   createUserIfUserNotExist,
+  basicAdminUserUpdateInputSchema,
   updateUserGroupListFromExternal,
   updateUserExtension,
   updateUserVirtualCluster,

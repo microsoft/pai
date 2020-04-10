@@ -50,7 +50,7 @@ if (authnConfig.authnMethod === 'basic') {
 
   router.route('/')
   /** Put /api/v2/users */
-    .put(token.checkNotApplication, param.validate(userInputSchema.basicUserUpdateInputSchema), userController.basicUpdateUser);
+    .put(token.checkNotApplication, param.validate(userInputSchema.basicAdminUserUpdateInputSchema), userController.basicAdminUserUpdateInputSchema);
 
   router.route('/:username/grouplist')
   /** put /api/v2/users/:username/grouplist */

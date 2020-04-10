@@ -98,7 +98,7 @@ const updateGroup = async (req, res, next) => {
         if (req.body.data.externalName !== '') {
           groupInfo['externalName'] = req.body.data.externalName;
         }
-        if (Object.keys(req.body.data.extension) > 0) {
+        if (Object.keys(req.body.data.extension).length > 0) {
           for (let [key, value] of Object.entries(req.body.data.extension)) {
             groupInfo['extension'][key] = value;
           }
