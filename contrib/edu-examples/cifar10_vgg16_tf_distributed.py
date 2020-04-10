@@ -22,6 +22,7 @@ example of cnn-cifar10 (single CPU/GPU)
 
 
 import tensorflow as tf
+import argparse
 
 from tensorflow.keras import datasets, layers, Model
 from tensorflow.keras.applications.vgg16 import VGG16
@@ -30,36 +31,46 @@ from tensorflow.keras.preprocessing.image import ImageDataGenerator
 from tensorflow.keras.layers import Dropout, Flatten, Dense
 
 
-base_model = VGG16(weights='imagenet', include_top=False, input_shape=(32, 32, 3))
+parser = argparse.ArgumentParser()
+parser.add_argument('--epochs', type=int, default=50)
+parser.add_argument('--batch_size', type=int, default=32)
+parser.add_argument('--learning_rate', type=float, default=1e-3)
 
-epochs = 50
+args = parser.parse_args()
+
+epochs = args.epochs
 num_classes = 10
 
 (X_train, y_train), (X_test, y_test) = datasets.cifar10.load_data()
 Y_train = to_categorical(y_train, num_classes)
 Y_test = to_categorical(y_test, num_classes)
 
-# Extract the last layer from third block of vgg16 model
-last = base_model.get_layer('block3_pool').output
-# Add classification layers on top of it
-x = Flatten()(last)
-x = Dense(256, activation='relu')(x)
-x = Dropout(0.5)(x)
-pred = Dense(10, activation='sigmoid')(x)
+strategy = tf.distribute.MirroredStrategy()
+print('Number of devices: {}'.format(strategy.num_replicas_in_sync))
 
-model = Model(base_model.input, pred)
+with strategy.scope():
+    base_model = VGG16(weights='imagenet', include_top=False, input_shape=(32, 32, 3))
+    # Extract the last layer from third block of vgg16 model
+    last = base_model.get_layer('block3_pool').output
+    # Add classification layers on top of it
+    x = Flatten()(last)
+    x = Dense(256, activation='relu')(x)
+    x = Dropout(0.5)(x)
+    pred = Dense(10, activation='sigmoid')(x)
 
-# set the base model's layers to non-trainable
-# uncomment next two lines if you don't want to
-# train the base model
-# for layer in base_model.layers:
-#     layer.trainable = False
+    model = Model(base_model.input, pred)
 
-# compile the model with a SGD/momentum optimizer
-# and a very slow learning rate.
-model.compile(loss='binary_crossentropy',
-              optimizer=tf.optimizers.SGD(lr=1e-3, momentum=0.9),
-              metrics=['accuracy'])
+    # set the base model's layers to non-trainable
+    # uncomment next two lines if you don't want to
+    # train the base model
+    # for layer in base_model.layers:
+    #     layer.trainable = False
+
+    # compile the model with a SGD/momentum optimizer
+    # and a very slow learning rate.
+    model.compile(loss='binary_crossentropy',
+                optimizer=tf.optimizers.SGD(lr=args.learning_rate, momentum=0.9),
+                metrics=['accuracy'])
 
 # prepare data augmentation configuration
 train_datagen = ImageDataGenerator(
@@ -77,7 +88,7 @@ validation_generator = test_datagen.flow(X_test, Y_test, batch_size=32)
 # fine-tune the model
 model.fit(
     train_generator,
-    epochs=1,
+    epochs=epochs,
     validation_data=validation_generator)
 
 test_loss, test_acc = model.evaluate(X_test, Y_test, verbose=2)

@@ -1,5 +1,5 @@
 protocolVersion: 2
-name: cifar10_tf2_cpu_example
+name: cifar10_vgg16_tf2_cpu_example
 type: job
 jobRetryCount: 0
 prerequisites:
@@ -21,8 +21,8 @@ taskRoles:
     commands:
       - >-
         wget
-        https://raw.githubusercontent.com/suiguoxin/pai/edu-examples/contrib/edu-examples/cifar10_cnn_tf.py
-      - python cifar10_cnn_tf.py
+        https://raw.githubusercontent.com/suiguoxin/pai/edu-examples/contrib/edu-examples/cifar10_vgg16_tf.py
+      - python cifar10_vgg16_tf.py --epochs 50
 defaults:
   virtualCluster: cpu
 extras:

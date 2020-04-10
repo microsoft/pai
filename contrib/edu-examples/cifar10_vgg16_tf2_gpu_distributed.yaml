@@ -1,5 +1,5 @@
 protocolVersion: 2
-name: cifar10_tf2_1gpu_example
+name: cifar10_vgg16_tf2_4gpu_example
 type: job
 jobRetryCount: 0
 prerequisites:
@@ -15,14 +15,14 @@ taskRoles:
     taskRetryCount: 0
     dockerImage: docker_image_0
     resourcePerInstance:
-      gpu: 1
+      gpu: 4
       cpu: 1
       memoryMB: 6826
     commands:
       - >-
         wget
-        https://raw.githubusercontent.com/suiguoxin/pai/edu-examples/contrib/edu-examples/cifar10_cnn_tf.py
-      - python cifar10_cnn_tf.py
+        https://raw.githubusercontent.com/suiguoxin/pai/edu-examples/contrib/edu-examples/cifar10_vgg16_tf_distributed.py
+      - python cifar10_vgg16_tf_distributed.py --epochs 50
 defaults:
   virtualCluster: default
 extras:
