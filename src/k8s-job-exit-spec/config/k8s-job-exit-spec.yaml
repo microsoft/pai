@@ -945,23 +945,6 @@ spec:
     - gpuInfo:
         nvidiaDoubleEccError: true
 
-- code: 227
-  phrase: ContainerEngineCoreDump
-  issuer: PAI_RUNTIME
-  causer: USER_CONTAINER
-  type: USER_FAILURE
-  stage: RUNNING
-  behavior: PERMANENT
-  reaction: NEVER_RETRY
-  reason: "Container failed due to engine core dump"
-  repro:
-  - "Access invalid memory address"
-  solution:
-  - "Correct the user code"
-  pattern:
-    runtimeContainerPatterns:
-    - userLogRegex: "(?i)core dumped"
-
 - code: 228
   phrase: ContainerIncorrectParameterError
   issuer: PAI_RUNTIME
@@ -1103,6 +1086,23 @@ spec:
   pattern:
     runtimeContainerPatterns:
     - userLogRegex: "(?i)segmentation fault"
+
+- code: 235
+  phrase: ContainerEngineCoreDump
+  issuer: PAI_RUNTIME
+  causer: USER_CONTAINER
+  type: USER_FAILURE
+  stage: RUNNING
+  behavior: PERMANENT
+  reaction: NEVER_RETRY
+  reason: "Container failed due to engine core dump"
+  repro:
+  - "Access invalid memory address"
+  solution:
+  - "Correct the user code"
+  pattern:
+    runtimeContainerPatterns:
+    - userLogRegex: "(?i)core dumped"
 
 - code: 249
   phrase: PAIRuntimeSSHBarrierTimeout

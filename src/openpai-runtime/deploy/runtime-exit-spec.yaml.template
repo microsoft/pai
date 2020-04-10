@@ -33,7 +33,7 @@
   {%- if 'gpuInfo' in runtimePattern %}
     gpuInfo:
     {%- if 'nvidiaDoubleEccError' in runtimePattern['gpuInfo'] %}
-      nvidiaDoubleEccError: '{{ runtimePattern['gpuInfo']['nvidiaDoubleEccError'] }}'
+      nvidiaDoubleEccError: {{ runtimePattern['gpuInfo']['nvidiaDoubleEccError'] }}
     {%- endif %}
   {%- endif %}
   {%- endfor %}
