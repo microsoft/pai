@@ -30,6 +30,12 @@
   {%- if 'platformLogRegex' in runtimePattern %}
     platformLogRegex: '{{ runtimePattern['platformLogRegex'] }}'
   {%- endif %}
+  {%- if 'gpuInfo' in runtimePattern %}
+    gpuInfo:
+    {%- if 'nvidiaDoubleEccError' in runtimePattern['gpuInfo'] %}
+      nvidiaDoubleEccError: {{ runtimePattern['gpuInfo']['nvidiaDoubleEccError'] }}
+    {%- endif %}
+  {%- endif %}
   {%- endfor %}
 
 {%- endif %}

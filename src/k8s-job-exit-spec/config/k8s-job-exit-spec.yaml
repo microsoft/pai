@@ -926,21 +926,23 @@ spec:
     - userLogRegex: "(?i)cuda runtime error (2) : out of memory"
 
 - code: 227
-  phrase: ContainerEngineCoreDump
+  phrase: ContainerMayFailDueToGpuDeviceEccError
   issuer: PAI_RUNTIME
-  causer: USER_CONTAINER
-  type: USER_FAILURE
+  causer: PAI_HW
+  type: PLATFORM_FAILURE
   stage: RUNNING
-  behavior: PERMANENT
-  reaction: NEVER_RETRY
-  reason: "Container failed due to engine core dump"
+  behavior: TRANSIENT
+  reaction: RETRY_TO_MAX
+  reason: "Container failed may due to GPU ecc error"
   repro:
-  - "Access invalid memory address"
+  - "Run program in GPU with ECC error"
   solution:
-  - "Correct the user code"
+  - "Wait result from next retry"
+  - "Contact Cluster Admin"
   pattern:
     runtimeContainerPatterns:
-    - userLogRegex: "(?i)core dumped"
+    - gpuInfo:
+        nvidiaDoubleEccError: true
 
 - code: 228
   phrase: ContainerIncorrectParameterError
@@ -1083,6 +1085,23 @@ spec:
   pattern:
     runtimeContainerPatterns:
     - userLogRegex: "(?i)segmentation fault"
+
+- code: 235
+  phrase: ContainerEngineCoreDump
+  issuer: PAI_RUNTIME
+  causer: USER_CONTAINER
+  type: USER_FAILURE
+  stage: RUNNING
+  behavior: PERMANENT
+  reaction: NEVER_RETRY
+  reason: "Container failed due to engine core dump"
+  repro:
+  - "Access invalid memory address"
+  solution:
+  - "Correct the user code"
+  pattern:
+    runtimeContainerPatterns:
+    - userLogRegex: "(?i)core dumped"
 
 - code: 249
   phrase: PAIRuntimeSSHBarrierTimeout
