@@ -933,9 +933,9 @@ spec:
   stage: RUNNING
   behavior: TRANSIENT
   reaction: RETRY_TO_MAX
-  reason: "Container failed due to GPU ecc error"
+  reason: "Container failed may due to GPU ecc error"
   repro:
-  - "Initialize tensorflow streamExecutor in GPU with ECC error"
+  - "Run program in GPU with ECC error"
   solution:
   - "Wait result from next retry"
   - "Contact Cluster Admin"
