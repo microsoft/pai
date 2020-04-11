@@ -13,6 +13,15 @@ spec:
       labels:
         app: dshuttle-worker
     spec:
+      affinity:
+          nodeAffinity:
+            requiredDuringSchedulingIgnoredDuringExecution:
+              nodeSelectorTerms:
+              - matchExpressions:
+                - key: pai-worker
+                  operator: In
+                  values:
+                  - "true"
       hostNetwork: false
       dnsPolicy: ClusterFirstWithHostNet
       securityContext:
@@ -23,12 +32,14 @@ spec:
         securityContext:
           runAsUser: 0
         image: dshuttle/dshuttle:latest
-        command: ["/bin/chown","-R", "1000:1000", "/opt/domain", "/opt/logs"]
+        command: ["/bin/chown","-R", "1000:1000", "/opt/domain", "/opt/logs", "/mnt/hdd"]
         volumeMounts:
         - name: dshuttle-domain
           mountPath: /opt/domain
         - name: worker-logs
           mountPath: /opt/logs
+        - name: hdd
+          mountPath: /mnt/hdd
       containers:
         - name: dshuttle-worker
           image: dshuttle/dshuttle:latest
