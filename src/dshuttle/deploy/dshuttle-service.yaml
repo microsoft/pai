@@ -20,7 +20,7 @@ apiVersion: v1
 metadata:
   name: dshuttle-master
   labels:
-    app: alluxio
+    app: dshuttle-master
 spec:
   type: NodePort
   ports:
@@ -33,4 +33,4 @@ spec:
   - port: 20002
     name: job-web
   selector:
-    app: alluxio
+    app: dshuttle-master

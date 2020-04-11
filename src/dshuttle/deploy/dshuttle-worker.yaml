@@ -13,7 +13,7 @@ spec:
       labels:
         app: dshuttle-worker
     spec:
-      hostNetwork: true
+      hostNetwork: false
       dnsPolicy: ClusterFirstWithHostNet
       securityContext:
         fsGroup: 1000
@@ -65,6 +65,8 @@ spec:
               mountPath: /opt/domain
             - mountPath: /dev/shm
               name: mem
+            - mountPath: /mnt/hdd
+              name: hdd
             - name: worker-logs
               mountPath: /opt/alluxio/logs
         - name: dshuttle-job-worker
@@ -103,6 +105,8 @@ spec:
               mountPath: /opt/domain
             - mountPath: /dev/shm
               name: mem
+            - mountPath: /mnt/hdd
+              name: hdd
             - name: worker-logs
               mountPath: /opt/alluxio/logs
       restartPolicy: Always
@@ -113,7 +117,11 @@ spec:
             type: DirectoryOrCreate
         - name: worker-logs
           hostPath:
-            path: /var/logs/dshuttle/worker-logs
+            path: /var/log/dshuttle
+            type: DirectoryOrCreate
+        - name: hdd
+          hostPath:
+            path: /mnt/dshuttle/hdd
             type: DirectoryOrCreate
         - name: mem
           emptyDir:

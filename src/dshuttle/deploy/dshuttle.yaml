@@ -18,7 +18,7 @@
 kind: StatefulSet
 apiVersion: apps/v1
 metadata:
-  name: dshuttle-sts
+  name: dshuttle-master
   labels:
     app: dshuttle
 spec:
@@ -41,9 +41,9 @@ spec:
                   operator: In
                   values:
                   - "true"
-      hostNetwork: true
+      hostNetwork: false
       containers:
-      - name: dshuttle
+      - name: dshuttle-master
         image: dshuttle/dshuttle:latest
         imagePullPolicy: Always
         securityContext:
@@ -66,6 +66,8 @@ spec:
           mountPath: /journal
         - name: dshuttle-data
           mountPath: /opt/alluxio/underFSStorage
+        - name: dshuttle-log
+          mountPath: /opt/alluxio/logs
       - name: dshuttle-job-master
         image: dshuttle/dshuttle:latest
         imagePullPolicy: Always
@@ -91,6 +93,8 @@ spec:
         - containerPort: 20002
           name: job-web
         volumeMounts:
+        - name: dshuttle-log
+          mountPath: /opt/alluxio/logs
       restartPolicy: Always
       volumes:
       - name: alluxio-journal
@@ -101,13 +105,21 @@ spec:
         hostPath:
           path: /mnt/dshuttle/ufs
           type: DirectoryOrCreate
+      - name: dshuttle-log
+        hostPath:
+          path: /var/log/dshuttle
+          type: DirectoryOrCreate
       initContainers:
       - name: journal-chown
         image: dshuttle/dshuttle:latest
         imagePullPolicy: IfNotPresent
         securityContext:
           runAsUser: 0
-        command: ["/bin/chown","-R", "1000:1000", "/journal"]
+        command: ["/bin/chown","-R", "1000:1000", "/journal", "/logs", "underFSStorage"]
         volumeMounts:
         - name: alluxio-journal
           mountPath: /journal
+        - name: dshuttle-log
+          mountPath: /logs
+        - name: dshuttle-data
+          mountPath: /underFSStorage
