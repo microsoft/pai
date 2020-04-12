@@ -560,6 +560,33 @@ const basicUserUpdateInputSchema = async (req, res, next) => {
   }
 };
 
+const oidcUserUpdateInputSchema = async (req, res, next) => {
+  const username = req.body.data.username;
+  if (!req.user.admin) {
+    next(createError('Forbidden', 'ForbiddenUserError', `Non-admin is not allow to do this operation.`));
+  }
+  let userInfo;
+  try {
+    userInfo = await userModel.getUser(username);
+  } catch (error) {
+    if (error.status === 404) {
+      return next(createError('Not Found', 'NoUserError', `User ${username} not found.`));
+    }
+    return next(createError.unknown((error)));
+  }
+  try {
+    if ('extension' in req.body.data) {
+      userInfo['extension'] = updateExtensionInternal(userInfo['extension'], req.body.data.extension);
+    }
+    await userModel.updateUser(username, userInfo, updatePassword);
+    return res.status(201).json({
+      message: 'Update user ${username} successfully',
+    });
+  } catch (error) {
+    return next(createError.unknown((error)));
+  }
+};
+
 const deleteUser = async (req, res, next) => {
   try {
     const username = req.params.username;
@@ -589,6 +616,7 @@ module.exports = {
   createUserIfUserNotExist,
   basicAdminUserUpdateInputSchema,
   basicUserUpdateInputSchema,
+  oidcUserUpdateInputSchema,
   updateUserGroupListFromExternal,
   updateUserExtension,
   updateUserVirtualCluster,

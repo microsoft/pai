@@ -87,6 +87,11 @@ if (authnConfig.authnMethod === 'basic') {
   router.route('/:username/admin')
   /** Update /api/v2/users/:username/admin */
     .put(token.checkNotApplication, param.validate(userInputSchema.userAdminPermissionUpdateInputSchema), userController.updateUserAdminPermission);
+} else {
+  router.route('/')
+  /** Put /api/v2/users */
+    .put(token.checkNotApplication, param.validate(userInputSchema.oidcUserUpdateInputSchema), userController.oidcUserUpdateInputSchema);
+
 }
 
 module.exports = router;
