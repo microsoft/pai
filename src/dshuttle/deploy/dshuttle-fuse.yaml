@@ -67,10 +67,12 @@ spec:
             - name: dshuttle-fuse-device
               mountPath: /dev/fuse
             - name: dshuttle-fuse-mount
-              mountPath: /dshuttle-fuse
+              mountPath: /alluxio-fuse
               mountPropagation: Bidirectional
             - name: dshuttle-domain
               mountPath: /opt/domain
+            - name: fuse-logs
+              mountPath: /opt/alluxio/logs
       restartPolicy: Always
       volumes:
         - name: dshuttle-fuse-device
@@ -85,3 +87,7 @@ spec:
           hostPath:
             path: /tmp/alluxio-domain
             type: "Directory"
+        - name: fuse-logs
+          hostPath:
+            path: /var/log/dshuttle
+            type: DirectoryOrCreate
