@@ -21,7 +21,6 @@ const token = require('@pai/middlewares/token');
 const userController = require('@pai/controllers/v2/user');
 const userInputSchema = require('@pai/config/v2/user');
 const param = require('@pai/middlewares/parameter');
-const jobRouter = require('@pai/routes/job');
 const authnConfig = require('@pai/config/authn');
 
 const router = new express.Router();
@@ -91,7 +90,6 @@ if (authnConfig.authnMethod === 'basic') {
   router.route('/')
   /** Put /api/v2/users */
     .put(token.checkNotApplication, param.validate(userInputSchema.oidcUserUpdateInputSchema), userController.oidcUserUpdateInputSchema);
-
 }
 
 module.exports = router;

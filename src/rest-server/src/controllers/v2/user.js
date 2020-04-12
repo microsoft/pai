@@ -186,7 +186,7 @@ const updateExtensionInternal = async (oldExtension, newExtension) => {
   for (let [key, value] of Object.entries(newExtension)) {
         retExtension[key] = value;
   }
-  return retExtension
+  return retExtension;
 };
 
 const updateUserExtension = async (req, res, next) => {
@@ -262,11 +262,11 @@ const updateUserVirtualCluster = async (req, res, next) => {
 
 const updateGroupListInternal = async (groupList) => {
   let retGroupList = await groupModel.filterExistGroups(groupList);
-   if (retGroupList.length !== req.body.grouplist) {
-    const nonExistGrouplist = req.body.grouplist.filter((groupname) => !existGrouplist.includes(groupname));
+   if (retGroupList.length !== grouplist) {
+    const nonExistGrouplist = grouplist.filter((groupname) => !retGroupList.includes(groupname));
     throw createError('Not Found', 'NoGroupError', `Updated nonexistent grouplist: ${nonExistGrouplist}`);
   }
-   return retGroupList
+   return retGroupList;
 };
 
 const updateUserGroupList = async (req, res, next) => {
@@ -578,7 +578,7 @@ const oidcUserUpdateInputSchema = async (req, res, next) => {
     if ('extension' in req.body.data) {
       userInfo['extension'] = updateExtensionInternal(userInfo['extension'], req.body.data.extension);
     }
-    await userModel.updateUser(username, userInfo, updatePassword);
+    await userModel.updateUser(username, userInfo);
     return res.status(201).json({
       message: 'Update user ${username} successfully',
     });
