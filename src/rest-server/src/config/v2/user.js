@@ -115,6 +115,39 @@ const basicAdminUserUpdateInputSchema = Joi.object().keys({
     ),
 });
 
+// define the input schema for the 'update user' api in basic mode for all user
+const basicUserUpdateInputSchema = Joi.object().keys({
+  patch: Joi.boolean()
+    .default(false),
+  data: Joi.object().keys({
+    username: Joi.string()
+      .regex(/^[\w.-]+$/, 'username')
+      .required(),
+    email: Joi.string()
+      .email(),
+    newPassword: Joi.string()
+      .min(6),
+    oldPassword: Joi.string()
+      .min(6)
+      .when('newPassword', {
+        is: Joi.exist(),
+        then: Joi.required(),
+      }),
+  })
+    .when('patch', {
+        is: true,
+        then: Joi.object({
+          email: Joi.empty(null),
+          newPassword: Joi.empty(null),
+        }),
+        otherwise: Joi.object({
+          email: Joi.required(),
+          newPassword: Joi.required(),
+        }),
+      }
+    ),
+});
+
 // define the input schema for the 'update user' api in oidc mode
 const oidcUserUpdateInputSchema = Joi.object().keys({
   data: Joi.object().keys({
@@ -133,6 +166,7 @@ const oidcUserUpdateInputSchema = Joi.object().keys({
 module.exports = {
   userCreateInputSchema,
   basicAdminUserUpdateInputSchema,
+  basicUserUpdateInputSchema,
   oidcUserUpdateInputSchema,
   userExtensionUpdateInputSchema,
   userVirtualClusterUpdateInputSchema,

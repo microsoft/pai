@@ -222,7 +222,7 @@ const updateVirtualClusterInternal = async (newVc) => {
     throw createError('Bad Request', 'NoVirtualClusterError', `Try to update: ${newVc}, but found: ${groupList}`);
   }
   if (!groupList.includes(authConfig.groupConfig.defaultGroup.groupname)) {
-        groupList.push(authConfig.groupConfig.defaultGroup.groupname);
+    groupList.push(authConfig.groupConfig.defaultGroup.groupname);
   }
   return groupList;
 };
@@ -466,49 +466,98 @@ const basicAdminUserUpdateInputSchema = async (req, res, next) => {
     return next(createError.unknown((error)));
   }
   try {
-    if (req.body.patch) {
-      let updatePassword = false;
-      if ('email' in req.body.data) {
-        userInfo['email'] = req.body.data.email;
-      }
-      if ('virtualCluster' in req.body.data) {
-        try {
-          userInfo['grouplist'] = updateVirtualClusterInternal(req.body.data.virtualCluster);
-        } catch (error) {
-          if (error.code === 'NoVirtualClusterError') {
-            return next(error);
-          }
-          return next(createError.unknown((error)));
+    let updatePassword = false;
+    if ('email' in req.body.data) {
+      userInfo['email'] = req.body.data.email;
+    }
+    if ('virtualCluster' in req.body.data) {
+      try {
+        userInfo['grouplist'] = updateVirtualClusterInternal(req.body.data.virtualCluster);
+      } catch (error) {
+        if (error.code === 'NoVirtualClusterError') {
+          return next(error);
         }
-      }
-      if ('admin' in req.body.data) {
-        userInfo['grouplist'] = updateAdminPermissionInternal(userInfo, req.body.data.admin);
-      }
-      if ('password' in req.body.data) {
-        updatePassword = true;
-        userInfo['password'] = req.body.data.password;
-      }
-      if ('extension' in req.body.data) {
-        userInfo['extension'] = updateExtensionInternal(userInfo['extension'], req.body.data.extension);
-      }
-      await userModel.updateUser(username, userInfo, updatePassword);
-      if (updatePassword) {
-        // try to revoke browser tokens
-        try {
-          await tokenModel.batchRevoke(username, (token) => {
-            const data = jwt.decode(token);
-            return !data.application;
-          });
-        } catch (err) {
-          logger.error('Failed to revoke tokens after password is updated', err);
-          // pass
-        }
+        return next(createError.unknown((error)));
       }
     }
+    if ('admin' in req.body.data) {
+      userInfo['grouplist'] = updateAdminPermissionInternal(userInfo, req.body.data.admin);
+    }
+    if ('password' in req.body.data) {
+      updatePassword = true;
+      userInfo['password'] = req.body.data.password;
+    }
+    if ('extension' in req.body.data) {
+      userInfo['extension'] = updateExtensionInternal(userInfo['extension'], req.body.data.extension);
+    }
+    await userModel.updateUser(username, userInfo, updatePassword);
+    if (updatePassword) {
+      // try to revoke browser tokens
+      try {
+        await tokenModel.batchRevoke(username, (token) => {
+          const data = jwt.decode(token);
+          return !data.application;
+        });
+      } catch (err) {
+        logger.error('Failed to revoke tokens after password is updated', err);
+        // pass
+      }
+    }
+    return res.status(201).json({
+      message: 'Update user ${username} successfully',
+    });
   } catch (error) {
     return next(createError.unknown((error)));
   }
+};
 
+const basicUserUpdateInputSchema = async (req, res, next) => {
+  const username = req.user.username;
+  if (username !== req.body.data.username) {
+    return next(createError('Forbidden', 'ForbiddenUserError', `Can't update other user's data`));
+  }
+  let userInfo;
+  try {
+    userInfo = await userModel.getUser(username);
+  } catch (error) {
+    if (error.status === 404) {
+      return next(createError('Not Found', 'NoUserError', `User ${username} not found.`));
+    }
+    return next(createError.unknown((error)));
+  }
+  try {
+    let updatePassword = false;
+    if ('email' in req.body.data) {
+      userInfo['email'] = req.body.data.email;
+    }
+    if ('password' in req.body.data) {
+      let newUserValue = JSON.parse(JSON.stringify(userInfo));
+      newUserValue = await userModel.getEncryptPassword(newUserValue);
+      if (newUserValue['password'] !== userInfo['password']) {
+        return next(createError('Forbidden', 'ForbiddenUserError', `Pls input the correct password.`));
+      }
+      userInfo['password'] = req.body.data.password;
+      updatePassword = true;
+    }
+    await userModel.updateUser(username, userInfo, updatePassword);
+    if (updatePassword) {
+      // try to revoke browser tokens
+      try {
+        await tokenModel.batchRevoke(username, (token) => {
+          const data = jwt.decode(token);
+          return !data.application;
+        });
+      } catch (err) {
+        logger.error('Failed to revoke tokens after password is updated', err);
+        // pass
+      }
+    }
+    return res.status(201).json({
+      message: 'Update user ${username} successfully',
+    });
+  } catch (error) {
+    return next(createError.unknown((error)));
+  }
 };
 
 const deleteUser = async (req, res, next) => {
@@ -539,6 +588,7 @@ module.exports = {
   getAllUser,
   createUserIfUserNotExist,
   basicAdminUserUpdateInputSchema,
+  basicUserUpdateInputSchema,
   updateUserGroupListFromExternal,
   updateUserExtension,
   updateUserVirtualCluster,
