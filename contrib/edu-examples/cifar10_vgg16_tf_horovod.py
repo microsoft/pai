@@ -120,9 +120,9 @@ verbose = 1 if hvd.rank() == 0 else 0
 # fine-tune the model
 model.fit(
     train_generator,
-    epochs= int(math.ceil(epochs/hvd.size())),
+    epochs= epochs,
     validation_data = validation_generator,
     callbacks = callbacks)
 
-test_loss, test_acc = model.evaluate(X_test, Y_test, verbose=2)
-print("The test accuracy is: ", test_acc)
+print("--------------Test performance--------------")
+test_loss, test_acc = model.evaluate(X_test / 255.0, Y_test, verbose=2)
