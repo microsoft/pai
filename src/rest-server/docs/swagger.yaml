@@ -223,7 +223,7 @@ paths:
                 $ref: '#/components/schemas/Response'
         '404':
           $ref: '#/components/responses/NoUserError'
-  /api/v2/user:
+  /api/v2/users:
     post:
       tags:
         - user
@@ -278,38 +278,258 @@ paths:
           $ref: '#/components/responses/ConflictUserError'
         '500':
           $ref: '#/components/responses/UnknownError'
-  '/api/v2/user/{user}':
+    get:
+      tags:
+        - user
+      summary: Get all users in the system.
+      description: 'Get all users in the system by admin.'
+      operationId: getAllUser
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Succeeded
+          content:
+            application/json:
+              schema:
+                description: Array with all users in the system.
+                type: array
+                items:
+                  type: object
+                  properties:
+                    username:
+                      type: string
+                      description: user name
+                    admin:
+                      type: boolean
+                      description: Admin or not.
+                    virtualCluster:
+                      type: array
+                      description: The list of virtualCluster which the user can access.
+                      items:
+                        type: string
+                        description: virtual cluster name.
+                    storageConfig:
+                      type: object
+                      descrption: storageconfig
+                    email:
+                      type: string
+                      description: email address
+                    extension:
+                      type: object
+                      description: extension field.
+          '500':
+            $ref: '#/components/responses/UnknownError'
+    put:
+      tags:
+        - user
+      summary: Update an user in the system.
+      description: >-
+        Update an user in the system.
+        Admin only.
+      operationId: updateUser
+      security:
+        - bearerAuth: []
+      requestBody:
+        description: Update an user
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                data:
+                  type: object
+                  required:
+                    - username
+                  properties:
+                    username:
+                      type: string
+                      description: user name
+                    email:
+                      type: string
+                      description: >-
+                        Email address.
+                        Only be allowed in basic mode.
+                        When patch is false, it's required.
+                        When patch is true, it's optional.
+                    virtualCluster:
+                      type: array
+                      description: >-
+                        Array of the virtual cluster.
+                        Only be allowed in basic mode.
+                        When patch is false, it's requried.
+                        When patch is true, it's optional.
+                      items:
+                        type: string
+                        description: virtual cluster name.
+                    admin:
+                      type: boolean
+                      description: >-
+                        Set the user as admin or not.
+                        Only be allowed in basic mode.
+                        When patch is false, it's required.
+                        When patch is true, it's optional.
+                    password:
+                      type: string
+                      description: >-
+                        Password.
+                        Only be allowed in basic mode.
+                        When patch is false, it's required.
+                        When patch is true, it's optional.
+                    extension:
+                      type: object
+                      description: >-
+                        Extension fields.
+                        Be allowed in both oidc and basic mode.
+                        When patch is false, it's required.
+                        When patch is true, it's optional.
+                patch:
+                  type: Boolean
+                  default: false
+      responses:
+        '201':
+          description: Succeeded
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
+              example:
+                message: 'update group {username} successfully.'
+        '401':
+          $ref: '#/components/responses/UnauthorizedUserError'
+        '403':
+          $ref: '#/components/responses/ForbiddenUserError'
+        '404':
+          $ref: '#/components/responses/NoUserError'
+        '500':
+          $ref: '#/components/responses/UnknownError'
+  /api/v2/users/me:
+    put:
+      tags:
+        - user
+      summary: Update user's own profile.
+      description: >-
+        Update user's own profile in the system.
+        Only allowed in basic mode
+      operationId: updateUserSelf
+      security:
+        - bearerAuth: []
+      requestBody:
+        description: Update user's own profile
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                data:
+                  type: object
+                  required:
+                    - username
+                  properties:
+                    username:
+                      type: string
+                      description: user name
+                    email:
+                      type: string
+                      description: >-
+                        Email address.
+                        When patch is false, it's required.
+                        When patch is true, it's optional.
+                    newPassword:
+                      type: string
+                      description: >-
+                        New password.
+                        When patch is false, it's required.
+                        When patch is true, it's optional.
+                    oldPassword:
+                      type: string
+                      description: >-
+                        Old password.
+                        When newPassword exists, it's required.
+                        When newPassword doesn't exists, it's useless.
+                patch:
+                  type: Boolean
+                  default: false
+      responses:
+        '201':
+          description: Succeeded
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
+              example:
+                message: 'update group {username} successfully.'
+        '401':
+          $ref: '#/components/responses/UnauthorizedUserError'
+        '403':
+          $ref: '#/components/responses/ForbiddenUserError'
+        '404':
+          $ref: '#/components/responses/NoUserError'
+        '500':
+          $ref: '#/components/responses/UnknownError'
+  '/api/v2/users/{user}':
     parameters:
       - $ref: '#/components/parameters/user'
     get:
       tags:
         - user
-      summary: FIXME
+      summary: Get an user's data.
+      description: >-
+        Get an user's data.
+        Only allowed in basic mode
+      operationId: getUser
+      security:
+        - bearerAuth: []
       responses:
         '200':
           description: Succeeded
-          content: {}
-    post:
-      tags:
-        - user
-      summary: FIXME
-      responses:
-        '200':
-          description: Succeeded
-          content: {}
-    put:
-      tags:
-        - user
-      summary: FIXME
-      responses:
-        '200':
-          description: Succeeded
-          content: {}
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  username:
+                    type: string
+                    description: user name
+                  admin:
+                    type: boolean
+                    description: Admin or not.
+                  virtualCluster:
+                    type: array
+                    description: The list of virtualCluster which the user can access.
+                    items:
+                      type: string
+                      description: virtual cluster name.
+                  storageConfig:
+                    type: object
+                    descrption: storageconfig
+                  email:
+                    type: string
+                    description: email address
+                  extension:
+                    type: object
+                    description: extension field.
+                required:
+                  - username
+                  - admin
+                  - virtualCluster
+                  - storageConfig
+                  - email
+                  - extension
+        '401':
+          $ref: '#/components/responses/UnauthorizedUserError'
+        '404':
+          $ref: '#/components/responses/NoUserError'
+        '500':
+          $ref: '#/components/responses/UnknownError'
     delete:
       tags:
         - user
       summary: Remove a user in the system.
-      description: 'Remove a user in the system. by admin, basic authentication mode only.'
+      description: >-
+        Basic mode only.
+        Admin only.
+        Remove a user in the system.
       operationId: deleteUser
       security:
         - bearerAuth: []
@@ -330,19 +550,30 @@ paths:
           $ref: '#/components/responses/NoUserError'
         '500':
           $ref: '#/components/responses/UnknownError'
-  '/api/v2/user/{user}/group/{group}':
+  '/api/v2/user/{user}/group/':
     parameters:
       - $ref: '#/components/parameters/user'
-      - $ref: '#/components/parameters/group'
     put:
       tags:
         - user
-        - group
       summary: Add a group for user.
-      description: Administrator add a group to other user's grouplist.
+      description: >-
+        Admin only.
+        Basic mode only.
+        Add a group to other user's grouplist.
       operationId: updateUserGroup
       security:
         - bearerAuth: []
+      requestBody:
+        description: Add a group to user's grouplist
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                groupname:
+                  type: string
+                  default: the group will be added into the user's grouplist.
       responses:
         '201':
           description: Succeeded
@@ -351,23 +582,79 @@ paths:
               schema:
                 $ref: '#/components/schemas/Response'
               example:
-                message: 'User {user} is added into group {group}'
+                message: 'User {username} is added into group {groupname}'
         '401':
           $ref: '#/components/responses/UnauthorizedUserError'
         '403':
           $ref: '#/components/responses/ForbiddenUserError'
         '404':
           $ref: '#/components/responses/NoUserError'
+        '500':
+          $ref: '#/components/responses/UnknownError'
     delete:
       tags:
         - user
       summary: Remove a group from user's grouplist.
       description: >-
-        Administrator remove a group from other user's grouplist, basic
-        authentication mode only.
+        Admin only.
+        Basic mode only.
+        Remove a group from user's grouplist.
       operationId: deleteUserGroup
       security:
         - bearerAuth: []
+      requestBody:
+        description: Remove a group from the user's grouplist.
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                groupname:
+                  type: string
+                  description: the group will be removed from the user's grouplist.
+        responses:
+          '201':
+            description: Succeeded
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/Response'
+                example:
+                  message: 'User {username} is removed from group {groupname}'
+          '401':
+            $ref: '#/components/responses/UnauthorizedUserError'
+          '403':
+            $ref: '#/components/responses/ForbiddenUserError'
+          '404':
+            $ref: '#/components/responses/NoUserError'
+          '500':
+            $ref: '#/components/responses/UnknownError'
+  '/api/v2/user/{user}/grouplist/':
+    parameters:
+      - $ref: '#/components/parameters/user'
+    put:
+      tags:
+        - user
+      summary: Replace user's grouplist
+      description: >-
+        Admin only.
+        Basic mode only.
+        Update an user's grouplist.
+      operationId: updateUserGrouplist
+      security:
+        - bearerAuth: []
+      requestBody:
+        description: Add a group to user's grouplist
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                grouplist:
+                  description: grouplist
+                  type: array
+                  items:
+                    type: string
       responses:
         '201':
           description: Succeeded
@@ -376,20 +663,24 @@ paths:
               schema:
                 $ref: '#/components/schemas/Response'
               example:
-                message: 'User {user} is removed from group {group}'
+                message: 'update user grouplist successfully.'
         '401':
           $ref: '#/components/responses/UnauthorizedUserError'
         '403':
           $ref: '#/components/responses/ForbiddenUserError'
         '404':
           $ref: '#/components/responses/NoUserError'
-  /api/v2/group:
+        '500':
+          $ref: '#/components/responses/UnknownError'
+  /api/v2/groups:
     get:
       tags:
         - group
       summary: Get all group objects in the system.
       description: Get all group objects in the system.
       operationId: getAllGroup
+      security:
+        - bearerAuth: []
       responses:
         '200':
           description: Succeeded
@@ -514,7 +805,7 @@ paths:
           $ref: '#/components/responses/NoGroupError'
         '500':
           $ref: '#/components/responses/UnknownError'
-  '/api/v2/group/{group}':
+  '/api/v2/groups/{group}':
     parameters:
       - $ref: '#/components/parameters/group'
     get:
@@ -524,6 +815,8 @@ paths:
       description: >-
           Get a group in the system.
       operationId: getGroup
+      security:
+        - bearerAuth: []
       responses:
         '200':
           description: Succeeded
@@ -579,7 +872,7 @@ paths:
           $ref: '#/components/responses/ForbiddenUserError'
         '500':
           $ref: '#/components/responses/UnknownError'
-  '/api/v2/group/{group}/userlist':
+  '/api/v2/groups/{group}/userlist':
     parameters:
       - $ref: '#/components/parameters/group'
     get:
