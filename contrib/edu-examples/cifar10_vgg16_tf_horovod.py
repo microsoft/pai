@@ -24,7 +24,6 @@ example of vgg16-cifar10 (single CPU/GPU)
 import tensorflow as tf
 
 import horovod.tensorflow.keras as hvd
-import math
 import argparse
 
 from tensorflow.keras import datasets, layers, Model
