@@ -50,7 +50,7 @@ spec:
           resources:
             limits:
               cpu: 1
-              memory: 2G
+              memory: 4G
             requests:
               cpu: 1
               memory: 2G
@@ -137,4 +137,4 @@ spec:
         - name: mem
           emptyDir:
             medium: "Memory"
-            sizeLimit: 1G
+            sizeLimit: 2G

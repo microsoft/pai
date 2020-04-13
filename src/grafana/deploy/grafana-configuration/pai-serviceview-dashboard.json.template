@@ -481,6 +481,21 @@
             "selected": false,
             "text": "zookeeper",
             "value": "zookeeper"
+          },
+          {
+            "selected": false,
+            "text": "dshuttle-master",
+            "value": "dshuttle-master"
+          },
+          {
+            "selected": false,
+            "text": "dshuttle-worker",
+            "value": "dshuttle-worker"
+          },
+          {
+            "selected": false,
+            "text": "dshuttle-fuse",
+            "value": "dshuttle-fuse"
           }
         ],
         "query": "label_values(service_cpu_percent, name)",

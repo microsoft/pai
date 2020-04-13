@@ -49,6 +49,10 @@ spec:
         securityContext:
           runAsUser: 1000
           runAsGroup: 1000
+#        resources:
+#          requests:
+#            cpu: 2
+#            memory: 4G
         command: ["/entrypoint.sh"]
         args:
         - master-only

@@ -29,14 +29,30 @@ spec:
                 operator: In
                 values:
                 - "true"
+      initContainers:
+      - name: umount
+        securityContext:
+          privileged: true
+          capabilities:
+            add:
+              - SYS_ADMIN
+        image: dshuttle/dshuttle-fuse:latest
+        command: ["/bin/sh"]
+        args: ["-c", "fusermount -u /mnt/fuse || true"]
+        volumeMounts:
+        - name: dshuttle-fuse-device
+          mountPath: /dev/fuse
+        - name: dshuttle-fuse-mount
+          mountPath: /mnt
+          mountPropagation: Bidirectional
       containers:
         - name: dshuttle-fuse
-          image: alluxio/alluxio-fuse:2.2.0-SNAPSHOT
+          image: dshuttle/dshuttle-fuse:latest
           imagePullPolicy: IfNotPresent
           resources:
             limits:
               cpu: 1
-              memory: 1G
+              memory: 4G
             requests:
               cpu: 0.5
               memory: 1G
@@ -50,7 +66,7 @@ spec:
               fieldRef:
                 fieldPath: status.hostIP
           - name: ALLUXIO_CLIENT_JAVA_OPTS
-            value: " -Dalluxio.user.hostname=$(ALLUXIO_CLIENT_HOSTNAME) "
+            value: " -Dalluxio.user.hostname=$(ALLUXIO_CLIENT_HOSTNAME) -Dalluxio.worker.hostname=$(ALLUXIO_CLIENT_HOSTNAME)  -XX:MaxDirectMemorySize=2g "
           securityContext:
             privileged: true
             capabilities:
@@ -68,6 +84,7 @@ spec:
               mountPath: /dev/fuse
             - name: dshuttle-fuse-mount
               mountPath: /alluxio-fuse
+              subPath: fuse
               mountPropagation: Bidirectional
             - name: dshuttle-domain
               mountPath: /opt/domain
@@ -81,7 +98,7 @@ spec:
             type: File
         - name: dshuttle-fuse-mount
           hostPath:
-            path: /mnt/dshuttle/fuse
+            path: /mnt/dshuttle
             type: DirectoryOrCreate
         - name: dshuttle-domain
           hostPath:

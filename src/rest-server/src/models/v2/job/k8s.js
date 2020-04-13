@@ -497,14 +497,6 @@ const generateTaskRole = (frameworkName, taskRole, jobInfo, frameworkEnvList, co
                   mountPath: '/usr/local/pai',
                 },
                 {
-                  name: 'data',
-                  mountPath: '/mnt/data',
-                },
-                {
-                  name: 'azure-data',
-                  mountPath: '/mnt/azure',
-                },
-                {
                   name: 'host-log',
                   subPath: `${jobInfo.userName}/${jobInfo.logPathInfix}/${convertName(taskRole)}`,
                   mountPath: '/usr/local/pai/logs',
@@ -513,6 +505,10 @@ const generateTaskRole = (frameworkName, taskRole, jobInfo, frameworkEnvList, co
                   name: 'job-ssh-secret-volume',
                   readOnly: true,
                   mountPath: '/usr/local/pai/ssh-secret',
+                },
+                {
+                  name: 'dshuttle',
+                  mountPath: '/mnt/dshuttle',
                 },
               ],
             },
@@ -530,18 +526,6 @@ const generateTaskRole = (frameworkName, taskRole, jobInfo, frameworkEnvList, co
               emptyDir: {},
             },
             {
-              name: 'data',
-              hostPath: {
-                path: '/mnt/data/data',
-              },
-            },
-            {
-              name: 'azure-data',
-              hostPath: {
-                path: '/mnt/data/azure',
-              },
-            },
-            {
               name: 'host-log',
               hostPath: {
                 path: `/var/log/pai`,
@@ -557,6 +541,12 @@ const generateTaskRole = (frameworkName, taskRole, jobInfo, frameworkEnvList, co
               name: 'job-exit-spec',
               configMap: {
                 name: 'runtime-exit-spec-configuration',
+              },
+            },
+            {
+              name: 'dshuttle',
+              hostPath: {
+                path: '/mnt/dshuttle/fuse',
               },
             },
           ],
