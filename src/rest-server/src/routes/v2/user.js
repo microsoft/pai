@@ -89,7 +89,7 @@ if (authnConfig.authnMethod === 'basic') {
 } else {
   router.route('/')
   /** Put /api/v2/users */
-    .put(token.checkNotApplication, param.validate(userInputSchema.oidcUserUpdateInputSchema), userController.oidcUserUpdateInputSchema);
+    .put(token.checkNotApplication, param.validate(userInputSchema.oidcAdminUserUpdateInputSchema), userController.oidcUserUpdateInputSchema);
 }
 
 module.exports = router;

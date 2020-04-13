@@ -262,8 +262,8 @@ const updateUserVirtualCluster = async (req, res, next) => {
 
 const updateGroupListInternal = async (groupList) => {
   let retGroupList = await groupModel.filterExistGroups(groupList);
-   if (retGroupList.length !== grouplist) {
-    const nonExistGrouplist = grouplist.filter((groupname) => !retGroupList.includes(groupname));
+   if (retGroupList.length !== groupList.length) {
+    const nonExistGrouplist = groupList.filter((groupname) => !retGroupList.includes(groupname));
     throw createError('Not Found', 'NoGroupError', `Updated nonexistent grouplist: ${nonExistGrouplist}`);
   }
    return retGroupList;
@@ -415,6 +415,7 @@ const updateAdminPermissionInternal = async (user, admin) => {
     // non-admin -> admin, add into adminGroup
     newGroupList = [...user.grouplist, authConfig.groupConfig.adminGroup.groupname];
   } else if (existed && !admin) {
+    // admin -> non-admin, remove from all adminGroup
     for (const groupItem of groupInfo) {
       if (!groupModel.getAdminWithGroupInfo([groupItem])) {
         newGroupList.push(groupItem.groupname);

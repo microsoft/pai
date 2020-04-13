@@ -149,7 +149,7 @@ const basicUserUpdateInputSchema = Joi.object().keys({
 });
 
 // define the input schema for the 'update user' api in oidc mode
-const oidcUserUpdateInputSchema = Joi.object().keys({
+const oidcAdminUserUpdateInputSchema = Joi.object().keys({
   data: Joi.object().keys({
     username: Joi.string()
       .regex(/^[\w.-]+$/, 'username')
@@ -167,7 +167,7 @@ module.exports = {
   userCreateInputSchema,
   basicAdminUserUpdateInputSchema,
   basicUserUpdateInputSchema,
-  oidcUserUpdateInputSchema,
+  oidcAdminUserUpdateInputSchema,
   userExtensionUpdateInputSchema,
   userVirtualClusterUpdateInputSchema,
   userGrouplistUpdateInputSchema,
