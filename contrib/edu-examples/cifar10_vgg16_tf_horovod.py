@@ -96,11 +96,10 @@ train_datagen = ImageDataGenerator(
     horizontal_flip=True)
 
 train_datagen.fit(X_train)
-train_generator = train_datagen.flow(X_train, Y_train, batch_size=args.batch_size)
+train_generator = train_datagen.flow(X_train, Y_train, batch_size=args.batch_size*hvd.size())
 
 test_datagen = ImageDataGenerator(rescale=1. / 255)
-validation_generator = test_datagen.flow(X_test, Y_test, batch_size=args.batch_size)
-
+validation_generator = test_datagen.flow(X_test, Y_test, batch_size=args.batch_size*hvd.size())
 
 callbacks = [
     # Horovod: broadcast initial variable states from rank 0 to all other processes.

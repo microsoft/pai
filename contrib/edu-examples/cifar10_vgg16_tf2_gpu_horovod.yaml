@@ -25,7 +25,7 @@ taskRoles:
       - >-
         HOROVOD_GPU_ALLREDUCE=NCCL HOROVOD_GPU_BROADCAST=NCCL pip install
         horovod
-      - horovodrun -np 4 python cifar10_vgg16_tf_horovod.py --epochs 50
+      - horovodrun -np 4 python cifar10_vgg16_tf_horovod.py --epochs 50 --batch_size 32
 defaults:
   virtualCluster: default
 extras:

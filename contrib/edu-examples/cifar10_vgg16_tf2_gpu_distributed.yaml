@@ -22,7 +22,7 @@ taskRoles:
       - >-
         wget
         https://raw.githubusercontent.com/suiguoxin/pai/edu-examples/contrib/edu-examples/cifar10_vgg16_tf_distributed.py
-      - python cifar10_vgg16_tf_distributed.py --epochs 50 --batch_size 256
+      - python cifar10_vgg16_tf_distributed.py --epochs 50 --batch_size 32
 defaults:
   virtualCluster: default
 extras:
