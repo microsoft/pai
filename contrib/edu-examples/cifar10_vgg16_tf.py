@@ -87,5 +87,5 @@ model.fit(
     epochs=epochs,
     validation_data=validation_generator)
 
-test_loss, test_acc = model.evaluate(X_test, Y_test, verbose=2)
+test_loss, test_acc = model.evaluate(X_test/ 255.0, Y_test, verbose=2)
 print("The test accuracy is: ", test_acc)
