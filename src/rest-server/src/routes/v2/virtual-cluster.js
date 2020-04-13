@@ -26,11 +26,11 @@ const router = new express.Router();
 
 router.route('/')
   /** GET /api/v2/virtual-clusters - Return cluster virtual cluster info */
-  .get(controller.list);
+  .get(token.check, controller.list);
 
 router.route('/:virtualClusterName')
   /** GET /api/v2/virtual-clusters/:virtualClusterName - Get virtual cluster */
-  .get(controller.get)
+  .get(token.check, controller.get)
   /** PUT /api/v2/virtual-clusters/:virtualClusterName - Create a virtual cluster */
   .put(token.checkNotApplication, param.validate(vcConfig.vcCreateInputSchema), controller.update)
   /** DELETE /api/v2/virtual-clusters/:virtualClusterName - Remove a virtual cluster */
