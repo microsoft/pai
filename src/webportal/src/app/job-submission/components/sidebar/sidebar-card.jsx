@@ -75,16 +75,16 @@ export const SidebarCard = ({
     >
       <Stack gap='m' styles={{ root: { height: '100%' } }}>
         <StackItem disableShrink>
-          <Stack horizontal horizontalAlign='space-between'>
-            <Stack horizontal gap='s1'>
-              <Text styles={style.headerText}>{title}</Text>
-              {tooltip && <TooltipIcon content={tooltip} />}
-            </Stack>
+          <Stack horizontal gap='s1'>
             <ActionButton
               iconProps={{ iconName: selected ? 'ChevronUp' : 'ChevronDown' }}
               styles={style.actionButton}
               onClick={onSelect}
             />
+            <Stack horizontal gap='s1'>
+              <Text styles={style.headerText}>{title}</Text>
+              {tooltip && <TooltipIcon content={tooltip} />}
+            </Stack>
           </Stack>
         </StackItem>
         {selected && <div style={{ overflowY: 'auto' }}>{children}</div>}
