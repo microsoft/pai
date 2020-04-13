@@ -49,11 +49,6 @@ const get = asyncHandler(async (req, res) => {
   res.status(status('OK')).json(data);
 });
 
-const getResourceUnits = (req, res) => {
-  const data = virtualCluster.getResourceUnits();
-  res.status(status('OK')).json(data);
-};
-
 const update = asyncHandler(async (req, res) => {
   const virtualClusterName = req.params.virtualClusterName;
   if (!req.user.admin) {
@@ -156,7 +151,6 @@ module.exports = {
   validate,
   list,
   get,
-  getResourceUnits,
   update,
   updateStatus,
   remove,

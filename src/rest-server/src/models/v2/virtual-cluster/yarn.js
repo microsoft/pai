@@ -223,11 +223,6 @@ class VirtualCluster {
     });
   }
 
-  getResourceUnits() {
-    // TODO: get it from yarn or cluster configuration
-    throw createError('Bad Request', 'NotImplementedError', 'getResourceUnits not implemented in yarn');
-  }
-
   async getNodeResource(next) {
     unirest.get(yarnConfig.yarnNodeInfoPath)
       .headers(yarnConfig.webserviceRequestHeaders)
@@ -467,7 +462,6 @@ module.exports = {
     .catch((err) => {
       throw createError.unknown(err);
     }),
-  getResourceUnits: vc.getResourceUnits.bind(vc),
   getNodeResource: () => util.promisify(vc.getNodeResource.bind(vc))()
     .then((nodeResource) => nodeResource)
     .catch((err) => {

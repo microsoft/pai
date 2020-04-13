@@ -17,32 +17,11 @@
 
 
 // module dependencies
-const express = require('express');
-const userRouter = require('@pai/routes/v2/user');
-const groupRouter = require('@pai/routes/v2/group');
-const storageRouter = require('@pai/routes/v2/storage');
-const storageDeprecatedRouter = require('@pai/routes/v2/storage-deprecated');
-const controller = require('@pai/controllers/v2');
-const jobRouter = require('@pai/routes/v2/job');
-const clusterRouter = require('@pai/routes/v2/cluster');
-const virtualClusterRouter = require('@pai/routes/v2/virtual-cluster');
+const status = require('statuses');
+const {resourceUnits} = require('@pai/config/vc');
 
+const getSkuTypes = (req, res) => {
+  res.status(status('OK')).json(resourceUnits);
+};
 
-const router = new express.Router();
-
-router.route('/')
-  .all(controller.index);
-
-router.use('/jobs', jobRouter);
-router.use('/cluster', clusterRouter);
-router.use('/virtual-clusters', virtualClusterRouter);
-
-router.use('/user', userRouter);
-
-router.use('/group', groupRouter);
-
-router.use('/storages', storageRouter);
-router.use('/storage', storageDeprecatedRouter);
-
-// module exports
-module.exports = router;
+module.exports = {getSkuTypes};

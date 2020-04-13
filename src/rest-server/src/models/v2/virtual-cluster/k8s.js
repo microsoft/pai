@@ -64,10 +64,6 @@ const fetchPods = async () => {
   });
 };
 
-const getResourceUnits = () => {
-  return resourceUnits;
-};
-
 const getPodsInfo = async () => {
   const rawPods = await fetchPods();
 
@@ -315,7 +311,6 @@ const removeVc = () => {
 module.exports = {
   list: getVcList,
   get: getVc,
-  getResourceUnits: getResourceUnits,
   getNodeResource: getNodeResource,
   update: updateVc,
   stop: stopVc,

@@ -15,34 +15,15 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-
 // module dependencies
 const express = require('express');
-const userRouter = require('@pai/routes/v2/user');
-const groupRouter = require('@pai/routes/v2/group');
-const storageRouter = require('@pai/routes/v2/storage');
-const storageDeprecatedRouter = require('@pai/routes/v2/storage-deprecated');
-const controller = require('@pai/controllers/v2');
-const jobRouter = require('@pai/routes/v2/job');
-const clusterRouter = require('@pai/routes/v2/cluster');
-const virtualClusterRouter = require('@pai/routes/v2/virtual-cluster');
-
+const token = require('@pai/middlewares/token');
+const controller = require('@pai/controllers/v2/cluster');
 
 const router = new express.Router();
 
-router.route('/')
-  .all(controller.index);
-
-router.use('/jobs', jobRouter);
-router.use('/cluster', clusterRouter);
-router.use('/virtual-clusters', virtualClusterRouter);
-
-router.use('/user', userRouter);
-
-router.use('/group', groupRouter);
-
-router.use('/storages', storageRouter);
-router.use('/storage', storageDeprecatedRouter);
+router.route('/sku-types')
+  .get(token.check, controller.getSkuTypes);
 
 // module exports
 module.exports = router;
