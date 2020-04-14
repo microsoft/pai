@@ -53,11 +53,11 @@ if (authnConfig.authnMethod === 'basic') {
 
   router.route('/')
   /** Put /api/v2/users */
-    .put(token.checkNotApplication, param.validate(userInputSchema.basicAdminUserUpdateInputSchema), userController.basicAdminUserUpdateInputSchema);
+    .put(token.checkNotApplication, param.validate(userInputSchema.basicAdminUserUpdateInputSchema), userController.basicAdminUserUpdate);
 
   router.route('/me')
   /** Put /api/v2/users */
-    .put(token.checkNotApplication, param.validate(userInputSchema.basicUserUpdateInputSchema), userController.basicUserUpdateInputSchema);
+    .put(token.checkNotApplication, param.validate(userInputSchema.basicUserUpdateInputSchema), userController.basicUserUpdate);
 
   router.route('/:username/grouplist')
   /** put /api/v2/users/:username/grouplist */
@@ -93,7 +93,7 @@ if (authnConfig.authnMethod === 'basic') {
 } else {
   router.route('/')
   /** Put /api/v2/users */
-    .put(token.checkNotApplication, param.validate(userInputSchema.oidcAdminUserUpdateInputSchema), userController.oidcUserUpdateInputSchema);
+    .put(token.checkNotApplication, param.validate(userInputSchema.oidcAdminUserUpdateInputSchema), userController.oidcUserUpdate);
 }
 
 module.exports = router;

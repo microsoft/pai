@@ -421,6 +421,8 @@ const updateAdminPermissionInternal = async (user, admin) => {
         newGroupList.push(groupItem.groupname);
       }
     }
+  } else {
+        newGrouplist = userInfo.grouplist;
   }
   return newGroupList;
 };
@@ -452,7 +454,7 @@ const updateUserAdminPermission = async (req, res, next) => {
   }
 };
 
-const basicAdminUserUpdateInputSchema = async (req, res, next) => {
+const basicAdminUserUpdate = async (req, res, next) => {
   const username = req.body.data.username;
   if (!req.user.admin) {
     next(createError('Forbidden', 'ForbiddenUserError', `Non-admin is not allow to do this operation.`));
@@ -512,7 +514,7 @@ const basicAdminUserUpdateInputSchema = async (req, res, next) => {
   }
 };
 
-const basicUserUpdateInputSchema = async (req, res, next) => {
+const basicUserUpdate = async (req, res, next) => {
   const username = req.user.username;
   if (username !== req.body.data.username) {
     return next(createError('Forbidden', 'ForbiddenUserError', `Can't update other user's data`));
@@ -561,7 +563,7 @@ const basicUserUpdateInputSchema = async (req, res, next) => {
   }
 };
 
-const oidcUserUpdateInputSchema = async (req, res, next) => {
+const oidcUserUpdate = async (req, res, next) => {
   const username = req.body.data.username;
   if (!req.user.admin) {
     next(createError('Forbidden', 'ForbiddenUserError', `Non-admin is not allow to do this operation.`));
@@ -615,9 +617,9 @@ module.exports = {
   getUser,
   getAllUser,
   createUserIfUserNotExist,
-  basicAdminUserUpdateInputSchema,
-  basicUserUpdateInputSchema,
-  oidcUserUpdateInputSchema,
+  basicAdminUserUpdate,
+  basicUserUpdate,
+  oidcUserUpdate,
   updateUserGroupListFromExternal,
   updateUserExtension,
   updateUserVirtualCluster,
