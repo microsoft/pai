@@ -422,7 +422,7 @@ const updateAdminPermissionInternal = async (user, admin) => {
       }
     }
   } else {
-    newGroupList = userInfo.grouplist;
+    newGroupList = user.grouplist;
   }
   return newGroupList;
 };
