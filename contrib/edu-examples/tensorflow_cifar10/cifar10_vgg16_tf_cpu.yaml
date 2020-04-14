@@ -21,7 +21,7 @@ taskRoles:
     commands:
       - >-
         wget
-        https://raw.githubusercontent.com/microsoft/pai/pai-for-edu/contrib/edu-examples/tensorflow/src/cifar10_vgg16_tf.py
+        https://raw.githubusercontent.com/microsoft/pai/pai-for-edu/contrib/edu-examples/tensorflow_cifar10/src/cifar10_vgg16_tf.py
       - python cifar10_vgg16_tf.py --epochs 50 --batch_size 32
 defaults:
   virtualCluster: cpu
