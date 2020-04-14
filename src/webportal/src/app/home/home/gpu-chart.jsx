@@ -112,7 +112,8 @@ const GpuChart = ({ style, gpuPerNode, virtualClusters, userInfo }) => {
         groups: [['shared', 'dedicated']],
         labels: {
           format: {
-            shared: x => x
+            shared: x => x,
+            dedicated: x => (x === 0 ? '' : x),
           },
         },
         empty: { label: { text: 'No available GPU nodes now' } },
