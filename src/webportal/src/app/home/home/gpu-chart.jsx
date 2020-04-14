@@ -128,7 +128,7 @@ const GpuChart = ({ style, gpuPerNode, virtualClusters, userInfo }) => {
       axis: {
         x: {
           label: {
-            text: 'Node with #GPUs',
+            text: 'Number of available GPUs on the node',
             position: 'outter-top',
           },
           tick: {
