@@ -21,7 +21,7 @@ taskRoles:
     commands:
       - apt update
       - apt install -y wget
-      - branch_name=ningxinzheng/pytorch-examples
+      - branch_name=pai-for-edu
       - >-
         wget
         https://raw.githubusercontent.com/microsoft/pai/${branch_name}/contrib/edu-examples/pytorch_cifar10/src/cifar.py
