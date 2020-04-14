@@ -550,7 +550,9 @@ class ContainerCollector(Collector):
         "nvidia-drivers",
         "docker-cleaner",
         "dshuttle-master",
+        "dshuttle-job-master",
         "dshuttle-worker",
+        "dshuttle-job-worker",
         "dshuttle-fuse",
 
         # Below are DLTS services

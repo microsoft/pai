@@ -496,6 +496,16 @@
             "selected": false,
             "text": "dshuttle-fuse",
             "value": "dshuttle-fuse"
+          },
+          {
+            "selected": false,
+            "text": "dshuttle-job-worker",
+            "value": "dshuttle-job-worker"
+          },
+          {
+            "selected": false,
+            "text": "dshuttle-job-master",
+            "value": "dshuttle-job-master"
           }
         ],
         "query": "label_values(service_cpu_percent, name)",

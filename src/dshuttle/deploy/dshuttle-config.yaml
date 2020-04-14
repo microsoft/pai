@@ -21,7 +21,7 @@ metadata:
   name: dshuttle-config
 data:
   ALLUXIO_JAVA_OPTS: |-
-    -Dalluxio.master.hostname=dshuttle-master.default -Dalluxio.master.journal.type=UFS -Dalluxio.master.journal.folder=/journal -Dalluxio.master.mount.table.root.ufs=/opt/alluxio/underFSStorage  -Dalluxio.security.stale.channel.purge.interval=365d 
+    -Dalluxio.master.hostname=dshuttle-master.default -Dalluxio.master.journal.type=UFS -Dalluxio.master.journal.folder=/journal -Dalluxio.master.mount.table.root.ufs=/opt/alluxio/underFSStorage -Dalluxio.security.stale.channel.purge.interval=365d -Dalluxio.user.metrics.collection.enabled=true -Dalluxio.user.block.size.bytes.default=32MB -Dalluxio.user.ufs.block.read.location.policy=alluxio.client.block.policy.LocalFirstAvoidEvictionPolicy -Dalluxio.user.file.passive.cache.enabled=false 
   ALLUXIO_MASTER_JAVA_OPTS: |-
     -Dalluxio.master.web.bind.host=0.0.0.0 
   ALLUXIO_JOB_MASTER_JAVA_OPTS: |-
