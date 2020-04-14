@@ -49,7 +49,7 @@ done
 function check_status() {
   while true; do
     sleep 30s
-    status=$(curl -sS "$1" | jq -r ".jobStatus.state")
+    status=$(curl -sS -H "Authorization: Bearer ${token}" "$1" | jq -r ".jobStatus.state")
     case ${status} in
       "SUCCEEDED") break ;;
       "WAITING"|"RUNNING") ;;
