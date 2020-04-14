@@ -59,7 +59,11 @@ export async function submitJob(jobProtocol) {
 
 export async function fetchJobConfig(userName, jobName) {
   const url = `${config.restServerUri}/api/v2/jobs/${userName}~${jobName}/config`;
-  const res = await fetch(url);
+  const res = await fetch(url, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
   const text = await res.text();
   const json = yaml.safeLoad(text);
   if (res.ok) {

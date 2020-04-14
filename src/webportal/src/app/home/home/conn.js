@@ -48,11 +48,20 @@ export async function listJobs() {
     `${config.restServerUri}/api/v1/jobs?${querystring.stringify({
       username,
     })}`,
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    },
   );
 }
 
 export async function listAllJobs() {
-  return fetchWrapper(`${config.restServerUri}/api/v1/jobs`);
+  return fetchWrapper(`${config.restServerUri}/api/v1/jobs`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
 }
 
 export async function getUserInfo() {
@@ -64,12 +73,21 @@ export async function getUserInfo() {
 }
 
 export async function listVirtualClusters() {
-  return fetchWrapper(`${config.restServerUri}/api/v2/virtual-clusters`);
+  return fetchWrapper(`${config.restServerUri}/api/v2/virtual-clusters`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
 }
 
 export async function getAvailableGpuPerNode() {
   const res = await fetch(
     `${config.restServerUri}/api/v2/virtual-clusters?nodes`,
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    },
   );
 
   if (res.ok) {

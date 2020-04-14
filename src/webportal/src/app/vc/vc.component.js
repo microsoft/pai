@@ -24,9 +24,13 @@ const isAdmin = cookies.get('admin');
 //
 
 const loadData = specifiedVc => {
+  const token = userAuth.checkToken();
   $.ajax({
     type: 'GET',
     url: webportalConfig.restServerUri + '/api/v2/virtual-clusters',
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
     success: function(data) {
       const vcHtml = vcComponent({
         breadcrumb: breadcrumbComponent,

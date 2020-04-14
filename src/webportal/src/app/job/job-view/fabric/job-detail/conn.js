@@ -36,7 +36,12 @@ export class NotFoundError extends Error {
 
 export async function checkAttemptAPI() {
   const healthEndpoint = `${config.restServerUri}/api/v2/jobs/${userName}~${jobName}/job-attempts/healthz`;
-  const healthRes = await fetch(healthEndpoint);
+  const token = checkToken();
+  const healthRes = await fetch(healthEndpoint, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
   if (healthRes.status !== 200) {
     return false;
   } else {
@@ -54,7 +59,12 @@ export async function fetchJobRetries() {
   }
 
   const listAttemptsUrl = `${config.restServerUri}/api/v1/jobs/${userName}~${jobName}/job-attempts`;
-  const listRes = await fetch(listAttemptsUrl);
+  const token = checkToken();
+  const listRes = await fetch(listAttemptsUrl, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
   if (listRes.status === 404) {
     return {
       isSucceeded: false,
@@ -81,7 +91,12 @@ export async function fetchJobInfo() {
   const url = userName
     ? `${config.restServerUri}/api/v1/jobs/${userName}~${jobName}`
     : `${config.restServerUri}/api/v1/jobs/${jobName}`;
-  const res = await fetch(url);
+  const token = checkToken();
+  const res = await fetch(url, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
   const json = await res.json();
   if (res.ok) {
     return json;
@@ -94,7 +109,12 @@ export async function fetchRawJobConfig() {
   const url = userName
     ? `${config.restServerUri}/api/v1/jobs/${userName}~${jobName}/config`
     : `${config.restServerUri}/api/v1/jobs/${jobName}/config`;
-  const res = await fetch(url);
+  const token = checkToken();
+  const res = await fetch(url, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
   const text = await res.text();
   const json = yaml.safeLoad(text);
   if (res.ok) {
@@ -112,7 +132,12 @@ export async function fetchJobConfig() {
   const url = userName
     ? `${config.restServerUri}/api/v2/jobs/${userName}~${jobName}/config`
     : `${config.restServerUri}/api/v1/jobs/${jobName}/config`;
-  const res = await fetch(url);
+  const token = checkToken();
+  const res = await fetch(url, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
   const text = await res.text();
   const json = yaml.safeLoad(text);
   if (res.ok) {
@@ -130,7 +155,12 @@ export async function fetchSshInfo() {
   const url = userName
     ? `${config.restServerUri}/api/v1/jobs/${userName}~${jobName}/ssh`
     : `${config.restServerUri}/api/v1/jobs/${jobName}/ssh`;
-  const res = await fetch(url);
+  const token = checkToken();
+  const res = await fetch(url, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
   const json = await res.json();
   if (res.ok) {
     return json;

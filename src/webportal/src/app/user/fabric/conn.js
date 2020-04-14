@@ -130,7 +130,12 @@ export const updateUserAdminRequest = async (username, admin) => {
 
 export const getAllVcsRequest = async () => {
   const url = `${config.restServerUri}/api/v2/virtual-clusters`;
-  return fetchWrapper(url);
+  const token = checkToken();
+  return fetchWrapper(url, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
 };
 
 export const getUserRequest = async username => {

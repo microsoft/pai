@@ -145,7 +145,12 @@ export default function JobList() {
 
   const refreshJobs = useCallback(function refreshJobs() {
     setAllJobs(null);
-    fetch(`${webportalConfig.restServerUri}/api/v1/jobs`)
+    const token = userAuth.checkToken();
+    fetch(`${webportalConfig.restServerUri}/api/v1/jobs`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    })
       .then(response => {
         if (!response.ok) {
           throw Error(response.message);
