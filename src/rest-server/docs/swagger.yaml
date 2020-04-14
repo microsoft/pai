@@ -311,7 +311,7 @@ paths:
                         description: virtual cluster name.
                     storageConfig:
                       type: object
-                      descrption: storageconfig
+                      description: storageconfig
                     email:
                       type: string
                       description: email address
@@ -323,15 +323,15 @@ paths:
     put:
       tags:
         - user
-      summary: Update an user in the system.
+      summary: Update a user in the system.
       description: >-
-        Update an user in the system.
+        Update a user in the system.
         Admin only.
       operationId: updateUser
       security:
         - bearerAuth: []
       requestBody:
-        description: Update an user
+        description: Update a user
         content:
           application/json:
             schema:
@@ -384,7 +384,7 @@ paths:
                         When patch is false, it's required.
                         When patch is true, it's optional.
                 patch:
-                  type: Boolean
+                  type: boolean
                   default: false
       responses:
         '201':
@@ -448,7 +448,7 @@ paths:
                         When newPassword exists, it's required.
                         When newPassword doesn't exists, it's useless.
                 patch:
-                  type: Boolean
+                  type: boolean
                   default: false
       responses:
         '201':
@@ -473,9 +473,9 @@ paths:
     get:
       tags:
         - user
-      summary: Get an user's data.
+      summary: Get a user's data.
       description: >-
-        Get an user's data.
+        Get a user's data.
         Only allowed in basic mode
       operationId: getUser
       security:
@@ -502,7 +502,7 @@ paths:
                       description: virtual cluster name.
                   storageConfig:
                     type: object
-                    descrption: storageconfig
+                    description: storageconfig
                   email:
                     type: string
                     description: email address
@@ -560,7 +560,7 @@ paths:
       description: >-
         Admin only.
         Basic mode only.
-        Add a group to other user's grouplist.
+        Add a group to a user's grouplist.
       operationId: updateUserGroup
       security:
         - bearerAuth: []
@@ -639,7 +639,7 @@ paths:
       description: >-
         Admin only.
         Basic mode only.
-        Update an user's grouplist.
+        Update a user's grouplist.
       operationId: updateUserGrouplist
       security:
         - bearerAuth: []
@@ -785,7 +785,7 @@ paths:
                     extension:
                       type: object
                 patch:
-                  type: Boolean
+                  type: boolean
                   default: false
         required: true
       responses:
