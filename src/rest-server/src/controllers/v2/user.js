@@ -444,6 +444,8 @@ const updateUserAdminPermission = async (req, res, next) => {
         return next(createError.unknown((error)));
       }
       userInfo.grouplist = updateAdminPermissionInternal(userInfo, admin);
+      /*eslint no-console: "error"*/
+      console.log(userInfo);
       await userModel.updateUser(username, userInfo);
       return res.status(201).json({
         message: 'Update user admin permission successfully.',
