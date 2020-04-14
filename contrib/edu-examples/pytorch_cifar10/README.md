@@ -6,7 +6,7 @@ This project provides the examples to run on the [OpenPAI](https://github.com/mi
 | :----:| :----: | :----: | :----: | :----: | :----: |
 | Resnet18 | V100 * 1 | 59m(200 epoch) | [Details](metrics/Resnet18_1gpu.jpg) | 95.2% | [Resnet18_1gpu.yaml](yaml/Resnet18_1gpu.yaml) |
 | Resnet18 | V100 * 4 | 30m(200 epoch) | [Details](metrics/Resnet18_4gpus.jpg) | 94.9% | [Resnet18_4gpu.yaml](yaml/Resnet18_4gpu.yaml) |
-| Resnet18 | CPU  * 12| 21h 33m(200 epoch) | [Details](metrics/Resnet18_12cpu.jpg) | 95.15% | [Resnet18_12cpu.yaml](yaml/Resnet18_12cpu.yaml)
+| Resnet18 | Xeon E5 CPU  * 12| 21h 33m(200 epoch) | [Details](metrics/Resnet18_12cpu.jpg) | 95.15% | [Resnet18_12cpu.yaml](yaml/Resnet18_12cpu.yaml)
 | Resnet18 | V100 * 4(Horovod) | 23m(200 epoch) | [Details](metrics/Resnet18_horovod.jpg) | 93.6% | [Restnet18_horovod.yaml](yaml/Resnet18_horovod.yaml)
 
 ## Usage

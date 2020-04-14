@@ -19,8 +19,6 @@ taskRoles:
       cpu: 3
       memoryMB: 8192
     commands:
-      - apt update
-      - apt install -y wget
       - branch_name=pai-for-edu
       - >-
         wget
