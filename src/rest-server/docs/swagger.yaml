@@ -67,7 +67,7 @@ paths:
                   - version
                   - launcherType
                   - authnMethod
-  /api/v2/token:
+  /api/v2/tokens:
     get:
       tags:
         - token
@@ -93,7 +93,7 @@ paths:
                   - tokens
         '401':
           $ref: '#/components/responses/UnauthorizedUserError'
-  '/api/v2/token/{token}':
+  '/api/v2/tokens/{token}':
     delete:
       tags:
         - token
@@ -117,7 +117,7 @@ paths:
           $ref: '#/components/responses/UnauthorizedUserError'
         '403':
           $ref: '#/components/responses/ForbiddenUserError'
-  /api/v2/token/application:
+  /api/v2/tokens/application:
     post:
       tags:
         - token
