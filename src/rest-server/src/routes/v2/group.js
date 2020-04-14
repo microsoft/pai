@@ -44,6 +44,10 @@ router.route('/')
 /** put /api/v2/group/ */
   .put(token.checkNotApplication, param.validate(groupInputSchema.groupUpdateInputSchema), groupController.updateGroup);
 
+/** Internal API */
+router.route('/:groupname/extension/*')
+  .put(token.checkNotApplication, param.validate(groupInputSchema.groupExtensionAttrUpdateInputSchema), groupController.updateGroupExtensionAttr);
+
 router.route('/:groupname/userlist')
 /** get /api/v2/group/:groupname/userlist */
   .get(token.check, groupController.getGroupUserList);
@@ -51,10 +55,6 @@ router.route('/:groupname/userlist')
 /** Legacy API and will be deprecated in the future. Please use put /api/v2/group */
 router.route('/:groupname/extension')
   .put(token.checkNotApplication, param.validate(groupInputSchema.groupExtensionUpdateInputSchema), groupController.updateGroupExtension);
-
-/** Legacy API and will be deprecated in the future. Please use put /api/v2/group */
-router.route('/:groupname/extension/*')
-  .put(token.checkNotApplication, param.validate(groupInputSchema.groupExtensionAttrUpdateInputSchema), groupController.updateGroupExtensionAttr);
 
 /** Legacy API and will be deprecated in the future. Please use put /api/v2/group */
 router.route('/:groupname/description')
