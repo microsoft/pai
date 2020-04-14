@@ -73,10 +73,10 @@ const vcListColumns = [
     },
   },
   {
-    key: 'utilization',
+    key: 'allocation',
     minWidth: 80,
     maxWidth: 132,
-    name: 'Utilization',
+    name: 'Allocation',
     isResizable: true,
     className: zeroPaddingClass,
     onRender(vc) {
