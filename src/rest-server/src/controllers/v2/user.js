@@ -195,7 +195,7 @@ const updateUserExtension = async (req, res, next) => {
     const extensionData = req.body.extension;
     if (req.user.admin || req.user.username === username) {
       let userInfo = await userModel.getUser(username);
-      userInfo['extension'] = updateExtensionInternal(userInfo['extension'], extensionData);
+      userInfo['extension'] = await updateExtensionInternal(userInfo['extension'], extensionData);
       await userModel.updateUser(username, userInfo);
       return res.status(201).json({
         message: 'Update user extension data successfully.',
@@ -231,7 +231,7 @@ const updateUserVirtualCluster = async (req, res, next) => {
   try {
     const username = req.params.username;
     if (req.user.admin) {
-      let newGroupList = updateVirtualClusterInternal(req.body.virtualCluster);
+      let newGroupList = await updateVirtualClusterInternal(req.body.virtualCluster);
       let userInfo;
       try {
          userInfo = await userModel.getUser(username);
@@ -277,7 +277,7 @@ const updateUserGroupList = async (req, res, next) => {
   let userValue;
   try {
     userValue = await userModel.getUser(username);
-    userValue.grouplist = updateGroupListInternal(userValue.grouplist);
+    userValue.grouplist = await updateGroupListInternal(userValue.grouplist);
   } catch (error) {
     if (error.code === 'NoGroupError') {
       return next(error);
@@ -443,7 +443,7 @@ const updateUserAdminPermission = async (req, res, next) => {
         }
         return next(createError.unknown((error)));
       }
-      userInfo.grouplist = updateAdminPermissionInternal(userInfo, admin);
+      userInfo.grouplist = await updateAdminPermissionInternal(userInfo, admin);
       // eslint-disable-next-line no-console
       console.log(userInfo);
       await userModel.updateUser(username, userInfo);
@@ -477,7 +477,7 @@ const basicAdminUserUpdate = async (req, res, next) => {
     }
     if ('virtualCluster' in req.body.data) {
       try {
-        userInfo['grouplist'] = updateVirtualClusterInternal(req.body.data.virtualCluster);
+        userInfo['grouplist'] = await updateVirtualClusterInternal(req.body.data.virtualCluster);
       } catch (error) {
         if (error.code === 'NoVirtualClusterError') {
           return next(error);
@@ -486,14 +486,14 @@ const basicAdminUserUpdate = async (req, res, next) => {
       }
     }
     if ('admin' in req.body.data) {
-      userInfo['grouplist'] = updateAdminPermissionInternal(userInfo, req.body.data.admin);
+      userInfo['grouplist'] = await updateAdminPermissionInternal(userInfo, req.body.data.admin);
     }
     if ('password' in req.body.data) {
       updatePassword = true;
       userInfo['password'] = req.body.data.password;
     }
     if ('extension' in req.body.data) {
-      userInfo['extension'] = updateExtensionInternal(userInfo['extension'], req.body.data.extension);
+      userInfo['extension'] = await updateExtensionInternal(userInfo['extension'], req.body.data.extension);
     }
     await userModel.updateUser(username, userInfo, updatePassword);
     if (updatePassword) {
@@ -581,7 +581,7 @@ const oidcUserUpdate = async (req, res, next) => {
   }
   try {
     if ('extension' in req.body.data) {
-      userInfo['extension'] = updateExtensionInternal(userInfo['extension'], req.body.data.extension);
+      userInfo['extension'] = await updateExtensionInternal(userInfo['extension'], req.body.data.extension);
     }
     await userModel.updateUser(username, userInfo);
     return res.status(201).json({
