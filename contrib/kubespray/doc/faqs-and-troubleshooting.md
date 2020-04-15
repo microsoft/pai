@@ -48,6 +48,18 @@ To remove the network plugin, you could use following `ansible-playbook`:
       shell: systemctl start kubelet
       args:
         executable: /bin/bash
+
+    - name: clean iptable
+      shell: |
+        iptables -P INPUT ACCEPT
+        iptables -P FORWARD ACCEPT
+        iptables -P OUTPUT ACCEPT
+        iptables -t nat -F
+        iptables -t mangle -F
+        iptables -F
+        iptables -X
+      args:
+        executable: /bin/bash
 ```
 
 After this step, if your pod still can not access internet, please change the pod spec to use `hostNetwork`.
