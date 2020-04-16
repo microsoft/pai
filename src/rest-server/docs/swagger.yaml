@@ -357,7 +357,7 @@ paths:
                       description: >-
                         Array of the virtual cluster.
                         Only be allowed in basic mode.
-                        When patch is false, it's requried.
+                        When patch is false, it's required.
                         When patch is true, it's optional.
                       items:
                         type: string
@@ -813,7 +813,7 @@ paths:
         - group
       summary: Get a group in the system.
       description: >-
-          Get a group in the system.
+        Get a group in the system.
       operationId: getGroup
       security:
         - bearerAuth: []
