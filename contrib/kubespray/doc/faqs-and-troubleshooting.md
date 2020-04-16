@@ -17,7 +17,9 @@ To fasten the deploy speed, you can add `-f <parallel-number>` to all commands u
 
 By default, we use [weave](https://github.com/weaveworks/weave) as k8s network plugin. After installation, if you encounter some errors about the network, such as some pods failed to connect internet, you could remove network plugin to solve this issue.
 
-To remove the network plugin, you could use following `ansible-playbook`:
+To remove the network plugin, please run `kubectl delete ds weave-net -n kube-system` first to delete `weave-net` daemonSet. 
+
+Then you could use following `ansible-playbook` to revert the changes made by kubespray:
 ```yaml
 ---
 - hosts: all
@@ -62,7 +64,7 @@ To remove the network plugin, you could use following `ansible-playbook`:
         executable: /bin/bash
 ```
 
-After this step, if your pod still can not access internet, please change the pod spec to use `hostNetwork`.
+After these steps, if your pod still can not access internet, please change the pod spec to use `hostNetwork`.
 
 ## Troubleshooting
 
