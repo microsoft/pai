@@ -15,6 +15,7 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+import c from 'classnames';
 import {
   Link,
   FontClassNames,
@@ -42,6 +43,7 @@ import { stopJob } from './conn';
 import { cloneDeep } from 'lodash';
 import StopJobConfirm from '../../job/job-view/fabric/JobList/StopJobConfirm';
 
+import t from '../../components/tachyons.scss';
 import StatusBadge from '../../components/status-badge';
 
 const { palette } = getTheme();
@@ -54,7 +56,7 @@ const AbnormalJobList = ({ jobs }) => {
   const jobListColumns = [
     {
       key: 'name',
-      minWidth: 200,
+      minWidth: 150,
       name: 'Name',
       fieldName: 'name',
       className: FontClassNames.mediumPlus,
@@ -70,7 +72,7 @@ const AbnormalJobList = ({ jobs }) => {
     },
     {
       key: 'gpuCount',
-      minWidth: 50,
+      minWidth: 150,
       name: 'GPUs',
       fieldName: 'totalGpuNumber',
       className: FontClassNames.mediumPlus,
@@ -197,7 +199,7 @@ const AbnormalJobList = ({ jobs }) => {
   );
 
   return (
-    <div>
+    <div className={c(t.mv3, t.ph5, t.h100, t.overflowYAuto)}>
       <DetailsList
         styles={{ root: { minHeight: 200, overflow: 'auto' } }}
         columns={jobListColumns}

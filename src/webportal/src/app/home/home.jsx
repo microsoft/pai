@@ -145,11 +145,7 @@ const Home = () => {
         </MediaQuery>
         {/* large */}
         <MediaQuery minWidth={BREAKPOINT1 + 1}>
-          <Stack
-            padding='l2'
-            gap='l1'
-            styles={{ root: { height: '100%', minHeight: 640 } }}
-          >
+          <Stack padding='l2' gap='l1' styles={{ root: { height: '100%' } }}>
             {/* top */}
             <StackItem disableShrink>
               <Stack gap='l1' horizontal>
@@ -170,7 +166,7 @@ const Home = () => {
               </Stack>
             </StackItem>
             {/* bottom */}
-            <Card className={c(t.h100, t.ph5)}>
+            <Card style={{ minHeight: 600 }}>
               {isAdmin ? (
                 <Pivot>
                   <PivotItem
