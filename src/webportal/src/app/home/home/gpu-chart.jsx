@@ -41,6 +41,7 @@ import {
   BREAKPOINT1,
   BREAKPOINT2,
 } from './util';
+import { TooltipIcon } from '../../job-submission/components/controls/tooltip-icon';
 
 const GpuChart = ({ style, gpuPerNode, virtualClusters, userInfo }) => {
   const chartRef = useRef(null);
@@ -110,7 +111,10 @@ const GpuChart = ({ style, gpuPerNode, virtualClusters, userInfo }) => {
         type: 'bar',
         groups: [['shared', 'dedicated']],
         labels: {
-          format: x => (x === 0 ? '' : x),
+          format: {
+            shared: x => x,
+            dedicated: x => (x === 0 ? '' : x),
+          },
         },
         empty: { label: { text: 'No available GPU nodes now' } },
       },
@@ -123,17 +127,21 @@ const GpuChart = ({ style, gpuPerNode, virtualClusters, userInfo }) => {
       },
       axis: {
         x: {
+          label: {
+            text: 'Number of available GPUs on the node',
+            position: 'outter-top',
+          },
           tick: {
             outer: false,
-            format: x => `Node with ${x + 1}GPU`,
+            format: x => `${x + 1}`,
             multiline: true,
             multilineMax: 3,
           },
         },
         y: {
           label: {
-            text: 'Available #',
-            position: 'outer-middle',
+            text: 'Amount of nodes',
+            position: 'outter-top',
           },
           tick: {
             outer: false,
@@ -299,7 +307,16 @@ const GpuChart = ({ style, gpuPerNode, virtualClusters, userInfo }) => {
       <Stack styles={{ root: [{ height: '100%' }] }} gap='l1'>
         <Stack.Item>
           <Stack horizontal horizontalAlign='space-between'>
-            <div className={FontClassNames.mediumPlus}>Available GPU nodes</div>
+            <Stack horizontal gap='s1'>
+              <div className={FontClassNames.mediumPlus}>
+                Available GPU nodes
+              </div>
+              <TooltipIcon
+                content={
+                  'The chart shows the distribution of nodes with available GPUs. X axis represents nodes with different number of available GPUs. Y axis represents the amount of the nodes.'
+                }
+              />
+            </Stack>
             <div>
               {hasDedicatedVC && (
                 <div>
