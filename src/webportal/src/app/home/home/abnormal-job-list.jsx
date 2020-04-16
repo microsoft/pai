@@ -48,7 +48,7 @@ import StatusBadge from '../../components/status-badge';
 
 const { palette } = getTheme();
 
-const AbnormalJobList = ({ jobs, style }) => {
+const AbnormalJobList = ({ jobs }) => {
   const [abnormalJobs, setAbnormalJobs] = useState(jobs);
   const [hideDialog, setHideDialog] = useState(true);
   const [currentJob, setCurrentJob] = useState(null);
@@ -199,9 +199,9 @@ const AbnormalJobList = ({ jobs, style }) => {
   );
 
   return (
-    <div className={c(t.mv3, t.ph5, t.h100, t.overflowYAuto)}>
+    <div>
       <DetailsList
-        styles={{ root: { minHeight: 200, overflow: 'unset' } }}
+        styles={{ root: { minHeight: 200, overflow: 'auto' } }}
         columns={jobListColumns}
         disableSelectionZone
         items={abnormalJobs}
@@ -219,7 +219,6 @@ const AbnormalJobList = ({ jobs, style }) => {
 };
 
 AbnormalJobList.propTypes = {
-  style: PropTypes.object,
   jobs: PropTypes.array.isRequired,
 };
 

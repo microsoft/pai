@@ -90,7 +90,7 @@ const Home = () => {
   } else {
     return (
       <div
-        className={c(t.w100, t.h100)}
+        className={c(t.w100)}
         style={{ minWidth: 375, overflowY: 'auto' }}
       >
         {/* small */}
@@ -110,9 +110,9 @@ const Home = () => {
                 virtualClusters={virtualClusters}
               />
             </React.Fragment>
-            <Card className={c(t.h100, t.ph5)}>
+            <Card>
               {isAdmin ? (
-                <Pivot>
+                <Pivot styles={{root: {maxHeight: '100%'}}}>
                   <PivotItem
                     headerText='Abnormal jobs'
                     onRenderItemLink={(link, defaultRenderer) => {
@@ -129,7 +129,6 @@ const Home = () => {
                     }}
                   >
                     <AbnormalJobList
-                      style={{ minHeight: 0 }}
                       jobs={listAbnormalJobs(jobs, lowGpuJobInfo)}
                     />
                   </PivotItem>
@@ -193,7 +192,6 @@ const Home = () => {
                     }}
                   >
                     <AbnormalJobList
-                      style={{ minHeight: 0 }}
                       jobs={listAbnormalJobs(jobs, lowGpuJobInfo)}
                     />
                   </PivotItem>
