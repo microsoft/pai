@@ -37,7 +37,7 @@ paths:
         - api
       summary: Get OpenPAI cluster info.
       description: Get OpenPAI cluster info.
-      operationId: getApiV2
+      operationId: getClusterInfo
       responses:
         '200':
           description: Succeeded
@@ -73,7 +73,7 @@ paths:
         - token
       summary: Get your currently signed tokens.
       description: Get your currently signed tokens.
-      operationId: getToken
+      operationId: getTokens
       security:
         - bearerAuth: []
       responses:
@@ -850,7 +850,7 @@ paths:
     delete:
       tags:
         - group
-      summary: Deelete a group in the system.
+      summary: Delete a group in the system.
       description: >-
         Delete a group in the system.
         Admin only.
@@ -880,14 +880,14 @@ paths:
         - group
       summary: Get the user array of a group in the system.
       description: Get the user array of a group in the system.
-      operationId: updateGroup
+      operationId: getGroupMembers
       responses:
         '200':
           description: Succeeded
           content:
             application/json:
               schema:
-                description: Array with all groups in the system.
+                description: Array with all users in the group.
                 type: array
                 items:
                   type: object
