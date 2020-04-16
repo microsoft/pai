@@ -15,7 +15,6 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-import c from 'classnames';
 import {
   Link,
   FontClassNames,
@@ -43,7 +42,6 @@ import { stopJob } from './conn';
 import { cloneDeep } from 'lodash';
 import StopJobConfirm from '../../job/job-view/fabric/JobList/StopJobConfirm';
 
-import t from '../../components/tachyons.scss';
 import StatusBadge from '../../components/status-badge';
 
 const { palette } = getTheme();

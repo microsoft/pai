@@ -89,10 +89,7 @@ const Home = () => {
     return <SpinnerLoading />;
   } else {
     return (
-      <div
-        className={c(t.w100)}
-        style={{ minWidth: 375, overflowY: 'auto' }}
-      >
+      <div className={c(t.w100)} style={{ minWidth: 375, overflowY: 'auto' }}>
         {/* small */}
         <MediaQuery maxWidth={BREAKPOINT1}>
           <Stack padding='l2' gap='l1' styles={{ minHeight: '100%' }}>
@@ -112,7 +109,7 @@ const Home = () => {
             </React.Fragment>
             <Card>
               {isAdmin ? (
-                <Pivot styles={{root: {maxHeight: '100%'}}}>
+                <Pivot styles={{ root: { maxHeight: '100%' } }}>
                   <PivotItem
                     headerText='Abnormal jobs'
                     onRenderItemLink={(link, defaultRenderer) => {
