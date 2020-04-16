@@ -665,6 +665,8 @@ const generateFrameworkDescription = (frameworkName, virtualCluster, config, raw
     const taskRoleDescription = generateTaskRole(frameworkName, taskRole, jobInfo, frameworkEnvList, config);
     if (launcherConfig.enabledPriorityClass) {
       taskRoleDescription.task.pod.spec.priorityClassName = `${encodeName(frameworkName)}-priority`;
+    } else {
+      taskRoleDescription.task.pod.spec.priorityClassName = 'pai-job-minimal-priority';
     }
     if (config.secrets) {
       taskRoleDescription.task.pod.spec.volumes.push({
