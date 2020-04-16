@@ -29,7 +29,7 @@ spec:
       labels:
         app: rest-server
     spec:
-      hostNetwork: false
+      hostNetwork: true
       hostPID: false
       containers:
       - name: rest-server
@@ -57,6 +57,8 @@ spec:
           name: k8s-exit-spec-rest-server
 {%- endif %}
         env:
+        - name: SERVER_PORT
+          value: "9186"
         - name: LAUNCHER_TYPE
           value: {{ cluster_cfg["cluster"]["common"]["cluster-type"] }}
 {%- if cluster_cfg["cluster"]["common"]["cluster-type"] == "k8s" %}
@@ -144,7 +146,7 @@ spec:
 {% endif %}
         ports:
         - name: rest-server
-          containerPort: 8080
+          containerPort: 9186
           hostPort: {{ cluster_cfg['rest-server']['server-port'] }}
         {%- if cluster_cfg['cluster']['common']['qos-switch'] == "true" %}
         resources:
