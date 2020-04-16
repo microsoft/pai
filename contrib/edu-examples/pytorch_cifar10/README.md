@@ -10,6 +10,8 @@ This project provides the examples to run on the [OpenPAI](https://github.com/mi
 | Resnet18 | V100 * 4(Horovod) | 23m(200 epoch) | [Details](metrics/Resnet18_horovod.jpg) | 93.6% | [Restnet18_horovod.yaml](yaml/Resnet18_horovod.yaml)
 
 ## Usage
+To quickly submit a CPU/GPU/Horovod training job to the OpenPAI cluster, users can directly submit the corresponding yaml file as mentioned above (in the yaml folder). However, we cannot show all possible resource allocations and networks in the example yaml files. Therefore, users can customize the training jobs accoding to the following two steps.
+
 
 Step-1: 
 
@@ -37,4 +39,3 @@ To run the training task on 4 gpus by Horovod:
 horovodrun -np 4 python horovod_cifar.py --arch ResNet18
 ```
 
-Specific yaml examples for Openpai are also provided in yaml folder.
