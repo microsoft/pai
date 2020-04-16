@@ -33,7 +33,7 @@ router.use('/groups', groupRouter);
 
 router.use('/storages', storageRouter);
 router.use('/storage', storageDeprecatedRouter);
-router.use('/token', tokenRouter);
+router.use('/tokens', tokenRouter);
 router.use('/kubernetes', k8sRouter);
 
 // module exports
