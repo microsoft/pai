@@ -1432,7 +1432,8 @@ components:
           description: Protocol version, current version is 2.
         name:
           type: string
-          description: String in ^([a-zA-Z0-9][a-zA-Z0-9_-]*)?[a-zA-Z0-9]$ format, no longer than 63 characters.
+          maxLength: 255
+          description: String in ^[a-zA-Z0-9_-]+$ format, no longer than 255 characters.
         type:
           type: string
           description: Component type, should be "job" here.
