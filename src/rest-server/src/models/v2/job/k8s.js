@@ -228,7 +228,7 @@ const convertFrameworkDetail = async (framework) => {
   const jobName = decodeName(framework.metadata.name, framework.metadata.annotations);
   const userName = framework.metadata.labels ? framework.metadata.labels.userName : 'unknown';
   const virtualCluster = framework.metadata.labels ? framework.metadata.labels.virtualCluster : 'unknown';
-  const logPathPrefix = framework.metadata.labels ? framework.metadata.labels.logPathPrefix : null;
+  const logPathInfix = framework.metadata.labels ? framework.metadata.labels.logPathInfix : null;
 
   const completionStatus = attemptStatus.completionStatus;
   const diagnostics = completionStatus ? completionStatus.diagnostics : null;
@@ -285,9 +285,7 @@ const convertFrameworkDetail = async (framework) => {
       async (status) => await convertTaskDetail(
         status,
         ports[taskRoleStatus.name],
-        logPathPrefix ?
-          `${logPathPrefix}/${taskRoleStatus.name}` :
-          `${userName}/${jobName}/${taskRoleStatus.name}`,
+        `${userName}/${logPathInfix || jobName}/${taskRoleStatus.name}`,
       )
     ));
     detail.taskRoles[taskRoleStatus.name] = {
@@ -424,7 +422,7 @@ const generateTaskRole = (frameworkName, taskRole, jobInfo, frameworkEnvList, co
                 },
                 {
                   name: 'host-log',
-                  subPath: `${jobInfo.logPathPrefix}/${convertName(taskRole)}`,
+                  subPath: `${jobInfo.userName}/${jobInfo.logPathInfix}/${convertName(taskRole)}`,
                   mountPath: '/usr/local/pai/logs',
                 },
                 {
@@ -480,7 +478,7 @@ const generateTaskRole = (frameworkName, taskRole, jobInfo, frameworkEnvList, co
                 },
                 {
                   name: 'host-log',
-                  subPath: `${jobInfo.userName}/${jobInfo.jobName}/${convertName(taskRole)}`,
+                  subPath: `${jobInfo.userName}/${jobInfo.logPathInfix}/${convertName(taskRole)}`,
                   mountPath: '/usr/local/pai/logs',
                 },
                 {
@@ -629,7 +627,7 @@ const generateFrameworkDescription = (frameworkName, virtualCluster, config, raw
     jobName,
     userName,
     virtualCluster,
-    logPathPrefix: `${userName}/${encodeName(frameworkName)}`,
+    logPathInfix: `${encodeName(frameworkName)}`,
   };
   const frameworkDescription = {
     apiVersion: launcherConfig.apiVersion,
@@ -639,7 +637,7 @@ const generateFrameworkDescription = (frameworkName, virtualCluster, config, raw
       labels: {
         userName: jobInfo.userName,
         virtualCluster: jobInfo.virtualCluster,
-        logPathPrefix: jobInfo.logPathPrefix,
+        logPathInfix: jobInfo.logPathInfix,
       },
       annotations: {
         jobName: jobInfo.jobName,
