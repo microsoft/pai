@@ -228,7 +228,7 @@ const convertFrameworkDetail = async (framework) => {
   const jobName = decodeName(framework.metadata.name, framework.metadata.annotations);
   const userName = framework.metadata.labels ? framework.metadata.labels.userName : 'unknown';
   const virtualCluster = framework.metadata.labels ? framework.metadata.labels.virtualCluster : 'unknown';
-  const logPathInfix = framework.metadata.labels ? framework.metadata.labels.logPathInfix : null;
+  const logPathInfix = framework.metadata.annotations ? framework.metadata.annotations.logPathInfix : null;
 
   const completionStatus = attemptStatus.completionStatus;
   const diagnostics = completionStatus ? completionStatus.diagnostics : null;
@@ -637,10 +637,10 @@ const generateFrameworkDescription = (frameworkName, virtualCluster, config, raw
       labels: {
         userName: jobInfo.userName,
         virtualCluster: jobInfo.virtualCluster,
-        logPathInfix: jobInfo.logPathInfix,
       },
       annotations: {
         jobName: jobInfo.jobName,
+        logPathInfix: jobInfo.logPathInfix,
         config: protocolSecret.mask(rawConfig),
       },
     },
