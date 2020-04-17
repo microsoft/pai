@@ -89,10 +89,7 @@ const Home = () => {
     return <SpinnerLoading />;
   } else {
     return (
-      <div
-        className={c(t.w100, t.h100)}
-        style={{ minWidth: 375, overflowY: 'auto' }}
-      >
+      <div className={c(t.w100)} style={{ minWidth: 375, overflowY: 'auto' }}>
         {/* small */}
         <MediaQuery maxWidth={BREAKPOINT1}>
           <Stack padding='l2' gap='l1' styles={{ minHeight: '100%' }}>
@@ -110,9 +107,9 @@ const Home = () => {
                 virtualClusters={virtualClusters}
               />
             </React.Fragment>
-            <Card className={c(t.h100, t.ph5)}>
+            <Card>
               {isAdmin ? (
-                <Pivot>
+                <Pivot styles={{ root: { maxHeight: '100%' } }}>
                   <PivotItem
                     headerText='Abnormal jobs'
                     onRenderItemLink={(link, defaultRenderer) => {
@@ -129,7 +126,6 @@ const Home = () => {
                     }}
                   >
                     <AbnormalJobList
-                      style={{ minHeight: 0 }}
                       jobs={listAbnormalJobs(jobs, lowGpuJobInfo)}
                     />
                   </PivotItem>
@@ -149,11 +145,7 @@ const Home = () => {
         </MediaQuery>
         {/* large */}
         <MediaQuery minWidth={BREAKPOINT1 + 1}>
-          <Stack
-            padding='l2'
-            gap='l1'
-            styles={{ root: { height: '100%', minHeight: 640 } }}
-          >
+          <Stack padding='l2' gap='l1' styles={{ root: { height: '100%' } }}>
             {/* top */}
             <StackItem disableShrink>
               <Stack gap='l1' horizontal>
@@ -174,7 +166,7 @@ const Home = () => {
               </Stack>
             </StackItem>
             {/* bottom */}
-            <Card className={c(t.h100, t.ph5)}>
+            <Card style={{ minHeight: 600 }}>
               {isAdmin ? (
                 <Pivot>
                   <PivotItem
@@ -193,7 +185,6 @@ const Home = () => {
                     }}
                   >
                     <AbnormalJobList
-                      style={{ minHeight: 0 }}
                       jobs={listAbnormalJobs(jobs, lowGpuJobInfo)}
                     />
                   </PivotItem>
