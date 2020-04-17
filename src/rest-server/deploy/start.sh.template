@@ -34,7 +34,11 @@ python3 user_v2_migrate.py  -a {{ cluster_cfg['authentication']['group-manager']
 kubectl apply --overwrite=true -f rbac.yaml || exit $?
 {% endif %}
 
-kubectl apply --overwrite=true -f rest-server.yaml|| exit $?
+{% if cluster_cfg["cluster"]["common"]["cluster-type"] == "k8s" %}
+kubectl apply --overwrite=true -f priority-class.yaml || exit $?
+{% endif %}
+
+kubectl apply --overwrite=true -f rest-server.yaml || exit $?
 
 sleep 10
 # Wait until the service is ready.
