@@ -210,6 +210,9 @@ $(document).ready(() => {
         $.ajax({
           url: url,
           type: 'GET',
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
           success: data => {
             let jobConfigObj = data;
             if (typeof jobConfigObj === 'string') {

@@ -112,44 +112,46 @@ function TopBar() {
           }
         }
       }),
-      fetch(`${webportalConfig.restServerUri}/api/v2/virtual-clusters`).then(
-        async response => {
-          if (response.ok) {
-            const data = await response.json();
-            const vcs = {};
-            for (const vcName of Object.keys(data)) {
-              vcs[vcName] = true;
-            }
-            setVirtualClusters(vcs);
-            const allValidVC = Object.keys(data);
-            const { keyword, users, virtualClusters, statuses } = filter;
-            const filterVC = new Set(
-              allValidVC.filter(vc => virtualClusters.has(vc)),
+      fetch(`${webportalConfig.restServerUri}/api/v2/virtual-clusters`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }).then(async response => {
+        if (response.ok) {
+          const data = await response.json();
+          const vcs = {};
+          for (const vcName of Object.keys(data)) {
+            vcs[vcName] = true;
+          }
+          setVirtualClusters(vcs);
+          const allValidVC = Object.keys(data);
+          const { keyword, users, virtualClusters, statuses } = filter;
+          const filterVC = new Set(
+            allValidVC.filter(vc => virtualClusters.has(vc)),
+          );
+          setFilter(new Filter(keyword, users, filterVC, statuses));
+        } else {
+          const data = await response.json().catch(() => {
+            throw new Error(
+              `Failed to fetch virtual cluster info: ${response.status} ${response.statusText}`,
             );
-            setFilter(new Filter(keyword, users, filterVC, statuses));
-          } else {
-            const data = await response.json().catch(() => {
-              throw new Error(
-                `Failed to fetch virtual cluster info: ${response.status} ${response.statusText}`,
-              );
-            });
-            if (data.message) {
-              if (data.code === 'UnauthorizedUserError') {
-                alert(data.message);
-                clearToken();
-              } else {
-                throw new Error(
-                  `Failed to fetch virtual cluster info: ${data.message}`,
-                );
-              }
+          });
+          if (data.message) {
+            if (data.code === 'UnauthorizedUserError') {
+              alert(data.message);
+              clearToken();
             } else {
               throw new Error(
-                `Failed to fetch virtual cluster info: ${response.status} ${response.statusText}`,
+                `Failed to fetch virtual cluster info: ${data.message}`,
               );
             }
+          } else {
+            throw new Error(
+              `Failed to fetch virtual cluster info: ${response.status} ${response.statusText}`,
+            );
           }
-        },
-      ),
+        }
+      }),
     ]).catch(err => alert(err.message));
   }, []);
 

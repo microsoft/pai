@@ -28,7 +28,7 @@ const router = new express.Router();
 
 router.route('/')
   /** GET /api/v2/jobs - List job */
-  .get(controller.list)
+  .get(token.check, controller.list)
   /** POST /api/v2/jobs - Update job */
   .post(
     token.check,
@@ -38,7 +38,7 @@ router.route('/')
 
 router.route('/:frameworkName')
   /** GET /api/v2/jobs/:frameworkName - Get job */
-  .get(controller.get);
+  .get(token.check, controller.get);
 
 router.route('/:frameworkName/executionType')
   /** PUT /api/v2/jobs/:frameworkName/executionType - Start or stop job */
@@ -46,11 +46,11 @@ router.route('/:frameworkName/executionType')
 
 router.route('/:frameworkName/config')
   /** GET /api/v2/jobs/:frameworkName/config - Get job config */
-  .get(controller.getConfig);
+  .get(token.check, controller.getConfig);
 
 router.route('/:frameworkName/ssh')
   /** GET /api/v2/jobs/:frameworkName/ssh - Get job ssh info */
-  .get(controller.getSshInfo);
+  .get(token.check, controller.getSshInfo);
 
 router.use('/:frameworkName/job-attempts', jobAttemptRouter);
 

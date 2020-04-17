@@ -1077,8 +1077,10 @@ describe('VC API  Get /api/v2/virtual-clusters', () => {
 
   // GET /api/v2/virtual-clusters
   it('should return virtual cluster list', (done) => {
+    const token = nockUtils.registerUserTokenCheck('user');
     chai.request(server)
       .get('/api/v2/virtual-clusters')
+      .set('Authorization', 'Bearer ' + token)
       .end((err, res) => {
         expect(res, 'status code').to.have.status(200);
         expect(res, 'json response').be.json;
@@ -1097,8 +1099,10 @@ describe('VC API  Get /api/v2/virtual-clusters', () => {
   // positive test case
   // get exist vc info
   it('should return virtual cluster info', (done) => {
+    const token = nockUtils.registerUserTokenCheck('user');
     chai.request(server)
       .get('/api/v2/virtual-clusters/a')
+      .set('Authorization', 'Bearer ' + token)
       .end((err, res) => {
         expect(res, 'status code').to.have.status(200);
         expect(res, 'json response').be.json;
@@ -1110,8 +1114,10 @@ describe('VC API  Get /api/v2/virtual-clusters', () => {
   // negative test case
   // get non-exist vc
   it('should return not found', (done) => {
+    const token = nockUtils.registerUserTokenCheck('user');
     chai.request(server)
       .get('/api/v2/virtual-clusters/noexist')
+      .set('Authorization', 'Bearer ' + token)
       .end((err, res) => {
         expect(res, 'status code').to.have.status(404);
         expect(res, 'json response').be.json;
@@ -1145,8 +1151,10 @@ describe('VC API  Get /api/v2/virtual-clusters', () => {
           },
         },
       });
+    const token = nockUtils.registerUserTokenCheck('user');
     chai.request(server)
       .get('/api/v2/virtual-clusters')
+      .set('Authorization', 'Bearer ' + token)
       .end((err, res) => {
         expect(res, 'status code').to.have.status(500);
         expect(res, 'json response').be.json;
