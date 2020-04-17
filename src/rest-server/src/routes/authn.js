@@ -17,10 +17,13 @@
 
 // module dependencies
 const express = require('express');
+const jwt = require('jsonwebtoken');
 const tokenConfig = require('@pai/config/token');
 const param = require('@pai/middlewares/parameter');
 const userController = require('@pai/controllers/v2/user');
 const tokenController = require('@pai/controllers/v2/token');
+const tokenModel = require('@pai/models/token');
+const createError = require('@pai/utils/error');
 const azureADController = require('@pai/controllers/v2/azureAD');
 const authnConfig = require('@pai/config/authn');
 const tokenMiddleware = require('@pai/middlewares/token');
