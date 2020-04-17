@@ -84,7 +84,7 @@ if (authnConfig.authnMethod === 'OIDC') {
   router.route('/basic/logout')
   /** POST /api/v1/authn/basic/logout - logout */
     .delete(tokenMiddleware.checkNotApplication, async (req, res, next) => {
-  const [scheme, token] = req.headers.authorization.split(' ');
+  const token = req.headers.authorization.split(' ')[1];
   try {
     const {username} = jwt.decode(token);
     if (username === req.user.username) {
