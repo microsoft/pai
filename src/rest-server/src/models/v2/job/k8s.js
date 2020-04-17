@@ -177,7 +177,7 @@ const convertFrameworkSummary = (framework) => {
   };
 };
 
-const convertTaskDetail = async (taskStatus, ports, userName, jobName, taskRoleName) => {
+const convertTaskDetail = async (taskStatus, ports, logPathPrefix) => {
   // get container ports
   const containerPorts = {};
   if (ports) {
@@ -203,7 +203,7 @@ const convertTaskDetail = async (taskStatus, ports, userName, jobName, taskRoleN
     containerIp: taskStatus.attemptStatus.podHostIP,
     containerPorts,
     containerGpus,
-    containerLog: `http://${taskStatus.attemptStatus.podHostIP}:${process.env.LOG_MANAGER_PORT}/log-manager/tail/${userName}/${jobName}/${taskRoleName}/${taskStatus.attemptStatus.podUID}/`,
+    containerLog: `http://${taskStatus.attemptStatus.podHostIP}:${process.env.LOG_MANAGER_PORT}/log-manager/tail/${logPathPrefix}/${taskStatus.attemptStatus.podUID}/`,
     containerExitCode: completionStatus ? completionStatus.code : null,
     ...launcherConfig.enabledHived && {
       hived: {
@@ -225,14 +225,19 @@ const convertFrameworkDetail = async (framework) => {
     attemptStatus.taskRoleStatuses = decompressField(attemptStatus.taskRoleStatusesCompressed);
   }
 
+  const jobName = decodeName(framework.metadata.name, framework.metadata.annotations);
+  const userName = framework.metadata.labels ? framework.metadata.labels.userName : 'unknown';
+  const virtualCluster = framework.metadata.labels ? framework.metadata.labels.virtualCluster : 'unknown';
+  const logPathPrefix = framework.metadata.labels ? framework.metadata.labels.logPathPrefix : null;
+
   const completionStatus = attemptStatus.completionStatus;
   const diagnostics = completionStatus ? completionStatus.diagnostics : null;
   const exitDiagnostics = generateExitDiagnostics(diagnostics);
   const detail = {
     debugId: framework.metadata.name,
-    name: decodeName(framework.metadata.name, framework.metadata.annotations),
+    name: jobName,
     jobStatus: {
-      username: framework.metadata.labels ? framework.metadata.labels.userName : 'unknown',
+      username: userName,
       state: convertState(
         framework.status.state,
         completionStatus ? completionStatus.code : null,
@@ -266,7 +271,7 @@ const convertFrameworkDetail = async (framework) => {
       appExitTriggerTaskRoleName: completionStatus && completionStatus.trigger ? completionStatus.trigger.taskRoleName : null,
       appExitTriggerTaskIndex: completionStatus && completionStatus.trigger ? completionStatus.trigger.taskIndex : null,
       appExitType: completionStatus ? completionStatus.type.name : null,
-      virtualCluster: framework.metadata.labels ? framework.metadata.labels.virtualCluster : 'unknown',
+      virtualCluster,
     },
     taskRoles: {},
   };
@@ -275,17 +280,14 @@ const convertFrameworkDetail = async (framework) => {
     ports[taskRoleSpec.name] = taskRoleSpec.task.pod.metadata.annotations['rest-server/port-scheduling-spec'];
   }
 
-  const userName = framework.metadata.labels ? framework.metadata.labels.userName : 'unknown';
-  const jobName = decodeName(framework.metadata.name, framework.metadata.annotations);
-
   for (let taskRoleStatus of framework.status.attemptStatus.taskRoleStatuses) {
     const taskStatuses = await Promise.all(taskRoleStatus.taskStatuses.map(
       async (status) => await convertTaskDetail(
         status,
         ports[taskRoleStatus.name],
-        userName,
-        jobName,
-        taskRoleStatus.name
+        logPathPrefix ?
+          `${logPathPrefix}/${taskRoleStatus.name}` :
+          `${userName}/${jobName}/${taskRoleStatus.name}`,
       )
     ));
     detail.taskRoles[taskRoleStatus.name] = {
@@ -422,7 +424,7 @@ const generateTaskRole = (frameworkName, taskRole, jobInfo, frameworkEnvList, co
                 },
                 {
                   name: 'host-log',
-                  subPath: `${jobInfo.userName}/${jobInfo.jobName}/${convertName(taskRole)}`,
+                  subPath: `${jobInfo.logPathPrefix}/${convertName(taskRole)}`,
                   mountPath: '/usr/local/pai/logs',
                 },
                 {
@@ -627,6 +629,7 @@ const generateFrameworkDescription = (frameworkName, virtualCluster, config, raw
     jobName,
     userName,
     virtualCluster,
+    logPathPrefix: `${userName}/${encodeName(frameworkName)}`,
   };
   const frameworkDescription = {
     apiVersion: launcherConfig.apiVersion,
@@ -636,6 +639,7 @@ const generateFrameworkDescription = (frameworkName, virtualCluster, config, raw
       labels: {
         userName: jobInfo.userName,
         virtualCluster: jobInfo.virtualCluster,
+        logPathPrefix: jobInfo.logPathPrefix,
       },
       annotations: {
         jobName: jobInfo.jobName,
