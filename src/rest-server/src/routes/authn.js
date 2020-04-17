@@ -81,7 +81,7 @@ if (authnConfig.authnMethod === 'OIDC') {
     .post(
       param.validate(tokenConfig.tokenPostInputSchema), tokenController.get);
 
-  router.route('/basic/logout/:token')
+  router.route('/basic/logout')
   /** POST /api/v1/authn/basic/logout - logout */
     .delete(tokenMiddleware.checkNotApplication, async (req, res, next) => {
   const [scheme, token] = req.headers.authorization.split(' ');

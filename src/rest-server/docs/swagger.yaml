@@ -223,7 +223,7 @@ paths:
                 $ref: '#/components/schemas/Response'
         '404':
           $ref: '#/components/responses/NoUserError'
-  /api/v2/authn/basic/logout/{token}:
+  /api/v2/authn/basic/logout:
     delete:
       tags:
         - authn
@@ -232,8 +232,6 @@ paths:
       operationId: basicLogout
       security:
         - bearerAuth: []
-      parameters:
-        - $ref: '#/components/parameters/token'
       responses:
         '200':
           description: Succeeded
