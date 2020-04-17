@@ -17,12 +17,16 @@
 
 // module dependencies
 const express = require('express');
+const jwt = require('jsonwebtoken');
 const tokenConfig = require('@pai/config/token');
 const param = require('@pai/middlewares/parameter');
 const userController = require('@pai/controllers/v2/user');
 const tokenController = require('@pai/controllers/v2/token');
+const tokenModel = require('@pai/models/token');
+const createError = require('@pai/utils/error');
 const azureADController = require('@pai/controllers/v2/azureAD');
 const authnConfig = require('@pai/config/authn');
+const tokenMiddleware = require('@pai/middlewares/token');
 
 const router = new express.Router();
 
@@ -76,6 +80,25 @@ if (authnConfig.authnMethod === 'OIDC') {
   /** POST /api/v1/authn/basic/login - Return a token if username and password is correct */
     .post(
       param.validate(tokenConfig.tokenPostInputSchema), tokenController.get);
+
+  router.route('/basic/logout')
+  /** POST /api/v1/authn/basic/logout - logout */
+    .delete(tokenMiddleware.checkNotApplication, async (req, res, next) => {
+  const token = req.headers.authorization.split(' ')[1];
+  try {
+    const {username} = jwt.decode(token);
+    if (username === req.user.username) {
+      await tokenModel.revoke(token);
+      res.status(200).json({
+        message: 'Logout successfully',
+      });
+    } else {
+      next(createError('Forbidden', 'ForbiddenUserError', `User ${req.user.username} is not allowed to do this operation.`));
+    }
+  } catch (err) {
+    next(createError.unknown(err));
+  }
+});
 }
 
 // module exports
