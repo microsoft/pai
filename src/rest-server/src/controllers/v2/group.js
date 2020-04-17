@@ -27,6 +27,9 @@ const getGroup = async (req, res, next) => {
     const groupInfo = await groupModel.getGroup(groupname);
     return res.status(200).json(groupInfo);
   } catch (error) {
+    if (error.status === 404) {
+      return next(createError('Bad Request', 'NoGroupError', `Group ${req.params.groupname} is not found.`));
+    }
     return next(createError.unknown(error));
   }
 };
@@ -83,6 +86,62 @@ const createGroup = async (req, res, next) => {
   }
 };
 
+const updateGroup = async (req, res, next) => {
+  const groupname = req.body.data.groupname;
+  try {
+    if (req.user.admin) {
+      let groupInfo = await groupModel.getGroup(groupname);
+      if (req.body.patch) {
+        if ('description' in req.body.data) {
+          groupInfo['description'] = req.body.data.description;
+        }
+        if ('externalName' in req.body.data) {
+          groupInfo['externalName'] = req.body.data.externalName;
+        }
+        if ('extension' in req.body.data) {
+          if (Object.keys(req.body.data.extension).length > 0) {
+            for (let [key, value] of Object.entries(req.body.data.extension)) {
+              groupInfo['extension'][key] = value;
+            }
+          }
+        }
+      } else {
+        groupInfo['description'] = req.body.data.description;
+        groupInfo['externalName'] = req.body.data.externalName;
+        groupInfo['extension'] = req.body.data.extension;
+      }
+      await groupModel.updateGroup(groupname, groupInfo);
+      return res.status(201).json({
+        message: `update group ${groupname} successfully.`,
+      });
+    } else {
+      next(createError('Forbidden', 'ForbiddenUserError', `Non-admin is not allow to do this operation.`));
+    }
+  } catch (error) {
+    if (error.status === 404) {
+      return next(createError('Bad Request', 'NoGroupError', `Group ${groupname} is not found.`));
+    }
+    return next(createError.unknown(error));
+  }
+};
+
+const deleteGroup = async (req, res, next) => {
+  try {
+    const groupname = req.params.groupname;
+    if (req.user.admin) {
+      await groupModel.deleteGroup(groupname);
+      return res.status(200).json({
+        message: 'group is removed successfully',
+      });
+    } else {
+      next(createError('Forbidden', 'ForbiddenUserError', `Non-admin is not allow to do this operation.`));
+    }
+  } catch (error) {
+    return next(createError.unknown((error)));
+  }
+};
+
+/** Legacy function and will be deprecated in the future. Please use updateGroup. */
 const updateGroupExtension = async (req, res, next) => {
   try {
     const groupname = req.params.groupname;
@@ -104,6 +163,7 @@ const updateGroupExtension = async (req, res, next) => {
   }
 };
 
+/** Legacy function and will be deprecated in the future. Please use updateGroup. */
 const updateGroupExtensionAttr = async (req, res, next) => {
   try {
     const groupname = req.params.groupname;
@@ -127,6 +187,7 @@ const updateGroupExtensionAttr = async (req, res, next) => {
   }
 };
 
+/** Legacy function and will be deprecated in the future. Please use updateGroup. */
 const updateGroupDescription = async (req, res, next) => {
   try {
     const groupname = req.params.groupname;
@@ -146,6 +207,7 @@ const updateGroupDescription = async (req, res, next) => {
   }
 };
 
+/** Legacy function and will be deprecated in the future. Please use updateGroup. */
 const updateGroupExternalName = async (req, res, next) => {
   try {
     const groupname = req.params.groupname;
@@ -165,31 +227,16 @@ const updateGroupExternalName = async (req, res, next) => {
   }
 };
 
-const deleteGroup = async (req, res, next) => {
-  try {
-    const groupname = req.params.groupname;
-    if (req.user.admin) {
-      await groupModel.deleteGroup(groupname);
-      return res.status(200).json({
-        message: 'group is removed successfully',
-      });
-    } else {
-      next(createError('Forbidden', 'ForbiddenUserError', `Non-admin is not allow to do this operation.`));
-    }
-  } catch (error) {
-    return next(createError.unknown((error)));
-  }
-};
-
 // module exports
 module.exports = {
   getGroup,
   getAllGroup,
   createGroup,
+  updateGroup,
+  deleteGroup,
   getGroupUserList,
   updateGroupExtension,
   updateGroupDescription,
   updateGroupExternalName,
-  deleteGroup,
   updateGroupExtensionAttr,
 };

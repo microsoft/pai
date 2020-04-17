@@ -19,20 +19,21 @@
 // module dependencies
 const express = require('express');
 const controller = require('@pai/controllers/v2/job-attempt');
+const token = require('@pai/middlewares/token');
 
 
 const router = new express.Router({mergeParams: true});
 
 /** GET /api/v2/jobs/:frameworkName/job-attempts/healthz - health check of job retry endpoint*/
 router.route('/healthz')
-  .get(controller.healthCheck);
+  .get(token.check, controller.healthCheck);
 
 /** GET /api/v2/jobs/:frameworkName/job-attempts - list job retries by job frameworkName */
 router.route('/')
-  .get(controller.list);
+  .get(token.check, controller.list);
 
 /** GET /api/v2/jobs/:frameworkName/job-attempts/:jobAttemptIndex - get certain job retry by retry index */
 router.route('/:jobAttemptIndex')
-  .get(controller.get);
+  .get(token.check, controller.get);
 
 module.exports = router;
