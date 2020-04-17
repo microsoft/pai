@@ -165,7 +165,7 @@ paths:
       responses:
         '302':
           description: Redirect
-  /api/v2/basic/login:
+  /api/v2/authn/basic/login:
     post:
       tags:
         - authn
@@ -223,6 +223,30 @@ paths:
                 $ref: '#/components/schemas/Response'
         '404':
           $ref: '#/components/responses/NoUserError'
+  /api/v2/authn/basic/logout/{token}:
+    delete:
+      tags:
+        - authn
+      summary: Logout and revoke the token
+      description: Logout and revoke the token
+      operationId: basicLogout
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/token'
+      responses:
+        '200':
+          description: Succeeded
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
+              example:
+                message: Logout successfully
+        '401':
+          $ref: '#/components/responses/UnauthorizedUserError'
+        '403':
+          $ref: '#/components/responses/ForbiddenUserError'
   /api/v2/users:
     post:
       tags:
@@ -550,7 +574,7 @@ paths:
           $ref: '#/components/responses/NoUserError'
         '500':
           $ref: '#/components/responses/UnknownError'
-  '/api/v2/user/{user}/group/':
+  '/api/v2/users/{user}/group/':
     parameters:
       - $ref: '#/components/parameters/user'
     put:
@@ -629,7 +653,7 @@ paths:
             $ref: '#/components/responses/NoUserError'
           '500':
             $ref: '#/components/responses/UnknownError'
-  '/api/v2/user/{user}/grouplist/':
+  '/api/v2/users/{user}/grouplist/':
     parameters:
       - $ref: '#/components/parameters/user'
     put:
