@@ -261,14 +261,21 @@ class Cluster:
 
     @exception_free(RestSrvError, None)
     def rest_api_virtual_clusters(self):
-        return get_response(
-            'GET', [self.rest_srv, 'v1', 'virtual-clusters'],
-            headers={
-                'Authorization': 'Bearer {}'.format(self.token),
-                'Content-Type': 'application/json',
-            },
-            allowed_status=[200]
-        ).json()
+        for version in ['v1', 'v2']:
+            try:
+                # try v1 first, then v2
+                response = get_response(
+                    'GET', [self.rest_srv, 'v2', 'virtual-clusters'],
+                    headers={
+                        'Authorization': 'Bearer {}'.format(self.token),
+                        'Content-Type': 'application/json',
+                    },
+                    allowed_status=[200]
+                ).json()
+                return response
+            except RestSrvError:
+                if version == 'v2':
+                    raise
 
     @exception_free(RestSrvError, None)
     def rest_api_user(self, user: str = None):
