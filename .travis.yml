@@ -24,16 +24,16 @@ matrix:
     - language: python
       python: 2.7
       install:
-      - pip install paramiko pyyaml jinja2 python-etcd kubernetes GitPython
+        - pip install paramiko pyyaml jinja2 python-etcd kubernetes GitPython
       script:
-      - python -m unittest deployment.clusterObjectModel.test.test_cluster_object_model
+        - python -m unittest deployment.clusterObjectModel.test.test_cluster_object_model
 
     - language: python
       python: 2.7
       install:
-      - pip install paramiko pyyaml jinja2 python-etcd kubernetes GitPython
+        - pip install paramiko pyyaml jinja2 python-etcd kubernetes GitPython
       script:
-      - python -m unittest deployment.clusterObjectModel.test.test_template_generate
+        - python -m unittest deployment.clusterObjectModel.test.test_template_generate
 
     - language: python
       python: 2.7
@@ -137,3 +137,8 @@ matrix:
       before_install: cd contrib/submit-job-v2
       install: yarn --frozen-lockfiles
       script: yarn build
+
+    - language: node_js
+      node_js: node
+      install: npm install -g @apidevtools/swagger-cli
+      script: swagger-cli validate src/rest-server/docs/swagger.yaml
