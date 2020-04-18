@@ -314,34 +314,9 @@ paths:
           content:
             application/json:
               schema:
-                description: Array with all users in the system.
-                type: array
-                items:
-                  type: object
-                  properties:
-                    username:
-                      type: string
-                      description: user name
-                    admin:
-                      type: boolean
-                      description: Admin or not.
-                    virtualCluster:
-                      type: array
-                      description: The list of virtualCluster which the user can access.
-                      items:
-                        type: string
-                        description: virtual cluster name.
-                    storageConfig:
-                      type: object
-                      description: storageconfig
-                    email:
-                      type: string
-                      description: email address
-                    extension:
-                      type: object
-                      description: extension field.
-          '500':
-            $ref: '#/components/responses/UnknownError'
+                $ref: '#/components/schemas/UserInfo'
+        '500':
+          $ref: '#/components/responses/UnknownError'
     put:
       tags:
         - user
@@ -508,36 +483,7 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  username:
-                    type: string
-                    description: user name
-                  admin:
-                    type: boolean
-                    description: Admin or not.
-                  virtualCluster:
-                    type: array
-                    description: The list of virtualCluster which the user can access.
-                    items:
-                      type: string
-                      description: virtual cluster name.
-                  storageConfig:
-                    type: object
-                    description: storageconfig
-                  email:
-                    type: string
-                    description: email address
-                  extension:
-                    type: object
-                    description: extension field.
-                required:
-                  - username
-                  - admin
-                  - virtualCluster
-                  - storageConfig
-                  - email
-                  - extension
+                $ref: '#/components/schemas/UserInfo'
         '401':
           $ref: '#/components/responses/UnauthorizedUserError'
         '404':
@@ -634,23 +580,23 @@ paths:
                 groupname:
                   type: string
                   description: the group will be removed from the user's grouplist.
-        responses:
-          '201':
-            description: Succeeded
-            content:
-              application/json:
-                schema:
-                  $ref: '#/components/schemas/Response'
-                example:
-                  message: 'User {username} is removed from group {groupname}'
-          '401':
-            $ref: '#/components/responses/UnauthorizedUserError'
-          '403':
-            $ref: '#/components/responses/ForbiddenUserError'
-          '404':
-            $ref: '#/components/responses/NoUserError'
-          '500':
-            $ref: '#/components/responses/UnknownError'
+      responses:
+        '201':
+          description: Succeeded
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
+              example:
+                message: 'User {username} is removed from group {groupname}'
+        '401':
+          $ref: '#/components/responses/UnauthorizedUserError'
+        '403':
+          $ref: '#/components/responses/ForbiddenUserError'
+        '404':
+          $ref: '#/components/responses/NoUserError'
+        '500':
+          $ref: '#/components/responses/UnknownError'
   '/api/v2/users/{user}/grouplist/':
     parameters:
       - $ref: '#/components/parameters/user'
@@ -2248,6 +2194,37 @@ components:
                         type: integer
         isLatest:
           type: boolean
+    UserInfo:
+      type: object
+      properties:
+        username:
+          type: string
+          description: user name
+        admin:
+          type: boolean
+          description: Admin or not.
+        virtualCluster:
+          type: array
+          description: The list of virtualCluster which the user can access.
+          items:
+            type: string
+            description: virtual cluster name.
+        storageConfig:
+          type: object
+          description: storageconfig
+        email:
+          type: string
+          description: email address
+        extension:
+          type: object
+          description: extension field.
+      required:
+        - username
+        - admin
+        - virtualCluster
+        - storageConfig
+        - email
+        - extension
   responses:
     IncorrectPassworkError:
       description: IncorrectPassworkError
