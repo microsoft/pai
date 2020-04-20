@@ -1,7 +1,7 @@
 # Work with Docker Images
 
 1. [Quick Start](./quick-start.md)
-2. [Work with Docker Images](./work-with-docker-images.md) (this document)
+2. [Docker Images and Job Examples](./docker-images-and-job-examples.md) (this document)
     - [Introduction to Pre-built Docker Images](#introduction-to-pre-built-docker-images)
     - [How to use Images from Private Registry](#how-to-use-images-from-private-registry)
 3. [How to Manage Data](./how-to-manage-data.md)
@@ -43,6 +43,18 @@ Apart from it, OpenPAI provides many out-of-the-box images for different deep le
 | openpai/standard |      python_3.6-cntk_2.7-cpu     |       -      |            -            |
 
 The tag of these images indicates the version of the built-in deep learning framework and whether it supports GPU. Some GPU-supported dockers require a high version of your NVIDIA driver, because of the requirement of CUDA. If you are not sure about the driver version of the cluster, please ask your administrator.
+
+## Job Examples based on Pre-built Images
+
+[pytorch_cifar10](https://github.com/microsoft/pai/tree/pai-for-edu/contrib/edu-examples/pytorch_cifar10) and [tensorflow_cifar10](https://github.com/microsoft/pai/blob/pai-for-edu/contrib/edu-examples/tensorflow_cifar10) provides CIFAR-10 training examples based on those pre-built images. To be detailed, the following examples are based on PyTorch images:
+
+  - [Resnet18_1gpu.yaml](https://github.com/microsoft/pai/blob/pai-for-edu/contrib/edu-examples/pytorch_cifar10/yaml/Resnet18_1gpu.yaml): CIFAR-10 training with a single GPU and PyTorch
+  - [Resnet18_12cpu.yaml](https://github.com/microsoft/pai/blob/pai-for-edu/contrib/edu-examples/pytorch_cifar10/yaml/Resnet18_12cpu.yaml): CIFAR-10 training with CPUs and PyTorch
+  - [Resnet18_4gpu.yaml](https://github.com/microsoft/pai/blob/pai-for-edu/contrib/edu-examples/pytorch_cifar10/yaml/Resnet18_4gpu.yaml): CIFAR-10 training with multiple GPUs and PyTorch.
+  - [Restnet18_horovod.yaml](https://github.com/microsoft/pai/blob/pai-for-edu/contrib/edu-examples/pytorch_cifar10/yaml/Resnet18_horovod.yaml): CIFAR-10 training with multiple GPUs, Horovod, and PyTorch.
+
+There are also CPU/GPU/Multi-GPU/Horovod job examples for TensorFlow. Please check [tensorflow_cifar10](https://github.com/microsoft/pai/blob/pai-for-edu/contrib/edu-examples/tensorflow_cifar10) for details.
+
 
 ## How to use Images from Private Registry
 

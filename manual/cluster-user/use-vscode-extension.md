@@ -1,7 +1,7 @@
 # Use VSCode Extension
 
 1. [Quick Start](./quick-start.md)
-2. [Work with Docker Images](./work-with-docker-images.md)
+2. [Docker Images and Job Examples](./docker-images-and-job-examples.md)
 3. [How to Manage Data](./how-to-manage-data.md)
 4. [How to Debug Jobs](./how-to-debug-jobs.md)
 5. [Advanced Jobs](./advanced-jobs.md)

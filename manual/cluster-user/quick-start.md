@@ -5,7 +5,7 @@
     - [Browse Stdout, Stderr, Full Logs, and Metrics](#browse-stdout-stderr-full-logs-and-metrics)
     - [Submit a Hello World Job Step by Step](#submit-the-hello-world-job-step-by-step)
     - [Learn the Hello World Job](#learn-the-hello-world-job)
-2. [Work with Docker Images](./work-with-docker-images.md)
+2. [Docker Images and Job Examples](./docker-images-and-job-examples.md)
 3. [How to Manage Data](./how-to-manage-data.md)
 4. [How to Debug Jobs](./how-to-debug-jobs.md)
 5. [Advanced Jobs](./advanced-jobs.md)
@@ -74,7 +74,7 @@ Instead of importing a job configuration file, you can submit the hello world jo
 
 4. Specify the resources you need. By default only GPU number could be set. Toggle the `custom` button if you need to customize CPU number and memory. Here we use a customized setting: 1 GPU, 1 CPU, and 6500 MB memory.
 
-5. Specify the docker image. You can either use the listed docker images or take advantage of your own one. Here we select `TensorFlow 1.15.0 + Python 3.6 with GPU, CUDA 10.0`, which is a pre-built image. We will introduce more about docker images in [Work with Docker Images](./work-with-docker-images.md).
+5. Specify the docker image. You can either use the listed docker images or take advantage of your own one. Here we select `TensorFlow 1.15.0 + Python 3.6 with GPU, CUDA 10.0`, which is a pre-built image. We will introduce more about docker images in [Docker Images and Job Examples](./docker-images-and-job-examples.md).
 
    <img src="./imgs/hello-world-resource-and-dockers.png" width="60%" height="60%" alt="hello_world3" />
 

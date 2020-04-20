@@ -1,7 +1,7 @@
 # How to Manage Data
 
 1. [Quick Start](./quick-start.md)
-2. [Work with Docker Images](./work-with-docker-images.md)
+2. [Docker Images and Job Examples](./docker-images-and-job-examples.md)
 3. [How to Manage Data](./how-to-manage-data.md) (this document)
     - [Get Permitted Storage](#get-permitted-storage)
     - [Upload data](#upload-data)
