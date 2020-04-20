@@ -3,6 +3,7 @@
 1. [Quick Start](./quick-start.md)
 2. [Docker Images and Job Examples](./docker-images-and-job-examples.md) (this document)
     - [Introduction to Pre-built Docker Images](#introduction-to-pre-built-docker-images)
+    - [Job Examples based on Pre-built Images](#job-examples-based-on-pre-built-images)
     - [How to use Images from Private Registry](#how-to-use-images-from-private-registry)
 3. [How to Manage Data](./how-to-manage-data.md)
 4. [How to Debug Jobs](./how-to-debug-jobs.md)
@@ -50,15 +51,15 @@ The tag of these images indicates the version of the built-in deep learning fram
 
   - [Resnet18_1gpu.yaml](https://github.com/microsoft/pai/blob/pai-for-edu/contrib/edu-examples/pytorch_cifar10/yaml/Resnet18_1gpu.yaml): CIFAR-10 training with a single GPU and PyTorch
   - [Resnet18_12cpu.yaml](https://github.com/microsoft/pai/blob/pai-for-edu/contrib/edu-examples/pytorch_cifar10/yaml/Resnet18_12cpu.yaml): CIFAR-10 training with CPUs and PyTorch
-  - [Resnet18_4gpu.yaml](https://github.com/microsoft/pai/blob/pai-for-edu/contrib/edu-examples/pytorch_cifar10/yaml/Resnet18_4gpu.yaml): CIFAR-10 training with multiple GPUs and PyTorch.
-  - [Restnet18_horovod.yaml](https://github.com/microsoft/pai/blob/pai-for-edu/contrib/edu-examples/pytorch_cifar10/yaml/Resnet18_horovod.yaml): CIFAR-10 training with multiple GPUs, Horovod, and PyTorch.
+  - [Resnet18_4gpu.yaml](https://github.com/microsoft/pai/blob/pai-for-edu/contrib/edu-examples/pytorch_cifar10/yaml/Resnet18_4gpu.yaml): CIFAR-10 training with multiple GPUs and PyTorch
+  - [Restnet18_horovod.yaml](https://github.com/microsoft/pai/blob/pai-for-edu/contrib/edu-examples/pytorch_cifar10/yaml/Resnet18_horovod.yaml): CIFAR-10 training with multiple GPUs, Horovod, and PyTorch
 
 There are also CPU/GPU/Multi-GPU/Horovod job examples for TensorFlow. Please check [tensorflow_cifar10](https://github.com/microsoft/pai/blob/pai-for-edu/contrib/edu-examples/tensorflow_cifar10) for details.
 
 
 ## How to use Images from Private Registry
 
-By default, OpenPAI will pull images from the [official Docker Hub](https://hub.docker.com/), which is a public docker registry. For example, the pre-built images are all available in the public registry. 
+By default, OpenPAI will pull images from the [official Docker Hub](https://hub.docker.com/), which is a public docker registry. The pre-built images are all available in this public registry. 
 
 If you want to use a private registry, please toggle the `Custom` botton, then click the `Auth` button, and fill in the required information. If your authorization information is invalid, OpenPAI will inform you of an authorization failure after job submission.
 
