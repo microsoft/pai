@@ -190,16 +190,47 @@ The `storageConfigs` field is used to assign storage. You should fill in the cor
 
 ### 2. Use RESTful API
 
-This way is feasible in all clusters, including [AAD authentication clusters](./how-to-manage-users-and-groups.md#users-and-groups-in-aad-mode) and [basic authentication clusters](./how-to-manage-users-and-groups.md#users-and-groups-in-basic-authentication-mode).
+This way is feasible in all clusters, including [AAD authentication clusters](./how-to-manage-users-and-groups.md#users-and-groups-in-aad-mode) and [basic authentication clusters](./how-to-manage-users-and-groups.md#users-and-groups-in-basic-authentication-mode). It queries RESTful API directly.
 
-[Group extension API](https://redocly.github.io/redoc/?url=https://raw.githubusercontent.com/microsoft/pai/master/src/rest-server/docs/swagger.yaml#operation/updateGroup) could be used to create or update `storageConfigs` in a given group. Here's an example for request body:
+Before querying the API, you should get an access token for the API. Go to your profile page and copy one:
+
+<img src="./imgs/get-token.png" />
+
+In OpenPAI, storage is bound to group. Thus you use the [Group API](https://redocly.github.io/redoc/?url=https://raw.githubusercontent.com/microsoft/pai/master/src/rest-server/docs/swagger.yaml#tag/group) to assign storage to groups. [Get a group](https://redocly.github.io/redoc/?url=https://raw.githubusercontent.com/microsoft/pai/master/src/rest-server/docs/swagger.yaml#operation/getGroup) first, and then [Update its extension](https://redocly.github.io/redoc/?url=https://raw.githubusercontent.com/microsoft/pai/master/src/rest-server/docs/swagger.yaml#operation/updateGroup).
+
+For example, if you want to assign `nfs-storage` PVC to `default` group. First, GET `http://<pai-master-ip>/rest-server/api/v2/groups/default`, it will return:
 
 ```json
 {
-  "acls": {
-    "admin": false,
-    "virtualClusters": ["vc1", "vc2"],
-    "storageConfigs": ["nfs-storage"]
-  }
+  "groupname": "default",
+  "description": "group for default vc",
+  "externalName": "",
+  "extension": {
+    "acls": {
+      "storageConfigs": [],
+      "admin": false,
+      "virtualClusters": ["default"]
+    }
+  }
 }
 ```
+
+The GET request must use header `Authorization: Bearer <token>` for authorization. This remains the same for all API calls. You may notice the `storageConfigs` in the return body. In fact it controls which storage a group can use. To add a `nfs-storage` to it, PUT `http://<pai-master-ip>/rest-server/api/v2/groups`. Request body is:
+
+```json
+{
+  "data": {
+    "groupname": "default",
+    "extension": {
+      "acls": {
+        "storageConfigs": ["nfs-storage"],
+        "admin": false,
+        "virtualClusters": ["default"]
+      }
+    }
+  },
+  "patch": true
+}
+```
+
+Do not omit any fields in `extension` or it will change the `virtualClusters` setting unexpectedly.
