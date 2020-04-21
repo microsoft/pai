@@ -88,11 +88,11 @@ spec:
           value: http://{{ cluster_cfg['hadoop-resource-manager']['master-ip'] }}:8088
 {%- endif %}
         - name: RATE_LIMIT_API_PER_MIN
-          value: {{ cluster_cfg['rest-server']['rate-limit-api-per-min'] }}
+          value: "{{ cluster_cfg['rest-server']['rate-limit-api-per-min'] }}"
         - name: RATE_LIMIT_LIST_JOB_PER_MIN
-          value: {{ cluster_cfg['rest-server']['rate-limit-list-job-per-min'] }}
+          value: "{{ cluster_cfg['rest-server']['rate-limit-list-job-per-min'] }}"
         - name: RATE_LIMIT_SUBMIT_JOB_PER_HOUR
-          value: {{ cluster_cfg['rest-server']['rate-limit-submit-job-per-hour'] }}
+          value: "{{ cluster_cfg['rest-server']['rate-limit-submit-job-per-hour'] }}"
         - name: JWT_SECRET
           value: {{ cluster_cfg['rest-server']['jwt-secret'] }}
         - name: JWT_TOKEN_EXPIRE_TIME
