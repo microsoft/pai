@@ -31,7 +31,7 @@ To add worker nodes, please check if the nodes meet the following requirements:
   - **Docker is installed.**
   - **Nvidia docker runtime or other device runtime is installed. And be configured as the default runtime of docker. Please configure it in [docker-config-file](https://docs.docker.com/config/daemon/#configure-the-docker-daemon), because kubespray will overwrite systemd's env.**
       - An example of ```/etc/docker/daemon.json``` to configure nvidia-runtime as default runtime.
-          ```json
+          <pre>
           {
             "default-runtime": "nvidia",
             "runtimes": {
@@ -41,7 +41,7 @@ To add worker nodes, please check if the nodes meet the following requirements:
                 }
             }
           }
-          ```
+          </pre>
   - OpenPAI reserves memory and CPU for service running, so make sure there are enough resource to run machine learning jobs. Check hardware requirements for details.
   - Dedicated servers for OpenPAI. OpenPAI manages all CPU, memory and GPU resources of servers. If there is any other workload, it may cause unknown problem due to insufficient resource.
 
@@ -49,85 +49,84 @@ Log in to your dev box machine, find [the pre-kept folder `~/pai-deploy`](./inst
 
 ### Add the Nodes into Kubernetes
 
-Find the file `~/pai-deploy/kubespray/inventory/pai/host.yml`, and follow the steps below to modify it.
+Find the file `~/pai-deploy/kubespray/inventory/pai/host.yml`, and follow the steps below to modify it. 
 
-- Suppose you want to add 2 worker nodes into your cluster and their hostnames are `a` and `b`. 
-- Add these 2 nodes into the `host.yml`.
-    - An example
-    ```yaml
-    all:
+Supposing you want to add 2 worker nodes into your cluster and their hostnames are `a` and `b`.  Add these 2 nodes into the `host.yml`. An example:
+
+```yaml
+all:
+  hosts:
+    origin1:
+      ip: x.x.x.37
+      access_ip: x.x.x.37
+      ansible_host: x.x.x.37
+      ansible_ssh_user: "username"
+      ansible_ssh_pass: "your-password-here"
+      ansible_become_pass: "your-password-here"
+      ansible_ssh_extra_args: '-o StrictHostKeyChecking=no'
+    origin2:
+      ...
+    origin3:
+      ...
+    origin4:
+      ...
+
+############# Example start ################### 
+    a:
+      ip: x.x.x.x
+      access_ip: x.x.x.x
+      ansible_host: x.x.x.x
+      ansible_ssh_user: "username"
+      ansible_ssh_pass: "your-password-here"
+      ansible_become_pass: "your-password-here"
+      ansible_ssh_extra_args: '-o StrictHostKeyChecking=no'
+    b:
+      ip: x.x.x.x
+      access_ip: x.x.x.x
+      ansible_host: x.x.x.x
+      ansible_ssh_user: "username"
+      ansible_ssh_pass: "your-password-here"
+      ansible_become_pass: "your-password-here"
+      ansible_ssh_extra_args: '-o StrictHostKeyChecking=no'
+#############  Example end  ###################
+
+  children:
+    kube-master:
       hosts:
         origin1:
-          ip: x.x.x.37
-          access_ip: x.x.x.37
-          ansible_host: x.x.x.37
-          ansible_ssh_user: "username"
-          ansible_ssh_pass: "your-password-here"
-          ansible_become_pass: "your-password-here"
-          ansible_ssh_extra_args: '-o StrictHostKeyChecking=no'
+    kube-node:
+      hosts:
+        origin1:
         origin2:
-          ...
         origin3:
-          ...
         origin4:
-          ...
-  
-    ############# Example start ################### 
+
+############# Example start ################### 
         a:
-          ip: x.x.x.x
-          access_ip: x.x.x.x
-          ansible_host: x.x.x.x
-          ansible_ssh_user: "username"
-          ansible_ssh_pass: "your-password-here"
-          ansible_become_pass: "your-password-here"
-          ansible_ssh_extra_args: '-o StrictHostKeyChecking=no'
         b:
-          ip: x.x.x.x
-          access_ip: x.x.x.x
-          ansible_host: x.x.x.x
-          ansible_ssh_user: "username"
-          ansible_ssh_pass: "your-password-here"
-          ansible_become_pass: "your-password-here"
-          ansible_ssh_extra_args: '-o StrictHostKeyChecking=no'
-    #############  Example end  ###################
-    
+############## Example end #################### 
+
+    gpu:
+      hosts:
+        origin4:
+
+############# Example start ################### 
+        a:
+        b:
+############## Example end #################### 
+
+    etcd:
+      hosts:
+        origin1:
+        origin2:
+        origin3:
+    k8s-cluster:
       children:
-        kube-master:
-          hosts:
-            origin1:
         kube-node:
-          hosts:
-            origin1:
-            origin2:
-            origin3:
-            origin4:
-  
-    ############# Example start ################### 
-            a:
-            b:
-    ############## Example end #################### 
-  
-        gpu:
-          hosts:
-            origin4:
-  
-    ############# Example start ################### 
-            a:
-            b:
-    ############## Example end #################### 
-  
-        etcd:
-          hosts:
-            origin1:
-            origin2:
-            origin3:
-        k8s-cluster:
-          children:
-            kube-node:
-            kube-master:
-        calico-rr:
-          hosts: {}
-    ``` 
+        kube-master:
+    calico-rr:
+      hosts: {}
+``` 
 
 Go into folder `~/pai-deploy/kubespray/`, run:
 

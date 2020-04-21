@@ -192,7 +192,7 @@ The `storageConfigs` field is used to assign storage. You should fill in the cor
 
 This way is feasible in all clusters, including [AAD authentication clusters](./how-to-manage-users-and-groups.md#users-and-groups-in-aad-mode) and [basic authentication clusters](./how-to-manage-users-and-groups.md#users-and-groups-in-basic-authentication-mode).
 
-[Group extension API](https://redocly.github.io/redoc/?url=https://raw.githubusercontent.com/microsoft/pai/master/src/rest-server/docs/swagger.yaml#operation/updateGroupExtension) could be used to create or update `storageConfigs` in a given group. Here's an example for request body:
+[Group extension API](https://redocly.github.io/redoc/?url=https://raw.githubusercontent.com/microsoft/pai/master/src/rest-server/docs/swagger.yaml#operation/updateGroup) could be used to create or update `storageConfigs` in a given group. Here's an example for request body:
 
 ```json
 {

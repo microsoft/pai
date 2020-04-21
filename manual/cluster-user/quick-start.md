@@ -53,32 +53,32 @@ Then the CPU/GPU utilization and network will be shown in a new window:
 
 Instead of importing a job configuration file, you can submit the hello world job directly through the web page. The following is a step-by-step guide:
 
-1. Login to OpenPAI web portal.
+**Step 1.** Login to OpenPAI web portal.
 
-2. Click **Submit Job** on the left pane, then click `Single` to reach this page.
+**Step 2.** Click **Submit Job** on the left pane, then click `Single` to reach this page.
 
-    <img src="./imgs/hello-world-click-submit.png" width="90%" height="90%" alt="hello_world1" />
+<img src="./imgs/hello-world-click-submit.png" width="90%" height="90%" alt="hello_world1" />
 
-3. Select your virtual cluster, and give a name of your job. Then copy the following commands into the command box.
+**Step 3.** Select your virtual cluster, and give a name of your job. Then copy the following commands into the command box.
 
-   ```bash
-   git clone https://github.com/tensorflow/models
-   cd models/research/slim
-   python download_and_convert_data.py --dataset_name=cifar10 --dataset_dir=/tmp/data
-   python train_image_classifier.py --dataset_name=cifar10 --dataset_dir=/tmp/data --max_number_of_steps=1000
-   ```
+```bash
+git clone https://github.com/tensorflow/models
+cd models/research/slim
+python download_and_convert_data.py --dataset_name=cifar10 --dataset_dir=/tmp/data
+python train_image_classifier.py --dataset_name=cifar10 --dataset_dir=/tmp/data --max_number_of_steps=1000
+```
 
-   Note: Please **Do Not** use `#` for comments or use `\` for line continuation in the command box. These symbols may break the syntax and will be supported in the future.
+Note: Please **Do Not** use `#` for comments or use `\` for line continuation in the command box. These symbols may break the syntax and will be supported in the future.
 
-    <img src="./imgs/hello-world-command.png" width="90%" height="90%" alt="hello_world2" />
+<img src="./imgs/hello-world-command.png" width="90%" height="90%" alt="hello_world2" />
 
-4. Specify the resources you need. By default only GPU number could be set. Toggle the `custom` button if you need to customize CPU number and memory. Here we use a customized setting: 1 GPU, 1 CPU, and 6500 MB memory.
+**Step 4.** Specify the resources you need. By default only GPU number could be set. Toggle the `custom` button if you need to customize CPU number and memory. Here we use a customized setting: 1 GPU, 1 CPU, and 6500 MB memory.
 
-5. Specify the docker image. You can either use the listed docker images or take advantage of your own one. Here we select `TensorFlow 1.15.0 + Python 3.6 with GPU, CUDA 10.0`, which is a pre-built image. We will introduce more about docker images in [Docker Images and Job Examples](./docker-images-and-job-examples.md).
+**Step 5.** Specify the docker image. You can either use the listed docker images or take advantage of your own one. Here we select `TensorFlow 1.15.0 + Python 3.6 with GPU, CUDA 10.0`, which is a pre-built image. We will introduce more about docker images in [Docker Images and Job Examples](./docker-images-and-job-examples.md).
 
-   <img src="./imgs/hello-world-resource-and-dockers.png" width="60%" height="60%" alt="hello_world3" />
+ <img src="./imgs/hello-world-resource-and-dockers.png" width="60%" height="60%" alt="hello_world3" />
 
-6. Click **Submit** to submit the job.
+**Step 6.** Click **Submit** to submit the job.
 
 ## Learn the Hello World Job
 

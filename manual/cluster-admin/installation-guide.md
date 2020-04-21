@@ -111,7 +111,7 @@ Your checklist:
         - **Docker is installed.**
         - **Nvidia docker runtime or other device runtime is installed. And be configured as the default runtime of docker. Please configure it in [docker-config-file](https://docs.docker.com/config/daemon/#configure-the-docker-daemon), because kubespray will overwrite systemd's env.**
             - An example of ```/etc/docker/daemon.json``` to configure nvidia-runtime as default runtime.
-                ```json
+                <pre>
                 {
                   "default-runtime": "nvidia",
                   "runtimes": {
@@ -121,7 +121,7 @@ Your checklist:
                       }
                   }
                 }
-                ```
+                </pre>
         - OpenPAI reserves memory and CPU for service running, so make sure there are enough resource to run machine learning jobs. Check hardware requirements for details.
         - Dedicated servers for OpenPAI. OpenPAI manages all CPU, memory and GPU resources of servers. If there is any other workload, it may cause unknown problem due to insufficient resource.
 

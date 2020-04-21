@@ -23,7 +23,7 @@ HiveD is a standalone component of OpenPAI, designed to be a Kubernetes Schedule
 
 Before we start, please read [this doc](https://github.com/microsoft/hivedscheduler/blob/master/doc/user-manual.md) to learn how to write hived scheduler configuration.
 
-## How to Set Up Virtuall Clusters
+## How to Set Up Virtual Clusters
 
 In [`services-configuration.yaml`](./basic-management-operations.md#pai-service-management-and-paictl), there is a section for hived scheduler, for example:
 
