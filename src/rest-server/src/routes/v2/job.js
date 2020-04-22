@@ -18,6 +18,7 @@
 
 // module dependencies
 const express = require('express');
+const limiter = require('@pai/config/rate-limit');
 const token = require('@pai/middlewares/token');
 const controller = require('@pai/controllers/v2/job');
 const protocol = require('@pai/middlewares/v2/protocol');
@@ -28,10 +29,11 @@ const router = new express.Router();
 
 router.route('/')
   /** GET /api/v2/jobs - List job */
-  .get(token.check, controller.list)
+  .get(token.check, limiter.listJob, controller.list)
   /** POST /api/v2/jobs - Update job */
   .post(
     token.check,
+    limiter.submitJob,
     protocol.submit,
     controller.update
   );

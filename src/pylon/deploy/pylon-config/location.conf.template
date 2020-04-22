@@ -29,7 +29,9 @@ location ~ ^/a/([^/]+):(\d*)(.*)$ {
 location ~ ^/rest-server/api(.*)$ {
   proxy_pass {{REST_SERVER_URI}}/api$1$is_args$args;
   proxy_redirect {{REST_SERVER_URI}}/api http://$http_host/rest-server/api;
-  #
+
+  proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+  proxy_set_header X-Real-IP $remote_addr;
   proxy_set_header Accept-Encoding "";
   subs_filter_types *;
   subs_filter
