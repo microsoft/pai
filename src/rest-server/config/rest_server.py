@@ -49,16 +49,14 @@ class RestServer:
         service_object_model = dict()
 
         service_object_model['uri'] = 'http://{0}:{1}'.format(master_ip, server_port)
-        service_object_model['server-port'] = server_port
-        service_object_model['jwt-secret'] = self.service_configuration['jwt-secret']
-        service_object_model['jwt-expire-time'] = self.service_configuration['jwt-expire-time']
-        service_object_model['default-pai-admin-username'] = self.service_configuration['default-pai-admin-username']
-        service_object_model['default-pai-admin-password'] = self.service_configuration['default-pai-admin-password']
-        service_object_model['github-owner'] = self.service_configuration['github-owner']
-        service_object_model['github-repository'] = self.service_configuration['github-repository']
-        service_object_model['github-path'] = self.service_configuration['github-path']
-        service_object_model['debugging-reservation-seconds'] = self.service_configuration['debugging-reservation-seconds']
-        service_object_model['enable-priority-class'] = self.service_configuration['enable-priority-class']
+        for k in [
+            'server-port', 'rate-limit-api-per-min', 'rate-limit-list-job-per-min',
+            'rate-limit-submit-job-per-hour', 'jwt-secret', 'jwt-expire-time',
+            'default-pai-admin-username', 'default-pai-admin-password',
+            'github-owner', 'github-repository', 'github-path',
+            'debugging-reservation-seconds', 'enable-priority-class'
+        ]:
+            service_object_model[k] = self.service_configuration[k]
         service_object_model['etcd-uris'] = ','.join('http://{0}:4001'.format(host['hostip'])
                                                      for host in machine_list
                                                      if host.get('k8s-role') == 'master')

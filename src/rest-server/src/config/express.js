@@ -29,6 +29,7 @@ const swaggerUi = require('swagger-ui-express');
 const config = require('@pai/config');
 const logger = require('@pai/config/logger');
 const authnConfig = require('@pai/config/authn');
+const limiter = require('@pai/config/rate-limit');
 const querystring = require('querystring');
 const createError = require('@pai/utils/error');
 const routers = {
@@ -38,6 +39,7 @@ const routers = {
 
 const app = express();
 
+app.set('trust proxy', true);
 app.set('json spaces', config.env === 'development' ? 4 : 0);
 
 app.use(cors());
@@ -46,6 +48,7 @@ app.use(bodyParser.urlencoded({extended: true}));
 app.use(bodyParser.json());
 app.use(bodyParser.text({type: 'text/*'}));
 app.use(cookieParser());
+app.use(limiter.api);
 
 // setup the logger for requests
 app.use(morgan('dev', {'stream': logger.stream}));
