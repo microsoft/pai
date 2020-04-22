@@ -41,7 +41,7 @@ spec:
                   operator: In
                   values:
                   - "true"
-      hostNetwork: false
+      hostNetwork: true
       containers:
       - name: dshuttle-master
         image: dshuttle/dshuttle:latest

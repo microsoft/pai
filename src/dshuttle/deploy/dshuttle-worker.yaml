@@ -32,14 +32,14 @@ spec:
         securityContext:
           runAsUser: 0
         image: dshuttle/dshuttle:latest
-        command: ["/bin/chown","-R", "1000:1000", "/opt/domain", "/opt/logs", "/mnt/hdd"]
+        command: ["/bin/chown","-R", "1000:1000", "/opt/domain", "/opt/logs", "/mnt/ssd"]
         volumeMounts:
         - name: dshuttle-domain
           mountPath: /opt/domain
         - name: worker-logs
           mountPath: /opt/logs
-        - name: hdd
-          mountPath: /mnt/hdd
+        - name: ssd
+          mountPath: /mnt/ssd
       containers:
         - name: dshuttle-worker
           image: dshuttle/dshuttle:latest
@@ -76,8 +76,8 @@ spec:
               mountPath: /opt/domain
             - mountPath: /dev/shm
               name: mem
-            - mountPath: /mnt/hdd
-              name: hdd
+            - mountPath: /mnt/ssd
+              name: ssd
             - name: worker-logs
               mountPath: /opt/alluxio/logs
         - name: dshuttle-job-worker
@@ -116,8 +116,8 @@ spec:
               mountPath: /opt/domain
             - mountPath: /dev/shm
               name: mem
-            - mountPath: /mnt/hdd
-              name: hdd
+            - mountPath: /mnt/ssd
+              name: ssd
             - name: worker-logs
               mountPath: /opt/alluxio/logs
       restartPolicy: Always
@@ -130,9 +130,9 @@ spec:
           hostPath:
             path: /var/log/dshuttle
             type: DirectoryOrCreate
-        - name: hdd
+        - name: ssd
           hostPath:
-            path: /mnt/dshuttle/hdd
+            path: /mnt/dshuttle/ssd
             type: DirectoryOrCreate
         - name: mem
           emptyDir:

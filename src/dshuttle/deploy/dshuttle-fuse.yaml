@@ -42,7 +42,7 @@ spec:
         volumeMounts:
         - name: dshuttle-fuse-device
           mountPath: /dev/fuse
-        - name: dshuttle-fuse-mount
+        - name: dshuttle-fuse-parent
           mountPath: /mnt
           mountPropagation: Bidirectional
       containers:
@@ -84,7 +84,6 @@ spec:
               mountPath: /dev/fuse
             - name: dshuttle-fuse-mount
               mountPath: /alluxio-fuse
-              subPath: fuse
               mountPropagation: Bidirectional
             - name: dshuttle-domain
               mountPath: /opt/domain
@@ -98,8 +97,11 @@ spec:
             type: File
         - name: dshuttle-fuse-mount
           hostPath:
-            path: /mnt/dshuttle
+            path: /mnt/dshuttle/fuse
             type: DirectoryOrCreate
+        - name: dshuttle-fuse-parent
+          hostPath:
+            path: /mnt/dshuttle
         - name: dshuttle-domain
           hostPath:
             path: /tmp/alluxio-domain
