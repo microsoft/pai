@@ -314,7 +314,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/UserInfo'
+                description: Array with all users in the system.
+                type: array
+                items:
+                  $ref: '#/components/schemas/UserInfo'
         '500':
           $ref: '#/components/responses/UnknownError'
     put:
@@ -2210,8 +2213,10 @@ components:
             type: string
             description: virtual cluster name.
         storageConfig:
-          type: object
-          description: storageconfig
+          type: array
+          description: storageconfig string arry
+          items:
+            type: string
         email:
           type: string
           description: email address
