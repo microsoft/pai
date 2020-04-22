@@ -52,7 +52,7 @@ openpai-004,10.0.0.4
 ###### `config` example
 
 ```yaml
-branch-name: pai-0.18.y
+branch-name: pai-1.0.y
 docker-image-tag: v1.0.0
 user: forexample
 password: forexample
@@ -129,7 +129,7 @@ To simplify the pre-checks, you can use a script on the **dev box machine** to h
 
 ```bash
 git clone https://github.com/microsoft/pai.git
-git checkout pai-0.18.y  # change to a different branch if you want to deploy a different version
+git checkout pai-1.0.y  # change to a different branch if you want to deploy a different version
 cd pai/contrib/kubespray
 /bin/bash requirement.sh -m /path/to/master.csv -w /path/tp/worker.csv -c /path/to/config
 ```
@@ -142,7 +142,7 @@ On the dev box machine, use the following commands to clone the OpenPAI repo if 
 
 ```bash
 git clone https://github.com/microsoft/pai.git
-git checkout pai-0.18.y  # change to a different branch if you want to deploy a different version
+git checkout pai-1.0.y  # change to a different branch if you want to deploy a different version
 cd pai/contrib/kubespray
 ```
 
