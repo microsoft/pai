@@ -15,7 +15,7 @@
 11. [How to Uninstall OpenPAI](./how-to-uninstall-openpai.md)
 12. [Upgrade Guide](./upgrade-guide.md)
 
-There are breaking changes since OpenPAI `v1.0.0`. Before `v1.0.0`, OpenPAI was based on Yarn and Kubernetes, and data was managed by HDFS. Since `v1.0.0` (we might want to change this to v1.0 later after release), OpenPAI has switched to a pure Kubernetes-based architecture. Many new features, such as `AAD authorization`, `Hivedscheduler`, `Kube Runtime`, `Marketplace`, etc., are also included. If you want to install the Yarn-based OpenPAI, please stay with `v0.14.0`.
+There are breaking changes since OpenPAI `v1.0.0`. Before `v1.0.0`, OpenPAI was based on Yarn and Kubernetes, and data was managed by HDFS. Since `v1.0.0`, OpenPAI has switched to a pure Kubernetes-based architecture. Many new features, such as `AAD authorization`, `Hivedscheduler`, `Kube Runtime`, `Marketplace`, etc., are also included. If you want to install the Yarn-based OpenPAI, please stay with `v0.14.0`.
 
 Here we provide installation guides of two situations: 1. [Installation from fresh new machines](#from-scratch) 2. [Installation from old OpenPAI version](#from-previous-deployment).
 
