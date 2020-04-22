@@ -19,7 +19,7 @@ To use others' job templates on marketplace, you can click `Submit` directly, an
 
 <img src="./imgs/marketplace-submit.png" />
 
-To create a marketplace template, click the `Create` button on the page. As shown in the following picture, you can create the template from scratch, using an existing job yaml file on dist. You should fill in the template name, introduction and description.
+To create a marketplace template, click the `Create` button on the page. As shown in the following picture, you can create the template from scratch, using an existing job yaml file on disk. You should fill in the template name, introduction and description.
 
 <img src="./imgs/marketplace-create-new.png" />
 
