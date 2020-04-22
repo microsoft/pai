@@ -15,7 +15,7 @@
 11. [How to Uninstall OpenPAI](./how-to-uninstall-openpai.md)
 12. [Upgrade Guide](./upgrade-guide.md)
 
-There are breaking changes since OpenPAI `v0.18.0`. Before `v0.18.0`, OpenPAI was based on Yarn and Kubernetes, and data was managed by HDFS. Since `v0.18.0` (we might want to change this to v1.0 later after release), OpenPAI has switched to a pure Kubernetes-based architecture. Many new features, such as `AAD authorization`, `Hivedscheduler`, `Kube Runtime`, `Marketplace`, etc., are also included. If you want to install the Yarn-based OpenPAI, please stay with `v0.14.0`.
+There are breaking changes since OpenPAI `v1.0.0`. Before `v1.0.0`, OpenPAI was based on Yarn and Kubernetes, and data was managed by HDFS. Since `v1.0.0` (we might want to change this to v1.0 later after release), OpenPAI has switched to a pure Kubernetes-based architecture. Many new features, such as `AAD authorization`, `Hivedscheduler`, `Kube Runtime`, `Marketplace`, etc., are also included. If you want to install the Yarn-based OpenPAI, please stay with `v0.14.0`.
 
 Here we provide installation guides of two situations: 1. [Installation from fresh new machines](#from-scratch) 2. [Installation from old OpenPAI version](#from-previous-deployment).
 
@@ -53,7 +53,7 @@ openpai-004,10.0.0.4
 
 ```yaml
 branch-name: pai-0.18.y
-docker-image-tag: v0.18.0
+docker-image-tag: v1.0.0
 user: forexample
 password: forexample
 
@@ -187,11 +187,11 @@ Apart from the folder, you should remember your openPAI cluster ID, which is use
 
 ### Save your Data to a Different Place
 
-If you have installed OpenPAI before `v0.18.0`, please notice that the upgrade from older version to version >= `v0.18.0` cannot preserve any useful data: all jobs, user information, dataset will be lost inevitably and irreversibly. Thus, if you have any useful data in previous deployment, please make sure you have saved them to a different place.
+If you have installed OpenPAI before `v1.0.0`, please notice that the upgrade from older version to version >= `v1.0.0` cannot preserve any useful data: all jobs, user information, dataset will be lost inevitably and irreversibly. Thus, if you have any useful data in previous deployment, please make sure you have saved them to a different place.
 
 #### HDFS Data
 
-Before `v0.18.0`, PAI will deploy an HDFS server for you. After `v0.18.0`, the HDFS server won't be deployed and previous data will be removed in upgrade. The following commands could be used to transfer your HDFS data:
+Before `v1.0.0`, PAI will deploy an HDFS server for you. After `v1.0.0`, the HDFS server won't be deployed and previous data will be removed in upgrade. The following commands could be used to transfer your HDFS data:
 
 ```bash
 # check data structure
@@ -260,4 +260,4 @@ rm -rf /var/drivers
 reboot
 ```
 
-After the removal, you can now install OpenPAI >= `v0.18.0` [from scratch](#from-scratch).
+After the removal, you can now install OpenPAI >= `v1.0.0` [from scratch](#from-scratch).
