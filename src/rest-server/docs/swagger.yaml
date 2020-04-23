@@ -1614,6 +1614,7 @@ components:
             description: job created time, in number of milliseconds since the Unix Epoch.
           completedTime:
             type: integer
+            nullable: true
             description: job completed time, in number of milliseconds since the Unix Epoch.
           appExitCode:
             type: integer
@@ -1712,6 +1713,7 @@ components:
                 Epoch.
             completedTime:
               type: integer
+              nullable: true
               description: >-
                 job completed time, in number of milliseconds since the Unix
                 Epoch.
@@ -1720,11 +1722,13 @@ components:
               description: unique id for the job
             appLaunchedTime:
               type: integer
+              nullable: true
               description: >-
                 job launched time for last attempt, in number of milliseconds
                 since the Unix Epoch.
             appCompletedTime:
               type: integer
+              nullable: true
               description: >
                 job completed time for last attempt, in number of milliseconds
                 since the Unix Epoch. to get durations for last attempt:
