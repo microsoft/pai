@@ -58,7 +58,7 @@ You could access `NFS` by `Windows File Explore` directly if:
 
 Please contact your administrator to confirm. If the administrator's setting is correct, you can use the file location `\\NFS_SERVER_ADDRESS` in `File Explore` to access data. (Please make sure the `network discovery` is on)
 
-If you cannot use direct access, please try to mount NFS into the Windows or using Linux vm to upload data.
+If you cannot use direct access, please try to mount NFS into Windows or using a Linux VM to upload data.
 
 ### Upload data to Azure Blob or Azure File
 
@@ -69,7 +69,7 @@ For Azure File, you can get the `storage account name` and `file share name` on 
 To upload data to Azure Blob or Azure File, please:
 
 1. Download [Azure Storage Explore](https://azure.microsoft.com/en-us/features/storage-explorer/)
-2. If you use AAD to login to PAI portal, the administrator should already grant you the permission to access storage. You can get the `storage account name`, `container name` and `file share name` in the profile page. And please use them to access storage in `Storage Explore`. For more details, please refer to [storage explore: add resource via azure ad](https://docs.microsoft.com/en-us/azure/vs-azure-tools-storage-manage-with-storage-explorer?tabs=windows#add-a-resource-via-azure-ad)
+2. If you use AAD to login to PAI portal, the administrator should already grant you the permission to access storage. You can get the `storage account name`, `container name` and `file share name` on the profile page. Please use them to access storage in `Storage Explore`. For more details, please refer to [storage explore: add resource via azure ad](https://docs.microsoft.com/en-us/azure/vs-azure-tools-storage-manage-with-storage-explorer?tabs=windows#add-a-resource-via-azure-ad)
 3. If you use basic authentication (username/password) to login to PAI portal. Please ask your administrator for the storage `access key`. Then you can add the storage by `access key` and `storage account name`. For more details, please refer to: [storage explore: use name and key](https://docs.microsoft.com/en-us/azure/vs-azure-tools-storage-manage-with-storage-explorer?tabs=windows#use-a-name-and-key)
 
 ## Use Storage in Jobs
@@ -80,7 +80,7 @@ You can use the `Data` Section on the job submission page to select desired stor
 
 ![storage submit](./imgs/storage-submit-data.png "storage submit")
 
-As shown in the picture, corresponding storage will be mounted to `/mnt/confignfs` folder. Please note the real mounted location might be different.
+As shown in the picture, corresponding storage will be mounted to `/mnt/confignfs` folder.
 
 ### Use Job Configuration File
 

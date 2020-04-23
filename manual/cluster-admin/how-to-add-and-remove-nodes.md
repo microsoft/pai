@@ -168,14 +168,14 @@ machine-list:
 - Push the latest configuration by:
 
 ```bash
-./paictl config push -p ~/pai-deploy/cluster-cfg -m service
+./paictl.py config push -p ~/pai-deploy/cluster-cfg -m service
 ```
 
 - Now, restart services:
 
 ```bash
 ./paictl.py service stop -n rest-server hivedscheduler
-./paictl.py service start -n cluster-configuartion
+./paictl.py service start -n cluster-configuration
 ./paictl.py service start -n hivedscheduler rest-server
 ```
 
@@ -201,7 +201,7 @@ Restart services:
 
 ```bash
 ./paictl.py service stop -n rest-server hivedscheduler
-./paictl.py service start -n cluster-configuartion
+./paictl.py service start -n cluster-configuration
 ./paictl.py service start -n hivedscheduler rest-server
 ```
 

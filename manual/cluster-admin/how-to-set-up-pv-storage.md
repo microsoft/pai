@@ -154,7 +154,7 @@ There are two ways to assign storage to user groups:
 
 ### 1. Modify service configuration. 
 
-It is only feasible in [AAD authentication clusters](./how-to-manage-users-and-groups.md#users-and-groups-in-aad-mode). If you are using [basic authentication](./how-to-manage-users-and-groups.md#users-and-groups-in-basic-authentication-mode), please refer to [Use RESTful API](#use-restful-api).
+It is only feasible in [AAD authentication clusters](./how-to-manage-users-and-groups.md#users-and-groups-in-aad-mode). If you are using [basic authentication](./how-to-manage-users-and-groups.md#users-and-groups-in-basic-authentication-mode), please refer to [Use RESTful API](#2-use-restful-api).
 
 To assign storage to groups, modify your [`services-configuration.yaml` file](./basic-management-operations.md#pai-service-management-and-paictl):
 

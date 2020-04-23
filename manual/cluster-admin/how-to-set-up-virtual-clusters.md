@@ -103,8 +103,8 @@ After modification, use the following commands to apply the settings:
 
 ```bash
 ./paictl.py service stop -n rest-server hivedscheduler
-./paictl config push -p <config-folder> -m service
-./paictl.py service start -n cluster-configuartion
+./paictl.py config push -p <config-folder> -m service
+./paictl.py service start -n cluster-configuration
 ./paictl.py service start -n hivedscheduler rest-server
 ```
 

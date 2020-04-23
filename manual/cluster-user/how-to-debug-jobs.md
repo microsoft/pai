@@ -22,7 +22,7 @@ It is feasible to create a new SSH key pair when you submit the job. First, open
 
    <img src="./imgs/ssh-click-generator.png" width="60%" height="60%" />
 
-The generator will generate one public key and one private key for you. Please download SSH private key then click `Use Public Key` button to use this key pair in your job. 
+The generator will generate one public key and one private key for you. Please download SSH private key, then click `Use Public Key` button to use this key pair in your job. 
 
 
    <img src="./imgs/ssh-generator.png" width="60%" height="60%" />
@@ -32,15 +32,13 @@ After job submission, you can ssh to job containers as user root with the downlo
 
    <img src="./imgs/view-ssh-info.png" width="100%" height="100%" />
 
-To be detailed, you should refer to the `Use a pre-downloaded SSH private key` section.
-
-If you are using Windows, the following command is for you:
+To be detailed, you should refer to the `Use a pre-downloaded SSH private key` section. If you are using Windows, the following command is for you:
 
 ```bash
 ssh -p <ssh-port> -i <your-private-key-file-path> root@<container-ip>
 ```
 
-On a Unix-like System, the command is:
+On a Unix-like system, the command is:
 
 ```bash
 chmod 400 <your-private-key-file-path> && ssh -p <ssh-port> -i <your-private-key-file-path> <container-ip>
@@ -48,7 +46,7 @@ chmod 400 <your-private-key-file-path> && ssh -p <ssh-port> -i <your-private-key
 
 **Option 2. Use your Own Keys**
 
-If you are familiar with SSH key authorization, you would probably have generated a public key and a private key already, in the folder `C:\Users\<your-user-name>\.ssh` (it is `~/.ssh/` on a Unix-like system). There is an `id_rsa.pub` file and an `id_rsa` file in such folder, which are the public key and the private key, respectively. 
+If you are familiar with SSH key authentication, you would probably have generated a public key and a private key already, in the folder `C:\Users\<your-user-name>\.ssh` (it is `~/.ssh/` on a Unix-like system). There is an `id_rsa.pub` file and an `id_rsa` file in such folder, which are the public key and the private key, respectively. 
 
 To use them, open the `id_rsa.pub` and copy its content to the SSH plugin, then submit the job. Do not use the key generator.
 

@@ -23,4 +23,4 @@ To create a marketplace template, click the `Create` button on the page. As show
 
 <img src="./imgs/marketplace-create-new.png" />
 
-Another approach is to use the yaml in one existing job of your own. Please note you can only create marketplace template from one `Succeeded` job. Jobs with other statuses are not allowed. No matter which approach, you should wait for your administrator's approval to make the template available on marketplace.
+Another approach is to use the yaml in one existing job of your own. Please note you can only create marketplace template from one `Succeeded` job. Jobs with other statuses are not allowed. No matter which approach is used, you should wait for your administrator's approval to make the template available on marketplace.

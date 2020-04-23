@@ -15,7 +15,7 @@
 
 ## Submit a Hello World Job
 
-The **job** of OpenPAI defines how to execute code(s) and command(s) in specified environment(s). It can be run on single node or distributedly.
+The **job** of OpenPAI defines how to execute code(s) and command(s) in specified environment(s). It can be run on a single node or distributedly.
 
 For a quick start, please download [`hello-world-job.yaml`](./examples/hello-world-job.yaml).
 
@@ -31,7 +31,7 @@ Now your first OpenPAI job has been kicked off!
 
 ## Browse Stdout, Stderr, Full logs, and Metrics
 
-The hello world job is implemented by TensorFlow. It trains a simple model on CIFAR-10 dataset for 1,000 steps with downloaded data. You can monitor the job by checking its logs and running metrics on Webportal.
+The hello world job is implemented by TensorFlow. It trains a simple model on CIFAR-10 dataset for 1,000 steps with downloaded data. You can monitor the job by checking its logs and running metrics on webportal.
 
 Click `Stdout` and `Stderr` button to see the stdout and stderr logs for a job on the job detail page. If you want to see a merged log, you can click `...` on the right and then select `Stdout + Stderr`.
 
@@ -59,7 +59,7 @@ Instead of importing a job configuration file, you can submit the hello world jo
 
 <img src="./imgs/hello-world-click-submit.png" width="90%" height="90%" alt="hello_world1" />
 
-**Step 3.** Select your virtual cluster, and give a name of your job. Then copy the following commands into the command box.
+**Step 3.** Select your virtual cluster, and give a name for your job. Then copy the following commands into the command box.
 
 ```bash
 git clone https://github.com/tensorflow/models
@@ -82,7 +82,7 @@ Note: Please **Do Not** use `#` for comments or use `\` for line continuation in
 
 ## Learn the Hello World Job
 
-Here are some detailed explanations about configs on the submission page:
+Here are some detailed explanations about configurations on the submission page:
 
 - **Job name** is the name of current job. It must be unique in each user account. A meaningful name helps manage jobs well.
 
