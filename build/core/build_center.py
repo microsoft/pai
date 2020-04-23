@@ -83,6 +83,8 @@ class BuildCenter:
         for path, dir_list, file_list in g:
             service_name = path.split(os.sep)
             service_name = service_name[-2] if len(service_name) > 1 else None
+            component_dep_file = None
+            service_type_check = False
             for file_name in file_list:
                 if file_name.endswith(".dockerfile"):
                     passed = False
@@ -92,15 +94,18 @@ class BuildCenter:
                             ".{0}.dockerfile".format(self.task_type)):
                         passed = True
                     if passed:
+                        service_type_check = True
                         with open(os.path.join(path, file_name), 'r') as fin:
                             for line in fin:
                                 if line.strip().startswith("FROM"):
                                     image = line.split()[1]
                                     self.graph.add_dependency(self.graph.image_to_service.get(image), service_name)
                 elif file_name == "component.dep":
-                    with open(os.path.join(path, file_name), "r") as fin:
-                        for line in fin:
-                            self.graph.add_dependency(line.strip(), service_name)
+                    component_dep_file = file_name
+            if service_type_check and component_dep_file != None:
+                with open(os.path.join(path, component_dep_file), "r") as fin:
+                    for line in fin:
+                        self.graph.add_dependency(line.strip(), service_name)
         # Show dependency graph
         self.graph.dump()
 
