@@ -140,7 +140,7 @@ webportal:
   server-port: 9286
 ```
 
-It is the configuration of webportal. Now let's change the title of one plugin: modify `title: Marketplace` to `title: MyMarketplace`, and save the file.
+It is the configuration for webportal. Now let's change the title of one plugin: modify `title: Marketplace` to `title: MyMarketplace`, and save the file.
 
 Use the following command to push the configuration and restart webportal:
 

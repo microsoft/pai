@@ -23,7 +23,7 @@ This document describes how to use Kubernetes Persistent Volumes (PV) as storage
   2. Confirm the worker nodes have proper package to mount the PVC. For example, the `NFS` PVC requires package `nfs-common` to work on Ubuntu.
   3. Assign PVC to specific user groups.
 
-Users could mount those PV/PVC their jobs after you set up the storage properly. The name of PVC is used to onboard on PAI.
+Users could mount those PV/PVC into their jobs after you set up the storage properly. The name of PVC is used to onboard on PAI.
 
 ## Create PV/PVC on Kubernetes
 

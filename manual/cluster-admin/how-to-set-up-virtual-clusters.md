@@ -155,8 +155,8 @@ This should be self-explanatory. The `virtualClusters` field is used to manage V
 
 ```bash
 ./paictl.py service stop -n rest-server hivedscheduler
-./paictl config push -p <config-folder> -m service
-./paictl.py service start -n cluster-configuartion
+./paictl.py config push -p <config-folder> -m service
+./paictl.py service start -n cluster-configuration
 ./paictl.py service start -n hivedscheduler rest-server
 ```
 

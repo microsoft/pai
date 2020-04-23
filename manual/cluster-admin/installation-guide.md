@@ -15,7 +15,7 @@
 11. [How to Uninstall OpenPAI](./how-to-uninstall-openpai.md)
 12. [Upgrade Guide](./upgrade-guide.md)
 
-There are breaking changes since OpenPAI `v1.0.0`. Before `v1.0.0`, OpenPAI was based on Yarn and Kubernetes, and data was managed by HDFS. Since `v1.0.0`, OpenPAI has switched to a pure Kubernetes-based architecture. Many new features, such as `AAD authorization`, `Hivedscheduler`, `Kube Runtime`, `Marketplace`, etc., are also included. If you still want to install the Yarn-based OpenPAI, please stay with `v0.14.0`.
+There are breaking changes since OpenPAI `v1.0.0`. Before `v1.0.0`, OpenPAI was based on Yarn and Kubernetes, and data was managed by HDFS. Since `v1.0.0`, OpenPAI has switched to a pure Kubernetes-based architecture. Many new features, such as `AAD authorization`, `Hivedscheduler`, `Kube Runtime`, `Marketplace`, etc., are also included. If you still want to install the old Yarn-based OpenPAI, please stay with `v0.14.0`.
 
 Here we provide two installation guides of the new version: 1. [Installation from fresh new machines](#from-scratch) 2. [Installation from old OpenPAI version](#from-previous-deployment).
 
@@ -85,7 +85,7 @@ Your checklist:
         - Server can communicate with all other machine (master and worker machines)
         - SSH service is enabled and share the same username/password and have sudo privilege
         - Passwordless ssh to all other machines (master and worker machines)
-        - Be separate from cluster which contains infra machines and worker machines   
+        - Be separate from cluster which contains master machines and worker machines   
     - OpenPAI Requirement
         - Docker is installed, and it is used to start up dev-box container for service deployment.
     
@@ -131,10 +131,10 @@ To simplify the pre-checks, you can use a script on the **dev box machine** to h
 git clone https://github.com/microsoft/pai.git
 git checkout pai-1.0.y  # change to a different branch if you want to deploy a different version
 cd pai/contrib/kubespray
-/bin/bash requirement.sh -m /path/to/master.csv -w /path/tp/worker.csv -c /path/to/config
+/bin/bash requirement.sh -m /path/to/master.csv -w /path/to/worker.csv -c /path/to/config
 ```
 
-Since all worker machines should have GPU driver installed, you might wonder which version of GPU driver you should install. Please refer to [FAQs](./installation-faqs-and-troubleshooting.md#installation-faqs) for this question.
+Since all worker machines should have GPU driver installed, you might wonder which version of GPU driver you should use. Please refer to [FAQs](./installation-faqs-and-troubleshooting.md#installation-faqs) for this question.
 
 ### Start Installation
 
@@ -149,13 +149,13 @@ cd pai/contrib/kubespray
 The folder `pai/contrib/kubespray` contains installation scripts, both for kubespray and OpenPAI services. Please run the following script to deploy Kubernetes first:
 
 ```bash
-/bin/bash quick-start-kubespray.sh -m /path/to/master.csv -w /path/tp/worker.csv -c /path/to/config
+/bin/bash quick-start-kubespray.sh -m /path/to/master.csv -w /path/to/worker.csv -c /path/to/config
 ```
 
 After Kubernetes is successfully started, run the following script to start OpenPAI services:
 
 ```bash
-/bin/bash quick-start-service.sh -m /path/to/master.csv -w /path/tp/worker.csv -c /path/to/config
+/bin/bash quick-start-service.sh -m /path/to/master.csv -w /path/to/worker.csv -c /path/to/config
 ```
 
 If everything goes well, you will get a message as follows:
@@ -176,12 +176,12 @@ As the message says, you can use `admin` and `admin-password` to login to the we
 
 We highly recommend you to keep the folder `~/pai-deploy` for future operations such as upgrade, maintainence, and uninstallation. The most important contents in this folder are:
 
-  - Kubernetes cluster config (the default is `~/pai-deploy/kube/config`): K8s config file. It is used to connect to K8s api server.
+  - Kubernetes cluster config (the default is `~/pai-deploy/kube/config`): Kubernetes config file. It is used by `kubectl` to connect to k8s api server.
   - OpenPAI cluster config (the default is  `~/pai-deploy/cluster-cfg`): It is a folder containing machine layout and OpenPAI service configurations.
 
-If it is possible, you can make a backup of `~/pai-deploy` in case it is deleted unexpectly.
+If it is possible, you can make a backup of `~/pai-deploy` in case it is deleted unexpectedly.
 
-Apart from the folder, you should remember your openPAI cluster ID, which is used to indicate your OpenPAI cluster. The default value is `pai`. Some manegement operation needs a confirmation of this cluster ID.
+Apart from the folder, you should remember your OpenPAI cluster ID, which is used to indicate your OpenPAI cluster. The default value is `pai`. Some manegement operation needs a confirmation of this cluster ID.
 
 ## From Previous Deployment
 
