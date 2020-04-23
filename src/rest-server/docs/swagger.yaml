@@ -1565,7 +1565,7 @@ components:
             description: job name
           username:
             type: string
-            description: user name
+            description: user name or "unknown"
           state:
             type: string
             description: general job state
@@ -1610,19 +1610,22 @@ components:
                 type: integer
           retryDelayTime:
             type: integer
+            nullable: true
             description: retry delay time
           createdTime:
             type: integer
             description: job created time, in number of milliseconds since the Unix Epoch.
           completedTime:
             type: integer
+            nullable: true
             description: job completed time, in number of milliseconds since the Unix Epoch.
           appExitCode:
             type: integer
+            nullable: true
             description: job exit code
           virtualCluster:
             type: string
-            description: virtual cluster to which the job submitted
+            description: virtual cluster to which the job submitted, or "unknown"
           totalGpuNumber:
             type: integer
             description: total gpu number used in the job
@@ -1659,7 +1662,7 @@ components:
           properties:
             username:
               type: string
-              description: user name
+              description: user name or "unknown"
             state:
               type: string
               description: general job state
@@ -1704,6 +1707,7 @@ components:
                   type: integer
             retryDelayTime:
               type: integer
+              nullable: true
               description: retry delay time
             createdTime:
               type: integer
@@ -1712,6 +1716,7 @@ components:
                 Epoch.
             completedTime:
               type: integer
+              nullable: true
               description: >-
                 job completed time, in number of milliseconds since the Unix
                 Epoch.
@@ -1720,11 +1725,13 @@ components:
               description: unique id for the job
             appLaunchedTime:
               type: integer
+              nullable: true
               description: >-
                 job launched time for last attempt, in number of milliseconds
                 since the Unix Epoch.
             appCompletedTime:
               type: integer
+              nullable: true
               description: >
                 job completed time for last attempt, in number of milliseconds
                 since the Unix Epoch. to get durations for last attempt:
@@ -1735,9 +1742,11 @@ components:
                   runningDuration = sum(appCompletedTime - appLaunchedTime) for all attempts.
             appExitCode:
               type: integer
+              nullable: true
               description: job exit code
             appExitSpec:
               type: object
+              nullable: true
               description: job exit spec
               properties:
                 code:
@@ -1762,31 +1771,40 @@ components:
                     type: string
             appExitDiagnostics:
               type: string
+              nullable: true
               description: job exit diagnostics
             appExitMessages:
               type: object
+              nullable: true
               properties:
                 container:
                   type: string
+                  nullable: true
                 runtime:
                   type: string
+                  nullable: true
                 launcher:
                   type: string
+                  nullable: true
             appExitTriggerMessage:
               type: string
+              nullable: true
               description: job completion message
             appExitTriggerTaskRoleName:
               type: string
+              nullable: true
               description: task role name which triggered job completion
             appExitTriggerTaskIndex:
               type: integer
+              nullable: true
               description: task index which triggered job completion
             appExitType:
               type: string
+              nullable: true
               description: job completion type
             virtualCluster:
               type: string
-              description: virtual cluster to which the job submitted
+              description: virtual cluster to which the job submitted, or "unknown"
           required:
             - username
             - virtualCluster
@@ -1845,12 +1863,14 @@ components:
                       description: ports of the task container
                     containerGpus:
                       type: string
+                      nullable: true
                       description: gpu of the task container
                     containerLog:
                       type: string
                       description: log url of the task container
                     containerExitCode:
                       type: integer
+                      nullable: true
                       description: exit code the task container
             required:
               - taskRoleStatus
