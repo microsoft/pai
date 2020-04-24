@@ -48,7 +48,7 @@ Besides the default cofiguration to make OpenPAI start, admin could customize ea
 #
 #  common:
 #    cluster-id: pai
-#    cluster-type: yarn
+#    cluster-type: k8s
 #
 #    # HDFS, zookeeper data path on your cluster machine.
 #    data-path: "/datastorage"
