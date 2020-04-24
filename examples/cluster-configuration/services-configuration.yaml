@@ -63,26 +63,6 @@
 #    # Must be lower case, e.g., regsecret.
 #    secret-name: regsecret
 
-#Uncomment following lines if you want to customize yarn
-#hadoop-resource-manager:
-#  # job log retain time
-#  yarn_log_retain_seconds: 2592000
-#  # port for yarn exporter
-#  yarn_exporter_port: 9459
-
-
-#Uncomment following lines if you want to customize hdfs
-#hadoop-data-node:
-#  # storage path for hdfs, support comma-delimited list of directories, eg. /path/to/folder1,/path/to/folder2 ...
-#  # if left empty, will use cluster.common.data-path/hdfs/data
-#  storage_path:
-
-
-
-#Uncomment following if you want to change customize yarn-frameworklauncher
-#yarn-frameworklauncher:
-#  frameworklauncher-port: 9086
-
 #Uncomment following and config it if you want to use hivedscheduler
 #Check ../../docs/hivedscheduler/devops.md to config it.
 #hivedscheduler:

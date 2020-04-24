@@ -42,17 +42,54 @@ rest-server:
 
 ### Customized Configuration - For advanced user <a name="optional"></a>
 
-Besides the default cofiguration to make OpenPAI start, admin could customize each service component within permissible scope. From the example ```serivce-configuration.yaml```, you could find a lot of commented fileds, such as the following. For example, If you wanna customize ```drivers```, you can uncomment the filed, and overwrite the default value with your expected value. 
+Besides the default cofiguration to make OpenPAI start, admin could customize each service component within permissible scope. From the example ```serivce-configuration.yaml```, you could find a lot of commented fileds, such as the following. For example, If you wanna customize ```cluster```, you can uncomment the filed, and overwrite the default value with your expected value. 
 ```YAML
-#drivers:
-#  set-nvidia-runtime: false
-#  # You can set drivers version here. If this value is miss, default value will be 384.111
-#  # Current supported version list
-#  # 384.111
-#  # 390.25
-#  # 410.73
-#  # 418.56
-#  version: "384.111"
+#cluster:
+#
+#  common:
+#    cluster-id: pai
+#    cluster-type: yarn
+#
+#    # HDFS, zookeeper data path on your cluster machine.
+#    data-path: "/datastorage"
+#
+#    # Enable job history feature. Default value is "true"
+#    job-history: "true"
+#
+#    # Enable QoS feature or not. Default value is "true"
+#    qos-switch: "true"
+#
+#    # If your cluster is created by Azure and the machine is rdma enabled.
+#    # Set this configuration as  "true", the rdma environment will be set into your container.
+#    az-rdma: "false"
+#    # If RBAC is enabled in your cluster, you should set this value to true.
+#    # If RBAC is enabled in your cluster, please ensure the kubeconfig for paictl has enough permission.
+#    k8s-rbac: "false"
+#
+#    # If Pai will be deployed in aks, you should set this value to true.
+#    deploy-in-aks: "false"
+#
+#  # the docker registry to store docker images that contain system services like frameworklauncher, hadoop, etc.
+#  docker-registry:
+#
+#    # domain/namespace/image-name:tag
+#
+#    # If resgiry is docker.io, please fill it the same as your username
+#    namespace: openpai
+#
+#    # E.g., gcr.io.
+#    # If your registry is at hub.docker, please fill it as docker.io
+#    domain: docker.io
+#
+#    # If the docker registry doesn't require authentication, please comment out username and password
+#    #username: your_registry_username
+#    #password: your_registry_password
+#
+#    tag: latest
+#
+#    # The name of the secret in kubernetes will be created in your cluster
+#    # Must be lower case, e.g., regsecret.
+#    secret-name: regsecret
 ```  
 
 
@@ -61,9 +98,6 @@ According to your requirements, choose the component which you wanna customized.
 | Service | Description | Tutorial |
 | --- | --- | --- |
 | cluster <a name="ref_cluster_config"></a>| Configure data-path, cluster-id, azure rdma switch and docker-registry to pull image. | [Link](../../../src/cluster/config/cluster.md)|
-| drivers <a name="ref_drivers"></a>| Configure drivers version and nvidia runtime. | [Link](../../../src/drivers/config/drivers.md)|
-| hadoop-resource-manager <a name="configure_vc_capacity"></a>| yarn exporter port and default vc configuration | [Link](../../../src/hadoop-resource-manager/config/hadoop-resource-manager.md)|
-| yarn-frameworklauncher | frameworklauncher port configuration | [Link](../../../src/yarn-frameworklauncher/config/yarn-frameworkerlauncher.md)|
 | rest-server <a name="ref_rest_server"></a>| admin account, jwt-secret | [Link](../../../src/rest-server/config/rest-server.md)|
 | webportal | webportal port configuration| [Link](../../../src/webportal/config/webportal.md)|
 | grafana | grafana port configuration| [Link](../../../src/grafana/config/grafana.md)|
