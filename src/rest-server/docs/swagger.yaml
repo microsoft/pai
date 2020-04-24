@@ -1542,7 +1542,7 @@ components:
                     properties:
                       gpuType:
                         type: string
-                      reservationId:
+                      pinnedCellId:
                         type: string
                       affinityGroupName:
                         type: string
