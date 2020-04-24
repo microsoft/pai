@@ -27,22 +27,20 @@ Build image by using ```pai_build.py``` which put under ``build/``. for the conf
 ### Build infrastructure services <a name="Service_Build"></a>
 
 ```
-./pai_build.py build -c /path/to/configuration-dir/ [ -s component-list ] [-m all|k8s|yarn]
+./pai_build.py build -c /path/to/configuration-dir/ [ -s component-list ]
 ```
 
 - Build the corresponding component.
 - If the option `-s` is added, only the specified component will be built. By default will build all components under ``src/``
-- Default value of `-m` is `all`, and with it all image will be built. When the value is `k8s`, only the images of k8s-type service will be built, and the same as the value of `yarn`.
 
 ### Push infrastructure image(s) <a name="Image_Push"></a>
 
 ```
-./pai_build.py push -c /path/to/configuration-dir/ [ -i image-list ] [-m all|k8s|yarn]
+./pai_build.py push -c /path/to/configuration-dir/ [ -i image-list ]
 ```
 
 - tag and push image to the docker registry which is configured in the ```cluster-configuration```.
 - If the option `-i` is added, only the specified image will be pushed. By default will push all images which ``.dockerfile`` can be found under ``{src/${componentName}/build/``
-- Default value of `-m` is `all`, and with it all image will be pushed. When the value is `k8s`, only the images of k8s-type service will be pushed, and the same as the value of `yarn`.
 
 # Current pai build process
 
