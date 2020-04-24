@@ -29,7 +29,7 @@ Generated configuration means the object model after parsing. The parsed data wi
 cluster:
     common:
       cluster-id: pai
-      cluster-type: yarn
+      cluster-type: k8s
       data-path: "/datastorage"
       qos-switch: "true"
       az-rdma: "false"

@@ -37,11 +37,10 @@ def transform(old_model, old_key, new_model, new_key):
 def service_configuration_convert(service_configuration):
 
     if "hadoop" not in service_configuration and "rest-server" in service_configuration:
-        return service_configuration_add_cluster_type(service_configuration)
+        return service_configuration
 
     new_configuration = {}
 
-    transform(service_configuration, "drivers", new_configuration, "drivers")
     transform(service_configuration, "webportal", new_configuration, "webportal")
     transform(service_configuration, "pylon", new_configuration, "pylon")
 
@@ -61,12 +60,6 @@ def service_configuration_convert(service_configuration):
               new_configuration, "cluster.docker-registry.secret-name")
 
     transform(service_configuration, "restserver", new_configuration, "rest-server")
-    transform(service_configuration, "frameworklauncher", new_configuration, "yarn-frameworklauncher")
-
-    transform(service_configuration, "hadoop.virtualClusters",
-              new_configuration, "hadoop-resource-manager.virtualClusters")
-    transform(service_configuration, "prometheus.yarn_exporter_port",
-              new_configuration, "hadoop-resource-manager.yarn_exporter_port")
 
     transform(service_configuration, "prometheus.prometheus-port",
               new_configuration, "prometheus.port")
@@ -92,20 +85,4 @@ def service_configuration_convert(service_configuration):
     transform(service_configuration, "prometheus.node-exporter-port",
               new_configuration, "node-exporter.port")
 
-    return service_configuration_add_cluster_type(new_configuration, True)
-
-
-def service_configuration_add_cluster_type(service_configuration, converted = False):
-    if "cluster" not in service_configuration:
-        service_configuration["cluster"] = {"common": {"cluster-type": "yarn"}}
-        return service_configuration, True
-    else:
-        if "common" not in service_configuration["cluster"]:
-            service_configuration["cluster"]["common"] = {"cluster-type": "yarn"}
-            return service_configuration, True
-        else:
-            if "cluster-type" not in service_configuration["cluster"]["common"]:
-                service_configuration["cluster"]["common"]["cluster-type"] = "yarn"
-                return service_configuration, True
-            else:
-                return service_configuration, converted
+    return new_configuration
