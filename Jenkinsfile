@@ -52,8 +52,6 @@ def http_check_health(uri) {
 pipeline {
   environment {
     REGISTRY_URI = "10.0.1.5:5000"
-    YARN_SINGLEBOX_URI = "http://10.0.1.6"
-    YARN_CLUSTER_URI = "http://10.0.1.8"
     K8S_CLUSTER_URI = "http://10.0.3.6"
     ACCOUNT = credentials("USER_ACCOUNT")
   }
@@ -101,36 +99,6 @@ pipeline {
     // Deploy PAI
     stage("Deploy PAI") {
       parallel {
-        stage("YARN Single Box") {
-          agent {
-            label node_label
-          }
-          steps {
-            script {
-              try {
-                sh "${sh} ${WORKSPACE}/tests/jenkins/stage_deploy.sh yarn singlebox"
-              } catch (err) {
-                echo "Deploy YARN Single Box Failed: ${err}"
-                currentBuild.result = "FAILURE"
-              }
-            }
-          }
-        }
-        stage("YARN Cluster") {
-          agent {
-            label node_label
-          }
-          steps {
-            script {
-              try {
-                sh "${sh} ${WORKSPACE}/tests/jenkins/stage_deploy.sh yarn cluster"
-              } catch (err) {
-                echo "Deploy YARN Cluster Failed: ${err}"
-                currentBuild.result = "FAILURE"
-              }
-            }
-          }
-        }
         stage("Pure K8S Cluster") {
           agent {
             label node_label
@@ -152,50 +120,6 @@ pipeline {
     // Test PAI
     stage("Test PAI") {
       parallel {
-        stage("YARN Single Box") {
-          agent {
-            label node_label
-          }
-          steps {
-            script {
-              if (currentBuild.result == "FAILURE") {
-                echo "Deploy failed, skip test."
-              } else {
-                try {
-                  timeout(time: http_timeout, unit: "MINUTES") {
-                    http_check_health("${YARN_SINGLEBOX_URI}/rest-server/api/v1")
-                    sh "${sh} ${WORKSPACE}/tests/jenkins/stage_test.sh yarn ${YARN_SINGLEBOX_URI}/rest-server"
-                  }
-                } catch (err) {
-                  echo "Test YARN Single Box Failed: ${err}"
-                  currentBuild.result = "FAILURE"
-                }
-              }
-            }
-          }
-        }
-        stage("YARN Cluster") {
-          agent {
-            label node_label
-          }
-          steps {
-            script {
-              if (currentBuild.result == "FAILURE") {
-                echo "Deploy failed, skip test."
-              } else {
-                try {
-                  timeout(time: http_timeout, unit: "MINUTES") {
-                    http_check_health("${YARN_CLUSTER_URI}/rest-server/api/v1")
-                    sh "${sh} ${WORKSPACE}/tests/jenkins/stage_test.sh yarn ${YARN_CLUSTER_URI}/rest-server"
-                  }
-                } catch (err) {
-                  echo "Test YARN Cluster Failed: ${err}"
-                  currentBuild.result = "FAILURE"
-                }
-              }
-            }
-          }
-        }
         stage("Pure K8S Cluster") {
           agent {
             label node_label
@@ -254,22 +178,6 @@ pipeline {
     // Clean up Cluster
     stage("Clean up Cluster") {
       parallel {
-        stage("YARN Single Box") {
-          agent {
-            label node_label
-          }
-          steps {
-            sh "${sh} ${WORKSPACE}/tests/jenkins/stage_clean.sh yarn singlebox"
-          }
-        }
-        stage("YARN Cluster") {
-          agent {
-            label node_label
-          }
-          steps {
-            sh "${sh} ${WORKSPACE}/tests/jenkins/stage_clean.sh yarn cluster"
-          }
-        }
         stage("Pure K8S Cluster") {
           agent {
             label node_label
