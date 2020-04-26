@@ -45,6 +45,7 @@ docker run \
     --volume=/etc/resolv.conf:/etc/resolv.conf:rw \
     --volume=/var/run:/var/run:rw \
     --volume=/var/log:/var/log:rw \
+    --volume=/usr/libexec/kubernetes/kubelet-plugins/volume/exec:/usr/libexec/kubernetes/kubelet-plugins/volume/exec:rw \
     --net=host \
     --pid=host \
     --privileged=true \

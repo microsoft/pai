@@ -64,9 +64,9 @@ const convertVolumeDetail = async (pvc) => {
   } else if (pv.spec.azureFile) {
     storage.type = 'azureFile';
     storage.data = {
-      shareName: pv.spec.shareName,
+      shareName: pv.spec.azureFile.shareName,
     };
-    storage.secretName = pv.spec.secretName;
+    storage.secretName = pv.spec.azureFile.secretName;
   } else if (pv.spec.flexVolume) {
     if (pv.spec.flexVolume.driver === 'azure/blobfuse') {
       storage.type = 'azureBlob';

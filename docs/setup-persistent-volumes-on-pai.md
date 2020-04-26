@@ -68,11 +68,11 @@ There're many approches to create PV/PVC, you could refer to [Kubernetes docs](h
 
 * Samba
 
-    Please refer to [this document](https://github.com/Azure/kubernetes-volume-drivers/blob/master/flexvolume/smb/README.md) to install cifs/smb FlexVolume driver and create PV/PVC for Samba.
+    Please refer to [this document](https://github.com/Azure/kubernetes-volume-drivers/blob/master/flexvolume/smb/README.md) to install cifs/smb FlexVolume driver (make sure to change `volume-plugin-dir` from `/etc/kubernetes/volumeplugins` to default `/usr/libexec/kubernetes/kubelet-plugins/volume/exec`), and create PV/PVC for Samba.
 
 * Azure Blob
 
-    Please refer to [this document](https://github.com/Azure/kubernetes-volume-drivers/blob/master/flexvolume/blobfuse/README.md) to install blobfuse FlexVolume driver and create PV/PVC for Azure Blob.
+    Please refer to [this document](https://github.com/Azure/kubernetes-volume-drivers/blob/master/flexvolume/blobfuse/README.md) to install blobfuse FlexVolume driver (make sure to change `volume-plugin-dir` from `/etc/kubernetes/volumeplugins` to default `/usr/libexec/kubernetes/kubelet-plugins/volume/exec`), and create PV/PVC for Azure Blob.
 
 * Azure File
 
@@ -93,22 +93,22 @@ There're many approches to create PV/PVC, you could refer to [Kubernetes docs](h
       labels:
         name: azure-file-storage
     spec:
-    capacity:
-      storage: 5Gi
-    accessModes:
-      - ReadWriteMany
-    storageClassName: azurefile
-    azureFile:
-      secretName: azure-secret
-      shareName: aksshare
-      readOnly: false
-    mountOptions:
-      - dir_mode=0777
-      - file_mode=0777
-      - uid=1000
-      - gid=1000
-      - mfsymlinks
-      - nobrl
+      capacity:
+        storage: 5Gi
+      accessModes:
+        - ReadWriteMany
+      storageClassName: azurefile
+      azureFile:
+        secretName: azure-secret
+        shareName: aksshare
+        readOnly: false
+      mountOptions:
+        - dir_mode=0777
+        - file_mode=0777
+        - uid=1000
+        - gid=1000
+        - mfsymlinks
+        - nobrl
     ---
     # Azure File Persistent Volume Claim
     apiVersion: v1
@@ -141,24 +141,24 @@ To use Kubernetes volumes in PAI, admin need to assign storage to PAI groups fir
 
     ```yaml
     authentication:
-    ...
-    group-manager:
+      ...
+      group-manager:
         ...
         grouplist:
-        - groupname: group1
-            externalName: sg1
-            extension:
-              acls:
-                admin: false
-                virtualClusters: ["vc1"]
-                storageConfigs: ["azure-file-storage"]
-        - groupname: group2
-            externalName: sg2
-            extension:
-              acls:
-                admin: false
-                virtualClusters: ["vc1", "vc2"]
-                storageConfigs: ["nfs-storage"]
+          - groupname: group1
+              externalName: sg1
+              extension:
+                acls:
+                  admin: false
+                  virtualClusters: ["vc1"]
+                  storageConfigs: ["azure-file-storage"]
+          - groupname: group2
+              externalName: sg2
+              extension:
+                acls:
+                  admin: false
+                  virtualClusters: ["vc1", "vc2"]
+                  storageConfigs: ["nfs-storage"]
     ```
 
     The first storage in `storageConfigs` list will be treated as default storage for this group.
