@@ -1,5 +1,8 @@
 # OpenPAI Release Note
 
+## May 2020 (version 1.0.0)
+
+
 ## July 2019 (version 0.14.0)
 
 Welcome to the July 2019 release of OpenPAI. There are a number of updates in this version that we hope you will like, some of the key highlights include:
