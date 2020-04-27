@@ -1530,7 +1530,7 @@ components:
           properties:
             submitFrom:
               type: string
-            hivedscheduler:
+            hivedScheduler:
               type: object
               properties:
                 jobPriorityClass:
@@ -1540,7 +1540,7 @@ components:
                   additionalProperties:
                     type: object
                     properties:
-                      gpuType:
+                      skuType:
                         type: string
                       pinnedCellId:
                         type: string
