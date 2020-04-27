@@ -4,11 +4,11 @@
 
 There are **breaking changes** since OpenPAI v1.0.0. Before v1.0.0, OpenPAI was based on Yarn and Kubernetes. Now, OpenPAI has switched to a pure Kubernetes-based architecture. Also, we have created 5 separate repositories for individual OpenPAI components. Some of them are newly-introduced, some are migrated from [OpenPAI main repository](https://github.com/microsoft/pai):
 
-  - [Hivedscheduler](https://github.com/microsoft/hivedscheduler) is a Kubernetes Scheduler Extender for Multi-Tenant GPU clusters.
-  - [openpai-protocol](https://github.com/microsoft/openpai-protocol) describes specification of OpenPAI jobs.
+  - [Hivedscheduler](https://github.com/microsoft/hivedscheduler) is a Kubernetes Scheduler Extender for multi-tenant GPU clusters.
+  - [openpai-protocol](https://github.com/microsoft/openpai-protocol) is a specification of OpenPAI job protocol.
   - [openpai-runtime](https://github.com/microsoft/openpai-runtime) is a module that provides runtime support to job containers.
-  - [openpaisdk](https://github.com/microsoft/openpaisdk) is a The JavaScript SDK is designed to facilitate the developers of OpenPAI to offer user friendly experience.
-  - [openpaimarketplace](https://github.com/microsoft/openpaimarketplace) is a plugin, which stores examples and job templates. Users can use `openpaimarketplace` to share their jobs or run-and-learn others' sharing job.
+  - [openpaisdk](https://github.com/microsoft/openpaisdk) is a The JavaScript SDK designed to facilitate the developers of OpenPAI to offer user friendly experience.
+  - [openpaimarketplace](https://github.com/microsoft/openpaimarketplace) is a webportal plugin, which stores examples and job templates. Users can use `openpaimarketplace` to share their jobs or run-and-learn others' sharing job.
   - [openpaivscode](https://github.com/microsoft/openpaivscode) is a VSCode extension to connect OpenPAI clusters, submit AI jobs, simulate jobs locally, manage files, and so on.
 
 
