@@ -2,6 +2,25 @@
 
 ## May 2020 (version 1.0.0)
 
+There are **breaking changes** since OpenPAI v1.0.0. Before v1.0.0, OpenPAI was based on Yarn and Kubernetes. Now, OpenPAI has switched to a pure Kubernetes-based architecture. Also, we have created 5 separate repositories for individual OpenPAI components. Some of them are newly-introduced, some are migrated from [OpenPAI main repository](https://github.com/microsoft/pai):
+
+  - [Hivedscheduler](https://github.com/microsoft/hivedscheduler) is a Kubernetes Scheduler Extender for Multi-Tenant GPU clusters.
+  - [openpai-protocol](https://github.com/microsoft/openpai-protocol) describes specification of OpenPAI jobs.
+  - [openpai-runtime](https://github.com/microsoft/openpai-runtime) is a module that provides runtime support to job containers.
+  - [openpaisdk](https://github.com/microsoft/openpaisdk) is a The JavaScript SDK is designed to facilitate the developers of OpenPAI to offer user friendly experience.
+  - [openpaimarketplace](https://github.com/microsoft/openpaimarketplace) is a plugin, which stores examples and job templates. Users can use `openpaimarketplace` to share their jobs or run-and-learn others' sharing job.
+  - [openpaivscode](https://github.com/microsoft/openpaivscode) is a VSCode extension to connect OpenPAI clusters, submit AI jobs, simulate jobs locally, manage files, and so on.
+
+
+Other new features and improvements include:
+
+  - [Kubespray and a quick start script](https://github.com/microsoft/pai/tree/master/contrib/kubespray) is introduced for quick deployment of new clusters.
+  - [Support for Azure Active Directory (AAD) authentication](https://github.com/microsoft/pai/blob/master/docs/aad-e2e/aad-e2e.md) is added.
+  - [Storage interface](https://github.com/microsoft/pai/blob/master/docs/setup-persistent-volumes-on-pai.md) has been refactored to use Persistent Volume in Kubernetes
+  - [RESTful API](https://github.com/microsoft/pai/tree/master/src/rest-server) has been improved and [a swagger document](https://redocly.github.io/redoc/?url=https://raw.githubusercontent.com/microsoft/pai/master/src/rest-server/docs/swagger.yaml) is provided.
+  - [An end-to-end usage manual](https://openpai.readthedocs.io/) is provided for cluster users and administrators.
+
+For more details about this release, please refer to [detailed release note](https://github.com/microsoft/pai/releases/tag/v1.0.0).
 
 ## July 2019 (version 0.14.0)
 
