@@ -11,6 +11,9 @@
 7. [Use VSCode Extension](./use-vscode-extension.md)
 8. [Use Jupyter Notebook Extension](./use-jupyter-notebook-extension.md)
 
+This document describes how to use SSH and TensorBoard plugin to debug job. 
+
+**Note:** These two plugins only work when the IP address is accessible from customer environment (not cluster internal IP). So if PAI deployed in some cloud environment such as Azure, these two plugins will not work.
 
 ## How to use SSH
 
