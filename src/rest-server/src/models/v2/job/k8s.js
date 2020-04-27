@@ -170,7 +170,7 @@ const convertFrameworkSummary = (framework) => {
     completedTime: new Date(framework.status.completionTime).getTime(),
     appExitCode: completionStatus ? completionStatus.code : null,
     virtualCluster: framework.metadata.labels ? framework.metadata.labels.virtualCluster : 'unknown',
-    totalGpuNumber: framework.metadata.annotations ? framework.metadata.annotations.totalGpuNumber : 0,
+    totalGpuNumber: framework.metadata.annotations ? parseInt(framework.metadata.annotations.totalGpuNumber) : 0,
     totalTaskNumber: framework.spec.taskRoles.reduce(
       (num, spec) => num + spec.taskNumber, 0),
     totalTaskRoleNumber: framework.spec.taskRoles.length,

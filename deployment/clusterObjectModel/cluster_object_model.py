@@ -126,7 +126,7 @@ class cluster_object_model:
         self.layout = file_handler.load_yaml_config("{0}/layout.yaml".format(self.configuration_path))
         overwrite_service_configuration = file_handler.load_yaml_config("{0}/services-configuration.yaml".format(self.configuration_path))
         self.overwrite_service_configuration, updated = forward_compatibility.service_configuration_convert(overwrite_service_configuration)
-        cluster_type = self.overwrite_service_configuration["cluster"]["common"]["cluster-type"]
+        cluster_type = "k8s"
         
         parser_dict = dict()
         parser_dict["layout"] = pai_com_layout.Layout(self.layout)
