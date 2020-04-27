@@ -63,26 +63,6 @@
 #    # Must be lower case, e.g., regsecret.
 #    secret-name: regsecret
 
-#Uncomment following lines if you want to customize yarn
-#hadoop-resource-manager:
-#  # job log retain time
-#  yarn_log_retain_seconds: 2592000
-#  # port for yarn exporter
-#  yarn_exporter_port: 9459
-
-
-#Uncomment following lines if you want to customize hdfs
-#hadoop-data-node:
-#  # storage path for hdfs, support comma-delimited list of directories, eg. /path/to/folder1,/path/to/folder2 ...
-#  # if left empty, will use cluster.common.data-path/hdfs/data
-#  storage_path:
-
-
-
-#Uncomment following if you want to change customize yarn-frameworklauncher
-#yarn-frameworklauncher:
-#  frameworklauncher-port: 9086
-
 #Uncomment following and config it if you want to use hivedscheduler
 #Check ../../docs/hivedscheduler/devops.md to config it.
 #hivedscheduler:
@@ -111,17 +91,6 @@ rest-server:
 # uncomment following if you want to change customize grafana
 # grafana:
 #   port: 3000
-
-# uncomment following if you want to change customize drivers
-#drivers:
-#  set-nvidia-runtime: false
-#  # You can set drivers version here. If this value is miss, default value will be 384.111
-#  # Current supported version list
-#  # 384.111
-#  # 390.25
-#  # 410.73
-#  # 418.56
-#  version: "384.111"
 
 # uncomment following if you want to customize device plugin
 # device-plugin:

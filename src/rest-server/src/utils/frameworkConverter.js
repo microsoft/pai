@@ -189,6 +189,7 @@ const convertToJobAttempt = async (framework) => {
     framework.metadata.annotations,
   );
   const frameworkName = framework.metadata.name;
+  const logPathInfix = framework.metadata.annotations.logPathInfix ? framework.metadata.annotations.logPathInfix : jobName;
   const uid = framework.metadata.uid;
   const userName = framework.metadata.labels
     ? framework.metadata.labels.userName
@@ -270,7 +271,7 @@ const convertToJobAttempt = async (framework) => {
             await convertTaskDetail(
               status,
               userName,
-              jobName,
+              logPathInfix,
               taskRoleStatus.name,
             ),
         ),
@@ -310,7 +311,7 @@ const convertToJobAttempt = async (framework) => {
 const convertTaskDetail = async (
   taskStatus,
   userName,
-  jobName,
+  logPathInfix,
   taskRoleName,
 ) => {
   // get container gpus
@@ -352,7 +353,7 @@ const convertTaskDetail = async (
     containerId: taskStatus.attemptStatus.podUID,
     containerIp: taskStatus.attemptStatus.podHostIP,
     containerGpus,
-    containerLog: `http://${taskStatus.attemptStatus.podHostIP}:${process.env.LOG_MANAGER_PORT}/log-manager/tail/${userName}/${jobName}/${taskRoleName}/${taskStatus.attemptStatus.podUID}/`,
+    containerLog: `http://${taskStatus.attemptStatus.podHostIP}:${process.env.LOG_MANAGER_PORT}/log-manager/tail/${userName}/${logPathInfix}/${taskRoleName}/${taskStatus.attemptStatus.podUID}/`,
     containerExitCode: completionStatus ? completionStatus.code : null,
   };
 };
