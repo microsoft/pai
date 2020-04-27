@@ -1533,7 +1533,7 @@ components:
           properties:
             submitFrom:
               type: string
-            hivedscheduler:
+            hivedScheduler:
               type: object
               properties:
                 jobPriorityClass:
@@ -1543,9 +1543,7 @@ components:
                   additionalProperties:
                     type: object
                     properties:
-                      gpuType:
-                        type: string
-                      reservationId:
+                      skuType:
                         type: string
                       affinityGroupName:
                         type: string
