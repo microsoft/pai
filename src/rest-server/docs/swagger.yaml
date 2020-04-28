@@ -2108,13 +2108,17 @@ components:
               type: string
             runtime:
               type: object
+              nullalbe: true
               properties:
                 exitCode:
                   type: integer
+                  nullable: true
                 originUserExitCode:
                   type: integer
+                  nullable: true
                 errorLogs:
                   type: object
+                  nullable: true
                   properties:
                     user:
                       type: string
@@ -2179,10 +2183,13 @@ components:
               properties:
                 exitCode:
                   type: integer
+                  nullable: true
                 originUserExitCode:
                   type: integer
+                  nullable: true
                 errorLogs:
                   type: object
+                  nullable: true
                   properties:
                     user:
                       type: string
