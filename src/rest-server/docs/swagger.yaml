@@ -915,41 +915,6 @@ paths:
           $ref: '#/components/responses/NoVirtualClusterError'
         '500':
           $ref: '#/components/responses/UnknownError'
-  '/api/v2/virtual-clusters/{vc}/sku-types':
-    get:
-      tags:
-        - virtual cluster
-      summary: Get sku types in the virtual cluster.
-      description: Get sku types in the virtual cluster.
-      operationId: getVirtualClusterSkuTypes
-      security:
-        - bearerAuth: []
-      parameters:
-        - $ref: '#/components/parameters/vc'
-      responses:
-        '200':
-          description: Succeeded
-          content:
-            application/json:
-              schema:
-                type: object
-                additionalProperties:
-                  type: object
-                  properties:
-                    cpu:
-                      type: integer
-                    memory:
-                      type: integer
-                    gpu:
-                      type: integer
-                  required:
-                    - cpu
-                    - memory
-                    - gpu
-        '404':
-          $ref: '#/components/responses/NoVirtualClusterError'
-        '500':
-          $ref: '#/components/responses/UnknownError'
   /api/v2/storages:
     get:
       tags:
@@ -1377,7 +1342,9 @@ components:
       description: openpai job protocol
       properties:
         protocolVersion:
-          type: string
+          oneOf:
+            - type: number
+            - type: string
           description: Protocol version, current version is 2.
         name:
           type: string
@@ -1886,13 +1853,13 @@ components:
       type: object
       properties:
         capacity:
-          type: integer
+          type: number
           description: capacity percentage this virtual cluster can use of entire cluster
         usedCapacity:
-          type: integer
+          type: number
           description: used capacity percentage this virtual cluster can use of entire cluster
         maxCapacity:
-          type: integer
+          type: number
           description: max capacity percentage this virtual cluster can use of entire cluster
         dedicated:
           type: boolean
