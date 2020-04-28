@@ -2108,7 +2108,7 @@ components:
               type: string
             runtime:
               type: object
-              nullalbe: true
+              nullable: true
               properties:
                 exitCode:
                   type: integer
