@@ -2,7 +2,7 @@
 
 ## May 2020 (version 1.0.0)
 
-From v1.0.0 release, OpenPAI officially switches to [pure Kubernetes-based architecture](https://github.com/microsoft/pai/blob/master/docs/system_architecture.md) and has more clear component separation. We have created 6 separate repositories for individual OpenPAI components. Some of them are newly-introduced, and some are migrated from [OpenPAI main repository](https://github.com/microsoft/pai):
+With the v1.0.0 release, OpenPAI is officially switching to pure Kubernetes-based architecture. In addition to this, we had also made efforts on making our component design more modularized by re-organized the code structure to 1 main repo together with 6 standalone key component repos. Please refer to the [system architecture](https://github.com/microsoft/pai/blob/master/docs/system_architecture.md) documentation for more detailed design thinkings about this change, and review the following list to get a better understanding about the 6 new component repos:
 
   - [hivedscheduler](https://github.com/microsoft/hivedscheduler) is a new PAI component providing various advantages over standard k8s scheduler, such as resource isolation for multiple tenants, GPU topology guarantee for virtual clusters, and better topology-aware gang scheduling with no [resource starvation](https://en.wikipedia.org/wiki/Starvation_(computer_science)).
   - [openpai-protocol](https://github.com/microsoft/openpai-protocol) is a specification of OpenPAI job protocol. It facilitates platform interoperability and job portability. A job described by the protocol can run on different clusters managed by OpenPAI. The protocol also enables great flexibility. Any AI workload can be described by it conveniently.
