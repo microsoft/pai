@@ -2,23 +2,23 @@
 
 ## May 2020 (version 1.0.0)
 
-There are **breaking changes** since OpenPAI v1.0.0. Before v1.0.0, OpenPAI was based on Yarn and Kubernetes. Now, OpenPAI has switched to a pure Kubernetes-based architecture. Also, we have created 5 separate repositories for individual OpenPAI components. Some of them are newly-introduced, and some are migrated from [OpenPAI main repository](https://github.com/microsoft/pai):
+From v1.0.0 release, OpenPAI has officially switched to [pure Kubernetes-based architecture](https://github.com/microsoft/pai/blob/master/docs/system_architecture.md) and had more clear components separation. We have created 6 separate repositories for individual OpenPAI components. Some of them are newly-introduced, and some are migrated from [OpenPAI main repository](https://github.com/microsoft/pai):
 
-  - [hivedscheduler](https://github.com/microsoft/hivedscheduler) is a Kubernetes Scheduler Extender for multi-tenant GPU clusters.
-  - [openpai-protocol](https://github.com/microsoft/openpai-protocol) is a specification of OpenPAI job protocol.
-  - [openpai-runtime](https://github.com/microsoft/openpai-runtime) is a module that provides runtime support to job containers.
-  - [openpaisdk](https://github.com/microsoft/openpaisdk) is a JavaScript SDK designed to facilitate the developers of OpenPAI to offer user friendly experience.
-  - [openpaimarketplace](https://github.com/microsoft/openpaimarketplace) is a webportal plugin, which stores examples and job templates. Users can use `openpaimarketplace` to share their jobs or run-and-learn others' sharing job.
-  - [openpaivscode](https://github.com/microsoft/openpaivscode) is a VSCode extension to connect OpenPAI clusters, submit AI jobs, simulate jobs locally, manage files, and so on.
+  - [hivedscheduler](https://github.com/microsoft/hivedscheduler) is a new PAI component providing various advantages over standard k8s scheduler, such as resource isolation for multiple tenants, GPU topology guarantee for virtual clusters, and better topology-aware gang scheduling with no [resource starvation](https://en.wikipedia.org/wiki/Starvation_(computer_science)).
+  - [openpai-protocol](https://github.com/microsoft/openpai-protocol) is a specification of OpenPAI job protocol. It facilitates platform interoperability and job portability. A job described by the protocol can run on different clusters managed by OpenPAI. The protocol also enables great flexibility. Any AI workload can be described by it conveniently.
+  - [openpai-runtime](https://github.com/microsoft/openpai-runtime) provides runtime support which is necessary for the OpenPAI protocol. OpenPAI runtime can classify typical runtime error patterns and prevent unnecessay error retries. Therefore cluster resource can be saved.
+  - [openpaisdk](https://github.com/microsoft/openpaisdk) is a JavaScript SDK designed to facilitate the developers of OpenPAI to offer more user-friendly experience.
+  - [openpaimarketplace](https://github.com/microsoft/openpaimarketplace) is a webportal plugin, which stores examples and job templates. Users can use `openpaimarketplace` to share their jobs or run-and-learn others' sharing job. It enables cluster-level job templating and reuse.
+  - [openpaivscode](https://github.com/microsoft/openpaivscode) is a VSCode extension, which makes users connect OpenPAI clusters, submit AI jobs, simulate jobs locally and manage files in VSCode easily.
 
 Other new features and improvements include:
 
-  - [Kubespray and a quick start script](https://github.com/microsoft/pai/tree/master/contrib/kubespray) is introduced for quick deployment of new clusters.
-  - [Support for Azure Active Directory (AAD) authentication](https://github.com/microsoft/pai/blob/master/docs/aad-e2e/aad-e2e.md) is added.
-  - [Storage interface](https://github.com/microsoft/pai/blob/master/docs/setup-persistent-volumes-on-pai.md) has been refactored to use Persistent Volume in Kubernetes.
-  - [A new UX design](https://github.com/microsoft/pai/issues/4024) for webportal.
-  - [RESTful API has been refined](https://github.com/microsoft/pai/issues/4337) and [a swagger document](https://redocly.github.io/redoc/?url=https://raw.githubusercontent.com/microsoft/pai/master/src/rest-server/docs/swagger.yaml) is provided.
-  - [An end-to-end usage manual](https://openpai.readthedocs.io/) is provided for cluster users and administrators.
+  - We introduce [kubespray](https://github.com/microsoft/pai/tree/master/contrib/kubespray) to boot up Kubernetes cluster quickly. Based on kubespray, a [quick start script](https://github.com/microsoft/pai/blob/master/contrib/kubespray/doc/quick-start.md) for you to deploy OpenPAI from scratch.
+  - In addition to basic authentication, we add [support for Azure Active Directory (AAD)](https://github.com/microsoft/pai/blob/master/docs/aad-e2e/aad-e2e.md), which provides single sign-on and multi-factor authentication for users.
+  - [We have refactored built-in storage](https://github.com/microsoft/pai/blob/master/docs/setup-persistent-volumes-on-pai.md) to use Persistent Volume in Kubernetes. It supports more kinds of storage and has a unified interface.
+  - Webportal adopts [a new UX design](https://github.com/microsoft/pai/issues/4024), which looks more modern.
+  - [RESTful API has been refined](https://github.com/microsoft/pai/issues/4337) to be cleaner and more well-organized. [A detailed swagger document](https://redocly.github.io/redoc/?url=https://raw.githubusercontent.com/microsoft/pai/master/src/rest-server/docs/swagger.yaml) is also provided.
+  - In addition to current documents, we provide [an end-to-end usage manual](https://openpai.readthedocs.io/) for cluster users and administrators to learn how to use OpenPAI.
 
 For more details about this release, please refer to [detailed release note](https://github.com/microsoft/pai/releases/tag/v1.0.0).
 
