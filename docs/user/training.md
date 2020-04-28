@@ -94,7 +94,7 @@ The **job configuration** is a JSON file, which is submitted to OpenPAI. The hel
 
 There are two levels of fields in the JSON file. The top level is shared information of the job, including job name, Docker image, task roles, and so on. The second level is taskRoles, it's an array and each item describe a command and its environment.
 
-Below is required fields and [full spec of job configuration](../job_tutorial.md) is here.
+Below is required fields and [full spec of job configuration](../user/job_submission.md) is here.
 
 - **jobName** is the name of current job. It must be unique in each user account. A meaningful name helps managing jobs well.
 
@@ -114,7 +114,7 @@ Below is required fields and [full spec of job configuration](../job_tutorial.md
 
   For single server jobs, there is only one role in taskRoles.
 
-  For distributed jobs, there may be multiple roles in taskRoles. For example, when TensorFlow is used to running distributed job, it has two roles, including parameter server and worker. There are two task roles in the corresponding job configuration, refer to [the example](../job_tutorial.md#a-complete-example) for details.
+  For distributed jobs, there may be multiple roles in taskRoles. For example, when TensorFlow is used to running distributed job, it has two roles, including parameter server and worker. There are two task roles in the corresponding job configuration, refer to [the example](../../marketplace-v2/tensorflow-cifar10.yaml) for details.
 
 - **taskRoles/name** is the name of task role and it's used in environment variables in distributed jobs.
 
@@ -154,7 +154,7 @@ When a job is submitted to OpenPAI, the job's status changes from waiting, to ru
 
 ## Reference
 
-- [Full spec of job configuration](../job_tutorial.md)
+- [Full spec of job configuration](../user/job_submission.md)
 - [Examples](../../examples)
 - [Troubleshooting job failure](troubleshooting_job.md)
 - [How to use storage](storage.md)

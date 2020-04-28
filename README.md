@@ -117,7 +117,7 @@ If FAQ doesn't resolve it, refer to [here](#get-involved) to ask question or sub
 
 As all computing platforms, OpenPAI is a productive tool and to maximize utilization of resources. So, it's recommended to submit training jobs and let OpenPAI to allocate resource and run jobs. If there are too many jobs, some jobs may be queued until enough resource available. This is different experience with running code on dedicated servers, so it needs a bit more knowledge about how to submit and manage jobs on OpenPAI.
 
-Note, besides queuing jobs, OpenPAI also supports to allocate dedicated resources. Users can use SSH or Jupyter Notebook like on a physical server, refer to [here](examples/jupyter/README.md) for details. Though it's not efficient to use resources, but it also saves cost on setup and managing environments on physical servers.
+Note, besides queuing jobs, OpenPAI also supports to allocate dedicated resources. Users can use SSH or Jupyter Notebook like on a physical server. Though it's not efficient to use resources, but it also saves cost on setup and managing environments on physical servers.
 
 ### Submit training jobs
 
@@ -136,7 +136,7 @@ Refer to [here](docs/user/troubleshooting_job.md) for more information about tro
 ## Administration
 
 * [Manage cluster with paictl](docs/paictl/paictl-manual.md)
-* [Monitoring](./docs/webportal/README.md)
+* [Monitoring](./docs/user/job_submission.md)
 * [Upgrade](./docs/upgrade/upgrade_to_v0.14.0.md)
 
 ## Reference
@@ -145,7 +145,7 @@ Refer to [here](docs/user/troubleshooting_job.md) for more information about tro
 
 * [Client tool](https://github.com/Microsoft/openpaivscode/blob/master/VSCodeExt.md)
 * [Use Storage](docs/user/storage.md)
-* [Job configuration](docs/job_tutorial.md)
+* [Job configuration](docs/user/job_submission.md)
 * [RESTful API](docs/rest-server/API.md)
 * Design documents could be found [here](docs) if you are curious.
 
@@ -188,6 +188,6 @@ We are working on a set of major features improvement and refactor, anyone who i
 
 One key purpose of PAI is to support the highly diversified requirements from academia and industry. PAI is completely open: it is under the MIT license. This makes PAI particularly attractive to evaluate various research ideas, which include but not limited to the [components](./docs/research_education.md).
 
-PAI operates in an open model. It is initially designed and developed by [Microsoft Research (MSR)](https://www.microsoft.com/en-us/research/group/systems-research-group-asia/) and [Microsoft Search Technology Center (STC)](https://www.microsoft.com/en-us/ard/company/introduction.aspx) platform team.
+PAI operates in an open model. It is initially designed and developed by [Microsoft Research (MSR)](https://www.microsoft.com/en-us/research/group/systems-research-group-asia/) and [Microsoft Search Technology Center (STC)](https://www.microsoft.com/en-us/ard/overview) platform team.
 We are glad to have [Peking University](http://eecs.pku.edu.cn/EN/), [Xi'an Jiaotong University](http://www.aiar.xjtu.edu.cn/), [Zhejiang University](http://www.cesc.zju.edu.cn/index_e.htm), and [University of Science and Technology of China](http://eeis.ustc.edu.cn/) join us to develop the platform jointly.
 Contributions from academia and industry are all highly welcome.
