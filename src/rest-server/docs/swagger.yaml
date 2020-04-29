@@ -2055,26 +2055,35 @@ components:
           type: integer
         attemptCompletedTime:
           type: integer
+          nullable: true
         exitCode:
           type: integer
+          nullable: true
         exitPhrase:
           type: string
+          nullable: true
         exitType:
           type: string
+          nullable: true
         exitDiagnostics:
           type: object
+          nullable: true
           properties:
             diagnosticsSummary:
               type: string
             runtime:
               type: object
+              nullable: true
               properties:
                 exitCode:
                   type: integer
+                  nullable: true
                 originUserExitCode:
                   type: integer
+                  nullable: true
                 errorLogs:
                   type: object
+                  nullable: true
                   properties:
                     user:
                       type: string
@@ -2086,12 +2095,16 @@ components:
               type: string
         appExitTriggerMessage:
           type: string
+          nullable: true
         appExitTriggerTaskRoleName:
           type: string
+          nullable: true
         appExitTriggerTaskIndex:
           type: integer
+          nullable: true
         appExitSpec:
           type: object
+          nullable: true
           properties:
             code:
               type: integer
@@ -2121,20 +2134,27 @@ components:
                 type: string
         appExitDiagnostics:
           type: string
+          nullable: true
         appExitMessages:
           type: object
+          nullable: true
           properties:
             container:
               type: string
+              nullable: true
             runtime:
               type: object
+              nullable: true
               properties:
                 exitCode:
                   type: integer
+                  nullable: true
                 originUserExitCode:
                   type: integer
+                  nullable: true
                 errorLogs:
                   type: object
+                  nullable: true
                   properties:
                     user:
                       type: string
@@ -2144,6 +2164,7 @@ components:
                   type: string
             launcher:
               type: string
+              nullable: true
         totalGpuNumber:
           type: integer
         totalTasknumber:
@@ -2161,6 +2182,8 @@ components:
                   properties:
                     name:
                       type: string
+                  required:
+                    - name
                 taskStatuses:
                   type: array
                   items:
@@ -2170,16 +2193,29 @@ components:
                         type: integer
                       taskState:
                         type: string
+                        enum:
+                          - WAITING
+                          - RUNNING
+                          - STOPPING
+                          - STOPPED
+                          - SUCCEEDED
+                          - FAILED
+                          - UNKNOWN
                       containerId:
                         type: string
                       containerIp:
                         type: string
                       containerGpus:
                         type: string
+                        nullable: true
                       containerLog:
                         type: string
                       containerExitCode:
                         type: integer
+                        nullable: true
+              required:
+                - taskRoleStatus
+                - taskStatuses
         isLatest:
           type: boolean
     UserInfo:
