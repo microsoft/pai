@@ -11,16 +11,22 @@
 
 [OpenPAI Marketplace](https://github.com/microsoft/openpaimarketplace) can store job examples and templates. You can use marketplace to run-and-learn others' sharing jobs or share your own jobs.
 
-If your administrator enables it, you will find a link in the `Plugin` section on webportal, like:
+## Entrance
 
-<img src="./imgs/marketplace-plugin.png" />
+If your administrator enables marketplace plugin, you will find a link in the `Plugin` section on webportal, like:
 
-To use others' job templates on marketplace, you can click `Submit` directly, and it will bring you to the job submission page.
+> If you are pai admin, you could check [deloyment doc](https://github.com/microsoft/openpaimarketplace/blob/master/docs/deployment.md) to see how to deploy and enable marketplace plugin.
 
-<img src="./imgs/marketplace-submit.png" />
+![plugin](imgs/marketplace-plugin.png)
 
-To create a marketplace template, click the `Create` button on the page. As shown in the following picture, you can create the template from scratch, using an existing job yaml file on disk. You should fill in the template name, introduction and description.
+## Use templates on marketplace
 
-<img src="./imgs/marketplace-create-new.png" />
+The marketplace plugin have some official templates in market list by default, to use the templates on marketplace, you can click `Submit` directly, and it will bring you to the job submission page. Or you could click view button to view the information about this template.
 
-Another approach is to use the yaml in one existing job of your own. Please note you can only create marketplace template from one `Succeeded` job. Jobs with other statuses are not allowed. No matter which approach is used, you should wait for your administrator's approval to make the template available on marketplace.
+![submit](imgs/marketplace-submit.png)
+
+## Create your own templates
+
+To create a marketplace template, click the `Create` button on the page. As shown in the following picture, you could create the template from scratch with a config yaml file. You should fill some nessary info like `name`, `introduction` and `description` etc. Another approach is creating from your existing job in pai platform. You can only create marketplace template from one `Succeeded` job. After creating, your templates will be awaiting for review by platform admin before you could see them in market list.
+
+![create](imgs/marketplace-create-new.png)
