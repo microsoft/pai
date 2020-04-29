@@ -4,6 +4,7 @@
 2. [Docker Images and Job Examples](./docker-images-and-job-examples.md) (this document)
     - [Introduction to Pre-built Docker Images](#introduction-to-pre-built-docker-images)
     - [Job Examples based on Pre-built Images](#job-examples-based-on-pre-built-images)
+    - [Use Your Own Custom Image](#use-your-own-custom-image)
     - [How to use Images from Private Registry](#how-to-use-images-from-private-registry)
 3. [How to Manage Data](./how-to-manage-data.md)
 4. [How to Debug Jobs](./how-to-debug-jobs.md)
@@ -56,6 +57,9 @@ The tag of these images indicates the version of the built-in deep learning fram
 
 There are also CPU/GPU/Multi-GPU/Horovod job examples for TensorFlow. Please check [tensorflow_cifar10](https://github.com/microsoft/pai/blob/pai-for-edu/contrib/edu-examples/tensorflow_cifar10) for details.
 
+## Use Your Own Custom Image
+
+If you want to build your own custom image instead of pre-built image, it is recommended to build based on ubuntu system, which includes bash, apt and other required dependency. Then you could add any requirements your job needs in the docker image, for example python, pip and tensorflow etc. Please take care of potential conflicts when adding additional dependencies.
 
 ## How to use Images from Private Registry
 
