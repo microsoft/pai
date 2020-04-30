@@ -10,7 +10,14 @@ Please refer to the [system architecture](https://github.com/microsoft/pai/blob/
   - [openpai-protocol](https://github.com/microsoft/openpai-protocol) is the specification of OpenPAI job protocol. It facilitates platform interoperability and job portability. A job described by the protocol can run on different clusters managed by OpenPAI. The protocol also enables great flexibility. Any AI workload can be described by it conveniently.
   - [openpai-runtime](https://github.com/microsoft/openpai-runtime) provides runtime support which is necessary for the OpenPAI protocol. OpenPAI runtime can classify typical runtime error patterns and prevent unnecessay error retries. Therefore cluster resource can be saved.
   - [openpaisdk](https://github.com/microsoft/openpaisdk) is a JavaScript SDK designed to facilitate the developers of OpenPAI to offer more user-friendly experience.
-  - [openpaimarketplace](https://github.com/microsoft/openpaimarketplace) is a webportal plugin, which stores examples and job templates. Users can use `openpaimarketplace` to share their jobs or run-and-learn others' sharing job. It enables cluster-level job templating and reuse.
+  - [openpaimarketplace](https://github.com/microsoft/openpaimarketplace) is a service which stores examples and job templates. Users can use it from webportal plugin to share their jobs or run-and-learn others' sharing job.
+
+    Features:
+  
+    1. Provide a way for team collaboration among pai users.
+    2. Provide an easy-to-start and education for new users. Users could refer to shared templates in marketplace and learn how to use pai platform correct.
+    3. Provide admin review process to ensure the quality of templates in marketplace.
+  
   - [openpaivscode](https://github.com/microsoft/openpaivscode) is a VSCode extension, which makes users connect OpenPAI clusters, submit AI jobs, simulate jobs locally and manage files in VSCode easily.
 
 Other major new features and improvements come with this new release are:
