@@ -15,7 +15,7 @@ Please refer to the [system architecture](https://github.com/microsoft/pai/blob/
     Features:
   
     1. Provide a way for team collaboration among pai users.
-    2. Provide a easy-to-start and education for new users. Users could refer to shared templates in marketplace and learn how to use pai platform correct.
+    2. Provide an easy-to-start and education for new users. Users could refer to shared templates in marketplace and learn how to use pai platform correct.
     3. Provide admin review process to ensure the quality of templates in marketplace.
   
   - [openpaivscode](https://github.com/microsoft/openpaivscode) is a VSCode extension, which makes users connect OpenPAI clusters, submit AI jobs, simulate jobs locally and manage files in VSCode easily.
