@@ -58,5 +58,7 @@ docker_image_tag: <% latest-release %>
 # kube_image_repo: "gcr.io/google-containers"
 # quay_image_repo: "quay.io"
 # docker_image_repo: "docker.io"
+# kubeadm_download_url: "https://storage.googleapis.com/kubernetes-release/release/{{ kubeadm_version }}/bin/linux/{{ image_arch }}/kubeadm"
+# hyperkube_download_url: "https://storage.googleapis.com/kubernetes-release/release/{{ kube_version }}/bin/linux/{{ image_arch }}/hyperkube"
 
 # openpai_kube_network_plugin: weave

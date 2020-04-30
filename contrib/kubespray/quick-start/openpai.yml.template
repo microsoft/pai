@@ -382,6 +382,14 @@ quay_image_repo: "{{ env['cfg']['quay_image_repo'] }}"
 docker_image_repo: "{{ env['cfg']['docker_image_repo'] }}"
 {%- endif %}
 
+{%- if 'kubeadm_download_url' in env['cfg'] %}
+kubeadm_download_url: "{{ env['cfg']['kubeadm_download_url'] }}"
+{%- endif %}
+
+{%- if 'hyperkube_download_url' in env['cfg'] %}
+hyperkube_download_url: "{{ env['cfg']['hyperkube_download_url'] }}"
+{%- endif %}
+
 # Choose network plugin (cilium, calico, contiv, weave or flannel. Use cni for generic cni plugin)
 # Can also be set to 'cloud', which lets the cloud provider setup appropriate routing
 kube_network_plugin: {{ env["cfg"]['openpai_kube_network_plugin'] | default('weave') }}
