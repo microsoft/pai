@@ -19,12 +19,12 @@ cluster:
     domain: {{ env["cfg"]['docker_registry_domain'] | default('docker.io') }}
     # If the docker registry doesn't require authentication, please comment username and password
     {% if "docker_registry_username" in env["cfg"] %}
-    username: env["cfg"]["docker_registry_username"]
+    username: {{ env["cfg"]["docker_registry_username"] }}
     {% else %}
     #username: <username>
     {% endif %}
-    {% if "docker_registry_password:" in env["cfg"] %}
-    password: env["cfg"]["docker_registry_password"]
+    {% if "docker_registry_password" in env["cfg"] %}
+    password: {{ env["cfg"]["docker_registry_password"] }}
     {% else %}
     #password: <password>
     {% endif %}
@@ -66,7 +66,7 @@ postgresql:
 hivedscheduler:
   config: |
     physicalCluster:
-      gpuTypes:
+      skuTypes:
         DT:
           gpu: 1
           cpu: {{ env["hived"]["unit-cpu"] }}
