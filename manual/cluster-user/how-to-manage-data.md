@@ -51,10 +51,14 @@ The `NFS_SERVER` and `NFS_PATH` can be found in the storage section on your prof
 
 #### Upload data to NFS server in Windows
 
-You could access `NFS` by `Windows File Explore` directly if:
+`storage-manager` will setup a `samba` server for data accessing.
+
+You could access `NFS` data by `Windows File Explore` directly if:
 
   - The cluster administrator setup `NFS` by `storage-manager`.
-  - The cluster administrator enables AAD authentication mode.
+
+In AAD authentication mode, you can access nfs data through user domain name and password.
+In basic authentication mode, you can access nfs data through the configured username and password. The default username/password is: `smbuser/smbpwd`.
 
 Please contact your administrator to confirm. If the administrator's setting is correct, you can use the file location `\\NFS_SERVER_ADDRESS` in `File Explore` to access data. (Please make sure the `network discovery` is on)
 
