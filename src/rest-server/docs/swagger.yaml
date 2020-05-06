@@ -1970,7 +1970,7 @@ components:
             - other
             - unknown
         data:
-          oneOf:
+          anyOf:
             - type: object
               description: nfs type
               properties:
