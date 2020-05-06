@@ -110,8 +110,8 @@ def pod_is_ready_or_not(label_key, label_value, service_name):
         for container in pod.status.container_statuses:
             if container.ready != True:
                 unready = unready + 1
-            else:
-                ready = ready + 1
+                continue
+        ready = ready + 1
 
     if unready != 0:
         logger.info("{0} is not ready.".format(service_name))
