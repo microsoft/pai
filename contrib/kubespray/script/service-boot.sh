@@ -62,7 +62,7 @@ sleep 5
 
 echo "starting AMD device plugin to detect AMD gpu resource"
 kubectl apply --overwrite=true -f https://raw.githubusercontent.com/RadeonOpenCompute/k8s-device-plugin/master/k8s-ds-amdgpu-dp.yaml || exit $?
-sleep5
+sleep 5
 
 python3 /root/pai/contrib/kubespray/script/openpai-generator.py -m /quick-start-config/master.csv -w /quick-start-config/worker.csv -c /quick-start-config/config.yml -o /cluster-configuration || exit $?
 
@@ -83,7 +83,7 @@ echo -e "pai\n" | python paictl.py config push -p /cluster-configuration -m serv
 echo -e "pai\n" | python paictl.py service start
 EOF_DEV_BOX
 
-if [ $? -eq 0 ]; then
+if [ $? -ne 0 ]; then
   cleanup
   exit 1
 else
