@@ -72,7 +72,7 @@ http {
     include location.conf;
   }
 
-  {% if AUTH_MODE %}
+  {% if SSL_ENABLE %}
   # proxy https://x.x.x.x/rest-server/auth/oidc/return to http://x.x.x.x/rest-server/auth/oidc/return
   server {
     listen  443 ssl;
