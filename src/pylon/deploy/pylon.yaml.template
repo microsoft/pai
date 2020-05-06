@@ -53,7 +53,7 @@ spec:
               value: cluster_cfg["cluster"]["common"]["cluster-type"]
 {% if 'ssl' in cluster_cfg['pylon'] %}
             - name: SSL_ENABLE
-              value: true
+              value: 'true'
             - name: CRT_NAME
               value: '{{ cluster_cfg['pylon']['ssl']['crt_name'] }}'
             - name: KEY_NAME
