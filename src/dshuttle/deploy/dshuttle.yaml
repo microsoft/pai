@@ -41,7 +41,7 @@ spec:
                   operator: In
                   values:
                   - "true"
-      hostNetwork: true
+      hostNetwork: false
       containers:
       - name: dshuttle-master
         image: dshuttle/dshuttle:latest
@@ -49,10 +49,10 @@ spec:
         securityContext:
           runAsUser: 1000
           runAsGroup: 1000
-#        resources:
-#          requests:
-#            cpu: 2
-#            memory: 4G
+        resources:
+          requests:
+            cpu: 4
+            memory: 8G
         command: ["/entrypoint.sh"]
         args:
         - master-only
@@ -80,8 +80,8 @@ spec:
           runAsGroup: 1000
         resources:
           limits:
-            cpu: 1
-            memory: 1G
+            cpu: 4
+            memory: 6G
           requests:
             cpu: 1
             memory: 1G

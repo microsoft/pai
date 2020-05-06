@@ -1,17 +1,17 @@
 apiVersion: apps/v1
 kind: DaemonSet
 metadata:
-  name: dshuttle-fuse
+  name: dshuttle-fuse-2
   labels:
-    app: dshuttle-fuse
+    app: dshuttle-fuse-2
 spec:
   selector:
     matchLabels:
-      app: dshuttle-fuse
+      app: dshuttle-fuse-2
   template:
     metadata:
       labels:
-        app: dshuttle-fuse
+        app: dshuttle-fuse-2
     spec:
       hostNetwork: true
       dnsPolicy: ClusterFirstWithHostNet
@@ -38,7 +38,7 @@ spec:
               - SYS_ADMIN
         image: dshuttle/dshuttle-fuse:latest
         command: ["/bin/sh"]
-        args: ["-c", "fusermount -u /mnt/fuse || true"]
+        args: ["-c", "fusermount -u /mnt/fuse2 || true"]
         volumeMounts:
         - name: dshuttle-fuse-device
           mountPath: /dev/fuse
@@ -97,7 +97,7 @@ spec:
             type: File
         - name: dshuttle-fuse-mount
           hostPath:
-            path: /mnt/dshuttle/fuse
+            path: /mnt/dshuttle/fuse2
             type: DirectoryOrCreate
         - name: dshuttle-fuse-parent
           hostPath:

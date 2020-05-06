@@ -91,7 +91,7 @@ spec:
               cpu: 2
               memory: 2G
             requests:
-              cpu: 1
+              cpu: 0.4
               memory: 1G
           command: ["/entrypoint.sh"]
           args:

@@ -546,7 +546,7 @@ const generateTaskRole = (frameworkName, taskRole, jobInfo, frameworkEnvList, co
             {
               name: 'dshuttle',
               hostPath: {
-                path: '/mnt/dshuttle/fuse',
+                path: '/mnt/dshuttle',
               },
             },
           ],
