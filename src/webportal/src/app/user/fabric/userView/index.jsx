@@ -176,7 +176,12 @@ export default function UserView() {
     user: {},
   });
   const addUser = () => {
-    setUserEditor({ isOpen: true, isCreate: true, user: {} });
+    // every user has access to `default` vc
+    setUserEditor({
+      isOpen: true,
+      isCreate: true,
+      user: { virtualCluster: ['default'] },
+    });
   };
   const editUser = user => {
     setUserEditor({ isOpen: true, isCreate: false, user });
