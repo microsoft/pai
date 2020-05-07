@@ -127,6 +127,8 @@ const UserProfile = () => {
 
   const onEditProfile = useCallback(async ({ email }) => {
     await updateUserEmailRequest(userInfo.username, email);
+    const newUserInfo = await getUserRequest(cookies.get('user'));
+    setUserInfo(newUserInfo);
   });
 
   const onEditPassword = useCallback(async ({ oldPassword, newPassword }) => {
