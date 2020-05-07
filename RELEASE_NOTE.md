@@ -21,6 +21,8 @@ Please refer to the [system architecture](https://github.com/microsoft/pai/blob/
   
   - [openpaivscode](https://github.com/microsoft/openpaivscode) is a VSCode extension, which makes users connect OpenPAI clusters, submit AI jobs, simulate jobs locally and manage files in VSCode easily.
 
+The version of each standalone repo used in OpenPAI `v1.0.0` is hivedscheduler `v0.3.2`, frameworkcontroller `v0.6.0`, openpai-protocol `v2.0.0-alpha`, openpai-runtime `v0.1.0`, openpaisdk `v0.1.0`, openpaimarketplace `v1.2.0` and openpaivscode `v0.3.0`.
+
 Other major new features and improvements come with this new release are:
 
   - Based on [kubespray](https://github.com/microsoft/pai/tree/master/contrib/kubespray), we provided a [quick start script](https://github.com/microsoft/pai/blob/master/contrib/kubespray/doc/quick-start.md) for you to deploy OpenPAI from scratch faster.
