@@ -19,7 +19,7 @@ OpenPAI is an open source platform that provides complete AI model training and 
 2. [Why choose OpenPAI](#why-choose-openpai)
 3. [Get started](#get-started)
     - [Manual for cluster administrators](#manual-for-cluster-administrators)
-   x - [Manual for cluster users](#manual-for-cluster-users)
+    - [Manual for cluster users](#manual-for-cluster-users)
 4. [Reference](#reference)
 5. [Get involved](#get-involved)
 6. [How to contribute](#how-to-contribute)
