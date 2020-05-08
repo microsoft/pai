@@ -175,8 +175,7 @@ contact [opencode@microsoft.com](mailto:opencode@microsoft.com) with any additio
 
 We are working on a set of major features improvement and refactor, anyone who is familiar with the features is encouraged to join the design review and discussion in the corresponding issue ticket.
 
-* OpenPAI virtual cluster design. [Issue 1754](https://github.com/Microsoft/pai/issues/1754)
-* OpenPAI protocol design. [Issue 2007](https://github.com/Microsoft/pai/issues/2007)
+* GPU fairness usage [Issue 4266](https://github.com/Microsoft/pai/issues/4266)
 
 ### Who should consider contributing to OpenPAI
 
