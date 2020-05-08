@@ -18,12 +18,11 @@ OpenPAI is an open source platform that provides complete AI model training and 
 1. [When to consider OpenPAI](#when-to-consider-openpai)
 2. [Why choose OpenPAI](#why-choose-openpai)
 3. [Get started](#get-started)
-4. [Deploy OpenPAI](#deploy-openpai)
-5. [Train models](#train-models)
-6. [Administration](#administration)
-7. [Reference](#reference)
-8. [Get involved](#get-involved)
-9. [How to contribute](#how-to-contribute)
+  - [Manual for cluster administrators](manual-for-cluster-administrators)
+  - [Manual for cluster users](manual-for-cluster-users)
+4. [Reference](#reference)
+5. [Get involved](#get-involved)
+6. [How to contribute](#how-to-contribute)
 
 ## When to consider OpenPAI
 
@@ -62,91 +61,56 @@ We encourage researchers and students leverage these projects to accelerate the 
 
 OpenPAI manages computing resources and is optimized for deep learning. Through docker technology, the computing hardware are decoupled with software, so that it's easy to run distributed jobs, switch with different deep learning frameworks, or run other kinds of jobs on consistent environments.
 
-As OpenPAI is a platform, [deploy a cluster](#deploy-a-cluster) is first step before using. A single server is also supported to deploy OpenPAI and manage its resource.
+As OpenPAI is a platform, there might be two different roles who are involved. One is the cluster administrator, and the other is the cluster user. We provide end-to-end manuals for different roles.
 
-If the cluster is ready, learn from [train models](#train-models) about how to use it.
+### Manual for cluster administrators
 
-## Deploy OpenPAI
+The [admin manual](https://openpai.readthedocs.io/en/latest/manual/cluster-admin/README.html) introduces the installation and uninstallation of OpenPAI, some basic management operations, storage management, troubleshootiong, etc.
 
-Follow this part to check prerequisites, deploy and validate an OpenPAI cluster. More servers can be added as needed after initial deployed.
+#### Installation
 
-It's highly recommended to try OpenPAI on server(s), which has no usage and service. Refer to [here](https://github.com/Microsoft/pai/wiki/Resource-Requirement) for hardware specification.
+The first thing an administrator should do is to install OpenPAI. You can refer to the [installation guide](https://openpai.readthedocs.io/en/latest/manual/cluster-admin/installation-guide.html) in the manual for instruction.
 
-### Prerequisites and preparation
+If there is any question during deployment, check [FAQ](https://openpai.readthedocs.io/en/latest/manual/cluster-admin/installation-faqs-and-troubleshooting.html) firstly. If FAQ doesn't resolve it, refer to [here](#get-involved) to ask question or submit an issue.
 
-* Ubuntu 16.04 (18.04 should work, but not fully tested.)
-* Assign each server a static IP address, and make sure servers can communicate each other.
-* Server can access internet, especially need to have access to the docker hub registry service or its mirror. Deployment process will pull Docker images of OpenPAI.
-* SSH service is enabled and share the same username/password and have sudo privilege.
-* NTP service is enabled.
-* Recommend not to install docker or docker's version must be higher than 1.26.
-* OpenPAI reserves memory and CPU for service running, so make sure there are enough resource to run machine learning jobs. Check [hardware requirements](https://github.com/Microsoft/pai/wiki/Resource-Requirement) for details.
-* Dedicated servers for OpenPAI. OpenPAI manages all CPU, memory and GPU resources of servers. If there is any other workload, it may cause unknown problem due to insufficient resource.
-
-### Deploy
-
-The [Deploy with default configuration](#Deploy-with-default-configuration) part is minimum steps to deploy an OpenPAI cluster, and it's suitable for most small and middle size clusters within 50 servers. Base on the default configuration, the customized deployment can optimize the cluster for different hardware environments and use scenarios.
-
-#### Deploy with default configuration
-
-For a small or medium size cluster, which is less than 50 servers, it's recommended to [deploy with default configuration](docs/pai-management/doc/distributed-deploy.md). if there is only one powerful server, refer to [deploy OpenPAI as a single box](docs/pai-management/doc/single-box.md).
-
-For a large size cluster, this section is still needed to generate default configuration, then [customize the deployment](#customize-deployment).
-
-#### Customize deployment
-
-As various hardware environments and different use scenarios, default configuration of OpenPAI may need to be optimized. Following [Customize deployment](docs/pai-management/doc/how-to-generate-cluster-config.md#Optional-Step-3.-Customize-configure-OpenPAI) part to learn more details.
-
-### Validate deployment
-
-After deployment, it's recommended to [validate key components of OpenPAI](docs/pai-management/doc/validate-deployment.md) in health status. After validation is success, [submit a hello-world job](docs/user/training.md) and check if it works end-to-end.
-
-### Train users before "train models"
+#### Train users before "train models"
 
 The common practice on OpenPAI is to submit job requests, and wait jobs got computing resource and executed. It's different experience with assigning dedicated servers to each one. People may feel computing resource is not in control and the learning curve may be higher than run job on dedicated servers. But shared resource on OpenPAI can improve utilization of resources and save time on maintaining environments.
 
-For administrators of OpenPAI, a successful deployment is first step, the second step is to let users of OpenPAI understand benefits and know how to use it. Users  can learn from [Train models](#train-models). But below section of training models is for various scenarios and maybe users don't need all of them. So, administrators can create simplified documents as users' actual scenarios.
+For administrators of OpenPAI, a successful deployment is first step, the second step is to let users of OpenPAI understand benefits and know how to use it. Users can learn from [the user manual](https://openpai.readthedocs.io/en/latest/manual/cluster-user/README.html). But it is for various scenarios and maybe users don't need all of them. So, administrators can create simplified documents as users' actual scenarios.
 
-### FAQ
+#### Administration
 
-If there is any question during deployment, check [here](docs/faq.md#deploy-and-maintenance-related-faqs) firstly.
+Some other contents in the [admin manual](https://openpai.readthedocs.io/en/latest/manual/cluster-admin/README.html):
 
-If FAQ doesn't resolve it, refer to [here](#get-involved) to ask question or submit an issue.
+* [Manage cluster on webportal](https://openpai.readthedocs.io/en/latest/manual/cluster-admin/basic-management-operations.html#management-on-webportal)
+* [Manage cluster with paictl](https://openpai.readthedocs.io/en/latest/manual/cluster-admin/basic-management-operations.html#pai-service-management-and-paictl)
+* [Set up storage](https://openpai.readthedocs.io/en/latest/manual/cluster-admin/how-to-set-up-storage.html)
 
-## Train models
+Please refer to [here](https://openpai.readthedocs.io/en/latest/manual/cluster-admin/README.html) for the full contents.
+
+### Manual for cluster users
+
+The [user manual](https://openpai.readthedocs.io/en/latest/manual/cluster-user/README.html) introduces how to submit job, debug job, manage data, use Marketplace and VSCode extension.
+
+#### Quick Start
+
+Follow [the quick start tutorial](https://openpai.readthedocs.io/en/latest/manual/cluster-user/quick-start.html) to learn more how to train models on OpenPAI. It's a good start to learn How to use OpenPAI.
+
+#### Client tool
+
+[OpenPAI VS Code Client](https://openpai.readthedocs.io/en/latest/manual/cluster-user/use-vscode-extension.html) is a friendly, GUI based client tool of OpenPAI, and it's highly recommended. It's an extension of Visual Studio Code. It can submit job, simulate jobs locally, manage multiple OpenPAI environments, and so on.
 
 As all computing platforms, OpenPAI is a productive tool and to maximize utilization of resources. So, it's recommended to submit training jobs and let OpenPAI to allocate resource and run jobs. If there are too many jobs, some jobs may be queued until enough resource available. This is different experience with running code on dedicated servers, so it needs a bit more knowledge about how to submit and manage jobs on OpenPAI.
 
-Note, besides queuing jobs, OpenPAI also supports to allocate dedicated resources. Users can use SSH or Jupyter Notebook like on a physical server. Though it's not efficient to use resources, but it also saves cost on setup and managing environments on physical servers.
-
-### Submit training jobs
-
-Follow [the job submission tutorial](docs/user/job_submission.md) to learn more how to train models on OpenPAI. It's a good start to learn How to use OpenPAI.
-
-### Client tool
-
-[OpenPAI VS Code Client](https://github.com/Microsoft/openpaivscode/blob/master/VSCodeExt.md) is a friendly, GUI based client tool of OpenPAI, and it's highly recommended. It's an extension of Visual Studio Code. It can submit job, simulate jobs locally, manage multiple OpenPAI environments, and so on.
-
-### Troubleshooting job failure
-
-Web UI and job log are helpful to analyze job failure, and OpenPAI supports SSH for debugging.
-
-Refer to [here](docs/user/troubleshooting_job.md) for more information about troubleshooting job failure.
-
-## Administration
-
-* [Manage cluster with paictl](docs/paictl/paictl-manual.md)
-* [Monitoring](./docs/user/job_submission.md)
-* [Upgrade](./docs/upgrade/upgrade_to_v0.14.0.md)
+Note, besides queuing jobs, OpenPAI also supports to allocate dedicated resources. Users can [use SSH](https://openpai.readthedocs.io/en/latest/manual/cluster-user/how-to-debug-jobs.html#how-to-use-ssh) or Jupyter Notebook like on a physical server. Though it's not efficient to use resources, but it also saves cost on setup and managing environments on physical servers. Please refer to [here](https://openpai.readthedocs.io/en/latest/manual/cluster-user/README.html) for full contents of user manual.
 
 ## Reference
 
-### Users
-
 * [Client tool](https://github.com/Microsoft/openpaivscode/blob/master/VSCodeExt.md)
-* [Use Storage](docs/user/storage.md)
-* [Job configuration](docs/user/job_submission.md)
-* [RESTful API](docs/rest-server/API.md)
+* [Set up storage](https://openpai.readthedocs.io/en/latest/manual/cluster-admin/how-to-set-up-storage.html) and [Use Storage](https://openpai.readthedocs.io/en/latest/manual/cluster-user/how-to-manage-data.html)
+* [Job protocol](https://github.com/microsoft/openpai-protocol)
+* [RESTful API](https://redocly.github.io/redoc/?url=https://raw.githubusercontent.com/microsoft/pai/master/src/rest-server/docs/swagger.yaml)
 * Design documents could be found [here](docs) if you are curious.
 
 ## Get involved
