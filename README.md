@@ -19,7 +19,7 @@ OpenPAI is an open source platform that provides complete AI model training and 
 2. [Why choose OpenPAI](#why-choose-openpai)
 3. [Get started](#get-started)
     - [Manual for cluster administrators](#manual-for-cluster-administrators)
-    - [Manual for cluster users](#manual-for-cluster-users)
+   x - [Manual for cluster users](#manual-for-cluster-users)
 4. [Reference](#reference)
 5. [Get involved](#get-involved)
 6. [How to contribute](#how-to-contribute)
@@ -108,7 +108,7 @@ Note, besides queuing jobs, OpenPAI also supports to allocate dedicated resource
 ## Reference
 
 * [Client tool](https://github.com/Microsoft/openpaivscode/blob/master/VSCodeExt.md)
-* [Set up storage](https://openpai.readthedocs.io/en/latest/manual/cluster-admin/how-to-set-up-storage.html) and [Use Storage](https://openpai.readthedocs.io/en/latest/manual/cluster-user/how-to-manage-data.html)
+* [Set up storage](https://openpai.readthedocs.io/en/latest/manual/cluster-admin/how-to-set-up-storage.html) and [use storage](https://openpai.readthedocs.io/en/latest/manual/cluster-user/how-to-manage-data.html)
 * [Job protocol](https://github.com/microsoft/openpai-protocol)
 * [RESTful API](https://redocly.github.io/redoc/?url=https://raw.githubusercontent.com/microsoft/pai/master/src/rest-server/docs/swagger.yaml)
 * Design documents could be found [here](docs) if you are curious.
