@@ -556,7 +556,7 @@ const basicUserUpdate = async (req, res, next) => {
       }
     }
     return res.status(201).json({
-      message: 'Update user ${username} successfully',
+      message: `Update user ${username} successfully`,
     });
   } catch (error) {
     return next(createError.unknown((error)));
