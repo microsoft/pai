@@ -183,7 +183,12 @@ const convertTaskDetail = async (taskStatus, ports, logPathPrefix) => {
   if (ports) {
     const randomPorts = JSON.parse(ports);
     for (let port of Object.keys(randomPorts)) {
-      containerPorts[port] = randomPorts[port].start + taskStatus.index * randomPorts[port].count;
+      const portNums = [...Array(randomPorts[port].count).keys()].map((index) => {
+        const rawString = taskStatus.attemptStatus.podUID + port + index;
+        // schedule ports in [20000, 40000) randomly
+        return parseInt(crypto.createHash('md5').update(rawString).digest('hex'), 16) % 20000 + 20000;
+      });
+      containerPorts[port] = portNums.join();
     }
   }
   // get affinity group name
@@ -329,11 +334,10 @@ const generateTaskRole = (frameworkName, taskRole, jobInfo, frameworkEnvList, co
       ports[port] = 1;
     }
   }
-  // schedule ports in [20000, 40000) randomly
+
   const randomPorts = {};
   for (let port of Object.keys(ports)) {
     randomPorts[port] = {
-      start: Math.floor((Math.random() * 20000) + 20000),
       count: ports[port],
     };
   }
