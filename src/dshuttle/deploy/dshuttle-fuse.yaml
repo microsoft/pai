@@ -51,8 +51,8 @@ spec:
           imagePullPolicy: IfNotPresent
           resources:
             limits:
-              cpu: 6
-              memory: 8G
+              cpu: 24
+              memory: 180G
             requests:
               cpu: 0.5 
               memory: 1G
@@ -66,7 +66,7 @@ spec:
               fieldRef:
                 fieldPath: status.hostIP
           - name: ALLUXIO_CLIENT_JAVA_OPTS
-            value: " -Dalluxio.user.hostname=$(ALLUXIO_CLIENT_HOSTNAME) -Dalluxio.worker.hostname=$(ALLUXIO_CLIENT_HOSTNAME)  -XX:MaxDirectMemorySize=2g "
+            value: " -Dalluxio.user.hostname=$(ALLUXIO_CLIENT_HOSTNAME) -Dalluxio.worker.hostname=$(ALLUXIO_CLIENT_HOSTNAME)  -XX:MaxDirectMemorySize=8g -Xmx8g"
           securityContext:
             privileged: true
             capabilities:
