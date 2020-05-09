@@ -13,6 +13,18 @@ OpenPAI is an open source platform that provides complete AI model training and 
 
 **OpenPAI [v0.14.0](./RELEASE_NOTE.md#july-2019-version-0140) has been released!**
 
+A brief comparison between `v0.14.0` and `v1.0.0`:
+
+|                   | `v0.14.0`               | `v1.0.0`               |
+| ----------------- | ----------------------- | ---------------------- |
+| Architecture      | Kubernetes + Yarn       | Kubernetes             |
+| Scheduler         | Yarn Scheduler          | HiveD / K8S default    |
+| Job Orchestrating | Yarn Framework Launcher | Framework Controller   |
+| RESTful API       | v1 + v2                 | pure v2                |
+| Storage           | Team-wise storage plugin| PV/PVC storage sharing |
+| Marketplace       | Marketplace v2          | openpaimarketplace     |
+| SDK               | Python                  | JavaScript / TypeScript|
+
 ## Table of Contents
 
 1. [When to consider OpenPAI](#when-to-consider-openpai)
