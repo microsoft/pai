@@ -180,13 +180,14 @@ const convertFrameworkSummary = (framework) => {
 const convertTaskDetail = async (taskStatus, ports, logPathPrefix) => {
   // get container ports
   const containerPorts = {};
-  if (ports) {
+  if (ports && taskStatus.attemptStatus.podUID) {
     const randomPorts = JSON.parse(ports);
     for (let port of Object.keys(randomPorts)) {
       const portNums = [...Array(randomPorts[port].count).keys()].map((index) => {
         const rawString = taskStatus.attemptStatus.podUID + port + index;
         // schedule ports in [20000, 40000) randomly
-        return parseInt(crypto.createHash('md5').update(rawString).digest('hex'), 16) % 20000 + 20000;
+        return parseInt(crypto.createHash('md5').update(rawString)
+          .digest('hex').substring(0, 12), 16) % 20000 + 20000;
       });
       containerPorts[port] = portNums.join();
     }
