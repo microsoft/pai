@@ -216,7 +216,7 @@ paths:
                   - user
                   - admin
         '400':
-          description: NoUserError or IncorrectPassworkError
+          description: NoUserError or IncorrectPasswordError
           content:
             application/json:
               schema:
@@ -2252,16 +2252,16 @@ components:
         - email
         - extension
   responses:
-    IncorrectPassworkError:
-      description: IncorrectPassworkError
+    IncorrectPasswordError:
+      description: IncorrectPasswordError
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/Response'
           examples:
-            IncorrectPassworkError:
+            IncorrectPasswordError:
               value:
-                code: IncorrectPassworkError
+                code: IncorrectPasswordError
                 message: Password is incorrect.
     NoVirtualClusterError:
       description: NoVirtualClusterError
