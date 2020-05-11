@@ -1,6 +1,6 @@
-# Migrate From Yarn Version to v1.0.0
+# Migrate From YARN Version to v1.0.0
 
-There are breaking changes between OpenPAI v0.14.0 and v1.0.0. Before v1.0.0, OpenPAI was based on Yarn and Kubernetes, and data was managed by HDFS. Since v1.0.0, OpenPAI has switched to a pure Kubernetes-based architecture. Many new features, such as `AAD authorization`, `Hivedscheduler`, `Kube Runtime`, `Marketplace`, etc., are also included in this release.
+There are breaking changes between OpenPAI v0.14.0 and v1.0.0. Before v1.0.0, OpenPAI was based on Hadoop YARN and Kubernetes, and data was managed by HDFS. Since v1.0.0, OpenPAI has switched to a pure Kubernetes-based architecture. Many new features, such as `AAD authorization`, `Hivedscheduler`, `Kube Runtime`, `Marketplace`, etc., are also included in this release.
 
 This document is an instruction about how to migrate OpenPAI from previous yarn version to v1.0.0. The upgrade contains three phases:
 
