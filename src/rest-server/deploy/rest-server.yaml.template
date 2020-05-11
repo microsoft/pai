@@ -93,6 +93,10 @@ spec:
           value: "{{ cluster_cfg['rest-server']['rate-limit-list-job-per-min'] }}"
         - name: RATE_LIMIT_SUBMIT_JOB_PER_HOUR
           value: "{{ cluster_cfg['rest-server']['rate-limit-submit-job-per-hour'] }}"
+        - name: SCHEDULE_PORT_START
+          value "{{ cluster_cfg['rest-server']['schedule-port-start'] }}"
+        - name: SCHEDULE_PORT_END
+          value "{{ cluster_cfg['rest-server']['schedule-port-end'] }}"
         - name: JWT_SECRET
           value: {{ cluster_cfg['rest-server']['jwt-secret'] }}
         - name: JWT_TOKEN_EXPIRE_TIME

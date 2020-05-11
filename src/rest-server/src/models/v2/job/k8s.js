@@ -37,6 +37,7 @@ const fs = require('fs');
 const _ = require('lodash');
 const logger = require('@pai/config/logger');
 const {apiserver} = require('@pai/config/kubernetes');
+const {schedulePort} = require('@pai/config/schedule-port');
 
 let exitSpecPath;
 if (process.env[env.exitSpecPath]) {
@@ -54,10 +55,6 @@ const exitSpecMap = {};
 exitSpecList.forEach((val) => {
   exitSpecMap[val.code] = val;
 });
-
-// schedule ports range is [20000, 40000)
-const portStart = 20000;
-const portEnd = 40000;
 
 const convertName = (name) => {
   // convert framework name to fit framework controller spec
@@ -346,7 +343,7 @@ const generateTaskRole = (frameworkName, taskRole, jobInfo, frameworkEnvList, co
     }
   }
 
-  const randomPorts = {portStart: portStart, portEnd: portEnd, ports: {}};
+  const randomPorts = {portStart: schedulePort.start, portEnd: schedulePort.end, ports: {}};
   for (let port of Object.keys(ports)) {
     randomPorts.ports[port] = {
       count: ports[port],
