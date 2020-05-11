@@ -55,6 +55,10 @@ exitSpecList.forEach((val) => {
   exitSpecMap[val.code] = val;
 });
 
+// schedule ports range is [20000, 40000)
+const portStart = 20000;
+const portEnd = 40000;
+
 const convertName = (name) => {
   // convert framework name to fit framework controller spec
   return name.toLowerCase().replace(/[^a-z0-9]/g, '');
@@ -182,14 +186,20 @@ const convertTaskDetail = async (taskStatus, ports, logPathPrefix) => {
   const containerPorts = {};
   if (ports && taskStatus.attemptStatus.podUID) {
     const randomPorts = JSON.parse(ports);
-    for (let port of Object.keys(randomPorts)) {
-      const portNums = [...Array(randomPorts[port].count).keys()].map((index) => {
-        const rawString = taskStatus.attemptStatus.podUID + port + index;
-        // schedule ports in [20000, 40000) randomly
-        return parseInt(crypto.createHash('md5').update(rawString)
-          .digest('hex').substring(0, 12), 16) % 20000 + 20000;
-      });
-      containerPorts[port] = portNums.join();
+    if (randomPorts.ports) {
+      for (let port of Object.keys(randomPorts.ports)) {
+        const portNums = [...Array(randomPorts.ports[port].count).keys()].map((index) => {
+          const rawString = taskStatus.attemptStatus.podUID + port + index;
+          return parseInt(crypto.createHash('md5').update(rawString)
+            .digest('hex').substring(0, 12), 16) % (randomPorts.portEnd - randomPorts.portStart) + randomPorts.portStart;
+        });
+        containerPorts[port] = portNums.join();
+      }
+    } else {
+      // for backward compability
+      for (let port of Object.keys(randomPorts.ports)) {
+        containerPorts[port] = randomPorts[port].start + taskStatus.index * randomPorts[port].count;
+      }
     }
   }
   // get affinity group name
@@ -336,9 +346,9 @@ const generateTaskRole = (frameworkName, taskRole, jobInfo, frameworkEnvList, co
     }
   }
 
-  const randomPorts = {};
+  const randomPorts = {portStart: portStart, portEnd: portEnd, ports: {}};
   for (let port of Object.keys(ports)) {
-    randomPorts[port] = {
+    randomPorts.ports[port] = {
       count: ports[port],
     };
   }
