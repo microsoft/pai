@@ -68,45 +68,25 @@ As OpenPAI is a platform, there might be two different roles who are involved. O
 
 ### Manual for cluster administrators
 
-The [admin manual](https://openpai.readthedocs.io/en/latest/manual/cluster-admin/README.html) introduces the installation and uninstallation of OpenPAI, some basic management operations, storage management, troubleshootiong, etc.
+The [admin manual](https://openpai.readthedocs.io/en/latest/manual/cluster-admin/README.html) is a comprehensive guide for cluster administrators. 
 
-#### Installation
+If you are an adminstrator and wants to try OpenPAI, the first thing you should do is to deploy it. You can refer to the [installation guide](https://openpai.readthedocs.io/en/latest/manual/cluster-admin/installation-guide.html) in the manual for instruction. If there is any question during deployment, check [FAQ](https://openpai.readthedocs.io/en/latest/manual/cluster-admin/installation-faqs-and-troubleshooting.html) firstly. If FAQ doesn't resolve it, refer to [here](#get-involved) to ask question or submit an issue.
 
-The first thing an administrator should do is to install OpenPAI. You can refer to the [installation guide](https://openpai.readthedocs.io/en/latest/manual/cluster-admin/installation-guide.html) in the manual for instruction.
+[Basic Management Operations](https://openpai.readthedocs.io/en/latest/manual/cluster-admin/basic-management-operations.html) will teach you how to do basic management on webportal and using a command line tool `paictl` after installation.
 
-If there is any question during deployment, check [FAQ](https://openpai.readthedocs.io/en/latest/manual/cluster-admin/installation-faqs-and-troubleshooting.html) firstly. If FAQ doesn't resolve it, refer to [here](#get-involved) to ask question or submit an issue.
-
-#### Train users before "train models"
-
-The common practice on OpenPAI is to submit job requests, and wait jobs got computing resource and executed. It's different experience with assigning dedicated servers to each one. People may feel computing resource is not in control and the learning curve may be higher than run job on dedicated servers. But shared resource on OpenPAI can improve utilization of resources and save time on maintaining environments.
-
-For administrators of OpenPAI, a successful deployment is first step, the second step is to let users of OpenPAI understand benefits and know how to use it. Users can learn from [the user manual](https://openpai.readthedocs.io/en/latest/manual/cluster-user/README.html). But it is for various scenarios and maybe users don't need all of them. So, administrators can create simplified documents as users' actual scenarios.
-
-#### Administration
-
-Some other contents in the [admin manual](https://openpai.readthedocs.io/en/latest/manual/cluster-admin/README.html):
-
-* [Manage cluster on webportal](https://openpai.readthedocs.io/en/latest/manual/cluster-admin/basic-management-operations.html#management-on-webportal)
-* [Manage cluster with paictl](https://openpai.readthedocs.io/en/latest/manual/cluster-admin/basic-management-operations.html#pai-service-management-and-paictl)
-* [Set up storage](https://openpai.readthedocs.io/en/latest/manual/cluster-admin/how-to-set-up-storage.html)
-
-Please refer to [here](https://openpai.readthedocs.io/en/latest/manual/cluster-admin/README.html) for the full contents.
+The manual also covers topics about how to manage user/storage/virtual cluster, how to add or remove nodes, and how to uninstall PAI. Please refer to [here](https://openpai.readthedocs.io/en/latest/manual/cluster-admin/README.html) for the full contents.
 
 ### Manual for cluster users
 
-The [user manual](https://openpai.readthedocs.io/en/latest/manual/cluster-user/README.html) introduces how to submit job, debug job, manage data, use Marketplace and VSCode extension.
+The [user manual](https://openpai.readthedocs.io/en/latest/manual/cluster-user/README.html) is a guidance for cluster users.
 
-#### Quick Start
+As an user, if your administrator has deployed one OpenPAI cluster, you can first follow [the quick start tutorial](https://openpai.readthedocs.io/en/latest/manual/cluster-user/quick-start.html) to learn more how to train models on OpenPAI. It's a good start to learn it. Then, [the next section](https://openpai.readthedocs.io/en/latest/manual/cluster-user/docker-images-and-job-examples.html) provides some other job examples and an introduction to our out-of-the-box docker images.
 
-Follow [the quick start tutorial](https://openpai.readthedocs.io/en/latest/manual/cluster-user/quick-start.html) to learn more how to train models on OpenPAI. It's a good start to learn How to use OpenPAI.
+Besides, we provide [OpenPAI VS Code Client](https://openpai.readthedocs.io/en/latest/manual/cluster-user/use-vscode-extension.html), which is a friendly, GUI based client tool of OpenPAI, and it's highly recommended. It's an extension of Visual Studio Code. It can submit job, simulate jobs locally, manage multiple OpenPAI environments, and so on.
 
-#### Client tool
+The user manual also introduces data management, marketplace usage, advanced job settings, etc. Please refer to  [here](https://openpai.readthedocs.io/en/latest/manual/cluster-user/README.html) for the full contents.
 
-[OpenPAI VS Code Client](https://openpai.readthedocs.io/en/latest/manual/cluster-user/use-vscode-extension.html) is a friendly, GUI based client tool of OpenPAI, and it's highly recommended. It's an extension of Visual Studio Code. It can submit job, simulate jobs locally, manage multiple OpenPAI environments, and so on.
-
-As all computing platforms, OpenPAI is a productive tool and to maximize utilization of resources. So, it's recommended to submit training jobs and let OpenPAI to allocate resource and run jobs. If there are too many jobs, some jobs may be queued until enough resource available. This is different experience with running code on dedicated servers, so it needs a bit more knowledge about how to submit and manage jobs on OpenPAI.
-
-Note, besides queuing jobs, OpenPAI also supports to allocate dedicated resources. Users can [use SSH](https://openpai.readthedocs.io/en/latest/manual/cluster-user/how-to-debug-jobs.html#how-to-use-ssh) or Jupyter Notebook like on a physical server. Though it's not efficient to use resources, but it also saves cost on setup and managing environments on physical servers. Please refer to [here](https://openpai.readthedocs.io/en/latest/manual/cluster-user/README.html) for full contents of user manual.
+Last but not least, if you are an administrator, this manual is also a good material which you can let your users read about. However, it is for various scenarios and maybe users don't need all of them. So, you can create simplified documents as users' actual scenarios.
 
 ## Reference
 
