@@ -37,7 +37,7 @@ const fs = require('fs');
 const _ = require('lodash');
 const logger = require('@pai/config/logger');
 const {apiserver} = require('@pai/config/kubernetes');
-const {schedulePort} = require('@pai/config/schedule-port');
+const schedulePort = require('@pai/config/schedule-port');
 
 let exitSpecPath;
 if (process.env[env.exitSpecPath]) {
