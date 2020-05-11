@@ -48,15 +48,15 @@ A brief comparison between `v0.14.0` and `v1.0.0`:
 
 The platform incorporates the mature design that has a proven track record in Microsoft's large-scale production environment.
 
-### Support on-premises and easy to deploy
+#### Support on-premises and easy to deploy
 
-OpenPAI is a full stack solution. OpenPAI not only supports on-premises, hybrid, or public Cloud deployment but also supports single-box deployment for trial users.
+   OpenPAI is a full stack solution. OpenPAI not only supports on-premises, hybrid, or public Cloud deployment but also supports single-box deployment for trial users.
 
-### Support popular AI frameworks and heterogeneous hardware
+#### Support popular AI frameworks and heterogeneous hardware
 
 Pre-built docker for popular AI frameworks. Easy to include heterogeneous hardware. Support Distributed training, such as distributed TensorFlow.
 
-### Most complete solution and easy to extend
+#### Most complete solution and easy to extend
 
 OpenPAI is a most complete solution for deep learning, support virtual cluster, compatible with Kubernetes eco-system, complete training pipeline at one cluster etc. OpenPAI is architected in a modular way: different module can be plugged in as appropriate. [Here](./docs/system_architecture.md) is the architecture of OpenPAI, highlighting technical innovations of the platform.
 
@@ -110,7 +110,6 @@ Note, besides queuing jobs, OpenPAI also supports to allocate dedicated resource
 
 ## Reference
 
-* [Client tool](https://github.com/Microsoft/openpaivscode/blob/master/VSCodeExt.md)
 * [Set up storage](https://openpai.readthedocs.io/en/latest/manual/cluster-admin/how-to-set-up-storage.html) and [use storage](https://openpai.readthedocs.io/en/latest/manual/cluster-user/how-to-manage-data.html)
 * [Job protocol](https://github.com/microsoft/openpai-protocol)
 * [RESTful API](https://redocly.github.io/redoc/?url=https://raw.githubusercontent.com/microsoft/pai/master/src/rest-server/docs/swagger.yaml)
