@@ -212,7 +212,7 @@ const convertToJobAttempt = async (framework) => {
     framework.status.attemptStatus.completionTime,
   ).getTime();
   const totalGpuNumber = framework.metadata.annotations
-    ? framework.metadata.annotations.totalGpuNumber
+    ? parseInt(framework.metadata.annotations.totalGpuNumber)
     : 0;
   const totalTaskNumber = framework.spec.taskRoles.reduce(
     (num, spec) => num + spec.taskNumber,
