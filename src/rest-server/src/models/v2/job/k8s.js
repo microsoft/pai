@@ -196,7 +196,7 @@ const convertTaskDetail = async (taskStatus, ports, logPathPrefix) => {
         containerPorts[port] = portNums.join();
       }
     } else {
-      // for backward compability
+      // for backward compatibility
       for (let port of Object.keys(randomPorts)) {
         containerPorts[port] = randomPorts[port].start + taskStatus.index * randomPorts[port].count;
       }
