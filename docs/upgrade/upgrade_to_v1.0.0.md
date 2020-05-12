@@ -1,21 +1,20 @@
-# Upgrade to v0.18.0
+# Migrate From YARN Version to v1.0.0
 
-There are breaking changes between OpenPAI v0.14.0 and v0.18.0. Before v0.18.0, OpenPAI was based on Yarn and Kubernetes, and data was managed by HDFS. Since v0.18.0 ( we might want to change this to v1.0 later after release), OpenPAI has switched to a pure Kubernetes-based architecture. Many new features, such as `AAD authorization`, `Hivedscheduler`, `Kube Runtime`, `Marketplace`, etc., are also included in this release.
+There are breaking changes between OpenPAI v0.14.0 and v1.0.0. Before v1.0.0, OpenPAI was based on Hadoop YARN and Kubernetes, and data was managed by HDFS. Since v1.0.0, OpenPAI has switched to a pure Kubernetes-based architecture. Many new features, such as `AAD authorization`, `Hivedscheduler`, `Kube Runtime`, `Marketplace`, etc., are also included in this release.
 
-The upgrade contains three phases:
+This document is an instruction about how to migrate OpenPAI from previous yarn version to v1.0.0. The upgrade contains three phases:
 
   1. Save previous data to a different place.
   2. Remove previous PAI deployment.
-  3. Deploy PAI v0.18.0
-
+  3. Deploy PAI v1.0.0
 
 ## Save your Data to a Different Place
 
-The upgrade from older version to `v0.18.0` cannot preserve any useful data: all jobs, user information, dataset will be lost inevitably and irreversibly. Thus, if you have any useful data in previous deployment, please make sure you have saved them to a different place.
+The upgrade from yarn version to `v1.0.0` cannot preserve any useful data: all jobs, user information, dataset will be lost inevitably and irreversibly. Thus, if you have any useful data in previous deployment, please make sure you have saved them to a different place.
 
 #### HDFS Data
 
-Before v0.18.0, PAI will deploy an HDFS server for you. In v0.18.0, the HDFS server won't be deployed and previous data will be removed in upgrade. The following commands could be used to transfer your HDFS data:
+Before v1.0.0, PAI will deploy an HDFS server for you. In v1.0.0, the HDFS server won't be deployed and previous data will be removed in upgrade. The following commands could be used to transfer your HDFS data:
 
 ```bash
 # check data structure
@@ -52,13 +51,17 @@ git checkout pai-0.14.y
 ./paictl.py cluster k8s-clean -f -p <path-to-your-old-config>
 ```
 
-If you cannot find the old config, the following command can help you to retrieve it:
+Here we use v0.14.0 as an example. You should checkout to a different branch if your PAI version is different.
+
+In addition, if you cannot find the old config, the following command can help you to retrieve it:
 
 ```bash
 ./paictl.py config pull -o <path-to-your-old-config>
 ```
 
-You should also remove the GPU driver installed by OpenPAI, by executing the following commands on every GPU node, using a `root` user:
+## Remove GPU Driver Installed by OpenPAI
+
+In previous yarn version, OpenPAI installs GPU driver on every GPU node. You should remove the driver, by executing the following commands on every GPU node, using a `root` user:
 
 ```bash
 #!/bin/bash
@@ -85,8 +88,7 @@ rm -rf /var/drivers
 reboot
 ```
 
-
-##  Deploy PAI v0.18.0
+##  Deploy PAI v1.0.0
 
 Before deployment, you should install NVIDIA driver by yourself for every GPU node.
 
@@ -94,4 +96,4 @@ To determine which version of driver should be installed, check out the [NVIDIA 
 
 Please note that, some docker images with new CUDA version cannot be used on machine with old driver. As for now, we recommend to install the NVIDIA driver 418 as it supports CUDA 9.0 \~ CUDA 10.1, which is used by most deep learning frameworks.
 
-After you install GPU driver, we recommend to use kubespray to deploy Kubernetes cluster and start PAI service. Please refer to the [doc](../../contrib/kubespray) for help.
+After you install GPU driver, we recommend to use kubespray to deploy Kubernetes cluster and start PAI service. Please refer to the [From Scratch](https://openpai.readthedocs.io/en/latest/manual/cluster-admin/installation-guide.html#from-scratch) section in our manual.
