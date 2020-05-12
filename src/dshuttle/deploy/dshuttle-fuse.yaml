@@ -29,33 +29,36 @@ spec:
                 operator: In
                 values:
                 - "true"
-      initContainers:
-      - name: umount
-        securityContext:
-          privileged: true
-          capabilities:
-            add:
-              - SYS_ADMIN
-        image: dshuttle/dshuttle-fuse:latest
-        command: ["/bin/sh"]
-        args: ["-c", "fusermount -u /mnt/fuse || true"]
-        volumeMounts:
-        - name: dshuttle-fuse-device
-          mountPath: /dev/fuse
-        - name: dshuttle-fuse-parent
-          mountPath: /mnt
-          mountPropagation: Bidirectional
       containers:
+        - name: sidecar
+          image: dshuttle/dshuttle-sidecar:latest
+          imagePullPolicy: Always
+          resources:
+            requests:
+              cpu: 0.25
+              memory: 100M
+          command: ["/entrypoint.sh"]
+          securityContext:
+            privileged: true
+            capabilities:
+              add:
+                - SYS_ADMIN
+          volumeMounts:
+            - name: dshuttle-fuse-device
+              mountPath: /dev/fuse
+            - name: dshuttle-fuse-mount
+              mountPath: /alluxio-fuse
+              mountPropagation: Bidirectional
         - name: dshuttle-fuse
           image: dshuttle/dshuttle-fuse:latest
-          imagePullPolicy: IfNotPresent
+          imagePullPolicy: Always
           resources:
             limits:
-              cpu: 24
-              memory: 180G
+              cpu: 8
+              memory: 32G
             requests:
-              cpu: 0.5 
-              memory: 1G
+              cpu: 0.25 
+              memory: 2G
           command: ["/entrypoint.sh"]
           args:
             - fuse
