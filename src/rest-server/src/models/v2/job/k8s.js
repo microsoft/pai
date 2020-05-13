@@ -568,6 +568,7 @@ const generateTaskRole = (frameworkName, taskRole, jobInfo, frameworkEnvList, co
         name: `${storage.name}-volume`,
         persistentVolumeClaim: {
           claimName: `${storage.name}`,
+          ...(storage.readOnly === true) && {readOnly: true},
         },
       });
     }
@@ -932,6 +933,9 @@ const put = async (frameworkName, config, rawConfig) => {
           storage.share = userStorages[storage.name].share;
         }
       }
+    }
+    for (let storage of config.extras.storages) {
+      storage.readOnly = (await storageModel.get(storage.name)).readOnly;
     }
   }
 
