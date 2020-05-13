@@ -64,13 +64,22 @@ OpenPAI is a most complete solution for deep learning, support virtual cluster, 
 
 OpenPAI manages computing resources and is optimized for deep learning. Through docker technology, the computing hardware are decoupled with software, so that it's easy to run distributed jobs, switch with different deep learning frameworks, or run other kinds of jobs on consistent environments.
 
-As OpenPAI is a platform, there might be two different roles who are involved. One is the cluster administrator, and the other is the cluster user. We provide end-to-end manuals for different roles.
+As OpenPAI is a platform, there are typically two different roles
+
+- **Cluster users** are the consumer of the cluster's computing resources. According to the deployment scenarios, cluster users could be researchers of Machine Learning and Deep Learning, data scientists, lab teachers and students and so on.  
+- **Cluster administrators** are the owner and maintainer of computing resources. The administrators are responsible for the deployment and availability of the cluster. 
+
+OpenPAI provides end-to-end manuals for both cluster users and administrators.
 
 ### Manual for cluster administrators
 
-The [admin manual](https://openpai.readthedocs.io/en/latest/manual/cluster-admin/README.html) is a comprehensive guide for cluster administrators. 
+The [admin manual](https://openpai.readthedocs.io/en/latest/manual/cluster-admin/README.html) is a comprehensive guide for cluster administrators, it covers (but not limited to) the following contents
 
-If you are an adminstrator and wants to try OpenPAI, the first thing you should do is to deploy it. You can refer to the [installation guide](https://openpai.readthedocs.io/en/latest/manual/cluster-admin/installation-guide.html) in the manual for instruction. If there is any question during deployment, check [FAQ](https://openpai.readthedocs.io/en/latest/manual/cluster-admin/installation-faqs-and-troubleshooting.html) firstly. If FAQ doesn't resolve it, refer to [here](#get-involved) to ask question or submit an issue. After installation, [Basic Management Operations](https://openpai.readthedocs.io/en/latest/manual/cluster-admin/basic-management-operations.html) will teach you how to do basic management on webportal and use a command line tool `paictl` .
+- **Installation**. The installation is based on Kubespray, please check [OpenPAI requirements]() first. OpenPAI provides a [quick installation guide](https://openpai.readthedocs.io/en/latest/manual/cluster-admin/installation-guide.html) to facilitate the installation. Check [here](FIXME) to see whether it is suitable for your scenario. If not, there is also a [step-by-step installation guide](FIXME) to deploy it manually.
+
+    *If there is any question during deployment, check [FAQ](https://openpai.readthedocs.io/en/latest/manual/cluster-admin/installation-faqs-and-troubleshooting.html) firstly. If FAQ doesn't resolve it, refer to [here](#get-involved) to ask question or submit an issue.*
+    
+After installation, [Basic Management Operations](https://openpai.readthedocs.io/en/latest/manual/cluster-admin/basic-management-operations.html) will teach you how to do basic management on webportal and use a command line tool `paictl` .
 
 The manual also covers topics about how to manage user/storage/virtual cluster, how to add or remove nodes, and how to uninstall PAI. Please refer to [here](https://openpai.readthedocs.io/en/latest/manual/cluster-admin/README.html) for the full contents.
 
