@@ -30,8 +30,8 @@ A brief comparison between `v0.14.0` and `v1.0.0`:
 1. [When to consider OpenPAI](#when-to-consider-openpai)
 2. [Why choose OpenPAI](#why-choose-openpai)
 3. [Get started](#get-started)
-    - [Manual for cluster administrators](#manual-for-cluster-administrators)
-    - [Manual for cluster users](#manual-for-cluster-users)
+    - [For cluster administrators](#for-cluster-administrators)
+    - [For cluster users](#for-cluster-users)
 4. [Standalone Components](#standalone-components)
 5. [Reference](#reference)
 6. [Related Projects](#related-projects)
@@ -65,27 +65,38 @@ OpenPAI is a most complete solution for deep learning, support virtual cluster, 
 
 OpenPAI manages computing resources and is optimized for deep learning. Through docker technology, the computing hardware are decoupled with software, so that it's easy to run distributed jobs, switch with different deep learning frameworks, or run other kinds of jobs on consistent environments.
 
-As OpenPAI is a platform, there might be two different roles who are involved. One is the cluster administrator, and the other is the cluster user. We provide end-to-end manuals for different roles.
+As OpenPAI is a platform, there are typically two different roles:
 
-### Manual for cluster administrators
+- **Cluster users** are the consumers of the cluster's computing resources. According to the deployment scenarios, cluster users could be researchers of Machine Learning and Deep Learning, data scientists, lab teachers, students and so on.  
+- **Cluster administrators** are the owners and maintainers of computing resources. The administrators are responsible for the deployment and availability of the cluster. 
 
-The [admin manual](https://openpai.readthedocs.io/en/latest/manual/cluster-admin/README.html) is a comprehensive guide for cluster administrators. 
+OpenPAI provides end-to-end manuals for both cluster users and administrators.
 
-If you are an adminstrator and wants to try OpenPAI, the first thing you should do is to deploy it. You can refer to the [installation guide](https://openpai.readthedocs.io/en/latest/manual/cluster-admin/installation-guide.html) in the manual for instruction. If there is any question during deployment, check [FAQ](https://openpai.readthedocs.io/en/latest/manual/cluster-admin/installation-faqs-and-troubleshooting.html) firstly. If FAQ doesn't resolve it, refer to [here](#get-involved) to ask question or submit an issue. After installation, [Basic Management Operations](https://openpai.readthedocs.io/en/latest/manual/cluster-admin/basic-management-operations.html) will teach you how to do basic management on webportal and use a command line tool `paictl` .
+### For cluster administrators
 
-The manual also covers topics about how to manage user/storage/virtual cluster, how to add or remove nodes, and how to uninstall PAI. Please refer to [here](https://openpai.readthedocs.io/en/latest/manual/cluster-admin/README.html) for the full contents.
+The [admin manual](https://openpai.readthedocs.io/en/latest/manual/cluster-admin/README.html) is a comprehensive guide for cluster administrators, it covers (but not limited to) the following contents:
 
-### Manual for cluster users
+- **Installation**. The installation is based on Kubespray, and here is the [system requirements](https://openpai.readthedocs.io/en/latest/manual/cluster-admin/installation-guide.html#installation-requirements). OpenPAI provides an [installation guide](https://openpai.readthedocs.io/en/latest/manual/cluster-admin/installation-guide.html) to facilitate the installation. 
 
-The [user manual](https://openpai.readthedocs.io/en/latest/manual/cluster-user/README.html) is a guidance for cluster users.
+    *If there is any question during deployment, please check [installation FAQs and troubleshooting](https://openpai.readthedocs.io/en/latest/manual/cluster-admin/installation-faqs-and-troubleshooting.html) first. If it is not covered yet, refer to [here](#get-involved) to ask question or submit an issue.*
 
-As an user, if your administrator has deployed one OpenPAI cluster, you can first follow [the quick start tutorial](https://openpai.readthedocs.io/en/latest/manual/cluster-user/quick-start.html) to learn more how to train models on OpenPAI. It's a good start to learn it. Then, [the next section](https://openpai.readthedocs.io/en/latest/manual/cluster-user/docker-images-and-job-examples.html) provides some other job examples and an introduction to our out-of-the-box docker images.
+- **Basic cluster management**. Through the Web-portal and a command-line tool `paictl`, administrators could complete [cluster managements](https://openpai.readthedocs.io/en/latest/manual/cluster-admin/basic-management-operations.html), such as [adding (or removing) nodes](https://openpai.readthedocs.io/en/latest/manual/cluster-admin/how-to-add-and-remove-nodes.html), [monitoring nodes and services](https://openpai.readthedocs.io/en/latest/manual/cluster-admin/basic-management-operations.html#management-on-webportal), and [storages setup and permission control](https://openpai.readthedocs.io/en/latest/manual/cluster-admin/how-to-set-up-storage.html).
 
-Besides, we provide [OpenPAI VS Code Client](https://openpai.readthedocs.io/en/latest/manual/cluster-user/use-vscode-extension.html), which is a friendly, GUI based client tool of OpenPAI, and it's highly recommended. It's an extension of Visual Studio Code. It can submit job, simulate jobs locally, manage multiple OpenPAI environments, and so on.
+- **Users and groups management**. Administrators could manage the [users and groups](https://openpai.readthedocs.io/en/latest/manual/cluster-admin/how-to-manage-users-and-groups.html) easily. 
 
-The user manual also introduces data management, marketplace usage, advanced job settings, etc. Please refer to  [here](https://openpai.readthedocs.io/en/latest/manual/cluster-user/README.html) for the full contents.
+- **Customization**. Administrators could customize the cluster by [plugins](https://openpai.readthedocs.io/en/latest/manual/cluster-admin/how-to-customize-cluster-by-plugins.html). Administrators could also upgrade (or downgrade) a single component (e.g. rest servers) to address customized application demands.  
 
-Last but not least, if you are an administrator, this manual is also a good material which you can let your users read about. However, it is for various scenarios and maybe users don't need all of them. So, you can create simplified documents as users' actual scenarios.
+### For cluster users
+
+The [user manual](https://openpai.readthedocs.io/en/latest/manual/cluster-user/README.html) is a guidance for cluster users, who could train and serve deep learning (and other) tasks on OpenPAI.
+
+- **Job submission and monitoring**. The [quick start tutorial](https://openpai.readthedocs.io/en/latest/manual/cluster-user/quick-start.html) is a good start for learning how to train models on OpenPAI. And more examples and supports to multiple mainstream frameworks (out-of-the-box docker images) are in [here](https://openpai.readthedocs.io/en/latest/manual/cluster-user/docker-images-and-job-examples.html). OpenPAI also provides supports for [good debuggability](https://openpai.readthedocs.io/en/latest/manual/cluster-user/how-to-debug-jobs.html) and [advanced job functionalities](https://openpai.readthedocs.io/en/latest/manual/cluster-user/advanced-jobs.html).
+
+- **Data managements**. Users could use cluster provisioned storages and custom storages in their jobs. The cluster provisioned storages are well integrated and easy to configure in a job [(refer to here)](https://openpai.readthedocs.io/en/latest/manual/cluster-user/how-to-manage-data.html).
+
+- **Collaboration and sharing**. OpenPAI provides facilities for collaboration in teams and organizations. The cluster provisioned storages are organized by teams (groups). And users could easily share their works (e.g. jobs) in the [marketplace](https://openpai.readthedocs.io/en/latest/manual/cluster-user/use-marketplace.html), where others could discover and reproduce (clone) by one-click.
+
+Besides the webportal, OpenPAI provides [VS Code extension](https://openpai.readthedocs.io/en/latest/manual/cluster-user/use-vscode-extension.html) and [command line tool (preview)](https://github.com/microsoft/openpaisdk). The VS Code extension is a friendly, GUI based client tool of OpenPAI, and it's highly recommended. It's an extension of Visual Studio Code. It can submit job, simulate jobs locally, manage multiple OpenPAI environments, and so on.
 
 ## Standalone Components
 
