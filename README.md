@@ -32,10 +32,11 @@ A brief comparison between `v0.14.0` and `v1.0.0`:
 3. [Get started](#get-started)
     - [For cluster administrators](#for-cluster-administrators)
     - [For cluster users](#for-cluster-users)
-4. [Reference](#reference)
-5. [Related Projects](#related-projects)
-6. [Get involved](#get-involved)
-7. [How to contribute](#how-to-contribute)
+4. [Standalone Components](#standalone-components)
+5. [Reference](#reference)
+6. [Related Projects](#related-projects)
+7. [Get involved](#get-involved)
+8. [How to contribute](#how-to-contribute)
 
 ## When to consider OpenPAI
 
@@ -97,10 +98,22 @@ The [user manual](https://openpai.readthedocs.io/en/latest/manual/cluster-user/R
 
 Besides the webportal, OpenPAI provides [VS Code extension](https://openpai.readthedocs.io/en/latest/manual/cluster-user/use-vscode-extension.html) and [command line tool (preview)](https://github.com/microsoft/openpaisdk). The VS Code extension is a friendly, GUI based client tool of OpenPAI, and it's highly recommended. It's an extension of Visual Studio Code. It can submit job, simulate jobs locally, manage multiple OpenPAI environments, and so on.
 
+## Standalone Components
+
+With the `v1.0.0` release, OpenPAI starts using a more modularized component design and re-organize the code structure to 1 main repo together with 7 standalone key component repos. [pai](https://github.com/microsoft/pai) is the main repo, and the 7 component repos are:
+
+  - [hivedscheduler](https://github.com/microsoft/hivedscheduler) is a Kubernetes Scheduler Extender for Multi-Tenant GPU clusters, which provides various advantages over standard k8s scheduler.
+  - [frameworkcontroller](https://github.com/microsoft/frameworkcontroller) is built to orchestrate all kinds of applications on Kubernetes by a single controller.
+  - [openpai-protocol](https://github.com/microsoft/openpai-protocol) is the specification of OpenPAI job protocol.
+  - [openpai-runtime](https://github.com/microsoft/openpai-runtime) provides runtime support which is necessary for the OpenPAI protocol.
+  - [openpaisdk](https://github.com/microsoft/openpaisdk) is a JavaScript SDK designed to facilitate the developers of OpenPAI to offer more user-friendly experience.
+  - [openpaimarketplace](https://github.com/microsoft/openpaimarketplace) is a service which stores examples and job templates. Users can use it from webportal plugin to share their jobs or run-and-learn others' sharing job.
+  - [openpaivscode](https://github.com/microsoft/openpaivscode) is a VSCode extension, which makes users connect OpenPAI clusters, submit AI jobs, simulate jobs locally and manage files in VSCode easily.
+
+
 ## Reference
 
-* [Set up storage](https://openpai.readthedocs.io/en/latest/manual/cluster-admin/how-to-set-up-storage.html) and [use storage](https://openpai.readthedocs.io/en/latest/manual/cluster-user/how-to-manage-data.html)
-* [Job protocol](https://github.com/microsoft/openpai-protocol)
+* [PyTorch CIFAR-10](https://github.com/microsoft/pai/tree/pai-for-edu/contrib/edu-examples/pytorch_cifar10) and [TensorFlow CIFAR-10](https://github.com/microsoft/pai/tree/pai-for-edu/contrib/edu-examples/tensorflow_cifar10) job examples
 * [RESTful API](https://redocly.github.io/redoc/?url=https://raw.githubusercontent.com/microsoft/pai/master/src/rest-server/docs/swagger.yaml)
 * Design documents could be found [here](docs) if you are curious.
 
