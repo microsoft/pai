@@ -93,7 +93,7 @@ docker_image_tag: <% latest-release %>
 # quay_image_repo: "quay.io"
 # docker_image_repo: "docker.io"
 
-# openpai_kube_network_plugin: weave
+# openpai_kube_network_plugin: calico
 ```
 
 ###### start kubernetes

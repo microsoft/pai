@@ -61,4 +61,4 @@ docker_image_tag: <% latest-release %>
 # kubeadm_download_url: "https://storage.googleapis.com/kubernetes-release/release/{{ kubeadm_version }}/bin/linux/{{ image_arch }}/kubeadm"
 # hyperkube_download_url: "https://storage.googleapis.com/kubernetes-release/release/{{ kube_version }}/bin/linux/{{ image_arch }}/hyperkube"
 
-# openpai_kube_network_plugin: weave
+# openpai_kube_network_plugin: calico
