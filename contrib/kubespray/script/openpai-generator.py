@@ -216,12 +216,15 @@ def main():
     args = parser.parse_args()
 
     output_path = os.path.expanduser(args.output)
+    worker_list_path = os.path.expanduser(args.worklist)
+    master_list_path = os.path.expanduser(args.masterlist)
+    confg_path = os.path.expanduser(args.configuration)
 
-    master_list = csv_reader(args.masterlist)
-    worker_list = csv_reader(args.worklist)
+    master_list = csv_reader(master_list_path)
+    worker_list = csv_reader(worker_list_path)
     head_node = master_list[0]
 
-    worker_dict = csv_reader_ret_dict(args.worklist)
+    worker_dict = csv_reader_ret_dict(worker_list_path)
     wait_nvidia_device_plugin_ready()
     wait_amd_device_plugin_ready()
     node_resource_dict = get_kubernetes_node_info_from_API()
@@ -230,7 +233,7 @@ def main():
     environment = {
         'master': master_list,
         'worker': worker_list,
-        'cfg': load_yaml_config(args.configuration),
+        'cfg': load_yaml_config(confg_path),
         'head_node': head_node,
         'hived': hived_config
     }
