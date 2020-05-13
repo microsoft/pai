@@ -30,8 +30,8 @@ A brief comparison between `v0.14.0` and `v1.0.0`:
 1. [When to consider OpenPAI](#when-to-consider-openpai)
 2. [Why choose OpenPAI](#why-choose-openpai)
 3. [Get started](#get-started)
-    - [Manual for cluster administrators](#manual-for-cluster-administrators)
-    - [Manual for cluster users](#manual-for-cluster-users)
+    - [For cluster administrators](#for-cluster-administrators)
+    - [For cluster users](#for-cluster-users)
 4. [Reference](#reference)
 5. [Related Projects](#related-projects)
 6. [Get involved](#get-involved)
@@ -71,19 +71,21 @@ As OpenPAI is a platform, there are typically two different roles
 
 OpenPAI provides end-to-end manuals for both cluster users and administrators.
 
-### Manual for cluster administrators
+### For cluster administrators
 
 The [admin manual](https://openpai.readthedocs.io/en/latest/manual/cluster-admin/README.html) is a comprehensive guide for cluster administrators, it covers (but not limited to) the following contents
 
-- **Installation**. The installation is based on Kubespray, please check [OpenPAI requirements]() first. OpenPAI provides a [quick installation guide](https://openpai.readthedocs.io/en/latest/manual/cluster-admin/installation-guide.html) to facilitate the installation. Check [here](FIXME) to see whether it is suitable for your scenario. If not, there is also a [step-by-step installation guide](FIXME) to deploy it manually.
+- **Installation**. The installation is based on Kubespray, and here is the [system requirements](https://openpai.readthedocs.io/en/latest/manual/cluster-admin/installation-guide.html#installation-requirements). OpenPAI provides an [installation guide](https://openpai.readthedocs.io/en/latest/manual/cluster-admin/installation-guide.html) to facilitate the installation. 
 
-    *If there is any question during deployment, check [FAQ](https://openpai.readthedocs.io/en/latest/manual/cluster-admin/installation-faqs-and-troubleshooting.html) firstly. If FAQ doesn't resolve it, refer to [here](#get-involved) to ask question or submit an issue.*
-    
-After installation, [Basic Management Operations](https://openpai.readthedocs.io/en/latest/manual/cluster-admin/basic-management-operations.html) will teach you how to do basic management on webportal and use a command line tool `paictl` .
+    *If there is any question during deployment, please check [installation FAQs and troubleshooting](https://openpai.readthedocs.io/en/latest/manual/cluster-admin/installation-faqs-and-troubleshooting.html) first. If it is not covered yet, refer to [here](#get-involved) to ask question or submit an issue.*
 
-The manual also covers topics about how to manage user/storage/virtual cluster, how to add or remove nodes, and how to uninstall PAI. Please refer to [here](https://openpai.readthedocs.io/en/latest/manual/cluster-admin/README.html) for the full contents.
+- **Basic cluster management**. Through the Web-portal and a command-line tool `paictl`, administrators could complete [cluster managements](https://openpai.readthedocs.io/en/latest/manual/cluster-admin/basic-management-operations.html), such as [adding (or removing) nodes](https://openpai.readthedocs.io/en/latest/manual/cluster-admin/basic-management-operations.html#basic-management-operations), [monitoring nodes and services](https://openpai.readthedocs.io/en/latest/manual/cluster-admin/basic-management-operations.html#management-on-webportal), and [storages setup and permission control](https://openpai.readthedocs.io/en/latest/manual/cluster-admin/how-to-set-up-storage.html).
 
-### Manual for cluster users
+- **Users and groups management**. Administrators could manage the [users and groups](https://openpai.readthedocs.io/en/latest/manual/cluster-admin/how-to-manage-users-and-groups.html) easily. 
+
+- **Customization**. Administrators could customize the cluster by [plugins](https://openpai.readthedocs.io/en/latest/manual/cluster-admin/how-to-customize-cluster-by-plugins.html). Administrators could also upgrade (or downgrade) a single component (e.g. rest servers) to address customized application demands.  
+
+### For cluster users
 
 The [user manual](https://openpai.readthedocs.io/en/latest/manual/cluster-user/README.html) is a guidance for cluster users.
 
