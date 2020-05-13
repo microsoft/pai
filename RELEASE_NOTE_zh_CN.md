@@ -1,5 +1,40 @@
 # OpenPAI Release Note
 
+## May 2020 (version 1.0.0)
+
+With the v1.0.0 release, OpenPAI is officially switching to pure Kubernetes-based architecture. In addition to this, we had also made efforts on making our component design more modularized by re-organized the code structure to 1 main repo together with 7 standalone key component repos.
+
+Please refer to the [system architecture](https://github.com/microsoft/pai/blob/master/docs/system_architecture.md) documentation for more detailed design thinkings about this change, and review the following list to get a better understanding about the 7 new component repos:
+
+  - [hivedscheduler](https://github.com/microsoft/hivedscheduler) is a new OpenPAI component providing various advantages over standard k8s scheduler, such as resource isolation for multiple tenants, GPU topology guarantee for virtual clusters, and better topology-aware gang scheduling with no [resource starvation](https://en.wikipedia.org/wiki/Starvation_(computer_science)).
+  - [frameworkcontroller](https://github.com/microsoft/frameworkcontroller) is built to orchestrate all kinds of applications on Kubernetes by a single controller.
+  - [openpai-protocol](https://github.com/microsoft/openpai-protocol) is the specification of OpenPAI job protocol. It facilitates platform interoperability and job portability. A job described by the protocol can run on different clusters managed by OpenPAI. The protocol also enables great flexibility. Any AI workload can be described by it conveniently.
+  - [openpai-runtime](https://github.com/microsoft/openpai-runtime) provides runtime support which is necessary for the OpenPAI protocol. OpenPAI runtime can classify typical runtime error patterns and prevent unnecessay error retries. Therefore cluster resource can be saved.
+  - [openpaisdk](https://github.com/microsoft/openpaisdk) is a JavaScript SDK designed to facilitate the developers of OpenPAI to offer more user-friendly experience.
+  - [openpaimarketplace](https://github.com/microsoft/openpaimarketplace) is a service which stores examples and job templates. Users can use it from webportal plugin to share their jobs or run-and-learn others' sharing job.
+
+    Features:
+
+    1. Provide a way for team collaboration among pai users.
+    2. Provide an easy-to-start and education for new users. Users could refer to shared templates in marketplace and learn how to use pai platform correct.
+    3. Provide admin review process to ensure the quality of templates in marketplace.
+
+  - [openpaivscode](https://github.com/microsoft/openpaivscode) is a VSCode extension, which makes users connect OpenPAI clusters, submit AI jobs, simulate jobs locally and manage files in VSCode easily.
+
+The version of each standalone repo used in OpenPAI `v1.0.0` is hivedscheduler `v0.3.2`, frameworkcontroller `v0.6.0`, openpai-protocol `v2.0.0-alpha`, openpai-runtime `v0.1.0`, openpaisdk `v0.1.0`, openpaimarketplace `v1.2.0` and openpaivscode `v0.3.0`.
+
+Other major new features and improvements come with this new release are:
+
+  - Based on [kubespray](https://github.com/microsoft/pai/tree/master/contrib/kubespray), we provided a [quick start script](https://github.com/microsoft/pai/blob/master/contrib/kubespray/doc/quick-start.md) for you to deploy OpenPAI from scratch faster.
+  - In addition to basic authentication, [support for Azure Active Directory (AAD)](https://github.com/microsoft/pai/blob/master/docs/aad-e2e/aad-e2e.md) was added to provide SSO and multi-factor authentication for users.
+  - [Built-in storage](https://github.com/microsoft/pai/blob/master/docs/setup-persistent-volumes-on-pai.md) were refactored to support more storage types with a unified interface.
+  - [Storage manager](https://github.com/microsoft/pai/tree/master/src/storage-manager) is provided for users to set up NFS+SMB storage server easily.
+  - [Webportal UX is upgraded to Microsoft Fluent UI 7.0](https://github.com/microsoft/pai/issues/4024). UI component and style elements are optimized to provide more user-friendly experience for both user and admin scenarios.
+  - [RESTful API has been refined](https://github.com/microsoft/pai/issues/4337) to be cleaner and more well-organized. [A detailed swagger document](https://redocly.github.io/redoc/?url=https://raw.githubusercontent.com/microsoft/pai/master/src/rest-server/docs/swagger.yaml) is also provided.
+  - In addition to current documentation, we provide [an end-to-end usage manual](https://openpai.readthedocs.io/) for cluster users and administrators to learn how to use OpenPAI.
+
+For more details about this release, please refer to [detailed release note](https://github.com/microsoft/pai/releases/tag/v1.0.0).
+
 ## July 2019 (version 0.14.0)
 
 Welcome to the July 2019 release of OpenPAI. There are a number of updates in this version that we hope you will like, some of the key highlights include:
