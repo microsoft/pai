@@ -71,6 +71,13 @@ def generate_template_file(template_file_path, output_path, map_table):
     write_generated_file(output_path, generated_template)
 
 
+def path_handler(path):
+    if path[0] == '~':
+        return os.path.expanduser(path)
+    else:
+        return os.path.abspath(path)
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('-w', '--worker-list-csv', dest="worklist", required=True,
