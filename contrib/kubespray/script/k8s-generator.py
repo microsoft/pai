@@ -102,7 +102,7 @@ def main():
             count_input = count_input + 1
             if count_input == 3:
                 logger.warning("3 Times.........  Sorry,  we will force stopping your operation.")
-                return
+                sys.exit(1)
         if user_input == "Y" and cluster_config['openpai_kube_network_plugin'] == 'calico':
             logger.warning("Azure does not support calico, please change the openpai_kube_network_plugin to weave")
             logger.warning("https://docs.projectcalico.org/reference/public-cloud/azure#why-doesnt-azure-support-calico-networking")
