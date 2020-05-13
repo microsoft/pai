@@ -87,11 +87,31 @@ def main():
 
     master_list = csv_reader(args.masterlist)
     head_node = master_list[0]
+    cluster_config = load_yaml_config(args.configuration)
+
+    if 'openpai_kube_network_plugin' not in cluster_config or cluster_config['openpai_kube_network_plugin'] != 'weave':
+        count_input = 0
+        while True:
+            user_input = raw_input("Are your cluster is in Azure cloud or not? (Y/N) (case sensitive)")
+            if user_input == "N":
+                break
+            elif user_input == "Y":
+                break
+            else:
+                print(" Please type Y or N. It's case sensitive.")
+            count_input = count_input + 1
+            if count_input == 3:
+                logger.warning("3 Times.........  Sorry,  we will force stopping your operation.")
+                sys.exit(1)
+        if user_input == "Y" and cluster_config['openpai_kube_network_plugin'] == 'calico':
+            logger.warning("Azure does not support calico, please change the openpai_kube_network_plugin to weave")
+            logger.warning("https://docs.projectcalico.org/reference/public-cloud/azure#why-doesnt-azure-support-calico-networking")
+            sys.exit(1)
 
     environment = {
         'master': master_list,
         'worker': csv_reader(args.worklist),
-        'cfg': load_yaml_config(args.configuration),
+        'cfg': cluster_config,
         'head_node': head_node
     }
 
