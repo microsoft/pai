@@ -29,8 +29,3 @@ fse.copySync(
   helpers.root('../../docs/user/imgs'),
   helpers.root('src/app/job/job-docs/imgs'),
 );
-
-fse.copySync(
-  helpers.root('../../examples/tensorflow/tensorflow.distributed-cifar10.json'),
-  helpers.root('src/app/job/job-submit/job-submit.example.json'),
-);

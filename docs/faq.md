@@ -14,59 +14,6 @@ A: Users can find historical job logs through yarn. Please check [issue-1072](ht
 
 A: Please check [troubleshooting_job.md](./user/troubleshooting_job.md)'s introduction.
 
-### Q: How to use private docker registry job image when submitting an OpenPAI job
-
-A: Please refer [job_tutorial.md](./job_tutorial.md) to config the auth file at job submit json file:
-
-If you're using a private Docker registry which needs authentication for image pull and is different from the registry used during deployment,
-please create an authentication file in the following format, upload it to HDFS and specify the path in `authFile` parameter in config file.
-
-- (1) Create an authFile
-
-authfile content:
-
-```
-userprivateimage.azurecr.io
-username
-password
-```
-
-Note: userprivateimage.azurecr.io is docker_registry_server
-
-- (2) [Upload it to HDFS](./hadoop/hdfs.md#WebHDFS).
-
-File path at hdfs example: hdfs://master_ip:9000/user/paidemo/authfile
-
-- (3) Specify the path in `authFile` paramete
-
-OpenPAI job json file example:
-
-```
-{
-  "jobName": "paidemo",
-  "image": "userprivateimage.azurecr.io/demo4pai:test",
-  "dataDir": "hdfs://master_ip:9000/user/paidemo/data",
-  "outputDir": "hdfs://master_ip:9000/user/paidemo/output",
-  "codeDir": "hdfs://master_ip:9000/user/paidemo/code",
-  "authFile":"hdfs://master_ip:9000/user/paidemo/authfile",
-  "taskRoles": [
-    {
-      "name": "demo4pai",
-      "taskNumber": 1,
-      "cpuNumber": 2,
-      "memoryMB": 8192,
-      "gpuNumber": 1,
-      "command": " cd /home/test && bash train.sh"
-    }
-  ]
-}
-```
-
-*NOTE*:
-- If you're using a private registry at Docker Hub, you should use `docker.io` for `docker_registry_server` field in the authentication file.
-- Related issue: [1125](https://github.com/Microsoft/pai/issues/1215)
-
-
 ### Q: How many jobs does PAI support?
 
 A: According to the default configuration, PAI supports 60k jobs, including waiting/running/finished jobs.
@@ -102,33 +49,6 @@ A: It is not recommended to run the job on the master node in order to avoid ove
 ### Q: When OpenPAI has multiple master nodes, can the master node be deployed on multiple subnets, and they can still access normally?
 
 A: We recommend deploying them on the same subnet. In theory, as long as the network is interoperable, it can be deployed. Considering the high communication requirements of the cluster, the network delay of different subnets is usually high, and the network is often inaccessible.
-
-### Q: To improve the cluster usage, user would like to see a VC can use up all cluster resource if others don’t use it.
-
-A: By default, a VC can use up all cluster resource if others don’t use it. OpenPAI use [capacity scheduler](https://hadoop.apache.org/docs/r1.2.1/capacity_scheduler.html) of YARN for resource allocation. maximum-capacity defines a limit beyond which a queue cannot use the capacity of the cluster. This provides a means to limit how much excess capacity a queue can use. Default value of -1 implies a queue can use complete capacity of the cluster.
-
-
-### Q: How to configure virtual cluster capacity?
-
-A: By webportal
-
-### Q: What should the admin do when get NodeFilesystemUsage firing?
-
-A: NodeFilesystemUsage firing is caused by disk pressure. The root cause may be HDFS, docker data cache or user data cache. when this firing happens, the admin should do the following steps mitigate the data load.
-
-- (1) Check HDFS.
-
-Check Hadoop Datanodes (url example: http:// hadoop namenode/dfshealth.html#tab-datanode).
-If only a few nodes are overused, run "hdfs balancer -policy datanode" to rebalance the data among data nodes via HDFS balancer.
-If most nodes are in heavy usage, manually clean some data before do rebalance.
-
-- (2) Check docker cached data.
-
-Run "docker system df" to see how much space can be reclaimed. If the space is large, run command "docker system prune -a" to clean the cache.
-
-- (3) Check /tmp directory.
-
-Run command "du -h / | awk '$1~/[0-9]*G/{print $0}'" to list all the directory which consumes more than 1G spaces. Clean the data not used any more.
 
 ### Q: How to change Docker cache path for OpenPAI?
 
