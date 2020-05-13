@@ -87,15 +87,15 @@ The [admin manual](https://openpai.readthedocs.io/en/latest/manual/cluster-admin
 
 ### For cluster users
 
-The [user manual](https://openpai.readthedocs.io/en/latest/manual/cluster-user/README.html) is a guidance for cluster users.
+The [user manual](https://openpai.readthedocs.io/en/latest/manual/cluster-user/README.html) is a guidance for cluster users, who could train and serve deep learning (and other) tasks on OpenPAI.
 
-As an user, if your administrator has deployed one OpenPAI cluster, you can first follow [the quick start tutorial](https://openpai.readthedocs.io/en/latest/manual/cluster-user/quick-start.html) to learn more how to train models on OpenPAI. It's a good start to learn it. Then, [the next section](https://openpai.readthedocs.io/en/latest/manual/cluster-user/docker-images-and-job-examples.html) provides some other job examples and an introduction to our out-of-the-box docker images.
+- **Job submission and monitoring**. The [quick start tutorial](https://openpai.readthedocs.io/en/latest/manual/cluster-user/quick-start.html) is a good start for learning how to train models on OpenPAI. And more examples and supports to multiple mainstream frameworks (out-of-the-box docker images) are in [here](https://openpai.readthedocs.io/en/latest/manual/cluster-user/docker-images-and-job-examples.html). OpenPAI also provides supports for [good debuggability](https://openpai.readthedocs.io/en/latest/manual/cluster-user/how-to-debug-jobs.html) and [advanced job functionalities](https://openpai.readthedocs.io/en/latest/manual/cluster-user/advanced-jobs.html).
 
-Besides, we provide [OpenPAI VS Code Client](https://openpai.readthedocs.io/en/latest/manual/cluster-user/use-vscode-extension.html), which is a friendly, GUI based client tool of OpenPAI, and it's highly recommended. It's an extension of Visual Studio Code. It can submit job, simulate jobs locally, manage multiple OpenPAI environments, and so on.
+- **Data managements**. Users could use cluster provisioned storages and custom storages in their jobs. The cluster provisioned storages are well integrated and easy to configure in a job [(refer to here)](https://openpai.readthedocs.io/en/latest/manual/cluster-user/how-to-manage-data.html).
 
-The user manual also introduces data management, marketplace usage, advanced job settings, etc. Please refer to  [here](https://openpai.readthedocs.io/en/latest/manual/cluster-user/README.html) for the full contents.
+- **Collaboration and sharing**. OpenPAI provides facilities for collaboration in teams and organizations. The cluster provisioned storages are organized by teams (groups). And users could easily share their works (e.g. jobs) in the [marketplace](https://openpai.readthedocs.io/en/latest/manual/cluster-user/use-marketplace.html), where others could discover and reproduce (clone) by one-click.
 
-Last but not least, if you are an administrator, this manual is also a good material which you can let your users read about. However, it is for various scenarios and maybe users don't need all of them. So, you can create simplified documents as users' actual scenarios.
+Besides the webportal, OpenPAI provides [VS Code extension](https://openpai.readthedocs.io/en/latest/manual/cluster-user/use-vscode-extension.html) and [command line tool (preview)](https://github.com/microsoft/openpaisdk). The VS Code extension is a friendly, GUI based client tool of OpenPAI, and it's highly recommended. It's an extension of Visual Studio Code. It can submit job, simulate jobs locally, manage multiple OpenPAI environments, and so on.
 
 ## Reference
 
