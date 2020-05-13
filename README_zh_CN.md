@@ -6,7 +6,7 @@
 
 OpenPAI 作为开源平台，提供了完整的 AI 模型训练和资源管理能力，能轻松扩展，并支持各种规模的私有部署、云和混合环境。
 
-**OpenPAI [v0.14.0](./RELEASE_NOTE.md#july-2019-version-0140) 已发布！**
+**OpenPAI [v1.0.0](./RELEASE_NOTE.md#may-2020-version-100) 已发布！**
 
 ## 目录
 
