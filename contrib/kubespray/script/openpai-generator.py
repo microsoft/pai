@@ -222,10 +222,10 @@ def main():
                         help="cluster configuration")
     args = parser.parse_args()
 
-    output_path = os.path.expanduser(args.output)
-    worker_list_path = os.path.expanduser(args.worklist)
-    master_list_path = os.path.expanduser(args.masterlist)
-    confg_path = os.path.expanduser(args.configuration)
+    output_path = path_handler(args.output)
+    worker_list_path = path_handler(args.worklist)
+    master_list_path = path_handler(args.masterlist)
+    confg_path = path_handler(args.configuration)
 
     master_list = csv_reader(master_list_path)
     worker_list = csv_reader(worker_list_path)
