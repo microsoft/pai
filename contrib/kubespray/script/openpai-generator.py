@@ -204,10 +204,7 @@ def hived_config_prepare(worker_dict, node_resource_dict):
 
 
 def path_handler(path):
-    if path[0] == '~':
-        return os.path.expanduser(path)
-    else:
-        return os.path.abspath(path)
+    return os.path.abspath(os.path.expanduser(path))
 
 
 def main():
