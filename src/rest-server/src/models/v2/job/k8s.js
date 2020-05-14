@@ -181,14 +181,18 @@ const convertFrameworkSummary = (framework) => {
 const convertTaskDetail = async (taskStatus, ports, logPathPrefix) => {
   // get container ports
   const containerPorts = {};
+  const hashFunc = (str) => {
+    const hexStr = crypto.createHash('md5').update(str).digest('hex');
+    return parseInt(hexStr.substring(0, 12), 16) +
+      parseInt(hexStr.substring(12, 24), 16) + parseInt(hexStr.substring(24, 32), 16);
+  };
   if (ports && taskStatus.attemptStatus.podUID) {
     const randomPorts = JSON.parse(ports);
     if (randomPorts.ports) {
       for (let port of Object.keys(randomPorts.ports)) {
         const portNums = [...Array(randomPorts.ports[port].count).keys()].map((index) => {
-          const rawString = taskStatus.attemptStatus.podUID + port + index;
-          return parseInt(crypto.createHash('md5').update(rawString)
-            .digest('hex').substring(0, 12), 16) % (randomPorts.portEnd - randomPorts.portStart) + randomPorts.portStart;
+          const rawString = `[${taskStatus.attemptStatus.podUID}][${port}][${index}]`;
+          return hashFunc(rawString) % (randomPorts.portEnd - randomPorts.portStart) + randomPorts.portStart;
         });
         containerPorts[port] = portNums.join();
       }
