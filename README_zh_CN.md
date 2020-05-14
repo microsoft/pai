@@ -83,17 +83,17 @@ OpenPAI 用于管理计算资源，并对机器学习任务进行了优化。 �
 
 #### 使用默认配置部署
 
-对于小于 50 台服务器的中小型集群, 建议[使用默认配置部署](docs/zh_CN/pai-management/doc/distributed-deploy.md)。 如果只有一台高性能的计算服务器，参考[在单机上部署 OpenPAI](docs/zh_CN/pai-management/doc/single-box.md)。
+对于小于 50 台服务器的中小型集群, 建议[使用默认配置部署](docs/pai-management/doc/distributed-deploy.md)。 如果只有一台高性能的计算服务器，参考[在单机上部署 OpenPAI](docs/pai-management/doc/single-box.md)。
 
 对于大型集群，仍需要根据此向导来生成默认配置，然后再[自定义部署配置](#自定义部署)。
 
 #### 自定义部署
 
-由于不同的硬件环境和使用场景，OpenPAI 的默认配置需要通过自定义来修改。 参考[自定义部署](docs/zh_CN/pai-management/doc/how-to-generate-cluster-config.md#Optional-Step-3.-Customize-configure-OpenPAI)，了解详情。
+由于不同的硬件环境和使用场景，OpenPAI 的默认配置需要通过自定义来修改。 参考[自定义部署](docs/pai-management/doc/how-to-generate-cluster-config.md#Optional-Step-3.-Customize-configure-OpenPAI)，了解详情。
 
 ### 验证部署
 
-部署完成后，建议参考[验证 OpenPAI 的关键组件](docs/zh_CN/pai-management/doc/validate-deployment.md)来确认 OpenPAI 处于正常状态。 验证成功后，可[提交 hello-world Job](docs/zh_CN/user/training.md) 进行端到端的验证。
+部署完成后，建议参考[验证 OpenPAI 的关键组件](docs/pai-management/doc/validate-deployment.md)来确认 OpenPAI 处于正常状态。 验证成功后，可[提交 hello-world Job](docs/user/training.md) 进行端到端的验证。
 
 ### 培训用户
 
@@ -103,7 +103,7 @@ OpenPAI 的一般用法是提交 Job 请求，等到 Job 获得计算资源后�
 
 ### 常见问答
 
-如果在部署过程中遇到问题，先查看[这里](docs/zh_CN/faq.md#deploy-and-maintenance-related-faqs)。
+如果在部署过程中遇到问题，先查看[这里](docs/faq.md#deploy-and-maintenance-related-faqs)。
 
 如果还不能解决问题，通过[这里](#寻求帮助)来讨论或者提交问题。
 
@@ -111,11 +111,11 @@ OpenPAI 的一般用法是提交 Job 请求，等到 Job 获得计算资源后�
 
 与所有计算平台一样，OpenPAI 是提高生产力的工具，最大限度地利用资源。 因此，在进行模型训练时，推荐直接将任务提交到 OpenPAI，并让其分配资源来运行。 如果 Job 太多，一些 Job 会排队等待资源。 这与在自己的服务器上运行代码不同，并且还需要学习一些在 OpenPAI 上提交并管理训练 Job 的知识。
 
-注意，除了支持 Job 排队，OpenPAI 也支持分配专用的资源。 用户可以像使用物理服务器一样，用 SSH 或 Jupyter Notebook 来连接，详情参考[这里](examples/jupyter/README.md)。 虽然这样对资源的利用不高，但也节省了在物理服务器上配置管理环境的精力。
+注意，除了支持 Job 排队，OpenPAI 也支持分配专用的资源。 用户可以像使用物理服务器一样，用 SSH 或 Jupyter Notebook 来连接。 虽然这样对资源的利用不高，但也节省了在物理服务器上配置管理环境的精力。
 
 ### 提交训练作业
 
-参考[提交 Job 教程](docs/zh_CN/user/job_submission.md)来学习如何在 OpenPAI 上训练模型。 这是使用 OpenPAI 的入门教程。
+参考[提交 Job 教程](docs/user/job_submission.md)来学习如何在 OpenPAI 上训练模型。 这是使用 OpenPAI 的入门教程。
 
 ### 客户端
 
@@ -125,27 +125,27 @@ OpenPAI 的一般用法是提交 Job 请求，等到 Job 获得计算资源后�
 
 Web 界面和 Job 日志有助于分析错误，OpenPAI 也支持通过 SSH 登录来调试。
 
-有关调研 Job 错误的详细信息参考[这里](docs/zh_CN/user/troubleshooting_job.md)。
+有关调研 Job 错误的详细信息参考[这里](docs/user/troubleshooting_job.md)。
 
 ## 运维管理
 
-* [使用 paictl 管理集群](docs/zh_CN/paictl/paictl-manual.md)
-* [监测](./docs/zh_CN/webportal/README.md)
-* [升级](./docs/zh_CN/upgrade/upgrade_to_v0.13.md)
+* [使用 paictl 管理集群](docs/paictl/paictl-manual.md)
+* [监测](./docs/webportal/README.md)
+* [升级](./docs/upgrade/upgrade_to_v0.13.0.md)
 
 ## 参考手册
 
 ### 用户
 
 * [客户端](https://github.com/microsoft/openpaivscode/blob/master/VSCodeExt_zh_CN.md)
-* [使用存储](docs/zh_CN/user/storage.md)
-* [Job 配置](docs/zh_CN/job_tutorial.md)
-* [RESTful API](docs/zh_CN/rest-server/API.md)
+* [使用存储](docs/user/storage.md)
+* [Job 配置](docs/user/job_submission.md)
+* [RESTful API](docs/rest-server/API.md)
 * [设计文档](docs)可帮助了解 OpenPAI 的设计和架构。
 
 ## 寻求帮助
 
-* [Stack Overflow](./docs/zh_CN/stackoverflow.md)：如果对 OpenPAI 有问题，在 Stack Overflow 网站的标签 openpai 下提交问题。
+* [Stack Overflow](./docs/stackoverflow.md)：如果对 OpenPAI 有问题，在 Stack Overflow 网站的标签 openpai 下提交问题。
 * [Gitter Chat](https://gitter.im/Microsoft/pai)：也可以在 Gitter 中提问。
 * [提交问题或功能请求](https://github.com/Microsoft/pai/issues/new/choose)：如果发现了错误，或有新功能的需求，可提交到 GitHub。
 
@@ -174,6 +174,6 @@ Web 界面和 Job 日志有助于分析错误，OpenPAI 也支持通过 SSH 登�
 
 ### 贡献者
 
-OpenPAI 的一个重要目标是支持学术界和工业界非常多样化的需求。 OpenPAI 是完全开放的：它采用了 MIT 许可证。 这使得 PAI 特别适合用来探索各种研究想法，例如[这些模块](./docs/zh_CN/research_education.md)。
+OpenPAI 的一个重要目标是支持学术界和工业界非常多样化的需求。 OpenPAI 是完全开放的：它采用了 MIT 许可证。 这使得 PAI 特别适合用来探索各种研究想法，例如[这些模块](./docs/research_education.md)。
 
-OpenPAI 采用开放的形式来合作。 由[微软研究院（MSR）](https://www.microsoft.com/en-us/research/group/systems-research-group-asia/)和[微软互联网工程院](https://www.microsoft.com/en-us/ard/company/introduction.aspx) AI 平台团队联合设计开发。 很高兴能有北京大学、西安交通大学、浙江大学、中国科学技术大学等高校加入平台开发。 无论是来自从学术界还是工业界的贡献，都非常欢迎。
+OpenPAI 采用开放的形式来合作。 由[微软研究院（MSR）](https://www.microsoft.com/en-us/research/group/systems-research-group-asia/)和[微软互联网工程院](https://www.microsoft.com/en-us/ard/overview) AI 平台团队联合设计开发。 很高兴能有北京大学、西安交通大学、浙江大学、中国科学技术大学等高校加入平台开发。 无论是来自从学术界还是工业界的贡献，都非常欢迎。
