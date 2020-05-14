@@ -35,6 +35,7 @@ then
   echo "Pass: Cluster meets the requirements"
 else
   echo "Faild: Please check the output, and modify the cluster setting to meet the requirement"
+  exit $ret_code_check
 fi
 
 rm -rf ${HOME}/pai-pre-check/
