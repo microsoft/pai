@@ -11,7 +11,7 @@
 
 OpenPAI is an open source platform that provides complete AI model training and resource management capabilities, it is easy to extend and supports on-premise, cloud and hybrid environments in various scale.
 
-**OpenPAI [v0.14.0](./RELEASE_NOTE.md#july-2019-version-0140) has been released!**
+**OpenPAI [v1.0.0](./RELEASE_NOTE.md#may-2020-version-100) has been released!**
 
 A brief comparison between `v0.14.0` and `v1.0.0`:
 
