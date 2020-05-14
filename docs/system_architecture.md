@@ -5,7 +5,7 @@
 </center>
 
 The figure above provides an overview of OpenPAI.
-OpenPAI is managede by [Kubernetes](https://kubernetes.io/),
+OpenPAI is managed by [Kubernetes](https://kubernetes.io/),
 it assumes Kubernetes has already been deployed to the cluster by third-party tools like [Azure Kubernetes Service (AKS)](https://azure.microsoft.com/en-us/services/kubernetes-service/) or [Kubespray](https://github.com/kubernetes-sigs/kubespray).
 OpenPAI provides [paictl](./paictl/paictl-manual.md), a tool to help user deploy OpenPAI services to the k8s cluster.
 
