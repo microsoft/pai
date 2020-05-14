@@ -38,8 +38,8 @@
     - dev_box_docker_version_replace is version('1.10.0', '<=')
 
 - name: "Dev-box 3.1 Check whether the vm can raw.githubusercontent.com"
-  raw: ping raw.githubusercontent.com -c 3
-  register: devbox_ping_githubusercontent
+  raw: curl https://raw.githubusercontent.com/microsoft/pai/master/README.md
+  register: devbox_curl_githubusercontent
   failed_when: false
   changed_when: false
   check_mode: false
@@ -52,7 +52,7 @@
   check_mode: false
   environment: {}
   when:
-    - devbox_ping_githubusercontent.rc != 0
+    - devbox_curl_githubusercontent.rc != 0
 
 - name: "Dev-box 4.1 Check whether the vm can access to docker.io"
   raw: nslookup index.docker.io
