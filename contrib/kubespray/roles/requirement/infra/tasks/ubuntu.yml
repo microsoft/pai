@@ -47,6 +47,40 @@
   when:
     - ansible_control_host_address == ansible_default_ipv4.address
 
+- name: "Infra 4.1 Check whether the vm can access to gcr.io"
+  raw: ping gcr.io -c 3
+  register: infra_ping_gcr_io
+  failed_when: false
+  changed_when: false
+  check_mode: false
+  environment: {}
+
+- name: "Infra 4.2 Check whether the vm can access to gcr.io"
+  fail:
+    msg: "Unable to access gcr.io"
+  changed_when: false
+  check_mode: false
+  environment: {}
+  when:
+    - infra_ping_gcr_io.rc != 0
+
+- name: "Infra 5.1 Check whether the vm can access to quay.io"
+  raw: nslookup quay.io
+  register: infra_nslookup_quay_io
+  failed_when: false
+  changed_when: false
+  check_mode: false
+  environment: {}
+
+- name: "Infra 5.2 Check whether the vm can access to quay.io"
+  fail:
+    msg: "Unable to access quay.io"
+  changed_when: false
+  check_mode: false
+  environment: {}
+  when:
+    - infra_nslookup_quay_io.rc != 0
+
 - name: check infra machine's resouce requirement
   include_tasks: resource.yml
   when: resource_check
