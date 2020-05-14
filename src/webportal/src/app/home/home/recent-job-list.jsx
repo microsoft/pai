@@ -76,7 +76,7 @@ const DummyContent = () => {
             <DefaultButton
               text='Tutorial'
               styles={{ root: [{ width: 120 }] }}
-              href='https://openpai.readthedocs.io/en/latest/manual/cluster-user/quick-start.html'
+              href='https://openpai.readthedocs.io/en/release-1.0.0/manual/cluster-user/quick-start.html'
               target='_blank'
             />
           </Stack.Item>

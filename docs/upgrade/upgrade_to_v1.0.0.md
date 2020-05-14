@@ -96,4 +96,4 @@ To determine which version of driver should be installed, check out the [NVIDIA 
 
 Please note that, some docker images with new CUDA version cannot be used on machine with old driver. As for now, we recommend to install the NVIDIA driver 418 as it supports CUDA 9.0 \~ CUDA 10.1, which is used by most deep learning frameworks.
 
-After you install GPU driver, we recommend to use kubespray to deploy Kubernetes cluster and start PAI service. Please refer to the [From Scratch](https://openpai.readthedocs.io/en/latest/manual/cluster-admin/installation-guide.html#from-scratch) section in our manual.
+After you install GPU driver, we recommend to use kubespray to deploy Kubernetes cluster and start PAI service. Please refer to the [From Scratch](https://openpai.readthedocs.io/en/release-1.0.0/manual/cluster-admin/installation-guide.html#from-scratch) section in our manual.
