@@ -92,7 +92,7 @@ def main():
     if 'openpai_kube_network_plugin' not in cluster_config or cluster_config['openpai_kube_network_plugin'] != 'weave':
         count_input = 0
         while True:
-            user_input = raw_input("Are your cluster is in Azure cloud or not? (Y/N) (case sensitive)")
+            user_input = input("Are your cluster is in Azure cloud or not? (Y/N) (case sensitive)")
             if user_input == "N":
                 break
             elif user_input == "Y":
