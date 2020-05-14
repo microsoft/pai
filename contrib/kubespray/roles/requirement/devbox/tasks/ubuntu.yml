@@ -54,5 +54,22 @@
   when:
     - devbox_ping_githubusercontent.rc != 0
 
+- name: "Dev-box 4.1 Check whether the vm can access to docker.io"
+  raw: nslookup index.docker.io
+  register: devbox_nslookup_docker_io
+  failed_when: false
+  changed_when: false
+  check_mode: false
+  environment: {}
+
+- name: "Dev-box 4.2 Check whether the vm can access to docker.io"
+  fail:
+    msg: "Unable to access docker.io"
+  changed_when: false
+  check_mode: false
+  environment: {}
+  when:
+    - devbox_nslookup_docker_io.rc != 0
+
 
 
