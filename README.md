@@ -9,7 +9,7 @@
 
 [简体中文](README_zh_CN.md)
 
-OpenPAI is an open source platform that provides complete AI model training and resource management capabilities, it is easy to extend and supports on-premise, cloud and hybrid environments in various scale.
+OpenPAI is an open source platform that provides complete AI model training and resource management capabilities. Built on top of Kurbnetates and Docker, OpenPAI naturely supports on-premise, cloud and hybrid environments in various scale; With a well designed componentized architecture, OpenPAI is easy to be extended; 
 
 **OpenPAI [v0.14.0](./RELEASE_NOTE.md#july-2019-version-0140) has been released! And a formal v1.0.0 version is coming soon.**
 
