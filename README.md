@@ -9,11 +9,9 @@
 
 [简体中文](README_zh_CN.md)
 
-To be updated --> **OpenPAI [v1.0.0](./RELEASE_NOTE.md#july-2019-version-0140) has been released!**
+**OpenPAI [v1.0.0](./RELEASE_NOTE.md#2020-v1.0.0) has been released!**
 
-With the new formal v1.0.0 release, OpenPAI had 
-
-OpenPAI is an open source extensible platform that provides complete AI model training and resource management capabilities for on-premise, cloud and hybrid environment in various scale.
+With the release of v1.0, OpenPAI is switching to a more robust, more powerful and lightweight architecture. OpenPAI is also becoming more and more modular so that the platform can be easily customized and expanded to suit new needs. OpenPAI also provides many AI user-friendly features, making it easier for end users and administrators to complete daily AI tasks. 
 
 <br/>
  <table>
