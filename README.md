@@ -9,21 +9,9 @@
 
 [简体中文](README_zh_CN.md)
 
-OpenPAI is an open source platform that provides complete AI model training and resource management capabilities. Building on top of Kubernetes and Docker, OpenPAI naturely supports on-premise, cloud and hybrid environments in various scale; With a well designed componentized architecture, OpenPAI is easy to be extended; 
+OpenPAI is an open source extensible platform that provides complete AI model training and resource management capabilities for on-premise, cloud and hybrid environment in various scale.
 
-**OpenPAI [v0.14.0](./RELEASE_NOTE.md#july-2019-version-0140) has been released! And a formal v1.0.0 version is coming soon.**
-
-A brief comparison between `v0.14.0` and the upcoming `v1.0.0`:
-
-|                   | `v0.14.0`               | `v1.0.0` (coming soon)               |
-| ----------------- | ----------------------- | ---------------------- |
-| Architecture      | Kubernetes + Hadoop YARN| Kubernetes             |
-| Scheduler         | YARN Scheduler          | HiveD / K8S default    |
-| Job Orchestrating | YARN Framework Launcher | Framework Controller   |
-| RESTful API       | v1 + v2                 | pure v2                |
-| Storage           | Team-wise storage plugin| PV/PVC storage sharing |
-| Marketplace       | Marketplace v2          | openpaimarketplace     |
-| SDK               | Python                  | JavaScript / TypeScript|
+To be updated --> **OpenPAI [v1.0.0](./RELEASE_NOTE.md#july-2019-version-0140) has been released!**
 
 ## Table of Contents
 
@@ -77,6 +65,18 @@ OpenPAI provides end-to-end manuals for both cluster users and administrators.
 The [admin manual](https://openpai.readthedocs.io/en/latest/manual/cluster-admin/README.html) is a comprehensive guide for cluster administrators, it covers (but not limited to) the following contents:
 
 - **Installation**. The installation is based on Kubespray, and here is the [system requirements](https://openpai.readthedocs.io/en/latest/manual/cluster-admin/installation-guide.html#installation-requirements). OpenPAI provides an [installation guide](https://openpai.readthedocs.io/en/latest/manual/cluster-admin/installation-guide.html) to facilitate the installation. 
+
+A brief comparison between `v0.14.0` and the upcoming `v1.0.0`:
+
+|                   | `v0.14.0`               | `v1.0.0` (coming soon)               |
+| ----------------- | ----------------------- | ---------------------- |
+| Architecture      | Kubernetes + Hadoop YARN| Kubernetes             |
+| Scheduler         | YARN Scheduler          | HiveD / K8S default    |
+| Job Orchestrating | YARN Framework Launcher | Framework Controller   |
+| RESTful API       | v1 + v2                 | pure v2                |
+| Storage           | Team-wise storage plugin| PV/PVC storage sharing |
+| Marketplace       | Marketplace v2          | openpaimarketplace     |
+| SDK               | Python                  | JavaScript / TypeScript|
 
     *If there is any question during deployment, please check [installation FAQs and troubleshooting](https://openpai.readthedocs.io/en/latest/manual/cluster-admin/installation-faqs-and-troubleshooting.html) first. If it is not covered yet, refer to [here](#get-involved) to ask question or submit an issue.*
 
