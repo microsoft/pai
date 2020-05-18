@@ -80,7 +80,7 @@ git clone https://<user>:<token>@dev.azure.com/<org>/<project>/_git/<repo>
 
 ## Submit jobs
 
-This part has been described in [submit-a-hello-world-job](https://github.com/microsoft/pai/blob/master/docs/user/job_submission.md#submit-a-hello-world-job).
+This part has been described in [submit-a-hello-world-job](https://openpai.readthedocs.io/en/latest/manual/cluster-user/quick-start.html#submit-a-hello-world-job).
 
 
 ## Get SSH info
