@@ -378,6 +378,14 @@ kube_image_repo: "{{ env['cfg']['kube_image_repo'] }}"
 quay_image_repo: "{{ env['cfg']['quay_image_repo'] }}"
 {%- endif %}
 
+{%- if 'etcd_image_repo' in env['cfg'] %}
+etcd_image_repo: "{{ env['cfg']['etcd_image_repo'] }}"
+{%- endif %}
+
+{%- if 'pod_infra_image_repo' in env['cfg'] %}
+pod_infra_image_repo: "{{ env['cfg']['pod_infra_image_repo'] }}"
+{%- endif %}
+
 {%- if 'docker_image_repo' in env['cfg'] %}
 docker_image_repo: "{{ env['cfg']['docker_image_repo'] }}"
 {%- endif %}
@@ -393,3 +401,9 @@ hyperkube_download_url: "{{ env['cfg']['hyperkube_download_url'] }}"
 # Choose network plugin (cilium, calico, contiv, weave or flannel. Use cni for generic cni plugin)
 # Can also be set to 'cloud', which lets the cloud provider setup appropriate routing
 kube_network_plugin: {{ env["cfg"]['openpai_kube_network_plugin'] | default('calico') }}
+
+{%- if 'openpai_kubespray_extra_var' in env['cfg'] %}
+{% for key in env['cfg']['openpai_kubespray_extra_var'] %}
+{{ key }}: "{{ env['cfg']['openpai_kubespray_extra_var'][key] }}"
+{% endfor %}
+{%- endif %}
