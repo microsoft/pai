@@ -1,1 +1,2 @@
-host_daemon_port_range: "40000 60000"
+host_daemon_port_start: 1024
+host_daemon_port_end: 19999
