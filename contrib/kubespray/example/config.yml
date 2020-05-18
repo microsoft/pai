@@ -68,3 +68,8 @@ docker_image_tag: <% latest-release %>
 # openpai_kubespray_extra_var:
 #   kay: value
 #   key: value
+
+#######################################################################
+#                     host daemon port setting                        #
+#######################################################################
+# host-daemon-port-range: "40000 60000"
