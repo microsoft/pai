@@ -9,7 +9,7 @@
 ## Spec
 **PAI Static Exit Info**: [job-exit-spec.md](job-exit-spec.md)
 
-**PAI Dynamic Exit Info**: [runtime-exit-spec.md](../../../docs/rest-server/runtime-exit-spec.md)
+**PAI Dynamic Exit Info**: runtime-exit-spec.md
 
 ## How to grow PAI Static Exit Info
 ### Add a new job exitcode
