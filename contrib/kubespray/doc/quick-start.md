@@ -92,8 +92,16 @@ docker_image_tag: <% latest-release %>
 # kube_image_repo: "gcr.io/google-containers"
 # quay_image_repo: "quay.io"
 # docker_image_repo: "docker.io"
+# etcd_image_repo: "quay.io/coreos/etcd"
+# pod_infra_image_repo: "gcr.io/google_containers/pause-{{ image_arch }}"
+# kubeadm_download_url: "https://storage.googleapis.com/kubernetes-release/release/{{ kubeadm_version }}/bin/linux/{{ image_arch }}/kubeadm"
+# hyperkube_download_url: "https://storage.googleapis.com/kubernetes-release/release/{{ kube_version }}/bin/linux/{{ image_arch }}/hyperkube"
 
 # openpai_kube_network_plugin: calico
+
+# openpai_kubespray_extra_var:
+#   kay: value
+#   key: value
 ```
 
 ###### start kubernetes
