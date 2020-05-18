@@ -32,6 +32,10 @@ To be updated --> **OpenPAI [v1.0.0](./RELEASE_NOTE.md#july-2019-version-0140) h
              <a href="https://github.com/microsoft/openpaivscode"><img src="https://user-images.githubusercontent.com/39592018/82190579-cec2cf00-9923-11ea-9ae7-77252917f8f5.png" align="left" /></a>
           </td>
         </tr>
+         <tr>
+         <td colspan="3" align="center"><a href="to be updated"><img src="https://user-images.githubusercontent.com/39592018/82190697-003b9a80-9924-11ea-82ef-7d3c01f4895d.png" /></a></td>
+         </tr>
+
  </table>
 
 
