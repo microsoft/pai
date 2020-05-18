@@ -22,18 +22,13 @@ To be updated --> **OpenPAI [v1.0.0](./RELEASE_NOTE.md#july-2019-version-0140) h
          <td colspan="3" align="center"><a href="https://github.com/microsoft/openpaimarketplace"><img src="https://user-images.githubusercontent.com/39592018/82189720-6e7f5d80-9922-11ea-8aa6-ef91bb738f93.png" /></a></td>
          </tr>
          <tr>
-          <td align="right" width="130">
-             <a href="To be updated"><img src="https://user-images.githubusercontent.com/39592018/82190123-1d239e00-9923-11ea-9278-0c0fc2403bd9.png" height="230" width="125" align="right" /></a>
+          <td align="right">
+             <a href="To be updated"><img src="https://user-images.githubusercontent.com/39592018/82190123-1d239e00-9923-11ea-9278-0c0fc2403bd9.png" align="right" /></a>
           </td>
-          <td align="center" width="600">
-              <a href="/src/prod/src/Communication#communication-subsystem"><img src="/docs/architecture/Images/Communication_E.png" /></a> 
-            <a href="/src/prod/src/Reliability#reliability-subsystem"><img src="/docs/architecture/Images/Reliability_E.png" /></a>  
-              <a href="/src/prod/src/Hosting2#hosting-subsystem"><img src="/docs/architecture/Images/Hosting_E.png" /></a> 
-            <br/>
-              <a href="/src/prod/src/Federation#federation-subsystem"><img src="/docs/architecture/Images/Federation_E.png" /></a>  
-              <a href="/src/prod/src/Transport#transport-subsystem"><img src="/docs/architecture/Images/Transport_E.png" /></a>
+          <td align="center">
+              <a href="https://github.com/microsoft/openpaisdk"><img src="https://user-images.githubusercontent.com/39592018/82190258-5cea8580-9923-11ea-90e3-c69feea89904.png" /></a> 
           </td>
-        <td align="left" width="130">
+        <td align="left">
              <a href="/src/prod/src/Testability#testabililty-subsystem"><img src="/docs/architecture/Images/Testability_E.png" height="230" width="125" align="left" /></a>
           </td>
         </tr>
