@@ -18,6 +18,9 @@ To be updated --> **OpenPAI [v1.0.0](./RELEASE_NOTE.md#july-2019-version-0140) h
         <tr>
          <td colspan="3" align="center"><strong>Click to Explore the Core Subsystems of Service Fabric</strong></td>
          </tr>
+        <tr>
+         <td colspan="3" align="center"><a href="https://github.com/microsoft/openpaimarketplace"><img src="https://user-images.githubusercontent.com/39592018/82189720-6e7f5d80-9922-11ea-8aa6-ef91bb738f93.png" /></a></td>
+         </tr>
          <tr>
           <td align="right" width="130">
              <a href="/src/prod/src/Management#management-subsystem"><img src="/docs/architecture/Images/Management_E.png" height="230" width="125" align="right" /></a>
