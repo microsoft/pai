@@ -24,7 +24,7 @@ The built files will be located in `dist/`.
 ## Deployment
 
 Put the built plugin files to a static file server that is accessible by the user.
-Read [PLUGINS](../../docs/webportal/PLUGINS.md#publish) for details.
+Read [PLUGINS](https://openpai.readthedocs.io/en/latest/manual/cluster-admin/how-to-customize-cluster-by-plugins.html) for details.
 
 Append the following plugin configuration block to the `webportal.plugins` section of `service-configuration.yaml` file.
 

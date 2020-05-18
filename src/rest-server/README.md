@@ -1,1 +1,1 @@
-See [README.md](../../docs/rest-server/README.md)
+See [swagger.yaml](./docs/swagger.yaml).
