@@ -18,14 +18,3 @@
 // module dependencies
 const fse = require('fs-extra');
 const helpers = require('./helpers');
-
-// copy docs to app
-fse.copySync(
-  helpers.root('../../docs/user/job_submission.md'),
-  helpers.root('src/app/job/job-docs/job-docs.md'),
-);
-
-fse.copySync(
-  helpers.root('../../docs/user/imgs'),
-  helpers.root('src/app/job/job-docs/imgs'),
-);
