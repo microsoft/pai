@@ -115,7 +115,7 @@ OpenPAI 的一般用法是提交 Job 请求，等到 Job 获得计算资源后�
 
 ### 提交训练作业
 
-参考[提交 Job 教程](docs/user/job_submission.md)来学习如何在 OpenPAI 上训练模型。 这是使用 OpenPAI 的入门教程。
+参考[提交 Job 教程](https://openpai.readthedocs.io/en/latest/manual/cluster-user/quick-start.html)来学习如何在 OpenPAI 上训练模型。 这是使用 OpenPAI 的入门教程。
 
 ### 客户端
 
@@ -139,7 +139,7 @@ Web 界面和 Job 日志有助于分析错误，OpenPAI 也支持通过 SSH 登�
 
 * [客户端](https://github.com/microsoft/openpaivscode/blob/master/VSCodeExt_zh_CN.md)
 * [使用存储](docs/user/storage.md)
-* [Job 配置](docs/user/job_submission.md)
+* [Job 配置](https://github.com/microsoft/openpai-protocol/blob/master/schemas/v2/schema.yaml)
 * [RESTful API](docs/rest-server/API.md)
 * [设计文档](docs)可帮助了解 OpenPAI 的设计和架构。
 
