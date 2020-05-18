@@ -1,6 +1,6 @@
 #!/bin/bash
 
-while getopts "w:m:c:" opt; do
+while getopts "c:" opt; do
   case $opt in
     c)
       CLUSTER_CONFIG=$OPTARG
@@ -24,4 +24,5 @@ then
   echo "Preinstall script finished succssfully"
 else
   echo "Preinstall script exited with error"
+  exit $ret_code_check
 fi

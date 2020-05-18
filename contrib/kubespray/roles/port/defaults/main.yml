@@ -1,1 +1,1 @@
-host-daemon-port-range: "40000 60000"
+host_daemon_port_range: "40000 60000"
