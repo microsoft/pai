@@ -18,5 +18,5 @@
 
 service_type: "k8s"
 
-webservice-port: 10096
+webservice-port: 30096
 
