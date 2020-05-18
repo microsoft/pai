@@ -94,7 +94,7 @@ The **job configuration** is a JSON file, which is submitted to OpenPAI. The hel
 
 There are two levels of fields in the JSON file. The top level is shared information of the job, including job name, Docker image, task roles, and so on. The second level is taskRoles, it's an array and each item describe a command and its environment.
 
-Below is required fields and [full spec of job configuration](../user/job_submission.md) is here.
+Below is required fields and [full spec of job configuration](https://github.com/microsoft/openpai-protocol/blob/master/schemas/v2/schema.yaml) is here.
 
 - **jobName** is the name of current job. It must be unique in each user account. A meaningful name helps managing jobs well.
 
@@ -154,7 +154,7 @@ When a job is submitted to OpenPAI, the job's status changes from waiting, to ru
 
 ## Reference
 
-- [Full spec of job configuration](../user/job_submission.md)
+- [Full spec of job configuration](https://github.com/microsoft/openpai-protocol/blob/master/schemas/v2/schema.yaml)
 - [Examples](../../examples)
 - [Troubleshooting job failure](troubleshooting_job.md)
 - [How to use storage](storage.md)
