@@ -92,7 +92,7 @@ def main():
     if 'openpai_kube_network_plugin' not in cluster_config or cluster_config['openpai_kube_network_plugin'] != 'weave':
         count_input = 0
         while True:
-            user_input = raw_input("Are your cluster is in Azure cloud or not? (Y/N) (case sensitive)")
+            user_input = input("Are your cluster is in Azure cloud or not? (Y/N) (case sensitive)")
             if user_input == "N":
                 break
             elif user_input == "Y":
@@ -103,7 +103,7 @@ def main():
             if count_input == 3:
                 logger.warning("3 Times.........  Sorry,  we will force stopping your operation.")
                 sys.exit(1)
-        if user_input == "Y" and cluster_config['openpai_kube_network_plugin'] == 'calico':
+        if user_input == "Y" and ('openpai_kube_network_plugin' not in cluster_config or cluster_config['openpai_kube_network_plugin'] == 'calico'):
             logger.warning("Azure does not support calico, please change the openpai_kube_network_plugin to weave")
             logger.warning("https://docs.projectcalico.org/reference/public-cloud/azure#why-doesnt-azure-support-calico-networking")
             sys.exit(1)
