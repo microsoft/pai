@@ -1,2 +1,2 @@
-host_daemon_port_start: 1024
-host_daemon_port_end: 19999
+host_daemon_port_start: 40000
+host_daemon_port_end: 65535
