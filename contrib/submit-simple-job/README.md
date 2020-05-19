@@ -2,7 +2,7 @@
 
 ## Background ##
 
-"Submit Simple Job" is released to be a [PAI web portal plugin](../../docs/webportal/PLUGINS.md) with a UI similar to [DLWorkspace](https://github.com/Microsoft/DLWorkspace) that makes DLWorkspace users familiar with OpenPAI quickly. It includes the following features:
+"Submit Simple Job" is released to be a PAI web portal plugin with a UI similar to [DLWorkspace](https://github.com/Microsoft/DLWorkspace) that makes DLWorkspace users familiar with OpenPAI quickly. It includes the following features:
 
 - Caffe / Tensorflow / Pytorch job templates
 - Multilined command support
