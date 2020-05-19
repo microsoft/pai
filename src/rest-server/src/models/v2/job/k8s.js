@@ -935,6 +935,9 @@ const put = async (frameworkName, config, rawConfig) => {
       }
     }
     for (let storage of config.extras.storages) {
+      if (!storage.name) {
+        continue;
+      }
       storage.readOnly = (await storageModel.get(storage.name)).readOnly;
     }
   }
