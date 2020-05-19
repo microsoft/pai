@@ -1,0 +1,6 @@
+---
+- name: "Set host daemon port range"
+  sysctl:
+    name: net.ipv4.ip_local_port_range
+    value: "{{ host_daemon_port_start }} {{ host_daemon_port_end }}"
+    state: present
