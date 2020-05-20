@@ -9,7 +9,7 @@
 
 [简体中文](README_zh_CN.md)
 
-**OpenPAI [v1.0.0](./RELEASE_NOTE.md#2020-v1.0.0) has been released!**
+**OpenPAI [v1.0.0](./RELEASE_NOTE.md#may-2020-version-100) has been released!**
 
 With the release of v1.0, OpenPAI is switching to a more robust, more powerful and lightweight architecture. OpenPAI is also becoming more and more modular so that the platform can be easily customized and expanded to suit new needs. OpenPAI also provides many AI user-friendly features, making it easier for end users and administrators to complete daily AI tasks. 
 
@@ -192,5 +192,5 @@ We are working on a set of major features improvement and refactor, anyone who i
 One key purpose of PAI is to support the highly diversified requirements from academia and industry. PAI is completely open: it is under the MIT license. This makes PAI particularly attractive to evaluate various research ideas, which include but not limited to the [components](./docs/research_education.md).
 
 PAI operates in an open model. It is initially designed and developed by [Microsoft Research (MSR)](https://www.microsoft.com/en-us/research/group/systems-research-group-asia/) and [Microsoft Software Technology Center Asia (STCA)](https://www.microsoft.com/en-us/ard/default.aspx) platform team.
-We are glad to have [Peking University](http://eecs.pku.edu.cn/EN/), [Xi'an Jiaotong University](http://www.aiar.xjtu.edu.cn/), [Zhejiang University](http://www.cesc.zju.edu.cn/index_e.htm), and [University of Science and Technology of China](http://eeis.ustc.edu.cn/) join us to develop the platform jointly.
+We are glad to have [Peking University](http://eecs.pku.edu.cn/EN/), [Xi'an Jiaotong University](http://www.aiar.xjtu.edu.cn/), [Zhejiang University](http://www.cesc.zju.edu.cn/index_e.htm), [University of Science and Technology of China](http://eeis.ustc.edu.cn/) and [SHANGHAI INESA AI INNOVATION CENTER]() join us to develop the platform jointly.
 Contributions from academia and industry are all highly welcome.
