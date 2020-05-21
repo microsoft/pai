@@ -13,30 +13,13 @@
 
 With the release of v1.0, OpenPAI is switching to a more robust, more powerful and lightweight architecture. OpenPAI is also becoming more and more modular so that the platform can be easily customized and expanded to suit new needs. OpenPAI also provides many AI user-friendly features, making it easier for end users and administrators to complete daily AI tasks. 
 
-<br/>
- <table>
-        <tr>
-         <td colspan="3" align="center"><strong>Click to Explore the Sub Components/Repositories of OpenPAI</strong></td>
-         </tr>
-        <tr>
-         <td colspan="3" align="center"><a href="https://github.com/microsoft/openpaimarketplace"><img src="https://user-images.githubusercontent.com/39592018/82189720-6e7f5d80-9922-11ea-8aa6-ef91bb738f93.png" /></a></td>
-         </tr>
-         <tr>
-          <td align="right">
-             <a href="To be updated"><img src="https://user-images.githubusercontent.com/39592018/82190123-1d239e00-9923-11ea-9278-0c0fc2403bd9.png" align="right" /></a>
-          </td>
-          <td align="center">
-              <a href="https://github.com/microsoft/openpaisdk"><img src="https://user-images.githubusercontent.com/39592018/82190258-5cea8580-9923-11ea-90e3-c69feea89904.png" /></a> 
-          </td>
-        <td align="left">
-             <a href="https://github.com/microsoft/openpaivscode"><img src="https://user-images.githubusercontent.com/39592018/82190579-cec2cf00-9923-11ea-9ae7-77252917f8f5.png" align="left" /></a>
-          </td>
-        </tr>
-         <tr>
-         <td colspan="3" align="center"><a href="to be updated"><img src="https://user-images.githubusercontent.com/39592018/82190697-003b9a80-9924-11ea-82ef-7d3c01f4895d.png" /></a></td>
-         </tr>
 
- </table>
+<p align="center">
+  <a href="https://raw.githubusercontent.com/microsoft/openpaimarketplace/test-matrix/PAI.svg">
+    <img src="./docs/architecture.svg" width="700" alt="Marketplace Logo" />
+  </a>
+</p>
+
 
 
 ## Table of Contents
