@@ -16,7 +16,7 @@ With the release of v1.0, OpenPAI is switching to a more robust, more powerful a
 
 <p align="center">
   <a href="https://raw.githubusercontent.com/microsoft/openpaimarketplace/test-matrix/PAI.svg">
-    <img src="./docs/architecture.svg" width="700" alt="Marketplace Logo" />
+    <img src="./docs/architecture.svg" width="600" alt="Marketplace Logo" />
   </a>
 </p>
 
