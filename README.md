@@ -13,7 +13,8 @@
 
 With the release of v1.0, OpenPAI is switching to a more robust, more powerful and lightweight architecture. OpenPAI is also becoming more and more modular so that the platform can be easily customized and expanded to suit new needs. OpenPAI also provides many AI user-friendly features, making it easier for end users and administrators to complete daily AI tasks. 
 
-<table align="center">
+<center>
+<table>
   <tr>
     <td align="center">
       <a href="https://github.com/microsoft/openpaimarketplace">
@@ -76,6 +77,7 @@ With the release of v1.0, OpenPAI is switching to a more robust, more powerful a
     </td>
   </tr>
 </table>
+</center>
 
 ## Table of Contents
 
