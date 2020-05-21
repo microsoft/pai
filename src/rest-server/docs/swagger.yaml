@@ -2019,6 +2019,8 @@ components:
             - type: object
               description: other/unknown type
               properties: {}
+        readOnly:
+          type: boolean
         secretName:
           type: string
         mountOptions:
