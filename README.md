@@ -13,14 +13,69 @@
 
 With the release of v1.0, OpenPAI is switching to a more robust, more powerful and lightweight architecture. OpenPAI is also becoming more and more modular so that the platform can be easily customized and expanded to suit new needs. OpenPAI also provides many AI user-friendly features, making it easier for end users and administrators to complete daily AI tasks. 
 
-
-<p align="center">
-  <a href="https://raw.githubusercontent.com/microsoft/openpaimarketplace/test-matrix/PAI.svg">
-    <img src="./docs/architecture.svg" width="600" alt="Marketplace Logo" />
-  </a>
-</p>
-
-
+<table align="center">
+  <tr>
+    <td align="center">
+      <a href="https://github.com/microsoft/openpaimarketplace">
+        <img src="./docs/images/architecture/Picture1.svg" width="610" alt="Marketplace Logo" />
+      </a>
+      <br/>
+      <a href="#">
+        <img src="./docs/images/architecture/Picture2.svg" width="200" alt=" Web Portal" />
+      </a>
+      <a href="https://github.com/microsoft/openpaivscode">
+        <img src="./docs/images/architecture/Picture3.svg" width="200" alt="VScode" />
+      </a>
+      <a href="https://github.com/microsoft/openpaisdk">
+        <img src="./docs/images/architecture/Picture4.svg" width="200" alt="SDK" />
+      </a>
+      <br/>
+      <a href="#">
+        <img src="./docs/images/architecture/Picture5.svg" width="610" alt="API" />
+      </a>
+      <br/>
+      <a href="#">
+        <img src="./docs/images/architecture/Picture18.svg" width="610" alt="Services" />
+      </a>
+      <br/>
+      <a href="#">
+        <img src="./docs/images/architecture/Picture19.svg" width="304" alt="User Authentication" />
+      </a>
+      <a href="#">
+        <img src="./docs/images/architecture/Picture20.svg" width="304" alt="User/Group Management" />
+      </a>
+      <br/>
+      <a href="#">
+        <img src="./docs/images/architecture/Picture21.svg" width="304" alt="Storage Management" />
+      </a>
+      <a href="#">
+        <img src="./docs/images/architecture/Picture22.svg" width="304" alt="Cluster/Job Monitoring" />
+      </a>
+      <br/>
+      <a href="https://github.com/microsoft/frameworkcontroller">
+        <img src="./docs/images/architecture/Picture23.svg" width="304" alt="Job Orchestration" />
+      </a>
+      <a href="https://github.com/microsoft/hivedscheduler">
+        <img src="./docs/images/architecture/Picture24.svg" width="304" alt="Job Scheduling" />
+      </a>
+      <br/>
+      <a href="https://github.com/microsoft/openpai-runtime">
+        <img src="./docs/images/architecture/Picture25.svg" width="304" alt="Job Runtime" />
+      </a>
+      <a href="#">
+        <img src="./docs/images/architecture/Picture26.svg" width="304" alt="Job Error Analysis" />
+      </a>
+      <br/>
+      <a href="#">
+        <img src="./docs/images/architecture/Picture15.svg" width="610" alt="Kubernetes Cluster Management" />
+      </a>
+      <br/>
+      <a href="#">
+        <img src="./docs/images/architecture/Picture16.svg" width="610" alt="CPU/GPU/FPGA/InfiniBand" />
+      </a>
+    </td>
+  </tr>
+</table>
 
 ## Table of Contents
 
