@@ -394,6 +394,14 @@ const generateTaskRole = (frameworkName, taskRole, jobInfo, frameworkEnvList, co
           privileged: false,
           restartPolicy: 'Never',
           serviceAccountName: 'runtime-account',
+          tolerations: [
+            {
+              key: "virtual-kubelet.io/provider",
+              operator: "Equal",
+              value: "mock",
+              effect: "NoSchedule",
+            }
+          ],
           initContainers: [
             {
               name: 'init',
