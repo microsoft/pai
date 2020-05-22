@@ -32,7 +32,7 @@ rest-server:
   jwt-expire-time: "7d"
   default-pai-admin-username: pai-admin
   default-pai-admin-password: pai-admin-password
-  schedule-port-start: 20000
+  schedule-port-start: 15000
   schedule-port-end: 40000
 ```
 
@@ -50,5 +50,8 @@ rest-server:
 | schedule-port-end                      | com["rest-server"]["schedule-port-end"]          | cluster_cfg["rest-server"]["schedule-port-end"]          | Int       |
 
 ## Notice
-For config `schedule-port-start` and `schedule-port-end`. If there are running jobs, change these config will cause rest server return incorrect port number.
+For config `schedule-port-start` and `schedule-port-end`. Change these config will cause rest server return incorrect port number for running job and finished job.
 For the job which submitted after the config changes, the port number will be reported correctly.
+
+To change the config, you need to change `host_daemon_port_start` and `host_daemon_port_end` in `contrib/kubespray/example/config.yml `correspondingly to avoid port overlap.
+The default value for `host_daemon_port_start` and `host_daemon_port_end` is 40000 and 65535 includes 40000 and 65535. The default value for `schedule-port-start` and `schedule-port-end` is 15000 and 40000, includes 15000, not includes 40000.

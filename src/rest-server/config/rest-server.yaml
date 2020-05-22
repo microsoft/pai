@@ -22,7 +22,7 @@ rate-limit-api-per-min: 600
 rate-limit-list-job-per-min: 60
 rate-limit-submit-job-per-hour: 60
 # The schedule port range is [schedule-port-start, schedule-port-end)
-schedule-port-start: 20000
+schedule-port-start: 15000
 schedule-port-end: 40000
 jwt-secret: pai-secret
 jwt-expire-time: '7d'

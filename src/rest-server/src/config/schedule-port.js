@@ -27,7 +27,7 @@ let schedulePortConfig = {
 const schedulePortConfigSchema = Joi.object().keys({
   start: Joi.number()
     .integer()
-    .default(20000),
+    .default(15000),
   end: Joi.number()
     .integer()
     .default(40000),
