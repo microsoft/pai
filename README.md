@@ -23,10 +23,10 @@ With the release of v1.0, OpenPAI is switching to a more robust, more powerful a
         </a>
         <br/>
         <img src="./docs/images/architecture/Picture2.svg" width="200" alt=" Web Portal" />
-        <a href="https://github.com/microsoft/openpaivscode" target="_blank">
+        <a href="https://github.com/microsoft/openpaisdk" target="_blank">
           <img src="./docs/images/architecture/Picture3.svg" width="200" alt="VScode" />
         </a>
-        <a href="https://github.com/microsoft/openpaisdk" target="_blank">
+        <a href="https://github.com/microsoft/openpaivscode" target="_blank">
           <img src="./docs/images/architecture/Picture4.svg" width="200" alt="SDK" />
         </a>
         <br/>
