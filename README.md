@@ -16,11 +16,13 @@ With the release of v1.0, OpenPAI is switching to a more robust, more powerful a
  <table>
    <tr>
      <td align="center">
+             <span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp</span>
+        <br/>
        <a href="https://github.com/microsoft/openpaimarketplace">
          <img src="./docs/images/architecture/Picture1.svg" width="610" alt="Marketplace Logo" />
        </a>
        <br/>
-       <a href="#">
+       <a href="">
          <img src="./docs/images/architecture/Picture2.svg" width="200" alt=" Web Portal" />
        </a>
        <a href="https://github.com/microsoft/openpaivscode">
@@ -30,25 +32,25 @@ With the release of v1.0, OpenPAI is switching to a more robust, more powerful a
          <img src="./docs/images/architecture/Picture4.svg" width="200" alt="SDK" />
        </a>
        <br/>
-       <a href="#">
+       <a href="">
          <img src="./docs/images/architecture/Picture5.svg" width="610" alt="API" />
        </a>
        <br/>
-       <a href="#">
+       <a href="">
          <img src="./docs/images/architecture/Picture18.svg" width="610" alt="Services" />
        </a>
        <br/>
-       <a href="#">
+       <a href="">
          <img src="./docs/images/architecture/Picture19.svg" width="304" alt="User Authentication" />
        </a>
-       <a href="#">
+       <a href="">
          <img src="./docs/images/architecture/Picture20.svg" width="304" alt="User/Group Management" />
        </a>
        <br/>
-       <a href="#">
+       <a href="">
          <img src="./docs/images/architecture/Picture21.svg" width="304" alt="Storage Management" />
        </a>
-       <a href="#">
+       <a href="">
          <img src="./docs/images/architecture/Picture22.svg" width="304" alt="Cluster/Job Monitoring" />
        </a>
        <br/>
@@ -62,15 +64,15 @@ With the release of v1.0, OpenPAI is switching to a more robust, more powerful a
        <a href="https://github.com/microsoft/openpai-runtime">
          <img src="./docs/images/architecture/Picture25.svg" width="304" alt="Job Runtime" />
        </a>
-       <a href="#">
+       <a href="">
          <img src="./docs/images/architecture/Picture26.svg" width="304" alt="Job Error Analysis" />
        </a>
        <br/>
-       <a href="#">
+       <a href="">
          <img src="./docs/images/architecture/Picture15.svg" width="610" alt="Kubernetes Cluster Management" />
        </a>
        <br/>
-       <a href="#">
+       <a href="">
          <img src="./docs/images/architecture/Picture16.svg" width="610" alt="CPU/GPU/FPGA/InfiniBand" />
        </a>
      </td>
