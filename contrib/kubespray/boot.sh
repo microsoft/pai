@@ -56,6 +56,8 @@ ansible-playbook -i ${HOME}/pai-deploy/cluster-cfg/hosts.yml drivers-install.yml
 
 ansible-playbook -i ${HOME}/pai-deploy/cluster-cfg/hosts.yml docker-runtime-setup.yml || exit $?
 
+ansible-playbook -i ${HOME}/pai-deploy/cluster-cfg/hosts.yml set-host-daemon-port-range.yml || exit $?
+
 /bin/bash requirement.sh -m ${MASTER_LIST} -w ${WORKER_LIST} -c ${CLUSTER_CONFIG} || exit $?
 
 /bin/bash script/kubernetes-boot.sh || exit $?
