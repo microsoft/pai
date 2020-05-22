@@ -37,6 +37,7 @@ const fs = require('fs');
 const _ = require('lodash');
 const logger = require('@pai/config/logger');
 const {apiserver} = require('@pai/config/kubernetes');
+const schedulePort = require('@pai/config/schedule-port');
 
 let exitSpecPath;
 if (process.env[env.exitSpecPath]) {
@@ -179,11 +180,31 @@ const convertFrameworkSummary = (framework) => {
 
 const convertTaskDetail = async (taskStatus, ports, logPathPrefix) => {
   // get container ports
+  // The algorithm is:
+  // (int(md5(podUid + portName + portIndex)[0:12] ,16) +
+  //  int(md5(podUid + portName + portIndex)[12:24] ,16) +
+  //  int(md5(podUid + portName + portIndex)[24:32] ,16)) % (schedulePortEnd - schedulePortStart) + schedulePortStart
   const containerPorts = {};
-  if (ports) {
+  const hashFunc = (str) => {
+    const hexStr = crypto.createHash('md5').update(str).digest('hex');
+    return parseInt(hexStr.substring(0, 12), 16) +
+      parseInt(hexStr.substring(12, 24), 16) + parseInt(hexStr.substring(24), 16);
+  };
+  if (ports && taskStatus.attemptStatus.podUID) {
     const randomPorts = JSON.parse(ports);
-    for (let port of Object.keys(randomPorts)) {
-      containerPorts[port] = randomPorts[port].start + taskStatus.index * randomPorts[port].count;
+    if (randomPorts.ports) {
+      for (let port of Object.keys(randomPorts.ports)) {
+        const portNums = [...Array(randomPorts.ports[port].count).keys()].map((index) => {
+          const rawString = `[${taskStatus.attemptStatus.podUID}][${port}][${index}]`;
+          return hashFunc(rawString) % (randomPorts.schedulePortEnd - randomPorts.schedulePortStart) + randomPorts.schedulePortStart;
+        });
+        containerPorts[port] = portNums.join();
+      }
+    } else {
+      // for backward compatibility
+      for (let port of Object.keys(randomPorts)) {
+        containerPorts[port] = randomPorts[port].start + taskStatus.index * randomPorts[port].count;
+      }
     }
   }
   // get affinity group name
@@ -329,11 +350,10 @@ const generateTaskRole = (frameworkName, taskRole, jobInfo, frameworkEnvList, co
       ports[port] = 1;
     }
   }
-  // schedule ports in [20000, 40000) randomly
-  const randomPorts = {};
+
+  const randomPorts = {schedulePortStart: schedulePort.start, schedulePortEnd: schedulePort.end, ports: {}};
   for (let port of Object.keys(ports)) {
-    randomPorts[port] = {
-      start: Math.floor((Math.random() * 20000) + 20000),
+    randomPorts.ports[port] = {
       count: ports[port],
     };
   }
