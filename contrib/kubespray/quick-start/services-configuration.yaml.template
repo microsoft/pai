@@ -230,6 +230,7 @@ authentication:
 #  smbpwd: smbpwd
 
 device-plugin:
+  service_type: "k8s"
   {% if "nvidia_device_plugin_yaml_url" in env["cfg"] %}
   nvidia_device_plugin_yaml_url: "{{ env['cfg']['nvidia_device_plugin_yaml_url'] }}"
   {% endif %}
