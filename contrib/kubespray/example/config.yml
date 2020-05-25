@@ -74,3 +74,10 @@ docker_image_tag: <% latest-release %>
 #######################################################################
 # host_daemon_port_start: 40000
 # host_daemon_port_end: 65535
+
+
+# Change the following urls if you cannot access them
+# nvidia_device_plugin_yaml_url: "https://raw.githubusercontent.com/NVIDIA/k8s-device-plugin/1.0.0-beta4/nvidia-device-plugin.yml"
+# amd_device_plugin_yaml_url: "https://raw.githubusercontent.com/RadeonOpenCompute/k8s-device-plugin/master/k8s-ds-amdgpu-dp.yaml"
+# rdma_config_yaml_url: "https://raw.githubusercontent.com/Mellanox/k8s-rdma-sriov-dev-plugin/master/example/hca/rdma-hca-node-config.yaml"
+# rdma_device_plugin_yaml_url: "https://raw.githubusercontent.com/Mellanox/k8s-rdma-sriov-dev-plugin/master/example/device-plugin.yaml"

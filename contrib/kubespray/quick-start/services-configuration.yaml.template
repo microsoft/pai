@@ -228,3 +228,17 @@ authentication:
 #  workgroup: WORKGROUP
 #  smbuser: smbuser
 #  smbpwd: smbpwd
+
+device-plugin:
+  {% if "nvidia_device_plugin_yaml_url" in env["cfg"] %}
+  nvidia_device_plugin_yaml_url: "{{ nvidia_device_plugin_yaml_url }}"
+  {% endif %}
+  {% if "amd_device_plugin_yaml_url" in env["cfg"] %}
+  amd_device_plugin_yaml_url: "{{ amd_device_plugin_yaml_url }}"
+  {% endif %}
+  {% if "rdma_config_yaml_url" in env["cfg"] %}
+  rdma_config_yaml_url: "{{ rdma_config_yaml_url }}"
+  {% endif %}
+  {% if "rdma_device_plugin_yaml_url" in env["cfg"] %}
+  rdma_device_plugin_yaml_url: "{{ rdma_device_plugin_yaml_url }}"
+  {% endif %}
