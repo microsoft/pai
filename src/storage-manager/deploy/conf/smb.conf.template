@@ -83,6 +83,7 @@
   valid users = {{cluster_cfg["storage-manager"]["smbuser"]}} %D\%U
   root preexec = /usr/bin/sambauserhomecreate %U %D %u {{cluster_cfg["storage-manager"]["smbuser"]}}
   create mask = 0777
+  directory mask = 0777
 
 [data]
   comment = Samba share data 
