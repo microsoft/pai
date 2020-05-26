@@ -34,7 +34,7 @@ if [ $ret_code_check -eq 0 ]
 then
   echo "Pass: Cluster meets the requirements"
 else
-  echo "Faild: There are unmet requirements in your cluster, the installation will be very likely to fail."
+  echo "Failed: There are unmet requirements in your cluster, the installation will be very likely to fail."
   echo ""
   echo "Please press ENTER to stop the script, check the log, and modify the cluster setting to meet the requirements."
   echo "If you are very sure about the configuration, and still want to continue, you can type in \"continue\" to force the script to proceed."
