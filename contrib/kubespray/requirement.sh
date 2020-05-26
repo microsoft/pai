@@ -34,9 +34,17 @@ if [ $ret_code_check -eq 0 ]
 then
   echo "Pass: Cluster meets the requirements"
 else
-  echo "Faild: Please check the output, and modify the cluster setting to meet the requirement"
+  echo "Faild: There are unmet requirements in your cluster, the installation will be very likely to fail."
+  echo ""
+  echo "Please press ENTER to stop the script, check the log, and modify the cluster setting to meet the requirements."
+  echo "If you are very sure about the configuration, and still want to continue, you can type in \"continue\" to force the script to proceed."
   rm -rf ${HOME}/pai-pre-check/
-  exit $ret_code_check
+  read user_input
+  if [ "${user_input}"x = "continue"x ]; then
+    exit 0
+  else
+    exit $ret_code_check
+  fi
 fi
 
 rm -rf ${HOME}/pai-pre-check/

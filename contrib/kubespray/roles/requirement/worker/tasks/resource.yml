@@ -1,6 +1,6 @@
 ---
 - name: Check memory resource requirement for openpai service
-  fail:
-    msg: "OpenPAI's worker node should have 16 Gi free memory for service "
+  set_fact:
+    unmet_requirements: "{{ unmet_requirements + ['OpenPAI\\'s worker node should have 16 Gi free memory for service'] }}"
   when:
     - ansible_memory_mb["nocache"]["free"] < 16000

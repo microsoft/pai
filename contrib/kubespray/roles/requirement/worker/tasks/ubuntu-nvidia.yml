@@ -8,8 +8,8 @@
   environment: {}
 
 - name: "Check NVIDIA GPU exits or not"
-  fail:
-    msg: "NVIDIA GPU card is not detected in your worker machines."
+  set_fact:
+    unmet_requirements: "{{ unmet_requirements + ['NVIDIA GPU card is not detected in your worker machines'] }}"
   changed_when: false
   check_mode: false
   environment: {}
@@ -25,8 +25,8 @@
   environment: {}
 
 - name: "Check NVIDIA GPU drivers is installed or not "
-  fail:
-    msg: "NVIDIA GPU drivers is not detected in your worker machines."
+  set_fact:
+    unmet_requirements: "{{ unmet_requirements + ['NVIDIA GPU drivers is not detected in your worker machines'] }}"
   changed_when: false
   check_mode: false
   environment: {}
@@ -42,8 +42,8 @@
   environment: {}
 
 - name: "Check NVIDIA container runtime is installed or not"
-  fail:
-    msg: "NVIDIA container runtime is not detected in your worker machines."
+  set_fact:
+    unmet_requirements: "{{ unmet_requirements + ['NVIDIA container runtime is not detected in your worker machines'] }}"
   changed_when: false
   check_mode: false
   environment: {}
