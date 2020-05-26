@@ -43,9 +43,6 @@
 - hosts: all
   tasks:
     - name: "display unmet requirements"
-      debug:
-        msg: "[WARNING] The following requirements are not met: {{ unmet_requirements | join(', ') }}"
-      when: unmet_requirements|length > 0
-    - name: "fail the playbook"
       fail:
+        msg: "The following requirements are not met: {{ unmet_requirements | join(', ') }}"
       when: unmet_requirements|length > 0
