@@ -47,5 +47,5 @@
   tasks:
     - name: "display unmet requirements"
       fail:
-        msg: "The following requirements are not met: {{ unmet_requirements | join(', ') }}"
+        msg: "The following requirements are not met: {{ unmet_requirements | join('. ') }}"
       when: unmet_requirements|length > 0
