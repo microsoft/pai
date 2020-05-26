@@ -9,7 +9,7 @@
 
 - name: "Failed, if docker is not installed on your worker machine."
   set_fact:
-    unmet_requirements: "{{ unmet_requirements + ['Unable to find docker in your master machine'] }}"
+    unmet_requirements: "{{ unmet_requirements + ['Unable to find docker in your worker machine'] }}"
   changed_when: false
   check_mode: false
   environment: {}
