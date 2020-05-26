@@ -43,7 +43,7 @@
   roles:
     - { role: requirement/worker }
 
-- hosts: all
+- hosts: all,localhost
   tasks:
     - name: "display unmet requirements"
       fail:
