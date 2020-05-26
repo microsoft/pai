@@ -41,7 +41,7 @@ sudo docker exec -it dev-box-quick-start kubectl get node || { cleanup; exit 1; 
 sudo docker exec -i dev-box-quick-start /bin/bash << EOF_DEV_BOX
 
 apt-get -y update
-apt-get -y install python3 python-dev software-properties-common
+apt-get -y install subversion python3 python-dev software-properties-common
 curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py
 python3 get-pip.py
 pip3 install kubernetes==11.0.0b2 jinja2
@@ -57,11 +57,13 @@ git checkout ${OPENPAI_BRANCH_NAME}
 git pull
 
 echo "starting nvidia device plugin to detect nvidia gpu resource"
-kubectl apply --overwrite=true -f https://raw.githubusercontent.com/NVIDIA/k8s-device-plugin/1.0.0-beta4/nvidia-device-plugin.yml || exit $?
+svn cat https://github.com/NVIDIA/k8s-device-plugin.git/tags/1.0.0-beta4/nvidia-device-plugin.yml \
+  | kubectl apply --overwrite=true -f - || exit $?
 sleep 5
 
 echo "starting AMD device plugin to detect AMD gpu resource"
-kubectl apply --overwrite=true -f https://raw.githubusercontent.com/RadeonOpenCompute/k8s-device-plugin/master/k8s-ds-amdgpu-dp.yaml || exit $?
+svn cat https://github.com/RadeonOpenCompute/k8s-device-plugin.git/trunk/k8s-ds-amdgpu-dp.yaml \
+  | kubectl apply --overwrite=true -f - || exit $?
 sleep 5
 
 python3 /root/pai/contrib/kubespray/script/openpai-generator.py -m /quick-start-config/master.csv -w /quick-start-config/worker.csv -c /quick-start-config/config.yml -o /cluster-configuration || exit $?
