@@ -1,15 +1,15 @@
 kind: DaemonSet
 apiVersion: apps/v1
 metadata:
-  name: csi-nodeplugin-dshuttle
+  name: dshuttle-csi-daemon
 spec:
   selector:
     matchLabels:
-      app: csi-nodeplugin-dshuttle
+      app: dshuttle-csi-daemon
   template:
     metadata:
       labels:
-        app: csi-nodeplugin-dshuttle
+        app: dshuttle-csi-daemon
     spec:
       affinity:
           nodeAffinity:

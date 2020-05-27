@@ -506,10 +506,6 @@ const generateTaskRole = (frameworkName, taskRole, jobInfo, frameworkEnvList, co
                   readOnly: true,
                   mountPath: '/usr/local/pai/ssh-secret',
                 },
-                {
-                  name: 'dshuttle',
-                  mountPath: '/mnt/dshuttle',
-                },
               ],
             },
           ],
@@ -541,12 +537,6 @@ const generateTaskRole = (frameworkName, taskRole, jobInfo, frameworkEnvList, co
               name: 'job-exit-spec',
               configMap: {
                 name: 'runtime-exit-spec-configuration',
-              },
-            },
-            {
-              name: 'dshuttle',
-              hostPath: {
-                path: '/mnt/dshuttle',
               },
             },
           ],
