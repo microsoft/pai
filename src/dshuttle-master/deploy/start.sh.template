@@ -17,17 +17,16 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+{%- if cluster_cfg['cluster']['common']['dshuttle'] == 'true' %}
 pushd $(dirname "$0") > /dev/null
 
-PYTHONPATH="../../../deployment" python -m k8sPaiLibrary.maintaintool.update_resource \
-    --operation delete --resource statefulset --name dshuttle-sts
+kubectl apply --overwrite=true -f dshuttle-config.yaml || exit $?
+kubectl apply --overwrite=true -f dshuttle-service.yaml || exit $?
+kubectl apply --overwrite=true -f dshuttle-master.yaml || exit $?
 
-if kubectl get service | grep -q "dshuttle-service"; then
-    kubectl delete service dshuttle-service || exit $?
-fi
-
-if kubectl get configmap | grep -q "dshuttle-config"; then
-    kubectl delete configmap dshuttle-config || exit $?
-fi
+sleep 10
+# Wait until the service is ready.
+PYTHONPATH="../../../deployment" python -m k8sPaiLibrary.monitorTool.check_pod_ready_status -w -k app -v dshuttle-master || exit $?
 
 popd > /dev/null
+{%- endif %}

@@ -2,8 +2,6 @@ apiVersion: apps/v1
 kind: DaemonSet
 metadata:
   name: dshuttle-worker
-  labels:
-    app: dshuttle-worker
 spec:
   selector:
     matchLabels:
@@ -13,15 +11,6 @@ spec:
       labels:
         app: dshuttle-worker
     spec:
-      affinity:
-          nodeAffinity:
-            requiredDuringSchedulingIgnoredDuringExecution:
-              nodeSelectorTerms:
-              - matchExpressions:
-                - key: pai-worker
-                  operator: In
-                  values:
-                  - "true"
       hostNetwork: true
       dnsPolicy: ClusterFirstWithHostNet
       securityContext:
@@ -67,9 +56,9 @@ spec:
           - configMapRef:
               name: dshuttle-config
           ports:
-          - containerPort: 29999
+          - containerPort: 4999
             name: rpc
-          - containerPort: 30000
+          - containerPort: 5000
             name: web
           volumeMounts:
             - name: dshuttle-domain
@@ -105,11 +94,11 @@ spec:
           - configMapRef:
               name: dshuttle-config
           ports:
-          - containerPort: 30001
+          - containerPort: 5001
             name: job-rpc
-          - containerPort: 30002
+          - containerPort: 5002
             name: job-data
-          - containerPort: 30003
+          - containerPort: 5003
             name: job-web
           volumeMounts:
             - name: dshuttle-domain

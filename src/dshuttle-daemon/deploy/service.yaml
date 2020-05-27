@@ -15,22 +15,19 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-kind: Service
-apiVersion: v1
-metadata:
-  name: dshuttle-master
-  labels:
-    app: dshuttle-master
-spec:
-  type: NodePort
-  ports:
-  - port: 19998
-    name: rpc
-  - port: 19999
-    name: web
-  - port: 20001
-    name: job-rpc
-  - port: 20002
-    name: job-web
-  selector:
-    app: dshuttle-master
+cluster-type:
+  - k8s
+
+prerequisite:
+  - cluster-configuration
+  - dshuttle-master
+
+template-list:
+  - start.sh
+  - stop.sh
+
+start-script: start.sh
+stop-script: stop.sh
+
+deploy-rules:
+  - in: pai-worker

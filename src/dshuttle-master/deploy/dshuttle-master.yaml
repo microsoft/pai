@@ -19,8 +19,6 @@ kind: StatefulSet
 apiVersion: apps/v1
 metadata:
   name: dshuttle-master
-  labels:
-    app: dshuttle
 spec:
   replicas: 1
   serviceName: dshuttle-master
@@ -32,15 +30,6 @@ spec:
       labels:
         app: dshuttle-master
     spec:
-      affinity:
-          nodeAffinity:
-            requiredDuringSchedulingIgnoredDuringExecution:
-              nodeSelectorTerms:
-              - matchExpressions:
-                - key: pai-master
-                  operator: In
-                  values:
-                  - "true"
       hostNetwork: false
       containers:
       - name: dshuttle-master
@@ -50,8 +39,11 @@ spec:
           runAsUser: 1000
           runAsGroup: 1000
         resources:
+          limits:
+            cpu: 8
+            memory: 16G
           requests:
-            cpu: 4
+            cpu: 2
             memory: 8G
         command: ["/entrypoint.sh"]
         args:
