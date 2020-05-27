@@ -48,7 +48,17 @@ echo "Ping Test"
 
 ansible all -i ${HOME}/pai-deploy/cluster-cfg/hosts.yml -m ping || exit $?
 
-/bin/bash requirement.sh -m ${MASTER_LIST} -w ${WORKER_LIST} -c ${CLUSTER_CONFIG} || exit $?
+/bin/bash requirement.sh -m ${MASTER_LIST} -w ${WORKER_LIST} -c ${CLUSTER_CONFIG}
+ret_code_check=$?
+if [ $ret_code_check -ne 0 ]; then
+  echo ""
+  echo "Please press ENTER to stop the script, check the log, and modify the cluster setting to meet the requirements."
+  echo "If you are very sure about the configuration, and still want to continue, you can type in \"continue\" to force the script to proceed."
+  read user_input
+  if [ "${user_input}"x != "continue"x ]; then
+    exit $ret_code_check
+  fi
+fi
 
 /bin/bash script/kubernetes-boot.sh || exit $?
 
