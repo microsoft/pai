@@ -1,3 +1,5 @@
+#!/bin/bash
+
 # Copyright (c) Microsoft Corporation
 # All rights reserved.
 #
@@ -15,21 +17,20 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-cluster-type:
-  - k8s
+{%- if cluster_cfg['cluster']['common']['dshuttle'] == 'true' %}
+pushd $(dirname "$0") > /dev/null
 
-prerequisite:
-  - cluster-configuration
+if kubectl get daemonset | grep -q "dshuttle-csi-daemon"; then
+    kubectl delete daemonset dshuttle-csi-daemon || exit $?
+fi
 
-template-list:
-  - start.sh
-  - stop.sh
-  - dshuttle-service.yaml
-  - dshuttle-config.yaml
-  - dshuttle-master.yaml
+if kubectl get csidriver | grep -q "alluxio"; then
+    kubectl delete csidriver alluxio || exit $?
+fi
 
-start-script: start.sh
-stop-script: stop.sh
+if kubectl get daemonset | grep -q "dshuttle-worker"; then
+    kubectl delete daemonset dshuttle-worker || exit $?
+fi
 
-deploy-rules:
-  - in: pai-master
+popd > /dev/null
+{%- endif %}

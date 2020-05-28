@@ -20,13 +20,11 @@
 {%- if cluster_cfg['cluster']['common']['dshuttle'] == 'true' %}
 pushd $(dirname "$0") > /dev/null
 
-kubectl apply --overwrite=true -f dshuttle-worker.yaml || exit $?
 kubectl apply --overwrite=true -f dshuttle-csi-driver.yaml || exit $?
 kubectl apply --overwrite=true -f dshuttle-csi-daemon.yaml || exit $?
 
 sleep 10
 # Wait until the service is ready.
-PYTHONPATH="../../../deployment" python -m k8sPaiLibrary.monitorTool.check_pod_ready_status -w -k app -v dshuttle-worker || exit $?
 PYTHONPATH="../../../deployment" python -m k8sPaiLibrary.monitorTool.check_pod_ready_status -w -k app -v dshuttle-csi-daemon || exit $?
 
 popd > /dev/null

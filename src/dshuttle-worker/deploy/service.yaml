@@ -20,16 +20,15 @@ cluster-type:
 
 prerequisite:
   - cluster-configuration
+  - dshuttle-master
 
 template-list:
   - start.sh
   - stop.sh
-  - dshuttle-service.yaml
-  - dshuttle-config.yaml
-  - dshuttle-master.yaml
+  - dshuttle-worker.yaml
 
 start-script: start.sh
 stop-script: stop.sh
 
 deploy-rules:
-  - in: pai-master
+  - in: pai-worker

@@ -1,0 +1,10 @@
+worker_rpc_port: 4999
+worker_web_port: 5000
+job_worker_rpc_port: 5001
+job_worker_data_port: 5002
+job_worker_web_port: 5003
+
+master_rpc_port: 30998
+master_web_port: 30999
+master_job_rpc_port: 31001
+master_job_web_port: 31002

@@ -44,6 +44,7 @@ spec:
           image: dshuttle/dshuttle-plugin:latest
           command: ["/usr/local/bin/alluxio-csi"]
           args :
+            - "--v=4"
             - "--nodeid=$(NODE_ID)"
             - "--endpoint=$(CSI_ENDPOINT)"
           env:

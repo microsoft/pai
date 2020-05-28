@@ -15,21 +15,28 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-cluster-type:
-  - k8s
-
-prerequisite:
-  - cluster-configuration
-
-template-list:
-  - start.sh
-  - stop.sh
-  - dshuttle-service.yaml
-  - dshuttle-config.yaml
-  - dshuttle-master.yaml
-
-start-script: start.sh
-stop-script: stop.sh
-
-deploy-rules:
-  - in: pai-master
+kind: Service
+apiVersion: v1
+metadata:
+  name: dshuttle-service
+spec:
+  type: NodePort
+  ports:
+  - port: {{ cluster_cfg['dshuttle-master']['master_rpc_port'] }}
+    targetPort: {{ cluster_cfg['dshuttle-master']['master_rpc_port'] }}
+    nodePort: {{ cluster_cfg['dshuttle-master']['master_rpc_port'] }}
+    name: rpc
+  - port: {{ cluster_cfg['dshuttle-master']['master_web_port'] }}
+    targetPort: {{ cluster_cfg['dshuttle-master']['master_web_port'] }}
+    nodePort: {{ cluster_cfg['dshuttle-master']['master_web_port'] }}
+    name: web
+  - port: {{ cluster_cfg['dshuttle-master']['master_job_rpc_port'] }}
+    targetPort: {{ cluster_cfg['dshuttle-master']['master_job_rpc_port'] }}
+    nodePort: {{ cluster_cfg['dshuttle-master']['master_job_rpc_port'] }}
+    name: job-rpc
+  - port: {{ cluster_cfg['dshuttle-master']['master_job_web_port'] }}
+    targetPort: {{ cluster_cfg['dshuttle-master']['master_job_web_port'] }}
+    nodePort: {{ cluster_cfg['dshuttle-master']['master_job_web_port'] }}
+    name: job-web
+  selector:
+    app: dshuttle-master

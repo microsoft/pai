@@ -56,9 +56,9 @@ spec:
           - configMapRef:
               name: dshuttle-config
           ports:
-          - containerPort: 4999
+          - containerPort: {{ cluster_cfg['dshuttle-master']['worker_rpc_port'] }} 
             name: rpc
-          - containerPort: 5000
+          - containerPort: {{ cluster_cfg['dshuttle-master']['worker_web_port'] }}
             name: web
           volumeMounts:
             - name: dshuttle-domain
@@ -94,11 +94,11 @@ spec:
           - configMapRef:
               name: dshuttle-config
           ports:
-          - containerPort: 5001
+          - containerPort: {{ cluster_cfg['dshuttle-master']['job_worker_rpc_port'] }}
             name: job-rpc
-          - containerPort: 5002
+          - containerPort: {{ cluster_cfg['dshuttle-master']['job_worker_data_port'] }} 
             name: job-data
-          - containerPort: 5003
+          - containerPort: {{ cluster_cfg['dshuttle-master']['job_worker_web_port'] }}
             name: job-web
           volumeMounts:
             - name: dshuttle-domain
