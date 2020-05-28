@@ -20,14 +20,6 @@
 {%- if cluster_cfg['cluster']['common']['dshuttle'] == 'true' %}
 pushd $(dirname "$0") > /dev/null
 
-if kubectl get daemonset | grep -q "dshuttle-csi-daemon"; then
-    kubectl delete daemonset dshuttle-csi-daemon || exit $?
-fi
-
-if kubectl get csidriver | grep -q "alluxio"; then
-    kubectl delete csidriver alluxio || exit $?
-fi
-
 if kubectl get daemonset | grep -q "dshuttle-worker"; then
     kubectl delete daemonset dshuttle-worker || exit $?
 fi

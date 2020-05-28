@@ -553,7 +553,7 @@ class ContainerCollector(Collector):
         "dshuttle-job-master",
         "dshuttle-worker",
         "dshuttle-job-worker",
-        "dshuttle-fuse",
+        "dshuttle-csi-daemon",
 
         # Below are DLTS services
         "nginx",

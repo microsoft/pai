@@ -494,8 +494,8 @@
           },
           {
             "selected": false,
-            "text": "dshuttle-fuse",
-            "value": "dshuttle-fuse"
+            "text": "dshuttle-csi-daemon",
+            "value": "dshuttle-csi-daemon"
           },
           {
             "selected": false,

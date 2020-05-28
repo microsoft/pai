@@ -22,11 +22,11 @@ prerequisite:
   - cluster-configuration
 
 template-list:
-  - start.sh
-  - stop.sh
   - dshuttle-service.yaml
   - dshuttle-config.yaml
   - dshuttle-master.yaml
+  - start.sh
+  - stop.sh
 
 start-script: start.sh
 stop-script: stop.sh
