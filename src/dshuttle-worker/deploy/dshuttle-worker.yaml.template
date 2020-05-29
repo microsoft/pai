@@ -37,7 +37,7 @@ spec:
       - name: socket-chown
         securityContext:
           runAsUser: 0
-        image: dshuttle/dshuttle:latest
+        image: {{ cluster_cfg["cluster"]["docker-registry"]["prefix"] }}dshuttle:{{ cluster_cfg["cluster"]["docker-registry"]["tag"] }}
         command: ["/bin/chown","-R", "1000:1000", "/opt/domain", "/opt/logs", "/mnt/ssd"]
         volumeMounts:
         - name: dshuttle-domain
@@ -47,100 +47,102 @@ spec:
         - name: ssd
           mountPath: /mnt/ssd
       containers:
-        - name: dshuttle-worker
-          image: dshuttle/dshuttle:latest
-          imagePullPolicy: IfNotPresent
-          securityContext:
-            runAsUser: 1000
-            runAsGroup: 1000
-          resources:
-            limits:
-              cpu: 2
-              memory: 4G
-            requests:
-              cpu: 1
-              memory: 2G
-          command: ["/entrypoint.sh"]
-          args:
-            - worker-only
-            - --no-format
-          env:
-          - name: ALLUXIO_WORKER_HOSTNAME
-            valueFrom:
-              fieldRef:
-                fieldPath: status.hostIP
-          envFrom:
-          - configMapRef:
-              name: dshuttle-config
-          ports:
-          - containerPort: {{ cluster_cfg['dshuttle-master']['worker_rpc_port'] }} 
-            name: rpc
-          - containerPort: {{ cluster_cfg['dshuttle-master']['worker_web_port'] }}
-            name: web
-          volumeMounts:
-            - name: dshuttle-domain
-              mountPath: /opt/domain
-            - mountPath: /dev/shm
-              name: mem
-            - mountPath: /mnt/ssd
-              name: ssd
-            - name: worker-logs
-              mountPath: /opt/alluxio/logs
-        - name: dshuttle-job-worker
-          image: dshuttle/dshuttle:latest
-          securityContext:
-            runAsUser: 1000
-            runAsGroup: 1000
-          imagePullPolicy: IfNotPresent
-          resources:
-            limits:
-              cpu: 2
-              memory: 2G
-            requests:
-              cpu: 0.4
-              memory: 1G
-          command: ["/entrypoint.sh"]
-          args:
-            - job-worker
-          env:
-          - name: ALLUXIO_WORKER_HOSTNAME
-            valueFrom:
-              fieldRef:
-                fieldPath: status.hostIP
-          envFrom:
-          - configMapRef:
-              name: dshuttle-config
-          ports:
-          - containerPort: {{ cluster_cfg['dshuttle-master']['job_worker_rpc_port'] }}
-            name: job-rpc
-          - containerPort: {{ cluster_cfg['dshuttle-master']['job_worker_data_port'] }} 
-            name: job-data
-          - containerPort: {{ cluster_cfg['dshuttle-master']['job_worker_web_port'] }}
-            name: job-web
-          volumeMounts:
-            - name: dshuttle-domain
-              mountPath: /opt/domain
-            - mountPath: /dev/shm
-              name: mem
-            - mountPath: /mnt/ssd
-              name: ssd
-            - name: worker-logs
-              mountPath: /opt/alluxio/logs
+      - name: dshuttle-worker
+        image: {{ cluster_cfg["cluster"]["docker-registry"]["prefix"] }}dshuttle:{{ cluster_cfg["cluster"]["docker-registry"]["tag"] }}
+        imagePullPolicy: IfNotPresent
+        securityContext:
+          runAsUser: 1000
+          runAsGroup: 1000
+        resources:
+          limits:
+            cpu: 2
+            memory: 4G
+          requests:
+            cpu: 1
+            memory: 2G
+        command: ["/entrypoint.sh"]
+        args:
+        - worker-only
+        - --no-format
+        env:
+        - name: ALLUXIO_WORKER_HOSTNAME
+          valueFrom:
+            fieldRef:
+              fieldPath: status.hostIP
+        envFrom:
+        - configMapRef:
+            name: dshuttle-config
+        ports:
+        - containerPort: {{ cluster_cfg['dshuttle-master']['worker_rpc_port'] }} 
+          name: rpc
+        - containerPort: {{ cluster_cfg['dshuttle-master']['worker_web_port'] }}
+          name: web
+        volumeMounts:
+        - name: dshuttle-domain
+          mountPath: /opt/domain
+        - mountPath: /dev/shm
+          name: mem
+        - mountPath: /mnt/ssd
+          name: ssd
+        - name: worker-logs
+          mountPath: /opt/alluxio/logs
+      - name: dshuttle-job-worker
+        image: {{ cluster_cfg["cluster"]["docker-registry"]["prefix"] }}dshuttle:{{ cluster_cfg["cluster"]["docker-registry"]["tag"] }}
+        securityContext:
+          runAsUser: 1000
+          runAsGroup: 1000
+        imagePullPolicy: IfNotPresent
+        resources:
+          limits:
+            cpu: 2
+            memory: 2G
+          requests:
+            cpu: 0.4
+            memory: 1G
+        command: ["/entrypoint.sh"]
+        args:
+        - job-worker
+        env:
+        - name: ALLUXIO_WORKER_HOSTNAME
+          valueFrom:
+            fieldRef:
+              fieldPath: status.hostIP
+        envFrom:
+        - configMapRef:
+            name: dshuttle-config
+        ports:
+        - containerPort: {{ cluster_cfg['dshuttle-master']['job_worker_rpc_port'] }}
+          name: job-rpc
+        - containerPort: {{ cluster_cfg['dshuttle-master']['job_worker_data_port'] }} 
+          name: job-data
+        - containerPort: {{ cluster_cfg['dshuttle-master']['job_worker_web_port'] }}
+          name: job-web
+        volumeMounts:
+        - name: dshuttle-domain
+          mountPath: /opt/domain
+        - mountPath: /dev/shm
+          name: mem
+        - mountPath: /mnt/ssd
+          name: ssd
+        - name: worker-logs
+          mountPath: /opt/alluxio/logs
       restartPolicy: Always
       volumes:
-        - name: dshuttle-domain
-          hostPath:
-            path: /tmp/alluxio-domain
-            type: DirectoryOrCreate
-        - name: worker-logs
-          hostPath:
-            path: /var/log/dshuttle
-            type: DirectoryOrCreate
-        - name: ssd
-          hostPath:
-            path: /mnt/dshuttle/ssd
-            type: DirectoryOrCreate
-        - name: mem
-          emptyDir:
-            medium: "Memory"
-            sizeLimit: 2G
+      - name: dshuttle-domain
+        hostPath:
+          path: /tmp/alluxio-domain
+          type: DirectoryOrCreate
+      - name: worker-logs
+        hostPath:
+          path: /var/log/dshuttle
+          type: DirectoryOrCreate
+      - name: ssd
+        hostPath:
+          path: /mnt/dshuttle/ssd
+          type: DirectoryOrCreate
+      - name: mem
+        emptyDir:
+          medium: "Memory"
+          sizeLimit: 2G
+      imagePullSecrets:
+      - name: {{ cluster_cfg["cluster"]["docker-registry"]["secret-name"] }}

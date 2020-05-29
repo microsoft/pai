@@ -15,20 +15,4 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-cluster-type:
-  - k8s
-
-prerequisite:
-  - cluster-configuration
-  - dshuttle-master
-
-template-list:
-  - dshuttle-csi-daemon.yaml
-  - start.sh
-  - stop.sh
-
-start-script: start.sh
-stop-script: stop.sh
-
-deploy-rules:
-  - in: pai-worker
+FROM quay.io/k8scsi/csi-node-driver-registrar:v1.0.2

@@ -33,7 +33,7 @@ spec:
       hostNetwork: false
       containers:
       - name: dshuttle-master
-        image: dshuttle/dshuttle:latest
+        image: {{ cluster_cfg["cluster"]["docker-registry"]["prefix"] }}dshuttle:{{ cluster_cfg["cluster"]["docker-registry"]["tag"] }}
         imagePullPolicy: Always
         securityContext:
           runAsUser: 1000
@@ -65,7 +65,7 @@ spec:
         - name: dshuttle-log
           mountPath: /opt/alluxio/logs
       - name: dshuttle-job-master
-        image: dshuttle/dshuttle:latest
+        image: {{ cluster_cfg["cluster"]["docker-registry"]["prefix"] }}dshuttle:{{ cluster_cfg["cluster"]["docker-registry"]["tag"] }}
         imagePullPolicy: Always
         securityContext:
           runAsUser: 1000
@@ -107,7 +107,7 @@ spec:
           type: DirectoryOrCreate
       initContainers:
       - name: journal-chown
-        image: dshuttle/dshuttle:latest
+        image: {{ cluster_cfg["cluster"]["docker-registry"]["prefix"] }}dshuttle:{{ cluster_cfg["cluster"]["docker-registry"]["tag"] }}
         imagePullPolicy: IfNotPresent
         securityContext:
           runAsUser: 0
@@ -119,3 +119,5 @@ spec:
           mountPath: /logs
         - name: dshuttle-data
           mountPath: /underFSStorage
+      imagePullSecrets:
+      - name: {{ cluster_cfg["cluster"]["docker-registry"]["secret-name"] }}
