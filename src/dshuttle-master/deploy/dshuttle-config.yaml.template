@@ -27,18 +27,18 @@ data:
     -Dalluxio.master.mount.table.root.ufs=/opt/alluxio/underFSStorage
     -Dalluxio.security.stale.channel.purge.interval=365d
     -Dalluxio.user.metrics.collection.enabled=true
-    -Dalluxio.master.rpc.port={{ cluster_cfg['dshuttle-master']['master_rpc_port'] }}
-    -Dalluxio.master.web.port={{ cluster_cfg['dshuttle-master']['master_web_port'] }}
-    -Dalluxio.job.master.rpc.port={{ cluster_cfg['dshuttle-master']['master_job_rpc_port'] }}
-    -Dalluxio.job.master.web.port={{ cluster_cfg['dshuttle-master']['master_job_web_port'] }}
+    -Dalluxio.master.rpc.port={{ cluster_cfg['dshuttle']['master_rpc_port'] }}
+    -Dalluxio.master.web.port={{ cluster_cfg['dshuttle']['master_web_port'] }}
+    -Dalluxio.job.master.rpc.port={{ cluster_cfg['dshuttle']['master_job_rpc_port'] }}
+    -Dalluxio.job.master.web.port={{ cluster_cfg['dshuttle']['master_job_web_port'] }}
     -Dalluxio.user.block.size.bytes.default=32MB
     -Dalluxio.user.ufs.block.read.location.policy=alluxio.client.block.policy.MostAvailableFirstPolicy
     -Dalluxio.user.file.passive.cache.enabled=false
     -Dalluxio.security.authentication.type=NOSASL
     -Dalluxio.security.authorization.permission.enabled=false
     -Dalluxio.user.block.write.location.policy.class=alluxio.client.block.policy.MostAvailableFirstPolicy
-    -Dalluxio.worker.rpc.port={{ cluster_cfg['dshuttle-master']['worker_rpc_port'] }}
-    -Dalluxio.worker.web.port={{ cluster_cfg['dshuttle-master']['worker_web_port'] }}
+    -Dalluxio.worker.rpc.port={{ cluster_cfg['dshuttle']['worker_rpc_port'] }}
+    -Dalluxio.worker.web.port={{ cluster_cfg['dshuttle']['worker_web_port'] }}
     -Dalluxio.user.file.readtype.default=CACHE
     -Dalluxio.user.network.reader.chunk.size.bytes=128KB
     -Dalluxio.user.local.reader.chunk.size.bytes=256KB
@@ -62,9 +62,9 @@ data:
     -Dalluxio.worker.tieredstore.level1.watermark.high.ratio=0.95 -Dalluxio.worker.tieredstore.level1.watermark.low.ratio=0.7
     -Dalluxio.worker.tieredstore.level1.alias=SSD -Xmx2g -XX:MaxDirectMemorySize=2g 
   ALLUXIO_JOB_WORKER_JAVA_OPTS: >-
-    -Dalluxio.job.worker.rpc.port={{ cluster_cfg['dshuttle-master']['job_worker_rpc_port'] }}
-    -Dalluxio.job.worker.data.port={{ cluster_cfg['dshuttle-master']['job_worker_data_port'] }}
-    -Dalluxio.job.worker.web.port={{ cluster_cfg['dshuttle-master']['job_worker_web_port'] }}
+    -Dalluxio.job.worker.rpc.port={{ cluster_cfg['dshuttle']['job_worker_rpc_port'] }}
+    -Dalluxio.job.worker.data.port={{ cluster_cfg['dshuttle']['job_worker_data_port'] }}
+    -Dalluxio.job.worker.web.port={{ cluster_cfg['dshuttle']['job_worker_web_port'] }}
     -Dalluxio.worker.hostname=${ALLUXIO_WORKER_HOSTNAME} 
   ALLUXIO_FUSE_JAVA_OPTS: >-
     -Dalluxio.user.hostname=${ALLUXIO_CLIENT_HOSTNAME}

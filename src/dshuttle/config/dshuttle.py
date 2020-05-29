@@ -20,7 +20,7 @@
 import logging
 
 
-class DshuttleMaster(object):
+class Dshuttle(object):
     def __init__(self, cluster_conf, service_conf, default_service_conf):
         self.cluster_conf = cluster_conf
         self.service_conf = dict(default_service_conf, **service_conf)

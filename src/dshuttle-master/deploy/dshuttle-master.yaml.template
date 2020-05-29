@@ -54,9 +54,9 @@ spec:
             name: dshuttle-config
         ports:
         - name: rpc
-          containerPort: {{ cluster_cfg['dshuttle-master']['master_rpc_port'] }}
+          containerPort: {{ cluster_cfg['dshuttle']['master_rpc_port'] }}
         - name: web
-          containerPort: {{ cluster_cfg['dshuttle-master']['master_web_port'] }}
+          containerPort: {{ cluster_cfg['dshuttle']['master_web_port'] }}
         volumeMounts:
         - name: alluxio-journal
           mountPath: /journal
@@ -84,9 +84,9 @@ spec:
         - configMapRef:
             name: dshuttle-config
         ports:
-        - containerPort: {{ cluster_cfg['dshuttle-master']['master_job_rpc_port'] }}
+        - containerPort: {{ cluster_cfg['dshuttle']['master_job_rpc_port'] }}
           name: job-rpc
-        - containerPort: {{ cluster_cfg['dshuttle-master']['master_job_web_port'] }}
+        - containerPort: {{ cluster_cfg['dshuttle']['master_job_web_port'] }}
           name: job-web
         volumeMounts:
         - name: dshuttle-log

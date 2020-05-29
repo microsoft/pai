@@ -20,6 +20,7 @@ cluster-type:
 
 prerequisite:
   - cluster-configuration
+  - dshuttle
 
 template-list:
   - dshuttle-service.yaml
