@@ -1014,7 +1014,7 @@ paths:
       security:
         - bearerAuth: []
       parameters:
-        - name: user
+        - name: username
           in: query
           description: filter jobs with username
           schema:
