@@ -46,13 +46,6 @@ rest-server:
 
 
 webportal:
-  plugins:
-  - id: submit-job-v2
-    title: Submit Job v2
-    uri: https://gerhut.github.io/store/submit-job-v2/plugin.js
-  - id: marketplace
-    title: Marketplace
-    uri: https://gerhut.github.io/store/marketplace/plugin.js
   server-port: 9286
 
 internal-storage:
