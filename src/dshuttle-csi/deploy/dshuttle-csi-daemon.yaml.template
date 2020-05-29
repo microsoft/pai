@@ -80,6 +80,11 @@ spec:
         envFrom:
         - configMapRef:
             name: dshuttle-config
+        {%- if cluster_cfg['cluster']['common']['qos-switch'] == "true" %}
+        resources:
+          limits:
+            memory: "8Gi"
+        {%- endif %}
         imagePullPolicy: "Always"
         volumeMounts:
         - name: plugin-dir

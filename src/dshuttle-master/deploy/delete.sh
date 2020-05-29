@@ -1,3 +1,5 @@
+#!/bin/bash
+
 # Copyright (c) Microsoft Corporation
 # All rights reserved.
 #
@@ -15,24 +17,29 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-cluster-type:
-  - k8s
+pushd $(dirname "$0") > /dev/null
 
-prerequisite:
-  - cluster-configuration
-  - dshuttle
+echo "Call stop to stop all dshuttle-master pod first"
+/bin/bash stop.sh || exit $?
 
-template-list:
-  - dshuttle-service.yaml
-  - dshuttle-config.yaml
-  - dshuttle-master.yaml
-  - delete.yaml
-  - start.sh
-  - stop.sh
+echo "Create dshuttle-master-delete configmap for deleting data on the host"
+kubectl create configmap dshuttle-master-delete --from-file=dshuttle-master-delete/ --dry-run -o yaml | kubectl apply --overwrite=true -f - || exit $?
 
-start-script: start.sh
-stop-script: stop.sh
-delete-script: delete.sh
+echo "Create cleaner daemon"
+kubectl apply --overwrite=true -f delete.yaml || exit $?
+sleep 5
 
-deploy-rules:
-  - in: pai-master
+PYTHONPATH="../../../deployment" python -m  k8sPaiLibrary.monitorTool.check_pod_ready_status -w -k app -v delete-batch-job-dshuttle-master || exit $?
+
+echo "Dshuttle master clean job is done"
+echo "Delete dshuttle master cleaner daemon and configmap"
+if kubectl get daemonset | grep -q "delete-batch-job-dshuttle-master"; then
+    kubectl delete ds delete-batch-job-dshuttle-master || exit $?
+fi
+
+if kubectl get configmap | grep -q "dshuttle-master-delete"; then
+    kubectl delete configmap dshuttle-master-delete || exit $?
+fi
+sleep 5
+
+popd > /dev/null

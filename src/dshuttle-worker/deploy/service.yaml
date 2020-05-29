@@ -26,9 +26,11 @@ template-list:
   - start.sh
   - stop.sh
   - dshuttle-worker.yaml
+  - delete.yaml
 
 start-script: start.sh
 stop-script: stop.sh
+delete-script: delete.sh
 
 deploy-rules:
   - in: pai-worker

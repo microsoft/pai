@@ -1,3 +1,5 @@
+#!/bin/bash
+
 # Copyright (c) Microsoft Corporation
 # All rights reserved.
 #
@@ -15,24 +17,11 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-cluster-type:
-  - k8s
 
-prerequisite:
-  - cluster-configuration
-  - dshuttle
+echo "Clean the dshuttle-wroker's data on the disk"
 
-template-list:
-  - dshuttle-service.yaml
-  - dshuttle-config.yaml
-  - dshuttle-master.yaml
-  - delete.yaml
-  - start.sh
-  - stop.sh
 
-start-script: start.sh
-stop-script: stop.sh
-delete-script: delete.sh
+rm -rf /mnt/ssd/* 2>/dev/null
+rm -rf /mnt/log/*worker.log 2>/dev/null
 
-deploy-rules:
-  - in: pai-master
+

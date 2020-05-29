@@ -53,13 +53,11 @@ spec:
         securityContext:
           runAsUser: 1000
           runAsGroup: 1000
+        {%- if cluster_cfg['cluster']['common']['qos-switch'] == "true" %}
         resources:
           limits:
-            cpu: 2
-            memory: 4G
-          requests:
-            cpu: 1
-            memory: 2G
+            memory: 4Gi
+        {%- endif %}
         command: ["/entrypoint.sh"]
         args:
         - worker-only
@@ -92,13 +90,11 @@ spec:
           runAsUser: 1000
           runAsGroup: 1000
         imagePullPolicy: IfNotPresent
+        {%- if cluster_cfg['cluster']['common']['qos-switch'] == "true" %}
         resources:
           limits:
-            cpu: 2
-            memory: 2G
-          requests:
-            cpu: 0.4
-            memory: 1G
+            memory: 2Gi
+        {%- endif %}
         command: ["/entrypoint.sh"]
         args:
         - job-worker
