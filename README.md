@@ -17,42 +17,42 @@ With the release of v1.0, OpenPAI is switching to a more robust, more powerful a
         <span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp</span>
         <br/>
         <a href="https://github.com/microsoft/openpaimarketplace" target="_blank">
-          <img src="./docs/images/architecture/Picture1.svg" width="610" alt="Marketplace Logo" />
+          <img src="https://openpai.readthedocs.io/en/latest/docs/images/architecture/Picture1.svg" width="610" alt="Marketplace Logo" />
         </a>
         <br/>
-        <img src="./docs/images/architecture/Picture2.svg" width="200" alt=" Web Portal" />
+        <img src="https://openpai.readthedocs.io/en/latest/docs/images/architecture/Picture2.svg" width="200" alt=" Web Portal" />
         <a href="https://github.com/microsoft/openpaisdk" target="_blank">
-          <img src="./docs/images/architecture/Picture3.svg" width="200" alt="VScode" />
+          <img src="https://openpai.readthedocs.io/en/latest/docs/images/architecture/Picture3.svg" width="200" alt="VScode" />
         </a>
         <a href="https://github.com/microsoft/openpaivscode" target="_blank">
-          <img src="./docs/images/architecture/Picture4.svg" width="200" alt="SDK" />
+          <img src="https://openpai.readthedocs.io/en/latest/docs/images/architecture/Picture4.svg" width="200" alt="SDK" />
         </a>
         <br/>
-        <img src="./docs/images/architecture/Picture5.svg" width="610" alt="API" />
+        <img src="https://openpai.readthedocs.io/en/latest/docs/images/architecture/Picture5.svg" width="610" alt="API" />
         <br/>
-        <img src="./docs/images/architecture/Picture18.svg" width="610" alt="Services" />
+        <img src="https://openpai.readthedocs.io/en/latest/docs/images/architecture/Picture18.svg" width="610" alt="Services" />
         <br/>
-        <img src="./docs/images/architecture/Picture19.svg" width="304" alt="User Authentication" />
-        <img src="./docs/images/architecture/Picture20.svg" width="304" alt="User/Group Management" />
+        <img src="https://openpai.readthedocs.io/en/latest/docs/images/architecture/Picture19.svg" width="304" alt="User Authentication" />
+        <img src="https://openpai.readthedocs.io/en/latest/docs/images/architecture/Picture20.svg" width="304" alt="User/Group Management" />
         <br/>
-        <img src="./docs/images/architecture/Picture21.svg" width="304" alt="Storage Management" />
-        <img src="./docs/images/architecture/Picture22.svg" width="304" alt="Cluster/Job Monitoring" />
+        <img src="https://openpai.readthedocs.io/en/latest/docs/images/architecture/Picture21.svg" width="304" alt="Storage Management" />
+        <img src="https://openpai.readthedocs.io/en/latest/docs/images/architecture/Picture22.svg" width="304" alt="Cluster/Job Monitoring" />
         <br/>
         <a href="https://github.com/microsoft/frameworkcontroller" target="_blank">
           <img src="./docs/images/architecture/Picture23.svg" width="304" alt="Job Orchestration" />
         </a>
         <a href="https://github.com/microsoft/hivedscheduler" target="_blank">
-          <img src="./docs/images/architecture/Picture24.svg" width="304" alt="Job Scheduling" />
+          <img src="https://openpai.readthedocs.io/en/latest/docs/images/architecture/Picture24.svg" width="304" alt="Job Scheduling" />
         </a>
         <br/>
         <a href="https://github.com/microsoft/openpai-runtime" target="_blank">
-          <img src="./docs/images/architecture/Picture25.svg" width="304" alt="Job Runtime" />
+          <img src="https://openpai.readthedocs.io/en/latest/docs/images/architecture/Picture25.svg" width="304" alt="Job Runtime" />
         </a>
-        <img src="./docs/images/architecture/Picture26.svg" width="304" alt="Job Error Analysis" />
+        <img src="https://openpai.readthedocs.io/en/latest/docs/images/architecture/Picture26.svg" width="304" alt="Job Error Analysis" />
         <br/>
-        <img src="./docs/images/architecture/Picture15.svg" width="610" alt="Kubernetes Cluster Management" />
+        <img src="https://openpai.readthedocs.io/en/latest/docs/images/architecture/Picture15.svg" width="610" alt="Kubernetes Cluster Management" />
         <br/>
-        <img src="./docs/images/architecture/Picture16.svg" width="610" alt="CPU/GPU/FPGA/InfiniBand" />
+        <img src="https://openpai.readthedocs.io/en/latest/docs/images/architecture/Picture16.svg" width="610" alt="CPU/GPU/FPGA/InfiniBand" />
      </td>
    </tr>
  </table>
