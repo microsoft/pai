@@ -1,5 +1,9 @@
 # OpenPAI Release Note
 
+## May 2020 (version 1.0.1)
+
+[minor release with hot fix](https://github.com/microsoft/pai/releases/tag/v1.0.1).
+
 ## May 2020 (version 1.0.0)
 
 With the v1.0.0 release, OpenPAI is officially switching to pure Kubernetes-based architecture. In addition to this, we had also made efforts on making our component design more modularized by re-organized the code structure to 1 main repo together with 7 standalone key component repos.
