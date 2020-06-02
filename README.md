@@ -39,7 +39,7 @@ With the release of v1.0, OpenPAI is switching to a more robust, more powerful a
         <img src="https://openpai.readthedocs.io/en/latest/docs/images/architecture/Picture22.svg" width="304" alt="Cluster/Job Monitoring" />
         <br/>
         <a href="https://github.com/microsoft/frameworkcontroller" target="_blank">
-          <img src="./docs/images/architecture/Picture23.svg" width="304" alt="Job Orchestration" />
+          <img src="https://openpai.readthedocs.io/en/latest/docs/images/architecture/Picture23.svg" width="304" alt="Job Orchestration" />
         </a>
         <a href="https://github.com/microsoft/hivedscheduler" target="_blank">
           <img src="https://openpai.readthedocs.io/en/latest/docs/images/architecture/Picture24.svg" width="304" alt="Job Scheduling" />
