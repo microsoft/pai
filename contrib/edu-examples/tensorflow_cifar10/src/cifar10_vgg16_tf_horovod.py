@@ -17,7 +17,7 @@
 
 
 """
-example of vgg16-cifar10 (single CPU/GPU)
+example of vgg16-cifar10 (distributed with Horovod)
 """
 
 

@@ -17,12 +17,15 @@
 
 
 """
-example of vgg16-cifar10 (single CPU/GPU)
+example of vgg16-cifar10 (distributed)
 """
 
 
 import tensorflow as tf
 import argparse
+import os
+import json
+import math
 
 from tensorflow.keras import datasets, layers, Model
 from tensorflow.keras.applications.vgg16 import VGG16
@@ -35,17 +38,44 @@ parser = argparse.ArgumentParser()
 parser.add_argument('--epochs', type=int, default=50)
 parser.add_argument('--batch_size', type=int, default=32)
 parser.add_argument('--learning_rate', type=float, default=1e-3)
+parser.add_argument('--strategy', type=str, default='Mirrored', help='strategy, Mirrored or MultiWorkerMirrored')
+
+# MultiWorker related args 
+parser.add_argument('--PAI_HOST_IP_chief_0', type=str, default="")
+parser.add_argument('--PAI_PORT_LIST_chief_0_http', type=str, default="")
+parser.add_argument('--PAI_HOST_IP_worker_0', type=str, default="")
+parser.add_argument('--PAI_PORT_LIST_worker_0_http', type=str, default="")
+parser.add_argument('--PAI_HOST_IP_worker_1', type=str, default="")
+parser.add_argument('--PAI_PORT_LIST_worker_1_http', type=str, default="")
+parser.add_argument('--PAI_HOST_IP_worker_2', type=str, default="")
+parser.add_argument('--PAI_PORT_LIST_worker_2_http', type=str, default="")
+parser.add_argument('--PAI_CURRENT_TASK_ROLE_NAME', type=str, default="ps")
+parser.add_argument('--PAI_CURRENT_TASK_ROLE_CURRENT_TASK_INDEX', type=int, default=0)
+
 
 args = parser.parse_args()
+print(args)
 
-epochs = args.epochs
 num_classes = 10
 
 (X_train, y_train), (X_test, y_test) = datasets.cifar10.load_data()
 Y_train = to_categorical(y_train, num_classes)
 Y_test = to_categorical(y_test, num_classes)
 
-strategy = tf.distribute.MirroredStrategy()
+if args.strategy == 'Mirrored':
+    strategy = tf.distribute.MirroredStrategy()
+elif args.strategy == 'MultiWorkerMirrored':
+    os.environ['TF_CONFIG'] = json.dumps({
+        'cluster': {
+            'chief': ["{}:{}".format(args.PAI_HOST_IP_chief_0, args.PAI_PORT_LIST_chief_0_http)],
+            'worker': ["{}:{}".format(args.PAI_HOST_IP_worker_0, args.PAI_PORT_LIST_worker_0_http),
+            "{}:{}".format(args.PAI_HOST_IP_worker_1, args.PAI_PORT_LIST_worker_1_http),
+            "{}:{}".format(args.PAI_HOST_IP_worker_2, args.PAI_PORT_LIST_worker_2_http)]
+        },
+        'task': {'type': args.PAI_CURRENT_TASK_ROLE_NAME, 'index': args.PAI_CURRENT_TASK_ROLE_CURRENT_TASK_INDEX}
+    })
+    strategy = tf.distribute.experimental.MultiWorkerMirroredStrategy()
+
 print('Number of devices: {}'.format(strategy.num_replicas_in_sync))
 
 with strategy.scope():
@@ -80,15 +110,19 @@ train_datagen = ImageDataGenerator(
     horizontal_flip=True)
 
 train_datagen.fit(X_train)
-train_generator = train_datagen.flow(X_train, Y_train, batch_size=args.batch_size*strategy.num_replicas_in_sync)
+batch_size = args.batch_size*strategy.num_replicas_in_sync
+train_generator = train_datagen.flow(X_train, Y_train, batch_size=batch_size)
 
 test_datagen = ImageDataGenerator(rescale=1. / 255)
-validation_generator = test_datagen.flow(X_test, Y_test, batch_size=args.batch_size*strategy.num_replicas_in_sync)
+validation_generator = test_datagen.flow(X_test, Y_test, batch_size=batch_size)
 
+
+steps_per_epoch = None if args.strategy == 'Mirrored' else math.floor(len(X_train)/batch_size)
 # fine-tune the model
 model.fit(
     train_generator,
-    epochs=epochs,
+    epochs=args.epochs,
+    steps_per_epoch=steps_per_epoch,
     validation_data=validation_generator)
 
 print("--------------Test performance--------------")
