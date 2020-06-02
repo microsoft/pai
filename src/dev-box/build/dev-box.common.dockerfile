@@ -55,7 +55,7 @@ RUN apt-get -y update && \
       net-tools && \
     mkdir -p /cluster-configuration &&\
     git clone https://github.com/Microsoft/pai.git &&\
-    pip install python-etcd docker kubernetes paramiko==2.6.0 GitPython==2.1.15 jsonschema attrs dicttoxml beautifulsoup4 future &&\
+    pip install python-etcd docker kubernetes paramiko==2.6.0 GitPython==2.1.15 jsonschema attrs dicttoxml beautifulsoup4 future setuptools\<45 &&\
     python -m easy_install --upgrade pyOpenSSL && \
     pip3 install kubernetes
 
