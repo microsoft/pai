@@ -27,15 +27,20 @@ class ToyModel(nn.Module):
 def demo_basic(rank, world_size):
     print(f"Running basic DDP example on rank {rank}.")
 
+    print(type(rank))
+
     os.environ['MASTER_ADDR'] = os.environ['PAI_HOST_IP_chief_0']
     os.environ['MASTER_PORT'] = os.environ['PAI_PORT_LIST_chief_0_http']
 
     # initialize the process group
     dist.init_process_group("nccl", rank=rank, world_size=world_size)
 
-    local_rank = rank
-    if os.environ['PAI_CURRENT_TASK_ROLE_CURRENT_TASK_INDEX'] == 1:
+    local_rank = int(rank)
+    # if os.environ['PAI_CURRENT_TASK_ROLE_CURRENT_TASK_INDEX'] == 1:
+    if local_rank > 3:
         local_rank -= 4
+    print("rank", rank)
+    print("local_rank", local_rank)
     dp_device_ids = [local_rank]
     torch.cuda.set_device(local_rank)
 
@@ -64,6 +69,8 @@ def run_demo(demo_fn, world_size):
              join=True)
 
 if __name__ == "__main__":
+    print("os.environ", os.environ)
+
     n_gpus = torch.cuda.device_count()
     print("ngpus:", n_gpus)
     # if n_gpus < 8:
