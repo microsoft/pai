@@ -42,6 +42,8 @@ spec:
         resources:
           limits:
             memory: 16Gi
+          requests:
+            memory: 8Gi
         {%- endif %}
         command: ["/entrypoint.sh"]
         args:
@@ -72,6 +74,8 @@ spec:
         resources:
           limits:
             memory: 2Gi
+          requests:
+            memory: 1Gi
         {%- endif %}
         command: ["/entrypoint.sh"]
         args:

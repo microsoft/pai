@@ -17,6 +17,8 @@
 
 service_type: "k8s"
 
+worker_request_mem: 2G
+worker_limit_mem: 4G
 worker_rpc_port: 4999
 worker_web_port: 5000
 job_worker_rpc_port: 5001
@@ -27,3 +29,19 @@ master_rpc_port: 30998
 master_web_port: 30999
 master_job_rpc_port: 31001
 master_job_web_port: 31002
+
+tieredstores:
+- level: 0
+  mediumtype: MEM
+  alias: MEM
+  path: /dev/shm
+  quota: 1GB
+  watermark_low_ratio: 0.7
+  watermark_high_ratio: 0.95
+- level: 1
+  mediumtype: SSD
+  alias: SSD
+  path: /mnt/ssd
+  quota: 100G
+  watermark_low_ratio: 0.7
+  watermark_high_ratio: 0.95

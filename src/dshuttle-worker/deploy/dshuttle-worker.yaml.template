@@ -56,7 +56,9 @@ spec:
         {%- if cluster_cfg['cluster']['common']['qos-switch'] == "true" %}
         resources:
           limits:
-            memory: 4Gi
+            memory: {{ cluster_cfg['dshuttle']['worker_limit_mem'] }}
+          requests:
+            memory: {{ cluster_cfg['dshuttle']['worker_request_mem'] }}
         {%- endif %}
         command: ["/entrypoint.sh"]
         args:
@@ -94,6 +96,8 @@ spec:
         resources:
           limits:
             memory: 2Gi
+          requests:
+            memory: 1Gi
         {%- endif %}
         command: ["/entrypoint.sh"]
         args:
@@ -139,6 +143,5 @@ spec:
       - name: mem
         emptyDir:
           medium: "Memory"
-          sizeLimit: 2G
       imagePullSecrets:
       - name: {{ cluster_cfg["cluster"]["docker-registry"]["secret-name"] }}

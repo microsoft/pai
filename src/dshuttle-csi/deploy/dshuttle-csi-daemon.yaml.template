@@ -84,6 +84,8 @@ spec:
         resources:
           limits:
             memory: "8Gi"
+          requests:
+            memory: "8Gi"
         {%- endif %}
         imagePullPolicy: "Always"
         volumeMounts:

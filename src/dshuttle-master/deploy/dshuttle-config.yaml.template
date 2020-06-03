@@ -52,15 +52,18 @@ data:
   ALLUXIO_WORKER_JAVA_OPTS: >-
     -Dalluxio.worker.bind.host=0.0.0.0
     -Dalluxio.worker.data.server.domain.socket.address=/opt/domain
-    -Dalluxio.worker.data.server.domain.socket.as.uuid=true -Dalluxio.worker.memory.size=2G
+    -Dalluxio.worker.data.server.domain.socket.as.uuid=true
+    -Dalluxio.worker.memory.size={{ cluster_cfg['dshuttle']['worker_request_mem'] }}
     -Dalluxio.worker.hostname=${ALLUXIO_WORKER_HOSTNAME}
-    -Dalluxio.worker.tieredstore.levels=2 -Dalluxio.worker.tieredstore.level0.dirs.mediumtype=MEM
-    -Dalluxio.worker.tieredstore.level0.alias=MEM -Dalluxio.worker.tieredstore.level0.dirs.path=/dev/shm
-    -Dalluxio.worker.tieredstore.level0.dirs.quota=1G -Dalluxio.worker.tieredstore.level0.watermark.high.ratio=0.95
-    -Dalluxio.worker.tieredstore.level0.watermark.low.ratio=0.7 -Dalluxio.worker.tieredstore.level1.dirs.mediumtype=SSD
-    -Dalluxio.worker.tieredstore.level1.dirs.path=/mnt/ssd -Dalluxio.worker.tieredstore.level1.dirs.quota=100G
-    -Dalluxio.worker.tieredstore.level1.watermark.high.ratio=0.95 -Dalluxio.worker.tieredstore.level1.watermark.low.ratio=0.7
-    -Dalluxio.worker.tieredstore.level1.alias=SSD -Xmx2g -XX:MaxDirectMemorySize=2g 
+    -Dalluxio.worker.tieredstore.levels={{ cluster_cfg['dshuttle']['tieredstores']|length|string }}
+    {% for tieredstore in cluster_cfg['dshuttle']['tieredstores'] -%}
+    -Dalluxio.worker.tieredstore.level{{ tieredstore['level'] }}.dirs.mediumtype={{ tieredstore['mediumtype'] }}
+    -Dalluxio.worker.tieredstore.level{{ tieredstore['level'] }}.alias={{ tieredstore['alias'] }}
+    -Dalluxio.worker.tieredstore.level{{ tieredstore['level'] }}.dirs.path={{ tieredstore['path'] }}
+    -Dalluxio.worker.tieredstore.level{{ tieredstore['level'] }}.dirs.quota={{ tieredstore['quota'] }}
+    -Dalluxio.worker.tieredstore.level{{ tieredstore['level'] }}.watermark.high.ratio={{ tieredstore['watermark_high_ratio'] }}
+    -Dalluxio.worker.tieredstore.level{{ tieredstore['level'] }}.watermark.low.ratio={{ tieredstore['watermark_low_ratio'] }} 
+    {% endfor %}
   ALLUXIO_JOB_WORKER_JAVA_OPTS: >-
     -Dalluxio.job.worker.rpc.port={{ cluster_cfg['dshuttle']['job_worker_rpc_port'] }}
     -Dalluxio.job.worker.data.port={{ cluster_cfg['dshuttle']['job_worker_data_port'] }}
@@ -69,5 +72,4 @@ data:
   ALLUXIO_FUSE_JAVA_OPTS: >-
     -Dalluxio.user.hostname=${ALLUXIO_CLIENT_HOSTNAME}
     -Dalluxio.worker.hostname=${ALLUXIO_CLIENT_HOSTNAME}
-    -XX:MaxDirectMemorySize=2g 
   ALLUXIO_WORKER_TIEREDSTORE_LEVEL0_DIRS_PATH: /dev/shm 
