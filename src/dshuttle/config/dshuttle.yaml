@@ -30,6 +30,8 @@ master_web_port: 30999
 master_job_rpc_port: 31001
 master_job_web_port: 31002
 
+user_meta_sync_interval_ms: 1800000 # 30 mins
+
 tieredstores:
 - level: 0
   mediumtype: MEM

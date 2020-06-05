@@ -44,6 +44,7 @@ data:
     -Dalluxio.user.local.reader.chunk.size.bytes=256KB
     -Dalluxio.user.filesystem.class=alluxio.client.file.CachingFileSystem
     -Dalluxio.user.short.circuit.preferred=true
+    -Dalluxio.user.file.metadata.sync.interval={{ cluster_cfg['dshuttle']['user_meta_sync_interval_ms'] }}
     -Dalluxio.user.block.worker.client.pool.min=32 
   ALLUXIO_MASTER_JAVA_OPTS: >-
     -Dalluxio.master.web.bind.host=0.0.0.0 

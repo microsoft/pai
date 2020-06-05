@@ -91,6 +91,19 @@ const convertVolumeDetail = async (pvc) => {
     if (pv.spec.flexVolume.options.mountoptions) {
       storage.mountOptions = pv.spec.flexVolume.options.mountoptions.split(',');
     }
+  } else if (pv.spec.csi) {
+    if (pv.spec.csi.driver === 'alluxio') {
+      storage.type = 'dshuttle';
+      if (pv.spec.csi.volumeAttributes) {
+        storage.data = {
+          writetype: pv.spec.csi.volumeAttributes['alluxio.user.file.writetype'] || 'ASYNC_THROUGH',
+        };
+      } else {
+        storage.data = {
+          writetype: 'ASYNC_THROUGH',
+        };
+      }
+    }
   } else {
     storage.type = 'unknown';
     storage.data = {};
