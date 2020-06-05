@@ -62,7 +62,7 @@ export default function TeamDetail({
       key: 'serverType',
       name: 'Server Type',
       headerClassName: FontClassNames.semibold,
-      minWidth: 80,
+      minWidth: 40,
       onRender: item => {
         const serverInfo = usedServers.find(
           server => server.spn === item.server,
@@ -76,9 +76,29 @@ export default function TeamDetail({
     },
     {
       key: 'serverPath',
-      name: 'Server Path(Server Root Path as bold)',
+      name: 'Server path',
       headerClassName: FontClassNames.semibold,
-      minWidth: 400,
+      minWidth: 80,
+      onRender: item => {
+        const serverInfo = usedServers.find(
+          server => server.spn === item.server,
+        );
+        if (serverInfo === undefined) {
+          return <div className={FontClassNames.small}>{'Invalid Server'}</div>;
+        } else {
+          return (
+            <div className={FontClassNames.semibold}>
+              <b>{'/'}</b>
+            </div>
+          );
+        }
+      },
+    },
+    {
+      key: 'subPath',
+      name: 'Subpath',
+      headerClassName: FontClassNames.semibold,
+      minWidth: 50,
       onRender: item => {
         const serverInfo = usedServers.find(
           server => server.spn === item.server,
@@ -91,10 +111,23 @@ export default function TeamDetail({
       },
     },
     {
+      key: 'UFS path',
+      name: 'Under file system path',
+      headerClassName: FontClassNames.semibold,
+      minWidth: 320,
+      onRender: item => {
+        return (
+          <div className={FontClassNames.semibold}>
+            {'type: azure, containerName: small-file, accountName: dshuttle'}
+          </div>
+        );
+      },
+    },
+    {
       key: 'permission',
       name: 'Permission',
       headerClassName: FontClassNames.semibold,
-      minWidth: 80,
+      minWidth: 50,
       onRender: item => {
         return (
           <div className={FontClassNames.small}>
@@ -137,7 +170,8 @@ export default function TeamDetail({
         <span style={{ fontWeight: FontWeights.semibold }}>{config.name}</span>{' '}
         is configured for group{' '}
         <span style={{ fontWeight: FontWeights.semibold }}>{config.gpn}</span>.
-        For more details, please contact the cluster admin.
+        It used as a fast data cache and try to speedup the I/O intensive
+        workload. For more details, please contact the cluster admin.
       </div>
       <div>
         <div
@@ -184,6 +218,8 @@ export default function TeamDetail({
           will be automatically mounted to{' '}
           <span style={{ fontWeight: FontWeights.semibold }}>Path</span> when
           job runs. Please treat it as local folder.
+          <br />
+          <b>Notice: </b>
         </div>
         <div
           className={c(t.mt5)}
@@ -328,6 +364,25 @@ export const NAS_TIPS = {
       <span> to upload data directly.</span>
     </div>
   ),
+  dshuttle: (
+    <div>
+      <div style={{ fontWeight: FontWeights.semibold }}>Dshuttle</div>
+      <span>
+        {' '}
+        to upload data to Dshuttle. Please pack your data as one folder, then
+        upload it to one of Dshuttle mounted under filesystem. You can find the
+        mounted under filesystem below or at user profile page.
+      </span>
+      <br />
+      <br />
+      <span>
+        <b>Notice: </b> Access you data in the job while uploading data will
+        cause inconsistency between Deshuttle and under filesystem. If you
+        encounter such inconsistency, please run: <b>python force_sync.py </b>
+        in your job container.
+      </span>
+    </div>
+  ),
 };
 
 export const SERVER_PATH = {
@@ -359,6 +414,11 @@ export const SERVER_PATH = {
     <div className={FontClassNames.semibold}>
       <b>{`${server.namenode}:${server.port}`}</b>
       {`/${mountInfo.path}`}
+    </div>
+  ),
+  dshuttle: (server, mountInfo) => (
+    <div className={FontClassNames.semibold}>
+      <b>{'/azure'}</b>
     </div>
   ),
 };
