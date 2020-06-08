@@ -44,6 +44,7 @@ spec:
           - --tls-cert-file=/tls.crt
           - --tls-key-file=/tls.key
           - --token-ttl=604800 # 7d
+          - --api-log-level=DEBUG
         volumeMounts:
           - name: kubernetes-dashboard-certs-openpai
             mountPath: /certs
