@@ -11,6 +11,7 @@ import Cookies from "js-cookie";
 import classNames from "classnames/bind";
 import update from "immutability-helper";
 import yaml from "js-yaml";
+import { PAIV2 } from "@microsoft/openpai-js-sdk";
 
 import monacoStyles from "./monaco.scss";
 import MarketplaceForm from "./MarketplaceForm";
@@ -158,6 +159,12 @@ export default class ProtocolForm extends React.Component<IProtocolProps, IProto
     showParameters: true,
     showEditor: false,
   };
+
+  private client = new PAIV2.OpenPAIClient({
+    username: this.props.user,
+    token: this.props.token,
+    rest_server_uri: this.props.api,
+  });
 
   public componentDidMount() {
     this.fetchConfig();
@@ -345,13 +352,9 @@ export default class ProtocolForm extends React.Component<IProtocolProps, IProto
           marketplaceOption: source.protocolItemKey,
         });
       } else if (source && source.jobName && source.user && pluginId) {
-        const res = await fetch(
-          `${this.props.api}/api/v1/user/${source.user}/jobs/${source.jobName}/config`,
-        );
-        const body = await res.text();
-        protocol = yaml.safeLoad(body);
-        if (protocol.extras.submitFrom !== pluginId) {
-          throw new Error(`Unknown plugin id ${protocol.extras.submitFrom}`);
+        protocol = await this.client.job.getJobConfig(source.user, source.jobName);
+        if (protocol!.extras!.submitFrom !== pluginId) {
+          throw new Error(`Unknown plugin id ${protocol!.extras!.submitFrom}`);
         }
         protocol.name = this.getCloneJobName(source.jobName);
       }
@@ -541,17 +544,9 @@ export default class ProtocolForm extends React.Component<IProtocolProps, IProto
       protocol.extras = { submitFrom: this.props.pluginId };
     }
     try {
-      const res = await fetch(`${this.props.api}/api/v2/jobs`, {
-        body: yaml.safeDump(protocol),
-        headers: {
-          "Authorization": `Bearer ${this.props.token}`,
-          "Content-Type": "text/yaml",
-        },
-        method: "POST",
-      });
-      const body = await res.json();
-      if (Number(res.status) >= 400) {
-        alert(body.message);
+      const res = await this.client.job.createJob(protocol);
+      if (res.code) {
+        alert(res.message);
       } else {
         window.location.href = `/job-detail.html?username=${this.props.user}&jobName=${this.state.jobName}`;
       }
