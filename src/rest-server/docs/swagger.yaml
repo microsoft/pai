@@ -5,7 +5,7 @@ info:
   license:
     name: MIT License
     url: 'https://github.com/microsoft/pai/blob/master/LICENSE'
-  version: 0.16.0
+  version: 2.0.0
 externalDocs:
   description: Find out more about OpenPAI
   url: 'https://github.com/microsoft/pai'
@@ -1500,7 +1500,7 @@ components:
           properties:
             submitFrom:
               type: string
-            hivedscheduler:
+            hivedScheduler:
               type: object
               properties:
                 jobPriorityClass:
@@ -1510,9 +1510,7 @@ components:
                   additionalProperties:
                     type: object
                     properties:
-                      gpuType:
-                        type: string
-                      reservationId:
+                      skuType:
                         type: string
                       affinityGroupName:
                         type: string
