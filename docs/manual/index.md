@@ -106,11 +106,11 @@ OpenPAI provides end-to-end manuals for both cluster users and administrators.
 
 ### For cluster administrators
 
-The [admin manual](cluster-admin/README.html) is a comprehensive guide for cluster administrators, it covers (but not limited to) the following contents:
+The [admin manual](./cluster-admin/README.md) is a comprehensive guide for cluster administrators, it covers (but not limited to) the following contents:
 
-- **Installation and upgrade**. The installation is based on Kubespray, and here is the [system requirements](cluster-admin/installation-guide.html#installation-requirements). OpenPAI provides an [installation guide](cluster-admin/installation-guide.html) to facilitate the installation.
+- **Installation and upgrade**. The installation is based on Kubespray, and here is the [system requirements](./cluster-admin/installation-guide.md#installation-requirements). OpenPAI provides an [installation guide](./cluster-admin/installation-guide.md) to facilitate the installation.
 
-    If you are considering upgrade from older version to the latest v1.0.0, please refer to the table below for a brief comparison between `v0.14.0` and the upcoming `v1.0.0`. More detail about the upgrade considerations can be found [upgrade guide](cluster-admin/upgrade-guide.html).
+    If you are considering upgrade from older version to the latest v1.0.0, please refer to the table below for a brief comparison between `v0.14.0` and the upcoming `v1.0.0`. More detail about the upgrade considerations can be found [upgrade guide](./cluster-admin/upgrade-guide.md).
 
     |                   | `v0.14.0`               | `v1.0.0`               |
     | ----------------- | ----------------------- | ---------------------- |
@@ -122,25 +122,25 @@ The [admin manual](cluster-admin/README.html) is a comprehensive guide for clust
     | Marketplace       | Marketplace v2          | openpaimarketplace     |
     | SDK               | Python                  | JavaScript / TypeScript|
 
-    *If there is any question during deployment, please check [installation FAQs and troubleshooting](cluster-admin/installation-faqs-and-troubleshooting.html) first. If it is not covered yet, refer to [here](#get-involved) to ask question or submit an issue.*
+    *If there is any question during deployment, please check [installation FAQs and troubleshooting](./cluster-admin/installation-faqs-and-troubleshooting.md) first. If it is not covered yet, refer to [here](#get-involved) to ask question or submit an issue.*
 
-- **Basic cluster management**. Through the Web-portal and a command-line tool `paictl`, administrators could complete [cluster managements](cluster-admin/basic-management-operations.html), such as [adding (or removing) nodes](cluster-admin/how-to-add-and-remove-nodes.html), [monitoring nodes and services](cluster-admin/basic-management-operations.html#management-on-webportal), and [storages setup and permission control](cluster-admin/how-to-set-up-storage.html).
+- **Basic cluster management**. Through the Web-portal and a command-line tool `paictl`, administrators could complete [cluster managements](./cluster-admin/basic-management-operations.md), such as [adding (or removing) nodes](./cluster-admin/how-to-add-and-remove-nodes.md), [monitoring nodes and services](./cluster-admin/basic-management-operations.md#management-on-webportal), and [storages setup and permission control](./cluster-admin/how-to-set-up-storage.md).
 
-- **Users and groups management**. Administrators could manage the [users and groups](cluster-admin/how-to-manage-users-and-groups.html) easily.
+- **Users and groups management**. Administrators could manage the [users and groups](./cluster-admin/how-to-manage-users-and-groups.md) easily.
 
-- **Customization**. Administrators could customize the cluster by [plugins](cluster-admin/how-to-customize-cluster-by-plugins.html). Administrators could also upgrade (or downgrade) a single component (e.g. rest servers) to address customized application demands.
+- **Customization**. Administrators could customize the cluster by [plugins](./cluster-admin/how-to-customize-cluster-by-plugins.md). Administrators could also upgrade (or downgrade) a single component (e.g. rest servers) to address customized application demands.
 
 ### For cluster users
 
-The [user manual](cluster-user/README.html) is a guidance for cluster users, who could train and serve deep learning (and other) tasks on OpenPAI.
+The [user manual](./cluster-user/README.md) is a guidance for cluster users, who could train and serve deep learning (and other) tasks on OpenPAI.
 
-- **Job submission and monitoring**. The [quick start tutorial](cluster-user/quick-start.html) is a good start for learning how to train models on OpenPAI. And more examples and supports to multiple mainstream frameworks (out-of-the-box docker images) are in [here](cluster-user/docker-images-and-job-examples.html). OpenPAI also provides supports for [good debuggability](cluster-user/how-to-debug-jobs.html) and [advanced job functionalities](cluster-user/advanced-jobs.html).
+- **Job submission and monitoring**. The [quick start tutorial](./cluster-user/quick-start.md) is a good start for learning how to train models on OpenPAI. And more examples and supports to multiple mainstream frameworks (out-of-the-box docker images) are in [here](./cluster-user/docker-images-and-job-examples.md). OpenPAI also provides supports for [good debuggability](./cluster-user/how-to-debug-jobs.md) and [advanced job functionalities](./cluster-user/advanced-jobs.md).
 
-- **Data managements**. Users could use cluster provisioned storages and custom storages in their jobs. The cluster provisioned storages are well integrated and easy to configure in a job [(refer to here)](cluster-user/how-to-manage-data.html).
+- **Data managements**. Users could use cluster provisioned storages and custom storages in their jobs. The cluster provisioned storages are well integrated and easy to configure in a job [(refer to here)](./cluster-user/how-to-manage-data.md).
 
-- **Collaboration and sharing**. OpenPAI provides facilities for collaboration in teams and organizations. The cluster provisioned storages are organized by teams (groups). And users could easily share their works (e.g. jobs) in the [marketplace](cluster-user/use-marketplace.html), where others could discover and reproduce (clone) by one-click.
+- **Collaboration and sharing**. OpenPAI provides facilities for collaboration in teams and organizations. The cluster provisioned storages are organized by teams (groups). And users could easily share their works (e.g. jobs) in the [marketplace](./cluster-user/use-marketplace.md), where others could discover and reproduce (clone) by one-click.
 
-Besides the webportal, OpenPAI provides [VS Code extension](cluster-user/use-vscode-extension.html) and [command line tool (preview)](https://github.com/microsoft/openpaisdk). The VS Code extension is a friendly, GUI based client tool of OpenPAI, and it's highly recommended. It's an extension of Visual Studio Code. It can submit job, simulate jobs locally, manage multiple OpenPAI environments, and so on.
+Besides the webportal, OpenPAI provides [VS Code extension](./cluster-user/use-vscode-extension.md) and [command line tool (preview)](https://github.com/microsoft/openpaisdk). The VS Code extension is a friendly, GUI based client tool of OpenPAI, and it's highly recommended. It's an extension of Visual Studio Code. It can submit job, simulate jobs locally, manage multiple OpenPAI environments, and so on.
 
 ## Standalone Components
 
