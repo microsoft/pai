@@ -1,0 +1,31 @@
+nav:
+  - Overview: manual/index.md
+  - User Manual:
+      - Introduction: manual/cluster-user/README.md
+      - Quick Start: manual/cluster-user/quick-start.md
+      - Docker Images and Job Examples: manual/cluster-user/docker-images-and-job-examples.md
+      - How to Manage Data: manual/cluster-user/how-to-manage-data.md
+      - How to Debug Jobs: manual/cluster-user/how-to-debug-jobs.md
+      - Advanced Jobs: manual/cluster-user/advanced-jobs.md
+      - Use Marketplace: manual/cluster-user/use-marketplace.md
+      - Use VSCode Extension: manual/cluster-user/use-vscode-extension.md
+      - Use Jupyter Notebook Extension: manual/cluster-user/use-jupyter-notebook-extension.md
+  - Admin Manual:
+      - Introduction: manual/cluster-admin/README.md
+      - Installation Guide: manual/cluster-admin/installation-guide.md
+      - Installation FAQs and Troubleshooting: manual/cluster-admin/installation-faqs-and-troubleshooting.md
+      - Basic Management Operations: manual/cluster-admin/basic-management-operations.md
+      - How to Manage Users and Groups: manual/cluster-admin/how-to-manage-users-and-groups.md
+      - How to Set Up Storage: manual/cluster-admin/how-to-set-up-storage.md
+      - How to Set Up Virtual Clusters: manual/cluster-admin/how-to-set-up-virtual-clusters.md
+      - How to Add and Remove Nodes: manual/cluster-admin/how-to-add-and-remove-nodes.md
+      - How to use CPU Nodes: manual/cluster-admin/how-to-use-cpu-nodes.md
+      - How to Customize Cluster by Plugins: manual/cluster-admin/how-to-customize-cluster-by-plugins.md
+      - Troubleshooting: manual/cluster-admin/troubleshooting.md
+      - How to Uninstall OpenPAI: manual/cluster-admin/how-to-uninstall-openpai.md
+      - Upgrade Guide: manual/cluster-admin/upgrade-guide.md
+plugins:
+  - search
+site_name: OpenPAI Handbook
+theme: readthedocs
+use_directory_urls: false
