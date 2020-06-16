@@ -19,7 +19,7 @@
 
 In current release, support for CPU nodes is limited. The [installation guide](./installation-guide.md) won't work if you only have CPU worker nodes. However, after you set up the cluster with GPU worker nodes, you can add CPU worker nodes and CPU-only virtual cluster. This section is a detailed guide.
 
-Adding CPU nodes is not much differnt from adding GPU nodes, as we have decribed in [How to Add and Remove Nodes](./how-to-add-and-remove-nodes.md). So you can follow that document basically. Meanwhile, there are two differences for CPU-only nodes:
+Adding CPU nodes is not much different from adding GPU nodes, as we have described in [How to Add and Remove Nodes](./how-to-add-and-remove-nodes.md). So you can follow that document basically. Meanwhile, there are two differences for CPU-only nodes:
 
 In the preparation phase, you don't need to check GPU driver and `nvidia-container-runtime`.
 

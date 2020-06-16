@@ -24,7 +24,7 @@ To install OpenPAI >= `v1.0.0`, please first check [Installation Requirements](#
 
 The deployment of OpenPAI requires you to have at least 3 separate machines: one dev box machine, one master machine, and one worker machine.
 
-Dev box machine controls masters and workers through SSH during installation, maintainence, and uninstallation. There should be one, and only one dev box. Master machine is used to run core Kubernetes components and core OpenPAI services. In most cases, one master machine is enough. You may set multiple masters if you want the cluster to be highly-available. We recommend you to use CPU-only machines for dev box and master. For worker machines, all of them should have GPUs, and have GPU driver correctly installed.
+Dev box machine controls masters and workers through SSH during installation, maintenance, and uninstallation. There should be one, and only one dev box. Master machine is used to run core Kubernetes components and core OpenPAI services. In most cases, one master machine is enough. You may set multiple masters if you want the cluster to be highly-available. We recommend you to use CPU-only machines for dev box and master. For worker machines, all of them should have GPUs, and have GPU driver correctly installed.
 
 To be detailed, please check the following requirements before installation:
 
@@ -227,14 +227,14 @@ If there is any error, please double check the environment requirements first. H
 
 ### Keep a Folder
 
-We highly recommend you to keep the folder `~/pai-deploy` for future operations such as upgrade, maintainence, and uninstallation. The most important contents in this folder are:
+We highly recommend you to keep the folder `~/pai-deploy` for future operations such as upgrade, maintenance, and uninstallation. The most important contents in this folder are:
 
   - Kubernetes cluster config (the default is `~/pai-deploy/kube/config`): Kubernetes config file. It is used by `kubectl` to connect to k8s api server.
   - OpenPAI cluster config (the default is  `~/pai-deploy/cluster-cfg`): It is a folder containing machine layout and OpenPAI service configurations.
 
 If it is possible, you can make a backup of `~/pai-deploy` in case it is deleted unexpectedly.
 
-Apart from the folder, you should remember your OpenPAI cluster ID, which is used to indicate your OpenPAI cluster. The default value is `pai`. Some manegement operation needs a confirmation of this cluster ID.
+Apart from the folder, you should remember your OpenPAI cluster ID, which is used to indicate your OpenPAI cluster. The default value is `pai`. Some management operation needs a confirmation of this cluster ID.
 
 ## Clean Previous Deployment
 

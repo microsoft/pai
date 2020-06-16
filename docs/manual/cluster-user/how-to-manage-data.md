@@ -62,7 +62,7 @@ To access it, use the file location `\\NFS_SERVER_ADDRESS` in `Window File Explo
 
   - If OpenPAI is in AAD authentication mode, you can access nfs data through user domain name and password.
 
-If it doesn't work, please make sure the `network discovery` is on, or contact your adminstrator for help.
+If it doesn't work, please make sure the `network discovery` is on, or contact your administrator for help.
 
 If you cannot use direct access, please try to mount NFS into Windows or using a Linux VM to upload data.
 
