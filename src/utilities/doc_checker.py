@@ -5,7 +5,7 @@ import sys
 import os
 import codecs
 import urllib.parse
-import markdown # https://python-markdown.github.io/
+import markdown  # https://python-markdown.github.io/
 
 
 class LinkChecker(markdown.treeprocessors.Treeprocessor):
@@ -23,7 +23,7 @@ class LinkChecker(markdown.treeprocessors.Treeprocessor):
                 url = urllib.parse.urlparse(link)
 
                 # TODO check remot links
-                if url.scheme == "" and url.netloc == "": # local link
+                if url.scheme == "" and url.netloc == "":  # local link
                     path = os.path.join(self.dir_name, url.path)
                     if url.path == "" and url.fragment != "":
                         # ignore current file fragment checks
@@ -31,7 +31,7 @@ class LinkChecker(markdown.treeprocessors.Treeprocessor):
 
                     if not os.path.exists(path):
                         sys.stderr.write("Error: %s has broken link %s\n" %
-                                (os.path.join(self.dir_name, self.file_name), link))
+                                         (os.path.join(self.dir_name, self.file_name), link))
                         self.has_error = True
 
 
@@ -56,8 +56,7 @@ def check(doc_path):
     md = markdown.Markdown(extensions=[LinkCheckerExtension(dir_name, file_name)])
     with codecs.open(doc_path, "r", "utf-8") as f:
         md.convert(f.read())
-
-    return md.treeprocessors.get("link_checker").has_error
+    return md.treeprocessors["link_checker"].has_error
 
 
 def check_all(doc_root):
