@@ -46,6 +46,8 @@ spec:
           mountPath: /opt/logs
         - name: ssd
           mountPath: /mnt/ssd
+        - name: etc
+          mountPath: /opt/etc/updatedb.conf
       containers:
       - name: dshuttle-worker
         image: {{ cluster_cfg["cluster"]["docker-registry"]["prefix"] }}dshuttle:{{ cluster_cfg["cluster"]["docker-registry"]["tag"] }}
@@ -86,6 +88,8 @@ spec:
           name: ssd
         - name: worker-logs
           mountPath: /opt/alluxio/logs
+        - name: etc
+          mountPath: /opt/etc/updatedb.conf
       - name: dshuttle-job-worker
         image: {{ cluster_cfg["cluster"]["docker-registry"]["prefix"] }}dshuttle:{{ cluster_cfg["cluster"]["docker-registry"]["tag"] }}
         securityContext:
@@ -140,6 +144,10 @@ spec:
         hostPath:
           path: /mnt/dshuttle/ssd
           type: DirectoryOrCreate
+      - name: etc
+        hostPath:
+          path: /etc/updatedb.conf
+          type: FileOrCreate
       - name: mem
         emptyDir:
           medium: "Memory"
