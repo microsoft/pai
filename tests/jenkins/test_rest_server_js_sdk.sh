@@ -29,11 +29,11 @@ case ${cluster_type} in
     sleep 10s
     done
 
-cat <<EOT >.test/clusters.json
+cat <<EOT >.tests/clusters.json
 [
     {
         "alias": "test",
-        "rest_server_uri": "${rest_server_uri}/rest-server",
+        "rest_server_uri": "${rest_server_uri}",
         "username": "admin",
         "password": "admin-password",
         "token": "${token}",
@@ -54,5 +54,3 @@ EOT
     exit 1
     ;;
 esac
-
-
