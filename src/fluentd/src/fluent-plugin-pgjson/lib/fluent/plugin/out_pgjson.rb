@@ -43,8 +43,6 @@ module Fluent::Plugin
 
     config_param :time_format, :string, default: "%F %T.%N %z"
 
-    config_param :reset_connection_interval, :integer, default: 5
-
     config_section :buffer do
       config_set_default :@type, DEFAULT_BUFFER_TYPE
       config_set_default :chunk_keys, ["tag"]
@@ -52,10 +50,6 @@ module Fluent::Plugin
 
     def initialize
       super
-      # if @conn == nil: The connection has not been established yet.
-      # if @conn != nil: The connection has been established, but it could be a broken connection.
-      @conn = nil
-      @thread_lock = Mutex.new
       @last_reset_ts = 0
     end
 
@@ -74,68 +68,25 @@ module Fluent::Plugin
     end
 
     def init_connection
-      # This function is used to init the connection (first connecting).
-      # If @conn == nil, try to establish a connection, and set @conn. 
-      # If @conn != nil, skip this function.
-      # @conn could be a nil or non-nil value after this call.
-      if @conn.nil?
-        begin
-          log.debug "[pgjson] [init_connection] Connecting to PostgreSQL server #{@host}:#{@port}, database #{@database}..."
-          @conn = PG::Connection.new(dbname: @database, host: @host, port: @port, sslmode: @sslmode, user: @user, password: @password)
-        rescue PG::Error
-          log.debug "[pgjson] [init_connection] Failed to initialize a connection."
-          if ! @conn.nil?
-            @conn.close()
-            @conn = nil
-          end
-        rescue => err
-          log.debug "#{err}"
+      # This function is used to create a connection.
+      begin
+        log.info "[pgjson] [init_connection] Connecting to PostgreSQL server #{@host}:#{@port}, database #{@database}..."
+        conn = PG::Connection.new(dbname: @database, host: @host, port: @port, sslmode: @sslmode, user: @user, password: @password)
+      rescue PG::Error
+        log.info "[pgjson] [init_connection] Failed to initialize a connection."
+        if ! conn.nil?
+          conn.close()
+          conn = nil
         end
+      rescue => err
+        log.info "#{err}"
       end
+      conn
     end
 
     def timestamp
        Time.now.getutc.to_i
      end
-
-    def reset_connection
-      # This function try to fix the broken connection to database.
-      # if @conn == nil, call init_connection
-      # if @conn != nil, call @conn.reset
-      # This function must be protected by thread_lock to ensure thread safety.
-      begin
-        if timestamp - @last_reset_ts > @reset_connection_interval
-          if @conn.nil?
-            log.debug "[pgjson] [reset_connection] Call init_connection."
-            init_connection
-          else
-            log.debug "[pgjson] [reset_connection] Reset Connection."
-            @conn.reset
-          end
-        else
-          log.debug "[pgjson] [reset_connection] Skip reset."
-        end
-      rescue => err
-        log.debug "[pgjson] [reset_connection] #{err.class}, #{err.message}"
-      ensure
-        @last_reset_ts = timestamp
-      end
-    end
-
-    def shutdown
-      begin
-        @thread_lock.lock()
-        if ! @conn.nil?
-          @conn.close()
-          @conn = nil
-        end
-      rescue => err
-        log.debug "[pgjson] [shutdown] #{err.class}, #{err.message}"
-      ensure
-        @thread_lock.unlock()
-      end
-      super
-    end
 
     def formatted_to_msgpack_binary
       true
@@ -150,44 +101,47 @@ module Fluent::Plugin
     end
 
     def write(chunk)
-      log.debug "[pgjson] in write, chunk id #{dump_unique_id_hex chunk.unique_id}"
-      @thread_lock.lock()
-      init_connection
-      if ! @conn.nil?
+      log.info "[pgjson] in write, chunk id #{dump_unique_id_hex chunk.unique_id}"
+      thread = Thread.current
+      if thread.key?(:conn)
+        conn = thread[:conn]
+      else
+        conn = init_connection
+        thread[:conn] = conn
+      end
+      if ! conn.nil?
         begin
-          @conn.exec("COPY #{@table} (#{@tag_col}, #{@time_col}, #{@record_col}) FROM STDIN WITH DELIMITER E'\\x01'")
+          conn.exec("COPY #{@table} (#{@tag_col}, #{@time_col}, #{@record_col}) FROM STDIN WITH DELIMITER E'\\x01'")
           tag = chunk.metadata.tag
           chunk.msgpack_each do |time, record|
-            @conn.put_copy_data "#{tag}\x01#{time}\x01#{record_value(record)}\n"
+            conn.put_copy_data "#{tag}\x01#{time}\x01#{record_value(record, conn)}\n"
           end
         rescue PG::ConnectionBad, PG::UnableToSend => err
           # connection error
-          reset_connection  # try to reset broken connection, and wait for next retry
-          errmsg = "%s while copy data: %s" % [ err.class.name, err.message ]
-          raise errmsg
+          conn = init_connection # try to reset broken connection, and wait for next retry
+          thread[:conn] = conn
+          log.info "%s while copy data: %s" % [ err.class.name, err.message ]
+          retry
         rescue PG::Error => err
-          log.debug "[pgjson] [write] Error while writing, error is #{err.class}"
+          log.info "[pgjson] [write] Error while writing, error is #{err.class}"
           errmsg = "%s while copy data: %s" % [ err.class.name, err.message ]
-          @conn.put_copy_end( errmsg )
-          @conn.get_result
+          conn.put_copy_end( errmsg )
+          conn.get_result
           raise errmsg
         else
-          @conn.put_copy_end
-          res = @conn.get_result
+          conn.put_copy_end
+          res = conn.get_result
           raise res.result_error_message if res.result_status != PG::PGRES_COMMAND_OK
-          log.debug "[pgjson] write successfully, chunk id #{dump_unique_id_hex chunk.unique_id}"
-        ensure
-          @thread_lock.unlock()
+          log.info "[pgjson] write successfully, chunk id #{dump_unique_id_hex chunk.unique_id}"
         end
       else
-        @thread_lock.unlock()
         raise "Cannot connect to db host."
       end
     end
 
-    def record_value(record)
+    def record_value(record, conn)
       if @msgpack
-        "\\#{@conn.escape_bytea(record.to_msgpack)}"
+        "\\#{conn.escape_bytea(record.to_msgpack)}"
       else
         json = @encoder.dump(record)
         json.gsub!(/\\/){ '\\\\' }
