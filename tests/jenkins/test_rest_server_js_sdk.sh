@@ -22,6 +22,7 @@ case ${cluster_type} in
     rm -rf openpaisdk
     git clone https://github.com/microsoft/openpaisdk
     cd openpaisdk
+    git checkout yiyi/fix_api_tests_for_ci
     npm install
     npm run build
     cd lib
