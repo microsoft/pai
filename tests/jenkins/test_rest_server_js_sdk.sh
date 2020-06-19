@@ -47,7 +47,8 @@ cat <<EOT >.tests/clusters.json
 ]
 EOT
 
-    wget https://raw.githubusercontent.com/microsoft/pai/master/src/rest-server/docs/swagger.yaml
+    # wget https://raw.githubusercontent.com/microsoft/pai/master/src/rest-server/docs/swagger.yaml
+    cp src/api/v2/swagger.yaml .
     node tests/common/apiTestCaseGenerator.js -- "swagger.yaml" ".tests/apiTestCase.json"
     sudo npm install -g mocha
     mocha tests/api_tests/**/*.spec.js -t 20000
