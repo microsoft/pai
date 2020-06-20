@@ -166,8 +166,12 @@ if (sequelize && launcherConfig.enabledJobHistory) {
       jobAttemptIndex === attemptFramework.spec.retryPolicy.maxRetryCount
     ) {
       // get latest frameworks from k8s API
-      const attemptDetail = await convertToJobAttempt(attemptFramework);
-      return {status: 200, data: {...attemptDetail, isLatest: true}};
+      try {
+        const attemptDetail = await convertToJobAttempt(attemptFramework);
+        return {status: 200, data: {...attemptDetail, isLatest: true}};
+      } catch (err) {
+        return {status: 500, data: attemptFramework};
+      }
     } else {
       return {status: 404, data: null};
     }
