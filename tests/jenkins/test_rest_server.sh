@@ -71,8 +71,6 @@ case ${cluster_type} in
       | sed "s/keras_tensorflow_mnist/${job_name}/g" \
       | curl -sS -X POST -H "Authorization: Bearer ${token}" -H "Content-Type: text/yaml" --data-binary @- ${rest_server_uri}/api/v2/jobs
     check_status ${rest_server_uri}/api/v2/jobs/admin~${job_name}
-
-    curl -sS -H "Authorization: Bearer ${token}" "${rest_server_uri}/api/v2/jobs/admin~${job_name}/job-attempts"
     ;;
   *)
     echo "Unknown cluster type ${cluster_type}"

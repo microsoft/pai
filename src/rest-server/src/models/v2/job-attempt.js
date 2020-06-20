@@ -99,7 +99,11 @@ if (sequelize && launcherConfig.enabledJobHistory) {
     const pgResult = (await sequelize.query(sqlSentence))[0];
     const jobRetries = await Promise.all(
       pgResult.map((row) => {
-        return convertToJobAttempt(row.data);
+        try {
+          return convertToJobAttempt(row.data);
+        } catch (err) {
+          return row.data;
+        }
       }),
     );
     attemptData.push(
