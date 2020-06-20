@@ -66,6 +66,7 @@ if (sequelize && launcherConfig.enabledJobHistory) {
         }
       );
     } catch (error) {
+      return {status: 200, data: error};
       logger.error(`error when getting framework from k8s api: ${error.message}`);
       if (error.response != null) {
         response = error.response;
@@ -99,11 +100,7 @@ if (sequelize && launcherConfig.enabledJobHistory) {
     const pgResult = (await sequelize.query(sqlSentence))[0];
     const jobRetries = await Promise.all(
       pgResult.map((row) => {
-        try {
-          return convertToJobAttempt(row.data);
-        } catch (err) {
-          return row.data;
-        }
+        return convertToJobAttempt(row.data);
       }),
     );
     attemptData.push(
