@@ -65,6 +65,7 @@ if (sequelize && launcherConfig.enabledJobHistory) {
           headers: launcherConfig.requestHeaders,
         }
       );
+      return {status: 200, data: response.data};
     } catch (error) {
       return {status: 200, data: error};
       logger.error(`error when getting framework from k8s api: ${error.message}`);
