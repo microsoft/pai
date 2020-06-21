@@ -190,7 +190,7 @@ const convertToJobAttempt = async (framework) => {
         id: null,
         startTime: null,
         completionTime: null,
-        taskRoleStatuses: {},
+        taskRoleStatuses: [],
       },
       state: null,
       retryPolicyStatus: {
