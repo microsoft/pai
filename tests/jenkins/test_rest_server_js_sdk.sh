@@ -18,7 +18,7 @@ case ${cluster_type} in
     sudo apt install nodejs -y
     node --version
 
-    # install openpai-js-sdk from github
+    # install openpai-js-sdk
     rm -rf openpaisdk
     git clone https://github.com/microsoft/openpaisdk
     cd openpaisdk
