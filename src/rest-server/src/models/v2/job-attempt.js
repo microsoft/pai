@@ -65,9 +65,7 @@ if (sequelize && launcherConfig.enabledJobHistory) {
           headers: launcherConfig.requestHeaders,
         }
       );
-      return {status: 400, data: response.data.metadata};
     } catch (error) {
-      return {status: 400, data: error};
       logger.error(`error when getting framework from k8s api: ${error.message}`);
       if (error.response != null) {
         response = error.response;
@@ -166,12 +164,8 @@ if (sequelize && launcherConfig.enabledJobHistory) {
       jobAttemptIndex === attemptFramework.spec.retryPolicy.maxRetryCount
     ) {
       // get latest frameworks from k8s API
-      try {
-        const attemptDetail = await convertToJobAttempt(attemptFramework);
-        return {status: 200, data: {...attemptDetail, isLatest: true}};
-      } catch (err) {
-        return {status: 500, data: attemptFramework};
-      }
+      const attemptDetail = await convertToJobAttempt(attemptFramework);
+      return {status: 200, data: {...attemptDetail, isLatest: true}};
     } else {
       return {status: 404, data: null};
     }
