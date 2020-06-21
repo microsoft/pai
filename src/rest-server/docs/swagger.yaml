@@ -2048,6 +2048,7 @@ components:
           type: string
         originState:
           type: string
+          nullable: true
         maxAttemptCount:
           type: integer
         attemptIndex:
