@@ -2053,6 +2053,7 @@ components:
           type: integer
         attemptIndex:
           type: integer
+          nullable: true
         jobStartedTime:
           type: integer
         attemptStartedTime:
