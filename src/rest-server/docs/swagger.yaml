@@ -2058,6 +2058,7 @@ components:
           type: integer
         attemptStartedTime:
           type: integer
+          nullable: true
         attemptCompletedTime:
           type: integer
           nullable: true
