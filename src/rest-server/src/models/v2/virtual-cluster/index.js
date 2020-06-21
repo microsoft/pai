@@ -15,10 +15,4 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-const launcherConfig = require('@pai/config/launcher');
-
-if (launcherConfig.type === 'yarn') {
-  module.exports = require('@pai/models/v2/virtual-cluster/yarn');
-} else {
-  module.exports = require('@pai/models/v2/virtual-cluster/k8s');
-}
+module.exports = require('@pai/models/v2/virtual-cluster/k8s');

@@ -21,7 +21,6 @@ const token = require('@pai/middlewares/token');
 const userController = require('@pai/controllers/v2/user');
 const userInputSchema = require('@pai/config/v2/user');
 const param = require('@pai/middlewares/parameter');
-const jobRouter = require('@pai/routes/job');
 const authnConfig = require('@pai/config/authn');
 
 const router = new express.Router();
@@ -39,8 +38,6 @@ router.route('/:username/extension')
   /** Put /api/v2/users/:username/extension */
   .put(token.checkNotApplication, param.validate(userInputSchema.userExtensionUpdateInputSchema), userController.updateUserExtension);
 
-/** Legacy API and will be deprecated in the future. */
-router.use('/:username/jobs', jobRouter);
 
 if (authnConfig.authnMethod === 'basic') {
   router.route('/:username')
