@@ -11,18 +11,17 @@ case ${cluster_type} in
     echo "Skip the API tests for yarn version"
     ;;
   "k8s")
-    # install openpai-js-sdk
+    # install nodejs 12.x
     sudo apt update
     sudo apt -y install curl dirmngr apt-transport-https lsb-release ca-certificates
     curl -sL https://deb.nodesource.com/setup_12.x | sudo -E bash -
-
     sudo apt install nodejs -y
     node --version
 
+    # install openpai-js-sdk from github
     rm -rf openpaisdk
     git clone https://github.com/microsoft/openpaisdk
     cd openpaisdk
-    git checkout yiyi/fix_api_tests_for_ci
     npm install
     npm run build
     cd lib
