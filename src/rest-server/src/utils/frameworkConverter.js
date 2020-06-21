@@ -190,16 +190,15 @@ const convertToJobAttempt = async (framework) => {
         id: null,
         startTime: null,
         completionTime: null,
-        taskRoleStatuses: []
+        taskRoleStatuses: {},
       },
       state: null,
       retryPolicyStatus: {
-        retryDelaySec: null
+        retryDelaySec: null,
       },
-      attemptStatus: {
-      }
-    }
+    };
   }
+
   const completionStatus = framework.status.attemptStatus.completionStatus;
   const jobName = decodeName(
     framework.metadata.name,
