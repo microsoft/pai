@@ -1779,7 +1779,6 @@ components:
             - retries
             - createdTime
             - completedTime
-            - appId
             - appLaunchedTime
             - appCompletedTime
             - appExitCode
@@ -1819,9 +1818,11 @@ components:
                         - UNKNOWN
                     containerId:
                       type: string
+                      nullable: true
                       description: uid of the task container
                     containerIp:
                       type: string
+                      nullable: true
                       description: ip of the task container
                     containerPorts:
                       type: object
@@ -2205,6 +2206,7 @@ components:
                           - UNKNOWN
                       containerId:
                         type: string
+                        nullable: true
                       containerIp:
                         type: string
                       containerGpus:
