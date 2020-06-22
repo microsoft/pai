@@ -65,16 +65,16 @@ module Fluent::Plugin
     def init_connection
       # This function is used to create a connection.
       begin
-        log.info "[pgjson] [init_connection] Connecting to PostgreSQL server #{@host}:#{@port}, database #{@database}..."
+        log.debug "[pgjson] [init_connection] Connecting to PostgreSQL server #{@host}:#{@port}, database #{@database}..."
         conn = PG::Connection.new(dbname: @database, host: @host, port: @port, sslmode: @sslmode, user: @user, password: @password)
       rescue PG::Error
-        log.info "[pgjson] [init_connection] Failed to initialize a connection."
+        log.debug "[pgjson] [init_connection] Failed to initialize a connection."
         if ! conn.nil?
           conn.close()
           conn = nil
         end
       rescue => err
-        log.info "#{err}"
+        log.debug "#{err}"
       end
       conn
     end
@@ -96,7 +96,7 @@ module Fluent::Plugin
     end
 
     def write(chunk)
-      log.info "[pgjson] in write, chunk id #{dump_unique_id_hex chunk.unique_id}"
+      log.debug "[pgjson] in write, chunk id #{dump_unique_id_hex chunk.unique_id}"
       thread = Thread.current
       if thread.key?(:conn)
         conn = thread[:conn]
@@ -115,10 +115,10 @@ module Fluent::Plugin
           # connection error
           conn = init_connection # try to reset broken connection, and wait for next retry
           thread[:conn] = conn
-          log.info "%s while copy data: %s" % [ err.class.name, err.message ]
+          log.debug "%s while copy data: %s" % [ err.class.name, err.message ]
           retry
         rescue PG::Error => err
-          log.info "[pgjson] [write] Error while writing, error is #{err.class}"
+          log.debug "[pgjson] [write] Error while writing, error is #{err.class}"
           errmsg = "%s while copy data: %s" % [ err.class.name, err.message ]
           conn.put_copy_end( errmsg )
           conn.get_result
@@ -127,7 +127,7 @@ module Fluent::Plugin
           conn.put_copy_end
           res = conn.get_result
           raise res.result_error_message if res.result_status != PG::PGRES_COMMAND_OK
-          log.info "[pgjson] write successfully, chunk id #{dump_unique_id_hex chunk.unique_id}"
+          log.debug "[pgjson] write successfully, chunk id #{dump_unique_id_hex chunk.unique_id}"
         end
       else
         raise "Cannot connect to db host."
