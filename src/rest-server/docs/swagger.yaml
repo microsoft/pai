@@ -1,11 +1,13 @@
 openapi: 3.0.1
 info:
   title: OpenPAI RESTful API
-  description: Open Platform for AI RESTful API docs.
+  description: >
+    Open Platform for AI RESTful API docs.
+    Version 2.0.1: add more examples and fix typos
   license:
     name: MIT License
     url: 'https://github.com/microsoft/pai/blob/master/LICENSE'
-  version: 2.0.0
+  version: 2.0.1
 externalDocs:
   description: Find out more about OpenPAI
   url: 'https://github.com/microsoft/pai'
