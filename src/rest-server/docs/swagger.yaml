@@ -1,11 +1,13 @@
 openapi: 3.0.1
 info:
   title: OpenPAI RESTful API
-  description: Open Platform for AI RESTful API docs.
+  description: >
+    Open Platform for AI RESTful API docs.
+    Version 2.0.1: add more examples and fix typos
   license:
     name: MIT License
     url: 'https://github.com/microsoft/pai/blob/master/LICENSE'
-  version: 2.0.0
+  version: 2.0.1
 externalDocs:
   description: Find out more about OpenPAI
   url: 'https://github.com/microsoft/pai'
@@ -67,6 +69,11 @@ paths:
                   - version
                   - launcherType
                   - authnMethod
+              example:
+                name: 'PAI RESTful API'
+                version: 'v1.0.1'
+                launcherType: 'k8s'
+                authnMethod: 'basic'
   /api/v2/tokens:
     get:
       tags:
@@ -91,6 +98,9 @@ paths:
                     description: JWT string list
                 required:
                   - tokens
+              example:
+                tokens:
+                  - 'JWT Token Example'
         '401':
           $ref: '#/components/responses/UnauthorizedUserError'
   '/api/v2/tokens/{token}':
@@ -143,6 +153,9 @@ paths:
                   application:
                     type: boolean
                     description: 'true'
+              example:
+                token: 'JWT Token Example'
+                application: true
         '401':
           $ref: '#/components/responses/UnauthorizedUserError'
   /api/v2/authn/oidc/login:
@@ -215,6 +228,10 @@ paths:
                   - token
                   - user
                   - admin
+              example:
+                token: 'JWT Token Example'
+                user: 'user'
+                admin: true
         '400':
           description: NoUserError or IncorrectPasswordError
           content:
@@ -318,6 +335,13 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/UserInfo'
+              example:
+                - username: username
+                  admin: true
+                  virtualCluster: []
+                  storageConfig: []
+                  email: 'email@test.com'
+                  extension: {}
         '500':
           $ref: '#/components/responses/UnknownError'
     put:
@@ -487,6 +511,13 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/UserInfo'
+              example:
+                username: username
+                admin: true
+                virtualCluster: []
+                storageConfig: []
+                email: 'email@test.com'
+                extension: {}
         '401':
           $ref: '#/components/responses/UnauthorizedUserError'
         '404':
@@ -674,6 +705,11 @@ paths:
                       description: the external group name binding with the group in OpenPAI
                     extension:
                       type: object
+              example:
+                - groupname: groupName
+                  description: description
+                  externalName: externalName
+                  extension: {}
         '500':
           $ref: '#/components/responses/UnknownError'
     post:
@@ -812,6 +848,11 @@ paths:
                   - description
                   - externalName
                   - extension
+              example:
+                groupname: groupName
+                description: description
+                externalName: externalName
+                extension: {}
         '401':
           $ref: '#/components/responses/UnauthorizedUserError'
         '404':
@@ -869,6 +910,9 @@ paths:
                     clusterAdmin:
                       type: boolean
                       description: Cluster admin or not.
+              example:
+                - username: username
+                  clusterAdmin: false
         '401':
           $ref: '#/components/responses/UnauthorizedUserError'
         '500':
@@ -911,6 +955,29 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/VirtualCluster'
+              example:
+                capacity: 70
+                usedCapacity: 30
+                dedicated: false
+                resourcesUsed:
+                  cpu: 1
+                  memory: 1024
+                  gpu: 1
+                  vCores: 1
+                  GPUs: 1
+                resourcesGuaranteed:
+                  cpu: 2
+                  memory: 2048
+                  gpu: 2
+                  vCores: 2
+                  GPUs: 2
+                resourcesTotal:
+                  cpu: 2
+                  memory: 2048
+                  gpu: 2
+                  vCores: 2
+                  GPUs: 2
+                maxCapacity: 70
         '404':
           $ref: '#/components/responses/NoVirtualClusterError'
         '500':
@@ -937,6 +1004,11 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/StorageSummary'
+              example:
+                storages:
+                  - name: name
+                    share: true
+                    volumeName: volumeName
         '500':
           $ref: '#/components/responses/UnknownError'
   '/api/v2/storages/{storage}':
@@ -957,6 +1029,14 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/StorageDetail'
+              example:
+                name: nfs-storage-name
+                share: true
+                volumeName: nfs-volume-name
+                type: nfs
+                data:
+                  server: <ip-address>
+                  path: "/data"
         '403':
           description: ForbiddenUserError
           content:
@@ -1026,6 +1106,18 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/JobSummary'
+              example:
+                - protocolVersion: '2'
+                  name: job name
+                  username: user name
+                  state: SUCCEEDED
+                  subState: Completed
+                  executionType: STOP
+                  retries: 0
+                  createdTime: 0
+                  completedTime: 0
+                  appExitCode: 0
+                  virtualCluster: unknown
         '500':
           $ref: '#/components/responses/UnknownError'
   '/api/v2/jobs/{user}~{job}':
@@ -1047,6 +1139,28 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/JobDetail'
+              example:
+                name: job name
+                jobStatus:
+                  username: user name
+                  state: SUCCEEDED
+                  subState: Completed
+                  executionType: STOP
+                  retries: 0
+                  createdTime: 0
+                  completedTime: 0
+                  appId: id
+                  appLaunchedTime: 0
+                  appCompletedTime: 0
+                  appExitCode: 0
+                  virtualCluster: unknown
+                taskRoles:
+                  taskrole:
+                    taskRoleStatus:
+                      name: task role name
+                    taskStatuses:
+                      - taskIndex: 0
+                        taskState: SUCCEEDED
         '404':
           $ref: '#/components/responses/NoJobError'
         '500':
@@ -1070,6 +1184,24 @@ paths:
             text/yaml:
               schema:
                 $ref: '#/components/schemas/JobProtocol'
+              example:
+                protocolVersion: '2'
+                name: <job_name>
+                type: job
+                prerequisites:
+                  - name: <image_name>
+                    type: dockerimage
+                    uri: image_url
+                taskRoles:
+                  train:
+                    instances: 1
+                    dockerImage: <image_name>
+                    resourcePerInstance:
+                      cpu: 1
+                      memoryMB: 16384
+                      gpu: 1
+                    commands:
+                      - python <start up script>
         '404':
           description: NoJobError or NoJobConfigError
           content:
@@ -1083,7 +1215,7 @@ paths:
                   $ref: '#/components/responses/NoJobConfigError/content/application~1json/examples/NoJobConfigError'
         '500':
           $ref: '#/components/responses/UnknownError'
-  '/api/v2/jobs/{user}~{job}/exectionType':
+  '/api/v2/jobs/{user}~{job}/executionType':
     put:
       tags:
         - job
@@ -1163,6 +1295,58 @@ paths:
                 items:
                   $ref: '#/components/schemas/JobAttempt'
                 description: job attempts
+              example:
+                - jobName: jobName
+                  frameworkName: frameworkName
+                  uid: uid
+                  userName: userName
+                  state: SUCCEEDED
+                  originState: Completed
+                  maxAttemptCount: 1
+                  attemptIndex: 0
+                  jobStartedTime: 0
+                  attemptStartedTime: 0
+                  attemptCompletedTime: 0
+                  exitCode: 0
+                  exitPhrase: Succeeded
+                  exitType: Succeeded
+                  exitDiagnostics:
+                    diagnosticsSummary: Pod succeeded
+                    runtime:
+                    launcher: Pod succeeded
+                  appExitTriggerMessage: 'All Tasks are completed'
+                  appExitTriggerTaskRoleName: taskrole
+                  appExitTriggerTaskIndex: 0
+                  appExitSpec:
+                    code: 0
+                    phrase: Succeeded
+                    issuer: USER_CONTAINER
+                    causer: USER_CONTAINER
+                    type: USER_SUCCESS
+                    stage: COMPLETING
+                    behavior: UNKNOWN
+                    reaction: NEVER_RETRY
+                    repro:
+                      - User program exits with exitcode 0
+                  appExitDiagnostics: Pod succeeded
+                  appExitMessages:
+                    container:
+                    runtime:
+                    launcher: Pod succeeded
+                  totalGpuNumber: 1
+                  totalTaskNumber: 1
+                  totalTaskRoleNumber: 1
+                  taskRoles:
+                    taskrole:
+                      taskRoleStatus:
+                        name: taskrole
+                      taskStatuses:
+                        - taskIndex: 0
+                          taskState: SUCCEEDED
+                          containerId: <container id>
+                          containerIp: <container ip>
+                          containerExitCode: 0
+                  isLatest: true
         '404':
           $ref: '#/components/responses/NoJobError'
         '501':
@@ -1187,6 +1371,58 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/JobAttempt'
+              example:
+                jobName: jobName
+                frameworkName: frameworkName
+                uid: uid
+                userName: userName
+                state: SUCCEEDED
+                originState: Completed
+                maxAttemptCount: 1
+                attemptIndex: 0
+                jobStartedTime: 0
+                attemptStartedTime: 0
+                attemptCompletedTime: 0
+                exitCode: 0
+                exitPhrase: Succeeded
+                exitType: Succeeded
+                exitDiagnostics:
+                  diagnosticsSummary: Pod succeeded
+                  runtime:
+                  launcher: Pod succeeded
+                appExitTriggerMessage: 'All Tasks are completed'
+                appExitTriggerTaskRoleName: taskrole
+                appExitTriggerTaskIndex: 0
+                appExitSpec:
+                  code: 0
+                  phrase: Succeeded
+                  issuer: USER_CONTAINER
+                  causer: USER_CONTAINER
+                  type: USER_SUCCESS
+                  stage: COMPLETING
+                  behavior: UNKNOWN
+                  reaction: NEVER_RETRY
+                  repro:
+                    - User program exits with exitcode 0
+                appExitDiagnostics: Pod succeeded
+                appExitMessages:
+                  container:
+                  runtime:
+                  launcher: Pod succeeded
+                totalGpuNumber: 1
+                totalTaskNumber: 1
+                totalTaskRoleNumber: 1
+                taskRoles:
+                  taskrole:
+                    taskRoleStatus:
+                      name: taskrole
+                    taskStatuses:
+                      - taskIndex: 0
+                        taskState: SUCCEEDED
+                        containerId: <container id>
+                        containerIp: <container ip>
+                        containerExitCode: 0
+                isLatest: true
         '404':
           $ref: '#/components/responses/NoJobError'
         '501':
