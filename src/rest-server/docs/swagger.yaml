@@ -4,10 +4,11 @@ info:
   description: >
     Open Platform for AI RESTful API docs.
     Version 2.0.1: add more examples and fix typos
+    Version 2.0.2: update job detail and job attempt schema
   license:
     name: MIT License
     url: 'https://github.com/microsoft/pai/blob/master/LICENSE'
-  version: 2.0.1
+  version: 2.0.2
 externalDocs:
   description: Find out more about OpenPAI
   url: 'https://github.com/microsoft/pai'
@@ -2015,7 +2016,6 @@ components:
             - retries
             - createdTime
             - completedTime
-            - appId
             - appLaunchedTime
             - appCompletedTime
             - appExitCode
@@ -2055,9 +2055,11 @@ components:
                         - UNKNOWN
                     containerId:
                       type: string
+                      nullable: true
                       description: uid of the task container
                     containerIp:
                       type: string
+                      nullable: true
                       description: ip of the task container
                     containerPorts:
                       type: object
@@ -2283,14 +2285,17 @@ components:
           type: string
         originState:
           type: string
+          nullable: true
         maxAttemptCount:
           type: integer
         attemptIndex:
           type: integer
+          nullable: true
         jobStartedTime:
           type: integer
         attemptStartedTime:
           type: integer
+          nullable: true
         attemptCompletedTime:
           type: integer
           nullable: true
@@ -2441,6 +2446,7 @@ components:
                           - UNKNOWN
                       containerId:
                         type: string
+                        nullable: true
                       containerIp:
                         type: string
                       containerGpus:
