@@ -1,4 +1,16 @@
 ---
+- name: set base_dir
+  set_fact:
+    base_dir: "{{ playbook_dir }}/.generated/"
+
+- name: Create base_dir
+  file:
+    path: "{{ base_dir }}"
+    state: directory
+    recurse: true
+
+-
+
 - name: "output group info"
   debug:
     var: groups['virtual-kubelet']
@@ -9,8 +21,8 @@
 
 - name: "output group info"
   debug:
-    var: stress_vk_per_host
+    var: defaulvc_numbers
 
 - name: "output group info"
   debug:
-    var: default_vk_per_host
+    var: stressvc_numbers

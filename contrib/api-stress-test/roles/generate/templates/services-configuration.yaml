@@ -40,7 +40,7 @@ hivedscheduler:
           isNodeLevel: true
         DT-NODE-POOL:
           childCellType: DT-NODE
-          childCellNumber: {{ vk_per_hosts * vk_host_numbers | int}}
+          childCellNumber: {{ vk_per_host * vk_host_numbers |int }}
       physicalCells:
       - cellType: DT-NODE-POOL
         cellChildren:
@@ -51,11 +51,11 @@ hivedscheduler:
       default:
         virtualCells:
         - cellType: DT-NODE-POOL.DT-NODE
-          cellNumber: {{ vk_host_numbers * vk_per_hosts - ( vk_host_numbers / 2 * vk_per_hosts | int) | int}}
+          cellNumber: {{ defaulvc_numbers }}
       stress:
         virtualCells:
         - cellType: DT-NODE-POOL.DT-NODE
-          cellNumber: {{ vk_host_numbers / 2 * vk_per_hosts | int}}
+          cellNumber: {{ stressvc_numbers }}
 
 
 authentication:

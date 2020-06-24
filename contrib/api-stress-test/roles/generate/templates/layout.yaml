@@ -17,8 +17,8 @@
 
 # kubernetes api server and dashboard
 kubernetes:
-  api-servers-url: https://10.0.0.1:6443
-  dashboard-url: https://10.0.0.1:9090
+  api-servers-url: https://{{ hostvars[groups['kube-master'][0]].ansible_host }}:6443
+  dashboard-url: https://{{ hostvars[groups['kube-master'][0]].ansible_host }}:9090
 
 machine-sku:
   GENERIC-MASTER:
@@ -26,7 +26,6 @@ machine-sku:
     cpu:
       vcore: 24
     os: ubuntu16.04
-
   GENERIC-WORKER:
     mem: 200
     cpu:
@@ -34,23 +33,23 @@ machine-sku:
     os: ubuntu16.04
 
 machine-list:
-{%- for host in groups['openpai-master'] %}
+{%- for host in groups['kube-master'] %}
     - hostname: {{ hostvars[host].inventory_hostname }}
       nodename: {{ hostvars[host].inventory_hostname }}
-      hostip: {{ hostvars[host].inventory_hostname }}
+      hostip: {{ hostvars[host].ansible_host }}
       machine-type: GENERIC-MASTER
       dashboard: "true"
       pai-master: "true"
 {%- endfor %}
-{%- for host in groups['openpai-worker'] %}
-    - hostname: {{ hostvars[host].inventory_hostname }}
-      nodename: {{ hostvars[host].inventory_hostname }}
-      hostip: {{ hostvars[host].inventory_hostname }}
+{%- for host in groups['virtual-kubelet'] %}
+{%- for id in range(vk_per_host) %}
+    - hostname: {{ hostvars[host].inventory_hostname }}-{{id}}
+      nodename: {{ hostvars[host].inventory_hostname }}-{{id}}
+      hostip: 192.168.{{loop.counter}}.{{id+1}}
       machine-type: GENERIC-WORKER
       pai-worker: "true"
 {%- endfor %}
-
-
+{%- endfor %}
 
 
 

@@ -31,9 +31,9 @@ all:
     virtual-kubelet:
       hosts:
         host1
-    openpai-master:
+    kube-master:
       hosts:
         host2
-    openpai-worker:
+    kube-worker:
       hosts:
         host3
