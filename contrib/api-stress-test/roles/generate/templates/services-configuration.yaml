@@ -1,0 +1,86 @@
+cluster:
+  common:
+    cluster-id: pai
+    cluster-type: k8s
+    k8s-rbac: "true"
+    job-history: "true"
+    data-path: "/datastorage"
+    qos-switch: "false"
+    docker-data-root: "/mnt/docker"
+  docker-registry:
+    namespace: openpai
+    domain: docker.io
+    tag: stresstest
+    secret-name: pai-stresstest
+
+rest-server:
+  default-pai-admin-username: stress
+  default-pai-admin-password: stress1234
+
+webportal:
+  server-port: 9286
+
+internal-storage:
+  enable: true
+
+postgresql:
+  enable: true
+
+hivedscheduler:
+  config: |
+    physicalCluster:
+      skuTypes:
+        DT:
+          cpu: 1
+          memory: 1000Mi
+      cellTypes:
+        DT-NODE:
+          childCellType: DT
+          childCellNumber: 20
+          isNodeLevel: true
+        DT-NODE-POOL:
+          childCellType: DT-NODE
+          childCellNumber: {{ vk_per_hosts * vk_host_numbers | int}}
+      physicalCells:
+      - cellType: DT-NODE-POOL
+        cellChildren:
+        {%- for host in groups['vk'] %}
+        - cellAddress: {{hostvars[host].inventory_hostname }}
+        {%- endfor %}
+    virtualClusters:
+      default:
+        virtualCells:
+        - cellType: DT-NODE-POOL.DT-NODE
+          cellNumber: {{ vk_host_numbers * vk_per_hosts - ( vk_host_numbers / 2 * vk_per_hosts | int) | int}}
+      stress:
+        virtualCells:
+        - cellType: DT-NODE-POOL.DT-NODE
+          cellNumber: {{ vk_host_numbers / 2 * vk_per_hosts | int}}
+
+
+authentication:
+  OIDC: false
+  group-manager:
+    group-data-source: basic
+
+    admin-group:
+      groupname: admingroup
+      description: "admin's group"
+      externalName: ""
+      extension:
+        acls:
+          virtualClusters: []
+          admin: true
+
+    default-group:
+      groupname: default
+      description: "group for default vc"
+      externalName: ""
+      extension:
+        acls:
+          virtualClusters: ["default"]
+          admin: false
+
+# uncomment following section if you want to customize the port of pylon
+# pylon:
+#  port: 80

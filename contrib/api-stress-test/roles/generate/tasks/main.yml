@@ -1,0 +1,4 @@
+---
+- name: "output group info"
+  debug:
+    var: groups['vk']

@@ -1,0 +1,9 @@
+---
+- hosts: localhost
+  gather_facts: False
+  roles:
+    - { role: generate }
+
+
+
+
