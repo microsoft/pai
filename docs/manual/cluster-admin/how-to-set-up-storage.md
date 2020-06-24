@@ -107,6 +107,7 @@ curl -s https://raw.githubusercontent.com/Azure/kubernetes-volume-drivers/master
   | kubectl apply -f -
 ```
 
+> NOTE: There is a known issue [#4367](https://github.com/microsoft/pai/issues/4637) to mount same PV multiple times on same node, pls use the [patched blobfuse flexvolume installer](https://github.com/microsoft/pai/issues/4637#issuecomment-647434815) instead.
 
 ### Azure File
 
