@@ -14,3 +14,7 @@
 - name: "output group info"
   debug:
     var: vk_per_hosts
+
+- name: "output group info"
+  debug:
+    var: vk_per_hosts * (vk_host_numbers - vk_host_numbers/2)
