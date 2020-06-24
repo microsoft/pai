@@ -9,12 +9,8 @@
 
 - name: "output group info"
   debug:
-    var: vk_host_numbers
+    var: stress_vk_per_host
 
 - name: "output group info"
   debug:
-    var: vk_per_hosts
-
-- name: "output group info"
-  debug:
-    var: vk_per_hosts * (vk_host_numbers | int - vk_host_numbers |int /2) | int
+    var: default_vk_per_host
