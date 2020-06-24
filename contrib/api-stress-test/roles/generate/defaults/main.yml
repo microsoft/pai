@@ -2,7 +2,7 @@
 
 vk_per_host: 100
 stress_vk_proportion: 0.5
-stress_vk_per_host: "{{ vk_per_host * stress_vk_proportion |int }}"
-default_vk_per_host: "{{ vk_per_host - stress_vk_per_host |int }}"
+stress_vk_per_host: "{{ (vk_per_host * stress_vk_proportion) |int }}"
+default_vk_per_host: "{{ (vk_per_host - stress_vk_per_host) |int }}"
 vk_host_numbers: "{{ groups['virtual-kubelet'] |length }}"
 
