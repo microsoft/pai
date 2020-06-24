@@ -1,0 +1,39 @@
+all:
+  hosts:
+    host1:
+      ip: 10.0.0.1
+      access_ip: 10.0.0.1
+      ansible_host: 10.0.0.1
+      ansible_ssh_user: example
+      ansible_ssh_pass: "example1234"
+      ansible_become_pass: "example1234"
+      #ansible_ssh_private_key_file: "/path/to/sshkey"
+      ansible_ssh_extra_args: '-o StrictHostKeyChecking=no'
+    host2:
+      ip: 10.0.0.2
+      access_ip: 10.0.0.2
+      ansible_host: 10.0.0.2
+      ansible_ssh_user: example
+      ansible_ssh_pass: "example1234"
+      ansible_become_pass: "example1234"
+      #ansible_ssh_private_key_file: "/path/to/sshkey"
+      ansible_ssh_extra_args: '-o StrictHostKeyChecking=no'
+    host3:
+      ip: 10.0.0.3
+      access_ip: 10.0.0.3
+      ansible_host: 10.0.0.3
+      ansible_ssh_user: example
+      ansible_ssh_pass: "example1234"
+      ansible_become_pass: "example1234"
+      #ansible_ssh_private_key_file: "/path/to/sshkey"
+      ansible_ssh_extra_args: '-o StrictHostKeyChecking=no'
+  children:
+    virtual-kubelet:
+      hosts:
+        host1
+    openpai-master:
+      hosts:
+        host2
+    openpai-worker:
+      hosts:
+        host3

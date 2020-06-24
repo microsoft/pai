@@ -1,4 +1,4 @@
 # Virtual kubelet relative configuration.
 
 vk_per_hosts: 100
-vk_host_numbers: {{ groups['vk'] |length }}
+vk_host_numbers: {{ groups['virtual-kubelet'] |length }}

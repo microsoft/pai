@@ -17,8 +17,8 @@
 
 # kubernetes api server and dashboard
 kubernetes:
-  api-servers-url: https://{{env['head_node']['ip']}}:6443
-  dashboard-url: https://{{env['head_node']['ip']}}:9090
+  api-servers-url: https://10.0.0.1:6443
+  dashboard-url: https://10.0.0.1:9090
 
 machine-sku:
   GENERIC-MASTER:
@@ -34,7 +34,7 @@ machine-sku:
     os: ubuntu16.04
 
 machine-list:
-{%- for host in groups['openpaimaster'] %}
+{%- for host in groups['openpai-master'] %}
     - hostname: {{ hostvars[host].inventory_hostname }}
       nodename: {{ hostvars[host].inventory_hostname }}
       hostip: {{ hostvars[host].inventory_hostname }}
@@ -42,7 +42,7 @@ machine-list:
       dashboard: "true"
       pai-master: "true"
 {%- endfor %}
-{%- for host in groups['openpaiworker'] %}
+{%- for host in groups['openpai-worker'] %}
     - hostname: {{ hostvars[host].inventory_hostname }}
       nodename: {{ hostvars[host].inventory_hostname }}
       hostip: {{ hostvars[host].inventory_hostname }}

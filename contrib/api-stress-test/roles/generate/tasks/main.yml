@@ -1,4 +1,4 @@
 ---
 - name: "output group info"
   debug:
-    var: groups['vk']
+    var: groups['virtual-kubelet']
