@@ -49,7 +49,7 @@ taskRoles:
     commands:
       - >-
         wget
-        https://raw.githubusercontent.com/suiguoxin/pai/pai-for-edu/contrib/edu-examples/tensorflow_cifar10/src/cifar10_vgg16_tf_distributed.py
+        https://raw.githubusercontent.com/microsoft/pai/pai-for-edu/contrib/edu-examples/tensorflow_cifar10/src/cifar10_vgg16_tf_distributed.py
       - >-
         python cifar10_vgg16_tf_distributed.py --epochs 50 --batch_size 32
         --strategy MultiWorkerMirrored 
