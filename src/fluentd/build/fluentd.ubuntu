@@ -15,16 +15,17 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+# docker build -f fluentd.ubuntu.dockerfile -t gusui/fluentd:original . --no-cache
+# docker build -f fluentd.ubuntu.dockerfile -t gusui/fluentd:singlethread . --no-cache
+# docker build -f fluentd.ubuntu.dockerfile -t gusui/fluentd:multiconn . --no-cache
+
 FROM fluent/fluentd:v1.7-1
 
-# affine
-
 USER root
-RUN apk add --no-cache --update --virtual .build-deps \
-        sudo build-base ruby-dev make gcc libc-dev postgresql-dev git \
- && apk add --no-cache --update libpq \
- && sudo gem install fluent-plugin-concat \
- && sudo gem install rake bundler pg
+RUN apt-get install postgresql postgresql-client libpq5 libpq-dev \
+&& /usr/sbin/td-agent-gem install fluent-plugin-concat \
+&& sudo /usr/sbin/td-agent-gem install rake bundler \
+&& sudo /usr/sbin/td-agent-gem install pg
 
 # Build fluent-plugin-pgjson from scratch
 # Original fluent-plugin-pgjson is from https://github.com/fluent-plugins-nursery/fluent-plugin-pgjson
@@ -35,7 +36,7 @@ RUN cd /fluent-plugin-pgjson && \
       git init && \
       git add . && \
       rake build && \
-      gem install --local ./pkg/fluent-plugin-pgjson-1.0.0.gem && \
+      sudo /usr/sbin/td-agent-gem install --local ./pkg/fluent-plugin-pgjson-1.0.0.gem \
       rm -rf /fluent-plugin-pgjson
 
 # cleanup
