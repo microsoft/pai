@@ -21,7 +21,7 @@ cd rocm-container-runtime
 bash install.sh
 ```
 
-> NOTE: the runtime only works for Debian distributions currenly, changes are needed for other Linux distributions.
+> NOTE: the runtime only works for Debian distributions currently, changes are needed for other Linux distributions.
 
 
 Docker Engine Setup
