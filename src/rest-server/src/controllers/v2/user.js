@@ -81,6 +81,8 @@ const getAllUser = async (req, res, next) => {
 // OIDC
 const createUserIfUserNotExist = async (req, res, next) => {
   try {
+    // eslint-disable-next-line no-console
+    console.log("###########createUserIfUserNotExist###################")
     const userData = req.userData;
     const username = userData.username;
     let grouplist = [];
@@ -124,6 +126,8 @@ const createUserIfUserNotExist = async (req, res, next) => {
 
 const updateUserGroupListFromExternal = async (req, res, next) => {
   try {
+    // eslint-disable-next-line no-console
+    console.log("###########updateUserGroupListFromExternal###################")
     if (!req.updateResult) {
       const username = req.userData.username;
       let userInfo = await userModel.getUser(username);
