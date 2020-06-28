@@ -92,7 +92,6 @@ const createUserIfUserNotExist = async (req, res, next) => {
       }
       grouplist = await groupModel.getUserGrouplistFromExternal(username, data);
       req.grouplist = grouplist;
-
       if (grouplist && grouplist.length === 0) {
         let forbiddenMessage = `User ${userData.username} is not in configured groups.`;
         if (authConfig.groupConfig.groupDataSource === 'ms-graph') {
