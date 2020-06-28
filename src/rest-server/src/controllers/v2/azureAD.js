@@ -54,7 +54,7 @@ const requestAuthCode = async (req, res, next) => {
 const requestTokenWithCode = async (req, res, next) => {
   try {
     // eslint-disable-next-line no-console
-    console.log("##############requestTokenWithCode###################")
+    console.log(req.body)
     const authCode = req.body.code;
     let scope = `https://${authnConfig.OIDCConfig.msgraph_host}/user.read`;
     if (authnConfig.groupConfig.groupDataSource === 'ms-graph') {
@@ -73,10 +73,6 @@ const requestTokenWithCode = async (req, res, next) => {
       grant_type: grantType,
       client_secret: clientSecret,
     };
-    // eslint-disable-next-line no-console
-    console.log(data)
-    // eslint-disable-next-line no-console
-    console.log(requestUrl)
     const response = await axios.post(requestUrl, querystring.stringify(data));
     req.undecodedIDToken = response.data.id_token;
     req.IDToken = jwt.decode(response.data.id_token);

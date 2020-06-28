@@ -31,16 +31,12 @@ async function getUserGroupList(username, config) {
     let requestUrl = config.msGraphAPI;
     // eslint-disable-next-line no-constant-condition
     while (true) {
-      // eslint-disable-next-line no-console
-      console.log("##############groupdata###################")
       let response = await axios.get(requestUrl, {
         headers: {
           'Accept': 'application/json',
           'Authorization': config.Authorization,
         },
       });
-      // eslint-disable-next-line no-console
-      console.log(response['data'])
       responseData.push(response['data']['value']);
       if ('@odata.nextLink' in response['data']) {
         requestUrl = response['data']['@odata.nextLink'];
