@@ -1,0 +1,22 @@
+---
+- name: set base_dir_repo
+  set_fact:
+    base_dir: "{{ playbook_dir }}/.virtual-kubelet/"
+
+- name: Create base_dir_repo
+  file:
+    path: "{{ base_dir_repo }}"
+    state: directory
+    recurse: true
+
+- name: Check out customized vk from private repo
+  git:
+    repo: 'https://github.com/ydye/virtual-kubelet.git'
+    dest: "{{ base_dir_repo }}"
+    version: debug
+
+- name: Build Virtual Kubelet
+  command: "cd {{ base_dir_repo }} && make build"
+
+
+

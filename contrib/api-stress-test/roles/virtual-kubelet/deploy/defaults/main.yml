@@ -1,0 +1,8 @@
+# Virtual kubelet relative configuration.
+
+vk_per_host: 100
+stress_vk_proportion: 0.5
+vk_host_numbers: "{{ groups['virtual-kubelet'] |length }}"
+
+
+

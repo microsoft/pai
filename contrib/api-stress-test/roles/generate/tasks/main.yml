@@ -9,20 +9,12 @@
     state: directory
     recurse: true
 
--
+- name: Store json files in base_dir
+  template:
+    src: "{{ item }}"
+    dest: "{{ base_dir }}/{{ item }}"
+  with_items:
+    - hosts-vk.yml
+    - layout.yaml
+    - services-configuration.yaml
 
-- name: "output group info"
-  debug:
-    var: groups['virtual-kubelet']
-
-- name: "output group info"
-  debug:
-    var: hostvars['host1']
-
-- name: "output group info"
-  debug:
-    var: defaulvc_numbers
-
-- name: "output group info"
-  debug:
-    var: stressvc_numbers

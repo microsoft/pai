@@ -1,0 +1,14 @@
+---
+- hosts: localhost
+  gather_facts: False
+  roles:
+    - { role: generate }
+
+- hosts: localhost
+  gather_facts: False
+  roles:
+    - { role: virtual-kubelet/build }
+
+
+
+
