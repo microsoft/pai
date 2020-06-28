@@ -15,8 +15,14 @@
     dest: "{{ base_dir_repo }}"
     version: debug
 
-- name: Build Virtual Kubelet
-  command: "cd {{ base_dir_repo }} && make build"
+- name: generate build.sh template
+  template:
+    src: build.sh
+    dest: "{{ playbook_dir }}/build.sh"
+    owner: bin
+    group: wheel
+    mode: '0777'
+
 
 
 
