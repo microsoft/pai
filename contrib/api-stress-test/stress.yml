@@ -21,10 +21,10 @@
         local_home_path: "{{ hostvars[inventory_hostname]['ansible_env']['HOME'] }}"
       delegate_to: 127.0.0.1
 
-- hosts: virtual-kubelet
-  gather_facts: true
-  roles:
-    - {role: virtual-kubelet/install}
+#- hosts: virtual-kubelet
+#  gather_facts: true
+#  roles:
+#    - {role: virtual-kubelet/install}
 
 
 

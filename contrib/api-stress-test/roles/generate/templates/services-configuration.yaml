@@ -8,10 +8,16 @@ cluster:
     qos-switch: "false"
     docker-data-root: "/mnt/docker"
   docker-registry:
-    namespace: openpai
-    domain: docker.io
-    tag: stresstest
+    namespace: {{ docker_registry_namespace }}
+    domain: {{ docker_registry_domain }}
+    tag: {{ docker_registry_tag }}
     secret-name: pai-stresstest
+{% if docker_registry_username is defined %}
+    username: {{ docker_registry_username }}
+{% endif %}
+{% if docker_registry_password is defined %}
+    password: {{ docker_registry_password }}
+{% endif %}
 
 rest-server:
   default-pai-admin-username: stress
@@ -83,6 +89,13 @@ authentication:
           virtualClusters: ["default"]
           admin: false
 
-# uncomment following section if you want to customize the port of pylon
-# pylon:
-#  port: 80
+pylon:
+  port: 80
+  ssl:
+    crt_name: {{ pylon_domain }}.crt
+    crt_path: {{ base_dir }}/openpai.org.fullchain.pem
+    key_name: {{ pylon_domain }}.key
+    key_path: {{ base_dir }}/openpai.org.privkey.pem
+  uri: https://{{ pylon_domain }}
+  uri-https: https://{{ pylon_domain }}
+  domain: {{ pylon_domain }}

@@ -18,3 +18,5 @@
     - layout.yaml
     - services-configuration.yaml
 
+- name: Generated self-sign
+

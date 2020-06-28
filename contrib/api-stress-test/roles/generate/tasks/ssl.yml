@@ -1,0 +1,8 @@
+---
+- name: Generate an OpenSSL private key
+  openssl_privatekey:
+    path: "{{base_dir}}/"
+    passphrase: ansible
+    cipher: aes256
+    size: 1024
+    type:
