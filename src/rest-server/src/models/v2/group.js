@@ -173,6 +173,8 @@ const getUserGrouplistFromExternal = async (username, data = {}) => {
   if (adapterType === 'winbind') {
     config = groupAdapter.initConfig(authConfig.groupConfig.winbindServerUrl);
   } else if (adapterType === 'ms-graph') {
+    // eslint-disable-next-line no-console
+    console.log(data)
     config = groupAdapter.initConfig(data.graphUrl, data.accessToken);
   }
   const externalGrouplist = await groupAdapter.getUserGroupList(username, config);
