@@ -1,7 +1,7 @@
 ---
 - name: set base_dir_repo
   set_fact:
-    base_dir: "{{ playbook_dir }}/.virtual-kubelet/"
+    base_dir_repo: "{{ playbook_dir }}/.virtual-kubelet/"
 
 - name: Create base_dir_repo
   file:
