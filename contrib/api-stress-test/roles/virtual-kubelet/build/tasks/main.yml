@@ -19,8 +19,6 @@
   template:
     src: build.sh
     dest: "{{ playbook_dir }}/build.sh"
-    owner: bin
-    group: wheel
     mode: '0777'
 
 
