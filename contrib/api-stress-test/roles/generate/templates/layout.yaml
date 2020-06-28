@@ -33,24 +33,24 @@ machine-sku:
     os: ubuntu16.04
 
 machine-list:
-{%- for host in groups['kube-master'] %}
+{% for host in groups['kube-master'] %}
     - hostname: {{ hostvars[host].inventory_hostname }}
       nodename: {{ hostvars[host].inventory_hostname }}
       hostip: {{ hostvars[host].ansible_host }}
       machine-type: GENERIC-MASTER
       dashboard: "true"
       pai-master: "true"
-{%- endfor %}
-{%- for host in groups['virtual-kubelet'] %}
+{% endfor %}
+{% for host in groups['virtual-kubelet'] %}
 {% set idx = loop.index -%}
-{%- for id in range(vk_per_host) %}
+{% for id in range(vk_per_host) %}
     - hostname: {{ hostvars[host].inventory_hostname }}-{{id}}
       nodename: {{ hostvars[host].inventory_hostname }}-{{id}}
       hostip: 192.168.{{idx}}.{{id+1}}
       machine-type: GENERIC-WORKER
       pai-worker: "true"
-{%- endfor %}
-{%- endfor %}
+{% endfor %}
+{% endfor %}
 
 
 
