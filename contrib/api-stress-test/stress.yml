@@ -9,6 +9,23 @@
   roles:
     - { role: virtual-kubelet/build }
 
+- hosts: all
+  gather_facts: false
+  tasks:
+    - name: setup
+      setup:
+      delegate_to: localhost
+
+    - name: set ansible control host IP fact
+      set_fact:
+        local_home_path: "{{ hostvars[inventory_hostname]['ansible_env']['HOME'] }}"
+      delegate_to: 127.0.0.1
+
+- hosts: virtual-kubelet
+  gather_facts: true
+  roles:
+    - {role: virtual-kubelet/install}
+
 
 
 
