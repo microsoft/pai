@@ -1,5 +1,8 @@
 all:
   hosts:
+    localhost:
+      ansible_become_pass: "example1234"
+      ansible_connection: local
     host1:
       ip: 10.0.0.1
       access_ip: 10.0.0.1
