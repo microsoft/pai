@@ -53,8 +53,6 @@ const requestAuthCode = async (req, res, next) => {
 
 const requestTokenWithCode = async (req, res, next) => {
   try {
-    // eslint-disable-next-line no-console
-    console.log(req.body)
     const authCode = req.body.code;
     let scope = `https://${authnConfig.OIDCConfig.msgraph_host}/user.read`;
     if (authnConfig.groupConfig.groupDataSource === 'ms-graph') {
@@ -91,10 +89,6 @@ const requestTokenWithCode = async (req, res, next) => {
 
 const parseTokenData = async (req, res, next) => {
   try {
-    // eslint-disable-next-line no-console
-    console.log("###########parseTokenData###################")
-    // eslint-disable-next-line no-console
-    console.log(req)
     const email = req.accessToken.upn ? req.accessToken.upn : (req.accessToken.email ? req.accessToken.email: req.accessToken.unique_name);
     const userBasicInfo = {
       email: email,

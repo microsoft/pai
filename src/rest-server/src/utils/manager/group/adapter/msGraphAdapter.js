@@ -45,8 +45,6 @@ async function getUserGroupList(username, config) {
       }
     }
     let groupList = [];
-    // eslint-disable-next-line no-console
-    console.log(responseData)
     for (const dataBlock of responseData) {
       for (const groupItem of dataBlock) {
         if (groupItem.mailNickname) {
