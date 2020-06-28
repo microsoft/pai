@@ -44,7 +44,7 @@ hivedscheduler:
       physicalCells:
       - cellType: DT-NODE-POOL
         cellChildren:
-        {%- for host in groups['vk'] %}
+        {%- for host in groups['virtual-kubelet'] %}
         - cellAddress: {{hostvars[host].inventory_hostname }}
         {%- endfor %}
     virtualClusters:

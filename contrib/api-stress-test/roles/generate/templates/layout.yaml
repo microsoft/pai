@@ -45,7 +45,7 @@ machine-list:
 {%- for id in range(vk_per_host) %}
     - hostname: {{ hostvars[host].inventory_hostname }}-{{id}}
       nodename: {{ hostvars[host].inventory_hostname }}-{{id}}
-      hostip: 192.168.{{loop.counter}}.{{id+1}}
+      hostip: 192.168.{{loop.index}}.{{id+1}}
       machine-type: GENERIC-WORKER
       pai-worker: "true"
 {%- endfor %}

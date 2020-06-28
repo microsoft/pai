@@ -1,6 +1,6 @@
 all:
   hosts:
-{%- for host in env["virtual-kubelet"] %}
+{%- for host in groups['virtual-kubelet'] %}
     {{ hostvars[host].inventory_hostname }}:
       ip: {{ hostvars[host].ip }}
       access_ip: {{ hostvars[host].access_ip }}
