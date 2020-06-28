@@ -93,6 +93,8 @@ const parseTokenData = async (req, res, next) => {
   try {
     // eslint-disable-next-line no-console
     console.log("###########parseTokenData###################")
+    // eslint-disable-next-line no-console
+    console.log(req)
     const email = req.accessToken.upn ? req.accessToken.upn : (req.accessToken.email ? req.accessToken.email: req.accessToken.unique_name);
     const userBasicInfo = {
       email: email,
