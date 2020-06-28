@@ -81,10 +81,6 @@ const getAllUser = async (req, res, next) => {
 // OIDC
 const createUserIfUserNotExist = async (req, res, next) => {
   try {
-    // eslint-disable-next-line no-console
-    console.log("###########createUserIfUserNotExist###################")
-    // eslint-disable-next-line no-console
-    console.log(req)
     const userData = req.userData;
     const username = userData.username;
     let grouplist = [];
@@ -94,10 +90,6 @@ const createUserIfUserNotExist = async (req, res, next) => {
         data['accessToken'] = req.undecodedAccessToken;
         data['graphUrl'] = `https://${authConfig.OIDCConfig.msgraph_host}/`;
       }
-      // eslint-disable-next-line no-console
-      console.log(username)
-      // eslint-disable-next-line no-console
-      console.log(data)
       grouplist = await groupModel.getUserGrouplistFromExternal(username, data);
       req.grouplist = grouplist;
 
@@ -133,8 +125,6 @@ const createUserIfUserNotExist = async (req, res, next) => {
 
 const updateUserGroupListFromExternal = async (req, res, next) => {
   try {
-    // eslint-disable-next-line no-console
-    console.log("###########updateUserGroupListFromExternal###################")
     if (!req.updateResult) {
       const username = req.userData.username;
       let userInfo = await userModel.getUser(username);

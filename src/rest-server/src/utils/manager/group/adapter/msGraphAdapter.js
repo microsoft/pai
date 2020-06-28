@@ -37,8 +37,6 @@ async function getUserGroupList(username, config) {
           'Authorization': config.Authorization,
         },
       });
-      // eslint-disable-next-line no-console
-      console.log(response)
       responseData.push(response['data']['value']);
       if ('@odata.nextLink' in response['data']) {
         requestUrl = response['data']['@odata.nextLink'];
@@ -47,6 +45,8 @@ async function getUserGroupList(username, config) {
       }
     }
     let groupList = [];
+    // eslint-disable-next-line no-console
+    console.log(responseData)
     for (const dataBlock of responseData) {
       for (const groupItem of dataBlock) {
         if (groupItem.mailNickname) {
@@ -56,8 +56,6 @@ async function getUserGroupList(username, config) {
     }
     return groupList;
   } catch (error) {
-    // eslint-disable-next-line no-console
-    console.log(error)
     throw error;
   }
 }

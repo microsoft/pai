@@ -74,8 +74,6 @@ const requestTokenWithCode = async (req, res, next) => {
       client_secret: clientSecret,
     };
     const response = await axios.post(requestUrl, querystring.stringify(data));
-    // eslint-disable-next-line no-console
-    console.log(response.data)
     req.undecodedIDToken = response.data.id_token;
     req.IDToken = jwt.decode(response.data.id_token);
     req.undecodedAccessToken = response.data.access_token;
