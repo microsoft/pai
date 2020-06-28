@@ -42,10 +42,11 @@ machine-list:
       pai-master: "true"
 {%- endfor %}
 {%- for host in groups['virtual-kubelet'] %}
+{% set idx = loop.index -%}
 {%- for id in range(vk_per_host) %}
     - hostname: {{ hostvars[host].inventory_hostname }}-{{id}}
       nodename: {{ hostvars[host].inventory_hostname }}-{{id}}
-      hostip: 192.168.{{loop.index}}.{{id+1}}
+      hostip: 192.168.{{idx}}.{{id+1}}
       machine-type: GENERIC-WORKER
       pai-worker: "true"
 {%- endfor %}
