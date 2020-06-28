@@ -45,7 +45,7 @@ hivedscheduler:
       - cellType: DT-NODE-POOL
         cellChildren:
         {% for host in groups['virtual-kubelet'] %}
-        {%- for id in range(vk_per_host) %}
+        {% for id in range(vk_per_host) %}
         - cellAddress: {{hostvars[host].inventory_hostname }}-{{id}}
         {%- endfor %}
         {%- endfor %}
