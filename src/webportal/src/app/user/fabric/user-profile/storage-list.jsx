@@ -1,21 +1,6 @@
-// Copyright (c) Microsoft Corporation
-// All rights reserved.
-//
-// MIT License
-//
-// Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
-// documentation files (the "Software"), to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and
-// to permit persons to whom the Software is furnished to do so, subject to the following conditions:
-// The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED *AS IS*, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING
-// BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-// NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
-// DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
 
-import { isEmpty } from 'lodash';
 import React, { useMemo } from 'react';
 import PropTypes from 'prop-types';
 import {
@@ -35,22 +20,22 @@ function normalizePath(path) {
   return path;
 }
 
-function getStorageServerUri(server) {
-  const data = server.data;
-  switch (server.type) {
+function getStorageServerUri(storageDetail) {
+  const data = storageDetail.data;
+  switch (storageDetail.type) {
     case 'nfs':
-      return `nfs://${data.address}/${normalizePath(data.rootPath)}`;
+      return `nfs://${data.server}/${normalizePath(data.path)}`;
     case 'samba':
-      return `smb://${data.address}/${normalizePath(data.rootPath)}`;
-    case 'azurefile':
+      return `smb://${data.server}/${normalizePath(data.path)}`;
+    case 'azureFile':
       return (
         <>
           <b>{'StorageAccount: '}</b>
           {data.accountName}; <b>{'FileShare: '}</b>
-          {data.fileShare}; <b>{'Path: '}</b>
+          {data.shareName}; <b>{'Path: '}</b>
         </>
       );
-    case 'azureblob':
+    case 'azureBlob':
       return (
         <>
           <b>{'StorageAccount: '}</b>
@@ -65,40 +50,31 @@ function getStorageServerUri(server) {
   }
 }
 
-const StorageList = ({ storageConfigs, storageServers }) => {
+const StorageList = ({ storageDetails }) => {
+  console.log(storageDetails);
   const [items, groups] = useMemo(() => {
     const items = [];
     const groups = [];
-    let idx = 0;
-    for (const config of storageConfigs) {
-      if (isEmpty(config.mountInfos)) {
-        continue;
-      }
-      for (const item of config.mountInfos) {
-        const server = storageServers.find(x => x.spn === item.server);
-        items.push({
-          key: `${config.name}:${item.mountPoint}`,
-          name: `${config.name}:${item.mountPoint}`,
-          mountPoint: item.mountPoint,
-          type: server.type,
-          serverUri: (
-            <>
-              {getStorageServerUri(server)}/{normalizePath(item.path)}
-            </>
-          ),
-          permission: item.permission,
-        });
-      }
-      groups.push({
-        key: config.name,
-        name: config.name,
-        startIndex: idx,
-        count: config.mountInfos.length,
+    for (const [idx, storage] of storageDetails.entries()) {
+      const mountPoint = `/mnt/${storage.name}`;
+      items.push({
+        key: `${storage.name}:${mountPoint}`,
+        name: `${storage.name}:${mountPoint}`,
+        mountPoint: mountPoint,
+        type: storage.type,
+        serverUri: getStorageServerUri(storage),
+        permission: storage.permission,
       });
-      idx += config.mountInfos.length;
+
+      groups.push({
+        key: storage.name,
+        name: storage.name,
+        startIndex: idx,
+        count: 1,
+      });
     }
     return [items, groups];
-  }, [storageConfigs, storageServers]);
+  }, storageDetails);
 
   const columns = [
     {
@@ -143,8 +119,7 @@ const StorageList = ({ storageConfigs, storageServers }) => {
 };
 
 StorageList.propTypes = {
-  storageConfigs: PropTypes.array.isRequired,
-  storageServers: PropTypes.array.isRequired,
+  storageDetails: PropTypes.array.isRequired,
 };
 
 export default StorageList;
