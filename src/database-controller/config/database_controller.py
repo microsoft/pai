@@ -47,7 +47,6 @@ class DatabaseController(object):
     def run(self):
         result = copy.deepcopy(self.service_conf)
         result['write-merger-url'] = 'http://{}:{}'.format(get_master_ip(), result['write-merger-port'])
-        print(result)
         return result
 
     def validation_post(self, conf):
