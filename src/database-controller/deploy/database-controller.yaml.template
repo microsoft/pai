@@ -25,6 +25,7 @@ spec:
   selector:
     matchLabels:
       app: database-controller
+  serviceName: database-controller
   replicas: 1
   template:
     metadata:

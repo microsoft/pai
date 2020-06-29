@@ -23,6 +23,7 @@ spec:
   selector:
     matchLabels:
       app: database-initializer
+  serviceName: database-initializer
   replicas: 1
   template:
     metadata:
@@ -39,10 +40,10 @@ spec:
         - name: DB_CONNECTION_STR
           value: {{ cluster_cfg['postgresql']['connection-str'] }}
         command: ["node", "initializer_entry.js"]
-      readinessProbe:
-        exec:
-          command:
-          - ls
-          - /READY
+        readinessProbe:
+          exec:
+            command:
+            - ls
+            - /READY
       imagePullSecrets:
       - name: {{ cluster_cfg["cluster"]["docker-registry"]["secret-name"] }}
