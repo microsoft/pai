@@ -9,12 +9,11 @@
     state: directory
     recurse: true
 
-- name: Store json files in base_dir
+- name: Generate template files in base_dir
   template:
     src: "{{ item }}"
     dest: "{{ base_dir }}/{{ item }}"
   with_items:
-    - hosts-vk.yml
     - layout.yaml
     - services-configuration.yaml
 
