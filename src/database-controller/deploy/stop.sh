@@ -17,6 +17,8 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+pushd $(dirname "$0") > /dev/null
+
 PYTHONPATH="../../../deployment" python -m k8sPaiLibrary.maintaintool.update_resource \
     --operation delete --resource statefulset --name database-initializer-sts
 
@@ -30,3 +32,5 @@ fi
 if kubectl get serviceaccount | grep -q "database-controller-account"; then
     kubectl delete serviceaccount database-controller-account || exit $?
 fi
+
+popd > /dev/null
