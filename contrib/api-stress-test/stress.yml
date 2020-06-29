@@ -26,6 +26,11 @@
 #  roles:
 #    - {role: virtual-kubelet/install}
 
+- hosts: localhost
+  gather_facts: False
+  roles:
+    - { role: openpai }
+
 
 
 

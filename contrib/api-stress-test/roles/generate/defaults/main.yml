@@ -1,5 +1,3 @@
-# Virtual kubelet relative configuration.
-
 vk_per_host: 100
 stress_vk_proportion: 0.5
 vk_host_numbers: "{{ groups['virtual-kubelet'] |length }}"
@@ -15,4 +13,7 @@ pylon_domain: "{{ hostvars[groups['kube-master'][0]].ansible_host }}"
 docker_registry_namespace: openpai
 docker_registry_domain: docker.io
 docker_registry_tag: stresstest
+#docker_registry_username: example
+#docker_registry_password: example
+
 
