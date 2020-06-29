@@ -24,7 +24,7 @@
     state: absent
 
 - name: Remove the Passphrase From Protected Private Key
-  command: "echo openpaistress | openssl rsa -in {{base_dir}}/{{pylon_domain}}.origin.key -out {{base_dir}}/{{pylon_domain}}.key"
+  command: "openssl rsa -in {{base_dir}}/{{pylon_domain}}.origin.key -out {{base_dir}}/{{pylon_domain}}.key -passin pass:openpaistress"
 
 - name: Self sign a cert
   openssl_certificate:
