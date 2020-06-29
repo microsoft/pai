@@ -8,6 +8,7 @@
   "main": "index.js",
   "license": "MIT",
   "dependencies": {
+    "dotenv": "^8.2.0",
     "openpaidbsdk": "file:../sdk"
   }
 }
