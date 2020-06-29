@@ -19,8 +19,8 @@ FROM node:10.16.0
 
 WORKDIR /database-controller
 
-COPY ./src .
-COPY ./sdk .
+COPY ./src ./src
+COPY ./sdk ./sdk
 
 WORKDIR src
 
