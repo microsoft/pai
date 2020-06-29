@@ -37,23 +37,19 @@ class Postgresql(object):
         return srv_cfg
 
     def validation_pre(self):
-        if self.service_conf['enable']:
-            machine_list = self.cluster_conf['machine-list']
-            if len([host for host in machine_list if host.get('pai-master') == 'true']) < 1:
-                return False, '"pai-master=true" machine is required to deploy the postgresql service'
+        machine_list = self.cluster_conf['machine-list']
+        if len([host for host in machine_list if host.get('pai-master') == 'true']) < 1:
+            return False, '"pai-master=true" machine is required to deploy the postgresql service'
         return True, None
 
     def run(self):
         result = copy.deepcopy(self.service_conf)
-        if self.service_conf['enable']:
-            machine_list = self.cluster_conf['machine-list']
-            master_ip = [host['hostip'] for host in machine_list if host.get('pai-master') == 'true'][0]
-            result['host'] = master_ip
-            result['connection-str'] = 'postgresql://{}:{}@{}:{}/{}'.format(
-                result['user'], result['passwd'], result['host'], result['port'], result['db'])
+        machine_list = self.cluster_conf['machine-list']
+        master_ip = [host['hostip'] for host in machine_list if host.get('pai-master') == 'true'][0]
+        result['host'] = master_ip
+        result['connection-str'] = 'postgresql://{}:{}@{}:{}/{}'.format(
+            result['user'], result['passwd'], result['host'], result['port'], result['db'])
         return result
 
     def validation_post(self, conf):
-        if conf['internal-storage']['enable'] is False and conf['postgresql']['enable'] is True:
-            return False, "You must set internal-storage.enable=true to use postgresql!"
         return True, None

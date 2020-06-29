@@ -4,11 +4,11 @@ Postgresql is an internal service for structured information persistence. By def
 
 ```yaml
 postgresql:
-  enable: false
   user: root
   passwd: rootpass
   port: 5432
   db: openpai
+  max-connection: 1000
 ``` 
 
 One can override these settings by editing `services-configuration.yaml` .

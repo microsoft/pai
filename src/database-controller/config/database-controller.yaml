@@ -17,10 +17,15 @@
 
 service_type: "common"
 
-k8s-timeout-seconds: 30
+k8s-client-timeout-seconds: 30
 
-write-merger-max-connection: 10
-db-poller-max-connection: 10
-framework-watcher-max-connection: 10
-event-watcher-max-connection: 10
-pod-watcher-max-connection: 10
+# write merger
+write-merger-port: 9748
+write-merger-max-db-connection: 10
+
+# db poller
+db-poller-interval-second: 120
+db-poller-max-db-connection: 10
+
+# framework-watcher
+framework-watcher-max-db-connection: 10

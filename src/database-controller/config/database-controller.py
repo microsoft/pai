@@ -36,11 +36,17 @@ class DatabaseController(object):
             srv_cfg[k] = overwrite_srv_cfg[k]
         return srv_cfg
 
+    def get_master_ip(self):
+        for host_conf in self.cluster_conf["machine-list"]:
+            if "pai-master" in host_conf and host_conf["pai-master"] == "true":
+                return host_conf["hostip"]
+
     def validation_pre(self):
         return True, None
 
     def run(self):
         result = copy.deepcopy(self.service_conf)
+        result['write-merger-url'] = 'http://{}:{}'.format(get_master_ip(), result['write-merger-port'])
         return result
 
     def validation_post(self, conf):

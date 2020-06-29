@@ -17,10 +17,12 @@
 
 FROM node:10.16.0
 
-WORKDIR /write-merger
+WORKDIR /database-controller
 
 COPY ./src .
 COPY ./sdk .
+
+WORKDIR src
 
 RUN yarn install
 
