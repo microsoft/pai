@@ -3,7 +3,7 @@
   set_fact:
     base_dir_cfg: "{{ playbook_dir }}/.generated/"
 
-- name: copy script into /usr/bin/
+- name: Generate openpai.sh template
   template:
     src: openpai.sh
     dest: "{{ playbook_dir }}/openpai.sh"
