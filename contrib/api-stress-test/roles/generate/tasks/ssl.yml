@@ -2,7 +2,7 @@
 - name: Generate an OpenSSL private key
   openssl_privatekey:
     path: "{{base_dir}}/{{pylon_domain}}.key"
-    passphrase: openpaistress
+    #passphrase: openpaistress
     cipher: des3
     size: 1024
 
@@ -10,7 +10,7 @@
   openssl_csr:
     path: "{{base_dir}}/{{pylon_domain}}.csr"
     privatekey_path: "{{base_dir}}/{{pylon_domain}}.key"
-    privatekey_passphrase: openpaistress
+    #privatekey_passphrase: openpaistress
     common_name: "{{pylon_domain}}"
 
 #- name: Backup Original Passphrase Protected Private Key
@@ -28,5 +28,5 @@
     path: "{{base_dir}}/{{pylon_domain}}.crt"
     privatekey_path: "{{base_dir}}/{{pylon_domain}}.key"
     csr_path: "{{base_dir}}/{{pylon_domain}}.csr"
-    privatekey_passphrase: openpaistress
+    #privatekey_passphrase: openpaistress
     provider: selfsigned
