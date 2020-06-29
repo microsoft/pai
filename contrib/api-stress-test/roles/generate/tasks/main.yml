@@ -19,4 +19,5 @@
     - services-configuration.yaml
 
 - name: Generated self-sign
+  include_tasks: ssl.yml
 
