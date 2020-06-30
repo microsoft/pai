@@ -9,7 +9,7 @@
     dest: "{{ playbook_dir }}/openpai.sh"
     mode: '0777'
 
-#- name: Start OpenPAI service
-#  command: "/bin/bash {{ playbook_dir }}/openpai.sh"
-#  become: true
-#  become_user: root
+- name: Start OpenPAI service
+  command: "/bin/bash {{ playbook_dir }}/openpai.sh"
+  become: true
+  become_user: root

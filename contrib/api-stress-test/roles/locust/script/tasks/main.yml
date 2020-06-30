@@ -1,0 +1,14 @@
+---
+- name: Install apache httpd
+  apt:
+    name: jq
+    state: present
+
+- name: Get OpenPAI Token
+  shell: 'curl -sS -X POST -d "username=stress" -d "password=stress1234" -d "expiration=360000" https://{{hostvars[groups['kube-master'][0]].ansible_host}}/rest-server/api/v1/authn/basic/login | jq -r ".token"'
+  register: pai_token
+
+- name: Add OpenPAI Token to Dummy Host
+  add_host:
+    name:   "OPENPAI_TOKEN_HOLDER"
+    token:  "{{ pai_token.stdout }}"
