@@ -17,14 +17,6 @@
 
 FROM node:carbon
 
-RUN apt-get update && \
-    apt-get install --assume-yes --no-install-recommends \
-      dos2unix \
-      openssh-server \
-      && \
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/*
-
 WORKDIR /usr/src/app
 
 ENV NODE_ENV=production \
@@ -35,8 +27,6 @@ COPY . .
 RUN yarn --no-git-tag-version --new-version version \
     "$(cat version/PAI.VERSION)"
 RUN yarn install
-
-RUN dos2unix src/templates/*
 
 EXPOSE ${SERVER_PORT}
 

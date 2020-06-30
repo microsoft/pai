@@ -18,13 +18,10 @@
 
 // module dependencies
 const express = require('express');
-const launcherConfig = require('@pai/config/launcher');
 const controller = require('@pai/controllers/index');
-const rewriteRouter = require('@pai/routes/rewrite');
 const authnRouter = require('@pai/routes/authn');
 const tokenRouter = require('@pai/routes/token');
 const userRouter = require('@pai/routes/user');
-const vcRouter = require('@pai/routes/vc');
 const k8sRouter = require('@pai/routes/kubernetes');
 
 const router = new express.Router();
@@ -32,18 +29,11 @@ const router = new express.Router();
 router.route('/')
     .all(controller.index);
 
-router.use(rewriteRouter);
 router.use('/token', tokenRouter);
 router.use('/user', userRouter);
-router.use('/virtual-clusters', vcRouter);
 router.use('/kubernetes', k8sRouter);
 router.use('/authn', authnRouter);
 
-if (launcherConfig.type === 'yarn') {
-  router.use('/jobs', require('@pai/routes/job'));
-} else if (launcherConfig.type === 'k8s') {
-  router.use('/jobs', require('@pai/routes/v2/job'));
-}
 
 // module exports
 module.exports = router;
