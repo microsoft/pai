@@ -17,54 +17,26 @@
 
 
 // module dependencies
-const axios = require('axios');
 const status = require('statuses');
 const config = require('@pai/config/index');
 const logger = require('@pai/config/logger');
-const yarnConfig = require('@pai/config/yarn');
 const launcherConfig = require('@pai/config/launcher');
 const k8sModel = require('@pai/models/kubernetes/kubernetes');
 
-if (launcherConfig.type === 'yarn') {
-  if (config.env !== 'test') {
-    // framework launcher health check
-    (async () => {
-      const response = await axios.get(launcherConfig.healthCheckPath());
-      if (response.status === status('OK')) {
-        logger.info('connected to framework launcher successfully');
-      } else {
-        throw new Error('cannot connect to framework launcher');
+if (config.env !== 'test') {
+  // framework controller health check
+  (async () => {
+    const response = await k8sModel.getClient().get(
+      launcherConfig.healthCheckPath(),
+      {
+        headers: launcherConfig.requestHeaders,
       }
-    })();
-    // hadoop yarn health check
-    (async () => {
-      const response = await axios(yarnConfig.yarnVcInfoPath);
-      if (response.status === status('OK')) {
-        logger.info('connected to hadoop YARN successfully');
-      } else {
-        throw new Error('cannot connect to hadoop YARN');
-      }
-    })();
-  }
-  module.exports = require('@pai/models/v2/job/yarn');
-} else if (launcherConfig.type === 'k8s') {
-  if (config.env !== 'test') {
-    // framework controller health check
-    (async () => {
-      const response = await k8sModel.getClient().get(
-        launcherConfig.healthCheckPath(),
-        {
-          headers: launcherConfig.requestHeaders,
-        }
-      );
-      if (response.status === status('OK')) {
-        logger.info('connected to framework controller successfully');
-      } else {
-        throw new Error('cannot connect to framework controller');
-      }
-    })();
-  }
-  module.exports = require('@pai/models/v2/job/k8s');
-} else {
-  throw new Error(`unknown launcher type ${launcherConfig.type}`);
+    );
+    if (response.status === status('OK')) {
+      logger.info('connected to framework controller successfully');
+    } else {
+      throw new Error('cannot connect to framework controller');
+    }
+  })();
 }
+module.exports = require('@pai/models/v2/job/k8s');

@@ -17,7 +17,6 @@
 
 // module dependencies
 const express = require('express');
-const launcherConfig = require('@pai/config/launcher');
 const token = require('@pai/middlewares/token');
 const userController = require('@pai/controllers/v2/user');
 
@@ -27,10 +26,5 @@ const router = new express.Router();
 router.route('/:username/')
 /** Get /api/v1/user/:username */
   .get(token.check, userController.getUser);
-
-
-if (launcherConfig.type === 'yarn') {
-  router.use('/:username/jobs', require('@pai/routes/job'));
-}
 
 module.exports = router;
