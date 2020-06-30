@@ -5,10 +5,11 @@ info:
     Open Platform for AI RESTful API docs.
     Version 2.0.1: add more examples and fix typos
     Version 2.0.2: update job detail and job attempt schema
+    Version 2.0.3: update parameters description of get storage list
   license:
     name: MIT License
     url: 'https://github.com/microsoft/pai/blob/master/LICENSE'
-  version: 2.0.2
+  version: 2.0.3
 externalDocs:
   description: Find out more about OpenPAI
   url: 'https://github.com/microsoft/pai'
@@ -995,7 +996,7 @@ paths:
       parameters:
         - name: default
           in: query
-          description: Return default storage or not.
+          description: If true, return default storages only.
           schema:
             type: boolean
       responses:
