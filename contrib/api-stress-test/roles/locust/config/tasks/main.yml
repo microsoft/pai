@@ -1,5 +1,5 @@
 ---
-- name: Install apache httpd
+- name: Install jq
   apt:
     name: jq
     state: present
@@ -12,3 +12,34 @@
   add_host:
     name: "OPENPAI_TOKEN_HOLDER"
     token: "{{ pai_token.stdout }}"
+
+- name: Set Locust Base Dir
+  set_fact:
+    locust_base_dir: "{{ playbook_dir }}/.locust/"
+
+- name: Create Locust Base Dir
+  file:
+    path: "{{ locust_base_dir }}"
+    state: directory
+    recurse: true
+
+- name: Create Locust Configmap Dir
+  file:
+    path: "{{ locust_base_dir }}/configmap"
+    state: directory
+    recurse: true
+
+- name: Generate template files in Locust Configmap Dir
+  template:
+    src: stress.py
+    dest: "{{ locust_base_dir }}/configmap/stress.py"
+
+- name: Copy job.yml to Locust Configmap Dir
+  copy:
+    src: job.yml
+    dest: "{{ locust_base_dir }}/configmap/job.yml"
+
+- name: Copy locust-sa to Locust Base Dir
+  copy:
+    src: locust-sa.yml
+    dest: "{{ locust_base_dir }}/locust-sa.yml"
