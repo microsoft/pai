@@ -34,7 +34,7 @@ spec:
             - name: LOCUST_LOCUSTFILE
               value: "/mnt/locust/stress.py"
             - name: PAI_TOKEN
-              value: "{{ env['cfg']['pai-token'] }}"
+              value: "{{ hostvars['OPENPAI_TOKEN_HOLDER']['token'] }}"
             - name: LOCUST_HOST
               value: "http://{{ hostvars[groups['kube-master'][0]].ansible_host }}"
             - name: TARGET_URL

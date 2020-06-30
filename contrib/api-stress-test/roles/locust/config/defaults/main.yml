@@ -1,0 +1,15 @@
+virtual_cluster: stress
+
+test_api_list:
+
+  openpai_job_list:
+    weight: 10
+    enable: true
+
+  openpai_job_submit:
+    weight: 1
+    enable: false
+
+  k8s_pod_list:
+    weight: 10
+    enable: true

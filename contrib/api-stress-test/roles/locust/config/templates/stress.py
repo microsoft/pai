@@ -25,7 +25,6 @@ def _join_host_port(host, port):
 def read_template(template_path):
     with open(template_path, "r") as f:
         template_data = f.read()
-
     return template_data
 
 
@@ -36,7 +35,6 @@ def generate_from_template_dict(template_data, jobname, vc):
             'vc': vc
         }
     )
-
     return generated_file
 
 
@@ -63,7 +61,6 @@ class K8SAgent(FastHttpUser):
 
     def on_start(self):
         self.userid = str(uuid.uuid4())
-
 
     @task(1)
     def submitjob(self):

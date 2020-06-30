@@ -10,5 +10,5 @@
 
 - name: Add OpenPAI Token to Dummy Host
   add_host:
-    name:   "OPENPAI_TOKEN_HOLDER"
-    token:  "{{ pai_token.stdout }}"
+    name: "OPENPAI_TOKEN_HOLDER"
+    token: "{{ pai_token.stdout }}"
