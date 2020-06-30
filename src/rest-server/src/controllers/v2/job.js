@@ -22,6 +22,7 @@ const status = require('statuses');
 const asyncHandler = require('@pai/middlewares/v2/asyncHandler');
 const createError = require('@pai/utils/error');
 const job = require('@pai/models/v2/job');
+const logger = require('@pai/config/logger');
 
 
 const list = asyncHandler(async (req, res) => {
@@ -56,6 +57,9 @@ const update = asyncHandler(async (req, res) => {
       throw error;
     }
   }
+  logger.warn('[job controller][update][put job model frameworkName]', frameworkName)
+  logger.warn('[job controller][update][put job model protocol]', res.locals.protocol)
+  logger.warn('[job controller][update][put job model body]', req.body)
   await job.put(frameworkName, res.locals.protocol, req.body);
   res.status(status('Accepted')).json({
     status: status('Accepted'),

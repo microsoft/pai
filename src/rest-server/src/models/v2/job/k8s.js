@@ -990,6 +990,9 @@ const put = async (frameworkName, config, rawConfig) => {
   // send request to framework controller
   let response;
   try {
+    logger.warn('[job model][put][call framework url]', launcherConfig.frameworksPath())
+    logger.warn('[job model][put][call framework header]', launcherConfig.requestHeaders)
+    logger.warn('[job model][put][call framework data]', frameworkDescription)
     response = await k8sModel.getClient().request({
       method: 'post',
       url: launcherConfig.frameworksPath(),
