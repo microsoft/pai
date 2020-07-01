@@ -34,6 +34,12 @@
     src: stress.py
     dest: "{{ locust_base_dir }}/configmap/stress.py"
 
+- name: Generate template files in Locust Base Dir
+  template:
+    src: start.sh
+    dest: "{{ locust_base_dir }}/start.sh"
+    mode: '0777'
+
 - name: Copy job.yml to Locust Configmap Dir
   copy:
     src: job.yml
@@ -43,3 +49,6 @@
   copy:
     src: locust-sa.yml
     dest: "{{ locust_base_dir }}/locust-sa.yml"
+
+- name: Create configmap and sa
+  command: "/bin/bash {{ locust_base_dir }}/start.sh"

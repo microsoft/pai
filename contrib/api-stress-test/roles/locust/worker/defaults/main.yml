@@ -1,3 +1,2 @@
-virtual_cluster: stress
-openpai_user: stress
-openpai_password: stress1234
+kube_config_path: "{{local_home_path}}/.kube/config"
+locust_worker_number: "{{groups['virtual-kubelet']|length}}"

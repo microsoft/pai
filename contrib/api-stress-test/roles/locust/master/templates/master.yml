@@ -23,7 +23,7 @@ spec:
                       - master
       containers:
         - name:  openpai-locust
-          image: albafica/locust
+          image: openpai/locust
           imagePullPolicy: Always
           volumeMounts:
             - mountPath: /mnt/locust
@@ -38,7 +38,7 @@ spec:
             - name: LOCUST_HOST
               value: "http://{{ hostvars[groups['kube-master'][0]].ansible_host }}"
             - name: TARGET_URL
-              value: "http://{{ hostvars[groups['kube-master'][0]].ansible_host }}"
+              value: "https://{{ hostvars[groups['kube-master'][0]].ansible_host }}"
             - name: MY_POD_NAME
               valueFrom:
                 fieldRef:

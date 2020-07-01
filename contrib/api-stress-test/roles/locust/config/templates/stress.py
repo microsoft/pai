@@ -47,28 +47,27 @@ k8s_headers = {
 }
 kube_url = "https://{0}".format(_join_host_port(os.environ[SERVICE_HOST_ENV_NAME], os.environ[SERVICE_PORT_ENV_NAME]))
 pai_token = os.environ["PAI_TOKEN"]
-job_template = read_template("/mnt/locust/test-job.yml")
+job_template = read_template("/mnt/locust/job.yml")
 
 
 class K8SAgent(FastHttpUser):
     wait_time = constant_pacing(30)
     jobid = 0
     userid = None
-    max_retries = 3
-    connection_timeout = 18000
-    network_timeout = 18000
+    max_retries = {{ locust_http_max_retries }}
+    connection_timeout = {{ locust_http_connection_timeout }}
+    network_timeout = {{ locust_http_network_timeout }}
 
     def on_start(self):
         self.userid = str(uuid.uuid4())
 
-{% if test_api_list.openpai_job_submit.enable %}
-    @task({{test_api_list.openpai_job_submit.wight}})
+{% if stress_test_openpai_job_submit_enable %}
+    @task({{ test_api_list.openpai_job_submit.wight }})
     def submitjob(self):
         hostname = os.environ['MY_POD_NAME']
         jobname = "stresstest-{0}-{1}-{2}".format(hostname, self.userid, self.jobid)
         self.jobid = self.jobid + 1
-        template_data = generate_from_template_dict(job_template, jobname, "stress")
-
+        template_data = generate_from_template_dict(job_template, jobname, "{{ virtual_cluster }}")
 
         openpai_headers = {
             "Authorization": "Bearer {0}".format(pai_token),
@@ -82,8 +81,8 @@ class K8SAgent(FastHttpUser):
         )
 {% endif %}
 
-{% if test_api_list.openpai_job_list.enable %}
-    @task({{test_api_list.openpai_job_list.wight}})
+{% if stress_test_openpai_job_list_enable %}
+    @task({{ test_api_list.openpai_job_list.wight }})
     def listjoball(self):
         openpai_headers = {
             "Authorization": "Bearer {0}".format(pai_token),
@@ -94,8 +93,8 @@ class K8SAgent(FastHttpUser):
         )
 {% endif %}
 
-{% if test_api_list.k8s_pod_list.enable %}
-    @task({{test_api_list.k8s_pod_list.wight}})
+{% if stress_test_k8s_pod_list_enable %}
+    @task({{ test_api_list.k8s_pod_list.wight }})
     def getPodList(self):
         self.client.get(kube_url + "/api/v1/pods", verify = kube_cert, headers = k8s_headers)
 {% endif %}
