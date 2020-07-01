@@ -22,6 +22,8 @@
       delegate_to: 127.0.0.1
 
 - hosts: virtual-kubelet
+  become: true
+  become_user: root
   gather_facts: True
   roles:
     - {role: virtual-kubelet/install}

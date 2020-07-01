@@ -1,5 +1,7 @@
 ---
 - hosts: virtual-kubelet
+  become: true
+  become_user: root
   gather_facts: True
   roles:
     - {role: virtual-kubelet/remove}
