@@ -1,0 +1,5 @@
+---
+- hosts: virtual-kubelet
+  gather_facts: True
+  roles:
+    - {role: virtual-kubelet/remove}
