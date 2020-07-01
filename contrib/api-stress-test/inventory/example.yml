@@ -34,14 +34,14 @@ all:
     # for virtual kubelet
     virtual-kubelet:
       hosts:
-        host1
+        host1:
     # for openpai master service and locust master
     # k8s should be ready
     kube-master:
       hosts:
-        host2
+        host2:
     # for locust worker
     # k8s should be ready
     kube-worker:
       hosts:
-        host3
+        host3:
