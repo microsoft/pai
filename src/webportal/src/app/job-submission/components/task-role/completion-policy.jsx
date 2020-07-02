@@ -32,7 +32,7 @@ import { FormShortSection } from '../form-page';
 import { Completion } from '../../models/completion';
 
 export const CompletionPolicy = React.memo(({ onChange, value }) => {
-  const { minFailedInstances, minSucceededInstances } = value;
+  const { minFailedInstances } = value;
 
   const _onChange = (keyName, newValue) => {
     const completion = new Completion(value);
