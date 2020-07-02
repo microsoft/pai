@@ -41,7 +41,7 @@
   template:
     src: "{{customized_locust_stress_script}}"
     dest: "{{ locust_base_dir }}/configmap/stress.py"
-  when: customized_locust_stress_script is not defined
+  when: customized_locust_stress_script is defined
 
 
 - name: Generate template files in Locust Base Dir
