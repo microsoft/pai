@@ -5,7 +5,7 @@
 
 - name: Generate template files in Locust Base Dir
   template:
-    src: master.yml
+    src: worker.yml
     dest: "{{ locust_base_dir }}/worker.yml"
 
 - name: Generate template files in Locust Base Dir
