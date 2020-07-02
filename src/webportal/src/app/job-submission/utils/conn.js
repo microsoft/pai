@@ -128,7 +128,7 @@ export async function fetchStorageDetails(configNames) {
       if (configNames.includes(storage.name)) {
         const detail = await client.storage.getStorage(storage.name);
         if (defaultStorageNames.includes(detail.name)) {
-          detail.isDefualt = true;
+          detail.default = true;
         }
         details.push(detail);
       }

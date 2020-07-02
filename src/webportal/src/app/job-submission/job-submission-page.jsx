@@ -227,7 +227,7 @@ export const JobSubmissionPage = ({
         const configNames = await listUserStorageConfigs(loginUser);
         const storageDetails = await fetchStorageDetails(configNames);
         for (const detail of storageDetails) {
-          if (detail.isDefualt === true) {
+          if (detail.default === true) {
             defaultStorageConfig.push(detail.name);
             break;
           }
