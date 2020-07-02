@@ -1527,10 +1527,10 @@
   resolved "https://registry.yarnpkg.com/@microsoft/load-themed-styles/-/load-themed-styles-1.9.7.tgz#4f28d7097802317d2a491888ba65fac617c56dd4"
   integrity sha512-8Iua4vPmffV2tT1nR/E55GSbUkYRPD9xFfa6v8zJ89EiiDrlyO2OGuXAtC6/nWxLTeVRA3GhtQuU2SApD2sQAA==
 
-"@microsoft/openpai-js-sdk@^0.1.0":
-  version "0.1.0"
-  resolved "https://registry.yarnpkg.com/@microsoft/openpai-js-sdk/-/openpai-js-sdk-0.1.0.tgz#a4517708fcc0b63a73e25750993979398522f116"
-  integrity sha512-WqhFuFYVZ2t5xttZsbH8ZKzhVEeLxVO779tO+OcE1owzwiSa0qkHKSG90ch1zA5KcjYXWWSwxZLfUgx+ae22XA==
+"@microsoft/openpai-js-sdk@^0.1.1":
+  version "0.1.1"
+  resolved "https://registry.yarnpkg.com/@microsoft/openpai-js-sdk/-/openpai-js-sdk-0.1.1.tgz#e1b9f61d86672d122c65db7bc4ff747fb4ab8403"
+  integrity sha512-0VJOrAk08D+GTsug6xIggPimvsrxDf8lt7/ce5Gy+WuFbioqQ3BPr7DAGoJ56lbRL4vfbylqYoTgaN/SFL3pdw==
   dependencies:
     "@apidevtools/swagger-parser" "^9.0.1"
     "@azure/storage-blob" "^12.1.0"

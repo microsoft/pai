@@ -63,7 +63,8 @@ const StorageList = ({ storageDetails }) => {
         mountPoint: mountPoint,
         type: storage.type,
         serverUri: getStorageServerUri(storage),
-        permission: storage.permission,
+        permission: 'rw',
+        path: storage.share === false ? '$' + '{PAI_USER_NAME}' : '',
       });
 
       groups.push({
