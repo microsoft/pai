@@ -26,7 +26,7 @@ sudo docker exec -i stress-dev-box /bin/bash -c "kubectl get node" || { cleanup;
 sudo docker exec -i stress-dev-box /bin/bash << EOF_DEV_BOX
 
 apt-get -y update
-apt-get -y install subversion python3 python-dev software-properties-common
+apt-get -y install subversion python3 python-dev software-properties-common parallel
 
 curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py
 python3 get-pip.py
