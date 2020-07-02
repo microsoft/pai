@@ -49,13 +49,6 @@ export const TeamStorage = ({
     });
   }, [mountDirs]);
 
-  const mountPoints = useMemo(() => {
-    if (isNil(mountDirs) || isNil(mountDirs.selectedConfigs)) {
-      return [];
-    }
-    return mountDirs.selectedConfigs.map(ele => `/mnt/${ele.name}`);
-  }, [mountDirs]);
-
   const [teamDetail, setTeamDetail] = useState({ isOpen: false });
 
   const openTeamDetail = useCallback(config => {

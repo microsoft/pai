@@ -311,13 +311,13 @@ export const SERVER_PATH = {
   ),
   azureFile: storage => (
     <div className={FontClassNames.semibold}>
-      <b>{`${storage.data.accountName}/${storage.data.shareName}`}</b>
+      <b>{`${storage.data.accountName}.file.core.windows.net/${storage.data.shareName}`}</b>
       {storage.data.path || '/'}
     </div>
   ),
   azureBlob: storage => (
     <div className={FontClassNames.semibold}>
-      <b>{`${storage.data.accountName}/${storage.data.containerName}`}</b>
+      <b>{`${storage.data.accountName}.blob.core.windows.net/${storage.data.containerName}`}</b>
       {storage.data.path || '/'}
     </div>
   ),
