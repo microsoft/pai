@@ -1,27 +1,5 @@
-/*
- * Copyright (c) Microsoft Corporation
- * All rights reserved.
- *
- * MIT License
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the 'Software'), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED *AS IS*, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
 
 import React, { useState, useCallback, useEffect, useMemo } from 'react';
 import { Fabric, Stack, StackItem } from 'office-ui-fabric-react';
@@ -36,7 +14,7 @@ import {
   fetchJobConfig,
   listUserVirtualClusters,
   listUserStorageConfigs,
-  fetchStorageConfigs,
+  fetchStorageDetails,
 } from './utils/conn';
 import { TaskRolesManager } from './utils/task-roles-manager';
 
@@ -247,10 +225,10 @@ export const JobSubmissionPage = ({
       const defaultStorageConfig = [];
       try {
         const configNames = await listUserStorageConfigs(loginUser);
-        const storageConfigs = await fetchStorageConfigs(configNames);
-        for (const config of storageConfigs) {
-          if (config.default === true) {
-            defaultStorageConfig.push(config.name);
+        const storageDetails = await fetchStorageDetails(configNames);
+        for (const detail of storageDetails) {
+          if (detail.default === true) {
+            defaultStorageConfig.push(detail.name);
             break;
           }
         }
