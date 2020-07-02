@@ -1,5 +1,7 @@
 ---
 - name: Install jq
+  become: true
+  become_user: root
   apt:
     name: jq
     state: present

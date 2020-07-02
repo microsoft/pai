@@ -5,3 +5,19 @@
   gather_facts: True
   roles:
     - {role: virtual-kubelet/remove}
+
+- hosts: localhost
+  become: ture
+  become_user: root
+  gather_facts: False
+  tasks:
+    - name: Delete Generated File
+      file:
+        path: "{{ item }}"
+        state: absent
+      with_items:
+        - "{{ playbook_dir }}/.generated/"
+        - "{{ playbook_dir }}/.virtual-kubelet/"
+        - "{{ playbook_dir }}/.output/"
+        - "{{ playbook_dir }}/openpai.sh"
+        - "{{ playbook_dir }}/build.sh"
