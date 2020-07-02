@@ -93,9 +93,9 @@ pylon:
   port: 80
   ssl:
     crt_name: {{ pylon_domain }}.crt
-    crt_path: {{ base_dir }}/.generated/{{ pylon_domain }}.crt
+    crt_path: /cluster-configuration/{{ pylon_domain }}.crt
     key_name: {{ pylon_domain }}.key
-    key_path: {{ base_dir }}/.generated/{{ pylon_domain }}.key
+    key_path: /cluster-configuration/{{ pylon_domain }}.key
   uri: https://{{ pylon_domain }}
   uri-https: https://{{ pylon_domain }}
   domain: {{ pylon_domain }}
