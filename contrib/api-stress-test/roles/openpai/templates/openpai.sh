@@ -24,7 +24,7 @@ docker run -itd \
 
 sudo docker exec -it stress-dev-box kubectl get node || { cleanup; exit 1; }
 
-sudo docker exec -i dev-box-quick-start /bin/bash << EOF_DEV_BOX
+sudo docker exec -i stress-dev-box /bin/bash << EOF_DEV_BOX
 
 apt-get -y update
 apt-get -y install subversion python3 python-dev software-properties-common
