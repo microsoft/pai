@@ -7,10 +7,12 @@ function cleanup(){
   docker rm stress-dev-box
 }
 
+echo 1
 {% if docker_registry_username is defined and docker_registry_password is defined %}
 docker login {{ docker_registry_domain }} -p {{ docker_registry_password }} -u {{ docker_registry_username }}
 {% endif %}
 
+echo 2
 docker run -tid \
       -v /var/run/docker.sock:/var/run/docker.sock \
       -v {{ base_dir_cfg }}:/cluster-configuration  \
@@ -21,8 +23,10 @@ docker run -tid \
       --name=stress-dev-box \
       {{ docker_registry_domain }}/{{ docker_registry_namespace }}/dev-box:{{ docker_registry_tag }} /bin/bash
 
+echo 3
 sudo docker exec -it stress-dev-box kubectl get node || { cleanup; exit 1; }
 
+echo 4
 sudo docker exec -i stress-dev-box /bin/bash << EOF_DEV_BOX
 
 apt-get -y update
@@ -45,3 +49,5 @@ echo -e "pai\n" | python paictl.py config push -p /cluster-configuration -m serv
 echo -e "pai\n" | python paictl.py service start
 
 EOF_DEV_BOX
+
+echo 5
