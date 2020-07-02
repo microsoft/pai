@@ -36,7 +36,7 @@
 - hosts: localhost
   gather_facts: False
   roles:
-    - { role: locust/script }
+    - { role: locust/config }
 
 - hosts: localhost
   gather_facts: False
