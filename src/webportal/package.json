@@ -132,8 +132,5 @@
     "webpack-bundle-analyzer": "^3.3.2",
     "webpack-cli": "^3.3.0",
     "webpack-dev-server": "^3.2.1"
-  },
-  "yarn": {
-    "args": ["--ignore-engines"]
   }
 }
