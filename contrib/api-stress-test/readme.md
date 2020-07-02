@@ -80,7 +80,7 @@ customized_locust_stress_script
 - If you wanna use your own locust stress test script, please set this vars. /path/test.py
 
 locust_worker_number
-- The number of locust worker. Default value equals to the lenght of kube-worker group"
+- The number of locust worker. Default value equals to the length of kube-worker group"
 
 #### Running playbooks
 
@@ -88,7 +88,7 @@ locust_worker_number
 ansible-playbook -i host.yml stress.yml [-e "@path/to/env.yml"]
 ```
 
-#### After the playbooks successing
+#### After running the playbooks
 
 Loucst url: http://${kube-master}:8089
 OpenPAI url: https://${kube-master}
