@@ -91,8 +91,11 @@ ansible-playbook -i host.yml stress.yml [-e "@path/to/env.yml"]
 #### After running the playbooks
 
 Loucst url: http://${kube-master}:8089
+
 OpenPAI url: https://${kube-master}
+
 OpenPAI user: stress
+
 OpenPAI user password: stress1234
 
 
