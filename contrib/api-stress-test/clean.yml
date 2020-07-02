@@ -12,6 +12,11 @@
     - {role: locust/remove}
 
 - hosts: localhost
+  gather_facts: True
+  roles:
+    - {role: openpai/remove}
+
+- hosts: localhost
   become: ture
   become_user: root
   gather_facts: False
