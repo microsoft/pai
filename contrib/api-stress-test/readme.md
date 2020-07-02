@@ -94,3 +94,8 @@ Loucst url: http://${kube-master}:8089
 OpenPAI url: https://${kube-master}
 OpenPAI user: stress
 OpenPAI user password: stress1234
+
+
+#### Auto test script.
+
+Please refer to https://github.com/locustio/locust/blob/master/locust/web.py find the api of locust.
