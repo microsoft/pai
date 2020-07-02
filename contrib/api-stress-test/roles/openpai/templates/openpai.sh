@@ -20,7 +20,7 @@ docker run -itd \
       --privileged=true \
       --net=host \
       --name=stress-dev-box \
-      {{ docker_registry_domain }}/{{ docker_registry_namespace }}/dev-box:{{ docker_registry_tag }}
+      {{ docker_registry_domain }}/{{ docker_registry_namespace }}/dev-box:{{ docker_registry_tag }} /bin/bash
 
 sudo docker exec -it stress-dev-box kubectl get node || { cleanup; exit 1; }
 
