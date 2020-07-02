@@ -11,8 +11,7 @@ function cleanup(){
 docker login {{ docker_registry_domain }} -p {{ docker_registry_password }} -u {{ docker_registry_username }}
 {% endif %}
 
-docker run -id \
-      -e COLUMNS=$COLUMNS -e LINES=$LINES -e TERM=$TERM \
+docker run -tid \
       -v /var/run/docker.sock:/var/run/docker.sock \
       -v {{ base_dir_cfg }}:/cluster-configuration  \
       -v {{ kube_config_path }}:/root/.kube/config \
