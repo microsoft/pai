@@ -31,7 +31,7 @@
 - hosts: localhost
   gather_facts: False
   roles:
-    - { role: openpai }
+    - { role: openpai/install }
 
 - hosts: localhost
   gather_facts: False

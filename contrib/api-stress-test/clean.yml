@@ -7,6 +7,11 @@
     - {role: virtual-kubelet/remove}
 
 - hosts: localhost
+  gather_facts: True
+  roles:
+    - {role: locust/remove}
+
+- hosts: localhost
   become: ture
   become_user: root
   gather_facts: False
