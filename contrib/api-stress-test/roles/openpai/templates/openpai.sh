@@ -2,11 +2,6 @@
 
 set -e
 
-function cleanup(){
-  sudo docker stop stress-dev-box &> /dev/null
-  sudo docker rm stress-dev-box &> /dev/null
-}
-
 {% if docker_registry_username is defined and docker_registry_password is defined %}
 docker login {{ docker_registry_domain }} -p {{ docker_registry_password }} -u {{ docker_registry_username }}
 {% endif %}
