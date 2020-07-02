@@ -35,6 +35,14 @@
   template:
     src: stress.py
     dest: "{{ locust_base_dir }}/configmap/stress.py"
+  when: customized_locust_stress_script is not defined
+
+- name: Copy User Customized Script files in Locust Configmap Dir
+  template:
+    src: "{{customized_locust_stress_script}}"
+    dest: "{{ locust_base_dir }}/configmap/stress.py"
+  when: customized_locust_stress_script is not defined
+
 
 - name: Generate template files in Locust Base Dir
   template:

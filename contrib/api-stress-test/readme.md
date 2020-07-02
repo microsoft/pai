@@ -22,8 +22,7 @@ tolerations: [
 ]
 ```
 
-
-2. Build image and push them into a registry
+2. Build image and push them into a registry 
 
 #### After the playbooks successing
 

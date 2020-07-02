@@ -1,5 +1,7 @@
 virtual_cluster: stress
 
+#customized_locust_stress_script: /path/test.py
+
 stress_test_openpai_job_list_enable: true
 stress_test_openpai_job_submit_enable: false
 stress_test_k8s_pod_list_enable: true
