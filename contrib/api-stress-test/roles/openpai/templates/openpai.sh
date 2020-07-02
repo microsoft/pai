@@ -21,7 +21,7 @@ docker run -tid \
       --name=stress-dev-box \
       {{ docker_registry_domain }}/{{ docker_registry_namespace }}/dev-box:{{ docker_registry_tag }} /bin/bash
 
-sudo docker exec -i stress-dev-box /bin/bash "kubectl get node" || { cleanup; exit 1; }
+sudo docker exec -i stress-dev-box /bin/bash -c "kubectl get node" || { cleanup; exit 1; }
 
 sudo docker exec -i stress-dev-box /bin/bash << EOF_DEV_BOX
 
