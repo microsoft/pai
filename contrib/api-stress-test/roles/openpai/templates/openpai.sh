@@ -2,6 +2,11 @@
 
 set -e
 
+function cleanup(){
+  docker stop stress-dev-box
+  docker rm stress-dev-box
+}
+
 {% if docker_registry_username is defined and docker_registry_password is defined %}
 docker login {{ docker_registry_domain }} -p {{ docker_registry_password }} -u {{ docker_registry_username }}
 {% endif %}
@@ -16,7 +21,7 @@ docker run -tid \
       --name=stress-dev-box \
       {{ docker_registry_domain }}/{{ docker_registry_namespace }}/dev-box:{{ docker_registry_tag }} /bin/bash
 
-sudo docker exec -it stress-dev-box kubectl get node
+sudo docker exec -it stress-dev-box kubectl get node || { cleanup; exit 1; }
 
 sudo docker exec -i stress-dev-box /bin/bash << EOF_DEV_BOX
 
