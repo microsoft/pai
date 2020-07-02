@@ -1,4 +1,4 @@
-Before starting the stress test playbooks to setup environment.
+#### Before starting the stress test playbooks to setup environment.
 
 1. Please create your own branch and modify rest-server's code for vk scheduling.
 
@@ -25,3 +25,9 @@ tolerations: [
 
 2. Build image and push them into a registry
 
+#### After the playbooks successing
+
+Loucst url: http://${kube-master}:8089
+OpenPAI url: https://${kube-master}
+OpenPAI user: stress
+OpenPAI user password: stress1234
