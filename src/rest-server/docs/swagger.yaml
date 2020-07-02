@@ -6,6 +6,7 @@ info:
     Version 2.0.1: add more examples and fix typos
     Version 2.0.2: update job detail and job attempt schema
     Version 2.0.3: update parameters description of get storage list
+    Version 2.0.4: add default field in get storage list
   license:
     name: MIT License
     url: 'https://github.com/microsoft/pai/blob/master/LICENSE'
@@ -2181,10 +2182,13 @@ components:
                 type: boolean
               volumeName:
                 type: string
+              default:
+                type: boolean
             required:
               - name
               - share
               - volumeName
+              - default
       required:
         - storages
     StorageDetail:
