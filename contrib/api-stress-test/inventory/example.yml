@@ -1,0 +1,47 @@
+all:
+  hosts:
+    localhost:
+      ansible_become_pass: "example1234"
+      ansible_connection: local
+    host1:
+      ip: 10.0.0.1
+      access_ip: 10.0.0.1
+      ansible_host: 10.0.0.1
+      ansible_ssh_user: example
+      ansible_ssh_pass: "example1234"
+      ansible_become_pass: "example1234"
+      #ansible_ssh_private_key_file: "/path/to/sshkey"
+      ansible_ssh_extra_args: '-o StrictHostKeyChecking=no'
+    host2:
+      ip: 10.0.0.2
+      access_ip: 10.0.0.2
+      ansible_host: 10.0.0.2
+      ansible_ssh_user: example
+      ansible_ssh_pass: "example1234"
+      ansible_become_pass: "example1234"
+      #ansible_ssh_private_key_file: "/path/to/sshkey"
+      ansible_ssh_extra_args: '-o StrictHostKeyChecking=no'
+    host3:
+      ip: 10.0.0.3
+      access_ip: 10.0.0.3
+      ansible_host: 10.0.0.3
+      ansible_ssh_user: example
+      ansible_ssh_pass: "example1234"
+      ansible_become_pass: "example1234"
+      #ansible_ssh_private_key_file: "/path/to/sshkey"
+      ansible_ssh_extra_args: '-o StrictHostKeyChecking=no'
+  children:
+    # for virtual kubelet
+    virtual-kubelet:
+      hosts:
+        host1:
+    # for openpai master service and locust master
+    # k8s should be ready
+    kube-master:
+      hosts:
+        host2:
+    # for locust worker
+    # k8s should be ready
+    kube-worker:
+      hosts:
+        host3:

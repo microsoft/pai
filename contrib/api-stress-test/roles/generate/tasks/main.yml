@@ -1,0 +1,22 @@
+---
+- name: set base_dir
+  set_fact:
+    base_dir: "{{ playbook_dir }}/.generated/"
+
+- name: Create base_dir
+  file:
+    path: "{{ base_dir }}"
+    state: directory
+    recurse: true
+
+- name: Generate template files in base_dir
+  template:
+    src: "{{ item }}"
+    dest: "{{ base_dir }}/{{ item }}"
+  with_items:
+    - layout.yaml
+    - services-configuration.yaml
+
+- name: Generated self-sign
+  include_tasks: ssl.yml
+

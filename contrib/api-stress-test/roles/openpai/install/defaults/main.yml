@@ -1,0 +1,10 @@
+docker_registry_namespace: openpai
+docker_registry_domain: docker.io
+docker_registry_tag: stresstest
+
+#docker_registry_username: example
+#docker_registry_password: example
+
+kube_config_path: "{{local_home_path}}/.kube/config"
+
+openpai_branch_name: "stress-test"
