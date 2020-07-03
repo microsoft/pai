@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 
 import { PAIV2 } from '@microsoft/openpai-js-sdk';
-import yaml from 'js-yaml';
 import { isNil, get } from 'lodash';
 
 import { clearToken } from '../../../../user/user-logout/user-logout.component';
