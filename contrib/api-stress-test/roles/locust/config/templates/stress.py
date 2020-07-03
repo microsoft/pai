@@ -61,8 +61,8 @@ class K8SAgent(FastHttpUser):
     def on_start(self):
         self.userid = str(uuid.uuid4())
 
-{% if stress_test_openpai_job_submit_enable %}
-    @task({{ test_api_list.openpai_job_submit.weight }})
+{% if stress_test_openpai_submit_job_enable %}
+    @task({{ test_api_list.openpai_submit_job.weight }})
     def submitjob(self):
         hostname = os.environ['MY_POD_NAME']
         jobname = "stresstest-{0}-{1}-{2}".format(hostname, self.userid, self.jobid)
@@ -81,8 +81,8 @@ class K8SAgent(FastHttpUser):
         )
 {% endif %}
 
-{% if stress_test_openpai_job_list_enable %}
-    @task({{ test_api_list.openpai_job_list.weight }})
+{% if stress_test_openpai_list_job_all_enable %}
+    @task({{ test_api_list.openpai_list_job_all.weight }})
     def listjoball(self):
         openpai_headers = {
             "Authorization": "Bearer {0}".format(pai_token),
@@ -93,8 +93,8 @@ class K8SAgent(FastHttpUser):
         )
 {% endif %}
 
-{% if stress_test_k8s_pod_list_enable %}
-    @task({{ test_api_list.k8s_pod_list.weight }})
+{% if stress_test_k8s_list_pod_enable %}
+    @task({{ test_api_list.k8s_list_pod.weight }})
     def getPodList(self):
         self.client.get(kube_url + "/api/v1/pods", verify = kube_cert, headers = k8s_headers)
 {% endif %}
