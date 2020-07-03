@@ -126,6 +126,8 @@ spec:
         - name: JOB_HISTORY
           value: "false"
 {% endif %}
+        - name: WRITE_MERGER_URL
+          value: {{ cluster_cfg['database-controller']['write-merger-url'] }}
         ports:
         - name: rest-server
           containerPort: 8080

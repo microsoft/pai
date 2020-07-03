@@ -59,7 +59,9 @@ const update = asyncHandler(async (req, res) => {
   }
   logger.warn('[job controller][update][put job model frameworkName]', frameworkName)
   logger.warn('[job controller][update][put job model protocol]', res.locals.protocol)
+  logger.warn('[job controller][update][put job model protocol][end]')
   logger.warn('[job controller][update][put job model body]', req.body)
+  logger.warn('[job controller][update][put job model body][end]')
   await job.put(frameworkName, res.locals.protocol, req.body);
   res.status(status('Accepted')).json({
     status: status('Accepted'),

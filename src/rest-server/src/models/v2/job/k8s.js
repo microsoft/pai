@@ -990,15 +990,24 @@ const put = async (frameworkName, config, rawConfig) => {
   // send request to framework controller
   let response;
   try {
-    logger.warn('[job model][put][call framework url]', launcherConfig.frameworksPath())
-    logger.warn('[job model][put][call framework header]', launcherConfig.requestHeaders)
-    logger.warn('[job model][put][call framework data]', frameworkDescription)
-    response = await k8sModel.getClient().request({
+    // logger.warn('[job model][put][call framework url]', launcherConfig.frameworksPath())
+    // logger.warn('[job model][put][call framework header]', launcherConfig.requestHeaders)
+    // logger.warn('[job model][put][call framework data]', frameworkDescription)
+    // response = await k8sModel.getClient().request({
+    //   method: 'post',
+    //   url: launcherConfig.frameworksPath(),
+    //   headers: launcherConfig.requestHeaders,
+    //   data: frameworkDescription,
+    // });
+    response = await axios({
       method: 'post',
-      url: launcherConfig.frameworksPath(),
-      headers: launcherConfig.requestHeaders,
+      url: launcherConfig.writeMergerUrl + '/api/v1/frameworks',
       data: frameworkDescription,
-    });
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    })
+
   } catch (error) {
     if (error.response != null) {
       response = error.response;
@@ -1017,27 +1026,36 @@ const put = async (frameworkName, config, rawConfig) => {
     launcherConfig.enabledPriorityClass && deletePriorityClass(frameworkName);
     throw createError(response.status, 'UnknownError', response.data.message);
   }
+  // TO DO: how to handle this? we do not have a uid from db
   // do not await for patch
-  auths.length && patchDockerSecretOwner(frameworkName, response.data.metadata.uid);
-  config.secrets && patchJobConfigSecretOwner(frameworkName, response.data.metadata.uid);
+  // auths.length && patchDockerSecretOwner(frameworkName, response.data.metadata.uid);
+  // config.secrets && patchJobConfigSecretOwner(frameworkName, response.data.metadata.uid);
 };
 
 const execute = async (frameworkName, executionType) => {
   // send request to framework controller
   let response;
   try {
-    const headers = {...launcherConfig.requestHeaders};
-    headers['Content-Type'] = 'application/merge-patch+json';
-    response = await k8sModel.getClient().request({
-      method: 'patch',
-      url: launcherConfig.frameworkPath(encodeName(frameworkName)),
-      headers,
-      data: {
-        spec: {
-          executionType: `${executionType.charAt(0)}${executionType.slice(1).toLowerCase()}`,
-        },
-      },
-    });
+    // const headers = {...launcherConfig.requestHeaders};
+    // headers['Content-Type'] = 'application/merge-patch+json';
+    // response = await k8sModel.getClient().request({
+    //   method: 'patch',
+    //   url: launcherConfig.frameworkPath(encodeName(frameworkName)),
+    //   headers,
+    //   data: {
+    //     spec: {
+    //       executionType: `${executionType.charAt(0)}${executionType.slice(1).toLowerCase()}`,
+    //     },
+    //   },
+    // });
+    response = await axios({
+      method: 'put',
+      url: `${launcherConfig.writeMergerUrl}/api/v1/frameworks/${frameworkName}/execution/${executionType.charAt(0)}${executionType.slice(1).toLowerCase()}`,
+      data: frameworkDescription,
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    })
   } catch (error) {
     if (error.response != null) {
       response = error.response;

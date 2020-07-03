@@ -8,7 +8,22 @@
   "main": "index.js",
   "license": "MIT",
   "dependencies": {
+    "@kubernetes/client-node": "^0.12.0",
+    "async-lock": "^1.2.4",
+    "body-parser": "^1.19.0",
+    "compression": "^1.7.4",
+    "cors": "^2.8.5",
     "dotenv": "^8.2.0",
-    "openpaidbsdk": "file:../sdk"
+    "express": "^4.17.1",
+    "http-errors": "^1.8.0",
+    "module-alias": "^2.2.2",
+    "morgan": "^1.10.0",
+    "node-fetch": "^2.6.0",
+    "openpaidbsdk": "file:../sdk",
+    "statuses": "^2.0.0",
+    "winston": "2"
+  },
+  "_moduleAliases": {
+    "@dbc": "."
   }
 }

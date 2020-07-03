@@ -56,6 +56,6 @@ spec:
           value: "{{ cluster_cfg['database-controller']['k8s-client-timeout-seconds'] }}"
         - name: DB_CONNECTION_STR
           value: {{ cluster_cfg['postgresql']['connection-str'] }}
-        command: ["node", "write_merger_entry.js"]
+        command: ["node", "write-merger/index.js"]
       imagePullSecrets:
       - name: {{ cluster_cfg["cluster"]["docker-registry"]["secret-name"] }}

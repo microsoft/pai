@@ -47,6 +47,8 @@ const k8sLauncherConfigSchema = Joi.object().keys({
     .required(),
   enabledJobHistory: Joi.boolean()
     .required(),
+  writeMergerUrl: Joi.string()
+    .required(),
   healthCheckPath: Joi.func()
     .arity(0)
     .required(),
@@ -92,6 +94,7 @@ if (launcherType === 'k8s') {
     },
     sqlConnectionString: process.env.SQL_CONNECTION_STR || 'unset',
     enabledJobHistory: process.env.JOB_HISTORY === 'true',
+    writeMergerUrl: process.env.WRITE_MERGER_URL,
     healthCheckPath: () => {
       return `/apis/${launcherConfig.apiVersion}`;
     },
