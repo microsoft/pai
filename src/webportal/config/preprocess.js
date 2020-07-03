@@ -14,23 +14,3 @@
 // NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
-// module dependencies
-const fse = require('fs-extra');
-const helpers = require('./helpers');
-
-// copy docs to app
-fse.copySync(
-  helpers.root('../../docs/user/job_submission.md'),
-  helpers.root('src/app/job/job-docs/job-docs.md'),
-);
-
-fse.copySync(
-  helpers.root('../../docs/user/imgs'),
-  helpers.root('src/app/job/job-docs/imgs'),
-);
-
-fse.copySync(
-  helpers.root('../../examples/tensorflow/tensorflow.distributed-cifar10.json'),
-  helpers.root('src/app/job/job-submit/job-submit.example.json'),
-);

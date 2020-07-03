@@ -34,8 +34,9 @@ if [ $ret_code_check -eq 0 ]
 then
   echo "Pass: Cluster meets the requirements"
 else
-  echo "Faild: Please check the output, and modify the cluster setting to meet the requirement"
+  echo "Failed: There are unmet requirements in your cluster, the installation will be very likely to fail."
+  rm -rf ${HOME}/pai-pre-check/
+  exit $ret_code_check
 fi
 
 rm -rf ${HOME}/pai-pre-check/
-

@@ -21,7 +21,7 @@ common:
   cluster-id: pai
 
   # Cluster type must be yarn or k8s, default value is yarn.
-  cluster-type: yarn
+  cluster-type: k8s
 
   # HDFS, zookeeper data path on your cluster machine.
   data-path: "/datastorage"
@@ -40,7 +40,6 @@ common:
   deploy-in-aks: "false"
 
   docker-data-root: "/var/lib/docker"
-
 
 # the docker registry to store docker images that contain system services like frameworklauncher, hadoop, etc.
 docker-registry:

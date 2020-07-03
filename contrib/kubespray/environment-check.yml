@@ -14,6 +14,13 @@
     - name: "SSH test from dev-box to all machine of infra and worker"
       ping:
 
+- hosts: all,localhost
+  gather_facts: false
+  tasks:
+    - name: "set up unmet_requirements"
+      set_fact:
+        unmet_requirements: []
+
 - hosts: localhost
   become: true
   become_user: root
@@ -35,3 +42,10 @@
   gather_facts: true
   roles:
     - { role: requirement/worker }
+
+- hosts: all,localhost
+  tasks:
+    - name: "display unmet requirements"
+      fail:
+        msg: "The following requirements are not met: {{ unmet_requirements | join('. ') }}"
+      when: unmet_requirements|length > 0

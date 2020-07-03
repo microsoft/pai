@@ -60,12 +60,14 @@ const convertVolumeDetail = async (pvc) => {
       server: pv.spec.nfs.server,
       path: pv.spec.nfs.path,
     };
+    storage.readOnly = (pv.spec.nfs.readOnly === true);
     storage.mountOptions = pv.spec.mountOptions;
   } else if (pv.spec.azureFile) {
     storage.type = 'azureFile';
     storage.data = {
       shareName: pv.spec.azureFile.shareName,
     };
+    storage.readOnly = (pv.spec.azureFile.readOnly === true);
     storage.secretName = pv.spec.azureFile.secretName;
   } else if (pv.spec.flexVolume) {
     if (pv.spec.flexVolume.driver === 'azure/blobfuse') {
@@ -82,6 +84,7 @@ const convertVolumeDetail = async (pvc) => {
       storage.type = 'other';
       storage.data = {};
     }
+    storage.readOnly = (pv.spec.flexVolume.readOnly === true);
     if (pv.spec.flexVolume.secretRef) {
       storage.secretName = pv.spec.flexVolume.secretRef.name;
     }
@@ -91,6 +94,7 @@ const convertVolumeDetail = async (pvc) => {
   } else {
     storage.type = 'unknown';
     storage.data = {};
+    storage.readOnly = false;
   }
 
   if (storage.secretName) {
@@ -136,6 +140,12 @@ const list = async (userName, filterDefault=false) => {
     .filter((item) => item.status.phase === 'Bound')
     .filter((item) => userStorages === undefined || userStorages.includes(item.metadata.name))
     .map(convertVolumeSummary);
+  if (filterDefault) {
+    storages.forEach((item) => item.default = true);
+  } else {
+    const defaultStorages = userName ? await user.getUserStorages(userName, true) : [];
+    storages.forEach((item) => item.default = (defaultStorages.includes(item.name)));
+  }
   return {storages};
 };
 

@@ -8,8 +8,8 @@
   environment: {}
 
 - name: "Fail, if docker is not installed on your master machine."
-  fail:
-    msg: "Unable to find docker in your master machine"
+  set_fact:
+    unmet_requirements: "{{ unmet_requirements + ['Unable to find docker in your master machine'] }}"
   changed_when: false
   check_mode: false
   environment: {}

@@ -1,19 +1,5 @@
-// Copyright (c) Microsoft Corporation
-// All rights reserved.
-//
-// MIT License
-//
-// Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
-// documentation files (the "Software"), to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and
-// to permit persons to whom the Software is furnished to do so, subject to the following conditions:
-// The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED *AS IS*, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING
-// BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-// NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
-// DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
 
 import React from 'react';
 import {
@@ -31,22 +17,10 @@ import PropTypes from 'prop-types';
 import c from 'classnames';
 import t from '../../../components/tachyons.scss';
 import { get } from 'lodash';
-export default function TeamDetail({
-  isOpen = false,
-  config,
-  servers = [],
-  hide,
-}) {
+export default function TeamDetail({ isOpen = false, config, hide }) {
   const handleCancel = () => {
     hide();
   };
-
-  const usedServers = servers.filter(server => {
-    const mountInfo = config.mountInfos.find(
-      info => info.server === server.spn,
-    );
-    return mountInfo !== undefined;
-  });
 
   const columes = [
     {
@@ -55,7 +29,9 @@ export default function TeamDetail({
       headerClassName: FontClassNames.semibold,
       minWidth: 120,
       onRender: item => {
-        return <div className={FontClassNames.small}>{item.mountPoint}</div>;
+        return (
+          <div className={FontClassNames.small}>{`/mnt/${item.name}`}</div>
+        );
       },
     },
     {
@@ -64,13 +40,10 @@ export default function TeamDetail({
       headerClassName: FontClassNames.semibold,
       minWidth: 80,
       onRender: item => {
-        const serverInfo = usedServers.find(
-          server => server.spn === item.server,
-        );
-        if (serverInfo === undefined) {
+        if (item === undefined) {
           return <div className={FontClassNames.small}>{'Invalid Server'}</div>;
         } else {
-          return <div className={FontClassNames.small}>{serverInfo.type}</div>;
+          return <div className={FontClassNames.small}>{item.type}</div>;
         }
       },
     },
@@ -80,13 +53,10 @@ export default function TeamDetail({
       headerClassName: FontClassNames.semibold,
       minWidth: 400,
       onRender: item => {
-        const serverInfo = usedServers.find(
-          server => server.spn === item.server,
-        );
-        if (serverInfo === undefined) {
+        if (item === undefined) {
           return <div className={FontClassNames.small}>{'Invalid Server'}</div>;
         } else {
-          return SERVER_PATH[serverInfo.type](serverInfo, item);
+          return SERVER_PATH[item.type](item);
         }
       },
     },
@@ -156,17 +126,13 @@ export default function TeamDetail({
           before use. Different server types require different upload methods.
         </div>
         <div>
-          {usedServers.map(server => {
-            return (
-              <div
-                key={server.spn}
-                className={c(FontClassNames.small, t.ml4)}
-                style={{ marginTop: '12px' }}
-              >
-                {NAS_TIPS[server.type]}
-              </div>
-            );
-          })}
+          <div
+            key={config.name}
+            className={c(FontClassNames.small, t.ml4)}
+            style={{ marginTop: '12px' }}
+          >
+            {NAS_TIPS[config.type]}
+          </div>
         </div>
         <div
           className={c(t.mt5)}
@@ -195,7 +161,7 @@ export default function TeamDetail({
           columns={columes}
           disableSelectionZone
           selectionMode={SelectionMode.none}
-          items={config.mountInfos}
+          items={[config]}
           layoutMode={DetailsListLayoutMode.fixedColumns}
           compact
         />
@@ -270,7 +236,7 @@ export const NAS_TIPS = {
       </div>
     </div>
   ),
-  azurefile: (
+  azureFile: (
     <div>
       <div style={{ fontWeight: FontWeights.semibold }}>AzureFile</div>
       <span>Download </span>
@@ -288,7 +254,7 @@ export const NAS_TIPS = {
       </span>
     </div>
   ),
-  azureblob: (
+  azureBlob: (
     <div>
       <div style={{ fontWeight: FontWeights.semibold }}>AzureBlob</div>
       <span>Download </span>
@@ -331,34 +297,34 @@ export const NAS_TIPS = {
 };
 
 export const SERVER_PATH = {
-  nfs: (server, mountInfo) => (
+  nfs: storage => (
     <div className={FontClassNames.semibold}>
-      <b>{`${server.address}:${server.rootPath}`}</b>
-      {`/${mountInfo.path}`}
+      <b>{`${storage.data.server}:${storage.data.path}`}</b>
+      {storage.share === false ? '/$' + '{PAI_USER_NAME}' : '/'}
     </div>
   ),
-  samba: (server, mountInfo) => (
+  samba: storage => (
     <div className={FontClassNames.semibold}>
-      <b>{`${server.address}/${server.rootPath}`}</b>
-      {server.rootPath.length === 0 ? '' : '/' + mountInfo.path}
+      <b>{`${storage.data.server}:${storage.data.path}`}</b>
+      {storage.share === false ? '/$' + '{PAI_USER_NAME}' : '/'}
     </div>
   ),
-  azurefile: (server, mountInfo) => (
+  azureFile: storage => (
     <div className={FontClassNames.semibold}>
-      <b>{`${server.dataStore}/${server.fileShare}`}</b>
-      {`/${mountInfo.path}`}
+      <b>{`${storage.data.accountName}.file.core.windows.net/${storage.data.shareName}`}</b>
+      {storage.data.path || '/'}
     </div>
   ),
-  azureblob: (server, mountInfo) => (
+  azureBlob: storage => (
     <div className={FontClassNames.semibold}>
-      <b>{`${server.dataStore}/${server.containerName}`}</b>
-      {`/${mountInfo.path}`}
+      <b>{`${storage.data.accountName}.blob.core.windows.net/${storage.data.containerName}`}</b>
+      {storage.data.path || '/'}
     </div>
   ),
-  hdfs: (server, mountInfo) => (
+  hdfs: storage => (
     <div className={FontClassNames.semibold}>
-      <b>{`${server.namenode}:${server.port}`}</b>
-      {`/${mountInfo.path}`}
+      <b>{`${storage.data.namenode}:${storage.data.port}`}</b>
+      {storage.data.path || '/'}
     </div>
   ),
 };

@@ -8,8 +8,8 @@
   environment: {}
 
 - name: "Worker 1.2 Check whether the vm can access to docker.io"
-  fail:
-    msg: "Unable to access docker.io"
+  set_fact:
+    unmet_requirements: "{{ unmet_requirements + ['Unable to access docker.io'] }}"
   changed_when: false
   check_mode: false
   environment: {}
@@ -17,10 +17,44 @@
     - worker_nslookup_docker_io.rc != 0
 
 - name: "Worker 2.1 Ensure dev-box is not an worker machines"
-  fail:
-    msg: "Dev-box should be a separated machine from the cluster."
+  set_fact:
+    unmet_requirements: "{{ unmet_requirements + ['Dev-box should be a separated machine from the cluster'] }}"
   when:
     - ansible_control_host_address == ansible_default_ipv4.address
+
+- name: "Worker 3.1 Check whether the vm can access to gcr.io"
+  raw: ping gcr.io -c 3
+  register: worker_ping_gcr_io
+  failed_when: false
+  changed_when: false
+  check_mode: false
+  environment: {}
+
+- name: "Worker 3.2 Check whether the vm can access to gcr.io"
+  set_fact:
+    unmet_requirements: "{{ unmet_requirements + ['Unable to access gcr.io'] }}"
+  changed_when: false
+  check_mode: false
+  environment: {}
+  when:
+    - worker_ping_gcr_io.rc != 0
+
+- name: "Worker 4.1 Check whether the vm can access to quay.io"
+  raw: nslookup quay.io
+  register: worker_nslookup_quay_io
+  failed_when: false
+  changed_when: false
+  check_mode: false
+  environment: {}
+
+- name: "Worker 4.2 Check whether the vm can access to quay.io"
+  set_fact:
+    unmet_requirements: "{{ unmet_requirements + ['Unable to access quay.io'] }}"
+  changed_when: false
+  check_mode: false
+  environment: {}
+  when:
+    - worker_nslookup_quay_io.rc != 0
 
 - name: check worker machines' NVIDIA gpu card, drivers and runtime
   include_tasks: ubuntu-nvidia.yml

@@ -46,7 +46,7 @@
     <jackson.version>1.9.13</jackson.version>
     <jackson.jaxrs.version>2.3.0</jackson.jaxrs.version>
     <validation.version>2.0.0.Final</validation.version>
-    <validator.version>5.2.1.Final</validator.version>
+    <validator.version>5.3.5.Final</validator.version>
     <el.version>2.2</el.version>
     <coveralls.version>4.3.0</coveralls.version>
     <jacoco.version>0.7.6.201602180812</jacoco.version>

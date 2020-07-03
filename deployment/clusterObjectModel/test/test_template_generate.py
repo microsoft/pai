@@ -71,7 +71,7 @@ class TestTemplateGenerate(unittest.TestCase):
             service_deploy_conf_path = "{0}/{1}/deploy/service.yaml".format(src_path, subdir)
             if file_handler.directory_exits(service_deploy_dir) and file_handler.file_exist_or_not(service_deploy_conf_path):
                 service_conf = file_handler.load_yaml_config(service_deploy_conf_path)
-                if ("cluster-type" not in service_conf) or ("cluster-type" in service_conf and "yarn" in service_conf["cluster-type"]):
+                if ("cluster-type" not in service_conf) or ("cluster-type" in service_conf and "k8s" in service_conf["cluster-type"]):
                     service_list.append(subdir)
 
         for serv in service_list:

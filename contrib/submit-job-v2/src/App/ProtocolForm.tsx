@@ -1,19 +1,5 @@
-// Copyright (c) Microsoft Corporation
-// All rights reserved.
-//
-// MIT License
-//
-// Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
-// documentation files (the "Software"), to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and
-// to permit persons to whom the Software is furnished to do so, subject to the following conditions:
-// The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED *AS IS*, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING
-// BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-// NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
-// DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
 
 import React, { Suspense, lazy } from "react";
 import {
@@ -25,6 +11,7 @@ import Cookies from "js-cookie";
 import classNames from "classnames/bind";
 import update from "immutability-helper";
 import yaml from "js-yaml";
+import { PAIV2 } from "@microsoft/openpai-js-sdk";
 
 import monacoStyles from "./monaco.scss";
 import MarketplaceForm from "./MarketplaceForm";
@@ -172,6 +159,12 @@ export default class ProtocolForm extends React.Component<IProtocolProps, IProto
     showParameters: true,
     showEditor: false,
   };
+
+  private client = new PAIV2.OpenPAIClient({
+    username: this.props.user,
+    token: this.props.token,
+    rest_server_uri: this.props.api,
+  });
 
   public componentDidMount() {
     this.fetchConfig();
@@ -359,13 +352,9 @@ export default class ProtocolForm extends React.Component<IProtocolProps, IProto
           marketplaceOption: source.protocolItemKey,
         });
       } else if (source && source.jobName && source.user && pluginId) {
-        const res = await fetch(
-          `${this.props.api}/api/v1/user/${source.user}/jobs/${source.jobName}/config`,
-        );
-        const body = await res.text();
-        protocol = yaml.safeLoad(body);
-        if (protocol.extras.submitFrom !== pluginId) {
-          throw new Error(`Unknown plugin id ${protocol.extras.submitFrom}`);
+        protocol = await this.client.job.getJobConfig(source.user, source.jobName);
+        if (protocol!.extras!.submitFrom !== pluginId) {
+          throw new Error(`Unknown plugin id ${protocol!.extras!.submitFrom}`);
         }
         protocol.name = this.getCloneJobName(source.jobName);
       }
@@ -555,17 +544,9 @@ export default class ProtocolForm extends React.Component<IProtocolProps, IProto
       protocol.extras = { submitFrom: this.props.pluginId };
     }
     try {
-      const res = await fetch(`${this.props.api}/api/v2/jobs`, {
-        body: yaml.safeDump(protocol),
-        headers: {
-          "Authorization": `Bearer ${this.props.token}`,
-          "Content-Type": "text/yaml",
-        },
-        method: "POST",
-      });
-      const body = await res.json();
-      if (Number(res.status) >= 400) {
-        alert(body.message);
+      const res = await this.client.job.createJob(protocol);
+      if (res.code) {
+        alert(res.message);
       } else {
         window.location.href = `/job-detail.html?username=${this.props.user}&jobName=${this.state.jobName}`;
       }

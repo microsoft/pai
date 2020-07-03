@@ -20,7 +20,7 @@ const axios = require('axios');
 
 function initConfig(msGraphUrl, accessToken) {
   return {
-    'msGraphAPI': `${msGraphUrl}v1.0/me/memberOf`,
+    'msGraphAPI': `${msGraphUrl}v1.0/me/transitiveMemberOf`,
     'Authorization': `Bearer ${accessToken}`,
   };
 }

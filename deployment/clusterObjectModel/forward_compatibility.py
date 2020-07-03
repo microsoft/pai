@@ -97,15 +97,15 @@ def service_configuration_convert(service_configuration):
 
 def service_configuration_add_cluster_type(service_configuration, converted = False):
     if "cluster" not in service_configuration:
-        service_configuration["cluster"] = {"common": {"cluster-type": "yarn"}}
+        service_configuration["cluster"] = {"common": {"cluster-type": "k8s"}}
         return service_configuration, True
     else:
         if "common" not in service_configuration["cluster"]:
-            service_configuration["cluster"]["common"] = {"cluster-type": "yarn"}
+            service_configuration["cluster"]["common"] = {"cluster-type": "k8s"}
             return service_configuration, True
         else:
             if "cluster-type" not in service_configuration["cluster"]["common"]:
-                service_configuration["cluster"]["common"]["cluster-type"] = "yarn"
+                service_configuration["cluster"]["common"]["cluster-type"] = "k8s"
                 return service_configuration, True
             else:
                 return service_configuration, converted

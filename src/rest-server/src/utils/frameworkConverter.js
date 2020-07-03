@@ -183,12 +183,29 @@ const generateExitSpec = (code) => {
 };
 
 const convertToJobAttempt = async (framework) => {
+  if (framework.status === undefined) {
+    framework.status = {
+      attemptStatus: {
+        completionStatus: null,
+        id: null,
+        startTime: null,
+        completionTime: null,
+        taskRoleStatuses: [],
+      },
+      state: null,
+      retryPolicyStatus: {
+        retryDelaySec: null,
+      },
+    };
+  }
+
   const completionStatus = framework.status.attemptStatus.completionStatus;
   const jobName = decodeName(
     framework.metadata.name,
     framework.metadata.annotations,
   );
   const frameworkName = framework.metadata.name;
+  const logPathInfix = framework.metadata.annotations.logPathInfix ? framework.metadata.annotations.logPathInfix : jobName;
   const uid = framework.metadata.uid;
   const userName = framework.metadata.labels
     ? framework.metadata.labels.userName
@@ -204,14 +221,14 @@ const convertToJobAttempt = async (framework) => {
   const jobStartedTime = new Date(
     framework.metadata.creationTimestamp,
   ).getTime();
-  const attemptStartedTime = new Date(
+  const attemptStartedTime = framework.status.attemptStatus.startTime ? new Date(
     framework.status.attemptStatus.startTime,
-  ).getTime();
-  const attemptCompletedTime = new Date(
+  ).getTime(): null;
+  const attemptCompletedTime = framework.status.attemptStatus.completionTime ? new Date(
     framework.status.attemptStatus.completionTime,
-  ).getTime();
+  ).getTime(): null;
   const totalGpuNumber = framework.metadata.annotations
-    ? framework.metadata.annotations.totalGpuNumber
+    ? parseInt(framework.metadata.annotations.totalGpuNumber)
     : 0;
   const totalTaskNumber = framework.spec.taskRoles.reduce(
     (num, spec) => num + spec.taskNumber,
@@ -270,7 +287,7 @@ const convertToJobAttempt = async (framework) => {
             await convertTaskDetail(
               status,
               userName,
-              jobName,
+              logPathInfix,
               taskRoleStatus.name,
             ),
         ),
@@ -310,7 +327,7 @@ const convertToJobAttempt = async (framework) => {
 const convertTaskDetail = async (
   taskStatus,
   userName,
-  jobName,
+  logPathInfix,
   taskRoleName,
 ) => {
   // get container gpus
@@ -352,7 +369,7 @@ const convertTaskDetail = async (
     containerId: taskStatus.attemptStatus.podUID,
     containerIp: taskStatus.attemptStatus.podHostIP,
     containerGpus,
-    containerLog: `http://${taskStatus.attemptStatus.podHostIP}:${process.env.LOG_MANAGER_PORT}/log-manager/tail/${userName}/${jobName}/${taskRoleName}/${taskStatus.attemptStatus.podUID}/`,
+    containerLog: `http://${taskStatus.attemptStatus.podHostIP}:${process.env.LOG_MANAGER_PORT}/log-manager/tail/${userName}/${logPathInfix}/${taskRoleName}/${taskStatus.attemptStatus.podUID}/`,
     containerExitCode: completionStatus ? completionStatus.code : null,
   };
 };

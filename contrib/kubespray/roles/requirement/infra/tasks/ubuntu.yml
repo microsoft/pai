@@ -8,8 +8,8 @@
   environment: {}
 
 - name: "Infra 1.2 Check whether the vm can access to docker.io"
-  fail:
-    msg: "Unable to access docker.io"
+  set_fact:
+    unmet_requirements: "{{ unmet_requirements + ['Unable to access docker.io'] }}"
   changed_when: false
   check_mode: false
   environment: {}
@@ -33,8 +33,8 @@
   environment: {}
 
 - name: "Infra 2.3 Check whether the NTP is installed and enabled."
-  fail:
-    msg: "NTP is not enabled on your infra machines."
+  set_fact:
+    unmet_requirements: "{{ unmet_requirements + ['NTP is not enabled on your infra machines'] }}"
   changed_when: false
   check_mode: false
   environment: {}
@@ -42,10 +42,44 @@
     - infra_ntpq.rc != 0 or infra_nslookup_docker_io.rc != 0
 
 - name: "Infra 3.1 Ensure dev-box is not an infra machines"
-  fail:
-    msg: "Dev-box should be a separated machine from the cluster."
+  set_fact:
+    unmet_requirements: "{{ unmet_requirements + ['Dev-box should be a separated machine from the cluster'] }}"
   when:
     - ansible_control_host_address == ansible_default_ipv4.address
+
+- name: "Infra 4.1 Check whether the vm can access to gcr.io"
+  raw: ping gcr.io -c 3
+  register: infra_ping_gcr_io
+  failed_when: false
+  changed_when: false
+  check_mode: false
+  environment: {}
+
+- name: "Infra 4.2 Check whether the vm can access to gcr.io"
+  set_fact:
+    unmet_requirements: "{{ unmet_requirements + ['Unable to access gcr.io'] }}"
+  changed_when: false
+  check_mode: false
+  environment: {}
+  when:
+    - infra_ping_gcr_io.rc != 0
+
+- name: "Infra 5.1 Check whether the vm can access to quay.io"
+  raw: nslookup quay.io
+  register: infra_nslookup_quay_io
+  failed_when: false
+  changed_when: false
+  check_mode: false
+  environment: {}
+
+- name: "Infra 5.2 Check whether the vm can access to quay.io"
+  set_fact:
+    unmet_requirements: "{{ unmet_requirements + ['Unable to access quay.io'] }}"
+  changed_when: false
+  check_mode: false
+  environment: {}
+  when:
+    - infra_nslookup_quay_io.rc != 0
 
 - name: check infra machine's resouce requirement
   include_tasks: resource.yml

@@ -1,15 +1,16 @@
 # REST server section parser
 
-- [Default Configuration](#D_Config)
-- [How to Configure](#HT_Config)
-- [Generated Configuration](#G_Config)
-- [Data Table](#T_config)
+- [Default Configuration](#Default-configuration-)
+- [How to Configure](#How-to-configure-rest-server-section-in-service-configurationyaml-)
+- [Generated Configuration](#Generated-configuration-)
+- [Data Table](#Table-)
+- [Notice](#Notice-)
 
-## Default configuration <a name="D_Config"></a>
+## Default configuration
 
 [rest-server default configuration](rest-server.yaml)
 
-## How to configure rest-server section in service-configuration.yaml <a name="HT_Config"></a>
+## How to configure rest-server section in service-configuration.yaml
 
 There are 2 mandatory config fields in rest-server section: `default-pai-admin-username` and `default-pai-admin-password`,
 other config fields are optional, includes:
@@ -19,7 +20,7 @@ other config fields are optional, includes:
 - `jwt-expire-time` The expire time for a signed jwt token.
 - `debugging-reservation-seconds: 604800` The seconds to reserved a job container to debug.
 
-## Generated Configuration <a name="G_Config"></a>
+## Generated Configuration
 
 After parsing, if you configured the rest-server the model will be like:
 
@@ -31,66 +32,26 @@ rest-server:
   jwt-expire-time: "7d"
   default-pai-admin-username: pai-admin
   default-pai-admin-password: pai-admin-password
-  debugging-reservation-seconds: 604800
+  schedule-port-start: 15000
+  schedule-port-end: 40000
 ```
 
-## Table <a name="T_Config"></a>
+## Table
 
-<table>
-<tr>
-    <td>Data in Configuration File</td>
-    <td>Data in Cluster Object Model</td>
-    <td>Data in Jinja2 Template</td>
-    <td>Data type</td>
-</tr>
-<tr>
-    <td>rest-server.uri</td>
-    <td>com["rest-server"]["uri"]</td>
-    <td>cluster_cfg["rest-server"]["uri"]</td>
-    <td>URL</td>
-</tr>
-<tr>
-    <td>rest-server.server-port</td>
-    <td>com["rest-server"]["server-port"]</td>
-    <td>cluster_cfg["rest-server"]["server-port"]</td>
-    <td>Int</td>
-</tr>
-<tr>
-    <td>rest-server.jwt-secret</td>
-    <td>com["rest-server"]["jwt-secret"]</td>
-    <td>cluster_cfg["rest-server"]["jwt-secret"]</td>
-    <td>String</td>
-</tr>
-<tr>
-    <td>rest-server.jwt-expire-time</td>
-    <td>com["rest-server"]["jwt-expire-time"]</td>
-    <td>cluster_cfg["rest-server"]["jwt-expire-time"]</td>
-    <td>String</td>
-</tr>
-<tr>
-    <td>rest-server.default-pai-admin-username</td>
-    <td>com["rest-server"]["default-pai-admin-username"]</td>
-    <td>cluster_cfg["rest-server"]["default-pai-admin-username"]</td>
-    <td>String</td>
-</tr>
-<tr>
-    <td>rest-server.default-pai-admin-password</td>
-    <td>com["rest-server"]["default-pai-admin-password"]</td>
-    <td>cluster_cfg["rest-server"]["default-pai-admin-password"]</td>
-    <td>String</td>
-</tr>
->
+| Data in Configuration File             | Data in Cluster Object Model                     | Data in Jinja2 Template                                  | Data type |
+|----------------------------------------|--------------------------------------------------|----------------------------------------------------------|-----------|
+| rest-server.uri                        | com["rest-server"]["uri"]                        | cluster_cfg["rest-server"]["uri"]                        | URL       |
+| rest-server.server-port                | com["rest-server"]["server-port"]                | cluster_cfg["rest-server"]["server-port"]                | Int       |
+| rest-server.jwt-secret                 | com["rest-server"]["jwt-secret"]                 | cluster_cfg["rest-server"]["jwt-secret"]                 | String    |
+| rest-server.jwt-expire-time            | com["rest-server"]["jwt-expire-time"]            | cluster_cfg["rest-server"]["jwt-expire-time"]            | String    |
+| rest-server.default-pai-admin-username | com["rest-server"]["default-pai-admin-username"] | cluster_cfg["rest-server"]["default-pai-admin-username"] | String    |
+| rest-server.default-pai-admin-password | com["rest-server"]["default-pai-admin-password"] | cluster_cfg["rest-server"]["default-pai-admin-password"] | String    |
+| schedule-port-start                    | com["rest-server"]["schedule-port-start"]        | cluster_cfg["rest-server"]["schedule-port-start"]        | Int       |
+| schedule-port-end                      | com["rest-server"]["schedule-port-end"]          | cluster_cfg["rest-server"]["schedule-port-end"]          | Int       |
 
-<tr>
-    <td>rest-server.etcd-uris</td>
-    <td>com["rest-server"]["etcd-uris"]</td>
-    <td>cluster_cfg["rest-server"]["etcd-uris"]</td>
-    <td>String</td>
-</tr>
-<tr>
-    <td>rest-server.debugging-reservation-seconds</td>
-    <td>com["rest-server"]["debugging-reservation-seconds"]</td>
-    <td>cluster_cfg["rest-server"]["debugging-reservation-seconds"]</td>
-    <td>String</td>
-</tr>
-</table>
+## Notice
+For config `schedule-port-start` and `schedule-port-end`. Change these config will cause rest server return incorrect port number for running job and finished job.
+For the job which submitted after the config changes, the port number will be reported correctly.
+
+To change the config, you need to change `host_daemon_port_start` and `host_daemon_port_end` in `contrib/kubespray/example/config.yml `correspondingly to avoid port overlap.
+The default value for `host_daemon_port_start` and `host_daemon_port_end` is 40000 and 65535 includes 40000 and 65535. The default value for `schedule-port-start` and `schedule-port-end` is 15000 and 40000, includes 15000, not includes 40000.

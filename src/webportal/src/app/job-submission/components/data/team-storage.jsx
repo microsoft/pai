@@ -1,27 +1,5 @@
-/* !
- * Copyright (c) Microsoft Corporation
- * All rights reserved.
- *
- * MIT License
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED *AS IS*, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
 
 import React, { useLayoutEffect, useState, useCallback, useMemo } from 'react';
 
@@ -69,15 +47,6 @@ export const TeamStorage = ({
     return mountDirs.selectedConfigs.map(element => {
       return element.name;
     });
-  }, [mountDirs]);
-
-  const mountPoints = useMemo(() => {
-    if (isNil(mountDirs) || isNil(mountDirs.selectedConfigs)) {
-      return [];
-    }
-    return mountDirs.selectedConfigs.flatMap(ele =>
-      ele.mountInfos.map(mountInfo => mountInfo.mountPoint),
-    );
   }, [mountDirs]);
 
   const [teamDetail, setTeamDetail] = useState({ isOpen: false });
@@ -132,14 +101,6 @@ export const TeamStorage = ({
                 isChecked &&
                 !selectedConfigNames.includes(item.name)
               ) {
-                for (const mountInfo of item.mountInfos) {
-                  if (mountPoints.includes(mountInfo.mountPoint)) {
-                    alert(
-                      `Mount point error! More than one mount point ${mountInfo.mountPoint}!`,
-                    );
-                    return;
-                  }
-                }
                 newSelectedConfigNames = cloneDeep(selectedConfigNames);
                 newSelectedConfigNames.push(item.name);
               }
@@ -157,9 +118,7 @@ export const TeamStorage = ({
       onRender: item => {
         return (
           <div className={FontClassNames.medium}>
-            {item.mountInfos.map((mountInfo, infoId) => {
-              return <div key={item.name + infoId}>{mountInfo.mountPoint}</div>;
-            })}
+            <div key={item.name}>{`/mnt/${item.name}`}</div>
           </div>
         );
       },
@@ -172,9 +131,7 @@ export const TeamStorage = ({
       onRender: item => {
         return (
           <div className={FontClassNames.medium}>
-            {item.mountInfos.map((mountInfo, infoId) => {
-              return <div key={item.name + 'per' + infoId}>RW</div>;
-            })}
+            <div key={item.name + 'per'}>RW</div>
           </div>
         );
       },
