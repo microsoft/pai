@@ -1751,6 +1751,8 @@ components:
                     properties:
                       skuType:
                         type: string
+                      pinnedCellId:
+                        type: string
                       affinityGroupName:
                         type: string
       required:
