@@ -18,25 +18,10 @@
 
 1. Please create your own branch and modify rest-server's code for vk scheduling.
 
-- Remove the following line
+Please modify your job config code as the following link
 
-Line: https://github.com/microsoft/pai/blob/master/src/rest-server/src/models/v2/job/k8s.js#L465
+- Example Commit link: https://github.com/microsoft/pai/commit/6978bfa9f83a591335c3718db7670fd26776b87a
 
-- add the toleration configuration after this line.
-
-Line: https://github.com/microsoft/pai/blob/master/src/rest-server/src/models/v2/job/k8s.js#L416
-
-Toleration:
-```Yaml
-tolerations: [
-    {
-      key: "virtual-kubelet.io/provider",
-      operator: "Equal",
-      value: "mock",
-      effect: "NoSchedule",
-    }
-]
-```
 
 2. Build image and push them into a registry 
 
