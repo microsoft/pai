@@ -19,7 +19,6 @@ const wrapper = async func => {
   try {
     return await func();
   } catch (err) {
-    console.log(err);
     if (err.data.code === 'UnauthorizedUserError') {
       alert(err.data.message);
       clearToken();
