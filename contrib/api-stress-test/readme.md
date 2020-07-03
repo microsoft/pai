@@ -62,8 +62,11 @@ docker_registry_tag
 docker_registry_username
 - Necessary if your images are in private registry
 
-docker_registry_password: example
+docker_registry_password
 - Necessary if your images are in private registry
+
+openpai_branch_name
+- The name of the branch to build the image. Default: stress-test
 
 kube_config_path
 - The path to the kubconfig. Default `{{local_home_path}}/.kube/config`
