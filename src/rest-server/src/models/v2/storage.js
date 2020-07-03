@@ -140,6 +140,12 @@ const list = async (userName, filterDefault=false) => {
     .filter((item) => item.status.phase === 'Bound')
     .filter((item) => userStorages === undefined || userStorages.includes(item.metadata.name))
     .map(convertVolumeSummary);
+  if (filterDefault) {
+    storages.forEach((item) => item.default = true);
+  } else {
+    const defaultStorages = userName ? await user.getUserStorages(userName, true) : [];
+    storages.forEach((item) => item.default = (defaultStorages.includes(item.name)));
+  }
   return {storages};
 };
 
