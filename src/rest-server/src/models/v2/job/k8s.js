@@ -213,6 +213,8 @@ const convertTaskDetail = async (taskStatus, ports, logPathPrefix) => {
   const containerGpus = null;
 
   const completionStatus = taskStatus.attemptStatus.completionStatus;
+  const diagnostics = completionStatus ? completionStatus.diagnostics : null;
+  const exitDiagnostics = generateExitDiagnostics(diagnostics);
   return {
     taskIndex: taskStatus.index,
     taskState: convertState(
@@ -222,10 +224,16 @@ const convertTaskDetail = async (taskStatus, ports, logPathPrefix) => {
     ),
     containerId: taskStatus.attemptStatus.podUID,
     containerIp: taskStatus.attemptStatus.podHostIP,
+    podNodeName: taskStatus.attemptStatus.podNodeName,
     containerPorts,
     containerGpus,
     containerLog: `http://${taskStatus.attemptStatus.podHostIP}:${process.env.LOG_MANAGER_PORT}/log-manager/tail/${logPathPrefix}/${taskStatus.attemptStatus.podUID}/`,
     containerExitCode: completionStatus ? completionStatus.code : null,
+    containerExitSpec: completionStatus ? generateExitSpec(completionStatus.code) : generateExitSpec(null),
+    containerExitDiagnostics: exitDiagnostics ? exitDiagnostics.diagnosticsSummary : null,
+    totalRetriedCount: taskStatus.retryPolicyStatus.totalRetriedCount,
+    startTime: taskStatus.attemptStatus.startTime,
+    completionTime: taskStatus.attemptStatus.completionTime,
     ...launcherConfig.enabledHived && {
       hived: {
         affinityGroupName,
