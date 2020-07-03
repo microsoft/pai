@@ -1,3 +1,19 @@
+#### What can this playbooks do
+
+1: Setup OpenPAI Cluster with branch name and image tag
+
+2: Setup virtual-kubelet, and join them into OpenPAI Cluster. 
+
+3: Setup Locust Cluster with distributed mode depending on kubernetes. 1 master + N worker.
+
+
+#### Environment Prepare
+
+1: Kubernetes Cluster. (1 master + N worker)
+
+2: Several VMs to deploy virtual-kubelet. 
+
+
 #### Before starting the stress test playbooks to setup environment.
 
 1. Please create your own branch and modify rest-server's code for vk scheduling.
