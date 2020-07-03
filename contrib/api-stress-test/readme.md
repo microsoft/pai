@@ -16,7 +16,7 @@
 
 #### Before starting the stress test playbooks to setup environment.
 
-1. Please create your own branch and modify rest-server's code for vk scheduling.
+1. Please create a new branch based on your dev branch and modify rest-server's code for vk scheduling.
 
 Please modify your job config code as the following link
 
@@ -24,6 +24,23 @@ Please modify your job config code as the following link
 
 
 2. Build image and push them into a registry 
+
+
+3. Setup Vars in ansible-playbooks based on your image registry and branch
+
+```
+docker_registry_namespace: openpai
+
+docker_registry_domain: docker.io
+
+docker_registry_tag: stresstest
+
+#docker_registry_username: exampleuser
+
+# docker_registry_password: examplepass
+
+openpai_branch_name: stress-test
+```
 
 #### Write Inventory
 
