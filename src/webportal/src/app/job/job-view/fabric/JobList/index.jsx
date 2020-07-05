@@ -107,7 +107,7 @@ export default function JobList() {
         jobs.forEach(job => {
           const { name, username } = job;
           fetch(
-            `${webportalConfig.restServerUri}/api/v1/jobs/${username}~${name}/executionType`,
+            `${webportalConfig.restServerUri}/api/v2/jobs/${username}~${name}/executionType`,
             {
               method: 'PUT',
               headers: {
@@ -146,7 +146,7 @@ export default function JobList() {
   const refreshJobs = useCallback(function refreshJobs() {
     setAllJobs(null);
     const token = userAuth.checkToken();
-    fetch(`${webportalConfig.restServerUri}/api/v1/jobs`, {
+    fetch(`${webportalConfig.restServerUri}/api/v2/jobs`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },

@@ -58,7 +58,7 @@ export async function fetchJobRetries() {
     };
   }
 
-  const listAttemptsUrl = `${config.restServerUri}/api/v1/jobs/${userName}~${jobName}/job-attempts`;
+  const listAttemptsUrl = `${config.restServerUri}/api/v2/jobs/${userName}~${jobName}/job-attempts`;
   const token = checkToken();
   const listRes = await fetch(listAttemptsUrl, {
     headers: {
@@ -89,8 +89,8 @@ export async function fetchJobRetries() {
 
 export async function fetchJobInfo() {
   const url = userName
-    ? `${config.restServerUri}/api/v1/jobs/${userName}~${jobName}`
-    : `${config.restServerUri}/api/v1/jobs/${jobName}`;
+    ? `${config.restServerUri}/api/v2/jobs/${userName}~${jobName}`
+    : `${config.restServerUri}/api/v2/jobs/${jobName}`;
   const token = checkToken();
   const res = await fetch(url, {
     headers: {
@@ -107,8 +107,8 @@ export async function fetchJobInfo() {
 
 export async function fetchRawJobConfig() {
   const url = userName
-    ? `${config.restServerUri}/api/v1/jobs/${userName}~${jobName}/config`
-    : `${config.restServerUri}/api/v1/jobs/${jobName}/config`;
+    ? `${config.restServerUri}/api/v2/jobs/${userName}~${jobName}/config`
+    : `${config.restServerUri}/api/v2/jobs/${jobName}/config`;
   const token = checkToken();
   const res = await fetch(url, {
     headers: {
@@ -131,7 +131,7 @@ export async function fetchRawJobConfig() {
 export async function fetchJobConfig() {
   const url = userName
     ? `${config.restServerUri}/api/v2/jobs/${userName}~${jobName}/config`
-    : `${config.restServerUri}/api/v1/jobs/${jobName}/config`;
+    : `${config.restServerUri}/api/v2/jobs/${jobName}/config`;
   const token = checkToken();
   const res = await fetch(url, {
     headers: {
@@ -153,8 +153,8 @@ export async function fetchJobConfig() {
 
 export async function fetchSshInfo() {
   const url = userName
-    ? `${config.restServerUri}/api/v1/jobs/${userName}~${jobName}/ssh`
-    : `${config.restServerUri}/api/v1/jobs/${jobName}/ssh`;
+    ? `${config.restServerUri}/api/v2/jobs/${userName}~${jobName}/ssh`
+    : `${config.restServerUri}/api/v2/jobs/${jobName}/ssh`;
   const token = checkToken();
   const res = await fetch(url, {
     headers: {
@@ -215,8 +215,8 @@ export function getJobMetricsUrl(jobInfo) {
 
 export async function stopJob() {
   const url = userName
-    ? `${config.restServerUri}/api/v1/jobs/${userName}~${jobName}/executionType`
-    : `${config.restServerUri}/api/v1/jobs/${jobName}/executionType`;
+    ? `${config.restServerUri}/api/v2/jobs/${userName}~${jobName}/executionType`
+    : `${config.restServerUri}/api/v2/jobs/${jobName}/executionType`;
   const token = checkToken();
   const res = await fetch(url, {
     method: 'PUT',

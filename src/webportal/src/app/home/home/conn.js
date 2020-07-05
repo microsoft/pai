@@ -45,7 +45,7 @@ async function fetchWrapper(...args) {
 
 export async function listJobs() {
   return fetchWrapper(
-    `${config.restServerUri}/api/v1/jobs?${querystring.stringify({
+    `${config.restServerUri}/api/v2/jobs?${querystring.stringify({
       username,
     })}`,
     {
@@ -57,7 +57,7 @@ export async function listJobs() {
 }
 
 export async function listAllJobs() {
-  return fetchWrapper(`${config.restServerUri}/api/v1/jobs`, {
+  return fetchWrapper(`${config.restServerUri}/api/v2/jobs`, {
     headers: {
       Authorization: `Bearer ${token}`,
     },
@@ -133,7 +133,7 @@ export async function getLowGpuJobInfos() {
 export async function stopJob(job) {
   const { name, username } = job;
   const res = await fetch(
-    `${config.restServerUri}/api/v1/jobs/${username}~${name}/executionType`,
+    `${config.restServerUri}/api/v2/jobs/${username}~${name}/executionType`,
     {
       method: 'PUT',
       headers: {
