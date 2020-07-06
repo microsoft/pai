@@ -1,5 +1,5 @@
 #!/bin/bash
 
-KUBECONFIG={{kube_config_path}}
+export KUBECONFIG={{kube_config_path}}
 
-kubectl delete node -l type=virtual-kubelet
+kubectl delete node -l type=virtual-kubelet  --kubeconfig=${KUBECONFIG}

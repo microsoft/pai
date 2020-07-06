@@ -11,3 +11,5 @@
 
 - name: kubectl delete node -l type=virtual-kubelet
   command: "/bin/bash {{ base_dir_cfg }}/vk-remove-local.sh"
+  become: true
+  become_user: root
