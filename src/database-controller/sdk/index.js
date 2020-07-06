@@ -36,7 +36,7 @@ class DatabaseModel {
       platformRetries: Sequelize.INTEGER,
       resourceRetries: Sequelize.INTEGER,
       userRetries: Sequelize.INTEGER,
-      completedTime: Sequelize.DATE,
+      completionTime: Sequelize.DATE,
       appExitCode: Sequelize.INTEGER,
       subState: Sequelize.STRING(32),
       state: Sequelize.STRING(32),

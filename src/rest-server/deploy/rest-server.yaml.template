@@ -119,6 +119,8 @@ spec:
 {% endif %}
         - name: SQL_CONNECTION_STR
           value: {{ cluster_cfg['postgresql']['connection-str'] }}
+        - name: SQL_MAX_CONNECTION
+          value: "{{ cluster_cfg['rest-server']['sql-max-connection'] }}"
 {% if cluster_cfg['cluster']['common']['job-history'] != 'false' %}
         - name: JOB_HISTORY
           value: "true"

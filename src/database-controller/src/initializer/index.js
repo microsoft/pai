@@ -15,26 +15,35 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-// TO DO: Delete this file, use dbUtil.js instead.
-const {Sequelize} = require('sequelize');
-const launcherConfig = require('@pai/config/launcher');
+require('module-alias/register')
+require('dotenv').config()
+const DatabaseModel = require('openpaidbsdk')
+const fs = require('fs')
+const logger = require('@dbc/core/logger')
+const neverResolved = new Promise((resolve, reject) => {})
 
-if (launcherConfig.sqlConnectionString !== 'unset') {
-  const sequelize = new Sequelize(
-    launcherConfig.sqlConnectionString,
-    {
-      pool: {
-        max: 10,
-        min: 1,
-      },
-    }
-  );
-
-  module.exports = {
-    sequelize: sequelize,
-  };
-} else {
-  module.exports = {
-    sequelize: null,
-  };
+async function main () {
+  try {
+    const databaseModel = new DatabaseModel(
+      process.env.DB_CONNECTION_STR,
+      1
+    )
+    /*......*/
+    await databaseModel.synchronizeSchema()
+    await new Promise((resolve, reject)=>{
+      fs.writeFile('/READY', '', (err) => {
+        if (err) {
+          reject(err)
+        } else {
+          resolve()
+        }
+      })
+    })
+    logger.info('Database has been successfully initialized.')
+  } catch (err) {
+    logger.error(err)
+  }
+  await neverResolved // sleep forever
 }
+
+main()

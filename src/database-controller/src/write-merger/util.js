@@ -56,8 +56,6 @@ function convertFrameworkRequest(framework) {
     userName: framework.metadata.labels.userName,
     jobConfig: framework.metadata.annotations.config,
     executionType: framework.spec.executionType,
-    // should be part of status
-    // creationTime: new Date(framework.metadata.creationTimestamp),
     virtualCluster: framework.metadata.labels.virtualCluster,
     // TO DO: jobPriority ?
     totalGpuNumber: framework.metadata.annotations.totalGpuNumber,
@@ -79,8 +77,8 @@ function convertFrameworkStatus(framework) {
     platformRetries: framework.status.retryPolicyStatus.totalRetriedCount - framework.status.retryPolicyStatus.accountableRetriedCount,
     resourceRetries: 0,
     userRetries: framework.status.retryPolicyStatus.accountableRetriedCount,
-    // TO DO: handle date properly
-    // completedTime: new Date(framework.status.completionTime),
+    creationTime: framework.metadata.creationTimestamp ? new Date(framework.metadata.creationTimestamp) : null,
+    completionTime: framework.status.completionTime ? new Date(framework.status.completionTime): null,
     appExitCode: completionStatus ? completionStatus.code : null,
     subState: framework.status.state,
     state: convertState(

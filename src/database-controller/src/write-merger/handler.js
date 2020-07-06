@@ -75,8 +75,7 @@ async function frameworkWatchEvents (req, res, next) {
           // oldFramework.executionType is ground truth.
           // In this case, we can confirm watchedFramework.spec.executionType is outdated.
           // So we can safely ignore it to keep consistence (different executionType in snapshot and exectionType field)
-          // Information will be synced in future with corrent executionType.
-          console.log(watchedFramework.spec.executionType, oldFramework.executionType)
+          // Information will be synced in future with correct executionType.
           return
         } else {
           toUpdate.requestSynced = true
@@ -117,7 +116,7 @@ async function requestExecuteFramework (req, res, next) {
     if (!req.params.name) {
       return next(createError(400, 'Cannot find framework name.'))
     }
-    await lock.acquire(frameworkDescription.metadata.name, async () => {
+    await lock.acquire(req.params.name, async () => {
       const oldFramework = await databaseModel.Framework.findOne({where: {name: req.params.name}})
       if (!oldFramework) {
         throw createError(404, `Cannot find framework ${req.params.name}.`)

@@ -38,6 +38,7 @@ const _ = require('lodash');
 const logger = require('@pai/config/logger');
 const {apiserver} = require('@pai/config/kubernetes');
 const schedulePort = require('@pai/config/schedule-port');
+const databaseModel = require('@pai/utils/dbUtils')
 
 let exitSpecPath;
 if (process.env[env.exitSpecPath]) {
@@ -145,36 +146,27 @@ const mockFrameworkStatus = () => {
 };
 
 const convertFrameworkSummary = (framework) => {
-  if (!framework.status) {
-    framework.status = mockFrameworkStatus();
-  }
-  const completionStatus = framework.status.attemptStatus.completionStatus;
   return {
-    debugId: framework.metadata.name,
-    name: decodeName(framework.metadata.name, framework.metadata.annotations),
-    username: framework.metadata.labels ? framework.metadata.labels.userName : 'unknown',
-    state: convertState(
-      framework.status.state,
-      completionStatus ? completionStatus.code : null,
-      framework.status.retryPolicyStatus.retryDelaySec,
-    ),
-    subState: framework.status.state,
-    executionType: framework.spec.executionType.toUpperCase(),
-    retries: framework.status.retryPolicyStatus.totalRetriedCount,
+    debugId: framework.name,
+    name: framework.jobName,
+    username: framework.userName,
+    state: framework.state,
+    subState: framework.subState,
+    executionType: framework.executionType.toUpperCase(),
+    retries: framework.retries,
     retryDetails: {
-      user: framework.status.retryPolicyStatus.accountableRetriedCount,
-      platform: framework.status.retryPolicyStatus.totalRetriedCount - framework.status.retryPolicyStatus.accountableRetriedCount,
-      resource: 0,
+      user: framework.userRetries,
+      platform: framework.platformRetries,
+      resource: framework.resourceRetries,
     },
-    retryDelayTime: framework.status.retryPolicyStatus.retryDelaySec,
-    createdTime: new Date(framework.metadata.creationTimestamp).getTime(),
-    completedTime: new Date(framework.status.completionTime).getTime(),
-    appExitCode: completionStatus ? completionStatus.code : null,
-    virtualCluster: framework.metadata.labels ? framework.metadata.labels.virtualCluster : 'unknown',
-    totalGpuNumber: framework.metadata.annotations ? parseInt(framework.metadata.annotations.totalGpuNumber) : 0,
-    totalTaskNumber: framework.spec.taskRoles.reduce(
-      (num, spec) => num + spec.taskNumber, 0),
-    totalTaskRoleNumber: framework.spec.taskRoles.length,
+    retryDelayTime: framework.retryDelayTime,
+    createdTime: new Date(framework.creationTime).getTime(),
+    completedTime: new Date(framework.completionTime).getTime(),
+    appExitCode: framework.appExitCode,
+    virtualCluster: framework.virtualCluster ? framework.virtualCluster : 'unknown',
+    totalGpuNumber: framework.totalGpuNumber,
+    totalTaskNumber: framework.totalTaskNumber,
+    totalTaskRoleNumber: framework.totalTaskRoleNumber,
   };
 };
 
@@ -843,59 +835,53 @@ const deleteJobConfigSecret = async (frameworkName) => {
   }
 };
 
-const list = async (filters) => {
-  // send request to framework controller
-  let response;
+const list = async (filters, offset, limit, withTotalCount) => {
+  let frameworks, count;
   try {
-    response = await k8sModel.getClient().get(
-      `${launcherConfig.frameworksPath()}?${querystring.stringify(filters)}`,
-      {
-        headers: launcherConfig.requestHeaders,
-      }
-    );
-  } catch (error) {
-    if (error.response != null) {
-      response = error.response;
-    } else {
-      throw error;
+    frameworks = await databaseModel.Framework.findAll({
+      attributes: ['name', 'jobName', 'userName', 'executionType', 'creationTime', 'virtualCluster',
+        'totalGpuNumber', 'totalTaskNumber', 'totalTaskRoleNumber', 'retries', 'retryDelayTime', 'platformRetries',
+        'resourceRetries', 'userRetries', 'completionTime', 'appExitCode', 'subState', 'state'],
+      where: filters,
+      offset: offset,
+      limit: limit,
+      order: [
+        ['creationTime', 'DESC'],
+      ],
+    })
+    if (withTotalCount) {
+      totalCount = await databaseModel.Framework.count({where: filters})
     }
+  } catch (error) {
+      throw error;
   }
-
-  if (response.status === status('OK')) {
-    return response.data.items
-      .filter((item) => checkName(item.metadata.name))
-      .map(convertFrameworkSummary)
-      .sort((a, b) => b.createdTime - a.createdTime);
+  frameworks = frameworks
+    .filter((item) => checkName(item.name))
+    .map(convertFrameworkSummary)
+  if (withTotalCount) {
+    return {
+      totalCount: totalCount,
+      frameworks: frameworks,
+    }
   } else {
-    throw createError(response.status, 'UnknownError', response.data.message);
+    return frameworks
   }
 };
 
 const get = async (frameworkName) => {
-  // send request to framework controller
-  let response;
+  let framework;
   try {
-    response = await k8sModel.getClient().get(
-      launcherConfig.frameworkPath(encodeName(frameworkName)),
-      {
-        headers: launcherConfig.requestHeaders,
-      }
-    );
+    framework = await databaseModel.Framework.findOne({
+      attributes: ['snapshot'],
+      where: {name: encodeName(frameworkName)},
+    })
   } catch (error) {
-    if (error.response != null) {
-      response = error.response;
-    } else {
-      throw error;
-    }
+    throw error;
   }
-
-  if (response.status === status('OK')) {
-    return (await convertFrameworkDetail(response.data));
-  }
-  if (response.status === status('Not Found')) {
-    throw createError('Not Found', 'NoJobError', `Job ${frameworkName} is not found.`);
+  if (framework) {
+    return (await convertFrameworkDetail(JSON.parse(framework.snapshot)));
   } else {
-    throw createError(response.status, 'UnknownError', response.data.message);
+    throw createError('Not Found', 'NoJobError', `Job ${frameworkName} is not found.`);
   }
 };
 
@@ -1033,25 +1019,11 @@ const put = async (frameworkName, config, rawConfig) => {
 };
 
 const execute = async (frameworkName, executionType) => {
-  // send request to framework controller
   let response;
   try {
-    // const headers = {...launcherConfig.requestHeaders};
-    // headers['Content-Type'] = 'application/merge-patch+json';
-    // response = await k8sModel.getClient().request({
-    //   method: 'patch',
-    //   url: launcherConfig.frameworkPath(encodeName(frameworkName)),
-    //   headers,
-    //   data: {
-    //     spec: {
-    //       executionType: `${executionType.charAt(0)}${executionType.slice(1).toLowerCase()}`,
-    //     },
-    //   },
-    // });
     response = await axios({
       method: 'put',
-      url: `${launcherConfig.writeMergerUrl}/api/v1/frameworks/${frameworkName}/execution/${executionType.charAt(0)}${executionType.slice(1).toLowerCase()}`,
-      data: frameworkDescription,
+      url: `${launcherConfig.writeMergerUrl}/api/v1/frameworks/${encodeName(frameworkName)}/execution/${executionType.charAt(0)}${executionType.slice(1).toLowerCase()}`,
       headers: {
         'Content-Type': 'application/json'
       }
@@ -1069,34 +1041,25 @@ const execute = async (frameworkName, executionType) => {
 };
 
 const getConfig = async (frameworkName) => {
-  // send request to framework controller
-  let response;
+  let framework;
   try {
-    response = await k8sModel.getClient().get(
-      launcherConfig.frameworkPath(encodeName(frameworkName)),
-      {
-        headers: launcherConfig.requestHeaders,
-      }
-    );
+    framework = await databaseModel.Framework.findOne({
+      attributes: ['jobConfig'],
+      where: {name: encodeName(frameworkName)},
+    })
   } catch (error) {
-    if (error.response != null) {
-      response = error.response;
-    } else {
       throw error;
-    }
   }
 
-  if (response.status === status('OK')) {
-    if (response.data.metadata.annotations && response.data.metadata.annotations.config) {
-      return yaml.safeLoad(response.data.metadata.annotations.config);
+  if (framework) {
+    if (framework.jobConfig) {
+      return yaml.safeLoad(framework.jobConfig);
     } else {
       throw createError('Not Found', 'NoJobConfigError', `Config of job ${frameworkName} is not found.`);
     }
   }
-  if (response.status === status('Not Found')) {
+  else {
     throw createError('Not Found', 'NoJobError', `Job ${frameworkName} is not found.`);
-  } else {
-    throw createError(response.status, 'UnknownError', response.data.message);
   }
 };
 

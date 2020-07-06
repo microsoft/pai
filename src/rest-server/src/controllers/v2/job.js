@@ -23,16 +23,43 @@ const asyncHandler = require('@pai/middlewares/v2/asyncHandler');
 const createError = require('@pai/utils/error');
 const job = require('@pai/models/v2/job');
 const logger = require('@pai/config/logger');
+const { Op } = require("sequelize");
 
 
 const list = asyncHandler(async (req, res) => {
+  // ?keyword=<keyword filter>&userName=<username1>,<username2>&vc=<vc1>,<vc2>
+  //    &state=<state1>,<state2>&offset=<offset>&limit=<limit>&withTotalCount=true
   const filters = {};
+  let offset = 0, limit, withTotalCount = false;
   if (req.query) {
-    if ('username' in req.query) {
-      filters['labelSelector'] = `userName=${req.query.username}`;
+    if ('username' in req.query){
+      filters.userName = req.query.username.split(',')
+    }
+    if ('vc' in req.query){
+      filters.virtualCluster = req.query.vc.split(',')
+    }
+    if ('state' in req.query){
+      filters.state = req.query.state.split(',')
+    }
+    if ('offset' in req.query) {
+      offset = parseInt(req.query.offset)
+    }
+    if ('limit' in req.query) {
+      limit = parseInt(req.query.limit)
+    }
+    if ('withTotalCount' in req.query && req.query.withTotalCount === 'true') {
+      withTotalCount = true
+    }
+    if ('keyword' in req.query) {
+      // match text in username, jobname, or vc
+      filters[Op.or] = [
+        {'userName': {[Op.substring]: req.query.keyword}},
+        {'jobName': {[Op.substring]: req.query.keyword}},
+        {'virtualCluster': {[Op.substring]: req.query.keyword}},
+      ]
     }
   }
-  const data = await job.list(filters);
+  const data = await job.list(filters, offset, limit, withTotalCount);
   res.json(data);
 });
 
@@ -57,11 +84,6 @@ const update = asyncHandler(async (req, res) => {
       throw error;
     }
   }
-  logger.warn('[job controller][update][put job model frameworkName]', frameworkName)
-  logger.warn('[job controller][update][put job model protocol]', res.locals.protocol)
-  logger.warn('[job controller][update][put job model protocol][end]')
-  logger.warn('[job controller][update][put job model body]', req.body)
-  logger.warn('[job controller][update][put job model body][end]')
   await job.put(frameworkName, res.locals.protocol, req.body);
   res.status(status('Accepted')).json({
     status: status('Accepted'),
