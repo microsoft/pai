@@ -117,7 +117,6 @@ export default class TaskRole extends React.Component {
 
   render() {
     const { className, name, taskInfo, isFailed } = this.props;
-    console.log(taskInfo);
     const { containerListExpanded } = this.state;
     const { semanticColors } = getTheme();
     const { rawJobConfig } = this.context;
