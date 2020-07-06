@@ -233,9 +233,9 @@ const convertTaskDetail = async (taskStatus, ports, logPathPrefix) => {
     containerExitDiagnostics: exitDiagnostics ? exitDiagnostics.diagnosticsSummary : null,
     retries: taskStatus.retryPolicyStatus.totalRetriedCount,
     accountableRetries: taskStatus.retryPolicyStatus.accountableRetriedCount,
-    createdTime: new Date(taskStatus.StartTime).getTime(),
+    createdTime: new Date(taskStatus.startTime).getTime(),
     completedTime: new Date(taskStatus.completionTime).getTime(),
-    currentAttemptLaunchedTime: new Date(taskStatus.attemptStatus.runTime || taskStatus.attemptStatus.completionTime).getTime(),
+    currentAttemptLaunchedTime: new Date(taskStatus.attemptStatus.runTime || taskStatus.attemptStatus.startTime).getTime(),
     currentAttemptCompletedTime: new Date(taskStatus.attemptStatus.completionTime).getTime(),
     ...launcherConfig.enabledHived && {
       hived: {
