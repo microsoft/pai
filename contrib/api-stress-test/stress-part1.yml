@@ -43,8 +43,4 @@
   roles:
     - { role: locust/worker }
 
-- hosts: localhost
-  gather_facts: False
-  roles:
-    - { role: openpai/install }
 

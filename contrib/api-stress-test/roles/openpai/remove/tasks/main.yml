@@ -9,7 +9,7 @@
     dest: "{{ base_dir_cfg }}/openpai-remove.sh"
     mode: '0777'
 
-- name: Start OpenPAI service
+- name: Stop OpenPAI service
   command: "/bin/bash {{ base_dir_cfg }}/openpai-remove.sh"
   become: true
   become_user: root
