@@ -3,17 +3,17 @@
 KUBECONFIG={{kube_config_path}}
 
 {% for host in groups['kube-worker'] %}
-kubectl label nodes {{ hostvars[host].inventory_hostname }} locust-role-
-kubectl label nodes {{ hostvars[host].inventory_hostname }} no-jobexporter-
+kubectl --kubeconfig=${KUBECONFIG} label nodes {{ hostvars[host].inventory_hostname }} locust-role-
+kubectl --kubeconfig=${KUBECONFIG} label nodes {{ hostvars[host].inventory_hostname }} no-jobexporter-
 {% endfor %}
 
-kubectl delete deployment locust-worker-deployment
+kubectl --kubeconfig=${KUBECONFIG} delete deployment locust-worker-deployment
 
-kubectl label nodes {{ hostvars[groups['kube-master'][0]].inventory_hostname }} locust-role-
+kubectl --kubeconfig=${KUBECONFIG} label nodes {{ hostvars[groups['kube-master'][0]].inventory_hostname }} locust-role-
 
-kubectl delete daemonset locust-master
+kubectl --kubeconfig=${KUBECONFIG} delete daemonset locust-master
 
-kubectl delete configmap locust-script-configuration
-kubectl delete ClusterRoleBinding locust-role-binding
-kubectl delete ClusterRole locust-role
-kubectl delete ServiceAccount locust-account
+kubectl --kubeconfig=${KUBECONFIG} delete configmap locust-script-configuration
+kubectl --kubeconfig=${KUBECONFIG} delete ClusterRoleBinding locust-role-binding
+kubectl --kubeconfig=${KUBECONFIG} delete ClusterRole locust-role
+kubectl --kubeconfig=${KUBECONFIG} delete ServiceAccount locust-account

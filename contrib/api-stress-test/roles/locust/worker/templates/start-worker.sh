@@ -3,8 +3,8 @@
 KUBECONFIG={{kube_config_path}}
 
 {% for host in groups['kube-worker'] %}
-kubectl label nodes {{ hostvars[host].inventory_hostname }} locust-role=worker
-kubectl label nodes {{ hostvars[host].inventory_hostname }} no-jobexporter=true
+kubectl --kubeconfig=${KUBECONFIG} label nodes {{ hostvars[host].inventory_hostname }} locust-role=worker
+kubectl --kubeconfig=${KUBECONFIG} label nodes {{ hostvars[host].inventory_hostname }} no-jobexporter=true
 {% endfor %}
 
-kubectl apply -f {{ locust_base_dir }}/worker.yml
+kubectl --kubeconfig=${KUBECONFIG} apply -f {{ locust_base_dir }}/worker.yml
