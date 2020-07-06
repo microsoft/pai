@@ -1969,7 +1969,13 @@ components:
                   type: string
                 reaction:
                   type: string
+                reason:
+                  type: string
                 repro:
+                  type: array
+                  items:
+                    type: string
+                solution:
                   type: array
                   items:
                     type: string
@@ -2063,6 +2069,9 @@ components:
                       type: string
                       nullable: true
                       description: ip of the task container
+                    containerNodeName:
+                      type: string
+                      description: node name of task container
                     containerPorts:
                       type: object
                       description: ports of the task container
@@ -2077,6 +2086,52 @@ components:
                       type: integer
                       nullable: true
                       description: exit code the task container
+                    containerExitSpec:
+                      type: object
+                      nullable: true
+                      description: container exit spec
+                      properties:
+                        code:
+                          type: integer
+                        phrase:
+                          type: string
+                        issuer:
+                          type: string
+                        causer:
+                          type: string
+                        type:
+                          type: string
+                        stage:
+                          type: string
+                        behavior:
+                          type: string
+                        reaction:
+                          type: string
+                        reason:
+                          type: string
+                        repro:
+                          type: array
+                          items:
+                            type: string
+                        solution:
+                          type: array
+                          items:
+                            type: string
+                    containerExitDiagnostics:
+                      type: string
+                      nullable: true
+                      description: container exit diagnostics
+                    retries:
+                      type: integer
+                    createdTime:
+                      type: string
+                      format: date-time
+                    completedTime:
+                      type: string
+                      format: date-time
+                    hived:
+                      type: object
+                      nullable: true
             required:
               - taskRoleStatus
               - taskStatuses
