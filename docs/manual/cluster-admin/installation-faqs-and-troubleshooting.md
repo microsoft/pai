@@ -60,18 +60,38 @@ To remove the network plugin, you could use following `ansible-playbook`:
       args:
         executable: /bin/bash
 
-    - name: stop kubelet
-      shell: systemctl stop kubelet
+    - name: clean ip table
+      shell: |
+        iptables -P INPUT ACCEPT
+        iptables -P FORWARD ACCEPT
+        iptables -P OUTPUT ACCEPT
+        iptables -t nat -F
+        iptables -t mangle -F
+        iptables -F
+        iptables -X
+
+    - name: config-docker
+      shell: |
+        sed -i 's/--iptables=True/--iptables=True --ip-masq=True/d' /etc/systemd/system/docker.service.d/docker-options.conf
+        systemctl daemon-reload
       args:
         executable: /bin/bash
 
-    - name: start kubelet
-      shell: systemctl start kubelet
+    - name: restart kubelet
+      shell: systemctl restart kubelet
+      args:
+        executable: /bin/bash
+    
+    - name: restart docker
+      shell: systemctl restart docker
       args:
         executable: /bin/bash
 ```
 
-After this step, if your pod still can not access internet, please change the pod spec to use `hostNetwork`.
+After this step you need to change the `coredns` to fix dns resolution issue.
+Please run `kubectl edit cm coredns -n kube-system -o yaml`, change `.:53 {` to `.:9053`
+Please run `kubectl edit service coredns -n kube-system`, change `targetPort: 53` to `targetPort: 9053`
+Please run `kubectl edit deployment coredns -n kube-system`, change `containerPort: 53` to `containerPort: 9053`. Add `hostNetwork: true` in pod spec.
 
 #### How to check whether the GPU driver is installed?
 
