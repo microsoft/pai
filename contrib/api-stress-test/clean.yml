@@ -35,11 +35,11 @@
 #    - {role: openpai/remove}
 
 - hosts: localhost
-  become: ture
-  become_user: root
   gather_facts: False
   tasks:
     - name: Delete Generated File
+      become: ture
+      become_user: root
       file:
         path: "{{ item }}"
         state: absent
