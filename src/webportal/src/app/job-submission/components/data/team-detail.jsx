@@ -12,11 +12,23 @@ import {
   FontWeights,
   Link,
   SelectionMode,
+  Text,
+  Stack,
+  getTheme,
 } from 'office-ui-fabric-react';
+import styled from 'styled-components';
 import PropTypes from 'prop-types';
 import c from 'classnames';
 import t from '../../../components/tachyons.scss';
 import { get } from 'lodash';
+
+const { spacing, palette } = getTheme();
+
+const CommandWrapper = styled.div`
+  background-color: ${palette.neutralLight};
+  padding: ${spacing.m};
+`;
+
 export default function TeamDetail({ isOpen = false, config, hide }) {
   const handleCancel = () => {
     hide();
@@ -102,61 +114,75 @@ export default function TeamDetail({ isOpen = false, config, hide }) {
         styles: { main: { maxWidth: 900 } },
       }}
     >
-      <div className={c(FontClassNames.small)}>
-        Team storage{' '}
-        <span style={{ fontWeight: FontWeights.semibold }}>{config.name}</span>{' '}
-        is configured for group{' '}
-        <span style={{ fontWeight: FontWeights.semibold }}>{config.gpn}</span>.
-        For more details, please contact the cluster admin.
-      </div>
-      <div>
-        <div
-          className={c(t.mt5)}
-          style={{
-            fontSize: FontSizes.small,
-            marginBottom: '12px',
-            fontWeight: FontWeights.bold,
-          }}
-        >
-          How to upload data ?
-        </div>
-        <div className={c(FontClassNames.small)}>
-          Please upload data to corresponding{' '}
-          <span style={{ fontWeight: FontWeights.semibold }}>server path</span>{' '}
-          before use. Different server types require different upload methods.
-        </div>
-        <div>
-          <div
-            key={config.name}
-            className={c(FontClassNames.small, t.ml4)}
-            style={{ marginTop: '12px' }}
-          >
-            {NAS_TIPS[config.type]}
+      <Stack gap='s1'>
+        <Text variant='large'>Upload</Text>
+        {config.type === 'nfs' && (
+          <Stack gap='s2' styles={{ root: { marginLeft: `${spacing.m}` } }}>
+            <Text>
+              It is recommended to use an ubuntu host to upload data to nfs.
+            </Text>
+            <CommandWrapper>
+              <Text block>
+                $ sudo apt-get update && apt-get install -y nfs-common
+              </Text>
+              <Text block>$ sudo mkdir -p /mnt/nfsData</Text>
+              <Text block>
+                {`$ sudo mount ${config.data.server}:${config.data.path} /mnt/nfsData`}
+              </Text>
+              <Text block>
+                {'$ cp <local_data_dir> /mnt/nfsData/<subPath>'}
+              </Text>
+            </CommandWrapper>
+            <Text>
+              If there are errors, contact admin and make sure your host has
+              access to nfs server
+            </Text>
+          </Stack>
+        )}
+        {config.type !== 'nfs' && (
+          <div>
+            <div className={c(FontClassNames.small)}>
+              Please upload data to corresponding{' '}
+              <span style={{ fontWeight: FontWeights.semibold }}>
+                server path
+              </span>{' '}
+              before use. Different server types require different upload
+              methods.
+            </div>
+            <div>
+              <div
+                key={config.name}
+                className={c(FontClassNames.small, t.ml4)}
+                style={{ marginTop: '12px' }}
+              >
+                {NAS_TIPS[config.type]}
+              </div>
+            </div>
           </div>
-        </div>
-        <div
-          className={c(t.mt5)}
-          style={{
-            fontSize: FontSizes.small,
-            fontWeight: FontWeights.bold,
-            marginBottom: '12px',
-          }}
-        >
-          How to use data ?
-        </div>
-        <div className={c(FontClassNames.small)}>
-          By selecting team storage, the{' '}
-          <span style={{ fontWeight: FontWeights.semibold }}>Server Path</span>{' '}
-          will be automatically mounted to{' '}
-          <span style={{ fontWeight: FontWeights.semibold }}>Path</span> when
-          job runs. Please treat it as local folder.
-        </div>
-        <div
-          className={c(t.mt5)}
-          style={{ fontSize: FontSizes.small, fontWeight: FontWeights.bold }}
-        >
-          Details
-        </div>
+        )}
+        {config.type === 'nfs' && (
+          <Stack gap='s1'>
+            <Text variant='large'>Download</Text>
+            <Stack gap='s2' styles={{ root: { marginLeft: `${spacing.m}` } }}>
+              <CommandWrapper>
+                <Text block>$ sudo mkdir -p /mnt/nfsData</Text>
+                <Text block>
+                  {`$ sudo mount ${config.data.server}:${config.data.path} /mnt/nfsData`}
+                </Text>
+                <Text block>
+                  {'$ cp /mnt/nfsData/<subPath> <local_data_dir>'}
+                </Text>
+              </CommandWrapper>
+            </Stack>
+          </Stack>
+        )}
+        <Text variant='large'>How to use data ?</Text>
+        <Text styles={{ root: { marginLeft: `${spacing.m}` } }}>
+          By selecting team storage, the storage server will be automatically
+          mounted to Path when job runs. You could copy/read/write like local
+          folder.
+        </Text>
+        <Text variant='large'>Details</Text>
         <DetailsList
           columns={columes}
           disableSelectionZone
@@ -165,7 +191,7 @@ export default function TeamDetail({ isOpen = false, config, hide }) {
           layoutMode={DetailsListLayoutMode.fixedColumns}
           compact
         />
-      </div>
+      </Stack>
     </Dialog>
   );
 }
