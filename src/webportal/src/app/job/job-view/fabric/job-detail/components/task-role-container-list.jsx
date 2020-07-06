@@ -326,6 +326,36 @@ export default class TaskRoleContainerList extends React.Component {
   getColumns(showDebugInfo) {
     const optionalColumns = [
       {
+        key: 'startTime',
+        name: 'Start Time',
+        headerClassName: FontClassNames.medium,
+        minWidth: 150,
+        maxWidth: 200,
+        isResizable: true,
+        onRender: item => {
+          return (
+            <div className={c(FontClassNames.mediumPlus)}>
+              {printDateTime(DateTime.fromISO(item.startTime))}
+            </div>
+          );
+        },
+      },
+      {
+        key: 'completionTime',
+        name: 'Completion Time',
+        headerClassName: FontClassNames.medium,
+        minWidth: 150,
+        maxWidth: 200,
+        isResizable: true,
+        onRender: item => {
+          return (
+            <div className={c(FontClassNames.mediumPlus)}>
+              {printDateTime(DateTime.fromISO(item.completionTime))}
+            </div>
+          );
+        },
+      },
+      {
         key: 'nodeName',
         name: 'Node Name',
         headerClassName: FontClassNames.medium,
@@ -335,34 +365,6 @@ export default class TaskRoleContainerList extends React.Component {
           return (
             <div className={c(FontClassNames.mediumPlus)}>
               {item.podNodeName}
-            </div>
-          );
-        },
-      },
-      {
-        key: 'exitCode',
-        name: 'Exit Code',
-        headerClassName: FontClassNames.medium,
-        minWidth: 100,
-        isResizable: true,
-        onRender: item => {
-          return (
-            <div className={c(FontClassNames.mediumPlus)}>
-              {item.containerExitCode}
-            </div>
-          );
-        },
-      },
-      {
-        key: 'exitType',
-        name: 'Exit Type',
-        headerClassName: FontClassNames.medium,
-        minWidth: 150,
-        isResizable: true,
-        onRender: item => {
-          return (
-            <div className={c(FontClassNames.mediumPlus)}>
-              {item.containerExitSpec.type}
             </div>
           );
         },
@@ -450,7 +452,7 @@ export default class TaskRoleContainerList extends React.Component {
         name: 'No.',
         headerClassName: FontClassNames.medium,
         minWidth: 30,
-        maxWidth: 30,
+        maxWidth: 50,
         isResizable: true,
         onRender: (item, idx) => {
           return (
@@ -534,7 +536,7 @@ export default class TaskRoleContainerList extends React.Component {
         className: FontClassNames.mediumPlus,
         headerClassName: FontClassNames.medium,
         minWidth: 35,
-        maxWidth: 35,
+        maxWidth: 50,
         isResizable: true,
         onRender: item => {
           const gpuAttr = isNil(item.containerGpus)
@@ -590,42 +592,16 @@ export default class TaskRoleContainerList extends React.Component {
         name: 'Status',
         headerClassName: FontClassNames.medium,
         minWidth: 100,
+        maxWidth: 150,
         isResizable: true,
         onRender: item => <StatusBadge status={capitalize(item.taskState)} />,
-      },
-      {
-        key: 'startTime',
-        name: 'Start Time',
-        headerClassName: FontClassNames.medium,
-        minWidth: 150,
-        isResizable: true,
-        onRender: item => {
-          return (
-            <div className={c(FontClassNames.mediumPlus)}>
-              {printDateTime(DateTime.fromISO(item.startTime))}
-            </div>
-          );
-        },
-      },
-      {
-        key: 'completionTime',
-        name: 'Completion Time',
-        headerClassName: FontClassNames.medium,
-        minWidth: 150,
-        isResizable: true,
-        onRender: item => {
-          return (
-            <div className={c(FontClassNames.mediumPlus)}>
-              {printDateTime(DateTime.fromISO(item.completionTime))}
-            </div>
-          );
-        },
       },
       {
         key: 'retryCount',
         name: 'Retries',
         headerClassName: FontClassNames.medium,
         minWidth: 50,
+        maxWidth: 100,
         isResizable: true,
         onRender: (item, idx) => {
           return (
@@ -636,11 +612,42 @@ export default class TaskRoleContainerList extends React.Component {
         },
       },
       {
+        key: 'exitCode',
+        name: 'Exit Code',
+        headerClassName: FontClassNames.medium,
+        minWidth: 100,
+        maxWidth: 150,
+        isResizable: true,
+        onRender: item => {
+          return (
+            <div className={c(FontClassNames.mediumPlus)}>
+              {item.containerExitCode}
+            </div>
+          );
+        },
+      },
+      {
+        key: 'exitType',
+        name: 'Exit Type',
+        headerClassName: FontClassNames.medium,
+        minWidth: 150,
+        maxWidth: 200,
+        isResizable: true,
+        onRender: item => {
+          return (
+            <div className={c(FontClassNames.mediumPlus)}>
+              {item.containerExitSpec.type}
+            </div>
+          );
+        },
+      },
+      {
         key: 'info',
-        name: 'Info',
+        name: 'Info & Logs',
         className: localCss.pa0I,
         headerClassName: FontClassNames.medium,
         minWidth: 330,
+        maxWidth: 500,
         onRender: item => (
           <div
             className={c(t.h100, t.flex, t.justifyStart, t.itemsCenter, t.ml1)}
