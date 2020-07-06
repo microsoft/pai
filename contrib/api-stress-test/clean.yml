@@ -1,38 +1,38 @@
 ---
-#- hosts: all
-#  gather_facts: False
-#  tasks:
-#    - name: setup
-#      setup:
-#      delegate_to: localhost
+- hosts: all
+  gather_facts: False
+  tasks:
+    - name: setup
+      setup:
+      delegate_to: localhost
 
-#    - name: set ansible control host IP fact
-#      set_fact:
-#        local_home_path: "{{ hostvars[inventory_hostname]['ansible_env']['HOME'] }}"
-#      delegate_to: 127.0.0.1
+    - name: set ansible control host IP fact
+      set_fact:
+        local_home_path: "{{ hostvars[inventory_hostname]['ansible_env']['HOME'] }}"
+      delegate_to: 127.0.0.1
 
 
-#- hosts: virtual-kubelet
-#  become: true
-#  become_user: root
-#  gather_facts: True
-#  roles:
-#    - {role: virtual-kubelet/remove}
+- hosts: virtual-kubelet
+  become: true
+  become_user: root
+  gather_facts: True
+  roles:
+    - {role: virtual-kubelet/remove}
 
-#- hosts: localhost
-#  gather_facts: False
-#  roles:
-#    - {role: virtual-kubelet/remove-local}
+- hosts: localhost
+  gather_facts: False
+  roles:
+    - {role: virtual-kubelet/remove-local}
 
-#- hosts: localhost
-#  gather_facts: True
-#  roles:
-#    - {role: locust/remove}
+- hosts: localhost
+  gather_facts: True
+  roles:
+    - {role: locust/remove}
 
-#- hosts: localhost
-#  gather_facts: True
-#  roles:
-#    - {role: openpai/remove}
+- hosts: localhost
+  gather_facts: True
+  roles:
+    - {role: openpai/remove}
 
 - hosts: localhost
   gather_facts: False
