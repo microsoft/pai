@@ -1,10 +1,15 @@
 ---
-- hosts: virtual-kubelet
-  become: true
-  become_user: root
-  gather_facts: True
+#- hosts: virtual-kubelet
+#  become: true
+#  become_user: root
+#  gather_facts: True
+#  roles:
+#    - {role: virtual-kubelet/remove}
+
+- hosts: localhost
+  gather_facts: False
   roles:
-    - {role: virtual-kubelet/remove}
+    - {role: virtual-kubelet/remove-local}
 
 - hosts: localhost
   gather_facts: True
