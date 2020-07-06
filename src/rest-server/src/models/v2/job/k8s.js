@@ -232,8 +232,11 @@ const convertTaskDetail = async (taskStatus, ports, logPathPrefix) => {
     containerExitSpec: completionStatus ? generateExitSpec(completionStatus.code) : generateExitSpec(null),
     containerExitDiagnostics: exitDiagnostics ? exitDiagnostics.diagnosticsSummary : null,
     retries: taskStatus.retryPolicyStatus.totalRetriedCount,
-    createdTime: taskStatus.attemptStatus.startTime,
-    completedTime: taskStatus.attemptStatus.completionTime,
+    accountableRetries: taskStatus.retryPolicyStatus.accountableRetriedCount,
+    createdTime: new Date(taskStatus.StartTime).getTime(),
+    completedTime: new Date(taskStatus.completionTime).getTime(),
+    currentAttemptLaunchedTime: new Date(taskStatus.attemptStatus.runTime || taskStatus.attemptStatus.completionTime).getTime(),
+    currentAttemptCompletedTime: new Date(taskStatus.attemptStatus.completionTime).getTime(),
     ...launcherConfig.enabledHived && {
       hived: {
         affinityGroupName,

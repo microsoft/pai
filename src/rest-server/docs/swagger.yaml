@@ -2125,12 +2125,28 @@ components:
                       description: container exit diagnostics
                     retries:
                       type: integer
+                    accountableRetries:
+                      type: integer
                     createdTime:
-                      type: string
-                      format: date-time
+                      type: integer
+                      description: >-
+                        task created time, in number of milliseconds since the Unix
+                        Epoch.
                     completedTime:
-                      type: string
-                      format: date-time
+                      type: integer
+                      description: >-
+                        task completion time, in number of milliseconds since the Unix
+                        Epoch.
+                    currentAttemptLaunchedTime:
+                      type: integer
+                      description: >-
+                        the last attempt launched time, in number of milliseconds since the Unix
+                        Epoch.
+                    currentAttemptCompletedTime:
+                      type: integer
+                      description: >-
+                        the last attempt completion time, in number of milliseconds since the Unix
+                        Epoch.
                     hived:
                       type: object
                       nullable: true
