@@ -95,12 +95,12 @@ const hivedValidate = async (protocolObj, username) => {
       }
 
       const taskRoleConfig = hivedConfig.taskRoles[taskRole];
-      // at most one of [reservationId, skuType] allowed
-      if (taskRoleConfig.reservationId !== null && taskRoleConfig.skuType !== null) {
+      // at most one of [pinnedCellId, skuType] allowed
+      if (taskRoleConfig.pinnedCellId !== null && taskRoleConfig.skuType !== null) {
         throw createError(
           'Bad Request',
           'InvalidProtocolError',
-          `Taskrole ${taskRole} has both reservationId and skuType, only one allowed.`
+          `Taskrole ${taskRole} has both pinnedCellId and skuType, only one allowed.`
         );
       }
 
@@ -113,26 +113,26 @@ const hivedValidate = async (protocolObj, username) => {
       }
 
       const affinityGroupName = taskRoleConfig.affinityGroupName;
-      // affinityGroup should have uniform reservationId and skuType
+      // affinityGroup should have uniform pinnedCellId and skuType
       if (affinityGroupName !== null) {
         if (affinityGroupName in affinityGroups) {
-          if (taskRoleConfig.reservationId === null) {
-            taskRoleConfig.reservationId = affinityGroups[affinityGroupName].reservationId;
+          if (taskRoleConfig.pinnedCellId === null) {
+            taskRoleConfig.pinnedCellId = affinityGroups[affinityGroupName].pinnedCellId;
           }
           if (taskRoleConfig.skuType === null) {
             taskRoleConfig.skuType = affinityGroups[affinityGroupName].skuType;
           }
-          if (taskRoleConfig.reservationId !== affinityGroups[affinityGroupName].reservationId ||
+          if (taskRoleConfig.pinnedCellId !== affinityGroups[affinityGroupName].pinnedCellId ||
             taskRoleConfig.skuType !== affinityGroups[affinityGroupName].skuType) {
             throw createError(
               'Bad Request',
               'InvalidProtocolError',
-              `AffinityGroup ${affinityGroupName} has inconsistent skuType or reservationId.`
+              `AffinityGroup ${affinityGroupName} has inconsistent skuType or pinnedCellId.`
             );
           }
         } else {
           affinityGroups[affinityGroupName] = {
-            reservationId: taskRoleConfig.reservationId,
+            pinnedCellId: taskRoleConfig.pinnedCellId,
             skuType: taskRoleConfig.skuType,
             affinityTaskList: [],
           };
@@ -147,11 +147,11 @@ const hivedValidate = async (protocolObj, username) => {
 
     for (let affinityGroupName of Object.keys(affinityGroups)) {
       if (affinityGroups[affinityGroupName].skuType !== null &&
-        affinityGroups[affinityGroupName].reservationId !== null) {
+        affinityGroups[affinityGroupName].pinnedCellId !== null) {
         throw createError(
           'Bad Request',
           'InvalidProtocolError',
-          `AffinityGroup ${affinityGroupName} has both reservationId and skuType, only one allowed.`
+          `AffinityGroup ${affinityGroupName} has both pinnedCellId and skuType, only one allowed.`
         );
       }
     }
@@ -189,7 +189,7 @@ const hivedValidate = async (protocolObj, username) => {
       virtualCluster,
       priority: convertPriority(hivedConfig ? hivedConfig.jobPriorityClass : undefined),
       gpuType: null,
-      reservationId: null,
+      pinnedCellId: null,
       gpuNumber: cellNumber,
       affinityGroup: null,
     };
@@ -200,7 +200,7 @@ const hivedValidate = async (protocolObj, username) => {
           resourcePerCell[t] = resourceUnits[podSpec.gpuType][t];
         }
       }
-      podSpec.reservationId = hivedConfig.taskRoles[taskRole].reservationId;
+      podSpec.pinnedCellId = hivedConfig.taskRoles[taskRole].pinnedCellId;
 
       const affinityGroupName = hivedConfig.taskRoles[taskRole].affinityGroupName;
       podSpec.affinityGroup = affinityGroupName ? {
