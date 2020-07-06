@@ -39,7 +39,7 @@ spec:
           - name: LOCUST_LOCUSTFILE
             value: "/mnt/locust/stress.py"
           - name: LOCUST_HOST
-            value: "http://{{ hostvars[groups['kube-master'][0]].ansible_host }}"
+            value: "https://{{ hostvars[groups['kube-master'][0]].ansible_host }}"
           - name: TARGET_URL
             value: "https://{{ hostvars[groups['kube-master'][0]].ansible_host }}"
           - name: LOCUST_MASTER_NODE_HOST
