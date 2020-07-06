@@ -179,8 +179,8 @@ export default class TaskRole extends React.Component {
             {/* right */}
             <Stack horizontal verticalAlign='end' gap='s1'>
               <Toggle
-                onText='Debug Info'
-                offText='Debug Info'
+                onText='Diagnosis Information'
+                offText='Diagnosis Information'
                 onChange={(event, checked) => {
                   this.setState({
                     showDebugInfo: checked,

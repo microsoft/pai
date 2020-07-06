@@ -326,6 +326,21 @@ export default class TaskRoleContainerList extends React.Component {
   getColumns(showDebugInfo) {
     const optionalColumns = [
       {
+        key: 'accountableRetries',
+        name: 'Accountable Retries',
+        headerClassName: FontClassNames.medium,
+        minWidth: 150,
+        maxWidth: 200,
+        isResizable: true,
+        onRender: (item, idx) => {
+          return (
+            <div className={FontClassNames.mediumPlus}>
+              {item.totalRetriedCount}
+            </div>
+          );
+        },
+      },
+      {
         key: 'startTime',
         name: 'Start Time',
         headerClassName: FontClassNames.medium,
@@ -335,7 +350,7 @@ export default class TaskRoleContainerList extends React.Component {
         onRender: item => {
           return (
             <div className={c(FontClassNames.mediumPlus)}>
-              {printDateTime(DateTime.fromISO(item.startTime))}
+              {printDateTime(DateTime.fromMillis(item.startTime))}
             </div>
           );
         },
@@ -350,7 +365,37 @@ export default class TaskRoleContainerList extends React.Component {
         onRender: item => {
           return (
             <div className={c(FontClassNames.mediumPlus)}>
-              {printDateTime(DateTime.fromISO(item.completionTime))}
+              {printDateTime(DateTime.fromMillis(item.completionTime))}
+            </div>
+          );
+        },
+      },
+      {
+        key: 'currentAttemptLaunchedTime',
+        name: 'Current Attempt Launched Time',
+        headerClassName: FontClassNames.medium,
+        minWidth: 150,
+        maxWidth: 200,
+        isResizable: true,
+        onRender: item => {
+          return (
+            <div className={c(FontClassNames.mediumPlus)}>
+              {printDateTime(DateTime.fromMillis(item.startTime))}
+            </div>
+          );
+        },
+      },
+      {
+        key: 'currentAttemptCompletedTime',
+        name: 'Current Attempt Completion Time',
+        headerClassName: FontClassNames.medium,
+        minWidth: 150,
+        maxWidth: 200,
+        isResizable: true,
+        onRender: item => {
+          return (
+            <div className={c(FontClassNames.mediumPlus)}>
+              {printDateTime(DateTime.fromMillis(item.completionTime))}
             </div>
           );
         },
@@ -597,7 +642,7 @@ export default class TaskRoleContainerList extends React.Component {
         onRender: item => <StatusBadge status={capitalize(item.taskState)} />,
       },
       {
-        key: 'retryCount',
+        key: 'retries',
         name: 'Retries',
         headerClassName: FontClassNames.medium,
         minWidth: 50,
