@@ -25,6 +25,7 @@ import {
 } from '@uifabric/styling';
 import c from 'classnames';
 import { capitalize, isEmpty, isNil, flatten } from 'lodash';
+import { DateTime } from 'luxon';
 import {
   CommandBarButton,
   PrimaryButton,
@@ -41,6 +42,7 @@ import {
 } from 'office-ui-fabric-react/lib/DetailsList';
 import PropTypes from 'prop-types';
 import React from 'react';
+import yaml from 'js-yaml';
 
 import localCss from './task-role-container-list.scss';
 import t from '../../../../../components/tachyons.scss';
@@ -48,7 +50,7 @@ import t from '../../../../../components/tachyons.scss';
 import Context from './context';
 import Timer from './timer';
 import { getContainerLog } from '../conn';
-import { parseGpuAttr } from '../util';
+import { parseGpuAttr, printDateTime } from '../util';
 import config from '../../../../../config/webportal.config';
 import MonacoPanel from '../../../../../components/monaco-panel';
 import StatusBadge from '../../../../../components/status-badge';
@@ -321,29 +323,165 @@ export default class TaskRoleContainerList extends React.Component {
     }
   }
 
-  getColumns() {
-    const columns = [
+  getColumns(showDebugInfo) {
+    const optionalColumns = [
       {
-        key: 'number',
-        name: 'No.',
+        key: 'accountableRetries',
+        name: 'Accountable Retries',
         headerClassName: FontClassNames.medium,
-        minWidth: 50,
-        maxWidth: 50,
+        minWidth: 150,
+        maxWidth: 200,
         isResizable: true,
         onRender: (item, idx) => {
           return (
-            !isNil(idx) && (
-              <div className={FontClassNames.mediumPlus}>{idx}</div>
-            )
+            <div className={FontClassNames.mediumPlus}>
+              {item.accountableRetries}
+            </div>
           );
         },
       },
       {
-        key: 'name',
-        name: 'Container ID',
+        key: 'startTime',
+        name: 'Start Time',
+        headerClassName: FontClassNames.medium,
+        minWidth: 150,
+        maxWidth: 200,
+        isResizable: true,
+        onRender: item => {
+          return (
+            <div className={c(FontClassNames.mediumPlus)}>
+              {printDateTime(DateTime.fromMillis(item.createdTime))}
+            </div>
+          );
+        },
+      },
+      {
+        key: 'currentAttemptLaunchedTime',
+        name: 'Current Attempt Launched Time',
+        headerClassName: FontClassNames.medium,
+        minWidth: 200,
+        maxWidth: 250,
+        isResizable: true,
+        onRender: item => {
+          return (
+            <div className={c(FontClassNames.mediumPlus)}>
+              {printDateTime(
+                DateTime.fromMillis(item.currentAttemptLaunchedTime),
+              )}
+            </div>
+          );
+        },
+      },
+      {
+        key: 'currentAttemptCompletedTime',
+        name: 'Current Attempt Completion Time',
+        headerClassName: FontClassNames.medium,
+        minWidth: 250,
+        maxWidth: 250,
+        isResizable: true,
+        onRender: item => {
+          return (
+            <div className={c(FontClassNames.mediumPlus)}>
+              {printDateTime(
+                DateTime.fromMillis(item.currentAttemptCompletedTime),
+              )}
+            </div>
+          );
+        },
+      },
+      {
+        key: 'completionTime',
+        name: 'Completion Time',
+        headerClassName: FontClassNames.medium,
+        minWidth: 150,
+        maxWidth: 200,
+        isResizable: true,
+        onRender: item => {
+          return (
+            <div className={c(FontClassNames.mediumPlus)}>
+              {printDateTime(DateTime.fromMillis(item.completedTime))}
+            </div>
+          );
+        },
+      },
+      {
+        key: 'nodeName',
+        name: 'Node Name',
         headerClassName: FontClassNames.medium,
         minWidth: 100,
-        maxWidth: 500,
+        isResizable: true,
+        onRender: item => {
+          return (
+            <div className={c(FontClassNames.mediumPlus)}>
+              {item.containerNodeName}
+            </div>
+          );
+        },
+      },
+      {
+        key: 'exitDiagonostic',
+        name: 'Exit Diagnostics',
+        headerClassName: FontClassNames.medium,
+        minWidth: 200,
+        isResizable: true,
+        onRender: item => {
+          return (
+            <CommandBarButton
+              className={FontClassNames.mediumPlus}
+              styles={{
+                root: { backgroundColor: 'transparent' },
+                rootDisabled: { backgroundColor: 'transparent' },
+              }}
+              text='Show Exit Diagnostics'
+              onClick={() => {
+                const result = [];
+                // exit spec
+                const spec = item.containerExitSpec;
+                if (spec) {
+                  // divider
+                  result.push(Array.from({ length: 80 }, () => '-').join(''));
+                  result.push('');
+                  // content
+                  result.push('[Exit Spec]');
+                  result.push('');
+                  result.push(yaml.safeDump(spec));
+                  result.push('');
+                }
+
+                // diagnostics
+                const diag = item.containerExitDiagnostics;
+                if (diag) {
+                  // divider
+                  result.push(Array.from({ length: 80 }, () => '-').join(''));
+                  result.push('');
+                  // content
+                  result.push('[Exit Diagnostics]');
+                  result.push('');
+                  result.push(diag);
+                  result.push('');
+                }
+
+                this.setState({
+                  monacoProps: {
+                    language: 'text',
+                    value: result.join('\n'),
+                    options: {
+                      wordWrap: 'off',
+                      readOnly: true,
+                    },
+                  },
+                  monacoTitle: `Task Exit Diagonostics`,
+                });
+              }}
+            />
+          );
+        },
+      },
+      {
+        key: 'containerId',
+        name: 'Container ID',
+        headerClassName: FontClassNames.medium,
+        minWidth: 300,
         isResizable: true,
         onRender: item => {
           const id = item.containerId;
@@ -356,12 +494,29 @@ export default class TaskRoleContainerList extends React.Component {
           );
         },
       },
+    ];
+    const defaultColumns = [
+      {
+        key: 'number',
+        name: 'No.',
+        headerClassName: FontClassNames.medium,
+        minWidth: 30,
+        maxWidth: 50,
+        isResizable: true,
+        onRender: (item, idx) => {
+          return (
+            !isNil(idx) && (
+              <div className={FontClassNames.mediumPlus}>{idx}</div>
+            )
+          );
+        },
+      },
       {
         key: 'ip',
         name: 'IP',
         className: FontClassNames.mediumPlus,
         headerClassName: FontClassNames.medium,
-        minWidth: 80,
+        minWidth: 90,
         maxWidth: 140,
         isResizable: true,
         fieldName: 'containerIp',
@@ -391,8 +546,8 @@ export default class TaskRoleContainerList extends React.Component {
         name: 'Ports',
         className: FontClassNames.mediumPlus,
         headerClassName: FontClassNames.medium,
-        minWidth: 120,
-        maxWidth: 180,
+        minWidth: 150,
+        maxWidth: 300,
         isResizable: true,
         onRender: item => {
           const ports = item.containerPorts;
@@ -429,7 +584,7 @@ export default class TaskRoleContainerList extends React.Component {
         name: 'GPUs',
         className: FontClassNames.mediumPlus,
         headerClassName: FontClassNames.medium,
-        minWidth: 40,
+        minWidth: 35,
         maxWidth: 60,
         isResizable: true,
         onRender: item => {
@@ -486,17 +641,60 @@ export default class TaskRoleContainerList extends React.Component {
         name: 'Status',
         headerClassName: FontClassNames.medium,
         minWidth: 100,
-        maxWidth: 100,
+        maxWidth: 150,
         isResizable: true,
         onRender: item => <StatusBadge status={capitalize(item.taskState)} />,
       },
       {
+        key: 'retries',
+        name: 'Retries',
+        headerClassName: FontClassNames.medium,
+        minWidth: 50,
+        maxWidth: 100,
+        isResizable: true,
+        onRender: (item, idx) => {
+          return (
+            <div className={FontClassNames.mediumPlus}>{item.retries}</div>
+          );
+        },
+      },
+      {
+        key: 'exitCode',
+        name: 'Exit Code',
+        headerClassName: FontClassNames.medium,
+        minWidth: 100,
+        maxWidth: 150,
+        isResizable: true,
+        onRender: item => {
+          return (
+            <div className={c(FontClassNames.mediumPlus)}>
+              {item.containerExitCode}
+            </div>
+          );
+        },
+      },
+      {
+        key: 'exitType',
+        name: 'Exit Type',
+        headerClassName: FontClassNames.medium,
+        minWidth: 150,
+        maxWidth: 200,
+        isResizable: true,
+        onRender: item => {
+          return (
+            <div className={c(FontClassNames.mediumPlus)}>
+              {item.containerExitSpec.type}
+            </div>
+          );
+        },
+      },
+      {
         key: 'info',
-        name: 'Info',
+        name: 'Info & Logs',
         className: localCss.pa0I,
         headerClassName: FontClassNames.medium,
         minWidth: 300,
-        maxWidth: 340,
+        maxWidth: 500,
         onRender: item => (
           <div
             className={c(t.h100, t.flex, t.justifyStart, t.itemsCenter, t.ml1)}
@@ -509,7 +707,7 @@ export default class TaskRoleContainerList extends React.Component {
                   rootDisabled: { backgroundColor: 'transparent' },
                 }}
                 iconProps={{ iconName: 'CommandPrompt' }}
-                text='View SSH Info'
+                text='SSH Info'
                 onClick={() => {
                   this.showSshInfo(
                     item.containerId,
@@ -595,6 +793,11 @@ export default class TaskRoleContainerList extends React.Component {
       },
     ];
 
+    let columns = defaultColumns;
+    if (showDebugInfo) {
+      columns = defaultColumns.concat(optionalColumns);
+    }
+
     return columns;
   }
 
@@ -613,7 +816,7 @@ export default class TaskRoleContainerList extends React.Component {
 
   render() {
     const { monacoTitle, monacoProps, monacoFooterButton, logUrl } = this.state;
-    const { className, style, taskInfo } = this.props;
+    const { className, style, taskInfo, showDebugInfo } = this.props;
     const status = taskInfo.taskStatuses;
     return (
       <div
@@ -622,7 +825,8 @@ export default class TaskRoleContainerList extends React.Component {
       >
         <ThemeProvider theme={theme}>
           <DetailsList
-            columns={this.getColumns()}
+            styles={{ root: { overflow: 'auto' } }}
+            columns={this.getColumns(showDebugInfo)}
             disableSelectionZone
             items={status}
             layoutMode={DetailsListLayoutMode.justified}
@@ -654,4 +858,5 @@ TaskRoleContainerList.propTypes = {
   className: PropTypes.string,
   style: PropTypes.object,
   taskInfo: PropTypes.object,
+  showDebugInfo: PropTypes.bool,
 };
