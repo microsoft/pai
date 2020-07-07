@@ -70,7 +70,7 @@ spec:
             fieldRef:
               fieldPath: status.hostIP
         - name: ALLUXIO_CLIENT_JAVA_OPTS
-          value: " -Dalluxio.user.hostname=$(ALLUXIO_CLIENT_HOSTNAME) -Dalluxio.worker.hostname=$(ALLUXIO_CLIENT_HOSTNAME)  -XX:MaxDirectMemorySize=8g -Xmx8g"
+          value: " -Dalluxio.user.hostname=$(ALLUXIO_CLIENT_HOSTNAME) -Dalluxio.worker.hostname=$(ALLUXIO_CLIENT_HOSTNAME) "
         - name: NODE_ID
           valueFrom:
             fieldRef:
@@ -83,9 +83,9 @@ spec:
         {%- if cluster_cfg['cluster']['common']['qos-switch'] == "true" %}
         resources:
           limits:
-            memory: "8Gi"
+            memory: "24Gi"
           requests:
-            memory: "8Gi"
+            memory: "4Gi"
         {%- endif %}
         imagePullPolicy: "Always"
         volumeMounts:

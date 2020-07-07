@@ -30,7 +30,8 @@ spec:
       labels:
         app: dshuttle-master
     spec:
-      hostNetwork: false
+      hostNetwork: true
+      dnsPolicy: ClusterFirstWithHostNet
       containers:
       - name: dshuttle-master
         image: {{ cluster_cfg["cluster"]["docker-registry"]["prefix"] }}dshuttle:{{ cluster_cfg["cluster"]["docker-registry"]["tag"] }}
@@ -108,7 +109,7 @@ spec:
       initContainers:
       - name: journal-chown
         image: {{ cluster_cfg["cluster"]["docker-registry"]["prefix"] }}dshuttle:{{ cluster_cfg["cluster"]["docker-registry"]["tag"] }}
-        imagePullPolicy: IfNotPresent
+        imagePullPolicy: Always
         securityContext:
           runAsUser: 0
         command: ["/bin/chown","-R", "1000:1000", "/journal", "/logs", "underFSStorage"]

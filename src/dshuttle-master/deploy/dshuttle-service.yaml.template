@@ -20,23 +20,19 @@ apiVersion: v1
 metadata:
   name: dshuttle-service
 spec:
-  type: NodePort
+  type: ClusterIP
   ports:
   - port: {{ cluster_cfg['dshuttle']['master_rpc_port'] }}
     targetPort: {{ cluster_cfg['dshuttle']['master_rpc_port'] }}
-    nodePort: {{ cluster_cfg['dshuttle']['master_rpc_port'] }}
     name: rpc
   - port: {{ cluster_cfg['dshuttle']['master_web_port'] }}
     targetPort: {{ cluster_cfg['dshuttle']['master_web_port'] }}
-    nodePort: {{ cluster_cfg['dshuttle']['master_web_port'] }}
     name: web
   - port: {{ cluster_cfg['dshuttle']['master_job_rpc_port'] }}
     targetPort: {{ cluster_cfg['dshuttle']['master_job_rpc_port'] }}
-    nodePort: {{ cluster_cfg['dshuttle']['master_job_rpc_port'] }}
     name: job-rpc
   - port: {{ cluster_cfg['dshuttle']['master_job_web_port'] }}
     targetPort: {{ cluster_cfg['dshuttle']['master_job_web_port'] }}
-    nodePort: {{ cluster_cfg['dshuttle']['master_job_web_port'] }}
     name: job-web
   selector:
     app: dshuttle-master

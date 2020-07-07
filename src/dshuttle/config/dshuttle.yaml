@@ -34,16 +34,9 @@ user_meta_sync_interval_ms: 1800000 # 30 mins
 
 tieredstores:
 - level: 0
-  mediumtype: MEM
+  mediumtype: MEM,SSD
   alias: MEM
-  path: /dev/shm
-  quota: 1GB
-  watermark_low_ratio: 0.7
-  watermark_high_ratio: 0.95
-- level: 1
-  mediumtype: SSD
-  alias: SSD
-  path: /mnt/ssd
-  quota: 100G
+  path: /dev/shm,/mnt/ssd
+  quota: 1GB,100GB
   watermark_low_ratio: 0.7
   watermark_high_ratio: 0.95

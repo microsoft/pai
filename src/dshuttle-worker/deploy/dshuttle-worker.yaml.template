@@ -51,7 +51,7 @@ spec:
       containers:
       - name: dshuttle-worker
         image: {{ cluster_cfg["cluster"]["docker-registry"]["prefix"] }}dshuttle:{{ cluster_cfg["cluster"]["docker-registry"]["tag"] }}
-        imagePullPolicy: IfNotPresent
+        imagePullPolicy: Always
         securityContext:
           runAsUser: 1000
           runAsGroup: 1000
@@ -95,7 +95,7 @@ spec:
         securityContext:
           runAsUser: 1000
           runAsGroup: 1000
-        imagePullPolicy: IfNotPresent
+        imagePullPolicy: Always
         {%- if cluster_cfg['cluster']['common']['qos-switch'] == "true" %}
         resources:
           limits:
