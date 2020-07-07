@@ -2140,12 +2140,12 @@ components:
                     currentAttemptLaunchedTime:
                       type: integer
                       description: >-
-                        the last attempt launched time, in number of milliseconds since the Unix
+                        the current attempt launched time, in number of milliseconds since the Unix
                         Epoch.
                     currentAttemptCompletedTime:
                       type: integer
                       description: >-
-                        the last attempt completion time, in number of milliseconds since the Unix
+                        the current attempt completion time, in number of milliseconds since the Unix
                         Epoch.
                     hived:
                       type: object
