@@ -96,7 +96,7 @@ export default function JobList() {
           const client = new PAIV2.OpenPAIClient({
             rest_server_uri: new URL(
               webportalConfig.restServerUri,
-              window.location.host,
+              window.location.href,
             ),
             username: username,
             token: token,
@@ -130,7 +130,7 @@ export default function JobList() {
     const client = new PAIV2.OpenPAIClient({
       rest_server_uri: new URL(
         webportalConfig.restServerUri,
-        window.location.host,
+        window.location.href,
       ),
       username: username,
       token: token,
