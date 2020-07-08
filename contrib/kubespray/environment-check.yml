@@ -8,7 +8,7 @@
 
     - name: set ansible control host IP fact
       set_fact:
-        ansible_control_host_address: "{{ hostvars[inventory_hostname]['ansible_eth0']['ipv4']['address'] }}"
+        ansible_control_host_address: "{{ hostvars[inventory_hostname]['ansible_default_ipv4']['address'] }}"
       delegate_to: 127.0.0.1
 
     - name: "SSH test from dev-box to all machine of infra and worker"
