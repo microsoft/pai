@@ -94,7 +94,9 @@ export default function JobList() {
         jobs.forEach(job => {
           const { name, username } = job;
           const client = new PAIV2.OpenPAIClient({
-            rest_server_uri: `${window.location.host}/${webportalConfig.restServerUri}`,
+            rest_server_uri: webportalConfig.restServerUri.startsWith('http')
+              ? webportalConfig.restServerUri
+              : `${window.location.host}/${webportalConfig.restServerUri}`,
             username: username,
             token: token,
             https: window.location.protocol === 'https:',
@@ -125,7 +127,9 @@ export default function JobList() {
     setAllJobs(null);
     const token = userAuth.checkToken();
     const client = new PAIV2.OpenPAIClient({
-      rest_server_uri: `${window.location.host}/${webportalConfig.restServerUri}`,
+      rest_server_uri: webportalConfig.restServerUri.startsWith('http')
+        ? webportalConfig.restServerUri
+        : `${window.location.host}/${webportalConfig.restServerUri}`,
       username: username,
       token: token,
       https: window.location.protocol === 'https:',

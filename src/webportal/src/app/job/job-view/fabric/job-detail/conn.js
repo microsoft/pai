@@ -15,7 +15,9 @@ const absoluteUrlRegExp = /^[a-z][a-z\d+.-]*:/;
 const token = cookies.get('token');
 
 const client = new PAIV2.OpenPAIClient({
-  rest_server_uri: `${window.location.host}/${config.restServerUri}`,
+  rest_server_uri: config.restServerUri.startsWith('http')
+    ? config.restServerUri
+    : `${window.location.host}/${config.restServerUri}`,
   username: cookies.get('user'),
   token: token,
   https: window.location.protocol === 'https:',
