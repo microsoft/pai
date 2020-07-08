@@ -37,9 +37,9 @@
   when:
     - dev_box_docker_version_replace is version('1.10.0', '<=')
 
-- name: "Dev-box 3.1 Check whether the vm can access to docker.io"
-  raw: nslookup index.docker.io
-  register: devbox_nslookup_docker_io
+- name: "Dev-box 3.1 Check whether the vm can access to {{dev_box_registry}}"
+  raw: "nslookup {{dev_box_registry}}"
+  register: devbox_nslookup_registry
   failed_when: false
   changed_when: false
   check_mode: false
@@ -47,12 +47,12 @@
 
 - name: "Dev-box 3.2 Check whether the vm can access to docker.io"
   set_fact:
-    unmet_requirements: "{{ unmet_requirements + ['Unable to access docker.io'] }}"
+    unmet_requirements: "{{ unmet_requirements + ['Unable to access'+dev_box_registry] }}"
   changed_when: false
   check_mode: false
   environment: {}
   when:
-    - devbox_nslookup_docker_io.rc != 0
+    - devbox_nslookup_registry.rc != 0
 
 
 
