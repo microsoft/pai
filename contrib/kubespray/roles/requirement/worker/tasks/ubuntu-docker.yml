@@ -38,7 +38,7 @@
   set_fact:
     default_runtime_fin: item
   when: item == worker_default_docker_runtime
-
+  loop: "{{default_runtime_processed}}"
 
 - name: "Check the default runtime is set correctly"
   set_fact:
