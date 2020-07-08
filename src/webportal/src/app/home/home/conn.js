@@ -9,9 +9,10 @@ const username = cookies.get('user');
 const token = cookies.get('token');
 
 const client = new PAIV2.OpenPAIClient({
-  rest_server_uri: config.restServerUri,
+  rest_server_uri: `${window.location.host}/${config.restServerUri}`,
   username: username,
   token: token,
+  https: window.location.protocol === 'https:',
 });
 
 export class UnauthorizedError extends Error {
