@@ -24,6 +24,10 @@
   check_mode: false
   environment: {}
 
+- name: "Init array"
+  set_fact:
+    default_runtime_processed: []
+
 - name: "Remove unnecessary char in the end of the output"
   set_fact:
     default_runtime_processed: "{{ default_runtime_processed + [ item | replace('\"','') ] }}"
