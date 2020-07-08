@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-/* eslint-disable node/no-deprecated-api */
 import { PAIV2 } from '@microsoft/openpai-js-sdk';
 import cookies from 'js-cookie';
 import config from '../../config/webportal.config';
