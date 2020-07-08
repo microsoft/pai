@@ -432,12 +432,16 @@ export default class TaskRoleContainerList extends React.Component {
                 root: { backgroundColor: 'transparent' },
                 rootDisabled: { backgroundColor: 'transparent' },
               }}
+              disabled={
+                isNil(item.containerExitDiagnostics) &&
+                isNil(item.containerExitSpec)
+              }
               text='Show Exit Diagnostics'
               onClick={() => {
                 const result = [];
                 // exit spec
                 const spec = item.containerExitSpec;
-                if (spec) {
+                if (!isNil(spec)) {
                   // divider
                   result.push(Array.from({ length: 80 }, () => '-').join(''));
                   result.push('');
@@ -450,7 +454,7 @@ export default class TaskRoleContainerList extends React.Component {
 
                 // diagnostics
                 const diag = item.containerExitDiagnostics;
-                if (diag) {
+                if (!isNil(diag)) {
                   // divider
                   result.push(Array.from({ length: 80 }, () => '-').join(''));
                   result.push('');
@@ -683,7 +687,10 @@ export default class TaskRoleContainerList extends React.Component {
         onRender: item => {
           return (
             <div className={c(FontClassNames.mediumPlus)}>
-              {item.containerExitSpec.type}
+              {!isNil(item.containerExitSpec) &&
+              !isNil(item.containerExitSpec.type)
+                ? item.containerExitSpec.type
+                : null}
             </div>
           );
         },
