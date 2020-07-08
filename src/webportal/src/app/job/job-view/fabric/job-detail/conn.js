@@ -15,9 +15,10 @@ const absoluteUrlRegExp = /^[a-z][a-z\d+.-]*:/;
 const token = cookies.get('token');
 
 const client = new PAIV2.OpenPAIClient({
-  rest_server_uri: config.restServerUri,
+  rest_server_uri: new URL(config.restServerUri, window.location.href),
   username: cookies.get('user'),
   token: token,
+  https: window.location.protocol === 'https:',
 });
 
 export class NotFoundError extends Error {

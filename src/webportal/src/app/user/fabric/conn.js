@@ -8,9 +8,10 @@ import { checkToken } from '../user-auth/user-auth.component';
 import { clearToken } from '../user-logout/user-logout.component';
 
 const client = new PAIV2.OpenPAIClient({
-  rest_server_uri: config.restServerUri,
+  rest_server_uri: new URL(config.restServerUri, window.location.href),
   username: cookies.get('user'),
   token: checkToken(),
+  https: window.location.protocol === 'https:',
 });
 
 const wrapper = async func => {
