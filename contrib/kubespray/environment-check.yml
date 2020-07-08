@@ -6,11 +6,6 @@
       setup:
       delegate_to: localhost
 
-    - name: debug
-      debug:
-        var: hostvars[inventory_hostname]
-      delegate_to: 127.0.0.1
-
     - name: set ansible control host IP fact
       set_fact:
         ansible_control_host_address: "{{ hostvars[inventory_hostname]['ansible_default_ipv4']['address'] }}"
