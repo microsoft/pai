@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+/* eslint-disable node/no-deprecated-api */
 import { PAIV2 } from '@microsoft/openpai-js-sdk';
 import cookies from 'js-cookie';
 import config from '../../config/webportal.config';
@@ -8,9 +9,7 @@ import { checkToken } from '../user-auth/user-auth.component';
 import { clearToken } from '../user-logout/user-logout.component';
 
 const client = new PAIV2.OpenPAIClient({
-  rest_server_uri: config.restServerUri.startsWith('http')
-    ? config.restServerUri
-    : `${window.location.host}/${config.restServerUri}`,
+  rest_server_uri: new URL(config.restServerUri, window.location.host),
   username: cookies.get('user'),
   token: checkToken(),
   https: window.location.protocol === 'https:',

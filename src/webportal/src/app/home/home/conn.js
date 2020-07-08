@@ -9,9 +9,7 @@ const username = cookies.get('user');
 const token = cookies.get('token');
 
 const client = new PAIV2.OpenPAIClient({
-  rest_server_uri: config.restServerUri.startsWith('http')
-    ? config.restServerUri
-    : `${window.location.host}/${config.restServerUri}`,
+  rest_server_uri: new URL(config.restServerUri, window.location.host),
   username: username,
   token: token,
   https: window.location.protocol === 'https:',
