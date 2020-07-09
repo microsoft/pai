@@ -43,7 +43,7 @@ const userLogout = (origin = window.location.href) => {
       );
     }
   } else {
-    location.href = webportalConfig.restServerUri + '/api/v1/authn/oidc/logout';
+    location.href = webportalConfig.restServerUri + '/api/v2/authn/oidc/logout';
   }
 };
 
