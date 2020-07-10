@@ -1,17 +1,5 @@
 # Use Marketplace
 
-1. [Quick Start](./quick-start.md)
-2. [Docker Images and Job Examples](./docker-images-and-job-examples.md)
-3. [How to Manage Data](./how-to-manage-data.md)
-4. [How to Debug Jobs](./how-to-debug-jobs.md)
-5. [Advanced Jobs](./advanced-jobs.md)
-6. [Use Marketplace](./use-marketplace.md) (this document)
-    - [Entrance](#entrance)
-    - [Use Templates on Marketplace](#use-templates-on-marketplace)
-    - [Create your Own Templates](#create-your-own-templates)
-7. [Use VSCode Extension](./use-vscode-extension.md)
-8. [Use Jupyter Notebook Extension](./use-jupyter-notebook-extension.md)
-
 [OpenPAI Marketplace](https://github.com/microsoft/openpaimarketplace) can store job examples and templates. You can use marketplace to run-and-learn others' sharing jobs or share your own jobs.
 
 ## Entrance

@@ -1,19 +1,5 @@
 # Work with Docker Images
 
-1. [Quick Start](./quick-start.md)
-2. [Docker Images and Job Examples](./docker-images-and-job-examples.md) (this document)
-    - [Introduction to Pre-built Docker Images](#introduction-to-pre-built-docker-images)
-    - [Job Examples based on Pre-built Images](#job-examples-based-on-pre-built-images)
-    - [Use Your Own Custom Image](#use-your-own-custom-image)
-    - [How to use Images from Private Registry](#how-to-use-images-from-private-registry)
-3. [How to Manage Data](./how-to-manage-data.md)
-4. [How to Debug Jobs](./how-to-debug-jobs.md)
-5. [Advanced Jobs](./advanced-jobs.md)
-6. [Use Marketplace](./use-marketplace.md)
-7. [Use VSCode Extension](./use-vscode-extension.md)
-8. [Use Jupyter Notebook Extension](./use-jupyter-notebook-extension.md)
-
-
 OpenPAI uses [Docker](https://www.docker.com/why-docker) to provide consistent and independent environments. With Docker, OpenPAI can serve multiple job requests on the same server. The job environment depends significantly on the docker image you select.
 
 ## Introduction to Pre-built Docker Images

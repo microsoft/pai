@@ -1,20 +1,5 @@
 # Basic Management Operations
 
-1. [Installation Guide](./installation-guide.md)
-2. [Installation FAQs and Troubleshooting](./installation-faqs-and-troubleshooting.md)
-3. [Basic Management Operations](./basic-management-operations.md) (this document)
-    - [Management on Webportal](#management-on-webportal)
-    - [PAI Service Management and Paictl](#pai-service-management-and-paictl)
-4. [How to Manage Users and Groups](./how-to-manage-users-and-groups.md)
-5. [How to Set Up Storage](./how-to-set-up-storage.md)
-6. [How to Set Up Virtual Clusters](./how-to-set-up-virtual-clusters.md)
-7. [How to Add and Remove Nodes](./how-to-add-and-remove-nodes.md)
-8. [How to use CPU Nodes](./how-to-use-cpu-nodes.md)
-9. [How to Customize Cluster by Plugins](./how-to-customize-cluster-by-plugins.md)
-10. [Troubleshooting](./troubleshooting.md)
-11. [How to Uninstall OpenPAI](./how-to-uninstall-openpai.md)
-12. [Upgrade Guide](./upgrade-guide.md)
-
 ## Management on Webportal
 
 The webportal provides some basic administration functions. If you log in to it as an administrator, you will find several buttons about administration on the left sidebar, as shown in the following image.
@@ -40,7 +25,7 @@ The services page shows OpenPAI services deployed in Kubernetes. These services 
 
 The user management page lets you create, modify, and delete users. Users have two types: non-admin users and admin users. You can choose which type to create. This page only shows up when OpenPAI is deployed in basic authentication mode, which is the default mode. If your cluster uses [AAD](./how-to-manage-users-and-groups.md#users-and-groups-in-aad-mode) to manage users, this page won't be available to you.
 
-   <img src="./imgs/services.png" width="100%" height="100%" />
+   <img src="./imgs/user-management.png" width="100%" height="100%" />
 
 
 ### Abnormal Jobs

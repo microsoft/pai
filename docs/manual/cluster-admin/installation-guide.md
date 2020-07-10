@@ -1,21 +1,5 @@
 # Installation Guide
 
-1. [Installation Guide](./installation-guide.md) (this document)
-    - [Installation Requirements](#installation-requirements)
-    - [Installation From Scratch](#installation-from-scratch)
-    - [Clean Previous Deployment](#clean-previous-deployment)
-2. [Installation FAQs and Troubleshooting](./installation-faqs-and-troubleshooting.md)
-3. [Basic Management Operations](./basic-management-operations.md)
-4. [How to Manage Users and Groups](./how-to-manage-users-and-groups.md)
-5. [How to Set Up Storage](./how-to-set-up-storage.md)
-6. [How to Set Up Virtual Clusters](./how-to-set-up-virtual-clusters.md)
-7. [How to Add and Remove Nodes](./how-to-add-and-remove-nodes.md)
-8. [How to use CPU Nodes](./how-to-use-cpu-nodes.md)
-9. [How to Customize Cluster by Plugins](./how-to-customize-cluster-by-plugins.md)
-10. [Troubleshooting](./troubleshooting.md)
-11. [How to Uninstall OpenPAI](./how-to-uninstall-openpai.md)
-12. [Upgrade Guide](./upgrade-guide.md)
-
 The architecture of OpenPAI has been updated and optimized in `v1.0.0`. Before `v1.0.0`, OpenPAI was based on Yarn and Kubernetes, and data was managed by HDFS. Since `v1.0.0`, OpenPAI has switched to a pure Kubernetes-based architecture. Many new features, such as `AAD authorization`, `Hivedscheduler`, `Kube Runtime`, `Marketplace`, etc., are also included. If you still want to install the old Yarn-based OpenPAI, please stay with `v0.14.0`.
 
 To install OpenPAI >= `v1.0.0`, please first check [Installation Requirements](#installation-requirements). Then, if you don't have older version OpenPAI installed, please follow [Installation From Scratch](#installation-from-scratch). Otherwise, please first follow [Clean Previous Deployment](#clean-previous-deployment), then follow [Installation From Scratch](#installation-from-scratch).
@@ -79,6 +63,10 @@ Besides the requirements above, this installation script also requires that **al
 ### Create Configurations
 
 After you have decided all of the machines, please create a `master.csv`, a `worker.csv`, and a `config` file on the **dev box machine**. The files represent master machine list, worker machine list, and a customized configuration, respectively. The following is the format and example of these 3 files.
+
+#### Tips for Chinese Users
+
+If you are deploying OpenPAI in mainland China, before you create these files, please refer to [here](./configuration-for-china.md) first.
 
 ###### `master.csv` format
 

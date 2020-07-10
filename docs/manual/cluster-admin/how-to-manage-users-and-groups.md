@@ -1,21 +1,5 @@
 # How to Manage Users and Groups
 
-1. [Installation Guide](./installation-guide.md)
-2. [Installation FAQs and Troubleshooting](./installation-faqs-and-troubleshooting.md)
-3. [Basic Management Operations](./basic-management-operations.md)
-4. [How to Manage Users and Groups](./how-to-manage-users-and-groups.md) (this document)
-    - [Users and Groups in Basic Authentication Mode](#users-and-groups-in-basic-authentication-mode)
-    - [Users and Groups in AAD Mode](#users-and-groups-in-aad-mode)
-5. [How to Set Up Storage](./how-to-set-up-storage.md)
-6. [How to Set Up Virtual Clusters](./how-to-set-up-virtual-clusters.md)
-7. [How to Add and Remove Nodes](./how-to-add-and-remove-nodes.md)
-8. [How to use CPU Nodes](./how-to-use-cpu-nodes.md)
-9. [How to Customize Cluster by Plugins](./how-to-customize-cluster-by-plugins.md)
-10. [Troubleshooting](./troubleshooting.md)
-11. [How to Uninstall OpenPAI](./how-to-uninstall-openpai.md)
-12. [Upgrade Guide](./upgrade-guide.md)
-
-
 ## Users and Groups in Basic Authentication Mode
 
 OpenPAI is deployed in basic authentication mode by default. Groups in basic authentication mode are bound to virtual clusters (please refer to [how to set up virtual clusters](./how-to-set-up-virtual-clusters.md) to configure virtual clusters). Two groups, `default` and `admingroup` will be created once OpenPAI is deployed. All users belong to `default` group, and have access to the `default` virtual cluster. All administrators belong to `admingroup`, and have access to all virtual clusters. If there is another virtual cluster named `test-vc`, and an administrator grants it to a user, the user will be in group `test-vc` and have access to the corresponding virtual cluster.
@@ -78,7 +62,7 @@ openssl x509 -req -days 3650 -in $DOMAIN.csr -signkey $DOMAIN.key -out $DOMAIN.c
 You should get the following 4 files in your current path
 
 <div  align="center">
-<img src="https://raw.githubusercontent.com/microsoft/pai/master/docs/aad-e2e/image/openssl_result.png" alt="paictl overview picture" style="float: center; margin-right: 10px;" />
+<img src="./imgs/aad/openssl_result.png" alt="paictl overview picture" style="float: center; margin-right: 10px;" />
 </div>
 
 ##### 6. Configure pylon
@@ -105,45 +89,45 @@ pylon:
 - Azure Acive Directory -> App registrations -> New registration
 
 <div  align="center">
-<img src="https://raw.githubusercontent.com/microsoft/pai/master/docs/aad-e2e/image/openssl_result.png" alt="paictl overview picture" style="float: center; margin-right: 10px;" />
+<img src="./imgs/aad/openssl_result.png" alt="paictl overview picture" style="float: center; margin-right: 10px;" />
 </div>
 
 - Set a name for your APP, and then finish the registration
 
 <div  align="center">
-<img src="https://raw.githubusercontent.com/microsoft/pai/master/docs/aad-e2e/image/aad_app_reg.png" alt="paictl overview picture" style="float: center; margin-right: 10px;" />
+<img src="./imgs/aad/aad_app_reg.png" alt="paictl overview picture" style="float: center; margin-right: 10px;" />
 </div>
 
 - Find the app registered just now
 
 <div  align="center">
-<img src="https://raw.githubusercontent.com/microsoft/pai/master/docs/aad-e2e/image/aad_registered.png" alt="paictl overview picture" style="float: center; margin-right: 10px;" />
+<img src="./imgs/aad/aad_registered.png" alt="paictl overview picture" style="float: center; margin-right: 10px;" />
 </div>
 
 - Open the app -> Authentication, and then configure the redirect URIs for OpenPAI. The redirect URIs should be ```https://pylon_address/rest-server/api/v1/authn/oidc/return```
 
 <div  align="center">
-<img src="https://raw.githubusercontent.com/microsoft/pai/master/docs/aad-e2e/image/redirect_uri.png" alt="paictl overview picture" style="float: center; margin-right: 10px;" />
+<img src="./imgs/aad/redirect_uri.png" alt="paictl overview picture" style="float: center; margin-right: 10px;" />
 </div>
 
 - open the app -> Certificates & secrets, and then create a new client secret. Mark the secret value as ```${secret_value}```
 
 <div  align="center">
-<img src="https://raw.githubusercontent.com/microsoft/pai/master/docs/aad-e2e/image/cert_secret.png" alt="paictl overview picture" style="float: center; margin-right: 10px;" />
+<img src="./imgs/aad/cert_secret.png" alt="paictl overview picture" style="float: center; margin-right: 10px;" />
 </div>
 
 <div  align="center">
-<img src="https://raw.githubusercontent.com/microsoft/pai/master/docs/aad-e2e/image/add_a_client_secret.png" alt="paictl overview picture" style="float: center; margin-right: 10px;" />
+<img src="./imgs/aad/add_a_client_secret.png" alt="paictl overview picture" style="float: center; margin-right: 10px;" />
 </div>
 
 <div  align="center">
-<img src="https://raw.githubusercontent.com/microsoft/pai/master/docs/aad-e2e/image/secret_value.png" alt="paictl overview picture" style="float: center; margin-right: 10px;" />
+<img src="./imgs/aad/secret_value.png" alt="paictl overview picture" style="float: center; margin-right: 10px;" />
 </div>
 
 - open the app -> API permissions, pls add the permission in the picture following. If the azure active directly is created by yourself and you will manage the group and user info by yourself, you could grant the permission by yourself. Or you should apply the permission through your aad's admin.
 
 <div  align="center">
-<img src="https://raw.githubusercontent.com/microsoft/pai/master/docs/aad-e2e/image/api_permissions.png" alt="paictl overview picture" style="float: center; margin-right: 10px;" />
+<img src="./imgs/aad/api_permissions.png" alt="paictl overview picture" style="float: center; margin-right: 10px;" />
 </div>
 
 - open the app -> quickstart, then get the following value:
@@ -152,7 +136,7 @@ pylon:
     - In the endpoints' view, you will find the OpenID Connect metadata document and mark it as ```${well_known}```
 
 <div  align="center">
-<img src="https://raw.githubusercontent.com/microsoft/pai/master/docs/aad-e2e/image/quick_start.png" alt="paictl overview picture" style="float: center; margin-right: 10px;" />
+<img src="./imgs/aad/quick_start.png" alt="paictl overview picture" style="float: center; margin-right: 10px;" />
 </div>
 
 ##### Configure authentication part in services-configuration.yaml
@@ -231,32 +215,32 @@ After start rest-server, please ensure that the following task is successfully e
 - namespace named ```pai-group``` and ```pai-user-v2```are created
 
 <div  align="center">
-<img src="https://raw.githubusercontent.com/microsoft/pai/master/docs/aad-e2e/image/dashboard-ns.png" alt="paictl overview picture" style="float: center; margin-right: 10px;" />
+<img src="./imgs/aad/dashboard-ns.png" alt="paictl overview picture" style="float: center; margin-right: 10px;" />
 </div>
 
 - The group in your configuration is created, in the secret of ```pai-group``` namespace.
 
 <div  align="center">
-<img src="https://raw.githubusercontent.com/microsoft/pai/master/docs/aad-e2e/image/group-created.png" alt="paictl overview picture" style="float: center; margin-right: 10px;" />
+<img src="./imgs/aad/group-created.png" alt="paictl overview picture" style="float: center; margin-right: 10px;" />
 </div>
 
 - Every group have an `acls` in extension field.
 
 <div  align="center">
-<img src="https://raw.githubusercontent.com/microsoft/pai/master/docs/aad-e2e/image/admin_group_detail.png" alt="paictl overview picture" style="float: center; margin-right: 10px;" />
-<img src="https://raw.githubusercontent.com/microsoft/pai/master/docs/aad-e2e/image/default_group_detail.png" alt="paictl overview picture" style="float: center; margin-right: 10px;" />
+<img src="./imgs/aad/admin_group_detail.png" alt="paictl overview picture" style="float: center; margin-right: 10px;" />
+<img src="./imgs/aad/default_group_detail.png" alt="paictl overview picture" style="float: center; margin-right: 10px;" />
 </div>
 
 - Please Login through OpenPAI's webportal, then please check whether your user's data is created in the secret of ```pai-user-v2``` namespace.
 
 <div  align="center">
-<img src="https://raw.githubusercontent.com/microsoft/pai/master/docs/aad-e2e/image/user_created.png" alt="paictl overview picture" style="float: center; margin-right: 10px;" />
+<img src="./imgs/aad/user_created.png" alt="paictl overview picture" style="float: center; margin-right: 10px;" />
 </div>
 
 - please check the created user data. There should be an empty extension and a non-empty grouplist.
 
 <div  align="center">
-<img src="https://raw.githubusercontent.com/microsoft/pai/master/docs/aad-e2e/image/user_detail.png" alt="paictl overview picture" style="float: center; margin-right: 10px;" />
+<img src="./imgs/aad/user_detail.png" alt="paictl overview picture" style="float: center; margin-right: 10px;" />
 </div>
 
 - please submit a test job in default vc, and then submit the same job to another vc.
@@ -264,35 +248,35 @@ After start rest-server, please ensure that the following task is successfully e
 - please check whether admin user can access to the administration tab.
 
 <div  align="center">
-<img src="https://raw.githubusercontent.com/microsoft/pai/master/docs/aad-e2e/image/admin_view.png" alt="paictl overview picture" style="float: center; margin-right: 10px;" />
+<img src="./imgs/aad/admin_view.png" alt="paictl overview picture" style="float: center; margin-right: 10px;" />
 </div>
 
 - please create a vc, then check whether a corresponding group is created.
 
 <div  align="center">
-<img src="https://raw.githubusercontent.com/microsoft/pai/master/docs/aad-e2e/image/add_vc.png" alt="paictl overview picture" style="float: center; margin-right: 10px;" />
+<img src="./imgs/aad/add_vc.png" alt="paictl overview picture" style="float: center; margin-right: 10px;" />
 </div>
 
 <div  align="center">
-<img src="https://raw.githubusercontent.com/microsoft/pai/master/docs/aad-e2e/image/test_group_detail.png" alt="paictl overview picture" style="float: center; margin-right: 10px;" />
+<img src="./imgs/aad/test_group_detail.png" alt="paictl overview picture" style="float: center; margin-right: 10px;" />
 </div>
 
 - After creating the new vc, please check whether the new vc is available for admin at home page.
 
 <div  align="center">
-<img src="https://raw.githubusercontent.com/microsoft/pai/master/docs/aad-e2e/image/admin_home.png" alt="paictl overview picture" style="float: center; margin-right: 10px;" />
+<img src="./imgs/aad/admin_home.png" alt="paictl overview picture" style="float: center; margin-right: 10px;" />
 </div>
 
 - Delete the test vc, then please check whether the corresponding group is deleted.
 
 <div  align="center">
-<img src="https://raw.githubusercontent.com/microsoft/pai/master/docs/aad-e2e/image/vc_delete.png" alt="paictl overview picture" style="float: center; margin-right: 10px;" />
+<img src="./imgs/aad/vc_delete.png" alt="paictl overview picture" style="float: center; margin-right: 10px;" />
 </div>
 
 - After deleting the vc, please check whether the group is removed from `pai-group` secrets.
 
 <div  align="center">
-<img src="https://raw.githubusercontent.com/microsoft/pai/master/docs/aad-e2e/image/group_delete.png" alt="paictl overview picture" style="float: center; margin-right: 10px;" />
+<img src="./imgs/aad/group_delete.png" alt="paictl overview picture" style="float: center; margin-right: 10px;" />
 </div>
 
 ##### If test failed
