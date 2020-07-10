@@ -131,7 +131,7 @@ export const TeamStorage = ({
       onRender: item => {
         return (
           <div className={FontClassNames.medium}>
-            <div key={item.name + 'per'}>RW</div>
+            <div key={item.name + 'per'}>{item.readOnly ? 'RO' : 'RW'}</div>
           </div>
         );
       },

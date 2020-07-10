@@ -80,7 +80,7 @@ export default function TeamDetail({ isOpen = false, config, hide }) {
       onRender: item => {
         return (
           <div className={FontClassNames.small}>
-            {get(item, 'permission', 'rw')}
+            {get(item, 'permission', item.readOnly ? 'ro' : 'rw')}
           </div>
         );
       },
