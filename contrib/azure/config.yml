@@ -1,0 +1,36 @@
+subscription_id: ${subscriptionId}
+resource_group_name: ${resourcegroup}
+location: ${location}
+
+
+kube_master_as:
+  ## OpenPAI scheduler only supports 1 master cluster.
+  #count: 1
+  vm_size: Standard_D8_v3
+  # storage_profile: ManagedDisks
+  # os_disk_size_gb: 1024
+
+openpai_master_vmss:
+  vm_size: Standard_NC12
+
+openpai_worker_vmss:
+  count: 1
+  vm_size: Standard_NC12
+
+  # osDiskSizeGB: 1024
+
+  scale_set_priority: default
+  ## when scale_set_priority is spot
+  # scale_set_eviction_policy: Deallocate
+
+linux_profile:
+  adminUsername: azureuser
+  publicKeys: "${key content}"
+
+openpai_config:
+  docker_image_tag: tag
+  docker_registry_domain: docker.io
+  docker_registry_namespace: openpai
+  #docker_registry_username: exampleuser
+  #docker_registry_password: examplepasswd
+

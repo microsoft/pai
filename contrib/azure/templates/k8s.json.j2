@@ -1,0 +1,93 @@
+{
+    "apiVersion": "vlabs",
+    "properties": {
+      "orchestratorProfile": {
+        "orchestratorType": "Kubernetes",
+        "orchestratorVersion": "1.15.12",
+        "kubernetesConfig": {
+            "containerRuntime": "docker",
+            "enableRbac": true,
+            "loadBalancerSku": "basic",
+            "containerRuntimeConfig": {
+                "dataDir": "/mnt/docker"
+            },
+            "addons": [
+                {
+                    "name": "kubernetes-dashboard",
+                    "enabled": false
+                },
+                {
+                    "name": "cluster-autoscaler",
+                    "enabled": false,
+                },
+                {
+                    "name": "nvidia-device-plugin",
+                    "enabled": true
+                }
+            ],
+            "kubeletConfig": {
+                "--node-status-update-frequency": "1m"
+            },
+            "apiServerConfig": {
+                "--cors-allowed-origins": ".*",
+                "--storage-media-type": "application/json",
+                "--max-requests-inflight": "1500",
+                "--max-mutating-requests-inflight": "500"
+            },
+            "controllerManagerConfig": {
+                "--node-monitor-grace-period": "5m",
+                "--pod-eviction-timeout": "1m",
+                "--route-reconciliation-period": "1m",
+                "--large-cluster-size-threshold": "0",
+                "--secondary-node-eviction-rate": "0.05"
+            }
+        }
+      },
+      "masterProfile": {
+            "distro": "aks-ubuntu-18.04",
+            "count": 1,
+            "dnsPrefix": "",
+            "vmSize": "Standard_D8_v3"
+      },
+      "agentPoolProfiles": [
+        {
+            "name": "agentpool1",
+            "count": 1,
+            "distro": "aks-ubuntu-18.04",
+            "availabilityProfile": "VirtualMachineScaleSets",
+            "singlePlacementGroup": false,
+            "scaleSetPriority": "Spot",
+            "scaleSetEvictionPolicy": "Deallocate",
+            "customNodeLabels": {
+                "pai-worker": "true"
+            },
+            "vmSize": "Standard_NC12"
+        },
+        {
+            "name": "pylon",
+            "count": 1,
+            "distro": "aks-ubuntu-18.04",
+            "availabilityProfile": "VirtualMachineScaleSets",
+            "customNodeLabels": {
+                "pai-master": "true"
+            },
+            "vmSize": "Standard_D8_v3",
+            "enableVMSSNodePublicIP": true
+        }
+      ],
+      "linuxProfile": {
+        "adminUsername": "azureuser",
+        "ssh": {
+          "publicKeys": [
+            {
+              "keyData": "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQC6pb0CoRLFmTNtWRioWzzQvNZRKlSr43bodAwfcmkE/KMZL7i3oUVnvCBxirPwSwKlJl3wmyVkaokg50h9Vy5mgHPqL6rf4UNNHoqNknwWcJ9b3mwgwIGwPRhHbfAh58S3U3ke4SzebXJSDt3EKh71Ip+dOPhb6VNYobflVPjMbuGqt5gZn3H9StGZ9HlOx9Gcf9yHTlbOYXddLpFDmVko0TFTJBYlF/+qcg12gwIxuZefrcrFPa8aMZlVV1vPdPwzfDXZg862+VOsZWasI4+PYKV07PPEfVPqt+Swu18L2gilio4TuWrJt6lfaSVECiUCFcfk65ft2dC8ShUItiXv yuye@stcal-190"
+            }
+          ]
+        }
+      },
+      "servicePrincipalProfile": {
+        "clientId": "0bdf84a3-69cf-44bf-839d-4ef225dcca0d",
+        "secret": "d25f4905-e9a5-4e68-a59f-432a1dae5968"
+      }
+    }
+}
