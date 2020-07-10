@@ -1,0 +1,18 @@
+---
+- name: Set Locust Base Dir
+  set_fact:
+    locust_base_dir: "{{ playbook_dir }}/.locust/"
+
+- name: Generate template files in Locust Base Dir
+  template:
+    src: master.yml
+    dest: "{{ locust_base_dir }}/master.yml"
+
+- name: Generate template files in Locust Base Dir
+  template:
+    src: start-master.sh
+    dest: "{{ locust_base_dir }}/start-master.sh"
+    mode: '0777'
+
+- name: Create Locust Master
+  command: "/bin/bash {{ locust_base_dir }}/start-master.sh"

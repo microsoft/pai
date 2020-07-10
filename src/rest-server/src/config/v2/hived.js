@@ -42,7 +42,7 @@ const hivedSchema = {
                       type: ['string', 'null'],
                       default: null,
                     },
-                    reservationId: {
+                    pinnedCellId: {
                       type: ['string', 'null'],
                       default: null,
                     },

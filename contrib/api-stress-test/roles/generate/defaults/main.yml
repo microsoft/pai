@@ -1,0 +1,19 @@
+vk_per_host: 100
+stress_vk_proportion: 0.5
+vk_host_numbers: "{{ groups['virtual-kubelet'] |length }}"
+
+stress_vk_per_host: "{{ (vk_per_host * stress_vk_proportion) |int }}"
+default_vk_per_host: "{{ vk_per_host - stress_vk_per_host |int }}"
+
+defaulvc_numbers: "{{ stress_vk_per_host |int * vk_host_numbers |int }}"
+stressvc_numbers: "{{ default_vk_per_host |int * vk_host_numbers |int }}"
+
+pylon_domain: "{{ hostvars[groups['kube-master'][0]].ansible_host }}"
+
+docker_registry_namespace: openpai
+docker_registry_domain: docker.io
+docker_registry_tag: stresstest
+#docker_registry_username: example
+#docker_registry_password: example
+
+

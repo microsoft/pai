@@ -1,0 +1,49 @@
+---
+- hosts: localhost
+  gather_facts: False
+  tasks:
+    - name: setup
+      setup:
+
+    - name: set ansible control host IP fact
+      set_fact:
+        local_home_path: "{{ hostvars[inventory_hostname]['ansible_env']['HOME'] }}"
+
+- hosts: virtual-kubelet
+  become: true
+  become_user: root
+  gather_facts: True
+  roles:
+    - {role: virtual-kubelet/remove}
+
+- hosts: localhost
+  gather_facts: False
+  roles:
+    - {role: virtual-kubelet/remove-local}
+
+- hosts: localhost
+  gather_facts: True
+  roles:
+    - {role: locust/remove}
+
+- hosts: localhost
+  gather_facts: True
+  roles:
+    - {role: openpai/remove}
+
+- hosts: localhost
+  gather_facts: False
+  tasks:
+    - name: Delete Generated File
+      become: ture
+      become_user: root
+      file:
+        path: "{{ item }}"
+        state: absent
+      with_items:
+        - "{{ playbook_dir }}/.generated/"
+        - "{{ playbook_dir }}/.virtual-kubelet/"
+        - "{{ playbook_dir }}/.output/"
+        - "{{ playbook_dir }}/.locust/"
+        - "{{ playbook_dir }}/openpai.sh"
+        - "{{ playbook_dir }}/build.sh"

@@ -46,6 +46,7 @@ RUN apt-get -y update && \
       openssh-server \
       openssh-client \
       git \
+      parallel \
       subversion \
       bash-completion \
       inotify-tools \

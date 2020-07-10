@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
 import React, { useCallback, useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { Stack } from 'office-ui-fabric-react';
@@ -15,11 +18,7 @@ import {
   getStoragePlugin,
 } from '../../utils/utils';
 import { MountDirectories } from '../../models/data/mount-directories';
-import {
-  listUserStorageConfigs,
-  fetchStorageConfigs,
-  fetchStorageServers,
-} from '../../utils/conn';
+import { listUserStorageConfigs, fetchStorageDetails } from '../../utils/conn';
 import config from '../../../config/webportal.config';
 import { JobData } from '../../models/data/job-data';
 import { Hint } from '../sidebar/hint';
@@ -119,29 +118,9 @@ export const DataComponent = React.memo(props => {
     const initialize = async () => {
       try {
         const userConfigNames = await listUserStorageConfigs(user);
-        const storageConfigs = await fetchStorageConfigs(userConfigNames);
-        let serverNames = new Set();
-        for (const config of storageConfigs) {
-          if (config.mountInfos === undefined) continue;
-          for (const mountInfo of config.mountInfos) {
-            serverNames = serverNames.add(mountInfo.server);
-          }
-        }
-
-        const rawStorageServers = await fetchStorageServers([...serverNames]);
-        const storageServers = [];
-        for (const rawServer of rawStorageServers) {
-          const server = {
-            spn: rawServer.spn,
-            type: rawServer.type,
-            ...rawServer.data,
-            extension: rawServer.extension,
-          };
-          storageServers.push(server);
-        }
+        const storageDetails = await fetchStorageDetails(userConfigNames);
         setTeamStorageConfig({
-          storageServers: storageServers,
-          storageConfigs: storageConfigs,
+          storageDetails: storageDetails,
         });
       } catch {}
     };
@@ -154,7 +133,7 @@ export const DataComponent = React.memo(props => {
 
     const selectedTeamStorageConfigs = getValidStorageConfigs(
       extras,
-      teamStorageConfig.storageConfigs,
+      teamStorageConfig.storageDetails,
     );
 
     const user = cookies.get('user');
@@ -162,7 +141,7 @@ export const DataComponent = React.memo(props => {
       user,
       props.jobName,
       selectedTeamStorageConfigs,
-      teamStorageConfig.storageServers,
+      teamStorageConfig.storageDetails,
     );
 
     setJobData(jobData => {
@@ -231,7 +210,7 @@ export const DataComponent = React.memo(props => {
           </Hint>
           {!isEmpty(teamStorageConfig) && (
             <TeamStorage
-              teamStorageConfigs={teamStorageConfig.storageConfigs}
+              teamStorageConfigs={teamStorageConfig.storageDetails}
               mountDirs={jobData.mountDirs}
               onMountDirChange={onMountDirChange}
             />

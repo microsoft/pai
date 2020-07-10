@@ -1,0 +1,24 @@
+- name: stop virtual-kubelet
+  systemd:
+    name: virtual-kubelet
+    state: stopped
+    enabled: no
+
+- name: "remove virtual-kubelet.service"
+  command: "rm -rf /etc/systemd/system/virtual-kubelet.service"
+
+- name: "remove /etc/virtual-kubelet"
+  command: "rm -rf /etc/virtual-kubelet"
+
+- name: "remove /usr/bin/virtual-kubelet.sh"
+  command: "rm -rf /usr/bin/virtual-kubelet.sh"
+
+- name: "remove /usr/bin/virtual-kubelet"
+  command: "rm -rf /usr/bin/virtual-kubelet"
+
+- name: just force systemd to reread configs
+  systemd:
+    daemon_reload: yes
+
+- name: make sure Collector service is really running
+  command: systemctl reset-failed

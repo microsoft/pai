@@ -1,0 +1,101 @@
+cluster:
+  common:
+    cluster-id: pai
+    cluster-type: k8s
+    k8s-rbac: "true"
+    job-history: "true"
+    data-path: "/datastorage"
+    qos-switch: "false"
+    docker-data-root: "/mnt/docker"
+  docker-registry:
+    namespace: {{ docker_registry_namespace }}
+    domain: {{ docker_registry_domain }}
+    tag: {{ docker_registry_tag }}
+    secret-name: pai-stresstest
+{% if docker_registry_username is defined %}
+    username: {{ docker_registry_username }}
+{% endif %}
+{% if docker_registry_password is defined %}
+    password: {{ docker_registry_password }}
+{% endif %}
+
+rest-server:
+  default-pai-admin-username: stress
+  default-pai-admin-password: stress1234
+
+webportal:
+  server-port: 9286
+
+internal-storage:
+  enable: true
+
+postgresql:
+  enable: true
+
+hivedscheduler:
+  config: |
+    physicalCluster:
+      skuTypes:
+        DT:
+          cpu: 1
+          memory: 1000Mi
+      cellTypes:
+        DT-NODE:
+          childCellType: DT
+          childCellNumber: 20
+          isNodeLevel: true
+        DT-NODE-POOL:
+          childCellType: DT-NODE
+          childCellNumber: {{ vk_per_host * vk_host_numbers |int }}
+      physicalCells:
+      - cellType: DT-NODE-POOL
+        cellChildren:
+{% for host in groups['virtual-kubelet'] %}
+{% for id in range(vk_per_host) %}
+        - cellAddress: {{hostvars[host].inventory_hostname }}-{{id}}
+{% endfor %}
+{% endfor %}
+    virtualClusters:
+      default:
+        virtualCells:
+        - cellType: DT-NODE-POOL.DT-NODE
+          cellNumber: {{ defaulvc_numbers }}
+      stress:
+        virtualCells:
+        - cellType: DT-NODE-POOL.DT-NODE
+          cellNumber: {{ stressvc_numbers }}
+
+
+authentication:
+  OIDC: false
+  group-manager:
+    group-data-source: basic
+
+    admin-group:
+      groupname: admingroup
+      description: "admin's group"
+      externalName: ""
+      extension:
+        acls:
+          virtualClusters: []
+          admin: true
+
+    default-group:
+      groupname: default
+      description: "group for default vc"
+      externalName: ""
+      extension:
+        acls:
+          virtualClusters: ["default"]
+          admin: false
+
+pylon:
+  port: 80
+  ssl:
+    crt_name: {{ pylon_domain }}.crt
+    crt_path: /cluster-configuration/{{ pylon_domain }}.crt
+    key_name: {{ pylon_domain }}.key
+    key_path: /cluster-configuration/{{ pylon_domain }}.key
+  uri: https://{{ pylon_domain }}
+  uri-https: https://{{ pylon_domain }}
+  domain: {{ pylon_domain }}

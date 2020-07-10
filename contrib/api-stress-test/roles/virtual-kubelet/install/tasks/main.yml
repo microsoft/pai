@@ -1,0 +1,42 @@
+---
+- name: create virtual-kubelet in /etc
+  file:
+    path: /etc/virtual-kubelet
+    state: directory
+    recurse: yes
+
+- name: copy virtual-kubelet configuration file into /etc/virtual-kubelet
+  copy:
+    src: vk-config.yml
+    dest: /etc/virtual-kubelet/vk-config.yml
+
+- name: copy kubeconfig into /etc/virtual-kubelet
+  copy:
+    src: "{{kube_config_path}}"
+    dest: /etc/virtual-kubelet/kubeconfig
+
+- name: copy script into /usr/bin/
+  template:
+    src: virtual-kubelet.sh
+    dest: /usr/bin/virtual-kubelet.sh
+    mode: '0744'
+
+- name: copy binary into /usr/bin/
+  copy:
+    src: "{{ playbook_dir }}/.output/virtual-kubelet"
+    dest: /usr/bin/virtual-kubelet
+
+- name: copy virtual-kubelet.service into /etc/systemd/syste,
+  copy:
+    src: virtual-kubelet.service
+    dest: /etc/systemd/system/virtual-kubelet.service
+
+- name: just force systemd to reread configs
+  systemd:
+    daemon_reload: yes
+
+- name: enable virtual-kubelet
+  systemd:
+    name: virtual-kubelet
+    state: started
+    enabled: yes
