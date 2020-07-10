@@ -1,0 +1,11 @@
+#!/bin/bash
+
+aks-engine deploy --subscription-id {{cfg["subscription_id"]}} \
+    --dns-prefix {{cfg["dns_prefix"]}} \
+    --resource-group {{cfg["resource_group_name"]}} \
+    --location {{cfg["location"]}} \
+    --api-model .azure_quick_start/k8s.json \
+    --client-id {{cfg["sp_appid"]}} \
+    --client-secret {{cfg["sp_password"}} \
+    --set servicePrincipalProfile.clientId="{{cfg["sp_appid"]}}" \
+    --set servicePrincipalProfile.secret="{{cfg["sp_password"}}"
