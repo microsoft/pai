@@ -28,9 +28,9 @@ async function main () {
       process.env.DB_CONNECTION_STR,
       1
     )
-    /*......*/
+    /* ...... */
     await databaseModel.synchronizeSchema()
-    await new Promise((resolve, reject)=>{
+    await new Promise((resolve, reject) => {
       fs.writeFile('/READY', '', (err) => {
         if (err) {
           reject(err)

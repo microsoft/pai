@@ -17,8 +17,7 @@
 
 require('module-alias/register')
 require('dotenv').config()
-const k8s = require('@kubernetes/client-node')
-const fetch = require('node-fetch');
+const fetch = require('node-fetch')
 const AsyncLock = require('async-lock')
 const logger = require('@dbc/core/logger')
 const { getFrameworkInformer } = require('@dbc/core/k8s')
@@ -26,22 +25,20 @@ const { alwaysRetryDecorator } = require('@dbc/core/util')
 const writeMergerUrl = process.env.WRITE_MERGER_URL
 const lock = new AsyncLock({ maxPending: Number.MAX_SAFE_INTEGER })
 
-
-async function synchronizeFramework(eventType, apiObject) {
+async function synchronizeFramework (eventType, apiObject) {
   const res = await fetch(
     `${writeMergerUrl}/api/v1/frameworks/${apiObject.metadata.name}/watchEvents/${eventType}`,
     {
       method: 'POST',
       body: JSON.stringify(apiObject),
       headers: { 'Content-Type': 'application/json' },
-      timeout: 60000,
+      timeout: 60000
     }
   )
   if (!res.ok) {
     throw new Error(`Request returns a ${res.status} error.`)
   }
 }
-
 
 const eventHandler = (eventType, apiObject) => {
   /*
@@ -59,14 +56,13 @@ const eventHandler = (eventType, apiObject) => {
   )
 }
 
-
 const informer = getFrameworkInformer()
 
-informer.on('add', (apiObject) => {  eventHandler('ADDED', apiObject); });
-informer.on('update', (apiObject) => { eventHandler('MODIFED', apiObject);  });
-informer.on('delete', (apiObject) => { eventHandler('DELETED', apiObject);  });
+informer.on('add', (apiObject) => { eventHandler('ADDED', apiObject) })
+informer.on('update', (apiObject) => { eventHandler('MODIFED', apiObject) })
+informer.on('delete', (apiObject) => { eventHandler('DELETED', apiObject) })
 informer.on('error', (err) => {
-  logger.error(err);
-  process.exit(1);
-});
-informer.start();
+  logger.error(err)
+  process.exit(1)
+})
+informer.start()

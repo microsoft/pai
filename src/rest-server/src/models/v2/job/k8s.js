@@ -705,7 +705,7 @@ const generateFrameworkDescription = (frameworkName, virtualCluster, config, raw
   return frameworkDescription;
 };
 
-const createPriorityClass = async (frameworkName, priority) => {
+const getPriorityClassDef = (frameworkName, priority) => {
   const priorityClass = {
     apiVersion: 'scheduling.k8s.io/v1',
     kind: 'PriorityClass',
@@ -717,24 +717,7 @@ const createPriorityClass = async (frameworkName, priority) => {
     globalDefault: false,
   };
 
-  let response;
-  try {
-    response = await k8sModel.getClient().request({
-      method: 'post',
-      url: launcherConfig.priorityClassesPath(),
-      headers: launcherConfig.requestHeaders,
-      data: priorityClass,
-    });
-  } catch (error) {
-    if (error.response != null) {
-      response = error.response;
-    } else {
-      throw error;
-    }
-  }
-  if (response.status !== status('Created')) {
-    throw createError(response.status, 'UnknownError', response.data.message);
-  }
+  return priorityClass;
 };
 
 const deletePriorityClass = async (frameworkName) => {
@@ -750,7 +733,7 @@ const deletePriorityClass = async (frameworkName) => {
   }
 };
 
-const createDockerSecret = async (frameworkName, auths) => {
+const getDockerSecretDef = (frameworkName, auths) => {
   const cred = {
     auths: {},
   };
@@ -764,12 +747,16 @@ const createDockerSecret = async (frameworkName, auths) => {
       auth: Buffer.from(`${username}:${password}`).toString('base64'),
     };
   }
-  await k8sSecret.create(
-    'default',
-    `${encodeName(frameworkName)}-regcred`,
-    {'.dockerconfigjson': JSON.stringify(cred)},
-    {type: 'kubernetes.io/dockerconfigjson'},
-  );
+  return {
+    apiVersion: 'v1',
+    kind: 'Secret',
+    metadata: {
+      name: `${encodeName(frameworkName)}-regcred`,
+      namespace: 'default'
+    },
+    data: {'.dockerconfigjson': Buffer.from(JSON.stringify(cred)).toString('base64')},
+    type: 'kubernetes.io/dockerconfigjson'
+  }
 };
 
 const patchDockerSecretOwner = async (frameworkName, frameworkUid) => {
@@ -798,15 +785,20 @@ const deleteDockerSecret = async (frameworkName) => {
   }
 };
 
-const createJobConfigSecret = async (frameworkName, secrets) => {
+const getConfigSecretDef = (frameworkName, secrets) => {
   const data = {
-    'secrets.yaml': yaml.safeDump(secrets),
+    'secrets.yaml': Buffer.from(yaml.safeDump(secrets)).toString('base64'),
   };
-  await k8sSecret.create(
-    'default',
-    `${encodeName(frameworkName)}-configcred`,
-    data,
-  );
+  return {
+    apiVersion: 'v1',
+    kind: 'Secret',
+    metadata: {
+      name: `${encodeName(frameworkName)}-configcred`,
+      namespace: 'default'
+    },
+    data: data,
+    type: 'Opaque'
+  }
 };
 
 const patchJobConfigSecretOwner = async (frameworkName, frameworkUid) => {
@@ -949,18 +941,19 @@ const put = async (frameworkName, config, rawConfig) => {
   }
 
   const frameworkDescription = generateFrameworkDescription(frameworkName, virtualCluster, config, rawConfig);
-
+  logger.warn(JSON.stringify(frameworkDescription))
   // generate image pull secret
   const auths = Object.values(config.prerequisites.dockerimage)
     .filter((dockerimage) => dockerimage.auth != null)
     .map((dockerimage) => dockerimage.auth);
-  auths.length && await createDockerSecret(frameworkName, auths);
+  const dockerSecretDef = auths.length ? getDockerSecretDef(frameworkName, auths) : null;
 
   // generate job config secret
-  config.secrets && await createJobConfigSecret(frameworkName, config.secrets);
+  const configSecretDef = config.secrets ? getConfigSecretDef(frameworkName, config.secrets) : null;
 
   // calculate pod priority
   // reference: https://github.com/microsoft/pai/issues/3704
+  let priorityClassDef = null;
   if (launcherConfig.enabledPriorityClass) {
     let jobPriority = 0;
     if (launcherConfig.enabledHived) {
@@ -970,7 +963,7 @@ const put = async (frameworkName, config, rawConfig) => {
     const jobCreationTime = Math.floor(new Date() / 1000) & (Math.pow(2, 23) - 1);
     const podPriority = - (((126 - jobPriority) << 23) + jobCreationTime);
     // create priority class
-    await createPriorityClass(frameworkName, podPriority);
+    priorityClassDef = getPriorityClassDef(frameworkName, podPriority);
   }
 
   // send request to framework controller
@@ -988,30 +981,34 @@ const put = async (frameworkName, config, rawConfig) => {
     response = await axios({
       method: 'post',
       url: launcherConfig.writeMergerUrl + '/api/v1/frameworks',
-      data: frameworkDescription,
+      data: {
+        frameworkDescription: frameworkDescription,
+        configSecretDef: configSecretDef,
+        priorityClassDef: priorityClassDef,
+        dockerSecretDef: dockerSecretDef,
+      },
       headers: {
         'Content-Type': 'application/json'
       }
     })
-
   } catch (error) {
     if (error.response != null) {
       response = error.response;
     } else {
-      // do not await for delete
-      auths.length && deleteDockerSecret(frameworkName);
-      config.secrets && deleteJobConfigSecret(frameworkName);
-      launcherConfig.enabledPriorityClass && deletePriorityClass(frameworkName);
+      // // do not await for delete
+      // auths.length && deleteDockerSecret(frameworkName);
+      // config.secrets && deleteJobConfigSecret(frameworkName);
+      // launcherConfig.enabledPriorityClass && deletePriorityClass(frameworkName);
       throw error;
     }
   }
-  if (response.status !== status('Created')) {
-    // do not await for delete
-    auths.length && deleteDockerSecret(frameworkName);
-    config.secrets && deleteJobConfigSecret(frameworkName);
-    launcherConfig.enabledPriorityClass && deletePriorityClass(frameworkName);
-    throw createError(response.status, 'UnknownError', response.data.message);
-  }
+  // if (response.status !== status('Created')) {
+  //   // do not await for delete
+  //   auths.length && deleteDockerSecret(frameworkName);
+  //   config.secrets && deleteJobConfigSecret(frameworkName);
+  //   launcherConfig.enabledPriorityClass && deletePriorityClass(frameworkName);
+  //   throw createError(response.status, 'UnknownError', response.data.message);
+  // }
   // TO DO: how to handle this? we do not have a uid from db
   // do not await for patch
   // auths.length && patchDockerSecretOwner(frameworkName, response.data.metadata.uid);
@@ -1023,7 +1020,7 @@ const execute = async (frameworkName, executionType) => {
   try {
     response = await axios({
       method: 'put',
-      url: `${launcherConfig.writeMergerUrl}/api/v1/frameworks/${encodeName(frameworkName)}/execution/${executionType.charAt(0)}${executionType.slice(1).toLowerCase()}`,
+      url: `${launcherConfig.writeMergerUrl}/api/v1/frameworks/${encodeName(frameworkName)}/execution/${executionType}`,
       headers: {
         'Content-Type': 'application/json'
       }

@@ -22,11 +22,10 @@ const lock = new AsyncLock({ maxPending: Number.MAX_SAFE_INTEGER })
 const DatabaseModel = require('openpaidbsdk')
 const databaseModel = new DatabaseModel(
   process.env.DB_CONNECTION_STR,
-  parseInt(process.env.MAX_DB_CONNECTION),
+  parseInt(process.env.MAX_DB_CONNECTION)
 )
-const { createFramework, executeFramework } = require('@dbc/core/k8s')
-const {convertFrameworkRequest, convertFrameworkStatus} = require('@dbc/write-merger/util')
-
+const { synchronizeCreateRequest, synchronizeExecuteRequest } = require('@dbc/core/util')
+const { convertFrameworkRequest, convertFrameworkStatus } = require('@dbc/write-merger/util')
 
 /* For error handling, all handlers follow the same structure:
 
@@ -45,12 +44,11 @@ const {convertFrameworkRequest, convertFrameworkStatus} = require('@dbc/write-me
 
 async function ping (req, res, next) {
   try {
-    res.status(200).json({'message': 'ok'})
+    res.status(200).json({ message: 'ok' })
   } catch (err) {
     return next(err)
   }
 }
-
 
 async function frameworkWatchEvents (req, res, next) {
   try {
@@ -58,32 +56,47 @@ async function frameworkWatchEvents (req, res, next) {
       return next(createError(400, 'Cannot find framework name.'))
     }
     await lock.acquire(req.params.name, async () => {
-      const oldFramework = await databaseModel.Framework.findOne({where: {name: req.params.name}})
+      const oldFramework = await databaseModel.Framework.findOne({ where: { name: req.params.name } })
       const watchedFramework = req.body
+      // database doesn't have the corresponding framework.
       if (!oldFramework) {
-        // TO DO: If recover mode/upgrade, tolerate 404 error and create framework in database
-        throw createError(404, `Cannot find framework ${req.params.name}.`)
-      }
-      // update framework according to watched events
-      let toUpdate
-      if (watchedFramework === '') {
-        // TO DO: if watchedFramework === '', it will be considered as a fake deletion request from db poller
-        // should mark synced=true and fake a completion status
-      } else {
-        toUpdate = convertFrameworkStatus(watchedFramework)
-        if (watchedFramework.spec.executionType !== oldFramework.executionType) {
-          // oldFramework.executionType is ground truth.
-          // In this case, we can confirm watchedFramework.spec.executionType is outdated.
-          // So we can safely ignore it to keep consistence (different executionType in snapshot and exectionType field)
-          // Information will be synced in future with correct executionType.
+        if (watchedFramework !== '') {
+          // If database doesn't have the corresponding framework,
+          // tolerate the error and create framework in database.
+          // This happens during upgrade/recovery.
+          const frameworkRequest = convertFrameworkRequest(watchedFramework)
+          const frameworkStatus = convertFrameworkStatus(watchedFramework)
+          // merge framework request and framework status
+          const framework = Object.assign({}, frameworkRequest, frameworkStatus)
+          framework.requestSynced = true
+          await databaseModel.Framework.create(framework)
           return
         } else {
-          toUpdate.requestSynced = true
+          throw createError(404, `Cannot find framework ${req.params.name}.`)
         }
       }
-      await databaseModel.Framework.update(toUpdate, {where: {name: req.params.name}})
+      // Database has the corresponding framework.
+      // Update framework according to watched events, and mark requestSynced = true.
+      const toUpdate = convertFrameworkStatus(watchedFramework)
+      if (watchedFramework.spec.executionType !== oldFramework.executionType) {
+        // Because oldFramework.executionType is ground truth,
+        // in this case, we can confirm watchedFramework.spec.executionType is outdated.
+        // So we can safely ignore it to keep consistence.
+        // Information will be synced in future with correct executionType.
+        logger.warn(`Ignore watched event because executionType in database is ${oldFramework.executionType}, ` +
+          `but ${watchedFramework.spec.executionType} is received.`
+        )
+        return
+      } else {
+        toUpdate.requestSynced = true
+      }
+      if (req.params.eventType === 'DELETED') {
+        toUpdate.apiServerDeleted = true
+        logger.info(JSON.stringify(watchedFramework))
+      }
+      await databaseModel.Framework.update(toUpdate, { where: { name: req.params.name } })
     })
-    res.status(200).json({'message': 'ok'})
+    res.status(200).json({ message: 'ok' })
   } catch (err) {
     return next(err)
   }
@@ -91,21 +104,30 @@ async function frameworkWatchEvents (req, res, next) {
 
 async function requestCreateFramework (req, res, next) {
   try {
-    const frameworkDescription = req.body
+    const { frameworkDescription, configSecretDef, priorityClassDef, dockerSecretDef} = req.body
     if (!(frameworkDescription.metadata && frameworkDescription.metadata.name)) {
       return next(createError(400, 'Cannot find framework name.'))
     }
     await lock.acquire(frameworkDescription.metadata.name, async () => {
-      const oldFramework = await databaseModel.Framework.findOne({where: {name: frameworkDescription.metadata.name}})
+      const oldFramework = await databaseModel.Framework.findOne({ where: { name: frameworkDescription.metadata.name } })
       if (oldFramework) {
         throw createError(409, `Framework ${oldFramework.name} already exists.`)
       }
-      logger.info(convertFrameworkRequest(frameworkDescription))
-      await databaseModel.Framework.create(convertFrameworkRequest(frameworkDescription))
+      const frameworkRequest = convertFrameworkRequest(frameworkDescription)
+      if (configSecretDef) {
+        frameworkRequest.configSecretDef = JSON.stringify(configSecretDef)
+      }
+      if (priorityClassDef) {
+        frameworkRequest.priorityClassDef = JSON.stringify(priorityClassDef)
+      }
+      if (dockerSecretDef) {
+        frameworkRequest.dockerSecretDef = JSON.stringify(dockerSecretDef)
+      }
+      await databaseModel.Framework.create(frameworkRequest)
     })
-    res.status(201).json({'message': 'ok'})
-    // skip db poller, any error will be ignored
-    createFramework(req.body).catch((err) => {})
+    res.status(201).json({ message: 'ok' })
+    // skip db poller, any response or error will be ignored
+    // synchronizeCreateRequest(frameworkDescription, configSecretDef, priorityClassDef, dockerSecretDef)
   } catch (err) {
     return next(err)
   }
@@ -116,29 +138,31 @@ async function requestExecuteFramework (req, res, next) {
     if (!req.params.name) {
       return next(createError(400, 'Cannot find framework name.'))
     }
+    // same format as in framework controller
+    const executionType = `${req.params.executionType.charAt(0)}${req.params.executionType.slice(1).toLowerCase()}`
     await lock.acquire(req.params.name, async () => {
-      const oldFramework = await databaseModel.Framework.findOne({where: {name: req.params.name}})
+      const oldFramework = await databaseModel.Framework.findOne({ where: { name: req.params.name } })
       if (!oldFramework) {
         throw createError(404, `Cannot find framework ${req.params.name}.`)
       }
-      if (oldFramework.executionType != req.params.executionType) {
+      if (oldFramework.executionType !== executionType) {
+        // update executionType and mark requestSynced = false when executionType is different
         await databaseModel.Framework.update({
-          executionType: req.params.executionType, requestSynced: false
-        }, {where: {name: req.params.name}})
+          executionType: executionType, requestSynced: false
+        }, { where: { name: req.params.name } })
       }
     })
-    res.status(200).json({'message': 'ok'})
+    res.status(200).json({ message: 'ok' })
     // skip db poller, any response or error will be ignored
-    executeFramework(req.params.name, req.params.executionType).catch((err) => {})
+    // synchronizeExecuteRequest(req.params.name, executionType)
   } catch (err) {
     return next(err)
   }
 }
 
-
 module.exports = {
   ping: ping,
   frameworkWatchEvents: frameworkWatchEvents,
   requestCreateFramework: requestCreateFramework,
-  requestExecuteFramework: requestExecuteFramework,
+  requestExecuteFramework: requestExecuteFramework
 }

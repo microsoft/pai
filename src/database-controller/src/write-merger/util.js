@@ -3,52 +3,52 @@ const mockFrameworkStatus = () => {
     state: 'AttemptCreationPending',
     attemptStatus: {
       completionStatus: null,
-      taskRoleStatuses: [],
+      taskRoleStatuses: []
     },
     retryPolicyStatus: {
       retryDelaySec: null,
       totalRetriedCount: 0,
-      accountableRetriedCount: 0,
-    },
-  };
-};
+      accountableRetriedCount: 0
+    }
+  }
+}
 
 const convertState = (state, exitCode, retryDelaySec) => {
   switch (state) {
     case 'AttemptCreationPending':
     case 'AttemptCreationRequested':
     case 'AttemptPreparing':
-      return 'WAITING';
+      return 'WAITING'
     case 'AttemptRunning':
-      return 'RUNNING';
+      return 'RUNNING'
     case 'AttemptDeletionPending':
     case 'AttemptDeletionRequested':
     case 'AttemptDeleting':
       if (exitCode === -210 || exitCode === -220) {
-        return 'STOPPING';
+        return 'STOPPING'
       } else {
-        return 'RUNNING';
+        return 'RUNNING'
       }
     case 'AttemptCompleted':
       if (retryDelaySec == null) {
-        return 'RUNNING';
+        return 'RUNNING'
       } else {
-        return 'WAITING';
+        return 'WAITING'
       }
     case 'Completed':
       if (exitCode === 0) {
-        return 'SUCCEEDED';
+        return 'SUCCEEDED'
       } else if (exitCode === -210 || exitCode === -220) {
-        return 'STOPPED';
+        return 'STOPPED'
       } else {
-        return 'FAILED';
+        return 'FAILED'
       }
     default:
-      return 'UNKNOWN';
+      return 'UNKNOWN'
   }
-};
+}
 
-function convertFrameworkRequest(framework) {
+function convertFrameworkRequest (framework) {
   return {
     name: framework.metadata.name,
     namespace: framework.metadata.namespace,
@@ -62,15 +62,15 @@ function convertFrameworkRequest(framework) {
     totalTaskNumber: framework.spec.taskRoles.reduce((num, spec) => num + spec.taskNumber, 0),
     totalTaskRoleNumber: framework.spec.taskRoles.length,
     logPathInfix: framework.metadata.annotations.logPathInfix,
-    snapshot: JSON.stringify(framework),
+    snapshot: JSON.stringify(framework)
   }
 }
 
-function convertFrameworkStatus(framework) {
- if (!framework.status) {
-    framework.status = mockFrameworkStatus();
+function convertFrameworkStatus (framework) {
+  if (!framework.status) {
+    framework.status = mockFrameworkStatus()
   }
-  const completionStatus = framework.status.attemptStatus.completionStatus;
+  const completionStatus = framework.status.attemptStatus.completionStatus
   return {
     retries: framework.status.retryPolicyStatus.totalRetriedCount,
     retryDelayTime: framework.status.retryPolicyStatus.retryDelaySec,
@@ -78,17 +78,18 @@ function convertFrameworkStatus(framework) {
     resourceRetries: 0,
     userRetries: framework.status.retryPolicyStatus.accountableRetriedCount,
     creationTime: framework.metadata.creationTimestamp ? new Date(framework.metadata.creationTimestamp) : null,
-    completionTime: framework.status.completionTime ? new Date(framework.status.completionTime): null,
+    completionTime: framework.status.completionTime ? new Date(framework.status.completionTime) : null,
     appExitCode: completionStatus ? completionStatus.code : null,
     subState: framework.status.state,
     state: convertState(
       framework.status.state,
       completionStatus ? completionStatus.code : null,
-      framework.status.retryPolicyStatus.retryDelaySec,
+      framework.status.retryPolicyStatus.retryDelaySec
     ),
-    snapshot: JSON.stringify(framework),
-  };
+    snapshot: JSON.stringify(framework)
+  }
 }
+
 
 module.exports = {
   convertFrameworkRequest: convertFrameworkRequest,

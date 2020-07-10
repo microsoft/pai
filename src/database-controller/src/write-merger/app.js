@@ -15,44 +15,41 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-const cors = require('cors');
-const morgan = require('morgan');
-const express = require('express');
-const compress = require('compression');
-const bodyParser = require('body-parser');
+const cors = require('cors')
+const morgan = require('morgan')
+const express = require('express')
+const compress = require('compression')
+const bodyParser = require('body-parser')
 const logger = require('@dbc/core/logger')
 const status = require('statuses')
 const handler = require('@dbc/write-merger/handler')
 
-const app = express();
+const app = express()
 
-app.use(cors());
-app.use(compress());
-app.use(bodyParser.urlencoded({extended: true}));
-app.use(bodyParser.json());
-app.use(bodyParser.text({type: 'text/*'}));
-app.use(morgan('dev', {'stream': logger.stream}));
+app.use(cors())
+app.use(compress())
+app.use(bodyParser.urlencoded({ extended: true }))
+app.use(bodyParser.json())
+app.use(bodyParser.text({ type: 'text/*' }))
+app.use(morgan('dev', { stream: logger.stream }))
 
-router = new express.Router();
+const router = new express.Router()
 
 router.route('/ping').get(handler.ping)
 router.route('/frameworks').post(handler.requestCreateFramework)
 router.route('/frameworks/:name/execution/:executionType').put(handler.requestExecuteFramework)
 router.route('/frameworks/:name/watchEvents/:eventType').post(handler.frameworkWatchEvents)
 
-app.use('/api/v1', router);
-
+app.use('/api/v1', router)
 
 // error handling
 app.use((err, req, res, next) => {
-  logger.warn(err.stack);
+  logger.warn(err.stack)
   const statusCode = err.statusCode || 500
   res.status(statusCode).json({
     code: status(statusCode),
-    message: err.message,
-  });
-});
-
-
+    message: err.message
+  })
+})
 
 module.exports = app
