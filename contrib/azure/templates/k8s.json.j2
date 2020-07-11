@@ -45,7 +45,7 @@
       },
       "masterProfile": {
             "distro": "aks-ubuntu-18.04",
-            "count": 1,
+            "count": {{cfg["kube_master_as"["count"]|default(1)}},
             "dnsPrefix": "",
             "vmSize": "Standard_D8_v3"
       },
@@ -61,7 +61,7 @@
             "customNodeLabels": {
                 "pai-worker": "true"
             },
-            "vmSize": "Standard_NC12"
+            "vmSize": "{{cfg["openpai_worker_vmss"]["vm_size"]}}"
         },
         {
             "name": "opmaster",
