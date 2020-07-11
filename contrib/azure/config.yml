@@ -1,7 +1,9 @@
 subscription_id: ${subscriptionId}
 resource_group_name: ${resourcegroup}
 location: ${location}
-
+dns_prefix: openpai-example
+sp_appid: ${appId}
+sp_password: ${password}
 
 kube_master_as:
   ## OpenPAI scheduler only supports 1 master cluster.
