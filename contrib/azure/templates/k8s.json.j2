@@ -90,18 +90,18 @@
         }
       ],
       "linuxProfile": {
-        "adminUsername": "azureuser",
+        "adminUsername": "{{cfg["linux_profile"]["adminUsername"]}}",
         "ssh": {
           "publicKeys": [
             {
-              "keyData": "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQC6pb0CoRLFmTNtWRioWzzQvNZRKlSr43bodAwfcmkE/KMZL7i3oUVnvCBxirPwSwKlJl3wmyVkaokg50h9Vy5mgHPqL6rf4UNNHoqNknwWcJ9b3mwgwIGwPRhHbfAh58S3U3ke4SzebXJSDt3EKh71Ip+dOPhb6VNYobflVPjMbuGqt5gZn3H9StGZ9HlOx9Gcf9yHTlbOYXddLpFDmVko0TFTJBYlF/+qcg12gwIxuZefrcrFPa8aMZlVV1vPdPwzfDXZg862+VOsZWasI4+PYKV07PPEfVPqt+Swu18L2gilio4TuWrJt6lfaSVECiUCFcfk65ft2dC8ShUItiXv yuye@stcal-190"
+              "keyData": "{{cfg["linux_profile"]["publicKeys"]}}"
             }
           ]
         }
       },
       "servicePrincipalProfile": {
-        "clientId": "0bdf84a3-69cf-44bf-839d-4ef225dcca0d",
-        "secret": "d25f4905-e9a5-4e68-a59f-432a1dae5968"
+        "clientId": "{{cfg["sp_appid"]}}",
+        "secret": "{{cfg["sp_password"]}}"
       }
     }
 }
