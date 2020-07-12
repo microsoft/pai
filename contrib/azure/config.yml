@@ -14,12 +14,13 @@ kube_master_as:
 
 openpai_master_vmss:
   vm_size: Standard_NC12
+  # os_disk_size_gb: 1024
 
 openpai_worker_vmss:
   count: 1
   vm_size: Standard_NC12
 
-  # osDiskSizeGB: 1024
+  # os_disk_size_gb: 1024
 
   scale_set_priority: default
   ## when scale_set_priority is spot
