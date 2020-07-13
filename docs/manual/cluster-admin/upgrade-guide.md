@@ -4,9 +4,9 @@ This upgrade guide is only for those who have installed OpenPAI >= `v1.0.0`, and
 
 The upgrade process is mainly about modifying `services-configuration.yaml` and using `paictl`. If you are not familiar about them, please first refer to [here](./basic-management-operations.md#pai-service-management-and-paictl) to set up `paictl` and `services-configuration.yaml`.
 
-## Stop All Services
+## Stop All Services and Previous Dev Box Container
 
-First, stop all PAI services by:
+First, launch a dev box container of current PAI version, stop all services by:
 
 ```bash
 ./paictl.py service stop
@@ -16,9 +16,24 @@ The command will ask you for the cluster id for confirmation. If you forget it, 
 
 Your current running jobs are not expected to be affected by stopping PAI services.
 
+Use `exit` to leave the dev box container. And remove it by:
+
+```bash
+sudo docker stop dev-box
+sudo docker rm dev-box
+```
+
 ## Modify `services-configuration.yaml`
 
-In `services-configuration.yaml`, find the following section:
+Now, launch a dev box container of new version. For example, if you want to upgrade to `v1.1.0`, you should use docker `openpai/dev-box:v1.1.0`.
+
+Then, retrieve your configuration by:
+
+```bash
+./paictl.py config pull -o <config-folder>
+```
+
+Find the following section in `<config-folder>/services-configuration.yaml`:
 
 ```yaml
 cluster:

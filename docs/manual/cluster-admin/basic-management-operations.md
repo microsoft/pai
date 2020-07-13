@@ -71,32 +71,53 @@ subjects:
 
 ## PAI Service Management and Paictl
 
-Generally speaking, PAI services are daemon sets, deployments or stateful sets created by PAI system, running on Kubernetes. You can find them on the [k8s dashboard](#access-kubernetes-dashboard) and [services page](#services-page). For example, `webportal` is a PAI service which provides front-end interface, and `rest-server` is another one for back-end APIs.
+Generally speaking, PAI services are daemon sets, deployments or stateful sets created by PAI system, running on Kubernetes. You can find them on the [k8s dashboard](#access-kubernetes-dashboard) and [services page](#services-page). For example, `webportal` is a PAI service which provides front-end interface, and `rest-server` is another one for back-end APIs. These services are all configurable. If you have followed the [installation-guide](./installation-guide.md), you can find two files, `layout.yaml` and `services-configuration.yaml`, in folder `~/pai-deploy/cluster-cfg` on the dev box machine. These two files are the default service configuration.
 
-All PAI services are configurable. If you have followed the [installation-guide](./installation-guide.md), you can find two files, `layout.yaml` and `services-configuration.yaml`, in folder `~/pai-deploy/cluster-cfg` on the dev box machine. These two files are the default service configuration.
-
-If the configuration is lost, retrieve them back by:
+`paictl` is a CLI tool which helps you manage cluster configuration and PAI services. To use it, we recommend you to leverage our dev box docker image to avoid environment-related problems. First, go to the dev box machine, launch the dev box docker by:
 
 ```bash
-git clone https://github.com/microsoft/pai.git
-cd pai
-./paictl.py config pull -o ~/test
-``` 
+sudo docker run -itd \
+        -e COLUMNS=$COLUMNS -e LINES=$LINES -e TERM=$TERM \
+        -v /var/run/docker.sock:/var/run/docker.sock \
+        -v ${HOME}/pai-deploy/cluster-cfg:/cluster-configuration  \
+        -v ${HOME}/pai-deploy/kube:/root/.kube \
+        --pid=host \
+        --privileged=true \
+        --net=host \
+        --name=dev-box \
+        openpai/dev-box:<openpai version tag>
+```
 
-The command will ask you for the cluster id for confirmation. If you forget it, another command `./paictl.py config get-id` will help you.
+You should replace the `<openpai version tag>` with your current OpenPAI version, e.g. `v1.0.0`. In the command, we mount `${HOME}/pai-deploy/kube` to `/root/.kube` in the container. Thus the container has correct config file to access Kubernetes. Also, we mount `${HOME}/pai-deploy/cluster-cfg`, the configuration created by installation, to  `/cluster-configuration` in the container.
 
-The `layout.yaml` and `services-configuration.yaml` will be written to `~/test` after `./paictl.py config pull -o ~/test`.
+To use `paictl`, go into the container by:
 
-You might have noticed the `./paictl.py` script. Actually it is a CLI tool to help manage your PAI services. Here are some usage examples of `paictl`:
+```bash
+sudo docker exec -it dev-box bash
+```
+
+Then, go to folder `/pai`, try to retrieve your cluster id:
+
+```bash
+cd /pai
+./paictl.py config get-id
+```
+
+If the command prints your cluster id, you can confirm the `paictl` tool works fine.
+
+Here are some basic usage examples of `paictl`:
 
 ```bash
 # get cluster id
 ./paictl.py config get-id
 
 # pull service config to a certain folder
+# the configuration containers two files: layout.yaml and services-configuration.yaml
+# if <config-folder> already has these files, they will be overrided
 ./paictl.py config pull -o <config-folder>
 
 # push service config to the cluster
+# only pushed config is effective
 ./paictl.py config push -p <config-folder> -m service
 
 # stop all PAI services
@@ -114,23 +135,7 @@ You might have noticed the `./paictl.py` script. Actually it is a CLI tool to he
 
 If you want to change configuration of some services, please follow the steps of `service stop`, `config push` and `service start`.
 
-For example, you can find the following section in your default `services-configuration.yaml`:
-
-```yaml
-webportal:
-  plugins:
-  - id: submit-job-v2
-    title: Submit Job v2
-    uri: https://gerhut.github.io/store/submit-job-v2/plugin.js
-  - id: marketplace
-    title: Marketplace
-    uri: https://gerhut.github.io/store/marketplace/plugin.js
-  server-port: 9286
-```
-
-It is the configuration for webportal. Now let's change the title of one plugin: modify `title: Marketplace` to `title: MyMarketplace`, and save the file.
-
-Use the following command to push the configuration and restart webportal:
+For example, if you want to customize webportal, you should modify the `webportal` section in `services-configuration.yaml`. Then use the following command to push the configuration and restart webportal:
 
 ```bash
 ./paictl.py service stop -n webportal
@@ -138,6 +143,12 @@ Use the following command to push the configuration and restart webportal:
 ./paictl.py service start -n webportal
 ```
 
-Then you will find the plugin title is changed:
+Another example is to restart the whole cluster:
 
-   <img src="./imgs/change-title.png" width="100%" height="100%" />
+```bash
+# restart cluster
+./paictl.py service stop
+./paictl.py service start
+```
+
+You can use `exit` to leave the dev-box container, and use `sudo docker exec -it dev-box bash` to re-enter it if you desire so. If you don't need it any more, use `sudo docker stop dev-box` and `sudo docker rm dev-box` to delete the docker container.
