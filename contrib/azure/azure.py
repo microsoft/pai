@@ -78,7 +78,6 @@ def main():
 
     parser.add_argument(
         '-c', '--config',
-        type=bytes,
         required=True,
         help='The path of your configuration path.'
     )
