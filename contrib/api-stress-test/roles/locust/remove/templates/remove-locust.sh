@@ -4,7 +4,6 @@ KUBECONFIG={{kube_config_path}}
 
 {% for host in groups['kube-worker'] %}
 kubectl --kubeconfig=${KUBECONFIG} label nodes {{ hostvars[host].inventory_hostname }} locust-role-
-kubectl --kubeconfig=${KUBECONFIG} label nodes {{ hostvars[host].inventory_hostname }} no-jobexporter-
 {% endfor %}
 
 kubectl --kubeconfig=${KUBECONFIG} delete deployment locust-worker-deployment
