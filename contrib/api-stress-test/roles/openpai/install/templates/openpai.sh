@@ -25,6 +25,10 @@ sudo docker exec -i stress-dev-box /bin/bash -c "kubectl get node" || { cleanup;
 
 sudo docker exec -i stress-dev-box /bin/bash << EOF_DEV_BOX
 
+{% for host in groups['kube-worker'] %}
+kubectl --kubeconfig=${KUBECONFIG} label nodes {{ hostvars[host].inventory_hostname }} no-jobexporter=true
+{% endfor %}
+
 apt-get -y update
 apt-get -y install subversion python3 python-dev software-properties-common parallel
 

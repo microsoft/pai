@@ -28,19 +28,5 @@
   roles:
     - {role: virtual-kubelet/install}
 
-- hosts: localhost
-  gather_facts: False
-  roles:
-    - { role: locust/config }
-
-- hosts: localhost
-  gather_facts: False
-  roles:
-    - { role: locust/master }
-
-- hosts: localhost
-  gather_facts: False
-  roles:
-    - { role: locust/worker }
 
 
