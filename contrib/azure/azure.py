@@ -102,6 +102,7 @@ def main():
     create_folder_if_not_exist(aks_engine_working_dir)
 
     generate_aks_engine_script(aks_engine_cfg, aks_engine_working_dir, python_script_path)
+    start_kubernetes(aks_engine_working_dir)
 
 
 if __name__ == "__main__":
