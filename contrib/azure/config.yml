@@ -22,7 +22,7 @@ openpai_worker_vmss:
 
   # os_disk_size_gb: 1024
 
-  scale_set_priority: default
+  # scale_set_priority: Regular
   ## when scale_set_priority is spot
   # scale_set_eviction_policy: Deallocate
 
