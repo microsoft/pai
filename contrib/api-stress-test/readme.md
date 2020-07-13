@@ -107,14 +107,19 @@ locust_worker_number
 
 ##### Start Virtual-kubelet and locust
 ```
-ansible-playbook -i host.yml stress-part1.yml [-e "@path/to/env.yml"]
+ansible-playbook -i host.yml virtual-kubelet.yml [-e "@path/to/env.yml"]
 ```
 
 This playbooks will take some time to be complated. Because vk will be added into the cluster one by one. Please ensure all the vk is added into the cluster, then go to the next steps.
 
 ##### Start OpenPAI test cluster
 ```
-ansible-playbook -i host.yml stress-part2.yml [-e "@path/to/env.yml"]
+ansible-playbook -i host.yml openpai.yml [-e "@path/to/env.yml"]
+```
+
+##### Start Locust Cluster
+```
+ansible-playbook -i host.yml locust.yml [-e "@path/to/env.yml"]
 ```
 
 #### After running the playbooks
