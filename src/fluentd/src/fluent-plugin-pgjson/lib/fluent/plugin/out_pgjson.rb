@@ -30,12 +30,16 @@ module Fluent::Plugin
     config_param :user, :string, default: nil
     desc "The password to connect database"
     config_param :password, :string, default: nil, secret: true
-    desc "The column name for the time"
-    config_param :time_col, :string, default: "time"
-    desc "The column name for the tag"
-    config_param :tag_col, :string, default: "tag"
-    desc "The column name for the record"
-    config_param :record_col, :string, default: "record"
+    desc "The column name for the insertedAt"
+    config_param :insertedAt_col, :string, default: "insertedAt"
+    desc "The column name for the frameworkName"
+    config_param :frameworkName_col, :string, default: "frameworkName"
+    desc "The column name for the attemptIndex"
+    config_param :attemptIndex_col, :string, default: "attemptIndex"
+    desc "The column name for the historyType"
+    config_param :historyType_col, :string, default: "historyType"
+    desc "The column name for the snapshot"
+    config_param :snapshot_col, :string, default: "snapshot"
     desc "If true, insert records formatted as msgpack"
     config_param :msgpack, :bool, default: false
     desc "JSON encoder (yajl/json)"
@@ -134,10 +138,13 @@ module Fluent::Plugin
       end
       if ! thread[:conn].nil?
         begin
-          thread[:conn].exec("COPY #{@table} (#{@tag_col}, #{@time_col}, #{@record_col}) FROM STDIN WITH DELIMITER E'\\x01'")
+          thread[:conn].exec("COPY #{@table} (#{@insertedAt_col}, #{@frameworkName_col}, #{@attemptIndex_col}, #{@historyType_col}, #{@snapshot_col}) FROM STDIN WITH DELIMITER E'\\x01'")
           tag = chunk.metadata.tag
+          # record is of type 'Hash'
           chunk.msgpack_each do |time, record|
-            thread[:conn].put_copy_data "#{tag}\x01#{time}\x01#{record_value(record)}\n"
+            attempt_index = 0
+            log.debug "#{record}"
+            thread[:conn].put_copy_data "#{time}\x01#{record["objectSnapshot"]["metadata"]["name"]}\x01#{attempt_index}\x01#{"framework"}\x01#{record_value(record)}\n"
           end
         rescue PG::ConnectionBad, PG::UnableToSend => err
           # connection error

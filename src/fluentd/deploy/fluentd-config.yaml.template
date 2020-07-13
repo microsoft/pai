@@ -118,7 +118,7 @@ data:
         user {{ cluster_cfg['postgresql']['user'] }}
         password {{ cluster_cfg['postgresql']['passwd'] }}
         database {{ cluster_cfg['postgresql']['db'] }}
-        table fc_objectsnapshots
+        table framework_history
         record_col record
         <buffer>
           @type memory
