@@ -47,7 +47,7 @@
             "distro": "aks-ubuntu-18.04",
             "count": {{cfg["kube_master_as"]["count"]|default(1)}},
             "dnsPrefix": "",
-            "vmSize": {{cfg["kube_master_as"]["vm_size"]}}
+            "vmSize": "{{cfg["kube_master_as"]["vm_size"]}}"
 {% if "storage_profile" in cfg["kube_master_as"] %}
             "storageProfile": cfg["kube_master_as"]["storage_profile"]
 {% endif %}
