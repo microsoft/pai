@@ -37,13 +37,16 @@ spec:
         image: {{ cluster_cfg["cluster"]["docker-registry"]["prefix"] }}log-manager-logrotate:{{ cluster_cfg["cluster"]["docker-registry"]["tag"] }}
         imagePullPolicy: Always
         env:
-        - name: LOGROTATE_CRONSCHEDULE
-          value: "daily"
+        - name: LOGROTATE_INTERVAL
+          value: "hourly"
         volumeMounts:
         - name: pai-log
           mountPath: /usr/local/pai/logs
-        - name: pai-log-backup
-          mountPath: /usr/local/pai/logs-backup
+        {%- if cluster_cfg['cluster']['common']['qos-switch'] == "true" %}
+        resources:
+          limits:
+            memory: "512Mi"
+        {%- endif %}
       - name: log-manager-nginx
         image: {{ cluster_cfg["cluster"]["docker-registry"]["prefix"] }}log-manager-nginx:{{ cluster_cfg["cluster"]["docker-registry"]["tag"] }}
         imagePullPolicy: Always
@@ -56,19 +59,19 @@ spec:
         volumeMounts:
         - name: pai-log
           mountPath: /usr/local/pai/logs
-        - name: pai-log-backup
-          mountPath: /usr/local/pai/logs-backup
         ports:
         - containerPort: 80
           hostPort: {{ cluster_cfg["log-manager"]["port"] }}
           name: log-manager
+        {%- if cluster_cfg['cluster']['common']['qos-switch'] == "true" %}
+        resources:
+          limits:
+            memory: "512Mi"
+        {%- endif %}
       volumes:
         - name: pai-log
           hostPath:
             path: /var/log/pai
-        - name: pai-log-backup
-          hostPath:
-            path: /var/log/pai-backup
       imagePullSecrets:
       - name: {{ cluster_cfg["cluster"]["docker-registry"]["secret-name"] }}
       tolerations:
