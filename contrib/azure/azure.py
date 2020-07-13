@@ -9,6 +9,11 @@ import subprocess
 import sys
 import jinja2
 
+from kubernetes import client, config
+from kubernetes.utils import parse_quantity
+from kubernetes.client.rest import ApiException
+
+
 logger = logging.getLogger(__name__)
 
 TEMPORARY_DIR_NAME = ".azure_quick_start"
@@ -73,9 +78,61 @@ def generate_aks_engine_script(aks_engine_cfg, working_dir, script_dir):
     )
 
 
+def generate_openpai_configuration(k8s_info, aks_engine_cfg):
+    None
+
+
 def start_kubernetes(working_dir):
     command = '/bin/bash {0}/aks-engine.sh'.format(working_dir)
     execute_shell(command, "Failed to start k8s on azure with aks-engine.")
+
+
+def get_k8s_cluster_info(working_dir, dns_prefix, location):
+    kube_config_path = "{0}/_output/{1}/kubeconfig/kubeconfig.{2}.json".format(working_dir, dns_prefix, location)
+
+    master_string = "opmaster"
+    worker_string = "opworker"
+
+    config.load_kube_config(config_file=kube_config_path)
+    api_instance = client.CoreV1Api()
+    pretty = 'true'
+    timeout_seconds = 56
+
+    master = dict()
+    worker = dict()
+    gpu_enable = False
+
+    try:
+        api_response = api_instance.list_node(pretty=pretty, timeout_seconds=timeout_seconds)
+        for node in api_response.items:
+            gpu_resource = 0
+            if 'nvidia.com/gpu' in node.status.allocatable:
+                gpu_resource = int(parse_quantity(node.status.allocatable['nvidia.com/gpu']))
+
+            if master_string in node.metadata.name:
+                master[node.metadata.name] = {
+                    "cpu-resource": int(parse_quantity(node.status.allocatable['cpu'])),
+                    "mem-resource": int(parse_quantity(node.status.allocatable['memory']) / 1024 / 1024 ),
+                    "gpu-resource": gpu_resource,
+                }
+            elif worker_string in node.metadata.name:
+                worker[node.metadata.name] = {
+                    "cpu-resource": int(parse_quantity(node.status.allocatable['cpu'])),
+                    "mem-resource": int(parse_quantity(node.status.allocatable['memory']) / 1024 / 1024 ),
+                    "gpu-resource": gpu_resource,
+                }
+                if worker[node.metadata.name]["gpu-resource"] != 0:
+                    gpu_enable = True
+
+    except ApiException as e:
+        logger.error("Exception when calling CoreV1Api->list_node: %s\n" % e)
+
+    return {
+        "master": master,
+        "worker": worker,
+        "gpu": gpu_enable,
+        "master_ip": None
+    }
 
 
 def main():
@@ -101,8 +158,11 @@ def main():
     aks_engine_working_dir = "{0}/{1}".format(current_working_dir, TEMPORARY_DIR_NAME)
     create_folder_if_not_exist(aks_engine_working_dir)
 
-    generate_aks_engine_script(aks_engine_cfg, aks_engine_working_dir, python_script_path)
-    start_kubernetes(aks_engine_working_dir)
+    #generate_aks_engine_script(aks_engine_cfg, aks_engine_working_dir, python_script_path)
+    #start_kubernetes(aks_engine_working_dir)
+
+    k8s_info = get_k8s_cluster_info(current_working_dir, aks_engine_cfg["dns_prefix"], aks_engine_cfg["location"])
+
 
 
 if __name__ == "__main__":

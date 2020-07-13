@@ -5,6 +5,8 @@ dns_prefix: openpai-example
 sp_appid: ${appId}
 sp_password: ${password}
 
+ssl_phrase: openpai
+
 kube_master_as:
   ## OpenPAI scheduler only supports 1 master cluster.
   #count: 1
