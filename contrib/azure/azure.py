@@ -66,7 +66,10 @@ def generate_aks_engine_script(aks_engine_cfg, working_dir, script_dir):
     generate_template_file(
         "{0}/templates/aks-engine.sh.j2".format(script_dir),
         "{0}/aks-engine.sh".format(working_dir),
-        {"cfg": aks_engine_cfg}
+        {
+            "cfg": aks_engine_cfg,
+            "working_dir": working_dir
+        }
     )
 
 
