@@ -75,7 +75,7 @@ def generate_aks_engine_script(aks_engine_cfg, working_dir, script_dir):
 
 def start_kubernetes(working_dir):
     command = '/bin/bash {0}/aks-engine.sh'.format(working_dir)
-    execute_shell(command)
+    execute_shell(command, "Failed to start k8s on azure with aks-engine.")
 
 
 def main():
