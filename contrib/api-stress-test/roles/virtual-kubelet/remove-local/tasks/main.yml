@@ -1,0 +1,15 @@
+---
+- name: set fact
+  set_fact:
+    base_dir_cfg: "{{ playbook_dir }}/.generated/"
+
+- name: Copy vk-remove-local.sh to Base Dir
+  template:
+    src: vk-remove-local.sh
+    dest: "{{ base_dir_cfg }}/vk-remove-local.sh"
+    mode: '0777'
+
+- name: kubectl delete node -l type=virtual-kubelet
+  command: "/bin/bash {{ base_dir_cfg }}/vk-remove-local.sh"
+  become: true
+  become_user: root

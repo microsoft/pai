@@ -18,7 +18,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 // timeout in minutes
-http_timeout = 10
+http_timeout = 20
 pause_timeout = 1
 jenkins_timeout = 120
 

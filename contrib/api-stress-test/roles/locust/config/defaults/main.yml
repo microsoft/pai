@@ -1,0 +1,21 @@
+virtual_cluster: stress
+
+#customized_locust_stress_script: /path/test.py
+
+stress_test_openpai_list_job_all_enable: true
+stress_test_openpai_submit_job_enable: false
+stress_test_k8s_list_pod_enable: true
+
+test_api_list:
+  openpai_list_job_all:
+    weight: 10
+  openpai_submit_job:
+    weight: 1
+  k8s_list_pod:
+    weight: 10
+
+locust_http_connection_timeout: 18000
+locust_http_max_retries: 3
+locust_http_network_timeout: 18000
+
+kube_config_path: "{{local_home_path}}/.kube/config"

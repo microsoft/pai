@@ -8,11 +8,11 @@ import {
 } from '../../utils/constants';
 
 export class MountDirectories {
-  constructor(user, jobName, selectedConfigs, servers) {
+  constructor(user, jobName, selectedConfigs, storageDetails) {
     this.user = user;
     this.jobName = jobName;
     this.selectedConfigs = selectedConfigs || [];
-    this.servers = servers || [];
+    this.storageDetails = storageDetails || [];
   }
 
   getPaiCommand() {
@@ -312,28 +312,28 @@ export class MountDirectories {
       .replace('//', '/');
   }
 
-  getServerPath(serverName) {
+  getServerPath(storageDetail) {
     let returnValue = '';
 
-    const server = this.servers.find(srv => srv.spn === serverName);
-    if (server !== undefined) {
-      switch (server.type) {
+    if (storageDetail !== undefined) {
+      const data = storageDetail.data;
+      switch (storageDetail.type) {
         case 'nfs':
-          returnValue = 'nfs://' + server.address + ':' + server.rootPath;
+          returnValue = 'nfs://' + data.server + ':' + data.path;
           break;
         case 'samba':
-          returnValue = 'smb://' + server.address + '/' + server.rootPath;
+          returnValue = 'smb://' + data.server + '/' + data.path;
           break;
-        case 'azurefile':
+        case 'azureFile':
           returnValue =
-            'azurefile://' + server.dataStore + '/' + server.fileShare;
+            'azurefile://' + data.accountName + '/' + data.shareName;
           break;
-        case 'azureblob':
+        case 'azureBlob':
           returnValue =
-            'azureblob://' + server.dataStore + '/' + server.containerName;
+            'azureblob://' + data.accountName + '/' + data.containerName;
           break;
         case 'hdfs':
-          returnValue = 'hdfs://' + server.namenode + ':' + server.port;
+          returnValue = 'hdfs://' + data.namenode + ':' + data.port;
           break;
       }
     }
@@ -342,19 +342,19 @@ export class MountDirectories {
 
   getTeamDataList() {
     const newTeamDataList = [];
-    for (const config of this.selectedConfigs) {
-      for (const mountInfo of config.mountInfos) {
-        const serverRootPath = this.getServerPath(mountInfo.server);
+    const selectedNames = this.selectedConfigs.map(x => x.name);
+    this.storageDetails.forEach(storage => {
+      if (selectedNames.includes(storage.name)) {
+        const serverRootPath = this.getServerPath(storage);
+        const path = storage.share === false ? '$' + '{PAI_USER_NAME}' : '';
         const serverPath =
           serverRootPath +
-          this.normalizePath(
-            serverRootPath.endsWith('/') ? '' : '/' + mountInfo.path,
-          );
+          this.normalizePath(serverRootPath.endsWith('/') ? '' : '/' + path);
         newTeamDataList.push(
-          new InputData(mountInfo.mountPoint, serverPath, config.name),
+          new InputData(`/mnt/${storage.name}`, serverPath, storage.name),
         );
       }
-    }
+    });
     return newTeamDataList;
   }
 }

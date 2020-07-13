@@ -1,0 +1,6 @@
+# Virtual kubelet relative configuration.
+
+vk_per_host: 100
+kube_config_path: "{{local_home_path}}/.kube/config"
+
+

@@ -1,0 +1,15 @@
+---
+- name: set fact
+  set_fact:
+    base_dir_cfg: "{{ playbook_dir }}/.generated/"
+
+- name: Generate openpai.sh template
+  template:
+    src: openpai.sh
+    dest: "{{ playbook_dir }}/openpai.sh"
+    mode: '0777'
+
+- name: Start OpenPAI service
+  command: "/bin/bash {{ playbook_dir }}/openpai.sh"
+  become: true
+  become_user: root

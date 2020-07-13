@@ -183,6 +183,22 @@ const generateExitSpec = (code) => {
 };
 
 const convertToJobAttempt = async (framework) => {
+  if (framework.status === undefined) {
+    framework.status = {
+      attemptStatus: {
+        completionStatus: null,
+        id: null,
+        startTime: null,
+        completionTime: null,
+        taskRoleStatuses: [],
+      },
+      state: null,
+      retryPolicyStatus: {
+        retryDelaySec: null,
+      },
+    };
+  }
+
   const completionStatus = framework.status.attemptStatus.completionStatus;
   const jobName = decodeName(
     framework.metadata.name,
@@ -205,12 +221,12 @@ const convertToJobAttempt = async (framework) => {
   const jobStartedTime = new Date(
     framework.metadata.creationTimestamp,
   ).getTime();
-  const attemptStartedTime = new Date(
+  const attemptStartedTime = framework.status.attemptStatus.startTime ? new Date(
     framework.status.attemptStatus.startTime,
-  ).getTime();
-  const attemptCompletedTime = new Date(
+  ).getTime(): null;
+  const attemptCompletedTime = framework.status.attemptStatus.completionTime ? new Date(
     framework.status.attemptStatus.completionTime,
-  ).getTime();
+  ).getTime(): null;
   const totalGpuNumber = framework.metadata.annotations
     ? parseInt(framework.metadata.annotations.totalGpuNumber)
     : 0;

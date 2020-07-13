@@ -1,0 +1,30 @@
+---
+- name: set base_dir_repo
+  set_fact:
+    base_dir_repo: "{{ playbook_dir }}/.virtual-kubelet/"
+
+- name: Create base_dir_repo
+  file:
+    path: "{{ base_dir_repo }}"
+    state: directory
+    recurse: true
+
+- name: Check out customized vk from private repo
+  git:
+    repo: 'https://github.com/ydye/virtual-kubelet.git'
+    dest: "{{ base_dir_repo }}"
+    version: debug
+
+- name: generate build.sh template
+  template:
+    src: build.sh
+    dest: "{{ playbook_dir }}/build.sh"
+    mode: '0777'
+
+- name: build virtual kubelet
+  command: "/bin/bash {{ playbook_dir }}/build.sh"
+  become: true
+  become_user: root
+
+
+

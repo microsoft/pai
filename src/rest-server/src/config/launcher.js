@@ -20,75 +20,6 @@
 const Joi = require('joi');
 
 
-// define yarn launcher config schema
-const yarnLauncherConfigSchema = Joi.object().keys({
-  hdfsUri: Joi.string()
-    .uri()
-    .required(),
-  webhdfsUri: Joi.string()
-    .uri()
-    .required(),
-  webserviceUri: Joi.string()
-    .uri()
-    .required(),
-  healthCheckPath: Joi.func()
-    .arity(0)
-    .required(),
-  frameworksPath: Joi.func()
-    .arity(0)
-    .required(),
-  frameworkPath: Joi.func()
-    .arity(1)
-    .required(),
-  frameworkStatusPath: Joi.func()
-    .arity(1)
-    .required(),
-  frameworkAggregatedStatusPath: Joi.func()
-    .arity(1)
-    .required(),
-  frameworkRequestPath: Joi.func()
-    .arity(1)
-    .required(),
-  frameworkExecutionTypePath: Joi.func()
-    .arity(1)
-    .required(),
-  frameworkInfoWebhdfsPath: Joi.func()
-    .arity(1)
-    .required(),
-  webserviceRequestHeaders: Joi.func()
-    .arity(1)
-    .required(),
-  jobRootDir: Joi.string()
-    .default('./frameworklauncher'),
-  jobDirCleanUpIntervalSecond: Joi.number()
-    .integer()
-    .min(30 * 60)
-    .default(120 * 60),
-  jobConfigFileName: Joi.string()
-    .default('JobConfig.json'),
-  frameworkDescriptionFilename: Joi.string()
-    .default('FrameworkDescription.json'),
-  amResource: Joi.object().keys({
-    cpuNumber: Joi.number()
-      .integer()
-      .min(1)
-      .default(1),
-    memoryMB: Joi.number()
-      .integer()
-      .min(1024)
-      .default(4096),
-    diskType: Joi.number()
-      .integer()
-      .default(0),
-    diskMB: Joi.number()
-      .integer()
-      .min(0)
-      .default(0),
-  }),
-  sqlConnectionString: Joi.string()
-    .required(),
-}).required();
-
 // define k8s launcher config schema
 const k8sLauncherConfigSchema = Joi.object().keys({
   hivedWebserviceUri: Joi.string()
@@ -144,67 +75,7 @@ const k8sLauncherConfigSchema = Joi.object().keys({
 
 let launcherConfig;
 const launcherType = process.env.LAUNCHER_TYPE;
-if (launcherType === 'yarn') {
-  // get config from environment variables
-  launcherConfig = {
-    hdfsUri: process.env.HDFS_URI,
-    webhdfsUri: process.env.WEBHDFS_URI,
-    webserviceUri: process.env.LAUNCHER_WEBSERVICE_URI,
-    webserviceRequestHeaders: (namespace) => {
-      const headers = {
-        'Accept': 'application/json',
-        'Content-Type': 'application/json',
-      };
-
-      if (namespace) {
-        headers['UserName'] = namespace;
-      }
-      return headers;
-    },
-    jobRootDir: './frameworklauncher',
-    jobDirCleanUpIntervalSecond: 7200,
-    jobConfigFileName: 'JobConfig.json',
-    frameworkDescriptionFilename: 'FrameworkDescription.json',
-    amResource: {
-      cpuNumber: 1,
-      memoryMB: 1024,
-      diskType: 0,
-      diskMB: 0,
-    },
-    sqlConnectionString: 'unset',
-    healthCheckPath: () => {
-      return `${launcherConfig.webserviceUri}/v1`;
-    },
-    frameworksPath: () => {
-      return `${launcherConfig.webserviceUri}/v1/Frameworks`;
-    },
-    frameworkPath: (frameworkName) => {
-      return `${launcherConfig.webserviceUri}/v1/Frameworks/${frameworkName}`;
-    },
-    frameworkStatusPath: (frameworkName) => {
-      return `${launcherConfig.webserviceUri}/v1/Frameworks/${frameworkName}/FrameworkStatus`;
-    },
-    frameworkAggregatedStatusPath: (frameworkName) => {
-      return `${launcherConfig.webserviceUri}/v1/Frameworks/${frameworkName}/AggregatedFrameworkStatus`;
-    },
-    frameworkRequestPath: (frameworkName) => {
-      return `${launcherConfig.webserviceUri}/v1/Frameworks/${frameworkName}/FrameworkRequest`;
-    },
-    frameworkExecutionTypePath: (frameworkName) => {
-      return `${launcherConfig.webserviceUri}/v1/Frameworks/${frameworkName}/ExecutionType`;
-    },
-    frameworkInfoWebhdfsPath: (frameworkName) => {
-      return `${launcherConfig.webhdfsUri}/webhdfs/v1/Launcher/${frameworkName}/FrameworkInfo.json?op=OPEN`;
-    },
-  };
-
-  const {error, value} = Joi.validate(launcherConfig, yarnLauncherConfigSchema);
-  if (error) {
-    throw new Error(`launcher config error\n${error}`);
-  }
-  launcherConfig = value;
-  launcherConfig.type = launcherType;
-} else if (launcherType === 'k8s') {
+if (launcherType === 'k8s') {
   launcherConfig = {
     hivedWebserviceUri: process.env.HIVED_WEBSERVICE_URI,
     enabledPriorityClass: process.env.LAUNCHER_PRIORITY_CLASS === 'true',

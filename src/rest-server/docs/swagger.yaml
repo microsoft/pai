@@ -1,14 +1,19 @@
 openapi: 3.0.1
 info:
   title: OpenPAI RESTful API
-  description: Open Platform for AI RESTful API docs.
+  description: >
+    Open Platform for AI RESTful API docs.
+    Version 2.0.1: add more examples and fix typos
+    Version 2.0.2: update job detail and job attempt schema
+    Version 2.0.3: update parameters description of get storage list
+    Version 2.0.4: add default field in get storage list
   license:
     name: MIT License
-    url: 'https://github.com/microsoft/pai/blob/master/LICENSE'
-  version: 0.16.0
+    url: "https://github.com/microsoft/pai/blob/master/LICENSE"
+  version: 2.0.4
 externalDocs:
   description: Find out more about OpenPAI
-  url: 'https://github.com/microsoft/pai'
+  url: "https://github.com/microsoft/pai"
 tags:
   - name: api
     description: API information
@@ -39,7 +44,7 @@ paths:
       description: Get OpenPAI cluster info.
       operationId: getClusterInfo
       responses:
-        '200':
+        "200":
           description: Succeeded
           content:
             application/json:
@@ -67,6 +72,11 @@ paths:
                   - version
                   - launcherType
                   - authnMethod
+              example:
+                name: "PAI RESTful API"
+                version: "v1.0.1"
+                launcherType: "k8s"
+                authnMethod: "basic"
   /api/v2/tokens:
     get:
       tags:
@@ -77,7 +87,7 @@ paths:
       security:
         - bearerAuth: []
       responses:
-        '200':
+        "200":
           description: Succeeded
           content:
             application/json:
@@ -91,9 +101,12 @@ paths:
                     description: JWT string list
                 required:
                   - tokens
-        '401':
-          $ref: '#/components/responses/UnauthorizedUserError'
-  '/api/v2/tokens/{token}':
+              example:
+                tokens:
+                  - "JWT Token Example"
+        "401":
+          $ref: "#/components/responses/UnauthorizedUserError"
+  "/api/v2/tokens/{token}":
     delete:
       tags:
         - token
@@ -103,20 +116,20 @@ paths:
       security:
         - bearerAuth: []
       parameters:
-        - $ref: '#/components/parameters/token'
+        - $ref: "#/components/parameters/token"
       responses:
-        '200':
+        "200":
           description: Succeeded
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Response'
+                $ref: "#/components/schemas/Response"
               example:
                 message: revoke successfully
-        '401':
-          $ref: '#/components/responses/UnauthorizedUserError'
-        '403':
-          $ref: '#/components/responses/ForbiddenUserError'
+        "401":
+          $ref: "#/components/responses/UnauthorizedUserError"
+        "403":
+          $ref: "#/components/responses/ForbiddenUserError"
   /api/v2/tokens/application:
     post:
       tags:
@@ -130,7 +143,7 @@ paths:
       security:
         - bearerAuth: []
       responses:
-        '200':
+        "200":
           description: Succeeded
           content:
             application/json:
@@ -142,9 +155,12 @@ paths:
                     description: your access token
                   application:
                     type: boolean
-                    description: 'true'
-        '401':
-          $ref: '#/components/responses/UnauthorizedUserError'
+                    description: "true"
+              example:
+                token: "JWT Token Example"
+                application: true
+        "401":
+          $ref: "#/components/responses/UnauthorizedUserError"
   /api/v2/authn/oidc/login:
     get:
       tags:
@@ -153,7 +169,7 @@ paths:
       description: After call this API in web browser, restserver will redirect your page to Azure AD for authentication. Only be used in webportal.
       operationId: oidcLogin
       responses:
-        '302':
+        "302":
           description: Redirect
   /api/v2/authn/oidc/logout:
     get:
@@ -163,7 +179,7 @@ paths:
       description: After call this API in web browser, restserver will redirect your page to Azure AD for logout.
       operationId: oidcLogout
       responses:
-        '302':
+        "302":
           description: Redirect
   /api/v2/authn/basic/login:
     post:
@@ -195,7 +211,7 @@ paths:
                 - password
         required: true
       responses:
-        '200':
+        "200":
           description: Succeeded
           content:
             application/json:
@@ -215,14 +231,18 @@ paths:
                   - token
                   - user
                   - admin
-        '400':
+              example:
+                token: "JWT Token Example"
+                user: "user"
+                admin: true
+        "400":
           description: NoUserError or IncorrectPasswordError
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Response'
-        '404':
-          $ref: '#/components/responses/NoUserError'
+                $ref: "#/components/schemas/Response"
+        "404":
+          $ref: "#/components/responses/NoUserError"
   /api/v2/authn/basic/logout:
     delete:
       tags:
@@ -233,24 +253,24 @@ paths:
       security:
         - bearerAuth: []
       responses:
-        '200':
+        "200":
           description: Succeeded
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Response'
+                $ref: "#/components/schemas/Response"
               example:
                 message: Logout successfully
-        '401':
-          $ref: '#/components/responses/UnauthorizedUserError'
-        '403':
-          $ref: '#/components/responses/ForbiddenUserError'
+        "401":
+          $ref: "#/components/responses/UnauthorizedUserError"
+        "403":
+          $ref: "#/components/responses/ForbiddenUserError"
   /api/v2/users:
     post:
       tags:
         - user
       summary: Create a user in the system.
-      description: 'Create a user in the system by admin, basic authentication mode only.'
+      description: "Create a user in the system by admin, basic authentication mode only."
       operationId: createUser
       security:
         - bearerAuth: []
@@ -284,32 +304,32 @@ paths:
                 - password
         required: true
       responses:
-        '201':
+        "201":
           description: Succeeded
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Response'
+                $ref: "#/components/schemas/Response"
               example:
                 message: User is created successfully
-        '401':
-          $ref: '#/components/responses/UnauthorizedUserError'
-        '403':
-          $ref: '#/components/responses/ForbiddenUserError'
-        '409':
-          $ref: '#/components/responses/ConflictUserError'
-        '500':
-          $ref: '#/components/responses/UnknownError'
+        "401":
+          $ref: "#/components/responses/UnauthorizedUserError"
+        "403":
+          $ref: "#/components/responses/ForbiddenUserError"
+        "409":
+          $ref: "#/components/responses/ConflictUserError"
+        "500":
+          $ref: "#/components/responses/UnknownError"
     get:
       tags:
         - user
       summary: Get all users in the system.
-      description: 'Get all users in the system by admin.'
+      description: "Get all users in the system by admin."
       operationId: getAllUser
       security:
         - bearerAuth: []
       responses:
-        '200':
+        "200":
           description: Succeeded
           content:
             application/json:
@@ -317,9 +337,16 @@ paths:
                 description: Array with all users in the system.
                 type: array
                 items:
-                  $ref: '#/components/schemas/UserInfo'
-        '500':
-          $ref: '#/components/responses/UnknownError'
+                  $ref: "#/components/schemas/UserInfo"
+              example:
+                - username: username
+                  admin: true
+                  virtualCluster: []
+                  storageConfig: []
+                  email: "email@test.com"
+                  extension: {}
+        "500":
+          $ref: "#/components/responses/UnknownError"
     put:
       tags:
         - user
@@ -387,22 +414,22 @@ paths:
                   type: boolean
                   default: false
       responses:
-        '201':
+        "201":
           description: Succeeded
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Response'
+                $ref: "#/components/schemas/Response"
               example:
-                message: 'update group {username} successfully.'
-        '401':
-          $ref: '#/components/responses/UnauthorizedUserError'
-        '403':
-          $ref: '#/components/responses/ForbiddenUserError'
-        '404':
-          $ref: '#/components/responses/NoUserError'
-        '500':
-          $ref: '#/components/responses/UnknownError'
+                message: "update group {username} successfully."
+        "401":
+          $ref: "#/components/responses/UnauthorizedUserError"
+        "403":
+          $ref: "#/components/responses/ForbiddenUserError"
+        "404":
+          $ref: "#/components/responses/NoUserError"
+        "500":
+          $ref: "#/components/responses/UnknownError"
   /api/v2/users/me:
     put:
       tags:
@@ -451,25 +478,25 @@ paths:
                   type: boolean
                   default: false
       responses:
-        '201':
+        "201":
           description: Succeeded
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Response'
+                $ref: "#/components/schemas/Response"
               example:
-                message: 'update group {username} successfully.'
-        '401':
-          $ref: '#/components/responses/UnauthorizedUserError'
-        '403':
-          $ref: '#/components/responses/ForbiddenUserError'
-        '404':
-          $ref: '#/components/responses/NoUserError'
-        '500':
-          $ref: '#/components/responses/UnknownError'
-  '/api/v2/users/{user}':
+                message: "update group {username} successfully."
+        "401":
+          $ref: "#/components/responses/UnauthorizedUserError"
+        "403":
+          $ref: "#/components/responses/ForbiddenUserError"
+        "404":
+          $ref: "#/components/responses/NoUserError"
+        "500":
+          $ref: "#/components/responses/UnknownError"
+  "/api/v2/users/{user}":
     parameters:
-      - $ref: '#/components/parameters/user'
+      - $ref: "#/components/parameters/user"
     get:
       tags:
         - user
@@ -481,18 +508,25 @@ paths:
       security:
         - bearerAuth: []
       responses:
-        '200':
+        "200":
           description: Succeeded
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/UserInfo'
-        '401':
-          $ref: '#/components/responses/UnauthorizedUserError'
-        '404':
-          $ref: '#/components/responses/NoUserError'
-        '500':
-          $ref: '#/components/responses/UnknownError'
+                $ref: "#/components/schemas/UserInfo"
+              example:
+                username: username
+                admin: true
+                virtualCluster: []
+                storageConfig: []
+                email: "email@test.com"
+                extension: {}
+        "401":
+          $ref: "#/components/responses/UnauthorizedUserError"
+        "404":
+          $ref: "#/components/responses/NoUserError"
+        "500":
+          $ref: "#/components/responses/UnknownError"
     delete:
       tags:
         - user
@@ -505,25 +539,25 @@ paths:
       security:
         - bearerAuth: []
       responses:
-        '200':
+        "200":
           description: Succeeded
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Response'
+                $ref: "#/components/schemas/Response"
               example:
                 message: user is removed successfully
-        '401':
-          $ref: '#/components/responses/UnauthorizedUserError'
-        '403':
-          $ref: '#/components/responses/ForbiddenUserError'
-        '404':
-          $ref: '#/components/responses/NoUserError'
-        '500':
-          $ref: '#/components/responses/UnknownError'
-  '/api/v2/users/{user}/group/':
+        "401":
+          $ref: "#/components/responses/UnauthorizedUserError"
+        "403":
+          $ref: "#/components/responses/ForbiddenUserError"
+        "404":
+          $ref: "#/components/responses/NoUserError"
+        "500":
+          $ref: "#/components/responses/UnknownError"
+  "/api/v2/users/{user}/group/":
     parameters:
-      - $ref: '#/components/parameters/user'
+      - $ref: "#/components/parameters/user"
     put:
       tags:
         - user
@@ -546,22 +580,22 @@ paths:
                   type: string
                   default: the group will be added into the user's grouplist.
       responses:
-        '201':
+        "201":
           description: Succeeded
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Response'
+                $ref: "#/components/schemas/Response"
               example:
-                message: 'User {username} is added into group {groupname}'
-        '401':
-          $ref: '#/components/responses/UnauthorizedUserError'
-        '403':
-          $ref: '#/components/responses/ForbiddenUserError'
-        '404':
-          $ref: '#/components/responses/NoUserError'
-        '500':
-          $ref: '#/components/responses/UnknownError'
+                message: "User {username} is added into group {groupname}"
+        "401":
+          $ref: "#/components/responses/UnauthorizedUserError"
+        "403":
+          $ref: "#/components/responses/ForbiddenUserError"
+        "404":
+          $ref: "#/components/responses/NoUserError"
+        "500":
+          $ref: "#/components/responses/UnknownError"
     delete:
       tags:
         - user
@@ -584,25 +618,25 @@ paths:
                   type: string
                   description: the group will be removed from the user's grouplist.
       responses:
-        '201':
+        "201":
           description: Succeeded
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Response'
+                $ref: "#/components/schemas/Response"
               example:
-                message: 'User {username} is removed from group {groupname}'
-        '401':
-          $ref: '#/components/responses/UnauthorizedUserError'
-        '403':
-          $ref: '#/components/responses/ForbiddenUserError'
-        '404':
-          $ref: '#/components/responses/NoUserError'
-        '500':
-          $ref: '#/components/responses/UnknownError'
-  '/api/v2/users/{user}/grouplist/':
+                message: "User {username} is removed from group {groupname}"
+        "401":
+          $ref: "#/components/responses/UnauthorizedUserError"
+        "403":
+          $ref: "#/components/responses/ForbiddenUserError"
+        "404":
+          $ref: "#/components/responses/NoUserError"
+        "500":
+          $ref: "#/components/responses/UnknownError"
+  "/api/v2/users/{user}/grouplist/":
     parameters:
-      - $ref: '#/components/parameters/user'
+      - $ref: "#/components/parameters/user"
     put:
       tags:
         - user
@@ -627,22 +661,22 @@ paths:
                   items:
                     type: string
       responses:
-        '201':
+        "201":
           description: Succeeded
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Response'
+                $ref: "#/components/schemas/Response"
               example:
-                message: 'update user grouplist successfully.'
-        '401':
-          $ref: '#/components/responses/UnauthorizedUserError'
-        '403':
-          $ref: '#/components/responses/ForbiddenUserError'
-        '404':
-          $ref: '#/components/responses/NoUserError'
-        '500':
-          $ref: '#/components/responses/UnknownError'
+                message: "update user grouplist successfully."
+        "401":
+          $ref: "#/components/responses/UnauthorizedUserError"
+        "403":
+          $ref: "#/components/responses/ForbiddenUserError"
+        "404":
+          $ref: "#/components/responses/NoUserError"
+        "500":
+          $ref: "#/components/responses/UnknownError"
   /api/v2/groups:
     get:
       tags:
@@ -653,7 +687,7 @@ paths:
       security:
         - bearerAuth: []
       responses:
-        '200':
+        "200":
           description: Succeeded
           content:
             application/json:
@@ -674,8 +708,13 @@ paths:
                       description: the external group name binding with the group in OpenPAI
                     extension:
                       type: object
-        '500':
-          $ref: '#/components/responses/UnknownError'
+              example:
+                - groupname: groupName
+                  description: description
+                  externalName: externalName
+                  extension: {}
+        "500":
+          $ref: "#/components/responses/UnknownError"
     post:
       tags:
         - group
@@ -708,20 +747,20 @@ paths:
                 - groupname
         required: true
       responses:
-        '201':
+        "201":
           description: Succeeded
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Response'
+                $ref: "#/components/schemas/Response"
               example:
                 message: group is created successfully
-        '401':
-          $ref: '#/components/responses/UnauthorizedUserError'
-        '403':
-          $ref: '#/components/responses/ForbiddenUserError'
-        '500':
-          $ref: '#/components/responses/UnknownError'
+        "401":
+          $ref: "#/components/responses/UnauthorizedUserError"
+        "403":
+          $ref: "#/components/responses/ForbiddenUserError"
+        "500":
+          $ref: "#/components/responses/UnknownError"
     put:
       tags:
         - group
@@ -760,25 +799,25 @@ paths:
                   default: false
         required: true
       responses:
-        '201':
+        "201":
           description: Succeeded
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Response'
+                $ref: "#/components/schemas/Response"
               example:
-                message: 'update group {groupname} successfully.'
-        '401':
-          $ref: '#/components/responses/UnauthorizedUserError'
-        '403':
-          $ref: '#/components/responses/ForbiddenUserError'
-        '404':
-          $ref: '#/components/responses/NoGroupError'
-        '500':
-          $ref: '#/components/responses/UnknownError'
-  '/api/v2/groups/{group}':
+                message: "update group {groupname} successfully."
+        "401":
+          $ref: "#/components/responses/UnauthorizedUserError"
+        "403":
+          $ref: "#/components/responses/ForbiddenUserError"
+        "404":
+          $ref: "#/components/responses/NoGroupError"
+        "500":
+          $ref: "#/components/responses/UnknownError"
+  "/api/v2/groups/{group}":
     parameters:
-      - $ref: '#/components/parameters/group'
+      - $ref: "#/components/parameters/group"
     get:
       tags:
         - group
@@ -789,7 +828,7 @@ paths:
       security:
         - bearerAuth: []
       responses:
-        '200':
+        "200":
           description: Succeeded
           content:
             application/json:
@@ -812,12 +851,17 @@ paths:
                   - description
                   - externalName
                   - extension
-        '401':
-          $ref: '#/components/responses/UnauthorizedUserError'
-        '404':
-          $ref: '#/components/responses/NoGroupError'
-        '500':
-          $ref: '#/components/responses/UnknownError'
+              example:
+                groupname: groupName
+                description: description
+                externalName: externalName
+                extension: {}
+        "401":
+          $ref: "#/components/responses/UnauthorizedUserError"
+        "404":
+          $ref: "#/components/responses/NoGroupError"
+        "500":
+          $ref: "#/components/responses/UnknownError"
     delete:
       tags:
         - group
@@ -829,23 +873,23 @@ paths:
       security:
         - bearerAuth: []
       responses:
-        '201':
+        "201":
           description: Succeeded
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Response'
+                $ref: "#/components/schemas/Response"
               example:
                 message: group is removed successfully
-        '401':
-          $ref: '#/components/responses/UnauthorizedUserError'
-        '403':
-          $ref: '#/components/responses/ForbiddenUserError'
-        '500':
-          $ref: '#/components/responses/UnknownError'
-  '/api/v2/groups/{group}/userlist':
+        "401":
+          $ref: "#/components/responses/UnauthorizedUserError"
+        "403":
+          $ref: "#/components/responses/ForbiddenUserError"
+        "500":
+          $ref: "#/components/responses/UnknownError"
+  "/api/v2/groups/{group}/userlist":
     parameters:
-      - $ref: '#/components/parameters/group'
+      - $ref: "#/components/parameters/group"
     get:
       tags:
         - group
@@ -853,7 +897,7 @@ paths:
       description: Get the user array of a group in the system.
       operationId: getGroupMembers
       responses:
-        '200':
+        "200":
           description: Succeeded
           content:
             application/json:
@@ -869,10 +913,13 @@ paths:
                     clusterAdmin:
                       type: boolean
                       description: Cluster admin or not.
-        '401':
-          $ref: '#/components/responses/UnauthorizedUserError'
-        '500':
-          $ref: '#/components/responses/UnknownError'
+              example:
+                - username: username
+                  clusterAdmin: false
+        "401":
+          $ref: "#/components/responses/UnauthorizedUserError"
+        "500":
+          $ref: "#/components/responses/UnknownError"
   /api/v2/virtual-clusters:
     get:
       tags:
@@ -883,17 +930,17 @@ paths:
       security:
         - bearerAuth: []
       responses:
-        '200':
+        "200":
           description: Succeeded
           content:
             application/json:
               schema:
                 type: object
                 additionalProperties:
-                  $ref: '#/components/schemas/VirtualCluster'
-        '500':
-          $ref: '#/components/responses/UnknownError'
-  '/api/v2/virtual-clusters/{vc}':
+                  $ref: "#/components/schemas/VirtualCluster"
+        "500":
+          $ref: "#/components/responses/UnknownError"
+  "/api/v2/virtual-clusters/{vc}":
     get:
       tags:
         - virtual cluster
@@ -903,18 +950,41 @@ paths:
       security:
         - bearerAuth: []
       parameters:
-        - $ref: '#/components/parameters/vc'
+        - $ref: "#/components/parameters/vc"
       responses:
-        '200':
+        "200":
           description: Succeeded
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/VirtualCluster'
-        '404':
-          $ref: '#/components/responses/NoVirtualClusterError'
-        '500':
-          $ref: '#/components/responses/UnknownError'
+                $ref: "#/components/schemas/VirtualCluster"
+              example:
+                capacity: 70
+                usedCapacity: 30
+                dedicated: false
+                resourcesUsed:
+                  cpu: 1
+                  memory: 1024
+                  gpu: 1
+                  vCores: 1
+                  GPUs: 1
+                resourcesGuaranteed:
+                  cpu: 2
+                  memory: 2048
+                  gpu: 2
+                  vCores: 2
+                  GPUs: 2
+                resourcesTotal:
+                  cpu: 2
+                  memory: 2048
+                  gpu: 2
+                  vCores: 2
+                  GPUs: 2
+                maxCapacity: 70
+        "404":
+          $ref: "#/components/responses/NoVirtualClusterError"
+        "500":
+          $ref: "#/components/responses/UnknownError"
   /api/v2/storages:
     get:
       tags:
@@ -927,19 +997,24 @@ paths:
       parameters:
         - name: default
           in: query
-          description: Return default storage or not.
+          description: If true, return default storages only.
           schema:
             type: boolean
       responses:
-        '200':
+        "200":
           description: Succeeded
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/StorageSummary'
-        '500':
-          $ref: '#/components/responses/UnknownError'
-  '/api/v2/storages/{storage}':
+                $ref: "#/components/schemas/StorageSummary"
+              example:
+                storages:
+                  - name: name
+                    share: true
+                    volumeName: volumeName
+        "500":
+          $ref: "#/components/responses/UnknownError"
+  "/api/v2/storages/{storage}":
     get:
       tags:
         - storage
@@ -949,29 +1024,37 @@ paths:
       security:
         - bearerAuth: []
       parameters:
-        - $ref: '#/components/parameters/storage'
+        - $ref: "#/components/parameters/storage"
       responses:
-        '200':
+        "200":
           description: Succeeded
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/StorageDetail'
-        '403':
+                $ref: "#/components/schemas/StorageDetail"
+              example:
+                name: nfs-storage-name
+                share: true
+                volumeName: nfs-volume-name
+                type: nfs
+                data:
+                  server: <ip-address>
+                  path: "/data"
+        "403":
           description: ForbiddenUserError
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Response'
+                $ref: "#/components/schemas/Response"
               examples:
                 ForbiddenUserError:
                   value:
                     code: ForbiddenUserError
-                    message: 'User {user} is not allowed to access {storage}.'
-        '404':
-          $ref: '#/components/responses/NoStorageError'
-        '500':
-          $ref: '#/components/responses/UnknownError'
+                    message: "User {user} is not allowed to access {storage}."
+        "404":
+          $ref: "#/components/responses/NoStorageError"
+        "500":
+          $ref: "#/components/responses/UnknownError"
   /api/v2/jobs:
     post:
       tags:
@@ -986,25 +1069,25 @@ paths:
         content:
           text/yaml:
             schema:
-              $ref: '#/components/schemas/JobProtocol'
+              $ref: "#/components/schemas/JobProtocol"
         required: true
       responses:
-        '202':
+        "202":
           description: Succeeded
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Response'
+                $ref: "#/components/schemas/Response"
               example:
-                message: 'update job {job} successfully'
-        '400':
-          $ref: '#/components/responses/NoVirtualClusterError'
-        '403':
-          $ref: '#/components/responses/ForbiddenUserError'
-        '409':
-          $ref: '#/components/responses/ConflictJobError'
-        '500':
-          $ref: '#/components/responses/UnknownError'
+                message: "update job {job} successfully"
+        "400":
+          $ref: "#/components/responses/NoVirtualClusterError"
+        "403":
+          $ref: "#/components/responses/ForbiddenUserError"
+        "409":
+          $ref: "#/components/responses/ConflictJobError"
+        "500":
+          $ref: "#/components/responses/UnknownError"
     get:
       tags:
         - job
@@ -1020,15 +1103,27 @@ paths:
           schema:
             type: string
       responses:
-        '200':
+        "200":
           description: Succeeded
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/JobSummary'
-        '500':
-          $ref: '#/components/responses/UnknownError'
-  '/api/v2/jobs/{user}~{job}':
+                $ref: "#/components/schemas/JobSummary"
+              example:
+                - protocolVersion: "2"
+                  name: job name
+                  username: user name
+                  state: SUCCEEDED
+                  subState: Completed
+                  executionType: STOP
+                  retries: 0
+                  createdTime: 0
+                  completedTime: 0
+                  appExitCode: 0
+                  virtualCluster: unknown
+        "500":
+          $ref: "#/components/responses/UnknownError"
+  "/api/v2/jobs/{user}~{job}":
     get:
       tags:
         - job
@@ -1038,20 +1133,42 @@ paths:
       security:
         - bearerAuth: []
       parameters:
-        - $ref: '#/components/parameters/user'
-        - $ref: '#/components/parameters/job'
+        - $ref: "#/components/parameters/user"
+        - $ref: "#/components/parameters/job"
       responses:
-        '200':
+        "200":
           description: Succeeded
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/JobDetail'
-        '404':
-          $ref: '#/components/responses/NoJobError'
-        '500':
-          $ref: '#/components/responses/UnknownError'
-  '/api/v2/jobs/{user}~{job}/config':
+                $ref: "#/components/schemas/JobDetail"
+              example:
+                name: job name
+                jobStatus:
+                  username: user name
+                  state: SUCCEEDED
+                  subState: Completed
+                  executionType: STOP
+                  retries: 0
+                  createdTime: 0
+                  completedTime: 0
+                  appId: id
+                  appLaunchedTime: 0
+                  appCompletedTime: 0
+                  appExitCode: 0
+                  virtualCluster: unknown
+                taskRoles:
+                  taskrole:
+                    taskRoleStatus:
+                      name: task role name
+                    taskStatuses:
+                      - taskIndex: 0
+                        taskState: SUCCEEDED
+        "404":
+          $ref: "#/components/responses/NoJobError"
+        "500":
+          $ref: "#/components/responses/UnknownError"
+  "/api/v2/jobs/{user}~{job}/config":
     get:
       tags:
         - job
@@ -1061,29 +1178,47 @@ paths:
       security:
         - bearerAuth: []
       parameters:
-        - $ref: '#/components/parameters/user'
-        - $ref: '#/components/parameters/job'
+        - $ref: "#/components/parameters/user"
+        - $ref: "#/components/parameters/job"
       responses:
-        '200':
+        "200":
           description: Succeeded
           content:
             text/yaml:
               schema:
-                $ref: '#/components/schemas/JobProtocol'
-        '404':
+                $ref: "#/components/schemas/JobProtocol"
+              example:
+                protocolVersion: "2"
+                name: <job_name>
+                type: job
+                prerequisites:
+                  - name: <image_name>
+                    type: dockerimage
+                    uri: image_url
+                taskRoles:
+                  train:
+                    instances: 1
+                    dockerImage: <image_name>
+                    resourcePerInstance:
+                      cpu: 1
+                      memoryMB: 16384
+                      gpu: 1
+                    commands:
+                      - python <start up script>
+        "404":
           description: NoJobError or NoJobConfigError
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Response'
+                $ref: "#/components/schemas/Response"
               examples:
                 NoJobError:
-                  $ref: '#/components/responses/NoJobError/content/application~1json/examples/NoJobError'
+                  $ref: "#/components/responses/NoJobError/content/application~1json/examples/NoJobError"
                 NoJobConfigError:
-                  $ref: '#/components/responses/NoJobConfigError/content/application~1json/examples/NoJobConfigError'
-        '500':
-          $ref: '#/components/responses/UnknownError'
-  '/api/v2/jobs/{user}~{job}/exectionType':
+                  $ref: "#/components/responses/NoJobConfigError/content/application~1json/examples/NoJobConfigError"
+        "500":
+          $ref: "#/components/responses/UnknownError"
+  "/api/v2/jobs/{user}~{job}/executionType":
     put:
       tags:
         - job
@@ -1093,8 +1228,8 @@ paths:
       security:
         - bearerAuth: []
       parameters:
-        - $ref: '#/components/parameters/user'
-        - $ref: '#/components/parameters/job'
+        - $ref: "#/components/parameters/user"
+        - $ref: "#/components/parameters/job"
       requestBody:
         description: Execution type
         content:
@@ -1112,19 +1247,19 @@ paths:
                 - value
         required: true
       responses:
-        '202':
+        "202":
           description: Succeeded
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Response'
+                $ref: "#/components/schemas/Response"
               example:
                 message: execute job {job} successfully
-        '404':
-          $ref: '#/components/responses/NoJobError'
-        '500':
-          $ref: '#/components/responses/UnknownError'
-  '/api/v2/jobs/{user}~{job}/job-attempts/healthz':
+        "404":
+          $ref: "#/components/responses/NoJobError"
+        "500":
+          $ref: "#/components/responses/UnknownError"
+  "/api/v2/jobs/{user}~{job}/job-attempts/healthz":
     get:
       tags:
         - job history
@@ -1134,14 +1269,14 @@ paths:
       security:
         - bearerAuth: []
       parameters:
-        - $ref: '#/components/parameters/user'
-        - $ref: '#/components/parameters/job'
+        - $ref: "#/components/parameters/user"
+        - $ref: "#/components/parameters/job"
       responses:
-        '200':
+        "200":
           description: OK
-        '501':
+        "501":
           description: Not healthy
-  '/api/v2/jobs/{user}~{job}/job-attempts':
+  "/api/v2/jobs/{user}~{job}/job-attempts":
     get:
       tags:
         - job history
@@ -1151,23 +1286,75 @@ paths:
       security:
         - bearerAuth: []
       parameters:
-        - $ref: '#/components/parameters/user'
-        - $ref: '#/components/parameters/job'
+        - $ref: "#/components/parameters/user"
+        - $ref: "#/components/parameters/job"
       responses:
-        '200':
+        "200":
           description: Succeeded
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/JobAttempt'
+                  $ref: "#/components/schemas/JobAttempt"
                 description: job attempts
-        '404':
-          $ref: '#/components/responses/NoJobError'
-        '501':
-          $ref: '#/components/responses/UnknownError'
-  '/api/v2/jobs/{user}~{job}/job-attempts/{attemptIndex}':
+              example:
+                - jobName: jobName
+                  frameworkName: frameworkName
+                  uid: uid
+                  userName: userName
+                  state: SUCCEEDED
+                  originState: Completed
+                  maxAttemptCount: 1
+                  attemptIndex: 0
+                  jobStartedTime: 0
+                  attemptStartedTime: 0
+                  attemptCompletedTime: 0
+                  exitCode: 0
+                  exitPhrase: Succeeded
+                  exitType: Succeeded
+                  exitDiagnostics:
+                    diagnosticsSummary: Pod succeeded
+                    runtime:
+                    launcher: Pod succeeded
+                  appExitTriggerMessage: "All Tasks are completed"
+                  appExitTriggerTaskRoleName: taskrole
+                  appExitTriggerTaskIndex: 0
+                  appExitSpec:
+                    code: 0
+                    phrase: Succeeded
+                    issuer: USER_CONTAINER
+                    causer: USER_CONTAINER
+                    type: USER_SUCCESS
+                    stage: COMPLETING
+                    behavior: UNKNOWN
+                    reaction: NEVER_RETRY
+                    repro:
+                      - User program exits with exitcode 0
+                  appExitDiagnostics: Pod succeeded
+                  appExitMessages:
+                    container:
+                    runtime:
+                    launcher: Pod succeeded
+                  totalGpuNumber: 1
+                  totalTaskNumber: 1
+                  totalTaskRoleNumber: 1
+                  taskRoles:
+                    taskrole:
+                      taskRoleStatus:
+                        name: taskrole
+                      taskStatuses:
+                        - taskIndex: 0
+                          taskState: SUCCEEDED
+                          containerId: <container id>
+                          containerIp: <container ip>
+                          containerExitCode: 0
+                  isLatest: true
+        "404":
+          $ref: "#/components/responses/NoJobError"
+        "501":
+          $ref: "#/components/responses/UnknownError"
+  "/api/v2/jobs/{user}~{job}/job-attempts/{attemptIndex}":
     get:
       tags:
         - job history
@@ -1177,20 +1364,72 @@ paths:
       security:
         - bearerAuth: []
       parameters:
-        - $ref: '#/components/parameters/user'
-        - $ref: '#/components/parameters/job'
-        - $ref: '#/components/parameters/attemptIndex'
+        - $ref: "#/components/parameters/user"
+        - $ref: "#/components/parameters/job"
+        - $ref: "#/components/parameters/attemptIndex"
       responses:
-        '200':
+        "200":
           description: Succeeded
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/JobAttempt'
-        '404':
-          $ref: '#/components/responses/NoJobError'
-        '501':
-          $ref: '#/components/responses/UnknownError'
+                $ref: "#/components/schemas/JobAttempt"
+              example:
+                jobName: jobName
+                frameworkName: frameworkName
+                uid: uid
+                userName: userName
+                state: SUCCEEDED
+                originState: Completed
+                maxAttemptCount: 1
+                attemptIndex: 0
+                jobStartedTime: 0
+                attemptStartedTime: 0
+                attemptCompletedTime: 0
+                exitCode: 0
+                exitPhrase: Succeeded
+                exitType: Succeeded
+                exitDiagnostics:
+                  diagnosticsSummary: Pod succeeded
+                  runtime:
+                  launcher: Pod succeeded
+                appExitTriggerMessage: "All Tasks are completed"
+                appExitTriggerTaskRoleName: taskrole
+                appExitTriggerTaskIndex: 0
+                appExitSpec:
+                  code: 0
+                  phrase: Succeeded
+                  issuer: USER_CONTAINER
+                  causer: USER_CONTAINER
+                  type: USER_SUCCESS
+                  stage: COMPLETING
+                  behavior: UNKNOWN
+                  reaction: NEVER_RETRY
+                  repro:
+                    - User program exits with exitcode 0
+                appExitDiagnostics: Pod succeeded
+                appExitMessages:
+                  container:
+                  runtime:
+                  launcher: Pod succeeded
+                totalGpuNumber: 1
+                totalTaskNumber: 1
+                totalTaskRoleNumber: 1
+                taskRoles:
+                  taskrole:
+                    taskRoleStatus:
+                      name: taskrole
+                    taskStatuses:
+                      - taskIndex: 0
+                        taskState: SUCCEEDED
+                        containerId: <container id>
+                        containerIp: <container ip>
+                        containerExitCode: 0
+                isLatest: true
+        "404":
+          $ref: "#/components/responses/NoJobError"
+        "501":
+          $ref: "#/components/responses/UnknownError"
   /api/v2/kubernetes/nodes:
     get:
       tags:
@@ -1201,7 +1440,7 @@ paths:
       security:
         - bearerAuth: []
       responses:
-        '200':
+        "200":
           description: Succeeded
           content:
             application/json:
@@ -1209,10 +1448,10 @@ paths:
                 - Please refer to Kubernetes API doc
                 - >-
                   https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.17/#list-node-v1-core
-        '401':
-          $ref: '#/components/responses/UnauthorizedUserError'
-        '403':
-          $ref: '#/components/responses/ForbiddenUserError'
+        "401":
+          $ref: "#/components/responses/UnauthorizedUserError"
+        "403":
+          $ref: "#/components/responses/ForbiddenUserError"
   /api/v2/kubernetes/pods:
     get:
       tags:
@@ -1229,7 +1468,7 @@ paths:
       security:
         - bearerAuth: []
       responses:
-        '200':
+        "200":
           description: Succeeded
           content:
             application/json:
@@ -1237,10 +1476,10 @@ paths:
                 - Please refer to Kubernetes API doc
                 - >-
                   https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.17/#list-all-namespaces-pod-v1-core
-        '401':
-          $ref: '#/components/responses/UnauthorizedUserError'
-        '403':
-          $ref: '#/components/responses/ForbiddenUserError'
+        "401":
+          $ref: "#/components/responses/UnauthorizedUserError"
+        "403":
+          $ref: "#/components/responses/ForbiddenUserError"
 components:
   parameters:
     token:
@@ -1285,7 +1524,7 @@ components:
     framework:
       name: framework
       in: path
-      description: 'framework name defined by {user}~{job}'
+      description: "framework name defined by {user}~{job}"
       required: true
       schema:
         type: string
@@ -1500,7 +1739,7 @@ components:
           properties:
             submitFrom:
               type: string
-            hivedscheduler:
+            hivedScheduler:
               type: object
               properties:
                 jobPriorityClass:
@@ -1510,9 +1749,9 @@ components:
                   additionalProperties:
                     type: object
                     properties:
-                      gpuType:
+                      skuType:
                         type: string
-                      reservationId:
+                      pinnedCellId:
                         type: string
                       affinityGroupName:
                         type: string
@@ -1732,7 +1971,13 @@ components:
                   type: string
                 reaction:
                   type: string
+                reason:
+                  type: string
                 repro:
+                  type: array
+                  items:
+                    type: string
+                solution:
                   type: array
                   items:
                     type: string
@@ -1781,7 +2026,6 @@ components:
             - retries
             - createdTime
             - completedTime
-            - appId
             - appLaunchedTime
             - appCompletedTime
             - appExitCode
@@ -1821,10 +2065,16 @@ components:
                         - UNKNOWN
                     containerId:
                       type: string
+                      nullable: true
                       description: uid of the task container
                     containerIp:
                       type: string
+                      nullable: true
                       description: ip of the task container
+                    containerNodeName:
+                      type: string
+                      nullable: true
+                      description: node name of task container
                     containerPorts:
                       type: object
                       description: ports of the task container
@@ -1839,6 +2089,68 @@ components:
                       type: integer
                       nullable: true
                       description: exit code the task container
+                    containerExitSpec:
+                      type: object
+                      nullable: true
+                      description: container exit spec
+                      properties:
+                        code:
+                          type: integer
+                        phrase:
+                          type: string
+                        issuer:
+                          type: string
+                        causer:
+                          type: string
+                        type:
+                          type: string
+                        stage:
+                          type: string
+                        behavior:
+                          type: string
+                        reaction:
+                          type: string
+                        reason:
+                          type: string
+                        repro:
+                          type: array
+                          items:
+                            type: string
+                        solution:
+                          type: array
+                          items:
+                            type: string
+                    containerExitDiagnostics:
+                      type: string
+                      nullable: true
+                      description: container exit diagnostics
+                    retries:
+                      type: integer
+                    accountableRetries:
+                      type: integer
+                    createdTime:
+                      type: integer
+                      description: >-
+                        task created time, in number of milliseconds since the Unix
+                        Epoch.
+                    completedTime:
+                      type: integer
+                      description: >-
+                        task completion time, in number of milliseconds since the Unix
+                        Epoch.
+                    currentAttemptLaunchedTime:
+                      type: integer
+                      description: >-
+                        the current attempt launched time, in number of milliseconds since the Unix
+                        Epoch.
+                    currentAttemptCompletedTime:
+                      type: integer
+                      description: >-
+                        the current attempt completion time, in number of milliseconds since the Unix
+                        Epoch.
+                    hived:
+                      type: object
+                      nullable: true
             required:
               - taskRoleStatus
               - taskStatuses
@@ -1944,10 +2256,13 @@ components:
                 type: boolean
               volumeName:
                 type: string
+              default:
+                type: boolean
             required:
               - name
               - share
               - volumeName
+              - default
       required:
         - storages
     StorageDetail:
@@ -2049,14 +2364,17 @@ components:
           type: string
         originState:
           type: string
+          nullable: true
         maxAttemptCount:
           type: integer
         attemptIndex:
           type: integer
+          nullable: true
         jobStartedTime:
           type: integer
         attemptStartedTime:
           type: integer
+          nullable: true
         attemptCompletedTime:
           type: integer
           nullable: true
@@ -2207,6 +2525,7 @@ components:
                           - UNKNOWN
                       containerId:
                         type: string
+                        nullable: true
                       containerIp:
                         type: string
                       containerGpus:
@@ -2261,7 +2580,7 @@ components:
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/Response'
+            $ref: "#/components/schemas/Response"
           examples:
             IncorrectPasswordError:
               value:
@@ -2272,40 +2591,40 @@ components:
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/Response'
+            $ref: "#/components/schemas/Response"
           examples:
             NoVirtualClusterError:
               value:
                 code: NoVirtualClusterError
-                message: 'Virtual cluster {vc} is not found.'
+                message: "Virtual cluster {vc} is not found."
     NoGroupError:
       description: NoGroupError
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/Response'
+            $ref: "#/components/schemas/Response"
           examples:
             NoGroupError:
               value:
                 code: NoGroupError
-                message: 'Group {groupname} is not found.'
+                message: "Group {groupname} is not found."
     NoStorageError:
       description: NoStorageError
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/Response'
+            $ref: "#/components/schemas/Response"
           examples:
             NoVirtualClusterError:
               value:
                 code: NoStorageError
-                message: 'Storage {storage} is not found.'
+                message: "Storage {storage} is not found."
     UnauthorizedUserError:
       description: UnauthorizedUserError
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/Response'
+            $ref: "#/components/schemas/Response"
           examples:
             UnauthorizedUserError:
               value:
@@ -2316,7 +2635,7 @@ components:
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/Response'
+            $ref: "#/components/schemas/Response"
           examples:
             ForbiddenUserError:
               value:
@@ -2331,7 +2650,7 @@ components:
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/Response'
+            $ref: "#/components/schemas/Response"
           examples:
             ForbiddenKeyError:
               value:
@@ -2342,73 +2661,73 @@ components:
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/Response'
+            $ref: "#/components/schemas/Response"
           examples:
             NoUserError:
               value:
                 code: NoUserError
-                message: 'User {user} is not found.'
+                message: "User {user} is not found."
     NoJobError:
       description: NoJobError
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/Response'
+            $ref: "#/components/schemas/Response"
           examples:
             NoJobError:
               value:
                 code: NoJobError
-                message: 'Job {job} is not found.'
+                message: "Job {job} is not found."
     NoJobConfigError:
       description: NoJobConfigError
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/Response'
+            $ref: "#/components/schemas/Response"
           examples:
             NoJobConfigError:
               value:
                 code: NoJobConfigError
-                message: 'Config of job {job} is not found.'
+                message: "Config of job {job} is not found."
     NoJobSshInfoError:
       description: NoJobSshInfoError
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/Response'
+            $ref: "#/components/schemas/Response"
           examples:
             NoJobSshInfoError:
               value:
                 code: NoJobSshInfoError
-                message: 'SSH info of job {job} is not found.'
+                message: "SSH info of job {job} is not found."
     ConflictUserError:
       description: ConflictUserError
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/Response'
+            $ref: "#/components/schemas/Response"
           examples:
             ConflictUserError:
               value:
                 code: ConflictUserError
-                message: 'User name {user} already exists.'
+                message: "User name {user} already exists."
     ConflictJobError:
       description: ConflictJobError
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/Response'
+            $ref: "#/components/schemas/Response"
           examples:
             ConflictJobError:
               value:
                 code: ConflictJobError
-                message: 'Job name {job} already exists.'
+                message: "Job name {job} already exists."
     UnknownError:
       description: UnknownError
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/Response'
+            $ref: "#/components/schemas/Response"
           examples:
             UnknownError:
               value:
