@@ -59,8 +59,13 @@ def generate_template_file(template_file_path, output_path, map_table):
 
 def generate_aks_engine_script(aks_engine_cfg, working_dir, script_dir):
     generate_template_file(
-        "{0}/template/k8s.json.j2".format(script_dir),
+        "{0}/templates/k8s.json.j2".format(script_dir),
         "{0}/k8s.json".format(working_dir),
+        aks_engine_cfg
+    )
+    generate_template_file(
+        "{0}/templates/aks-engine.sh.j2".format(script_dir),
+        "{0}/aks-engine.sh".format(working_dir),
         aks_engine_cfg
     )
 
@@ -89,7 +94,7 @@ def main():
     aks_engine_working_dir = "{0}/{1}".format(current_working_dir, TEMPORARY_DIR_NAME)
     create_folder_if_not_exist(aks_engine_working_dir)
 
-    generate_aks_engine_script(aks_engine_cfg, current_working_dir, aks_engine_working_dir)
+    generate_aks_engine_script(aks_engine_cfg, aks_engine_working_dir, python_script_path)
 
 
 if __name__ == "__main__":
