@@ -56,9 +56,8 @@ def generate_template_file(template_file_path, output_path, map_table):
     generated_template = generate_from_template_dict(template, map_table)
     write_generated_file(output_path, generated_template)
 
-def generate_aks_engine_script(aks_engine_cfg, working_dir, script_dir):
 
-    cfg = aks_engine_cfg
+def generate_aks_engine_script(aks_engine_cfg, working_dir, script_dir):
     generate_template_file(
         "{0}/template/k8s.json.j2".format(script_dir),
         "{0}/k8s.json".format(working_dir),
@@ -90,6 +89,7 @@ def main():
     aks_engine_working_dir = "{0}/{1}".format(current_working_dir, TEMPORARY_DIR_NAME)
     create_folder_if_not_exist(aks_engine_working_dir)
 
+    generate_aks_engine_script(aks_engine_cfg, current_working_dir, aks_engine_working_dir)
 
 
 if __name__ == "__main__":
