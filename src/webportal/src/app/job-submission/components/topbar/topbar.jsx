@@ -48,7 +48,7 @@ export const Topbar = React.memo(
           </Text>
           <Link
             target='_blank'
-            href='https://github.com/microsoft/pai/blob/master/docs/user/job_submission.md'
+            href='https://openpai.readthedocs.io/en/latest/manual/cluster-user/quick-start.html'
             style={{ fontWeight: FontWeights.semibold }}
           >
             {'Learn more >'}
