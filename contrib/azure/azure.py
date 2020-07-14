@@ -208,8 +208,8 @@ def main():
     aks_engine_working_dir = "{0}/{1}".format(current_working_dir, TEMPORARY_DIR_NAME)
     create_folder_if_not_exist(aks_engine_working_dir)
 
-    generate_aks_engine_script(aks_engine_cfg, aks_engine_working_dir, python_script_path)
-    start_kubernetes(aks_engine_working_dir)
+    #generate_aks_engine_script(aks_engine_cfg, aks_engine_working_dir, python_script_path)
+    #start_kubernetes(aks_engine_working_dir)
 
     k8s_info = get_k8s_cluster_info(current_working_dir, aks_engine_cfg["dns_prefix"], aks_engine_cfg["location"])
     generate_openpai_configuration(k8s_info, aks_engine_cfg, aks_engine_working_dir, python_script_path)
