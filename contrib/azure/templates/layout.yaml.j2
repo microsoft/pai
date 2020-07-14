@@ -48,7 +48,6 @@ machine-list:
       machine-type: GENERIC-MASTER
       dashboard: "true"
       pai-master: "true"
-{%- endif %}
 {%- endfor %}
 {%- for vm in k8s["worker"] %}
     - hostname: {{ vm["hostname"] }}
