@@ -112,7 +112,6 @@ def start_kubernetes(working_dir):
 
 def get_k8s_cluster_info(working_dir, dns_prefix, location):
     kube_config_path = "{0}/_output/{1}/kubeconfig/kubeconfig.{2}.json".format(working_dir, dns_prefix, location)
-    print(kube_config_path)
     master_string = "opmaster"
     worker_string = "opworker"
 
@@ -131,6 +130,7 @@ def get_k8s_cluster_info(working_dir, dns_prefix, location):
         api_response = api_instance.list_node(pretty=pretty, timeout_seconds=timeout_seconds)
         for node in api_response.items:
             gpu_resource = 0
+            print(node.status)
             if 'nvidia.com/gpu' in node.status.allocatable:
                 gpu_resource = int(parse_quantity(node.status.allocatable['nvidia.com/gpu']))
             if master_string in node.metadata.name:
@@ -209,8 +209,8 @@ def main():
     aks_engine_working_dir = "{0}/{1}".format(current_working_dir, TEMPORARY_DIR_NAME)
     create_folder_if_not_exist(aks_engine_working_dir)
 
-    generate_aks_engine_script(aks_engine_cfg, aks_engine_working_dir, python_script_path)
-    start_kubernetes(aks_engine_working_dir)
+    #generate_aks_engine_script(aks_engine_cfg, aks_engine_working_dir, python_script_path)
+    #start_kubernetes(aks_engine_working_dir)
 
     k8s_info = get_k8s_cluster_info(current_working_dir, aks_engine_cfg["dns_prefix"], aks_engine_cfg["location"])
     generate_openpai_configuration(k8s_info, aks_engine_cfg, aks_engine_working_dir, python_script_path)
