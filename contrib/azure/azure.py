@@ -112,9 +112,18 @@ def generate_openpai_configuration(k8s_info, aks_engine_cfg, working_dir, script
         }
     )
 
+
 def start_kubernetes(working_dir):
-    command = '/bin/bash {0}/aks-engine.sh'.format(working_dir)
+    command = "/bin/bash {0}/aks-engine.sh".format(working_dir)
     execute_shell(command, "Failed to start k8s on azure with aks-engine.")
+
+
+def start_openpai(aks_engine_working_dir):
+    command = "/bin/bash {0}/generate-key-and-cert.sh"
+    execute_shell(command, "Failed to generate ssl cert and private key for openpai.")
+
+    command = "/bin/bash {0}/start-openpai.sh"
+    execute_shell(command, "Failed to start openpai.")
 
 
 
