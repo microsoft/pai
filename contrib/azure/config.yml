@@ -33,7 +33,9 @@ linux_profile:
   publicKeys: "${key content}"
 
 openpai_config:
-  docker_image_tag: tag
+  branch_name: v1.0.1
+
+  docker_image_tag: v1.0.1
   docker_registry_domain: docker.io
   docker_registry_namespace: openpai
   #docker_registry_username: exampleuser

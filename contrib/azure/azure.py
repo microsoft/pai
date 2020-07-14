@@ -103,11 +103,19 @@ def generate_openpai_configuration(k8s_info, aks_engine_cfg, working_dir, script
             "k8s": k8s_info
         }
     )
-
+    generate_template_file(
+        "{0}/templates/start-openpai.sh.j2".format(script_dir),
+        "{0}/start-openpai.sh".format(working_dir),
+        {
+            "cfg": aks_engine_cfg,
+            "k8s": k8s_info
+        }
+    )
 
 def start_kubernetes(working_dir):
     command = '/bin/bash {0}/aks-engine.sh'.format(working_dir)
     execute_shell(command, "Failed to start k8s on azure with aks-engine.")
+
 
 
 def get_k8s_cluster_info(working_dir, dns_prefix, location):
@@ -181,7 +189,8 @@ def get_k8s_cluster_info(working_dir, dns_prefix, location):
         "sku": sku,
         "gpu": gpu_enable,
         "master_ip": master_ip,
-        "working_dir": "{0}/{1}".format(working_dir, TEMPORARY_DIR_NAME)
+        "working_dir": "{0}/{1}".format(working_dir, TEMPORARY_DIR_NAME),
+        "kube_config": "{0}/_output/{1}/kubeconfig/kubeconfig.{2}.json".format(working_dir, dns_prefix, location)
     }
 
 
