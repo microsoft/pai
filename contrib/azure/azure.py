@@ -112,7 +112,7 @@ def start_kubernetes(working_dir):
 
 def get_k8s_cluster_info(working_dir, dns_prefix, location):
     kube_config_path = "{0}/_output/{1}/kubeconfig/kubeconfig.{2}.json".format(working_dir, dns_prefix, location)
-
+    print(kube_config_path)
     master_string = "opmaster"
     worker_string = "opworker"
 
