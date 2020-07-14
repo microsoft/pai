@@ -92,10 +92,9 @@ if (sequelize && launcherConfig.enabledJobHistory) {
       return {status: 404, data: null};
     }
 
-    const sqlSentence = `SELECT (record->'objectSnapshot') as data FROM fc_objectsnapshots WHERE ` +
-      `record->'objectSnapshot'->'metadata'->'uid' ? '${uid}' and ` +
-      `record->'objectSnapshot'->'kind' ? 'Framework' ` +
-      `ORDER BY cast(record->'objectSnapshot'->'status'->'attemptStatus'->>'id' as INTEGER) ASC;`;
+    const sqlSentence = `SELECT (snapshot->'objectSnapshot') as data FROM framework_history WHERE ` +
+      `snapshot->'objectSnapshot'->'metadata'->'uid' ? '${uid}' ` +
+      `ORDER BY uid ASC;`;
     const pgResult = (await sequelize.query(sqlSentence))[0];
     const jobRetries = await Promise.all(
       pgResult.map((row) => {
@@ -146,11 +145,11 @@ if (sequelize && launcherConfig.enabledJobHistory) {
       if (isNil(uid)) {
         return {status: 404, data: null};
       }
-      const sqlSentence = `SELECT (record->'objectSnapshot') as data FROM fc_objectsnapshots WHERE ` +
-        `record->'objectSnapshot'->'metadata'->'uid' ? '${uid}' and ` +
-        `record->'objectSnapshot'->'status'->'attemptStatus'->>'id' = '${jobAttemptIndex}' and ` +
-        `record->'objectSnapshot'->'kind' ? 'Framework' ` +
-        `ORDER BY cast(record->'objectSnapshot'->'status'->'attemptStatus'->>'id' as INTEGER) ASC;`;
+      const sqlSentence = `SELECT (snapshot->'objectSnapshot') as data FROM framework_history WHERE ` +
+        `snapshot->'objectSnapshot'->'metadata'->'uid' ? '${uid}' and ` +
+        `attemptIndex = '${jobAttemptIndex}'` +
+        `ORDER BY uid ASC;`;
+
       const pgResult = (await sequelize.query(sqlSentence))[0];
 
       if (pgResult.length === 0) {

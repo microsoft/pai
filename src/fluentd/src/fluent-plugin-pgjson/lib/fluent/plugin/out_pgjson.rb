@@ -142,9 +142,8 @@ module Fluent::Plugin
           tag = chunk.metadata.tag
           # record is of type 'Hash'
           chunk.msgpack_each do |time, record|
-            attempt_index = 0
             log.debug "#{record}"
-            thread[:conn].put_copy_data "#{time}\x01#{record["objectSnapshot"]["metadata"]["name"]}\x01#{attempt_index}\x01#{"framework"}\x01#{record_value(record)}\n"
+            thread[:conn].put_copy_data "#{time}\x01#{record["objectSnapshot"]["metadata"]["name"]}\x01#{record["objectSnapshot"]["status"]["attemptStatus"]["id"]}\x01#{"retry"}\x01#{record_value(record)}\n"
           end
         rescue PG::ConnectionBad, PG::UnableToSend => err
           # connection error
