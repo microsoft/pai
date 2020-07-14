@@ -134,7 +134,7 @@ The same as `1. Ansible playbook exits because of timeout.` .
 
 #### Network-related Issues
 
-If you are deploying OpenPAI in mainland China, please refer to [here](./configuration-for-china.md).
+If you are a China user, please refer to [here](./configuration-for-china.md).
 
 **Cannot download kubeadm or hyperkube**
 

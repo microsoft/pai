@@ -64,9 +64,9 @@ Besides the requirements above, this installation script also requires that **al
 
 After you have decided all of the machines, please create a `master.csv`, a `worker.csv`, and a `config` file on the **dev box machine**. The files represent master machine list, worker machine list, and a customized configuration, respectively. The following is the format and example of these 3 files.
 
-#### Tips for Chinese Users
+#### Tips for China Users
 
-If you are deploying OpenPAI in mainland China, before you create these files, please refer to [here](./configuration-for-china.md) first.
+If you are a China user, before you create these files, please refer to [here](./configuration-for-china.md) first.
 
 ###### `master.csv` format
 

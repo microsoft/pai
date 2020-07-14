@@ -1,4 +1,4 @@
-如果您在中国大陆的网络下搭建OpenPAI，在[创建设置文件这一步](./installation-guide.md#create-configurations)，请使用下面的`config`文件：
+如果您是中国用户，在[创建设置文件这一步](./installation-guide.md#create-configurations)，请使用下面的`config`文件：
 
 ###### `config` example
 
