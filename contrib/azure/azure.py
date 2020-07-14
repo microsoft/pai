@@ -119,10 +119,10 @@ def start_kubernetes(working_dir):
 
 
 def start_openpai(aks_engine_working_dir):
-    command = "/bin/bash {0}/generate-key-and-cert.sh"
+    command = "/bin/bash {0}/generate-key-and-cert.sh".format(aks_engine_working_dir)
     execute_shell(command, "Failed to generate ssl cert and private key for openpai.")
 
-    command = "/bin/bash {0}/start-openpai.sh"
+    command = "/bin/bash {0}/start-openpai.sh".format(aks_engine_working_dir)
     execute_shell(command, "Failed to start openpai.")
 
 
