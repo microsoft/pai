@@ -42,17 +42,17 @@ machine-sku:
 
 machine-list:
 {%- for vm in k8s["master"] %}
-    - hostname: {{ vm["hostname"] }}
-      nodename: {{ vm["hostname"] }}
-      hostip: {{ vm["ip"] }}
+    - hostname: {{ k8s["master"][vm]["hostname"] }}
+      nodename: {{ k8s["master"][vm]["hostname"] }}
+      hostip: {{ k8s["master"][vm]["ip"] }}
       machine-type: GENERIC-MASTER
       dashboard: "true"
       pai-master: "true"
 {%- endfor %}
 {%- for vm in k8s["worker"] %}
-    - hostname: {{ vm["hostname"] }}
-      nodename: {{ vm["hostname"] }}
-      hostip: {{ vm["ip"] }}
+    - hostname: {{ k8s["worker"][vm]["hostname"] }}
+      nodename: {{ k8s["worker"][vm]["hostname"] }}
+      hostip: {{ k8s["worker"][vm]["ip"] }}
       machine-type: GENERIC-WORKER
       pai-worker: "true"
 {%- endfor %}
