@@ -17,6 +17,8 @@
     "express": "^4.17.1",
     "http-errors": "^1.8.0",
     "interval-promise": "^1.4.0",
+    "js-yaml": "^3.14.0",
+    "lodash": "^4.17.19",
     "module-alias": "^2.2.2",
     "morgan": "^1.10.0",
     "node-fetch": "^2.6.0",

@@ -31,6 +31,11 @@ class DatabaseModel {
       totalTaskNumber: Sequelize.INTEGER,
       totalTaskRoleNumber: Sequelize.INTEGER,
       logPathInfix: Sequelize.STRING(256),
+      submissionTime: {
+        type: Sequelize.DATE,
+        allowNull: false,
+        defaultValue: false
+      },
       dockerSecretDef: Sequelize.TEXT,
       configSecretDef: Sequelize.TEXT,
       priorityClassDef: Sequelize.TEXT,
@@ -63,7 +68,7 @@ class DatabaseModel {
       sequelize,
       indexes: [{
         unique: false,
-        fields: ['creationTime']
+        fields: ['submissionTime']
       }],
       modelName: 'framework',
       createdAt: 'insertedAt'

@@ -17,6 +17,9 @@
 
 const logger = require('@dbc/core/logger')
 const k8s = require('@dbc/core/k8s')
+const _ = require('lodash')
+const yaml = require('js-yaml');
+
 
 async function timePeriod (ms) {
   await new Promise((resolve, reject) => {
@@ -60,32 +63,191 @@ function alwaysRetryDecorator (promiseFn, loggingMessage, initialRetryDelayMs = 
   return _wrapper
 }
 
-function ignoreError(err) {
-  logger.info('This error will be ignored: ', err)
-}
-
-function reportError(err) {
-  logger.error(err)
-}
-
-async function synchronizeCreateRequest(frameworkDescription, configSecretDef, priorityClassDef, dockerSecretDef) {
-  try {
-    if (frameworkDescription !== null && !(frameworkDescription instanceof Object)) {
-      frameworkDescription = JSON.parse(frameworkDescription)
+const mockFrameworkStatus = () => {
+  return {
+    state: 'AttemptCreationPending',
+    attemptStatus: {
+      completionStatus: null,
+      taskRoleStatuses: []
+    },
+    retryPolicyStatus: {
+      retryDelaySec: null,
+      totalRetriedCount: 0,
+      accountableRetriedCount: 0
     }
+  }
+}
+
+const convertState = (state, exitCode, retryDelaySec) => {
+  switch (state) {
+    case 'AttemptCreationPending':
+    case 'AttemptCreationRequested':
+    case 'AttemptPreparing':
+      return 'WAITING'
+    case 'AttemptRunning':
+      return 'RUNNING'
+    case 'AttemptDeletionPending':
+    case 'AttemptDeletionRequested':
+    case 'AttemptDeleting':
+      if (exitCode === -210 || exitCode === -220) {
+        return 'STOPPING'
+      } else {
+        return 'RUNNING'
+      }
+    case 'AttemptCompleted':
+      if (retryDelaySec == null) {
+        return 'RUNNING'
+      } else {
+        return 'WAITING'
+      }
+    case 'Completed':
+      if (exitCode === 0) {
+        return 'SUCCEEDED'
+      } else if (exitCode === -210 || exitCode === -220) {
+        return 'STOPPED'
+      } else {
+        return 'FAILED'
+      }
+    default:
+      return 'UNKNOWN'
+  }
+}
+
+class Snapshot {
+
+  constructor(snapshot) {
+    if (snapshot instanceof Object){
+      this._snapshot = _.cloneDeep(snapshot)
+    }
+    else {
+      this._snapshot = JSON.parse(snapshot)
+    }
+    if (!this._snapshot.status) {
+      this._snapshot.status = mockFrameworkStatus()
+    }
+  }
+
+  copy() {
+    return new Snapshot(this._snapshot)
+  }
+
+  getRequest() {
+    return _.pick(this._snapshot, [
+      'apiVersion',
+      'kind',
+      'metadata',
+      'spec',
+    ])
+  }
+
+  isRequestEqual(otherFramework) {
+    return _.isEqual(
+      this.getRequest(),
+      otherFramework.getRequest(),
+    )
+  }
+
+  overrideRequest(otherFramework) {
+    _.assign(this._snapshot, otherFramework.getRequest())
+  }
+
+  overrideExecution(executionType) {
+    _.assign(this._snapshot, {spec: { executionType: executionType }})
+  }
+
+  getFRUpdate(withSnapshot=true) {
+    const loadedConfig = yaml.safeLoad(this._snapshot.metadata.annotations.config)
+    const jobPriority = _.get(loadedConfig, 'extras.hivedscheduler.jobPriorityClass', null)
+    const update = {
+      name: this._snapshot.metadata.name,
+      namespace: this._snapshot.metadata.namespace,
+      jobName: this._snapshot.metadata.annotations.jobName,
+      userName: this._snapshot.metadata.labels.userName,
+      jobConfig: this._snapshot.metadata.annotations.config,
+      executionType: this._snapshot.spec.executionType,
+      virtualCluster: this._snapshot.metadata.labels.virtualCluster,
+      jobPriority: jobPriority,
+      totalGpuNumber: this._snapshot.metadata.annotations.totalGpuNumber,
+      totalTaskNumber: this._snapshot.spec.taskRoles.reduce((num, spec) => num + spec.taskNumber, 0),
+      totalTaskRoleNumber: this._snapshot.spec.taskRoles.length,
+      logPathInfix: this._snapshot.metadata.annotations.logPathInfix,
+    }
+    if (withSnapshot) {
+      update.snapshot = JSON.stringify(this._snapshot)
+    }
+    return update
+  }
+
+  getFSUpdate(withSnapshot=true) {
+    const completionStatus = this._snapshot.status.attemptStatus.completionStatus
+    const update = {
+      retries: this._snapshot.status.retryPolicyStatus.totalRetriedCount,
+      retryDelayTime: this._snapshot.status.retryPolicyStatus.retryDelaySec,
+      platformRetries: this._snapshot.status.retryPolicyStatus.totalRetriedCount - this._snapshot.status.retryPolicyStatus.accountableRetriedCount,
+      resourceRetries: 0,
+      userRetries: this._snapshot.status.retryPolicyStatus.accountableRetriedCount,
+      creationTime: this._snapshot.metadata.creationTimestamp ? new Date(this._snapshot.metadata.creationTimestamp) : null,
+      completionTime: this._snapshot.status.completionTime ? new Date(this._snapshot.status.completionTime) : null,
+      appExitCode: completionStatus ? completionStatus.code : null,
+      subState: this._snapshot.status.state,
+      state: convertState(
+        this._snapshot.status.state,
+        completionStatus ? completionStatus.code : null,
+        this._snapshot.status.retryPolicyStatus.retryDelaySec
+      ),
+    }
+    if (withSnapshot) {
+      update.snapshot = JSON.stringify(this._snapshot)
+    }
+    return update
+  }
+
+  getAllUpdate(withSnapshot=true) {
+    const update = _.assign({}, this.getFRUpdate(), this.getFSUpdate())
+  }
+
+  getName() {
+    return this._snapshot.metadata.name
+  }
+}
+
+class AddOns {
+
+  constructor (configSecretDef=null, priorityClassDef=null, dockerSecretDef=null) {
     if (configSecretDef !== null && !(configSecretDef instanceof Object)) {
-      configSecretDef = JSON.parse(configSecretDef)
+      this._configSecretDef = JSON.parse(configSecretDef)
+    } else {
+      this._configSecretDef = configSecretDef
     }
     if (priorityClassDef !== null && !(priorityClassDef instanceof Object)) {
-      priorityClassDef = JSON.parse(priorityClassDef)
+      this._priorityClassDef = JSON.parse(priorityClassDef)
+    } else {
+      this._priorityClassDef = priorityClassDef
     }
     if (dockerSecretDef !== null && !(dockerSecretDef instanceof Object)) {
-      dockerSecretDef = JSON.parse(dockerSecretDef)
+      this._dockerSecretDef = JSON.parse(dockerSecretDef)
+    } else {
+      this._dockerSecretDef = dockerSecretDef
     }
-    // There may be multiple calls of synchronizeCreateRequest.
+  }
+
+  async create() {
+
+  }
+
+  silentDelete() {
+
+  }
+}
+
+
+async function synchronizeRequest(snapshot, configSecretDef, priorityClassDef, dockerSecretDef) {
+  try {
+
+    // There may be multiple calls of synchronizeRequest.
     // However, only one successful call could be made for `createFramework` in the end.
     // For add-ons: Tolerate 409 error to avoid blocking `createFramework`.
-    // For `createFramework`: If 409 error, throw it and don't delete add-ons.
+    // For `createFramework`: If 409 error, warn it and don't delete add-ons.
     //                        If non-409 error, try to delete existing job add ons.
     if (configSecretDef) {
       try {
@@ -143,8 +305,12 @@ async function synchronizeCreateRequest(frameworkDescription, configSecretDef, p
   }
 }
 
-async function synchronizeExecuteRequest(frameworkName, executionType) {
-  await k8s.executeFramework(frameworkName, executionType)
+function ignoreError(err) {
+  logger.info('This error will be ignored: ', err)
+}
+
+function reportError(err) {
+  logger.error(err)
 }
 
 module.exports = {
