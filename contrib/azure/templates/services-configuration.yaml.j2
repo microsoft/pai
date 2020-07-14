@@ -176,7 +176,7 @@ authentication:
 uncomment following section if you want to customize the port of pylon
 pylon:
   port: 80
-    ssl:
+  ssl:
     crt_name: {{ k8s["master_ip"] }}.crt
     crt_path: /cluster-configuration/{{ k8s["master_ip"] }}.crt
     key_name: {{ k8s["master_ip"] }}.key
