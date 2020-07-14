@@ -2,6 +2,9 @@
 
 OPENPAIDOMAIN={{k8s["master_ip"]}}
 ssl_phrase={{k8s["ssl_phrase"]}}
+work_dir={{k8s["working_dir"]}}
+
+cd ${work_dir}
 
 {% if cfg["ssl_phrase"] is not defined %}
 openssl genrsa -des3 -out ${OPENPAIDOMAIN}.key 1024

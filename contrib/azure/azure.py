@@ -78,8 +78,31 @@ def generate_aks_engine_script(aks_engine_cfg, working_dir, script_dir):
     )
 
 
-def generate_openpai_configuration(k8s_info, aks_engine_cfg):
-    None
+def generate_openpai_configuration(k8s_info, aks_engine_cfg, working_dir, script_dir):
+    generate_template_file(
+        "{0}/templates/generate-key-and-cert.sh.j2".format(script_dir),
+        "{0}/generate-key-and-cert.sh".format(working_dir),
+        {
+            "cfg": aks_engine_cfg,
+            "k8s": k8s_info
+        }
+    )
+    generate_template_file(
+        "{0}/templates/layout.yaml.j2".format(script_dir),
+        "{0}/layout.yaml".format(working_dir),
+        {
+            "cfg": aks_engine_cfg,
+            "k8s": k8s_info
+        }
+    )
+    generate_template_file(
+        "{0}/templates/services-configuration.yaml.j2".format(script_dir),
+        "{0}/services-configuration.yaml".format(working_dir),
+        {
+            "cfg": aks_engine_cfg,
+            "k8s": k8s_info
+        }
+    )
 
 
 def start_kubernetes(working_dir):
@@ -100,7 +123,9 @@ def get_k8s_cluster_info(working_dir, dns_prefix, location):
 
     master = dict()
     worker = dict()
+    sku = dict()
     gpu_enable = False
+    master_ip = None
 
     try:
         api_response = api_instance.list_node(pretty=pretty, timeout_seconds=timeout_seconds)
@@ -108,21 +133,45 @@ def get_k8s_cluster_info(working_dir, dns_prefix, location):
             gpu_resource = 0
             if 'nvidia.com/gpu' in node.status.allocatable:
                 gpu_resource = int(parse_quantity(node.status.allocatable['nvidia.com/gpu']))
-
             if master_string in node.metadata.name:
                 master[node.metadata.name] = {
                     "cpu-resource": int(parse_quantity(node.status.allocatable['cpu'])),
                     "mem-resource": int(parse_quantity(node.status.allocatable['memory']) / 1024 / 1024 ),
                     "gpu-resource": gpu_resource,
                 }
+                master[node.metadata.name]["hostname"] = node.metadata.name
+                for address in node.status.address:
+                    if address.type == "Hostname":
+                        continue
+                    if master_ip == None:
+                        master_ip = address.address
+                    if address.type == "ExternalIP":
+                        master_ip = address.address
+                    if address.type == "InternalIP":
+                        master[node.metadata.name]["ip"] = address.address
             elif worker_string in node.metadata.name:
                 worker[node.metadata.name] = {
                     "cpu-resource": int(parse_quantity(node.status.allocatable['cpu'])),
                     "mem-resource": int(parse_quantity(node.status.allocatable['memory']) / 1024 / 1024 ),
                     "gpu-resource": gpu_resource,
                 }
+                if not sku:
+                    if gpu_resource != 0:
+                        sku["gpu_resource"] = worker[node.metadata.name]["gpu-resource"]
+                        sku["mem-unit"] = int(worker[node.metadata.name]["mem-resource"] / worker[node.metadata.name]["gpu-resource"])
+                        sku["cpu-unit"] = int(worker[node.metadata.name]["cpu-resource"] / worker[node.metadata.name]["gpu-resource"])
+                    else:
+                        sku["cpu_resource"] = worker[node.metadata.name]["cpu-resource"]
+                        sku["mem-unit"] = int(worker[node.metadata.name]["mem-resource"] / worker[node.metadata.name]["cpu-resource"])
+
                 if worker[node.metadata.name]["gpu-resource"] != 0:
                     gpu_enable = True
+                worker[node.metadata.name]["hostname"] = node.metadata.name
+                for address in node.status.address:
+                    if address.type == "Hostname":
+                        continue
+                    if address.type == "InternalIP":
+                        master[node.metadata.name]["ip"] = address.address
 
     except ApiException as e:
         logger.error("Exception when calling CoreV1Api->list_node: %s\n" % e)
@@ -130,8 +179,10 @@ def get_k8s_cluster_info(working_dir, dns_prefix, location):
     return {
         "master": master,
         "worker": worker,
+        "sku": sku,
         "gpu": gpu_enable,
-        "master_ip": None
+        "master_ip": master_ip,
+        "working_dir": "{0}/{1}".format(working_dir, TEMPORARY_DIR_NAME)
     }
 
 
@@ -162,7 +213,7 @@ def main():
     #start_kubernetes(aks_engine_working_dir)
 
     k8s_info = get_k8s_cluster_info(current_working_dir, aks_engine_cfg["dns_prefix"], aks_engine_cfg["location"])
-
+    generate_openpai_configuration(k8s_info, aks_engine_cfg, aks_engine_working_dir, python_script_path)
 
 
 if __name__ == "__main__":

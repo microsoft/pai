@@ -17,8 +17,8 @@
 
 # kubernetes api server and dashboard
 kubernetes:
-  api-servers-url: https://{{env['head_node']['ip']}}:6443
-  dashboard-url: https://{{env['head_node']['ip']}}:9090
+  api-servers-url: https://{{k8s["master_ip"]}}:6443
+  dashboard-url: https://{{k8s["master_ip"]}}:9090
 
 # TODO please modify it according to your own hardware
 machine-sku:
@@ -41,17 +41,16 @@ machine-sku:
     os: ubuntu16.04
 
 machine-list:
-{%- for vm in env["master"] %}
+{%- for vm in k8s["master"] %}
     - hostname: {{ vm["hostname"] }}
       nodename: {{ vm["hostname"] }}
       hostip: {{ vm["ip"] }}
       machine-type: GENERIC-MASTER
-{%- if vm["hostname"] == env['head_node']["hostname"] %}
       dashboard: "true"
       pai-master: "true"
 {%- endif %}
 {%- endfor %}
-{%- for vm in env["worker"] %}
+{%- for vm in k8s["worker"] %}
     - hostname: {{ vm["hostname"] }}
       nodename: {{ vm["hostname"] }}
       hostip: {{ vm["ip"] }}
