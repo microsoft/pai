@@ -86,7 +86,7 @@ sudo apt-get install --assume-yes blobfuse fuse
 
 ```sh
 curl -s https://raw.githubusercontent.com/Azure/kubernetes-volume-drivers/master/flexvolume/blobfuse/deployment/blobfuse-flexvol-installer-1.9.yaml \
-  | sed "s#/etc/kubernetes/volumeplugins/#/usr/libexec/kubernetes/kubelet-plugins/volume/exec/#g" \
+  | sed "s#path: /etc/kubernetes/volumeplugins/#path: /usr/libexec/kubernetes/kubelet-plugins/volume/exec/#g" \
   | kubectl apply -f -
 ```
 
