@@ -231,6 +231,7 @@ def main():
 
     k8s_info = get_k8s_cluster_info(current_working_dir, aks_engine_cfg["dns_prefix"], aks_engine_cfg["location"])
     generate_openpai_configuration(k8s_info, aks_engine_cfg, aks_engine_working_dir, python_script_path)
+    start_openpai(aks_engine_working_dir)
 
 
 if __name__ == "__main__":
