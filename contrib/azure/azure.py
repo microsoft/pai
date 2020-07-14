@@ -170,7 +170,7 @@ def get_k8s_cluster_info(working_dir, dns_prefix, location):
                     if address.type == "Hostname":
                         continue
                     if address.type == "InternalIP":
-                        master[node.metadata.name]["ip"] = address.address
+                        worker[node.metadata.name]["ip"] = address.address
 
     except ApiException as e:
         logger.error("Exception when calling CoreV1Api->list_node: %s\n" % e)
