@@ -209,6 +209,10 @@ class Snapshot {
   getName() {
     return this._snapshot.metadata.name
   }
+
+  getSnapshot() {
+    return _.cloneDeep(this._snapshot)
+  }
 }
 
 class AddOns {
