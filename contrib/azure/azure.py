@@ -130,7 +130,6 @@ def get_k8s_cluster_info(working_dir, dns_prefix, location):
         api_response = api_instance.list_node(pretty=pretty, timeout_seconds=timeout_seconds)
         for node in api_response.items:
             gpu_resource = 0
-            print(node.status)
             if 'nvidia.com/gpu' in node.status.allocatable:
                 gpu_resource = int(parse_quantity(node.status.allocatable['nvidia.com/gpu']))
             if master_string in node.metadata.name:
@@ -140,7 +139,7 @@ def get_k8s_cluster_info(working_dir, dns_prefix, location):
                     "gpu-resource": gpu_resource,
                 }
                 master[node.metadata.name]["hostname"] = node.metadata.name
-                for address in node.status.address:
+                for address in node.status.addresses:
                     if address.type == "Hostname":
                         continue
                     if master_ip == None:
@@ -167,7 +166,7 @@ def get_k8s_cluster_info(working_dir, dns_prefix, location):
                 if worker[node.metadata.name]["gpu-resource"] != 0:
                     gpu_enable = True
                 worker[node.metadata.name]["hostname"] = node.metadata.name
-                for address in node.status.address:
+                for address in node.status.addresses:
                     if address.type == "Hostname":
                         continue
                     if address.type == "InternalIP":
