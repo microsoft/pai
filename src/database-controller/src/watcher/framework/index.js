@@ -27,7 +27,7 @@ const lock = new AsyncLock({ maxPending: Number.MAX_SAFE_INTEGER })
 
 async function synchronizeFramework (eventType, apiObject) {
   const res = await fetch(
-    `${writeMergerUrl}/api/v1/frameworks/${apiObject.metadata.name}/watchEvents/${eventType}`,
+    `${writeMergerUrl}/api/v1/watchEvents/${eventType}`,
     {
       method: 'POST',
       body: JSON.stringify(apiObject),

@@ -21,7 +21,7 @@ const AsyncLock = require('async-lock')
 const {Op} = require('Sequelize')
 const DatabaseModel = require('openpaidbsdk')
 const logger = require('@dbc/core/logger')
-const {synchronizeCreateRequest, synchronizeExecuteRequest} = require('@dbc/core/util')
+const { Snapshot, AddOns, synchronizeRequest } = require('@dbc/core/framework')
 const interval = require('interval-promise')
 const k8s = require('@dbc/core/k8s')
 const writeMergerUrl = process.env.WRITE_MERGER_URL
@@ -34,16 +34,12 @@ const databaseModel = new DatabaseModel(
 )
 
 
-async function mockDeleteEvent(framework) {
-  const mockedFramework = JSON.parse(framework.snapshot)
-  // framework.executionType is ground-truth.
-  mockedFramework.spec.executionType = framework.executionType
-
+async function mockDeleteEvent(snapshot) {
   await fetch(
-    `${writeMergerUrl}/api/v1/frameworks/${framework.name}/watchEvents/DELETED`,
+    `${writeMergerUrl}/api/v1/watchEvents/DELETED`,
     {
       method: 'POST',
-      body: JSON.stringify(mockedFramework),
+      body: snapshot.getString(),
       headers: { 'Content-Type': 'application/json' },
       timeout: 60000
     }
@@ -51,9 +47,10 @@ async function mockDeleteEvent(framework) {
 }
 
 
-function handleCompleted(framework, pollingTs) {
-  logger.info(`Will delete framework ${framework.name}. PollingTs=${pollingTs}.`)
-  lock.acquire(framework.name,
+function deleteHandler(snapshot, pollingTs) {
+  const frameworkName = snapshot.getName()
+  logger.info(`Will delete framework ${frameworkName}. PollingTs=${pollingTs}.`)
+  lock.acquire(frameworkName,
     async () => {
       try{
         await deleteFramework(framework.name)
@@ -78,16 +75,15 @@ function handleCompleted(framework, pollingTs) {
 }
 
 
-function handleCreate(framework, pollingTs) {
-  logger.info(`Start synchronizing CreateRequest for framework ${framework.name}. PollingTs=${pollingTs}`)
+function synchronizeHandler(snapshot, addOns, pollingTs) {
+  const frameworkName = snapshot.getName()
+  logger.info(`Start synchronizing request of framework ${frameworkName}. PollingTs=${pollingTs}`)
   lock.acquire(
     framework.name,
     async () => {
-      await synchronizeCreateRequest(
-        framework.snapshot,
-        framework.configSecretDef,
-        framework.priorityClassDef,
-        framework.dockerSecretDef
+      await synchronizeRequest(
+        snapshot,
+        addOns,
       )
     }
   ).catch((err) => {
@@ -98,45 +94,13 @@ function handleCreate(framework, pollingTs) {
   })
 }
 
-function handleExecute(framework, pollingTs) {
-  // forward execution promise
-  logger.info(`Start synchronizing ExecutionRequest ${framework.executionType} for framework ${framework.name}. PollingTs=${pollingTs}`)
-  lock.acquire(
-    framework.name,
-    async () => {
-      try {
-        await synchronizeExecuteRequest(
-          framework.name,
-          framework.executionType
-        )
-      } catch (err) {
-        if (err.response && err.response.statusCode === 404) {
-          // for 404 error, mock a delete to write merger
-          logger.warn(`Cannot find framework ${framework.name} in API Server. Will mock a deletion to write merger.`)
-          await mockDeleteEvent(framework)
-        }
-        else {
-          // for non-404 error
-          throw err
-        }
-      }
-    }
-  ).catch((err) => {
-    logger.error(
-      `An error happened when synchronize ExecutionRequest ${framework.executionType} for framework ${framework.name} and pollingTs=${pollingTs}:`
-      , err
-    )
-  })
-}
-
-
 async function poll() {
   const pollingTs = new Date().getTime()
   try{
     logger.info(`Start polling. PollingTs=${pollingTs}`)
     const frameworks = await databaseModel.Framework.findAll({
         attributes: ['name', 'configSecretDef', 'priorityClassDef', 'dockerSecretDef', 'snapshot',
-          'executionType', 'subState', 'requestSynced', 'apiServerDeleted'],
+          'subState', 'requestSynced', 'apiServerDeleted'],
         where: {
           apiServerDeleted: false,
           [Op.or]: {
@@ -146,12 +110,12 @@ async function poll() {
         }
       })
       for (let framework of frameworks) {
+        const snapshot = new Snapshot(framework.snapshot)
+        const addOns = new AddOns(framework.configSecretDef, framework.priorityClassDef, framework.dockerSecretDef)
         if (framework.subState === 'Completed') {
-          handleCompleted(framework, pollingTs)
-        } else if (framework.executionType === 'Start') {
-          handleCreate(framework, pollingTs)
+          deleteHandler(snapshot, pollingTs)
         } else {
-          handleExecute(framework, pollingTs)
+          synchronizeHandler(snapshot, addOns, pollingTs)
         }
       }
   } catch (err) {

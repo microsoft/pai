@@ -91,6 +91,19 @@ async function executeFramework (name, executionType, namespace = 'default') {
   return res.response
 }
 
+async function patchFramework (name, data, namespace = 'default') {
+  const res = await customObjectsClient.patchNamespacedCustomObject(
+    'frameworkcontroller.microsoft.com',
+    'v1',
+    namespace,
+    'frameworks',
+    name,
+    data,
+    { headers: { 'Content-Type': 'application/merge-patch+json' } }
+  )
+  return res.response
+}
+
 async function deleteFramework (name, namespace = 'default') {
   const res = await customObjectsClient.deleteNamespacedCustomObject(
     'frameworkcontroller.microsoft.com',
@@ -164,13 +177,13 @@ async function deleteSecret (name, namespace = 'default') {
   return res.response
 }
 
-async function patchSecretOwnerToFramework (secret, framework) {
+async function patchSecretOwnerToFramework (secret, frameworkResponse) {
   const metadata = {
     ownerReferences: [{
       apiVersion: 'frameworkcontroller.microsoft.com',
       kind: 'Framework',
-      name: framework.metadata.name,
-      uid: framework.metadata.uid,
+      name: frameworkResponse.metadata.name,
+      uid: frameworkResponse.metadata.uid,
       controller: true,
       blockOwnerDeletion: true
     }]
@@ -189,6 +202,7 @@ module.exports = {
   getFramework: getFramework,
   createFramework: createFramework,
   executeFramework: executeFramework,
+  patchFramework: patchFramework,
   deleteFramework: deleteFramework,
   getFrameworkInformer: getFrameworkInformer,
   createPriorityClass: createPriorityClass,

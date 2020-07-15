@@ -24,8 +24,8 @@ const databaseModel = new DatabaseModel(
   process.env.DB_CONNECTION_STR,
   parseInt(process.env.MAX_DB_CONNECTION)
 )
-const { synchronizeCreateRequest, synchronizeExecuteRequest } = require('@dbc/core/util')
-const { convertFrameworkRequest, convertFrameworkStatus } = require('@dbc/write-merger/util')
+const { Snapshot, AddOns, silentSynchronizeRequest } = require('@dbc/core/framework')
+const _ = require('lodash')
 
 /* For error handling, all handlers follow the same structure:
 
@@ -50,51 +50,59 @@ async function ping (req, res, next) {
   }
 }
 
-async function frameworkWatchEvents (req, res, next) {
+async function receiveWatchEvents (req, res, next) {
   try {
-    if (!req.params.name) {
+    const frameworkName = req.params.name
+    const snapshot = new Snapshot(req.body)
+    if (!frameworkName) {
       return next(createError(400, 'Cannot find framework name.'))
     }
-    await lock.acquire(req.params.name, async () => {
-      const oldFramework = await databaseModel.Framework.findOne({ where: { name: req.params.name } })
-      const watchedFramework = req.body
+    await lock.acquire(frameworkName, async () => {
+      const oldFramework = await databaseModel.Framework.findOne({
+          attributes: ['snapshot'],
+          where: { name: frameworkName } }
+      )
       // database doesn't have the corresponding framework.
       if (!oldFramework) {
-        if (watchedFramework !== '') {
+        if (process.env.RECOVERY_MODE_ENABLED === 'true') {
           // If database doesn't have the corresponding framework,
+          // and recovery mode is enabled
           // tolerate the error and create framework in database.
-          // This happens during upgrade/recovery.
-          const frameworkRequest = convertFrameworkRequest(watchedFramework)
-          const frameworkStatus = convertFrameworkStatus(watchedFramework)
-          // merge framework request and framework status
-          const framework = Object.assign({}, frameworkRequest, frameworkStatus)
+          const record = _.assign({}, snapshot.getAllUpdate(), addOns.getUpdate())
+          // correct submissionTime is lost, use snapshot.metadata.creationTimestamp instead
+          if (snapshot.getCreationTime()) {
+            framework.submissionTime = snapshot.getCreationTime()
+          } else {
+            framework.submissionTime = new Date()
+          }
+          // mark requestSynced = true, since we use framework request from api server directly
           framework.requestSynced = true
           await databaseModel.Framework.create(framework)
           return
         } else {
           throw createError(404, `Cannot find framework ${req.params.name}.`)
         }
-      }
-      // Database has the corresponding framework.
-      // Update framework according to watched events, and mark requestSynced = true.
-      const toUpdate = convertFrameworkStatus(watchedFramework)
-      if (watchedFramework.spec.executionType !== oldFramework.executionType) {
-        // Because oldFramework.executionType is ground truth,
-        // in this case, we can confirm watchedFramework.spec.executionType is outdated.
-        // So we can safely ignore it to keep consistence.
-        // Information will be synced in future with correct executionType.
-        logger.warn(`Ignore watched event because executionType in database is ${oldFramework.executionType}, ` +
-          `but ${watchedFramework.spec.executionType} is received.`
-        )
-        return
       } else {
-        toUpdate.requestSynced = true
+        // Database has the corresponding framework.
+        const oldSnapshot = new Snapshot(oldFramework.snapshot)
+        const internalUpdate = {}
+        if (snapshot.isRequestEqual(oldSnapshot)) {
+          // if framework request is equal, mark requestSynced = true
+          internalUpdate.requestSynced = true
+        } else {
+          // if framework request is not equal,
+          // should use framework request in db as ground truth
+          snapshot.overrideRequest(oldSnapshot)
+        }
+        if (req.params.eventType === 'DELETED') {
+          // if event is DELETED, mark apiServerDeleted = true
+          internalUpdate.apiServerDeleted = true
+        }
+        await databaseModel.Framework.update(
+          _.assign(snapshot.getStatusUpdate(), internalUpdate),
+          { where: { name: req.params.name } }
+        )
       }
-      if (req.params.eventType === 'DELETED') {
-        toUpdate.apiServerDeleted = true
-        logger.info(JSON.stringify(watchedFramework))
-      }
-      await databaseModel.Framework.update(toUpdate, { where: { name: req.params.name } })
     })
     res.status(200).json({ message: 'ok' })
   } catch (err) {
@@ -102,59 +110,50 @@ async function frameworkWatchEvents (req, res, next) {
   }
 }
 
-async function requestCreateFramework (req, res, next) {
+async function receiveFrameworkRequest (req, res, next) {
   try {
-    const { frameworkDescription, configSecretDef, priorityClassDef, dockerSecretDef} = req.body
-    if (!(frameworkDescription.metadata && frameworkDescription.metadata.name)) {
+    const { frameworkRequest, submissionTime, configSecretDef, priorityClassDef, dockerSecretDef} = req.body
+    const frameworkName = _.get(frameworkRequest, 'metadata.name')
+    if (!frameworkName) {
       return next(createError(400, 'Cannot find framework name.'))
     }
-    await lock.acquire(frameworkDescription.metadata.name, async () => {
-      const oldFramework = await databaseModel.Framework.findOne({ where: { name: frameworkDescription.metadata.name } })
-      if (oldFramework) {
-        throw createError(409, `Framework ${oldFramework.name} already exists.`)
-      }
-      const frameworkRequest = convertFrameworkRequest(frameworkDescription)
-      if (configSecretDef) {
-        frameworkRequest.configSecretDef = JSON.stringify(configSecretDef)
-      }
-      if (priorityClassDef) {
-        frameworkRequest.priorityClassDef = JSON.stringify(priorityClassDef)
-      }
-      if (dockerSecretDef) {
-        frameworkRequest.dockerSecretDef = JSON.stringify(dockerSecretDef)
-      }
-      await databaseModel.Framework.create(frameworkRequest)
-    })
-    res.status(201).json({ message: 'ok' })
-    // skip db poller, any response or error will be ignored
-    // synchronizeCreateRequest(frameworkDescription, configSecretDef, priorityClassDef, dockerSecretDef)
-  } catch (err) {
-    return next(err)
-  }
-}
-
-async function requestExecuteFramework (req, res, next) {
-  try {
-    if (!req.params.name) {
-      return next(createError(400, 'Cannot find framework name.'))
-    }
-    // same format as in framework controller
-    const executionType = `${req.params.executionType.charAt(0)}${req.params.executionType.slice(1).toLowerCase()}`
-    await lock.acquire(req.params.name, async () => {
-      const oldFramework = await databaseModel.Framework.findOne({ where: { name: req.params.name } })
-      if (!oldFramework) {
-        throw createError(404, `Cannot find framework ${req.params.name}.`)
-      }
-      if (oldFramework.executionType !== executionType) {
-        // update executionType and mark requestSynced = false when executionType is different
-        await databaseModel.Framework.update({
-          executionType: executionType, requestSynced: false
-        }, { where: { name: req.params.name } })
-      }
+    const {needSynchronize, snapshot, addOns} = await lock.acquire(
+      frameworkName, async () => {
+        const oldFramework = await databaseModel.Framework.findOne({
+          attributes: ['snapshot'],
+          where: { name: frameworkName } }
+        )
+        const snapshot = new Snapshot(frameworkRequest)
+        const addOns = new AddOns(configSecretDef, priorityClassDef, dockerSecretDef)
+        if (!oldFramework) {
+          // create new record in db
+          // including all add-ons and submissionTime
+          const record = _.assign({}, snapshot.getAllUpdate(), addOns.getUpdate())
+          record.submissionTime = new Date(submissionTime)
+          await databaseModel.Framework.create(record)
+          return true, snapshot, addOns
+        } else {
+          // update record in db
+          const oldSnapshot = new Snapshot(oldFramework.snapshot)
+          if (snapshot.isRequestEqual(oldSnapshot)) {
+            // request is different
+            // update request in db, mark requestSynced=false
+            await databaseModel.Framework.update(
+              _.assign({}, snapshot.getRequestUpdate(), {requestSynced: false}),
+              { where: { name: req.params.name } }
+            )
+            return true, snapshot, addOns
+          } else {
+            // request is equal, no-op
+            return false, snapshot, addOns
+          }
+        }
     })
     res.status(200).json({ message: 'ok' })
     // skip db poller, any response or error will be ignored
-    // synchronizeExecuteRequest(req.params.name, executionType)
+    if (needSynchronize){
+      silentSynchronizeRequest(snapshot, addOns)
+    }
   } catch (err) {
     return next(err)
   }
@@ -162,7 +161,6 @@ async function requestExecuteFramework (req, res, next) {
 
 module.exports = {
   ping: ping,
-  frameworkWatchEvents: frameworkWatchEvents,
-  requestCreateFramework: requestCreateFramework,
-  requestExecuteFramework: requestExecuteFramework
+  receiveFrameworkRequest: receiveFrameworkRequest,
+  receiveWatchEvents: receiveWatchEvents,
 }
