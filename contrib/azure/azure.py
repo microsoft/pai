@@ -114,24 +114,58 @@ def generate_openpai_configuration(k8s_info, aks_engine_cfg, working_dir, script
     )
 
 
-def start_kubernetes(working_dir):
-    command = "/bin/bash {0}/aks-engine.sh".format(working_dir)
-    execute_shell(command, "Failed to start k8s on azure with aks-engine.")
-    logger.info("k8s is started successfully.")
-    time.sleep(10)
+def pod_is_ready_or_not(label_key, label_value, service_name):
 
-def start_openpai(aks_engine_working_dir):
-    command = "/bin/bash {0}/generate-key-and-cert.sh".format(aks_engine_working_dir)
-    execute_shell(command, "Failed to generate ssl cert and private key for openpai.")
+    label_selector_str="{0}={1}".format(label_key, label_value)
 
-    command = "/bin/bash {0}/start-openpai.sh".format(aks_engine_working_dir)
-    execute_shell(command, "Failed to start openpai.")
+    config.load_kube_config()
+    v1 = client.CoreV1Api()
+
+    try:
+        pod_list = v1.list_pod_for_all_namespaces(label_selector=label_selector_str, watch=False)
+    except ApiException as e:
+        logger.error("Exception when calling CoreV1Api->list_pod_for_all_namespaces: %s\n" % e)
+        return False
+
+    if len(pod_list.items) == 0:
+        logger.warning("No pod can be dectected.")
+        return False
+
+    ready = 0
+    unready = 0
+    if len(pod_list.items) == 0:
+        return False
+    for pod in pod_list.items:
+        if pod.status.container_statuses is None:
+            unready = unready + 1
+            continue
+        flag = True
+        for container in pod.status.container_statuses:
+            if container.ready != True:
+                unready = unready + 1
+                flag = False
+                break
+        if flag:
+            ready = ready + 1
+    if unready != 0:
+        logger.info("{0} is not ready.".format(service_name))
+        logger.info("Total: {0}".format(ready + unready))
+        logger.info("Ready: {0}".format(ready))
+        return False
+
+    return True
 
 
-def update_az_network_rule():
-    None
-
-
+def wait_nvidia_device_plugin_ready(total_time=3600):
+    logger.info("Wait for Nvidia-Device-Plugin ready.")
+    while pod_is_ready_or_not("k8s-app", "nvidia-device-plugin", "Nvidia-Device-Plugin") != True:
+        logger.info("Nvidia-Device-Plugin is not ready yet. Please wait for a moment!")
+        time.sleep(10)
+        total_time = total_time - 10
+        if total_time < 0:
+            logger.error("An issue occure when starting up Nvidia-Device-Plugin")
+            sys.exit(1)
+    logger.info("Nvidia-Device-Plugin is ready.")
 
 
 def get_k8s_cluster_info(working_dir, dns_prefix, location):
@@ -214,6 +248,27 @@ def get_k8s_cluster_info(working_dir, dns_prefix, location):
     }
 
 
+def start_kubernetes(working_dir, cfg):
+    command = "/bin/bash {0}/aks-engine.sh".format(working_dir)
+    execute_shell(command, "Failed to start k8s on azure with aks-engine.")
+    logger.info("k8s is started successfully.")
+    time.sleep(10)
+    if "NC" in cfg["openpai_worker_vmss"]["vm_size"] or "NV" in cfg["openpai_worker_vmss"]["vm_size"] or "ND" in cfg["openpai_worker_vmss"]["vm_size"]:
+        wait_nvidia_device_plugin_ready()
+
+
+def start_openpai(aks_engine_working_dir):
+    command = "/bin/bash {0}/generate-key-and-cert.sh".format(aks_engine_working_dir)
+    execute_shell(command, "Failed to generate ssl cert and private key for openpai.")
+
+    command = "/bin/bash {0}/start-openpai.sh".format(aks_engine_working_dir)
+    execute_shell(command, "Failed to start openpai.")
+
+
+def update_az_network_rule():
+    None
+
+
 def main():
     parser = argparse.ArgumentParser(description="OpenPAI at Azure quick start")
 
@@ -238,7 +293,7 @@ def main():
     create_folder_if_not_exist(aks_engine_working_dir)
 
     generate_aks_engine_script(aks_engine_cfg, aks_engine_working_dir, python_script_path)
-    start_kubernetes(aks_engine_working_dir)
+    start_kubernetes(aks_engine_working_dir, aks_engine_cfg)
 
     k8s_info = get_k8s_cluster_info(current_working_dir, aks_engine_cfg["dns_prefix"], aks_engine_cfg["location"])
     generate_openpai_configuration(k8s_info, aks_engine_cfg, aks_engine_working_dir, python_script_path)
