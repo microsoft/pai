@@ -7,6 +7,7 @@ import logging.config
 import argparse
 import subprocess
 import sys
+import time
 import jinja2
 
 from kubernetes import client, config
@@ -116,7 +117,8 @@ def generate_openpai_configuration(k8s_info, aks_engine_cfg, working_dir, script
 def start_kubernetes(working_dir):
     command = "/bin/bash {0}/aks-engine.sh".format(working_dir)
     execute_shell(command, "Failed to start k8s on azure with aks-engine.")
-
+    logger.info("k8s is started successfully.")
+    time.sleep(10)
 
 def start_openpai(aks_engine_working_dir):
     command = "/bin/bash {0}/generate-key-and-cert.sh".format(aks_engine_working_dir)
@@ -233,8 +235,8 @@ def main():
     aks_engine_working_dir = "{0}/{1}".format(current_working_dir, TEMPORARY_DIR_NAME)
     create_folder_if_not_exist(aks_engine_working_dir)
 
-    #generate_aks_engine_script(aks_engine_cfg, aks_engine_working_dir, python_script_path)
-    #start_kubernetes(aks_engine_working_dir)
+    generate_aks_engine_script(aks_engine_cfg, aks_engine_working_dir, python_script_path)
+    start_kubernetes(aks_engine_working_dir)
 
     k8s_info = get_k8s_cluster_info(current_working_dir, aks_engine_cfg["dns_prefix"], aks_engine_cfg["location"])
     generate_openpai_configuration(k8s_info, aks_engine_cfg, aks_engine_working_dir, python_script_path)
