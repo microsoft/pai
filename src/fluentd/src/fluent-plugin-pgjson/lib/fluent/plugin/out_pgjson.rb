@@ -139,10 +139,14 @@ module Fluent::Plugin
       if ! thread[:conn].nil?
         begin
           thread[:conn].exec("COPY #{@table} (#{@insertedAt_col}, #{@frameworkName_col}, #{@attemptIndex_col}, #{@historyType_col}, #{@snapshot_col}) FROM STDIN WITH DELIMITER E'\\x01'")
-          tag = chunk.metadata.tag
           # record is of type 'Hash'
           chunk.msgpack_each do |time, record|
             log.debug "#{record}"
+            log.info "status class : #{record["objectSnapshot"]["status"].class}"
+            log.info "attempStatus class : #{record["objectSnapshot"]["status"]["attemptStatus"].class}"
+            log.info "name: #{record["objectSnapshot"]["metadata"]["name"]}"
+            log.info "id: #{record["objectSnapshot"]["status"]["attemptStatus"]["id"]}"
+            log.info "class 1: #{record_value(record).class}"
             thread[:conn].put_copy_data "#{time}\x01#{record["objectSnapshot"]["metadata"]["name"]}\x01#{record["objectSnapshot"]["status"]["attemptStatus"]["id"]}\x01#{"retry"}\x01#{record_value(record)}\n"
           end
         rescue PG::ConnectionBad, PG::UnableToSend => err
