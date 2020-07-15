@@ -72,7 +72,7 @@ http {
     include location.conf;
 
     {% if SSL_ENABLE %}
-    return 301 https://$host$request_uri;
+    return 307 https://$host$request_uri;
     {% endif %}
   }
 
