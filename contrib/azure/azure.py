@@ -114,11 +114,11 @@ def generate_openpai_configuration(k8s_info, aks_engine_cfg, working_dir, script
     )
 
 
-def pod_is_ready_or_not(label_key, label_value, service_name):
+def pod_is_ready_or_not(label_key, label_value, service_name, kubeconfig):
 
     label_selector_str="{0}={1}".format(label_key, label_value)
 
-    config.load_kube_config()
+    config.load_kube_config(kubeconfig=kubeconfig)
     v1 = client.CoreV1Api()
 
     try:
@@ -156,9 +156,9 @@ def pod_is_ready_or_not(label_key, label_value, service_name):
     return True
 
 
-def wait_nvidia_device_plugin_ready(total_time=3600):
+def wait_nvidia_device_plugin_ready(kubeconfig, total_time=3600):
     logger.info("Wait for Nvidia-Device-Plugin ready.")
-    while pod_is_ready_or_not("k8s-app", "nvidia-device-plugin", "Nvidia-Device-Plugin") != True:
+    while not pod_is_ready_or_not("k8s-app", "nvidia-device-plugin", "Nvidia-Device-Plugin", kubeconfig):
         logger.info("Nvidia-Device-Plugin is not ready yet. Please wait for a moment!")
         time.sleep(10)
         total_time = total_time - 10
@@ -248,13 +248,14 @@ def get_k8s_cluster_info(working_dir, dns_prefix, location):
     }
 
 
-def start_kubernetes(working_dir, cfg):
+def start_kubernetes(working_dir, cfg, script_dir, dns_prefix, location):
     command = "/bin/bash {0}/aks-engine.sh".format(working_dir)
     execute_shell(command, "Failed to start k8s on azure with aks-engine.")
     logger.info("k8s is started successfully.")
     time.sleep(10)
     if "NC" in cfg["openpai_worker_vmss"]["vm_size"] or "NV" in cfg["openpai_worker_vmss"]["vm_size"] or "ND" in cfg["openpai_worker_vmss"]["vm_size"]:
-        wait_nvidia_device_plugin_ready()
+        kube_config_path = "{0}/_output/{1}/kubeconfig/kubeconfig.{2}.json".format(script_dir, dns_prefix, location)
+        wait_nvidia_device_plugin_ready(kube_config_path)
 
 
 def start_openpai(aks_engine_working_dir):
@@ -293,7 +294,7 @@ def main():
     create_folder_if_not_exist(aks_engine_working_dir)
 
     generate_aks_engine_script(aks_engine_cfg, aks_engine_working_dir, python_script_path)
-    start_kubernetes(aks_engine_working_dir, aks_engine_cfg)
+    start_kubernetes(aks_engine_working_dir, aks_engine_cfg, current_working_dir, aks_engine_cfg["dns_prefix"], aks_engine_cfg["location"])
 
     k8s_info = get_k8s_cluster_info(current_working_dir, aks_engine_cfg["dns_prefix"], aks_engine_cfg["location"])
     generate_openpai_configuration(k8s_info, aks_engine_cfg, aks_engine_working_dir, python_script_path)
