@@ -45,3 +45,8 @@ echo -e "pai\n" | python paictl.py config push -p /cluster-configuration -m serv
 echo -e "pai\n" | python paictl.py service start
 
 EOF_DEV_BOX
+
+
+echo "OpenPAI webportal url : https://{{k8s["master_ip"]}}"
+echo "OpenPAI admin account : {{ cfg["openpai_config"]["admin_account"] | default("openpai") }}"
+echo "OpenPAI admin password: {{ cfg["openpai_config"]["admin_password"] | default("openpai1234") }}"
