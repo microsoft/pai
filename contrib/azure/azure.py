@@ -118,7 +118,7 @@ def pod_is_ready_or_not(label_key, label_value, service_name, kubeconfig):
 
     label_selector_str="{0}={1}".format(label_key, label_value)
 
-    config.load_kube_config(kubeconfig=kubeconfig)
+    config.load_kube_config(config_file=kubeconfig)
     v1 = client.CoreV1Api()
 
     try:
