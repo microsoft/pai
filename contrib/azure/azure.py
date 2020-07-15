@@ -149,6 +149,7 @@ def get_k8s_cluster_info(working_dir, dns_prefix, location):
     sku = None
     gpu_enable = False
     master_ip = None
+    master_ip_internal = None
 
     try:
         api_response = api_instance.list_node(pretty=pretty, timeout_seconds=timeout_seconds)
@@ -172,6 +173,7 @@ def get_k8s_cluster_info(working_dir, dns_prefix, location):
                         master_ip = address.address
                     if address.type == "InternalIP":
                         master[node.metadata.name]["ip"] = address.address
+                        master_ip_internal = address.address
             elif worker_string in node.metadata.name:
                 worker[node.metadata.name] = {
                     "cpu-resource": int(parse_quantity(node.status.allocatable['cpu'])),
@@ -206,6 +208,7 @@ def get_k8s_cluster_info(working_dir, dns_prefix, location):
         "sku": sku,
         "gpu": gpu_enable,
         "master_ip": master_ip,
+        "master_internal": master_ip_internal,
         "working_dir": "{0}/{1}".format(working_dir, TEMPORARY_DIR_NAME),
         "kube_config": "{0}/_output/{1}/kubeconfig/kubeconfig.{2}.json".format(working_dir, dns_prefix, location)
     }
