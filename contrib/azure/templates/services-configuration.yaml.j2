@@ -61,7 +61,7 @@ hivedscheduler:
     physicalCluster:
       skuTypes:
         DT:
-{% if k8s["gpu"] is defined %}
+{% if k8s["gpu"] %}
           gpu: 1
           cpu: {{ k8s["sku"]["cpu-unit"] }}
 {% else %}
@@ -71,7 +71,7 @@ hivedscheduler:
       cellTypes:
         DT-NODE:
           childCellType: DT
-{% if k8s["gpu"] is defined %}
+{% if k8s["gpu"] %}
           childCellNumber: {{ k8s["sku"]["gpu_resource"] }}
 {% else %}
           childCellNumber: {{ k8s["sku"]["cpu_resource"] }}
