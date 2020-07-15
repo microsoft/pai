@@ -37,9 +37,7 @@
     - name: Delete Generated File
       become: ture
       become_user: root
-      file:
-        path: "{{ item }}"
-        state: absent
+      raw: "rm -rf {{ item }}"
       with_items:
         - "{{ playbook_dir }}/.generated/"
         - "{{ playbook_dir }}/.virtual-kubelet/"
