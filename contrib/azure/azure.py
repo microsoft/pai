@@ -179,6 +179,13 @@ def wait_nvidia_device_plugin_ready(kubeconfig, total_time=3600):
         if total_time < 0:
             logger.error("An issue occure when starting up Nvidia-Device-Plugin")
             sys.exit(1)
+    while not pod_is_ready_or_not("name", "nvidia-device-plugin-ds", "Nvidia-Device-Plugin-ds", kubeconfig):
+        logger.info("Nvidia-Device-Plugin is not ready yet. Please wait for a moment!")
+        time.sleep(10)
+        total_time = total_time - 10
+        if total_time < 0:
+            logger.error("An issue occure when starting up Nvidia-Device-Plugin")
+            sys.exit(1)
     logger.info("Nvidia-Device-Plugin is ready.")
 
 
@@ -203,6 +210,7 @@ def get_k8s_cluster_info(working_dir, dns_prefix, location):
         api_response = api_instance.list_node(pretty=pretty, timeout_seconds=timeout_seconds)
         for node in api_response.items:
             gpu_resource = 0
+            print(node.status.allocatable)
             if 'nvidia.com/gpu' in node.status.allocatable:
                 gpu_resource = int(parse_quantity(node.status.allocatable['nvidia.com/gpu']))
             if master_string in node.metadata.name:
