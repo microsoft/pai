@@ -40,9 +40,9 @@ rest-server:
 #  # launcher type. k8s or yarn
 #  launcher-type: k8s
   # database admin username
-  default-pai-admin-username: admin
+  default-pai-admin-username: {{ cfg["openpai_config"]["admin_account"] | default("openpai") }}
   # database admin password
-  default-pai-admin-password: admin-password
+  default-pai-admin-password: {{ cfg["openpai_config"]["admin_password"] | default("openpai1234") }}
 
 
 webportal:

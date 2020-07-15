@@ -41,3 +41,6 @@ openpai_config:
   #docker_registry_username: exampleuser
   #docker_registry_password: examplepasswd
 
+  admin_account: openpai
+  admin_password: openpai1234
+
