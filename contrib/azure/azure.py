@@ -3,6 +3,7 @@
 import os
 import datetime
 import yaml
+import logging
 import logging.config
 import argparse
 import subprocess
@@ -18,6 +19,19 @@ from kubernetes.client.rest import ApiException
 logger = logging.getLogger(__name__)
 
 TEMPORARY_DIR_NAME = ".azure_quick_start"
+
+def setup_logger_config(logger):
+    """
+    Setup logging configuration.
+    """
+    if len(logger.handlers) == 0:
+        logger.propagate = False
+        logger.setLevel(logging.DEBUG)
+        consoleHandler = logging.StreamHandler()
+        consoleHandler.setLevel(logging.DEBUG)
+        formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+        consoleHandler.setFormatter(formatter)
+        logger.addHandler(consoleHandler)
 
 
 def load_yaml_config(config_path):
@@ -271,6 +285,8 @@ def update_az_network_rule():
 
 
 def main():
+    setup_logger_config(logger)
+
     parser = argparse.ArgumentParser(description="OpenPAI at Azure quick start")
 
     starttime = datetime.datetime.now()
