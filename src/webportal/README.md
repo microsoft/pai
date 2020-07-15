@@ -31,7 +31,6 @@ To run web portal, the following services should be started:
 - REST Server
 - Prometheus
 - Grafana
-- YARN
 - Kubernetes
 - Other services your feature requires
 

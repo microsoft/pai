@@ -12,5 +12,14 @@
 - hosts: localhost
   gather_facts: False
   roles:
-    - { role: openpai/install }
+    - { role: locust/config }
 
+- hosts: localhost
+  gather_facts: False
+  roles:
+    - { role: locust/master }
+
+- hosts: localhost
+  gather_facts: False
+  roles:
+    - { role: locust/worker }
