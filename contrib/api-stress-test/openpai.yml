@@ -1,0 +1,15 @@
+---
+- hosts: localhost
+  gather_facts: False
+  tasks:
+    - name: setup
+      setup:
+
+    - name: set ansible control host IP fact
+      set_fact:
+        local_home_path: "{{ hostvars[inventory_hostname]['ansible_env']['HOME'] }}"
+
+- hosts: localhost
+  gather_facts: False
+  roles:
+    - { role: openpai/install }
