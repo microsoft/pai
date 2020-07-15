@@ -183,7 +183,7 @@ pylon:
     key_path: /cluster-configuration/{{ k8s["master_ip"] }}.key
   uri: https://{{ k8s["master_ip"] }}
   uri-https: https://{{ k8s["master_ip"] }}
-  domain: {{ k8s["master_ip"] }}
+  domain: "{{ k8s["master_ip"] }}"
 
 
 
