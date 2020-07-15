@@ -24,20 +24,26 @@ module Fluent::Plugin
     config_param :sslmode, :enum, list: %i[disable allow prefer require verify-ca verify-full], default: :prefer
     desc "The database name to connect"
     config_param :database, :string
-    desc "The table name to insert records"
-    config_param :table, :string
     desc "The user name to connect database"
     config_param :user, :string, default: nil
     desc "The password to connect database"
     config_param :password, :string, default: nil, secret: true
     desc "The column name for the insertedAt"
     config_param :insertedAt_col, :string, default: "insertedAt"
+    desc "The column name for the updatedAt"
+    config_param :updatedAt_col, :string, default: "updatedAt"
+    desc "The column name for the uid"
+    config_param :uid_col, :string, default: "uid"
     desc "The column name for the frameworkName"
     config_param :frameworkName_col, :string, default: "frameworkName"
     desc "The column name for the attemptIndex"
     config_param :attemptIndex_col, :string, default: "attemptIndex"
     desc "The column name for the historyType"
     config_param :historyType_col, :string, default: "historyType"
+    desc "The column name for the taskroleName"
+    config_param :taskroleName_col, :string, default: "taskroleName"
+    desc "The column name for the taskroleIndex"
+    config_param :taskroleIndex_col, :string, default: "taskroleIndex"
     desc "The column name for the snapshot"
     config_param :snapshot_col, :string, default: "snapshot"
     desc "If true, insert records formatted as msgpack"
@@ -138,16 +144,23 @@ module Fluent::Plugin
       end
       if ! thread[:conn].nil?
         begin
-          thread[:conn].exec("COPY #{@table} (#{@insertedAt_col}, #{@frameworkName_col}, #{@attemptIndex_col}, #{@historyType_col}, #{@snapshot_col}) FROM STDIN WITH DELIMITER E'\\x01'")
-          # record is of type 'Hash'
           chunk.msgpack_each do |time, record|
-            log.debug "#{record}"
-            log.info "status class : #{record["objectSnapshot"]["status"].class}"
-            log.info "attempStatus class : #{record["objectSnapshot"]["status"]["attemptStatus"].class}"
-            log.info "name: #{record["objectSnapshot"]["metadata"]["name"]}"
-            log.info "id: #{record["objectSnapshot"]["status"]["attemptStatus"]["id"]}"
-            log.info "class 1: #{record_value(record).class}"
-            thread[:conn].put_copy_data "#{time}\x01#{record["objectSnapshot"]["metadata"]["name"]}\x01#{record["objectSnapshot"]["status"]["attemptStatus"]["id"]}\x01#{"retry"}\x01#{record_value(record)}\n"
+            kind = record["objectSnapshot"]["kind"]
+            if kind == "Framework"
+              thread[:conn].exec("COPY framework_history (#{@insertedAt_col}, #{@frameworkName_col}, #{@attemptIndex_col}, #{@historyType_col}, #{@snapshot_col}) FROM STDIN WITH DELIMITER E'\\x01'")
+              frameworkName = record["objectSnapshot"]["metadata"]["name"]
+              attemptIndex = record["objectSnapshot"]["status"]["attemptStatus"]["id"]
+              historyType = "retry"
+              thread[:conn].put_copy_data "#{time}\x01#{frameworkName}\x01#{attemptIndex}\x01#{historyType}\x01#{record_value(record)}\n"
+            elsif kind == "Pod"
+              thread[:conn].exec("COPY pods (#{@insertedAt_col}, #{@updatedAt_col}, #{@uid_col}, #{@frameworkName_col}, #{@attemptIndex_col}, #{@taskroleName_col}, #{@taskroleIndex_col}, #{@snapshot_col}) FROM STDIN WITH DELIMITER E'\\x01'")
+              uid = record["objectSnapshot"]["metadata"]["uid"]
+              frameworkName = record["objectSnapshot"]["metadata"]["name"]
+              attemptIndex = record["objectSnapshot"]["metadata"]["annotations"]["FC_TASK_ATTEMPT_ID"]
+              taskroleName = record["objectSnapshot"]["metadata"]["annotations"]["FC_TASKROLE_NAME"]
+              taskroleIndex = record["objectSnapshot"]["metadata"]["annotations"]["FC_TASK_INDEX"]
+              thread[:conn].put_copy_data "#{time}\x01#{time}\x01#{uid}\x01#{frameworkName}\x01#{attemptIndex}\x01#{taskroleName}\x01#{taskroleIndex}\x01#{record_value(record)}\n"
+            end
           end
         rescue PG::ConnectionBad, PG::UnableToSend => err
           # connection error

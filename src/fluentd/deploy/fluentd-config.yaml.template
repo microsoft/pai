@@ -113,13 +113,12 @@ data:
       @type copy
       <store>
         @type pgjson
+        @log_level debug
         host {{ cluster_cfg['postgresql']['host'] }}
         port {{ cluster_cfg['postgresql']['port'] }}
         user {{ cluster_cfg['postgresql']['user'] }}
         password {{ cluster_cfg['postgresql']['passwd'] }}
         database {{ cluster_cfg['postgresql']['db'] }}
-        table framework_history
-        record_col record
         <buffer>
           @type memory
           flush_mode immediate
