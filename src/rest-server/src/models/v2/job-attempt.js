@@ -58,7 +58,7 @@ if (sequelize && launcherConfig.enabledJobHistory) {
     const pgResult = (await sequelize.query(sqlSentence))[0];
     const jobRetries = await Promise.all(
       pgResult.map((row) => {
-        return convertToJobAttempt(JSON.parse(row.data)['objectSnapshot']);
+        return convertToJobAttempt(JOSN.parse(row.data));
       }),
     );
     attemptData.push(
@@ -83,7 +83,7 @@ if (sequelize && launcherConfig.enabledJobHistory) {
     if (pgResult.length === 0) {
       return {status: 404, data: null};
     } else {
-      attemptFramework = JSON.parse(pgResult[0].data)['objectSnapshot'];
+      attemptFramework = JSON.parse(pgResult[0].data);
       const attemptDetail = await convertToJobAttempt(attemptFramework);
       return {status: 200, data: {...attemptDetail, isLatest: false}};
     }
