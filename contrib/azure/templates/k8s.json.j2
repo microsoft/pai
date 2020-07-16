@@ -24,8 +24,8 @@
                         {
                             "name": "opworker",
                             "config": {
-                                "min-nodes": "cfg["openpai_worker_vmss"]["min_vm_count"]",
-                                "max-nodes": "cfg["openpai_worker_vmss"]["max_vm_count"]"
+                                "min-nodes": "{{cfg["openpai_worker_vmss"]["min_vm_count"]}}",
+                                "max-nodes": "{{cfg["openpai_worker_vmss"]["max_vm_count"]}}"
                             }
                         }
                     ],
