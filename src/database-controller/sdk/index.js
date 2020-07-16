@@ -1,10 +1,13 @@
 const { Sequelize, Model } = require('sequelize')
 
 class DatabaseModel {
-  constructor (connectionStr, maxConnection = 10) {
+  constructor (connectionStr, maxConnection = 10, timeoutSecond = 60) {
     const sequelize = new Sequelize(
       connectionStr,
       {
+        dialectOptions: {
+          connectTimeout: timeoutSecond * 1000
+        },
         pool: {
           max: maxConnection,
           min: 1
@@ -33,8 +36,7 @@ class DatabaseModel {
       logPathInfix: Sequelize.STRING(256),
       submissionTime: {
         type: Sequelize.DATE,
-        allowNull: false,
-        defaultValue: false
+        allowNull: false
       },
       dockerSecretDef: Sequelize.TEXT,
       configSecretDef: Sequelize.TEXT,

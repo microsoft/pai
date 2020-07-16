@@ -130,21 +130,6 @@ const convertState = (state, exitCode, retryDelaySec) => {
   }
 };
 
-const mockFrameworkStatus = () => {
-  return {
-    state: 'AttemptCreationPending',
-    attemptStatus: {
-      completionStatus: null,
-      taskRoleStatuses: [],
-    },
-    retryPolicyStatus: {
-      retryDelaySec: null,
-      totalRetriedCount: 0,
-      accountableRetriedCount: 0,
-    },
-  };
-};
-
 const convertFrameworkSummary = (framework) => {
   return {
     debugId: framework.name,
@@ -160,6 +145,7 @@ const convertFrameworkSummary = (framework) => {
       resource: framework.resourceRetries,
     },
     retryDelayTime: framework.retryDelayTime,
+    submissionTime: new Date(framework.submissionTime).getTime(),
     createdTime: new Date(framework.creationTime).getTime(),
     completedTime: new Date(framework.completionTime).getTime(),
     appExitCode: framework.appExitCode,
@@ -240,9 +226,6 @@ const convertTaskDetail = async (taskStatus, ports, logPathPrefix) => {
 };
 
 const convertFrameworkDetail = async (framework) => {
-  if (!framework.status) {
-    framework.status = mockFrameworkStatus();
-  }
   const attemptStatus = framework.status.attemptStatus;
   // check fields which may be compressed
   if (attemptStatus.taskRoleStatuses == null) {
@@ -838,19 +821,15 @@ const deleteJobConfigSecret = async (frameworkName) => {
   }
 };
 
-const list = async (filters, offset, limit, withTotalCount) => {
+const list = async (attributes, filters, order, offset, limit, withTotalCount) => {
   let frameworks, count;
   try {
     frameworks = await databaseModel.Framework.findAll({
-      attributes: ['name', 'jobName', 'userName', 'executionType', 'creationTime', 'virtualCluster',
-        'totalGpuNumber', 'totalTaskNumber', 'totalTaskRoleNumber', 'retries', 'retryDelayTime', 'platformRetries',
-        'resourceRetries', 'userRetries', 'completionTime', 'appExitCode', 'subState', 'state'],
+      attributes: attributes,
       where: filters,
       offset: offset,
       limit: limit,
-      order: [
-        ['creationTime', 'DESC'],
-      ],
+      order: order,
     })
     if (withTotalCount) {
       totalCount = await databaseModel.Framework.count({where: filters})
@@ -875,14 +854,16 @@ const get = async (frameworkName) => {
   let framework;
   try {
     framework = await databaseModel.Framework.findOne({
-      attributes: ['snapshot'],
+      attributes: ['submissionTime', 'snapshot'],
       where: {name: encodeName(frameworkName)},
     })
   } catch (error) {
     throw error;
   }
   if (framework) {
-    return (await convertFrameworkDetail(JSON.parse(framework.snapshot)));
+    const frameworkDetail = await convertFrameworkDetail(JSON.parse(framework.snapshot))
+    frameworkDetail.submissionTime = framework.submissionTime
+    return frameworkDetail
   } else {
     throw createError('Not Found', 'NoJobError', `Job ${frameworkName} is not found.`);
   }
@@ -952,7 +933,6 @@ const put = async (frameworkName, config, rawConfig) => {
   }
 
   const frameworkDescription = generateFrameworkDescription(frameworkName, virtualCluster, config, rawConfig);
-  logger.warn(JSON.stringify(frameworkDescription))
   // generate image pull secret
   const auths = Object.values(config.prerequisites.dockerimage)
     .filter((dockerimage) => dockerimage.auth != null)
@@ -964,6 +944,7 @@ const put = async (frameworkName, config, rawConfig) => {
 
   // calculate pod priority
   // reference: https://github.com/microsoft/pai/issues/3704
+  const submissionTime = new Date()
   let priorityClassDef = null;
   if (launcherConfig.enabledPriorityClass) {
     let jobPriority = 0;
@@ -971,7 +952,7 @@ const put = async (frameworkName, config, rawConfig) => {
       jobPriority = parseInt(Object.values(config.taskRoles)[0].hivedPodSpec.priority);
       jobPriority = Math.min(Math.max(jobPriority, -1), 126);
     }
-    const jobCreationTime = Math.floor(new Date() / 1000) & (Math.pow(2, 23) - 1);
+    const jobCreationTime = Math.floor(submissionTime / 1000) & (Math.pow(2, 23) - 1);
     const podPriority = - (((126 - jobPriority) << 23) + jobCreationTime);
     // create priority class
     priorityClassDef = getPriorityClassDef(frameworkName, podPriority);
@@ -980,20 +961,12 @@ const put = async (frameworkName, config, rawConfig) => {
   // send request to framework controller
   let response;
   try {
-    // logger.warn('[job model][put][call framework url]', launcherConfig.frameworksPath())
-    // logger.warn('[job model][put][call framework header]', launcherConfig.requestHeaders)
-    // logger.warn('[job model][put][call framework data]', frameworkDescription)
-    // response = await k8sModel.getClient().request({
-    //   method: 'post',
-    //   url: launcherConfig.frameworksPath(),
-    //   headers: launcherConfig.requestHeaders,
-    //   data: frameworkDescription,
-    // });
     response = await axios({
-      method: 'post',
-      url: launcherConfig.writeMergerUrl + '/api/v1/frameworks',
+      method: 'put',
+      url: launcherConfig.writeMergerUrl + '/api/v1/frameworkRequest',
       data: {
-        frameworkDescription: frameworkDescription,
+        frameworkRequest: frameworkDescription,
+        submissionTime: submissionTime,
         configSecretDef: configSecretDef,
         priorityClassDef: priorityClassDef,
         dockerSecretDef: dockerSecretDef,
@@ -1006,32 +979,44 @@ const put = async (frameworkName, config, rawConfig) => {
     if (error.response != null) {
       response = error.response;
     } else {
-      // // do not await for delete
-      // auths.length && deleteDockerSecret(frameworkName);
-      // config.secrets && deleteJobConfigSecret(frameworkName);
-      // launcherConfig.enabledPriorityClass && deletePriorityClass(frameworkName);
       throw error;
     }
   }
-  // if (response.status !== status('Created')) {
-  //   // do not await for delete
-  //   auths.length && deleteDockerSecret(frameworkName);
-  //   config.secrets && deleteJobConfigSecret(frameworkName);
-  //   launcherConfig.enabledPriorityClass && deletePriorityClass(frameworkName);
-  //   throw createError(response.status, 'UnknownError', response.data.message);
-  // }
-  // TO DO: how to handle this? we do not have a uid from db
-  // do not await for patch
-  // auths.length && patchDockerSecretOwner(frameworkName, response.data.metadata.uid);
-  // config.secrets && patchJobConfigSecretOwner(frameworkName, response.data.metadata.uid);
+  if (response.status !== status('OK')) {
+    throw createError(response.status, 'UnknownError', response.data.message);
+  }
 };
 
 const execute = async (frameworkName, executionType) => {
   let response;
   try {
+    const framework = await databaseModel.Framework.findOne({
+      attributes: ['snapshot', 'submissionTime', 'configSecretDef', 'priorityClassDef', 'dockerSecretDef'],
+      where: {name: encodeName(frameworkName)},
+    })
+    if (!framework) {
+      throw createError('Not Found', 'NoJobError', `Job ${frameworkName} is not found.`);
+    }
+    const snapshot = JSON.parse(framework.snapshot)
+    const frameworkRequest = _.pick(snapshot, [
+      'apiVersion',
+      'kind',
+      'metadata.name',
+      'metadata.labels',
+      'metadata.annotations',
+      'spec',
+    ])
+    frameworkRequest.spec.executionType = `${executionType.charAt(0)}${executionType.slice(1).toLowerCase()}`
     response = await axios({
       method: 'put',
-      url: `${launcherConfig.writeMergerUrl}/api/v1/frameworks/${encodeName(frameworkName)}/execution/${executionType}`,
+      url: launcherConfig.writeMergerUrl + '/api/v1/frameworkRequest',
+      data: {
+        frameworkRequest: frameworkRequest,
+        submissionTime: framework.submissionTime,
+        configSecretDef: framework.configSecretDef,
+        priorityClassDef: framework.priorityClassDef,
+        dockerSecretDef: framework.dockerSecretDef,
+      },
       headers: {
         'Content-Type': 'application/json'
       }

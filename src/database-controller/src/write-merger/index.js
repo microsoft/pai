@@ -18,7 +18,6 @@
 require('module-alias/register')
 require('dotenv').config()
 const app = require('@dbc/write-merger/app')
-
-const port = parseInt(process.env.PORT)
+const { port } = require('@dbc/write-merger/config')
 
 app.listen(port, () => console.log(`Write merger listening on port ${port}!`))

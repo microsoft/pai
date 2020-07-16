@@ -17,7 +17,10 @@
 
 service_type: "common"
 
-k8s-client-timeout-seconds: 30
+# timeout
+k8s-connection-timeout-second: 60
+database-connection-timeout-second: 60
+write-merger-connection-timeout-second: 60
 
 # write merger
 write-merger-port: 9748
@@ -27,5 +30,5 @@ write-merger-max-db-connection: 10
 db-poller-interval-second: 120
 db-poller-max-db-connection: 10
 
-# framework-watcher
-framework-watcher-max-db-connection: 10
+
+

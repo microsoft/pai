@@ -101,12 +101,8 @@ class Snapshot {
       'apiVersion',
       'kind',
       'metadata.name',
-      'metadata.labels.userName',
-      'metadata.labels.virtualCluster',
-      'metadata.annotations.jobName',
-      'metadata.annotations.logPathInfix',
-      'metadata.annotations.config',
-      'metadata.annotations.totalGpuNumber',
+      'metadata.labels',
+      'metadata.annotations',
       'spec',
     ])
   }
@@ -170,7 +166,7 @@ class Snapshot {
   }
 
   getAllUpdate(withSnapshot=true) {
-    const update = _.assign({}, this.getFRUpdate(false), this.getFSUpdate(false))
+    const update = _.assign({}, this.getRequestUpdate(false), this.getStatusUpdate(false))
     if (withSnapshot) {
       update.snapshot = JSON.stringify(this._snapshot)
     }
@@ -314,7 +310,7 @@ async function synchronizeCreate(snapshot, addOns) {
 }
 
 async function synchronizeModify(snapshot) {
-  const response = await k8s.patchFramework(snapshot.getRequest())
+  const response = await k8s.patchFramework(snapshot.getName(), snapshot.getRequest())
   const frameworkResponse = response.body
   return frameworkResponse
 }

@@ -36,7 +36,7 @@ app.use(morgan('dev', { stream: logger.stream }))
 const router = new express.Router()
 
 router.route('/ping').get(handler.ping)
-router.route('/frameworksRequest').put(handler.receiveFrameworkRequest)
+router.route('/frameworkRequest').put(handler.receiveFrameworkRequest)
 router.route('/watchEvents/:eventType').post(handler.receiveWatchEvents)
 
 app.use('/api/v1', router)

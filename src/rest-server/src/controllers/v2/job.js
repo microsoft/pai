@@ -29,11 +29,12 @@ const { Op } = require("sequelize");
 const list = asyncHandler(async (req, res) => {
   // ?keyword=<keyword filter>&userName=<username1>,<username2>&vc=<vc1>,<vc2>
   //    &state=<state1>,<state2>&offset=<offset>&limit=<limit>&withTotalCount=true
+  //    &order=state,DESC
   const filters = {};
-  let offset = 0, limit, withTotalCount = false;
+  let offset = 0, limit, withTotalCount = false, order = [];
   if (req.query) {
-    if ('username' in req.query){
-      filters.userName = req.query.username.split(',')
+    if ('userName' in req.query){
+      filters.userName = req.query.userName.split(',')
     }
     if ('vc' in req.query){
       filters.virtualCluster = req.query.vc.split(',')
@@ -58,8 +59,24 @@ const list = asyncHandler(async (req, res) => {
         {'virtualCluster': {[Op.substring]: req.query.keyword}},
       ]
     }
+    if ('order' in req.query) {
+      const {field, ordering} = req.query.order.split(',')
+      if (['jobName', 'submissionTime', 'userName', 'vc', 'retries', 'totalTaskNumber',
+        'totalGpuNumber', 'state'].includes(field)){
+        if (ordering === 'ASC' || ordering === 'DESC') {
+          order.push([field, ordering])
+        }
+      }
+    }
+    if (order.length === 0){
+      // default order is submissionTime,DESC
+      order.push(['submissionTime', 'DESC']);
+    }
   }
-  const data = await job.list(filters, offset, limit, withTotalCount);
+  const attributes = ['name', 'jobName', 'userName', 'executionType', 'submissionTime', 'creationTime', 'virtualCluster',
+        'totalGpuNumber', 'totalTaskNumber', 'totalTaskRoleNumber', 'retries', 'retryDelayTime', 'platformRetries',
+        'resourceRetries', 'userRetries', 'completionTime', 'appExitCode', 'subState', 'state'];
+  const data = await job.list(attributes, filters, order, offset, limit, withTotalCount);
   res.json(data);
 });
 

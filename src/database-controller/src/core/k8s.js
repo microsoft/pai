@@ -17,15 +17,15 @@
 
 const k8s = require('@kubernetes/client-node')
 const logger = require('./logger')
-
+const config = require('./config')
 const kc = new k8s.KubeConfig()
 
-if (process.env.CUSTOM_K8S_API_SERVER_URL) {
+if (config.customK8sApiServerURL) {
   // For local debugging, one should set CUSTOM_K8S_API_SERVER_URL, CUSTOM_K8S_CA_FILE and CUSTOM_K8S_TOKEN_FILE.
   const cluster = {
     name: 'inCluster',
-    caFile: process.env.CUSTOM_K8S_CA_FILE,
-    server: process.env.CUSTOM_K8S_API_SERVER_URL,
+    caFile: config.customK8sCaFile,
+    server: config.customK8sApiServerURL,
     skipTLSVerify: false
   }
   const user = {
@@ -35,7 +35,7 @@ if (process.env.CUSTOM_K8S_API_SERVER_URL) {
        name: 'tokenFile',
        config:
         {
-          tokenFile: process.env.CUSTOM_K8S_TOKEN_FILE
+          tokenFile: config.customK8sTokenFile
         }
      }
   }
@@ -115,7 +115,7 @@ async function deleteFramework (name, namespace = 'default') {
   return res.response
 }
 
-function getFrameworkInformer (timeoutSeconds = 86400, namespace = 'default') {
+function getFrameworkInformer (timeoutSeconds = 365 * 86400, namespace = 'default') {
   /*
   Usage:
 

@@ -22,17 +22,18 @@ const AsyncLock = require('async-lock')
 const logger = require('@dbc/core/logger')
 const { getFrameworkInformer } = require('@dbc/core/k8s')
 const { alwaysRetryDecorator } = require('@dbc/core/util')
-const writeMergerUrl = process.env.WRITE_MERGER_URL
+const config = require('@dbc/watcher/framework/config')
+
 const lock = new AsyncLock({ maxPending: Number.MAX_SAFE_INTEGER })
 
 async function synchronizeFramework (eventType, apiObject) {
   const res = await fetch(
-    `${writeMergerUrl}/api/v1/watchEvents/${eventType}`,
+    `${config.writeMergerUrl}/api/v1/watchEvents/${eventType}`,
     {
       method: 'POST',
       body: JSON.stringify(apiObject),
       headers: { 'Content-Type': 'application/json' },
-      timeout: 60000
+      timeout: config.writeMergerConnectionTimeoutSecond * 1000
     }
   )
   if (!res.ok) {

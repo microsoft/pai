@@ -18,14 +18,17 @@
 const createError = require('http-errors')
 const logger = require('@dbc/core/logger')
 const AsyncLock = require('async-lock')
-const lock = new AsyncLock({ maxPending: Number.MAX_SAFE_INTEGER })
 const DatabaseModel = require('openpaidbsdk')
-const databaseModel = new DatabaseModel(
-  process.env.DB_CONNECTION_STR,
-  parseInt(process.env.MAX_DB_CONNECTION)
-)
+const config = require('@dbc/write-merger/config')
 const { Snapshot, AddOns, silentSynchronizeRequest } = require('@dbc/core/framework')
 const _ = require('lodash')
+
+const lock = new AsyncLock({ maxPending: Number.MAX_SAFE_INTEGER })
+const databaseModel = new DatabaseModel(
+  config.dbConnectionStr,
+  config.maxDatabaseConnection,
+  config.databaseConnectionTimeoutSecond,
+)
 
 /* For error handling, all handlers follow the same structure:
 
@@ -52,8 +55,8 @@ async function ping (req, res, next) {
 
 async function receiveWatchEvents (req, res, next) {
   try {
-    const frameworkName = req.params.name
     const snapshot = new Snapshot(req.body)
+    const frameworkName = snapshot.getName()
     if (!frameworkName) {
       return next(createError(400, 'Cannot find framework name.'))
     }
@@ -64,23 +67,23 @@ async function receiveWatchEvents (req, res, next) {
       )
       // database doesn't have the corresponding framework.
       if (!oldFramework) {
-        if (process.env.RECOVERY_MODE_ENABLED === 'true') {
+        if (config.recoveryModeEnabled) {
           // If database doesn't have the corresponding framework,
           // and recovery mode is enabled
           // tolerate the error and create framework in database.
-          const record = _.assign({}, snapshot.getAllUpdate(), addOns.getUpdate())
+          const record = _.assign({}, snapshot.getAllUpdate())
           // correct submissionTime is lost, use snapshot.metadata.creationTimestamp instead
           if (snapshot.getCreationTime()) {
-            framework.submissionTime = snapshot.getCreationTime()
+            record.submissionTime = snapshot.getCreationTime()
           } else {
-            framework.submissionTime = new Date()
+            record.submissionTime = new Date()
           }
           // mark requestSynced = true, since we use framework request from api server directly
-          framework.requestSynced = true
-          await databaseModel.Framework.create(framework)
+          record.requestSynced = true
+          await databaseModel.Framework.create(record)
           return
         } else {
-          throw createError(404, `Cannot find framework ${req.params.name}.`)
+          throw createError(404, `Cannot find framework ${frameworkName}.`)
         }
       } else {
         // Database has the corresponding framework.
@@ -100,7 +103,7 @@ async function receiveWatchEvents (req, res, next) {
         }
         await databaseModel.Framework.update(
           _.assign(snapshot.getStatusUpdate(), internalUpdate),
-          { where: { name: req.params.name } }
+          { where: { name: frameworkName} }
         )
       }
     })
@@ -117,7 +120,7 @@ async function receiveFrameworkRequest (req, res, next) {
     if (!frameworkName) {
       return next(createError(400, 'Cannot find framework name.'))
     }
-    const {needSynchronize, snapshot, addOns} = await lock.acquire(
+    const [needSynchronize, snapshot, addOns] = await lock.acquire(
       frameworkName, async () => {
         const oldFramework = await databaseModel.Framework.findOne({
           attributes: ['snapshot'],
@@ -131,21 +134,21 @@ async function receiveFrameworkRequest (req, res, next) {
           const record = _.assign({}, snapshot.getAllUpdate(), addOns.getUpdate())
           record.submissionTime = new Date(submissionTime)
           await databaseModel.Framework.create(record)
-          return true, snapshot, addOns
+          return [true, snapshot, addOns]
         } else {
           // update record in db
           const oldSnapshot = new Snapshot(oldFramework.snapshot)
           if (snapshot.isRequestEqual(oldSnapshot)) {
+            // request is equal, no-op
+            return [false, snapshot, addOns]
+          } else {
             // request is different
             // update request in db, mark requestSynced=false
             await databaseModel.Framework.update(
               _.assign({}, snapshot.getRequestUpdate(), {requestSynced: false}),
-              { where: { name: req.params.name } }
+              { where: { name: frameworkName } }
             )
-            return true, snapshot, addOns
-          } else {
-            // request is equal, no-op
-            return false, snapshot, addOns
+            return [true, snapshot, addOns]
           }
         }
     })

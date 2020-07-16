@@ -24,24 +24,25 @@ const logger = require('@dbc/core/logger')
 const { Snapshot, AddOns, synchronizeRequest } = require('@dbc/core/framework')
 const interval = require('interval-promise')
 const k8s = require('@dbc/core/k8s')
-const writeMergerUrl = process.env.WRITE_MERGER_URL
+const config = require('@dbc/pollder/config')
 const fetch = require('node-fetch')
 const {deleteFramework} = require('@dbc/core/k8s')
 const lock = new AsyncLock({ maxPending: 1 })
 const databaseModel = new DatabaseModel(
-  process.env.DB_CONNECTION_STR,
-  parseInt(process.env.MAX_DB_CONNECTION)
+  config.dbConnectionStr,
+  config.maxDatabaseConnection,
+  config.databaseConnectionTimeoutSecond,
 )
 
 
 async function mockDeleteEvent(snapshot) {
   await fetch(
-    `${writeMergerUrl}/api/v1/watchEvents/DELETED`,
+    `${config.writeMergerUrl}/api/v1/watchEvents/DELETED`,
     {
       method: 'POST',
       body: snapshot.getString(),
       headers: { 'Content-Type': 'application/json' },
-      timeout: 60000
+      timeout: config.writeMergerConnectionTimeoutSecond * 1000
     }
   )
 }
@@ -53,12 +54,12 @@ function deleteHandler(snapshot, pollingTs) {
   lock.acquire(frameworkName,
     async () => {
       try{
-        await deleteFramework(framework.name)
+        await deleteFramework(snapshot.getName())
       } catch (err) {
         if (err.response && err.response.statusCode === 404) {
           // for 404 error, mock a delete to write merger
-          logger.warn(`Cannot find framework ${framework.name} in API Server. Will mock a deletion to write merger.`)
-          await mockDeleteEvent(framework)
+          logger.warn(`Cannot find framework ${frameworkName} in API Server. Will mock a deletion to write merger.`)
+          await mockDeleteEvent(snapshot)
         }
         else {
           // for non-404 error
@@ -68,7 +69,7 @@ function deleteHandler(snapshot, pollingTs) {
     }
   ).catch((err) => {
       logger.error(
-        `An error happened when delete framework ${framework.name} and pollingTs=${pollingTs}:`,
+        `An error happened when delete framework ${frameworkName} and pollingTs=${pollingTs}:`,
         err
       )
   })
@@ -79,7 +80,7 @@ function synchronizeHandler(snapshot, addOns, pollingTs) {
   const frameworkName = snapshot.getName()
   logger.info(`Start synchronizing request of framework ${frameworkName}. PollingTs=${pollingTs}`)
   lock.acquire(
-    framework.name,
+    frameworkName,
     async () => {
       await synchronizeRequest(
         snapshot,
@@ -88,7 +89,7 @@ function synchronizeHandler(snapshot, addOns, pollingTs) {
     }
   ).catch((err) => {
       logger.error(
-        `An error happened when synchronize CreateRequest for framework ${framework.name} and pollingTs=${pollingTs}:`
+        `An error happened when synchronize request for framework ${frameworkName} and pollingTs=${pollingTs}:`
         , err
       )
   })
@@ -126,6 +127,6 @@ async function poll() {
 
 interval(
   poll,
-  parseInt(process.env.DB_POLLER_INTERVAL_SECOND) * 1000,
+  config.intervalSecond * 1000,
   {stopOnError: false},
 )
