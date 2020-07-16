@@ -1,20 +1,5 @@
 # How to Add and Remove Nodes
 
-1. [Installation Guide](./installation-guide.md)
-2. [Installation FAQs and Troubleshooting](./installation-faqs-and-troubleshooting.md)
-3. [Basic Management Operations](./basic-management-operations.md)
-4. [How to Manage Users and Groups](./how-to-manage-users-and-groups.md)
-5. [How to Set Up Storage](./how-to-set-up-storage.md)
-6. [How to Set Up Virtual Clusters](./how-to-set-up-virtual-clusters.md)
-7. [How to Add and Remove Nodes](./how-to-add-and-remove-nodes.md) (this document)
-    - [How to Add Nodes](#how-to-add-nodes)
-    - [How to Remove Nodes](#how-to-remove-nodes)
-8. [How to use CPU Nodes](./how-to-use-cpu-nodes.md)
-9. [How to Customize Cluster by Plugins](./how-to-customize-cluster-by-plugins.md)
-10. [Troubleshooting](./troubleshooting.md)
-11. [How to Uninstall OpenPAI](./how-to-uninstall-openpai.md)
-12. [Upgrade Guide](./upgrade-guide.md)
-
 OpenPAI doesn't support changing master nodes, thus, only the solution of adding/removing worker nodes is provided.
 
 ## How to Add Nodes
@@ -126,7 +111,7 @@ ansible-playbook -i inventory/pai/hosts.yml upgrade-cluster.yml --become --becom
 
 ### Update OpenPAI Service Configuration
 
-Find your [service configuration file `layout.yaml` and `services-configuration.yaml`](./basic-management-operations.md#pai-ervice-management-and-paictl) in  `~/pai-deploy/cluster-cfg`.
+Find your [service configuration file `layout.yaml` and `services-configuration.yaml`](./basic-management-operations.md#pai-service-management-and-paictl) in  `~/pai-deploy/cluster-cfg`.
 
 - Add the new node into `layout.yaml`
 

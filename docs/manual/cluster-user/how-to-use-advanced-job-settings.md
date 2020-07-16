@@ -1,24 +1,8 @@
-# Advanced Job Settings
-
-1. [Quick Start](./quick-start.md)
-2. [Docker Images and Job Examples](./docker-images-and-job-examples.md)
-3. [How to Manage Data](./how-to-manage-data.md)
-4. [How to Debug Jobs](./how-to-debug-jobs.md)
-5. [Advanced Jobs](./advanced-jobs.md) (this document)
-    - [Parameters and Secrets](#parameters-and-secrets)
-    - [Multiple Task Roles](#multiple-task-roles)
-    - [Job Exit Spec, Retry Policy, and Completion Policy](#job-exit-spec-retry-policy-and-completion-policy)
-    - [Job Protocol, Export and Import Jobs](#job-protocol-export-and-import-jobs)
-    - [Distributed Job Examples](#distributed-job-examples)
-    - [InfiniBand Jobs](#infiniband-jobs)
-    - [Reference](#reference)
-6. [Use Marketplace](./use-marketplace.md)
-7. [Use VSCode Extension](./use-vscode-extension.md)
-8. [Use Jupyter Notebook Extension](./use-jupyter-notebook-extension.md)
+# How to Use Advanced Job Settings
 
 ## Parameters and Secrets
 
-It is common to train models with different parameters. OpenPAI supports parameter definition and reference, which provides a flexible way of training and comparing models. You can define your parameters in `Parameters` section and reference them by using `<% $parameters.paramKey %>` in your commands. For example, the following picture shows how to define the [Quick Start](./advanced-jobs.md) job using a `stepNum` parameter.
+It is common to train models with different parameters. OpenPAI supports parameter definition and reference, which provides a flexible way of training and comparing models. You can define your parameters in `Parameters` section and reference them by using `<% $parameters.paramKey %>` in your commands. For example, the following picture shows how to define the [Quick Start](./quick-start.md) job using a `stepNum` parameter.
 
    <img src="./imgs/use-parameters.png" width="100%" height="100%" />
 

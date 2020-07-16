@@ -1,18 +1,5 @@
 # Use VSCode Extension
 
-1. [Quick Start](./quick-start.md)
-2. [Docker Images and Job Examples](./docker-images-and-job-examples.md)
-3. [How to Manage Data](./how-to-manage-data.md)
-4. [How to Debug Jobs](./how-to-debug-jobs.md)
-5. [Advanced Jobs](./advanced-jobs.md)
-6. [Use Marketplace](./use-marketplace.md)
-7. [Use VSCode Extension](./use-vscode-extension.md) (this document)
-    - [Connect to an OpenPAI cluster](#connect-to-an-openpai-cluster)
-    - [Submit job](#submit-job)
-    - [Reference](#reference)
-8. [Use Jupyter Notebook Extension](./use-jupyter-notebook-extension.md)
-
-
 [OpenPAI VS Code Client](https://github.com/microsoft/openpaivscode) is a VSCode extension to connect OpenPAI clusters, submit AI jobs, simulate jobs locally, manage files, and so on. Please use the released vsix file on [this page](https://github.com/microsoft/openpaivscode/releases) to install it.
 
 ## Connect to an OpenPAI cluster
