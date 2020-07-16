@@ -313,7 +313,7 @@ def update_az_network_rule(work_dir, cfg):
             nsg_name = nsg["name"]
             break
 
-    command_delete_rule = "az network nsg delete --resource-group {0} --subscription {1} --name {2} --nsg-name ".format(
+    command_delete_rule = "az network nsg rule delete --resource-group {0} --subscription {1} --name {2} --nsg-name {3} ".format(
         cfg["resource_group_name"],
         cfg["subscription_id"],
         "allow_ssh",
