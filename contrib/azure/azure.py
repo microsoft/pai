@@ -179,13 +179,6 @@ def wait_nvidia_device_plugin_ready(kubeconfig, total_time=3600):
         if total_time < 0:
             logger.error("An issue occure when starting up Nvidia-Device-Plugin")
             sys.exit(1)
-    while not pod_is_ready_or_not("name", "nvidia-device-plugin-ds", "Nvidia-Device-Plugin-ds", kubeconfig):
-        logger.info("Nvidia-Device-Plugin is not ready yet. Please wait for a moment!")
-        time.sleep(10)
-        total_time = total_time - 10
-        if total_time < 0:
-            logger.error("An issue occure when starting up Nvidia-Device-Plugin")
-            sys.exit(1)
     logger.info("Nvidia-Device-Plugin is ready.")
 
 
@@ -278,6 +271,10 @@ def start_kubernetes(working_dir, cfg, script_dir, dns_prefix, location):
     if "NC" in cfg["openpai_worker_vmss"]["vm_size"] or "NV" in cfg["openpai_worker_vmss"]["vm_size"] or "ND" in cfg["openpai_worker_vmss"]["vm_size"]:
         kube_config_path = "{0}/_output/{1}/kubeconfig/kubeconfig.{2}.json".format(script_dir, dns_prefix, location)
         wait_nvidia_device_plugin_ready(kube_config_path)
+        tmp_cfg = get_k8s_cluster_info(script_dir, dns_prefix, location)
+        while not tmp_cfg["gpu"]:
+            tmp_cfg = get_k8s_cluster_info(script_dir, dns_prefix, location)
+        logger.info("GPU Resource is ready.")
 
 
 def start_openpai(aks_engine_working_dir):
