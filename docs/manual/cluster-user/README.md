@@ -10,7 +10,7 @@ This manual is for cluster users to learn how to submit job, debug job, manage d
 2. [Docker Images and Job Examples](./docker-images-and-job-examples.md)
 3. [How to Manage Data](./how-to-manage-data.md)
 4. [How to Debug Jobs](./how-to-debug-jobs.md)
-5. [Advanced Jobs](./advanced-jobs.md)
+5. [How to Use Advanced Job Settings](./how-to-use-advanced-job-settings.md)
 6. [Use Marketplace](./use-marketplace.md)
 7. [Use VSCode Extension](./use-vscode-extension.md)
 8. [Use Jupyter Notebook Extension](./use-jupyter-notebook-extension.md)
