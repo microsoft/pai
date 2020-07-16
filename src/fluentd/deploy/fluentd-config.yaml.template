@@ -113,7 +113,6 @@ data:
       @type copy
       <store>
         @type pgjson
-        @log_level debug
         host {{ cluster_cfg['postgresql']['host'] }}
         port {{ cluster_cfg['postgresql']['port'] }}
         user {{ cluster_cfg['postgresql']['user'] }}

@@ -17,11 +17,9 @@
 
 // module dependencies
 const crypto = require('crypto');
-const {isNil} = require('lodash');
 
 const {convertToJobAttempt} = require('@pai/utils/frameworkConverter');
 const launcherConfig = require('@pai/config/launcher');
-const createError = require('@pai/utils/error');
 const logger = require('@pai/config/logger');
 const {sequelize} = require('@pai/utils/postgresUtil');
 
@@ -53,14 +51,14 @@ if (sequelize && launcherConfig.enabledJobHistory) {
 
   const list = async (frameworkName) => {
     let attemptData = [];
-    
+
     const sqlSentence = `SELECT snapshot as data FROM framework_history WHERE ` +
       `frameworkName = '${encodeName(frameworkName)}' ` +
       `ORDER BY uid ASC;`;
     const pgResult = (await sequelize.query(sqlSentence))[0];
     const jobRetries = await Promise.all(
       pgResult.map((row) => {
-        return convertToJobAttempt(JSON.parse(row.data)["objectSnapshot"]);
+        return convertToJobAttempt(JSON.parse(row.data)['objectSnapshot']);
       }),
     );
     attemptData.push(
@@ -85,11 +83,10 @@ if (sequelize && launcherConfig.enabledJobHistory) {
     if (pgResult.length === 0) {
       return {status: 404, data: null};
     } else {
-      attemptFramework = JSON.parse(pgResult[0].data)["objectSnapshot"];
+      attemptFramework = JSON.parse(pgResult[0].data)['objectSnapshot'];
       const attemptDetail = await convertToJobAttempt(attemptFramework);
       return {status: 200, data: {...attemptDetail, isLatest: false}};
     }
-
   };
 
   module.exports = {
