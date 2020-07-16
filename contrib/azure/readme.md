@@ -47,13 +47,10 @@ Content as the title. Important and don't forget it.
 
 #### Write Configuration
 
-```YAML
-subscription_id: ${subscriptionId}
-resource_group_name: ${resourcegroup} 
-location: ${location}
+[Configuration example](config.yml)
 
-
-
+#### Start Cluster
 
 ```
-
+python3 azure.py -c config.yml
+```
