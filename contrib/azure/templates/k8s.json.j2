@@ -79,7 +79,7 @@
             "availabilityProfile": "VirtualMachineScaleSets",
             "singlePlacementGroup": false,
             "scaleSetPriority": "{{cfg["openpai_worker_vmss"]["scale_set_priority"]|default(Regular)}}",
-{% if "scale_set_eviction_policy" in cfg["openpai_worker_vmss"]  and cfg["openpai_worker_vmss"]["scale_set_eviction_policy"] == "spot" %}
+{% if "scale_set_eviction_policy" in cfg["openpai_worker_vmss"]  and cfg["openpai_worker_vmss"]["scale_set_eviction_policy"] == "Spot" %}
             "scaleSetEvictionPolicy": "{{cfg["openpai_worker_vmss"]["scale_set_eviction_policy"]|default(Deallocate)}}",
 {% endif %}
             "customNodeLabels": {
