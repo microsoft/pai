@@ -1,17 +1,5 @@
 # How to Manage Data
 
-1. [Quick Start](./quick-start.md)
-2. [Docker Images and Job Examples](./docker-images-and-job-examples.md)
-3. [How to Manage Data](./how-to-manage-data.md) (this document)
-    - [Get Permitted Storage](#get-permitted-storage)
-    - [Upload data](#upload-data)
-    - [Use Storage in Jobs](#use-storage-in-jobs)
-4. [How to Debug Jobs](./how-to-debug-jobs.md)
-5. [Advanced Jobs](./advanced-jobs.md)
-6. [Use Marketplace](./use-marketplace.md)
-7. [Use VSCode Extension](./use-vscode-extension.md)
-8. [Use Jupyter Notebook Extension](./use-jupyter-notebook-extension.md)
-
 ## Get Permitted Storage
 
 You should first have at least one permitted storage to manage data in OpenPAI. To view your permitted storage, first, go to your profile page:
@@ -90,7 +78,7 @@ As shown in the picture, corresponding storage will be mounted to `/mnt/confignf
 
 ### Use Job Configuration File
 
-You can also specify storage names in `extras.storages` section in the [job configuration file](./advanced-jobs.md#job-protocol-export-and-import-jobs):
+You can also specify storage names in `extras.storages` section in the [job configuration file](./how-to-use-advanced-job-settings.md#job-protocol-export-and-import-jobs):
 
 ```yaml
 extras:
