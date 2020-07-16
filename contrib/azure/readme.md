@@ -36,6 +36,7 @@ Remember the following parameters.
 - ```appId```: ```${appId}```
 - ```password```: ```${password}```
 - ```displayName```: ```${spName}```
+- ```tenant```: ```${tenant}```
   
   
 [The doc about this steps](https://docs.microsoft.com/en-us/azure/aks/kubernetes-service-principal#manually-create-a-service-principal)
