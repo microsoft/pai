@@ -199,11 +199,13 @@ def get_k8s_cluster_info(working_dir, dns_prefix, location):
     master_ip = None
     master_ip_internal = None
 
+    worker_count = 0
+    worker_with_gpu = 0
+
     try:
         api_response = api_instance.list_node(pretty=pretty, timeout_seconds=timeout_seconds)
         for node in api_response.items:
             gpu_resource = 0
-            print(node.status.allocatable)
             if 'nvidia.com/gpu' in node.status.allocatable:
                 gpu_resource = int(parse_quantity(node.status.allocatable['nvidia.com/gpu']))
             if master_string in node.metadata.name:
@@ -238,8 +240,9 @@ def get_k8s_cluster_info(working_dir, dns_prefix, location):
                     else:
                         sku["cpu_resource"] = worker[node.metadata.name]["cpu-resource"]
                         sku["mem-unit"] = int(worker[node.metadata.name]["mem-resource"] / worker[node.metadata.name]["cpu-resource"])
-
+                worker_count = worker_count + 1
                 if worker[node.metadata.name]["gpu-resource"] != 0:
+                    worker_with_gpu = worker_with_gpu + 1
                     gpu_enable = True
                 worker[node.metadata.name]["hostname"] = node.metadata.name
                 for address in node.status.addresses:
@@ -256,6 +259,7 @@ def get_k8s_cluster_info(working_dir, dns_prefix, location):
         "worker": worker,
         "sku": sku,
         "gpu": gpu_enable,
+        "gpu-ready": worker_count == worker_with_gpu,
         "master_ip": master_ip,
         "master_internal": master_ip_internal,
         "working_dir": "{0}/{1}".format(working_dir, TEMPORARY_DIR_NAME),
@@ -272,7 +276,7 @@ def start_kubernetes(working_dir, cfg, script_dir, dns_prefix, location):
         kube_config_path = "{0}/_output/{1}/kubeconfig/kubeconfig.{2}.json".format(script_dir, dns_prefix, location)
         wait_nvidia_device_plugin_ready(kube_config_path)
         tmp_cfg = get_k8s_cluster_info(script_dir, dns_prefix, location)
-        while not tmp_cfg["gpu"]:
+        while not tmp_cfg["gpu-ready"]:
             tmp_cfg = get_k8s_cluster_info(script_dir, dns_prefix, location)
         logger.info("GPU Resource is ready.")
 
@@ -285,8 +289,39 @@ def start_openpai(aks_engine_working_dir):
     execute_shell(command, "Failed to start openpai.")
 
 
-def update_az_network_rule():
-    None
+def update_az_network_rule(work_dir, cfg):
+    logger.info("update nsg rule to disable ssh port ")
+
+    command_login = "az login --service-principal --user {0} --password {1} --tenant {2}".format(
+        cfg["sp_appid"],
+        cfg["sp_password"],
+        cfg["tenant"]
+    )
+    execute_shell(command_login, "Failed to login az cli with sp.")
+
+    command_get_nsg = "az network nsg list --resource-group {0} --subscription {1} -o yaml > {2}/nsg.yml ".format(
+        cfg["resource_group_name"],
+        cfg["subscription_id"],
+        work_dir
+    )
+    execute_shell(command_get_nsg, "Failed to get nsg.")
+    nsg_cfg = load_yaml_config("{0}/nsg.yml".format(work_dir))
+
+    nsg_name = None
+    for nsg in nsg_cfg:
+        if "k8s-master" in nsg["name"]:
+            nsg_name = nsg["name"]
+            break
+
+    command_delete_rule = "az network nsg delete --resource-group {0} --subscription {1} --name {2} --nsg-name ".format(
+        cfg["resource_group_name"],
+        cfg["subscription_id"],
+        "allow_ssh",
+        nsg_name
+        )
+    execute_shell(command_delete_rule, "Failed to delete nsg rule.")
+
+    logger.info("update nsg rule successfully ")
 
 
 def main():
@@ -320,7 +355,7 @@ def main():
     k8s_info = get_k8s_cluster_info(current_working_dir, aks_engine_cfg["dns_prefix"], aks_engine_cfg["location"])
     generate_openpai_configuration(k8s_info, aks_engine_cfg, aks_engine_working_dir, python_script_path)
     start_openpai(aks_engine_working_dir)
-
+    update_az_network_rule(aks_engine_working_dir, aks_engine_cfg)
 
 if __name__ == "__main__":
     main()

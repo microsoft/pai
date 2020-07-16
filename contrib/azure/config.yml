@@ -1,5 +1,6 @@
 subscription_id: ${subscriptionId}
 resource_group_name: ${resourcegroup}
+tenant: ${tenant}
 location: ${location}
 dns_prefix: openpai-example
 sp_appid: ${appId}
