@@ -58,7 +58,7 @@ if (sequelize && launcherConfig.enabledJobHistory) {
     const pgResult = (await sequelize.query(sqlSentence))[0];
     const jobRetries = await Promise.all(
       pgResult.map((row) => {
-        return convertToJobAttempt(JOSN.parse(row.data));
+        return convertToJobAttempt(JSON.parse(row.data));
       }),
     );
     attemptData.push(
@@ -75,7 +75,7 @@ if (sequelize && launcherConfig.enabledJobHistory) {
 
     const sqlSentence = `SELECT snapshot as data FROM framework_history WHERE ` +
       `frameworkName = '${encodeName(frameworkName)}' and ` +
-      `attemptIndex = '${jobAttemptIndex}'` +
+      `attemptIndex = '${jobAttemptIndex}' ` +
       `ORDER BY uid ASC;`;
 
     const pgResult = (await sequelize.query(sqlSentence))[0];
