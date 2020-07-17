@@ -10,7 +10,8 @@ CREATE TABLE IF NOT EXISTS framework_history (
 );
 CREATE TABLE IF NOT EXISTS pods (
    insertedAt Timestamptz,
-   updatedAt Timestamptz, uid VARCHAR(36),
+   updatedAt Timestamptz,
+   uid VARCHAR(36),
    frameworkName VARCHAR(64),
    attemptIndex INTEGER,
    taskroleName VARCHAR(256),
@@ -18,4 +19,5 @@ CREATE TABLE IF NOT EXISTS pods (
    taskAttemptIndex INTEGER,
    snapshot TEXT
 );
-CREATE INDEX IF NOT EXISTS uidindex ON fc_objectsnapshots USING gin ((record -> 'objectSnapshot' -> 'metadata' -> 'uid'));
+CREATE INDEX IF NOT EXISTS uidindex ON framework_history USING gin ((record -> 'uid'));
+CREATE INDEX IF NOT EXISTS uidindex ON pods USING gin ((record -> 'uid'));
