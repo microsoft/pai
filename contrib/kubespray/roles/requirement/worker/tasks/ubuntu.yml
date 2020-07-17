@@ -1,20 +1,20 @@
 ---
-- name: "Worker 1.1 Check whether the vm can access to docker.io"
-  raw: nslookup index.docker.io
-  register: worker_nslookup_docker_io
+- name: "Worker 1.1 Check whether the vm can access to {{openpai_registry}}"
+  raw: "nslookup {{openpai_registry}}"
+  register: worker_nslookup_openpai_registry
   failed_when: false
   changed_when: false
   check_mode: false
   environment: {}
 
-- name: "Worker 1.2 Check whether the vm can access to docker.io"
+- name: "Worker 1.2 Check whether the vm can access to {{openpai_registry}}"
   set_fact:
-    unmet_requirements: "{{ unmet_requirements + ['Unable to access docker.io'] }}"
+    unmet_requirements: "{{ unmet_requirements + ['Unable to access' + openpai_registry] }}"
   changed_when: false
   check_mode: false
   environment: {}
   when:
-    - worker_nslookup_docker_io.rc != 0
+    - worker_nslookup_openpai_registry.rc != 0
 
 - name: "Worker 2.1 Ensure dev-box is not an worker machines"
   set_fact:
@@ -22,22 +22,22 @@
   when:
     - ansible_control_host_address == ansible_default_ipv4.address
 
-- name: "Worker 3.1 Check whether the vm can access to gcr.io"
-  raw: ping gcr.io -c 3
-  register: worker_ping_gcr_io
+- name: "Worker 3.1 Check whether the vm can access to {{gcr_image_repo}}"
+  raw: "nslookup {{gcr_image_repo}}"
+  register: worker_nslookup_gcr_image_repo
   failed_when: false
   changed_when: false
   check_mode: false
   environment: {}
 
-- name: "Worker 3.2 Check whether the vm can access to gcr.io"
+- name: "Worker 3.2 Check whether the vm can access to {{gcr_image_repo}}"
   set_fact:
-    unmet_requirements: "{{ unmet_requirements + ['Unable to access gcr.io'] }}"
+    unmet_requirements: "{{ unmet_requirements + ['Unable to access' + gcr_image_repo] }}"
   changed_when: false
   check_mode: false
   environment: {}
   when:
-    - worker_ping_gcr_io.rc != 0
+    - worker_nslookup_gcr_image_repo.rc != 0
 
 - name: "Worker 4.1 Check whether the vm can access to quay.io"
   raw: nslookup quay.io
