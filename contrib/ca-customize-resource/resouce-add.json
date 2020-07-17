@@ -3,5 +3,10 @@
     "op": "add",
     "path": "/status/capacity/hivedscheduler.microsoft.com~1pod-scheduling-enable",
     "value": "100"
+  },
+  {
+    "op": "add",
+    "path": "/status/allocatable/hivedscheduler.microsoft.com~1pod-scheduling-enable",
+    "value": "100"
   }
 ]
