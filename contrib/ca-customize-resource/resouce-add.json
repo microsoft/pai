@@ -1,7 +1,7 @@
 [
   {
     "op": "add",
-    "path": "test/resource",
-    "value": "4"
+    "path": "/status/capacity/hivedscheduler.microsoft.com/pod-scheduling-enable",
+    "value": "100"
   }
 ]
