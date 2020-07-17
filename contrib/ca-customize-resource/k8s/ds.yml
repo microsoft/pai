@@ -1,0 +1,34 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: ca-resource-ds
+spec:
+  affinity:
+    nodeAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        nodeSelectorTerms:
+          - matchExpressions:
+              - key: pai-worker
+                operator: In
+                values:
+                  - true
+    matchLabels:
+      app: ca-resource
+  template:
+    metadata:
+      name: ca-resource
+      labels:
+        app: ca-resource
+    spec:
+      hostNetwork: false
+      hostPID: false
+      containers:
+      - name: ca-resource
+        image: openpai/ca-reousrce
+        imagePullPolicy: Always
+        env:
+        - name: MY_NODE_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: spec.nodeName
+      serviceAccountName: ca-resource-account
