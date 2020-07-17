@@ -21,7 +21,7 @@ if body == None:
     sys.exit(1)
 
 try:
-    api_response = api_instance.patch_node_status(name, body, pretty=pretty, force=force, dry_run=dry_run, field_manager=field_manager)
+    api_response = api_instance.patch_node_status(name, body, pretty=pretty, dry_run=dry_run)
     pprint(api_response)
 except ApiException as e:
     print("Exception when calling CoreV1Api->patch_node_status: %s\n" % e)
