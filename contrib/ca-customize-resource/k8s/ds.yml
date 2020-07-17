@@ -24,7 +24,7 @@ spec:
       hostPID: false
       containers:
       - name: ca-resource
-        image: openpai/ca-reousrce
+        image: openpai/ca-resource
         imagePullPolicy: Always
         env:
         - name: MY_NODE_NAME
