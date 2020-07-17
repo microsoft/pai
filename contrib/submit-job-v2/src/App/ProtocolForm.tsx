@@ -163,7 +163,7 @@ export default class ProtocolForm extends React.Component<IProtocolProps, IProto
   private client = new PAIV2.OpenPAIClient({
     username: this.props.user,
     token: this.props.token,
-    rest_server_uri: this.props.api,
+    rest_server_uri: new URL(this.props.api, window.location.href).href,
   });
 
   public componentDidMount() {
