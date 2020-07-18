@@ -21,6 +21,7 @@ cluster-type:
 prerequisite:
   - cluster-configuration
   - dshuttle-master
+  - dshuttle-worker
 
 template-list:
   - dshuttle-csi-daemon.yaml

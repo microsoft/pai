@@ -74,9 +74,9 @@ spec:
         {%- if cluster_cfg['cluster']['common']['qos-switch'] == "true" %}
         resources:
           limits:
-            memory: 2Gi
+            memory: 8Gi
           requests:
-            memory: 1Gi
+            memory: 4Gi
         {%- endif %}
         command: ["/entrypoint.sh"]
         args:

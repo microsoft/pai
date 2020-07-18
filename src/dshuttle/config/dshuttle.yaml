@@ -18,7 +18,7 @@
 service_type: "k8s"
 
 worker_request_mem: 2G
-worker_limit_mem: 4G
+worker_limit_mem: 8G
 worker_rpc_port: 4999
 worker_web_port: 5000
 job_worker_rpc_port: 5001

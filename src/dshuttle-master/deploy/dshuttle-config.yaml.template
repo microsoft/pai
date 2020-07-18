@@ -22,9 +22,14 @@ metadata:
 data:
   ALLUXIO_JAVA_OPTS: >-
     -Dalluxio.master.hostname=dshuttle-service.default
+    -Dalluxio.master.ufs.path.cache.capacity=10000000
+    -Dalluxio.job.master.worker.heartbeat.interval=1sec
+    -Dalluxio.job.master.finished.job.retention.time=1sec
+    -Dalluxio.job.worker.threadpool.size=200
     -Dalluxio.master.journal.type=UFS
     -Dalluxio.master.journal.folder=/journal
     -Dalluxio.master.mount.table.root.ufs=/opt/alluxio/underFSStorage
+    -Dalluxio.master.rpc.executor.parallelism=200
     -Dalluxio.security.stale.channel.purge.interval=365d
     -Dalluxio.user.metrics.collection.enabled=true
     -Dalluxio.master.rpc.port={{ cluster_cfg['dshuttle']['master_rpc_port'] }}
@@ -47,11 +52,17 @@ data:
     -Dalluxio.user.update.file.accesstime.disabled=true
     -Dalluxio.user.metadata.cache.enabled=true
     -Dalluxio.user.metadata.cache.max.size=2000000
-    -Dalluxio.user.metadata.cache.expiration.time=24h 
+    -Dalluxio.user.metadata.cache.expiration.time=24h
+    -Dalluxio.user.file.master.client.pool.size.max=50
+    -Dalluxio.fuse.jnifuse.enabled=true
+    -Dalluxio.fuse.cached.paths.max=2000000 
   ALLUXIO_MASTER_JAVA_OPTS: >-
-    -Dalluxio.master.web.bind.host=0.0.0.0 
+    -Dalluxio.master.web.bind.host=0.0.0.0
+    -XX:ActiveProcessorCount=20 
   ALLUXIO_JOB_MASTER_JAVA_OPTS: >-
     -Dalluxio.job.master.bind.host=0.0.0.0 
+    -XX:ActiveProcessorCount=10 
+    -Xms1G -Xmx6G 
   ALLUXIO_WORKER_JAVA_OPTS: >-
     -Dalluxio.worker.bind.host=0.0.0.0
     -Dalluxio.worker.data.server.domain.socket.address=/opt/domain
@@ -65,13 +76,17 @@ data:
     -Dalluxio.worker.tieredstore.level{{ tieredstore['level'] }}.dirs.path={{ tieredstore['path'] }}
     -Dalluxio.worker.tieredstore.level{{ tieredstore['level'] }}.dirs.quota={{ tieredstore['quota'] }}
     -Dalluxio.worker.tieredstore.level{{ tieredstore['level'] }}.watermark.high.ratio={{ tieredstore['watermark_high_ratio'] }}
-    -Dalluxio.worker.tieredstore.level{{ tieredstore['level'] }}.watermark.low.ratio={{ tieredstore['watermark_low_ratio'] }} 
-    {% endfor %}
+    -Dalluxio.worker.tieredstore.level{{ tieredstore['level'] }}.watermark.low.ratio={{ tieredstore['watermark_low_ratio'] }}
+    {% endfor -%}
+    -XX:ActiveProcessorCount=10 
+    -Xms1G -Xmx8G 
   ALLUXIO_JOB_WORKER_JAVA_OPTS: >-
     -Dalluxio.job.worker.rpc.port={{ cluster_cfg['dshuttle']['job_worker_rpc_port'] }}
     -Dalluxio.job.worker.data.port={{ cluster_cfg['dshuttle']['job_worker_data_port'] }}
     -Dalluxio.job.worker.web.port={{ cluster_cfg['dshuttle']['job_worker_web_port'] }} 
-    -Dalluxio.worker.hostname=${ALLUXIO_WORKER_HOSTNAME} 
+    -Dalluxio.worker.hostname=${ALLUXIO_WORKER_HOSTNAME}
+    -XX:ActiveProcessorCount=10 
+    -Xms1G -Xmx2G 
   ALLUXIO_FUSE_JAVA_OPTS: >-
     -Xms4G -Xmx8G -XX:MaxDirectMemorySize=16g 
   ALLUXIO_WORKER_TIEREDSTORE_LEVEL0_DIRS_PATH: /dev/shm 
