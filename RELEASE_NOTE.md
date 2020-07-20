@@ -5,7 +5,7 @@
 - Storage:
   - Support readonly storage. (#4523)
 - Security
-  - If ssl is enabled, all request in webportal will use https. (#4550)
+  - If ssl is enabled, all requests will use https. (#4550)
 - Authentication
   - Support nested AD group in AAD Mode. (#4639)
 - Marketplace
