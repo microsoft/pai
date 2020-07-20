@@ -28,8 +28,8 @@ WORKDIR src
 RUN yarn install
 
 RUN npm install json -g
-RUN json -I -f package.json -e "this.paiVersion=\"`cat version/PAI.VERSION`\""
-RUN json -I -f package.json -e "this.paiCommitVersion=\"`cat version/COMMIT.VERSION`\""
+RUN json -I -f package.json -e "this.paiVersion=\"`cat ../version/PAI.VERSION`\""
+RUN json -I -f package.json -e "this.paiCommitVersion=\"`cat ../version/COMMIT.VERSION`\""
 
 
 CMD ["sleep", "infinity"]
