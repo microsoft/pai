@@ -1,13 +1,10 @@
 const { Sequelize, Model } = require('sequelize')
 
 class DatabaseModel {
-  constructor (connectionStr, maxConnection = 10, timeoutSecond = 60) {
+  constructor (connectionStr, maxConnection = 10) {
     const sequelize = new Sequelize(
       connectionStr,
       {
-        dialectOptions: {
-          connectTimeout: timeoutSecond * 1000
-        },
         pool: {
           max: maxConnection,
           min: 1
@@ -193,6 +190,20 @@ class DatabaseModel {
     Framework.hasMany(FrameworkEvent)
     Framework.hasMany(PodEvent)
 
+    class Version extends Model {}
+    Version.init({
+      version: {
+        type: Sequelize.STRING(36),
+      },
+      commitVersion: {
+        type: Sequelize.STRING(36),
+      },
+    }, {
+      sequelize,
+      modelName: 'version',
+      freezeTableName: true,
+    })
+
     // bind to `this`
     this.sequelize = sequelize
     this.Framework = Framework
@@ -200,6 +211,7 @@ class DatabaseModel {
     this.Pod = Pod
     this.FrameworkEvent = FrameworkEvent
     this.PodEvent = PodEvent
+    this.Version = Version
     this.synchronizeSchema = this.synchronizeSchema.bind(this)
   }
 
@@ -212,9 +224,37 @@ class DatabaseModel {
         this.FrameworkHistory.sync({ alter: true }),
         this.Pod.sync({ alter: true }),
         this.FrameworkEvent.sync({ alter: true }),
-        this.PodEvent.sync({ alter: true })
+        this.PodEvent.sync({ alter: true }),
+        this.Version.sync({alter: true})
       ])
     }
+  }
+
+  async getVersion() {
+    const res = await this.Version.findOne()
+    if (res){
+      return {
+        version: res.version,
+        commitVersion: res.commitVersion,
+      }
+    } else {
+      return {
+        version: null,
+        commitVersion: null,
+      }
+    }
+  }
+
+  async setVersion(version, commitVersion) {
+    await this.sequelize.transaction(async (t) => {
+      await this.Version.destroy({
+        where: {}, transaction: t
+      })
+      await this.Version.create({
+        version: version,
+        commitVersion: commitVersion
+      }, { transaction: t })
+    });
   }
 }
 

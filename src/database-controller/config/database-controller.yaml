@@ -17,9 +17,10 @@
 
 service_type: "common"
 
-# timeout
+# general settings
+log-level: info
+recovery-mode: false
 k8s-connection-timeout-second: 60
-database-connection-timeout-second: 60
 write-merger-connection-timeout-second: 60
 
 # write merger

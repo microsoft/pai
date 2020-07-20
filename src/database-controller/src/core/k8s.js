@@ -18,6 +18,7 @@
 const k8s = require('@kubernetes/client-node')
 const logger = require('./logger')
 const config = require('./config')
+const {timeoutDecorator} = require('./util')
 const kc = new k8s.KubeConfig()
 
 if (config.customK8sApiServerURL) {
@@ -70,23 +71,6 @@ async function createFramework (frameworkDescription, namespace = 'default') {
     namespace,
     'frameworks',
     frameworkDescription
-  )
-  return res.response
-}
-
-async function executeFramework (name, executionType, namespace = 'default') {
-  const res = await customObjectsClient.patchNamespacedCustomObject(
-    'frameworkcontroller.microsoft.com',
-    'v1',
-    namespace,
-    'frameworks',
-    name,
-    {
-      spec: {
-        executionType: executionType
-      }
-    },
-    { headers: { 'Content-Type': 'application/merge-patch+json' } }
   )
   return res.response
 }
@@ -196,18 +180,17 @@ async function patchSecretOwnerToFramework (secret, frameworkResponse) {
   return res.response
 }
 
-
+const timeoutMs = config.k8sConnectionTimeoutSecond * 1000
 
 module.exports = {
-  getFramework: getFramework,
-  createFramework: createFramework,
-  executeFramework: executeFramework,
-  patchFramework: patchFramework,
-  deleteFramework: deleteFramework,
+  getFramework: timeoutDecorator(getFramework, 'Kubernetes getFramework', timeoutMs),
+  createFramework: timeoutDecorator(createFramework, 'Kubernetes createFramework', timeoutMs),
+  patchFramework: timeoutDecorator(patchFramework, 'Kubernetes patchFramework', timeoutMs),
+  deleteFramework: timeoutDecorator(deleteFramework, 'Kubernetes deleteFramework', timeoutMs),
+  createPriorityClass: timeoutDecorator(createPriorityClass, 'Kubernetes createPriorityClass', timeoutMs),
+  deletePriorityClass: timeoutDecorator(deletePriorityClass, 'Kubernetes deletePriorityClass', timeoutMs),
+  createSecret: timeoutDecorator(createSecret, 'Kubernetes createSecret', timeoutMs),
+  deleteSecret: timeoutDecorator(deleteSecret, 'Kubernetes deleteSecret', timeoutMs),
+  patchSecretOwnerToFramework: timeoutDecorator(patchSecretOwnerToFramework, 'Kubernetes patchSecretOwnerToFramework', timeoutMs),
   getFrameworkInformer: getFrameworkInformer,
-  createPriorityClass: createPriorityClass,
-  deletePriorityClass: deletePriorityClass,
-  createSecret: createSecret,
-  deleteSecret: deleteSecret,
-  patchSecretOwnerToFramework: patchSecretOwnerToFramework
 }

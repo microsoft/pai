@@ -21,6 +21,7 @@ const DatabaseModel = require('openpaidbsdk')
 const fs = require('fs')
 const logger = require('@dbc/core/logger')
 const neverResolved = new Promise((resolve, reject) => {})
+const {paiVersion, paiCommitVersion} = require('@dbc/package.json')
 
 async function main () {
   try {
@@ -28,8 +29,8 @@ async function main () {
       process.env.DB_CONNECTION_STR,
       1
     )
-    /* ...... */
     await databaseModel.synchronizeSchema()
+    await databaseModel.setVersion(paiVersion, paiCommitVersion)
     await new Promise((resolve, reject) => {
       fs.writeFile('/READY', '', (err) => {
         if (err) {

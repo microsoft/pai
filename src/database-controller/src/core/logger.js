@@ -17,6 +17,7 @@
 
 const util = require('util')
 const winston = require('winston')
+const config = require('./config')
 
 const logTransports = {
   console: new winston.transports.Console({
@@ -39,7 +40,7 @@ const logTransports = {
 
 // create logger
 const logger = new winston.Logger({
-  level: process.env.LOG_LEVEL ? process.env.LOG_LEVEL : 'info',
+  level: config.logLevel,
   transports: [
     logTransports.console
   ],

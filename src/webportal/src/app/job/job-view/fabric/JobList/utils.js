@@ -14,6 +14,7 @@ export function getModified(job) {
  * @returns {number}
  */
 export function getDuration(job) {
+  console.log('duration', job)
   if (!('_duration' in job)) {
     job._duration = (job.completedTime || Date.now()) - job.createdTime;
   }

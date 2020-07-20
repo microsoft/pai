@@ -96,26 +96,35 @@ class Snapshot {
     return new Snapshot(this._snapshot)
   }
 
-  getRequest() {
-    return _.pick(this._snapshot, [
-      'apiVersion',
-      'kind',
-      'metadata.name',
-      'metadata.labels',
-      'metadata.annotations',
-      'spec',
-    ])
+  getRequest(omitGeneration) {
+    const request = _.pick(this._snapshot, [
+        'apiVersion',
+        'kind',
+        'metadata.name',
+        'metadata.labels',
+        'metadata.annotations',
+        'spec',
+      ])
+    if (omitGeneration) {
+      return _.omit(request, 'metadata.annotations.requestGeneration')
+    } else {
+      return request
+    }
   }
 
-  isRequestEqual(otherSnapshot) {
-    return _.isEqual(
-      this.getRequest(),
-      otherSnapshot.getRequest(),
-    )
-  }
 
   overrideRequest(otherSnapshot) {
-    _.assign(this._snapshot, otherSnapshot.getRequest())
+    // shouldn't use _.merge here
+    _.assign(this._snapshot, _.pick(otherSnapshot._snapshot, [
+      'apiVersion',
+      'kind',
+      'spec',
+    ]))
+    _.assign(this._snapshot.metadata, _.pick(otherSnapshot._snapshot.metadata, [
+      'name',
+      'labels',
+      'annotations',
+    ]))
   }
 
   getRequestUpdate(withSnapshot=true) {
@@ -143,6 +152,7 @@ class Snapshot {
 
   getStatusUpdate(withSnapshot=true) {
     const completionStatus = this._snapshot.status.attemptStatus.completionStatus
+    logger.info('xxx', this._snapshot.metadata.creationTimestamp)
     const update = {
       retries: this._snapshot.status.retryPolicyStatus.totalRetriedCount,
       retryDelayTime: this._snapshot.status.retryPolicyStatus.retryDelaySec,
@@ -199,6 +209,18 @@ class Snapshot {
     } else {
       return null
     }
+  }
+
+  setGeneration(generation) {
+    this._snapshot.metadata.annotations.requestGeneration = generation.toString()
+  }
+
+  getGeneration() {
+    if (!_.has(this._snapshot, 'metadata.annotations.requestGeneration')) {
+      // for some legacy job, use 1 as its request generation.
+      this.setGeneration(1)
+    }
+    return parseInt(_.pick(this._snapshot, 'metadata.annotations.requestGeneration'))
   }
 
 }
@@ -291,7 +313,7 @@ class AddOns {
 async function synchronizeCreate(snapshot, addOns) {
   await addOns.create()
   try {
-    const response = await k8s.createFramework(snapshot.getRequest())
+    const response = await k8s.createFramework(snapshot.getRequest(false))
     // framework is created successfully.
     const frameworkResponse = response.body
     addOns.silentPatch(frameworkResponse)
@@ -299,7 +321,7 @@ async function synchronizeCreate(snapshot, addOns) {
   } catch (err) {
     if (err.response && err.response.statusCode === 409) {
       // doesn't delete add-ons if 409 error
-      logger.warn(`Framework ${frameworkDescription.metadata.name} already exists.`)
+      logger.warn(`Framework ${snapshot.getName()} already exists.`)
       throw err
     } else {
       // delete add-ons if 409 error
@@ -310,7 +332,7 @@ async function synchronizeCreate(snapshot, addOns) {
 }
 
 async function synchronizeModify(snapshot) {
-  const response = await k8s.patchFramework(snapshot.getName(), snapshot.getRequest())
+  const response = await k8s.patchFramework(snapshot.getName(), snapshot.getRequest(false))
   const frameworkResponse = response.body
   return frameworkResponse
 }
@@ -323,10 +345,12 @@ async function synchronizeRequest(snapshot, addOns) {
     await k8s.getFramework(snapshot.getName())
     // if framework exists
     const frameworkResponse = await synchronizeModify(snapshot)
+    logger.info(`Request of framework ${snapshot.getName()} is successfully patched.`)
     return frameworkResponse
   } catch (err) {
     if (err.response && err.response.statusCode === 404) {
       const frameworkResponse = await synchronizeCreate(snapshot, addOns)
+      logger.info(`Request of framework ${snapshot.getName()} is successfully created.`)
       return frameworkResponse
     } else {
       throw err

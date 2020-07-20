@@ -1,3 +1,5 @@
+#!/bin/bash
+
 # Copyright (c) Microsoft Corporation
 # All rights reserved.
 #
@@ -15,20 +17,10 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-FROM node:carbon
+pushd $(dirname "$0") > /dev/null
 
-WORKDIR /database-controller
+mkdir -p ../version
+cp ../../../version/PAI.VERSION ../version/
+echo `git rev-parse HEAD > ../version/COMMIT.VERSION
 
-COPY ./src ./src
-COPY ./sdk ./sdk
-
-WORKDIR src
-
-RUN yarn install
-
-RUN npm install json -g
-RUN json -I -f package.json -e "this.paiVersion=\"`cat version/PAI.VERSION`\""
-RUN json -I -f package.json -e "this.paiCommitVersion=\"`cat version/COMMIT.VERSION`\""
-
-
-ENTRYPOINT ["sleep", "infinity"]
+popd > /dev/null

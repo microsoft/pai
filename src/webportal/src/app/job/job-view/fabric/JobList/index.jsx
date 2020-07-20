@@ -139,6 +139,7 @@ export default function JobList() {
     client.job
       .listJobs()
       .then(data => {
+        console.log(data)
         return data;
       })
       .then(setAllJobs)

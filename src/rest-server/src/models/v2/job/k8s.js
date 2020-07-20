@@ -862,7 +862,7 @@ const get = async (frameworkName) => {
   }
   if (framework) {
     const frameworkDetail = await convertFrameworkDetail(JSON.parse(framework.snapshot))
-    frameworkDetail.submissionTime = framework.submissionTime
+    frameworkDetail.jobStatus.submissionTime = new Date(framework.submissionTime).getTime()
     return frameworkDetail
   } else {
     throw createError('Not Found', 'NoJobError', `Job ${frameworkName} is not found.`);

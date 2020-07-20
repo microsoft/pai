@@ -1,6 +1,8 @@
 {
   "name": "database-controller",
   "version": "1.0.0",
+  "paiVersion": null,
+  "paiCommitVersion": null,
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "lint": "standard.cmd --fix"
@@ -23,7 +25,7 @@
     "module-alias": "^2.2.2",
     "morgan": "^1.10.0",
     "node-fetch": "^2.6.0",
-    "openpaidbsdk": "file:../sdk",
+    "openpaidbsdk": "../sdk",
     "statuses": "^2.0.0",
     "winston": "2"
   },

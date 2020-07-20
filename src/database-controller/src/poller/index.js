@@ -24,14 +24,13 @@ const logger = require('@dbc/core/logger')
 const { Snapshot, AddOns, synchronizeRequest } = require('@dbc/core/framework')
 const interval = require('interval-promise')
 const k8s = require('@dbc/core/k8s')
-const config = require('@dbc/pollder/config')
+const config = require('@dbc/poller/config')
 const fetch = require('node-fetch')
 const {deleteFramework} = require('@dbc/core/k8s')
 const lock = new AsyncLock({ maxPending: 1 })
 const databaseModel = new DatabaseModel(
   config.dbConnectionStr,
   config.maxDatabaseConnection,
-  config.databaseConnectionTimeoutSecond,
 )
 
 
@@ -55,6 +54,7 @@ function deleteHandler(snapshot, pollingTs) {
     async () => {
       try{
         await deleteFramework(snapshot.getName())
+        logger.info(`Framework ${frameworkName} is successfully deleted. PollingTs=${pollingTs}.`)
       } catch (err) {
         if (err.response && err.response.statusCode === 404) {
           // for 404 error, mock a delete to write merger
@@ -86,6 +86,7 @@ function synchronizeHandler(snapshot, addOns, pollingTs) {
         snapshot,
         addOns,
       )
+      logger.info(`Request of framework ${frameworkName} is successfully synchronized. PollingTs=${pollingTs}.`)
     }
   ).catch((err) => {
       logger.error(

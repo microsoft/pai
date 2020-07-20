@@ -22,12 +22,10 @@ const DatabaseModel = require('openpaidbsdk')
 const config = require('@dbc/write-merger/config')
 const { Snapshot, AddOns, silentSynchronizeRequest } = require('@dbc/core/framework')
 const _ = require('lodash')
-
 const lock = new AsyncLock({ maxPending: Number.MAX_SAFE_INTEGER })
 const databaseModel = new DatabaseModel(
   config.dbConnectionStr,
   config.maxDatabaseConnection,
-  config.databaseConnectionTimeoutSecond,
 )
 
 /* For error handling, all handlers follow the same structure:
@@ -71,7 +69,7 @@ async function receiveWatchEvents (req, res, next) {
           // If database doesn't have the corresponding framework,
           // and recovery mode is enabled
           // tolerate the error and create framework in database.
-          const record = _.assign({}, snapshot.getAllUpdate())
+          const record = snapshot.getAllUpdate()
           // correct submissionTime is lost, use snapshot.metadata.creationTimestamp instead
           if (snapshot.getCreationTime()) {
             record.submissionTime = snapshot.getCreationTime()
@@ -89,14 +87,17 @@ async function receiveWatchEvents (req, res, next) {
         // Database has the corresponding framework.
         const oldSnapshot = new Snapshot(oldFramework.snapshot)
         const internalUpdate = {}
-        if (snapshot.isRequestEqual(oldSnapshot)) {
+        logger.info('xxx', oldSnapshot.getGeneration(), snapshot.getGeneration())
+        if (oldSnapshot.getGeneration() === snapshot.getGeneration()) {
           // if framework request is equal, mark requestSynced = true
           internalUpdate.requestSynced = true
         } else {
           // if framework request is not equal,
           // should use framework request in db as ground truth
-          snapshot.overrideRequest(oldSnapshot)
+          internalUpdate.requestSynced = false
         }
+        // use request in database
+        snapshot.overrideRequest(oldSnapshot)
         if (req.params.eventType === 'DELETED') {
           // if event is DELETED, mark apiServerDeleted = true
           internalUpdate.apiServerDeleted = true
@@ -131,6 +132,7 @@ async function receiveFrameworkRequest (req, res, next) {
         if (!oldFramework) {
           // create new record in db
           // including all add-ons and submissionTime
+          snapshot.setGeneration(1)
           const record = _.assign({}, snapshot.getAllUpdate(), addOns.getUpdate())
           record.submissionTime = new Date(submissionTime)
           await databaseModel.Framework.create(record)
@@ -138,12 +140,13 @@ async function receiveFrameworkRequest (req, res, next) {
         } else {
           // update record in db
           const oldSnapshot = new Snapshot(oldFramework.snapshot)
-          if (snapshot.isRequestEqual(oldSnapshot)) {
+          if (_.isEqual(snapshot.getRequest(true), oldSnapshot.getRequest(true))) {
             // request is equal, no-op
             return [false, snapshot, addOns]
           } else {
             // request is different
             // update request in db, mark requestSynced=false
+            snapshot.setGeneration(oldSnapshot.getGeneration() + 1)
             await databaseModel.Framework.update(
               _.assign({}, snapshot.getRequestUpdate(), {requestSynced: false}),
               { where: { name: frameworkName } }

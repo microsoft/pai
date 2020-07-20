@@ -1179,7 +1179,7 @@ openid-client@2.5.0:
     oidc-token-hash "^3.0.1"
     p-any "^1.1.0"
 
-"openpaidbsdk@file:../sdk":
+openpaidbsdk@../sdk:
   version "1.0.0"
   dependencies:
     pg "^8.2.1"

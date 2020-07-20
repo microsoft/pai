@@ -27,10 +27,12 @@ async function timePeriod (ms) {
   })
 }
 
+
+
 function alwaysRetryDecorator (promiseFn, loggingMessage, initialRetryDelayMs = 500, backoffRatio = 2, maxRetryDelayMs = 120000) {
   /*
-  promiseFn is a function which has signature: async function() {}
-  This decorator returns a newPromiseFn, which can be run as newPromiseFn().
+  promiseFn is an async function
+  This decorator returns a newPromiseFn, which can be run as newPromiseFn(...).
   The new promise will be always retried.
   */
   async function _wrapper () {
@@ -41,7 +43,7 @@ function alwaysRetryDecorator (promiseFn, loggingMessage, initialRetryDelayMs = 
         if (retryCount > 0) {
           logger.warn(`${loggingMessage} retries=${retryCount}.`)
         }
-        const res = await promiseFn()
+        const res = await promiseFn.apply(this, arguments)
         logger.info(`${loggingMessage} succeeded.`)
         return res
       } catch (err) {
@@ -63,7 +65,25 @@ function alwaysRetryDecorator (promiseFn, loggingMessage, initialRetryDelayMs = 
   return _wrapper
 }
 
+function timeoutDecorator (promiseFn, loggingMessage, timeoutMs){
+  /*
+  promiseFn is an async function
+  This decorator returns a newPromiseFn, which can be run as newPromiseFn(...).
+  The new promise will has a timeout
+  */
+  async function _wrapper () {
+    const timeoutPromise = new Promise((resolve, reject) => {
+      setTimeout(() => reject(`${loggingMessage} reached timeout ${timeoutMs} ms.`), timeoutMs)
+    })
+    const resPromise = promiseFn.apply(this, arguments)
+    const res = await Promise.race([timeoutPromise, resPromise])
+    return res
+  }
+  return _wrapper
+}
+
 
 module.exports = {
   alwaysRetryDecorator: alwaysRetryDecorator,
+  timeoutDecorator: timeoutDecorator,
 }
