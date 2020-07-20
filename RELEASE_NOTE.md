@@ -9,6 +9,7 @@
 - Authentication
   - Support nested AD group in AAD Mode. (#4639)
 - Others
+  - Add stress test for PAI API. (#4665)
   - Resolve job always retry for port conflict. (#4384)
   - Webportal/VScode use JS SDK + SDK improvement. (#4660)
   - Align webportal submit default value with backend. (#4682)
