@@ -85,9 +85,11 @@ hivedscheduler:
 After modification, use the following commands to apply the settings:
 
 ```bash
-./paictl.py service stop -n rest-server hivedscheduler
+./paictl.py service stop -n rest-server
+./paictl.py service stop -n hivedscheduler
 ./paictl.py config push -p <config-folder> -m service
-./paictl.py service start -n hivedscheduler rest-server
+./paictl.py service start -n hivedscheduler
+./paictl.py service start -n rest-server
 ```
 
 You can now test the `default` VC and `new` VC, with any admin accounts in OpenPAI. [Next section](#how-to-grant-vc-to-users) will introduce how to grant VC access to non-admin users.

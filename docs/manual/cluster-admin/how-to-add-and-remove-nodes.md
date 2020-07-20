@@ -140,18 +140,15 @@ machine-list:
 
 - You should modify the hived scheduler setting in `services-configuration.yaml` properly. Please refer to [how to set up virtual clusters](./how-to-set-up-virtual-clusters.md) and the [hived scheduler doc](https://github.com/microsoft/hivedscheduler/blob/master/doc/user-manual.md) for details. 
 
-- Push the latest configuration by:
+- Stop the service, push the latest configuration, and then start services:
 
 ```bash
+./paictl.py service stop -n rest-server
+./paictl.py service stop -n hivedscheduler
 ./paictl.py config push -p ~/pai-deploy/cluster-cfg -m service
-```
-
-- Now, restart services:
-
-```bash
-./paictl.py service stop -n rest-server hivedscheduler
 ./paictl.py service start -n cluster-configuration
-./paictl.py service start -n hivedscheduler rest-server
+./paictl.py service start -n hivedscheduler
+./paictl.py service start -n rest-server
 ```
 
 If you have configured any PV/PVC storage, please confirm the added worker node meets the PV's requirements. See [Confirm Worker Nodes Environment](./how-to-set-up-storage.md#confirm-environment-on-worker-nodes) for details.
