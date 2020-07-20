@@ -37,9 +37,20 @@ spec:
         image: {{ cluster_cfg["cluster"]["docker-registry"]["prefix"] }}database-controller:{{ cluster_cfg["cluster"]["docker-registry"]["tag"] }}
         imagePullPolicy: Always
         env:
+        - name: LOG_LEVEL
+          value: "{{ cluster_cfg['database-controller']['log-level'] }}"
+        - name: K8S_CONNECTION_TIMEOUT_SECOND
+          value: "{{ cluster_cfg['database-controller']['k8s-connection-timeout-second'] }}"
+        - name: WRITE_MERGER_CONNECTION_TIMEOUT_SECOND
+          value: "{{ cluster_cfg['database-controller']['write-merger-connection-timeout-second'] }}"
+        - name: RECOVERY_MODE_ENABLED
+{% if cluster_cfg['database-controller']['recovery-mode'] %}
+          value: "true"
+{% else %}
+          value: "false"
+{% endif %}
         - name: DB_CONNECTION_STR
-          value: {{ cluster_cfg['postgresql']['connection-str'] }}
-        command: ["node", "initializer_entry.js"]
+          value: "{{ cluster_cfg['postgresql']['connection-str'] }}"
         readinessProbe:
           exec:
             command:

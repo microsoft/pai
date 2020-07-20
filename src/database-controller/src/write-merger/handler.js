@@ -69,14 +69,7 @@ async function receiveWatchEvents (req, res, next) {
           // If database doesn't have the corresponding framework,
           // and recovery mode is enabled
           // tolerate the error and create framework in database.
-          const record = snapshot.getAllUpdate()
-          // correct submissionTime is lost, use snapshot.metadata.creationTimestamp instead
-          if (snapshot.getCreationTime()) {
-            record.submissionTime = snapshot.getCreationTime()
-          } else {
-            record.submissionTime = new Date()
-          }
-          // mark requestSynced = true, since we use framework request from api server directly
+          const record = snapshot.getRecordForLegacyTransfer()
           record.requestSynced = true
           await databaseModel.Framework.create(record)
           return
@@ -87,9 +80,9 @@ async function receiveWatchEvents (req, res, next) {
         // Database has the corresponding framework.
         const oldSnapshot = new Snapshot(oldFramework.snapshot)
         const internalUpdate = {}
-        logger.info('xxx', oldSnapshot.getGeneration(), snapshot.getGeneration())
         if (oldSnapshot.getGeneration() === snapshot.getGeneration()) {
           // if framework request is equal, mark requestSynced = true
+          logger.info(`The request of framework ${frameworkName} is synced.`)
           internalUpdate.requestSynced = true
         } else {
           // if framework request is not equal,
@@ -132,6 +125,7 @@ async function receiveFrameworkRequest (req, res, next) {
         if (!oldFramework) {
           // create new record in db
           // including all add-ons and submissionTime
+          // set requestGeneration = 1
           snapshot.setGeneration(1)
           const record = _.assign({}, snapshot.getAllUpdate(), addOns.getUpdate())
           record.submissionTime = new Date(submissionTime)
@@ -140,6 +134,7 @@ async function receiveFrameworkRequest (req, res, next) {
         } else {
           // update record in db
           const oldSnapshot = new Snapshot(oldFramework.snapshot)
+          // compare framework request (omit requestGeneration)
           if (_.isEqual(snapshot.getRequest(true), oldSnapshot.getRequest(true))) {
             // request is equal, no-op
             return [false, snapshot, addOns]

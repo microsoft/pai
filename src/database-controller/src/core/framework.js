@@ -152,7 +152,6 @@ class Snapshot {
 
   getStatusUpdate(withSnapshot=true) {
     const completionStatus = this._snapshot.status.attemptStatus.completionStatus
-    logger.info('xxx', this._snapshot.metadata.creationTimestamp)
     const update = {
       retries: this._snapshot.status.retryPolicyStatus.totalRetriedCount,
       retryDelayTime: this._snapshot.status.retryPolicyStatus.retryDelaySec,
@@ -181,6 +180,18 @@ class Snapshot {
       update.snapshot = JSON.stringify(this._snapshot)
     }
     return update
+  }
+
+  getRecordForLegacyTransfer() {
+    const record = this.getAllUpdate()
+    // correct submissionTime is lost, use snapshot.metadata.creationTimestamp instead
+    if (this.hasCreationTime()) {
+      record.submissionTime = this.getCreationTime()
+    } else {
+      record.submissionTime = new Date()
+    }
+    this.setGeneration(1)
+    return record
   }
 
   getName() {
@@ -212,15 +223,15 @@ class Snapshot {
   }
 
   setGeneration(generation) {
-    this._snapshot.metadata.annotations.requestGeneration = generation.toString()
+    this._snapshot.metadata.annotations.requestGeneration = (generation).toString()
   }
 
   getGeneration() {
     if (!_.has(this._snapshot, 'metadata.annotations.requestGeneration')) {
-      // for some legacy job, use 1 as its request generation.
+      // for some legacy jobs, use 1 as its request generation.
       this.setGeneration(1)
     }
-    return parseInt(_.pick(this._snapshot, 'metadata.annotations.requestGeneration'))
+    return parseInt(this._snapshot.metadata.annotations.requestGeneration)
   }
 
 }

@@ -64,6 +64,16 @@ async function getFramework (name, namespace = 'default') {
   return res.response
 }
 
+async function listFramework (name, namespace = 'default') {
+  const res = await customObjectsClient.listNamespacedCustomObject(
+      'frameworkcontroller.microsoft.com',
+      'v1',
+      namespace,
+      'frameworks'
+  )
+  return res.response
+}
+
 async function createFramework (frameworkDescription, namespace = 'default') {
   const res = await customObjectsClient.createNamespacedCustomObject(
     'frameworkcontroller.microsoft.com',
@@ -184,6 +194,7 @@ const timeoutMs = config.k8sConnectionTimeoutSecond * 1000
 
 module.exports = {
   getFramework: timeoutDecorator(getFramework, 'Kubernetes getFramework', timeoutMs),
+  listFramework: timeoutDecorator(listFramework, 'Kubernetes getFramework', timeoutMs),
   createFramework: timeoutDecorator(createFramework, 'Kubernetes createFramework', timeoutMs),
   patchFramework: timeoutDecorator(patchFramework, 'Kubernetes patchFramework', timeoutMs),
   deleteFramework: timeoutDecorator(deleteFramework, 'Kubernetes deleteFramework', timeoutMs),

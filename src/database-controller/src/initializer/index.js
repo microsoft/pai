@@ -22,6 +22,23 @@ const fs = require('fs')
 const logger = require('@dbc/core/logger')
 const neverResolved = new Promise((resolve, reject) => {})
 const {paiVersion, paiCommitVersion} = require('@dbc/package.json')
+const k8s = require('@dbc/core/k8s')
+const {Snapshot} = require('@dbc/core/framework')
+
+async function updateFromNoDatabaseVersion(databaseModel) {
+  // update from 1.0.0 < version < v1.2.0
+  await databaseModel.synchronizeSchema()
+  // transfer old frameworks from api server to db
+  const frameworks = k8s.listFrameworks()
+  for (let framework of frameworks) {
+    const snapshot = new Snapshot(framework)
+    logger.info(`Transferring framework ${snapshot.getName()} to database.`)
+    const record = snapshot.getRecordForLegacyTransfer()
+    record.requestSynced = true
+    await databaseModel.Framework.upsert(record)
+  }
+  // TO DO: transfer old framework history from api server to db
+}
 
 async function main () {
   try {
@@ -29,7 +46,10 @@ async function main () {
       process.env.DB_CONNECTION_STR,
       1
     )
-    await databaseModel.synchronizeSchema()
+    const previousVersion = (await databaseModel.getVersion()).version
+    if (!previousVersion) {
+      await updateFromNoDatabaseVersion(databaseModel)
+    }
     await databaseModel.setVersion(paiVersion, paiCommitVersion)
     await new Promise((resolve, reject) => {
       fs.writeFile('/READY', '', (err) => {

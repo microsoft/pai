@@ -3,20 +3,19 @@ import { getHumanizedJobStateString } from '../../../../components/util/job';
 /**
  * @returns {Date}
  */
-export function getModified(job) {
-  if (!('_modified' in job)) {
-    job._modified = new Date(job.completedTime || job.createdTime);
+export function getSubmissionTime(job) {
+  if (!('_submissionTime' in job)) {
+    job._submissionTime = new Date(job.submissionTime);
   }
-  return job._modified;
+  return job._submissionTime;
 }
 
 /**
  * @returns {number}
  */
 export function getDuration(job) {
-  console.log('duration', job)
   if (!('_duration' in job)) {
-    job._duration = (job.completedTime || Date.now()) - job.createdTime;
+    job._duration = (job.completedTime || Date.now()) - job.submissionTime;
   }
   return job._duration;
 }
