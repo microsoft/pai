@@ -51,6 +51,7 @@ spec:
 {% endif %}
         - name: DB_CONNECTION_STR
           value: "{{ cluster_cfg['postgresql']['connection-str'] }}"
+        command: ["node", "initializer/index.js"]
         readinessProbe:
           exec:
             command:
