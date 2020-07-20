@@ -21,6 +21,7 @@ WORKDIR /database-controller
 
 COPY ./src ./src
 COPY ./sdk ./sdk
+COPY ./version ./version
 
 WORKDIR src
 
