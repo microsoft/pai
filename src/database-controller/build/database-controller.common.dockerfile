@@ -31,4 +31,4 @@ RUN json -I -f package.json -e "this.paiVersion=\"`cat version/PAI.VERSION`\""
 RUN json -I -f package.json -e "this.paiCommitVersion=\"`cat version/COMMIT.VERSION`\""
 
 
-ENTRYPOINT ["sleep", "infinity"]
+CMD ["sleep", "infinity"]
