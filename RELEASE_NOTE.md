@@ -9,7 +9,7 @@
 - Authentication
   - Support nested AD group in AAD Mode. (#4639)
 - Marketplace
-  - Integral with new version of [PAI marketplace](https://github.com/microsoft/openpaimarketplace).
+  - Integrate with new version of [PAI marketplace](https://github.com/microsoft/openpaimarketplace).
 - Others
   - Add stress test for PAI API. (#4665)
   - Resolve job always retry for port conflict. (#4384)
