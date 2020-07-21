@@ -156,39 +156,18 @@ export const getUserRequest = async username => {
 };
 
 export const getTokenRequest = async () => {
-  const url = `${config.restServerUri}/api/v1/token`;
-  const token = checkToken();
-  return fetchWrapper(url, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
+  return wrapper(() => client.token.getTokens());
 };
 
 export const revokeTokenRequest = async token => {
-  const url = `${config.restServerUri}/api/v1/token/${token}`;
-  const currentToken = checkToken();
-  await fetchWrapper(url, {
-    method: 'DELETE',
-    headers: {
-      Authorization: `Bearer ${currentToken}`,
-    },
-  });
+  await wrapper(() => client.token.deleteToken(token));
   if (token === checkToken()) {
     clearToken();
   }
 };
 
-export const createApplicationTokenRequest = async () => {
-  const url = `${config.restServerUri}/api/v1/token/application`;
-  const currentToken = checkToken();
-  await fetchWrapper(url, {
-    method: 'POST',
-    headers: {
-      Authorization: `Bearer ${currentToken}`,
-    },
-  });
-};
+export const createApplicationTokenRequest = () =>
+  client.token.createApplicationToken();
 
 export const listStorageDetailRequest = async () => {
   return wrapper(async () => {
