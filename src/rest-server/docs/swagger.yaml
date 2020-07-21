@@ -1150,7 +1150,9 @@ paths:
                         type: number
                         description: total count of jobs with given filters
                       data:
-                        - $ref: "#/components/schemas/JobSummary"
+                        type: array
+                        items:
+                          - $ref: "#/components/schemas/JobSummary"
                     required:
                       - totalCount
                       - data
@@ -1863,6 +1865,9 @@ components:
             type: integer
             nullable: true
             description: retry delay time
+          submissionTime:
+            type: integer
+            description: job submitted time, in number of milliseconds since the Unix Epoch.
           createdTime:
             type: integer
             description: job created time, in number of milliseconds since the Unix Epoch.
@@ -1960,6 +1965,11 @@ components:
               type: integer
               nullable: true
               description: retry delay time
+            submissionTime:
+              type: integer
+              description: >-
+                job submitted time, in number of milliseconds since the Unix
+                Epoch.
             createdTime:
               type: integer
               description: >-
