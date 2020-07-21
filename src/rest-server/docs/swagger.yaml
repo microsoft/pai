@@ -1145,6 +1145,7 @@ paths:
                   # - $ref: "#/components/schemas/JobSummary"
                   - User:
                     type: object
+                    name: User
                     properties:
                       id:
                         type: integer
