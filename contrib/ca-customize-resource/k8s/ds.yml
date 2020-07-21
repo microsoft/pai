@@ -20,7 +20,7 @@ spec:
                   - key: pai-worker
                     operator: In
                     values:
-                      - true
+                      - "true"
       hostNetwork: false
       hostPID: false
       containers:
