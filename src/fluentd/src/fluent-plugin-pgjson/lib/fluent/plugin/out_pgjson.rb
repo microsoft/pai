@@ -148,6 +148,7 @@ module Fluent::Plugin
         begin
           chunk.msgpack_each do |time, record|
             kind = record["objectSnapshot"]["kind"]
+            log.debug "log type: #{kind}"
             if kind == "Framework"
               thread[:conn].exec("COPY framework_history (#{@insertedAt_col}, #{@frameworkName_col}, #{@attemptIndex_col}, #{@historyType_col}, #{@snapshot_col}) FROM STDIN WITH DELIMITER E'\\x01'")
               frameworkName = record["objectSnapshot"]["metadata"]["name"]

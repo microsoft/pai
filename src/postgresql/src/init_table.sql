@@ -19,5 +19,3 @@ CREATE TABLE IF NOT EXISTS pods (
    taskAttemptIndex INTEGER,
    snapshot TEXT
 );
-CREATE INDEX IF NOT EXISTS uidindex ON framework_history USING gin ((record -> 'uid'));
-CREATE INDEX IF NOT EXISTS uidindex ON pods USING gin ((record -> 'uid'));

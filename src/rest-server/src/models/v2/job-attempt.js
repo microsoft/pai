@@ -22,6 +22,7 @@ const {convertToJobAttempt} = require('@pai/utils/frameworkConverter');
 const launcherConfig = require('@pai/config/launcher');
 const logger = require('@pai/config/logger');
 const {sequelize} = require('@pai/utils/postgresUtil');
+const createError = require('@pai/utils/error');
 
 const convertName = (name) => {
   // convert framework name to fit framework controller spec
@@ -56,17 +57,21 @@ if (sequelize && launcherConfig.enabledJobHistory) {
       `frameworkName = '${encodeName(frameworkName)}' ` +
       `ORDER BY uid ASC;`;
     const pgResult = (await sequelize.query(sqlSentence))[0];
-    const jobRetries = await Promise.all(
-      pgResult.map((row) => {
-        return convertToJobAttempt(JSON.parse(row.data));
-      }),
-    );
-    attemptData.push(
-      ...jobRetries.map((jobRetry) => {
-        return {...jobRetry, isLatest: false};
-      }),
-    );
 
+    if (pgResult.length === 0) {
+      throw createError('Not Found', 'NoJobError', `Job ${frameworkName} not found.`);
+    } else {
+      const jobRetries = await Promise.all(
+        pgResult.map((row) => {
+          return convertToJobAttempt(JSON.parse(row.data));
+        }),
+      );
+      attemptData.push(
+        ...jobRetries.map((jobRetry) => {
+          return {...jobRetry, isLatest: false};
+        }),
+      );
+    }
     return {status: 200, data: attemptData};
   };
 
@@ -81,7 +86,7 @@ if (sequelize && launcherConfig.enabledJobHistory) {
     const pgResult = (await sequelize.query(sqlSentence))[0];
 
     if (pgResult.length === 0) {
-      return {status: 404, data: null};
+      throw createError('Not Found', 'NoJobError', `Job ${frameworkName} with attemptIndex ${jobAttemptIndex} not found.`);
     } else {
       attemptFramework = JSON.parse(pgResult[0].data);
       const attemptDetail = await convertToJobAttempt(attemptFramework);
