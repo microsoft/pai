@@ -1143,19 +1143,7 @@ paths:
               schema:
                 oneOf:
                   - $ref: "#/components/schemas/JobSummary"
-                  - JobSummaryWithCount:
-                    type: object
-                    properties:
-                      totalCount:
-                        type: number
-                        description: total count of jobs with given filters
-                      data:
-                        type: array
-                        items:
-                          $ref: "#/components/schemas/JobSummary"
-                    required:
-                      - totalCount
-                      - data
+                  - $ref: "#/components/schemas/JobSummaryWithTotalCount"
               example:
                 - protocolVersion: "2"
                   name: job name
@@ -1809,6 +1797,19 @@ components:
         - name
         - type
         - taskRoles
+    JobSummaryWithTotalCount:
+      type: object
+      properties:
+        totalCount:
+          type: number
+          description: total count of jobs with given filters
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/JobSummary"
+      required:
+        - totalCount
+        - data
     JobSummary:
       type: array
       description: job summary list
