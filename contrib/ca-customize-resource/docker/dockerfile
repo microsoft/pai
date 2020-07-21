@@ -30,5 +30,5 @@ RUN chmod a+x /root/patch-node-resource.sh
 
 WORKDIR /root
 
-CMD ["/bin/bash", "/root/path-node-resource.sh"]
+CMD ["/bin/bash", "/root/patch-node-resource.sh"]
 
