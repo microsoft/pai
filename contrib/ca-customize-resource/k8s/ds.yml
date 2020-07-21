@@ -3,6 +3,7 @@ kind: DaemonSet
 metadata:
   name: ca-resource-ds
 spec:
+  selector:
     matchLabels:
       app: ca-resource
   template:
