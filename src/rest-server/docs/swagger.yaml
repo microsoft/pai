@@ -1141,7 +1141,9 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/JobSummary"
+                oneOf:
+                  - $ref: "#/components/schemas/JobSummary"
+                  - - $ref: "#/components/schemas/JobSummary"
               example:
                 - protocolVersion: "2"
                   name: job name
