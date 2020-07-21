@@ -1142,7 +1142,14 @@ paths:
             application/json:
               schema:
                 oneOf:
-                  - $ref: "#/components/schemas/JobSummary"
+                  # - $ref: "#/components/schemas/JobSummary"
+                  - User:
+                    type: object
+                    properties:
+                      id:
+                        type: integer
+                      name:
+                        type: string
                   - JobSummaryWithCount:
                     type: object
                     properties:
@@ -1150,9 +1157,7 @@ paths:
                         type: number
                         description: total count of jobs with given filters
                       data:
-                        type: array
-                        items:
-                          - $ref: "#/components/schemas/JobSummary"
+                        type: string
                     required:
                       - totalCount
                       - data
