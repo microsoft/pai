@@ -635,7 +635,7 @@ const generateTaskRole = (frameworkName, taskRole, jobInfo, frameworkEnvList, co
         name: 'NVIDIA_VISIBLE_DEVICES',
         valueFrom: {
           fieldRef: {
-            fieldPath: `metadata.annotations['hivedscheduler.microsoft.com/pod-gpu-isolation']`,
+            fieldPath: `metadata.annotations['hivedscheduler.microsoft.com/pod-device-isolation']`,
           },
         },
       },
@@ -643,7 +643,7 @@ const generateTaskRole = (frameworkName, taskRole, jobInfo, frameworkEnvList, co
         name: 'PAI_AMD_VISIBLE_DEVICES',
         valueFrom: {
           fieldRef: {
-            fieldPath: `metadata.annotations['hivedscheduler.microsoft.com/pod-gpu-isolation']`,
+            fieldPath: `metadata.annotations['hivedscheduler.microsoft.com/pod-device-isolation']`,
           },
         },
       },

@@ -49,7 +49,7 @@ const getCellStatus = async (virtualCluster) => {
   }
 
   let cellQuota = 0;
-  const cellUnits = [...new Set(vcStatus.map((cell) => cell.gpuType))]
+  const cellUnits = [...new Set(vcStatus.map((cell) => cell.skuType))]
     .filter((key) => key in resourceUnits)
     .reduce((arr, key) => ([...arr, resourceUnits[key]]), []);
   const cellQueue = [...vcStatus];
@@ -140,7 +140,7 @@ const hivedValidate = async (protocolObj, username) => {
         const {gpu = 0, cpu} = protocolObj.taskRoles[taskRole].resourcePerInstance;
         affinityGroups[affinityGroupName].affinityTaskList.push({
           podNumber: protocolObj.taskRoles[taskRole].instances,
-          gpuNumber: gpu === 0 ? cpu : gpu,
+          skuNumber: gpu === 0 ? cpu : gpu,
         });
       }
     }
@@ -165,7 +165,7 @@ const hivedValidate = async (protocolObj, username) => {
         const {gpu = 0, cpu} = protocolObj.taskRoles[taskRole].resourcePerInstance;
         return {
           podNumber: protocolObj.taskRoles[taskRole].instances,
-          gpuNumber: gpu === 0 ? cpu : gpu,
+          skuNumber: gpu === 0 ? cpu : gpu,
         };
       }),
     };
@@ -188,16 +188,16 @@ const hivedValidate = async (protocolObj, username) => {
     const podSpec = {
       virtualCluster,
       priority: convertPriority(hivedConfig ? hivedConfig.jobPriorityClass : undefined),
-      gpuType: null,
+      skuType: null,
       pinnedCellId: null,
-      gpuNumber: cellNumber,
+      skuNumber: cellNumber,
       affinityGroup: null,
     };
     if (hivedConfig && hivedConfig.taskRoles && taskRole in hivedConfig.taskRoles) {
-      podSpec.gpuType = hivedConfig.taskRoles[taskRole].skuType;
-      if (podSpec.gpuType !== null) {
+      podSpec.skuType = hivedConfig.taskRoles[taskRole].skuType;
+      if (podSpec.skuType !== null) {
         for (const t of ['gpu', 'cpu', 'memory']) {
-          resourcePerCell[t] = resourceUnits[podSpec.gpuType][t];
+          resourcePerCell[t] = resourceUnits[podSpec.skuType][t];
         }
       }
       podSpec.pinnedCellId = hivedConfig.taskRoles[taskRole].pinnedCellId;

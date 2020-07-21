@@ -343,7 +343,7 @@ const convertTaskDetail = async (
     if (launcherConfig.enabledHived) {
       const isolation =
         pod.metadata.annotations[
-          'hivedscheduler.microsoft.com/pod-gpu-isolation'
+          'hivedscheduler.microsoft.com/pod-device-isolation'
         ];
       containerGpus = isolation
         .split(',')
