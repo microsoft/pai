@@ -56,6 +56,7 @@ module Fluent::Plugin
     config_param :time_format, :string, default: "%F %T.%N %z"
 
     config_param :reset_connection_interval, :integer, default: 5
+    desc "Control the reset connection interval to be greater than 5 seconds globally"
 
     config_section :buffer do
       config_set_default :@type, DEFAULT_BUFFER_TYPE
