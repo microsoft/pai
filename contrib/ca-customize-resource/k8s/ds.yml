@@ -3,19 +3,19 @@ kind: DaemonSet
 metadata:
   name: ca-resource-ds
 spec:
+  affinity:
+    nodeAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        nodeSelectorTerms:
+          - matchExpressions:
+              - key: pai-worker
+                operator: In
+                values:
+                  - true
   selector:
     matchLabels:
       app: ca-resource
   template:
-    affinity:
-      nodeAffinity:
-        requiredDuringSchedulingIgnoredDuringExecution:
-          nodeSelectorTerms:
-            - matchExpressions:
-                - key: pai-worker
-                  operator: In
-                  values:
-                    - true
     metadata:
       name: ca-resource
       labels:
