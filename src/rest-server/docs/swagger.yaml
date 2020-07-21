@@ -1097,9 +1097,42 @@ paths:
       security:
         - bearerAuth: []
       parameters:
-        - name: username
+        - name: userName
           in: query
           description: filter jobs with username
+          schema:
+            type: string
+        - name: vc
+          in: query
+          description: filter jobs with virtual cluster name
+          schema:
+            type: string
+        - name: state
+          in: query
+          description: filter jobs with state
+          schema:
+            type: string
+        - name: keyword
+          in: query
+          description: filter jobs with keyword, we search keyword in user name, job name, and virtual cluster name
+          schema:
+            type: string
+        - name: offset
+          in: query
+          description: list job offset
+          schema:
+            type: number
+        - name: limit
+          in: query
+          description: list job limit
+          schema:
+            type: number
+        - name: order
+          in: query
+          description: 'order of job list. It follows the format <field>,<ASC|DESC>, default value is "submissionTime,DESC". Available fields include: jobName, submissionTime, userName, vc, retries, totalTaskNumber, totalGpuNumber, state'
+        - name: withTotalCount
+          in: query
+          description: 'if withTotalCount is "true", the result will contain a "totalCount" and a "frameworks" field, instead of a framework list.'
           schema:
             type: string
       responses:
