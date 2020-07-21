@@ -1143,7 +1143,7 @@ paths:
               schema:
                 oneOf:
                   - $ref: "#/components/schemas/JobSummary"
-                  - - $ref: "#/components/schemas/JobSummary"
+                  - $ref: "#/components/schemas/JobDetail"
               example:
                 - protocolVersion: "2"
                   name: job name
