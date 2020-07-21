@@ -1,22 +1,5 @@
 # How to Set Up Virtual Clusters
 
-1. [Installation Guide](./installation-guide.md)
-2. [Installation FAQs and Troubleshooting](./installation-faqs-and-troubleshooting.md)
-3. [Basic Management Operations](./basic-management-operations.md)
-4. [How to Manage Users and Groups](./how-to-manage-users-and-groups.md)
-5. [How to Set Up Storage](./how-to-set-up-storage.md)
-6. [How to Set Up Virtual Clusters](./how-to-set-up-virtual-clusters.md) (this document)
-    - [What is Hived Scheduler and How to Configure it](#what-is-hived-scheduler-and-how-to-configure-it)
-    - [Set Up Virtual Clusters](#set-up-virtual-clusters)
-    - [How to Grant VC to Users](#how-to-grant-vc-to-users)
-    - [Different Hardwares in Worker Nodes](#different-hardwares-in-worker-nodes)
-7. [How to Add and Remove Nodes](./how-to-add-and-remove-nodes.md)
-8. [How to use CPU Nodes](./how-to-use-cpu-nodes.md)
-9. [How to Customize Cluster by Plugins](./how-to-customize-cluster-by-plugins.md)
-10. [Troubleshooting](./troubleshooting.md)
-11. [How to Uninstall OpenPAI](./how-to-uninstall-openpai.md)
-12. [Upgrade Guide](./upgrade-guide.md)
-
 ## What is Hived Scheduler and How to Configure it
 
 HiveD is a standalone component of OpenPAI, designed to be a Kubernetes Scheduler Extender for Multi-Tenant GPU clusters. A multi-tenant GPU cluster assumes multiple tenants (teams) share the same GPU pool in a single physical cluster (PC) and provides some resource guarantees to each tenant. HiveD models each tenant as a virtual cluster (VC), so that one tenant can use its own VC as if it is a private cluster, while it can also use other VCs' free resource at lower priority.
@@ -102,9 +85,11 @@ hivedscheduler:
 After modification, use the following commands to apply the settings:
 
 ```bash
-./paictl.py service stop -n rest-server hivedscheduler
+./paictl.py service stop -n rest-server
+./paictl.py service stop -n hivedscheduler
 ./paictl.py config push -p <config-folder> -m service
-./paictl.py service start -n hivedscheduler rest-server
+./paictl.py service start -n hivedscheduler
+./paictl.py service start -n rest-server
 ```
 
 You can now test the `default` VC and `new` VC, with any admin accounts in OpenPAI. [Next section](#how-to-grant-vc-to-users) will introduce how to grant VC access to non-admin users.

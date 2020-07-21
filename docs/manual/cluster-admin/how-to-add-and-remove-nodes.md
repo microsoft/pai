@@ -1,20 +1,5 @@
 # How to Add and Remove Nodes
 
-1. [Installation Guide](./installation-guide.md)
-2. [Installation FAQs and Troubleshooting](./installation-faqs-and-troubleshooting.md)
-3. [Basic Management Operations](./basic-management-operations.md)
-4. [How to Manage Users and Groups](./how-to-manage-users-and-groups.md)
-5. [How to Set Up Storage](./how-to-set-up-storage.md)
-6. [How to Set Up Virtual Clusters](./how-to-set-up-virtual-clusters.md)
-7. [How to Add and Remove Nodes](./how-to-add-and-remove-nodes.md) (this document)
-    - [How to Add Nodes](#how-to-add-nodes)
-    - [How to Remove Nodes](#how-to-remove-nodes)
-8. [How to use CPU Nodes](./how-to-use-cpu-nodes.md)
-9. [How to Customize Cluster by Plugins](./how-to-customize-cluster-by-plugins.md)
-10. [Troubleshooting](./troubleshooting.md)
-11. [How to Uninstall OpenPAI](./how-to-uninstall-openpai.md)
-12. [Upgrade Guide](./upgrade-guide.md)
-
 OpenPAI doesn't support changing master nodes, thus, only the solution of adding/removing worker nodes is provided.
 
 ## How to Add Nodes
@@ -126,7 +111,7 @@ ansible-playbook -i inventory/pai/hosts.yml upgrade-cluster.yml --become --becom
 
 ### Update OpenPAI Service Configuration
 
-Find your [service configuration file `layout.yaml` and `services-configuration.yaml`](./basic-management-operations.md#pai-ervice-management-and-paictl) in  `~/pai-deploy/cluster-cfg`.
+Find your [service configuration file `layout.yaml` and `services-configuration.yaml`](./basic-management-operations.md#pai-service-management-and-paictl) in  `~/pai-deploy/cluster-cfg`.
 
 - Add the new node into `layout.yaml`
 
@@ -155,18 +140,15 @@ machine-list:
 
 - You should modify the hived scheduler setting in `services-configuration.yaml` properly. Please refer to [how to set up virtual clusters](./how-to-set-up-virtual-clusters.md) and the [hived scheduler doc](https://github.com/microsoft/hivedscheduler/blob/master/doc/user-manual.md) for details. 
 
-- Push the latest configuration by:
+- Stop the service, push the latest configuration, and then start services:
 
 ```bash
+./paictl.py service stop -n rest-server
+./paictl.py service stop -n hivedscheduler
 ./paictl.py config push -p ~/pai-deploy/cluster-cfg -m service
-```
-
-- Now, restart services:
-
-```bash
-./paictl.py service stop -n rest-server hivedscheduler
 ./paictl.py service start -n cluster-configuration
-./paictl.py service start -n hivedscheduler rest-server
+./paictl.py service start -n hivedscheduler
+./paictl.py service start -n rest-server
 ```
 
 If you have configured any PV/PVC storage, please confirm the added worker node meets the PV's requirements. See [Confirm Worker Nodes Environment](./how-to-set-up-storage.md#confirm-environment-on-worker-nodes) for details.
