@@ -1,33 +1,26 @@
-// Copyright (c) Microsoft Corporation
-// All rights reserved.
-//
-// MIT License
-//
-// Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
-// documentation files (the "Software"), to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and
-// to permit persons to whom the Software is furnished to do so, subject to the following conditions:
-// The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED *AS IS*, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING
-// BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-// NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
-// DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
 
+const { PAIV2 } = require('@microsoft/openpai-js-sdk');
 const querystring = require('querystring');
 const webportalConfig = require('../../config/webportal.config.js');
 
-const userLogout = (origin = window.location.href) => {
+const userLogout = async (origin = window.location.href) => {
+  const client = new PAIV2.OpenPAIClient({
+    rest_server_uri: new URL(
+      webportalConfig.restServerUri,
+      window.location.href,
+    ).href,
+    https: window.location.protocol === 'https:',
+  });
+
   // revoke token
   const token = cookies.get('token');
-  const url = `${webportalConfig.restServerUri}/api/v1/token/${token}`;
-  fetch(url, {
-    method: 'DELETE',
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  }).catch(console.err);
+  try {
+    await client.token.deleteToken(token);
+  } catch (err) {
+    console.error(err);
+  }
   // clear cookies
   cookies.remove('user');
   cookies.remove('token');

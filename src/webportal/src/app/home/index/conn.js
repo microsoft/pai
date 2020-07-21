@@ -12,7 +12,7 @@ export async function login(username, password, expires = 7) {
   });
 
   try {
-    const loginInfo = client.authn.basicLogin(
+    const loginInfo = await client.authn.basicLogin(
       username,
       password,
       expires * 24 * 60 * 60,
