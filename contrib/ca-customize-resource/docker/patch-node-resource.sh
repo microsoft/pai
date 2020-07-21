@@ -7,6 +7,6 @@ curl --header "Content-Type: application/json-patch+json" \
 --header "Authorization: Bearer ${KUBE_TOKEN}" \
 --request PATCH \
 --data '[{"op": "add", "path": "/status/capacity/hivedscheduler.microsoft.com~1pod-scheduling-enable", "value": "50"}]' \
-http://${KUBERNETES_SERVICE_HOST}:${KUBERNETES_PORT_443_TCP_PORT}/api/v1/nodes/${NODE_NAME}/status
+https://${KUBERNETES_SERVICE_HOST}:${KUBERNETES_PORT_443_TCP_PORT}/api/v1/nodes/${NODE_NAME}/status
 
 sleep infinity
