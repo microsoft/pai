@@ -1142,15 +1142,7 @@ paths:
             application/json:
               schema:
                 oneOf:
-                  # - $ref: "#/components/schemas/JobSummary"
-                  - User:
-                    type: object
-                    name: User
-                    properties:
-                      id:
-                        type: integer
-                      name:
-                        type: string
+                  - $ref: "#/components/schemas/JobSummary"
                   - JobSummaryWithCount:
                     type: object
                     properties:
@@ -1158,7 +1150,9 @@ paths:
                         type: number
                         description: total count of jobs with given filters
                       data:
-                        type: string
+                        type: array
+                        items:
+                          $ref: "#/components/schemas/JobSummary"
                     required:
                       - totalCount
                       - data
@@ -1170,6 +1164,7 @@ paths:
                   subState: Completed
                   executionType: STOP
                   retries: 0
+                  submissionTime: 0
                   createdTime: 0
                   completedTime: 0
                   appExitCode: 0
@@ -1203,6 +1198,7 @@ paths:
                   subState: Completed
                   executionType: STOP
                   retries: 0
+                  submissionTime: 0
                   createdTime: 0
                   completedTime: 0
                   appId: id
