@@ -71,8 +71,8 @@ if (sequelize && launcherConfig.enabledJobHistory) {
           return {...jobRetry, isLatest: false};
         }),
       );
+      return {status: 200, data: attemptData};
     }
-    return {status: 200, data: attemptData};
   };
 
   const get = async (frameworkName, jobAttemptIndex) => {
