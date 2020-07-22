@@ -98,6 +98,7 @@ export class JobTaskRole {
       output: get(taskRoleProtocol, 'output'),
       script: get(taskRoleProtocol, 'script'),
       shmMB: get(taskRoleProtocol, 'extraContainerOptions.shmMB'),
+      infiniband: get(taskRoleProtocol, 'extraContainerOptions.infiniband'),
     });
 
     const jobTaskRole = new JobTaskRole({
@@ -152,6 +153,7 @@ export class JobTaskRole {
       script: this.extraOptions.script,
       extraContainerOptions: removeEmptyProperties({
         shmMB: this.extraOptions.shmMB,
+        infiniband: this.extraOptions.infiniband,
       }),
       resourcePerInstance: resourcePerInstance,
       commands: isEmpty(this.commands)

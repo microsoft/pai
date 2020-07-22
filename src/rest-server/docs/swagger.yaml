@@ -2186,21 +2186,25 @@ components:
                       type: integer
                     createdTime:
                       type: integer
+                      nullable: true
                       description: >-
                         task created time, in number of milliseconds since the Unix
                         Epoch.
                     completedTime:
                       type: integer
+                      nullable: true
                       description: >-
                         task completion time, in number of milliseconds since the Unix
                         Epoch.
                     currentAttemptLaunchedTime:
                       type: integer
+                      nullable: true
                       description: >-
                         the current attempt launched time, in number of milliseconds since the Unix
                         Epoch.
                     currentAttemptCompletedTime:
                       type: integer
+                      nullable: true
                       description: >-
                         the current attempt completion time, in number of milliseconds since the Unix
                         Epoch.

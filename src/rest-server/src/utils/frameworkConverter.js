@@ -218,15 +218,9 @@ const convertToJobAttempt = async (framework) => {
   const originState = framework.status.state;
   const maxAttemptCount = framework.spec.retryPolicy.maxRetryCount + 1;
   const attemptIndex = framework.status.attemptStatus.id;
-  const jobStartedTime = new Date(
-    framework.metadata.creationTimestamp,
-  ).getTime();
-  const attemptStartedTime = framework.status.attemptStatus.startTime ? new Date(
-    framework.status.attemptStatus.startTime,
-  ).getTime(): null;
-  const attemptCompletedTime = framework.status.attemptStatus.completionTime ? new Date(
-    framework.status.attemptStatus.completionTime,
-  ).getTime(): null;
+  const jobStartedTime = new Date(framework.metadata.creationTimestamp).getTime();
+  const attemptStartedTime = new Date(framework.status.attemptStatus.startTime).getTime() || null;
+  const attemptCompletedTime = new Date(framework.status.attemptStatus.completionTime).getTime() || null;
   const totalGpuNumber = framework.metadata.annotations
     ? parseInt(framework.metadata.annotations.totalGpuNumber)
     : 0;
