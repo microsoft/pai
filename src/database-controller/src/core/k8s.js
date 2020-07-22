@@ -18,7 +18,7 @@
 const k8s = require('@kubernetes/client-node')
 const logger = require('./logger')
 const config = require('./config')
-const {timeoutDecorator} = require('./util')
+const { timeoutDecorator } = require('./util')
 const kc = new k8s.KubeConfig()
 
 if (config.customK8sApiServerURL) {
@@ -66,10 +66,10 @@ async function getFramework (name, namespace = 'default') {
 
 async function listFramework (name, namespace = 'default') {
   const res = await customObjectsClient.listNamespacedCustomObject(
-      'frameworkcontroller.microsoft.com',
-      'v1',
-      namespace,
-      'frameworks'
+    'frameworkcontroller.microsoft.com',
+    'v1',
+    namespace,
+    'frameworks'
   )
   return res.response
 }
@@ -203,5 +203,5 @@ module.exports = {
   createSecret: timeoutDecorator(createSecret, 'Kubernetes createSecret', timeoutMs),
   deleteSecret: timeoutDecorator(deleteSecret, 'Kubernetes deleteSecret', timeoutMs),
   patchSecretOwnerToFramework: timeoutDecorator(patchSecretOwnerToFramework, 'Kubernetes patchSecretOwnerToFramework', timeoutMs),
-  getFrameworkInformer: getFrameworkInformer,
+  getFrameworkInformer: getFrameworkInformer
 }

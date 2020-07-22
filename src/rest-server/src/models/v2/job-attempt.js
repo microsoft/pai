@@ -17,14 +17,11 @@
 
 // module dependencies
 const crypto = require('crypto');
-const {isNil} = require('lodash');
 
 const {convertToJobAttempt} = require('@pai/utils/frameworkConverter');
 const launcherConfig = require('@pai/config/launcher');
-const createError = require('@pai/utils/error');
-const k8sModel = require('@pai/models/kubernetes/kubernetes');
 const logger = require('@pai/config/logger');
-const databaseModel = require('@pai/utils/dbUtils')
+const databaseModel = require('@pai/utils/dbUtils');
 
 const convertName = (name) => {
   // convert framework name to fit framework controller spec
@@ -54,7 +51,7 @@ if (launcherConfig.enabledJobHistory) {
 
   const list = async (frameworkName) => {
     let attemptData = [];
-    const encodedFrameworkName = encodeName(frameworkName)
+    const encodedFrameworkName = encodeName(frameworkName);
 
     // get latest framework from k8s API
     let framework;
@@ -83,7 +80,7 @@ if (launcherConfig.enabledJobHistory) {
         where: {frameworkName: encodedFrameworkName},
         order: [['attemptIndex', 'ASC']],
       }
-    )
+    );
 
     const jobRetries = await Promise.all(
       historyFrameworks.map((row) => {
@@ -113,18 +110,8 @@ if (launcherConfig.enabledJobHistory) {
       throw error;
     }
 
-    if (response.status === 200) {
-      uid = response.data.metadata.uid;
-      attemptFramework = response.data;
-    } else if (response.status === 404) {
-      logger.warn(`could not get framework ${uid} from k8s: ${JSON.stringify(response)}`);
-      return {status: 404, data: null};
-    } else {
-      throw createError(response.status, 'UnknownError', response.data.message);
-    }
-
     if (framework) {
-      attemptFramework = JSON.parse(framework.snapshot)
+      attemptFramework = JSON.parse(framework.snapshot);
     } else {
       logger.warn(`could not get framework ${encodedFrameworkName} from database.`);
       return {status: 404, data: null};

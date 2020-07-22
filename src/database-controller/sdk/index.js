@@ -194,15 +194,15 @@ class DatabaseModel {
     class Version extends Model {}
     Version.init({
       version: {
-        type: Sequelize.STRING(36),
+        type: Sequelize.STRING(36)
       },
       commitVersion: {
-        type: Sequelize.STRING(64),
-      },
+        type: Sequelize.STRING(64)
+      }
     }, {
       sequelize,
       modelName: 'version',
-      freezeTableName: true,
+      freezeTableName: true
     })
 
     // bind to `this`
@@ -226,31 +226,31 @@ class DatabaseModel {
         this.Pod.sync({ alter: true }),
         this.FrameworkEvent.sync({ alter: true }),
         this.PodEvent.sync({ alter: true }),
-        this.Version.sync({alter: true})
+        this.Version.sync({ alter: true })
       ])
     }
   }
 
-  async ping() {
+  async ping () {
     await this.sequelize.authenticate()
   }
 
-  async getVersion() {
+  async getVersion () {
     const res = await this.Version.findOne()
-    if (res){
+    if (res) {
       return {
         version: res.version,
-        commitVersion: res.commitVersion,
+        commitVersion: res.commitVersion
       }
     } else {
       return {
         version: null,
-        commitVersion: null,
+        commitVersion: null
       }
     }
   }
 
-  async setVersion(version, commitVersion) {
+  async setVersion (version, commitVersion) {
     await this.sequelize.transaction(async (t) => {
       await this.Version.destroy({
         where: {}, transaction: t
@@ -259,7 +259,7 @@ class DatabaseModel {
         version: version,
         commitVersion: commitVersion
       }, { transaction: t })
-    });
+    })
   }
 }
 

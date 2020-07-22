@@ -17,7 +17,7 @@
 
 const basicConfig = require('@dbc/core/config')
 const _ = require('lodash')
-const Joi = require('joi');
+const Joi = require('joi')
 
 const configSchema = Joi.object().keys({
   dbConnectionStr: Joi.string()
@@ -29,19 +29,18 @@ const configSchema = Joi.object().keys({
     .default('100mb'),
   port: Joi.number()
     .integer()
-    .required(),
-}).required();
+    .required()
+}).required()
 
-
-config = {
+const config = {
   dbConnectionStr: process.env.DB_CONNECTION_STR,
   maxDatabaseConnection: parseInt(process.env.MAX_DB_CONNECTION),
-  port: parseInt(process.env.PORT),
+  port: parseInt(process.env.PORT)
 }
 
-const {error, value} = Joi.validate(config, configSchema);
+const { error, value } = Joi.validate(config, configSchema)
 if (error) {
-  throw new Error(`Config error\n${error}`);
+  throw new Error(`Config error\n${error}`)
 }
 
 module.exports = _.assign(basicConfig, value)

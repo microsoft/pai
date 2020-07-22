@@ -4,12 +4,11 @@ const k8s = require('@dbc/core/k8s')
 const logger = require('@dbc/core/logger')
 
 async function main () {
-
   let res
   res = await k8s.createSecret(
-      'test',
-      {'test-key': Buffer.from('test-value').toString('base64')}
-    )
+    'test',
+    { 'test-key': Buffer.from('test-value').toString('base64') }
+  )
   logger.info(res)
   res = await k8s.patchSecretOwnerToFramework(
     'test',

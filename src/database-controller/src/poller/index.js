@@ -19,23 +19,21 @@ require('module-alias/register')
 require('dotenv').config()
 const AsyncLock = require('async-lock')
 const { Sequelize } = require('sequelize')
-const Op = Sequelize.Op;
+const Op = Sequelize.Op
 const DatabaseModel = require('openpaidbsdk')
 const logger = require('@dbc/core/logger')
 const { Snapshot, AddOns, synchronizeRequest } = require('@dbc/core/framework')
 const interval = require('interval-promise')
-const k8s = require('@dbc/core/k8s')
 const config = require('@dbc/poller/config')
 const fetch = require('node-fetch')
-const {deleteFramework} = require('@dbc/core/k8s')
+const { deleteFramework } = require('@dbc/core/k8s')
 const lock = new AsyncLock({ maxPending: 1 })
 const databaseModel = new DatabaseModel(
   config.dbConnectionStr,
-  config.maxDatabaseConnection,
+  config.maxDatabaseConnection
 )
 
-
-async function mockDeleteEvent(snapshot) {
+async function mockDeleteEvent (snapshot) {
   await fetch(
     `${config.writeMergerUrl}/api/v1/watchEvents/DELETED`,
     {
@@ -47,13 +45,12 @@ async function mockDeleteEvent(snapshot) {
   )
 }
 
-
-function deleteHandler(snapshot, pollingTs) {
+function deleteHandler (snapshot, pollingTs) {
   const frameworkName = snapshot.getName()
   logger.info(`Will delete framework ${frameworkName}. PollingTs=${pollingTs}.`)
   lock.acquire(frameworkName,
     async () => {
-      try{
+      try {
         await deleteFramework(snapshot.getName())
         logger.info(`Framework ${frameworkName} is successfully deleted. PollingTs=${pollingTs}.`)
       } catch (err) {
@@ -61,23 +58,21 @@ function deleteHandler(snapshot, pollingTs) {
           // for 404 error, mock a delete to write merger
           logger.warn(`Cannot find framework ${frameworkName} in API Server. Will mock a deletion to write merger.`)
           await mockDeleteEvent(snapshot)
-        }
-        else {
+        } else {
           // for non-404 error
           throw err
         }
       }
     }
   ).catch((err) => {
-      logger.error(
+    logger.error(
         `An error happened when delete framework ${frameworkName} and pollingTs=${pollingTs}:`,
         err
-      )
+    )
   })
 }
 
-
-function synchronizeHandler(snapshot, addOns, pollingTs) {
+function synchronizeHandler (snapshot, addOns, pollingTs) {
   const frameworkName = snapshot.getName()
   logger.info(`Start synchronizing request of framework ${frameworkName}. PollingTs=${pollingTs}`)
   lock.acquire(
@@ -85,42 +80,42 @@ function synchronizeHandler(snapshot, addOns, pollingTs) {
     async () => {
       await synchronizeRequest(
         snapshot,
-        addOns,
+        addOns
       )
       logger.info(`Request of framework ${frameworkName} is successfully synchronized. PollingTs=${pollingTs}.`)
     }
   ).catch((err) => {
-      logger.error(
+    logger.error(
         `An error happened when synchronize request for framework ${frameworkName} and pollingTs=${pollingTs}:`
         , err
-      )
+    )
   })
 }
 
-async function poll() {
+async function poll () {
   const pollingTs = new Date().getTime()
-  try{
+  try {
     logger.info(`Start polling. PollingTs=${pollingTs}`)
     const frameworks = await databaseModel.Framework.findAll({
-        attributes: ['name', 'configSecretDef', 'priorityClassDef', 'dockerSecretDef', 'snapshot',
-          'subState', 'requestSynced', 'apiServerDeleted'],
-        where: {
-          apiServerDeleted: false,
-          [Op.or]: {
-            subState: 'Completed',
-            requestSynced: false,
-          }
-        }
-      })
-      for (let framework of frameworks) {
-        const snapshot = new Snapshot(framework.snapshot)
-        const addOns = new AddOns(framework.configSecretDef, framework.priorityClassDef, framework.dockerSecretDef)
-        if (framework.subState === 'Completed') {
-          deleteHandler(snapshot, pollingTs)
-        } else {
-          synchronizeHandler(snapshot, addOns, pollingTs)
+      attributes: ['name', 'configSecretDef', 'priorityClassDef', 'dockerSecretDef', 'snapshot',
+        'subState', 'requestSynced', 'apiServerDeleted'],
+      where: {
+        apiServerDeleted: false,
+        [Op.or]: {
+          subState: 'Completed',
+          requestSynced: false
         }
       }
+    })
+    for (const framework of frameworks) {
+      const snapshot = new Snapshot(framework.snapshot)
+      const addOns = new AddOns(framework.configSecretDef, framework.priorityClassDef, framework.dockerSecretDef)
+      if (framework.subState === 'Completed') {
+        deleteHandler(snapshot, pollingTs)
+      } else {
+        synchronizeHandler(snapshot, addOns, pollingTs)
+      }
+    }
   } catch (err) {
     logger.error(`An error happened for pollingTs=${pollingTs}:`, err)
     throw err
@@ -130,5 +125,5 @@ async function poll() {
 interval(
   poll,
   config.intervalSecond * 1000,
-  {stopOnError: false},
+  { stopOnError: false }
 )

@@ -18,7 +18,7 @@
 const logger = require('@dbc/core/logger')
 const k8s = require('@dbc/core/k8s')
 const _ = require('lodash')
-const yaml = require('js-yaml');
+const yaml = require('js-yaml')
 
 const mockFrameworkStatus = () => {
   return {
@@ -70,21 +70,15 @@ const convertState = (state, exitCode, retryDelaySec) => {
   }
 }
 
-function ignoreError(err) {
+function ignoreError (err) {
   logger.info('This error will be ignored: ', err)
 }
 
-function reportError(err) {
-  logger.error(err)
-}
-
 class Snapshot {
-
-  constructor(snapshot) {
-    if (snapshot instanceof Object){
+  constructor (snapshot) {
+    if (snapshot instanceof Object) {
       this._snapshot = _.cloneDeep(snapshot)
-    }
-    else {
+    } else {
       this._snapshot = JSON.parse(snapshot)
     }
     if (!this._snapshot.status) {
@@ -92,19 +86,19 @@ class Snapshot {
     }
   }
 
-  copy() {
+  copy () {
     return new Snapshot(this._snapshot)
   }
 
-  getRequest(omitGeneration) {
+  getRequest (omitGeneration) {
     const request = _.pick(this._snapshot, [
-        'apiVersion',
-        'kind',
-        'metadata.name',
-        'metadata.labels',
-        'metadata.annotations',
-        'spec',
-      ])
+      'apiVersion',
+      'kind',
+      'metadata.name',
+      'metadata.labels',
+      'metadata.annotations',
+      'spec'
+    ])
     if (omitGeneration) {
       return _.omit(request, 'metadata.annotations.requestGeneration')
     } else {
@@ -112,22 +106,21 @@ class Snapshot {
     }
   }
 
-
-  overrideRequest(otherSnapshot) {
+  overrideRequest (otherSnapshot) {
     // shouldn't use _.merge here
     _.assign(this._snapshot, _.pick(otherSnapshot._snapshot, [
       'apiVersion',
       'kind',
-      'spec',
+      'spec'
     ]))
     _.assign(this._snapshot.metadata, _.pick(otherSnapshot._snapshot.metadata, [
       'name',
       'labels',
-      'annotations',
+      'annotations'
     ]))
   }
 
-  getRequestUpdate(withSnapshot=true) {
+  getRequestUpdate (withSnapshot = true) {
     const loadedConfig = yaml.safeLoad(this._snapshot.metadata.annotations.config)
     const jobPriority = _.get(loadedConfig, 'extras.hivedscheduler.jobPriorityClass', null)
     const update = {
@@ -142,7 +135,7 @@ class Snapshot {
       totalGpuNumber: this._snapshot.metadata.annotations.totalGpuNumber,
       totalTaskNumber: this._snapshot.spec.taskRoles.reduce((num, spec) => num + spec.taskNumber, 0),
       totalTaskRoleNumber: this._snapshot.spec.taskRoles.length,
-      logPathInfix: this._snapshot.metadata.annotations.logPathInfix,
+      logPathInfix: this._snapshot.metadata.annotations.logPathInfix
     }
     if (withSnapshot) {
       update.snapshot = JSON.stringify(this._snapshot)
@@ -150,7 +143,7 @@ class Snapshot {
     return update
   }
 
-  getStatusUpdate(withSnapshot=true) {
+  getStatusUpdate (withSnapshot = true) {
     const completionStatus = this._snapshot.status.attemptStatus.completionStatus
     const update = {
       retries: this._snapshot.status.retryPolicyStatus.totalRetriedCount,
@@ -166,7 +159,7 @@ class Snapshot {
         this._snapshot.status.state,
         completionStatus ? completionStatus.code : null,
         this._snapshot.status.retryPolicyStatus.retryDelaySec
-      ),
+      )
     }
     if (withSnapshot) {
       update.snapshot = JSON.stringify(this._snapshot)
@@ -174,7 +167,7 @@ class Snapshot {
     return update
   }
 
-  getAllUpdate(withSnapshot=true) {
+  getAllUpdate (withSnapshot = true) {
     const update = _.assign({}, this.getRequestUpdate(false), this.getStatusUpdate(false))
     if (withSnapshot) {
       update.snapshot = JSON.stringify(this._snapshot)
@@ -182,7 +175,7 @@ class Snapshot {
     return update
   }
 
-  getRecordForLegacyTransfer() {
+  getRecordForLegacyTransfer () {
     const record = this.getAllUpdate()
     // correct submissionTime is lost, use snapshot.metadata.creationTimestamp instead
     if (this.hasCreationTime()) {
@@ -194,27 +187,27 @@ class Snapshot {
     return record
   }
 
-  getName() {
+  getName () {
     return this._snapshot.metadata.name
   }
 
-  getSnapshot() {
+  getSnapshot () {
     return _.cloneDeep(this._snapshot)
   }
 
-  getString() {
+  getString () {
     return JSON.stringify(this._snapshot)
   }
 
-  hasCreationTime() {
-    if (_.get(this._snapshot, 'metadata.creationTimestamp')){
+  hasCreationTime () {
+    if (_.get(this._snapshot, 'metadata.creationTimestamp')) {
       return true
     } else {
       return false
     }
   }
 
-  getCreationTime() {
+  getCreationTime () {
     if (this.hasCreationTime()) {
       return new Date(this._snapshot.metadata.creationTimestamp)
     } else {
@@ -222,23 +215,21 @@ class Snapshot {
     }
   }
 
-  setGeneration(generation) {
+  setGeneration (generation) {
     this._snapshot.metadata.annotations.requestGeneration = (generation).toString()
   }
 
-  getGeneration() {
+  getGeneration () {
     if (!_.has(this._snapshot, 'metadata.annotations.requestGeneration')) {
       // for some legacy jobs, use 1 as its request generation.
       this.setGeneration(1)
     }
     return parseInt(this._snapshot.metadata.annotations.requestGeneration)
   }
-
 }
 
 class AddOns {
-
-  constructor (configSecretDef=null, priorityClassDef=null, dockerSecretDef=null) {
+  constructor (configSecretDef = null, priorityClassDef = null, dockerSecretDef = null) {
     if (configSecretDef !== null && !(configSecretDef instanceof Object)) {
       this._configSecretDef = JSON.parse(configSecretDef)
     } else {
@@ -256,7 +247,7 @@ class AddOns {
     }
   }
 
-  async create() {
+  async create () {
     if (this._configSecretDef) {
       try {
         await k8s.createSecret(this._configSecretDef)
@@ -292,20 +283,20 @@ class AddOns {
     }
   }
 
-  silentPatch(frameworkResponse) {
+  silentPatch (frameworkResponse) {
     // do not await for patch
     this._configSecretDef && k8s.patchSecretOwnerToFramework(this._configSecretDef, frameworkResponse).catch(ignoreError)
     this._dockerSecretDef && k8s.patchSecretOwnerToFramework(this._dockerSecretDef, frameworkResponse).catch(ignoreError)
   }
 
-  silentDelete() {
+  silentDelete () {
     // do not await for delete
     this._configSecretDef && k8s.deleteSecret(this._configSecretDef.metadata.name).catch(ignoreError)
     this._priorityClassDef && k8s.deletePriorityClass(this._priorityClassDef.metadata.name).catch(ignoreError)
     this._dockerSecretDef && k8s.deleteSecret(this._dockerSecretDef.metadata.name).catch(ignoreError)
   }
 
-  getUpdate() {
+  getUpdate () {
     const update = {}
     if (this._configSecretDef) {
       update.configSecretDef = JSON.stringify(this._configSecretDef)
@@ -320,8 +311,7 @@ class AddOns {
   }
 }
 
-
-async function synchronizeCreate(snapshot, addOns) {
+async function synchronizeCreate (snapshot, addOns) {
   await addOns.create()
   try {
     const response = await k8s.createFramework(snapshot.getRequest(false))
@@ -342,13 +332,13 @@ async function synchronizeCreate(snapshot, addOns) {
   }
 }
 
-async function synchronizeModify(snapshot) {
+async function synchronizeModify (snapshot) {
   const response = await k8s.patchFramework(snapshot.getName(), snapshot.getRequest(false))
   const frameworkResponse = response.body
   return frameworkResponse
 }
 
-async function synchronizeRequest(snapshot, addOns) {
+async function synchronizeRequest (snapshot, addOns) {
   // any error will be raised
   // if succeed, return framework from api server
   // There may be multiple calls of synchronizeRequest.
@@ -369,7 +359,7 @@ async function synchronizeRequest(snapshot, addOns) {
   }
 }
 
-function silentSynchronizeRequest(snapshot, addOns) {
+function silentSynchronizeRequest (snapshot, addOns) {
   // any error will be ignored
   synchronizeRequest(snapshot, addOns).catch(ignoreError)
 }
@@ -378,5 +368,5 @@ module.exports = {
   Snapshot,
   AddOns,
   synchronizeRequest,
-  silentSynchronizeRequest,
+  silentSynchronizeRequest
 }

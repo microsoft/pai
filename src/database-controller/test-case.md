@@ -74,9 +74,9 @@
 
 3. Framework controller failure
 
-    Case: shutdown the framework; try to submit another job; start the database
+    Case: shutdown the framework controller; try to submit a job; start the framework controller
 
-    Expect: the first job is not affected; the second job cannot be submitted.
+    Expect: the job can be submitted, but in `WAITING` status. After the framework controller is started, its state will turn to `RUNNING`.
 
 
 ## Path Test
@@ -123,7 +123,7 @@
 
 #### (Database poller) If API server 404 error, mock a delete Framework
 
-1. Case: Submit A job; Then shutdown watcher after the job starts; Wait until the job succeeded; Stop poller; Start watcher; Delete this framework manually; Start Poller
+1. Case: Submit A job; Then shutdown watcher after the job starts; Wait until the job succeeded; Stop poller; Start watcher; Stop watcher; Delete this framework manually; Start Poller
 
     Expect:
 
@@ -135,11 +135,11 @@
 
 1. Upgrade from `v1.0.y`
 
-    Drop the database; Deploy a `v1.0.y` bed, submit some jobs. Then upgrade it. Make sure the job information is correct, and running jobs are not affected.
+    Drop the database; Deploy a `v1.0.y` bed, submit some jobs (must include: one running job, one completed job with retry history, and one completed job without retry history). Then upgrade it. Make sure the job information is correct, and running jobs are not affected.
 
 2. Upgrade from `v1.1.y`
 
-    Drop the database; Deploy a `v1.1.y` bed, submit some jobs. Then upgrade it. Make sure the job information is correct, and running jobs are not affected.
+    Drop the database; Deploy a `v1.1.y` bed, submit some jobs (must include: one running job, one completed job with retry history, and one completed job without retry history). Then upgrade it. Make sure the job information is correct, and running jobs are not affected.
 
 ## Stress Test
 

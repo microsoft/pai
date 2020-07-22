@@ -25,7 +25,7 @@ const _ = require('lodash')
 const lock = new AsyncLock({ maxPending: Number.MAX_SAFE_INTEGER })
 const databaseModel = new DatabaseModel(
   config.dbConnectionStr,
-  config.maxDatabaseConnection,
+  config.maxDatabaseConnection
 )
 
 /* For error handling, all handlers follow the same structure:
@@ -60,8 +60,9 @@ async function receiveWatchEvents (req, res, next) {
     }
     await lock.acquire(frameworkName, async () => {
       const oldFramework = await databaseModel.Framework.findOne({
-          attributes: ['snapshot'],
-          where: { name: frameworkName } }
+        attributes: ['snapshot'],
+        where: { name: frameworkName }
+      }
       )
       // database doesn't have the corresponding framework.
       if (!oldFramework) {
@@ -72,7 +73,6 @@ async function receiveWatchEvents (req, res, next) {
           const record = snapshot.getRecordForLegacyTransfer()
           record.requestSynced = true
           await databaseModel.Framework.create(record)
-          return
         } else {
           throw createError(404, `Cannot find framework ${frameworkName}.`)
         }
@@ -97,7 +97,7 @@ async function receiveWatchEvents (req, res, next) {
         }
         await databaseModel.Framework.update(
           _.assign(snapshot.getStatusUpdate(), internalUpdate),
-          { where: { name: frameworkName} }
+          { where: { name: frameworkName } }
         )
       }
     })
@@ -109,7 +109,7 @@ async function receiveWatchEvents (req, res, next) {
 
 async function receiveFrameworkRequest (req, res, next) {
   try {
-    const { frameworkRequest, submissionTime, configSecretDef, priorityClassDef, dockerSecretDef} = req.body
+    const { frameworkRequest, submissionTime, configSecretDef, priorityClassDef, dockerSecretDef } = req.body
     const frameworkName = _.get(frameworkRequest, 'metadata.name')
     if (!frameworkName) {
       return next(createError(400, 'Cannot find framework name.'))
@@ -118,7 +118,8 @@ async function receiveFrameworkRequest (req, res, next) {
       frameworkName, async () => {
         const oldFramework = await databaseModel.Framework.findOne({
           attributes: ['snapshot'],
-          where: { name: frameworkName } }
+          where: { name: frameworkName }
+        }
         )
         const snapshot = new Snapshot(frameworkRequest)
         const addOns = new AddOns(configSecretDef, priorityClassDef, dockerSecretDef)
@@ -143,16 +144,16 @@ async function receiveFrameworkRequest (req, res, next) {
             // update request in db, mark requestSynced=false
             snapshot.setGeneration(oldSnapshot.getGeneration() + 1)
             await databaseModel.Framework.update(
-              _.assign({}, snapshot.getRequestUpdate(), {requestSynced: false}),
+              _.assign({}, snapshot.getRequestUpdate(), { requestSynced: false }),
               { where: { name: frameworkName } }
             )
             return [true, snapshot, addOns]
           }
         }
-    })
+      })
     res.status(200).json({ message: 'ok' })
     // skip db poller, any response or error will be ignored
-    if (needSynchronize){
+    if (needSynchronize) {
       silentSynchronizeRequest(snapshot, addOns)
     }
   } catch (err) {
@@ -163,5 +164,5 @@ async function receiveFrameworkRequest (req, res, next) {
 module.exports = {
   ping: ping,
   receiveFrameworkRequest: receiveFrameworkRequest,
-  receiveWatchEvents: receiveWatchEvents,
+  receiveWatchEvents: receiveWatchEvents
 }

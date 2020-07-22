@@ -22,8 +22,7 @@ const status = require('statuses');
 const asyncHandler = require('@pai/middlewares/v2/asyncHandler');
 const createError = require('@pai/utils/error');
 const job = require('@pai/models/v2/job');
-const logger = require('@pai/config/logger');
-const { Op } = require("sequelize");
+const {Op} = require('sequelize');
 
 
 const list = asyncHandler(async (req, res) => {
@@ -31,25 +30,28 @@ const list = asyncHandler(async (req, res) => {
   //    &state=<state1>,<state2>&offset=<offset>&limit=<limit>&withTotalCount=true
   //    &order=state,DESC
   const filters = {};
-  let offset = 0, limit, withTotalCount = false, order = [];
+  let offset = 0;
+  let limit;
+  let withTotalCount = false;
+  let order = [];
   if (req.query) {
-    if ('userName' in req.query){
-      filters.userName = req.query.userName.split(',')
+    if ('userName' in req.query) {
+      filters.userName = req.query.userName.split(',');
     }
-    if ('vc' in req.query){
-      filters.virtualCluster = req.query.vc.split(',')
+    if ('vc' in req.query) {
+      filters.virtualCluster = req.query.vc.split(',');
     }
-    if ('state' in req.query){
-      filters.state = req.query.state.split(',')
+    if ('state' in req.query) {
+      filters.state = req.query.state.split(',');
     }
     if ('offset' in req.query) {
-      offset = parseInt(req.query.offset)
+      offset = parseInt(req.query.offset);
     }
     if ('limit' in req.query) {
-      limit = parseInt(req.query.limit)
+      limit = parseInt(req.query.limit);
     }
     if ('withTotalCount' in req.query && req.query.withTotalCount === 'true') {
-      withTotalCount = true
+      withTotalCount = true;
     }
     if ('keyword' in req.query) {
       // match text in username, jobname, or vc
@@ -57,18 +59,18 @@ const list = asyncHandler(async (req, res) => {
         {'userName': {[Op.substring]: req.query.keyword}},
         {'jobName': {[Op.substring]: req.query.keyword}},
         {'virtualCluster': {[Op.substring]: req.query.keyword}},
-      ]
+      ];
     }
     if ('order' in req.query) {
-      const {field, ordering} = req.query.order.split(',')
+      const {field, ordering} = req.query.order.split(',');
       if (['jobName', 'submissionTime', 'userName', 'vc', 'retries', 'totalTaskNumber',
-        'totalGpuNumber', 'state'].includes(field)){
+        'totalGpuNumber', 'state'].includes(field)) {
         if (ordering === 'ASC' || ordering === 'DESC') {
-          order.push([field, ordering])
+          order.push([field, ordering]);
         }
       }
     }
-    if (order.length === 0){
+    if (order.length === 0) {
       // default order is submissionTime,DESC
       order.push(['submissionTime', 'DESC']);
     }

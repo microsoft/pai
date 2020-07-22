@@ -30,7 +30,7 @@ const app = express()
 app.use(cors())
 app.use(compress())
 app.use(bodyParser.urlencoded({ extended: true }))
-app.use(bodyParser.json({limit: config.bodyLimit}))
+app.use(bodyParser.json({ limit: config.bodyLimit }))
 app.use(bodyParser.text({ type: 'text/*' }))
 app.use(morgan('dev', { stream: logger.stream }))
 

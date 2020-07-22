@@ -16,18 +16,12 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 const logger = require('@dbc/core/logger')
-const k8s = require('@dbc/core/k8s')
-const _ = require('lodash')
-const yaml = require('js-yaml');
-
 
 async function timePeriod (ms) {
   await new Promise((resolve, reject) => {
     setTimeout(() => resolve(), ms)
   })
 }
-
-
 
 function alwaysRetryDecorator (promiseFn, loggingMessage, initialRetryDelayMs = 500, backoffRatio = 2, maxRetryDelayMs = 120000) {
   /*
@@ -65,7 +59,7 @@ function alwaysRetryDecorator (promiseFn, loggingMessage, initialRetryDelayMs = 
   return _wrapper
 }
 
-function timeoutDecorator (promiseFn, loggingMessage, timeoutMs){
+function timeoutDecorator (promiseFn, loggingMessage, timeoutMs) {
   /*
   promiseFn is an async function
   This decorator returns a newPromiseFn, which can be run as newPromiseFn(...).
@@ -73,7 +67,7 @@ function timeoutDecorator (promiseFn, loggingMessage, timeoutMs){
   */
   async function _wrapper () {
     const timeoutPromise = new Promise((resolve, reject) => {
-      setTimeout(() => reject(`${loggingMessage} reached timeout ${timeoutMs} ms.`), timeoutMs)
+      setTimeout(() => reject(new Error(`${loggingMessage} reached timeout ${timeoutMs} ms.`)), timeoutMs)
     })
     const resPromise = promiseFn.apply(this, arguments)
     const res = await Promise.race([timeoutPromise, resPromise])
@@ -82,8 +76,7 @@ function timeoutDecorator (promiseFn, loggingMessage, timeoutMs){
   return _wrapper
 }
 
-
 module.exports = {
   alwaysRetryDecorator: alwaysRetryDecorator,
-  timeoutDecorator: timeoutDecorator,
+  timeoutDecorator: timeoutDecorator
 }
