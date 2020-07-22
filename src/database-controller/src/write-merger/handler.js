@@ -153,7 +153,7 @@ async function receiveFrameworkRequest (req, res, next) {
     res.status(200).json({ message: 'ok' })
     // skip db poller, any response or error will be ignored
     if (needSynchronize){
-      // silentSynchronizeRequest(snapshot, addOns)
+      silentSynchronizeRequest(snapshot, addOns)
     }
   } catch (err) {
     return next(err)
