@@ -197,7 +197,7 @@ class DatabaseModel {
         type: Sequelize.STRING(36),
       },
       commitVersion: {
-        type: Sequelize.STRING(36),
+        type: Sequelize.STRING(64),
       },
     }, {
       sequelize,
