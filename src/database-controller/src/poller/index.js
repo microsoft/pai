@@ -18,7 +18,8 @@
 require('module-alias/register')
 require('dotenv').config()
 const AsyncLock = require('async-lock')
-const {Op} = require('Sequelize')
+const { Sequelize } = require('sequelize')
+const Op = Sequelize.Op;
 const DatabaseModel = require('openpaidbsdk')
 const logger = require('@dbc/core/logger')
 const { Snapshot, AddOns, synchronizeRequest } = require('@dbc/core/framework')
