@@ -143,7 +143,11 @@ export default function JobList() {
       })
       .then(setAllJobs)
       .catch(err => {
-        throw Error(err.data.message);
+        if (err.data && err.data.message) {
+          throw Error(err.data.message);
+        } else {
+          throw Error(err.message);
+        }
       });
   }, []);
 
