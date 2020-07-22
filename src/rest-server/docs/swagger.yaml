@@ -1130,6 +1130,8 @@ paths:
         - name: order
           in: query
           description: 'order of job list. It follows the format <field>,<ASC|DESC>, default value is "submissionTime,DESC". Available fields include: jobName, submissionTime, userName, vc, retries, totalTaskNumber, totalGpuNumber, state'
+          schema:
+            type: string
         - name: withTotalCount
           in: query
           description: 'if withTotalCount is "true", the result will contain a "totalCount" and a "data" field, instead of a job list.'
