@@ -111,6 +111,6 @@ spec:
           value: "{{ cluster_cfg['database-controller']['db-poller-interval-second'] }}"
         - name: WRITE_MERGER_URL
           value: "{{ cluster_cfg['database-controller']['write-merger-url'] }}"
-        command: ["node", "watcher/framework/index.js"]
+        command: ["node", "poller/index.js"]
       imagePullSecrets:
       - name: {{ cluster_cfg["cluster"]["docker-registry"]["secret-name"] }}
