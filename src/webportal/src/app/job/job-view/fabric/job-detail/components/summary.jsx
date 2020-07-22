@@ -482,7 +482,9 @@ export default class Summary extends React.Component {
               </div>
             </div>
             <div className={t.ml4}>
-              <div className={c(t.gray, FontClassNames.medium)}>Submission Time</div>
+              <div className={c(t.gray, FontClassNames.medium)}>
+                Submission Time
+              </div>
               <div className={c(t.mt3, FontClassNames.mediumPlus)}>
                 {printDateTime(
                   DateTime.fromMillis(jobInfo.jobStatus.submissionTime),
