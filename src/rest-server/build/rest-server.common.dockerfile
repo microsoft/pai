@@ -23,7 +23,6 @@ ENV NODE_ENV=production \
     SERVER_PORT=8080
 
 COPY . .
-COPY ./sdk ./sdk
 
 RUN yarn --no-git-tag-version --new-version version \
     "$(cat version/PAI.VERSION)"
