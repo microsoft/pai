@@ -1,0 +1,69 @@
+#!/bin/bash
+
+# Copyright (c) Microsoft Corporation
+# All rights reserved.
+#
+# MIT License
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
+# documentation files (the "Software"), to deal in the Software without restriction, including without limitation
+# the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and
+# to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+# The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED *AS IS*, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING
+# BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+# NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+# DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+set -e
+
+function cleanup(){
+  docker stop dev-box
+  docker rm dev-box
+}
+
+{% if cfg["openpai_config"]["docker_registry_password"] is defined and cfg["openpai_config"]["docker_registry_username"] is defined %}
+docker login {{ cfg["openpai_config"]["docker_registry_domain"] }} -p {{ cfg["openpai_config"]["docker_registry_password"] }} -u {{ cfg["openpai_config"]["docker_registry_username"] }}
+{% endif %}
+
+docker run -tid \
+      -v /var/run/docker.sock:/var/run/docker.sock \
+      -v {{ k8s["working_dir"] }}:/cluster-configuration  \
+      -v {{ k8s["kube_config"] }}:/root/.kube/config \
+      --pid=host \
+      --privileged=true \
+      --net=host \
+      --name=dev-box \
+      {{ cfg["openpai_config"]["docker_registry_domain"] }}/{{ cfg["openpai_config"]["docker_registry_namespace"] }}/dev-box:{{ cfg["openpai_config"]["docker_image_tag"] }} /bin/bash
+
+sudo docker exec -i dev-box /bin/bash -c "kubectl get node" || { cleanup; exit 1; }
+
+sudo docker exec -i dev-box /bin/bash << EOF_DEV_BOX
+
+apt-get -y update
+apt-get -y install subversion python3 python-dev software-properties-common parallel
+
+curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py
+python3 get-pip.py
+pip3 install kubernetes==11.0.0b2 jinja2
+
+cd /root
+git clone https://github.com/microsoft/pai.git
+cd pai
+
+git checkout {{ cfg["openpai_config"]["branch_name"] }}
+
+kubectl create namespace pai-storage
+
+echo -e "pai\n" | python paictl.py config push -p /cluster-configuration -m service
+
+echo -e "pai\n" | python paictl.py service start
+
+EOF_DEV_BOX
+
+
+echo "OpenPAI webportal url : https://{{k8s["master_ip"]}}"
+echo "OpenPAI admin account : {{ cfg["openpai_config"]["admin_account"] | default("openpai") }}"
+echo "OpenPAI admin password: {{ cfg["openpai_config"]["admin_password"] | default("openpai1234") }}"
