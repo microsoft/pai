@@ -38,6 +38,9 @@ process.env.HIVED_SPEC_PATH = 'test/data/hivedscheduler.yaml';
 process.env.GROUP_CONFIG_PATH = 'test/data/group.yaml';
 process.env[env.exitSpecPath] = 'test/data/exit-spec.yaml';
 process.env.REST_SERVER_URI = 'http://restserver.test.pai.9186';
+process.env.SQL_CONNECTION_STR = 'postgres://localhost:5432/openpai'
+process.env.SQL_MAX_CONNECTION = 10
+process.env.WRITE_MERGER_URL = 'http://localhost'
 
 const jwt = require('jsonwebtoken');
 const mustache = require('mustache');
