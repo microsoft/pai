@@ -27,7 +27,7 @@ const {Snapshot} = require('@dbc/core/framework')
 
 async function updateFromNoDatabaseVersion(databaseModel) {
   // update from 1.0.0 < version < v1.2.0
-  await databaseModel.synchronizeSchema(true)
+  await databaseModel.synchronizeSchema()
   // transfer old frameworks from api server to db
   const frameworks = (await k8s.listFramework()).body.items
   console.log(frameworks)
