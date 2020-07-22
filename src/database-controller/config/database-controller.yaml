@@ -20,16 +20,13 @@ service_type: "common"
 # general settings
 log-level: info
 recovery-mode: false
-k8s-connection-timeout-second: 60
-write-merger-connection-timeout-second: 60
+k8s-connection-timeout-second: 120
+write-merger-connection-timeout-second: 120
 
 # write merger
 write-merger-port: 9748
-write-merger-max-db-connection: 10
+write-merger-max-db-connection: 50
 
 # db poller
 db-poller-interval-second: 120
 db-poller-max-db-connection: 10
-
-
-

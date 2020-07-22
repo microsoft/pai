@@ -25,6 +25,8 @@ const configSchema = Joi.object().keys({
   maxDatabaseConnection: Joi.number()
     .integer()
     .required(),
+  bodyLimit: Joi.string()
+    .default('100mb'),
   port: Joi.number()
     .integer()
     .required(),

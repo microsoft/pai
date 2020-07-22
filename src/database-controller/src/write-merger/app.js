@@ -23,13 +23,14 @@ const bodyParser = require('body-parser')
 const logger = require('@dbc/core/logger')
 const status = require('statuses')
 const handler = require('@dbc/write-merger/handler')
+const config = require('@dbc/write-merger/config')
 
 const app = express()
 
 app.use(cors())
 app.use(compress())
 app.use(bodyParser.urlencoded({ extended: true }))
-app.use(bodyParser.json())
+app.use(bodyParser.json({limit: config.bodyLimit}))
 app.use(bodyParser.text({ type: 'text/*' }))
 app.use(morgan('dev', { stream: logger.stream }))
 

@@ -116,6 +116,7 @@ class DatabaseModel {
       attemptIndex: Sequelize.INTEGER,
       taskroleName: Sequelize.STRING(256),
       taskroleIndex: Sequelize.INTEGER,
+      taskAttemptIndex: Sequelize.INTEGER,
       snapshot: Sequelize.TEXT
     }, {
       sequelize,
@@ -228,6 +229,10 @@ class DatabaseModel {
         this.Version.sync({alter: true})
       ])
     }
+  }
+
+  async ping() {
+    await this.sequelize.authenticate()
   }
 
   async getVersion() {
