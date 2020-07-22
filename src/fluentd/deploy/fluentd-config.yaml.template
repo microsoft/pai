@@ -118,8 +118,6 @@ data:
         user {{ cluster_cfg['postgresql']['user'] }}
         password {{ cluster_cfg['postgresql']['passwd'] }}
         database {{ cluster_cfg['postgresql']['db'] }}
-        table fc_objectsnapshots
-        record_col record
         <buffer>
           @type memory
           flush_mode immediate
