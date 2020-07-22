@@ -29,11 +29,7 @@ const wrapper = async func => {
     if (err.data.code === 'UnauthorizedUserError') {
       throw new UnauthorizedError(err.data.message);
     } else {
-      if (err.data && err.data.message) {
-        throw new Error(err.data.message);
-      } else {
-        throw new Error(err.message);
-      }
+      throw new Error(err.data.message || err.message);
     }
   }
 };
