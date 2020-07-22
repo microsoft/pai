@@ -22,15 +22,12 @@ const zlib = require('zlib');
 const yaml = require('js-yaml');
 const crypto = require('crypto');
 const status = require('statuses');
-const querystring = require('querystring');
 const runtimeEnv = require('./runtime-env');
 const launcherConfig = require('@pai/config/launcher');
 const createError = require('@pai/utils/error');
 const protocolSecret = require('@pai/utils/protocolSecret');
 const userModel = require('@pai/models/v2/user');
 const storageModel = require('@pai/models/v2/storage');
-const k8sModel = require('@pai/models/kubernetes/kubernetes');
-const k8sSecret = require('@pai/models/kubernetes/k8s-secret');
 const env = require('@pai/utils/env');
 const path = require('path');
 const fs = require('fs');
@@ -38,6 +35,7 @@ const _ = require('lodash');
 const logger = require('@pai/config/logger');
 const {apiserver} = require('@pai/config/kubernetes');
 const schedulePort = require('@pai/config/schedule-port');
+const databaseModel = require('@pai/utils/dbUtils');
 
 let exitSpecPath;
 if (process.env[env.exitSpecPath]) {
@@ -129,52 +127,29 @@ const convertState = (state, exitCode, retryDelaySec) => {
   }
 };
 
-const mockFrameworkStatus = () => {
-  return {
-    state: 'AttemptCreationPending',
-    attemptStatus: {
-      completionStatus: null,
-      taskRoleStatuses: [],
-    },
-    retryPolicyStatus: {
-      retryDelaySec: null,
-      totalRetriedCount: 0,
-      accountableRetriedCount: 0,
-    },
-  };
-};
-
 const convertFrameworkSummary = (framework) => {
-  if (!framework.status) {
-    framework.status = mockFrameworkStatus();
-  }
-  const completionStatus = framework.status.attemptStatus.completionStatus;
   return {
-    debugId: framework.metadata.name,
-    name: decodeName(framework.metadata.name, framework.metadata.annotations),
-    username: framework.metadata.labels ? framework.metadata.labels.userName : 'unknown',
-    state: convertState(
-      framework.status.state,
-      completionStatus ? completionStatus.code : null,
-      framework.status.retryPolicyStatus.retryDelaySec,
-    ),
-    subState: framework.status.state,
-    executionType: framework.spec.executionType.toUpperCase(),
-    retries: framework.status.retryPolicyStatus.totalRetriedCount,
+    debugId: framework.name,
+    name: framework.jobName,
+    username: framework.userName,
+    state: framework.state,
+    subState: framework.subState,
+    executionType: framework.executionType.toUpperCase(),
+    retries: framework.retries,
     retryDetails: {
-      user: framework.status.retryPolicyStatus.accountableRetriedCount,
-      platform: framework.status.retryPolicyStatus.totalRetriedCount - framework.status.retryPolicyStatus.accountableRetriedCount,
-      resource: 0,
+      user: framework.userRetries,
+      platform: framework.platformRetries,
+      resource: framework.resourceRetries,
     },
-    retryDelayTime: framework.status.retryPolicyStatus.retryDelaySec,
-    createdTime: new Date(framework.metadata.creationTimestamp).getTime(),
-    completedTime: new Date(framework.status.completionTime).getTime() || null,
-    appExitCode: completionStatus ? completionStatus.code : null,
-    virtualCluster: framework.metadata.labels ? framework.metadata.labels.virtualCluster : 'unknown',
-    totalGpuNumber: framework.metadata.annotations ? parseInt(framework.metadata.annotations.totalGpuNumber) : 0,
-    totalTaskNumber: framework.spec.taskRoles.reduce(
-      (num, spec) => num + spec.taskNumber, 0),
-    totalTaskRoleNumber: framework.spec.taskRoles.length,
+    retryDelayTime: framework.retryDelayTime,
+    submissionTime: new Date(framework.submissionTime).getTime(),
+    createdTime: new Date(framework.creationTime).getTime() || null,
+    completedTime: new Date(framework.completionTime).getTime() || null,
+    appExitCode: framework.appExitCode,
+    virtualCluster: framework.virtualCluster ? framework.virtualCluster : 'unknown',
+    totalGpuNumber: framework.totalGpuNumber,
+    totalTaskNumber: framework.totalTaskNumber,
+    totalTaskRoleNumber: framework.totalTaskRoleNumber,
   };
 };
 
@@ -248,9 +223,6 @@ const convertTaskDetail = async (taskStatus, ports, logPathPrefix) => {
 };
 
 const convertFrameworkDetail = async (framework) => {
-  if (!framework.status) {
-    framework.status = mockFrameworkStatus();
-  }
   const attemptStatus = framework.status.attemptStatus;
   // check fields which may be compressed
   if (attemptStatus.taskRoleStatuses == null) {
@@ -724,7 +696,7 @@ const generateFrameworkDescription = (frameworkName, virtualCluster, config, raw
   return frameworkDescription;
 };
 
-const createPriorityClass = async (frameworkName, priority) => {
+const getPriorityClassDef = (frameworkName, priority) => {
   const priorityClass = {
     apiVersion: 'scheduling.k8s.io/v1',
     kind: 'PriorityClass',
@@ -736,40 +708,10 @@ const createPriorityClass = async (frameworkName, priority) => {
     globalDefault: false,
   };
 
-  let response;
-  try {
-    response = await k8sModel.getClient().request({
-      method: 'post',
-      url: launcherConfig.priorityClassesPath(),
-      headers: launcherConfig.requestHeaders,
-      data: priorityClass,
-    });
-  } catch (error) {
-    if (error.response != null) {
-      response = error.response;
-    } else {
-      throw error;
-    }
-  }
-  if (response.status !== status('Created')) {
-    throw createError(response.status, 'UnknownError', response.data.message);
-  }
+  return priorityClass;
 };
 
-const deletePriorityClass = async (frameworkName) => {
-  try {
-    await k8sModel.getClient().delete(
-      launcherConfig.priorityClassPath(`${encodeName(frameworkName)}-priority`),
-      {
-        headers: launcherConfig.requestHeaders,
-      }
-    );
-  } catch (error) {
-    logger.warn('Failed to delete priority class', error);
-  }
-};
-
-const createDockerSecret = async (frameworkName, auths) => {
+const getDockerSecretDef = (frameworkName, auths) => {
   const cred = {
     auths: {},
   };
@@ -783,130 +725,81 @@ const createDockerSecret = async (frameworkName, auths) => {
       auth: Buffer.from(`${username}:${password}`).toString('base64'),
     };
   }
-  await k8sSecret.create(
-    'default',
-    `${encodeName(frameworkName)}-regcred`,
-    {'.dockerconfigjson': JSON.stringify(cred)},
-    {type: 'kubernetes.io/dockerconfigjson'},
-  );
-};
-
-const patchDockerSecretOwner = async (frameworkName, frameworkUid) => {
-  const metadata = {
-    ownerReferences: [{
-      apiVersion: launcherConfig.apiVersion,
-      kind: 'Framework',
-      name: encodeName(frameworkName),
-      uid: frameworkUid,
-      controller: true,
-      blockOwnerDeletion: true,
-    }],
+  return {
+    apiVersion: 'v1',
+    kind: 'Secret',
+    metadata: {
+      name: `${encodeName(frameworkName)}-regcred`,
+      namespace: 'default',
+    },
+    data: {'.dockerconfigjson': Buffer.from(JSON.stringify(cred)).toString('base64')},
+    type: 'kubernetes.io/dockerconfigjson',
   };
-  try {
-    await k8sSecret.patchMetadata('default', `${encodeName(frameworkName)}-regcred`, metadata);
-  } catch (error) {
-    logger.warn('Failed to patch owner reference for secret', error);
-  }
 };
 
-const deleteDockerSecret = async (frameworkName) => {
-  try {
-    await k8sSecret.remove('default', `${encodeName(frameworkName)}-regcred`);
-  } catch (error) {
-    logger.warn('Failed to delete docker secret', error);
-  }
-};
 
-const createJobConfigSecret = async (frameworkName, secrets) => {
+const getConfigSecretDef = (frameworkName, secrets) => {
   const data = {
-    'secrets.yaml': yaml.safeDump(secrets),
+    'secrets.yaml': Buffer.from(yaml.safeDump(secrets)).toString('base64'),
   };
-  await k8sSecret.create(
-    'default',
-    `${encodeName(frameworkName)}-configcred`,
-    data,
-  );
-};
-
-const patchJobConfigSecretOwner = async (frameworkName, frameworkUid) => {
-  const metadata = {
-    ownerReferences: [{
-      apiVersion: launcherConfig.apiVersion,
-      kind: 'Framework',
-      name: encodeName(frameworkName),
-      uid: frameworkUid,
-      controller: true,
-      blockOwnerDeletion: true,
-    }],
+  return {
+    apiVersion: 'v1',
+    kind: 'Secret',
+    metadata: {
+      name: `${encodeName(frameworkName)}-configcred`,
+      namespace: 'default',
+    },
+    data: data,
+    type: 'Opaque',
   };
-  try {
-    await k8sSecret.patchMetadata('default', `${encodeName(frameworkName)}-configcred`, metadata);
-  } catch (error) {
-    logger.warn('Failed to patch owner reference for secret', error);
-  }
 };
 
-const deleteJobConfigSecret = async (frameworkName) => {
+const list = async (attributes, filters, order, offset, limit, withTotalCount) => {
+  let frameworks;
+  let totalCount;
   try {
-    await k8sSecret.remove('default', `${encodeName(frameworkName)}-configcred`);
-  } catch (error) {
-    logger.warn('Failed to delete protocol secret', error);
-  }
-};
-
-const list = async (filters) => {
-  // send request to framework controller
-  let response;
-  try {
-    response = await k8sModel.getClient().get(
-      `${launcherConfig.frameworksPath()}?${querystring.stringify(filters)}`,
-      {
-        headers: launcherConfig.requestHeaders,
-      }
-    );
-  } catch (error) {
-    if (error.response != null) {
-      response = error.response;
-    } else {
-      throw error;
+    frameworks = await databaseModel.Framework.findAll({
+      attributes: attributes,
+      where: filters,
+      offset: offset,
+      limit: limit,
+      order: order,
+    });
+    if (withTotalCount) {
+      totalCount = await databaseModel.Framework.count({where: filters});
     }
+  } catch (error) {
+      throw error;
   }
-
-  if (response.status === status('OK')) {
-    return response.data.items
-      .filter((item) => checkName(item.metadata.name))
-      .map(convertFrameworkSummary)
-      .sort((a, b) => b.createdTime - a.createdTime);
+  frameworks = frameworks
+    .filter((item) => checkName(item.name))
+    .map(convertFrameworkSummary);
+  if (withTotalCount) {
+    return {
+      totalCount: totalCount,
+      data: frameworks,
+    };
   } else {
-    throw createError(response.status, 'UnknownError', response.data.message);
+    return frameworks;
   }
 };
 
 const get = async (frameworkName) => {
-  // send request to framework controller
-  let response;
+  let framework;
   try {
-    response = await k8sModel.getClient().get(
-      launcherConfig.frameworkPath(encodeName(frameworkName)),
-      {
-        headers: launcherConfig.requestHeaders,
-      }
-    );
+    framework = await databaseModel.Framework.findOne({
+      attributes: ['submissionTime', 'snapshot'],
+      where: {name: encodeName(frameworkName)},
+    });
   } catch (error) {
-    if (error.response != null) {
-      response = error.response;
-    } else {
-      throw error;
-    }
+    throw error;
   }
-
-  if (response.status === status('OK')) {
-    return (await convertFrameworkDetail(response.data));
-  }
-  if (response.status === status('Not Found')) {
-    throw createError('Not Found', 'NoJobError', `Job ${frameworkName} is not found.`);
+  if (framework) {
+    const frameworkDetail = await convertFrameworkDetail(JSON.parse(framework.snapshot));
+    frameworkDetail.jobStatus.submissionTime = new Date(framework.submissionTime).getTime();
+    return frameworkDetail;
   } else {
-    throw createError(response.status, 'UnknownError', response.data.message);
+    throw createError('Not Found', 'NoJobError', `Job ${frameworkName} is not found.`);
   }
 };
 
@@ -974,76 +867,92 @@ const put = async (frameworkName, config, rawConfig) => {
   }
 
   const frameworkDescription = generateFrameworkDescription(frameworkName, virtualCluster, config, rawConfig);
-
   // generate image pull secret
   const auths = Object.values(config.prerequisites.dockerimage)
     .filter((dockerimage) => dockerimage.auth != null)
     .map((dockerimage) => dockerimage.auth);
-  auths.length && await createDockerSecret(frameworkName, auths);
+  const dockerSecretDef = auths.length ? getDockerSecretDef(frameworkName, auths) : null;
 
   // generate job config secret
-  config.secrets && await createJobConfigSecret(frameworkName, config.secrets);
+  const configSecretDef = config.secrets ? getConfigSecretDef(frameworkName, config.secrets) : null;
 
   // calculate pod priority
   // reference: https://github.com/microsoft/pai/issues/3704
+  const submissionTime = new Date();
+  let priorityClassDef = null;
   if (launcherConfig.enabledPriorityClass) {
     let jobPriority = 0;
     if (launcherConfig.enabledHived) {
       jobPriority = parseInt(Object.values(config.taskRoles)[0].hivedPodSpec.priority);
       jobPriority = Math.min(Math.max(jobPriority, -1), 126);
     }
-    const jobCreationTime = Math.floor(new Date() / 1000) & (Math.pow(2, 23) - 1);
+    const jobCreationTime = Math.floor(submissionTime / 1000) & (Math.pow(2, 23) - 1);
     const podPriority = - (((126 - jobPriority) << 23) + jobCreationTime);
     // create priority class
-    await createPriorityClass(frameworkName, podPriority);
+    priorityClassDef = getPriorityClassDef(frameworkName, podPriority);
   }
 
   // send request to framework controller
   let response;
   try {
-    response = await k8sModel.getClient().request({
-      method: 'post',
-      url: launcherConfig.frameworksPath(),
-      headers: launcherConfig.requestHeaders,
-      data: frameworkDescription,
+    response = await axios({
+      method: 'put',
+      url: launcherConfig.writeMergerUrl + '/api/v1/frameworkRequest',
+      data: {
+        frameworkRequest: frameworkDescription,
+        submissionTime: submissionTime,
+        configSecretDef: configSecretDef,
+        priorityClassDef: priorityClassDef,
+        dockerSecretDef: dockerSecretDef,
+      },
+      headers: {
+        'Content-Type': 'application/json',
+      },
     });
   } catch (error) {
     if (error.response != null) {
       response = error.response;
     } else {
-      // do not await for delete
-      auths.length && deleteDockerSecret(frameworkName);
-      config.secrets && deleteJobConfigSecret(frameworkName);
-      launcherConfig.enabledPriorityClass && deletePriorityClass(frameworkName);
       throw error;
     }
   }
-  if (response.status !== status('Created')) {
-    // do not await for delete
-    auths.length && deleteDockerSecret(frameworkName);
-    config.secrets && deleteJobConfigSecret(frameworkName);
-    launcherConfig.enabledPriorityClass && deletePriorityClass(frameworkName);
+  if (response.status !== status('OK')) {
     throw createError(response.status, 'UnknownError', response.data.message);
   }
-  // do not await for patch
-  auths.length && patchDockerSecretOwner(frameworkName, response.data.metadata.uid);
-  config.secrets && patchJobConfigSecretOwner(frameworkName, response.data.metadata.uid);
 };
 
 const execute = async (frameworkName, executionType) => {
-  // send request to framework controller
   let response;
   try {
-    const headers = {...launcherConfig.requestHeaders};
-    headers['Content-Type'] = 'application/merge-patch+json';
-    response = await k8sModel.getClient().request({
-      method: 'patch',
-      url: launcherConfig.frameworkPath(encodeName(frameworkName)),
-      headers,
+    const framework = await databaseModel.Framework.findOne({
+      attributes: ['snapshot', 'submissionTime', 'configSecretDef', 'priorityClassDef', 'dockerSecretDef'],
+      where: {name: encodeName(frameworkName)},
+    });
+    if (!framework) {
+      throw createError('Not Found', 'NoJobError', `Job ${frameworkName} is not found.`);
+    }
+    const snapshot = JSON.parse(framework.snapshot);
+    const frameworkRequest = _.pick(snapshot, [
+      'apiVersion',
+      'kind',
+      'metadata.name',
+      'metadata.labels',
+      'metadata.annotations',
+      'spec',
+    ]);
+    frameworkRequest.spec.executionType = `${executionType.charAt(0)}${executionType.slice(1).toLowerCase()}`;
+    response = await axios({
+      method: 'put',
+      url: launcherConfig.writeMergerUrl + '/api/v1/frameworkRequest',
       data: {
-        spec: {
-          executionType: `${executionType.charAt(0)}${executionType.slice(1).toLowerCase()}`,
-        },
+        frameworkRequest: frameworkRequest,
+        submissionTime: framework.submissionTime,
+        configSecretDef: framework.configSecretDef,
+        priorityClassDef: framework.priorityClassDef,
+        dockerSecretDef: framework.dockerSecretDef,
+      },
+      headers: {
+        'Content-Type': 'application/json',
       },
     });
   } catch (error) {
@@ -1059,34 +968,24 @@ const execute = async (frameworkName, executionType) => {
 };
 
 const getConfig = async (frameworkName) => {
-  // send request to framework controller
-  let response;
+  let framework;
   try {
-    response = await k8sModel.getClient().get(
-      launcherConfig.frameworkPath(encodeName(frameworkName)),
-      {
-        headers: launcherConfig.requestHeaders,
-      }
-    );
+    framework = await databaseModel.Framework.findOne({
+      attributes: ['jobConfig'],
+      where: {name: encodeName(frameworkName)},
+    });
   } catch (error) {
-    if (error.response != null) {
-      response = error.response;
-    } else {
       throw error;
-    }
   }
 
-  if (response.status === status('OK')) {
-    if (response.data.metadata.annotations && response.data.metadata.annotations.config) {
-      return yaml.safeLoad(response.data.metadata.annotations.config);
+  if (framework) {
+    if (framework.jobConfig) {
+      return yaml.safeLoad(framework.jobConfig);
     } else {
       throw createError('Not Found', 'NoJobConfigError', `Config of job ${frameworkName} is not found.`);
     }
-  }
-  if (response.status === status('Not Found')) {
-    throw createError('Not Found', 'NoJobError', `Job ${frameworkName} is not found.`);
   } else {
-    throw createError(response.status, 'UnknownError', response.data.message);
+    throw createError('Not Found', 'NoJobError', `Job ${frameworkName} is not found.`);
   }
 };
 

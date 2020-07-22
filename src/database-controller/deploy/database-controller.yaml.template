@@ -1,0 +1,116 @@
+#!/bin/bash
+
+# Copyright (c) Microsoft Corporation
+# All rights reserved.
+#
+# MIT License
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
+# documentation files (the "Software"), to deal in the Software without restriction, including without limitation
+# the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and
+# to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+# The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED *AS IS*, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING
+# BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+# NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+# DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: database-controller-sts
+spec:
+  selector:
+    matchLabels:
+      app: database-controller
+  serviceName: database-controller
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: database-controller
+    spec:
+      serviceAccountName: database-controller-account
+      hostNetwork: true
+      containers:
+      - name: write-merger
+        image: {{ cluster_cfg["cluster"]["docker-registry"]["prefix"] }}database-controller:{{ cluster_cfg["cluster"]["docker-registry"]["tag"] }}
+        imagePullPolicy: Always
+        env:
+        - name: LOG_LEVEL
+          value: "{{ cluster_cfg['database-controller']['log-level'] }}"
+        - name: K8S_CONNECTION_TIMEOUT_SECOND
+          value: "{{ cluster_cfg['database-controller']['k8s-connection-timeout-second'] }}"
+        - name: WRITE_MERGER_CONNECTION_TIMEOUT_SECOND
+          value: "{{ cluster_cfg['database-controller']['write-merger-connection-timeout-second'] }}"
+        - name: RECOVERY_MODE_ENABLED
+{% if cluster_cfg['database-controller']['recovery-mode'] %}
+          value: "true"
+{% else %}
+          value: "false"
+{% endif %}
+        - name: DB_CONNECTION_STR
+          value: "{{ cluster_cfg['postgresql']['connection-str'] }}"
+        - name: MAX_DB_CONNECTION
+          value: "{{ cluster_cfg['database-controller']['write-merger-max-db-connection'] }}"
+        - name: PORT
+          value: "{{ cluster_cfg['database-controller']['write-merger-port'] }}"
+        readinessProbe:
+          httpGet:
+            path: /api/v1/ping
+            port: {{ cluster_cfg['database-controller']['write-merger-port'] }}
+        livenessProbe:
+          httpGet:
+            path: /api/v1/ping
+            port: {{ cluster_cfg['database-controller']['write-merger-port'] }}
+          initialDelaySeconds: 60
+          periodSeconds: 60
+        command: ["node", "write-merger/index.js"]
+      - name: framework-watcher
+        image: {{ cluster_cfg["cluster"]["docker-registry"]["prefix"] }}database-controller:{{ cluster_cfg["cluster"]["docker-registry"]["tag"] }}
+        imagePullPolicy: Always
+        env:
+        - name: LOG_LEVEL
+          value: "{{ cluster_cfg['database-controller']['log-level'] }}"
+        - name: K8S_CONNECTION_TIMEOUT_SECOND
+          value: "{{ cluster_cfg['database-controller']['k8s-connection-timeout-second'] }}"
+        - name: WRITE_MERGER_CONNECTION_TIMEOUT_SECOND
+          value: "{{ cluster_cfg['database-controller']['write-merger-connection-timeout-second'] }}"
+        - name: RECOVERY_MODE_ENABLED
+{% if cluster_cfg['database-controller']['recovery-mode'] %}
+          value: "true"
+{% else %}
+          value: "false"
+{% endif %}
+        - name: WRITE_MERGER_URL
+          value: "{{ cluster_cfg['database-controller']['write-merger-url'] }}"
+        command: ["node", "watcher/framework/index.js"]
+      - name: poller
+        image: {{ cluster_cfg["cluster"]["docker-registry"]["prefix"] }}database-controller:{{ cluster_cfg["cluster"]["docker-registry"]["tag"] }}
+        imagePullPolicy: Always
+        env:
+        - name: LOG_LEVEL
+          value: "{{ cluster_cfg['database-controller']['log-level'] }}"
+        - name: K8S_CONNECTION_TIMEOUT_SECOND
+          value: "{{ cluster_cfg['database-controller']['k8s-connection-timeout-second'] }}"
+        - name: WRITE_MERGER_CONNECTION_TIMEOUT_SECOND
+          value: "{{ cluster_cfg['database-controller']['write-merger-connection-timeout-second'] }}"
+        - name: RECOVERY_MODE_ENABLED
+{% if cluster_cfg['database-controller']['recovery-mode'] %}
+          value: "true"
+{% else %}
+          value: "false"
+{% endif %}
+        - name: DB_CONNECTION_STR
+          value: "{{ cluster_cfg['postgresql']['connection-str'] }}"
+        - name: MAX_DB_CONNECTION
+          value: "{{ cluster_cfg['database-controller']['db-poller-max-db-connection'] }}"
+        - name: INTERVAL_SECOND
+          value: "{{ cluster_cfg['database-controller']['db-poller-interval-second'] }}"
+        - name: WRITE_MERGER_URL
+          value: "{{ cluster_cfg['database-controller']['write-merger-url'] }}"
+        command: ["node", "poller/index.js"]
+      imagePullSecrets:
+      - name: {{ cluster_cfg["cluster"]["docker-registry"]["secret-name"] }}

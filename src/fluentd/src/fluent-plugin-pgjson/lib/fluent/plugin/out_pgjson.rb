@@ -151,16 +151,17 @@ module Fluent::Plugin
             kind = record["objectSnapshot"]["kind"]
             log.debug "log type: #{kind}"
             if kind == "Framework"
-              thread[:conn].exec("COPY framework_history (#{@insertedAt_col}, #{@frameworkName_col}, #{@attemptIndex_col}, #{@historyType_col}, #{@snapshot_col}) FROM STDIN WITH DELIMITER E'\\x01'")
+              thread[:conn].exec("COPY framework_history (\"#{@insertedAt_col}\", \"#{@updatedAt_col}\", \"#{@uid_col}\", \"#{@frameworkName_col}\", \"#{@attemptIndex_col}\", \"#{@historyType_col}\", \"#{@snapshot_col}\") FROM STDIN WITH DELIMITER E'\\x01'")
+              uid = (0...36).map { (65 + rand(26)).chr }.join
               frameworkName = record["objectSnapshot"]["metadata"]["name"]
               attemptIndex = record["objectSnapshot"]["status"]["attemptStatus"]["id"]
               historyType = "retry"
               snapshot = record_value(record["objectSnapshot"])
-              thread[:conn].put_copy_data "#{time}\x01#{frameworkName}\x01#{attemptIndex}\x01#{historyType}\x01#{snapshot}\n"
+              thread[:conn].put_copy_data "#{time}\x01#{time}\x01#{uid}\x01#{frameworkName}\x01#{attemptIndex}\x01#{historyType}\x01#{snapshot}\n"
             elsif kind == "Pod"
-              thread[:conn].exec("COPY pods (#{@insertedAt_col}, #{@updatedAt_col}, #{@uid_col}, #{@frameworkName_col}, #{@attemptIndex_col}, #{@taskroleName_col}, #{@taskroleIndex_col}, #{@taskAttemptIndex_col}, #{@snapshot_col}) FROM STDIN WITH DELIMITER E'\\x01'")
+              thread[:conn].exec("COPY pods (\"#{@insertedAt_col}\", \"#{@updatedAt_col}\", \"#{@uid_col}\", \"#{@frameworkName_col}\", \"#{@attemptIndex_col}\", \"#{@taskroleName_col}\", \"#{@taskroleIndex_col}\", \"#{@taskAttemptIndex_col}\", \"#{@snapshot_col}\") FROM STDIN WITH DELIMITER E'\\x01'")
               uid = record["objectSnapshot"]["metadata"]["uid"]
-              frameworkName = record["objectSnapshot"]["metadata"]["name"]
+              frameworkName = record["objectSnapshot"]["metadata"]["name"][0..31]
               attemptIndex = record["objectSnapshot"]["metadata"]["annotations"]["FC_FRAMEWORK_ATTEMPT_ID"]
               taskroleName = record["objectSnapshot"]["metadata"]["annotations"]["FC_TASKROLE_NAME"]
               taskroleIndex = record["objectSnapshot"]["metadata"]["annotations"]["FC_TASK_INDEX"]

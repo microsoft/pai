@@ -1,0 +1,14 @@
+{
+  "name": "openpaidbsdk",
+  "version": "1.0.0",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "lint": "standard.cmd --fix"
+  },
+  "main": "index.js",
+  "license": "MIT",
+  "dependencies": {
+    "pg": "^8.2.1",
+    "sequelize": "5.21.3"
+  }
+}

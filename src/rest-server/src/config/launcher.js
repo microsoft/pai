@@ -45,7 +45,12 @@ const k8sLauncherConfigSchema = Joi.object().keys({
   requestHeaders: Joi.object(),
   sqlConnectionString: Joi.string()
     .required(),
+  sqlMaxConnection: Joi.number()
+    .integer()
+    .required(),
   enabledJobHistory: Joi.boolean()
+    .required(),
+  writeMergerUrl: Joi.string()
     .required(),
   healthCheckPath: Joi.func()
     .arity(0)
@@ -91,7 +96,9 @@ if (launcherType === 'k8s') {
       'Content-Type': 'application/json',
     },
     sqlConnectionString: process.env.SQL_CONNECTION_STR || 'unset',
+    sqlMaxConnection: parseInt(process.env.SQL_MAX_CONNECTION),
     enabledJobHistory: process.env.JOB_HISTORY === 'true',
+    writeMergerUrl: process.env.WRITE_MERGER_URL,
     healthCheckPath: () => {
       return `/apis/${launcherConfig.apiVersion}`;
     },

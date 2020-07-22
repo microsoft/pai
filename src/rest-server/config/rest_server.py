@@ -55,7 +55,7 @@ class RestServer:
             'default-pai-admin-username', 'default-pai-admin-password',
             'github-owner', 'github-repository', 'github-path',
             'debugging-reservation-seconds', 'enable-priority-class',
-            'schedule-port-start', 'schedule-port-end'
+            'schedule-port-start', 'schedule-port-end', 'sql-max-connection'
         ]:
             service_object_model[k] = self.service_configuration[k]
         service_object_model['etcd-uris'] = ','.join('http://{0}:4001'.format(host['hostip'])

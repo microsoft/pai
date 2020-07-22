@@ -15,26 +15,32 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+const basicConfig = require('@dbc/core/config')
+const _ = require('lodash')
+const Joi = require('joi')
 
-const {Sequelize} = require('sequelize');
-const launcherConfig = require('@pai/config/launcher');
+const configSchema = Joi.object().keys({
+  dbConnectionStr: Joi.string()
+    .required(),
+  maxDatabaseConnection: Joi.number()
+    .integer()
+    .required(),
+  bodyLimit: Joi.string()
+    .default('100mb'),
+  port: Joi.number()
+    .integer()
+    .required()
+}).required()
 
-if (launcherConfig.sqlConnectionString !== 'unset') {
-  const sequelize = new Sequelize(
-    launcherConfig.sqlConnectionString,
-    {
-      pool: {
-        max: 10,
-        min: 1,
-      },
-    }
-  );
-
-  module.exports = {
-    sequelize: sequelize,
-  };
-} else {
-  module.exports = {
-    sequelize: null,
-  };
+const config = {
+  dbConnectionStr: process.env.DB_CONNECTION_STR,
+  maxDatabaseConnection: parseInt(process.env.MAX_DB_CONNECTION),
+  port: parseInt(process.env.PORT)
 }
+
+const { error, value } = Joi.validate(config, configSchema)
+if (error) {
+  throw new Error(`Config error\n${error}`)
+}
+
+module.exports = _.assign(basicConfig, value)
