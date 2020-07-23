@@ -59,7 +59,7 @@ To remove the network plugin, you could use following `ansible-playbook`:
 
     - name: config-docker
       shell: |
-        sed -i 's/--iptables=True/--iptables=True --ip-masq=True/d' /etc/systemd/system/docker.service.d/docker-options.conf
+        sed -i 's/--iptables=False/--iptables=True --ip-masq=True/g' /etc/systemd/system/docker.service.d/docker-options.conf
         systemctl daemon-reload
       args:
         executable: /bin/bash
