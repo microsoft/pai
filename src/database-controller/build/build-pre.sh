@@ -19,7 +19,7 @@
 
 pushd $(dirname "$0") > /dev/null
 
-mkdir -m 766 -p "../version"
+mkdir -m 777 -p "../version"
 cp -arf "../../../version/PAI.VERSION" "../version/"
 echo `git rev-parse HEAD` > "../version/COMMIT.VERSION"
 
