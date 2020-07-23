@@ -236,7 +236,11 @@ class DatabaseModel {
   }
 
   async getVersion () {
-    const res = await this.Version.findOne()
+    let res
+    try {
+      res = await this.Version.findOne()
+    } catch (err) {
+    }
     if (res) {
       return {
         version: res.version,
