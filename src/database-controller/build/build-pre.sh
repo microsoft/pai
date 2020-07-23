@@ -20,7 +20,7 @@
 pushd $(dirname "$0") > /dev/null
 
 mkdir -p ../version
-cp ../../../version/PAI.VERSION ../version/
+cp -af ../../../version/PAI.VERSION ../version/
 echo `git rev-parse HEAD` > ../version/COMMIT.VERSION
 
 popd > /dev/null
