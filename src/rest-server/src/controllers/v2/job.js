@@ -26,7 +26,7 @@ const {Op} = require('sequelize');
 
 
 const list = asyncHandler(async (req, res) => {
-  // ?keyword=<keyword filter>&userName=<username1>,<username2>&vc=<vc1>,<vc2>
+  // ?keyword=<keyword filter>&username=<username1>,<username2>&vc=<vc1>,<vc2>
   //    &state=<state1>,<state2>&offset=<offset>&limit=<limit>&withTotalCount=true
   //    &order=state,DESC
   const filters = {};
@@ -35,8 +35,8 @@ const list = asyncHandler(async (req, res) => {
   let withTotalCount = false;
   let order = [];
   if (req.query) {
-    if ('userName' in req.query) {
-      filters.userName = req.query.userName.split(',');
+    if ('username' in req.query) {
+      filters.userName = req.query.username.split(',');
     }
     if ('vc' in req.query) {
       filters.virtualCluster = req.query.vc.split(',');
@@ -63,10 +63,15 @@ const list = asyncHandler(async (req, res) => {
     }
     if ('order' in req.query) {
       const {field, ordering} = req.query.order.split(',');
-      if (['jobName', 'submissionTime', 'userName', 'vc', 'retries', 'totalTaskNumber',
+      if (['jobName', 'submissionTime', 'username', 'vc', 'retries', 'totalTaskNumber',
         'totalGpuNumber', 'state'].includes(field)) {
         if (ordering === 'ASC' || ordering === 'DESC') {
-          order.push([field, ordering]);
+          // different cases for username
+          if (field !== 'username') {
+            order.push([field, ordering]);
+          } else {
+            order.push(['userName', ordering]);
+          }
         }
       }
     }
