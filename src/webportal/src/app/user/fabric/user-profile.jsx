@@ -20,6 +20,7 @@ import {
   updateUserPasswordRequest,
   updateUserEmailRequest,
   listStorageDetailRequest,
+  getGroupsRequest,
 } from './conn';
 
 import t from '../../components/tachyons.scss';
@@ -27,6 +28,7 @@ import { VirtualClusterDetailsList } from '../../home/home/virtual-cluster-stati
 import TokenList from './user-profile/token-list';
 import UserProfileHeader from './user-profile/header';
 import StorageList from './user-profile/storage-list';
+import GroupList from './user-profile/group-list';
 
 const UserProfileCard = ({ title, children, headerButton }) => {
   const { spacing } = getTheme();
@@ -58,6 +60,7 @@ const UserProfile = () => {
   const [virtualClusters, setVirtualClusters] = useState(null);
   const [tokens, setTokens] = useState(null);
   const [storageDetails, setStorageDetails] = useState(null);
+  const [groups, setGroups] = useState(null);
 
   const [processing, setProcessing] = useState(false);
 
@@ -67,11 +70,13 @@ const UserProfile = () => {
       const vcPromise = getAllVcsRequest();
       const tokenPromise = getTokenRequest();
       const storageDetailPromise = listStorageDetailRequest();
+      const groupsPromise = getGroupsRequest();
       await Promise.all([
         userPromise,
         vcPromise,
         tokenPromise,
         storageDetailPromise,
+        groupsPromise,
       ]).catch(err => {
         alert(err);
         throw err;
@@ -96,6 +101,9 @@ const UserProfile = () => {
       const storageDetails = await storageDetailPromise;
       setStorageDetails(storageDetails);
       setLoading(false);
+      // group
+      const groups = await groupsPromise;
+      setGroups(groups);
     };
     fetchData();
   }, []);
@@ -162,6 +170,9 @@ const UserProfile = () => {
           </UserProfileCard>
           <UserProfileCard title='Virtual Clusters'>
             <VirtualClusterDetailsList virtualClusters={virtualClusters} />
+          </UserProfileCard>
+          <UserProfileCard title='Groups'>
+            <GroupList groups={groups} />
           </UserProfileCard>
         </div>
       </div>
