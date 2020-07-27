@@ -36,10 +36,6 @@ const convertPriority = (priorityClass='test') => {
   return priorityClass in priorityMap ? priorityMap[priorityClass] : null;
 };
 
-const skuToString = (sku) => {
-  return `(${sku.gpu} GPU, ${sku.cpu} CPU, ${sku.memory}MB memory)`;
-};
-
 const getCellStatus = async (virtualCluster) => {
   let vcStatus;
   try {
@@ -178,7 +174,6 @@ const hivedValidate = async (protocolObj, username) => {
   // generate podSpec for every taskRole
   let requestCellNumber = 0;
   const {cellQuota, cellUnits} = await getCellStatus(virtualCluster);
-  const cellUnitsStr = cellUnits.map((unit) => skuToString(unit)).join(', ');
   for (let taskRole of Object.keys(protocolObj.taskRoles)) {
     const resourcePerCell = {};
     for (const t of ['gpu', 'cpu', 'memory']) {
@@ -218,16 +213,23 @@ const hivedValidate = async (protocolObj, username) => {
     }
 
     const {gpu = 0, cpu, memoryMB} = protocolObj.taskRoles[taskRole].resourcePerInstance;
-    if (resourcePerCell.gpu === 0 && gpu > 0 ||
-        resourcePerCell.cpu === 0 && cpu > 0 ||
-        resourcePerCell.memory === 0 && memoryMB > 0) {
+    let emptyResource = '';
+    if (resourcePerCell.gpu === 0 && gpu > 0) {
+      emptyResource = 'gpu';
+    } else if (resourcePerCell.cpu === 0 && cpu > 0) {
+      emptyResource = 'cpu';
+    } else if (resourcePerCell.memory === 0 && memoryMB > 0) {
+      emptyResource = 'memory';
+    }
+    if (emptyResource !== '') {
       throw createError(
         'Bad Request',
         'InvalidProtocolError',
         `Taskrole ${taskRole} requests (${gpu} GPU, ${cpu} CPU, ${memoryMB}MB memory), ` +
-        `violate minimum sku ${skuToString(resourcePerCell)} per cell.`
+        `but SKU does not configure ${emptyResource}.`
       );
     }
+
     const cellNumber = Math.max(
       Math.ceil(gpu / resourcePerCell.gpu),
       Math.ceil(cpu / resourcePerCell.cpu),
@@ -243,7 +245,7 @@ const hivedValidate = async (protocolObj, username) => {
     throw createError(
       'Bad Request',
       'InvalidProtocolError',
-      `Job requests ${requestCellNumber} sku, violate ${cellQuota} sku [${cellUnitsStr}] quota in ${virtualCluster} VC.`
+      `Job requests ${requestCellNumber} SKUs, exceeds maximum ${cellQuota} SKUs in VC ${virtualCluster}.`
     );
   }
 
