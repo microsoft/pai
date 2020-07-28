@@ -28,7 +28,7 @@ logger = logging.getLogger(__name__)
 
 class InspectResult(object):
     """ Represents a task meta data, parsed from docker inspect result """
-    def __init__(self, username, job_name, role_name, task_index, gpu_ids, job_instance_id, pid):
+    def __init__(self, username, job_name, role_name, task_index, gpu_ids, job_instance_id, pid, virtual_cluster):
         self.username = username
         self.job_name = job_name
         self.role_name = role_name
@@ -36,10 +36,11 @@ class InspectResult(object):
         self.gpu_ids = gpu_ids # comma separated str, str may be minor_number or UUID
         self.pid = pid
         self.job_instance_id = job_instance_id # Used to distinguish job instance with same name but different retry number.
+        self.virtual_cluster = virtual_cluster
 
     def __repr__(self):
-        return "username %s, job_name %s, role_name %s, task_index %s, gpu_ids %s, job_instance_id %s pid %s" % \
-                (self.username, self.job_name, self.role_name, self.task_index, self.gpu_ids, self.job_instance_id, self.pid)
+        return "username %s, job_name %s, role_name %s, task_index %s, gpu_ids %s, job_instance_id %s pid %s virtual_cluster %s" % \
+                (self.username, self.job_name, self.role_name, self.task_index, self.gpu_ids, self.job_instance_id, self.pid, self.virtual_cluster)
 
     def __eq__(self, o):
         return self.username == o.username and \
@@ -48,11 +49,12 @@ class InspectResult(object):
                 self.task_index == o.task_index and \
                 self.gpu_ids == o.gpu_ids and \
                 self.job_instance_id == o.job_instance_id and \
-                self.pid == o.pid
+                self.pid == o.pid and \
+                self.virtual_cluster == o.virtual_cluster
 
 
 keys = {"PAI_JOB_NAME", "PAI_USER_NAME", "PAI_CURRENT_TASK_ROLE_NAME", "GPU_ID",
-        "PAI_TASK_INDEX", "DLWS_JOB_ID", "DLWS_USER_NAME"}
+        "PAI_TASK_INDEX", "DLWS_JOB_ID", "DLWS_USER_NAME", "PAI_VIRTUAL_CLUSTER"}
 
 
 def parse_docker_inspect(inspect_output, gpu_vender):
@@ -95,7 +97,8 @@ def parse_docker_inspect(inspect_output, gpu_vender):
             m.get("PAI_TASK_INDEX"),
             m.get("GPU_ID"),
             m.get("JOB_INSTANCE_ID"),
-            pid)
+            pid,
+            m.get("PAI_VIRTUAL_CLUSTER"))
 
 def inspect(container_id, histogram, timeout, gpu_vender):
     try:

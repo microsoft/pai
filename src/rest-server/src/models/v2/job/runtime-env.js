@@ -16,7 +16,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
-const generateFrameworkEnv = (frameworkName, config) => {
+const generateFrameworkEnv = (frameworkName, config, virtualCluster) => {
   const [userName] = frameworkName.split('~');
   const env = {
     PAI_FRAMEWORK_NAME: frameworkName,
@@ -25,6 +25,7 @@ const generateFrameworkEnv = (frameworkName, config) => {
     PAI_DEFAULT_FS_URI: '',
     PAI_TASK_ROLE_COUNT: Object.keys(config.taskRoles).length,
     PAI_TASK_ROLE_LIST: Object.keys(config.taskRoles).join(','),
+    PAI_VIRTUAL_CLUSTER: virtualCluster
   };
   let tasksNum = 0;
   for (let taskRole of Object.keys(config.taskRoles)) {

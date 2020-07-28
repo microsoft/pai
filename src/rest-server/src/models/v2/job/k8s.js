@@ -687,7 +687,8 @@ const generateFrameworkDescription = (frameworkName, virtualCluster, config, raw
   };
 
   // generate framework env
-  const frameworkEnv = runtimeEnv.generateFrameworkEnv(frameworkName, config);
+  const frameworkEnv = runtimeEnv.generateFrameworkEnv(frameworkName, config, virtualCluster);
+
   const frameworkEnvList = Object.keys(frameworkEnv).map((name) => {
     return {name, value: `${frameworkEnv[name]}`};
   });
