@@ -18,16 +18,23 @@
 # Rule Syntax Reference: https://prometheus.io/docs/prometheus/latest/configuration/alerting_rules/
 
 groups:
-    - name: pai-jobs
-      rules:
-      - alert: PaiJobsZombie
-        expr: zombie_container_count > 0
-        for: 1h # only when it exceed 1 hour
-        annotations:
-          summary: "zombie container in {{$labels.instance}} detected"
-
-      - alert: PaiJobPending
-        expr: pai_job_pod_count{pod_bound="true", phase="pending"} > 0
-        for: 30m
-        annotations:
-          summary: "Job {{$labels.job_name}} in pending status detected"
+- name: pai-jobs
+  rules:
+  - alert: PaiJobsZombie
+    expr: zombie_container_count > 0
+    for: 1h # only when it exceed 1 hour
+    annotations:
+      summary: "zombie container in {{$labels.instance}} detected"
+  - alert: PaiJobPending
+    expr: pai_job_pod_count{pod_bound="true", phase="pending"} > 0
+    for: 30m
+    annotations:
+      summary: "Job {{$labels.job_name}} in pending status detected"
+- name: example
+  rules:
+  - alert: LowTaskGpuPercent
+    expr: task_gpu_percent{virtual_cluster='default'} < 0.3
+    for: 1m
+    annotations:
+      summary: "{{$labels.job_name}} has gpu percent lower than 30% for 1h, will be killed"
+      description: In certain virtual clusters, jobs with low gpu utilization will be killed.
