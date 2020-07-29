@@ -51,6 +51,15 @@ spec:
 {% else %}
           value: "false"
 {% endif %}
+{% if cluster_cfg['cluster']['common']['k8s-rbac'] != 'false' %}
+        - name: RBAC_IN_CLUSTER
+          value: "true"
+{% else %}
+        - name: RBAC_IN_CLUSTER
+          value: "false"
+        - name: CUSTOM_K8S_API_SERVER_URL
+          value: {{ cluster_cfg['layout']['kubernetes']['api-servers-url'] }}
+{% endif %}
         - name: DB_CONNECTION_STR
           value: "{{ cluster_cfg['postgresql']['connection-str'] }}"
         - name: MAX_DB_CONNECTION
@@ -84,6 +93,15 @@ spec:
 {% else %}
           value: "false"
 {% endif %}
+{% if cluster_cfg['cluster']['common']['k8s-rbac'] != 'false' %}
+        - name: RBAC_IN_CLUSTER
+          value: "true"
+{% else %}
+        - name: RBAC_IN_CLUSTER
+          value: "false"
+        - name: CUSTOM_K8S_API_SERVER_URL
+          value: {{ cluster_cfg['layout']['kubernetes']['api-servers-url'] }}
+{% endif %}
         - name: WRITE_MERGER_URL
           value: "{{ cluster_cfg['database-controller']['write-merger-url'] }}"
         command: ["node", "watcher/framework/index.js"]
@@ -102,6 +120,15 @@ spec:
           value: "true"
 {% else %}
           value: "false"
+{% endif %}
+{% if cluster_cfg['cluster']['common']['k8s-rbac'] != 'false' %}
+        - name: RBAC_IN_CLUSTER
+          value: "true"
+{% else %}
+        - name: RBAC_IN_CLUSTER
+          value: "false"
+        - name: CUSTOM_K8S_API_SERVER_URL
+          value: {{ cluster_cfg['layout']['kubernetes']['api-servers-url'] }}
 {% endif %}
         - name: DB_CONNECTION_STR
           value: "{{ cluster_cfg['postgresql']['connection-str'] }}"

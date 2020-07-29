@@ -30,7 +30,6 @@ async function updateFromNoDatabaseVersion (databaseModel) {
   await databaseModel.synchronizeSchema()
   // transfer old frameworks from api server to db
   const frameworks = (await k8s.listFramework()).body.items
-  console.log(frameworks)
   for (const framework of frameworks) {
     const snapshot = new Snapshot(framework)
     logger.info(`Transferring framework ${snapshot.getName()} to database.`)

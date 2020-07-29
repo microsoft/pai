@@ -21,32 +21,40 @@ const config = require('./config')
 const { timeoutDecorator } = require('./util')
 const kc = new k8s.KubeConfig()
 
-if (config.customK8sApiServerURL) {
-  // For local debugging, one should set CUSTOM_K8S_API_SERVER_URL, CUSTOM_K8S_CA_FILE and CUSTOM_K8S_TOKEN_FILE.
-  const cluster = {
-    name: 'inCluster',
-    caFile: config.customK8sCaFile,
-    server: config.customK8sApiServerURL,
-    skipTLSVerify: false
+if (config.rbacEnabled) {
+  // If RBAC is enabled, we can use kc.loadFromDefault() to load k8s config in containers.
+  // For local debugging purpose, one can set CUSTOM_K8S_API_SERVER_URL, CUSTOM_K8S_CA_FILE and CUSTOM_K8S_TOKEN_FILE,
+  // to connect to RBAC k8s cluster. Ca and Token file should be from a valid service account.
+  if (config.customK8sApiServerURL) {
+    const cluster = {
+      name: 'inCluster',
+      caFile: config.customK8sCaFile,
+      server: config.customK8sApiServerURL,
+      skipTLSVerify: false
+    }
+    const user = {
+      name: 'inClusterUser',
+      authProvider:
+       {
+         name: 'tokenFile',
+         config:
+          {
+            tokenFile: config.customK8sTokenFile
+          }
+       }
+    }
+    kc.loadFromClusterAndUser(cluster, user)
+  } else {
+    kc.loadFromDefault()
   }
-  const user = {
-    name: 'inClusterUser',
-    authProvider:
-     {
-       name: 'tokenFile',
-       config:
-        {
-          tokenFile: config.customK8sTokenFile
-        }
-     }
-  }
-  kc.loadFromClusterAndUser(cluster, user)
 } else {
-  // For in-cluster containers, load KubeConfig from default setting.
-  kc.loadFromDefault()
+  // If RBAC is not enabled, use CUSTOM_K8S_API_SERVER_URL to connect to API server.
+  const cluster = { name: 'cluster', server: config.customK8sApiServerURL }
+  const user = { name: 'user' }
+  kc.loadFromClusterAndUser(cluster, user)
 }
 
-// If api server reports a non-200 status code, the client will
+// If API server reports a non-200 status code, the client will
 // throw an error. In such case, error.name will be "HttpError",
 // and error.response.statusCode is the actual status code.
 // If network is disconnected, the error will be a different one,
