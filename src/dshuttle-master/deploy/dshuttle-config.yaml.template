@@ -44,18 +44,18 @@ data:
     -Dalluxio.user.block.write.location.policy.class=alluxio.client.block.policy.MostAvailableFirstPolicy
     -Dalluxio.worker.rpc.port={{ cluster_cfg['dshuttle']['worker_rpc_port'] }}
     -Dalluxio.worker.web.port={{ cluster_cfg['dshuttle']['worker_web_port'] }}
+    -Dalluxio.worker.network.reader.buffer.size=1MB
     -Dalluxio.user.file.readtype.default=CACHE
-    -Dalluxio.user.network.reader.chunk.size.bytes=128KB
-    -Dalluxio.user.local.reader.chunk.size.bytes=256KB
-    -Dalluxio.user.file.metadata.sync.interval={{ cluster_cfg['dshuttle']['user_meta_sync_interval_ms'] }}
-    -Dalluxio.user.block.worker.client.pool.min=32 
+    -Dalluxio.user.streaming.reader.chunk.size.bytes=256KB
+    -Dalluxio.user.streaming.reader.buffer.size.messages=2
+    -Dalluxio.user.network.streaming.flowcontrol.window=1MB
+    -Dalluxio.user.block.worker.client.pool.min=50
     -Dalluxio.user.update.file.accesstime.disabled=true
     -Dalluxio.user.metadata.cache.enabled=true
     -Dalluxio.user.metadata.cache.max.size=2000000
     -Dalluxio.user.metadata.cache.expiration.time=24h
     -Dalluxio.user.file.master.client.pool.size.max=50
-    -Dalluxio.fuse.jnifuse.enabled=true
-    -Dalluxio.fuse.cached.paths.max=2000000 
+    -Dalluxio.fuse.jnifuse.enabled=true 
   ALLUXIO_MASTER_JAVA_OPTS: >-
     -Dalluxio.master.web.bind.host=0.0.0.0
     -XX:ActiveProcessorCount=20 
@@ -88,5 +88,5 @@ data:
     -XX:ActiveProcessorCount=10 
     -Xms1G -Xmx2G 
   ALLUXIO_FUSE_JAVA_OPTS: >-
-    -Xms4G -Xmx8G -XX:MaxDirectMemorySize=16g 
+    -Xms1G -Xmx5G -XX:MaxDirectMemorySize=3g 
   ALLUXIO_WORKER_TIEREDSTORE_LEVEL0_DIRS_PATH: /dev/shm 
