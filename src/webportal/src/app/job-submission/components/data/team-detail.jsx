@@ -50,7 +50,7 @@ export default function TeamDetail({ isOpen = false, config, hide }) {
       key: 'serverType',
       name: 'Server Type',
       headerClassName: FontClassNames.semibold,
-      minWidth: 40,
+      minWidth: 80,
       onRender: item => {
         if (item === undefined) {
           return <div className={FontClassNames.small}>{'Invalid Server'}</div>;
@@ -61,29 +61,9 @@ export default function TeamDetail({ isOpen = false, config, hide }) {
     },
     {
       key: 'serverPath',
-      name: 'Server path',
+      name: 'Server Path(Server Root Path as bold)',
       headerClassName: FontClassNames.semibold,
-      minWidth: 80,
-      onRender: item => {
-        const serverInfo = usedServers.find(
-          server => server.spn === item.server,
-        );
-        if (serverInfo === undefined) {
-          return <div className={FontClassNames.small}>{'Invalid Server'}</div>;
-        } else {
-          return (
-            <div className={FontClassNames.semibold}>
-              <b>{'/'}</b>
-            </div>
-          );
-        }
-      },
-    },
-    {
-      key: 'subPath',
-      name: 'Subpath',
-      headerClassName: FontClassNames.semibold,
-      minWidth: 50,
+      minWidth: 400,
       onRender: item => {
         if (item === undefined) {
           return <div className={FontClassNames.small}>{'Invalid Server'}</div>;
@@ -93,23 +73,10 @@ export default function TeamDetail({ isOpen = false, config, hide }) {
       },
     },
     {
-      key: 'UFS path',
-      name: 'Under file system path',
-      headerClassName: FontClassNames.semibold,
-      minWidth: 320,
-      onRender: item => {
-        return (
-          <div className={FontClassNames.semibold}>
-            {'type: azure, containerName: small-file, accountName: dshuttle'}
-          </div>
-        );
-      },
-    },
-    {
       key: 'permission',
       name: 'Permission',
       headerClassName: FontClassNames.semibold,
-      minWidth: 50,
+      minWidth: 80,
       onRender: item => {
         return (
           <div className={FontClassNames.small}>
@@ -353,25 +320,6 @@ export const NAS_TIPS = {
       <span> to upload data directly.</span>
     </div>
   ),
-  dshuttle: (
-    <div>
-      <div style={{ fontWeight: FontWeights.semibold }}>Dshuttle</div>
-      <span>
-        {' '}
-        to upload data to Dshuttle. Please pack your data as one folder, then
-        upload it to one of Dshuttle mounted under filesystem. You can find the
-        mounted under filesystem below or at user profile page.
-      </span>
-      <br />
-      <br />
-      <span>
-        <b>Notice: </b> Access you data in the job while uploading data will
-        cause inconsistency between Deshuttle and under filesystem. If you
-        encounter such inconsistency, please run: <b>python force_sync.py </b>
-        in your job container.
-      </span>
-    </div>
-  ),
 };
 
 export const SERVER_PATH = {
@@ -403,11 +351,6 @@ export const SERVER_PATH = {
     <div className={FontClassNames.semibold}>
       <b>{`${storage.data.namenode}:${storage.data.port}`}</b>
       {storage.data.path || '/'}
-    </div>
-  ),
-  dshuttle: (server, mountInfo) => (
-    <div className={FontClassNames.semibold}>
-      <b>{'/azure'}</b>
     </div>
   ),
 };
