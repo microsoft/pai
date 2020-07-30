@@ -33,7 +33,7 @@ groups:
 - name: example
   rules:
   - alert: LowTaskGpuPercent
-    expr: task_gpu_percent{virtual_cluster='default'} < 0.3
+    expr: avg (task_gpu_percent{virtual_cluster='default'}) by job_instance_id < 0.3
     for: 1m
     annotations:
       summary: "{{$labels.job_name}} has gpu percent lower than 30% for 1h, will be killed"
