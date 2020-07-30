@@ -79,8 +79,8 @@ class serivce_management_start:
             for fat_serv in dependency_list:
                 if fat_serv not in self.service_list:
                     continue
-                if fat_serv in self.done_dict and self.done_dict[fat_serv] == True:
-                    continue
+                # if fat_serv in self.done_dict and self.done_dict[fat_serv] == True:
+                #     continue
                 self.start(fat_serv)
 
         try_counts = 0
@@ -128,6 +128,6 @@ class serivce_management_start:
                 self.logger.warning("service.yaml can't be found on the directory of {0}".format(serv))
                 self.logger.warning("Please check your source code. The {0}'s service will be skipped.".format(serv))
                 continue
-            if serv in self.done_dict and self.done_dict[serv] == True:
-                continue
+            # if serv in self.done_dict and self.done_dict[serv] == True:
+            #     continue
             self.start(serv)

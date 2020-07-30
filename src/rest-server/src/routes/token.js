@@ -26,6 +26,7 @@ const param = require('@pai/middlewares/parameter');
 const tokenMiddleware = require('@pai/middlewares/token');
 const tokenModel = require('@pai/models/token');
 const createError = require('@pai/utils/error');
+const logger = require('@pai/config/logger');
 
 const router = new express.Router();
 
@@ -61,6 +62,13 @@ router.post('/application', tokenMiddleware.checkNotApplication, async (req, res
     next(createError.unknown(err));
   }
 });
+
+router.post('/alert-handler', async (req, res) => {
+  logger.debug(req);
+  res.status(200).json({
+    message: 'successfully',
+  });
+})
 
 /** DELETE /api/v1/token/:token - Revoke a token */
 router.delete('/:token', tokenMiddleware.checkNotApplication, async (req, res, next) => {

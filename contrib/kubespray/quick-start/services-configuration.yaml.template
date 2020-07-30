@@ -172,7 +172,7 @@ authentication:
 
 # if you want to enable alert manager to send alert email, uncomment following lines and fill
 # the right values.
-# alert-manager:
+alert-manager:
 #   receiver: your_addr@example.com
 #   smtp_url: smtp.office365.com:587
 #   smtp_from: alert_sender@example.com
