@@ -12,8 +12,10 @@ data:
       smtp_from: {{ alert_info["smtp_from"] }}
       smtp_auth_username: {{ alert_info["smtp_auth_username"] }}
       smtp_auth_password: {{ alert_info["smtp_auth_password"] }}
+    
     templates:
     - "/etc/alertmanager/template/*.tmpl"
+
     route:
       receiver: pai-alert
       group_wait: 30s
@@ -24,6 +26,7 @@ data:
       - receiver: 'pai-job-killer'
         match: 
           alertname: LowTaskGpuPercent
+    
     receivers:
     - name: "pai-alert"
       email_configs:
@@ -33,12 +36,6 @@ data:
           headers:
             subject: '{{ cluster_cfg["cluster"]["common"]["cluster-id"] }}: {{ "{{" }} template "__subject" . {{ "}}" }}'
     - name: "pai-job-killer"
-      email_configs:
-        - to: {{ alert_info["receiver"] }}
-          send_resolved: true
-          html: '{{ "{{" }} template "email.pai.html" . {{ "}}" }}'
-          headers:
-            subject: '{{ cluster_cfg["cluster"]["common"]["cluster-id"] }}: {{ "{{" }} template "__subject" . {{ "}}" }}'
       webhook_configs:
-        - url: 10.168.231.164:8080/api/v1/token/alert-handler
+        - url: 'http://10.168.231.164:8080/api/v1/token/alert-handler'
 {% endif %}
