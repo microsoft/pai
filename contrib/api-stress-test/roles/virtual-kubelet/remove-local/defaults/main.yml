@@ -1,0 +1,1 @@
+kube_config_path: "{{local_home_path}}/.kube/config"

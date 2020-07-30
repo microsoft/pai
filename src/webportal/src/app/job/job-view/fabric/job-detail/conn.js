@@ -1,21 +1,7 @@
-// Copyright (c) Microsoft Corporation
-// All rights reserved.
-//
-// MIT License
-//
-// Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
-// documentation files (the "Software"), to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and
-// to permit persons to whom the Software is furnished to do so, subject to the following conditions:
-// The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED *AS IS*, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING
-// BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-// NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
-// DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
 
-import yaml from 'js-yaml';
+import { PAIV2 } from '@microsoft/openpai-js-sdk';
 import { isNil, get } from 'lodash';
 
 import { clearToken } from '../../../../user/user-logout/user-logout.component';
@@ -26,6 +12,14 @@ const params = new URLSearchParams(window.location.search);
 const userName = params.get('username');
 const jobName = params.get('jobName');
 const absoluteUrlRegExp = /^[a-z][a-z\d+.-]*:/;
+const token = cookies.get('token');
+
+const client = new PAIV2.OpenPAIClient({
+  rest_server_uri: new URL(config.restServerUri, window.location.href),
+  username: cookies.get('user'),
+  token: token,
+  https: window.location.protocol === 'https:',
+});
 
 export class NotFoundError extends Error {
   constructor(msg) {
@@ -34,19 +28,30 @@ export class NotFoundError extends Error {
   }
 }
 
-export async function checkAttemptAPI() {
-  const healthEndpoint = `${config.restServerUri}/api/v2/jobs/${userName}~${jobName}/job-attempts/healthz`;
-  const token = checkToken();
-  const healthRes = await fetch(healthEndpoint, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
-  if (healthRes.status !== 200) {
-    return false;
-  } else {
-    return true;
+const wrapper = async func => {
+  try {
+    return await func();
+  } catch (err) {
+    if (err.data.code === 'UnauthorizedUserError') {
+      alert(err.data.message);
+      clearToken();
+    } else if (err.data.code === 'NoJobConfigError') {
+      throw new NotFoundError(err.data.message);
+    } else {
+      throw new Error(err.data.message);
+    }
   }
+};
+
+export async function checkAttemptAPI() {
+  return wrapper(async () => {
+    try {
+      await client.jobHistory.getJobAttemptsHealthz(userName, jobName);
+      return true;
+    } catch {
+      return false;
+    }
+  });
 }
 
 export async function fetchJobRetries() {
@@ -58,103 +63,49 @@ export async function fetchJobRetries() {
     };
   }
 
-  const listAttemptsUrl = `${config.restServerUri}/api/v1/jobs/${userName}~${jobName}/job-attempts`;
-  const token = checkToken();
-  const listRes = await fetch(listAttemptsUrl, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
-  if (listRes.status === 404) {
-    return {
-      isSucceeded: false,
-      errorMessage: 'Could not find any attempts of this job!',
-      jobRetries: null,
-    };
-  } else if (listRes.status === 200) {
-    const jobAttempts = await listRes.json();
+  try {
+    const jobAttempts = await client.jobHistory.getJobAttempts(
+      userName,
+      jobName,
+    );
     return {
       isSucceeded: true,
       errorMessage: null,
       jobRetries: jobAttempts.filter(attempt => !attempt.isLatest),
     };
-  } else {
-    return {
-      isSucceeded: false,
-      errorMessage: 'Some errors occurred!',
-      jobRetries: null,
-    };
+  } catch (err) {
+    if (err.status === 404) {
+      return {
+        isSucceeded: false,
+        errorMessage: 'Could not find any attempts of this job!',
+        jobRetries: null,
+      };
+    } else {
+      return {
+        isSucceeded: false,
+        errorMessage: 'Some errors occurred!',
+        jobRetries: null,
+      };
+    }
   }
 }
 
 export async function fetchJobInfo() {
-  const url = userName
-    ? `${config.restServerUri}/api/v1/jobs/${userName}~${jobName}`
-    : `${config.restServerUri}/api/v1/jobs/${jobName}`;
-  const token = checkToken();
-  const res = await fetch(url, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
-  const json = await res.json();
-  if (res.ok) {
-    return json;
-  } else {
-    throw new Error(json.message);
-  }
+  return wrapper(() => client.job.getJob(userName, jobName));
 }
 
 export async function fetchRawJobConfig() {
-  const url = userName
-    ? `${config.restServerUri}/api/v1/jobs/${userName}~${jobName}/config`
-    : `${config.restServerUri}/api/v1/jobs/${jobName}/config`;
-  const token = checkToken();
-  const res = await fetch(url, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
-  const text = await res.text();
-  const json = yaml.safeLoad(text);
-  if (res.ok) {
-    return json;
-  } else {
-    if (json.code === 'NoJobConfigError') {
-      throw new NotFoundError(json.message);
-    } else {
-      throw new Error(json.message);
-    }
-  }
+  return wrapper(() => client.job.getJobConfig(userName, jobName));
 }
 
 export async function fetchJobConfig() {
-  const url = userName
-    ? `${config.restServerUri}/api/v2/jobs/${userName}~${jobName}/config`
-    : `${config.restServerUri}/api/v1/jobs/${jobName}/config`;
-  const token = checkToken();
-  const res = await fetch(url, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
-  const text = await res.text();
-  const json = yaml.safeLoad(text);
-  if (res.ok) {
-    return json;
-  } else {
-    if (json.code === 'NoJobConfigError') {
-      throw new NotFoundError(json.message);
-    } else {
-      throw new Error(json.message);
-    }
-  }
+  return wrapper(() => client.job.getJobConfig(userName, jobName));
 }
 
 export async function fetchSshInfo() {
   const url = userName
-    ? `${config.restServerUri}/api/v1/jobs/${userName}~${jobName}/ssh`
-    : `${config.restServerUri}/api/v1/jobs/${jobName}/ssh`;
+    ? `${config.restServerUri}/api/v2/jobs/${userName}~${jobName}/ssh`
+    : `${config.restServerUri}/api/v2/jobs/${jobName}/ssh`;
   const token = checkToken();
   const res = await fetch(url, {
     headers: {
@@ -214,29 +165,9 @@ export function getJobMetricsUrl(jobInfo) {
 }
 
 export async function stopJob() {
-  const url = userName
-    ? `${config.restServerUri}/api/v1/jobs/${userName}~${jobName}/executionType`
-    : `${config.restServerUri}/api/v1/jobs/${jobName}/executionType`;
-  const token = checkToken();
-  const res = await fetch(url, {
-    method: 'PUT',
-    headers: {
-      Authorization: `Bearer ${token}`,
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      value: 'STOP',
-    }),
-  });
-  const json = await res.json();
-  if (res.ok) {
-    return json;
-  } else if (res.code === 'UnauthorizedUserError') {
-    alert(res.message);
-    clearToken();
-  } else {
-    throw new Error(json.message);
-  }
+  return wrapper(() =>
+    client.job.updateJobExecutionType(userName, jobName, 'STOP'),
+  );
 }
 
 export async function getContainerLog(logUrl) {

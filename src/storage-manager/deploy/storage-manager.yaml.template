@@ -77,6 +77,11 @@ spec:
         - containerPort: 2049
           hostPort: 2049
           name: sm-nfsport
+        {%- if cluster_cfg['cluster']['common']['qos-switch'] == "true" %}
+        resources:
+          limits:
+            memory: "4Gi"
+        {%- endif %}
       volumes:
         - name: pai-storage
           hostPath:

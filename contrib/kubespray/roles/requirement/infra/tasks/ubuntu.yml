@@ -1,20 +1,20 @@
 ---
-- name: "Infra 1.1 Check whether the vm can access to docker.io"
-  raw: nslookup index.docker.io
-  register: infra_nslookup_docker_io
+- name: "Infra 1.1 Check whether the vm can access to {{openpai_registry}}"
+  raw: "nslookup {{openpai_registry}}"
+  register: infra_nslookup_openpai_registry
   failed_when: false
   changed_when: false
   check_mode: false
   environment: {}
 
-- name: "Infra 1.2 Check whether the vm can access to docker.io"
-  fail:
-    msg: "Unable to access docker.io"
+- name: "Infra 1.2 Check whether the vm can access to {{openpai_registry}}"
+  set_fact:
+    unmet_requirements: "{{ unmet_requirements + ['Unable to access'+openpai_registry] }}"
   changed_when: false
   check_mode: false
   environment: {}
   when:
-    - infra_nslookup_docker_io.rc != 0
+    - infra_nslookup_openpai_registry.rc != 0
 
 - name: "Infra 2.1 Check whether the NTP is installed and enabled."
   raw: pgrep ntpd
@@ -33,36 +33,36 @@
   environment: {}
 
 - name: "Infra 2.3 Check whether the NTP is installed and enabled."
-  fail:
-    msg: "NTP is not enabled on your infra machines."
+  set_fact:
+    unmet_requirements: "{{ unmet_requirements + ['NTP is not enabled on your infra machines'] }}"
   changed_when: false
   check_mode: false
   environment: {}
   when:
-    - infra_ntpq.rc != 0 or infra_nslookup_docker_io.rc != 0
+    - infra_ntpq.rc != 0 or infra_nslookup_openpai_registry.rc != 0
 
 - name: "Infra 3.1 Ensure dev-box is not an infra machines"
-  fail:
-    msg: "Dev-box should be a separated machine from the cluster."
+  set_fact:
+    unmet_requirements: "{{ unmet_requirements + ['Dev-box should be a separated machine from the cluster'] }}"
   when:
     - ansible_control_host_address == ansible_default_ipv4.address
 
-- name: "Infra 4.1 Check whether the vm can access to gcr.io"
-  raw: ping gcr.io -c 3
-  register: infra_ping_gcr_io
+- name: "Infra 4.1 Check whether the vm can access to {{gcr_image_repo}}"
+  raw: "nslookup {{gcr_image_repo}}"
+  register: infra_nslookup_gcr_image_repo
   failed_when: false
   changed_when: false
   check_mode: false
   environment: {}
 
-- name: "Infra 4.2 Check whether the vm can access to gcr.io"
-  fail:
-    msg: "Unable to access gcr.io"
+- name: "Infra 4.2 Check whether the vm can access to {{gcr_image_repo}}"
+  set_fact:
+    unmet_requirements: "{{ unmet_requirements + ['Unable to access' + gcr_image_repo] }}"
   changed_when: false
   check_mode: false
   environment: {}
   when:
-    - infra_ping_gcr_io.rc != 0
+    - infra_nslookup_gcr_image_repo.rc != 0
 
 - name: "Infra 5.1 Check whether the vm can access to quay.io"
   raw: nslookup quay.io
@@ -73,8 +73,8 @@
   environment: {}
 
 - name: "Infra 5.2 Check whether the vm can access to quay.io"
-  fail:
-    msg: "Unable to access quay.io"
+  set_fact:
+    unmet_requirements: "{{ unmet_requirements + ['Unable to access quay.io'] }}"
   changed_when: false
   check_mode: false
   environment: {}

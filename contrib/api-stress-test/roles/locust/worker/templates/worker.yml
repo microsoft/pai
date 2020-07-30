@@ -1,0 +1,56 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: locust-worker-deployment
+  labels:
+    app: locust-worker
+spec:
+  replicas: {{locust_worker_number}}
+  selector:
+    matchLabels:
+      app: locust-worker
+  template:
+    metadata:
+      labels:
+        app: locust-worker
+    spec:
+      hostNetwork: true
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: locust-role
+                    operator: In
+                    values:
+                      - worker
+      containers:
+      - name:  openpai-locust
+        image: openpai/locust
+        imagePullPolicy: Always
+        volumeMounts:
+          - mountPath: /mnt/locust
+            name: locust-script
+        env:
+          - name: PAI_TOKEN
+            value: "{{ hostvars['OPENPAI_TOKEN_HOLDER']['token'] }}"
+          - name: LOCUST_MODE_WORKER
+            value: "true"
+          - name: LOCUST_LOCUSTFILE
+            value: "/mnt/locust/stress.py"
+          - name: LOCUST_HOST
+            value: "https://{{ hostvars[groups['kube-master'][0]].ansible_host }}"
+          - name: TARGET_URL
+            value: "https://{{ hostvars[groups['kube-master'][0]].ansible_host }}"
+          - name: LOCUST_MASTER_NODE_HOST
+            value: "{{ hostvars[groups['kube-master'][0]].ansible_host }}"
+          - name: MY_POD_NAME
+            valueFrom:
+              fieldRef:
+                fieldPath: metadata.name
+      volumes:
+      - name: locust-script
+        configMap:
+          name: locust-script-configuration
+      serviceAccountName: locust-account
+

@@ -18,7 +18,13 @@
 import { FontClassNames, ColorClassNames, getTheme } from '@uifabric/styling';
 import c from 'classnames';
 import { capitalize } from 'lodash';
-import { Icon, IconButton, TooltipHost } from 'office-ui-fabric-react';
+import {
+  Icon,
+  IconButton,
+  TooltipHost,
+  Toggle,
+  Stack,
+} from 'office-ui-fabric-react';
 import PropTypes from 'prop-types';
 import React from 'react';
 import yaml from 'js-yaml';
@@ -101,6 +107,7 @@ export default class TaskRole extends React.Component {
     super(props);
     this.state = {
       containerListExpanded: true,
+      showDebugInfo: false,
     };
     this.taskConfigButtonRef = React.createRef();
     this.expandContainerList = this.expandContainerList.bind(this);
@@ -170,7 +177,16 @@ export default class TaskRole extends React.Component {
               </div>
             </div>
             {/* right */}
-            <div>
+            <Stack horizontal verticalAlign='end' gap='s1'>
+              <Toggle
+                onText='More Diagnostics'
+                offText='More Diagnostics'
+                onChange={(event, checked) => {
+                  this.setState({
+                    showDebugInfo: checked,
+                  });
+                }}
+              />
               {containerListExpanded ? (
                 <IconButton
                   iconProps={{ iconName: 'ChevronUp' }}
@@ -182,10 +198,14 @@ export default class TaskRole extends React.Component {
                   onClick={this.expandContainerList}
                 />
               )}
-            </div>
+            </Stack>
           </div>
           {containerListExpanded && (
-            <TaskRoleContainerList className={t.ph5} taskInfo={taskInfo} />
+            <TaskRoleContainerList
+              className={t.ph5}
+              taskInfo={taskInfo}
+              showDebugInfo={this.state.showDebugInfo}
+            />
           )}
         </Card>
       </div>

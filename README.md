@@ -3,11 +3,10 @@
 [logo]: ./pailogo.jpg "OpenPAI"
 
 [![Build Status](https://travis-ci.org/microsoft/pai.svg?branch=master)](https://travis-ci.org/microsoft/pai)
-[![Coverage Status](https://coveralls.io/repos/github/microsoft/pai/badge.svg?branch=master)](https://coveralls.io/github/microsoft/pai?branch=master)
 [![Join the chat at https://gitter.im/Microsoft/pai](https://badges.gitter.im/Microsoft/pai.svg)](https://gitter.im/Microsoft/pai?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 [![Version](https://img.shields.io/github/release/Microsoft/pai.svg)](https://github.com/Microsoft/pai/releases/latest)
 
-**OpenPAI [v1.0.0](./RELEASE_NOTE.md#may-2020-version-100) has been released!**
+**OpenPAI [v1.0.1](./RELEASE_NOTE.md#may-2020-version-101) has been released!**
 
 With the release of v1.0, OpenPAI is switching to a more robust, more powerful and lightweight architecture. OpenPAI is also becoming more and more modular so that the platform can be easily customized and expanded to suit new needs. OpenPAI also provides many AI user-friendly features, making it easier for end users and administrators to complete daily AI tasks.
 
@@ -17,42 +16,42 @@ With the release of v1.0, OpenPAI is switching to a more robust, more powerful a
         <span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp</span>
         <br/>
         <a href="https://github.com/microsoft/openpaimarketplace" target="_blank">
-          <img src="./docs/images/architecture/Picture1.svg" width="610" alt="Marketplace Logo" />
+          <img src="https://openpai.readthedocs.io/en/latest/images/architecture/Picture1.svg" width="610" alt="Marketplace Logo" />
         </a>
         <br/>
-        <img src="./docs/images/architecture/Picture2.svg" width="200" alt=" Web Portal" />
+        <img src="https://openpai.readthedocs.io/en/latest/images/architecture/Picture2.svg" width="200" alt=" Web Portal" />
         <a href="https://github.com/microsoft/openpaisdk" target="_blank">
-          <img src="./docs/images/architecture/Picture3.svg" width="200" alt="VScode" />
+          <img src="https://openpai.readthedocs.io/en/latest/images/architecture/Picture3.svg" width="200" alt="VScode" />
         </a>
         <a href="https://github.com/microsoft/openpaivscode" target="_blank">
-          <img src="./docs/images/architecture/Picture4.svg" width="200" alt="SDK" />
+          <img src="https://openpai.readthedocs.io/en/latest/images/architecture/Picture4.svg" width="200" alt="SDK" />
         </a>
         <br/>
-        <img src="./docs/images/architecture/Picture5.svg" width="610" alt="API" />
+        <img src="https://openpai.readthedocs.io/en/latest/images/architecture/Picture5.svg" width="610" alt="API" />
         <br/>
-        <img src="./docs/images/architecture/Picture18.svg" width="610" alt="Services" />
+        <img src="https://openpai.readthedocs.io/en/latest/images/architecture/Picture18.svg" width="610" alt="Services" />
         <br/>
-        <img src="./docs/images/architecture/Picture19.svg" width="304" alt="User Authentication" />
-        <img src="./docs/images/architecture/Picture20.svg" width="304" alt="User/Group Management" />
+        <img src="https://openpai.readthedocs.io/en/latest/images/architecture/Picture19.svg" width="304" alt="User Authentication" />
+        <img src="https://openpai.readthedocs.io/en/latest/images/architecture/Picture20.svg" width="304" alt="User/Group Management" />
         <br/>
-        <img src="./docs/images/architecture/Picture21.svg" width="304" alt="Storage Management" />
-        <img src="./docs/images/architecture/Picture22.svg" width="304" alt="Cluster/Job Monitoring" />
+        <img src="https://openpai.readthedocs.io/en/latest/images/architecture/Picture21.svg" width="304" alt="Storage Management" />
+        <img src="https://openpai.readthedocs.io/en/latest/images/architecture/Picture22.svg" width="304" alt="Cluster/Job Monitoring" />
         <br/>
         <a href="https://github.com/microsoft/frameworkcontroller" target="_blank">
-          <img src="./docs/images/architecture/Picture23.svg" width="304" alt="Job Orchestration" />
+          <img src="https://openpai.readthedocs.io/en/latest/images/architecture/Picture23.svg" width="304" alt="Job Orchestration" />
         </a>
         <a href="https://github.com/microsoft/hivedscheduler" target="_blank">
-          <img src="./docs/images/architecture/Picture24.svg" width="304" alt="Job Scheduling" />
+          <img src="https://openpai.readthedocs.io/en/latest/images/architecture/Picture24.svg" width="304" alt="Job Scheduling" />
         </a>
         <br/>
         <a href="https://github.com/microsoft/openpai-runtime" target="_blank">
-          <img src="./docs/images/architecture/Picture25.svg" width="304" alt="Job Runtime" />
+          <img src="https://openpai.readthedocs.io/en/latest/images/architecture/Picture25.svg" width="304" alt="Job Runtime" />
         </a>
-        <img src="./docs/images/architecture/Picture26.svg" width="304" alt="Job Error Analysis" />
+        <img src="https://openpai.readthedocs.io/en/latest/images/architecture/Picture26.svg" width="304" alt="Job Error Analysis" />
         <br/>
-        <img src="./docs/images/architecture/Picture15.svg" width="610" alt="Kubernetes Cluster Management" />
+        <img src="https://openpai.readthedocs.io/en/latest/images/architecture/Picture15.svg" width="610" alt="Kubernetes Cluster Management" />
         <br/>
-        <img src="./docs/images/architecture/Picture16.svg" width="610" alt="CPU/GPU/FPGA/InfiniBand" />
+        <img src="https://openpai.readthedocs.io/en/latest/images/architecture/Picture16.svg" width="610" alt="CPU/GPU/FPGA/InfiniBand" />
      </td>
    </tr>
  </table>
@@ -209,5 +208,5 @@ We are working on a set of major features improvement and refactor, anyone who i
 One key purpose of OpenPAI is to support the highly diversified requirements from academia and industry. OpenPAI is completely open: it is under the MIT license. This makes OpenPAI particularly attractive to evaluate various research ideas, which include but not limited to the [components](./docs/research_education.md).
 
 OpenPAI operates in an open model. It is initially designed and developed by [Microsoft Research (MSR)](https://www.microsoft.com/en-us/research/group/systems-research-group-asia/) and [Microsoft Software Technology Center Asia (STCA)](https://www.microsoft.com/en-us/ard/default.aspx) platform team.
-We are glad to have [Peking University](http://eecs.pku.edu.cn/EN/), [Xi'an Jiaotong University](http://www.aiar.xjtu.edu.cn/), [Zhejiang University](http://www.cesc.zju.edu.cn/index_e.htm), [University of Science and Technology of China](http://eeis.ustc.edu.cn/) and SHANGHAI INESA AI INNOVATION CENTER joined us to develop the platform jointly.
+We are glad to have [Peking University](http://eecs.pku.edu.cn/EN/), [Xi'an Jiaotong University](http://www.aiar.xjtu.edu.cn/), [Zhejiang University](http://www.cesc.zju.edu.cn/index_e.htm), [University of Science and Technology of China](http://eeis.ustc.edu.cn/) and [SHANGHAI INESA AI INNOVATION CENTER (SHAIIC)](https://www.shaiic.com/) joined us to develop the platform jointly.
 Contributions from academia and industry are all highly welcome.

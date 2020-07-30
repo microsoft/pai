@@ -8,8 +8,8 @@
   environment: {}
 
 - name: "Failed, if docker is not installed on your worker machine."
-  fail:
-    msg: "Unable to find docker in your master machine"
+  set_fact:
+    unmet_requirements: "{{ unmet_requirements + ['Unable to find docker in your worker machine'] }}"
   changed_when: false
   check_mode: false
   environment: {}
@@ -24,15 +24,27 @@
   check_mode: false
   environment: {}
 
+- name: "Init array"
+  set_fact:
+    default_runtime_processed: []
+
 - name: "Remove unnecessary char in the end of the output"
   set_fact:
-    default_runtime_processed: "{{ default_runtime.stdout_lines[0] | replace('\"','') }}"
+    default_runtime_processed: "{{ default_runtime_processed + [ item | replace('\"','') ] }}"
+  loop: "{{ default_runtime.stdout_lines }}"
+
+
+- name: "Get Default Runtime"
+  set_fact:
+    default_runtime_fin: item
+  when: item == worker_default_docker_runtime
+  loop: "{{default_runtime_processed}}"
 
 - name: "Check the default runtime is set correctly"
-  fail:
-    msg: "The default runtime is not set correctly"
+  set_fact:
+    unmet_requirements: "{{ unmet_requirements + ['The default runtime is not set correctly'] }}"
   changed_when: false
   check_mode: false
   environment: {}
   when:
-    - default_runtime_processed != worker_default_docker_runtime
+    - default_runtime_fin is defined

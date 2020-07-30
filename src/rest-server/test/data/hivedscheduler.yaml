@@ -1,0 +1,37 @@
+webServerAddress: ":30096"
+waitingPodSchedulingBlockMilliSec: 50
+kubeApiServerAddress: "http://kubernetes.test.pai:8080"
+physicalCluster:
+  skuTypes:
+    K80:
+      gpu: 1
+      cpu: 4
+      memory: 8192Mi
+  cellTypes:
+    K80-2GPU:
+      childCellType: K80
+      childCellNumber: 2
+    K80-NODE:
+      childCellType: K80-2GPU
+      childCellNumber: 2
+      isNodeLevel: true
+    K80-NODE-POOL:
+      childCellType: K80-NODE
+      childCellNumber: 4
+  physicalCells:
+  - cellType: K80-NODE-POOL
+    cellChildren:
+    - cellAddress: node1
+    - cellAddress: node2
+    - cellAddress: node3
+    - cellAddress: node4
+
+virtualClusters:
+  vc1:
+    virtualCells:
+    - cellType: K80-NODE-POOL.K80-NODE
+      cellNumber: 1
+  default:
+    virtualCells:
+    - cellType: K80-NODE-POOL.K80-NODE
+      cellNumber: 3

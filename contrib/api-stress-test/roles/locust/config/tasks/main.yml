@@ -1,0 +1,64 @@
+---
+- name: Install jq
+  become: true
+  become_user: root
+  apt:
+    name: jq
+    state: present
+
+- name: Get OpenPAI Token
+  shell: 'curl --insecure -sS -X POST -d "username=stress" -d "password=stress1234" -d "expiration=360000" https://{{hostvars[groups["kube-master"][0]].ansible_host}}/rest-server/api/v1/authn/basic/login | jq -r ".token"'
+  register: pai_token
+
+- name: Add OpenPAI Token to Dummy Host
+  add_host:
+    name: "OPENPAI_TOKEN_HOLDER"
+    token: "{{ pai_token.stdout }}"
+
+- name: Set Locust Base Dir
+  set_fact:
+    locust_base_dir: "{{ playbook_dir }}/.locust/"
+
+- name: Create Locust Base Dir
+  file:
+    path: "{{ locust_base_dir }}"
+    state: directory
+    recurse: true
+
+- name: Create Locust Configmap Dir
+  file:
+    path: "{{ locust_base_dir }}/configmap"
+    state: directory
+    recurse: true
+
+- name: Generate template files in Locust Configmap Dir
+  template:
+    src: stress.py
+    dest: "{{ locust_base_dir }}/configmap/stress.py"
+  when: customized_locust_stress_script is not defined
+
+- name: Copy User Customized Script files in Locust Configmap Dir
+  template:
+    src: "{{customized_locust_stress_script}}"
+    dest: "{{ locust_base_dir }}/configmap/stress.py"
+  when: customized_locust_stress_script is defined
+
+
+- name: Generate template files in Locust Base Dir
+  template:
+    src: start.sh
+    dest: "{{ locust_base_dir }}/start.sh"
+    mode: '0777'
+
+- name: Copy job.yml to Locust Configmap Dir
+  copy:
+    src: job.yml
+    dest: "{{ locust_base_dir }}/configmap/job.yml"
+
+- name: Copy locust-sa to Locust Base Dir
+  copy:
+    src: locust-sa.yml
+    dest: "{{ locust_base_dir }}/locust-sa.yml"
+
+- name: Create configmap and sa
+  command: "/bin/bash {{ locust_base_dir }}/start.sh"

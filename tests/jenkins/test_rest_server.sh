@@ -21,23 +21,6 @@ cluster_type="$1"
 rest_server_uri="$2"
 job_name="ci-test-$RANDOM-$RANDOM"
 
-job_config=$(cat << EOF
-{
-  "jobName": "${job_name}",
-  "image": "docker.io/openpai/alpine:bash",
-  "taskRoles": [
-    {
-      "name": "test",
-      "taskNumber": 1,
-      "cpuNumber": 1,
-      "memoryMB": 2048,
-      "command": "/bin/bash --version"
-    }
-  ]
-}
-EOF
-)
-
 # get token
 token=""
 until [ ! -z ${token} ]; do
@@ -59,12 +42,6 @@ function check_status() {
 }
 
 case ${cluster_type} in
-  "yarn")
-    # submit v1 job
-    echo ${job_config} \
-      | curl -sS -X POST -H "Authorization: Bearer ${token}" -H "Content-Type: application/json" -d @- ${rest_server_uri}/api/v2/user/admin/jobs
-    check_status ${rest_server_uri}/api/v2/user/admin/jobs/${job_name}
-    ;;
   "k8s")
     # submit keras mnist example in marketplace
     cat ${WORKSPACE}/marketplace-v2/keras-tensorflow-mnist.yaml \

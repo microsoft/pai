@@ -1,0 +1,15 @@
+---
+- name: set fact
+  set_fact:
+    base_dir_cfg: "{{ playbook_dir }}/.generated/"
+
+- name: Copy oepnpai-remove.sh to Base Dir
+  copy:
+    src: openpai-remove.sh
+    dest: "{{ base_dir_cfg }}/openpai-remove.sh"
+    mode: '0777'
+
+- name: Stop OpenPAI service
+  command: "/bin/bash {{ base_dir_cfg }}/openpai-remove.sh"
+  become: true
+  become_user: root

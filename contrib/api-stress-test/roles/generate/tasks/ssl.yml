@@ -1,0 +1,35 @@
+---
+- name: Generate an OpenSSL private key
+  openssl_privatekey:
+    path: "{{base_dir}}/{{pylon_domain}}.key"
+    passphrase: openpaistress
+    cipher: des3
+    size: 1024
+
+- name: Generate an OpenSSL Certificate Signing Request
+  openssl_csr:
+    path: "{{base_dir}}/{{pylon_domain}}.csr"
+    privatekey_path: "{{base_dir}}/{{pylon_domain}}.key"
+    privatekey_passphrase: openpaistress
+    common_name: "{{pylon_domain}}"
+
+- name: Backup Original Passphrase Protected Private Key
+  copy:
+    src: "{{base_dir}}/{{pylon_domain}}.key"
+    dest: "{{base_dir}}/{{pylon_domain}}.origin.key"
+
+- name: Remove Original Private Key
+  file:
+    path: "{{base_dir}}/{{pylon_domain}}.key"
+    state: absent
+
+- name: Remove the Passphrase From Protected Private Key
+  command: "openssl rsa -in {{base_dir}}/{{pylon_domain}}.origin.key -out {{base_dir}}/{{pylon_domain}}.key -passin pass:openpaistress"
+
+- name: Self sign a cert
+  openssl_certificate:
+    path: "{{base_dir}}/{{pylon_domain}}.crt"
+    privatekey_path: "{{base_dir}}/{{pylon_domain}}.key"
+    csr_path: "{{base_dir}}/{{pylon_domain}}.csr"
+    privatekey_passphrase: openpaistress
+    provider: selfsigned

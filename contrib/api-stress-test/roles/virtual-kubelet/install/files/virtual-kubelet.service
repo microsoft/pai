@@ -1,0 +1,10 @@
+[Unit]
+Description=virtual kubelet daemon
+
+[Service]
+ExecStart=/bin/bash /usr/bin/virtual-kubelet.sh
+RestartSec=5s
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
