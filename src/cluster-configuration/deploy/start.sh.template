@@ -35,6 +35,9 @@ sed  -i "s/%NAMESPACE%/kube-system/g" secret-system.yaml
 kubectl apply --overwrite=true -f secret-system.yaml || exit $?
 rm -rf secret-system.yaml
 
+# Create priorityClass for PAI daemon service
+kubectl apply --overwrite=true -f priority-class.yaml || exit $?
+
 (
 # Label all the machines
 {% for host in cluster_cfg['layout']['machine-list'] %}
