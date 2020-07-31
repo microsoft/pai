@@ -173,12 +173,14 @@ authentication:
 # if you want to enable alert manager to send alert email, uncomment following lines and fill
 # the right values.
 alert-manager:
-#   receiver: your_addr@example.com
-#   smtp_url: smtp.office365.com:587
-#   smtp_from: alert_sender@example.com
-#   smtp_auth_username: alert_sender@example.com
-#   smtp_auth_password: password_for_alert_sender
-#   port: 9093 # this is optional, you should not write this if you do not want to change the port alert-manager is listening on
+  receiver: your_addr@example.com
+  smtp_url: smtp.office365.com:587
+  smtp_from: alert_sender@example.com
+  smtp_auth_username: alert_sender@example.com
+  smtp_auth_password: password_for_alert_sender
+  port: 9093 # this is optional, you should not write this if you do not want to change the port alert-manager is listening on
+  webhook_configs:
+    bearer_token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImFkbWluIiwiYXBwbGljYXRpb24iOnRydWUsImlhdCI6MTU5NjE3Mzc3N30.bs97pLaVKMEX5u7fQoyWU_J5b-6qDLXp2sj59Y346yg'
 
 # uncomment following if you want to change customeize grafana
 # grafana:
