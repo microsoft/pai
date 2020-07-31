@@ -24,9 +24,9 @@ Log in to your dev box machine, find [the pre-kept folder `~/pai-deploy`](./inst
 
 ### Add the Nodes into Kubernetes
 
-Find the file `~/pai-deploy/kubespray/inventory/pai/host.yml`, and follow the steps below to modify it. 
+Find the file `~/pai-deploy/kubespray/inventory/pai/hosts.yml`, and follow the steps below to modify it. 
 
-Supposing you want to add 2 worker nodes into your cluster and their hostnames are `a` and `b`.  Add these 2 nodes into the `host.yml`. An example:
+Supposing you want to add 2 worker nodes into your cluster and their hostnames are `a` and `b`.  Add these 2 nodes into the `hosts.yml`. An example:
 
 ```yaml
 all:
@@ -157,7 +157,7 @@ If you have configured any PV/PVC storage, please confirm the added worker node 
 
 Please refer to the operation of add nodes. They are very similar.
 
-First, modify `host.yml` accordingly, then go into `~/pai-deploy/kubespray/`, run
+First, modify `hosts.yml` accordingly, then go into `~/pai-deploy/kubespray/`, run
 
 ```bash
 ansible-playbook -i inventory/mycluster/hosts.yml upgrade-cluster.yml --become --become-user=root  --limit=a,b -e "@inventory/mycluster/openpai.yml"

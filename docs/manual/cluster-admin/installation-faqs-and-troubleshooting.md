@@ -115,6 +115,26 @@ Please refer to the [official document](https://github.com/NVIDIA/nvidia-contain
 
 ## Troubleshooting
 
+#### Command `Apt install <some package>` fails in the script.
+
+Please first check if there is any network-related issues. Besides network, another reason for this problem is: `ansible` sometimes runs a `apt update` to update the cache before the package installation. If `apt update` exits with a non-zero code, the whole command will be considered to be failed.
+
+You can check this by running `sudo apt update; echo $?` on the corresponding machine. If the exit code is not 0, please fix it. Here are 2 normal causes of this problem:
+
+If you find `sudo apt update` reports `the following signatures couldn’t be verified because the public key is not available`, you can use the following commands to fix it. Please replace `<key-number>` with yours.
+
+```bash
+sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys <key-number>
+sudo apt update
+```
+
+If you find `sudo apt update` reports some expired repo list, you can use the following commands to fix it. Please replace <repo-list-file> with yours.
+
+```bash
+sudo rm -rf  /etc/apt/sources.list.d/<repo-list-file>
+sudo apt update
+```
+
 #### Ansible playbook exits because of timeout.
 
 Sometimes, if you assign a different hostname for a certain machine, any commands with `sudo` will be very slow on that machine. Because  the system DNS try to find the new hostname, but it will fail due to a timeout.

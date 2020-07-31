@@ -239,3 +239,155 @@ The GET request must use header `Authorization: Bearer <token>` for authorizatio
 ```
 
 Do not omit any fields in `extension` or it will change the `virtualClusters` setting unexpectedly.
+
+## Example: Use Storage Manager to Create an NFS + SAMBA Server
+
+To help you set up the storage, OpenPAI provides a storage manager, which can set up an NFS + SAMBA server. In the cluster, the NFS storage can be accessed in OpenPAI containers. Out of the cluster, users can mount the storage on Unix-like system, or access it in File Explorer on Windows.
+
+Please read the document about [service management and paictl](./basic-management-operations.md#pai-service-management-and-paictl) first, and start a dev box container. Then, in the dev box container, pull the configuration by:
+
+```bash
+./paictl config pull -o /cluster-configuration
+```
+
+To use storage manager, you should first decide a machine in PAI system to be the storage server. The machine **must** be one of PAI workers, not PAI master. Please open `/cluster-configuration/layout.yaml`, choose a worker machine, then add a `pai-storage: "true"` field to it. Here is an example of the edited `layout.yaml`:
+
+```yaml
+......
+
+- hostname: worker1
+  nodename: worker1
+  hostip: 10.0.0.1
+  machine-type: GENERIC-WORKER
+  pai-worker: "true"
+  pai-storage: "true"  # this line is newly added
+
+......
+```
+
+In this tutorial, we assume you choose the machine with IP `10.0.0.1` as the storage server. Then, in `/cluster-configuration/services-configuration.yaml`, find the storage manager section:
+
+```yaml
+# storage-manager:
+#   localpath: /share
+#   security-type: AUTO
+#   workgroup: WORKGROUP
+#   smbuser: smbuser
+#   smbpwd: smbpwd
+```
+
+Uncomment it like:
+
+```yaml
+storage-manager:
+  localpath: /share
+#  security-type: AUTO
+#  workgroup: WORKGROUP
+  smbuser: smbuser
+  smbpwd: smbpwd
+```
+
+The `localpath` determines the root data dir for NFS on the storage server. The `smbuser` and `smbpwd` determines the username and password when you access the storage in File Explorer on Windows.
+
+Follow these commands to start the storage manager:
+
+```bash
+./paictl.py service stop -n cluster-configuration storage-manager
+./paictl.py config push -p /cluster-configuration -m service
+./paictl.py service start -n cluster-configuration storage-manager
+```
+
+If the storage manager is successfully started, you will find the folder `/share/data` and `/share/users` on the storage server. On a Ubuntu machine, you can use the following command to test whether the NFS server is correctly set up:
+
+```bash 
+# replace 10.0.0.1 with your storage server IP
+sudo apt update 
+sudo apt install nfs-common
+mkmdir -p /mnt/data
+sudo mount -t nfs --options nfsvers=4.1 10.0.0.1:/data/ /mnt/data
+```
+
+To make the NFS storage available in PAI, we should create the PV and PVC for it. Thus, create the following `nfs-storage.yaml` file in the dev box container first:
+
+```yaml
+# replace 10.0.0.1 with your storage server IP
+# NFS Persistent Volume
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: nfs-storage-pv
+  labels:
+    name: nfs-storage
+spec:
+  capacity:
+    storage: 10Gi
+  volumeMode: Filesystem
+  accessModes:
+    - ReadWriteMany
+  persistentVolumeReclaimPolicy: Retain
+  mountOptions:
+    - nfsvers=4.1
+  nfs:
+    path: /data
+    server: 10.0.0.1
+---
+# NFS Persistent Volume Claim
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: nfs-storage
+# labels:
+#   share: "false"      # to mount sub path on PAI
+spec:
+  accessModes:
+    - ReadWriteMany
+  volumeMode: Filesystem
+  resources:
+    requests:
+      storage: 10Gi    # no more than PV capacity
+  selector:
+    matchLabels:
+      name: nfs-storage # corresponding to PV label
+```
+
+Use `kubectl create -f nfs-storage.yaml` to create the PV and PVC. 
+
+Since the Kuberentes PV requires the node using it has the corresponding driver, we should use `apt install nfs-common` to install the `nfs-common` package on every worker node.
+
+Finally, [assign storage to PAI groups](#assign-storage-to-pai-groups) by rest-server API. Then you can mount it into job containers.
+
+How to upload data to the storage server? On Windows, open the File Explorer, type in `\\10.0.0.1` (please change `10.0.0.1` to your storage server IP), and press ENTER. The File Explorer will ask you for authorization. Please use `smbuser` and `smbpwd` as username and password to login. On a Unix-like system, you can mount the NFS folder to the file system. For example, on Ubuntu, use the following command to mount it:
+
+```bash 
+# replace 10.0.0.1 with your storage server IP
+sudo apt update 
+sudo apt install nfs-common
+mkmdir -p /mnt/data
+sudo mount -t nfs --options nfsvers=4.1 10.0.0.1:/data/ /mnt/data
+```
+
+The above steps only set up a basic SAMBA server. So each user shares the same username and password to access it on Windows. If your cluster is in [AAD mode](./how-to-manage-users-and-groups.md#users-and-groups-in-aad-mode), and you want to integrate the SAMBA server with the AAD system, please refer to the following configuration for storage manager:
+
+```yaml
+storage-manager:
+  workgroup: # workgroup
+  security-type: ADS
+  default_realm: # default realm
+  krb5_realms: # realms
+    XXX1: # relam name
+      kdc: # kdc
+      default_domain: # default domain
+    XXX2: # relam name
+      kdc: # kdc
+      default_domain: # default domain
+  domain_realm: # domain realm
+    kdc: # kdc
+    default_domain: # default domain
+  domainuser: # domain user
+  domainpwd: # password of domain user
+  idmap: # idmap
+  - "idmap config XXX1"
+  - "idmap config XXX2"
+  - "idmap config XXX3"
+  - "idmap config XXX4"
+```
