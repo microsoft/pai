@@ -36,6 +36,14 @@ data:
           headers:
             subject: '{{ cluster_cfg["cluster"]["common"]["cluster-id"] }}: {{ "{{" }} template "__subject" . {{ "}}" }}'
     - name: "pai-job-killer"
+      email_configs:
+        - to: {{ alert_info["receiver"] }}
+          send_resolved: true
+          html: '{{ "{{" }} template "email.pai.html" . {{ "}}" }}'
+          headers:
+            subject: '{{ cluster_cfg["cluster"]["common"]["cluster-id"] }}: {{ "{{" }} template "__subject" . {{ "}}" }}'
       webhook_configs:
-        - url: 'http://10.168.231.164:8080/api/v1/token/alert-handler'
+        - url: http://10.168.231.164:8080/api/v2/jobs/alertHandler
+          http_configs:
+            - bearer_token:eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImFkbWluIiwiYXBwbGljYXRpb24iOnRydWUsImlhdCI6MTU5NjE3Mzc3N30.bs97pLaVKMEX5u7fQoyWU_J5b-6qDLXp2sj59Y346yg
 {% endif %}
