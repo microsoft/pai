@@ -1976,6 +1976,7 @@ components:
                 Epoch.
             createdTime:
               type: integer
+              nullable: true
               description: >-
                 job created time, in number of milliseconds since the Unix
                 Epoch.
