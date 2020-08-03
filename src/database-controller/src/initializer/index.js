@@ -53,6 +53,7 @@ async function main () {
     }
     await databaseModel.setVersion(paiVersion, paiCommitVersion)
     logger.info('Database has been successfully initialized.')
+    process.exit(0)
   } catch (err) {
     logger.error(err)
     process.exit(1)
