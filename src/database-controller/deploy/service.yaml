@@ -22,7 +22,6 @@ prerequisite:
   - postgresql
 
 template-list:
-  - database-initializer.yaml
   - database-controller.yaml
   - start.sh
 
