@@ -56,7 +56,7 @@ schema:
       - USER_SUBMISSION
       - USER_CONTAINER
       - USER_STOP
-      - USER_DELETION
+      - USER_SCALEDOWN
       - USER_RETRY
       - USER_UPGRADE
       - USER_UNKNOWN
@@ -275,9 +275,21 @@ spec:
   stage: UNKNOWN
   behavior: PERMANENT
   reaction: NEVER_RETRY
-  reason: "Stop to complete current FrameworkAttempt"
+  reason: "Stop to complete current job attempt"
   repro:
   - "Stop a job with long running container"
+
+- code: -230
+  phrase: DeleteTaskRequested
+  issuer: PAI_FC
+  causer: USER_SCALEDOWN
+  type: USER_STOP
+  stage: UNKNOWN
+  behavior: PERMANENT
+  reaction: NEVER_RETRY
+  reason: "User has requested to delete the Task by Job ScaleDown"
+  repro:
+  - "ScaleDown a job with long running container"
 
 - code: -300
   phrase: PodFailedWithoutFailedContainer
