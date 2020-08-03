@@ -27,6 +27,8 @@ const interval = require('interval-promise')
 const config = require('@dbc/poller/config')
 const fetch = require('node-fetch')
 const { deleteFramework } = require('@dbc/core/k8s')
+// maxPending is set to 1 to avoid the queue to be too long.
+// If any framework is not synced/deleted, it will be synced/deleted in the next polling round.
 const lock = new AsyncLock({ maxPending: 1 })
 const databaseModel = new DatabaseModel(
   config.dbConnectionStr,
@@ -51,6 +53,9 @@ function deleteHandler (snapshot, pollingTs) {
   lock.acquire(frameworkName,
     async () => {
       try {
+        // We only delete framework here, ignoring the job add-ons.
+        // Because most job add-ons are patched in the creation time, so they will by deleted automatically.
+        // If some add-ons are not successfully patched, they will be deleted by the watch dog service.
         await deleteFramework(snapshot.getName())
         logger.info(`Framework ${frameworkName} is successfully deleted. PollingTs=${pollingTs}.`)
       } catch (err) {

@@ -2436,6 +2436,7 @@ components:
           nullable: true
         jobStartedTime:
           type: integer
+          nullable: true
         attemptStartedTime:
           type: integer
           nullable: true

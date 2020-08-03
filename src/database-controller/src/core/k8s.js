@@ -200,6 +200,7 @@ async function patchSecretOwnerToFramework (secret, frameworkResponse) {
 
 const timeoutMs = config.k8sConnectionTimeoutSecond * 1000
 
+// We give every method a timeout.
 module.exports = {
   getFramework: timeoutDecorator(getFramework, 'Kubernetes getFramework', timeoutMs),
   listFramework: timeoutDecorator(listFramework, 'Kubernetes getFramework', timeoutMs),
