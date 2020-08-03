@@ -1124,7 +1124,7 @@ paths:
             type: number
         - name: limit
           in: query
-          description: list job limit
+          description: list job limit. It has a default number 5000, and its max number is 50000.
           schema:
             type: number
         - name: order

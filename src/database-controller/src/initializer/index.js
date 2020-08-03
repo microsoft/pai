@@ -20,7 +20,6 @@ require('dotenv').config()
 const DatabaseModel = require('openpaidbsdk')
 const fs = require('fs')
 const logger = require('@dbc/core/logger')
-const neverResolved = new Promise((resolve, reject) => {})
 const { paiVersion, paiCommitVersion } = require('@dbc/package.json')
 const k8s = require('@dbc/core/k8s')
 const { Snapshot } = require('@dbc/core/framework')
@@ -37,9 +36,11 @@ async function updateFromNoDatabaseVersion (databaseModel) {
     record.requestSynced = true
     await databaseModel.Framework.upsert(record)
   }
-  // TO DO: transfer old framework history from api server to db
 }
 
+// This script should be idempotent.
+// If any error happens, it should report the error and exit with a non-zero code.
+// If succeed, it should finish with a zero code.
 async function main () {
   try {
     const databaseModel = new DatabaseModel(
@@ -51,20 +52,11 @@ async function main () {
       await updateFromNoDatabaseVersion(databaseModel)
     }
     await databaseModel.setVersion(paiVersion, paiCommitVersion)
-    await new Promise((resolve, reject) => {
-      fs.writeFile('/READY', '', (err) => {
-        if (err) {
-          reject(err)
-        } else {
-          resolve()
-        }
-      })
-    })
     logger.info('Database has been successfully initialized.')
   } catch (err) {
     logger.error(err)
+    process.exit(1)
   }
-  await neverResolved // sleep forever
 }
 
 main()

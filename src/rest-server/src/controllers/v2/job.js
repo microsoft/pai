@@ -24,7 +24,6 @@ const createError = require('@pai/utils/error');
 const job = require('@pai/models/v2/job');
 const {Op} = require('sequelize');
 
-
 const list = asyncHandler(async (req, res) => {
   // ?keyword=<keyword filter>&username=<username1>,<username2>&vc=<vc1>,<vc2>
   //    &state=<state1>,<state2>&offset=<offset>&limit=<limit>&withTotalCount=true
@@ -34,6 +33,9 @@ const list = asyncHandler(async (req, res) => {
   let limit;
   let withTotalCount = false;
   let order = [];
+  // limit has a max number and a default number
+  const maxLimit = 50000;
+  const defaultLimit = 5000;
   if (req.query) {
     if ('username' in req.query) {
       filters.userName = req.query.username.split(',');
@@ -49,6 +51,11 @@ const list = asyncHandler(async (req, res) => {
     }
     if ('limit' in req.query) {
       limit = parseInt(req.query.limit);
+      if (limit > maxLimit) {
+        throw createError('Bad Request', 'InvalidParametersError', `Limit exceeds max number ${maxLimit}.`);
+      }
+    } else {
+      limit = defaultLimit;
     }
     if ('withTotalCount' in req.query && req.query.withTotalCount === 'true') {
       withTotalCount = true;

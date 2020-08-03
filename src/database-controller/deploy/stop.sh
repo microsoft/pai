@@ -20,9 +20,6 @@
 pushd $(dirname "$0") > /dev/null
 
 PYTHONPATH="../../../deployment" python -m k8sPaiLibrary.maintaintool.update_resource \
-    --operation delete --resource statefulset --name database-initializer-sts
-
-PYTHONPATH="../../../deployment" python -m k8sPaiLibrary.maintaintool.update_resource \
     --operation delete --resource statefulset --name database-controller-sts
 
 if kubectl get clusterrolebinding | grep -q "database-controller-role-binding"; then
