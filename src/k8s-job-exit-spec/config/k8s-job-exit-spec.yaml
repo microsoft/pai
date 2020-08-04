@@ -1061,7 +1061,7 @@ spec:
   - "Check the source code and correct it"
   pattern:
     runtimeContainerPatterns:
-    - userLogRegex: "(?msi)importerror:.*"
+    - userLogRegex: "(?mi)importerror:.*"
 
 - code: 233
   phrase: ContainerIndexOutOfRange
