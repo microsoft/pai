@@ -62,7 +62,7 @@
     "js-yaml": "~3.13.1",
     "json-editor": "~0.7.28",
     "jsonwebtoken": "^8.5.1",
-    "luxon": "^1.11.3",
+    "luxon": "^1.24.1",
     "marked": "^0.7.0",
     "monaco-editor": "~0.16.1",
     "morgan": "~1.9.0",
