@@ -846,7 +846,7 @@ spec:
   - "Tuning the tensorflow program"
   pattern:
     runtimeContainerPatterns:
-    - userLogRegex: "(?msi)tensorflow.*ResourceExhaustedError.*OOM.*"
+    - userLogRegex: "(?mi)tensorflow.*ResourceExhaustedError.*OOM.*"
     - userLogRegex: "(?i)ran out of memory trying to allocate"
 
 - code: 222
@@ -864,7 +864,7 @@ spec:
   - "Check container log and fix your program bug"
   pattern:
     runtimeContainerPatterns:
-    - userLogRegex: "(?msi)Signal code: Address not mapped.*"
+    - userLogRegex: "(?mi)Signal code: Address not mapped.*"
 
 - code: 223
   phrase: ContainerCudaUncorrectableECCError
@@ -882,7 +882,7 @@ spec:
   - "Contact Cluster Admin"
   pattern:
     runtimeContainerPatterns:
-    - userLogRegex: "(?msi)CUDA_ERROR_ECC_UNCORRECTABLE.*"
+    - userLogRegex: "(?mi)CUDA_ERROR_ECC_UNCORRECTABLE.*"
 
 - code: 224
   phrase: ContainerCudaVersionMismatch
@@ -973,7 +973,7 @@ spec:
     runtimeContainerPatterns:
     - userLogRegex: "(?i)unknown option"
     - userLogRegex: "(?i)typeerror: dynamic_rnn() got multiple values for keyword argument"
-    - userLogRegex: "(?msi)bad argument #2 to .*"
+    - userLogRegex: "(?mi)bad argument #2 to .*"
     - userLogRegex: "(?i)invalid argument:"
     - userLogRegex: "(?i)option -start_symbol has no default value"
 
