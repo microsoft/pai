@@ -567,7 +567,7 @@ spec:
       - reasonRegex: '(?i)^ContainerCannotRun$'
         exitCode: 128
         nameRegex: '(?ms).*'
-        messageRegex: '(?msi).*(not found|cannot find|no such).*'
+        messageRegex: '(?mi).*(not found|cannot find|no such).*'
 
 - code: -1204
   phrase: ContainerDockerStartUnknownError
@@ -612,7 +612,7 @@ spec:
       - reasonRegex: '(?i)^ContainerCannotRun$'
         exitCode: 128
         nameRegex: '(?ms).*'
-        messageRegex: '(?msi).*(nvidia-container-cli: device error: unknown device id).*'
+        messageRegex: '(?mi).*(nvidia-container-cli: device error: unknown device id).*'
 
 
 ###########################################################################
@@ -1001,11 +1001,11 @@ spec:
     - userLogRegex: "(?i)exception: unknown text header name"
     - userLogRegex: "(?i)exception: unknown label header name"
     - userLogRegex: "(?i)eoferror: ran out of input"
-    - userLogRegex: "(?msi)utils.lua:.*input/output error"
-    - userLogRegex: "(?msi)tensorflow.python.framework.errors.unknownerror:.*input/output error"
-    - userLogRegex: "(?msi)oserror:.*input/output error"
-    - userLogRegex: "(?msi)cp: failed to close.*input/output error"
-    - userLogRegex: "(?msi)exception occurred:.* Input/output error"
+    - userLogRegex: "(?mi)utils.lua:.*input/output error"
+    - userLogRegex: "(?mi)tensorflow.python.framework.errors.unknownerror:.*input/output error"
+    - userLogRegex: "(?mi)oserror:.*input/output error"
+    - userLogRegex: "(?mi)cp: failed to close.*input/output error"
+    - userLogRegex: "(?mi)exception occurred:.* Input/output error"
 
 - code: 230
   phrase: ContainerInvalidSavePath
@@ -1042,9 +1042,9 @@ spec:
     - userLogRegex: "(?i)syntaxerror: invalid syntax"
     - userLogRegex: "(?i)unpicklingerror"
     - userLogRegex: "(?i)assign requires shapes of both tensors to match"
-    - userLogRegex: "(?msi)torch/install/share/lua.*c.* exception"
-    - userLogRegex: "(?msi)attributeerror:.*has no attribute"
-    - userLogRegex: "(?msi)nameerror: name.* is not defined"
+    - userLogRegex: "(?mi)torch/install/share/lua.*c.* exception"
+    - userLogRegex: "(?mi)attributeerror:.*has no attribute"
+    - userLogRegex: "(?mi)nameerror: name.* is not defined"
 
 - code: 232
   phrase: ContainerImportError
@@ -1078,7 +1078,7 @@ spec:
   - "Check the source code and correct it"
   pattern:
     runtimeContainerPatterns:
-    - userLogRegex: "(?msi)indexerror:.*index out of range"
+    - userLogRegex: "(?mi)indexerror:.*index out of range"
 
 
 - code: 234
