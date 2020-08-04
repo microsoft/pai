@@ -23,7 +23,6 @@ const token = require('@pai/middlewares/token');
 const controller = require('@pai/controllers/v2/job');
 const protocol = require('@pai/middlewares/v2/protocol');
 const jobAttemptRouter = require('@pai/routes/v2/job-attempt.js');
-const logger = require('@pai/config/logger');
 
 
 const router = new express.Router();
@@ -37,13 +36,6 @@ router.route('/')
     limiter.submitJob,
     protocol.submit,
     controller.update
-  );
-
-  router.route('/alertHandler')
-  /** POST /api/v2/jobs/alertHandler */
-  .post(
-    token.check,
-    controller.alertHandler
   );
 
 router.route('/:frameworkName')

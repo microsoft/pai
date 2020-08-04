@@ -23,7 +23,7 @@ data:
       repeat_interval: {{ cluster_cfg["alert-manager"]["repeat-interval"] }}
       group_by: [alertname, alertstate]
       routes:
-      - receiver: 'pai-job-killer'
+      - receiver: 'pai-alert-handler'
         match: 
           alertname: LowTaskGpuPercent
     
@@ -35,7 +35,7 @@ data:
           html: '{{ "{{" }} template "email.pai.html" . {{ "}}" }}'
           headers:
             subject: '{{ cluster_cfg["cluster"]["common"]["cluster-id"] }}: {{ "{{" }} template "__subject" . {{ "}}" }}'
-    - name: "pai-job-killer"
+    - name: "pai-alert-handler"
       email_configs:
         - to: {{ alert_info["receiver"] }}
           send_resolved: true
@@ -43,7 +43,7 @@ data:
           headers:
             subject: '{{ cluster_cfg["cluster"]["common"]["cluster-id"] }}: {{ "{{" }} template "__subject" . {{ "}}" }}'
       webhook_configs:
-        - url: 'http://10.168.231.164:8080/api/v2/jobs/alertHandler'
+        - url: 'http://localhost:{{ alert_info["alert-handler"]["port"] }}/alert-handler'
           http_config:
-            bearer_token: {{ alert_info["webhook_configs"]["bearer_token"] }}
+            bearer_token: {{ alert_info["alert-handler"]["bearer_token"] }}
 {% endif %}

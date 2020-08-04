@@ -15,26 +15,17 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-# Rule Syntax Reference: https://prometheus.io/docs/prometheus/latest/configuration/alerting_rules/
+FROM node:carbon
 
-groups:
-- name: pai-jobs
-  rules:
-  - alert: PaiJobsZombie
-    expr: zombie_container_count > 0
-    for: 1h # only when it exceed 1 hour
-    annotations:
-      summary: "zombie container in {{$labels.instance}} detected"
-  - alert: PaiJobPending
-    expr: pai_job_pod_count{pod_bound="true", phase="pending"} > 0
-    for: 30m
-    annotations:
-      summary: "Job {{$labels.job_name}} in pending status detected"
-- name: pai-alert-handler
-  rules:
-  - alert: LowTaskGpuPercent
-    expr: avg(task_gpu_percent{virtual_cluster=~"default|autosys"}) by (job_name) < 0.3
-    for: 10s
-    annotations:
-      summary: "{{$labels.job_name}} has gpu percent lower than 30% for 1h, will be killed"
-      description: In certain virtual clusters, jobs with low gpu utilization will be killed.
+WORKDIR /usr/src/app
+
+ENV NODE_ENV=production \
+    SERVER_PORT=9095
+
+COPY ./src .
+
+RUN yarn install
+
+EXPOSE ${SERVER_PORT}
+
+CMD ["npm", "start"]

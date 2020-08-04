@@ -57,6 +57,15 @@ spec:
           mountPath: /etc/alertmanager/template
         - name: alertmanager
           mountPath: /alertmanager
+      - name: alerthandler
+        image: {{ cluster_cfg['cluster']['docker-registry']['prefix'] }}alert-handler:{{ cluster_cfg['cluster']['docker-registry']['tag'] }}
+        imagePullPolicy: Always
+        ports:
+        - name: alerthandler
+          containerPort: {{ cluster_cfg["alert-manager"]["alert-handler"]["port"] }}
+        env:
+        - name: REST_SERVER_URI
+          value: {{ cluster_cfg['rest-server']['uri'] }}
       volumes:
       - name: config-volume
         configMap:

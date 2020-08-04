@@ -21,6 +21,9 @@ alert-manager:
     smtp_auth_username: alert_sender@example.com
     smtp_auth_password: password_for_alert_sender
     port: 9093 # this is optional, you should not write this if you do not want to change the port alert-manager is listening on
+    alert-handler:
+        port: 9095 # this is optional, you should not write this if you do not want to change the port alert-handler is listening on
+        bearer_token: 'application_token_for_rest_server'
 ```
 
 In addition, if you deployed pai behind firewall, you should configure alert-manager with `use-pylon: True`, to make url from alert email public available.
@@ -38,6 +41,9 @@ alert-manager:
     smtp_auth_username: alert_sender@example.com
     smtp_auth_password: password_for_alert_sender
     port: 9093
+    alert-handler:
+        port: 9095
+        bearer_token: 'application_token_for_rest_server'
     configured: True
     host: master_ip
     url: "http://master_ip:9093"

@@ -179,7 +179,8 @@ alert-manager:
   smtp_auth_username: alert_sender@example.com
   smtp_auth_password: password_for_alert_sender
   port: 9093 # this is optional, you should not write this if you do not want to change the port alert-manager is listening on
-  webhook_configs:
+  alert-handler:
+    port: 9095 # this is optional, you should not write this if you do not want to change the port alert-handler is listening on
     bearer_token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImFkbWluIiwiYXBwbGljYXRpb24iOnRydWUsImlhdCI6MTU5NjE3Mzc3N30.bs97pLaVKMEX5u7fQoyWU_J5b-6qDLXp2sj59Y346yg'
 
 # uncomment following if you want to change customeize grafana
