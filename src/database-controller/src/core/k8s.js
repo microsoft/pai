@@ -1,11 +1,11 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-const k8s = require('@kubernetes/client-node')
-const logger = require('./logger')
-const config = require('./config')
-const { timeoutDecorator } = require('./util')
-const kc = new k8s.KubeConfig()
+const k8s = require('@kubernetes/client-node');
+const logger = require('./logger');
+const config = require('./config');
+const { timeoutDecorator } = require('./util');
+const kc = new k8s.KubeConfig();
 
 if (config.rbacEnabled) {
   // If RBAC is enabled, we can use kc.loadFromDefault() to load k8s config in containers.
@@ -16,28 +16,26 @@ if (config.rbacEnabled) {
       name: 'inCluster',
       caFile: config.customK8sCaFile,
       server: config.customK8sApiServerURL,
-      skipTLSVerify: false
-    }
+      skipTLSVerify: false,
+    };
     const user = {
       name: 'inClusterUser',
-      authProvider:
-       {
-         name: 'tokenFile',
-         config:
-          {
-            tokenFile: config.customK8sTokenFile
-          }
-       }
-    }
-    kc.loadFromClusterAndUser(cluster, user)
+      authProvider: {
+        name: 'tokenFile',
+        config: {
+          tokenFile: config.customK8sTokenFile,
+        },
+      },
+    };
+    kc.loadFromClusterAndUser(cluster, user);
   } else {
-    kc.loadFromDefault()
+    kc.loadFromDefault();
   }
 } else {
   // If RBAC is not enabled, use CUSTOM_K8S_API_SERVER_URL to connect to API server.
-  const cluster = { name: 'cluster', server: config.customK8sApiServerURL }
-  const user = { name: 'user' }
-  kc.loadFromClusterAndUser(cluster, user)
+  const cluster = { name: 'cluster', server: config.customK8sApiServerURL };
+  const user = { name: 'user' };
+  kc.loadFromClusterAndUser(cluster, user);
 }
 
 // If API server reports a non-200 status code, the client will
@@ -45,41 +43,41 @@ if (config.rbacEnabled) {
 // and error.response.statusCode is the actual status code.
 // If network is disconnected, the error will be a different one,
 // and you cannot get error.name and error.statusCode.
-const customObjectsClient = kc.makeApiClient(k8s.CustomObjectsApi)
+const customObjectsClient = kc.makeApiClient(k8s.CustomObjectsApi);
 
-async function getFramework (name, namespace = 'default') {
+async function getFramework(name, namespace = 'default') {
   const res = await customObjectsClient.getNamespacedCustomObject(
     'frameworkcontroller.microsoft.com',
     'v1',
     namespace,
     'frameworks',
-    name
-  )
-  return res.response
+    name,
+  );
+  return res.response;
 }
 
-async function listFramework (name, namespace = 'default') {
+async function listFramework(name, namespace = 'default') {
   const res = await customObjectsClient.listNamespacedCustomObject(
     'frameworkcontroller.microsoft.com',
     'v1',
     namespace,
-    'frameworks'
-  )
-  return res.response
+    'frameworks',
+  );
+  return res.response;
 }
 
-async function createFramework (frameworkDescription, namespace = 'default') {
+async function createFramework(frameworkDescription, namespace = 'default') {
   const res = await customObjectsClient.createNamespacedCustomObject(
     'frameworkcontroller.microsoft.com',
     'v1',
     namespace,
     'frameworks',
-    frameworkDescription
-  )
-  return res.response
+    frameworkDescription,
+  );
+  return res.response;
 }
 
-async function patchFramework (name, data, namespace = 'default') {
+async function patchFramework(name, data, namespace = 'default') {
   const res = await customObjectsClient.patchNamespacedCustomObject(
     'frameworkcontroller.microsoft.com',
     'v1',
@@ -87,23 +85,26 @@ async function patchFramework (name, data, namespace = 'default') {
     'frameworks',
     name,
     data,
-    { headers: { 'Content-Type': 'application/merge-patch+json' } }
-  )
-  return res.response
+    { headers: { 'Content-Type': 'application/merge-patch+json' } },
+  );
+  return res.response;
 }
 
-async function deleteFramework (name, namespace = 'default') {
+async function deleteFramework(name, namespace = 'default') {
   const res = await customObjectsClient.deleteNamespacedCustomObject(
     'frameworkcontroller.microsoft.com',
     'v1',
     namespace,
     'frameworks',
-    name
-  )
-  return res.response
+    name,
+  );
+  return res.response;
 }
 
-function getFrameworkInformer (timeoutSeconds = 365 * 86400, namespace = 'default') {
+function getFrameworkInformer(
+  timeoutSeconds = 365 * 86400,
+  namespace = 'default',
+) {
   /*
   Usage:
 
@@ -125,78 +126,125 @@ function getFrameworkInformer (timeoutSeconds = 365 * 86400, namespace = 'defaul
 
   */
   const listFn = () => {
-    logger.info('Frameworks are listed.')
+    logger.info('Frameworks are listed.');
     return customObjectsClient.listNamespacedCustomObject(
       'frameworkcontroller.microsoft.com',
       'v1',
       namespace,
-      'frameworks'
-    )
-  }
+      'frameworks',
+    );
+  };
   const informer = k8s.makeInformer(
     kc,
     `/apis/frameworkcontroller.microsoft.com/v1/frameworks?timeoutSeconds=${timeoutSeconds}`,
-    listFn
-  )
-  return informer
+    listFn,
+  );
+  return informer;
 }
 
-const priorityClassClient = kc.makeApiClient(k8s.SchedulingV1Api)
+const priorityClassClient = kc.makeApiClient(k8s.SchedulingV1Api);
 
-async function createPriorityClass (priorityClassDef) {
-  const res = await priorityClassClient.createPriorityClass(priorityClassDef)
-  return res.response
+async function createPriorityClass(priorityClassDef) {
+  const res = await priorityClassClient.createPriorityClass(priorityClassDef);
+  return res.response;
 }
 
-async function deletePriorityClass (name) {
-  const res = await priorityClassClient.deletePriorityClass(name)
-  return res.response
+async function deletePriorityClass(name) {
+  const res = await priorityClassClient.deletePriorityClass(name);
+  return res.response;
 }
 
-const coreV1Client = kc.makeApiClient(k8s.CoreV1Api)
+const coreV1Client = kc.makeApiClient(k8s.CoreV1Api);
 
-async function createSecret (secretDef) {
-  const res = await coreV1Client.createNamespacedSecret(secretDef.metadata.namespace, secretDef)
-  return res
+async function createSecret(secretDef) {
+  const res = await coreV1Client.createNamespacedSecret(
+    secretDef.metadata.namespace,
+    secretDef,
+  );
+  return res;
 }
 
-async function deleteSecret (name, namespace = 'default') {
-  const res = await coreV1Client.deleteNamespacedSecret(name, namespace)
-  return res.response
+async function deleteSecret(name, namespace = 'default') {
+  const res = await coreV1Client.deleteNamespacedSecret(name, namespace);
+  return res.response;
 }
 
-async function patchSecretOwnerToFramework (secret, frameworkResponse) {
+async function patchSecretOwnerToFramework(secret, frameworkResponse) {
   const metadata = {
-    ownerReferences: [{
-      apiVersion: 'frameworkcontroller.microsoft.com',
-      kind: 'Framework',
-      name: frameworkResponse.metadata.name,
-      uid: frameworkResponse.metadata.uid,
-      controller: true,
-      blockOwnerDeletion: true
-    }]
-  }
+    ownerReferences: [
+      {
+        apiVersion: 'frameworkcontroller.microsoft.com',
+        kind: 'Framework',
+        name: frameworkResponse.metadata.name,
+        uid: frameworkResponse.metadata.uid,
+        controller: true,
+        blockOwnerDeletion: true,
+      },
+    ],
+  };
   const res = await coreV1Client.patchNamespacedSecret(
-    secret.metadata.name, secret.metadata.namespace,
+    secret.metadata.name,
+    secret.metadata.namespace,
     { metadata: metadata },
     ...Array(4), // skip some parameters
-    { headers: { 'Content-Type': 'application/merge-patch+json' } })
-  return res.response
+    { headers: { 'Content-Type': 'application/merge-patch+json' } },
+  );
+  return res.response;
 }
 
-const timeoutMs = config.k8sConnectionTimeoutSecond * 1000
+const timeoutMs = config.k8sConnectionTimeoutSecond * 1000;
 
 // We give every method a timeout.
 module.exports = {
-  getFramework: timeoutDecorator(getFramework, 'Kubernetes getFramework', timeoutMs),
-  listFramework: timeoutDecorator(listFramework, 'Kubernetes getFramework', timeoutMs),
-  createFramework: timeoutDecorator(createFramework, 'Kubernetes createFramework', timeoutMs),
-  patchFramework: timeoutDecorator(patchFramework, 'Kubernetes patchFramework', timeoutMs),
-  deleteFramework: timeoutDecorator(deleteFramework, 'Kubernetes deleteFramework', timeoutMs),
-  createPriorityClass: timeoutDecorator(createPriorityClass, 'Kubernetes createPriorityClass', timeoutMs),
-  deletePriorityClass: timeoutDecorator(deletePriorityClass, 'Kubernetes deletePriorityClass', timeoutMs),
-  createSecret: timeoutDecorator(createSecret, 'Kubernetes createSecret', timeoutMs),
-  deleteSecret: timeoutDecorator(deleteSecret, 'Kubernetes deleteSecret', timeoutMs),
-  patchSecretOwnerToFramework: timeoutDecorator(patchSecretOwnerToFramework, 'Kubernetes patchSecretOwnerToFramework', timeoutMs),
-  getFrameworkInformer: getFrameworkInformer
-}
+  getFramework: timeoutDecorator(
+    getFramework,
+    'Kubernetes getFramework',
+    timeoutMs,
+  ),
+  listFramework: timeoutDecorator(
+    listFramework,
+    'Kubernetes getFramework',
+    timeoutMs,
+  ),
+  createFramework: timeoutDecorator(
+    createFramework,
+    'Kubernetes createFramework',
+    timeoutMs,
+  ),
+  patchFramework: timeoutDecorator(
+    patchFramework,
+    'Kubernetes patchFramework',
+    timeoutMs,
+  ),
+  deleteFramework: timeoutDecorator(
+    deleteFramework,
+    'Kubernetes deleteFramework',
+    timeoutMs,
+  ),
+  createPriorityClass: timeoutDecorator(
+    createPriorityClass,
+    'Kubernetes createPriorityClass',
+    timeoutMs,
+  ),
+  deletePriorityClass: timeoutDecorator(
+    deletePriorityClass,
+    'Kubernetes deletePriorityClass',
+    timeoutMs,
+  ),
+  createSecret: timeoutDecorator(
+    createSecret,
+    'Kubernetes createSecret',
+    timeoutMs,
+  ),
+  deleteSecret: timeoutDecorator(
+    deleteSecret,
+    'Kubernetes deleteSecret',
+    timeoutMs,
+  ),
+  patchSecretOwnerToFramework: timeoutDecorator(
+    patchSecretOwnerToFramework,
+    'Kubernetes patchSecretOwnerToFramework',
+    timeoutMs,
+  ),
+  getFrameworkInformer: getFrameworkInformer,
+};
