@@ -31,18 +31,19 @@ spec:
       hostNetwork: true
       dnsPolicy: ClusterFirstWithHostNet
       initContainers:
+      # This change aimed to avoid OS build file index for alluxio-fuse-fs, which will consume much disk space
       - name: change-updatedb-conf
         image: {{ cluster_cfg["cluster"]["docker-registry"]["prefix"] }}dshuttle-csi:{{ cluster_cfg["cluster"]["docker-registry"]["tag"] }}
         imagePullPolicy: Always
         securityContext:
           runAsUser: 0
-      command: ["/bin/bash", "-c"]
-      args:
-       - grep -q 'PRUNEFS=".*fuse.alluxio-fuse.*"' /host-config/updatedb.conf || sed -i '/PRUNEFS=/s/"$/ fuse.alluxio-fuse"/' /host-config/updatedb.conf
-      volumeMounts:
-      - name: etc
-        mountPath: /host-config/updatedb.conf
-        subPath: updatedb.conf
+        command: ["/bin/bash", "-c"]
+        args:
+        - FILE=/host-config/updatedb.conf && grep -q 'PRUNEFS=".*fuse.alluxio-fuse.*"' "$FILE" || echo $(sed  '/PRUNEFS=/s/"$/ fuse.alluxio-fuse"/' "$FILE") > $FILE
+        volumeMounts:
+        - name: etc
+          mountPath: /host-config/updatedb.conf
+          subPath: updatedb.conf
       containers:
       - name: node-driver-registrar
         image: {{ cluster_cfg["cluster"]["docker-registry"]["prefix"] }}csi-node-driver-registrar:{{ cluster_cfg["cluster"]["docker-registry"]["tag"] }}
