@@ -30,6 +30,19 @@ spec:
     spec:
       hostNetwork: true
       dnsPolicy: ClusterFirstWithHostNet
+      initContainers:
+      - name: change-updatedb-conf
+        image: {{ cluster_cfg["cluster"]["docker-registry"]["prefix"] }}dshuttle-csi:{{ cluster_cfg["cluster"]["docker-registry"]["tag"] }}
+        imagePullPolicy: Always
+        securityContext:
+          runAsUser: 0
+      command: ["/bin/bash", "-c"]
+      args:
+       - grep -q 'PRUNEFS=".*fuse.alluxio-fuse.*"' /host-config/updatedb.conf || sed -i '/PRUNEFS=/s/"$/ fuse.alluxio-fuse"/' /host-config/updatedb.conf
+      volumeMounts:
+      - name: etc
+        mountPath: /host-config/updatedb.conf
+        subPath: updatedb.conf
       containers:
       - name: node-driver-registrar
         image: {{ cluster_cfg["cluster"]["docker-registry"]["prefix"] }}csi-node-driver-registrar:{{ cluster_cfg["cluster"]["docker-registry"]["tag"] }}
@@ -125,5 +138,8 @@ spec:
       - name: dshuttle-log-config
         configMap:
           name: dshuttle-log-config
+      - name: etc
+        hostPath:
+          path: /etc
       imagePullSecrets:
       - name: {{ cluster_cfg["cluster"]["docker-registry"]["secret-name"] }}
