@@ -26,7 +26,6 @@ All config fields are optional. We recommend admin change the config according t
 - `master_web_port: 30999`: Master web port
 - `master_job_rpc_port: 31001` Master job rpc port
 - `master_job_web_port: 31002` Master job web port
-- `user_meta_sync_interval_ms`: Meta data TTL, default is 1800000 # 30 mins
 
 - `tieredstores`: The tired store config. The default is shown below, admin can change the tired store level and medium size according to the environment. The `watermark_high_ratio` set the high wartermark of the space in the storage tier. `watermark_low_ratio` set low watermark of the space in the storage tier. If worker contain data more than `watermark_high_ratio`, data evict starts until data space reach  `watermark_low_ratio`.
   ```yaml
@@ -65,8 +64,6 @@ dshuttle:
   master_job_rpc_port: 31001
   master_job_web_port: 31002
 
-  user_meta_sync_interval_ms: 1800000 # 30 mins
-
   tieredstores:
   - level: 0
     mediumtype: MEM
@@ -99,5 +96,4 @@ dshuttle:
 | dshuttle.master_web_port               | com["dshuttle"]["master_web_port "]           | cluster_cfg["dshuttle"]["master_web_port"]             | Number    |
 | dshuttle.master_job_rpc_port           | com["dshuttle"]["master_job_rpc_port"]        | cluster_cfg["dshuttle"]["master_job_rpc_port"]         | Number    |
 | dshuttle. master_job_web_port          | com["dshuttle"]["master_job_web_port"]        | cluster_cfg["dshuttle"]["master_job_web_port"]         | Number    |
-| dshuttle. user_meta_sync_interval_ms   | com["dshuttle"]["user_meta_sync_interval_ms"] | cluster_cfg["dshuttle"]["user_meta_sync_interval_ms"]  | Number    |
 | dshuttle. tieredstores                  | com["dshuttle"]["tieredstores"]              | cluster_cfg["dshuttle"]["tieredstores"]                | Object    |

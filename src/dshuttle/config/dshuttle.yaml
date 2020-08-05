@@ -19,18 +19,38 @@ service_type: "k8s"
 
 worker_request_mem: 2G
 worker_limit_mem: 8G
+worker_max_heap_mem: 6G
 worker_rpc_port: 4999
 worker_web_port: 5000
+worker_active_processor_count: 5
+
+job_worker_max_heap_mem: 2G
+job_worker_request_mem: 1G
+job_worker_limit_mem: 3G
 job_worker_rpc_port: 5001
 job_worker_data_port: 5002
 job_worker_web_port: 5003
+job_worker_active_processor_count: 5
 
+master_max_heap_size: 12G
+master_limit_mem: 16G
+master_request_mem: 8G
 master_rpc_port: 30998
 master_web_port: 30999
 master_job_rpc_port: 31001
 master_job_web_port: 31002
+master_active_processor_count: 10
 
-user_meta_sync_interval_ms: 1800000 # 30 mins
+job_master_request_mem: 4G
+job_master_limit_mem: 8G
+job_master_max_heap_size: 6G
+job_master_active_processor_count: 10
+
+fuse_max_direct_mem: 3G
+fuse_max_heap_mem: 5G
+fuse_active_processor_count: 10
+csi_daemon_request_mem: 4G
+csi_daemon_limit_mem: 10G
 
 tieredstores:
 - level: 0
