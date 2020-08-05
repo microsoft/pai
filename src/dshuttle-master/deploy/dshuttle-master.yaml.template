@@ -42,9 +42,9 @@ spec:
         {%- if cluster_cfg['cluster']['common']['qos-switch'] == "true" %}
         resources:
           limits:
-            memory: 16Gi
+            memory: {{ cluster_cfg['dshuttle']['master_limit_mem'] }}
           requests:
-            memory: 8Gi
+            memory: {{ cluster_cfg['dshuttle']['master_limit_mem'] }}
         {%- endif %}
         command: ["/entrypoint.sh"]
         args:
@@ -74,9 +74,9 @@ spec:
         {%- if cluster_cfg['cluster']['common']['qos-switch'] == "true" %}
         resources:
           limits:
-            memory: 8Gi
+            memory: {{ cluster_cfg['dshuttle']['job_master_limit_mem'] }}
           requests:
-            memory: 4Gi
+            memory: {{ cluster_cfg['dshuttle']['job_master_request_mem'] }}
         {%- endif %}
         command: ["/entrypoint.sh"]
         args:

@@ -83,9 +83,9 @@ spec:
         {%- if cluster_cfg['cluster']['common']['qos-switch'] == "true" %}
         resources:
           limits:
-            memory: "10Gi"
+            memory: "{{ cluster_cfg['dshuttle']['csi_daemon_limit_mem'] }}"
           requests:
-            memory: "4Gi"
+            memory: "{{ cluster_cfg['dshuttle']['csi_daemon_request_mem'] }}"
         {%- endif %}
         imagePullPolicy: "Always"
         volumeMounts:

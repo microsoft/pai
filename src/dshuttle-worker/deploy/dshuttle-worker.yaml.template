@@ -99,9 +99,9 @@ spec:
         {%- if cluster_cfg['cluster']['common']['qos-switch'] == "true" %}
         resources:
           limits:
-            memory: 3Gi
+            memory: {{ cluster_cfg['dshuttle']['job_worker_limit_mem'] }}
           requests:
-            memory: 1Gi
+            memory: {{ cluster_cfg['dshuttle']['job_worker_request_mem'] }}
         {%- endif %}
         command: ["/entrypoint.sh"]
         args:
