@@ -48,6 +48,6 @@ echo kubectl label --overwrite=true nodes {{ cluster_cfg['layout']['machine-list
 echo kubectl label --overwrite=true nodes {{ cluster_cfg['layout']['machine-list'][host]['nodename'] }} pai-storage=true || exit $?
     {% endif %}
 {% endfor %}
-) | parallel
+) | parallel || exit $?
 
 popd > /dev/null

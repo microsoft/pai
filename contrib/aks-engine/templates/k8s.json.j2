@@ -1,0 +1,124 @@
+{
+    "apiVersion": "vlabs",
+    "properties": {
+      "orchestratorProfile": {
+        "orchestratorType": "Kubernetes",
+        "orchestratorVersion": "1.15.12",
+        "kubernetesConfig": {
+            "containerRuntime": "docker",
+            "enableRbac": true,
+            "loadBalancerSku": "basic",
+            "containerRuntimeConfig": {
+                "dataDir": "/mnt/docker"
+            },
+            "addons": [
+                {
+                    "name": "kubernetes-dashboard",
+                    "enabled": false
+                },
+                {
+                    "name": "cluster-autoscaler",
+{% if cfg["openpai_worker_vmss"]["ca_enable"] %}
+                    "enabled": true,
+                    "pools": [
+                        {
+                            "name": "opworker",
+                            "config": {
+                                "min-nodes": "{{cfg["openpai_worker_vmss"]["min_vm_count"]}}",
+                                "max-nodes": "{{cfg["openpai_worker_vmss"]["max_vm_count"]}}"
+                            }
+                        }
+                    ],
+                    "config": {
+                        "scan-interval": "1m",
+                        "expendable-pods-priority-cutoff": "-1100000000"
+                    }
+{% else %}
+                    "enabled": false
+{% endif %}
+                },
+                {
+                    "name": "nvidia-device-plugin",
+                    "enabled": true
+                }
+            ],
+            "kubeletConfig": {
+                "--node-status-update-frequency": "1m"
+            },
+            "apiServerConfig": {
+                "--cors-allowed-origins": ".*",
+                "--storage-media-type": "application/json",
+                "--max-requests-inflight": "1500",
+                "--max-mutating-requests-inflight": "500"
+            },
+            "controllerManagerConfig": {
+                "--node-monitor-grace-period": "5m",
+                "--pod-eviction-timeout": "1m",
+                "--route-reconciliation-period": "1m",
+                "--large-cluster-size-threshold": "0",
+                "--secondary-node-eviction-rate": "0.05"
+            }
+        }
+      },
+      "masterProfile": {
+            "distro": "aks-ubuntu-18.04",
+            "count": {{cfg["kube_master_as"]["count"]|default(1)}},
+            "dnsPrefix": "",
+            "vmSize": "{{cfg["kube_master_as"]["vm_size"]}}"
+{% if "storage_profile" in cfg["kube_master_as"] %}
+            "storageProfile": cfg["kube_master_as"]["storage_profile"]
+{% endif %}
+{% if "os_disk_size_gb" in cfg["kube_master_as"] %}
+            "osDiskSizeGB": cfg["kube_master_as"]["os_disk_size_gb"]
+{% endif %}
+      },
+      "agentPoolProfiles": [
+        {
+            "name": "opworker",
+            "count": {{cfg["openpai_worker_vmss"]["count"]}},
+            "distro": "aks-ubuntu-18.04",
+            "availabilityProfile": "VirtualMachineScaleSets",
+            "singlePlacementGroup": false,
+            "scaleSetPriority": "{{cfg["openpai_worker_vmss"]["scale_set_priority"]|default(Regular)}}",
+{% if "scale_set_eviction_policy" in cfg["openpai_worker_vmss"]  and cfg["openpai_worker_vmss"]["scale_set_priority"] == "Spot" %}
+            "scaleSetEvictionPolicy": "{{cfg["openpai_worker_vmss"]["scale_set_eviction_policy"]|default(Deallocate)}}",
+{% endif %}
+            "customNodeLabels": {
+                "pai-worker": "true"
+            },
+            "vmSize": "{{cfg["openpai_worker_vmss"]["vm_size"]}}"
+{% if "os_disk_size_gb" in cfg["openpai_worker_vmss"] %}
+            "osDiskSizeGB": cfg["openpai_worker_vmss"]["os_disk_size_gb"]
+{% endif %}
+        },
+        {
+            "name": "opmaster",
+            "count": 1,
+            "distro": "aks-ubuntu-18.04",
+            "availabilityProfile": "VirtualMachineScaleSets",
+            "customNodeLabels": {
+                "pai-master": "true"
+            },
+            "vmSize": "{{cfg["openpai_master_vmss"]["vm_size"]}}",
+            "enableVMSSNodePublicIP": true
+{% if "os_disk_size_gb" in cfg["openpai_master_vmss"] %}
+            "osDiskSizeGB": cfg["openpai_master_vmss"]["os_disk_size_gb"]
+{% endif %}
+        }
+      ],
+      "linuxProfile": {
+        "adminUsername": "{{cfg["linux_profile"]["adminUsername"]}}",
+        "ssh": {
+          "publicKeys": [
+            {
+              "keyData": "{{cfg["linux_profile"]["publicKeys"]}}"
+            }
+          ]
+        }
+      },
+      "servicePrincipalProfile": {
+        "clientId": "{{cfg["sp_appid"]}}",
+        "secret": "{{cfg["sp_password"]}}"
+      }
+    }
+}

@@ -1,20 +1,5 @@
 # Installation FAQs and Troubleshooting
 
-1. [Installation Guide](./installation-guide.md)
-2. [Installation FAQs and Troubleshooting](./installation-faqs-and-troubleshooting.md) (this document)
-    - [Installation FAQs](#installation-faqs)
-    - [Troubleshooting](#troubleshooting)
-3. [Basic Management Operations](./basic-management-operations.md)
-4. [How to Manage Users and Groups](./how-to-manage-users-and-groups.md)
-5. [How to Set Up Storage](./how-to-set-up-storage.md)
-6. [How to Set Up Virtual Clusters](./how-to-set-up-virtual-clusters.md)
-7. [How to Add and Remove Nodes](./how-to-add-and-remove-nodes.md)
-8. [How to use CPU Nodes](./how-to-use-cpu-nodes.md)
-9. [How to Customize Cluster by Plugins](./how-to-customize-cluster-by-plugins.md)
-10. [Troubleshooting](./troubleshooting.md)
-11. [How to Uninstall OpenPAI](./how-to-uninstall-openpai.md)
-12. [Upgrade Guide](./upgrade-guide.md)
-
 ## Installation FAQs
 
 #### How to include CPU-only worker nodes?
@@ -74,7 +59,7 @@ To remove the network plugin, you could use following `ansible-playbook`:
 
     - name: config-docker
       shell: |
-        sed -i 's/--iptables=True/--iptables=True --ip-masq=True/d' /etc/systemd/system/docker.service.d/docker-options.conf
+        sed -i 's/--iptables=False/--iptables=True --ip-masq=True/g' /etc/systemd/system/docker.service.d/docker-options.conf
         systemctl daemon-reload
       args:
         executable: /bin/bash
@@ -146,7 +131,12 @@ sudo chmod 644 /etc/hosts
 
 The same as `1. Ansible playbook exits because of timeout.` .
 
-#### Cannot download kubeadm or hyperkube
+
+#### Network-related Issues
+
+If you are a China user, please refer to [here](./configuration-for-china.md).
+
+**Cannot download kubeadm or hyperkube**
 
 During installation, the script will download kubeadm and hyperkube from `storage.googleapis.com`. To be detailed, we use kubespray `2.11` release, the corresponding `kubeadm` and `hyperkube` is:
 
@@ -155,7 +145,7 @@ During installation, the script will download kubeadm and hyperkube from `storag
 
 Please find alternative urls for downloading this two files and modify `kubeadm_download_url` and `hyperkube_download_url` in your `config` file.
 
-#### Cannot download image
+**Cannot download image**
 
 Please first check the log to see which image blocks the installation process, and modify `gcr_image_repo`, `kube_image_repo`, `quay_image_repo`, or `docker_image_repo` to a mirror repository correspondingly in `config` file.
 

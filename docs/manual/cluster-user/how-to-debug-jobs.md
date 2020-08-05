@@ -1,16 +1,5 @@
 # How to Debug Jobs
 
-1. [Quick Start](./quick-start.md)
-2. [Docker Images and Job Examples](./docker-images-and-job-examples.md)
-3. [How to Manage Data](./how-to-manage-data.md)
-4. [How to Debug Jobs](./how-to-debug-jobs.md) (this document)
-    - [How to use SSH](#how-to-use-ssh)
-    - [How to use TensorBoard Plugin](#how-to-use-tensorboard-plugin)
-5. [Advanced Jobs](./advanced-jobs.md)
-6. [Use Marketplace](./use-marketplace.md)
-7. [Use VSCode Extension](./use-vscode-extension.md)
-8. [Use Jupyter Notebook Extension](./use-jupyter-notebook-extension.md)
-
 This document describes how to use SSH and TensorBoard plugin to debug job. 
 
 **Note:** These two plugins only work when the IP address is accessible from customer environment (not cluster internal IP). So if PAI deployed in some cloud environment such as Azure, these two plugins will not work.
@@ -65,7 +54,9 @@ Here we leverage an example to show you how to use TensorBoard in OpenPAI. First
 
 ```bash
 git clone https://github.com/microsoft/pai.git
-cd pai/docs/user/samples/
+cd pai
+git reset --hard dd08930431d05ed490cf7ceeecd262e473c187cd
+cd docs/user/samples/
 python minist_tensorboard.py --data_dir ./data --log_dir /mnt/tensorboard
 sleep 30m
 ```

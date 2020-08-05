@@ -80,7 +80,7 @@ if (launcherType === 'k8s') {
     hivedWebserviceUri: process.env.HIVED_WEBSERVICE_URI,
     enabledPriorityClass: process.env.LAUNCHER_PRIORITY_CLASS === 'true',
     apiVersion: 'frameworkcontroller.microsoft.com/v1',
-    podGracefulDeletionTimeoutSec: 1800,
+    podGracefulDeletionTimeoutSec: 600,
     scheduler: process.env.LAUNCHER_SCHEDULER,
     runtimeImage: process.env.LAUNCHER_RUNTIME_IMAGE,
     runtimeImagePullSecrets: process.env.LAUNCHER_RUNTIME_IMAGE_PULL_SECRETS,

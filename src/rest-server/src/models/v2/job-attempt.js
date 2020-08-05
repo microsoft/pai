@@ -92,14 +92,14 @@ if (sequelize && launcherConfig.enabledJobHistory) {
       return {status: 404, data: null};
     }
 
-    const sqlSentence = `SELECT (record->'objectSnapshot') as data FROM fc_objectsnapshots WHERE ` +
-      `record->'objectSnapshot'->'metadata'->'uid' ? '${uid}' and ` +
-      `record->'objectSnapshot'->'kind' ? 'Framework' ` +
-      `ORDER BY cast(record->'objectSnapshot'->'status'->'attemptStatus'->>'id' as INTEGER) ASC;`;
+    const sqlSentence = `SELECT snapshot as data FROM framework_history WHERE ` +
+      `frameworkName = '${encodeName(frameworkName)}' ` +
+      `ORDER BY uid ASC;`;
     const pgResult = (await sequelize.query(sqlSentence))[0];
+
     const jobRetries = await Promise.all(
       pgResult.map((row) => {
-        return convertToJobAttempt(row.data);
+        return convertToJobAttempt(JSON.parse(row.data));
       }),
     );
     attemptData.push(
@@ -107,7 +107,6 @@ if (sequelize && launcherConfig.enabledJobHistory) {
         return {...jobRetry, isLatest: false};
       }),
     );
-
     return {status: 200, data: attemptData};
   };
 
@@ -115,6 +114,7 @@ if (sequelize && launcherConfig.enabledJobHistory) {
     let uid;
     let attemptFramework;
     let response;
+
     try {
       response = await k8sModel.getClient().get(
         launcherConfig.frameworkPath(encodeName(frameworkName)),
@@ -146,17 +146,16 @@ if (sequelize && launcherConfig.enabledJobHistory) {
       if (isNil(uid)) {
         return {status: 404, data: null};
       }
-      const sqlSentence = `SELECT (record->'objectSnapshot') as data FROM fc_objectsnapshots WHERE ` +
-        `record->'objectSnapshot'->'metadata'->'uid' ? '${uid}' and ` +
-        `record->'objectSnapshot'->'status'->'attemptStatus'->>'id' = '${jobAttemptIndex}' and ` +
-        `record->'objectSnapshot'->'kind' ? 'Framework' ` +
-        `ORDER BY cast(record->'objectSnapshot'->'status'->'attemptStatus'->>'id' as INTEGER) ASC;`;
+      const sqlSentence = `SELECT snapshot as data FROM framework_history WHERE ` +
+        `frameworkName = '${encodeName(frameworkName)}' and ` +
+        `attemptIndex = '${jobAttemptIndex}' ` +
+        `ORDER BY uid ASC;`;
       const pgResult = (await sequelize.query(sqlSentence))[0];
 
       if (pgResult.length === 0) {
         return {status: 404, data: null};
       } else {
-        attemptFramework = pgResult[0].data;
+        attemptFramework = JSON.parse(pgResult[0].data);
         const attemptDetail = await convertToJobAttempt(attemptFramework);
         return {status: 200, data: {...attemptDetail, isLatest: false}};
       }

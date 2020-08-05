@@ -1,12 +1,12 @@
 nav:
-  - Overview: manual/index.md
+  - Home: index.md
   - User Manual:
       - Introduction: manual/cluster-user/README.md
       - Quick Start: manual/cluster-user/quick-start.md
       - Docker Images and Job Examples: manual/cluster-user/docker-images-and-job-examples.md
       - How to Manage Data: manual/cluster-user/how-to-manage-data.md
       - How to Debug Jobs: manual/cluster-user/how-to-debug-jobs.md
-      - Advanced Jobs: manual/cluster-user/advanced-jobs.md
+      - How to Use Advanced Job Settings: manual/cluster-user/how-to-use-advanced-job-settings.md
       - Use Marketplace: manual/cluster-user/use-marketplace.md
       - Use VSCode Extension: manual/cluster-user/use-vscode-extension.md
       - Use Jupyter Notebook Extension: manual/cluster-user/use-jupyter-notebook-extension.md

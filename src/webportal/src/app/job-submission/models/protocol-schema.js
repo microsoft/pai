@@ -48,6 +48,7 @@ export const taskRoleSchema = Joi.object().keys({
   script: Joi.string(),
   extraContainerOptions: Joi.object().keys({
     shmMB: Joi.number(),
+    infiniband: Joi.boolean(),
   }),
   resourcePerInstance: Joi.object()
     .required()

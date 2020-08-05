@@ -1,18 +1,5 @@
 # Quick Start
 
-1. [Quick Start](./quick-start.md) (this document)
-    - [Submit a Hello World Job](#submit-a-hello-world-job)
-    - [Browse Stdout, Stderr, Full Logs, and Metrics](#browse-stdout-stderr-full-logs-and-metrics)
-    - [Submit a Hello World Job Step by Step](#submit-the-hello-world-job-step-by-step)
-    - [Learn the Hello World Job](#learn-the-hello-world-job)
-2. [Docker Images and Job Examples](./docker-images-and-job-examples.md)
-3. [How to Manage Data](./how-to-manage-data.md)
-4. [How to Debug Jobs](./how-to-debug-jobs.md)
-5. [Advanced Jobs](./advanced-jobs.md)
-6. [Use Marketplace](./use-marketplace.md)
-7. [Use VSCode Extension](./use-vscode-extension.md)
-8. [Use Jupyter Notebook Extension](./use-jupyter-notebook-extension.md)
-
 ## Submit a Hello World Job
 
 The **job** of OpenPAI defines how to execute code(s) and command(s) in specified environment(s). It can be run on a single node or distributedly.
@@ -55,7 +42,9 @@ Instead of importing a job configuration file, you can submit the hello world jo
 
 ```bash
 git clone https://github.com/tensorflow/models
-cd models/research/slim
+cd models
+git reset --hard 62bf6fc0bb2b41a4fb851909c132647a7e0774b0
+cd research/slim
 python download_and_convert_data.py --dataset_name=cifar10 --dataset_dir=/tmp/data
 python train_image_classifier.py --dataset_name=cifar10 --dataset_dir=/tmp/data --max_number_of_steps=1000
 ```
@@ -84,4 +73,4 @@ Here are some detailed explanations about configurations on the submission page:
 
 - **GPU count**, **CPU vcore count**, **Memory (MB)** are easy to understand. They specify corresponding hardware resources including the number of GPUs, the number of CPU cores, and MB of memory.
 
-We will introduce more details about the job configuration in [`Advanced Jobs`](./advanced-jobs.md).
+We will introduce more details about the job configuration in [`How to Use Advanced Job Settings`](./how-to-use-advanced-job-settings.md).
