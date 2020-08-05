@@ -30,9 +30,15 @@ class Dshuttle(object):
     def validation_pre(self):
         return True, None
 
+    def get_master_ip(self):
+        for host_conf in self.cluster_conf["machine-list"]:
+            if "pai-master" in host_conf and host_conf["pai-master"] == "true":
+                return host_conf["hostip"]
+
     def run(self):
         result = copy.deepcopy(self.default_service_conf)
         result.update(self.service_conf)
+        result["uri"] = "http://{0}:{1}".format(self.get_master_ip(), result["master_web_port"])
         return result
 
     def validation_post(self, conf):

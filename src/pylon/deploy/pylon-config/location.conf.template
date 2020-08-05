@@ -291,6 +291,9 @@ location ~ ^(.*)$ {
   sub_filter
     '{{ALERT_MANGER_URI}}/alert-manager'
     '/alert-manager';
+  sub_filter
+    '{{DSHUTTLE_URI}}'
+    '/dshuttle';
 
   proxy_set_header    If-None-Match    $request_if_none_match;
   add_header          Etag             $response_etag;
