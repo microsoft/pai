@@ -98,6 +98,9 @@ spec:
           mountPath: /opt/domain
         - name: fuse-logs
           mountPath: /opt/alluxio/logs
+        - name: dshuttle-log-config
+          mountPath: /opt/alluxio/conf/log4j.properties
+          subPath: log4j.properties
       volumes:
       - name: plugin-dir
         hostPath:
@@ -119,5 +122,8 @@ spec:
         hostPath:
           path: /var/log/dshuttle
           type: DirectoryOrCreate
+      - name: dshuttle-log-config
+        configMap:
+          name: dshuttle-log-config
       imagePullSecrets:
       - name: {{ cluster_cfg["cluster"]["docker-registry"]["secret-name"] }}

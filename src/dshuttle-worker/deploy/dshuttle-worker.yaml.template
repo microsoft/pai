@@ -46,8 +46,6 @@ spec:
           mountPath: /opt/logs
         - name: ssd
           mountPath: /mnt/ssd
-        - name: etc
-          mountPath: /opt/etc/updatedb.conf
       containers:
       - name: dshuttle-worker
         image: {{ cluster_cfg["cluster"]["docker-registry"]["prefix"] }}dshuttle:{{ cluster_cfg["cluster"]["docker-registry"]["tag"] }}
@@ -88,8 +86,9 @@ spec:
           name: ssd
         - name: worker-logs
           mountPath: /opt/alluxio/logs
-        - name: etc
-          mountPath: /opt/etc/updatedb.conf
+        - name: dshuttle-log-config
+          mountPath: /opt/alluxio/conf/log4j.properties
+          subPath: log4j.properties
       - name: dshuttle-job-worker
         image: {{ cluster_cfg["cluster"]["docker-registry"]["prefix"] }}dshuttle:{{ cluster_cfg["cluster"]["docker-registry"]["tag"] }}
         securityContext:
@@ -130,6 +129,9 @@ spec:
           name: ssd
         - name: worker-logs
           mountPath: /opt/alluxio/logs
+        - name: dshuttle-log-config
+          mountPath: /opt/alluxio/conf/log4j.properties
+          subPath: log4j.properties
       restartPolicy: Always
       volumes:
       - name: dshuttle-domain
@@ -144,12 +146,11 @@ spec:
         hostPath:
           path: /mnt/dshuttle/ssd
           type: DirectoryOrCreate
-      - name: etc
-        hostPath:
-          path: /etc/updatedb.conf
-          type: FileOrCreate
       - name: mem
         emptyDir:
           medium: "Memory"
+      - name: dshuttle-log-config
+        configMap:
+          name: dshuttle-log-config
       imagePullSecrets:
       - name: {{ cluster_cfg["cluster"]["docker-registry"]["secret-name"] }}

@@ -20,6 +20,7 @@
 {%- if cluster_cfg['cluster']['common']['dshuttle'] == 'true' %}
 pushd $(dirname "$0") > /dev/null
 
+kubectl create configmap dshuttle-log-config --from-file=log4j.properties --dry-run -o yaml | kubectl apply --overwrite=true -f - || exit $?
 kubectl apply --overwrite=true -f dshuttle-config.yaml || exit $?
 kubectl apply --overwrite=true -f dshuttle-service.yaml || exit $?
 kubectl apply --overwrite=true -f dshuttle-master.yaml || exit $?

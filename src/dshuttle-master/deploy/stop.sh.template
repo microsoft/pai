@@ -31,5 +31,9 @@ if kubectl get configmap | grep -q "dshuttle-config"; then
     kubectl delete configmap dshuttle-config || exit $?
 fi
 
+if kubectl get configmap | grep -q "dshuttle-log-config"; then
+    kubectl delete configmap dshuttle-log-config || exit $?
+fi
+
 popd > /dev/null
 {%- endif %}

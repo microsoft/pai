@@ -65,6 +65,9 @@ spec:
           mountPath: /opt/alluxio/underFSStorage
         - name: dshuttle-log
           mountPath: /opt/alluxio/logs
+        - name: dshuttle-log-config
+          mountPath: /opt/alluxio/conf/log4j.properties
+          subPath: log4j.properties
       - name: dshuttle-job-master
         image: {{ cluster_cfg["cluster"]["docker-registry"]["prefix"] }}dshuttle:{{ cluster_cfg["cluster"]["docker-registry"]["tag"] }}
         imagePullPolicy: Always
@@ -92,6 +95,9 @@ spec:
         volumeMounts:
         - name: dshuttle-log
           mountPath: /opt/alluxio/logs
+        - name: dshuttle-log-config
+          mountPath: /opt/alluxio/conf/log4j.properties
+          subPath: log4j.properties
       restartPolicy: Always
       volumes:
       - name: alluxio-journal
@@ -106,6 +112,9 @@ spec:
         hostPath:
           path: /var/log/dshuttle
           type: DirectoryOrCreate
+      - name: dshuttle-log-config
+        configMap:
+          name: dshuttle-log-config
       initContainers:
       - name: journal-chown
         image: {{ cluster_cfg["cluster"]["docker-registry"]["prefix"] }}dshuttle:{{ cluster_cfg["cluster"]["docker-registry"]["tag"] }}
