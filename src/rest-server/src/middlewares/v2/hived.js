@@ -213,20 +213,24 @@ const hivedValidate = async (protocolObj, username) => {
     }
 
     const {gpu = 0, cpu, memoryMB} = protocolObj.taskRoles[taskRole].resourcePerInstance;
+    let requestedResource = '';
     let emptyResource = '';
     if (resourcePerCell.gpu === 0 && gpu > 0) {
-      emptyResource = 'gpu';
+      requestedResource = resourcePerCell.gpu;
+      emptyResource = 'GPU';
     } else if (resourcePerCell.cpu === 0 && cpu > 0) {
-      emptyResource = 'cpu';
+      requestedResource = resourcePerCell.cpu;
+      emptyResource = 'CPU';
     } else if (resourcePerCell.memory === 0 && memoryMB > 0) {
+      requestedResource = resourcePerCell.memory;
       emptyResource = 'memory';
     }
     if (emptyResource !== '') {
       throw createError(
         'Bad Request',
         'InvalidProtocolError',
-        `Taskrole ${taskRole} requests (${gpu} GPU, ${cpu} CPU, ${memoryMB}MB memory), ` +
-        `but SKU does not configure ${emptyResource}.`
+        `Taskrole ${taskRole} requests ${requestedResource} ${emptyResource}, but SKU does not ` +
+        `configure ${emptyResource}. Please contact admin if the taskrole needs ${emptyResource} resources.`
       );
     }
 
