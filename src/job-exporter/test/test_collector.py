@@ -48,8 +48,8 @@ class TestContainerCollector(base.TestBase):
                 "0",
                 "0,1,",
                 "application_1522829300813_1943",
-                12345,
-                "default")
+                "default",
+                12345)
 
         gpu_ids, labels = ContainerCollector.parse_from_labels(inspect_result, None)
         self.assertEqual(["0", "1"], gpu_ids)
