@@ -47,5 +47,9 @@ if kubectl get secret | grep -q "{{ cluster_cfg['cluster']['docker-registry']['s
     kubectl delete secret {{ cluster_cfg['cluster']['docker-registry']['secret-name'] }} || exit $?
 fi
 
+if kubectl get priorityclass | grep -q "pai-daemon-priority"; then
+    kubectl delete priorityclass pai-daemon-priority || exit $?
+fi
+
 
 popd > /dev/null
