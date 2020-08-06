@@ -37,8 +37,8 @@ spec:
         image: {{ cluster_cfg["cluster"]["docker-registry"]["prefix"] }}log-manager-logrotate:{{ cluster_cfg["cluster"]["docker-registry"]["tag"] }}
         imagePullPolicy: Always
         env:
-        - name: LOGROTATE_INTERVAL
-          value: "hourly"
+        - name: LOGROTATE_CRONSCHEDULE
+          value: "*/10 * * * *"
         volumeMounts:
         - name: pai-log
           mountPath: /usr/local/pai/logs
