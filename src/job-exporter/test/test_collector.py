@@ -48,7 +48,8 @@ class TestContainerCollector(base.TestBase):
                 "0",
                 "0,1,",
                 "application_1522829300813_1943",
-                12345)
+                12345,
+                "default")
 
         gpu_ids, labels = ContainerCollector.parse_from_labels(inspect_result, None)
         self.assertEqual(["0", "1"], gpu_ids)
@@ -58,7 +59,8 @@ class TestContainerCollector(base.TestBase):
                 "job_name": "trialslot_nnimain_d65bc5ac",
                 "role_name": "tuner",
                 "task_index": "0",
-                "job_instance_id": "application_1522829300813_1943"}
+                "job_instance_id": "application_1522829300813_1943",
+                "virtual_cluster":"default"}
 
         self.assertEqual(target_labels, labels)
 
