@@ -201,10 +201,14 @@ alert-manager:
 
 
 # uncomment following if you want to change customeize prometheus
-# prometheus:
+prometheus:
 #   port: 9091
 #   # How frequently to scrape targets
 #   scrape_interval: 30
+  alert-handler:
+    virtual_clusters: default|autosys
+    percent: 0.3
+    time: 10s
 
 
 # uncomment following section if you want to customize the threshold of cleaner

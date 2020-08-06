@@ -66,6 +66,8 @@ spec:
         env:
         - name: REST_SERVER_URI
           value: {{ cluster_cfg['rest-server']['uri'] }}
+      imagePullSecrets:
+      - name: {{ cluster_cfg["cluster"]["docker-registry"]["secret-name"] }}
       volumes:
       - name: config-volume
         configMap:
