@@ -176,7 +176,7 @@ export async function getContainerLog(logUrl) {
     text: null,
   };
   const res = await fetch(logUrl);
-  const text = await res.text();
+  var text = await res.text();
   if (!res.ok) {
     throw new Error(res.statusText);
   }
@@ -222,6 +222,13 @@ export async function getContainerLog(logUrl) {
       throw new Error(`Log not available`);
     }
   } else if (config.logType === 'log-manager') {
+    if (text.length() === 0) {
+      const rotatedLogUrl = logUrl + '.1';
+      const rotatedLogRes = await fetch(rotatedLogUrl);
+      if (rotatedLogRes.ok) {
+        text = await rotatedLogRes.text();
+      }
+    }
     ret.text = text;
     ret.fullLogLink = logUrl.replace('/tail/', '/full/');
     return ret;
