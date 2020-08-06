@@ -33,7 +33,7 @@ spec:
         prometheus.io/port: "{{ cluster_cfg["job-exporter"]["port"] }}"
       name: job-exporter
     spec:
-      priorityClassName: pai-daemon-service-priority
+      priorityClassName: pai-daemon-priority
       containers:
       - image: {{ cluster_cfg["cluster"]["docker-registry"]["prefix"] }}job-exporter:{{ cluster_cfg["cluster"]["docker-registry"]["tag"] }}
         imagePullPolicy: Always
