@@ -34,7 +34,7 @@ app.post('/alert-handler', (req, res) => {
 
   // extract jobs to kill
   const jobNames = [];
-  req.body.alerts.forEach(function (alert) {
+  req.body.alerts.forEach(function(alert) {
     if (alert.status === 'firing') {
       jobNames.push(alert.labels.job_name);
     }
@@ -44,15 +44,15 @@ app.post('/alert-handler', (req, res) => {
   const url = process.env.REST_SERVER_URI;
   const token = req.token;
   // stop job by sending put request to rest server
-  jobNames.forEach(function (jobName) {
+  jobNames.forEach(function(jobName) {
     unirest
       .put(`${url}/api/v2/jobs/${jobName}/executionType`)
       .headers({
-        'Authorization': `Bearer ${token}`,
+        Authorization: `Bearer ${token}`,
         'Content-Type': 'application/json',
       })
       .send(JSON.stringify({ value: 'STOP' }))
-      .end(function (res) {
+      .end(function(res) {
         console.log(res.raw_body);
       });
   });

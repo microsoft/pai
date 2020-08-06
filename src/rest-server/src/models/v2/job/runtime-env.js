@@ -25,7 +25,7 @@ const generateFrameworkEnv = (frameworkName, config, virtualCluster) => {
     PAI_DEFAULT_FS_URI: '',
     PAI_TASK_ROLE_COUNT: Object.keys(config.taskRoles).length,
     PAI_TASK_ROLE_LIST: Object.keys(config.taskRoles).join(','),
-    PAI_VIRTUAL_CLUSTER: virtualCluster
+    PAI_VIRTUAL_CLUSTER: virtualCluster,
   };
   let tasksNum = 0;
   for (let taskRole of Object.keys(config.taskRoles)) {
