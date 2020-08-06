@@ -28,11 +28,11 @@ spec:
   - port: {{ cluster_cfg['dshuttle']['master_web_port'] }}
     targetPort: {{ cluster_cfg['dshuttle']['master_web_port'] }}
     name: web
-  - port: {{ cluster_cfg['dshuttle']['master_job_rpc_port'] }}
-    targetPort: {{ cluster_cfg['dshuttle']['master_job_rpc_port'] }}
+  - port: {{ cluster_cfg['dshuttle']['job_master_rpc_port'] }}
+    targetPort: {{ cluster_cfg['dshuttle']['job_master_rpc_port'] }}
     name: job-rpc
-  - port: {{ cluster_cfg['dshuttle']['master_job_web_port'] }}
-    targetPort: {{ cluster_cfg['dshuttle']['master_job_web_port'] }}
+  - port: {{ cluster_cfg['dshuttle']['job_master_web_port'] }}
+    targetPort: {{ cluster_cfg['dshuttle']['job_master_web_port'] }}
     name: job-web
   selector:
     app: dshuttle-master

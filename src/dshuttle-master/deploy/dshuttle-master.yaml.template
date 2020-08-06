@@ -88,9 +88,9 @@ spec:
         - configMapRef:
             name: dshuttle-config
         ports:
-        - containerPort: {{ cluster_cfg['dshuttle']['master_job_rpc_port'] }}
+        - containerPort: {{ cluster_cfg['dshuttle']['job_master_rpc_port'] }}
           name: job-rpc
-        - containerPort: {{ cluster_cfg['dshuttle']['master_job_web_port'] }}
+        - containerPort: {{ cluster_cfg['dshuttle']['job_master_web_port'] }}
           name: job-web
         volumeMounts:
         - name: dshuttle-log

@@ -34,8 +34,8 @@ data:
     -Dalluxio.user.metrics.collection.enabled=true
     -Dalluxio.master.rpc.port={{ cluster_cfg['dshuttle']['master_rpc_port'] }}
     -Dalluxio.master.web.port={{ cluster_cfg['dshuttle']['master_web_port'] }}
-    -Dalluxio.job.master.rpc.port={{ cluster_cfg['dshuttle']['master_job_rpc_port'] }}
-    -Dalluxio.job.master.web.port={{ cluster_cfg['dshuttle']['master_job_web_port'] }}
+    -Dalluxio.job.master.rpc.port={{ cluster_cfg['dshuttle']['job_master_rpc_port'] }}
+    -Dalluxio.job.master.web.port={{ cluster_cfg['dshuttle']['job_master_web_port'] }}
     -Dalluxio.user.block.size.bytes.default=32MB
     -Dalluxio.user.ufs.block.read.location.policy=alluxio.client.block.policy.MostAvailableFirstPolicy
     -Dalluxio.user.file.passive.cache.enabled=false
@@ -80,15 +80,15 @@ data:
     -Dalluxio.worker.tieredstore.level{{ tieredstore['level'] }}.watermark.low.ratio={{ tieredstore['watermark_low_ratio'] }}
     {% endfor -%}
     -XX:ActiveProcessorCount={{ cluster_cfg['dshuttle']['worker_active_processor_count'] }} 
-    -Xms1G -Xmx{{ cluster_cfg['dshuttle']['worker_max_heap_mem'] }} 
+    -Xms1G -Xmx{{ cluster_cfg['dshuttle']['worker_max_heap_size'] }} 
   ALLUXIO_JOB_WORKER_JAVA_OPTS: >-
     -Dalluxio.job.worker.rpc.port={{ cluster_cfg['dshuttle']['job_worker_rpc_port'] }}
     -Dalluxio.job.worker.data.port={{ cluster_cfg['dshuttle']['job_worker_data_port'] }}
     -Dalluxio.job.worker.web.port={{ cluster_cfg['dshuttle']['job_worker_web_port'] }} 
     -Dalluxio.worker.hostname=${ALLUXIO_WORKER_HOSTNAME}
     -XX:ActiveProcessorCount={{ cluster_cfg['dshuttle']['job_worker_active_processor_count'] }}
-    -Xms1G -Xmx{{ cluster_cfg['dshuttle']['job_worker_max_heap_mem'] }} 
+    -Xms1G -Xmx{{ cluster_cfg['dshuttle']['job_worker_max_heap_size'] }} 
   ALLUXIO_FUSE_JAVA_OPTS: >-
-    -Xms1G -Xmx{{ cluster_cfg['dshuttle']['fuse_max_heap_mem'] }} -XX:MaxDirectMemorySize={{ cluster_cfg['dshuttle']['fuse_max_direct_mem'] }}
+    -Xms1G -Xmx{{ cluster_cfg['dshuttle']['fuse_max_heap_size'] }} -XX:MaxDirectMemorySize={{ cluster_cfg['dshuttle']['fuse_max_direct_mem_size'] }}
     -XX:ActiveProcessorCount={{ cluster_cfg['dshuttle']['fuse_active_processor_count'] }} 
   ALLUXIO_WORKER_TIEREDSTORE_LEVEL0_DIRS_PATH: /dev/shm 
