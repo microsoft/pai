@@ -5,8 +5,7 @@
   "paiCommitVersion": null,
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "lint": "eslint --ext .js --ext .jsx .",
-    "lintfix": "eslint --ext .js --ext .jsx . --fix"
+    "lint": "eslint --ext .js --ext .jsx ."
   },
   "main": "index.js",
   "license": "MIT",

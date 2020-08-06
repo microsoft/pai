@@ -131,10 +131,8 @@ jobs:
     - name: yarn install and test
       run: |
         cd src/rest-server
-        cp -rf ../database-controller/sdk openpaidbsdk
         yarn config set ignore-engines true
         yarn install --frozen-lockfiles
-        rm -rf openpaidbsdk
         yarn test
 
   webportal:

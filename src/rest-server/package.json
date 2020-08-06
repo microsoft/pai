@@ -71,8 +71,9 @@
   "scripts": {
     "coveralls": "nyc report --reporter=text-lcov | coveralls ..",
     "lint": "eslint .",
-    "lintfix": "eslint . --fix",
     "mocha": "mocha --file ./test/setup --ui bdd --recursive --timeout 1000 --exit",
+    "preinstall": "cp -rf ../database-controller/sdk openpaidbsdk",
+    "postinstall": "rm -rf openpaidbsdk",
     "start": "node index.js",
     "test": "npm run lint && nyc npm run mocha"
   }
