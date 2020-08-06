@@ -93,6 +93,7 @@ location ~ ^/log-manager/([^/]+):(\d+)/(.*)$ {
   proxy_pass http://$1:$2/log-manager/$3$is_args$args;
 }
 
+
 {% if CLUSTER_TYPE == 'yarn' %}
 #
 # YARN web portal
@@ -251,6 +252,32 @@ location ~ ^/grafana(.*)$$ {
   sub_filter
     'appSubUrl+"/"'
     'appSubUrl+"/grafana/"';
+}
+
+# Dshuttle server
+location ~ ^/dshuttle$ {
+  # Add '/' to the end of the URL, otherwise there will be a 404 error.
+  return 301 $scheme://$http_host$request_uri/;
+}
+location ~ ^/dshuttle/(.*)$ {
+  proxy_pass {{DSHUTTLE_URI}}/$1$is_args$args;
+  sub_filter_types *;
+  sub_filter_once off;
+  sub_filter
+    'href="/'
+    'href="/dshuttle/';
+  sub_filter
+    '<script src="/'
+    '<script src="/dshuttle/';
+  sub_filter
+    'root:"/",overview:"/overview",browse:"/browse",config:"/config",data:"/data",logs:"/logs",metrics:"/metrics",workers:"/workers"'
+    'root:"/dshuttle",overview:"/dshuttle/overview",browse:"/dshuttle/browse",config:"/dshuttle/config",data:"/dshuttle/data",logs:"/dshuttle/logs",metrics:"/dshuttle/metrics",workers:"/dshuttle/workers"';
+  sub_filter
+    '/api'
+    '/dshuttle/api';
+  sub_filter
+    'static/media/'
+    'dshuttle/static/media/';
 }
 
 # PAI web portal
