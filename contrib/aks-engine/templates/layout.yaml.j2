@@ -15,31 +15,50 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-FROM fluent/fluentd:v1.7-1
+# kubernetes api server and dashboard
+kubernetes:
+  api-servers-url: https://{{k8s["master_internal"]}}:6443
+  dashboard-url: https://{{k8s["master_internal"]}}:9090
 
-USER root
-RUN apk add --no-cache --update --virtual .build-deps \
-        sudo build-base ruby-dev make gcc libc-dev postgresql-dev git \
- && apk add --no-cache --update libpq \
- && sudo gem install fluent-plugin-concat \
- && sudo gem install rake bundler pg \
- && sudo apk add ruby-bigdecimal
+# TODO please modify it according to your own hardware
+machine-sku:
+  GENERIC-MASTER:
+    mem: 1
+    gpu:
+      type: generic
+      count: 1
+    cpu:
+      vcore: 1
+    os: ubuntu16.04
 
-# Build fluent-plugin-pgjson from scratch
-# Original fluent-plugin-pgjson is from https://github.com/fluent-plugins-nursery/fluent-plugin-pgjson
-# Original plugin cannot retry connecting when database connection is lost, 
-# and is not thread-safe. These two problems are fixed by modifying codes.
-COPY src/fluent-plugin-pgjson /fluent-plugin-pgjson
-RUN cd /fluent-plugin-pgjson && \
-      git init && \
-      git add . && \
-      rake build && \
-      gem install --local ./pkg/fluent-plugin-pgjson-1.0.0.gem && \
-      rm -rf /fluent-plugin-pgjson
+  GENERIC-WORKER:
+    mem: 1
+    gpu:
+      type: generic
+      count: 1
+    cpu:
+      vcore: 1
+    os: ubuntu16.04
 
-# cleanup
-RUN sudo gem sources --clear-all \
- && apk del .build-deps \
- && rm -rf /tmp/* /var/tmp/* /usr/lib/ruby/gems/*/cache/*.gem
+machine-list:
+{%- for vm in k8s["master"] %}
+    - hostname: {{ k8s["master"][vm]["hostname"] }}
+      nodename: {{ k8s["master"][vm]["hostname"] }}
+      hostip: {{ k8s["master"][vm]["ip"] }}
+      machine-type: GENERIC-MASTER
+      dashboard: "true"
+      pai-master: "true"
+{%- endfor %}
+{%- for vm in k8s["worker"] %}
+    - hostname: {{ k8s["worker"][vm]["hostname"] }}
+      nodename: {{ k8s["worker"][vm]["hostname"] }}
+      hostip: {{ k8s["worker"][vm]["ip"] }}
+      machine-type: GENERIC-WORKER
+      pai-worker: "true"
+{%- endfor %}
 
-COPY build/fluent.conf /fluentd/etc/
+
+
+
+
+

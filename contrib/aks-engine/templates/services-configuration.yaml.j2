@@ -1,0 +1,255 @@
+# Copyright (c) Microsoft Corporation
+# All rights reserved.
+#
+# MIT License
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
+# documentation files (the "Software"), to deal in the Software without restriction, including without limitation
+# the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and
+# to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+# The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED *AS IS*, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING
+# BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+# NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+# DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+cluster:
+  common:
+    cluster-id: pai
+    cluster-type: k8s
+    k8s-rbac: "true"
+    job-history: "true"
+    data-path: "/datastorage"
+    qos-switch: "false"
+    docker-data-root: "/mnt/docker"
+
+  # the docker registry to store docker images that contain system services like frameworklauncher, hadoop, etc.
+  docker-registry:
+
+    # The namespace in your registry. If the registry is docker.io, the namespace will be your user account.
+    namespace: {{ cfg["openpai_config"]["docker_registry_namespace"] | default("openpai") }}
+
+    # E.g., gcr.io.
+    # if the registry is hub.docker, please fill this value with docker.io
+    domain: {{ cfg["openpai_config"]["docker_registry_domain"] | default("docker.io") }}
+    # If the docker registry doesn't require authentication, please comment username and password
+    {% if "docker_registry_username" in cfg["openpai_config"] %}
+    username: {{ cfg["openpai_config"]["docker_registry_username"] }}
+    {% else %}
+    #username: <username>
+    {% endif %}
+    {% if "docker_registry_password" in cfg["openpai_config"] %}
+    password: {{ cfg["openpai_config"]["docker_registry_password"] }}
+    {% else %}
+    #password: <password>
+    {% endif %}
+
+    tag: {{ cfg["openpai_config"]["docker_image_tag"] }}
+
+    # The name of the secret in kubernetes will be created in your cluster
+    # Must be lower case, e.g., regsecret.
+    secret-name: pai-secret
+
+
+rest-server:
+#  # launcher type. k8s or yarn
+#  launcher-type: k8s
+  # database admin username
+  default-pai-admin-username: {{ cfg["openpai_config"]["admin_account"] | default("openpai") }}
+  # database admin password
+  default-pai-admin-password: {{ cfg["openpai_config"]["admin_password"] | default("openpai1234") }}
+
+
+webportal:
+  server-port: 9286
+
+internal-storage:
+  enable: true
+
+postgresql:
+  enable: true
+
+#If you want to customize the scheduling config, such add more virtual clusters or more gpu types, check:
+#https://github.com/microsoft/pai/blob/master/docs/hivedscheduler/devops.md
+hivedscheduler:
+  config: |
+    physicalCluster:
+      skuTypes:
+        DT:
+{% if k8s["gpu"] %}
+          gpu: 1
+          cpu: {{ k8s["sku"]["cpu-unit"] }}
+{% else %}
+          cpu: 1
+{% endif %}
+          memory: {{ k8s["sku"]["mem-unit"] }}Mi
+      cellTypes:
+        DT-NODE:
+          childCellType: DT
+{% if k8s["gpu"] %}
+          childCellNumber: {{ k8s["sku"]["gpu_resource"] }}
+{% else %}
+          childCellNumber: {{ k8s["sku"]["cpu_resource"] }}
+{% endif %}
+          isNodeLevel: true
+        DT-NODE-POOL:
+          childCellType: DT-NODE
+          childCellNumber: {{ k8s["worker"]|length }}
+      physicalCells:
+      - cellType: DT-NODE-POOL
+        cellChildren:
+{%- for nodename in k8s["worker"] %}
+        - cellAddress: {{nodename}}
+{%- endfor %}
+    virtualClusters:
+      default:
+        virtualCells:
+        - cellType: DT-NODE-POOL.DT-NODE
+          cellNumber: {{ k8s["worker"]|length }}
+
+
+# uncomment following section, if you want to customize the authentication solution.
+authentication:
+  OIDC: false
+
+  # If OIDC is set as the value true, you will have to configure the following properties.
+  #OIDC-type: AAD
+  #
+  #AAD:
+  #  # If you wanna configure AAD-OIDC for OpenPAI, the following configuration is mandatory.
+  #  # National Clouds endpoint list https://docs.microsoft.com/en-us/azure/active-directory/develop/authentication-national-cloud
+  #  # AZURE: https://login.microsoftonline.com/{tenantID}/v2.0/.well-known/openid-configuration
+  #  # China: https://login.partner.microsoftonline.cn/{tenantID}/v2.0/.well-known/openid-configuration
+  #  # Germany: https://login.microsoftonline.de/{tenantID}/v2.0/.well-known/openid-configuration
+  #  wellKnownURL: https://login.microsoftonline.com/{tenantID}/v2.0/.well-known/openid-configuration
+  #
+  #  # Required
+  #  tenantID: ${tenat_id}
+  #
+  #  # Required, the client ID of your app in AAD
+  #  clientID: ${your_client_id}
+  #
+  #  # Required if `responseType` is 'code', 'id_token code' or 'code id_token'.
+  #  # If app key contains '\', replace it with '\\'.
+  #  clientSecret: '${your_client_secret}'
+  #
+  #  # Optional. The lifetime of nonce in session or cookie, the default value is 3600 (seconds).
+  #  nonceLifetime: null
+  #
+  #  # Optional. The max amount of nonce saved in session or cookie, the default value is 10.
+  #  nonceMaxAmount: 5
+  #
+  #  # Optional. The clock skew allowed in token validation, the default value is 300 seconds.
+  #  clockSkew: null
+  #
+  #  # Optional.
+  #  # If you want to get access_token for a specific resource, you can provide the resource here; otherwise,
+  #  # set the value to null.
+  #  # Note that in order to get access_token, the responseType must be 'code', 'code id_token' or 'id_token code'.
+  #  resourceURL: 'https://graph.windows.net'
+
+  group-manager:
+    # basic: If you set group-data-source as the value basic, admin should manually modify user's grouplist.
+    # winbind: If you set group-data-source as the value winbind, the user's grouplist will get from winbind server based on your configuration.
+    group-data-source: basic
+
+    # If you set winbind as your data source, you should configure this configuration.
+    # winbind-server-address: xxxxxxx
+
+    # Admin group name and its user list
+    admin-group:
+      groupname: admingroup
+      description: "admin's group"
+      externalName: ""
+      extension:
+        acls:
+          virtualClusters: []
+          admin: true
+
+    # Group for default vc.
+    # For yarn default queue hack.
+    default-group:
+      groupname: default
+      description: "group for default vc"
+      externalName: ""
+      extension:
+        acls:
+          virtualClusters: ["default"]
+          admin: false
+
+  #  # If the following groups are not in the data store, it will be created by default.
+  #  grouplist:
+  #    - groupname: forexample
+  #      # internal name
+  #      description: forexample
+  #      # description of the group
+  #      externalName: ""
+  #      # external name, it should be set if your group-data-source is winbind. And the name will be used to query and match the group from
+  #      # the result of winbind. If the group-data-source is basic, this field is useless.
+
+pylon:
+  port: 80
+  ssl:
+    crt_name: {{ k8s["master_ip"] }}.crt
+    crt_path: /cluster-configuration/{{ k8s["master_ip"] }}.crt
+    key_name: {{ k8s["master_ip"] }}.key
+    key_path: /cluster-configuration/{{ k8s["master_ip"] }}.key
+  uri: https://{{ k8s["master_ip"] }}
+  uri-https: https://{{ k8s["master_ip"] }}
+  domain: "{{ k8s["master_ip"] }}"
+
+
+
+# if you want to enable alert manager to send alert email, uncomment following lines and fill
+# the right values.
+# alert-manager:
+#   receiver: your_addr@example.com
+#   smtp_url: smtp.office365.com:587
+#   smtp_from: alert_sender@example.com
+#   smtp_auth_username: alert_sender@example.com
+#   smtp_auth_password: password_for_alert_sender
+#   port: 9093 # this is optional, you should not write this if you do not want to change the port alert-manager is listening on
+
+# uncomment following if you want to change customeize grafana
+# grafana:
+#   port: 3000
+
+
+# uncomment following if you want node-exporter listen to different port
+# node-exporter:
+#   port: 9100
+
+
+# uncomment following if you want to customeize job-exporter
+# job-exporter:
+#   port: 9102
+#   logging-level: INFO
+#   interface: eth0,eno2
+
+
+# uncomment following if you want to change customeize prometheus
+# prometheus:
+#   port: 9091
+#   # How frequently to scrape targets
+#   scrape_interval: 30
+
+
+# uncomment following section if you want to customize the threshold of cleaner
+# cleaner:
+#  threshold: 94
+#  interval: 60
+
+# uncomment following section if you want to customize the port of log-manager
+# log-manager:
+#  port: 9103
+
+
+# uncomment following section if you want to customize the port of storage-manager
+# storage-manager:
+#  localpath: /share
+#  security-type: AUTO
+#  workgroup: WORKGROUP
+#  smbuser: smbuser
+#  smbpwd: smbpwd

@@ -15,31 +15,54 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-FROM fluent/fluentd:v1.7-1
+subscription_id: ${subscriptionId}
+resource_group_name: ${resourcegroup}
+tenant: ${tenant}
+location: ${location}
+dns_prefix: openpai-example
+sp_appid: ${appId}
+sp_password: ${password}
 
-USER root
-RUN apk add --no-cache --update --virtual .build-deps \
-        sudo build-base ruby-dev make gcc libc-dev postgresql-dev git \
- && apk add --no-cache --update libpq \
- && sudo gem install fluent-plugin-concat \
- && sudo gem install rake bundler pg \
- && sudo apk add ruby-bigdecimal
+ssl_phrase: openpai
 
-# Build fluent-plugin-pgjson from scratch
-# Original fluent-plugin-pgjson is from https://github.com/fluent-plugins-nursery/fluent-plugin-pgjson
-# Original plugin cannot retry connecting when database connection is lost, 
-# and is not thread-safe. These two problems are fixed by modifying codes.
-COPY src/fluent-plugin-pgjson /fluent-plugin-pgjson
-RUN cd /fluent-plugin-pgjson && \
-      git init && \
-      git add . && \
-      rake build && \
-      gem install --local ./pkg/fluent-plugin-pgjson-1.0.0.gem && \
-      rm -rf /fluent-plugin-pgjson
+kube_master_as:
+  ## OpenPAI scheduler only supports 1 master cluster.
+  #count: 1
+  vm_size: Standard_D8_v3
+  # storage_profile: ManagedDisks
+  # os_disk_size_gb: 1024
 
-# cleanup
-RUN sudo gem sources --clear-all \
- && apk del .build-deps \
- && rm -rf /tmp/* /var/tmp/* /usr/lib/ruby/gems/*/cache/*.gem
+openpai_master_vmss:
+  vm_size: Standard_NC12
+  # os_disk_size_gb: 1024
 
-COPY build/fluent.conf /fluentd/etc/
+openpai_worker_vmss:
+  count: 1
+  vm_size: Standard_NC12
+
+  # os_disk_size_gb: 1024
+
+  # scale_set_priority: Regular
+  ## when scale_set_priority is spot
+  # scale_set_eviction_policy: Deallocate
+
+  ca_enable: false
+  # min_vm_count: 1
+  # max_vm_count: 2
+
+linux_profile:
+  adminUsername: azureuser
+  publicKeys: "${key content}"
+
+openpai_config:
+  branch_name: v1.0.1
+
+  docker_image_tag: v1.0.1
+  docker_registry_domain: docker.io
+  docker_registry_namespace: openpai
+  #docker_registry_username: exampleuser
+  #docker_registry_password: examplepasswd
+
+  admin_account: openpai
+  admin_password: openpai1234
+

@@ -91,7 +91,7 @@ const Index = () => {
     } else {
       location.href =
         config.restServerUri +
-        `/api/v1/authn/oidc/login?${querystring.stringify({
+        `/api/v2/authn/oidc/login?${querystring.stringify({
           redirect_uri: new URL('/index.html', window.location.href).href,
           from: new URL(loginTarget, window.location.href).href,
         })}`;
