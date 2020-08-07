@@ -226,8 +226,8 @@ export async function getContainerLog(logUrl) {
       const rotatedLogUrl = logUrl + '.1';
       const rotatedLogRes = await fetch(rotatedLogUrl);
       const rotatedText = await rotatedLogRes.text();
-      if (rotatedLogRes.ok && rotatedText !== 'No such file!') {
-        text = rotatedLogRes;
+      if (rotatedLogRes.ok && rotatedText.trim() !== 'No such file!') {
+        text = rotatedText;
       }
     }
     ret.text = text;
