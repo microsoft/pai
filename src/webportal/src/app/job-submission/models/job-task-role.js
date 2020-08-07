@@ -33,6 +33,7 @@ import {
 import { get, isNil, isEmpty } from 'lodash';
 import { removeEmptyProperties } from '../utils/utils';
 import { DEFAULT_DOCKER_URI } from '../utils/constants';
+import config from '../../config/webportal.config';
 
 export class JobTaskRole {
   constructor(props) {
@@ -44,6 +45,7 @@ export class JobTaskRole {
       commands,
       completion,
       deployment,
+      hivedSku,
       containerSize,
       isContainerSizeEnabled,
       taskRetryCount,
@@ -56,6 +58,7 @@ export class JobTaskRole {
     this.commands = commands || '';
     this.completion = completion || new Completion({});
     this.deployment = deployment || new Deployment({});
+    this.hivedSku = hivedSku || { skuNum: 1, skuType: null };
     this.containerSize = containerSize || getDefaultContainerSize();
     this.isContainerSizeEnabled = isContainerSizeEnabled || false;
     this.taskRetryCount = taskRetryCount || 0;
@@ -130,6 +133,7 @@ export class JobTaskRole {
 
   convertToProtocolFormat() {
     const taskRole = {};
+    const hivedTaskRole = {};
     const ports = this.ports.reduce((val, x) => {
       if (typeof x.value === 'string') {
         val[x.key] = parseInt(x.value);
@@ -163,7 +167,12 @@ export class JobTaskRole {
             .split('\n')
             .map(line => line.trim()),
     });
+    if (config.launcherScheduler === 'hivedscheduler') {
+      hivedTaskRole[this.name] = {
+        skuType: this.hivedSku.skuType,
+      };
+    }
 
-    return taskRole;
+    return { taskRole, hivedTaskRole };
   }
 }

@@ -38,6 +38,12 @@ spec:
         env:
         - name: LAUNCHER_TYPE
           value: {{ cluster_cfg["cluster"]["common"]["cluster-type"] }}
+        - name: LAUNCHER_SCHEDULER
+{% if cluster_cfg['hivedscheduler']['config']|length > 1 %}
+          value: hivedscheduler
+{% else %}
+          value: defaultscheduler
+{% endif %}
         - name: REST_SERVER_URI
           value: {{ cluster_cfg['rest-server']['uri'] }}
         - name: PROMETHEUS_URI
