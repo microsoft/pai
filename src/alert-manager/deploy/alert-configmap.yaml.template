@@ -25,7 +25,7 @@ data:
       routes:
       - receiver: 'pai-alert-handler'
         match: 
-          alertname: LowTaskGpuPercent
+          alertname: PaiJobLowGpuPercent
     
     receivers:
     - name: "pai-alert"

@@ -10,9 +10,9 @@
 
 #### How to configure cluster section in service-configuration.yaml <a name="HT_Config"></a>
 
-Port configurations in this section is optional which default to 9093. All other config is mandatory. If not receiver is configured, the alert manager will not start.
+Port configuration in this section is optional which default to 9093. All other config is mandatory. If `receiver` is not configured, the alert manager will not start.
 
-To configure alert-manager to send out alert email, you should configure alert manager with receiver in your service-configuration like following:
+To configure alert-manager to send out alert emails and kill low-gpu-utilization jobs, you should configure alert manager with receiver and alert-handler in your service-configuration like following:
 ```yaml
 alert-manager:
     receiver: your_addr@example.com
@@ -23,7 +23,7 @@ alert-manager:
     port: 9093 # this is optional, you should not write this if you do not want to change the port alert-manager is listening on
     alert-handler:
         port: 9095 # this is optional, you should not write this if you do not want to change the port alert-handler is listening on
-        bearer_token: 'application_token_for_rest_server'
+        bearer_token: 'your_application_token_for_rest_server'
 ```
 
 In addition, if you deployed pai behind firewall, you should configure alert-manager with `use-pylon: True`, to make url from alert email public available.
@@ -43,7 +43,7 @@ alert-manager:
     port: 9093
     alert-handler:
         port: 9095
-        bearer_token: 'application_token_for_rest_server'
+        bearer_token: 'your_application_token_for_rest_server'
     configured: True
     host: master_ip
     url: "http://master_ip:9093"

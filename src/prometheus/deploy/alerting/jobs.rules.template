@@ -30,11 +30,9 @@ groups:
     for: 30m
     annotations:
       summary: "Job {{ '{{' }}$labels.job_name{{ '}}' }}in pending status detected"
-- name: pai-alert-handler
-  rules:
-  - alert: LowTaskGpuPercent
-    expr: avg(task_gpu_percent{virtual_cluster=~"{{ cluster_cfg["prometheus"]["alert-handler"]["virtual_clusters"] }}"}) by (job_name) < {{ cluster_cfg["prometheus"]["alert-handler"]["percent"] }}
-    for: {{ cluster_cfg["prometheus"]["alert-handler"]["time"] }}
+  - alert: PaiJobLowGpuPercent
+    expr: avg(task_gpu_percent{virtual_cluster=~"{{ cluster_cfg["prometheus"]["low_gpu_utilization_job"]["virtual_clusters"] }}"}) by (job_name) < {{ cluster_cfg["prometheus"]["low_gpu_utilization_job"]["gpu_percent"] }}
+    for: {{ cluster_cfg["prometheus"]["low_gpu_utilization_job"]["last_time"] }}
     annotations:
-      summary: "{{ '{{' }}$labels.instance{{ '}}' }} has gpu percent lower than 30% for 1h, will be killed"
-      description: In certain virtual clusters, jobs with low gpu utilization will be killed.
+      summary: "{{ '{{' }}$labels.job_name{{ '}}' }} has a job gpu percent lower than {{ cluster_cfg["prometheus"]["low_gpu_utilization_job"]["gpu_percent"] }} for {{ cluster_cfg["prometheus"]["low_gpu_utilization_job"]["last_time"] }}"
+      description: Monitor job level gpu utilization in certain virtual clusters.
