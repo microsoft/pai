@@ -235,6 +235,8 @@ export async function getContainerLog(logUrl) {
           .concat('\n--------log is rotated, may be lost during this--------\n')
           .concat(fullLog);
       }
+      // get last 16KB
+      text = text.slice(-16 * 1024);
     }
     ret.text = text;
     ret.fullLogLink = logUrl.replace('/tail/', '/full/');
