@@ -222,12 +222,18 @@ export async function getContainerLog(logUrl) {
       throw new Error(`Log not available`);
     }
   } else if (config.logType === 'log-manager') {
-    if (text.length === 0) {
+    // Try to get roated log if currently log content is less than 15KB
+    if (text.length <= 15 * 1024) {
+      const fullLogUrl = logUrl.replace('/tail/', '/full/');
       const rotatedLogUrl = logUrl + '.1';
       const rotatedLogRes = await fetch(rotatedLogUrl);
+      const fullLogRes = await fetch(fullLogUrl);
       const rotatedText = await rotatedLogRes.text();
+      const fullLog = await fullLogRes.text();
       if (rotatedLogRes.ok && rotatedText.trim() !== 'No such file!') {
-        text = rotatedText;
+        text = rotatedText
+          .concat('\n--------log is rotated, may be lost during this--------\n')
+          .concat(fullLog);
       }
     }
     ret.text = text;
