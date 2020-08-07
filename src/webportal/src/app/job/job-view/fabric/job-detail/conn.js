@@ -222,11 +222,12 @@ export async function getContainerLog(logUrl) {
       throw new Error(`Log not available`);
     }
   } else if (config.logType === 'log-manager') {
-    if (text.length() === 0) {
+    if (text.length === 0) {
       const rotatedLogUrl = logUrl + '.1';
       const rotatedLogRes = await fetch(rotatedLogUrl);
-      if (rotatedLogRes.ok) {
-        text = await rotatedLogRes.text();
+      const rotatedText = await rotatedLogRes.text();
+      if (rotatedLogRes.ok && rotatedText !== 'No such file!') {
+        text = rotatedLogRes;
       }
     }
     ret.text = text;
