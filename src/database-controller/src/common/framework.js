@@ -1,10 +1,11 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-const logger = require('@dbc/core/logger');
-const k8s = require('@dbc/core/k8s');
+const logger = require('@dbc/common/logger');
+const k8s = require('@dbc/common/k8s');
 const _ = require('lodash');
 const yaml = require('js-yaml');
+const zlib = require('zlib');
 
 const mockFrameworkStatus = () => {
   return {
@@ -21,7 +22,7 @@ const mockFrameworkStatus = () => {
   };
 };
 
-const convertState = (state, exitCode, retryDelaySec) => {
+const convertFrameworkState = (state, exitCode, retryDelaySec) => {
   switch (state) {
     case 'AttemptCreationPending':
     case 'AttemptCreationRequested':
@@ -56,15 +57,25 @@ const convertState = (state, exitCode, retryDelaySec) => {
   }
 };
 
-function ignoreError(err) {
+const decompressField = (val) => {
+  if (val == null) {
+    return null;
+  } else {
+    return JSON.parse(zlib.gunzipSync(Buffer.from(val, 'base64')).toString());
+  }
+};
+
+function logError(err) {
   logger.info('This error will be ignored: ', err);
 }
 
 // Class `Snapshot` handles the full json of framework.
 // It provides method like:
 //    getRequest: extract framework request from the full json
-//    overrideRequest: override the framework request using another snapshot
+//    overrideRequest: override the framework request to be another snapshot's framework request
 //    getRequestUpdate, getStatusUpdate, getAllUpdate: Get database updates from the snapshot.
+//       They are used to update database records. e.g. If we want to update the framework request
+//       in database, we can do dbModel.update(snapshot.getRequestUpdate(), where: {name: snapshot.getName()})
 // It doesn't handle database internal status, like: requestSynced, apiServerDeleted, ..., etc.
 class Snapshot {
   constructor(snapshot) {
@@ -85,6 +96,7 @@ class Snapshot {
   }
 
   getRequest(omitGeneration) {
+    // extract framework request from the full json
     const request = _.pick(this._snapshot, [
       'apiVersion',
       'kind',
@@ -94,6 +106,9 @@ class Snapshot {
       'spec',
     ]);
     if (omitGeneration) {
+      // User submits framework request to database, and compare this request with the one in database.
+      // If the request is the same, no-op. Otherwise set `requestGeneration` = `requestGeneration` + 1.
+      // When this kind of comparison happens, we should omit the current `requestGeneration`.
       return _.omit(request, 'metadata.annotations.requestGeneration');
     } else {
       return request;
@@ -101,6 +116,7 @@ class Snapshot {
   }
 
   overrideRequest(otherSnapshot) {
+    // override the framework request to be another snapshot's framework request
     // shouldn't use _.merge here
     _.assign(
       this._snapshot,
@@ -116,7 +132,19 @@ class Snapshot {
     );
   }
 
+  unzipTaskRoleStatuses() {
+    // Sometimes, `taskRoleStatuses` is too large and can be compressed.
+    // This function decompress this field.
+    // It is usually called before we write snapshot into database.
+    const attemptStatus = this._snapshot.status.attemptStatus;
+    if ((!attemptStatus.taskRoleStatuses) && (attemptStatus.taskRoleStatusesCompressed)) {
+      attemptStatus.taskRoleStatuses = decompressField(attemptStatus.taskRoleStatusesCompressed);
+      attemptStatus.taskRoleStatusesCompressed = null;
+    }
+  }
+
   getRequestUpdate(withSnapshot = true) {
+    // Get database updates from the snapshot for the request part.
     const loadedConfig = yaml.safeLoad(
       this._snapshot.metadata.annotations.config,
     );
@@ -143,12 +171,14 @@ class Snapshot {
       logPathInfix: this._snapshot.metadata.annotations.logPathInfix,
     };
     if (withSnapshot) {
+      this.unzipTaskRoleStatuses()
       update.snapshot = JSON.stringify(this._snapshot);
     }
     return update;
   }
 
   getStatusUpdate(withSnapshot = true) {
+    // Get database updates from the snapshot for the status part.
     const completionStatus = this._snapshot.status.attemptStatus
       .completionStatus;
     const update = {
@@ -168,25 +198,28 @@ class Snapshot {
         : null,
       appExitCode: completionStatus ? completionStatus.code : null,
       subState: this._snapshot.status.state,
-      state: convertState(
+      state: convertFrameworkState(
         this._snapshot.status.state,
         completionStatus ? completionStatus.code : null,
         this._snapshot.status.retryPolicyStatus.retryDelaySec,
       ),
     };
     if (withSnapshot) {
+      this.unzipTaskRoleStatuses()
       update.snapshot = JSON.stringify(this._snapshot);
     }
     return update;
   }
 
   getAllUpdate(withSnapshot = true) {
+    // Get database updates from the snapshot for both framework request and status part.
     const update = _.assign(
       {},
       this.getRequestUpdate(false),
       this.getStatusUpdate(false),
     );
     if (withSnapshot) {
+      this.unzipTaskRoleStatuses()
       update.snapshot = JSON.stringify(this._snapshot);
     }
     return update;
@@ -200,12 +233,16 @@ class Snapshot {
     } else {
       record.submissionTime = new Date();
     }
-    this.setGeneration(1);
+    this.setRequestGeneration(1);
     return record;
   }
 
   getName() {
     return this._snapshot.metadata.name;
+  }
+
+  getState() {
+    return this._snapshot.status.state;
   }
 
   getSnapshot() {
@@ -232,14 +269,16 @@ class Snapshot {
     }
   }
 
-  setGeneration(generation) {
+  setRequestGeneration(generation) {
     this._snapshot.metadata.annotations.requestGeneration = generation.toString();
   }
 
-  getGeneration() {
+  getRequestGeneration() {
+    // `requestGeneration` is used to track framework request changes and determine whether it is synced with API server.
+    // If `requestGeneration` in database equals the one from API server, we will mark the database field `requestSynced` = true.
     if (!_.has(this._snapshot, 'metadata.annotations.requestGeneration')) {
-      // for some legacy jobs, use 1 as its request generation.
-      this.setGeneration(1);
+      // for some legacy jobs, use 1 as its requestGeneration.
+      this.setRequestGeneration(1);
     }
     return parseInt(this._snapshot.metadata.annotations.requestGeneration);
   }
@@ -317,23 +356,23 @@ class AddOns {
     this._configSecretDef &&
       k8s
         .patchSecretOwnerToFramework(this._configSecretDef, frameworkResponse)
-        .catch(ignoreError);
+        .catch(logError);
     this._dockerSecretDef &&
       k8s
         .patchSecretOwnerToFramework(this._dockerSecretDef, frameworkResponse)
-        .catch(ignoreError);
+        .catch(logError);
   }
 
   silentDelete() {
     // do not await for delete
     this._configSecretDef &&
-      k8s.deleteSecret(this._configSecretDef.metadata.name).catch(ignoreError);
+      k8s.deleteSecret(this._configSecretDef.metadata.name).catch(logError);
     this._priorityClassDef &&
       k8s
         .deletePriorityClass(this._priorityClassDef.metadata.name)
-        .catch(ignoreError);
+        .catch(logError);
     this._dockerSecretDef &&
-      k8s.deleteSecret(this._dockerSecretDef.metadata.name).catch(ignoreError);
+      k8s.deleteSecret(this._dockerSecretDef.metadata.name).catch(logError);
   }
 
   getUpdate() {
@@ -410,7 +449,7 @@ async function synchronizeRequest(snapshot, addOns) {
 
 function silentSynchronizeRequest(snapshot, addOns) {
   // any error will be ignored
-  synchronizeRequest(snapshot, addOns).catch(ignoreError);
+  synchronizeRequest(snapshot, addOns).catch(logError);
 }
 
 module.exports = {

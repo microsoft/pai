@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 
 const createError = require('http-errors');
-const logger = require('@dbc/core/logger');
+const logger = require('@dbc/common/logger');
 const AsyncLock = require('async-lock');
 const DatabaseModel = require('openpaidbsdk');
 const config = require('@dbc/write-merger/config');
@@ -10,7 +10,7 @@ const {
   Snapshot,
   AddOns,
   silentSynchronizeRequest,
-} = require('@dbc/core/framework');
+} = require('@dbc/common/framework');
 const _ = require('lodash');
 const lock = new AsyncLock({ maxPending: Number.MAX_SAFE_INTEGER });
 const databaseModel = new DatabaseModel(
@@ -69,7 +69,7 @@ async function receiveWatchEvents(req, res, next) {
         // Database has the corresponding framework.
         const oldSnapshot = new Snapshot(oldFramework.snapshot);
         const internalUpdate = {};
-        if (oldSnapshot.getGeneration() === snapshot.getGeneration()) {
+        if (oldSnapshot.getRequestGeneration() === snapshot.getRequestGeneration()) {
           // if framework request is equal, mark requestSynced = true
           logger.info(`The request of framework ${frameworkName} is synced.`);
           internalUpdate.requestSynced = true;
@@ -81,8 +81,17 @@ async function receiveWatchEvents(req, res, next) {
         // use request in database
         snapshot.overrideRequest(oldSnapshot);
         if (req.params.eventType === 'DELETED') {
-          // if event is DELETED, mark apiServerDeleted = true
-          internalUpdate.apiServerDeleted = true;
+          if (snapshot.getState() === 'Completed') {
+            // if event is DELETED and the state is Completed, mark apiServerDeleted = true
+            internalUpdate.apiServerDeleted = true;
+          } else {
+            // Event is DELETED and the state is not Completed.
+            // This case could occur when someone deletes the framework in API server directly.
+            // In such case, we mark requestSynced=false, and reset the snapshot using the framework request.
+            snapshot = new Snapshot(snapshot.getRequest(false))
+            internalUpdate.requestSynced = false;
+            internalUpdate.apiServerDeleted = false;
+          }
         }
         await databaseModel.Framework.update(
           _.assign(snapshot.getStatusUpdate(), internalUpdate),
@@ -126,9 +135,9 @@ async function receiveFrameworkRequest(req, res, next) {
           // create new record in db
           // including all add-ons and submissionTime
           // set requestGeneration = 1
-          snapshot.setGeneration(1);
+          snapshot.setRequestGeneration(1);
           const record = _.assign(
-            {},
+            {requestSynced: false, apiServerDeleted: false},
             snapshot.getAllUpdate(),
             addOns.getUpdate(),
           );
@@ -147,7 +156,7 @@ async function receiveFrameworkRequest(req, res, next) {
           } else {
             // request is different
             // update request in db, mark requestSynced=false
-            snapshot.setGeneration(oldSnapshot.getGeneration() + 1);
+            snapshot.setRequestGeneration(oldSnapshot.getRequestGeneration() + 1);
             await databaseModel.Framework.update(
               _.assign({}, snapshot.getRequestUpdate(), {
                 requestSynced: false,
@@ -160,7 +169,11 @@ async function receiveFrameworkRequest(req, res, next) {
       },
     );
     res.status(200).json({ message: 'ok' });
-    // skip db poller, any response or error will be ignored
+    // Poller has an interval to synchronize the framework request to API server.
+    // The interval will cause a delay on every job.
+    // So we introduce a short-cut here to synchronize the framework request.
+    // It is an async function call and doesn't affect the return of this function.
+    // Any error of it will be logged and ignored.
     if (needSynchronize) {
       silentSynchronizeRequest(snapshot, addOns);
     }

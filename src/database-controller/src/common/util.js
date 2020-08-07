@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-const logger = require('@dbc/core/logger');
+const logger = require('@dbc/common/logger');
 
 async function timePeriod(ms) {
   await new Promise((resolve, reject) => {
@@ -15,6 +15,7 @@ function alwaysRetryDecorator(
   initialRetryDelayMs = 500,
   backoffRatio = 2,
   maxRetryDelayMs = 120000,
+  randomizeDelay = true,
 ) {
   /*
   promiseFn is an async function
@@ -47,6 +48,10 @@ function alwaysRetryDecorator(
           nextDelayMs = nextDelayMs * backoffRatio;
         } else {
           nextDelayMs = maxRetryDelayMs;
+        }
+        if (randomizeDelay) {
+          // randomize between nextDelayMs * (0.8 ~ 1.2)
+          nextDelayMs = nextDelayMs * (Math.random() * 0.4 + 0.8)
         }
         retryCount += 1;
       }

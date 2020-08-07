@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-const basicConfig = require('@dbc/core/config');
+const basicConfig = require('@dbc/common/config');
 const _ = require('lodash');
 const Joi = require('joi');
 

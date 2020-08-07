@@ -5,9 +5,9 @@ require('module-alias/register');
 require('dotenv').config();
 const fetch = require('node-fetch');
 const AsyncLock = require('async-lock');
-const logger = require('@dbc/core/logger');
-const { getFrameworkInformer } = require('@dbc/core/k8s');
-const { alwaysRetryDecorator } = require('@dbc/core/util');
+const logger = require('@dbc/common/logger');
+const { getFrameworkInformer } = require('@dbc/common/k8s');
+const { alwaysRetryDecorator } = require('@dbc/common/util');
 const config = require('@dbc/watcher/framework/config');
 
 const lock = new AsyncLock({ maxPending: Number.MAX_SAFE_INTEGER });
@@ -61,7 +61,8 @@ informer.on('delete', apiObject => {
 });
 informer.on('error', err => {
   // If any error happens, the process should exit, and let Kubernetes restart it.
-  logger.error(err);
-  process.exit(1);
+  logger.error(err, function() {
+    process.exit(1);
+  });
 });
 informer.start();

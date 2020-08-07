@@ -7,21 +7,22 @@ const AsyncLock = require('async-lock');
 const { Sequelize } = require('sequelize');
 const Op = Sequelize.Op;
 const DatabaseModel = require('openpaidbsdk');
-const logger = require('@dbc/core/logger');
-const { Snapshot, AddOns, synchronizeRequest } = require('@dbc/core/framework');
+const logger = require('@dbc/common/logger');
+const { Snapshot, AddOns, synchronizeRequest } = require('@dbc/common/framework');
 const interval = require('interval-promise');
 const config = require('@dbc/poller/config');
 const fetch = require('node-fetch');
-const { deleteFramework } = require('@dbc/core/k8s');
+const { deleteFramework } = require('@dbc/common/k8s');
 // maxPending is set to 1 to avoid the queue to be too long.
 // If any framework is not synced/deleted, it will be synced/deleted in the next polling round.
+// We don't need to explicitly retry on error.
 const lock = new AsyncLock({ maxPending: 1 });
 const databaseModel = new DatabaseModel(
   config.dbConnectionStr,
   config.maxDatabaseConnection,
 );
 
-async function mockDeleteEvent(snapshot) {
+async function postMockedDeleteEvent(snapshot) {
   await fetch(`${config.writeMergerUrl}/api/v1/watchEvents/DELETED`, {
     method: 'POST',
     body: snapshot.getString(),
@@ -49,9 +50,10 @@ function deleteHandler(snapshot, pollingTs) {
         if (err.response && err.response.statusCode === 404) {
           // for 404 error, mock a delete to write merger
           logger.warn(
-            `Cannot find framework ${frameworkName} in API Server. Will mock a deletion to write merger.`,
+            `Cannot find framework ${frameworkName} in API Server. Will mock a deletion to write merger. Error:`,
+            err,
           );
-          await mockDeleteEvent(snapshot);
+          await postMockedDeleteEvent(snapshot);
         } else {
           // for non-404 error
           throw err;

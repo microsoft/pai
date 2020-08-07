@@ -78,6 +78,10 @@ async function createFramework(frameworkDescription, namespace = 'default') {
 }
 
 async function patchFramework(name, data, namespace = 'default') {
+  if (data.status) {
+    logger.warn('Modifying status field in framework is not allowed! Will delete it.')
+    delete data.status
+  }
   const res = await customObjectsClient.patchNamespacedCustomObject(
     'frameworkcontroller.microsoft.com',
     'v1',
@@ -97,6 +101,9 @@ async function deleteFramework(name, namespace = 'default') {
     namespace,
     'frameworks',
     name,
+    ...Array(4), // skip some parameters
+    { headers: { 'propagationPolicy': 'Foreground' } },
+
   );
   return res.response;
 }
@@ -118,7 +125,7 @@ function getFrameworkInformer(
   If the informer disconnects normally from API server, it will re-connect automatically.
   But during the reconnection, listFn will be called again, which is inefficient.
   According to https://github.com/kubernetes-client/javascript/blob/932c2fbc34db954c6ed397b3cd9ead08b2ff1d10/src/cache.ts#L82-L85,
-  this behavior will be fixed in the future.
+  this behavior will be fixed in the future. For this version, we set a large timeout to mitigate this issue.
   TO DO: If @kubernetes/client-node fixes this issue, we should upgrade our code to use the new code.
 
   If the informer encounters any error, it will stop watching, and won't re-connect.
@@ -136,7 +143,7 @@ function getFrameworkInformer(
   };
   const informer = k8s.makeInformer(
     kc,
-    `/apis/frameworkcontroller.microsoft.com/v1/frameworks?timeoutSeconds=${timeoutSeconds}`,
+    `/apis/frameworkcontroller.microsoft.com/v1/namespaces/${namespace}/frameworks?timeoutSeconds=${timeoutSeconds}`,
     listFn,
   );
   return informer;
