@@ -16,15 +16,16 @@ const app = express();
 app.use(cors());
 app.use(compress());
 app.use(bodyParser.urlencoded({ extended: true }));
-app.use(bodyParser.json({ limit: config.bodyLimit }));
+app.use(bodyParser.json({ limit: config.bodyLimit, type: 'application/*'}));
 app.use(bodyParser.text({ type: 'text/*' }));
 app.use(morgan('dev', { stream: logger.stream }));
 
 const router = new express.Router();
 
 router.route('/ping').get(handler.ping);
-router.route('/frameworkRequest').put(handler.receiveFrameworkRequest);
-router.route('/watchEvents/:eventType').post(handler.receiveWatchEvents);
+router.route('/frameworkRequest/:frameworkName').put(handler.putFrameworkRequest);
+router.route('/frameworkRequest/:frameworkName').patch(handler.patchFrameworkRequest);
+router.route('/watchEvents/:eventType').post(handler.postWatchEvents);
 
 app.use('/api/v1', router);
 

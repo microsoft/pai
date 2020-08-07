@@ -897,7 +897,7 @@ const put = async (frameworkName, config, rawConfig) => {
   try {
     response = await axios({
       method: 'put',
-      url: launcherConfig.writeMergerUrl + '/api/v1/frameworkRequest',
+      url: launcherConfig.writeMergerUrl + '/api/v1/frameworkRequest/' + encodeName(frameworkName),
       data: {
         frameworkRequest: frameworkDescription,
         submissionTime: submissionTime,
@@ -924,35 +924,17 @@ const put = async (frameworkName, config, rawConfig) => {
 const execute = async (frameworkName, executionType) => {
   let response;
   try {
-    const framework = await databaseModel.Framework.findOne({
-      attributes: ['snapshot', 'submissionTime', 'configSecretDef', 'priorityClassDef', 'dockerSecretDef'],
-      where: {name: encodeName(frameworkName)},
-    });
-    if (!framework) {
-      throw createError('Not Found', 'NoJobError', `Job ${frameworkName} is not found.`);
+    const patchData = {
+      spec: {
+        executionType: `${executionType.charAt(0)}${executionType.slice(1).toLowerCase()}`
+      }
     }
-    const snapshot = JSON.parse(framework.snapshot);
-    const frameworkRequest = _.pick(snapshot, [
-      'apiVersion',
-      'kind',
-      'metadata.name',
-      'metadata.labels',
-      'metadata.annotations',
-      'spec',
-    ]);
-    frameworkRequest.spec.executionType = `${executionType.charAt(0)}${executionType.slice(1).toLowerCase()}`;
     response = await axios({
-      method: 'put',
-      url: launcherConfig.writeMergerUrl + '/api/v1/frameworkRequest',
-      data: {
-        frameworkRequest: frameworkRequest,
-        submissionTime: framework.submissionTime,
-        configSecretDef: framework.configSecretDef,
-        priorityClassDef: framework.priorityClassDef,
-        dockerSecretDef: framework.dockerSecretDef,
-      },
+      method: 'PATCH',
+      url: launcherConfig.writeMergerUrl + '/api/v1/frameworkRequest/' + encodeName(frameworkName),
+      data: patchData,
       headers: {
-        'Content-Type': 'application/json',
+        'Content-Type': 'application/merge-patch+json',
       },
     });
   } catch (error) {

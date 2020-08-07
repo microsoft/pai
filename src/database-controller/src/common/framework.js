@@ -6,6 +6,7 @@ const k8s = require('@dbc/common/k8s');
 const _ = require('lodash');
 const yaml = require('js-yaml');
 const zlib = require('zlib');
+const jsonmergepatch = require('json-merge-patch');
 
 const mockFrameworkStatus = () => {
   return {
@@ -282,6 +283,14 @@ class Snapshot {
     }
     return parseInt(this._snapshot.metadata.annotations.requestGeneration);
   }
+
+  applyRequestPatch(patchData) {
+    if (patchData.status) {
+      // doesn't allow patch status
+      delete patchData.status;
+    }
+    this._snapshot = jsonmergepatch.apply(this._snapshot, patchData);
+  }
 }
 
 // Class Add-ons handles creation/patching/deletion of job add-ons.
@@ -448,8 +457,12 @@ async function synchronizeRequest(snapshot, addOns) {
 }
 
 function silentSynchronizeRequest(snapshot, addOns) {
-  // any error will be ignored
-  synchronizeRequest(snapshot, addOns).catch(logError);
+  try {
+    // any error will be ignored
+    synchronizeRequest(snapshot, addOns).catch(logError);
+  } catch (err) {
+    logError(err)
+  }
 }
 
 module.exports = {

@@ -41,7 +41,7 @@ async function ping(req, res, next) {
   }
 }
 
-async function receiveWatchEvents(req, res, next) {
+async function postWatchEvents(req, res, next) {
   try {
     const snapshot = new Snapshot(req.body);
     const frameworkName = snapshot.getName();
@@ -105,7 +105,105 @@ async function receiveWatchEvents(req, res, next) {
   }
 }
 
-async function receiveFrameworkRequest(req, res, next) {
+async function onCreateFrameworkRequest(snapshot, submissionTime, addOns) {
+  // create new record in db
+  // including all add-ons and submissionTime
+  // set requestGeneration = 1
+  snapshot.setRequestGeneration(1);
+  const record = _.assign(
+    {requestSynced: false, apiServerDeleted: false},
+    snapshot.getAllUpdate(),
+    addOns.getUpdate(),
+  );
+  record.submissionTime = new Date(submissionTime);
+  await databaseModel.Framework.create(record);
+  // Poller has an interval to synchronize the framework request to API server.
+  // The interval will cause a delay on every job.
+  // So we introduce a short-cut here to synchronize the framework request.
+  // It is an async function call and doesn't affect the return of this function.
+  // Any error of it will be logged and ignored.
+  silentSynchronizeRequest(snapshot, addOns);
+}
+
+async function onModifyFrameworkRequest(oldSnapshot, snapshot, addOns) {
+  // compare framework request (omit requestGeneration)
+  if (
+    _.isEqual(snapshot.getRequest(true), oldSnapshot.getRequest(true))
+  ) {
+    // request is equal, no-op
+  } else {
+    // request is different
+    // update request in db, mark requestSynced=false
+    snapshot.setRequestGeneration(oldSnapshot.getRequestGeneration() + 1);
+    await databaseModel.Framework.update(
+      _.assign({}, snapshot.getRequestUpdate(), {
+        requestSynced: false,
+      }),
+      { where: { name: snapshot.getName() } },
+    );
+    // Poller has an interval to synchronize the framework request to API server.
+    // The interval will cause a delay on every job.
+    // So we introduce a short-cut here to synchronize the framework request.
+    // It is an async function call and doesn't affect the return of this function.
+    // Any error of it will be logged and ignored.
+    silentSynchronizeRequest(snapshot, addOns);
+  }
+}
+
+async function patchFrameworkRequest(req, res, next) {
+  // The handler to handle PATCH /frameworkRequest.
+  // PATCH means provide a part of data, and the current framework request should be updated according to the patch.
+  // We use the rules of "JSON merge patch" for request modifying.
+  // If the framework request JSON is changed, we will mark it as requestSynced=false.
+  // A requestSynced=false request will be synchronized to API server (no matter whether it is completed).
+  try {
+    const patchData = req.body;
+    const frameworkName = req.params.frameworkName;
+    if (!frameworkName) {
+      return next(createError(400, 'Cannot find framework name.'));
+    }
+    if (_.has(patchData, 'metadata.name') && patchData.metadata.name !== frameworkName) {
+      return next(createError(400, 'The framework names in query string doesn\'t match the name in body.'))
+    }
+    await lock.acquire(
+      frameworkName,
+      async () => {
+        const oldFramework = await databaseModel.Framework.findOne({
+          attributes: ['snapshot', 'submissionTime', 'configSecretDef', 'priorityClassDef', 'dockerSecretDef'],
+          where: { name: frameworkName },
+        });
+        if (!oldFramework) {
+          // if the old framework doesn't exist, throw a 404 error.
+          throw createError(404, `Cannot find framework ${frameworkName}.`);
+        } else {
+          // if the old framework exists
+          const oldSnapshot = new Snapshot(oldFramework.snapshot)
+          const snapshot = oldSnapshot.copy()
+          snapshot.applyRequestPatch(patchData);
+          const addOns = new AddOns(
+            oldFramework.configSecretDef,
+            oldFramework.priorityClassDef,
+            oldFramework.dockerSecretDef,
+          );
+          return onModifyFrameworkRequest(oldSnapshot, snapshot, addOns)
+        }
+      },
+    );
+    res.status(200).json({ message: 'ok' });
+  } catch (err) {
+    return next(err);
+  }
+
+}
+
+async function putFrameworkRequest(req, res, next) {
+  // The handler to handle PUT /frameworkRequest.
+  // PUT means provide a full spec of framework request, and the corresponding request will be created or updated.
+  // Along with the framework request, user must provide other job add-ons, e.g. configSecretDef, priorityClassDef, dockerSecretDef.
+  // If the framework doesn't exist in database, the record will be created.
+  // If the framework already exists, the record will be updated, and all job add-ons will be ignored. (Job add-ons can't be changed).
+  // If the framework request JSON is changed(or created), we will mark it as requestSynced=false.
+  // A requestSynced=false request will be synchronized to API server (no matter whether it is completed).
   try {
     const {
       frameworkRequest,
@@ -118,65 +216,39 @@ async function receiveFrameworkRequest(req, res, next) {
     if (!frameworkName) {
       return next(createError(400, 'Cannot find framework name.'));
     }
-    const [needSynchronize, snapshot, addOns] = await lock.acquire(
+    if (req.params.frameworkName !== frameworkName) {
+      return next(createError(400, 'The framework names in query string doesn\'t match the name in body.'))
+    }
+    await lock.acquire(
       frameworkName,
       async () => {
         const oldFramework = await databaseModel.Framework.findOne({
-          attributes: ['snapshot'],
+          attributes: ['snapshot', 'submissionTime', 'configSecretDef', 'priorityClassDef', 'dockerSecretDef'],
           where: { name: frameworkName },
         });
         const snapshot = new Snapshot(frameworkRequest);
-        const addOns = new AddOns(
-          configSecretDef,
-          priorityClassDef,
-          dockerSecretDef,
-        );
         if (!oldFramework) {
-          // create new record in db
-          // including all add-ons and submissionTime
-          // set requestGeneration = 1
-          snapshot.setRequestGeneration(1);
-          const record = _.assign(
-            {requestSynced: false, apiServerDeleted: false},
-            snapshot.getAllUpdate(),
-            addOns.getUpdate(),
+          // if the old framework doesn't exist, create add-ons.
+          const addOns = new AddOns(
+            configSecretDef,
+            priorityClassDef,
+            dockerSecretDef,
           );
-          record.submissionTime = new Date(submissionTime);
-          await databaseModel.Framework.create(record);
-          return [true, snapshot, addOns];
+          return onCreateFrameworkRequest(snapshot, submissionTime, addOns);
         } else {
-          // update record in db
+          // If the old framework exists, we doesn't use the provided add-on def in body.
+          // Instead, we use the old record in database.
           const oldSnapshot = new Snapshot(oldFramework.snapshot);
-          // compare framework request (omit requestGeneration)
-          if (
-            _.isEqual(snapshot.getRequest(true), oldSnapshot.getRequest(true))
-          ) {
-            // request is equal, no-op
-            return [false, snapshot, addOns];
-          } else {
-            // request is different
-            // update request in db, mark requestSynced=false
-            snapshot.setRequestGeneration(oldSnapshot.getRequestGeneration() + 1);
-            await databaseModel.Framework.update(
-              _.assign({}, snapshot.getRequestUpdate(), {
-                requestSynced: false,
-              }),
-              { where: { name: frameworkName } },
-            );
-            return [true, snapshot, addOns];
-          }
+          const addOns = new AddOns(
+            oldFramework.configSecretDef,
+            oldFramework.priorityClassDef,
+            oldFramework.dockerSecretDef,
+          );
+          return onModifyFrameworkRequest(oldSnapshot, snapshot, addOns)
         }
       },
     );
     res.status(200).json({ message: 'ok' });
-    // Poller has an interval to synchronize the framework request to API server.
-    // The interval will cause a delay on every job.
-    // So we introduce a short-cut here to synchronize the framework request.
-    // It is an async function call and doesn't affect the return of this function.
-    // Any error of it will be logged and ignored.
-    if (needSynchronize) {
-      silentSynchronizeRequest(snapshot, addOns);
-    }
   } catch (err) {
     return next(err);
   }
@@ -184,6 +256,7 @@ async function receiveFrameworkRequest(req, res, next) {
 
 module.exports = {
   ping: ping,
-  receiveFrameworkRequest: receiveFrameworkRequest,
-  receiveWatchEvents: receiveWatchEvents,
+  putFrameworkRequest: putFrameworkRequest,
+  patchFrameworkRequest: patchFrameworkRequest,
+  postWatchEvents: postWatchEvents,
 };
