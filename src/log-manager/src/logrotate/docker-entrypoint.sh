@@ -81,8 +81,13 @@ fi
 
 logrotate_cron_timetable="/usr/sbin/logrotate ${logrotate_parameters} --state=${logrotate_logstatus} /usr/bin/logrotate.d/logrotate.conf ${logrotate_cronlog}"
 
-# ----- Cron Start ------
+log_exist_time=30 # 30 day
+if [ -n "${LOG_EXIST_TIME}" ]; then
+  log_exist_time=${LOG_EXIST_TIME}
+fi
 
+# ----- Cron Start ------
+exec /usr/bin/go-cron '@daily' /bin/bash -c "find /usr/local/pai/logs/*/*/*/*/* -mtime +${log_exist_time} -type f -exec rm -fv {} \;"&
 if [ "$1" = 'cron' ]; then
   exec /usr/bin/go-cron "${logrotate_croninterval}" /bin/bash -c "${logrotate_cron_timetable}"
 fi
