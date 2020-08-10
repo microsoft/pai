@@ -31,6 +31,7 @@ spec:
       annotations:
         port: "{{ cluster_cfg["log-manager"]["port"] }}"
     spec:
+      priorityClassName: pai-daemon-priority
       hostNetwork: false
       containers:
       - name: log-manager-logrotate
