@@ -50,6 +50,8 @@ spec:
           value: {{ cluster_cfg["grafana"]["url"] }}
         - name: GF_AUTH_ANONYMOUS_ENABLED
           value: "true"
+        - name: GF_USERS_DEFAULT_THEME
+          value: light
         {%- if cluster_cfg['cluster']['common']['qos-switch'] == "true" %}
         resources:
           limits:
