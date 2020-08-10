@@ -45,6 +45,12 @@ function getStorageServerUri(storageDetail) {
       );
     case 'hdfs':
       return `hdfs://${data.namenode}:${data.port}`;
+    case 'dshuttle':
+      return (
+        <>
+          <b>{'Dshuttle'}</b>
+        </>
+      );
     default:
       throw new Error('Invalid storage server type');
   }

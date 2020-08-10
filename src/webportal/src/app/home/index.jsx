@@ -35,15 +35,30 @@ import { checkToken } from '../user/user-auth/user-auth.component';
 import config from '../config/webportal.config';
 import { SpinnerLoading } from '../components/loading';
 import t from 'tachyons-sass/tachyons.scss';
+import GuestWarning from './index/guestWarning';
 
 let loginTarget = '/home.html';
 
 const query = new URLSearchParams(window.location.search);
+const guest = {
+  open: false,
+  groups: [],
+  forbiddenMessage: '',
+  onClose: () => {
+    location.href = '/index.html';
+  },
+};
 
 if (query.has('errorMessage')) {
   const errorMessage = query.get('errorMessage');
-  alert(errorMessage);
-  location.href = '/index.html';
+  if (errorMessage.includes('AAD-Groups:')) {
+    guest.forbiddenMessage = errorMessage.split('AAD-Groups:')[0];
+    guest.groups = JSON.parse(errorMessage.split('AAD-Groups:')[1]);
+    guest.open = true;
+  } else {
+    alert(errorMessage);
+    location.href = '/index.html';
+  }
 }
 
 const from = query.get('from');
@@ -125,6 +140,12 @@ const Index = () => {
         FontClassNames.medium,
       )}
     >
+      <GuestWarning
+        onClose={guest.onClose}
+        open={guest.open}
+        forbiddenMessage={guest.forbiddenMessage}
+        groups={guest.groups}
+      />
       {/* top */}
       <div
         className={c(
