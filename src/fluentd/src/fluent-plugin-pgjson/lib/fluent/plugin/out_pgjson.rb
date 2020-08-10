@@ -7,6 +7,7 @@ require "fluent/plugin/output"
 require "pg"
 require "yajl"
 require "json"
+require 'digest'
 
 module Fluent::Plugin
   class PgJsonOutput < Fluent::Plugin::Output
@@ -152,11 +153,12 @@ module Fluent::Plugin
             log.debug "log type: #{kind}"
             if kind == "Framework"
               thread[:conn].exec("COPY framework_history (\"#{@insertedAt_col}\", \"#{@updatedAt_col}\", \"#{@uid_col}\", \"#{@frameworkName_col}\", \"#{@attemptIndex_col}\", \"#{@historyType_col}\", \"#{@snapshot_col}\") FROM STDIN WITH DELIMITER E'\\x01'")
-              uid = (0...36).map { (65 + rand(26)).chr }.join
               frameworkName = record["objectSnapshot"]["metadata"]["name"]
               attemptIndex = record["objectSnapshot"]["status"]["attemptStatus"]["id"]
               historyType = "retry"
               snapshot = record_value(record["objectSnapshot"])
+              # use frameworkName + attemptIndex + historyType to generate a uid
+              uid = Digest::MD5.hexdigest "#{frameworkName}+#{attemptIndex}+#{historyType}"
               thread[:conn].put_copy_data "#{time}\x01#{time}\x01#{uid}\x01#{frameworkName}\x01#{attemptIndex}\x01#{historyType}\x01#{snapshot}\n"
             elsif kind == "Pod"
               thread[:conn].exec("COPY pods (\"#{@insertedAt_col}\", \"#{@updatedAt_col}\", \"#{@uid_col}\", \"#{@frameworkName_col}\", \"#{@attemptIndex_col}\", \"#{@taskroleName_col}\", \"#{@taskroleIndex_col}\", \"#{@taskAttemptIndex_col}\", \"#{@snapshot_col}\") FROM STDIN WITH DELIMITER E'\\x01'")
