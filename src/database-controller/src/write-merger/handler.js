@@ -10,6 +10,7 @@ const {
   Snapshot,
   AddOns,
   silentSynchronizeRequest,
+  silentDeleteFramework,
 } = require('@dbc/common/framework');
 const _ = require('lodash');
 const lock = new AsyncLock({ maxPending: Number.MAX_SAFE_INTEGER });
@@ -43,7 +44,7 @@ async function ping(req, res, next) {
 
 async function postWatchEvents(req, res, next) {
   try {
-    const snapshot = new Snapshot(req.body);
+    let snapshot = new Snapshot(req.body);
     const frameworkName = snapshot.getName();
     if (!frameworkName) {
       return next(createError(400, 'Cannot find framework name.'));
@@ -55,21 +56,29 @@ async function postWatchEvents(req, res, next) {
       });
       // database doesn't have the corresponding framework.
       if (!oldFramework) {
-        if (config.recoveryModeEnabled) {
+        if (config.retainModeEnabled) {
           // If database doesn't have the corresponding framework,
-          // and recovery mode is enabled
+          // and retain mode is enabled
           // tolerate the error and create framework in database.
-          const record = snapshot.getRecordForLegacyTransfer();
-          record.requestSynced = true;
-          await databaseModel.Framework.create(record);
+          logger.warn(
+            `Framework ${frameworkName} appears in API server, and it is not in database. Tolerate it since retain mode is on.`,
+          );
         } else {
-          throw createError(404, `Cannot find framework ${frameworkName}.`);
+          // If database doesn't have the corresponding framework,
+          // and retain mode is disabled,
+          // delete the framework silently
+          logger.warn(
+            `Framework ${frameworkName} appears in API server, and it is not in database. Delete it since retain mode is off.`,
+          );
+          silentDeleteFramework(frameworkName);
         }
       } else {
         // Database has the corresponding framework.
         const oldSnapshot = new Snapshot(oldFramework.snapshot);
         const internalUpdate = {};
-        if (oldSnapshot.getRequestGeneration() === snapshot.getRequestGeneration()) {
+        if (
+          oldSnapshot.getRequestGeneration() === snapshot.getRequestGeneration()
+        ) {
           // if framework request is equal, mark requestSynced = true
           logger.info(`The request of framework ${frameworkName} is synced.`);
           internalUpdate.requestSynced = true;
@@ -88,7 +97,7 @@ async function postWatchEvents(req, res, next) {
             // Event is DELETED and the state is not Completed.
             // This case could occur when someone deletes the framework in API server directly.
             // In such case, we mark requestSynced=false, and reset the snapshot using the framework request.
-            snapshot = new Snapshot(snapshot.getRequest(false))
+            snapshot = new Snapshot(snapshot.getRequest(false));
             internalUpdate.requestSynced = false;
             internalUpdate.apiServerDeleted = false;
           }
@@ -111,7 +120,7 @@ async function onCreateFrameworkRequest(snapshot, submissionTime, addOns) {
   // set requestGeneration = 1
   snapshot.setRequestGeneration(1);
   const record = _.assign(
-    {requestSynced: false, apiServerDeleted: false},
+    { requestSynced: false, apiServerDeleted: false },
     snapshot.getAllUpdate(),
     addOns.getUpdate(),
   );
@@ -127,9 +136,7 @@ async function onCreateFrameworkRequest(snapshot, submissionTime, addOns) {
 
 async function onModifyFrameworkRequest(oldSnapshot, snapshot, addOns) {
   // compare framework request (omit requestGeneration)
-  if (
-    _.isEqual(snapshot.getRequest(true), oldSnapshot.getRequest(true))
-  ) {
+  if (_.isEqual(snapshot.getRequest(true), oldSnapshot.getRequest(true))) {
     // request is equal, no-op
   } else {
     // request is different
@@ -162,38 +169,48 @@ async function patchFrameworkRequest(req, res, next) {
     if (!frameworkName) {
       return next(createError(400, 'Cannot find framework name.'));
     }
-    if (_.has(patchData, 'metadata.name') && patchData.metadata.name !== frameworkName) {
-      return next(createError(400, 'The framework names in query string doesn\'t match the name in body.'))
+    if (
+      _.has(patchData, 'metadata.name') &&
+      patchData.metadata.name !== frameworkName
+    ) {
+      return next(
+        createError(
+          400,
+          "The framework names in query string doesn't match the name in body.",
+        ),
+      );
     }
-    await lock.acquire(
-      frameworkName,
-      async () => {
-        const oldFramework = await databaseModel.Framework.findOne({
-          attributes: ['snapshot', 'submissionTime', 'configSecretDef', 'priorityClassDef', 'dockerSecretDef'],
-          where: { name: frameworkName },
-        });
-        if (!oldFramework) {
-          // if the old framework doesn't exist, throw a 404 error.
-          throw createError(404, `Cannot find framework ${frameworkName}.`);
-        } else {
-          // if the old framework exists
-          const oldSnapshot = new Snapshot(oldFramework.snapshot)
-          const snapshot = oldSnapshot.copy()
-          snapshot.applyRequestPatch(patchData);
-          const addOns = new AddOns(
-            oldFramework.configSecretDef,
-            oldFramework.priorityClassDef,
-            oldFramework.dockerSecretDef,
-          );
-          return onModifyFrameworkRequest(oldSnapshot, snapshot, addOns)
-        }
-      },
-    );
+    await lock.acquire(frameworkName, async () => {
+      const oldFramework = await databaseModel.Framework.findOne({
+        attributes: [
+          'snapshot',
+          'submissionTime',
+          'configSecretDef',
+          'priorityClassDef',
+          'dockerSecretDef',
+        ],
+        where: { name: frameworkName },
+      });
+      if (!oldFramework) {
+        // if the old framework doesn't exist, throw a 404 error.
+        throw createError(404, `Cannot find framework ${frameworkName}.`);
+      } else {
+        // if the old framework exists
+        const oldSnapshot = new Snapshot(oldFramework.snapshot);
+        const snapshot = oldSnapshot.copy();
+        snapshot.applyRequestPatch(patchData);
+        const addOns = new AddOns(
+          oldFramework.configSecretDef,
+          oldFramework.priorityClassDef,
+          oldFramework.dockerSecretDef,
+        );
+        return onModifyFrameworkRequest(oldSnapshot, snapshot, addOns);
+      }
+    });
     res.status(200).json({ message: 'ok' });
   } catch (err) {
     return next(err);
   }
-
 }
 
 async function putFrameworkRequest(req, res, next) {
@@ -217,37 +234,45 @@ async function putFrameworkRequest(req, res, next) {
       return next(createError(400, 'Cannot find framework name.'));
     }
     if (req.params.frameworkName !== frameworkName) {
-      return next(createError(400, 'The framework names in query string doesn\'t match the name in body.'))
+      return next(
+        createError(
+          400,
+          "The framework names in query string doesn't match the name in body.",
+        ),
+      );
     }
-    await lock.acquire(
-      frameworkName,
-      async () => {
-        const oldFramework = await databaseModel.Framework.findOne({
-          attributes: ['snapshot', 'submissionTime', 'configSecretDef', 'priorityClassDef', 'dockerSecretDef'],
-          where: { name: frameworkName },
-        });
-        const snapshot = new Snapshot(frameworkRequest);
-        if (!oldFramework) {
-          // if the old framework doesn't exist, create add-ons.
-          const addOns = new AddOns(
-            configSecretDef,
-            priorityClassDef,
-            dockerSecretDef,
-          );
-          return onCreateFrameworkRequest(snapshot, submissionTime, addOns);
-        } else {
-          // If the old framework exists, we doesn't use the provided add-on def in body.
-          // Instead, we use the old record in database.
-          const oldSnapshot = new Snapshot(oldFramework.snapshot);
-          const addOns = new AddOns(
-            oldFramework.configSecretDef,
-            oldFramework.priorityClassDef,
-            oldFramework.dockerSecretDef,
-          );
-          return onModifyFrameworkRequest(oldSnapshot, snapshot, addOns)
-        }
-      },
-    );
+    await lock.acquire(frameworkName, async () => {
+      const oldFramework = await databaseModel.Framework.findOne({
+        attributes: [
+          'snapshot',
+          'submissionTime',
+          'configSecretDef',
+          'priorityClassDef',
+          'dockerSecretDef',
+        ],
+        where: { name: frameworkName },
+      });
+      const snapshot = new Snapshot(frameworkRequest);
+      if (!oldFramework) {
+        // if the old framework doesn't exist, create add-ons.
+        const addOns = new AddOns(
+          configSecretDef,
+          priorityClassDef,
+          dockerSecretDef,
+        );
+        return onCreateFrameworkRequest(snapshot, submissionTime, addOns);
+      } else {
+        // If the old framework exists, we doesn't use the provided add-on def in body.
+        // Instead, we use the old record in database.
+        const oldSnapshot = new Snapshot(oldFramework.snapshot);
+        const addOns = new AddOns(
+          oldFramework.configSecretDef,
+          oldFramework.priorityClassDef,
+          oldFramework.dockerSecretDef,
+        );
+        return onModifyFrameworkRequest(oldSnapshot, snapshot, addOns);
+      }
+    });
     res.status(200).json({ message: 'ok' });
   } catch (err) {
     return next(err);

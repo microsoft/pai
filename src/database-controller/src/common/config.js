@@ -19,7 +19,7 @@ const configSchema = Joi.object()
       .optional(),
     customK8sCaFile: Joi.string().optional(),
     customK8sTokenFile: Joi.string().optional(),
-    recoveryModeEnabled: Joi.boolean().required(),
+    retainModeEnabled: Joi.boolean().required(),
     rbacEnabled: Joi.boolean().required(),
   })
   .required();
@@ -35,7 +35,7 @@ const config = {
   customK8sApiServerURL: process.env.CUSTOM_K8S_API_SERVER_URL,
   customK8sCaFile: process.env.CUSTOM_K8S_CA_FILE,
   customK8sTokenFile: process.env.CUSTOM_K8S_TOKEN_FILE,
-  recoveryModeEnabled: process.env.RECOVERY_MODE_ENABLED === 'true',
+  retainModeEnabled: process.env.RETAIN_MODE_ENABLED === 'true',
   rbacEnabled: process.env.RBAC_IN_CLUSTER === 'true',
 };
 

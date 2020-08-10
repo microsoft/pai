@@ -51,7 +51,7 @@ function alwaysRetryDecorator(
         }
         if (randomizeDelay) {
           // randomize between nextDelayMs * (0.8 ~ 1.2)
-          nextDelayMs = nextDelayMs * (Math.random() * 0.4 + 0.8)
+          nextDelayMs = nextDelayMs * (Math.random() * 0.4 + 0.8);
         }
         retryCount += 1;
       }

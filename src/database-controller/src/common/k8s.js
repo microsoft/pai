@@ -79,8 +79,10 @@ async function createFramework(frameworkDescription, namespace = 'default') {
 
 async function patchFramework(name, data, namespace = 'default') {
   if (data.status) {
-    logger.warn('Modifying status field in framework is not allowed! Will delete it.')
-    delete data.status
+    logger.warn(
+      'Modifying status field in framework is not allowed! Will delete it.',
+    );
+    delete data.status;
   }
   const res = await customObjectsClient.patchNamespacedCustomObject(
     'frameworkcontroller.microsoft.com',
@@ -102,8 +104,7 @@ async function deleteFramework(name, namespace = 'default') {
     'frameworks',
     name,
     ...Array(4), // skip some parameters
-    { headers: { 'propagationPolicy': 'Foreground' } },
-
+    { headers: { propagationPolicy: 'Foreground' } },
   );
   return res.response;
 }

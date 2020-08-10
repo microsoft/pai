@@ -99,19 +99,19 @@
 
     Expect: The second request will be ignored.
 
-#### (Write merger) If recovery mode, use the FR from API server
+#### (Write merger) If retain mode is off, delete frameworks which are not submitted through db.
 
-1. Environment: Turn on recovery mode
-
-    Case: Create a framework directly in API server;
-
-    Expect: The framework is inserted in database.
-
-2. Environment: Turn off recovery mode
+1. Environment: Turn on retain mode
 
     Case: Create a framework directly in API server;
 
-    Expect: The framework can't be inserted in database, write merger reports 404 error, and watcher keeps trying to synchroinze it.
+    Expect: The framework is not deleted.
+
+2. Environment: Turn off retain mode
+
+    Case: Create a framework directly in API server;
+
+    Expect: The framework is deleted.
 
 #### (Write merger) If not equal, override and mark as !requestSynced
 

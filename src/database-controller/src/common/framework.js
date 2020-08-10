@@ -58,7 +58,7 @@ const convertFrameworkState = (state, exitCode, retryDelaySec) => {
   }
 };
 
-const decompressField = (val) => {
+const decompressField = val => {
   if (val == null) {
     return null;
   } else {
@@ -138,8 +138,13 @@ class Snapshot {
     // This function decompress this field.
     // It is usually called before we write snapshot into database.
     const attemptStatus = this._snapshot.status.attemptStatus;
-    if ((!attemptStatus.taskRoleStatuses) && (attemptStatus.taskRoleStatusesCompressed)) {
-      attemptStatus.taskRoleStatuses = decompressField(attemptStatus.taskRoleStatusesCompressed);
+    if (
+      !attemptStatus.taskRoleStatuses &&
+      attemptStatus.taskRoleStatusesCompressed
+    ) {
+      attemptStatus.taskRoleStatuses = decompressField(
+        attemptStatus.taskRoleStatusesCompressed,
+      );
       attemptStatus.taskRoleStatusesCompressed = null;
     }
   }
@@ -172,7 +177,7 @@ class Snapshot {
       logPathInfix: this._snapshot.metadata.annotations.logPathInfix,
     };
     if (withSnapshot) {
-      this.unzipTaskRoleStatuses()
+      this.unzipTaskRoleStatuses();
       update.snapshot = JSON.stringify(this._snapshot);
     }
     return update;
@@ -206,7 +211,7 @@ class Snapshot {
       ),
     };
     if (withSnapshot) {
-      this.unzipTaskRoleStatuses()
+      this.unzipTaskRoleStatuses();
       update.snapshot = JSON.stringify(this._snapshot);
     }
     return update;
@@ -220,7 +225,7 @@ class Snapshot {
       this.getStatusUpdate(false),
     );
     if (withSnapshot) {
-      this.unzipTaskRoleStatuses()
+      this.unzipTaskRoleStatuses();
       update.snapshot = JSON.stringify(this._snapshot);
     }
     return update;
@@ -461,7 +466,15 @@ function silentSynchronizeRequest(snapshot, addOns) {
     // any error will be ignored
     synchronizeRequest(snapshot, addOns).catch(logError);
   } catch (err) {
-    logError(err)
+    logError(err);
+  }
+}
+
+function silentDeleteFramework(name) {
+  try {
+    k8s.deleteFramework(name).catch(logError);
+  } catch (err) {
+    logError(err);
   }
 }
 
@@ -470,4 +483,5 @@ module.exports = {
   AddOns,
   synchronizeRequest,
   silentSynchronizeRequest,
+  silentDeleteFramework,
 };

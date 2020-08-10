@@ -22,7 +22,7 @@ async function updateFromNoDatabaseVersion(databaseModel) {
     record.requestSynced = true;
     upsertPromises.push(databaseModel.Framework.upsert(record));
   }
-  await Promise.all(upsertPromises)
+  await Promise.all(upsertPromises);
 }
 
 // This script should be idempotent.
@@ -36,11 +36,11 @@ async function main() {
       await updateFromNoDatabaseVersion(databaseModel);
     }
     await databaseModel.setVersion(paiVersion, paiCommitVersion);
-    logger.info('Database has been successfully initialized.', function () {
+    logger.info('Database has been successfully initialized.', function() {
       process.exit(0);
     });
   } catch (err) {
-    logger.error(err, function () {
+    logger.error(err, function() {
       process.exit(1);
     });
   }

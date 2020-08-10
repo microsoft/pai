@@ -5,7 +5,7 @@ service_type: "common"
 
 # general settings
 log-level: info
-recovery-mode: false
+retain-mode: false
 k8s-connection-timeout-second: 120
 write-merger-connection-timeout-second: 120
 

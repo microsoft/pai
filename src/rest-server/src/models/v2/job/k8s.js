@@ -926,9 +926,9 @@ const execute = async (frameworkName, executionType) => {
   try {
     const patchData = {
       spec: {
-        executionType: `${executionType.charAt(0)}${executionType.slice(1).toLowerCase()}`
-      }
-    }
+        executionType: `${executionType.charAt(0)}${executionType.slice(1).toLowerCase()}`,
+      },
+    };
     response = await axios({
       method: 'PATCH',
       url: launcherConfig.writeMergerUrl + '/api/v1/frameworkRequest/' + encodeName(frameworkName),

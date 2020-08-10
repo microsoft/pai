@@ -8,7 +8,11 @@ const { Sequelize } = require('sequelize');
 const Op = Sequelize.Op;
 const DatabaseModel = require('openpaidbsdk');
 const logger = require('@dbc/common/logger');
-const { Snapshot, AddOns, synchronizeRequest } = require('@dbc/common/framework');
+const {
+  Snapshot,
+  AddOns,
+  synchronizeRequest,
+} = require('@dbc/common/framework');
 const interval = require('interval-promise');
 const config = require('@dbc/poller/config');
 const fetch = require('node-fetch');
