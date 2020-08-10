@@ -78,6 +78,24 @@ const getAllUser = async (req, res, next) => {
   }
 };
 
+const showForGuest = (group, guestGroups) => {
+  if (group && group.extension && group.extension.acls && group.extension.acls.showForGuest) {
+    guestGroups.push(group);
+  }
+};
+
+const getGuestGroups = () => {
+  const guestGroups = [];
+  showForGuest(authConfig.groupConfig.adminGroup, guestGroups);
+  showForGuest(authConfig.groupConfig.defaultGroup, guestGroups);
+
+  for (const groupItem of authConfig.groupConfig.grouplist) {
+    showForGuest(groupItem, guestGroups);
+  }
+
+  return guestGroups;
+};
+
 // OIDC
 const createUserIfUserNotExist = async (req, res, next) => {
   try {
@@ -95,7 +113,11 @@ const createUserIfUserNotExist = async (req, res, next) => {
       if (grouplist && grouplist.length === 0) {
         let forbiddenMessage = `User ${userData.username} is not in configured groups.`;
         if (authConfig.groupConfig.groupDataSource === 'ms-graph') {
-          forbiddenMessage = forbiddenMessage + `Please contact your admin, and join the AAD group named [ ${authConfig.groupConfig.defaultGroup.externalName} ].`;
+          forbiddenMessage = forbiddenMessage + `Please contact your admin, and join the AAD group.`;
+          const guestGroups = getGuestGroups();
+          if (guestGroups.length > 0) {
+            forbiddenMessage = forbiddenMessage + `AAD-Groups:${JSON.stringify(guestGroups)}`;
+          }
         }
         let forbiddenError = createError('Forbidden', 'ForbiddenUserError', forbiddenMessage);
         forbiddenError.targetURI = req.returnBackURI;
