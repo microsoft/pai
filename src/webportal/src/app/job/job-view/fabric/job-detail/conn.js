@@ -176,7 +176,7 @@ export async function getContainerLog(logUrl) {
     text: null,
   };
   const res = await fetch(logUrl);
-  const text = await res.text();
+  var text = await res.text();
   if (!res.ok) {
     throw new Error(res.statusText);
   }
@@ -222,6 +222,22 @@ export async function getContainerLog(logUrl) {
       throw new Error(`Log not available`);
     }
   } else if (config.logType === 'log-manager') {
+    // Try to get roated log if currently log content is less than 15KB
+    if (text.length <= 15 * 1024) {
+      const fullLogUrl = logUrl.replace('/tail/', '/full/');
+      const rotatedLogUrl = logUrl + '.1';
+      const rotatedLogRes = await fetch(rotatedLogUrl);
+      const fullLogRes = await fetch(fullLogUrl);
+      const rotatedText = await rotatedLogRes.text();
+      const fullLog = await fullLogRes.text();
+      if (rotatedLogRes.ok && rotatedText.trim() !== 'No such file!') {
+        text = rotatedText
+          .concat('\n--------log is rotated, may be lost during this--------\n')
+          .concat(fullLog);
+      }
+      // get last 16KB
+      text = text.slice(-16 * 1024);
+    }
     ret.text = text;
     ret.fullLogLink = logUrl.replace('/tail/', '/full/');
     return ret;
