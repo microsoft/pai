@@ -91,10 +91,8 @@ matrix:
       env: NODE_ENV=test
       before_install:
         - cd src/rest-server
-        - cp -rf ../database-controller/sdk openpaidbsdk
       install:
         - yarn install
-        - rm -rf openpaidbsdk
       script:
         - npm test
         - npm run coveralls
@@ -104,10 +102,8 @@ matrix:
       env: NODE_ENV=test
       before_install:
         - cd src/rest-server
-        - cp -rf ../database-controller/sdk openpaidbsdk
       install:
         - yarn install --ignore-engines
-        - rm -rf openpaidbsdk
       script:
         - npm test
 
