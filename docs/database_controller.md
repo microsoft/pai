@@ -4,7 +4,7 @@
 <img src="./images/dbc_structure.png" width="80%">
 </center>
 
-Database Controller is designed to manage job status in database and API server. To be breif, we treat records in database as the ground truth, and synchronize them to the API server. 
+Database Controller is designed to manage job status in database and API server. To be brief, we treat records in database as the ground truth, and synchronize them to the API server. 
 
 Database Controller contains 3 main components: write merger, poller and watcher. Here is an example of job lifetime controlled by these 3 components:
 
