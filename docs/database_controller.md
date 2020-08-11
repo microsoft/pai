@@ -1,7 +1,7 @@
 # Database Controller
 
 <center>
-<img src="./images/dbc_structure.png" width="80%">
+<img src="./images/dbc_structure.png" width="100%">
 </center>
 
 Database Controller is designed to manage job status in database and API server. To be brief, we treat records in database as the ground truth, and synchronize them to the API server. 
