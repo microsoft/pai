@@ -25,18 +25,28 @@ spec:
         image: {{ cluster_cfg["cluster"]["docker-registry"]["prefix"] }}database-controller:{{ cluster_cfg["cluster"]["docker-registry"]["tag"] }}
         imagePullPolicy: Always
         env:
+        # Log level of all logs. You can choose from error, warn, info, http, verbose, debug, and silly. Default value is info.
         - name: LOG_LEVEL
           value: "{{ cluster_cfg['database-controller']['log-level'] }}"
+        # The global timeout for all calls to Kubernetes API server. Default value is 120.
         - name: K8S_CONNECTION_TIMEOUT_SECOND
           value: "{{ cluster_cfg['database-controller']['k8s-connection-timeout-second'] }}"
+        # The timeout for calls to write merger. Default value is 120.
         - name: WRITE_MERGER_CONNECTION_TIMEOUT_SECOND
           value: "{{ cluster_cfg['database-controller']['write-merger-connection-timeout-second'] }}"
+        # Whether to enable retain mode.
+        # If someone submits a framework directly without accessing database, we can find the framework in write merger.
+        # For these frameworks, if retain mode is on, we will ignore them.
+        # If retain mode is off (it is the default setting), we will delete the frameworks to maintain ground-truth in database.
         - name: RETAIN_MODE_ENABLED
 {% if cluster_cfg['database-controller']['retain-mode'] %}
           value: "true"
 {% else %}
           value: "false"
 {% endif %}
+         # If RBAC is set up in current environment.
+         # If RBAC_IN_CLUSTER=true, the API Server client can read all settings automatically in container.
+         # If RBAC_IN_CLUSTER=false, we should set CUSTOM_K8S_API_SERVER_URL.
 {% if cluster_cfg['cluster']['common']['k8s-rbac'] != 'false' %}
         - name: RBAC_IN_CLUSTER
           value: "true"
@@ -46,6 +56,7 @@ spec:
         - name: CUSTOM_K8S_API_SERVER_URL
           value: {{ cluster_cfg['layout']['kubernetes']['api-servers-url'] }}
 {% endif %}
+        # The database client string. It follows the format "<database type>://<user>:<password>@<host>:<port>/<database name>"
         - name: DB_CONNECTION_STR
           value: "{{ cluster_cfg['postgresql']['connection-str'] }}"
         command: ["node", "initializer/index.js"]
@@ -54,18 +65,28 @@ spec:
         image: {{ cluster_cfg["cluster"]["docker-registry"]["prefix"] }}database-controller:{{ cluster_cfg["cluster"]["docker-registry"]["tag"] }}
         imagePullPolicy: Always
         env:
+        # Log level of all logs. You can choose from error, warn, info, http, verbose, debug, and silly. Default value is info.
         - name: LOG_LEVEL
           value: "{{ cluster_cfg['database-controller']['log-level'] }}"
+        # The global timeout for all calls to Kubernetes API server. Default value is 120.
         - name: K8S_CONNECTION_TIMEOUT_SECOND
           value: "{{ cluster_cfg['database-controller']['k8s-connection-timeout-second'] }}"
+        # The timeout for calls to write merger. Default value is 120.
         - name: WRITE_MERGER_CONNECTION_TIMEOUT_SECOND
           value: "{{ cluster_cfg['database-controller']['write-merger-connection-timeout-second'] }}"
+        # Whether to enable retain mode.
+        # If someone submits a framework directly without accessing database, we can find the framework in write merger.
+        # For these frameworks, if retain mode is on, we will ignore them.
+        # If retain mode is off (it is the default setting), we will delete the frameworks to maintain ground-truth in database.
         - name: RETAIN_MODE_ENABLED
 {% if cluster_cfg['database-controller']['retain-mode'] %}
           value: "true"
 {% else %}
           value: "false"
 {% endif %}
+         # If RBAC is set up in current environment.
+         # If RBAC_IN_CLUSTER=true, the API Server client can read all settings automatically in container.
+         # If RBAC_IN_CLUSTER=false, we should set CUSTOM_K8S_API_SERVER_URL.
 {% if cluster_cfg['cluster']['common']['k8s-rbac'] != 'false' %}
         - name: RBAC_IN_CLUSTER
           value: "true"
@@ -75,10 +96,13 @@ spec:
         - name: CUSTOM_K8S_API_SERVER_URL
           value: {{ cluster_cfg['layout']['kubernetes']['api-servers-url'] }}
 {% endif %}
+        # The database client string. It follows the format "<database type>://<user>:<password>@<host>:<port>/<database name>"
         - name: DB_CONNECTION_STR
           value: "{{ cluster_cfg['postgresql']['connection-str'] }}"
+        # Max connection number to database in write merger. Default value is 50.
         - name: MAX_DB_CONNECTION
           value: "{{ cluster_cfg['database-controller']['write-merger-max-db-connection'] }}"
+        # The serving port for write merger.
         - name: PORT
           value: "{{ cluster_cfg['database-controller']['write-merger-port'] }}"
         readinessProbe:
@@ -96,18 +120,28 @@ spec:
         image: {{ cluster_cfg["cluster"]["docker-registry"]["prefix"] }}database-controller:{{ cluster_cfg["cluster"]["docker-registry"]["tag"] }}
         imagePullPolicy: Always
         env:
+        # Log level of all logs. You can choose from error, warn, info, http, verbose, debug, and silly. Default value is info.
         - name: LOG_LEVEL
           value: "{{ cluster_cfg['database-controller']['log-level'] }}"
+        # The global timeout for all calls to Kubernetes API server. Default value is 120.
         - name: K8S_CONNECTION_TIMEOUT_SECOND
           value: "{{ cluster_cfg['database-controller']['k8s-connection-timeout-second'] }}"
+        # The timeout for calls to write merger. Default value is 120.
         - name: WRITE_MERGER_CONNECTION_TIMEOUT_SECOND
           value: "{{ cluster_cfg['database-controller']['write-merger-connection-timeout-second'] }}"
+        # Whether to enable retain mode.
+        # If someone submits a framework directly without accessing database, we can find the framework in write merger.
+        # For these frameworks, if retain mode is on, we will ignore them.
+        # If retain mode is off (it is the default setting), we will delete the frameworks to maintain ground-truth in database.
         - name: RETAIN_MODE_ENABLED
 {% if cluster_cfg['database-controller']['retain-mode'] %}
           value: "true"
 {% else %}
           value: "false"
 {% endif %}
+         # If RBAC is set up in current environment.
+         # If RBAC_IN_CLUSTER=true, the API Server client can read all settings automatically in container.
+         # If RBAC_IN_CLUSTER=false, we should set CUSTOM_K8S_API_SERVER_URL.
 {% if cluster_cfg['cluster']['common']['k8s-rbac'] != 'false' %}
         - name: RBAC_IN_CLUSTER
           value: "true"
@@ -117,6 +151,7 @@ spec:
         - name: CUSTOM_K8S_API_SERVER_URL
           value: {{ cluster_cfg['layout']['kubernetes']['api-servers-url'] }}
 {% endif %}
+        # The URL of write merger.
         - name: WRITE_MERGER_URL
           value: "{{ cluster_cfg['database-controller']['write-merger-url'] }}"
         command: ["node", "watcher/framework/index.js"]
@@ -124,18 +159,28 @@ spec:
         image: {{ cluster_cfg["cluster"]["docker-registry"]["prefix"] }}database-controller:{{ cluster_cfg["cluster"]["docker-registry"]["tag"] }}
         imagePullPolicy: Always
         env:
+        # Log level of all logs. You can choose from error, warn, info, http, verbose, debug', and silly. Default value is info.
         - name: LOG_LEVEL
           value: "{{ cluster_cfg['database-controller']['log-level'] }}"
+        # The global timeout for all calls to Kubernetes API server. Default value is 120.
         - name: K8S_CONNECTION_TIMEOUT_SECOND
           value: "{{ cluster_cfg['database-controller']['k8s-connection-timeout-second'] }}"
+        # The timeout for calls to write merger. Default value is 120.
         - name: WRITE_MERGER_CONNECTION_TIMEOUT_SECOND
           value: "{{ cluster_cfg['database-controller']['write-merger-connection-timeout-second'] }}"
+        # Whether to enable retain mode.
+        # If someone submits a framework directly without accessing database, we can find the framework in write merger.
+        # For these frameworks, if retain mode is on, we will ignore them.
+        # If retain mode is off (it is the default setting), we will delete the frameworks to maintain ground-truth in database.
         - name: RETAIN_MODE_ENABLED
 {% if cluster_cfg['database-controller']['retain-mode'] %}
           value: "true"
 {% else %}
           value: "false"
 {% endif %}
+         # If RBAC is set up in current environment.
+         # If RBAC_IN_CLUSTER=true, the API Server client can read all settings automatically in container.
+         # If RBAC_IN_CLUSTER=false, we should set CUSTOM_K8S_API_SERVER_URL.
 {% if cluster_cfg['cluster']['common']['k8s-rbac'] != 'false' %}
         - name: RBAC_IN_CLUSTER
           value: "true"
@@ -145,12 +190,16 @@ spec:
         - name: CUSTOM_K8S_API_SERVER_URL
           value: {{ cluster_cfg['layout']['kubernetes']['api-servers-url'] }}
 {% endif %}
+        # The database client string. It follows the format "<database type>://<user>:<password>@<host>:<port>/<database name>"
         - name: DB_CONNECTION_STR
           value: "{{ cluster_cfg['postgresql']['connection-str'] }}"
+        # Max connection number to database in write merger. Default value is 10.
         - name: MAX_DB_CONNECTION
           value: "{{ cluster_cfg['database-controller']['db-poller-max-db-connection'] }}"
+        # Polling interval of database poller. Default value is 120.
         - name: INTERVAL_SECOND
           value: "{{ cluster_cfg['database-controller']['db-poller-interval-second'] }}"
+        # The URL of write merger.
         - name: WRITE_MERGER_URL
           value: "{{ cluster_cfg['database-controller']['write-merger-url'] }}"
         command: ["node", "poller/index.js"]
