@@ -614,6 +614,30 @@ spec:
         nameRegex: '(?ms).*'
         messageRegex: '(?mi).*(nvidia-container-cli: device error: unknown device id).*'
 
+###########################################################################
+# Range: [1, 128]
+# Owner: PAI_RUNTIME
+# Description: User Container issued failures:
+# -> Involuntary failures caused by hardware
+###########################################################################
+- code: 128
+  phrase: ContainerMayFailDueToGpuDeviceEccError
+  issuer: USER_CONTAINER
+  causer: PAI_HW
+  type: PLATFORM_FAILURE
+  stage: RUNNING
+  behavior: TRANSIENT
+  reaction: RETRY_TO_MAX
+  reason: "Container failed may due to GPU ecc error"
+  repro:
+  - "Run program in GPU with ECC error"
+  solution:
+  - "Wait result from next retry"
+  - "Contact Cluster Admin"
+  pattern:
+    runtimeContainerPatterns:
+    - gpuInfo:
+        nvidiaDoubleEccError: true
 
 ###########################################################################
 # Range: [129, 192]
@@ -748,15 +772,16 @@ spec:
   phrase: ContainerSigSegvReceived
   issuer: USER_CONTAINER
   causer: USER_CONTAINER
-  type: USER_FAILURE
+  type: UNKNOWN_FAILURE
   stage: RUNNING
   behavior: PERMANENT
-  reaction: NEVER_RETRY
+  reaction: RETRY_TO_MAX
   reason: "Container killed by OS Signal: SIGSEGV"
   repro:
   - "User program accesses an illegal memory address"
   solution:
   - "Check container log and fix your program bug"
+  - "Contact Cluster Admin"
   pattern:
     runtimeContainerPatterns:
     - exitCode: 139
@@ -936,25 +961,6 @@ spec:
   pattern:
     runtimeContainerPatterns:
     - userLogRegex: "(?i)cuda runtime error (2) : out of memory"
-
-- code: 227
-  phrase: ContainerMayFailDueToGpuDeviceEccError
-  issuer: PAI_RUNTIME
-  causer: PAI_HW
-  type: PLATFORM_FAILURE
-  stage: RUNNING
-  behavior: TRANSIENT
-  reaction: RETRY_TO_MAX
-  reason: "Container failed may due to GPU ecc error"
-  repro:
-  - "Run program in GPU with ECC error"
-  solution:
-  - "Wait result from next retry"
-  - "Contact Cluster Admin"
-  pattern:
-    runtimeContainerPatterns:
-    - gpuInfo:
-        nvidiaDoubleEccError: true
 
 - code: 228
   phrase: ContainerIncorrectParameterError
