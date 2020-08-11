@@ -58,8 +58,8 @@ async function postWatchEvents(req, res, next) {
       if (!oldFramework) {
         if (config.retainModeEnabled) {
           // If database doesn't have the corresponding framework,
-          // and retain mode is enabled
-          // tolerate the error and create framework in database.
+          // and retain mode is enabled,
+          // retain the framework, i.e. do not delete it.
           logger.warn(
             `Framework ${frameworkName} appears in API server, and it is not in database. Tolerate it since retain mode is on.`,
           );
