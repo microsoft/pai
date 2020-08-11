@@ -1,0 +1,39 @@
+protocolVersion: 2
+name: Resnet18_4gpu
+type: job
+jobRetryCount: 0
+prerequisites:
+  - type: dockerimage
+    uri: 'openpai/standard:python_3.6-pytorch_1.2.0-gpu'
+    name: docker_image_0
+taskRoles:
+  taskrole:
+    instances: 1
+    completion:
+      minFailedInstances: 1
+      minSucceededInstances: -1
+    taskRetryCount: 0
+    dockerImage: docker_image_0
+    resourcePerInstance:
+      gpu: 4
+      cpu: 12
+      memoryMB: 24576
+    commands:
+      - branch_name=pai-for-edu
+      - >-
+        wget
+        https://raw.githubusercontent.com/microsoft/pai/${branch_name}/contrib/edu-examples/pytorch_cifar10/src/cifar.py
+      - >-
+        wget
+        https://raw.githubusercontent.com/microsoft/pai/${branch_name}/contrib/edu-examples/pytorch_cifar10/src/init.sh
+      - bash init.sh
+      - >-
+        python cifar.py --gpuid 0,1,2,3 --arch ResNet18 --epoch 200 --batchsize
+        512
+defaults:
+  virtualCluster: default
+extras:
+  com.microsoft.pai.runtimeplugin:
+    - plugin: ssh
+      parameters:
+        jobssh: true
