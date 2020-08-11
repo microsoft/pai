@@ -771,7 +771,7 @@ spec:
 - code: 139
   phrase: ContainerSigSegvReceived
   issuer: USER_CONTAINER
-  causer: USER_CONTAINER
+  causer: UNKNOWN
   type: UNKNOWN_FAILURE
   stage: RUNNING
   behavior: UNKNOWN
