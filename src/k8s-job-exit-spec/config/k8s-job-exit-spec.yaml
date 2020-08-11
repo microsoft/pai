@@ -626,7 +626,7 @@ spec:
   causer: PAI_HW
   type: PLATFORM_FAILURE
   stage: RUNNING
-  behavior: TRANSIENT
+  behavior: UNKNOWN
   reaction: RETRY_TO_MAX
   reason: "Container failed may due to GPU ecc error"
   repro:
@@ -774,7 +774,7 @@ spec:
   causer: USER_CONTAINER
   type: UNKNOWN_FAILURE
   stage: RUNNING
-  behavior: PERMANENT
+  behavior: UNKNOWN
   reaction: RETRY_TO_MAX
   reason: "Container killed by OS Signal: SIGSEGV"
   repro:
