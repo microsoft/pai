@@ -26,8 +26,8 @@ export default function GuestWarning(props) {
       onDismiss={handleClose}
       hidden={!open}
       title='Forbidden Error'
-      minWidth={500}
-      maxWidth={600}
+      minWidth={600}
+      maxWidth={700}
       dialogContentProps={{
         showCloseButton: false,
         type: DialogType.normal,
@@ -41,7 +41,8 @@ export default function GuestWarning(props) {
       <div className={c(t.flex, t.w100, t.f5)}>
         <div className={c(t.flex, t.w20)}>Group name</div>
         <div className={c(t.flex, t.w20)}>External name</div>
-        <div className={c(t.flex, t.w60)}>Description</div>
+        <div className={c(t.flex, t.w30)}>Description</div>
+        <div className={c(t.flex, t.w30)}>virtual clusters</div>
       </div>
       <hr />
       <List
@@ -50,8 +51,11 @@ export default function GuestWarning(props) {
           <div className={c(t.flex, t.w100, t.f5, t.h100)}>
             <div className={c(t.flex, t.w20)}>{group.groupname}</div>
             <div className={c(t.flex, t.w20)}>{group.externalName}</div>
-            <div className={c(t.flex, t.w40)}>{group.description}</div>
-            <div className={c(t.flex, t.itemsCenter, t.h100, t.w20)}>
+            <div className={c(t.flex, t.w30)}>{group.description}</div>
+            <div className={c(t.flex, t.w20)}>
+              {group.extension.acls.virtualClusters.join()}
+            </div>
+            <div className={c(t.flex, t.itemsCenter, t.h100, t.w10)}>
               <DefaultButton
                 styles={{
                   root: {
