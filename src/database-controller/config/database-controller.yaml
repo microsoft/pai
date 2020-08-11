@@ -25,4 +25,5 @@ write-merger-max-db-connection: 50
 # db poller
 # Polling interval of database poller. Default value is 120.
 db-poller-interval-second: 120
+# Max connection number to database in write merger.
 db-poller-max-db-connection: 10
