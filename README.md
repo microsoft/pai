@@ -127,6 +127,8 @@ The [admin manual](https://openpai.readthedocs.io/en/latest/manual/cluster-admin
 
 - **Users and groups management**. Administrators could manage the [users and groups](https://openpai.readthedocs.io/en/latest/manual/cluster-admin/how-to-manage-users-and-groups.html) easily.
 
+- **Alerts management**. Administrators could [customize alerts rules and actions](https://openpai.readthedocs.io/en/latest/manual/cluster-admin/how-to-customize-alerts.html).
+
 - **Customization**. Administrators could customize the cluster by [plugins](https://openpai.readthedocs.io/en/latest/manual/cluster-admin/how-to-customize-cluster-by-plugins.html). Administrators could also upgrade (or downgrade) a single component (e.g. rest servers) to address customized application demands.
 
 ### For cluster users

@@ -21,6 +21,7 @@ nav:
       - How to Add and Remove Nodes: manual/cluster-admin/how-to-add-and-remove-nodes.md
       - How to use CPU Nodes: manual/cluster-admin/how-to-use-cpu-nodes.md
       - How to Customize Cluster by Plugins: manual/cluster-admin/how-to-customize-cluster-by-plugins.md
+      - How to Customize Alerts: manual/cluster-admin/how-to-customize-alerts.md
       - Troubleshooting: manual/cluster-admin/troubleshooting.md
       - How to Uninstall OpenPAI: manual/cluster-admin/how-to-uninstall-openpai.md
       - Upgrade Guide: manual/cluster-admin/upgrade-guide.md
