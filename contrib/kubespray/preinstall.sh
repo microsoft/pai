@@ -16,7 +16,7 @@ echo "cluster config file path: ${CLUSTER_CONFIG}"
 
 ABS_CONFIG_PATH="$(echo ${CLUSTER_CONFIG})"
 echo "Config path is: ${ABS_CONFIG_PATH}"
-ansible-playbook -i ${HOME}/pai-pre-check/pre-check.yml set-host-daemon-port-range.yaml -e "@${ABS_CONFIG_PATH}"
+ansible-playbook -i ${HOME}/pai-pre-check/pre-check.yml set-host-daemon-port-range.yml -e "@${ABS_CONFIG_PATH}"
 ret_code_check=$?
 
 if [ $ret_code_check -eq 0 ]
