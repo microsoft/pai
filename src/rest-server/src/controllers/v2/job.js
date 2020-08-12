@@ -159,6 +159,16 @@ const getSshInfo = asyncHandler(async (req, res) => {
   res.json(data);
 });
 
+const addTag = asyncHandler(async (req, res) => {
+  const data = await job.addTag(req.params.frameworkName, req.body.value);
+  res.json(data);
+});
+
+const deleteTag = asyncHandler(async (req, res) => {
+  const data = await job.deleteTag(req.params.frameworkName, req.body.value);
+  res.json(data);
+});
+
 // module exports
 module.exports = {
   list,
@@ -167,4 +177,6 @@ module.exports = {
   execute,
   getConfig,
   getSshInfo,
+  addTag,
+  deleteTag,
 };

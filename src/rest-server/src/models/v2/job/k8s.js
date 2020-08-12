@@ -975,6 +975,38 @@ const getSshInfo = async (frameworkName) => {
   throw createError('Not Found', 'NoJobSshInfoError', `SSH info of job ${frameworkName} is not found.`);
 };
 
+const addTag = async (frameworkName, tag) => {
+  let response;
+  try {
+    const patchData = {
+      spec: {
+        executionType: `${executionType.charAt(0)}${executionType.slice(1).toLowerCase()}`,
+      },
+    };
+    response = await axios({
+      method: 'PATCH',
+      url: launcherConfig.writeMergerUrl + '/api/v1/frameworkRequest/' + encodeName(frameworkName),
+      data: patchData,
+      headers: {
+        'Content-Type': 'application/merge-patch+json',
+      },
+    });
+  } catch (error) {
+    if (error.response != null) {
+      response = error.response;
+    } else {
+      throw error;
+    }
+  }
+  if (response.status !== status('OK')) {
+    throw createError(response.status, 'UnknownError', response.data.message);
+  }
+};
+
+const deleteTag = async (frameworkName, tag) => {
+  throw createError('Not Found', 'NoJobSshInfoError', `SSH info of job ${frameworkName} is not found.`);
+};
+
 const generateExitDiagnostics = (diag) => {
   if (_.isEmpty(diag)) {
     return null;

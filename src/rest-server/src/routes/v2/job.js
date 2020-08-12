@@ -56,5 +56,13 @@ router.route('/:frameworkName/ssh')
 
 router.use('/:frameworkName/job-attempts', jobAttemptRouter);
 
+router.route('/:frameworkName/tag')
+  /** PUT /api/v2/jobs/:frameworkName/tag - Add a framework tag*/
+  .put(token.check, controller.addTag);
+
+router.route('/:frameworkName/tag')
+  /** DELETE /api/v2/jobs/:frameworkName/tag - Delete a framework tag */
+  .delete(token.check, controller.deleteTag);
+  
 // module exports
 module.exports = router;
