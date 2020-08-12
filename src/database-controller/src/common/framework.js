@@ -441,14 +441,14 @@ async function synchronizeRequest(snapshot, addOns) {
   // There may be multiple calls of synchronizeRequest.
   // Poller and write-merger uses this method.
   try {
-    await k8s.getFramework(snapshot.getName());
-    // if framework exists
+    // Try to modify the framework
     const frameworkResponse = await synchronizeModify(snapshot);
     logger.info(
       `Request of framework ${snapshot.getName()} is successfully patched.`,
     );
     return frameworkResponse;
   } catch (err) {
+    // If framework doesn't exist, create it.
     if (err.response && err.response.statusCode === 404) {
       const frameworkResponse = await synchronizeCreate(snapshot, addOns);
       logger.info(
