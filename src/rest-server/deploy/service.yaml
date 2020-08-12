@@ -26,6 +26,7 @@ prerequisite:
   - hivedscheduler
   - log-manager
   - postgresql
+  - database-controller
 
 template-list:
   - rest-server.yaml

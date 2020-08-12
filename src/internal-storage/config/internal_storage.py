@@ -19,27 +19,23 @@ class InternalStorage(object):
         return srv_cfg
 
     def validation_pre(self):
-        if self.service_conf['enable']:
-            type_ = self.service_conf.get('type', '')
-            if type_ == 'hostPath':
-                machine_list = self.cluster_conf['machine-list']
-                if len([host for host in machine_list if host.get('pai-master') == 'true']) < 1:
-                    return False, '"pai-master=true" machine is required to deploy the internal storage'
-                quotaGB = int(self.service_conf['quota-gb'])
-                assert quotaGB >= 1
-                return True, None
-            else:
-                return False, 'Unknown internal storage type {}'.format(type_)
-        else:
+        type_ = self.service_conf.get('type', '')
+        if type_ == 'hostPath':
+            machine_list = self.cluster_conf['machine-list']
+            if len([host for host in machine_list if host.get('pai-master') == 'true']) < 1:
+                return False, '"pai-master=true" machine is required to deploy the internal storage'
+            quotaGB = int(self.service_conf['quota-gb'])
+            assert quotaGB >= 1
             return True, None
+        else:
+            return False, 'Unknown internal storage type {}'.format(type_)
 
     def run(self):
         result = copy.deepcopy(self.service_conf)
-        if result['enable']:
-            machine_list = self.cluster_conf['machine-list']
-            master_ip = [host['hostip'] for host in machine_list if host.get('pai-master') == 'true'][0]
-            result['master-ip'] = master_ip
-            result['quota-gb'] = int(result['quota-gb'])
+        machine_list = self.cluster_conf['machine-list']
+        master_ip = [host['hostip'] for host in machine_list if host.get('pai-master') == 'true'][0]
+        result['master-ip'] = master_ip
+        result['quota-gb'] = int(result['quota-gb'])
         return result
 
     def validation_post(self, conf):

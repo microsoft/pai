@@ -22,16 +22,75 @@ const status = require('statuses');
 const asyncHandler = require('@pai/middlewares/v2/asyncHandler');
 const createError = require('@pai/utils/error');
 const job = require('@pai/models/v2/job');
-
+const {Op} = require('sequelize');
 
 const list = asyncHandler(async (req, res) => {
+  // ?keyword=<keyword filter>&username=<username1>,<username2>&vc=<vc1>,<vc2>
+  //    &state=<state1>,<state2>&offset=<offset>&limit=<limit>&withTotalCount=true
+  //    &order=state,DESC
   const filters = {};
+  let offset = 0;
+  let limit;
+  let withTotalCount = false;
+  let order = [];
+  // limit has a max number and a default number
+  const maxLimit = 50000;
+  const defaultLimit = 5000;
   if (req.query) {
     if ('username' in req.query) {
-      filters['labelSelector'] = `userName=${req.query.username}`;
+      filters.userName = req.query.username.split(',');
+    }
+    if ('vc' in req.query) {
+      filters.virtualCluster = req.query.vc.split(',');
+    }
+    if ('state' in req.query) {
+      filters.state = req.query.state.split(',');
+    }
+    if ('offset' in req.query) {
+      offset = parseInt(req.query.offset);
+    }
+    if ('limit' in req.query) {
+      limit = parseInt(req.query.limit);
+      if (limit > maxLimit) {
+        throw createError('Bad Request', 'InvalidParametersError', `Limit exceeds max number ${maxLimit}.`);
+      }
+    } else {
+      limit = defaultLimit;
+    }
+    if ('withTotalCount' in req.query && req.query.withTotalCount === 'true') {
+      withTotalCount = true;
+    }
+    if ('keyword' in req.query) {
+      // match text in username, jobname, or vc
+      filters[Op.or] = [
+        {'userName': {[Op.substring]: req.query.keyword}},
+        {'jobName': {[Op.substring]: req.query.keyword}},
+        {'virtualCluster': {[Op.substring]: req.query.keyword}},
+      ];
+    }
+    if ('order' in req.query) {
+      const {field, ordering} = req.query.order.split(',');
+      if (['jobName', 'submissionTime', 'username', 'vc', 'retries', 'totalTaskNumber',
+        'totalGpuNumber', 'state'].includes(field)) {
+        if (ordering === 'ASC' || ordering === 'DESC') {
+          // different cases for username
+          if (field !== 'username') {
+            order.push([field, ordering]);
+          } else {
+            order.push(['userName', ordering]);
+          }
+        }
+      }
+    }
+    if (order.length === 0) {
+      // default order is submissionTime,DESC
+      order.push(['submissionTime', 'DESC']);
     }
   }
-  const data = await job.list(filters);
+  const attributes = ['name', 'jobName', 'userName', 'executionType', 'submissionTime', 'creationTime', 'virtualCluster',
+        'totalGpuNumber', 'totalTaskNumber', 'totalTaskRoleNumber', 'retries', 'retryDelayTime', 'platformRetries',
+        'resourceRetries', 'userRetries', 'completionTime', 'appExitCode', 'subState', 'state'];
+  const data = await job.list(attributes, filters, order, offset, limit, withTotalCount);
   res.json(data);
 });
 

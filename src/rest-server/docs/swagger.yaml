@@ -1102,13 +1102,50 @@ paths:
           description: filter jobs with username
           schema:
             type: string
+        - name: vc
+          in: query
+          description: filter jobs with virtual cluster name
+          schema:
+            type: string
+        - name: state
+          in: query
+          description: filter jobs with state
+          schema:
+            type: string
+        - name: keyword
+          in: query
+          description: filter jobs with keyword, we search keyword in user name, job name, and virtual cluster name
+          schema:
+            type: string
+        - name: offset
+          in: query
+          description: list job offset
+          schema:
+            type: number
+        - name: limit
+          in: query
+          description: list job limit. It has a default number 5000, and its max number is 50000.
+          schema:
+            type: number
+        - name: order
+          in: query
+          description: 'order of job list. It follows the format <field>,<ASC|DESC>, default value is "submissionTime,DESC". Available fields include: jobName, submissionTime, username, vc, retries, totalTaskNumber, totalGpuNumber, state'
+          schema:
+            type: string
+        - name: withTotalCount
+          in: query
+          description: 'if withTotalCount is "true", the result will contain a "totalCount" and a "data" field, instead of a job list.'
+          schema:
+            type: string
       responses:
         "200":
           description: Succeeded
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/JobSummary"
+                oneOf:
+                  - $ref: "#/components/schemas/JobSummary"
+                  - $ref: "#/components/schemas/JobSummaryWithTotalCount"
               example:
                 - protocolVersion: "2"
                   name: job name
@@ -1117,6 +1154,7 @@ paths:
                   subState: Completed
                   executionType: STOP
                   retries: 0
+                  submissionTime: 0
                   createdTime: 0
                   completedTime: 0
                   appExitCode: 0
@@ -1150,6 +1188,7 @@ paths:
                   subState: Completed
                   executionType: STOP
                   retries: 0
+                  submissionTime: 0
                   createdTime: 0
                   completedTime: 0
                   appId: id
@@ -1560,6 +1599,17 @@ components:
         - message
     JobProtocol:
       $ref: "https://raw.githubusercontent.com/microsoft/openpai-protocol/master/schemas/v2/schema.yaml#/components/schemas/JobProtocol"
+    JobSummaryWithTotalCount:
+      type: object
+      properties:
+        totalCount:
+          type: number
+          description: total count of jobs with given filters
+        data:
+          $ref: "#/components/schemas/JobSummary"
+      required:
+        - totalCount
+        - data
     JobSummary:
       type: array
       description: job summary list
@@ -1618,8 +1668,12 @@ components:
             type: integer
             nullable: true
             description: retry delay time
+          submissionTime:
+            type: integer
+            description: job submitted time, in number of milliseconds since the Unix Epoch.
           createdTime:
             type: integer
+            nullable: true
             description: job created time, in number of milliseconds since the Unix Epoch.
           completedTime:
             type: integer
@@ -1715,8 +1769,14 @@ components:
               type: integer
               nullable: true
               description: retry delay time
+            submissionTime:
+              type: integer
+              description: >-
+                job submitted time, in number of milliseconds since the Unix
+                Epoch.
             createdTime:
               type: integer
+              nullable: true
               description: >-
                 job created time, in number of milliseconds since the Unix
                 Epoch.
@@ -2176,6 +2236,7 @@ components:
           nullable: true
         jobStartedTime:
           type: integer
+          nullable: true
         attemptStartedTime:
           type: integer
           nullable: true

@@ -16,7 +16,7 @@ import {
 import { isNil } from 'lodash';
 import { DateTime } from 'luxon';
 
-import { getModified, getStatusText } from './utils';
+import { getSubmissionTime, getStatusText } from './utils';
 import Context from './Context';
 import Filter from './Filter';
 import Ordering from './Ordering';
@@ -114,16 +114,16 @@ export default function Table() {
     },
   });
   const modifiedColumn = applySortProps({
-    key: 'modified',
+    key: 'submissionTime',
     minWidth: 150,
-    name: 'Date Modified',
+    name: 'Submission Time',
     className: FontClassNames.mediumPlus,
     headerClassName: FontClassNames.medium,
     isResizable: true,
-    isSorted: ordering.field === 'modified',
+    isSorted: ordering.field === 'submissionTime',
     isSortedDescending: !ordering.descending,
     onRender(job) {
-      return DateTime.fromJSDate(getModified(job)).toLocaleString(
+      return DateTime.fromJSDate(getSubmissionTime(job)).toLocaleString(
         DateTime.DATETIME_SHORT_WITH_SECONDS,
       );
     },
