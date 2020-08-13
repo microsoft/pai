@@ -46,6 +46,7 @@ spec:
         {%- if cluster_cfg['cluster']['common']['qos-switch'] == "true" %}
         resources:
           limits:
+            cpu: 0.5
             memory: "512Mi"
         {%- endif %}
       - name: log-manager-nginx
@@ -67,6 +68,7 @@ spec:
         {%- if cluster_cfg['cluster']['common']['qos-switch'] == "true" %}
         resources:
           limits:
+            cpu: 0.5
             memory: "512Mi"
         {%- endif %}
       volumes:
