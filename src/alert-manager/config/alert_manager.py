@@ -35,7 +35,7 @@ class AlertManager(object):
         # check if `webhook-actions` is properly configured
         webhook_actions = result.get("webhook-actions")
         if webhook_actions is not None and \
-            webhook_actions.get("webhook-actions") is not None:
+            webhook_actions.get("bearer_token") is not None:
             result["webhook-actions-configured"] = True
         else:
             result["webhook-actions-configured"] = False

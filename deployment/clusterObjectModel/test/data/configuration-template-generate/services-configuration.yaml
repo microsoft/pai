@@ -97,11 +97,6 @@ prometheus:
   port: 9091
   # How frequently to scrape targets
   scrape_interval: 30
-  # threshold of low GPU utilization jobs
-  low_gpu_utilization_job: 
-    virtual_clusters: default
-    gpu_percent: 0.3
-    last_time: 10m
 
 
 pylon:

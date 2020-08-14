@@ -16,7 +16,6 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 {% set prom_info = cluster_cfg["prometheus"] %}
-{% set has_alert_manager = cluster_cfg["alert-manager"]["configured"] %}
 {% set alert_manager_port = cluster_cfg["alert-manager"]["port"] %}
 apiVersion: v1
 kind: ConfigMap
@@ -57,11 +56,9 @@ data:
         - source_labels: [__meta_kubernetes_pod_label_app]
           action: replace
           target_label: pai_service_name
-{% if has_alert_manager %}
     alerting:
       alertmanagers:
         - path_prefix: alert-manager
           static_configs:
           - targets:
             - {{ cluster_cfg['alert-manager']['host'] }}:{{ alert_manager_port }}
-{% endif %}

@@ -114,8 +114,9 @@ data:
 
 ```
 
-`cluster_cfg["alert-manager"]["email-notification"]` and `cluster_cfg["alert-manager"]["webhook-actions-configured"]`
-will be `True` necessary information in the `alert-manager` field of `service-configuration.yml` is configured.
+In this templated,
+`cluster_cfg["alert-manager"]["email-notification-configured"]` and `cluster_cfg["alert-manager"]["webhook-actions-configured"]`
+will be `True` if necessary information in the `alert-manager` field of `service-configuration.yml` is configured.
 
 In this example, as defined in the `route` filed, `PAIJobGpuPercentLowerThan0_3For1h` alert will be handled by `pai-alert-handler` receiver. Under `pai-alert-handler` receiver, both email and webhook are configured, which means that both email and stop-job action will be triggered when the `PAIJobGpuPercentLowerThan0_3For1h` alert is fired.
 
