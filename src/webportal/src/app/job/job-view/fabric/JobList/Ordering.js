@@ -1,4 +1,4 @@
-import { getModified, getDuration, getStatusIndex } from './utils';
+import { getSubmissionTime, getDuration, getStatusIndex } from './utils';
 
 export default class Ordering {
   /**
@@ -20,10 +20,10 @@ export default class Ordering {
       comparator = descending
         ? (a, b) => String(b.name).localeCompare(a.name)
         : (a, b) => String(a.name).localeCompare(b.name);
-    } else if (field === 'modified') {
+    } else if (field === 'submissionTime') {
       comparator = descending
-        ? (a, b) => getModified(b) - getModified(a)
-        : (a, b) => getModified(a) - getModified(b);
+        ? (a, b) => getSubmissionTime(b) - getSubmissionTime(a)
+        : (a, b) => getSubmissionTime(a) - getSubmissionTime(b);
     } else if (field === 'user') {
       comparator = descending
         ? (a, b) => String(b.username).localeCompare(a.username)

@@ -15,26 +15,12 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-
-const {Sequelize} = require('sequelize');
+const DatabaseModel = require('openpaidbsdk');
 const launcherConfig = require('@pai/config/launcher');
 
-if (launcherConfig.sqlConnectionString !== 'unset') {
-  const sequelize = new Sequelize(
-    launcherConfig.sqlConnectionString,
-    {
-      pool: {
-        max: 10,
-        min: 1,
-      },
-    }
-  );
+const databaseModel = new DatabaseModel(
+  launcherConfig.sqlConnectionString,
+  launcherConfig.sqlMaxConnection,
+);
 
-  module.exports = {
-    sequelize: sequelize,
-  };
-} else {
-  module.exports = {
-    sequelize: null,
-  };
-}
+module.exports = databaseModel;

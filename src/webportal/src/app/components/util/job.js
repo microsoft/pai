@@ -58,7 +58,8 @@ export function getHumanizedJobStateString(job) {
 
 export function getJobDuration(jobInfo) {
   const start =
-    get(jobInfo, 'createdTime') && DateTime.fromMillis(jobInfo.createdTime);
+    get(jobInfo, 'submissionTime') &&
+    DateTime.fromMillis(jobInfo.submissionTime);
   const end =
     get(jobInfo, 'completedTime') && DateTime.fromMillis(jobInfo.completedTime);
   if (start) {

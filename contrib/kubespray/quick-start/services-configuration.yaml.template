@@ -48,12 +48,6 @@ rest-server:
 webportal:
   server-port: 9286
 
-internal-storage:
-  enable: true
-
-postgresql:
-  enable: true
-
 #If you want to customize the scheduling config, such add more virtual clusters or more gpu types, check:
 #https://github.com/microsoft/pai/blob/master/docs/hivedscheduler/devops.md
 hivedscheduler:

@@ -54,6 +54,7 @@
     "nock": "~9.1.6",
     "node-cache": "~4.2.0",
     "nyc": "^14.1.1",
+    "openpaidbsdk": "file:./openpaidbsdk",
     "pg": "^7.17.1",
     "querystring": "~0.2.0",
     "sequelize": "^5.21.3",
@@ -71,6 +72,8 @@
     "coveralls": "nyc report --reporter=text-lcov | coveralls ..",
     "lint": "eslint .",
     "mocha": "mocha --file ./test/setup --ui bdd --recursive --timeout 1000 --exit",
+    "preinstall": "npx ncp ../database-controller/sdk openpaidbsdk || echo skip copying openpaidbsdk",
+    "postinstall": "rm -rf openpaidbsdk",
     "start": "node index.js",
     "test": "npm run lint && nyc npm run mocha"
   }

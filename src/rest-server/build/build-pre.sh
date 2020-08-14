@@ -20,5 +20,6 @@
 pushd $(dirname "$0") > /dev/null
 
 cp -arf "../../../version" "../version"
+cp -arf "../../database-controller/sdk" "../openpaidbsdk"
 
 popd > /dev/null
