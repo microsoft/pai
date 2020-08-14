@@ -4,46 +4,53 @@ metadata:
   name: alertmanager
 data:
   config.yml: |-
-{% if cluster_cfg["alert-manager"]["configured"] %}
-{% set alert_info = cluster_cfg["alert-manager"] %}
+{% set email_notification = cluster_cfg["alert-manager"]["email-notification"] %}
+{% set webhook_actions = cluster_cfg["alert-manager"]["webhook-actions"] %}
     global:
       resolve_timeout: 5m
-      smtp_smarthost: {{ alert_info["smtp_url"] }}
-      smtp_from: {{ alert_info["smtp_from"] }}
-      smtp_auth_username: {{ alert_info["smtp_auth_username"] }}
-      smtp_auth_password: {{ alert_info["smtp_auth_password"] }}
+{% if cluster_cfg["alert-manager"]["email-notification-configured"] %}
+      smtp_smarthost: {{ email_notification["smtp_url"] }}
+      smtp_from: {{ email_notification["smtp_from"] }}
+      smtp_auth_username: {{ email_notification["smtp_auth_username"] }}
+      smtp_auth_password: {{ email_notification["smtp_auth_password"] }}
+{% endif %}
     
     templates:
     - "/etc/alertmanager/template/*.tmpl"
 
     route:
-      receiver: pai-alert
+      receiver: pai-email
       group_wait: 30s
       group_interval: 5m
       repeat_interval: {{ cluster_cfg["alert-manager"]["repeat-interval"] }}
       group_by: [alertname, alertstate]
       routes:
-      - receiver: 'pai-alert-handler'
+      - receiver: pai-email-and-stop-job
         match: 
-          alertname: PaiJobLowGpuPercent
+          alertname: PAIJobGpuPercentLowerThan0_3For1h
     
     receivers:
-    - name: "pai-alert"
+    - name: "pai-email"
+{% if cluster_cfg["alert-manager"]["email-notification-configured"] %}
       email_configs:
-        - to: {{ alert_info["receiver"] }}
+        - to: {{ email_notification["receiver"] }}
           send_resolved: true
           html: '{{ "{{" }} template "email.pai.html" . {{ "}}" }}'
           headers:
             subject: '{{ cluster_cfg["cluster"]["common"]["cluster-id"] }}: {{ "{{" }} template "__subject" . {{ "}}" }}'
-    - name: "pai-alert-handler"
+{% endif %}
+    - name: "pai-email-and-stop-job"
+{% if cluster_cfg["alert-manager"]["email-notification-configured"] %}
       email_configs:
-        - to: {{ alert_info["receiver"] }}
+        - to: {{ email_notification["receiver"] }}
           send_resolved: true
           html: '{{ "{{" }} template "email.pai.html" . {{ "}}" }}'
           headers:
             subject: '{{ cluster_cfg["cluster"]["common"]["cluster-id"] }}: {{ "{{" }} template "__subject" . {{ "}}" }}'
+{% endif %}
+{% if cluster_cfg["alert-manager"]["webhook-actions-configured"] %}
       webhook_configs:
-        - url: 'http://localhost:{{ alert_info["alert-handler"]["port"] }}/alert-handler'
+        - url: 'http://localhost:{{ webhook_actions["port"] }}/alert-handler/stop-job'
           http_config:
-            bearer_token: {{ alert_info["alert-handler"]["bearer_token"] }}
+            bearer_token: {{ webhook_actions["bearer_token"] }}
 {% endif %}

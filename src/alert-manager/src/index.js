@@ -29,7 +29,7 @@ const app = express();
 app.use(express.json());
 app.use(bearerToken());
 
-app.post('/alert-handler', (req, res) => {
+app.post('/alert-handler/stop-job', (req, res) => {
   console.log('alert-handler received post request from alert-manager.');
 
   // extract jobs to kill

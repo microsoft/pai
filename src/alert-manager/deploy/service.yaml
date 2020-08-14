@@ -26,7 +26,6 @@ prerequisite:
 template-list:
   - alert-manager.yaml
   - alert-configmap.yaml
-  - start.sh
 
 start-script: start.sh
 stop-script: stop.sh

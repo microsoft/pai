@@ -15,7 +15,6 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-{% if cluster_cfg["alert-manager"]["configured"] %}
 
 {% if cluster_cfg["alert-manager"]["use-pylon"] %}
 {% set external_url = cluster_cfg["pylon"]["uri"] %}
@@ -57,15 +56,17 @@ spec:
           mountPath: /etc/alertmanager/template
         - name: alertmanager
           mountPath: /alertmanager
+{% if cluster_cfg["alert-manager"]["webhook-actions-configured"] %}
       - name: alerthandler
         image: {{ cluster_cfg['cluster']['docker-registry']['prefix'] }}alert-handler:{{ cluster_cfg['cluster']['docker-registry']['tag'] }}
         imagePullPolicy: Always
         ports:
         - name: alerthandler
-          containerPort: {{ cluster_cfg["alert-manager"]["alert-handler"]["port"] }}
+          containerPort: {{ cluster_cfg["alert-manager"]["webhook-actions"]["port"] }}
         env:
         - name: REST_SERVER_URI
           value: {{ cluster_cfg['rest-server']['uri'] }}
+{% endif %}
       imagePullSecrets:
       - name: {{ cluster_cfg["cluster"]["docker-registry"]["secret-name"] }}
       volumes:
@@ -82,4 +83,3 @@ spec:
         operator: "Exists"
       - key: node.kubernetes.io/disk-pressure
         operator: "Exists"
-{% endif %}
