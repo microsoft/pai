@@ -24,15 +24,15 @@ groups:
     expr: zombie_container_count > 0
     for: 1h # only when it exceed 1 hour
     annotations:
-      summary: "zombie container in {{ '{{' }}$labels.instance{{ '}}' }}detected"
+      summary: "zombie container in {{$labels.instance}}detected"
   - alert: PaiJobPending
     expr: pai_job_pod_count{pod_bound="true", phase="pending"} > 0
     for: 30m
     annotations:
-      summary: "Job {{ '{{' }}$labels.job_name{{ '}}' }}in pending status detected"
-  - alert: PaiJobLowGpuPercent
-    expr: avg(task_gpu_percent{virtual_cluster=~"{{ cluster_cfg["prometheus"]["low_gpu_utilization_job"]["virtual_clusters"] }}"}) by (job_name) < {{ cluster_cfg["prometheus"]["low_gpu_utilization_job"]["gpu_percent"] }}
-    for: {{ cluster_cfg["prometheus"]["low_gpu_utilization_job"]["last_time"] }}
+      summary: "Job {{$labels.job_name}}in pending status detected"
+  - alert: PAIJobGpuPercentLowerThan0_3For1h
+    expr: avg(task_gpu_percent{virtual_cluster=~"default"}) by (job_name) < 0.3
+    for: 1h
     annotations:
-      summary: "{{ '{{' }}$labels.job_name{{ '}}' }} has a job gpu percent lower than {{ cluster_cfg["prometheus"]["low_gpu_utilization_job"]["gpu_percent"] }} for {{ cluster_cfg["prometheus"]["low_gpu_utilization_job"]["last_time"] }}"
+      summary: "{{$labels.job_name}} has a job gpu percent lower than 30% for 1 hour"
       description: Monitor job level gpu utilization in certain virtual clusters.

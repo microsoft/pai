@@ -205,10 +205,6 @@ authentication:
 #   port: 9091
 #   # How frequently to scrape targets
 #   scrape_interval: 30
-#   low_gpu_utilization_job: 
-#     virtual_clusters: default
-#     gpu_percent: 0.3
-#     last_time: 10m
 
 
 # uncomment following section if you want to customize the threshold of cleaner

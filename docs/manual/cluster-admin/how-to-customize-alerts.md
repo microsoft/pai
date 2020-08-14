@@ -134,7 +134,8 @@ For OpenPAI service management, please refer to [link](https://github.com/micros
 
 All the alert rules are defined in [this folder](https://github.com/microsoft/pai/blob/master/src/prometheus/deploy/alerting).
 If you want to change the default values of some fields of these rules, modify the corresponding `.rules` files.
-You can also add new rules by using various system metrics, feel free to add a `.rules` file in the folder if you need it. You can explore the metrics at `your_master_ip/prometheus/graph`.
+You can also add new rules by using various system metrics, feel free to add a `.rules` file in the folder if you need it.
+You can explore the metrics at `your_master_ip/prometheus/graph`.
 
 Restart the `prometheus` service after your modification. 
 

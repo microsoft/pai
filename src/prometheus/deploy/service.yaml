@@ -27,7 +27,6 @@ template-list:
   - prometheus-deployment.yaml
   - start.sh
   - delete.yaml
-  - alerting/jobs.rules
 
 start-script: start.sh
 stop-script: stop.sh
