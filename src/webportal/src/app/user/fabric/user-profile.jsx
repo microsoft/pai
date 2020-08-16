@@ -169,7 +169,10 @@ const UserProfile = () => {
             <StorageList storageDetails={storageDetails} />
           </UserProfileCard>
           <UserProfileCard title='Virtual Clusters'>
-            <VirtualClusterDetailsList virtualClusters={virtualClusters} />
+            <VirtualClusterDetailsList
+              virtualClusters={virtualClusters}
+              groups={groups}
+            />
           </UserProfileCard>
           <UserProfileCard title='Groups'>
             <GroupList userInfo={userInfo} groups={groups} />
