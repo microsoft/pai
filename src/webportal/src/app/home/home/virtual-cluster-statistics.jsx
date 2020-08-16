@@ -14,6 +14,7 @@ import {
   Link,
 } from 'office-ui-fabric-react';
 import React, { useMemo } from 'react';
+import ReactTooltip from 'react-tooltip';
 
 import Card from '../../components/card';
 import { UtilizationChart } from './utilization-chart';
@@ -151,7 +152,7 @@ const vcListColumns = probs => {
     },
   ];
 
-  if (probs.groups) {
+  if (isAdmin && probs.groups) {
     columns.push({
       key: 'groups',
       minWidth: 85,
@@ -170,13 +171,43 @@ const vcListColumns = probs => {
           paddingLeft: 0,
         };
         return (
-          <Stack verticalAlign='start' verticalFill>
+          <Stack
+            verticalAlign='start'
+            verticalFill
+            selectionMode={SelectionMode.none}
+          >
             <ul style={style}>
               {groups.map((group, index) => {
                 return (
-                  <li className={FontClassNames.mediumPlus} key={index}>
-                    {group.groupname}
-                  </li>
+                  <div className={FontClassNames.medium} key={index}>
+                    <a
+                      data-tip
+                      data-for={group.groupname}
+                      data-event='mouseenter click'
+                      data-event-off='mouseout'
+                      data-delay-hide='1000'
+                    >
+                      {group.groupname}
+                    </a>
+                    <ReactTooltip
+                      id={group.groupname}
+                      type='light'
+                      effect='solid'
+                      clickable={true}
+                    >
+                      <p>
+                        <span className={c(t.f5)} style={{ color: '#0078D7' }}>
+                          {group.groupname}
+                        </span>
+                        &nbsp;
+                        <span>(</span>
+                        <span>{group.externalName}</span>
+                        <span>)</span>
+                      </p>
+                      <p className={c(t.f6)}>Description:</p>
+                      <p>{group.description}</p>
+                    </ReactTooltip>
+                  </div>
                 );
               })}
             </ul>

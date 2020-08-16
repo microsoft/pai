@@ -28,7 +28,6 @@ import { VirtualClusterDetailsList } from '../../home/home/virtual-cluster-stati
 import TokenList from './user-profile/token-list';
 import UserProfileHeader from './user-profile/header';
 import StorageList from './user-profile/storage-list';
-import GroupList from './user-profile/group-list';
 
 const UserProfileCard = ({ title, children, headerButton }) => {
   const { spacing } = getTheme();
@@ -173,9 +172,6 @@ const UserProfile = () => {
               virtualClusters={virtualClusters}
               groups={groups}
             />
-          </UserProfileCard>
-          <UserProfileCard title='Groups'>
-            <GroupList userInfo={userInfo} groups={groups} />
           </UserProfileCard>
         </div>
       </div>
