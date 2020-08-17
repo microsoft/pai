@@ -33,9 +33,10 @@ const path = require('path');
 const fs = require('fs');
 const _ = require('lodash');
 const logger = require('@pai/config/logger');
-const {apiserver} = require('@pai/config/kubernetes');
+const { apiserver } = require('@pai/config/kubernetes');
 const schedulePort = require('@pai/config/schedule-port');
 const databaseModel = require('@pai/utils/dbUtils');
+const { takeRight } = require('lodash');
 
 let exitSpecPath;
 if (process.env[env.exitSpecPath]) {
@@ -334,7 +335,7 @@ const generateTaskRole = (frameworkName, taskRole, jobInfo, frameworkEnvList, co
     }
   }
 
-  const randomPorts = {schedulePortStart: schedulePort.start, schedulePortEnd: schedulePort.end, ports: {}};
+  const randomPorts = { schedulePortStart: schedulePort.start, schedulePortEnd: schedulePort.end, ports: {} };
   for (let port of Object.keys(ports)) {
     randomPorts.ports[port] = {
       count: ports[port],
@@ -447,7 +448,7 @@ const generateTaskRole = (frameworkName, taskRole, jobInfo, frameworkEnvList, co
                   'memory': `${config.taskRoles[taskRole].resourcePerInstance.memoryMB}Mi`,
                   'github.com/fuse': 1,
                   'nvidia.com/gpu': config.taskRoles[taskRole].resourcePerInstance.gpu,
-                  ...infinibandDevice && {'rdma/hca': 1},
+                  ...infinibandDevice && { 'rdma/hca': 1 },
                 },
               },
               env: [
@@ -565,13 +566,13 @@ const generateTaskRole = (frameworkName, taskRole, jobInfo, frameworkEnvList, co
       frameworkTaskRole.task.pod.spec.containers[0].volumeMounts.push({
         name: `${storage.name}-volume`,
         mountPath: storage.mountPath || `/mnt/${storage.name}`,
-        ...(storage.share === false) && {subPath: jobInfo.userName},
+        ...(storage.share === false) && { subPath: jobInfo.userName },
       });
       frameworkTaskRole.task.pod.spec.volumes.push({
         name: `${storage.name}-volume`,
         persistentVolumeClaim: {
           claimName: `${storage.name}`,
-          ...(storage.readOnly === true) && {readOnly: true},
+          ...(storage.readOnly === true) && { readOnly: true },
         },
       });
     }
@@ -581,10 +582,10 @@ const generateTaskRole = (frameworkName, taskRole, jobInfo, frameworkEnvList, co
   frameworkTaskRole.frameworkAttemptCompletionPolicy = {
     minFailedTaskCount:
       (completion && 'minFailedInstances' in completion && completion.minFailedInstances) ?
-      completion.minFailedInstances : 1,
+        completion.minFailedInstances : 1,
     minSucceededTaskCount:
       (completion && 'minSucceededInstances' in completion && completion.minSucceededInstances) ?
-      completion.minSucceededInstances : frameworkTaskRole.taskNumber,
+        completion.minSucceededInstances : frameworkTaskRole.taskNumber,
   };
   // check cpu job
   if (!launcherConfig.enabledHived && config.taskRoles[taskRole].resourcePerInstance.gpu === 0) {
@@ -661,7 +662,7 @@ const generateFrameworkDescription = (frameworkName, virtualCluster, config, raw
   // generate framework env
   const frameworkEnv = runtimeEnv.generateFrameworkEnv(frameworkName, config);
   const frameworkEnvList = Object.keys(frameworkEnv).map((name) => {
-    return {name, value: `${frameworkEnv[name]}`};
+    return { name, value: `${frameworkEnv[name]}` };
   });
 
   // fill in task roles
@@ -732,7 +733,7 @@ const getDockerSecretDef = (frameworkName, auths) => {
       name: `${encodeName(frameworkName)}-regcred`,
       namespace: 'default',
     },
-    data: {'.dockerconfigjson': Buffer.from(JSON.stringify(cred)).toString('base64')},
+    data: { '.dockerconfigjson': Buffer.from(JSON.stringify(cred)).toString('base64') },
     type: 'kubernetes.io/dockerconfigjson',
   };
 };
@@ -766,10 +767,10 @@ const list = async (attributes, filters, order, offset, limit, withTotalCount) =
       order: order,
     });
     if (withTotalCount) {
-      totalCount = await databaseModel.Framework.count({where: filters});
+      totalCount = await databaseModel.Framework.count({ where: filters });
     }
   } catch (error) {
-      throw error;
+    throw error;
   }
   frameworks = frameworks
     .filter((item) => checkName(item.name))
@@ -789,7 +790,7 @@ const get = async (frameworkName) => {
   try {
     framework = await databaseModel.Framework.findOne({
       attributes: ['submissionTime', 'snapshot'],
-      where: {name: encodeName(frameworkName)},
+      where: { name: encodeName(frameworkName) },
     });
   } catch (error) {
     throw error;
@@ -824,7 +825,7 @@ const put = async (frameworkName, config, rawConfig) => {
         if ('parameters' in plugin && plugin.parameters.storageConfigNames) {
           config.extras.storages =
             plugin.parameters.storageConfigNames.map((name) => {
-              return {name};
+              return { name };
             });
         } else {
           config.extras.storages = [];
@@ -954,10 +955,10 @@ const getConfig = async (frameworkName) => {
   try {
     framework = await databaseModel.Framework.findOne({
       attributes: ['jobConfig'],
-      where: {name: encodeName(frameworkName)},
+      where: { name: encodeName(frameworkName) },
     });
   } catch (error) {
-      throw error;
+    throw error;
   }
 
   if (framework) {
@@ -976,35 +977,49 @@ const getSshInfo = async (frameworkName) => {
 };
 
 const addTag = async (frameworkName, tag) => {
-  let response;
+  // check if frameworkName exist
+  let framework;
   try {
-    const patchData = {
-      spec: {
-        executionType: `${executionType.charAt(0)}${executionType.slice(1).toLowerCase()}`,
-      },
-    };
-    response = await axios({
-      method: 'PATCH',
-      url: launcherConfig.writeMergerUrl + '/api/v1/frameworkRequest/' + encodeName(frameworkName),
-      data: patchData,
-      headers: {
-        'Content-Type': 'application/merge-patch+json',
+    framework = await databaseModel.Framework.findOne({
+      where: { name: encodeName(frameworkName) },
+    });
+  } catch (error) {
+    throw error;
+  }
+  if (framework == null) {
+    throw createError('Not Found', 'NoJobError', `Job ${frameworkName} is not found.`);
+  }
+
+  // add tag
+  try {
+    data = await databaseModel.Tag.findorCreate({
+      where: {
+        frameworkName: encodeName(frameworkName),
+        tag: tag
       },
     });
   } catch (error) {
-    if (error.response != null) {
-      response = error.response;
-    } else {
-      throw error;
-    }
+    throw error;
   }
-  if (response.status !== status('OK')) {
-    throw createError(response.status, 'UnknownError', response.data.message);
-  }
+
+  return yaml.safeLoad(data);
 };
 
 const deleteTag = async (frameworkName, tag) => {
-  throw createError('Not Found', 'NoJobSshInfoError', `SSH info of job ${frameworkName} is not found.`);
+  return 0;
+   // add tag
+   try {
+    data = await databaseModel.Tag.destroy({
+      where: {
+        frameworkName: encodeName(frameworkName),
+        tag: tag
+      },
+    });
+  } catch (error) {
+    throw error;
+  }
+
+  return yaml.safeLoad(data);
 };
 
 const generateExitDiagnostics = (diag) => {
@@ -1113,4 +1128,6 @@ module.exports = {
   execute,
   getConfig,
   getSshInfo,
+  addTag,
+  deleteTag,
 };
