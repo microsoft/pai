@@ -7,7 +7,7 @@
         "kubernetesConfig": {
             "containerRuntime": "docker",
             "enableRbac": true,
-            "loadBalancerSku": "basic",
+            "loadBalancerSku": "Basic",
             "containerRuntimeConfig": {
                 "dataDir": "/mnt/docker"
             },
@@ -63,14 +63,14 @@
       "masterProfile": {
             "distro": "aks-ubuntu-18.04",
             "count": {{cfg["kube_master_as"]["count"]|default(1)}},
-            "dnsPrefix": "",
-            "vmSize": "{{cfg["kube_master_as"]["vm_size"]}}"
+            "dnsPrefix": "{{cfg["dns_prefix"]}}",
 {% if "storage_profile" in cfg["kube_master_as"] %}
-            "storageProfile": cfg["kube_master_as"]["storage_profile"]
+            "storageProfile": cfg["kube_master_as"]["storage_profile"],
 {% endif %}
 {% if "os_disk_size_gb" in cfg["kube_master_as"] %}
-            "osDiskSizeGB": cfg["kube_master_as"]["os_disk_size_gb"]
+            "osDiskSizeGB": cfg["kube_master_as"]["os_disk_size_gb"],
 {% endif %}
+            "vmSize": "{{cfg["kube_master_as"]["vm_size"]}}"
       },
       "agentPoolProfiles": [
         {
@@ -86,10 +86,10 @@
             "customNodeLabels": {
                 "pai-worker": "true"
             },
-            "vmSize": "{{cfg["openpai_worker_vmss"]["vm_size"]}}"
 {% if "os_disk_size_gb" in cfg["openpai_worker_vmss"] %}
-            "osDiskSizeGB": cfg["openpai_worker_vmss"]["os_disk_size_gb"]
+            "osDiskSizeGB": cfg["openpai_worker_vmss"]["os_disk_size_gb"],
 {% endif %}
+            "vmSize": "{{cfg["openpai_worker_vmss"]["vm_size"]}}"
         },
         {
             "name": "opmaster",
@@ -100,10 +100,10 @@
                 "pai-master": "true"
             },
             "vmSize": "{{cfg["openpai_master_vmss"]["vm_size"]}}",
-            "enableVMSSNodePublicIP": true
 {% if "os_disk_size_gb" in cfg["openpai_master_vmss"] %}
-            "osDiskSizeGB": cfg["openpai_master_vmss"]["os_disk_size_gb"]
+            "osDiskSizeGB": cfg["openpai_master_vmss"]["os_disk_size_gb"],
 {% endif %}
+            "enableVMSSNodePublicIP": true
         }
       ],
       "linuxProfile": {

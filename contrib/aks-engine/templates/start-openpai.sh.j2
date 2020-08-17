@@ -38,9 +38,9 @@ docker run -tid \
       --name=dev-box \
       {{ cfg["openpai_config"]["docker_registry_domain"] }}/{{ cfg["openpai_config"]["docker_registry_namespace"] }}/dev-box:{{ cfg["openpai_config"]["docker_image_tag"] }} /bin/bash
 
-sudo docker exec -i dev-box /bin/bash -c "kubectl get node" || { cleanup; exit 1; }
+docker exec -i dev-box /bin/bash -c "kubectl get node" || { cleanup; exit 1; }
 
-sudo docker exec -i dev-box /bin/bash << EOF_DEV_BOX
+docker exec -i dev-box /bin/bash << EOF_DEV_BOX
 
 apt-get -y update
 apt-get -y install subversion python3 python-dev software-properties-common parallel
