@@ -167,15 +167,15 @@ authentication:
 # if you want to enable email notification or webhook actions, uncomment following lines and fill the right values.
 # alert-manager:
 #   port: 9093 # optional, do not change this if you do not want to change the port alert-manager is listening on
-#   email-notification: # email-notification will only be enabled when this field is not empty
+#   email_configs: # email-notification will only be enabled when this field is not empty
 #     receiver: your_addr@example.com
 #     smtp_url: smtp.office365.com:587
 #     smtp_from: alert_sender@example.com
 #     smtp_auth_username: alert_sender@example.com
 #     smtp_auth_password: password_for_alert_sender
-#   webhook-actions: # webhook-actions will only be enabled when this field is not empty
+#   webhook_configs: # webhook-actions will only be enabled when this field is not empty
 #     port: 9095 # optional, do not change this if you do not want to change the port alert-handler is listening on
-#     bearer_token: 'your_application_token_for_rest_server'
+#     pai_bearer_token: 'your_application_token_for_pai_rest_server'
 
 # uncomment following if you want to change customize grafana
 # grafana:

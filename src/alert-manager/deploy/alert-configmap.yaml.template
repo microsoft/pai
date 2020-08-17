@@ -4,15 +4,15 @@ metadata:
   name: alertmanager
 data:
   config.yml: |-
-{% set email_notification = cluster_cfg["alert-manager"]["email-notification"] %}
-{% set webhook_actions = cluster_cfg["alert-manager"]["webhook-actions"] %}
+{% set email_configs = cluster_cfg["alert-manager"]["email_configs"] %}
+{% set webhook_configs = cluster_cfg["alert-manager"]["webhook_configs"] %}
     global:
       resolve_timeout: 5m
-{% if cluster_cfg["alert-manager"]["email-notification-configured"] %}
-      smtp_smarthost: {{ email_notification["smtp_url"] }}
-      smtp_from: {{ email_notification["smtp_from"] }}
-      smtp_auth_username: {{ email_notification["smtp_auth_username"] }}
-      smtp_auth_password: {{ email_notification["smtp_auth_password"] }}
+{% if cluster_cfg["alert-manager"]["email-configured"] %}
+      smtp_smarthost: {{ email_configs["smtp_url"] }}
+      smtp_from: {{ email_configs["smtp_from"] }}
+      smtp_auth_username: {{ email_configs["smtp_auth_username"] }}
+      smtp_auth_password: {{ email_configs["smtp_auth_password"] }}
 {% endif %}
     
     templates:
@@ -31,26 +31,26 @@ data:
     
     receivers:
     - name: "pai-email"
-{% if cluster_cfg["alert-manager"]["email-notification-configured"] %}
+{% if cluster_cfg["alert-manager"]["email-configured"] %}
       email_configs:
-        - to: {{ email_notification["receiver"] }}
+        - to: {{ email_configs["receiver"] }}
           send_resolved: true
           html: '{{ "{{" }} template "email.pai.html" . {{ "}}" }}'
           headers:
             subject: '{{ cluster_cfg["cluster"]["common"]["cluster-id"] }}: {{ "{{" }} template "__subject" . {{ "}}" }}'
 {% endif %}
     - name: "pai-email-and-stop-job"
-{% if cluster_cfg["alert-manager"]["email-notification-configured"] %}
+{% if cluster_cfg["alert-manager"]["email-configured"] %}
       email_configs:
-        - to: {{ email_notification["receiver"] }}
+        - to: {{ email_configs["receiver"] }}
           send_resolved: true
           html: '{{ "{{" }} template "email.pai.html" . {{ "}}" }}'
           headers:
             subject: '{{ cluster_cfg["cluster"]["common"]["cluster-id"] }}: {{ "{{" }} template "__subject" . {{ "}}" }}'
 {% endif %}
-{% if cluster_cfg["alert-manager"]["webhook-actions-configured"] %}
+{% if cluster_cfg["alert-manager"]["webhook-configured"] %}
       webhook_configs:
-        - url: 'http://localhost:{{ webhook_actions["port"] }}/alert-handler/stop-job'
+        - url: 'http://localhost:{{ webhook_configs["port"] }}/alert-handler/stop-job'
           http_config:
-            bearer_token: {{ webhook_actions["bearer_token"] }}
+            bearer_token: {{ webhook_configs["pai_bearer_token"] }}
 {% endif %}

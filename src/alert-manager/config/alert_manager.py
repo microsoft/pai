@@ -20,25 +20,25 @@ class AlertManager(object):
         result = copy.deepcopy(self.default_service_conf)
         result.update(self.service_conf)
         
-        # check if email-notification is properly configured
-        email_notification = result.get("email-notification")
-        if email_notification is not None and \
-                email_notification.get("receiver") is not None and \
-                email_notification.get("smtp_url") is not None and \
-                email_notification.get("smtp_from") is not None and \
-                email_notification.get("smtp_auth_username") is not None and \
-                email_notification.get("smtp_auth_password") is not None:
-            result["email-notification-configured"] = True
+        # check if email_configs is properly configured
+        email_configs = result.get("email_configs")
+        if email_configs is not None and \
+                email_configs.get("receiver") is not None and \
+                email_configs.get("smtp_url") is not None and \
+                email_configs.get("smtp_from") is not None and \
+                email_configs.get("smtp_auth_username") is not None and \
+                email_configs.get("smtp_auth_password") is not None:
+            result["email-configured"] = True
         else:
-            result["email-notification-configured"] = False
+            result["email-configured"] = False
         
-        # check if `webhook-actions` is properly configured
-        webhook_actions = result.get("webhook-actions")
-        if webhook_actions is not None and \
-            webhook_actions.get("bearer_token") is not None:
-            result["webhook-actions-configured"] = True
+        # check if `webhook_configs` is properly configured
+        webhook_configs = result.get("webhook_configs")
+        if webhook_configs is not None and \
+            webhook_configs.get("pai_bearer_token") is not None:
+            result["webhook-configured"] = True
         else:
-            result["webhook-actions-configured"] = False
+            result["webhook-configured"] = False
 
         result["host"] = self.get_master_ip()
         result["url"] = "http://{0}:{1}".format(self.get_master_ip(), result["port"])

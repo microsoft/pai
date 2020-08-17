@@ -56,13 +56,13 @@ spec:
           mountPath: /etc/alertmanager/template
         - name: alertmanager
           mountPath: /alertmanager
-{% if cluster_cfg["alert-manager"]["webhook-actions-configured"] %}
+{% if cluster_cfg["alert-manager"]["webhook-configured"] %}
       - name: alerthandler
         image: {{ cluster_cfg['cluster']['docker-registry']['prefix'] }}alert-handler:{{ cluster_cfg['cluster']['docker-registry']['tag'] }}
         imagePullPolicy: Always
         ports:
         - name: alerthandler
-          containerPort: {{ cluster_cfg["alert-manager"]["webhook-actions"]["port"] }}
+          containerPort: {{ cluster_cfg["alert-manager"]["webhook_configs"]["port"] }}
         env:
         - name: REST_SERVER_URI
           value: {{ cluster_cfg['rest-server']['uri'] }}

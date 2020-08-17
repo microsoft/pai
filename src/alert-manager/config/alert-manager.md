@@ -15,20 +15,20 @@ To configure alert-manager to send out alert emails and kill low-gpu-utilization
 ``` yaml
 alert-manager:
   port: 9093 # optional, do not change this if you do not want to change the port alert-manager is listening on
-  email-notification: # email-notification will only be enabled when this field is not empty
+  email_configs: # email-notification will only be enabled when this field is not empty
     receiver: your_addr@example.com
     smtp_url: smtp.office365.com:587
     smtp_from: alert_sender@example.com
     smtp_auth_username: alert_sender@example.com
     smtp_auth_password: password_for_alert_sender
-  webhook-actions: # webhook-actions will only be enabled when  this field is not empty
+  webhook_configs: # webhook-actions will only be enabled when  this field is not empty
     port: 9095 # optional, do not change this if you do not want to change the port alert-handler is listening on
-    bearer_token: 'your_application_token_for_rest_server'
+    pai_bearer_token: 'your_application_token_for_pai_rest_server'
 ```
 
 `email-notification` and `webhook-actions` will only be enabled when necessary information are configured. 
 The port configurations are optional. All other config is mandatory. 
-If `webhook-actions` is not configured, the `alert-handler` container will not start.
+If `webhook_configs` is not configured, the `alert-handler` container will not start.
 
 In addition, if you deployed pai behind firewall, you should configure alert-manager with `use-pylon: True` , to make url from alert email public available.
 
@@ -36,35 +36,35 @@ Also you can control the interval of sending same alert email if problem unsolve
 
 #### Generated Configuration <a name="G_Config"></a>
 
-After parsing, if you configured `email-notification` and `webhook-actions` , the model will be like:
+After parsing, if you configured `email_configs` and `webhook_configs`, the model will be like:
 
 ``` yaml
 alert-manager: 
   port: 9093
-  email-notification-configured: True 
-  email-notification: 
+  email-configured: True
+  email_configs:
     receiver: your_addr@example.com
     smtp_url: smtp.office365.com:587
     smtp_from: alert_sender@example.com
     smtp_auth_username: alert_sender@example.com
     smtp_auth_password: password_for_alert_sender
-  webhook-actions-configured: True
-  webhook-actions:
+  webhook-configured: True
+  webhook_configs:
     port: 9095
-    bearer_token: 'your_application_token_for_rest_server'
+    pai_bearer_token: 'your_application_token_for_pai_rest_server'
   host: master_ip
   url: "http://master_ip:9093"
   use-pylon: False
   repeat-interval: 24h
 ```
 
-if you didn't configured `email-notification` and `webhook-actions` , it will be like:
+if you didn't configured `email_configs` and `webhook_configs`, it will be like:
 
 ``` yaml
 alert-manager:
   port: 9093
-  email-notification-configured: False 
-  webhook-actions-configured: False
+  email-configured: False
+  webhook-configured: False
   host: master_ip
   url: "http://master_ip:9093"
   use-pylon: False

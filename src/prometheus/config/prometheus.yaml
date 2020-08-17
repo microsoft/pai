@@ -19,7 +19,3 @@ service_type: "common"
 
 port: 9091
 scrape_interval: 30
-low_gpu_utilization_job: 
-    virtual_clusters: default
-    gpu_percent: 0.3
-    last_time: 10m
