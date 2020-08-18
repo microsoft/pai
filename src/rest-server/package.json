@@ -21,7 +21,7 @@
     "url": "https://github.com/Microsoft/pai/issues"
   },
   "engines": {
-    "node": "^8.9.0"
+    "node": "^10"
   },
   "dependencies": {
     "@kubernetes/client-node": "^0.11.0",
@@ -37,8 +37,6 @@
     "cors": "~2.8.4",
     "coveralls": "~3.0.0",
     "dotenv": "~4.0.0",
-    "eslint": "~4.18.2",
-    "eslint-config-google": "~0.9.1",
     "express": "~4.16.2",
     "express-rate-limit": "^5.1.1",
     "fs-extra": "~7.0.1",
@@ -54,7 +52,6 @@
     "nock": "~9.1.6",
     "node-cache": "~4.2.0",
     "nyc": "^14.1.1",
-    "openpaidbsdk": "file:./openpaidbsdk",
     "pg": "^7.17.1",
     "querystring": "~0.2.0",
     "sequelize": "^5.21.3",
@@ -70,11 +67,23 @@
   },
   "scripts": {
     "coveralls": "nyc report --reporter=text-lcov | coveralls ..",
-    "lint": "eslint .",
+    "lint": "eslint --ext .js ./src",
     "mocha": "mocha --file ./test/setup --ui bdd --recursive --timeout 1000 --exit",
     "preinstall": "npx ncp ../database-controller/sdk openpaidbsdk || echo skip copying openpaidbsdk",
-    "postinstall": "rm -rf openpaidbsdk",
+    "postinstall": "rimraf openpaidbsdk",
     "start": "node index.js",
     "test": "npm run lint && nyc npm run mocha"
+  },
+  "devDependencies": {
+    "eslint": "^7.7.0",
+    "eslint-config-prettier": "~6.11.0",
+    "eslint-config-standard": "~14.1.1",
+    "eslint-plugin-import": "^2.22.0",
+    "eslint-plugin-node": "^11.1.0",
+    "eslint-plugin-prettier": "~3.1.4",
+    "eslint-plugin-promise": "^4.2.1",
+    "eslint-plugin-standard": "^4.0.1",
+    "prettier": "~2.0.5",
+    "rimraf": "^3.0.2"
   }
 }

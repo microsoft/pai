@@ -15,14 +15,14 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-
 // module dependencies
 const status = require('statuses');
 
 const index = (req, res) => {
-  return res.status(status('OK')).type('text').send(
-    'PAI RESTful API v2 (beta version)'
-  );
+  return res
+    .status(status('OK'))
+    .type('text')
+    .send('PAI RESTful API v2 (beta version)');
 };
 
 // module exports

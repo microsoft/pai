@@ -24,7 +24,7 @@ const generateSpecMap = () => {
     exitSpecPath = '/k8s-job-exit-spec-configuration/k8s-job-exit-spec.yaml';
   }
   const exitSpecList = yaml.safeLoad(fs.readFileSync(exitSpecPath));
-  let exitSpecMap = {};
+  const exitSpecMap = {};
   exitSpecList.forEach((val) => {
     exitSpecMap[val.code] = val;
   });
@@ -158,7 +158,6 @@ const convertState = (state, exitCode) => {
   }
 };
 
-
 const generateExitSpec = (code) => {
   const exitSpecMap = generateSpecMap();
   if (!_.isNil(code)) {
@@ -205,7 +204,9 @@ const convertToJobAttempt = async (framework) => {
     framework.metadata.annotations,
   );
   const frameworkName = framework.metadata.name;
-  const logPathInfix = framework.metadata.annotations.logPathInfix ? framework.metadata.annotations.logPathInfix : jobName;
+  const logPathInfix = framework.metadata.annotations.logPathInfix
+    ? framework.metadata.annotations.logPathInfix
+    : jobName;
   const uid = framework.metadata.uid;
   const userName = framework.metadata.labels
     ? framework.metadata.labels.userName
@@ -218,9 +219,13 @@ const convertToJobAttempt = async (framework) => {
   const originState = framework.status.state;
   const maxAttemptCount = framework.spec.retryPolicy.maxRetryCount + 1;
   const attemptIndex = framework.status.attemptStatus.id;
-  const jobStartedTime = new Date(framework.metadata.creationTimestamp).getTime();
-  const attemptStartedTime = new Date(framework.status.attemptStatus.startTime).getTime() || null;
-  const attemptCompletedTime = new Date(framework.status.attemptStatus.completionTime).getTime() || null;
+  const jobStartedTime = new Date(
+    framework.metadata.creationTimestamp,
+  ).getTime();
+  const attemptStartedTime =
+    new Date(framework.status.attemptStatus.startTime).getTime() || null;
+  const attemptCompletedTime =
+    new Date(framework.status.attemptStatus.completionTime).getTime() || null;
   const totalGpuNumber = framework.metadata.annotations
     ? parseInt(framework.metadata.annotations.totalGpuNumber)
     : 0;
@@ -265,12 +270,13 @@ const convertToJobAttempt = async (framework) => {
     );
   }
 
-  let taskRoles = {};
+  const taskRoles = {};
   const exitCode = completionStatus ? completionStatus.code : null;
   const exitPhrase = completionStatus ? completionStatus.phrase : null;
   const exitType = completionStatus ? completionStatus.type.name : null;
 
-  for (let taskRoleStatus of framework.status.attemptStatus.taskRoleStatuses) {
+  for (const taskRoleStatus of framework.status.attemptStatus
+    .taskRoleStatuses) {
     taskRoles[taskRoleStatus.name] = {
       taskRoleStatus: {
         name: taskRoleStatus.name,
@@ -327,12 +333,11 @@ const convertTaskDetail = async (
   // get container gpus
   let containerGpus = null;
   try {
-    const response = await k8sModel.getClient().get(
-      launcherConfig.podPath(taskStatus.attemptStatus.podName),
-      {
+    const response = await k8sModel
+      .getClient()
+      .get(launcherConfig.podPath(taskStatus.attemptStatus.podName), {
         headers: launcherConfig.requestHeaders,
-      }
-    );
+      });
     const pod = response.data;
     if (launcherConfig.enabledHived) {
       const isolation =

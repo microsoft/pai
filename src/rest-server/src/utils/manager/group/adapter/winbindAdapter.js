@@ -20,25 +20,21 @@ const axios = require('axios');
 
 function initConfig(winbindServerUrl) {
   return {
-    'requestConfig': {
-      'baseURL': `${winbindServerUrl}/`,
-      'maxRedirects': 0,
+    requestConfig: {
+      baseURL: `${winbindServerUrl}/`,
+      maxRedirects: 0,
     },
   };
 }
 
 async function getUserGroupList(username, config) {
-  try {
-    const request = axios.create(config.requestConfig);
-    const response = await request.get(`GetUserId?userName=${username}`, {
-      headers: {
-        'Accept': 'application/json',
-      },
-    });
-    return response['data']['groups'];
-  } catch (error) {
-    throw error;
-  }
+  const request = axios.create(config.requestConfig);
+  const response = await request.get(`GetUserId?userName=${username}`, {
+    headers: {
+      Accept: 'application/json',
+    },
+  });
+  return response.data.groups;
 }
 
 module.exports = {

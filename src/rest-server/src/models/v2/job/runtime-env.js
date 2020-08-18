@@ -15,7 +15,6 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-
 const generateFrameworkEnv = (frameworkName, config) => {
   const [userName] = frameworkName.split('~');
   const env = {
@@ -27,22 +26,30 @@ const generateFrameworkEnv = (frameworkName, config) => {
     PAI_TASK_ROLE_LIST: Object.keys(config.taskRoles).join(','),
   };
   let tasksNum = 0;
-  for (let taskRole of Object.keys(config.taskRoles)) {
+  for (const taskRole of Object.keys(config.taskRoles)) {
     const tasks = config.taskRoles[taskRole];
-    tasksNum += (tasks.instances || 1);
-    env[`PAI_TASK_ROLE_TASK_COUNT_${taskRole}`] = (tasks.instances || 1);
+    tasksNum += tasks.instances || 1;
+    env[`PAI_TASK_ROLE_TASK_COUNT_${taskRole}`] = tasks.instances || 1;
     env[`PAI_RESOURCE_${taskRole}`] = [
       tasks.resourcePerInstance.gpu,
       tasks.resourcePerInstance.cpu,
       tasks.resourcePerInstance.memoryMB,
-      (tasks.extraContainerOptions && 'shmMB' in tasks.extraContainerOptions) ? tasks.extraContainerOptions.shmMB : 0,
+      tasks.extraContainerOptions && 'shmMB' in tasks.extraContainerOptions
+        ? tasks.extraContainerOptions.shmMB
+        : 0,
     ].join(',');
     env[`PAI_MIN_FAILED_TASK_COUNT_${taskRole}`] =
-      (tasks.completion && 'minFailedInstances' in tasks.completion && tasks.completion.minFailedInstances) ?
-      tasks.completion.minFailedInstances : 1;
+      tasks.completion &&
+      'minFailedInstances' in tasks.completion &&
+      tasks.completion.minFailedInstances
+        ? tasks.completion.minFailedInstances
+        : 1;
     env[`PAI_MIN_SUCCEEDED_TASK_COUNT_${taskRole}`] =
-      (tasks.completion && 'minSucceededInstances' in tasks.completion && tasks.completion.minSucceededInstances) ?
-      tasks.completion.minSucceededInstances : (tasks.instances || 1);
+      tasks.completion &&
+      'minSucceededInstances' in tasks.completion &&
+      tasks.completion.minSucceededInstances
+        ? tasks.completion.minSucceededInstances
+        : tasks.instances || 1;
   }
   return {
     ...env,

@@ -5,10 +5,9 @@
 const asyncHandler = require('@pai/middlewares/v2/asyncHandler');
 const storage = require('@pai/models/v2/storage');
 
-
 const list = asyncHandler(async (req, res) => {
   const userName = req.user.username;
-  const filterDefault = (req.query.default === 'true');
+  const filterDefault = req.query.default === 'true';
   const data = await storage.list(userName, filterDefault);
   res.json(data);
 });

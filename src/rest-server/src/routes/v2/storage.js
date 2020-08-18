@@ -22,10 +22,8 @@ const controller = require('@pai/controllers/v2/storage');
 
 const router = new express.Router();
 
-router.route('/')
-  .get(token.check, controller.list);
+router.route('/').get(token.check, controller.list);
 
-router.route('/:storageName')
-  .get(token.check, controller.get);
+router.route('/:storageName').get(token.check, controller.get);
 
 module.exports = router;

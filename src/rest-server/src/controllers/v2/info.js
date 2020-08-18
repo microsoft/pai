@@ -16,4 +16,4 @@ const info = (req, res) => {
 };
 
 // module exports
-module.exports = {info};
+module.exports = { info };

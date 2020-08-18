@@ -30,42 +30,40 @@ const tokenMiddleware = require('@pai/middlewares/token');
 
 const router = new express.Router();
 
-router.route('/info')
-  .get(
-    async function(req, res, next) {
-      const authnMode = authnConfig.authnMethod;
-      const loginURI = authnConfig.authnMethod === 'OIDC' ? '/api/v1/authn/oidc/login' : '/api/v1/authn/basic/login';
-      const loginURIMethod = authnConfig.authnMethod === 'OIDC' ? 'get' : 'post';
-      return res.status(200).json({
-        authn_type: authnMode,
-        loginURI: loginURI,
-        loginURIMethod: loginURIMethod,
-      });
-    }
-  );
-
+router.route('/info').get(async function (req, res, next) {
+  const authnMode = authnConfig.authnMethod;
+  const loginURI =
+    authnConfig.authnMethod === 'OIDC'
+      ? '/api/v1/authn/oidc/login'
+      : '/api/v1/authn/basic/login';
+  const loginURIMethod = authnConfig.authnMethod === 'OIDC' ? 'get' : 'post';
+  return res.status(200).json({
+    authn_type: authnMode,
+    loginURI: loginURI,
+    loginURIMethod: loginURIMethod,
+  });
+});
 
 if (authnConfig.authnMethod === 'OIDC') {
-  router.route('/oidc/login')
-  /** POST /api/v1/authn/oidc/login - Return a token OIDC authn is passed and the user has the access to OpenPAI */
-    .get(
-      azureADController.requestAuthCode
-    );
+  router
+    .route('/oidc/login')
+    /** POST /api/v1/authn/oidc/login - Return a token OIDC authn is passed and the user has the access to OpenPAI */
+    .get(azureADController.requestAuthCode);
 
-  router.route('/oidc/logout')
-  /** POST /api/v1/authn/oidc/logout */
-    .get(
-      azureADController.signoutAzureAD
-    );
+  router
+    .route('/oidc/logout')
+    /** POST /api/v1/authn/oidc/logout */
+    .get(azureADController.signoutAzureAD);
 
-  router.route('/oidc/return')
-  /** GET /api/v1/authn/oidc/return - AAD AUTH RETURN */
+  router
+    .route('/oidc/return')
+    /** GET /api/v1/authn/oidc/return - AAD AUTH RETURN */
     .get(
       azureADController.requestTokenWithCode,
       azureADController.parseTokenData,
       userController.createUserIfUserNotExist,
       userController.updateUserGroupListFromExternal,
-      tokenController.getAAD
+      tokenController.getAAD,
     )
     /** POST /api/v1/authn/oidc/return - AAD AUTH RETURN */
     .post(
@@ -73,32 +71,42 @@ if (authnConfig.authnMethod === 'OIDC') {
       azureADController.parseTokenData,
       userController.createUserIfUserNotExist,
       userController.updateUserGroupListFromExternal,
-      tokenController.getAAD
+      tokenController.getAAD,
     );
 } else {
-  router.route('/basic/login')
-  /** POST /api/v1/authn/basic/login - Return a token if username and password is correct */
+  router
+    .route('/basic/login')
+    /** POST /api/v1/authn/basic/login - Return a token if username and password is correct */
     .post(
-      param.validate(tokenConfig.tokenPostInputSchema), tokenController.get);
+      param.validate(tokenConfig.tokenPostInputSchema),
+      tokenController.get,
+    );
 
-  router.route('/basic/logout')
-  /** POST /api/v1/authn/basic/logout - logout */
+  router
+    .route('/basic/logout')
+    /** POST /api/v1/authn/basic/logout - logout */
     .delete(tokenMiddleware.checkNotApplication, async (req, res, next) => {
-  const token = req.headers.authorization.split(' ')[1];
-  try {
-    const {username} = jwt.decode(token);
-    if (username === req.user.username) {
-      await tokenModel.revoke(token);
-      res.status(200).json({
-        message: 'Logout successfully',
-      });
-    } else {
-      next(createError('Forbidden', 'ForbiddenUserError', `User ${req.user.username} is not allowed to do this operation.`));
-    }
-  } catch (err) {
-    next(createError.unknown(err));
-  }
-});
+      const token = req.headers.authorization.split(' ')[1];
+      try {
+        const { username } = jwt.decode(token);
+        if (username === req.user.username) {
+          await tokenModel.revoke(token);
+          res.status(200).json({
+            message: 'Logout successfully',
+          });
+        } else {
+          next(
+            createError(
+              'Forbidden',
+              'ForbiddenUserError',
+              `User ${req.user.username} is not allowed to do this operation.`,
+            ),
+          );
+        }
+      } catch (err) {
+        next(createError.unknown(err));
+      }
+    });
 }
 
 // module exports
