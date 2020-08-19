@@ -18,5 +18,3 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 rm -rf _output/ .azure_quick_start/
-docker kill dev-box
-docker rm dev-box

@@ -19,7 +19,7 @@
 
 set -e
 
-function cleanup(){
+function cleanup() {
   docker stop dev-box
   docker rm dev-box
 }
@@ -54,8 +54,6 @@ git clone https://github.com/microsoft/pai.git
 cd pai
 
 git checkout {{ cfg["openpai_config"]["branch_name"] }}
-
-kubectl create namespace pai-storage
 
 echo -e "pai\n" | python paictl.py config push -p /cluster-configuration -m service
 
