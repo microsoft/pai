@@ -32,17 +32,24 @@ export const HivedSkuSection = React.memo(props => {
     [hivedSkuTypes],
   );
 
+  const _setSku = () => {
+    if (value.skuType != null) {
+      const selected = skuOptions.find(option => option.key === value.skuType);
+      if (selected == null) {
+        onChange({ ...value, skuType: null, sku: null });
+      } else if (value.sku == null) {
+        const sku = get(selected, 'sku', null);
+        onChange({ ...value, sku });
+      }
+    }
+  };
+
   const _onSkuNumChange = useCallback(
     num => {
-      const hivedSku = { ...value, skuNum: num };
-      if (hivedSku.skuType != null && hivedSku.sku == null) {
-        hivedSku.sku = get(
-          skuOptions.find(option => option.key === hivedSku.skuType),
-          'sku',
-          null,
-        );
-      }
-      onChange(hivedSku);
+      onChange({
+        ...value,
+        skuNum: num,
+      });
     },
     [onChange],
   );
@@ -58,6 +65,7 @@ export const HivedSkuSection = React.memo(props => {
     [onChange],
   );
 
+  _setSku();
   return (
     <BasicSection
       sectionLabel='Resources SKU'
