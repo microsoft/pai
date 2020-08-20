@@ -45,7 +45,12 @@ const k8sLauncherConfigSchema = Joi.object().keys({
   requestHeaders: Joi.object(),
   sqlConnectionString: Joi.string()
     .required(),
+  sqlMaxConnection: Joi.number()
+    .integer()
+    .required(),
   enabledJobHistory: Joi.boolean()
+    .required(),
+  writeMergerUrl: Joi.string()
     .required(),
   healthCheckPath: Joi.func()
     .arity(0)
@@ -80,7 +85,7 @@ if (launcherType === 'k8s') {
     hivedWebserviceUri: process.env.HIVED_WEBSERVICE_URI,
     enabledPriorityClass: process.env.LAUNCHER_PRIORITY_CLASS === 'true',
     apiVersion: 'frameworkcontroller.microsoft.com/v1',
-    podGracefulDeletionTimeoutSec: 1800,
+    podGracefulDeletionTimeoutSec: 600,
     scheduler: process.env.LAUNCHER_SCHEDULER,
     runtimeImage: process.env.LAUNCHER_RUNTIME_IMAGE,
     runtimeImagePullSecrets: process.env.LAUNCHER_RUNTIME_IMAGE_PULL_SECRETS,
@@ -91,7 +96,9 @@ if (launcherType === 'k8s') {
       'Content-Type': 'application/json',
     },
     sqlConnectionString: process.env.SQL_CONNECTION_STR || 'unset',
+    sqlMaxConnection: parseInt(process.env.SQL_MAX_CONNECTION),
     enabledJobHistory: process.env.JOB_HISTORY === 'true',
+    writeMergerUrl: process.env.WRITE_MERGER_URL,
     healthCheckPath: () => {
       return `/apis/${launcherConfig.apiVersion}`;
     },

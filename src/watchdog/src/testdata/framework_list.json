@@ -382,7 +382,7 @@
                                     ]
                                 }
                             },
-                            "podGracefulDeletionTimeoutSec": 1800,
+                            "podGracefulDeletionTimeoutSec": 600,
                             "retryPolicy": {
                                 "fancyRetryPolicy": false,
                                 "maxRetryCount": 0

@@ -17,8 +17,8 @@
 
 service_type: "common"
 
-enable: true
 user: root
 passwd: rootpass
 db: openpai
 port: 5432
+max-connection: 1000

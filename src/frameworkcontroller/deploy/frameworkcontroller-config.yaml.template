@@ -29,7 +29,7 @@ data:
 
     largeFrameworkCompression: true
 
-    #frameworkCompletedRetainSec: 2592000
+    frameworkCompletedRetainSec: 2147483600
 
     #frameworkMinRetryDelaySecForTransientConflictFailed: 60
     #frameworkMaxRetryDelaySecForTransientConflictFailed: 900

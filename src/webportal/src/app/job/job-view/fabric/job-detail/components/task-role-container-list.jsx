@@ -350,7 +350,9 @@ export default class TaskRoleContainerList extends React.Component {
         onRender: item => {
           return (
             <div className={c(FontClassNames.mediumPlus)}>
-              {printDateTime(DateTime.fromMillis(item.createdTime))}
+              {isNil(item.createdTime)
+                ? 'N/A'
+                : printDateTime(DateTime.fromMillis(item.createdTime))}
             </div>
           );
         },
@@ -365,9 +367,11 @@ export default class TaskRoleContainerList extends React.Component {
         onRender: item => {
           return (
             <div className={c(FontClassNames.mediumPlus)}>
-              {printDateTime(
-                DateTime.fromMillis(item.currentAttemptLaunchedTime),
-              )}
+              {isNil(item.currentAttemptLaunchedTime)
+                ? 'N/A'
+                : printDateTime(
+                    DateTime.fromMillis(item.currentAttemptLaunchedTime),
+                  )}
             </div>
           );
         },
@@ -382,9 +386,11 @@ export default class TaskRoleContainerList extends React.Component {
         onRender: item => {
           return (
             <div className={c(FontClassNames.mediumPlus)}>
-              {printDateTime(
-                DateTime.fromMillis(item.currentAttemptCompletedTime),
-              )}
+              {isNil(item.currentAttemptCompletedTime)
+                ? 'N/A'
+                : printDateTime(
+                    DateTime.fromMillis(item.currentAttemptCompletedTime),
+                  )}
             </div>
           );
         },
@@ -399,7 +405,9 @@ export default class TaskRoleContainerList extends React.Component {
         onRender: item => {
           return (
             <div className={c(FontClassNames.mediumPlus)}>
-              {printDateTime(DateTime.fromMillis(item.completedTime))}
+              {isNil(item.completedTime)
+                ? 'N/A'
+                : printDateTime(DateTime.fromMillis(item.completedTime))}
             </div>
           );
         },

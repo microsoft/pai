@@ -1102,13 +1102,50 @@ paths:
           description: filter jobs with username
           schema:
             type: string
+        - name: vc
+          in: query
+          description: filter jobs with virtual cluster name
+          schema:
+            type: string
+        - name: state
+          in: query
+          description: filter jobs with state
+          schema:
+            type: string
+        - name: keyword
+          in: query
+          description: filter jobs with keyword, we search keyword in user name, job name, and virtual cluster name
+          schema:
+            type: string
+        - name: offset
+          in: query
+          description: list job offset
+          schema:
+            type: number
+        - name: limit
+          in: query
+          description: list job limit. It has a default number 5000, and its max number is 50000.
+          schema:
+            type: number
+        - name: order
+          in: query
+          description: 'order of job list. It follows the format <field>,<ASC|DESC>, default value is "submissionTime,DESC". Available fields include: jobName, submissionTime, username, vc, retries, totalTaskNumber, totalGpuNumber, state'
+          schema:
+            type: string
+        - name: withTotalCount
+          in: query
+          description: 'if withTotalCount is "true", the result will contain a "totalCount" and a "data" field, instead of a job list.'
+          schema:
+            type: string
       responses:
         "200":
           description: Succeeded
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/JobSummary"
+                oneOf:
+                  - $ref: "#/components/schemas/JobSummary"
+                  - $ref: "#/components/schemas/JobSummaryWithTotalCount"
               example:
                 - protocolVersion: "2"
                   name: job name
@@ -1117,6 +1154,7 @@ paths:
                   subState: Completed
                   executionType: STOP
                   retries: 0
+                  submissionTime: 0
                   createdTime: 0
                   completedTime: 0
                   appExitCode: 0
@@ -1150,6 +1188,7 @@ paths:
                   subState: Completed
                   executionType: STOP
                   retries: 0
+                  submissionTime: 0
                   createdTime: 0
                   completedTime: 0
                   appId: id
@@ -1187,24 +1226,6 @@ paths:
             text/yaml:
               schema:
                 $ref: "#/components/schemas/JobProtocol"
-              example:
-                protocolVersion: "2"
-                name: <job_name>
-                type: job
-                prerequisites:
-                  - name: <image_name>
-                    type: dockerimage
-                    uri: image_url
-                taskRoles:
-                  train:
-                    instances: 1
-                    dockerImage: <image_name>
-                    resourcePerInstance:
-                      cpu: 1
-                      memoryMB: 16384
-                      gpu: 1
-                    commands:
-                      - python <start up script>
         "404":
           description: NoJobError or NoJobConfigError
           content:
@@ -1577,189 +1598,18 @@ components:
       required:
         - message
     JobProtocol:
+      $ref: "https://raw.githubusercontent.com/microsoft/openpai-protocol/master/schemas/v2/schema.yaml#/components/schemas/JobProtocol"
+    JobSummaryWithTotalCount:
       type: object
-      description: openpai job protocol
       properties:
-        protocolVersion:
-          oneOf:
-            - type: number
-            - type: string
-          description: Protocol version, current version is 2.
-        name:
-          type: string
-          maxLength: 255
-          description: String in ^[a-zA-Z0-9_-]+$ format, no longer than 255 characters.
-        type:
-          type: string
-          description: Component type, should be "job" here.
-        version:
-          type: string
-          description: Component version, default is latest.
-        contributor:
-          type: string
-        description:
-          type: string
-        prerequisites:
-          type: array
-          items:
-            type: object
-            properties:
-              name:
-                type: string
-              type:
-                type: string
-                enum:
-                  - data
-                  - script
-                  - dockerimage
-                  - output
-              version:
-                type: string
-              contributor:
-                type: string
-              description:
-                type: string
-              auth:
-                type: object
-                properties:
-                  username:
-                    type: string
-                  password:
-                    type: string
-                  registryuri:
-                    type: string
-              uri:
-                oneOf:
-                  - type: string
-                  - type: array
-                    items:
-                      type: string
-        parameters:
-          type: object
-          additionalProperties: true
-        secrets:
-          type: object
-          additionalProperties: true
-        jobRetryCount:
-          type: integer
-          description: Default is 0.
-        taskRoles:
-          type: object
-          additionalProperties:
-            type: object
-            properties:
-              instances:
-                type: integer
-                description: Default is 1, instances of a taskRole, no less than 1.
-              completion:
-                type: object
-                description: Completion poclicy for the job.
-                properties:
-                  minFailedInstances:
-                    type: integer
-                  minSucceededInstances:
-                    type: integer
-              taskRetryCount:
-                type: integer
-                description: Default is 0.
-              dockerImage:
-                type: string
-                description: Should reference to a dockerimage defined in prerequisites.
-              data:
-                type: string
-              output:
-                type: string
-              script:
-                type: string
-              extraContainerOptions:
-                type: object
-                properties:
-                  shmMB:
-                    type: integer
-                    description: Config the /dev/shm in a docker container.
-                  infiniband:
-                    type: boolean
-                    description: Use InfiniBand devices or not in a docker container.
-              resourcePerInstance:
-                type: object
-                properties:
-                  cpu:
-                    type: integer
-                    description: CPU number, unit is CPU vcore.
-                  memoryMB:
-                    type: integer
-                    description: Memory number, unit is MB.
-                  gpu:
-                    type: integer
-                    description: GPU number, unit is GPU card.
-                  ports:
-                    type: object
-                    additionalProperties:
-                      type: integer
-                      description: Port number for the port label.
-              commands:
-                type: array
-                items:
-                  type: string
-            required:
-              - dockerImage
-              - resourcePerInstance
-              - commands
-        deployments:
-          type: array
-          items:
-            type: object
-            properties:
-              name:
-                type: string
-              taskRoles:
-                type: object
-                additionalProperties:
-                  type: object
-                  properties:
-                    preCommands:
-                      type: array
-                      items:
-                        type: string
-                    postCommands:
-                      type: array
-                      items:
-                        type: string
-        defaults:
-          type: object
-          description: Default cluster specific settings.
-          properties:
-            virtualCluster:
-              type: string
-            deployment:
-              type: string
-        extras:
-          type: object
-          description: Extra field, save any information that plugin may use.
-          properties:
-            submitFrom:
-              type: string
-            hivedScheduler:
-              type: object
-              properties:
-                jobPriorityClass:
-                  type: string
-                taskRoles:
-                  type: object
-                  additionalProperties:
-                    type: object
-                    properties:
-                      skuType:
-                        type: string
-                      pinnedCellId:
-                        type: string
-                      affinityGroupName:
-                        type: string
+        totalCount:
+          type: number
+          description: total count of jobs with given filters
+        data:
+          $ref: "#/components/schemas/JobSummary"
       required:
-        - protocolVersion
-        - name
-        - type
-        - taskRoles
+        - totalCount
+        - data
     JobSummary:
       type: array
       description: job summary list
@@ -1818,8 +1668,12 @@ components:
             type: integer
             nullable: true
             description: retry delay time
+          submissionTime:
+            type: integer
+            description: job submitted time, in number of milliseconds since the Unix Epoch.
           createdTime:
             type: integer
+            nullable: true
             description: job created time, in number of milliseconds since the Unix Epoch.
           completedTime:
             type: integer
@@ -1915,8 +1769,14 @@ components:
               type: integer
               nullable: true
               description: retry delay time
+            submissionTime:
+              type: integer
+              description: >-
+                job submitted time, in number of milliseconds since the Unix
+                Epoch.
             createdTime:
               type: integer
+              nullable: true
               description: >-
                 job created time, in number of milliseconds since the Unix
                 Epoch.
@@ -2130,21 +1990,25 @@ components:
                       type: integer
                     createdTime:
                       type: integer
+                      nullable: true
                       description: >-
                         task created time, in number of milliseconds since the Unix
                         Epoch.
                     completedTime:
                       type: integer
+                      nullable: true
                       description: >-
                         task completion time, in number of milliseconds since the Unix
                         Epoch.
                     currentAttemptLaunchedTime:
                       type: integer
+                      nullable: true
                       description: >-
                         the current attempt launched time, in number of milliseconds since the Unix
                         Epoch.
                     currentAttemptCompletedTime:
                       type: integer
+                      nullable: true
                       description: >-
                         the current attempt completion time, in number of milliseconds since the Unix
                         Epoch.
@@ -2372,6 +2236,7 @@ components:
           nullable: true
         jobStartedTime:
           type: integer
+          nullable: true
         attemptStartedTime:
           type: integer
           nullable: true

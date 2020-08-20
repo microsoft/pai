@@ -1,0 +1,64 @@
+# Copyright (c) Microsoft Corporation
+# All rights reserved.
+#
+# MIT License
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
+# documentation files (the "Software"), to deal in the Software without restriction, including without limitation
+# the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and
+# to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+# The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED *AS IS*, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING
+# BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+# NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+# DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+# kubernetes api server and dashboard
+kubernetes:
+  api-servers-url: https://{{k8s["master_internal"]}}:6443
+  dashboard-url: https://{{k8s["master_internal"]}}:9090
+
+# TODO please modify it according to your own hardware
+machine-sku:
+  GENERIC-MASTER:
+    mem: 1
+    gpu:
+      type: generic
+      count: 1
+    cpu:
+      vcore: 1
+    os: ubuntu16.04
+
+  GENERIC-WORKER:
+    mem: 1
+    gpu:
+      type: generic
+      count: 1
+    cpu:
+      vcore: 1
+    os: ubuntu16.04
+
+machine-list:
+{%- for vm in k8s["master"] %}
+    - hostname: {{ k8s["master"][vm]["hostname"] }}
+      nodename: {{ k8s["master"][vm]["hostname"] }}
+      hostip: {{ k8s["master"][vm]["ip"] }}
+      machine-type: GENERIC-MASTER
+      dashboard: "true"
+      pai-master: "true"
+{%- endfor %}
+{%- for vm in k8s["worker"] %}
+    - hostname: {{ k8s["worker"][vm]["hostname"] }}
+      nodename: {{ k8s["worker"][vm]["hostname"] }}
+      hostip: {{ k8s["worker"][vm]["ip"] }}
+      machine-type: GENERIC-WORKER
+      pai-worker: "true"
+{%- endfor %}
+
+
+
+
+
+
