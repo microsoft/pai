@@ -24,6 +24,7 @@
     "node": "^10"
   },
   "dependencies": {
+    "openpaidbsdk": "file:./openpaidbsdk",
     "@kubernetes/client-node": "^0.11.0",
     "ajv": "^6.10.0",
     "ajv-merge-patch": "~4.1.0",
