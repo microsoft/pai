@@ -50,7 +50,7 @@ const hivedSchema = {
                       default: null,
                     },
                   },
-                  additionalProperties: false,
+                  additionalProperties: true,
                 },
               },
               minProperties: 1,

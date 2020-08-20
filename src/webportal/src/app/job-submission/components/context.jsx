@@ -19,6 +19,7 @@ import React from 'react';
 
 export default React.createContext({
   vcNames: [],
+  hivedSkuTypes: {},
   errorMessages: {},
   setErrorMessage: (id, msg) => {},
 });

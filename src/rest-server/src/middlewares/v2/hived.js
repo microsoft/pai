@@ -50,14 +50,14 @@ const getCellStatus = async (virtualCluster) => {
     );
     return {
       cellQuota: Number.MAX_SAFE_INTEGER,
-      cellUnits: Object.values(resourceUnits),
+      cellUnits: { ...resourceUnits },
     };
   }
 
   let cellQuota = 0;
   const cellUnits = [...new Set(vcStatus.map((cell) => cell.gpuType))]
     .filter((key) => key in resourceUnits)
-    .reduce((arr, key) => [...arr, resourceUnits[key]], []);
+    .reduce((dict, key) => ({ ...dict, [key]: resourceUnits[key] }), {});
   const cellQueue = [...vcStatus];
   while (cellQueue.length > 0) {
     const curr = cellQueue.shift();
@@ -91,6 +91,8 @@ const hivedValidate = async (protocolObj, username) => {
       ? protocolObj.defaults.virtualCluster
       : 'default';
 
+  const { cellQuota, cellUnits } = await getCellStatus(virtualCluster);
+
   if ('extras' in protocolObj && 'hivedScheduler' in protocolObj.extras) {
     hivedConfig = protocolObj.extras.hivedScheduler;
     if (hivedConfig && hivedConfig.jobPriorityClass === 'oppo') {
@@ -120,17 +122,25 @@ const hivedValidate = async (protocolObj, username) => {
         );
       }
 
-      if (
-        taskRoleConfig.skuType !== null &&
-        !(taskRoleConfig.skuType in resourceUnits)
-      ) {
-        throw createError(
-          'Bad Request',
-          'InvalidProtocolError',
-          `Taskrole ${taskRole} has unknown skuType ${
-            taskRoleConfig.skuType
-          }, allow ${Object.keys(resourceUnits)}.`,
-        );
+      if (taskRoleConfig.skuType !== null) {
+        if (!(taskRoleConfig.skuType in resourceUnits)) {
+          throw createError(
+            'Bad Request',
+            'InvalidProtocolError',
+            `Taskrole ${taskRole} has unknown skuType ${
+              taskRoleConfig.skuType
+            }, allow ${Object.keys(resourceUnits)}.`,
+          );
+        }
+        if (!opportunistic && !(taskRoleConfig.skuType in cellUnits)) {
+          throw createError(
+            'Bad Request',
+            'InvalidProtocolError',
+            `Taskrole ${taskRole} has skuType ${
+              taskRoleConfig.skuType
+            }, VC ${virtualCluster} only allows ${Object.keys(cellUnits)}.`,
+          );
+        }
       }
 
       const affinityGroupName = taskRoleConfig.affinityGroupName;
@@ -204,13 +214,12 @@ const hivedValidate = async (protocolObj, username) => {
 
   // generate podSpec for every taskRole
   let requestCellNumber = 0;
-  const { cellQuota, cellUnits } = await getCellStatus(virtualCluster);
   for (const taskRole of Object.keys(protocolObj.taskRoles)) {
     const resourcePerCell = {};
     for (const t of ['gpu', 'cpu', 'memory']) {
       resourcePerCell[t] = Math.min(
         ...Array.from(
-          opportunistic ? Object.values(resourceUnits) : cellUnits,
+          Object.values(opportunistic ? resourceUnits : cellUnits),
           (v) => v[t],
         ),
       );
@@ -281,9 +290,9 @@ const hivedValidate = async (protocolObj, username) => {
     }
 
     const cellNumber = Math.max(
-      Math.ceil(gpu / resourcePerCell.gpu),
-      Math.ceil(cpu / resourcePerCell.cpu),
-      Math.ceil(memoryMB / resourcePerCell.memory),
+      gpu === 0 ? 0 : Math.ceil(gpu / resourcePerCell.gpu),
+      cpu === 0 ? 0 : Math.ceil(cpu / resourcePerCell.cpu),
+      memoryMB === 0 ? 0 : Math.ceil(memoryMB / resourcePerCell.memory),
     );
     podSpec.gpuNumber = cellNumber;
     requestCellNumber += protocolObj.taskRoles[taskRole].instances * cellNumber;
