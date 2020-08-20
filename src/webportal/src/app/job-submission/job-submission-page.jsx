@@ -12,6 +12,7 @@ import { TaskRoles } from './components/task-roles';
 import Context from './components/context';
 import {
   fetchJobConfig,
+  listHivedSkuTypes,
   listUserVirtualClusters,
   listUserStorageConfigs,
   fetchStorageDetails,
@@ -97,6 +98,7 @@ export const JobSubmissionPage = ({
 
   // Context variables
   const [vcNames, setVcNames] = useState([]);
+  const [hivedSkuTypes, setHivedSkuTypes] = useState({});
   const [errorMessages, setErrorMessages] = useState({});
 
   const setJobTaskRoles = useCallback(
@@ -169,10 +171,11 @@ export const JobSubmissionPage = ({
   const contextValue = useMemo(
     () => ({
       vcNames,
+      hivedSkuTypes,
       errorMessages,
       setErrorMessage,
     }),
-    [vcNames, errorMessages, setErrorMessage],
+    [vcNames, hivedSkuTypes, errorMessages, setErrorMessage],
   );
 
   useEffect(() => {
@@ -341,6 +344,14 @@ export const JobSubmissionPage = ({
     listUserVirtualClusters(loginUser)
       .then(virtualClusters => {
         setVcNames(virtualClusters);
+      })
+      .catch(alert);
+  }, []);
+
+  useEffect(() => {
+    listHivedSkuTypes()
+      .then(hivedSkuTypes => {
+        setHivedSkuTypes(hivedSkuTypes);
       })
       .catch(alert);
   }, []);

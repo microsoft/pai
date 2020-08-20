@@ -91,6 +91,10 @@ export const PROTOCOL_TOOLTIPS = {
     'Resource required per container instance',
     'CPU number and memory number will be auto scaled with GPU number by default.',
   ],
+  hivedSkuType: [
+    'SKU defines a resource unit in all resource dimensions, ',
+    'including GPU, CPU, and memory.',
+  ],
   taskRole: [
     'Task roles are different types of task in the protocol.',
     'One job may have one or more task roles, each task role has one or more instances, and each instance runs inside one container.',
