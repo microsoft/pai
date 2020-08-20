@@ -137,15 +137,15 @@ const getNodeResource = async () => {
             cellQueueOnNode.push(...currOnNode.cellChildren);
           } else {
             if (currOnNode.cellType in resourceUnits) {
-              const skuNumber = resourceUnits[currOnNode.cellType].gpu || resourceUnits[currOnNode.cellType].cpu;
+              const gpuNumber = resourceUnits[currOnNode.cellType].gpu;
               if (currOnNode.cellHealthiness === 'Healthy') {
                 if (currOnNode.cellState === 'Used') {
-                  nodeResource[nodeName].gpuUsed += skuNumber;
+                  nodeResource[nodeName].gpuUsed += gpuNumber;
                 } else {
-                  nodeResource[nodeName].gpuAvailable += skuNumber;
+                  nodeResource[nodeName].gpuAvailable += gpuNumber;
                 }
               }
-              nodeResource[nodeName].gpuTotal += skuNumber;
+              nodeResource[nodeName].gpuTotal += gpuNumber;
             }
           }
         }
@@ -218,12 +218,12 @@ const getVcList = async () => {
         }
         if (curr.cellChildren) {
           curr.cellChildren.forEach((cellChild) => {
-            cellChild.skuType = curr.skuType;
+            cellChild.leafCellType = curr.leafCellType;
             cellQueue.push(cellChild);
           });
         } else {
-          if (curr.skuType in resourceUnits) {
-            const sku = resourceUnits[curr.skuType];
+          if (curr.leafCellType in resourceUnits) {
+            const sku = resourceUnits[curr.leafCellType];
             if (curr.cellHealthiness === 'Healthy') {
               if (curr.cellState === 'Used') {
                 mergeDict(vcInfos[vc].resourcesUsed, sku, add);

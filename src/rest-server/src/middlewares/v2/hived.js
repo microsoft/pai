@@ -49,7 +49,7 @@ const getCellStatus = async (virtualCluster) => {
   }
 
   let cellQuota = 0;
-  const cellUnits = [...new Set(vcStatus.map((cell) => cell.skuType))]
+  const cellUnits = [...new Set(vcStatus.map((cell) => cell.leafCellType))]
     .filter((key) => key in resourceUnits)
     .reduce((dict, key) => ({...dict, [key]: resourceUnits[key]}), {});
   const cellQueue = [...vcStatus];
