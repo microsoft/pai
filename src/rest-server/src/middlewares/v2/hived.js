@@ -89,9 +89,9 @@ const hivedValidate = async (protocolObj, username) => {
       pinnedCellId: get(hivedConfig, `taskRoles.${taskRole}.pinnedCellId`, null),
       leafCellType: get(hivedConfig, `taskRoles.${taskRole}.skuType`, null),
       leafCellNumber: get(hivedConfig, `taskRoles.${taskRole}.skuNumber`, 0),
-      gangReleaseEnable: get(hivedConfig, `taskRoles.${taskRole}.gangReleaseEnable`),
-      lazyPreemptionEnable: get(hivedConfig, `taskRoles.${taskRole}.lazyPreemptionEnable`),
-      ignoreK8sSuggestedNodes: get(hivedConfig, `taskRoles.${taskRole}.ignoreK8sSuggestedNodes`),
+      gangReleaseEnable: get(hivedConfig, 'gangReleaseEnable'),
+      lazyPreemptionEnable: get(hivedConfig, 'lazyPreemptionEnable'),
+      ignoreK8sSuggestedNodes: get(hivedConfig, 'ignoreK8sSuggestedNodes'),
       affinityGroup: null,
     };
 
