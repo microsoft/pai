@@ -153,7 +153,7 @@ const hivedValidate = async (protocolObj, username) => {
         throw createError(
           'Bad Request',
           'InvalidProtocolError',
-          `Taskrole ${taskRole} has both skuType amd pinnedCellId, only one is allowed.`
+          `Taskrole ${taskRole} has both skuType and pinnedCellId, only one is allowed.`
         );
       }
       // check whether skuType is valid
