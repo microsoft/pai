@@ -85,11 +85,6 @@ def train(gpu, args):
 
     trainset = torchvision.datasets.CIFAR10(
         root='./data', train=True, download=True, transform=transform_train)
-    # sampler 进行shuffle，参考https://pytorch.org/docs/stable/data.html#torch.utils.data.distributed.DistributedSampler
-    # 每个process应该是不同的数据切片
-    # 对于DP数据切片是自动的，DDP要自己手动做数据切片
-    # 训练分片应该按照world size和rank来切片
-
     trainsampler = torch.utils.data.distributed.DistributedSampler(
         trainset,
         num_replicas=args.world_size,
