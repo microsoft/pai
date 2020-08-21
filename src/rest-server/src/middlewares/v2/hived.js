@@ -17,7 +17,7 @@
 
 // module dependencies
 const axios = require('axios');
-const {get} = require('lodash');
+const {get, pickBy} = require('lodash');
 const createError = require('@pai/utils/error');
 const logger = require('@pai/config/logger');
 const hivedSchema = require('@pai/config/v2/hived');
@@ -83,7 +83,7 @@ const hivedValidate = async (protocolObj, username) => {
 
   // generate podSpec for every taskRole
   for (let taskRole of Object.keys(protocolObj.taskRoles)) {
-    const podSpec = {
+    const podSpec = pickBy({
       virtualCluster,
       priority: convertPriority(get(hivedConfig, 'jobPriorityClass')),
       pinnedCellId: get(hivedConfig, `taskRoles.${taskRole}.pinnedCellId`, null),
@@ -93,12 +93,12 @@ const hivedValidate = async (protocolObj, username) => {
       lazyPreemptionEnable: get(hivedConfig, 'lazyPreemptionEnable'),
       ignoreK8sSuggestedNodes: get(hivedConfig, 'ignoreK8sSuggestedNodes'),
       affinityGroup: null,
-    };
+    }, (v) => v !== undefined);
 
     // calculate sku number
     const resourcePerCell = {};
     for (const t of ['gpu', 'cpu', 'memory']) {
-      if (podSpec.leafCellType !== null) {
+      if (podSpec.leafCellType != null) {
         resourcePerCell[t] = resourceUnits[podSpec.leafCellType][t];
       } else {
         resourcePerCell[t] = Math.min(

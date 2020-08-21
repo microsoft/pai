@@ -304,9 +304,11 @@ const convertFrameworkDetail = async (framework) => {
     const affinityGroups = {};
     try {
       const res = await axios.get(`${launcherConfig.hivedWebserviceUri}/v1/inspect/affinitygroups/`);
-      res.data.items.forEach((affinityGroup) => {
-        affinityGroups[affinityGroup.metadata.name] = affinityGroup;
-      });
+      if (res.data.items) {
+        res.data.items.forEach((affinityGroup) => {
+          affinityGroups[affinityGroup.metadata.name] = affinityGroup;
+        });
+      }
     } catch (err) {
       logger.warn('Fail to inspect affinity groups', err);
     }
