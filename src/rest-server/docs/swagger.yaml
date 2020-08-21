@@ -7,10 +7,11 @@ info:
     Version 2.0.2: update job detail and job attempt schema
     Version 2.0.3: update parameters description of get storage list
     Version 2.0.4: add default field in get storage list
+    Version 2.0.5: add more parameters to job list; add submissionTime
   license:
     name: MIT License
     url: "https://github.com/microsoft/pai/blob/master/LICENSE"
-  version: 2.0.4
+  version: 2.0.5
 externalDocs:
   description: Find out more about OpenPAI
   url: "https://github.com/microsoft/pai"
