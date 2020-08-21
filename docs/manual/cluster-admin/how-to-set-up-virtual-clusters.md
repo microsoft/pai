@@ -197,3 +197,127 @@ hivedscheduler:
 ```
 
 In the above example, we set up 2 VCs: `default` and `v100`. The `default` VC has 2 K80 nodes, and `V100` VC has 3 V100 nodes. Every K80 node has 4 K80 GPUs and Every V100 nodes has 4 V100 GPUs.
+
+## Use Pinned Cell to Reserve Certain Node in a Virtual Cluster
+
+In some cases, you might want to reserve a certain node in a virtual cluster, and submit job to this node explicitly for debugging or quick testing. OpenPAI provides you with a way to "pin" a node to a virtual cluster.
+
+For example, assuming you have three worker nodes: `worker1`, `worker2`, and `worker3`, and 2 virutal clusters: `default` and `new`. The `default` VC has 2 workers, and `new` VC only has one worker. The following is an example for the configuration:
+
+```yaml
+# services-configuration.yaml
+...
+hivedscheduler:
+  config: |
+    physicalCluster:
+      skuTypes:
+        DT:
+          gpu: 1
+          cpu: 5
+          memory: 56334Mi
+      cellTypes:
+        DT-NODE:
+          childCellType: DT
+          childCellNumber: 4
+          isNodeLevel: true
+        DT-NODE-POOL:
+          childCellType: DT-NODE
+          childCellNumber: 3
+      physicalCells:
+      - cellType: DT-NODE-POOL
+        cellChildren:
+        - cellAddress: worker1
+        - cellAddress: worker2
+        - cellAddress: worker3
+    virtualClusters:
+      default:
+        virtualCells:
+        - cellType: DT-NODE-POOL.DT-NODE
+          cellNumber: 2
+      new:
+        virtualCells:
+        - cellType: DT-NODE-POOL.DT-NODE
+          cellNumber: 1
+...
+```
+
+Now, if you want to "pin" the node `worker2` to the default VC. You can edit the configuration to be:
+
+```yaml
+# services-configuration.yaml
+...
+hivedscheduler:
+  config: |
+    physicalCluster:
+      skuTypes:
+        DT:
+          gpu: 1
+          cpu: 5
+          memory: 56334Mi
+      cellTypes:
+        DT-NODE:
+          childCellType: DT
+          childCellNumber: 4
+          isNodeLevel: true
+        DT-NODE-POOL:
+          childCellType: DT-NODE
+          childCellNumber: 3
+      physicalCells:
+      - cellType: DT-NODE-POOL
+        cellChildren:
+        - cellAddress: worker1
+        - cellAddress: worker2
+          pinnedCellId: node-worker2
+        - cellAddress: worker3
+    virtualClusters:
+      default:
+        virtualCells:
+        - cellType: DT-NODE-POOL.DT-NODE
+          cellNumber: 1
+        pinnedCells:
+        - pinnedCellId: node-worker2
+      new:
+        virtualCells:
+        - cellType: DT-NODE-POOL.DT-NODE
+          cellNumber: 1
+...
+```
+
+As you can see in the configuration, one virtual cluster can contain both virtual cells and pinned cells. Now the `default` VC has one virtual cell and one pinned cell. To include a pinned cell into the virtual cluster, you should give it a `pinnedCellId`.
+
+The configuration will reserve `worker2` in the `default` VC. You can also submit jobs to `worker2` explictly by specifying corresponding pinned cell id in `extras.hivedScheduler.taskRoles.<task-role-name>.pinnedCellId`, here is an example:
+
+```yaml
+protocolVersion: 2
+name: job-with-pinned-cell
+type: job
+jobRetryCount: 0
+prerequisites:
+  - type: dockerimage
+    uri: 'openpai/standard:python_3.6-pytorch_1.2.0-gpu'
+    name: docker_image_0
+taskRoles:
+  myworker:
+    instances: 1
+    completion:
+      minFailedInstances: 1
+    taskRetryCount: 0
+    dockerImage: docker_image_0
+    resourcePerInstance:
+      gpu: 1
+      cpu: 4
+      memoryMB: 8192
+    commands:
+      - sleep 100s
+defaults:
+  virtualCluster: default
+extras:
+  com.microsoft.pai.runtimeplugin:
+    - plugin: ssh
+      parameters:
+        jobssh: true
+  hivedScheduler:
+    taskRoles:
+      myworker:
+        pinnedCellId: node-worker2
+```
