@@ -202,7 +202,7 @@ In the above example, we set up 2 VCs: `default` and `v100`. The `default` VC ha
 
 In some cases, you might want to reserve a certain node in a virtual cluster, and submit job to this node explicitly for debugging or quick testing. OpenPAI provides you with a way to "pin" a node to a virtual cluster.
 
-For example, assuming you have three worker nodes: `worker1`, `worker2`, and `worker3`, and 2 virutal clusters: `default` and `new`. The `default` VC has 2 workers, and `new` VC only has one worker. The following is an example for the configuration:
+For example, assuming you have three worker nodes: `worker1`, `worker2`, and `worker3`, and 2 virtual clusters: `default` and `new`. The `default` VC has 2 workers, and `new` VC only has one worker. The following is an example for the configuration:
 
 ```yaml
 # services-configuration.yaml
@@ -285,7 +285,7 @@ hivedscheduler:
 
 As you can see in the configuration, one virtual cluster can contain both virtual cells and pinned cells. Now the `default` VC has one virtual cell and one pinned cell. To include a pinned cell into the virtual cluster, you should give it a `pinnedCellId`.
 
-The configuration will reserve `worker2` in the `default` VC. You can also submit jobs to `worker2` explictly by specifying corresponding pinned cell id in `extras.hivedScheduler.taskRoles.<task-role-name>.pinnedCellId`, here is an example:
+The configuration will reserve `worker2` in the `default` VC. You can also submit jobs to `worker2` explicitly by specifying corresponding pinned cell id in `extras.hivedScheduler.taskRoles.<task-role-name>.pinnedCellId`, here is an example:
 
 ```yaml
 protocolVersion: 2

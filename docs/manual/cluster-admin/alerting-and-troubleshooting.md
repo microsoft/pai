@@ -54,7 +54,7 @@ Solutions:
 
   1. Force remove unhealth containers with this command in terminal:
   `kubectl delete pod pod-name --grace-period=0 --force`
-  2. Recreate pod in Kubernetes, this operation may block indefinitly because dockerd may not functioning correctly after OOM. If recreate blocked too long, you can log into the node and restart dockerd via `/etc/init.d/docker restart`.
+  2. Recreate pod in Kubernetes, this operation may block indefinitely because dockerd may not functioning correctly after OOM. If recreate blocked too long, you can log into the node and restart dockerd via `/etc/init.d/docker restart`.
 
 ### NodeNotReady Alert
 
