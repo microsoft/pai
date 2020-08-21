@@ -108,6 +108,13 @@ If you cannot use GPU in your job, please check the following items on the corre
 
 If the GPU number shown in webportal is wrong, check the [hivedscheduler and VC configuration](./how-to-set-up-virtual-clusters.md).
 
+### Cannot See Utilization Information.
+
+If you cannot see utilization information (e.g. GPU, CPU, and network usage) in cluster, please check if the service `prometheus`, `grafana`, `job-exporter`, and `node-exporter` are working.
+
+To be detailed, you can [exec into a dev box container](./basic-management-operations.md#pai-service-management-and-paictl), then check the service status by `kubectl get pod`. You can see the pod log by `kubectl logs <pod-name>`. After you fix the problem, you can [restart the whole cluster using paictl](./basic-management-operations.md#pai-service-management-and-paictl).
+
+
 ### Node is De-allocated and doesn't Appear in Kubernetes System when it Comes Back
 
 Working nodes can be de-allocated if you are using a cloud service and set up PAI on low-priority machines. Usually, if the node is lost temporarily, you can wait until the node comes back. It doesn't need any special care. 

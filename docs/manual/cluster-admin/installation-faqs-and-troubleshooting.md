@@ -128,7 +128,7 @@ sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys <key-number>
 sudo apt update
 ```
 
-If you find `sudo apt update` reports some expired repo list, you can use the following commands to fix it. Please replace <repo-list-file> with yours.
+If you find `sudo apt update` reports some expired repo lists, you can use the following commands to fix it. Please replace `<repo-list-file>` with yours.
 
 ```bash
 sudo rm -rf  /etc/apt/sources.list.d/<repo-list-file>
