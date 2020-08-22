@@ -116,8 +116,7 @@ export function isLowGpuUsageJob(job) {
   return !isNil(job.gpuUsage) && Number(job.gpuUsage) < 10;
 }
 
-export function listAbnormalJobs(allJobs, lowGpuJobsInfo) {
-  const allRuuingJobs = allJobs.filter(job => job.state === 'RUNNING');
+export function listAbnormalJobs(allRuuingJobs, lowGpuJobsInfo) {
   const longRunJobs = allRuuingJobs.filter(isLongRunJob);
 
   // Get low GPU usage jobs

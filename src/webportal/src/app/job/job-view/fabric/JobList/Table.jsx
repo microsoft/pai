@@ -1,5 +1,11 @@
 import c from 'classnames';
-import React, { useState, useContext, useMemo, useLayoutEffect } from 'react';
+import React, {
+  useState,
+  useContext,
+  useMemo,
+  useEffect,
+  useLayoutEffect,
+} from 'react';
 import {
   ColumnActionsMode,
   DefaultButton,
@@ -40,7 +46,7 @@ const zeroPaddingClass = mergeStyles({
 export default function Table() {
   const {
     stopJob,
-    filteredJobs,
+    getJobs,
     setSelectedJobs,
     selectedJobs,
     filter,
@@ -274,6 +280,19 @@ export default function Table() {
     statusColumn,
     actionsColumn,
   ];
+
+  const [filteredJobs, setFilteredJobs] = useState();
+  useEffect(() => {
+    const getFilteredJobs = async () => {
+      const jobs = await getJobs({
+        ...filter.apply(),
+        ...ordering.apply(),
+        ...pagination.apply(),
+      });
+      setFilteredJobs(jobs);
+    };
+    getFilteredJobs();
+  }, []);
 
   if (!isNil(filteredJobs) && filteredJobs.length === 0) {
     return (

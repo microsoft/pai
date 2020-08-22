@@ -34,12 +34,19 @@ const wrapper = async func => {
   }
 };
 
-export async function listJobs() {
-  return wrapper(() => client.job.listJobs(username));
+export async function listJobs(query) {
+  const url = `${window.location.protocol}//${client.cluster.rest_server_uri}/api/v2/jobs`;
+  return wrapper(() =>
+    client.httpClient.get(url, undefined, undefined, {
+      ...query,
+      ...{ username },
+    }),
+  );
 }
 
-export async function listAllJobs() {
-  return wrapper(() => client.job.listJobs());
+export async function listAllJobs(query) {
+  const url = `${window.location.protocol}//${client.cluster.rest_server_uri}/api/v2/jobs`;
+  return wrapper(() => client.httpClient.get(url, undefined, undefined, query));
 }
 
 export async function getUserInfo() {

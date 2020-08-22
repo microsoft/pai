@@ -48,6 +48,7 @@ import t from '../components/tachyons.scss';
 const Home = () => {
   const [loading, setLoading] = useState(true);
   const [jobs, setJobs] = useState(null);
+  const [runningJobs, setRunningJobs] = useState(null);
   const [userJobs, setUserJobs] = useState(null);
   const [userInfo, setUserInfo] = useState(null);
   const [virtualClusters, setVirtualClusters] = useState(null);
@@ -64,7 +65,8 @@ const Home = () => {
       }
       Promise.all([
         isAdmin ? listAllJobs().then(setJobs) : listJobs().then(setJobs),
-        listJobs().then(setUserJobs),
+        listJobs({ limit: 100 }).then(setUserJobs),
+        listAllJobs({ state: 'RUNNING' }).then(setRunningJobs),
         getUserInfo().then(setUserInfo),
         listVirtualClusters().then(setVirtualClusters),
         getAvailableGpuPerNode().then(setGpuPerNode),
@@ -126,7 +128,7 @@ const Home = () => {
                     }}
                   >
                     <AbnormalJobList
-                      jobs={listAbnormalJobs(jobs, lowGpuJobInfo)}
+                      jobs={listAbnormalJobs(runningJobs, lowGpuJobInfo)}
                     />
                   </PivotItem>
                   <PivotItem headerText='My recent jobs'>
@@ -185,7 +187,7 @@ const Home = () => {
                     }}
                   >
                     <AbnormalJobList
-                      jobs={listAbnormalJobs(jobs, lowGpuJobInfo)}
+                      jobs={listAbnormalJobs(runningJobs, lowGpuJobInfo)}
                     />
                   </PivotItem>
                   <PivotItem headerText='My recent jobs'>

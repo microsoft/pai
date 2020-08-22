@@ -1,5 +1,3 @@
-import { getStatusText } from './utils';
-
 const LOCAL_STORAGE_KEY = 'pai-job-filter';
 
 class Filter {
@@ -49,33 +47,24 @@ class Filter {
     }
   }
 
-  /**
-   * @param {any[]} jobs
-   */
-  apply(jobs) {
+  apply() {
     const { keyword, users, virtualClusters, statuses } = this;
 
-    const filters = [];
+    const query = {};
     if (keyword !== '') {
-      filters.push(
-        ({ name, username, virtualCluster }) =>
-          name.indexOf(keyword) > -1 ||
-          username.indexOf(keyword) > -1 ||
-          virtualCluster.indexOf(keyword) > -1,
-      );
+      query.keyword = keyword;
     }
     if (users.size > 0) {
-      filters.push(({ username }) => users.has(username));
+      query.username = users.join(',');
     }
     if (virtualClusters.size > 0) {
-      filters.push(({ virtualCluster }) => virtualClusters.has(virtualCluster));
+      query.vc = virtualClusters.join(',');
     }
     if (statuses.size > 0) {
-      filters.push(job => statuses.has(getStatusText(job)));
+      query.state = statuses.join(',').toUpperCase();
     }
-    if (filters.length === 0) return jobs;
 
-    return jobs.filter(job => filters.every(filter => filter(job)));
+    return query;
   }
 }
 
