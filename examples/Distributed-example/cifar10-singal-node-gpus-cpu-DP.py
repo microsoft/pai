@@ -143,10 +143,6 @@ def train(args):
             elif len(args.gpus) > 1:
                 checkpoint = net.module.state_dict()
 
-    fname = args.arch + '_' + str(best_acc) + '.pth.tar'
-    os.makedirs(args.outdir, exist_ok=True)
-    fname = os.path.join(args.outdir, fname)
-    torch.save(checkpoint, fname)
     print('Best Accuracy: ', best_acc)
 
 
