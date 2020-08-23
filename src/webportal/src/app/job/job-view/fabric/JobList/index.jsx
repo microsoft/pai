@@ -87,6 +87,7 @@ export default function JobList() {
 
   const { current: applyFilter } = useRef(
     debounce((/** @type {Filter} */ filter) => {
+      pagination.load();
       getJobs({
         ...filter.apply(),
         ...ordering.apply(),
@@ -109,6 +110,7 @@ export default function JobList() {
 
   const { current: applyPagination } = useRef(
     debounce((/** @type {Pagination} */ pagination) => {
+      filter.load();
       getJobs({
         ...filter.apply(),
         ...ordering.apply(),
@@ -178,6 +180,7 @@ export default function JobList() {
     });
 
     const url = `${client.cluster.rest_server_uri}/api/v2/jobs`;
+    console.log(JSON.stringify(query));
     try {
       return await client.httpClient.get(url, undefined, undefined, query);
     } catch (err) {

@@ -116,11 +116,11 @@ export function isLowGpuUsageJob(job) {
   return !isNil(job.gpuUsage) && Number(job.gpuUsage) < 10;
 }
 
-export function listAbnormalJobs(allRuuingJobs, lowGpuJobsInfo) {
-  const longRunJobs = allRuuingJobs.filter(isLongRunJob);
+export function listAbnormalJobs(allRunningJobs, lowGpuJobsInfo) {
+  const longRunJobs = allRunningJobs.filter(isLongRunJob);
 
   // Get low GPU usage jobs
-  const lowGpuUsageJobs = allRuuingJobs.reduce((acc, cur) => {
+  const lowGpuUsageJobs = allRunningJobs.reduce((acc, cur) => {
     const gpuUsageInfo = lowGpuJobsInfo.find(info => info.jobName === cur.name);
     if (isNil(gpuUsageInfo)) {
       return acc;
