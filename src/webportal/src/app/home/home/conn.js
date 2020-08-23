@@ -49,6 +49,41 @@ export async function listAllJobs(query) {
   return wrapper(() => client.httpClient.get(url, undefined, undefined, query));
 }
 
+export async function getJobStatusNumber(isAdmin) {
+  const url = `${client.cluster.rest_server_uri}/api/v2/jobs`;
+  const query = {
+    limit: 0,
+    withTotalCount: true,
+  };
+  if (!isAdmin) {
+    query.username = username;
+  }
+
+  return wrapper(async () => {
+    const waiting = (await client.httpClient.get(url, undefined, undefined, {
+      ...query,
+      ...{ state: 'WAITING' },
+    })).totalCount;
+    const running = (await client.httpClient.get(url, undefined, undefined, {
+      ...query,
+      ...{ state: 'RUNNING' },
+    })).totalCount;
+    const stopped = (await client.httpClient.get(url, undefined, undefined, {
+      ...query,
+      ...{ state: 'STOPPED' },
+    })).totalCount;
+    const failed = (await client.httpClient.get(url, undefined, undefined, {
+      ...query,
+      ...{ state: 'FAILED' },
+    })).totalCount;
+    const succeeded = (await client.httpClient.get(url, undefined, undefined, {
+      ...query,
+      ...{ state: 'SUCCEEDED' },
+    })).totalCount;
+    return { waiting, running, stopped, failed, succeeded };
+  });
+}
+
 export async function getUserInfo() {
   return wrapper(() => client.user.getUser(username));
 }
