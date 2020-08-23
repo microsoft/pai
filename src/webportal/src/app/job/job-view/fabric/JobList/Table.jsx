@@ -275,6 +275,8 @@ export default function Table() {
     actionsColumn,
   ];
 
+  console.log('wwwwwwwwwwow');
+
   if (!isNil(filteredJobsInfo) && filteredJobsInfo.totalCount === 0) {
     return (
       <div className={c(t.h100, t.flex, t.itemsCenter, t.justifyCenter)}>

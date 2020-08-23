@@ -4,7 +4,6 @@ export default class Pagination {
    * @param {number} pageIndex
    */
   constructor(itemsPerPage = 20, pageIndex = 0) {
-    console.log(`new pagination ${itemsPerPage} ${pageIndex}`);
     this.itemsPerPage = itemsPerPage;
     this.pageIndex = pageIndex;
   }

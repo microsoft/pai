@@ -23,9 +23,8 @@ export default function Paginator() {
     rootDisabled: { backgroundColor: 'white' },
   };
 
-  function onClickItemsPerPage(input) {
-    console.log(input);
-    setPagination(new Pagination(input.key));
+  function onClickItemsPerPage(_, { key }) {
+    setPagination(new Pagination(key));
   }
 
   farItems.push({
@@ -57,7 +56,7 @@ export default function Paginator() {
     /**
      * @param {React.MouseEvent<Button>} event
      */
-    return function onClick() {
+    return function onClick(_) {
       setPagination(new Pagination(pagination.itemsPerPage, pageIndex));
     };
   }
