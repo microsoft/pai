@@ -63,9 +63,21 @@ export default function JobList() {
       return filter;
     }
   });
+
+  const initialPagination = useMemo(() => {
+    const query = querystring.parse(location.search.replace(/^\?/, ''));
+    if (!isEmpty(query.pageIndex) || !isEmpty(query.itemsPerPage)) {
+      return new Pagination(query.itemsPerPage, query.pageIndex);
+    } else {
+      const resPagination = new Pagination();
+      resPagination.load();
+      return resPagination;
+    }
+  });
+
   const [filter, setFilter] = useState(initialFilter);
   const [ordering, setOrdering] = useState(new Ordering());
-  const [pagination, setPagination] = useState(new Pagination());
+  const [pagination, setPagination] = useState(initialPagination);
   const [filteredJobsInfo, setFilteredJobsInfo] = useState({
     totalCount: 0,
     data: [],
@@ -95,9 +107,27 @@ export default function JobList() {
     applyFilter(filter);
   }, [applyFilter, filter]);
 
+  const { current: applyPagination } = useRef(
+    debounce((/** @type {Pagination} */ pagination) => {
+      getJobs({
+        ...filter.apply(),
+        ...ordering.apply(),
+        ...pagination.apply(),
+        ...{ withTotalCount: true },
+      })
+        .then(data => {
+          return data;
+        })
+        .then(setFilteredJobsInfo)
+        .catch(err => {
+          throw Error(err.data.message || err.message);
+        });
+    }, 200),
+  );
+
   useEffect(() => {
-    setPagination(new Pagination(pagination.itemsPerPage, 0));
-  }, [filteredJobsInfo.data]);
+    applyPagination(pagination);
+  }, [applyPagination, pagination]);
 
   const stopJob = useCallback(
     (...jobs) => {
@@ -156,7 +186,7 @@ export default function JobList() {
   };
 
   const refreshJobs = useCallback(function refreshJobs() {
-    setFilteredJobsInfo({ totalCount: 0, data: [] });
+    setFilteredJobsInfo({ totalCount: 0, data: [], pageIndex: 0 });
     getJobs({
       ...filter.apply(),
       ...ordering.apply(),

@@ -9,7 +9,10 @@ export default React.createContext({
   refreshJobs() {
     this.allJobs = null;
   },
-  filteredJobsInfo: { totalCount: 0, data: [] },
+  filteredJobsInfo: { totalCount: 0, data: [], pageIndex: 0 },
+  refreshFilteredJobsInfo() {
+    this.filteredJobsInfo = { totalCount: 0, data: [], pageIndex: 0 };
+  },
   selectedJobs: [],
   setSelectedJobs(selectedJobs) {
     this.selectedJobs = selectedJobs;

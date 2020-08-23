@@ -24,7 +24,9 @@ export default function Paginator() {
   };
 
   function onClickItemsPerPage(_, { key }) {
-    setPagination(new Pagination(key));
+    const pagination = new Pagination(key);
+    pagination.save();
+    setPagination(pagination);
   }
 
   farItems.push({
@@ -57,7 +59,9 @@ export default function Paginator() {
      * @param {React.MouseEvent<Button>} event
      */
     return function onClick(_) {
-      setPagination(new Pagination(pagination.itemsPerPage, pageIndex));
+      const newPagenation = new Pagination(pagination.itemsPerPage, pageIndex);
+      newPagenation.save();
+      setPagination(newPagenation);
     };
   }
 
