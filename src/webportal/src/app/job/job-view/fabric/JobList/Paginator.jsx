@@ -6,9 +6,10 @@ import Context from './Context';
 import Pagination from './Pagination';
 
 export default function Paginator() {
-  const { filteredJobs, pagination, setPagination } = useContext(Context);
+  const { filteredJobsInfo, pagination, setPagination } = useContext(Context);
   const { itemsPerPage, pageIndex } = pagination;
-  const length = filteredJobs !== null ? filteredJobs.length : 0;
+
+  const length = filteredJobsInfo ? filteredJobsInfo.totalCount : 0;
   const maxPageIndex = Math.floor(length / itemsPerPage);
   const start = itemsPerPage * pageIndex + 1;
   const end = Math.min(itemsPerPage * (pageIndex + 1), length);
@@ -22,8 +23,9 @@ export default function Paginator() {
     rootDisabled: { backgroundColor: 'white' },
   };
 
-  function onClickItemsPerPage(event, { key }) {
-    setPagination(new Pagination(key));
+  function onClickItemsPerPage(input) {
+    console.log(input);
+    setPagination(new Pagination(input.key));
   }
 
   farItems.push({
@@ -55,7 +57,7 @@ export default function Paginator() {
     /**
      * @param {React.MouseEvent<Button>} event
      */
-    return function onClick(event) {
+    return function onClick() {
       setPagination(new Pagination(pagination.itemsPerPage, pageIndex));
     };
   }

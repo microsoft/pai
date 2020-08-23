@@ -1,11 +1,5 @@
 import c from 'classnames';
-import React, {
-  useState,
-  useContext,
-  useMemo,
-  useEffect,
-  useLayoutEffect,
-} from 'react';
+import React, { useState, useContext, useMemo, useLayoutEffect } from 'react';
 import {
   ColumnActionsMode,
   DefaultButton,
@@ -45,8 +39,8 @@ const zeroPaddingClass = mergeStyles({
 
 export default function Table() {
   const {
+    filteredJobsInfo,
     stopJob,
-    getJobs,
     setSelectedJobs,
     selectedJobs,
     filter,
@@ -281,20 +275,7 @@ export default function Table() {
     actionsColumn,
   ];
 
-  const [filteredJobs, setFilteredJobs] = useState();
-  useEffect(() => {
-    const getFilteredJobs = async () => {
-      const jobs = await getJobs({
-        ...filter.apply(),
-        ...ordering.apply(),
-        ...pagination.apply(),
-      });
-      setFilteredJobs(jobs);
-    };
-    getFilteredJobs();
-  }, []);
-
-  if (!isNil(filteredJobs) && filteredJobs.length === 0) {
+  if (!isNil(filteredJobsInfo) && filteredJobsInfo.totalCount === 0) {
     return (
       <div className={c(t.h100, t.flex, t.itemsCenter, t.justifyCenter)}>
         <div className={c(t.tc)}>
@@ -320,14 +301,14 @@ export default function Table() {
       </div>
     );
   } else {
-    const items = pagination.apply(ordering.apply(filteredJobs || []));
+    const items = filteredJobsInfo ? filteredJobsInfo.data : [];
     return (
       <div>
         <ShimmeredDetailsList
           items={items}
           setKey='key'
           columns={columns}
-          enableShimmer={isNil(filteredJobs)}
+          enableShimmer={isNil(filteredJobsInfo)}
           shimmerLines={pagination.itemsPerPage}
           selection={selection}
         />

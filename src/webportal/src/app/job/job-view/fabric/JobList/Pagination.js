@@ -4,21 +4,17 @@ export default class Pagination {
    * @param {number} pageIndex
    */
   constructor(itemsPerPage = 20, pageIndex = 0) {
+    console.log(`new pagination ${itemsPerPage} ${pageIndex}`);
     this.itemsPerPage = itemsPerPage;
     this.pageIndex = pageIndex;
   }
 
-  /**
-   * @param {any[]} items
-   * @returns {any[]}
-   */
-  apply(items) {
+  apply() {
     const { itemsPerPage, pageIndex } = this;
     const start = itemsPerPage * pageIndex;
-    const end = itemsPerPage * (pageIndex + 1);
-    return items.slice(start, end).map(item => {
-      item.key = `${item.username}~${item.name}`;
-      return item;
-    });
+    return {
+      offset: start,
+      limit: itemsPerPage,
+    };
   }
 }

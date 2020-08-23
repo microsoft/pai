@@ -32,6 +32,6 @@ export default class Ordering {
     } else if (field === 'gpuCount') {
       query = 'totalGpuNumber';
     }
-    return `${query},${descending ? 'DESC' : 'ASC'}`;
+    return { order: `${query},${descending ? 'DESC' : 'ASC'}` };
   }
 }

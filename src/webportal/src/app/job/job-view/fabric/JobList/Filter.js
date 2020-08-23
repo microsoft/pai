@@ -51,17 +51,19 @@ class Filter {
     const { keyword, users, virtualClusters, statuses } = this;
 
     const query = {};
-    if (keyword !== '') {
+    if (keyword && keyword !== '') {
       query.keyword = keyword;
     }
-    if (users.size > 0) {
-      query.username = users.join(',');
+    if (users && users.size > 0) {
+      query.username = Array.from(users).join(',');
     }
-    if (virtualClusters.size > 0) {
-      query.vc = virtualClusters.join(',');
+    if (virtualClusters && virtualClusters.size > 0) {
+      query.vc = Array.from(virtualClusters).join(',');
     }
-    if (statuses.size > 0) {
-      query.state = statuses.join(',').toUpperCase();
+    if (statuses && statuses.size > 0) {
+      query.state = Array.from(statuses)
+        .join(',')
+        .toUpperCase();
     }
 
     return query;

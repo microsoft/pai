@@ -35,7 +35,7 @@ const wrapper = async func => {
 };
 
 export async function listJobs(query) {
-  const url = `${window.location.protocol}//${client.cluster.rest_server_uri}/api/v2/jobs`;
+  const url = `${client.cluster.rest_server_uri}/api/v2/jobs`;
   return wrapper(() =>
     client.httpClient.get(url, undefined, undefined, {
       ...query,
@@ -45,7 +45,7 @@ export async function listJobs(query) {
 }
 
 export async function listAllJobs(query) {
-  const url = `${window.location.protocol}//${client.cluster.rest_server_uri}/api/v2/jobs`;
+  const url = `${client.cluster.rest_server_uri}/api/v2/jobs`;
   return wrapper(() => client.httpClient.get(url, undefined, undefined, query));
 }
 
