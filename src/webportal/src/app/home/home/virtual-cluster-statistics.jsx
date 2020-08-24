@@ -15,13 +15,14 @@ import {
   DefaultButton,
   Dialog,
 } from 'office-ui-fabric-react';
-import React, { useMemo, useState, useContext } from 'react';
+import React, { useMemo, useState } from 'react';
 
 import Card from '../../components/card';
 import { UtilizationChart } from './utilization-chart';
 import { zeroPaddingClass } from './util';
 import { Header } from './header';
 import config from '../../config/webportal.config';
+import CopyButton from '../../components/copy-button';
 
 import t from '../../components/tachyons.scss';
 import { ResourceBar } from './resource-bar';
@@ -163,9 +164,15 @@ const vcListColumns = colProps => {
   ];
 
   if (isAdmin && colProps.groups) {
+    const CopySucceeded = props =>
+      props.copied ? <p style={{ color: 'green' }}>Copied succeeded!</p> : null;
+    CopySucceeded.propTypes = {
+      copied: PropTypes.bool,
+    };
+
     columns.push({
       key: 'groups',
-      minWidth: 135,
+      minWidth: 250,
       name: 'Granted groups',
       isResizable: true,
       onRender(vc) {
@@ -177,28 +184,111 @@ const vcListColumns = colProps => {
           }
         });
         return (
-          <Stack
-            horizontal
-            verticalAlign='center'
-            horizontalAlign='space-between'
-            gap='m'
-          >
-            <div className={FontClassNames.medium}>
-              <p>{getGrantedGroupsDescription(groups)}</p>
-            </div>
-            <DefaultButton
-              text='Detail'
-              onClick={() => {
-                colProps.setHideGroupDetails(false);
-              }}
-            />
+          <>
+            <Stack
+              horizontal
+              verticalAlign='center'
+              horizontalAlign='space-between'
+              gap='m'
+            >
+              <div className={FontClassNames.medium}>
+                <p>{getGrantedGroupsDescription(groups)}</p>
+              </div>
+              <DefaultButton
+                text='Detail'
+                onClick={() => {
+                  colProps.setHideGroupDetails(false);
+                }}
+              />
+            </Stack>
             <Dialog
+              minWidth='50%'
               hidden={colProps.hideGroupDetails}
               onDismiss={() => colProps.setHideGroupDetails(true)}
+              styles={{ borderStyle: 'solid' }}
+              dialogContentProps={{
+                title: `Granted group of VC '${vc.name}'`,
+              }}
             >
-              <p>dialog</p>
+              <DetailsList
+                columns={[
+                  {
+                    key: 'name',
+                    minWidth: 100,
+                    maxWidth: 150,
+                    name: 'Group name',
+                    isResizable: true,
+                    onRender(group) {
+                      return (
+                        <div
+                          className={c(
+                            t.flex,
+                            t.itemsCenter,
+                            t.h100,
+                            FontClassNames.medium,
+                          )}
+                        >
+                          {group.groupname}
+                        </div>
+                      );
+                    },
+                  },
+                  {
+                    key: 'alias',
+                    minWidth: 180,
+                    maxWidth: 250,
+                    name: 'Group alias',
+                    isResizable: true,
+                    onRender(group) {
+                      return (
+                        <div className={c(t.flex, t.itemsCenter, t.h100)}>
+                          <div className={FontClassNames.medium}>
+                            {group.externalName}
+                          </div>
+                          <div className={c(t.flex, t.itemsCenter, t.h100)}>
+                            <CopyButton
+                              value={group.externalName}
+                              hideTooltip={true}
+                              callback={() => {
+                                colProps.setCopied(group.externalName);
+                              }}
+                            />
+                            <CopySucceeded
+                              copied={colProps.copied === group.externalName}
+                            />
+                          </div>
+                        </div>
+                      );
+                    },
+                  },
+                  {
+                    key: 'description',
+                    minWidth: 180,
+                    name: 'Description',
+                    isResizable: true,
+                    onRender(group) {
+                      return (
+                        <div
+                          className={c(
+                            t.flex,
+                            t.itemsCenter,
+                            t.h100,
+                            FontClassNames.medium,
+                          )}
+                        >
+                          {group.description}
+                        </div>
+                      );
+                    },
+                  },
+                ]}
+                disableSelectionZone
+                items={groups}
+                layoutMode={DetailsListLayoutMode.justified}
+                selectionMode={SelectionMode.none}
+              />
             </Dialog>
-          </Stack>
+          </>
         );
       },
     });
@@ -218,21 +308,20 @@ export const VirtualClusterDetailsList = props => {
     return { name: key, ...val };
   });
   const [hideGroupDetails, setHideGroupDetails] = useState(true);
+  const [copied, setCopied] = useState(null);
 
   return (
-    <>
-      <DetailsList
-        columns={vcListColumns({
-          ...props,
-          ...{ hideGroupDetails, setHideGroupDetails },
-        })}
-        disableSelectionZone
-        items={vcList}
-        layoutMode={DetailsListLayoutMode.justified}
-        selectionMode={SelectionMode.none}
-        {...otherProps}
-      />
-    </>
+    <DetailsList
+      columns={vcListColumns({
+        ...props,
+        ...{ hideGroupDetails, setHideGroupDetails, copied, setCopied },
+      })}
+      disableSelectionZone
+      items={vcList}
+      layoutMode={DetailsListLayoutMode.justified}
+      selectionMode={SelectionMode.none}
+      {...otherProps}
+    />
   );
 };
 

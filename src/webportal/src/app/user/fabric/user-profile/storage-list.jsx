@@ -57,7 +57,6 @@ function getStorageServerUri(storageDetail) {
 }
 
 const StorageList = ({ storageDetails }) => {
-  console.log(storageDetails);
   const [items, groups] = useMemo(() => {
     const items = [];
     const groups = [];
