@@ -118,6 +118,5 @@ def train(gpu, args):
     if gpu == 0:
         print("Training complete in: " + str(datetime.now() - start))
 
-
 if __name__ == '__main__':
     main()

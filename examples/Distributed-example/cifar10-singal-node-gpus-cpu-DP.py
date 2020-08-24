@@ -119,8 +119,6 @@ def prepare_data(args):
     train_loader = torch.utils.data.DataLoader(train_set, batch_size=args.batchsize, shuffle=True, num_workers=4)
     val_loader = torch.utils.data.DataLoader(val_set, batch_size=args.batchsize, shuffle=False, num_workers=4)
     return train_loader, val_loader
-
-
 def train(args):
     train_loader, val_loader = prepare_data(args)
     net = build_net(args)

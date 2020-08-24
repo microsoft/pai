@@ -32,8 +32,6 @@ def main():
     os.environ['MASTER_PORT'] = os.environ['PAI_worker_0_SynPort_PORT']
     print('master:', os.environ['MASTER_ADDR'], 'port:', os.environ['MASTER_PORT'])
     mp.spawn(train, nprocs=args.gpus, args=(args,))
-
-
 class Net(nn.Module):
     def __init__(self):
         super(Net, self).__init__()

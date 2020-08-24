@@ -139,7 +139,6 @@ def main_worker(gpu, ngpus_per_node, args):
     else:
         print("=> creating model '{}'".format(args.arch))
         model = models.__dict__[args.arch]()
-
     if not torch.cuda.is_available():
         print('using CPU, this will be slow')
     elif args.distributed:
