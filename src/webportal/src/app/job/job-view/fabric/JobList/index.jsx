@@ -99,6 +99,7 @@ export default function JobList() {
         })
         .then(setFilteredJobsInfo)
         .catch(err => {
+          alert(err.data.message || err.message);
           throw Error(err.data.message || err.message);
         });
     }, 200),
@@ -122,6 +123,7 @@ export default function JobList() {
         })
         .then(setFilteredJobsInfo)
         .catch(err => {
+          alert(err.data.message || err.message);
           throw Error(err.data.message || err.message);
         });
     }, 200),
@@ -158,7 +160,8 @@ export default function JobList() {
                 alert(err.data.message);
                 clearToken();
               } else {
-                throw new Error(err.data.message);
+                alert(err.data.message || err.message);
+                throw new Error(err.data.message || err.message);
               }
             });
         });
@@ -180,10 +183,10 @@ export default function JobList() {
     });
 
     const url = `${client.cluster.rest_server_uri}/api/v2/jobs`;
-    console.log(JSON.stringify(query));
     try {
       return await client.httpClient.get(url, undefined, undefined, query);
     } catch (err) {
+      alert(err.data.message || err.message);
       throw Error(err.data.message || err.message);
     }
   };
@@ -201,6 +204,7 @@ export default function JobList() {
       })
       .then(setFilteredJobsInfo)
       .catch(err => {
+        alert(err.data.message || err.message);
         throw Error(err.data.message || err.message);
       });
   }, []);

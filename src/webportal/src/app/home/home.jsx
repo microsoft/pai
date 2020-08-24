@@ -48,7 +48,7 @@ import t from '../components/tachyons.scss';
 
 const Home = () => {
   const [loading, setLoading] = useState(true);
-  const [jobsStatusNumber, setJobsStatusNumber] = useState(null);
+  const [jobStatusNumber, setJobStatusNumber] = useState(null);
   const [runningJobs, setRunningJobs] = useState(null);
   const [userJobs, setUserJobs] = useState(null);
   const [userInfo, setUserInfo] = useState(null);
@@ -65,7 +65,7 @@ const Home = () => {
           .catch(alert);
       }
       Promise.all([
-        getJobStatusNumber(isAdmin).then(setJobsStatusNumber),
+        getJobStatusNumber(isAdmin).then(setJobStatusNumber),
         listJobs({ limit: 100 }).then(setUserJobs),
         listAllJobs({ state: 'RUNNING' }).then(setRunningJobs),
         getUserInfo().then(setUserInfo),
@@ -98,7 +98,7 @@ const Home = () => {
           <Stack padding='l2' gap='l1' styles={{ minHeight: '100%' }}>
             <JobStatus
               style={{ height: 320 }}
-              jobsStatusNumber={jobsStatusNumber}
+              jobsStatusNumber={jobStatusNumber}
             />
             <React.Fragment>
               <VirtualClusterStatistics
@@ -158,7 +158,7 @@ const Home = () => {
                 <React.Fragment>
                   <JobStatus
                     style={{ width: '33%' }}
-                    jobsStatusNumber={jobsStatusNumber}
+                    jobsStatusNumber={jobStatusNumber}
                   />
                   <VirtualClusterStatistics
                     style={{ width: '33%' }}
