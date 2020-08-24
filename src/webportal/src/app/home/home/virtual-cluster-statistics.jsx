@@ -15,7 +15,7 @@ import {
   DefaultButton,
   Dialog,
 } from 'office-ui-fabric-react';
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useContext } from 'react';
 
 import Card from '../../components/card';
 import { UtilizationChart } from './utilization-chart';
@@ -43,7 +43,7 @@ const getGrantedGroupsDescription = groups => {
 };
 
 const isAdmin = cookies.get('admin') === 'true';
-const vcListColumns = props => {
+const vcListColumns = colProps => {
   const columns = [
     {
       key: 'name',
@@ -162,7 +162,7 @@ const vcListColumns = props => {
     },
   ];
 
-  if (isAdmin && props.groups) {
+  if (isAdmin && colProps.groups) {
     columns.push({
       key: 'groups',
       minWidth: 135,
@@ -170,7 +170,7 @@ const vcListColumns = props => {
       isResizable: true,
       onRender(vc) {
         const groups = [];
-        props.groups.forEach(group => {
+        colProps.groups.forEach(group => {
           const virtualClusters = group.extension.acls.virtualClusters;
           if (virtualClusters && virtualClusters.includes(vc.name)) {
             groups.push(group);
@@ -189,10 +189,15 @@ const vcListColumns = props => {
             <DefaultButton
               text='Detail'
               onClick={() => {
-                console.log('click details');
-                props.setHideGroupDetails(true);
+                colProps.setHideGroupDetails(false);
               }}
             />
+            <Dialog
+              hidden={colProps.hideGroupDetails}
+              onDismiss={() => colProps.setHideGroupDetails(true)}
+            >
+              <p>dialog</p>
+            </Dialog>
           </Stack>
         );
       },
@@ -217,19 +222,16 @@ export const VirtualClusterDetailsList = props => {
   return (
     <>
       <DetailsList
-        columns={vcListColumns({ ...props, ...{ setHideGroupDetails } })}
+        columns={vcListColumns({
+          ...props,
+          ...{ hideGroupDetails, setHideGroupDetails },
+        })}
         disableSelectionZone
         items={vcList}
         layoutMode={DetailsListLayoutMode.justified}
         selectionMode={SelectionMode.none}
         {...otherProps}
       />
-      <Dialog
-        hidden={hideGroupDetails}
-        onDismiss={() => setHideGroupDetails(true)}
-      >
-        <p>dialog</p>
-      </Dialog>
     </>
   );
 };
