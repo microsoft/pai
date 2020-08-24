@@ -365,9 +365,11 @@ const convertFrameworkDetail = async (framework) => {
       const res = await axios.get(
         `${launcherConfig.hivedWebserviceUri}/v1/inspect/affinitygroups/`,
       );
-      res.data.items.forEach((affinityGroup) => {
-        affinityGroups[affinityGroup.metadata.name] = affinityGroup;
-      });
+      if (res.data.items) {
+        res.data.items.forEach((affinityGroup) => {
+          affinityGroups[affinityGroup.metadata.name] = affinityGroup;
+        });
+      }
     } catch (err) {
       logger.warn('Fail to inspect affinity groups', err);
     }
@@ -709,7 +711,7 @@ const generateTaskRole = (
         name: 'NVIDIA_VISIBLE_DEVICES',
         valueFrom: {
           fieldRef: {
-            fieldPath: `metadata.annotations['hivedscheduler.microsoft.com/pod-gpu-isolation']`,
+            fieldPath: `metadata.annotations['hivedscheduler.microsoft.com/pod-leaf-cell-isolation']`,
           },
         },
       },
@@ -717,7 +719,7 @@ const generateTaskRole = (
         name: 'PAI_AMD_VISIBLE_DEVICES',
         valueFrom: {
           fieldRef: {
-            fieldPath: `metadata.annotations['hivedscheduler.microsoft.com/pod-gpu-isolation']`,
+            fieldPath: `metadata.annotations['hivedscheduler.microsoft.com/pod-leaf-cell-isolation']`,
           },
         },
       },
