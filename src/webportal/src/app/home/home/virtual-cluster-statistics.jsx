@@ -12,9 +12,10 @@ import {
   StackItem,
   FontClassNames,
   Link,
+  DefaultButton,
+  Dialog,
 } from 'office-ui-fabric-react';
-import React, { useMemo } from 'react';
-import ReactTooltip from 'react-tooltip';
+import React, { useMemo, useState } from 'react';
 
 import Card from '../../components/card';
 import { UtilizationChart } from './utilization-chart';
@@ -32,8 +33,17 @@ const getResouceUtilization = (used, guaranteed) => {
   return used / guaranteed;
 };
 
+const getGrantedGroupsDescription = groups => {
+  const str = groups.map(group => group.groupname).join();
+  if (str.length < 25) {
+    return str;
+  } else {
+    return str.substring(0, 22) + '...';
+  }
+};
+
 const isAdmin = cookies.get('admin') === 'true';
-const vcListColumns = probs => {
+const vcListColumns = props => {
   const columns = [
     {
       key: 'name',
@@ -91,7 +101,7 @@ const vcListColumns = probs => {
     },
     {
       key: 'detail',
-      minWidth: 200,
+      minWidth: 100,
       name: 'Detail: Used / (Total - Bad)',
       isResizable: true,
       onRender(vc) {
@@ -152,65 +162,37 @@ const vcListColumns = probs => {
     },
   ];
 
-  if (isAdmin && probs.groups) {
+  if (isAdmin && props.groups) {
     columns.push({
       key: 'groups',
-      minWidth: 85,
-      name: 'Groups',
+      minWidth: 135,
+      name: 'Granted groups',
       isResizable: true,
       onRender(vc) {
         const groups = [];
-        probs.groups.forEach(group => {
+        props.groups.forEach(group => {
           const virtualClusters = group.extension.acls.virtualClusters;
           if (virtualClusters && virtualClusters.includes(vc.name)) {
             groups.push(group);
           }
         });
-        const style = {
-          listStyleType: 'none',
-          paddingLeft: 0,
-        };
         return (
           <Stack
-            verticalAlign='start'
-            verticalFill
-            selectionMode={SelectionMode.none}
+            horizontal
+            verticalAlign='center'
+            horizontalAlign='space-between'
+            gap='m'
           >
-            <ul style={style}>
-              {groups.map((group, index) => {
-                return (
-                  <div className={FontClassNames.medium} key={index}>
-                    <a
-                      data-tip
-                      data-for={group.groupname}
-                      data-event='mouseenter click'
-                      data-event-off='mouseout'
-                      data-delay-hide='1000'
-                    >
-                      {group.groupname}
-                    </a>
-                    <ReactTooltip
-                      id={group.groupname}
-                      type='light'
-                      effect='solid'
-                      clickable={true}
-                    >
-                      <p>
-                        <span className={c(t.f5)} style={{ color: '#0078D7' }}>
-                          {group.groupname}
-                        </span>
-                        &nbsp;
-                        <span>(</span>
-                        <span>{group.externalName}</span>
-                        <span>)</span>
-                      </p>
-                      <p className={c(t.f6)}>Description:</p>
-                      <p>{group.description}</p>
-                    </ReactTooltip>
-                  </div>
-                );
-              })}
-            </ul>
+            <div className={FontClassNames.medium}>
+              <p>{getGrantedGroupsDescription(groups)}</p>
+            </div>
+            <DefaultButton
+              text='Detail'
+              onClick={() => {
+                console.log('click details');
+                props.setHideGroupDetails(true);
+              }}
+            />
           </Stack>
         );
       },
@@ -230,15 +212,25 @@ export const VirtualClusterDetailsList = props => {
   const vcList = Object.entries(virtualClusters).map(([key, val]) => {
     return { name: key, ...val };
   });
+  const [hideGroupDetails, setHideGroupDetails] = useState(true);
+
   return (
-    <DetailsList
-      columns={vcListColumns(props)}
-      disableSelectionZone
-      items={vcList}
-      layoutMode={DetailsListLayoutMode.justified}
-      selectionMode={SelectionMode.none}
-      {...otherProps}
-    />
+    <>
+      <DetailsList
+        columns={vcListColumns({ ...props, ...{ setHideGroupDetails } })}
+        disableSelectionZone
+        items={vcList}
+        layoutMode={DetailsListLayoutMode.justified}
+        selectionMode={SelectionMode.none}
+        {...otherProps}
+      />
+      <Dialog
+        hidden={hideGroupDetails}
+        onDismiss={() => setHideGroupDetails(true)}
+      >
+        <p>dialog</p>
+      </Dialog>
+    </>
   );
 };
 
