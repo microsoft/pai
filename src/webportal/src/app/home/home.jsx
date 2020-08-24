@@ -98,7 +98,7 @@ const Home = () => {
           <Stack padding='l2' gap='l1' styles={{ minHeight: '100%' }}>
             <JobStatus
               style={{ height: 320 }}
-              jobsStatusNumber={jobStatusNumber}
+              jobStatusNumber={jobStatusNumber}
             />
             <React.Fragment>
               <VirtualClusterStatistics
@@ -158,7 +158,7 @@ const Home = () => {
                 <React.Fragment>
                   <JobStatus
                     style={{ width: '33%' }}
-                    jobsStatusNumber={jobStatusNumber}
+                    jobStatusNumber={jobStatusNumber}
                   />
                   <VirtualClusterStatistics
                     style={{ width: '33%' }}

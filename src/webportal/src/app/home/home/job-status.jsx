@@ -76,15 +76,15 @@ StatusRow.propTypes = {
   link: PropTypes.string.isRequired,
 };
 
-const JobStatus = ({ className, style, jobsStatusNumber }) => {
-  if (jobsStatusNumber === undefined) {
-    jobsStatusNumber = {};
+const JobStatus = ({ className, style, jobStatusNumber }) => {
+  if (jobStatusNumber === undefined) {
+    jobStatusNumber = {};
   }
-  const waiting = jobsStatusNumber.waiting || 0;
-  const running = jobsStatusNumber.running || 0;
-  const stopped = jobsStatusNumber.stopped || 0;
-  const failed = jobsStatusNumber.failed || 0;
-  const succeeded = jobsStatusNumber.succeeded || 0;
+  const waiting = jobStatusNumber.waiting || 0;
+  const running = jobStatusNumber.running || 0;
+  const stopped = jobStatusNumber.stopped || 0;
+  const failed = jobStatusNumber.failed || 0;
+  const succeeded = jobStatusNumber.succeeded || 0;
 
   return (
     <Card className={c(className, t.ph5)} style={style}>
@@ -153,7 +153,7 @@ const JobStatus = ({ className, style, jobsStatusNumber }) => {
 JobStatus.propTypes = {
   className: PropTypes.string,
   style: PropTypes.object,
-  jobsStatusNumber: PropTypes.object,
+  jobStatusNumber: PropTypes.object,
 };
 
 export default JobStatus;
