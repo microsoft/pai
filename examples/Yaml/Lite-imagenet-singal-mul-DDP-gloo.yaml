@@ -1,0 +1,50 @@
+protocolVersion: 2
+name: List-imagenet-gloo_8ba8ed42
+type: job
+jobRetryCount: 0
+prerequisites:
+  - type: dockerimage
+    uri: 'openpai/standard:python_3.6-pytorch_1.2.0-gpu'
+    name: docker_image_0
+taskRoles:
+  worker:
+    instances: 2
+    completion:
+      minFailedInstances: 1
+    taskRetryCount: 0
+    dockerImage: docker_image_0
+    resourcePerInstance:
+      gpu: 4
+      cpu: 16
+      memoryMB: 32768
+      ports:
+        SynPort: 1
+    commands:
+      - export GLOO_SOCKET_IFNAME=eth0
+      - 'git clone https://github.com/NVIDIA/apex'
+      - cd apex
+      - python setup.py install
+      - cd ..
+      - apt update
+      - apt install -y nfs-common
+      - mkdir -p /mnt/zhiyuhe
+      - 'mount 10.151.40.32:/mnt/zhiyuhe /mnt/zhiyuhe'
+      - >-
+        wget
+        https://raw.githubusercontent.com/vvfreesoul/pai/master/examples/Distributed-example/Lite-imagenet-singal-mul-DDP-nccl-gloo.py
+      - >-
+        python Lite-imagenet-singal-mul-DDP-nccl-gloo.py  -n 2 -g 4
+        --dist-backend gloo --epochs 2 /mnt/zhiyuhe/imagenet/unzipped
+defaults:
+  virtualCluster: default
+extras:
+  com.microsoft.pai.runtimeplugin:
+    - plugin: ssh
+      parameters:
+        jobssh: true
+        userssh:
+          type: custom
+          value: >-
+            ssh-rsa
+            AAAAB3NzaC1yc2EAAAADAQABAAABAQCkkTsCwzvyar9a+5DblU4HVKW4dd318XZA9DCX0eLT4KaO9j5PX/2+eFHLv6f6jVgy2YsJlcU5hgrfOBi+GSYDNon38Q+w0OrA3NJozJXCNTnBD6B6gpDb+gRGyUzQB0zMWbPvVKG6eRBewlkmtgrgmj62WMqqpsia3bBeTVu5QlChSr0aEitORlG2NoRoZJ4ZQ4Vh76mN8dG4N56w1+gbokT1F+gtu49EbOjuktknXzwsksiB8ZXLoXrPZxioUrGxDVryOUHrDcbAas5BqFPK3kgCchwob6Xq4aSFlH7fLnzoR8fwayTBmFA4qaSegILTLvmVU5BxZ03HKz5xwQcR
+            zhangguowei@DESKTOP-TSBQI10
