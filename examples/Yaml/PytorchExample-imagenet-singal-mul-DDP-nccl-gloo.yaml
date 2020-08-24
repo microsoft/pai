@@ -6,6 +6,7 @@ prerequisites:
   - type: dockerimage
     uri: 'openpai/standard:python_3.6-pytorch_1.2.0-gpu'
     name: docker_image_0
+
 taskRoles:
   taskrole:
     instances: 1
