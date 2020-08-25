@@ -1,0 +1,29 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+
+service_type: "common"
+
+# general settings
+# Log level of all logs. You can choose from error, warn, info, http, verbose, debug, and silly.
+log-level: info
+# Whether to enable retain mode.
+# If someone submits a framework directly without accessing database, we can find the framework in write merger.
+# For these frameworks, if retain mode is on, we will ignore them.
+# If retain mode is off (it is the default setting), we will delete the frameworks to maintain ground-truth in database.
+retain-mode: false
+# The global timeout for all calls to Kubernetes API server.
+k8s-connection-timeout-second: 120
+# The timeout for calls to write merger.
+write-merger-connection-timeout-second: 120
+
+# write merger
+# The serving port for write merger.
+write-merger-port: 9748
+ # Max connection number to database in write merger.
+write-merger-max-db-connection: 50
+
+# db poller
+# Polling interval of database poller. Default value is 120.
+db-poller-interval-second: 120
+# Max connection number to database in write merger.
+db-poller-max-db-connection: 10

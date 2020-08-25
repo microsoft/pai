@@ -117,10 +117,10 @@ spec:
         - name: RBAC_IN_CLUSTER
           value: "false"
 {% endif %}
-{% if cluster_cfg['postgresql']['enable'] %}
         - name: SQL_CONNECTION_STR
           value: {{ cluster_cfg['postgresql']['connection-str'] }}
-{% endif %}
+        - name: SQL_MAX_CONNECTION
+          value: "{{ cluster_cfg['rest-server']['sql-max-connection'] }}"
 {% if cluster_cfg['cluster']['common']['job-history'] != 'false' %}
         - name: JOB_HISTORY
           value: "true"
@@ -128,6 +128,8 @@ spec:
         - name: JOB_HISTORY
           value: "false"
 {% endif %}
+        - name: WRITE_MERGER_URL
+          value: {{ cluster_cfg['database-controller']['write-merger-url'] }}
         ports:
         - name: rest-server
           containerPort: 8080

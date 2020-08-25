@@ -13,7 +13,4 @@ class Fluentd(object):
         return {}
 
     def validation_post(self, conf):
-        if 'job-history' in conf['cluster']['common'] and conf['cluster']['common']['job-history'] != "false":
-            if conf['postgresql']['enable'] is False:
-                return False, "You must set postgresql.enable=true to use job history."
         return True, None
