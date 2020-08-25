@@ -24,6 +24,7 @@ import config from '../../config/webportal.config';
 
 import t from '../../components/tachyons.scss';
 import { ResourceBar } from './resource-bar';
+import GroupDetailDialog from './groupDetailDialog';
 
 const getResouceUtilization = (used, guaranteed) => {
   if (Math.abs(guaranteed) < 1e-5) {
@@ -188,7 +189,7 @@ const vcListColumns = colProps => {
             <DefaultButton
               text='Detail'
               onClick={() => {
-                colProps.setHideGroupDetails(false);
+                colProps.setGroupDetails({ vc, groups, hideDialog: false });
               }}
             />
           </Stack>
@@ -210,21 +211,30 @@ export const VirtualClusterDetailsList = props => {
   const vcList = Object.entries(virtualClusters).map(([key, val]) => {
     return { name: key, ...val };
   });
-  const [hideGroupDetails, setHideGroupDetails] = useState(true);
-  const [copied, setCopied] = useState(null);
+  const [groupDetails, setGroupDetails] = useState({
+    hideDialog: true,
+    vc: { name: '' },
+    groups: [],
+  });
 
   return (
-    <DetailsList
-      columns={vcListColumns({
-        ...props,
-        ...{ hideGroupDetails, setHideGroupDetails, copied, setCopied },
-      })}
-      disableSelectionZone
-      items={vcList}
-      layoutMode={DetailsListLayoutMode.justified}
-      selectionMode={SelectionMode.none}
-      {...otherProps}
-    />
+    <>
+      <DetailsList
+        columns={vcListColumns({
+          ...props,
+          ...{ setGroupDetails },
+        })}
+        disableSelectionZone
+        items={vcList}
+        layoutMode={DetailsListLayoutMode.justified}
+        selectionMode={SelectionMode.none}
+        {...otherProps}
+      />
+      <GroupDetailDialog
+        groupDetails={groupDetails}
+        setGroupDetails={setGroupDetails}
+      />
+    </>
   );
 };
 

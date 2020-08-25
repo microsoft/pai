@@ -4,7 +4,7 @@
 import { FontClassNames } from '@uifabric/styling';
 import c from 'classnames';
 import PropTypes from 'prop-types';
-import React, { useContext } from 'react';
+import React, { useState } from 'react';
 import {
   Dialog,
   DetailsList,
@@ -13,7 +13,7 @@ import {
 } from 'office-ui-fabric-react';
 import CopyButton from '../../components/copy-button';
 
-import t from '../../../../components/tachyons.scss';
+import t from '../../components/tachyons.scss';
 
 const CopySucceeded = props =>
   props.copied ? <p style={{ color: 'green' }}>Copied succeeded!</p> : null;
@@ -23,16 +23,19 @@ CopySucceeded.propTypes = {
 };
 
 export default function GroupDetailDialog(props) {
-  const { hideDialog, setHideDialog, vc, groups } = props;
+  const { groupDetails, setGroupDetails } = props;
+  const [copiedName, setCopiedName] = useState(null);
 
   return (
     <Dialog
       minWidth='50%'
-      hidden={hideDialog}
-      onDismiss={() => setHideDialog(true)}
+      hidden={groupDetails.hideDialog}
+      onDismiss={() => {
+        setGroupDetails({ ...groupDetails, ...{ hideDialog: true } });
+      }}
       styles={{ borderStyle: 'solid' }}
       dialogContentProps={{
-        title: `Granted group of VC '${vc.name}'`,
+        title: `Granted group of VC '${groupDetails.vc.name}'`,
       }}
     >
       <DetailsList
@@ -75,12 +78,10 @@ export default function GroupDetailDialog(props) {
                       value={group.externalName}
                       hideTooltip={true}
                       callback={() => {
-                        colProps.setCopied(group.externalName);
+                        setCopiedName(group.externalName);
                       }}
                     />
-                    <CopySucceeded
-                      copied={colProps.copied === group.externalName}
-                    />
+                    <CopySucceeded copied={copiedName === group.externalName} />
                   </div>
                 </div>
               );
@@ -108,7 +109,7 @@ export default function GroupDetailDialog(props) {
           },
         ]}
         disableSelectionZone
-        items={groups}
+        items={groupDetails.groups}
         layoutMode={DetailsListLayoutMode.justified}
         selectionMode={SelectionMode.none}
       />
@@ -117,8 +118,6 @@ export default function GroupDetailDialog(props) {
 }
 
 GroupDetailDialog.propTypes = {
-  hideDialog: PropTypes.bool.isRequired,
-  setHideDialog: PropTypes.func.isRequired,
-  vc: PropTypes.object,
-  groups: PropTypes.array,
+  groupDetails: PropTypes.object.isRequired,
+  setGroupDetails: PropTypes.func.isRequired,
 };
