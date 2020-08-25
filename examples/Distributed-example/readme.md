@@ -1,39 +1,39 @@
-#         在OpenPai中进行分布式数据并行训练
+#         Distributed data parallel training in OpenPai
 
-## 动机
-加快神经网络训练速度的最简单方法是使用GPU，该GPU在神经网络中常见的计算类型（矩阵乘法和加法）上提供了比CPU大的加速。随着模型或数据集变得更大，一个GPU很快就会变得不足。例如，BERT和GPT-2等大型语言模型在数百个GPU上进行了训练。要执行多GPU训练，我们必须有一种在不同GPU之间拆分模型和数据并协调训练的方法。
+## Motivation
+The easiest way to speed up neural network training is to use a GPU, which provides large speedups over CPUs on the types of calculations (matrix multiplies and additions) that are common in neural networks. As the model or dataset gets bigger, one GPU quickly becomes insufficient. For example, big language models such as BERT and GPT-2 are trained on hundreds of GPUs. To perform multi-GPU training, we must have a way to split the model and data between different GPUs and to coordinate the training.
 
-## 为什么要并行分配数据？
-Pytorch有两种在多个GPU之间拆分模型和数据的方式：nn.DataParallel和nn.DistributedDataParallel。nn.DataParallel更易于使用（只需包装模型并运行训练脚本）。但是，由于它使用一个过程来计算模型权重，然后在每批中将它们分配给每个GPU，因此网络很快成为瓶颈，并且GPU利用率通常非常低。此外，nn.DataParallel要求所有GPU都在同一节点上，并且不能与Apex一起使用以进行混合精度训练。
-
-
-
-## 有关使用Pytorch编写分布式应用程序的教程
-pytorch官方教程：https://pytorch.org/tutorials/intermediate/ddp_tutorial.html
-
-Pytorch提供的example（https://github.com/pytorch/examples/tree/master/imagenet）   
-培训示例。该示例还演示了Pytorch几乎具有的所有其他功能，因此很难找出与分布式多GPU培训有关的内容。
+## Why distributed data parallel?
+Pytorch has two ways to split models and data across multiple GPUs: nn.DataParallel and nn.DistributedDataParallel. nn.DataParallel is easier to use (just wrap the model and run your training script). However, because it uses one process to compute the model weights and then distribute them to each GPU during each batch, networking quickly becomes a bottle-neck and GPU utilization is often very low. Furthermore, nn.DataParallel requires that all the GPUs be on the same node and doesn’t work with Apex for mixed-precision training.
 
 
 
+## A tutorial on writing distributed applications using Pytorch
+The tutorial on writing distributed applications in Pytorch has much more detail than necessary for a first pass and is not accessible to somebody without a strong background on multiprocessing in Python. It spends a lot of time replicating the functionality in nn.DistributedDataParallel. However, it doesn’t give a high-level overview of what it does and provides no insight on how to use it. (https://pytorch.org/tutorials/intermediate/ddp_tutorial.html)
 
-## 大纲
-本教程实际上是针对已经熟悉Pytorch中的神经网络模型训练的人员的。然后，我展示了在GPU上使用cifar10进行培训的最小工作示例。我修改了此示例，以在可能跨多个节点的多个GPU上进行训练，并逐行解释更改。重要的是，我还解释了如何运行代码。另外，我还演示了如何使用Apex进行简单的混合精度分布式培训。
+The closest to a MWE example Pytorch provides is the Imagenet training example（https://github.com/pytorch/examples/tree/master/imagenet）   . Unfortunately, that example also demonstrates pretty much every other feature Pytorch has, so it’s difficult to pick out what pertains to distributed, multi-GPU training.
 
-## DDP原理
-多处理 DistributedDataParallel在多个GPU中复制模型，每个GPU都由一个进程控制。（一个进程是在计算机上运行的python的一个实例；通过并行运行多个进程，我们可以利用具有多个CPU内核的procressor。如果需要，可以让每个进程控制多个GPU，但这显然比每个进程拥有一个GPU慢。也可能有多个工作进程为每个GPU提取数据，但是为了简单起见，我将其省略。）GPU都可以在同一节点上或分散跨多个节点。（节点是一台“计算机”，包括其所有CPU和GPU。）每个进程执行相同的任务，每个进程与所有其他进程通信。
+
+
+
+
+## Outline
+This tutorial is really directed at people who are already familiar with training neural network models in Pytorch, and I won’t go over any of those parts of the code. I’ll begin by summarizing the big picture. I then show a minimum working example of training on Cifar10 using on GPU. I modify this example to train on multiple GPUs, possibly across multiple nodes, and explain the changes line by line. Importantly, I also explain how to run the code. As a bonus, I also demonstrate how to use Apex to do easy mixed-precision distribued training.
+
+## DDP
+Multiprocessing with DistributedDataParallel duplicates the model across multiple GPUs, each of which is controlled by one process. (A process is an instance of python running on the computer; by having multiple processes running in parallel, we can take advantage of procressors with multiple CPU cores. If you want, you can have each process control multiple GPUs, but that should be obviously slower than having one GPU per process. It’s also possible to have multiple worker processes that fetch data for each GPU, but I’m going to leave that out for the sake of simplicity.) The GPUs can all be on the same node or spread across multiple nodes. (A node is one “computer,” including all of its CPUs and GPUs. ) Every process does identical tasks, and each process communicates with all the others. Only gradients are passed between the processes/GPUs so that network communication is less of a bottleneck.
 
 ![image](289EA5072CF94054A99B9CE9414DC1C1)
 
-在训练期间，每个进程都从磁盘加载自己的minibatches并将它们传递到其GPU。每个GPU都有自己的forward pass，然后梯度在GPU上全部减小。每层的梯度不依赖于先前的层，因此梯度下降与反向传递同时计算，以进一步缓解网络瓶颈。向后遍历结束时，每个节点都具有平均梯度，从而确保模型权重保持同步。
+During training, each process loads its own minibatches from disk and passes them to its GPU. Each GPU does its own forward pass, and then the gradients are all-reduced across the GPUs. Gradients for each layer do not depend on previous layers, so the gradient all-reduce is calculated concurrently with the backwards pass to futher alleviate the networking bottleneck. At the end of the backwards pass, every node has the averaged gradients, ensuring that the model weights stay synchronized.
 
-所有这一切都需要同步并通信可能在多个节点上的多个进程。Pytorch通过其distributed.init_process_group功能来做到这一点。此功能需要知道在哪里可以找到进程0，以便所有进程都可以同步，并可以预期到进程总数。每个单独的进程还需要知道进程总数，在进程中的排名以及使用哪个GPU。通常将进程总数称为world size。最后，每个流程都需要知道要处理的数据片段，以便批次不重叠。Pytorch提供nn.utils.data.DistributedSampler了完成此任务的方法。
+All this requires that the multiple processes, possibly on multiple nodes, are synchronized and communicate. Pytorch does this through its distributed.init_process_group function. This function needs to know where to find process 0 so that all the processes can sync up and the total number of processes to expect. Each individual process also needs to know the total number of processes as well as its rank within the processes and which GPU to use. It’s common to call the total number of processes the world size. Finally, each process needs to know which slice of the data to work on so that the batches are non-overlapping. Pytorch provides nn.utils.data.DistributedSampler to accomplish this.
 
-最少的工作示例及说明
-为了演示如何执行此操作，我将创建一个在Cifar10上进行训练的示例，然后将其修改为在多个节点上的多个GPU上运行，最后还允许进行混合精度训练。
+## Minimum working examples with explanations
+To demonstrate how to do this, I’ll create an example that trains on Cifar10, and then modify it to run on multiple GPUs across multiple nodes, and finally to also allow mixed-precision training.
 
-## 单机单卡不加到OpenPai
-首先，我们导入包
+## Without multiprocessing
+First, we import everything we need.
 
 1. import os
 1. from datetime import datetime
@@ -48,7 +48,7 @@ Pytorch提供的example（https://github.com/pytorch/examples/tree/master/imagen
 1. from apex.parallel import DistributedDataParallel as DDP
 1. from apex import amp
 
-我们定义了一个非常简单的卷积模型来预测cifar10
+We define a very simple convolutional model for predicting cifar10
 ~~~~
 class Net(nn.Module):
     def __init__(self):
@@ -67,7 +67,7 @@ class Net(nn.Module):
         x = self.fc3(x)
         return x
 ~~~~
-该main()函数将接受一些参数并运行训练函数。
+The main() function will take in some arguments and run the training function.
 ~~~~
 
 def main():
@@ -82,7 +82,7 @@ def main():
     args = parser.parse_args()
     train(0, args)
 ~~~~
-这是train功能
+And here's the train function.
 ~~~~
 def train(gpu, args):
     model = Net()
@@ -129,18 +129,18 @@ def train(gpu, args):
         print("Training complete in: " + str(datetime.now() - start))
 
 ~~~~
-最后，我们要确保main()函数被调用。
+Finally, we want to make sure the main() function gets called.
 
 if __name__ == '__main__':
     main()
-这里肯定有一些我们不需要的额外内容（例如，gpu和节点的数量），但是对于整个文档有用。
+There’s definitely some extra stuff in here (the number of gpus and nodes, for example) that we don’t need yet, but it’s helpful to put the whole skeleton in place.
 
-我们可以通过打开终端并输入来运行此代码python main.py -n 1 -g 1 -nr 0，这将在单个节点上的单个gpu上进行训练。
+We can run this code by opening a terminal and typing python main.py -n 1 -g 1 -nr 0, which will train on a single gpu on a single node.
 
-## 多机多卡并且加到openpai上
-为此，我们需要一个脚本来为每个GPU启动一个进程。每个进程都需要知道要使用哪个GPU，以及它在所有正在运行的进程中的位置。我们需要在每个节点上运行脚本。
+## Multi - nodes multi - gpus and add to OpenPAI
+To do this with multiprocessing, we need a script that will launch a process for every GPU. Each process needs to know which GPU to use, and where it ranks amongst all the processes that are running. We’ll need to run the script on each node.
 
-让我们看一下每个函数的更改。我已经标记了新代码，以使其易于查找。
+Let’s take a look at the changes to each function. I’ve fenced off the new code to make it easy to find.
 ~~~~
 1. def main():
 2.     print('run main')
@@ -166,22 +166,22 @@ if __name__ == '__main__':
 22.     #########################################################
 ~~~~ 
 
-args.nodes 是我们将要使用的节点总数。
-args.gpus 是每个节点上的GPU数量。
-args.nr是当前节点在所有节点中的排名，从0到args.nodes-1。
-现在，让我们逐行介绍新的更改：
+args.nodes is the total number of nodes we’re going to use.
+args.gpus is the number of gpus on each node.
+args.nris the rank of the current node within all the nodes, and goes from 0 to args.nodes - 1.
+Now, let’s go through the new changes line by line:
 
-第16行：基于节点数和每个节点的GPU，我们可以计算world_size或要运行的进程总数，它等于GPU的总数，因为我们为每个进程分配一个GPU。
+Line16：Based on the number of nodes and gpus per node, we can calculate the world_size, or the total number of processes to run, which is equal to the total number of gpus because we’re assigning one gpu to every process.
 
-第18行：告诉多处理模块要为进程0查找哪个IP地址。它需要此地址，以便所有进程可以首先同步，MASTER_ADDR即为主节点地址，PAI_HOST_IP_worker_0中的worker_0为主节点机器的名称。主节点IP是通过读取环境变量的方式初始化。
+Line18：Tells the multiprocessing module which IP address to look up for process 0. It needs this address so that all processes can synchronize first, MASTER_ADDR being the master node address, and the worker_0 name of the master node machine in PAI_HOST_IP_worker_0. The master node IP is initialized by reading environment variables.
 
-第19行：同样，这是查找进程0时要使用主节点的端口，通过python读取环境变量来初始化。
+Line19：Again, this is the port of the primary node to be used when looking up process 0, initialized by python reading environment variables.
 
-（注意：主节点地址和通信端口为集群共有，可以通过不同的方式初始化）
+(Note: the master node address and syn port are common to the cluster and can be initialized in different ways)
 
-在这个程序中，启动train并不是一次, 这个程序spawn args.gpus processes, e每一个进程执行train(i, args), 0 <= i < args.gpus - 1.我会在每个节点上执行main()函数，所以一共有 args.nodes * args.gpus = args.world_size个进程。
+Now, instead of running the train function once, we will spawn args.gpus processes, each of which runs train(i, args), where i goes from 0 to args.gpus - 1. Remember, we run the main() function on each node, so that in total there will be args.nodes * args.gpus = args.world_size processes.
 
-接下来，让我们看一下对的修改train
+Next, let’s look at the modifications to train:
 ~~~~
 def train(gpu, args):
     ############################################################
@@ -261,31 +261,31 @@ def train(gpu, args):
         print("Training complete in: " + str(datetime.now() - start))
 ~~~~
 
-rank = int(os.environ['PAI_TASK_INDEX']) * args.gpus + gpu来替代 rank = args.nr * args.gpus + gpu：这是所有进程中每个进程的全局排名（每个GPU一个进程）。PAI_TASK_INDEX是节点在集群的的序号，替代参数nr。
+rank = int(os.environ['PAI_TASK_INDEX']) * args.gpus + gpu来替代 rank = args.nr * args.gpus + gpu：This is the global rank of the process within all of the processes (one process per GPU). PAI_TASK_INDEX is the serial number of the node in the cluster, replacing the parameter nr.
 
-dist.init_process_group：初始化流程并与其他流程结合。这是“阻塞”，这意味着在所有进程都加入之前，没有任何进程会继续。我在nccl这里使用后端，因为pytorch文档说它是可用版本中最快的。在init_method告诉所有进程如何寻找一些设置。在这种情况下，它将查看我们在中设置的MASTER_ADDR和的环境变量。我也可以在那里设置，但是我选择在这里将其设置为关键字参数，以及当前进程的全局排名。
+dist.init_process_group：Initialize the process and join up with the other processes. This is “blocking,” meaning that no process will continue until all processes have joined. I’m using the nccl backend here because the pytorch docs say it’s the fastest of the available ones. The init_method tells the process group where to look for some settings. In this case, it’s looking at environment variables for the MASTER_ADDR and MASTER_PORT, which we set within main. I could have set the world_size there as well as WORLD_SIZE, but I’m choosing to set it here as a keyword argument, along with the global rank of the current process.
 
 nn.parallel.DistributedDataParallel(model,
-                                                device_ids=[gpu])：将模型包装为DistributedDataParallel模型。这会将模型复制到GPU上进行处理。
+                                                device_ids=[gpu])：Wrap the model as a DistributedDataParallel model. This reproduces the model onto the GPU for the process.
 
-nn.utils.data.DistributedSampler:确保每个过程都获得不同的训练数据片段。
+nn.utils.data.DistributedSampler:The nn.utils.data.DistributedSampler makes sure that each process gets a different slice of the training data.
 
-torch.utils.data.DataLoader使用nn.utils.data.DistributedSampler而不是按常规方法改组。
+torch.utils.data.DataLoader Use the nn.utils.data.DistributedSampler instead of shuffling the usual way.
 
-例如，要在具有8个GPU的4个节点上运行此程序，我们需要4个终端来分别跑这个程序。在节点0上：
+To run this on, say, 4 nodes with 4 GPUs each, we need 4 terminals (one on each node).On node 0 (Master node)：
 
-python cifar10-distributed.py -n 4 -g 8
+python cifar10-distributed.py -n 4 -g 4
 
-然后，在其他节点上：
+Then, on the other nodes:
 
-python cifar10-distributed.py -n 4 -g 8
+python cifar10-distributed.py -n 4 -g 4
 
-对于 我∈ 1 ，2 ，3。换句话说，我们在每个节点上运行此脚本，告诉它args.gpus在培训开始之前启动彼此同步的进程。
+for i∈1,2,3. In other words, we run this script on each node, telling it to launch args.gpus processes that sync with each other before training begins.
 
-请注意，集群的批处理大小现在是每个GPU批处理大小（脚本中的值）* GPU的总数（worldsize）。
+Note that the effective batchsize is now the per/GPU batchsize (the value in the script) * the total number of GPUs (the worldsize).
 
-## 与Apex混合精度
-混合精度训练（结合浮点（FP32）和半精度（FP16）精度的训练）使我们可以使用更大的批处理大小，并利用NVIDIA Tensor Core进行更快的计算。。我们只需要更改train功能。为了简洁起见，我从这里的示例中取出了数据加载代码和向后传递的代码
+## With Apex for mixed precision
+Mixed precision training (training in a combination of float (FP32) and half (FP16) precision) allows us to use larger batch sizes and take advantage of NVIDIA Tensor Cores for faster computation.For the sake of concision, I’ve taken out the data loading code and the code after the backwards pass from the example here.
 ~~~~
 def train(gpu, args):
     print("start train")
@@ -358,9 +358,13 @@ def train(gpu, args):
     if gpu == 0:
         print("Training complete in: " + str(datetime.now() - start))
 ~~~~
-PAI_TASK_INDEX是节点在集群的的序号。
+The PAI_TASK_INDEX is the sequence number of the node in the cluster.
 
-amp.initialize包装模型和优化器以进行混合精度训练。请注意，在调用之前，该模型必须已经在正确的GPU上amp.initialize。opt_level从O0，它采用all floats，通过O3，它使用half-precision。O1和O2是不同程度的混合精度，有关详细信息，请参见Apex文档（https://nvidia.github.io/apex/amp.html#opt-levels-and-properties） 
-是的，所有这些代码中的第一个字符是大写字母“ O”，而第二个字符是数字。是的，如果您改用零，则会报错。
 
-apex.parallel.DistributedDataParallel替代品nn.DistributedDataParallel。我们不再需要指定GPU，因为Apex每个进程只允许一个GPU。它还假设脚本torch.cuda.set_device(local_rank)在将模型移至GPU之前调用（torch.cuda.set_device(gpu)）。
+amp.initialize wraps the model and optimizer for mixed precision training. Note that that the model must already be on the correct GPU before calling amp.initialize. The opt_level goes from O0, which uses all floats, through O3, which uses half-precision throughout. O1 and O2 are different degrees of mixed-precision, the details of which can be found in the Apex documentation. Yes, the first character in all those codes is a capital letter ‘O’, while the second character is a number. Yes, if you use a zero instead, you will get a baffling error message.。
+
+ apex.parallel.DistributedDataParallel is a drop-in replacement for nn.DistributedDataParallel. We no longer have to specify the GPUs because Apex only allows one GPU per process. It also assumes that the script calls torch.cuda.set_device(local_rank) before moving the model to GPU.
+ 
+ Mixed-precision training requires that the loss is scaled in order to prevent the gradients from underflowing. Apex does this automatically.
+## OpenPai Example Yaml
+

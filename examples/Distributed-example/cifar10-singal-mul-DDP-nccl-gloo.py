@@ -52,8 +52,6 @@ class Net(nn.Module):
         return x
 
 
-
-
 def train(gpu, args):
     print("start train")
     rank = int(os.environ['PAI_TASK_INDEX']) * args.gpus + gpu
