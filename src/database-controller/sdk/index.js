@@ -279,6 +279,7 @@ class DatabaseModel {
     this.Pod = Pod;
     this.FrameworkEvent = FrameworkEvent;
     this.PodEvent = PodEvent;
+    this.Tag = Tag;
     this.Version = Version;
     this.synchronizeSchema = this.synchronizeSchema.bind(this);
   }

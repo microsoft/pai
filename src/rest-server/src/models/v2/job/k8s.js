@@ -992,6 +992,8 @@ const addTag = async (frameworkName, tag) => {
     throw createError('Not Found', 'NoJobError', `Job ${frameworkName} is not found.`);
   }
 
+  logger.info('databaseModel.Tag:', databaseModel.Tag)
+
   // add tag
   try {
     data = await databaseModel.Tag.findorCreate({
