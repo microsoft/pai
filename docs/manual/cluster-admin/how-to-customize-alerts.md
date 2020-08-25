@@ -106,10 +106,10 @@ data:
             subject: '{{ cluster_cfg["cluster"]["common"]["cluster-id"] }}: {{ "{{" }} template "__subject" . {{ "}}" }}'
 {% endif %}
 {% if cluster_cfg["alert-manager"]["webhook-configured"] %}
-      webhook_configs:
-        - url: 'http://localhost:{{ webhook_configs["port"] }}/alert-handler/stop-job'
-          http_config:
-            bearer_token: {{ webhook_configs["pai_bearer_token"] }}
+     # webhook_configs:
+     #   - url: 'http://localhost:{{ webhook_configs["port"] }}/alert-handler/stop-job'
+     #     http_config:
+     #       bearer_token: {{ webhook_configs["pai_bearer_token"] }}
 {% endif %}
 
 ```
@@ -118,12 +118,14 @@ In this template,
 `cluster_cfg["alert-manager"]["email-configured"]` and `cluster_cfg["alert-manager"]["webhook-configured"]`
 will be `True` if necessary information in the `alert-manager` field of `service-configuration.yml` is configured.
 
-In this example, as defined in the `route` filed, `PAIJobGpuPercentLowerThan0_3For1h` alert will be handled by `pai-alert-handler` receiver. Under `pai-alert-handler` receiver, both email and webhook are configured, which means that both email and stop-job action will be triggered when the `PAIJobGpuPercentLowerThan0_3For1h` alert is fired.
+In this example, as defined in the `route` filed, most alerts will be handled by `pai-alert` receiver, which will trigger only the email action.
 
-The other alerts will be handled by `pai-alert` receiver, which will trigger only the email action.
+The alert `PAIJobGpuPercentLowerThan0_3For1h` will be handled by `pai-alert-handler` receiver. 
+Under `pai-alert-handler` receiver, the email action is by default enabled.
+If you uncomment the configs for `webhook_configs` , the stop-job action will also be triggered when the `PAIJobGpuPercentLowerThan0_3For1h` alert is fired.
 
 You can customize `email_config` and `webhook_config` in the `alert-manager` field of `services-configuration.yaml`. 
-You can also add new receivers with related matching rules to assign different actions to alerts.
+You can also add new receivers with related matching rules to assign customized actions to alerts.
 
 Restart the `alert-manager` service after your modification.
 

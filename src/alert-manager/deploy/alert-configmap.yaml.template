@@ -49,8 +49,8 @@ data:
             subject: '{{ cluster_cfg["cluster"]["common"]["cluster-id"] }}: {{ "{{" }} template "__subject" . {{ "}}" }}'
 {% endif %}
 {% if cluster_cfg["alert-manager"]["webhook-configured"] %}
-      webhook_configs:
-        - url: 'http://localhost:{{ webhook_configs["port"] }}/alert-handler/stop-job'
-          http_config:
-            bearer_token: {{ webhook_configs["pai_bearer_token"] }}
+     # webhook_configs:
+     #   - url: 'http://localhost:{{ webhook_configs["port"] }}/alert-handler/stop-job'
+     #     http_config:
+     #       bearer_token: {{ webhook_configs["pai_bearer_token"] }}
 {% endif %}
