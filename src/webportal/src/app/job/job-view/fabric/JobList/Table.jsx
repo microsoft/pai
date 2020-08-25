@@ -39,8 +39,8 @@ const zeroPaddingClass = mergeStyles({
 
 export default function Table() {
   const {
+    filteredJobsInfo,
     stopJob,
-    filteredJobs,
     setSelectedJobs,
     selectedJobs,
     filter,
@@ -275,7 +275,7 @@ export default function Table() {
     actionsColumn,
   ];
 
-  if (!isNil(filteredJobs) && filteredJobs.length === 0) {
+  if (!isNil(filteredJobsInfo) && filteredJobsInfo.totalCount === 0) {
     return (
       <div className={c(t.h100, t.flex, t.itemsCenter, t.justifyCenter)}>
         <div className={c(t.tc)}>
@@ -301,14 +301,13 @@ export default function Table() {
       </div>
     );
   } else {
-    const items = pagination.apply(ordering.apply(filteredJobs || []));
     return (
       <div>
         <ShimmeredDetailsList
-          items={items}
+          items={filteredJobsInfo.data}
           setKey='key'
           columns={columns}
-          enableShimmer={isNil(filteredJobs)}
+          enableShimmer={isNil(filteredJobsInfo)}
           shimmerLines={pagination.itemsPerPage}
           selection={selection}
         />
