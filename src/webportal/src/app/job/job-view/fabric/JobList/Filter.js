@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
 const LOCAL_STORAGE_KEY = 'pai-job-filter';
 
 class Filter {
@@ -25,14 +28,16 @@ class Filter {
       users: Array.from(this.users),
       virtualClusters: Array.from(this.virtualClusters),
       statuses: Array.from(this.statuses),
+      keyword: this.keyword,
     });
+    console.log('save keyword: ' + this.keyword);
     window.localStorage.setItem(LOCAL_STORAGE_KEY, content);
   }
 
   load() {
     try {
       const content = window.localStorage.getItem(LOCAL_STORAGE_KEY);
-      const { users, virtualClusters, statuses } = JSON.parse(content);
+      const { users, virtualClusters, statuses, keyword } = JSON.parse(content);
       if (Array.isArray(users)) {
         this.users = new Set(users);
       }
@@ -42,6 +47,10 @@ class Filter {
       if (Array.isArray(statuses)) {
         this.statuses = new Set(statuses);
       }
+      if (keyword) {
+        this.keyword = keyword;
+      }
+      console.log('load keyword: ' + this.keyword);
     } catch (e) {
       window.localStorage.removeItem(LOCAL_STORAGE_KEY);
     }
