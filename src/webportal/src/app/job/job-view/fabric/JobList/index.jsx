@@ -117,9 +117,7 @@ export default function JobList() {
 
   const { current: applyPagination } = useRef(
     debounce((/** @type {Pagination} */ pagination) => {
-      console.log('old ' + JSON.stringify(filter));
       filter.load();
-      console.log('new ' + JSON.stringify(filter));
       getJobs({
         ...filter.apply(),
         ...ordering.apply(),

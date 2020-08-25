@@ -30,7 +30,6 @@ class Filter {
       statuses: Array.from(this.statuses),
       keyword: this.keyword,
     });
-    console.log('save keyword: ' + this.keyword);
     window.localStorage.setItem(LOCAL_STORAGE_KEY, content);
   }
 
@@ -47,10 +46,7 @@ class Filter {
       if (Array.isArray(statuses)) {
         this.statuses = new Set(statuses);
       }
-      if (keyword) {
-        this.keyword = keyword;
-      }
-      console.log('load keyword: ' + this.keyword);
+      this.keyword = keyword || '';
     } catch (e) {
       window.localStorage.removeItem(LOCAL_STORAGE_KEY);
     }
