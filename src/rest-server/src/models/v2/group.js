@@ -51,11 +51,11 @@ const deleteGroup = async (groupname) => {
   const userModel = require('@pai/models/v2/user');
   const ret = await crudGroup.remove(groupname);
   // delete group from all user info
-  let userList = await userModel.getAllUser();
-  let updateUserList = [];
+  const userList = await userModel.getAllUser();
+  const updateUserList = [];
   for (const userItem of userList) {
-    if (userItem['grouplist'].includes(groupname)) {
-      userItem['grouplist'].splice(userItem['grouplist'].indexOf(groupname), 1);
+    if (userItem.grouplist.includes(groupname)) {
+      userItem.grouplist.splice(userItem.grouplist.indexOf(groupname), 1);
       updateUserList.push(userItem);
     }
   }
@@ -71,9 +71,11 @@ const getListGroup = async (grouplist) => {
 };
 
 const batchUpdateGroups = async (groupItems) => {
-  return await Promise.all(groupItems.map(async (groupItem) => {
-    await updateGroup(groupItem.groupname, groupItem);
-  }));
+  return await Promise.all(
+    groupItems.map(async (groupItem) => {
+      await updateGroup(groupItem.groupname, groupItem);
+    }),
+  );
 };
 
 const getVCsWithGroupInfo = async (groupItems) => {
@@ -83,7 +85,10 @@ const getVCsWithGroupInfo = async (groupItems) => {
       if (groupItem.extension.acls.admin) {
         return Object.keys(await vcModel.list());
       } else if (groupItem.extension.acls.virtualClusters) {
-        virtualClusters = new Set([...virtualClusters, ...groupItem.extension.acls.virtualClusters]);
+        virtualClusters = new Set([
+          ...virtualClusters,
+          ...groupItem.extension.acls.virtualClusters,
+        ]);
       }
     }
   }
@@ -100,7 +105,10 @@ const getGroupsVCs = async (grouplist) => {
   return getVCsWithGroupInfo(groupItems);
 };
 
-const getStorageConfigsWithGroupInfo = async (groupItems, filterDefault=false) => {
+const getStorageConfigsWithGroupInfo = async (
+  groupItems,
+  filterDefault = false,
+) => {
   const storageConfigs = new Set();
   for (const groupItem of groupItems) {
     if (groupItem.extension && groupItem.extension.acls) {
@@ -108,7 +116,10 @@ const getStorageConfigsWithGroupInfo = async (groupItems, filterDefault=false) =
         if (filterDefault) {
           storageConfigs.add(groupItem.extension.acls.storageConfigs[0]);
         } else {
-          groupItem.extension.acls.storageConfigs.forEach(storageConfigs.add, storageConfigs);
+          groupItem.extension.acls.storageConfigs.forEach(
+            storageConfigs.add,
+            storageConfigs,
+          );
         }
       }
     }
@@ -116,14 +127,18 @@ const getStorageConfigsWithGroupInfo = async (groupItems, filterDefault=false) =
   return [...storageConfigs];
 };
 
-const getGroupsStorages = async (grouplist, filterDefault=false) => {
+const getGroupsStorages = async (grouplist, filterDefault = false) => {
   const groupItems = await getListGroup(grouplist);
   return getStorageConfigsWithGroupInfo(groupItems, filterDefault);
 };
 
 const getAdminWithGroupInfo = (groupItems) => {
   for (const groupItem of groupItems) {
-    if (groupItem.extension && groupItem.extension.acls && groupItem.extension.acls.admin) {
+    if (
+      groupItem.extension &&
+      groupItem.extension.acls &&
+      groupItem.extension.acls.admin
+    ) {
       return true;
     }
   }
@@ -144,8 +159,12 @@ const addVCintoAdminGroup = async (vcname) => {
   const allGroups = await getAllGroup();
   const updateGroups = [];
   for (const groupItem of allGroups) {
-    if (groupItem.extension && groupItem.extension.acls
-      && groupItem.extension.acls.admin && !groupItem.extension.acls.virtualClusters.includes(vcname)) {
+    if (
+      groupItem.extension &&
+      groupItem.extension.acls &&
+      groupItem.extension.acls.admin &&
+      !groupItem.extension.acls.virtualClusters.includes(vcname)
+    ) {
       groupItem.extension.acls.virtualClusters.push(vcname);
       updateGroups.push(groupItem);
     }
@@ -157,8 +176,15 @@ const deleteVCfromAllGroup = async (vcname) => {
   const allGroups = await getAllGroup();
   const updateGroups = [];
   for (const groupItem of allGroups) {
-    if (groupItem.extension && groupItem.extension.acls && groupItem.extension.acls.virtualClusters.includes(vcname)) {
-      groupItem.extension.acls.virtualClusters.splice(groupItem.extension.acls.virtualClusters.indexOf(vcname), 1);
+    if (
+      groupItem.extension &&
+      groupItem.extension.acls &&
+      groupItem.extension.acls.virtualClusters.includes(vcname)
+    ) {
+      groupItem.extension.acls.virtualClusters.splice(
+        groupItem.extension.acls.virtualClusters.indexOf(vcname),
+        1,
+      );
       updateGroups.push(groupItem);
     }
   }
@@ -175,7 +201,10 @@ const getUserGrouplistFromExternal = async (username, data = {}) => {
   } else if (adapterType === 'ms-graph') {
     config = groupAdapter.initConfig(data.graphUrl, data.accessToken);
   }
-  const externalGrouplist = await groupAdapter.getUserGroupList(username, config);
+  const externalGrouplist = await groupAdapter.getUserGroupList(
+    username,
+    config,
+  );
   for (const externalGroupname of externalGrouplist) {
     if (externalGroupname in externalName2Groupname) {
       response.push(externalName2Groupname[externalGroupname]);
@@ -210,7 +239,9 @@ const createGroupIfNonExistent = async (groupname, groupValue) => {
 
 const filterExistGroups = async (groupList) => {
   const allGroupItems = await getAllGroup();
-  const allGroupSet = new Set(Array.from(allGroupItems, (groupItem) => groupItem.groupname));
+  const allGroupSet = new Set(
+    Array.from(allGroupItems, (groupItem) => groupItem.groupname),
+  );
   const existGroupList = groupList.filter((groupname) => {
     return allGroupSet.has(groupname);
   });
@@ -221,25 +252,32 @@ const filterExistGroups = async (groupList) => {
 const virtualCluster2GroupList = async (virtualCluster) => {
   const groupList = await getListGroup(virtualCluster);
   const filterGroups = groupList.filter((groupItem) => {
-    return groupItem.extension.acls && groupItem.extension.acls.virtualClusters
-      && groupItem.extension.acls.virtualClusters.length === 1
-      && groupItem.extension.acls.virtualClusters[0] === groupItem.groupname;
+    return (
+      groupItem.extension.acls &&
+      groupItem.extension.acls.virtualClusters &&
+      groupItem.extension.acls.virtualClusters.length === 1 &&
+      groupItem.extension.acls.virtualClusters[0] === groupItem.groupname
+    );
   });
-  const vcGroups = new Set(Array.from(filterGroups, (groupItem) => groupItem.groupname));
+  const vcGroups = new Set(
+    Array.from(filterGroups, (groupItem) => groupItem.groupname),
+  );
   return virtualCluster.filter((vcname) => vcGroups.has(vcname));
 };
-
 
 const updateGroup2ExnternalMapper = async () => {
   try {
     logger.info('Begin to update group info.');
     const groupList = await getAllGroup();
-    let newExternalName2Groupname = {};
+    const newExternalName2Groupname = {};
     let update = false;
     for (const groupItem of groupList) {
       newExternalName2Groupname[groupItem.externalName] = groupItem.groupname;
     }
-    if (Object.keys(newExternalName2Groupname).length !== Object.keys(externalName2Groupname).length) {
+    if (
+      Object.keys(newExternalName2Groupname).length !==
+      Object.keys(externalName2Groupname).length
+    ) {
       update = true;
     }
     for (const [key, val] of Object.entries(newExternalName2Groupname)) {
@@ -266,19 +304,19 @@ const initGrouplistInCfg = async () => {
   try {
     logger.info('Create admin group configured in configuration.');
     const adminGroup = {
-      'groupname': authConfig.groupConfig.adminGroup.groupname,
-      'description': authConfig.groupConfig.adminGroup.description,
-      'externalName': authConfig.groupConfig.adminGroup.externalName,
-      'extension': authConfig.groupConfig.adminGroup.extension,
+      groupname: authConfig.groupConfig.adminGroup.groupname,
+      description: authConfig.groupConfig.adminGroup.description,
+      externalName: authConfig.groupConfig.adminGroup.externalName,
+      extension: authConfig.groupConfig.adminGroup.extension,
     };
     await createGroupIfNonExistent(adminGroup.groupname, adminGroup);
     logger.info('Create admin group successfully.');
-    logger.info('create default vc\'s group.');
+    logger.info("create default vc's group.");
     const defaultVCGroup = {
-      'groupname': authConfig.groupConfig.defaultGroup.groupname,
-      'description': authConfig.groupConfig.defaultGroup.description,
-      'externalName': authConfig.groupConfig.defaultGroup.externalName,
-      'extension': authConfig.groupConfig.defaultGroup.extension,
+      groupname: authConfig.groupConfig.defaultGroup.groupname,
+      description: authConfig.groupConfig.defaultGroup.description,
+      externalName: authConfig.groupConfig.defaultGroup.externalName,
+      extension: authConfig.groupConfig.defaultGroup.extension,
     };
     await createGroupIfNonExistent(defaultVCGroup.groupname, defaultVCGroup);
     logger.info('Create default group successfully.');
@@ -298,7 +336,10 @@ const createDefaultAdminUser = async () => {
   const userModel = require('@pai/models/v2/user');
   try {
     logger.info('Create admin user account configured in configuration.');
-    const groupnameList = Array.from(authConfig.groupConfig.grouplist, (groupItem) => groupItem.groupname);
+    const groupnameList = Array.from(
+      authConfig.groupConfig.grouplist,
+      (groupItem) => groupItem.groupname,
+    );
     groupnameList.push(authConfig.groupConfig.defaultGroup.groupname);
     groupnameList.push(authConfig.groupConfig.adminGroup.groupname);
     const userValue = {
@@ -311,7 +352,9 @@ const createDefaultAdminUser = async () => {
     await userModel.createUserIfNonExistent(userValue.username, userValue);
     logger.info('Create admin user account successfully.');
   } catch (error) {
-    logger.error('Failed to create admin user account configured in configuration.');
+    logger.error(
+      'Failed to create admin user account configured in configuration.',
+    );
     // eslint-disable-next-line no-console
     console.log(error);
   }
@@ -367,12 +410,22 @@ const deleteNonexistVCs = async () => {
     const groupInfoList = await getAllGroup();
     const vcList = await vcModel.list();
     const vcSet = new Set(Object.keys(vcList));
-    for (let groupItem of groupInfoList) {
-      if (groupItem.extension && groupItem.extension.acls && groupItem.extension.acls.virtualClusters) {
-        const checkedVCs = groupItem.extension.acls.virtualClusters.filter((vcname) => vcSet.has(vcname));
-        if (checkedVCs.length !== groupItem.extension.acls.virtualClusters.length) {
-          logger.info(`Update group: ${groupItem.groupname} vc list, ` +
-            `old: ${groupItem.extension.acls.virtualClusters}, new: ${checkedVCs}.`);
+    for (const groupItem of groupInfoList) {
+      if (
+        groupItem.extension &&
+        groupItem.extension.acls &&
+        groupItem.extension.acls.virtualClusters
+      ) {
+        const checkedVCs = groupItem.extension.acls.virtualClusters.filter(
+          (vcname) => vcSet.has(vcname),
+        );
+        if (
+          checkedVCs.length !== groupItem.extension.acls.virtualClusters.length
+        ) {
+          logger.info(
+            `Update group: ${groupItem.groupname} vc list, ` +
+              `old: ${groupItem.extension.acls.virtualClusters}, new: ${checkedVCs}.`,
+          );
           groupItem.extension.acls.virtualClusters = checkedVCs;
           await updateGroup(groupItem.groupname, groupItem);
         }
@@ -399,7 +452,10 @@ const syncGroupsWithVCs = async () => {
         },
       },
     };
-    const created = await createGroupIfNonExistent(groupItem.groupname, groupItem);
+    const created = await createGroupIfNonExistent(
+      groupItem.groupname,
+      groupItem,
+    );
     if (created) {
       logger.info(`Created group for vc ${vcName}`);
     }
@@ -408,22 +464,29 @@ const syncGroupsWithVCs = async () => {
   // 2. delete meaningless group
   const groupItems = await getAllGroup();
   const filterGroups = groupItems.filter((groupItem) => {
-    return groupItem.extension.acls && groupItem.extension.acls.virtualClusters
-      && groupItem.extension.acls.virtualClusters.length === 0
-      && groupItem.extension.acls.admin === false;
+    return (
+      groupItem.extension.acls &&
+      groupItem.extension.acls.virtualClusters &&
+      groupItem.extension.acls.virtualClusters.length === 0 &&
+      groupItem.extension.acls.admin === false
+    );
   });
-  await Promise.all(filterGroups.map(async (groupItem) => {
-    await deleteGroup(groupItem.groupname);
-    logger.info(`Deleted group ${groupItem.groupname}`);
-  }));
+  await Promise.all(
+    filterGroups.map(async (groupItem) => {
+      await deleteGroup(groupItem.groupname);
+      logger.info(`Deleted group ${groupItem.groupname}`);
+    }),
+  );
 };
 
 const deleteInexistGroupFromUserlist = async () => {
   const userModel = require('@pai/models/v2/user');
   const allGroupItems = await getAllGroup();
-  const allGroupSet = new Set(Array.from(allGroupItems, (groupItem) => groupItem.groupname));
-  let userList = await userModel.getAllUser();
-  let updateUserList = [];
+  const allGroupSet = new Set(
+    Array.from(allGroupItems, (groupItem) => groupItem.groupname),
+  );
+  const userList = await userModel.getAllUser();
+  const updateUserList = [];
   for (const userItem of userList) {
     const originGrouplist = userItem.grouplist;
     const newGrouplist = originGrouplist.filter((groupname) => {
@@ -465,7 +528,7 @@ if (config.env !== 'test') {
     process.exit(1);
   });
   if (authConfig.authnMethod === 'OIDC') {
-    setInterval(async function() {
+    setInterval(async function () {
       await updateGroup2ExnternalMapper();
     }, 600 * 1000);
   }

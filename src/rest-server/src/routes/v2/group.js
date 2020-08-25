@@ -24,47 +24,78 @@ const groupInputSchema = require('@pai/config/v2/group');
 
 const router = new express.Router();
 
-router.route('/:groupname/')
-/** Get /api/v2/group/:groupname */
+router
+  .route('/:groupname/')
+  /** Get /api/v2/group/:groupname */
   .get(token.check, groupController.getGroup);
 
-router.route('/')
-/** Get /api/v2/group */
+router
+  .route('/')
+  /** Get /api/v2/group */
   .get(token.check, groupController.getAllGroup);
 
-router.route('/:groupname')
-/** Post /api/v2/group/:groupname */
+router
+  .route('/:groupname')
+  /** Post /api/v2/group/:groupname */
   .delete(token.checkNotApplication, groupController.deleteGroup);
 
-router.route('/')
-/** Create /api/v2/group */
-  .post(token.checkNotApplication, param.validate(groupInputSchema.groupCreateInputSchema), groupController.createGroup);
+router
+  .route('/')
+  /** Create /api/v2/group */
+  .post(
+    token.checkNotApplication,
+    param.validate(groupInputSchema.groupCreateInputSchema),
+    groupController.createGroup,
+  );
 
-router.route('/')
-/** put /api/v2/group/ */
-  .put(token.checkNotApplication, param.validate(groupInputSchema.groupUpdateInputSchema), groupController.updateGroup);
+router
+  .route('/')
+  /** put /api/v2/group/ */
+  .put(
+    token.checkNotApplication,
+    param.validate(groupInputSchema.groupUpdateInputSchema),
+    groupController.updateGroup,
+  );
 
 /** Internal API */
-router.route('/:groupname/extension/*')
-  .put(token.checkNotApplication, param.validate(groupInputSchema.groupExtensionAttrUpdateInputSchema), groupController.updateGroupExtensionAttr);
+router
+  .route('/:groupname/extension/*')
+  .put(
+    token.checkNotApplication,
+    param.validate(groupInputSchema.groupExtensionAttrUpdateInputSchema),
+    groupController.updateGroupExtensionAttr,
+  );
 
-router.route('/:groupname/userlist')
-/** get /api/v2/group/:groupname/userlist */
+router
+  .route('/:groupname/userlist')
+  /** get /api/v2/group/:groupname/userlist */
   .get(token.check, groupController.getGroupUserList);
 
 /** Legacy API and will be deprecated in the future. Please use put /api/v2/group */
-router.route('/:groupname/extension')
-  .put(token.checkNotApplication, param.validate(groupInputSchema.groupExtensionUpdateInputSchema), groupController.updateGroupExtension);
+router
+  .route('/:groupname/extension')
+  .put(
+    token.checkNotApplication,
+    param.validate(groupInputSchema.groupExtensionUpdateInputSchema),
+    groupController.updateGroupExtension,
+  );
 
 /** Legacy API and will be deprecated in the future. Please use put /api/v2/group */
-router.route('/:groupname/description')
-  .put(token.checkNotApplication, param.validate(groupInputSchema.groupDescriptionUpdateInputSchema), groupController.updateGroupDescription);
+router
+  .route('/:groupname/description')
+  .put(
+    token.checkNotApplication,
+    param.validate(groupInputSchema.groupDescriptionUpdateInputSchema),
+    groupController.updateGroupDescription,
+  );
 
 /** Legacy API and will be deprecated in the future. Please use put /api/v2/group */
-router.route('/:groupname/externalname')
-  .put(token.checkNotApplication, param.validate(groupInputSchema.groupExternalNameUpdateInputSchema), groupController.updateGroupExternalName);
-
+router
+  .route('/:groupname/externalname')
+  .put(
+    token.checkNotApplication,
+    param.validate(groupInputSchema.groupExternalNameUpdateInputSchema),
+    groupController.updateGroupExternalName,
+  );
 
 module.exports = router;
-
-

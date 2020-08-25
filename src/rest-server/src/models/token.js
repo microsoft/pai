@@ -17,7 +17,7 @@
 
 const jwt = require('jsonwebtoken');
 const uuid = require('uuid');
-const {secret, tokenExpireTime} = require('@pai/config/token');
+const { secret, tokenExpireTime } = require('@pai/config/token');
 const k8sSecret = require('@pai/models/kubernetes/k8s-secret');
 const k8sModel = require('@pai/models/kubernetes/kubernetes');
 
@@ -29,21 +29,20 @@ if (process.env.NODE_ENV !== 'test') {
 }
 
 const sign = async (username, application, expiration) => {
-  return new Promise((res, rej) => {
+  return new Promise((resolve, reject) => {
     jwt.sign(
       {
         username,
         application,
       },
       secret,
-      expiration != null ? {expiresIn: expiration} : {},
+      expiration != null ? { expiresIn: expiration } : {},
       (signError, token) => {
-        signError ? rej(signError) : res(token);
-      }
+        signError ? reject(signError) : resolve(token);
+      },
     );
   });
 };
-
 
 /**
  * Remove invalid (expired/malformed) tokens from given token list object.
@@ -64,14 +63,14 @@ const purge = (data) => {
 };
 
 const list = async (username) => {
-  const item = await k8sSecret.get(namespace, username, {encode: 'hex'});
+  const item = await k8sSecret.get(namespace, username, { encode: 'hex' });
   if (item === null) {
     return {};
   }
 
   const purged = purge(item);
   if (Object.keys(item).length !== Object.keys(purged).length) {
-    await k8sSecret.replace(namespace, username, purged, {encode: 'hex'});
+    await k8sSecret.replace(namespace, username, purged, { encode: 'hex' });
   }
   return Object.values(purged);
 };
@@ -83,15 +82,20 @@ const create = async (username, application = false, expiration) => {
     expiration = expiration || tokenExpireTime;
   }
   const token = await sign(username, application, expiration);
-  const item = await k8sSecret.get(namespace, username, {encode: 'hex'});
+  const item = await k8sSecret.get(namespace, username, { encode: 'hex' });
   if (item === null) {
-    await k8sSecret.create(namespace, username, {
-      [uuid()]: token,
-    }, {encode: 'hex'});
+    await k8sSecret.create(
+      namespace,
+      username,
+      {
+        [uuid()]: token,
+      },
+      { encode: 'hex' },
+    );
   } else {
     const result = purge(item);
     result[uuid()] = token;
-    await k8sSecret.replace(namespace, username, result, {encode: 'hex'});
+    await k8sSecret.replace(namespace, username, result, { encode: 'hex' });
   }
   return token;
 };
@@ -102,7 +106,7 @@ const revoke = async (token) => {
   if (!username) {
     throw new Error('Token is invalid');
   }
-  const item = await k8sSecret.get(namespace, username, {encode: 'hex'});
+  const item = await k8sSecret.get(namespace, username, { encode: 'hex' });
   if (item === null) {
     throw new Error('Token is invalid');
   }
@@ -112,18 +116,18 @@ const revoke = async (token) => {
       delete result[key];
     }
   }
-  await k8sSecret.replace(namespace, username, result, {encode: 'hex'});
+  await k8sSecret.replace(namespace, username, result, { encode: 'hex' });
 };
 
 const batchRevoke = async (username, filter) => {
-  const item = await k8sSecret.get(namespace, username, {encode: 'hex'});
+  const item = await k8sSecret.get(namespace, username, { encode: 'hex' });
   const result = purge(item || {});
   for (const [key, val] of Object.entries(result)) {
     if (filter(val)) {
       delete result[key];
     }
   }
-  await k8sSecret.replace(namespace, username, result, {encode: 'hex'});
+  await k8sSecret.replace(namespace, username, result, { encode: 'hex' });
 };
 
 const verify = async (token) => {
@@ -132,7 +136,7 @@ const verify = async (token) => {
   if (!username) {
     throw new Error('Token is invalid');
   }
-  const item = await k8sSecret.get(namespace, username, {encode: 'hex'});
+  const item = await k8sSecret.get(namespace, username, { encode: 'hex' });
   if (item === null) {
     throw new Error('Token is invalid');
   }
@@ -143,7 +147,7 @@ const verify = async (token) => {
     }
   }
   if (Object.keys(item).length !== Object.keys(purged).length) {
-    await k8sSecret.replace(namespace, username, purged, {encode: 'hex'});
+    await k8sSecret.replace(namespace, username, purged, { encode: 'hex' });
   }
   throw new Error('Token has been revoked');
 };

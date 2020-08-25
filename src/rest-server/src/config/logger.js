@@ -15,12 +15,10 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-
 // module dependencies
 const util = require('util');
 const winston = require('winston');
 const config = require('@pai/config');
-
 
 const logTransports = {
   console: new winston.transports.Console({
@@ -30,12 +28,14 @@ const logTransports = {
     formatter: (options) => {
       const timestamp = options.timestamp();
       const level = winston.config.colorize(
-          options.level,
-          options.level.toUpperCase()
+        options.level,
+        options.level.toUpperCase(),
       );
       const message = options.message ? options.message : '';
-      const meta = options.meta && Object.keys(options.meta).length ?
-          '\nmeta = ' + JSON.stringify(options.meta, null, 2) : '';
+      const meta =
+        options.meta && Object.keys(options.meta).length
+          ? '\nmeta = ' + JSON.stringify(options.meta, null, 2)
+          : '';
       return util.format(timestamp, '[' + level + ']', message, meta);
     },
   }),
@@ -50,10 +50,7 @@ const logTransports = {
 // create logger
 const logger = new winston.Logger({
   level: config.logLevel,
-  transports: [
-    logTransports.console,
-    logTransports.file,
-  ],
+  transports: [logTransports.console, logTransports.file],
   exitOnError: false,
 });
 

@@ -17,15 +17,14 @@
 
 // module dependencies
 const axios = require('axios');
-const {get, pickBy} = require('lodash');
+const { get, pickBy } = require('lodash');
 const createError = require('@pai/utils/error');
 const logger = require('@pai/config/logger');
 const hivedSchema = require('@pai/config/v2/hived');
-const {resourceUnits} = require('@pai/config/vc');
-const {hivedWebserviceUri} = require('@pai/config/launcher');
+const { resourceUnits } = require('@pai/config/vc');
+const { hivedWebserviceUri } = require('@pai/config/launcher');
 
-
-const convertPriority = (priorityClass='test') => {
+const convertPriority = (priorityClass = 'test') => {
   // TODO: make it a cluster-wise config
   // allowed range: [-1, 126], default priority 0
   const priorityMap = {
@@ -40,19 +39,26 @@ const convertPriority = (priorityClass='test') => {
 const getCellStatus = async (virtualCluster) => {
   let vcStatus;
   try {
-    vcStatus = (await axios.get(`${hivedWebserviceUri}/v1/inspect/clusterstatus/virtualclusters/${virtualCluster}`)).data;
+    vcStatus = (
+      await axios.get(
+        `${hivedWebserviceUri}/v1/inspect/clusterstatus/virtualclusters/${virtualCluster}`,
+      )
+    ).data;
   } catch (error) {
-    logger.warn('Failed to inspect vc from hived scheduler: ', error.response ? error.response.data : error);
+    logger.warn(
+      'Failed to inspect vc from hived scheduler: ',
+      error.response ? error.response.data : error,
+    );
     return {
       cellQuota: Number.MAX_SAFE_INTEGER,
-      cellUnits: {...resourceUnits},
+      cellUnits: { ...resourceUnits },
     };
   }
 
   let cellQuota = 0;
   const cellUnits = [...new Set(vcStatus.map((cell) => cell.leafCellType))]
     .filter((key) => key in resourceUnits)
-    .reduce((dict, key) => ({...dict, [key]: resourceUnits[key]}), {});
+    .reduce((dict, key) => ({ ...dict, [key]: resourceUnits[key] }), {});
   const cellQueue = [...vcStatus];
   while (cellQueue.length > 0) {
     const curr = cellQueue.shift();
@@ -65,35 +71,48 @@ const getCellStatus = async (virtualCluster) => {
       cellQuota += 1;
     }
   }
-  return {cellQuota, cellUnits};
+  return { cellQuota, cellUnits };
 };
 
 const hivedValidate = async (protocolObj, username) => {
   if (!hivedSchema.validate(protocolObj)) {
-    throw createError('Bad Request', 'InvalidProtocolError', hivedSchema.validate.errors);
+    throw createError(
+      'Bad Request',
+      'InvalidProtocolError',
+      hivedSchema.validate.errors,
+    );
   }
 
   const hivedConfig = get(protocolObj, 'extras.hivedScheduler', null);
   const opportunistic = !!(get(hivedConfig, 'jobPriorityClass') === 'oppo');
-  const gangAllocation = !!(get(protocolObj, 'extras.gangAllocation', true) === true);
+  const gangAllocation = !!(
+    get(protocolObj, 'extras.gangAllocation', true) === true
+  );
   const virtualCluster = get(protocolObj, 'defaults.virtualCluster', 'default');
 
   const affinityGroups = {};
-  const {cellQuota, cellUnits} = await getCellStatus(virtualCluster);
+  const { cellQuota, cellUnits } = await getCellStatus(virtualCluster);
 
   // generate podSpec for every taskRole
-  for (let taskRole of Object.keys(protocolObj.taskRoles)) {
-    const podSpec = pickBy({
-      virtualCluster,
-      priority: convertPriority(get(hivedConfig, 'jobPriorityClass')),
-      pinnedCellId: get(hivedConfig, `taskRoles.${taskRole}.pinnedCellId`, null),
-      leafCellType: get(hivedConfig, `taskRoles.${taskRole}.skuType`, null),
-      leafCellNumber: get(hivedConfig, `taskRoles.${taskRole}.skuNumber`, 0),
-      gangReleaseEnable: get(hivedConfig, 'gangReleaseEnable'),
-      lazyPreemptionEnable: get(hivedConfig, 'lazyPreemptionEnable'),
-      ignoreK8sSuggestedNodes: get(hivedConfig, 'ignoreK8sSuggestedNodes'),
-      affinityGroup: null,
-    }, (v) => v !== undefined);
+  for (const taskRole of Object.keys(protocolObj.taskRoles)) {
+    const podSpec = pickBy(
+      {
+        virtualCluster,
+        priority: convertPriority(get(hivedConfig, 'jobPriorityClass')),
+        pinnedCellId: get(
+          hivedConfig,
+          `taskRoles.${taskRole}.pinnedCellId`,
+          null,
+        ),
+        leafCellType: get(hivedConfig, `taskRoles.${taskRole}.skuType`, null),
+        leafCellNumber: get(hivedConfig, `taskRoles.${taskRole}.skuNumber`, 0),
+        gangReleaseEnable: get(hivedConfig, 'gangReleaseEnable'),
+        lazyPreemptionEnable: get(hivedConfig, 'lazyPreemptionEnable'),
+        ignoreK8sSuggestedNodes: get(hivedConfig, 'ignoreK8sSuggestedNodes'),
+        affinityGroup: null,
+      },
+      (v) => v !== undefined,
+    );
 
     // calculate sku number
     const resourcePerCell = {};
@@ -102,10 +121,16 @@ const hivedValidate = async (protocolObj, username) => {
         resourcePerCell[t] = resourceUnits[podSpec.leafCellType][t];
       } else {
         resourcePerCell[t] = Math.min(
-          ...Array.from(Object.values(opportunistic ? resourceUnits : cellUnits), (v) => v[t]));
+          ...Array.from(
+            Object.values(opportunistic ? resourceUnits : cellUnits),
+            (v) => v[t],
+          ),
+        );
       }
     }
-    const {gpu = 0, cpu, memoryMB} = protocolObj.taskRoles[taskRole].resourcePerInstance;
+    const { gpu = 0, cpu, memoryMB } = protocolObj.taskRoles[
+      taskRole
+    ].resourcePerInstance;
     let requestedResource = '';
     let emptyResource = '';
     if (resourcePerCell.gpu === 0 && gpu > 0) {
@@ -123,7 +148,7 @@ const hivedValidate = async (protocolObj, username) => {
         'Bad Request',
         'InvalidProtocolError',
         `Taskrole ${taskRole} requests ${requestedResource} ${emptyResource}, but SKU does not ` +
-        `configure ${emptyResource}. Please contact admin if the taskrole needs ${emptyResource} resources.`
+          `configure ${emptyResource}. Please contact admin if the taskrole needs ${emptyResource} resources.`,
       );
     }
     podSpec.leafCellNumber = Math.max(
@@ -136,24 +161,25 @@ const hivedValidate = async (protocolObj, username) => {
   }
 
   if (hivedConfig != null) {
-    for (let taskRole of Object.keys(hivedConfig.taskRoles || {})) {
+    for (const taskRole of Object.keys(hivedConfig.taskRoles || {})) {
       // must be a valid taskRole
       if (!(taskRole in protocolObj.taskRoles)) {
         throw createError(
           'Bad Request',
           'InvalidProtocolError',
-          `Taskrole ${taskRole} does not exist.`
+          `Taskrole ${taskRole} does not exist.`,
         );
       }
 
       const skuType = protocolObj.taskRoles[taskRole].hivedPodSpec.leafCellType;
-      const pinnedCellId = protocolObj.taskRoles[taskRole].hivedPodSpec.pinnedCellId;
+      const pinnedCellId =
+        protocolObj.taskRoles[taskRole].hivedPodSpec.pinnedCellId;
       // only allow one of {skuType, pinnedCellId}
       if (skuType != null && pinnedCellId != null) {
         throw createError(
           'Bad Request',
           'InvalidProtocolError',
-          `Taskrole ${taskRole} has both skuType and pinnedCellId, only one is allowed.`
+          `Taskrole ${taskRole} has both skuType and pinnedCellId, only one is allowed.`,
         );
       }
       // check whether skuType is valid
@@ -162,28 +188,35 @@ const hivedValidate = async (protocolObj, username) => {
           throw createError(
             'Bad Request',
             'InvalidProtocolError',
-            `Taskrole ${taskRole} has unknown skuType ${skuType}, allow ${Object.keys(resourceUnits)}.`
+            `Taskrole ${taskRole} has unknown skuType ${skuType}, allow ${Object.keys(
+              resourceUnits,
+            )}.`,
           );
         }
         if (!opportunistic && !(skuType in cellUnits)) {
           throw createError(
             'Bad Request',
             'InvalidProtocolError',
-            `Taskrole ${taskRole} has skuType ${skuType}, VC ${virtualCluster} only allows ${Object.keys(cellUnits)}.`
+            `Taskrole ${taskRole} has skuType ${skuType}, VC ${virtualCluster} only allows ${Object.keys(
+              cellUnits,
+            )}.`,
           );
         }
       }
 
-      const affinityGroupName = hivedConfig.taskRoles[taskRole].affinityGroupName;
+      const affinityGroupName =
+        hivedConfig.taskRoles[taskRole].affinityGroupName;
       // affinityGroup should have united skuType or pinnedCellId
       if (affinityGroupName != null) {
         if (affinityGroupName in affinityGroups) {
-          if (skuType !== affinityGroups[affinityGroupName].skuType ||
-              pinnedCellId !== affinityGroups[affinityGroupName].pinnedCellId) {
+          if (
+            skuType !== affinityGroups[affinityGroupName].skuType ||
+            pinnedCellId !== affinityGroups[affinityGroupName].pinnedCellId
+          ) {
             throw createError(
               'Bad Request',
               'InvalidProtocolError',
-              `AffinityGroup ${affinityGroupName} has inconsistent skuType or pinnedCellId.`
+              `AffinityGroup ${affinityGroupName} has inconsistent skuType or pinnedCellId.`,
             );
           }
         } else {
@@ -195,7 +228,8 @@ const hivedValidate = async (protocolObj, username) => {
         }
         affinityGroups[affinityGroupName].affinityTaskList.push({
           podNumber: protocolObj.taskRoles[taskRole].instances,
-          leafCellNumber: protocolObj.taskRoles[taskRole].hivedPodSpec.leafCellNumber,
+          leafCellNumber:
+            protocolObj.taskRoles[taskRole].hivedPodSpec.leafCellNumber,
         });
       }
     }
@@ -208,15 +242,19 @@ const hivedValidate = async (protocolObj, username) => {
       affinityTaskList: Object.keys(protocolObj.taskRoles).map((taskRole) => {
         return {
           podNumber: protocolObj.taskRoles[taskRole].instances,
-          leafCellNumber: protocolObj.taskRoles[taskRole].hivedPodSpec.leafCellNumber,
+          leafCellNumber:
+            protocolObj.taskRoles[taskRole].hivedPodSpec.leafCellNumber,
         };
       }),
     };
   }
 
   let requestCellNumber = 0;
-  for (let taskRole of Object.keys(protocolObj.taskRoles)) {
-    const affinityGroupName = get(hivedConfig, `taskRoles.${taskRole}.affinityGroupName`);
+  for (const taskRole of Object.keys(protocolObj.taskRoles)) {
+    const affinityGroupName = get(
+      hivedConfig,
+      `taskRoles.${taskRole}.affinityGroupName`,
+    );
     if (affinityGroupName != null) {
       protocolObj.taskRoles[taskRole].hivedPodSpec.affinityGroup = {
         name: `${username}~${protocolObj.name}/${affinityGroupName}`,
@@ -229,7 +267,8 @@ const hivedValidate = async (protocolObj, username) => {
         members: defaultAffinityGroup.affinityTaskList,
       };
     }
-    requestCellNumber += protocolObj.taskRoles[taskRole].instances *
+    requestCellNumber +=
+      protocolObj.taskRoles[taskRole].instances *
       protocolObj.taskRoles[taskRole].hivedPodSpec.leafCellNumber;
   }
   // best effort check cell quota
@@ -237,7 +276,7 @@ const hivedValidate = async (protocolObj, username) => {
     throw createError(
       'Bad Request',
       'InvalidProtocolError',
-      `Job requests ${requestCellNumber} SKUs, exceeds maximum ${cellQuota} SKUs in VC ${virtualCluster}.`
+      `Job requests ${requestCellNumber} SKUs, exceeds maximum ${cellQuota} SKUs in VC ${virtualCluster}.`,
     );
   }
 

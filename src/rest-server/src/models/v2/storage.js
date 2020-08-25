@@ -22,11 +22,10 @@ const user = require('@pai/models/v2/user');
 const secret = require('@pai/models/kubernetes/k8s-secret');
 const kubernetes = require('@pai/models/kubernetes/kubernetes');
 
-
 const convertVolumeSummary = (pvc) => {
   return {
     name: pvc.metadata.name,
-    share: (pvc.metadata.labels && pvc.metadata.labels.share === 'false') ? false : true,
+    share: pvc.metadata.labels && pvc.metadata.labels.share !== 'false',
     volumeName: pvc.spec.volumeName,
   };
 };
@@ -39,9 +38,9 @@ const convertVolumeDetail = async (pvc) => {
 
   let response;
   try {
-    response = await kubernetes.getClient().get(
-      `/api/v1/persistentvolumes/${storage.volumeName}`,
-    );
+    response = await kubernetes
+      .getClient()
+      .get(`/api/v1/persistentvolumes/${storage.volumeName}`);
   } catch (error) {
     if (error.response != null) {
       response = error.response;
@@ -60,14 +59,14 @@ const convertVolumeDetail = async (pvc) => {
       server: pv.spec.nfs.server,
       path: pv.spec.nfs.path,
     };
-    storage.readOnly = (pv.spec.nfs.readOnly === true);
+    storage.readOnly = pv.spec.nfs.readOnly === true;
     storage.mountOptions = pv.spec.mountOptions;
   } else if (pv.spec.azureFile) {
     storage.type = 'azureFile';
     storage.data = {
       shareName: pv.spec.azureFile.shareName,
     };
-    storage.readOnly = (pv.spec.azureFile.readOnly === true);
+    storage.readOnly = pv.spec.azureFile.readOnly === true;
     storage.secretName = pv.spec.azureFile.secretName;
   } else if (pv.spec.flexVolume) {
     if (pv.spec.flexVolume.driver === 'azure/blobfuse') {
@@ -84,7 +83,7 @@ const convertVolumeDetail = async (pvc) => {
       storage.type = 'other';
       storage.data = {};
     }
-    storage.readOnly = (pv.spec.flexVolume.readOnly === true);
+    storage.readOnly = pv.spec.flexVolume.readOnly === true;
     if (pv.spec.flexVolume.secretRef) {
       storage.secretName = pv.spec.flexVolume.secretRef.name;
     }
@@ -118,12 +117,12 @@ const convertVolumeDetail = async (pvc) => {
   return storage;
 };
 
-const list = async (userName, filterDefault=false) => {
+const list = async (userName, filterDefault = false) => {
   let response;
   try {
-    response = await kubernetes.getClient().get(
-      '/api/v1/namespaces/default/persistentvolumeclaims',
-    );
+    response = await kubernetes
+      .getClient()
+      .get('/api/v1/namespaces/default/persistentvolumeclaims');
   } catch (error) {
     if (error.response != null) {
       response = error.response;
@@ -135,26 +134,35 @@ const list = async (userName, filterDefault=false) => {
     throw createError(response.status, 'UnknownError', response.data.message);
   }
 
-  const userStorages = userName ? await user.getUserStorages(userName, filterDefault) : undefined;
+  const userStorages = userName
+    ? await user.getUserStorages(userName, filterDefault)
+    : undefined;
   const storages = response.data.items
     .filter((item) => item.status.phase === 'Bound')
-    .filter((item) => userStorages === undefined || userStorages.includes(item.metadata.name))
+    .filter(
+      (item) =>
+        userStorages === undefined || userStorages.includes(item.metadata.name),
+    )
     .map(convertVolumeSummary);
   if (filterDefault) {
-    storages.forEach((item) => item.default = true);
+    storages.forEach((item) => (item.default = true));
   } else {
-    const defaultStorages = userName ? await user.getUserStorages(userName, true) : [];
-    storages.forEach((item) => item.default = (defaultStorages.includes(item.name)));
+    const defaultStorages = userName
+      ? await user.getUserStorages(userName, true)
+      : [];
+    storages.forEach(
+      (item) => (item.default = defaultStorages.includes(item.name)),
+    );
   }
-  return {storages};
+  return { storages };
 };
 
 const get = async (storageName, userName) => {
   let response;
   try {
-    response = await kubernetes.getClient().get(
-      `/api/v1/namespaces/default/persistentvolumeclaims/${storageName}`,
-    );
+    response = await kubernetes
+      .getClient()
+      .get(`/api/v1/namespaces/default/persistentvolumeclaims/${storageName}`);
   } catch (error) {
     if (error.response != null) {
       response = error.response;
@@ -165,14 +173,25 @@ const get = async (storageName, userName) => {
 
   if (response.status === status('OK')) {
     const pvc = response.data;
-    if (!userName || (await user.checkUserStorage(userName, pvc.metadata.name))) {
+    if (
+      !userName ||
+      (await user.checkUserStorage(userName, pvc.metadata.name))
+    ) {
       return convertVolumeDetail(pvc);
     } else {
-      throw createError('Forbidden', 'ForbiddenUserError', `User ${userName} is not allowed to access ${storageName}.`);
+      throw createError(
+        'Forbidden',
+        'ForbiddenUserError',
+        `User ${userName} is not allowed to access ${storageName}.`,
+      );
     }
   }
   if (response.status === status('Not Found')) {
-    throw createError('Not Found', 'NoStorageError', `Storage ${storageName} is not found.`);
+    throw createError(
+      'Not Found',
+      'NoStorageError',
+      `Storage ${storageName} is not found.`,
+    );
   } else {
     throw createError(response.status, 'UnknownError', response.data.message);
   }

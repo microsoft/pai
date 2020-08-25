@@ -15,7 +15,6 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-
 // module dependencies
 const axios = require('axios');
 const zlib = require('zlib');
@@ -147,7 +146,9 @@ const convertFrameworkSummary = (framework) => {
     createdTime: new Date(framework.creationTime).getTime() || null,
     completedTime: new Date(framework.completionTime).getTime() || null,
     appExitCode: framework.appExitCode,
-    virtualCluster: framework.virtualCluster ? framework.virtualCluster : 'unknown',
+    virtualCluster: framework.virtualCluster
+      ? framework.virtualCluster
+      : 'unknown',
     totalGpuNumber: framework.totalGpuNumber,
     totalTaskNumber: framework.totalTaskNumber,
     totalTaskRoleNumber: framework.totalTaskRoleNumber,
@@ -163,23 +164,33 @@ const convertTaskDetail = async (taskStatus, ports, logPathPrefix) => {
   const containerPorts = {};
   const hashFunc = (str) => {
     const hexStr = crypto.createHash('md5').update(str).digest('hex');
-    return parseInt(hexStr.substring(0, 12), 16) +
-      parseInt(hexStr.substring(12, 24), 16) + parseInt(hexStr.substring(24), 16);
+    return (
+      parseInt(hexStr.substring(0, 12), 16) +
+      parseInt(hexStr.substring(12, 24), 16) +
+      parseInt(hexStr.substring(24), 16)
+    );
   };
   if (ports && taskStatus.attemptStatus.podUID) {
     const randomPorts = JSON.parse(ports);
     if (randomPorts.ports) {
-      for (let port of Object.keys(randomPorts.ports)) {
-        const portNums = [...Array(randomPorts.ports[port].count).keys()].map((index) => {
-          const rawString = `[${taskStatus.attemptStatus.podUID}][${port}][${index}]`;
-          return hashFunc(rawString) % (randomPorts.schedulePortEnd - randomPorts.schedulePortStart) + randomPorts.schedulePortStart;
-        });
+      for (const port of Object.keys(randomPorts.ports)) {
+        const portNums = [...Array(randomPorts.ports[port].count).keys()].map(
+          (index) => {
+            const rawString = `[${taskStatus.attemptStatus.podUID}][${port}][${index}]`;
+            return (
+              (hashFunc(rawString) %
+                (randomPorts.schedulePortEnd - randomPorts.schedulePortStart)) +
+              randomPorts.schedulePortStart
+            );
+          },
+        );
         containerPorts[port] = portNums.join();
       }
     } else {
       // for backward compatibility
-      for (let port of Object.keys(randomPorts)) {
-        containerPorts[port] = randomPorts[port].start + taskStatus.index * randomPorts[port].count;
+      for (const port of Object.keys(randomPorts)) {
+        containerPorts[port] =
+          randomPorts[port].start + taskStatus.index * randomPorts[port].count;
       }
     }
   }
@@ -205,21 +216,29 @@ const convertTaskDetail = async (taskStatus, ports, logPathPrefix) => {
     containerGpus,
     containerLog: `http://${taskStatus.attemptStatus.podHostIP}:${process.env.LOG_MANAGER_PORT}/log-manager/tail/${logPathPrefix}/${taskStatus.attemptStatus.podUID}/`,
     containerExitCode: completionStatus ? completionStatus.code : null,
-    containerExitSpec: completionStatus ? generateExitSpec(completionStatus.code) : generateExitSpec(null),
-    containerExitDiagnostics: exitDiagnostics ? exitDiagnostics.diagnosticsSummary : null,
+    containerExitSpec: completionStatus
+      ? generateExitSpec(completionStatus.code)
+      : generateExitSpec(null),
+    containerExitDiagnostics: exitDiagnostics
+      ? exitDiagnostics.diagnosticsSummary
+      : null,
     retries: taskStatus.retryPolicyStatus.totalRetriedCount,
     accountableRetries: taskStatus.retryPolicyStatus.accountableRetriedCount,
     createdTime: new Date(taskStatus.startTime).getTime() || null,
     completedTime: new Date(taskStatus.completionTime).getTime() || null,
-    currentAttemptLaunchedTime: new Date(taskStatus.attemptStatus.runTime || taskStatus.attemptStatus.startTime).getTime() || null,
-    currentAttemptCompletedTime: new Date(taskStatus.attemptStatus.completionTime).getTime() || null,
-    ...launcherConfig.enabledHived && {
+    currentAttemptLaunchedTime:
+      new Date(
+        taskStatus.attemptStatus.runTime || taskStatus.attemptStatus.startTime,
+      ).getTime() || null,
+    currentAttemptCompletedTime:
+      new Date(taskStatus.attemptStatus.completionTime).getTime() || null,
+    ...(launcherConfig.enabledHived && {
       hived: {
         affinityGroupName,
         lazyPreempted: null,
         lazyPreemptionStatus: null,
       },
-    },
+    }),
   };
 };
 
@@ -227,13 +246,24 @@ const convertFrameworkDetail = async (framework) => {
   const attemptStatus = framework.status.attemptStatus;
   // check fields which may be compressed
   if (attemptStatus.taskRoleStatuses == null) {
-    attemptStatus.taskRoleStatuses = decompressField(attemptStatus.taskRoleStatusesCompressed);
+    attemptStatus.taskRoleStatuses = decompressField(
+      attemptStatus.taskRoleStatusesCompressed,
+    );
   }
 
-  const jobName = decodeName(framework.metadata.name, framework.metadata.annotations);
-  const userName = framework.metadata.labels ? framework.metadata.labels.userName : 'unknown';
-  const virtualCluster = framework.metadata.labels ? framework.metadata.labels.virtualCluster : 'unknown';
-  const logPathInfix = framework.metadata.annotations ? framework.metadata.annotations.logPathInfix : null;
+  const jobName = decodeName(
+    framework.metadata.name,
+    framework.metadata.annotations,
+  );
+  const userName = framework.metadata.labels
+    ? framework.metadata.labels.userName
+    : 'unknown';
+  const virtualCluster = framework.metadata.labels
+    ? framework.metadata.labels.virtualCluster
+    : 'unknown';
+  const logPathInfix = framework.metadata.annotations
+    ? framework.metadata.annotations.logPathInfix
+    : null;
 
   const completionStatus = attemptStatus.completionStatus;
   const diagnostics = completionStatus ? completionStatus.diagnostics : null;
@@ -253,46 +283,75 @@ const convertFrameworkDetail = async (framework) => {
       retries: framework.status.retryPolicyStatus.totalRetriedCount,
       retryDetails: {
         user: framework.status.retryPolicyStatus.accountableRetriedCount,
-        platform: framework.status.retryPolicyStatus.totalRetriedCount - framework.status.retryPolicyStatus.accountableRetriedCount,
+        platform:
+          framework.status.retryPolicyStatus.totalRetriedCount -
+          framework.status.retryPolicyStatus.accountableRetriedCount,
         resource: 0,
       },
       retryDelayTime: framework.status.retryPolicyStatus.retryDelaySec,
       createdTime: new Date(framework.metadata.creationTimestamp).getTime(),
-      completedTime: new Date(framework.status.completionTime).getTime() || null,
+      completedTime:
+        new Date(framework.status.completionTime).getTime() || null,
       appId: attemptStatus.instanceUID,
       appProgress: completionStatus ? 1 : 0,
       appTrackingUrl: '',
-      appLaunchedTime: new Date(attemptStatus.runTime || attemptStatus.completionTime).getTime() || null,
-      appCompletedTime: new Date(attemptStatus.completionTime).getTime() || null,
+      appLaunchedTime:
+        new Date(
+          attemptStatus.runTime || attemptStatus.completionTime,
+        ).getTime() || null,
+      appCompletedTime:
+        new Date(attemptStatus.completionTime).getTime() || null,
       appExitCode: completionStatus ? completionStatus.code : null,
-      appExitSpec: completionStatus ? generateExitSpec(completionStatus.code) : generateExitSpec(null),
-      appExitDiagnostics: exitDiagnostics ? exitDiagnostics.diagnosticsSummary : null,
-      appExitMessages: exitDiagnostics ? {
-        container: null,
-        runtime: exitDiagnostics.runtime,
-        launcher: exitDiagnostics.launcher,
-      } : null,
-      appExitTriggerMessage: completionStatus && completionStatus.trigger ? completionStatus.trigger.message : null,
-      appExitTriggerTaskRoleName: completionStatus && completionStatus.trigger ? completionStatus.trigger.taskRoleName : null,
-      appExitTriggerTaskIndex: completionStatus && completionStatus.trigger ? completionStatus.trigger.taskIndex : null,
+      appExitSpec: completionStatus
+        ? generateExitSpec(completionStatus.code)
+        : generateExitSpec(null),
+      appExitDiagnostics: exitDiagnostics
+        ? exitDiagnostics.diagnosticsSummary
+        : null,
+      appExitMessages: exitDiagnostics
+        ? {
+            container: null,
+            runtime: exitDiagnostics.runtime,
+            launcher: exitDiagnostics.launcher,
+          }
+        : null,
+      appExitTriggerMessage:
+        completionStatus && completionStatus.trigger
+          ? completionStatus.trigger.message
+          : null,
+      appExitTriggerTaskRoleName:
+        completionStatus && completionStatus.trigger
+          ? completionStatus.trigger.taskRoleName
+          : null,
+      appExitTriggerTaskIndex:
+        completionStatus && completionStatus.trigger
+          ? completionStatus.trigger.taskIndex
+          : null,
       appExitType: completionStatus ? completionStatus.type.name : null,
       virtualCluster,
     },
     taskRoles: {},
   };
   const ports = {};
-  for (let taskRoleSpec of framework.spec.taskRoles) {
-    ports[taskRoleSpec.name] = taskRoleSpec.task.pod.metadata.annotations['rest-server/port-scheduling-spec'];
+  for (const taskRoleSpec of framework.spec.taskRoles) {
+    ports[taskRoleSpec.name] =
+      taskRoleSpec.task.pod.metadata.annotations[
+        'rest-server/port-scheduling-spec'
+      ];
   }
 
-  for (let taskRoleStatus of framework.status.attemptStatus.taskRoleStatuses) {
-    const taskStatuses = await Promise.all(taskRoleStatus.taskStatuses.map(
-      async (status) => await convertTaskDetail(
-        status,
-        ports[taskRoleStatus.name],
-        `${userName}/${logPathInfix || jobName}/${taskRoleStatus.name}`,
-      )
-    ));
+  for (const taskRoleStatus of framework.status.attemptStatus
+    .taskRoleStatuses) {
+    const taskStatuses = await Promise.all(
+      taskRoleStatus.taskStatuses.map(
+        async (status) =>
+          await convertTaskDetail(
+            status,
+            ports[taskRoleStatus.name],
+            `${userName}/${logPathInfix || jobName}/${taskRoleStatus.name}`,
+          ),
+      ),
+    );
     detail.taskRoles[taskRoleStatus.name] = {
       taskRoleStatus: {
         name: taskRoleStatus.name,
@@ -304,7 +363,9 @@ const convertFrameworkDetail = async (framework) => {
   if (launcherConfig.enabledHived) {
     const affinityGroups = {};
     try {
-      const res = await axios.get(`${launcherConfig.hivedWebserviceUri}/v1/inspect/affinitygroups/`);
+      const res = await axios.get(
+        `${launcherConfig.hivedWebserviceUri}/v1/inspect/affinitygroups/`,
+      );
       if (res.data.items) {
         res.data.items.forEach((affinityGroup) => {
           affinityGroups[affinityGroup.metadata.name] = affinityGroup;
@@ -313,13 +374,18 @@ const convertFrameworkDetail = async (framework) => {
     } catch (err) {
       logger.warn('Fail to inspect affinity groups', err);
     }
-    for (let taskRoleName of Object.keys(detail.taskRoles)) {
+    for (const taskRoleName of Object.keys(detail.taskRoles)) {
       detail.taskRoles[taskRoleName].taskStatuses.forEach((status, idx) => {
         const name = status.hived.affinityGroupName;
         if (name in affinityGroups) {
-          detail.taskRoles[taskRoleName].taskStatuses[idx].hived.lazyPreempted =
-            Boolean(affinityGroups[name].status.lazyPreemptionStatus);
-          detail.taskRoles[taskRoleName].taskStatuses[idx].hived.lazyPreemptionStatus =
+          detail.taskRoles[taskRoleName].taskStatuses[
+            idx
+          ].hived.lazyPreempted = Boolean(
+            affinityGroups[name].status.lazyPreemptionStatus,
+          );
+          detail.taskRoles[taskRoleName].taskStatuses[
+            idx
+          ].hived.lazyPreemptionStatus =
             affinityGroups[name].status.lazyPreemptionStatus;
         }
       });
@@ -329,16 +395,26 @@ const convertFrameworkDetail = async (framework) => {
   return detail;
 };
 
-const generateTaskRole = (frameworkName, taskRole, jobInfo, frameworkEnvList, config) => {
+const generateTaskRole = (
+  frameworkName,
+  taskRole,
+  jobInfo,
+  frameworkEnvList,
+  config,
+) => {
   const ports = config.taskRoles[taskRole].resourcePerInstance.ports || {};
-  for (let port of ['ssh', 'http']) {
+  for (const port of ['ssh', 'http']) {
     if (!(port in ports)) {
       ports[port] = 1;
     }
   }
 
-  const randomPorts = { schedulePortStart: schedulePort.start, schedulePortEnd: schedulePort.end, ports: {} };
-  for (let port of Object.keys(ports)) {
+  const randomPorts = {
+    schedulePortStart: schedulePort.start,
+    schedulePortEnd: schedulePort.end,
+    ports: {},
+  };
+  for (const port of Object.keys(ports)) {
     randomPorts.ports[port] = {
       count: ports[port],
     };
@@ -349,8 +425,10 @@ const generateTaskRole = (frameworkName, taskRole, jobInfo, frameworkEnvList, co
     shmMB = config.taskRoles[taskRole].extraContainerOptions.shmMB || 512;
   }
   // check InfiniBand device
-  const infinibandDevice = Boolean('extraContainerOptions' in config.taskRoles[taskRole] &&
-    config.taskRoles[taskRole].extraContainerOptions.infiniband);
+  const infinibandDevice = Boolean(
+    'extraContainerOptions' in config.taskRoles[taskRole] &&
+      config.taskRoles[taskRole].extraContainerOptions.infiniband,
+  );
   // enable gang scheduling or not
   let gangAllocation = 'true';
   const retryPolicy = {
@@ -383,7 +461,8 @@ const generateTaskRole = (frameworkName, taskRole, jobInfo, frameworkEnvList, co
     taskNumber: config.taskRoles[taskRole].instances || 1,
     task: {
       retryPolicy,
-      podGracefulDeletionTimeoutSec: launcherConfig.podGracefulDeletionTimeoutSec,
+      podGracefulDeletionTimeoutSec:
+        launcherConfig.podGracefulDeletionTimeoutSec,
       pod: {
         metadata: {
           labels: {
@@ -428,7 +507,9 @@ const generateTaskRole = (frameworkName, taskRole, jobInfo, frameworkEnvList, co
                 },
                 {
                   name: 'host-log',
-                  subPath: `${jobInfo.userName}/${jobInfo.logPathInfix}/${convertName(taskRole)}`,
+                  subPath: `${jobInfo.userName}/${
+                    jobInfo.logPathInfix
+                  }/${convertName(taskRole)}`,
                   mountPath: '/usr/local/pai/logs',
                 },
                 {
@@ -442,15 +523,19 @@ const generateTaskRole = (frameworkName, taskRole, jobInfo, frameworkEnvList, co
             {
               name: 'app',
               imagePullPolicy: 'Always',
-              image: config.prerequisites.dockerimage[config.taskRoles[taskRole].dockerImage].uri,
+              image:
+                config.prerequisites.dockerimage[
+                  config.taskRoles[taskRole].dockerImage
+                ].uri,
               command: ['/usr/local/pai/runtime'],
               resources: {
                 limits: {
-                  'cpu': config.taskRoles[taskRole].resourcePerInstance.cpu,
-                  'memory': `${config.taskRoles[taskRole].resourcePerInstance.memoryMB}Mi`,
+                  cpu: config.taskRoles[taskRole].resourcePerInstance.cpu,
+                  memory: `${config.taskRoles[taskRole].resourcePerInstance.memoryMB}Mi`,
                   'github.com/fuse': 1,
-                  'nvidia.com/gpu': config.taskRoles[taskRole].resourcePerInstance.gpu,
-                  ...infinibandDevice && { 'rdma/hca': 1 },
+                  'nvidia.com/gpu':
+                    config.taskRoles[taskRole].resourcePerInstance.gpu,
+                  ...(infinibandDevice && { 'rdma/hca': 1 }),
                 },
               },
               env: [
@@ -484,7 +569,9 @@ const generateTaskRole = (frameworkName, taskRole, jobInfo, frameworkEnvList, co
                 },
                 {
                   name: 'host-log',
-                  subPath: `${jobInfo.userName}/${jobInfo.logPathInfix}/${convertName(taskRole)}`,
+                  subPath: `${jobInfo.userName}/${
+                    jobInfo.logPathInfix
+                  }/${convertName(taskRole)}`,
                   mountPath: '/usr/local/pai/logs',
                 },
                 {
@@ -554,27 +641,30 @@ const generateTaskRole = (frameworkName, taskRole, jobInfo, frameworkEnvList, co
     },
   };
   // add image pull secret
-  if (config.prerequisites.dockerimage[config.taskRoles[taskRole].dockerImage].auth) {
+  if (
+    config.prerequisites.dockerimage[config.taskRoles[taskRole].dockerImage]
+      .auth
+  ) {
     frameworkTaskRole.task.pod.spec.imagePullSecrets.push({
       name: `${encodeName(frameworkName)}-regcred`,
     });
   }
   // add storages
   if ('extras' in config && config.extras.storages) {
-    for (let storage of config.extras.storages) {
+    for (const storage of config.extras.storages) {
       if (!storage.name) {
         continue;
       }
       frameworkTaskRole.task.pod.spec.containers[0].volumeMounts.push({
         name: `${storage.name}-volume`,
         mountPath: storage.mountPath || `/mnt/${storage.name}`,
-        ...(storage.share === false) && { subPath: jobInfo.userName },
+        ...(storage.share === false && { subPath: jobInfo.userName }),
       });
       frameworkTaskRole.task.pod.spec.volumes.push({
         name: `${storage.name}-volume`,
         persistentVolumeClaim: {
           claimName: `${storage.name}`,
-          ...(storage.readOnly === true) && { readOnly: true },
+          ...(storage.readOnly === true && { readOnly: true }),
         },
       });
     }
@@ -583,28 +673,40 @@ const generateTaskRole = (frameworkName, taskRole, jobInfo, frameworkEnvList, co
   const completion = config.taskRoles[taskRole].completion;
   frameworkTaskRole.frameworkAttemptCompletionPolicy = {
     minFailedTaskCount:
-      (completion && 'minFailedInstances' in completion && completion.minFailedInstances) ?
-        completion.minFailedInstances : 1,
+      completion &&
+      'minFailedInstances' in completion &&
+      completion.minFailedInstances
+        ? completion.minFailedInstances
+        : 1,
     minSucceededTaskCount:
-      (completion && 'minSucceededInstances' in completion && completion.minSucceededInstances) ?
-        completion.minSucceededInstances : frameworkTaskRole.taskNumber,
+      completion &&
+      'minSucceededInstances' in completion &&
+      completion.minSucceededInstances
+        ? completion.minSucceededInstances
+        : frameworkTaskRole.taskNumber,
   };
   // check cpu job
-  if (!launcherConfig.enabledHived && config.taskRoles[taskRole].resourcePerInstance.gpu === 0) {
-    frameworkTaskRole.task.pod.spec.containers[0].env.push(
-      {
-        name: 'NVIDIA_VISIBLE_DEVICES',
-        value: 'none',
-      },
-    );
+  if (
+    !launcherConfig.enabledHived &&
+    config.taskRoles[taskRole].resourcePerInstance.gpu === 0
+  ) {
+    frameworkTaskRole.task.pod.spec.containers[0].env.push({
+      name: 'NVIDIA_VISIBLE_DEVICES',
+      value: 'none',
+    });
   }
   // hived spec
   if (launcherConfig.enabledHived) {
     frameworkTaskRole.task.pod.spec.schedulerName = `${launcherConfig.scheduler}-ds-${config.taskRoles[taskRole].hivedPodSpec.virtualCluster}`;
-    delete frameworkTaskRole.task.pod.spec.containers[0].resources.limits['nvidia.com/gpu'];
-    frameworkTaskRole.task.pod.spec.containers[0]
-      .resources.limits['hivedscheduler.microsoft.com/pod-scheduling-enable'] = 1;
-    frameworkTaskRole.task.pod.metadata.annotations['hivedscheduler.microsoft.com/pod-scheduling-spec'] = yaml.safeDump(config.taskRoles[taskRole].hivedPodSpec);
+    delete frameworkTaskRole.task.pod.spec.containers[0].resources.limits[
+      'nvidia.com/gpu'
+    ];
+    frameworkTaskRole.task.pod.spec.containers[0].resources.limits[
+      'hivedscheduler.microsoft.com/pod-scheduling-enable'
+    ] = 1;
+    frameworkTaskRole.task.pod.metadata.annotations[
+      'hivedscheduler.microsoft.com/pod-scheduling-spec'
+    ] = yaml.safeDump(config.taskRoles[taskRole].hivedPodSpec);
     frameworkTaskRole.task.pod.spec.containers[0].env.push(
       {
         name: 'NVIDIA_VISIBLE_DEVICES',
@@ -628,7 +730,12 @@ const generateTaskRole = (frameworkName, taskRole, jobInfo, frameworkEnvList, co
   return frameworkTaskRole;
 };
 
-const generateFrameworkDescription = (frameworkName, virtualCluster, config, rawConfig) => {
+const generateFrameworkDescription = (
+  frameworkName,
+  virtualCluster,
+  config,
+  rawConfig,
+) => {
   const [userName, jobName] = frameworkName.split(/~(.+)/);
   const jobInfo = {
     jobName,
@@ -654,7 +761,7 @@ const generateFrameworkDescription = (frameworkName, virtualCluster, config, raw
     spec: {
       executionType: 'Start',
       retryPolicy: {
-        fancyRetryPolicy: (config.jobRetryCount !== -2),
+        fancyRetryPolicy: config.jobRetryCount !== -2,
         maxRetryCount: config.jobRetryCount || 0,
       },
       taskRoles: [],
@@ -669,13 +776,24 @@ const generateFrameworkDescription = (frameworkName, virtualCluster, config, raw
 
   // fill in task roles
   let totalGpuNumber = 0;
-  for (let taskRole of Object.keys(config.taskRoles)) {
-    totalGpuNumber += config.taskRoles[taskRole].resourcePerInstance.gpu * config.taskRoles[taskRole].instances;
-    const taskRoleDescription = generateTaskRole(frameworkName, taskRole, jobInfo, frameworkEnvList, config);
+  for (const taskRole of Object.keys(config.taskRoles)) {
+    totalGpuNumber +=
+      config.taskRoles[taskRole].resourcePerInstance.gpu *
+      config.taskRoles[taskRole].instances;
+    const taskRoleDescription = generateTaskRole(
+      frameworkName,
+      taskRole,
+      jobInfo,
+      frameworkEnvList,
+      config,
+    );
     if (launcherConfig.enabledPriorityClass) {
-      taskRoleDescription.task.pod.spec.priorityClassName = `${encodeName(frameworkName)}-priority`;
+      taskRoleDescription.task.pod.spec.priorityClassName = `${encodeName(
+        frameworkName,
+      )}-priority`;
     } else {
-      taskRoleDescription.task.pod.spec.priorityClassName = 'pai-job-minimal-priority';
+      taskRoleDescription.task.pod.spec.priorityClassName =
+        'pai-job-minimal-priority';
     }
     if (config.secrets) {
       taskRoleDescription.task.pod.spec.volumes.push({
@@ -718,7 +836,7 @@ const getDockerSecretDef = (frameworkName, auths) => {
   const cred = {
     auths: {},
   };
-  for (let auth of auths) {
+  for (const auth of auths) {
     const {
       username = '',
       password = '',
@@ -735,11 +853,12 @@ const getDockerSecretDef = (frameworkName, auths) => {
       name: `${encodeName(frameworkName)}-regcred`,
       namespace: 'default',
     },
-    data: { '.dockerconfigjson': Buffer.from(JSON.stringify(cred)).toString('base64') },
+    data: {
+      '.dockerconfigjson': Buffer.from(JSON.stringify(cred)).toString('base64'),
+    },
     type: 'kubernetes.io/dockerconfigjson',
   };
 };
-
 
 const getConfigSecretDef = (frameworkName, secrets) => {
   const data = {
@@ -757,22 +876,25 @@ const getConfigSecretDef = (frameworkName, secrets) => {
   };
 };
 
-const list = async (attributes, filters, order, offset, limit, withTotalCount) => {
+const list = async (
+  attributes,
+  filters,
+  order,
+  offset,
+  limit,
+  withTotalCount,
+) => {
   let frameworks;
   let totalCount;
-  try {
-    frameworks = await databaseModel.Framework.findAll({
-      attributes: attributes,
-      where: filters,
-      offset: offset,
-      limit: limit,
-      order: order,
-    });
-    if (withTotalCount) {
-      totalCount = await databaseModel.Framework.count({ where: filters });
-    }
-  } catch (error) {
-    throw error;
+  frameworks = await databaseModel.Framework.findAll({
+    attributes: attributes,
+    where: filters,
+    offset: offset,
+    limit: limit,
+    order: order,
+  });
+  if (withTotalCount) {
+    totalCount = await databaseModel.Framework.count({ where: filters });
   }
   frameworks = frameworks
     .filter((item) => checkName(item.name))
@@ -788,32 +910,41 @@ const list = async (attributes, filters, order, offset, limit, withTotalCount) =
 };
 
 const get = async (frameworkName) => {
-  let framework;
-  try {
-    framework = await databaseModel.Framework.findOne({
-      attributes: ['submissionTime', 'snapshot'],
-      where: { name: encodeName(frameworkName) },
-    });
-  } catch (error) {
-    throw error;
-  }
+  const framework = await databaseModel.Framework.findOne({
+    attributes: ['submissionTime', 'snapshot'],
+    where: { name: encodeName(frameworkName) },
+  });
   if (framework) {
-    const frameworkDetail = await convertFrameworkDetail(JSON.parse(framework.snapshot));
-    frameworkDetail.jobStatus.submissionTime = new Date(framework.submissionTime).getTime();
+    const frameworkDetail = await convertFrameworkDetail(
+      JSON.parse(framework.snapshot),
+    );
+    frameworkDetail.jobStatus.submissionTime = new Date(
+      framework.submissionTime,
+    ).getTime();
     return frameworkDetail;
   } else {
-    throw createError('Not Found', 'NoJobError', `Job ${frameworkName} is not found.`);
+    throw createError(
+      'Not Found',
+      'NoJobError',
+      `Job ${frameworkName} is not found.`,
+    );
   }
 };
 
 const put = async (frameworkName, config, rawConfig) => {
   const [userName] = frameworkName.split(/~(.+)/);
 
-  const virtualCluster = ('defaults' in config && config.defaults.virtualCluster != null) ?
-    config.defaults.virtualCluster : 'default';
+  const virtualCluster =
+    'defaults' in config && config.defaults.virtualCluster != null
+      ? config.defaults.virtualCluster
+      : 'default';
   const flag = await userModel.checkUserVC(userName, virtualCluster);
   if (flag === false) {
-    throw createError('Forbidden', 'ForbiddenUserError', `User ${userName} is not allowed to do operation in ${virtualCluster}`);
+    throw createError(
+      'Forbidden',
+      'ForbiddenUserError',
+      `User ${userName} is not allowed to do operation in ${virtualCluster}`,
+    );
   }
 
   // check deprecated storages config
@@ -822,13 +953,14 @@ const put = async (frameworkName, config, rawConfig) => {
     !config.extras.storages &&
     'com.microsoft.pai.runtimeplugin' in config.extras
   ) {
-    for (let plugin of config.extras['com.microsoft.pai.runtimeplugin']) {
+    for (const plugin of config.extras['com.microsoft.pai.runtimeplugin']) {
       if (plugin.plugin === 'teamwise_storage') {
         if ('parameters' in plugin && plugin.parameters.storageConfigNames) {
-          config.extras.storages =
-            plugin.parameters.storageConfigNames.map((name) => {
+          config.extras.storages = plugin.parameters.storageConfigNames.map(
+            (name) => {
               return { name };
-            });
+            },
+          );
         } else {
           config.extras.storages = [];
         }
@@ -839,29 +971,35 @@ const put = async (frameworkName, config, rawConfig) => {
   if ('extras' in config && config.extras.storages) {
     // add default storages if config is empty
     if (config.extras.storages.length === 0) {
-      (await storageModel.list(userName, true)).storages
-        .forEach((userStorage) => {
+      (await storageModel.list(userName, true)).storages.forEach(
+        (userStorage) => {
           config.extras.storages.push({
             name: userStorage.name,
             share: userStorage.share,
           });
-        });
+        },
+      );
     } else {
       const userStorages = {};
-      (await storageModel.list(userName)).storages
-        .forEach((userStorage) => userStorages[userStorage.name] = userStorage);
-      for (let storage of config.extras.storages) {
+      (await storageModel.list(userName)).storages.forEach(
+        (userStorage) => (userStorages[userStorage.name] = userStorage),
+      );
+      for (const storage of config.extras.storages) {
         if (!storage.name) {
           continue;
         }
         if (!(storage.name in userStorages)) {
-          throw createError('Not Found', 'NoStorageError', `Storage ${storage.name} is not found.`);
+          throw createError(
+            'Not Found',
+            'NoStorageError',
+            `Storage ${storage.name} is not found.`,
+          );
         } else {
           storage.share = userStorages[storage.name].share;
         }
       }
     }
-    for (let storage of config.extras.storages) {
+    for (const storage of config.extras.storages) {
       if (!storage.name) {
         continue;
       }
@@ -869,15 +1007,24 @@ const put = async (frameworkName, config, rawConfig) => {
     }
   }
 
-  const frameworkDescription = generateFrameworkDescription(frameworkName, virtualCluster, config, rawConfig);
+  const frameworkDescription = generateFrameworkDescription(
+    frameworkName,
+    virtualCluster,
+    config,
+    rawConfig,
+  );
   // generate image pull secret
   const auths = Object.values(config.prerequisites.dockerimage)
     .filter((dockerimage) => dockerimage.auth != null)
     .map((dockerimage) => dockerimage.auth);
-  const dockerSecretDef = auths.length ? getDockerSecretDef(frameworkName, auths) : null;
+  const dockerSecretDef = auths.length
+    ? getDockerSecretDef(frameworkName, auths)
+    : null;
 
   // generate job config secret
-  const configSecretDef = config.secrets ? getConfigSecretDef(frameworkName, config.secrets) : null;
+  const configSecretDef = config.secrets
+    ? getConfigSecretDef(frameworkName, config.secrets)
+    : null;
 
   // calculate pod priority
   // reference: https://github.com/microsoft/pai/issues/3704
@@ -886,11 +1033,14 @@ const put = async (frameworkName, config, rawConfig) => {
   if (launcherConfig.enabledPriorityClass) {
     let jobPriority = 0;
     if (launcherConfig.enabledHived) {
-      jobPriority = parseInt(Object.values(config.taskRoles)[0].hivedPodSpec.priority);
+      jobPriority = parseInt(
+        Object.values(config.taskRoles)[0].hivedPodSpec.priority,
+      );
       jobPriority = Math.min(Math.max(jobPriority, -1), 126);
     }
-    const jobCreationTime = Math.floor(submissionTime / 1000) & (Math.pow(2, 23) - 1);
-    const podPriority = - (((126 - jobPriority) << 23) + jobCreationTime);
+    const jobCreationTime =
+      Math.floor(submissionTime / 1000) & (Math.pow(2, 23) - 1);
+    const podPriority = -(((126 - jobPriority) << 23) + jobCreationTime);
     // create priority class
     priorityClassDef = getPriorityClassDef(frameworkName, podPriority);
   }
@@ -900,7 +1050,10 @@ const put = async (frameworkName, config, rawConfig) => {
   try {
     response = await axios({
       method: 'put',
-      url: launcherConfig.writeMergerUrl + '/api/v1/frameworkRequest/' + encodeName(frameworkName),
+      url:
+        launcherConfig.writeMergerUrl +
+        '/api/v1/frameworkRequest/' +
+        encodeName(frameworkName),
       data: {
         frameworkRequest: frameworkDescription,
         submissionTime: submissionTime,
@@ -929,12 +1082,17 @@ const execute = async (frameworkName, executionType) => {
   try {
     const patchData = {
       spec: {
-        executionType: `${executionType.charAt(0)}${executionType.slice(1).toLowerCase()}`,
+        executionType: `${executionType.charAt(0)}${executionType
+          .slice(1)
+          .toLowerCase()}`,
       },
     };
     response = await axios({
       method: 'PATCH',
-      url: launcherConfig.writeMergerUrl + '/api/v1/frameworkRequest/' + encodeName(frameworkName),
+      url:
+        launcherConfig.writeMergerUrl +
+        '/api/v1/frameworkRequest/' +
+        encodeName(frameworkName),
       data: patchData,
       headers: {
         'Content-Type': 'application/merge-patch+json',
@@ -953,29 +1111,36 @@ const execute = async (frameworkName, executionType) => {
 };
 
 const getConfig = async (frameworkName) => {
-  let framework;
-  try {
-    framework = await databaseModel.Framework.findOne({
-      attributes: ['jobConfig'],
-      where: { name: encodeName(frameworkName) },
-    });
-  } catch (error) {
-    throw error;
-  }
+  const framework = await databaseModel.Framework.findOne({
+    attributes: ['jobConfig'],
+    where: { name: encodeName(frameworkName) },
+  });
 
   if (framework) {
     if (framework.jobConfig) {
       return yaml.safeLoad(framework.jobConfig);
     } else {
-      throw createError('Not Found', 'NoJobConfigError', `Config of job ${frameworkName} is not found.`);
+      throw createError(
+        'Not Found',
+        'NoJobConfigError',
+        `Config of job ${frameworkName} is not found.`,
+      );
     }
   } else {
-    throw createError('Not Found', 'NoJobError', `Job ${frameworkName} is not found.`);
+    throw createError(
+      'Not Found',
+      'NoJobError',
+      `Job ${frameworkName} is not found.`,
+    );
   }
 };
 
 const getSshInfo = async (frameworkName) => {
-  throw createError('Not Found', 'NoJobSshInfoError', `SSH info of job ${frameworkName} is not found.`);
+  throw createError(
+    'Not Found',
+    'NoJobSshInfoError',
+    `SSH info of job ${frameworkName} is not found.`,
+  );
 };
 
 const addTag = async (frameworkName, tag) => {
@@ -1053,7 +1218,8 @@ const generateExitDiagnostics = (diag) => {
   }
 
   const summmaryInfo = diag.substring(0, matches.index + 'matched:'.length);
-  exitDiagnostics.diagnosticsSummary = summmaryInfo + '\n' + yaml.safeDump(podCompletionStatus);
+  exitDiagnostics.diagnosticsSummary =
+    summmaryInfo + '\n' + yaml.safeDump(podCompletionStatus);
   exitDiagnostics.launcher = exitDiagnostics.diagnosticsSummary;
 
   // Get runtime output, set launcher output to null. Otherwise, treat all message as launcher output

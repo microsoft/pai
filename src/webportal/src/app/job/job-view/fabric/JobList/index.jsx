@@ -11,7 +11,7 @@ import React, {
   useEffect,
   useRef,
 } from 'react';
-import { debounce, isEmpty, isNil } from 'lodash';
+import { debounce, isEmpty } from 'lodash';
 
 import { ColorClassNames, getTheme } from '@uifabric/styling';
 import { Fabric } from 'office-ui-fabric-react/lib/Fabric';
@@ -63,30 +63,75 @@ export default function JobList() {
       return filter;
     }
   });
+
+  const initialPagination = useMemo(() => {
+    const query = querystring.parse(location.search.replace(/^\?/, ''));
+    if (!isEmpty(query.pageIndex) || !isEmpty(query.itemsPerPage)) {
+      return new Pagination(query.itemsPerPage, query.pageIndex);
+    } else {
+      const resPagination = new Pagination();
+      resPagination.load();
+      return resPagination;
+    }
+  });
+
   const [filter, setFilter] = useState(initialFilter);
   const [ordering, setOrdering] = useState(new Ordering());
-  const [pagination, setPagination] = useState(new Pagination());
-  const [filteredJobs, setFilteredJobs] = useState(null);
+  const [pagination, setPagination] = useState(initialPagination);
+  const [filteredJobsInfo, setFilteredJobsInfo] = useState({
+    totalCount: 0,
+    data: [],
+  });
 
   useEffect(() => filter.save(), [filter]);
 
   const { current: applyFilter } = useRef(
-    debounce((allJobs, /** @type {Filter} */ filter) => {
-      if (isNil(allJobs)) {
-        setFilteredJobs(null);
-      } else {
-        setFilteredJobs(filter.apply(allJobs));
-      }
+    debounce((/** @type {Filter} */ filter) => {
+      pagination.load();
+      getJobs({
+        ...filter.apply(),
+        ...ordering.apply(),
+        ...pagination.apply(),
+        ...{ withTotalCount: true },
+      })
+        .then(data => {
+          return data;
+        })
+        .then(setFilteredJobsInfo)
+        .catch(err => {
+          alert(err.data.message || err.message);
+          throw Error(err.data.message || err.message);
+        });
     }, 200),
   );
 
   useEffect(() => {
-    applyFilter(allJobs, filter);
-  }, [applyFilter, allJobs, filter]);
+    applyFilter(filter);
+  }, [applyFilter, filter]);
+
+  const { current: applyPagination } = useRef(
+    debounce((/** @type {Pagination} */ pagination) => {
+      filter.load();
+      getJobs({
+        ...filter.apply(),
+        ...ordering.apply(),
+        ...pagination.apply(),
+        ...{ withTotalCount: true },
+      })
+        .then(data => {
+          return data;
+        })
+        .then(setFilteredJobsInfo)
+        .catch(err => {
+          alert(err.data.message || err.message);
+          throw Error(err.data.message || err.message);
+        });
+    }, 200),
+  );
 
   useEffect(() => {
-    setPagination(new Pagination(pagination.itemsPerPage, 0));
-  }, [filteredJobs]);
+    applyPagination(pagination);
+  }, [applyPagination, pagination]);
 
   const stopJob = useCallback(
     (...jobs) => {
@@ -115,7 +160,8 @@ export default function JobList() {
                 alert(err.data.message);
                 clearToken();
               } else {
-                throw new Error(err.data.message);
+                alert(err.data.message || err.message);
+                throw new Error(err.data.message || err.message);
               }
             });
         });
@@ -124,8 +170,7 @@ export default function JobList() {
     [allJobs],
   );
 
-  const refreshJobs = useCallback(function refreshJobs() {
-    setAllJobs(null);
+  const getJobs = async query => {
     const token = userAuth.checkToken();
     const client = new PAIV2.OpenPAIClient({
       rest_server_uri: new URL(
@@ -136,13 +181,30 @@ export default function JobList() {
       token: token,
       https: window.location.protocol === 'https:',
     });
-    client.job
-      .listJobs()
+
+    const url = `${client.cluster.rest_server_uri}/api/v2/jobs`;
+    try {
+      return await client.httpClient.get(url, undefined, undefined, query);
+    } catch (err) {
+      alert(err.data.message || err.message);
+      throw Error(err.data.message || err.message);
+    }
+  };
+
+  const refreshJobs = useCallback(function refreshJobs() {
+    setFilteredJobsInfo({ totalCount: 0, data: [], pageIndex: 0 });
+    getJobs({
+      ...filter.apply(),
+      ...ordering.apply(),
+      ...pagination.apply(),
+      ...{ withTotalCount: true },
+    })
       .then(data => {
         return data;
       })
-      .then(setAllJobs)
+      .then(setFilteredJobsInfo)
       .catch(err => {
+        alert(err.data.message || err.message);
         throw Error(err.data.message || err.message);
       });
   }, []);
@@ -150,9 +212,9 @@ export default function JobList() {
   useEffect(refreshJobs, []);
 
   const context = {
-    allJobs,
+    getJobs,
+    filteredJobsInfo,
     refreshJobs,
-    filteredJobs,
     selectedJobs,
     setSelectedJobs,
     stopJob,

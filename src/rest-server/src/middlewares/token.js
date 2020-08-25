@@ -15,7 +15,7 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-const {userProperty} = require('@pai/config/token');
+const { userProperty } = require('@pai/config/token');
 const userModel = require('@pai/models/v2/user');
 const tokenModel = require('@pai/models/token');
 const createError = require('@pai/utils/error');
@@ -42,15 +42,29 @@ const getToken = async (req) => {
 
 const check = async (req, _, next) => {
   if (!req.headers.authorization) {
-    return next(createError('Unauthorized', 'UnauthorizedUserError', 'Guest is not allowed to do this operation.'));
+    return next(
+      createError(
+        'Unauthorized',
+        'UnauthorizedUserError',
+        'Guest is not allowed to do this operation.',
+      ),
+    );
   }
   try {
     req[userProperty] = await getToken(req);
-    req[userProperty].admin = await userModel.checkAdmin(req[userProperty].username);
+    req[userProperty].admin = await userModel.checkAdmin(
+      req[userProperty].username,
+    );
     next();
   } catch (error) {
     logger.debug(error);
-    return next(createError('Unauthorized', 'UnauthorizedUserError', 'Your token is invalid.'));
+    return next(
+      createError(
+        'Unauthorized',
+        'UnauthorizedUserError',
+        'Your token is invalid.',
+      ),
+    );
   }
 };
 
@@ -59,7 +73,13 @@ const notApplication = async (req, _, next) => {
   if (!token.application) {
     next();
   } else {
-    return next(createError('Forbidden', 'ForbiddenUserError', 'Applications are not allowed to do this operation.'));
+    return next(
+      createError(
+        'Forbidden',
+        'ForbiddenUserError',
+        'Applications are not allowed to do this operation.',
+      ),
+    );
   }
 };
 
