@@ -15,7 +15,6 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-
 // module dependencies
 const fs = require('fs');
 const cors = require('cors');
@@ -44,14 +43,14 @@ app.set('json spaces', config.env === 'development' ? 4 : 0);
 
 app.use(cors());
 app.use(compress());
-app.use(bodyParser.urlencoded({extended: true}));
+app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
-app.use(bodyParser.text({type: 'text/*'}));
+app.use(bodyParser.text({ type: 'text/*' }));
 app.use(cookieParser());
 app.use(limiter.api);
 
 // setup the logger for requests
-app.use(morgan('dev', {'stream': logger.stream}));
+app.use(morgan('dev', { stream: logger.stream }));
 
 // mount all v1 APIs to /api/v1
 app.use('/api/v1', routers.v1);
@@ -70,9 +69,9 @@ app.use((req, res, next) => {
 
 if (authnConfig.authnMethod === 'OIDC') {
   // error handler for /api/v1/authn/oidc/return
-  app.use('/api/v1/authn/oidc/return', function(err, req, res, next) {
+  app.use('/api/v1/authn/oidc/return', function (err, req, res, next) {
     logger.warn(err);
-    let qsData = {
+    const qsData = {
       errorMessage: err.message,
     };
     let redirectURI = err.targetURI ? err.targetURI : process.env.WEBPORTAL_URL;
@@ -87,7 +86,7 @@ app.use((err, req, res, next) => {
   res.status(err.status || 500).json({
     code: err.code,
     message: err.message,
-    stack: config.env === 'development' ? err.stack.split('\n') : void 0,
+    stack: config.env === 'development' ? err.stack.split('\n') : undefined,
   });
 });
 

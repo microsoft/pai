@@ -15,7 +15,6 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-
 // module dependencies
 const Joi = require('joi');
 const authnConfig = require('@pai/config/authn');
@@ -36,24 +35,24 @@ if (authnConfig.authnMethod !== 'OIDC') {
 
 let userSecretConfigSchema = {};
 if (authnConfig.authnMethod !== 'OIDC') {
-  userSecretConfigSchema = Joi.object().keys({
-    paiUserNameSpace: Joi.string()
-      .default('pai-user'),
-    adminName: Joi.string()
-      .regex(/^[\w.-]+$/, 'username')
-      .required(),
-    adminPass: Joi.string()
-      .min(6)
-      .required(),
-  }).required();
+  userSecretConfigSchema = Joi.object()
+    .keys({
+      paiUserNameSpace: Joi.string().default('pai-user'),
+      adminName: Joi.string()
+        .regex(/^[\w.-]+$/, 'username')
+        .required(),
+      adminPass: Joi.string().min(6).required(),
+    })
+    .required();
 } else {
-  userSecretConfigSchema = Joi.object().keys({
-    paiUserNameSpace: Joi.string()
-      .default('pai-user'),
-  }).required();
+  userSecretConfigSchema = Joi.object()
+    .keys({
+      paiUserNameSpace: Joi.string().default('pai-user'),
+    })
+    .required();
 }
 
-const {error, value} = Joi.validate(userSecretConfig, userSecretConfigSchema);
+const { error, value } = Joi.validate(userSecretConfig, userSecretConfigSchema);
 if (error) {
   throw new Error(`config error\n${error}`);
 }

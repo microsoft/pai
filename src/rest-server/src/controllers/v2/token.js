@@ -21,7 +21,7 @@ const userModel = require('@pai/models/v2/user');
 const groupModel = require('@pai/models/v2/group');
 const tokenModel = require('@pai/models/token');
 const createError = require('@pai/utils/error');
-const {encrypt} = require('@pai/utils/manager/user/user');
+const { encrypt } = require('@pai/utils/manager/user/user');
 
 /**
  * Get the token.
@@ -35,11 +35,23 @@ const get = async (req, res, next) => {
     userItem = await userModel.getUser(username);
   } catch (error) {
     if (error.status && error.status === 404) {
-      return next(createError('Bad Request', 'NoUserError', `User ${req.body.username} is not found.`));
+      return next(
+        createError(
+          'Bad Request',
+          'NoUserError',
+          `User ${req.body.username} is not found.`,
+        ),
+      );
     }
   }
-  if (hash !== userItem['password']) {
-    return next(createError('Bad Request', 'IncorrectPasswordError', 'Password is incorrect.'));
+  if (hash !== userItem.password) {
+    return next(
+      createError(
+        'Bad Request',
+        'IncorrectPasswordError',
+        'Password is incorrect.',
+      ),
+    );
   }
   try {
     const admin = await groupModel.getGroupsAdmin(userItem.grouplist);
@@ -65,13 +77,17 @@ const getAAD = async (req, res, next) => {
     const admin = await userModel.checkAdmin(username);
     const token = await tokenModel.create(username);
     const fromURI = req.fromURI;
-    return res.redirect(req.returnBackURI + '?'+ querystring.stringify({
-      user: userInfo.username,
-      token: token,
-      admin: admin,
-      hasGitHubPAT: userInfo.extension.githubPAT,
-      from: fromURI,
-    }));
+    return res.redirect(
+      req.returnBackURI +
+        '?' +
+        querystring.stringify({
+          user: userInfo.username,
+          token: token,
+          admin: admin,
+          hasGitHubPAT: userInfo.extension.githubPAT,
+          from: fromURI,
+        }),
+    );
   } catch (error) {
     return next(createError.unknown(error));
   }

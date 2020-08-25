@@ -41,15 +41,20 @@ async function read(key) {
     const hexKey = Buffer.from(key).toString('hex');
     const response = await request.get(`${GROUP_NAMESPACE}/secrets/${hexKey}`, {
       headers: {
-        'Accept': 'application/json',
+        Accept: 'application/json',
       },
     });
-    let groupData = response['data'];
-    let groupInstance = Group.createGroup({
-      'groupname': Buffer.from(groupData['data']['groupname'], 'base64').toString(),
-      'description': Buffer.from(groupData['data']['description'], 'base64').toString(),
-      'externalName': Buffer.from(groupData['data']['externalName'], 'base64').toString(),
-      'extension': JSON.parse(Buffer.from(groupData['data']['extension'], 'base64').toString()),
+    const groupData = response.data;
+    const groupInstance = Group.createGroup({
+      groupname: Buffer.from(groupData.data.groupname, 'base64').toString(),
+      description: Buffer.from(groupData.data.description, 'base64').toString(),
+      externalName: Buffer.from(
+        groupData.data.externalName,
+        'base64',
+      ).toString(),
+      extension: JSON.parse(
+        Buffer.from(groupData.data.extension, 'base64').toString(),
+      ),
     });
     return groupInstance;
   } catch (error) {
@@ -71,22 +76,29 @@ async function readAll() {
     const request = k8sModel.getClient('/api/v1/namespaces');
     const response = await request.get(`${GROUP_NAMESPACE}/secrets`, {
       headers: {
-        'Accept': 'application/json',
+        Accept: 'application/json',
       },
     });
-    let allGroupInstance = [];
-    let groupData = response['data'];
-    for (const item of groupData['items']) {
+    const allGroupInstance = [];
+    const groupData = response.data;
+    for (const item of groupData.items) {
       try {
-        let groupInstance = Group.createGroup({
-          'groupname': Buffer.from(item['data']['groupname'], 'base64').toString(),
-          'description': Buffer.from(item['data']['description'], 'base64').toString(),
-          'externalName': Buffer.from(item['data']['externalName'], 'base64').toString(),
-          'extension': JSON.parse(Buffer.from(item['data']['extension'], 'base64').toString()),
+        const groupInstance = Group.createGroup({
+          groupname: Buffer.from(item.data.groupname, 'base64').toString(),
+          description: Buffer.from(item.data.description, 'base64').toString(),
+          externalName: Buffer.from(
+            item.data.externalName,
+            'base64',
+          ).toString(),
+          extension: JSON.parse(
+            Buffer.from(item.data.extension, 'base64').toString(),
+          ),
         });
         allGroupInstance.push(groupInstance);
       } catch (error) {
-        logger.debug(`secret ${item['metadata']['name']} is filtered in ${GROUP_NAMESPACE} due to group schema`);
+        logger.debug(
+          `secret ${item.metadata.name} is filtered in ${GROUP_NAMESPACE} due to group schema`,
+        );
       }
     }
     return allGroupInstance;
@@ -110,19 +122,23 @@ async function create(key, value) {
   try {
     const request = k8sModel.getClient('/api/v1/namespaces');
     const hexKey = key ? Buffer.from(key).toString('hex') : '';
-    let groupInstance = Group.createGroup({
-      'groupname': value['groupname'],
-      'description': value['description'],
-      'externalName': value['externalName'],
-      'extension': value['extension'],
+    const groupInstance = Group.createGroup({
+      groupname: value.groupname,
+      description: value.description,
+      externalName: value.externalName,
+      extension: value.extension,
     });
-    let groupData = {
-      'metadata': {'name': hexKey},
-      'data': {
-        'groupname': Buffer.from(groupInstance['groupname']).toString('base64'),
-        'description': Buffer.from(groupInstance['description']).toString('base64'),
-        'externalName': Buffer.from(groupInstance['externalName']).toString('base64'),
-        'extension': Buffer.from(JSON.stringify(groupInstance['extension'])).toString('base64'),
+    const groupData = {
+      metadata: { name: hexKey },
+      data: {
+        groupname: Buffer.from(groupInstance.groupname).toString('base64'),
+        description: Buffer.from(groupInstance.description).toString('base64'),
+        externalName: Buffer.from(groupInstance.externalName).toString(
+          'base64',
+        ),
+        extension: Buffer.from(
+          JSON.stringify(groupInstance.extension),
+        ).toString('base64'),
       },
     };
     return await request.post(`${GROUP_NAMESPACE}/secrets`, groupData);
@@ -146,19 +162,23 @@ async function update(key, value) {
   try {
     const request = k8sModel.getClient('/api/v1/namespaces');
     const hexKey = Buffer.from(key).toString('hex');
-    let groupInstance = Group.createGroup({
-      'groupname': value['groupname'],
-      'description': value['description'],
-      'externalName': value['externalName'],
-      'extension': value['extension'],
+    const groupInstance = Group.createGroup({
+      groupname: value.groupname,
+      description: value.description,
+      externalName: value.externalName,
+      extension: value.extension,
     });
-    let groupData = {
-      'metadata': {'name': hexKey},
-      'data': {
-        'groupname': Buffer.from(groupInstance['groupname']).toString('base64'),
-        'description': Buffer.from(groupInstance['description']).toString('base64'),
-        'externalName': Buffer.from(groupInstance['externalName']).toString('base64'),
-        'extension': Buffer.from(JSON.stringify(groupInstance['extension'])).toString('base64'),
+    const groupData = {
+      metadata: { name: hexKey },
+      data: {
+        groupname: Buffer.from(groupInstance.groupname).toString('base64'),
+        description: Buffer.from(groupInstance.description).toString('base64'),
+        externalName: Buffer.from(groupInstance.externalName).toString(
+          'base64',
+        ),
+        extension: Buffer.from(
+          JSON.stringify(groupInstance.extension),
+        ).toString('base64'),
       },
     };
     return await request.put(`${GROUP_NAMESPACE}/secrets/${hexKey}`, groupData);
@@ -184,7 +204,7 @@ async function remove(key) {
     return await request.delete(`${GROUP_NAMESPACE}/secrets/${hexKey}`, {
       headers: {
         'Content-Type': 'application/json',
-        'Accept': 'application/json',
+        Accept: 'application/json',
       },
     });
   } catch (error) {
@@ -196,4 +216,4 @@ async function remove(key) {
   }
 }
 
-module.exports = {create, read, readAll, update, remove};
+module.exports = { create, read, readAll, update, remove };

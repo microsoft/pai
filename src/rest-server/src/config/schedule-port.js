@@ -18,22 +18,22 @@
 // module dependencies
 const Joi = require('joi');
 
-
 let schedulePortConfig = {
   start: process.env.SCHEDULE_PORT_START,
   end: process.env.SCHEDULE_PORT_END,
 };
 
-const schedulePortConfigSchema = Joi.object().keys({
-  start: Joi.number()
-    .integer()
-    .default(15000),
-  end: Joi.number()
-    .integer()
-    .default(40000),
-}).required();
+const schedulePortConfigSchema = Joi.object()
+  .keys({
+    start: Joi.number().integer().default(15000),
+    end: Joi.number().integer().default(40000),
+  })
+  .required();
 
-const {error, value} = Joi.validate(schedulePortConfig, schedulePortConfigSchema);
+const { error, value } = Joi.validate(
+  schedulePortConfig,
+  schedulePortConfigSchema,
+);
 if (error) {
   throw new Error(`schedule port config error\n${error}`);
 }

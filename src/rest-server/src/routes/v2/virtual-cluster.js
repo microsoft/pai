@@ -24,21 +24,32 @@ const vcConfig = require('@pai/config/vc');
 
 const router = new express.Router();
 
-router.route('/')
+router
+  .route('/')
   /** GET /api/v2/virtual-clusters - Return cluster virtual cluster info */
   .get(token.check, controller.list);
 
-router.route('/:virtualClusterName')
+router
+  .route('/:virtualClusterName')
   /** GET /api/v2/virtual-clusters/:virtualClusterName - Get virtual cluster */
   .get(token.check, controller.get)
   /** PUT /api/v2/virtual-clusters/:virtualClusterName - Create a virtual cluster */
-  .put(token.checkNotApplication, param.validate(vcConfig.vcCreateInputSchema), controller.update)
+  .put(
+    token.checkNotApplication,
+    param.validate(vcConfig.vcCreateInputSchema),
+    controller.update,
+  )
   /** DELETE /api/v2/virtual-clusters/:virtualClusterName - Remove a virtual cluster */
   .delete(token.checkNotApplication, controller.remove);
 
-router.route('/:virtualClusterName/status')
+router
+  .route('/:virtualClusterName/status')
   /** PUT /api/v2/virtual-clusters/:virtualClusterName/status - Change virtual cluster status (running or stopped) */
-  .put(token.checkNotApplication, param.validate(vcConfig.vcStatusPutInputSchema), controller.updateStatus);
+  .put(
+    token.checkNotApplication,
+    param.validate(vcConfig.vcStatusPutInputSchema),
+    controller.updateStatus,
+  );
 
 router.param('virtualClusterName', controller.validate);
 

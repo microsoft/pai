@@ -16,7 +16,11 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 const _ = require('lodash');
-const {encodeSelector, getClient, patchOption} = require('@pai/models/kubernetes/kubernetes');
+const {
+  encodeSelector,
+  getClient,
+  patchOption,
+} = require('@pai/models/kubernetes/kubernetes');
 
 const initClient = (namespace) => {
   if (!namespace) {
@@ -24,7 +28,6 @@ const initClient = (namespace) => {
   }
   return getClient(`/api/v1/namespaces/${namespace}/secrets`);
 };
-
 
 /**
  * Serialize key-value object to k8s secret's base64 encoded data structure
@@ -65,7 +68,7 @@ const get = async (namespace, name, options = {}) => {
     return list(namespace);
   }
   const client = initClient(namespace);
-  const {encode} = options;
+  const { encode } = options;
   let secretName = name;
   if (encode != null) {
     // k8s resource's name must consisst of only digits (0-9), lower case letters (a-z), -, and ..
@@ -101,7 +104,7 @@ const list = async (namespace, labelSelector) => {
         params.continue = continueValue;
       }
       // request
-      response = await client.get('/', {params});
+      response = await client.get('/', { params });
     } catch (err) {
       if (err.response && err.response.status === 410) {
         // restart
@@ -126,7 +129,7 @@ const list = async (namespace, labelSelector) => {
 };
 
 const create = async (namespace, name, data, options = {}) => {
-  const {labels, encode, type} = options;
+  const { labels, encode, type } = options;
   const client = initClient(namespace);
 
   let secretName = name;
@@ -147,7 +150,7 @@ const create = async (namespace, name, data, options = {}) => {
 };
 
 const replace = async (namespace, name, data, options = {}) => {
-  const {encode, labels} = options;
+  const { encode, labels } = options;
   let secretName = name;
   if (encode != null) {
     secretName = Buffer.from(secretName).toString(encode);
@@ -165,7 +168,7 @@ const replace = async (namespace, name, data, options = {}) => {
 };
 
 const remove = async (namespace, name, options = {}) => {
-  const {encode} = options;
+  const { encode } = options;
   let secretName = name;
   if (encode != null) {
     secretName = Buffer.from(name).toString(encode);
@@ -175,13 +178,13 @@ const remove = async (namespace, name, options = {}) => {
 };
 
 const patchMetadata = async (namespace, name, metadata, options = {}) => {
-  const {encode} = options;
+  const { encode } = options;
   let secretName = name;
   if (encode != null) {
     secretName = Buffer.from(name).toString(encode);
   }
   const client = initClient(namespace);
-  await client.patch(`/${secretName}`, {metadata: metadata}, patchOption);
+  await client.patch(`/${secretName}`, { metadata: metadata }, patchOption);
 };
 
 module.exports = {

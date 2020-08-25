@@ -20,11 +20,11 @@ const express = require('express');
 const token = require('@pai/middlewares/token');
 const userController = require('@pai/controllers/v2/user');
 
-
 const router = new express.Router();
 
-router.route('/:username/')
-/** Get /api/v1/user/:username */
+router
+  .route('/:username/')
+  /** Get /api/v1/user/:username */
   .get(token.check, userController.getUser);
 
 module.exports = router;

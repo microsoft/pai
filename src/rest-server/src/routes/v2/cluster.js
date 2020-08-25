@@ -22,8 +22,7 @@ const controller = require('@pai/controllers/v2/cluster');
 
 const router = new express.Router();
 
-router.route('/sku-types')
-  .get(token.check, controller.getSkuTypes);
+router.route('/sku-types').get(token.check, controller.getSkuTypes);
 
 // module exports
 module.exports = router;

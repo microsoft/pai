@@ -40,14 +40,22 @@ const getUser = async (req, res, next) => {
     const username = req.params.username;
     const userInfo = await userModel.getUser(username);
     const groupItems = await groupModel.getListGroup(userInfo.grouplist);
-    userInfo['admin'] = groupModel.getAdminWithGroupInfo(groupItems);
-    userInfo['virtualCluster'] = await groupModel.getVCsWithGroupInfo(groupItems);
-    userInfo['storageConfig'] = await groupModel.getStorageConfigsWithGroupInfo(groupItems);
-    delete userInfo['password'];
+    userInfo.admin = groupModel.getAdminWithGroupInfo(groupItems);
+    userInfo.virtualCluster = await groupModel.getVCsWithGroupInfo(groupItems);
+    userInfo.storageConfig = await groupModel.getStorageConfigsWithGroupInfo(
+      groupItems,
+    );
+    delete userInfo.password;
     return res.status(200).json(userInfo);
   } catch (error) {
     if (error.status === 404) {
-      return next(createError('Bad Request', 'NoUserError', `User ${req.params.username} is not found.`));
+      return next(
+        createError(
+          'Bad Request',
+          'NoUserError',
+          `User ${req.params.username} is not found.`,
+        ),
+      );
     }
     return next(createError.unknown(error));
   }
@@ -63,15 +71,24 @@ const getAllUser = async (req, res, next) => {
       groupMap[groupItem.groupname] = groupItem;
     }
 
-    const retUserList = await Promise.all(userList.map(async (userItem) => {
-      const groupItems = Array.from(userItem.grouplist, (groupname) => groupMap[groupname]);
-      const admin = groupModel.getAdminWithGroupInfo(groupItems);
-      userItem.admin = admin;
-      userItem.virtualCluster = admin ? allVClist : await groupModel.getVCsWithGroupInfo(groupItems);
-      userItem.storageConfig = await groupModel.getStorageConfigsWithGroupInfo(groupItems);
-      delete userItem.password;
-      return userItem;
-    }));
+    const retUserList = await Promise.all(
+      userList.map(async (userItem) => {
+        const groupItems = Array.from(
+          userItem.grouplist,
+          (groupname) => groupMap[groupname],
+        );
+        const admin = groupModel.getAdminWithGroupInfo(groupItems);
+        userItem.admin = admin;
+        userItem.virtualCluster = admin
+          ? allVClist
+          : await groupModel.getVCsWithGroupInfo(groupItems);
+        userItem.storageConfig = await groupModel.getStorageConfigsWithGroupInfo(
+          groupItems,
+        );
+        delete userItem.password;
+        return userItem;
+      }),
+    );
     return res.status(200).json(retUserList);
   } catch (error) {
     return next(createError.unknown(error));
@@ -85,19 +102,25 @@ const createUserIfUserNotExist = async (req, res, next) => {
     const username = userData.username;
     let grouplist = [];
     if (authConfig.groupConfig.groupDataSource !== 'basic') {
-      let data = {};
+      const data = {};
       if (authConfig.groupConfig.groupDataSource === 'ms-graph') {
-        data['accessToken'] = req.undecodedAccessToken;
-        data['graphUrl'] = `https://${authConfig.OIDCConfig.msgraph_host}/`;
+        data.accessToken = req.undecodedAccessToken;
+        data.graphUrl = `https://${authConfig.OIDCConfig.msgraph_host}/`;
       }
       grouplist = await groupModel.getUserGrouplistFromExternal(username, data);
       req.grouplist = grouplist;
       if (grouplist && grouplist.length === 0) {
         let forbiddenMessage = `User ${userData.username} is not in configured groups.`;
         if (authConfig.groupConfig.groupDataSource === 'ms-graph') {
-          forbiddenMessage = forbiddenMessage + `Please contact your admin, and join the AAD group named [ ${authConfig.groupConfig.defaultGroup.externalName} ].`;
+          forbiddenMessage =
+            forbiddenMessage +
+            `Please contact your admin, and join the AAD group named [ ${authConfig.groupConfig.defaultGroup.externalName} ].`;
         }
-        let forbiddenError = createError('Forbidden', 'ForbiddenUserError', forbiddenMessage);
+        const forbiddenError = createError(
+          'Forbidden',
+          'ForbiddenUserError',
+          forbiddenMessage,
+        );
         forbiddenError.targetURI = req.returnBackURI;
         return next(forbiddenError);
       }
@@ -126,31 +149,51 @@ const updateUserGroupListFromExternal = async (req, res, next) => {
   try {
     if (!req.updateResult) {
       const username = req.userData.username;
-      let userInfo = await userModel.getUser(username);
-      userInfo['grouplist'] = req.grouplist;
+      const userInfo = await userModel.getUser(username);
+      userInfo.grouplist = req.grouplist;
       await userModel.updateUser(username, userInfo);
     }
     next();
   } catch (error) {
-    return next(createError.unknown((error)));
+    return next(createError.unknown(error));
   }
 };
 
 const createUser = async (req, res, next) => {
   if (!req.user.admin) {
-    next(createError('Forbidden', 'ForbiddenUserError', `Non-admin is not allow to do this operation.`));
+    next(
+      createError(
+        'Forbidden',
+        'ForbiddenUserError',
+        `Non-admin is not allow to do this operation.`,
+      ),
+    );
   }
   let grouplist;
   try {
-    grouplist = await groupModel.virtualCluster2GroupList(req.body.virtualCluster);
+    grouplist = await groupModel.virtualCluster2GroupList(
+      req.body.virtualCluster,
+    );
   } catch (error) {
     if (error.status === 404) {
-      return next(createError('Not Found', 'NoGroupError', `No groups for vc: ${req.body.virtualCluster}`));
+      return next(
+        createError(
+          'Not Found',
+          'NoGroupError',
+          `No groups for vc: ${req.body.virtualCluster}`,
+        ),
+      );
     }
     return next(createError.unknown(error));
   }
   if (grouplist.length !== req.body.virtualCluster.length) {
-    next(createError('Bad Request', 'NoVirtualClusterError', `Try to update: ${req.body.virtualCluster}, but found ${grouplist}`));
+    next(
+      createError(
+        'Bad Request',
+        'NoVirtualClusterError',
+        `Try to update: ${req.body.virtualCluster}, but found ${grouplist}`,
+      ),
+    );
   }
   if (!grouplist.includes(authConfig.groupConfig.defaultGroup.groupname)) {
     grouplist.push(authConfig.groupConfig.defaultGroup.groupname);
@@ -172,7 +215,13 @@ const createUser = async (req, res, next) => {
     await userModel.createUser(username, userValue);
   } catch (error) {
     if (error.status === 409) {
-      return next(createError('Conflict', 'ConflictUserError', `User name ${req.body.username} already exists.`));
+      return next(
+        createError(
+          'Conflict',
+          'ConflictUserError',
+          `User name ${req.body.username} already exists.`,
+        ),
+      );
     }
     return next(createError.unknown(error));
   }
@@ -182,9 +231,9 @@ const createUser = async (req, res, next) => {
 };
 
 const updateExtensionInternal = async (oldExtension, newExtension) => {
-  let retExtension = JSON.parse(JSON.stringify(oldExtension));
-  for (let [key, value] of Object.entries(newExtension)) {
-        retExtension[key] = value;
+  const retExtension = JSON.parse(JSON.stringify(oldExtension));
+  for (const [key, value] of Object.entries(newExtension)) {
+    retExtension[key] = value;
   }
   return retExtension;
 };
@@ -194,20 +243,35 @@ const updateUserExtension = async (req, res, next) => {
     const username = req.params.username;
     const extensionData = req.body.extension;
     if (req.user.admin || req.user.username === username) {
-      let userInfo = await userModel.getUser(username);
-      userInfo['extension'] = await updateExtensionInternal(userInfo['extension'], extensionData);
+      const userInfo = await userModel.getUser(username);
+      userInfo.extension = await updateExtensionInternal(
+        userInfo.extension,
+        extensionData,
+      );
       await userModel.updateUser(username, userInfo);
       return res.status(201).json({
         message: 'Update user extension data successfully.',
       });
     } else {
-      next(createError('Forbidden', 'ForbiddenUserError', `Non-admin is not allow to do this operation.`));
+      next(
+        createError(
+          'Forbidden',
+          'ForbiddenUserError',
+          `Non-admin is not allow to do this operation.`,
+        ),
+      );
     }
   } catch (error) {
     if (error.status === 404) {
-      return next(createError('Not Found', 'NoUserError', `User ${req.params.username} not found.`));
+      return next(
+        createError(
+          'Not Found',
+          'NoUserError',
+          `User ${req.params.username} not found.`,
+        ),
+      );
     }
-    return next(createError.unknown((error)));
+    return next(createError.unknown(error));
   }
 };
 
@@ -216,10 +280,18 @@ const updateVirtualClusterInternal = async (newVc) => {
   try {
     groupList = await groupModel.virtualCluster2GroupList(newVc);
   } catch (error) {
-    throw createError('Bad Request', 'NoVirtualClusterError', `Try to update nonexist: ${newVc}`);
+    throw createError(
+      'Bad Request',
+      'NoVirtualClusterError',
+      `Try to update nonexist: ${newVc}`,
+    );
   }
   if (groupList.length !== newVc.length) {
-    throw createError('Bad Request', 'NoVirtualClusterError', `Try to update: ${newVc}, but found: ${groupList}`);
+    throw createError(
+      'Bad Request',
+      'NoVirtualClusterError',
+      `Try to update: ${newVc}, but found: ${groupList}`,
+    );
   }
   if (!groupList.includes(authConfig.groupConfig.defaultGroup.groupname)) {
     groupList.push(authConfig.groupConfig.defaultGroup.groupname);
@@ -231,47 +303,79 @@ const updateUserVirtualCluster = async (req, res, next) => {
   try {
     const username = req.params.username;
     if (req.user.admin) {
-      let newGroupList = await updateVirtualClusterInternal(req.body.virtualCluster);
+      const newGroupList = await updateVirtualClusterInternal(
+        req.body.virtualCluster,
+      );
       let userInfo;
       try {
-         userInfo = await userModel.getUser(username);
+        userInfo = await userModel.getUser(username);
       } catch (error) {
         if (error.status === 404) {
-          return next(createError('Not Found', 'NoUserError', `User ${req.params.username} not found.`));
+          return next(
+            createError(
+              'Not Found',
+              'NoUserError',
+              `User ${req.params.username} not found.`,
+            ),
+          );
         }
-        return next(createError.unknown((error)));
+        return next(createError.unknown(error));
       }
       if (await userModel.checkAdmin(username)) {
-        return next(createError('Forbidden', 'ForbiddenUserError', 'Admin\'s virtual clusters cannot be updated.'));
+        return next(
+          createError(
+            'Forbidden',
+            'ForbiddenUserError',
+            "Admin's virtual clusters cannot be updated.",
+          ),
+        );
       }
-      userInfo['grouplist'] = newGroupList;
+      userInfo.grouplist = newGroupList;
       await userModel.updateUser(username, userInfo);
       return res.status(201).json({
         message: 'Update user virtualCluster data successfully.',
       });
     } else {
-      return next(createError('Forbidden', 'ForbiddenUserError', `Non-admin is not allow to do this operation.`));
+      return next(
+        createError(
+          'Forbidden',
+          'ForbiddenUserError',
+          `Non-admin is not allow to do this operation.`,
+        ),
+      );
     }
   } catch (error) {
     if (error.code === 'NoVirtualClusterError') {
       return next(error);
     }
-    return next(createError.unknown((error)));
+    return next(createError.unknown(error));
   }
 };
 
 const updateGroupListInternal = async (groupList) => {
-  let retGroupList = await groupModel.filterExistGroups(groupList);
-   if (retGroupList.length !== groupList.length) {
-    const nonExistGrouplist = groupList.filter((groupname) => !retGroupList.includes(groupname));
-    throw createError('Not Found', 'NoGroupError', `Updated nonexistent grouplist: ${nonExistGrouplist}`);
+  const retGroupList = await groupModel.filterExistGroups(groupList);
+  if (retGroupList.length !== groupList.length) {
+    const nonExistGrouplist = groupList.filter(
+      (groupname) => !retGroupList.includes(groupname),
+    );
+    throw createError(
+      'Not Found',
+      'NoGroupError',
+      `Updated nonexistent grouplist: ${nonExistGrouplist}`,
+    );
   }
-   return retGroupList;
+  return retGroupList;
 };
 
 const updateUserGroupList = async (req, res, next) => {
   if (!req.user.admin) {
-    next(createError('Forbidden', 'ForbiddenUserError', `Non-admin is not allow to do this operation.`));
+    next(
+      createError(
+        'Forbidden',
+        'ForbiddenUserError',
+        `Non-admin is not allow to do this operation.`,
+      ),
+    );
   }
   const username = req.params.username;
   let userValue;
@@ -283,7 +387,13 @@ const updateUserGroupList = async (req, res, next) => {
       return next(error);
     }
     if (error.status === 404) {
-      return next(createError('Not Found', 'NoUserError', `User ${req.params.username} not found.`));
+      return next(
+        createError(
+          'Not Found',
+          'NoUserError',
+          `User ${req.params.username} not found.`,
+        ),
+      );
     }
     return next(createError.unknown(error));
   }
@@ -295,11 +405,25 @@ const updateUserGroupList = async (req, res, next) => {
 
 const addGroupIntoUserGrouplist = async (req, res, next) => {
   if (!req.user.admin) {
-    next(createError('Forbidden', 'ForbiddenUserError', `Non-admin is not allow to do this operation.`));
+    next(
+      createError(
+        'Forbidden',
+        'ForbiddenUserError',
+        `Non-admin is not allow to do this operation.`,
+      ),
+    );
   }
-  const existGrouplist = await groupModel.filterExistGroups([req.body.groupname]);
+  const existGrouplist = await groupModel.filterExistGroups([
+    req.body.groupname,
+  ]);
   if (existGrouplist.length === 0) {
-    return next(createError('Not Found', 'NoGroupError', `Updated nonexistent group: ${req.body.groupname}`));
+    return next(
+      createError(
+        'Not Found',
+        'NoGroupError',
+        `Updated nonexistent group: ${req.body.groupname}`,
+      ),
+    );
   }
   const username = req.params.username;
   const groupname = req.body.groupname;
@@ -308,7 +432,13 @@ const addGroupIntoUserGrouplist = async (req, res, next) => {
     userInfo = await userModel.getUser(username);
   } catch (error) {
     if (error.status === 404) {
-      return next(createError('Not Found', 'NoUserError', `User ${req.params.username} not found.`));
+      return next(
+        createError(
+          'Not Found',
+          'NoUserError',
+          `User ${req.params.username} not found.`,
+        ),
+      );
     }
     return next(createError.unknown(error));
   }
@@ -324,11 +454,17 @@ const addGroupIntoUserGrouplist = async (req, res, next) => {
 const removeGroupFromUserGrouplist = async (req, res, next) => {
   try {
     if (!req.user.admin) {
-      next(createError('Forbidden', 'ForbiddenUserError', `Non-admin is not allow to do this operation.`));
+      next(
+        createError(
+          'Forbidden',
+          'ForbiddenUserError',
+          `Non-admin is not allow to do this operation.`,
+        ),
+      );
     }
     const username = req.params.username;
     const groupname = req.body.groupname;
-    let userInfo = await userModel.getUser(username);
+    const userInfo = await userModel.getUser(username);
     if (userInfo.grouplist.includes(groupname)) {
       userInfo.grouplist.splice(userInfo.grouplist.indexOf(groupname), 1);
     }
@@ -338,7 +474,13 @@ const removeGroupFromUserGrouplist = async (req, res, next) => {
     });
   } catch (error) {
     if (error.status === 404) {
-      return next(createError('Not Found', 'NoUserError', `User ${req.params.username} not found.`));
+      return next(
+        createError(
+          'Not Found',
+          'NoUserError',
+          `User ${req.params.username} not found.`,
+        ),
+      );
     }
     return next(createError.unknown(error));
   }
@@ -354,15 +496,21 @@ const updateUserPassword = async (req, res, next) => {
       userValue = await userModel.getUser(username);
     } catch (error) {
       if (error.status === 404) {
-        return next(createError('Not Found', 'NoUserError', `User ${req.params.username} not found.`));
+        return next(
+          createError(
+            'Not Found',
+            'NoUserError',
+            `User ${req.params.username} not found.`,
+          ),
+        );
       }
-      return next(createError.unknown((error)));
+      return next(createError.unknown(error));
     }
     let newUserValue = JSON.parse(JSON.stringify(userValue));
-    newUserValue['password'] = oldPassword;
+    newUserValue.password = oldPassword;
     newUserValue = await userModel.getEncryptPassword(newUserValue);
-    if (req.user.admin || newUserValue['password'] === userValue['password']) {
-      newUserValue['password'] = newPassword;
+    if (req.user.admin || newUserValue.password === userValue.password) {
+      newUserValue.password = newPassword;
       await userModel.updateUser(username, newUserValue, true);
       // try to revoke browser tokens
       try {
@@ -378,10 +526,16 @@ const updateUserPassword = async (req, res, next) => {
         message: 'update user password successfully.',
       });
     } else {
-      next(createError('Forbidden', 'ForbiddenUserError', `Pls input the correct password.`));
+      next(
+        createError(
+          'Forbidden',
+          'ForbiddenUserError',
+          `Pls input the correct password.`,
+        ),
+      );
     }
   } catch (error) {
-    return next(createError.unknown((error)));
+    return next(createError.unknown(error));
   }
 };
 
@@ -390,20 +544,32 @@ const updateUserEmail = async (req, res, next) => {
     const username = req.params.username;
     const email = req.body.email;
     if (req.user.admin || req.user.username === username) {
-      let userInfo = await userModel.getUser(username);
-      userInfo['email'] = email;
+      const userInfo = await userModel.getUser(username);
+      userInfo.email = email;
       await userModel.updateUser(username, userInfo);
       return res.status(201).json({
         message: 'Update user email data successfully.',
       });
     } else {
-      next(createError('Forbidden', 'ForbiddenUserError', `Pls input the correct password.`));
+      next(
+        createError(
+          'Forbidden',
+          'ForbiddenUserError',
+          `Pls input the correct password.`,
+        ),
+      );
     }
   } catch (error) {
     if (error.status === 404) {
-      return next(createError('Not Found', 'NoUserError', `User ${req.params.username} not found.`));
+      return next(
+        createError(
+          'Not Found',
+          'NoUserError',
+          `User ${req.params.username} not found.`,
+        ),
+      );
     }
-    return next(createError.unknown((error)));
+    return next(createError.unknown(error));
   }
 };
 
@@ -413,7 +579,10 @@ const updateAdminPermissionInternal = async (user, admin) => {
   let newGroupList = [];
   if (!existed && admin) {
     // non-admin -> admin, add into adminGroup
-    newGroupList = [...user.grouplist, authConfig.groupConfig.adminGroup.groupname];
+    newGroupList = [
+      ...user.grouplist,
+      authConfig.groupConfig.adminGroup.groupname,
+    ];
   } else if (existed && !admin) {
     // admin -> non-admin, remove from all adminGroup
     for (const groupItem of groupInfo) {
@@ -432,16 +601,28 @@ const updateUserAdminPermission = async (req, res, next) => {
     const username = req.params.username;
     const admin = req.body.admin;
     if (!req.user.admin) {
-      next(createError('Forbidden', 'ForbiddenUserError', `Non-admin is not allow to do this operation.`));
+      next(
+        createError(
+          'Forbidden',
+          'ForbiddenUserError',
+          `Non-admin is not allow to do this operation.`,
+        ),
+      );
     } else {
       let userInfo;
       try {
         userInfo = await userModel.getUser(username);
       } catch (error) {
         if (error.status === 404) {
-          return next(createError('Not Found', 'NoUserError', `User ${req.params.username} not found.`));
+          return next(
+            createError(
+              'Not Found',
+              'NoUserError',
+              `User ${req.params.username} not found.`,
+            ),
+          );
         }
-        return next(createError.unknown((error)));
+        return next(createError.unknown(error));
       }
       userInfo.grouplist = await updateAdminPermissionInternal(userInfo, admin);
       await userModel.updateUser(username, userInfo);
@@ -450,48 +631,64 @@ const updateUserAdminPermission = async (req, res, next) => {
       });
     }
   } catch (error) {
-    return next(createError.unknown((error)));
+    return next(createError.unknown(error));
   }
 };
 
 const basicAdminUserUpdate = async (req, res, next) => {
   const username = req.body.data.username;
   if (!req.user.admin) {
-    next(createError('Forbidden', 'ForbiddenUserError', `Non-admin is not allow to do this operation.`));
+    next(
+      createError(
+        'Forbidden',
+        'ForbiddenUserError',
+        `Non-admin is not allow to do this operation.`,
+      ),
+    );
   }
   let userInfo;
   try {
     userInfo = await userModel.getUser(username);
   } catch (error) {
     if (error.status === 404) {
-      return next(createError('Not Found', 'NoUserError', `User ${username} not found.`));
+      return next(
+        createError('Not Found', 'NoUserError', `User ${username} not found.`),
+      );
     }
-    return next(createError.unknown((error)));
+    return next(createError.unknown(error));
   }
   try {
     let updatePassword = false;
     if ('email' in req.body.data) {
-      userInfo['email'] = req.body.data.email;
+      userInfo.email = req.body.data.email;
     }
     if ('virtualCluster' in req.body.data) {
       try {
-        userInfo['grouplist'] = await updateVirtualClusterInternal(req.body.data.virtualCluster);
+        userInfo.grouplist = await updateVirtualClusterInternal(
+          req.body.data.virtualCluster,
+        );
       } catch (error) {
         if (error.code === 'NoVirtualClusterError') {
           return next(error);
         }
-        return next(createError.unknown((error)));
+        return next(createError.unknown(error));
       }
     }
     if ('admin' in req.body.data) {
-      userInfo['grouplist'] = await updateAdminPermissionInternal(userInfo, req.body.data.admin);
+      userInfo.grouplist = await updateAdminPermissionInternal(
+        userInfo,
+        req.body.data.admin,
+      );
     }
     if ('password' in req.body.data) {
       updatePassword = true;
-      userInfo['password'] = req.body.data.password;
+      userInfo.password = req.body.data.password;
     }
     if ('extension' in req.body.data) {
-      userInfo['extension'] = await updateExtensionInternal(userInfo['extension'], req.body.data.extension);
+      userInfo.extension = await updateExtensionInternal(
+        userInfo.extension,
+        req.body.data.extension,
+      );
     }
     await userModel.updateUser(username, userInfo, updatePassword);
     if (updatePassword) {
@@ -507,39 +704,53 @@ const basicAdminUserUpdate = async (req, res, next) => {
       }
     }
     return res.status(201).json({
-      message: 'Update user ${username} successfully',
+      message: `Update user ${username} successfully`,
     });
   } catch (error) {
-    return next(createError.unknown((error)));
+    return next(createError.unknown(error));
   }
 };
 
 const basicUserUpdate = async (req, res, next) => {
   const username = req.user.username;
   if (username !== req.body.data.username) {
-    return next(createError('Forbidden', 'ForbiddenUserError', `Can't update other user's data`));
+    return next(
+      createError(
+        'Forbidden',
+        'ForbiddenUserError',
+        `Can't update other user's data`,
+      ),
+    );
   }
   let userInfo;
   try {
     userInfo = await userModel.getUser(username);
   } catch (error) {
     if (error.status === 404) {
-      return next(createError('Not Found', 'NoUserError', `User ${username} not found.`));
+      return next(
+        createError('Not Found', 'NoUserError', `User ${username} not found.`),
+      );
     }
-    return next(createError.unknown((error)));
+    return next(createError.unknown(error));
   }
   try {
     let updatePassword = false;
     if ('email' in req.body.data) {
-      userInfo['email'] = req.body.data.email;
+      userInfo.email = req.body.data.email;
     }
     if ('password' in req.body.data) {
       let newUserValue = JSON.parse(JSON.stringify(userInfo));
       newUserValue = await userModel.getEncryptPassword(newUserValue);
-      if (newUserValue['password'] !== userInfo['password']) {
-        return next(createError('Forbidden', 'ForbiddenUserError', `Pls input the correct password.`));
+      if (newUserValue.password !== userInfo.password) {
+        return next(
+          createError(
+            'Forbidden',
+            'ForbiddenUserError',
+            `Pls input the correct password.`,
+          ),
+        );
       }
-      userInfo['password'] = req.body.data.password;
+      userInfo.password = req.body.data.password;
       updatePassword = true;
     }
     await userModel.updateUser(username, userInfo, updatePassword);
@@ -559,34 +770,45 @@ const basicUserUpdate = async (req, res, next) => {
       message: `Update user ${username} successfully`,
     });
   } catch (error) {
-    return next(createError.unknown((error)));
+    return next(createError.unknown(error));
   }
 };
 
 const oidcUserUpdate = async (req, res, next) => {
   const username = req.body.data.username;
   if (!req.user.admin) {
-    next(createError('Forbidden', 'ForbiddenUserError', `Non-admin is not allow to do this operation.`));
+    next(
+      createError(
+        'Forbidden',
+        'ForbiddenUserError',
+        `Non-admin is not allow to do this operation.`,
+      ),
+    );
   }
   let userInfo;
   try {
     userInfo = await userModel.getUser(username);
   } catch (error) {
     if (error.status === 404) {
-      return next(createError('Not Found', 'NoUserError', `User ${username} not found.`));
+      return next(
+        createError('Not Found', 'NoUserError', `User ${username} not found.`),
+      );
     }
-    return next(createError.unknown((error)));
+    return next(createError.unknown(error));
   }
   try {
     if ('extension' in req.body.data) {
-      userInfo['extension'] = await updateExtensionInternal(userInfo['extension'], req.body.data.extension);
+      userInfo.extension = await updateExtensionInternal(
+        userInfo.extension,
+        req.body.data.extension,
+      );
     }
     await userModel.updateUser(username, userInfo);
     return res.status(201).json({
-      message: 'Update user ${username} successfully',
+      message: `Update user ${username} successfully`,
     });
   } catch (error) {
-    return next(createError.unknown((error)));
+    return next(createError.unknown(error));
   }
 };
 
@@ -595,20 +817,38 @@ const deleteUser = async (req, res, next) => {
     const username = req.params.username;
     if (req.user.admin) {
       if (await userModel.checkAdmin(username)) {
-        return next(createError('Forbidden', 'RemoveAdminError', `Admin ${username} is not allowed to remove.`));
+        return next(
+          createError(
+            'Forbidden',
+            'RemoveAdminError',
+            `Admin ${username} is not allowed to remove.`,
+          ),
+        );
       }
       await userModel.deleteUser(username);
       return res.status(200).json({
         message: 'user is removed successfully',
       });
     } else {
-      next(createError('Forbidden', 'ForbiddenUserError', `Non-admin is not allow to do this operation.`));
+      next(
+        createError(
+          'Forbidden',
+          'ForbiddenUserError',
+          `Non-admin is not allow to do this operation.`,
+        ),
+      );
     }
   } catch (error) {
     if (error.status === 404) {
-      return next(createError('Not Found', 'NoUserError', `User ${req.params.username} not found.`));
+      return next(
+        createError(
+          'Not Found',
+          'NoUserError',
+          `User ${req.params.username} not found.`,
+        ),
+      );
     }
-    return next(createError.unknown((error)));
+    return next(createError.unknown(error));
   }
 };
 

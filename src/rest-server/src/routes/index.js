@@ -15,7 +15,6 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-
 // module dependencies
 const express = require('express');
 const controller = require('@pai/controllers/index');
@@ -26,14 +25,12 @@ const k8sRouter = require('@pai/routes/kubernetes');
 
 const router = new express.Router();
 
-router.route('/')
-    .all(controller.index);
+router.route('/').all(controller.index);
 
 router.use('/token', tokenRouter);
 router.use('/user', userRouter);
 router.use('/kubernetes', k8sRouter);
 router.use('/authn', authnRouter);
-
 
 // module exports
 module.exports = router;

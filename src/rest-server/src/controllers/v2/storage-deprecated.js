@@ -18,21 +18,22 @@
 // module dependencies
 const asyncHandler = require('@pai/middlewares/v2/asyncHandler');
 const createError = require('@pai/utils/error');
-const {get, list} = require('@pai/models/v2/storage');
-const {getUserStorages} = require('@pai/models/v2/user');
-
+const { get, list } = require('@pai/models/v2/storage');
+const { getUserStorages } = require('@pai/models/v2/user');
 
 const convertConfig = (storage, userDefaultStorages) => {
   const config = {
     name: storage.name,
-    default: (userDefaultStorages.includes(storage.name)),
+    default: userDefaultStorages.includes(storage.name),
     servers: [storage.volumeName],
-    mountInfos: [{
-      mountPoint: `/mnt/${storage.name}`,
-      path: storage.share === false ? '${PAI_USER_NAME}' : '',
-      server: storage.volumeName,
-      permission: 'rw',
-    }],
+    mountInfos: [
+      {
+        mountPoint: `/mnt/${storage.name}`,
+        path: storage.share === false ? '${PAI_USER_NAME}' : '', // eslint-disable-line no-template-curly-in-string
+        server: storage.volumeName,
+        permission: 'rw',
+      },
+    ],
   };
   return config;
 };
@@ -91,7 +92,7 @@ const getConfig = asyncHandler(async (req, res) => {
   const userName = req.user.username;
   const userDefaultStorages = await getUserStorages(userName, true);
   const storages = (await list(userName)).storages
-    .filter((item) => names ? names.includes(item.name) : true)
+    .filter((item) => (names ? names.includes(item.name) : true))
     .map((item) => convertConfig(item, userDefaultStorages));
 
   if (req.params.name) {
@@ -119,8 +120,9 @@ const getServer = asyncHandler(async (req, res) => {
   const userName = req.user.username;
   const storages = await Promise.all(
     (await list(userName)).storages
-      .filter((item) => names ? names.includes(item.volumeName) : true)
-      .map(convertServer));
+      .filter((item) => (names ? names.includes(item.volumeName) : true))
+      .map(convertServer),
+  );
 
   if (req.params.name) {
     if (storages.length === 1) {

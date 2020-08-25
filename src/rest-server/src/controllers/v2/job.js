@@ -15,14 +15,13 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-
 // module dependencies
 const status = require('statuses');
 
 const asyncHandler = require('@pai/middlewares/v2/asyncHandler');
 const createError = require('@pai/utils/error');
 const job = require('@pai/models/v2/job');
-const {Op} = require('sequelize');
+const { Op } = require('sequelize');
 
 const list = asyncHandler(async (req, res) => {
   // ?keyword=<keyword filter>&username=<username1>,<username2>&vc=<vc1>,<vc2>
@@ -32,7 +31,7 @@ const list = asyncHandler(async (req, res) => {
   let offset = 0;
   let limit;
   let withTotalCount = false;
-  let order = [];
+  const order = [];
   // limit has a max number and a default number
   const maxLimit = 50000;
   const defaultLimit = 5000;
@@ -52,7 +51,11 @@ const list = asyncHandler(async (req, res) => {
     if ('limit' in req.query) {
       limit = parseInt(req.query.limit);
       if (limit > maxLimit) {
-        throw createError('Bad Request', 'InvalidParametersError', `Limit exceeds max number ${maxLimit}.`);
+        throw createError(
+          'Bad Request',
+          'InvalidParametersError',
+          `Limit exceeds max number ${maxLimit}.`,
+        );
       }
     } else {
       limit = defaultLimit;
@@ -63,15 +66,25 @@ const list = asyncHandler(async (req, res) => {
     if ('keyword' in req.query) {
       // match text in username, jobname, or vc
       filters[Op.or] = [
-        {'userName': {[Op.substring]: req.query.keyword}},
-        {'jobName': {[Op.substring]: req.query.keyword}},
-        {'virtualCluster': {[Op.substring]: req.query.keyword}},
+        { userName: { [Op.substring]: req.query.keyword } },
+        { jobName: { [Op.substring]: req.query.keyword } },
+        { virtualCluster: { [Op.substring]: req.query.keyword } },
       ];
     }
     if ('order' in req.query) {
-      const {field, ordering} = req.query.order.split(',');
-      if (['jobName', 'submissionTime', 'username', 'vc', 'retries', 'totalTaskNumber',
-        'totalGpuNumber', 'state'].includes(field)) {
+      const { field, ordering } = req.query.order.split(',');
+      if (
+        [
+          'jobName',
+          'submissionTime',
+          'username',
+          'vc',
+          'retries',
+          'totalTaskNumber',
+          'totalGpuNumber',
+          'state',
+        ].includes(field)
+      ) {
         if (ordering === 'ASC' || ordering === 'DESC') {
           // different cases for username
           if (field !== 'username') {
@@ -87,10 +100,35 @@ const list = asyncHandler(async (req, res) => {
       order.push(['submissionTime', 'DESC']);
     }
   }
-  const attributes = ['name', 'jobName', 'userName', 'executionType', 'submissionTime', 'creationTime', 'virtualCluster',
-        'totalGpuNumber', 'totalTaskNumber', 'totalTaskRoleNumber', 'retries', 'retryDelayTime', 'platformRetries',
-        'resourceRetries', 'userRetries', 'completionTime', 'appExitCode', 'subState', 'state'];
-  const data = await job.list(attributes, filters, order, offset, limit, withTotalCount);
+  const attributes = [
+    'name',
+    'jobName',
+    'userName',
+    'executionType',
+    'submissionTime',
+    'creationTime',
+    'virtualCluster',
+    'totalGpuNumber',
+    'totalTaskNumber',
+    'totalTaskRoleNumber',
+    'retries',
+    'retryDelayTime',
+    'platformRetries',
+    'resourceRetries',
+    'userRetries',
+    'completionTime',
+    'appExitCode',
+    'subState',
+    'state',
+  ];
+  const data = await job.list(
+    attributes,
+    filters,
+    order,
+    offset,
+    limit,
+    withTotalCount,
+  );
   res.json(data);
 });
 
@@ -108,7 +146,11 @@ const update = asyncHandler(async (req, res) => {
   try {
     const data = await job.get(frameworkName);
     if (data != null) {
-      throw createError('Conflict', 'ConflictJobError', `Job ${frameworkName} already exists.`);
+      throw createError(
+        'Conflict',
+        'ConflictJobError',
+        `Job ${frameworkName} already exists.`,
+      );
     }
   } catch (error) {
     if (error.code !== 'NoJobError') {
@@ -126,7 +168,7 @@ const execute = asyncHandler(async (req, res) => {
   const userName = req.user.username;
   const admin = req.user.admin;
   const data = await job.get(req.params.frameworkName);
-  if ((data.jobStatus.username === userName) || admin) {
+  if (data.jobStatus.username === userName || admin) {
     await job.execute(req.params.frameworkName, req.body.value);
     res.status(status('Accepted')).json({
       status: status('Accepted'),
@@ -136,7 +178,7 @@ const execute = asyncHandler(async (req, res) => {
     throw createError(
       'Forbidden',
       'ForbiddenUserError',
-      `User ${userName} is not allowed to execute job ${req.params.frameworkName}.`
+      `User ${userName} is not allowed to execute job ${req.params.frameworkName}.`,
     );
   }
 });
@@ -147,7 +189,11 @@ const getConfig = asyncHandler(async (req, res) => {
     return res.status(200).type('text/yaml').send(data);
   } catch (error) {
     if (error.message.startsWith('[WebHDFS] 404')) {
-      throw createError('Not Found', 'NoJobConfigError', `Config of job ${req.params.frameworkName} is not found.`);
+      throw createError(
+        'Not Found',
+        'NoJobConfigError',
+        `Config of job ${req.params.frameworkName} is not found.`,
+      );
     } else {
       throw createError.unknown(error);
     }

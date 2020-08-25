@@ -15,25 +15,20 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-
 // module dependencies
 const express = require('express');
 const controller = require('@pai/controllers/v2/job-attempt');
 const token = require('@pai/middlewares/token');
 
+const router = new express.Router({ mergeParams: true });
 
-const router = new express.Router({mergeParams: true});
-
-/** GET /api/v2/jobs/:frameworkName/job-attempts/healthz - health check of job retry endpoint*/
-router.route('/healthz')
-  .get(token.check, controller.healthCheck);
+/** GET /api/v2/jobs/:frameworkName/job-attempts/healthz - health check of job retry endpoint */
+router.route('/healthz').get(token.check, controller.healthCheck);
 
 /** GET /api/v2/jobs/:frameworkName/job-attempts - list job retries by job frameworkName */
-router.route('/')
-  .get(token.check, controller.list);
+router.route('/').get(token.check, controller.list);
 
 /** GET /api/v2/jobs/:frameworkName/job-attempts/:jobAttemptIndex - get certain job retry by retry index */
-router.route('/:jobAttemptIndex')
-  .get(token.check, controller.get);
+router.route('/:jobAttemptIndex').get(token.check, controller.get);
 
 module.exports = router;

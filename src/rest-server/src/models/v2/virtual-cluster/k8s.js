@@ -19,8 +19,8 @@
 const axios = require('axios');
 const yaml = require('js-yaml');
 const createError = require('@pai/utils/error');
-const {resourceUnits} = require('@pai/config/vc');
-const {enabledHived, hivedWebserviceUri} = require('@pai/config/launcher');
+const { resourceUnits } = require('@pai/config/vc');
+const { enabledHived, hivedWebserviceUri } = require('@pai/config/launcher');
 const kubernetes = require('@pai/models/kubernetes/kubernetes');
 const k8s = require('@pai/utils/k8sUtils');
 
@@ -33,12 +33,12 @@ const resourcesEmpty = {
 const add = (x, y) => x + y;
 
 const mergeDict = (d1, d2, op) => {
-  for (let k of [...Object.keys(d1).filter((x) => x in d2)]) {
+  for (const k of [...Object.keys(d1).filter((x) => x in d2)]) {
     d1[k] = op(d1[k], d2[k]);
   }
 };
 
-const fetchNodes = async (readiness=true) => {
+const fetchNodes = async (readiness = true) => {
   const nodes = await kubernetes.getNodes();
   return nodes.items.filter((node) => {
     if (node.metadata.labels['pai-worker'] !== 'true') {
@@ -46,7 +46,9 @@ const fetchNodes = async (readiness=true) => {
     }
 
     // check node readiness
-    const readyCondition = node.status.conditions.find((x) => x.type === 'Ready');
+    const readyCondition = node.status.conditions.find(
+      (x) => x.type === 'Ready',
+    );
     if (readyCondition && readyCondition.status !== 'Unknown') {
       return readiness;
     } else {
@@ -60,7 +62,10 @@ const fetchPods = async () => {
     labelSelector: 'type=kube-launcher-task',
   });
   return pods.items.filter((pod) => {
-    return (pod.spec.nodeName && !(pod.status.phase === 'Succeeded' || pod.status.phase === 'Failed'));
+    return (
+      pod.spec.nodeName &&
+      !(pod.status.phase === 'Succeeded' || pod.status.phase === 'Failed')
+    );
   });
 };
 
@@ -78,14 +83,20 @@ const getPodsInfo = async () => {
       virtualCluster: labels.virtualCluster,
       taskRoleName: labels.FC_TASKROLE_NAME,
       nodeName: pod.spec.nodeName,
-      resourcesUsed: {...resourcesEmpty},
+      resourcesUsed: { ...resourcesEmpty },
     };
 
-    const bindingInfo = annotations['hivedscheduler.microsoft.com/pod-bind-info'];
+    const bindingInfo =
+      annotations['hivedscheduler.microsoft.com/pod-bind-info'];
     const resourceRequest = pod.spec.containers[0].resources.requests;
     podInfo.resourcesUsed.cpu = k8s.atoi(resourceRequest.cpu);
     podInfo.resourcesUsed.memory = k8s.convertMemoryMb(resourceRequest.memory);
-    if (resourceRequest.hasOwnProperty('hivedscheduler.microsoft.com/pod-scheduling-enable')) {
+    if (
+      Object.prototype.hasOwnProperty.call(
+        resourceRequest,
+        'hivedscheduler.microsoft.com/pod-scheduling-enable',
+      )
+    ) {
       if (bindingInfo != null) {
         // scheduled by hived
         const info = yaml.safeLoad(bindingInfo);
@@ -108,13 +119,18 @@ const getNodeResource = async () => {
   if (enabledHived) {
     let pcStatus;
     try {
-      pcStatus = (await axios.get(`${hivedWebserviceUri}/v1/inspect/clusterstatus/physicalcluster`)).data;
+      pcStatus = (
+        await axios.get(
+          `${hivedWebserviceUri}/v1/inspect/clusterstatus/physicalcluster`,
+        )
+      ).data;
     } catch (error) {
       if (error.response != null) {
         throw createError(
           error.response.status,
           'UnknownError',
-          error.response.data || 'Hived scheduler cannot inspect physical cluster.',
+          error.response.data ||
+            'Hived scheduler cannot inspect physical cluster.',
         );
       } else {
         throw error;
@@ -155,7 +171,7 @@ const getNodeResource = async () => {
     }
   } else {
     const nodes = await fetchNodes(true);
-    for (let node of nodes) {
+    for (const node of nodes) {
       const nodeName = node.metadata.name;
       const gpuNumber =
         k8s.atoi(node.status.capacity['nvidia.com/gpu']) +
@@ -167,7 +183,7 @@ const getNodeResource = async () => {
       };
     }
     const pods = await getPodsInfo();
-    for (let pod of pods) {
+    for (const pod of pods) {
       if (pod.nodeName in nodeResource) {
         nodeResource[pod.nodeName].gpuUsed += pod.resourcesUsed.gpu;
         nodeResource[pod.nodeName].gpuAvailable -= pod.resourcesUsed.gpu;
@@ -183,30 +199,35 @@ const getVcList = async () => {
     capacity: 0,
     usedCapacity: 0,
     dedicated: false,
-    resourcesUsed: {...resourcesEmpty},
-    resourcesGuaranteed: {...resourcesEmpty},
-    resourcesTotal: {...resourcesEmpty},
+    resourcesUsed: { ...resourcesEmpty },
+    resourcesGuaranteed: { ...resourcesEmpty },
+    resourcesTotal: { ...resourcesEmpty },
   };
-  const vcInfos = {'default': JSON.parse(JSON.stringify(vcEmpty))};
+  const vcInfos = { default: JSON.parse(JSON.stringify(vcEmpty)) };
 
   // set resources
   if (enabledHived) {
     let vcStatus;
     try {
-      vcStatus = (await axios.get(`${hivedWebserviceUri}/v1/inspect/clusterstatus/virtualclusters/`)).data;
+      vcStatus = (
+        await axios.get(
+          `${hivedWebserviceUri}/v1/inspect/clusterstatus/virtualclusters/`,
+        )
+      ).data;
     } catch (error) {
       if (error.response != null) {
         throw createError(
           error.response.status,
           'UnknownError',
-          error.response.data || 'Hived scheduler cannot inspect virtual clusters.',
+          error.response.data ||
+            'Hived scheduler cannot inspect virtual clusters.',
         );
       } else {
         throw error;
       }
     }
     // used, guaranteed, total resources
-    for (let vc of Object.keys(vcStatus)) {
+    for (const vc of Object.keys(vcStatus)) {
       if (!(vc in vcInfos)) {
         vcInfos[vc] = JSON.parse(JSON.stringify(vcEmpty));
       }
@@ -238,44 +259,85 @@ const getVcList = async () => {
   } else {
     // used resources
     const pods = await getPodsInfo();
-    for (let pod of pods) {
+    for (const pod of pods) {
       if (pod.virtualCluster in vcInfos) {
-        mergeDict(vcInfos[pod.virtualCluster].resourcesUsed, pod.resourcesUsed, add);
+        mergeDict(
+          vcInfos[pod.virtualCluster].resourcesUsed,
+          pod.resourcesUsed,
+          add,
+        );
       }
     }
     // guaranteed resources
     const nodes = await fetchNodes(true);
-    vcInfos['default'].resourcesGuaranteed = {
-      cpu: nodes.reduce((sum, node) => sum + k8s.atoi(node.status.capacity.cpu), 0),
-      memory: nodes.reduce((sum, node) => sum + k8s.convertMemoryMb(node.status.capacity.memory), 0),
-      gpu: nodes.reduce((sum, node) =>
-        sum + k8s.atoi(node.status.capacity['nvidia.com/gpu']) + k8s.atoi(node.status.capacity['amd.com/gpu']), 0),
+    vcInfos.default.resourcesGuaranteed = {
+      cpu: nodes.reduce(
+        (sum, node) => sum + k8s.atoi(node.status.capacity.cpu),
+        0,
+      ),
+      memory: nodes.reduce(
+        (sum, node) => sum + k8s.convertMemoryMb(node.status.capacity.memory),
+        0,
+      ),
+      gpu: nodes.reduce(
+        (sum, node) =>
+          sum +
+          k8s.atoi(node.status.capacity['nvidia.com/gpu']) +
+          k8s.atoi(node.status.capacity['amd.com/gpu']),
+        0,
+      ),
     };
     // total resources
     const preemptedNodes = await fetchNodes(false);
-    vcInfos['default'].resourcesTotal = {
-      cpu: preemptedNodes.reduce((sum, node) => sum + k8s.atoi(node.status.capacity.cpu), 0),
-      memory: preemptedNodes.reduce((sum, node) => sum + k8s.convertMemoryMb(node.status.capacity.memory), 0),
-      gpu: preemptedNodes.reduce((sum, node) =>
-        sum + k8s.atoi(node.status.capacity['nvidia.com/gpu']) + k8s.atoi(node.status.capacity['amd.com/gpu']), 0),
+    vcInfos.default.resourcesTotal = {
+      cpu: preemptedNodes.reduce(
+        (sum, node) => sum + k8s.atoi(node.status.capacity.cpu),
+        0,
+      ),
+      memory: preemptedNodes.reduce(
+        (sum, node) => sum + k8s.convertMemoryMb(node.status.capacity.memory),
+        0,
+      ),
+      gpu: preemptedNodes.reduce(
+        (sum, node) =>
+          sum +
+          k8s.atoi(node.status.capacity['nvidia.com/gpu']) +
+          k8s.atoi(node.status.capacity['amd.com/gpu']),
+        0,
+      ),
     };
-    mergeDict(vcInfos['default'].resourcesTotal, vcInfos['default'].resourcesGuaranteed, add);
+    mergeDict(
+      vcInfos.default.resourcesTotal,
+      vcInfos.default.resourcesGuaranteed,
+      add,
+    );
   }
 
   // add capacity, maxCapacity, usedCapacity for compatibility
-  const gpuTotal = Object.values(vcInfos).reduce((sum, vcInfo) => sum + vcInfo.resourcesTotal.gpu, 0);
+  const gpuTotal = Object.values(vcInfos).reduce(
+    (sum, vcInfo) => sum + vcInfo.resourcesTotal.gpu,
+    0,
+  );
   if (gpuTotal > 0) {
-    for (let vc of Object.keys(vcInfos)) {
-      vcInfos[vc].capacity = vcInfos[vc].resourcesTotal.gpu / gpuTotal * 100;
+    for (const vc of Object.keys(vcInfos)) {
+      vcInfos[vc].capacity = (vcInfos[vc].resourcesTotal.gpu / gpuTotal) * 100;
       vcInfos[vc].maxCapacity = vcInfos[vc].capacity;
-      vcInfos[vc].usedCapacity = vcInfos[vc].resourcesUsed.gpu / gpuTotal * 100;
+      vcInfos[vc].usedCapacity =
+        (vcInfos[vc].resourcesUsed.gpu / gpuTotal) * 100;
     }
   }
 
   // add GPUs, vCores for compatibility
-  for (let vc of Object.keys(vcInfos)) {
-    for (let resource of ['resourcesUsed', 'resourcesGuaranteed', 'resourcesTotal']) {
-      for (let [k, v] of [['vCores', 'cpu'], ['GPUs', 'gpu']]) {
+  for (const vc of Object.keys(vcInfos)) {
+    for (const resource of [
+      'resourcesUsed',
+      'resourcesGuaranteed',
+      'resourcesTotal',
+    ]) {
+      for (const [k, v] of [
+        ['vCores', 'cpu'],
+        ['GPUs', 'gpu'],
+      ]) {
         vcInfos[vc][resource][k] = vcInfos[vc][resource][v];
       }
     }
@@ -285,26 +347,46 @@ const getVcList = async () => {
 
 const getVc = async (vcName) => {
   const vcInfos = await getVcList();
-  if (!vcInfos.hasOwnProperty(vcName)) {
-    throw createError('Not Found', 'NoVirtualClusterError', `Vc ${vcName} not found`);
+  if (!Object.prototype.hasOwnProperty.call(vcInfos, vcName)) {
+    throw createError(
+      'Not Found',
+      'NoVirtualClusterError',
+      `Vc ${vcName} not found`,
+    );
   }
   return vcInfos[vcName];
 };
 
 const updateVc = () => {
-  throw createError('Bad Request', 'NotImplementedError', 'updateVc not implemented in k8s');
+  throw createError(
+    'Bad Request',
+    'NotImplementedError',
+    'updateVc not implemented in k8s',
+  );
 };
 
 const stopVc = () => {
-  throw createError('Bad Request', 'NotImplementedError', 'stopVc not implemented in k8s');
+  throw createError(
+    'Bad Request',
+    'NotImplementedError',
+    'stopVc not implemented in k8s',
+  );
 };
 
 const activeVc = () => {
-  throw createError('Bad Request', 'NotImplementedError', 'activeVc not implemented in k8s');
+  throw createError(
+    'Bad Request',
+    'NotImplementedError',
+    'activeVc not implemented in k8s',
+  );
 };
 
 const removeVc = () => {
-  throw createError('Bad Request', 'NotImplementedError', 'removeVc not implemented in k8s');
+  throw createError(
+    'Bad Request',
+    'NotImplementedError',
+    'removeVc not implemented in k8s',
+  );
 };
 
 // module exports

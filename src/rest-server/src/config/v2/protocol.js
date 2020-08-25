@@ -15,12 +15,11 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-
 // module dependencies
 const Ajv = require('ajv');
 const ajvMerge = require('ajv-merge-patch/keywords/merge');
 
-const ajv = new Ajv({allErrors: true});
+const ajv = new Ajv({ allErrors: true });
 ajvMerge(ajv);
 
 // base schema
@@ -243,11 +242,7 @@ const protocolSchema = {
                   additionalProperties: false,
                 },
               },
-              required: [
-                'cpu',
-                'memoryMB',
-                'gpu',
-              ],
+              required: ['cpu', 'memoryMB', 'gpu'],
               additionalProperties: false,
             },
             commands: {
@@ -258,11 +253,7 @@ const protocolSchema = {
               minItems: 1,
             },
           },
-          required: [
-            'dockerImage',
-            'resourcePerInstance',
-            'commands',
-          ],
+          required: ['dockerImage', 'resourcePerInstance', 'commands'],
           additionalProperties: false,
         },
       },
@@ -307,10 +298,7 @@ const protocolSchema = {
             additionalProperties: false,
           },
         },
-        required: [
-          'name',
-          'taskRoles',
-        ],
+        required: ['name', 'taskRoles'],
       },
       minItems: 1,
     },
@@ -326,17 +314,11 @@ const protocolSchema = {
       type: 'object',
     },
   },
-  required: [
-    'protocolVersion',
-    'name',
-    'type',
-    'taskRoles',
-  ],
+  required: ['protocolVersion', 'name', 'type', 'taskRoles'],
   additionalProperties: false,
 };
 
 const protocolValidate = ajv.addSchema(baseSchema).compile(protocolSchema);
-
 
 // module exports
 module.exports = {

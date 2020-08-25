@@ -17,37 +17,35 @@
 
 const Joi = require('joi');
 
-const groupSchema = Joi.object().keys({
-  groupname: Joi.string()
-    .regex(/^[A-Za-z0-9_]+$/, 'groupname')
-    .required(),
-  description: Joi.string()
-    .empty('')
-    .default(''),
-  externalName: Joi.string()
-    .empty('')
-    .default(''),
-  extension: Joi.object()
-    .pattern(/\w+/, Joi.required())
-    .keys({
-      acls: Joi.object()
-        .pattern(/\w+/, Joi.required())
-        .keys({
-          admin: Joi.boolean().default(false),
-          virtualClusters: Joi.array().items(Joi.string()).default([]),
-        })
-        .default(),
-    })
-    .pattern(/\w+/, Joi.required())
-    .required(),
-}).required();
+const groupSchema = Joi.object()
+  .keys({
+    groupname: Joi.string()
+      .regex(/^[A-Za-z0-9_]+$/, 'groupname')
+      .required(),
+    description: Joi.string().empty('').default(''),
+    externalName: Joi.string().empty('').default(''),
+    extension: Joi.object()
+      .pattern(/\w+/, Joi.required())
+      .keys({
+        acls: Joi.object()
+          .pattern(/\w+/, Joi.required())
+          .keys({
+            admin: Joi.boolean().default(false),
+            virtualClusters: Joi.array().items(Joi.string()).default([]),
+          })
+          .default(),
+      })
+      .pattern(/\w+/, Joi.required())
+      .required(),
+  })
+  .required();
 
 function createGroup(value) {
   const res = groupSchema.validate(value);
-  if (res['error']) {
-    throw new Error(`Group schema error\n${res['error']}`);
+  if (res.error) {
+    throw new Error(`Group schema error\n${res.error}`);
   }
-  return res['value'];
+  return res.value;
 }
 
-module.exports = {createGroup};
+module.exports = { createGroup };
