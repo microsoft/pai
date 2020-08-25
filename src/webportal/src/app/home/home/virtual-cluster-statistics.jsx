@@ -13,7 +13,6 @@ import {
   FontClassNames,
   Link,
   DefaultButton,
-  Dialog,
 } from 'office-ui-fabric-react';
 import React, { useMemo, useState } from 'react';
 
@@ -22,7 +21,6 @@ import { UtilizationChart } from './utilization-chart';
 import { zeroPaddingClass } from './util';
 import { Header } from './header';
 import config from '../../config/webportal.config';
-import CopyButton from '../../components/copy-button';
 
 import t from '../../components/tachyons.scss';
 import { ResourceBar } from './resource-bar';
@@ -164,12 +162,6 @@ const vcListColumns = colProps => {
   ];
 
   if (isAdmin && colProps.groups) {
-    const CopySucceeded = props =>
-      props.copied ? <p style={{ color: 'green' }}>Copied succeeded!</p> : null;
-    CopySucceeded.propTypes = {
-      copied: PropTypes.bool,
-    };
-
     columns.push({
       key: 'groups',
       minWidth: 250,
@@ -184,111 +176,22 @@ const vcListColumns = colProps => {
           }
         });
         return (
-          <>
-            <Stack
-              horizontal
-              verticalAlign='center'
-              horizontalAlign='space-between'
-              gap='m'
-            >
-              <div className={FontClassNames.medium}>
-                <p>{getGrantedGroupsDescription(groups)}</p>
-              </div>
-              <DefaultButton
-                text='Detail'
-                onClick={() => {
-                  colProps.setHideGroupDetails(false);
-                }}
-              />
-            </Stack>
-            <Dialog
-              minWidth='50%'
-              hidden={colProps.hideGroupDetails}
-              onDismiss={() => colProps.setHideGroupDetails(true)}
-              styles={{ borderStyle: 'solid' }}
-              dialogContentProps={{
-                title: `Granted group of VC '${vc.name}'`,
+          <Stack
+            horizontal
+            verticalAlign='center'
+            horizontalAlign='space-between'
+            gap='m'
+          >
+            <div className={FontClassNames.medium}>
+              <p>{getGrantedGroupsDescription(groups)}</p>
+            </div>
+            <DefaultButton
+              text='Detail'
+              onClick={() => {
+                colProps.setHideGroupDetails(false);
               }}
-            >
-              <DetailsList
-                columns={[
-                  {
-                    key: 'name',
-                    minWidth: 100,
-                    maxWidth: 150,
-                    name: 'Group name',
-                    isResizable: true,
-                    onRender(group) {
-                      return (
-                        <div
-                          className={c(
-                            t.flex,
-                            t.itemsCenter,
-                            t.h100,
-                            FontClassNames.medium,
-                          )}
-                        >
-                          {group.groupname}
-                        </div>
-                      );
-                    },
-                  },
-                  {
-                    key: 'alias',
-                    minWidth: 180,
-                    maxWidth: 250,
-                    name: 'Group alias',
-                    isResizable: true,
-                    onRender(group) {
-                      return (
-                        <div className={c(t.flex, t.itemsCenter, t.h100)}>
-                          <div className={FontClassNames.medium}>
-                            {group.externalName}
-                          </div>
-                          <div className={c(t.flex, t.itemsCenter, t.h100)}>
-                            <CopyButton
-                              value={group.externalName}
-                              hideTooltip={true}
-                              callback={() => {
-                                colProps.setCopied(group.externalName);
-                              }}
-                            />
-                            <CopySucceeded
-                              copied={colProps.copied === group.externalName}
-                            />
-                          </div>
-                        </div>
-                      );
-                    },
-                  },
-                  {
-                    key: 'description',
-                    minWidth: 180,
-                    name: 'Description',
-                    isResizable: true,
-                    onRender(group) {
-                      return (
-                        <div
-                          className={c(
-                            t.flex,
-                            t.itemsCenter,
-                            t.h100,
-                            FontClassNames.medium,
-                          )}
-                        >
-                          {group.description}
-                        </div>
-                      );
-                    },
-                  },
-                ]}
-                disableSelectionZone
-                items={groups}
-                layoutMode={DetailsListLayoutMode.justified}
-                selectionMode={SelectionMode.none}
-              />
-            </Dialog>
-          </>
+            />
+          </Stack>
         );
       },
     });
