@@ -218,12 +218,12 @@ const getVcList = async () => {
         }
         if (curr.cellChildren) {
           curr.cellChildren.forEach((cellChild) => {
-            cellChild.gpuType = curr.gpuType;
+            cellChild.leafCellType = curr.leafCellType;
             cellQueue.push(cellChild);
           });
         } else {
-          if (curr.gpuType in resourceUnits) {
-            const sku = resourceUnits[curr.gpuType];
+          if (curr.leafCellType in resourceUnits) {
+            const sku = resourceUnits[curr.leafCellType];
             if (curr.cellHealthiness === 'Healthy') {
               if (curr.cellState === 'Used') {
                 mergeDict(vcInfos[vc].resourcesUsed, sku, add);
