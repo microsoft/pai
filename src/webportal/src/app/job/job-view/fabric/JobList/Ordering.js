@@ -1,3 +1,8 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
+const LOCAL_STORAGE_KEY = 'pai-job-ordering';
+
 export default class Ordering {
   /**
    * @param {"name" | "modified" | "user" | "duration" | "virtualCluster" | "retries" | "status" | "taskCount" | "gpuCount" | undefined} field
@@ -6,6 +11,42 @@ export default class Ordering {
   constructor(field, descending = false) {
     this.field = field;
     this.descending = descending;
+  }
+
+  save() {
+    const content = JSON.stringify({
+      field: this.field,
+      descending: this.descending,
+    });
+    window.localStorage.setItem(LOCAL_STORAGE_KEY, content);
+  }
+
+  load() {
+    try {
+      const content = window.localStorage.getItem(LOCAL_STORAGE_KEY);
+      const { field, descending } = JSON.parse(content);
+      if (
+        field !== undefined &&
+        [
+          'name',
+          'modified',
+          'user',
+          'duration',
+          'virtualCluster',
+          'retries',
+          'status',
+          'taskCount',
+          'gpuCount',
+        ].includes(field)
+      ) {
+        this.field = field;
+        if (descending !== undefined) {
+          this.descending = descending;
+        }
+      }
+    } catch (e) {
+      window.localStorage.removeItem(LOCAL_STORAGE_KEY);
+    }
   }
 
   apply() {

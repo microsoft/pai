@@ -96,6 +96,7 @@ export default function JobList() {
   const { current: applyFilter } = useRef(
     debounce((/** @type {Filter} */ filter) => {
       pagination.load();
+      ordering.load();
       setLoading(true);
       getJobs({
         ...filter.apply(),
@@ -121,6 +122,7 @@ export default function JobList() {
   const { current: applyPagination } = useRef(
     debounce((/** @type {Pagination} */ pagination) => {
       filter.load();
+      ordering.load();
       setLoading(true);
       getJobs({
         ...filter.apply(),
@@ -142,6 +144,32 @@ export default function JobList() {
   useEffect(() => {
     applyPagination(pagination);
   }, [applyPagination, pagination]);
+
+  const { current: applyOrdering } = useRef(
+    debounce((/** @type {Pagination} */ pagination) => {
+      filter.load();
+      pagination.load();
+      setLoading(true);
+      getJobs({
+        ...filter.apply(),
+        ...ordering.apply(),
+        ...pagination.apply(),
+        ...{ withTotalCount: true },
+      })
+        .then(data => {
+          setFilteredJobsInfo(data);
+          setLoading(false);
+        })
+        .catch(err => {
+          alert(err.data.message || err.message);
+          throw Error(err.data.message || err.message);
+        });
+    }, 200),
+  );
+
+  useEffect(() => {
+    applyOrdering(ordering);
+  }, [applyOrdering, ordering]);
 
   const stopJob = useCallback(
     (...jobs) => {
@@ -221,6 +249,7 @@ export default function JobList() {
   }, []);
 
   useEffect(() => filter.save(), [filter]);
+  useEffect(() => ordering.save(), [ordering]);
   useEffect(refreshJobs, []);
 
   const context = {
