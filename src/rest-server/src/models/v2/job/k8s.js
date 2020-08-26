@@ -1143,6 +1143,7 @@ const getSshInfo = async (frameworkName) => {
 };
 
 const addTag = async (frameworkName, tag) => {
+  // return [instance:Model, created: boolean]
   // check if frameworkName exist
   const framework = await databaseModel.Framework.findOne({
     where: { name: encodeName(frameworkName) },
@@ -1150,17 +1151,13 @@ const addTag = async (frameworkName, tag) => {
 
   if (framework) {
     // add tag
-    try {
-      response = await databaseModel.Tag.findOrCreate({
-        where: {
-          frameworkName: encodeName(frameworkName),
-          tag: tag
-        },
-      });
-      return yaml.safeLoad(response);
-    } catch (error) {
-      throw error;
-    }
+    response = await databaseModel.Tag.findOrCreate({
+      where: {
+        frameworkName: encodeName(frameworkName),
+        tag: tag
+      },
+    });
+    return response;
   } else {
     throw createError(
       'Not Found',
@@ -1168,24 +1165,31 @@ const addTag = async (frameworkName, tag) => {
       `Job ${frameworkName} is not found.`,
     );
   }
-
 };
 
 const deleteTag = async (frameworkName, tag) => {
-  return 0;
-  // add tag
-  try {
-    data = await databaseModel.Tag.destroy({
+  // check if frameworkName exist
+  const framework = await databaseModel.Framework.findOne({
+    where: { name: encodeName(frameworkName) },
+  });
+
+  if (framework) {
+    // remove tag
+    numDestroyedRows = await databaseModel.Tag.destroy({
       where: {
         frameworkName: encodeName(frameworkName),
         tag: tag
       },
     });
-  } catch (error) {
-    throw error;
+    // return the number of destroyed rows
+    return numDestroyedRows;
+  } else {
+    throw createError(
+      'Not Found',
+      'NoJobError',
+      `Job ${frameworkName} is not found.`,
+    );
   }
-
-  return yaml.safeLoad(data);
 };
 
 const generateExitDiagnostics = (diag) => {
