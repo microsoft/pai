@@ -275,7 +275,7 @@ export default function Table() {
     actionsColumn,
   ];
 
-  if (!isNil(filteredJobsInfo) && filteredJobsInfo.totalCount === 0) {
+  if (!isNil(filteredJobsInfo.data) && filteredJobsInfo.totalCount === 0) {
     return (
       <div className={c(t.h100, t.flex, t.itemsCenter, t.justifyCenter)}>
         <div className={c(t.tc)}>

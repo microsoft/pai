@@ -32,6 +32,7 @@ import TopBar from './TopBar';
 import webportalConfig from '../../../../config/webportal.config';
 import { clearToken } from '../../../../user/user-logout/user-logout.component';
 import userAuth from '../../../../user/user-auth/user-auth.component';
+import { SpinnerLoading } from '../../../../components/loading';
 
 export default function JobList() {
   const admin = userAuth.checkAdmin();
@@ -90,6 +91,7 @@ export default function JobList() {
     totalCount: 0,
     data: [],
   });
+  const [loading, setLoading] = useState(true);
 
   const { current: applyFilter } = useRef(
     debounce((/** @type {Filter} */ filter) => {
@@ -118,6 +120,7 @@ export default function JobList() {
   const { current: applyPagination } = useRef(
     debounce((/** @type {Pagination} */ pagination) => {
       filter.load();
+      setLoading(true);
       getJobs({
         ...filter.apply(),
         ...ordering.apply(),
@@ -125,9 +128,9 @@ export default function JobList() {
         ...{ withTotalCount: true },
       })
         .then(data => {
-          return data;
+          setFilteredJobsInfo(data);
+          setLoading(false);
         })
-        .then(setFilteredJobsInfo)
         .catch(err => {
           alert(err.data.message || err.message);
           throw Error(err.data.message || err.message);
@@ -198,7 +201,8 @@ export default function JobList() {
   };
 
   const refreshJobs = useCallback(function refreshJobs() {
-    setFilteredJobsInfo({ totalCount: 0, data: [], pageIndex: 0 });
+    setFilteredJobsInfo({ totalCount: 0, data: null, pageIndex: 0 });
+    setLoading(true);
     getJobs({
       ...filter.apply(),
       ...ordering.apply(),
@@ -206,9 +210,9 @@ export default function JobList() {
       ...{ withTotalCount: true },
     })
       .then(data => {
-        return data;
+        setFilteredJobsInfo(data);
+        setLoading(false);
       })
-      .then(setFilteredJobsInfo)
       .catch(err => {
         alert(err.data.message || err.message);
         throw Error(err.data.message || err.message);
@@ -276,7 +280,7 @@ export default function JobList() {
               },
             }}
           >
-            <Table />
+            {loading ? <SpinnerLoading /> : <Table />}
           </Stack.Item>
           <Stack.Item
             styles={{
