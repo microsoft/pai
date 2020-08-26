@@ -3,6 +3,16 @@
 ## Motivation
 The easiest way to speed up neural network training is to use a GPU, which provides large speedups over CPUs on the types of calculations (matrix multiplies and additions) that are common in neural networks. As the model or dataset gets bigger, one GPU quickly becomes insufficient. For example, big language models such as BERT and GPT-2 are trained on hundreds of GPUs. To perform multi-GPU training, we must have a way to split the model and data between different GPUs and to coordinate the training.
 
+In this document, I'll show you how to train a neural network using clustering. At the end of the document, I gave an example from OpenPai that you can access. I'll tell you a little bit about OpenPai at the beginning of the document.
+## About OpenPai
+OpnePai's user manual is here. Through OpenPai, you can easily call on powerful computing power to train your complex models:
+https://openpai.readthedocs.io/en/latest/manual/cluster-user/advanced-jobs.html
+
+You need to submit your program to OpenPai in the form of Job. OpenPai uses container technology to provide a rich development environment. You can visit the following link to learn how to submit Job and learning the concept of Task.
+https://openpai.readthedocs.io/manual/cluster-user/how-to-use-advanced-job-settings.html####123
+
+In this document you can learn how different tasks communicate in Pai.
+https://openpai.readthedocs.io/manual/cluster-user/how-to-use-advanced-job-settings.html####1456
 ## Why distributed data parallel?
 Pytorch has two ways to split models and data across multiple GPUs: nn.DataParallel and nn.DistributedDataParallel. nn.DataParallel is easier to use (just wrap the model and run your training script). However, because it uses one process to compute the model weights and then distribute them to each GPU during each batch, networking quickly becomes a bottle-neck and GPU utilization is often very low. Furthermore, nn.DataParallel requires that all the GPUs be on the same node and doesn’t work with Apex for mixed-precision training.
 
