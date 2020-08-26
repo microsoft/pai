@@ -20,7 +20,7 @@ write-merger-connection-timeout-second: 120
 # The serving port for write merger.
 write-merger-port: 9748
  # Max connection number to database in write merger.
-write-merger-max-db-connection: 50
+write-merger-max-db-connection: 100
 
 # db poller
 # Polling interval of database poller. Default value is 120.

@@ -13,7 +13,7 @@ const config = require('@dbc/watcher/framework/config');
 
 const lock = new AsyncLock({ maxPending: Number.MAX_SAFE_INTEGER });
 // use p-queue to control concurrency promises
-const queue = new PQueue({ concurrency: 50 });
+const queue = new PQueue({ concurrency: 150 });
 
 async function synchronizeFramework(eventType, apiObject) {
   const res = await fetch(
