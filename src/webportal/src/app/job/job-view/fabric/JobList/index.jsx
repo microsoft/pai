@@ -43,7 +43,7 @@ export default function JobList() {
 
   const initialFilter = useMemo(() => {
     const query = querystring.parse(location.search.replace(/^\?/, ''));
-    if (['vcName', 'status', 'user'].some(x => !isEmpty(query[x]))) {
+    if (['vcName', 'status', 'user', 'keyword'].some(x => !isEmpty(query[x]))) {
       const queryFilter = new Filter();
       if (query.vcName) {
         queryFilter.virtualClusters = new Set([query.vcName]);
@@ -53,6 +53,9 @@ export default function JobList() {
       }
       if (query.user) {
         queryFilter.users = new Set([query.user]);
+      }
+      if (query.keyword) {
+        queryFilter.keyword = query.user;
       }
       return queryFilter;
     } else {
@@ -67,11 +70,16 @@ export default function JobList() {
   const initialPagination = useMemo(() => {
     const query = querystring.parse(location.search.replace(/^\?/, ''));
     if (!isEmpty(query.pageIndex) || !isEmpty(query.itemsPerPage)) {
-      return new Pagination(query.itemsPerPage, query.pageIndex);
+      const res = new Pagination(
+        query.itemsPerPage,
+        query.pageIndex > 0 ? query.pageIndex - 1 : 0,
+      );
+      res.save();
+      return res;
     } else {
-      const resPagination = new Pagination();
-      resPagination.load();
-      return resPagination;
+      const res = new Pagination();
+      res.load();
+      return res;
     }
   });
 
@@ -82,8 +90,6 @@ export default function JobList() {
     totalCount: 0,
     data: [],
   });
-
-  useEffect(() => filter.save(), [filter]);
 
   const { current: applyFilter } = useRef(
     debounce((/** @type {Filter} */ filter) => {
@@ -209,6 +215,7 @@ export default function JobList() {
       });
   }, []);
 
+  useEffect(() => filter.save(), [filter]);
   useEffect(refreshJobs, []);
 
   const context = {

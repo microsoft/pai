@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
 const LOCAL_STORAGE_KEY = 'pai-job-pagination';
 
 export default class Pagination {
