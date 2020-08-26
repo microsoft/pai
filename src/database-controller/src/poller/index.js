@@ -4,6 +4,7 @@
 require('module-alias/register');
 require('dotenv').config();
 const AsyncLock = require('async-lock');
+const { default: PQueue } = require('p-queue');
 const { Sequelize } = require('sequelize');
 const Op = Sequelize.Op;
 const DatabaseModel = require('openpaidbsdk');
@@ -21,6 +22,8 @@ const { deleteFramework } = require('@dbc/common/k8s');
 // If any framework is not synced/deleted, it will be synced/deleted in the next polling round.
 // We don't need to explicitly retry on error.
 const lock = new AsyncLock({ maxPending: 1 });
+// use p-queue to control concurrency promises
+const queue = new PQueue({ concurrency: 50 });
 const databaseModel = new DatabaseModel(
   config.dbConnectionStr,
   config.maxDatabaseConnection,
@@ -41,29 +44,31 @@ function deleteHandler(snapshot, pollingTs) {
     `Will delete framework ${frameworkName}. PollingTs=${pollingTs}.`,
   );
   lock
-    .acquire(frameworkName, async () => {
-      try {
-        // We only delete framework here, ignoring the job add-ons.
-        // Because most job add-ons are patched in the creation time, so they will by deleted automatically.
-        // If some add-ons are not successfully patched, they will be deleted by the watch dog service.
-        await deleteFramework(snapshot.getName());
-        logger.info(
-          `Framework ${frameworkName} is successfully deleted. PollingTs=${pollingTs}.`,
-        );
-      } catch (err) {
-        if (err.response && err.response.statusCode === 404) {
-          // for 404 error, mock a delete to write merger
-          logger.warn(
-            `Cannot find framework ${frameworkName} in API Server. Will mock a deletion to write merger. Error:`,
-            err,
+    .acquire(frameworkName, () =>
+      queue.add(async () => {
+        try {
+          // We only delete framework here, ignoring the job add-ons.
+          // Because most job add-ons are patched in the creation time, so they will by deleted automatically.
+          // If some add-ons are not successfully patched, they will be deleted by the watch dog service.
+          await deleteFramework(snapshot.getName());
+          logger.info(
+            `Framework ${frameworkName} is successfully deleted. PollingTs=${pollingTs}.`,
           );
-          await postMockedDeleteEvent(snapshot);
-        } else {
-          // for non-404 error
-          throw err;
+        } catch (err) {
+          if (err.response && err.response.statusCode === 404) {
+            // for 404 error, mock a delete to write merger
+            logger.warn(
+              `Cannot find framework ${frameworkName} in API Server. Will mock a deletion to write merger. Error:`,
+              err,
+            );
+            await postMockedDeleteEvent(snapshot);
+          } else {
+            // for non-404 error
+            throw err;
+          }
         }
-      }
-    })
+      }),
+    )
     .catch(err => {
       logger.error(
         `An error happened when delete framework ${frameworkName} and pollingTs=${pollingTs}:`,
@@ -78,12 +83,14 @@ function synchronizeHandler(snapshot, addOns, pollingTs) {
     `Start synchronizing request of framework ${frameworkName}. PollingTs=${pollingTs}`,
   );
   lock
-    .acquire(frameworkName, async () => {
-      await synchronizeRequest(snapshot, addOns);
-      logger.info(
-        `Request of framework ${frameworkName} is successfully synchronized. PollingTs=${pollingTs}.`,
-      );
-    })
+    .acquire(frameworkName, () =>
+      queue.add(async () => {
+        await synchronizeRequest(snapshot, addOns);
+        logger.info(
+          `Request of framework ${frameworkName} is successfully synchronized. PollingTs=${pollingTs}.`,
+        );
+      }),
+    )
     .catch(err => {
       logger.error(
         `An error happened when synchronize request for framework ${frameworkName} and pollingTs=${pollingTs}:`,

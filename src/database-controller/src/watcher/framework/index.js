@@ -5,12 +5,15 @@ require('module-alias/register');
 require('dotenv').config();
 const fetch = require('node-fetch');
 const AsyncLock = require('async-lock');
+const { default: PQueue } = require('p-queue');
 const logger = require('@dbc/common/logger');
 const { getFrameworkInformer } = require('@dbc/common/k8s');
 const { alwaysRetryDecorator } = require('@dbc/common/util');
 const config = require('@dbc/watcher/framework/config');
 
 const lock = new AsyncLock({ maxPending: Number.MAX_SAFE_INTEGER });
+// use p-queue to control concurrency promises
+const queue = new PQueue({ concurrency: 50 });
 
 async function synchronizeFramework(eventType, apiObject) {
   const res = await fetch(
@@ -39,11 +42,12 @@ const eventHandler = (eventType, apiObject) => {
   logger.info(
     `Event type=${eventType} receivedTs=${receivedTs} framework=${apiObject.metadata.name} state=${state} received.`,
   );
-  lock.acquire(
-    apiObject.metadata.name,
-    alwaysRetryDecorator(
-      () => synchronizeFramework(eventType, apiObject),
-      `Sync to write merger type=${eventType} receivedTs=${receivedTs} framework=${apiObject.metadata.name} state=${state}`,
+  lock.acquire(apiObject.metadata.name, () =>
+    queue.add(() =>
+      alwaysRetryDecorator(
+        () => synchronizeFramework(eventType, apiObject),
+        `Sync to write merger type=${eventType} receivedTs=${receivedTs} framework=${apiObject.metadata.name} state=${state}`,
+      ),
     ),
   );
 };
