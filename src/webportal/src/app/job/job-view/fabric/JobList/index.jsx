@@ -96,6 +96,7 @@ export default function JobList() {
   const { current: applyFilter } = useRef(
     debounce((/** @type {Filter} */ filter) => {
       pagination.load();
+      setLoading(true);
       getJobs({
         ...filter.apply(),
         ...ordering.apply(),
@@ -103,9 +104,9 @@ export default function JobList() {
         ...{ withTotalCount: true },
       })
         .then(data => {
-          return data;
+          setFilteredJobsInfo(data);
+          setLoading(false);
         })
-        .then(setFilteredJobsInfo)
         .catch(err => {
           alert(err.data.message || err.message);
           throw Error(err.data.message || err.message);
