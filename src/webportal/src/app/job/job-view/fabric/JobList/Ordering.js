@@ -14,11 +14,13 @@ export default class Ordering {
   }
 
   save() {
-    const content = JSON.stringify({
-      field: this.field,
-      descending: this.descending,
-    });
-    window.localStorage.setItem(LOCAL_STORAGE_KEY, content);
+    if (this.field !== undefined) {
+      const content = JSON.stringify({
+        field: this.field,
+        descending: this.descending,
+      });
+      window.localStorage.setItem(LOCAL_STORAGE_KEY, content);
+    }
   }
 
   load() {
@@ -51,7 +53,7 @@ export default class Ordering {
 
   apply() {
     const { field, descending } = this;
-    if (field == null) {
+    if (field === undefined) {
       return undefined;
     }
 
@@ -72,7 +74,11 @@ export default class Ordering {
       query = 'totalTaskNumber';
     } else if (field === 'gpuCount') {
       query = 'totalGpuNumber';
+    } else if (field === 'duration') {
+      // rest-server don't receive duration order will use submissionTime
+      return { order: `submissionTime,${descending ? 'ASC' : 'DESC'}` };
     }
+
     return { order: `${query},${descending ? 'DESC' : 'ASC'}` };
   }
 }
