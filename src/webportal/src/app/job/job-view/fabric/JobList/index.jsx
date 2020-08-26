@@ -90,6 +90,7 @@ export default function JobList() {
     totalCount: 0,
     data: [],
   });
+  const [loading, setLoading] = useState(true);
 
   const { current: applyFilter } = useRef(
     debounce((/** @type {Filter} */ filter) => {
@@ -118,6 +119,7 @@ export default function JobList() {
   const { current: applyPagination } = useRef(
     debounce((/** @type {Pagination} */ pagination) => {
       filter.load();
+      setLoading(true);
       getJobs({
         ...filter.apply(),
         ...ordering.apply(),
@@ -125,9 +127,9 @@ export default function JobList() {
         ...{ withTotalCount: true },
       })
         .then(data => {
-          return data;
+          setFilteredJobsInfo(data);
+          setLoading(false);
         })
-        .then(setFilteredJobsInfo)
         .catch(err => {
           alert(err.data.message || err.message);
           throw Error(err.data.message || err.message);
@@ -198,7 +200,8 @@ export default function JobList() {
   };
 
   const refreshJobs = useCallback(function refreshJobs() {
-    setFilteredJobsInfo({ totalCount: 0, data: [], pageIndex: 0 });
+    setFilteredJobsInfo({ totalCount: 0, data: null, pageIndex: 0 });
+    setLoading(true);
     getJobs({
       ...filter.apply(),
       ...ordering.apply(),
@@ -206,9 +209,9 @@ export default function JobList() {
       ...{ withTotalCount: true },
     })
       .then(data => {
-        return data;
+        setFilteredJobsInfo(data);
+        setLoading(false);
       })
-      .then(setFilteredJobsInfo)
       .catch(err => {
         alert(err.data.message || err.message);
         throw Error(err.data.message || err.message);
@@ -232,6 +235,7 @@ export default function JobList() {
     setOrdering,
     pagination,
     setPagination,
+    loading,
   };
 
   const { spacing } = getTheme();
