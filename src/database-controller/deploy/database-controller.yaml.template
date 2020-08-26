@@ -59,7 +59,7 @@ spec:
         # The database client string. It follows the format "<database type>://<user>:<password>@<host>:<port>/<database name>"
         - name: DB_CONNECTION_STR
           value: "{{ cluster_cfg['postgresql']['connection-str'] }}"
-        command: ["node", "initializer/index.js"]
+        command: ["node", "--max-old-space-size=8192", "initializer/index.js"]
       containers:
       - name: write-merger
         image: {{ cluster_cfg["cluster"]["docker-registry"]["prefix"] }}database-controller:{{ cluster_cfg["cluster"]["docker-registry"]["tag"] }}
@@ -115,7 +115,7 @@ spec:
             port: {{ cluster_cfg['database-controller']['write-merger-port'] }}
           initialDelaySeconds: 60
           periodSeconds: 60
-        command: ["node", "write-merger/index.js"]
+        command: ["node", "--max-old-space-size=2048", "write-merger/index.js"]
       - name: framework-watcher
         image: {{ cluster_cfg["cluster"]["docker-registry"]["prefix"] }}database-controller:{{ cluster_cfg["cluster"]["docker-registry"]["tag"] }}
         imagePullPolicy: Always
@@ -154,7 +154,7 @@ spec:
         # The URL of write merger.
         - name: WRITE_MERGER_URL
           value: "{{ cluster_cfg['database-controller']['write-merger-url'] }}"
-        command: ["node", "watcher/framework/index.js"]
+        command: ["node", "--max-old-space-size=8192", "watcher/framework/index.js"]
       - name: poller
         image: {{ cluster_cfg["cluster"]["docker-registry"]["prefix"] }}database-controller:{{ cluster_cfg["cluster"]["docker-registry"]["tag"] }}
         imagePullPolicy: Always
@@ -202,6 +202,6 @@ spec:
         # The URL of write merger.
         - name: WRITE_MERGER_URL
           value: "{{ cluster_cfg['database-controller']['write-merger-url'] }}"
-        command: ["node", "poller/index.js"]
+        command: ["node", "--max-old-space-size=4096", "poller/index.js"]
       imagePullSecrets:
       - name: {{ cluster_cfg["cluster"]["docker-registry"]["secret-name"] }}
