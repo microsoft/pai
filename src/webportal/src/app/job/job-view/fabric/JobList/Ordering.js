@@ -54,7 +54,7 @@ export default class Ordering {
   apply() {
     const { field, descending } = this;
     if (field === undefined) {
-      return undefined;
+      return {};
     }
 
     let query;
