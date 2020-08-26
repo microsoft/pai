@@ -9,10 +9,13 @@ OpnePai's user manual is here. Through OpenPai, you can easily call on powerful 
 https://openpai.readthedocs.io/en/latest/manual/cluster-user/advanced-jobs.html
 
 You need to submit your program to OpenPai in the form of Job. OpenPai uses container technology to provide a rich development environment. You can visit the following link to learn how to submit Job and learning the concept of Task.
-https://openpai.readthedocs.io/manual/cluster-user/how-to-use-advanced-job-settings.html####123
+https://openpai.readthedocs.io/en/latest/manual/cluster-user/how-to-use-advanced-job-settings.html#multiple-task-roles
 
 In this document you can learn how different tasks communicate in Pai.
-https://openpai.readthedocs.io/manual/cluster-user/how-to-use-advanced-job-settings.html####1456
+https://openpai.readthedocs.io/en/latest/manual/cluster-user/how-to-use-advanced-job-settings.html#environmental-variables-and-port-reservation
+
+Job Exit Spec, Retry Policy, and Completion Policy
+https://openpai.readthedocs.io/en/latest/manual/cluster-user/how-to-use-advanced-job-settings.html#job-exit-spec-retry-policy-and-completion-policy
 ## Why distributed data parallel?
 Pytorch has two ways to split models and data across multiple GPUs: nn.DataParallel and nn.DistributedDataParallel. nn.DataParallel is easier to use (just wrap the model and run your training script). However, because it uses one process to compute the model weights and then distribute them to each GPU during each batch, networking quickly becomes a bottle-neck and GPU utilization is often very low. Furthermore, nn.DataParallel requires that all the GPUs be on the same node and doesn’t work with Apex for mixed-precision training.
 
@@ -376,5 +379,7 @@ amp.initialize wraps the model and optimizer for mixed precision training. Note 
  apex.parallel.DistributedDataParallel is a drop-in replacement for nn.DistributedDataParallel. We no longer have to specify the GPUs because Apex only allows one GPU per process. It also assumes that the script calls torch.cuda.set_device(local_rank) before moving the model to GPU.
  
  Mixed-precision training requires that the loss is scaled in order to prevent the gradients from underflowing. Apex does this automatically.
-## OpenPai Example Yaml
+## OpenPai Example 
 
+These are some of the distributed programs I've written that can be executed on pai, and the source code address can be seen in the yaml file.
+https://github.com/vvfreesoul/pai/tree/master/examples/Yaml

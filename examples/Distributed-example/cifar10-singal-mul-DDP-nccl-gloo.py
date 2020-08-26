@@ -11,7 +11,6 @@ import torch.nn.functional as F
 import torch.distributed as dist
 from apex.parallel import DistributedDataParallel as DDP
 from apex import amp
-
 def main():
     print('run main')
     parser = argparse.ArgumentParser()
