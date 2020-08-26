@@ -27,7 +27,6 @@ import {
   isStoppable,
 } from '../../../../components/util/job';
 import StopJobConfirm from './StopJobConfirm';
-import { SpinnerLoading } from '../../../../components/loading';
 
 import t from '../../../../components/tachyons.scss';
 
@@ -49,7 +48,6 @@ export default function Table() {
     setOrdering,
     pagination,
     setFilter,
-    loading,
   } = useContext(Context);
   const [hideDialog, setHideDialog] = useState(true);
   const [currentJob, setCurrentJob] = useState(null);
@@ -305,18 +303,14 @@ export default function Table() {
   } else {
     return (
       <div>
-        {loading ? (
-          <SpinnerLoading />
-        ) : (
-          <ShimmeredDetailsList
-            items={filteredJobsInfo.data}
-            setKey='key'
-            columns={columns}
-            enableShimmer={isNil(filteredJobsInfo)}
-            shimmerLines={pagination.itemsPerPage}
-            selection={selection}
-          />
-        )}
+        <ShimmeredDetailsList
+          items={filteredJobsInfo.data}
+          setKey='key'
+          columns={columns}
+          enableShimmer={isNil(filteredJobsInfo)}
+          shimmerLines={pagination.itemsPerPage}
+          selection={selection}
+        />
         <StopJobConfirm
           hideDialog={hideDialog}
           setHideDialog={setHideDialog}

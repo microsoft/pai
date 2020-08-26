@@ -32,6 +32,7 @@ import TopBar from './TopBar';
 import webportalConfig from '../../../../config/webportal.config';
 import { clearToken } from '../../../../user/user-logout/user-logout.component';
 import userAuth from '../../../../user/user-auth/user-auth.component';
+import { SpinnerLoading } from '../../../../components/loading';
 
 export default function JobList() {
   const admin = userAuth.checkAdmin();
@@ -235,7 +236,6 @@ export default function JobList() {
     setOrdering,
     pagination,
     setPagination,
-    loading,
   };
 
   const { spacing } = getTheme();
@@ -280,7 +280,7 @@ export default function JobList() {
               },
             }}
           >
-            <Table />
+            {loading ? <SpinnerLoading /> : <Table />}
           </Stack.Item>
           <Stack.Item
             styles={{
