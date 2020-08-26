@@ -35,7 +35,6 @@ const logger = require('@pai/config/logger');
 const { apiserver } = require('@pai/config/kubernetes');
 const schedulePort = require('@pai/config/schedule-port');
 const databaseModel = require('@pai/utils/dbUtils');
-const { takeRight } = require('lodash');
 
 let exitSpecPath;
 if (process.env[env.exitSpecPath]) {
@@ -310,10 +309,10 @@ const convertFrameworkDetail = async (framework) => {
         : null,
       appExitMessages: exitDiagnostics
         ? {
-            container: null,
-            runtime: exitDiagnostics.runtime,
-            launcher: exitDiagnostics.launcher,
-          }
+          container: null,
+          runtime: exitDiagnostics.runtime,
+          launcher: exitDiagnostics.launcher,
+        }
         : null,
       appExitTriggerMessage:
         completionStatus && completionStatus.trigger
@@ -336,7 +335,7 @@ const convertFrameworkDetail = async (framework) => {
   for (const taskRoleSpec of framework.spec.taskRoles) {
     ports[taskRoleSpec.name] =
       taskRoleSpec.task.pod.metadata.annotations[
-        'rest-server/port-scheduling-spec'
+      'rest-server/port-scheduling-spec'
       ];
   }
 
@@ -427,7 +426,7 @@ const generateTaskRole = (
   // check InfiniBand device
   const infinibandDevice = Boolean(
     'extraContainerOptions' in config.taskRoles[taskRole] &&
-      config.taskRoles[taskRole].extraContainerOptions.infiniband,
+    config.taskRoles[taskRole].extraContainerOptions.infiniband,
   );
   // enable gang scheduling or not
   let gangAllocation = 'true';
@@ -509,7 +508,7 @@ const generateTaskRole = (
                   name: 'host-log',
                   subPath: `${jobInfo.userName}/${
                     jobInfo.logPathInfix
-                  }/${convertName(taskRole)}`,
+                    }/${convertName(taskRole)}`,
                   mountPath: '/usr/local/pai/logs',
                 },
                 {
@@ -571,7 +570,7 @@ const generateTaskRole = (
                   name: 'host-log',
                   subPath: `${jobInfo.userName}/${
                     jobInfo.logPathInfix
-                  }/${convertName(taskRole)}`,
+                    }/${convertName(taskRole)}`,
                   mountPath: '/usr/local/pai/logs',
                 },
                 {
@@ -674,14 +673,14 @@ const generateTaskRole = (
   frameworkTaskRole.frameworkAttemptCompletionPolicy = {
     minFailedTaskCount:
       completion &&
-      'minFailedInstances' in completion &&
-      completion.minFailedInstances
+        'minFailedInstances' in completion &&
+        completion.minFailedInstances
         ? completion.minFailedInstances
         : 1,
     minSucceededTaskCount:
       completion &&
-      'minSucceededInstances' in completion &&
-      completion.minSucceededInstances
+        'minSucceededInstances' in completion &&
+        completion.minSucceededInstances
         ? completion.minSucceededInstances
         : frameworkTaskRole.taskNumber,
   };
@@ -1145,39 +1144,37 @@ const getSshInfo = async (frameworkName) => {
 
 const addTag = async (frameworkName, tag) => {
   // check if frameworkName exist
-  let framework;
-  try {
-    framework = await databaseModel.Framework.findOne({
-      where: { name: encodeName(frameworkName) },
-    });
-  } catch (error) {
-    throw error;
-  }
-  if (framework == null) {
-    throw createError('Not Found', 'NoJobError', `Job ${frameworkName} is not found.`);
+  const framework = await databaseModel.Framework.findOne({
+    where: { name: encodeName(frameworkName) },
+  });
+
+  if (framework) {
+    // add tag
+    try {
+      response = await databaseModel.Tag.findOrCreate({
+        where: {
+          frameworkName: encodeName(frameworkName),
+          tag: tag
+        },
+      });
+      return yaml.safeLoad(response);
+    } catch (error) {
+      throw error;
+    }
+  } else {
+    throw createError(
+      'Not Found',
+      'NoJobError',
+      `Job ${frameworkName} is not found.`,
+    );
   }
 
-  logger.info('databaseModel.Tag:', databaseModel.Tag)
-
-  // add tag
-  try {
-    data = await databaseModel.Tag.findorCreate({
-      where: {
-        frameworkName: encodeName(frameworkName),
-        tag: tag
-      },
-    });
-  } catch (error) {
-    throw error;
-  }
-
-  return yaml.safeLoad(data);
 };
 
 const deleteTag = async (frameworkName, tag) => {
   return 0;
-   // add tag
-   try {
+  // add tag
+  try {
     data = await databaseModel.Tag.destroy({
       where: {
         frameworkName: encodeName(frameworkName),

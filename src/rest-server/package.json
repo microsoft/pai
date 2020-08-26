@@ -71,6 +71,7 @@
     "lint": "eslint --ext .js ./src",
     "mocha": "mocha --file ./test/setup --ui bdd --recursive --timeout 1000 --exit",
     "preinstall": "npx ncp ../database-controller/sdk openpaidbsdk || echo skip copying openpaidbsdk",
+    "postinstall": "rimraf openpaidbsdk",
     "start": "node index.js",
     "test": "npm run lint && nyc npm run mocha"
   },

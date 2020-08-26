@@ -34,6 +34,8 @@ async function main() {
     const previousVersion = (await databaseModel.getVersion()).version;
     if (!previousVersion) {
       await updateFromNoDatabaseVersion(databaseModel);
+    } else {
+      await databaseModel.synchronizeSchema();
     }
     await databaseModel.setVersion(paiVersion, paiCommitVersion);
     logger.info('Database has been successfully initialized.', function() {
