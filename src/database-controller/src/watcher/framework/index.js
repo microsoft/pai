@@ -42,14 +42,14 @@ const eventHandler = (eventType, apiObject) => {
   logger.info(
     `Event type=${eventType} receivedTs=${receivedTs} framework=${apiObject.metadata.name} state=${state} received.`,
   );
-  lock.acquire(apiObject.metadata.name, () =>
-    queue.add(() =>
+  lock.acquire(apiObject.metadata.name, () => {
+    return queue.add(
       alwaysRetryDecorator(
         () => synchronizeFramework(eventType, apiObject),
         `Sync to write merger type=${eventType} receivedTs=${receivedTs} framework=${apiObject.metadata.name} state=${state}`,
       ),
-    ),
-  );
+    );
+  });
 };
 
 const informer = getFrameworkInformer();
