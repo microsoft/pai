@@ -241,7 +241,7 @@ const convertTaskDetail = async (taskStatus, ports, logPathPrefix) => {
   };
 };
 
-const convertFrameworkDetail = async (framework) => {
+const convertFrameworkDetail = async (framework, tags) => {
   const attemptStatus = framework.status.attemptStatus;
   // check fields which may be compressed
   if (attemptStatus.taskRoleStatuses == null) {
@@ -267,9 +267,19 @@ const convertFrameworkDetail = async (framework) => {
   const completionStatus = attemptStatus.completionStatus;
   const diagnostics = completionStatus ? completionStatus.diagnostics : null;
   const exitDiagnostics = generateExitDiagnostics(diagnostics);
+  
+  // extract and deduplicate tags
+  const tagsDeduplicated = [];
+  tags.forEach(element => {
+    if (!tagsDeduplicated.includes(element.tag)) {
+      tagsDeduplicated.push(element.tag);
+    }
+  });
+  
   const detail = {
     debugId: framework.metadata.name,
     name: jobName,
+    tags: tagsDeduplicated,
     jobStatus: {
       username: userName,
       state: convertState(
@@ -912,10 +922,16 @@ const get = async (frameworkName) => {
   const framework = await databaseModel.Framework.findOne({
     attributes: ['submissionTime', 'snapshot'],
     where: { name: encodeName(frameworkName) },
+    include: [{
+      attributes: ['tag'],
+      model: databaseModel.Tag,
+      as: 'tags',
+    }],
   });
   if (framework) {
     const frameworkDetail = await convertFrameworkDetail(
       JSON.parse(framework.snapshot),
+      framework.tags,
     );
     frameworkDetail.jobStatus.submissionTime = new Date(
       framework.submissionTime,
