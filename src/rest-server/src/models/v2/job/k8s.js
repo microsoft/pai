@@ -134,6 +134,7 @@ const convertFrameworkSummary = (framework) => {
     state: framework.state,
     subState: framework.subState,
     executionType: framework.executionType.toUpperCase(),
+    tags: framework.tags.reduce((arr, curr) => arr.includes(curr.tag) ? arr : [...arr, curr.tag], []),
     retries: framework.retries,
     retryDetails: {
       user: framework.userRetries,
@@ -268,18 +269,10 @@ const convertFrameworkDetail = async (framework, tags) => {
   const diagnostics = completionStatus ? completionStatus.diagnostics : null;
   const exitDiagnostics = generateExitDiagnostics(diagnostics);
   
-  // extract and deduplicate tags
-  const tagsDeduplicated = [];
-  tags.forEach(element => {
-    if (!tagsDeduplicated.includes(element.tag)) {
-      tagsDeduplicated.push(element.tag);
-    }
-  });
-  
   const detail = {
     debugId: framework.metadata.name,
     name: jobName,
-    tags: tagsDeduplicated,
+    tags: tags.reduce((arr, curr) => arr.includes(curr.tag) ? arr : [...arr, curr.tag], []),
     jobStatus: {
       username: userName,
       state: convertState(
@@ -901,6 +894,11 @@ const list = async (
     offset: offset,
     limit: limit,
     order: order,
+    include: [{
+      attributes: ['tag'],
+      model: databaseModel.Tag,
+      as: 'tags',
+    }],
   });
   if (withTotalCount) {
     totalCount = await databaseModel.Framework.count({ where: filters });
