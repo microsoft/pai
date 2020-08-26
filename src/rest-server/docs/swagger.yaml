@@ -1281,6 +1281,80 @@ paths:
           $ref: "#/components/responses/NoJobError"
         "500":
           $ref: "#/components/responses/UnknownError"
+  "/api/v2/jobs/{user}~{job}/tag":
+    put:
+      tags:
+        - job
+      summary: Add a tag to a job.
+      description: Add a tag to a job.
+      operationId: addTag
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/user"
+        - $ref: "#/components/parameters/job"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                value:
+                  type: string
+                  description: tag
+              required:
+                - value
+        required: true
+      responses:
+        "200":
+          description: Succeeded
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Response"
+              example:
+                message: "Add tag {tag} for job {job} successfully."
+        "404":
+          $ref: "#/components/responses/NoJobError"
+        "500":
+          $ref: "#/components/responses/UnknownError"
+    delete:
+      tags:
+        - job
+      summary: Delete a tag from a job.
+      description: Delete a tag from a job.
+      operationId: deleteTag
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/user"
+        - $ref: "#/components/parameters/job"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                value:
+                  type: string
+                  description: tag
+              required:
+                - value
+        required: true
+      responses:
+        "200":
+          description: Succeeded
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Response"
+              example:
+                message: "Delete tag {tag} from job {job} successfully."
+        "404":
+          - $ref: "#/components/responses/NoJobError"
+          - $ref: "#/components/responses/NoTagError"
+        "500":
+          $ref: "#/components/responses/UnknownError"
   "/api/v2/jobs/{user}~{job}/job-attempts/healthz":
     get:
       tags:
@@ -2544,6 +2618,17 @@ components:
               value:
                 code: NoJobError
                 message: "Job {job} is not found."
+    NoTagError:
+      description: NoTagError
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Response"
+          examples:
+            NoTagError:
+              value:
+                code: NoTagError
+                message: "Tag {tag} is not found for job {job} ."
     NoJobConfigError:
       description: NoJobConfigError
       content:

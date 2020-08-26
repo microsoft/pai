@@ -1143,7 +1143,6 @@ const getSshInfo = async (frameworkName) => {
 };
 
 const addTag = async (frameworkName, tag) => {
-  // return [instance:Model, created: boolean]
   // check if frameworkName exist
   const framework = await databaseModel.Framework.findOne({
     where: { name: encodeName(frameworkName) },
@@ -1151,13 +1150,13 @@ const addTag = async (frameworkName, tag) => {
 
   if (framework) {
     // add tag
-    response = await databaseModel.Tag.findOrCreate({
+    data = await databaseModel.Tag.findOrCreate({
       where: {
         frameworkName: encodeName(frameworkName),
         tag: tag
       },
     });
-    return response;
+    return data;
   } else {
     throw createError(
       'Not Found',
@@ -1181,8 +1180,15 @@ const deleteTag = async (frameworkName, tag) => {
         tag: tag
       },
     });
-    // return the number of destroyed rows
-    return numDestroyedRows;
+    if (numDestroyedRows == 0) {
+      throw createError(
+        'Not Found',
+        'NoTagError',
+        `Tag ${tag} is not found for job ${frameworkName}.`,
+      );
+    } else {
+      return numDestroyedRows;
+    }
   } else {
     throw createError(
       'Not Found',
