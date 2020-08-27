@@ -228,11 +228,6 @@ class DatabaseModel {
     Tag.init(
       {
         insertedAt: Sequelize.DATE,
-        uid: {
-          type: Sequelize.INTEGER,
-          primaryKey: true,
-          autoIncrement: true,
-        },
         frameworkName: {
           type: Sequelize.STRING(64),
           allowNull: false,
