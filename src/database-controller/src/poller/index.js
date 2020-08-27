@@ -18,12 +18,16 @@ const interval = require('interval-promise');
 const config = require('@dbc/poller/config');
 const fetch = require('node-fetch');
 const { deleteFramework } = require('@dbc/common/k8s');
-// maxPending is set to 1 to avoid the queue to be too long.
+// Here, we use AsyncLock to control the concurrency of frameworks with the same name;
+// e.g. If framework A has request1, request2, and request3, we use AsyncLock
+// to ensure they will be processed in order.
+// We also set maxPending to 1 to avoid the queue to be too long.
 // If any framework is not synced/deleted, it will be synced/deleted in the next polling round.
 // We don't need to explicitly retry on error.
 const lock = new AsyncLock({ maxPending: 1 });
-// use p-queue to control concurrency promises
-const queue = new PQueue({ concurrency: 50 });
+// In the same time, we use PQueue to control the concurrency of frameworks with different names;
+// e.g. If there are framework 1 ~ framework 30000, only some of them can be processed concurrently.
+const queue = new PQueue({ concurrency: config.maxRpcConcurrency });
 const databaseModel = new DatabaseModel(
   config.dbConnectionStr,
   config.maxDatabaseConnection,

@@ -15,6 +15,9 @@ const configSchema = Joi.object()
     port: Joi.number()
       .integer()
       .required(),
+    maxRpcConcurrency: Joi.number()
+      .integer()
+      .required(),
   })
   .required();
 
@@ -22,6 +25,7 @@ const config = {
   dbConnectionStr: process.env.DB_CONNECTION_STR,
   maxDatabaseConnection: parseInt(process.env.MAX_DB_CONNECTION),
   port: parseInt(process.env.PORT),
+  maxRpcConcurrency: parseInt(process.env.MAX_RPC_CONCURRENCY),
 };
 
 const { error, value } = Joi.validate(config, configSchema);
