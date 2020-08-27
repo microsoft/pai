@@ -5,7 +5,7 @@ const LOCAL_STORAGE_KEY = 'pai-job-ordering';
 
 export default class Ordering {
   /**
-   * @param {"name" | "modified" | "user" | "duration" | "virtualCluster" | "retries" | "status" | "taskCount" | "gpuCount" | undefined} field
+   * @param {"name" | "modified" | "user" | "virtualCluster" | "retries" | "status" | "taskCount" | "gpuCount" | undefined} field
    * @param {boolean | undefined} descending
    */
   constructor(field, descending = false) {
@@ -33,7 +33,6 @@ export default class Ordering {
           'name',
           'modified',
           'user',
-          'duration',
           'virtualCluster',
           'retries',
           'status',
@@ -74,9 +73,6 @@ export default class Ordering {
       query = 'totalTaskNumber';
     } else if (field === 'gpuCount') {
       query = 'totalGpuNumber';
-    } else if (field === 'duration') {
-      // rest-server don't receive duration order will use submissionTime
-      return { order: `submissionTime,${descending ? 'ASC' : 'DESC'}` };
     }
 
     return { order: `${query},${descending ? 'DESC' : 'ASC'}` };
