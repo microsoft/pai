@@ -64,6 +64,11 @@ const list = asyncHandler(async (req, res) => {
     if ('withTotalCount' in req.query && req.query.withTotalCount === 'true') {
       withTotalCount = true;
     }
+    // if ('tags' in req.query ) {
+    //   filters[Op.contains] = [
+    //     { tags: { [Op.contains]: req.query.tags } },
+    //   ];
+    // }
     if ('keyword' in req.query) {
       // match text in username, jobname, or vc
       filters[Op.or] = [
