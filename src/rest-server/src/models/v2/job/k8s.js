@@ -881,6 +881,7 @@ const getConfigSecretDef = (frameworkName, secrets) => {
 const list = async (
   attributes,
   filters,
+  filtersTag,
   order,
   offset,
   limit,
@@ -896,8 +897,9 @@ const list = async (
     order: order,
     include: [{
       attributes: ['tag'],
+      where: filtersTag,
+      required: Object.keys(filtersTag).length !== 0,
       model: databaseModel.Tag,
-      as: 'tags',
     }],
   });
   if (withTotalCount) {

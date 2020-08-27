@@ -29,6 +29,7 @@ const list = asyncHandler(async (req, res) => {
   //    &state=<state1>,<state2>&offset=<offset>&limit=<limit>&withTotalCount=true
   //    &order=state,DESC
   const filters = {};
+  const filtersTag = {};
   let offset = 0;
   let limit;
   let withTotalCount = false;
@@ -64,11 +65,9 @@ const list = asyncHandler(async (req, res) => {
     if ('withTotalCount' in req.query && req.query.withTotalCount === 'true') {
       withTotalCount = true;
     }
-    // if ('tags' in req.query ) {
-    //   filters[Op.contains] = [
-    //     { tags: { [Op.contains]: req.query.tags } },
-    //   ];
-    // }
+    if ('tags' in req.query ) {
+      filtersTag.tag = [req.query.tags];
+    }
     if ('keyword' in req.query) {
       // match text in username, jobname, or vc
       filters[Op.or] = [
@@ -130,6 +129,7 @@ const list = asyncHandler(async (req, res) => {
   const data = await job.list(
     attributes,
     filters,
+    filtersTag,
     order,
     offset,
     limit,
