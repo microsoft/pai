@@ -1154,6 +1154,7 @@ paths:
                   state: SUCCEEDED
                   subState: Completed
                   executionType: STOP
+                  tags: ['abnormal', 'low_gpu_utilization']
                   retries: 0
                   submissionTime: 0
                   createdTime: 0
@@ -1183,6 +1184,7 @@ paths:
                 $ref: "#/components/schemas/JobDetail"
               example:
                 name: job name
+                tags: ['abnormal', 'low_gpu_utilization']
                 jobStatus:
                   username: user name
                   state: SUCCEEDED
@@ -1727,6 +1729,11 @@ components:
             enum:
               - START
               - STOP
+          tags:
+            type: array
+            description: tags
+            items:
+              type: string
           retries:
             type: integer
             description: job retried times
@@ -1791,6 +1798,11 @@ components:
         name:
           type: string
           description: job name
+        tags:
+          type: array
+          description: tags
+          items:
+            type: string
         jobStatus:
           type: object
           description: job status
