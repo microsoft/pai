@@ -227,6 +227,11 @@ class DatabaseModel {
     class Tag extends Model {}
     Tag.init(
       {
+        insertedAt: Sequelize.DATE,
+        uid: {
+          type: Sequelize.STRING(36),
+          primaryKey: true,
+        },
         frameworkName: {
           type: Sequelize.STRING(64),
           allowNull: false,
