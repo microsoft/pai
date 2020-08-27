@@ -229,8 +229,9 @@ class DatabaseModel {
       {
         insertedAt: Sequelize.DATE,
         uid: {
-          type: Sequelize.STRING(36),
+          type: Sequelize.INTEGER,
           primaryKey: true,
+          autoIncrement: true,
         },
         frameworkName: {
           type: Sequelize.STRING(64),
