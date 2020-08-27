@@ -138,7 +138,7 @@ export default function Table() {
     isResizable: true,
     isFiltered: filter.users.size > 0,
   });
-  const durationColumn = applySortProps({
+  const durationColumn = {
     key: 'duration',
     minWidth: 60,
     name: 'Duration',
@@ -148,7 +148,7 @@ export default function Table() {
     onRender(job) {
       return getDurationString(getJobDuration(job));
     },
-  });
+  };
   const virtualClusterColumn = applySortProps({
     key: 'virtualCluster',
     minWidth: 100,

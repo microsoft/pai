@@ -68,6 +68,19 @@ export default function JobList() {
     }
   });
 
+  const initialOrdering = useMemo(() => {
+    const query = querystring.parse(location.search.replace(/^\?/, ''));
+    if (!isEmpty(query.field)) {
+      const res = new Ordering(query.field, query.descending);
+      res.save();
+      return res;
+    } else {
+      const res = new Ordering();
+      res.load();
+      return res;
+    }
+  });
+
   const initialPagination = useMemo(() => {
     const query = querystring.parse(location.search.replace(/^\?/, ''));
     if (!isEmpty(query.pageIndex) || !isEmpty(query.itemsPerPage)) {
@@ -85,7 +98,7 @@ export default function JobList() {
   });
 
   const [filter, setFilter] = useState(initialFilter);
-  const [ordering, setOrdering] = useState(new Ordering());
+  const [ordering, setOrdering] = useState(initialOrdering);
   const [pagination, setPagination] = useState(initialPagination);
   const [filteredJobsInfo, setFilteredJobsInfo] = useState({
     totalCount: 0,
@@ -93,24 +106,29 @@ export default function JobList() {
   });
   const [loading, setLoading] = useState(true);
 
+  const updateFilteredJobsInfo = (filter, ordering, pagination) => {
+    setLoading(true);
+    getJobs({
+      ...filter.apply(),
+      ...ordering.apply(),
+      ...pagination.apply(),
+      ...{ withTotalCount: true },
+    })
+      .then(data => {
+        setFilteredJobsInfo(data);
+        setLoading(false);
+      })
+      .catch(err => {
+        alert(err.data.message || err.message);
+        throw Error(err.data.message || err.message);
+      });
+  };
+
   const { current: applyFilter } = useRef(
     debounce((/** @type {Filter} */ filter) => {
       pagination.load();
-      setLoading(true);
-      getJobs({
-        ...filter.apply(),
-        ...ordering.apply(),
-        ...pagination.apply(),
-        ...{ withTotalCount: true },
-      })
-        .then(data => {
-          setFilteredJobsInfo(data);
-          setLoading(false);
-        })
-        .catch(err => {
-          alert(err.data.message || err.message);
-          throw Error(err.data.message || err.message);
-        });
+      ordering.load();
+      updateFilteredJobsInfo(filter, ordering, pagination);
     }, 200),
   );
 
@@ -121,27 +139,26 @@ export default function JobList() {
   const { current: applyPagination } = useRef(
     debounce((/** @type {Pagination} */ pagination) => {
       filter.load();
-      setLoading(true);
-      getJobs({
-        ...filter.apply(),
-        ...ordering.apply(),
-        ...pagination.apply(),
-        ...{ withTotalCount: true },
-      })
-        .then(data => {
-          setFilteredJobsInfo(data);
-          setLoading(false);
-        })
-        .catch(err => {
-          alert(err.data.message || err.message);
-          throw Error(err.data.message || err.message);
-        });
+      ordering.load();
+      updateFilteredJobsInfo(filter, ordering, pagination);
     }, 200),
   );
 
   useEffect(() => {
     applyPagination(pagination);
   }, [applyPagination, pagination]);
+
+  const { current: applyOrdering } = useRef(
+    debounce((/** @type {Ordering} */ ordering) => {
+      filter.load();
+      pagination.load();
+      updateFilteredJobsInfo(filter, ordering, pagination);
+    }, 200),
+  );
+
+  useEffect(() => {
+    applyOrdering(ordering);
+  }, [applyOrdering, ordering]);
 
   const stopJob = useCallback(
     (...jobs) => {
@@ -221,6 +238,7 @@ export default function JobList() {
   }, []);
 
   useEffect(() => filter.save(), [filter]);
+  useEffect(() => ordering.save(), [ordering]);
   useEffect(refreshJobs, []);
 
   const context = {

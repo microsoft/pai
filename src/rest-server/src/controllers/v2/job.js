@@ -72,7 +72,7 @@ const list = asyncHandler(async (req, res) => {
       ];
     }
     if ('order' in req.query) {
-      const { field, ordering } = req.query.order.split(',');
+      const [field, ordering] = req.query.order.split(',');
       if (
         [
           'jobName',
