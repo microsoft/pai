@@ -304,7 +304,7 @@ export default function Table() {
     return (
       <div>
         <ShimmeredDetailsList
-          items={filteredJobsInfo.data}
+          items={filteredJobsInfo.data || []}
           setKey='key'
           columns={columns}
           enableShimmer={isNil(filteredJobsInfo)}
