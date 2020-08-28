@@ -1353,8 +1353,9 @@ paths:
               example:
                 message: "Delete tag {tag} from job {job} successfully."
         "404":
-          - $ref: "#/components/responses/NoJobError"
-          - $ref: "#/components/responses/NoTagError"
+          $ref: 
+            - "#/components/responses/NoJobError"
+            - "#/components/responses/NoTagError"
         "500":
           $ref: "#/components/responses/UnknownError"
   "/api/v2/jobs/{user}~{job}/job-attempts/healthz":

@@ -134,7 +134,10 @@ const convertFrameworkSummary = (framework) => {
     state: framework.state,
     subState: framework.subState,
     executionType: framework.executionType.toUpperCase(),
-    tags: framework.tags.reduce((arr, curr) => arr.includes(curr.tag) ? arr : [...arr, curr.tag], []),
+    tags: framework.tags.reduce(
+      (arr, curr) => (arr.includes(curr.tag) ? arr : [...arr, curr.tag]),
+      [],
+    ),
     retries: framework.retries,
     retryDetails: {
       user: framework.userRetries,
@@ -272,7 +275,10 @@ const convertFrameworkDetail = async (framework, tags) => {
   const detail = {
     debugId: framework.metadata.name,
     name: jobName,
-    tags: tags.reduce((arr, curr) => arr.includes(curr.tag) ? arr : [...arr, curr.tag], []),
+    tags: framework.tags.reduce(
+      (arr, curr) => (arr.includes(curr.tag) ? arr : [...arr, curr.tag]),
+      [],
+    ),
     jobStatus: {
       username: userName,
       state: convertState(
@@ -312,10 +318,10 @@ const convertFrameworkDetail = async (framework, tags) => {
         : null,
       appExitMessages: exitDiagnostics
         ? {
-          container: null,
-          runtime: exitDiagnostics.runtime,
-          launcher: exitDiagnostics.launcher,
-        }
+            container: null,
+            runtime: exitDiagnostics.runtime,
+            launcher: exitDiagnostics.launcher,
+          }
         : null,
       appExitTriggerMessage:
         completionStatus && completionStatus.trigger
@@ -338,7 +344,7 @@ const convertFrameworkDetail = async (framework, tags) => {
   for (const taskRoleSpec of framework.spec.taskRoles) {
     ports[taskRoleSpec.name] =
       taskRoleSpec.task.pod.metadata.annotations[
-      'rest-server/port-scheduling-spec'
+        'rest-server/port-scheduling-spec'
       ];
   }
 
@@ -429,7 +435,7 @@ const generateTaskRole = (
   // check InfiniBand device
   const infinibandDevice = Boolean(
     'extraContainerOptions' in config.taskRoles[taskRole] &&
-    config.taskRoles[taskRole].extraContainerOptions.infiniband,
+      config.taskRoles[taskRole].extraContainerOptions.infiniband,
   );
   // enable gang scheduling or not
   let gangAllocation = 'true';
@@ -511,7 +517,7 @@ const generateTaskRole = (
                   name: 'host-log',
                   subPath: `${jobInfo.userName}/${
                     jobInfo.logPathInfix
-                    }/${convertName(taskRole)}`,
+                  }/${convertName(taskRole)}`,
                   mountPath: '/usr/local/pai/logs',
                 },
                 {
@@ -573,7 +579,7 @@ const generateTaskRole = (
                   name: 'host-log',
                   subPath: `${jobInfo.userName}/${
                     jobInfo.logPathInfix
-                    }/${convertName(taskRole)}`,
+                  }/${convertName(taskRole)}`,
                   mountPath: '/usr/local/pai/logs',
                 },
                 {
@@ -676,14 +682,14 @@ const generateTaskRole = (
   frameworkTaskRole.frameworkAttemptCompletionPolicy = {
     minFailedTaskCount:
       completion &&
-        'minFailedInstances' in completion &&
-        completion.minFailedInstances
+      'minFailedInstances' in completion &&
+      completion.minFailedInstances
         ? completion.minFailedInstances
         : 1,
     minSucceededTaskCount:
       completion &&
-        'minSucceededInstances' in completion &&
-        completion.minSucceededInstances
+      'minSucceededInstances' in completion &&
+      completion.minSucceededInstances
         ? completion.minSucceededInstances
         : frameworkTaskRole.taskNumber,
   };
@@ -879,12 +885,10 @@ const getConfigSecretDef = (frameworkName, secrets) => {
 };
 
 const isSubArray = (subArray, array) => {
-  console.log("subArray:", subArray);
-  console.log("array:", array);
   for (var item of subArray) {
-      if (!array.includes(item)) {
-          return false;
-      }
+    if (!array.includes(item)) {
+      return false;
+    }
   }
   return true;
 };
@@ -906,11 +910,13 @@ const list = async (
     offset: offset,
     limit: limit,
     order: order,
-    include: [{
-      attributes: ['tag'],
-      required: tagsFilter.length !== 0,
-      model: databaseModel.Tag,
-    }],
+    include: [
+      {
+        attributes: ['tag'],
+        required: tagsFilter.length !== 0,
+        model: databaseModel.Tag,
+      },
+    ],
   });
   if (withTotalCount) {
     totalCount = await databaseModel.Framework.count({ where: filters });
@@ -933,11 +939,13 @@ const get = async (frameworkName) => {
   const framework = await databaseModel.Framework.findOne({
     attributes: ['submissionTime', 'snapshot'],
     where: { name: encodeName(frameworkName) },
-    include: [{
-      attributes: ['tag'],
-      model: databaseModel.Tag,
-      as: 'tags',
-    }],
+    include: [
+      {
+        attributes: ['tag'],
+        model: databaseModel.Tag,
+        as: 'tags',
+      },
+    ],
   });
   if (framework) {
     const frameworkDetail = await convertFrameworkDetail(
@@ -1177,10 +1185,10 @@ const addTag = async (frameworkName, tag) => {
 
   if (framework) {
     // add tag
-    data = await databaseModel.Tag.findOrCreate({
+    const data = await databaseModel.Tag.findOrCreate({
       where: {
         frameworkName: encodeName(frameworkName),
-        tag: tag
+        tag: tag,
       },
     });
     return data;
@@ -1201,13 +1209,13 @@ const deleteTag = async (frameworkName, tag) => {
 
   if (framework) {
     // remove tag
-    numDestroyedRows = await databaseModel.Tag.destroy({
+    const numDestroyedRows = await databaseModel.Tag.destroy({
       where: {
         frameworkName: encodeName(frameworkName),
-        tag: tag
+        tag: tag,
       },
     });
-    if (numDestroyedRows == 0) {
+    if (numDestroyedRows === 0) {
       throw createError(
         'Not Found',
         'NoTagError',

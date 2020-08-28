@@ -22,7 +22,6 @@ const asyncHandler = require('@pai/middlewares/v2/asyncHandler');
 const createError = require('@pai/utils/error');
 const job = require('@pai/models/v2/job');
 const { Op } = require('sequelize');
-const logger = require('@pai/config/logger');
 
 const list = asyncHandler(async (req, res) => {
   // ?keyword=<keyword filter>&username=<username1>,<username2>&vc=<vc1>,<vc2>
@@ -66,7 +65,7 @@ const list = asyncHandler(async (req, res) => {
     if ('withTotalCount' in req.query && req.query.withTotalCount === 'true') {
       withTotalCount = true;
     }
-    if ('tags' in req.query ) {
+    if ('tags' in req.query) {
       tagsFilter = req.query.tags.split(',');
     }
     if ('keyword' in req.query) {
@@ -213,7 +212,7 @@ const getSshInfo = asyncHandler(async (req, res) => {
 });
 
 const addTag = asyncHandler(async (req, res) => {
-  const data = await job.addTag(req.params.frameworkName, req.body.value);
+  await job.addTag(req.params.frameworkName, req.body.value);
   res.status(status('OK')).json({
     status: status('OK'),
     message: `Add tag ${req.body.value} for job ${req.params.frameworkName} successfully.`,
@@ -221,7 +220,7 @@ const addTag = asyncHandler(async (req, res) => {
 });
 
 const deleteTag = asyncHandler(async (req, res) => {
-  const data = await job.deleteTag(req.params.frameworkName, req.body.value);
+  await job.deleteTag(req.params.frameworkName, req.body.value);
   res.status(status('OK')).json({
     status: status('OK'),
     message: `Delete tag ${req.body.value} from job ${req.params.frameworkName} successfully.`,
