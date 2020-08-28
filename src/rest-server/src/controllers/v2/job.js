@@ -86,11 +86,13 @@ const list = asyncHandler(async (req, res) => {
         ].includes(field)
       ) {
         if (ordering === 'ASC' || ordering === 'DESC') {
-          // different cases for username
-          if (field !== 'username') {
-            order.push([field, ordering]);
-          } else {
+          // different naming for username and vc
+          if (field === 'username') {
             order.push(['userName', ordering]);
+          } else if (field === 'vc') {
+            order.push(['virtualCluster', ordering]);
+          } else {
+            order.push([field, ordering]);
           }
         }
       }
