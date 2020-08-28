@@ -27,9 +27,10 @@ const logger = require('@pai/config/logger');
 const list = asyncHandler(async (req, res) => {
   // ?keyword=<keyword filter>&username=<username1>,<username2>&vc=<vc1>,<vc2>
   //    &state=<state1>,<state2>&offset=<offset>&limit=<limit>&withTotalCount=true
+  //    &tags=<tag1>,<tag2>
   //    &order=state,DESC
   const filters = {};
-  const filtersTag = {};
+  let tagsFilter = [];
   let offset = 0;
   let limit;
   let withTotalCount = false;
@@ -66,7 +67,7 @@ const list = asyncHandler(async (req, res) => {
       withTotalCount = true;
     }
     if ('tags' in req.query ) {
-      filtersTag.tag = [req.query.tags];
+      tagsFilter = req.query.tags.split(',');
     }
     if ('keyword' in req.query) {
       // match text in username, jobname, or vc
@@ -129,7 +130,7 @@ const list = asyncHandler(async (req, res) => {
   const data = await job.list(
     attributes,
     filters,
-    filtersTag,
+    tagsFilter,
     order,
     offset,
     limit,

@@ -268,7 +268,7 @@ const convertFrameworkDetail = async (framework, tags) => {
   const completionStatus = attemptStatus.completionStatus;
   const diagnostics = completionStatus ? completionStatus.diagnostics : null;
   const exitDiagnostics = generateExitDiagnostics(diagnostics);
-  
+
   const detail = {
     debugId: framework.metadata.name,
     name: jobName,
@@ -878,10 +878,21 @@ const getConfigSecretDef = (frameworkName, secrets) => {
   };
 };
 
+const isSubArray = (subArray, array) => {
+  console.log("subArray:", subArray);
+  console.log("array:", array);
+  for (var item of subArray) {
+      if (!array.includes(item)) {
+          return false;
+      }
+  }
+  return true;
+};
+
 const list = async (
   attributes,
   filters,
-  filtersTag,
+  tagsFilter,
   order,
   offset,
   limit,
@@ -897,8 +908,7 @@ const list = async (
     order: order,
     include: [{
       attributes: ['tag'],
-      where: filtersTag,
-      required: Object.keys(filtersTag).length !== 0,
+      required: tagsFilter.length !== 0,
       model: databaseModel.Tag,
     }],
   });
@@ -907,7 +917,8 @@ const list = async (
   }
   frameworks = frameworks
     .filter((item) => checkName(item.name))
-    .map(convertFrameworkSummary);
+    .map(convertFrameworkSummary)
+    .filter((item) => isSubArray(tagsFilter, item.tags));
   if (withTotalCount) {
     return {
       totalCount: totalCount,
