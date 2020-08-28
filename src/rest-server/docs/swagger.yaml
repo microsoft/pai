@@ -1133,7 +1133,7 @@ paths:
             type: number
         - name: order
           in: query
-          description: 'order of job list. It follows the format <field>,<ASC|DESC>, default value is "submissionTime,DESC". Available fields include: jobName, submissionTime, username, vc, retries, totalTaskNumber, totalGpuNumber, state'
+          description: 'order of job list. It follows the format <field>,<ASC|DESC>, default value is "submissionTime,DESC". Available fields include: jobName, submissionTime, username, virtualCluster, retries, totalTaskNumber, totalGpuNumber, state'
           schema:
             type: string
         - name: withTotalCount

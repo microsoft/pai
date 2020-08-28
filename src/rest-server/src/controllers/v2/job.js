@@ -78,7 +78,7 @@ const list = asyncHandler(async (req, res) => {
           'jobName',
           'submissionTime',
           'username',
-          'vc',
+          'virtualCluster',
           'retries',
           'totalTaskNumber',
           'totalGpuNumber',
