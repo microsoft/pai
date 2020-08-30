@@ -182,15 +182,11 @@ def get_pai_daemon_resource_request(cfg):
                 continue
             resources = yaml.load(match.group(1), yaml.SafeLoader)["resources"]
             if "requests" in resources:
-                ret["cpu-resource"] += parse_quantity(resources["requests"]["cpu"]) \
-                     if "cpu" in resources["requests"] else 0
-                ret["mem-resource"] += parse_quantity(resources["requests"]["memory"]) / 1024 / 1024 \
-                    if "memory" in resources["requests"] else 0
+                ret["cpu-resource"] += parse_quantity(resources["requests"].get("cpu", 0))
+                ret["mem-resource"] += parse_quantity(resources["requests"].get("memory", 0)) / 1024 / 1024
             elif "limits" in resources:
-                ret["cpu-resource"] += parse_quantity(resources["limits"]["cpu"]) \
-                    if "cpu" in resources["limits"] else 0
-                ret["mem-resource"] += parse_quantity(resources["limits"]["memory"]) / 1024 / 1024 \
-                    if "memory" in resources["limits"] else 0
+                ret["cpu-resource"] += parse_quantity(resources["limits"].get("cpu", 0))
+                ret["mem-resource"] += parse_quantity(resources["limits"].get("memory", 0)) / 1024 / 1024
         else:
             logger.warning("Could not find resource request for PAI daemon %s", pai_daemon)
     return ret
