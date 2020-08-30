@@ -144,8 +144,8 @@ def get_kubernetes_node_info_from_API():
             if 'amd.com/gpu' in node.status.allocatable:
                 gpu_resource = int(parse_quantity(node.status.allocatable['amd.com/gpu']))
             ret[node.metadata.name] = {
-                "cpu-resource": int(parse_quantity(node.status.allocatable['cpu'])),
-                "mem-resource": int(parse_quantity(node.status.allocatable['memory']) / 1024 / 1024 ),
+                "cpu-resource": parse_quantity(node.status.allocatable['cpu']),
+                "mem-resource": parse_quantity(node.status.allocatable['memory']) / 1024 / 1024,
                 "gpu-resource": gpu_resource,
             }
     except ApiException as e:
