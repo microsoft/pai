@@ -18,6 +18,11 @@ docker_image_tag: <% latest-release %>
 # docker_registry_username: exampleuser
 # docker_registry_password: examplepasswd
 
+#####################################
+# OpenPAI's daemon service qos config. #
+#####################################
+# qos-switch: "true"
+
 ###########################################################################################
 #                         Pre-check setting                                               #
 # By default, we assume your gpu environment is nvidia. So your runtime should be nvidia. #

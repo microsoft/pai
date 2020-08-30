@@ -9,6 +9,7 @@ from kubernetes import client, config
 from kubernetes.utils import parse_quantity
 from kubernetes.client.rest import ApiException
 from pprint import pprint
+import re
 import sys
 import time
 
@@ -153,13 +154,54 @@ def get_kubernetes_node_info_from_API():
     return ret
 
 
+def get_pai_daemon_resource_request(cfg):
+    if "qos-switch" not in cfg or cfg["qos-switch"] == "false":
+        logger.info("Ignore calculate pai daemon resource usage since qos-switch set to false")
+
+    pai_daemon_services = ["node-exporter", "job-exporter", "log-manager"]
+    ret = {
+        "cpu-resource": 0,
+        "mem-resource": 0
+    }
+    pai_source_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), "../../src")
+
+    # {%- if cluster_cfg['cluster']['common']['qos-switch'] == "true" %}
+    start_match = r"{%-?\s*if\s*cluster_cfg\['cluster'\]\['common'\]\['qos-switch'\][^}]+%}"
+    end_match = r"{%-?\s*endif\s*%}"  # {%- end %}
+    str_match = f"{start_match}(.*?){end_match}"
+    regex = re.compile(str_match, flags=re.DOTALL)
+
+    for pai_daemon in pai_daemon_services:
+        deploy_template_path = os.path.join(pai_source_path, "{0}/deploy/{0}.yaml.template".format(pai_daemon))
+        if os.path.exists(deploy_template_path):
+            template = read_template(deploy_template_path)
+            match = re.search(template, regex)
+            if not match:
+                logger.warning("Could not find resource request for service %s", pai_daemon)
+                continue
+            resources = yaml.load(match.group(1), yaml.SafeLoader)["resources"]
+            if "requests" in resources:
+                ret["cpu-resource"] += int(parse_quantity(resources["requests"]["cpu"])) \
+                     if "cpu" in resources["requests"] else 0
+                ret["mem-resource"] += int(parse_quantity(resources["requests"]["memory"]) / 1024 / 1024) \
+                    if "memory" in resources["requests"] else 0
+            elif "limits" in resources:
+                ret["cpu-resource"] += int(parse_quantity(resources["limits"]["cpu"])) \
+                    if "cpu" in resources["limits"] else 0
+                ret["limits"] += int(parse_quantity(resources["limits"]["memory"]) / 1024 / 1024) \
+                    if "memory" in resources["limits"] else 0
+        else:
+            logger.warning("Could not find resource request for PAI daemon %s", pai_daemon)
+    return ret
+
+
 def wait_nvidia_device_plugin_ready(total_time=3600):
     while pod_is_ready_or_not("name", "nvidia-device-plugin-ds", "Nvidia-Device-Plugin") != True:
         logger.info("Nvidia-Device-Plugin is not ready yet. Please wait for a moment!")
         time.sleep(10)
         total_time = total_time - 10
         if total_time < 0:
-            logger.error("An issue occure when starting up Nvidia-Device-Plugin")
+            logger.error("An issue occur when starting up Nvidia-Device-Plugin")
             sys.exit(1)
 
 
@@ -173,7 +215,7 @@ def wait_amd_device_plugin_ready(total_time=3600):
             sys.exit(1)
 
 
-def hived_config_prepare(worker_dict, node_resource_dict):
+def hived_config_prepare(worker_dict, node_resource_dict, pai_daemon_resource_dict):
     hived_config = dict()
     hived_config["nodelist"] = []
 
@@ -188,8 +230,8 @@ def hived_config_prepare(worker_dict, node_resource_dict):
             logger.error("Allocatable GPU number in {0} is 0, current quick start script does not allow.".format(key))
             logger.error("Please remove {0} from your workerlist, or check if the device plugin is running healthy on the node.".format(key))
             sys.exit(1)
-        min_cpu = min(min_cpu, node_resource_dict[key]["cpu-resource"])
-        min_mem = min(min_mem, node_resource_dict[key]["mem-resource"])
+        min_cpu = min(min_cpu, node_resource_dict[key]["cpu-resource"] - pai_daemon_resource_dict["cpu-resource"])
+        min_mem = min(min_mem, node_resource_dict[key]["mem-resource"] - pai_daemon_resource_dict["mem-resource"])
         min_gpu = min(min_gpu, node_resource_dict[key]["gpu-resource"])
         hived_config["nodelist"].append(key)
     if not hived_config["nodelist"]:
@@ -225,12 +267,14 @@ def main():
     wait_nvidia_device_plugin_ready()
     wait_amd_device_plugin_ready()
     node_resource_dict = get_kubernetes_node_info_from_API()
-    hived_config = hived_config_prepare(worker_dict, node_resource_dict)
+    cfg = load_yaml_config(args.configuration)
+    pai_daemon_resource_dict = get_pai_daemon_resource_request(cfg)
+    hived_config = hived_config_prepare(worker_dict, node_resource_dict, pai_daemon_resource_dict)
 
     environment = {
         'master': master_list,
         'worker': worker_list,
-        'cfg': load_yaml_config(args.configuration),
+        'cfg': cfg,
         'head_node': head_node,
         'hived': hived_config
     }

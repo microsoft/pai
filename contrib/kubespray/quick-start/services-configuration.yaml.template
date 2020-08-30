@@ -5,7 +5,7 @@ cluster:
     k8s-rbac: "true"
     job-history: "true"
     data-path: "/datastorage"
-    qos-switch: "false"
+    qos-switch: "{{ env["cfg"]["qos-switch"] }} | default('false') "
     docker-data-root: "{{ env['cfg']['docker_data_root'] | default('/mnt/docker') }}"
 
   # the docker registry to store docker images that contain system services like frameworklauncher, hadoop, etc.
