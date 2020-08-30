@@ -155,14 +155,15 @@ def get_kubernetes_node_info_from_API():
 
 
 def get_pai_daemon_resource_request(cfg):
-    if "qos-switch" not in cfg or cfg["qos-switch"] == "false":
-        logger.info("Ignore calculate pai daemon resource usage since qos-switch set to false")
-
-    pai_daemon_services = ["node-exporter", "job-exporter", "log-manager"]
     ret = {
         "cpu-resource": 0,
         "mem-resource": 0
     }
+    if "qos-switch" not in cfg or cfg["qos-switch"] == "false":
+        logger.info("Ignore calculate pai daemon resource usage since qos-switch set to false")
+        return ret
+
+    pai_daemon_services = ["node-exporter", "job-exporter", "log-manager"]
     pai_source_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), "../../../src")
 
     # {%- if cluster_cfg['cluster']['common']['qos-switch'] == "true" %}
