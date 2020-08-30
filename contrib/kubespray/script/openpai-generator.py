@@ -262,7 +262,7 @@ def main():
 
     worker_dict = csv_reader_ret_dict(args.worklist)
     wait_nvidia_device_plugin_ready()
-    # wait_amd_device_plugin_ready()
+    wait_amd_device_plugin_ready()
     node_resource_dict = get_kubernetes_node_info_from_API()
     cfg = load_yaml_config(args.configuration)
     pai_daemon_resource_dict = get_pai_daemon_resource_request(cfg)
