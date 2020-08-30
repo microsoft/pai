@@ -163,32 +163,32 @@ def get_pai_daemon_resource_request(cfg):
         "cpu-resource": 0,
         "mem-resource": 0
     }
-    pai_source_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), "../../src")
+    pai_source_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), "../../../src")
 
     # {%- if cluster_cfg['cluster']['common']['qos-switch'] == "true" %}
     start_match = r"{%-?\s*if\s*cluster_cfg\['cluster'\]\['common'\]\['qos-switch'\][^}]+%}"
     end_match = r"{%-?\s*endif\s*%}"  # {%- end %}
-    str_match = f"{start_match}(.*?){end_match}"
+    str_match = "{}(.*?){}".format(start_match, end_match)
     regex = re.compile(str_match, flags=re.DOTALL)
 
     for pai_daemon in pai_daemon_services:
         deploy_template_path = os.path.join(pai_source_path, "{0}/deploy/{0}.yaml.template".format(pai_daemon))
         if os.path.exists(deploy_template_path):
             template = read_template(deploy_template_path)
-            match = re.search(template, regex)
+            match = regex.search(template)
             if not match:
                 logger.warning("Could not find resource request for service %s", pai_daemon)
                 continue
             resources = yaml.load(match.group(1), yaml.SafeLoader)["resources"]
             if "requests" in resources:
-                ret["cpu-resource"] += int(parse_quantity(resources["requests"]["cpu"])) \
+                ret["cpu-resource"] += parse_quantity(resources["requests"]["cpu"]) \
                      if "cpu" in resources["requests"] else 0
-                ret["mem-resource"] += int(parse_quantity(resources["requests"]["memory"]) / 1024 / 1024) \
+                ret["mem-resource"] += parse_quantity(resources["requests"]["memory"]) / 1024 / 1024 \
                     if "memory" in resources["requests"] else 0
             elif "limits" in resources:
-                ret["cpu-resource"] += int(parse_quantity(resources["limits"]["cpu"])) \
+                ret["cpu-resource"] += parse_quantity(resources["limits"]["cpu"]) \
                     if "cpu" in resources["limits"] else 0
-                ret["limits"] += int(parse_quantity(resources["limits"]["memory"]) / 1024 / 1024) \
+                ret["mem-resource"] += parse_quantity(resources["limits"]["memory"]) / 1024 / 1024 \
                     if "memory" in resources["limits"] else 0
         else:
             logger.warning("Could not find resource request for PAI daemon %s", pai_daemon)
@@ -265,7 +265,7 @@ def main():
 
     worker_dict = csv_reader_ret_dict(args.worklist)
     wait_nvidia_device_plugin_ready()
-    wait_amd_device_plugin_ready()
+    # wait_amd_device_plugin_ready()
     node_resource_dict = get_kubernetes_node_info_from_API()
     cfg = load_yaml_config(args.configuration)
     pai_daemon_resource_dict = get_pai_daemon_resource_request(cfg)
