@@ -71,6 +71,10 @@ def generate_template_file(template_file_path, output_path, map_table):
     write_generated_file(output_path, generated_template)
 
 
+def path_handler(path):
+    return os.path.abspath(os.path.expanduser(path))
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('-w', '--worker-list-csv', dest="worklist", required=True,
@@ -83,11 +87,14 @@ def main():
                         help="cluster configuration")
     args = parser.parse_args()
 
-    output_path = os.path.expanduser(args.output)
+    output_path = path_handler(args.output)
+    worker_list_path = path_handler(args.worklist)
+    master_list_path = path_handler(args.masterlist)
+    confg_path = path_handler(args.configuration)
 
-    master_list = csv_reader(args.masterlist)
+    master_list = csv_reader(master_list_path)
     head_node = master_list[0]
-    cluster_config = load_yaml_config(args.configuration)
+    cluster_config = load_yaml_config(confg_path)
 
     if 'openpai_kube_network_plugin' not in cluster_config or cluster_config['openpai_kube_network_plugin'] != 'weave':
         count_input = 0
@@ -110,7 +117,7 @@ def main():
 
     environment = {
         'master': master_list,
-        'worker': csv_reader(args.worklist),
+        'worker': csv_reader(worker_list_path),
         'cfg': cluster_config,
         'head_node': head_node
     }
