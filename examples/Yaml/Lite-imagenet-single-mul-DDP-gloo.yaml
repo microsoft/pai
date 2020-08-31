@@ -1,5 +1,5 @@
 protocolVersion: 2
-name: List-imagenet-gloo_8ba8ed42
+name: imagenet-gloo_8ba8ed42_7606233c
 type: job
 jobRetryCount: 0
 prerequisites:
@@ -27,14 +27,14 @@ taskRoles:
       - cd ..
       - apt update
       - apt install -y nfs-common
-      - mkdir -p /mnt/zhiyuhe
-      - 'mount 10.151.40.32:/mnt/zhiyuhe /mnt/zhiyuhe'
+      - mkdir -p /mnt/data
+      - 'mount 10.151.40.32:/mnt/zhiyuhe /mnt/data'
       - >-
         wget
         https://raw.githubusercontent.com/vvfreesoul/pai/master/examples/Distributed-example/Lite-imagenet-single-mul-DDP-nccl-gloo.py
       - >-
         python Lite-imagenet-single-mul-DDP-nccl-gloo.py  -n 2 -g 4
-        --dist-backend gloo --epochs 2 /mnt/zhiyuhe/imagenet/unzipped
+        --dist-backend gloo --epochs 2 /mnt/data/imagenet/unzipped
 defaults:
   virtualCluster: default
 extras:
@@ -42,9 +42,9 @@ extras:
     - plugin: ssh
       parameters:
         jobssh: true
-        userssh:
-          type: custom
-          value: >-
-            ssh-rsa
-            AAAAB3NzaC1yc2EAAAADAQABAAABAQCkkTsCwzvyar9a+5DblU4HVKW4dd318XZA9DCX0eLT4KaO9j5PX/2+eFHLv6f6jVgy2YsJlcU5hgrfOBi+GSYDNon38Q+w0OrA3NJozJXCNTnBD6B6gpDb+gRGyUzQB0zMWbPvVKG6eRBewlkmtgrgmj62WMqqpsia3bBeTVu5QlChSr0aEitORlG2NoRoZJ4ZQ4Vh76mN8dG4N56w1+gbokT1F+gtu49EbOjuktknXzwsksiB8ZXLoXrPZxioUrGxDVryOUHrDcbAas5BqFPK3kgCchwob6Xq4aSFlH7fLnzoR8fwayTBmFA4qaSegILTLvmVU5BxZ03HKz5xwQcR
-            zhangguowei@DESKTOP-TSBQI10
+        userssh: {}
+  hivedScheduler:
+    taskRoles:
+      worker:
+        skuNum: 1
+        skuType: null
