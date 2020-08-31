@@ -117,6 +117,14 @@ docker_image_tag: v1.0.0
 # docker_registry_username: exampleuser
 # docker_registry_password: examplepasswd
 
+################################################################
+# OpenPAI's daemon qos config.                                 #
+# Bt default, the QoS class for PAI daemon is BestEffort.      #
+# If you want to promote QoS class to Burstable or Guaranteed, #
+# you should set the value to true.                            #
+################################################################
+# qos-switch: "false"
+
 ###########################################################################################
 #                         Pre-check setting                                               #
 # By default, we assume your gpu environment is nvidia. So your runtime should be nvidia. #
@@ -167,6 +175,14 @@ docker_image_tag: v1.0.0
 `branch-name` and `docker-image-tag` stands for OpenPAI version you want to install. The `user` and `password` is the SSH username and password from dev box machine to master machines and worker machines. In other words, you should make sure all masters and workers share the same SSH username and password. As for optional configurations, customize them if you know exactly what they are.
 
 **For Azure Users**: If you are deploying OpenPAI in Azure, please uncomment `openpai_kube_network_plugin: calico` in the config file above, and change it to `openpai_kube_network_plugin: weave`. It is because Azure doesn't support calico. See [here](https://docs.projectcalico.org/reference/public-cloud/azure#why-doesnt-azure-support-calico-networking) for details.
+
+**If qos-switch is enabled**: OpenPAI daemons will request addition resources in each node. Please check following table and reserve sufficient resources for OpenPAI daemons.
+
+| Service Name  | Memory Request | CPU Request |
+| :-----------: | :------------: | :---------: |
+| node-exporter |     128Mi      |      0      |
+| job-exporter  |     512Mi      |      0      |
+|  log-manager  |     256Mi      |      0      |
 
 ### Start Installation
 
