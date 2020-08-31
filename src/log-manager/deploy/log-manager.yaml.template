@@ -48,9 +48,6 @@ spec:
           limits:
             cpu: 0.5
             memory: "512Mi"
-          requests:
-            cpu: 0
-            memory: "128Mi"
         {%- endif %}
       - name: log-manager-nginx
         image: {{ cluster_cfg["cluster"]["docker-registry"]["prefix"] }}log-manager-nginx:{{ cluster_cfg["cluster"]["docker-registry"]["tag"] }}
@@ -73,9 +70,6 @@ spec:
           limits:
             cpu: 0.5
             memory: "512Mi"
-          requests:
-            cpu: 0
-            memory: "128Mi"
         {%- endif %}
       volumes:
         - name: pai-log

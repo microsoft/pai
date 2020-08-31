@@ -292,7 +292,7 @@ def hived_config_prepare(worker_dict, node_resource_dict, pai_daemon_resource_di
         min_mem = min(min_mem, node_resource_free[key]["mem-resource"] - pai_daemon_resource_dict["mem-resource"] - reserved_mem)
         min_gpu = min(min_gpu, node_resource_free[key]["gpu-resource"])
         if min_cpu <= 0 or min_mem <= 0:
-            logger.error("The node resource is not satisfy minmal requests, we need at least cpu: %s, mem: %s", min_cpu, min_mem)
+            logger.error("The node resource is not satisfy minmal requests, we need at least cpu: %s, mem: %sMB", min_cpu, min_mem)
             sys.exit(1)
         hived_config["nodelist"].append(key)
     if not hived_config["nodelist"]:
