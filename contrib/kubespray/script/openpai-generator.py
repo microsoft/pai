@@ -159,6 +159,7 @@ def get_kubernetes_node_info_from_API():
             }
     except ApiException as e:
         logger.error("Exception when calling CoreV1Api->list_node: %s\n" % e)
+        raise
 
     return ret
 
@@ -192,6 +193,7 @@ def get_kubernetes_pod_info_from_API():
                 ret[pod.spec.node_name].append(get_pod_requests(pod))
     except ApiException:
         logger.error("Exception when calling CoreV1Api->list_pod", exc_info=True)
+        raise
     return ret
 
 
