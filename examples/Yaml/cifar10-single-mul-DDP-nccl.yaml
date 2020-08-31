@@ -1,5 +1,5 @@
 protocolVersion: 2
-name: Apex-cifar-10-nccl-2node-4gpu_2_748a837a
+name: cifar10-single-mul-DDP-nccl-1
 type: job
 jobRetryCount: 0
 prerequisites:
@@ -26,12 +26,13 @@ taskRoles:
       - cd ..
       - >-
         wget
-        https://raw.githubusercontent.com/vvfreesoul/pai/master/examples/Distributed-example/cifar10-singal-mul-DDP-nccl-gloo-Apex-mixed.py
+        https://raw.githubusercontent.com/vvfreesoul/pai/master/examples/Distributed-example/cifar10-single-mul-DDP-nccl-gloo.py
       - >-
-        python  cifar10-singal-mul-DDP-nccl-gloo-Apex-mixed.py -n 2 -g 2
-        --epochs 2 --dist-backend nccl
+        python  cifar10-single-mul-DDP-nccl-gloo.py -n 2 -g 2 --epochs 2
+        --dist-backend nccl
 defaults:
   virtualCluster: default
+
 extras:
   com.microsoft.pai.runtimeplugin:
     - plugin: ssh

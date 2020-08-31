@@ -1,5 +1,5 @@
 protocolVersion: 2
-name: vv-cifar10-singal-node-gpus-cpu-DP-4
+name: vv-cifar10-single-node-gpus-cpu-DP-4
 type: job
 jobRetryCount: 0
 prerequisites:
@@ -21,8 +21,8 @@ taskRoles:
     commands:
       - >-
         wget
-        https://raw.githubusercontent.com/vvfreesoul/pai/master/examples/Distributed-example/cifar10-singal-node-gpus-cpu-DP.py
-      - 'python cifar10-singal-node-gpus-cpu-DP.py --gpuid 0,1,2,3'
+        https://raw.githubusercontent.com/vvfreesoul/pai/master/examples/Distributed-example/cifar10-single-node-gpus-cpu-DP.py
+      - 'python cifar10-single-node-gpus-cpu-DP.py --gpuid 0,1,2,3'
 defaults:
   virtualCluster: default
 extras:
