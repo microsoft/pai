@@ -275,7 +275,7 @@ const convertFrameworkDetail = async (framework, tags) => {
   const detail = {
     debugId: framework.metadata.name,
     name: jobName,
-    tags: framework.tags.reduce(
+    tags: tags.reduce(
       (arr, curr) => (arr.includes(curr.tag) ? arr : [...arr, curr.tag]),
       [],
     ),

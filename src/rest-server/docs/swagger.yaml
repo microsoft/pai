@@ -1118,6 +1118,10 @@ paths:
           description: filter jobs with keyword, we search keyword in user name, job name, and virtual cluster name
           schema:
             type: string
+        - name: tags
+          in: query
+          description: filter jobs with tags. When multiple tags are specified, every job selected should have all these tags
+          schema: string 
         - name: offset
           in: query
           description: list job offset
@@ -1353,9 +1357,16 @@ paths:
               example:
                 message: "Delete tag {tag} from job {job} successfully."
         "404":
-          $ref: 
-            - "#/components/responses/NoJobError"
-            - "#/components/responses/NoTagError"
+          description: NoJobError or NoTagError
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Response"
+              examples:
+                NoJobError:
+                  $ref: "#/components/responses/NoJobError/content/application~1json/examples/NoJobError"
+                NoTagError:
+                  $ref: "#/components/responses/NoTagError/content/application~1json/examples/NoTagError"
         "500":
           $ref: "#/components/responses/UnknownError"
   "/api/v2/jobs/{user}~{job}/job-attempts/healthz":
