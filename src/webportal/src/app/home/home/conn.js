@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 import { PAIV2 } from '@microsoft/openpai-js-sdk';
+import urljoin from 'url-join';
 
 import config from '../../config/webportal.config';
 
@@ -35,7 +36,7 @@ const wrapper = async func => {
 };
 
 export async function listJobs(query) {
-  const url = `${client.cluster.rest_server_uri}/api/v2/jobs`;
+  const url = urljoin(client.cluster.rest_server_uri, '/api/v2/jobs');
   return wrapper(() =>
     client.httpClient.get(url, undefined, undefined, {
       ...query,
@@ -45,12 +46,12 @@ export async function listJobs(query) {
 }
 
 export async function listAllJobs(query) {
-  const url = `${client.cluster.rest_server_uri}/api/v2/jobs`;
+  const url = urljoin(client.cluster.rest_server_uri, '/api/v2/jobs');
   return wrapper(() => client.httpClient.get(url, undefined, undefined, query));
 }
 
 export async function getJobStatusNumber(isAdmin) {
-  const url = `${client.cluster.rest_server_uri}/api/v2/jobs`;
+  const url = urljoin(client.cluster.rest_server_uri, '/api/v2/jobs');
   const query = {
     limit: 0,
     withTotalCount: true,

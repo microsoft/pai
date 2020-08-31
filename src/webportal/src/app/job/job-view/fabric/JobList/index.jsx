@@ -3,6 +3,7 @@
 
 import { PAIV2 } from '@microsoft/openpai-js-sdk';
 import * as querystring from 'querystring';
+import urljoin from 'url-join';
 
 import React, {
   useState,
@@ -104,24 +105,26 @@ export default function JobList() {
     totalCount: 0,
     data: [],
   });
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
 
   const updateFilteredJobsInfo = (filter, ordering, pagination) => {
-    setLoading(true);
-    getJobs({
-      ...filter.apply(),
-      ...ordering.apply(),
-      ...pagination.apply(),
-      ...{ withTotalCount: true },
-    })
-      .then(data => {
-        setFilteredJobsInfo(data);
-        setLoading(false);
+    if (!loading) {
+      setLoading(true);
+      getJobs({
+        ...filter.apply(),
+        ...ordering.apply(),
+        ...pagination.apply(),
+        ...{ withTotalCount: true },
       })
-      .catch(err => {
-        alert(err.data.message || err.message);
-        throw Error(err.data.message || err.message);
-      });
+        .then(data => {
+          setFilteredJobsInfo(data);
+          setLoading(false);
+        })
+        .catch(err => {
+          alert(err.data.message || err.message);
+          throw Error(err.data.message || err.message);
+        });
+    }
   };
 
   const { current: applyFilter } = useRef(
@@ -209,7 +212,8 @@ export default function JobList() {
       https: window.location.protocol === 'https:',
     });
 
-    const url = `${client.cluster.rest_server_uri}/api/v2/jobs`;
+    const url = urljoin(client.cluster.rest_server_uri, '/api/v2/jobs');
+
     try {
       return await client.httpClient.get(url, undefined, undefined, query);
     } catch (err) {
@@ -220,21 +224,27 @@ export default function JobList() {
 
   const refreshJobs = useCallback(function refreshJobs() {
     setFilteredJobsInfo({ totalCount: 0, data: null, pageIndex: 0 });
-    setLoading(true);
-    getJobs({
-      ...filter.apply(),
-      ...ordering.apply(),
-      ...pagination.apply(),
-      ...{ withTotalCount: true },
-    })
-      .then(data => {
-        setFilteredJobsInfo(data);
-        setLoading(false);
+    if (!loading) {
+      setLoading(true);
+      filter.load();
+      ordering.load();
+      pagination.load();
+
+      getJobs({
+        ...filter.apply(),
+        ...ordering.apply(),
+        ...pagination.apply(),
+        ...{ withTotalCount: true },
       })
-      .catch(err => {
-        alert(err.data.message || err.message);
-        throw Error(err.data.message || err.message);
-      });
+        .then(data => {
+          setFilteredJobsInfo(data);
+          setLoading(false);
+        })
+        .catch(err => {
+          alert(err.data.message || err.message);
+          throw Error(err.data.message || err.message);
+        });
+    }
   }, []);
 
   useEffect(() => filter.save(), [filter]);
@@ -299,7 +309,8 @@ export default function JobList() {
               },
             }}
           >
-            {loading ? <SpinnerLoading /> : <Table />}
+            <Table />
+            {loading && <SpinnerLoading />}
           </Stack.Item>
           <Stack.Item
             styles={{
