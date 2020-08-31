@@ -119,7 +119,7 @@ docker_image_tag: v1.0.0
 
 ################################################################
 # OpenPAI's daemon qos config.                                 #
-# Bt default, the QoS class for PAI daemon is BestEffort.      #
+# By default, the QoS class for PAI daemon is BestEffort.      #
 # If you want to promote QoS class to Burstable or Guaranteed, #
 # you should set the value to true.                            #
 ################################################################
