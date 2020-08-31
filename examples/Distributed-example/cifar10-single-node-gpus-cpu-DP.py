@@ -56,8 +56,6 @@ def build_net(args):
     if len(args.gpus) > 1:
         net = nn.DataParallel(net)
     return net.cuda()
-
-
 def train_epoch(net, train_loader, optimizer, args):
     net.train()
     loss_sum = 0
