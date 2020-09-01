@@ -419,8 +419,6 @@ async function synchronizeCreate(snapshot, addOns) {
       logger.warn(`Framework ${snapshot.getName()} already exists.`);
       throw err;
     } else {
-      // delete add-ons if 409 error
-      addOns.silentDelete();
       throw err;
     }
   }
