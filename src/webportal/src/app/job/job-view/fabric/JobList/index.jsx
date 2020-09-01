@@ -265,6 +265,7 @@ export default function JobList() {
     setOrdering,
     pagination,
     setPagination,
+    loading,
   };
 
   const { spacing } = getTheme();
