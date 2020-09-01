@@ -251,6 +251,9 @@ kube_apiserver_cpu_requests: 1000m
 
 kube_kubeadm_controller_extra_args:
   v: 2
+  kube-api-qps: 200
+  kube-api-burst: 300
+  concurrent-gc-syncs: 500
   large-cluster-size-threshold: 0
   secondary-node-eviction-rate: 0.05
 

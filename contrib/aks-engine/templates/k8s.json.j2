@@ -52,6 +52,9 @@
                 "--max-mutating-requests-inflight": "500"
             },
             "controllerManagerConfig": {
+                "--kube-api-qps": "200",
+                "--kube-api-burst": "300",
+                "--concurrent-gc-syncs": "500",
                 "--node-monitor-grace-period": "5m",
                 "--pod-eviction-timeout": "1m",
                 "--route-reconciliation-period": "1m",
