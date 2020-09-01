@@ -32,6 +32,9 @@ spec:
     - --service-cluster-ip-range
     - {{ cluster_cfg['kubernetes']['service-cluster-ip-range'] }}
     - --leader-elect=true
+    - --kube-api-qps=200
+    - --kube-api-burst=300
+    - --concurrent-gc-syncs=500
     - --large-cluster-size-threshold=0
     - --secondary-node-eviction-rate=0.05
     livenessProbe:
