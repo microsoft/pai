@@ -48,6 +48,7 @@ export default function Table() {
     setOrdering,
     pagination,
     setFilter,
+    loading,
   } = useContext(Context);
   const [hideDialog, setHideDialog] = useState(true);
   const [currentJob, setCurrentJob] = useState(null);
@@ -304,7 +305,7 @@ export default function Table() {
     return (
       <div>
         <ShimmeredDetailsList
-          items={filteredJobsInfo.data || []}
+          items={loading ? [] : filteredJobsInfo.data || []}
           setKey='key'
           columns={columns}
           enableShimmer={isNil(filteredJobsInfo)}
