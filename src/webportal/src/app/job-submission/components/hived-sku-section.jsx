@@ -41,7 +41,11 @@ export const HivedSkuSection = React.memo(props => {
         onChange({ ...value, sku: get(selected, 'sku', null) });
       }
     } else if (!isEmpty(skuOptions)) {
-      onChange({ ...value, skuType: skuOptions[0].key, sku: skuOptions[0].sku });
+      onChange({
+        ...value,
+        skuType: skuOptions[0].key,
+        sku: skuOptions[0].sku,
+      });
     }
   };
 
