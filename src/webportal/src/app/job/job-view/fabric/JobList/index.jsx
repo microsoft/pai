@@ -122,6 +122,7 @@ export default function JobList() {
         })
         .catch(err => {
           alert(err.data.message || err.message);
+          setLoading(false);
           throw Error(err.data.message || err.message);
         });
     }
@@ -242,6 +243,7 @@ export default function JobList() {
         })
         .catch(err => {
           alert(err.data.message || err.message);
+          setLoading(false);
           throw Error(err.data.message || err.message);
         });
     }
