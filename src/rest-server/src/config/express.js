@@ -37,6 +37,7 @@ const routers = {
 };
 
 const app = express();
+const { Sequelize } = require('sequelize');
 
 app.set('trust proxy', true);
 app.set('json spaces', config.env === 'development' ? 4 : 0);
@@ -83,9 +84,15 @@ if (authnConfig.authnMethod === 'OIDC') {
 // error handler
 app.use((err, req, res, next) => {
   logger.warn(err.stack);
+  let message;
+  if (err instanceof Sequelize.ConnectionError) {
+    message = `There is a problem with your database connection. Please contact your admin. Detailed message: ${err.message}`;
+  } else {
+    message = err.message;
+  }
   res.status(err.status || 500).json({
     code: err.code,
-    message: err.message,
+    message: message,
     stack: config.env === 'development' ? err.stack.split('\n') : undefined,
   });
 });
