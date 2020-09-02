@@ -1,0 +1,46 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: hived-config-patcher-ds
+spec:
+  selector:
+    matchLabels:
+      app: hived-config-patcher
+  template:
+    metadata:
+      name: hived-config-patcher
+      labels:
+        app: hived-config-patcher
+    spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: pai-master
+                    operator: In
+                    values:
+                      - "true"
+      hostNetwork: false
+      hostPID: false
+      containers:
+      - name: app
+        image: openpai/hived-config-patcher
+        imagePullPolicy: Always
+        command: ["python"]
+        args: [
+          "./patcher.py",
+          "--max-nodes={{cfg['openpai_worker_vmss']['max_vm_count']}}",
+          "--hived-config-file=/hived-config/hivedscheduler.yaml"
+        ]
+        volumeMounts:
+        - name: hived-config
+          mountPath: /hived-config
+        volumes:
+        - name: hived-config
+          configMap:
+            name: /hived-config
+      serviceAccountName: hived-config-patcher-account

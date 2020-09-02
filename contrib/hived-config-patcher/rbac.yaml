@@ -1,0 +1,33 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: hived-config-patcher-account
+  namespace: default
+---
+kind: ClusterRole
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: hived-config-patcher-role
+rules:
+  - apiGroups: [""]
+    resources: ["nodes"]
+    verbs: [list", "watch"]
+  - apiGroups: [""]
+    resources: ["configmaps"]
+    verbs: ["patch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: hived-config-patcher-binding
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: hived-config-patcher-role
+subjects:
+- kind: ServiceAccount
+  name: hived-config-patcher-account
+  namespace: default
