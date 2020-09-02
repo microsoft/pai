@@ -1,4 +1,4 @@
-# How OpenPAI Models Distributed Jobs
+﻿# How OpenPAI Models Distributed Jobs
 ## Taskrole and Instance
 When we execute distributed programs on PAI, we can add different task roles for our job. For single server jobs, there is only one task role. For distributed jobs, there may be multiple task roles. For example, when TensorFlow is used to running distributed jobs, it has two roles, including the parameter server and the worker. In distributed jobs, it depends on how many instances are needed for a task role. For example, if it's 8 in a worker role of TensorFlow. It means there should be 8 Docker containers for the worker role.[Please visit this link for operations.](https://openpai.readthedocs.io/en/latest/manual/cluster-user/how-to-use-advanced-job-settings.html#multiple-task-roles)
 
@@ -29,7 +29,7 @@ Of course, running distributed programs, we can also use DDP, which is a little 
 
 DDP communication back-end using GLOO, you need to add a command in yaml file, otherwise there will be communication errors.We must add export GLOO_SOCKET_IFNAME=eth0 for GLOO.
 
-[So let's give an example of DDP(ncck) here.]()
+[So let's give an example of DDP(nccl) here.]()
 
 [So let's give an example of DDP(gloo) here.]()
 
