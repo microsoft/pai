@@ -36,6 +36,8 @@ const { apiserver } = require('@pai/config/kubernetes');
 const schedulePort = require('@pai/config/schedule-port');
 const databaseModel = require('@pai/utils/dbUtils');
 
+const Sequelize = require('sequelize');
+
 let exitSpecPath;
 if (process.env[env.exitSpecPath]) {
   exitSpecPath = process.env[env.exitSpecPath];
@@ -135,7 +137,7 @@ const convertFrameworkSummary = (framework) => {
     subState: framework.subState,
     executionType: framework.executionType.toUpperCase(),
     tags: framework.tags.reduce(
-      (arr, curr) => (arr.includes(curr.tag) ? arr : [...arr, curr.tag]),
+      (arr, curr) => (arr.includes(curr.name) ? arr : [...arr, curr.name]),
       [],
     ),
     retries: framework.retries,
@@ -276,7 +278,7 @@ const convertFrameworkDetail = async (framework, tags) => {
     debugId: framework.metadata.name,
     name: jobName,
     tags: tags.reduce(
-      (arr, curr) => (arr.includes(curr.tag) ? arr : [...arr, curr.tag]),
+      (arr, curr) => (arr.includes(curr.name) ? arr : [...arr, curr.name]),
       [],
     ),
     jobStatus: {
@@ -884,15 +886,6 @@ const getConfigSecretDef = (frameworkName, secrets) => {
   };
 };
 
-const isSubArray = (subArray, array) => {
-  for (var item of subArray) {
-    if (!array.includes(item)) {
-      return false;
-    }
-  }
-  return true;
-};
-
 const list = async (
   attributes,
   filters,
@@ -904,6 +897,23 @@ const list = async (
 ) => {
   let frameworks;
   let totalCount;
+
+  if (Object.keys(tagsFilter).length !== 0) {
+    const frameworkNames = await databaseModel.Tag.findAll({
+      attributes: ['frameworkName'],
+      where: tagsFilter,
+      group: ['tag.frameworkName'],
+      having: Sequelize.where(
+        Sequelize.fn('count', Sequelize.col('tag.frameworkName')),
+        tagsFilter.name.length,
+      ),
+    });
+    filters.name = frameworkNames.reduce(
+      (arr, curr) => [...arr, curr.frameworkName],
+      [],
+    );
+  }
+
   frameworks = await databaseModel.Framework.findAll({
     attributes: attributes,
     where: filters,
@@ -912,8 +922,8 @@ const list = async (
     order: order,
     include: [
       {
-        attributes: ['tag'],
-        required: tagsFilter.length !== 0,
+        attributes: ['name'],
+        required: Object.keys(tagsFilter).length !== 0,
         model: databaseModel.Tag,
       },
     ],
@@ -923,8 +933,7 @@ const list = async (
   }
   frameworks = frameworks
     .filter((item) => checkName(item.name))
-    .map(convertFrameworkSummary)
-    .filter((item) => isSubArray(tagsFilter, item.tags));
+    .map(convertFrameworkSummary);
   if (withTotalCount) {
     return {
       totalCount: totalCount,
@@ -941,7 +950,7 @@ const get = async (frameworkName) => {
     where: { name: encodeName(frameworkName) },
     include: [
       {
-        attributes: ['tag'],
+        attributes: ['name'],
         model: databaseModel.Tag,
         as: 'tags',
       },
@@ -1188,7 +1197,8 @@ const addTag = async (frameworkName, tag) => {
     const data = await databaseModel.Tag.findOrCreate({
       where: {
         frameworkName: encodeName(frameworkName),
-        tag: tag,
+        name: tag,
+        uid: encodeName(frameworkName + tag),
       },
     });
     return data;
@@ -1212,7 +1222,7 @@ const deleteTag = async (frameworkName, tag) => {
     const numDestroyedRows = await databaseModel.Tag.destroy({
       where: {
         frameworkName: encodeName(frameworkName),
-        tag: tag,
+        name: tag,
       },
     });
     if (numDestroyedRows === 0) {

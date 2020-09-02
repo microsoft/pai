@@ -29,7 +29,7 @@ const list = asyncHandler(async (req, res) => {
   //    &tags=<tag1>,<tag2>
   //    &order=state,DESC
   const filters = {};
-  let tagsFilter = [];
+  const tagsFilter = {};
   let offset = 0;
   let limit;
   let withTotalCount = false;
@@ -66,7 +66,7 @@ const list = asyncHandler(async (req, res) => {
       withTotalCount = true;
     }
     if ('tags' in req.query) {
-      tagsFilter = req.query.tags.split(',');
+      tagsFilter.name = req.query.tags.split(',');
     }
     if ('keyword' in req.query) {
       // match text in username, jobname, or vc

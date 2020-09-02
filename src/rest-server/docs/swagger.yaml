@@ -1121,7 +1121,8 @@ paths:
         - name: tags
           in: query
           description: filter jobs with tags. When multiple tags are specified, every job selected should have all these tags
-          schema: string 
+          schema:
+            type: string
         - name: offset
           in: query
           description: list job offset
