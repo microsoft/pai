@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 
 import React, { useCallback, useContext, useMemo } from 'react';
-import { get } from 'lodash';
+import { get, isEmpty } from 'lodash';
 import { Dropdown, Stack } from 'office-ui-fabric-react';
 import PropTypes from 'prop-types';
 import { BasicSection } from './basic-section';
@@ -38,9 +38,14 @@ export const HivedSkuSection = React.memo(props => {
       if (selected == null) {
         onChange({ ...value, skuType: null, sku: null });
       } else if (value.sku == null) {
-        const sku = get(selected, 'sku', null);
-        onChange({ ...value, sku });
+        onChange({ ...value, sku: get(selected, 'sku', null) });
       }
+    } else if (!isEmpty(skuOptions)) {
+      onChange({
+        ...value,
+        skuType: skuOptions[0].key,
+        sku: skuOptions[0].sku,
+      });
     }
   };
 
