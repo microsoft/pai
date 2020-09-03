@@ -29,7 +29,7 @@ Configuration `port` stands for the port of alert manager. In most cases, you do
 Save the configuration file, and start alert manager by:
 
 ```bash
-./paictl.py service start -n alert-manager
+./paictl.py service stop -n alert-manager
 ./paictl.py config push -p /cluster-configuration -m service
 ./paictl.py service start -n alert-manager
 ```
@@ -48,13 +48,14 @@ This is a kind of alert from alert manager, and usually caused by container bein
   1. visit Prometheus web page, it is usually `http://<your-pai-master-ip>:9091`.
   2. Enter query `node_memory_MemFree_bytes`.
   3. If free memory drop to near 0, the container should be killed by OOM killer
-  4. You can double check this by logging into node and run command `dmesg` and looking for phase `oom`.
+  4. You can double check this by logging into node and run command `dmesg` and looking for phase `oom`. Or you can run `docker inspect <stopped_docker_id>` to get more detailed information.
 
 Solutions:
 
   1. Force remove unhealth containers with this command in terminal:
   `kubectl delete pod pod-name --grace-period=0 --force`
   2. Recreate pod in Kubernetes, this operation may block indefinitely because dockerd may not functioning correctly after OOM. If recreate blocked too long, you can log into the node and restart dockerd via `/etc/init.d/docker restart`.
+  3. If restarting doesn't solve it, you can consider increase the pod's memory limit.
 
 ### NodeNotReady Alert
 
@@ -74,11 +75,7 @@ If the node's ready label has value "unknown", this means the node may disconnec
 
 You can first try to log into the node. If you can not, and have no ping response, the node may be down, and you should boot it up.
 
-If you can log in to the node, you should check if the kubelet is up and running, execute `sudo docker ps` command in the node, normally the kubelet container will be listed. The output should like:
-
-```
-  a66a171434cc  gcr.io/google_containers/hyperkube:v1.9.9   "/hyperkube kubele..."   2 weeks ago      Up 2 weeks     kubelet
-```
+If you can log in to the node, you should check if the kubelet is up and running, execute `sudo systemctl status kubelet` command in the node, normally you can see the kubelet service.
 
 After this step, you should check the log of kubelet, to see if it can access Kubernetes API. If you see something like:
 
@@ -98,6 +95,7 @@ Solutions:
 
   1. Check user file on the NFS storage server launched by storage manager. If you didn't set up a storage manager, ignore this step.
   2. Check the docker cache. The docker may use too many disk space for caching, it's worth to have a check.
+  3. Check PAI log folder size. The path is `/var/log/pai`.
 
 ### NVIDIA GPU is Not Detected
 
