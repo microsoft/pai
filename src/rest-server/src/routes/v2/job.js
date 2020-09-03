@@ -57,7 +57,7 @@ router.use('/:frameworkName/job-attempts', jobAttemptRouter);
 router
   .route('/:frameworkName/tag')
   /** PUT /api/v2/jobs/:frameworkName/tag - Add a framework tag */
-  .put(token.check, controller.addTag);
+  .put(token.check, protocol.validateTag, controller.addTag);
 
 router
   .route('/:frameworkName/tag')

@@ -136,10 +136,7 @@ const convertFrameworkSummary = (framework) => {
     state: framework.state,
     subState: framework.subState,
     executionType: framework.executionType.toUpperCase(),
-    tags: framework.tags.reduce(
-      (arr, curr) => (arr.includes(curr.name) ? arr : [...arr, curr.name]),
-      [],
-    ),
+    tags: framework.tags.reduce((arr, curr) => [...arr, curr.name], []),
     retries: framework.retries,
     retryDetails: {
       user: framework.userRetries,
@@ -277,10 +274,7 @@ const convertFrameworkDetail = async (framework, tags) => {
   const detail = {
     debugId: framework.metadata.name,
     name: jobName,
-    tags: tags.reduce(
-      (arr, curr) => (arr.includes(curr.name) ? arr : [...arr, curr.name]),
-      [],
-    ),
+    tags: tags.reduce((arr, curr) => [...arr, curr.name], []),
     jobStatus: {
       username: userName,
       state: convertState(
@@ -1198,7 +1192,7 @@ const addTag = async (frameworkName, tag) => {
       where: {
         frameworkName: encodeName(frameworkName),
         name: tag,
-        uid: encodeName(frameworkName + tag),
+        uid: encodeName(`${frameworkName}+${tag}`),
       },
     });
     return data;
