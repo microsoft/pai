@@ -55,31 +55,33 @@ const extractRuntimeOutput = (podCompletionStatus) => {
   }
 
   let res = null;
-  for (const container of podCompletionStatus.containers) {
-    if (container.code <= 0) {
-      continue;
-    }
-    const message = container.message;
-    if (message == null) {
-      continue;
-    }
-    const anchor1 = /\[PAI_RUNTIME_ERROR_START\]/;
-    const anchor2 = /\[PAI_RUNTIME_ERROR_END\]/;
-    const match1 = message.match(anchor1);
-    const match2 = message.match(anchor2);
-    if (match1 !== null && match2 !== null) {
-      const start = match1.index + match1[0].length;
-      const end = match2.index;
-      const output = message.substring(start, end).trim();
-      try {
-        res = {
-          ...yaml.safeLoad(output),
-          name: container.name,
-        };
-      } catch (error) {
-        logger.warn('failed to format runtime output:', output, error);
+  if (!_.isEmpty(podCompletionStatus.containers)) {
+    for (const container of podCompletionStatus.containers) {
+      if (container.code <= 0) {
+        continue;
       }
-      break;
+      const message = container.message;
+      if (message == null) {
+        continue;
+      }
+      const anchor1 = /\[PAI_RUNTIME_ERROR_START\]/;
+      const anchor2 = /\[PAI_RUNTIME_ERROR_END\]/;
+      const match1 = message.match(anchor1);
+      const match2 = message.match(anchor2);
+      if (match1 !== null && match2 !== null) {
+        const start = match1.index + match1[0].length;
+        const end = match2.index;
+        const output = message.substring(start, end).trim();
+        try {
+          res = {
+            ...yaml.safeLoad(output),
+            name: container.name,
+          };
+        } catch (error) {
+          logger.warn('failed to format runtime output:', output, error);
+        }
+        break;
+      }
     }
   }
   return res;
