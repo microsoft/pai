@@ -1,6 +1,6 @@
 # Recommended Practice
 
-Managing one or more clusters is not an easy task. In most cases, the manager should have good knowledge about Linux, Kubernetes, and OpenPAI system. Here we recommend some practice experience for your reference.
+Managing one or more clusters is not an easy task. In most cases, the administrator should have good knowledge OpenPAI system. Here we recommend some practice experience for the administrator's reference.
 
 ## Team Shared Practice
 
@@ -8,20 +8,20 @@ There are mainly two kinds of resource in OpenPAI, namely virtual cluster and st
 
 For example, if you have two teams: team A working on project A; and team B working on project B. You can set up group A and group B for team A and B, correspondingly. Thus each team can share computing and storage resource internally. If a user joins a team, just add him into the corresponding group.
 
-By default, OpenPAI uses basic authentication mode: Virtual cluster is exactly bound to groups. Setting up a group means set up a virtual cluster in basic authentication mode. In AAD mode, group and virtual cluster are different concepts. Please refer to [How to Set Up Virtual Clusters](./how-to-set-up-virtual-clusters.md) for details.
+By default, OpenPAI uses basic authentication mode. In this mode, virtual cluster is exactly bound to groups, which means setting up a group means set up a virtual cluster in basic authentication mode. In AAD mode, group and virtual cluster are different concepts. Please refer to [How to Set Up Virtual Clusters](./how-to-set-up-virtual-clusters.md) for details.
 
 ## Onboarding Practice
 
-For new user onboarding, the PAI admin should create this user manually in the backend, and notify the user of some instructions and guidelines. In our practice, we will send an e-mail to the new user. Besides account information, we also include the following content in the e-mail:
+For new user onboarding in basic authentication mode, the PAI admin should create this user manually in the backend, and notify the user of some instructions and guidelines. In our practice, we will send an e-mail to the new user. Besides account information, we also include the following content in the e-mail:
 
   - Let the user read the [user manual](../cluster-user/) to learn how to submit job, debug job, and use client tool.
-  - Let the user know their completed jobs will be deleted after 30 days.
+  - Let the user know their completed jobs may be deleted after 30 days.
   - Let the user know he/she shouldn't always run low-efficiency job (e.g. sleep for several days in the container). Otherwise the administrator may kill the job.
   - Let the user know how to contact the administrator in case they find any problem or have any question. 
 
 ## DRI Practice
 
-DRI stands for Designated Responsible Individual. In our context, we don't have one specific manager for PAI clusters. Instead, we assign one or two DRIs every week. He/she will become the designated responsible individual for cluster management this week. The assignment is based on rotation so everyone in the team has an equal chance to become a DRI.
+DRI stands for Designated Responsible Individual. In our context, we don't have one specific administrator for PAI clusters. Instead, we assign one or two DRIs every week. He/she will become the designated responsible individual for cluster management this week. The assignment is based on rotation so everyone in the team has an equal chance to become a DRI.
 
 The duty of a DRI includes:
 
