@@ -34,13 +34,14 @@ spec:
         args: [
           "./patcher.py",
           "--max-nodes={{cfg['openpai_worker_vmss']['max_vm_count']}}",
-          "--hived-config-file=/hived-config/hivedscheduler.yaml"
+          "--node-name-prefix=k8s-opworker",
+          "--hived-config-file=/hivedscheduler-config/hivedscheduler.yaml"
         ]
         volumeMounts:
-        - name: hived-config
-          mountPath: /hived-config
-        volumes:
-        - name: hived-config
-          configMap:
-            name: /hived-config
+        - name: hivedscheduler-config
+          mountPath: /hivedscheduler-config
+      volumes:
+      - name: hivedscheduler-config
+        configMap:
+          name: hivedscheduler-config
       serviceAccountName: hived-config-patcher-account
