@@ -291,6 +291,7 @@ const convertToJobAttempt = async (framework) => {
               userName,
               logPathInfix,
               taskRoleStatus.name,
+              true,
             ),
         ),
       ),
@@ -331,30 +332,33 @@ const convertTaskDetail = async (
   userName,
   logPathInfix,
   taskRoleName,
+  withoutGetPod,
 ) => {
   // get container gpus
   let containerGpus = null;
   try {
-    const response = await k8sModel
-      .getClient()
-      .get(launcherConfig.podPath(taskStatus.attemptStatus.podName), {
-        headers: launcherConfig.requestHeaders,
-      });
-    const pod = response.data;
-    if (launcherConfig.enabledHived) {
-      const isolation =
-        pod.metadata.annotations[
-          'hivedscheduler.microsoft.com/pod-leaf-cell-isolation'
-        ];
-      containerGpus = isolation
-        .split(',')
-        .reduce((attr, id) => attr + Math.pow(2, id), 0);
-    } else {
-      const gpuNumber = k8s.atoi(
-        pod.spec.containers[0].resources.limits['nvidia.com/gpu'],
-      );
-      // mock GPU ids from 0 to (gpuNumber - 1)
-      containerGpus = Math.pow(2, gpuNumber) - 1;
+    if (withoutGetPod !== true) {
+      const response = await k8sModel
+        .getClient()
+        .get(launcherConfig.podPath(taskStatus.attemptStatus.podName), {
+          headers: launcherConfig.requestHeaders,
+        });
+      const pod = response.data;
+      if (launcherConfig.enabledHived) {
+        const isolation =
+          pod.metadata.annotations[
+            'hivedscheduler.microsoft.com/pod-leaf-cell-isolation'
+          ];
+        containerGpus = isolation
+          .split(',')
+          .reduce((attr, id) => attr + Math.pow(2, id), 0);
+      } else {
+        const gpuNumber = k8s.atoi(
+          pod.spec.containers[0].resources.limits['nvidia.com/gpu'],
+        );
+        // mock GPU ids from 0 to (gpuNumber - 1)
+        containerGpus = Math.pow(2, gpuNumber) - 1;
+      }
     }
   } catch (err) {
     containerGpus = null;
