@@ -893,19 +893,24 @@ const list = async (
   let totalCount;
 
   if (Object.keys(tagsFilter).length !== 0) {
-    const frameworkNames = await databaseModel.Tag.findAll({
-      attributes: ['frameworkName'],
-      where: tagsFilter,
-      group: ['tag.frameworkName'],
-      having: Sequelize.where(
-        Sequelize.fn('count', Sequelize.col('tag.frameworkName')),
-        tagsFilter.name.length,
-      ),
-    });
-    filters.name = frameworkNames.reduce(
-      (arr, curr) => [...arr, curr.frameworkName],
-      [],
+    const querySeleceFrameworkName = databaseModel.sequelize.dialect.QueryGenerator.selectQuery(
+      'tags',
+      {
+        attributes: ['frameworkName'],
+        where: tagsFilter,
+        group: ['tags.frameworkName'],
+        having: Sequelize.where(
+          Sequelize.fn('count', Sequelize.col('tags.frameworkName')),
+          tagsFilter.name.length,
+        ),
+      },
     );
+
+    filters.name = {
+      [Sequelize.Op.in]: Sequelize.literal(`
+        (${querySeleceFrameworkName.slice(0, -1)})
+    `),
+    };
   }
 
   frameworks = await databaseModel.Framework.findAll({
