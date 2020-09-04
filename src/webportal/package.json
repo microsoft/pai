@@ -69,7 +69,7 @@
     "node-rsa": "^1.0.5",
     "normalize.css": "^8.0.1",
     "office-ui-fabric-react": "^6.189.0",
-    "papaparse": "^4.6.3",
+    "papaparse": "^5.2.0",
     "prop-types": "^15.7.2",
     "react": "^16.8.3",
     "react-dom": "^16.8.3",
