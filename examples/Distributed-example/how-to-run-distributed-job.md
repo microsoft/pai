@@ -10,7 +10,7 @@ If unknown error happens, PAI will retry the job according to user settings. To 
 ### Run PyTorch Distributed Jobs in OpenPAI
 Example Name | Multi-GPU | Multi-Node | Backend |Apex| Job protocol |
 ---|---|---|---|---|---| 
-Single-Node DataParallel CIFAR-10 | ✓| x | -|-| [cifar10-single-node-gpus-cpu-DP.yaml](~/blob/master/examples/Distributed-example/cifar10-single-node-gpus-cpu-DP.yaml)|
+Single-Node DataParallel CIFAR-10 | ✓| x | -|-| [cifar10-single-node-gpus-cpu-DP.yaml](~/examples/Distributed-example/Lite-imagenet-single-mul-DDP-gloo.yaml)|
 cifar10-single-mul-DDP-gloo.yaml | ✓|  ✓ | gloo|-| [cifar10-single-mul-DDP-gloo.yaml](~/pai/blob/master/examples/Distributed-example/cifar10-single-mul-DDP-gloo.yaml)|
 cifar10-single-mul-DDP-nccl | ✓| ✓ |nccl|-| [cifar10-single-mul-DDP-nccl.yaml](https://github.com/vvfreesoul/pai/blob/master/examples/Distributed-example/cifar10-single-mul-DDP-nccl.yaml)|
 cifar10-single-mul-DDP-gloo-Apex-mixed | ✓|  ✓ | gloo|✓ | [cifar10-single-mul-DDP-gloo-Apex-mixed.yaml](https://github.com/vvfreesoul/pai/blob/master/examples/Distributed-example/cifar10-single-mul-DDP-gloo-Apex-mixed.yaml)|
