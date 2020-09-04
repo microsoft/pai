@@ -15,4 +15,3 @@ This manual is for cluster users to learn how to submit job, debug job, manage d
 7. [Use Marketplace](./use-marketplace.md)
 8. [Use VSCode Extension](./use-vscode-extension.md)
 9. [Use Jupyter Notebook Extension](./use-jupyter-notebook-extension.md)
-6. [How to Run Distributed Job](../imgs/how-to-run-distributed-job.md)
