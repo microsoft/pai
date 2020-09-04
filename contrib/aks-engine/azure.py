@@ -111,38 +111,22 @@ def generate_aks_engine_script(aks_engine_cfg, working_dir, script_dir):
 
 
 def generate_openpai_configuration(k8s_info, aks_engine_cfg, working_dir, script_dir):
-    generate_template_file(
-        "{0}/templates/generate-key-and-cert.sh.j2".format(script_dir),
-        "{0}/generate-key-and-cert.sh".format(working_dir),
-        {
-            "cfg": aks_engine_cfg,
-            "k8s": k8s_info
-        }
-    )
-    generate_template_file(
-        "{0}/templates/layout.yaml.j2".format(script_dir),
-        "{0}/layout.yaml".format(working_dir),
-        {
-            "cfg": aks_engine_cfg,
-            "k8s": k8s_info
-        }
-    )
-    generate_template_file(
-        "{0}/templates/services-configuration.yaml.j2".format(script_dir),
-        "{0}/services-configuration.yaml".format(working_dir),
-        {
-            "cfg": aks_engine_cfg,
-            "k8s": k8s_info
-        }
-    )
-    generate_template_file(
-        "{0}/templates/start-openpai.sh.j2".format(script_dir),
-        "{0}/start-openpai.sh".format(working_dir),
-        {
-            "cfg": aks_engine_cfg,
-            "k8s": k8s_info
-        }
-    )
+    for src, dst in [
+        ("{}/templates/generate-key-and-cert.sh.j2", "{}/generate-key-and-cert.sh"),
+        ("{}/templates/layout.yaml.j2", "{}/layout.yaml"),
+        ("{}/templates/services-configuration.yaml.j2", "{}/services-configuration.yaml"),
+        ("{}/templates/ca-resource.yaml", "{}/ca-resource.yaml"),
+        ("{}/templates/hived-config-adapter.yaml.j2", "{}/hived-config-adapter.yaml"),
+        ("{}/templates/start-openpai.sh.j2", "{}/start-openpai.sh"),
+    ]:
+        generate_template_file(
+            src.format(script_dir),
+            dst.format(working_dir),
+            {
+                "cfg": aks_engine_cfg,
+                "k8s": k8s_info,
+            },
+        )
 
 
 def pod_is_ready_or_not(label_key, label_value, service_name, kubeconfig):

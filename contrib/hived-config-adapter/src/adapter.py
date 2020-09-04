@@ -8,7 +8,7 @@ import argparse
 from kubernetes import client, config, watch
 
 
-class HiveDConfigPatcher(object):
+class HiveDConfigAdapter(object):
     def __init__(
             self,
             min_nodes=None,
@@ -81,7 +81,7 @@ class HiveDConfigPatcher(object):
 
     def watch_nodes(self):
         w = watch.Watch()
-        for event in w.stream(self.__client.list_node, _request_timeout=30):
+        for event in w.stream(self.__client.list_node):
             event_type, node_name = event["type"], event["object"].metadata.name
             if event_type == "ADDED":
                 logging.info("Watch event: %s node %s.", event_type, node_name)
@@ -108,7 +108,7 @@ class HiveDConfigPatcher(object):
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="HiveD config patcher for Cluster Autoscaler.")
+    parser = argparse.ArgumentParser(description="HiveD config adapter for Cluster Autoscaler.")
     parser.add_argument("--min-nodes", type=int, required=False, help="minimum node number for CA")
     parser.add_argument("--max-nodes", type=int, required=False, help="maximum node number for CA")
     parser.add_argument("--node-name-prefix", required=False, help="node name prefix for workers")
@@ -116,7 +116,7 @@ if __name__ == "__main__":
     parser.add_argument("--kube-config-file", required=False, help="kube config file path")
     args = parser.parse_args()
 
-    patcher = HiveDConfigPatcher(
+    adapter = HiveDConfigAdapter(
         min_nodes=args.min_nodes,
         max_nodes=args.max_nodes,
         node_name_prefix=args.node_name_prefix,
@@ -124,8 +124,8 @@ if __name__ == "__main__":
         kube_config_file=args.kube_config_file)
     while True:
         try:
-            patcher.list_nodes()
-            patcher.watch_nodes()
+            adapter.list_nodes()
+            adapter.watch_nodes()
         except Exception:
             logging.exception("Exception occurs when watch.")
             continue
