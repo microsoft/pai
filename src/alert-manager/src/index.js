@@ -23,6 +23,8 @@
 const express = require('express');
 const unirest = require('unirest');
 const bearerToken = require('express-bearer-token');
+const nodemailer = require("nodemailer");
+const Email = require('email-templates');
 
 const app = express();
 
@@ -30,11 +32,11 @@ app.use(express.json());
 app.use(bearerToken());
 
 app.post('/alert-handler/stop-job', (req, res) => {
-  console.log('alert-handler received post request from alert-manager.');
+  console.log('alert-handler received `stop-job` post request from alert-manager.');
 
   // extract jobs to kill
   const jobNames = [];
-  req.body.alerts.forEach(function(alert) {
+  req.body.alerts.forEach(function (alert) {
     if (alert.status === 'firing') {
       jobNames.push(alert.labels.job_name);
     }
@@ -44,7 +46,7 @@ app.post('/alert-handler/stop-job', (req, res) => {
   const url = process.env.REST_SERVER_URI;
   const token = req.token;
   // stop job by sending put request to rest server
-  jobNames.forEach(function(jobName) {
+  jobNames.forEach(function (jobName) {
     unirest
       .put(`${url}/api/v2/jobs/${jobName}/executionType`)
       .headers({
@@ -52,10 +54,53 @@ app.post('/alert-handler/stop-job', (req, res) => {
         'Content-Type': 'application/json',
       })
       .send(JSON.stringify({ value: 'STOP' }))
-      .end(function(res) {
+      .end(function (res) {
         console.log(res.raw_body);
       });
   });
+
+  res.status(200).json({
+    message: 'alert-handler successfully',
+  });
+});
+
+app.post('/alert-handler/send-email', (req, res) => {
+  console.log('alert-handler received `send-email` post request from alert-manager.');
+
+  console.log("alerts:", req.body.alerts);
+
+  // create reusable transporter object using the default SMTP transport
+  let transporter = nodemailer.createTransport({
+    host: process.env.EMAIL_CONFIGS_SMTP_URL.split(":")[0],
+    port: process.env.EMAIL_CONFIGS_SMTP_URL.split(":")[1],
+    secure: false,
+    auth: {
+      user: process.env.EMAIL_CONFIGS_SMTP_AUTH_USERNAME,
+      pass: process.env.EMAIL_CONFIGS_SMTP_AUTH_PASSWORD,
+    },
+  });
+
+  const email = new Email({
+    message: {
+      from: EMAIL_CONFIGS_SMTP_FROM
+    },
+    send: true,
+    transport: transporter,
+  });
+
+  email
+    .send({
+      template: 'mars',
+      message: {
+        to: process.env.EMAIL_CONFIGS_RECEIVER,
+        subject: "test-subject",
+      },
+      locals: {
+        name: 'Elon'
+      }
+    })
+    .then(console.log)
+    .catch(console.error);
 
   res.status(200).json({
     message: 'alert-handler successfully',

@@ -66,6 +66,16 @@ spec:
         env:
         - name: REST_SERVER_URI
           value: {{ cluster_cfg['rest-server']['uri'] }}
+        - name: EMAIL_CONFIGS_RECEIVER
+          value: {{ cluster_cfg["alert-manager"]["email_configs"]["receiver"] }}
+        - name: EMAIL_CONFIGS_SMTP_URL
+          value: {{ cluster_cfg["alert-manager"]["email_configs"]["smtp_url"] }}
+        - name: EMAIL_CONFIGS_SMTP_FROM
+          value: {{ cluster_cfg["alert-manager"]["email_configs"]["smtp_from"] }}
+        - name: EMAIL_CONFIGS_SMTP_AUTH_USERNAME
+          value: {{ cluster_cfg["alert-manager"]["email_configs"]["smtp_auth_username"] }}
+        - name: EMAIL_CONFIGS_SMTP_AUTH_PASSWORD
+          value: {{ cluster_cfg["alert-manager"]["email_configs"]["smtp_auth_password"] }}
 {% endif %}
       imagePullSecrets:
       - name: {{ cluster_cfg["cluster"]["docker-registry"]["secret-name"] }}

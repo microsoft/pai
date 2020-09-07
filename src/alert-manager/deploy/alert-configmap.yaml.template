@@ -38,6 +38,10 @@ data:
           html: '{{ "{{" }} template "email.pai.html" . {{ "}}" }}'
           headers:
             subject: '{{ cluster_cfg["cluster"]["common"]["cluster-id"] }}: {{ "{{" }} template "__subject" . {{ "}}" }}'
+      webhook_configs:
+       - url: 'http://localhost:{{ webhook_configs["port"] }}/alert-handler/send-email'
+         http_config:
+           bearer_token: {{ webhook_configs["pai_bearer_token"] }}
 {% endif %}
     - name: "pai-email-and-stop-job"
 {% if cluster_cfg["alert-manager"]["email-configured"] %}
