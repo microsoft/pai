@@ -211,8 +211,8 @@ def get_k8s_cluster_info(working_dir, dns_prefix, location):
                 gpu_resource = int(parse_quantity(node.status.allocatable['nvidia.com/gpu']))
             if master_string in node.metadata.name:
                 master[node.metadata.name] = {
-                    "cpu-resource": int(parse_quantity(node.status.allocatable['cpu'])),
-                    "mem-resource": int(parse_quantity(node.status.allocatable['memory']) / 1024 / 1024 ),
+                    "cpu-resource": int(parse_quantity(node.status.allocatable['cpu'])) - 2,
+                    "mem-resource": int(parse_quantity(node.status.allocatable['memory']) / 1024 / 1024 ) - 8 * 1024,
                     "gpu-resource": gpu_resource,
                 }
                 master[node.metadata.name]["hostname"] = node.metadata.name
@@ -228,8 +228,8 @@ def get_k8s_cluster_info(working_dir, dns_prefix, location):
                         master_ip_internal = address.address
             elif worker_string in node.metadata.name:
                 worker[node.metadata.name] = {
-                    "cpu-resource": int(parse_quantity(node.status.allocatable['cpu'])),
-                    "mem-resource": int(parse_quantity(node.status.allocatable['memory']) / 1024 / 1024 ),
+                    "cpu-resource": int(parse_quantity(node.status.allocatable['cpu'])) - 2,
+                    "mem-resource": int(parse_quantity(node.status.allocatable['memory']) / 1024 / 1024 ) - 8 * 1024,
                     "gpu-resource": gpu_resource,
                 }
                 if sku is None:
