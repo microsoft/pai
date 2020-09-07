@@ -1,4 +1,4 @@
-﻿## How OpenPAI Models Distributed Jobs
+﻿## How OpenPAI Deploy Distributed Jobs
 ### Taskrole and Instance
 When we execute distributed programs on PAI, we can add different task roles for our job. For single server jobs, there is only one task role. For distributed jobs, there may be multiple task roles. For example, when TensorFlow is used to running distributed jobs, it has two roles, including the parameter server and the worker. In distributed jobs, each role may have one or more instances. For example, if it's 8 instances in a worker role of TensorFlow. It means there should be 8 Docker containers for the worker role. Please visit [here](how-to-use-advanced-job-settings.html#multiple-task-roles) for specific operations.
 
