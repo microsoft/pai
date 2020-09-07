@@ -52,6 +52,19 @@ export async function listUserVirtualClusters(user) {
   return get(userInfo, 'virtualCluster', []);
 }
 
+export async function listHivedSkuTypes() {
+  if (config.launcherScheduler !== 'hivedscheduler') {
+    return {};
+  }
+  return wrapper(async () =>
+    (await fetch(`${config.restServerUri}/api/v2/cluster/sku-types`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    })).json(),
+  );
+}
+
 export async function fetchUserGroup(api, user, token) {
   const userInfo = await wrapper(() => client.user.getUser(user));
   return get(userInfo, 'grouplist', []);

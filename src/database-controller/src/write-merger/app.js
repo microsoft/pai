@@ -10,6 +10,7 @@ const logger = require('@dbc/common/logger');
 const status = require('statuses');
 const handler = require('@dbc/write-merger/handler');
 const config = require('@dbc/write-merger/config');
+const { Sequelize } = require('sequelize');
 
 const app = express();
 
@@ -37,9 +38,15 @@ app.use('/api/v1', router);
 app.use((err, req, res, next) => {
   logger.warn(err.stack);
   const statusCode = err.statusCode || 500;
+  let message;
+  if (err instanceof Sequelize.ConnectionError) {
+    message = `There is a problem with your database connection. Please contact your admin. Detailed message: ${err.message}`;
+  } else {
+    message = err.message;
+  }
   res.status(statusCode).json({
     code: status(statusCode),
-    message: err.message,
+    message: message,
   });
 });
 

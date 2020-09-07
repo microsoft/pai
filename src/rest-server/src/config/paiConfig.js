@@ -18,62 +18,64 @@
 // module dependencies
 const Joi = require('joi');
 const yaml = require('js-yaml');
-const {get} = require('lodash');
+const { get } = require('lodash');
 const fs = require('fs');
 const logger = require('@pai/config/logger');
 const k8sModel = require('@pai/models/kubernetes/kubernetes');
 
 let paiMachineList = [];
 try {
-    paiMachineList = yaml.safeLoad(fs.readFileSync('/pai-cluster-config/layout.yaml', 'utf8'))['machine-list'];
+  paiMachineList = yaml.safeLoad(
+    fs.readFileSync('/pai-cluster-config/layout.yaml', 'utf8'),
+  )['machine-list'];
 } catch (err) {
-    paiMachineList = [];
-    logger.warn('Unable to load machine list from cluster-configuration.');
-    logger.warn('The machine list will be initialized as an empty list.');
+  paiMachineList = [];
+  logger.warn('Unable to load machine list from cluster-configuration.');
+  logger.warn('The machine list will be initialized as an empty list.');
 }
 
 let paiConfigData = {
-    machineList: paiMachineList,
-    version: null,
-    debuggingReservationSeconds: Number(process.env.DEBUGGING_RESERVATION_SECONDS || '604800'),
+  machineList: paiMachineList,
+  version: null,
+  debuggingReservationSeconds: Number(
+    process.env.DEBUGGING_RESERVATION_SECONDS || '604800',
+  ),
 };
 
-
 // define the schema for pai configuration
-const paiConfigSchema = Joi.object().keys({
+const paiConfigSchema = Joi.object()
+  .keys({
     machineList: Joi.array(),
     version: Joi.string().allow(null),
     debuggingReservationSeconds: Joi.number().integer().positive(),
-}).required();
+  })
+  .required();
 
-
-const {error, value} = Joi.validate(paiConfigData, paiConfigSchema);
+const { error, value } = Joi.validate(paiConfigData, paiConfigSchema);
 if (error) {
-    throw new Error(`config error\n${error}`);
+  throw new Error(`config error\n${error}`);
 }
 paiConfigData = value;
 
 const fetchPAIVersion = async () => {
-    try {
-        const client = k8sModel.getClient();
-        const res = await client.get('/api/v1/namespaces/default/configmaps/pai-version');
-        const version = get(res.data, 'data["PAI.VERSION"]');
-        if (version) {
-            return version.trim();
-        } else {
-            return null;
-        }
-    } catch (err) {
-        throw err;
-    }
+  const client = k8sModel.getClient();
+  const res = await client.get(
+    '/api/v1/namespaces/default/configmaps/pai-version',
+  );
+  const version = get(res.data, 'data["PAI.VERSION"]');
+  if (version) {
+    return version.trim();
+  } else {
+    return null;
+  }
 };
 
-fetchPAIVersion().then(
-    (res) => {
-        paiConfigData.version = res;
-    }
-).catch(() => {
+fetchPAIVersion()
+  .then((res) => {
+    paiConfigData.version = res;
+  })
+  .catch(() => {
     logger.warn('Unable to load pai version from config map.');
-});
+  });
 
 module.exports = paiConfigData;

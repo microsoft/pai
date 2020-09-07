@@ -24,7 +24,7 @@ const generateSpecMap = () => {
     exitSpecPath = '/k8s-job-exit-spec-configuration/k8s-job-exit-spec.yaml';
   }
   const exitSpecList = yaml.safeLoad(fs.readFileSync(exitSpecPath));
-  let exitSpecMap = {};
+  const exitSpecMap = {};
   exitSpecList.forEach((val) => {
     exitSpecMap[val.code] = val;
   });
@@ -55,31 +55,33 @@ const extractRuntimeOutput = (podCompletionStatus) => {
   }
 
   let res = null;
-  for (const container of podCompletionStatus.containers) {
-    if (container.code <= 0) {
-      continue;
-    }
-    const message = container.message;
-    if (message == null) {
-      continue;
-    }
-    const anchor1 = /\[PAI_RUNTIME_ERROR_START\]/;
-    const anchor2 = /\[PAI_RUNTIME_ERROR_END\]/;
-    const match1 = message.match(anchor1);
-    const match2 = message.match(anchor2);
-    if (match1 !== null && match2 !== null) {
-      const start = match1.index + match1[0].length;
-      const end = match2.index;
-      const output = message.substring(start, end).trim();
-      try {
-        res = {
-          ...yaml.safeLoad(output),
-          name: container.name,
-        };
-      } catch (error) {
-        logger.warn('failed to format runtime output:', output, error);
+  if (!_.isEmpty(podCompletionStatus.containers)) {
+    for (const container of podCompletionStatus.containers) {
+      if (container.code <= 0) {
+        continue;
       }
-      break;
+      const message = container.message;
+      if (message == null) {
+        continue;
+      }
+      const anchor1 = /\[PAI_RUNTIME_ERROR_START\]/;
+      const anchor2 = /\[PAI_RUNTIME_ERROR_END\]/;
+      const match1 = message.match(anchor1);
+      const match2 = message.match(anchor2);
+      if (match1 !== null && match2 !== null) {
+        const start = match1.index + match1[0].length;
+        const end = match2.index;
+        const output = message.substring(start, end).trim();
+        try {
+          res = {
+            ...yaml.safeLoad(output),
+            name: container.name,
+          };
+        } catch (error) {
+          logger.warn('failed to format runtime output:', output, error);
+        }
+        break;
+      }
     }
   }
   return res;
@@ -158,7 +160,6 @@ const convertState = (state, exitCode) => {
   }
 };
 
-
 const generateExitSpec = (code) => {
   const exitSpecMap = generateSpecMap();
   if (!_.isNil(code)) {
@@ -205,7 +206,9 @@ const convertToJobAttempt = async (framework) => {
     framework.metadata.annotations,
   );
   const frameworkName = framework.metadata.name;
-  const logPathInfix = framework.metadata.annotations.logPathInfix ? framework.metadata.annotations.logPathInfix : jobName;
+  const logPathInfix = framework.metadata.annotations.logPathInfix
+    ? framework.metadata.annotations.logPathInfix
+    : jobName;
   const uid = framework.metadata.uid;
   const userName = framework.metadata.labels
     ? framework.metadata.labels.userName
@@ -218,9 +221,13 @@ const convertToJobAttempt = async (framework) => {
   const originState = framework.status.state;
   const maxAttemptCount = framework.spec.retryPolicy.maxRetryCount + 1;
   const attemptIndex = framework.status.attemptStatus.id;
-  const jobStartedTime = new Date(framework.metadata.creationTimestamp).getTime();
-  const attemptStartedTime = new Date(framework.status.attemptStatus.startTime).getTime() || null;
-  const attemptCompletedTime = new Date(framework.status.attemptStatus.completionTime).getTime() || null;
+  const jobStartedTime = new Date(
+    framework.metadata.creationTimestamp,
+  ).getTime();
+  const attemptStartedTime =
+    new Date(framework.status.attemptStatus.startTime).getTime() || null;
+  const attemptCompletedTime =
+    new Date(framework.status.attemptStatus.completionTime).getTime() || null;
   const totalGpuNumber = framework.metadata.annotations
     ? parseInt(framework.metadata.annotations.totalGpuNumber)
     : 0;
@@ -265,12 +272,13 @@ const convertToJobAttempt = async (framework) => {
     );
   }
 
-  let taskRoles = {};
+  const taskRoles = {};
   const exitCode = completionStatus ? completionStatus.code : null;
   const exitPhrase = completionStatus ? completionStatus.phrase : null;
   const exitType = completionStatus ? completionStatus.type.name : null;
 
-  for (let taskRoleStatus of framework.status.attemptStatus.taskRoleStatuses) {
+  for (const taskRoleStatus of framework.status.attemptStatus
+    .taskRoleStatuses) {
     taskRoles[taskRoleStatus.name] = {
       taskRoleStatus: {
         name: taskRoleStatus.name,
@@ -283,6 +291,7 @@ const convertToJobAttempt = async (framework) => {
               userName,
               logPathInfix,
               taskRoleStatus.name,
+              true,
             ),
         ),
       ),
@@ -323,31 +332,33 @@ const convertTaskDetail = async (
   userName,
   logPathInfix,
   taskRoleName,
+  withoutGetPod,
 ) => {
   // get container gpus
   let containerGpus = null;
   try {
-    const response = await k8sModel.getClient().get(
-      launcherConfig.podPath(taskStatus.attemptStatus.podName),
-      {
-        headers: launcherConfig.requestHeaders,
+    if (withoutGetPod !== true) {
+      const response = await k8sModel
+        .getClient()
+        .get(launcherConfig.podPath(taskStatus.attemptStatus.podName), {
+          headers: launcherConfig.requestHeaders,
+        });
+      const pod = response.data;
+      if (launcherConfig.enabledHived) {
+        const isolation =
+          pod.metadata.annotations[
+            'hivedscheduler.microsoft.com/pod-leaf-cell-isolation'
+          ];
+        containerGpus = isolation
+          .split(',')
+          .reduce((attr, id) => attr + Math.pow(2, id), 0);
+      } else {
+        const gpuNumber = k8s.atoi(
+          pod.spec.containers[0].resources.limits['nvidia.com/gpu'],
+        );
+        // mock GPU ids from 0 to (gpuNumber - 1)
+        containerGpus = Math.pow(2, gpuNumber) - 1;
       }
-    );
-    const pod = response.data;
-    if (launcherConfig.enabledHived) {
-      const isolation =
-        pod.metadata.annotations[
-          'hivedscheduler.microsoft.com/pod-gpu-isolation'
-        ];
-      containerGpus = isolation
-        .split(',')
-        .reduce((attr, id) => attr + Math.pow(2, id), 0);
-    } else {
-      const gpuNumber = k8s.atoi(
-        pod.spec.containers[0].resources.limits['nvidia.com/gpu'],
-      );
-      // mock GPU ids from 0 to (gpuNumber - 1)
-      containerGpus = Math.pow(2, gpuNumber) - 1;
     }
   } catch (err) {
     containerGpus = null;

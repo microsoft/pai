@@ -18,10 +18,8 @@ const k8sRouter = require('@pai/routes/kubernetes');
 
 const router = new express.Router();
 
-router.route('/')
-  .all(controller.index);
-router.route('/info')
-  .all(infoController.info);
+router.route('/').all(controller.index);
+router.route('/info').all(infoController.info);
 
 router.use('/jobs', jobRouter);
 router.use('/cluster', clusterRouter);

@@ -15,68 +15,38 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-
 // module dependencies
 const Joi = require('joi');
 
-
 // define k8s launcher config schema
-const k8sLauncherConfigSchema = Joi.object().keys({
-  hivedWebserviceUri: Joi.string()
-    .uri()
-    .required(),
-  enabledPriorityClass: Joi.boolean()
-    .required(),
-  apiVersion: Joi.string()
-    .required(),
-  podGracefulDeletionTimeoutSec: Joi.number()
-    .integer()
-    .default(30 * 60),
-  scheduler: Joi.string()
-    .required(),
-  enabledHived: Joi.boolean()
-    .required(),
-  hivedSpecPath: Joi.string()
-    .required(),
-  runtimeImage: Joi.string()
-    .required(),
-  runtimeImagePullSecrets: Joi.string()
-    .required(),
-  requestHeaders: Joi.object(),
-  sqlConnectionString: Joi.string()
-    .required(),
-  sqlMaxConnection: Joi.number()
-    .integer()
-    .required(),
-  enabledJobHistory: Joi.boolean()
-    .required(),
-  writeMergerUrl: Joi.string()
-    .required(),
-  healthCheckPath: Joi.func()
-    .arity(0)
-    .required(),
-  frameworksPath: Joi.func()
-    .arity(0)
-    .required(),
-  frameworkPath: Joi.func()
-    .arity(1)
-    .required(),
-  priorityClassesPath: Joi.func()
-    .arity(0)
-    .required(),
-  priorityClassPath: Joi.func()
-    .arity(1)
-    .required(),
-  secretsPath: Joi.func()
-    .arity(0)
-    .required(),
-  secretPath: Joi.func()
-    .arity(1)
-    .required(),
-  podPath: Joi.func()
-    .arity(1)
-    .required(),
-}).required();
+const k8sLauncherConfigSchema = Joi.object()
+  .keys({
+    hivedWebserviceUri: Joi.string().uri().required(),
+    enabledPriorityClass: Joi.boolean().required(),
+    apiVersion: Joi.string().required(),
+    podGracefulDeletionTimeoutSec: Joi.number()
+      .integer()
+      .default(30 * 60),
+    scheduler: Joi.string().required(),
+    enabledHived: Joi.boolean().required(),
+    hivedSpecPath: Joi.string().required(),
+    runtimeImage: Joi.string().required(),
+    runtimeImagePullSecrets: Joi.string().required(),
+    requestHeaders: Joi.object(),
+    sqlConnectionString: Joi.string().required(),
+    sqlMaxConnection: Joi.number().integer().required(),
+    enabledJobHistory: Joi.boolean().required(),
+    writeMergerUrl: Joi.string().required(),
+    healthCheckPath: Joi.func().arity(0).required(),
+    frameworksPath: Joi.func().arity(0).required(),
+    frameworkPath: Joi.func().arity(1).required(),
+    priorityClassesPath: Joi.func().arity(0).required(),
+    priorityClassPath: Joi.func().arity(1).required(),
+    secretsPath: Joi.func().arity(0).required(),
+    secretPath: Joi.func().arity(1).required(),
+    podPath: Joi.func().arity(1).required(),
+  })
+  .required();
 
 let launcherConfig;
 const launcherType = process.env.LAUNCHER_TYPE;
@@ -90,9 +60,10 @@ if (launcherType === 'k8s') {
     runtimeImage: process.env.LAUNCHER_RUNTIME_IMAGE,
     runtimeImagePullSecrets: process.env.LAUNCHER_RUNTIME_IMAGE_PULL_SECRETS,
     enabledHived: process.env.LAUNCHER_SCHEDULER === 'hivedscheduler',
-    hivedSpecPath: process.env.HIVED_SPEC_PATH || '/hived-spec/hivedscheduler.yaml',
+    hivedSpecPath:
+      process.env.HIVED_SPEC_PATH || '/hived-spec/hivedscheduler.yaml',
     requestHeaders: {
-      'Accept': 'application/json',
+      Accept: 'application/json',
       'Content-Type': 'application/json',
     },
     sqlConnectionString: process.env.SQL_CONNECTION_STR || 'unset',
@@ -102,10 +73,10 @@ if (launcherType === 'k8s') {
     healthCheckPath: () => {
       return `/apis/${launcherConfig.apiVersion}`;
     },
-    frameworksPath: (namespace='default') => {
+    frameworksPath: (namespace = 'default') => {
       return `/apis/${launcherConfig.apiVersion}/namespaces/${namespace}/frameworks`;
     },
-    frameworkPath: (frameworkName, namespace='default') => {
+    frameworkPath: (frameworkName, namespace = 'default') => {
       return `/apis/${launcherConfig.apiVersion}/namespaces/${namespace}/frameworks/${frameworkName}`;
     },
     priorityClassesPath: () => {
@@ -114,18 +85,21 @@ if (launcherType === 'k8s') {
     priorityClassPath: (priorityClassName) => {
       return `/apis/scheduling.k8s.io/v1/priorityclasses/${priorityClassName}`;
     },
-    secretsPath: (namespace='default') => {
+    secretsPath: (namespace = 'default') => {
       return `/api/v1/namespaces/${namespace}/secrets`;
     },
-    secretPath: (secretName, namespace='default') => {
+    secretPath: (secretName, namespace = 'default') => {
       return `/api/v1/namespaces/${namespace}/secrets/${secretName}`;
     },
-    podPath: (podName, namespace='default') => {
+    podPath: (podName, namespace = 'default') => {
       return `/api/v1/namespaces/${namespace}/pods/${podName}`;
     },
   };
 
-  const {error, value} = Joi.validate(launcherConfig, k8sLauncherConfigSchema);
+  const { error, value } = Joi.validate(
+    launcherConfig,
+    k8sLauncherConfigSchema,
+  );
   if (error) {
     throw new Error(`launcher config error\n${error}`);
   }

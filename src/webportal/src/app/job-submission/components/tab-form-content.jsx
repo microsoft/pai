@@ -31,11 +31,13 @@ import { FormPage } from './form-page';
 import { JobTaskRole } from '../models/job-task-role';
 import { FormSpinButton } from './form-spin-button';
 import { ContainerSizeSection } from './container-size-section';
+import { HivedSkuSection } from './hived-sku-section';
 import { CommandSection } from './command-section';
 import { CompletionPolicy } from './task-role/completion-policy';
 import { PortsList } from './task-role/ports-list';
 import { getDefaultContainerSize } from '../models/container-size';
 import { PROTOCOL_TOOLTIPS } from '../utils/constants';
+import config from '../../config/webportal.config';
 
 export const TabFormContent = ({
   jobTaskRole,
@@ -85,21 +87,28 @@ export const TabFormContent = ({
           onChange={value => _onValueChange('instances', value)}
         />
       )}
-      <ContainerSizeSection
-        value={jobTaskRole.containerSize}
-        onEnable={checked =>
-          _onValuesChange({
-            isContainerSizeEnabled: checked,
-            containerSize: getDefaultContainerSize(
-              jobTaskRole.containerSize.gpu,
-            ),
-          })
-        }
-        onChange={containerSize =>
-          _onValueChange('containerSize', containerSize)
-        }
-        isContainerSizeEnabled={jobTaskRole.isContainerSizeEnabled}
-      />
+      {(config.launcherScheduler === 'hivedscheduler' && (
+        <HivedSkuSection
+          value={jobTaskRole.hivedSku}
+          onChange={hivedSku => _onValueChange('hivedSku', hivedSku)}
+        />
+      )) || (
+        <ContainerSizeSection
+          value={jobTaskRole.containerSize}
+          onEnable={checked =>
+            _onValuesChange({
+              isContainerSizeEnabled: checked,
+              containerSize: getDefaultContainerSize(
+                jobTaskRole.containerSize.gpu,
+              ),
+            })
+          }
+          onChange={containerSize =>
+            _onValueChange('containerSize', containerSize)
+          }
+          isContainerSizeEnabled={jobTaskRole.isContainerSizeEnabled}
+        />
+      )}
       <DockerSection
         sectionTooltip={PROTOCOL_TOOLTIPS.dockerImage}
         value={jobTaskRole.dockerInfo}

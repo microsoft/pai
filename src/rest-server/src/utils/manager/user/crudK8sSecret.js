@@ -40,18 +40,25 @@ async function read(key) {
   try {
     const request = k8sModel.getClient('/api/v1/namespaces/');
     const hexKey = Buffer.from(key).toString('hex');
-    const response = await request.get(`${USER_NAMESPACE}/secrets/${hexKey}`.toString(), {
-      headers: {
-        'Accept': 'application/json',
+    const response = await request.get(
+      `${USER_NAMESPACE}/secrets/${hexKey}`.toString(),
+      {
+        headers: {
+          Accept: 'application/json',
+        },
       },
-    });
-    let userData = response['data'];
-    let userInstance = User.createUser({
-      'username': Buffer.from(userData['data']['username'], 'base64').toString(),
-      'password': Buffer.from(userData['data']['password'], 'base64').toString(),
-      'grouplist': JSON.parse(Buffer.from(userData['data']['grouplist'], 'base64').toString()),
-      'email': Buffer.from(userData['data']['email'], 'base64').toString(),
-      'extension': JSON.parse(Buffer.from(userData['data']['extension'], 'base64').toString()),
+    );
+    const userData = response.data;
+    const userInstance = User.createUser({
+      username: Buffer.from(userData.data.username, 'base64').toString(),
+      password: Buffer.from(userData.data.password, 'base64').toString(),
+      grouplist: JSON.parse(
+        Buffer.from(userData.data.grouplist, 'base64').toString(),
+      ),
+      email: Buffer.from(userData.data.email, 'base64').toString(),
+      extension: JSON.parse(
+        Buffer.from(userData.data.extension, 'base64').toString(),
+      ),
     });
     return userInstance;
   } catch (error) {
@@ -73,23 +80,29 @@ async function readAll() {
     const request = k8sModel.getClient('/api/v1/namespaces/');
     const response = await request.get(`${USER_NAMESPACE}/secrets`.toString(), {
       headers: {
-        'Accept': 'application/json',
+        Accept: 'application/json',
       },
     });
-    let allUserInstance = [];
-    let userData = response['data'];
-    for (const item of userData['items']) {
+    const allUserInstance = [];
+    const userData = response.data;
+    for (const item of userData.items) {
       try {
-        let userInstance = User.createUser({
-          'username': Buffer.from(item['data']['username'], 'base64').toString(),
-          'password': Buffer.from(item['data']['password'], 'base64').toString(),
-          'grouplist': JSON.parse(Buffer.from(item['data']['grouplist'], 'base64').toString()),
-          'email': Buffer.from(item['data']['email'], 'base64').toString(),
-          'extension': JSON.parse(Buffer.from(item['data']['extension'], 'base64').toString()),
+        const userInstance = User.createUser({
+          username: Buffer.from(item.data.username, 'base64').toString(),
+          password: Buffer.from(item.data.password, 'base64').toString(),
+          grouplist: JSON.parse(
+            Buffer.from(item.data.grouplist, 'base64').toString(),
+          ),
+          email: Buffer.from(item.data.email, 'base64').toString(),
+          extension: JSON.parse(
+            Buffer.from(item.data.extension, 'base64').toString(),
+          ),
         });
         allUserInstance.push(userInstance);
       } catch (error) {
-        logger.debug(`secret ${item['metadata']['name']} is filtered in ${USER_NAMESPACE} due to user schema`);
+        logger.debug(
+          `secret ${item.metadata.name} is filtered in ${USER_NAMESPACE} due to user schema`,
+        );
       }
     }
     return allUserInstance;
@@ -113,27 +126,29 @@ async function create(key, value) {
   try {
     const request = k8sModel.getClient('/api/v1/namespaces/');
     const hexKey = Buffer.from(key).toString('hex');
-    let userInstance = User.createUser(
-      {
-        'username': value['username'],
-        'password': value['password'],
-        'grouplist': value['grouplist'],
-        'email': value['email'],
-        'extension': value['extension'],
-      }
-    );
+    const userInstance = User.createUser({
+      username: value.username,
+      password: value.password,
+      grouplist: value.grouplist,
+      email: value.email,
+      extension: value.extension,
+    });
     await User.encryptUserPassword(userInstance);
-    let userData = {
-      'metadata': {'name': hexKey},
-      'data': {
-        'username': Buffer.from(userInstance['username']).toString('base64'),
-        'password': Buffer.from(userInstance['password']).toString('base64'),
-        'grouplist': Buffer.from(JSON.stringify(userInstance['grouplist'])).toString('base64'),
-        'email': Buffer.from(userInstance['email']).toString('base64'),
-        'extension': Buffer.from(JSON.stringify(userInstance['extension'])).toString('base64'),
+    const userData = {
+      metadata: { name: hexKey },
+      data: {
+        username: Buffer.from(userInstance.username).toString('base64'),
+        password: Buffer.from(userInstance.password).toString('base64'),
+        grouplist: Buffer.from(JSON.stringify(userInstance.grouplist)).toString(
+          'base64',
+        ),
+        email: Buffer.from(userInstance.email).toString('base64'),
+        extension: Buffer.from(JSON.stringify(userInstance.extension)).toString(
+          'base64',
+        ),
       },
     };
-    let response = await request.post(`${USER_NAMESPACE}/secrets`, userData);
+    const response = await request.post(`${USER_NAMESPACE}/secrets`, userData);
     return response;
   } catch (error) {
     if (error.response) {
@@ -156,29 +171,34 @@ async function update(key, value, updatePassword = false) {
   try {
     const request = k8sModel.getClient('/api/v1/namespaces/');
     const hexKey = Buffer.from(key).toString('hex');
-    let userInstance = User.createUser(
-      {
-        'username': value['username'],
-        'password': value['password'],
-        'grouplist': value['grouplist'],
-        'email': value['email'],
-        'extension': value['extension'],
-      }
-    );
+    const userInstance = User.createUser({
+      username: value.username,
+      password: value.password,
+      grouplist: value.grouplist,
+      email: value.email,
+      extension: value.extension,
+    });
     if (updatePassword) {
       await User.encryptUserPassword(userInstance);
     }
-    let userData = {
-      'metadata': {'name': hexKey},
-      'data': {
-        'username': Buffer.from(userInstance['username']).toString('base64'),
-        'password': Buffer.from(userInstance['password']).toString('base64'),
-        'grouplist': Buffer.from(JSON.stringify(userInstance['grouplist'])).toString('base64'),
-        'email': Buffer.from(userInstance['email']).toString('base64'),
-        'extension': Buffer.from(JSON.stringify(userInstance['extension'])).toString('base64'),
+    const userData = {
+      metadata: { name: hexKey },
+      data: {
+        username: Buffer.from(userInstance.username).toString('base64'),
+        password: Buffer.from(userInstance.password).toString('base64'),
+        grouplist: Buffer.from(JSON.stringify(userInstance.grouplist)).toString(
+          'base64',
+        ),
+        email: Buffer.from(userInstance.email).toString('base64'),
+        extension: Buffer.from(JSON.stringify(userInstance.extension)).toString(
+          'base64',
+        ),
       },
     };
-    let response = await request.put(`${USER_NAMESPACE}/secrets/${hexKey}`, userData);
+    const response = await request.put(
+      `${USER_NAMESPACE}/secrets/${hexKey}`,
+      userData,
+    );
     return response;
   } catch (error) {
     if (error.response) {
@@ -202,7 +222,7 @@ async function remove(key) {
     return await request.delete(`${USER_NAMESPACE}/secrets/${hexKey}`, {
       headers: {
         'Content-Type': 'application/json',
-        'Accept': 'application/json',
+        Accept: 'application/json',
       },
     });
   } catch (error) {
@@ -214,4 +234,4 @@ async function remove(key) {
   }
 }
 
-module.exports = {create, read, readAll, update, remove};
+module.exports = { create, read, readAll, update, remove };

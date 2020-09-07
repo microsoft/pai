@@ -39,9 +39,11 @@ const token = cookies.get('token');
 
 function KeywordSearchBox() {
   const { filter, setFilter } = useContext(Context);
+
   function onKeywordChange(keyword) {
     const { users, virtualClusters, statuses } = filter;
-    setFilter(new Filter(keyword, users, virtualClusters, statuses));
+    const newFilter = new Filter(keyword, users, virtualClusters, statuses);
+    setFilter(newFilter);
   }
 
   /** @type {import('office-ui-fabric-react').IStyle} */

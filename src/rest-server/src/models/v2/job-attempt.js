@@ -18,7 +18,7 @@
 // module dependencies
 const crypto = require('crypto');
 
-const {convertToJobAttempt} = require('@pai/utils/frameworkConverter');
+const { convertToJobAttempt } = require('@pai/utils/frameworkConverter');
 const launcherConfig = require('@pai/config/launcher');
 const logger = require('@pai/config/logger');
 const databaseModel = require('@pai/utils/dbUtils');
@@ -50,7 +50,7 @@ if (launcherConfig.enabledJobHistory) {
   };
 
   const list = async (frameworkName) => {
-    let attemptData = [];
+    const attemptData = [];
     const encodedFrameworkName = encodeName(frameworkName);
 
     // get latest framework from k8s API
@@ -58,10 +58,12 @@ if (launcherConfig.enabledJobHistory) {
     try {
       framework = await databaseModel.Framework.findOne({
         attributes: ['snapshot'],
-        where: {name: encodedFrameworkName}}
-      );
+        where: { name: encodedFrameworkName },
+      });
     } catch (error) {
-      logger.error(`error when getting framework from database: ${error.message}`);
+      logger.error(
+        `error when getting framework from database: ${error.message}`,
+      );
       throw error;
     }
 
@@ -71,16 +73,17 @@ if (launcherConfig.enabledJobHistory) {
         isLatest: true,
       });
     } else {
-      logger.warn(`could not get framework ${encodedFrameworkName} from database.`);
-      return {status: 404, data: null};
+      logger.warn(
+        `could not get framework ${encodedFrameworkName} from database.`,
+      );
+      return { status: 404, data: null };
     }
 
     const historyFrameworks = await databaseModel.FrameworkHistory.findAll({
-        attributes: ['snapshot'],
-        where: {frameworkName: encodedFrameworkName},
-        order: [['attemptIndex', 'ASC']],
-      }
-    );
+      attributes: ['snapshot'],
+      where: { frameworkName: encodedFrameworkName },
+      order: [['attemptIndex', 'ASC']],
+    });
 
     const jobRetries = await Promise.all(
       historyFrameworks.map((row) => {
@@ -89,10 +92,10 @@ if (launcherConfig.enabledJobHistory) {
     );
     attemptData.push(
       ...jobRetries.map((jobRetry) => {
-        return {...jobRetry, isLatest: false};
+        return { ...jobRetry, isLatest: false };
       }),
     );
-    return {status: 200, data: attemptData};
+    return { status: 200, data: attemptData };
   };
 
   const get = async (frameworkName, jobAttemptIndex) => {
@@ -103,40 +106,47 @@ if (launcherConfig.enabledJobHistory) {
     try {
       framework = await databaseModel.Framework.findOne({
         attributes: ['snapshot'],
-        where: {name: encodedFrameworkName}}
-      );
+        where: { name: encodedFrameworkName },
+      });
     } catch (error) {
-      logger.error(`error when getting framework from database: ${error.message}`);
+      logger.error(
+        `error when getting framework from database: ${error.message}`,
+      );
       throw error;
     }
 
     if (framework) {
       attemptFramework = JSON.parse(framework.snapshot);
     } else {
-      logger.warn(`could not get framework ${encodedFrameworkName} from database.`);
-      return {status: 404, data: null};
+      logger.warn(
+        `could not get framework ${encodedFrameworkName} from database.`,
+      );
+      return { status: 404, data: null };
     }
 
     if (jobAttemptIndex < attemptFramework.spec.retryPolicy.maxRetryCount) {
       const historyFramework = await databaseModel.FrameworkHistory.findOne({
         attributes: ['snapshot'],
-        where: {frameworkName: encodedFrameworkName, attemptIndex: jobAttemptIndex},
+        where: {
+          frameworkName: encodedFrameworkName,
+          attemptIndex: jobAttemptIndex,
+        },
       });
 
       if (!historyFramework) {
-        return {status: 404, data: null};
+        return { status: 404, data: null };
       } else {
         attemptFramework = JSON.parse(historyFramework.snapshot);
         const attemptDetail = await convertToJobAttempt(attemptFramework);
-        return {status: 200, data: {...attemptDetail, isLatest: false}};
+        return { status: 200, data: { ...attemptDetail, isLatest: false } };
       }
     } else if (
       jobAttemptIndex === attemptFramework.spec.retryPolicy.maxRetryCount
     ) {
       const attemptDetail = await convertToJobAttempt(attemptFramework);
-      return {status: 200, data: {...attemptDetail, isLatest: true}};
+      return { status: 200, data: { ...attemptDetail, isLatest: true } };
     } else {
-      return {status: 404, data: null};
+      return { status: 404, data: null };
     }
   };
 
@@ -149,10 +159,10 @@ if (launcherConfig.enabledJobHistory) {
   module.exports = {
     healthCheck: () => false,
     list: () => {
- throw Error('Unexpected Call');
-},
+      throw Error('Unexpected Call');
+    },
     get: () => {
- throw Error('Unexpected Call');
-},
+      throw Error('Unexpected Call');
+    },
   };
 }

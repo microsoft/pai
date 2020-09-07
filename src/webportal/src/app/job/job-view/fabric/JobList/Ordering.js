@@ -1,8 +1,11 @@
-import { getSubmissionTime, getDuration, getStatusIndex } from './utils';
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
+const LOCAL_STORAGE_KEY = 'pai-job-ordering';
 
 export default class Ordering {
   /**
-   * @param {"name" | "modified" | "user" | "duration" | "virtualCluster" | "retries" | "status" | "taskCount" | "gpuCount" | undefined} field
+   * @param {"name" | "modified" | "user" | "virtualCluster" | "retries" | "status" | "taskCount" | "gpuCount" | undefined} field
    * @param {boolean | undefined} descending
    */
   constructor(field, descending = false) {
@@ -10,49 +13,68 @@ export default class Ordering {
     this.descending = descending;
   }
 
-  apply(jobs) {
+  save() {
+    if (this.field !== undefined) {
+      const content = JSON.stringify({
+        field: this.field,
+        descending: this.descending,
+      });
+      window.localStorage.setItem(LOCAL_STORAGE_KEY, content);
+    }
+  }
+
+  load() {
+    try {
+      const content = window.localStorage.getItem(LOCAL_STORAGE_KEY);
+      const { field, descending } = JSON.parse(content);
+      if (
+        field !== undefined &&
+        [
+          'name',
+          'modified',
+          'user',
+          'virtualCluster',
+          'retries',
+          'status',
+          'taskCount',
+          'gpuCount',
+        ].includes(field)
+      ) {
+        this.field = field;
+        if (descending !== undefined) {
+          this.descending = descending;
+        }
+      }
+    } catch (e) {
+      window.localStorage.removeItem(LOCAL_STORAGE_KEY);
+    }
+  }
+
+  apply() {
     const { field, descending } = this;
-    let comparator;
-    if (field == null) {
-      return jobs;
+    if (field === undefined) {
+      return {};
     }
+
+    let query;
     if (field === 'name') {
-      comparator = descending
-        ? (a, b) => String(b.name).localeCompare(a.name)
-        : (a, b) => String(a.name).localeCompare(b.name);
+      query = 'jobName';
     } else if (field === 'submissionTime') {
-      comparator = descending
-        ? (a, b) => getSubmissionTime(b) - getSubmissionTime(a)
-        : (a, b) => getSubmissionTime(a) - getSubmissionTime(b);
+      query = 'submissionTime';
     } else if (field === 'user') {
-      comparator = descending
-        ? (a, b) => String(b.username).localeCompare(a.username)
-        : (a, b) => String(a.username).localeCompare(b.username);
-    } else if (field === 'duration') {
-      comparator = descending
-        ? (a, b) => getDuration(b) - getDuration(a)
-        : (a, b) => getDuration(a) - getDuration(b);
+      query = 'username';
     } else if (field === 'virtualCluster') {
-      comparator = descending
-        ? (a, b) => String(b.virtualCluster).localeCompare(a.virtualCluster)
-        : (a, b) => String(a.virtualCluster).localeCompare(b.virtualCluster);
+      query = 'vc';
     } else if (field === 'retries') {
-      comparator = descending
-        ? (a, b) => b.retries - a.retries
-        : (a, b) => a.retries - b.retries;
+      query = 'retries';
     } else if (field === 'status') {
-      comparator = descending
-        ? (a, b) => getStatusIndex(b) - getStatusIndex(a)
-        : (a, b) => getStatusIndex(a) - getStatusIndex(b);
+      query = 'state';
     } else if (field === 'taskCount') {
-      comparator = descending
-        ? (a, b) => b.totalTaskNumber - a.totalTaskNumber
-        : (a, b) => a.totalTaskNumber - b.totalTaskNumber;
+      query = 'totalTaskNumber';
     } else if (field === 'gpuCount') {
-      comparator = descending
-        ? (a, b) => b.totalGpuNumber - a.totalGpuNumber
-        : (a, b) => a.totalGpuNumber - b.totalGpuNumber;
+      query = 'totalGpuNumber';
     }
-    return jobs.slice().sort(comparator);
+
+    return { order: `${query},${descending ? 'DESC' : 'ASC'}` };
   }
 }

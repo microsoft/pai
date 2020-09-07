@@ -33,6 +33,7 @@ import {
 import { get, isNil, isEmpty } from 'lodash';
 import { removeEmptyProperties } from '../utils/utils';
 import { DEFAULT_DOCKER_URI } from '../utils/constants';
+import config from '../../config/webportal.config';
 
 export class JobTaskRole {
   constructor(props) {
@@ -44,6 +45,7 @@ export class JobTaskRole {
       commands,
       completion,
       deployment,
+      hivedSku,
       containerSize,
       isContainerSizeEnabled,
       taskRetryCount,
@@ -56,6 +58,7 @@ export class JobTaskRole {
     this.commands = commands || '';
     this.completion = completion || new Completion({});
     this.deployment = deployment || new Deployment({});
+    this.hivedSku = hivedSku || { skuNum: 1, skuType: null, sku: null };
     this.containerSize = containerSize || getDefaultContainerSize();
     this.isContainerSizeEnabled = isContainerSizeEnabled || false;
     this.taskRetryCount = taskRetryCount || 0;
@@ -68,6 +71,7 @@ export class JobTaskRole {
     deployments,
     prerequisites,
     secrets,
+    extras,
   ) {
     const instances = get(taskRoleProtocol, 'instances', 1);
     const completion = get(taskRoleProtocol, 'completion', {});
@@ -101,6 +105,20 @@ export class JobTaskRole {
       infiniband: get(taskRoleProtocol, 'extraContainerOptions.infiniband'),
     });
 
+    const hivedSku = { skuNum: 1, skuType: null, sku: null };
+    if (config.launcherScheduler === 'hivedscheduler') {
+      hivedSku.skuNum = get(
+        extras,
+        `hivedScheduler.taskRoles.${name}.skuNum`,
+        1,
+      );
+      hivedSku.skuType = get(
+        extras,
+        `hivedScheduler.taskRoles.${name}.skuType`,
+        null,
+      );
+    }
+
     const jobTaskRole = new JobTaskRole({
       name: name,
       instances: instances,
@@ -109,6 +127,7 @@ export class JobTaskRole {
       containerSize: resourcePerInstance,
       deployment: Deployment.fromProtocol(taskDeployment),
       dockerInfo: DockerInfo.fromProtocol(dockerInfo, secrets),
+      hivedSku: hivedSku,
       ports: ports,
       taskRetryCount: taskRetryCount,
       extraOptions,
@@ -130,6 +149,7 @@ export class JobTaskRole {
 
   convertToProtocolFormat() {
     const taskRole = {};
+    const hivedTaskRole = {};
     const ports = this.ports.reduce((val, x) => {
       if (typeof x.value === 'string') {
         val[x.key] = parseInt(x.value);
@@ -142,6 +162,17 @@ export class JobTaskRole {
       ...this.containerSize,
       ports: ports,
     });
+    if (
+      config.launcherScheduler === 'hivedscheduler' &&
+      this.hivedSku.sku != null
+    ) {
+      [['gpu', 'gpu'], ['cpu', 'cpu'], ['memoryMB', 'memory']].forEach(
+        ([k1, k2]) => {
+          resourcePerInstance[k1] =
+            this.hivedSku.skuNum * this.hivedSku.sku[k2];
+        },
+      );
+    }
 
     taskRole[this.name] = removeEmptyProperties({
       instances: this.instances,
@@ -163,7 +194,13 @@ export class JobTaskRole {
             .split('\n')
             .map(line => line.trim()),
     });
+    if (config.launcherScheduler === 'hivedscheduler') {
+      hivedTaskRole[this.name] = {
+        skuNum: this.hivedSku.skuNum,
+        skuType: this.hivedSku.skuType,
+      };
+    }
 
-    return taskRole;
+    return { taskRole, hivedTaskRole };
   }
 }

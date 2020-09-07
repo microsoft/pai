@@ -20,42 +20,38 @@ const axios = require('axios');
 
 function initConfig(msGraphUrl, accessToken) {
   return {
-    'msGraphAPI': `${msGraphUrl}v1.0/me/transitiveMemberOf`,
-    'Authorization': `Bearer ${accessToken}`,
+    msGraphAPI: `${msGraphUrl}v1.0/me/transitiveMemberOf`,
+    Authorization: `Bearer ${accessToken}`,
   };
 }
 
 async function getUserGroupList(username, config) {
-  try {
-    let responseData = [];
-    let requestUrl = config.msGraphAPI;
-    // eslint-disable-next-line no-constant-condition
-    while (true) {
-      let response = await axios.get(requestUrl, {
-        headers: {
-          'Accept': 'application/json',
-          'Authorization': config.Authorization,
-        },
-      });
-      responseData.push(response['data']['value']);
-      if ('@odata.nextLink' in response['data']) {
-        requestUrl = response['data']['@odata.nextLink'];
-      } else {
-        break;
-      }
+  const responseData = [];
+  let requestUrl = config.msGraphAPI;
+  // eslint-disable-next-line no-constant-condition
+  while (true) {
+    const response = await axios.get(requestUrl, {
+      headers: {
+        Accept: 'application/json',
+        Authorization: config.Authorization,
+      },
+    });
+    responseData.push(response.data.value);
+    if ('@odata.nextLink' in response.data) {
+      requestUrl = response.data['@odata.nextLink'];
+    } else {
+      break;
     }
-    let groupList = [];
-    for (const dataBlock of responseData) {
-      for (const groupItem of dataBlock) {
-        if (groupItem.mailNickname) {
-          groupList.push(groupItem.mailNickname);
-        }
-      }
-    }
-    return groupList;
-  } catch (error) {
-    throw error;
   }
+  const groupList = [];
+  for (const dataBlock of responseData) {
+    for (const groupItem of dataBlock) {
+      if (groupItem.mailNickname) {
+        groupList.push(groupItem.mailNickname);
+      }
+    }
+  }
+  return groupList;
 }
 
 module.exports = {

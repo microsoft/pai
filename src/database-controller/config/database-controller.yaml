@@ -19,11 +19,23 @@ write-merger-connection-timeout-second: 120
 # write merger
 # The serving port for write merger.
 write-merger-port: 9748
- # Max connection number to database in write merger.
-write-merger-max-db-connection: 50
+# Max connection number to database in write merger.
+write-merger-max-db-connection: 100
+# Write merger max heap size in MB
+write-merger-max-heap-mb: 2048
 
 # db poller
 # Polling interval of database poller. Default value is 120.
 db-poller-interval-second: 120
 # Max connection number to database in write merger.
 db-poller-max-db-connection: 10
+# Max rpc concurrency for db poller
+db-poller-max-rpc-concurrency: 50
+# Database poller max heap size in MB
+db-poller-max-heap-mb: 4096
+
+# framework watcher
+# Max rpc concurrency for framework watcher
+framework-watcher-max-rpc-concurrency: 150
+# Framework watcher max heap size in MB
+framework-watcher-max-heap-mb: 8192

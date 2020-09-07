@@ -19,9 +19,11 @@
 const Joi = require('joi');
 
 // define the input schema for the 'update group extension' api
-const groupExtensionUpdateInputSchema = Joi.object().keys({
-  extension: Joi.object().pattern(/\w+/, Joi.required()),
-}).required();
+const groupExtensionUpdateInputSchema = Joi.object()
+  .keys({
+    extension: Joi.object().pattern(/\w+/, Joi.required()),
+  })
+  .required();
 
 // define the input schema for the 'update group description' api
 const groupDescriptionUpdateInputSchema = Joi.object().keys({
@@ -43,42 +45,36 @@ const groupCreateInputSchema = Joi.object().keys({
   groupname: Joi.string()
     .regex(/^[A-Za-z0-9_]+$/, 'groupname')
     .required(),
-  description: Joi.string()
-    .empty(''),
-  externalName: Joi.string()
-    .empty(''),
-  extension: Joi.object()
-    .pattern(/\w+/, Joi.required())
-    .default(),
+  description: Joi.string().empty(''),
+  externalName: Joi.string().empty(''),
+  extension: Joi.object().pattern(/\w+/, Joi.required()).default(),
 });
 
 // define the input schema for the 'Update group' api
 const groupUpdateInputSchema = Joi.object().keys({
-  patch: Joi.boolean()
-    .default(false),
-  data: Joi.object().keys({
-    groupname: Joi.string()
-      .regex(/^[A-Za-z0-9_]+$/, 'groupname')
-      .required(),
-    description: Joi.string(),
-    externalName: Joi.string(),
-    extension: Joi.object()
-      .pattern(/\w+/, Joi.required()),
-  })
+  patch: Joi.boolean().default(false),
+  data: Joi.object()
+    .keys({
+      groupname: Joi.string()
+        .regex(/^[A-Za-z0-9_]+$/, 'groupname')
+        .required(),
+      description: Joi.string(),
+      externalName: Joi.string(),
+      extension: Joi.object().pattern(/\w+/, Joi.required()),
+    })
     .when('patch', {
-        is: true,
-        then: Joi.object({
-          description: Joi.empty(null),
-          externalName: Joi.empty(null),
-          extension: Joi.empty(null),
-        }),
-        otherwise: Joi.object({
-          description: Joi.required(),
-          externalName: Joi.required(),
-          extension: Joi.required(),
-        }),
-      }
-    ),
+      is: true,
+      then: Joi.object({
+        description: Joi.empty(null),
+        externalName: Joi.empty(null),
+        extension: Joi.empty(null),
+      }),
+      otherwise: Joi.object({
+        description: Joi.required(),
+        externalName: Joi.required(),
+        extension: Joi.required(),
+      }),
+    }),
 });
 
 // module exports
