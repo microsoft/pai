@@ -212,14 +212,14 @@ spec:
   - "Contact Cluster Admin"
 
 - code: -110
-  phrase: ConfigMapCreationTimeout
+  phrase: ConfigMapLocalCacheCreationTimeout
   issuer: PAI_FC
   causer: PAI_UNKNOWN
   type: PLATFORM_FAILURE
   stage: LAUNCHING
   behavior: TRANSIENT
   reaction: ALWAYS_RETRY
-  reason: "The ConfigMap of this job attempt creation timeout, maybe K8S ApiServer is down"
+  reason: "The ConfigMap of this job attempt does not appear in local cache within timeout, maybe K8S ApiServer is down"
   repro:
   - "Just after FC created a ConfigMap, bring down the K8S ApiServer"
   solution:
@@ -227,29 +227,44 @@ spec:
   - "Contact Cluster Admin"
 
 - code: -111
-  phrase: PodCreationTimeout
+  phrase: PodLocalCacheCreationTimeout
   issuer: PAI_FC
   causer: PAI_UNKNOWN
   type: PLATFORM_FAILURE
   stage: LAUNCHING
   behavior: TRANSIENT
   reaction: ALWAYS_RETRY
-  reason: "Pod creation timeout, maybe K8S ApiServer is down"
+  reason: "Pod does not appear in local cache within timeout, maybe K8S ApiServer is down"
   repro:
   - "Just after FC created a Pod, bring down the K8S ApiServer"
   solution:
   - "Wait result from next retry"
   - "Contact Cluster Admin"
 
+- code: -120
+  phrase: PodCreationTransientError
+  issuer: PAI_FC
+  causer: PAI_UNKNOWN
+  type: PLATFORM_FAILURE
+  stage: LAUNCHING
+  behavior: TRANSIENT
+  reaction: ALWAYS_RETRY
+  reason: "Failed to create Pod due to transient error"
+  repro:
+  - "Just before FC create a Pod, bring down the K8S ApiServer"
+  solution:
+  - "Wait result from next retry"
+  - "Contact Cluster Admin"
+
 - code: -200
-  phrase: PodSpecPermanentError
+  phrase: PodCreationPermanentError
   issuer: PAI_FC
   causer: USER_SUBMISSION
   type: USER_FAILURE
   stage: SUBMITTING
   behavior: PERMANENT
   reaction: NEVER_RETRY
-  reason: "Pod spec contains permanent error"
+  reason: "Failed to create Pod due to permanent error, maybe the Pod spec is invalid"
   repro:
   - "Specify a Pod in Framework with duplicated container names"
   solution:
@@ -302,6 +317,22 @@ spec:
   reason: "Pod failed but without any failed container, may be stopped by K8S"
   repro:
   - "Submit a job which will be rejected by kubelet"
+  solution:
+  - "Check diagnostics and find root cause"
+  - "Wait result from next retry"
+  - "Contact Cluster Admin"
+
+- code: -310
+  phrase: PodCreationUnknownError
+  issuer: PAI_FC
+  causer: UNKNOWN
+  type: UNKNOWN_FAILURE
+  stage: LAUNCHING
+  behavior: UNKNOWN
+  reaction: RETRY_TO_MAX
+  reason: "Failed to create Pod due to unknown error"
+  repro:
+  - "Submit a job and then immediately delete its priority class object"
   solution:
   - "Check diagnostics and find root cause"
   - "Wait result from next retry"

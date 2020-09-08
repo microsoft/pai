@@ -1,19 +1,29 @@
 module.exports = {
-  "parserOptions": {
-    "ecmaVersion": 2017,
-    "ecmaFeatures": {
-      "experimentalObjectRestSpread": true
-    }
+  plugins: ['eslint-plugin-prettier'],
+  env: {
+    es6: true,
+    node: true,
+    mocha: true,
+    browser: false,
   },
-  "env": {
-    "es6": true,
-    "node": true,
+  extends: ['standard', 'plugin:prettier/recommended', 'prettier'],
+  parserOptions: {
+    ecmaFeatures: {
+      ecmaVersion: 8,
+      experimentalObjectRestSpread: true,
+    },
+    sourceType: 'module',
   },
-  "extends": ["eslint:recommended", "google"],
-  "rules": {
-    "max-len": [0, 80],
-    "require-jsdoc": 0,
-    "valid-jsdoc": 0,
-    "linebreak-style": 0,
+  rules: {
+    'prettier/prettier': ['error'],
+    'max-len': [
+      'error',
+      {
+        code: 120,
+        ignoreComments: true,
+        ignoreStrings: false,
+        ignoreTemplateLiterals: true,
+      },
+    ],
   },
 };

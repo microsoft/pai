@@ -17,6 +17,9 @@ const configSchema = Joi.object()
     writeMergerUrl: Joi.string()
       .uri()
       .required(),
+    maxRpcConcurrency: Joi.number()
+      .integer()
+      .required(),
   })
   .required();
 
@@ -25,6 +28,7 @@ const config = {
   maxDatabaseConnection: parseInt(process.env.MAX_DB_CONNECTION),
   intervalSecond: parseInt(process.env.INTERVAL_SECOND),
   writeMergerUrl: process.env.WRITE_MERGER_URL,
+  maxRpcConcurrency: parseInt(process.env.MAX_RPC_CONCURRENCY),
 };
 
 const { error, value } = Joi.validate(config, configSchema);

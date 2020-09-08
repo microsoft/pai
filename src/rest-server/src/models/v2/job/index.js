@@ -15,7 +15,6 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-
 // module dependencies
 const status = require('statuses');
 const config = require('@pai/config/index');
@@ -26,12 +25,11 @@ const k8sModel = require('@pai/models/kubernetes/kubernetes');
 if (config.env !== 'test') {
   // framework controller health check
   (async () => {
-    const response = await k8sModel.getClient().get(
-      launcherConfig.healthCheckPath(),
-      {
+    const response = await k8sModel
+      .getClient()
+      .get(launcherConfig.healthCheckPath(), {
         headers: launcherConfig.requestHeaders,
-      }
-    );
+      });
     if (response.status === status('OK')) {
       logger.info('connected to framework controller successfully');
     } else {

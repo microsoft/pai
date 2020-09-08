@@ -27,6 +27,7 @@
     "morgan": "^1.10.0",
     "node-fetch": "^2.6.0",
     "openpaidbsdk": "file:../sdk",
+    "p-queue": "^6.6.1",
     "statuses": "^2.0.0",
     "winston": "2"
   },

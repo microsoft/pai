@@ -83,6 +83,7 @@
     "strip-json-comments": "^2.0.1",
     "styled-components": "^4.2.0",
     "tachyons-sass": "^4.9.5",
+    "url-join": "^4.0.1",
     "util": "~0.10.3",
     "webhdfs": "^1.2.0",
     "whatwg-fetch": "^3.0.0",

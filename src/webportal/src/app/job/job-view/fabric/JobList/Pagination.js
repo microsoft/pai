@@ -1,3 +1,8 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
+const LOCAL_STORAGE_KEY = 'pai-job-pagination';
+
 export default class Pagination {
   /**
    * @param {number} itemsPerPage
@@ -8,17 +13,35 @@ export default class Pagination {
     this.pageIndex = pageIndex;
   }
 
-  /**
-   * @param {any[]} items
-   * @returns {any[]}
-   */
-  apply(items) {
+  save() {
+    const content = JSON.stringify({
+      itemsPerPage: this.itemsPerPage,
+      pageIndex: this.pageIndex,
+    });
+    window.localStorage.setItem(LOCAL_STORAGE_KEY, content);
+  }
+
+  load() {
+    try {
+      const content = window.localStorage.getItem(LOCAL_STORAGE_KEY);
+      const { itemsPerPage, pageIndex } = JSON.parse(content);
+      if (itemsPerPage !== undefined) {
+        this.itemsPerPage = itemsPerPage;
+      }
+      if (pageIndex !== undefined) {
+        this.pageIndex = pageIndex;
+      }
+    } catch (e) {
+      window.localStorage.removeItem(LOCAL_STORAGE_KEY);
+    }
+  }
+
+  apply() {
     const { itemsPerPage, pageIndex } = this;
     const start = itemsPerPage * pageIndex;
-    const end = itemsPerPage * (pageIndex + 1);
-    return items.slice(start, end).map(item => {
-      item.key = `${item.username}~${item.name}`;
-      return item;
-    });
+    return {
+      offset: start,
+      limit: itemsPerPage,
+    };
   }
 }

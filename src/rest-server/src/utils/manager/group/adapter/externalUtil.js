@@ -27,4 +27,4 @@ const getStorageObject = (type) => {
   }
 };
 
-module.exports = {getStorageObject};
+module.exports = { getStorageObject };

@@ -2,9 +2,9 @@
 // Licensed under the MIT license.
 
 const axios = require('axios');
-const {Agent} = require('https');
-const {URL} = require('url');
-const {apiserver} = require('@pai/config/kubernetes');
+const { Agent } = require('https');
+const { URL } = require('url');
+const { apiserver } = require('@pai/config/kubernetes');
 const status = require('statuses');
 const logger = require('@pai/config/logger');
 
@@ -33,7 +33,7 @@ const getClient = (baseURL = '') => {
     baseURL: new URL(baseURL, apiserver.uri).toString(),
     maxRedirects: 0,
     headers: {
-      'Accept': 'application/json',
+      Accept: 'application/json',
     },
   };
   if (apiserver.ca || apiserver.cert || apiserver.key) {
@@ -94,15 +94,15 @@ const getNodes = async () => {
   return res.data;
 };
 
-const getPods = async (options = {}, headers={}) => {
-  const {namespace, ...params} = options;
+const getPods = async (options = {}, headers = {}) => {
+  const { namespace, ...params } = options;
   const client = getClient();
 
   let url = '/api/v1/pods';
   if (namespace) {
     url = `/api/v1/namespaces/${namespace}/pods`;
   }
-  const res = await client.get(url, {params, headers});
+  const res = await client.get(url, { params, headers });
   return res.data;
 };
 

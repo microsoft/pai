@@ -1,0 +1,35 @@
+protocolVersion: 2
+name: cifar10_vgg16_tf_4gpu_horovod_example
+type: job
+jobRetryCount: 0
+prerequisites:
+  - type: dockerimage
+    uri: 'openpai/standard:python_3.6-tensorflow_2.1.0-gpu'
+    name: docker_image_0
+taskRoles:
+  taskrole:
+    instances: 1
+    completion:
+      minFailedInstances: 1
+      minSucceededInstances: -1
+    taskRetryCount: 0
+    dockerImage: docker_image_0
+    resourcePerInstance:
+      gpu: 4
+      cpu: 8
+      memoryMB: 102400
+    commands:
+      - >-
+        wget
+        https://raw.githubusercontent.com/microsoft/pai/pai-for-edu/contrib/edu-examples/tensorflow_cifar10/src/cifar10_vgg16_tf_horovod.py
+      - >-
+        HOROVOD_GPU_ALLREDUCE=NCCL HOROVOD_GPU_BROADCAST=NCCL pip install
+        horovod
+      - horovodrun -np 4 python cifar10_vgg16_tf_horovod.py --epochs 50 --batch_size 32
+defaults:
+  virtualCluster: default
+extras:
+  com.microsoft.pai.runtimeplugin:
+    - plugin: ssh
+      parameters:
+        jobssh: true

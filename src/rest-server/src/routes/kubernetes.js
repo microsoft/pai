@@ -8,11 +8,18 @@ const createError = require('@pai/utils/error');
 
 const router = new express.Router();
 
-router.route('/nodes')
+router
+  .route('/nodes')
   /** GET /api/v1/kubernetes/nodes - Return k8s nodes info */
   .get(token.check, async (req, res, next) => {
     if (!req.user.admin) {
-      return next(createError('Forbidden', 'ForbiddenUserError', `Non-admin is not allow to do this operation.`));
+      return next(
+        createError(
+          'Forbidden',
+          'ForbiddenUserError',
+          `Non-admin is not allow to do this operation.`,
+        ),
+      );
     }
     try {
       const nodes = await kubernetes.getNodes();
@@ -22,11 +29,18 @@ router.route('/nodes')
     }
   });
 
-router.route('/pods')
+router
+  .route('/pods')
   /** GET /api/v1/kubernetes/pods - Return k8s pods info */
   .get(token.check, async (req, res, next) => {
     if (!req.user.admin) {
-      return next(createError('Forbidden', 'ForbiddenUserError', `Non-admin is not allow to do this operation.`));
+      return next(
+        createError(
+          'Forbidden',
+          'ForbiddenUserError',
+          `Non-admin is not allow to do this operation.`,
+        ),
+      );
     }
     try {
       const pods = await kubernetes.getPods(req.query);
