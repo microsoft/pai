@@ -23,7 +23,7 @@
 const express = require('express');
 const unirest = require('unirest');
 const bearerToken = require('express-bearer-token');
-const nodemailer = require("nodemailer");
+const nodemailer = require('nodemailer');
 const Email = require('email-templates');
 
 const app = express();
@@ -32,7 +32,9 @@ app.use(express.json());
 app.use(bearerToken());
 
 app.post('/alert-handler/stop-job', (req, res) => {
-  console.log('alert-handler received `stop-job` post request from alert-manager.');
+  console.log(
+    'alert-handler received `stop-job` post request from alert-manager.'
+  );
 
   // extract jobs to kill
   const jobNames = [];
@@ -67,10 +69,8 @@ app.post('/alert-handler/stop-job', (req, res) => {
 app.post('/alert-handler/send-email', (req, res) => {
   console.log('alert-handler received `send-email` post request from alert-manager.');
 
-  console.log("alerts:", req.body.alerts);
-
   // create reusable transporter object using the default SMTP transport
-  let transporter = nodemailer.createTransport({
+  const transporter = nodemailer.createTransport({
     host: process.env.EMAIL_CONFIGS_SMTP_URL.split(":")[0],
     port: process.env.EMAIL_CONFIGS_SMTP_URL.split(":")[1],
     secure: false,
@@ -82,22 +82,29 @@ app.post('/alert-handler/send-email', (req, res) => {
 
   const email = new Email({
     message: {
-      from: process.env.EMAIL_CONFIGS_SMTP_FROM
+      from: process.env.EMAIL_CONFIGS_SMTP_FROM,
     },
     send: true,
     transport: transporter,
+    views: {
+      options: {
+        extension: 'ejs'
+      },
+    },
   });
 
   email
     .send({
-      template: 'mars',
+      template: 'general-templates',
       message: {
         to: process.env.EMAIL_CONFIGS_RECEIVER,
-        subject: "test-subject",
       },
       locals: {
-        name: 'Elon'
-      }
+        cluster_id: process.env.CLUSTER_ID,
+        alerts: req.body.alerts,
+        groupLabels: req.body.groupLabels,
+        externalURL: req.body.externalURL,
+      },
     })
     .then(console.log)
     .catch(console.error);

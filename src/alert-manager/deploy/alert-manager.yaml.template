@@ -52,8 +52,6 @@ spec:
         volumeMounts:
         - name: config-volume
           mountPath: /etc/alertmanager
-        - name: templates-volume
-          mountPath: /etc/alertmanager/template
         - name: alertmanager
           mountPath: /alertmanager
 {% if cluster_cfg["alert-manager"]["webhook-configured"] %}
@@ -64,6 +62,8 @@ spec:
         - name: alerthandler
           containerPort: {{ cluster_cfg["alert-manager"]["webhook_configs"]["port"] }}
         env:
+        - name: CLUSTER_ID
+          value: {{ cluster_cfg["cluster"]["common"]["cluster-id"] }}
         - name: REST_SERVER_URI
           value: {{ cluster_cfg['rest-server']['uri'] }}
         - name: EMAIL_CONFIGS_RECEIVER
@@ -83,9 +83,6 @@ spec:
       - name: config-volume
         configMap:
           name: alertmanager
-      - name: templates-volume
-        configMap:
-          name: alert-templates
       - name: alertmanager
         emptyDir: {}
       tolerations:

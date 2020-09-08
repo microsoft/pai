@@ -19,7 +19,6 @@
 
 pushd $(dirname "$0") > /dev/null
 
-kubectl create configmap alert-templates --from-file=alert-templates --dry-run -o yaml | kubectl apply --overwrite=true -f - || exit $?
 kubectl apply --overwrite=true -f alert-configmap.yaml || exit $?
 kubectl apply --overwrite=true -f alert-manager.yaml || exit $?
 

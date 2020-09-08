@@ -8,16 +8,6 @@ data:
 {% set webhook_configs = cluster_cfg["alert-manager"]["webhook_configs"] %}
     global:
       resolve_timeout: 5m
-{% if cluster_cfg["alert-manager"]["email-configured"] %}
-      smtp_smarthost: {{ email_configs["smtp_url"] }}
-      smtp_from: {{ email_configs["smtp_from"] }}
-      smtp_auth_username: {{ email_configs["smtp_auth_username"] }}
-      smtp_auth_password: {{ email_configs["smtp_auth_password"] }}
-{% endif %}
-    
-    templates:
-    - "/etc/alertmanager/template/*.tmpl"
-
     route:
       receiver: pai-email
       group_wait: 30s
@@ -28,33 +18,25 @@ data:
       - receiver: pai-email-and-stop-job
         match: 
           alertname: PAIJobGpuPercentLowerThan0_3For1h
-    
     receivers:
     - name: "pai-email"
 {% if cluster_cfg["alert-manager"]["email-configured"] %}
-      email_configs:
-        - to: {{ email_configs["receiver"] }}
-          send_resolved: true
-          html: '{{ "{{" }} template "email.pai.html" . {{ "}}" }}'
-          headers:
-            subject: '{{ cluster_cfg["cluster"]["common"]["cluster-id"] }}: {{ "{{" }} template "__subject" . {{ "}}" }}'
       webhook_configs:
        - url: 'http://localhost:{{ webhook_configs["port"] }}/alert-handler/send-email'
+         send_resolved: true
          http_config:
            bearer_token: {{ webhook_configs["pai_bearer_token"] }}
 {% endif %}
     - name: "pai-email-and-stop-job"
 {% if cluster_cfg["alert-manager"]["email-configured"] %}
-      email_configs:
-        - to: {{ email_configs["receiver"] }}
+      webhook_configs:
+        - url: 'http://localhost:{{ webhook_configs["port"] }}/alert-handler/send-email'
           send_resolved: true
-          html: '{{ "{{" }} template "email.pai.html" . {{ "}}" }}'
-          headers:
-            subject: '{{ cluster_cfg["cluster"]["common"]["cluster-id"] }}: {{ "{{" }} template "__subject" . {{ "}}" }}'
+          http_config:
+            bearer_token: {{ webhook_configs["pai_bearer_token"] }}
 {% endif %}
 {% if cluster_cfg["alert-manager"]["webhook-configured"] %}
-     # webhook_configs:
-     #   - url: 'http://localhost:{{ webhook_configs["port"] }}/alert-handler/stop-job'
-     #     http_config:
-     #       bearer_token: {{ webhook_configs["pai_bearer_token"] }}
+        - url: 'http://localhost:{{ webhook_configs["port"] }}/alert-handler/stop-job'
+          http_config:
+            bearer_token: {{ webhook_configs["pai_bearer_token"] }}
 {% endif %}
