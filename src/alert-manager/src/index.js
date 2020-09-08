@@ -60,7 +60,7 @@ app.post('/alert-handler/stop-job', (req, res) => {
   });
 
   res.status(200).json({
-    message: 'alert-handler successfully',
+    message: 'alert-handler successfully send stop-job request to rest-server.',
   });
 });
 
