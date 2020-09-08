@@ -163,7 +163,7 @@ module Fluent::Plugin
           )
       else
         # if there is an existing record, ignore it.
-        log.warn "[pgjson] chunk #{hex_id}: ignored framework snapshot object, uid=#{uid}"
+        log.warn "[pgjson] chunk #{hex_id}: ignored framework snapshot object as it already exists, uid=#{uid}"
       end
     end
 
@@ -190,7 +190,7 @@ module Fluent::Plugin
           )
       else
         # if there is an existing record, ignore it.
-        log.warn "[pgjson] chunk #{hex_id}: ignored pod snapshot object, uid=#{uid}"
+        log.warn "[pgjson] chunk #{hex_id}: ignored pod snapshot object as it already exists, uid=#{uid}"
       end
 
 
