@@ -82,7 +82,7 @@ app.post('/alert-handler/send-email', (req, res) => {
 
   const email = new Email({
     message: {
-      from: EMAIL_CONFIGS_SMTP_FROM
+      from: process.env.EMAIL_CONFIGS_SMTP_FROM
     },
     send: true,
     transport: transporter,
