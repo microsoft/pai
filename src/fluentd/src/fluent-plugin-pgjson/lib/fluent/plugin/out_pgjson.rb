@@ -209,9 +209,9 @@ module Fluent::Plugin
             kind = record["objectSnapshot"]["kind"]
             log.info "[pgjson] object type #{kind} in chunk #{hex_id}"
             if kind == "Framework"
-              insert_framework hex_id time record
+              insert_framework hex_id, time, record
             elsif kind == "Pod"
-              insert_pod hex_id time record
+              insert_pod hex_id, time, record
             end
           end
         rescue PG::ConnectionBad, PG::UnableToSend => err
