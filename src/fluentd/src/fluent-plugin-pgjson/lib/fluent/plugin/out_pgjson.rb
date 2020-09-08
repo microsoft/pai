@@ -221,7 +221,7 @@ module Fluent::Plugin
           retry
         rescue PG::Error => err
           log.warn "[pgjson] PG::Error happens for chunk #{hex_id}. message: #{err.message}"
-          errmsg = "%s while copy data: %s" % [ err.class.name, err.message ]
+          errmsg = "error class %s happens, message: %s" % [ err.class.name, err.message ]
           raise errmsg
         else
           log.info "[pgjson] chunk #{hex_id} writes successfully"
