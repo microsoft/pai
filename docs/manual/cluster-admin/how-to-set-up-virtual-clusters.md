@@ -82,14 +82,65 @@ hivedscheduler:
 ...
 ```
 
+We highly recommend you to contain exactly one `skuType` in one virtual cluster. The support for multiple `skuType` in one VC is not fully implemented. 
+
+For CPU workers, please put them in a pure-CPU virtual cluster, and omit `gpu` field or use `gpu: 0` in `skuTypes`. Don't mix CPU nodes with GPU nodes. Here is an example:
+
+```
+hivedscheduler:
+config: |
+  physicalCluster:
+    skuTypes:
+      DT:
+        gpu: 1
+        cpu: 5
+        memory: 56334Mi
+      CPU:
+        cpu: 1
+        memory: 10240Mi
+    cellTypes:
+      DT-NODE:
+        childCellType: DT
+        childCellNumber: 4
+        isNodeLevel: true
+      DT-NODE-POOL:
+        childCellType: DT-NODE
+        childCellNumber: 3
+      CPU-NODE:
+        childCellType: CPU
+        childCellNumber: 8
+        isNodeLevel: true
+      CPU-NODE-POOL:
+        childCellType: CPU-NODE
+        childCellNumber: 1
+    physicalCells:
+    - cellType: DT-NODE-POOL
+      cellChildren:
+      - cellAddress: worker1
+      - cellAddress: worker2
+      - cellAddress: worker3
+    - cellType: CPU-NODE-POOL
+      cellChildren:
+      - cellAddress: cpu-worker1
+  virtualClusters:
+    default:
+      virtualCells:
+      - cellType: DT-NODE-POOL.DT-NODE
+        cellNumber: 3
+    cpu:
+      virtualCells:
+      - cellType: CPU-NODE-POOL.CPU-NODE
+        cellNumber: 1
+```
+
+Explanation of the above example: Supposing we have a node named `cpu-worker1` in Kubernetes. It has 80GB memory and 8 allocatable CPUs (please use `kubectl describe cpu-worker1` to confirm the allocatable resources). Then, in `skuTypes`, we can set a `CPU` sku, which has 1 CPU and 10240 MB (80GB / 8) memory. You can reserve some memory or CPUs if you want. `CPU-NODE` and `CPU-NODE-POOL` are set correspondingly in the `cellTypes`. Finally, the setting will result in one `default` VC and one `cpu` VC. The `cpu` VC contains one CPU node.
+
 After modification, use the following commands to apply the settings:
 
 ```bash
-./paictl.py service stop -n rest-server
-./paictl.py service stop -n hivedscheduler
+./paictl.py service stop -n rest-server hivedscheduler
 ./paictl.py config push -p <config-folder> -m service
-./paictl.py service start -n hivedscheduler
-./paictl.py service start -n rest-server
+./paictl.py service start -n hivedscheduler rest-server
 ```
 
 You can now test the `default` VC and `new` VC, with any admin accounts in OpenPAI. [Next section](#how-to-grant-vc-to-users) will introduce how to grant VC access to non-admin users.
@@ -152,7 +203,7 @@ hivedscheduler:
   config: |
     physicalCluster:
       skuTypes:
-        K80:
+        DT:
           gpu: 1
           cpu: 5
           memory: 56334Mi
@@ -161,12 +212,12 @@ hivedscheduler:
           cpu: 8
           memory: 80000Mi
       cellTypes:
-        K80-NODE:
-          childCellType: K80
+        DT-NODE:
+          childCellType: DT
           childCellNumber: 4
           isNodeLevel: true
-        K80-NODE-POOL:
-          childCellType: K80-NODE
+        DT-NODE-POOL:
+          childCellType: DT-NODE
           childCellNumber: 2
         V100-NODE:
           childCellType: V100
@@ -176,7 +227,7 @@ hivedscheduler:
           childCellType: V100-NODE
           childCellNumber: 3
       physicalCells:
-      - cellType: K80-NODE-POOL
+      - cellType: DT-NODE-POOL
         cellChildren:
         - cellAddress: k80-worker1
         - cellAddress: k80-worker2
@@ -188,7 +239,7 @@ hivedscheduler:
     virtualClusters:
       default:
         virtualCells:
-        - cellType: K80-NODE-POOL.K80-NODE
+        - cellType: DT-NODE-POOL.DT-NODE
           cellNumber: 2
       V100:
         virtualCells:
@@ -196,4 +247,4 @@ hivedscheduler:
           cellNumber: 3
 ```
 
-In the above example, we set up 2 VCs: `default` and `v100`. The `default` VC has 2 K80 nodes, and `V100` VC has 3 V100 nodes. Every K80 node has 4 K80 GPUs and Every V100 nodes has 4 V100 GPUs.
+In the above example, we set up 2 VCs: `default` and `v100`. The `default` VC has 2 DT nodes, and `V100` VC has 3 V100 nodes. Every DT node has 4 DT GPUs and Every V100 nodes has 4 V100 GPUs.
