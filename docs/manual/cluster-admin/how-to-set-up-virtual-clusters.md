@@ -2,7 +2,7 @@
 
 ## What is Hived Scheduler and How to Configure it
 
-HiveD is a standalone component of OpenPAI, designed to be a Kubernetes Scheduler Extender for Multi-Tenant GPU clusters. A multi-tenant GPU cluster assumes multiple tenants (teams) share the same GPU pool in a single physical cluster (PC) and provides some resource guarantees to each tenant. HiveD models each tenant as a virtual cluster (VC), so that one tenant can use its own VC as if it is a private cluster, while it can also use other VCs' free resource at lower priority. Hived supports both GPU virtual cluster and CPU-only cluster.
+As one standalone component of Microsoft OpenPAI, [HiveD](https://github.com/microsoft/hivedscheduler) is designed to be a Kubernetes Scheduler Extender for Multi-Tenant GPU clusters. A multi-tenant GPU cluster assumes multiple tenants (teams) share the same GPU pool in a single physical cluster (PC) and provides some resource guarantees to each tenant. HiveD models each tenant as a virtual cluster (VC), so that one tenant can use its own VC as if it is a private cluster, while it can also use other VCs' free resource at lower priority. Besides, HiveD also supports CPU cluster.
 
 Before we start, please read [this doc](https://github.com/microsoft/hivedscheduler/blob/master/doc/user-manual.md) to learn how to write hived scheduler configuration.
 
@@ -84,11 +84,9 @@ hivedscheduler:
 ...
 ```
 
-**We highly recommend you to contain exactly one `skuType` in one virtual cluster.** The support for multiple `skuType` in one VC is not fully implemented. 
-
 ### Configuration for CPU-only Virtual Cluster
 
-Currently we recommend you to set up a pure-CPU virtual cluster, and don't mix CPU nodes with GPU nodes in one virtual cluster. Please omit `gpu` field or use `gpu: 0` in `skuTypes` for the VC.  Here is an example:
+Currently we recommend you to set up a pure-CPU virtual cluster, and don't mix CPU nodes with GPU nodes in one virtual cluster. Please omit `gpu` field or use `gpu: 0` in `skuTypes` for the VC. Here is an example:
 
 ```
 hivedscheduler:
@@ -202,7 +200,7 @@ This should be self-explanatory. The `virtualClusters` field is used to manage V
 
 ## Different Hardwares in Worker Nodes
 
-One VC should have the same hardware, which leads to one `skuType` of one VC in the hived scheduler setting. If you have different types of worker nodes (e.g. different GPU types on different nodes), please configure them in different VCs. Here is an example of 2 kinds of nodes:
+We recommend one VC should have the same hardware, which leads to one `skuType` of one VC in the hived scheduler setting. If you have different types of worker nodes (e.g. different GPU types on different nodes), please configure them in different VCs. Here is an example of 2 kinds of nodes:
 
 ```yaml
 hivedscheduler:
