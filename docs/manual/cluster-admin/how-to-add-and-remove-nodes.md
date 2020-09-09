@@ -1,6 +1,6 @@
 # How to Add and Remove Nodes
 
-OpenPAI doesn't support changing master nodes, thus, only the solution of adding/removing worker nodes is provided. You can and GPU or CPU workers into the cluster.
+OpenPAI doesn't support changing master nodes, thus, only the solution of adding/removing worker nodes is provided. You can add GPU or CPU workers into the cluster.
 
 ## How to Add Nodes
 

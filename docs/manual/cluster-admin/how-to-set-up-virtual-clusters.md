@@ -202,14 +202,14 @@ This should be self-explanatory. The `virtualClusters` field is used to manage V
 
 ## Different Hardwares in Worker Nodes
 
-We recommend one VC should have the same hardware, which leads to one `skuType` of one VC in the hived scheduler setting. If you have different types of worker nodes (e.g. different GPU types on different nodes), please configure them in different VCs. Here is an example of 2 kinds of nodes:
+One VC should have the same hardware, which leads to one `skuType` of one VC in the hived scheduler setting. If you have different types of worker nodes (e.g. different GPU types on different nodes), please configure them in different VCs. Here is an example of 2 kinds of nodes:
 
 ```yaml
 hivedscheduler:
   config: |
     physicalCluster:
       skuTypes:
-        DT:
+        K80:
           gpu: 1
           cpu: 5
           memory: 56334Mi
@@ -218,12 +218,12 @@ hivedscheduler:
           cpu: 8
           memory: 80000Mi
       cellTypes:
-        DT-NODE:
-          childCellType: DT
+        K80-NODE:
+          childCellType: K80
           childCellNumber: 4
           isNodeLevel: true
-        DT-NODE-POOL:
-          childCellType: DT-NODE
+        K80-NODE-POOL:
+          childCellType: K80-NODE
           childCellNumber: 2
         V100-NODE:
           childCellType: V100
@@ -233,7 +233,7 @@ hivedscheduler:
           childCellType: V100-NODE
           childCellNumber: 3
       physicalCells:
-      - cellType: DT-NODE-POOL
+      - cellType: K80-NODE-POOL
         cellChildren:
         - cellAddress: k80-worker1
         - cellAddress: k80-worker2
@@ -245,7 +245,7 @@ hivedscheduler:
     virtualClusters:
       default:
         virtualCells:
-        - cellType: DT-NODE-POOL.DT-NODE
+        - cellType: K80-NODE-POOL.K80-NODE
           cellNumber: 2
       V100:
         virtualCells:
@@ -253,4 +253,4 @@ hivedscheduler:
           cellNumber: 3
 ```
 
-In the above example, we set up 2 VCs: `default` and `v100`. The `default` VC has 2 DT nodes, and `V100` VC has 3 V100 nodes. Every DT node has 4 DT GPUs and Every V100 nodes has 4 V100 GPUs.
+In the above example, we set up 2 VCs: `default` and `v100`. The `default` VC has 2 K80 nodes, and `V100` VC has 3 V100 nodes. Every K80 node has 4 K80 GPUs and Every V100 nodes has 4 V100 GPUs.
