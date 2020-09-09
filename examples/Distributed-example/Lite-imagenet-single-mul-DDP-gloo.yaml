@@ -28,7 +28,7 @@ taskRoles:
       - apt update
       - apt install -y nfs-common
       - mkdir -p /mnt/data
-      - 'mount 10.151.40.32:/mnt/zhiyuhe /mnt/data'
+      - 'mount 10.151.40.32:/mnt/ImagenetData /mnt/data'
       - >-
         wget
         https://raw.githubusercontent.com/microsoft/pai/master/examples/Distributed-example/Lite-imagenet-single-mul-DDP-nccl-gloo.py

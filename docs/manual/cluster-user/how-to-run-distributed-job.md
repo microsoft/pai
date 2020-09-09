@@ -10,12 +10,12 @@ If unknown error happens, PAI will retry the job according to user settings. To 
 ### Run PyTorch Distributed Jobs in OpenPAI
 Example Name | Multi-GPU | Multi-Node | Backend |Apex| Job protocol |
 ---|---|---|---|---|---| 
-Single-Node DataParallel CIFAR-10 | ✓| x | -|-| [cifar10-single-node-gpus-cpu-DP.yaml](../../../examples/Distributed-example/cifar10-single-node-gpus-cpu-DP.yaml)|
-cifar10-single-mul-DDP-gloo.yaml | ✓|  ✓ | gloo|-| [cifar10-single-mul-DDP-gloo.yaml](../../../examples/Distributed-example/cifar10-single-mul-DDP-gloo.yaml)|
-cifar10-single-mul-DDP-nccl | ✓| ✓ |nccl|-| [cifar10-single-mul-DDP-nccl.yaml](../../../examples/Distributed-example/cifar10-single-mul-DDP-nccl.yaml)|
-cifar10-single-mul-DDP-gloo-Apex-mixed | ✓|  ✓ | gloo|✓ | [cifar10-single-mul-DDP-gloo-Apex-mixed.yaml](../../../examples/Distributed-example/cifar10-single-mul-DDP-gloo-Apex-mixed.yaml)|
-cifar10-single-mul-DDP-nccl-Apex-mixed | ✓|  ✓ | nccl|  ✓ | [cifar10-single-mul-DDP-gloo-Apex-mixed.yaml](../../../examples/Distributed-example/cifar10-single-mul-DDP-gloo-Apex-mixed.yaml)|
-imagenet-single-mul-DDP-gloo | ✓|  ✓| gloo|-| [imagenet-single-mul-DDP-gloo.yaml](../../../examples/Distributed-example/Lite-imagenet-single-mul-DDP-gloo.yaml)|
+Single-Node DataParallel CIFAR-10 | ✓| x | -|-| [cifar10-single-node-gpus-cpu-DP.yaml](https://github.com/microsoft/pai/tree/master/examples/Distributed-example/cifar10-single-node-gpus-cpu-DP.yaml)|
+cifar10-single-mul-DDP-gloo.yaml | ✓|  ✓ | gloo|-| [cifar10-single-mul-DDP-gloo.yaml](https://github.com/microsoft/pai/tree/master/examples/Distributed-example/cifar10-single-mul-DDP-gloo.yaml)|
+cifar10-single-mul-DDP-nccl | ✓| ✓ |nccl|-| [cifar10-single-mul-DDP-nccl.yaml](https://github.com/microsoft/pai/tree/master/examples/Distributed-example/cifar10-single-mul-DDP-nccl.yaml)|
+cifar10-single-mul-DDP-gloo-Apex-mixed | ✓|  ✓ | gloo|✓ | [cifar10-single-mul-DDP-gloo-Apex-mixed.yaml](https://github.com/microsoft/pai/tree/master/examples/Distributed-example/cifar10-single-mul-DDP-gloo-Apex-mixed.yaml)|
+cifar10-single-mul-DDP-nccl-Apex-mixed | ✓|  ✓ | nccl|  ✓ | [cifar10-single-mul-DDP-gloo-Apex-mixed.yaml](https://github.com/microsoft/pai/tree/master/examples/Distributed-example/cifar10-single-mul-DDP-gloo-Apex-mixed.yaml)|
+imagenet-single-mul-DDP-gloo | ✓|  ✓| gloo|-| [imagenet-single-mul-DDP-gloo.yaml](https://github.com/microsoft/pai/tree/master/examples/Distributed-example/Lite-imagenet-single-mul-DDP-gloo.yaml)|
 ## DataParallel
 The single node program is simple. The program executed in PAI is exactly the same as the program in our machine. It should be noted that an Worker can be applied in PAI and a Instance can be applied in Worker. In a worker, we can apply for GPUs that we need. We provide an [example](../../../examples/Distributed-example/cifar10-single-node-gpus-cpu-DP.py) of DP.
 
@@ -29,5 +29,5 @@ os.environ['MASTER_PORT'] = os.environ['PAI_worker_0_SynPort_PORT']
 If you are using `gloo` as your DDP communication backend, please set correct network interface such as `export GLOO_SOCKET_IFNAME=eth0`.
 
 
-We provide examples with [gloo](../../../examples/Distributed-example/cifar10-single-mul-DDP-gloo.yaml) and [nccl](../../../examples/Distributed-example/cifar10-single-mul-DDP-nccl.yaml) as backend.
+We provide examples with [gloo](https://github.com/microsoft/pai/tree/master/examples/Distributed-example/cifar10-single-mul-DDP-gloo.yaml) and [nccl](https://github.com/microsoft/pai/tree/master/examples/Distributed-example/cifar10-single-mul-DDP-nccl.yaml) as backend.
 
