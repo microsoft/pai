@@ -2,11 +2,13 @@
 
 ## What is Hived Scheduler and How to Configure it
 
-HiveD is a standalone component of OpenPAI, designed to be a Kubernetes Scheduler Extender for Multi-Tenant GPU clusters. A multi-tenant GPU cluster assumes multiple tenants (teams) share the same GPU pool in a single physical cluster (PC) and provides some resource guarantees to each tenant. HiveD models each tenant as a virtual cluster (VC), so that one tenant can use its own VC as if it is a private cluster, while it can also use other VCs' free resource at lower priority.
+As a standalone component of OpenPAI, [HiveD](https://github.com/microsoft/hivedscheduler) is a Kubernetes Scheduler for Deep Learning.
 
 Before we start, please read [this doc](https://github.com/microsoft/hivedscheduler/blob/master/doc/user-manual.md) to learn how to write hived scheduler configuration.
 
 ## Set Up Virtual Clusters
+
+### Configuration for GPU Virtual Cluster
 
 In [`services-configuration.yaml`](./basic-management-operations.md#pai-service-management-and-paictl), there is a section for hived scheduler, for example:
 
@@ -82,17 +84,70 @@ hivedscheduler:
 ...
 ```
 
-After modification, use the following commands to apply the settings:
+### Configuration for CPU-only Virtual Cluster
 
-```bash
-./paictl.py service stop -n rest-server
-./paictl.py service stop -n hivedscheduler
-./paictl.py config push -p <config-folder> -m service
-./paictl.py service start -n hivedscheduler
-./paictl.py service start -n rest-server
+Currently we recommend you to set up a pure-CPU virtual cluster, and don't mix CPU nodes with GPU nodes in one virtual cluster. Please omit `gpu` field or use `gpu: 0` in `skuTypes` for the VC. Here is an example:
+
+```
+hivedscheduler:
+  config: |
+    physicalCluster:
+      skuTypes:
+        DT:
+          gpu: 1
+          cpu: 5
+          memory: 56334Mi
+        CPU:
+          cpu: 1
+          memory: 10240Mi
+      cellTypes:
+        DT-NODE:
+          childCellType: DT
+          childCellNumber: 4
+          isNodeLevel: true
+        DT-NODE-POOL:
+          childCellType: DT-NODE
+          childCellNumber: 3
+        CPU-NODE:
+          childCellType: CPU
+          childCellNumber: 8
+          isNodeLevel: true
+        CPU-NODE-POOL:
+          childCellType: CPU-NODE
+          childCellNumber: 1
+      physicalCells:
+      - cellType: DT-NODE-POOL
+        cellChildren:
+        - cellAddress: worker1
+        - cellAddress: worker2
+        - cellAddress: worker3
+      - cellType: CPU-NODE-POOL
+        cellChildren:
+        - cellAddress: cpu-worker1
+    virtualClusters:
+      default:
+        virtualCells:
+        - cellType: DT-NODE-POOL.DT-NODE
+          cellNumber: 3
+      cpu:
+        virtualCells:
+        - cellType: CPU-NODE-POOL.CPU-NODE
+          cellNumber: 1
 ```
 
-You can now test the `default` VC and `new` VC, with any admin accounts in OpenPAI. [Next section](#how-to-grant-vc-to-users) will introduce how to grant VC access to non-admin users.
+Explanation of the above example: Supposing we have a node named `cpu-worker1` in Kubernetes. It has 80GB memory and 8 allocatable CPUs (please use `kubectl describe node cpu-worker1` to confirm the allocatable resources). Then, in `skuTypes`, we can set a `CPU` sku, which has 1 CPU and 10240 MiB (80GiB / 8) memory. You can reserve some memory or CPUs if you want. `CPU-NODE` and `CPU-NODE-POOL` are set correspondingly in the `cellTypes`. Finally, the setting will result in one `default` VC and one `cpu` VC. The `cpu` VC contains one CPU node.
+
+### Apply Configuration in Cluster
+
+After modification of the configuration, use the following commands to apply the settings:
+
+```bash
+./paictl.py service stop -n rest-server hivedscheduler
+./paictl.py config push -p <config-folder> -m service
+./paictl.py service start -n hivedscheduler rest-server
+```
+
+You can now test these new VCs, with any admin accounts in OpenPAI. [Next section](#how-to-grant-vc-to-users) will introduce how to grant VC access to non-admin users.
 
 ## How to Grant VC to Users
 
