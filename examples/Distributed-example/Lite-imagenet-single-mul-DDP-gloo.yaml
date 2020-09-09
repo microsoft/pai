@@ -31,7 +31,7 @@ taskRoles:
       - 'mount 10.151.40.32:/mnt/zhiyuhe /mnt/data'
       - >-
         wget
-        https://raw.githubusercontent.com/vvfreesoul/pai/master/examples/Distributed-example/Lite-imagenet-single-mul-DDP-nccl-gloo.py
+        https://raw.githubusercontent.com/microsoft/pai/master/examples/Distributed-example/Lite-imagenet-single-mul-DDP-nccl-gloo.py
       - >-
         python Lite-imagenet-single-mul-DDP-nccl-gloo.py  -n 2 -g 4
         --dist-backend gloo --epochs 2 /mnt/data/imagenet/unzipped

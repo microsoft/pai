@@ -21,7 +21,7 @@ taskRoles:
     commands:
       - >-
         wget
-        https://raw.githubusercontent.com/vvfreesoul/pai/master/examples/Distributed-example/cifar10-single-node-gpus-cpu-DP.py
+        https://raw.githubusercontent.com/microsoft/pai/master/examples/Distributed-example/cifar10-single-node-gpus-cpu-DP.py
       - 'python cifar10-single-node-gpus-cpu-DP.py --gpuid 0,1,2,3'
 defaults:
   virtualCluster: default
