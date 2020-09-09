@@ -26,7 +26,6 @@ DDP requires users set a master node ip and port for synchronization in PyTorch.
 os.environ['MASTER_ADDR'] = os.environ['PAI_HOST_IP_worker_0']
 os.environ['MASTER_PORT'] = os.environ['PAI_worker_0_SynPort_PORT']
 ```
-
 If you are using `gloo` as your DDP communication backend, please set correct network interface such as `export GLOO_SOCKET_IFNAME=eth0`.
 
 
