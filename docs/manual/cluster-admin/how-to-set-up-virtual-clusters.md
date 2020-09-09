@@ -2,7 +2,7 @@
 
 ## What is Hived Scheduler and How to Configure it
 
-As one standalone component of Microsoft OpenPAI, [HiveD](https://github.com/microsoft/hivedscheduler) is designed to be a Kubernetes Scheduler Extender for Multi-Tenant GPU clusters. A multi-tenant GPU cluster assumes multiple tenants (teams) share the same GPU pool in a single physical cluster (PC) and provides some resource guarantees to each tenant. HiveD models each tenant as a virtual cluster (VC), so that one tenant can use its own VC as if it is a private cluster, while it can also use other VCs' free resource at lower priority. Besides, HiveD also supports CPU cluster.
+As a standalone component of OpenPAI, [HiveD](https://github.com/microsoft/hivedscheduler) is a Kubernetes Scheduler for Deep Learning.
 
 Before we start, please read [this doc](https://github.com/microsoft/hivedscheduler/blob/master/doc/user-manual.md) to learn how to write hived scheduler configuration.
 
