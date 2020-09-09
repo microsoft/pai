@@ -30,6 +30,9 @@ router
 router
   .route('/frameworkRequest/:frameworkName')
   .patch(handler.patchFrameworkRequest);
+router
+  .route('/archiveFramework/:frameworkName')
+  .put(handler.archiveFramework);
 router.route('/watchEvents/:eventType').post(handler.postWatchEvents);
 
 app.use('/api/v1', router);

@@ -279,9 +279,48 @@ async function putFrameworkRequest(req, res, next) {
   }
 }
 
+
+async function archiveFramework(req, res, next) {
+  // The handler to handle framework archive
+  // Only completed job can be archived. If job is not a completed job, return 400 Bad Request.
+  // If the job is not found, return 404 not found.
+  // If job is successfully archived, return 200 OK.
+  // If other error happens, return 500.
+  try {
+    const frameworkName = req.params.frameworkName;
+    if (!frameworkName) {
+      return next(createError(400, 'Cannot find framework name.'));
+    }
+    await lock.acquire(frameworkName, async () => {
+      const framework = await databaseModel.Framework.findOne({
+        attributes: [
+          'subState',
+        ],
+        where: { name: frameworkName },
+      });
+      if (!framework) {
+        // if the old framework doesn't exist, report a 404 error
+        throw createError(404, `Cannot find framework ${frameworkName}.`);
+      } else if (framework.subState !== 'Completed') {
+        throw createError(400, `Framework ${frameworkName} is not completed.`);
+      } else {
+        // If the old framework exists and is completed, try to set archived=true
+        await databaseModel.Framework.update(
+          {archived: true},
+          { where: { name: frameworkName } },
+        );
+      }
+    });
+    res.status(200).json({ message: 'ok' });
+  } catch (err) {
+    return next(err);
+  }
+}
+
 module.exports = {
   ping: ping,
   putFrameworkRequest: putFrameworkRequest,
   patchFrameworkRequest: patchFrameworkRequest,
   postWatchEvents: postWatchEvents,
+  archiveFramework: archiveFramework,
 };
