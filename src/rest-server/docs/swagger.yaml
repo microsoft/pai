@@ -1141,6 +1141,11 @@ paths:
           description: 'if withTotalCount is "true", the result will contain a "totalCount" and a "data" field, instead of a job list.'
           schema:
             type: string
+        - name: includeArchive
+          in: query
+          description: 'By default, job list excludes all archived jobs. If includeArchive is "true", the result will contain archived jobs.'
+          schema:
+            type: string
       responses:
         "200":
           description: Succeeded
@@ -1299,6 +1304,37 @@ paths:
                 $ref: "#/components/schemas/Response"
               example:
                 message: execute job {job} successfully
+        "404":
+          $ref: "#/components/responses/NoJobError"
+        "500":
+          $ref: "#/components/responses/UnknownError"
+  "/api/v2/jobs/{user}~{job}/archive":
+    put:
+      tags:
+        - job
+      summary: Archive a job.
+      description: Archive a job. Archived jobs will not be shown in job list by default. Users can only archive completed jobs.
+      operationId: updateJobArchive
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/user"
+        - $ref: "#/components/parameters/job"
+      responses:
+        "202":
+          description: Succeeded
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Response"
+              example:
+                message: Archive job {job} successfully
+        "400":
+          description: Archive a non-completed job will raise a 400 error.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Response"
         "404":
           $ref: "#/components/responses/NoJobError"
         "500":

@@ -43,6 +43,11 @@ router
   .put(token.check, controller.execute);
 
 router
+  .route('/:frameworkName/archive')
+  /** PUT /api/v2/jobs/:frameworkName/archive - Archive a completed job */
+  .put(token.check, controller.archive);
+
+router
   .route('/:frameworkName/config')
   /** GET /api/v2/jobs/:frameworkName/config - Get job config */
   .get(token.check, controller.getConfig);

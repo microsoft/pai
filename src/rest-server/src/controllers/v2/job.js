@@ -26,7 +26,7 @@ const { Op } = require('sequelize');
 const list = asyncHandler(async (req, res) => {
   // ?keyword=<keyword filter>&username=<username1>,<username2>&vc=<vc1>,<vc2>
   //    &state=<state1>,<state2>&offset=<offset>&limit=<limit>&withTotalCount=true
-  //    &order=state,DESC
+  //    &order=state,DESC&includeArchive=false
   const filters = {};
   let offset = 0;
   let limit;
@@ -100,6 +100,12 @@ const list = asyncHandler(async (req, res) => {
     if (order.length === 0) {
       // default order is submissionTime,DESC
       order.push(['submissionTime', 'DESC']);
+    }
+    if ('includeArchive' in req.query && req.query.includeArchive === 'true') {
+      // include archived jobs
+    } else {
+      // exclude archived job
+      filters.archived = false
     }
   }
   const attributes = [
@@ -185,6 +191,25 @@ const execute = asyncHandler(async (req, res) => {
   }
 });
 
+const archive = asyncHandler(async (req, res) => {
+  const userName = req.user.username;
+  const admin = req.user.admin;
+  const data = await job.get(req.params.frameworkName);
+  if (data.jobStatus.username === userName || admin) {
+    await job.archive(req.params.frameworkName);
+    res.status(status('Accepted')).json({
+      status: status('Accepted'),
+      message: `Archive job ${req.params.frameworkName} successfully.`,
+    });
+  } else {
+    throw createError(
+      'Forbidden',
+      'ForbiddenUserError',
+      `User ${userName} is not allowed to archive job ${req.params.frameworkName}.`,
+    );
+  }
+});
+
 const getConfig = asyncHandler(async (req, res) => {
   try {
     const data = await job.getConfig(req.params.frameworkName);
@@ -213,6 +238,7 @@ module.exports = {
   get,
   update,
   execute,
+  archive,
   getConfig,
   getSshInfo,
 };

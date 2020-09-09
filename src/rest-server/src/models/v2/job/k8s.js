@@ -1109,6 +1109,29 @@ const execute = async (frameworkName, executionType) => {
   }
 };
 
+const archive = async (frameworkName) => {
+  let response;
+  try {
+    response = await axios({
+      method: 'PUT',
+      url:
+        launcherConfig.writeMergerUrl +
+        '/api/v1/archiveFramework/' +
+        encodeName(frameworkName),
+    });
+  } catch (error) {
+    if (error.response != null) {
+      response = error.response;
+    } else {
+      throw error;
+    }
+  }
+  if (response.status !== status('OK')) {
+    throw createError(response.status, 'UnknownError', response.data.message);
+  }
+};
+
+
 const getConfig = async (frameworkName) => {
   const framework = await databaseModel.Framework.findOne({
     attributes: ['jobConfig'],
@@ -1247,6 +1270,7 @@ module.exports = {
   get,
   put,
   execute,
+  archive,
   getConfig,
   getSshInfo,
 };
