@@ -4,7 +4,7 @@
 
 #### How to include CPU-only worker nodes?
 
-In current release, the support for CPU nodes is limited. Please refer to [How to Use CPU Nodes](./how-to-use-cpu-nodes.md) for details.
+In current release, the support for CPU nodes is limited. If you have both GPU workers and CPU workers, please first set up PAI with GPU workers only. After PAI is successfully installed, you can attach CPU workers to it and set up a CPU-only virtual cluster. Please refer to [How to add and remove nodes](./how-to-add-and-remove-nodes.md) for details. If you only have CPU workers, we haven't had an official installation support yet. Please submit an issue for feature request.
 
 #### Which version of NVIDIA driver should I install?
 

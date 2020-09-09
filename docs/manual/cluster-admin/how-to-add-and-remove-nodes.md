@@ -1,6 +1,6 @@
 # How to Add and Remove Nodes
 
-OpenPAI doesn't support changing master nodes, thus, only the solution of adding/removing worker nodes is provided.
+OpenPAI doesn't support changing master nodes, thus, only the solution of adding/removing worker nodes is provided. You can and GPU or CPU workers into the cluster.
 
 ## How to Add Nodes
 
@@ -12,9 +12,9 @@ To add worker nodes, please check if the nodes meet the following requirements:
   - Assign each node a **static IP address**, and make sure nodes can communicate with each other. 
   - The nodes can access internet, especially need to have access to the docker hub registry service or its mirror. Deployment process will pull Docker images.
   - SSH service is enabled and share the same username/password with current master/worker machines and have sudo privilege.
-  - (If you are adding CPU workers, please ignore this requirement) **Have GPU and GPU driver is installed.**  You may use [a command](./installation-faqs-and-troubleshooting.md#how-to-check-whether-the-gpu-driver-is-installed) to check it. Refer to [the installation guidance](./installation-faqs-and-troubleshooting.md#how-to-install-gpu-driver) in FAQs if the driver is not successfully installed. If you are wondering which version of GPU driver you should use, please also refer to [FAQs](./installation-faqs-and-troubleshooting.md#which-version-of-nvidia-driver-should-i-install).
+  - (For CPU workers, you can ignore this requirement) **Have GPU and GPU driver is installed.**  You may use [a command](./installation-faqs-and-troubleshooting.md#how-to-check-whether-the-gpu-driver-is-installed) to check it. Refer to [the installation guidance](./installation-faqs-and-troubleshooting.md#how-to-install-gpu-driver) in FAQs if the driver is not successfully installed. If you are wondering which version of GPU driver you should use, please also refer to [FAQs](./installation-faqs-and-troubleshooting.md#which-version-of-nvidia-driver-should-i-install).
   - **Docker is installed.**  You may use command `docker --version` to check it. Refer to [docker's installation guidance](https://docs.docker.com/engine/install/ubuntu/) if it is not successfully installed.
-  - (If you are adding CPU workers, please ignore this requirement) **[nvidia-container-runtime](https://github.com/NVIDIA/nvidia-container-runtime) or other device runtime is installed. And be configured as the default runtime of docker. Please configure it in [docker-config-file](https://docs.docker.com/config/daemon/#configure-the-docker-daemon), because kubespray will overwrite systemd's env.**
+  - (For CPU workers, you can ignore this requirement) **[nvidia-container-runtime](https://github.com/NVIDIA/nvidia-container-runtime) or other device runtime is installed. And be configured as the default runtime of docker. Please configure it in [docker-config-file](https://docs.docker.com/config/daemon/#configure-the-docker-daemon), because kubespray will overwrite systemd's env.**
     - You may use command `sudo docker run nvidia/cuda:10.0-base nvidia-smi` to check it. This command should output information of available GPUs if it is setup properly.
     - Refer to [the installation guidance](./installation-faqs-and-troubleshooting.md#how-to-install-nvidia-container-runtime) if the it is not successfully set up.
   - OpenPAI reserves memory and CPU for service running, so make sure there are enough resource to run machine learning jobs. Check hardware requirements for details.
@@ -86,7 +86,7 @@ all:
         origin4:
 
 ############# Example start ################### 
-# If you are adding CPU workers, please don't add them here.
+#### For CPU workers, please don't add them here.
         a:
         b:
 ############## Example end #################### 
@@ -161,17 +161,12 @@ First, modify `host.yml` accordingly, then go into `~/pai-deploy/kubespray/`, ru
 ansible-playbook -i inventory/mycluster/hosts.yml upgrade-cluster.yml --become --become-user=root  --limit=a,b -e "@inventory/mycluster/openpai.yml"
 ``` 
 
-Modify the `layout.yaml` and `services-configuration.yaml`, then push them to the cluster:
+Modify the `layout.yaml` and `services-configuration.yaml`.
+
+Stop the service, push the latest configuration, and then start services:
 
 ```bash
-./paictl config push -p ~/pai-deploy/cluster-cfg -m service
+./paictl.py service stop -n cluster-configuration hivedscheduler rest-server
+./paictl.py config push -p <config-folder> -m service
+./paictl.py service start -n cluster-configuration hivedscheduler rest-server
 ```
-
-Restart services:
-
-```bash
-./paictl.py service stop -n rest-server hivedscheduler
-./paictl.py service start -n cluster-configuration
-./paictl.py service start -n hivedscheduler rest-server
-```
-

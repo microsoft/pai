@@ -2,11 +2,13 @@
 
 ## What is Hived Scheduler and How to Configure it
 
-HiveD is a standalone component of OpenPAI, designed to be a Kubernetes Scheduler Extender for Multi-Tenant GPU clusters. A multi-tenant GPU cluster assumes multiple tenants (teams) share the same GPU pool in a single physical cluster (PC) and provides some resource guarantees to each tenant. HiveD models each tenant as a virtual cluster (VC), so that one tenant can use its own VC as if it is a private cluster, while it can also use other VCs' free resource at lower priority.
+HiveD is a standalone component of OpenPAI, designed to be a Kubernetes Scheduler Extender for Multi-Tenant GPU clusters. A multi-tenant GPU cluster assumes multiple tenants (teams) share the same GPU pool in a single physical cluster (PC) and provides some resource guarantees to each tenant. HiveD models each tenant as a virtual cluster (VC), so that one tenant can use its own VC as if it is a private cluster, while it can also use other VCs' free resource at lower priority. Hived supports both GPU virtual cluster and CPU-only cluster.
 
 Before we start, please read [this doc](https://github.com/microsoft/hivedscheduler/blob/master/doc/user-manual.md) to learn how to write hived scheduler configuration.
 
 ## Set Up Virtual Clusters
+
+### Configuration for GPU Virtual Cluster
 
 In [`services-configuration.yaml`](./basic-management-operations.md#pai-service-management-and-paictl), there is a section for hived scheduler, for example:
 
@@ -82,9 +84,11 @@ hivedscheduler:
 ...
 ```
 
-We highly recommend you to contain exactly one `skuType` in one virtual cluster. The support for multiple `skuType` in one VC is not fully implemented. 
+**We highly recommend you to contain exactly one `skuType` in one virtual cluster.** The support for multiple `skuType` in one VC is not fully implemented. 
 
-For CPU workers, please put them in a pure-CPU virtual cluster, and omit `gpu` field or use `gpu: 0` in `skuTypes`. Don't mix CPU nodes with GPU nodes. Here is an example:
+### Configuration for CPU-only Virtual Cluster
+
+Currently we recommend you to set up a pure-CPU virtual cluster, and don't mix CPU nodes with GPU nodes in one virtual cluster. Please omit `gpu` field or use `gpu: 0` in `skuTypes` for the VC.  Here is an example:
 
 ```
 hivedscheduler:
@@ -135,7 +139,9 @@ config: |
 
 Explanation of the above example: Supposing we have a node named `cpu-worker1` in Kubernetes. It has 80GB memory and 8 allocatable CPUs (please use `kubectl describe cpu-worker1` to confirm the allocatable resources). Then, in `skuTypes`, we can set a `CPU` sku, which has 1 CPU and 10240 MB (80GB / 8) memory. You can reserve some memory or CPUs if you want. `CPU-NODE` and `CPU-NODE-POOL` are set correspondingly in the `cellTypes`. Finally, the setting will result in one `default` VC and one `cpu` VC. The `cpu` VC contains one CPU node.
 
-After modification, use the following commands to apply the settings:
+### Apply Configuration in Cluster
+
+After modification of the configuration, use the following commands to apply the settings:
 
 ```bash
 ./paictl.py service stop -n rest-server hivedscheduler
@@ -143,7 +149,7 @@ After modification, use the following commands to apply the settings:
 ./paictl.py service start -n hivedscheduler rest-server
 ```
 
-You can now test the `default` VC and `new` VC, with any admin accounts in OpenPAI. [Next section](#how-to-grant-vc-to-users) will introduce how to grant VC access to non-admin users.
+You can now test these new VCs, with any admin accounts in OpenPAI. [Next section](#how-to-grant-vc-to-users) will introduce how to grant VC access to non-admin users.
 
 ## How to Grant VC to Users
 
