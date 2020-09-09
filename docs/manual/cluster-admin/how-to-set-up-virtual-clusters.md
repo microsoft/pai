@@ -90,49 +90,49 @@ Currently we recommend you to set up a pure-CPU virtual cluster, and don't mix C
 
 ```
 hivedscheduler:
-config: |
-  physicalCluster:
-    skuTypes:
-      DT:
-        gpu: 1
-        cpu: 5
-        memory: 56334Mi
-      CPU:
-        cpu: 1
-        memory: 10240Mi
-    cellTypes:
-      DT-NODE:
-        childCellType: DT
-        childCellNumber: 4
-        isNodeLevel: true
-      DT-NODE-POOL:
-        childCellType: DT-NODE
-        childCellNumber: 3
-      CPU-NODE:
-        childCellType: CPU
-        childCellNumber: 8
-        isNodeLevel: true
-      CPU-NODE-POOL:
-        childCellType: CPU-NODE
-        childCellNumber: 1
-    physicalCells:
-    - cellType: DT-NODE-POOL
-      cellChildren:
-      - cellAddress: worker1
-      - cellAddress: worker2
-      - cellAddress: worker3
-    - cellType: CPU-NODE-POOL
-      cellChildren:
-      - cellAddress: cpu-worker1
-  virtualClusters:
-    default:
-      virtualCells:
-      - cellType: DT-NODE-POOL.DT-NODE
-        cellNumber: 3
-    cpu:
-      virtualCells:
-      - cellType: CPU-NODE-POOL.CPU-NODE
-        cellNumber: 1
+  config: |
+    physicalCluster:
+      skuTypes:
+        DT:
+          gpu: 1
+          cpu: 5
+          memory: 56334Mi
+        CPU:
+          cpu: 1
+          memory: 10240Mi
+      cellTypes:
+        DT-NODE:
+          childCellType: DT
+          childCellNumber: 4
+          isNodeLevel: true
+        DT-NODE-POOL:
+          childCellType: DT-NODE
+          childCellNumber: 3
+        CPU-NODE:
+          childCellType: CPU
+          childCellNumber: 8
+          isNodeLevel: true
+        CPU-NODE-POOL:
+          childCellType: CPU-NODE
+          childCellNumber: 1
+      physicalCells:
+      - cellType: DT-NODE-POOL
+        cellChildren:
+        - cellAddress: worker1
+        - cellAddress: worker2
+        - cellAddress: worker3
+      - cellType: CPU-NODE-POOL
+        cellChildren:
+        - cellAddress: cpu-worker1
+    virtualClusters:
+      default:
+        virtualCells:
+        - cellType: DT-NODE-POOL.DT-NODE
+          cellNumber: 3
+      cpu:
+        virtualCells:
+        - cellType: CPU-NODE-POOL.CPU-NODE
+          cellNumber: 1
 ```
 
 Explanation of the above example: Supposing we have a node named `cpu-worker1` in Kubernetes. It has 80GB memory and 8 allocatable CPUs (please use `kubectl describe node cpu-worker1` to confirm the allocatable resources). Then, in `skuTypes`, we can set a `CPU` sku, which has 1 CPU and 10240 MiB (80GiB / 8) memory. You can reserve some memory or CPUs if you want. `CPU-NODE` and `CPU-NODE-POOL` are set correspondingly in the `cellTypes`. Finally, the setting will result in one `default` VC and one `cpu` VC. The `cpu` VC contains one CPU node.
