@@ -137,7 +137,7 @@ config: |
         cellNumber: 1
 ```
 
-Explanation of the above example: Supposing we have a node named `cpu-worker1` in Kubernetes. It has 80GB memory and 8 allocatable CPUs (please use `kubectl describe cpu-worker1` to confirm the allocatable resources). Then, in `skuTypes`, we can set a `CPU` sku, which has 1 CPU and 10240 MB (80GB / 8) memory. You can reserve some memory or CPUs if you want. `CPU-NODE` and `CPU-NODE-POOL` are set correspondingly in the `cellTypes`. Finally, the setting will result in one `default` VC and one `cpu` VC. The `cpu` VC contains one CPU node.
+Explanation of the above example: Supposing we have a node named `cpu-worker1` in Kubernetes. It has 80GB memory and 8 allocatable CPUs (please use `kubectl describe node cpu-worker1` to confirm the allocatable resources). Then, in `skuTypes`, we can set a `CPU` sku, which has 1 CPU and 10240 MiB (80GiB / 8) memory. You can reserve some memory or CPUs if you want. `CPU-NODE` and `CPU-NODE-POOL` are set correspondingly in the `cellTypes`. Finally, the setting will result in one `default` VC and one `cpu` VC. The `cpu` VC contains one CPU node.
 
 ### Apply Configuration in Cluster
 
