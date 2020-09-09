@@ -20,6 +20,8 @@ export default class Ordering {
         descending: this.descending,
       });
       window.localStorage.setItem(LOCAL_STORAGE_KEY, content);
+    } else {
+      window.localStorage.removeItem(LOCAL_STORAGE_KEY);
     }
   }
 
