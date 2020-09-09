@@ -1,4 +1,4 @@
-OpenPAI Alerts : <%= groupLabels.alertname %>
+OpenPAI Alerts : <%= groupLabels.alertname %>,
 <% if (alerts.filter( element => element.status =="firing").length > 0) { %>
 <%= alerts.filter( element => element.status =="firing").length %> Firing
 <% } %>
