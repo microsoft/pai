@@ -1131,7 +1131,6 @@ const archive = async (frameworkName) => {
   }
 };
 
-
 const getConfig = async (frameworkName) => {
   const framework = await databaseModel.Framework.findOne({
     attributes: ['jobConfig'],

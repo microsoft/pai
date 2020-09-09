@@ -105,7 +105,7 @@ const list = asyncHandler(async (req, res) => {
       // include archived jobs
     } else {
       // exclude archived job
-      filters.archived = false
+      filters.archived = false;
     }
   }
   const attributes = [

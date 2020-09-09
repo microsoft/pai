@@ -279,7 +279,6 @@ async function putFrameworkRequest(req, res, next) {
   }
 }
 
-
 async function archiveFramework(req, res, next) {
   // The handler to handle framework archive
   // Only completed job can be archived. If job is not a completed job, return 400 Bad Request.
@@ -293,9 +292,7 @@ async function archiveFramework(req, res, next) {
     }
     await lock.acquire(frameworkName, async () => {
       const framework = await databaseModel.Framework.findOne({
-        attributes: [
-          'subState',
-        ],
+        attributes: ['subState'],
         where: { name: frameworkName },
       });
       if (!framework) {
@@ -306,7 +303,7 @@ async function archiveFramework(req, res, next) {
       } else {
         // If the old framework exists and is completed, try to set archived=true
         await databaseModel.Framework.update(
-          {archived: true},
+          { archived: true },
           { where: { name: frameworkName } },
         );
       }
