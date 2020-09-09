@@ -136,7 +136,17 @@ export class JobProtocol {
       jobTaskRoles,
     );
     if (config.launcherScheduler === 'hivedscheduler') {
-      protocolExtras.hivedScheduler = { taskRoles: hivedTaskRoles };
+      const newTaskRoles = get(protocolExtras, 'hivedScheduler.taskRoles', {});
+      for (const name in hivedTaskRoles) {
+        newTaskRoles[name] = {
+          ...newTaskRoles[name],
+          ...hivedTaskRoles[name],
+        };
+      }
+      protocolExtras.hivedScheduler = {
+        ...protocolExtras.hivedScheduler,
+        taskRoles: newTaskRoles,
+      };
     }
     const secrets = removeEmptyProperties(
       jobSecrets.reduce((res, secret) => {
