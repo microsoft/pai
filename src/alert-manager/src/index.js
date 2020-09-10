@@ -179,7 +179,7 @@ app.post('/alert-handler/send-email', async (req, res) => {
   );
 
   if (alertsGrouped) {
-    // send emails to different users seperately
+    // send emails to different users separately
     Object.keys(alertsGrouped).forEach(async (username) => {
       const userEmail = await getUserEmail(username, url, token);
       email.send({
