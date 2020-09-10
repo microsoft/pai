@@ -16,6 +16,7 @@ cifar10-single-mul-DDP-nccl | ✓| ✓ |nccl|-| [cifar10-single-mul-DDP-nccl.yam
 cifar10-single-mul-DDP-gloo-Apex-mixed | ✓|  ✓ | gloo|✓ | [cifar10-single-mul-DDP-gloo-Apex-mixed.yaml](https://github.com/microsoft/pai/tree/master/examples/Distributed-example/cifar10-single-mul-DDP-gloo-Apex-mixed.yaml)|
 cifar10-single-mul-DDP-nccl-Apex-mixed | ✓|  ✓ | nccl|  ✓ | [cifar10-single-mul-DDP-gloo-Apex-mixed.yaml](https://github.com/microsoft/pai/tree/master/examples/Distributed-example/cifar10-single-mul-DDP-gloo-Apex-mixed.yaml)|
 imagenet-single-mul-DDP-gloo | ✓|  ✓| gloo|-| [imagenet-single-mul-DDP-gloo.yaml](https://github.com/microsoft/pai/tree/master/examples/Distributed-example/Lite-imagenet-single-mul-DDP-gloo.yaml)|
+
 ## DataParallel
 The single node program is simple. The program executed in PAI is exactly the same as the program in our machine. It should be noted that an Worker can be applied in PAI and a Instance can be applied in Worker. In a worker, we can apply for GPUs that we need. We provide an [example](../../../examples/Distributed-example/cifar10-single-node-gpus-cpu-DP.py) of DP.
 
