@@ -19,4 +19,4 @@ service_type: "common"
 
 type: hostPath
 root-path: /mnt/paiInternal
-quota-gb: 10
+quota-gb: 30
