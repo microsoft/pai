@@ -7,6 +7,7 @@ nav:
       - How to Manage Data: manual/cluster-user/how-to-manage-data.md
       - How to Debug Jobs: manual/cluster-user/how-to-debug-jobs.md
       - How to Use Advanced Job Settings: manual/cluster-user/how-to-use-advanced-job-settings.md
+      - How to Run Distributed Job: manual/cluster-user/how-to-run-distributed-job.md
       - Use Marketplace: manual/cluster-user/use-marketplace.md
       - Use VSCode Extension: manual/cluster-user/use-vscode-extension.md
       - Use Jupyter Notebook Extension: manual/cluster-user/use-jupyter-notebook-extension.md
