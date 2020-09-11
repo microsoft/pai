@@ -15,23 +15,20 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-/**
- * Implementation of Alert Handler.
- */
-
 const express = require('express');
-const bearerToken = require('express-bearer-token');
+const emailController = require('../controllers/mail');
+const jobController = require('../controllers/job');
 
-const actions = require('./routes/actions');
+const router = express.Router();
 
-const app = express();
+router
+  .route('/alert-handler/stop-job')
+  /** POST /alert-handler/stop-job */
+  .post(jobController.stopJob);
 
-app.use(express.json());
-app.use(bearerToken());
+router
+  .route('/alert-handler/send-email')
+  /** POST /alert-handler/send-email */
+  .post(emailController.sendEmail);
 
-app.use('/', actions);
-
-const port = process.env.SERVER_PORT;
-app.listen(port, () => {
-  console.log(`alert-handler listening at http://localhost:${port}`);
-});
+module.exports = router;

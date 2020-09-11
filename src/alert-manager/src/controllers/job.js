@@ -15,23 +15,43 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-/**
- * Implementation of Alert Handler.
- */
+const unirest = require('unirest');
 
-const express = require('express');
-const bearerToken = require('express-bearer-token');
+const stopJob = (req, res) => {
+  console.log(
+    'alert-handler received `stop-job` post request from alert-manager.',
+  );
+  // extract jobs to kill
+  const jobNames = [];
+  req.body.alerts.forEach(function (alert) {
+    if (alert.status === 'firing') {
+      jobNames.push(alert.labels.job_name);
+    }
+  });
+  console.log(`alert-handler will stop these jobs: ${jobNames}`);
 
-const actions = require('./routes/actions');
+  const url = process.env.REST_SERVER_URI;
+  const token = req.token;
+  // stop job by sending put request to rest server
+  jobNames.forEach(function (jobName) {
+    unirest
+      .put(`${url}/api/v2/jobs/${jobName}/executionType`)
+      .headers({
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      })
+      .send(JSON.stringify({ value: 'STOP' }))
+      .end(function (res) {
+        console.log(res.raw_body);
+      });
+  });
 
-const app = express();
+  res.status(200).json({
+    message: 'alert-handler successfully send stop-job request to rest-server.',
+  });
+};
 
-app.use(express.json());
-app.use(bearerToken());
-
-app.use('/', actions);
-
-const port = process.env.SERVER_PORT;
-app.listen(port, () => {
-  console.log(`alert-handler listening at http://localhost:${port}`);
-});
+// module exports
+module.exports = {
+  stopJob,
+};
