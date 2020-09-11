@@ -52,16 +52,19 @@ export async function listUserVirtualClusters(user) {
   return get(userInfo, 'virtualCluster', []);
 }
 
-export async function listHivedSkuTypes() {
+export async function listHivedSkuTypes(virtualCluster) {
   if (config.launcherScheduler !== 'hivedscheduler') {
     return {};
   }
   return wrapper(async () =>
-    (await fetch(`${config.restServerUri}/api/v2/cluster/sku-types`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
+    (await fetch(
+      `${config.restServerUri}/api/v2/cluster/sku-types?vc=${virtualCluster}`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       },
-    })).json(),
+    )).json(),
   );
 }
 
