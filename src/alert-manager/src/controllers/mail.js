@@ -113,7 +113,9 @@ const sendEmail = async (req, res) => {
       },
     })
     .then(function (res) {
-      console.log('alert-handler successfully send email to admin');
+      console.log(
+        `alert-handler successfully send email to admin at ${process.env.EMAIL_CONFIGS_RECEIVER}`,
+      );
     })
     .catch(console.error);
 
@@ -132,24 +134,30 @@ const sendEmail = async (req, res) => {
     // send emails to different users separately
     Object.keys(alertsGrouped).forEach(async (username) => {
       const userEmail = await getUserEmail(username, url, token);
-      email.send({
-        template: 'general-templates',
-        message: {
-          to: userEmail,
-        },
-        locals: {
-          cluster_id: process.env.CLUSTER_ID,
-          alerts: alertsGrouped[username],
-          groupLabels: req.body.groupLabels,
-          externalURL: req.body.externalURL,
-        },
-      });
-      console.log(`alert-handler successfully send email to user: ${username}`);
+      email
+        .send({
+          template: 'general-templates',
+          message: {
+            to: userEmail,
+          },
+          locals: {
+            cluster_id: process.env.CLUSTER_ID,
+            alerts: alertsGrouped[username],
+            groupLabels: req.body.groupLabels,
+            externalURL: req.body.externalURL,
+          },
+        })
+        .then(function (res) {
+          console.log(
+            `alert-handler successfully send email to ${username} at ${userEmail}`,
+          );
+        })
+        .catch(console.error);
     });
   }
 
   res.status(200).json({
-    message: 'alert-handler successfully sent email',
+    message: 'alert-handler finished send email action.',
   });
 };
 

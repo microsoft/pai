@@ -28,6 +28,12 @@ const stopJob = (req, res) => {
       jobNames.push(alert.labels.job_name);
     }
   });
+
+  if (jobNames.length === 0) {
+    res.status(200).json({
+      message: 'No job to stop.',
+    });
+  }
   console.log(`alert-handler will stop these jobs: ${jobNames}`);
 
   const url = process.env.REST_SERVER_URI;
@@ -42,6 +48,7 @@ const stopJob = (req, res) => {
       })
       .send(JSON.stringify({ value: 'STOP' }))
       .end(function (res) {
+        console.log('response from REST-Server:');
         console.log(res.raw_body);
       });
   });
