@@ -110,7 +110,7 @@ export class JobTaskRole {
       hivedSku.skuNum = get(
         extras,
         `hivedScheduler.taskRoles.${name}.skuNum`,
-        1,
+        Math.max(get(resourcePerInstance, 'gpu', 1), 1),
       );
       hivedSku.skuType = get(
         extras,
