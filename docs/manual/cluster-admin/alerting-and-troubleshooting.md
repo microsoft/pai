@@ -126,3 +126,28 @@ ansible-playbook -i inventory/mycluster/hosts.yml upgrade-cluster.yml --become -
 ```
 
 `${limit_list}` stands for the names of these de-allocated nodes. For example, if the crontab job finds node `a` and node `b` are available now, but they are still in `NotReady` status in Kuberentes, then it can set `limit_list=a,b`.
+
+### How to Enlarge Internal Storage Size
+
+Currently, OpenPAI uses [internal storage](https://github.com/microsoft/pai/tree/master/src/internal-storage) to hold database. Internal storage is a limited size storage. It leverages loop device in Linux to provide a storage with strictly limited quota. The default quota is 30 GB (or 10GB for OpenPAI <= `v1.1.0`), which can hold about 1,000,000 jobs. If you want a larger space to hold more jobs, please follow these steps to enlarge the internal storage:
+
+Step 1. [Exec into a dev box container.](./basic-management-operations.md#pai-service-management-and-paictl)
+
+Step 2. In the dev box container, stop all PAI services by `./paictl.py service stop`.
+
+Step 3. Log in to the master node. Find the internal storage folder (Default path is `/mnt/paiInternal`). Move it to another place like: `sudo mv /mnt/paiInternal /mnt/paiInternalBak`
+
+Step 4. Update the internal storage config in the `services-configuration.yaml`. For example, set the quota to 100 GB: 
+```
+internal-storage:
+    quota-gb: 100
+```
+If there is no `internal-storage` section in the file, you can add it manually.
+
+Update it by `./paictl.py config push -p <config-folder> -m service`
+
+Step 5. In the dev box container, start the internal storage service by `./paictl.py service start -n internal-storage`
+
+Step 6. After the internal storage service is ready, there will be a new `/mnt/paiInternal` in the master node. Move the previous data to it. Currently, we only need to move the `pgdata` folder: `sudo mv /mnt/paiInternalBak/pgdata /mnt/paiInternal/`.
+
+Step 7. In the dev box container, start all PAI services by `./paictl.py service start`.
