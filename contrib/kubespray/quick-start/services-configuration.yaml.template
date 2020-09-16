@@ -164,18 +164,19 @@ authentication:
 #  port: 80
 
 
-# if you want to enable email notification or webhook actions, uncomment following lines and fill the right values.
+# if you want to enable alert-handler actions, uncomment following lines and fill the right values.
 # alert-manager:
-#   port: 9093 # optional, do not change this if you do not want to change the port alert-manager is listening on
-#   email_configs: # email-notification will only be enabled when this field is not empty
-#     receiver: your_addr@example.com
-#     smtp_url: smtp.office365.com:587
-#     smtp_from: alert_sender@example.com
-#     smtp_auth_username: alert_sender@example.com
-#     smtp_auth_password: password_for_alert_sender
-#   webhook_configs: # webhook-actions will only be enabled when this field is not empty
-#     port: 9095 # optional, do not change this if you do not want to change the port alert-handler is listening on
-#     pai_bearer_token: 'your_application_token_for_pai_rest_server'
+#   port: 9093 # do not change this if you do not want to change the port alert-manager is listening on
+#   alert-handler: # alert-handler will only be enabled when this field is not empty
+#     port: 9095 # do not change this if you do not want to change the port alert-handler is listening on
+#     pai-bearer-token: 'your-application-token-for-pai-rest-server'
+#     email-configs: # email-notification will only be enabled when this field is not empty
+#       receiver: your-addr@example.com
+#       smtp-host: smtp.office365.com
+#       smtp-port: 587
+#       smtp-from: alert-sender@example.com
+#       smtp-auth-username: alert-sender@example.com
+#       smtp-auth-password: password-for-alert-sender
 
 # uncomment following if you want to change customize grafana
 # grafana:

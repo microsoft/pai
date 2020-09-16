@@ -54,28 +54,32 @@ spec:
           mountPath: /etc/alertmanager
         - name: alertmanager
           mountPath: /alertmanager
-{% if cluster_cfg["alert-manager"]["webhook-configured"] %}
+{% if cluster_cfg["alert-manager"]["alert-handler"]["configured"] %}
       - name: alerthandler
         image: {{ cluster_cfg['cluster']['docker-registry']['prefix'] }}alert-handler:{{ cluster_cfg['cluster']['docker-registry']['tag'] }}
         imagePullPolicy: Always
         ports:
         - name: alerthandler
-          containerPort: {{ cluster_cfg["alert-manager"]["webhook_configs"]["port"] }}
+          containerPort: {{ cluster_cfg["alert-manager"]["alert-handler"]["port"] }}
         env:
         - name: CLUSTER_ID
           value: {{ cluster_cfg["cluster"]["common"]["cluster-id"] }}
         - name: REST_SERVER_URI
           value: {{ cluster_cfg['rest-server']['uri'] }}
+{% if 'email-admin' in cluster_cfg["alert-manager"]["actions-available"] %}
         - name: EMAIL_CONFIGS_RECEIVER
-          value: {{ cluster_cfg["alert-manager"]["email_configs"]["receiver"] }}
-        - name: EMAIL_CONFIGS_SMTP_URL
-          value: {{ cluster_cfg["alert-manager"]["email_configs"]["smtp_url"] }}
+          value: {{ cluster_cfg["alert-manager"]["alert-handler"]["email-configs"]["receiver"] }}
+        - name: EMAIL_CONFIGS_SMTP_HOST
+          value: {{ cluster_cfg["alert-manager"]["alert-handler"]["email-configs"]["smtp-host"] }}
+        - name: EMAIL_CONFIGS_SMTP_PORT
+          value: "{{ cluster_cfg["alert-manager"]["alert-handler"]["email-configs"]["smtp-port"] }}"
         - name: EMAIL_CONFIGS_SMTP_FROM
-          value: {{ cluster_cfg["alert-manager"]["email_configs"]["smtp_from"] }}
+          value: {{ cluster_cfg["alert-manager"]["alert-handler"]["email-configs"]["smtp-from"] }}
         - name: EMAIL_CONFIGS_SMTP_AUTH_USERNAME
-          value: {{ cluster_cfg["alert-manager"]["email_configs"]["smtp_auth_username"] }}
+          value: {{ cluster_cfg["alert-manager"]["alert-handler"]["email-configs"]["smtp-auth-username"] }}
         - name: EMAIL_CONFIGS_SMTP_AUTH_PASSWORD
-          value: {{ cluster_cfg["alert-manager"]["email_configs"]["smtp_auth_password"] }}
+          value: {{ cluster_cfg["alert-manager"]["alert-handler"]["email-configs"]["smtp-auth-password"] }}
+{% endif %}
 {% endif %}
       imagePullSecrets:
       - name: {{ cluster_cfg["cluster"]["docker-registry"]["secret-name"] }}

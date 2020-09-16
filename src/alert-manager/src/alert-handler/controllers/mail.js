@@ -21,8 +21,8 @@ const Email = require('email-templates');
 
 // create reusable transporter object using the default SMTP transport
 const transporter = nodemailer.createTransport({
-  host: process.env.EMAIL_CONFIGS_SMTP_URL.split(':')[0],
-  port: process.env.EMAIL_CONFIGS_SMTP_URL.split(':')[1],
+  host: process.env.EMAIL_CONFIGS_SMTP_HOST,
+  port: parseInt(process.env.EMAIL_CONFIGS_SMTP_PORT),
   secure: false,
   auth: {
     user: process.env.EMAIL_CONFIGS_SMTP_AUTH_USERNAME,

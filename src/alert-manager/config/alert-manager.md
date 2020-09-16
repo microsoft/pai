@@ -10,25 +10,36 @@
 
 #### How to configure cluster section in service-configuration.yaml <a name="HT_Config"></a>
 
-To configure alert-manager to send out alert emails and kill low-gpu-utilization jobs, you should configure alert manager in your `service-configuration.yaml` like following:
+So far, we have provided `email-admin`, `email-user` and `stop-job` actions in `alert-handler`.
+To make all these actions available, 
+you should configure `alert-manager` in your `service-configuration.yaml` like following:
 
 ``` yaml
 alert-manager:
   port: 9093 # optional, do not change this if you do not want to change the port alert-manager is listening on
-  email_configs: # email-notification will only be enabled when this field is not empty
-    receiver: your_addr@example.com
-    smtp_url: smtp.office365.com:587
-    smtp_from: alert_sender@example.com
-    smtp_auth_username: alert_sender@example.com
-    smtp_auth_password: password_for_alert_sender
-  webhook_configs: # webhook-actions will only be enabled when  this field is not empty
+  alert-handler: # alert-handler will only be enabled when this field is not empty
     port: 9095 # optional, do not change this if you do not want to change the port alert-handler is listening on
-    pai_bearer_token: 'your_application_token_for_pai_rest_server'
+    pai-bearer-token: 'your-application-token-for-pai-rest-server'
+    email-configs: # email-notification will only be enabled when this field is not empty
+      receiver: your-addr@example.com
+      smtp-host: smtp.office365.com
+      smtp-port: 587
+      smtp-from: alert-sender@example.com
+      smtp-auth-username: alert-sender@example.com
+      smtp-auth-password: password-for-alert-sender
 ```
 
-`email-notification` and `webhook-actions` will only be enabled when necessary information are configured. 
-The port configurations are optional. All other config is mandatory. 
-If `webhook_configs` is not configured, the `alert-handler` container will not start.
+In the configuration above, `email-configs` is necessary for `email-admin` and `email-user` actions,
+`pai-bearer-token` is necessary for `email-user` and `stop-job` actions.
+This can be summrized in the following table:
+
+|              | email-configs | pai-bearer-token |
+| :-----------:| :-----------: | :--------------: |
+| email-admin  | True          | False            |
+| email-user   | True          | True             |
+| stop-job     | False         | True             |
+
+If `alert-handler` is not configured, the `alert-handler` container will not start.
 
 In addition, if you deployed pai behind firewall, you should configure alert-manager with `use-pylon: True` , to make url from alert email public available.
 
@@ -36,37 +47,47 @@ Also you can control the interval of sending same alert email if problem unsolve
 
 #### Generated Configuration <a name="G_Config"></a>
 
-After parsing, if you configured `email_configs` and `webhook_configs`, the model will be like:
+After parsing, if you properly configured `email-configs` and `pai-bearer-token`, the configuration generated will be like:
 
 ``` yaml
 alert-manager: 
   port: 9093
-  email-configured: True
-  email_configs:
-    receiver: your_addr@example.com
-    smtp_url: smtp.office365.com:587
-    smtp_from: alert_sender@example.com
-    smtp_auth_username: alert_sender@example.com
-    smtp_auth_password: password_for_alert_sender
-  webhook-configured: True
-  webhook_configs:
+  actions-available:
+    - webportal-notification
+    - email-admin
+    - email-user
+    - stop-job
+  alert-handler:
     port: 9095
-    pai_bearer_token: 'your_application_token_for_pai_rest_server'
+    configured: True
+    pai-bearer-token: 'your-application-token-for-pai-rest-server'
+    email-configs: # email-notification will only be enabled when this field is not empty
+      receiver: your-addr@example.com
+      smtp-host: smtp.office365.com
+      smtp-port: 587
+      smtp-from: alert-sender@example.com
+      smtp-auth-username: alert-sender@example.com
+      smtp-auth-password: password-for-alert-sender
   host: master_ip
   url: "http://master_ip:9093"
   use-pylon: False
   repeat-interval: 24h
 ```
 
-if you didn't configured `email_configs` and `webhook_configs`, it will be like:
+if you didn't configured `alert-handler`, it will be like:
 
 ``` yaml
 alert-manager:
   port: 9093
-  email-configured: False
-  webhook-configured: False
+  actions-available:
+    - webportal-notification
+  alert-handler:
+    port: 9095
+    configured: False
   host: master_ip
   url: "http://master_ip:9093"
   use-pylon: False
   repeat-interval: 24h
 ```
+
+Similarly, we get the generated configuration if `alert-handler` is partially configured.

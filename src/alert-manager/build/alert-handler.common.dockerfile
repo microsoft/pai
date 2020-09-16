@@ -22,7 +22,7 @@ WORKDIR /usr/src/app
 ENV NODE_ENV=production \
     SERVER_PORT=9095
 
-COPY ./src .
+COPY ./src/alert-handler .
 
 RUN yarn install
 

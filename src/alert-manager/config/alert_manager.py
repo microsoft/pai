@@ -19,26 +19,40 @@ class AlertManager(object):
     def run(self):
         result = copy.deepcopy(self.default_service_conf)
         result.update(self.service_conf)
-        
+
         # check if email_configs is properly configured
-        email_configs = result.get("email_configs")
-        if email_configs is not None and \
-                email_configs.get("receiver") is not None and \
-                email_configs.get("smtp_url") is not None and \
-                email_configs.get("smtp_from") is not None and \
-                email_configs.get("smtp_auth_username") is not None and \
-                email_configs.get("smtp_auth_password") is not None:
-            result["email-configured"] = True
+        if result.get("alert-handler") is not None and \
+            result["alert-handler"].get("email-configs") is not None and \
+                result["alert-handler"]["email-configs"].get("receiver") is not None and \
+                result["alert-handler"]["email-configs"].get("smtp-host") is not None and \
+                result["alert-handler"]["email-configs"].get("smtp-port") is not None and \
+                result["alert-handler"]["email-configs"].get("smtp-from") is not None and \
+                result["alert-handler"]["email-configs"].get("smtp-auth-username") is not None and \
+                result["alert-handler"]["email-configs"].get("smtp-auth-password") is not None:
+            email_configured = True
         else:
-            result["email-configured"] = False
-        
-        # check if `webhook_configs` is properly configured
-        webhook_configs = result.get("webhook_configs")
-        if webhook_configs is not None and \
-            webhook_configs.get("pai_bearer_token") is not None:
-            result["webhook-configured"] = True
+            email_configured = False
+
+        # check if `pai-bearer-token` is properly configureds
+        if result.get("alert-handler") is not None and \
+            result["alert-handler"].get("pai-bearer-token") is not None:
+            token_configured = True
         else:
-            result["webhook-configured"] = False
+            token_configured = False
+
+        if email_configured and token_configured:
+            result["alert-handler"]["configured"] = True
+            result["actions-available"].append("email-admin")
+            result["actions-available"].append("email-user")
+            result["actions-available"].append("stop-job")
+        elif email_configured:
+            result["alert-handler"]["configured"] = True
+            result["actions-available"].append("email-admin")
+        elif token_configured:
+            result["alert-handler"]["configured"] = True
+            result["actions-available"].append("stop-job")
+        else:
+            result["alert-handler"]["configured"] = False
 
         result["host"] = self.get_master_ip()
         result["url"] = "http://{0}:{1}".format(self.get_master_ip(), result["port"])

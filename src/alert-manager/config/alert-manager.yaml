@@ -18,5 +18,10 @@
 service_type: "common"
 
 port: 9093
+actions-available:
+  - webportal-notification
+alert-handler:
+  port: 9095
+  configured: False
 use-pylon: False
 repeat-interval: '24h'
