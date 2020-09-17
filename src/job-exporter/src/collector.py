@@ -544,7 +544,7 @@ class ContainerCollector(Collector):
         "dshuttle-master",
         "dshuttle-job-master",
 
-        # Run in as daemon set
+        # Run as daemon set
         "node-exporter",
         "job-exporter",
         "log-manager-nginx",
