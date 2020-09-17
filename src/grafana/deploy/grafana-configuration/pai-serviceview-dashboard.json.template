@@ -377,8 +377,8 @@
         "allValue": null,
         "current": {
           "tags": [],
-          "text": "hadoop-resource-manager",
-          "value": "hadoop-resource-manager"
+          "text": "rest-server",
+          "value": "rest-server"
         },
         "datasource": "PM",
         "hide": 0,
@@ -394,38 +394,8 @@
           },
           {
             "selected": false,
-            "text": "end-to-end-test",
-            "value": "end-to-end-test"
-          },
-          {
-            "selected": false,
             "text": "grafana",
             "value": "grafana"
-          },
-          {
-            "selected": false,
-            "text": "hadoop-data-node",
-            "value": "hadoop-data-node"
-          },
-          {
-            "selected": false,
-            "text": "hadoop-jobhistory-service",
-            "value": "hadoop-jobhistory-service"
-          },
-          {
-            "selected": false,
-            "text": "hadoop-name-node",
-            "value": "hadoop-name-node"
-          },
-          {
-            "selected": false,
-            "text": "hadoop-node-manager",
-            "value": "hadoop-node-manager"
-          },
-          {
-            "selected": true,
-            "text": "hadoop-resource-manager",
-            "value": "hadoop-resource-manager"
           },
           {
             "selected": false,
@@ -439,11 +409,6 @@
           },
           {
             "selected": false,
-            "text": "nvidia-drivers",
-            "value": "nvidia-drivers"
-          },
-          {
-            "selected": false,
             "text": "prometheus",
             "value": "prometheus"
           },
@@ -451,11 +416,6 @@
             "selected": false,
             "text": "pylon",
             "value": "pylon"
-          },
-          {
-            "selected": false,
-            "text": "rest-server",
-            "value": "rest-server"
           },
           {
             "selected": false,
@@ -469,18 +429,58 @@
           },
           {
             "selected": false,
-            "text": "yarn-exporter",
-            "value": "yarn-exporter"
+            "text": "frameworkcontroller",
+            "value": "frameworkcontroller"
           },
           {
             "selected": false,
-            "text": "yarn-frameworklauncher",
-            "value": "yarn-frameworklauncher"
+            "text": "framework-watcher_database-controller",
+            "value": "framework-watcher_database-controller"
           },
           {
             "selected": false,
-            "text": "zookeeper",
-            "value": "zookeeper"
+            "text": "write-merger_database-controller",
+            "value": "write-merger_database-controller"
+          },
+          {
+            "selected": false,
+            "text": "poller_database-controller",
+            "value": "poller_database-controller"
+          },
+          {
+            "selected": false,
+            "text": "log-manager-nginx",
+            "value": "log-manager-nginx"
+          },
+          {
+            "selected": false,
+            "text": "log-manager-logrotate",
+            "value": "log-manager-logrotate"
+          },
+          {
+            "selected": false,
+            "text": "dshuttle-master",
+            "value": "dshuttle-master"
+          },
+          {
+            "selected": false,
+            "text": "dshuttle-worker",
+            "value": "dshuttle-worker"
+          },
+          {
+            "selected": false,
+            "text": "dshuttle-csi-daemon",
+            "value": "dshuttle-csi-daemon"
+          },
+          {
+            "selected": false,
+            "text": "dshuttle-job-worker",
+            "value": "dshuttle-job-worker"
+          },
+          {
+            "selected": false,
+            "text": "dshuttle-job-master",
+            "value": "dshuttle-job-master"
           }
         ],
         "query": "label_values(service_cpu_percent, name)",

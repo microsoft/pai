@@ -529,6 +529,7 @@ class ContainerCollector(Collector):
     lsof_timeout = 2 # 99th latency is 0.5s
 
     pai_services = list(map(lambda s: "k8s_" + s, [
+        # Run in master node
         "rest-server",
         "pylon",
         "webportal",
@@ -536,19 +537,21 @@ class ContainerCollector(Collector):
         "prometheus",
         "alertmanager",
         "watchdog",
-        "end-to-end-test",
-        "yarn-frameworklauncher",
-        "hadoop-jobhistory-service",
-        "hadoop-name-node",
-        "hadoop-node-manager",
-        "hadoop-resource-manager",
-        "hadoop-data-node",
-        "zookeeper",
+        "frameworkcontroller",
+        "framework-watcher_database-controller",
+        "write-merger_database-controller",
+        "poller_database-controller",
+        "dshuttle-master",
+        "dshuttle-job-master",
+
+        # Run in as daemon set
         "node-exporter",
         "job-exporter",
-        "yarn-exporter",
-        "nvidia-drivers",
-        "docker-cleaner",
+        "log-manager-nginx",
+        "log-manager-logrotate",
+        "dshuttle-worker",
+        "dshuttle-job-worker",
+        "dshuttle-csi-daemon",
 
         # Below are DLTS services
         "nginx",
