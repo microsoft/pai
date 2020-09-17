@@ -538,6 +538,7 @@ class ContainerCollector(Collector):
         "alertmanager",
         "watchdog",
         "frameworkcontroller",
+        "hivedscheduler",
         "framework-watcher_database-controller",
         "write-merger_database-controller",
         "poller_database-controller",
