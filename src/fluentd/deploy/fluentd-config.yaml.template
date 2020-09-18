@@ -94,7 +94,7 @@ data:
       </record>
     </filter>
 
-    # add logType
+    # add objectSnapshotTrigger
     <filter fc-objectsnapshots>
       @type record_transformer
       enable_ruby
