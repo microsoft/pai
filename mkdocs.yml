@@ -7,6 +7,7 @@ nav:
       - How to Manage Data: manual/cluster-user/how-to-manage-data.md
       - How to Debug Jobs: manual/cluster-user/how-to-debug-jobs.md
       - How to Use Advanced Job Settings: manual/cluster-user/how-to-use-advanced-job-settings.md
+      - How to Run Distributed Job: manual/cluster-user/how-to-run-distributed-job.md
       - Use Marketplace: manual/cluster-user/use-marketplace.md
       - Use VSCode Extension: manual/cluster-user/use-vscode-extension.md
       - Use Jupyter Notebook Extension: manual/cluster-user/use-jupyter-notebook-extension.md
@@ -19,7 +20,6 @@ nav:
       - How to Set Up Storage: manual/cluster-admin/how-to-set-up-storage.md
       - How to Set Up Virtual Clusters: manual/cluster-admin/how-to-set-up-virtual-clusters.md
       - How to Add and Remove Nodes: manual/cluster-admin/how-to-add-and-remove-nodes.md
-      - How to use CPU Nodes: manual/cluster-admin/how-to-use-cpu-nodes.md
       - How to Customize Cluster by Plugins: manual/cluster-admin/how-to-customize-cluster-by-plugins.md
       - Troubleshooting: manual/cluster-admin/troubleshooting.md
       - How to Uninstall OpenPAI: manual/cluster-admin/how-to-uninstall-openpai.md

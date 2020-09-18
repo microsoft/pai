@@ -59,6 +59,9 @@ echo -e "pai\n" | python paictl.py config push -p /cluster-configuration -m serv
 
 echo -e "pai\n" | python paictl.py service start
 
+kubectl apply --overwrite=true -f ca-resource.yaml || exit $?
+kubectl apply --overwrite=true -f hived-config-adapter.yaml || exit $?
+
 EOF_DEV_BOX
 
 

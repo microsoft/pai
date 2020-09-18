@@ -22,7 +22,7 @@ import { IconButton, FontSizes, TooltipHost } from 'office-ui-fabric-react';
 
 const COPIED_TOOLTIP_CLOSE_DELAY = 1000;
 
-const CopyButton = ({ value }) => {
+const CopyButton = ({ value, hideTooltip, callback }) => {
   const ref = useRef(null);
   return (
     <div>
@@ -35,9 +35,13 @@ const CopyButton = ({ value }) => {
           setTimeout(() => {
             ref.current && ref.current.dismiss();
           }, COPIED_TOOLTIP_CLOSE_DELAY);
+          if (callback) {
+            callback();
+          }
         }}
       />
       <TooltipHost
+        hidden={hideTooltip}
         content='Copied'
         componentRef={ref}
         delay={0}
@@ -51,6 +55,8 @@ const CopyButton = ({ value }) => {
 
 CopyButton.propTypes = {
   value: PropTypes.string.isRequired,
+  hideTooltip: PropTypes.bool,
+  callback: PropTypes.func,
 };
 
 export default CopyButton;

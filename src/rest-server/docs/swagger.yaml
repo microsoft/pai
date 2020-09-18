@@ -8,6 +8,7 @@ info:
     Version 2.0.3: update parameters description of get storage list
     Version 2.0.4: add default field in get storage list
     Version 2.0.5: add more parameters to job list; add submissionTime
+    Version 2.0.3: update storage example and add get job config example
   license:
     name: MIT License
     url: "https://github.com/microsoft/pai/blob/master/LICENSE"
@@ -1013,6 +1014,7 @@ paths:
                   - name: name
                     share: true
                     volumeName: volumeName
+                    default: true
         "500":
           $ref: "#/components/responses/UnknownError"
   "/api/v2/storages/{storage}":
@@ -1037,6 +1039,7 @@ paths:
                 name: nfs-storage-name
                 share: true
                 volumeName: nfs-volume-name
+                default: true
                 type: nfs
                 data:
                   server: <ip-address>
@@ -1239,6 +1242,25 @@ paths:
             text/yaml:
               schema:
                 $ref: "#/components/schemas/JobProtocol"
+              example:
+                protocolVersion: 2
+                name: jobconfig
+                type: job
+                version: '1.0'
+                prerequisites:
+                  - name: image
+                    type: dockerimage
+                    uri : uri
+                taskRoles:
+                  taskRole:
+                    instances: 1
+                    dockerImage: image
+                    resourcePerInstance:
+                      cpu: 1
+                      memoryMB: 1024
+                      gpu: 1
+                    commands:
+                      - commands
         "404":
           description: NoJobError or NoJobConfigError
           content:

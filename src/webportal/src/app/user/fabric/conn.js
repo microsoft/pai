@@ -159,6 +159,10 @@ export const getTokenRequest = async () => {
   return wrapper(() => client.token.getTokens());
 };
 
+export const getGroupsRequest = async () => {
+  return wrapper(() => client.group.getAllGroup());
+};
+
 export const revokeTokenRequest = async token => {
   await wrapper(() => client.token.deleteToken(token));
   if (token === checkToken()) {

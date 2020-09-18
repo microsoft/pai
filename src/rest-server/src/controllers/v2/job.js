@@ -81,7 +81,7 @@ const list = asyncHandler(async (req, res) => {
       ];
     }
     if ('order' in req.query) {
-      const { field, ordering } = req.query.order.split(',');
+      const [field, ordering] = req.query.order.split(',');
       if (
         [
           'jobName',
@@ -95,11 +95,13 @@ const list = asyncHandler(async (req, res) => {
         ].includes(field)
       ) {
         if (ordering === 'ASC' || ordering === 'DESC') {
-          // different cases for username
-          if (field !== 'username') {
-            order.push([field, ordering]);
-          } else {
+          // different naming for username and vc
+          if (field === 'username') {
             order.push(['userName', ordering]);
+          } else if (field === 'vc') {
+            order.push(['virtualCluster', ordering]);
+          } else {
+            order.push([field, ordering]);
           }
         }
       }

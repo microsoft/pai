@@ -134,13 +134,13 @@ const hivedValidate = async (protocolObj, username) => {
     let requestedResource = '';
     let emptyResource = '';
     if (resourcePerCell.gpu === 0 && gpu > 0) {
-      requestedResource = resourcePerCell.gpu;
+      requestedResource = gpu;
       emptyResource = 'GPU';
     } else if (resourcePerCell.cpu === 0 && cpu > 0) {
-      requestedResource = resourcePerCell.cpu;
+      requestedResource = cpu;
       emptyResource = 'CPU';
     } else if (resourcePerCell.memory === 0 && memoryMB > 0) {
-      requestedResource = resourcePerCell.memory;
+      requestedResource = memoryMB;
       emptyResource = 'memory';
     }
     if (emptyResource !== '') {

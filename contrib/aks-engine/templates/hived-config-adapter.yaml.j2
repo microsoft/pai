@@ -1,0 +1,80 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: hived-config-adapter-account
+  namespace: default
+---
+kind: ClusterRole
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: hived-config-adapter-role
+rules:
+  - apiGroups: [""]
+    resources: ["nodes"]
+    verbs: ["list", "watch"]
+  - apiGroups: [""]
+    resources: ["configmaps"]
+    verbs: ["patch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: hived-config-adapter-binding
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: hived-config-adapter-role
+subjects:
+- kind: ServiceAccount
+  name: hived-config-adapter-account
+  namespace: default
+
+---
+
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: hived-config-adapter-ds
+spec:
+  selector:
+    matchLabels:
+      app: hived-config-adapter
+  template:
+    metadata:
+      name: hived-config-adapter
+      labels:
+        app: hived-config-adapter
+    spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: pai-master
+                    operator: In
+                    values:
+                      - "true"
+      hostNetwork: false
+      hostPID: false
+      containers:
+      - name: app
+        image: openpai/hived-config-adapter
+        imagePullPolicy: Always
+        command: ["python"]
+        args: [
+          "./adapter.py",
+          "--max-nodes={{cfg['openpai_worker_vmss']['max_vm_count']}}",
+          "--node-name-prefix=k8s-opworker",
+          "--hived-config-file=/hivedscheduler-config/hivedscheduler.yaml"
+        ]
+        volumeMounts:
+        - name: hivedscheduler-config
+          mountPath: /hivedscheduler-config
+      volumes:
+      - name: hivedscheduler-config
+        configMap:
+          name: hivedscheduler-config
+      serviceAccountName: hived-config-adapter-account
