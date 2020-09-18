@@ -206,12 +206,15 @@ module Fluent::Plugin
       if ! thread[:conn].nil?
         begin
           chunk.msgpack_each do |time, record|
-            kind = record["objectSnapshot"]["kind"]
-            log.info "[pgjson] object type #{kind} in chunk #{hex_id}; message #{record['logMessage']}; type #{record['logType']}"
-            if kind == "Framework"
+            logType = record['logType']
+            log.info "[pgjson] log type #{logType} in chunk #{hex_id}"
+            if logType == "retried_framework_snapshot"
               insert_framework hex_id, time, record
-            elsif kind == "Pod"
+            elsif logType == "deleted_pod_snapshot"
               insert_pod hex_id, time, record
+            else
+              logMessage = record['logMessage']
+              log.info "[pgjson] log type #{logType} in chunk #{hex_id} ignored. log message: #{logMessage}"
             end
           end
         rescue PG::ConnectionBad, PG::UnableToSend => err
