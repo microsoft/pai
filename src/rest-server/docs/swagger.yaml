@@ -5,14 +5,14 @@ info:
     Open Platform for AI RESTful API docs.
     Version 2.0.1: add more examples and fix typos
     Version 2.0.2: update job detail and job attempt schema
-    Version 2.0.3: update parameters description of get storage list
+    Version 2.0.3: update parameters description of get storage list, update storage example and add get job config example
     Version 2.0.4: add default field in get storage list
     Version 2.0.5: add more parameters to job list; add submissionTime
-    Version 2.0.3: update storage example and add get job config example
+    Version 2.1.0: add add/delete tag api; add tags field in get job detail and get job list; add tags filter in get job list
   license:
     name: MIT License
     url: "https://github.com/microsoft/pai/blob/master/LICENSE"
-  version: 2.0.5
+  version: 2.1.0
 externalDocs:
   description: Find out more about OpenPAI
   url: "https://github.com/microsoft/pai"
