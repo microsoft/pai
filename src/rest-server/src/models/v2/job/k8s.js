@@ -883,7 +883,8 @@ const getConfigSecretDef = (frameworkName, secrets) => {
 const list = async (
   attributes,
   filters,
-  tagsFilter,
+  tagsContainFilter,
+  tagsNotContainFilter,
   order,
   offset,
   limit,
@@ -892,25 +893,37 @@ const list = async (
   let frameworks;
   let totalCount;
 
-  if (Object.keys(tagsFilter).length !== 0) {
-    const querySeleceFrameworkName = databaseModel.sequelize.dialect.QueryGenerator.selectQuery(
-      'tags',
-      {
-        attributes: ['frameworkName'],
-        where: tagsFilter,
-        group: ['tags.frameworkName'],
-        having: Sequelize.where(
-          Sequelize.fn('count', Sequelize.col('tags.frameworkName')),
-          tagsFilter.name.length,
-        ),
-      },
-    );
-
-    filters.name = {
-      [Sequelize.Op.in]: Sequelize.literal(`
-        (${querySeleceFrameworkName.slice(0, -1)})
-    `),
-    };
+  if (
+    Object.keys(tagsContainFilter).length !== 0 ||
+    Object.keys(tagsNotContainFilter).length !== 0
+  ) {
+    filters.name = {};
+    // tagsContain
+    if (Object.keys(tagsContainFilter).length !== 0) {
+      const queryContainFrameworkName = databaseModel.sequelize.dialect.QueryGenerator.selectQuery(
+        'tags',
+        {
+          attributes: ['frameworkName'],
+          where: tagsContainFilter,
+        },
+      );
+      filters.name[Sequelize.Op.in] = Sequelize.literal(`
+          (${queryContainFrameworkName.slice(0, -1)})
+      `);
+    }
+    // tagsNotContain
+    if (Object.keys(tagsNotContainFilter).length !== 0) {
+      const queryNotContainFrameworkName = databaseModel.sequelize.dialect.QueryGenerator.selectQuery(
+        'tags',
+        {
+          attributes: ['frameworkName'],
+          where: tagsNotContainFilter,
+        },
+      );
+      filters.name[Sequelize.Op.notIn] = Sequelize.literal(`
+          (${queryNotContainFrameworkName.slice(0, -1)})
+      `);
+    }
   }
 
   frameworks = await databaseModel.Framework.findAll({
@@ -922,7 +935,7 @@ const list = async (
     include: [
       {
         attributes: ['name'],
-        required: Object.keys(tagsFilter).length !== 0,
+        required: Object.keys(tagsContainFilter).length !== 0,
         model: databaseModel.Tag,
       },
     ],

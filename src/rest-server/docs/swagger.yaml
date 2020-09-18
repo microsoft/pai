@@ -1118,9 +1118,14 @@ paths:
           description: filter jobs with keyword, we search keyword in user name, job name, and virtual cluster name
           schema:
             type: string
-        - name: tags
+        - name: tagsContain
           in: query
-          description: filter jobs with tags. When multiple tags are specified, every job selected should have all these tags
+          description: filter jobs with tags. When multiple tags are specified, every job selected should have at least one of these tags
+          schema:
+            type: string
+        - name: tagsNotContain
+          in: query
+          description: filter jobs with tags. When multiple tags are specified, every job selected should have none of these tags
           schema:
             type: string
         - name: offset
