@@ -99,13 +99,13 @@ data:
       @type record_transformer
       enable_ruby
       <record>
-        logType "${\
-          if record['logMessage'].include? 'enqueueFrameworkObj: Framework Pod Deleted'
-            'deleted_pod_snapshot'
-          elsif record['logMessage'].include? 'syncFrameworkState: Framework will be retried'
-            'retried_framework_snapshot'
-          elsif record['logMessage'].include? 'syncTaskState: Task will be retried'
-            'task_retried_framework_snapshot'
+        objectSnapshotTrigger "${\
+          if record['logMessage'].include? 'Framework Pod Deleted'
+            'pod_deleted'
+          elsif record['logMessage'].include? 'Framework will be retried'
+            'framework_retried'
+          elsif record['logMessage'].include? 'Task will be retried'
+            'task_retried'
           else
             'unknown'
           end}"
