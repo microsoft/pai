@@ -102,9 +102,9 @@ data:
         logType "${\
           if record['logMessage'].include? 'enqueueFrameworkObj: Framework Pod Deleted'
             'deleted_pod_snapshot'
-          elsif record['message'].include? 'syncFrameworkState: Framework will be retried'
+          elsif record['logMessage'].include? 'syncFrameworkState: Framework will be retried'
             'retried_framework_snapshot'
-          elsif record['message'].include? 'syncTaskState: Task will be retried'
+          elsif record['logMessage'].include? 'syncTaskState: Task will be retried'
             'task_retried_framework_snapshot'
           else
             'unknown'
