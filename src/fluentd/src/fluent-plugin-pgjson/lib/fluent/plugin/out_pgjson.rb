@@ -207,7 +207,7 @@ module Fluent::Plugin
         begin
           chunk.msgpack_each do |time, record|
             kind = record["objectSnapshot"]["kind"]
-            log.info "[pgjson] object type #{kind} in chunk #{hex_id}; message #{record['logMessage']}"
+            log.info "[pgjson] object type #{kind} in chunk #{hex_id}; message #{record['logMessage']}; type #{record['logType']}"
             if kind == "Framework"
               insert_framework hex_id, time, record
             elsif kind == "Pod"
