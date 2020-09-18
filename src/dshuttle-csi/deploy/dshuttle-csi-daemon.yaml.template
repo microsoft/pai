@@ -33,7 +33,7 @@ spec:
       initContainers:
       # This change aimed to avoid OS build file index for alluxio-fuse-fs, which will consume much disk space
       - name: change-updatedb-conf
-        image: {{ cluster_cfg["cluster"]["docker-registry"]["prefix"] }}dshuttle-csi:{{ cluster_cfg["cluster"]["docker-registry"]["tag"] }}
+        image: dshuttle/dshuttle-csi:latest
         imagePullPolicy: Always
         securityContext:
           runAsUser: 0
@@ -50,11 +50,11 @@ spec:
         lifecycle:
           preStop:
             exec:
-              command: ["/bin/sh", "-c", "rm -rf /registration/alluxio-reg.sock /var/lib/kubelet/plugins/csi-alluxio-plugin"]
+              command: ["/bin/sh", "-c", "rm -rf /registration/dshuttle-reg.sock /var/lib/kubelet/plugins/csi-dshuttle-plugin"]
         args:
         - --v=5
         - --csi-address=/plugin/csi.sock
-        - --kubelet-registration-path=/var/lib/kubelet/plugins/csi-alluxio-plugin/csi.sock
+        - --kubelet-registration-path=/var/lib/kubelet/plugins/csi-dshuttle-plugin/csi.sock
         env:
         - name: KUBE_NODE_NAME
           valueFrom:
@@ -72,8 +72,8 @@ spec:
           capabilities:
             add: ["SYS_ADMIN"]
           allowPrivilegeEscalation: true
-        image: {{ cluster_cfg["cluster"]["docker-registry"]["prefix"] }}dshuttle-csi:{{ cluster_cfg["cluster"]["docker-registry"]["tag"] }}
-        command: ["/usr/local/bin/alluxio-csi"]
+        image: dshuttle/dshuttle-csi:latest
+        command: ["/usr/local/bin/dshuttle-csi"]
         args :
         - "--v=4"
         - "--nodeid=$(NODE_ID)"
@@ -118,7 +118,7 @@ spec:
       volumes:
       - name: plugin-dir
         hostPath:
-          path: /var/lib/kubelet/plugins/csi-alluxio-plugin
+          path: /var/lib/kubelet/plugins/csi-dshuttle-plugin
           type: DirectoryOrCreate
       - name: pods-mount-dir
         hostPath:
