@@ -99,7 +99,7 @@ data:
       @type record_transformer
       enable_ruby
       <record>
-        logType \"${\\
+        logType "${\\
           if record['logMessage'].include? 'enqueueFrameworkObj: Framework Pod Deleted'
             'deleted_pod_snapshot'
           elsif record['message'].include? 'syncFrameworkState: Framework will be retried'
@@ -108,7 +108,7 @@ data:
             'task_retried_framework_snapshot'
           else
             'unknown'
-          end}\"
+          end}"
       </record>
     </filter>
 
