@@ -6,6 +6,7 @@ import { clearToken } from '../../user/user-logout/user-logout.component.js';
 import config from '../../config/webportal.config';
 import yaml from 'js-yaml';
 import { get } from 'lodash';
+import urljoin from 'url-join';
 
 const token = cookies.get('token');
 
@@ -52,16 +53,22 @@ export async function listUserVirtualClusters(user) {
   return get(userInfo, 'virtualCluster', []);
 }
 
-export async function listHivedSkuTypes() {
+export async function listHivedSkuTypes(virtualCluster) {
   if (config.launcherScheduler !== 'hivedscheduler') {
     return {};
   }
   return wrapper(async () =>
-    (await fetch(`${config.restServerUri}/api/v2/cluster/sku-types`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
+    (await fetch(
+      urljoin(
+        config.restServerUri,
+        `/api/v2/cluster/sku-types?vc=${virtualCluster}`,
+      ),
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       },
-    })).json(),
+    )).json(),
   );
 }
 

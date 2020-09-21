@@ -349,12 +349,12 @@ export const JobSubmissionPage = ({
   }, []);
 
   useEffect(() => {
-    listHivedSkuTypes()
+    listHivedSkuTypes(jobInformation.virtualCluster)
       .then(hivedSkuTypes => {
         setHivedSkuTypes(hivedSkuTypes);
       })
       .catch(alert);
-  }, []);
+  }, [jobInformation.virtualCluster]);
 
   const onToggleAdvanceFlag = useCallback(() => {
     setAdvanceFlag(!advanceFlag);
