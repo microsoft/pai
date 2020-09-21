@@ -1,0 +1,71 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: ca-resource-account
+  namespace: default
+---
+kind: ClusterRole
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: ca-resource-role
+rules:
+  - apiGroups: [""]
+    resources: ["nodes"]
+    verbs: ["patch"]
+  - apiGroups: [""]
+    resources: ["nodes/status"]
+    verbs: ["patch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: ca-resource-role-binding
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: ca-resource-role
+subjects:
+- kind: ServiceAccount
+  name: ca-resource-account
+  namespace: default
+
+---
+
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: ca-resource-ds
+spec:
+  selector:
+    matchLabels:
+      app: ca-resource
+  template:
+    metadata:
+      name: ca-resource
+      labels:
+        app: ca-resource
+    spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: pai-worker
+                    operator: In
+                    values:
+                      - "true"
+      hostNetwork: false
+      hostPID: false
+      containers:
+      - name: ca-resource
+        image: openpai/ca-resource
+        imagePullPolicy: Always
+        env:
+        - name: MY_NODE_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: spec.nodeName
+      serviceAccountName: ca-resource-account

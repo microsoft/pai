@@ -1,0 +1,45 @@
+protocolVersion: 2
+name: Resnet18_horovod
+type: job
+jobRetryCount: 0
+prerequisites:
+  - type: dockerimage
+    uri: 'openpai/standard:python_3.6-pytorch_1.2.0-gpu'
+    name: docker_image_0
+taskRoles:
+  taskrole:
+    instances: 1
+    completion:
+      minFailedInstances: 1
+      minSucceededInstances: -1
+    taskRetryCount: 0
+    dockerImage: docker_image_0
+    resourcePerInstance:
+      gpu: 4
+      cpu: 12
+      memoryMB: 24576
+    commands:
+      - branch_name=pai-for-edu
+      - >-
+        wget
+        https://raw.githubusercontent.com/microsoft/pai/${branch_name}/contrib/edu-examples/pytorch_cifar10/src/cifar.py
+      - >-
+        wget
+        https://raw.githubusercontent.com/microsoft/pai/${branch_name}/contrib/edu-examples/pytorch_cifar10/src/horovod_cifar.py
+      - >-
+        wget
+        https://raw.githubusercontent.com/microsoft/pai/${branch_name}/contrib/edu-examples/pytorch_cifar10/src/init.sh
+      - bash init.sh
+      - >-
+        HOROVOD_GPU_ALLREDUCE=NCCL HOROVOD_GPU_BROADCAST=NCCL pip install
+        horovod
+      - >-
+        horovodrun -np 4 python horovod_cifar.py --epoch 200 --batchsize 512
+        --arch ResNet18
+defaults:
+  virtualCluster: default
+extras:
+  com.microsoft.pai.runtimeplugin:
+    - plugin: ssh
+      parameters:
+        jobssh: true

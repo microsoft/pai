@@ -51,15 +51,13 @@ python train_image_classifier.py --dataset_name=cifar10 --dataset_dir=/tmp/data 
 
 Note: Please **Do Not** use `#` for comments or use `\` for line continuation in the command box. These symbols may break the syntax and will be supported in the future.
 
-<img src="./imgs/input-command.gif" width="90%" height="90%" />
+<img src="./imgs/input-command.png" width="90%" height="90%" />
 
-**Step 4.** Specify the resources you need. By default only GPU number could be set. Toggle the `custom` button if you need to customize CPU number and memory. Here we use a customized setting: 1 GPU, 1 CPU, and 6500 MB memory.
-
-<img src="./imgs/input-resource.gif" width="90%" height="90%" />
+**Step 4.** Specify the resources you need. OpenPAI uses **resource SKU** to quantify the resource in one instance. For example, here 1 `DT` SKU means 1 GPU, 5 CPUs, and 53914 MB memory. If you specify one `DT` SKU, you will get a container with 1 GPU, 5 CPUs, and 53914 MB memory. If you specify two `DT` SKUs, you will get a container with 2 GPUs, 10 CPUs, and 107828 MB memory.
 
 **Step 5.** Specify the docker image. You can either use the listed docker images or take advantage of your own one. Here we select `TensorFlow 1.15.0 + Python 3.6 with GPU, CUDA 10.0`, which is a pre-built image. We will introduce more about docker images in [Docker Images and Job Examples](./docker-images-and-job-examples.md).
 
-<img src="./imgs/input-docker.gif" width="90%" height="90%" />
+<img src="./imgs/input-docker.png" width="90%" height="90%" />
 
 **Step 6.** Click **Submit** to submit the job.
 

@@ -34,6 +34,7 @@ import {
   UnauthorizedError,
   getLowGpuJobInfos,
   listAllJobs,
+  getJobStatusNumber,
 } from './home/conn';
 import { listAbnormalJobs } from '../components/util/job';
 import RecentJobList from './home/recent-job-list';
@@ -47,7 +48,8 @@ import t from '../components/tachyons.scss';
 
 const Home = () => {
   const [loading, setLoading] = useState(true);
-  const [jobs, setJobs] = useState(null);
+  const [jobStatusNumber, setJobStatusNumber] = useState(null);
+  const [runningJobs, setRunningJobs] = useState(null);
   const [userJobs, setUserJobs] = useState(null);
   const [userInfo, setUserInfo] = useState(null);
   const [virtualClusters, setVirtualClusters] = useState(null);
@@ -63,8 +65,9 @@ const Home = () => {
           .catch(alert);
       }
       Promise.all([
-        isAdmin ? listAllJobs().then(setJobs) : listJobs().then(setJobs),
-        listJobs().then(setUserJobs),
+        getJobStatusNumber(isAdmin).then(setJobStatusNumber),
+        listJobs({ limit: 100 }).then(setUserJobs),
+        listAllJobs({ state: 'RUNNING' }).then(setRunningJobs),
         getUserInfo().then(setUserInfo),
         listVirtualClusters().then(setVirtualClusters),
         getAvailableGpuPerNode().then(setGpuPerNode),
@@ -93,7 +96,10 @@ const Home = () => {
         {/* small */}
         <MediaQuery maxWidth={BREAKPOINT1}>
           <Stack padding='l2' gap='l1' styles={{ minHeight: '100%' }}>
-            <JobStatus style={{ height: 320 }} jobs={jobs} />
+            <JobStatus
+              style={{ height: 320 }}
+              jobStatusNumber={jobStatusNumber}
+            />
             <React.Fragment>
               <VirtualClusterStatistics
                 style={{ height: 320 }}
@@ -126,7 +132,7 @@ const Home = () => {
                     }}
                   >
                     <AbnormalJobList
-                      jobs={listAbnormalJobs(jobs, lowGpuJobInfo)}
+                      jobs={listAbnormalJobs(runningJobs, lowGpuJobInfo)}
                     />
                   </PivotItem>
                   <PivotItem headerText='My recent jobs'>
@@ -150,7 +156,10 @@ const Home = () => {
             <StackItem disableShrink>
               <Stack gap='l1' horizontal>
                 <React.Fragment>
-                  <JobStatus style={{ width: '33%' }} jobs={jobs} />
+                  <JobStatus
+                    style={{ width: '33%' }}
+                    jobStatusNumber={jobStatusNumber}
+                  />
                   <VirtualClusterStatistics
                     style={{ width: '33%' }}
                     userInfo={userInfo}
@@ -185,7 +194,7 @@ const Home = () => {
                     }}
                   >
                     <AbnormalJobList
-                      jobs={listAbnormalJobs(jobs, lowGpuJobInfo)}
+                      jobs={listAbnormalJobs(runningJobs, lowGpuJobInfo)}
                     />
                   </PivotItem>
                   <PivotItem headerText='My recent jobs'>

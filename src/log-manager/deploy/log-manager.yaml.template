@@ -31,21 +31,26 @@ spec:
       annotations:
         port: "{{ cluster_cfg["log-manager"]["port"] }}"
     spec:
+      priorityClassName: pai-daemon-priority
       hostNetwork: false
       containers:
       - name: log-manager-logrotate
         image: {{ cluster_cfg["cluster"]["docker-registry"]["prefix"] }}log-manager-logrotate:{{ cluster_cfg["cluster"]["docker-registry"]["tag"] }}
         imagePullPolicy: Always
         env:
-        - name: LOGROTATE_INTERVAL
-          value: "hourly"
+        - name: LOGROTATE_CRONSCHEDULE
+          value: "*/10 * * * *"
         volumeMounts:
         - name: pai-log
           mountPath: /usr/local/pai/logs
         {%- if cluster_cfg['cluster']['common']['qos-switch'] == "true" %}
         resources:
           limits:
+            cpu: 0.5
             memory: "512Mi"
+          requests:
+            cpu: 0
+            memory: "128Mi"
         {%- endif %}
       - name: log-manager-nginx
         image: {{ cluster_cfg["cluster"]["docker-registry"]["prefix"] }}log-manager-nginx:{{ cluster_cfg["cluster"]["docker-registry"]["tag"] }}
@@ -66,7 +71,11 @@ spec:
         {%- if cluster_cfg['cluster']['common']['qos-switch'] == "true" %}
         resources:
           limits:
+            cpu: 0.5
             memory: "512Mi"
+          requests:
+            cpu: 0
+            memory: "128Mi"
         {%- endif %}
       volumes:
         - name: pai-log

@@ -87,7 +87,7 @@ matrix:
         - mvn clean test jacoco:report
 
     - language: node_js
-      node_js: lts/carbon
+      node_js: lts/dubnium
       env: NODE_ENV=test
       before_install:
         - cd src/rest-server
@@ -96,16 +96,6 @@ matrix:
       script:
         - npm test
         - npm run coveralls
-
-    - language: node_js
-      node_js: lts/dubnium
-      env: NODE_ENV=test
-      before_install:
-        - cd src/rest-server
-      install:
-        - yarn install --ignore-engines
-      script:
-        - npm test
 
     - language: node_js
       node_js: lts/carbon

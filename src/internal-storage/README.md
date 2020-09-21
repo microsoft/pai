@@ -4,10 +4,9 @@ Internal Storage is designed to create a limited size storage in PAI. The storag
 
 ```yaml
 internal-storage:
-    enable: false
     type: hostPath
     root-path: /mnt/paiInternal
-    quota-gb: 10
+    quota-gb: 30
 ```
 
 User can override these settings in `services-configuration.yaml`.

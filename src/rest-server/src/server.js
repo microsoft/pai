@@ -15,7 +15,6 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-
 /**
  * Implementation of RESTful API server.
  * Init and start server instance.
@@ -25,7 +24,7 @@
 require('module-alias/register');
 const config = require('@pai/config');
 const logger = require('@pai/config/logger');
-const {initPromise} = require('@pai/config/kubernetes');
+const { initPromise } = require('@pai/config/kubernetes');
 
 module.exports = initPromise.then(() => {
   const app = require('@pai/config/express');

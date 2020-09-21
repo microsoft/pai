@@ -56,7 +56,7 @@ schema:
       - USER_SUBMISSION
       - USER_CONTAINER
       - USER_STOP
-      - USER_DELETION
+      - USER_SCALEDOWN
       - USER_RETRY
       - USER_UPGRADE
       - USER_UNKNOWN
@@ -212,14 +212,14 @@ spec:
   - "Contact Cluster Admin"
 
 - code: -110
-  phrase: ConfigMapCreationTimeout
+  phrase: ConfigMapLocalCacheCreationTimeout
   issuer: PAI_FC
   causer: PAI_UNKNOWN
   type: PLATFORM_FAILURE
   stage: LAUNCHING
   behavior: TRANSIENT
   reaction: ALWAYS_RETRY
-  reason: "The ConfigMap of this job attempt creation timeout, maybe K8S ApiServer is down"
+  reason: "The ConfigMap of this job attempt does not appear in local cache within timeout, maybe K8S ApiServer is down"
   repro:
   - "Just after FC created a ConfigMap, bring down the K8S ApiServer"
   solution:
@@ -227,29 +227,44 @@ spec:
   - "Contact Cluster Admin"
 
 - code: -111
-  phrase: PodCreationTimeout
+  phrase: PodLocalCacheCreationTimeout
   issuer: PAI_FC
   causer: PAI_UNKNOWN
   type: PLATFORM_FAILURE
   stage: LAUNCHING
   behavior: TRANSIENT
   reaction: ALWAYS_RETRY
-  reason: "Pod creation timeout, maybe K8S ApiServer is down"
+  reason: "Pod does not appear in local cache within timeout, maybe K8S ApiServer is down"
   repro:
   - "Just after FC created a Pod, bring down the K8S ApiServer"
   solution:
   - "Wait result from next retry"
   - "Contact Cluster Admin"
 
+- code: -120
+  phrase: PodCreationTransientError
+  issuer: PAI_FC
+  causer: PAI_UNKNOWN
+  type: PLATFORM_FAILURE
+  stage: LAUNCHING
+  behavior: TRANSIENT
+  reaction: ALWAYS_RETRY
+  reason: "Failed to create Pod due to transient error"
+  repro:
+  - "Just before FC create a Pod, bring down the K8S ApiServer"
+  solution:
+  - "Wait result from next retry"
+  - "Contact Cluster Admin"
+
 - code: -200
-  phrase: PodSpecPermanentError
+  phrase: PodCreationPermanentError
   issuer: PAI_FC
   causer: USER_SUBMISSION
   type: USER_FAILURE
   stage: SUBMITTING
   behavior: PERMANENT
   reaction: NEVER_RETRY
-  reason: "Pod spec contains permanent error"
+  reason: "Failed to create Pod due to permanent error, maybe the Pod spec is invalid"
   repro:
   - "Specify a Pod in Framework with duplicated container names"
   solution:
@@ -275,9 +290,21 @@ spec:
   stage: UNKNOWN
   behavior: PERMANENT
   reaction: NEVER_RETRY
-  reason: "Stop to complete current FrameworkAttempt"
+  reason: "Stop to complete current job attempt"
   repro:
   - "Stop a job with long running container"
+
+- code: -230
+  phrase: DeleteTaskRequested
+  issuer: PAI_FC
+  causer: USER_SCALEDOWN
+  type: USER_STOP
+  stage: UNKNOWN
+  behavior: PERMANENT
+  reaction: NEVER_RETRY
+  reason: "User has requested to delete the Task by Job ScaleDown"
+  repro:
+  - "ScaleDown a job with long running container"
 
 - code: -300
   phrase: PodFailedWithoutFailedContainer
@@ -290,6 +317,22 @@ spec:
   reason: "Pod failed but without any failed container, may be stopped by K8S"
   repro:
   - "Submit a job which will be rejected by kubelet"
+  solution:
+  - "Check diagnostics and find root cause"
+  - "Wait result from next retry"
+  - "Contact Cluster Admin"
+
+- code: -310
+  phrase: PodCreationUnknownError
+  issuer: PAI_FC
+  causer: UNKNOWN
+  type: UNKNOWN_FAILURE
+  stage: LAUNCHING
+  behavior: UNKNOWN
+  reaction: RETRY_TO_MAX
+  reason: "Failed to create Pod due to unknown error"
+  repro:
+  - "Submit a job and then immediately delete its priority class object"
   solution:
   - "Check diagnostics and find root cause"
   - "Wait result from next retry"
@@ -555,7 +598,7 @@ spec:
       - reasonRegex: '(?i)^ContainerCannotRun$'
         exitCode: 128
         nameRegex: '(?ms).*'
-        messageRegex: '(?msi).*(not found|cannot find|no such).*'
+        messageRegex: '(?mi).*(not found|cannot find|no such).*'
 
 - code: -1204
   phrase: ContainerDockerStartUnknownError
@@ -600,8 +643,32 @@ spec:
       - reasonRegex: '(?i)^ContainerCannotRun$'
         exitCode: 128
         nameRegex: '(?ms).*'
-        messageRegex: '(?msi).*(nvidia-container-cli: device error: unknown device id).*'
+        messageRegex: '(?mi).*(nvidia-container-cli: device error: unknown device id).*'
 
+###########################################################################
+# Range: [1, 128]
+# Owner: PAI_RUNTIME
+# Description: User Container issued failures:
+# -> Involuntary failures caused by hardware
+###########################################################################
+- code: 128
+  phrase: ContainerMayFailDueToGpuDeviceEccError
+  issuer: USER_CONTAINER
+  causer: PAI_HW
+  type: PLATFORM_FAILURE
+  stage: RUNNING
+  behavior: UNKNOWN
+  reaction: RETRY_TO_MAX
+  reason: "Container failed may due to GPU ecc error"
+  repro:
+  - "Run program in GPU with ECC error"
+  solution:
+  - "Wait result from next retry"
+  - "Contact Cluster Admin"
+  pattern:
+    runtimeContainerPatterns:
+    - gpuInfo:
+        nvidiaDoubleEccError: true
 
 ###########################################################################
 # Range: [129, 192]
@@ -735,16 +802,17 @@ spec:
 - code: 139
   phrase: ContainerSigSegvReceived
   issuer: USER_CONTAINER
-  causer: USER_CONTAINER
-  type: USER_FAILURE
+  causer: UNKNOWN
+  type: UNKNOWN_FAILURE
   stage: RUNNING
-  behavior: PERMANENT
-  reaction: NEVER_RETRY
+  behavior: UNKNOWN
+  reaction: RETRY_TO_MAX
   reason: "Container killed by OS Signal: SIGSEGV"
   repro:
   - "User program accesses an illegal memory address"
   solution:
   - "Check container log and fix your program bug"
+  - "Contact Cluster Admin"
   pattern:
     runtimeContainerPatterns:
     - exitCode: 139
@@ -834,7 +902,7 @@ spec:
   - "Tuning the tensorflow program"
   pattern:
     runtimeContainerPatterns:
-    - userLogRegex: "(?msi)tensorflow.*ResourceExhaustedError.*OOM.*"
+    - userLogRegex: "(?mi)tensorflow.*ResourceExhaustedError.*OOM.*"
     - userLogRegex: "(?i)ran out of memory trying to allocate"
 
 - code: 222
@@ -852,7 +920,7 @@ spec:
   - "Check container log and fix your program bug"
   pattern:
     runtimeContainerPatterns:
-    - userLogRegex: "(?msi)Signal code: Address not mapped.*"
+    - userLogRegex: "(?mi)Signal code: Address not mapped.*"
 
 - code: 223
   phrase: ContainerCudaUncorrectableECCError
@@ -870,7 +938,7 @@ spec:
   - "Contact Cluster Admin"
   pattern:
     runtimeContainerPatterns:
-    - userLogRegex: "(?msi)CUDA_ERROR_ECC_UNCORRECTABLE.*"
+    - userLogRegex: "(?mi)CUDA_ERROR_ECC_UNCORRECTABLE.*"
 
 - code: 224
   phrase: ContainerCudaVersionMismatch
@@ -925,25 +993,6 @@ spec:
     runtimeContainerPatterns:
     - userLogRegex: "(?i)cuda runtime error (2) : out of memory"
 
-- code: 227
-  phrase: ContainerMayFailDueToGpuDeviceEccError
-  issuer: PAI_RUNTIME
-  causer: PAI_HW
-  type: PLATFORM_FAILURE
-  stage: RUNNING
-  behavior: TRANSIENT
-  reaction: RETRY_TO_MAX
-  reason: "Container failed may due to GPU ecc error"
-  repro:
-  - "Run program in GPU with ECC error"
-  solution:
-  - "Wait result from next retry"
-  - "Contact Cluster Admin"
-  pattern:
-    runtimeContainerPatterns:
-    - gpuInfo:
-        nvidiaDoubleEccError: true
-
 - code: 228
   phrase: ContainerIncorrectParameterError
   issuer: PAI_RUNTIME
@@ -961,7 +1010,7 @@ spec:
     runtimeContainerPatterns:
     - userLogRegex: "(?i)unknown option"
     - userLogRegex: "(?i)typeerror: dynamic_rnn() got multiple values for keyword argument"
-    - userLogRegex: "(?msi)bad argument #2 to .*"
+    - userLogRegex: "(?mi)bad argument #2 to .*"
     - userLogRegex: "(?i)invalid argument:"
     - userLogRegex: "(?i)option -start_symbol has no default value"
 
@@ -989,11 +1038,11 @@ spec:
     - userLogRegex: "(?i)exception: unknown text header name"
     - userLogRegex: "(?i)exception: unknown label header name"
     - userLogRegex: "(?i)eoferror: ran out of input"
-    - userLogRegex: "(?msi)utils.lua:.*input/output error"
-    - userLogRegex: "(?msi)tensorflow.python.framework.errors.unknownerror:.*input/output error"
-    - userLogRegex: "(?msi)oserror:.*input/output error"
-    - userLogRegex: "(?msi)cp: failed to close.*input/output error"
-    - userLogRegex: "(?msi)exception occurred:.* Input/output error"
+    - userLogRegex: "(?mi)utils.lua:.*input/output error"
+    - userLogRegex: "(?mi)tensorflow.python.framework.errors.unknownerror:.*input/output error"
+    - userLogRegex: "(?mi)oserror:.*input/output error"
+    - userLogRegex: "(?mi)cp: failed to close.*input/output error"
+    - userLogRegex: "(?mi)exception occurred:.* Input/output error"
 
 - code: 230
   phrase: ContainerInvalidSavePath
@@ -1030,9 +1079,9 @@ spec:
     - userLogRegex: "(?i)syntaxerror: invalid syntax"
     - userLogRegex: "(?i)unpicklingerror"
     - userLogRegex: "(?i)assign requires shapes of both tensors to match"
-    - userLogRegex: "(?msi)torch/install/share/lua.*c.* exception"
-    - userLogRegex: "(?msi)attributeerror:.*has no attribute"
-    - userLogRegex: "(?msi)nameerror: name.* is not defined"
+    - userLogRegex: "(?mi)torch/install/share/lua.*c.* exception"
+    - userLogRegex: "(?mi)attributeerror:.*has no attribute"
+    - userLogRegex: "(?mi)nameerror: name.* is not defined"
 
 - code: 232
   phrase: ContainerImportError
@@ -1049,7 +1098,7 @@ spec:
   - "Check the source code and correct it"
   pattern:
     runtimeContainerPatterns:
-    - userLogRegex: "(?msi)importerror:.*"
+    - userLogRegex: "(?mi)importerror:.*"
 
 - code: 233
   phrase: ContainerIndexOutOfRange
@@ -1066,7 +1115,7 @@ spec:
   - "Check the source code and correct it"
   pattern:
     runtimeContainerPatterns:
-    - userLogRegex: "(?msi)indexerror:.*index out of range"
+    - userLogRegex: "(?mi)indexerror:.*index out of range"
 
 
 - code: 234

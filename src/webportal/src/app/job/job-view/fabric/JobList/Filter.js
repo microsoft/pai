@@ -1,4 +1,5 @@
-import { getStatusText } from './utils';
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
 
 const LOCAL_STORAGE_KEY = 'pai-job-filter';
 
@@ -27,6 +28,7 @@ class Filter {
       users: Array.from(this.users),
       virtualClusters: Array.from(this.virtualClusters),
       statuses: Array.from(this.statuses),
+      keyword: this.keyword,
     });
     window.localStorage.setItem(LOCAL_STORAGE_KEY, content);
   }
@@ -34,7 +36,7 @@ class Filter {
   load() {
     try {
       const content = window.localStorage.getItem(LOCAL_STORAGE_KEY);
-      const { users, virtualClusters, statuses } = JSON.parse(content);
+      const { users, virtualClusters, statuses, keyword } = JSON.parse(content);
       if (Array.isArray(users)) {
         this.users = new Set(users);
       }
@@ -44,38 +46,32 @@ class Filter {
       if (Array.isArray(statuses)) {
         this.statuses = new Set(statuses);
       }
+      this.keyword = keyword || '';
     } catch (e) {
       window.localStorage.removeItem(LOCAL_STORAGE_KEY);
     }
   }
 
-  /**
-   * @param {any[]} jobs
-   */
-  apply(jobs) {
+  apply() {
     const { keyword, users, virtualClusters, statuses } = this;
 
-    const filters = [];
-    if (keyword !== '') {
-      filters.push(
-        ({ name, username, virtualCluster }) =>
-          name.indexOf(keyword) > -1 ||
-          username.indexOf(keyword) > -1 ||
-          virtualCluster.indexOf(keyword) > -1,
-      );
+    const query = {};
+    if (keyword && keyword !== '') {
+      query.keyword = keyword;
     }
-    if (users.size > 0) {
-      filters.push(({ username }) => users.has(username));
+    if (users && users.size > 0) {
+      query.username = Array.from(users).join(',');
     }
-    if (virtualClusters.size > 0) {
-      filters.push(({ virtualCluster }) => virtualClusters.has(virtualCluster));
+    if (virtualClusters && virtualClusters.size > 0) {
+      query.vc = Array.from(virtualClusters).join(',');
     }
-    if (statuses.size > 0) {
-      filters.push(job => statuses.has(getStatusText(job)));
+    if (statuses && statuses.size > 0) {
+      query.state = Array.from(statuses)
+        .join(',')
+        .toUpperCase();
     }
-    if (filters.length === 0) return jobs;
 
-    return jobs.filter(job => filters.every(filter => filter(job)));
+    return query;
   }
 }
 

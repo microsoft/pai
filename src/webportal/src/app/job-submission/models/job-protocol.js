@@ -30,6 +30,7 @@ import yaml from 'js-yaml';
 import Joi from 'joi-browser';
 import { removeEmptyProperties } from '../utils/utils';
 import { TaskRolesManager } from '../utils/task-roles-manager';
+import config from '../../config/webportal.config';
 
 export class JobProtocol {
   constructor(props) {
@@ -131,7 +132,22 @@ export class JobProtocol {
         return { ...oriPre, ...curPre };
       });
 
-    const taskRoles = this._updateAndConvertTaskRoles(jobTaskRoles);
+    const { taskRoles, hivedTaskRoles } = this._updateAndConvertTaskRoles(
+      jobTaskRoles,
+    );
+    if (config.launcherScheduler === 'hivedscheduler') {
+      const newTaskRoles = get(protocolExtras, 'hivedScheduler.taskRoles', {});
+      for (const name in hivedTaskRoles) {
+        newTaskRoles[name] = {
+          ...newTaskRoles[name],
+          ...hivedTaskRoles[name],
+        };
+      }
+      protocolExtras.hivedScheduler = {
+        ...protocolExtras.hivedScheduler,
+        taskRoles: newTaskRoles,
+      };
+    }
     const secrets = removeEmptyProperties(
       jobSecrets.reduce((res, secret) => {
         res[secret.key] = secret.value;
@@ -157,13 +173,22 @@ export class JobProtocol {
   }
 
   _updateAndConvertTaskRoles(jobTaskRoles) {
-    return jobTaskRoles.reduce(
-      (res, taskRole) => ({
-        ...res,
-        ...taskRole.convertToProtocolFormat(),
-      }),
-      {},
-    );
+    return {
+      taskRoles: jobTaskRoles.reduce(
+        (res, taskRole) => ({
+          ...res,
+          ...taskRole.convertToProtocolFormat().taskRole,
+        }),
+        {},
+      ),
+      hivedTaskRoles: jobTaskRoles.reduce(
+        (res, taskRole) => ({
+          ...res,
+          ...taskRole.convertToProtocolFormat().hivedTaskRole,
+        }),
+        {},
+      ),
+    };
   }
 
   _generateDeployments(jobTaskRoles) {

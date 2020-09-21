@@ -19,26 +19,21 @@
 const Joi = require('joi');
 const rateLimit = require('express-rate-limit');
 
-
 let limiterConfig = {
   apiPerMin: process.env.RATE_LIMIT_API_PER_MIN,
   listJobPerMin: process.env.RATE_LIMIT_LIST_JOB_PER_MIN,
   submitJobPerHour: process.env.RATE_LIMIT_SUBMIT_JOB_PER_HOUR,
 };
 
-const limiterConfigSchema = Joi.object().keys({
-  apiPerMin: Joi.number()
-    .integer()
-    .default(600),
-  listJobPerMin: Joi.number()
-    .integer()
-    .default(60),
-  submitJobPerHour: Joi.number()
-    .integer()
-    .default(60),
-}).required();
+const limiterConfigSchema = Joi.object()
+  .keys({
+    apiPerMin: Joi.number().integer().default(600),
+    listJobPerMin: Joi.number().integer().default(60),
+    submitJobPerHour: Joi.number().integer().default(60),
+  })
+  .required();
 
-const {error, value} = Joi.validate(limiterConfig, limiterConfigSchema);
+const { error, value } = Joi.validate(limiterConfig, limiterConfigSchema);
 if (error) {
   throw new Error(`rate limit config error\n${error}`);
 }

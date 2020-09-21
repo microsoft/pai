@@ -5,7 +5,7 @@ cluster:
     k8s-rbac: "true"
     job-history: "true"
     data-path: "/datastorage"
-    qos-switch: "false"
+    qos-switch: "{{ env["cfg"]["qos-switch"] }} | default('false') "
     docker-data-root: "{{ env['cfg']['docker_data_root'] | default('/mnt/docker') }}"
 
   # the docker registry to store docker images that contain system services like frameworklauncher, hadoop, etc.
@@ -47,12 +47,6 @@ rest-server:
 
 webportal:
   server-port: 9286
-
-internal-storage:
-  enable: true
-
-postgresql:
-  enable: true
 
 #If you want to customize the scheduling config, such add more virtual clusters or more gpu types, check:
 #https://github.com/microsoft/pai/blob/master/docs/hivedscheduler/devops.md

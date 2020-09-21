@@ -94,6 +94,24 @@ data:
       </record>
     </filter>
 
+    # add objectSnapshotTrigger
+    <filter fc-objectsnapshots>
+      @type record_transformer
+      enable_ruby
+      <record>
+        objectSnapshotTrigger "${\
+          if record['logMessage'].include? 'Framework Pod Deleted'
+            'pod_deleted'
+          elsif record['logMessage'].include? 'Framework will be retried'
+            'framework_retried'
+          elsif record['logMessage'].include? 'Task will be retried'
+            'task_retried'
+          else
+            'unknown'
+          end}"
+      </record>
+    </filter>
+
     # Remove useless keys
     <filter fc-objectsnapshots>
       @type record_transformer

@@ -32,7 +32,7 @@ const requestAuthCode = async (req, res, next) => {
   if (authnConfig.groupConfig.groupDataSource === 'ms-graph') {
     scope = `${scope} https://${authnConfig.OIDCConfig.msgraph_host}/directory.read.all`;
   }
-  let state = {};
+  const state = {};
   state.redirect = process.env.WEBPORTAL_URL + '/index.html';
   if (req.query.redirect_uri) {
     state.redirect = req.query.redirect_uri;
@@ -41,14 +41,17 @@ const requestAuthCode = async (req, res, next) => {
     state.from = req.query.from;
   }
   const requestURL = authnConfig.OIDCConfig.authorization_endpoint;
-  return res.redirect(`${requestURL}?`+ querystring.stringify({
-    client_id: clientId,
-    response_type: responseType,
-    redirect_uri: redirectUri,
-    response_mode: responseMode,
-    scope: scope,
-    state: JSON.stringify(state),
-  }));
+  return res.redirect(
+    `${requestURL}?` +
+      querystring.stringify({
+        client_id: clientId,
+        response_type: responseType,
+        redirect_uri: redirectUri,
+        response_mode: responseMode,
+        scope: scope,
+        state: JSON.stringify(state),
+      }),
+  );
 };
 
 const requestTokenWithCode = async (req, res, next) => {
@@ -89,7 +92,11 @@ const requestTokenWithCode = async (req, res, next) => {
 
 const parseTokenData = async (req, res, next) => {
   try {
-    const email = req.accessToken.upn ? req.accessToken.upn : (req.accessToken.email ? req.accessToken.email: req.accessToken.unique_name);
+    const email = req.accessToken.upn
+      ? req.accessToken.upn
+      : req.accessToken.email
+      ? req.accessToken.email
+      : req.accessToken.unique_name;
     const userBasicInfo = {
       email: email,
       username: email.substring(0, email.lastIndexOf('@')),

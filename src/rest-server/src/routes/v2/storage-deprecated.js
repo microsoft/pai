@@ -22,16 +22,12 @@ const controller = require('@pai/controllers/v2/storage-deprecated');
 
 const router = new express.Router();
 
-router.route('/config')
-  .get(token.check, controller.getConfig);
+router.route('/config').get(token.check, controller.getConfig);
 
-router.route('/config/:name')
-  .get(token.check, controller.getConfig);
+router.route('/config/:name').get(token.check, controller.getConfig);
 
-router.route('/server')
-  .get(token.check, controller.getServer);
+router.route('/server').get(token.check, controller.getServer);
 
-router.route('/server/:name')
-  .get(token.check, controller.getServer);
+router.route('/server/:name').get(token.check, controller.getServer);
 
 module.exports = router;

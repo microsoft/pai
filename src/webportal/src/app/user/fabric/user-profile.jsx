@@ -20,6 +20,7 @@ import {
   updateUserPasswordRequest,
   updateUserEmailRequest,
   listStorageDetailRequest,
+  getGroupsRequest,
 } from './conn';
 
 import t from '../../components/tachyons.scss';
@@ -58,6 +59,7 @@ const UserProfile = () => {
   const [virtualClusters, setVirtualClusters] = useState(null);
   const [tokens, setTokens] = useState(null);
   const [storageDetails, setStorageDetails] = useState(null);
+  const [groups, setGroups] = useState(null);
 
   const [processing, setProcessing] = useState(false);
 
@@ -67,11 +69,13 @@ const UserProfile = () => {
       const vcPromise = getAllVcsRequest();
       const tokenPromise = getTokenRequest();
       const storageDetailPromise = listStorageDetailRequest();
+      const groupsPromise = getGroupsRequest();
       await Promise.all([
         userPromise,
         vcPromise,
         tokenPromise,
         storageDetailPromise,
+        groupsPromise,
       ]).catch(err => {
         alert(err);
         throw err;
@@ -96,6 +100,9 @@ const UserProfile = () => {
       const storageDetails = await storageDetailPromise;
       setStorageDetails(storageDetails);
       setLoading(false);
+      // group
+      const groups = await groupsPromise;
+      setGroups(groups);
     };
     fetchData();
   }, []);
@@ -161,7 +168,10 @@ const UserProfile = () => {
             <StorageList storageDetails={storageDetails} />
           </UserProfileCard>
           <UserProfileCard title='Virtual Clusters'>
-            <VirtualClusterDetailsList virtualClusters={virtualClusters} />
+            <VirtualClusterDetailsList
+              virtualClusters={virtualClusters}
+              groups={groups}
+            />
           </UserProfileCard>
         </div>
       </div>

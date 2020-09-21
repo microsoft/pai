@@ -17,14 +17,11 @@
 
 // module dependencies
 const crypto = require('crypto');
-const {isNil} = require('lodash');
 
-const {convertToJobAttempt} = require('@pai/utils/frameworkConverter');
+const { convertToJobAttempt } = require('@pai/utils/frameworkConverter');
 const launcherConfig = require('@pai/config/launcher');
-const createError = require('@pai/utils/error');
-const k8sModel = require('@pai/models/kubernetes/kubernetes');
 const logger = require('@pai/config/logger');
-const {sequelize} = require('@pai/utils/postgresUtil');
+const databaseModel = require('@pai/utils/dbUtils');
 
 const convertName = (name) => {
   // convert framework name to fit framework controller spec
@@ -41,10 +38,10 @@ const encodeName = (name) => {
   }
 };
 
-if (sequelize && launcherConfig.enabledJobHistory) {
+if (launcherConfig.enabledJobHistory) {
   const healthCheck = async () => {
     try {
-      await sequelize.authenticate();
+      await databaseModel.ping();
       return true;
     } catch (e) {
       logger.error(e.message);
@@ -53,120 +50,103 @@ if (sequelize && launcherConfig.enabledJobHistory) {
   };
 
   const list = async (frameworkName) => {
-    let attemptData = [];
-    let uid;
+    const attemptData = [];
+    const encodedFrameworkName = encodeName(frameworkName);
 
     // get latest framework from k8s API
-    let response;
+    let framework;
     try {
-      response = await k8sModel.getClient().get(
-        launcherConfig.frameworkPath(encodeName(frameworkName)),
-        {
-          headers: launcherConfig.requestHeaders,
-        }
-      );
+      framework = await databaseModel.Framework.findOne({
+        attributes: ['snapshot'],
+        where: { name: encodedFrameworkName },
+      });
     } catch (error) {
-      logger.error(`error when getting framework from k8s api: ${error.message}`);
-      if (error.response != null) {
-        response = error.response;
-      } else {
-        throw error;
-      }
+      logger.error(
+        `error when getting framework from database: ${error.message}`,
+      );
+      throw error;
     }
 
-    if (response.status === 200) {
-      // get UID from k8s framework API
-      uid = response.data.metadata.uid;
+    if (framework) {
       attemptData.push({
-        ...(await convertToJobAttempt(response.data)),
+        ...(await convertToJobAttempt(JSON.parse(framework.snapshot))),
         isLatest: true,
       });
-    } else if (response.status === 404) {
-      logger.warn(`could not get framework ${uid} from k8s: ${JSON.stringify(response)}`);
-      return {status: 404, data: null};
     } else {
-      throw createError(response.status, 'UnknownError', response.data.message);
+      logger.warn(
+        `could not get framework ${encodedFrameworkName} from database.`,
+      );
+      return { status: 404, data: null };
     }
 
-    if (isNil(uid)) {
-      return {status: 404, data: null};
-    }
-
-    const sqlSentence = `SELECT snapshot as data FROM framework_history WHERE ` +
-      `frameworkName = '${encodeName(frameworkName)}' ` +
-      `ORDER BY uid ASC;`;
-    const pgResult = (await sequelize.query(sqlSentence))[0];
+    const historyFrameworks = await databaseModel.FrameworkHistory.findAll({
+      attributes: ['snapshot'],
+      where: { frameworkName: encodedFrameworkName },
+      order: [['attemptIndex', 'ASC']],
+    });
 
     const jobRetries = await Promise.all(
-      pgResult.map((row) => {
-        return convertToJobAttempt(JSON.parse(row.data));
+      historyFrameworks.map((row) => {
+        return convertToJobAttempt(JSON.parse(row.snapshot));
       }),
     );
     attemptData.push(
       ...jobRetries.map((jobRetry) => {
-        return {...jobRetry, isLatest: false};
+        return { ...jobRetry, isLatest: false };
       }),
     );
-    return {status: 200, data: attemptData};
+    return { status: 200, data: attemptData };
   };
 
   const get = async (frameworkName, jobAttemptIndex) => {
-    let uid;
     let attemptFramework;
-    let response;
+    let framework;
+    const encodedFrameworkName = encodeName(frameworkName);
 
     try {
-      response = await k8sModel.getClient().get(
-        launcherConfig.frameworkPath(encodeName(frameworkName)),
-        {
-          headers: launcherConfig.requestHeaders,
-        }
-      );
+      framework = await databaseModel.Framework.findOne({
+        attributes: ['snapshot'],
+        where: { name: encodedFrameworkName },
+      });
     } catch (error) {
-      logger.error(`error when getting framework from k8s api: ${error.message}`);
-      if (error.response != null) {
-        response = error.response;
-      } else {
-        throw error;
-      }
+      logger.error(
+        `error when getting framework from database: ${error.message}`,
+      );
+      throw error;
     }
 
-    if (response.status === 200) {
-      // get uid from k8s framwork API
-      uid = response.data.metadata.uid;
-      attemptFramework = response.data;
-    } else if (response.status === 404) {
-      logger.warn(`could not get framework ${uid} from k8s: ${JSON.stringify(response)}`);
-      return {status: 404, data: null};
+    if (framework) {
+      attemptFramework = JSON.parse(framework.snapshot);
     } else {
-      throw createError(response.status, 'UnknownError', response.data.message);
+      logger.warn(
+        `could not get framework ${encodedFrameworkName} from database.`,
+      );
+      return { status: 404, data: null };
     }
 
     if (jobAttemptIndex < attemptFramework.spec.retryPolicy.maxRetryCount) {
-      if (isNil(uid)) {
-        return {status: 404, data: null};
-      }
-      const sqlSentence = `SELECT snapshot as data FROM framework_history WHERE ` +
-        `frameworkName = '${encodeName(frameworkName)}' and ` +
-        `attemptIndex = '${jobAttemptIndex}' ` +
-        `ORDER BY uid ASC;`;
-      const pgResult = (await sequelize.query(sqlSentence))[0];
+      const historyFramework = await databaseModel.FrameworkHistory.findOne({
+        attributes: ['snapshot'],
+        where: {
+          frameworkName: encodedFrameworkName,
+          attemptIndex: jobAttemptIndex,
+        },
+      });
 
-      if (pgResult.length === 0) {
-        return {status: 404, data: null};
+      if (!historyFramework) {
+        return { status: 404, data: null };
       } else {
-        attemptFramework = JSON.parse(pgResult[0].data);
+        attemptFramework = JSON.parse(historyFramework.snapshot);
         const attemptDetail = await convertToJobAttempt(attemptFramework);
-        return {status: 200, data: {...attemptDetail, isLatest: false}};
+        return { status: 200, data: { ...attemptDetail, isLatest: false } };
       }
     } else if (
       jobAttemptIndex === attemptFramework.spec.retryPolicy.maxRetryCount
     ) {
-      // get latest frameworks from k8s API
       const attemptDetail = await convertToJobAttempt(attemptFramework);
-      return {status: 200, data: {...attemptDetail, isLatest: true}};
+      return { status: 200, data: { ...attemptDetail, isLatest: true } };
     } else {
-      return {status: 404, data: null};
+      return { status: 404, data: null };
     }
   };
 
@@ -179,10 +159,10 @@ if (sequelize && launcherConfig.enabledJobHistory) {
   module.exports = {
     healthCheck: () => false,
     list: () => {
- throw Error('Unexpected Call');
-},
+      throw Error('Unexpected Call');
+    },
     get: () => {
- throw Error('Unexpected Call');
-},
+      throw Error('Unexpected Call');
+    },
   };
 }

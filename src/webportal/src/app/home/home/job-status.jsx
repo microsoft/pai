@@ -16,7 +16,6 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 import c from 'classnames';
-import { isEmpty } from 'lodash';
 import PropTypes from 'prop-types';
 import querystring from 'querystring';
 import {
@@ -32,7 +31,6 @@ import styled from 'styled-components';
 
 import StatusBadge from '../../components/status-badge';
 import Card from '../../components/card';
-import { getHumanizedJobStateString } from '../../components/util/job';
 
 import t from '../../components/tachyons.scss';
 
@@ -78,25 +76,16 @@ StatusRow.propTypes = {
   link: PropTypes.string.isRequired,
 };
 
-const JobStatus = ({ className, style, jobs }) => {
-  let waiting = 0;
-  let running = 0;
-  let stopped = 0;
-  let failed = 0;
-  let succeeded = 0;
-  if (!isEmpty(jobs)) {
-    waiting = jobs.filter(x => getHumanizedJobStateString(x) === 'Waiting')
-      .length;
-    running = jobs.filter(x =>
-      ['Running', 'Stopping'].includes(getHumanizedJobStateString(x)),
-    ).length;
-    stopped = jobs.filter(x => getHumanizedJobStateString(x) === 'Stopped')
-      .length;
-    failed = jobs.filter(x => getHumanizedJobStateString(x) === 'Failed')
-      .length;
-    succeeded = jobs.filter(x => getHumanizedJobStateString(x) === 'Succeeded')
-      .length;
+const JobStatus = ({ className, style, jobStatusNumber }) => {
+  if (jobStatusNumber === undefined) {
+    jobStatusNumber = {};
   }
+  const waiting = jobStatusNumber.waiting || 0;
+  const running = jobStatusNumber.running || 0;
+  const stopped = jobStatusNumber.stopped || 0;
+  const failed = jobStatusNumber.failed || 0;
+  const succeeded = jobStatusNumber.succeeded || 0;
+
   return (
     <Card className={c(className, t.ph5)} style={style}>
       <Stack gap='l1'>
@@ -164,7 +153,7 @@ const JobStatus = ({ className, style, jobs }) => {
 JobStatus.propTypes = {
   className: PropTypes.string,
   style: PropTypes.object,
-  jobs: PropTypes.array,
+  jobStatusNumber: PropTypes.object,
 };
 
 export default JobStatus;

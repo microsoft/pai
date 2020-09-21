@@ -15,7 +15,6 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-
 // module dependencies
 const crudUtil = require('@pai/utils/manager/user/crudUtil');
 const user = require('@pai/utils/manager/user/user');
@@ -47,8 +46,8 @@ const deleteUser = async (username) => {
 
 // it's an inplace encrypt!
 const getEncryptPassword = async (userValue) => {
-    await user.encryptUserPassword(userValue);
-    return userValue;
+  await user.encryptUserPassword(userValue);
+  return userValue;
 };
 
 const createUserIfNonExistent = async (username, userValue) => {
@@ -64,9 +63,11 @@ const createUserIfNonExistent = async (username, userValue) => {
 };
 
 const batchUpdateUsers = async (userItems) => {
-  return await Promise.all(userItems.map(async (userItem) => {
-    await updateUser(userItem.username, userItem);
-  }));
+  return await Promise.all(
+    userItems.map(async (userItem) => {
+      await updateUser(userItem.username, userItem);
+    }),
+  );
 };
 
 const getUserVCs = async (username) => {
@@ -84,7 +85,7 @@ const checkUserVC = async (username, vcname) => {
   return userVCs.includes(vcname);
 };
 
-const getUserStorages = async (username, filterDefault=false) => {
+const getUserStorages = async (username, filterDefault = false) => {
   const userItem = await getUser(username);
   return groupModel.getGroupsStorages(userItem.grouplist, filterDefault);
 };

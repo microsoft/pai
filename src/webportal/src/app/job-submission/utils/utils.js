@@ -115,6 +115,7 @@ export function getJobComponentsFromConfig(jobConfig, context) {
       deployments,
       prerequisites,
       secrets,
+      extras,
     ),
   );
   const updatedExtras = extras;

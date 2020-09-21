@@ -45,13 +45,18 @@ function getStorageServerUri(storageDetail) {
       );
     case 'hdfs':
       return `hdfs://${data.namenode}:${data.port}`;
+    case 'unknown':
+      return (
+        <>
+          <b>{'Unknown'}</b>
+        </>
+      );
     default:
       throw new Error('Invalid storage server type');
   }
 }
 
 const StorageList = ({ storageDetails }) => {
-  console.log(storageDetails);
   const [items, groups] = useMemo(() => {
     const items = [];
     const groups = [];

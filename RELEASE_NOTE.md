@@ -1,5 +1,8 @@
 # OpenPAI Release Note
 
+## July 2020 (version 1.1.1)
+[minor release with hot fix](https://github.com/microsoft/pai/releases/tag/v1.1.1).
+
 ## July 2020 (version 1.1.0)
 
 - Storage:

@@ -16,7 +16,7 @@ import {
 import { isNil } from 'lodash';
 import { DateTime } from 'luxon';
 
-import { getModified, getStatusText } from './utils';
+import { getSubmissionTime, getStatusText } from './utils';
 import Context from './Context';
 import Filter from './Filter';
 import Ordering from './Ordering';
@@ -39,8 +39,8 @@ const zeroPaddingClass = mergeStyles({
 
 export default function Table() {
   const {
+    filteredJobsInfo,
     stopJob,
-    filteredJobs,
     setSelectedJobs,
     selectedJobs,
     filter,
@@ -48,6 +48,7 @@ export default function Table() {
     setOrdering,
     pagination,
     setFilter,
+    loading,
   } = useContext(Context);
   const [hideDialog, setHideDialog] = useState(true);
   const [currentJob, setCurrentJob] = useState(null);
@@ -114,16 +115,16 @@ export default function Table() {
     },
   });
   const modifiedColumn = applySortProps({
-    key: 'modified',
+    key: 'submissionTime',
     minWidth: 150,
-    name: 'Date Modified',
+    name: 'Submission Time',
     className: FontClassNames.mediumPlus,
     headerClassName: FontClassNames.medium,
     isResizable: true,
-    isSorted: ordering.field === 'modified',
+    isSorted: ordering.field === 'submissionTime',
     isSortedDescending: !ordering.descending,
     onRender(job) {
-      return DateTime.fromJSDate(getModified(job)).toLocaleString(
+      return DateTime.fromJSDate(getSubmissionTime(job)).toLocaleString(
         DateTime.DATETIME_SHORT_WITH_SECONDS,
       );
     },
@@ -138,7 +139,7 @@ export default function Table() {
     isResizable: true,
     isFiltered: filter.users.size > 0,
   });
-  const durationColumn = applySortProps({
+  const durationColumn = {
     key: 'duration',
     minWidth: 60,
     name: 'Duration',
@@ -148,7 +149,7 @@ export default function Table() {
     onRender(job) {
       return getDurationString(getJobDuration(job));
     },
-  });
+  };
   const virtualClusterColumn = applySortProps({
     key: 'virtualCluster',
     minWidth: 100,
@@ -275,7 +276,7 @@ export default function Table() {
     actionsColumn,
   ];
 
-  if (!isNil(filteredJobs) && filteredJobs.length === 0) {
+  if (!isNil(filteredJobsInfo.data) && filteredJobsInfo.totalCount === 0) {
     return (
       <div className={c(t.h100, t.flex, t.itemsCenter, t.justifyCenter)}>
         <div className={c(t.tc)}>
@@ -301,14 +302,13 @@ export default function Table() {
       </div>
     );
   } else {
-    const items = pagination.apply(ordering.apply(filteredJobs || []));
     return (
       <div>
         <ShimmeredDetailsList
-          items={items}
+          items={loading ? [] : filteredJobsInfo.data || []}
           setKey='key'
           columns={columns}
-          enableShimmer={isNil(filteredJobs)}
+          enableShimmer={isNil(filteredJobsInfo)}
           shimmerLines={pagination.itemsPerPage}
           selection={selection}
         />

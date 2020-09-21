@@ -23,12 +23,19 @@ const createError = require('@pai/utils/error');
 const groupModel = require('@pai/models/v2/group');
 const authConfig = require('@pai/config/authn');
 
-
 const validate = (req, res, next, virtualClusterName) => {
-  if (! /^[A-Za-z0-9_]+$/.test(virtualClusterName)) {
-    throw createError('Bad Request', 'InvalidParametersError', 'VC name should only contain alpha-numeric and underscore characters');
+  if (!/^[A-Za-z0-9_]+$/.test(virtualClusterName)) {
+    throw createError(
+      'Bad Request',
+      'InvalidParametersError',
+      'VC name should only contain alpha-numeric and underscore characters',
+    );
   } else if (virtualClusterName === 'default' && req.method !== 'GET') {
-    throw createError('Forbidden', 'ForbiddenUserError', 'Update operation to default vc isn\'t allowed');
+    throw createError(
+      'Forbidden',
+      'ForbiddenUserError',
+      "Update operation to default vc isn't allowed",
+    );
   } else {
     return next();
   }
@@ -52,27 +59,45 @@ const get = asyncHandler(async (req, res) => {
 const update = asyncHandler(async (req, res) => {
   const virtualClusterName = req.params.virtualClusterName;
   if (!req.user.admin) {
-    throw createError('Forbidden', 'ForbiddenUserError', `Non-admin is not allowed to do this operation.`);
+    throw createError(
+      'Forbidden',
+      'ForbiddenUserError',
+      `Non-admin is not allowed to do this operation.`,
+    );
   }
   if (virtualClusterName === authConfig.groupConfig.defaultGroup.groupname) {
-    throw createError('Forbidden', 'ForbiddenUserError', `Update operation to default vc isn't allowed`);
+    throw createError(
+      'Forbidden',
+      'ForbiddenUserError',
+      `Update operation to default vc isn't allowed`,
+    );
   }
   let operationType = 'update';
   try {
     const groupInfo = await groupModel.getGroup(virtualClusterName);
-    if (!groupInfo.extension.acls || groupInfo.extension.acls.virtualClusters.length !== 1 || !groupInfo.extension.acls.virtualClusters.includes(virtualClusterName)) {
-      throw createError('Conflict', 'ConflictVcError', `Group name ${virtualClusterName} already exists.`);
+    if (
+      !groupInfo.extension.acls ||
+      groupInfo.extension.acls.virtualClusters.length !== 1 ||
+      !groupInfo.extension.acls.virtualClusters.includes(virtualClusterName)
+    ) {
+      throw createError(
+        'Conflict',
+        'ConflictVcError',
+        `Group name ${virtualClusterName} already exists.`,
+      );
     }
   } catch (error) {
     if (error.status !== 404) {
-      throw createError.unknown((error));
+      throw createError.unknown(error);
     } else {
       operationType = 'create';
     }
   }
 
   const capacity = parseInt(req.body.vcCapacity);
-  const maxCapacity = req.body.vcMaxCapacity ? parseInt(req.body.vcMaxCapacity) : capacity;
+  const maxCapacity = req.body.vcMaxCapacity
+    ? parseInt(req.body.vcMaxCapacity)
+    : capacity;
   await virtualCluster.update(virtualClusterName, capacity, maxCapacity);
   if (operationType === 'update') {
     return res.status(status('Created')).json({
@@ -119,23 +144,43 @@ const updateStatus = asyncHandler(async (req, res) => {
         message: `Activate virtual cluster ${virtualClusterName} successfully.`,
       });
     } else {
-      throw createError('Bad Request', 'BadConfigurationError', `Unknown vc status: ${vcStatus}`);
+      throw createError(
+        'Bad Request',
+        'BadConfigurationError',
+        `Unknown vc status: ${vcStatus}`,
+      );
     }
   } else {
-    throw createError('Forbidden', 'ForbiddenUserError', 'Non-admin is not allowed to do this operation.');
+    throw createError(
+      'Forbidden',
+      'ForbiddenUserError',
+      'Non-admin is not allowed to do this operation.',
+    );
   }
 });
 
 const remove = asyncHandler(async (req, res) => {
   const virtualClusterName = req.params.virtualClusterName;
   if (!req.user.admin) {
-    throw createError('Forbidden', 'ForbiddenUserError', `Non-admin is not allowed to do this operation.`);
+    throw createError(
+      'Forbidden',
+      'ForbiddenUserError',
+      `Non-admin is not allowed to do this operation.`,
+    );
   }
   if (virtualClusterName === authConfig.groupConfig.adminGroup.groupname) {
-    throw createError('Forbidden', 'ForbiddenUserError', `The name '${virtualClusterName}' is occupied by admin group.`);
+    throw createError(
+      'Forbidden',
+      'ForbiddenUserError',
+      `The name '${virtualClusterName}' is occupied by admin group.`,
+    );
   }
   if (virtualClusterName === authConfig.groupConfig.defaultGroup.groupname) {
-    throw createError('Forbidden', 'ForbiddenUserError', `Update operation to default vc isn't allowed`);
+    throw createError(
+      'Forbidden',
+      'ForbiddenUserError',
+      `Update operation to default vc isn't allowed`,
+    );
   }
   await virtualCluster.remove(virtualClusterName);
   await groupModel.deleteGroup(virtualClusterName);

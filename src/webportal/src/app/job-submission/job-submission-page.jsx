@@ -12,6 +12,7 @@ import { TaskRoles } from './components/task-roles';
 import Context from './components/context';
 import {
   fetchJobConfig,
+  listHivedSkuTypes,
   listUserVirtualClusters,
   listUserStorageConfigs,
   fetchStorageDetails,
@@ -97,6 +98,7 @@ export const JobSubmissionPage = ({
 
   // Context variables
   const [vcNames, setVcNames] = useState([]);
+  const [hivedSkuTypes, setHivedSkuTypes] = useState({});
   const [errorMessages, setErrorMessages] = useState({});
 
   const setJobTaskRoles = useCallback(
@@ -169,10 +171,11 @@ export const JobSubmissionPage = ({
   const contextValue = useMemo(
     () => ({
       vcNames,
+      hivedSkuTypes,
       errorMessages,
       setErrorMessage,
     }),
-    [vcNames, errorMessages, setErrorMessage],
+    [vcNames, hivedSkuTypes, errorMessages, setErrorMessage],
   );
 
   useEffect(() => {
@@ -344,6 +347,14 @@ export const JobSubmissionPage = ({
       })
       .catch(alert);
   }, []);
+
+  useEffect(() => {
+    listHivedSkuTypes(jobInformation.virtualCluster)
+      .then(hivedSkuTypes => {
+        setHivedSkuTypes(hivedSkuTypes);
+      })
+      .catch(alert);
+  }, [jobInformation.virtualCluster]);
 
   const onToggleAdvanceFlag = useCallback(() => {
     setAdvanceFlag(!advanceFlag);

@@ -32,7 +32,8 @@ if (authnConfig.authnMethod === 'OIDC') {
   const initOIDCEndpointAndGroupUrl = async () => {
     try {
       const response = await axios.get(authnConfig.OIDCConfig.wellKnownURL);
-      authnConfig.OIDCConfig.authorization_endpoint = response.data.authorization_endpoint;
+      authnConfig.OIDCConfig.authorization_endpoint =
+        response.data.authorization_endpoint;
       authnConfig.OIDCConfig.token_endpoint = response.data.token_endpoint;
       authnConfig.OIDCConfig.msgraph_host = response.data.msgraph_host;
     } catch (error) {
@@ -46,8 +47,10 @@ if (authnConfig.authnMethod === 'OIDC') {
   if (process.env.OIDC_CONFIG_PATH) {
     odicConfigPath = process.env.OIDC_CONFIG_PATH;
   }
-  authnConfig.OIDCConfig = yaml.safeLoad(fs.readFileSync(odicConfigPath, 'utf8'));
-  (async function() {
+  authnConfig.OIDCConfig = yaml.safeLoad(
+    fs.readFileSync(odicConfigPath, 'utf8'),
+  );
+  (async function () {
     await initOIDCEndpointAndGroupUrl();
   })();
 }
@@ -57,22 +60,24 @@ try {
   if (process.env.GROUP_CONFIG_PATH) {
     groupConfigPath = process.env.GROUP_CONFIG_PATH;
   }
-  authnConfig.groupConfig = yaml.safeLoad(fs.readFileSync(groupConfigPath, 'utf8'));
+  authnConfig.groupConfig = yaml.safeLoad(
+    fs.readFileSync(groupConfigPath, 'utf8'),
+  );
 } catch (error) {
   logger.error('Failed to load group config from configmap file.');
   throw error;
 }
 
 // define the schema for authn
-const authnSchema = Joi.object().keys({
-  authnMethod: Joi.string().empty('')
-    .valid('OIDC', 'basic'),
-  OIDCConfig: Joi.object().pattern(/\w+/, Joi.required()),
-  groupConfig: Joi.object().pattern(/\w+/, Joi.required()),
-}).required();
+const authnSchema = Joi.object()
+  .keys({
+    authnMethod: Joi.string().empty('').valid('OIDC', 'basic'),
+    OIDCConfig: Joi.object().pattern(/\w+/, Joi.required()),
+    groupConfig: Joi.object().pattern(/\w+/, Joi.required()),
+  })
+  .required();
 
-
-const {error, value} = Joi.validate(authnConfig, authnSchema);
+const { error, value } = Joi.validate(authnConfig, authnSchema);
 if (error) {
   throw new Error(`config error\n${error}`);
 }
