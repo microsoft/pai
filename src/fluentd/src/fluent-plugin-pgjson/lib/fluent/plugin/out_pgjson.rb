@@ -207,11 +207,15 @@ module Fluent::Plugin
         begin
           chunk.msgpack_each do |time, record|
             kind = record["objectSnapshot"]["kind"]
-            log.info "[pgjson] object type #{kind} in chunk #{hex_id}"
-            if kind == "Framework"
+            trigger = record['objectSnapshotTrigger']
+            log.info "[pgjson] object type #{kind} triggered by #{trigger} found in chunk #{hex_id}"
+            if trigger == "framework_retried" && kind == "Framework"
               insert_framework hex_id, time, record
-            elsif kind == "Pod"
+            elsif trigger == "pod_deleted" && kind == "Pod"
               insert_pod hex_id, time, record
+            else
+              logMessage = record['logMessage']
+              log.info "[pgjson] object type #{kind} triggered by #{trigger} in chunk #{hex_id} ignored. log message: #{logMessage}"
             end
           end
         rescue PG::ConnectionBad, PG::UnableToSend => err
