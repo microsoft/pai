@@ -276,6 +276,9 @@ location ~ ^/dshuttle/(.*)$ {
     '/api'
     '/dshuttle/api';
   sub_filter
+    '/browse?path='
+    '/dshuttle/browse?path=';
+  sub_filter
     'static/media/'
     'dshuttle/static/media/';
 }
