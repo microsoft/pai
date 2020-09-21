@@ -97,13 +97,13 @@ const getUserEmail = (username, url, token) => {
   });
 };
 
-const sendEmail = async (req, res) => {
+const sendEmailToAdmin = async (req, res) => {
   // send email to admin
   email
     .send({
       template: 'general-templates',
       message: {
-        to: process.env.EMAIL_CONFIGS_RECEIVER,
+        to: process.env.EMAIL_CONFIGS_ADMIN_RECEIVER,
       },
       locals: {
         cluster_id: process.env.CLUSTER_ID,
@@ -114,12 +114,18 @@ const sendEmail = async (req, res) => {
     })
     .then(function (res) {
       console.log(
-        `alert-handler successfully send email to admin at ${process.env.EMAIL_CONFIGS_RECEIVER}`,
+        `alert-handler successfully send email to admin at ${process.env.EMAIL_CONFIGS_ADMIN_RECEIVER}`,
       );
     })
     .catch(console.error);
 
-  // send email to job user when possible
+  res.status(200).json({
+    message: 'alert-handler finished send-email-to-admin action.',
+  });
+};
+
+const sendEmailToUser = async (req, res) => {
+  // send email to job user
   // group alerts by username
   const url = process.env.REST_SERVER_URI;
   const token = req.token;
@@ -157,11 +163,12 @@ const sendEmail = async (req, res) => {
   }
 
   res.status(200).json({
-    message: 'alert-handler finished send email action.',
+    message: 'alert-handler finished send-email-to-user action.',
   });
 };
 
 // module exports
 module.exports = {
-  sendEmail,
+  sendEmailToAdmin,
+  sendEmailToUser,
 };

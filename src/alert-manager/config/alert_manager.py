@@ -23,7 +23,7 @@ class AlertManager(object):
         # check if email_configs is properly configured
         if result.get("alert-handler") is not None and \
             result["alert-handler"].get("email-configs") is not None and \
-                result["alert-handler"]["email-configs"].get("receiver") is not None and \
+                result["alert-handler"]["email-configs"].get("admin-receiver") is not None and \
                 result["alert-handler"]["email-configs"].get("smtp-host") is not None and \
                 result["alert-handler"]["email-configs"].get("smtp-port") is not None and \
                 result["alert-handler"]["email-configs"].get("smtp-from") is not None and \

@@ -67,8 +67,8 @@ spec:
         - name: REST_SERVER_URI
           value: {{ cluster_cfg['rest-server']['uri'] }}
 {% if 'email-admin' in cluster_cfg["alert-manager"]["actions-available"] %}
-        - name: EMAIL_CONFIGS_RECEIVER
-          value: {{ cluster_cfg["alert-manager"]["alert-handler"]["email-configs"]["receiver"] }}
+        - name: EMAIL_CONFIGS_ADMIN_RECEIVER
+          value: {{ cluster_cfg["alert-manager"]["alert-handler"]["email-configs"]["admin-receiver"] }}
         - name: EMAIL_CONFIGS_SMTP_HOST
           value: {{ cluster_cfg["alert-manager"]["alert-handler"]["email-configs"]["smtp-host"] }}
         - name: EMAIL_CONFIGS_SMTP_PORT

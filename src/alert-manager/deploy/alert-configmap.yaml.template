@@ -8,28 +8,30 @@ data:
       resolve_timeout: 5m
 {% set alert_handler = cluster_cfg["alert-manager"]["alert-handler"] %}
     route:
-      receiver: pai-email
+      receiver: pai-email-admin
       group_wait: 30s
       group_interval: 5m
       repeat_interval: {{ cluster_cfg["alert-manager"]["repeat-interval"] }}
       group_by: [alertname, alertstate]
       routes:
-      - receiver: pai-email-and-stop-job
+      - receiver: pai-email-admin-user-and-stop-job
         match: 
           alertname: PAIJobGpuPercentLowerThan0_3For1h
     receivers:
-    - name: "pai-email"
-{% if 'email-admin' in cluster_cfg["alert-manager"]["actions-available"] %}
+    - name: "pai-email-admin"
       webhook_configs:
-       - url: 'http://localhost:{{ alert_handler["port"] }}/alert-handler/send-email'
+{% if 'email-admin' in cluster_cfg["alert-manager"]["actions-available"] %}
+       - url: 'http://localhost:{{ alert_handler["port"] }}/alert-handler/send-email-to-admin'
          send_resolved: true
-         http_config:
-           bearer_token: {{ alert_handler["pai-bearer-token"] }}
 {% endif %}
-    - name: "pai-email-and-stop-job"
-{% if 'email-admin' in cluster_cfg["alert-manager"]["actions-available"] %}
+    - name: "pai-email-admin-user-and-stop-job"
       webhook_configs:
-        - url: 'http://localhost:{{ alert_handler["port"] }}/alert-handler/send-email'
+{% if 'email-admin' in cluster_cfg["alert-manager"]["actions-available"] %}
+        - url: 'http://localhost:{{ alert_handler["port"] }}/alert-handler/send-email-to-admin'
+          send_resolved: true
+{% endif %}
+{% if 'email-user' in cluster_cfg["alert-manager"]["actions-available"] %}
+        - url: 'http://localhost:{{ alert_handler["port"] }}/alert-handler/send-email-to-user'
           send_resolved: true
           http_config:
             bearer_token: {{ alert_handler["pai-bearer-token"] }}

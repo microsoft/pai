@@ -38,15 +38,19 @@ To make these actions available, administrators need to properly fill the corres
 the available actions list will then be saved in `cluster_cfg["alert-manager"]["actions-available"]`, please refer to [alert-manager config](https://github.com/suiguoxin/pai/tree/prometheus/src/alert-manager/config/alert-manager.md) for details of alert-manager service configuration details.
 
 These actions can be called within `alert-manager` by sending POST requests to `alert-handler`:
-- `localhost:{your_alert_handler_port}/alert-handler/send-email`
+- `localhost:{your_alert_handler_port}/alert-handler/send-email-to-admin`
+- `localhost:{your_alert_handler_port}/alert-handler/send-email-to-user`
 - `localhost:{your_alert_handler_port}/alert-handler/stop-job`
 
 The request body will be automatically filled by `alert-manager` with `webhook`
 and `alert-handler` will adapt the requests to various actions.
 
-Notice that the actions `email-admin` and `email-user` are in the same API.
-We can simply call this API and `alert-handler` will execute `email-admin` and `email-user` whenever possible.
-Specifically, when `job_name` exists in the alert body, `alert-handler` can automatically find the job owner and check if the owner has an email address.
+Notice that when `email-user` is called, `alert-handler` will :
+1. check if `job_name` exists in the alert body;
+2. find the job owner with `job_name`;
+3. check if the owner has an email address.
+
+Make sure `job_name` presents in the alert body if you want to use this action.
 
 
 ### How to Match Alerts and Actions
@@ -64,28 +68,30 @@ data:
       resolve_timeout: 5m
 {% set alert_handler = cluster_cfg["alert-manager"]["alert-handler"] %}
     route:
-      receiver: pai-email
+      receiver: pai-email-admin
       group_wait: 30s
       group_interval: 5m
       repeat_interval: {{ cluster_cfg["alert-manager"]["repeat-interval"] }}
       group_by: [alertname, alertstate]
       routes:
-      - receiver: pai-email-and-stop-job
+      - receiver: pai-email-admin-user-and-stop-job
         match: 
           alertname: PAIJobGpuPercentLowerThan0_3For1h
     receivers:
-    - name: "pai-email"
-{% if 'email-admin' in cluster_cfg["alert-manager"]["actions-available"] %}
+    - name: "pai-email-admin"
       webhook_configs:
-       - url: 'http://localhost:{{ alert_handler["port"] }}/alert-handler/send-email'
+{% if 'email-admin' in cluster_cfg["alert-manager"]["actions-available"] %}
+       - url: 'http://localhost:{{ alert_handler["port"] }}/alert-handler/send-email-to-admin'
          send_resolved: true
-         http_config:
-           bearer_token: {{ alert_handler["pai-bearer-token"] }}
 {% endif %}
-    - name: "pai-email-and-stop-job"
-{% if 'email-admin' in cluster_cfg["alert-manager"]["actions-available"] %}
+    - name: "pai-email-admin-user-and-stop-job"
       webhook_configs:
-        - url: 'http://localhost:{{ alert_handler["port"] }}/alert-handler/send-email'
+{% if 'email-admin' in cluster_cfg["alert-manager"]["actions-available"] %}
+        - url: 'http://localhost:{{ alert_handler["port"] }}/alert-handler/send-email-to-admin'
+          send_resolved: true
+{% endif %}
+{% if 'email-user' in cluster_cfg["alert-manager"]["actions-available"] %}
+        - url: 'http://localhost:{{ alert_handler["port"] }}/alert-handler/send-email-to-user'
           send_resolved: true
           http_config:
             bearer_token: {{ alert_handler["pai-bearer-token"] }}

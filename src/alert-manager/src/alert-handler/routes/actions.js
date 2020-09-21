@@ -27,8 +27,13 @@ router
   .post(jobController.stopJob);
 
 router
-  .route('/alert-handler/send-email')
-  /** POST /alert-handler/send-email */
-  .post(emailController.sendEmail);
+  .route('/alert-handler/send-email-to-admin')
+  /** POST /alert-handler/send-email-to-admin */
+  .post(emailController.sendEmailToAdmin);
+
+router
+  .route('/alert-handler/send-email-to-user')
+  /** POST /alert-handler/send-email-to-user */
+  .post(emailController.sendEmailToUser);
 
 module.exports = router;
