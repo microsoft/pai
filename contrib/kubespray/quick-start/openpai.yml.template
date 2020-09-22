@@ -148,7 +148,8 @@ kubelet_custom_flags:
 # kube_feature_gates: []
 
 ## Support custom flags to be passed to kubelet only on nodes, not masters
-# kubelet_node_custom_flags: []
+kubelet_node_custom_flags:
+  - "--node-labels=pai-worker=true"
 
 k8s_image_pull_policy: Always
 

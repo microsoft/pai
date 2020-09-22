@@ -16,11 +16,40 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 // module dependencies
+const axios = require('axios');
 const status = require('statuses');
+const createError = require('@pai/utils/error');
 const { resourceUnits } = require('@pai/config/vc');
+const { hivedWebserviceUri } = require('@pai/config/launcher');
+const asyncHandler = require('@pai/middlewares/v2/asyncHandler');
 
-const getSkuTypes = (req, res) => {
-  res.status(status('OK')).json(resourceUnits);
-};
+const getSkuTypes = asyncHandler(async (req, res) => {
+  if (req.query.vc) {
+    let vcStatus;
+    try {
+      vcStatus = (
+        await axios.get(
+          `${hivedWebserviceUri}/v1/inspect/clusterstatus/virtualclusters/${req.query.vc}`,
+        )
+      ).data;
+    } catch (error) {
+      throw createError(
+        'Not Found',
+        'NoVirtualClusterError',
+        `Cannot get sku types for virtual clyster ${req.query.vc}.`,
+      );
+    }
+    const leafCellTypes = new Set(vcStatus.map((cell) => cell.leafCellType));
+    const skuTypes = Object.keys(resourceUnits)
+      .filter((key) => leafCellTypes.has(key))
+      .reduce((obj, key) => {
+        obj[key] = resourceUnits[key];
+        return obj;
+      }, {});
+    res.status(status('OK')).json(skuTypes);
+  } else {
+    res.status(status('OK')).json(resourceUnits);
+  }
+});
 
 module.exports = { getSkuTypes };

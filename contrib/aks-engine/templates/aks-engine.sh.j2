@@ -18,7 +18,6 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 aks-engine deploy --subscription-id {{cfg["subscription_id"]}} \
-    --dns-prefix {{cfg["dns_prefix"]}} \
     --resource-group {{cfg["resource_group_name"]}} \
     --location {{cfg["location"]}} \
     --api-model {{working_dir}}/k8s.json \

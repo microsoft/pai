@@ -36,6 +36,8 @@ const { apiserver } = require('@pai/config/kubernetes');
 const schedulePort = require('@pai/config/schedule-port');
 const databaseModel = require('@pai/utils/dbUtils');
 
+const Sequelize = require('sequelize');
+
 let exitSpecPath;
 if (process.env[env.exitSpecPath]) {
   exitSpecPath = process.env[env.exitSpecPath];
@@ -134,6 +136,7 @@ const convertFrameworkSummary = (framework) => {
     state: framework.state,
     subState: framework.subState,
     executionType: framework.executionType.toUpperCase(),
+    tags: framework.tags.reduce((arr, curr) => [...arr, curr.name], []),
     retries: framework.retries,
     retryDetails: {
       user: framework.userRetries,
@@ -241,7 +244,7 @@ const convertTaskDetail = async (taskStatus, ports, logPathPrefix) => {
   };
 };
 
-const convertFrameworkDetail = async (framework) => {
+const convertFrameworkDetail = async (framework, tags) => {
   const attemptStatus = framework.status.attemptStatus;
   // check fields which may be compressed
   if (attemptStatus.taskRoleStatuses == null) {
@@ -267,9 +270,11 @@ const convertFrameworkDetail = async (framework) => {
   const completionStatus = attemptStatus.completionStatus;
   const diagnostics = completionStatus ? completionStatus.diagnostics : null;
   const exitDiagnostics = generateExitDiagnostics(diagnostics);
+
   const detail = {
     debugId: framework.metadata.name,
     name: jobName,
+    tags: tags.reduce((arr, curr) => [...arr, curr.name], []),
     jobStatus: {
       username: userName,
       state: convertState(
@@ -883,6 +888,8 @@ const getConfigSecretDef = (frameworkName, secrets) => {
 const list = async (
   attributes,
   filters,
+  tagsContainFilter,
+  tagsNotContainFilter,
   order,
   offset,
   limit,
@@ -890,12 +897,53 @@ const list = async (
 ) => {
   let frameworks;
   let totalCount;
+
+  if (
+    Object.keys(tagsContainFilter).length !== 0 ||
+    Object.keys(tagsNotContainFilter).length !== 0
+  ) {
+    filters.name = {};
+    // tagsContain
+    if (Object.keys(tagsContainFilter).length !== 0) {
+      const queryContainFrameworkName = databaseModel.sequelize.dialect.QueryGenerator.selectQuery(
+        'tags',
+        {
+          attributes: ['frameworkName'],
+          where: tagsContainFilter,
+        },
+      );
+      filters.name[Sequelize.Op.in] = Sequelize.literal(`
+          (${queryContainFrameworkName.slice(0, -1)})
+      `);
+    }
+    // tagsNotContain
+    if (Object.keys(tagsNotContainFilter).length !== 0) {
+      const queryNotContainFrameworkName = databaseModel.sequelize.dialect.QueryGenerator.selectQuery(
+        'tags',
+        {
+          attributes: ['frameworkName'],
+          where: tagsNotContainFilter,
+        },
+      );
+      filters.name[Sequelize.Op.notIn] = Sequelize.literal(`
+          (${queryNotContainFrameworkName.slice(0, -1)})
+      `);
+    }
+  }
+
   frameworks = await databaseModel.Framework.findAll({
     attributes: attributes,
     where: filters,
     offset: offset,
     limit: limit,
     order: order,
+    include: [
+      {
+        attributes: ['name'],
+        required: Object.keys(tagsContainFilter).length !== 0,
+        model: databaseModel.Tag,
+      },
+    ],
   });
   if (withTotalCount) {
     totalCount = await databaseModel.Framework.count({ where: filters });
@@ -917,10 +965,18 @@ const get = async (frameworkName) => {
   const framework = await databaseModel.Framework.findOne({
     attributes: ['submissionTime', 'snapshot'],
     where: { name: encodeName(frameworkName) },
+    include: [
+      {
+        attributes: ['name'],
+        model: databaseModel.Tag,
+        as: 'tags',
+      },
+    ],
   });
   if (framework) {
     const frameworkDetail = await convertFrameworkDetail(
       JSON.parse(framework.snapshot),
+      framework.tags,
     );
     frameworkDetail.jobStatus.submissionTime = new Date(
       framework.submissionTime,
@@ -1147,6 +1203,63 @@ const getSshInfo = async (frameworkName) => {
   );
 };
 
+const addTag = async (frameworkName, tag) => {
+  // check if frameworkName exist
+  const framework = await databaseModel.Framework.findOne({
+    where: { name: encodeName(frameworkName) },
+  });
+
+  if (framework) {
+    // add tag
+    const data = await databaseModel.Tag.findOrCreate({
+      where: {
+        frameworkName: encodeName(frameworkName),
+        name: tag,
+        uid: encodeName(`${frameworkName}+${tag}`),
+      },
+    });
+    return data;
+  } else {
+    throw createError(
+      'Not Found',
+      'NoJobError',
+      `Job ${frameworkName} is not found.`,
+    );
+  }
+};
+
+const deleteTag = async (frameworkName, tag) => {
+  // check if frameworkName exist
+  const framework = await databaseModel.Framework.findOne({
+    where: { name: encodeName(frameworkName) },
+  });
+
+  if (framework) {
+    // remove tag
+    const numDestroyedRows = await databaseModel.Tag.destroy({
+      where: {
+        frameworkName: encodeName(frameworkName),
+        name: tag,
+      },
+    });
+    if (numDestroyedRows === 0) {
+      throw createError(
+        'Not Found',
+        'NoTagError',
+        `Tag ${tag} is not found for job ${frameworkName}.`,
+      );
+    } else {
+      return numDestroyedRows;
+    }
+  } else {
+    throw createError(
+      'Not Found',
+      'NoJobError',
+      `Job ${frameworkName} is not found.`,
+    );
+  }
+};
+
 const generateExitDiagnostics = (diag) => {
   if (_.isEmpty(diag)) {
     return null;
@@ -1254,4 +1367,6 @@ module.exports = {
   execute,
   getConfig,
   getSshInfo,
+  addTag,
+  deleteTag,
 };

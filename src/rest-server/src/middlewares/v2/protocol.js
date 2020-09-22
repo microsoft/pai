@@ -211,9 +211,24 @@ const protocolSubmitMiddleware = [
   }),
 ];
 
+const validateTagMiddleware = async (req, _, next) => {
+  // tag should not include ','
+  if (req.body.value.includes(',')) {
+    return next(
+      createError(
+        'Bad Request',
+        'InvalidProtocolError',
+        "tag should not include ','",
+      ),
+    );
+  }
+  next();
+};
+
 // module exports
 module.exports = {
   validate: protocolValidate,
   render: protocolRender,
   submit: protocolSubmitMiddleware,
+  validateTag: validateTagMiddleware,
 };

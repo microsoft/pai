@@ -20,6 +20,8 @@ export default class Ordering {
         descending: this.descending,
       });
       window.localStorage.setItem(LOCAL_STORAGE_KEY, content);
+    } else {
+      window.localStorage.removeItem(LOCAL_STORAGE_KEY);
     }
   }
 
@@ -44,6 +46,9 @@ export default class Ordering {
         if (descending !== undefined) {
           this.descending = descending;
         }
+      } else {
+        this.field = undefined;
+        this.descending = undefined;
       }
     } catch (e) {
       window.localStorage.removeItem(LOCAL_STORAGE_KEY);

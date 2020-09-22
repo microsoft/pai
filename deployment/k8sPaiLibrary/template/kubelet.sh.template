@@ -59,6 +59,7 @@ docker run \
   --pod-manifest-path=/etc/kubernetes/manifests \
   --allow-privileged=true \
   --logtostderr=true \
+  --node-labels=pai-worker=true \
   --pod-infra-container-image {{ cluster_cfg['kubernetes']['docker-registry'] }}/pause-amd64:3.0 \
   --image-pull-progress-deadline=10m \
   --docker-root=${DOCKER_ROOT_DIR_FOR_KUBELET} \
