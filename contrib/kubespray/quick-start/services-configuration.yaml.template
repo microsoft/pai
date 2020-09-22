@@ -177,6 +177,12 @@ authentication:
 #       smtp-from: alert-sender@example.com
 #       smtp-auth-username: alert-sender@example.com
 #       smtp-auth-password: password-for-alert-sender
+#   customized-routes:
+#     routes:
+#     - receiver: pai-email-admin-user-and-stop-job
+#       match:
+#         alertname: PAIJobGpuPercentLowerThan0_3For1h
+
 
 # uncomment following if you want to change customize grafana
 # grafana:
@@ -195,11 +201,21 @@ authentication:
 #   interface: eth0,eno2
 
 
-# uncomment following if you want to change customeize prometheus
+# uncomment following if you want to customeize prometheus
 # prometheus:
 #   port: 9091
 #   # How frequently to scrape targets
 #   scrape_interval: 30
+#   customized-alerts:
+#     groups:
+#     - name: customized-alerts
+#       rules:
+#       - alert: PAIJobGpuPercentLowerThan0_3For1h
+#         expr: avg(task_gpu_percent{virtual_cluster=~"default"}) by (job_name) < 0.3
+#         for: 1h
+#         annotations:
+#           summary: "{{$labels.job_name}} has a job gpu percent lower than 30% for 1 hour"
+#           description: Monitor job level gpu utilization in certain virtual clusters.
 
 
 # uncomment following section if you want to customize the threshold of cleaner
