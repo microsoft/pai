@@ -224,10 +224,41 @@ class DatabaseModel {
       },
     );
 
+    class Tag extends Model {}
+    Tag.init(
+      {
+        insertedAt: Sequelize.DATE,
+        uid: {
+          type: Sequelize.STRING(36),
+          primaryKey: true,
+        },
+        frameworkName: {
+          type: Sequelize.STRING(64),
+          allowNull: false,
+        },
+        name: {
+          type: Sequelize.STRING(64),
+          allowNull: false,
+        },
+      },
+      {
+        sequelize,
+        modelName: 'tag',
+        createdAt: 'insertedAt',
+        indexes: [
+          {
+            unique: false,
+            fields: ['frameworkName'],
+          },
+        ],
+      },
+    );
+
     Framework.hasMany(FrameworkHistory);
     Framework.hasMany(Pod);
     Framework.hasMany(FrameworkEvent);
     Framework.hasMany(PodEvent);
+    Framework.hasMany(Tag);
 
     class Version extends Model {}
     Version.init(
@@ -253,6 +284,7 @@ class DatabaseModel {
     this.Pod = Pod;
     this.FrameworkEvent = FrameworkEvent;
     this.PodEvent = PodEvent;
+    this.Tag = Tag;
     this.Version = Version;
     this.synchronizeSchema = this.synchronizeSchema.bind(this);
   }
@@ -267,6 +299,7 @@ class DatabaseModel {
         this.Pod.sync({ alter: true }),
         this.FrameworkEvent.sync({ alter: true }),
         this.PodEvent.sync({ alter: true }),
+        this.Tag.sync({ alter: true }),
         this.Version.sync({ alter: true }),
       ]);
     }
