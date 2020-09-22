@@ -1,6 +1,31 @@
 # OpenPAI Release Note
 
+## Sep 2020 (version 1.2.0)
+
+- Database
+  - New RestServer Arch: RestServer -> DB -> ApiServer (#4651)
+- Webportal
+  - Job list paging in server side
+  - Change job createdTime to submissionTime
+  - VC && Group experience for Admin (AAD Mode) (#4800)
+  - Support SKU count and SKU type in job submission page (#4796)
+  - Upgrade api/v1 code to api/v2 (#4704)
+  - Show "More Diagnostics" in job detail page (#4670)
+- Marketplace
+  - [Unified PAI protocol](https://github.com/microsoft/openpaimarketplace#49)
+  - Merge examples
+- Others
+  - HiveD improvement
+  - Robustness improvement (#4694)
+  - Fix logrotate issue (#4792)
+  - Fix [runtime image check issue](https://github.com/microsoft/openpai-runtime#17)
+  - Fix error message for SKU (#4602)
+  - [Quick start for AKS-Engine](https://github.com/microsoft/pai/blob/v1.2.0/contrib/aks-engine/readme.md)
+
+For more details about this release, please refer to [detailed release note](https://github.com/microsoft/pai/releases/tag/v1.2.0).
+
 ## July 2020 (version 1.1.1)
+
 [minor release with hot fix](https://github.com/microsoft/pai/releases/tag/v1.1.1).
 
 ## July 2020 (version 1.1.0)
