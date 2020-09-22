@@ -558,6 +558,8 @@ class ContainerCollector(Collector):
         "weave",
         "weave-npc",
         "nvidia-device-plugin-ctr",
+        "k8s-host-device",
+        "amdgpu",
         ]))
 
     def __init__(self, name, sleep_time, atomic_ref, iteration_counter, gpu_info_ref,
