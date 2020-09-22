@@ -10,7 +10,7 @@
 
 #### How to configure cluster section in service-configuration.yaml <a name="HT_Config"></a>
 
-So far, we have provided `email-admin`, `email-user` and `stop-job` actions in `alert-handler`.
+So far, we have provided `email-admin`, `email-user`, `stop-job` and `tag-job` actions in `alert-handler`.
 To make all these actions available, 
 you should configure `alert-manager` in your `service-configuration.yaml` like following:
 
@@ -30,7 +30,7 @@ alert-manager:
 ```
 
 In the configuration above, `email-configs` is necessary for `email-admin` and `email-user` actions,
-`pai-bearer-token` is necessary for `email-user` and `stop-job` actions.
+`pai-bearer-token` is necessary for `email-user`, `stop-job` and `tag-job` actions.
 This can be summrized in the following table:
 
 |              | email-configs | pai-bearer-token |
@@ -38,6 +38,7 @@ This can be summrized in the following table:
 | email-admin  | True          | False            |
 | email-user   | True          | True             |
 | stop-job     | False         | True             |
+| tag-job      | False         | True             |
 
 If `alert-handler` is not configured, the `alert-handler` container will not start.
 
@@ -57,6 +58,7 @@ alert-manager:
     - email-admin
     - email-user
     - stop-job
+    - tag-job
   alert-handler:
     port: 9095
     configured: True

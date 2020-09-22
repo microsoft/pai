@@ -42,15 +42,13 @@ class AlertManager(object):
 
         if email_configured and token_configured:
             result["alert-handler"]["configured"] = True
-            result["actions-available"].append("email-admin")
-            result["actions-available"].append("email-user")
-            result["actions-available"].append("stop-job")
+            result["actions-available"].extend(["email-admin", "email-user", "stop-job", "tag-job"])
         elif email_configured:
             result["alert-handler"]["configured"] = True
             result["actions-available"].append("email-admin")
         elif token_configured:
             result["alert-handler"]["configured"] = True
-            result["actions-available"].append("stop-job")
+            result["actions-available"].extend(["stop-job", "tag-job"])
         else:
             result["alert-handler"]["configured"] = False
 

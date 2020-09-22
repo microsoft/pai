@@ -41,4 +41,8 @@ data:
 #         send_resolved: false
 #         http_config:
 #           bearer_token: {{ alert_handler["pai-bearer-token"] }}
+#       - url: 'http://localhost:{{ alert_handler["port"] }}/alert-handler/tag-job/stopped-by-alert-manager'
+#         send_resolved: false
+#         http_config:
+#           bearer_token: {{ alert_handler["pai-bearer-token"] }}
 {% endif %}

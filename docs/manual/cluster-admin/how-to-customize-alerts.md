@@ -30,6 +30,7 @@ OpenPAI uses `alert-manager` service for alert handling. We have provided so far
 * email-admin: Send emails to the assigned admin.
 * email-user: Send emails to the owners of jobs.
 * stop-job: Stop jobs by calling OpenPAI REST API.
+* tag-job: Add a tag to a job by calling OpenPAI REST API.
 
 `webportal-notification` is always enabled, which means that all the alerts will be shown on the webportal.
 
@@ -41,6 +42,7 @@ These actions can be called within `alert-manager` by sending POST requests to `
 - `localhost:{your_alert_handler_port}/alert-handler/send-email-to-admin`
 - `localhost:{your_alert_handler_port}/alert-handler/send-email-to-user`
 - `localhost:{your_alert_handler_port}/alert-handler/stop-job`
+- `localhost:{your_alert_handler_port}/alert-handler/tag-job/:tag`
 
 The request body will be automatically filled by `alert-manager` with `webhook`
 and `alert-handler` will adapt the requests to various actions.
@@ -101,16 +103,22 @@ data:
 #         send_resolved: false
 #         http_config:
 #           bearer_token: {{ alert_handler["pai-bearer-token"] }}
+#       - url: 'http://localhost:{{ alert_handler["port"] }}/alert-handler/tag-job/stopped-by-alert-manager'
+#         send_resolved: false
+#         http_config:
+#           bearer_token: {{ alert_handler["pai-bearer-token"] }}
+{% endif %}
+
 {% endif %}
 ```
 
 Suppose all the actions are available and the `if` clauses are all evaluated as `True`.
-Then, in this example, as defined in the `route` filed, most alerts will be handled by the default receiver : `pai-alert`, which will call only `email-admin` and `email-user` actions.
-Note thant `email-user` action can only be triggered when `job-name` exists in the alert body.
+Then, in this example, as defined in the `route` filed, most alerts will be handled by the default receiver : `pai-email-admin`, which will call only `email-admin` action.
 
-The alert `PAIJobGpuPercentLowerThan0_3For1h` will be handled by `pai-alert-handler` receiver. 
-Under `pai-alert-handler` receiver, the email action is by default enabled.
-If you uncomment the last three lines for `stop-job` action , the `stop-job` action will also be triggered when the `PAIJobGpuPercentLowerThan0_3For1h` alert is fired.
+The alert `PAIJobGpuPercentLowerThan0_3For1h` will be handled by `pai-email-admin-user-and-stop-job` receiver. 
+Under `pai-email-admin-user-and-stop-job` receiver, the email action is by default enabled.
+Note thant `email-user` action can only be triggered when `job-name` exists in the alert body.
+If you uncomment the last several lines for `stop-job` and `tag-job` action, when the `PAIJobGpuPercentLowerThan0_3For1h` alert is fired,  the `stop-job` action will also be triggered and a `stopped-by-alert-handler` tag will be added to the job.
 
 You are free to add new receivers with related matching rules to assign actions to alerts.
 

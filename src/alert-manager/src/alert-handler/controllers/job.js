@@ -58,7 +58,41 @@ const stopJob = (req, res) => {
   });
 };
 
+const tagJob = (req, res) => {
+  console.log(
+    'alert-handler received `tag-job` post request from alert-manager.',
+  );
+
+  const url = process.env.REST_SERVER_URI;
+  const token = req.token;
+  const tag = req.params.tag;
+
+  // tag job with alertname
+  req.body.alerts.forEach(function (alert) {
+    if (alert.status === 'firing') {
+      const jobName = alert.labels.job_name;
+      // tag job by sending put request to rest server
+      unirest
+        .put(`${url}/api/v2/jobs/${jobName}/tag`)
+        .headers({
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        })
+        .send(JSON.stringify({ value: tag }))
+        .end(function (res) {
+          console.log('response from REST-Server:');
+          console.log(res.raw_body);
+        });
+    }
+  });
+
+  res.status(200).json({
+    message: 'alert-handler successfully send stop-job request to rest-server.',
+  });
+};
+
 // module exports
 module.exports = {
   stopJob,
+  tagJob,
 };

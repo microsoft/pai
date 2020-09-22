@@ -27,6 +27,11 @@ router
   .post(jobController.stopJob);
 
 router
+  .route('/alert-handler/tag-job/:tag')
+  /** POST /alert-handler/tag-job/:tag */
+  .post(jobController.tagJob);
+
+router
   .route('/alert-handler/send-email-to-admin')
   /** POST /alert-handler/send-email-to-admin */
   .post(emailController.sendEmailToAdmin);
