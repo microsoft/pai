@@ -93,9 +93,12 @@ const convertVolumeDetail = async (pvc) => {
   } else if (pv.spec.csi) {
     if (pv.spec.csi.driver === 'dshuttle') {
       storage.type = 'dshuttle';
-      storage.data = {};
+      storage.data = pv.spec.csi.volumeAttributes;
     }
     storage.readOnly = pv.spec.csi.readOnly === true;
+    if (pv.spec.mountOptions) {
+      storage.mountOptions = pv.spec.mountOptions;
+    }
   } else {
     storage.type = 'unknown';
     storage.data = {};
