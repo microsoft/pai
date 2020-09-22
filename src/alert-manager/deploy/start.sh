@@ -19,8 +19,8 @@
 
 pushd $(dirname "$0") > /dev/null
 
-kubectl apply --overwrite=true -f alert-configmap.yaml || exit $?
-kubectl apply --overwrite=true -f alert-manager.yaml || exit $?
+kubectl apply --overwrite=true -f alert-manager-configmap.yaml || exit $?
+kubectl apply --overwrite=true -f alert-manager-deployment.yaml || exit $?
 
 sleep 10
 # wait until the service is ready.

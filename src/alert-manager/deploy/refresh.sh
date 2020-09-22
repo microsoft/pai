@@ -21,7 +21,7 @@ pushd $(dirname "$0") > /dev/null
 
 
 echo "refresh alert-manager configuration"
-kubectl apply -f alert-configmap.yaml || exit $?
+kubectl apply -f alert-manager-configmap.yaml || exit $?
 
 
 popd > /dev/null

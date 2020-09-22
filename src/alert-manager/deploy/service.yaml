@@ -24,8 +24,8 @@ prerequisite:
   - drivers
 
 template-list:
-  - alert-manager.yaml
-  - alert-configmap.yaml
+  - alert-manager-deployment.yaml
+  - alert-manager-configmap.yaml
 
 start-script: start.sh
 stop-script: stop.sh

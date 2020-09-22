@@ -57,7 +57,7 @@ Make sure `job_name` presents in the alert body if you want to use this action.
 
 ### How to Match Alerts and Actions
 
-The matching rules between alerts and actions are defined in [alert-configmap.yaml.template](https://github.com/microsoft/pai/blob/master/src/alert-manager/deploy/alert-configmap.yaml.template):
+The matching rules between alerts and actions are defined in [alert-manager-configmap.yaml.template](https://github.com/microsoft/pai/blob/master/src/alert-manager/deploy/alert-manager-configmap.yaml.template):
 
 ``` yaml
 kind: ConfigMap
