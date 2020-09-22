@@ -544,6 +544,8 @@ class ContainerCollector(Collector):
         "poller_database-controller",
         "dshuttle-master",
         "dshuttle-job-master",
+        "fluentd",
+        "postgresql_postgresql",
 
         # Run as daemon set
         "node-exporter",
@@ -553,15 +555,9 @@ class ContainerCollector(Collector):
         "dshuttle-worker",
         "dshuttle-job-worker",
         "dshuttle-csi-daemon",
-
-        # Below are DLTS services
-        "nginx",
-        "restfulapi",
         "weave",
         "weave-npc",
         "nvidia-device-plugin-ctr",
-        "mysql",
-        "jobmanager",
         ]))
 
     def __init__(self, name, sleep_time, atomic_ref, iteration_counter, gpu_info_ref,

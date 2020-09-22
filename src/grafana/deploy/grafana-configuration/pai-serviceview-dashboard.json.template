@@ -454,6 +454,16 @@
           },
           {
             "selected": false,
+            "text": "fluentd",
+            "value": "fluentd"
+          },
+          {
+            "selected": false,
+            "text": "postgresql",
+            "value": "postgresql_postgresql"
+          },
+          {
+            "selected": false,
             "text": "log-manager-nginx",
             "value": "log-manager-nginx"
           },
