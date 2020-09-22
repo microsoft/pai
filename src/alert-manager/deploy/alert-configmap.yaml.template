@@ -14,6 +14,7 @@ data:
       group_interval: 5m
       repeat_interval: {{ cluster_cfg["alert-manager"]["repeat-interval"] }}
       group_by: [alertname, alertstate]
+
       {{ cluster_cfg["alert-manager"]["customized-routes"]}}
 
     receivers:
@@ -23,25 +24,5 @@ data:
        - url: 'http://localhost:{{ alert_handler["port"] }}/alert-handler/send-email-to-admin'
          send_resolved: true
 {% endif %}
-    - name: "pai-email-admin-user-and-stop-job"
-      webhook_configs:
-{% if 'email-admin' in cluster_cfg["alert-manager"]["actions-available"] %}
-        - url: 'http://localhost:{{ alert_handler["port"] }}/alert-handler/send-email-to-admin'
-          send_resolved: true
-{% endif %}
-{% if 'email-user' in cluster_cfg["alert-manager"]["actions-available"] %}
-        - url: 'http://localhost:{{ alert_handler["port"] }}/alert-handler/send-email-to-user'
-          send_resolved: true
-          http_config:
-            bearer_token: {{ alert_handler["pai-bearer-token"] }}
-{% endif %}
-{% if 'stop-job' in cluster_cfg["alert-manager"]["actions-available"] %}
-#       - url: 'http://localhost:{{ alert_handler["port"] }}/alert-handler/stop-job'
-#         send_resolved: false
-#         http_config:
-#           bearer_token: {{ alert_handler["pai-bearer-token"] }}
-#       - url: 'http://localhost:{{ alert_handler["port"] }}/alert-handler/tag-job/stopped-by-alert-manager'
-#         send_resolved: false
-#         http_config:
-#           bearer_token: {{ alert_handler["pai-bearer-token"] }}
-{% endif %}
+
+    {{ cluster_cfg["alert-manager"]["customized-routes"]}}

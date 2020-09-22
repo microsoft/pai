@@ -30,9 +30,3 @@ groups:
     for: 30m
     annotations:
       summary: "Job {{$labels.job_name}}in pending status detected"
-  - alert: PAIJobGpuPercentLowerThan0_3For1h
-    expr: avg(task_gpu_percent{virtual_cluster=~"default"}) by (job_name) < 0.3
-    for: 1h
-    annotations:
-      summary: "{{$labels.job_name}} has a job gpu percent lower than 30% for 1 hour"
-      description: Monitor job level gpu utilization in certain virtual clusters.
