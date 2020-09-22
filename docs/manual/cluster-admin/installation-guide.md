@@ -8,45 +8,48 @@ To install OpenPAI >= `v1.0.0`, please first check [Installation Requirements](#
 
 The deployment of OpenPAI requires you to have at least 3 separate machines: one dev box machine, one master machine, and one worker machine.
 
-Dev box machine controls masters and workers through SSH during installation, maintenance, and uninstallation. There should be one, and only one dev box. Master machine is used to run core Kubernetes components and core OpenPAI services. In most cases, one master machine is enough. You may set multiple masters if you want the cluster to be highly-available. We recommend you to use CPU-only machines for dev box and master. For worker machines, all of them should have GPUs, and have GPU driver correctly installed.
+Dev box machine controls masters and workers through SSH during installation, maintenance, and uninstallation. There should be one, and only one dev box. Master machine is used to run core Kubernetes components and core OpenPAI services. For now, you can only specify one master machine. We recommend you to use CPU-only machines for dev box and master. For worker machines, all of them should have GPUs, and have GPU driver correctly installed.
 
 To be detailed, please check the following requirements before installation:
 
 - Dev Box Machine
-    - Kubespray Requirement
-        - Ubuntu 16.04 (18.04 should work, but not fully tested.)
-        - Server can communicate with all other machine (master and worker machines)
-        - SSH service is enabled and share the same username/password and have sudo privilege
+    - Hardware Requirement
+        - It can communicate with all other machine (master and worker machines).
+        - It is separate from cluster which contains master machines and worker machines.
+    - Software Requirement
+        - Ubuntu 16.04 (18.04 should work, but not fully tested)
+        - SSH service is enabled.
         - Passwordless ssh to all other machines (master and worker machines)
-        - Be separate from cluster which contains master machines and worker machines   
-    - OpenPAI Requirement
-        - Docker is installed, and it is used to start up dev-box container for service deployment.
-    
-- Master Machines:
-    - Kubespray Requirement
-        - Assign each server a **static IP address**, and make sure servers can communicate each other. 
-        - Server can access internet, especially need to have access to the docker hub registry service or its mirror. Deployment process will pull Docker images.
-        - SSH service is enabled and share the same username/password and have sudo privilege.
-        - NTP service is enabled, and etcd is depended on it.
-    - OpenPAI Requirement
-        - Ubuntu 16.04 (18.04 should work, but not fully tested.)
-        - OpenPAI reserves memory and CPU for service running, so make sure there are enough resource to run machine learning jobs. Check hardware requirements for details.
-        - Dedicated servers for OpenPAI. OpenPAI manages all CPU, memory and GPU resources of servers. If there is any other workload, it may cause unknown problem due to insufficient resource.
-
+        - Docker is installed.  You may use command `docker --version` to check it. Refer to [docker's installation guidance](https://docs.docker.com/engine/install/ubuntu/) if it is not successfully installed.
+- Master Machine
+    - Hardware Requirement
+        - At least 40GB free memory.
+        - It has a **static IP address**, and make sure it can communicate with all other machines.
+        - It can access internet, especially needs to have access to the docker hub registry service or its mirror. Deployment process will pull Docker images.
+    - Software Requirement
+        - Ubuntu 16.04 (18.04 should work, but not fully tested)
+        - SSH service is enabled and share the same username/password with worker machines and have sudo privilege.
+        - NTP service is enabled, and etcd is depended on it. You can use `apt install ntp` to check this requirement.
+    - Other Requirement
+        - It is a dedicated server for OpenPAI. OpenPAI manages all CPU, memory and GPU resources of it. If there is any other workload, it may cause unknown problem due to insufficient resource.
 - Worker Machines:
-    - Kubespray Requirement
-        - Assign each server a **static IP address**, and make sure servers can communicate with each other. 
-        - Server can access internet, especially need to have access to the docker hub registry service or its mirror. Deployment process will pull Docker images.
+    - Hardware Requirement
+        - At least 16GB free memory.
+        - All servers should have at least one GPU.
+        - Each server has a **static IP address**, and make sure they can communicate with all other machines. 
+        - Each server can access internet, especially needs to have access to the docker hub registry service or its mirror. Deployment process will pull Docker images.
+    - Software Requirement
+        - Ubuntu 16.04 (18.04 should work, but not fully tested)
         - SSH service is enabled and share the same username/password and have sudo privilege.
-    - OpenPAI Requirement
-        - Ubuntu 16.04 (18.04 should work, but not fully tested.)
-        - **Have GPU and GPU driver is installed.**  You may use [a command](./installation-faqs-and-troubleshooting.md#how-to-check-whether-the-gpu-driver-is-installed) to check it. Refer to [the installation guidance](./installation-faqs-and-troubleshooting.md#how-to-install-gpu-driver) in FAQs if the driver is not successfully installed. If you are wondering which version of GPU driver you should use, please also refer to [FAQs](./installation-faqs-and-troubleshooting.md#which-version-of-nvidia-driver-should-i-install).
-        - **Docker is installed.**  You may use command `docker --version` to check it. Refer to [docker's installation guidance](https://docs.docker.com/engine/install/ubuntu/) if it is not successfully installed.
+        - Docker is installed. You may use command `docker --version` to check it. Refer to [docker's installation guidance](https://docs.docker.com/engine/install/ubuntu/) if it is not successfully installed.
+        - **GPU driver is installed.**  You may use [a command](./installation-faqs-and-troubleshooting.md#how-to-check-whether-the-gpu-driver-is-installed) to check it. Refer to [the installation guidance](./installation-faqs-and-troubleshooting.md#how-to-install-gpu-driver) in FAQs if the driver is not successfully installed. If you are wondering which version of GPU driver you should use, please also refer to [FAQs](./installation-faqs-and-troubleshooting.md#which-version-of-nvidia-driver-should-i-install).
         - **[nvidia-container-runtime](https://github.com/NVIDIA/nvidia-container-runtime) or other device runtime is installed. And be configured as the default runtime of docker. Please configure it in [docker-config-file](https://docs.docker.com/config/daemon/#configure-the-docker-daemon), because kubespray will overwrite systemd's env.**
             - You may use command `sudo docker run nvidia/cuda:10.0-base nvidia-smi` to check it. This command should output information of available GPUs if it is setup properly.
             - Refer to [the installation guidance](./installation-faqs-and-troubleshooting.md#how-to-install-nvidia-container-runtime) if the it is not successfully set up.
-        - OpenPAI reserves memory and CPU for service running, so make sure there are enough resource to run machine learning jobs. Check hardware requirements for details.
-        - Dedicated servers for OpenPAI. OpenPAI manages all CPU, memory and GPU resources of servers. If there is any other workload, it may cause unknown problem due to insufficient resource.
+    - Other Requirement
+        - Each server is dedicated for OpenPAI. OpenPAI manages all CPU, memory and GPU resources of it. If there is any other workload, it may cause unknown problem due to insufficient resource.
+
+Currently, OpenPAI does not support highly availability and it can only make use of one master node. This feature will be added in the future. Also, you cannot deploy OpenPAI using only one machine. You must have one dev box machine, one master machine and at least one worker machine. If you want a single-box deployment, please submit a feature request [on Github](https://github.com/microsoft/pai).
 
 #### Tips to Use CPU-only Worker
 
