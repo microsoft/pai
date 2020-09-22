@@ -21,6 +21,7 @@
   - Fix [runtime image check issue](https://github.com/microsoft/openpai-runtime#17)
   - Fix error message for SKU (#4602)
   - [Quick start for AKS-Engine](https://github.com/microsoft/pai/blob/v1.2.0/contrib/aks-engine/readme.md)
+- [Old framework retry history cannot be shown after upgrading to v1.2.0](https://github.com/microsoft/pai/issues/4930)
 - [Upgrade Guide](https://openpai.readthedocs.io/en/latest/manual/cluster-admin/upgrade-guide.html)
 
 For more details about this release, please refer to [detailed release note](https://github.com/microsoft/pai/releases/tag/v1.2.0).
