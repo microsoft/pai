@@ -5,6 +5,7 @@
   - [How to configure Dshuttle section in service-configuration.yaml](#how-to-configure-dshuttle-section-in-service-configurationyaml)
   - [Generated Configuration](#generated-configuration)
   - [Table](#table)
+  - [Notice](#notice)
 
 ## Default configuration
 
@@ -155,3 +156,8 @@ dshuttle:
 | fuse_active_processor_count            | com["dshuttle"]["fuse_active_processor_count"]  | cluster_cfg["dshuttle"]["fuse_active_processor_count"]   | Number    |
 | csi_daemon_request_mem                 | com["dshuttle"]["csi_daemon_request_mem"]       | cluster_cfg["dshuttle"]["csi_daemon_request_mem"]        | String    |
 | csi_daemon_limit_mem                   | com["dshuttle"]["csi_daemon_limit_mem"]         | cluster_cfg["dshuttle"]["csi_daemon_limit_mem"]          | String    |
+
+## Notice
+For `tieredstores`, the valid medium type is `MEM` and `SSD`. And the valid path is `/dev/shm` and `/mnt/ssd`
+If you set medium type to `MEM`, please set path to `/dev/shm`. If you set medium type to `SSD`, please set path to `/mnt/ssd`.
+Using other `mediumtype` or `path` will cause errors.
