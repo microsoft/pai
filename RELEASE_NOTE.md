@@ -5,17 +5,17 @@
 - Database
   - New RestServer Arch: RestServer -> DB -> ApiServer (#4651)
 - Webportal
-  - Job list paging in server side
-  - Change job createdTime to submissionTime
+  - Job list paging in server side (#4651)
+  - Change job createdTime to submissionTime (#4761)
   - VC && Group experience for Admin (AAD Mode) (#4800)
   - Support SKU count and SKU type in job submission page (#4796)
   - Upgrade api/v1 code to api/v2 (#4704)
   - Show "More Diagnostics" in job detail page (#4670)
 - Marketplace
   - [Unified PAI protocol](https://github.com/microsoft/openpaimarketplace#49)
-  - Merge examples
+  - [Merge examples](https://github.com/microsoft/openpaimarketplace#41)
 - Others
-  - HiveD improvement
+  - HiveD improvement (#4868)
   - Robustness improvement (#4694)
   - Fix logrotate issue (#4792)
   - Fix [runtime image check issue](https://github.com/microsoft/openpai-runtime#17)
