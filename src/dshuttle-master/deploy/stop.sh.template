@@ -35,8 +35,8 @@ if kubectl get configmap | grep -q "dshuttle-log-config"; then
     kubectl delete configmap dshuttle-log-config || exit $?
 fi
 
-if kubectl get secret | grep -q "dshuttle-docker-registry"; then
-    kubectl delete secret dshuttle-docker-registry || exit $?
+if kubectl get secret | grep -q "dshuttle-regcred"; then
+    kubectl delete secret dshuttle-regcred || exit $?
 fi
 
 popd > /dev/null
