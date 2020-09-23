@@ -481,7 +481,7 @@
             "selected": false,
             "text": "zookeeper",
             "value": "zookeeper"
-          },
+          }
         ],
         "query": "label_values(service_cpu_percent, name)",
         "refresh": 0,

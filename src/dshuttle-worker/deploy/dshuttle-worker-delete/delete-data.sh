@@ -22,6 +22,6 @@ echo "Clean the dshuttle-wroker's data on the disk"
 
 
 rm -rf /mnt/ssd/* 2>/dev/null
-rm -rf /mnt/log/*worker.log 2>/dev/null
+rm -rf /mnt/log/*worker.log* 2>/dev/null
 
 

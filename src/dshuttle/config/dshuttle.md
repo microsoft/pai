@@ -1,10 +1,10 @@
 # Dshuttle section parser
 
-- [Default Configuration](#Default-configuration-)
-- [How to Configure](#How-to-configure-dshuttle-section-in-service-configurationyaml-)
-- [Generated Configuration](#Generated-configuration-)
-- [Data Table](#Table-)
-- [Notice](#Notice-)
+- [Dshuttle section parser](#dshuttle-section-parser)
+  - [Default configuration](#default-configuration)
+  - [How to configure Dshuttle section in service-configuration.yaml](#how-to-configure-dshuttle-section-in-service-configurationyaml)
+  - [Generated Configuration](#generated-configuration)
+  - [Table](#table)
 
 ## Default configuration
 

@@ -23,4 +23,4 @@ echo "Clean the dshuttle-master's data on the disk"
 
 rm -rf /mnt/journal/* 2>/dev/null
 rm -rf /mnt/ufs/* 2>/dev/null
-rm -rf /mnt/log/*master*.log 2>/dev/null
+rm -rf /mnt/log/*master*.log* 2>/dev/null

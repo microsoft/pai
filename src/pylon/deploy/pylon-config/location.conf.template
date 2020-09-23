@@ -93,7 +93,6 @@ location ~ ^/log-manager/([^/]+):(\d+)/(.*)$ {
   proxy_pass http://$1:$2/log-manager/$3$is_args$args;
 }
 
-
 {% if CLUSTER_TYPE == 'yarn' %}
 #
 # YARN web portal
