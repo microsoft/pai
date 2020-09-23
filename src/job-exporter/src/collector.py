@@ -560,6 +560,7 @@ class ContainerCollector(Collector):
         "nvidia-device-plugin-ctr",
         "k8s-host-device",
         "amdgpu",
+        "k8s-rdma",
         ]))
 
     def __init__(self, name, sleep_time, atomic_ref, iteration_counter, gpu_info_ref,
