@@ -143,4 +143,4 @@ spec:
         hostPath:
           path: /etc
       imagePullSecrets:
-      - name: dshuttle-docker-registry
+      - name: dshuttle-regcred

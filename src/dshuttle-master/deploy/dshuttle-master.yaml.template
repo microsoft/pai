@@ -130,4 +130,4 @@ spec:
         - name: dshuttle-data
           mountPath: /underFSStorage
       imagePullSecrets:
-      - name: dshuttle-docker-registry
+      - name: dshuttle-regcred
