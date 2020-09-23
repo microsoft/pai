@@ -482,31 +482,6 @@
             "text": "zookeeper",
             "value": "zookeeper"
           },
-          {
-            "selected": false,
-            "text": "dshuttle-master",
-            "value": "dshuttle-master"
-          },
-          {
-            "selected": false,
-            "text": "dshuttle-worker",
-            "value": "dshuttle-worker"
-          },
-          {
-            "selected": false,
-            "text": "dshuttle-csi-daemon",
-            "value": "dshuttle-csi-daemon"
-          },
-          {
-            "selected": false,
-            "text": "dshuttle-job-worker",
-            "value": "dshuttle-job-worker"
-          },
-          {
-            "selected": false,
-            "text": "dshuttle-job-master",
-            "value": "dshuttle-job-master"
-          }
         ],
         "query": "label_values(service_cpu_percent, name)",
         "refresh": 0,
