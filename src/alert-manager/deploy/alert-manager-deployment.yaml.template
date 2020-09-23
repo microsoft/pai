@@ -86,7 +86,7 @@ spec:
       volumes:
       - name: config-volume
         configMap:
-          name: alertmanager
+          name: alertmanager-configmap
       - name: alertmanager
         emptyDir: {}
       tolerations:
