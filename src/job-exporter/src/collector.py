@@ -529,6 +529,7 @@ class ContainerCollector(Collector):
     lsof_timeout = 2 # 99th latency is 0.5s
 
     pai_services = list(map(lambda s: "k8s_" + s, [
+        # Run in master node
         "rest-server",
         "pylon",
         "webportal",
@@ -536,28 +537,30 @@ class ContainerCollector(Collector):
         "prometheus",
         "alertmanager",
         "watchdog",
-        "end-to-end-test",
-        "yarn-frameworklauncher",
-        "hadoop-jobhistory-service",
-        "hadoop-name-node",
-        "hadoop-node-manager",
-        "hadoop-resource-manager",
-        "hadoop-data-node",
-        "zookeeper",
+        "frameworkcontroller",
+        "hivedscheduler",
+        "framework-watcher_database-controller",
+        "write-merger_database-controller",
+        "poller_database-controller",
+        "dshuttle-master",
+        "dshuttle-job-master",
+        "fluentd",
+        "postgresql_postgresql",
+
+        # Run as daemon set
         "node-exporter",
         "job-exporter",
-        "yarn-exporter",
-        "nvidia-drivers",
-        "docker-cleaner",
-
-        # Below are DLTS services
-        "nginx",
-        "restfulapi",
+        "log-manager-nginx",
+        "log-manager-logrotate",
+        "dshuttle-worker",
+        "dshuttle-job-worker",
+        "dshuttle-csi-daemon",
         "weave",
         "weave-npc",
         "nvidia-device-plugin-ctr",
-        "mysql",
-        "jobmanager",
+        "k8s-host-device",
+        "amdgpu",
+        "k8s-rdma",
         ]))
 
     def __init__(self, name, sleep_time, atomic_ref, iteration_counter, gpu_info_ref,
