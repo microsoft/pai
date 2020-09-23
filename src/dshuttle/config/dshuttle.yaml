@@ -60,3 +60,6 @@ tieredstores:
   quota: 1GB,100GB
   watermark_low_ratio: 0.7
   watermark_high_ratio: 0.95
+
+registry_username: username
+registry_password: password

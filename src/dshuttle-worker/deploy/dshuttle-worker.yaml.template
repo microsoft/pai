@@ -37,7 +37,7 @@ spec:
       - name: socket-chown
         securityContext:
           runAsUser: 0
-        image: {{ cluster_cfg["cluster"]["docker-registry"]["prefix"] }}dshuttle:{{ cluster_cfg["cluster"]["docker-registry"]["tag"] }}
+        image: dshuttle.azurecr.io/dshuttle/dshuttle:v0.1.0
         command: ["/bin/chown","-R", "1000:1000", "/opt/domain", "/opt/logs", "/mnt/ssd"]
         volumeMounts:
         - name: dshuttle-domain
@@ -48,7 +48,7 @@ spec:
           mountPath: /mnt/ssd
       containers:
       - name: dshuttle-worker
-        image: {{ cluster_cfg["cluster"]["docker-registry"]["prefix"] }}dshuttle:{{ cluster_cfg["cluster"]["docker-registry"]["tag"] }}
+        image: dshuttle.azurecr.io/dshuttle/dshuttle:v0.1.0
         imagePullPolicy: Always
         securityContext:
           runAsUser: 1000
@@ -90,7 +90,7 @@ spec:
           mountPath: /opt/alluxio/conf/log4j.properties
           subPath: log4j.properties
       - name: dshuttle-job-worker
-        image: {{ cluster_cfg["cluster"]["docker-registry"]["prefix"] }}dshuttle:{{ cluster_cfg["cluster"]["docker-registry"]["tag"] }}
+        image: dshuttle.azurecr.io/dshuttle/dshuttle:v0.1.0
         securityContext:
           runAsUser: 1000
           runAsGroup: 1000
@@ -153,4 +153,4 @@ spec:
         configMap:
           name: dshuttle-log-config
       imagePullSecrets:
-      - name: {{ cluster_cfg["cluster"]["docker-registry"]["secret-name"] }}
+      - name: dshuttle-docker-registry

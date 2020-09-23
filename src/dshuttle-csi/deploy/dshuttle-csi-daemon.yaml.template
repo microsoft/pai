@@ -33,7 +33,7 @@ spec:
       initContainers:
       # This change aimed to avoid OS build file index for alluxio-fuse-fs, which will consume much disk space
       - name: change-updatedb-conf
-        image: dshuttle/dshuttle-csi:latest
+        image: dshuttle.azurecr.io/dshuttle/dshuttle-csi:v0.1.0
         imagePullPolicy: Always
         securityContext:
           runAsUser: 0
@@ -46,7 +46,7 @@ spec:
           subPath: updatedb.conf
       containers:
       - name: node-driver-registrar
-        image: {{ cluster_cfg["cluster"]["docker-registry"]["prefix"] }}csi-node-driver-registrar:{{ cluster_cfg["cluster"]["docker-registry"]["tag"] }}
+        image: quay.io/k8scsi/csi-node-driver-registrar:v1.0.2
         lifecycle:
           preStop:
             exec:
@@ -72,7 +72,7 @@ spec:
           capabilities:
             add: ["SYS_ADMIN"]
           allowPrivilegeEscalation: true
-        image: dshuttle/dshuttle-csi:latest
+        image: dshuttle.azurecr.io/dshuttle/dshuttle-csi:v0.1.0
         command: ["/usr/local/bin/dshuttle-csi"]
         args :
         - "--v=4"
@@ -143,4 +143,4 @@ spec:
         hostPath:
           path: /etc
       imagePullSecrets:
-      - name: {{ cluster_cfg["cluster"]["docker-registry"]["secret-name"] }}
+      - name: dshuttle-docker-registry

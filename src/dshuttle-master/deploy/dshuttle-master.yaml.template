@@ -34,7 +34,7 @@ spec:
       dnsPolicy: ClusterFirstWithHostNet
       containers:
       - name: dshuttle-master
-        image: {{ cluster_cfg["cluster"]["docker-registry"]["prefix"] }}dshuttle:{{ cluster_cfg["cluster"]["docker-registry"]["tag"] }}
+        image: dshuttle.azurecr.io/dshuttle/dshuttle:v0.1.0
         imagePullPolicy: Always
         securityContext:
           runAsUser: 1000
@@ -69,7 +69,7 @@ spec:
           mountPath: /opt/alluxio/conf/log4j.properties
           subPath: log4j.properties
       - name: dshuttle-job-master
-        image: {{ cluster_cfg["cluster"]["docker-registry"]["prefix"] }}dshuttle:{{ cluster_cfg["cluster"]["docker-registry"]["tag"] }}
+        image: dshuttle.azurecr.io/dshuttle/dshuttle:v0.1.0
         imagePullPolicy: Always
         securityContext:
           runAsUser: 1000
@@ -117,7 +117,7 @@ spec:
           name: dshuttle-log-config
       initContainers:
       - name: journal-chown
-        image: {{ cluster_cfg["cluster"]["docker-registry"]["prefix"] }}dshuttle:{{ cluster_cfg["cluster"]["docker-registry"]["tag"] }}
+        image: dshuttle.azurecr.io/dshuttle/dshuttle:v0.1.0
         imagePullPolicy: Always
         securityContext:
           runAsUser: 0
@@ -130,4 +130,4 @@ spec:
         - name: dshuttle-data
           mountPath: /underFSStorage
       imagePullSecrets:
-      - name: {{ cluster_cfg["cluster"]["docker-registry"]["secret-name"] }}
+      - name: dshuttle-docker-registry
