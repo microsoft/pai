@@ -153,4 +153,4 @@ spec:
         configMap:
           name: dshuttle-log-config
       imagePullSecrets:
-      - name: dshuttle-docker-registry
+      - name: dshuttle-regcred
