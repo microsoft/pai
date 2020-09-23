@@ -24,7 +24,7 @@ if kubectl get daemonset | grep -q "dshuttle-csi-daemon"; then
     kubectl delete daemonset dshuttle-csi-daemon || exit $?
 fi
 
-if kubectl get csidriver | grep -q "alluxio"; then
+if kubectl get csidriver | grep -q "dshuttle"; then
     kubectl delete csidriver alluxio || exit $?
 fi
 
