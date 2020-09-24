@@ -87,7 +87,7 @@ const tagJob = (req, res) => {
   });
 
   res.status(200).json({
-    message: 'alert-handler successfully send stop-job request to rest-server.',
+    message: 'alert-handler successfully send tag-job request to rest-server.',
   });
 };
 

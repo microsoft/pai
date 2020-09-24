@@ -64,6 +64,8 @@ data:
       {% if 'email-user' in receiver.actions %}
       - url: 'http://localhost:{{ cluster_cfg["alert-manager"]["alert-handler"]["port"] }}/alert-handler/send-email-to-user'
         send_resolved: true
+        http_config:
+          bearer_token: {{ cluster_cfg["alert-manager"]["alert-handler"]["pai-bearer-token"] }}
       {% endif %}
 
       {% if 'stop-job' in receiver.actions %}
