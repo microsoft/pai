@@ -44,12 +44,13 @@ const email = new Email({
 });
 
 const getAlertsGroupedByUser = (alerts, url, token) => {
+  // create promise group
   const promises = [];
   alerts.map(function (alert) {
     const jobName = alert.labels.job_name;
     if (jobName) {
       promises.push(
-        new Promise(function (resolve) {
+        new Promise(function (resolve, reject) {
           return unirest
             .get(`${url}/api/v2/jobs/${jobName}`)
             .headers({
@@ -57,30 +58,44 @@ const getAlertsGroupedByUser = (alerts, url, token) => {
               'Content-Type': 'application/json',
             })
             .end(function (res) {
-              resolve([res.body.jobStatus.username, alert]);
+              if (res.status !== 200) {
+                console.error('alert-handler failed to get username with jobname.');
+                console.error(res.raw_body);
+                reject(
+                  new Error(
+                    'alert-handler failed to get username with jobname.',
+                  ),
+                );
+              } else {
+                resolve([res.body.jobStatus.username, alert]);
+              }
             });
         }),
       );
     }
   });
 
+  // group alerts by username
   const alertsGrouped = {};
-  return Promise.all(promises)
-    .then(function (values) {
-      values.forEach(function (value) {
-        const username = value[0];
-        const alert = value[1];
-        if (username in alertsGrouped) {
-          alertsGrouped[username].push(alert);
-        } else {
-          alertsGrouped[username] = [alert];
-        }
-      });
-      return alertsGrouped;
-    })
-    .catch(function (data) {
-      console.error(data);
-    });
+  return (
+    Promise.all(promises)
+      .then(function (values) {
+        values.forEach(function (value) {
+          const username = value[0];
+          const alert = value[1];
+          if (username in alertsGrouped) {
+            alertsGrouped[username].push(alert);
+          } else {
+            alertsGrouped[username] = [alert];
+          }
+        });
+        return alertsGrouped;
+      })
+      // catch ?
+      .catch(function (error) {
+        return error;
+      })
+  );
 };
 
 const getUserEmail = (username, url, token) => {
@@ -112,16 +127,21 @@ const sendEmailToAdmin = async (req, res) => {
         externalURL: req.body.externalURL,
       },
     })
-    .then(function (res) {
+    .then(function () {
       console.log(
         `alert-handler successfully send email to admin at ${process.env.EMAIL_CONFIGS_ADMIN_RECEIVER}`,
       );
+      res.status(200).json({
+        message: `alert-handler successfully send email to admin at ${process.env.EMAIL_CONFIGS_ADMIN_RECEIVER}`,
+      });
     })
-    .catch(console.error);
-
-  res.status(200).json({
-    message: 'alert-handler finished send-email-to-admin action.',
-  });
+    .catch(function (data) {
+      console.error('alert-handler failed to send email to admin');
+      console.error(data);
+      res.status(500).json({
+        message: `alert-handler failed to send email to admin`,
+      });
+    });
 };
 
 const sendEmailToUser = async (req, res) => {
@@ -129,12 +149,16 @@ const sendEmailToUser = async (req, res) => {
   // group alerts by username
   const url = process.env.REST_SERVER_URI;
   const token = req.token;
+  let alertsGrouped;
 
-  const alertsGrouped = await getAlertsGroupedByUser(
-    req.body.alerts,
-    url,
-    token,
-  );
+  try {
+    alertsGrouped = await getAlertsGroupedByUser(req.body.alerts, url, token);
+  } catch (data) {
+    console.error(data);
+    res.status(500).json({
+      message: `Send email encourted Unknown Error`,
+    });
+  }
 
   if (alertsGrouped) {
     // send emails to different users separately
@@ -153,18 +177,23 @@ const sendEmailToUser = async (req, res) => {
             externalURL: req.body.externalURL,
           },
         })
-        .then(function (res) {
+        .then(function () {
           console.log(
             `alert-handler successfully send email to ${username} at ${userEmail}`,
           );
+          res.status(200).json({
+            message: `alert-handler successfully send email to ${username} at ${userEmail}`,
+          });
         })
-        .catch(console.error);
+        .catch(function (data) {
+          console.error('alert-handler failed to send email to user');
+          console.error(data);
+          res.status(500).json({
+            message: 'alert-handler failed to send email to user',
+          });
+        });
     });
   }
-
-  res.status(200).json({
-    message: 'alert-handler finished send-email-to-user action.',
-  });
 };
 
 // module exports

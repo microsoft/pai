@@ -29,8 +29,8 @@ OpenPAI uses `alert-manager` service for alert handling. We have provided so far
 * webportal-notification: Show alerts on the home page of webportal.
 * email-admin: Send emails to the assigned admin.
 * email-user: Send emails to the owners of jobs.
-* stop-job: Stop jobs by calling OpenPAI REST API.
-* tag-job: Add a tag to a job by calling OpenPAI REST API.
+* stop-jobs Stop jobs by calling OpenPAI REST API.
+* tag-jobs: Add a tag to a job by calling OpenPAI REST API.
 
 `webportal-notification` is always enabled, which means that all the alerts will be shown on the webportal.
 
@@ -41,18 +41,12 @@ the available actions list will then be saved in `cluster_cfg["alert-manager"]["
 These actions can be called within `alert-manager` by sending POST requests to `alert-handler`:
 - `localhost:{your_alert_handler_port}/alert-handler/send-email-to-admin`
 - `localhost:{your_alert_handler_port}/alert-handler/send-email-to-user`
-- `localhost:{your_alert_handler_port}/alert-handler/stop-job`
-- `localhost:{your_alert_handler_port}/alert-handler/tag-job/:tag`
+- `localhost:{your_alert_handler_port}/alert-handler/stop-jobs`
+- `localhost:{your_alert_handler_port}/alert-handler/tag-jobs/:tag`
 
 The request body will be automatically filled by `alert-manager` with `webhook`
 and `alert-handler` will adapt the requests to various actions.
-
-Notice that when `email-user` is called, `alert-handler` will :
-1. check if `job_name` exists in the alert body;
-2. find the job owner with `job_name`;
-3. check if the owner has an email address.
-
-Make sure `job_name` presents in the alert body if you want to use this action.
+Make sure `job_name` presents in the alert body if you want to use `email-user`, `stop-jobs` or `tag-jobs` actions.
 
 
 ### How to Match Alerts and Actions
@@ -60,56 +54,75 @@ Make sure `job_name` presents in the alert body if you want to use this action.
 The matching rules between alerts and actions are defined in [alert-manager-configmap.yaml.template](https://github.com/microsoft/pai/blob/master/src/alert-manager/deploy/alert-manager-configmap.yaml.template):
 
 ``` yaml
-kind: ConfigMap
 apiVersion: v1
+kind: ConfigMap
 metadata:
-  name: alertmanager
+  name: alertmanager-configmap
 data:
   config.yml: |-
     global:
       resolve_timeout: 5m
-{% set alert_handler = cluster_cfg["alert-manager"]["alert-handler"] %}
+    
     route:
       receiver: pai-email-admin
       group_wait: 30s
       group_interval: 5m
       repeat_interval: {{ cluster_cfg["alert-manager"]["repeat-interval"] }}
       group_by: [alertname, alertstate]
+
+      {% if 'routes' in cluster_cfg["alert-manager"]["customized-routes"] %}
       routes:
-      - receiver: pai-email-admin-user-and-stop-job
-        match: 
-          alertname: PAIJobGpuPercentLowerThan0_3For1h
+      {% for route in cluster_cfg["alert-manager"]["customized-routes"]["routes"] %}
+      - receiver: {{ route.receiver}}
+        {% if 'match' in route %}
+        match:
+          {% for key, item in route["match"].items() %}
+          {{ key }}: {{ item }}
+          {% endfor %}
+        {% endif %}
+      {% endfor %}
+      {% endif %}
+
     receivers:
     - name: "pai-email-admin"
       webhook_configs:
 {% if 'email-admin' in cluster_cfg["alert-manager"]["actions-available"] %}
-       - url: 'http://localhost:{{ alert_handler["port"] }}/alert-handler/send-email-to-admin'
-         send_resolved: true
-{% endif %}
-    - name: "pai-email-admin-user-and-stop-job"
-      webhook_configs:
-{% if 'email-admin' in cluster_cfg["alert-manager"]["actions-available"] %}
-        - url: 'http://localhost:{{ alert_handler["port"] }}/alert-handler/send-email-to-admin'
-          send_resolved: true
-{% endif %}
-{% if 'email-user' in cluster_cfg["alert-manager"]["actions-available"] %}
-        - url: 'http://localhost:{{ alert_handler["port"] }}/alert-handler/send-email-to-user'
-          send_resolved: true
-          http_config:
-            bearer_token: {{ alert_handler["pai-bearer-token"] }}
-{% endif %}
-{% if 'stop-job' in cluster_cfg["alert-manager"]["actions-available"] %}
-#       - url: 'http://localhost:{{ alert_handler["port"] }}/alert-handler/stop-job'
-#         send_resolved: false
-#         http_config:
-#           bearer_token: {{ alert_handler["pai-bearer-token"] }}
-#       - url: 'http://localhost:{{ alert_handler["port"] }}/alert-handler/tag-job/stopped-by-alert-manager'
-#         send_resolved: false
-#         http_config:
-#           bearer_token: {{ alert_handler["pai-bearer-token"] }}
+      - url: 'http://localhost:{{ cluster_cfg["alert-manager"]["alert-handler"]["port"] }}/alert-handler/send-email-to-admin'
+        send_resolved: true
 {% endif %}
 
-{% endif %}
+    {% for receiver in cluster_cfg["alert-manager"]["customized-receivers"] %}
+    - name: {{ receiver.name}}
+      webhook_configs:
+      {% if 'email-admin' in receiver.actions %}
+      - url: 'http://localhost:{{ cluster_cfg["alert-manager"]["alert-handler"]["port"] }}/alert-handler/send-email-to-admin'
+        send_resolved: true
+      {% endif %}
+
+      {% if 'email-user' in receiver.actions %}
+      - url: 'http://localhost:{{ cluster_cfg["alert-manager"]["alert-handler"]["port"] }}/alert-handler/send-email-to-user'
+        send_resolved: true
+        http_config:
+          bearer_token: {{ cluster_cfg["alert-manager"]["alert-handler"]["pai-bearer-token"] }}
+      {% endif %}
+
+      {% if 'stop-job' in receiver.actions %}
+      - url: 'http://localhost:{{ cluster_cfg["alert-manager"]["alert-handler"]["port"] }}/alert-handler/stop-jobs'
+        send_resolved: false
+        http_config:
+          bearer_token: {{ cluster_cfg["alert-manager"]["alert-handler"]["pai-bearer-token"] }}
+      {% endif %}
+
+      {% if 'tag-job' in receiver.actions %}
+      {% for tag in receiver["tags"] %}
+      - url: 'http://localhost:{{ cluster_cfg["alert-manager"]["alert-handler"]["port"] }}/alert-handler/tag-jobs/{{ tag }}'
+        send_resolved: false
+        http_config:
+          bearer_token: {{ cluster_cfg["alert-manager"]["alert-handler"]["pai-bearer-token"] }}
+      {% endfor %}
+      {% endif %}
+    
+    {% endfor %}
 ```
 
 Suppose all the actions are available and the `if` clauses are all evaluated as `True`.
@@ -145,7 +158,7 @@ For alerting rules syntax, please refer to [link](https://prometheus.io/docs/pro
 If you want to add new customized actions, you are encouraged to realize that through `alert-handler`.
 We provide `alert-handler` as a lightweight `express` application, where you can add customized APIs easily.
 
-For example, the `stop-job` action is realized by calling the `localhost:9095/alert-handler/stop-job` API through `webhook`, the request is then forward to the OpenPAI Rest Server to stop the job. You can add new APIs in `alert-handler` and adapt the request realize the required action.
+For example, the `stop-job` action is realized by calling the `localhost:9095/alert-handler/stop-jobs` API through `webhook`, the request is then forward to the OpenPAI Rest Server to stop the job. You can add new APIs in `alert-handler` and adapt the request realize the required action.
 
 The source code of `alert-handler` is available [here](https://github.com/microsoft/pai/blob/master/src/alert-manager/src).
 Remember to re-build and push the docker image, and restart the `alert-manager` service after your modification.

@@ -17,9 +17,9 @@
 
 const unirest = require('unirest');
 
-const stopJob = (req, res) => {
+const stopJobs = (req, res) => {
   console.log(
-    'alert-handler received `stop-job` post request from alert-manager.',
+    'alert-handler received `stop-jobs` post request from alert-manager.',
   );
   // extract jobs to kill
   const jobNames = [];
@@ -47,20 +47,26 @@ const stopJob = (req, res) => {
         'Content-Type': 'application/json',
       })
       .send(JSON.stringify({ value: 'STOP' }))
-      .end(function (res) {
-        console.log('response from REST-Server:');
-        console.log(res.raw_body);
+      .end(function (response) {
+        if (response.status !== 202) {
+          console.error('alert-handler failed to stop-job.');
+          console.error(response.raw_body);
+          res.status(500).json({
+            message: 'alert-handler failed to stop-job.',
+          });
+        }
       });
   });
 
+  console.log('alert-handler successfully stop jobs.');
   res.status(200).json({
-    message: 'alert-handler successfully send stop-job request to rest-server.',
+    message: 'alert-handler successfully stop jobs.',
   });
 };
 
-const tagJob = (req, res) => {
+const tagJobs = (req, res) => {
   console.log(
-    'alert-handler received `tag-job` post request from alert-manager.',
+    'alert-handler received `tag-jobs` post request from alert-manager.',
   );
 
   const url = process.env.REST_SERVER_URI;
@@ -79,20 +85,26 @@ const tagJob = (req, res) => {
           'Content-Type': 'application/json',
         })
         .send(JSON.stringify({ value: tag }))
-        .end(function (res) {
-          console.log('response from REST-Server:');
-          console.log(res.raw_body);
+        .end(function (response) {
+          if (response.status !== 200) {
+            console.error('alert-handler failed to tag jobs.');
+            console.error(response.raw_body);
+            res.status(500).json({
+              message: 'alert-handler failed to tag jobs.',
+            });
+          }
         });
     }
   });
 
+  console.log('alert-handler successfully tag jobs.');
   res.status(200).json({
-    message: 'alert-handler successfully send tag-job request to rest-server.',
+    message: 'alert-handler successfully tag jobs.',
   });
 };
 
 // module exports
 module.exports = {
-  stopJob,
-  tagJob,
+  stopJobs,
+  tagJobs,
 };

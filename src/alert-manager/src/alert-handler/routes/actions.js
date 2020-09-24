@@ -22,14 +22,14 @@ const jobController = require('../controllers/job');
 const router = express.Router();
 
 router
-  .route('/alert-handler/stop-job')
-  /** POST /alert-handler/stop-job */
-  .post(jobController.stopJob);
+  .route('/alert-handler/stop-jobs')
+  /** POST /alert-handler/stop-jobs */
+  .post(jobController.stopJobs);
 
 router
-  .route('/alert-handler/tag-job/:tag')
-  /** POST /alert-handler/tag-job/:tag */
-  .post(jobController.tagJob);
+  .route('/alert-handler/tag-jobs/:tag')
+  /** POST /alert-handler/tag-jobs/:tag */
+  .post(jobController.tagJobs);
 
 router
   .route('/alert-handler/send-email-to-admin')

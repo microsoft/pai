@@ -187,8 +187,8 @@ authentication:
 #       actions: 
 #         - email-admin
 #         - email-user
-#         - stop-job
-#         - tag-job
+#         - stop-jobs
+#         - tag-jobs
 #       tags: 
 #         - 'stopped-by-alert-manager'
 
