@@ -34,45 +34,82 @@ export default function TeamDetail({ isOpen = false, config, hide }) {
     hide();
   };
 
-  const columes = [
-    {
-      key: 'containerPath',
-      name: 'Path',
-      headerClassName: FontClassNames.semibold,
-      minWidth: 120,
-      onRender: item => {
-        return (
-          <div className={FontClassNames.small}>{`/mnt/${item.name}`}</div>
-        );
+  const columes = config => {
+    const result = [
+      {
+        key: 'containerPath',
+        name: 'Path',
+        headerClassName: FontClassNames.semibold,
+        minWidth: 120,
+        onRender: item => {
+          return (
+            <div className={FontClassNames.small}>{`/mnt/${item.name}`}</div>
+          );
+        },
       },
-    },
-    {
-      key: 'serverType',
-      name: 'Server Type',
-      headerClassName: FontClassNames.semibold,
-      minWidth: 80,
-      onRender: item => {
-        if (item === undefined) {
-          return <div className={FontClassNames.small}>{'Invalid Server'}</div>;
-        } else {
-          return <div className={FontClassNames.small}>{item.type}</div>;
-        }
+      {
+        key: 'serverType',
+        name: 'Server Type',
+        headerClassName: FontClassNames.semibold,
+        minWidth: 80,
+        onRender: item => {
+          if (item === undefined) {
+            return (
+              <div className={FontClassNames.small}>{'Invalid Server'}</div>
+            );
+          } else {
+            return <div className={FontClassNames.small}>{item.type}</div>;
+          }
+        },
       },
-    },
-    {
-      key: 'serverPath',
-      name: 'Server Path(Server Root Path as bold)',
-      headerClassName: FontClassNames.semibold,
-      minWidth: 400,
-      onRender: item => {
-        if (item === undefined) {
-          return <div className={FontClassNames.small}>{'Invalid Server'}</div>;
-        } else {
-          return SERVER_PATH[item.type](item);
-        }
-      },
-    },
-    {
+    ];
+    if (config.type === 'dshuttle') {
+      result.push({
+        key: 'ufsType',
+        name: 'UFS Type',
+        headerClassName: FontClassNames.semibold,
+        minWidth: 80,
+        onRender: item => {
+          if (item === undefined) {
+            return <div className={FontClassNames.small}>{'Invalid Type'}</div>;
+          } else {
+            return 'azureBlob';
+          }
+        },
+      });
+      result.push({
+        key: 'ufsServerPath',
+        name: 'UFS Server Path(Server Root Path as bold)',
+        headerClassName: FontClassNames.semibold,
+        minWidth: 350,
+        onRender: item => {
+          if (item === undefined) {
+            return (
+              <div className={FontClassNames.small}>{'Invalid Server'}</div>
+            );
+          } else {
+            return SERVER_PATH[item.type](item);
+          }
+        },
+      });
+    } else {
+      result.push({
+        key: 'serverPath',
+        name: 'Server Path(Server Root Path as bold)',
+        headerClassName: FontClassNames.semibold,
+        minWidth: 400,
+        onRender: item => {
+          if (item === undefined) {
+            return (
+              <div className={FontClassNames.small}>{'Invalid Server'}</div>
+            );
+          } else {
+            return SERVER_PATH[item.type](item);
+          }
+        },
+      });
+    }
+    result.push({
       key: 'permission',
       name: 'Permission',
       headerClassName: FontClassNames.semibold,
@@ -84,8 +121,10 @@ export default function TeamDetail({ isOpen = false, config, hide }) {
           </div>
         );
       },
-    },
-  ];
+    });
+
+    return result;
+  };
 
   return (
     <Dialog
@@ -184,7 +223,7 @@ export default function TeamDetail({ isOpen = false, config, hide }) {
         </Text>
         <Text variant='large'>Details</Text>
         <DetailsList
-          columns={columes}
+          columns={columes(config)}
           disableSelectionZone
           selectionMode={SelectionMode.none}
           items={[config]}
@@ -320,6 +359,29 @@ export const NAS_TIPS = {
       <span> to upload data directly.</span>
     </div>
   ),
+  dshuttle: (
+    <div>
+      <div style={{ fontWeight: FontWeights.semibold }}>Dshuttle</div>
+      <span>
+        Storage Dshuttle is configured for group. It used as a fast data cache
+        and try to speed up I/O intensive workload. It&apos;s a readonly
+        storage. For more detail, please refer to
+      </span>
+      <Link
+        href='https://github.com/microsoft/dshuttle'
+        target='_blank'
+        style={{ fontWeight: FontWeights.semibold }}
+      >
+        Dshuttle doc
+      </Link>
+      <span>or contact cluster amdin.</span>
+      <Text variant='large'>How to use data ?</Text>
+      <Text styles={{ root: { marginLeft: `${spacing.m}` } }}>
+        By selecting team storage, the server path will be automatically mounted
+        to path when job running. Please treat is as local folder.
+      </Text>
+    </div>
+  ),
 };
 
 export const SERVER_PATH = {
@@ -350,6 +412,12 @@ export const SERVER_PATH = {
   hdfs: storage => (
     <div className={FontClassNames.semibold}>
       <b>{`${storage.data.namenode}:${storage.data.port}`}</b>
+      {storage.data.path || '/'}
+    </div>
+  ),
+  dshuttle: storage => (
+    <div className={FontClassNames.semibold}>
+      <b>{`${storage.data.accountName}.blob.core.windows.net/${storage.data.containerName}`}</b>
       {storage.data.path || '/'}
     </div>
   ),

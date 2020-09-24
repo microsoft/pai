@@ -218,3 +218,11 @@ export function getStoragePlugin(extras) {
   }
   return plugins.find(plugin => plugin.plugin === 'teamwise_storage');
 }
+
+export function getDeshuttleStorageDetails(dshuttleMountPoint) {
+  const strings = dshuttleMountPoint.ufsUri.split('//')[1].split('@');
+  const accountName = strings[1].split('.')[0];
+  const containerName = strings[0];
+
+  return { accountName, containerName };
+}

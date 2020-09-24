@@ -45,6 +45,8 @@ function getStorageServerUri(storageDetail) {
       );
     case 'hdfs':
       return `hdfs://${data.namenode}:${data.port}`;
+    case 'dshuttle':
+      return 'dshuttle';
     case 'unknown':
       return (
         <>

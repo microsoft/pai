@@ -7,6 +7,7 @@ import config from '../../config/webportal.config';
 import yaml from 'js-yaml';
 import { get } from 'lodash';
 import urljoin from 'url-join';
+import { getDeshuttleStorageDetails } from './utils';
 
 const token = cookies.get('token');
 
@@ -95,6 +96,44 @@ export async function fetchStorageDetails(configNames) {
         const detail = await client.storage.getStorage(storage.name);
         if (defaultStorageNames.includes(detail.name)) {
           detail.default = true;
+        }
+        if (detail.type === 'dshuttle') {
+          const res = await fetch('dshuttle/api/v1/master/info', {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          });
+          if (res.ok) {
+            const json = await res.json();
+            if (
+              detail.data.dshuttlePath &&
+              json.mountPoints[detail.data.dshuttlePath]
+            ) {
+              detail.data = {
+                ...detail.data,
+                ...getDeshuttleStorageDetails(
+                  json.mountPoints[detail.data.dshuttlePath],
+                ),
+              };
+            }
+          } else {
+            detail.data = {
+              ...detail.data,
+              ...getDeshuttleStorageDetails({
+                shared: false,
+                readOnly: false,
+                ufsUri:
+                  'wasbs://dshuttle@dshuttletestne.blob.core.windows.net/',
+                ufsType: 'wasb',
+                ufsCapacityBytes: -1,
+                ufsUsedBytes: -1,
+                properties: {
+                  'fs.azure.account.key.dshuttletestne.blob.core.windows.net':
+                    '******',
+                },
+              }),
+            };
+          }
         }
         details.push(detail);
       }
