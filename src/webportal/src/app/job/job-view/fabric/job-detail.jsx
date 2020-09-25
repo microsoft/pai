@@ -258,7 +258,7 @@ class JobDetail extends React.Component {
                 </Stack>
                 <TaskRoleContainerList
                   taskAttempts={this.getAllTaskAttempts(jobInfo)}
-                  showTaskRetryInfo={this.showTaskRetryInfo}
+                  showTaskRetryInfo={this.state.showTaskRetryInfo}
                 />
               </Stack>
             </Card>
