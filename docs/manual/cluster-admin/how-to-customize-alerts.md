@@ -3,6 +3,10 @@
 OpenPAI supports the customization of alert rules and corresponding handling actions.
 The alert rules are managed by `prometheus` service and the matching rules between rules and actions are managed by `alert-manager` service.
 
+By default, the alerts will only be displayed on the webportal.
+You can customize `prometheus` and `alert-manager` to realize complex functions.
+For example, we can send emails to administrators and alert related users, tag the jobs, etc.
+
 In this document, we will introduce existing alerts & actions, their matching methods, and how to add new customized alerts & actions.
 
 ## Existing Alerts/Actions & How to Match Them 
@@ -18,7 +22,7 @@ For alerting rules syntax, please refer to [link](https://prometheus.io/docs/pro
 ### Existing Actions
 
 OpenPAI uses the `alert-manager` service for alert handling. We have provided so far these following actions: 
-* webportal-notification: Show alerts on the home page of webportal.
+* webportal-notification: Show alerts on the home page of webportal (on the top-right corner).
 * email-admin: Send emails to the assigned admin.
 * email-user: Send emails to the owners of jobs.
 * stop-jobs Stop jobs by calling OpenPAI REST API.
@@ -71,7 +75,12 @@ For `receivers` definition, you can simply:
 - list the actions to use in `actions`;
 - list the tags in `tags` if `tag-jobs` is one of the actions.
 
-Remember to push service config to the cluster and restart the `alert-manager` service after your modification. 
+Remember to push service config to the cluster and restart the `alert-manager` service after your modification with the following commands in the dev-box container:
+```bash
+./paictl.py service stop -n alert-manager
+./paictl.py config push -p /cluster-configuration -m service
+./paictl.py service start -n alert-manager
+```
 
 For alert & action matching rules syntax, please refer to [Prometheus Alertmanager](https://prometheus.io/docs/alerting/latest/configuration/).
 
@@ -100,7 +109,12 @@ The `PAIJobGpuPercentLowerThan0_3For1h` alert will be fired when the job on virt
 Here the metric `task_gpu_percent` is used, which describes the GPU utilization in task level. 
 You can explore the system metrics at `your_master_ip/prometheus/graph`.
 
-Remember to push service config to the cluster and restart the `prometheus` service after your modification. 
+Remember to push service config to the cluster and restart the `prometheus` service after your modification with the following commands in the dev-box container:
+```bash
+./paictl.py service stop -n prometheus
+./paictl.py config push -p /cluster-configuration -m service
+./paictl.py service start -n prometheus
+```
 
 Please refer to [Prometheus Alerting Rules](https://prometheus.io/docs/prometheus/latest/configuration/alerting_rules/) for alerting rules syntax.
 
@@ -140,4 +154,12 @@ and `alert-handler` will adapt the requests to various actions.
 Please define how to render your customized action to the `alert-handler` API request
 [here](https://github.com/microsoft/pai/blob/master/src/alert-manager/src/alert-handler)
 
-Remember to re-build and push the docker image, and restart the `alert-manager` service after your modification.
+Remember to re-build and push the docker image, and restart the `alert-manager` service after your modification with the following commmands in the dev-box container:
+
+```bash
+./build/pai_build.py build -c /cluster-configuration/ -s alert-manager
+./build/pai_build.py push -c /cluster-configuration/ -i alert-handler
+./paictl.py service stop -n alert-manager
+./paictl.py config push -p /cluster-configuration -m service
+./paictl.py service start -n alert-manager
+```

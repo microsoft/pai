@@ -42,6 +42,12 @@ data:
           {{ key }}: {{ item }}
           {% endfor %}
         {% endif %}
+        {% if 'match_re' in route %}
+        match_re:
+          {% for key, item in route["match_re"].items() %}
+          {{ key }}: {{ item }}
+          {% endfor %}
+        {% endif %}
       {% endfor %}
       {% endif %}
 
