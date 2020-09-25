@@ -323,203 +323,49 @@ export default class TaskRoleContainerList extends React.Component {
     }
   }
 
-  getColumns(showDebugInfo) {
-    const optionalColumns = [
-      {
-        key: 'accountableRetries',
-        name: 'Accountable Retries',
-        headerClassName: FontClassNames.medium,
-        minWidth: 150,
-        maxWidth: 200,
-        isResizable: true,
-        onRender: (item, idx) => {
-          return (
-            <div className={FontClassNames.mediumPlus}>
-              {item.accountableRetries}
-            </div>
-          );
-        },
-      },
-      {
-        key: 'startTime',
-        name: 'Start Time',
-        headerClassName: FontClassNames.medium,
-        minWidth: 150,
-        maxWidth: 200,
-        isResizable: true,
-        onRender: item => {
-          return (
-            <div className={c(FontClassNames.mediumPlus)}>
-              {isNil(item.createdTime)
-                ? 'N/A'
-                : printDateTime(DateTime.fromMillis(item.createdTime))}
-            </div>
-          );
-        },
-      },
-      {
-        key: 'currentAttemptLaunchedTime',
-        name: 'Current Attempt Launched Time',
-        headerClassName: FontClassNames.medium,
-        minWidth: 200,
-        maxWidth: 250,
-        isResizable: true,
-        onRender: item => {
-          return (
-            <div className={c(FontClassNames.mediumPlus)}>
-              {isNil(item.currentAttemptLaunchedTime)
-                ? 'N/A'
-                : printDateTime(
-                    DateTime.fromMillis(item.currentAttemptLaunchedTime),
-                  )}
-            </div>
-          );
-        },
-      },
-      {
-        key: 'currentAttemptCompletedTime',
-        name: 'Current Attempt Completion Time',
-        headerClassName: FontClassNames.medium,
-        minWidth: 250,
-        maxWidth: 250,
-        isResizable: true,
-        onRender: item => {
-          return (
-            <div className={c(FontClassNames.mediumPlus)}>
-              {isNil(item.currentAttemptCompletedTime)
-                ? 'N/A'
-                : printDateTime(
-                    DateTime.fromMillis(item.currentAttemptCompletedTime),
-                  )}
-            </div>
-          );
-        },
-      },
-      {
-        key: 'completionTime',
-        name: 'Completion Time',
-        headerClassName: FontClassNames.medium,
-        minWidth: 150,
-        maxWidth: 200,
-        isResizable: true,
-        onRender: item => {
-          return (
-            <div className={c(FontClassNames.mediumPlus)}>
-              {isNil(item.completedTime)
-                ? 'N/A'
-                : printDateTime(DateTime.fromMillis(item.completedTime))}
-            </div>
-          );
-        },
-      },
-      {
-        key: 'nodeName',
-        name: 'Node Name',
-        headerClassName: FontClassNames.medium,
-        minWidth: 100,
-        isResizable: true,
-        onRender: item => {
-          return (
-            <div className={c(FontClassNames.mediumPlus)}>
-              {item.containerNodeName}
-            </div>
-          );
-        },
-      },
-      {
-        key: 'exitDiagonostic',
-        name: 'Exit Diagnostics',
-        headerClassName: FontClassNames.medium,
-        minWidth: 200,
-        isResizable: true,
-        onRender: item => {
-          return (
-            <CommandBarButton
-              className={FontClassNames.mediumPlus}
-              styles={{
-                root: { backgroundColor: 'transparent' },
-                rootDisabled: { backgroundColor: 'transparent' },
-              }}
-              disabled={
-                isNil(item.containerExitDiagnostics) &&
-                isNil(item.containerExitSpec)
-              }
-              text='Show Exit Diagnostics'
-              onClick={() => {
-                const result = [];
-                // exit spec
-                const spec = item.containerExitSpec;
-                if (!isNil(spec)) {
-                  // divider
-                  result.push(Array.from({ length: 80 }, () => '-').join(''));
-                  result.push('');
-                  // content
-                  result.push('[Exit Spec]');
-                  result.push('');
-                  result.push(yaml.safeDump(spec));
-                  result.push('');
-                }
-
-                // diagnostics
-                const diag = item.containerExitDiagnostics;
-                if (!isNil(diag)) {
-                  // divider
-                  result.push(Array.from({ length: 80 }, () => '-').join(''));
-                  result.push('');
-                  // content
-                  result.push('[Exit Diagnostics]');
-                  result.push('');
-                  result.push(diag);
-                  result.push('');
-                }
-
-                this.setState({
-                  monacoProps: {
-                    language: 'text',
-                    value: result.join('\n'),
-                    options: {
-                      wordWrap: 'off',
-                      readOnly: true,
-                    },
-                  },
-                  monacoTitle: `Task Exit Diagonostics`,
-                });
-              }}
-            />
-          );
-        },
-      },
-      {
-        key: 'containerId',
-        name: 'Container ID',
-        headerClassName: FontClassNames.medium,
-        minWidth: 300,
-        isResizable: true,
-        onRender: item => {
-          const id = item.containerId;
-          return (
-            !isNil(id) && (
-              <div className={c(t.truncate, FontClassNames.mediumPlus)}>
-                {id}
-              </div>
-            )
-          );
-        },
-      },
-    ];
+  getColumns(showTaskRetryInfo) {
     const defaultColumns = [
       {
-        key: 'number',
-        name: 'No.',
+        key: 'taskRoleName',
+        name: 'Task Role',
         headerClassName: FontClassNames.medium,
-        minWidth: 30,
-        maxWidth: 50,
         isResizable: true,
         onRender: (item, idx) => {
           return (
-            !isNil(idx) && (
-              <div className={FontClassNames.mediumPlus}>{idx}</div>
-            )
+            <div className={FontClassNames.mediumPlus}>{item.taskRoleName}</div>
+          );
+        },
+      },
+      {
+        key: 'taskIndex',
+        name: 'Task Index',
+        headerClassName: FontClassNames.medium,
+        isResizable: true,
+        onRender: (item, idx) => {
+          return (
+            <div className={FontClassNames.mediumPlus}>{item.taskIndex}</div>
+          );
+        },
+      },
+      {
+        key: 'taskState',
+        name: 'Task State',
+        headerClassName: FontClassNames.medium,
+        minWidth: 100,
+        maxWidth: 150,
+        isResizable: true,
+        onRender: item => <StatusBadge status={capitalize(item.taskState)} />,
+      },
+      {
+        key: 'retries',
+        name: 'Task Retries',
+        headerClassName: FontClassNames.medium,
+        minWidth: 50,
+        maxWidth: 100,
+        isResizable: true,
+        onRender: (item, idx) => {
+          return (
+            <div className={FontClassNames.mediumPlus}>{item.retries}</div>
           );
         },
       },
@@ -588,118 +434,6 @@ export default class TaskRoleContainerList extends React.Component {
                 </TooltipHost>
               </div>
             )
-          );
-        },
-      },
-      {
-        key: 'gpus',
-        name: 'GPUs',
-        className: FontClassNames.mediumPlus,
-        headerClassName: FontClassNames.medium,
-        minWidth: 35,
-        maxWidth: 60,
-        isResizable: true,
-        onRender: item => {
-          const gpuAttr = isNil(item.containerGpus)
-            ? null
-            : parseGpuAttr(item.containerGpus);
-          if (isNil(gpuAttr)) {
-            return null;
-          } else if (gpuAttr.length === 0) {
-            return <div>0</div>;
-          } else {
-            return (
-              <div>
-                <TooltipHost
-                  calloutProps={{
-                    isBeakVisible: false,
-                  }}
-                  tooltipProps={{
-                    onRenderContent: () => (
-                      <div>
-                        {gpuAttr.map(x => (
-                          <span
-                            className={t.mr2}
-                            key={`gpu-${x}`}
-                          >{`#${x}`}</span>
-                        ))}
-                      </div>
-                    ),
-                  }}
-                  directionalHint={DirectionalHint.topLeftEdge}
-                >
-                  <Stack horizontal gap='s1'>
-                    <div>{gpuAttr.length}</div>
-                    <div>
-                      <Icon
-                        iconName='Info'
-                        styles={{
-                          root: [
-                            { fontSize: FontSizes.small },
-                            ColorClassNames.neutralSecondary,
-                          ],
-                        }}
-                      />
-                    </div>
-                  </Stack>
-                </TooltipHost>
-              </div>
-            );
-          }
-        },
-      },
-      {
-        key: 'status',
-        name: 'Status',
-        headerClassName: FontClassNames.medium,
-        minWidth: 100,
-        maxWidth: 150,
-        isResizable: true,
-        onRender: item => <StatusBadge status={capitalize(item.taskState)} />,
-      },
-      {
-        key: 'retries',
-        name: 'Retries',
-        headerClassName: FontClassNames.medium,
-        minWidth: 50,
-        maxWidth: 100,
-        isResizable: true,
-        onRender: (item, idx) => {
-          return (
-            <div className={FontClassNames.mediumPlus}>{item.retries}</div>
-          );
-        },
-      },
-      {
-        key: 'exitCode',
-        name: 'Exit Code',
-        headerClassName: FontClassNames.medium,
-        minWidth: 100,
-        maxWidth: 150,
-        isResizable: true,
-        onRender: item => {
-          return (
-            <div className={c(FontClassNames.mediumPlus)}>
-              {item.containerExitCode}
-            </div>
-          );
-        },
-      },
-      {
-        key: 'exitType',
-        name: 'Exit Type',
-        headerClassName: FontClassNames.medium,
-        minWidth: 150,
-        maxWidth: 200,
-        isResizable: true,
-        onRender: item => {
-          return (
-            <div className={c(FontClassNames.mediumPlus)}>
-              {!isNil(item.containerExitSpec) &&
-              !isNil(item.containerExitSpec.type)
-                ? item.containerExitSpec.type
-                : null}
-            </div>
           );
         },
       },
@@ -806,11 +540,276 @@ export default class TaskRoleContainerList extends React.Component {
           </div>
         ),
       },
+      {
+        key: 'gpus',
+        name: 'GPUs',
+        className: FontClassNames.mediumPlus,
+        headerClassName: FontClassNames.medium,
+        minWidth: 35,
+        maxWidth: 60,
+        isResizable: true,
+        onRender: item => {
+          const gpuAttr = isNil(item.containerGpus)
+            ? null
+            : parseGpuAttr(item.containerGpus);
+          if (isNil(gpuAttr)) {
+            return null;
+          } else if (gpuAttr.length === 0) {
+            return <div>0</div>;
+          } else {
+            return (
+              <div>
+                <TooltipHost
+                  calloutProps={{
+                    isBeakVisible: false,
+                  }}
+                  tooltipProps={{
+                    onRenderContent: () => (
+                      <div>
+                        {gpuAttr.map(x => (
+                          <span
+                            className={t.mr2}
+                            key={`gpu-${x}`}
+                          >{`#${x}`}</span>
+                        ))}
+                      </div>
+                    ),
+                  }}
+                  directionalHint={DirectionalHint.topLeftEdge}
+                >
+                  <Stack horizontal gap='s1'>
+                    <div>{gpuAttr.length}</div>
+                    <div>
+                      <Icon
+                        iconName='Info'
+                        styles={{
+                          root: [
+                            { fontSize: FontSizes.small },
+                            ColorClassNames.neutralSecondary,
+                          ],
+                        }}
+                      />
+                    </div>
+                  </Stack>
+                </TooltipHost>
+              </div>
+            );
+          }
+        },
+      },
+      {
+        key: 'exitCode',
+        name: 'Exit Code',
+        headerClassName: FontClassNames.medium,
+        minWidth: 100,
+        maxWidth: 150,
+        isResizable: true,
+        onRender: item => {
+          return (
+            <div className={c(FontClassNames.mediumPlus)}>
+              {item.containerExitCode}
+            </div>
+          );
+        },
+      },
+      {
+        key: 'exitType',
+        name: 'Exit Type',
+        headerClassName: FontClassNames.medium,
+        minWidth: 150,
+        maxWidth: 200,
+        isResizable: true,
+        onRender: item => {
+          return (
+            <div className={c(FontClassNames.mediumPlus)}>
+              {!isNil(item.containerExitSpec) &&
+              !isNil(item.containerExitSpec.type)
+                ? item.containerExitSpec.type
+                : null}
+            </div>
+          );
+        },
+      },
+    ];
+    const attemptInfoColumns = [
+      {
+        key: 'taskUid',
+        name: 'Task Uid',
+        headerClassName: FontClassNames.medium,
+        isResizable: true,
+        onRender: (item, idx) => {
+          return (
+            <div className={FontClassNames.mediumPlus}>{item.taskUid}</div>
+          );
+        },
+      },
+      {
+        key: 'taskAttemptId',
+        name: 'Task Attempt Id',
+        headerClassName: FontClassNames.medium,
+        isResizable: true,
+        onRender: (item, idx) => {
+          return (
+            <div className={FontClassNames.mediumPlus}>{item.attemptId}</div>
+          );
+        },
+      },
+      {
+        key: 'taskAttemtState',
+        name: 'Task Attempt State',
+        headerClassName: FontClassNames.medium,
+        isResizable: true,
+        onRender: item => (
+          <StatusBadge status={capitalize(item.attemptState)} />
+        ),
+      },
+      {
+        key: 'taskAttemptExitCode',
+        name: 'Task Attempt Exit Code',
+        headerClassName: FontClassNames.medium,
+        isResizable: true,
+        onRender: (item, idx) => {
+          return (
+            <div className={FontClassNames.mediumPlus}>
+              {item.containerExitCode}
+            </div>
+          );
+        },
+      },
+    ];
+    const optionalColumns = [
+      {
+        key: 'startTime',
+        name: 'Start Time',
+        headerClassName: FontClassNames.medium,
+        minWidth: 150,
+        maxWidth: 200,
+        isResizable: true,
+        onRender: item => {
+          return (
+            <div className={c(FontClassNames.mediumPlus)}>
+              {isNil(item.createdTime)
+                ? 'N/A'
+                : printDateTime(DateTime.fromMillis(item.createdTime))}
+            </div>
+          );
+        },
+      },
+      {
+        key: 'taskAttemptCompletedTime',
+        name: 'Task Attempt Completed Time',
+        headerClassName: FontClassNames.medium,
+        isResizable: true,
+        onRender: (item, idx) => {
+          return (
+            <div className={FontClassNames.mediumPlus}>
+              {isNil(item.createdTime)
+                ? 'N/A'
+                : printDateTime(DateTime.fromMillis(item.createdTime))}
+            </div>
+          );
+        },
+      },
+      {
+        key: 'nodeName',
+        name: 'Node Name',
+        headerClassName: FontClassNames.medium,
+        minWidth: 100,
+        isResizable: true,
+        onRender: item => {
+          return (
+            <div className={c(FontClassNames.mediumPlus)}>
+              {item.containerNodeName}
+            </div>
+          );
+        },
+      },
+      {
+        key: 'exitDiagonostic',
+        name: 'Exit Diagnostics',
+        headerClassName: FontClassNames.medium,
+        minWidth: 200,
+        isResizable: true,
+        onRender: item => {
+          return (
+            <CommandBarButton
+              className={FontClassNames.mediumPlus}
+              styles={{
+                root: { backgroundColor: 'transparent' },
+                rootDisabled: { backgroundColor: 'transparent' },
+              }}
+              disabled={
+                isNil(item.containerExitDiagnostics) &&
+                isNil(item.containerExitSpec)
+              }
+              text='Show Exit Diagnostics'
+              onClick={() => {
+                const result = [];
+                // exit spec
+                const spec = item.containerExitSpec;
+                if (!isNil(spec)) {
+                  // divider
+                  result.push(Array.from({ length: 80 }, () => '-').join(''));
+                  result.push('');
+                  // content
+                  result.push('[Exit Spec]');
+                  result.push('');
+                  result.push(yaml.safeDump(spec));
+                  result.push('');
+                }
+
+                // diagnostics
+                const diag = item.containerExitDiagnostics;
+                if (!isNil(diag)) {
+                  // divider
+                  result.push(Array.from({ length: 80 }, () => '-').join(''));
+                  result.push('');
+                  // content
+                  result.push('[Exit Diagnostics]');
+                  result.push('');
+                  result.push(diag);
+                  result.push('');
+                }
+
+                this.setState({
+                  monacoProps: {
+                    language: 'text',
+                    value: result.join('\n'),
+                    options: {
+                      wordWrap: 'off',
+                      readOnly: true,
+                    },
+                  },
+                  monacoTitle: `Task Exit Diagonostics`,
+                });
+              }}
+            />
+          );
+        },
+      },
+      {
+        key: 'containerId',
+        name: 'Container ID',
+        headerClassName: FontClassNames.medium,
+        minWidth: 300,
+        isResizable: true,
+        onRender: item => {
+          const id = item.containerId;
+          return (
+            !isNil(id) && (
+              <div className={c(t.truncate, FontClassNames.mediumPlus)}>
+                {id}
+              </div>
+            )
+          );
+        },
+      },
     ];
 
     let columns = defaultColumns;
-    if (showDebugInfo) {
-      columns = defaultColumns.concat(optionalColumns);
+    if (showTaskRetryInfo) {
+      columns.splice(3, 0, ...attemptInfoColumns);
+      columns = columns.concat(optionalColumns);
     }
 
     return columns;
@@ -831,8 +830,7 @@ export default class TaskRoleContainerList extends React.Component {
 
   render() {
     const { monacoTitle, monacoProps, monacoFooterButton, logUrl } = this.state;
-    const { className, style, taskInfo, showDebugInfo } = this.props;
-    const status = taskInfo.taskStatuses;
+    const { className, style, taskAttempts, showTaskRetryInfo } = this.props;
     return (
       <div
         className={className}
@@ -841,9 +839,9 @@ export default class TaskRoleContainerList extends React.Component {
         <ThemeProvider theme={theme}>
           <DetailsList
             styles={{ root: { overflow: 'auto' } }}
-            columns={this.getColumns(showDebugInfo)}
+            columns={this.getColumns(showTaskRetryInfo)}
             disableSelectionZone
-            items={status}
+            items={taskAttempts}
             layoutMode={DetailsListLayoutMode.justified}
             selectionMode={SelectionMode.none}
             onRenderRow={this.onRenderRow}
@@ -872,6 +870,6 @@ TaskRoleContainerList.contextType = Context;
 TaskRoleContainerList.propTypes = {
   className: PropTypes.string,
   style: PropTypes.object,
-  taskInfo: PropTypes.object,
-  showDebugInfo: PropTypes.bool,
+  taskAttempts: PropTypes.arrayOf(PropTypes.object),
+  showTaskRetryInfo: PropTypes.bool,
 };

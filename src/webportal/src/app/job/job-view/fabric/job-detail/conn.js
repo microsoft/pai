@@ -90,8 +90,33 @@ export async function fetchJobRetries() {
   }
 }
 
-export async function fetchJobInfo() {
-  return wrapper(() => client.job.getJob(userName, jobName));
+export async function fetchJobInfo(attemptIndex, showTaskRetryInfo = false) {
+  return wrapper(async () => {
+    let res;
+    if (isNil(attemptIndex) || attemptIndex === 9) {
+      if (showTaskRetryInfo) {
+        res = await fetch(
+          'https://microsoft.github.io/openpaimarketplace/examples/task_attempt_data_9.json',
+        );
+      } else {
+        res = await fetch(
+          'https://microsoft.github.io/openpaimarketplace/examples/api_data_9.json',
+        );
+      }
+    } else {
+      if (showTaskRetryInfo) {
+        res = await fetch(
+          'https://microsoft.github.io/openpaimarketplace/examples/task_attempt_data_0.json',
+        );
+      } else {
+        res = await fetch(
+          'https://microsoft.github.io/openpaimarketplace/examples/api_data_0.json',
+        );
+      }
+    }
+    const result = await res.json();
+    return result;
+  });
 }
 
 export async function fetchRawJobConfig() {

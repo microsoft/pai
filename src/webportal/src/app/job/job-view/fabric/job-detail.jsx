@@ -16,11 +16,20 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 import classNames from 'classnames';
-import { get, isEmpty, isNil } from 'lodash';
+import { capitalize, get, isEmpty, isNil } from 'lodash';
+import { DateTime } from 'luxon';
 import {
   FontClassNames,
   MessageBar,
   MessageBarType,
+  Stack,
+  DetailsList,
+  DefaultButton,
+  TooltipHost,
+  DirectionalHint,
+  Dropdown,
+  Text,
+  Toggle,
 } from 'office-ui-fabric-react';
 import React from 'react';
 import ReactDOM from 'react-dom';
@@ -41,6 +50,11 @@ import {
   fetchRawJobConfig,
 } from './job-detail/conn';
 import { getHumanizedJobStateString } from '../../../components/util/job';
+import Card from './job-detail/components/card';
+import StatusBadge from '../../../components/status-badge';
+import { printDateTime } from './job-detail/util';
+import CopyButton from '../../../components/copy-button';
+import TaskRoleContainerList from './job-detail/components/task-role-container-list';
 
 class JobDetail extends React.Component {
   constructor(props) {
@@ -55,9 +69,13 @@ class JobDetail extends React.Component {
       rawJobConfig: null,
       jobConfig: null,
       sshInfo: null,
+      selectedRetryIndex: null,
+      showTaskRetryInfo: false,
     };
     this.stop = this.stop.bind(this);
     this.reload = this.reload.bind(this);
+    this.onChangeRetry = this.onChangeRetry.bind(this);
+    this.onChangeShowTaskRetryInfo = this.onChangeShowTaskRetryInfo.bind(this);
   }
 
   componentDidMount() {
@@ -132,6 +150,7 @@ class JobDetail extends React.Component {
     if (alertFlag === true && !isNil(nextState.error)) {
       alert(nextState.error);
     }
+    nextState.selectedRetryIndex = nextState.jobInfo.jobStatus.retries - 1;
     this.setState(nextState);
   }
 
@@ -140,48 +159,35 @@ class JobDetail extends React.Component {
     await this.reload();
   }
 
-  renderTaskRoles() {
-    const { jobConfig, jobInfo } = this.state;
-    if (!isEmpty(jobInfo.taskRoles)) {
-      const failedTaskRole =
-        getHumanizedJobStateString(jobInfo.jobStatus) === 'Failed' &&
-        get(jobInfo, 'jobStatus.appExitTriggerTaskRoleName');
-      return Object.keys(jobInfo.taskRoles).map(name => (
-        <TaskRole
-          key={name}
-          className={t.mt3}
-          name={name}
-          taskInfo={jobInfo.taskRoles[name]}
-          isFailed={failedTaskRole && name === failedTaskRole}
-        />
-      ));
-    } else if (jobConfig && jobConfig.taskRoles) {
-      return Object.entries(jobConfig.taskRoles).map(([name, taskConfig]) => {
-        // dummy tasks
-        let dummyTaskInfo = null;
-        if (taskConfig) {
-          const instances = isNil(taskConfig.instances)
-            ? 1
-            : taskConfig.instances;
-          dummyTaskInfo = {
-            taskStatuses: Array.from({ length: instances }, (v, idx) => ({
-              taskState: 'WAITING',
-            })),
-          };
-        }
-
-        return (
-          <TaskRole
-            key={name}
-            name={name}
-            className={t.mt3}
-            taskInfo={dummyTaskInfo}
-          />
-        );
-      });
-    } else {
-      return null;
+  getAllTaskAttempts(inputJobInfo) {
+    const taskRoles = inputJobInfo.taskRoles;
+    const allTaskAttempts = [];
+    for (const taskrole in taskRoles) {
+      const taskAttempts = taskRoles[taskrole].taskStatuses;
+      for (const attempt of taskAttempts) {
+        attempt.taskRoleName = taskRoles[taskrole].taskRoleStatus.name;
+      }
+      allTaskAttempts.push(...taskAttempts);
     }
+    return allTaskAttempts;
+  }
+
+  onChangeRetry(event, item) {
+    fetchJobInfo(item.key, this.state.showTaskRetryInfo).then(data => {
+      this.setState({
+        selectedRetryIndex: item.key,
+        jobInfo: data,
+      });
+    });
+  }
+
+  onChangeShowTaskRetryInfo(event, checked) {
+    fetchJobInfo(this.state.selectedRetryIndex, checked).then(data => {
+      this.setState({
+        showTaskRetryInfo: checked,
+        jobInfo: data,
+      });
+    });
   }
 
   render() {
@@ -193,13 +199,21 @@ class JobDetail extends React.Component {
       jobConfig,
       rawJobConfig,
       sshInfo,
+      selectedRetryIndex,
     } = this.state;
+
+    const retryIndexOptions = [];
+    if (!isNil(jobInfo)) {
+      for (let index = 0; index < jobInfo.jobStatus.retries; index += 1) {
+        retryIndexOptions.push({ key: index, text: index });
+      }
+    }
     if (loading) {
       return <SpinnerLoading />;
     } else {
       return (
         <Context.Provider value={{ sshInfo, rawJobConfig, jobConfig }}>
-          <div className={classNames(t.w100, t.pa4, FontClassNames.medium)}>
+          <Stack styles={{ root: { margin: '30px' } }} gap='l1'>
             <Top />
             {!isEmpty(error) && (
               <div className={t.bgWhite}>
@@ -215,8 +229,40 @@ class JobDetail extends React.Component {
               onStopJob={this.stop}
               onReload={this.reload}
             />
-            {this.renderTaskRoles()}
-          </div>
+            <Card>
+              <Stack gap='m' padding='l2'>
+                <Stack
+                  horizontal
+                  horizontalAlign='space-between'
+                  verticalAlign='baseline'
+                  gap='m'
+                >
+                  <Stack horizontal gap='m' verticalAlign='center'>
+                    <Text>Job Retry Index</Text>
+                    <Dropdown
+                      styles={{ root: { width: '150px' } }}
+                      placeholder='Select Retry Index'
+                      options={retryIndexOptions}
+                      defaultSelectedKey={selectedRetryIndex || undefined}
+                      onChange={this.onChangeRetry}
+                    />
+                    {selectedRetryIndex === jobInfo.jobStatus.retries - 1 && (
+                      <Text>( Current )</Text>
+                    )}
+                  </Stack>
+                  <Toggle
+                    onText='More Details'
+                    offText='More Details'
+                    onChange={this.onChangeShowTaskRetryInfo}
+                  />
+                </Stack>
+                <TaskRoleContainerList
+                  taskAttempts={this.getAllTaskAttempts(jobInfo)}
+                  showTaskRetryInfo={this.showTaskRetryInfo}
+                />
+              </Stack>
+            </Card>
+          </Stack>
         </Context.Provider>
       );
     }
