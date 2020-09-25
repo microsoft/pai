@@ -30,15 +30,15 @@ alert-manager:
 ```
 
 In the configuration above, `email-configs` is necessary for `email-admin` and `email-user` actions,
-`pai-bearer-token` is necessary for `email-user`, `stop-job` and `tag-job` actions.
+`pai-bearer-token` is necessary for `email-user`, `stop-jobs` and `tag-jobs` actions.
 This can be summrized in the following table:
 
 |              | email-configs | pai-bearer-token |
 | :-----------:| :-----------: | :--------------: |
 | email-admin  | True          | False            |
 | email-user   | True          | True             |
-| stop-job     | False         | True             |
-| tag-job      | False         | True             |
+| stop-jobs     | False         | True             |
+| tag-jobs      | False         | True             |
 
 If `alert-handler` is not configured, the `alert-handler` container will not start.
 
@@ -57,8 +57,8 @@ alert-manager:
     - webportal-notification
     - email-admin
     - email-user
-    - stop-job
-    - tag-job
+    - stop-jobs
+    - tag-jobs
   alert-handler:
     port: 9095
     configured: True
@@ -92,4 +92,4 @@ alert-manager:
   repeat-interval: 24h
 ```
 
-Similarly, we get the generated configuration if `alert-handler` is partially configured.
+Similarly, we can get the generated configuration if `alert-handler` is partially configured.
