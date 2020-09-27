@@ -34,8 +34,10 @@
     "email-templates": "^7.1.0",
     "express": "^4.16.2",
     "express-bearer-token": "^2.4.0",
+    "joi": "^17.2.1",
     "nodemailer": "^6.4.11",
-    "unirest": "^0.6.0"
+    "unirest": "^0.6.0",
+    "winston": "^3.3.3"
   },
   "scripts": {
     "lint": "eslint .",
