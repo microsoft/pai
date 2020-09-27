@@ -329,8 +329,8 @@ export class MountDirectories {
             'azurefile://' + data.accountName + '/' + data.shareName;
           break;
         case 'azureBlob':
-          returnValue =
-            'azureblob://' + data.accountName + '/' + data.containerName;
+        case 'dshuttle':
+          returnValue = `Azure Blob (accountName: ${data.accountName} containerName: ${data.containerName})`;
           break;
         case 'hdfs':
           returnValue = 'hdfs://' + data.namenode + ':' + data.port;
@@ -351,7 +351,7 @@ export class MountDirectories {
           serverRootPath +
           this.normalizePath(serverRootPath.endsWith('/') ? '' : '/' + path);
         newTeamDataList.push(
-          new InputData(`/mnt/${storage.name}`, serverPath, storage.name),
+          new InputData(`/mnt/${storage.name}`, serverPath, storage.type),
         );
       }
     });

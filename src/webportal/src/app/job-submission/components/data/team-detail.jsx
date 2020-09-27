@@ -216,11 +216,19 @@ export default function TeamDetail({ isOpen = false, config, hide }) {
           </Stack>
         )}
         <Text variant='large'>How to use data ?</Text>
-        <Text styles={{ root: { marginLeft: `${spacing.m}` } }}>
-          By selecting team storage, the storage server will be automatically
-          mounted to Path when job runs. You could copy/read/write like local
-          folder.
-        </Text>
+        {config.type === 'dshuttle' && (
+          <Text styles={{ root: { marginLeft: `${spacing.m}` } }}>
+            By selecting team storage, the server path will be automatically
+            mounted to path when job running. Please treat is as local folder.
+          </Text>
+        )}
+        {config.type !== 'dshuttle' && (
+          <Text styles={{ root: { marginLeft: `${spacing.m}` } }}>
+            By selecting team storage, the storage server will be automatically
+            mounted to Path when job runs. You could copy/read/write like local
+            folder.
+          </Text>
+        )}
         <Text variant='large'>Details</Text>
         <DetailsList
           columns={columes(config)}
@@ -367,6 +375,7 @@ export const NAS_TIPS = {
         and try to speed up I/O intensive workload. It&apos;s a readonly
         storage. For more detail, please refer to
       </span>
+      <span> </span>
       <Link
         href='https://github.com/microsoft/dshuttle'
         target='_blank'
@@ -374,12 +383,7 @@ export const NAS_TIPS = {
       >
         Dshuttle doc
       </Link>
-      <span>or contact cluster amdin.</span>
-      <Text variant='large'>How to use data ?</Text>
-      <Text styles={{ root: { marginLeft: `${spacing.m}` } }}>
-        By selecting team storage, the server path will be automatically mounted
-        to path when job running. Please treat is as local folder.
-      </Text>
+      <span> or contact cluster amdin.</span>
     </div>
   ),
 };

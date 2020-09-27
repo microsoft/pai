@@ -116,23 +116,6 @@ export async function fetchStorageDetails(configNames) {
                 ),
               };
             }
-          } else {
-            detail.data = {
-              ...detail.data,
-              ...getDeshuttleStorageDetails({
-                shared: false,
-                readOnly: false,
-                ufsUri:
-                  'wasbs://dshuttle@dshuttletestne.blob.core.windows.net/',
-                ufsType: 'wasb',
-                ufsCapacityBytes: -1,
-                ufsUsedBytes: -1,
-                properties: {
-                  'fs.azure.account.key.dshuttletestne.blob.core.windows.net':
-                    '******',
-                },
-              }),
-            };
           }
         }
         details.push(detail);

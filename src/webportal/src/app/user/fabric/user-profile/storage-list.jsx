@@ -43,10 +43,17 @@ function getStorageServerUri(storageDetail) {
           {data.containerName}; <b>{'Path: '}</b>
         </>
       );
+    case 'dshuttle':
+      return (
+        <>
+          {'AzureBlob '}
+          <b>{'StorageAccount: '}</b>
+          {data.accountName}; <b>{'Container: '}</b>
+          {data.containerName}; <b>{'Path: '}</b>
+        </>
+      );
     case 'hdfs':
       return `hdfs://${data.namenode}:${data.port}`;
-    case 'dshuttle':
-      return 'dshuttle';
     case 'unknown':
       return (
         <>
