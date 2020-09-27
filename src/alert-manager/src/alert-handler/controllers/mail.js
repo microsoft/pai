@@ -181,9 +181,6 @@ const sendEmailToUser = async (req, res) => {
           console.log(
             `alert-handler successfully send email to ${username} at ${userEmail}`,
           );
-          res.status(200).json({
-            message: `alert-handler successfully send email to ${username} at ${userEmail}`,
-          });
         })
         .catch(function (data) {
           console.error('alert-handler failed to send email to user');
@@ -192,6 +189,10 @@ const sendEmailToUser = async (req, res) => {
             message: 'alert-handler failed to send email to user',
           });
         });
+    });
+
+    res.status(200).json({
+      message: `alert-handler successfully send email to users`,
     });
   }
 };
