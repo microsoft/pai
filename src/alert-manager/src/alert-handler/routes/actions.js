@@ -16,8 +16,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 const express = require('express');
-const emailController = require('../controllers/mail');
-const jobController = require('../controllers/job');
+const emailController = require('@alert-handler/controllers/mail');
+const jobController = require('@alert-handler/controllers/job');
 
 const router = express.Router();
 

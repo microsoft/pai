@@ -18,7 +18,7 @@
 const unirest = require('unirest');
 const nodemailer = require('nodemailer');
 const Email = require('email-templates');
-const logger = require('../common/logger');
+const logger = require('@alert-handler/common/logger');
 
 // create reusable transporter object using the default SMTP transport
 const transporter = nodemailer.createTransport({
@@ -60,7 +60,9 @@ const getAlertsGroupedByUser = (alerts, url, token) => {
             })
             .end(function (res) {
               if (res.status !== 200) {
-                logger.error('alert-handler failed to get username with jobname.');
+                logger.error(
+                  'alert-handler failed to get username with jobname.',
+                );
                 logger.error(res.raw_body);
                 reject(
                   new Error(

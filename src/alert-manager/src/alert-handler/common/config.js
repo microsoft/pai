@@ -15,7 +15,7 @@ const config = {
   logLevel: process.env.LOG_LEVEL,
 };
 
-const { error, value } = Joi.validate(config, configSchema);
+const { error, value } = configSchema.validate(config);
 if (error) {
   throw new Error(`Config error\n${error}`);
 }

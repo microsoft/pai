@@ -16,7 +16,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 const unirest = require('unirest');
-const logger = require('../common/logger');
+const logger = require('@alert-handler/common/logger');
 
 const stopJobs = (req, res) => {
   logger.info(

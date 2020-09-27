@@ -10,7 +10,7 @@ const logTransports = {
     json: false,
     colorize: true,
     timestamp: () => new Date().toISOString(),
-    formatter: options => {
+    formatter: (options) => {
       const timestamp = options.timestamp();
       const level = winston.config.colorize(
         options.level,

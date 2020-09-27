@@ -66,9 +66,9 @@ spec:
           value: {{ cluster_cfg["cluster"]["common"]["cluster-id"] }}
         - name: REST_SERVER_URI
           value: {{ cluster_cfg['rest-server']['uri'] }}
-{% if 'email-admin' in cluster_cfg["alert-manager"]["actions-available"] %}
         - name: LOG_LEVEL
-          value: "{{ cluster_cfg["alert-manager"]["alert-handler"]["log-level"] }}"
+          value: {{ cluster_cfg["alert-manager"]["alert-handler"]["log-level"] }}
+{% if 'email-admin' in cluster_cfg["alert-manager"]["actions-available"] %}
         - name: EMAIL_CONFIGS_ADMIN_RECEIVER
           value: {{ cluster_cfg["alert-manager"]["alert-handler"]["email-configs"]["admin-receiver"] }}
         - name: EMAIL_CONFIGS_SMTP_HOST

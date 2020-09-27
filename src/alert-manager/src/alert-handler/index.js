@@ -19,10 +19,11 @@
  * Implementation of Alert Handler.
  */
 
+require('module-alias/register');
 const express = require('express');
 const bearerToken = require('express-bearer-token');
-const actions = require('./routes/actions');
-const logger = require('../common/logger');
+const actions = require('@alert-handler/routes/actions');
+const logger = require('@alert-handler/common/logger');
 
 const app = express();
 

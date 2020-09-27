@@ -18,6 +18,9 @@
   "engines": {
     "node": "^10"
   },
+  "_moduleAliases": {
+    "@alert-handler": "."
+  },
   "devDependencies": {
     "eslint": "^7.7.0",
     "eslint-config-prettier": "~6.11.0",
@@ -34,10 +37,11 @@
     "email-templates": "^7.1.0",
     "express": "^4.16.2",
     "express-bearer-token": "^2.4.0",
-    "joi": "^17.2.1",
+    "joi": "^14.3.1",
+    "module-alias": "^2.2.2",
     "nodemailer": "^6.4.11",
     "unirest": "^0.6.0",
-    "winston": "^3.3.3"
+    "winston": "2"
   },
   "scripts": {
     "lint": "eslint .",

@@ -169,6 +169,7 @@ authentication:
 #   port: 9093 # do not change this if you do not want to change the port alert-manager is listening on
 #   alert-handler: # alert-handler will only be enabled when this field is not empty
 #     port: 9095 # do not change this if you do not want to change the port alert-handler is listening on
+#     log-level: "info"
 #     pai-bearer-token: 'your-application-token-for-pai-rest-server'
 #     email-configs: # email-notification will only be enabled when this field is not empty
 #       admin-receiver: addr-of-admin-receiver@example.com
