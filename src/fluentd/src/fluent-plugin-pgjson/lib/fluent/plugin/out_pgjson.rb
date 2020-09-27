@@ -167,6 +167,40 @@ module Fluent::Plugin
       end
     end
 
+    def insert_task(hex_id, time, record)
+      # This function try to insert the task snapshot into task history table.
+      # In some cases, the framework controller may have duplicate logs about one task attempt,
+      # or there has been already successful inserted record before.
+      # To handle it, `insert_task` executes a "SELECT" first.
+      # If the uid exists in the table, it will ignore it safely.
+      # Any error should be raised.
+      thread = Thread.current
+      frameworkName = record["objectSnapshot"]["metadata"]["name"][0..31]
+      attemptIndex = record["objectSnapshot"]["metadata"]["annotations"]["FC_FRAMEWORK_ATTEMPT_ID"]
+      taskroleName = record["objectSnapshot"]["metadata"]["annotations"]["FC_TASKROLE_NAME"]
+      taskIndex = record["objectSnapshot"]["metadata"]["annotations"]["FC_TASK_INDEX"]
+      taskUid = record["objectSnapshot"]["metadata"]["uid"]
+      taskAttemptIndex = record["objectSnapshot"]["status"]["attemptStatus"]["id"]
+      podUid = record["objectSnapshot"]["status"]["attemptStatus"]["podUID"]
+      historyType = "retry"
+      snapshot = record_value(record["objectSnapshot"])
+      # use taskUid + taskAttemptIndex + historyType to generate a uid
+      uid = Digest::MD5.hexdigest "#{taskUid}+#{taskAttemptIndex}+#{historyType}"
+      # select from framework_history, ensure there is no corresponding history object
+      selectResult = thread[:conn].exec_params('SELECT uid from task_history where uid=$1', [uid])
+      if selectResult.cmd_tuples == 0
+          # if there is no existing records, try to insert a new one.
+          thread[:conn].exec_params("INSERT INTO task_history (\"#{@insertedAt_col}\", \"#{@updatedAt_col}\", \"#{@uid_col}\", \"#{@frameworkName_col}\", \"#{@attemptIndex_col}\", " + 
+            "\"#{@taskroleName_col}\", \"taskIndex\", \"taskUid\", \"#{@taskAttemptIndex_col}\", \"podUid\", \"#{@historyType_col}\", \"#{@snapshot_col}\") " +
+            "VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)", [time, time, uid, frameworkName, attemptIndex, taskroleName, taskIndex, taskUid, taskAttemptIndex, podUid, historyType, snapshot]
+          )
+      else
+        # if there is an existing record, ignore it.
+        log.warn "[pgjson] chunk #{hex_id}: ignored task object as it already exists, uid=#{uid}"
+      end
+    end
+
+
     def insert_pod(hex_id, time, record)
       # This function try to insert the pod snapshot into pods table.
       # In some cases, the framework controller may have duplicate logs about one pod,
@@ -209,9 +243,11 @@ module Fluent::Plugin
             kind = record["objectSnapshot"]["kind"]
             trigger = record['objectSnapshotTrigger']
             log.info "[pgjson] object type #{kind} triggered by #{trigger} found in chunk #{hex_id}"
-            if trigger == "framework_retried" && kind == "Framework"
+            if trigger == "OnFrameworkRetry" && kind == "Framework"
               insert_framework hex_id, time, record
-            elsif trigger == "pod_deleted" && kind == "Pod"
+            elsif trigger == "OnTaskRetry" && kind == "Task"
+              insert_task hex_id, time, record
+            elsif trigger == "OnPodDeletion" && kind == "Pod"
               insert_pod hex_id, time, record
             else
               logMessage = record['logMessage']
