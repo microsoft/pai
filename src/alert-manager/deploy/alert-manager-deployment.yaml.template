@@ -37,6 +37,7 @@ spec:
       labels:
         app: alertmanager
     spec:
+      serviceAccountName: alert-manager-account
       hostNetwork: true
       containers:
       - name: alertmanager

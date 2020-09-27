@@ -18,9 +18,22 @@
 const express = require('express');
 const emailController = require('../controllers/mail');
 const jobController = require('../controllers/job');
+const nodeController = require('../controllers/node');
 
 const router = express.Router();
 
+// email
+router
+  .route('/alert-handler/send-email-to-admin')
+  /** POST /alert-handler/send-email-to-admin */
+  .post(emailController.sendEmailToAdmin);
+
+router
+  .route('/alert-handler/send-email-to-user')
+  /** POST /alert-handler/send-email-to-user */
+  .post(emailController.sendEmailToUser);
+
+// job
 router
   .route('/alert-handler/stop-jobs')
   /** POST /alert-handler/stop-jobs */
@@ -31,14 +44,10 @@ router
   /** POST /alert-handler/tag-jobs/:tag */
   .post(jobController.tagJobs);
 
+// node
 router
-  .route('/alert-handler/send-email-to-admin')
-  /** POST /alert-handler/send-email-to-admin */
-  .post(emailController.sendEmailToAdmin);
-
-router
-  .route('/alert-handler/send-email-to-user')
-  /** POST /alert-handler/send-email-to-user */
-  .post(emailController.sendEmailToUser);
+  .route('/alert-handler/cordon-nodes')
+  /** POST /alert-handler/cordon-nodes */
+  .post(nodeController.cordonNodes);
 
 module.exports = router;

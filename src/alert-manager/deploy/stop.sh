@@ -19,3 +19,11 @@
 
 kubectl delete --ignore-not-found --now configmap/alertmanager
 kubectl delete --ignore-not-found --now deployment/alertmanager
+
+if kubectl get clusterrolebinding | grep -q "alert-manager-role-binding"; then
+    kubectl delete clusterrolebinding alert-manager-role-binding || exit $?
+fi
+
+if kubectl get serviceaccount | grep -q "alert-manager-account"; then
+    kubectl delete serviceaccount alert-manager-account || exit $?
+fi

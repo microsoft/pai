@@ -20,6 +20,7 @@ service_type: "common"
 port: 9093
 actions-available:
   - webportal-notification
+  - cordon-nodes
 alert-handler:
   port: 9095
   configured: False

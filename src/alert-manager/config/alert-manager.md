@@ -10,7 +10,7 @@
 
 #### How to configure cluster section in service-configuration.yaml <a name="HT_Config"></a>
 
-So far, we have provided `email-admin`, `email-user`, `stop-job` and `tag-job` actions in `alert-handler`.
+So far, we have provided `cordon-nodes`, `email-admin`, `email-user`, `stop-job` and `tag-job` actions in `alert-handler`.
 To make all these actions available, 
 you should configure `alert-manager` in your `service-configuration.yaml` like following:
 
@@ -35,10 +35,11 @@ This can be summrized in the following table:
 
 |              | email-configs | pai-bearer-token |
 | :-----------:| :-----------: | :--------------: |
+| cordon-nodes | False         | False            |
 | email-admin  | True          | False            |
 | email-user   | True          | True             |
-| stop-jobs     | False         | True             |
-| tag-jobs      | False         | True             |
+| stop-jobs    | False         | True             |
+| tag-jobs     | False         | True             |
 
 If `alert-handler` is not configured, the `alert-handler` container will not start.
 
@@ -55,6 +56,7 @@ alert-manager:
   port: 9093
   actions-available:
     - webportal-notification
+    - cordon-nodes
     - email-admin
     - email-user
     - stop-jobs
@@ -83,6 +85,7 @@ alert-manager:
   port: 9093
   actions-available:
     - webportal-notification
+    - cordon-nodes
   alert-handler:
     port: 9095
     configured: False
