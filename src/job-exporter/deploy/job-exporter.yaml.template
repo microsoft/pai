@@ -65,6 +65,10 @@ spec:
           valueFrom:
             fieldRef:
               fieldPath: status.hostIP
+        - name: HOST_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: spec.nodeName
         - name: LOGGING_LEVEL
           value: {{ cluster_cfg["job-exporter"]["logging-level"] }}
         - name: NV_DRIVER

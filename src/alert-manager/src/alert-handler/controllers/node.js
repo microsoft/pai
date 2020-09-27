@@ -31,7 +31,7 @@ const cordonNodes = (req, res) => {
   // cordon nodes
   req.body.alerts.forEach(function (alert) {
     if (alert.status === 'firing') {
-      const node = alert.labels.name;
+      const node = alert.labels.host_name;
       // set the node unschedulable
       k8sApi
         .patchNode(node, { spec: { unschedulable: true } })
