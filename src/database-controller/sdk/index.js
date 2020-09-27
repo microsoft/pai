@@ -161,7 +161,7 @@ class DatabaseModel {
         indexes: [
           {
             unique: false,
-            fields: ['frameworkName', 'attemptIndex'],
+            fields: ['taskUid'],
           },
         ],
         freezeTableName: true,
@@ -211,11 +211,21 @@ class DatabaseModel {
           type: Sequelize.STRING(64),
           allowNull: false,
         },
+        podUid: Sequelize.STRING(36),
+        taskroleName: Sequelize.STRING(256),
+        taskName: Sequelize.STRING(256),
+        taskIndex: Sequelize.INTEGER,
         type: {
           type: Sequelize.STRING(32),
           allowNull: false,
         },
+        reason: Sequelize.STRING(64),
         message: Sequelize.TEXT,
+        firstTimestamp: Sequelize.DATE,
+        lastTimestamp: Sequelize.DATE,
+        count: Sequelize.INTEGER,
+        sourceComponent: Sequelize.STRING(255),
+        sourceHost: Sequelize.STRING(255),
         event: Sequelize.TEXT,
       },
       {
