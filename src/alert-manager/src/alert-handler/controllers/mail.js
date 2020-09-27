@@ -18,6 +18,7 @@
 const unirest = require('unirest');
 const nodemailer = require('nodemailer');
 const Email = require('email-templates');
+const logger = require('@alert-handler/common/logger');
 
 // create reusable transporter object using the default SMTP transport
 const transporter = nodemailer.createTransport({
@@ -59,10 +60,10 @@ const getAlertsGroupedByUser = (alerts, url, token) => {
             })
             .end(function (res) {
               if (res.status !== 200) {
-                console.error(
+                logger.error(
                   'alert-handler failed to get username with jobname.',
                 );
-                console.error(res.raw_body);
+                logger.error(res.raw_body);
                 reject(
                   new Error(
                     'alert-handler failed to get username with jobname.',
@@ -130,7 +131,7 @@ const sendEmailToAdmin = async (req, res) => {
       },
     })
     .then(function () {
-      console.log(
+      logger.info(
         `alert-handler successfully send email to admin at ${process.env.EMAIL_CONFIGS_ADMIN_RECEIVER}`,
       );
       res.status(200).json({
@@ -138,8 +139,8 @@ const sendEmailToAdmin = async (req, res) => {
       });
     })
     .catch(function (data) {
-      console.error('alert-handler failed to send email to admin');
-      console.error(data);
+      logger.error('alert-handler failed to send email to admin');
+      logger.error(data);
       res.status(500).json({
         message: `alert-handler failed to send email to admin`,
       });
@@ -156,7 +157,7 @@ const sendEmailToUser = async (req, res) => {
   try {
     alertsGrouped = await getAlertsGroupedByUser(req.body.alerts, url, token);
   } catch (data) {
-    console.error(data);
+    logger.error(data);
     res.status(500).json({
       message: `Send email encourted Unknown Error`,
     });
@@ -180,20 +181,21 @@ const sendEmailToUser = async (req, res) => {
           },
         })
         .then(function () {
-          console.log(
+          logger.info(
             `alert-handler successfully send email to ${username} at ${userEmail}`,
           );
-          res.status(200).json({
-            message: `alert-handler successfully send email to ${username} at ${userEmail}`,
-          });
         })
         .catch(function (data) {
-          console.error('alert-handler failed to send email to user');
-          console.error(data);
+          logger.error('alert-handler failed to send email to user');
+          logger.error(data);
           res.status(500).json({
             message: 'alert-handler failed to send email to user',
           });
         });
+    });
+
+    res.status(200).json({
+      message: `alert-handler successfully send email to users`,
     });
   }
 };

@@ -16,9 +16,10 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 const unirest = require('unirest');
+const logger = require('@alert-handler/common/logger');
 
 const stopJobs = (req, res) => {
-  console.log(
+  logger.info(
     'alert-handler received `stop-jobs` post request from alert-manager.',
   );
   // extract jobs to kill
@@ -34,7 +35,7 @@ const stopJobs = (req, res) => {
       message: 'No job to stop.',
     });
   }
-  console.log(`alert-handler will stop these jobs: ${jobNames}`);
+  logger.info(`alert-handler will stop these jobs: ${jobNames}`);
 
   const url = process.env.REST_SERVER_URI;
   const token = req.token;
@@ -49,8 +50,8 @@ const stopJobs = (req, res) => {
       .send(JSON.stringify({ value: 'STOP' }))
       .end(function (response) {
         if (response.status !== 202) {
-          console.error('alert-handler failed to stop-job.');
-          console.error(response.raw_body);
+          logger.error('alert-handler failed to stop-job.');
+          logger.error(response.raw_body);
           res.status(500).json({
             message: 'alert-handler failed to stop-job.',
           });
@@ -58,14 +59,14 @@ const stopJobs = (req, res) => {
       });
   });
 
-  console.log('alert-handler successfully stop jobs.');
+  logger.info('alert-handler successfully stop jobs.');
   res.status(200).json({
     message: 'alert-handler successfully stop jobs.',
   });
 };
 
 const tagJobs = (req, res) => {
-  console.log(
+  logger.info(
     'alert-handler received `tag-jobs` post request from alert-manager.',
   );
 
@@ -87,8 +88,8 @@ const tagJobs = (req, res) => {
         .send(JSON.stringify({ value: tag }))
         .end(function (response) {
           if (response.status !== 200) {
-            console.error('alert-handler failed to tag jobs.');
-            console.error(response.raw_body);
+            logger.error('alert-handler failed to tag jobs.');
+            logger.error(response.raw_body);
             res.status(500).json({
               message: 'alert-handler failed to tag jobs.',
             });
@@ -97,7 +98,7 @@ const tagJobs = (req, res) => {
     }
   });
 
-  console.log('alert-handler successfully tag jobs.');
+  logger.info('alert-handler successfully tag jobs.');
   res.status(200).json({
     message: 'alert-handler successfully tag jobs.',
   });

@@ -19,10 +19,11 @@
  * Implementation of Alert Handler.
  */
 
+require('module-alias/register');
 const express = require('express');
 const bearerToken = require('express-bearer-token');
-
-const actions = require('./routes/actions');
+const actions = require('@alert-handler/routes/actions');
+const logger = require('@alert-handler/common/logger');
 
 const app = express();
 
@@ -33,5 +34,5 @@ app.use('/', actions);
 
 const port = process.env.SERVER_PORT;
 app.listen(port, () => {
-  console.log(`alert-handler listening at http://localhost:${port}`);
+  logger.info(`alert-handler listening at http://localhost:${port}`);
 });

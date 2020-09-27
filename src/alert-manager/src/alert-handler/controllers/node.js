@@ -17,16 +17,17 @@
 
 const k8s = require('@kubernetes/client-node');
 const kc = new k8s.KubeConfig();
+const logger = require('@alert-handler/common/logger');
 
 kc.loadFromDefault();
 const k8sApi = kc.makeApiClient(k8s.CoreV1Api);
 
 const cordonNodes = (req, res) => {
-  console.log(
+  logger.info(
     'alert-handler received `cordonNode` post request from alert-manager.',
   );
 
-  console.log(req.body);
+  logger.info(req.body);
 
   // cordon nodes
   req.body.alerts.forEach(function (alert) {
@@ -36,11 +37,11 @@ const cordonNodes = (req, res) => {
       k8sApi
         .patchNode(node, { spec: { unschedulable: true } })
         .then(function () {
-          console.log(`alert-handler successfully cordon node ${node}`);
+          logger.info(`alert-handler successfully cordon node ${node}`);
         })
         .catch(function (data) {
-          console.error(`alert-handler failed to cordon node ${node}`);
-          console.error(data);
+          logger.error(`alert-handler failed to cordon node ${node}`);
+          logger.error(data);
           res.status(500).json({
             message: `alert-handler failed to cordon node ${node}`,
           });
@@ -52,23 +53,6 @@ const cordonNodes = (req, res) => {
     message: `alert-handler successfully cordon nodes`,
   });
 };
-
-unirest
-  .put(`${url}/api/v2/jobs/${jobName}/executionType`)
-  .headers({
-    Authorization: `Bearer ${token}`,
-    'Content-Type': 'application/json',
-  })
-  .send(JSON.stringify({ value: 'STOP' }))
-  .end(function (response) {
-    if (response.status !== 202) {
-      console.error('alert-handler failed to stop-job.');
-      console.error(response.raw_body);
-      res.status(500).json({
-        message: 'alert-handler failed to stop-job.',
-      });
-    }
-  });
 
 // module exports
 module.exports = {

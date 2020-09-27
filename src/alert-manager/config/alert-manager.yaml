@@ -17,11 +17,14 @@
 
 service_type: "common"
 
+# Log level of alert-handler. You can choose from error, warn, info, http, verbose, debug, and silly.
+
 port: 9093
 actions-available:
   - webportal-notification
   - cordon-nodes
 alert-handler:
+  log-level: 'info'
   port: 9095
   configured: False
 use-pylon: False

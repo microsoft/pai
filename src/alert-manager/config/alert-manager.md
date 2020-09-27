@@ -62,6 +62,7 @@ alert-manager:
     - stop-jobs
     - tag-jobs
   alert-handler:
+    log-level: info
     port: 9095
     configured: True
     pai-bearer-token: 'your-application-token-for-pai-rest-server'
@@ -87,6 +88,7 @@ alert-manager:
     - webportal-notification
     - cordon-nodes
   alert-handler:
+    log-level: info
     port: 9095
     configured: False
   host: master_ip
