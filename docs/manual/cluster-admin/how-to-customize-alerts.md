@@ -32,7 +32,7 @@ The action `webportal-notification` is always enabled, which means that all the 
 
 All the other actions are realized in `alert-handler`.
 To make these actions available, administrators need to properly fill the corresponding fields of `alert-manager` in `service-configuration.yml`, 
-the available actions list will then be saved in `cluster_cfg["alert-manager"]["actions-available"]`, please refer to [alert-manager config](https://github.com/suiguoxin/pai/tree/prometheus/src/alert-manager/config/alert-manager.md) for details of alert-manager service configuration details.
+the available actions list will then be saved in `cluster_cfg["alert-manager"]["actions-available"]`, please refer to [alert-manager config](https://github.com/microsoft/pai/tree/master/src/alert-manager/config/alert-manager.md) for details of alert-manager service configuration details.
 
 Make sure `job_name` presents in the alert body if you want to use `email-user`, `stop-jobs`, or `tag-jobs` actions.
 
@@ -134,7 +134,7 @@ The source code of `alert-handler` is available [here](https://github.com/micros
 ### Check the dependencies of the action
 
 As stated before, to make an action available, administrators need to provide the necessary configurations.
-Check this [folder](https://github.com/suiguoxin/pai/tree/prometheus/src/alert-manager/config) and define the dependencies' rules for your customized actions.
+Check this [folder](https://github.com/microsoft/pai/tree/master/src/alert-manager/config) and define the dependencies' rules for your customized actions.
 
 
 ### Render the action to webhook configurations
