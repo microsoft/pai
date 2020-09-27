@@ -167,7 +167,7 @@ module Fluent::Plugin
       end
     end
 
-    def insert_task(hex_id, time, record)
+    def insert_task(hex_id, time, historyType, record)
       # This function try to insert the task snapshot into task history table.
       # In some cases, the framework controller may have duplicate logs about one task attempt,
       # or there has been already successful inserted record before.
@@ -183,7 +183,6 @@ module Fluent::Plugin
       taskUid = record["objectSnapshot"]["metadata"]["uid"]
       taskAttemptIndex = record["objectSnapshot"]["status"]["attemptStatus"]["id"]
       podUid = record["objectSnapshot"]["status"]["attemptStatus"]["podUID"]
-      historyType = "retry"
       snapshot = record_value(record["objectSnapshot"])
       # use taskUid + taskAttemptIndex + historyType to generate a uid
       uid = Digest::MD5.hexdigest "#{taskUid}+#{taskAttemptIndex}+#{historyType}"
@@ -228,8 +227,6 @@ module Fluent::Plugin
         # if there is an existing record, ignore it.
         log.warn "[pgjson] chunk #{hex_id}: ignored pod snapshot object as it already exists, uid=#{uid}"
       end
-
-
     end
 
     def write(chunk)
@@ -248,7 +245,9 @@ module Fluent::Plugin
             if trigger == "OnFrameworkRetry" && kind == "Framework"
               insert_framework hex_id, time, record
             elsif trigger == "OnTaskRetry" && kind == "Task"
-              insert_task hex_id, time, record
+              insert_task hex_id, time, "retry", record
+            elsif trigger == "OnTaskDeletion" && kind == "Task"
+              insert_task hex_id, time, "deletion", record
             elsif trigger == "OnPodDeletion" && kind == "Pod"
               insert_pod hex_id, time, record
             else
