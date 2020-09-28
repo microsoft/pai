@@ -250,6 +250,26 @@ class JobDetail extends React.Component {
                       defaultSelectedKey={selectedRetryIndex || undefined}
                       onChange={this.onChangeRetry}
                     />
+                    <Stack gap='s1'>
+                      <Text>Attempt State</Text>
+                      <Text>{jobInfo.jobStatus.attemptState}</Text>
+                    </Stack>
+                    <Stack gap='s1'>
+                      <Text>Attempt Start Time</Text>
+                      <Text>
+                        {DateTime.fromMillis(
+                          jobInfo.jobStatus.createdTime,
+                        ).toLocaleString(DateTime.DATETIME_MED)}
+                      </Text>
+                    </Stack>
+                    <Stack gap='s1'>
+                      <Text>Attempt Complete Time</Text>
+                      <Text>
+                        {DateTime.fromMillis(
+                          jobInfo.jobStatus.completedTime,
+                        ).toLocaleString(DateTime.DATETIME_MED)}
+                      </Text>
+                    </Stack>
                   </Stack>
                   <Toggle
                     onText='More Details'
