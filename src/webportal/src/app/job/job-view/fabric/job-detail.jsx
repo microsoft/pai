@@ -159,18 +159,6 @@ class JobDetail extends React.Component {
     await this.reload();
   }
 
-  getAllTaskAttempts(inputJobInfo) {
-    const taskRoles = inputJobInfo.taskRoles;
-    const allTaskAttempts = [];
-    for (const taskrole in taskRoles) {
-      const taskAttempts = taskRoles[taskrole].taskStatuses;
-      for (const attempt of taskAttempts) {
-        attempt.taskRoleName = taskRoles[taskrole].taskRoleStatus.name;
-      }
-      allTaskAttempts.push(...taskAttempts);
-    }
-    return allTaskAttempts;
-  }
 
   onChangeRetry(event, item) {
     fetchJobInfo(item.key, this.state.showTaskRetryInfo).then(data => {
@@ -278,7 +266,7 @@ class JobDetail extends React.Component {
                   />
                 </Stack>
                 <TaskRoleContainerList
-                  taskAttempts={this.getAllTaskAttempts(jobInfo)}
+                  taskAttempts={jobInfo}
                   showTaskRetryInfo={this.state.showTaskRetryInfo}
                 />
               </Stack>

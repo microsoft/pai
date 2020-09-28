@@ -184,6 +184,19 @@ export default class TaskRoleContainerList extends React.Component {
     });
   }
 
+  getAllTaskAttempts(inputJobInfo) {
+    const taskRoles = inputJobInfo.taskRoles;
+    const allTaskAttempts = [];
+    for (const taskrole in taskRoles) {
+      const taskAttempts = taskRoles[taskrole].taskStatuses;
+      for (const attempt of taskAttempts) {
+        attempt.taskRoleName = taskRoles[taskrole].taskRoleStatus.name;
+      }
+      allTaskAttempts.push(...taskAttempts);
+    }
+    return allTaskAttempts;
+  }
+
   showContainerLog(logUrl, logType) {
     let title;
     let logHint;
@@ -830,7 +843,7 @@ export default class TaskRoleContainerList extends React.Component {
 
   render() {
     const { monacoTitle, monacoProps, monacoFooterButton, logUrl } = this.state;
-    const { className, style, taskAttempts, showTaskRetryInfo } = this.props;
+    const { className, style, jobInfo, showTaskRetryInfo } = this.props;
     return (
       <div
         className={className}
@@ -841,7 +854,7 @@ export default class TaskRoleContainerList extends React.Component {
             styles={{ root: { overflow: 'auto' } }}
             columns={this.getColumns(showTaskRetryInfo)}
             disableSelectionZone
-            items={taskAttempts}
+            items={this.getAllTaskAttempts(jobInfo)}
             layoutMode={DetailsListLayoutMode.justified}
             selectionMode={SelectionMode.none}
             onRenderRow={this.onRenderRow}
@@ -870,6 +883,6 @@ TaskRoleContainerList.contextType = Context;
 TaskRoleContainerList.propTypes = {
   className: PropTypes.string,
   style: PropTypes.object,
-  taskAttempts: PropTypes.arrayOf(PropTypes.object),
+  jobInfo: PropTypes.object,
   showTaskRetryInfo: PropTypes.bool,
 };
