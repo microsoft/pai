@@ -332,7 +332,9 @@ export default class TaskRoleContainerList extends React.Component {
         isResizable: true,
         onRender: (item, idx) => {
           return (
-            <div className={FontClassNames.mediumPlus}>{item.taskRoleName}</div>
+            <div
+              className={FontClassNames.mediumPlus}
+            >{`${item.taskRoleName} (${item.taskIndex})`}</div>
           );
         },
       },
@@ -360,8 +362,6 @@ export default class TaskRoleContainerList extends React.Component {
         key: 'retries',
         name: 'Task Retries',
         headerClassName: FontClassNames.medium,
-        minWidth: 50,
-        maxWidth: 100,
         isResizable: true,
         onRender: (item, idx) => {
           return (

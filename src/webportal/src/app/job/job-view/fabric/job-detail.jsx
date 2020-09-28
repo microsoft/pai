@@ -150,7 +150,7 @@ class JobDetail extends React.Component {
     if (alertFlag === true && !isNil(nextState.error)) {
       alert(nextState.error);
     }
-    nextState.selectedRetryIndex = nextState.jobInfo.jobStatus.retries - 1;
+    nextState.selectedRetryIndex = nextState.jobInfo.jobStatus.retries;
     this.setState(nextState);
   }
 
@@ -204,8 +204,12 @@ class JobDetail extends React.Component {
 
     const retryIndexOptions = [];
     if (!isNil(jobInfo)) {
-      for (let index = 0; index < jobInfo.jobStatus.retries; index += 1) {
-        retryIndexOptions.push({ key: index, text: index });
+      for (let index = jobInfo.jobStatus.retries; index >= 0; index -= 1) {
+        if (index === jobInfo.jobStatus.retries) {
+          retryIndexOptions.push({ key: index, text: `${index}  (current)` });
+        } else {
+          retryIndexOptions.push({ key: index, text: index });
+        }
       }
     }
     if (loading) {
@@ -238,7 +242,7 @@ class JobDetail extends React.Component {
                   gap='m'
                 >
                   <Stack horizontal gap='m' verticalAlign='center'>
-                    <Text>Job Retry Index</Text>
+                    <Text>Job Attempt Index</Text>
                     <Dropdown
                       styles={{ root: { width: '150px' } }}
                       placeholder='Select Retry Index'
@@ -246,9 +250,6 @@ class JobDetail extends React.Component {
                       defaultSelectedKey={selectedRetryIndex || undefined}
                       onChange={this.onChangeRetry}
                     />
-                    {selectedRetryIndex === jobInfo.jobStatus.retries - 1 && (
-                      <Text>( Current )</Text>
-                    )}
                   </Stack>
                   <Toggle
                     onText='More Details'
