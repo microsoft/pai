@@ -135,6 +135,8 @@ export default class TaskRoleContainerList extends React.Component {
       monacoTitle: '',
       monacoFooterButton: null,
       logUrl: null,
+      items: props.taskAttempts,
+      ordering: { field: null, descending: false },
     };
 
     this.showSshInfo = this.showSshInfo.bind(this);
@@ -142,6 +144,15 @@ export default class TaskRoleContainerList extends React.Component {
     this.showContainerLog = this.showContainerLog.bind(this);
     this.onRenderRow = this.onRenderRow.bind(this);
     this.logAutoRefresh = this.logAutoRefresh.bind(this);
+    this.onColumnClick = this.onColumnClick.bind(this);
+    this.applySortProps = this.applySortProps.bind(this);
+  }
+
+  componentDidUpdate(prevProps) {
+    if (prevProps.taskAttempts !== this.props.taskAttempts) {
+      console.log(this.props.taskAttempts);
+      this.setState({ items: this.props.taskAttempts });
+    }
   }
 
   logAutoRefresh() {
@@ -182,19 +193,6 @@ export default class TaskRoleContainerList extends React.Component {
       monacoFooterButton: null,
       logUrl: null,
     });
-  }
-
-  getAllTaskAttempts(inputJobInfo) {
-    const taskRoles = inputJobInfo.taskRoles;
-    const allTaskAttempts = [];
-    for (const taskrole in taskRoles) {
-      const taskAttempts = taskRoles[taskrole].taskStatuses;
-      for (const attempt of taskAttempts) {
-        attempt.taskRoleName = taskRoles[taskrole].taskRoleStatus.name;
-      }
-      allTaskAttempts.push(...taskAttempts);
-    }
-    return allTaskAttempts;
   }
 
   showContainerLog(logUrl, logType) {
@@ -336,21 +334,105 @@ export default class TaskRoleContainerList extends React.Component {
     }
   }
 
+  getTaskPropertyFromColumnKey(item, key) {
+    if (key === 'exitType') {
+      return !isNil(item.containerExitSpec) &&
+        !isNil(item.containerExitSpec.type)
+        ? item.containerExitSpec.type
+        : null;
+    }
+    return item[key];
+  }
+
+  orderItems(items, ordering) {
+    const key = ordering.field;
+    return items
+      .slice(0)
+      .sort((a, b) =>
+        (ordering.descending
+        ? this.getTaskPropertyFromColumnKey(a, key) <
+          this.getTaskPropertyFromColumnKey(b, key)
+        : this.getTaskPropertyFromColumnKey(a, key) >
+          this.getTaskPropertyFromColumnKey(b, key))
+          ? 1
+          : -1,
+      );
+  }
+
+  onColumnClick(event, column) {
+    const { field, descending } = this.state.ordering;
+    const items = this.state.items;
+    let newOrdering = null;
+    let newItems = [];
+    if (field === column.key) {
+      if (descending) {
+        newOrdering = { field: null, descending: false };
+        newItems = this.props.taskAttempts;
+        this.setState({ ordering: newOrdering, items: newItems });
+      } else {
+        newOrdering = { field: field, descending: true };
+        newItems = this.orderItems(items, newOrdering);
+        this.setState({ ordering: newOrdering, items: newItems });
+      }
+    } else {
+      newOrdering = { field: column.key, descending: false };
+      newItems = this.orderItems(items, newOrdering);
+      this.setState({ ordering: newOrdering, items: newItems });
+    }
+    console.log(newOrdering);
+    console.log(newItems);
+  }
+
+  applySortProps(column) {
+    column.isSorted = this.state.ordering.field === column.key;
+    column.isSortedDescending = this.state.ordering.descending;
+    column.onColumnClick = this.onColumnClick;
+    return column;
+  }
+
   getColumns(showTaskRetryInfo) {
-    const defaultColumns = [
-      {
-        key: 'taskRoleName',
-        name: 'Task Role',
-        headerClassName: FontClassNames.medium,
-        isResizable: true,
-        onRender: (item, idx) => {
-          return (
-            <div
-              className={FontClassNames.mediumPlus}
-            >{`${item.taskRoleName} (${item.taskIndex})`}</div>
-          );
-        },
+    const taskRoleColumn = this.applySortProps({
+      key: 'taskRoleName',
+      name: 'Task Role',
+      headerClassName: FontClassNames.medium,
+      isResizable: true,
+      onRender: (item, idx) => {
+        return (
+          <div
+            className={FontClassNames.mediumPlus}
+          >{`${item.taskRoleName} (${item.taskIndex})`}</div>
+        );
       },
+    });
+    const taskStateColumn = this.applySortProps({
+      key: 'taskState',
+      name: 'Task State',
+      headerClassName: FontClassNames.medium,
+      minWidth: 100,
+      maxWidth: 150,
+      isResizable: true,
+      onRender: item => <StatusBadge status={capitalize(item.taskState)} />,
+    });
+    const exitTypeColumn = this.applySortProps({
+      key: 'exitType',
+      name: 'Exit Type',
+      headerClassName: FontClassNames.medium,
+      minWidth: 150,
+      maxWidth: 200,
+      isResizable: true,
+      onRender: item => {
+        return (
+          <div className={c(FontClassNames.mediumPlus)}>
+            {!isNil(item.containerExitSpec) &&
+            !isNil(item.containerExitSpec.type)
+              ? item.containerExitSpec.type
+              : null}
+          </div>
+        );
+      },
+    });
+    const defaultColumns = [
+      taskRoleColumn,
       {
         key: 'taskIndex',
         name: 'Task Index',
@@ -362,15 +444,8 @@ export default class TaskRoleContainerList extends React.Component {
           );
         },
       },
-      {
-        key: 'taskState',
-        name: 'Task State',
-        headerClassName: FontClassNames.medium,
-        minWidth: 100,
-        maxWidth: 150,
-        isResizable: true,
-        onRender: item => <StatusBadge status={capitalize(item.taskState)} />,
-      },
+      taskStateColumn,
+      exitTypeColumn,
       {
         key: 'retries',
         name: 'Task Retries',
@@ -625,24 +700,6 @@ export default class TaskRoleContainerList extends React.Component {
           );
         },
       },
-      {
-        key: 'exitType',
-        name: 'Exit Type',
-        headerClassName: FontClassNames.medium,
-        minWidth: 150,
-        maxWidth: 200,
-        isResizable: true,
-        onRender: item => {
-          return (
-            <div className={c(FontClassNames.mediumPlus)}>
-              {!isNil(item.containerExitSpec) &&
-              !isNil(item.containerExitSpec.type)
-                ? item.containerExitSpec.type
-                : null}
-            </div>
-          );
-        },
-      },
     ];
     const attemptInfoColumns = [
       {
@@ -821,7 +878,7 @@ export default class TaskRoleContainerList extends React.Component {
 
     let columns = defaultColumns;
     if (showTaskRetryInfo) {
-      columns.splice(3, 0, ...attemptInfoColumns);
+      columns.splice(5, 0, ...attemptInfoColumns);
       columns = columns.concat(optionalColumns);
     }
 
@@ -842,8 +899,14 @@ export default class TaskRoleContainerList extends React.Component {
   }
 
   render() {
-    const { monacoTitle, monacoProps, monacoFooterButton, logUrl } = this.state;
-    const { className, style, jobInfo, showTaskRetryInfo } = this.props;
+    const {
+      monacoTitle,
+      monacoProps,
+      monacoFooterButton,
+      logUrl,
+      items,
+    } = this.state;
+    const { className, style, showTaskRetryInfo } = this.props;
     return (
       <div
         className={className}
@@ -854,7 +917,7 @@ export default class TaskRoleContainerList extends React.Component {
             styles={{ root: { overflow: 'auto' } }}
             columns={this.getColumns(showTaskRetryInfo)}
             disableSelectionZone
-            items={this.getAllTaskAttempts(jobInfo)}
+            items={items}
             layoutMode={DetailsListLayoutMode.justified}
             selectionMode={SelectionMode.none}
             onRenderRow={this.onRenderRow}
@@ -883,6 +946,6 @@ TaskRoleContainerList.contextType = Context;
 TaskRoleContainerList.propTypes = {
   className: PropTypes.string,
   style: PropTypes.object,
-  jobInfo: PropTypes.object,
+  taskAttempts: PropTypes.arrayOf(PropTypes.object),
   showTaskRetryInfo: PropTypes.bool,
 };

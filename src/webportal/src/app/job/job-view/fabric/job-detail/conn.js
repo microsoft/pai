@@ -93,24 +93,24 @@ export async function fetchJobRetries() {
 export async function fetchJobInfo(attemptIndex, showTaskRetryInfo = false) {
   return wrapper(async () => {
     let res;
-    if (isNil(attemptIndex) || attemptIndex === 9) {
+    if (isNil(attemptIndex) || attemptIndex === 10) {
       if (showTaskRetryInfo) {
         res = await fetch(
-          'https://microsoft.github.io/openpaimarketplace/examples/task_attempt_data_9.json',
+          'https://microsoft.github.io/openpaimarketplace/examples/task_attempt_data_current.json',
         );
       } else {
         res = await fetch(
-          'https://microsoft.github.io/openpaimarketplace/examples/api_data_9.json',
+          'https://microsoft.github.io/openpaimarketplace/examples/api_data_0.json',
         );
       }
     } else {
       if (showTaskRetryInfo) {
         res = await fetch(
-          'https://microsoft.github.io/openpaimarketplace/examples/task_attempt_data_0.json',
+          'https://microsoft.github.io/openpaimarketplace/examples/task_attempt_data_past.json',
         );
       } else {
         res = await fetch(
-          'https://microsoft.github.io/openpaimarketplace/examples/api_data_0.json',
+          'https://microsoft.github.io/openpaimarketplace/examples/api_data_past.json',
         );
       }
     }
