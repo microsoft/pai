@@ -49,7 +49,7 @@ const stopJobs = (req, res) => {
       })
       .send(JSON.stringify({ value: 'STOP' }))
       .end(function (response) {
-        if (response.status !== 202) {
+        if (!response.ok) {
           logger.error('alert-handler failed to stop-job.');
           logger.error(response.raw_body);
           res.status(500).json({
@@ -87,7 +87,7 @@ const tagJobs = (req, res) => {
         })
         .send(JSON.stringify({ value: tag }))
         .end(function (response) {
-          if (response.status !== 200) {
+          if (!response.ok) {
             logger.error('alert-handler failed to tag jobs.');
             logger.error(response.raw_body);
             res.status(500).json({
