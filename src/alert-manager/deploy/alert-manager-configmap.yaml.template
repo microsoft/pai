@@ -65,7 +65,7 @@ data:
 
     - name: pai-cordon-nodes
       webhook_configs:
-      {% if 'cordon-nodes' in receiver.actions %}
+      {% if 'cordon-nodes' in cluster_cfg["alert-manager"]["actions-available"] %}
       - url: 'http://localhost:{{ cluster_cfg["alert-manager"]["alert-handler"]["port"] }}/alert-handler/cordon-nodes'
         send_resolved: false
       {% endif %}
