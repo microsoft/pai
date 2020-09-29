@@ -134,6 +134,7 @@ class ResourceGauges(object):
                 "role_name",
                 "task_index",
                 "job_instance_id", # Used to distinguish job instance with same name but different retry number.
+                "virtual_cluster"
                 ]
         self.service_labels = ["name"]
 
@@ -529,6 +530,7 @@ class ContainerCollector(Collector):
     lsof_timeout = 2 # 99th latency is 0.5s
 
     pai_services = list(map(lambda s: "k8s_" + s, [
+        # Run in master node
         "rest-server",
         "pylon",
         "webportal",
@@ -536,28 +538,30 @@ class ContainerCollector(Collector):
         "prometheus",
         "alertmanager",
         "watchdog",
-        "end-to-end-test",
-        "yarn-frameworklauncher",
-        "hadoop-jobhistory-service",
-        "hadoop-name-node",
-        "hadoop-node-manager",
-        "hadoop-resource-manager",
-        "hadoop-data-node",
-        "zookeeper",
+        "frameworkcontroller",
+        "hivedscheduler",
+        "framework-watcher_database-controller",
+        "write-merger_database-controller",
+        "poller_database-controller",
+        "dshuttle-master",
+        "dshuttle-job-master",
+        "fluentd",
+        "postgresql_postgresql",
+
+        # Run as daemon set
         "node-exporter",
         "job-exporter",
-        "yarn-exporter",
-        "nvidia-drivers",
-        "docker-cleaner",
-
-        # Below are DLTS services
-        "nginx",
-        "restfulapi",
+        "log-manager-nginx",
+        "log-manager-logrotate",
+        "dshuttle-worker",
+        "dshuttle-job-worker",
+        "dshuttle-csi-daemon",
         "weave",
         "weave-npc",
         "nvidia-device-plugin-ctr",
-        "mysql",
-        "jobmanager",
+        "k8s-host-device",
+        "amdgpu",
+        "k8s-rdma",
         ]))
 
     def __init__(self, name, sleep_time, atomic_ref, iteration_counter, gpu_info_ref,
@@ -605,6 +609,7 @@ class ContainerCollector(Collector):
         result_labels["role_name"] = inspect_info.role_name or "unknown"
         result_labels["task_index"] = inspect_info.task_index or "unknown"
         result_labels["job_instance_id"] = inspect_info.job_instance_id or "unknown"
+        result_labels["virtual_cluster"] = inspect_info.virtual_cluster or "unknown"
 
         if inspect_info.gpu_ids:
             ids = inspect_info.gpu_ids.replace("\"", "").split(",")
