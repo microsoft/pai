@@ -150,7 +150,6 @@ export default class TaskRoleContainerList extends React.Component {
 
   componentDidUpdate(prevProps) {
     if (prevProps.taskAttempts !== this.props.taskAttempts) {
-      console.log(this.props.taskAttempts);
       this.setState({ items: this.props.taskAttempts });
     }
   }
@@ -379,8 +378,6 @@ export default class TaskRoleContainerList extends React.Component {
       newItems = this.orderItems(items, newOrdering);
       this.setState({ ordering: newOrdering, items: newItems });
     }
-    console.log(newOrdering);
-    console.log(newItems);
   }
 
   applySortProps(column) {
@@ -388,6 +385,61 @@ export default class TaskRoleContainerList extends React.Component {
     column.isSortedDescending = this.state.ordering.descending;
     column.onColumnClick = this.onColumnClick;
     return column;
+  }
+
+  onRenderRow(props) {
+    return (
+      <DetailsRow
+        {...props}
+        styles={{
+          root: {
+            color: theme.palette.black,
+          },
+        }}
+      />
+    );
+  }
+
+  render() {
+    const {
+      monacoTitle,
+      monacoProps,
+      monacoFooterButton,
+      logUrl,
+      items,
+    } = this.state;
+    const { className, style, showTaskRetryInfo } = this.props;
+    return (
+      <div
+        className={className}
+        style={{ backgroundColor: theme.palette.white, ...style }}
+      >
+        <ThemeProvider theme={theme}>
+          <DetailsList
+            styles={{ root: { overflow: 'auto' } }}
+            columns={this.getColumns(showTaskRetryInfo)}
+            disableSelectionZone
+            items={items}
+            layoutMode={DetailsListLayoutMode.justified}
+            selectionMode={SelectionMode.none}
+            onRenderRow={this.onRenderRow}
+          />
+        </ThemeProvider>
+        {/* Timer */}
+        <Timer
+          interval={isNil(monacoProps) || isEmpty(logUrl) ? null : interval}
+          func={this.logAutoRefresh}
+        />
+        {/* Monaco Editor Panel */}
+        <MonacoPanel
+          isOpen={!isNil(monacoProps)}
+          onDismiss={this.onDismiss}
+          title={monacoTitle}
+          monacoProps={monacoProps}
+          footer={monacoFooterButton}
+        />
+      </div>
+    );
   }
 
   getColumns(showTaskRetryInfo) {
@@ -883,61 +935,6 @@ export default class TaskRoleContainerList extends React.Component {
     }
 
     return columns;
-  }
-
-  onRenderRow(props) {
-    return (
-      <DetailsRow
-        {...props}
-        styles={{
-          root: {
-            color: theme.palette.black,
-          },
-        }}
-      />
-    );
-  }
-
-  render() {
-    const {
-      monacoTitle,
-      monacoProps,
-      monacoFooterButton,
-      logUrl,
-      items,
-    } = this.state;
-    const { className, style, showTaskRetryInfo } = this.props;
-    return (
-      <div
-        className={className}
-        style={{ backgroundColor: theme.palette.white, ...style }}
-      >
-        <ThemeProvider theme={theme}>
-          <DetailsList
-            styles={{ root: { overflow: 'auto' } }}
-            columns={this.getColumns(showTaskRetryInfo)}
-            disableSelectionZone
-            items={items}
-            layoutMode={DetailsListLayoutMode.justified}
-            selectionMode={SelectionMode.none}
-            onRenderRow={this.onRenderRow}
-          />
-        </ThemeProvider>
-        {/* Timer */}
-        <Timer
-          interval={isNil(monacoProps) || isEmpty(logUrl) ? null : interval}
-          func={this.logAutoRefresh}
-        />
-        {/* Monaco Editor Panel */}
-        <MonacoPanel
-          isOpen={!isNil(monacoProps)}
-          onDismiss={this.onDismiss}
-          title={monacoTitle}
-          monacoProps={monacoProps}
-          footer={monacoFooterButton}
-        />
-      </div>
-    );
   }
 }
 
