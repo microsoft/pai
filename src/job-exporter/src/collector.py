@@ -388,7 +388,7 @@ class GpuCollector(Collector):
         return gen_gpu_util_gauge(), gen_gpu_mem_util_gauge()
 
     @staticmethod
-    def convert_nvidia_gpu_info_to_metrics(gpu_info, zombie_info, pid_to_cid_fn, mem_leak_thrashold):
+    def convert_nvidia_gpu_info_to_metrics(gpu_info, zombie_info, pid_to_cid_fn, mem_leak_thrashold, host_name=os.environ.get("HOST_NAME")):
         """ This fn used to convert gpu_info & zombie_info into metrics, used to make
         it easier to do unit test """
         # common gpu metrics
@@ -414,8 +414,8 @@ class GpuCollector(Collector):
             nvidia_mem_utils.add_metric([minor], info.gpu_mem_util)
             if info.temperature is not None:
                 nvidia_gpu_temp.add_metric([minor], info.temperature)
-            nvidia_ecc_errors.add_metric([os.environ.get("HOST_NAME"), minor, "single"], info.ecc_errors.single)
-            nvidia_ecc_errors.add_metric([os.environ.get("HOST_NAME"), minor, "double"], info.ecc_errors.double)
+            nvidia_ecc_errors.add_metric([host_name, minor, "single"], info.ecc_errors.single)
+            nvidia_ecc_errors.add_metric([host_name, minor, "double"], info.ecc_errors.double)
 
             # TODO: this piece of code seems not corret, gpu_mem_util is
             # a percentage number but mem_leak_thrashold is memory size. Need to fix it.
