@@ -59,7 +59,7 @@ const getAlertsGroupedByUser = (alerts, url, token) => {
               'Content-Type': 'application/json',
             })
             .end(function (res) {
-              if (res.status !== 200) {
+              if (!res.ok) {
                 logger.error(
                   'alert-handler failed to get username with jobname.',
                 );
