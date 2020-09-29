@@ -56,13 +56,18 @@ data:
       {% endif %}
 
     receivers:
+<<<<<<< HEAD
     - name: pai-email-admin
+=======
+    - name: "pai-email-admin"
+>>>>>>> msft/master
       webhook_configs:
 {% if 'email-admin' in cluster_cfg["alert-manager"]["actions-available"] %}
       - url: 'http://localhost:{{ cluster_cfg["alert-manager"]["alert-handler"]["port"] }}/alert-handler/send-email-to-admin'
         send_resolved: true
 {% endif %}
 
+<<<<<<< HEAD
     - name: pai-cordon-nodes
       webhook_configs:
       - url: 'http://localhost:{{ cluster_cfg["alert-manager"]["alert-handler"]["port"] }}/alert-handler/cordon-nodes'
@@ -72,6 +77,8 @@ data:
         send_resolved: true
       {% endif %}
 
+=======
+>>>>>>> msft/master
     {% for receiver in cluster_cfg["alert-manager"]["customized-receivers"] %}
     - name: {{ receiver.name}}
       webhook_configs:
@@ -102,10 +109,13 @@ data:
           bearer_token: {{ cluster_cfg["alert-manager"]["alert-handler"]["pai-bearer-token"] }}
       {% endfor %}
       {% endif %}
+<<<<<<< HEAD
 
       {% if 'cordon-nodes' in receiver.actions %}
       - url: 'http://localhost:{{ cluster_cfg["alert-manager"]["alert-handler"]["port"] }}/alert-handler/cordon-nodes'
         send_resolved: false
       {% endif %}
+=======
+>>>>>>> msft/master
     
     {% endfor %}

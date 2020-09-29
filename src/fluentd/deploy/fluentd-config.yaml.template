@@ -100,14 +100,18 @@ data:
       enable_ruby
       <record>
         objectSnapshotTrigger "${\
-          if record['logMessage'].include? 'Framework Pod Deleted'
-            'pod_deleted'
-          elsif record['logMessage'].include? 'Framework will be retried'
-            'framework_retried'
-          elsif record['logMessage'].include? 'Task will be retried'
-            'task_retried'
+          if record['logMessage'].include? 'OnFrameworkRetry'
+            'OnFrameworkRetry'
+          elsif record['logMessage'].include? 'OnFrameworkDeletion'
+            'OnFrameworkDeletion'
+          elsif record['logMessage'].include? 'OnTaskRetry'
+            'OnTaskRetry'
+          elsif record['logMessage'].include? 'OnTaskDeletion'
+            'OnTaskDeletion'
+          elsif record['logMessage'].include? 'OnPodDeletion'
+            'OnPodDeletion'
           else
-            'unknown'
+            'Unknown'
           end}"
       </record>
     </filter>
