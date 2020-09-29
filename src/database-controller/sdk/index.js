@@ -161,7 +161,7 @@ class DatabaseModel {
         indexes: [
           {
             unique: false,
-            fields: ['frameworkName', 'attemptIndex'],
+            fields: ['taskUid'],
           },
         ],
         freezeTableName: true,
