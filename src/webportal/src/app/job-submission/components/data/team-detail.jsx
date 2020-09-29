@@ -123,14 +123,14 @@ export default function TeamDetail({ isOpen = false, config, hide }) {
             </Text>
             <CommandWrapper>
               <Text block>
-                $ sudo apt-get update && apt-get install -y nfs-common
+                $ sudo apt-get update && sudo apt-get install -y nfs-common
               </Text>
               <Text block>$ sudo mkdir -p /mnt/nfsData</Text>
               <Text block>
                 {`$ sudo mount ${config.data.server}:${config.data.path} /mnt/nfsData`}
               </Text>
               <Text block>
-                {'$ cp <local_data_dir> /mnt/nfsData/<subPath>'}
+                {'$ cp -r <local_data_dir> /mnt/nfsData/<subPath>'}
               </Text>
             </CommandWrapper>
             <Text>
