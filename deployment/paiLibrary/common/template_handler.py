@@ -19,8 +19,8 @@ import jinja2
 import logging
 import logging.config
 
-logger = logging.getLogger(__name__)
 
+logger = logging.getLogger(__name__)
 
 def generate_from_template_dict(template_data, map_table):
 
