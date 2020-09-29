@@ -164,6 +164,7 @@ spec:
         volumeMounts:
         - name: internal-data-dir
           mountPath: /paiInternal/storage
+          readOnly: true
           mountPropagation: "None"
         env:
         # Log level of all logs. You can choose from error, warn, info, http, verbose, debug, and silly. Default value is info.
