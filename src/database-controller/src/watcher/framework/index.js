@@ -37,7 +37,7 @@ async function synchronizeFramework(eventType, apiObject) {
 
 const eventHandler = (eventType, apiObject) => {
   /*
-    event uid-based lock + always retry
+    framework name-based lock + always retry
   */
   const receivedTs = new Date().getTime();
   const state =
