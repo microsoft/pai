@@ -5,14 +5,14 @@ info:
     Open Platform for AI RESTful API docs.
     Version 2.0.1: add more examples and fix typos
     Version 2.0.2: update job detail and job attempt schema
-    Version 2.0.3: update parameters description of get storage list
+    Version 2.0.3: update parameters description of get storage list, update storage example and add get job config example
     Version 2.0.4: add default field in get storage list
     Version 2.0.5: add more parameters to job list; add submissionTime
-    Version 2.0.3: update storage example and add get job config example
+    Version 2.1.0: add add/delete tag api; add tags field in get job detail and get job list; add tags filter in get job list
   license:
     name: MIT License
     url: "https://github.com/microsoft/pai/blob/master/LICENSE"
-  version: 2.0.5
+  version: 2.1.0
 externalDocs:
   description: Find out more about OpenPAI
   url: "https://github.com/microsoft/pai"
@@ -1121,6 +1121,16 @@ paths:
           description: filter jobs with keyword, we search keyword in user name, job name, and virtual cluster name
           schema:
             type: string
+        - name: tagsContain
+          in: query
+          description: filter jobs with tags. When multiple tags are specified, every job selected should have at least one of these tags
+          schema:
+            type: string
+        - name: tagsNotContain
+          in: query
+          description: filter jobs with tags. When multiple tags are specified, every job selected should have none of these tags
+          schema:
+            type: string
         - name: offset
           in: query
           description: list job offset
@@ -1157,6 +1167,7 @@ paths:
                   state: SUCCEEDED
                   subState: Completed
                   executionType: STOP
+                  tags: ['abnormal', 'low_gpu_utilization']
                   retries: 0
                   submissionTime: 0
                   createdTime: 0
@@ -1186,6 +1197,7 @@ paths:
                 $ref: "#/components/schemas/JobDetail"
               example:
                 name: job name
+                tags: ['abnormal', 'low_gpu_utilization']
                 jobStatus:
                   username: user name
                   state: SUCCEEDED
@@ -1301,6 +1313,88 @@ paths:
                 message: execute job {job} successfully
         "404":
           $ref: "#/components/responses/NoJobError"
+        "500":
+          $ref: "#/components/responses/UnknownError"
+  "/api/v2/jobs/{user}~{job}/tag":
+    put:
+      tags:
+        - job
+      summary: Add a tag to a job.
+      description: Add a tag to a job.
+      operationId: addTag
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/user"
+        - $ref: "#/components/parameters/job"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                value:
+                  type: string
+                  description: tag
+              required:
+                - value
+        required: true
+      responses:
+        "200":
+          description: Succeeded
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Response"
+              example:
+                message: "Add tag {tag} for job {job} successfully."
+        "404":
+          $ref: "#/components/responses/NoJobError"
+        "500":
+          $ref: "#/components/responses/UnknownError"
+    delete:
+      tags:
+        - job
+      summary: Delete a tag from a job.
+      description: Delete a tag from a job.
+      operationId: deleteTag
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/user"
+        - $ref: "#/components/parameters/job"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                value:
+                  type: string
+                  description: tag
+              required:
+                - value
+        required: true
+      responses:
+        "200":
+          description: Succeeded
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Response"
+              example:
+                message: "Delete tag {tag} from job {job} successfully."
+        "404":
+          description: NoJobError or NoTagError
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Response"
+              examples:
+                NoJobError:
+                  $ref: "#/components/responses/NoJobError/content/application~1json/examples/NoJobError"
+                NoTagError:
+                  $ref: "#/components/responses/NoTagError/content/application~1json/examples/NoTagError"
         "500":
           $ref: "#/components/responses/UnknownError"
   "/api/v2/jobs/{user}~{job}/job-attempts/healthz":
@@ -1675,6 +1769,11 @@ components:
             enum:
               - START
               - STOP
+          tags:
+            type: array
+            description: tags
+            items:
+              type: string
           retries:
             type: integer
             description: job retried times
@@ -1739,6 +1838,11 @@ components:
         name:
           type: string
           description: job name
+        tags:
+          type: array
+          description: tags
+          items:
+            type: string
         jobStatus:
           type: object
           description: job status
@@ -2566,6 +2670,17 @@ components:
               value:
                 code: NoJobError
                 message: "Job {job} is not found."
+    NoTagError:
+      description: NoTagError
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Response"
+          examples:
+            NoTagError:
+              value:
+                code: NoTagError
+                message: "Tag {tag} is not found for job {job} ."
     NoJobConfigError:
       description: NoJobConfigError
       content:

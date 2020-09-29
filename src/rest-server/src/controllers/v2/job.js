@@ -26,8 +26,11 @@ const { Op } = require('sequelize');
 const list = asyncHandler(async (req, res) => {
   // ?keyword=<keyword filter>&username=<username1>,<username2>&vc=<vc1>,<vc2>
   //    &state=<state1>,<state2>&offset=<offset>&limit=<limit>&withTotalCount=true
+  //    &tags=<tag1>,<tag2>
   //    &order=state,DESC
   const filters = {};
+  const tagsContainFilter = {};
+  const tagsNotContainFilter = {};
   let offset = 0;
   let limit;
   let withTotalCount = false;
@@ -62,6 +65,12 @@ const list = asyncHandler(async (req, res) => {
     }
     if ('withTotalCount' in req.query && req.query.withTotalCount === 'true') {
       withTotalCount = true;
+    }
+    if ('tagsContain' in req.query) {
+      tagsContainFilter.name = req.query.tagsContain.split(',');
+    }
+    if ('tagsNotContain' in req.query) {
+      tagsNotContainFilter.name = req.query.tagsNotContain.split(',');
     }
     if ('keyword' in req.query) {
       // match text in username, jobname, or vc
@@ -126,6 +135,8 @@ const list = asyncHandler(async (req, res) => {
   const data = await job.list(
     attributes,
     filters,
+    tagsContainFilter,
+    tagsNotContainFilter,
     order,
     offset,
     limit,
@@ -207,6 +218,22 @@ const getSshInfo = asyncHandler(async (req, res) => {
   res.json(data);
 });
 
+const addTag = asyncHandler(async (req, res) => {
+  await job.addTag(req.params.frameworkName, req.body.value);
+  res.status(status('OK')).json({
+    status: status('OK'),
+    message: `Add tag ${req.body.value} for job ${req.params.frameworkName} successfully.`,
+  });
+});
+
+const deleteTag = asyncHandler(async (req, res) => {
+  await job.deleteTag(req.params.frameworkName, req.body.value);
+  res.status(status('OK')).json({
+    status: status('OK'),
+    message: `Delete tag ${req.body.value} from job ${req.params.frameworkName} successfully.`,
+  });
+});
+
 // module exports
 module.exports = {
   list,
@@ -215,4 +242,6 @@ module.exports = {
   execute,
   getConfig,
   getSshInfo,
+  addTag,
+  deleteTag,
 };

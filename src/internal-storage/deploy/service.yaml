@@ -19,6 +19,8 @@ cluster-type:
   - k8s
   - yarn
 
+prerequisite:
+  - cluster-configuration
 
 template-list:
   - create.yaml
