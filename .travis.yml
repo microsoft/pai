@@ -7,7 +7,7 @@ matrix:
       before_install:
         - cd deployment
       install:
-        - pip install paramiko pyyaml jinja2 python-etcd kubernetes
+        - pip install dnspython==1.13.0 paramiko pyyaml jinja2 python-etcd kubernetes
       script:
         - python -m unittest discover test/
 
@@ -24,21 +24,21 @@ matrix:
     - language: python
       python: 2.7
       install:
-        - pip install paramiko pyyaml jinja2 python-etcd kubernetes GitPython
+        - pip install dnspython==1.13.0 paramiko pyyaml jinja2 python-etcd kubernetes GitPython
       script:
         - python -m unittest deployment.clusterObjectModel.test.test_cluster_object_model
 
     - language: python
       python: 2.7
       install:
-        - pip install paramiko pyyaml jinja2 python-etcd kubernetes GitPython
+        - pip install dnspython==1.13.0 paramiko pyyaml jinja2 python-etcd kubernetes GitPython
       script:
         - python -m unittest deployment.clusterObjectModel.test.test_template_generate
 
     - language: python
       python: 2.7
       install:
-        - pip install paramiko pyyaml jinja2 python-etcd kubernetes GitPython
+        - pip install dnspython==1.13.0 paramiko pyyaml jinja2 python-etcd kubernetes GitPython
       script:
         - python -m unittest deployment.clusterObjectModel.test.test_forward_compatibility
 
