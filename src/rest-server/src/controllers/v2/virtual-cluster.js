@@ -191,6 +191,22 @@ const remove = asyncHandler(async (req, res) => {
   });
 });
 
+const createRequest = asyncHandler(async (req, res) => {
+  const virtualClusterName = req.params.virtualClusterName;
+});
+
+const listRequest = asyncHandler(async (req, res) => {
+  const virtualClusterName = req.params.virtualClusterName;
+});
+
+const updateRequest = asyncHandler(async (req, res) => {
+  const virtualClusterName = req.params.virtualClusterName;
+});
+
+const deleteRequest = asyncHandler(async (req, res) => {
+  const virtualClusterName = req.params.virtualClusterName;
+});
+
 // module exports
 module.exports = {
   validate,
@@ -199,4 +215,8 @@ module.exports = {
   update,
   updateStatus,
   remove,
+  createRequest,
+  listRequest,
+  updateRequest,
+  deleteRequest,
 };

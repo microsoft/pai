@@ -51,6 +51,23 @@ router
     controller.updateStatus,
   );
 
+router
+  .route('/:virtualClusterName/request')
+  /** POST /api/v2/virtual-clusters/:virtualClusterName/request - Submit request for joining VC */
+  .post(
+    token.check,
+    param.validate(vcConfig.vcRequestPostInputSchema),
+    controller.createRequest,
+  )
+  /** PUT /api/v2/virtual-clusters/:virtualClusterName/request - Update a joining VC request */
+  .put(
+    token.check,
+    param.validate(vcConfig.vcRequestPutInputSchema),
+    controller.updateRequest,
+  )
+  /** DELETE /api/v2/virtual-clusters/:virtualClusterName/request - Delete a joining VC request */
+  .delete(token.check, controller.deleteRequest);
+
 router.param('virtualClusterName', controller.validate);
 
 // module exports

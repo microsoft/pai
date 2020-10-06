@@ -39,6 +39,23 @@ const vcStatusPutInputSchema = Joi.object()
   })
   .required();
 
+// define the input schema for the 'post vc request' api
+const vcRequestPostInputSchema = Joi.object()
+  .keys({
+    username: Joi.string()
+      .regex(/^[\w.-]+$/, 'username')
+      .required(),
+    virtualCluster: Joi.array().items(Joi.string()).default([]),
+  })
+  .required();
+
+// define the input schema for the 'put vc request' api
+const vcRequestPutInputSchema = Joi.object()
+  .keys({
+    status: Joi.string().valid('new', 'approved', 'rejected'),
+  })
+  .required();
+
 const resourceUnits = {};
 
 if (enabledHived) {
@@ -69,5 +86,7 @@ if (enabledHived) {
 module.exports = {
   vcCreateInputSchema,
   vcStatusPutInputSchema,
+  vcRequestPostInputSchema,
+  vcRequestPutInputSchema,
   resourceUnits,
 };
