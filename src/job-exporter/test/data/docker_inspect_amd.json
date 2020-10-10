@@ -231,6 +231,7 @@
                 "PAI_MIN_SUCCEEDED_TASK_COUNT_worker=1",
                 "PAI_USERNAME=dgxadmin",
                 "PAI_CURRENT_TASK_ROLE_NAME=worker",
+                "PAI_VIRTUAL_CLUSTER=default",
                 "PAI_TASK_INDEX=0",
                 "FC_FRAMEWORK_NAMESPACE=default",
                 "FC_TASK_ATTEMPT_INSTANCE_UID=0_a1310f10-5ea6-11ea-8a2a-90b11c27f535",

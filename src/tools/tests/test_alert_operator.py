@@ -40,7 +40,7 @@ class AlertOperatorTestCase(unittest.TestCase):
                             "alertname": "JobExporterHangs",
                             "alertstate": "pending",
                             "instance": "10.0.0.1:9102",
-                            "job": "pai_serivce_exporter",
+                            "job": "pai_service_exporter",
                             "name": "docker_daemon_collector",
                             "pai_service_name": "job-exporter",
                             "scraped_from": "job-exporter-p4skn",
@@ -57,7 +57,7 @@ class AlertOperatorTestCase(unittest.TestCase):
                             "alertname": "NodeMemoryUsage",
                             "alertstate": "firing",
                             "instance": "10.0.0.2:9100",
-                            "job": "pai_serivce_exporter",
+                            "job": "pai_service_exporter",
                             "pai_service_name": "node-exporter",
                             "scraped_from": "node-exporter-blkpp"
                         },
@@ -73,7 +73,7 @@ class AlertOperatorTestCase(unittest.TestCase):
                             "alertstate": "firing",
                             "command": "nvidia-smi",
                             "instance": "10.0.0.3:9102",
-                            "job": "pai_serivce_exporter",
+                            "job": "pai_service_exporter",
                             "pai_service_name": "job-exporter",
                             "scraped_from": "job-exporter-t4sv6"
                         },

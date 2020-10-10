@@ -1,7 +1,3 @@
-#!/bin/bash
-
-#!/bin/bash
-
 # Copyright (c) Microsoft Corporation
 # All rights reserved.
 #
@@ -19,17 +15,17 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-pushd $(dirname "$0") > /dev/null
+FROM node:dubnium
 
-{% if cluster_cfg["alert-manager"]["configured"] %}
-kubectl create configmap alert-templates --from-file=alert-templates --dry-run -o yaml | kubectl apply --overwrite=true -f - || exit $?
-kubectl apply --overwrite=true -f alert-configmap.yaml || exit $?
-kubectl apply --overwrite=true -f alert-manager.yaml || exit $?
+WORKDIR /usr/src/app
 
-sleep 10
-# wait until the service is ready.
-PYTHONPATH="../../../deployment" python -m  k8sPaiLibrary.monitorTool.check_pod_ready_status -w -k app -v alertmanager || exit $?
-{% endif %}
+ENV NODE_ENV=production \
+    SERVER_PORT=9095
 
+COPY ./src/alert-handler .
 
-popd > /dev/null
+RUN yarn install
+
+EXPOSE ${SERVER_PORT}
+
+CMD ["npm", "start"]
