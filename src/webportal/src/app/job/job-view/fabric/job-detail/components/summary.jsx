@@ -439,7 +439,7 @@ export default class Summary extends React.Component {
           {/* summary-row-2 */}
           <div className={c(t.mt4, t.flex, t.itemsStart)}>
             <div>
-              <div className={c(t.gray, FontClassNames.medium)}>Status</div>
+              <div className={c(t.gray, FontClassNames.medium)}>Job State</div>
               <div className={c(t.mt3)}>
                 <StatusBadge
                   status={getHumanizedJobStateString(jobInfo.jobStatus)}

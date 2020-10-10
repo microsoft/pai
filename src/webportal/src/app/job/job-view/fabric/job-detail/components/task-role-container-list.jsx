@@ -33,6 +33,7 @@ import {
   DirectionalHint,
   Icon,
   Stack,
+  IconButton,
 } from 'office-ui-fabric-react';
 import {
   DetailsList,
@@ -55,6 +56,8 @@ import config from '../../../../../config/webportal.config';
 import MonacoPanel from '../../../../../components/monaco-panel';
 import StatusBadge from '../../../../../components/status-badge';
 import CopyButton from '../../../../../components/copy-button';
+import TaskAttemptDialog from './task-attempt-dialog';
+import { getTaskColumns } from './get-task-columns';
 
 const theme = createTheme({
   palette: {
@@ -137,6 +140,7 @@ export default class TaskRoleContainerList extends React.Component {
       logUrl: null,
       items: props.taskAttempts,
       ordering: { field: null, descending: false },
+      hideDialog: true,
     };
 
     this.showSshInfo = this.showSshInfo.bind(this);
@@ -146,6 +150,7 @@ export default class TaskRoleContainerList extends React.Component {
     this.logAutoRefresh = this.logAutoRefresh.bind(this);
     this.onColumnClick = this.onColumnClick.bind(this);
     this.applySortProps = this.applySortProps.bind(this);
+    this.toggleHideDialog = this.toggleHideDialog.bind(this);
   }
 
   componentDidUpdate(prevProps) {
@@ -343,6 +348,13 @@ export default class TaskRoleContainerList extends React.Component {
     return item[key];
   }
 
+  toggleHideDialog() {
+    const isHideDialog = this.state.hideDialog;
+    this.setState({
+      hideDialog: !isHideDialog,
+    });
+  }
+
   orderItems(items, ordering) {
     const key = ordering.field;
     return items
@@ -408,7 +420,7 @@ export default class TaskRoleContainerList extends React.Component {
       logUrl,
       items,
     } = this.state;
-    const { className, style, showTaskRetryInfo } = this.props;
+    const { className, style, showMoreDiagnostics } = this.props;
     return (
       <div
         className={className}
@@ -417,12 +429,16 @@ export default class TaskRoleContainerList extends React.Component {
         <ThemeProvider theme={theme}>
           <DetailsList
             styles={{ root: { overflow: 'auto' } }}
-            columns={this.getColumns(showTaskRetryInfo)}
+            columns={this.getColumns(showMoreDiagnostics)}
             disableSelectionZone
             items={items}
             layoutMode={DetailsListLayoutMode.justified}
             selectionMode={SelectionMode.none}
             onRenderRow={this.onRenderRow}
+          />
+          <TaskAttemptDialog
+            hideDialog={this.state.hideDialog}
+            toggleHideDialog={this.toggleHideDialog}
           />
         </ThemeProvider>
         {/* Timer */}
@@ -442,20 +458,7 @@ export default class TaskRoleContainerList extends React.Component {
     );
   }
 
-  getColumns(showTaskRetryInfo) {
-    const taskRoleColumn = this.applySortProps({
-      key: 'taskRoleName',
-      name: 'Task Role',
-      headerClassName: FontClassNames.medium,
-      isResizable: true,
-      onRender: (item, idx) => {
-        return (
-          <div
-            className={FontClassNames.mediumPlus}
-          >{`${item.taskRoleName} (${item.taskIndex})`}</div>
-        );
-      },
-    });
+  getColumns(showMoreDiagnostics) {
     const taskStateColumn = this.applySortProps({
       key: 'taskState',
       name: 'Task State',
@@ -484,11 +487,11 @@ export default class TaskRoleContainerList extends React.Component {
       },
     });
     const defaultColumns = [
-      taskRoleColumn,
       {
         key: 'taskIndex',
         name: 'Task Index',
         headerClassName: FontClassNames.medium,
+        maxWidth: 50,
         isResizable: true,
         onRender: (item, idx) => {
           return (
@@ -505,7 +508,13 @@ export default class TaskRoleContainerList extends React.Component {
         isResizable: true,
         onRender: (item, idx) => {
           return (
-            <div className={FontClassNames.mediumPlus}>{item.retries}</div>
+            <Stack horizontal verticalAlign='center' gap='m'>
+              <div className={FontClassNames.mediumPlus}>{item.retries}</div>
+              <IconButton
+                iconProps={{ iconName: 'Error' }}
+                onClick={this.toggleHideDialog}
+              />
+            </Stack>
           );
         },
       },
@@ -929,8 +938,7 @@ export default class TaskRoleContainerList extends React.Component {
     ];
 
     let columns = defaultColumns;
-    if (showTaskRetryInfo) {
-      columns.splice(5, 0, ...attemptInfoColumns);
+    if (showMoreDiagnostics) {
       columns = columns.concat(optionalColumns);
     }
 
@@ -944,5 +952,5 @@ TaskRoleContainerList.propTypes = {
   className: PropTypes.string,
   style: PropTypes.object,
   taskAttempts: PropTypes.arrayOf(PropTypes.object),
-  showTaskRetryInfo: PropTypes.bool,
+  showMoreDiagnostics: PropTypes.bool,
 };

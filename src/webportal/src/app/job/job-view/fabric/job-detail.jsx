@@ -51,6 +51,7 @@ import {
 } from './job-detail/conn';
 import { getHumanizedJobStateString } from '../../../components/util/job';
 import Card from './job-detail/components/card';
+import HorizontalLine from '../../../components/horizontal-line';
 import StatusBadge from '../../../components/status-badge';
 import { printDateTime } from './job-detail/util';
 import CopyButton from '../../../components/copy-button';
@@ -70,12 +71,14 @@ class JobDetail extends React.Component {
       jobConfig: null,
       sshInfo: null,
       selectedRetryIndex: null,
-      showTaskRetryInfo: false,
+      showMoreDiagnostics: false,
     };
     this.stop = this.stop.bind(this);
     this.reload = this.reload.bind(this);
     this.onChangeRetry = this.onChangeRetry.bind(this);
-    this.onChangeShowTaskRetryInfo = this.onChangeShowTaskRetryInfo.bind(this);
+    this.onChangeShowMoreDiagnostics = this.onChangeShowMoreDiagnostics.bind(
+      this,
+    );
   }
 
   componentDidMount() {
@@ -160,7 +163,7 @@ class JobDetail extends React.Component {
   }
 
   onChangeRetry(event, item) {
-    fetchJobInfo(item.key, this.state.showTaskRetryInfo).then(data => {
+    fetchJobInfo(item.key).then(data => {
       this.setState({
         selectedRetryIndex: item.key,
         jobInfo: data,
@@ -168,12 +171,9 @@ class JobDetail extends React.Component {
     });
   }
 
-  onChangeShowTaskRetryInfo(event, checked) {
-    fetchJobInfo(this.state.selectedRetryIndex, checked).then(data => {
-      this.setState({
-        showTaskRetryInfo: checked,
-        jobInfo: data,
-      });
+  onChangeShowMoreDiagnostics(event, checked) {
+    this.setState({
+      showMoreDiagnostics: checked,
     });
   }
 
@@ -209,7 +209,7 @@ class JobDetail extends React.Component {
     if (!isNil(jobInfo)) {
       for (let index = jobInfo.jobStatus.retries; index >= 0; index -= 1) {
         if (index === jobInfo.jobStatus.retries) {
-          retryIndexOptions.push({ key: index, text: `${index}  (current)` });
+          retryIndexOptions.push({ key: index, text: `${index}  (latest)` });
         } else {
           retryIndexOptions.push({ key: index, text: index });
         }
@@ -237,27 +237,31 @@ class JobDetail extends React.Component {
               onReload={this.reload}
             />
             <Card>
-              <Stack gap='m' padding='l2'>
+              <Stack gap='l2' padding='l2'>
+                <Stack horizontal gap='m' verticalAlign='center'>
+                  <Text variant='large'>Job Attempt Index</Text>
+                  <Dropdown
+                    styles={{ root: { width: '150px' } }}
+                    placeholder='Select Retry Index'
+                    options={retryIndexOptions}
+                    defaultSelectedKey={selectedRetryIndex || undefined}
+                    onChange={this.onChangeRetry}
+                  />
+                </Stack>
                 <Stack
                   horizontal
                   horizontalAlign='space-between'
-                  verticalAlign='baseline'
+                  verticalAlign='end'
                   gap='m'
                 >
-                  <Stack horizontal gap='m' verticalAlign='center'>
-                    <Text>Job Attempt Index</Text>
-                    <Dropdown
-                      styles={{ root: { width: '150px' } }}
-                      placeholder='Select Retry Index'
-                      options={retryIndexOptions}
-                      defaultSelectedKey={selectedRetryIndex || undefined}
-                      onChange={this.onChangeRetry}
-                    />
-                    <Stack gap='s1'>
+                  <Stack horizontal gap='l1'>
+                    <Stack gap='m'>
                       <Text>Attempt State</Text>
-                      <Text>{jobInfo.jobStatus.attemptState}</Text>
+                      <StatusBadge
+                        status={capitalize(jobInfo.jobStatus.attemptState)}
+                      />
                     </Stack>
-                    <Stack gap='s1'>
+                    <Stack gap='m'>
                       <Text>Attempt Start Time</Text>
                       <Text>
                         {DateTime.fromMillis(
@@ -265,7 +269,7 @@ class JobDetail extends React.Component {
                         ).toLocaleString(DateTime.DATETIME_MED)}
                       </Text>
                     </Stack>
-                    <Stack gap='s1'>
+                    <Stack gap='m'>
                       <Text>Attempt Complete Time</Text>
                       <Text>
                         {DateTime.fromMillis(
@@ -275,15 +279,22 @@ class JobDetail extends React.Component {
                     </Stack>
                   </Stack>
                   <Toggle
-                    onText='More Details'
-                    offText='More Details'
-                    onChange={this.onChangeShowTaskRetryInfo}
+                    onText='More Diagnostics'
+                    offText='More Diagnostics'
+                    onChange={this.onChangeShowMoreDiagnostics}
                   />
                 </Stack>
-                <TaskRoleContainerList
-                  taskAttempts={this.getAllTaskAttempts(jobInfo)}
-                  showTaskRetryInfo={this.state.showTaskRetryInfo}
-                />
+                {!isEmpty(jobInfo.taskRoles) &&
+                  Object.keys(jobInfo.taskRoles).map(name => (
+                    <Stack key={name} gap='m'>
+                      <HorizontalLine />
+                      <Text variant='large'>{`Task Role:  ${name}`}</Text>
+                      <TaskRoleContainerList
+                        taskAttempts={jobInfo.taskRoles[name].taskStatuses}
+                        showMoreDiagnostics={this.state.showMoreDiagnostics}
+                      />
+                    </Stack>
+                  ))}
               </Stack>
             </Card>
           </Stack>
