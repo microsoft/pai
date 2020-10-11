@@ -5,6 +5,7 @@
 const uuid = require('uuid');
 const createError = require('@pai/utils/error');
 const k8sSecret = require('@pai/models/kubernetes/k8s-secret');
+const k8sModel = require('@pai/models/kubernetes/kubernetes');
 
 const namespace = process.env.PAI_VC_REQUEST_NAMESPACE || 'pai-vc-request';
 const requestState = {
@@ -12,6 +13,11 @@ const requestState = {
   APPROVED: 'approved',
   REJECTED: 'rejected',
 };
+
+// create namespace if not exists
+if (process.env.NODE_ENV !== 'test') {
+  k8sModel.createNamespace(namespace);
+}
 
 const createRequest = async (vcName, username, message) => {
   try {
