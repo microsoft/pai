@@ -2,15 +2,9 @@
 // Licensed under the MIT License.
 
 // module dependencies
-const axios = require('axios');
-const yaml = require('js-yaml');
 const uuid = require('uuid');
 const createError = require('@pai/utils/error');
-const { resourceUnits } = require('@pai/config/vc');
-const { enabledHived, hivedWebserviceUri } = require('@pai/config/launcher');
-const kubernetes = require('@pai/models/kubernetes/kubernetes');
 const k8sSecret = require('@pai/models/kubernetes/k8s-secret');
-const k8sModel = require('@pai/models/kubernetes/kubernetes');
 
 const namespace = process.env.PAI_VC_REQUEST_NAMESPACE || 'pai-vc-request';
 const requestState = {
