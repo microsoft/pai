@@ -29,7 +29,7 @@ const requestPostInputSchema = Joi.object()
       password: Joi.string().min(6),
     }),
     storage: Joi.array().items(Joi.string()),
-    message: Joi.string().max(1024).empty('').required(),
+    message: Joi.string().max(1024).empty(''),
   })
   .required()
   .when('type', {
@@ -48,6 +48,7 @@ const requestPostInputSchema = Joi.object()
 // define the input schema for the 'put request' api
 const requestPutInputSchema = Joi.object()
   .keys({
+    type: Joi.string().valid(Object.values(requestType)).required(),
     state: Joi.string().valid(Object.values(requestState)).required(),
   })
   .required();
