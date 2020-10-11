@@ -11,7 +11,7 @@ const requestState = {
   NEW: 'new',
   APPROVED: 'approved',
   REJECTED: 'rejected',
-}
+};
 
 const createRequest = async (vcName, username, message) => {
   try {
@@ -35,7 +35,7 @@ const createRequest = async (vcName, username, message) => {
       );
     } else {
       item[id] = requestObject;
-      await k8sSecret.replace(namespace, vcName, result, { encode: 'hex' });
+      await k8sSecret.replace(namespace, vcName, item, { encode: 'hex' });
     }
     return id;
   } catch (err) {
@@ -45,7 +45,7 @@ const createRequest = async (vcName, username, message) => {
       `Vc ${vcName} not found`,
     );
   }
-}
+};
 
 const listRequest = async (vcName) => {
   try {
@@ -71,7 +71,7 @@ const updateRequest = async (vcName, id, state) => {
     if (item !== null) {
       requestObject.state = state;
       item[id] = requestObject;
-      await k8sSecret.replace(namespace, vcName, result, { encode: 'hex' });
+      await k8sSecret.replace(namespace, vcName, item, { encode: 'hex' });
     }
   } catch (err) {
     throw createError(
@@ -80,7 +80,7 @@ const updateRequest = async (vcName, id, state) => {
       `Vc ${vcName} not found`,
     );
   }
-}
+};
 
 const deleteRequest = async (vcName, id) => {
   try {
@@ -88,7 +88,7 @@ const deleteRequest = async (vcName, id) => {
 
     if (item !== null && item[id]) {
       delete item[id];
-      await k8sSecret.replace(namespace, vcName, result, { encode: 'hex' });
+      await k8sSecret.replace(namespace, vcName, item, { encode: 'hex' });
     }
   } catch (err) {
     throw createError(
@@ -97,7 +97,7 @@ const deleteRequest = async (vcName, id) => {
       `Vc ${vcName} not found`,
     );
   }
-}
+};
 
 // module exports
 module.exports = {
