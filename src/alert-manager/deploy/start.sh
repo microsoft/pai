@@ -17,5 +17,13 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-kubectl delete --ignore-not-found --now configmap/alertmanager
-kubectl delete --ignore-not-found --now deployment/alertmanager
+pushd $(dirname "$0") > /dev/null
+
+kubectl apply --overwrite=true -f alert-manager-configmap.yaml || exit $?
+kubectl apply --overwrite=true -f alert-manager-deployment.yaml || exit $?
+
+sleep 10
+# wait until the service is ready.
+PYTHONPATH="../../../deployment" python -m  k8sPaiLibrary.monitorTool.check_pod_ready_status -w -k app -v alertmanager || exit $?
+
+popd > /dev/null

@@ -250,6 +250,7 @@
                 "FRAMEWORK_NAME=sokoya~train-exp_offrl_sc_discard_0231-10th-beta07-lrfixed_13e9bf5_gCYv",
                 "HADOOP_USER_NAME=sokoya",
                 "PAI_TASK_INDEX=0",
+                "PAI_VIRTUAL_CLUSTER=default",
                 "PAI_CONTAINER_HOST_IP=10.151.40.211",
                 "PAI_CONTAINER_HOST_PORT_LIST=tensorboard:15452;http:15453;ssh:15454;",
                 "PAI_CONTAINER_ID=container_e47_1553664769226_0080_01_000025",
