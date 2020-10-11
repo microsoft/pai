@@ -7,6 +7,7 @@ const createError = require('@pai/utils/error');
 const k8sSecret = require('@pai/models/kubernetes/k8s-secret');
 const k8sModel = require('@pai/models/kubernetes/kubernetes');
 const { requestType, requestState } = require('@pai/config/v2/user-request');
+const { encrypt } = require('@pai/utils/manager/user/user');
 
 const namespace = process.env.PAI_REQUEST_NAMESPACE || 'pai-request';
 
@@ -74,6 +75,14 @@ const deleteRequest = async (type, id) => {
   }
 };
 
+const getPasswordHash = async (user) => {
+  if (user && user.username && user.password) {
+    return await encrypt(user.username, user.password);
+  } else {
+    return null;
+  }
+};
+
 const create = async (type, username, body) => {
   const id = uuid();
   const requestObject = {
@@ -88,7 +97,11 @@ const create = async (type, username, body) => {
       requestObject.vc = body.vc;
       break;
     case requestType.USER:
-      requestObject.user = body.user;
+      requestObject.user = {
+        username: body.user.username,
+        email: body.user.email,
+        pashwordHash: await getPasswordHash(body.user),
+      };
       break;
     case requestType.STORAGE:
       requestObject.storage = body.storage;

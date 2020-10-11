@@ -11,11 +11,20 @@ const config = require('@pai/config/v2/user-request');
 const router = new express.Router();
 
 router
+  .route('/user')
+  /** POST /api/v2/request/user - Create a user request */
+  .post(
+    param.validate(config.requestPostInputSchema),
+    controller.createRequest,
+  );
+
+router
   .route('/:requestType')
   /** GET /api/v2/request/:requestType - Return all requests by request type */
   .get(token.check, controller.listRequest)
   /** POST /api/v2/request - Create a request */
   .post(
+    token.check,
     param.validate(config.requestPostInputSchema),
     controller.createRequest,
   );
