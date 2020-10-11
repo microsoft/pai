@@ -36,7 +36,7 @@ router.use('/storages', storageRouter);
 router.use('/storage', storageDeprecatedRouter);
 router.use('/tokens', tokenRouter);
 router.use('/kubernetes', k8sRouter);
-router.use('/request', requestRouter);
+router.use('/requests', requestRouter);
 
 // module exports
 module.exports = router;
