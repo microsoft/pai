@@ -23,25 +23,25 @@ const createRequest = async (vcName, username, message) => {
   // eslint-disable-next-line no-useless-catch
   try {
     const item = await k8sSecret.get(namespace, vcName, { encode: 'hex' });
-    const id = uuid().toString();
-    const requestObject = {
+    const id = uuid();
+    const requestString = JSON.stringify({
       id,
       username,
       message,
       state: requestState.NEW,
-    };
+    });
 
     if (item === null) {
       await k8sSecret.create(
         namespace,
         vcName,
         {
-          [id]: requestObject,
+          [id]: requestString,
         },
         { encode: 'hex' },
       );
     } else {
-      item[id] = requestObject;
+      item[id] = requestString;
       await k8sSecret.replace(namespace, vcName, item, { encode: 'hex' });
     }
     return id;
@@ -56,7 +56,7 @@ const listRequest = async (vcName) => {
     if (item === null) {
       return [];
     }
-    return Object.values(item);
+    return Object.values(item).map((x) => JSON.parse(x));
   } catch (err) {
     throw createError(
       'Not Found',
@@ -69,11 +69,11 @@ const listRequest = async (vcName) => {
 const updateRequest = async (vcName, id, state) => {
   try {
     const item = await k8sSecret.get(namespace, vcName, { encode: 'hex' });
-    const requestObject = item[id];
 
-    if (item !== null) {
+    if (item !== null && item[id]) {
+      const requestObject = JSON.parse(item[id]);
       requestObject.state = state;
-      item[id] = requestObject;
+      item[id] = JSON.stringify(requestObject);
       await k8sSecret.replace(namespace, vcName, item, { encode: 'hex' });
     }
   } catch (err) {
