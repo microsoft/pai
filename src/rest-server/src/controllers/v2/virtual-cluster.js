@@ -17,6 +17,7 @@
 
 // module dependencies
 const status = require('statuses');
+const uuid = require('uuid');
 const asyncHandler = require('@pai/middlewares/v2/asyncHandler');
 const virtualCluster = require('@pai/models/v2/virtual-cluster');
 const createError = require('@pai/utils/error');
@@ -36,6 +37,30 @@ const validate = (req, res, next, virtualClusterName) => {
       'Forbidden',
       'ForbiddenUserError',
       "Update operation to default vc isn't allowed",
+    );
+  } else {
+    return next();
+  }
+};
+
+const validateRequestVcName = (req, res, next, virtualClusterName) => {
+  if (!/^[A-Za-z0-9_]+$/.test(virtualClusterName)) {
+    throw createError(
+      'Bad Request',
+      'InvalidParametersError',
+      'VC name should only contain alpha-numeric and underscore characters',
+    );
+  } else {
+    return next();
+  }
+};
+
+const validateRequestId = (req, res, next, requestId) => {
+  if (!uuid.validate(requestId)) {
+    throw createError(
+      'Bad Request',
+      'InvalidParametersError',
+      'Request id should be an uuid',
     );
   } else {
     return next();
@@ -194,7 +219,7 @@ const remove = asyncHandler(async (req, res) => {
 
 const createRequest = asyncHandler(async (req, res) => {
   try {
-    const virtualClusterName = req.params.virtualClusterName;
+    const virtualClusterName = req.params.requestVcName;
     const id = await vcRequestModel.create(
       virtualClusterName,
       req.user,
@@ -215,7 +240,7 @@ const createRequest = asyncHandler(async (req, res) => {
 
 const listRequest = asyncHandler(async (req, res) => {
   try {
-    const virtualClusterName = req.params.virtualClusterName;
+    const virtualClusterName = req.params.requestVcName;
     const items = await vcRequestModel.list(virtualClusterName);
     res.status(status('OK')).json({
       requests: items,
@@ -231,7 +256,7 @@ const listRequest = asyncHandler(async (req, res) => {
 
 const updateRequest = asyncHandler(async (req, res) => {
   try {
-    const virtualClusterName = req.params.virtualClusterName;
+    const virtualClusterName = req.params.requestVcName;
     const requestId = req.params.requestId;
     await vcRequestModel.update(virtualClusterName, requestId, req.body.state);
     res.status(status('Created')).json({
@@ -249,7 +274,7 @@ const updateRequest = asyncHandler(async (req, res) => {
 
 const deleteRequest = asyncHandler(async (req, res) => {
   try {
-    const virtualClusterName = req.params.virtualClusterName;
+    const virtualClusterName = req.params.requestVcName;
     const requestId = req.params.requestId;
     await vcRequestModel.delete(virtualClusterName, requestId);
     res.status(status('Created')).json({
@@ -273,6 +298,8 @@ module.exports = {
   update,
   updateStatus,
   remove,
+  validateRequestVcName,
+  validateRequestId,
   createRequest,
   listRequest,
   updateRequest,
