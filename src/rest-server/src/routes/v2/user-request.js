@@ -22,7 +22,7 @@ router
   .route('/:requestType')
   /** GET /api/v2/request/:requestType - Return all requests by request type */
   .get(token.check, controller.listRequest)
-  /** POST /api/v2/request - Create a request */
+  /** POST /api/v2/request/:requestType - Create a request */
   .post(
     token.check,
     param.validate(config.requestPostInputSchema),
