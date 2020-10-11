@@ -222,7 +222,7 @@ const createRequest = asyncHandler(async (req, res) => {
     const virtualClusterName = req.params.requestVcName;
     const id = await vcRequestModel.create(
       virtualClusterName,
-      req.user,
+      req.user.username,
       req.body.message,
     );
     res.status(status('Created')).json({

@@ -20,7 +20,6 @@ if (process.env.NODE_ENV !== 'test') {
 }
 
 const createRequest = async (vcName, username, message) => {
-  // eslint-disable-next-line no-useless-catch
   try {
     const item = await k8sSecret.get(namespace, vcName, { encode: 'hex' });
     const id = uuid();
@@ -46,7 +45,11 @@ const createRequest = async (vcName, username, message) => {
     }
     return id;
   } catch (err) {
-    throw err;
+    throw createError(
+      'Not Found',
+      'NoVirtualClusterError',
+      `Vc ${vcName} not found`,
+    );
   }
 };
 
