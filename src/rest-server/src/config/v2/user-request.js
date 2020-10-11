@@ -16,32 +16,34 @@ const requestState = {
   REJECTED: 'rejected',
 };
 
-// define the input schema for the 'post request vc' api
-const requestPostInputSchema = Joi.alternatives()
-  .try(
-    Joi.object().keys({
-      type: Joi.string().valid(requestType.VC).required(),
-      vc: Joi.array().items(Joi.string()).required(),
-      message: Joi.string().max(1024).empty(''),
+// define the input schema for the 'post request' api
+const requestPostInputSchema = Joi.object()
+  .keys({
+    type: Joi.string().valid(Object.values(requestType)).required(),
+    vc: Joi.array().items(Joi.string()),
+    user: Joi.object().keys({
+      username: Joi.string()
+        .regex(/^[\w.-]+$/, 'username')
+        .required(),
+      email: Joi.string().email(),
+      password: Joi.string().min(6),
     }),
-    Joi.object().keys({
-      type: Joi.string().valid(requestType.USER).required(),
-      user: Joi.object().keys({
-        username: Joi.string()
-          .regex(/^[\w.-]+$/, 'username')
-          .required(),
-        email: Joi.string().email(),
-        password: Joi.string().min(6),
-      }),
-      message: Joi.string().max(1024).empty(''),
-    }),
-    Joi.object().keys({
-      type: Joi.string().valid(requestType.STORAGE).required(),
-      storage: Joi.array().items(Joi.string()).required(),
-      message: Joi.string().max(1024).empty(''),
-    }),
-  )
-  .require();
+    storage: Joi.array().items(Joi.string()),
+    message: Joi.string().max(1024).empty('').required(),
+  })
+  .required()
+  .when('type', {
+    is: requestType.VC,
+    then: Joi.object({ vc: Joi.required() }),
+  })
+  .when('type', {
+    is: requestType.USER,
+    then: Joi.object({ user: Joi.required() }),
+  })
+  .when('type', {
+    is: requestType.STORAGE,
+    then: Joi.object({ storage: Joi.required() }),
+  });
 
 // define the input schema for the 'put request' api
 const requestPutInputSchema = Joi.object()
