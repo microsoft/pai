@@ -17,13 +17,11 @@
 
 // module dependencies
 const status = require('statuses');
-const uuid = require('uuid');
 const asyncHandler = require('@pai/middlewares/v2/asyncHandler');
 const virtualCluster = require('@pai/models/v2/virtual-cluster');
 const createError = require('@pai/utils/error');
 const groupModel = require('@pai/models/v2/group');
 const authConfig = require('@pai/config/authn');
-const vcRequestModel = require('@pai/models/v2/virtual-cluster/vc-request');
 
 const validate = (req, res, next, virtualClusterName) => {
   if (!/^[A-Za-z0-9_]+$/.test(virtualClusterName)) {
@@ -37,34 +35,6 @@ const validate = (req, res, next, virtualClusterName) => {
       'Forbidden',
       'ForbiddenUserError',
       "Update operation to default vc isn't allowed",
-    );
-  } else {
-    return next();
-  }
-};
-
-const validateRequestVcName = (req, res, next, virtualClusterName) => {
-  if (!/^[A-Za-z0-9_]+$/.test(virtualClusterName)) {
-    throw createError(
-      'Bad Request',
-      'InvalidParametersError',
-      'VC name should only contain alpha-numeric and underscore characters',
-    );
-  } else {
-    return next();
-  }
-};
-
-const validateRequestId = (req, res, next, requestId) => {
-  if (
-    !/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/.test(
-      requestId,
-    )
-  ) {
-    throw createError(
-      'Bad Request',
-      'InvalidParametersError',
-      'Request id should be an uuid',
     );
   } else {
     return next();
@@ -221,79 +191,6 @@ const remove = asyncHandler(async (req, res) => {
   });
 });
 
-const createRequest = asyncHandler(async (req, res) => {
-  try {
-    const virtualClusterName = req.params.requestVcName;
-    const id = await vcRequestModel.create(
-      virtualClusterName,
-      req.user.username,
-      req.body.message,
-    );
-    res.status(status('Created')).json({
-      status: status('Created'),
-      message: `Create request ${id} successfully.`,
-    });
-  } catch (err) {
-    if (err.status !== 404) {
-      throw createError.unknown(err);
-    } else {
-      throw err;
-    }
-  }
-});
-
-const listRequest = asyncHandler(async (req, res) => {
-  try {
-    const virtualClusterName = req.params.requestVcName;
-    const items = await vcRequestModel.list(virtualClusterName);
-    res.status(status('OK')).json({
-      requests: items,
-    });
-  } catch (err) {
-    if (err.status !== 404) {
-      throw createError.unknown(err);
-    } else {
-      throw err;
-    }
-  }
-});
-
-const updateRequest = asyncHandler(async (req, res) => {
-  try {
-    const virtualClusterName = req.params.requestVcName;
-    const requestId = req.params.requestId;
-    await vcRequestModel.update(virtualClusterName, requestId, req.body.state);
-    res.status(status('Created')).json({
-      status: status('Created'),
-      message: `Update request ${requestId} successfully.`,
-    });
-  } catch (err) {
-    if (err.status !== 404) {
-      throw createError.unknown(err);
-    } else {
-      throw err;
-    }
-  }
-});
-
-const deleteRequest = asyncHandler(async (req, res) => {
-  try {
-    const virtualClusterName = req.params.requestVcName;
-    const requestId = req.params.requestId;
-    await vcRequestModel.delete(virtualClusterName, requestId);
-    res.status(status('Created')).json({
-      status: status('Created'),
-      message: `Delete request ${requestId} successfully.`,
-    });
-  } catch (err) {
-    if (err.status !== 404) {
-      throw createError.unknown(err);
-    } else {
-      throw err;
-    }
-  }
-});
-
 // module exports
 module.exports = {
   validate,
@@ -302,10 +199,4 @@ module.exports = {
   update,
   updateStatus,
   remove,
-  validateRequestVcName,
-  validateRequestId,
-  createRequest,
-  listRequest,
-  updateRequest,
-  deleteRequest,
 };

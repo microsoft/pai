@@ -42,6 +42,7 @@ declare type Code =
     'NoGroupError' |
     'NoStorageError' |
     'NoVirtualClusterError' |
+    'NoRequestError' |
     'ReadOnlyJobError' |
     'RemoveAdminError' |
     'ReadOnlyVcError' |
