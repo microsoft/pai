@@ -38,11 +38,13 @@ const requestPostInputSchema = Joi.alternatives().try(
       message: Joi.string().max(1024).empty(''),
     })
     .required(),
-  Joi.Object().keys({
-    type: Joi.string().valid(requestType.STORAGE).required(),
-    storage: Joi.array().items(Joi.string()).required(),
-    message: Joi.string().max(1024).empty(''),
-  }),
+  Joi.object()
+    .keys({
+      type: Joi.string().valid(requestType.STORAGE).required(),
+      storage: Joi.array().items(Joi.string()).required(),
+      message: Joi.string().max(1024).empty(''),
+    })
+    .require(),
 );
 
 // define the input schema for the 'put request' api
