@@ -37,6 +37,7 @@ const createRequest = async (vcName, username, message) => {
       item[id] = requestObject;
       await k8sSecret.replace(namespace, vcName, result, { encode: 'hex' });
     }
+    return id;
   } catch (err) {
     throw createError(
       'Not Found',

@@ -58,14 +58,17 @@ router
     token.check,
     param.validate(vcConfig.vcRequestPostInputSchema),
     controller.createRequest,
-  )
-  /** PUT /api/v2/virtual-clusters/:virtualClusterName/request - Update a joining VC request */
+  );
+
+router
+  .route('/:virtualClusterName/request/:requestId')
+  /** PUT /api/v2/virtual-clusters/:virtualClusterName/request/:requestId - Update a joining VC request */
   .put(
     token.check,
     param.validate(vcConfig.vcRequestPutInputSchema),
     controller.updateRequest,
   )
-  /** DELETE /api/v2/virtual-clusters/:virtualClusterName/request - Delete a joining VC request */
+  /** DELETE /api/v2/virtual-clusters/:virtualClusterName/request/:requestId - Delete a joining VC request */
   .delete(token.check, controller.deleteRequest);
 
 router.param('virtualClusterName', controller.validate);

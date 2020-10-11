@@ -22,6 +22,7 @@ const virtualCluster = require('@pai/models/v2/virtual-cluster');
 const createError = require('@pai/utils/error');
 const groupModel = require('@pai/models/v2/group');
 const authConfig = require('@pai/config/authn');
+const vcRequestModel = require('@pai/models/v2/virtual-cluster/vc-request');
 
 const validate = (req, res, next, virtualClusterName) => {
   if (!/^[A-Za-z0-9_]+$/.test(virtualClusterName)) {
@@ -192,19 +193,72 @@ const remove = asyncHandler(async (req, res) => {
 });
 
 const createRequest = asyncHandler(async (req, res) => {
-  const virtualClusterName = req.params.virtualClusterName;
+  try {
+    const virtualClusterName = req.params.virtualClusterName;
+    const id = await vcRequestModel.create(virtualClusterName, req.user, req.body.message);
+    res.status(status('Created')).json({
+      status: status('Created'),
+      message: `Create request ${id} successfully.`,
+    })
+  } catch (err) {
+    if (err.status !== 404) {
+      throw createError.unknown(err);
+    } else {
+      throw err;
+    }
+  }
 });
 
 const listRequest = asyncHandler(async (req, res) => {
-  const virtualClusterName = req.params.virtualClusterName;
+  try {
+    const virtualClusterName = req.params.virtualClusterName;
+    const items = await vcRequestModel.list(virtualClusterName);
+    res.status(status('OK')).json({
+      requests: items,
+    });
+  } catch (err) {
+    if (err.status !== 404) {
+      throw createError.unknown(err);
+    } else {
+      throw err;
+    }
+  }
 });
 
 const updateRequest = asyncHandler(async (req, res) => {
-  const virtualClusterName = req.params.virtualClusterName;
+  try {
+    const virtualClusterName = req.params.virtualClusterName;
+    const requestId = req.params.requestId;
+    await vcRequestModel.update(virtualClusterName, requestId, req.body.state)
+    res.status(status('Created')).json({
+      status: status('Created'),
+      message: `Update request ${id} successfully.`,
+    });
+  } catch (err) {
+    if (err.status !== 404) {
+      throw createError.unknown(err);
+    } else {
+      throw err;
+    }
+  }
 });
 
 const deleteRequest = asyncHandler(async (req, res) => {
-  const virtualClusterName = req.params.virtualClusterName;
+  try {
+    const virtualClusterName = req.params.virtualClusterName;
+    const requestId = req.params.requestId;
+    await vcRequestModel.delete(virtualClusterName, requestId)
+    res.status(status('Created')).json({
+      status: status('Created'),
+      message: `Delete request ${id} successfully.`,
+    });
+  } catch (err) {
+    if (err.status !== 404) {
+      throw createError.unknown(err);
+    } else {
+      throw err;
+    }
+  }
 });
 
 // module exports
