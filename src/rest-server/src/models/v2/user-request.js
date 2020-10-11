@@ -100,7 +100,7 @@ const create = async (type, username, body) => {
       requestObject.user = {
         username: body.user.username,
         email: body.user.email,
-        pashwordHash: await getPasswordHash(body.user),
+        passwordHash: await getPasswordHash(body.user),
       };
       break;
     case requestType.STORAGE:
