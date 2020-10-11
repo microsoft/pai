@@ -77,6 +77,7 @@ const deleteRequest = async (type, id) => {
 const create = async (type, username, body) => {
   const id = uuid();
   const requestObject = {
+    type,
     id,
     username,
     message: body.message,
