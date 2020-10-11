@@ -7,7 +7,6 @@ const asyncHandler = require('@pai/middlewares/v2/asyncHandler');
 const createError = require('@pai/utils/error');
 const requestModel = require('@pai/models/v2/user-request');
 const { requestType } = require('@pai/config/v2/user-request');
-const { encrypt } = require('@pai/utils/manager/user/user');
 
 const validateId = (req, res, next, requestId) => {
   if (
