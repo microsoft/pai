@@ -48,7 +48,6 @@ const requestPostInputSchema = Joi.object()
 // define the input schema for the 'put request' api
 const requestPutInputSchema = Joi.object()
   .keys({
-    type: Joi.string().valid(Object.values(requestType)).required(),
     state: Joi.string().valid(Object.values(requestState)).required(),
   })
   .required();
