@@ -17,16 +17,14 @@ const requestState = {
 };
 
 // define the input schema for the 'post request vc' api
-const requestPostInputSchema = Joi.alternatives().try(
-  Joi.object()
-    .keys({
+const requestPostInputSchema = Joi.alternatives()
+  .try(
+    Joi.object().keys({
       type: Joi.string().valid(requestType.VC).required(),
       vc: Joi.array().items(Joi.string()).required(),
       message: Joi.string().max(1024).empty(''),
-    })
-    .required(),
-  Joi.object()
-    .keys({
+    }),
+    Joi.object().keys({
       type: Joi.string().valid(requestType.USER).required(),
       user: Joi.object().keys({
         username: Joi.string()
@@ -36,16 +34,14 @@ const requestPostInputSchema = Joi.alternatives().try(
         password: Joi.string().min(6),
       }),
       message: Joi.string().max(1024).empty(''),
-    })
-    .required(),
-  Joi.object()
-    .keys({
+    }),
+    Joi.object().keys({
       type: Joi.string().valid(requestType.STORAGE).required(),
       storage: Joi.array().items(Joi.string()).required(),
       message: Joi.string().max(1024).empty(''),
-    })
-    .require(),
-);
+    }),
+  )
+  .require();
 
 // define the input schema for the 'put request' api
 const requestPutInputSchema = Joi.object()
