@@ -16,7 +16,6 @@ router
   .get(token.check, controller.listRequest)
   /** POST /api/v2/request - Create a request */
   .post(
-    token.check,
     param.validate(config.requestPostInputSchema),
     controller.createRequest,
   );

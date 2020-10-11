@@ -94,7 +94,7 @@ const create = async (type, username, body) => {
       requestObject.storage = body.storage;
       break;
   }
-  await createRequest(requestType.VC, id, requestObject);
+  await createRequest(type, id, requestObject);
   return id;
 };
 

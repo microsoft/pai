@@ -42,7 +42,7 @@ const createRequest = asyncHandler(async (req, res) => {
   try {
     const id = await requestModel.create(
       req.body.type,
-      req.user.username,
+      req.user && req.user.username ? req.user.username : null,
       req.body,
     );
     res.status(status('Created')).json({
