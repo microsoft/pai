@@ -77,8 +77,9 @@ const listRequest = asyncHandler(async (req, res) => {
 const updateRequest = asyncHandler(async (req, res) => {
   if (req.user.admin) {
     try {
+      const requestType = req.params.requestType;
       const requestId = req.params.requestId;
-      await requestModel.update(req.body.type, requestId, req.body.state);
+      await requestModel.update(requestType, requestId, req.body.state);
       res.status(status('Created')).json({
         status: status('Created'),
         message: `Update request ${requestId} successfully.`,
@@ -102,8 +103,9 @@ const updateRequest = asyncHandler(async (req, res) => {
 const deleteRequest = asyncHandler(async (req, res) => {
   if (req.user.admin) {
     try {
+      const requestType = req.params.requestType;
       const requestId = req.params.requestId;
-      await requestModel.delete(req.body.type, requestId);
+      await requestModel.delete(requestType, requestId);
       res.status(status('Created')).json({
         status: status('Created'),
         message: `Delete request ${requestId} successfully.`,

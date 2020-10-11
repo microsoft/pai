@@ -11,7 +11,9 @@ const config = require('@pai/config/v2/user-request');
 const router = new express.Router();
 
 router
-  .route('/')
+  .route('/:requestType')
+  /** GET /api/v2/request/:requestType - Return all requests by request type */
+  .get(token.check, controller.listRequest)
   /** POST /api/v2/request - Create a request */
   .post(
     token.check,
@@ -20,12 +22,7 @@ router
   );
 
 router
-  .route('/:requestType')
-  /** GET /api/v2/request/:requestType - Return all requests by request type */
-  .get(token.check, controller.listRequest);
-
-router
-  .route('/:requestId')
+  .route('/:requestType/:requestId')
   /** PUT /api/v2/request/:requestId - Update a request */
   .put(
     token.check,
