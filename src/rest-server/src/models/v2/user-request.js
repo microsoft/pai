@@ -91,6 +91,7 @@ const create = async (type, username, body) => {
     username,
     message: body.message,
     state: requestState.NEW,
+    requestTime: new Date(),
   };
   switch (type) {
     case requestType.VC:
