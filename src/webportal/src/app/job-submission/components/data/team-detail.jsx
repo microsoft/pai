@@ -72,8 +72,10 @@ export default function TeamDetail({ isOpen = false, config, hide }) {
         onRender: item => {
           if (item === undefined) {
             return <div className={FontClassNames.small}>{'Invalid Type'}</div>;
-          } else {
+          } else if (item.data.ufsType === 'wasb') {
             return 'azureBlob';
+          } else {
+            return item.data.ufsType;
           }
         },
       });
@@ -421,7 +423,11 @@ export const SERVER_PATH = {
   ),
   dshuttle: storage => (
     <div className={FontClassNames.semibold}>
-      <b>{`${storage.data.accountName}.blob.core.windows.net/${storage.data.containerName}`}</b>
+      <b>
+        {storage.data.ufsType === 'wasb'
+          ? `${storage.data.accountName}.blob.core.windows.net/${storage.data.containerName}`
+          : storage.data.ufsUri}
+      </b>
       {storage.data.path || '/'}
     </div>
   ),
