@@ -330,7 +330,10 @@ export class MountDirectories {
           break;
         case 'azureBlob':
         case 'dshuttle':
-          returnValue = `Azure Blob (accountName: ${data.accountName} containerName: ${data.containerName})`;
+          returnValue =
+            data.ufsType === 'wasb'
+              ? `Azure Blob (accountName: ${data.accountName} containerName: ${data.containerName})`
+              : data.ufsUri;
           break;
         case 'hdfs':
           returnValue = 'hdfs://' + data.namenode + ':' + data.port;
