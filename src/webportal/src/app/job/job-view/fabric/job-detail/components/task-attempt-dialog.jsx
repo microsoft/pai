@@ -15,25 +15,52 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-import React, { useMemo } from 'react';
+import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
-import qs from 'querystring';
-import { get, isNil } from 'lodash';
+import { isNil } from 'lodash';
 import {
   PrimaryButton,
   DefaultButton,
   Dialog,
   DialogFooter,
 } from 'office-ui-fabric-react';
+import TaskAttemptList from './task-attempt-list';
+import { fetchJobInfo } from '../conn';
 
 const TaskAttemptDialog = props => {
-  const { hideDialog, toggleHideDialog } = props;
+  const {
+    hideDialog,
+    toggleHideDialog,
+    jobAttemptIndex,
+    taskRoleName,
+    taskIndex,
+  } = props;
+  const [taskAttempts, setTaskAttempts] = useState();
+
+  useEffect(() => {
+    fetchJobInfo(jobAttemptIndex, true).then(jobInfo => {
+      if (isNil(jobInfo.taskRoles[taskRoleName])) {
+        setTaskAttempts(null);
+        return;
+      }
+      const attempts = jobInfo.taskRoles[taskRoleName].taskStatuses.filter(
+        item => {
+          return item.taskIndex === taskIndex;
+        },
+      );
+      console.log(attempts);
+      setTaskAttempts(attempts);
+    });
+  }, [jobAttemptIndex, taskRoleName, taskIndex]);
+
   return (
     <Dialog
       hidden={hideDialog}
       onDismiss={toggleHideDialog}
       dialogContentProps={{ title: 'Task Attempt Details' }}
+      minWidth={1000}
     >
+      <TaskAttemptList taskAttempts={taskAttempts} />
       <DialogFooter>
         <PrimaryButton onClick={toggleHideDialog} text='OK' />
         <DefaultButton onClick={toggleHideDialog} text='Close' />
@@ -45,6 +72,9 @@ const TaskAttemptDialog = props => {
 TaskAttemptDialog.propTypes = {
   hideDialog: PropTypes.bool,
   toggleHideDialog: PropTypes.func,
+  jobAttemptIndex: PropTypes.number,
+  taskRoleName: PropTypes.string,
+  taskIndex: PropTypes.number,
 };
 
 export default TaskAttemptDialog;

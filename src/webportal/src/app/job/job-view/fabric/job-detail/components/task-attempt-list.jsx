@@ -15,9 +15,7 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-import { ThemeProvider } from '@uifabric/foundation';
 import {
-  createTheme,
   ColorClassNames,
   FontClassNames,
   FontSizes,
@@ -33,7 +31,6 @@ import {
   DirectionalHint,
   Icon,
   Stack,
-  IconButton,
 } from 'office-ui-fabric-react';
 import {
   DetailsList,
@@ -44,55 +41,19 @@ import {
 import PropTypes from 'prop-types';
 import React from 'react';
 import yaml from 'js-yaml';
-import styled from 'styled-components';
 
 import localCss from './task-role-container-list.scss';
 import t from '../../../../../components/tachyons.scss';
 
 import Context from './context';
-import Timer from './timer';
 import { getContainerLog } from '../conn';
 import { parseGpuAttr, printDateTime } from '../util';
 import config from '../../../../../config/webportal.config';
 import MonacoPanel from '../../../../../components/monaco-panel';
 import StatusBadge from '../../../../../components/status-badge';
 import CopyButton from '../../../../../components/copy-button';
-import TaskAttemptDialog from './task-attempt-dialog';
 
-const theme = createTheme({
-  palette: {
-    themePrimary: '#0078d4',
-    themeLighterAlt: '#eff6fc',
-    themeLighter: '#deecf9',
-    themeLight: '#c7e0f4',
-    themeTertiary: '#71afe5',
-    themeSecondary: '#2b88d8',
-    themeDarkAlt: '#106ebe',
-    themeDark: '#005a9e',
-    themeDarker: '#004578',
-    neutralLighterAlt: '#f1f1f1',
-    neutralLighter: '#ededed',
-    neutralLight: '#e3e3e3',
-    neutralQuaternaryAlt: '#d3d3d3',
-    neutralQuaternary: '#cacaca',
-    neutralTertiaryAlt: '#c2c2c2',
-    neutralTertiary: '#c2c2c2',
-    neutralSecondary: '#858585',
-    neutralPrimaryAlt: '#4b4b4b',
-    neutralPrimary: '#333333',
-    neutralDark: '#272727',
-    black: '#1d1d1d',
-    white: '#f8f8f8',
-  },
-});
-
-const Linkable = styled.div`
-  color: ${theme.palette.themePrimary};
-  font-size: medium;
-  cursor: pointer;
-`;
-
-const interval = 10000;
+const theme = getTheme();
 
 const IPTooltipContent = ({ ip }) => {
   return (
@@ -136,7 +97,7 @@ PortTooltipContent.propTypes = {
   ports: PropTypes.object,
 };
 
-export default class TaskRoleContainerList extends React.Component {
+export default class TaskAttemptList extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -144,7 +105,7 @@ export default class TaskRoleContainerList extends React.Component {
       monacoTitle: '',
       monacoFooterButton: null,
       logUrl: null,
-      items: props.tasks,
+      items: props.taskAttempts,
       ordering: { field: null, descending: false },
       hideDialog: true,
     };
@@ -153,14 +114,11 @@ export default class TaskRoleContainerList extends React.Component {
     this.onDismiss = this.onDismiss.bind(this);
     this.showContainerLog = this.showContainerLog.bind(this);
     this.onRenderRow = this.onRenderRow.bind(this);
-    this.logAutoRefresh = this.logAutoRefresh.bind(this);
-    this.onColumnClick = this.onColumnClick.bind(this);
-    this.applySortProps = this.applySortProps.bind(this);
   }
 
   componentDidUpdate(prevProps) {
-    if (prevProps.tasks !== this.props.tasks) {
-      this.setState({ items: this.props.tasks });
+    if (prevProps.taskAttempts !== this.props.taskAttempts) {
+      this.setState({ items: this.props.taskAttempts });
     }
   }
 
@@ -353,50 +311,6 @@ export default class TaskRoleContainerList extends React.Component {
     return item[key];
   }
 
-  orderItems(items, ordering) {
-    const key = ordering.field;
-    return items
-      .slice(0)
-      .sort((a, b) =>
-        (ordering.descending
-        ? this.getTaskPropertyFromColumnKey(a, key) <
-          this.getTaskPropertyFromColumnKey(b, key)
-        : this.getTaskPropertyFromColumnKey(a, key) >
-          this.getTaskPropertyFromColumnKey(b, key))
-          ? 1
-          : -1,
-      );
-  }
-
-  onColumnClick(event, column) {
-    const { field, descending } = this.state.ordering;
-    const items = this.state.items;
-    let newOrdering = null;
-    let newItems = [];
-    if (field === column.key) {
-      if (descending) {
-        newOrdering = { field: null, descending: false };
-        newItems = this.props.tasks;
-        this.setState({ ordering: newOrdering, items: newItems });
-      } else {
-        newOrdering = { field: field, descending: true };
-        newItems = this.orderItems(items, newOrdering);
-        this.setState({ ordering: newOrdering, items: newItems });
-      }
-    } else {
-      newOrdering = { field: column.key, descending: false };
-      newItems = this.orderItems(items, newOrdering);
-      this.setState({ ordering: newOrdering, items: newItems });
-    }
-  }
-
-  applySortProps(column) {
-    column.isSorted = this.state.ordering.field === column.key;
-    column.isSortedDescending = this.state.ordering.descending;
-    column.onColumnClick = this.onColumnClick;
-    return column;
-  }
-
   onRenderRow(props) {
     return (
       <DetailsRow
@@ -411,34 +325,18 @@ export default class TaskRoleContainerList extends React.Component {
   }
 
   render() {
-    const {
-      monacoTitle,
-      monacoProps,
-      monacoFooterButton,
-      logUrl,
-      items,
-    } = this.state;
-    const { className, style, showMoreDiagnostics } = this.props;
+    const { monacoTitle, monacoProps, monacoFooterButton, items } = this.state;
+    const { taskAttempts } = this.props;
     return (
-      <div
-        className={className}
-        style={{ backgroundColor: theme.palette.white, ...style }}
-      >
-        <ThemeProvider theme={theme}>
-          <DetailsList
-            styles={{ root: { overflow: 'auto' } }}
-            columns={this.getColumns(showMoreDiagnostics)}
-            disableSelectionZone
-            items={items}
-            layoutMode={DetailsListLayoutMode.justified}
-            selectionMode={SelectionMode.none}
-            onRenderRow={this.onRenderRow}
-          />
-        </ThemeProvider>
-        {/* Timer */}
-        <Timer
-          interval={isNil(monacoProps) || isEmpty(logUrl) ? null : interval}
-          func={this.logAutoRefresh}
+      <div>
+        <DetailsList
+          styles={{ root: { overflow: 'auto' } }}
+          columns={this.getColumns()}
+          disableSelectionZone
+          items={items}
+          layoutMode={DetailsListLayoutMode.justified}
+          selectionMode={SelectionMode.none}
+          onRenderRow={this.onRenderRow}
         />
         {/* Monaco Editor Panel */}
         <MonacoPanel
@@ -452,65 +350,49 @@ export default class TaskRoleContainerList extends React.Component {
     );
   }
 
-  getColumns(showMoreDiagnostics) {
-    const taskStateColumn = this.applySortProps({
-      key: 'taskState',
-      name: 'Task State',
-      headerClassName: FontClassNames.medium,
-      minWidth: 100,
-      maxWidth: 150,
-      isResizable: true,
-      onRender: item => <StatusBadge status={capitalize(item.taskState)} />,
-    });
-    const exitTypeColumn = this.applySortProps({
-      key: 'exitType',
-      name: 'Exit Type',
-      headerClassName: FontClassNames.medium,
-      minWidth: 150,
-      maxWidth: 200,
-      isResizable: true,
-      onRender: item => {
-        return (
-          <div className={c(FontClassNames.mediumPlus)}>
-            {!isNil(item.containerExitSpec) &&
-            !isNil(item.containerExitSpec.type)
-              ? item.containerExitSpec.type
-              : null}
-          </div>
-        );
-      },
-    });
+  getColumns() {
     const defaultColumns = [
       {
-        key: 'taskIndex',
-        name: 'Task Index',
+        key: 'taskAttemptId',
+        name: 'Task Attempt Id',
         headerClassName: FontClassNames.medium,
-        maxWidth: 50,
         isResizable: true,
         onRender: (item, idx) => {
           return (
-            <div className={FontClassNames.mediumPlus}>{item.taskIndex}</div>
+            <div className={FontClassNames.mediumPlus}>{item.attemptId}</div>
           );
         },
       },
-      taskStateColumn,
-      exitTypeColumn,
       {
-        key: 'retries',
-        name: 'Task Retries',
+        key: 'taskUid',
+        name: 'Task Uid',
         headerClassName: FontClassNames.medium,
         isResizable: true,
         onRender: (item, idx) => {
           return (
-            <Linkable
-              onClick={() => {
-                this.props.toggleHideDialog();
-                this.props.onChangeTaskInde(item.taskIndex);
-                this.props.onChangeTaskRoleName(this.props.taskRoleName);
-              }}
-            >
-              {item.retries}
-            </Linkable>
+            <div className={FontClassNames.mediumPlus}>{item.taskUid}</div>
+          );
+        },
+      },
+      {
+        key: 'taskAttemtState',
+        name: 'Task Attempt State',
+        headerClassName: FontClassNames.medium,
+        isResizable: true,
+        onRender: item => (
+          <StatusBadge status={capitalize(item.attemptState)} />
+        ),
+      },
+      {
+        key: 'taskAttemptExitCode',
+        name: 'Task Attempt Exit Code',
+        headerClassName: FontClassNames.medium,
+        isResizable: true,
+        onRender: (item, idx) => {
+          return (
+            <div className={FontClassNames.mediumPlus}>
+              {item.containerExitCode}
+            </div>
           );
         },
       },
@@ -525,23 +407,7 @@ export default class TaskRoleContainerList extends React.Component {
         fieldName: 'containerIp',
         onRender: item => {
           const ip = item.containerIp;
-          return (
-            !isNil(ip) && (
-              <div>
-                <TooltipHost
-                  calloutProps={{
-                    isBeakVisible: false,
-                  }}
-                  tooltipProps={{
-                    onRenderContent: () => <IPTooltipContent ip={ip} />,
-                  }}
-                  directionalHint={DirectionalHint.topLeftEdge}
-                >
-                  <div>{ip}</div>
-                </TooltipHost>
-              </div>
-            )
-          );
+          return !isNil(ip) && <div>{ip}</div>;
         },
       },
       {
@@ -556,209 +422,20 @@ export default class TaskRoleContainerList extends React.Component {
           const ports = item.containerPorts;
           return (
             !isNil(ports) && (
-              <div>
-                <TooltipHost
-                  calloutProps={{
-                    isBeakVisible: false,
-                  }}
-                  tooltipProps={{
-                    onRenderContent: () => <PortTooltipContent ports={ports} />,
-                  }}
-                  directionalHint={DirectionalHint.topLeftEdge}
-                >
-                  <div className={c(t.truncate)}>
-                    {flatten(
-                      Object.entries(ports).map(([key, val], idx) => [
-                        idx !== 0 && (
-                          <span className={t.ml2} key={`gap-${idx}`}></span>
-                        ),
-                        `${key}: ${val}`,
-                      ]),
-                    )}
-                  </div>
-                </TooltipHost>
+              <div className={c(t.truncate)}>
+                {flatten(
+                  Object.entries(ports).map(([key, val], idx) => [
+                    idx !== 0 && (
+                      <span className={t.ml2} key={`gap-${idx}`}></span>
+                    ),
+                    `${key}: ${val}`,
+                  ]),
+                )}
               </div>
             )
           );
         },
       },
-      {
-        key: 'info',
-        name: 'Info & Logs',
-        className: localCss.pa0I,
-        headerClassName: FontClassNames.medium,
-        minWidth: 300,
-        maxWidth: 500,
-        onRender: item => (
-          <div
-            className={c(t.h100, t.flex, t.justifyStart, t.itemsCenter, t.ml1)}
-          >
-            <div className={c(t.flex)} style={{ height: 40 }}>
-              <CommandBarButton
-                className={c(FontClassNames.mediumPlus)}
-                styles={{
-                  root: { backgroundColor: 'transparent' },
-                  rootDisabled: { backgroundColor: 'transparent' },
-                }}
-                iconProps={{ iconName: 'CommandPrompt' }}
-                text='SSH Info'
-                onClick={() => {
-                  this.showSshInfo(
-                    item.containerId,
-                    item.containerPorts,
-                    item.containerIp,
-                  );
-                }}
-                disabled={
-                  isNil(item.containerId) || item.taskState !== 'RUNNING'
-                }
-              />
-              <CommandBarButton
-                className={FontClassNames.mediumPlus}
-                styles={{
-                  root: { backgroundColor: 'transparent' },
-                  rootDisabled: { backgroundColor: 'transparent' },
-                }}
-                iconProps={{ iconName: 'TextDocument' }}
-                text='Stdout'
-                onClick={() =>
-                  this.showContainerLog(
-                    `${item.containerLog}user.pai.stdout`,
-                    'stdout',
-                  )
-                }
-                disabled={isNil(item.containerId) || isNil(item.containerIp)}
-              />
-              <CommandBarButton
-                className={FontClassNames.mediumPlus}
-                styles={{
-                  root: { backgroundColor: 'transparent' },
-                  rootDisabled: { backgroundColor: 'transparent' },
-                }}
-                iconProps={{ iconName: 'Error' }}
-                text='Stderr'
-                onClick={() =>
-                  this.showContainerLog(
-                    `${item.containerLog}user.pai.stderr`,
-                    'stderr',
-                  )
-                }
-                disabled={isNil(item.containerId) || isNil(item.containerIp)}
-              />
-              <CommandBarButton
-                className={FontClassNames.mediumPlus}
-                styles={{
-                  root: { backgroundColor: 'transparent' },
-                  rootDisabled: { backgroundColor: 'transparent' },
-                }}
-                menuIconProps={{ iconName: 'More' }}
-                menuProps={{
-                  items: [
-                    {
-                      key: 'mergedLog',
-                      name: 'Stdout+Stderr',
-                      iconProps: { iconName: 'TextDocument' },
-                      disabled: isNil(item.containerId),
-                      onClick: () =>
-                        this.showContainerLog(
-                          `${item.containerLog}user.pai.all`,
-                          'stdall',
-                        ),
-                    },
-                    {
-                      key: 'trackingPage',
-                      name:
-                        config.launcherType === 'yarn'
-                          ? 'Go to Yarn Tracking Page'
-                          : 'Browse log folder',
-                      iconProps: { iconName: 'Link' },
-                      href: isNil(item.containerLog)
-                        ? item.containerLog
-                        : item.containerLog.replace('/tail/', '/'),
-                      target: '_blank',
-                    },
-                  ],
-                }}
-                disabled={isNil(item.containerId)}
-              />
-            </div>
-          </div>
-        ),
-      },
-      {
-        key: 'gpus',
-        name: 'GPUs',
-        className: FontClassNames.mediumPlus,
-        headerClassName: FontClassNames.medium,
-        minWidth: 35,
-        maxWidth: 60,
-        isResizable: true,
-        onRender: item => {
-          const gpuAttr = isNil(item.containerGpus)
-            ? null
-            : parseGpuAttr(item.containerGpus);
-          if (isNil(gpuAttr)) {
-            return null;
-          } else if (gpuAttr.length === 0) {
-            return <div>0</div>;
-          } else {
-            return (
-              <div>
-                <TooltipHost
-                  calloutProps={{
-                    isBeakVisible: false,
-                  }}
-                  tooltipProps={{
-                    onRenderContent: () => (
-                      <div>
-                        {gpuAttr.map(x => (
-                          <span
-                            className={t.mr2}
-                            key={`gpu-${x}`}
-                          >{`#${x}`}</span>
-                        ))}
-                      </div>
-                    ),
-                  }}
-                  directionalHint={DirectionalHint.topLeftEdge}
-                >
-                  <Stack horizontal gap='s1'>
-                    <div>{gpuAttr.length}</div>
-                    <div>
-                      <Icon
-                        iconName='Info'
-                        styles={{
-                          root: [
-                            { fontSize: FontSizes.small },
-                            ColorClassNames.neutralSecondary,
-                          ],
-                        }}
-                      />
-                    </div>
-                  </Stack>
-                </TooltipHost>
-              </div>
-            );
-          }
-        },
-      },
-      {
-        key: 'exitCode',
-        name: 'Exit Code',
-        headerClassName: FontClassNames.medium,
-        minWidth: 100,
-        maxWidth: 150,
-        isResizable: true,
-        onRender: item => {
-          return (
-            <div className={c(FontClassNames.mediumPlus)}>
-              {item.containerExitCode}
-            </div>
-          );
-        },
-      },
-    ];
-    const optionalColumns = [
       {
         key: 'startTime',
         name: 'Start Time',
@@ -885,25 +562,117 @@ export default class TaskRoleContainerList extends React.Component {
           );
         },
       },
+      {
+        key: 'gpus',
+        name: 'GPUs',
+        className: FontClassNames.mediumPlus,
+        headerClassName: FontClassNames.medium,
+        minWidth: 35,
+        maxWidth: 60,
+        isResizable: true,
+        onRender: item => {
+          const gpuAttr = isNil(item.containerGpus)
+            ? null
+            : parseGpuAttr(item.containerGpus);
+          if (isNil(gpuAttr)) {
+            return null;
+          } else if (gpuAttr.length === 0) {
+            return <div>0</div>;
+          } else {
+            return (
+              <div>
+                <TooltipHost
+                  calloutProps={{
+                    isBeakVisible: false,
+                  }}
+                  tooltipProps={{
+                    onRenderContent: () => (
+                      <div>
+                        {gpuAttr.map(x => (
+                          <span
+                            className={t.mr2}
+                            key={`gpu-${x}`}
+                          >{`#${x}`}</span>
+                        ))}
+                      </div>
+                    ),
+                  }}
+                  directionalHint={DirectionalHint.topLeftEdge}
+                >
+                  <Stack horizontal gap='s1'>
+                    <div>{gpuAttr.length}</div>
+                    <div>
+                      <Icon
+                        iconName='Info'
+                        styles={{
+                          root: [
+                            { fontSize: FontSizes.small },
+                            ColorClassNames.neutralSecondary,
+                          ],
+                        }}
+                      />
+                    </div>
+                  </Stack>
+                </TooltipHost>
+              </div>
+            );
+          }
+        },
+      },
+      {
+        key: 'info',
+        name: 'Info & Logs',
+        className: localCss.pa0I,
+        headerClassName: FontClassNames.medium,
+        minWidth: 300,
+        maxWidth: 500,
+        onRender: item => (
+          <div
+            className={c(t.h100, t.flex, t.justifyStart, t.itemsCenter, t.ml1)}
+          >
+            <div className={c(t.flex)} style={{ height: 40 }}>
+              <CommandBarButton
+                className={FontClassNames.mediumPlus}
+                styles={{
+                  root: { backgroundColor: 'transparent' },
+                  rootDisabled: { backgroundColor: 'transparent' },
+                }}
+                iconProps={{ iconName: 'TextDocument' }}
+                text='Stdout'
+                onClick={() =>
+                  this.showContainerLog(
+                    `${item.containerLog}user.pai.stdout`,
+                    'stdout',
+                  )
+                }
+                disabled={isNil(item.containerId) || isNil(item.containerIp)}
+              />
+              <CommandBarButton
+                className={FontClassNames.mediumPlus}
+                styles={{
+                  root: { backgroundColor: 'transparent' },
+                  rootDisabled: { backgroundColor: 'transparent' },
+                }}
+                iconProps={{ iconName: 'Error' }}
+                text='Stderr'
+                onClick={() =>
+                  this.showContainerLog(
+                    `${item.containerLog}user.pai.stderr`,
+                    'stderr',
+                  )
+                }
+                disabled={isNil(item.containerId) || isNil(item.containerIp)}
+              />
+            </div>
+          </div>
+        ),
+      },
     ];
-
-    let columns = defaultColumns;
-    if (showMoreDiagnostics) {
-      columns = columns.concat(optionalColumns);
-    }
-
+    const columns = defaultColumns;
     return columns;
   }
 }
 
-TaskRoleContainerList.contextType = Context;
-
-TaskRoleContainerList.propTypes = {
-  taskRoleName: PropTypes.string,
-  tasks: PropTypes.arrayOf(PropTypes.object),
-  showMoreDiagnostics: PropTypes.bool,
-  jobAttemptIndex: PropTypes.number,
-  onChangeTaskRoleName: PropTypes.func,
-  onChangeTaskInde: PropTypes.func,
-  toggleHideDialog: PropTypes.func,
+TaskAttemptList.propTypes = {
+  taskAttempts: PropTypes.arrayOf(PropTypes.object),
 };

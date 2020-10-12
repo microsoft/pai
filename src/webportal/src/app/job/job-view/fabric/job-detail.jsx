@@ -56,6 +56,7 @@ import StatusBadge from '../../../components/status-badge';
 import { printDateTime } from './job-detail/util';
 import CopyButton from '../../../components/copy-button';
 import TaskRoleContainerList from './job-detail/components/task-role-container-list';
+import TaskAttemptDialog from './job-detail/components/task-attempt-dialog';
 
 class JobDetail extends React.Component {
   constructor(props) {
@@ -70,15 +71,20 @@ class JobDetail extends React.Component {
       rawJobConfig: null,
       jobConfig: null,
       sshInfo: null,
-      selectedRetryIndex: null,
+      dialogTaskRoleName: null,
+      dialogTaskIndex: null,
+      hideDialog: true,
       showMoreDiagnostics: false,
     };
     this.stop = this.stop.bind(this);
     this.reload = this.reload.bind(this);
-    this.onChangeRetry = this.onChangeRetry.bind(this);
+    this.onChangeJobAttempt = this.onChangeJobAttempt.bind(this);
     this.onChangeShowMoreDiagnostics = this.onChangeShowMoreDiagnostics.bind(
       this,
     );
+    this.onChangeTaskIndex = this.onChangeTaskIndex.bind(this);
+    this.onChangeTaskRoleName = this.onChangeTaskRoleName.bind(this);
+    this.toggleHideDialog = this.toggleHideDialog.bind(this);
   }
 
   componentDidMount() {
@@ -153,7 +159,7 @@ class JobDetail extends React.Component {
     if (alertFlag === true && !isNil(nextState.error)) {
       alert(nextState.error);
     }
-    nextState.selectedRetryIndex = nextState.jobInfo.jobStatus.retries;
+    nextState.selectedAttemptIndex = nextState.jobInfo.jobStatus.retries;
     this.setState(nextState);
   }
 
@@ -162,13 +168,21 @@ class JobDetail extends React.Component {
     await this.reload();
   }
 
-  onChangeRetry(event, item) {
+  onChangeJobAttempt(event, item) {
     fetchJobInfo(item.key).then(data => {
       this.setState({
-        selectedRetryIndex: item.key,
+        selectedAttemptIndex: item.key,
         jobInfo: data,
       });
     });
+  }
+
+  onChangeTaskRoleName(taskRoleName) {
+    this.setState({ dialogTaskRoleName: taskRoleName });
+  }
+
+  onChangeTaskIndex(taskIndex) {
+    this.setState({ dialogTaskIndex: taskIndex });
   }
 
   onChangeShowMoreDiagnostics(event, checked) {
@@ -193,6 +207,13 @@ class JobDetail extends React.Component {
     return allTaskAttempts;
   }
 
+  toggleHideDialog() {
+    const isHideDialog = this.state.hideDialog;
+    this.setState({
+      hideDialog: !isHideDialog,
+    });
+  }
+
   render() {
     const {
       loading,
@@ -202,16 +223,16 @@ class JobDetail extends React.Component {
       jobConfig,
       rawJobConfig,
       sshInfo,
-      selectedRetryIndex,
+      selectedAttemptIndex,
     } = this.state;
 
-    const retryIndexOptions = [];
+    const attemptIndexOptions = [];
     if (!isNil(jobInfo)) {
       for (let index = jobInfo.jobStatus.retries; index >= 0; index -= 1) {
         if (index === jobInfo.jobStatus.retries) {
-          retryIndexOptions.push({ key: index, text: `${index}  (latest)` });
+          attemptIndexOptions.push({ key: index, text: `${index}  (latest)` });
         } else {
-          retryIndexOptions.push({ key: index, text: index });
+          attemptIndexOptions.push({ key: index, text: index });
         }
       }
     }
@@ -242,10 +263,10 @@ class JobDetail extends React.Component {
                   <Text variant='large'>Job Attempt Index</Text>
                   <Dropdown
                     styles={{ root: { width: '150px' } }}
-                    placeholder='Select Retry Index'
-                    options={retryIndexOptions}
-                    defaultSelectedKey={selectedRetryIndex || undefined}
-                    onChange={this.onChangeRetry}
+                    placeholder='Select Attempt Index'
+                    options={attemptIndexOptions}
+                    defaultSelectedKey={selectedAttemptIndex || undefined}
+                    onChange={this.onChangeJobAttempt}
                   />
                 </Stack>
                 <Stack
@@ -290,11 +311,25 @@ class JobDetail extends React.Component {
                       <HorizontalLine />
                       <Text variant='large'>{`Task Role:  ${name}`}</Text>
                       <TaskRoleContainerList
-                        taskAttempts={jobInfo.taskRoles[name].taskStatuses}
+                        taskRoleName={name}
+                        tasks={jobInfo.taskRoles[name].taskStatuses}
                         showMoreDiagnostics={this.state.showMoreDiagnostics}
+                        jobAttemptIndex={this.state.selectedAttemptIndex}
+                        onChangeTaskRoleName={this.onChangeTaskRoleName}
+                        onChangeTaskInde={this.onChangeTaskIndex}
+                        toggleHideDialog={this.toggleHideDialog}
                       />
                     </Stack>
                   ))}
+                <TaskAttemptDialog
+                  hideDialog={this.state.hideDialog}
+                  toggleHideDialog={() => {
+                    this.toggleHideDialog();
+                  }}
+                  jobAttemptIndex={this.state.jobAttemptIndex}
+                  taskRoleName={this.state.dialogTaskRoleName}
+                  taskIndex={this.state.dialogTaskIndex}
+                />
               </Stack>
             </Card>
           </Stack>
