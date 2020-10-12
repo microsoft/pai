@@ -15,18 +15,12 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-import classNames from 'classnames';
-import { capitalize, get, isEmpty, isNil } from 'lodash';
+import { capitalize, isEmpty, isNil } from 'lodash';
 import { DateTime } from 'luxon';
 import {
-  FontClassNames,
   MessageBar,
   MessageBarType,
   Stack,
-  DetailsList,
-  DefaultButton,
-  TooltipHost,
-  DirectionalHint,
   Dropdown,
   Text,
   Toggle,
@@ -40,7 +34,6 @@ import Context from './job-detail/components/context';
 import Top from './job-detail/components/top';
 import Summary from './job-detail/components/summary';
 import { SpinnerLoading } from '../../../components/loading';
-import TaskRole from './job-detail/components/task-role';
 import {
   fetchJobConfig,
   fetchJobInfo,
@@ -49,12 +42,9 @@ import {
   NotFoundError,
   fetchRawJobConfig,
 } from './job-detail/conn';
-import { getHumanizedJobStateString } from '../../../components/util/job';
 import Card from './job-detail/components/card';
 import HorizontalLine from '../../../components/horizontal-line';
 import StatusBadge from '../../../components/status-badge';
-import { printDateTime } from './job-detail/util';
-import CopyButton from '../../../components/copy-button';
 import TaskRoleContainerList from './job-detail/components/task-role-container-list';
 import TaskAttemptDialog from './job-detail/components/task-attempt-dialog';
 

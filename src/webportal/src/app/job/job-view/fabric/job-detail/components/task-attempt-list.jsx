@@ -45,7 +45,6 @@ import yaml from 'js-yaml';
 import localCss from './task-role-container-list.scss';
 import t from '../../../../../components/tachyons.scss';
 
-import Context from './context';
 import { getContainerLog } from '../conn';
 import { parseGpuAttr, printDateTime } from '../util';
 import config from '../../../../../config/webportal.config';
@@ -326,7 +325,6 @@ export default class TaskAttemptList extends React.Component {
 
   render() {
     const { monacoTitle, monacoProps, monacoFooterButton, items } = this.state;
-    const { taskAttempts } = this.props;
     return (
       <div>
         <DetailsList

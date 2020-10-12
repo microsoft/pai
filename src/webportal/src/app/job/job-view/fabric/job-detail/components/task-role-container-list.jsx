@@ -33,7 +33,6 @@ import {
   DirectionalHint,
   Icon,
   Stack,
-  IconButton,
 } from 'office-ui-fabric-react';
 import {
   DetailsList,
@@ -57,7 +56,6 @@ import config from '../../../../../config/webportal.config';
 import MonacoPanel from '../../../../../components/monaco-panel';
 import StatusBadge from '../../../../../components/status-badge';
 import CopyButton from '../../../../../components/copy-button';
-import TaskAttemptDialog from './task-attempt-dialog';
 
 const theme = createTheme({
   palette: {
@@ -418,12 +416,9 @@ export default class TaskRoleContainerList extends React.Component {
       logUrl,
       items,
     } = this.state;
-    const { className, style, showMoreDiagnostics } = this.props;
+    const { showMoreDiagnostics } = this.props;
     return (
-      <div
-        className={className}
-        style={{ backgroundColor: theme.palette.white, ...style }}
-      >
+      <div>
         <ThemeProvider theme={theme}>
           <DetailsList
             styles={{ root: { overflow: 'auto' } }}
