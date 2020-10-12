@@ -329,6 +329,8 @@ export class MountDirectories {
             'azurefile://' + data.accountName + '/' + data.shareName;
           break;
         case 'azureBlob':
+          returnValue = `accountName: ${data.accountName} containerName: ${data.containerName}`;
+          break;
         case 'dshuttle':
           returnValue =
             data.ufsType === 'wasb'
