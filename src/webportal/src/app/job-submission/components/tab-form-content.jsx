@@ -66,7 +66,6 @@ export const TabFormContent = ({
       {!isSingle && (
         <FormTextField
           sectionLabel={'Task role name'}
-          sectionTooltip={PROTOCOL_TOOLTIPS.taskRoleName}
           shortStyle
           value={jobTaskRole.name}
           onChange={value => _onValueChange('name', value)}
