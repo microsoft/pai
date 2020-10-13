@@ -101,6 +101,10 @@ export const PROTOCOL_TOOLTIPS = {
     'https://openpai.readthedocs.io/en/latest/manual/cluster-user/docker-images-and-job-examples.html',
   teamStorage:
     'https://openpai.readthedocs.io/en/latest/manual/cluster-user/how-to-manage-data.html#use-storage-in-jobs',
+  tensorboard:
+    'https://openpai.readthedocs.io/en/latest/manual/cluster-user/how-to-debug-jobs.html#how-to-use-tensorboard-plugin',
+  ssh:
+    'https://openpai.readthedocs.io/en/latest/manual/cluster-user/how-to-debug-jobs.html#how-to-use-ssh',
 };
 
 export const COMMAND_PLACEHOLDER = `'You could define your own Parameters, Secrets or Data mount point on the right sidebar.
