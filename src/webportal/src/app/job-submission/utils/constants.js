@@ -91,8 +91,8 @@ export const PROTOCOL_TOOLTIPS = {
   taskRole:
     'https://openpai.readthedocs.io/en/latest/manual/cluster-user/how-to-run-distributed-job.html#taskrole-and-instance',
   parameters:
-    'https://openpai.readthedocs.io/en/latest/manual/cluster-user/quick-start.html',
-  secrets: `https://openpai.readthedocs.io/en/latest/manual/cluster-user/quick-start.html`,
+    'https://openpai.readthedocs.io/en/latest/manual/cluster-user/how-to-use-advanced-job-settings.html#parameters-and-secrets',
+  secrets: `https://openpai.readthedocs.io/en/latest/manual/cluster-user/how-to-use-advanced-job-settings.html#parameters-and-secrets`,
   data:
     'https://openpai.readthedocs.io/en/latest/manual/cluster-user/how-to-manage-data.html',
   tools:
