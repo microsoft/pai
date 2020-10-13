@@ -6,6 +6,7 @@
   - [Generated Configuration](#generated-configuration)
   - [Table](#table)
   - [Notice](#notice)
+  - [How to config DShuttle](#how-to-config-dshuttle)
 
 ## Default configuration
 
@@ -161,3 +162,56 @@ dshuttle:
 For `tieredstores`, the valid medium type is `MEM` and `SSD`. And the valid path is `/dev/shm` and `/mnt/ssd`
 If you set medium type to `MEM`, please set path to `/dev/shm`. If you set medium type to `SSD`, please set path to `/mnt/ssd`.
 Using other `mediumtype` or `path` will cause errors.
+
+## How to config DShuttle
+1. Hived configuration changes:
+   If you use Hived scheduler as your default scheduler. You need to recalculate the node resource since DShuttle requests some resources in worker node. For default configuration,
+   in each worker node DShuttle requests 7GB memory (3 GB for worker and 4GB for CSI client). So when you calculate the SKU for worker nodes, need to reserve this 7GB memory for DShuttle.
+2. Using DShuttle as a PAI storage:
+   1. Please set `dshuttle: 'true'` in `services-configuration.yaml` under `cluster:common` filed.
+   2. DShuttle only support AzureBlob in current version. To use DShuttle, please make sure the you already have a azureBlob storage and mounted in DShuttle. For details, please refer [DShuttle Doc](https://github.com/microsoft/DShuttle/blob/dev/deploy/readme.md)
+   3. Create PV & PVC for DShuttle storage. The `dshuttlePath` in PV should be the azureBlob mounted path in DShuttle. A sample for DShuttle PV & PVC is.
+   ```yaml
+    apiVersion: v1
+    kind: PersistentVolume
+    metadata:
+      name: dshuttle-pv
+    spec:
+      accessModes:
+      - ReadWriteMany
+      capacity:
+        storage: 100Gi
+      csi:
+        driver: dshuttle
+        volumeHandle:  dshuttle
+        volumeAttributes:
+          dshuttlePath: /azurene
+      mountOptions:
+      - kernel_cache
+      - allow_other
+      - entry_timeout=36000
+      - attr_timeout=36000
+      - max_readahead=0
+      persistentVolumeReclaimPolicy: Retain
+      volumeMode: Filesystem
+    ---
+    apiVersion: v1
+    kind: PersistentVolumeClaim
+    metadata:
+      name: dshuttle-pvc
+      namespace: default
+    spec:
+      accessModes:
+      - ReadWriteMany
+      resources:
+        requests:
+          storage: 100Gi
+      selector:
+        matchExpressions:
+        - key: name
+          operator: In
+          values:
+          - dshuttle-pv
+      volumeMode: Filesystem
+      volumeName: dshuttle-pv
+   ```
