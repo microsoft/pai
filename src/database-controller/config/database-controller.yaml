@@ -27,7 +27,7 @@ write-merger-max-heap-mb: 2048
 # db poller
 # Polling interval of database poller. Default value is 120.
 db-poller-interval-second: 120
-# Max connection number to database in write merger.
+# Max connection number to database in poller.
 db-poller-max-db-connection: 10
 # Max rpc concurrency for db poller
 db-poller-max-rpc-concurrency: 50
@@ -39,3 +39,13 @@ db-poller-max-heap-mb: 4096
 framework-watcher-max-rpc-concurrency: 150
 # Framework watcher max heap size in MB
 framework-watcher-max-heap-mb: 8192
+
+# cluster event watcher
+# Max rpc concurrency for cluster event watcher
+cluster-event-watcher-max-rpc-concurrency: 40
+# cluster event watcher max heap size in MB
+cluster-event-watcher-max-heap-mb: 2048
+# Max connection number to database in cluster event watcher.
+cluster-event-max-db-connection: 40
+# Max disk usage in internal storage for cluster event watcher
+cluster-event-watcher-max-disk-usage-percent: 80

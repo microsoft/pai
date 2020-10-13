@@ -6,6 +6,7 @@ require('dotenv').config();
 const fetch = require('node-fetch');
 const AsyncLock = require('async-lock');
 const { default: PQueue } = require('p-queue');
+require('@dbc/common/init');
 const logger = require('@dbc/common/logger');
 const { getFrameworkInformer } = require('@dbc/common/k8s');
 const { alwaysRetryDecorator } = require('@dbc/common/util');
