@@ -1,10 +1,10 @@
-# Work with Docker Images
+# Docker镜像和任务示例
 
 OpenPAI uses [Docker](https://www.docker.com/why-docker) to provide consistent and independent environments. With Docker, OpenPAI can serve multiple job requests on the same server. The job environment depends significantly on the docker image you select.
 
-## Introduction to Pre-built Docker Images
+## 预构建的Docker镜像介绍
 
-The [quick start](./quick-start.md) tutorial uses a pre-built TensorFlow image, `openpai/standard:python_3.6-tensorflow_1.15.0-gpu`. 
+The [quick start](./快速开始.md) tutorial uses a pre-built TensorFlow image, `openpai/standard:python_3.6-tensorflow_1.15.0-gpu`. 
 Apart from it, OpenPAI provides many out-of-the-box images for different deep learning frameworks. Here is a table for them:
 
 |       image      |                tag               | CUDA version | required Driver version |
@@ -32,7 +32,7 @@ Apart from it, OpenPAI provides many out-of-the-box images for different deep le
 
 The tag of these images indicates the version of the built-in deep learning framework and whether it supports GPU. Some GPU-supported dockers require a high version of your NVIDIA driver, because of the requirement of CUDA. If you are not sure about the driver version of the cluster, please ask your administrator.
 
-## Job Examples based on Pre-built Images
+## 建立在预构建Docker镜像基础上的任务示例
 
 [pytorch_cifar10](https://github.com/microsoft/pai/tree/pai-for-edu/contrib/edu-examples/pytorch_cifar10) and [tensorflow_cifar10](https://github.com/microsoft/pai/blob/pai-for-edu/contrib/edu-examples/tensorflow_cifar10) provides CIFAR-10 training examples based on those pre-built images. To be detailed, the following examples are based on PyTorch images:
 
@@ -43,11 +43,11 @@ The tag of these images indicates the version of the built-in deep learning fram
 
 There are also CPU/GPU/Multi-GPU/Horovod job examples for TensorFlow. Please check [tensorflow_cifar10](https://github.com/microsoft/pai/blob/pai-for-edu/contrib/edu-examples/tensorflow_cifar10) for details.
 
-## Use Your Own Custom Image
+## 使用你自己的镜像
 
 If you want to build your own custom image instead of pre-built images, it is recommended to build it basing on ubuntu system, which includes bash, apt and other required dependency. Then you could add any requirements your job needs in the docker image, for example, python, pip and tensorflow etc. Please take care of potential conflicts when adding additional dependencies.
 
-## How to use Images from Private Registry
+## 如何使用私有Registry的镜像
 
 By default, OpenPAI will pull images from the [official Docker Hub](https://hub.docker.com/), which is a public docker registry. The pre-built images are all available in this public registry. 
 

@@ -8,7 +8,7 @@ First, log in to the dev box machine and delete all PAI services:
 ./paictl.py service delete
 ```
 
-Now all PAI services and data are deleted. If you want to destroy the Kubernetes cluster too, please go into [`~/pai-deploy/kubespray` folder](installation-guide.md#keep-a-folder), run:
+Now all PAI services and data are deleted. If you want to destroy the Kubernetes cluster too, please go into [`~/pai-deploy/kubespray` folder](安装指南.md#keep-a-folder), run:
 
 ```bash
 ansible-playbook -i inventory/pai/hosts.yml reset.yml --become --become-user=root -e "@inventory/pai/openpai.yml"

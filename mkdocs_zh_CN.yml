@@ -1,34 +1,34 @@
 nav:
-  - Home: index.md
-  - User Manual:
-      - Introduction: manual_zh_CN/cluster-user/README.md
-      - Quick Start: manual_zh_CN/cluster-user/quick-start.md
-      - Docker Images and Job Examples: manual_zh_CN/cluster-user/docker-images-and-job-examples.md
-      - How to Manage Data: manual_zh_CN/cluster-user/how-to-manage-data.md
-      - How to Debug Jobs: manual_zh_CN/cluster-user/how-to-debug-jobs.md
-      - How to Use Advanced Job Settings: manual_zh_CN/cluster-user/how-to-use-advanced-job-settings.md
-      - How to Run Distributed Job: manual_zh_CN/cluster-user/how-to-run-distributed-job.md
-      - Use Marketplace: manual_zh_CN/cluster-user/use-marketplace.md
-      - Use VSCode Extension: manual_zh_CN/cluster-user/use-vscode-extension.md
-      - Use Jupyter Notebook Extension: manual_zh_CN/cluster-user/use-jupyter-notebook-extension.md
-      - Frequently Asked Questions: manual_zh_CN/cluster-user/frequently-asked-questions.md
-  - Admin Manual:
-      - Introduction: manual_zh_CN/cluster-admin/README.md
-      - Installation Guide: manual_zh_CN/cluster-admin/installation-guide.md
-      - Installation FAQs and Troubleshooting: manual_zh_CN/cluster-admin/installation-faqs-and-troubleshooting.md
-      - Basic Management Operations: manual_zh_CN/cluster-admin/basic-management-operations.md
-      - How to Manage Users and Groups: manual_zh_CN/cluster-admin/how-to-manage-users-and-groups.md
-      - How to Set Up Storage: manual_zh_CN/cluster-admin/how-to-set-up-storage.md
-      - How to Set Up Virtual Clusters: manual_zh_CN/cluster-admin/how-to-set-up-virtual-clusters.md
-      - How to Add and Remove Nodes: manual_zh_CN/cluster-admin/how-to-add-and-remove-nodes.md
-      - How to Customize Cluster by Plugins: manual_zh_CN/cluster-admin/how-to-customize-cluster-by-plugins.md
-      - How to Customize Alerts: manual_zh_CN/cluster-admin/how-to-customize-alerts.md
-      - Troubleshooting: manual_zh_CN/cluster-admin/troubleshooting.md
-      - Recommended Practice: manual_zh_CN/cluster-admin/recommended-practice.md
-      - How to Uninstall OpenPAI: manual_zh_CN/cluster-admin/how-to-uninstall-openpai.md
-      - Upgrade Guide: manual_zh_CN/cluster-admin/upgrade-guide.md
+  - 首页: index.md
+  - 用户手册:
+      - 简介: manual_zh_CN/cluster-user/README.md
+      - 快速开始: manual_zh_CN/cluster-user/快速开始.md
+      - Docker镜像和任务示例: manual_zh_CN/cluster-user/Docker镜像和任务示例.md
+      - 如何使用数据: manual_zh_CN/cluster-user/如何使用数据.md
+      - 如何调试任务: manual_zh_CN/cluster-user/如何调试任务.md
+      - 如何使用高级任务设置: manual_zh_CN/cluster-user/如何使用高级任务设置.md
+      - 如何构建分布式任务: manual_zh_CN/cluster-user/如何构建分布式任务.md
+      - 使用Marketplace: manual_zh_CN/cluster-user/使用Marketplace.md
+      - 使用VSCode扩展: manual_zh_CN/cluster-user/使用VSCode扩展.md
+      - 使用Jupyter-Notebook扩展: manual_zh_CN/cluster-user/使用Jupyter-Notebook扩展.md
+      - 常见问题解答: manual_zh_CN/cluster-user/常见问题解答.md
+  - 管理员手册:
+      - 简介: manual_zh_CN/cluster-admin/README.md
+      - 安装指南: manual_zh_CN/cluster-admin/安装指南.md
+      - 安装常见问题解答和故障排查: manual_zh_CN/cluster-admin/安装常见问题解答和故障排查.md
+      - 基础管理操作: manual_zh_CN/cluster-admin/基础管理操作.md
+      - 如何管理用户和用户组: manual_zh_CN/cluster-admin/如何管理用户和用户组.md
+      - 如何设置数据存储: manual_zh_CN/cluster-admin/如何设置数据存储.md
+      - 如何设置虚拟集群: manual_zh_CN/cluster-admin/如何设置虚拟集群.md
+      - 如何添加和移除结点: manual_zh_CN/cluster-admin/如何添加和移除结点.md
+      - 如何使用插件定制集群: manual_zh_CN/cluster-admin/如何使用插件定制集群.md
+      - 如何定制报警: manual_zh_CN/cluster-admin/如何定制报警.md
+      - 故障排查: manual_zh_CN/cluster-admin/故障排查.md
+      - 推荐实践: manual_zh_CN/cluster-admin/推荐实践.md
+      - 如何卸载OpenPAI: manual_zh_CN/cluster-admin/如何卸载openpai.md
+      - 升级指南: manual_zh_CN/cluster-admin/升级指南.md
 plugins:
   - search
-site_name: OpenPAI Handbook
+site_name: OpenPAI手册
 theme: readthedocs
 use_directory_urls: false
