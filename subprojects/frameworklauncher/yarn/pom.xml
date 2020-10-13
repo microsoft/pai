@@ -41,7 +41,7 @@
     <httpcomponents.version>4.3.6</httpcomponents.version>
     <snakeyaml.version>1.18</snakeyaml.version>
     <log4j.version>1.2.17</log4j.version>
-    <junit.version>4.12</junit.version>
+    <junit.version>4.13.1</junit.version>
     <mockito.version>1.9.5</mockito.version>
     <jackson.version>1.9.13</jackson.version>
     <jackson.jaxrs.version>2.3.0</jackson.jaxrs.version>
