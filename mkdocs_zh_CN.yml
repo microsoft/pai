@@ -1,0 +1,34 @@
+nav:
+  - Home: index.md
+  - User Manual:
+      - Introduction: manual_zh_CN/cluster-user/README.md
+      - Quick Start: manual_zh_CN/cluster-user/quick-start.md
+      - Docker Images and Job Examples: manual_zh_CN/cluster-user/docker-images-and-job-examples.md
+      - How to Manage Data: manual_zh_CN/cluster-user/how-to-manage-data.md
+      - How to Debug Jobs: manual_zh_CN/cluster-user/how-to-debug-jobs.md
+      - How to Use Advanced Job Settings: manual_zh_CN/cluster-user/how-to-use-advanced-job-settings.md
+      - How to Run Distributed Job: manual_zh_CN/cluster-user/how-to-run-distributed-job.md
+      - Use Marketplace: manual_zh_CN/cluster-user/use-marketplace.md
+      - Use VSCode Extension: manual_zh_CN/cluster-user/use-vscode-extension.md
+      - Use Jupyter Notebook Extension: manual_zh_CN/cluster-user/use-jupyter-notebook-extension.md
+      - Frequently Asked Questions: manual_zh_CN/cluster-user/frequently-asked-questions.md
+  - Admin Manual:
+      - Introduction: manual_zh_CN/cluster-admin/README.md
+      - Installation Guide: manual_zh_CN/cluster-admin/installation-guide.md
+      - Installation FAQs and Troubleshooting: manual_zh_CN/cluster-admin/installation-faqs-and-troubleshooting.md
+      - Basic Management Operations: manual_zh_CN/cluster-admin/basic-management-operations.md
+      - How to Manage Users and Groups: manual_zh_CN/cluster-admin/how-to-manage-users-and-groups.md
+      - How to Set Up Storage: manual_zh_CN/cluster-admin/how-to-set-up-storage.md
+      - How to Set Up Virtual Clusters: manual_zh_CN/cluster-admin/how-to-set-up-virtual-clusters.md
+      - How to Add and Remove Nodes: manual_zh_CN/cluster-admin/how-to-add-and-remove-nodes.md
+      - How to Customize Cluster by Plugins: manual_zh_CN/cluster-admin/how-to-customize-cluster-by-plugins.md
+      - How to Customize Alerts: manual_zh_CN/cluster-admin/how-to-customize-alerts.md
+      - Troubleshooting: manual_zh_CN/cluster-admin/troubleshooting.md
+      - Recommended Practice: manual_zh_CN/cluster-admin/recommended-practice.md
+      - How to Uninstall OpenPAI: manual_zh_CN/cluster-admin/how-to-uninstall-openpai.md
+      - Upgrade Guide: manual_zh_CN/cluster-admin/upgrade-guide.md
+plugins:
+  - search
+site_name: OpenPAI Handbook
+theme: readthedocs
+use_directory_urls: false
