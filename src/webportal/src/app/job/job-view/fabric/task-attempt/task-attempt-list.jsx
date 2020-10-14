@@ -362,17 +362,6 @@ export default class TaskAttemptList extends React.Component {
         },
       },
       {
-        key: 'taskUid',
-        name: 'Task Uid',
-        headerClassName: FontClassNames.medium,
-        isResizable: true,
-        onRender: (item, idx) => {
-          return (
-            <div className={FontClassNames.mediumPlus}>{item.taskUid}</div>
-          );
-        },
-      },
-      {
         key: 'taskAttemtState',
         name: 'Task Attempt State',
         headerClassName: FontClassNames.medium,
@@ -435,8 +424,8 @@ export default class TaskAttemptList extends React.Component {
         },
       },
       {
-        key: 'startTime',
-        name: 'Start Time',
+        key: 'taskAttemptLaunchTime',
+        name: 'Task Attempt Launch Time',
         headerClassName: FontClassNames.medium,
         minWidth: 150,
         maxWidth: 200,
@@ -444,9 +433,11 @@ export default class TaskAttemptList extends React.Component {
         onRender: item => {
           return (
             <div className={c(FontClassNames.mediumPlus)}>
-              {isNil(item.createdTime)
+              {isNil(item.currentAttemptLaunchedTime)
                 ? 'N/A'
-                : printDateTime(DateTime.fromMillis(item.createdTime))}
+                : printDateTime(
+                    DateTime.fromMillis(item.currentAttemptLaunchedTime),
+                  )}
             </div>
           );
         },
@@ -454,14 +445,18 @@ export default class TaskAttemptList extends React.Component {
       {
         key: 'taskAttemptCompletedTime',
         name: 'Task Attempt Completed Time',
+        minWidth: 150,
+        maxWidth: 200,
         headerClassName: FontClassNames.medium,
         isResizable: true,
         onRender: (item, idx) => {
           return (
             <div className={FontClassNames.mediumPlus}>
-              {isNil(item.createdTime)
+              {isNil(item.currentAttemptCompletedTime)
                 ? 'N/A'
-                : printDateTime(DateTime.fromMillis(item.createdTime))}
+                : printDateTime(
+                    DateTime.fromMillis(item.currentAttemptCompletedTime),
+                  )}
             </div>
           );
         },
