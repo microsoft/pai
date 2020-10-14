@@ -90,30 +90,31 @@ export async function fetchJobRetries() {
   }
 }
 
-export async function fetchJobInfo(attemptIndex, showTaskRetryInfo = false) {
+export async function fetchJobInfo(attemptIndex) {
   return wrapper(async () => {
-    let res;
-    if (isNil(attemptIndex) || attemptIndex === 10) {
-      if (showTaskRetryInfo) {
-        res = await fetch(
-          'https://microsoft.github.io/openpaimarketplace/examples/task_attempt_data_current.json',
-        );
-      } else {
-        res = await fetch(
-          'https://microsoft.github.io/openpaimarketplace/examples/api_data_0.json',
-        );
-      }
-    } else {
-      if (showTaskRetryInfo) {
-        res = await fetch(
-          'https://microsoft.github.io/openpaimarketplace/examples/task_attempt_data_past.json',
-        );
-      } else {
-        res = await fetch(
-          'https://microsoft.github.io/openpaimarketplace/examples/api_data_past.json',
-        );
-      }
-    }
+    const restServerUri = new URL(config.restServerUri, window.location.href);
+    const url = isNil(attemptIndex)
+      ? `${restServerUri}/api/v2/jobs/${userName}~${jobName}`
+      : `${restServerUri}/api/v2/jobs/${userName}~${jobName}/attempts/${attemptIndex}`;
+    const res = await fetch(url, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    const result = await res.json();
+    return result;
+  });
+}
+
+export async function fetchTaskStatus(attemptIndex, taskRoleName, taskIndex) {
+  return wrapper(async () => {
+    const restServerUri = new URL(config.restServerUri, window.location.href);
+    const url = `${restServerUri}/api/v2/jobs/${userName}~${jobName}/attempts/${attemptIndex}/taskRoles/${taskRoleName}/taskIndex/${taskIndex}/attempts`;
+    const res = await fetch(url, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
     const result = await res.json();
     return result;
   });

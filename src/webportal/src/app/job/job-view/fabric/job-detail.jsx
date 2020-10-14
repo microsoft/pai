@@ -65,6 +65,7 @@ class JobDetail extends React.Component {
       dialogTaskIndex: null,
       hideDialog: true,
       showMoreDiagnostics: false,
+      selectedAttemptIndex: null,
     };
     this.stop = this.stop.bind(this);
     this.reload = this.reload.bind(this);
@@ -93,7 +94,7 @@ class JobDetail extends React.Component {
     };
     const loadJobInfo = async () => {
       try {
-        nextState.jobInfo = await fetchJobInfo();
+        nextState.jobInfo = await fetchJobInfo(this.state.selectedAttemptIndex);
       } catch (err) {
         nextState.error = `fetch job status failed: ${err.message}`;
       }
@@ -316,7 +317,7 @@ class JobDetail extends React.Component {
                   toggleHideDialog={() => {
                     this.toggleHideDialog();
                   }}
-                  jobAttemptIndex={this.state.jobAttemptIndex}
+                  jobAttemptIndex={this.state.selectedAttemptIndex}
                   taskRoleName={this.state.dialogTaskRoleName}
                   taskIndex={this.state.dialogTaskIndex}
                 />
