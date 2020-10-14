@@ -1,5 +1,5 @@
 nav:
-  - 首页: index.md
+  - 首页: index_zh_CN.md
   - 用户手册:
       - 简介: manual_zh_CN/cluster-user/README.md
       - 快速开始: manual_zh_CN/cluster-user/快速开始.md
