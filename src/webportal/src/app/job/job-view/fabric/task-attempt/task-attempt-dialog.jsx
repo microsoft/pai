@@ -25,7 +25,7 @@ import {
   DialogFooter,
 } from 'office-ui-fabric-react';
 import TaskAttemptList from './task-attempt-list';
-import { fetchTaskStatus } from '../conn';
+import { fetchTaskStatus } from '../fabric/job-detail/conn';
 
 const TaskAttemptDialog = props => {
   const {
@@ -38,14 +38,10 @@ const TaskAttemptDialog = props => {
   const [taskAttempts, setTaskAttempts] = useState([]);
 
   useEffect(() => {
-    console.log(jobAttemptIndex);
-    console.log(taskRoleName);
-    console.log(taskIndex);
     if (!isNil(jobAttemptIndex) && !isNil(taskRoleName) && !isNil(taskIndex)) {
       fetchTaskStatus(jobAttemptIndex, taskRoleName, taskIndex).then(
         taskStatus => {
           const attempts = taskStatus.attempts;
-          console.log(attempts);
           setTaskAttempts(attempts);
         },
       );

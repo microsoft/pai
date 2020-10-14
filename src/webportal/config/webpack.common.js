@@ -70,6 +70,7 @@ const config = (env, argv) => ({
     submit_v1: './src/app/job/job-submit-v1/job-submit.component.js',
     jobList: './src/app/job/job-view/fabric/job-list.jsx',
     jobDetail: './src/app/job/job-view/fabric/job-detail.jsx',
+    taskAttempt: './src/app/job/job-view/fabric/task-attempt.jsx',
     jobRetry: './src/app/job/job-view/fabric/job-retry.jsx',
     virtualClusters: './src/app/vc/vc.component.js',
     services: './src/app/cluster-view/services/services.component.js',
@@ -333,6 +334,10 @@ const config = (env, argv) => ({
     generateHtml({
       filename: 'job-detail.html',
       chunks: ['layout', 'jobDetail'],
+    }),
+    generateHtml({
+      filename: 'task-attempt.html',
+      chunks: ['layout', 'taskAttempt'],
     }),
     generateHtml({
       filename: 'job-retry.html',

@@ -33,6 +33,7 @@ import {
   DirectionalHint,
   Icon,
   Stack,
+  Link,
 } from 'office-ui-fabric-react';
 import {
   DetailsList,
@@ -43,7 +44,6 @@ import {
 import PropTypes from 'prop-types';
 import React from 'react';
 import yaml from 'js-yaml';
-import styled from 'styled-components';
 
 import localCss from './task-role-container-list.scss';
 import t from '../../../../../components/tachyons.scss';
@@ -56,6 +56,10 @@ import config from '../../../../../config/webportal.config';
 import MonacoPanel from '../../../../../components/monaco-panel';
 import StatusBadge from '../../../../../components/status-badge';
 import CopyButton from '../../../../../components/copy-button';
+
+const params = new URLSearchParams(window.location.search);
+const userName = params.get('username');
+const jobName = params.get('jobName');
 
 const theme = createTheme({
   palette: {
@@ -83,12 +87,6 @@ const theme = createTheme({
     white: '#f8f8f8',
   },
 });
-
-const Linkable = styled.div`
-  color: ${theme.palette.themePrimary};
-  font-size: medium;
-  cursor: pointer;
-`;
 
 const interval = 10000;
 
@@ -497,15 +495,11 @@ export default class TaskRoleContainerList extends React.Component {
         isResizable: true,
         onRender: (item, idx) => {
           return (
-            <Linkable
-              onClick={() => {
-                this.props.toggleHideDialog();
-                this.props.onChangeTaskInde(item.taskIndex);
-                this.props.onChangeTaskRoleName(this.props.taskRoleName);
-              }}
+            <Link
+              href={`task-attempt.html?username=${userName}&jobName=${jobName}&jobAttemptIndex=${this.props.jobAttemptIndex}&taskRoleName=${this.props.taskRoleName}&taskIndex=${item.taskIndex}`}
             >
-              {item.retries}
-            </Linkable>
+              <div className={c(FontClassNames.mediumPlus)}>{item.retries}</div>
+            </Link>
           );
         },
       },
@@ -898,7 +892,4 @@ TaskRoleContainerList.propTypes = {
   tasks: PropTypes.arrayOf(PropTypes.object),
   showMoreDiagnostics: PropTypes.bool,
   jobAttemptIndex: PropTypes.number,
-  onChangeTaskRoleName: PropTypes.func,
-  onChangeTaskInde: PropTypes.func,
-  toggleHideDialog: PropTypes.func,
 };

@@ -46,7 +46,6 @@ import Card from './job-detail/components/card';
 import HorizontalLine from '../../../components/horizontal-line';
 import StatusBadge from '../../../components/status-badge';
 import TaskRoleContainerList from './job-detail/components/task-role-container-list';
-import TaskAttemptDialog from './job-detail/components/task-attempt-dialog';
 
 class JobDetail extends React.Component {
   constructor(props) {
@@ -61,9 +60,6 @@ class JobDetail extends React.Component {
       rawJobConfig: null,
       jobConfig: null,
       sshInfo: null,
-      dialogTaskRoleName: null,
-      dialogTaskIndex: null,
-      hideDialog: true,
       showMoreDiagnostics: false,
       selectedAttemptIndex: null,
     };
@@ -73,9 +69,6 @@ class JobDetail extends React.Component {
     this.onChangeShowMoreDiagnostics = this.onChangeShowMoreDiagnostics.bind(
       this,
     );
-    this.onChangeTaskIndex = this.onChangeTaskIndex.bind(this);
-    this.onChangeTaskRoleName = this.onChangeTaskRoleName.bind(this);
-    this.toggleHideDialog = this.toggleHideDialog.bind(this);
   }
 
   componentDidMount() {
@@ -168,40 +161,9 @@ class JobDetail extends React.Component {
     });
   }
 
-  onChangeTaskRoleName(taskRoleName) {
-    this.setState({ dialogTaskRoleName: taskRoleName });
-  }
-
-  onChangeTaskIndex(taskIndex) {
-    this.setState({ dialogTaskIndex: taskIndex });
-  }
-
   onChangeShowMoreDiagnostics(event, checked) {
     this.setState({
       showMoreDiagnostics: checked,
-    });
-  }
-
-  getAllTaskAttempts(inputJobInfo) {
-    if (isNil(inputJobInfo)) {
-      return [];
-    }
-    const taskRoles = inputJobInfo.taskRoles;
-    const allTaskAttempts = [];
-    for (const taskrole in taskRoles) {
-      const taskAttempts = taskRoles[taskrole].taskStatuses;
-      for (const attempt of taskAttempts) {
-        attempt.taskRoleName = taskRoles[taskrole].taskRoleStatus.name;
-      }
-      allTaskAttempts.push(...taskAttempts);
-    }
-    return allTaskAttempts;
-  }
-
-  toggleHideDialog() {
-    const isHideDialog = this.state.hideDialog;
-    this.setState({
-      hideDialog: !isHideDialog,
     });
   }
 
@@ -306,21 +268,9 @@ class JobDetail extends React.Component {
                         tasks={jobInfo.taskRoles[name].taskStatuses}
                         showMoreDiagnostics={this.state.showMoreDiagnostics}
                         jobAttemptIndex={this.state.selectedAttemptIndex}
-                        onChangeTaskRoleName={this.onChangeTaskRoleName}
-                        onChangeTaskInde={this.onChangeTaskIndex}
-                        toggleHideDialog={this.toggleHideDialog}
                       />
                     </Stack>
                   ))}
-                <TaskAttemptDialog
-                  hideDialog={this.state.hideDialog}
-                  toggleHideDialog={() => {
-                    this.toggleHideDialog();
-                  }}
-                  jobAttemptIndex={this.state.selectedAttemptIndex}
-                  taskRoleName={this.state.dialogTaskRoleName}
-                  taskIndex={this.state.dialogTaskIndex}
-                />
               </Stack>
             </Card>
           </Stack>
