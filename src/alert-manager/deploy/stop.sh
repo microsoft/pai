@@ -24,6 +24,10 @@ if kubectl get clusterrolebinding | grep -q "alert-manager-role-binding"; then
     kubectl delete clusterrolebinding alert-manager-role-binding || exit $?
 fi
 
+if kubectl get clusterrole | grep "alert-manager-role"; then
+    kubectl delete clusterrole alert-manager-role || exit $?
+fi
+
 if kubectl get serviceaccount | grep -q "alert-manager-account"; then
     kubectl delete serviceaccount alert-manager-account || exit $?
 fi
