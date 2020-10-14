@@ -67,6 +67,15 @@ If you cannot use GPU in your job, please check the following items on the corre
 
 If the GPU number shown in webportal is wrong, check the [hivedscheduler and VC configuration](./how-to-set-up-virtual-clusters.md).
 
+### NvidiaSmiEccError
+This is a kind of alert from alert manager.
+It means that nvidia cards from the related nodes have double ecc error.
+When this alert occurs, the nodes related will be automatically cordoned by alert manager. 
+After the problem is resolved, you can uncordon the node manually with the following command:
+```bash
+kubectl uncordon <node name>
+```
+
 ### Cannot See Utilization Information.
 
 If you cannot see utilization information (e.g. GPU, CPU, and network usage) in cluster, please check if the service `prometheus`, `grafana`, `job-exporter`, and `node-exporter` are working.
