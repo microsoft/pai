@@ -11,9 +11,9 @@
 
 #### How to configure cluster section in service-configuration.yaml <a name="HT_Config"></a>
 
-All configurations in this section is optional. If you want to customized these value, you can configure it in service-configuration.yaml.
+All configurations in this section are optional. If you want to customize these values, you can configure it in service-configuration.yaml.
 
-For example, if you want to use different port than the default 9091, add following to your service-configuration.yaml as following:
+For example, if you want to use different a port than the default 9091, add following to your service-configuration.yaml as following:
 ```yaml
 prometheus:
     port: new-value
@@ -50,7 +50,7 @@ prometheus:
     <td>prometheus.scrape_interval</td>
     <td>com["prometheus"]["scrape_interval"]</td>
     <td>cluster_cfg["prometheus"]["scrape_interval"]</td>
-    <td>URL</td>
+    <td>Int</td>
 </tr>
 <tr>
     <td>prometheus.url</td>

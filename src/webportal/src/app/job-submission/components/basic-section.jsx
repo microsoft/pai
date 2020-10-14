@@ -58,7 +58,7 @@ export const BasicSection = props => {
           />
           <StackItem grow>
             <div>
-              <Stack horizontal gap='s1'>
+              <Stack horizontal verticalAlign='baseline'>
                 <Label styles={basicSectionStyle.label}>{sectionLabel}</Label>
                 {sectionTooltip && <TooltipIcon content={sectionTooltip} />}
               </Stack>

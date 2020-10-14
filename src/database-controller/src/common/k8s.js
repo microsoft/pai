@@ -150,6 +150,25 @@ function getFrameworkInformer(
   return informer;
 }
 
+const coreV1Client = kc.makeApiClient(k8s.CoreV1Api);
+
+function getEventInformer(timeoutSeconds = 365 * 86400, namespace = 'default') {
+  /*
+  The usage is very like `getFrameworkInformer`. Please see the comments of `getFrameworkInformer` for reference.
+
+  */
+  const listFn = () => {
+    logger.info('Cluster events are listed.');
+    return coreV1Client.listNamespacedEvent(namespace);
+  };
+  const informer = k8s.makeInformer(
+    kc,
+    `/api/v1/namespaces/${namespace}/events?timeoutSeconds=${timeoutSeconds}`,
+    listFn,
+  );
+  return informer;
+}
+
 const priorityClassClient = kc.makeApiClient(k8s.SchedulingV1Api);
 
 async function createPriorityClass(priorityClassDef) {
@@ -161,8 +180,6 @@ async function deletePriorityClass(name) {
   const res = await priorityClassClient.deletePriorityClass(name);
   return res.response;
 }
-
-const coreV1Client = kc.makeApiClient(k8s.CoreV1Api);
 
 async function createSecret(secretDef) {
   const res = await coreV1Client.createNamespacedSecret(
@@ -255,4 +272,5 @@ module.exports = {
     timeoutMs,
   ),
   getFrameworkInformer: getFrameworkInformer,
+  getEventInformer: getEventInformer,
 };

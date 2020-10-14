@@ -160,7 +160,7 @@ export const TeamStorage = ({
 
   return (
     <div>
-      <Stack horizontal gap='s1'>
+      <Stack horizontal verticalAlign='baseline'>
         <Text
           styles={{
             fontWeight: FontWeights.semibold,

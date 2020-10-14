@@ -679,7 +679,12 @@ const generateFrameworkDescription = (
   };
 
   // generate framework env
-  const frameworkEnv = runtimeEnv.generateFrameworkEnv(frameworkName, config);
+  const frameworkEnv = runtimeEnv.generateFrameworkEnv(
+    frameworkName,
+    config,
+    virtualCluster,
+  );
+
   const frameworkEnvList = Object.keys(frameworkEnv).map((name) => {
     return { name, value: `${frameworkEnv[name]}` };
   });
@@ -1180,6 +1185,134 @@ const deleteTag = async (frameworkName, tag) => {
   }
 };
 
+const getEvents = async (frameworkName, attributes, filters) => {
+  const name = encodeName(frameworkName);
+  const framework = await databaseModel.Framework.findOne({
+    attributes: ['name'],
+    where: { name: name },
+  });
+
+  if (framework) {
+    filters.frameworkName = name;
+    const events = await databaseModel.FrameworkEvent.findAll({
+      attributes: attributes,
+      where: filters,
+      order: [['lastTimestamp', 'DESC']],
+    });
+    return {
+      // we use events.length as totolCount because paging is not supported
+      // if paging is enabled in the future, we should fire another SQL request to get the real total count
+      totalCount: events.length,
+      data: events,
+    };
+  } else {
+    throw createError(
+      'Not Found',
+      'NoJobError',
+      `Job ${frameworkName} is not found.`,
+    );
+  }
+};
+
+const generateExitDiagnostics = (diag) => {
+  if (_.isEmpty(diag)) {
+    return null;
+  }
+
+  const exitDiagnostics = {
+    diagnosticsSummary: diag,
+    runtime: null,
+    launcher: diag,
+  };
+  const regex = /matched: (.*)/;
+  const matches = diag.match(regex);
+
+  // No container info here
+  if (matches === null || matches.length < 2) {
+    return exitDiagnostics;
+  }
+
+  let podCompletionStatus = null;
+  try {
+    podCompletionStatus = JSON.parse(matches[1]);
+  } catch (error) {
+    logger.warn('Get diagnostics info failed', error);
+    return exitDiagnostics;
+  }
+
+  const summmaryInfo = diag.substring(0, matches.index + 'matched:'.length);
+  exitDiagnostics.diagnosticsSummary =
+    summmaryInfo + '\n' + yaml.safeDump(podCompletionStatus);
+  exitDiagnostics.launcher = exitDiagnostics.diagnosticsSummary;
+
+  // Get runtime output, set launcher output to null. Otherwise, treat all message as launcher output
+  exitDiagnostics.runtime = extractRuntimeOutput(podCompletionStatus);
+  if (exitDiagnostics.runtime !== null) {
+    exitDiagnostics.launcher = null;
+    return exitDiagnostics;
+  }
+
+  return exitDiagnostics;
+};
+
+const extractRuntimeOutput = (podCompletionStatus) => {
+  if (!podCompletionStatus || !Array.isArray(podCompletionStatus.containers)) {
+    return null;
+  }
+
+  let res = null;
+  for (const container of podCompletionStatus.containers) {
+    if (container.code <= 0) {
+      continue;
+    }
+    const message = container.message;
+    if (message == null) {
+      continue;
+    }
+    const anchor1 = /\[PAI_RUNTIME_ERROR_START\]/;
+    const anchor2 = /\[PAI_RUNTIME_ERROR_END\]/;
+    const match1 = message.match(anchor1);
+    const match2 = message.match(anchor2);
+    if (match1 !== null && match2 !== null) {
+      const start = match1.index + match1[0].length;
+      const end = match2.index;
+      const output = message.substring(start, end).trim();
+      try {
+        res = {
+          ...yaml.safeLoad(output),
+          name: container.name,
+        };
+      } catch (error) {
+        logger.warn('failed to format runtime output:', output, error);
+      }
+      break;
+    }
+  }
+  return res;
+};
+
+const generateExitSpec = (code) => {
+  if (!_.isNil(code)) {
+    if (!_.isNil(exitSpecMap[code])) {
+      return exitSpecMap[code];
+    } else {
+      if (code > 0) {
+        return {
+          ...exitSpecMap[positiveFallbackExitCode],
+          code,
+        };
+      } else {
+        return {
+          ...exitSpecMap[negativeFallbackExitCode],
+          code,
+        };
+      }
+    }
+  } else {
+    return null;
+  }
+};
+
 // module exports
 module.exports = {
   list,
@@ -1190,4 +1323,5 @@ module.exports = {
   getSshInfo,
   addTag,
   deleteTag,
+  getEvents,
 };

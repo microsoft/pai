@@ -66,7 +66,7 @@ export const CSpinButton = props => {
   const _onValidate = value => _onChange(value, onValidate, value);
 
   return (
-    <Stack horizontal gap='s1' verticalAlign='baseline'>
+    <Stack horizontal verticalAlign='baseline'>
       {label && <div style={{ width: 160 }}>{label}</div>}
       {tooltip && <TooltipIcon content={tooltip} />}
       <SpinButton

@@ -1,45 +1,6 @@
-# Alerting and Troubleshooting
+# Troubleshooting
 
-OpenPAI uses [Prometheus](https://prometheus.io/) to monitor the system. You can view the monitoring information [on webportal](./basic-management-operations.md#management-on-webportal). For alerting, OpenPAI uses [alert manager](https://prometheus.io/docs/alerting/latest/alertmanager/), but it is not set up in default installation. This document describes how to set up alert manager, and how to deal with some common alerts. It also includes some other troubleshooting cases in practice.
-
-## Set Up Alert Manager
-
-OpenPAI's alert manager is set to send alerting e-mails when alert happens. To begin with, you should get an SMTP account to send these e-mails.
-
-After getting an SMTP account, how to set up the alert manager in PAI? Please read the document about [service management and paictl](./basic-management-operations.md#pai-service-management-and-paictl) first, and start a dev box container. Then, in the dev box container, pull the configuration by:
-
-```bash
-./paictl config pull -o /cluster-configuration
-```
-
-Uncomment the alert manager section in `/cluster-configuration/services-configuration.yaml`, and set your SMTP account and the receiver's e-mail address. Here is an example:
-
-```bash
-alert-manager:
-  port: 9093
-  receiver: <receiver-email-address>
-  smtp_auth_password: <smtp-password>
-  smtp_auth_username: <smtp-username>
-  smtp_from: <smtp-email-address>
-  smtp_url: <smtp-server>:<smtp-port>
-```
-
-Configuration `port` stands for the port of alert manager. In most cases, you don't need to change it. Configuration `receiver` is usually set to be the administrator's e-mail address to receive alerting e-mails.
-
-Save the configuration file, and start alert manager by:
-
-```bash
-./paictl.py service stop -n alert-manager
-./paictl.py config push -p /cluster-configuration -m service
-./paictl.py service start -n alert-manager
-```
-
-After alert manager is successfully started, the receiver's e-mail address will receive alerting e-mails from the SMTP account. Also, you can view the alerting information on Webportal (in the top-right corner):
-
-   <img src="./imgs/alert-on-webportal.png" width="100%" height="100%" />
-
-
-## Troubleshooting
+This ducument includes some troubleshooting cases in practice.
 
 ### PaiServicePodNotReady Alert
 
