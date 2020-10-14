@@ -28,7 +28,7 @@ const k8sModel = require('@pai/models/kubernetes/kubernetes');
 const k8s = require('@pai/utils/k8sUtils');
 const logger = require('@pai/config/logger');
 const env = require('@pai/utils/env');
-const decodeName = require('@pai/utils/name').decodeName;
+const { decodeName } = require('@pai/models/v2/utils/name');
 
 const positiveFallbackExitCode = 256;
 const negativeFallbackExitCode = -8000;

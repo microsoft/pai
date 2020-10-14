@@ -16,11 +16,13 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 // module dependencies
-const { convertToJobAttempt } = require('@pai/utils/frameworkConverter');
 const launcherConfig = require('@pai/config/launcher');
 const logger = require('@pai/config/logger');
 const databaseModel = require('@pai/utils/dbUtils');
-const encodeName = require('@pai/utils/name').encodeName;
+const { encodeName } = require('@pai/models/v2/utils/name');
+const {
+  convertToJobAttempt,
+} = require('@pai/models/v2/utils/frameworkConverter');
 
 if (launcherConfig.enabledJobHistory) {
   const healthCheck = async () => {

@@ -2843,7 +2843,7 @@ components:
       description: task status
       properties:
         taskIndex:
-          type: string
+          type: integer
           description: task index
         taskUid:
           type: string
@@ -2961,6 +2961,19 @@ components:
                 type: string
                 nullable: true
                 description: container exit diagnostics
+              hived: 
+                type: object
+                nullable: true
+                properties:
+                  affinityGroupName:
+                    type: object
+                    nullable: true
+                  lazyPreempted:
+                    type: object
+                    nullable: true
+                  lazyPreemptionStatus:
+                    type: object
+                    nullable: true
     UserInfo:
       type: object
       properties:

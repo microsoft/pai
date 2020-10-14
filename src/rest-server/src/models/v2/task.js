@@ -18,9 +18,10 @@
 // module dependencies
 const logger = require('@pai/config/logger');
 const databaseModel = require('@pai/utils/dbUtils');
-const convertToTaskDetail = require('@pai/utils/frameworkConverter')
-  .convertToTaskDetail;
-const encodeName = require('@pai/utils/name').encodeName;
+const { encodeName } = require('@pai/models/v2/utils/name');
+const {
+  convertToTaskDetail,
+} = require('@pai/models/v2/utils/frameworkConverter');
 
 const get = async (frameworkName, jobAttemptIndex, taskRoleName, taskIndex) => {
   // get last task attempt by querying Framework / FrameworkHistory table

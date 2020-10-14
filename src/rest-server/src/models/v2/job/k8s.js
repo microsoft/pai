@@ -30,22 +30,19 @@ const logger = require('@pai/config/logger');
 const { apiserver } = require('@pai/config/kubernetes');
 const schedulePort = require('@pai/config/schedule-port');
 const databaseModel = require('@pai/utils/dbUtils');
-const convertState = require('@pai/utils/frameworkConverter').convertState;
-const convertAttemptState = require('@pai/utils/frameworkConverter')
-  .convertAttemptState;
-const getContainerPorts = require('@pai/utils/frameworkConverter')
-  .getContainerPorts;
-const generateExitSpec = require('@pai/utils/frameworkConverter')
-  .generateExitSpec;
-const generateExitDiagnostics = require('@pai/utils/frameworkConverter')
-  .generateExitDiagnostics;
-
+const {
+  convertState,
+  convertAttemptState,
+  getContainerPorts,
+  generateExitSpec,
+  generateExitDiagnostics,
+} = require('@pai/models/v2/utils/frameworkConverter');
 const {
   convertName,
   checkName,
   encodeName,
   decodeName,
-} = require('@pai/utils/name');
+} = require('@pai/models/v2/utils/name');
 
 const Sequelize = require('sequelize');
 
