@@ -28,6 +28,15 @@ spec:
       labels:
         app: delete-batch-job-dshuttle-worker
     spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: pai-worker
+                operator: In
+                values:
+                - 'true'
       hostNetwork: true
       hostPID: false
       containers:

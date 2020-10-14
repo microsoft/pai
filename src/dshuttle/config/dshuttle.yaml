@@ -61,5 +61,10 @@ tieredstores:
   watermark_low_ratio: 0.7
   watermark_high_ratio: 0.95
 
+log:
+  level: INFO
+  max_file_size: 50MB
+  max_backup_index: 20
+
 registry_username: username
 registry_password: password

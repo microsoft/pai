@@ -1,3 +1,20 @@
+# Copyright (c) Microsoft Corporation
+# All rights reserved.
+#
+# MIT License
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
+# documentation files (the "Software"), to deal in the Software without restriction, including without limitation
+# the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and
+# to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+# The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED *AS IS*, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING
+# BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+# NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+# DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
 #
 # The Alluxio Open Foundation licenses this work under the Apache License, version 2.0
 # (the "License"). You may not use this work except in compliance with the License, which is
@@ -11,7 +28,7 @@
 
 # May get overridden by System Property
 
-log4j.rootLogger=INFO, ${alluxio.logger.type}, ${alluxio.remote.logger.type}
+log4j.rootLogger={{ cluster_cfg['dshuttle']['log']['level'] }}, ${alluxio.logger.type}, ${alluxio.remote.logger.type}
 
 log4j.category.alluxio.logserver=INFO, ${alluxio.logserver.logger.type}
 log4j.additivity.alluxio.logserver=false
@@ -41,56 +58,56 @@ log4j.logger.org.apache.parquet.hadoop.InternalParquetRecordReader=WARN
 # Appender for Job Master
 log4j.appender.JOB_MASTER_LOGGER=org.apache.log4j.RollingFileAppender
 log4j.appender.JOB_MASTER_LOGGER.File=${alluxio.logs.dir}/job_master.log
-log4j.appender.JOB_MASTER_LOGGER.MaxFileSize=10MB
-log4j.appender.JOB_MASTER_LOGGER.MaxBackupIndex=100
+log4j.appender.JOB_MASTER_LOGGER.MaxFileSize={{ cluster_cfg['dshuttle']['log']['max_file_size'] }}
+log4j.appender.JOB_MASTER_LOGGER.MaxBackupIndex={{ cluster_cfg['dshuttle']['log']['max_backup_index'] }}
 log4j.appender.JOB_MASTER_LOGGER.layout=org.apache.log4j.PatternLayout
 log4j.appender.JOB_MASTER_LOGGER.layout.ConversionPattern=%d{ISO8601} %-5p %c{2} (%F:%M) - %m%n
 
 # Appender for Job Workers
 log4j.appender.JOB_WORKER_LOGGER=org.apache.log4j.RollingFileAppender
 log4j.appender.JOB_WORKER_LOGGER.File=${alluxio.logs.dir}/job_worker.log
-log4j.appender.JOB_WORKER_LOGGER.MaxFileSize=10MB
-log4j.appender.JOB_WORKER_LOGGER.MaxBackupIndex=100
+log4j.appender.JOB_WORKER_LOGGER.MaxFileSize={{ cluster_cfg['dshuttle']['log']['max_file_size'] }}
+log4j.appender.JOB_WORKER_LOGGER.MaxBackupIndex={{ cluster_cfg['dshuttle']['log']['max_backup_index'] }}
 log4j.appender.JOB_WORKER_LOGGER.layout=org.apache.log4j.PatternLayout
 log4j.appender.JOB_WORKER_LOGGER.layout.ConversionPattern=%d{ISO8601} %-5p %c{2} (%F:%M) - %m%n
 
 # Appender for Master
 log4j.appender.MASTER_LOGGER=org.apache.log4j.RollingFileAppender
 log4j.appender.MASTER_LOGGER.File=${alluxio.logs.dir}/master.log
-log4j.appender.MASTER_LOGGER.MaxFileSize=10MB
-log4j.appender.MASTER_LOGGER.MaxBackupIndex=100
+log4j.appender.MASTER_LOGGER.MaxFileSize={{ cluster_cfg['dshuttle']['log']['max_file_size'] }}
+log4j.appender.MASTER_LOGGER.MaxBackupIndex={{ cluster_cfg['dshuttle']['log']['max_backup_index'] }}
 log4j.appender.MASTER_LOGGER.layout=org.apache.log4j.PatternLayout
 log4j.appender.MASTER_LOGGER.layout.ConversionPattern=%d{ISO8601} %-5p %c{1} - %m%n
 
 # Appender for Master
 log4j.appender.SECONDARY_MASTER_LOGGER=org.apache.log4j.RollingFileAppender
 log4j.appender.SECONDARY_MASTER_LOGGER.File=${alluxio.logs.dir}/secondary_master.log
-log4j.appender.SECONDARY_MASTER_LOGGER.MaxFileSize=10MB
-log4j.appender.SECONDARY_MASTER_LOGGER.MaxBackupIndex=100
+log4j.appender.SECONDARY_MASTER_LOGGER.MaxFileSize={{ cluster_cfg['dshuttle']['log']['max_file_size'] }}
+log4j.appender.SECONDARY_MASTER_LOGGER.MaxBackupIndex={{ cluster_cfg['dshuttle']['log']['max_backup_index'] }}
 log4j.appender.SECONDARY_MASTER_LOGGER.layout=org.apache.log4j.PatternLayout
 log4j.appender.SECONDARY_MASTER_LOGGER.layout.ConversionPattern=%d{ISO8601} %-5p %c{1} - %m%n
 
 # Appender for Master audit
 log4j.appender.MASTER_AUDIT_LOGGER=org.apache.log4j.RollingFileAppender
 log4j.appender.MASTER_AUDIT_LOGGER.File=${alluxio.logs.dir}/master_audit.log
-log4j.appender.MASTER_AUDIT_LOGGER.MaxFileSize=10MB
-log4j.appender.MASTER_AUDIT_LOGGER.MaxBackupIndex=100
+log4j.appender.MASTER_AUDIT_LOGGER.MaxFileSize={{ cluster_cfg['dshuttle']['log']['max_file_size'] }}
+log4j.appender.MASTER_AUDIT_LOGGER.MaxBackupIndex={{ cluster_cfg['dshuttle']['log']['max_backup_index'] }}
 log4j.appender.MASTER_AUDIT_LOGGER.layout=org.apache.log4j.PatternLayout
 log4j.appender.MASTER_AUDIT_LOGGER.layout.ConversionPattern=%d{ISO8601} %-5p %c{2} (%F:%M) - %m%n
 
 # Appender for Proxy
 log4j.appender.PROXY_LOGGER=org.apache.log4j.RollingFileAppender
 log4j.appender.PROXY_LOGGER.File=${alluxio.logs.dir}/proxy.log
-log4j.appender.PROXY_LOGGER.MaxFileSize=10MB
-log4j.appender.PROXY_LOGGER.MaxBackupIndex=100
+log4j.appender.PROXY_LOGGER.MaxFileSize={{ cluster_cfg['dshuttle']['log']['max_file_size'] }}
+log4j.appender.PROXY_LOGGER.MaxBackupIndex={{ cluster_cfg['dshuttle']['log']['max_backup_index'] }}
 log4j.appender.PROXY_LOGGER.layout=org.apache.log4j.PatternLayout
 log4j.appender.PROXY_LOGGER.layout.ConversionPattern=%d{ISO8601} %-5p %c{1} - %m%n
 
 # Appender for Workers
 log4j.appender.WORKER_LOGGER=org.apache.log4j.RollingFileAppender
 log4j.appender.WORKER_LOGGER.File=${alluxio.logs.dir}/worker.log
-log4j.appender.WORKER_LOGGER.MaxFileSize=10MB
-log4j.appender.WORKER_LOGGER.MaxBackupIndex=100
+log4j.appender.WORKER_LOGGER.MaxFileSize={{ cluster_cfg['dshuttle']['log']['max_file_size'] }}
+log4j.appender.WORKER_LOGGER.MaxBackupIndex={{ cluster_cfg['dshuttle']['log']['max_backup_index'] }}
 log4j.appender.WORKER_LOGGER.layout=org.apache.log4j.PatternLayout
 log4j.appender.WORKER_LOGGER.layout.ConversionPattern=%d{ISO8601} %-5p %c{1} - %m%n
 
@@ -151,8 +168,8 @@ log4j.appender.REMOTE_WORKER_LOGGER.Threshold=WARN
 # (Local) appender for log server itself
 log4j.appender.LOGSERVER_LOGGER=org.apache.log4j.RollingFileAppender
 log4j.appender.LOGSERVER_LOGGER.File=${alluxio.logs.dir}/logserver.log
-log4j.appender.LOGSERVER_LOGGER.MaxFileSize=10MB
-log4j.appender.LOGSERVER_LOGGER.MaxBackupIndex=100
+log4j.appender.LOGSERVER_LOGGER.MaxFileSize={{ cluster_cfg['dshuttle']['log']['max_file_size'] }}
+log4j.appender.LOGSERVER_LOGGER.MaxBackupIndex={{ cluster_cfg['dshuttle']['log']['max_backup_index'] }}
 log4j.appender.LOGSERVER_LOGGER.layout=org.apache.log4j.PatternLayout
 log4j.appender.LOGSERVER_LOGGER.layout.ConversionPattern=%d{ISO8601} %-5p %c{1} - %m%n
 
@@ -160,24 +177,24 @@ log4j.appender.LOGSERVER_LOGGER.layout.ConversionPattern=%d{ISO8601} %-5p %c{1} 
 # No need to configure file path because log server will dynamically
 # figure out for each appender.
 log4j.appender.LOGSERVER_CLIENT_LOGGER=org.apache.log4j.RollingFileAppender
-log4j.appender.LOGSERVER_CLIENT_LOGGER.MaxFileSize=10MB
-log4j.appender.LOGSERVER_CLIENT_LOGGER.MaxBackupIndex=100
+log4j.appender.LOGSERVER_CLIENT_LOGGER.MaxFileSize={{ cluster_cfg['dshuttle']['log']['max_file_size'] }}
+log4j.appender.LOGSERVER_CLIENT_LOGGER.MaxBackupIndex={{ cluster_cfg['dshuttle']['log']['max_backup_index'] }}
 log4j.appender.LOGSERVER_CLIENT_LOGGER.layout=org.apache.log4j.PatternLayout
 log4j.appender.LOGSERVER_CLIENT_LOGGER.layout.ConversionPattern=%d{ISO8601} %-5p %c{1} - %m%n
 
 # Appender for User
 log4j.appender.USER_LOGGER=org.apache.log4j.RollingFileAppender
 log4j.appender.USER_LOGGER.File=${alluxio.user.logs.dir}/user_${user.name}.log
-log4j.appender.USER_LOGGER.MaxFileSize=10MB
-log4j.appender.USER_LOGGER.MaxBackupIndex=10
+log4j.appender.USER_LOGGER.MaxFileSize={{ cluster_cfg['dshuttle']['log']['max_file_size'] }}
+log4j.appender.USER_LOGGER.MaxBackupIndex={{ cluster_cfg['dshuttle']['log']['max_backup_index'] }}
 log4j.appender.USER_LOGGER.layout=org.apache.log4j.PatternLayout
 log4j.appender.USER_LOGGER.layout.ConversionPattern=%d{ISO8601} %-5p %c{1} - %m%n
 
 # Appender for Fuse
 log4j.appender.FUSE_LOGGER=org.apache.log4j.RollingFileAppender
 log4j.appender.FUSE_LOGGER.File=${alluxio.logs.dir}/fuse.log
-log4j.appender.FUSE_LOGGER.MaxFileSize=10MB
-log4j.appender.FUSE_LOGGER.MaxBackupIndex=10
+log4j.appender.FUSE_LOGGER.MaxFileSize={{ cluster_cfg['dshuttle']['log']['max_file_size'] }}
+log4j.appender.FUSE_LOGGER.MaxBackupIndex={{ cluster_cfg['dshuttle']['log']['max_backup_index'] }}
 log4j.appender.FUSE_LOGGER.layout=org.apache.log4j.PatternLayout
 log4j.appender.FUSE_LOGGER.layout.ConversionPattern=%d{ISO8601} %-5p %c{1} - %m%n
 

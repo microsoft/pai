@@ -20,12 +20,12 @@ cluster-type:
 
 prerequisite:
   - cluster-configuration
-  - dshuttle
 
 template-list:
   - dshuttle-service.yaml
   - dshuttle-config.yaml
   - dshuttle-master.yaml
+  - log4j.properties
   - delete.yaml
   - start.sh
   - stop.sh

@@ -69,9 +69,6 @@ spec:
         securityContext:
           privileged: true
           runAsUser: 0
-          capabilities:
-            add: ["SYS_ADMIN"]
-          allowPrivilegeEscalation: true
         image: dshuttle.azurecr.io/dshuttle/dshuttle-csi:9660f44
         command: ["/usr/local/bin/dshuttle-csi"]
         args :
