@@ -1236,7 +1236,7 @@ paths:
         - job
       summary: Get job status with specific job attempt.
       description: Get job status with specific job attempt.
-      operationId: getJobWithSpecificJobAttemptId
+      operationId: getJob
       security:
         - bearerAuth: []
       parameters:
@@ -1671,7 +1671,7 @@ paths:
           $ref: "#/components/responses/NoJobError"
         "501":
           $ref: "#/components/responses/UnknownError"
-  "/api/v2/jobs/{user}~{job}/attempts/{jobAattemptId}/taskRoles/{taskRoleName}/taskIndex/{taskIndex}/attempts":
+  "/api/v2/jobs/{user}~{job}/attempts/{jobAttemptId}/taskRoles/{taskRoleName}/taskIndex/{taskIndex}/attempts":
     get:
       tags:
         - job
