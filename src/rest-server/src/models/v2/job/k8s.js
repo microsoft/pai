@@ -1260,6 +1260,35 @@ const deleteTag = async (frameworkName, tag) => {
   }
 };
 
+const getEvents = async (frameworkName, attributes, filters) => {
+  const name = encodeName(frameworkName);
+  const framework = await databaseModel.Framework.findOne({
+    attributes: ['name'],
+    where: { name: name },
+  });
+
+  if (framework) {
+    filters.frameworkName = name;
+    const events = await databaseModel.FrameworkEvent.findAll({
+      attributes: attributes,
+      where: filters,
+      order: [['lastTimestamp', 'DESC']],
+    });
+    return {
+      // we use events.length as totolCount because paging is not supported
+      // if paging is enabled in the future, we should fire another SQL request to get the real total count
+      totalCount: events.length,
+      data: events,
+    };
+  } else {
+    throw createError(
+      'Not Found',
+      'NoJobError',
+      `Job ${frameworkName} is not found.`,
+    );
+  }
+};
+
 const generateExitDiagnostics = (diag) => {
   if (_.isEmpty(diag)) {
     return null;
@@ -1369,4 +1398,5 @@ module.exports = {
   getSshInfo,
   addTag,
   deleteTag,
+  getEvents,
 };
