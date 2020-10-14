@@ -8,7 +8,7 @@ OpenPAI是一个提供完整的人工智能模型训练和资源管理能力开�
 
 本手册基于OpenPAI >= v1.0.0, 包含两个部分：[用户手册](./manual_zh_CN/cluster-user/README.md) and [管理员手册](./manual_zh_CN/cluster-admin/README.md)。
 
-如果您想学习如何在OpenPAI中提交任务、调试任务、使用数据、Marketplace和VSCode扩展，请阅读[用户手册](./manual_zh_CN_/cluster-user/README.md)。
+如果您想学习如何在OpenPAI中提交任务、调试任务、使用数据、Marketplace和VSCode扩展，请阅读[用户手册](./manual_zh_CN/cluster-user/README.md)。
 
 如果您想学习如何建立新集群，如何管理集群，请阅读[管理员手册](./manual_zh_CN/cluster-admin/README.md)。
 
