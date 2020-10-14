@@ -879,7 +879,7 @@ const get = async (frameworkName, jobAttemptId) => {
     const snapshot = JSON.parse(framework.snapshot);
     if (
       jobAttemptId &&
-      jobAttemptId !== snapshot.status.retryPolicyStatus.totalRetriedCount - 1
+      jobAttemptId !== snapshot.status.retryPolicyStatus.totalRetriedCount
     ) {
       const frameworkHistory = await databaseModel.FrameworkHistory.findOne({
         attributes: ['snapshot'],

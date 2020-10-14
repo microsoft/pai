@@ -146,7 +146,10 @@ const list = asyncHandler(async (req, res) => {
 });
 
 const get = asyncHandler(async (req, res) => {
-  const data = await job.get(req.params.frameworkName, req.params.jobAttemptId);
+  const data = await job.get(
+    req.params.frameworkName,
+    Number(req.params.jobAttemptId),
+  );
   res.json(data);
 });
 
