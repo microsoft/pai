@@ -1099,8 +1099,8 @@ const put = async (frameworkName, config, rawConfig) => {
       jobPriority = Math.min(Math.max(jobPriority, -1), 126);
     }
     const jobCreationTime =
-      Math.floor(submissionTime / 1000) & (Math.pow(2, 23) - 1);
-    const podPriority = -(((126 - jobPriority) << 23) + jobCreationTime);
+      Math.floor(submissionTime / 16000) & (Math.pow(2, 24) - 1);
+    const podPriority = -(((126 - jobPriority) << 24) + jobCreationTime);
     // create priority class
     priorityClassDef = getPriorityClassDef(frameworkName, podPriority);
   }
