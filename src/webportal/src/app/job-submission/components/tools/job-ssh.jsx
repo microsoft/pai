@@ -7,6 +7,7 @@ import {
   PAI_PLUGIN,
   USERSSH_TYPE_OPTIONS,
   SSH_KEY_BITS,
+  PROTOCOL_TOOLTIPS,
 } from '../../utils/constants';
 import { SSHPlugin } from '../../models/plugin/ssh-plugin';
 import SSHGenerator from './ssh-generator';
@@ -116,25 +117,16 @@ export const JobSSH = ({ extras, onExtrasChange }) => {
 
   return (
     <Stack gap='m' styles={{ root: { height: '100%' } }}>
-      <Stack horizontal gap='s1'>
+      <Stack horizontal verticalAlign='baseline'>
         <Text styles={style.headerText}>SSH</Text>
-        <TooltipIcon
-          content={`Choose SSH public key for job. Users should maintain the SSH private key themselves.`}
-        />
+        <TooltipIcon content={PROTOCOL_TOOLTIPS.ssh} />
       </Stack>
-      <Stack horizontal gap='s1'>
-        <Toggle
-          label={'Enable User SSH'}
-          inlineLabel={true}
-          checked={!isEmpty(sshPlugin.userssh)}
-          onChange={_onUsersshEnable}
-        />
-        <TooltipIcon
-          content={
-            'Enable User SSH to allow user attach job containers through corresponding ssh private key. You can enter your own ssh pub key or use SSH Key Generator to generate ssh key pair.'
-          }
-        />
-      </Stack>
+      <Toggle
+        label={'Enable User SSH'}
+        inlineLabel={true}
+        checked={!isEmpty(sshPlugin.userssh)}
+        onChange={_onUsersshEnable}
+      />
       {!isEmpty(sshPlugin.userssh) && (
         <Stack horizontal gap='l1'>
           <Dropdown
