@@ -9,10 +9,11 @@ info:
     Version 2.0.4: add default field in get storage list
     Version 2.0.5: add more parameters to job list; add submissionTime
     Version 2.1.0: add add/delete tag api; add tags field in get job detail and get job list; add tags filter in get job list
+    Version 2.1.1: add get event api
   license:
     name: MIT License
     url: "https://github.com/microsoft/pai/blob/master/LICENSE"
-  version: 2.1.0
+  version: 2.1.1
 externalDocs:
   description: Find out more about OpenPAI
   url: "https://github.com/microsoft/pai"
