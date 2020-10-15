@@ -1,63 +1,63 @@
 # 使用VSCode扩展
 
-[OpenPAI VS Code Client](https://github.com/microsoft/openpaivscode) is a VSCode extension to connect OpenPAI clusters, submit AI jobs, simulate jobs locally, manage files, and so on. Please use the released vsix file on [this page](https://github.com/microsoft/openpaivscode/releases) to install it.
+[OpenPAI VS Code Client](https://github.com/microsoft/openpaivscode) 是一个VSCode扩展，用于连接OpenPAI集群、提交AI任务、本地模拟任务、管理文件等。请使用[这个页面上的](https://github.com/microsoft/openpaivscode/releases) 发布的vsix文件来安装。
 
 ## 连接OpenPAI集群
 
-Before using OpenPAI VS Code Client, follow below steps connecting to an OpenPAI cluster. If you are using username and password to login to the cluster, then you should follow `Basic login`. If you are using AAD to login to the cluster, please follow `AAD login`.
+在使用OpenPAI VS Code Client之前，请按照以下步骤连接到OpenPAI集群。 如果您使用用户名和密码登录集群，则应遵循`Basic login`。 如果您使用AAD登录到群集，请遵循`AAD login`。
 
 ### 在基础认证模式下登录
 
-1. Use shortcut key <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>P</kbd> to open command palette.
-2. Input and look for *PAI: Add PAI Cluster* as below.
+1. 使用快捷键<kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>P</kbd>打开命令面板。
+2. 输入并查找 *PAI: 添加PAI集群* 如下所示：
 
     ![add cluster](https://raw.githubusercontent.com/Microsoft/openpaivscode/0.3.0/assets/add_cluster.png)
 
-3. Press <kbd>Enter</kbd>, and input the host of an OpenPAI cluster. It can be domain name or IP Address. After that, press <kbd>Enter</kbd> again.
+3. 按 <kbd>Enter</kbd>, 然后输入OpenPAI群集的主机。 它可以是域名或IP地址。 之后，再次按 <kbd>Enter</kbd>。
 
     ![add cluster host](https://raw.githubusercontent.com/Microsoft/openpaivscode/0.3.0/assets/add_cluster_host.png)
 
-4. A configuration file is opened, and username and password fields are needed at least. Once it completes, click *Finish* button at right bottom corner. Notice, it won't be effect, if you save and close the file directly.
+4. 打开配置文件，并且至少需要用户名和密码字段。 完成后，单击右下角的`Finish`按钮。 请注意，如果直接保存并关闭文件，则不会生效。
 
     ![add cluster configuration](https://raw.githubusercontent.com/Microsoft/openpaivscode/0.3.0/assets/add-cluster-finish.png)
 
-If there are multiple OpenPAI clusters, you can follow above steps again to connect with them.
+如果有多个OpenPAI集群，则可以再次按照上述步骤进行连接。
 
 ### 在AAD模式下登录
 
-1. Use shortcut key <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>P</kbd> to open command palette.
-2. Input and look for *PAI: Add PAI Cluster* as below.
+1. 使用快捷键 <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>P</kbd> 打开命令面板。
+2. 输入并查找 *PAI: 添加PAI集群* 如下所示：
 
     ![add cluster](https://raw.githubusercontent.com/Microsoft/openpaivscode/0.3.0/assets/add_cluster.png)
 
-3. Press <kbd>Enter</kbd>, and input the host of an OpenPAI cluster. It can be domain name or IP Address. After that, press <kbd>Enter</kbd> again.
+3. 按 <kbd>Enter</kbd>，然后输入OpenPAI群集的主机。它可以是域名或IP地址。之后，再次按 <kbd>Enter</kbd> 。
 
     ![add cluster host](https://raw.githubusercontent.com/Microsoft/openpaivscode/0.3.0/assets/add_cluster_host.png)
 
-4. If the `authn_type` of the cluster is `OIDC`, a webside will be open and ask you to login, after that a configuration file is opened, and if your login was successful the username and token fields are auto filled, you can change it if needed. Once it completes, click *Finish* button at right bottom corner. Notice, it won't be effect, if you save and close the file directly.
+4.如果集群的`authn_type`是`OIDC`，则将打开一个Webside并要求您登录，然后打开配置文件，如果登录成功，则自动填充用户名和令牌字段，则可以更改如果需要的话。完成后，单击右下角的*Finish*按钮。请注意，如果直接保存并关闭文件，则不会生效。
 
     ![add cluster configuration](https://raw.githubusercontent.com/Microsoft/openpaivscode/0.3.0/assets/add_aad_cluster.gif)
 
-If there are multiple OpenPAI clusters, you can follow above steps again to connect with them.
+如果有多个OpenPAI集群，则可以再次按照上述步骤进行连接。
 
 ## 提交任务
 
-After added a cluster configuration, you can find the cluster in *PAI CLUSTER EXPLORER* pane as below.
+添加集群配置后，您可以在*PAI CLUSTER EXPLORER* 窗格中找到集群，如下所示：
 
 ![pai cluster explorer](https://raw.githubusercontent.com/Microsoft/openpaivscode/0.3.0/assets/pai_cluster_explorer.png)
 
-To submit a job yaml, please follow the steps below:
+要提交任务Yaml，请按照以下步骤操作：
 
-1. Double click `Create Job Config...` in OpenPAI cluster Explorer, and then specify file name and location to create a job configuration file.
-2. Update job configuration as needed.
-3. Right click on the created job configuration file, then click on `Submit Job to PAI Cluster`. The client will upload files to OpenPAI and create a job. Once it's done, there is a notification at right bottom corner, you can click to open the job detail page.
+1. 在OpenPAI群集资源管理器中双击`Create Job Config...`，然后指定文件名和位置以创建任务配置文件
+2. 根据需要更新任务配置。
+3. 右键单击创建的任务配置文件，然后单击`Submit Job to PAI Cluster`。 客户端会将文件上传到OpenPAI并创建任务。 完成后，右下角会显示一条通知，您可以单击以打开任务详细信息页面。
 
-    If there are multiple OpenPAI clusters, you need to choose one.
+    如果有多个OpenPAI群集，则需要选择一个。
 
-    This animation shows above steps.
+    此动画显示了以上步骤。
     ![submit job](https://raw.githubusercontent.com/Microsoft/openpaivscode/0.3.0/assets/submit-job-v2.gif)
 
 
 ## 参考
 
-  - [Full documentation of VSCode Extension](https://github.com/microsoft/openpaivscode/blob/master/README.md): Please note two kinds of jobs are mentioned in this full documentation: V1 and V2 job. You can safely skip contents about V1 job since it is deprecated.
+  - [VSCode扩展的完整文档](https://github.com/microsoft/openpaivscode/blob/master/README.md): 请注意，此完整文档中提到了两种任务：V1和V2任务。 由于V1任务已弃用，因此您可以安全地跳过有关该任务的内容。
