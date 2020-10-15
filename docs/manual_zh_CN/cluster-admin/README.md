@@ -1,10 +1,10 @@
-# OpenPAI Manual for Cluster Administrators
+# OpenPAI管理员手册
 
-OpenPAI is an open source platform that provides complete AI model training and resource management capabilities, it is easy to extend and supports on-premise, cloud and hybrid environments in various scale.
+OpenPAI是一个提供完整的人工智能模型训练和资源管理能力开源平台，它易于扩展，支持各种规模的on-premise、on-cloud和混合环境。
 
-This manual is for cluster administrators to learn the installation and uninstallation of OpenPAI, some basic management operations, storage management, troubleshootiong, etc. It is based on OpenPAI >= v1.0.0. 
+本手册可帮助管理员学习OpenPAI的安装和卸载、基础的管理操作、数据存储管理、故障排查等，它适用于OpenPAI >= v1.0.0。
 
-## Table of Content
+## 目录
 
 1. [安装指南](./安装指南.md)
 2. [安装常见问题解答和故障排查](./安装常见问题解答和故障排查.md)

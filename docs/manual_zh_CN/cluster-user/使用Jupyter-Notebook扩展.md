@@ -1,3 +1,3 @@
-# 使用Jupyter-Notebook扩展
+# 使用Jupyter Notebook扩展
 
-Jupyter Notebook Extension is under development to fix compatibility issues with new version of PAI.
+Jupyter Notebook扩展尚在开发中（解决和新版PAI的兼容问题）。
