@@ -92,6 +92,7 @@ const get = async (frameworkName, jobAttemptIndex, taskRoleName, taskIndex) => {
     taskHistories = await databaseModel.TaskHistory.findAll({
       attributes: ['snapshot'],
       where: { taskUid: taskUid },
+      order: [['attemptIndex', 'ASC']],
     });
   } catch (error) {
     logger.error(`error when getting task from database: ${error.message}`);
