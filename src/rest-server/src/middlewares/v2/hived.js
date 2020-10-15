@@ -26,12 +26,12 @@ const { hivedWebserviceUri } = require('@pai/config/launcher');
 
 const convertPriority = (priorityClass = 'test') => {
   // TODO: make it a cluster-wise config
-  // allowed range: [-1, 126], default priority 0
+  // allowed range: [-1, 126], default priority 10
   const priorityMap = {
     crit: 120,
     prod: 100,
     test: 10,
-    oppo: -1,
+    oppo: 0,
   };
   return priorityClass in priorityMap ? priorityMap[priorityClass] : null;
 };
