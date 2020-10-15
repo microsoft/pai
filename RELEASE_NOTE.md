@@ -1,5 +1,9 @@
 # OpenPAI Release Note
 
+## Oct 2020 (version 1.2.1)
+
+[minor release with hot fix](https://github.com/microsoft/pai/releases/tag/v1.2.1).
+
 ## Sep 2020 (version 1.2.0)
 
 - Database
