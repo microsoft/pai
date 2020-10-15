@@ -4,7 +4,7 @@
 
 ## 连接OpenPAI集群
 
-在使用OpenPAI VS Code Client之前，请按照以下步骤连接到OpenPAI集群。 如果您使用用户名和密码登录集群，则应遵循`Basic login`。 如果您使用AAD登录到群集，请遵循`AAD login`。
+在使用OpenPAI VS Code Client之前，请按照以下步骤连接到OpenPAI集群。 如果您使用用户名和密码登录集群，则应遵循`Basic login`。 如果您使用AAD登录到群集， 请遵循`AAD login`。
 
 ### 在基础认证模式下登录
 
