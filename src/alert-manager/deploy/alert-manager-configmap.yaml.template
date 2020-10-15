@@ -32,8 +32,12 @@ data:
       repeat_interval: {{ cluster_cfg["alert-manager"]["repeat-interval"] }}
       group_by: [alertname, alertstate]
 
-      {% if 'routes' in cluster_cfg["alert-manager"]["customized-routes"] %}
       routes:
+      - receiver: pai-cordon-nodes
+        match:
+          alertname: NvidiaSmiDoubleEccError
+
+      {% if 'routes' in cluster_cfg["alert-manager"]["customized-routes"] %}
       {% for route in cluster_cfg["alert-manager"]["customized-routes"]["routes"] %}
       - receiver: {{ route.receiver}}
         {% if 'match' in route %}
@@ -54,10 +58,21 @@ data:
     receivers:
     - name: "pai-email-admin"
       webhook_configs:
-{% if 'email-admin' in cluster_cfg["alert-manager"]["actions-available"] %}
+      {% if 'email-admin' in cluster_cfg["alert-manager"]["actions-available"] %}
       - url: 'http://localhost:{{ cluster_cfg["alert-manager"]["alert-handler"]["port"] }}/alert-handler/send-email-to-admin'
         send_resolved: true
-{% endif %}
+      {% endif %}
+
+    - name: pai-cordon-nodes
+      webhook_configs:
+      {% if 'cordon-nodes' in cluster_cfg["alert-manager"]["actions-available"] %}
+      - url: 'http://localhost:{{ cluster_cfg["alert-manager"]["alert-handler"]["port"] }}/alert-handler/cordon-nodes'
+        send_resolved: false
+      {% endif %}
+      {% if 'email-admin' in cluster_cfg["alert-manager"]["actions-available"] %}
+      - url: 'http://localhost:{{ cluster_cfg["alert-manager"]["alert-handler"]["port"] }}/alert-handler/send-email-to-admin'
+        send_resolved: true
+      {% endif %}
 
     {% for receiver in cluster_cfg["alert-manager"]["customized-receivers"] %}
     - name: {{ receiver.name}}
@@ -88,6 +103,11 @@ data:
         http_config:
           bearer_token: {{ cluster_cfg["alert-manager"]["alert-handler"]["pai-bearer-token"] }}
       {% endfor %}
+      {% endif %}
+
+      {% if 'cordon-nodes' in receiver.actions %}
+      - url: 'http://localhost:{{ cluster_cfg["alert-manager"]["alert-handler"]["port"] }}/alert-handler/cordon-nodes'
+        send_resolved: false
       {% endif %}
     
     {% endfor %}

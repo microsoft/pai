@@ -22,6 +22,7 @@ service_type: "common"
 port: 9093
 actions-available:
   - webportal-notification
+  - cordon-nodes
 alert-handler:
   log-level: 'info'
   port: 9095
