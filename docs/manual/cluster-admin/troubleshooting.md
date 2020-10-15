@@ -67,7 +67,7 @@ If you cannot use GPU in your job, please check the following items on the corre
 
 If the GPU number shown in webportal is wrong, check the [hivedscheduler and VC configuration](./how-to-set-up-virtual-clusters.md).
 
-### NvidiaSmiEccError
+### NvidiaSmiDoubleEccError
 This is a kind of alert from alert manager.
 It means that nvidia cards from the related nodes have double ecc error.
 When this alert occurs, the nodes related will be automatically cordoned by alert manager. 

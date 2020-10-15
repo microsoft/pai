@@ -30,19 +30,21 @@ const cordonNodes = (req, res) => {
   // cordon nodes
   req.body.alerts.forEach(function (alert) {
     if (alert.status === 'firing') {
-      const node = alert.labels.node_name;
+      const nodeName = alert.labels.node_name;
       // set the node unschedulable
-      k8sApi
-        .patchNode(node, { spec: { unschedulable: true } })
-        .then(function () {
-          logger.info(`alert-handler successfully cordon node ${node}`);
-        })
-        .catch(function (data) {
-          logger.error(`alert-handler failed to cordon node ${node}, response data: ${data}`);
+      k8sApi.patchNode(nodeName, { spec: { unschedulable: true } }).then(
+        (response) => {
+          logger.info(`alert-handler successfully cordon node ${nodeName}`);
+        },
+        (err) => {
+          logger.error(
+            `alert-handler failed to cordon node ${nodeName}, err message: ${err}`,
+          );
           res.status(500).json({
-            message: `alert-handler failed to cordon node ${node}`,
+            message: `alert-handler failed to cordon node ${nodeName}`,
           });
-        });
+        },
+      );
     }
   });
 

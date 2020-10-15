@@ -35,7 +35,7 @@ data:
       routes:
       - receiver: pai-cordon-nodes
         match:
-          alertname: NvidiaSmiEccError
+          alertname: NvidiaSmiDoubleEccError
 
       {% if 'routes' in cluster_cfg["alert-manager"]["customized-routes"] %}
       {% for route in cluster_cfg["alert-manager"]["customized-routes"]["routes"] %}
