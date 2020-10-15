@@ -1697,69 +1697,70 @@ paths:
                   $ref: "#/components/schemas/TaskStatus"
                 description: task attempts
               example:
-                - taskIndex: 0
-                  taskUid: e0235258-0c4b-11eb-b396-96ba8c8049b4
-                  taskState: STOPPED
-                  retries: 1
-                  accountableRetries: 1
-                  createdTime: 1602480558000
-                  completedTime: 1602480603000
-                  frameworkName: test_user~task_retry_histry_test
-                  jobAttemptId: 0
-                  taskRoleName: taskrole
-                  attempts:
-                    - attemptId: 0
-                      attemptState: FAILED
-                      currentAttemptLaunchedTime: 1602480558000
-                      currentAttemptCompletedTime: 1602480570000
-                      containerId: a9f9f1f2-5e43-4423-88c3-022433b8cd7c
-                      containerIp: 10.151.40.34
-                      containerNodeName: node16
-                      containerPorts:
-                        ssh: 37508
-                        http: 24661
-                      containerGpus: null
-                      containerLog: http://10.151.40.34:9103/log-manager/tail/admin/9893b6e0f9f5997f4a82f23bef39bf32/taskrole/a9f9f1f2-5e43-4423-88c3-022433b8cd7c/
-                      containerExitCode: -220,
-                      containerExitSpec:
-                        code: -220,
-                        phrase: FrameworkAttemptCompletion
-                        issuer: PAI_FC
-                        causer: USER_STOP
-                        type: USER_STOP
-                        stage: UNKNOWN
-                        behavior: PERMANENT
-                        reaction: NEVER_RETRY
-                        reason: Stop to complete current job attempt
-                        repro:
-                          - Stop a job with long running container
-                      containerExitDiagnostics: Stop to complete current FrameworkAttempt
-                    - attemptId: 1
-                      attemptState: FAILED
-                      currentAttemptLaunchedTime: 1602480591000
-                      currentAttemptCompletedTime: 1602480603000
-                      containerId: a9f9f1f2-5e43-4423-88c3-022433b8cd7c
-                      containerIp: 10.151.40.34
-                      containerNodeName: node16
-                      containerPorts:
-                        ssh: 37508
-                        http: 24661
-                      containerGpus: null
-                      containerLog: http://10.151.40.34:9103/log-manager/tail/admin/9893b6e0f9f5997f4a82f23bef39bf32/taskrole/a9f9f1f2-5e43-4423-88c3-022433b8cd7c/
-                      containerExitCode: -220,
-                      containerExitSpec:
-                        code: -220,
-                        phrase: FrameworkAttemptCompletion
-                        issuer: PAI_FC
-                        causer: USER_STOP
-                        type: USER_STOP
-                        stage: UNKNOWN
-                        behavior: PERMANENT
-                        reaction: NEVER_RETRY
-                        reason: Stop to complete current job attempt
-                        repro:
-                          - Stop a job with long running container
-                      containerExitDiagnostics: Stop to complete current FrameworkAttempt
+                taskIndex: 0
+                taskUid: e0235258-0c4b-11eb-b396-96ba8c8049b4
+                taskState: STOPPED
+                retries: 1
+                accountableRetries: 1
+                createdTime: 1602480558000
+                completedTime: 160248ask_0603000
+                username: test_user
+                jobName: task_retry_histry_test
+                jobAttemptId: 0
+                taskRoleName: taskrole
+                attempts:
+                  - attemptId: 0
+                    attemptState: FAILED
+                    currentAttemptLaunchedTime: 1602480558000
+                    currentAttemptCompletedTime: 1602480570000
+                    containerId: a9f9f1f2-5e43-4423-88c3-022433b8cd7c
+                    containerIp: 10.151.40.34
+                    containerNodeName: node16
+                    containerPorts:
+                      ssh: 37508
+                      http: 24661
+                    containerGpus: null
+                    containerLog: http://10.151.40.34:9103/log-manager/tail/admin/9893b6e0f9f5997f4a82f23bef39bf32/taskrole/a9f9f1f2-5e43-4423-88c3-022433b8cd7c/
+                    containerExitCode: -220,
+                    containerExitSpec:
+                      code: -220,
+                      phrase: FrameworkAttemptCompletion
+                      issuer: PAI_FC
+                      causer: USER_STOP
+                      type: USER_STOP
+                      stage: UNKNOWN
+                      behavior: PERMANENT
+                      reaction: NEVER_RETRY
+                      reason: Stop to complete current job attempt
+                      repro:
+                        - Stop a job with long running container
+                    containerExitDiagnostics: Stop to complete current FrameworkAttempt
+                  - attemptId: 1
+                    attemptState: FAILED
+                    currentAttemptLaunchedTime: 1602480591000
+                    currentAttemptCompletedTime: 1602480603000
+                    containerId: a9f9f1f2-5e43-4423-88c3-022433b8cd7c
+                    containerIp: 10.151.40.34
+                    containerNodeName: node16
+                    containerPorts:
+                      ssh: 37508
+                      http: 24661
+                    containerGpus: null
+                    containerLog: http://10.151.40.34:9103/log-manager/tail/admin/9893b6e0f9f5997f4a82f23bef39bf32/taskrole/a9f9f1f2-5e43-4423-88c3-022433b8cd7c/
+                    containerExitCode: -220,
+                    containerExitSpec:
+                      code: -220,
+                      phrase: FrameworkAttemptCompletion
+                      issuer: PAI_FC
+                      causer: USER_STOP
+                      type: USER_STOP
+                      stage: UNKNOWN
+                      behavior: PERMANENT
+                      reaction: NEVER_RETRY
+                      reason: Stop to complete current job attempt
+                      repro:
+                        - Stop a job with long running container
+                    containerExitDiagnostics: Stop to complete current FrameworkAttempt
         "404":
           $ref: "#/components/responses/NoTaskError"
         "500":
@@ -2872,7 +2873,9 @@ components:
           nullable: true
           description: >-
             task completion time, in number of milliseconds since the Unix Epoch.
-        frameworkName:
+        username:
+          type: string
+        jobName:
           type: string
         jobAttemptId:
           type: integer

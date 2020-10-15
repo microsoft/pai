@@ -540,7 +540,8 @@ const convertToTaskDetail = async (
 
   const taskDetail = {
     // framework level information
-    frameworkName: userName + '~' + jobName,
+    username: userName,
+    jobName: jobName,
     jobAttemptId: attemptFramework.status.attemptStatus.id,
     // task role level information
     taskRoleName: taskRoleName,
@@ -568,18 +569,6 @@ const convertToTaskDetail = async (
   ).task.pod.metadata.annotations['rest-server/port-scheduling-spec'];
 
   // fill task attempt level information
-  // last task attempt
-  taskDetail.attempts.push(
-    await convertTaskAttempt(
-      logPathInfix,
-      ports,
-      taskStatus,
-      taskRoleName,
-      userName,
-      lastTaskAttemptStatus,
-    ),
-  );
-
   // history task attempts
   for (const taskHistory of taskHistories) {
     taskDetail.attempts.push(
@@ -593,6 +582,19 @@ const convertToTaskDetail = async (
       ),
     );
   }
+
+  // last task attempt
+  taskDetail.attempts.push(
+    await convertTaskAttempt(
+      logPathInfix,
+      ports,
+      taskStatus,
+      taskRoleName,
+      userName,
+      lastTaskAttemptStatus,
+    ),
+  );
+
   return taskDetail;
 };
 
