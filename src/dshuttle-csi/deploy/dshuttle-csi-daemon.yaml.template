@@ -69,7 +69,7 @@ spec:
         securityContext:
           privileged: true
           runAsUser: 0
-        image: dshuttle.azurecr.io/dshuttle/dshuttle-csi:9660f44
+        image: dshuttle.azurecr.io/dshuttle/dshuttle-csi:25037dc
         command: ["/usr/local/bin/dshuttle-csi"]
         args :
         - "--v=4"
