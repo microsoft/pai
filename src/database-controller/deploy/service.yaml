@@ -5,6 +5,7 @@ cluster-type:
   - k8s
 
 prerequisite:
+  - frameworkcontroller
   - postgresql
 
 template-list:
