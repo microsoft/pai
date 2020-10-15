@@ -26,7 +26,7 @@ groups:
         annotations:
           summary: "95th nvidia-smi call latency is larger than 40s in {{$labels.instance}}, should check the gpu status manually"
 
-      - alert: NvidiaSmiEccError
+      - alert: NvidiaSmiDoubleEccError
         expr: nvidiasmi_ecc_error_count{type="double"} > 0
         for: 5m
         annotations:
