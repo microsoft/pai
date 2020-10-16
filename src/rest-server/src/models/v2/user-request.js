@@ -54,7 +54,7 @@ const updateRequestState = async (type, id, state) => {
   } else {
     throw createError(
       'Not Found',
-      'NoRequestError',
+      'NoUserRequestError',
       `Request ${id} not found.`,
     );
   }
@@ -69,7 +69,7 @@ const deleteRequest = async (type, id) => {
   } else {
     throw createError(
       'Not Found',
-      'NoRequestError',
+      'NoUserRequestError',
       `Request ${id} not found.`,
     );
   }
