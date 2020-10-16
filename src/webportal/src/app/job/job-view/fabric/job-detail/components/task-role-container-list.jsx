@@ -752,7 +752,7 @@ export default class TaskRoleContainerList extends React.Component {
         key: 'startTime',
         name: 'Start Time',
         headerClassName: FontClassNames.medium,
-        minWidth: 150,
+        minWidth: 180,
         maxWidth: 200,
         isResizable: true,
         onRender: item => {
@@ -760,22 +760,27 @@ export default class TaskRoleContainerList extends React.Component {
             <div className={c(FontClassNames.mediumPlus)}>
               {isNil(item.createdTime)
                 ? 'N/A'
-                : printDateTime(DateTime.fromMillis(item.createdTime))}
+                : DateTime.fromMillis(item.createdTime).toLocaleString(
+                    DateTime.DATETIME_MED_WITH_SECONDS,
+                  )}
             </div>
           );
         },
       },
       {
-        key: 'taskAttemptCompletedTime',
-        name: 'Task Attempt Completed Time',
+        key: 'CompletedTime',
+        name: 'Completed Time',
+        minWidth: 180,
         headerClassName: FontClassNames.medium,
         isResizable: true,
         onRender: (item, idx) => {
           return (
             <div className={FontClassNames.mediumPlus}>
-              {isNil(item.createdTime)
+              {isNil(item.completedTime)
                 ? 'N/A'
-                : printDateTime(DateTime.fromMillis(item.createdTime))}
+                : DateTime.fromMillis(item.completedTime).toLocaleString(
+                    DateTime.DATETIME_MED_WITH_SECONDS,
+                  )}
             </div>
           );
         },

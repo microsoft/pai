@@ -256,7 +256,7 @@ class JobDetail extends React.Component {
                       <Text>
                         {DateTime.fromMillis(
                           jobInfo.jobStatus.createdTime,
-                        ).toLocaleString(DateTime.DATETIME_MED)}
+                        ).toLocaleString(DateTime.DATETIME_MED_WITH_SECONDS)}
                       </Text>
                     </Stack>
                     <Stack gap='m'>

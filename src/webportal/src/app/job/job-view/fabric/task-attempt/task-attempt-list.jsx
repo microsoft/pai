@@ -430,7 +430,7 @@ export default class TaskAttemptList extends React.Component {
         key: 'taskAttemptLaunchTime',
         name: 'Task Attempt Launch Time',
         headerClassName: FontClassNames.medium,
-        minWidth: 150,
+        minWidth: 180,
         maxWidth: 200,
         isResizable: true,
         onRender: item => {
@@ -438,9 +438,9 @@ export default class TaskAttemptList extends React.Component {
             <div className={c(FontClassNames.mediumPlus)}>
               {isNil(item.currentAttemptLaunchedTime)
                 ? 'N/A'
-                : printDateTime(
-                    DateTime.fromMillis(item.currentAttemptLaunchedTime),
-                  )}
+                : DateTime.fromMillis(
+                    item.currentAttemptLaunchedTime,
+                  ).toLocaleString(DateTime.DATETIME_MED_WITH_SECONDS)}
             </div>
           );
         },
@@ -448,7 +448,7 @@ export default class TaskAttemptList extends React.Component {
       {
         key: 'taskAttemptCompletedTime',
         name: 'Task Attempt Completed Time',
-        minWidth: 150,
+        minWidth: 200,
         maxWidth: 200,
         headerClassName: FontClassNames.medium,
         isResizable: true,
@@ -457,9 +457,9 @@ export default class TaskAttemptList extends React.Component {
             <div className={FontClassNames.mediumPlus}>
               {isNil(item.currentAttemptCompletedTime)
                 ? 'N/A'
-                : printDateTime(
-                    DateTime.fromMillis(item.currentAttemptCompletedTime),
-                  )}
+                : DateTime.fromMillis(
+                    item.currentAttemptCompletedTime,
+                  ).toLocaleString(DateTime.DATETIME_MED_WITH_SECONDS)}
             </div>
           );
         },

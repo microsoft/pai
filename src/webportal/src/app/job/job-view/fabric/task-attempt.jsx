@@ -112,7 +112,7 @@ const TaskAttemptPage = () => {
               <Text>Task Start Time</Text>
               <Text>
                 {DateTime.fromMillis(taskStatus.createdTime).toLocaleString(
-                  DateTime.DATETIME_MED,
+                  DateTime.DATETIME_MED_WITH_SECONDS,
                 )}
               </Text>
             </Stack>
