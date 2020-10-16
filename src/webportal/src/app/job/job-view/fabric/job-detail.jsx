@@ -245,11 +245,15 @@ class JobDetail extends React.Component {
                     </Stack>
                     <Stack gap='m'>
                       <Text>Attempt Complete Time</Text>
-                      <Text>
-                        {DateTime.fromMillis(
-                          jobInfo.jobStatus.completedTime,
-                        ).toLocaleString(DateTime.DATETIME_MED)}
-                      </Text>
+                      {isNil(jobInfo.jobStatus.completedTime) ? (
+                        <Text>NAN</Text>
+                      ) : (
+                        <Text>
+                          {DateTime.fromMillis(
+                            jobInfo.jobStatus.completedTime,
+                          ).toLocaleString(DateTime.DATETIME_MED)}
+                        </Text>
+                      )}
                     </Stack>
                   </Stack>
                   <Toggle
