@@ -51,7 +51,7 @@ import t from '../../../../../components/tachyons.scss';
 import Context from './context';
 import Timer from './timer';
 import { getContainerLog } from '../conn';
-import { parseGpuAttr, printDateTime } from '../util';
+import { parseGpuAttr } from '../util';
 import config from '../../../../../config/webportal.config';
 import MonacoPanel from '../../../../../components/monaco-panel';
 import StatusBadge from '../../../../../components/status-badge';

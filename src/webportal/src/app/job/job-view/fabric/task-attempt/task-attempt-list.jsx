@@ -46,7 +46,7 @@ import localCss from './task-role-container-list.scss';
 import t from '../../../../components/tachyons.scss';
 
 import { getContainerLog } from './conn';
-import { parseGpuAttr, printDateTime } from './util';
+import { parseGpuAttr } from './util';
 import config from '../../../../config/webportal.config';
 import MonacoPanel from '../../../../components/monaco-panel';
 import StatusBadge from '../../../../components/status-badge';

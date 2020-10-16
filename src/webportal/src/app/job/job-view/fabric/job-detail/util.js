@@ -23,13 +23,11 @@ export function printDateTime(dt) {
     dt > DateTime.utc().minus({ week: 1 }) &&
     dt < DateTime.utc().minus({ minute: 1 })
   ) {
-    return `${dt.toRelative()}, ${dt.toLocaleString({
-      hour: '2-digit',
-      minute: '2-digit',
-      hourCycle: 'h23',
-    })}`;
+    return `${dt.toRelative()}, ${dt.toLocaleString(
+      DateTime.TIME_WITH_SECONDS,
+    )}`;
   } else {
-    return dt.toLocaleString(DateTime.DATETIME_MED);
+    return dt.toLocaleString(DateTime.DATETIME_MED_WITH_SECONDS);
   }
 }
 
