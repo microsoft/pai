@@ -242,6 +242,7 @@ class JobDetail extends React.Component {
                     onChange={this.onChangeJobAttempt}
                   />
                 </Stack>
+                <HorizontalLine />
                 {loadingAttempt ? (
                   <SpinnerLoading />
                 ) : (
