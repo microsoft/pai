@@ -111,9 +111,11 @@ const TaskAttemptPage = () => {
             <Stack gap='m'>
               <Text>Task Start Time</Text>
               <Text>
-                {DateTime.fromMillis(taskStatus.createdTime).toLocaleString(
-                  DateTime.DATETIME_MED_WITH_SECONDS,
-                )}
+                {isNil(taskStatus.createdTime)
+                  ? 'N/A'
+                  : DateTime.fromMillis(taskStatus.createdTime).toLocaleString(
+                      DateTime.DATETIME_MED_WITH_SECONDS,
+                    )}
               </Text>
             </Stack>
             <Stack gap='m'>

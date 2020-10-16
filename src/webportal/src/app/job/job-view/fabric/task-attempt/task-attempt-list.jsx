@@ -331,7 +331,13 @@ export default class TaskAttemptList extends React.Component {
           styles={{ root: { overflow: 'auto' } }}
           columns={this.getColumns()}
           disableSelectionZone
-          items={items}
+          items={
+            isEmpty(items)
+              ? null
+              : items.sort((a, b) => {
+                  return b.attemptId - a.attemptId;
+                })
+          }
           layoutMode={DetailsListLayoutMode.justified}
           selectionMode={SelectionMode.none}
           onRenderRow={this.onRenderRow}
