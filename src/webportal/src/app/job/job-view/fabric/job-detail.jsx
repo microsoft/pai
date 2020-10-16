@@ -155,10 +155,9 @@ class JobDetail extends React.Component {
   }
 
   onChangeJobAttempt(event, item) {
-    this.setState({ loadingAttempt: true });
+    this.setState({ loadingAttempt: true, selectedAttemptIndex: item.key });
     fetchJobInfo(item.key).then(data => {
       this.setState({
-        selectedAttemptIndex: item.key,
         jobInfo: data,
         loadingAttempt: false,
       });
