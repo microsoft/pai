@@ -10,6 +10,7 @@ info:
     Version 2.0.5: add more parameters to job list; add submissionTime
     Version 2.1.0: add add/delete tag api; add tags field in get job detail and get job list; add tags filter in get job list
     Version 2.1.1: add get event api
+    Version 2.1.2: add user request api
   license:
     name: MIT License
     url: "https://github.com/microsoft/pai/blob/master/LICENSE"
@@ -38,6 +39,8 @@ tags:
     description: API endpoint for job history
   - name: kubernetes
     description: API endpoint for kubernetes info
+  - name: requests
+    description: API endpoint for submit user request
 paths:
   /api/v2/info:
     get:
@@ -1662,6 +1665,55 @@ paths:
           $ref: "#/components/responses/UnauthorizedUserError"
         "403":
           $ref: "#/components/responses/ForbiddenUserError"
+  /api/v2/request/user:
+    post:
+      tags:
+        - requests
+      summary: Create a user request
+      description: Create a user request, it's the API for user sign up (without token check)
+      operationId: createUserRequest
+      requestBody:
+        description: User request
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                type:
+                  type: string
+                  description: The type of request, should be one of [vc, user, storage]
+                message:
+                  type: string
+                  description: Description or other message for the request
+                user:
+                  type: object
+                  description: The request user account
+                  properties:
+                    username:
+                      type: string
+                      description: 'username in [\w.-]+ format'
+                    email:
+                      type: string
+                      description: user's email, optional
+                    password:
+                      type: string
+                      description: user's password, basic mode only, optional
+                  required:
+                    - username
+              required:
+                - type
+                - user
+        required: true
+      responses:
+        "201":
+          description: Succeeded
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Response"
+              example:
+                message: User is created successfully
+
 components:
   parameters:
     token:

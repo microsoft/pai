@@ -12,7 +12,7 @@ const router = new express.Router();
 
 router
   .route('/user')
-  /** POST /api/v2/request/user - Create a user request */
+  /** POST /api/v2/requests/user - Create a user request */
   .post(
     param.validate(config.requestPostInputSchema),
     controller.createRequest,
@@ -20,9 +20,9 @@ router
 
 router
   .route('/:requestType')
-  /** GET /api/v2/request/:requestType - Return all requests by request type */
+  /** GET /api/v2/requests/:requestType - Return all requests by request type */
   .get(token.check, controller.listRequest)
-  /** POST /api/v2/request/:requestType - Create a request */
+  /** POST /api/v2/requests/:requestType - Create a request */
   .post(
     token.check,
     param.validate(config.requestPostInputSchema),
@@ -31,13 +31,13 @@ router
 
 router
   .route('/:requestType/:requestId')
-  /** PUT /api/v2/request/:requestId - Update a request */
+  /** PUT /api/v2/requests/:requestId - Update a request */
   .put(
     token.check,
     param.validate(config.requestPutInputSchema),
     controller.updateRequest,
   )
-  /** DELETE /api/v2/request/:requestId - Delete a request */
+  /** DELETE /api/v2/requests/:requestId - Delete a request */
   .delete(token.check, controller.deleteRequest);
 
 router.param('requestId', controller.validateId);
