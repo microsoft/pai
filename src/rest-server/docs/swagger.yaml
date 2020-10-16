@@ -35,7 +35,7 @@ tags:
     description: API endpoint for job
   - name: storage
     description: API endpoint for storage
-  - name: job history (deprecated)
+  - name: job history
     description: API endpoint for job history
   - name: kubernetes
     description: API endpoint for kubernetes info
@@ -1502,8 +1502,9 @@ paths:
           $ref: "#/components/responses/UnknownError"
   "/api/v2/jobs/{user}~{job}/job-attempts/healthz":
     get:
+      deprecated: true
       tags:
-        - job history (deprecated)
+        - job history
       summary: Check if job attempts is healthy.
       description: Check if job attempts is healthy.
       operationId: getJobAttemptsHealthz
@@ -1519,8 +1520,9 @@ paths:
           description: Not healthy
   "/api/v2/jobs/{user}~{job}/job-attempts":
     get:
+      deprecated: true
       tags:
-        - job history (deprecated)
+        - job history
       summary: Get all attempts of a job.
       description: Get all attempts of a job.
       operationId: getJobAttempts
@@ -1597,8 +1599,9 @@ paths:
           $ref: "#/components/responses/UnknownError"
   "/api/v2/jobs/{user}~{job}/job-attempts/{attemptIndex}":
     get:
+      deprecated: true
       tags:
-        - job history (deprecated)
+        - job history
       summary: Get a specific attempt by attempt index.
       description: Get a specific attempt by attempt index.
       operationId: getJobAttempt
