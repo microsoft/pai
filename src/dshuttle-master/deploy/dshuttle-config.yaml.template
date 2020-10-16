@@ -1,0 +1,94 @@
+# Copyright (c) Microsoft Corporation
+# All rights reserved.
+#
+# MIT License
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
+# documentation files (the "Software"), to deal in the Software without restriction, including without limitation
+# the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and
+# to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+# The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED *AS IS*, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING
+# BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+# NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+# DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: dshuttle-config
+data:
+  ALLUXIO_JAVA_OPTS: >-
+    -Dalluxio.master.hostname=dshuttle-service.default
+    -Dalluxio.master.ufs.path.cache.capacity=10000000
+    -Dalluxio.job.master.worker.heartbeat.interval=1sec
+    -Dalluxio.job.master.finished.job.retention.time=1sec
+    -Dalluxio.job.worker.threadpool.size=200
+    -Dalluxio.master.journal.type=UFS
+    -Dalluxio.master.journal.folder=/journal
+    -Dalluxio.master.mount.table.root.ufs=/opt/alluxio/underFSStorage
+    -Dalluxio.master.rpc.executor.parallelism=200
+    -Dalluxio.security.stale.channel.purge.interval=365d
+    -Dalluxio.user.metrics.collection.enabled=true
+    -Dalluxio.master.rpc.port={{ cluster_cfg['dshuttle']['master_rpc_port'] }}
+    -Dalluxio.master.web.port={{ cluster_cfg['dshuttle']['master_web_port'] }}
+    -Dalluxio.job.master.rpc.port={{ cluster_cfg['dshuttle']['job_master_rpc_port'] }}
+    -Dalluxio.job.master.web.port={{ cluster_cfg['dshuttle']['job_master_web_port'] }}
+    -Dalluxio.user.block.size.bytes.default=32MB
+    -Dalluxio.user.ufs.block.read.location.policy=alluxio.client.block.policy.MostAvailableFirstPolicy
+    -Dalluxio.user.file.passive.cache.enabled=false
+    -Dalluxio.security.authentication.type=NOSASL
+    -Dalluxio.security.authorization.permission.enabled=false
+    -Dalluxio.user.block.write.location.policy.class=alluxio.client.block.policy.MostAvailableFirstPolicy
+    -Dalluxio.worker.rpc.port={{ cluster_cfg['dshuttle']['worker_rpc_port'] }}
+    -Dalluxio.worker.web.port={{ cluster_cfg['dshuttle']['worker_web_port'] }}
+    -Dalluxio.worker.network.reader.buffer.size=1MB
+    -Dalluxio.user.file.readtype.default=CACHE
+    -Dalluxio.user.streaming.reader.chunk.size.bytes=256KB
+    -Dalluxio.user.streaming.reader.buffer.size.messages=2
+    -Dalluxio.user.network.streaming.flowcontrol.window=1MB
+    -Dalluxio.user.block.worker.client.pool.min=50
+    -Dalluxio.user.update.file.accesstime.disabled=true
+    -Dalluxio.user.metadata.cache.enabled=true
+    -Dalluxio.user.metadata.cache.max.size=2000000
+    -Dalluxio.user.metadata.cache.expiration.time=24h
+    -Dalluxio.user.file.master.client.pool.size.max=50
+    -Dalluxio.fuse.jnifuse.enabled=true 
+  ALLUXIO_MASTER_JAVA_OPTS: >-
+    -Dalluxio.master.web.bind.host=0.0.0.0
+    -XX:ActiveProcessorCount={{ cluster_cfg['dshuttle']['master_active_processor_count'] }}
+    -Xms1G -Xmx{{ cluster_cfg['dshuttle']['master_max_heap_size'] }} 
+  ALLUXIO_JOB_MASTER_JAVA_OPTS: >-
+    -Dalluxio.job.master.bind.host=0.0.0.0
+    -XX:ActiveProcessorCount={{ cluster_cfg['dshuttle']['job_master_active_processor_count'] }}
+    -Xms1G -Xmx{{ cluster_cfg['dshuttle']['job_master_max_heap_size'] }} 
+  ALLUXIO_WORKER_JAVA_OPTS: >-
+    -Dalluxio.worker.bind.host=0.0.0.0
+    -Dalluxio.worker.data.server.domain.socket.address=/opt/domain
+    -Dalluxio.worker.data.server.domain.socket.as.uuid=true
+    -Dalluxio.worker.memory.size={{ cluster_cfg['dshuttle']['worker_request_mem'] }}
+    -Dalluxio.worker.hostname=${ALLUXIO_WORKER_HOSTNAME}
+    -Dalluxio.worker.tieredstore.levels={{ cluster_cfg['dshuttle']['tieredstores']|length|string }}
+    {% for tieredstore in cluster_cfg['dshuttle']['tieredstores'] -%}
+    -Dalluxio.worker.tieredstore.level{{ tieredstore['level'] }}.dirs.mediumtype={{ tieredstore['mediumtype'] }}
+    -Dalluxio.worker.tieredstore.level{{ tieredstore['level'] }}.alias={{ tieredstore['alias'] }}
+    -Dalluxio.worker.tieredstore.level{{ tieredstore['level'] }}.dirs.path={{ tieredstore['path'] }}
+    -Dalluxio.worker.tieredstore.level{{ tieredstore['level'] }}.dirs.quota={{ tieredstore['quota'] }}
+    -Dalluxio.worker.tieredstore.level{{ tieredstore['level'] }}.watermark.high.ratio={{ tieredstore['watermark_high_ratio'] }}
+    -Dalluxio.worker.tieredstore.level{{ tieredstore['level'] }}.watermark.low.ratio={{ tieredstore['watermark_low_ratio'] }}
+    {% endfor -%}
+    -XX:ActiveProcessorCount={{ cluster_cfg['dshuttle']['worker_active_processor_count'] }} 
+    -Xms1G -Xmx{{ cluster_cfg['dshuttle']['worker_max_heap_size'] }} 
+  ALLUXIO_JOB_WORKER_JAVA_OPTS: >-
+    -Dalluxio.job.worker.rpc.port={{ cluster_cfg['dshuttle']['job_worker_rpc_port'] }}
+    -Dalluxio.job.worker.data.port={{ cluster_cfg['dshuttle']['job_worker_data_port'] }}
+    -Dalluxio.job.worker.web.port={{ cluster_cfg['dshuttle']['job_worker_web_port'] }} 
+    -Dalluxio.worker.hostname=${ALLUXIO_WORKER_HOSTNAME}
+    -XX:ActiveProcessorCount={{ cluster_cfg['dshuttle']['job_worker_active_processor_count'] }}
+    -Xms1G -Xmx{{ cluster_cfg['dshuttle']['job_worker_max_heap_size'] }} 
+  ALLUXIO_FUSE_JAVA_OPTS: >-
+    -Xms1G -Xmx{{ cluster_cfg['dshuttle']['fuse_max_heap_size'] }} -XX:MaxDirectMemorySize={{ cluster_cfg['dshuttle']['fuse_max_direct_mem_size'] }}
+    -XX:ActiveProcessorCount={{ cluster_cfg['dshuttle']['fuse_active_processor_count'] }} 
+  ALLUXIO_WORKER_TIEREDSTORE_LEVEL0_DIRS_PATH: /dev/shm 

@@ -31,7 +31,6 @@ import { FormSpinButton } from './form-spin-button';
 import { VirtualCluster } from './virtual-cluster';
 import Card from '../../components/card';
 import { JobBasicInfo } from '../models/job-basic-info';
-import { PROTOCOL_TOOLTIPS } from '../utils/constants';
 
 export const JobInformation = React.memo(
   ({ jobInformation, onChange, advanceFlag }) => {
@@ -67,7 +66,6 @@ export const JobInformation = React.memo(
         <FormPage>
           <FormTextField
             sectionLabel={'Job name'}
-            sectionTooltip={PROTOCOL_TOOLTIPS.jobName}
             value={name}
             shortStyle
             onChange={onNameChange}

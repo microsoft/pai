@@ -574,6 +574,14 @@ export default class Summary extends React.Component {
               >
                 Go to Job Metrics Page
               </Link>
+              <div className={c(t.bl, t.mh3)}></div>
+              <Link
+                styles={{ root: [FontClassNames.mediumPlus] }}
+                href={`job-event.html?userName=${namespace}&jobName=${jobName}`}
+                target='_blank'
+              >
+                Go to Job Event Page
+              </Link>
               {!isNil(getTensorBoardUrl(jobInfo, rawJobConfig)) && (
                 <div className={c(t.flex)}>
                   <div className={c(t.bl, t.mh3)}></div>

@@ -3,7 +3,11 @@ import PropTypes from 'prop-types';
 import { cloneDeep, isNil, get } from 'lodash';
 import { Hint } from '../sidebar/hint';
 import { TooltipIcon } from '../controls/tooltip-icon';
-import { TENSORBOARD_LOG_PATH, PAI_PLUGIN } from '../../utils/constants';
+import {
+  TENSORBOARD_LOG_PATH,
+  PAI_PLUGIN,
+  PROTOCOL_TOOLTIPS,
+} from '../../utils/constants';
 import {
   FontWeights,
   Toggle,
@@ -65,12 +69,9 @@ export const TensorBoard = props => {
 
   return (
     <Stack gap='m' styles={{ root: { height: '100%' } }}>
-      <Stack horizontal gap='s1'>
+      <Stack horizontal verticalAlign='baseline'>
         <Text styles={style.headerText}>TensorBoard</Text>
-        <TooltipIcon
-          content={`You should save logs under ${TENSORBOARD_LOG_PATH} in the training script.
-          TensorBoard can only read logs from the first task role if ${TENSORBOARD_LOG_PATH} is not mounted in Data section.`}
-        />
+        <TooltipIcon content={PROTOCOL_TOOLTIPS.tensorboard} />
       </Stack>
       <Hint>
         By default, tensorBoard will read logs under{' '}

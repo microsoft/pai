@@ -9,10 +9,11 @@ info:
     Version 2.0.4: add default field in get storage list
     Version 2.0.5: add more parameters to job list; add submissionTime
     Version 2.1.0: add add/delete tag api; add tags field in get job detail and get job list; add tags filter in get job list
+    Version 2.1.1: add get event api
   license:
     name: MIT License
     url: "https://github.com/microsoft/pai/blob/master/LICENSE"
-  version: 2.1.0
+  version: 2.1.1
 externalDocs:
   description: Find out more about OpenPAI
   url: "https://github.com/microsoft/pai"
@@ -1397,6 +1398,49 @@ paths:
                   $ref: "#/components/responses/NoTagError/content/application~1json/examples/NoTagError"
         "500":
           $ref: "#/components/responses/UnknownError"
+  "/api/v2/jobs/{user}~{job}/events":
+    get:
+      tags:
+        - job
+      summary: Get events of a job.
+      description: Get events of a job. The events are sorted by "lastTimestamp,DESC".
+      operationId: getEvents
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: type
+          in: query
+          description: filter events with type. Could be "Warning" or "Normal".
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Succeeded
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/JobEventsWithTotalCount"
+              example:
+                totalCount: 1
+                data:
+                - uid: "b8a87b12-29de-4702-818a-442d5a97623e"
+                  frameworkName: "399af21acb5befd015d4c45f6c7c1eb9"
+                  podUid: "94920b63-f4d6-4c63-b72b-b926b8bc1334"
+                  taskroleName: "taskrole"
+                  taskName: "399af21acb5befd015d4c45f6c7c1eb9-taskrole-11"
+                  taskIndex: 11
+                  type: "Warning"
+                  reason: "FailedScheduling"
+                  message: "0/17 nodes are available: 1 Insufficient memory, 1 node(s) didn't match node selector, 1 node(s) were unschedulable, 14 Insufficient cpu, 16 Insufficient nvidia.com/gpu."
+                  firstTimestamp: "2020-09-29T09:46:42.000Z"
+                  lastTimestamp: "2020-09-29T09:55:53.000Z"
+                  count: 9
+                  sourceComponent: "default-scheduler"
+                  sourceHost: null
+        "404":
+          $ref: "#/components/responses/NoJobError"
+        "500":
+          $ref: "#/components/responses/UnknownError"
   "/api/v2/jobs/{user}~{job}/job-attempts/healthz":
     get:
       tags:
@@ -1727,6 +1771,84 @@ components:
       required:
         - totalCount
         - data
+    JobEventsWithTotalCount:
+      type: object
+      properties:
+        totalCount:
+          type: number
+          description: total count of events with given filters
+        data:
+          $ref: "#/components/schemas/JobEvents"
+      required:
+        - totalCount
+        - data
+    JobEvents:
+      type: array
+      description: job event list
+      items:
+        type: object
+        properties:
+          uid:
+            type: string
+            description: event uid
+          frameworkName:
+            type: string
+            description: related framework name
+          podUid:
+            type: string
+            description: pod uid of the event
+          taskroleName:
+            type: string
+            description: taskrole name of the event
+          taskName:
+            type: string
+            description: task name of the event
+          taskIndex:
+            type: integer
+            description: task index of the event
+          type:
+            type: string
+            description: type of the event
+            enum:
+              - Normal
+              - Warning
+          reason:
+            type: string
+            description: event reason
+          message:
+            type: string
+            description: event message
+          firstTimestamp:
+            type: string
+            description: firstTimestamp of the event
+          lastTimestamp:
+            type: string
+            description: lastTimestamp of the event
+          count:
+            type: integer
+            description: event count between firstTimestamp and lastTimestamp
+          sourceComponent:
+            type: string
+            description: source component of the event
+          sourceHost:
+            type: string
+            nullable: true
+            description: source host of the event
+        required:
+          - uid
+          - frameworkName
+          - podUid
+          - taskroleName
+          - taskName
+          - taskIndex
+          - type
+          - reason
+          - message
+          - firstTimestamp
+          - lastTimestamp
+          - count
+          - sourceComponent
+          - sourceHost
     JobSummary:
       type: array
       description: job summary list
