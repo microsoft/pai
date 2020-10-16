@@ -255,7 +255,7 @@ class JobDetail extends React.Component {
                       <Text>Attempt Start Time</Text>
                       <Text>
                         {DateTime.fromMillis(
-                          jobInfo.jobStatus.createdTime,
+                          jobInfo.jobStatus.appLaunchedTime,
                         ).toLocaleString(DateTime.DATETIME_MED_WITH_SECONDS)}
                       </Text>
                     </Stack>
@@ -264,8 +264,8 @@ class JobDetail extends React.Component {
                       <Text>
                         {getDurationString(
                           this.getTimeDuration(
-                            jobInfo.jobStatus.createdTime,
-                            jobInfo.jobStatus.completedTime,
+                            jobInfo.jobStatus.appLaunchedTime,
+                            jobInfo.jobStatus.appCompletedTime,
                           ),
                         )}
                       </Text>
