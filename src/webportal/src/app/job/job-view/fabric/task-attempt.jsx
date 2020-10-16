@@ -61,6 +61,14 @@ const TaskAttemptPage = () => {
           >
             Back to Job Detail
           </ActionButton>
+          <Stack horizontal gap='s1' padding='s2'>
+            <Text variant='large'>Job Name:</Text>
+            <Text variant='large'>{jobName}</Text>
+          </Stack>
+          <Stack horizontal gap='s1' padding='s2'>
+            <Text variant='large'>Job Attempt Index:</Text>
+            <Text variant='large'>{jobAttemptIndex}</Text>
+          </Stack>
           <Stack horizontal gap='l1' padding='s2'>
             <Stack gap='m'>
               <Text>Task Role</Text>
