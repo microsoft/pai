@@ -381,13 +381,13 @@ export default class TaskAttemptList extends React.Component {
       {
         key: 'taskAttemptExitCode',
         name: 'Task Attempt Exit Code',
-        minWidth: 150,
+        minWidth: 230,
         headerClassName: FontClassNames.medium,
         isResizable: true,
         onRender: (item, idx) => {
           return (
             <div className={FontClassNames.mediumPlus}>
-              {item.containerExitCode}
+              {`${item.containerExitCode} (${item.containerExitSpec.phrase})`}
             </div>
           );
         },

@@ -81,7 +81,7 @@ const TaskAttemptPage = () => {
               Go to Job Detail
             </ActionButton>
           </div>
-          <Card>
+          <Card style={{ padding: 10 }}>
             <Stack gap='s1'>
               <Stack horizontal gap='s1' padding='s2'>
                 <Text>Job Name:</Text>

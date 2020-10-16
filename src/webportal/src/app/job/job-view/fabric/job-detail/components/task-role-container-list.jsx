@@ -675,6 +675,19 @@ export default class TaskRoleContainerList extends React.Component {
         ),
       },
       {
+        key: 'exitCode',
+        name: 'Exit Code',
+        headerClassName: FontClassNames.medium,
+        isResizable: true,
+        onRender: item => {
+          return (
+            <div className={c(FontClassNames.mediumPlus)}>
+              {`${item.containerExitCode} (${item.containerExitSpec.phrase})`}
+            </div>
+          );
+        },
+      },
+      {
         key: 'gpus',
         name: 'GPUs',
         className: FontClassNames.mediumPlus,
@@ -729,21 +742,6 @@ export default class TaskRoleContainerList extends React.Component {
               </div>
             );
           }
-        },
-      },
-      {
-        key: 'exitCode',
-        name: 'Exit Code',
-        headerClassName: FontClassNames.medium,
-        minWidth: 100,
-        maxWidth: 150,
-        isResizable: true,
-        onRender: item => {
-          return (
-            <div className={c(FontClassNames.mediumPlus)}>
-              {item.containerExitCode}
-            </div>
-          );
         },
       },
     ];
