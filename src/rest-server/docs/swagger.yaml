@@ -1692,10 +1692,7 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                items:
-                  $ref: "#/components/schemas/TaskStatus"
-                description: task attempts
+                $ref: "#/components/schemas/TaskStatus"
               example:
                 taskIndex: 0
                 taskUid: e0235258-0c4b-11eb-b396-96ba8c8049b4

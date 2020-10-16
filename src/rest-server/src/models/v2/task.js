@@ -19,6 +19,7 @@
 const logger = require('@pai/config/logger');
 const databaseModel = require('@pai/utils/dbUtils');
 const { encodeName } = require('@pai/models/v2/utils/name');
+const createError = require('@pai/utils/error');
 const {
   convertToTaskDetail,
 } = require('@pai/models/v2/utils/frameworkConverter');
@@ -26,28 +27,21 @@ const {
 const get = async (frameworkName, jobAttemptIndex, taskRoleName, taskIndex) => {
   // get last task attempt by querying Framework / FrameworkHistory table
   let attemptFramework;
-  let framework;
   const encodedFrameworkName = encodeName(frameworkName);
 
-  try {
-    framework = await databaseModel.Framework.findOne({
-      attributes: ['snapshot'],
-      where: { name: encodedFrameworkName },
-    });
-  } catch (error) {
-    logger.error(
-      `error when getting framework from database: ${error.message}`,
-    );
-    throw error;
-  }
+  const framework = await databaseModel.Framework.findOne({
+    attributes: ['snapshot'],
+    where: { name: encodedFrameworkName },
+  });
 
   if (framework) {
     attemptFramework = JSON.parse(framework.snapshot);
   } else {
-    logger.warn(
-      `could not get framework ${encodedFrameworkName} from database.`,
+    throw createError(
+      'Not Found',
+      'NoJobError',
+      `Job ${frameworkName} is not found.`,
     );
-    return { status: 404, data: null };
   }
 
   // when attemptIndex is not the last attempt, get the framework attempt from frameworkHistory table
@@ -60,15 +54,23 @@ const get = async (frameworkName, jobAttemptIndex, taskRoleName, taskIndex) => {
       },
     });
 
-    if (!historyFramework) {
-      return { status: 404, data: null };
-    } else {
+    if (historyFramework) {
       attemptFramework = JSON.parse(historyFramework.snapshot);
+    } else {
+      throw createError(
+        'Not Found',
+        'NoJobError',
+        `Job attempt not found in job ${frameworkName} with jobAttemptIndex ${jobAttemptIndex}.`,
+      );
     }
   } else if (
     jobAttemptIndex > attemptFramework.spec.retryPolicy.maxRetryCount
   ) {
-    return { status: 404, data: null };
+    throw createError(
+      'Not Found',
+      'NoJobError',
+      `Job attempt not found in job ${frameworkName} with jobAttemptIndex ${jobAttemptIndex}`,
+    );
   }
 
   // set task level info with `attemptFramework`
@@ -82,7 +84,11 @@ const get = async (frameworkName, jobAttemptIndex, taskRoleName, taskIndex) => {
     );
   }
   if (taskStatus === undefined) {
-    return { status: 404, data: null };
+    throw createError(
+      'Not Found',
+      'NoJobError',
+      `Task not found in Job ${frameworkName} with jobAttemptIndex ${jobAttemptIndex}, taskRoleName ${taskRoleName} and taskIndex ${taskIndex}.`,
+    );
   }
 
   // get task attempt history by querying TaskHistory table
