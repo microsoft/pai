@@ -31,7 +31,7 @@ const convertPriority = (priorityClass = 'test') => {
     crit: 120,
     prod: 100,
     test: 10,
-    oppo: 0,
+    oppo: -1,
   };
   return priorityClass in priorityMap ? priorityMap[priorityClass] : null;
 };
