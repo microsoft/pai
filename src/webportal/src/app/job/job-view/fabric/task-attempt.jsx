@@ -19,12 +19,13 @@ import React, { useEffect, useState } from 'react';
 import { Stack, ActionButton, Text } from 'office-ui-fabric-react';
 import ReactDOM from 'react-dom';
 import { isNil, capitalize } from 'lodash';
-import { DateTime } from 'luxon';
+import { DateTime, Interval } from 'luxon';
 
 import { SpinnerLoading } from '../../../components/loading';
 import TaskAttemptList from './task-attempt/task-attempt-list';
 import { fetchTaskStatus } from './task-attempt/conn';
 import StatusBadge from '../../../components/status-badge';
+import { getDurationString } from '../../../components/util/job';
 
 const params = new URLSearchParams(window.location.search);
 const userName = params.get('username');
@@ -36,6 +37,21 @@ const taskIndex = params.get('taskIndex');
 const TaskAttemptPage = () => {
   const [loading, setLoading] = useState(true);
   const [taskStatus, setTaskStatus] = useState(null);
+
+  const getTimeDuration = (startMs, endMs) => {
+    const start = startMs && DateTime.fromMillis(startMs);
+    const end = endMs && DateTime.fromMillis(endMs);
+    if (start) {
+      return Interval.fromDateTimes(start, end || DateTime.utc()).toDuration([
+        'days',
+        'hours',
+        'minutes',
+        'seconds',
+      ]);
+    } else {
+      return null;
+    }
+  };
 
   useEffect(() => {
     fetchTaskStatus(
@@ -101,10 +117,13 @@ const TaskAttemptPage = () => {
               </Text>
             </Stack>
             <Stack gap='m'>
-              <Text>Task Complete Time</Text>
+              <Text>Task Duration</Text>
               <Text>
-                {DateTime.fromMillis(taskStatus.completedTime).toLocaleString(
-                  DateTime.DATETIME_MED,
+                {getDurationString(
+                  getTimeDuration(
+                    taskStatus.createdTime,
+                    taskStatus.completedTime,
+                  ),
                 )}
               </Text>
             </Stack>

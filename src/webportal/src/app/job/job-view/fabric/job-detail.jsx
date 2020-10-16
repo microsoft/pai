@@ -16,7 +16,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 import { capitalize, isEmpty, isNil } from 'lodash';
-import { DateTime } from 'luxon';
+import { DateTime, Interval } from 'luxon';
 import {
   MessageBar,
   MessageBarType,
@@ -30,6 +30,7 @@ import ReactDOM from 'react-dom';
 
 import t from '../../../components/tachyons.scss';
 
+import { getDurationString } from '../../../components/util/job';
 import Context from './job-detail/components/context';
 import Top from './job-detail/components/top';
 import Summary from './job-detail/components/summary';
@@ -167,6 +168,21 @@ class JobDetail extends React.Component {
     });
   }
 
+  getTimeDuration(startMs, endMs) {
+    const start = startMs && DateTime.fromMillis(startMs);
+    const end = endMs && DateTime.fromMillis(endMs);
+    if (start) {
+      return Interval.fromDateTimes(start, end || DateTime.utc()).toDuration([
+        'days',
+        'hours',
+        'minutes',
+        'seconds',
+      ]);
+    } else {
+      return null;
+    }
+  }
+
   render() {
     const {
       loading,
@@ -244,16 +260,15 @@ class JobDetail extends React.Component {
                       </Text>
                     </Stack>
                     <Stack gap='m'>
-                      <Text>Attempt Complete Time</Text>
-                      {isNil(jobInfo.jobStatus.completedTime) ? (
-                        <Text>NAN</Text>
-                      ) : (
-                        <Text>
-                          {DateTime.fromMillis(
+                      <Text>Attempt Duration</Text>
+                      <Text>
+                        {getDurationString(
+                          this.getTimeDuration(
+                            jobInfo.jobStatus.createdTime,
                             jobInfo.jobStatus.completedTime,
-                          ).toLocaleString(DateTime.DATETIME_MED)}
-                        </Text>
-                      )}
+                          ),
+                        )}
+                      </Text>
                     </Stack>
                   </Stack>
                   <Toggle
