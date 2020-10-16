@@ -110,7 +110,7 @@ if (launcherConfig.enabledJobHistory) {
       return { status: 404, data: null };
     }
 
-    if (jobAttemptIndex < attemptFramework.spec.retryPolicy.maxRetryCount) {
+    if (jobAttemptIndex < attemptFramework.status.attemptStatus.id) {
       const historyFramework = await databaseModel.FrameworkHistory.findOne({
         attributes: ['snapshot'],
         where: {
@@ -126,9 +126,7 @@ if (launcherConfig.enabledJobHistory) {
         const attemptDetail = await convertToJobAttempt(attemptFramework);
         return { status: 200, data: { ...attemptDetail, isLatest: false } };
       }
-    } else if (
-      jobAttemptIndex === attemptFramework.spec.retryPolicy.maxRetryCount
-    ) {
+    } else if (jobAttemptIndex === attemptFramework.status.attemptStatus.id) {
       const attemptDetail = await convertToJobAttempt(attemptFramework);
       return { status: 200, data: { ...attemptDetail, isLatest: true } };
     } else {

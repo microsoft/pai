@@ -14,7 +14,7 @@ info:
   license:
     name: MIT License
     url: "https://github.com/microsoft/pai/blob/master/LICENSE"
-  version: 2.1.1
+  version: 2.2.0
 externalDocs:
   description: Find out more about OpenPAI
   url: "https://github.com/microsoft/pai"
@@ -1212,6 +1212,7 @@ paths:
                   attemptId: 0
                   attemptState: SUCCEEDED,
                   appId: id
+                  appCreatedTime: 0
                   appLaunchedTime: 0
                   appCompletedTime: 0
                   appExitCode: 0
@@ -1265,6 +1266,7 @@ paths:
                   attemptId: 0
                   attemptState: SUCCEEDED,
                   appId: id
+                  appCreatedTime: 0
                   appLaunchedTime: 0
                   appCompletedTime: 0
                   appExitCode: 0
@@ -1548,7 +1550,6 @@ paths:
                   userName: userName
                   state: SUCCEEDED
                   originState: Completed
-                  maxAttemptCount: 1
                   attemptIndex: 0
                   jobStartedTime: 0
                   attemptStartedTime: 0
@@ -1625,7 +1626,6 @@ paths:
                 userName: userName
                 state: SUCCEEDED
                 originState: Completed
-                maxAttemptCount: 1
                 attemptIndex: 0
                 jobStartedTime: 0
                 attemptStartedTime: 0
@@ -1703,7 +1703,7 @@ paths:
                 retries: 1
                 accountableRetries: 1
                 createdTime: 1602480558000
-                completedTime: 160248ask_0603000
+                completedTime: 1602480603000
                 username: test_user
                 jobName: task_retry_histry_test
                 jobAttemptId: 0
@@ -1711,6 +1711,7 @@ paths:
                 attempts:
                   - attemptId: 0
                     attemptState: FAILED
+                    currentAttemptCreatedTime: 1602480558000
                     currentAttemptLaunchedTime: 1602480558000
                     currentAttemptCompletedTime: 1602480570000
                     containerId: a9f9f1f2-5e43-4423-88c3-022433b8cd7c
@@ -1721,9 +1722,9 @@ paths:
                       http: 24661
                     containerGpus: null
                     containerLog: http://10.151.40.34:9103/log-manager/tail/admin/9893b6e0f9f5997f4a82f23bef39bf32/taskrole/a9f9f1f2-5e43-4423-88c3-022433b8cd7c/
-                    containerExitCode: -220,
+                    containerExitCode: -220
                     containerExitSpec:
-                      code: -220,
+                      code: -220
                       phrase: FrameworkAttemptCompletion
                       issuer: PAI_FC
                       causer: USER_STOP
@@ -1737,6 +1738,7 @@ paths:
                     containerExitDiagnostics: Stop to complete current FrameworkAttempt
                   - attemptId: 1
                     attemptState: FAILED
+                    currentAttemptCreatedTime: 1602480591000
                     currentAttemptLaunchedTime: 1602480591000
                     currentAttemptCompletedTime: 1602480603000
                     containerId: a9f9f1f2-5e43-4423-88c3-022433b8cd7c
@@ -1747,9 +1749,9 @@ paths:
                       http: 24661
                     containerGpus: null
                     containerLog: http://10.151.40.34:9103/log-manager/tail/admin/9893b6e0f9f5997f4a82f23bef39bf32/taskrole/a9f9f1f2-5e43-4423-88c3-022433b8cd7c/
-                    containerExitCode: -220,
+                    containerExitCode: -220
                     containerExitSpec:
-                      code: -220,
+                      code: -220
                       phrase: FrameworkAttemptCompletion
                       issuer: PAI_FC
                       causer: USER_STOP
@@ -2216,6 +2218,12 @@ components:
             appId:
               type: string
               description: unique id for the job
+            appCreatedTime:
+              type: integer
+              nullable: true
+              description: >-
+                job created time for last attempt, in number of milliseconds
+                since the Unix Epoch.
             appLaunchedTime:
               type: integer
               nullable: true
@@ -2227,11 +2235,12 @@ components:
               nullable: true
               description: >
                 job completed time for last attempt, in number of milliseconds
-                since the Unix Epoch. to get durations for last attempt:
+                since the Unix Epoch. 
+                To get durations for last attempt:
                   wholeDuration = completedTime - createdTime;
                   runningDuration = appCompletedTime - appLaunchedTime;
                   waitingDuration = wholeDuration - runningDuration.
-                to get durations for all attempts:
+                To get durations for all attempts:
                   runningDuration = sum(appCompletedTime - appLaunchedTime) for all attempts.
             appExitCode:
               type: integer
@@ -2313,6 +2322,7 @@ components:
             - retries
             - createdTime
             - completedTime
+            - appCreatedTime
             - appLaunchedTime
             - appCompletedTime
             - appExitCode
@@ -2433,6 +2443,12 @@ components:
                       type: integer
                     attemptState:
                       type: string
+                    currentAttemptCreatedTime:
+                      type: integer
+                      nullable: true
+                      description: >-
+                        the current attempt created time, in number of milliseconds since the Unix
+                        Epoch.
                     currentAttemptLaunchedTime:
                       type: integer
                       nullable: true
@@ -2662,8 +2678,6 @@ components:
         originState:
           type: string
           nullable: true
-        maxAttemptCount:
-          type: integer
         attemptIndex:
           type: integer
           nullable: true
@@ -2891,6 +2905,12 @@ components:
                 type: integer
               attemptState:
                 type: string
+              currentAttemptCreatedTime:
+                type: integer
+                nullable: true
+                description: >-
+                  the current attempt created time, in number of milliseconds since the Unix
+                  Epoch.
               currentAttemptLaunchedTime:
                 type: integer
                 nullable: true
@@ -2969,7 +2989,7 @@ components:
                 nullable: true
                 properties:
                   affinityGroupName:
-                    type: object
+                    type: string
                     nullable: true
                   lazyPreempted:
                     type: object

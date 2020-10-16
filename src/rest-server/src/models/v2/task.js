@@ -45,7 +45,7 @@ const get = async (frameworkName, jobAttemptIndex, taskRoleName, taskIndex) => {
   }
 
   // when attemptIndex is not the last attempt, get the framework attempt from frameworkHistory table
-  if (jobAttemptIndex < attemptFramework.spec.retryPolicy.maxRetryCount) {
+  if (jobAttemptIndex < attemptFramework.status.attemptStatus.id) {
     const historyFramework = await databaseModel.FrameworkHistory.findOne({
       attributes: ['snapshot'],
       where: {
@@ -63,9 +63,7 @@ const get = async (frameworkName, jobAttemptIndex, taskRoleName, taskIndex) => {
         `Job attempt not found in job ${frameworkName} with jobAttemptIndex ${jobAttemptIndex}.`,
       );
     }
-  } else if (
-    jobAttemptIndex > attemptFramework.spec.retryPolicy.maxRetryCount
-  ) {
+  } else if (jobAttemptIndex > attemptFramework.status.attemptStatus.id) {
     throw createError(
       'Not Found',
       'NoJobError',
@@ -98,7 +96,7 @@ const get = async (frameworkName, jobAttemptIndex, taskRoleName, taskIndex) => {
     taskHistories = await databaseModel.TaskHistory.findAll({
       attributes: ['snapshot'],
       where: { taskUid: taskUid },
-      order: [['attemptIndex', 'ASC']],
+      order: [['taskAttemptIndex', 'DESC']],
     });
   } catch (error) {
     logger.error(`error when getting task from database: ${error.message}`);

@@ -16,7 +16,6 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 // module dependencies
-const zlib = require('zlib');
 const _ = require('lodash');
 const yaml = require('js-yaml');
 const path = require('path');
@@ -32,14 +31,6 @@ const { decodeName } = require('@pai/models/v2/utils/name');
 
 const positiveFallbackExitCode = 256;
 const negativeFallbackExitCode = -8000;
-
-const decompressField = (val) => {
-  if (val == null) {
-    return null;
-  } else {
-    return JSON.parse(zlib.gunzipSync(Buffer.from(val, 'base64')).toString());
-  }
-};
 
 const extractRuntimeOutput = (podCompletionStatus) => {
   if (_.isEmpty(podCompletionStatus)) {
@@ -331,7 +322,6 @@ const convertToJobAttempt = async (framework) => {
     completionStatus ? completionStatus.code : null,
   );
   const originState = framework.status.state;
-  const maxAttemptCount = framework.spec.retryPolicy.maxRetryCount + 1;
   const attemptIndex = framework.status.attemptStatus.id;
   const jobStartedTime = new Date(
     framework.metadata.creationTimestamp,
@@ -377,13 +367,6 @@ const convertToJobAttempt = async (framework) => {
       }
     : null;
 
-  // check fields which may be compressed
-  if (framework.status.attemptStatus.taskRoleStatuses == null) {
-    framework.status.attemptStatus.taskRoleStatuses = decompressField(
-      framework.status.attemptStatus.taskRoleStatusesCompressed,
-    );
-  }
-
   const taskRoles = {};
   const exitCode = completionStatus ? completionStatus.code : null;
   const exitPhrase = completionStatus ? completionStatus.phrase : null;
@@ -417,7 +400,6 @@ const convertToJobAttempt = async (framework) => {
     userName,
     state,
     originState,
-    maxAttemptCount,
     attemptIndex,
     jobStartedTime,
     attemptStartedTime,
@@ -467,40 +449,40 @@ const convertTaskDetail = async (
 };
 
 const convertTaskAttempt = async (
-  logPathInfix,
-  ports,
-  taskStatus,
-  taskRoleName,
+  logPathInfix, // job level info
   userName,
+  ports,
+  taskRoleName, // task role level info
+  attemptState, // attempt level info
   attemptStatus,
 ) => {
-  // get containerPrts
+  // get containerPorts
   const containerPorts = getContainerPorts(
     ports,
-    taskStatus.index,
-    taskStatus.attemptStatus.podUID,
+    attemptStatus.id,
+    attemptStatus.podUID,
   );
   // get affinity group name
-  const affinityGroupName = `default/${taskStatus.attemptStatus.podName}`;
+  const affinityGroupName = `default/${attemptStatus.podName}`;
   // get container gpus
-  const containerGpus = await getContainerGpus(
-    true,
-    taskStatus.attemptStatus.podName,
-  );
+  const containerGpus = await getContainerGpus(true, attemptStatus.podName);
 
-  const completionStatus = taskStatus.attemptStatus.completionStatus;
+  const completionStatus = attemptStatus.completionStatus;
   const diagnostics = completionStatus ? completionStatus.diagnostics : null;
   const exitDiagnostics = generateExitDiagnostics(diagnostics);
 
   return {
     attemptId: attemptStatus.id,
     attemptState: convertAttemptState(
-      taskStatus.state,
+      attemptState || null,
       completionStatus ? completionStatus.code : null,
     ),
+    currentAttemptCreatedTime:
+      new Date(attemptStatus.startTime).getTime() || null,
     currentAttemptLaunchedTime:
-      new Date(attemptStatus.runTime || attemptStatus.startTime).getTime() ||
-      null,
+      new Date(
+        attemptStatus.runTime || attemptStatus.completionTime,
+      ).getTime() || null,
     currentAttemptCompletedTime:
       new Date(attemptStatus.completionTime).getTime() || null,
     containerId: attemptStatus.podUID,
@@ -534,12 +516,13 @@ const convertToTaskDetail = async (
   taskHistories,
 ) => {
   const lastTaskAttemptStatus = taskStatus.attemptStatus;
+  const lastTaskAttemptState = taskStatus.state;
   const completionStatus = lastTaskAttemptStatus.completionStatus;
   const userName = attemptFramework.metadata.labels.userName;
   const jobName = attemptFramework.metadata.annotations.jobName;
 
   const taskDetail = {
-    // framework level information
+    // job level information
     username: userName,
     jobName: jobName,
     jobAttemptId: attemptFramework.status.attemptStatus.id,
@@ -569,31 +552,31 @@ const convertToTaskDetail = async (
   ).task.pod.metadata.annotations['rest-server/port-scheduling-spec'];
 
   // fill task attempt level information
+  // last task attempt
+  taskDetail.attempts.push(
+    await convertTaskAttempt(
+      logPathInfix,
+      userName,
+      ports,
+      taskRoleName,
+      lastTaskAttemptState,
+      lastTaskAttemptStatus,
+    ),
+  );
+
   // history task attempts
   for (const taskHistory of taskHistories) {
     taskDetail.attempts.push(
       await convertTaskAttempt(
         logPathInfix,
-        ports,
-        taskStatus,
-        taskRoleName,
         userName,
+        ports,
+        taskRoleName,
+        taskHistory.status.state,
         taskHistory.status.attemptStatus,
       ),
     );
   }
-
-  // last task attempt
-  taskDetail.attempts.push(
-    await convertTaskAttempt(
-      logPathInfix,
-      ports,
-      taskStatus,
-      taskRoleName,
-      userName,
-      lastTaskAttemptStatus,
-    ),
-  );
 
   return taskDetail;
 };

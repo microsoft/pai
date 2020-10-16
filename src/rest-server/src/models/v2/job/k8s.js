@@ -17,7 +17,6 @@
 
 // module dependencies
 const axios = require('axios');
-const zlib = require('zlib');
 const yaml = require('js-yaml');
 const status = require('statuses');
 const runtimeEnv = require('./runtime-env');
@@ -45,14 +44,6 @@ const {
 } = require('@pai/models/v2/utils/name');
 
 const Sequelize = require('sequelize');
-
-const decompressField = (val) => {
-  if (val == null) {
-    return null;
-  } else {
-    return JSON.parse(zlib.gunzipSync(Buffer.from(val, 'base64')).toString());
-  }
-};
 
 const convertFrameworkSummary = (framework) => {
   return {
@@ -84,7 +75,7 @@ const convertFrameworkSummary = (framework) => {
 };
 
 const convertTaskDetail = async (taskStatus, ports, logPathPrefix) => {
-  // get containerPrts
+  // get containerPorts
   const containerPorts = getContainerPorts(
     ports,
     taskStatus.index,
@@ -124,12 +115,15 @@ const convertTaskDetail = async (taskStatus, ports, logPathPrefix) => {
     completedTime: new Date(taskStatus.completionTime).getTime() || null,
     attemptId: taskStatus.attemptStatus.id,
     attemptState: convertAttemptState(
-      taskStatus.state,
+      taskStatus.state || null,
       completionStatus ? completionStatus.code : null,
     ),
+    currentAttemptCreatedTime:
+      new Date(taskStatus.attemptStatus.startTime).getTime() || null,
     currentAttemptLaunchedTime:
       new Date(
-        taskStatus.attemptStatus.runTime || taskStatus.attemptStatus.startTime,
+        taskStatus.attemptStatus.runTime ||
+          taskStatus.attemptStatus.completionTime,
       ).getTime() || null,
     currentAttemptCompletedTime:
       new Date(taskStatus.attemptStatus.completionTime).getTime() || null,
@@ -145,13 +139,6 @@ const convertTaskDetail = async (taskStatus, ports, logPathPrefix) => {
 
 const convertFrameworkDetail = async (framework, tags) => {
   const attemptStatus = framework.status.attemptStatus;
-  // check fields which may be compressed
-  if (attemptStatus.taskRoleStatuses == null) {
-    attemptStatus.taskRoleStatuses = decompressField(
-      attemptStatus.taskRoleStatusesCompressed,
-    );
-  }
-
   const jobName = decodeName(
     framework.metadata.name,
     framework.metadata.annotations,
@@ -196,12 +183,13 @@ const convertFrameworkDetail = async (framework, tags) => {
         new Date(framework.status.completionTime).getTime() || null,
       attmptId: attemptStatus.id,
       attemptState: convertAttemptState(
-        framework.status.state,
+        framework.status.state || null,
         completionStatus ? completionStatus.code : null,
       ),
       appId: attemptStatus.instanceUID,
       appProgress: completionStatus ? 1 : 0,
       appTrackingUrl: '',
+      appCreatedTime: new Date(attemptStatus.startTime).getTime() || null,
       appLaunchedTime:
         new Date(
           attemptStatus.runTime || attemptStatus.completionTime,
@@ -865,6 +853,7 @@ const list = async (
 };
 
 const get = async (frameworkName, jobAttemptId) => {
+  // get framework from db
   const framework = await databaseModel.Framework.findOne({
     attributes: ['submissionTime', 'snapshot'],
     where: { name: encodeName(frameworkName) },
@@ -877,12 +866,19 @@ const get = async (frameworkName, jobAttemptId) => {
     ],
   });
 
-  if (framework) {
-    const snapshot = JSON.parse(framework.snapshot);
-    if (
-      jobAttemptId &&
-      jobAttemptId !== snapshot.status.retryPolicyStatus.totalRetriedCount
-    ) {
+  if (!framework) {
+    throw createError(
+      'Not Found',
+      'NoJobError',
+      `Job ${frameworkName} is not found.`,
+    );
+  }
+
+  const snapshot = JSON.parse(framework.snapshot);
+
+  // find corresponding job attempt when specified
+  if (jobAttemptId !== undefined) {
+    if (jobAttemptId < snapshot.status.attemptStatus.id) {
       const frameworkHistory = await databaseModel.FrameworkHistory.findOne({
         attributes: ['snapshot'],
         where: {
@@ -890,27 +886,34 @@ const get = async (frameworkName, jobAttemptId) => {
           attemptIndex: jobAttemptId,
         },
       });
+      if (!frameworkHistory) {
+        throw createError(
+          'Not Found',
+          'NoJobError',
+          `JobAttemptId ${jobAttemptId} is not found in ${frameworkName}.`,
+        );
+      }
       // replace `attemptStatus`
       snapshot.status.attemptStatus = JSON.parse(
         frameworkHistory.snapshot,
       ).status.attemptStatus;
+    } else if (jobAttemptId > snapshot.status.attemptStatus.id) {
+      throw createError(
+        'Not Found',
+        'NoJobError',
+        `JobAttemptId ${jobAttemptId} is not found in ${frameworkName}.`,
+      );
     }
-
-    const frameworkDetail = await convertFrameworkDetail(
-      snapshot,
-      framework.tags,
-    );
-    frameworkDetail.jobStatus.submissionTime = new Date(
-      framework.submissionTime,
-    ).getTime();
-    return frameworkDetail;
-  } else {
-    throw createError(
-      'Not Found',
-      'NoJobError',
-      `Job ${frameworkName} is not found.`,
-    );
   }
+  // convert to response schema
+  const frameworkDetail = await convertFrameworkDetail(
+    snapshot,
+    framework.tags,
+  );
+  frameworkDetail.jobStatus.submissionTime = new Date(
+    framework.submissionTime,
+  ).getTime();
+  return frameworkDetail;
 };
 
 const put = async (frameworkName, config, rawConfig) => {

@@ -148,7 +148,7 @@ const list = asyncHandler(async (req, res) => {
 const get = asyncHandler(async (req, res) => {
   const data = await job.get(
     req.params.frameworkName,
-    Number(req.params.jobAttemptId),
+    req.params.jobAttemptId ? Number(req.params.jobAttemptId) : undefined,
   );
   res.json(data);
 });
