@@ -63,6 +63,7 @@ class JobDetail extends React.Component {
       sshInfo: null,
       showMoreDiagnostics: false,
       selectedAttemptIndex: null,
+      loadingAttempt: false,
     };
     this.stop = this.stop.bind(this);
     this.reload = this.reload.bind(this);
@@ -154,10 +155,12 @@ class JobDetail extends React.Component {
   }
 
   onChangeJobAttempt(event, item) {
+    this.setState({ loadingAttempt: true });
     fetchJobInfo(item.key).then(data => {
       this.setState({
         selectedAttemptIndex: item.key,
         jobInfo: data,
+        loadingAttempt: false,
       });
     });
   }
@@ -193,6 +196,7 @@ class JobDetail extends React.Component {
       rawJobConfig,
       sshInfo,
       selectedAttemptIndex,
+      loadingAttempt,
     } = this.state;
 
     const attemptIndexOptions = [];
@@ -227,9 +231,9 @@ class JobDetail extends React.Component {
               onReload={this.reload}
             />
             <Card>
-              <Stack gap='l2' padding='l2'>
+              <Stack gap='m' padding='l2'>
                 <Stack horizontal gap='m' verticalAlign='center'>
-                  <Text variant='large'>Job Attempt Index</Text>
+                  <Text>Job Attempt Index</Text>
                   <Dropdown
                     styles={{ root: { width: '150px' } }}
                     placeholder='Select Attempt Index'
@@ -238,58 +242,66 @@ class JobDetail extends React.Component {
                     onChange={this.onChangeJobAttempt}
                   />
                 </Stack>
-                <Stack
-                  horizontal
-                  horizontalAlign='space-between'
-                  verticalAlign='end'
-                  gap='m'
-                >
-                  <Stack horizontal gap='l1'>
-                    <Stack gap='m'>
-                      <Text>Attempt State</Text>
-                      <StatusBadge
-                        status={capitalize(jobInfo.jobStatus.attemptState)}
+                {loadingAttempt ? (
+                  <SpinnerLoading />
+                ) : (
+                  <Stack gap='l2'>
+                    <Stack
+                      horizontal
+                      horizontalAlign='space-between'
+                      verticalAlign='end'
+                      gap='m'
+                    >
+                      <Stack horizontal gap='l1'>
+                        <Stack gap='m'>
+                          <Text>Attempt State</Text>
+                          <StatusBadge
+                            status={capitalize(jobInfo.jobStatus.attemptState)}
+                          />
+                        </Stack>
+                        <Stack gap='m'>
+                          <Text>Attempt Start Time</Text>
+                          <Text>
+                            {DateTime.fromMillis(
+                              jobInfo.jobStatus.appLaunchedTime,
+                            ).toLocaleString(
+                              DateTime.DATETIME_MED_WITH_SECONDS,
+                            )}
+                          </Text>
+                        </Stack>
+                        <Stack gap='m'>
+                          <Text>Attempt Duration</Text>
+                          <Text>
+                            {getDurationString(
+                              this.getTimeDuration(
+                                jobInfo.jobStatus.appLaunchedTime,
+                                jobInfo.jobStatus.appCompletedTime,
+                              ),
+                            )}
+                          </Text>
+                        </Stack>
+                      </Stack>
+                      <Toggle
+                        onText='More Diagnostics'
+                        offText='More Diagnostics'
+                        onChange={this.onChangeShowMoreDiagnostics}
                       />
                     </Stack>
-                    <Stack gap='m'>
-                      <Text>Attempt Start Time</Text>
-                      <Text>
-                        {DateTime.fromMillis(
-                          jobInfo.jobStatus.appLaunchedTime,
-                        ).toLocaleString(DateTime.DATETIME_MED_WITH_SECONDS)}
-                      </Text>
-                    </Stack>
-                    <Stack gap='m'>
-                      <Text>Attempt Duration</Text>
-                      <Text>
-                        {getDurationString(
-                          this.getTimeDuration(
-                            jobInfo.jobStatus.appLaunchedTime,
-                            jobInfo.jobStatus.appCompletedTime,
-                          ),
-                        )}
-                      </Text>
-                    </Stack>
+                    {!isEmpty(jobInfo.taskRoles) &&
+                      Object.keys(jobInfo.taskRoles).map(name => (
+                        <Stack key={name} gap='m'>
+                          <HorizontalLine />
+                          <Text>{`Task Role:  ${name}`}</Text>
+                          <TaskRoleContainerList
+                            taskRoleName={name}
+                            tasks={jobInfo.taskRoles[name].taskStatuses}
+                            showMoreDiagnostics={this.state.showMoreDiagnostics}
+                            jobAttemptIndex={this.state.selectedAttemptIndex}
+                          />
+                        </Stack>
+                      ))}
                   </Stack>
-                  <Toggle
-                    onText='More Diagnostics'
-                    offText='More Diagnostics'
-                    onChange={this.onChangeShowMoreDiagnostics}
-                  />
-                </Stack>
-                {!isEmpty(jobInfo.taskRoles) &&
-                  Object.keys(jobInfo.taskRoles).map(name => (
-                    <Stack key={name} gap='m'>
-                      <HorizontalLine />
-                      <Text variant='large'>{`Task Role:  ${name}`}</Text>
-                      <TaskRoleContainerList
-                        taskRoleName={name}
-                        tasks={jobInfo.taskRoles[name].taskStatuses}
-                        showMoreDiagnostics={this.state.showMoreDiagnostics}
-                        jobAttemptIndex={this.state.selectedAttemptIndex}
-                      />
-                    </Stack>
-                  ))}
+                )}
               </Stack>
             </Card>
           </Stack>
