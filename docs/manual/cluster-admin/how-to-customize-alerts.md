@@ -3,18 +3,35 @@
 OpenPAI supports the customization of alert rules and corresponding handling actions.
 The alert rules are managed by `prometheus` service and the matching rules between rules and actions are managed by `alert-manager` service.
 
-By default, the alerts will only be displayed on the webportal.
+By default, there are some alert rules and the alerts (fired by these rules) will only be displayed on the webportal.
 You can customize `prometheus` and `alert-manager` to realize complex functions.
 For example, we can send emails to administrators and alert related users, tag the jobs, etc.
 
-In this document, we will introduce existing alerts & actions, their matching methods, and how to add new customized alerts & actions.
+In this document, we will introduce existing alert rules & actions, their matching methods, and how to add new customized alerts & actions.
 
-## Existing Alerts/Actions & How to Match Them 
+## Alert Rules
 
-### Existing Alerts
+Alert rules allow you to define alert conditions based on Prometheus expression language expressions and to send different alerts.
 
-OpenPAI uses `Prometheus` to monitor system metrics.
-We provide various alerts by defining rules on virtual_clusters, GPU utilization, etc.
+### Existing Alert Rules
+
+### How to Add Customized Alerts
+
+## Alert Actions and Routes
+
+### Existing Actions
+
+### How to Match Alerts and Actions
+
+### How to Add Customized Actions
+
+
+## Existing Alert Rules/Actions & How to Match Them 
+
+### Existing Alert Rules
+
+OpenPAI uses [`Prometheus`](https://prometheus.io/) to monitor system metrics.
+We provide various alerts by defining rules on virtual clusters, GPU utilization, etc.
 If OpenPAI is deployed, you can then visit `your_master_ip/prometheus/alerts` to see the details of alerts, including their definitions and status.
 
 For alerting rules syntax, please refer to [link](https://prometheus.io/docs/prometheus/latest/configuration/alerting_rules/).
