@@ -351,8 +351,9 @@ export default class TaskAttemptList extends React.Component {
   getColumns() {
     const defaultColumns = [
       {
-        key: 'taskAttemptId',
-        name: 'Task Attempt Id',
+        key: 'taskAttemptIndex',
+        name: 'Task Attempt Index',
+        minWidth: 120,
         headerClassName: FontClassNames.medium,
         isResizable: true,
         onRender: (item, idx) => {
@@ -364,6 +365,7 @@ export default class TaskAttemptList extends React.Component {
       {
         key: 'taskAttemtState',
         name: 'Task Attempt State',
+        minWidth: 120,
         headerClassName: FontClassNames.medium,
         isResizable: true,
         onRender: item => (
@@ -373,6 +375,7 @@ export default class TaskAttemptList extends React.Component {
       {
         key: 'taskAttemptExitCode',
         name: 'Task Attempt Exit Code',
+        minWidth: 150,
         headerClassName: FontClassNames.medium,
         isResizable: true,
         onRender: (item, idx) => {
