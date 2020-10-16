@@ -1,10 +1,10 @@
-# OpenPAI Manual for Cluster Users
+# OpenPAI 用户手册
 
-OpenPAI is an open source platform that provides complete AI model training and resource management capabilities, it is easy to extend and supports on-premise, cloud and hybrid environments in various scale.
+OpenPAI是一个提供完整的人工智能模型训练和资源管理能力开源平台，它易于扩展，支持各种规模的on-premise、on-cloud和混合环境。
 
-This manual is for cluster users to learn how to submit job, debug job, manage data, use Marketplace and VSCode extension on OpenPAI >= v1.0.0.
+本手册可帮助集群用户学习如何提交任务、使用数据、Marketplace以及VSCode扩展，它适用于OpenPAI >= v1.0.0
 
-## Table of Content
+## 目录
 
 1. [快速开始](./快速开始.md)
 2. [Docker镜像和任务示例](./Docker镜像和任务示例.md)

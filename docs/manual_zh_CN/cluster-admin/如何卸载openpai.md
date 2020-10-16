@@ -1,4 +1,4 @@
-# How to Uninstall OpenPAI
+# 如何卸载OpenPAI
 
 The uninstallation of OpenPAI is irreversible: all the data will be removed and you cannot find them back. If you need a backup, do it before uninstallation.
 
