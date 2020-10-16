@@ -55,12 +55,14 @@ const TaskAttemptPage = () => {
       {loading && <SpinnerLoading />}
       {!loading && (
         <Stack styles={{ root: { margin: '30px' } }} gap='l1'>
-          <ActionButton
-            iconProps={{ iconName: 'revToggleKey' }}
-            href={`job-detail.html?username=${userName}&jobName=${jobName}`}
-          >
-            Back to Job Detail
-          </ActionButton>
+          <div>
+            <ActionButton
+              iconProps={{ iconName: 'revToggleKey' }}
+              href={`job-detail.html?username=${userName}&jobName=${jobName}`}
+            >
+              Go to Job Detail
+            </ActionButton>
+          </div>
           <Stack horizontal gap='s1' padding='s2'>
             <Text variant='large'>Job Name:</Text>
             <Text variant='large'>{jobName}</Text>
