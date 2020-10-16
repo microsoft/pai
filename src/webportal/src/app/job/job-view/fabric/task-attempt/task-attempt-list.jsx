@@ -379,7 +379,11 @@ export default class TaskAttemptList extends React.Component {
         headerClassName: FontClassNames.medium,
         isResizable: true,
         onRender: (item, idx) => {
-          return (
+          return isNil(item.containerExitSpec) ? (
+            <div className={FontClassNames.mediumPlus}>
+              {item.containerExitCode}
+            </div>
+          ) : (
             <div className={FontClassNames.mediumPlus}>
               {`${item.containerExitCode} (${item.containerExitSpec.phrase})`}
             </div>

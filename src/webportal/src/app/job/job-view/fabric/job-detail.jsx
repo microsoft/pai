@@ -262,11 +262,13 @@ class JobDetail extends React.Component {
                         <Stack gap='m'>
                           <Text>Attempt Start Time</Text>
                           <Text>
-                            {DateTime.fromMillis(
-                              jobInfo.jobStatus.appLaunchedTime,
-                            ).toLocaleString(
-                              DateTime.DATETIME_MED_WITH_SECONDS,
-                            )}
+                            {isNil(jobInfo.jobStatus.appLaunchedTime)
+                              ? 'N/A'
+                              : DateTime.fromMillis(
+                                  jobInfo.jobStatus.appLaunchedTime,
+                                ).toLocaleString(
+                                  DateTime.DATETIME_MED_WITH_SECONDS,
+                                )}
                           </Text>
                         </Stack>
                         <Stack gap='m'>

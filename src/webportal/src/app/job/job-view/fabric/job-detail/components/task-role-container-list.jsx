@@ -680,7 +680,11 @@ export default class TaskRoleContainerList extends React.Component {
         headerClassName: FontClassNames.medium,
         isResizable: true,
         onRender: item => {
-          return (
+          return isNil(item.containerExitSpec) ? (
+            <div className={c(FontClassNames.mediumPlus)}>
+              {item.containerExitCode}
+            </div>
+          ) : (
             <div className={c(FontClassNames.mediumPlus)}>
               {`${item.containerExitCode} (${item.containerExitSpec.phrase})`}
             </div>
