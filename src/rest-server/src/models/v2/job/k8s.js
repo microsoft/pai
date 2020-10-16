@@ -1088,7 +1088,10 @@ const put = async (frameworkName, config, rawConfig) => {
 
   // calculate pod priority
   // reference: https://github.com/microsoft/pai/issues/3704
-  const submissionTime = new Date();
+  // Truncate submissionTime to multiple of 1000.
+  // Since kubernetes only provide second-level timestamp,
+  // We don't want the submission time to be larger than Kubernetes creation time.
+  const submissionTime = parseInt(new Date() / 1000) * 1000;
   let priorityClassDef = null;
   if (launcherConfig.enabledPriorityClass) {
     let jobPriority = 0;
