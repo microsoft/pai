@@ -25,7 +25,7 @@ import {
 } from '@uifabric/styling';
 import c from 'classnames';
 import { capitalize, isEmpty, isNil, flatten } from 'lodash';
-import { DateTime } from 'luxon';
+import { DateTime, Interval } from 'luxon';
 import {
   CommandBarButton,
   PrimaryButton,
@@ -55,6 +55,7 @@ import { parseGpuAttr } from '../util';
 import config from '../../../../../config/webportal.config';
 import MonacoPanel from '../../../../../components/monaco-panel';
 import StatusBadge from '../../../../../components/status-badge';
+import { getDurationString } from '../../../../../components/util/job';
 import CopyButton from '../../../../../components/copy-button';
 
 const params = new URLSearchParams(window.location.search);
@@ -198,6 +199,21 @@ export default class TaskRoleContainerList extends React.Component {
       monacoFooterButton: null,
       logUrl: null,
     });
+  }
+
+  getTimeDuration(startMs, endMs) {
+    const start = startMs && DateTime.fromMillis(startMs);
+    const end = endMs && DateTime.fromMillis(endMs);
+    if (start) {
+      return Interval.fromDateTimes(start, end || DateTime.utc()).toDuration([
+        'days',
+        'hours',
+        'minutes',
+        'seconds',
+      ]);
+    } else {
+      return null;
+    }
   }
 
   showContainerLog(logUrl, logType) {
@@ -771,9 +787,8 @@ export default class TaskRoleContainerList extends React.Component {
         },
       },
       {
-        key: 'CompletedTime',
-        name: 'Completed Time',
-        minWidth: 180,
+        key: 'Duration',
+        name: 'Duration',
         headerClassName: FontClassNames.medium,
         isResizable: true,
         onRender: (item, idx) => {
@@ -781,8 +796,8 @@ export default class TaskRoleContainerList extends React.Component {
             <div className={FontClassNames.mediumPlus}>
               {isNil(item.completedTime)
                 ? 'N/A'
-                : DateTime.fromMillis(item.completedTime).toLocaleString(
-                    DateTime.DATETIME_MED_WITH_SECONDS,
+                : getDurationString(
+                    this.getTimeDuration(item.createdTime, item.completedTime),
                   )}
             </div>
           );

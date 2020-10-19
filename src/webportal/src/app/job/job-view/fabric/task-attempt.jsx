@@ -82,7 +82,7 @@ const TaskAttemptPage = () => {
             </ActionButton>
           </div>
           <Card style={{ padding: 10 }}>
-            <Stack gap='s1'>
+            <Stack gap='m'>
               <Stack horizontal gap='s1' padding='s2'>
                 <Text>Job Name:</Text>
                 <Text>{jobName}</Text>

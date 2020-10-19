@@ -23,7 +23,7 @@ import {
 } from '@uifabric/styling';
 import c from 'classnames';
 import { capitalize, isEmpty, isNil, flatten } from 'lodash';
-import { DateTime } from 'luxon';
+import { DateTime, Interval } from 'luxon';
 import {
   CommandBarButton,
   PrimaryButton,
@@ -51,6 +51,7 @@ import config from '../../../../config/webportal.config';
 import MonacoPanel from '../../../../components/monaco-panel';
 import StatusBadge from '../../../../components/status-badge';
 import CopyButton from '../../../../components/copy-button';
+import { getDurationString } from '../../../../components/util/job';
 
 const theme = getTheme();
 
@@ -159,6 +160,21 @@ export default class TaskAttemptList extends React.Component {
       monacoFooterButton: null,
       logUrl: null,
     });
+  }
+
+  getTimeDuration(startMs, endMs) {
+    const start = startMs && DateTime.fromMillis(startMs);
+    const end = endMs && DateTime.fromMillis(endMs);
+    if (start) {
+      return Interval.fromDateTimes(start, end || DateTime.utc()).toDuration([
+        'days',
+        'hours',
+        'minutes',
+        'seconds',
+      ]);
+    } else {
+      return null;
+    }
   }
 
   showContainerLog(logUrl, logType) {
@@ -450,10 +466,9 @@ export default class TaskAttemptList extends React.Component {
         },
       },
       {
-        key: 'taskAttemptCompletedTime',
-        name: 'Task Attempt Completed Time',
-        minWidth: 200,
-        maxWidth: 200,
+        key: 'taskAttemptDuration',
+        name: 'Task Attempt Duration',
+        minWidth: 150,
         headerClassName: FontClassNames.medium,
         isResizable: true,
         onRender: (item, idx) => {
@@ -461,9 +476,12 @@ export default class TaskAttemptList extends React.Component {
             <div className={FontClassNames.mediumPlus}>
               {isNil(item.currentAttemptCompletedTime)
                 ? 'N/A'
-                : DateTime.fromMillis(
-                    item.currentAttemptCompletedTime,
-                  ).toLocaleString(DateTime.DATETIME_MED_WITH_SECONDS)}
+                : getDurationString(
+                    this.getTimeDuration(
+                      item.currentAttemptLaunchedTime,
+                      item.currentAttemptCompletedTime,
+                    ),
+                  )}
             </div>
           );
         },
