@@ -237,7 +237,7 @@ class JobDetail extends React.Component {
                     styles={{ root: { width: '150px' } }}
                     placeholder='Select Attempt Index'
                     options={attemptIndexOptions}
-                    defaultSelectedKey={selectedAttemptIndex || undefined}
+                    defaultSelectedKey={selectedAttemptIndex}
                     onChange={this.onChangeJobAttempt}
                   />
                 </Stack>

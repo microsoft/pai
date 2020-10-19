@@ -492,6 +492,7 @@ export default class TaskRoleContainerList extends React.Component {
         key: 'retries',
         name: 'Task Retries',
         headerClassName: FontClassNames.medium,
+        maxWidth: 150,
         isResizable: true,
         onRender: (item, idx) => {
           return (

@@ -111,8 +111,8 @@ export default class Summary extends React.Component {
       this.props.jobInfo.jobStatus.state !== prevProps.jobInfo.jobStatus.state
     ) {
       if (
-        this.props.jobInfo.jobStatus.state === 'FAILED' ||
-        this.props.jobInfo.jobStatus.state === 'SUCCEEDED'
+        this.props.jobInfo.jobStatus.attemptState === 'FAILED' ||
+        this.props.jobInfo.jobStatus.attemptState === 'SUCCEEDED'
       ) {
         this.setState({ autoReloadInterval: 0 });
       }
