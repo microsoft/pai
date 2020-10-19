@@ -145,7 +145,9 @@ class JobDetail extends React.Component {
     if (alertFlag === true && !isNil(nextState.error)) {
       alert(nextState.error);
     }
-    nextState.selectedAttemptIndex = nextState.jobInfo.jobStatus.retries;
+    if (isNil(this.state.selectedAttemptIndex)) {
+      nextState.selectedAttemptIndex = nextState.jobInfo.jobStatus.retries;
+    }
     this.setState(nextState);
   }
 
@@ -237,8 +239,9 @@ class JobDetail extends React.Component {
                     styles={{ root: { width: '150px' } }}
                     placeholder='Select Attempt Index'
                     options={attemptIndexOptions}
-                    defaultSelectedKey={selectedAttemptIndex}
+                    selectedKey={selectedAttemptIndex}
                     onChange={this.onChangeJobAttempt}
+                    disabled={loadingAttempt}
                   />
                 </Stack>
                 <HorizontalLine />
