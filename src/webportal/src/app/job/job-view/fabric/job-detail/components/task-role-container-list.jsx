@@ -487,7 +487,6 @@ export default class TaskRoleContainerList extends React.Component {
         },
       },
       taskStateColumn,
-      exitTypeColumn,
       {
         key: 'retries',
         name: 'Task Retries',
@@ -675,6 +674,7 @@ export default class TaskRoleContainerList extends React.Component {
           </div>
         ),
       },
+      exitTypeColumn,
       {
         key: 'exitCode',
         name: 'Exit Code',
