@@ -31,17 +31,6 @@ export function printDateTime(dt) {
   }
 }
 
-export function parseGpuAttr(attr) {
-  const res = [];
-  for (let i = 0; attr !== 0; i++, attr >>= 1) {
-    if ((attr & 1) === 1) {
-      res.push(i);
-    }
-  }
-
-  return res;
-}
-
 export function isJobV2(rawJobConfig) {
   return (
     !isNil(rawJobConfig.protocol_version) ||

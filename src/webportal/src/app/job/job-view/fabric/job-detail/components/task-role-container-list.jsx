@@ -20,7 +20,6 @@ import {
   createTheme,
   ColorClassNames,
   FontClassNames,
-  FontSizes,
   getTheme,
 } from '@uifabric/styling';
 import c from 'classnames';
@@ -31,7 +30,6 @@ import {
   PrimaryButton,
   TooltipHost,
   DirectionalHint,
-  Icon,
   Stack,
   Link,
 } from 'office-ui-fabric-react';
@@ -51,7 +49,6 @@ import t from '../../../../../components/tachyons.scss';
 import Context from './context';
 import Timer from './timer';
 import { getContainerLog } from '../conn';
-import { parseGpuAttr } from '../util';
 import config from '../../../../../config/webportal.config';
 import MonacoPanel from '../../../../../components/monaco-panel';
 import StatusBadge from '../../../../../components/status-badge';
@@ -706,63 +703,6 @@ export default class TaskRoleContainerList extends React.Component {
               {`${item.containerExitCode} (${item.containerExitSpec.phrase})`}
             </div>
           );
-        },
-      },
-      {
-        key: 'gpus',
-        name: 'GPUs',
-        className: FontClassNames.mediumPlus,
-        headerClassName: FontClassNames.medium,
-        minWidth: 35,
-        maxWidth: 60,
-        isResizable: true,
-        onRender: item => {
-          const gpuAttr = isNil(item.containerGpus)
-            ? null
-            : parseGpuAttr(item.containerGpus);
-          if (isNil(gpuAttr)) {
-            return null;
-          } else if (gpuAttr.length === 0) {
-            return <div>0</div>;
-          } else {
-            return (
-              <div>
-                <TooltipHost
-                  calloutProps={{
-                    isBeakVisible: false,
-                  }}
-                  tooltipProps={{
-                    onRenderContent: () => (
-                      <div>
-                        {gpuAttr.map(x => (
-                          <span
-                            className={t.mr2}
-                            key={`gpu-${x}`}
-                          >{`#${x}`}</span>
-                        ))}
-                      </div>
-                    ),
-                  }}
-                  directionalHint={DirectionalHint.topLeftEdge}
-                >
-                  <Stack horizontal gap='s1'>
-                    <div>{gpuAttr.length}</div>
-                    <div>
-                      <Icon
-                        iconName='Info'
-                        styles={{
-                          root: [
-                            { fontSize: FontSizes.small },
-                            ColorClassNames.neutralSecondary,
-                          ],
-                        }}
-                      />
-                    </div>
-                  </Stack>
-                </TooltipHost>
-              </div>
-            );
-          }
         },
       },
     ];

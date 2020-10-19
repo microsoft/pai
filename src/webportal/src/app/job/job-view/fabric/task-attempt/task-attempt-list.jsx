@@ -15,23 +15,11 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-import {
-  ColorClassNames,
-  FontClassNames,
-  FontSizes,
-  getTheme,
-} from '@uifabric/styling';
+import { ColorClassNames, FontClassNames, getTheme } from '@uifabric/styling';
 import c from 'classnames';
 import { capitalize, isEmpty, isNil, flatten } from 'lodash';
 import { DateTime, Interval } from 'luxon';
-import {
-  CommandBarButton,
-  PrimaryButton,
-  TooltipHost,
-  DirectionalHint,
-  Icon,
-  Stack,
-} from 'office-ui-fabric-react';
+import { CommandBarButton, PrimaryButton, Stack } from 'office-ui-fabric-react';
 import {
   DetailsList,
   SelectionMode,
@@ -46,7 +34,6 @@ import localCss from './task-role-container-list.scss';
 import t from '../../../../components/tachyons.scss';
 
 import { getContainerLog } from './conn';
-import { parseGpuAttr } from './util';
 import config from '../../../../config/webportal.config';
 import MonacoPanel from '../../../../components/monaco-panel';
 import StatusBadge from '../../../../components/status-badge';
@@ -578,63 +565,6 @@ export default class TaskAttemptList extends React.Component {
               </div>
             )
           );
-        },
-      },
-      {
-        key: 'gpus',
-        name: 'GPUs',
-        className: FontClassNames.mediumPlus,
-        headerClassName: FontClassNames.medium,
-        minWidth: 35,
-        maxWidth: 60,
-        isResizable: true,
-        onRender: item => {
-          const gpuAttr = isNil(item.containerGpus)
-            ? null
-            : parseGpuAttr(item.containerGpus);
-          if (isNil(gpuAttr)) {
-            return null;
-          } else if (gpuAttr.length === 0) {
-            return <div>0</div>;
-          } else {
-            return (
-              <div>
-                <TooltipHost
-                  calloutProps={{
-                    isBeakVisible: false,
-                  }}
-                  tooltipProps={{
-                    onRenderContent: () => (
-                      <div>
-                        {gpuAttr.map(x => (
-                          <span
-                            className={t.mr2}
-                            key={`gpu-${x}`}
-                          >{`#${x}`}</span>
-                        ))}
-                      </div>
-                    ),
-                  }}
-                  directionalHint={DirectionalHint.topLeftEdge}
-                >
-                  <Stack horizontal gap='s1'>
-                    <div>{gpuAttr.length}</div>
-                    <div>
-                      <Icon
-                        iconName='Info'
-                        styles={{
-                          root: [
-                            { fontSize: FontSizes.small },
-                            ColorClassNames.neutralSecondary,
-                          ],
-                        }}
-                      />
-                    </div>
-                  </Stack>
-                </TooltipHost>
-              </div>
-            );
-          }
         },
       },
       {
