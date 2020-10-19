@@ -1,17 +1,17 @@
 # 如何卸载OpenPAI
 
-The uninstallation of OpenPAI is irreversible: all the data will be removed and you cannot find them back. If you need a backup, do it before uninstallation.
+OpenPAI 的卸载是不可逆的：所有数据将被删除，无法找回。如果需要备份，请在卸载之前完成备份。
 
-First, log in to the dev box machine and delete all PAI services:
+首先，登录到 dev box machine 删除所有的 PAI 服务：
 
 ```bash
 ./paictl.py service delete
 ```
 
-Now all PAI services and data are deleted. If you want to destroy the Kubernetes cluster too, please go into [`~/pai-deploy/kubespray` folder](安装指南.md#keep-a-folder), run:
+现在所有的 PAI 服务和数据都将被删除。如果想要破坏 Kubernetes 集群，请进入[`~/pai-deploy/kubespray` 文件夹](安装指南.md#keep-a-folder)，运行：
 
 ```bash
 ansible-playbook -i inventory/pai/hosts.yml reset.yml --become --become-user=root -e "@inventory/pai/openpai.yml"
 ```
 
-We recommend you to keep the folder `~/pai-deploy` for re-installation.
+建议保留文件夹 `~/pai-deploy` 以重新安装。
