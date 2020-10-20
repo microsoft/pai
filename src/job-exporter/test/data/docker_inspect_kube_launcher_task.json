@@ -180,6 +180,7 @@
                 "FC_CONFIGMAP_UID=69c05215-46fa-11e9-8937-000d3ab38724",
                 "PAI_CURRENT_TASK_ROLE_MEM_MB=32768",
                 "PAI_CURRENT_TASK_ROLE_NAME=worker",
+                "PAI_VIRTUAL_CLUSTER=default",
                 "PAI_OUTPUT_DIR=",
                 "PAI_MIN_FAILED_INSTANCE_worker=",
                 "PAI_JOB_NAME=core~tensorflowcifar10",

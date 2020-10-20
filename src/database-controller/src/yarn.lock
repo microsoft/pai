@@ -593,6 +593,14 @@ destroy@~1.0.4:
   resolved "https://registry.yarnpkg.com/destroy/-/destroy-1.0.4.tgz#978857442c44749e4206613e37946205826abd80"
   integrity sha1-l4hXRCxEdJ5CBmE+N5RiBYJqvYA=
 
+diskusage@^1.1.3:
+  version "1.1.3"
+  resolved "https://registry.yarnpkg.com/diskusage/-/diskusage-1.1.3.tgz#680d7dbf1b679168a195c9240eb3552cbd2c067b"
+  integrity sha512-EAyaxl8hy4Ph07kzlzGTfpbZMNAAAHXSZtNEMwdlnSd1noHzvA6HsgKt4fEMSvaEXQYLSphe5rPMxN4WOj0hcQ==
+  dependencies:
+    es6-promise "^4.2.5"
+    nan "^2.14.0"
+
 doctrine@1.5.0:
   version "1.5.0"
   resolved "https://registry.yarnpkg.com/doctrine/-/doctrine-1.5.0.tgz#379dce730f6166f76cefa4e6707a159b02c5a6fa"
@@ -699,7 +707,7 @@ es-to-primitive@^1.2.1:
     is-date-object "^1.0.1"
     is-symbol "^1.0.2"
 
-es6-promise@^4.2.8:
+es6-promise@^4.2.5, es6-promise@^4.2.8:
   version "4.2.8"
   resolved "https://registry.yarnpkg.com/es6-promise/-/es6-promise-4.2.8.tgz#4eb21594c972bc40553d276e510539143db53e0a"
   integrity sha512-HJDGx5daxeIvxdBxvG2cb9g4tEvwIk3i8+nhX0yGrYmZUzbkdg8QbDevheDB8gd0//uPj4c1EQua8Q+MViT0/w==
@@ -1825,6 +1833,11 @@ mute-stream@0.0.7:
   resolved "https://registry.yarnpkg.com/mute-stream/-/mute-stream-0.0.7.tgz#3075ce93bc21b8fab43e1bc4da7e8115ed1e7bab"
   integrity sha1-MHXOk7whuPq0PhvE2n6BFe0ee6s=
 
+nan@^2.14.0:
+  version "2.14.1"
+  resolved "https://registry.yarnpkg.com/nan/-/nan-2.14.1.tgz#d7be34dfa3105b91494c3147089315eff8874b01"
+  integrity sha512-isWHgVjnFjh2x2yuJ/tj3JbwoHu3UC2dX5G/88Cm24yB6YopVgxvBObDY7n5xW6ExmFhJpSEQqFPvq9zaXc8Jw==
+
 natural-compare@^1.4.0:
   version "1.4.0"
   resolved "https://registry.yarnpkg.com/natural-compare/-/natural-compare-1.4.0.tgz#4abebfeed7541f2c27acfb29bdbbd15c8d5ba4f7"
@@ -1991,7 +2004,7 @@ openid-client@2.5.0:
     p-any "^1.1.0"
 
 "openpaidbsdk@file:../sdk":
-  version "1.0.0"
+  version "1.0.1"
   dependencies:
     pg "^8.2.1"
     sequelize "5.21.3"

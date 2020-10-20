@@ -15,7 +15,6 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-{% if cluster_cfg["alert-manager"]["configured"] %}
 
 {% if cluster_cfg["alert-manager"]["use-pylon"] %}
 {% set external_url = cluster_cfg["pylon"]["uri"] %}
@@ -38,6 +37,7 @@ spec:
       labels:
         app: alertmanager
     spec:
+      serviceAccountName: alert-manager-account
       hostNetwork: true
       containers:
       - name: alertmanager
@@ -53,17 +53,43 @@ spec:
         volumeMounts:
         - name: config-volume
           mountPath: /etc/alertmanager
-        - name: templates-volume
-          mountPath: /etc/alertmanager/template
         - name: alertmanager
           mountPath: /alertmanager
+{% if cluster_cfg["alert-manager"]["alert-handler"]["configured"] %}
+      - name: alerthandler
+        image: {{ cluster_cfg['cluster']['docker-registry']['prefix'] }}alert-handler:{{ cluster_cfg['cluster']['docker-registry']['tag'] }}
+        imagePullPolicy: Always
+        ports:
+        - name: alerthandler
+          containerPort: {{ cluster_cfg["alert-manager"]["alert-handler"]["port"] }}
+        env:
+        - name: CLUSTER_ID
+          value: {{ cluster_cfg["cluster"]["common"]["cluster-id"] }}
+        - name: REST_SERVER_URI
+          value: {{ cluster_cfg['rest-server']['uri'] }}
+        - name: LOG_LEVEL
+          value: {{ cluster_cfg["alert-manager"]["alert-handler"]["log-level"] }}
+{% if 'email-admin' in cluster_cfg["alert-manager"]["actions-available"] %}
+        - name: EMAIL_CONFIGS_ADMIN_RECEIVER
+          value: {{ cluster_cfg["alert-manager"]["alert-handler"]["email-configs"]["admin-receiver"] }}
+        - name: EMAIL_CONFIGS_SMTP_HOST
+          value: {{ cluster_cfg["alert-manager"]["alert-handler"]["email-configs"]["smtp-host"] }}
+        - name: EMAIL_CONFIGS_SMTP_PORT
+          value: "{{ cluster_cfg["alert-manager"]["alert-handler"]["email-configs"]["smtp-port"] }}"
+        - name: EMAIL_CONFIGS_SMTP_FROM
+          value: {{ cluster_cfg["alert-manager"]["alert-handler"]["email-configs"]["smtp-from"] }}
+        - name: EMAIL_CONFIGS_SMTP_AUTH_USERNAME
+          value: {{ cluster_cfg["alert-manager"]["alert-handler"]["email-configs"]["smtp-auth-username"] }}
+        - name: EMAIL_CONFIGS_SMTP_AUTH_PASSWORD
+          value: {{ cluster_cfg["alert-manager"]["alert-handler"]["email-configs"]["smtp-auth-password"] }}
+{% endif %}
+{% endif %}
+      imagePullSecrets:
+      - name: {{ cluster_cfg["cluster"]["docker-registry"]["secret-name"] }}
       volumes:
       - name: config-volume
         configMap:
-          name: alertmanager
-      - name: templates-volume
-        configMap:
-          name: alert-templates
+          name: alertmanager-configmap
       - name: alertmanager
         emptyDir: {}
       tolerations:
@@ -71,4 +97,3 @@ spec:
         operator: "Exists"
       - key: node.kubernetes.io/disk-pressure
         operator: "Exists"
-{% endif %}

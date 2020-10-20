@@ -1,5 +1,3 @@
-#!/bin/sh
-
 #!/bin/bash
 
 # Copyright (c) Microsoft Corporation
@@ -20,5 +18,16 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 kubectl delete --ignore-not-found --now configmap/alertmanager
-kubectl delete --ignore-not-found --now configmap/alert-templates
 kubectl delete --ignore-not-found --now deployment/alertmanager
+
+if kubectl get clusterrolebinding | grep -q "alert-manager-role-binding"; then
+    kubectl delete clusterrolebinding alert-manager-role-binding || exit $?
+fi
+
+if kubectl get clusterrole | grep "alert-manager-role"; then
+    kubectl delete clusterrole alert-manager-role || exit $?
+fi
+
+if kubectl get serviceaccount | grep -q "alert-manager-account"; then
+    kubectl delete serviceaccount alert-manager-account || exit $?
+fi

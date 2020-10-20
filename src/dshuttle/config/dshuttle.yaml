@@ -1,7 +1,3 @@
-#!/bin/bash
-
-#!/bin/bash
-
 # Copyright (c) Microsoft Corporation
 # All rights reserved.
 #
@@ -19,17 +15,56 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-pushd $(dirname "$0") > /dev/null
+service_type: "k8s"
 
-{% if cluster_cfg["alert-manager"]["configured"] %}
-kubectl create configmap alert-templates --from-file=alert-templates --dry-run -o yaml | kubectl apply --overwrite=true -f - || exit $?
-kubectl apply --overwrite=true -f alert-configmap.yaml || exit $?
-kubectl apply --overwrite=true -f alert-manager.yaml || exit $?
+worker_request_mem: 2G
+worker_limit_mem: 8G
+worker_max_heap_size: 4G
+worker_rpc_port: 4999
+worker_web_port: 5000
+worker_active_processor_count: 5
 
-sleep 10
-# wait until the service is ready.
-PYTHONPATH="../../../deployment" python -m  k8sPaiLibrary.monitorTool.check_pod_ready_status -w -k app -v alertmanager || exit $?
-{% endif %}
+job_worker_max_heap_size: 2G
+job_worker_request_mem: 1G
+job_worker_limit_mem: 3G
+job_worker_rpc_port: 5001
+job_worker_data_port: 5002
+job_worker_web_port: 5003
+job_worker_active_processor_count: 5
 
+master_max_heap_size: 12G
+master_limit_mem: 16G
+master_request_mem: 8G
+master_rpc_port: 30998
+master_web_port: 30999
+master_active_processor_count: 10
 
-popd > /dev/null
+job_master_rpc_port: 31001
+job_master_web_port: 31002
+job_master_request_mem: 4G
+job_master_limit_mem: 8G
+job_master_max_heap_size: 6G
+job_master_active_processor_count: 10
+
+fuse_max_direct_mem_size: 3G
+fuse_max_heap_size: 5G
+fuse_active_processor_count: 10
+csi_daemon_request_mem: 4G
+csi_daemon_limit_mem: 10G
+
+tieredstores:
+- level: 0
+  mediumtype: MEM,SSD
+  alias: MEM
+  path: /dev/shm,/mnt/ssd
+  quota: 1GB,100GB
+  watermark_low_ratio: 0.7
+  watermark_high_ratio: 0.95
+
+log:
+  level: INFO
+  max_file_size: 50MB
+  max_backup_index: 20
+
+registry_username: username
+registry_password: password

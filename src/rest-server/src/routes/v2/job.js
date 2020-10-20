@@ -64,5 +64,10 @@ router
   /** DELETE /api/v2/jobs/:frameworkName/tag - Delete a framework tag */
   .delete(token.check, controller.deleteTag);
 
+router
+  .route('/:frameworkName/events')
+  /** GET /api/v2/jobs/:frameworkName/events - Get events of a framework */
+  .get(token.check, controller.getEvents);
+
 // module exports
 module.exports = router;

@@ -83,7 +83,7 @@ def gen_nvidia_gpu_temperature_gauge():
 def gen_nvidia_gpu_ecc_counter():
     return GaugeMetricFamily("nvidiasmi_ecc_error_count",
             "count of nvidia ecc error",
-            labels=["minor_number", "type"])
+            labels=["node_name", "minor_number", "type"])
 
 def gen_nvidia_gpu_memory_leak_counter():
     return GaugeMetricFamily("nvidiasmi_memory_leak_count",
@@ -134,6 +134,7 @@ class ResourceGauges(object):
                 "role_name",
                 "task_index",
                 "job_instance_id", # Used to distinguish job instance with same name but different retry number.
+                "virtual_cluster"
                 ]
         self.service_labels = ["name"]
 
@@ -387,7 +388,7 @@ class GpuCollector(Collector):
         return gen_gpu_util_gauge(), gen_gpu_mem_util_gauge()
 
     @staticmethod
-    def convert_nvidia_gpu_info_to_metrics(gpu_info, zombie_info, pid_to_cid_fn, mem_leak_thrashold):
+    def convert_nvidia_gpu_info_to_metrics(gpu_info, zombie_info, pid_to_cid_fn, mem_leak_thrashold, node_name=os.environ.get("NODE_NAME")):
         """ This fn used to convert gpu_info & zombie_info into metrics, used to make
         it easier to do unit test """
         # common gpu metrics
@@ -413,8 +414,8 @@ class GpuCollector(Collector):
             nvidia_mem_utils.add_metric([minor], info.gpu_mem_util)
             if info.temperature is not None:
                 nvidia_gpu_temp.add_metric([minor], info.temperature)
-            nvidia_ecc_errors.add_metric([minor, "single"], info.ecc_errors.single)
-            nvidia_ecc_errors.add_metric([minor, "double"], info.ecc_errors.double)
+            nvidia_ecc_errors.add_metric([node_name, minor, "single"], info.ecc_errors.single)
+            nvidia_ecc_errors.add_metric([node_name, minor, "double"], info.ecc_errors.double)
 
             # TODO: this piece of code seems not corret, gpu_mem_util is
             # a percentage number but mem_leak_thrashold is memory size. Need to fix it.
@@ -529,6 +530,7 @@ class ContainerCollector(Collector):
     lsof_timeout = 2 # 99th latency is 0.5s
 
     pai_services = list(map(lambda s: "k8s_" + s, [
+        # Run in master node
         "rest-server",
         "pylon",
         "webportal",
@@ -536,28 +538,30 @@ class ContainerCollector(Collector):
         "prometheus",
         "alertmanager",
         "watchdog",
-        "end-to-end-test",
-        "yarn-frameworklauncher",
-        "hadoop-jobhistory-service",
-        "hadoop-name-node",
-        "hadoop-node-manager",
-        "hadoop-resource-manager",
-        "hadoop-data-node",
-        "zookeeper",
+        "frameworkcontroller",
+        "hivedscheduler",
+        "framework-watcher_database-controller",
+        "write-merger_database-controller",
+        "poller_database-controller",
+        "dshuttle-master",
+        "dshuttle-job-master",
+        "fluentd",
+        "postgresql_postgresql",
+
+        # Run as daemon set
         "node-exporter",
         "job-exporter",
-        "yarn-exporter",
-        "nvidia-drivers",
-        "docker-cleaner",
-
-        # Below are DLTS services
-        "nginx",
-        "restfulapi",
+        "log-manager-nginx",
+        "log-manager-logrotate",
+        "dshuttle-worker",
+        "dshuttle-job-worker",
+        "dshuttle-csi-daemon",
         "weave",
         "weave-npc",
         "nvidia-device-plugin-ctr",
-        "mysql",
-        "jobmanager",
+        "k8s-host-device",
+        "amdgpu",
+        "k8s-rdma",
         ]))
 
     def __init__(self, name, sleep_time, atomic_ref, iteration_counter, gpu_info_ref,
@@ -605,6 +609,7 @@ class ContainerCollector(Collector):
         result_labels["role_name"] = inspect_info.role_name or "unknown"
         result_labels["task_index"] = inspect_info.task_index or "unknown"
         result_labels["job_instance_id"] = inspect_info.job_instance_id or "unknown"
+        result_labels["virtual_cluster"] = inspect_info.virtual_cluster or "unknown"
 
         if inspect_info.gpu_ids:
             ids = inspect_info.gpu_ids.replace("\"", "").split(",")

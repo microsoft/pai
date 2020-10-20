@@ -773,7 +773,12 @@ const generateFrameworkDescription = (
   };
 
   // generate framework env
-  const frameworkEnv = runtimeEnv.generateFrameworkEnv(frameworkName, config);
+  const frameworkEnv = runtimeEnv.generateFrameworkEnv(
+    frameworkName,
+    config,
+    virtualCluster,
+  );
+
   const frameworkEnvList = Object.keys(frameworkEnv).map((name) => {
     return { name, value: `${frameworkEnv[name]}` };
   });
@@ -1083,7 +1088,10 @@ const put = async (frameworkName, config, rawConfig) => {
 
   // calculate pod priority
   // reference: https://github.com/microsoft/pai/issues/3704
-  const submissionTime = new Date();
+  // Truncate submissionTime to multiple of 1000.
+  // Since kubernetes only provide second-level timestamp,
+  // We don't want the submission time to be larger than Kubernetes creation time.
+  const submissionTime = new Date(parseInt(new Date() / 1000) * 1000);
   let priorityClassDef = null;
   if (launcherConfig.enabledPriorityClass) {
     let jobPriority = 0;
@@ -1094,8 +1102,8 @@ const put = async (frameworkName, config, rawConfig) => {
       jobPriority = Math.min(Math.max(jobPriority, -1), 126);
     }
     const jobCreationTime =
-      Math.floor(submissionTime / 1000) & (Math.pow(2, 23) - 1);
-    const podPriority = -(((126 - jobPriority) << 23) + jobCreationTime);
+      Math.floor(submissionTime / 16000) & (Math.pow(2, 24) - 1);
+    const podPriority = -(((126 - jobPriority) << 24) + jobCreationTime);
     // create priority class
     priorityClassDef = getPriorityClassDef(frameworkName, podPriority);
   }
@@ -1255,6 +1263,35 @@ const deleteTag = async (frameworkName, tag) => {
   }
 };
 
+const getEvents = async (frameworkName, attributes, filters) => {
+  const name = encodeName(frameworkName);
+  const framework = await databaseModel.Framework.findOne({
+    attributes: ['name'],
+    where: { name: name },
+  });
+
+  if (framework) {
+    filters.frameworkName = name;
+    const events = await databaseModel.FrameworkEvent.findAll({
+      attributes: attributes,
+      where: filters,
+      order: [['lastTimestamp', 'DESC']],
+    });
+    return {
+      // we use events.length as totolCount because paging is not supported
+      // if paging is enabled in the future, we should fire another SQL request to get the real total count
+      totalCount: events.length,
+      data: events,
+    };
+  } else {
+    throw createError(
+      'Not Found',
+      'NoJobError',
+      `Job ${frameworkName} is not found.`,
+    );
+  }
+};
+
 const generateExitDiagnostics = (diag) => {
   if (_.isEmpty(diag)) {
     return null;
@@ -1364,4 +1401,5 @@ module.exports = {
   getSshInfo,
   addTag,
   deleteTag,
+  getEvents,
 };

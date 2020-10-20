@@ -6,6 +6,7 @@ import cookies from 'js-cookie';
 import config from '../../config/webportal.config';
 import { checkToken } from '../user-auth/user-auth.component';
 import { clearToken } from '../user-logout/user-logout.component';
+import { getDeshuttleStorageDetails } from '../../job-submission/utils/utils';
 
 const client = new PAIV2.OpenPAIClient({
   rest_server_uri: new URL(config.restServerUri, window.location.href),
@@ -177,8 +178,32 @@ export const listStorageDetailRequest = async () => {
   return wrapper(async () => {
     const storageSummary = await client.storage.getStorages();
     const details = [];
+    const token = checkToken();
     for (const storage of storageSummary.storages) {
-      details.push(await client.storage.getStorage(storage.name));
+      const detail = await client.storage.getStorage(storage.name);
+      if (detail.type === 'dshuttle') {
+        const res = await fetch('dshuttle/api/v1/master/info', {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        if (res.ok) {
+          const json = await res.json();
+          if (
+            detail.data.dshuttlePath &&
+            json.mountPoints[detail.data.dshuttlePath]
+          ) {
+            detail.data = {
+              ...detail.data,
+              ...getDeshuttleStorageDetails(
+                json.mountPoints[detail.data.dshuttlePath],
+              ),
+            };
+          }
+        }
+      }
+
+      details.push(detail);
     }
     return details;
   });

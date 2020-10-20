@@ -1,0 +1,113 @@
+# Copyright (c) Microsoft Corporation
+# All rights reserved.
+#
+# MIT License
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
+# documentation files (the "Software"), to deal in the Software without restriction, including without limitation
+# the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and
+# to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+# The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED *AS IS*, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING
+# BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+# NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+# DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: alertmanager-configmap
+data:
+  config.yml: |-
+    global:
+      resolve_timeout: 5m
+    
+    route:
+      receiver: pai-email-admin
+      group_wait: 30s
+      group_interval: 5m
+      repeat_interval: {{ cluster_cfg["alert-manager"]["repeat-interval"] }}
+      group_by: [alertname, alertstate]
+
+      routes:
+      - receiver: pai-cordon-nodes
+        match:
+          alertname: NvidiaSmiDoubleEccError
+
+      {% if 'routes' in cluster_cfg["alert-manager"]["customized-routes"] %}
+      {% for route in cluster_cfg["alert-manager"]["customized-routes"]["routes"] %}
+      - receiver: {{ route.receiver}}
+        {% if 'match' in route %}
+        match:
+          {% for key, item in route["match"].items() %}
+          {{ key }}: {{ item }}
+          {% endfor %}
+        {% endif %}
+        {% if 'match_re' in route %}
+        match_re:
+          {% for key, item in route["match_re"].items() %}
+          {{ key }}: {{ item }}
+          {% endfor %}
+        {% endif %}
+      {% endfor %}
+      {% endif %}
+
+    receivers:
+    - name: "pai-email-admin"
+      webhook_configs:
+      {% if 'email-admin' in cluster_cfg["alert-manager"]["actions-available"] %}
+      - url: 'http://localhost:{{ cluster_cfg["alert-manager"]["alert-handler"]["port"] }}/alert-handler/send-email-to-admin'
+        send_resolved: true
+      {% endif %}
+
+    - name: pai-cordon-nodes
+      webhook_configs:
+      {% if 'cordon-nodes' in cluster_cfg["alert-manager"]["actions-available"] %}
+      - url: 'http://localhost:{{ cluster_cfg["alert-manager"]["alert-handler"]["port"] }}/alert-handler/cordon-nodes'
+        send_resolved: false
+      {% endif %}
+      {% if 'email-admin' in cluster_cfg["alert-manager"]["actions-available"] %}
+      - url: 'http://localhost:{{ cluster_cfg["alert-manager"]["alert-handler"]["port"] }}/alert-handler/send-email-to-admin'
+        send_resolved: true
+      {% endif %}
+
+    {% for receiver in cluster_cfg["alert-manager"]["customized-receivers"] %}
+    - name: {{ receiver.name}}
+      webhook_configs:
+      {% if 'email-admin' in receiver.actions %}
+      - url: 'http://localhost:{{ cluster_cfg["alert-manager"]["alert-handler"]["port"] }}/alert-handler/send-email-to-admin'
+        send_resolved: true
+      {% endif %}
+
+      {% if 'email-user' in receiver.actions %}
+      - url: 'http://localhost:{{ cluster_cfg["alert-manager"]["alert-handler"]["port"] }}/alert-handler/send-email-to-user'
+        send_resolved: true
+        http_config:
+          bearer_token: {{ cluster_cfg["alert-manager"]["alert-handler"]["pai-bearer-token"] }}
+      {% endif %}
+
+      {% if 'stop-jobs' in receiver.actions %}
+      - url: 'http://localhost:{{ cluster_cfg["alert-manager"]["alert-handler"]["port"] }}/alert-handler/stop-jobs'
+        send_resolved: false
+        http_config:
+          bearer_token: {{ cluster_cfg["alert-manager"]["alert-handler"]["pai-bearer-token"] }}
+      {% endif %}
+
+      {% if 'tag-jobs' in receiver.actions %}
+      {% for tag in receiver["tags"] %}
+      - url: 'http://localhost:{{ cluster_cfg["alert-manager"]["alert-handler"]["port"] }}/alert-handler/tag-jobs/{{ tag }}'
+        send_resolved: false
+        http_config:
+          bearer_token: {{ cluster_cfg["alert-manager"]["alert-handler"]["pai-bearer-token"] }}
+      {% endfor %}
+      {% endif %}
+
+      {% if 'cordon-nodes' in receiver.actions %}
+      - url: 'http://localhost:{{ cluster_cfg["alert-manager"]["alert-handler"]["port"] }}/alert-handler/cordon-nodes'
+        send_resolved: false
+      {% endif %}
+    
+    {% endfor %}

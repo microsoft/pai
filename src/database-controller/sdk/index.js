@@ -125,6 +125,49 @@ class DatabaseModel {
       },
     );
 
+    class TaskHistory extends Model {}
+    TaskHistory.init(
+      {
+        insertedAt: Sequelize.DATE,
+        uid: {
+          type: Sequelize.STRING(36),
+          primaryKey: true,
+        },
+        frameworkName: {
+          type: Sequelize.STRING(64),
+          allowNull: false,
+        },
+        attemptIndex: Sequelize.INTEGER,
+        taskroleName: Sequelize.STRING(256),
+        taskName: Sequelize.STRING(256),
+        taskIndex: Sequelize.INTEGER,
+        taskUid: {
+          type: Sequelize.STRING(36),
+          allowNull: false,
+        },
+        taskAttemptIndex: Sequelize.INTEGER,
+        podUid: Sequelize.STRING(36),
+        historyType: {
+          type: Sequelize.STRING(16),
+          allowNull: false,
+          defaultValue: 'retry',
+        },
+        snapshot: Sequelize.TEXT,
+      },
+      {
+        sequelize,
+        modelName: 'task_history',
+        createdAt: 'insertedAt',
+        indexes: [
+          {
+            unique: false,
+            fields: ['taskUid'],
+          },
+        ],
+        freezeTableName: true,
+      },
+    );
+
     class Pod extends Model {}
     Pod.init(
       {
@@ -168,11 +211,21 @@ class DatabaseModel {
           type: Sequelize.STRING(64),
           allowNull: false,
         },
+        podUid: Sequelize.STRING(36),
+        taskroleName: Sequelize.STRING(256),
+        taskName: Sequelize.STRING(256),
+        taskIndex: Sequelize.INTEGER,
         type: {
           type: Sequelize.STRING(32),
           allowNull: false,
         },
+        reason: Sequelize.STRING(64),
         message: Sequelize.TEXT,
+        firstTimestamp: Sequelize.DATE,
+        lastTimestamp: Sequelize.DATE,
+        count: Sequelize.INTEGER,
+        sourceComponent: Sequelize.STRING(255),
+        sourceHost: Sequelize.STRING(255),
         event: Sequelize.TEXT,
       },
       {
@@ -255,6 +308,7 @@ class DatabaseModel {
     );
 
     Framework.hasMany(FrameworkHistory);
+    Framework.hasMany(TaskHistory);
     Framework.hasMany(Pod);
     Framework.hasMany(FrameworkEvent);
     Framework.hasMany(PodEvent);
@@ -281,6 +335,7 @@ class DatabaseModel {
     this.sequelize = sequelize;
     this.Framework = Framework;
     this.FrameworkHistory = FrameworkHistory;
+    this.TaskHistory = TaskHistory;
     this.Pod = Pod;
     this.FrameworkEvent = FrameworkEvent;
     this.PodEvent = PodEvent;
@@ -296,6 +351,7 @@ class DatabaseModel {
       await Promise.all([
         this.Framework.sync({ alter: true }),
         this.FrameworkHistory.sync({ alter: true }),
+        this.TaskHistory.sync({ alter: true }),
         this.Pod.sync({ alter: true }),
         this.FrameworkEvent.sync({ alter: true }),
         this.PodEvent.sync({ alter: true }),

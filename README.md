@@ -6,7 +6,7 @@
 [![Join the chat at https://gitter.im/Microsoft/pai](https://badges.gitter.im/Microsoft/pai.svg)](https://gitter.im/Microsoft/pai?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 [![Version](https://img.shields.io/github/release/Microsoft/pai.svg)](https://github.com/Microsoft/pai/releases/latest)
 
-**OpenPAI [v1.1.1](./RELEASE_NOTE.md#July-2020-version-111) has been released!**
+**OpenPAI [v1.2.1](./RELEASE_NOTE.md#Oct-2020-version-121) has been released!**
 
 With the release of v1.0, OpenPAI is switching to a more robust, more powerful and lightweight architecture. OpenPAI is also becoming more and more modular so that the platform can be easily customized and expanded to suit new needs. OpenPAI also provides many AI user-friendly features, making it easier for end users and administrators to complete daily AI tasks.
 
@@ -126,6 +126,8 @@ The [admin manual](https://openpai.readthedocs.io/en/latest/manual/cluster-admin
 - **Basic cluster management**. Through the Web-portal and a command-line tool `paictl`, administrators could complete [cluster managements](https://openpai.readthedocs.io/en/latest/manual/cluster-admin/basic-management-operations.html), such as [adding (or removing) nodes](https://openpai.readthedocs.io/en/latest/manual/cluster-admin/how-to-add-and-remove-nodes.html), [monitoring nodes and services](https://openpai.readthedocs.io/en/latest/manual/cluster-admin/basic-management-operations.html#management-on-webportal), and [storages setup and permission control](https://openpai.readthedocs.io/en/latest/manual/cluster-admin/how-to-set-up-storage.html).
 
 - **Users and groups management**. Administrators could manage the [users and groups](https://openpai.readthedocs.io/en/latest/manual/cluster-admin/how-to-manage-users-and-groups.html) easily.
+
+- **Alerts management**. Administrators could [customize alerts rules and actions](https://openpai.readthedocs.io/en/latest/manual/cluster-admin/how-to-customize-alerts.html).
 
 - **Customization**. Administrators could customize the cluster by [plugins](https://openpai.readthedocs.io/en/latest/manual/cluster-admin/how-to-customize-cluster-by-plugins.html). Administrators could also upgrade (or downgrade) a single component (e.g. rest servers) to address customized application demands.
 

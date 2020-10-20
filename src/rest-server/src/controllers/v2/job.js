@@ -234,6 +234,37 @@ const deleteTag = asyncHandler(async (req, res) => {
   });
 });
 
+const getEvents = asyncHandler(async (req, res) => {
+  const filters = {};
+  if (req.query) {
+    if ('type' in req.query) {
+      filters.type = req.query.type;
+    }
+  }
+  const attributes = [
+    'uid',
+    'frameworkName',
+    'podUid',
+    'taskroleName',
+    'taskName',
+    'taskIndex',
+    'type',
+    'reason',
+    'message',
+    'firstTimestamp',
+    'lastTimestamp',
+    'count',
+    'sourceComponent',
+    'sourceHost',
+  ];
+  const data = await job.getEvents(
+    req.params.frameworkName,
+    attributes,
+    filters,
+  );
+  res.json(data);
+});
+
 // module exports
 module.exports = {
   list,
@@ -244,4 +275,5 @@ module.exports = {
   getSshInfo,
   addTag,
   deleteTag,
+  getEvents,
 };

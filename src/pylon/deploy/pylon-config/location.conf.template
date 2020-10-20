@@ -253,6 +253,37 @@ location ~ ^/grafana(.*)$$ {
     'appSubUrl+"/grafana/"';
 }
 
+{%- if DSHUTTLE_URI %}
+# Dshuttle server
+location ~ ^/dshuttle$ {
+  # Add '/' to the end of the URL, otherwise there will be a 404 error.
+  return 301 $scheme://$http_host$request_uri/;
+}
+location ~ ^/dshuttle/(.*)$ {
+  proxy_pass {{DSHUTTLE_URI}}/$1$is_args$args;
+  sub_filter_types *;
+  sub_filter_once off;
+  sub_filter
+    'href="/'
+    'href="/dshuttle/';
+  sub_filter
+    '<script src="/'
+    '<script src="/dshuttle/';
+  sub_filter
+    'root:"/",overview:"/overview",browse:"/browse",config:"/config",data:"/data",logs:"/logs",metrics:"/metrics",workers:"/workers"'
+    'root:"/dshuttle",overview:"/dshuttle/overview",browse:"/dshuttle/browse",config:"/dshuttle/config",data:"/dshuttle/data",logs:"/dshuttle/logs",metrics:"/dshuttle/metrics",workers:"/dshuttle/workers"';
+  sub_filter
+    '/api'
+    '/dshuttle/api';
+  sub_filter
+    '/browse?path='
+    '/dshuttle/browse?path=';
+  sub_filter
+    'static/media/'
+    'dshuttle/static/media/';
+}
+{%- endif %}
+
 # PAI web portal
 location ~ ^(.*)$ {
   proxy_pass {{PAI_WEB_PORTAL_URI}}$1$is_args$args;
@@ -291,6 +322,11 @@ location ~ ^(.*)$ {
   sub_filter
     '{{ALERT_MANGER_URI}}/alert-manager'
     '/alert-manager';
+{%- if DSHUTTLE_URI %}
+  sub_filter
+    '{{DSHUTTLE_URI}}'
+    '/dshuttle';
+{%- endif %}
 
   proxy_set_header    If-None-Match    $request_if_none_match;
   add_header          Etag             $response_etag;
