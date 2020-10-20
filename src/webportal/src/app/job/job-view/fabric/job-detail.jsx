@@ -264,12 +264,12 @@ class JobDetail extends React.Component {
                           />
                         </Stack>
                         <Stack gap='m'>
-                          <Text>Attempt Start Time</Text>
+                          <Text>Attempt Created Time</Text>
                           <Text>
-                            {isNil(jobInfo.jobStatus.createdTime)
+                            {isNil(jobInfo.jobStatus.appCreatedTime)
                               ? 'N/A'
                               : DateTime.fromMillis(
-                                  jobInfo.jobStatus.createdTime,
+                                  jobInfo.jobStatus.appCreatedTime,
                                 ).toLocaleString(
                                   DateTime.DATETIME_MED_WITH_SECONDS,
                                 )}
@@ -280,8 +280,8 @@ class JobDetail extends React.Component {
                           <Text>
                             {getDurationString(
                               this.getTimeDuration(
-                                jobInfo.jobStatus.createdTime,
-                                jobInfo.jobStatus.completedTime,
+                                jobInfo.jobStatus.appCreatedTime,
+                                jobInfo.jobStatus.appCompletedTime,
                               ),
                             )}
                           </Text>
@@ -304,7 +304,7 @@ class JobDetail extends React.Component {
                             {getDurationString(
                               this.getTimeDuration(
                                 jobInfo.jobStatus.appLaunchedTime,
-                                jobInfo.jobStatus.completedTime,
+                                jobInfo.jobStatus.appCompletedTime,
                               ),
                             )}
                           </Text>
