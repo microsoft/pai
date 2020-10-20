@@ -71,7 +71,6 @@ const config = (env, argv) => ({
     jobList: './src/app/job/job-view/fabric/job-list.jsx',
     jobDetail: './src/app/job/job-view/fabric/job-detail.jsx',
     taskAttempt: './src/app/job/job-view/fabric/task-attempt.jsx',
-    jobRetry: './src/app/job/job-view/fabric/job-retry.jsx',
     jobEvent: './src/app/job/job-view/fabric/job-event.jsx',
     virtualClusters: './src/app/vc/vc.component.js',
     services: './src/app/cluster-view/services/services.component.js',
@@ -339,10 +338,6 @@ const config = (env, argv) => ({
     generateHtml({
       filename: 'task-attempt.html',
       chunks: ['layout', 'taskAttempt'],
-    }),
-    generateHtml({
-      filename: 'job-retry.html',
-      chunks: ['layout', 'jobRetry'],
     }),
     generateHtml({
       filename: 'job-event.html',
