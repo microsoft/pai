@@ -47,6 +47,7 @@ import Card from './job-detail/components/card';
 import HorizontalLine from '../../../components/horizontal-line';
 import StatusBadge from '../../../components/status-badge';
 import TaskRoleContainerList from './job-detail/components/task-role-container-list';
+import TaskRoleCount from './job-detail/components/task-role-count';
 
 class JobDetail extends React.Component {
   constructor(props) {
@@ -296,7 +297,11 @@ class JobDetail extends React.Component {
                       Object.keys(jobInfo.taskRoles).map(name => (
                         <Stack key={name} gap='m'>
                           <HorizontalLine />
-                          <Text>{`Task Role:  ${name}`}</Text>
+                          <Stack horizontal gap='l1'>
+                            <Text>{`Task Role:  ${name}`}</Text>
+                            <TaskRoleCount taskInfo={jobInfo.taskRoles[name]} />
+                          </Stack>
+
                           <TaskRoleContainerList
                             taskRoleName={name}
                             tasks={jobInfo.taskRoles[name].taskStatuses}

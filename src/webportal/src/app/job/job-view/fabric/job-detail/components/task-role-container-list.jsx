@@ -691,6 +691,7 @@ export default class TaskRoleContainerList extends React.Component {
       {
         key: 'exitCode',
         name: 'Exit Code',
+        minWidth: 260,
         headerClassName: FontClassNames.medium,
         isResizable: true,
         onRender: item => {
