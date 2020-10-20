@@ -376,8 +376,26 @@ export default class TaskAttemptList extends React.Component {
         ),
       },
       {
+        key: 'exitType',
+        name: 'Exit Type',
+        headerClassName: FontClassNames.medium,
+        minWidth: 150,
+        maxWidth: 200,
+        isResizable: true,
+        onRender: item => {
+          return (
+            <div className={c(FontClassNames.mediumPlus)}>
+              {!isNil(item.containerExitSpec) &&
+              !isNil(item.containerExitSpec.type)
+                ? item.containerExitSpec.type
+                : null}
+            </div>
+          );
+        },
+      },
+      {
         key: 'taskAttemptExitCode',
-        name: 'Task Attempt Exit Code',
+        name: 'Exit Code',
         minWidth: 230,
         headerClassName: FontClassNames.medium,
         isResizable: true,
@@ -435,7 +453,7 @@ export default class TaskAttemptList extends React.Component {
       },
       {
         key: 'taskAttemptLaunchTime',
-        name: 'Task Attempt Launch Time',
+        name: 'Start Time',
         headerClassName: FontClassNames.medium,
         minWidth: 180,
         maxWidth: 200,
@@ -454,7 +472,7 @@ export default class TaskAttemptList extends React.Component {
       },
       {
         key: 'taskAttemptDuration',
-        name: 'Task Attempt Duration',
+        name: 'Duration',
         minWidth: 150,
         headerClassName: FontClassNames.medium,
         isResizable: true,
