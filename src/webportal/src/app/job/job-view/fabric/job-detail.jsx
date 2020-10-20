@@ -266,10 +266,10 @@ class JobDetail extends React.Component {
                         <Stack gap='m'>
                           <Text>Attempt Start Time</Text>
                           <Text>
-                            {isNil(jobInfo.jobStatus.appLaunchedTime)
+                            {isNil(jobInfo.jobStatus.createdTime)
                               ? 'N/A'
                               : DateTime.fromMillis(
-                                  jobInfo.jobStatus.appLaunchedTime,
+                                  jobInfo.jobStatus.createdTime,
                                 ).toLocaleString(
                                   DateTime.DATETIME_MED_WITH_SECONDS,
                                 )}
@@ -280,8 +280,31 @@ class JobDetail extends React.Component {
                           <Text>
                             {getDurationString(
                               this.getTimeDuration(
+                                jobInfo.jobStatus.createdTime,
+                                jobInfo.jobStatus.completedTime,
+                              ),
+                            )}
+                          </Text>
+                        </Stack>
+                        <Stack gap='m'>
+                          <Text>Attempt Running Start Time</Text>
+                          <Text>
+                            {isNil(jobInfo.jobStatus.appLaunchedTime)
+                              ? 'N/A'
+                              : DateTime.fromMillis(
+                                  jobInfo.jobStatus.appLaunchedTime,
+                                ).toLocaleString(
+                                  DateTime.DATETIME_MED_WITH_SECONDS,
+                                )}
+                          </Text>
+                        </Stack>
+                        <Stack gap='m'>
+                          <Text>Attempt Running Duration</Text>
+                          <Text>
+                            {getDurationString(
+                              this.getTimeDuration(
                                 jobInfo.jobStatus.appLaunchedTime,
-                                jobInfo.jobStatus.appCompletedTime,
+                                jobInfo.jobStatus.completedTime,
                               ),
                             )}
                           </Text>
