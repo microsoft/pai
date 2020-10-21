@@ -22,7 +22,7 @@ nav:
       - 如何设置虚拟集群: manual_zh_CN/cluster-admin/如何设置虚拟集群.md
       - 如何添加和移除结点: manual_zh_CN/cluster-admin/如何添加和移除结点.md
       - 如何使用插件定制集群: manual_zh_CN/cluster-admin/如何使用插件定制集群.md
-      - 如何定制报警: manual_zh_CN/cluster-admin/如何定制报警.md
+      - 如何使用报警系统: manual_zh_CN/cluster-admin/如何使用报警系统.md
       - 故障排查: manual_zh_CN/cluster-admin/故障排查.md
       - 推荐实践: manual_zh_CN/cluster-admin/推荐实践.md
       - 如何卸载OpenPAI: manual_zh_CN/cluster-admin/如何卸载openpai.md
