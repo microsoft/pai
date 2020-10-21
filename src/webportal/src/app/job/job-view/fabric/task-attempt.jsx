@@ -82,18 +82,17 @@ const TaskAttemptPage = () => {
             </ActionButton>
           </div>
           <Card style={{ padding: 10 }}>
-            <Stack gap='m'>
-              <Stack horizontal gap='s1' padding='s2'>
+            <Stack>
+              <Stack horizontal gap='m' padding='m'>
                 <Text>Job Name:</Text>
                 <Text>{jobName}</Text>
               </Stack>
               <HorizontalLine />
-              <Stack horizontal gap='s1' padding='s2'>
-                <Text>Job Attempt Index:</Text>
-                <Text>{jobAttemptIndex}</Text>
-              </Stack>
-              <HorizontalLine />
-              <Stack horizontal gap='l1' padding='s2'>
+              <Stack horizontal gap='l1' padding='m'>
+                <Stack gap='m'>
+                  <Text>Job Attempt Index</Text>
+                  <Text>{jobAttemptIndex}</Text>
+                </Stack>
                 <Stack gap='m'>
                   <Text>Task Role</Text>
                   <Text>{taskRoleName}</Text>
@@ -106,6 +105,9 @@ const TaskAttemptPage = () => {
                   <Text>Task Uid</Text>
                   <Text>{taskStatus.taskUid}</Text>
                 </Stack>
+              </Stack>
+              <HorizontalLine />
+              <Stack horizontal gap='l1' padding='m'>
                 <Stack gap='m'>
                   <Text>Task State</Text>
                   <StatusBadge status={capitalize(taskStatus.taskState)} />
@@ -113,6 +115,27 @@ const TaskAttemptPage = () => {
                 <Stack gap='m'>
                   <Text>Task Retries</Text>
                   <Text>{taskStatus.retries}</Text>
+                </Stack>
+                <Stack gap='m'>
+                  <Text>Task Creation Time</Text>
+                  <Text>
+                    {isNil(taskStatus.createdTime)
+                      ? 'N/A'
+                      : DateTime.fromMillis(
+                          taskStatus.createdTime,
+                        ).toLocaleString(DateTime.DATETIME_MED_WITH_SECONDS)}
+                  </Text>
+                </Stack>
+                <Stack gap='m'>
+                  <Text>Task Duration</Text>
+                  <Text>
+                    {getDurationString(
+                      getTimeDuration(
+                        taskStatus.createdTime,
+                        taskStatus.completedTime,
+                      ),
+                    )}
+                  </Text>
                 </Stack>
                 <Stack gap='m'>
                   <Text>Task Running Start Time</Text>

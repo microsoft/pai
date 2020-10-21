@@ -264,7 +264,7 @@ class JobDetail extends React.Component {
                           />
                         </Stack>
                         <Stack gap='m'>
-                          <Text>Attempt Created Time</Text>
+                          <Text>Attempt Creation Time</Text>
                           <Text>
                             {isNil(jobInfo.jobStatus.appCreatedTime)
                               ? 'N/A'

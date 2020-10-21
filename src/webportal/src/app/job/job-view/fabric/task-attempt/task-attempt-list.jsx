@@ -331,7 +331,7 @@ export default class TaskAttemptList extends React.Component {
     return (
       <div>
         <DetailsList
-          styles={{ root: { overflow: 'auto' } }}
+          styles={{ root: { overflow: 'auto', padding: '16px' } }}
           columns={this.getColumns()}
           disableSelectionZone
           items={items}
