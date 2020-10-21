@@ -63,6 +63,8 @@ const convertFrameworkSummary = (framework) => {
     retryDelayTime: framework.retryDelayTime,
     submissionTime: new Date(framework.submissionTime).getTime(),
     createdTime: new Date(framework.creationTime).getTime() || null,
+    launchedTime:
+      new Date(framework.runTime || framework.completionTime).getTime() || null,
     completedTime: new Date(framework.completionTime).getTime() || null,
     appExitCode: framework.appExitCode,
     virtualCluster: framework.virtualCluster
@@ -112,6 +114,9 @@ const convertTaskDetail = async (taskStatus, ports, logPathPrefix) => {
     retries: taskStatus.retryPolicyStatus.totalRetriedCount,
     accountableRetries: taskStatus.retryPolicyStatus.accountableRetriedCount,
     createdTime: new Date(taskStatus.startTime).getTime() || null,
+    launchedTime:
+      new Date(taskStatus.runTime || taskStatus.completionTime).getTime() ||
+      null,
     completedTime: new Date(taskStatus.completionTime).getTime() || null,
     attemptId: taskStatus.attemptStatus.id,
     attemptState: convertAttemptState(
@@ -178,10 +183,15 @@ const convertFrameworkDetail = async (framework, tags) => {
         resource: 0,
       },
       retryDelayTime: framework.status.retryPolicyStatus.retryDelaySec,
-      createdTime: new Date(framework.metadata.creationTimestamp).getTime(),
+      createdTime:
+        new Date(framework.metadata.creationTimestamp).getTime() || null,
+      launchedTime:
+        new Date(
+          framework.status.runTime || framework.status.completionTime,
+        ).getTime() || null,
       completedTime:
         new Date(framework.status.completionTime).getTime() || null,
-      attmptId: attemptStatus.id,
+      attemptId: attemptStatus.id,
       attemptState: convertAttemptState(
         framework.status.state || null,
         completionStatus ? completionStatus.code : null,

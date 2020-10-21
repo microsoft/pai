@@ -537,8 +537,11 @@ const convertToTaskDetail = async (
     ),
     retries: taskStatus.retryPolicyStatus.totalRetriedCount,
     accountableRetries: taskStatus.retryPolicyStatus.accountableRetriedCount,
-    createdTime: new Date(taskStatus.startTime).getTime(),
-    completedTime: new Date(taskStatus.completionTime).getTime(),
+    createdTime: new Date(taskStatus.startTime).getTime() || null,
+    launchedTime:
+      new Date(taskStatus.runTime || taskStatus.completionTime).getTime() ||
+      null,
+    completedTime: new Date(taskStatus.completionTime).getTime() || null,
     // task attempt level information
     attempts: [],
   };

@@ -1173,6 +1173,7 @@ paths:
                   retries: 0
                   submissionTime: 0
                   createdTime: 0
+                  launchedTime: 0
                   completedTime: 0
                   appExitCode: 0
                   virtualCluster: unknown
@@ -1208,6 +1209,7 @@ paths:
                   retries: 0
                   submissionTime: 0
                   createdTime: 0
+                  launchedTime: 0
                   completedTime: 0
                   attemptId: 0
                   attemptState: SUCCEEDED,
@@ -1262,6 +1264,7 @@ paths:
                   retries: 0
                   submissionTime: 0
                   createdTime: 0
+                  launchedTIme: 0
                   completedTime: 0
                   attemptId: 0
                   attemptState: SUCCEEDED,
@@ -1703,6 +1706,7 @@ paths:
                 retries: 1
                 accountableRetries: 1
                 createdTime: 1602480558000
+                launchedTime: 1602480559000
                 completedTime: 1602480603000
                 username: test_user
                 jobName: task_retry_histry_test
@@ -2095,6 +2099,10 @@ components:
             type: integer
             nullable: true
             description: job created time, in number of milliseconds since the Unix Epoch.
+          launchedTime:
+            type: integer
+            nullable: true
+            description: job launched time, in number of milliseconds since the Unix Epoch.
           completedTime:
             type: integer
             nullable: true
@@ -2204,6 +2212,11 @@ components:
               nullable: true
               description: >-
                 job created time, in number of milliseconds since the Unix
+            launchedTime:
+              type: integer
+              nullable: true
+              description: >-
+                job launched time, in number of milliseconds since the Unix
                 Epoch.
             completedTime:
               type: integer
@@ -2432,6 +2445,12 @@ components:
                       nullable: true
                       description: >-
                         task created time, in number of milliseconds since the Unix
+                        Epoch.
+                    launchedTime:
+                      type: integer
+                      nullable: true
+                      description: >-
+                        task launched time, in number of milliseconds since the Unix
                         Epoch.
                     completedTime:
                       type: integer
@@ -2882,6 +2901,11 @@ components:
           nullable: true
           description: >-
             task created time, in number of milliseconds since the Unix Epoch.
+        launchedTime:
+          type: integer
+          nullable: true
+          description: >-
+            task launched time, in number of milliseconds since the Unix Epoch.
         completedTime:
           type: integer
           nullable: true
