@@ -143,82 +143,104 @@ const convertTaskDetail = async (taskStatus, ports, logPathPrefix) => {
 };
 
 const convertFrameworkDetail = async (
-  latestFramework,
-  currentFramework,
+  frameworkWithLatestAttempt,
+  frameworkWithSpecifiedAttempt,
   tags,
 ) => {
-  const attemptStatus = currentFramework
-    ? currentFramework.status.attemptStatus
-    : latestFramework.status.attemptStatus;
-  const attemptState = currentFramework
-    ? currentFramework.status.state
-    : latestFramework.status.state;
+  // job level info
   const jobName = decodeName(
-    latestFramework.metadata.name,
-    latestFramework.metadata.annotations,
+    frameworkWithLatestAttempt.metadata.name,
+    frameworkWithLatestAttempt.metadata.annotations,
   );
-  const userName = latestFramework.metadata.labels
-    ? latestFramework.metadata.labels.userName
+  const userName = frameworkWithLatestAttempt.metadata.labels
+    ? frameworkWithLatestAttempt.metadata.labels.userName
     : 'unknown';
-  const virtualCluster = latestFramework.metadata.labels
-    ? latestFramework.metadata.labels.virtualCluster
+  const virtualCluster = frameworkWithLatestAttempt.metadata.labels
+    ? frameworkWithLatestAttempt.metadata.labels.virtualCluster
     : 'unknown';
-  const logPathInfix = latestFramework.metadata.annotations
-    ? latestFramework.metadata.annotations.logPathInfix
+  const logPathInfix = frameworkWithLatestAttempt.metadata.annotations
+    ? frameworkWithLatestAttempt.metadata.annotations.logPathInfix
     : null;
 
-  const completionStatus = attemptStatus.completionStatus;
-  const diagnostics = completionStatus ? completionStatus.diagnostics : null;
+  const latestAttemptStatus = frameworkWithLatestAttempt.status.attemptStatus;
+  const latestAttemptCompletionStatus = latestAttemptStatus.completionStatus;
+  const specifiedAttemptStatus =
+    frameworkWithSpecifiedAttempt.status.attemptStatus;
+  const specifiedAttemptCompletionStatus =
+    specifiedAttemptStatus.completionStatus;
+
+  const diagnostics = specifiedAttemptCompletionStatus
+    ? specifiedAttemptCompletionStatus.diagnostics
+    : null;
   const exitDiagnostics = generateExitDiagnostics(diagnostics);
 
   const detail = {
-    debugId: latestFramework.metadata.name,
+    // job level detail
+    debugId: frameworkWithLatestAttempt.metadata.name,
     name: jobName,
     tags: tags.reduce((arr, curr) => [...arr, curr.name], []),
     jobStatus: {
       username: userName,
       state: convertState(
-        latestFramework.status.state,
-        completionStatus ? completionStatus.code : null,
+        frameworkWithLatestAttempt.status.state,
+        latestAttemptCompletionStatus
+          ? latestAttemptCompletionStatus.code
+          : null,
       ),
-      subState: latestFramework.status.state,
-      executionType: latestFramework.spec.executionType.toUpperCase(),
-      retries: latestFramework.status.retryPolicyStatus.totalRetriedCount,
+      subState: frameworkWithLatestAttempt.status.state,
+      executionType: frameworkWithLatestAttempt.spec.executionType.toUpperCase(),
+      retries:
+        frameworkWithLatestAttempt.status.retryPolicyStatus.totalRetriedCount,
       retryDetails: {
-        user: latestFramework.status.retryPolicyStatus.accountableRetriedCount,
+        user:
+          frameworkWithLatestAttempt.status.retryPolicyStatus
+            .accountableRetriedCount,
         platform:
-          latestFramework.status.retryPolicyStatus.totalRetriedCount -
-          latestFramework.status.retryPolicyStatus.accountableRetriedCount,
+          frameworkWithLatestAttempt.status.retryPolicyStatus
+            .totalRetriedCount -
+          frameworkWithLatestAttempt.status.retryPolicyStatus
+            .accountableRetriedCount,
         resource: 0,
       },
-      retryDelayTime: latestFramework.status.retryPolicyStatus.retryDelaySec,
+      retryDelayTime:
+        frameworkWithLatestAttempt.status.retryPolicyStatus.retryDelaySec,
       createdTime:
-        new Date(latestFramework.metadata.creationTimestamp).getTime() || null,
+        new Date(
+          frameworkWithLatestAttempt.metadata.creationTimestamp,
+        ).getTime() || null,
       launchedTime:
         new Date(
-          latestFramework.status.runTime ||
-            latestFramework.status.completionTime,
+          frameworkWithLatestAttempt.status.runTime ||
+            frameworkWithLatestAttempt.status.completionTime,
         ).getTime() || null,
       completedTime:
-        new Date(latestFramework.status.completionTime).getTime() || null,
-      attemptId: attemptStatus.id,
+        new Date(frameworkWithLatestAttempt.status.completionTime).getTime() ||
+        null,
+      // attempt level detail
+      attemptId: specifiedAttemptStatus.id,
       attemptState: convertAttemptState(
-        attemptState || null,
-        completionStatus ? completionStatus.code : null,
+        frameworkWithSpecifiedAttempt.status.state || null,
+        specifiedAttemptCompletionStatus
+          ? specifiedAttemptCompletionStatus.code
+          : null,
       ),
-      appId: attemptStatus.instanceUID,
-      appProgress: completionStatus ? 1 : 0,
+      appId: specifiedAttemptStatus.instanceUID,
+      appProgress: specifiedAttemptCompletionStatus ? 1 : 0,
       appTrackingUrl: '',
-      appCreatedTime: new Date(attemptStatus.startTime).getTime() || null,
+      appCreatedTime:
+        new Date(specifiedAttemptStatus.startTime).getTime() || null,
       appLaunchedTime:
         new Date(
-          attemptStatus.runTime || attemptStatus.completionTime,
+          specifiedAttemptStatus.runTime ||
+            specifiedAttemptStatus.completionTime,
         ).getTime() || null,
       appCompletedTime:
-        new Date(attemptStatus.completionTime).getTime() || null,
-      appExitCode: completionStatus ? completionStatus.code : null,
-      appExitSpec: completionStatus
-        ? generateExitSpec(completionStatus.code)
+        new Date(specifiedAttemptStatus.completionTime).getTime() || null,
+      appExitCode: specifiedAttemptCompletionStatus
+        ? specifiedAttemptCompletionStatus.code
+        : null,
+      appExitSpec: specifiedAttemptCompletionStatus
+        ? generateExitSpec(specifiedAttemptCompletionStatus.code)
         : generateExitSpec(null),
       appExitDiagnostics: exitDiagnostics
         ? exitDiagnostics.diagnosticsSummary
@@ -231,31 +253,36 @@ const convertFrameworkDetail = async (
           }
         : null,
       appExitTriggerMessage:
-        completionStatus && completionStatus.trigger
-          ? completionStatus.trigger.message
+        specifiedAttemptCompletionStatus &&
+        specifiedAttemptCompletionStatus.trigger
+          ? specifiedAttemptCompletionStatus.trigger.message
           : null,
       appExitTriggerTaskRoleName:
-        completionStatus && completionStatus.trigger
-          ? completionStatus.trigger.taskRoleName
+        specifiedAttemptCompletionStatus &&
+        specifiedAttemptCompletionStatus.trigger
+          ? specifiedAttemptCompletionStatus.trigger.taskRoleName
           : null,
       appExitTriggerTaskIndex:
-        completionStatus && completionStatus.trigger
-          ? completionStatus.trigger.taskIndex
+        specifiedAttemptCompletionStatus &&
+        specifiedAttemptCompletionStatus.trigger
+          ? specifiedAttemptCompletionStatus.trigger.taskIndex
           : null,
-      appExitType: completionStatus ? completionStatus.type.name : null,
+      appExitType: specifiedAttemptCompletionStatus
+        ? specifiedAttemptCompletionStatus.type.name
+        : null,
       virtualCluster,
     },
     taskRoles: {},
   };
   const ports = {};
-  for (const taskRoleSpec of latestFramework.spec.taskRoles) {
+  for (const taskRoleSpec of frameworkWithSpecifiedAttempt.spec.taskRoles) {
     ports[taskRoleSpec.name] =
       taskRoleSpec.task.pod.metadata.annotations[
         'rest-server/port-scheduling-spec'
       ];
   }
 
-  for (const taskRoleStatus of attemptStatus.taskRoleStatuses) {
+  for (const taskRoleStatus of specifiedAttemptStatus.taskRoleStatuses) {
     const taskStatuses = await Promise.all(
       taskRoleStatus.taskStatuses.map(
         async (status) =>
@@ -892,13 +919,13 @@ const get = async (frameworkName, jobAttemptId) => {
       `Job ${frameworkName} is not found.`,
     );
   }
+  const frameworkWithLatestAttempt = JSON.parse(framework.snapshot);
 
-  const latestFramework = JSON.parse(framework.snapshot);
-
-  let currentFramework;
-  // find corresponding job attempt when specified
+  // find the framework with corresponding job attempt when specified
+  // use the latest attempt when not specified
+  let frameworkWithSpecifiedAttempt = frameworkWithLatestAttempt;
   if (jobAttemptId !== undefined) {
-    if (jobAttemptId < latestFramework.status.attemptStatus.id) {
+    if (jobAttemptId < frameworkWithLatestAttempt.status.attemptStatus.id) {
       const frameworkHistory = await databaseModel.FrameworkHistory.findOne({
         attributes: ['snapshot'],
         where: {
@@ -913,8 +940,10 @@ const get = async (frameworkName, jobAttemptId) => {
           `JobAttemptId ${jobAttemptId} is not found in ${frameworkName}.`,
         );
       }
-      currentFramework = JSON.parse(frameworkHistory.snapshot);
-    } else if (jobAttemptId > latestFramework.status.attemptStatus.id) {
+      frameworkWithSpecifiedAttempt = JSON.parse(frameworkHistory.snapshot);
+    } else if (
+      jobAttemptId > frameworkWithLatestAttempt.status.attemptStatus.id
+    ) {
       throw createError(
         'Not Found',
         'NoJobError',
@@ -924,8 +953,8 @@ const get = async (frameworkName, jobAttemptId) => {
   }
   // convert to response schema
   const frameworkDetail = await convertFrameworkDetail(
-    latestFramework,
-    currentFramework,
+    frameworkWithLatestAttempt,
+    frameworkWithSpecifiedAttempt,
     framework.tags,
   );
   frameworkDetail.jobStatus.submissionTime = new Date(
