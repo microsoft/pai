@@ -34,12 +34,9 @@ spec:
       priorityClassName: pai-daemon-priority
       hostNetwork: false
       containers:
-      - name: log-manager-logrotate
-        image: {{ cluster_cfg["cluster"]["docker-registry"]["prefix"] }}log-manager-logrotate:{{ cluster_cfg["cluster"]["docker-registry"]["tag"] }}
+      - name: log-cleaner
+        image: {{ cluster_cfg["cluster"]["docker-registry"]["prefix"] }}log-cleaner:{{ cluster_cfg["cluster"]["docker-registry"]["tag"] }}
         imagePullPolicy: Always
-        env:
-        - name: LOGROTATE_CRONSCHEDULE
-          value: "*/10 * * * *"
         volumeMounts:
         - name: pai-log
           mountPath: /usr/local/pai/logs
