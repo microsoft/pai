@@ -1,15 +1,18 @@
 #!/usr/bin/env python
 
 import copy
-from flatten_dict import flatten, unflatten
+import collections
 
-def soft_update_dict(dict_0, dict_1):
+def soft_update_dict(d, u):
     """
     keep original key in nested dict if not present in the new dict
     """
-    res = flatten(dict_0)
-    res.update(flatten(dict_1))
-    return unflatten(res)
+    for k, v in u.iteritems():
+        if isinstance(v, collections.Mapping):
+            d[k] = soft_update_dict(d.get(k, {}), v)
+        else:
+            d[k] = v
+    return d
 
 class AlertManager(object):
     def __init__(self, cluster_conf, service_conf, default_service_conf):
