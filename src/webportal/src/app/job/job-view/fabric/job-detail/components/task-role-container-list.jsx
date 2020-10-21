@@ -709,8 +709,8 @@ export default class TaskRoleContainerList extends React.Component {
     ];
     const optionalColumns = [
       {
-        key: 'startTime',
-        name: 'Start Time',
+        key: 'createdTime',
+        name: 'Created Time',
         headerClassName: FontClassNames.medium,
         minWidth: 180,
         maxWidth: 200,

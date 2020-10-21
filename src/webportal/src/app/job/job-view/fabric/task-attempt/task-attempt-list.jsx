@@ -452,8 +452,8 @@ export default class TaskAttemptList extends React.Component {
         },
       },
       {
-        key: 'taskAttemptLaunchTime',
-        name: 'Start Time',
+        key: 'runningStartTime',
+        name: 'Running Start Time',
         headerClassName: FontClassNames.medium,
         minWidth: 180,
         maxWidth: 200,
@@ -472,7 +472,7 @@ export default class TaskAttemptList extends React.Component {
       },
       {
         key: 'taskAttemptDuration',
-        name: 'Duration',
+        name: 'Running Duration',
         minWidth: 150,
         headerClassName: FontClassNames.medium,
         isResizable: true,

@@ -115,7 +115,7 @@ const TaskAttemptPage = () => {
                   <Text>{taskStatus.retries}</Text>
                 </Stack>
                 <Stack gap='m'>
-                  <Text>Task Start Time</Text>
+                  <Text>Task Created Time</Text>
                   <Text>
                     {isNil(taskStatus.createdTime)
                       ? 'N/A'
