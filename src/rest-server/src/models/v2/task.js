@@ -17,6 +17,7 @@
 
 // module dependencies
 const logger = require('@pai/config/logger');
+const { Op } = require('sequelize');
 const databaseModel = require('@pai/utils/dbUtils');
 const { encodeName } = require('@pai/models/v2/utils/name');
 const createError = require('@pai/utils/error');
@@ -95,7 +96,16 @@ const get = async (frameworkName, jobAttemptIndex, taskRoleName, taskIndex) => {
   try {
     taskHistories = await databaseModel.TaskHistory.findAll({
       attributes: ['snapshot'],
-      where: { taskUid: taskUid },
+      where: {
+        [Op.and]: [
+          { taskUid: taskUid },
+          {
+            taskAttemptIndex: {
+              [Op.lt]: taskStatus.attemptStatus.id,
+            },
+          },
+        ],
+      },
       order: [['taskAttemptIndex', 'DESC']],
     });
   } catch (error) {
