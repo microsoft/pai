@@ -17,7 +17,7 @@
 
 import c from 'classnames';
 import { capitalize } from 'lodash';
-import { TooltipHost } from 'office-ui-fabric-react';
+import { TooltipHost, Text } from 'office-ui-fabric-react';
 import PropTypes from 'prop-types';
 import React from 'react';
 
@@ -74,11 +74,11 @@ const TaskRoleCount = ({ taskInfo }) => {
               content={capitalize(x)}
             >
               <div
-                className={c(t.br100, t.h1, t.w1)}
+                className={c(t.br100, t.h1, t.w1, t.mr2)}
                 style={{ backgroundColor: statusColor[x] }}
               ></div>
             </TooltipHost>
-            <div className={c(t.ml2)}>{count[x]}</div>
+            <Text>{count[x]}</Text>
           </div>
         ))}
     </div>
