@@ -527,14 +527,12 @@ export default class TaskAttemptList extends React.Component {
         onRender: (item, idx) => {
           return (
             <div className={FontClassNames.mediumPlus}>
-              {isNil(item.currentAttemptCompletedTime)
-                ? 'N/A'
-                : getDurationString(
-                    this.getTimeDuration(
-                      item.currentAttemptLaunchedTime,
-                      item.currentAttemptCompletedTime,
-                    ),
-                  )}
+              {getDurationString(
+                this.getTimeDuration(
+                  item.currentAttemptLaunchedTime,
+                  item.currentAttemptCompletedTime,
+                ),
+              )}
             </div>
           );
         },

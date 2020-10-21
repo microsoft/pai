@@ -709,8 +709,8 @@ export default class TaskRoleContainerList extends React.Component {
     ];
     const optionalColumns = [
       {
-        key: 'createdTime',
-        name: 'Created Time',
+        key: 'runningStartTime',
+        name: 'Running Start Time',
         headerClassName: FontClassNames.medium,
         minWidth: 180,
         maxWidth: 200,
@@ -718,9 +718,9 @@ export default class TaskRoleContainerList extends React.Component {
         onRender: item => {
           return (
             <div className={c(FontClassNames.mediumPlus)}>
-              {isNil(item.createdTime)
+              {isNil(item.launchedTime)
                 ? 'N/A'
-                : DateTime.fromMillis(item.createdTime).toLocaleString(
+                : DateTime.fromMillis(item.launchedTime).toLocaleString(
                     DateTime.DATETIME_MED_WITH_SECONDS,
                   )}
             </div>
@@ -729,17 +729,16 @@ export default class TaskRoleContainerList extends React.Component {
       },
       {
         key: 'Duration',
-        name: 'Duration',
+        name: 'Running Duration',
+        minWidth: 150,
         headerClassName: FontClassNames.medium,
         isResizable: true,
         onRender: (item, idx) => {
           return (
             <div className={FontClassNames.mediumPlus}>
-              {isNil(item.completedTime)
-                ? 'N/A'
-                : getDurationString(
-                    this.getTimeDuration(item.createdTime, item.completedTime),
-                  )}
+              {getDurationString(
+                this.getTimeDuration(item.launchedTime, item.completedTime),
+              )}
             </div>
           );
         },

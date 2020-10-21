@@ -115,21 +115,21 @@ const TaskAttemptPage = () => {
                   <Text>{taskStatus.retries}</Text>
                 </Stack>
                 <Stack gap='m'>
-                  <Text>Task Created Time</Text>
+                  <Text>Task Running Start Time</Text>
                   <Text>
-                    {isNil(taskStatus.createdTime)
+                    {isNil(taskStatus.launchedTime)
                       ? 'N/A'
                       : DateTime.fromMillis(
-                          taskStatus.createdTime,
+                          taskStatus.launchedTime,
                         ).toLocaleString(DateTime.DATETIME_MED_WITH_SECONDS)}
                   </Text>
                 </Stack>
                 <Stack gap='m'>
-                  <Text>Task Duration</Text>
+                  <Text>Task Running Duration</Text>
                   <Text>
                     {getDurationString(
                       getTimeDuration(
-                        taskStatus.createdTime,
+                        taskStatus.launchedTime,
                         taskStatus.completedTime,
                       ),
                     )}
