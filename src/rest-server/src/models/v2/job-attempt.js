@@ -19,6 +19,7 @@
 const launcherConfig = require('@pai/config/launcher');
 const logger = require('@pai/config/logger');
 const databaseModel = require('@pai/utils/dbUtils');
+const createError = require('@pai/utils/error');
 const { encodeName } = require('@pai/models/v2/utils/name');
 const {
   convertToJobAttempt,
@@ -107,9 +108,14 @@ if (launcherConfig.enabledJobHistory) {
       logger.warn(
         `could not get framework ${encodedFrameworkName} from database.`,
       );
-      return { status: 404, data: null };
+      throw createError(
+        'Not Found',
+        'NoJobError',
+        `Job ${frameworkName} is not found.`,
+      );
     }
 
+    // when attemptIndex is not the last attempt, get the framework attempt from frameworkHistory table
     if (jobAttemptIndex < attemptFramework.status.attemptStatus.id) {
       const historyFramework = await databaseModel.FrameworkHistory.findOne({
         attributes: ['snapshot'],
@@ -120,18 +126,24 @@ if (launcherConfig.enabledJobHistory) {
       });
 
       if (!historyFramework) {
-        return { status: 404, data: null };
+        throw createError(
+          'Not Found',
+          'NoJobError',
+          `Job attempt not found in job ${frameworkName} with jobAttemptIndex ${jobAttemptIndex}`,
+        );
       } else {
         attemptFramework = JSON.parse(historyFramework.snapshot);
-        const attemptDetail = await convertToJobAttempt(attemptFramework);
-        return { status: 200, data: { ...attemptDetail, isLatest: false } };
       }
-    } else if (jobAttemptIndex === attemptFramework.status.attemptStatus.id) {
-      const attemptDetail = await convertToJobAttempt(attemptFramework);
-      return { status: 200, data: { ...attemptDetail, isLatest: true } };
-    } else {
-      return { status: 404, data: null };
+    } else if (jobAttemptIndex > attemptFramework.status.attemptStatus.id) {
+      throw createError(
+        'Not Found',
+        'NoJobError',
+        `Job attempt not found in job ${frameworkName} with jobAttemptIndex ${jobAttemptIndex}`,
+      );
     }
+
+    const attemptDetail = await convertToJobAttempt(attemptFramework);
+    return { status: 200, data: { ...attemptDetail, isLatest: true } };
   };
 
   module.exports = {
