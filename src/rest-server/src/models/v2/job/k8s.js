@@ -142,20 +142,29 @@ const convertTaskDetail = async (taskStatus, ports, logPathPrefix) => {
   };
 };
 
-const convertFrameworkDetail = async (framework, tags) => {
-  const attemptStatus = framework.status.attemptStatus;
+const convertFrameworkDetail = async (
+  latestFramework,
+  currentFramework,
+  tags,
+) => {
+  const attemptStatus = currentFramework
+    ? currentFramework.status.attemptStatus
+    : latestFramework.status.attemptStatus;
+  const attemptState = currentFramework
+    ? currentFramework.status.state
+    : latestFramework.status.state;
   const jobName = decodeName(
-    framework.metadata.name,
-    framework.metadata.annotations,
+    latestFramework.metadata.name,
+    latestFramework.metadata.annotations,
   );
-  const userName = framework.metadata.labels
-    ? framework.metadata.labels.userName
+  const userName = latestFramework.metadata.labels
+    ? latestFramework.metadata.labels.userName
     : 'unknown';
-  const virtualCluster = framework.metadata.labels
-    ? framework.metadata.labels.virtualCluster
+  const virtualCluster = latestFramework.metadata.labels
+    ? latestFramework.metadata.labels.virtualCluster
     : 'unknown';
-  const logPathInfix = framework.metadata.annotations
-    ? framework.metadata.annotations.logPathInfix
+  const logPathInfix = latestFramework.metadata.annotations
+    ? latestFramework.metadata.annotations.logPathInfix
     : null;
 
   const completionStatus = attemptStatus.completionStatus;
@@ -163,37 +172,38 @@ const convertFrameworkDetail = async (framework, tags) => {
   const exitDiagnostics = generateExitDiagnostics(diagnostics);
 
   const detail = {
-    debugId: framework.metadata.name,
+    debugId: latestFramework.metadata.name,
     name: jobName,
     tags: tags.reduce((arr, curr) => [...arr, curr.name], []),
     jobStatus: {
       username: userName,
       state: convertState(
-        framework.status.state,
+        latestFramework.status.state,
         completionStatus ? completionStatus.code : null,
       ),
-      subState: framework.status.state,
-      executionType: framework.spec.executionType.toUpperCase(),
-      retries: framework.status.retryPolicyStatus.totalRetriedCount,
+      subState: latestFramework.status.state,
+      executionType: latestFramework.spec.executionType.toUpperCase(),
+      retries: latestFramework.status.retryPolicyStatus.totalRetriedCount,
       retryDetails: {
-        user: framework.status.retryPolicyStatus.accountableRetriedCount,
+        user: latestFramework.status.retryPolicyStatus.accountableRetriedCount,
         platform:
-          framework.status.retryPolicyStatus.totalRetriedCount -
-          framework.status.retryPolicyStatus.accountableRetriedCount,
+          latestFramework.status.retryPolicyStatus.totalRetriedCount -
+          latestFramework.status.retryPolicyStatus.accountableRetriedCount,
         resource: 0,
       },
-      retryDelayTime: framework.status.retryPolicyStatus.retryDelaySec,
+      retryDelayTime: latestFramework.status.retryPolicyStatus.retryDelaySec,
       createdTime:
-        new Date(framework.metadata.creationTimestamp).getTime() || null,
+        new Date(latestFramework.metadata.creationTimestamp).getTime() || null,
       launchedTime:
         new Date(
-          framework.status.runTime || framework.status.completionTime,
+          latestFramework.status.runTime ||
+            latestFramework.status.completionTime,
         ).getTime() || null,
       completedTime:
-        new Date(framework.status.completionTime).getTime() || null,
+        new Date(latestFramework.status.completionTime).getTime() || null,
       attemptId: attemptStatus.id,
       attemptState: convertAttemptState(
-        framework.status.state || null,
+        attemptState || null,
         completionStatus ? completionStatus.code : null,
       ),
       appId: attemptStatus.instanceUID,
@@ -238,15 +248,14 @@ const convertFrameworkDetail = async (framework, tags) => {
     taskRoles: {},
   };
   const ports = {};
-  for (const taskRoleSpec of framework.spec.taskRoles) {
+  for (const taskRoleSpec of latestFramework.spec.taskRoles) {
     ports[taskRoleSpec.name] =
       taskRoleSpec.task.pod.metadata.annotations[
         'rest-server/port-scheduling-spec'
       ];
   }
 
-  for (const taskRoleStatus of framework.status.attemptStatus
-    .taskRoleStatuses) {
+  for (const taskRoleStatus of attemptStatus.taskRoleStatuses) {
     const taskStatuses = await Promise.all(
       taskRoleStatus.taskStatuses.map(
         async (status) =>
@@ -884,11 +893,12 @@ const get = async (frameworkName, jobAttemptId) => {
     );
   }
 
-  const snapshot = JSON.parse(framework.snapshot);
+  const latestFramework = JSON.parse(framework.snapshot);
 
+  let currentFramework;
   // find corresponding job attempt when specified
   if (jobAttemptId !== undefined) {
-    if (jobAttemptId < snapshot.status.attemptStatus.id) {
+    if (jobAttemptId < latestFramework.status.attemptStatus.id) {
       const frameworkHistory = await databaseModel.FrameworkHistory.findOne({
         attributes: ['snapshot'],
         where: {
@@ -903,11 +913,8 @@ const get = async (frameworkName, jobAttemptId) => {
           `JobAttemptId ${jobAttemptId} is not found in ${frameworkName}.`,
         );
       }
-      // replace `attemptStatus`
-      snapshot.status.attemptStatus = JSON.parse(
-        frameworkHistory.snapshot,
-      ).status.attemptStatus;
-    } else if (jobAttemptId > snapshot.status.attemptStatus.id) {
+      currentFramework = JSON.parse(frameworkHistory.snapshot);
+    } else if (jobAttemptId > latestFramework.status.attemptStatus.id) {
       throw createError(
         'Not Found',
         'NoJobError',
@@ -917,7 +924,8 @@ const get = async (frameworkName, jobAttemptId) => {
   }
   // convert to response schema
   const frameworkDetail = await convertFrameworkDetail(
-    snapshot,
+    latestFramework,
+    currentFramework,
     framework.tags,
   );
   frameworkDetail.jobStatus.submissionTime = new Date(
