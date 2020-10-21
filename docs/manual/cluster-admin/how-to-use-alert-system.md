@@ -1,10 +1,10 @@
 # How to Use Alert System
 
-OpenPAI has a built-in alert system. The alert system has some existing alert rules and actions. It can also let admin customize them. In this document, we will have a detailed introduction about this topic.
+OpenPAI has a built-in alert system. The alert system has some existing alert rules and actions. It can also let admin customize them. In this document, we will have a detailed introduction to this topic.
 
 ## Alert Rules
 
-OpenPAI uses [`Prometheus`](https://prometheus.io/) to monitor system metrics, e.g. memory usage, disk usage, GPU usage and so on. Using the metrics, we can set up several alert rules. The alert rules define some alert conditions, and are also configured in Prometheus. When certain condition is fulfilled, Prometheus will send corresponding alert.
+OpenPAI uses [`Prometheus`](https://prometheus.io/) to monitor system metrics, e.g. memory usage, disk usage, GPU usage, and so on. Using the metrics, we can set up several alert rules. The alert rules define some alert conditions and are also configured in Prometheus. When a certain condition is fulfilled, Prometheus will send a corresponding alert.
 
 For example, the following configuration is the pre-defined `GpuUsedByExternalProcess` alert. It uses the metric `gpu_used_by_external_process_count`. If an external process using the GPU resource in OpenPAI over 5 minutes, Prometheus will fire a `GpuUsedByExternalProcess` alert.
 
@@ -16,7 +16,7 @@ annotations:
   summary: found nvidia used by external process in {{$labels.instance}}
 ```
 
-For detailed syntax of alert rules, please refer to [here](https://prometheus.io/docs/prometheus/latest/configuration/alerting_rules/).
+For the detailed syntax of alert rules, please refer to [here](https://prometheus.io/docs/prometheus/latest/configuration/alerting_rules/).
 
 All alerts fired by the alert rules, including the pre-defined rules and the customized rules, will be shown on the home page of Webportal (on the top-right corner).
 
@@ -50,7 +50,7 @@ prometheus:
 ```
 
 The `PAIJobGpuPercentLowerThan0_3For1h` alert will be fired when the job on virtual cluster `default` has a task level average GPU percent lower than `30%` for more than `1 hour`.
-Here the metric `task_gpu_percent` is used, which describes the GPU utilization in task level. 
+Here the metric `task_gpu_percent` is used, which describes the GPU utilization at task level. 
 
 Remember to push service config to the cluster and restart the `prometheus` service after your modification with the following commands [in the dev-box container](./basic-management-operations.md#pai-service-management-and-paictl):
 ```bash
@@ -107,7 +107,7 @@ We have provided so far these following actions:
   - `tag-jobs`: Add a tag to jobs by calling OpenPAI REST API.
   - `cordon-nodes`: Call Kubernetes API to cordon the corresponding nodes.
 
-But before you use them, you have to add proper configuration in the `alert-handler` field. For example, `email-admin` needs you to set up an SMTP account to send the email and an admin email address to receive the email. Also, the `tag-jobs` and `stop-jobs` action calls OpenPAI REST API, so you should set a rest server token for them. To get the token, you should go to your profile page (in the top-right corner on Webporal, click `View my profile`), and use `Create application token` to create one. Generally speaking, there are two parts of configuration in the `alert-handler` field. One is `email-configs`. The other is `pai-bearer-token`. The requirements for different actions are shown in the following table:
+But before you use them, you have to add proper configuration in the `alert-handler` field. For example, `email-admin` needs you to set up an SMTP account to send the email and an admin email address to receive the email. Also, the `tag-jobs` and `stop-jobs` action calls OpenPAI REST API, so you should set a rest server token for them. To get the token, you should go to your profile page (in the top-right corner on Webporal, click `View my profile`), and use `Create application token` to create one. Generally speaking, there are two parts of the configuration in the `alert-handler` field. One is `email-configs`. The other is `pai-bearer-token`. The requirements for different actions are shown in the following table:
 
 |              | email-configs | pai-bearer-token |
 | :-----------:| :-----------: | :--------------: |
@@ -117,9 +117,9 @@ But before you use them, you have to add proper configuration in the `alert-hand
 | stop-jobs    | -             | required         |
 | tag-jobs     | -             | required         |
 
-In addition, some actions may depend on certain field in the `labels` of alert instance. The labels of the `alert instance` are generated based on the expression in the alert rule. For example, the expression of the `PAIJobGpuPercentLowerThan0_3For1h` alert we mentioned in previous section is `avg(task_gpu_percent{virtual_cluster=~"default"}) by (job_name) < 0.3`. This expression returns a list, the element in which contains the `job_name` field. Sothere will be also a `job_name` field in the labels of the alert instance. `stop-jobs` action depends on the `job_name` field, and it will stop the corresponding job based on it. To inspect the labels of an alert, you can visit `http(s)://<your master IP>/prometheus/alerts`. If the alert is firing, you can see its labels on this page. For the depended fields of each pre-defined action, please refer to the following table:
+In addition, some actions may depend on certain fields in the `labels` of alert instances. The labels of the `alert instance` are generated based on the expression in the alert rule. For example, the expression of the `PAIJobGpuPercentLowerThan0_3For1h` alert we mentioned in previous section is `avg(task_gpu_percent{virtual_cluster=~"default"}) by (job_name) < 0.3`. This expression returns a list, the element in which contains the `job_name` field. So there will be also a `job_name` field in the labels of the alert instance. `stop-jobs` action depends on the `job_name` field, and it will stop the corresponding job based on it. To inspect the labels of an alert, you can visit `http(s)://<your master IP>/prometheus/alerts`. If the alert is firing, you can see its labels on this page. For the depended fields of each pre-defined action, please refer to the following table:
 
-|              | depended label field |
+|              | depended on label field |
 | :-----------:| :------------------: |
 | cordon-nodes | node_name            |
 | email-admin  | -                    | 
@@ -217,7 +217,7 @@ and `alert-handler` will adapt the requests to various actions.
 Please define how to render your customized action to the `alert-handler` API request
 [here](https://github.com/microsoft/pai/blob/master/src/alert-manager/src/alert-handler)
 
-Remember to re-build and push the docker image, and restart the `alert-manager` service after your modification with the following commmands in the dev-box container:
+Remember to re-build and push the docker image, and restart the `alert-manager` service after your modification with the following commands in the dev-box container:
 
 ```bash
 ./build/pai_build.py build -c /cluster-configuration/ -s alert-manager
