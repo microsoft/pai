@@ -1,6 +1,15 @@
 #!/usr/bin/env python
 
 import copy
+from flatten_dict import flatten, unflatten
+
+def soft_update_dict(dict_0, dict_1):
+    """
+    keep original key in nested dict if not present in the new dict
+    """
+    res = flatten(dict_0)
+    res.update(flatten(dict_1))
+    return unflatten(res)
 
 class AlertManager(object):
     def __init__(self, cluster_conf, service_conf, default_service_conf):
@@ -17,8 +26,7 @@ class AlertManager(object):
         return True, None
 
     def run(self):
-        result = copy.deepcopy(self.default_service_conf)
-        result.update(self.service_conf)
+        result = soft_update_dict(self.default_service_conf, self.service_conf)
 
         # check if email_configs is properly configured
         if result.get("alert-handler") is not None and \
