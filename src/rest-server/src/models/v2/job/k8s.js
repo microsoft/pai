@@ -169,10 +169,12 @@ const convertFrameworkDetail = async (
   const specifiedAttemptCompletionStatus =
     specifiedAttemptStatus.completionStatus;
 
-  const diagnostics = specifiedAttemptCompletionStatus
+  const specifiedAttemptDiagnostics = specifiedAttemptCompletionStatus
     ? specifiedAttemptCompletionStatus.diagnostics
     : null;
-  const exitDiagnostics = generateExitDiagnostics(diagnostics);
+  const specifiedAttemptExitDiagnostics = generateExitDiagnostics(
+    specifiedAttemptDiagnostics,
+  );
 
   const detail = {
     // job level detail
@@ -242,14 +244,14 @@ const convertFrameworkDetail = async (
       appExitSpec: specifiedAttemptCompletionStatus
         ? generateExitSpec(specifiedAttemptCompletionStatus.code)
         : generateExitSpec(null),
-      appExitDiagnostics: exitDiagnostics
-        ? exitDiagnostics.diagnosticsSummary
+      appExitDiagnostics: specifiedAttemptExitDiagnostics
+        ? specifiedAttemptExitDiagnostics.diagnosticsSummary
         : null,
-      appExitMessages: exitDiagnostics
+      appExitMessages: specifiedAttemptExitDiagnostics
         ? {
             container: null,
-            runtime: exitDiagnostics.runtime,
-            launcher: exitDiagnostics.launcher,
+            runtime: specifiedAttemptExitDiagnostics.runtime,
+            launcher: specifiedAttemptExitDiagnostics.launcher,
           }
         : null,
       appExitTriggerMessage:
