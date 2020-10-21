@@ -111,7 +111,7 @@ But before you use them, you have to add proper configuration in the `alert-hand
 
 |              | email-configs | pai-bearer-token |
 | :-----------:| :-----------: | :--------------: |
-| cordon-nodes | -             | required         |
+| cordon-nodes | -             | -                |
 | email-admin  | required      | -                |
 | email-user   | required      | required         |
 | stop-jobs    | -             | required         |
@@ -203,12 +203,13 @@ Check this [folder](https://github.com/microsoft/pai/tree/master/src/alert-manag
 When customized receivers are defined in `service-configuration.yml`,
 the `actions` will then be rendered as webhook_configs [here](https://github.com/microsoft/pai/blob/master/src/alert-manager/deploy/alert-manager-configmap.yaml.template).
 
-The actions we provide, `email-admin`, `email-user`, `stop-jobs`, `tag-jobs`, can be called within `alert-manager` by sending POST requests to `alert-handler`:
+The actions we provide, `email-admin`, `email-user`, `stop-jobs`, `tag-jobs`, and `cordon-nodes`, can be called within `alert-manager` by sending POST requests to `alert-handler`:
 
 - `localhost:{your_alert_handler_port}/alert-handler/send-email-to-admin`
 - `localhost:{your_alert_handler_port}/alert-handler/send-email-to-user`
 - `localhost:{your_alert_handler_port}/alert-handler/stop-jobs`
 - `localhost:{your_alert_handler_port}/alert-handler/tag-jobs/:tag`
+- `localhost:{your_alert_handler_port}/alert-handler/cordon-nodes`
 
 The request body will be automatically filled by `alert-manager` with `webhook`
 and `alert-handler` will adapt the requests to various actions.
