@@ -376,42 +376,6 @@ export default class TaskAttemptList extends React.Component {
         ),
       },
       {
-        key: 'exitType',
-        name: 'Exit Type',
-        headerClassName: FontClassNames.medium,
-        minWidth: 150,
-        maxWidth: 200,
-        isResizable: true,
-        onRender: item => {
-          return (
-            <div className={c(FontClassNames.mediumPlus)}>
-              {!isNil(item.containerExitSpec) &&
-              !isNil(item.containerExitSpec.type)
-                ? item.containerExitSpec.type
-                : null}
-            </div>
-          );
-        },
-      },
-      {
-        key: 'taskAttemptExitCode',
-        name: 'Exit Code',
-        minWidth: 230,
-        headerClassName: FontClassNames.medium,
-        isResizable: true,
-        onRender: (item, idx) => {
-          return isNil(item.containerExitSpec) ? (
-            <div className={FontClassNames.mediumPlus}>
-              {item.containerExitCode}
-            </div>
-          ) : (
-            <div className={FontClassNames.mediumPlus}>
-              {`${item.containerExitCode} (${item.containerExitSpec.phrase})`}
-            </div>
-          );
-        },
-      },
-      {
         key: 'ip',
         name: 'IP',
         className: FontClassNames.mediumPlus,
@@ -448,6 +412,90 @@ export default class TaskAttemptList extends React.Component {
                 )}
               </div>
             )
+          );
+        },
+      },
+      {
+        key: 'info',
+        name: 'Info & Logs',
+        className: localCss.pa0I,
+        headerClassName: FontClassNames.medium,
+        minWidth: 300,
+        maxWidth: 500,
+        onRender: item => (
+          <div
+            className={c(t.h100, t.flex, t.justifyStart, t.itemsCenter, t.ml1)}
+          >
+            <div className={c(t.flex)} style={{ height: 40 }}>
+              <CommandBarButton
+                className={FontClassNames.mediumPlus}
+                styles={{
+                  root: { backgroundColor: 'transparent' },
+                  rootDisabled: { backgroundColor: 'transparent' },
+                }}
+                iconProps={{ iconName: 'TextDocument' }}
+                text='Stdout'
+                onClick={() =>
+                  this.showContainerLog(
+                    `${item.containerLog}user.pai.stdout`,
+                    'stdout',
+                  )
+                }
+                disabled={isNil(item.containerId) || isNil(item.containerIp)}
+              />
+              <CommandBarButton
+                className={FontClassNames.mediumPlus}
+                styles={{
+                  root: { backgroundColor: 'transparent' },
+                  rootDisabled: { backgroundColor: 'transparent' },
+                }}
+                iconProps={{ iconName: 'Error' }}
+                text='Stderr'
+                onClick={() =>
+                  this.showContainerLog(
+                    `${item.containerLog}user.pai.stderr`,
+                    'stderr',
+                  )
+                }
+                disabled={isNil(item.containerId) || isNil(item.containerIp)}
+              />
+            </div>
+          </div>
+        ),
+      },
+      {
+        key: 'exitType',
+        name: 'Exit Type',
+        headerClassName: FontClassNames.medium,
+        minWidth: 150,
+        maxWidth: 200,
+        isResizable: true,
+        onRender: item => {
+          return (
+            <div className={c(FontClassNames.mediumPlus)}>
+              {!isNil(item.containerExitSpec) &&
+              !isNil(item.containerExitSpec.type)
+                ? item.containerExitSpec.type
+                : null}
+            </div>
+          );
+        },
+      },
+      {
+        key: 'taskAttemptExitCode',
+        name: 'Exit Code',
+        minWidth: 230,
+        headerClassName: FontClassNames.medium,
+        isResizable: true,
+        onRender: (item, idx) => {
+          return isNil(item.containerExitSpec) ? (
+            <div className={FontClassNames.mediumPlus}>
+              {item.containerExitCode}
+            </div>
+          ) : (
+            <div className={FontClassNames.mediumPlus}>
+              {`${item.containerExitCode} (${item.containerExitSpec.phrase})`}
+            </div>
           );
         },
       },
@@ -584,54 +632,6 @@ export default class TaskAttemptList extends React.Component {
             )
           );
         },
-      },
-      {
-        key: 'info',
-        name: 'Info & Logs',
-        className: localCss.pa0I,
-        headerClassName: FontClassNames.medium,
-        minWidth: 300,
-        maxWidth: 500,
-        onRender: item => (
-          <div
-            className={c(t.h100, t.flex, t.justifyStart, t.itemsCenter, t.ml1)}
-          >
-            <div className={c(t.flex)} style={{ height: 40 }}>
-              <CommandBarButton
-                className={FontClassNames.mediumPlus}
-                styles={{
-                  root: { backgroundColor: 'transparent' },
-                  rootDisabled: { backgroundColor: 'transparent' },
-                }}
-                iconProps={{ iconName: 'TextDocument' }}
-                text='Stdout'
-                onClick={() =>
-                  this.showContainerLog(
-                    `${item.containerLog}user.pai.stdout`,
-                    'stdout',
-                  )
-                }
-                disabled={isNil(item.containerId) || isNil(item.containerIp)}
-              />
-              <CommandBarButton
-                className={FontClassNames.mediumPlus}
-                styles={{
-                  root: { backgroundColor: 'transparent' },
-                  rootDisabled: { backgroundColor: 'transparent' },
-                }}
-                iconProps={{ iconName: 'Error' }}
-                text='Stderr'
-                onClick={() =>
-                  this.showContainerLog(
-                    `${item.containerLog}user.pai.stderr`,
-                    'stderr',
-                  )
-                }
-                disabled={isNil(item.containerId) || isNil(item.containerIp)}
-              />
-            </div>
-          </div>
-        ),
       },
     ];
     const columns = defaultColumns;
