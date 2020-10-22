@@ -18,7 +18,6 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 set -o errexit
-set -o nounset
 set -o pipefail
 
 log_exist_time=30 # 30 day
