@@ -31,13 +31,13 @@ router
 
 router
   .route('/:requestType/:requestId')
-  /** PUT /api/v2/requests/:requestId - Update a request */
+  /** PUT /api/v2/requests/:requestType/:requestId - Update a request */
   .put(
     token.check,
     param.validate(config.requestPutInputSchema),
     controller.updateRequest,
   )
-  /** DELETE /api/v2/requests/:requestId - Delete a request */
+  /** DELETE /api/v2/requests/:requestType/:requestId - Delete a request */
   .delete(token.check, controller.deleteRequest);
 
 router.param('requestId', controller.validateId);

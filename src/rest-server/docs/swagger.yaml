@@ -1665,13 +1665,13 @@ paths:
           $ref: "#/components/responses/UnauthorizedUserError"
         "403":
           $ref: "#/components/responses/ForbiddenUserError"
-  /api/v2/request/user:
+  /api/v2/requests/user:
     post:
       tags:
         - requests
       summary: Create a user request
       description: Create a user request, it's the API for user sign up (without token check)
-      operationId: createUserRequest
+      operationId: createGuestUserRequest
       requestBody:
         description: User request
         content:
@@ -1712,8 +1712,105 @@ paths:
               schema:
                 $ref: "#/components/schemas/Response"
               example:
-                message: User is created successfully
-
+                message: Create request {requestId} successfully.
+  /api/v2/requests/{requestType}:
+    get:
+      tags:
+        - requests
+      summary: List user requests
+      description: List user request
+      operationId: listUserRequest
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/requestType"
+      responses:
+        "200":
+          description: Succeeded
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Response"
+              example:
+                requests: []
+    post:
+      tags:
+        - requests
+      summary: Create a user request
+      description: Create a user request, need token when the requestType is not `user`.
+      operationId: createUserRequest
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/requestType"
+      requestBody:
+        description: User request
+        content:
+          application/json:
+            schema:
+              oneOf:
+                - $ref: '#/components/schemas/UserRequestsTypeVc'
+                - $ref: '#/components/schemas/UserRequestsTypeStorage'
+        required: true
+      responses:
+        "201":
+          description: Succeeded
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Response"
+              example:
+                message: Create request {requestId} successfully.
+  /api/v2/requests/{requestType}/{requestId}:
+    put:
+      tags:
+        - requests
+      summary: Update a user request
+      description: Update a user request, admin only.
+      operationId: updateUserRequest
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/requestType"
+        - $ref: "#/components/parameters/requestId"
+      requestBody:
+        description: User request
+        content:
+          application/json:
+            schema:
+              oneOf:
+                - $ref: '#/components/schemas/UserRequestsTypeVc'
+                - $ref: '#/components/schemas/UserRequestsTypeStorage'
+        required: true
+      responses:
+        "201":
+          description: Succeeded
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Response"
+              example:
+                message: Update request {requestId} successfully.
+    delete:
+      tags:
+        - requests
+      summary: Delete a user request
+      description: Delete a user request, admin only.
+      operationId: deleteUserRequest
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/requestType"
+        - $ref: "#/components/parameters/requestId"
+      responses:
+        "201":
+          description: Succeeded
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Response"
+              example:
+                message: Delete request ${requestId} successfully.
 components:
   parameters:
     token:
@@ -1774,6 +1871,19 @@ components:
       in: path
       description: attempt index
       required: true
+      schema:
+        type: string
+    requestType:
+      name: requestType
+      in: path
+      description: request type
+      require: true
+      schema:
+        type: string
+    requestId:
+      name: request id
+      in: path
+      description: request id
       schema:
         type: string
   schemas:
@@ -2740,6 +2850,44 @@ components:
         - storageConfig
         - email
         - extension
+    UserRequestsTypeVc:
+      type: object
+      properties:
+        type:
+          type: string
+          description: The type of request
+        vc:
+          type: array
+          description: Array of requested VCs.
+          items:
+            type: string
+            description: virtual cluster name.
+        message:
+          type: string
+          description: message
+      required:
+        - type
+        - vc
+        - message
+    UserRequestsTypeStorage:
+      type: object
+      properties:
+        type:
+          type: string
+          description: The type of request
+        storage:
+          type: array
+          description: Array of requested Storages.
+          items:
+            type: string
+            description: storage name.
+        message:
+          type: string
+          description: message
+      required:
+        - type
+        - storage
+        - message
   responses:
     IncorrectPasswordError:
       description: IncorrectPasswordError
