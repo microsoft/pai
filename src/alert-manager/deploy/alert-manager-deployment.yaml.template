@@ -63,6 +63,8 @@ spec:
         - name: alerthandler
           containerPort: {{ cluster_cfg["alert-manager"]["alert-handler"]["port"] }}
         env:
+        - name: SERVER_PORT
+          value: "{{ cluster_cfg["alert-manager"]["alert-handler"]["port"] }}"
         - name: CLUSTER_ID
           value: {{ cluster_cfg["cluster"]["common"]["cluster-id"] }}
         - name: REST_SERVER_URI
