@@ -1877,13 +1877,14 @@ components:
       name: requestType
       in: path
       description: request type
-      require: true
+      required: true
       schema:
         type: string
     requestId:
       name: request id
       in: path
       description: request id
+      required: true
       schema:
         type: string
   schemas:
