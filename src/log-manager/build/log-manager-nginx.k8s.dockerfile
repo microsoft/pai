@@ -23,3 +23,4 @@ RUN echo "env ADMIN_NAME;" >> /usr/local/openresty/nginx/conf/nginx.conf && \
   echo "env JWT_SECRET;" >> /usr/local/openresty/nginx/conf/nginx.conf
 
 COPY src/nginx/nginx.conf /etc/nginx/conf.d/default.conf
+COPY src/nginx/*.lua /etc/nginx/lua/
