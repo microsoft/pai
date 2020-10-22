@@ -59,9 +59,6 @@ spec:
       - name: alerthandler
         image: {{ cluster_cfg['cluster']['docker-registry']['prefix'] }}alert-handler:{{ cluster_cfg['cluster']['docker-registry']['tag'] }}
         imagePullPolicy: Always
-        ports:
-        - name: alerthandler
-          containerPort: {{ cluster_cfg["alert-manager"]["alert-handler"]["port"] }}
         env:
         - name: SERVER_PORT
           value: "{{ cluster_cfg["alert-manager"]["alert-handler"]["port"] }}"
