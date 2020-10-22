@@ -23,7 +23,7 @@ const mockFrameworkStatus = () => {
   };
 };
 
-const convertFrameworkState = (state, exitCode, retryDelaySec) => {
+const convertFrameworkState = (state, exitCode) => {
   switch (state) {
     case 'AttemptCreationPending':
     case 'AttemptCreationRequested':
@@ -34,16 +34,11 @@ const convertFrameworkState = (state, exitCode, retryDelaySec) => {
     case 'AttemptDeletionPending':
     case 'AttemptDeletionRequested':
     case 'AttemptDeleting':
+    case 'AttemptCompleted':
       if (exitCode === -210 || exitCode === -220) {
         return 'STOPPING';
       } else {
         return 'RUNNING';
-      }
-    case 'AttemptCompleted':
-      if (retryDelaySec == null) {
-        return 'RUNNING';
-      } else {
-        return 'WAITING';
       }
     case 'Completed':
       if (exitCode === 0) {
@@ -207,7 +202,6 @@ class Snapshot {
       state: convertFrameworkState(
         this._snapshot.status.state,
         completionStatus ? completionStatus.code : null,
-        this._snapshot.status.retryPolicyStatus.retryDelaySec,
       ),
     };
     if (withSnapshot) {
