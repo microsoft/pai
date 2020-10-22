@@ -17,7 +17,9 @@
 
 FROM openresty/openresty:1.15.8.3-2-alpine-fat
 
-RUN luarocks install lua-cjson
-RUN luarocks install lua-resty-jwt
+RUN luarocks install lua-cjson && luarocks install lua-resty-jwt
+RUN echo "env ADMIN_NAME;" >> /usr/local/openresty/nginx/conf/nginx.conf && \
+  echo "env ADMIN_PASSWORD;" >> /usr/local/openresty/nginx/conf/nginx.conf && \
+  echo "env JWT_SECRET;" >> /usr/local/openresty/nginx/conf/nginx.conf
 
 COPY src/nginx/nginx.conf /etc/nginx/conf.d/default.conf
