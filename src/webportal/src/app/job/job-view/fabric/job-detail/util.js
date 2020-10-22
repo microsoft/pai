@@ -23,25 +23,12 @@ export function printDateTime(dt) {
     dt > DateTime.utc().minus({ week: 1 }) &&
     dt < DateTime.utc().minus({ minute: 1 })
   ) {
-    return `${dt.toRelative()}, ${dt.toLocaleString({
-      hour: '2-digit',
-      minute: '2-digit',
-      hourCycle: 'h23',
-    })}`;
+    return `${dt.toRelative()}, ${dt.toLocaleString(
+      DateTime.TIME_WITH_SECONDS,
+    )}`;
   } else {
-    return dt.toLocaleString(DateTime.DATETIME_MED);
+    return dt.toLocaleString(DateTime.DATETIME_MED_WITH_SECONDS);
   }
-}
-
-export function parseGpuAttr(attr) {
-  const res = [];
-  for (let i = 0; attr !== 0; i++, attr >>= 1) {
-    if ((attr & 1) === 1) {
-      res.push(i);
-    }
-  }
-
-  return res;
 }
 
 export function isJobV2(rawJobConfig) {
@@ -74,8 +61,3 @@ export function getTaskConfig(rawJobConfig, name) {
   }
   return null;
 }
-
-export const HISTORY_DISABLE_MESSAGE =
-  'The job history was not enabled when deploying.';
-export const HISTORY_API_ERROR_MESSAGE =
-  'The job history API is not healthy right now.';

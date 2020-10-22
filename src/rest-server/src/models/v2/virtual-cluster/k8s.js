@@ -100,7 +100,9 @@ const getPodsInfo = async () => {
       if (bindingInfo != null) {
         // scheduled by hived
         const info = yaml.safeLoad(bindingInfo);
-        podInfo.resourcesUsed.gpu = info.gpuIsolation.length;
+        podInfo.resourcesUsed.gpu = info.gpuIsolation
+          ? info.gpuIsolation.length
+          : null;
       }
     } else {
       podInfo.resourcesUsed.gpu =

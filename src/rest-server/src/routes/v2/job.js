@@ -20,6 +20,7 @@ const express = require('express');
 const limiter = require('@pai/config/rate-limit');
 const token = require('@pai/middlewares/token');
 const controller = require('@pai/controllers/v2/job');
+const taskController = require('@pai/controllers/v2/task');
 const protocol = require('@pai/middlewares/v2/protocol');
 const jobAttemptRouter = require('@pai/routes/v2/job-attempt.js');
 
@@ -36,6 +37,18 @@ router
   .route('/:frameworkName')
   /** GET /api/v2/jobs/:frameworkName - Get job */
   .get(token.check, controller.get);
+
+router
+  .route('/:frameworkName/attempts/:jobAttemptId')
+  /** GET /api/v2/jobs/:frameworkName/attempts/:jobAttemptId - Get job with specific attempt */
+  .get(token.check, controller.get);
+
+router
+  .route(
+    '/:frameworkName/attempts/:jobAttemptId/taskRoles/:taskRoleName/taskIndex/:taskIndex/attempts',
+  )
+  /** GET /api/v2/jobs/frameworkName/attempts/:jobAttemptId/taskRoles/:taskRoleName/taskIndex/:taskIndex/attempts - get certain task retry */
+  .get(token.check, taskController.get);
 
 router
   .route('/:frameworkName/executionType')
