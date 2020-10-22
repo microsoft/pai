@@ -27,7 +27,7 @@ const Top = () => (
         iconProps={{ iconName: 'revToggleKey' }}
         href='/job-list.html'
       >
-        Back to Jobs
+        Go to Jobs List
       </ActionButton>
     </div>
   </div>
