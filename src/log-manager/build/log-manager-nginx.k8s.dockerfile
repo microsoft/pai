@@ -15,5 +15,9 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-FROM openresty/openresty:1.15.8.2-alpine
+FROM openresty/openresty:1.15.8.3-2-alpine-fat
+
+RUN luarocks install lua-cjson
+RUN luarocks install lua-resty-jwt
+
 COPY src/nginx/nginx.conf /etc/nginx/conf.d/default.conf

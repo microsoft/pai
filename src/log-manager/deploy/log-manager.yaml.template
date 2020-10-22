@@ -74,6 +74,13 @@ spec:
             cpu: 0
             memory: "128Mi"
         {%- endif %}
+        env:
+        - name: ADMIN_NAME
+          value: {{ cluster_cfg["log-manager"]["admin_name"] }}
+        - name: ADMIN_PASSWORD
+          value: {{ cluster_cfg["log-manager"]["admin_password"] }}
+        - name: JWT_SECRET
+          value: {{ cluster_cfg["log-manager"]["jwt_secret"] }}
       volumes:
         - name: pai-log
           hostPath:

@@ -18,3 +18,6 @@
 service_type: "k8s"
 
 port: 9103
+admin_name: "admin"
+admin_password: "admin"
+jwt_secret: "jwt_secret"
