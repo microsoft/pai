@@ -1881,7 +1881,7 @@ components:
       schema:
         type: string
     requestId:
-      name: request id
+      name: requestId
       in: path
       description: request id
       required: true
