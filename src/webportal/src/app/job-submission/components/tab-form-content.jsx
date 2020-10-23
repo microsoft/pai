@@ -120,6 +120,7 @@ export const TabFormContent = ({
             onChange={ports => _onValueChange('ports', ports)}
           />
           <FormSpinButton
+            sectionTooltip={PROTOCOL_TOOLTIPS.policy}
             sectionLabel={'Task retry count'}
             shortStyle
             sectionOptional

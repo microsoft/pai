@@ -122,11 +122,6 @@ const Home = () => {
                       return (
                         <Stack horizontal gap='s1'>
                           {defaultRenderer(link)}
-                          <TooltipIcon
-                            content={
-                              'A job is treaded as an abnormal job if running more than 5 days or GPU usage is lower than 10%'
-                            }
-                          />
                         </Stack>
                       );
                     }}
