@@ -15,7 +15,7 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-import { capitalize, isEmpty, isNil } from 'lodash';
+import { capitalize, isEmpty, isNil, get } from 'lodash';
 import { DateTime, Interval } from 'luxon';
 import {
   MessageBar,
@@ -24,9 +24,11 @@ import {
   Dropdown,
   Text,
   Toggle,
+  Link,
 } from 'office-ui-fabric-react';
 import React from 'react';
 import ReactDOM from 'react-dom';
+import yaml from 'js-yaml';
 
 import t from '../../../components/tachyons.scss';
 
@@ -48,6 +50,7 @@ import HorizontalLine from '../../../components/horizontal-line';
 import StatusBadge from '../../../components/status-badge';
 import TaskRoleContainerList from './job-detail/components/task-role-container-list';
 import TaskRoleCount from './job-detail/components/task-role-count';
+import MonacoPanel from '../../../components/monaco-panel';
 
 class JobDetail extends React.Component {
   constructor(props) {
@@ -65,6 +68,8 @@ class JobDetail extends React.Component {
       showMoreDiagnostics: false,
       selectedAttemptIndex: null,
       loadingAttempt: false,
+      monacoProps: null,
+      modalTitle: '',
     };
     this.stop = this.stop.bind(this);
     this.reload = this.reload.bind(this);
@@ -72,6 +77,9 @@ class JobDetail extends React.Component {
     this.onChangeShowMoreDiagnostics = this.onChangeShowMoreDiagnostics.bind(
       this,
     );
+    this.showEditor = this.showEditor.bind(this);
+    this.onDismiss = this.onDismiss.bind(this);
+    this.showExitDiagnostics = this.showExitDiagnostics.bind(this);
   }
 
   componentDidMount() {
@@ -157,6 +165,83 @@ class JobDetail extends React.Component {
     await this.reload();
   }
 
+  onDismiss() {
+    this.setState({
+      monacoProps: null,
+      modalTitle: '',
+    });
+  }
+
+  showEditor(title, props) {
+    this.setState({
+      monacoProps: props,
+      modalTitle: title,
+    });
+  }
+
+  showExitDiagnostics() {
+    const { jobInfo } = this.state;
+    const result = [];
+    // trigger info
+    result.push('[Exit Trigger Info]');
+    result.push('');
+    result.push(
+      `ExitTriggerMessage: ${get(jobInfo, 'jobStatus.appExitTriggerMessage')}`,
+    );
+    result.push(
+      `ExitTriggerTaskRole: ${get(
+        jobInfo,
+        'jobStatus.appExitTriggerTaskRoleName',
+      )}`,
+    );
+    result.push(
+      `ExitTriggerTaskIndex: ${get(
+        jobInfo,
+        'jobStatus.appExitTriggerTaskIndex',
+      )}`,
+    );
+    const userExitCode = get(
+      jobInfo,
+      'jobStatus.appExitMessages.runtime.originalUserExitCode',
+    );
+    if (userExitCode) {
+      // user exit code
+      result.push(`UserExitCode: ${userExitCode}`);
+    }
+    result.push('');
+
+    // exit spec
+    const spec = jobInfo.jobStatus.appExitSpec;
+    if (spec) {
+      // divider
+      result.push(Array.from({ length: 80 }, () => '-').join(''));
+      result.push('');
+      // content
+      result.push('[Exit Spec]');
+      result.push('');
+      result.push(yaml.safeDump(spec));
+      result.push('');
+    }
+
+    // diagnostics
+    const diag = jobInfo.jobStatus.appExitDiagnostics;
+    if (diag) {
+      // divider
+      result.push(Array.from({ length: 80 }, () => '-').join(''));
+      result.push('');
+      // content
+      result.push('[Exit Diagnostics]');
+      result.push('');
+      result.push(diag);
+      result.push('');
+    }
+
+    this.showEditor('Exit Diagnostics', {
+      language: 'text',
+      value: result.join('\n'),
+    });
+  }
+
   onChangeJobAttempt(event, item) {
     this.setState({ loadingAttempt: true, selectedAttemptIndex: item.key });
     fetchJobInfo(item.key).then(data => {
@@ -231,6 +316,7 @@ class JobDetail extends React.Component {
               reloading={reloading}
               onStopJob={this.stop}
               onReload={this.reload}
+              showEditor={this.showEditor}
             />
             <Card>
               <Stack gap='m' padding='l2'>
@@ -250,66 +336,71 @@ class JobDetail extends React.Component {
                   <SpinnerLoading />
                 ) : (
                   <Stack gap='l2'>
-                    <Stack
-                      horizontal
-                      horizontalAlign='space-between'
-                      verticalAlign='end'
-                      gap='m'
-                    >
-                      <Stack horizontal gap='l1'>
-                        <Stack gap='m'>
-                          <Text>Attempt State</Text>
-                          <StatusBadge
-                            status={capitalize(jobInfo.jobStatus.attemptState)}
-                          />
-                        </Stack>
-                        <Stack gap='m'>
-                          <Text>Attempt Creation Time</Text>
-                          <Text>
-                            {isNil(jobInfo.jobStatus.appCreatedTime)
-                              ? 'N/A'
-                              : DateTime.fromMillis(
-                                  jobInfo.jobStatus.appCreatedTime,
-                                ).toLocaleString(
-                                  DateTime.DATETIME_MED_WITH_SECONDS,
-                                )}
-                          </Text>
-                        </Stack>
-                        <Stack gap='m'>
-                          <Text>Attempt Duration</Text>
-                          <Text>
-                            {getDurationString(
-                              this.getTimeDuration(
-                                jobInfo.jobStatus.appCreatedTime,
-                                jobInfo.jobStatus.appCompletedTime,
-                              ),
-                            )}
-                          </Text>
-                        </Stack>
-                        <Stack gap='m'>
-                          <Text>Attempt Running Start Time</Text>
-                          <Text>
-                            {isNil(jobInfo.jobStatus.appLaunchedTime)
-                              ? 'N/A'
-                              : DateTime.fromMillis(
-                                  jobInfo.jobStatus.appLaunchedTime,
-                                ).toLocaleString(
-                                  DateTime.DATETIME_MED_WITH_SECONDS,
-                                )}
-                          </Text>
-                        </Stack>
-                        <Stack gap='m'>
-                          <Text>Attempt Running Duration</Text>
-                          <Text>
-                            {getDurationString(
-                              this.getTimeDuration(
-                                jobInfo.jobStatus.appLaunchedTime,
-                                jobInfo.jobStatus.appCompletedTime,
-                              ),
-                            )}
-                          </Text>
-                        </Stack>
+                    <Stack horizontal gap='l1'>
+                      <Stack gap='m'>
+                        <Text>Attempt State</Text>
+                        <StatusBadge
+                          status={capitalize(jobInfo.jobStatus.attemptState)}
+                        />
                       </Stack>
+                      <Stack gap='m'>
+                        <Text>Attempt Creation Time</Text>
+                        <Text>
+                          {isNil(jobInfo.jobStatus.appCreatedTime)
+                            ? 'N/A'
+                            : DateTime.fromMillis(
+                                jobInfo.jobStatus.appCreatedTime,
+                              ).toLocaleString(
+                                DateTime.DATETIME_MED_WITH_SECONDS,
+                              )}
+                        </Text>
+                      </Stack>
+                      <Stack gap='m'>
+                        <Text>Attempt Duration</Text>
+                        <Text>
+                          {getDurationString(
+                            this.getTimeDuration(
+                              jobInfo.jobStatus.appCreatedTime,
+                              jobInfo.jobStatus.appCompletedTime,
+                            ),
+                          )}
+                        </Text>
+                      </Stack>
+                      <Stack gap='m'>
+                        <Text>Attempt Running Start Time</Text>
+                        <Text>
+                          {isNil(jobInfo.jobStatus.appLaunchedTime)
+                            ? 'N/A'
+                            : DateTime.fromMillis(
+                                jobInfo.jobStatus.appLaunchedTime,
+                              ).toLocaleString(
+                                DateTime.DATETIME_MED_WITH_SECONDS,
+                              )}
+                        </Text>
+                      </Stack>
+                      <Stack gap='m'>
+                        <Text>Attempt Running Duration</Text>
+                        <Text>
+                          {getDurationString(
+                            this.getTimeDuration(
+                              jobInfo.jobStatus.appLaunchedTime,
+                              jobInfo.jobStatus.appCompletedTime,
+                            ),
+                          )}
+                        </Text>
+                      </Stack>
+                    </Stack>
+                    <Stack horizontal horizontalAlign='space-between'>
+                      <Link
+                        href='#'
+                        disabled={
+                          isNil(jobInfo.jobStatus.appExitDiagnostics) &&
+                          isNil(jobInfo.jobStatus.appExitSpec)
+                        }
+                        onClick={this.showExitDiagnostics}
+                      >
+                        View Exit Diagnostics
+                      </Link>
                       <Toggle
                         onText='More Diagnostics'
                         offText='More Diagnostics'
@@ -324,7 +415,6 @@ class JobDetail extends React.Component {
                             <Text>{`Task Role:  ${name}`}</Text>
                             <TaskRoleCount taskInfo={jobInfo.taskRoles[name]} />
                           </Stack>
-
                           <TaskRoleContainerList
                             taskRoleName={name}
                             tasks={jobInfo.taskRoles[name].taskStatuses}
@@ -336,6 +426,13 @@ class JobDetail extends React.Component {
                   </Stack>
                 )}
               </Stack>
+              {/* Monaco Editor Modal */}
+              <MonacoPanel
+                isOpen={!isNil(this.state.monacoProps)}
+                onDismiss={this.onDismiss}
+                title={this.state.modalTitle}
+                monacoProps={this.state.monacoProps}
+              />
             </Card>
           </Stack>
         </Context.Provider>
