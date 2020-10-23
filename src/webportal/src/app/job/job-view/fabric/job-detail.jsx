@@ -405,6 +405,7 @@ class JobDetail extends React.Component {
                         onText='More Diagnostics'
                         offText='More Diagnostics'
                         onChange={this.onChangeShowMoreDiagnostics}
+                        checked={this.state.showMoreDiagnostics}
                       />
                     </Stack>
                     {!isEmpty(jobInfo.taskRoles) &&
