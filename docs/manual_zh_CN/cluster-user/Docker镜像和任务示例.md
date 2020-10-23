@@ -44,7 +44,7 @@ OpenPAI使用[Docker](https://www.docker.com/why-docker)提供一致且独立的
 
 ## 使用您自己的镜像
 
-如果不使用预构建镜像，想要构建自己的自定义镜像，建议基于Ubuntu系统构建该镜像，该系统中包括bash、apt和其他必须的依赖项。然后，您可以在docker镜像中添加任务需要的其他依赖包，例如python、pip和TensorFlow等，添加时请注意潜在的冲突。
+如果不使用预构建镜像，想要构建自己的自定义镜像，建议基于Ubuntu系统构建，Ubuntu中包含bash、apt和其他必须的依赖项。然后，您可以在docker镜像中添加任务需要的其他依赖包，例如python、pip和TensorFlow等，添加时请注意潜在的冲突。
 
 ## 如何使用私有Registry的镜像
 

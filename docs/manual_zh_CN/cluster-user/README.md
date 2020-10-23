@@ -1,8 +1,8 @@
 # OpenPAI 用户手册
 
-OpenPAI是一个提供完整的人工智能模型训练和资源管理能力开源平台，它易于扩展，支持各种规模的on-premise、on-cloud和混合环境。
+OpenPAI是一个提供完整人工智能模型训练和资源管理能力的开源平台，它易于扩展，支持各种规模的on-premise环境、on-cloud环境和混合环境。
 
-本手册可帮助集群用户学习如何提交任务、使用数据、Marketplace以及VSCode扩展，它适用于OpenPAI >= v1.0.0
+本手册可帮助集群用户学习如何提交任务、使用数据、Marketplace以及VSCode扩展，它适用于OpenPAI >= v1.0.0。
 
 ## 目录
 
