@@ -47,7 +47,6 @@ import Context from './context';
 import Timer from './timer';
 import { getTensorBoardUrl, getJobMetricsUrl } from '../conn';
 import { printDateTime, isJobV2 } from '../util';
-import MonacoPanel from '../../../../../components/monaco-panel';
 import StatusBadge from '../../../../../components/status-badge';
 import {
   getJobDuration,
@@ -92,15 +91,10 @@ export default class Summary extends React.Component {
       defaultInterval = 0;
     }
     this.state = {
-      monacoProps: null,
-      modalTitle: '',
       autoReloadInterval: defaultInterval,
       hideDialog: true,
     };
     this.onChangeInterval = this.onChangeInterval.bind(this);
-    this.onDismiss = this.onDismiss.bind(this);
-    this.showExitDiagnostics = this.showExitDiagnostics.bind(this);
-    this.showEditor = this.showEditor.bind(this);
     this.showJobConfig = this.showJobConfig.bind(this);
     this.showStopJobConfirm = this.showStopJobConfirm.bind(this);
     this.setHideDialog = this.setHideDialog.bind(this);
@@ -123,20 +117,6 @@ export default class Summary extends React.Component {
     this.setState({ autoReloadInterval: item.key });
   }
 
-  onDismiss() {
-    this.setState({
-      monacoProps: null,
-      modalTitle: '',
-    });
-  }
-
-  showEditor(title, props) {
-    this.setState({
-      monacoProps: props,
-      modalTitle: title,
-    });
-  }
-
   showStopJobConfirm() {
     this.setState({ hideDialog: false });
   }
@@ -145,78 +125,15 @@ export default class Summary extends React.Component {
     this.setState({ hideDialog: true });
   }
 
-  showExitDiagnostics() {
-    const { jobInfo } = this.props;
-    const result = [];
-    // trigger info
-    result.push('[Exit Trigger Info]');
-    result.push('');
-    result.push(
-      `ExitTriggerMessage: ${get(jobInfo, 'jobStatus.appExitTriggerMessage')}`,
-    );
-    result.push(
-      `ExitTriggerTaskRole: ${get(
-        jobInfo,
-        'jobStatus.appExitTriggerTaskRoleName',
-      )}`,
-    );
-    result.push(
-      `ExitTriggerTaskIndex: ${get(
-        jobInfo,
-        'jobStatus.appExitTriggerTaskIndex',
-      )}`,
-    );
-    const userExitCode = get(
-      jobInfo,
-      'jobStatus.appExitMessages.runtime.originalUserExitCode',
-    );
-    if (userExitCode) {
-      // user exit code
-      result.push(`UserExitCode: ${userExitCode}`);
-    }
-    result.push('');
-
-    // exit spec
-    const spec = jobInfo.jobStatus.appExitSpec;
-    if (spec) {
-      // divider
-      result.push(Array.from({ length: 80 }, () => '-').join(''));
-      result.push('');
-      // content
-      result.push('[Exit Spec]');
-      result.push('');
-      result.push(yaml.safeDump(spec));
-      result.push('');
-    }
-
-    // diagnostics
-    const diag = jobInfo.jobStatus.appExitDiagnostics;
-    if (diag) {
-      // divider
-      result.push(Array.from({ length: 80 }, () => '-').join(''));
-      result.push('');
-      // content
-      result.push('[Exit Diagnostics]');
-      result.push('');
-      result.push(diag);
-      result.push('');
-    }
-
-    this.showEditor('Exit Diagnostics', {
-      language: 'text',
-      value: result.join('\n'),
-    });
-  }
-
   showJobConfig() {
     const { rawJobConfig } = this.context;
     if (isJobV2(rawJobConfig)) {
-      this.showEditor('Job Config', {
+      this.props.showEditor('Job Config', {
         language: 'yaml',
         value: yaml.safeDump(rawJobConfig),
       });
     } else {
-      this.showEditor('Job Config', {
+      this.props.showEditor('Job Config', {
         language: 'json',
         value: JSON.stringify(rawJobConfig, null, 2),
       });
@@ -339,12 +256,7 @@ export default class Summary extends React.Component {
   }
 
   render() {
-    const {
-      autoReloadInterval,
-      modalTitle,
-      monacoProps,
-      hideDialog,
-    } = this.state;
+    const { autoReloadInterval, hideDialog } = this.state;
     const { className, jobInfo, reloading, onStopJob, onReload } = this.props;
     const { rawJobConfig } = this.context;
     const hintMessage = this.renderHintMessage();
@@ -496,18 +408,6 @@ export default class Summary extends React.Component {
               >
                 View Job Config
               </Link>
-              <div className={c(t.bl, t.mh3)}></div>
-              <Link
-                styles={{ root: [FontClassNames.mediumPlus] }}
-                href='#'
-                disabled={
-                  isNil(jobInfo.jobStatus.appExitDiagnostics) &&
-                  isNil(jobInfo.jobStatus.appExitSpec)
-                }
-                onClick={this.showExitDiagnostics}
-              >
-                View Exit Diagnostics
-              </Link>
               {config.launcherType !== 'k8s' && (
                 <React.Fragment>
                   <div className={c(t.bl, t.mh3)}></div>
@@ -572,13 +472,6 @@ export default class Summary extends React.Component {
               </span>
             </div>
           </div>
-          {/* Monaco Editor Modal */}
-          <MonacoPanel
-            isOpen={!isNil(monacoProps)}
-            onDismiss={this.onDismiss}
-            title={modalTitle}
-            monacoProps={monacoProps}
-          />
           {/* Timer */}
           <Timer
             interval={autoReloadInterval === 0 ? null : autoReloadInterval}
@@ -598,4 +491,5 @@ Summary.propTypes = {
   reloading: PropTypes.bool.isRequired,
   onStopJob: PropTypes.func.isRequired,
   onReload: PropTypes.func.isRequired,
+  showEditor: PropTypes.func.isRequired,
 };
