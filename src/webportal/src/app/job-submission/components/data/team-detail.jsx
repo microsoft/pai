@@ -187,8 +187,7 @@ export default function TeamDetail({ isOpen = false, config, hide }) {
               <span style={{ fontWeight: FontWeights.semibold }}>
                 UFS Server Path
               </span>{' '}
-              before use. Different UFS Type require different upload
-              methods.
+              before use. Different UFS Type require different upload methods.
             </div>
             <div>
               <div
