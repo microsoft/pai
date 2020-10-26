@@ -30,7 +30,14 @@ import { CSpinButton } from './customized-components';
 import { FormShortSection } from './form-page';
 
 export const FormSpinButton = props => {
-  const { sectionLabel, sectionOptional, onChange, value, shortStyle } = props;
+  const {
+    sectionTooltip,
+    sectionLabel,
+    sectionOptional,
+    onChange,
+    value,
+    shortStyle,
+  } = props;
   const _onChange = useCallback(
     value => {
       if (onChange !== undefined) {
@@ -51,7 +58,11 @@ export const FormSpinButton = props => {
   );
 
   return (
-    <BasicSection sectionLabel={sectionLabel} sectionOptional={sectionOptional}>
+    <BasicSection
+      sectionTooltip={sectionTooltip}
+      sectionLabel={sectionLabel}
+      sectionOptional={sectionOptional}
+    >
       {shortStyle ? (
         <FormShortSection>{spinButton}</FormShortSection>
       ) : (
@@ -62,6 +73,7 @@ export const FormSpinButton = props => {
 };
 
 FormSpinButton.propTypes = {
+  sectionTooltip: PropTypes.string.isRequired,
   sectionLabel: PropTypes.string.isRequired,
   sectionOptional: PropTypes.bool,
   onChange: PropTypes.func,
