@@ -374,7 +374,8 @@ export const NAS_TIPS = {
       <div style={{ fontWeight: FontWeights.semibold }}>Dshuttle</div>
       <span>
         Storage Dshuttle is configured for group. It used as a fast data cache
-        and try to speed up I/O intensive workload. For more detail, please refer to
+        and try to speed up I/O intensive workload. For more detail, please
+        refer to
       </span>
       <span> </span>
       <Link
