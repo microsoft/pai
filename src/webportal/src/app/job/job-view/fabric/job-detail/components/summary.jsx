@@ -18,7 +18,6 @@
 import {
   FontClassNames,
   FontWeights,
-  FontSizes,
   ColorClassNames,
   IconFontSizes,
 } from '@uifabric/styling';
