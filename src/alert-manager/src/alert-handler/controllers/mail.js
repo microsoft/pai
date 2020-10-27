@@ -15,7 +15,7 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-const unirest = require('unirest');
+const axios = require('axios');
 const nodemailer = require('nodemailer');
 const Email = require('email-templates');
 const logger = require('@alert-handler/common/logger');
@@ -44,79 +44,8 @@ const email = new Email({
   },
 });
 
-const getAlertsGroupedByUser = (alerts, url, token) => {
-  // create promise group
-  const promises = [];
-  alerts.map(function (alert) {
-    const jobName = alert.labels.job_name;
-    if (jobName) {
-      promises.push(
-        new Promise(function (resolve, reject) {
-          return unirest
-            .get(`${url}/api/v2/jobs/${jobName}`)
-            .headers({
-              Authorization: `Bearer ${token}`,
-              'Content-Type': 'application/json',
-            })
-            .end(function (res) {
-              if (!res.ok) {
-                logger.error(
-                  'alert-handler failed to get username with jobname.',
-                );
-                logger.error(res.raw_body);
-                reject(
-                  new Error(
-                    'alert-handler failed to get username with jobname.',
-                  ),
-                );
-              } else {
-                resolve([res.body.jobStatus.username, alert]);
-              }
-            });
-        }),
-      );
-    }
-  });
-
-  // group alerts by username
-  const alertsGrouped = {};
-  return (
-    Promise.all(promises)
-      .then(function (values) {
-        values.forEach(function (value) {
-          const username = value[0];
-          const alert = value[1];
-          if (username in alertsGrouped) {
-            alertsGrouped[username].push(alert);
-          } else {
-            alertsGrouped[username] = [alert];
-          }
-        });
-        return alertsGrouped;
-      })
-      // catch ?
-      .catch(function (error) {
-        return error;
-      })
-  );
-};
-
-const getUserEmail = (username, url, token) => {
-  return new Promise(function (resolve) {
-    return unirest
-      .get(`${url}/api/v2/users/${username}`)
-      .headers({
-        Authorization: `Bearer ${token}`,
-        'Content-Type': 'application/json',
-      })
-      .end(function (res) {
-        resolve(res.body.email);
-      });
-  });
-};
-
-const sendEmailToAdmin = async (req, res) => {
-  // send email to admin
+// send email to admin
+const sendEmailToAdmin = (req, res) => {
   email
     .send({
       template: 'general-templates',
@@ -130,7 +59,7 @@ const sendEmailToAdmin = async (req, res) => {
         externalURL: req.body.externalURL,
       },
     })
-    .then(function () {
+    .then(() => {
       logger.info(
         `alert-handler successfully send email to admin at ${process.env.EMAIL_CONFIGS_ADMIN_RECEIVER}`,
       );
@@ -138,65 +67,109 @@ const sendEmailToAdmin = async (req, res) => {
         message: `alert-handler successfully send email to admin at ${process.env.EMAIL_CONFIGS_ADMIN_RECEIVER}`,
       });
     })
-    .catch(function (data) {
-      logger.error('alert-handler failed to send email to admin');
-      logger.error(data);
+    .catch((error) => {
+      logger.error('alert-handler failed to send email to admin', error);
       res.status(500).json({
         message: `alert-handler failed to send email to admin`,
       });
     });
 };
 
-const sendEmailToUser = async (req, res) => {
-  // send email to job user
-  // group alerts by username
-  const url = process.env.REST_SERVER_URI;
-  const token = req.token;
-  let alertsGrouped;
+const getUserNameByJobName = (jobName, token) => {
+  return axios
+    .get(`${process.env.REST_SERVER_URI}/api/v2/jobs/${jobName}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+    })
+    .then((response) => {
+      return response.data.jobStatus.username;
+    });
+};
 
+const getUserEmail = (username, token) => {
+  return axios
+    .get(`${process.env.REST_SERVER_URI}/api/v2/users/${username}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+    })
+    .then((response) => {
+      return response.data.email;
+    });
+};
+
+// send email to job user
+const sendEmailToUser = async (req, res) => {
+  // extract jobs names
+  const alerts = req.body.alerts.filter(
+    (alert) => alert.status === 'firing' && 'job_name' in alert.labels,
+  );
+  if (alerts.length === 0) {
+    return res.status(200).json({
+      message: 'No alert need to be send to users.',
+    });
+  }
+
+  // group alerts by username
+  const alertsGrouped = {};
   try {
-    alertsGrouped = await getAlertsGroupedByUser(req.body.alerts, url, token);
-  } catch (data) {
-    logger.error(data);
-    res.status(500).json({
-      message: `Send email encourted Unknown Error`,
+    await Promise.all(
+      alerts.map(async (alert) => {
+        const userName = await getUserNameByJobName(
+          alert.labels.job_name,
+          req.token,
+        );
+        if (userName && userName in alertsGrouped) {
+          alertsGrouped[userName].push(alert);
+        } else {
+          alertsGrouped[userName] = [alert];
+        }
+      }),
+    );
+  } catch (error) {
+    logger.error('alert-handler failed to group alerts by user', error);
+    return res.status(500).json({
+      message: 'alert-handler failed to group alerts by user',
     });
   }
 
   if (alertsGrouped) {
     // send emails to different users separately
-    Object.keys(alertsGrouped).forEach(async (username) => {
-      const userEmail = await getUserEmail(username, url, token);
-      email
-        .send({
-          template: 'general-templates',
-          message: {
-            to: userEmail,
-          },
-          locals: {
-            cluster_id: process.env.CLUSTER_ID,
-            alerts: alertsGrouped[username],
-            groupLabels: req.body.groupLabels,
-            externalURL: req.body.externalURL,
-          },
-        })
-        .then(function () {
-          logger.info(
-            `alert-handler successfully send email to ${username} at ${userEmail}`,
-          );
-        })
-        .catch(function (data) {
-          logger.error('alert-handler failed to send email to user');
-          logger.error(data);
-          res.status(500).json({
-            message: 'alert-handler failed to send email to user',
+    Promise.all(
+      Object.keys(alertsGrouped).map(async (username) => {
+        const userEmail = await getUserEmail(username, req.token);
+        if (userEmail) {
+          await email.send({
+            template: 'general-templates',
+            message: {
+              to: userEmail,
+            },
+            locals: {
+              cluster_id: process.env.CLUSTER_ID,
+              alerts: alertsGrouped[username],
+              groupLabels: req.body.groupLabels,
+              externalURL: req.body.externalURL,
+            },
           });
+        } else {
+          logger.info(`User ${username} has no email configured`);
+        }
+      }),
+    )
+      .then((response) => {
+        res.status(200).json({
+          message: `alert-handler successfully send emails`,
         });
-    });
-
-    res.status(200).json({
-      message: `alert-handler successfully send email to users`,
-    });
+      })
+      .catch((error) => {
+        logger.error(error);
+        res.status(500).json({
+          message: `alert-handler failed to send email`,
+        });
+      });
   }
 };
 

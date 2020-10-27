@@ -22,47 +22,57 @@ const logger = require('@alert-handler/common/logger');
 kc.loadFromDefault();
 const k8sApi = kc.makeApiClient(k8s.CoreV1Api);
 
+const cordonNode = (nodeName) => {
+  const headers = {
+    'content-type': 'application/strategic-merge-patch+json',
+  };
+  // set the node unschedulable
+  return k8sApi.patchNode(
+    nodeName,
+    { spec: { unschedulable: true } },
+    undefined,
+    undefined,
+    undefined,
+    undefined,
+    { headers },
+  );
+};
+
 const cordonNodes = (req, res) => {
   logger.info(
     'alert-handler received `cordonNode` post request from alert-manager.',
   );
 
-  // cordon nodes
-  req.body.alerts.forEach(function (alert) {
-    if (alert.status === 'firing') {
-      const nodeName = alert.labels.node_name;
-      // set the node unschedulable
-      const headers = {
-        'content-type': 'application/strategic-merge-patch+json',
-      };
-      k8sApi
-        .patchNode(
-          nodeName,
-          { spec: { unschedulable: true } },
-          undefined,
-          undefined,
-          undefined,
-          undefined,
-          { headers },
-        )
-        .then(
-          (response) => {
-            logger.info(`alert-handler successfully cordon node ${nodeName}`);
-          },
-          (err) => {
-            logger.error(`alert-handler failed to cordon node ${nodeName}`);
-            logger.error(err);
-            res.status(500).json({
-              message: `alert-handler failed to cordon node ${nodeName}`,
-            });
-          },
-        );
-    }
-  });
+  // extract nodes to cordon
+  const nodeNames = req.body.alerts.reduce(
+    (names, alert) =>
+      // filter alerts which are firing and contain `node_name` as label
+      alert.status === 'firing' && 'node_name' in alert.labels
+        ? [...names, alert.labels.node_name]
+        : names,
+    [],
+  );
+  if (nodeNames.length === 0) {
+    return res.status(200).json({
+      message: 'No nodes to cordon.',
+    });
+  }
+  logger.info(`alert-handler will cordon these nodes: ${nodeNames}`);
 
-  res.status(200).json({
-    message: `alert-handler successfully cordon nodes`,
-  });
+  // cordon all these nodes
+  Promise.all(nodeNames.map((nodeName) => cordonNode(nodeName)))
+    .then((response) => {
+      logger.info(`alert-handler successfully cordon nodes: ${nodeNames}`);
+      res.status(200).json({
+        message: `alert-handler successfully cordon nodes`,
+      });
+    })
+    .catch((error) => {
+      logger.error(error);
+      res.status(500).json({
+        message: `alert-handler failed to cordon node`,
+      });
+    });
 };
 
 // module exports
