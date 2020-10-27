@@ -123,7 +123,7 @@ def main():
     test_loader = torch.utils.data.DataLoader(dataset2, **test_kwargs)
 
     for lr in range(500):
-        lr = args.task_index * 0.002 + 0.0001
+        lr = int(args.task_index) * 0.002 + 0.0001
         model = Net().to(device)
         print('Learning Rate: {:.4f}'.format(lr))
         print('Task ID: {}'.format(args.task_index))
