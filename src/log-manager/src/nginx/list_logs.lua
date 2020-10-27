@@ -31,17 +31,18 @@ end
 local args = ngx.req.get_uri_args()
 local user_name = args["user_name"]
 local framework_name = args["framework_name"]
-local task_role = args["task_role"]
+local taskrole = args["taskrole"]
 local pod_uid = args["pod_uid"]
 local token = args["token"]
 
-if not token or not user_name or not task_role or not framework_name or not pod_uid then
+if not token or not user_name or not taskrole or not framework_name or not pod_uid then
   ngx.status = ngx.HTTP_BAD_REQUEST
   return ngx.exit(ngx.HTTP_OK)
 end
 
-local log_query_param = "?user_name="..user_name.."&&framework_name="..framework_name.."&&pod_uid="..pod_uid.."&&token="..token
-local path = "/usr/local/pai/logs/"..user_name.."/".. framework_name.."/".. task_role.."/"..pod_uid.."/"
+local log_query_param = "?user_name="..user_name.."&&framework_name="..framework_name..
+  "&&pod_uid="..pod_uid.."&&tasktole="..taskrole.."&&token="..token
+local path = "/usr/local/pai/logs/"..user_name.."/".. framework_name.."/".. taskrole.."/"..pod_uid.."/"
 
 ret = {}
 
