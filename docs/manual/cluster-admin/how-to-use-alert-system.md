@@ -39,14 +39,14 @@ You can define customized alerts in the `prometheus` field in [`services-configu
 prometheus:
   customized-alerts: |
     groups:
-      - name: customized-alerts
-        rules:
-          - alert: PAIJobGpuPercentLowerThan0_3For1h
-            expr: avg(task_gpu_percent{virtual_cluster=~"default"}) by (job_name) < 0.3
-            for: 1h
-            annotations:
-              summary: "{{$labels.job_name}} has a job gpu percent lower than 30% for 1 hour"
-              description: Monitor job level gpu utilization in certain virtual clusters.
+    - name: customized-alerts
+      rules:
+      - alert: PAIJobGpuPercentLowerThan0_3For1h
+        expr: avg(task_gpu_percent{virtual_cluster=~"default"}) by (job_name) < 0.3
+        for: 1h
+        annotations:
+          summary: "{{$labels.job_name}} has a job gpu percent lower than 30% for 1 hour"
+          description: Monitor job level gpu utilization in certain virtual clusters.
 ```
 
 The `PAIJobGpuPercentLowerThan0_3For1h` alert will be fired when the job on virtual cluster `default` has a task level average GPU percent lower than `30%` for more than `1 hour`.
@@ -88,14 +88,14 @@ alert-manager:
       match:
         alertname: PAIJobGpuPercentLowerThan0_3For1h
   customized-receivers: # receivers are combination of several actions
-    - name: "pai-email-admin-user-and-stop-job"
-      actions:
-        - email-admin
-        - email-user
-        - stop-jobs
-        - tag-jobs
-      tags: 
-        - 'stopped-by-alert-manager'
+  - name: "pai-email-admin-user-and-stop-job"
+    actions:
+    - email-admin
+    - email-user
+    - stop-jobs
+    - tag-jobs
+    tags: 
+    - 'stopped-by-alert-manager'
 
 ```
 
@@ -146,14 +146,14 @@ alert-manager:
       match:
         alertname: PAIJobGpuPercentLowerThan0_3For1h
   customized-receivers: # receivers are combination of several actions
-    - name: "pai-email-admin-user-and-stop-job"
-      actions: # We have provided so far these actions: email-admin, email-user, stop-jobs, tag-jobs
-        - email-admin
-        - email-user
-        - stop-jobs
-        - tag-jobs
-      tags: 
-        - 'stopped-by-alert-manager'
+  - name: "pai-email-admin-user-and-stop-job"
+    actions: # We have provided so far these actions: email-admin, email-user, stop-jobs, tag-jobs
+    - email-admin
+    - email-user
+    - stop-jobs
+    - tag-jobs
+    tags: 
+    - 'stopped-by-alert-manager'
   ......
 ```
 
