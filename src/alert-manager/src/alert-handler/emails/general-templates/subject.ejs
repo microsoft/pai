@@ -1,7 +1,1 @@
-OpenPAI Alerts : <%= groupLabels.alertname %>,
-<% if (alerts.filter( element => element.status =="firing").length > 0) { %>
-<%= alerts.filter( element => element.status =="firing").length %> Firing
-<% } %>
-<% if (alerts.filter( element => element.status =="resolved").length > 0) { %>
-<%= alerts.filter( element => element.status =="resolved").length %> Resolved
-<% } %>
+<%= cluster_id %>: [FIRING: <%= alerts.filter( element => element.status =="firing").length %> ] <%= groupLabels.alertname %>
