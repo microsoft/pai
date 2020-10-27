@@ -18,6 +18,7 @@ local jwt = require "resty.jwt"
 -- check username & password
 local admin_name = os.getenv("ADMIN_NAME")
 local admin_password = os.getenv("ADMIN_PASSWORD")
+local token_expired_time = os.getenv("TOKEN_EXPIRED_TIME")
 ngx.req.read_body()
 local ok, body = pcall(cjson.decode, ngx.req.get_body_data())
 
@@ -37,7 +38,7 @@ local jwt_token = jwt:sign(
   jwt_secret,
   {
       header={typ="JWT", alg="HS256"},
-      payload={sub="log-manager", iat=os.time(), exp=os.time()+120}
+      payload={sub="log-manager", iat=os.time(), exp=os.time() + tonumber(token_expired_time)}
   }
 )
 ngx.say(cjson.encode({token=jwt_token}))

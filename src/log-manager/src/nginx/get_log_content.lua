@@ -12,11 +12,11 @@
 -- DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 -- OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-local fls = require 'lfs'
+local lfs = require 'lfs'
 
 function get_rotated_log(log_path)
-  for file in fls.dir(path) do
-    rotated_log_name = string.match(file, "^@.*%.s")
+  for file in lfs.dir(log_path) do
+    local rotated_log_name = string.match(file, "^@.*%.s")
     if rotated_log_name then
       return rotated_log_name
     end
@@ -25,35 +25,49 @@ end
 
 
 local args = ngx.req.get_uri_args()
-local user_name = args["user_name"]
+local username = args["username"]
 local framework_name = args["framework_name"]
 local taskrole = args["taskrole"]
 local pod_uid = args["pod_uid"]
 local token = args["token"]
 local tail_mode = args["tail_mode"]
 
-local path_prefix = "/usr/local/pai/logs/"..user_name.."/".. framework_name.."/".. task_role.."/"..pod_uid.."/"
+if not token or not username or not taskrole or not framework_name or not pod_uid then
+  ngx.log(ngx.ERR, "some query parameters is nil")
+  ngx.status = ngx.HTTP_BAD_REQUEST
+  return ngx.exit(ngx.HTTP_OK)
+end
+
+local path_prefix = "/usr/local/pai/logs/"..username.."/".. framework_name.."/".. taskrole.."/"..pod_uid.."/"
 local log_name = ngx.var[1]
 
 local log_path = path_prefix..log_name
 if string.match(log_name, "^user-.*$") then
   -- we only keep one rotated log in log manager
   if string.match(log_name, "%.1$") then
-    rotated_log_name = get_rotated_log(path..log_name)
-    if not rotated_log_name
+    local parent_path = path_prefix..string.sub(log_name, 1, string.len(log_name) - 2)
+    local rotated_log_name = get_rotated_log(parent_path)
+    if not rotated_log_name then
       ngx.status = ngx.HTTP_NOT_FOUND
       return ngx.exit(ngx.HTTP_OK)
     else
-      log_path = path_prefix..log_name.."/"..rotated_log_name
+      log_path = parent_path.."/"..rotated_log_name
     end
   else
     log_path = path_prefix..log_name.."/current"
   end
 end
 
+ngx.log(ngx.INFO, "get log from path"..log_path)
+if lfs.attributes(log_path, "mode") ~= "file" then
+  ngx.log(ngx.ERR, log_path.." not exists")
+  ngx.status = ngx.HTTP_NOT_FOUND
+  return ngx.exit(ngx.HTTP_OK)
+end
+
 if (tail_mode == "true") then
   logs = io.popen("tail -c 16k "..log_path)
-else then
+else
   logs = io.popen("cat "..log_path)
 end
 

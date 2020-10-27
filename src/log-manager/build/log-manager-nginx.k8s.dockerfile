@@ -21,7 +21,8 @@ RUN luarocks install lua-cjson && luarocks install lua-resty-jwt && \
   luarocks install luafilesystem
 RUN echo "env ADMIN_NAME;" >> /usr/local/openresty/nginx/conf/nginx.conf && \
   echo "env ADMIN_PASSWORD;" >> /usr/local/openresty/nginx/conf/nginx.conf && \
-  echo "env JWT_SECRET;" >> /usr/local/openresty/nginx/conf/nginx.conf
+  echo "env JWT_SECRET;" >> /usr/local/openresty/nginx/conf/nginx.conf && \
+  echo "env TOKEN_EXPIRED_TIME;" >> /usr/local/openresty/nginx/conf/nginx.conf
 
 COPY src/nginx/nginx.conf /etc/nginx/conf.d/default.conf
 COPY src/nginx/*.lua /etc/nginx/lua/

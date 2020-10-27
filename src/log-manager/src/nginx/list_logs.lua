@@ -13,10 +13,10 @@
 -- OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 local cjson = require "cjson"
-local fls = require 'lfs'
+local lfs = require 'lfs'
 
 function has_file_with_pattern(path, pattern)
-  for file in fls.dir(path) do
+  for file in lfs.dir(path) do
     if string.match(file, pattern) then
       return true
     end
@@ -29,36 +29,38 @@ function is_dir(path)
 end
 
 local args = ngx.req.get_uri_args()
-local user_name = args["user_name"]
+local username = args["username"]
 local framework_name = args["framework_name"]
 local taskrole = args["taskrole"]
 local pod_uid = args["pod_uid"]
 local token = args["token"]
 
-if not token or not user_name or not taskrole or not framework_name or not pod_uid then
+if not token or not username or not taskrole or not framework_name or not pod_uid then
+  ngx.log(ngx.ERR, "some query parameters is nil")
   ngx.status = ngx.HTTP_BAD_REQUEST
   return ngx.exit(ngx.HTTP_OK)
 end
 
-local log_query_param = "?user_name="..user_name.."&&framework_name="..framework_name..
-  "&&pod_uid="..pod_uid.."&&tasktole="..taskrole.."&&token="..token
-local path = "/usr/local/pai/logs/"..user_name.."/".. framework_name.."/".. taskrole.."/"..pod_uid.."/"
+local log_query_param = "?username="..username.."&framework_name="..framework_name..
+  "&pod_uid="..pod_uid.."&taskrole="..taskrole.."&token="..token
+local path = "/usr/local/pai/logs/"..username.."/".. framework_name.."/".. taskrole.."/"..pod_uid.."/"
+local path_prefix = "/api/v1/logs/"
 
 ret = {}
 
-for file in fls.dir(path) do
+for file in lfs.dir(path) do
   if not is_dir(path..file) then
     if string.match(file, "^user%.pai%..*$") then
       sub_str = string.sub(file, string.len("user.pai.") + 1)
-      ret[sub_str] = file..log_query_param
+      ret[sub_str] = path_prefix..file..log_query_param
     else
-      ret[file] = file..log_query_param
+      ret[file] = path_prefix..file..log_query_param
     end
   elseif string.match(file, "^user-.*$") then
     sub_str = string.sub(file, string.len("user-") + 1)
-    ret[sub_str] = file..log_query_param
+    ret[sub_str] = path_prefix..file..log_query_param
     if has_file_with_pattern(path..file, "^@.*%.s") then
-      ret[sub_str..".1"] = file..".1"..log_query_param
+      ret[sub_str..".1"] = path_prefix..file..".1"..log_query_param
     end
   end
 end
