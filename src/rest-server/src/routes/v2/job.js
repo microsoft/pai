@@ -82,5 +82,10 @@ router
   /** GET /api/v2/jobs/:frameworkName/events - Get events of a framework */
   .get(token.check, controller.getEvents);
 
+router
+  .route('/:frameworkName/pods/:podUid/logs')
+  /** GET /api/v2/jobs/:frameworkName/pods/:podUid/logs - Get logs of a pod */
+  .get(token.check, controller.getLogs);
+
 // module exports
 module.exports = router;

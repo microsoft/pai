@@ -20,7 +20,7 @@ const status = require('statuses');
 
 const asyncHandler = require('@pai/middlewares/v2/asyncHandler');
 const createError = require('@pai/utils/error');
-const job = require('@pai/models/v2/job');
+const { job, log } = require('@pai/models/v2/job');
 const { Op } = require('sequelize');
 
 const list = asyncHandler(async (req, res) => {
@@ -268,6 +268,19 @@ const getEvents = asyncHandler(async (req, res) => {
   res.json(data);
 });
 
+const getLogs = asyncHandler(async (req, res) => {
+  try {
+    const data = log.getLogListFromLogManager();
+    res.json(data);
+  } catch (err) {
+    throw createError(
+      'Internal Server Error',
+      'UnknownError',
+      'Failed ot get log list',
+    );
+  }
+});
+
 // module exports
 module.exports = {
   list,
@@ -279,4 +292,5 @@ module.exports = {
   addTag,
   deleteTag,
   getEvents,
+  getLogs,
 };
