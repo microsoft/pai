@@ -34,12 +34,3 @@ extras:
     - plugin: ssh
       parameters:
         jobssh: true
-    - plugin: teamwise_storage
-      parameters:
-        storageConfigNames:
-          - confignfs-data
-  hivedScheduler:
-    taskRoles:
-      taskrole:
-        skuNum: 1
-        skuType: K80

@@ -19,7 +19,7 @@ taskRoles:
       memoryMB: 51200
     commands:
       - >-
-        wget https://raw.githubusercontent.com/AmberMsy/pai/sy_example/examples/CPU_500Task/src/mnist_lr_500.py
+        wget https://raw.githubusercontent.com/microsoft/pai/master/examples/mnist_500_tasks/src/mnist_lr_500.py
       - >-
         python mnist_lr_500.py --epoch 5
         --task_index=$PAI_CURRENT_TASK_ROLE_CURRENT_TASK_INDEX
@@ -31,12 +31,3 @@ extras:
     - plugin: ssh
       parameters:
         jobssh: true
-    - plugin: teamwise_storage
-      parameters:
-        storageConfigNames:
-          - confignfs-data
-  hivedScheduler:
-    taskRoles:
-      taskrole:
-        skuNum: 1
-        skuType: K80
