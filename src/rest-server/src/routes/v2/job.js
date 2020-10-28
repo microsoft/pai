@@ -53,7 +53,7 @@ router
 router
   .route('/:frameworkName/executionType')
   /** PUT /api/v2/jobs/:frameworkName/executionType - Start or stop job */
-  .put(token.check, controller.execute);
+  .put(token.check, protocol.validateExecutionType, controller.execute);
 
 router
   .route('/:frameworkName/config')
@@ -75,7 +75,7 @@ router
 router
   .route('/:frameworkName/tag')
   /** DELETE /api/v2/jobs/:frameworkName/tag - Delete a framework tag */
-  .delete(token.check, controller.deleteTag);
+  .delete(token.check, protocol.validateTag, controller.deleteTag);
 
 router
   .route('/:frameworkName/events')

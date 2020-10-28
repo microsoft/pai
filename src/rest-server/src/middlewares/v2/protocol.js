@@ -211,7 +211,45 @@ const protocolSubmitMiddleware = [
   }),
 ];
 
+const validateExecutionTypeMiddleware = async (req, _, next) => {
+  if (req.headers['content-type'] !== 'application/json') {
+    return next(
+      createError(
+        'Bad Request',
+        'InvalidProtocolError',
+        'Invalid content-type',
+      ),
+    );
+  }
+  if (!('value' in req.body && req.body.value)) {
+    return next(
+      createError('Bad Request', 'InvalidProtocolError', 'Invalid format'),
+    );
+  }
+  // executionType should be 'stop' or 'start'
+  if (!['START', 'STOP'].includes(req.body.value.toUpperCase())) {
+    return next(
+      createError('Bad Request', 'InvalidProtocolError', 'Invalid value'),
+    );
+  }
+  next();
+};
+
 const validateTagMiddleware = async (req, _, next) => {
+  if (req.headers['content-type'] !== 'application/json') {
+    return next(
+      createError(
+        'Bad Request',
+        'InvalidProtocolError',
+        'Invalid content-type',
+      ),
+    );
+  }
+  if (!('value' in req.body && req.body.value)) {
+    return next(
+      createError('Bad Request', 'InvalidProtocolError', 'Invalid format'),
+    );
+  }
   // tag should not include ','
   if (req.body.value.includes(',')) {
     return next(
@@ -231,4 +269,5 @@ module.exports = {
   render: protocolRender,
   submit: protocolSubmitMiddleware,
   validateTag: validateTagMiddleware,
+  validateExecutionType: validateExecutionTypeMiddleware,
 };
