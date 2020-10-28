@@ -116,7 +116,7 @@ const generateExitSpecMap = () => {
   if (process.env[env.exitSpecPath]) {
     exitSpecPath = process.env[env.exitSpecPath];
     if (!path.isAbsolute(exitSpecPath)) {
-      exitSpecPath = path.resolve(__dirname, '../../', exitSpecPath);
+      exitSpecPath = path.resolve(__dirname, '../../../../', exitSpecPath);
     }
   } else {
     exitSpecPath = '/k8s-job-exit-spec-configuration/k8s-job-exit-spec.yaml';
