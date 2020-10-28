@@ -130,8 +130,8 @@ const generateSpecMap = () => {
   return exitSpecMap;
 };
 
+const exitSpecMap = generateSpecMap();
 const generateExitSpec = (code) => {
-  const exitSpecMap = generateSpecMap();
   if (!_.isNil(code)) {
     if (!_.isNil(exitSpecMap[code])) {
       return exitSpecMap[code];
