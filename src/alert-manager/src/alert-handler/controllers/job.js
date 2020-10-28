@@ -18,7 +18,7 @@
 const axios = require('axios');
 const logger = require('@alert-handler/common/logger');
 
-const stopJob = (jobName, token) => {
+const stopJob = async (jobName, token) => {
   return axios.put(
     `${process.env.REST_SERVER_URI}/api/v2/jobs/${jobName}/executionType`,
     { value: 'STOP' },
@@ -36,14 +36,10 @@ const stopJobs = (req, res) => {
     'alert-handler received `stop-jobs` post request from alert-manager.',
   );
   // extract job names
-  const jobNames = req.body.alerts.reduce(
-    (names, alert) =>
-      // filter alerts which are firing and contain `job_name` as label
-      alert.status === 'firing' && 'job_name' in alert.labels
-        ? [...names, alert.labels.job_name]
-        : names,
-    [],
-  );
+  const jobNames = req.body.alerts
+    // filter alerts which are firing and contain `job_name` as label
+    .filter((alert) => alert.status === 'firing' && 'job_name' in alert.labels)
+    .map((alert) => alert.labels.job_name);
 
   if (jobNames.length === 0) {
     return res.status(200).json({
@@ -53,9 +49,7 @@ const stopJobs = (req, res) => {
   logger.info(`alert-handler will stop these jobs: ${jobNames}`);
 
   // stop all these jobs
-  Promise.all(
-    jobNames.map(async (jobName) => await stopJob(jobName, req.token)),
-  )
+  Promise.all(jobNames.map((jobName) => stopJob(jobName, req.token)))
     .then((response) => {
       logger.info(`alert-handler successfully stop jobs: ${jobNames}`);
       res.status(200).json({
@@ -70,7 +64,7 @@ const stopJobs = (req, res) => {
     });
 };
 
-const tagJob = (jobName, tag, token) => {
+const tagJob = async (jobName, tag, token) => {
   return axios.put(
     `${process.env.REST_SERVER_URI}/api/v2/jobs/${jobName}/tag`,
     { value: tag },
@@ -87,15 +81,11 @@ const tagJobs = (req, res) => {
   logger.info(
     'alert-handler received `tag-jobs` post request from alert-manager.',
   );
-  // extract jobs names
-  const jobNames = req.body.alerts.reduce(
-    (names, alert) =>
-      // filter alerts which are firing and contain `job_name` as label
-      alert.status === 'firing' && 'job_name' in alert.labels
-        ? [...names, alert.labels.job_name]
-        : names,
-    [],
-  );
+  // extract job names
+  const jobNames = req.body.alerts
+    // filter alerts which are firing and contain `job_name` as label
+    .filter((alert) => alert.status === 'firing' && 'job_name' in alert.labels)
+    .map((alert) => alert.labels.job_name);
 
   if (jobNames.length === 0) {
     return res.status(200).json({
@@ -106,9 +96,7 @@ const tagJobs = (req, res) => {
 
   // tag all these jobs
   Promise.all(
-    jobNames.map(
-      async (jobName) => await tagJob(jobName, req.params.tag, req.token),
-    ),
+    jobNames.map((jobName) => tagJob(jobName, req.params.tag, req.token)),
   )
     .then((response) => {
       logger.info(`alert-handler successfully tag jobs: ${jobNames}`);

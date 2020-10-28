@@ -22,7 +22,7 @@ const logger = require('@alert-handler/common/logger');
 kc.loadFromDefault();
 const k8sApi = kc.makeApiClient(k8s.CoreV1Api);
 
-const cordonNode = (nodeName) => {
+const cordonNode = async (nodeName) => {
   const headers = {
     'content-type': 'application/strategic-merge-patch+json',
   };
@@ -44,14 +44,11 @@ const cordonNodes = (req, res) => {
   );
 
   // extract nodes to cordon
-  const nodeNames = req.body.alerts.reduce(
-    (names, alert) =>
-      // filter alerts which are firing and contain `node_name` as label
-      alert.status === 'firing' && 'node_name' in alert.labels
-        ? [...names, alert.labels.node_name]
-        : names,
-    [],
-  );
+  const nodeNames = req.body.alerts
+    // filter alerts which are firing and contain `node_name` as label
+    .filter((alert) => alert.status === 'firing' && 'node_name' in alert.labels)
+    .map((alert) => alert.labels.node_name);
+
   if (nodeNames.length === 0) {
     return res.status(200).json({
       message: 'No nodes to cordon.',

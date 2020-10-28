@@ -1,1 +1,8 @@
-<%= cluster_id %>: [FIRING: <%= alerts.filter( element => element.status =="firing").length %> ] <%= groupLabels.alertname %>
+<%= cluster_id %>:
+<% if (alerts.filter( element => element.status =="firing").length > 0) { %>
+[FIRING: <%= alerts.filter( element => element.status =="firing").length %> ]
+<% } %>
+<% if (alerts.filter( element => element.status =="firing").length === 0) { %>
+[RESOLVED: <%= alerts.filter( element => element.status =="resolved").length %> ]
+<% } %>
+<%= groupLabels.alertname %>

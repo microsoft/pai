@@ -75,7 +75,7 @@ const sendEmailToAdmin = (req, res) => {
     });
 };
 
-const getUserNameByJobName = (jobName, token) => {
+const getUserNameByJobName = async (jobName, token) => {
   return axios
     .get(`${process.env.REST_SERVER_URI}/api/v2/jobs/${jobName}`, {
       headers: {
@@ -88,7 +88,7 @@ const getUserNameByJobName = (jobName, token) => {
     });
 };
 
-const getUserEmail = (username, token) => {
+const getUserEmail = async (username, token) => {
   return axios
     .get(`${process.env.REST_SERVER_URI}/api/v2/users/${username}`, {
       headers: {
@@ -103,7 +103,7 @@ const getUserEmail = (username, token) => {
 
 // send email to job user
 const sendEmailToUser = async (req, res) => {
-  // extract jobs names
+  // filter alerts which are firing and contain `job_name` as label
   const alerts = req.body.alerts.filter(
     (alert) => alert.status === 'firing' && 'job_name' in alert.labels,
   );
@@ -114,27 +114,28 @@ const sendEmailToUser = async (req, res) => {
   }
 
   // group alerts by username
-  const alertsGrouped = {};
+  let userNames;
   try {
-    await Promise.all(
-      alerts.map(async (alert) => {
-        const userName = await getUserNameByJobName(
-          alert.labels.job_name,
-          req.token,
-        );
-        if (userName && userName in alertsGrouped) {
-          alertsGrouped[userName].push(alert);
-        } else {
-          alertsGrouped[userName] = [alert];
-        }
-      }),
+    userNames = await Promise.all(
+      alerts.map(async (alert) =>
+        getUserNameByJobName(alert.labels.job_name, req.token),
+      ),
     );
   } catch (error) {
-    logger.error('alert-handler failed to group alerts by user', error);
+    logger.error('alert-handler failed to get user name', error);
     return res.status(500).json({
-      message: 'alert-handler failed to group alerts by user',
+      message: 'alert-handler failed to get user name',
     });
   }
+
+  const alertsGrouped = {};
+  userNames.map((userName, index) => {
+    if (userName in alertsGrouped) {
+      alertsGrouped[userName].push(alerts[index]);
+    } else {
+      alertsGrouped[userName] = [alerts[index]];
+    }
+  });
 
   if (alertsGrouped) {
     // send emails to different users separately
@@ -142,7 +143,7 @@ const sendEmailToUser = async (req, res) => {
       Object.keys(alertsGrouped).map(async (username) => {
         const userEmail = await getUserEmail(username, req.token);
         if (userEmail) {
-          await email.send({
+          email.send({
             template: 'general-templates',
             message: {
               to: userEmail,
@@ -160,6 +161,7 @@ const sendEmailToUser = async (req, res) => {
       }),
     )
       .then((response) => {
+        logger.info('alert-handler successfully send emails');
         res.status(200).json({
           message: `alert-handler successfully send emails`,
         });
