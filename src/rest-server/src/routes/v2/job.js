@@ -70,7 +70,7 @@ router.use('/:frameworkName/job-attempts', jobAttemptRouter);
 router
   .route('/:frameworkName/tag')
   /** PUT /api/v2/jobs/:frameworkName/tag - Add a framework tag */
-  .put(token.check, protocol.validateTag, controller.addTag);
+  .put(token.checkAdmin, protocol.validateTag, controller.addTag);
 
 router
   .route('/:frameworkName/tag')

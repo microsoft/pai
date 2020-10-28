@@ -1384,7 +1384,7 @@ paths:
     put:
       tags:
         - job
-      summary: Add a tag to a job.
+      summary: Add a tag to a job. Only admin users are authorized.
       description: Add a tag to a job.
       operationId: addTag
       security:
@@ -1420,7 +1420,7 @@ paths:
     delete:
       tags:
         - job
-      summary: Delete a tag from a job.
+      summary: Delete a tag from a job. Only admin users are authorized.
       description: Delete a tag from a job.
       operationId: deleteTag
       security:
