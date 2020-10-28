@@ -21,6 +21,7 @@ const status = require('statuses');
 const asyncHandler = require('@pai/middlewares/v2/asyncHandler');
 const createError = require('@pai/utils/error');
 const { job, log } = require('@pai/models/v2/job');
+const logger = require('@pai/config/logger');
 const { Op } = require('sequelize');
 
 const list = asyncHandler(async (req, res) => {
@@ -270,9 +271,13 @@ const getEvents = asyncHandler(async (req, res) => {
 
 const getLogs = asyncHandler(async (req, res) => {
   try {
-    const data = log.getLogListFromLogManager();
+    const data = log.getLogListFromLogManager(
+      req.params.frameworkName,
+      req.params.podUid,
+    );
     res.json(data);
-  } catch (err) {
+  } catch (error) {
+    logger.error(`Got error when retrieving log list, error: ${error}`);
     throw createError(
       'Internal Server Error',
       'UnknownError',

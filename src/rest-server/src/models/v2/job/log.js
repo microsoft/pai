@@ -16,8 +16,9 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 const axios = require('axios');
-const logger = require('@pai/config/logger');
 const job = require('./k8s');
+const logger = require('@pai/config/logger');
+const createError = require('@pai/utils/error');
 const { encodeName } = require('@pai/models/v2/utils/name');
 
 const LOG_MANAGER_PORT = process.env.LOG_MANAGER_PORT;
@@ -28,16 +29,10 @@ const constrcutLogManagerPrefix = (nodeIp) => {
 
 const loginLogManager = async (nodeIp, username, password) => {
   const prefix = constrcutLogManagerPrefix(nodeIp);
-  try {
-    const data = await axios.post(`${prefix}/token`, {
-      username: username,
-      password: password,
-    });
-    return data;
-  } catch (err) {
-    logger.error(`Failed to get log manager token, error: ${err}`);
-    throw err;
-  }
+  return axios.post(`${prefix}/token`, {
+    username: username,
+    password: password,
+  });
 };
 
 const getLogListFromLogManager = async (frameworkName, podUid) => {
@@ -45,10 +40,22 @@ const getLogListFromLogManager = async (frameworkName, podUid) => {
   const password = process.env.LOG_MANAGER_ADMIN_NAME;
 
   const jobDetail = await job.get(frameworkName);
+  let nodeIp;
+  let taskRoleName;
   for (const [key, taskRole] in Object.entries(jobDetail.taskRoles)) {
-    taskRole.taskStatuses.find(
+    const status = taskRole.taskStatuses.find(
       (status) => status.containerId === podUid,
     );
+    if (!status) {
+      logger.error(`Failed to find pod which has pod uid ${podUid}`);
+      throw createError(
+        'Not Found',
+        'UnknownError',
+        `Log for pod ${podUid} is not found.`,
+      );
+    }
+    nodeIp = status.containerIp;
+    taskRoleName = key;
   }
 
   // get job details here. The information such as nodeId, podUid...
@@ -56,27 +63,23 @@ const getLogListFromLogManager = async (frameworkName, podUid) => {
   const token = res.token;
 
   const prefix = constrcutLogManagerPrefix(nodeIp);
-  try {
-    const logList = await axios.get(`${prefix}/logs`, {
-      params: {
-        token: token,
-        username: username,
-        framework_name: encodeName(frameworkName),
-        taskrole: taskrole,
-        pod_uid: podUid,
-      },
-    });
+  const logList = await axios.get(`${prefix}/logs`, {
+    params: {
+      token: token,
+      username: username,
+      framework_name: encodeName(frameworkName),
+      taskrole: taskRoleName,
+      pod_uid: podUid,
+    },
+  });
 
-    const ret = {};
-    const urlPrefix = `log-manager/${nodeIp}/${LOG_MANAGER_PORT}`;
-    for (const key in logList) {
-      ret[key] = `${urlPrefix}/${logList[key]}`;
-    }
-
-    return ret;
-  } catch (err) {
-    logger.error(`Failed to get log list error : ${err}`);
+  const ret = {};
+  const urlPrefix = `log-manager/${nodeIp}/${LOG_MANAGER_PORT}`;
+  for (const key in logList) {
+    ret[key] = `${urlPrefix}/${logList[key]}`;
   }
+
+  return ret;
 };
 
 module.exports = {

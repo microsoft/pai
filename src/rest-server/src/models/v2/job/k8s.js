@@ -76,7 +76,7 @@ const convertFrameworkSummary = (framework) => {
   };
 };
 
-const convertTaskDetail = async (taskStatus, ports, logPathPrefix) => {
+const convertTaskDetail = async (taskStatus, ports, frameworkName) => {
   // get containerPorts
   const containerPorts = getContainerPorts(
     ports,
@@ -103,7 +103,7 @@ const convertTaskDetail = async (taskStatus, ports, logPathPrefix) => {
     containerNodeName: taskStatus.attemptStatus.podNodeName,
     containerPorts,
     containerGpus,
-    containerLog: `http://${taskStatus.attemptStatus.podHostIP}:${process.env.LOG_MANAGER_PORT}/log-manager/tail/${logPathPrefix}/${taskStatus.attemptStatus.podUID}/`,
+    containerLog: `/jobs/${frameworkName}/pods/${taskStatus.attemptStatus.podUID}/logs`,
     containerExitCode: completionStatus ? completionStatus.code : null,
     containerExitSpec: completionStatus
       ? generateExitSpec(completionStatus.code)
@@ -291,7 +291,7 @@ const convertFrameworkDetail = async (
           await convertTaskDetail(
             status,
             ports[taskRoleStatus.name],
-            `${userName}/${logPathInfix || jobName}/${taskRoleStatus.name}`,
+            logPathInfix || jobName,
           ),
       ),
     );
