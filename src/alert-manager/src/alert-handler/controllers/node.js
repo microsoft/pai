@@ -22,33 +22,44 @@ const logger = require('@alert-handler/common/logger');
 kc.loadFromDefault();
 const k8sApi = kc.makeApiClient(k8s.CoreV1Api);
 
-const cordonNodes = async (req, res, next) => {
+const cordonNodes = (req, res) => {
   logger.info(
     'alert-handler received `cordonNode` post request from alert-manager.',
   );
 
-  const firing_alerts = req.body.alerts.filter(alert => alert.status === 'firing' && alert.labels.node_name);
-  try {
-    await Promise.all(firing_alerts.map(async alert => {
+  // cordon nodes
+  req.body.alerts.forEach(function (alert) {
+    if (alert.status === 'firing') {
       const nodeName = alert.labels.node_name;
+      // set the node unschedulable
       const headers = {
         'content-type': 'application/strategic-merge-patch+json',
       };
       k8sApi
-      .patchNode(
-        nodeName,
-        { spec: { unschedulable: true } },
-        undefined,
-        undefined,
-        undefined,
-        undefined,
-        { headers },
-      )
-    }))
-  } catch(err) {
-    logger.error(`alert-handler failed to cordon node ${nodeName}`, err);
-    next(createError(500, `alert-handler failed to cordon node ${nodeName}`));
-  }
+        .patchNode(
+          nodeName,
+          { spec: { unschedulable: true } },
+          undefined,
+          undefined,
+          undefined,
+          undefined,
+          { headers },
+        )
+        .then(
+          (response) => {
+            logger.info(`alert-handler successfully cordon node ${nodeName}`);
+          },
+          (err) => {
+            logger.error(`alert-handler failed to cordon node ${nodeName}`);
+            logger.error(err);
+            res.status(500).json({
+              message: `alert-handler failed to cordon node ${nodeName}`,
+            });
+          },
+        );
+    }
+  });
+
   res.status(200).json({
     message: `alert-handler successfully cordon nodes`,
   });

@@ -71,6 +71,10 @@ else
   logs = io.popen("cat "..log_path)
 end
 
-for line in logs:lines() do
-  ngx.say(line)
+-- buffer size (8K)
+local size = 2^13
+while true do
+  local block = logs:read(size)
+  if not block then break end
+  ngx.say(block)
 end
