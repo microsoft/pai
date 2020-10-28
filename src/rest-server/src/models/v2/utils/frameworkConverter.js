@@ -111,7 +111,7 @@ const generateExitDiagnostics = (diag) => {
   return exitDiagnostics;
 };
 
-const generateSpecMap = () => {
+const generateExitSpecMap = () => {
   let exitSpecPath;
   if (process.env[env.exitSpecPath]) {
     exitSpecPath = process.env[env.exitSpecPath];
@@ -130,7 +130,7 @@ const generateSpecMap = () => {
   return exitSpecMap;
 };
 
-const exitSpecMap = generateSpecMap();
+const exitSpecMap = generateExitSpecMap();
 const generateExitSpec = (code) => {
   if (!_.isNil(code)) {
     if (!_.isNil(exitSpecMap[code])) {
