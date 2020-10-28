@@ -136,6 +136,26 @@ export const updateUserAdminRequest = async (username, admin) => {
   });
 };
 
+export const updateBoundedClustersRequest = async (username, updatedBoundedClusters) => {
+  const url = `${config.restServerUri}/api/v2/users`;
+  const token = checkToken();
+  return fetchWrapper(url, {
+    method: 'PUT',
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({
+      data: {
+        username: username,
+        extension: {
+          boundedClusters: updatedBoundedClusters,
+        }
+      },
+      patch: false,
+    }),
+  });
+}
+
 export const getAllVcsRequest = async () => {
   const url = `${config.restServerUri}/api/v2/virtual-clusters`;
   const token = checkToken();
