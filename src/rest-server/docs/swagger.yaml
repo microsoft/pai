@@ -1376,6 +1376,8 @@ paths:
                 $ref: "#/components/schemas/Response"
               example:
                 message: execute job {job} successfully
+        "400":
+          $ref: "#/components/responses/InvalidProtocolError"
         "404":
           $ref: "#/components/responses/NoJobError"
         "500":
@@ -1413,6 +1415,8 @@ paths:
                 $ref: "#/components/schemas/Response"
               example:
                 message: "Add tag {tag} for job {job} successfully."
+        "400":
+          $ref: "#/components/responses/InvalidProtocolError"
         "404":
           $ref: "#/components/responses/NoJobError"
         "500":
@@ -1449,6 +1453,8 @@ paths:
                 $ref: "#/components/schemas/Response"
               example:
                 message: "Delete tag {tag} from job {job} successfully."
+        "400":
+          $ref: "#/components/responses/InvalidProtocolError"
         "404":
           description: NoJobError or NoTagError
           content:
@@ -3055,6 +3061,17 @@ components:
         - email
         - extension
   responses:
+    InvalidProtocolError:
+      description: InvalidProtocolError
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Response"
+          examples:
+            InvalidProtocolError:
+              value:
+                code: InvalidProtocolError
+                message: Invalid request.
     IncorrectPasswordError:
       description: IncorrectPasswordError
       content:
