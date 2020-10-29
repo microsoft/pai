@@ -25,5 +25,19 @@ if [ -n "${LOG_EXIST_TIME}" ]; then
   log_exist_time=${LOG_EXIST_TIME}
 fi
 
-exec /usr/bin/go-cron '@daily' /bin/bash -c \
-  "/usr/bin/pgrep -f ^find 2>&1 > /dev/null || find /usr/local/pai/logs/* -mtime +${log_exist_time} -type f -exec rm -fv {} \;"
+cat > /etc/periodic/daily/remove_logs << EOF
+#!/bin/bash
+/usr/bin/pgrep -f ^find 2>&1 > /dev/null || find /usr/local/pai/logs/* -mtime +${log_exist_time} -type f -exec rm -fv {} \;
+EOF
+
+cat > /etc/periodic/weekly/remove_log_dir << EOF
+#!/bin/bash
+"/usr/bin/pgrep -f ^find 2>&1 > /dev/null || find /usr/local/pai/logs/* -mtime +${log_exist_time} -type d -empty -exec rmdir -v {} \;"
+EOF
+
+chmod a+x /etc/periodic/daily/remove_logs /etc/periodic/weekly/remove_log_dir
+
+echo "cron job added"
+
+crond -f -l 0
+

@@ -1,4 +1,3 @@
-
 # Copyright (c) Microsoft Corporation
 # All rights reserved.
 #
@@ -19,10 +18,7 @@
 FROM alpine:3.10
 
 # install dev tools
-RUN apk update && apk add --no-cache tini bash tar gzip wget && \
-  wget --no-check-certificate -O /tmp/go-cron.tar.gz \
-    https://github.com/michaloo/go-cron/releases/download/v0.0.2/go-cron.tar.gz && \
-  tar xvf /tmp/go-cron.tar.gz -C /usr/bin
-
+RUN apk update && apk add --no-cache tini bash findutils
 COPY src/cleaner/ /usr/bin/cleaner/
 ENTRYPOINT ["/sbin/tini","--","/usr/bin/cleaner/entrypoint.sh"]
+

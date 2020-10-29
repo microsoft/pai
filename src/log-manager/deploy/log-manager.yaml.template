@@ -35,7 +35,7 @@ spec:
       hostNetwork: false
       containers:
       - name: log-cleaner
-        image: {{ cluster_cfg["cluster"]["docker-registry"]["prefix"] }}log-cleaner:{{ cluster_cfg["cluster"]["docker-registry"]["tag"] }}
+        image: {{ cluster_cfg["cluster"]["docker-registry"]["prefix"] }}log-manager-cleaner:{{ cluster_cfg["cluster"]["docker-registry"]["tag"] }}
         imagePullPolicy: Always
         volumeMounts:
         - name: pai-log
@@ -82,7 +82,7 @@ spec:
         - name: JWT_SECRET
           value: {{ cluster_cfg["log-manager"]["jwt_secret"] }}
         - name: TOKEN_EXPIRED_TIME
-          value: {{ cluster_cfg["log-manager"]["token_expired_time"] }}
+          value: '{{ cluster_cfg["log-manager"]["token_expired_time"] }}'
       volumes:
         - name: pai-log
           hostPath:
