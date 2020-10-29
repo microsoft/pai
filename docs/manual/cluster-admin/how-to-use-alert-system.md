@@ -103,7 +103,7 @@ We have provided so far these following actions:
 
   - `email-admin`: Send emails to the assigned admin.
   - `email-user`: Send emails to the owners of jobs. Currently, this action uses the same email template as `email-admin`.
-  - `stop-jobs`: Stop jobs by calling OpenPAI REST API. Be careful about this action because it stops jobs without notifying related users.
+  - `stop-jobs`: Stop jobs by calling OpenPAI REST API. **Be careful about this action because it stops jobs without notifying related users.**
   - `tag-jobs`: Add a tag to jobs by calling OpenPAI REST API.
   - `cordon-nodes`: Call Kubernetes API to cordon the corresponding nodes.
 
