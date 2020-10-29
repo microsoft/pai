@@ -78,7 +78,7 @@ router
   .route('/:frameworkName/tag')
   /** PUT /api/v2/jobs/:frameworkName/tag - Add a framework tag */
   .put(
-    token.checkAdmin,
+    token.check,
     param.validate(tagInputSchema.tagInputSchema),
     controller.addTag,
   );
@@ -87,7 +87,7 @@ router
   .route('/:frameworkName/tag')
   /** DELETE /api/v2/jobs/:frameworkName/tag - Delete a framework tag */
   .delete(
-    token.check,
+    token.checkAdmin,
     param.validate(tagInputSchema.tagInputSchema),
     controller.deleteTag,
   );

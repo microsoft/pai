@@ -69,30 +69,8 @@ const check = async (req, _, next) => {
 };
 
 const checkAdmin = async (req, _, next) => {
-  if (!req.headers.authorization) {
-    return next(
-      createError(
-        'Unauthorized',
-        'UnauthorizedUserError',
-        'Guest is not allowed to do this operation.',
-      ),
-    );
-  }
   try {
-    req[userProperty] = await getToken(req);
-    req[userProperty].admin = await userModel.checkAdmin(
-      req[userProperty].username,
-    );
-    if (!req[userProperty].admin) {
-      return next(
-        createError(
-          'Unauthorized',
-          'UnauthorizedUserError',
-          'Only admin users are authorized.',
-        ),
-      );
-    }
-    next();
+    await check(req, _, );
   } catch (error) {
     logger.debug(error);
     return next(
@@ -103,6 +81,16 @@ const checkAdmin = async (req, _, next) => {
       ),
     );
   }
+  if (!req[userProperty].admin) {
+    return next(
+      createError(
+        'Unauthorized',
+        'UnauthorizedUserError',
+        'Only admin users are authorized.',
+      ),
+    );
+  }
+  next();
 };
 
 const notApplication = async (req, _, next) => {
