@@ -23,6 +23,9 @@ const controller = require('@pai/controllers/v2/job');
 const taskController = require('@pai/controllers/v2/task');
 const protocol = require('@pai/middlewares/v2/protocol');
 const jobAttemptRouter = require('@pai/routes/v2/job-attempt.js');
+const param = require('@pai/middlewares/parameter');
+const tagInputSchema = require('@pai/config/v2/tag');
+const executionTypeInputSchema = require('@pai/config/v2/execution-type');
 
 const router = new express.Router();
 
@@ -53,7 +56,11 @@ router
 router
   .route('/:frameworkName/executionType')
   /** PUT /api/v2/jobs/:frameworkName/executionType - Start or stop job */
-  .put(token.check, controller.execute);
+  .put(
+    token.check,
+    param.validate(executionTypeInputSchema.executionTypeInputSchema),
+    controller.execute,
+  );
 
 router
   .route('/:frameworkName/config')
@@ -70,12 +77,20 @@ router.use('/:frameworkName/job-attempts', jobAttemptRouter);
 router
   .route('/:frameworkName/tag')
   /** PUT /api/v2/jobs/:frameworkName/tag - Add a framework tag */
-  .put(token.checkAdmin, protocol.validateTag, controller.addTag);
+  .put(
+    token.check,
+    param.validate(tagInputSchema.tagInputSchema),
+    controller.addTag,
+  );
 
 router
   .route('/:frameworkName/tag')
   /** DELETE /api/v2/jobs/:frameworkName/tag - Delete a framework tag */
-  .delete(token.check, controller.deleteTag);
+  .delete(
+    token.check,
+    param.validate(tagInputSchema.tagInputSchema),
+    controller.deleteTag,
+  );
 
 router
   .route('/:frameworkName/events')
