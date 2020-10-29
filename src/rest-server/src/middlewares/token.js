@@ -68,31 +68,6 @@ const check = async (req, _, next) => {
   }
 };
 
-const checkAdmin = async (req, _, next) => {
-  try {
-    await check(req, _, );
-  } catch (error) {
-    logger.debug(error);
-    return next(
-      createError(
-        'Unauthorized',
-        'UnauthorizedUserError',
-        'Your token is invalid.',
-      ),
-    );
-  }
-  if (!req[userProperty].admin) {
-    return next(
-      createError(
-        'Unauthorized',
-        'UnauthorizedUserError',
-        'Only admin users are authorized.',
-      ),
-    );
-  }
-  next();
-};
-
 const notApplication = async (req, _, next) => {
   const token = req[userProperty];
   if (!token.application) {
@@ -110,6 +85,5 @@ const notApplication = async (req, _, next) => {
 
 module.exports = {
   check,
-  checkAdmin,
   checkNotApplication: [check, notApplication],
 };

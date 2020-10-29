@@ -87,7 +87,7 @@ router
   .route('/:frameworkName/tag')
   /** DELETE /api/v2/jobs/:frameworkName/tag - Delete a framework tag */
   .delete(
-    token.checkAdmin,
+    token.check,
     param.validate(tagInputSchema.tagInputSchema),
     controller.deleteTag,
   );
