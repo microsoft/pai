@@ -103,7 +103,7 @@ rest-server:
 # node-exporter:
 #   port: 9100
 
-# if you want to enable alert manager to send alert email to admin, uncomment following lines and fill
+# if you want to enable alert manager to send alert emails, uncomment following lines and fill
 # the right values.
 # alert-manager:
 #   port: 9093 # optional, do not modify this if you do not want to change the port alert-manager is listening on
@@ -119,11 +119,24 @@ rest-server:
 #       smtp-auth-username: alert-sender@example.com
 #       smtp-auth-password: password-for-alert-sender
 
-# uncomment following if you want to change customize prometheus
+# uncomment following if you want to customize prometheus
 # prometheus:
 #   port: 9091 # optional, do not modify this if you do not want to change the port prometheus is listening on
 #   # How frequently to scrape targets
 #   scrape_interval: 30
+#   customized-alerts: |
+#     groups:
+#       - name: customized-alerts
+#         rules:
+#           - alert: PAIJobGpuPercentLowerThan0_3For1h
+#             expr: avg(task_gpu_percent{virtual_cluster=~"default"}) by (job_name) < 0.3
+#             for: 1h
+#             annotations:
+# The alert-manager actions `email-admin` and `email-user` will render `summary` as part of the email content.
+# Suggest to introduce the alert definition and the actions that you configured to be executed for this alert. 
+# For example: {{$labels.job_name}} has a job gpu percent lower than 30% for 1 hour. The job will be stopped automatically by OpenPAI.
+#               summary: "{{$labels.job_name}} has a job gpu percent lower than 30% for 1 hour."
+#               description: Monitor job level gpu utilization in certain virtual clusters.
 
 # uncomment following section if you want to customize the port of pylon
 # pylon:

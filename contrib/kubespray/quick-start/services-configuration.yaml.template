@@ -224,7 +224,10 @@ authentication:
 #             expr: avg(task_gpu_percent{virtual_cluster=~"default"}) by (job_name) < 0.3
 #             for: 1h
 #             annotations:
-#               summary: "{{$labels.job_name}} has a job gpu percent lower than 30% for 1 hour"
+# The alert-manager actions `email-admin` and `email-user` will render `summary` as part of the email content.
+# Suggest to introduce the alert definition and the actions that you configured to be executed for this alert. 
+# For example: {{$labels.job_name}} has a job gpu percent lower than 30% for 1 hour. The job will be stopped automatically by OpenPAI.
+#               summary: "{{$labels.job_name}} has a job gpu percent lower than 30% for 1 hour."
 #               description: Monitor job level gpu utilization in certain virtual clusters.
 
 

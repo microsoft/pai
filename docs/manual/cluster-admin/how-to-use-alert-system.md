@@ -52,6 +52,11 @@ prometheus:
 The `PAIJobGpuPercentLowerThan0_3For1h` alert will be fired when the job on virtual cluster `default` has a task level average GPU percent lower than `30%` for more than `1 hour`.
 Here the metric `task_gpu_percent` is used, which describes the GPU utilization at task level. 
 
+The `alert-handler` actions (introduced in the following content) `email-admin` and `email-user` will render the `summary` field in the alert definition as part of the email content. 
+So you can introduce the alert definition and the actions that you configured to be executed for this alert. 
+For example, if you configured `alert-handler` to stop the job which triggered this alert,
+you can write the summary as: {{$labels.job_name}} has a job gpu percent lower than 30% for 1 hour. The job will be stopped automatically by OpenPAI.
+
 Remember to push service config to the cluster and restart the `prometheus` service after your modification with the following commands [in the dev-box container](./basic-management-operations.md#pai-service-management-and-paictl):
 ```bash
 ./paictl.py service stop -n prometheus
@@ -102,7 +107,7 @@ alert-manager:
 We have provided so far these following actions: 
 
   - `email-admin`: Send emails to the assigned admin.
-  - `email-user`: Send emails to the owners of jobs.
+  - `email-user`: Send emails to the owners of jobs. Currently, this action uses the same email template as `email-admin`. 
   - `stop-jobs`: Stop jobs by calling OpenPAI REST API.
   - `tag-jobs`: Add a tag to jobs by calling OpenPAI REST API.
   - `cordon-nodes`: Call Kubernetes API to cordon the corresponding nodes.
