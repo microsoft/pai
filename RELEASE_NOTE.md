@@ -1,5 +1,24 @@
 # OpenPAI Release Note
 
+## Nov 2020 (version 1.3.0)
+
+- Marketplace
+  - New templates in marketplace (https://github.com/microsoft/openpaimarketplace/issues/60)
+- HiveD Scheduler
+  - Support cluster autoscale with HiveD scheduler on AKS (#4868)
+  - Support dynamic sku types for different vc on webportal (#4900)
+- Advanced job debug mode
+  - Add per task retry history (https://github.com/microsoft/frameworkcontroller/pull/62, #4958, #4966)
+  - Expose Kubernetes events (#4939, #4975)
+- GPU monitoring and utilization
+  - Support job tagging (#4853)
+  - Cordon node with GPU ECC Errors (#4942)
+- Documentation
+  - Fix document according to DRI tickets (#4828)
+  - Add distributed examples (#4821)
+- Webportal
+  - Add help info for items on webportal (#4950)
+
 ## Oct 2020 (version 1.2.1)
 
 [minor release with hot fix](https://github.com/microsoft/pai/releases/tag/v1.2.1).
