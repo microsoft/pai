@@ -271,7 +271,7 @@ const getEvents = asyncHandler(async (req, res) => {
 
 const getLogs = asyncHandler(async (req, res) => {
   try {
-    const data = log.getLogListFromLogManager(
+    const data = await log.getLogListFromLogManager(
       req.params.frameworkName,
       req.params.podUid,
     );

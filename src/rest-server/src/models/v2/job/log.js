@@ -24,25 +24,25 @@ const { encodeName } = require('@pai/models/v2/utils/name');
 const LOG_MANAGER_PORT = process.env.LOG_MANAGER_PORT;
 
 const constrcutLogManagerPrefix = (nodeIp) => {
-  return `${nodeIp}:${LOG_MANAGER_PORT}/api/v1`;
+  return `http://${nodeIp}:${LOG_MANAGER_PORT}/api/v1`;
 };
 
 const loginLogManager = async (nodeIp, username, password) => {
   const prefix = constrcutLogManagerPrefix(nodeIp);
-  return axios.post(`${prefix}/token`, {
+  return axios.post(`${prefix}/tokens`, {
     username: username,
     password: password,
   });
 };
 
 const getLogListFromLogManager = async (frameworkName, podUid) => {
-  const username = process.env.LOG_MANAGER_ADMIN_NAME;
-  const password = process.env.LOG_MANAGER_ADMIN_NAME;
+  const adminName = process.env.LOG_MANAGER_ADMIN_NAME;
+  const adminPassword = process.env.LOG_MANAGER_ADMIN_PASSWORD;
 
   const jobDetail = await job.get(frameworkName);
   let nodeIp;
   let taskRoleName;
-  for (const [key, taskRole] in Object.entries(jobDetail.taskRoles)) {
+  for (const [key, taskRole] of Object.entries(jobDetail.taskRoles)) {
     const status = taskRole.taskStatuses.find(
       (status) => status.containerId === podUid,
     );
@@ -58,25 +58,25 @@ const getLogListFromLogManager = async (frameworkName, podUid) => {
     taskRoleName = key;
   }
 
-  // get job details here. The information such as nodeId, podUid...
-  const res = await loginLogManager(nodeIp, username, password);
-  const token = res.token;
+  let res = await loginLogManager(nodeIp, adminName, adminPassword);
+  const token = res.data.token;
 
   const prefix = constrcutLogManagerPrefix(nodeIp);
-  const logList = await axios.get(`${prefix}/logs`, {
+  res = await axios.get(`${prefix}/logs`, {
     params: {
       token: token,
-      username: username,
+      username: jobDetail.jobStatus.username,
       framework_name: encodeName(frameworkName),
       taskrole: taskRoleName,
       pod_uid: podUid,
     },
   });
+  const logList = res.data;
 
   const ret = {};
-  const urlPrefix = `log-manager/${nodeIp}/${LOG_MANAGER_PORT}`;
+  const urlPrefix = `/log-manager/${nodeIp}:${LOG_MANAGER_PORT}`;
   for (const key in logList) {
-    ret[key] = `${urlPrefix}/${logList[key]}`;
+    ret[key] = `${urlPrefix}${logList[key]}`;
   }
 
   return ret;

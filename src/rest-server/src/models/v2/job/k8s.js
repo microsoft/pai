@@ -158,9 +158,6 @@ const convertFrameworkDetail = async (
   const virtualCluster = frameworkWithLatestAttempt.metadata.labels
     ? frameworkWithLatestAttempt.metadata.labels.virtualCluster
     : 'unknown';
-  const logPathInfix = frameworkWithLatestAttempt.metadata.annotations
-    ? frameworkWithLatestAttempt.metadata.annotations.logPathInfix
-    : null;
 
   const latestAttemptStatus = frameworkWithLatestAttempt.status.attemptStatus;
   const latestAttemptCompletionStatus = latestAttemptStatus.completionStatus;
@@ -291,7 +288,7 @@ const convertFrameworkDetail = async (
           await convertTaskDetail(
             status,
             ports[taskRoleStatus.name],
-            logPathInfix || jobName,
+            `${userName}~${jobName}`,
           ),
       ),
     );
