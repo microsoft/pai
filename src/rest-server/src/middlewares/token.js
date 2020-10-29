@@ -83,7 +83,7 @@ const checkAdmin = async (req, _, next) => {
     req[userProperty].admin = await userModel.checkAdmin(
       req[userProperty].username,
     );
-    if (!req[userProperty.admin]) {
+    if (!req[userProperty].admin) {
       return next(
         createError(
           'Unauthorized',
