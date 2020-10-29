@@ -38,7 +38,7 @@ spec:
         app: alertmanager
     spec:
       serviceAccountName: alert-manager-account
-      hostNetwork: true
+      hostNetwork: false
       containers:
       - name: alertmanager
         image: prom/alertmanager:v0.15.1
@@ -50,6 +50,7 @@ spec:
         ports:
         - name: alertmanager
           containerPort: {{ cluster_cfg["alert-manager"]["port"] }}
+          hostPort: {{ cluster_cfg["alert-manager"]["port"] }}
         volumeMounts:
         - name: config-volume
           mountPath: /etc/alertmanager
