@@ -56,6 +56,7 @@ if (authnConfig.authnMethod === 'basic') {
     /** Create /api/v2/users */
     .post(
       token.checkNotApplication,
+      token.checkAdmin,
       param.validate(userInputSchema.userCreateInputSchema),
       userController.createUser,
     );
@@ -85,6 +86,7 @@ if (authnConfig.authnMethod === 'basic') {
     /** put /api/v2/users/:username/grouplist */
     .put(
       token.checkNotApplication,
+      token.checkAdmin,
       param.validate(userInputSchema.userGrouplistUpdateInputSchema),
       userController.updateUserGroupList,
     );
@@ -94,6 +96,7 @@ if (authnConfig.authnMethod === 'basic') {
     /** put /api/v2/users/:username/group */
     .put(
       token.checkNotApplication,
+      token.checkAdmin,
       param.validate(userInputSchema.addOrRemoveGroupInputSchema),
       userController.addGroupIntoUserGrouplist,
     );
@@ -103,6 +106,7 @@ if (authnConfig.authnMethod === 'basic') {
     /** delete /api/v2/users/:username/group */
     .delete(
       token.checkNotApplication,
+      token.checkAdmin,
       param.validate(userInputSchema.addOrRemoveGroupInputSchema),
       userController.removeGroupFromUserGrouplist,
     );
@@ -143,6 +147,7 @@ if (authnConfig.authnMethod === 'basic') {
     /** Update /api/v2/users/:username/admin */
     .put(
       token.checkNotApplication,
+      token.checkAdmin,
       param.validate(userInputSchema.userAdminPermissionUpdateInputSchema),
       userController.updateUserAdminPermission,
     );
@@ -159,7 +164,7 @@ if (authnConfig.authnMethod === 'basic') {
 
   router
     .route('/me')
-    /** Put /api/v2/users */
+    /** Put /api/v2/users/me */
     .put(
       token.checkNotApplication,
       param.validate(userInputSchema.oidcUserUpdateInputSchema),
