@@ -42,7 +42,8 @@ local path_prefix = "/usr/local/pai/logs/"..username.."/".. framework_name.."/".
 local log_name = ngx.var[1]
 
 local log_path = path_prefix..log_name
-if string.match(log_name, "^user-.*$") then
+ngx.log(ngx.INFO, "get log name "..log_name)
+if string.match(log_name, "^user%-.*$") then
   -- we only keep one rotated log in log manager
   if string.match(log_name, "%.1$") then
     local parent_path = path_prefix..string.sub(log_name, 1, string.len(log_name) - 2)
