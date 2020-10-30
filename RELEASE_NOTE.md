@@ -11,7 +11,8 @@
   - Add per task retry history (https://github.com/microsoft/frameworkcontroller/pull/62, #4958, #4966)
   - Expose Kubernetes events (#4939, #4975)
 - GPU monitoring and utilization
-  - Support job tagging (#4853)
+  - Support job tagging (#4924)
+  - Stop low GPU utilization job with alert-manager (#4940)
   - Cordon node with GPU ECC Errors (#4942)
 - Documentation
   - Fix document according to DRI tickets (#4828)
