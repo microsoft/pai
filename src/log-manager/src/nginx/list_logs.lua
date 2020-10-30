@@ -48,6 +48,12 @@ local path_prefix = "/api/v1/logs/"
 
 ret = {}
 
+if not is_dir(path) then
+  ngx.log(ngx.ERR, "log folder not exists")
+  ngx.status = ngx.HTTP_NOT_FOUND
+  return ngx.exit(ngx.HTTP_OK)
+end
+
 for file in lfs.dir(path) do
   if not is_dir(path..file) then
     if string.match(file, "^user%.pai%..*$") then
