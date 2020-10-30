@@ -93,7 +93,7 @@ spec:
           value: {{ cluster_cfg['rest-server']['jwt-expire-time'] }}
         - name: WEBPORTAL_URL
 {%- if "ssl" in cluster_cfg["pylon"] and cluster_cfg["pylon"]["ssl"] %}
-          value: "{{ cluster_cfg['pylon']['uriHttps']}}"
+          value: "{{ cluster_cfg['pylon']['uri-https']}}"
 {%- else %}
           value: "{{ cluster_cfg['pylon']['uri']}}"
 {%- endif %}
