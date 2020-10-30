@@ -26,11 +26,11 @@ end
 
 local args = ngx.req.get_uri_args()
 local username = args["username"]
-local framework_name = args["framework_name"]
+local framework_name = args["framework-name"]
 local taskrole = args["taskrole"]
-local pod_uid = args["pod_uid"]
+local pod_uid = args["pod-uid"]
 local token = args["token"]
-local tail_mode = args["tail_mode"]
+local tail_mode = args["tail-mode"]
 
 if not token or not username or not taskrole or not framework_name or not pod_uid then
   ngx.log(ngx.ERR, "some query parameters is nil")

@@ -30,9 +30,9 @@ end
 
 local args = ngx.req.get_uri_args()
 local username = args["username"]
-local framework_name = args["framework_name"]
+local framework_name = args["framework-name"]
 local taskrole = args["taskrole"]
-local pod_uid = args["pod_uid"]
+local pod_uid = args["pod-uid"]
 local token = args["token"]
 
 if not token or not username or not taskrole or not framework_name or not pod_uid then
@@ -41,8 +41,8 @@ if not token or not username or not taskrole or not framework_name or not pod_ui
   return ngx.exit(ngx.HTTP_OK)
 end
 
-local log_query_param = "?username="..username.."&framework_name="..framework_name..
-  "&pod_uid="..pod_uid.."&taskrole="..taskrole.."&token="..token
+local log_query_param = "?username="..username.."&framework-name="..framework_name..
+  "&pod-uid="..pod_uid.."&taskrole="..taskrole.."&token="..token
 local path = "/usr/local/pai/logs/"..username.."/".. framework_name.."/".. taskrole.."/"..pod_uid.."/"
 local path_prefix = "/api/v1/logs/"
 
