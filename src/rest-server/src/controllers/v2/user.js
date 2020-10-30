@@ -178,7 +178,7 @@ const createUser = async (req, res, next) => {
     return next(createError.unknown(error));
   }
   if (grouplist.length !== req.body.virtualCluster.length) {
-    next(
+    return next(
       createError(
         'Bad Request',
         'NoVirtualClusterError',
