@@ -22,7 +22,7 @@ import { get, isNil } from 'lodash';
 import { PrimaryButton } from 'office-ui-fabric-react';
 import { isClonable, isJobV2 } from '../util';
 
-const CloneButton = ({ rawJobConfig, namespace, jobName }) => {
+const CloneButton = ({ rawJobConfig, namespace, jobName, enableTransfer }) => {
   const [href, onClick] = useMemo(() => {
     // TODO: align same format of jobname with each submit ways
     const queryOld = {
@@ -41,9 +41,11 @@ const CloneButton = ({ rawJobConfig, namespace, jobName }) => {
     // default
     if (isNil(pluginId)) {
       if (isJobV2(rawJobConfig)) {
-        return [`/submit.html?${qs.stringify(queryNew)}`, undefined];
+        // give a dummy function for onClick because split button depends on it to work
+        return [`/submit.html?${qs.stringify(queryNew)}`, () => {}];
       } else {
-        return [`/submit_v1.html?${qs.stringify(queryNew)}`, undefined];
+        // give a dummy function for onClick because split button depends on it to work
+        return [`/submit_v1.html?${qs.stringify(queryNew)}`, () => {}];
       }
     }
     // plugin
@@ -84,14 +86,45 @@ const CloneButton = ({ rawJobConfig, namespace, jobName }) => {
     ];
   }, [rawJobConfig]);
 
-  return (
-    <PrimaryButton
-      text='Clone'
-      href={href}
-      onClick={onClick}
-      disabled={!isClonable(rawJobConfig)}
-    />
-  );
+  let cloneButton;
+  if (enableTransfer) {
+    cloneButton = (
+      <PrimaryButton
+        text='Clone'
+        split
+        menuProps={{
+          items: [
+            {
+              key: 'transfer',
+              text: 'Transfer',
+              iconProps: { iconName: 'Forward' },
+              onClick: () => {
+                const query = {
+                  userName: namespace,
+                  jobName: jobName,
+                }
+                window.location.href=`job-transfer.html?${qs.stringify(query)}`;
+              },
+            },
+          ],
+        }}
+        href={href}
+        onClick={onClick}
+        disabled={!isClonable(rawJobConfig)}
+      />
+    )
+  } else {
+    cloneButton = (
+      <PrimaryButton
+        text='Clone'
+        href={href}
+        onClick={onClick}
+        disabled={!isClonable(rawJobConfig)}
+      />
+    )
+  }
+
+  return cloneButton;
 };
 
 CloneButton.propTypes = {

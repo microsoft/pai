@@ -63,6 +63,7 @@ class Webportal:
             'uri': uri,
             'plugins': json.dumps([apply_config(plugin) for plugin in plugins]),
             'webportal-address': master_ip,
+            'enable-job-transfer': self.service_configuration['enable-job-transfer'],
         }
 
     #### All service and main module (kubrenetes, machine) is generated. And in this check steps, you could refer to the service object model which you will used in your own service, and check its existence and correctness.

@@ -12,6 +12,7 @@ import { isEmpty, cloneDeep } from 'lodash';
 
 import Card from '../../components/card';
 import { SpinnerLoading } from '../../components/loading';
+import config from '../../config/webportal.config';
 import {
   getUserRequest,
   getAllVcsRequest,
@@ -56,6 +57,8 @@ UserProfileCard.propTypes = {
   title: PropTypes.string,
   children: PropTypes.node,
 };
+
+const enableJobTransfer = config.enableJobTransfer;
 
 const UserProfile = () => {
   const [loading, setLoading] = useState(true);
@@ -206,36 +209,38 @@ const UserProfile = () => {
               groups={groups}
             />
           </UserProfileCard>
-          <UserProfileCard
-            title='Bounded Clusters'
-            headerButton={
-              <DefaultButton
-                onClick={() => setShowBoundedClusterDialog(true)}
-              >
-                Add a bounded cluster
-              </DefaultButton>
-            }
-          >
-            { showBoundedClusterDialog &&
-              <BoundedClusterDialog
-                onDismiss={() => setShowBoundedClusterDialog(false)}
-                onAddBoundedCluster={onAddBoundedCluster}
-              />
-            }
-            { !isEmpty(userInfo.extension.boundedClusters) &&
-              <BoundedClusterList
-                boundedClusters={userInfo.extension.boundedClusters}
-                onDelete={onDeleteBoundedCluster}
-              />
-            }
-            { isEmpty(userInfo.extension.boundedClusters) &&
-              <div className={c(t.mt5, FontClassNames.large)}
-                   style={{ fontWeight: FontWeights.regular }}>
-                There is no added bounded cluster.
-              </div>
-            }
+          { enableJobTransfer === 'true' && (
+            <UserProfileCard
+              title='Bounded Clusters'
+              headerButton={
+                <DefaultButton
+                  onClick={() => setShowBoundedClusterDialog(true)}
+                >
+                  Add a bounded cluster
+                </DefaultButton>
+              }
+            >
+              { showBoundedClusterDialog &&
+                <BoundedClusterDialog
+                  onDismiss={() => setShowBoundedClusterDialog(false)}
+                  onAddBoundedCluster={onAddBoundedCluster}
+                />
+              }
+              { !isEmpty(userInfo.extension.boundedClusters) &&
+                <BoundedClusterList
+                  boundedClusters={userInfo.extension.boundedClusters}
+                  onDelete={onDeleteBoundedCluster}
+                />
+              }
+              { isEmpty(userInfo.extension.boundedClusters) &&
+                <div className={c(t.mt5, FontClassNames.large)}
+                     style={{ fontWeight: FontWeights.regular }}>
+                  There is no added bounded cluster.
+                </div>
+              }
 
-          </UserProfileCard>
+            </UserProfileCard>
+          )}
         </div>
       </div>
     );

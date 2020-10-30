@@ -81,6 +81,13 @@ spec:
 {%- endif %}
         - name: PROM_SCRAPE_TIME
           value: {{ cluster_cfg['prometheus']['scrape_interval'] * 10 }}s
+{% if cluster_cfg['webportal']['enable-job-transfer'] %}
+        - name: ENABLE_JOB_TRANSFER
+          value: "true"
+{% else %}
+        - name: ENABLE_JOB_TRANSFER
+          value: "false"
+{% endif %}
         - name: WEBPORTAL_PLUGINS
           # A raw JSON formatted value is required here.
           value: |
