@@ -15,93 +15,101 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-const unirest = require('unirest');
+const axios = require('axios');
 const logger = require('@alert-handler/common/logger');
+
+const stopJob = async (jobName, token) => {
+  return axios.put(
+    `${process.env.REST_SERVER_URI}/api/v2/jobs/${jobName}/executionType`,
+    { value: 'STOP' },
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+    },
+  );
+};
 
 const stopJobs = (req, res) => {
   logger.info(
     'alert-handler received `stop-jobs` post request from alert-manager.',
   );
-  // extract jobs to kill
-  const jobNames = [];
-  req.body.alerts.forEach(function (alert) {
-    if (alert.status === 'firing') {
-      jobNames.push(alert.labels.job_name);
-    }
-  });
+  // extract job names
+  const jobNames = req.body.alerts
+    // filter alerts which are firing and contain `job_name` as label
+    .filter((alert) => alert.status === 'firing' && 'job_name' in alert.labels)
+    .map((alert) => alert.labels.job_name);
 
   if (jobNames.length === 0) {
-    res.status(200).json({
+    return res.status(200).json({
       message: 'No job to stop.',
     });
   }
   logger.info(`alert-handler will stop these jobs: ${jobNames}`);
 
-  const url = process.env.REST_SERVER_URI;
-  const token = req.token;
-  // stop job by sending put request to rest server
-  jobNames.forEach(function (jobName) {
-    unirest
-      .put(`${url}/api/v2/jobs/${jobName}/executionType`)
-      .headers({
+  // stop all these jobs
+  Promise.all(jobNames.map((jobName) => stopJob(jobName, req.token)))
+    .then((response) => {
+      logger.info(`alert-handler successfully stop jobs: ${jobNames}`);
+      res.status(200).json({
+        message: `alert-handler successfully stop jobs: ${jobNames}`,
+      });
+    })
+    .catch((error) => {
+      logger.error(error);
+      res.status(500).json({
+        message: 'alert-handler failed to stop job',
+      });
+    });
+};
+
+const tagJob = async (jobName, tag, token) => {
+  return axios.put(
+    `${process.env.REST_SERVER_URI}/api/v2/jobs/${jobName}/tag`,
+    { value: tag },
+    {
+      headers: {
         Authorization: `Bearer ${token}`,
         'Content-Type': 'application/json',
-      })
-      .send(JSON.stringify({ value: 'STOP' }))
-      .end(function (response) {
-        if (!response.ok) {
-          logger.error('alert-handler failed to stop-job.');
-          logger.error(response.raw_body);
-          res.status(500).json({
-            message: 'alert-handler failed to stop-job.',
-          });
-        }
-      });
-  });
-
-  logger.info('alert-handler successfully stop jobs.');
-  res.status(200).json({
-    message: 'alert-handler successfully stop jobs.',
-  });
+      },
+    },
+  );
 };
 
 const tagJobs = (req, res) => {
   logger.info(
     'alert-handler received `tag-jobs` post request from alert-manager.',
   );
+  // extract job names
+  const jobNames = req.body.alerts
+    // filter alerts which are firing and contain `job_name` as label
+    .filter((alert) => alert.status === 'firing' && 'job_name' in alert.labels)
+    .map((alert) => alert.labels.job_name);
 
-  const url = process.env.REST_SERVER_URI;
-  const token = req.token;
-  const tag = req.params.tag;
+  if (jobNames.length === 0) {
+    return res.status(200).json({
+      message: 'No job to tag.',
+    });
+  }
+  logger.info(`alert-handler will tag these jobs: ${jobNames}`);
 
-  // tag job with alertname
-  req.body.alerts.forEach(function (alert) {
-    if (alert.status === 'firing') {
-      const jobName = alert.labels.job_name;
-      // tag job by sending put request to rest server
-      unirest
-        .put(`${url}/api/v2/jobs/${jobName}/tag`)
-        .headers({
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        })
-        .send(JSON.stringify({ value: tag }))
-        .end(function (response) {
-          if (!response.ok) {
-            logger.error('alert-handler failed to tag jobs.');
-            logger.error(response.raw_body);
-            res.status(500).json({
-              message: 'alert-handler failed to tag jobs.',
-            });
-          }
-        });
-    }
-  });
-
-  logger.info('alert-handler successfully tag jobs.');
-  res.status(200).json({
-    message: 'alert-handler successfully tag jobs.',
-  });
+  // tag all these jobs
+  Promise.all(
+    jobNames.map((jobName) => tagJob(jobName, req.params.tag, req.token)),
+  )
+    .then((response) => {
+      logger.info(`alert-handler successfully tag jobs: ${jobNames}`);
+      res.status(200).json({
+        message: `alert-handler successfully tag jobs: ${jobNames}`,
+      });
+    })
+    .catch((error) => {
+      logger.error(error);
+      res.status(500).json({
+        message: 'alert-handler failed to tag job',
+      });
+    });
 };
 
 // module exports

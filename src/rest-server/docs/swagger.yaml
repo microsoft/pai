@@ -1376,6 +1376,8 @@ paths:
                 $ref: "#/components/schemas/Response"
               example:
                 message: execute job {job} successfully
+        "400":
+          $ref: "#/components/responses/InvalidParametersError"
         "404":
           $ref: "#/components/responses/NoJobError"
         "500":
@@ -1384,7 +1386,7 @@ paths:
     put:
       tags:
         - job
-      summary: Add a tag to a job.
+      summary: Add a tag to a job. Only admin users are authorized.
       description: Add a tag to a job.
       operationId: addTag
       security:
@@ -1413,6 +1415,8 @@ paths:
                 $ref: "#/components/schemas/Response"
               example:
                 message: "Add tag {tag} for job {job} successfully."
+        "400":
+          $ref: "#/components/responses/InvalidParametersError"
         "404":
           $ref: "#/components/responses/NoJobError"
         "500":
@@ -1420,7 +1424,7 @@ paths:
     delete:
       tags:
         - job
-      summary: Delete a tag from a job.
+      summary: Delete a tag from a job. Only admin users are authorized.
       description: Delete a tag from a job.
       operationId: deleteTag
       security:
@@ -1449,6 +1453,8 @@ paths:
                 $ref: "#/components/schemas/Response"
               example:
                 message: "Delete tag {tag} from job {job} successfully."
+        "400":
+          $ref: "#/components/responses/InvalidParametersError"
         "404":
           description: NoJobError or NoTagError
           content:
@@ -3055,6 +3061,17 @@ components:
         - email
         - extension
   responses:
+    InvalidParametersError:
+      description: InvalidParametersError
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Response"
+          examples:
+            InvalidParametersError:
+              value:
+                code: InvalidParametersError
+                message: Invalid request parameters.
     IncorrectPasswordError:
       description: IncorrectPasswordError
       content:

@@ -184,14 +184,31 @@ authentication:
 #       match:
 #         alertname: PAIJobGpuPercentLowerThan0_3For1h
 #   customized-receivers:
-#     - name: "pai-email-admin-user-and-stop-job"
-#       actions: 
-#         - email-admin
-#         - email-user
-#         - stop-jobs
-#         - tag-jobs
-#       tags: 
-#         - 'stopped-by-alert-manager'
+#   - name: "pai-email-admin-user-and-stop-job"
+#     actions: 
+#     - email-admin
+#     - email-user
+#     - stop-jobs
+#     - tag-jobs
+#     tags: 
+#     - 'stopped-by-alert-manager'
+
+
+# uncomment following if you want to customize prometheus
+# prometheus:
+#   port: 9091 # optional, do not modify this if you do not want to change the port prometheus is listening on
+#   # How frequently to scrape targets
+#   scrape_interval: 30
+#   customized-alerts: |
+#     groups:
+#     - name: customized-alerts
+#       rules:
+#       - alert: PAIJobGpuPercentLowerThan0_3For1h
+#         expr: avg(task_gpu_percent{virtual_cluster=~"default"}) by (job_name) < 0.3
+#         for: 1h
+#         annotations:
+#           summary: "{{$labels.job_name}} has a job gpu percent lower than 30% for 1 hour"
+#           description: Monitor job level gpu utilization in certain virtual clusters.
 
 
 # uncomment following if you want to change customize grafana
@@ -209,23 +226,6 @@ authentication:
 #   port: 9102
 #   logging-level: INFO
 #   interface: eth0,eno2
-
-
-# uncomment following if you want to customize prometheus
-# prometheus:
-#   port: 9091 # optional, do not modify this if you do not want to change the port prometheus is listening on
-#   # How frequently to scrape targets
-#   scrape_interval: 30
-#   customized-alerts: |
-#     groups:
-#       - name: customized-alerts
-#         rules:
-#           - alert: PAIJobGpuPercentLowerThan0_3For1h
-#             expr: avg(task_gpu_percent{virtual_cluster=~"default"}) by (job_name) < 0.3
-#             for: 1h
-#             annotations:
-#               summary: "{{$labels.job_name}} has a job gpu percent lower than 30% for 1 hour"
-#               description: Monitor job level gpu utilization in certain virtual clusters.
 
 
 # uncomment following section if you want to customize the threshold of cleaner

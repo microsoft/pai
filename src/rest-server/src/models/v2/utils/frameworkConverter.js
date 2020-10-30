@@ -111,12 +111,12 @@ const generateExitDiagnostics = (diag) => {
   return exitDiagnostics;
 };
 
-const generateSpecMap = () => {
+const generateExitSpecMap = () => {
   let exitSpecPath;
   if (process.env[env.exitSpecPath]) {
     exitSpecPath = process.env[env.exitSpecPath];
     if (!path.isAbsolute(exitSpecPath)) {
-      exitSpecPath = path.resolve(__dirname, '../../', exitSpecPath);
+      exitSpecPath = path.resolve(__dirname, '../../../../', exitSpecPath);
     }
   } else {
     exitSpecPath = '/k8s-job-exit-spec-configuration/k8s-job-exit-spec.yaml';
@@ -130,8 +130,8 @@ const generateSpecMap = () => {
   return exitSpecMap;
 };
 
+const exitSpecMap = generateExitSpecMap();
 const generateExitSpec = (code) => {
-  const exitSpecMap = generateSpecMap();
   if (!_.isNil(code)) {
     if (!_.isNil(exitSpecMap[code])) {
       return exitSpecMap[code];
