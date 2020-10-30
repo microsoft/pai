@@ -278,11 +278,14 @@ const getLogs = asyncHandler(async (req, res) => {
     res.json(data);
   } catch (error) {
     logger.error(`Got error when retrieving log list, error: ${error}`);
-    throw createError(
-      'Internal Server Error',
-      'UnknownError',
-      'Failed ot get log list',
-    );
+    if (error.status !== status('Not Found')) {
+      throw createError(
+        'Internal Server Error',
+        'UnknownError',
+        'Failed ot get log list',
+      );
+    }
+    throw error;
   }
 });
 

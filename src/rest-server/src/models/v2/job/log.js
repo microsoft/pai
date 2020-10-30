@@ -62,15 +62,22 @@ const getLogListFromLogManager = async (frameworkName, podUid) => {
   const token = res.data.token;
 
   const prefix = constrcutLogManagerPrefix(nodeIp);
-  res = await axios.get(`${prefix}/logs`, {
-    params: {
-      token: token,
-      username: jobDetail.jobStatus.username,
-      framework_name: encodeName(frameworkName),
-      taskrole: taskRoleName,
-      pod_uid: podUid,
-    },
-  });
+  try {
+    res = await axios.get(`${prefix}/logs`, {
+      params: {
+        token: token,
+        username: jobDetail.jobStatus.username,
+        framework_name: encodeName(frameworkName),
+        taskrole: taskRoleName,
+        pod_uid: podUid,
+      },
+    });
+  } catch (err) {
+    if (err.response && err.response.status === 404) {
+      throw createError('Not Found', 'UnknownError', `Log fodler not exisits.`);
+    }
+    throw err;
+  }
   const logList = res.data;
 
   const ret = {};
