@@ -635,17 +635,21 @@ const updateUserAdminPermission = async (req, res, next) => {
   }
 };
 
-const basicAdminUserUpdate = async (req, res, next) => {
-  const username = req.body.data.username;
-  if (!req.user.admin) {
-    next(
+const checkSelf = async (req, _, next) => {
+  if (req.user.username !== req.body.data.username) {
+    return next(
       createError(
         'Forbidden',
         'ForbiddenUserError',
-        `Non-admin is not allow to do this operation.`,
+        `Can't update other user's data`,
       ),
     );
   }
+  next();
+};
+
+const basicAdminUserUpdate = async (req, res, next) => {
+  const username = req.body.data.username;
   let userInfo;
   try {
     userInfo = await userModel.getUser(username);
@@ -713,15 +717,6 @@ const basicAdminUserUpdate = async (req, res, next) => {
 
 const basicUserUpdate = async (req, res, next) => {
   const username = req.user.username;
-  if (username !== req.body.data.username) {
-    return next(
-      createError(
-        'Forbidden',
-        'ForbiddenUserError',
-        `Can't update other user's data`,
-      ),
-    );
-  }
   let userInfo;
   try {
     userInfo = await userModel.getUser(username);
@@ -774,17 +769,9 @@ const basicUserUpdate = async (req, res, next) => {
   }
 };
 
+// OIDC
 const oidcUserUpdate = async (req, res, next) => {
-  const username = req.body.data.username;
-  if (!req.user.admin) {
-    next(
-      createError(
-        'Forbidden',
-        'ForbiddenUserError',
-        `Non-admin is not allow to do this operation.`,
-      ),
-    );
-  }
+  const username = req.user.username;
   let userInfo;
   try {
     userInfo = await userModel.getUser(username);
@@ -854,6 +841,7 @@ const deleteUser = async (req, res, next) => {
 
 // module exports
 module.exports = {
+  checkSelf,
   getUser,
   getAllUser,
   createUserIfUserNotExist,

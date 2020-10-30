@@ -65,16 +65,18 @@ if (authnConfig.authnMethod === 'basic') {
     /** Put /api/v2/users */
     .put(
       token.checkNotApplication,
+      token.checkAdmin,
       param.validate(userInputSchema.basicAdminUserUpdateInputSchema),
       userController.basicAdminUserUpdate,
     );
 
   router
     .route('/me')
-    /** Put /api/v2/users */
+    /** Put /api/v2/users/me */
     .put(
       token.checkNotApplication,
       param.validate(userInputSchema.basicUserUpdateInputSchema),
+      userController.checkSelf,
       userController.basicUserUpdate,
     );
 
@@ -150,7 +152,18 @@ if (authnConfig.authnMethod === 'basic') {
     /** Put /api/v2/users */
     .put(
       token.checkNotApplication,
-      param.validate(userInputSchema.oidcAdminUserUpdateInputSchema),
+      token.checkAdmin,
+      param.validate(userInputSchema.oidcUserUpdateInputSchema),
+      userController.oidcUserUpdate,
+    );
+
+  router
+    .route('/me')
+    /** Put /api/v2/users */
+    .put(
+      token.checkNotApplication,
+      param.validate(userInputSchema.oidcUserUpdateInputSchema),
+      userController.checkSelf,
       userController.oidcUserUpdate,
     );
 }
