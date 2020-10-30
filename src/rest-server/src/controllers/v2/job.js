@@ -223,6 +223,14 @@ const getSshInfo = asyncHandler(async (req, res) => {
 });
 
 const addTag = asyncHandler(async (req, res) => {
+  // only admin users can add tags
+  if (!req.user.admin) {
+    throw createError(
+      'Unauthorized',
+      'UnauthorizedUserError',
+      'Only admin users are allowed to do this operation.',
+    );
+  }
   await job.addTag(req.params.frameworkName, req.body.value);
   res.status(status('OK')).json({
     status: status('OK'),
@@ -231,6 +239,14 @@ const addTag = asyncHandler(async (req, res) => {
 });
 
 const deleteTag = asyncHandler(async (req, res) => {
+  // only admin users can delete tags
+  if (!req.user.admin) {
+    throw createError(
+      'Unauthorized',
+      'UnauthorizedUserError',
+      'Only admin users are allowed to do this operation.',
+    );
+  }
   await job.deleteTag(req.params.frameworkName, req.body.value);
   res.status(status('OK')).json({
     status: status('OK'),
