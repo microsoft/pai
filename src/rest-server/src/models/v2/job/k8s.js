@@ -103,7 +103,7 @@ const convertTaskDetail = async (taskStatus, ports, frameworkName) => {
     containerNodeName: taskStatus.attemptStatus.podNodeName,
     containerPorts,
     containerGpus,
-    containerLog: `/jobs/${frameworkName}/pods/${taskStatus.attemptStatus.podUID}/logs`,
+    containerLog: `/api/v2/jobs/${frameworkName}/pods/${taskStatus.attemptStatus.podUID}/logs`,
     containerExitCode: completionStatus ? completionStatus.code : null,
     containerExitSpec: completionStatus
       ? generateExitSpec(completionStatus.code)

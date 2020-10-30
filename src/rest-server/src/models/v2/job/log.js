@@ -63,14 +63,15 @@ const getLogListFromLogManager = async (frameworkName, podUid) => {
 
   const prefix = constrcutLogManagerPrefix(nodeIp);
   try {
+    const params = {
+      token: token,
+      username: jobDetail.jobStatus.username,
+      taskrole: taskRoleName,
+    };
+    params['framework-name'] = encodeName(frameworkName);
+    params['pod-uid'] = podUid;
     res = await axios.get(`${prefix}/logs`, {
-      params: {
-        token: token,
-        username: jobDetail.jobStatus.username,
-        framework_name: encodeName(frameworkName),
-        taskrole: taskRoleName,
-        pod_uid: podUid,
-      },
+      params: params,
     });
   } catch (err) {
     if (err.response && err.response.status === 404) {
