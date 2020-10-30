@@ -18,7 +18,6 @@
 import {
   FontClassNames,
   FontWeights,
-  FontSizes,
   ColorClassNames,
   IconFontSizes,
 } from '@uifabric/styling';
@@ -276,9 +275,8 @@ export default class Summary extends React.Component {
               style={{ flexShrink: 1, minWidth: 0 }}
             >
               <div
-                className={c(t.truncate)}
+                className={c(t.truncate, FontClassNames.xxLarge)}
                 style={{
-                  fontSize: FontSizes.xxLarge,
                   fontWeight: FontWeights.regular,
                 }}
               >
