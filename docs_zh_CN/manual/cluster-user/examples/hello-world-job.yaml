@@ -1,0 +1,38 @@
+protocolVersion: 2
+name: hello-world-job
+type: job
+jobRetryCount: 0
+prerequisites:
+  - type: dockerimage
+    uri: 'openpai/standard:python_3.6-tensorflow_1.15.0-gpu'
+    name: docker_image_0
+taskRoles:
+  taskrole:
+    instances: 1
+    completion:
+      minFailedInstances: 1
+      minSucceededInstances: -1
+    taskRetryCount: 0
+    dockerImage: docker_image_0
+    resourcePerInstance:
+      gpu: 1
+      cpu: 1
+      memoryMB: 6500
+    commands:
+      - 'git clone https://github.com/tensorflow/models'
+      - cd models
+      - git reset --hard 62bf6fc0bb2b41a4fb851909c132647a7e0774b0
+      - cd research/slim
+      - >-
+        python download_and_convert_data.py --dataset_name=cifar10
+        --dataset_dir=/tmp/data
+      - >-
+        python train_image_classifier.py --dataset_name=cifar10
+        --dataset_dir=/tmp/data --max_number_of_steps=1000
+defaults:
+  virtualCluster: default
+extras:
+  com.microsoft.pai.runtimeplugin:
+    - plugin: ssh
+      parameters:
+        jobssh: true
