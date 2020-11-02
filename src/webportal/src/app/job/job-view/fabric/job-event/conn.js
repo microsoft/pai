@@ -3,6 +3,7 @@
 
 import { clearToken } from '../../../../user/user-logout/user-logout.component';
 import config from '../../../../config/webportal.config';
+import urljoin from 'url-join';
 
 const token = cookies.get('token');
 
@@ -31,7 +32,10 @@ const wrapper = async func => {
 export async function fetchJobEvents(userName, jobName) {
   return wrapper(async () => {
     const restServerUri = new URL(config.restServerUri, window.location.href);
-    const url = `${restServerUri}/api/v2/jobs/${userName}~${jobName}/events?type=Warning`;
+    const url = urljoin(
+      restServerUri.toString(),
+      `/api/v2/jobs/${userName}~${jobName}/events?type=Warning`,
+    );
     const res = await fetch(url, {
       headers: {
         Authorization: `Bearer ${token}`,
