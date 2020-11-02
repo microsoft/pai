@@ -86,7 +86,7 @@ const NavStyles = props => {
 const Sidebar = ({ className, style }) => {
   const [key, setKey] = useState();
   const [administrationExpanded, setAdministrationExpanded] = useState(false);
-  const [pluginExpanded, setPluginExpanded] = useState(false);
+  const [pluginExpanded, setPluginExpanded] = useState(true);
 
   useEffect(() => {
     const pathName = window.location.pathname;
