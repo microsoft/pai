@@ -3,8 +3,9 @@
 
 import { clearToken } from '../../../../user/user-logout/user-logout.component';
 import config from '../../../../config/webportal.config';
-const absoluteUrlRegExp = /^[a-z][a-z\d+.-]*:/;
+import urljoin from 'url-join';
 
+const absoluteUrlRegExp = /^[a-z][a-z\d+.-]*:/;
 const token = cookies.get('token');
 
 export class NotFoundError extends Error {
@@ -38,7 +39,10 @@ export async function fetchTaskStatus(
 ) {
   return wrapper(async () => {
     const restServerUri = new URL(config.restServerUri, window.location.href);
-    const url = `${restServerUri}/api/v2/jobs/${userName}~${jobName}/attempts/${attemptIndex}/taskRoles/${taskRoleName}/taskIndex/${taskIndex}/attempts`;
+    const url = urljoin(
+      restServerUri.toString(),
+      `api/v2/jobs/${userName}~${jobName}/attempts/${attemptIndex}/taskRoles/${taskRoleName}/taskIndex/${taskIndex}/attempts`,
+    );
     const res = await fetch(url, {
       headers: {
         Authorization: `Bearer ${token}`,
