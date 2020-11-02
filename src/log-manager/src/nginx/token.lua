@@ -34,11 +34,12 @@ end
 
 -- sign jwt token
 local jwt_secret = os.getenv("JWT_SECRET")
+local node_name = os.getenv("NODE_NAME")
 local jwt_token = jwt:sign(
   jwt_secret,
   {
       header={typ="JWT", alg="HS256"},
-      payload={sub="log-manager", iat=os.time(), exp=os.time() + tonumber(token_expired_time)}
+      payload={sub="log-manager-"..node_name, iat=os.time(), exp=os.time() + tonumber(token_expired_time)}
   }
 )
 ngx.say(cjson.encode({token=jwt_token}))

@@ -23,9 +23,10 @@ if not jwt_token then
 end
 
 local jwt_secret = os.getenv("JWT_SECRET")
+local node_name = os.getenv("NODE_NAME")
 
 local claim_spec = {
-  sub = validators.equals("log-manager"),
+  sub = validators.equals("log-manager-"..node_name),
   exp = validators.is_not_expired()
 }
 local jwt_obj = jwt:verify(jwt_secret, jwt_token, claim_spec)

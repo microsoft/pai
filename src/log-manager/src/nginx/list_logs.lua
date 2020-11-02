@@ -13,9 +13,9 @@
 -- OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 local cjson = require "cjson"
-local lfs = require 'lfs'
+local lfs = require "lfs"
 
-function has_file_with_pattern(path, pattern)
+local function has_file_with_pattern(path, pattern)
   for file in lfs.dir(path) do
     if string.match(file, pattern) then
       return true
@@ -24,7 +24,7 @@ function has_file_with_pattern(path, pattern)
   return false
 end
 
-function is_dir(path)
+local function is_dir(path)
   return lfs.attributes(path, "mode") == "directory"
 end
 
@@ -46,7 +46,7 @@ local log_query_param = "?username="..username.."&framework-name="..framework_na
 local path = "/usr/local/pai/logs/"..username.."/".. framework_name.."/".. taskrole.."/"..pod_uid.."/"
 local path_prefix = "/api/v1/logs/"
 
-ret = {}
+local ret = {}
 
 if not is_dir(path) then
   ngx.log(ngx.ERR, "log folder not exists")
@@ -57,13 +57,13 @@ end
 for file in lfs.dir(path) do
   if not is_dir(path..file) then
     if string.match(file, "^user%.pai%..*$") then
-      sub_str = string.sub(file, string.len("user.pai.") + 1)
+      local sub_str = string.sub(file, string.len("user.pai.") + 1)
       ret[sub_str] = path_prefix..file..log_query_param
     else
       ret[file] = path_prefix..file..log_query_param
     end
   elseif string.match(file, "^user-.*$") then
-    sub_str = string.sub(file, string.len("user-") + 1)
+    local sub_str = string.sub(file, string.len("user-") + 1)
     ret[sub_str] = path_prefix..file..log_query_param
     if has_file_with_pattern(path..file, "^@.*%.s") then
       ret[sub_str..".1"] = path_prefix..file..".1"..log_query_param

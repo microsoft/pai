@@ -83,6 +83,10 @@ spec:
           value: {{ cluster_cfg["log-manager"]["jwt_secret"] }}
         - name: TOKEN_EXPIRED_TIME
           value: '{{ cluster_cfg["log-manager"]["token_expired_time"] }}'
+        - name: NODE_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: spec.nodeName
       volumes:
         - name: pai-log
           hostPath:

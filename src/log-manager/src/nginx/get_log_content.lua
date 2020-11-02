@@ -12,9 +12,10 @@
 -- DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 -- OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-local lfs = require 'lfs'
 
-function get_rotated_log(log_path)
+local lfs = require "lfs"
+
+local function get_rotated_log(log_path)
   for file in lfs.dir(log_path) do
     local rotated_log_name = string.match(file, "^@.*%.s")
     if rotated_log_name then
@@ -60,12 +61,14 @@ if string.match(log_name, "^user%-.*$") then
 end
 
 ngx.log(ngx.INFO, "get log from path"..log_path)
+
 if lfs.attributes(log_path, "mode") ~= "file" then
   ngx.log(ngx.ERR, log_path.." not exists")
   ngx.status = ngx.HTTP_NOT_FOUND
   return ngx.exit(ngx.HTTP_OK)
 end
 
+local logs
 if (tail_mode == "true") then
   logs = io.popen("tail -c 16k "..log_path)
 else
