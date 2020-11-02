@@ -49,7 +49,6 @@ import t from '../../../../../components/tachyons.scss';
 import Context from './context';
 import Timer from './timer';
 import { getContainerLog, getContainerLogList } from '../conn';
-import { parseGpuAttr, printDateTime } from '../util';
 import config from '../../../../../config/webportal.config';
 import MonacoPanel from '../../../../../components/monaco-panel';
 import StatusBadge from '../../../../../components/status-badge';
@@ -197,7 +196,8 @@ export default class TaskRoleContainerList extends React.Component {
       monacoProps: null,
       monacoTitle: '',
       monacoFooterButton: null,
-      logUrl: null,
+      fullLogUrls: null,
+      tailLogUrls: null,
     });
   }
 
@@ -430,7 +430,7 @@ export default class TaskRoleContainerList extends React.Component {
       monacoTitle,
       monacoProps,
       monacoFooterButton,
-      logUrl,
+      tailLogUrls,
       items,
     } = this.state;
     const { showMoreDiagnostics } = this.props;
@@ -449,7 +449,9 @@ export default class TaskRoleContainerList extends React.Component {
         </ThemeProvider>
         {/* Timer */}
         <Timer
-          interval={isNil(monacoProps) || isEmpty(logUrl) ? null : interval}
+          interval={
+            isNil(monacoProps) || isEmpty(tailLogUrls) ? null : interval
+          }
           func={this.logAutoRefresh}
         />
         {/* Monaco Editor Panel */}
