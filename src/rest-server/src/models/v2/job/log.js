@@ -36,7 +36,7 @@ const loginLogManager = async (nodeIp, username, password) => {
   });
 };
 
-const getLogListFromLogManager = async (frameworkName, podUid) => {
+const getLogListFromLogManager = async (frameworkName, podUid, tailMode) => {
   const adminName = process.env.LOG_MANAGER_ADMIN_NAME;
   const adminPassword = process.env.LOG_MANAGER_ADMIN_PASSWORD;
 
@@ -84,8 +84,9 @@ const getLogListFromLogManager = async (frameworkName, podUid) => {
 
   const ret = {};
   const urlPrefix = `${WEBPORTAL_URL}/log-manager/${nodeIp}:${LOG_MANAGER_PORT}`;
+  const urlSuffix = tailMode === 'true' ? '&tail-mode=true' : '';
   for (const key in logList) {
-    ret[key] = `${urlPrefix}${logList[key]}`;
+    ret[key] = `${urlPrefix}${logList[key]}${urlSuffix}`;
   }
 
   return ret;

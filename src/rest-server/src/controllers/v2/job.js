@@ -290,6 +290,7 @@ const getLogs = asyncHandler(async (req, res) => {
     const data = await log.getLogListFromLogManager(
       req.params.frameworkName,
       req.params.podUid,
+      req.query['tail-mode'],
     );
     res.json(data);
   } catch (error) {
