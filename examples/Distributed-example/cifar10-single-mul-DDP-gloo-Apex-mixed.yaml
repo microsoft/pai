@@ -42,5 +42,5 @@ extras:
   hivedScheduler:
     taskRoles:
       worker:
-        skuNum: 1
+        skuNum: 2
         skuType: null
