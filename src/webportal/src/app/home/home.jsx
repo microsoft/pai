@@ -122,11 +122,6 @@ const Home = () => {
                       return (
                         <Stack horizontal gap='s1'>
                           {defaultRenderer(link)}
-                          <TooltipIcon
-                            content={
-                              'A job is treaded as an abnormal job if running more than 5 days or GPU usage is lower than 10%'
-                            }
-                          />
                         </Stack>
                       );
                     }}
@@ -177,30 +172,23 @@ const Home = () => {
             {/* bottom */}
             <Card style={{ minHeight: 600 }}>
               {isAdmin ? (
-                <Pivot>
-                  <PivotItem
-                    headerText='Abnormal jobs'
-                    onRenderItemLink={(link, defaultRenderer) => {
-                      return (
-                        <Stack horizontal gap='s1'>
-                          {defaultRenderer(link)}
-                          <TooltipIcon
-                            content={
-                              'A job is treaded as an abnormal job if running more than 5 days or GPU usage is lower than 10%'
-                            }
-                          />
-                        </Stack>
-                      );
-                    }}
-                  >
-                    <AbnormalJobList
-                      jobs={listAbnormalJobs(runningJobs, lowGpuJobInfo)}
-                    />
-                  </PivotItem>
-                  <PivotItem headerText='My recent jobs'>
-                    <RecentJobList style={{ minHeight: 0 }} jobs={userJobs} />
-                  </PivotItem>
-                </Pivot>
+                <Stack horizontal>
+                  <TooltipIcon
+                    content={
+                      'https://openpai.readthedocs.io/en/latest/manual/cluster-admin/basic-management-operations.html#abnormal-jobs'
+                    }
+                  />
+                  <Pivot>
+                    <PivotItem headerText='Abnormal jobs'>
+                      <AbnormalJobList
+                        jobs={listAbnormalJobs(runningJobs, lowGpuJobInfo)}
+                      />
+                    </PivotItem>
+                    <PivotItem headerText='My recent jobs'>
+                      <RecentJobList style={{ minHeight: 0 }} jobs={userJobs} />
+                    </PivotItem>
+                  </Pivot>
+                </Stack>
               ) : (
                 <Pivot>
                   <PivotItem headerText='My recent jobs'>

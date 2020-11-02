@@ -42,55 +42,34 @@ const wrapper = async func => {
   }
 };
 
-export async function checkAttemptAPI() {
+export async function fetchJobInfo(attemptIndex) {
   return wrapper(async () => {
-    try {
-      await client.jobHistory.getJobAttemptsHealthz(userName, jobName);
-      return true;
-    } catch {
-      return false;
-    }
+    const restServerUri = new URL(config.restServerUri, window.location.href);
+    const url = isNil(attemptIndex)
+      ? `${restServerUri}/api/v2/jobs/${userName}~${jobName}`
+      : `${restServerUri}/api/v2/jobs/${userName}~${jobName}/attempts/${attemptIndex}`;
+    const res = await fetch(url, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    const result = await res.json();
+    return result;
   });
 }
 
-export async function fetchJobRetries() {
-  if (!(await checkAttemptAPI())) {
-    return {
-      isSucceeded: false,
-      errorMessage: 'Attempts API is not working!',
-      jobRetries: null,
-    };
-  }
-
-  try {
-    const jobAttempts = await client.jobHistory.getJobAttempts(
-      userName,
-      jobName,
-    );
-    return {
-      isSucceeded: true,
-      errorMessage: null,
-      jobRetries: jobAttempts.filter(attempt => !attempt.isLatest),
-    };
-  } catch (err) {
-    if (err.status === 404) {
-      return {
-        isSucceeded: false,
-        errorMessage: 'Could not find any attempts of this job!',
-        jobRetries: null,
-      };
-    } else {
-      return {
-        isSucceeded: false,
-        errorMessage: 'Some errors occurred!',
-        jobRetries: null,
-      };
-    }
-  }
-}
-
-export async function fetchJobInfo() {
-  return wrapper(() => client.job.getJob(userName, jobName));
+export async function fetchTaskStatus(attemptIndex, taskRoleName, taskIndex) {
+  return wrapper(async () => {
+    const restServerUri = new URL(config.restServerUri, window.location.href);
+    const url = `${restServerUri}/api/v2/jobs/${userName}~${jobName}/attempts/${attemptIndex}/taskRoles/${taskRoleName}/taskIndex/${taskIndex}/attempts`;
+    const res = await fetch(url, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    const result = await res.json();
+    return result;
+  });
 }
 
 export async function fetchRawJobConfig() {

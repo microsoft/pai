@@ -106,10 +106,10 @@ rest-server:
 # if you want to enable alert manager to send alert email to admin, uncomment following lines and fill
 # the right values.
 # alert-manager:
-#   port: 9093 # do not change this if you do not want to change the port alert-manager is listening on
+#   port: 9093 # optional, do not modify this if you do not want to change the port alert-manager is listening on
 #   alert-handler: # alert-handler will only be enabled when this field is not empty
-#     port: 9095 # do not change this if you do not want to change the port alert-handler is listening on
-#     log-level: "info"
+#     port: 9095 # optional, do not modify this if you do not want to change the port alert-handler is listening on
+#     log-level: "info" # optional
 #     pai-bearer-token: 'your-application-token-for-pai-rest-server' # required if you want to send email to job users
 #     email-configs: # email-notification will only be enabled when this field is not empty
 #       admin-receiver: addr-of-admin-receiver@example.com
@@ -121,7 +121,7 @@ rest-server:
 
 # uncomment following if you want to change customize prometheus
 # prometheus:
-#   port: 9091
+#   port: 9091 # optional, do not modify this if you do not want to change the port prometheus is listening on
 #   # How frequently to scrape targets
 #   scrape_interval: 30
 

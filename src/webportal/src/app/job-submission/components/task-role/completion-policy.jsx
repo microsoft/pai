@@ -30,6 +30,7 @@ import { BasicSection } from '../basic-section';
 import { CSpinButton } from '../customized-components';
 import { FormShortSection } from '../form-page';
 import { Completion } from '../../models/completion';
+import { PROTOCOL_TOOLTIPS } from '../../utils/constants';
 
 export const CompletionPolicy = React.memo(({ onChange, value }) => {
   const { minFailedInstances } = value;
@@ -43,7 +44,11 @@ export const CompletionPolicy = React.memo(({ onChange, value }) => {
   };
 
   return (
-    <BasicSection sectionLabel={'Completion policy'} sectionOptional>
+    <BasicSection
+      sectionLabel={'Completion policy'}
+      sectionTooltip={PROTOCOL_TOOLTIPS.policy}
+      sectionOptional
+    >
       <FormShortSection gap='m'>
         <Stack horizontal gap='s1'>
           <CSpinButton

@@ -32,7 +32,7 @@ app.use(bearerToken());
 
 app.use('/', actions);
 
-const port = process.env.SERVER_PORT;
+const port = parseInt(process.env.SERVER_PORT);
 app.listen(port, () => {
   logger.info(`alert-handler listening at http://localhost:${port}`);
 });

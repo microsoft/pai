@@ -185,10 +185,9 @@ export default function TeamDetail({ isOpen = false, config, hide }) {
             <div className={c(FontClassNames.small)}>
               Please upload data to corresponding{' '}
               <span style={{ fontWeight: FontWeights.semibold }}>
-                server path
+                UFS Server Path
               </span>{' '}
-              before use. Different server types require different upload
-              methods.
+              before use. Different UFS Type require different upload methods.
             </div>
             <div>
               <div
@@ -374,8 +373,8 @@ export const NAS_TIPS = {
       <div style={{ fontWeight: FontWeights.semibold }}>Dshuttle</div>
       <span>
         Storage Dshuttle is configured for group. It used as a fast data cache
-        and try to speed up I/O intensive workload. It&apos;s a readonly
-        storage. For more detail, please refer to
+        and try to speed up I/O intensive workload. For more detail, please
+        refer to
       </span>
       <span> </span>
       <Link

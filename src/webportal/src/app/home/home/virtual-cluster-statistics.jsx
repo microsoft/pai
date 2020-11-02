@@ -172,7 +172,10 @@ const vcListColumns = colProps => {
         const groups = [];
         colProps.groups.forEach(group => {
           const virtualClusters = group.extension.acls.virtualClusters;
-          if (virtualClusters && virtualClusters.includes(vc.name)) {
+          if (
+            virtualClusters &&
+            (virtualClusters.includes(vc.name) || group.extension.acls.admin)
+          ) {
             groups.push(group);
           }
         });

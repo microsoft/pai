@@ -91,28 +91,6 @@ jobs:
         cd src/watchdog/src
         go test -cover ./pkg/watchdog
 
-  framework-launcher:
-    name: Test framework launcher on java-${{ matrix.java }}-${{ matrix.os }}
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        java: [1.8]
-        os: [ubuntu-16.04, ubuntu-latest]
-
-    steps:
-    - name: Checkout
-      uses: actions/checkout@v1
-    - name: Use JDK ${{ matrix.java }}
-      uses: actions/setup-java@v1
-      with:
-        java-version: ${{ matrix.java }}
-        architecture: x64
-    - name: mvn install and test
-      run: |
-        cd subprojects/frameworklauncher/yarn
-        mvn install -DskipTests=true -Dmaven.javadoc.skip=true -B -V
-        mvn clean test jacoco:report
-
   rest-server:
     name: Test rest server on node-${{ matrix.node }}-${{ matrix.os }}
     runs-on: ${{ matrix.os }}

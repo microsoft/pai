@@ -15,24 +15,21 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-import React from 'react';
-import { Stack, ActionButton } from 'office-ui-fabric-react';
+// module dependencies
+const asyncHandler = require('@pai/middlewares/v2/asyncHandler');
+const task = require('@pai/models/v2/task');
 
-const params = new URLSearchParams(window.location.search);
-const username = params.get('username');
-const jobName = params.get('jobName');
+const get = asyncHandler(async (req, res) => {
+  const result = await task.get(
+    req.params.frameworkName,
+    Number(req.params.jobAttemptId),
+    req.params.taskRoleName,
+    Number(req.params.taskIndex),
+  );
+  res.status(result.status).json(result.data);
+});
 
-const Top = () => (
-  <Stack>
-    <div>
-      <ActionButton
-        iconProps={{ iconName: 'revToggleKey' }}
-        href={`job-detail.html?username=${username}&jobName=${jobName}`}
-      >
-        Back to Job Detail
-      </ActionButton>
-    </div>
-  </Stack>
-);
-
-export default Top;
+// module exports
+module.exports = {
+  get,
+};

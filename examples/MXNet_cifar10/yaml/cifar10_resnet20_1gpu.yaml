@@ -1,0 +1,35 @@
+protocolVersion: 2
+name: mxnet_test_c1282f70
+type: job
+jobRetryCount: 0
+prerequisites:
+  - type: dockerimage
+    uri: 'openpai/standard:python_3.6-mxnet_1.5.1-gpu'
+    name: docker_image_0
+taskRoles:
+  taskrole:
+    instances: 1
+    completion:
+      minFailedInstances: 1
+    taskRetryCount: 0
+    dockerImage: docker_image_0
+    resourcePerInstance:
+      gpu: 1
+      cpu: 5
+      memoryMB: 51200
+    commands:
+      - >-
+        wget
+        https://gluon-cv.mxnet.io/_downloads/b95defa36d5f5e2c64a2569f387ca7b2/train_cifar10.py
+      - pip install --upgrade mxnet-cu101 gluoncv
+      - >-
+        python train_cifar10.py --num-epochs 240 --mode hybrid --num-gpus 1 -j 8
+        --batch-size 128 --wd 0.0001 --lr 0.1 --lr-decay 0.1 --lr-decay-epoch
+        80,160 --model cifar_resnet20_v1
+defaults:
+  virtualCluster: default
+extras:
+  com.microsoft.pai.runtimeplugin:
+    - plugin: ssh
+      parameters:
+        jobssh: true
