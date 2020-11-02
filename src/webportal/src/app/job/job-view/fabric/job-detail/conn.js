@@ -53,7 +53,6 @@ export async function fetchJobInfo(attemptIndex) {
           restServerUri.toString(),
           `/api/v2/jobs/${userName}~${jobName}/attempts/${attemptIndex}`,
         );
-    console.log(url);
 
     const res = await fetch(url, {
       headers: {
@@ -72,14 +71,12 @@ export async function fetchTaskStatus(attemptIndex, taskRoleName, taskIndex) {
       restServerUri.toString(),
       `api/v2/jobs/${userName}~${jobName}/attempts/${attemptIndex}/taskRoles/${taskRoleName}/taskIndex/${taskIndex}/attempts`,
     );
-    console.log(url);
     const res = await fetch(url, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
     });
     const result = await res.json();
-    console.log(result);
     return result;
   });
 }
