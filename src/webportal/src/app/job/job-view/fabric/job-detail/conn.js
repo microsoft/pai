@@ -53,7 +53,7 @@ export async function fetchJobInfo(attemptIndex) {
           restServerUri.toString(),
           `/api/v2/jobs/${userName}~${jobName}/attempts/${attemptIndex}`,
         );
-
+     console.log(url)
     const res = await fetch(url, {
       headers: {
         Authorization: `Bearer ${token}`,

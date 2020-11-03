@@ -10,20 +10,23 @@ import { Spinner, SpinnerSize } from 'office-ui-fabric-react/lib/Spinner';
 import ReactDOM from 'react-dom';
 import { isEmpty } from 'lodash';
 import { FormTextField, TEXT_FILED_REGX } from '../../../job-submission/components/form-text-field';
-import { BasicSection } from '../../../job-submission/components/basic-section';
-import { FormShortSection } from '../../../job-submission/components/form-page';
+import { JobProtocol } from '../../../job-submission/models/job-protocol';
+import { jobProtocolSchema } from '../../../job-submission/models/protocol-schema';
+import qs from 'querystring';
+import Joi from 'joi-browser';
+import yaml from 'js-yaml';
 
 import { SpinnerLoading } from '../../../components/loading';
 
 import _ from 'lodash';
 import InfoBox from './job-transfer/info-box';
-import { fetchBoundedClusters, fetchJobConfig } from './job-transfer/conn';
+import { fetchBoundedClusters, fetchJobConfig, transferJob } from './job-transfer/conn';
 
 const params = new URLSearchParams(window.location.search);
 // the user who is viewing this page
 const userName = cookies.get('user');
 // the user of the job
-const jobUserName = params.get('userName');
+const userNameOfTheJob = params.get('userName');
 const jobName = params.get('jobName');
 
 const styles = mergeStyleSets({
@@ -62,22 +65,63 @@ const styles = mergeStyleSets({
 
 });
 
+class JobConfig {
+  constructor(jobConfig) {
+    if (_.isObject(jobConfig)) {
+      this._jobConfig = _.cloneDeep(jobConfig);
+    } else {
+      throw new Error("The job config is not a valid object!")
+    }
+  }
+
+  getObject() {
+    return this._jobConfig;
+  }
+
+  validate() {
+    const result = Joi.validate(this._jobConfig, jobProtocolSchema);
+    if (result.error === null) {
+      return [true, ""];
+    } else {
+      return [false, result.error.message];
+    }
+  }
+
+  getYAML() {
+    return yaml.safeDump(this._jobConfig);
+  }
+
+}
+
 const JobTransferPage = () => {
   const [loading, setLoading] = useState(true);
   const [boundedClusters, setBoundedClusters] = useState('');
   const [selectedCluster, setSelectedCluster] = useState('');
-  const [jobConfig, setJobConfig] = useState({});
+  const [jobConfig, setJobConfig] = useState(new JobConfig({}));
   const [transferring, setTransferring] = useState(false);
   const [showInfoBox, setShowInfoBox] = useState(false);
   const [infoBoxProps, setInfoBoxProps] = useState({});
+
+  const [isConfigValid, configValidationError] = jobConfig.validate();
 
   const onDismissInfoBox = () => {
     setShowInfoBox(false);
     setInfoBoxProps({});
   }
 
+  if (userName !== userNameOfTheJob) {
+    // currently, we only allow user transfer his own job.
+    setShowInfoBox(true);
+    setInfoBoxProps({
+      title: 'Notice',
+      message: "You can only transfer your job.",
+      onDismiss: onDismissInfoBox,
+      redirectURL: `job-detail.html?${qs.stringify({username: userNameOfTheJob, jobName: jobName})}`,
+    });
+  }
+
   const fetchInfo = async () => {
-    const [boundedClustersInfo, jobConfigInfo] = await Promise.all([fetchBoundedClusters(userName), fetchJobConfig(jobUserName, jobName)]);
+    const [boundedClustersInfo, jobConfigInfo] = await Promise.all([fetchBoundedClusters(userName), fetchJobConfig(userName, jobName)]);
     if (_.isEmpty(boundedClustersInfo)) {
       setShowInfoBox(true);
       setInfoBoxProps({
@@ -90,18 +134,40 @@ const JobTransferPage = () => {
       return;
     }
     setBoundedClusters(boundedClustersInfo);
-    setJobConfig(jobConfigInfo);
+    setJobConfig(new JobConfig(jobConfigInfo));
     setLoading(false);
   };
-  useEffect(() => {
-    fetchInfo().catch((e)=>{
-      setShowInfoBox(true);
-      setInfoBoxProps({
+
+  const showError = (e) => {
+    setShowInfoBox(true);
+    setInfoBoxProps({
         title: 'Error',
         message: e.message,
         onDismiss: onDismissInfoBox,
-      });
-  })}, []);
+    });
+  }
+
+  useEffect(() => { fetchInfo().catch(showError)}, []);
+
+  const onClickTransfer = () => {
+    (async () => {
+      setTransferring(true);
+      if (isConfigValid === false) {
+        throw new Error(`There is an error in your job config. Please check. Details: ${configValidationError}.`)
+      }
+      await transferJob(
+        userName,
+        jobName,
+        _.merge(boundedClusters[selectedCluster], {alias: selectedCluster}),
+        jobConfig.getObject(),
+        jobConfig.getYAML()
+      );
+    })()
+    .catch(showError)
+    .finally(() => {
+      setTransferring(false);
+    })
+  }
 
 
   return (
@@ -135,12 +201,12 @@ const JobTransferPage = () => {
             </Stack>
             <Stack className={styles.item}>
               <TextField label="Job Name"
-                value={_.get(jobConfig, 'name', '')}
+                value={_.get(jobConfig.getObject(), 'name', '')}
                 onChange={e=> {
                   setJobConfig((prevJobConfig, props) => {
-                    const newJobConfig = _.cloneDeep(prevJobConfig)
+                    const newJobConfig = _.cloneDeep(jobConfig.getObject())
                     _.set(newJobConfig, 'name', e.target.value);
-                    return newJobConfig
+                    return new JobConfig(newJobConfig);
                   })
                 }}
                 required
@@ -149,13 +215,13 @@ const JobTransferPage = () => {
             <Stack className={styles.item}>
               <TextField
                 label="VC Name"
-                value={_.get(jobConfig, 'defaults.virtualCluster', '')}
+                value={_.get(jobConfig.getObject(), 'defaults.virtualCluster', '')}
                 onChange={
                   e=>{
                     setJobConfig((prevJobConfig, props) => {
-                      const newJobConfig = _.cloneDeep(prevJobConfig)
+                      const newJobConfig = _.cloneDeep(prevJobConfig.getObject())
                       _.set(newJobConfig, 'defaults.virtualCluster', e.target.value);
-                      return newJobConfig
+                      return new JobConfig(newJobConfig)
                     })
                   }
                 }
@@ -165,11 +231,8 @@ const JobTransferPage = () => {
             <Stack gap={20} horizontal={true} horizontalAlign="end" className={styles.footer}>
               { transferring && <Spinner size={SpinnerSize.medium} />}
               <PrimaryButton
-                disabled={transferring}
-                onClick={()=> {
-                  setTransferring(true);
-                  setTimeout(()=>{setTransferring(false)}, 2000)
-                }}
+                disabled={transferring || (selectedCluster === '')}
+                onClick={onClickTransfer}
                 text="Confirm Transfer"
               />
               <DefaultButton
