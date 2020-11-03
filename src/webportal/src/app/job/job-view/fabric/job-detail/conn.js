@@ -3,6 +3,7 @@
 
 import { PAIV2 } from '@microsoft/openpai-js-sdk';
 import { isNil, get } from 'lodash';
+import urljoin from 'url-join';
 
 import { clearToken } from '../../../../user/user-logout/user-logout.component';
 import { checkToken } from '../../../../user/user-auth/user-auth.component';
@@ -47,8 +48,11 @@ export async function fetchJobInfo(attemptIndex) {
   return wrapper(async () => {
     const restServerUri = new URL(config.restServerUri, window.location.href);
     const url = isNil(attemptIndex)
-      ? `${restServerUri}/api/v2/jobs/${userName}~${jobName}`
-      : `${restServerUri}/api/v2/jobs/${userName}~${jobName}/attempts/${attemptIndex}`;
+      ? urljoin(restServerUri.toString(), `/api/v2/jobs/${userName}~${jobName}`)
+      : urljoin(
+          restServerUri.toString(),
+          `/api/v2/jobs/${userName}~${jobName}/attempts/${attemptIndex}`,
+        );
     const res = await fetch(url, {
       headers: {
         Authorization: `Bearer ${token}`,
@@ -62,7 +66,10 @@ export async function fetchJobInfo(attemptIndex) {
 export async function fetchTaskStatus(attemptIndex, taskRoleName, taskIndex) {
   return wrapper(async () => {
     const restServerUri = new URL(config.restServerUri, window.location.href);
-    const url = `${restServerUri}/api/v2/jobs/${userName}~${jobName}/attempts/${attemptIndex}/taskRoles/${taskRoleName}/taskIndex/${taskIndex}/attempts`;
+    const url = urljoin(
+      restServerUri.toString(),
+      `api/v2/jobs/${userName}~${jobName}/attempts/${attemptIndex}/taskRoles/${taskRoleName}/taskIndex/${taskIndex}/attempts`,
+    );
     const res = await fetch(url, {
       headers: {
         Authorization: `Bearer ${token}`,
