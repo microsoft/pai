@@ -83,7 +83,21 @@ const notApplication = async (req, _, next) => {
   }
 };
 
+const checkAdmin = async (req, _, next) => {
+  if (!req.user.admin) {
+    return next(
+      createError(
+        'Forbidden',
+        'ForbiddenUserError',
+        `Non-admin is not allow to do this operation.`,
+      ),
+    );
+  }
+  next();
+};
+
 module.exports = {
   check,
   checkNotApplication: [check, notApplication],
+  checkAdmin,
 };

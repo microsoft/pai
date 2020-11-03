@@ -57,6 +57,7 @@ if (authnConfig.authnMethod === 'basic') {
     .post(
       token.checkNotApplication,
       param.validate(userInputSchema.userCreateInputSchema),
+      token.checkAdmin,
       userController.createUser,
     );
 
@@ -66,15 +67,17 @@ if (authnConfig.authnMethod === 'basic') {
     .put(
       token.checkNotApplication,
       param.validate(userInputSchema.basicAdminUserUpdateInputSchema),
+      token.checkAdmin,
       userController.basicAdminUserUpdate,
     );
 
   router
     .route('/me')
-    /** Put /api/v2/users */
+    /** Put /api/v2/users/me */
     .put(
       token.checkNotApplication,
       param.validate(userInputSchema.basicUserUpdateInputSchema),
+      userController.checkSelf,
       userController.basicUserUpdate,
     );
 
@@ -84,6 +87,7 @@ if (authnConfig.authnMethod === 'basic') {
     .put(
       token.checkNotApplication,
       param.validate(userInputSchema.userGrouplistUpdateInputSchema),
+      token.checkAdmin,
       userController.updateUserGroupList,
     );
 
@@ -93,6 +97,7 @@ if (authnConfig.authnMethod === 'basic') {
     .put(
       token.checkNotApplication,
       param.validate(userInputSchema.addOrRemoveGroupInputSchema),
+      token.checkAdmin,
       userController.addGroupIntoUserGrouplist,
     );
 
@@ -102,6 +107,7 @@ if (authnConfig.authnMethod === 'basic') {
     .delete(
       token.checkNotApplication,
       param.validate(userInputSchema.addOrRemoveGroupInputSchema),
+      token.checkAdmin,
       userController.removeGroupFromUserGrouplist,
     );
 
@@ -142,6 +148,7 @@ if (authnConfig.authnMethod === 'basic') {
     .put(
       token.checkNotApplication,
       param.validate(userInputSchema.userAdminPermissionUpdateInputSchema),
+      token.checkAdmin,
       userController.updateUserAdminPermission,
     );
 } else {
@@ -150,7 +157,18 @@ if (authnConfig.authnMethod === 'basic') {
     /** Put /api/v2/users */
     .put(
       token.checkNotApplication,
-      param.validate(userInputSchema.oidcAdminUserUpdateInputSchema),
+      param.validate(userInputSchema.oidcUserUpdateInputSchema),
+      token.checkAdmin,
+      userController.oidcUserUpdate,
+    );
+
+  router
+    .route('/me')
+    /** Put /api/v2/users/me */
+    .put(
+      token.checkNotApplication,
+      param.validate(userInputSchema.oidcUserUpdateInputSchema),
+      userController.checkSelf,
       userController.oidcUserUpdate,
     );
 }

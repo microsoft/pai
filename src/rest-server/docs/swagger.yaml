@@ -441,7 +441,6 @@ paths:
       summary: Update user's own profile.
       description: >-
         Update user's own profile in the system.
-        Only allowed in basic mode
       operationId: updateUserSelf
       security:
         - bearerAuth: []
@@ -478,6 +477,13 @@ paths:
                         Old password.
                         When newPassword exists, it's required.
                         When newPassword doesn't exists, it's useless.
+                    extension:
+                      type: object
+                      description: >-
+                        Extension fields.
+                        Be allowed in both oidc and basic mode.
+                        When patch is false, it's required.
+                        When patch is true, it's optional.
                 patch:
                   type: boolean
                   default: false

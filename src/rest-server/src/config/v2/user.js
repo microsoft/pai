@@ -117,6 +117,7 @@ const basicUserUpdateInputSchema = Joi.object().keys({
         is: Joi.exist(),
         then: Joi.required(),
       }),
+      extension: Joi.object().pattern(/\w+/, Joi.required()),
     })
     .when('patch', {
       is: true,
@@ -131,8 +132,9 @@ const basicUserUpdateInputSchema = Joi.object().keys({
     }),
 });
 
-// define the input schema for the 'update user' api in oidc mode
-const oidcAdminUserUpdateInputSchema = Joi.object().keys({
+// define the input schema for the 'update user' api in OIDC mode
+// admin and other user share the same update schema in OIDC mode
+const oidcUserUpdateInputSchema = Joi.object().keys({
   data: Joi.object().keys({
     username: Joi.string()
       .regex(/^[\w.-]+$/, 'username')
@@ -147,7 +149,7 @@ module.exports = {
   userCreateInputSchema,
   basicAdminUserUpdateInputSchema,
   basicUserUpdateInputSchema,
-  oidcAdminUserUpdateInputSchema,
+  oidcUserUpdateInputSchema,
   userExtensionUpdateInputSchema,
   userVirtualClusterUpdateInputSchema,
   userGrouplistUpdateInputSchema,
