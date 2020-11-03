@@ -56,8 +56,8 @@ if (authnConfig.authnMethod === 'basic') {
     /** Create /api/v2/users */
     .post(
       token.checkNotApplication,
-      token.checkAdmin,
       param.validate(userInputSchema.userCreateInputSchema),
+      token.checkAdmin,
       userController.createUser,
     );
 
@@ -66,8 +66,8 @@ if (authnConfig.authnMethod === 'basic') {
     /** Put /api/v2/users */
     .put(
       token.checkNotApplication,
-      token.checkAdmin,
       param.validate(userInputSchema.basicAdminUserUpdateInputSchema),
+      token.checkAdmin,
       userController.basicAdminUserUpdate,
     );
 
@@ -86,8 +86,8 @@ if (authnConfig.authnMethod === 'basic') {
     /** put /api/v2/users/:username/grouplist */
     .put(
       token.checkNotApplication,
-      token.checkAdmin,
       param.validate(userInputSchema.userGrouplistUpdateInputSchema),
+      token.checkAdmin,
       userController.updateUserGroupList,
     );
 
@@ -96,8 +96,8 @@ if (authnConfig.authnMethod === 'basic') {
     /** put /api/v2/users/:username/group */
     .put(
       token.checkNotApplication,
-      token.checkAdmin,
       param.validate(userInputSchema.addOrRemoveGroupInputSchema),
+      token.checkAdmin,
       userController.addGroupIntoUserGrouplist,
     );
 
@@ -106,8 +106,8 @@ if (authnConfig.authnMethod === 'basic') {
     /** delete /api/v2/users/:username/group */
     .delete(
       token.checkNotApplication,
-      token.checkAdmin,
       param.validate(userInputSchema.addOrRemoveGroupInputSchema),
+      token.checkAdmin,
       userController.removeGroupFromUserGrouplist,
     );
 
@@ -147,8 +147,8 @@ if (authnConfig.authnMethod === 'basic') {
     /** Update /api/v2/users/:username/admin */
     .put(
       token.checkNotApplication,
-      token.checkAdmin,
       param.validate(userInputSchema.userAdminPermissionUpdateInputSchema),
+      token.checkAdmin,
       userController.updateUserAdminPermission,
     );
 } else {
@@ -157,8 +157,8 @@ if (authnConfig.authnMethod === 'basic') {
     /** Put /api/v2/users */
     .put(
       token.checkNotApplication,
-      token.checkAdmin,
       param.validate(userInputSchema.oidcUserUpdateInputSchema),
+      token.checkAdmin,
       userController.oidcUserUpdate,
     );
 
