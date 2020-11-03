@@ -22,6 +22,12 @@ import { get, isNil } from 'lodash';
 import { PrimaryButton } from 'office-ui-fabric-react';
 import { isClonable, isJobV2 } from '../util';
 
+const params = new URLSearchParams(window.location.search);
+// the user who is viewing this page
+const userName = cookies.get('user');
+// the user of the job
+const userNameOfTheJob = params.get('username');
+
 const CloneButton = ({ rawJobConfig, namespace, jobName, enableTransfer }) => {
   const [href, onClick] = useMemo(() => {
     // TODO: align same format of jobname with each submit ways
@@ -87,7 +93,9 @@ const CloneButton = ({ rawJobConfig, namespace, jobName, enableTransfer }) => {
   }, [rawJobConfig]);
 
   let cloneButton;
-  if (enableTransfer) {
+  // Only when transfer job is enabled, and the owner of this job is the one
+  // who is viewing it, show the transfer option.
+  if (enableTransfer && (userName === userNameOfTheJob)) {
     cloneButton = (
       <PrimaryButton
         text='Clone'

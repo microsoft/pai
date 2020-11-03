@@ -111,8 +111,39 @@ async function confirmSKU(clusterConfig, jobConfig) {
       });
       for (let usedSKU of usedSKUs) {
         if (!_.has(result, usedSKU)){
-          throw new Error(`The virtual cluster ${vcName} in bounded cluster ${clusterConfig.alias} doesn't have the SKU ${usedSKU}.` +
-            ". Please modify your job config.");
+          throw new Error(`The virtual cluster ${vcName} in bounded cluster ${clusterConfig.alias} doesn't have the SKU ${usedSKU}. ` +
+            "Please modify your job config.");
+        }
+      }
+    }
+  }
+}
+
+// confirm the storage settings
+async function confirmStorage(clusterConfig, jobConfig) {
+  const pluginSettings = _.get(jobConfig, 'extras', {})['com.microsoft.pai.runtimeplugin'];
+  const usedStorages = [];
+  if (pluginSettings) {
+    for (let pluginSetting of pluginSettings) {
+      if (pluginSetting.plugin === 'teamwise_storage') {
+        for (let storage of _.get(pluginSetting, 'parameters.storageConfigNames', [])){
+          usedStorages.push(storage);
+        }
+      }
+    }
+    if (usedStorages.length > 0) {
+      const url = urljoin(clusterConfig.uri, `/rest-server/api/v2/storages`);
+      const result = await requestBoundedClusterApi(clusterConfig.alias, url, {
+        headers: {
+          Authorization: `Bearer ${clusterConfig.token}`,
+        },
+      });
+      const availableStorages = new Set(result.storages.map(item => item.name));
+      for (let usedStorage of usedStorages) {
+        if (!(usedStorage in availableStorages)){
+          throw new Error(`We cannot find storage ${usedStorage} in bounded cluster ${clusterConfig.alias}. ` +
+            "Maybe the storage doesn't exist, or you don't have permission to it. " +
+            "Please modify your job config.");
         }
       }
     }
@@ -170,6 +201,7 @@ export async function transferJob(userName, jobName, clusterConfig, jobConfig, j
     confirmVC(clusterConfig, jobConfig),
     confirmSKU(clusterConfig, jobConfig),
     confirmJobName(clusterConfig, jobConfig),
+    confirmStorage(clusterConfig, jobConfig),
   ]);
   // add tag
   await addTagToJob(userName, jobName, `pai-transfer-attempt-to-${clusterConfig.alias}`)
