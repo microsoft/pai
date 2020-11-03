@@ -1734,7 +1734,7 @@ paths:
                       ssh: 37508
                       http: 24661
                     containerGpus: null
-                    containerLog: http://10.151.40.34:9103/log-manager/tail/admin/9893b6e0f9f5997f4a82f23bef39bf32/taskrole/a9f9f1f2-5e43-4423-88c3-022433b8cd7c/
+                    containerLog: /api/v2/jobs/admin~admin_444da84f/pods/07cdd036-1a7c-11eb-830b-000d3ab25bb6/logs
                     containerExitCode: -220
                     containerExitSpec:
                       code: -220
@@ -1761,7 +1761,7 @@ paths:
                       ssh: 37508
                       http: 24661
                     containerGpus: null
-                    containerLog: http://10.151.40.34:9103/log-manager/tail/admin/9893b6e0f9f5997f4a82f23bef39bf32/taskrole/a9f9f1f2-5e43-4423-88c3-022433b8cd7c/
+                    containerLog: /api/v2/jobs/admin~admin_444da84f/pods/07cdd036-1a7c-11eb-830b-000d3ab25bb6/logs
                     containerExitCode: -220
                     containerExitSpec:
                       code: -220
