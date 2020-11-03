@@ -1,0 +1,35 @@
+nav:
+  - 首页: index.md
+  - 用户手册:
+      - 简介: manual/cluster-user/README.md
+      - 快速开始: manual/cluster-user/quick-start.md
+      - Docker镜像和任务示例: manual/cluster-user/docker-images-and-job-examples.md
+      - 如何使用数据: manual/cluster-user/how-to-manage-data.md
+      - 如何调试任务: manual/cluster-user/how-to-debug-jobs.md
+      - 如何使用高级任务设置: manual/cluster-user/how-to-use-advanced-job-settings.md
+      - 如何构建分布式任务: manual/cluster-user/how-to-run-distributed-job.md
+      - 使用Marketplace: manual/cluster-user/use-marketplace.md
+      - 使用VSCode扩展: manual/cluster-user/use-vscode-extension.md
+      - 使用Jupyter-Notebook扩展: manual/cluster-user/use-jupyter-notebook-extension.md
+      - 常见问题解答: manual/cluster-user/frequently-asked-questions.md
+  - 管理员手册:
+      - 简介: manual/cluster-admin/README.md
+      - 安装指南: manual/cluster-admin/installation-guide.md
+      - 安装常见问题解答和故障排查: manual/cluster-admin/installation-faqs-and-troubleshooting.md
+      - 基础管理操作: manual/cluster-admin/basic-management-operations.md
+      - 如何管理用户和用户组: manual/cluster-admin/how-to-manage-users-and-groups.md
+      - 如何设置数据存储: manual/cluster-admin/how-to-set-up-storage.md
+      - 如何设置虚拟集群: manual/cluster-admin/how-to-set-up-virtual-clusters.md
+      - 如何添加和移除结点: manual/cluster-admin/how-to-add-and-remove-nodes.md
+      - 如何使用插件定制集群: manual/cluster-admin/how-to-customize-cluster-by-plugins.md
+      - 如何使用报警系统: manual/cluster-admin/how-to-use-alert-system.md
+      - 故障排查: manual/cluster-admin/troubleshooting.md
+      - 推荐实践: manual/cluster-admin/recommended-practice.md
+      - 如何卸载OpenPAI: manual/cluster-admin/how-to-uninstall-openpai.md
+      - 升级指南: manual/cluster-admin/upgrade-guide.md
+plugins:
+  - search
+site_name: OpenPAI手册
+theme: readthedocs
+use_directory_urls: false
+docs_dir: docs_zh_CN
