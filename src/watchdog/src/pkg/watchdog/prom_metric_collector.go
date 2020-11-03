@@ -67,7 +67,7 @@ var (
 			"pai_node_count",
 			"count of pai node",
 			[]string{
-				"name", "disk_pressure", "memory_pressure", "ready", "unschedulable",
+				"host_ip", "disk_pressure", "memory_pressure", "ready", "unschedulable",
 			},
 		),
 	}

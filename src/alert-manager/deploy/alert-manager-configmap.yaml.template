@@ -111,3 +111,11 @@ data:
       {% endif %}
     
     {% endfor %}
+
+    inhibit_rules:
+    - source_match:
+        alertname: 'NodeNotReady'
+      target_match_re:
+        alertname: ^PaiServicePodNotRunning|PaiServicePodNotReady$
+      # Apply inhibition if `host_ip` is the same.
+      equal: ['host_ip']

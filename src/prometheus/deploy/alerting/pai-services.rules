@@ -34,8 +34,8 @@ groups:
         annotations:
           summary: "{{$labels.name}} in {{$labels.host_ip}} not ready detected"
 
-      - alert: PaiServiceNotUp
-        expr: up != 1
+      - alert: PaiServiceWatchDogNotUp
+        expr: up{pai_service_name="watchdog"} != 1
         for: 5m
         labels:
           type: pai_service
