@@ -1795,9 +1795,9 @@ paths:
       - $ref: "#/components/parameters/podUid"
       - name: tailMode
         in: query
-        description: enable/disbale getting tail log content. Could be "true" or "false"
+        description: getting log content via tail mode. Could be "true" or "false"
         schema:
-          type: string
+          type: boolean
       responses:
         "200":
           description: Succeeded
@@ -1806,9 +1806,13 @@ paths:
               schema:
                 $ref: "#/components/schemas/PodLogList"
               example:
-                stderr: "https://mater_ip/log-manager/node_ip/api/v1/logs/user.pai.stderr?username=user&framework-name=34775529adebae576fbc0bf48d835386&pod-uid=07cdd036-1a7c-11eb-830b-000d3ab25bb6&taskrole=taskrole&token=token"
-                all: "https://mater_ip/log-manager/node_ip/api/v1/logs/user.pai.all?username=user&framework-name=34775529adebae576fbc0bf48d835386&pod-uid=07cdd036-1a7c-11eb-830b-000d3ab25bb6&taskrole=taskrole&token=token"
-                stdout: "https://mater_ip/log-manager/node_ip/api/v1/logs/user.pai.stdout?username=user&framework-name=34775529adebae576fbc0bf48d835386&pod-uid=07cdd036-1a7c-11eb-830b-000d3ab25bb6&taskrole=taskrole&token=token"
+                locations:
+                - name: stderr
+                  uri: "https://mater_ip/log-manager/node_ip/api/v1/logs/user.pai.stderr?username=user&framework-name=34775529adebae576fbc0bf48d835386&pod-uid=07cdd036-1a7c-11eb-830b-000d3ab25bb6&taskrole=taskrole&token=token"
+                - name: all
+                  uri:  "https://mater_ip/log-manager/node_ip/api/v1/logs/user.pai.all?username=user&framework-name=34775529adebae576fbc0bf48d835386&pod-uid=07cdd036-1a7c-11eb-830b-000d3ab25bb6&taskrole=taskrole&token=token"
+                - name: stdout
+                  uri: "https://mater_ip/log-manager/node_ip/api/v1/logs/user.pai.stdout?username=user&framework-name=34775529adebae576fbc0bf48d835386&pod-uid=07cdd036-1a7c-11eb-830b-000d3ab25bb6&taskrole=taskrole&token=token"
         "404":
           $ref: "#/components/responses/NoPodLogsError"
         "500":
@@ -3106,15 +3110,17 @@ components:
     PodLogList:
       type: object
       properties:
-        stdout:
-          type: string
-          description: user stdout log link.
-        stderr:
-          type: string
-          description: user stderr log link.
-        all:
-          type: string
-          description: merged stdout/stderr log lnk.
+        locations:
+          type: array
+          items:
+            type: object
+            properties:
+              name:
+                type: string
+                description: log name.
+              uri:
+                type: string
+                description: log content lnk.
   responses:
     InvalidParametersError:
       description: InvalidParametersError
