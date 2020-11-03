@@ -83,7 +83,8 @@ const notApplication = async (req, _, next) => {
   }
 };
 
-const checkAdmin = async (req, _, next) => {
+// this middleware should be used after `check` to ensure `req.user` contains `admin` as a key
+const checkAdmin = (req, _, next) => {
   if (!req.user.admin) {
     return next(
       createError(

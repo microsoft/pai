@@ -80,6 +80,7 @@ router
   .put(
     token.check,
     param.validate(tagInputSchema.tagInputSchema),
+    token.checkAdmin,
     controller.addTag,
   );
 
@@ -89,6 +90,7 @@ router
   .delete(
     token.check,
     param.validate(tagInputSchema.tagInputSchema),
+    token.checkAdmin,
     controller.deleteTag,
   );
 

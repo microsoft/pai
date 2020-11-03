@@ -49,7 +49,11 @@ if (authnConfig.authnMethod === 'basic') {
   router
     .route('/:username')
     /** Delete /api/v2/users/:username */
-    .delete(token.checkNotApplication, userController.deleteUser);
+    .delete(
+      token.checkNotApplication,
+      token.checkAdmin,
+      userController.deleteUser,
+    );
 
   router
     .route('/')
@@ -118,6 +122,7 @@ if (authnConfig.authnMethod === 'basic') {
     .put(
       token.checkNotApplication,
       param.validate(userInputSchema.userVirtualClusterUpdateInputSchema),
+      token.checkAdmin,
       userController.updateUserVirtualCluster,
     );
 
