@@ -15,6 +15,8 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 import {
+  Stack,
+  Text,
   Dialog,
   DialogType,
   DialogFooter,
@@ -28,15 +30,14 @@ function InfoBox({hidden, title, message, onDismiss, redirectURL}) {
   return (
     <Dialog
       hidden={hidden}
-      dialogContentProps={{
-        type: DialogType.normal,
-        title: title,
-        subText: message,
-      }}
       modalProps={{
         isBlocking: true,
       }}
     >
+       <Stack gap='m'>
+          <Text variant='xLarge'>{title}</Text>
+          <Text variant='large'>{message}</Text>
+        </Stack>
       <DialogFooter>
         <PrimaryButton onClick={() => {
           onDismiss();

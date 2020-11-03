@@ -86,7 +86,8 @@ async function confirmVC(clusterConfig, jobConfig) {
       },
   })
   if (!_.has(result, vcName)) {
-    throw new Error(`The bounded cluster ${clusterConfig.alias} doesn't have the virtual cluster ${vcName}. Please modify your job config.`)
+    throw new Error(`The bounded cluster ${clusterConfig.alias} doesn't have the virtual cluster ${vcName}, ` +
+      "or you don't have permission to it. Please modify your job config.")
   }
 }
 

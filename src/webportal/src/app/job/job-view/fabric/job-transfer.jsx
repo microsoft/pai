@@ -1,9 +1,10 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback, useRef } from 'react';
 import { Fabric, Stack, StackItem, DefaultPalette, Text, TextField,
          Toggle, Dropdown, PrimaryButton, DefaultButton, ActionButton,
+         ColorClassNames, getTheme,
          mergeStyleSets} from 'office-ui-fabric-react';
 import { Label } from 'office-ui-fabric-react/lib/Label';
 import { Spinner, SpinnerSize } from 'office-ui-fabric-react/lib/Spinner';
@@ -17,6 +18,8 @@ import Joi from 'joi-browser';
 import yaml from 'js-yaml';
 
 import { SpinnerLoading } from '../../../components/loading';
+import MonacoPanel from '../../../components/monaco-panel';
+
 
 import _ from 'lodash';
 import InfoBox from './job-transfer/info-box';
@@ -29,6 +32,11 @@ const userName = cookies.get('user');
 const userNameOfTheJob = params.get('userName');
 const jobName = params.get('jobName');
 
+const JOB_PROTOCOL_SCHEMA_URL =
+  'https://github.com/microsoft/openpai-protocol/blob/master/schemas/v2/schema.yaml';
+
+const { palette } = getTheme();
+
 const styles = mergeStyleSets({
   form: {
     width: "35%",
@@ -38,7 +46,7 @@ const styles = mergeStyleSets({
     boxShadow: "0 5px 15px rgba(0, 0, 0, 0.2)",
     borderStyle: "1px solid rgba(0, 0, 0, 0.2)",
     borderRadius: "6px",
-    backgroundColor: DefaultPalette.white,
+    backgroundColor: palette.white,
   },
 
   title: {
@@ -48,13 +56,13 @@ const styles = mergeStyleSets({
   header: {
     width: "80%",
     paddingBottom: "20px",
-    borderBottom: `1px solid ${DefaultPalette.neutralLight}`,
+    borderBottom: `1px solid ${palette.neutralLight}`,
   },
 
   footer: {
     width: "80%",
     paddingTop: "20px",
-    borderTop: `1px solid ${DefaultPalette.neutralLight}`,
+    borderTop: `1px solid ${palette.neutralLight}`,
   },
 
   item: {
@@ -70,7 +78,7 @@ class JobConfig {
     if (_.isObject(jobConfig)) {
       this._jobConfig = _.cloneDeep(jobConfig);
     } else {
-      throw new Error("The job config is not a valid object!")
+      throw new Error("The job config is not a valid!")
     }
   }
 
@@ -84,6 +92,15 @@ class JobConfig {
       return [true, ""];
     } else {
       return [false, result.error.message];
+    }
+  }
+
+  static validateFromYAML(yamlText) {
+    try {
+      const jobConfig = new JobConfig(yaml.safeLoad(yamlText));
+      return jobConfig.validate();
+    } catch (err) {
+      return [false, err.message];
     }
   }
 
@@ -101,8 +118,12 @@ const JobTransferPage = () => {
   const [transferring, setTransferring] = useState(false);
   const [showInfoBox, setShowInfoBox] = useState(false);
   const [infoBoxProps, setInfoBoxProps] = useState({});
-
+  const [showEditor, setShowEditor] = useState(false);
+  const [editorYAML, setEditorYAML] = useState('');
   const [isConfigValid, configValidationError] = jobConfig.validate();
+  const [isEditorYAMLValid, editorYAMLValidationError] = JobConfig.validateFromYAML(editorYAML);
+
+  const monaco = useRef(null);
 
   const onDismissInfoBox = () => {
     setShowInfoBox(false);
@@ -168,6 +189,31 @@ const JobTransferPage = () => {
       setTransferring(false);
     })
   }
+
+  const onOpenEditor = () => {
+    setEditorYAML(jobConfig.getYAML());
+    setShowEditor(true);
+  }
+
+  const onCloseEditor = () => {
+    setShowEditor(false);
+  }
+
+  const onSaveEditor = () => {
+    try {
+      const newJobConfig = new JobConfig(yaml.safeLoad(editorYAML));
+      setJobConfig(newJobConfig);
+      setShowEditor(false);
+    } catch (err) {
+      // This shouldn't happen because we have validated the YAML before saving.
+      alert(err.message);
+    }
+  }
+
+  const onEditorYAMLChange = (text) => {
+    setEditorYAML(text);
+  }
+
 
 
   return (
@@ -237,12 +283,60 @@ const JobTransferPage = () => {
               />
               <DefaultButton
                 disabled={transferring}
+                onClick={onOpenEditor}
                 text="Edit YAML"
               />
             </Stack>
           </Stack>
         </Stack>
       )}
+     <MonacoPanel
+        isOpen={showEditor}
+        onDismiss={onCloseEditor}
+        title='Protocol YAML Editor'
+        header={
+          <Stack grow horizontal horizontalAlign='end'>
+            <DefaultButton
+              onClick={() => window.open(JOB_PROTOCOL_SCHEMA_URL)}
+              styles={{
+                root: [ColorClassNames.neutralDarkBackground],
+                rootHovered: [ColorClassNames.blackBackground],
+                rootChecked: [ColorClassNames.blackBackground],
+                rootPressed: [ColorClassNames.blackBackground],
+                label: [ColorClassNames.white],
+              }}
+              text='Protocol Schema'
+            />
+          </Stack>
+        }
+        footer={
+          <Stack horizontal horizontalAlign='space-between'>
+            <StackItem>
+              <Text className={{ color: palette.red }}>{editorYAMLValidationError}</Text>
+            </StackItem>
+            <StackItem>
+              <PrimaryButton
+                onClick={onSaveEditor}
+                styles={{
+                  rootDisabled: [
+                    ColorClassNames.neutralSecondaryBackground,
+                    ColorClassNames.black,
+                  ],
+                }}
+                text='Save'
+                disabled={isEditorYAMLValid === false}
+              />
+            </StackItem>
+          </Stack>
+        }
+        monacoRef={monaco}
+        monacoProps={{
+          language: 'yaml',
+          options: { wordWrap: 'on', readOnly: false },
+          value: editorYAML,
+          onChange: _.debounce(onEditorYAMLChange, 100),
+        }}
+      />
     </div>
   );
 };
