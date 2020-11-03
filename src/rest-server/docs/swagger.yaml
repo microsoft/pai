@@ -1804,7 +1804,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/PodLogList"
+                $ref: "#/components/schemas/PodLogInfo"
               example:
                 locations:
                 - name: stderr
@@ -3107,7 +3107,7 @@ components:
         - storageConfig
         - email
         - extension
-    PodLogList:
+    PodLogInfo:
       type: object
       properties:
         locations:
