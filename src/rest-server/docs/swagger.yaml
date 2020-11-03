@@ -11,6 +11,7 @@ info:
     Version 2.1.0: add add/delete tag api; add tags field in get job detail and get job list; add tags filter in get job list
     Version 2.1.1: add get event api
     Version 2.2.0: add get task status api; add jobAttempId filter to job status api and extend job detail schema
+    version 2.2.1: add get pod logs api
   license:
     name: MIT License
     url: "https://github.com/microsoft/pai/blob/master/LICENSE"
@@ -1239,7 +1240,7 @@ paths:
         - job
       summary: Get job status with specific job attempt.
       description: Get job status with specific job attempt.
-      operationId: getJob
+      operationId: getJobAttempt
       security:
         - bearerAuth: []
       parameters:
@@ -1478,6 +1479,8 @@ paths:
       security:
         - bearerAuth: []
       parameters:
+        - $ref: "#/components/parameters/user"
+        - $ref: "#/components/parameters/job"
         - name: type
           in: query
           description: filter events with type. Could be "Warning" or "Normal".
@@ -1536,7 +1539,7 @@ paths:
         - job history
       summary: Get all attempts of a job.
       description: Get all attempts of a job.
-      operationId: getJobAttempts
+      operationId: getJobHistoryAttempts
       security:
         - bearerAuth: []
       parameters:
@@ -1614,7 +1617,7 @@ paths:
         - job history
       summary: Get a specific attempt by attempt index.
       description: Get a specific attempt by attempt index.
-      operationId: getJobAttempt
+      operationId: getJobHistoryAttempt
       security:
         - bearerAuth: []
       parameters:
@@ -1777,6 +1780,39 @@ paths:
           $ref: "#/components/responses/NoTaskError"
         "500":
           $ref: "#/components/responses/UnknownError"
+  "/api/v2/jobs/{user}~{job}/pods/{podUid}/logs":
+    get:
+      tags:
+        - job
+      summary: Get job pod log list.
+      description: Get job pod log list.
+      operationId: getPodLogs
+      security:
+        - bearerAuth: []
+      parameters:
+      - $ref: "#/components/parameters/user"
+      - $ref: "#/components/parameters/job"
+      - $ref: "#/components/parameters/podUid"
+      - name: tailMode
+        in: query
+        description: enable/disbale getting tail log content. Could be "true" or "false"
+        schema:
+          type: string
+      responses:
+        "200":
+          description: Succeeded
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PodLogList"
+              example:
+                stderr: "https://mater_ip/log-manager/node_ip/api/v1/logs/user.pai.stderr?username=user&framework-name=34775529adebae576fbc0bf48d835386&pod-uid=07cdd036-1a7c-11eb-830b-000d3ab25bb6&taskrole=taskrole&token=token"
+                all: "https://mater_ip/log-manager/node_ip/api/v1/logs/user.pai.all?username=user&framework-name=34775529adebae576fbc0bf48d835386&pod-uid=07cdd036-1a7c-11eb-830b-000d3ab25bb6&taskrole=taskrole&token=token"
+                stdout: "https://mater_ip/log-manager/node_ip/api/v1/logs/user.pai.stdout?username=user&framework-name=34775529adebae576fbc0bf48d835386&pod-uid=07cdd036-1a7c-11eb-830b-000d3ab25bb6&taskrole=taskrole&token=token"
+        "404":
+          $ref: "#/components/responses/NoPodLogsError"
+        "500":
+          $ref: "#/components/responses/UnknownError"
   /api/v2/kubernetes/nodes:
     get:
       tags:
@@ -1909,6 +1945,13 @@ components:
       description: task index
       required: true
       schema: 
+        type: string
+    podUid:
+      name: podUid
+      in: path
+      description: job pod uid
+      required: true
+      schema:
         type: string
   schemas:
     Response:
@@ -3060,6 +3103,18 @@ components:
         - storageConfig
         - email
         - extension
+    PodLogList:
+      type: object
+      properties:
+        stdout:
+          type: string
+          description: user stdout log link.
+        stderr:
+          type: string
+          description: user stderr log link.
+        all:
+          type: string
+          description: merged stdout/stderr log lnk.
   responses:
     InvalidParametersError:
       description: InvalidParametersError
@@ -3219,6 +3274,17 @@ components:
               value:
                 code: NoJobSshInfoError
                 message: "SSH info of job {job} is not found."
+    NoPodLogsError:
+      description: NoPodLogsError
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Response"
+          examples:
+            NoJobSshInfoError:
+              value:
+                code: NoPodLogsError
+                message: "Logs for pod {podUid} is not found."
     ConflictUserError:
       description: ConflictUserError
       content:

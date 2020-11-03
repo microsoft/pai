@@ -295,7 +295,7 @@ const getLogs = asyncHandler(async (req, res) => {
     res.json(data);
   } catch (error) {
     logger.error(`Got error when retrieving log list, error: ${error}`);
-    throw error.status === status('Not Found')
+    throw error.code === 'NoPodLogsError'
       ? error
       : createError(
           'Internal Server Error',

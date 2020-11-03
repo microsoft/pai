@@ -41,6 +41,11 @@ const getLogListFromLogManager = async (frameworkName, podUid, tailMode) => {
   const adminPassword = process.env.LOG_MANAGER_ADMIN_PASSWORD;
 
   const jobDetail = await job.get(frameworkName);
+  const noPodLogsErr = createError(
+    'Not Found',
+    'NoPodLogsError',
+    `Logs for pod ${podUid} is not found.`,
+  );
   let nodeIp;
   let taskRoleName;
   for (const [key, taskRole] of Object.entries(jobDetail.taskRoles)) {
@@ -49,11 +54,7 @@ const getLogListFromLogManager = async (frameworkName, podUid, tailMode) => {
     );
     if (!status) {
       logger.error(`Failed to find pod which has pod uid ${podUid}`);
-      throw createError(
-        'Not Found',
-        'UnknownError',
-        `Log for pod ${podUid} is not found.`,
-      );
+      throw noPodLogsErr;
     }
     nodeIp = status.containerIp;
     taskRoleName = key;
@@ -76,7 +77,7 @@ const getLogListFromLogManager = async (frameworkName, podUid, tailMode) => {
     });
   } catch (err) {
     if (err.response && err.response.status === 404) {
-      throw createError('Not Found', 'UnknownError', `Log fodler not exisits.`);
+      throw noPodLogsErr;
     }
     throw err;
   }
