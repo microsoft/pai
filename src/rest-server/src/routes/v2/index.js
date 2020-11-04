@@ -15,6 +15,7 @@ const authnRouter = require('@pai/routes/authn');
 const infoController = require('@pai/controllers/v2/info');
 const tokenRouter = require('@pai/routes/token');
 const k8sRouter = require('@pai/routes/kubernetes');
+const requestRouter = require('@pai/routes/v2/user-request');
 
 const router = new express.Router();
 
@@ -35,6 +36,7 @@ router.use('/storages', storageRouter);
 router.use('/storage', storageDeprecatedRouter);
 router.use('/tokens', tokenRouter);
 router.use('/kubernetes', k8sRouter);
+router.use('/requests', requestRouter);
 
 // module exports
 module.exports = router;

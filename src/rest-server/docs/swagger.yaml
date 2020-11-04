@@ -11,6 +11,7 @@ info:
     Version 2.1.0: add add/delete tag api; add tags field in get job detail and get job list; add tags filter in get job list
     Version 2.1.1: add get event api
     Version 2.2.0: add get task status api; add jobAttempId filter to job status api and extend job detail schema
+    Version 2.3.0: add user request api
   license:
     name: MIT License
     url: "https://github.com/microsoft/pai/blob/master/LICENSE"
@@ -39,6 +40,8 @@ tags:
     description: API endpoint for job history
   - name: kubernetes
     description: API endpoint for kubernetes info
+  - name: requests
+    description: API endpoint for submit user request
 paths:
   /api/v2/info:
     get:
@@ -1833,6 +1836,152 @@ paths:
           $ref: "#/components/responses/UnauthorizedUserError"
         "403":
           $ref: "#/components/responses/ForbiddenUserError"
+  /api/v2/requests/user:
+    post:
+      tags:
+        - requests
+      summary: Create a user request
+      description: Create a user request, it's the API for user sign up (without token check)
+      operationId: createGuestUserRequest
+      requestBody:
+        description: User request
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                type:
+                  type: string
+                  description: The type of request, should be one of [vc, user, storage]
+                message:
+                  type: string
+                  description: Description or other message for the request
+                user:
+                  type: object
+                  description: The request user account
+                  properties:
+                    username:
+                      type: string
+                      description: 'username in [\w.-]+ format'
+                    email:
+                      type: string
+                      description: user's email, optional
+                    password:
+                      type: string
+                      description: user's password, basic mode only, optional
+                  required:
+                    - username
+              required:
+                - type
+                - user
+        required: true
+      responses:
+        "201":
+          description: Succeeded
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Response"
+              example:
+                message: Create request {requestId} successfully.
+  /api/v2/requests/{requestType}:
+    get:
+      tags:
+        - requests
+      summary: List user requests
+      description: List user request
+      operationId: listUserRequest
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/requestType"
+      responses:
+        "200":
+          description: Succeeded
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Response"
+              example:
+                requests: []
+    post:
+      tags:
+        - requests
+      summary: Create a user request
+      description: Create a user request, need token when the requestType is not `user`.
+      operationId: createUserRequest
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/requestType"
+      requestBody:
+        description: User request
+        content:
+          application/json:
+            schema:
+              oneOf:
+                - $ref: '#/components/schemas/UserRequestsTypeVc'
+                - $ref: '#/components/schemas/UserRequestsTypeStorage'
+        required: true
+      responses:
+        "201":
+          description: Succeeded
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Response"
+              example:
+                message: Create request {requestId} successfully.
+  /api/v2/requests/{requestType}/{requestId}:
+    put:
+      tags:
+        - requests
+      summary: Update a user request
+      description: Update a user request, admin only.
+      operationId: updateUserRequest
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/requestType"
+        - $ref: "#/components/parameters/requestId"
+      requestBody:
+        description: User request
+        content:
+          application/json:
+            schema:
+              oneOf:
+                - $ref: '#/components/schemas/UserRequestsTypeVc'
+                - $ref: '#/components/schemas/UserRequestsTypeStorage'
+        required: true
+      responses:
+        "201":
+          description: Succeeded
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Response"
+              example:
+                message: Update request {requestId} successfully.
+    delete:
+      tags:
+        - requests
+      summary: Delete a user request
+      description: Delete a user request, admin only.
+      operationId: deleteUserRequest
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/requestType"
+        - $ref: "#/components/parameters/requestId"
+      responses:
+        "201":
+          description: Succeeded
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Response"
+              example:
+                message: Delete request ${requestId} successfully.
 components:
   parameters:
     token:
@@ -1895,6 +2044,20 @@ components:
       required: true
       schema:
         type: string
+    requestType:
+      name: requestType
+      in: path
+      description: request type
+      required: true
+      schema:
+        type: string
+    requestId:
+      name: requestId
+      in: path
+      description: request id
+      required: true
+      schema:
+        type: string
     jobAttemptId:
       name: jobAttemptId
       in: path
@@ -1914,7 +2077,7 @@ components:
       in: path
       description: task index
       required: true
-      schema: 
+      schema:
         type: string
   schemas:
     Response:
@@ -3066,6 +3229,44 @@ components:
         - storageConfig
         - email
         - extension
+    UserRequestsTypeVc:
+      type: object
+      properties:
+        type:
+          type: string
+          description: The type of request
+        vc:
+          type: array
+          description: Array of requested VCs.
+          items:
+            type: string
+            description: virtual cluster name.
+        message:
+          type: string
+          description: message
+      required:
+        - type
+        - vc
+        - message
+    UserRequestsTypeStorage:
+      type: object
+      properties:
+        type:
+          type: string
+          description: The type of request
+        storage:
+          type: array
+          description: Array of requested Storages.
+          items:
+            type: string
+            description: storage name.
+        message:
+          type: string
+          description: message
+      required:
+        - type
+        - storage
+        - message
   responses:
     InvalidParametersError:
       description: InvalidParametersError
