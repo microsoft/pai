@@ -37,10 +37,11 @@ router
   .put(
     token.checkNotApplication,
     param.validate(vcConfig.vcCreateInputSchema),
+    token.checkAdmin,
     controller.update,
   )
   /** DELETE /api/v2/virtual-clusters/:virtualClusterName - Remove a virtual cluster */
-  .delete(token.checkNotApplication, controller.remove);
+  .delete(token.checkNotApplication, token.checkAdmin, controller.remove);
 
 router
   .route('/:virtualClusterName/status')
@@ -48,6 +49,7 @@ router
   .put(
     token.checkNotApplication,
     param.validate(vcConfig.vcStatusPutInputSchema),
+    token.checkAdmin,
     controller.updateStatus,
   );
 

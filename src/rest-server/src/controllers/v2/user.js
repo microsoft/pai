@@ -293,48 +293,38 @@ const updateVirtualClusterInternal = async (newVc) => {
 const updateUserVirtualCluster = async (req, res, next) => {
   try {
     const username = req.params.username;
-    if (req.user.admin) {
-      const newGroupList = await updateVirtualClusterInternal(
-        req.body.virtualCluster,
-      );
-      let userInfo;
-      try {
-        userInfo = await userModel.getUser(username);
-      } catch (error) {
-        if (error.status === 404) {
-          return next(
-            createError(
-              'Not Found',
-              'NoUserError',
-              `User ${req.params.username} not found.`,
-            ),
-          );
-        }
-        return next(createError.unknown(error));
-      }
-      if (await userModel.checkAdmin(username)) {
+    const newGroupList = await updateVirtualClusterInternal(
+      req.body.virtualCluster,
+    );
+    let userInfo;
+    try {
+      userInfo = await userModel.getUser(username);
+    } catch (error) {
+      if (error.status === 404) {
         return next(
           createError(
-            'Forbidden',
-            'ForbiddenUserError',
-            "Admin's virtual clusters cannot be updated.",
+            'Not Found',
+            'NoUserError',
+            `User ${req.params.username} not found.`,
           ),
         );
       }
-      userInfo.grouplist = newGroupList;
-      await userModel.updateUser(username, userInfo);
-      return res.status(201).json({
-        message: 'Update user virtualCluster data successfully.',
-      });
-    } else {
+      return next(createError.unknown(error));
+    }
+    if (await userModel.checkAdmin(username)) {
       return next(
         createError(
           'Forbidden',
           'ForbiddenUserError',
-          `Non-admin is not allow to do this operation.`,
+          "Admin's virtual clusters cannot be updated.",
         ),
       );
     }
+    userInfo.grouplist = newGroupList;
+    await userModel.updateUser(username, userInfo);
+    return res.status(201).json({
+      message: 'Update user virtualCluster data successfully.',
+    });
   } catch (error) {
     if (error.code === 'NoVirtualClusterError') {
       return next(error);
@@ -702,6 +692,12 @@ const basicUserUpdate = async (req, res, next) => {
       userInfo.password = req.body.data.password;
       updatePassword = true;
     }
+    if ('extension' in req.body.data) {
+      userInfo.extension = await updateExtensionInternal(
+        userInfo.extension,
+        req.body.data.extension,
+      );
+    }
     await userModel.updateUser(username, userInfo, updatePassword);
     if (updatePassword) {
       // try to revoke browser tokens
@@ -757,29 +753,19 @@ const oidcUserUpdate = async (req, res, next) => {
 const deleteUser = async (req, res, next) => {
   try {
     const username = req.params.username;
-    if (req.user.admin) {
-      if (await userModel.checkAdmin(username)) {
-        return next(
-          createError(
-            'Forbidden',
-            'RemoveAdminError',
-            `Admin ${username} is not allowed to remove.`,
-          ),
-        );
-      }
-      await userModel.deleteUser(username);
-      return res.status(200).json({
-        message: 'user is removed successfully',
-      });
-    } else {
-      next(
+    if (await userModel.checkAdmin(username)) {
+      return next(
         createError(
           'Forbidden',
-          'ForbiddenUserError',
-          `Non-admin is not allow to do this operation.`,
+          'RemoveAdminError',
+          `Admin ${username} is not allowed to remove.`,
         ),
       );
     }
+    await userModel.deleteUser(username);
+    return res.status(200).json({
+      message: 'user is removed successfully',
+    });
   } catch (error) {
     if (error.status === 404) {
       return next(

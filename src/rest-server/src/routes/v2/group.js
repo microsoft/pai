@@ -37,7 +37,11 @@ router
 router
   .route('/:groupname')
   /** Post /api/v2/group/:groupname */
-  .delete(token.checkNotApplication, groupController.deleteGroup);
+  .delete(
+    token.checkNotApplication,
+    token.checkAdmin,
+    groupController.deleteGroup,
+  );
 
 router
   .route('/')
@@ -45,6 +49,7 @@ router
   .post(
     token.checkNotApplication,
     param.validate(groupInputSchema.groupCreateInputSchema),
+    token.checkAdmin,
     groupController.createGroup,
   );
 
@@ -54,6 +59,7 @@ router
   .put(
     token.checkNotApplication,
     param.validate(groupInputSchema.groupUpdateInputSchema),
+    token.checkAdmin,
     groupController.updateGroup,
   );
 
@@ -63,13 +69,14 @@ router
   .put(
     token.checkNotApplication,
     param.validate(groupInputSchema.groupExtensionAttrUpdateInputSchema),
+    token.checkAdmin,
     groupController.updateGroupExtensionAttr,
   );
 
 router
   .route('/:groupname/userlist')
   /** get /api/v2/group/:groupname/userlist */
-  .get(token.check, groupController.getGroupUserList);
+  .get(token.check, token.checkAdmin, groupController.getGroupUserList);
 
 /** Legacy API and will be deprecated in the future. Please use put /api/v2/group */
 router
@@ -77,6 +84,7 @@ router
   .put(
     token.checkNotApplication,
     param.validate(groupInputSchema.groupExtensionUpdateInputSchema),
+    token.checkAdmin,
     groupController.updateGroupExtension,
   );
 
@@ -86,6 +94,7 @@ router
   .put(
     token.checkNotApplication,
     param.validate(groupInputSchema.groupDescriptionUpdateInputSchema),
+    token.checkAdmin,
     groupController.updateGroupDescription,
   );
 
@@ -95,6 +104,7 @@ router
   .put(
     token.checkNotApplication,
     param.validate(groupInputSchema.groupExternalNameUpdateInputSchema),
+    token.checkAdmin,
     groupController.updateGroupExternalName,
   );
 
