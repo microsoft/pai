@@ -297,7 +297,7 @@ const JobTransferPage = () => {
                 <Label required>Transfer to</Label>
                 <Dropdown
                   placeholder={'select a bounded cluster'}
-                  dropdownWidth={200}
+                  dropdownWidth={150}
                   selectedKey={selectedCluster}
                   onChange={(_, item) => setSelectedCluster(item.key)}
                   options={(() => {
