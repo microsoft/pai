@@ -692,6 +692,12 @@ const basicUserUpdate = async (req, res, next) => {
       userInfo.password = req.body.data.password;
       updatePassword = true;
     }
+    if ('extension' in req.body.data) {
+      userInfo.extension = await updateExtensionInternal(
+        userInfo.extension,
+        req.body.data.extension,
+      );
+    }
     await userModel.updateUser(username, userInfo, updatePassword);
     if (updatePassword) {
       // try to revoke browser tokens
