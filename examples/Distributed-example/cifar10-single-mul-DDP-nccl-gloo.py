@@ -30,7 +30,16 @@ def main():
     os.environ['MASTER_ADDR'] = os.environ['PAI_HOST_IP_worker_0']
     os.environ['MASTER_PORT'] = os.environ['PAI_worker_0_SynPort_PORT']
     print('master:', os.environ['MASTER_ADDR'], 'port:', os.environ['MASTER_PORT'])
-    mp.spawn(train, nprocs=args.gpus, args=(args,))
+    # Data loading code
+    transform_train = transforms.Compose([
+        transforms.RandomCrop(32, padding=4),
+        transforms.RandomHorizontalFlip(),
+        transforms.ToTensor(),
+        transforms.Normalize((0.4914, 0.4822, 0.4465), (0.2023, 0.1994, 0.2010)),
+    ])
+    trainset = torchvision.datasets.CIFAR10(
+        root='./data', train=True, download=True, transform=transform_train)
+    mp.spawn(train, nprocs=args.gpus, args=(args, trainset))
 
 
 class Net(nn.Module):
@@ -51,7 +60,7 @@ class Net(nn.Module):
         x = self.fc3(x)
         return x
 
-def train(gpu, args):
+def train(gpu, args, trainset):
     print("start train")
     rank = int(os.environ['PAI_TASK_INDEX']) * args.gpus + gpu
     dist.init_process_group(backend=args.dist_backend, init_method='env://', world_size=args.world_size, rank=rank)
@@ -66,21 +75,10 @@ def train(gpu, args):
     # Wrap the model
     model = nn.parallel.DistributedDataParallel(model, device_ids=[gpu])
     # Data loading code
-    transform_train = transforms.Compose([
-        transforms.RandomCrop(32, padding=4),
-        transforms.RandomHorizontalFlip(),
-        transforms.ToTensor(),
-        transforms.Normalize((0.4914, 0.4822, 0.4465), (0.2023, 0.1994, 0.2010)),
-    ])
-
     transform_test = transforms.Compose([
         transforms.ToTensor(),
         transforms.Normalize((0.4914, 0.4822, 0.4465), (0.2023, 0.1994, 0.2010)),
     ])
-
-    trainset = torchvision.datasets.CIFAR10(
-        root='./data', train=True, download=True, transform=transform_train)
-
     trainsampler = torch.utils.data.distributed.DistributedSampler(
         trainset,
         num_replicas=args.world_size,
