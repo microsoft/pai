@@ -118,7 +118,7 @@ func TestGenerateNodesMetrics(t *testing.T) {
 	metrics := mo.pc.getPaiNodeMetrics(nodeMetrics[0])
 	expectLables := []map[string]string{
 		{
-			"name": "10.151.41.8", "disk_pressure": "false", "memory_pressure": "false",
+			"host_ip": "10.151.41.8", "disk_pressure": "false", "memory_pressure": "false",
 			"ready": "true", "unschedulable": "false",
 		},
 	}
@@ -197,7 +197,7 @@ func TestParseDLWSUnschedulableNodes(t *testing.T) {
 	promMetrics := mo.pc.getPaiNodeMetrics(nodeMetrics[0])
 	expectLables := []map[string]string{
 		{
-			"name": "192.168.255.1", "disk_pressure": "false", "memory_pressure": "false",
+			"host_ip": "192.168.255.1", "disk_pressure": "false", "memory_pressure": "false",
 			"ready": "true", "unschedulable": "true",
 		},
 	}
