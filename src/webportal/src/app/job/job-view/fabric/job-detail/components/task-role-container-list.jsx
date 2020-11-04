@@ -48,7 +48,7 @@ import t from '../../../../../components/tachyons.scss';
 
 import Context from './context';
 import Timer from './timer';
-import { getContainerLog } from '../conn';
+import { getContainerLog, getContainerLogList } from '../conn';
 import config from '../../../../../config/webportal.config';
 import MonacoPanel from '../../../../../components/monaco-panel';
 import StatusBadge from '../../../../../components/status-badge';
@@ -137,7 +137,9 @@ export default class TaskRoleContainerList extends React.Component {
       monacoProps: null,
       monacoTitle: '',
       monacoFooterButton: null,
-      logUrl: null,
+      fullLogUrls: null,
+      tailLogUrls: null,
+      logType: null,
       items: props.tasks,
       ordering: { field: null, descending: false },
       hideDialog: true,
@@ -145,7 +147,7 @@ export default class TaskRoleContainerList extends React.Component {
 
     this.showSshInfo = this.showSshInfo.bind(this);
     this.onDismiss = this.onDismiss.bind(this);
-    this.showContainerLog = this.showContainerLog.bind(this);
+    this.showContainerTailLog = this.showContainerTailLog.bind(this);
     this.onRenderRow = this.onRenderRow.bind(this);
     this.logAutoRefresh = this.logAutoRefresh.bind(this);
     this.onColumnClick = this.onColumnClick.bind(this);
@@ -159,12 +161,12 @@ export default class TaskRoleContainerList extends React.Component {
   }
 
   logAutoRefresh() {
-    const { logUrl } = this.state;
-    getContainerLog(logUrl)
+    const { fullLogUrls, tailLogUrls, logType } = this.state;
+    getContainerLog(tailLogUrls, fullLogUrls, logType)
       .then(({ text, fullLogLink }) =>
         this.setState(
           prevState =>
-            prevState.logUrl === logUrl && {
+            prevState.tailLogUrls[logType] === tailLogUrls[logType] && {
               monacoProps: { value: text },
               monacoFooterButton: (
                 <PrimaryButton
@@ -182,7 +184,7 @@ export default class TaskRoleContainerList extends React.Component {
       .catch(err =>
         this.setState(
           prevState =>
-            prevState.logUrl === logUrl && {
+            prevState.tailLogUrls[logType] === tailLogUrls[logType] && {
               monacoProps: { value: err.message },
             },
         ),
@@ -194,7 +196,8 @@ export default class TaskRoleContainerList extends React.Component {
       monacoProps: null,
       monacoTitle: '',
       monacoFooterButton: null,
-      logUrl: null,
+      fullLogUrls: null,
+      tailLogUrls: null,
     });
   }
 
@@ -213,40 +216,43 @@ export default class TaskRoleContainerList extends React.Component {
     }
   }
 
-  showContainerLog(logUrl, logType) {
+  showContainerTailLog(logListUrl, logType) {
     let title;
-    let logHint;
-
-    if (config.logType === 'yarn') {
-      logHint = 'Last 4096 bytes';
-    } else if (config.logType === 'log-manager') {
-      logHint = 'Last 16384 bytes';
-    } else {
-      logHint = '';
-    }
-    switch (logType) {
-      case 'stdout':
-        title = `Standard Output (${logHint})`;
-        break;
-      case 'stderr':
-        title = `Standard Error (${logHint})`;
-        break;
-      case 'stdall':
-        title = `User logs (${logHint}. Notice: The logs may out of order when merging stdout & stderr streams)`;
-        break;
-      default:
-        throw new Error(`Unsupported log type`);
-    }
-    this.setState(
-      {
-        monacoProps: { value: 'Loading...' },
-        monacoTitle: title,
-        logUrl,
-      },
-      () => {
-        this.logAutoRefresh(); // start immediately
-      },
-    );
+    let logHint = '';
+    getContainerLogList(logListUrl)
+      .then(({ fullLogUrls, tailLogUrls }) => {
+        if (config.logType === 'log-manager') {
+          logHint = 'Last 16384 bytes';
+        }
+        switch (logType) {
+          case 'stdout':
+            title = `Standard Output (${logHint})`;
+            break;
+          case 'stderr':
+            title = `Standard Error (${logHint})`;
+            break;
+          case 'all':
+            title = `User logs (${logHint}. Notice: The logs may out of order when merging stdout & stderr streams)`;
+            break;
+          default:
+            throw new Error(`Unsupported log type`);
+        }
+        this.setState(
+          {
+            monacoProps: { value: 'Loading...' },
+            monacoTitle: title,
+            fullLogUrls,
+            tailLogUrls,
+            logType,
+          },
+          () => {
+            this.logAutoRefresh(); // start immediately
+          },
+        );
+      })
+      .catch(err => {
+        this.setState({ monacoProps: { value: err.message } });
+      });
   }
 
   showSshInfo(id, containerPorts, containerIp) {
@@ -424,7 +430,7 @@ export default class TaskRoleContainerList extends React.Component {
       monacoTitle,
       monacoProps,
       monacoFooterButton,
-      logUrl,
+      tailLogUrls,
       items,
     } = this.state;
     const { showMoreDiagnostics } = this.props;
@@ -443,7 +449,9 @@ export default class TaskRoleContainerList extends React.Component {
         </ThemeProvider>
         {/* Timer */}
         <Timer
-          interval={isNil(monacoProps) || isEmpty(logUrl) ? null : interval}
+          interval={
+            isNil(monacoProps) || isEmpty(tailLogUrls) ? null : interval
+          }
           func={this.logAutoRefresh}
         />
         {/* Monaco Editor Panel */}
@@ -624,8 +632,8 @@ export default class TaskRoleContainerList extends React.Component {
                 iconProps={{ iconName: 'TextDocument' }}
                 text='Stdout'
                 onClick={() =>
-                  this.showContainerLog(
-                    `${item.containerLog}user.pai.stdout`,
+                  this.showContainerTailLog(
+                    `${config.restServerUri}${item.containerLog}`,
                     'stdout',
                   )
                 }
@@ -640,8 +648,8 @@ export default class TaskRoleContainerList extends React.Component {
                 iconProps={{ iconName: 'Error' }}
                 text='Stderr'
                 onClick={() =>
-                  this.showContainerLog(
-                    `${item.containerLog}user.pai.stderr`,
+                  this.showContainerTailLog(
+                    `${config.restServerUri}${item.containerLog}`,
                     'stderr',
                   )
                 }
@@ -662,22 +670,10 @@ export default class TaskRoleContainerList extends React.Component {
                       iconProps: { iconName: 'TextDocument' },
                       disabled: isNil(item.containerId),
                       onClick: () =>
-                        this.showContainerLog(
-                          `${item.containerLog}user.pai.all`,
-                          'stdall',
+                        this.showContainerTailLog(
+                          `${config.restServerUri}${item.containerLog}`,
+                          'all',
                         ),
-                    },
-                    {
-                      key: 'trackingPage',
-                      name:
-                        config.launcherType === 'yarn'
-                          ? 'Go to Yarn Tracking Page'
-                          : 'Browse log folder',
-                      iconProps: { iconName: 'Link' },
-                      href: isNil(item.containerLog)
-                        ? item.containerLog
-                        : item.containerLog.replace('/tail/', '/'),
-                      target: '_blank',
                     },
                   ],
                 }}
