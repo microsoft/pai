@@ -8,7 +8,7 @@ import {
   DialogFooter,
   PrimaryButton,
 } from 'office-ui-fabric-react';
-import React, { useState } from 'react';
+import React from 'react';
 
 function InfoBox({ hidden, title, message, onDismiss, redirectURL }) {
   return (

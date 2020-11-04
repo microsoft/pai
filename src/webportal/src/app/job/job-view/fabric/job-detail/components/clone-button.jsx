@@ -94,7 +94,7 @@ const CloneButton = ({ rawJobConfig, namespace, jobName, enableTransfer }) => {
   // Only when transfer job is enabled, and the owner of this job is the one
   // who is viewing it, show the transfer option.
   const { isViewingSelf } = useContext(Context);
-  if (enableTransfer && (isViewingSelf)) {
+  if (enableTransfer && isViewingSelf) {
     cloneButton = (
       <PrimaryButton
         text='Clone'
@@ -109,8 +109,10 @@ const CloneButton = ({ rawJobConfig, namespace, jobName, enableTransfer }) => {
                 const query = {
                   userName: namespace,
                   jobName: jobName,
-                }
-                window.location.href=`job-transfer.html?${qs.stringify(query)}`;
+                };
+                window.location.href = `job-transfer.html?${qs.stringify(
+                  query,
+                )}`;
               },
             },
           ],
@@ -119,7 +121,7 @@ const CloneButton = ({ rawJobConfig, namespace, jobName, enableTransfer }) => {
         onClick={onClick}
         disabled={!isClonable(rawJobConfig)}
       />
-    )
+    );
   } else {
     cloneButton = (
       <PrimaryButton
@@ -128,7 +130,7 @@ const CloneButton = ({ rawJobConfig, namespace, jobName, enableTransfer }) => {
         onClick={onClick}
         disabled={!isClonable(rawJobConfig)}
       />
-    )
+    );
   }
 
   return cloneButton;

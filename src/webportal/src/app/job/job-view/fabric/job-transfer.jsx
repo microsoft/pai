@@ -1,11 +1,10 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import React, { useEffect, useState, useCallback, useRef } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import {
   Stack,
   StackItem,
-  DefaultPalette,
   Text,
   TextField,
   Dropdown,
@@ -302,7 +301,7 @@ const JobTransferPage = () => {
                   onChange={(_, item) => setSelectedCluster(item.key)}
                   options={(() => {
                     const options = [];
-                    for (let alias in boundedClusters) {
+                    for (const alias in boundedClusters) {
                       options.push({ key: alias, text: alias });
                     }
                     return options;

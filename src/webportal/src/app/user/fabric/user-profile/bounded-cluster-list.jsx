@@ -2,9 +2,7 @@
 // Licensed under the MIT License.
 
 import c from 'classnames';
-import React, { useMemo, useState } from 'react';
-import cookies from 'js-cookie';
-import PropTypes from 'prop-types';
+import React, { useState } from 'react';
 import {
   DetailsList,
   DetailsListLayoutMode,
@@ -25,16 +23,16 @@ const BoundedClusterList = ({ boundedClusters, onDelete }) => {
   const [deleteClusterAlias, setDeleteClusterAlias] = useState(null);
 
   const boundedClusterList = [];
-  for (let alias in boundedClusters) {
+  for (const alias in boundedClusters) {
     boundedClusterList.push({
       alias: alias,
       uri: boundedClusters[alias].uri,
       username: boundedClusters[alias].username,
       token: boundedClusters[alias].token,
-    })
+    });
   }
   // sort by alias
-  boundedClusterList.sort((c1, c2) => c1.alias >  c2.alias ? 1 : -1 )
+  boundedClusterList.sort((c1, c2) => (c1.alias > c2.alias ? 1 : -1));
 
   const columns = [
     {
@@ -142,14 +140,15 @@ const BoundedClusterList = ({ boundedClusters, onDelete }) => {
           <PrimaryButton
             onClick={() => {
               setProcessing(true);
-              onDelete(deleteClusterAlias).catch(err => {
-                console.error(err);
-                alert(err.message)
-              })
-              .finally(() => {
-                setDeleteClusterAlias(null);
-                setProcessing(false);
-              });
+              onDelete(deleteClusterAlias)
+                .catch(err => {
+                  console.error(err);
+                  alert(err.message);
+                })
+                .finally(() => {
+                  setDeleteClusterAlias(null);
+                  setProcessing(false);
+                });
             }}
             disabled={processing}
             text='Confirm'

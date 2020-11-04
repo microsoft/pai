@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import { clearToken } from '../../../../user/user-logout/user-logout.component';
 import config from '../../../../config/webportal.config';
 import _ from 'lodash';
 import qs from 'querystring';
@@ -12,50 +11,42 @@ const token = cookies.get('token');
 // A simple wrapper for rest-server api calls.
 // It will throw error if there is any: e.g. Network Error, Failed Response Code
 const requestApi = async (url, params) => {
-  try {
-    const response = await fetch(url, params);
-    const result = await response.json();
-    // node-fetch will throw error like network error.
-    // node-fetch won't throw error if the response is not successful (e.g. 404, 500)
-    // In such case, we throw the error manually
-    if (!response.ok) {
-      if (_.has(result, 'message')) {
-        throw new Error(result.message);
-      } else {
-        throw new Error(
-          `Unknown response error happens when request url ${url}.`,
-        );
-      }
+  const response = await fetch(url, params);
+  const result = await response.json();
+  // node-fetch will throw error like network error.
+  // node-fetch won't throw error if the response is not successful (e.g. 404, 500)
+  // In such case, we throw the error manually
+  if (!response.ok) {
+    if (_.has(result, 'message')) {
+      throw new Error(result.message);
+    } else {
+      throw new Error(
+        `Unknown response error happens when request url ${url}.`,
+      );
     }
-    return result;
-  } catch (err) {
-    throw err;
   }
+  return result;
 };
 
 // Use a different function to provide more friendly error message
 const requestBoundedClusterApi = async (alias, url, params) => {
-  try {
-    const response = await fetch(url, params);
-    const result = await response.json();
-    // node-fetch will throw error like network error
-    // node-fetch won't throw error if the response is not 20X (e.g. 404, 500)
-    // In such case, we throw the error manually
-    if (!response.ok) {
-      if (_.has(result, 'message')) {
-        throw new Error(
-          `There is an error during api call to bounded cluster ${alias}. Detail message: ${result.message}.`,
-        );
-      } else {
-        throw new Error(
-          `There is a unknown error during api call to bounded cluster ${alias}. URL: ${url}.`,
-        );
-      }
+  const response = await fetch(url, params);
+  const result = await response.json();
+  // node-fetch will throw error like network error
+  // node-fetch won't throw error if the response is not 20X (e.g. 404, 500)
+  // In such case, we throw the error manually
+  if (!response.ok) {
+    if (_.has(result, 'message')) {
+      throw new Error(
+        `There is an error during api call to bounded cluster ${alias}. Detail message: ${result.message}.`,
+      );
+    } else {
+      throw new Error(
+        `There is a unknown error during api call to bounded cluster ${alias}. URL: ${url}.`,
+      );
     }
-    return result;
-  } catch (err) {
-    throw err;
   }
+  return result;
 };
 
 export async function fetchBoundedClusters(userName) {
@@ -103,7 +94,7 @@ export async function stopJob(userName, jobName) {
     restServerUri.toString(),
     `/api/v2/jobs/${userName}~${jobName}/executionType`,
   );
-  const result = await requestApi(url, {
+  await requestApi(url, {
     method: 'PUT',
     body: JSON.stringify({ value: 'STOP' }),
     headers: {
@@ -139,7 +130,7 @@ async function confirmSKU(clusterConfig, jobConfig) {
   const usedSKUs = [];
   const taskroleSettings = _.get(jobConfig, 'extras.hivedScheduler.taskRoles');
   if (taskroleSettings) {
-    for (let taskrole in taskroleSettings) {
+    for (const taskrole in taskroleSettings) {
       const sku = _.get(taskroleSettings[taskrole], 'skuType');
       if (sku) {
         usedSKUs.push(sku);
@@ -155,7 +146,7 @@ async function confirmSKU(clusterConfig, jobConfig) {
           Authorization: `Bearer ${clusterConfig.token}`,
         },
       });
-      for (let usedSKU of usedSKUs) {
+      for (const usedSKU of usedSKUs) {
         if (!_.has(result, usedSKU)) {
           throw new Error(
             `The virtual cluster ${vcName} in bounded cluster ${clusterConfig.alias} doesn't have the SKU ${usedSKU}. ` +
@@ -174,9 +165,9 @@ async function confirmStorage(clusterConfig, jobConfig) {
   ];
   const usedStorages = [];
   if (pluginSettings) {
-    for (let pluginSetting of pluginSettings) {
+    for (const pluginSetting of pluginSettings) {
       if (pluginSetting.plugin === 'teamwise_storage') {
-        for (let storage of _.get(
+        for (const storage of _.get(
           pluginSetting,
           'parameters.storageConfigNames',
           [],
@@ -193,7 +184,7 @@ async function confirmStorage(clusterConfig, jobConfig) {
         },
       });
       const availableStorages = new Set(result.storages.map(item => item.name));
-      for (let usedStorage of usedStorages) {
+      for (const usedStorage of usedStorages) {
         if (!(usedStorage in availableStorages)) {
           throw new Error(
             `We cannot find storage ${usedStorage} in bounded cluster ${clusterConfig.alias}. ` +
@@ -210,33 +201,28 @@ async function confirmStorage(clusterConfig, jobConfig) {
 async function confirmJobName(clusterConfig, jobConfig) {
   const userName = clusterConfig.username;
   const jobName = _.get(jobConfig, 'name');
-  try {
-    const url = urljoin(
-      clusterConfig.uri,
-      `/rest-server/api/v2/jobs/${userName}~${jobName}/config`,
-    );
-    const response = await fetch(url, {
-      headers: {
-        Authorization: `Bearer ${clusterConfig.token}`,
-      },
-    });
-    const result = await response.json();
-    if (!response.ok) {
-      if (_.get(result, 'code') === 'NoJobError') {
-        // OK, the job name doesn't exist
-        return;
-      }
-      throw new Error(
-        `There is an error during api call to bounded cluster ${clusterConfig.alias}. Detail message: ${result.message}.`,
-      );
-    } else {
-      throw new Error(
-        `There is already a job with the name ${jobName} in the bounded cluster. Please modify your job config.`,
-      );
+  const url = urljoin(
+    clusterConfig.uri,
+    `/rest-server/api/v2/jobs/${userName}~${jobName}/config`,
+  );
+  const response = await fetch(url, {
+    headers: {
+      Authorization: `Bearer ${clusterConfig.token}`,
+    },
+  });
+  const result = await response.json();
+  if (!response.ok) {
+    if (_.get(result, 'code') === 'NoJobError') {
+      // OK, the job name doesn't exist
+      return;
     }
-    // there is already a job with this name, exit with error
-  } catch (err) {
-    throw err;
+    throw new Error(
+      `There is an error during api call to bounded cluster ${clusterConfig.alias}. Detail message: ${result.message}.`,
+    );
+  } else {
+    throw new Error(
+      `There is already a job with the name ${jobName} in the bounded cluster. Please modify your job config.`,
+    );
   }
 }
 

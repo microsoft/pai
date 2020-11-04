@@ -57,8 +57,8 @@ const params = new URLSearchParams(window.location.search);
 const userName = cookies.get('user');
 // the user of the job
 const userNameOfTheJob = params.get('username');
-// is the user view his/her own job?
-const isViewingSelf = (userName === userNameOfTheJob);
+// is the user viewing his/her own job?
+const isViewingSelf = userName === userNameOfTheJob;
 
 class JobDetail extends React.Component {
   constructor(props) {
@@ -304,7 +304,7 @@ class JobDetail extends React.Component {
       // find out failed transfer attempts
       const transferAttemptPrefix = 'pai-transfer-attempt-to-';
       const transferFailedClusters = [];
-      for (let tag of tags) {
+      for (const tag of tags) {
         if (tag.startsWith(transferAttemptPrefix)) {
           const cluster = tag.substr(transferAttemptPrefix.length);
           if (!transferredClusterSet.has(cluster)) {
@@ -338,7 +338,11 @@ class JobDetail extends React.Component {
       jobTransferInfo,
     } = this.state;
     const transferredURLs = _.get(jobTransferInfo, 'transferredURLs', []);
-    const transferFailedClusters = _.get(jobTransferInfo, 'transferFailedClusters', []);
+    const transferFailedClusters = _.get(
+      jobTransferInfo,
+      'transferFailedClusters',
+      [],
+    );
 
     const attemptIndexOptions = [];
     if (!isNil(jobInfo)) {
@@ -354,7 +358,9 @@ class JobDetail extends React.Component {
       return <SpinnerLoading />;
     } else {
       return (
-        <Context.Provider value={{ sshInfo, rawJobConfig, jobConfig, isViewingSelf}}>
+        <Context.Provider
+          value={{ sshInfo, rawJobConfig, jobConfig, isViewingSelf }}
+        >
           <Stack styles={{ root: { margin: '30px' } }} gap='l1'>
             <Top />
             {!isEmpty(error) && (
@@ -386,9 +392,11 @@ class JobDetail extends React.Component {
                 <MessageBar messageBarType={MessageBarType.warning}>
                   <Text variant='mediumPlus'>
                     You have transfer attempts to cluster{' '}
-                    {transferFailedClusters.reduce(
-                      (prev, curr) => [prev, ', ', curr],
-                    )}
+                    {transferFailedClusters.reduce((prev, curr) => [
+                      prev,
+                      ', ',
+                      curr,
+                    ])}
                     . Please go to{' '}
                     {transferFailedClusters.length > 1
                       ? 'these clusters'

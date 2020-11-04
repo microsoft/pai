@@ -1,12 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import React, { useState, useCallback, useRef } from 'react';
-import PropTypes from 'prop-types';
+import React, { useState } from 'react';
 
-import c from 'classnames';
 import { isEmpty } from 'lodash';
-import { FontClassNames, FontWeights } from '@uifabric/styling';
 import {
   DefaultButton,
   PrimaryButton,
@@ -14,14 +11,9 @@ import {
   Dialog,
   DialogFooter,
   TextField,
-  Icon,
-  TooltipHost,
 } from 'office-ui-fabric-react';
 
-import config from '../../../config/webportal.config';
 
-import { ReactComponent as IconUser } from '../../../../assets/img/profile-user.svg';
-import { ReactComponent as IconAdmin } from '../../../../assets/img/profile-admin.svg';
 import t from '../../../components/tachyons.scss';
 import Joi from 'joi-browser';
 import { PAIV2 } from '@microsoft/openpai-js-sdk';
@@ -35,8 +27,7 @@ const validateInput = async (clusterAlias, clusterUri, username, token) => {
       uri: Joi.string()
         .uri()
         .required(),
-      username: Joi.string()
-        .required(),
+      username: Joi.string().required(),
       token: Joi.string()
         .trim()
         .required(),
@@ -47,7 +38,7 @@ const validateInput = async (clusterAlias, clusterUri, username, token) => {
     uri: clusterUri,
     username: username,
     token: token,
-  }
+  };
   const { error, value } = Joi.validate(input, inputSchema);
   if (error) {
     throw new Error(error);
@@ -64,15 +55,15 @@ const validateInput = async (clusterAlias, clusterUri, username, token) => {
   try {
     await client.virtualCluster.listVirtualClusters();
   } catch (err) {
-    throw new Error(`Try to connect the cluster but failed. Details: ${err.message}`);
+    throw new Error(
+      `Try to connect the cluster but failed. Details: ${err.message}`,
+    );
   }
 
-  return value
-}
-
+  return value;
+};
 
 const BoundedClusterDialog = ({ onDismiss, onAddBoundedCluster }) => {
-  const [dialog, setDialog] = useState(0);
   const [error, setError] = useState('');
   const [processing, setProcessing] = useState(false);
   const [clusterAlias, setClusterAlias] = useState('');
@@ -81,26 +72,31 @@ const BoundedClusterDialog = ({ onDismiss, onAddBoundedCluster }) => {
   const [token, setToken] = useState('');
 
   const onAddAsync = async () => {
-    const clusterConfig = await validateInput(clusterAlias, clusterUri, username, token);
-    await onAddBoundedCluster(clusterConfig)
+    const clusterConfig = await validateInput(
+      clusterAlias,
+      clusterUri,
+      username,
+      token,
+    );
+    await onAddBoundedCluster(clusterConfig);
   };
 
   const onAdd = () => {
     setProcessing(true);
-    onAddAsync().then(
-      // If successful, close this dialog
-      () => onDismiss()
-    )
-    .catch(
-      // If error, show the error, and don't close this dialog
-      e => {
-        console.error(e)
-        setError(e.message);
-      })
-    .finally(
-      () => setProcessing(false)
-    );
-  }
+    onAddAsync()
+      .then(
+        // If successful, close this dialog
+        () => onDismiss(),
+      )
+      .catch(
+        // If error, show the error, and don't close this dialog
+        e => {
+          console.error(e);
+          setError(e.message);
+        },
+      )
+      .finally(() => setProcessing(false));
+  };
 
   return (
     <div>
@@ -149,11 +145,7 @@ const BoundedClusterDialog = ({ onDismiss, onAddBoundedCluster }) => {
           </div>
         </div>
         <DialogFooter>
-          <PrimaryButton
-            onClick={onAdd}
-            disabled={processing}
-            text='Add'
-          />
+          <PrimaryButton onClick={onAdd} disabled={processing} text='Add' />
           <DefaultButton
             onClick={onDismiss}
             disabled={processing}
@@ -178,7 +170,7 @@ const BoundedClusterDialog = ({ onDismiss, onAddBoundedCluster }) => {
         </DialogFooter>
       </Dialog>
     </div>
-  )
-}
+  );
+};
 
 export default BoundedClusterDialog;
