@@ -337,8 +337,8 @@ class JobDetail extends React.Component {
       loadingAttempt,
       jobTransferInfo,
     } = this.state;
-    const transferredURLs = _.get(jobTransferInfo, 'transferredURLs', []);
-    const transferFailedClusters = _.get(
+    const transferredURLs = get(jobTransferInfo, 'transferredURLs', []);
+    const transferFailedClusters = get(
       jobTransferInfo,
       'transferFailedClusters',
       [],
@@ -377,7 +377,12 @@ class JobDetail extends React.Component {
                     This job has been transferred to{' '}
                     {transferredURLs
                       .map(url => (
-                        <a href={url} target='_blank'>
+                        <a
+                          href={url}
+                          key={url}
+                          target='_blank'
+                          rel='noopener noreferrer'
+                        >
                           {url}
                         </a>
                       ))

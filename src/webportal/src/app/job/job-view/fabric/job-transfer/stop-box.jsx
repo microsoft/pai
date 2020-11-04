@@ -9,6 +9,7 @@ import {
   PrimaryButton,
   DefaultButton,
 } from 'office-ui-fabric-react';
+import PropTypes from 'prop-types';
 import React, { useState } from 'react';
 import qs from 'querystring';
 import { stopJob } from './conn';
@@ -73,5 +74,13 @@ function StopBox({ hidden, userName, jobName, jobState, onDismiss }) {
     </Dialog>
   );
 }
+
+StopBox.propTypes = {
+  hidden: PropTypes.bool.isRequired,
+  userName: PropTypes.string.isRequired,
+  jobName: PropTypes.string.isRequired,
+  jobState: PropTypes.string.isRequired,
+  onDismiss: PropTypes.func.isRequired,
+};
 
 export default StopBox;

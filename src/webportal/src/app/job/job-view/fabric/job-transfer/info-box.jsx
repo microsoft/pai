@@ -8,6 +8,7 @@ import {
   DialogFooter,
   PrimaryButton,
 } from 'office-ui-fabric-react';
+import PropTypes from 'prop-types';
 import React from 'react';
 
 function InfoBox({ hidden, title, message, onDismiss, redirectURL }) {
@@ -37,5 +38,13 @@ function InfoBox({ hidden, title, message, onDismiss, redirectURL }) {
     </Dialog>
   );
 }
+
+InfoBox.propTypes = {
+  hidden: PropTypes.bool.isRequired,
+  title: PropTypes.string.isRequired,
+  message: PropTypes.string.isRequired,
+  onDismiss: PropTypes.func.isRequired,
+  redirectURL: PropTypes.string,
+};
 
 export default InfoBox;

@@ -3,6 +3,7 @@
 
 import c from 'classnames';
 import React, { useState } from 'react';
+import PropTypes from 'prop-types';
 import {
   DetailsList,
   DetailsListLayoutMode,
@@ -162,6 +163,11 @@ const BoundedClusterList = ({ boundedClusters, onDelete }) => {
       </Dialog>
     </div>
   );
+};
+
+BoundedClusterList.propTypes = {
+  boundedClusters: PropTypes.object.isRequired,
+  onDelete: PropTypes.func.isRequired,
 };
 
 export default BoundedClusterList;

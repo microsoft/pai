@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 
 import React, { useState } from 'react';
-
+import PropTypes from 'prop-types';
 import { isEmpty } from 'lodash';
 import {
   DefaultButton,
@@ -171,6 +171,11 @@ const BoundedClusterDialog = ({ onDismiss, onAddBoundedCluster }) => {
       </Dialog>
     </div>
   );
+};
+
+BoundedClusterDialog.propTypes = {
+  onDismiss: PropTypes.func.isRequired,
+  onAddBoundedCluster: PropTypes.func.isRequired,
 };
 
 export default BoundedClusterDialog;

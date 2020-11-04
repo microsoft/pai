@@ -23,9 +23,6 @@ import { PrimaryButton } from 'office-ui-fabric-react';
 import { isClonable, isJobV2 } from '../util';
 import Context from './context';
 
-// the user who is viewing this page
-const userName = cookies.get('user');
-
 const CloneButton = ({ rawJobConfig, namespace, jobName, enableTransfer }) => {
   const [href, onClick] = useMemo(() => {
     // TODO: align same format of jobname with each submit ways
