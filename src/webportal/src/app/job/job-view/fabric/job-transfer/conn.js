@@ -38,7 +38,7 @@ const requestBoundedClusterApi = async (alias, url, params) => {
   if (!response.ok) {
     if (_.has(result, 'message')) {
       throw new Error(
-        `There is an error during api call to bounded cluster ${alias}. Detail message: ${result.message}.`,
+        `There is an error during api call to bounded cluster ${alias}. Detail message: ${result.message}`,
       );
     } else {
       throw new Error(
