@@ -51,15 +51,6 @@ const getAllGroup = async (req, res, next) => {
 
 const getGroupUserList = async (req, res, next) => {
   try {
-    if (!req.user.admin) {
-      next(
-        createError(
-          'Forbidden',
-          'ForbiddenUserError',
-          `Non-admin is not allow to do this operation.`,
-        ),
-      );
-    }
     const groupname = req.params.groupname;
     const allUserInfoList = await userModel.getAllUser();
     const userlist = [];
@@ -79,15 +70,6 @@ const getGroupUserList = async (req, res, next) => {
 
 const createGroup = async (req, res, next) => {
   try {
-    if (!req.user.admin) {
-      next(
-        createError(
-          'Forbidden',
-          'ForbiddenUserError',
-          `Non-admin is not allow to do this operation.`,
-        ),
-      );
-    }
     const groupname = req.body.groupname;
     const groupValue = {
       groupname: req.body.groupname,
@@ -107,42 +89,30 @@ const createGroup = async (req, res, next) => {
 const updateGroup = async (req, res, next) => {
   const groupname = req.body.data.groupname;
   try {
-    if (req.user.admin) {
-      const groupInfo = await groupModel.getGroup(groupname);
-      if (req.body.patch) {
-        if ('description' in req.body.data) {
-          groupInfo.description = req.body.data.description;
-        }
-        if ('externalName' in req.body.data) {
-          groupInfo.externalName = req.body.data.externalName;
-        }
-        if ('extension' in req.body.data) {
-          if (Object.keys(req.body.data.extension).length > 0) {
-            for (const [key, value] of Object.entries(
-              req.body.data.extension,
-            )) {
-              groupInfo.extension[key] = value;
-            }
+    const groupInfo = await groupModel.getGroup(groupname);
+    if (req.body.patch) {
+      if ('description' in req.body.data) {
+        groupInfo.description = req.body.data.description;
+      }
+      if ('externalName' in req.body.data) {
+        groupInfo.externalName = req.body.data.externalName;
+      }
+      if ('extension' in req.body.data) {
+        if (Object.keys(req.body.data.extension).length > 0) {
+          for (const [key, value] of Object.entries(req.body.data.extension)) {
+            groupInfo.extension[key] = value;
           }
         }
-      } else {
-        groupInfo.description = req.body.data.description;
-        groupInfo.externalName = req.body.data.externalName;
-        groupInfo.extension = req.body.data.extension;
       }
-      await groupModel.updateGroup(groupname, groupInfo);
-      return res.status(201).json({
-        message: `update group ${groupname} successfully.`,
-      });
     } else {
-      next(
-        createError(
-          'Forbidden',
-          'ForbiddenUserError',
-          `Non-admin is not allow to do this operation.`,
-        ),
-      );
+      groupInfo.description = req.body.data.description;
+      groupInfo.externalName = req.body.data.externalName;
+      groupInfo.extension = req.body.data.extension;
     }
+    await groupModel.updateGroup(groupname, groupInfo);
+    return res.status(201).json({
+      message: `update group ${groupname} successfully.`,
+    });
   } catch (error) {
     if (error.status === 404) {
       return next(
@@ -160,20 +130,10 @@ const updateGroup = async (req, res, next) => {
 const deleteGroup = async (req, res, next) => {
   try {
     const groupname = req.params.groupname;
-    if (req.user.admin) {
-      await groupModel.deleteGroup(groupname);
-      return res.status(200).json({
-        message: 'group is removed successfully',
-      });
-    } else {
-      next(
-        createError(
-          'Forbidden',
-          'ForbiddenUserError',
-          `Non-admin is not allow to do this operation.`,
-        ),
-      );
-    }
+    await groupModel.deleteGroup(groupname);
+    return res.status(200).json({
+      message: 'group is removed successfully',
+    });
   } catch (error) {
     return next(createError.unknown(error));
   }
@@ -184,24 +144,14 @@ const updateGroupExtension = async (req, res, next) => {
   try {
     const groupname = req.params.groupname;
     const extensionData = req.body.extension;
-    if (req.user.admin) {
-      const groupInfo = await groupModel.getGroup(groupname);
-      for (const [key, value] of Object.entries(extensionData)) {
-        groupInfo.extension[key] = value;
-      }
-      await groupModel.updateGroup(groupname, groupInfo);
-      return res.status(201).json({
-        message: 'update group extension data successfully.',
-      });
-    } else {
-      next(
-        createError(
-          'Forbidden',
-          'ForbiddenUserError',
-          `Non-admin is not allow to do this operation.`,
-        ),
-      );
+    const groupInfo = await groupModel.getGroup(groupname);
+    for (const [key, value] of Object.entries(extensionData)) {
+      groupInfo.extension[key] = value;
     }
+    await groupModel.updateGroup(groupname, groupInfo);
+    return res.status(201).json({
+      message: 'update group extension data successfully.',
+    });
   } catch (error) {
     return next(createError.unknown(error));
   }
@@ -213,26 +163,16 @@ const updateGroupExtensionAttr = async (req, res, next) => {
     const groupname = req.params.groupname;
     const attrs = req.params[0].split('/');
     const updateData = req.body.data;
-    if (req.user.admin) {
-      const groupInfo = await groupModel.getGroup(groupname);
-      groupInfo.extension = common.assignValueByKeyarray(
-        groupInfo.extension,
-        attrs,
-        updateData,
-      );
-      await groupModel.updateGroup(groupname, groupInfo);
-      return res.status(201).json({
-        message: 'Update group extension data successfully.',
-      });
-    } else {
-      return next(
-        createError(
-          'Forbidden',
-          'ForbiddenUserError',
-          `Non-admin is not allow to do this operation.`,
-        ),
-      );
-    }
+    const groupInfo = await groupModel.getGroup(groupname);
+    groupInfo.extension = common.assignValueByKeyarray(
+      groupInfo.extension,
+      attrs,
+      updateData,
+    );
+    await groupModel.updateGroup(groupname, groupInfo);
+    return res.status(201).json({
+      message: 'Update group extension data successfully.',
+    });
   } catch (error) {
     if (error.status === 404) {
       return next(
@@ -252,22 +192,12 @@ const updateGroupDescription = async (req, res, next) => {
   try {
     const groupname = req.params.groupname;
     const descriptionData = req.body.description;
-    if (req.user.admin) {
-      const groupInfo = await groupModel.getGroup(groupname);
-      groupInfo.description = descriptionData;
-      await groupModel.updateGroup(groupname, groupInfo);
-      return res.status(201).json({
-        message: 'update group description data successfully.',
-      });
-    } else {
-      next(
-        createError(
-          'Forbidden',
-          'ForbiddenUserError',
-          `Non-admin is not allow to do this operation.`,
-        ),
-      );
-    }
+    const groupInfo = await groupModel.getGroup(groupname);
+    groupInfo.description = descriptionData;
+    await groupModel.updateGroup(groupname, groupInfo);
+    return res.status(201).json({
+      message: 'update group description data successfully.',
+    });
   } catch (error) {
     return next(createError.unknown(error));
   }
@@ -278,22 +208,12 @@ const updateGroupExternalName = async (req, res, next) => {
   try {
     const groupname = req.params.groupname;
     const externalNameData = req.body.externalName;
-    if (req.user.admin) {
-      const groupInfo = await groupModel.getGroup(groupname);
-      groupInfo.externalName = externalNameData;
-      await groupModel.updateGroup(groupname, groupInfo);
-      return res.status(201).json({
-        message: 'update group externalNameData data successfully.',
-      });
-    } else {
-      next(
-        createError(
-          'Forbidden',
-          'ForbiddenUserError',
-          `Non-admin is not allow to do this operation.`,
-        ),
-      );
-    }
+    const groupInfo = await groupModel.getGroup(groupname);
+    groupInfo.externalName = externalNameData;
+    await groupModel.updateGroup(groupname, groupInfo);
+    return res.status(201).json({
+      message: 'update group externalNameData data successfully.',
+    });
   } catch (error) {
     return next(createError.unknown(error));
   }
