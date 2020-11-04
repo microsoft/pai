@@ -23,6 +23,9 @@ groups:
       - alert: PaiServicePodNotRunning
         expr: pai_pod_count{phase!="running"} > 0
         for: 10m
+        labels:
+          type: pai_service
+          severity: error
         annotations:
           summary: "{{$labels.name}} in {{$labels.host_ip}} not running detected"
 
@@ -31,6 +34,7 @@ groups:
         for: 10m
         labels:
           type: pai_service
+          severity: error
         annotations:
           summary: "{{$labels.name}} in {{$labels.host_ip}} not ready detected"
 
@@ -39,6 +43,7 @@ groups:
         for: 5m
         labels:
           type: pai_service
+          severity: error
         annotations:
           summary: "{{$labels.pai_service_name}} in {{$labels.instance}} not up detected"
 
@@ -47,5 +52,6 @@ groups:
         for: 5m
         labels:
           type: pai_service
+          severity: warn
         annotations:
           summary: "{{$labels.name}} in {{$labels.instance}} hangs detected"
