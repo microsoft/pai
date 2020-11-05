@@ -162,7 +162,7 @@ export default class TaskRoleContainerList extends React.Component {
 
   logAutoRefresh() {
     const { fullLogUrls, tailLogUrls, logType } = this.state;
-    getContainerLog(tailLogUrls, fullLogUrls, logType)
+    getContainerLog(this.convertObjectFormat(tailLogUrls), this.convertObjectFormat(fullLogUrls), logType)
       .then(({ text, fullLogLink }) =>
         this.setState(
           prevState =>
@@ -214,6 +214,14 @@ export default class TaskRoleContainerList extends React.Component {
     } else {
       return null;
     }
+  }
+
+  convertObjectFormat(logUrls){
+    const logs = {};
+    for(const p in logUrls.locations){
+      logs[logUrls.locations[p].name] = logUrls.locations[p].uri;
+    }
+    return logs;
   }
 
   showContainerTailLog(logListUrl, logType) {
