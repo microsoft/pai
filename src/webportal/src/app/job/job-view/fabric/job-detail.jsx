@@ -304,11 +304,19 @@ class JobDetail extends React.Component {
       // find out failed transfer attempts
       const transferAttemptPrefix = 'pai-transfer-attempt-to-';
       const transferFailedClusters = [];
-      for (const tag of tags) {
+      for (let tag of tags) {
         if (tag.startsWith(transferAttemptPrefix)) {
-          const cluster = tag.substr(transferAttemptPrefix.length);
-          if (!transferredClusterSet.has(cluster)) {
-            transferFailedClusters.push(cluster);
+          tag = tag.substr(transferAttemptPrefix.length);
+          const urlPosition = tag.lastIndexOf('-url-');
+          if (urlPosition !== -1) {
+            const cluster = tag.substr(0, urlPosition);
+            const clusterURL = tag.substr(urlPosition + 5);
+            if (!transferredClusterSet.has(cluster)) {
+              transferFailedClusters.push({
+                alias: cluster,
+                uri: clusterURL,
+              });
+            }
           }
         }
       }
@@ -370,7 +378,7 @@ class JobDetail extends React.Component {
                 </MessageBar>
               </div>
             )}
-            {isViewingSelf && transferredURLs.length > 0 && (
+            {transferredURLs.length > 0 && (
               <div className={t.bgWhite}>
                 <MessageBar messageBarType={MessageBarType.warning}>
                   <Text variant='mediumPlus'>
@@ -397,11 +405,18 @@ class JobDetail extends React.Component {
                 <MessageBar messageBarType={MessageBarType.warning}>
                   <Text variant='mediumPlus'>
                     You have transfer attempts to cluster{' '}
-                    {transferFailedClusters.reduce((prev, curr) => [
-                      prev,
-                      ', ',
-                      curr,
-                    ])}
+                    {transferFailedClusters
+                      .map(item => (
+                        <a
+                          href={item.uri}
+                          key={item.alias}
+                          target='_blank'
+                          rel='noopener noreferrer'
+                        >
+                          {item.alias}
+                        </a>
+                      ))
+                      .reduce((prev, curr) => [prev, ', ', curr])}
                     . Please go to{' '}
                     {transferFailedClusters.length > 1
                       ? 'these clusters'

@@ -119,7 +119,8 @@ async function confirmVC(clusterConfig, jobConfig) {
   if (!_.has(result, vcName)) {
     throw new Error(
       `The bounded cluster ${clusterConfig.alias} doesn't have the virtual cluster ${vcName}, ` +
-        "or you don't have permission to it. Please modify your job config.",
+        "or you don't have permission to it. Please modify your job config. " +
+        `Available virtual clusters include: ${_.keys(result).join(', ')}`,
     );
   }
 }
@@ -150,7 +151,8 @@ async function confirmSKU(clusterConfig, jobConfig) {
         if (!_.has(result, usedSKU)) {
           throw new Error(
             `The virtual cluster ${vcName} in bounded cluster ${clusterConfig.alias} doesn't have the SKU ${usedSKU}. ` +
-              'Please modify your job config.',
+              'Please modify your job config. ' +
+              `Available SKUs include: ${_.keys(result).join(', ')}`,
           );
         }
       }
@@ -185,11 +187,17 @@ async function confirmStorage(clusterConfig, jobConfig) {
       });
       const availableStorages = new Set(result.storages.map(item => item.name));
       for (const usedStorage of usedStorages) {
-        if (!(usedStorage in availableStorages)) {
+        if (!(availableStorages.has(usedStorage))) {
+          const availableStorageHint =
+            result.storages.length == 0
+              ? ''
+              : `Available storages include ${result.storages
+                  .map(item => item.name)
+                  .join(', ')}`;
           throw new Error(
             `We cannot find storage ${usedStorage} in bounded cluster ${clusterConfig.alias}. ` +
               "Maybe the storage doesn't exist, or you don't have permission to it. " +
-              'Please modify your job config.',
+              'Please modify your job config. ' + availableStorageHint,
           );
         }
       }
@@ -263,7 +271,7 @@ export async function transferJob(
   await addTagToJob(
     userName,
     jobName,
-    `pai-transfer-attempt-to-${clusterConfig.alias}`,
+    `pai-transfer-attempt-to-${clusterConfig.alias}-url-${clusterConfig.uri}`,
   );
   // submit job to the bounded cluster
   const url = urljoin(clusterConfig.uri, `/rest-server/api/v2/jobs`);
