@@ -284,6 +284,28 @@ location ~ ^/dshuttle/(.*)$ {
 }
 {%- endif %}
 
+{%- if MARKETPLACE_URI %}
+# Marketplace server
+location ~ ^/marketplace$ {
+  # Add '/' to the end of the URL, otherwise there will be a 404 error.
+  return 301 $scheme://$http_host$request_uri/;
+}
+location ~ ^/marketplace/(.*)$ {
+  proxy_pass {{MARKETPLACE_URI}}/$1$is_args$args;
+  sub_filter_types *;
+  sub_filter_once off;
+  sub_filter
+    'href="/'
+    'href="/marketplace/';
+  sub_filter
+    '<script src="/'
+    '<script src="/marketplace/';
+  sub_filter
+    '/api'
+    '/marketplace/api';
+}
+{%- endif %}
+
 # PAI web portal
 location ~ ^(.*)$ {
   proxy_pass {{PAI_WEB_PORTAL_URI}}$1$is_args$args;
@@ -326,6 +348,11 @@ location ~ ^(.*)$ {
   sub_filter
     '{{DSHUTTLE_URI}}'
     '/dshuttle';
+{%- endif %}
+{%- if MARKETPLACE_URI %}
+  sub_filter
+    '{{MARKETPLACE_URI}}'
+    '/marketplace';
 {%- endif %}
 
   proxy_set_header    If-None-Match    $request_if_none_match;
