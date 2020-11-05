@@ -83,9 +83,13 @@ spec:
             - name: DSHUTTLE_URI
               value: {{ cluster_cfg['dshuttle']['uri'] }}
 {% endif %}
-{% if cluster_cfg['cluster']['common']['marketplace'] == 'true' %}
-            - name: MARKETPLACE_URI
-              value: {{ cluster_cfg['marketplace']['uri']}}
+{% if 'marketplace_api_uri' in cluster_cfg['pylon'] %}
+            - name: MARKETPLACE_API_URI
+              value: {{ cluster_cfg['pylon']['marketplace_api_uri']}}
+{% endif %}
+{% if 'marketplace_webportal_plugin' in cluster_cfg['pylon'] %}
+            - name: MARKETPLACE_WEBPORTAL_PLUGIN
+              value: {{ cluster_cfg['pylon']['marketplace_webportal_plugin']}}
 {% endif %}
           ports:
             - name: pylon
