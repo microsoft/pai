@@ -1240,7 +1240,7 @@ paths:
         - job
       summary: Get job status with specific job attempt.
       description: Get job status with specific job attempt.
-      operationId: getJobAttempt
+      operationId: getJob
       security:
         - bearerAuth: []
       parameters:
@@ -1539,7 +1539,7 @@ paths:
         - job history
       summary: Get all attempts of a job.
       description: Get all attempts of a job.
-      operationId: getJobHistoryAttempts
+      operationId: getJobAttempts
       security:
         - bearerAuth: []
       parameters:
@@ -1617,7 +1617,7 @@ paths:
         - job history
       summary: Get a specific attempt by attempt index.
       description: Get a specific attempt by attempt index.
-      operationId: getJobHistoryAttempt
+      operationId: getJobAttempt
       security:
         - bearerAuth: []
       parameters:
