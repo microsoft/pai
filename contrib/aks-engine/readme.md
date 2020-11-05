@@ -18,7 +18,7 @@ This contrib aims to help you deploy a OpenPAI cluster on Azure using AKS Engine
 
     There're two options to create resource group in your subscription:
     * It's recommended to use [Azure Portal](https://docs.microsoft.com/en-us/azure/azure-resource-manager/management/manage-resource-groups-portal#create-resource-groups)
-    * You can also use [Azure CLI]((https://docs.microsoft.com/en-us/azure/azure-resource-manager/management/manage-resource-groups-cli#create-resource-groups))
+    * You can also use [Azure CLI](https://docs.microsoft.com/en-us/azure/azure-resource-manager/management/manage-resource-groups-cli#create-resource-groups)
 
     Remember the following parameters which will be used later:
     * subscription id `${subscriptionId}`
