@@ -83,6 +83,10 @@ spec:
             - name: DSHUTTLE_URI
               value: {{ cluster_cfg['dshuttle']['uri'] }}
 {% endif %}
+{% if cluster_cfg['cluster']['common']['marketplace'] == 'true' %}
+            - name: MARKETPLACE_URI
+              value: {{ cluster_cfg['marketplace']['uri']}}
+{% endif %}
           ports:
             - name: pylon
               containerPort: 80
