@@ -11,6 +11,7 @@ info:
     Version 2.1.0: add add/delete tag api; add tags field in get job detail and get job list; add tags filter in get job list
     Version 2.1.1: add get event api
     Version 2.2.0: add get task status api; add jobAttempId filter to job status api and extend job detail schema
+    Version 2.2.1: a user can add tags to his/her own jobs
   license:
     name: MIT License
     url: "https://github.com/microsoft/pai/blob/master/LICENSE"
@@ -1392,7 +1393,7 @@ paths:
     put:
       tags:
         - job
-      summary: Add a tag to a job. Only admin users are authorized.
+      summary: Add a tag to a job. Admin users can add tags to any job. A non-admin user can add tags to his/her own jobs.
       description: Add a tag to a job.
       operationId: addTag
       security:
@@ -1697,7 +1698,7 @@ paths:
       description: Get task status.
       operationId: getTask
       security:
-        - bearerAuth: [] 
+        - bearerAuth: []
       parameters:
       - $ref: "#/components/parameters/user"
       - $ref: "#/components/parameters/job"
@@ -1907,14 +1908,14 @@ components:
       in: path
       description: task role name
       required: true
-      schema: 
+      schema:
         type: string
     taskIndex:
       name: taskIndex
       in: path
       description: task index
       required: true
-      schema: 
+      schema:
         type: string
   schemas:
     Response:
@@ -2260,7 +2261,7 @@ components:
               nullable: true
               description: >
                 job completed time for last attempt, in number of milliseconds
-                since the Unix Epoch. 
+                since the Unix Epoch.
                 To get durations for last attempt:
                   wholeDuration = completedTime - createdTime;
                   runningDuration = appCompletedTime - appLaunchedTime;
@@ -3020,7 +3021,7 @@ components:
                 type: string
                 nullable: true
                 description: container exit diagnostics
-              hived: 
+              hived:
                 type: object
                 nullable: true
                 properties:
