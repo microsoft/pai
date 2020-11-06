@@ -46,9 +46,12 @@ const email = new Email({
 
 // send email to admin
 const sendEmailToAdmin = (req, res) => {
+  const template = req.params.template
+    ? req.params.template
+    : 'general-templates';
   email
     .send({
-      template: 'general-templates',
+      template: template,
       message: {
         to: process.env.EMAIL_CONFIGS_ADMIN_RECEIVER,
       },
@@ -137,6 +140,9 @@ const sendEmailToUser = async (req, res) => {
     }
   });
 
+  const template = req.params.template
+    ? req.params.template
+    : 'general-templates';
   if (alertsGrouped) {
     // send emails to different users separately
     Promise.all(
@@ -144,7 +150,7 @@ const sendEmailToUser = async (req, res) => {
         const userEmail = await getUserEmail(username, req.token);
         if (userEmail) {
           email.send({
-            template: 'general-templates',
+            template: template,
             message: {
               to: userEmail,
             },

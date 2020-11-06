@@ -190,8 +190,12 @@ authentication:
 #     - email-user
 #     - stop-jobs
 #     - tag-jobs
-#     tags: 
-#     - 'stopped-by-alert-manager'
+#     parameters:
+#       tag-jobs:
+#         tags: 
+#         - 'stopped-by-alert-manager'
+#       email-user:
+#         template: 'kill-low-efficiency-job-alert'
 
 
 # uncomment following if you want to customize prometheus

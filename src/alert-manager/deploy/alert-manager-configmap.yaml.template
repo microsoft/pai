@@ -78,13 +78,15 @@ data:
     - name: {{ receiver.name}}
       webhook_configs:
       {% if 'email-admin' in receiver.actions %}
-      - url: 'http://localhost:{{ cluster_cfg["alert-manager"]["alert-handler"]["port"] }}/alert-handler/send-email-to-admin'
+      {% set template = receiver["parameters"]["email-admin"]["template"]%}
+      - url: 'http://localhost:{{ cluster_cfg["alert-manager"]["alert-handler"]["port"] }}/alert-handler/send-email-to-admin/{{ template }}'
         send_resolved: true
       {% endif %}
 
       {% if 'email-user' in receiver.actions %}
-      - url: 'http://localhost:{{ cluster_cfg["alert-manager"]["alert-handler"]["port"] }}/alert-handler/send-email-to-user'
-        send_resolved: true
+      {% set template = receiver["parameters"]["email-user"]["template"] %}
+      - url: 'http://localhost:{{ cluster_cfg["alert-manager"]["alert-handler"]["port"] }}/alert-handler/send-email-to-user/{{ template }}'
+        send_resolved: false
         http_config:
           bearer_token: {{ cluster_cfg["alert-manager"]["alert-handler"]["pai-bearer-token"] }}
       {% endif %}
@@ -97,7 +99,7 @@ data:
       {% endif %}
 
       {% if 'tag-jobs' in receiver.actions %}
-      {% for tag in receiver["tags"] %}
+      {% for tag in receiver["parameters"]["tag-jobs"]["tags"] %}
       - url: 'http://localhost:{{ cluster_cfg["alert-manager"]["alert-handler"]["port"] }}/alert-handler/tag-jobs/{{ tag }}'
         send_resolved: false
         http_config:
