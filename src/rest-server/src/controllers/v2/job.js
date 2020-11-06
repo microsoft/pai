@@ -223,35 +223,39 @@ const getSshInfo = asyncHandler(async (req, res) => {
 });
 
 const addTag = asyncHandler(async (req, res) => {
-  // only admin users can add tags
-  if (!req.user.admin) {
+  const userName = req.user.username;
+  const admin = req.user.admin;
+  if (req.params.frameworkName.split('~')[0] === userName || admin) {
+    await job.addTag(req.params.frameworkName, req.body.value);
+    res.status(status('OK')).json({
+      status: status('OK'),
+      message: `Add tag ${req.body.value} for job ${req.params.frameworkName} successfully.`,
+    });
+  } else {
     throw createError(
-      'Unauthorized',
-      'UnauthorizedUserError',
-      'Only admin users are allowed to do this operation.',
+      'Forbidden',
+      'ForbiddenUserError',
+      `User ${userName} is not allowed to add tag to job ${req.params.frameworkName}.`,
     );
   }
-  await job.addTag(req.params.frameworkName, req.body.value);
-  res.status(status('OK')).json({
-    status: status('OK'),
-    message: `Add tag ${req.body.value} for job ${req.params.frameworkName} successfully.`,
-  });
 });
 
 const deleteTag = asyncHandler(async (req, res) => {
-  // only admin users can delete tags
-  if (!req.user.admin) {
+  const userName = req.user.username;
+  const admin = req.user.admin;
+  if (req.params.frameworkName.split('~')[0] === userName || admin) {
+    await job.deleteTag(req.params.frameworkName, req.body.value);
+    res.status(status('OK')).json({
+      status: status('OK'),
+      message: `Delete tag ${req.body.value} from job ${req.params.frameworkName} successfully.`,
+    });
+  } else {
     throw createError(
-      'Unauthorized',
-      'UnauthorizedUserError',
-      'Only admin users are allowed to do this operation.',
+      'Forbidden',
+      'ForbiddenUserError',
+      `User ${userName} is not allowed to delete tag from job ${req.params.frameworkName}.`,
     );
   }
-  await job.deleteTag(req.params.frameworkName, req.body.value);
-  res.status(status('OK')).json({
-    status: status('OK'),
-    message: `Delete tag ${req.body.value} from job ${req.params.frameworkName} successfully.`,
-  });
 });
 
 const getEvents = asyncHandler(async (req, res) => {

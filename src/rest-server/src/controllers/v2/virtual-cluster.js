@@ -58,13 +58,6 @@ const get = asyncHandler(async (req, res) => {
 
 const update = asyncHandler(async (req, res) => {
   const virtualClusterName = req.params.virtualClusterName;
-  if (!req.user.admin) {
-    throw createError(
-      'Forbidden',
-      'ForbiddenUserError',
-      `Non-admin is not allowed to do this operation.`,
-    );
-  }
   if (virtualClusterName === authConfig.groupConfig.defaultGroup.groupname) {
     throw createError(
       'Forbidden',
@@ -130,44 +123,29 @@ const update = asyncHandler(async (req, res) => {
 const updateStatus = asyncHandler(async (req, res) => {
   const virtualClusterName = req.params.virtualClusterName;
   const vcStatus = req.body.vcStatus;
-  if (req.user.admin) {
-    if (vcStatus === 'stopped') {
-      await virtualCluster.stop(virtualClusterName);
-      res.status(status('Created')).json({
-        status: status('Created'),
-        message: `Stop virtual cluster ${virtualClusterName} successfully.`,
-      });
-    } else if (vcStatus === 'running') {
-      await virtualCluster.activate(virtualClusterName);
-      res.status(status('Created')).json({
-        status: status('Created'),
-        message: `Activate virtual cluster ${virtualClusterName} successfully.`,
-      });
-    } else {
-      throw createError(
-        'Bad Request',
-        'BadConfigurationError',
-        `Unknown vc status: ${vcStatus}`,
-      );
-    }
+  if (vcStatus === 'stopped') {
+    await virtualCluster.stop(virtualClusterName);
+    res.status(status('Created')).json({
+      status: status('Created'),
+      message: `Stop virtual cluster ${virtualClusterName} successfully.`,
+    });
+  } else if (vcStatus === 'running') {
+    await virtualCluster.activate(virtualClusterName);
+    res.status(status('Created')).json({
+      status: status('Created'),
+      message: `Activate virtual cluster ${virtualClusterName} successfully.`,
+    });
   } else {
     throw createError(
-      'Forbidden',
-      'ForbiddenUserError',
-      'Non-admin is not allowed to do this operation.',
+      'Bad Request',
+      'BadConfigurationError',
+      `Unknown vc status: ${vcStatus}`,
     );
   }
 });
 
 const remove = asyncHandler(async (req, res) => {
   const virtualClusterName = req.params.virtualClusterName;
-  if (!req.user.admin) {
-    throw createError(
-      'Forbidden',
-      'ForbiddenUserError',
-      `Non-admin is not allowed to do this operation.`,
-    );
-  }
   if (virtualClusterName === authConfig.groupConfig.adminGroup.groupname) {
     throw createError(
       'Forbidden',
