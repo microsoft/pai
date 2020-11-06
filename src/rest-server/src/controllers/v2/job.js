@@ -222,11 +222,21 @@ const getSshInfo = asyncHandler(async (req, res) => {
 });
 
 const addTag = asyncHandler(async (req, res) => {
-  await job.addTag(req.params.frameworkName, req.body.value);
-  res.status(status('OK')).json({
-    status: status('OK'),
-    message: `Add tag ${req.body.value} for job ${req.params.frameworkName} successfully.`,
-  });
+  const userName = req.user.username;
+  const admin = req.user.admin;
+  if (req.params.frameworkName.split('~')[0] === userName || admin) {
+    await job.addTag(req.params.frameworkName, req.body.value);
+    res.status(status('OK')).json({
+      status: status('OK'),
+      message: `Add tag ${req.body.value} for job ${req.params.frameworkName} successfully.`,
+    });
+  } else {
+    throw createError(
+      'Forbidden',
+      'ForbiddenUserError',
+      `User ${userName} is not allowed to add tag to job ${req.params.frameworkName}.`,
+    );
+  }
 });
 
 const deleteTag = asyncHandler(async (req, res) => {
