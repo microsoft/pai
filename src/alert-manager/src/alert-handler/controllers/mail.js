@@ -46,6 +46,9 @@ const email = new Email({
 
 // send email to admin
 const sendEmailToAdmin = (req, res) => {
+  logger.info(
+    'alert-handler received `send-email-to-admin` post request from alert-manager.',
+  );
   const template = req.params.template
     ? req.params.template
     : 'general-templates';
@@ -108,6 +111,9 @@ const getUserEmail = async (username, token) => {
 
 // send email to job user
 const sendEmailToUser = async (req, res) => {
+  logger.info(
+    'alert-handler received `send-email-to-user` post request from alert-manager.',
+  );
   // filter alerts which are firing and contain `job_name` as label
   const alerts = req.body.alerts.filter(
     (alert) => alert.status === 'firing' && 'job_name' in alert.labels,
@@ -161,6 +167,7 @@ const sendEmailToUser = async (req, res) => {
               alerts: alertsGrouped[username],
               groupLabels: req.body.groupLabels,
               externalURL: req.body.externalURL,
+              webportalURL: process.env.WEBPORTAL_URI,
             },
           });
         } else {
@@ -169,15 +176,15 @@ const sendEmailToUser = async (req, res) => {
       }),
     )
       .then((response) => {
-        logger.info('alert-handler successfully send emails');
+        logger.info('alert-handler successfully send emails to users');
         res.status(200).json({
-          message: `alert-handler successfully send emails`,
+          message: `alert-handler successfully send emails to users`,
         });
       })
       .catch((error) => {
         logger.error(error);
         res.status(500).json({
-          message: `alert-handler failed to send email`,
+          message: `alert-handler failed to send email to users`,
         });
       });
   }

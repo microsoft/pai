@@ -24,12 +24,12 @@ const router = express.Router();
 
 // email
 router
-  .route('/alert-handler/send-email-to-admin/:template')
+  .route('/alert-handler/send-email-to-admin/:template*?')
   /** POST /alert-handler/send-email-to-admin */
   .post(emailController.sendEmailToAdmin);
 
 router
-  .route('/alert-handler/send-email-to-user/:template')
+  .route('/alert-handler/send-email-to-user/:template*?')
   /** POST /alert-handler/send-email-to-user */
   .post(emailController.sendEmailToUser);
 

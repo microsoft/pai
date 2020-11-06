@@ -89,13 +89,16 @@ alert-manager:
         alertname: PAIJobGpuPercentLowerThan0_3For1h
   customized-receivers: # receivers are combination of several actions
   - name: "pai-email-admin-user-and-stop-job"
-    actions:
-    - email-admin
-    - email-user
-    - stop-jobs
-    - tag-jobs
-    tags: 
-    - 'stopped-by-alert-manager'
+    actions: 
+      # the email template for `email-admin` and `email-user `can be chosen from ['general-template', 'kill-low-efficiency-job-alert']
+      # if no template specified, 'general-template' will be used.
+      email-admin: No-Parameters-Required
+      email-user:  
+        template: 'kill-low-efficiency-job-alert'
+      stop-jobs: No-Parameters-Required # no parameters required for stop-jobs action
+      tag-jobs:
+        tags: 
+        - 'stopped-by-alert-manager'
 
 ```
 
@@ -147,13 +150,16 @@ alert-manager:
         alertname: PAIJobGpuPercentLowerThan0_3For1h
   customized-receivers: # receivers are combination of several actions
   - name: "pai-email-admin-user-and-stop-job"
-    actions: # We have provided so far these actions: email-admin, email-user, stop-jobs, tag-jobs
-    - email-admin
-    - email-user
-    - stop-jobs
-    - tag-jobs
-    tags: 
-    - 'stopped-by-alert-manager'
+    actions: 
+      # the email template for `email-admin` and `email-user `can be chosen from ['general-template', 'kill-low-efficiency-job-alert']
+      # if no template specified, 'general-template' will be used.
+      email-admin: No-Parameters-Required
+      email-user:  
+        template: 'kill-low-efficiency-job-alert'
+      stop-jobs: No-Parameters-Required # no parameters required for stop-jobs action
+      tag-jobs:
+        tags: 
+        - 'stopped-by-alert-manager'
   ......
 ```
 
@@ -168,8 +174,15 @@ For `routes` definition, we adopt the syntax of [Prometheus Alertmanager](https:
 For `receivers` definition, you can simply:
 
 - name the receiver in `name` field;
-- list the actions to use in `actions`;
-- list the tags in `tags` if `tag-jobs` is one of the actions.
+- list the actions to use in `actions` and fill corresponding parameters for the actions:
+  - `email-admin`: 
+    - template: Optional, can be choose from ['general-template', 'kill-low-efficiency-job-alert'], by default 'general-template'.
+  - `email-user`: 
+    - template: Optional, can be choose from ['general-template', 'kill-low-efficiency-job-alert'], by default 'general-template'.
+  - `cordon-nodes`: No parameters required
+  - `stop-jobs`: No parameters required
+  - `tag-jobs`:
+    - tags: required, list of tags
 
 Remember to push service config to the cluster and restart the `alert-manager` service after your modification with the following commands in the dev-box container:
 
