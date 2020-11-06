@@ -240,11 +240,21 @@ const addTag = asyncHandler(async (req, res) => {
 });
 
 const deleteTag = asyncHandler(async (req, res) => {
-  await job.deleteTag(req.params.frameworkName, req.body.value);
-  res.status(status('OK')).json({
-    status: status('OK'),
-    message: `Delete tag ${req.body.value} from job ${req.params.frameworkName} successfully.`,
-  });
+  const userName = req.user.username;
+  const admin = req.user.admin;
+  if (req.params.frameworkName.split('~')[0] === userName || admin) {
+    await job.deleteTag(req.params.frameworkName, req.body.value);
+    res.status(status('OK')).json({
+      status: status('OK'),
+      message: `Delete tag ${req.body.value} from job ${req.params.frameworkName} successfully.`,
+    });
+  } else {
+    throw createError(
+      'Forbidden',
+      'ForbiddenUserError',
+      `User ${userName} is not allowed to delete tag from job ${req.params.frameworkName}.`,
+    );
+  }
 });
 
 const getEvents = asyncHandler(async (req, res) => {

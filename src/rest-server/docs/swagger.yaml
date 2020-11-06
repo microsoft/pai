@@ -11,7 +11,7 @@ info:
     Version 2.1.0: add add/delete tag api; add tags field in get job detail and get job list; add tags filter in get job list
     Version 2.1.1: add get event api
     Version 2.2.0: add get task status api; add jobAttempId filter to job status api and extend job detail schema
-    Version 2.2.1: a user can add tags to his/her own jobs
+    Version 2.2.1: a user can add/delete tags to/from his/her own jobs
   license:
     name: MIT License
     url: "https://github.com/microsoft/pai/blob/master/LICENSE"
@@ -1431,7 +1431,7 @@ paths:
     delete:
       tags:
         - job
-      summary: Delete a tag from a job. Only admin users are authorized.
+      summary: Delete a tag from a job. Admin users can delete tags from any job. A non-admin user can delete tags from his/her own jobs.
       description: Delete a tag from a job.
       operationId: deleteTag
       security:
