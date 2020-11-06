@@ -139,6 +139,7 @@ export default class TaskRoleContainerList extends React.Component {
       monacoFooterButton: null,
       fullLogUrls: null,
       tailLogUrls: null,
+      logListUrl: null,
       logType: null,
       items: props.tasks,
       ordering: { field: null, descending: false },
@@ -161,7 +162,7 @@ export default class TaskRoleContainerList extends React.Component {
   }
 
   logAutoRefresh() {
-    const { fullLogUrls, tailLogUrls, logType } = this.state;
+    const { fullLogUrls, tailLogUrls, logListUrl, logType } = this.state;
     getContainerLog(this.convertObjectFormat(tailLogUrls), this.convertObjectFormat(fullLogUrls), logType)
       .then(({ text, fullLogLink }) =>
         this.setState(
@@ -181,14 +182,18 @@ export default class TaskRoleContainerList extends React.Component {
             },
         ),
       )
-      .catch(err =>
+      .catch(err => {
         this.setState(
           prevState =>
             prevState.tailLogUrls[logType] === tailLogUrls[logType] && {
               monacoProps: { value: err.message },
             },
-        ),
-      );
+        );
+        this.showContainerTailLog(
+          logListUrl,
+          logType,
+        );
+      });
   }
 
   onDismiss() {
@@ -227,6 +232,7 @@ export default class TaskRoleContainerList extends React.Component {
   showContainerTailLog(logListUrl, logType) {
     let title;
     let logHint = '';
+    this.setState({logListUrl: logListUrl});
     getContainerLogList(logListUrl)
       .then(({ fullLogUrls, tailLogUrls }) => {
         if (config.logType === 'log-manager') {
