@@ -63,6 +63,11 @@ const styles = mergeStyleSets({
     fontWeight: '500',
   },
 
+  subTitle: {
+    fontWeight: '200',
+    textAlign: 'center',
+  },
+
   header: {
     width: '80%',
     paddingBottom: '20px',
@@ -213,7 +218,6 @@ const JobTransferPage = () => {
         jobConfig.getYAML(),
       );
       const currentJobState = await fetchJobState(userName, jobName);
-      console.log('currentJobState', currentJobState);
       if (currentJobState === 'RUNNING' || currentJobState === 'WAITING') {
         // show stop box
         setShowStopBox(true);
@@ -289,7 +293,7 @@ const JobTransferPage = () => {
                 </Text>
               </Stack>
               <Stack>
-                <Text variant='mediumPlus'>
+                <Text variant='medium' className={styles.subTitle}>
                   Please make sure configurations and dependencies using in the
                   job YAML are set properly in the target cluster.
                 </Text>
