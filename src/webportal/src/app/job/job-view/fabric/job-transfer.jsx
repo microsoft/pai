@@ -282,31 +282,36 @@ const JobTransferPage = () => {
             horizontalAlign='center'
             className={styles.form}
           >
-            <Stack
-              horizontal={true}
-              horizontalAlign='center'
-              className={styles.header}
-            >
-              <Text variant='xxLarge' className={styles.title}>
-                Job Transfer
-              </Text>
+            <Stack className={styles.header} gap={12}>
+              <Stack horizontal={true} horizontalAlign='center'>
+                <Text variant='xxLarge' className={styles.title}>
+                  Job Transfer
+                </Text>
+              </Stack>
+              <Stack>
+                <Text variant='mediumPlus'>
+                  Please make sure configurations and dependencies using in the
+                  job YAML are set properly in the target cluster.
+                </Text>
+              </Stack>
             </Stack>
             <Stack className={styles.item}>
               <Stack horizontal gap={10}>
                 <Label required>Transfer to</Label>
-                <Dropdown
-                  placeholder={'select a bounded cluster'}
-                  dropdownWidth={150}
-                  selectedKey={selectedCluster}
-                  onChange={(_, item) => setSelectedCluster(item.key)}
-                  options={(() => {
-                    const options = [];
-                    for (const alias in boundedClusters) {
-                      options.push({ key: alias, text: alias });
-                    }
-                    return options;
-                  })()}
-                />
+                <StackItem grow>
+                  <Dropdown
+                    placeholder={'select a bounded cluster'}
+                    selectedKey={selectedCluster}
+                    onChange={(_, item) => setSelectedCluster(item.key)}
+                    options={(() => {
+                      const options = [];
+                      for (const alias in boundedClusters) {
+                        options.push({ key: alias, text: alias });
+                      }
+                      return options;
+                    })()}
+                  />
+                </StackItem>
               </Stack>
             </Stack>
             <Stack className={styles.item}>

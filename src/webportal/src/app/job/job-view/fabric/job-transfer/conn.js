@@ -187,9 +187,9 @@ async function confirmStorage(clusterConfig, jobConfig) {
       });
       const availableStorages = new Set(result.storages.map(item => item.name));
       for (const usedStorage of usedStorages) {
-        if (!(availableStorages.has(usedStorage))) {
+        if (!availableStorages.has(usedStorage)) {
           const availableStorageHint =
-            result.storages.length == 0
+            result.storages.length === 0
               ? ''
               : `Available storages include ${result.storages
                   .map(item => item.name)
@@ -197,7 +197,8 @@ async function confirmStorage(clusterConfig, jobConfig) {
           throw new Error(
             `We cannot find storage ${usedStorage} in bounded cluster ${clusterConfig.alias}. ` +
               "Maybe the storage doesn't exist, or you don't have permission to it. " +
-              'Please modify your job config. ' + availableStorageHint,
+              'Please modify your job config. ' +
+              availableStorageHint,
           );
         }
       }
