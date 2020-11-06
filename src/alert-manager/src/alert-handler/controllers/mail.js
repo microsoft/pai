@@ -49,6 +49,7 @@ const sendEmailToAdmin = (req, res) => {
   const template = req.params.template
     ? req.params.template
     : 'general-templates';
+  const troubleshootingURL = 'https://openpai.readthedocs.io/en/latest/manual/cluster-admin/troubleshooting.html';
   email
     .send({
       template: template,
@@ -60,6 +61,7 @@ const sendEmailToAdmin = (req, res) => {
         alerts: req.body.alerts,
         groupLabels: req.body.groupLabels,
         externalURL: req.body.externalURL,
+        troubleshootingURL: troubleshootingURL,
       },
     })
     .then(() => {
