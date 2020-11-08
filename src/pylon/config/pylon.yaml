@@ -23,7 +23,6 @@ webhdfs-legacy-port: 50070
 deploy-service: false
 
 # For test
-marketplace_api_uri: http://10.151.40.234:9292
 marketplace_webportal_plugin: http://10.151.40.234:9293
 
 #ssl:

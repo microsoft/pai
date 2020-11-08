@@ -83,11 +83,11 @@ spec:
             - name: DSHUTTLE_URI
               value: {{ cluster_cfg['dshuttle']['uri'] }}
 {% endif %}
-{% if 'marketplace_api_uri' in cluster_cfg['pylon'] %}
+{% if cluster_cfg['cluster']['common']['marketplace'] == 'true' %}
             - name: MARKETPLACE_API_URI
-              value: {{ cluster_cfg['pylon']['marketplace_api_uri']}}
+              value: {{ cluster_cfg['marketplace-restserver']['uri']}}
 {% endif %}
-{% if 'marketplace_webportal_plugin' in cluster_cfg['pylon'] %}
+{% if cluster_cfg['cluster']['common']['marketplace'] == 'true' %}
             - name: MARKETPLACE_WEBPORTAL_PLUGIN
               value: {{ cluster_cfg['pylon']['marketplace_webportal_plugin']}}
 {% endif %}
