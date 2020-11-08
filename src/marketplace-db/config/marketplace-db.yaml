@@ -1,7 +1,7 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT License.
 
-service_type: "common"
+service_type: "k8s"
 
 user: user
 passwd: passwd
