@@ -20,6 +20,8 @@ class MarketplaceRestserver(object):
         server_port = self.service_conf['server-port']
         master_ip = [host['hostip'] for host in machine_list if host.get('pai-master') == 'true'][0]
         result['uri'] = 'http://{0}:{1}'.format(master_ip, server_port)
+        if 'db_host' not in result:
+            result['db_host'] = master_ip
         return result
 
     def validation_post(self, conf):

@@ -286,7 +286,7 @@ location ~ ^/dshuttle/(.*)$ {
 
 {%- if MARKETPLACE_API_URI %}
 # marketplace rest server
-location ~ ^/marketplace/api(.*)$ {
+location ~ ^/marketplace/api/(.*)$ {
   proxy_pass {{MARKETPLACE_API_URI}}/$1$is_args$args;
 }
 {%- endif %}
