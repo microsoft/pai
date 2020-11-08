@@ -30,10 +30,10 @@ spec:
         - name: DB_HOST
           value: {{ cluster_cfg["marketplace-restserver"]["db_host"] }}
         - name: DB_PORT
-          value: {{ cluster_cfg["marketplace-restserver"]["db_port"] }}
+          value: "{{ cluster_cfg["marketplace-restserver"]["db_port"] }}"
         - name: NODE_ENV
           value: production
         - name: PORT
-          value: {{ cluster_cfg["marketplace-restserver"]["server-port"] }}
+          value: "{{ cluster_cfg["marketplace-restserver"]["server-port"] }}"
       imagePullSecrets:
       - name: {{ cluster_cfg["cluster"]["docker-registry"]["secret-name"] }}

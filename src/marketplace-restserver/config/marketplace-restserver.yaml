@@ -8,5 +8,5 @@ db_user: user
 db_password: passwd
 db: marketplace
 db_host: postgres
-db_port: "9291"
-server-port: "9292"
+db_port: 9291
+server-port: 9292
