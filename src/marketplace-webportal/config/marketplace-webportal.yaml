@@ -1,0 +1,7 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+
+service_type: "k8s"
+
+# marketplace_api_uri: marketplace_api_uri
+server-port: 9293

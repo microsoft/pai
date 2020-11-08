@@ -3,7 +3,6 @@
 
 service_type: "k8s"
 
-
 db_user: user
 db_password: passwd
 db: marketplace

@@ -286,6 +286,10 @@ location ~ ^/dshuttle/(.*)$ {
 
 {%- if MARKETPLACE_API_URI %}
 # marketplace rest server
+location ~ ^/marketplace/api$ {
+  # Add '/' to the end of the URL, otherwise there will be a 404 error.
+  return 301 $scheme://$http_host$request_uri/;
+}
 location ~ ^/marketplace/api/(.*)$ {
   proxy_pass {{MARKETPLACE_API_URI}}/$1$is_args$args;
 }
@@ -293,6 +297,10 @@ location ~ ^/marketplace/api/(.*)$ {
 
 {%- if MARKETPLACE_WEBPORTAL_PLUGIN %}
 # marketplace webportal plugin
+location ~ ^/marketplace$ {
+  # Add '/' to the end of the URL, otherwise there will be a 404 error.
+  return 301 $scheme://$http_host$request_uri/;
+}
 location ~ ^/marketplace/(.*)$ {
   proxy_pass {{MARKETPLACE_WEBPORTAL_PLUGIN}}/$1;
 }
