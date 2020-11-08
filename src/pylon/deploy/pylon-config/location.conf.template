@@ -287,7 +287,7 @@ location ~ ^/dshuttle/(.*)$ {
 {%- if MARKETPLACE_API_URI %}
 # marketplace rest server
 location ~ ^/marketplace/api(.*)$ {
-  proxy_pass {{MARKETPLACE_API_URI}}/api$1$is_args$args;
+  proxy_pass {{MARKETPLACE_API_URI}}/$1$is_args$args;
 }
 {%- endif %}
 
@@ -341,9 +341,14 @@ location ~ ^(.*)$ {
     '{{DSHUTTLE_URI}}'
     '/dshuttle';
 {%- endif %}
-{%- if MARKETPLACE_URI %}
+{%- if MARKETPLACE_API_URI %}
   sub_filter
-    '{{MARKETPLACE_URI}}'
+    '{{MARKETPLACE_API_URI}}'
+    '/marketplace/api';
+{%- endif %}
+{%- if MARKETPLACE_WEBPORTAL_PLUGIN %}
+  sub_filter
+    '{{MARKETPLACE_WEBPORTAL_PLUGIN}}'
     '/marketplace';
 {%- endif %}
 
