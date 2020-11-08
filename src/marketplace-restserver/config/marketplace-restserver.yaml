@@ -9,4 +9,4 @@ db_password: passwd
 db: marketplace
 db_host: postgres
 db_port: "9291"
-server-port: 9292
+server-port: "9292"
