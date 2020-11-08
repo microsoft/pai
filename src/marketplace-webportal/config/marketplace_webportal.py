@@ -18,10 +18,11 @@ class MarketplaceWebportal(object):
         result = copy.deepcopy(self.service_conf)
         machine_list = self.cluster_conf['machine-list']
         server_port = self.service_conf['server-port']
+        api_port = self.service_conf['api-port']
         master_ip = [host['hostip'] for host in machine_list if host.get('pai-master') == 'true'][0]
         result['uri'] = 'http://{0}:{1}/plugin.js'.format(master_ip, server_port)
         if 'marketplace_api_uri' not in result:
-            result['marketplace_api_uri'] = master_ip
+            result['marketplace_api_uri'] = 'http://{0}:{1}/api'.format(master_ip, api_port)
         return result
 
     def validation_post(self, conf):
