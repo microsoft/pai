@@ -180,35 +180,36 @@ export async function getContainerLogList(logListUrl) {
   };
 }
 
-export async function getContainerLog(tailLogUrls, fullLogUrls, logTpye) {
-  const res = await fetch(tailLogUrls[logTpye]);
+export async function getContainerLog(tailLogUrls, fullLogUrls, logType) {
+  const res = await fetch(tailLogUrls[logType]);
   if (!res.ok) {
     throw new Error(res.statusText);
   }
-  const text = await res.text();
+  let text = await res.text();
 
   // Check log type. The log type is in LOG_TYPE only support log-manager.
   if (config.logType === 'log-manager') {
     // Try to get roated log if currently log content is less than 15KB
-    // if (text.length <= 15 * 1024) {
-    //   const fullLogUrl = logUrl.replace('/tail/', '/full/');
-    //   const rotatedLogUrl = logUrl + '.1';
-    //   const rotatedLogRes = await fetch(rotatedLogUrl);
-    //   const fullLogRes = await fetch(fullLogUrl);
-    //   const rotatedText = await rotatedLogRes.text();
-    //   const fullLog = await fullLogRes.text();
-    //   if (rotatedLogRes.ok && rotatedText.trim() !== 'No such file!') {
-    //     text = rotatedText
-    //       .concat(
-    //         '\n ------- log is rotated, may be lost during this ------- \n',
-    //       )
-    //       .concat(fullLog);
-    //   }
-    //   // get last 16KB
-    //   text = text.slice(-16 * 1024);
-    // }
+    if (text.length <= 15 * 1024) {
+      const rotatedLogUrl = tailLogUrls[logType].replace('?', '.1?');
+      try{
+        const rotatedLogRes = await fetch(rotatedLogUrl);
+        const fullLogRes = await fetch(fullLogUrls[logType]);
+        const rotatedText = await rotatedLogRes.text();
+        const fullLog = await fullLogRes.text();
+        if (rotatedLogRes.ok && rotatedText.trim() !== 'No such file!') {
+          text = rotatedText
+            .concat(
+              '\n ------- log is rotated, may be lost during this ------- \n',
+            )
+            .concat(fullLog);
+        }
+        // get last 16KB
+        text = text.slice(-16 * 1024);
+      } catch(e) {}
+    }
     return {
-      fullLogLink: fullLogUrls[logTpye],
+      fullLogLink: fullLogUrls[logType],
       text: text,
     };
   } else {
