@@ -33,7 +33,8 @@ To view existing alert rules based on the metrics, you can go to `http(s)://<you
 
 ### How to Add Customized Alerts
 
-You can define customized alerts in the `prometheus` field in [`services-configuration.yml`](./basic-management-operations.md#pai-service-management-and-paictl). For example, We can add a customized alert `PAIJobGpuPercentLowerThan0_3For1h` by adding:
+You can define customized alerts in the `prometheus` field in [`services-configuration.yml`](./basic-management-operations.md#pai-service-management-and-paictl).
+For example, We can add a customized alert `PAIJobGpuPercentLowerThan0_3For1h` by adding:
 
 ``` yaml
 prometheus:
@@ -44,12 +45,16 @@ prometheus:
       - alert: PAIJobGpuPercentLowerThan0_3For1h
         expr: avg(task_gpu_percent{virtual_cluster=~"default"}) by (job_name) < 0.3
         for: 1h
+        labels:
+          severity: warn
         annotations:
           summary: "{{$labels.job_name}} has a job gpu percent lower than 30% for 1 hour"
           description: Monitor job level gpu utilization in certain virtual clusters.
 ```
 
 The `PAIJobGpuPercentLowerThan0_3For1h` alert will be fired when the job on virtual cluster `default` has a task level average GPU percent lower than `30%` for more than `1 hour`.
+The alert severity can be defined as `info`, `warn`, `error` or `fatal` by adding a label.
+Here we use `warn`.
 Here the metric `task_gpu_percent` is used, which describes the GPU utilization at task level. 
 
 Remember to push service config to the cluster and restart the `prometheus` service after your modification with the following commands [in the dev-box container](./basic-management-operations.md#pai-service-management-and-paictl):
