@@ -92,10 +92,10 @@ alert-manager:
     actions: 
       # the email template for `email-admin` and `email-user `can be chosen from ['general-template', 'kill-low-efficiency-job-alert']
       # if no template specified, 'general-template' will be used.
-      email-admin: No-Parameters-Required
+      email-admin: {}
       email-user:  
         template: 'kill-low-efficiency-job-alert'
-      stop-jobs: No-Parameters-Required # no parameters required for stop-jobs action
+      stop-jobs: {} # no parameters required for stop-jobs action
       tag-jobs:
         tags: 
         - 'stopped-by-alert-manager'
@@ -153,10 +153,10 @@ alert-manager:
     actions: 
       # the email template for `email-admin` and `email-user `can be chosen from ['general-template', 'kill-low-efficiency-job-alert']
       # if no template specified, 'general-template' will be used.
-      email-admin: No-Parameters-Required
+      email-admin: {}
       email-user:  
         template: 'kill-low-efficiency-job-alert'
-      stop-jobs: No-Parameters-Required # no parameters required for stop-jobs action
+      stop-jobs: {} # no parameters required for stop-jobs action
       tag-jobs:
         tags: 
         - 'stopped-by-alert-manager'

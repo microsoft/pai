@@ -79,13 +79,13 @@ data:
       webhook_configs:
       {% if receiver["actions"]["email-admin"] is defined %}
       {% set template = receiver["actions"]["email-admin"]["template"] %}
-      - url: 'http://localhost:{{ cluster_cfg["alert-manager"]["alert-handler"]["port"] }}/alert-handler/send-email-to-admin/{{ template }}'
+      - url: 'http://localhost:{{ cluster_cfg["alert-manager"]["alert-handler"]["port"] }}/alert-handler/send-email-to-admin/?template={{ template }}'
         send_resolved: true
       {% endif %}
 
       {% if receiver["actions"]["email-user"] is defined %}
       {% set template = receiver["actions"]["email-user"]["template"] %}
-      - url: 'http://localhost:{{ cluster_cfg["alert-manager"]["alert-handler"]["port"] }}/alert-handler/send-email-to-user/{{ template }}'
+      - url: 'http://localhost:{{ cluster_cfg["alert-manager"]["alert-handler"]["port"] }}/alert-handler/send-email-to-user/?template={{ template }}'
         send_resolved: false
         http_config:
           bearer_token: {{ cluster_cfg["alert-manager"]["alert-handler"]["pai-bearer-token"] }}

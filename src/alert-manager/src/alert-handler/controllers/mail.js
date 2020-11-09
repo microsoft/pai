@@ -44,6 +44,10 @@ const email = new Email({
   },
 });
 
+// OpenPAI handbook troubleshooting
+const troubleshootingURL =
+  'https://openpai.readthedocs.io/en/latest/manual/cluster-admin/troubleshooting.html';
+
 // send email to admin
 const sendEmailToAdmin = (req, res) => {
   logger.info(
@@ -52,7 +56,6 @@ const sendEmailToAdmin = (req, res) => {
   const template = req.params.template
     ? req.params.template
     : 'general-templates';
-  const troubleshootingURL = 'https://openpai.readthedocs.io/en/latest/manual/cluster-admin/troubleshooting.html';
   email
     .send({
       template: template,
@@ -64,6 +67,7 @@ const sendEmailToAdmin = (req, res) => {
         alerts: req.body.alerts,
         groupLabels: req.body.groupLabels,
         externalURL: req.body.externalURL,
+        webportalURL: process.env.WEBPORTAL_URI,
         troubleshootingURL: troubleshootingURL,
       },
     })
@@ -168,6 +172,7 @@ const sendEmailToUser = async (req, res) => {
               groupLabels: req.body.groupLabels,
               externalURL: req.body.externalURL,
               webportalURL: process.env.WEBPORTAL_URI,
+              troubleshootingURL: troubleshootingURL,
             },
           });
         } else {

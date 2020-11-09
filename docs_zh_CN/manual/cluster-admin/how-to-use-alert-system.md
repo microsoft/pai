@@ -90,10 +90,10 @@ alert-manager:
   customized-receivers:
   - name: "pai-email-admin-user-and-stop-job"
     actions: 
-      email-admin: No-Parameters-Required
+      email-admin: {}
       email-user:  
         template: 'kill-low-efficiency-job-alert'
-      stop-jobs: No-Parameters-Required
+      stop-jobs: {}
       tag-jobs:
         tags: 
         - 'stopped-by-alert-manager'
@@ -144,10 +144,10 @@ alert-manager:
   customized-receivers:
   - name: "pai-email-admin-user-and-stop-job"
     actions: 
-      email-admin: No-Parameters-Required
+      email-admin: {}
       email-user:  
         template: 'kill-low-efficiency-job-alert'
-      stop-jobs: No-Parameters-Required
+      stop-jobs: {}
       tag-jobs:
         tags: 
         - 'stopped-by-alert-manager'
