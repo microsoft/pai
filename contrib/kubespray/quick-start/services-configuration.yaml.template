@@ -209,7 +209,7 @@ authentication:
 #         labels:
 #           severity: warn
 #         annotations:
-#           summary: "{{$labels.job_name}} has a job gpu percent lower than 30% for 1 hour"
+#           summary: "{% raw %}{{$labels.job_name}}{% endraw %} has a job gpu percent lower than 30% for 1 hour"
 #           description: Monitor job level gpu utilization in certain virtual clusters.
 
 
