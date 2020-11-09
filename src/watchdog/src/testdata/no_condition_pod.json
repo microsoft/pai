@@ -139,7 +139,7 @@
                 "nodeSelector": {
                     "launcher": "true"
                 },
-                "nodeName": "10.151.40.4",
+                "nodeName": "test_node_0",
                 "hostNetwork": true,
                 "hostPID": true,
                 "securityContext": {

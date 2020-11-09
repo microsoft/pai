@@ -117,5 +117,5 @@ data:
         alertname: 'NodeNotReady'
       target_match_re:
         alertname: ^PaiServicePodNotRunning|PaiServicePodNotReady$
-      # Apply inhibition if `host_ip` is the same.
-      equal: ['host_ip']
+      # Apply inhibition if `node_name` is the same.
+      equal: ['node_name']

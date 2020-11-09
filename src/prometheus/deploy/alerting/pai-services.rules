@@ -24,7 +24,7 @@ groups:
         expr: pai_pod_count{phase!="running"} > 0
         for: 10m
         annotations:
-          summary: "{{$labels.name}} in {{$labels.host_ip}} not running detected"
+          summary: "{{$labels.name}} in {{$labels.node_name}} ({{$labels.host_ip}})  not running detected"
 
       - alert: PaiServicePodNotReady
         expr: pai_pod_count{phase="running", ready="false"} > 0
@@ -32,15 +32,15 @@ groups:
         labels:
           type: pai_service
         annotations:
-          summary: "{{$labels.name}} in {{$labels.host_ip}} not ready detected"
+          summary: "{{$labels.name}} in {{$labels.node_name}} ({{$labels.host_ip}})  not ready detected"
 
-      - alert: PaiServiceWatchDogNotUp
+      - alert: WatchdogNotUp
         expr: up{pai_service_name="watchdog"} != 1
         for: 5m
         labels:
           type: pai_service
         annotations:
-          summary: "{{$labels.pai_service_name}} in {{$labels.instance}} not up detected"
+          summary: "OpenPAI service watchdog in {{$labels.instance}} not up detected"
 
       - alert: JobExporterHangs
         expr: rate(collector_iteration_count_total[10m]) == 0
