@@ -304,7 +304,7 @@ const getLogs = asyncHandler(async (req, res) => {
       : createError(
           'Internal Server Error',
           'UnknownError',
-          'Failed ot get log list',
+          'Failed to get log list',
         );
   }
 });
