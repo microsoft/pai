@@ -22,9 +22,6 @@ port: 80
 webhdfs-legacy-port: 50070
 deploy-service: false
 
-# For test
-marketplace_webportal_plugin: http://10.151.40.234:9293
-
 #ssl:
 #  # self-sign
 #  crt_name: xxxxxx

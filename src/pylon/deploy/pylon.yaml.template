@@ -89,7 +89,7 @@ spec:
 {% endif %}
 {% if cluster_cfg['cluster']['common']['marketplace'] == 'true' %}
             - name: MARKETPLACE_WEBPORTAL_PLUGIN
-              value: {{ cluster_cfg['pylon']['marketplace_webportal_plugin']}}
+              value: {{ cluster_cfg['marketplace-webportal']['uri']}}
 {% endif %}
           ports:
             - name: pylon

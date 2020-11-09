@@ -43,13 +43,11 @@ class Pylon:
             uriHttps = 'https://{0}'.format(self.service_configuration['domain'])
 
         webhdfs_legacy_port = self.service_configuration['webhdfs-legacy-port']
-        marketplace_webportal_plugin = self.service_configuration['marketplace_webportal_plugin']
         ret = {
             'port': port,
             'uri': uri,
             'uri-https': uriHttps,
             'webhdfs-legacy-port': webhdfs_legacy_port,
-            'marketplace_webportal_plugin': marketplace_webportal_plugin,
         }
         if 'ssl' in self.service_configuration:
             ret['ssl'] = self.service_configuration['ssl']

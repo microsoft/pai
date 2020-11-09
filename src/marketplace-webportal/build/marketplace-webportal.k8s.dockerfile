@@ -1,4 +1,4 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT License.
 
-FROM docker.io/yiyione/marketplace-webportal:v1.2.0
+FROM docker.io/openpai/pai-marketplace-webportal:v1.2.0
