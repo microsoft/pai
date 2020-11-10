@@ -17,16 +17,22 @@
 
 # Rule Syntax Reference: https://prometheus.io/docs/prometheus/latest/configuration/alerting_rules/
 
+# select alert severity from `info`, `warn`, `error` or `fatal`
+
 groups:
 - name: pai-jobs
   rules:
   - alert: PaiJobsZombie
     expr: zombie_container_count > 0
     for: 1h # only when it exceed 1 hour
+    labels:
+      severity: info
     annotations:
-      summary: "zombie container in {{$labels.instance}}detected"
+      summary: "zombie container in {{$labels.instance}} detected"
   - alert: PaiJobPending
     expr: pai_job_pod_count{pod_bound="true", phase="pending"} > 0
     for: 30m
+    labels:
+      severity: warn
     annotations:
       summary: "Job {{$labels.job_name}}in pending status detected"

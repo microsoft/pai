@@ -23,7 +23,7 @@ Solutions:
 This is a kind of alert from alert manager, and is reported by watchdog service. Watchdog gets such metrics from Kubernetes API. Example metrics is like:
 
 ```
-pai_node_count{disk_pressure="false",instance="10.0.0.1:9101",job="pai_serivce_exporter",memory_pressure="false",name="10.0.0.2",out_of_disk="false",pai_service_name="watchdog",ready="true",scraped_from="watchdog-5ddd945975-kwhpr"}
+pai_node_count{disk_pressure="false",instance="10.0.0.1:9101",job="pai_serivce_exporter",memory_pressure="false",host_ip="10.0.0.2",out_of_disk="false",pai_service_name="watchdog",ready="true",scraped_from="watchdog-5ddd945975-kwhpr"}
 ```
 
 The name label indicate what node this metric represents.

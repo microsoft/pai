@@ -30,7 +30,7 @@ data:
       group_wait: 30s
       group_interval: 5m
       repeat_interval: {{ cluster_cfg["alert-manager"]["repeat-interval"] }}
-      group_by: [alertname, alertstate]
+      group_by: [alertname, alertstate, severity]
 
       routes:
       - receiver: pai-cordon-nodes
@@ -113,3 +113,11 @@ data:
       {% endif %}
     
     {% endfor %}
+
+    inhibit_rules:
+    - source_match:
+        alertname: 'NodeNotReady'
+      target_match_re:
+        alertname: ^PaiServicePodNotRunning|PaiServicePodNotReady$
+      # Apply inhibition if `node_name` is the same.
+      equal: ['node_name']

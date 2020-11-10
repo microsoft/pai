@@ -17,47 +17,64 @@
 
 # Rule Syntax Reference: https://prometheus.io/docs/prometheus/latest/configuration/alerting_rules/
 
+# select alert severity from `info`, `warn`, `error` or `fatal`
+
 groups:
     - name: gpu_related
       rules:
       - alert: NvidiaSmiLatencyTooLarge
         expr: histogram_quantile(0.95, sum(rate(cmd_nvidia_smi_latency_seconds_bucket[5m])) by (le, instance)) > 40
         for: 5m
+        labels:
+          severity: warn
         annotations:
           summary: "95th nvidia-smi call latency is larger than 40s in {{$labels.instance}}, should check the gpu status manually"
 
       - alert: NvidiaSmiDoubleEccError
         expr: nvidiasmi_ecc_error_count{type="double"} > 0
         for: 5m
+        labels:
+          severity: fatal
         annotations:
           summary: "nvidia card from {{$labels.instance}} minor number {{$labels.minor_number}} has {{$labels.type}} ecc error, count {{$value}}"
 
       - alert: NvidiaMemoryLeak
         expr: nvidiasmi_memory_leak_count > 0
         for: 5m
+        labels:
+          severity: error
         annotations:
           summary: "found nvidia memory leak from {{$labels.instance}} minor number {{$labels.minor_number}}"
 
       - alert: NvidiaZombieProcess
         expr: zombie_process_count{command="nvidia-smi"} > 0
         for: 5m
+        labels:
+          severity: warn
         annotations:
           summary: "found nvidia zombie process in {{$labels.instance}}"
 
       - alert: GpuUsedByExternalProcess
         expr: gpu_used_by_external_process_count > 0
         for: 5m
+        labels:
+          severity: warn
         annotations:
           summary: "found nvidia used by external process in {{$labels.instance}}"
 
       - alert: GpuUsedByZombieContainer
         expr: gpu_used_by_zombie_container_count > 0
         for: 5m
+        labels:
+          severity: warn
         annotations:
           summary: "found nvidia used by zombie container in {{$labels.instance}}"
 
       - alert: NodeGpuCountChanged
-        expr: changes(node:gpu_utilization:count[5m]) > 0
+        expr: node:gpu_utilization:count != on (instance) configured_gpu_count
+        for: 5m
+        labels:
+          severity: fatal
         annotations:
           summary: "found gpu count changes in {{$labels.instance}}"
 
