@@ -183,7 +183,7 @@ export async function getContainerLogList(logListUrl) {
 export async function getContainerLog(tailLogUrls, fullLogUrls, logType) {
   const res = await fetch(tailLogUrls[logType]);
   if (!res.ok) {
-    throw new Error(res.statusText);
+    throw new Error(res.status);
   }
   let text = await res.text();
 
