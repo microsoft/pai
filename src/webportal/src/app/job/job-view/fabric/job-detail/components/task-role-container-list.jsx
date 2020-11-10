@@ -164,7 +164,11 @@ export default class TaskRoleContainerList extends React.Component {
 
   logAutoRefresh() {
     const { fullLogUrls, tailLogUrlsCvt, logListUrl, logType } = this.state;
-    getContainerLog(tailLogUrlsCvt, this.convertObjectFormat(fullLogUrls), logType)
+    getContainerLog(
+      tailLogUrlsCvt,
+      this.convertObjectFormat(fullLogUrls),
+      logType,
+    )
       .then(({ text, fullLogLink }) =>
         this.setState(
           prevState =>
@@ -190,11 +194,8 @@ export default class TaskRoleContainerList extends React.Component {
               monacoProps: { value: err.message },
             },
         );
-        if(err.message === '403'){
-          this.showContainerTailLog(
-            logListUrl,
-            logType,
-          );
+        if (err.message === '403') {
+          this.showContainerTailLog(logListUrl, logType);
         }
       });
   }
@@ -224,9 +225,9 @@ export default class TaskRoleContainerList extends React.Component {
     }
   }
 
-  convertObjectFormat(logUrls){
+  convertObjectFormat(logUrls) {
     const logs = {};
-    for(const p in logUrls.locations){
+    for (const p in logUrls.locations) {
       logs[logUrls.locations[p].name] = logUrls.locations[p].uri;
     }
     return logs;
@@ -235,7 +236,7 @@ export default class TaskRoleContainerList extends React.Component {
   showContainerTailLog(logListUrl, logType) {
     let title;
     let logHint = '';
-    this.setState({logListUrl: logListUrl});
+    this.setState({ logListUrl: logListUrl });
     getContainerLogList(logListUrl)
       .then(({ fullLogUrls, tailLogUrls }) => {
         if (config.logType === 'log-manager') {
