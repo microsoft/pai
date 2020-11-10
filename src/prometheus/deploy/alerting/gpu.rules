@@ -72,6 +72,7 @@ groups:
 
       - alert: NodeGpuCountChanged
         expr: node:gpu_utilization:count != on (instance) configured_gpu_count
+        for: 5m
         labels:
           severity: fatal
         annotations:
