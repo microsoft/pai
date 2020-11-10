@@ -454,7 +454,7 @@
                                         "podHostIP": "10.151.41.8",
                                         "podIP": "10.151.41.8",
                                         "podName": "059cf3d85cb5f6280e9606d47551554d-taskrole-0",
-                                        "podNodeName": "10.151.41.8",
+                                        "podNodeName": "test_node_0",
                                         "podUID": "72c6d156-3b64-11ea-9b7f-000d3ab25bb6",
                                         "runTime": null,
                                         "startTime": "2020-01-20T09:08:39Z"

@@ -52,7 +52,7 @@ groups:
         labels:
           severity: error
         annotations:
-          summary: "{{$labels.name}} is under disk pressure"
+          summary: "{{$labels.node_name}} ({{$labels.host_ip}}) is under disk pressure"
 
       - alert: NodeOutOfDisk
         expr: pai_node_count{out_of_disk="true"} > 0
@@ -60,7 +60,7 @@ groups:
         labels:
           severity: error
         annotations:
-          summary: "{{$labels.name}} is out of disk"
+          summary: "{{$labels.node_name}} ({{$labels.host_ip}})  is out of disk"
 
       - alert: NodeNotReady
         expr: pai_node_count{ready!="true"} > 0
@@ -68,7 +68,7 @@ groups:
         labels:
           severity: error
         annotations:
-          summary: "{{$labels.name}} is not ready"
+          summary: "{{$labels.node_name}} ({{$labels.host_ip}})  is not ready"
 
       - alert: AzureAgentConsumeTooMuchMem
         expr: process_mem_usage_byte{cmd=~".*om[is]agent.*"} > 1073741824 # 1G

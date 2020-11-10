@@ -25,7 +25,6 @@ prerequisite:
 template-list:
   - prometheus-configmap.yaml
   - prometheus-deployment.yaml
-  - start.sh
   - delete.yaml
   - alerting/customized.rules
 

@@ -46,28 +46,28 @@ var (
 			"pai_pod_count",
 			"count of pai pod",
 			[]string{
-				"service_name", "name", "namespace", "phase", "host_ip", "initialized", "pod_scheduled", "ready",
+				"service_name", "name", "namespace", "phase", "host_ip", "node_name", "initialized", "pod_scheduled", "ready",
 			},
 		),
 		"jobPodCount": createMetric(
 			"pai_job_pod_count",
 			"count of pai job pod",
 			[]string{
-				"job_name", "name", "phase", "host_ip", "initialized", "pod_bound", "pod_scheduled", "ready",
+				"job_name", "name", "phase", "host_ip", "node_name", "initialized", "pod_bound", "pod_scheduled", "ready",
 			},
 		),
 		"paiContainerCount": createMetric(
 			"pai_container_count",
 			"count of container pod",
 			[]string{
-				"service_name", "pod_name", "name", "namespace", "state", "host_ip", "ready",
+				"service_name", "pod_name", "name", "namespace", "state", "host_ip", "node_name", "ready",
 			},
 		),
 		"paiNodeCount": createMetric(
 			"pai_node_count",
 			"count of pai node",
 			[]string{
-				"name", "disk_pressure", "memory_pressure", "ready", "unschedulable",
+				"host_ip", "node_name", "disk_pressure", "memory_pressure", "ready", "unschedulable",
 			},
 		),
 	}
@@ -273,6 +273,7 @@ func (p *PromMetricCollector) getPaiNodeMetrics(nodeMetric nodeMetric) []prometh
 		prometheus.GaugeValue,
 		1,
 		nodeMetric.ip,
+		nodeMetric.name,
 		nodeMetric.diskPressure,
 		nodeMetric.memoryPressure,
 		nodeMetric.ready,
@@ -342,6 +343,7 @@ func (p *PromMetricCollector) getPodMetrics(podMetric podMetric) []prometheus.Me
 			podMetric.namespace,
 			podMetric.phase,
 			podMetric.hostIP,
+			podMetric.nodeName,
 			podMetric.initialized,
 			podMetric.scheduled,
 			podMetric.ready,
@@ -360,6 +362,7 @@ func (p *PromMetricCollector) getPodMetrics(podMetric podMetric) []prometheus.Me
 				podMetric.namespace,
 				c.status,
 				podMetric.hostIP,
+				podMetric.nodeName,
 				strconv.FormatBool(c.ready),
 			))
 		}
@@ -372,6 +375,7 @@ func (p *PromMetricCollector) getPodMetrics(podMetric podMetric) []prometheus.Me
 			podMetric.name,
 			podMetric.phase,
 			podMetric.hostIP,
+			podMetric.nodeName,
 			podMetric.initialized,
 			strconv.FormatBool(podMetric.bound),
 			podMetric.scheduled,

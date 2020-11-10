@@ -23,7 +23,7 @@
           "kubernetes.io/os": "linux",
           "pai-worker": "true"
         },
-        "name": "10.151.41.8",
+        "name": "test_node_0",
         "resourceVersion": "28455741",
         "selfLink": "/api/v1/nodes/10.151.41.8",
         "uid": "62340679-d056-11e9-97f6-000d3ab25bb6"
