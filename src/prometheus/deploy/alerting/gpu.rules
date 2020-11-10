@@ -71,7 +71,7 @@ groups:
           summary: "found nvidia used by zombie container in {{$labels.instance}}"
 
       - alert: NodeGpuCountChanged
-        expr: changes(node:gpu_utilization:count[5m]) > 0
+        expr: node:gpu_utilization:count != on (instance) configured_gpu_count
         labels:
           severity: fatal
         annotations:
