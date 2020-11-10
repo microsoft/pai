@@ -19,6 +19,7 @@ const axios = require('axios');
 const nodemailer = require('nodemailer');
 const Email = require('email-templates');
 const logger = require('@alert-handler/common/logger');
+const path = require('path');
 
 // create reusable transporter object using the default SMTP transport
 const transporter = nodemailer.createTransport({
@@ -58,7 +59,7 @@ const sendEmailToAdmin = (req, res) => {
     : 'general-templates';
   email
     .send({
-      template: template,
+      template: path.join('/etc/alerthandler/templates/', template),
       message: {
         to: process.env.EMAIL_CONFIGS_ADMIN_RECEIVER,
       },
@@ -162,7 +163,7 @@ const sendEmailToUser = async (req, res) => {
         const userEmail = await getUserEmail(username, req.token);
         if (userEmail) {
           email.send({
-            template: template,
+            template: path.join('/etc/alerthandler/templates/', template),
             message: {
               to: userEmail,
             },

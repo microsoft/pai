@@ -83,6 +83,8 @@ rest-server:
 #       smtp-from: alert-sender@example.com
 #       smtp-auth-username: alert-sender@example.com
 #       smtp-auth-password: password-for-alert-sender
+#       customized-templates: # optional
+#       - your-customized-email-template
 #   customized-routes:
 #     routes:
 #     - receiver: pai-email-admin-user-and-stop-job

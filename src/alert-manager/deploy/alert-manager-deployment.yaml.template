@@ -85,6 +85,9 @@ spec:
         - name: EMAIL_CONFIGS_SMTP_AUTH_PASSWORD
           value: {{ cluster_cfg["alert-manager"]["alert-handler"]["email-configs"]["smtp-auth-password"] }}
 {% endif %}
+        volumeMounts:
+        - name: templates-volume
+          mountPath: /etc/alerthandler/templates
 {% endif %}
       imagePullSecrets:
       - name: {{ cluster_cfg["cluster"]["docker-registry"]["secret-name"] }}
@@ -92,6 +95,28 @@ spec:
       - name: config-volume
         configMap:
           name: alertmanager-configmap
+{% if cluster_cfg["alert-manager"]["alert-handler"]["configured"] %}
+{% if 'email-admin' in cluster_cfg["alert-manager"]["actions-available"] %}
+      - name: templates-volume
+        configMap:
+          name: alert-templates
+          items:
+          - key: general-templates-html.ejs
+            path: general-templates/html.ejs
+          - key: general-templates-subject.ejs
+            path: general-templates/subject.ejs
+          - key: kill-low-efficiency-job-alert-html.ejs
+            path: kill-low-efficiency-job-alert/html.ejs
+          - key: kill-low-efficiency-job-alert-subject.ejs
+            path: kill-low-efficiency-job-alert/subject.ejs
+          {% for template in cluster_cfg["alert-manager"]["alert-handler"]["email-configs"]["customized-templates"] %}
+          - key: {{ template }}-html.ejs
+            path: {{ template }}/html.ejs
+          - key: {{ template }}-subject.ejs
+            path: {{ template }}/subject.ejs
+          {% endfor %}
+{% endif %}
+{% endif %}
       - name: alertmanager
         emptyDir: {}
       tolerations:

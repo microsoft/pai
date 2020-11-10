@@ -82,6 +82,8 @@ alert-manager:
       smtp-from: alert-sender@example.com
       smtp-auth-username: alert-sender@example.com
       smtp-auth-password: password-for-alert-sender
+#      customized-templates: # optional
+#      - your-customized-email-template
   customized-routes: # routes are the matching rules between alerts and receivers
     routes:
     - receiver: pai-email-admin-user-and-stop-job
@@ -183,6 +185,11 @@ For `receivers` definition, you can simply:
   - `stop-jobs`: No parameters required
   - `tag-jobs`:
     - tags: required, list of tags
+
+You can also add customized email templates by doing these two steps:
+- Add the template files in pai/src/alert-manager/deploy/alert-templates. 
+  Two files need to be added: one email body template file named `your-customized-email-template-html` and one subject template file named `your-customized-email-template-subject`.
+- add the template name: `your-customized-email-template` to the `alert-manager -> alert-handler -> email-configs -> customized-templates ` in the services configuration file.
 
 Remember to push service config to the cluster and restart the `alert-manager` service after your modification with the following commands in the dev-box container:
 
