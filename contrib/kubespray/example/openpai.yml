@@ -75,8 +75,8 @@ enable_nodelocaldns: false
 
 # Limits for coredns
 dns_memory_limit: 1000Mi
-dns_cpu_requests: 1000m
-dns_memory_requests: 500Mi
+dns_cpu_requests: 0m
+dns_memory_requests: 0Mi
 dns_min_replicas: 1
 # dns_nodes_per_replica: 16
 # dns_cores_per_replica: 256
