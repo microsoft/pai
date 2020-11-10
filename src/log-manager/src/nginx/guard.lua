@@ -33,5 +33,6 @@ local jwt_obj = jwt:verify(jwt_secret, jwt_token, claim_spec)
 
 if not jwt_obj["verified"] then
     ngx.status = ngx.HTTP_FORBIDDEN
+    ngx.header["Access-Control-Allow-Origin"] = "*";
     return ngx.exit(ngx.HTTP_OK)
 end

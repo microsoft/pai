@@ -65,7 +65,7 @@ server {
   # Get full/tail log
   #
   location ~ ^/api/v1/logs/(.*)$ {
-  add_header Access-Control-Allow-Origin *;
+    add_header Access-Control-Allow-Origin *;
     add_header Access-Control-Allow-Methods 'GET';
     limit_except GET {
       deny all;
