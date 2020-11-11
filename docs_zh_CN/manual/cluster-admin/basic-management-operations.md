@@ -40,7 +40,7 @@ Webportal上有一个k8s仪表板的快捷方式，如下图所示。
 
    <img src="./imgs/k8s-dashboard.png" width="100%" height="100%" />
 
-要使用它，您首先应该为OpenPAI设置`https`访问（使用`http://<ip>`会使访问无效），在本文档末尾处我们详细介绍了如何设置https。然后，在dev box机器上，按照以下步骤操作：
+要使用它，您首先应该为OpenPAI设置`https`访问（使用`http://<ip>`会使访问无效），请参考[这里](#how-to-set-up-https) 。然后，在dev box机器上，按照以下步骤操作：
 
 **步骤 1.** 将以下Yaml文本另存为`admin-user.yaml`
 
@@ -153,16 +153,16 @@ cd /pai
 
 您可以使用`exit`离开dev-box容器，并使用`sudo docker exec -it dev-box bash`重新进入它。如果您不再需要它，请使用`sudo docker stop dev-box`和`sudo docker rm dev-box`删除Docker容器。
 
-## 如何设置HTTPS访问
-### 配置自签名证书
-
-#### 简介
+## <div id="how-to-set-up-https">如何设置HTTPS访问</div>
 
 为pylon配置https证书您需要先获得数字证书，然后将数字证书相关文件保存到dev-box容器中，在dev-box内您可以找到`services-configuration.yaml`这个配置文件，然后您需要把已经保存的数字证书的文件路径配置到`services-configuration.yaml`文件中。您可以选择自签名证书和由CA机构颁发的证书，接下来将首先演示自签名证书的配置过程。两种证书的配置过程是近似的。
 
+### 配置自签名证书
+
+
 #### 1. 进入dev-box容器
 
-要使用`paictl`，请通过以下方式进入容器：
+要使用[`paictl`](#pai-service-management-and-paictl)，请通过以下方式进入容器：
 
 ```bash
 sudo docker exec -it dev-box bash
@@ -209,7 +209,17 @@ openssl x509 -req -days 3650 -in FileName.csr -signkey FileName.key -out FileNam
 
 #### 7. 设置services-configuration.yaml
 
-修改您的`services-configuration.yaml`。 如果您还不知道如何配置`services-configuration.yaml`，请参考[这个文档](基础管理操作.md#pai-service-management-and-paictl)。请注意这里的master_ip就是您master machine的IP，而不是您dev box machine的IP。请按照以下格式来配置yaml文件：
+
+如果您是第一次配置，dev-box容器内可能不存在`services-configuration.yaml`。您应该按照以下过程来更改配置文件并使其生效。关闭pylon service，将OpenPAI的配置文件`services-configuration.yaml`拉取到本地，更改配置文件，上传配置文件，重新启动pylon service。如果您的容器内已经有`services-configuration.yaml`，您可以省略拉取文件的过程。您需要的命令依次为：
+```bash
+./paictl.py service stop -n pylon
+./paictl.py config pull -o <config-folder>
+./paictl.py config push -p <config-folder> -m service
+./paictl.py service start -n pylon
+```
+
+
+请注意配置文件中的的master_ip就是您master machine的IP，而不是您dev box machine的IP。请按照以下格式来配置yaml文件：
 
 ```
 pylon:
@@ -232,7 +242,7 @@ pylon:
       key_name: FileName.key
       key_path: /home/ssl/FileName.key
 ```
-到此，您已经配好了自签名证书，重启pylon services，可以通过https来访问OpenPai。
+到此，您已经配好了自签名证书，重启pylon services，可以通过https来访问OpenPAI。
 
 #### 配置CA证书
 ##### 1. 将CA证书保存到dev-box容器内
