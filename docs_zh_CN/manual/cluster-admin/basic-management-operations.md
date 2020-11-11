@@ -155,7 +155,7 @@ cd /pai
 
 ## <div id="how-to-set-up-https">如何设置HTTPS访问</div>
 
-为pylon配置https证书您需要先获得数字证书，然后将数字证书相关文件保存到dev-box容器中，在dev-box内您可以找到`services-configuration.yaml`这个配置文件，然后您需要把已经保存的数字证书的文件路径配置到`services-configuration.yaml`文件中。您可以选择自签名证书和由CA机构颁发的证书，接下来将首先演示自签名证书的配置过程。两种证书的配置过程是近似的。
+为pylon配置https证书您需要先获得数字证书，然后将数字证书相关文件保存到dev-box容器中，在dev-box内您可以找到`services-configuration.yaml`这个配置文件，然后您需要把已经保存的数字证书的文件路径配置到`services-configuration.yaml`文件中。您可以选择自签名证书或由CA机构颁发的证书，接下来将首先演示自签名证书的配置过程。两种证书的配置过程是近似的。
 
 ### 配置自签名证书
 
