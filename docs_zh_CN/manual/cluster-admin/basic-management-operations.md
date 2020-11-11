@@ -237,6 +237,7 @@ pylon:
 #### 配置CA证书
 ##### 1. 将CA证书保存到dev-box容器内
 要配置CA证书，您首先需要申请并导出您的CA证书，您最终会得到一个crt文件和一个key文件，然后将这两个文件保存到dev-box容器中,比如存储到dev-box容器的/home/ssl文件夹下。如图所示：
+
 <div  align="center">
 <img src="./imgs/aad/openssl_CA_result.png" alt="paictl overview picture" style="float: center; margin-right: 10px;" />
 </div>
