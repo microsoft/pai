@@ -1,0 +1,70 @@
+# Copyright (c) Microsoft Corporation
+# All rights reserved.
+#
+# MIT License
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
+# documentation files (the "Software"), to deal in the Software without restriction, including without limitation
+# the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and
+# to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+# The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED *AS IS*, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING
+# BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+# NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+# DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+service_type: "k8s"
+
+worker_request_mem: 2G
+worker_limit_mem: 8G
+worker_max_heap_size: 4G
+worker_rpc_port: 4999
+worker_web_port: 5000
+worker_active_processor_count: 5
+
+job_worker_max_heap_size: 2G
+job_worker_request_mem: 1G
+job_worker_limit_mem: 3G
+job_worker_rpc_port: 5001
+job_worker_data_port: 5002
+job_worker_web_port: 5003
+job_worker_active_processor_count: 5
+
+master_max_heap_size: 12G
+master_limit_mem: 16G
+master_request_mem: 8G
+master_rpc_port: 30998
+master_web_port: 30999
+master_active_processor_count: 10
+
+job_master_rpc_port: 31001
+job_master_web_port: 31002
+job_master_request_mem: 4G
+job_master_limit_mem: 8G
+job_master_max_heap_size: 6G
+job_master_active_processor_count: 10
+
+fuse_max_direct_mem_size: 3G
+fuse_max_heap_size: 5G
+fuse_active_processor_count: 10
+csi_daemon_request_mem: 4G
+csi_daemon_limit_mem: 10G
+
+tieredstores:
+- level: 0
+  mediumtype: MEM,SSD
+  alias: MEM
+  path: /dev/shm,/mnt/ssd
+  quota: 1GB,100GB
+  watermark_low_ratio: 0.7
+  watermark_high_ratio: 0.95
+
+log:
+  level: INFO
+  max_file_size: 50MB
+  max_backup_index: 20
+
+registry_username: username
+registry_password: password

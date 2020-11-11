@@ -37,7 +37,8 @@ spec:
       labels:
         app: alertmanager
     spec:
-      hostNetwork: true
+      serviceAccountName: alert-manager-account
+      hostNetwork: false
       containers:
       - name: alertmanager
         image: prom/alertmanager:v0.15.1
@@ -49,6 +50,7 @@ spec:
         ports:
         - name: alertmanager
           containerPort: {{ cluster_cfg["alert-manager"]["port"] }}
+          hostPort: {{ cluster_cfg["alert-manager"]["port"] }}
         volumeMounts:
         - name: config-volume
           mountPath: /etc/alertmanager
@@ -58,10 +60,9 @@ spec:
       - name: alerthandler
         image: {{ cluster_cfg['cluster']['docker-registry']['prefix'] }}alert-handler:{{ cluster_cfg['cluster']['docker-registry']['tag'] }}
         imagePullPolicy: Always
-        ports:
-        - name: alerthandler
-          containerPort: {{ cluster_cfg["alert-manager"]["alert-handler"]["port"] }}
         env:
+        - name: SERVER_PORT
+          value: "{{ cluster_cfg["alert-manager"]["alert-handler"]["port"] }}"
         - name: CLUSTER_ID
           value: {{ cluster_cfg["cluster"]["common"]["cluster-id"] }}
         - name: REST_SERVER_URI

@@ -1,6 +1,18 @@
 #!/usr/bin/env python
 
 import copy
+import collections
+
+def update_nested_dict(dict_original, dict_update):
+    """
+    keep original key in nested dict if not present in the new dict
+    """
+    for key, val in dict_update.iteritems():
+        if isinstance(val, collections.Mapping):
+            dict_original[key] = update_nested_dict(dict_original.get(key, {}), val)
+        else:
+            dict_original[key] = val
+    return dict_original
 
 class AlertManager(object):
     def __init__(self, cluster_conf, service_conf, default_service_conf):
@@ -17,8 +29,7 @@ class AlertManager(object):
         return True, None
 
     def run(self):
-        result = copy.deepcopy(self.default_service_conf)
-        result.update(self.service_conf)
+        result = update_nested_dict(self.default_service_conf, self.service_conf)
 
         # check if email_configs is properly configured
         if result.get("alert-handler") is not None and \

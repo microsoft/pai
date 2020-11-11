@@ -84,32 +84,29 @@ export const PAI_ENV_VAR = [
   },
 ];
 export const PROTOCOL_TOOLTIPS = {
-  jobName:
-    'Name for the job, need to be unique, should be string in ^[A-Za-z0-9\\-._~]+$ format.',
-  taskRoleName: 'Name of the taskRole, string in ^[A-Za-z0-9\\-._~]+$ format.',
-  taskRoleContainerSize: [
-    'Resource required per container instance',
-    'CPU number and memory number will be auto scaled with GPU number by default.',
-  ],
-  hivedSkuType: [
-    'SKU defines a resource unit in all resource dimensions, ',
-    'including GPU, CPU, and memory.',
-  ],
-  taskRole: [
-    'Task roles are different types of task in the protocol.',
-    'One job may have one or more task roles, each task role has one or more instances, and each instance runs inside one container.',
-  ],
+  taskRoleContainerSize:
+    'https://openpai.readthedocs.io/en/latest/manual/cluster-user/quick-start.html',
+  hivedSkuType:
+    'https://openpai.readthedocs.io/en/latest/manual/cluster-user/quick-start.html',
+  taskRole:
+    'https://openpai.readthedocs.io/en/latest/manual/cluster-user/how-to-run-distributed-job.html#taskrole-and-instance',
   parameters:
-    'Parameters are key-value pairs that you could save your frequently used values and reference them in command section by their keys.',
-  secrets: `Secrets are used to store sensitive data. The value will be masked and won't be seen by other users.`,
+    'https://openpai.readthedocs.io/en/latest/manual/cluster-user/how-to-use-advanced-job-settings.html#parameters-and-secrets',
+  secrets: `https://openpai.readthedocs.io/en/latest/manual/cluster-user/how-to-use-advanced-job-settings.html#parameters-and-secrets`,
   data:
-    'Data section is used to generate pre-command that download/mount your data to specific path in container.',
+    'https://openpai.readthedocs.io/en/latest/manual/cluster-user/how-to-manage-data.html',
   tools:
-    'Tools section is used to configure the tools that are useful for jobs.',
+    'https://openpai.readthedocs.io/en/latest/manual/cluster-user/how-to-debug-jobs.html#how-to-debug-jobs',
   dockerImage:
-    'Please contact admin to make sure which cuda versions in docker image is supported by gpu drivers.',
+    'https://openpai.readthedocs.io/en/latest/manual/cluster-user/docker-images-and-job-examples.html',
   teamStorage:
-    "Team share storage is external storage defined by cluster admin. Select an element means the external storage will be mount to 'path' and user can treat it as local path.",
+    'https://openpai.readthedocs.io/en/latest/manual/cluster-user/how-to-manage-data.html#use-storage-in-jobs',
+  tensorboard:
+    'https://openpai.readthedocs.io/en/latest/manual/cluster-user/how-to-debug-jobs.html#how-to-use-tensorboard-plugin',
+  ssh:
+    'https://openpai.readthedocs.io/en/latest/manual/cluster-user/how-to-debug-jobs.html#how-to-use-ssh',
+  policy:
+    'https://openpai.readthedocs.io/en/latest/manual/cluster-user/how-to-use-advanced-job-settings.html#job-exit-spec-retry-policy-and-completion-policy',
 };
 
 export const COMMAND_PLACEHOLDER = `'You could define your own Parameters, Secrets or Data mount point on the right sidebar.

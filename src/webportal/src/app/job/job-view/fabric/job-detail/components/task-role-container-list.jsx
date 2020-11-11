@@ -20,19 +20,18 @@ import {
   createTheme,
   ColorClassNames,
   FontClassNames,
-  FontSizes,
   getTheme,
 } from '@uifabric/styling';
 import c from 'classnames';
 import { capitalize, isEmpty, isNil, flatten } from 'lodash';
-import { DateTime } from 'luxon';
+import { DateTime, Interval } from 'luxon';
 import {
   CommandBarButton,
   PrimaryButton,
   TooltipHost,
   DirectionalHint,
-  Icon,
   Stack,
+  Link,
 } from 'office-ui-fabric-react';
 import {
   DetailsList,
@@ -50,11 +49,15 @@ import t from '../../../../../components/tachyons.scss';
 import Context from './context';
 import Timer from './timer';
 import { getContainerLog } from '../conn';
-import { parseGpuAttr, printDateTime } from '../util';
 import config from '../../../../../config/webportal.config';
 import MonacoPanel from '../../../../../components/monaco-panel';
 import StatusBadge from '../../../../../components/status-badge';
+import { getDurationString } from '../../../../../components/util/job';
 import CopyButton from '../../../../../components/copy-button';
+
+const params = new URLSearchParams(window.location.search);
+const userName = params.get('username');
+const jobName = params.get('jobName');
 
 const theme = createTheme({
   palette: {
@@ -135,6 +138,9 @@ export default class TaskRoleContainerList extends React.Component {
       monacoTitle: '',
       monacoFooterButton: null,
       logUrl: null,
+      items: props.tasks,
+      ordering: { field: null, descending: false },
+      hideDialog: true,
     };
 
     this.showSshInfo = this.showSshInfo.bind(this);
@@ -142,6 +148,14 @@ export default class TaskRoleContainerList extends React.Component {
     this.showContainerLog = this.showContainerLog.bind(this);
     this.onRenderRow = this.onRenderRow.bind(this);
     this.logAutoRefresh = this.logAutoRefresh.bind(this);
+    this.onColumnClick = this.onColumnClick.bind(this);
+    this.applySortProps = this.applySortProps.bind(this);
+  }
+
+  componentDidUpdate(prevProps) {
+    if (prevProps.tasks !== this.props.tasks) {
+      this.setState({ items: this.props.tasks });
+    }
   }
 
   logAutoRefresh() {
@@ -182,6 +196,21 @@ export default class TaskRoleContainerList extends React.Component {
       monacoFooterButton: null,
       logUrl: null,
     });
+  }
+
+  getTimeDuration(startMs, endMs) {
+    const start = startMs && DateTime.fromMillis(startMs);
+    const end = endMs && DateTime.fromMillis(endMs);
+    if (start) {
+      return Interval.fromDateTimes(start, end || DateTime.utc()).toDuration([
+        'days',
+        'hours',
+        'minutes',
+        'seconds',
+      ]);
+    } else {
+      return null;
+    }
   }
 
   showContainerLog(logUrl, logType) {
@@ -323,203 +352,167 @@ export default class TaskRoleContainerList extends React.Component {
     }
   }
 
-  getColumns(showDebugInfo) {
-    const optionalColumns = [
-      {
-        key: 'accountableRetries',
-        name: 'Accountable Retries',
-        headerClassName: FontClassNames.medium,
-        minWidth: 150,
-        maxWidth: 200,
-        isResizable: true,
-        onRender: (item, idx) => {
-          return (
-            <div className={FontClassNames.mediumPlus}>
-              {item.accountableRetries}
-            </div>
-          );
-        },
-      },
-      {
-        key: 'startTime',
-        name: 'Start Time',
-        headerClassName: FontClassNames.medium,
-        minWidth: 150,
-        maxWidth: 200,
-        isResizable: true,
-        onRender: item => {
-          return (
-            <div className={c(FontClassNames.mediumPlus)}>
-              {isNil(item.createdTime)
-                ? 'N/A'
-                : printDateTime(DateTime.fromMillis(item.createdTime))}
-            </div>
-          );
-        },
-      },
-      {
-        key: 'currentAttemptLaunchedTime',
-        name: 'Current Attempt Launched Time',
-        headerClassName: FontClassNames.medium,
-        minWidth: 200,
-        maxWidth: 250,
-        isResizable: true,
-        onRender: item => {
-          return (
-            <div className={c(FontClassNames.mediumPlus)}>
-              {isNil(item.currentAttemptLaunchedTime)
-                ? 'N/A'
-                : printDateTime(
-                    DateTime.fromMillis(item.currentAttemptLaunchedTime),
-                  )}
-            </div>
-          );
-        },
-      },
-      {
-        key: 'currentAttemptCompletedTime',
-        name: 'Current Attempt Completion Time',
-        headerClassName: FontClassNames.medium,
-        minWidth: 250,
-        maxWidth: 250,
-        isResizable: true,
-        onRender: item => {
-          return (
-            <div className={c(FontClassNames.mediumPlus)}>
-              {isNil(item.currentAttemptCompletedTime)
-                ? 'N/A'
-                : printDateTime(
-                    DateTime.fromMillis(item.currentAttemptCompletedTime),
-                  )}
-            </div>
-          );
-        },
-      },
-      {
-        key: 'completionTime',
-        name: 'Completion Time',
-        headerClassName: FontClassNames.medium,
-        minWidth: 150,
-        maxWidth: 200,
-        isResizable: true,
-        onRender: item => {
-          return (
-            <div className={c(FontClassNames.mediumPlus)}>
-              {isNil(item.completedTime)
-                ? 'N/A'
-                : printDateTime(DateTime.fromMillis(item.completedTime))}
-            </div>
-          );
-        },
-      },
-      {
-        key: 'nodeName',
-        name: 'Node Name',
-        headerClassName: FontClassNames.medium,
-        minWidth: 100,
-        isResizable: true,
-        onRender: item => {
-          return (
-            <div className={c(FontClassNames.mediumPlus)}>
-              {item.containerNodeName}
-            </div>
-          );
-        },
-      },
-      {
-        key: 'exitDiagonostic',
-        name: 'Exit Diagnostics',
-        headerClassName: FontClassNames.medium,
-        minWidth: 200,
-        isResizable: true,
-        onRender: item => {
-          return (
-            <CommandBarButton
-              className={FontClassNames.mediumPlus}
-              styles={{
-                root: { backgroundColor: 'transparent' },
-                rootDisabled: { backgroundColor: 'transparent' },
-              }}
-              disabled={
-                isNil(item.containerExitDiagnostics) &&
-                isNil(item.containerExitSpec)
-              }
-              text='Show Exit Diagnostics'
-              onClick={() => {
-                const result = [];
-                // exit spec
-                const spec = item.containerExitSpec;
-                if (!isNil(spec)) {
-                  // divider
-                  result.push(Array.from({ length: 80 }, () => '-').join(''));
-                  result.push('');
-                  // content
-                  result.push('[Exit Spec]');
-                  result.push('');
-                  result.push(yaml.safeDump(spec));
-                  result.push('');
-                }
+  getTaskPropertyFromColumnKey(item, key) {
+    if (key === 'exitType') {
+      return !isNil(item.containerExitSpec) &&
+        !isNil(item.containerExitSpec.type)
+        ? item.containerExitSpec.type
+        : null;
+    }
+    return item[key];
+  }
 
-                // diagnostics
-                const diag = item.containerExitDiagnostics;
-                if (!isNil(diag)) {
-                  // divider
-                  result.push(Array.from({ length: 80 }, () => '-').join(''));
-                  result.push('');
-                  // content
-                  result.push('[Exit Diagnostics]');
-                  result.push('');
-                  result.push(diag);
-                  result.push('');
-                }
+  orderItems(items, ordering) {
+    const key = ordering.field;
+    return items
+      .slice(0)
+      .sort((a, b) =>
+        (ordering.descending
+        ? this.getTaskPropertyFromColumnKey(a, key) <
+          this.getTaskPropertyFromColumnKey(b, key)
+        : this.getTaskPropertyFromColumnKey(a, key) >
+          this.getTaskPropertyFromColumnKey(b, key))
+          ? 1
+          : -1,
+      );
+  }
 
-                this.setState({
-                  monacoProps: {
-                    language: 'text',
-                    value: result.join('\n'),
-                    options: {
-                      wordWrap: 'off',
-                      readOnly: true,
-                    },
-                  },
-                  monacoTitle: `Task Exit Diagonostics`,
-                });
-              }}
-            />
-          );
-        },
+  onColumnClick(event, column) {
+    const { field, descending } = this.state.ordering;
+    const items = this.state.items;
+    let newOrdering = null;
+    let newItems = [];
+    if (field === column.key) {
+      if (descending) {
+        newOrdering = { field: null, descending: false };
+        newItems = this.props.tasks;
+        this.setState({ ordering: newOrdering, items: newItems });
+      } else {
+        newOrdering = { field: field, descending: true };
+        newItems = this.orderItems(items, newOrdering);
+        this.setState({ ordering: newOrdering, items: newItems });
+      }
+    } else {
+      newOrdering = { field: column.key, descending: false };
+      newItems = this.orderItems(items, newOrdering);
+      this.setState({ ordering: newOrdering, items: newItems });
+    }
+  }
+
+  applySortProps(column) {
+    column.isSorted = this.state.ordering.field === column.key;
+    column.isSortedDescending = this.state.ordering.descending;
+    column.onColumnClick = this.onColumnClick;
+    return column;
+  }
+
+  onRenderRow(props) {
+    return (
+      <DetailsRow
+        {...props}
+        styles={{
+          root: {
+            color: theme.palette.black,
+          },
+        }}
+      />
+    );
+  }
+
+  render() {
+    const {
+      monacoTitle,
+      monacoProps,
+      monacoFooterButton,
+      logUrl,
+      items,
+    } = this.state;
+    const { showMoreDiagnostics } = this.props;
+    return (
+      <div>
+        <ThemeProvider theme={theme}>
+          <DetailsList
+            styles={{ root: { overflow: 'auto' } }}
+            columns={this.getColumns(showMoreDiagnostics)}
+            disableSelectionZone
+            items={items}
+            layoutMode={DetailsListLayoutMode.justified}
+            selectionMode={SelectionMode.none}
+            onRenderRow={this.onRenderRow}
+          />
+        </ThemeProvider>
+        {/* Timer */}
+        <Timer
+          interval={isNil(monacoProps) || isEmpty(logUrl) ? null : interval}
+          func={this.logAutoRefresh}
+        />
+        {/* Monaco Editor Panel */}
+        <MonacoPanel
+          isOpen={!isNil(monacoProps)}
+          onDismiss={this.onDismiss}
+          title={monacoTitle}
+          monacoProps={monacoProps}
+          footer={monacoFooterButton}
+        />
+      </div>
+    );
+  }
+
+  getColumns(showMoreDiagnostics) {
+    const taskStateColumn = this.applySortProps({
+      key: 'taskState',
+      name: 'Task State',
+      headerClassName: FontClassNames.medium,
+      minWidth: 100,
+      maxWidth: 150,
+      isResizable: true,
+      onRender: item => <StatusBadge status={capitalize(item.taskState)} />,
+    });
+    const exitTypeColumn = this.applySortProps({
+      key: 'exitType',
+      name: 'Exit Type',
+      headerClassName: FontClassNames.medium,
+      minWidth: 150,
+      maxWidth: 200,
+      isResizable: true,
+      onRender: item => {
+        return (
+          <div className={c(FontClassNames.mediumPlus)}>
+            {!isNil(item.containerExitSpec) &&
+            !isNil(item.containerExitSpec.type)
+              ? item.containerExitSpec.type
+              : null}
+          </div>
+        );
       },
-      {
-        key: 'containerId',
-        name: 'Container ID',
-        headerClassName: FontClassNames.medium,
-        minWidth: 300,
-        isResizable: true,
-        onRender: item => {
-          const id = item.containerId;
-          return (
-            !isNil(id) && (
-              <div className={c(t.truncate, FontClassNames.mediumPlus)}>
-                {id}
-              </div>
-            )
-          );
-        },
-      },
-    ];
+    });
     const defaultColumns = [
       {
-        key: 'number',
-        name: 'No.',
+        key: 'taskIndex',
+        name: 'Task Index',
         headerClassName: FontClassNames.medium,
-        minWidth: 30,
         maxWidth: 50,
         isResizable: true,
         onRender: (item, idx) => {
           return (
-            !isNil(idx) && (
-              <div className={FontClassNames.mediumPlus}>{idx}</div>
-            )
+            <div className={FontClassNames.mediumPlus}>{item.taskIndex}</div>
+          );
+        },
+      },
+      taskStateColumn,
+      {
+        key: 'retries',
+        name: 'Task Retries',
+        headerClassName: FontClassNames.medium,
+        maxWidth: 150,
+        isResizable: true,
+        onRender: (item, idx) => {
+          return (
+            <Link
+              href={`task-attempt.html?username=${userName}&jobName=${jobName}&jobAttemptIndex=${this.props.jobAttemptIndex}&taskRoleName=${this.props.taskRoleName}&taskIndex=${item.taskIndex}`}
+            >
+              <div className={c(FontClassNames.mediumPlus)}>{item.retries}</div>
+            </Link>
           );
         },
       },
@@ -588,118 +581,6 @@ export default class TaskRoleContainerList extends React.Component {
                 </TooltipHost>
               </div>
             )
-          );
-        },
-      },
-      {
-        key: 'gpus',
-        name: 'GPUs',
-        className: FontClassNames.mediumPlus,
-        headerClassName: FontClassNames.medium,
-        minWidth: 35,
-        maxWidth: 60,
-        isResizable: true,
-        onRender: item => {
-          const gpuAttr = isNil(item.containerGpus)
-            ? null
-            : parseGpuAttr(item.containerGpus);
-          if (isNil(gpuAttr)) {
-            return null;
-          } else if (gpuAttr.length === 0) {
-            return <div>0</div>;
-          } else {
-            return (
-              <div>
-                <TooltipHost
-                  calloutProps={{
-                    isBeakVisible: false,
-                  }}
-                  tooltipProps={{
-                    onRenderContent: () => (
-                      <div>
-                        {gpuAttr.map(x => (
-                          <span
-                            className={t.mr2}
-                            key={`gpu-${x}`}
-                          >{`#${x}`}</span>
-                        ))}
-                      </div>
-                    ),
-                  }}
-                  directionalHint={DirectionalHint.topLeftEdge}
-                >
-                  <Stack horizontal gap='s1'>
-                    <div>{gpuAttr.length}</div>
-                    <div>
-                      <Icon
-                        iconName='Info'
-                        styles={{
-                          root: [
-                            { fontSize: FontSizes.small },
-                            ColorClassNames.neutralSecondary,
-                          ],
-                        }}
-                      />
-                    </div>
-                  </Stack>
-                </TooltipHost>
-              </div>
-            );
-          }
-        },
-      },
-      {
-        key: 'status',
-        name: 'Status',
-        headerClassName: FontClassNames.medium,
-        minWidth: 100,
-        maxWidth: 150,
-        isResizable: true,
-        onRender: item => <StatusBadge status={capitalize(item.taskState)} />,
-      },
-      {
-        key: 'retries',
-        name: 'Retries',
-        headerClassName: FontClassNames.medium,
-        minWidth: 50,
-        maxWidth: 100,
-        isResizable: true,
-        onRender: (item, idx) => {
-          return (
-            <div className={FontClassNames.mediumPlus}>{item.retries}</div>
-          );
-        },
-      },
-      {
-        key: 'exitCode',
-        name: 'Exit Code',
-        headerClassName: FontClassNames.medium,
-        minWidth: 100,
-        maxWidth: 150,
-        isResizable: true,
-        onRender: item => {
-          return (
-            <div className={c(FontClassNames.mediumPlus)}>
-              {item.containerExitCode}
-            </div>
-          );
-        },
-      },
-      {
-        key: 'exitType',
-        name: 'Exit Type',
-        headerClassName: FontClassNames.medium,
-        minWidth: 150,
-        maxWidth: 200,
-        isResizable: true,
-        onRender: item => {
-          return (
-            <div className={c(FontClassNames.mediumPlus)}>
-              {!isNil(item.containerExitSpec) &&
-              !isNil(item.containerExitSpec.type)
-                ? item.containerExitSpec.type
-                : null}
-            </div>
           );
         },
       },
@@ -806,72 +687,172 @@ export default class TaskRoleContainerList extends React.Component {
           </div>
         ),
       },
+      exitTypeColumn,
+      {
+        key: 'exitCode',
+        name: 'Exit Code',
+        minWidth: 260,
+        headerClassName: FontClassNames.medium,
+        isResizable: true,
+        onRender: item => {
+          return isNil(item.containerExitSpec) ? (
+            <div className={c(FontClassNames.mediumPlus)}>
+              {item.containerExitCode}
+            </div>
+          ) : (
+            <div className={c(FontClassNames.mediumPlus)}>
+              {`${item.containerExitCode} (${item.containerExitSpec.phrase})`}
+            </div>
+          );
+        },
+      },
+    ];
+    const optionalColumns = [
+      {
+        key: 'runningStartTime',
+        name: 'Running Start Time',
+        headerClassName: FontClassNames.medium,
+        minWidth: 180,
+        maxWidth: 200,
+        isResizable: true,
+        onRender: item => {
+          return (
+            <div className={c(FontClassNames.mediumPlus)}>
+              {isNil(item.launchedTime)
+                ? 'N/A'
+                : DateTime.fromMillis(item.launchedTime).toLocaleString(
+                    DateTime.DATETIME_MED_WITH_SECONDS,
+                  )}
+            </div>
+          );
+        },
+      },
+      {
+        key: 'Duration',
+        name: 'Running Duration',
+        minWidth: 150,
+        headerClassName: FontClassNames.medium,
+        isResizable: true,
+        onRender: (item, idx) => {
+          return (
+            <div className={FontClassNames.mediumPlus}>
+              {getDurationString(
+                this.getTimeDuration(item.launchedTime, item.completedTime),
+              )}
+            </div>
+          );
+        },
+      },
+      {
+        key: 'nodeName',
+        name: 'Node Name',
+        headerClassName: FontClassNames.medium,
+        minWidth: 100,
+        isResizable: true,
+        onRender: item => {
+          return (
+            <div className={c(FontClassNames.mediumPlus)}>
+              {item.containerNodeName}
+            </div>
+          );
+        },
+      },
+      {
+        key: 'exitDiagonostic',
+        name: 'Exit Diagnostics',
+        headerClassName: FontClassNames.medium,
+        minWidth: 200,
+        isResizable: true,
+        onRender: item => {
+          return (
+            <CommandBarButton
+              className={FontClassNames.mediumPlus}
+              styles={{
+                root: { backgroundColor: 'transparent' },
+                rootDisabled: { backgroundColor: 'transparent' },
+              }}
+              disabled={
+                isNil(item.containerExitDiagnostics) &&
+                isNil(item.containerExitSpec)
+              }
+              text='Show Exit Diagnostics'
+              onClick={() => {
+                const result = [];
+                // exit spec
+                const spec = item.containerExitSpec;
+                if (!isNil(spec)) {
+                  // divider
+                  result.push(Array.from({ length: 80 }, () => '-').join(''));
+                  result.push('');
+                  // content
+                  result.push('[Exit Spec]');
+                  result.push('');
+                  result.push(yaml.safeDump(spec));
+                  result.push('');
+                }
+
+                // diagnostics
+                const diag = item.containerExitDiagnostics;
+                if (!isNil(diag)) {
+                  // divider
+                  result.push(Array.from({ length: 80 }, () => '-').join(''));
+                  result.push('');
+                  // content
+                  result.push('[Exit Diagnostics]');
+                  result.push('');
+                  result.push(diag);
+                  result.push('');
+                }
+
+                this.setState({
+                  monacoProps: {
+                    language: 'text',
+                    value: result.join('\n'),
+                    options: {
+                      wordWrap: 'off',
+                      readOnly: true,
+                    },
+                  },
+                  monacoTitle: `Task Exit Diagonostics`,
+                });
+              }}
+            />
+          );
+        },
+      },
+      {
+        key: 'containerId',
+        name: 'Container ID',
+        headerClassName: FontClassNames.medium,
+        minWidth: 300,
+        isResizable: true,
+        onRender: item => {
+          const id = item.containerId;
+          return (
+            !isNil(id) && (
+              <div className={c(t.truncate, FontClassNames.mediumPlus)}>
+                {id}
+              </div>
+            )
+          );
+        },
+      },
     ];
 
     let columns = defaultColumns;
-    if (showDebugInfo) {
-      columns = defaultColumns.concat(optionalColumns);
+    if (showMoreDiagnostics) {
+      columns = columns.concat(optionalColumns);
     }
 
     return columns;
-  }
-
-  onRenderRow(props) {
-    return (
-      <DetailsRow
-        {...props}
-        styles={{
-          root: {
-            color: theme.palette.black,
-          },
-        }}
-      />
-    );
-  }
-
-  render() {
-    const { monacoTitle, monacoProps, monacoFooterButton, logUrl } = this.state;
-    const { className, style, taskInfo, showDebugInfo } = this.props;
-    const status = taskInfo.taskStatuses;
-    return (
-      <div
-        className={className}
-        style={{ backgroundColor: theme.palette.white, ...style }}
-      >
-        <ThemeProvider theme={theme}>
-          <DetailsList
-            styles={{ root: { overflow: 'auto' } }}
-            columns={this.getColumns(showDebugInfo)}
-            disableSelectionZone
-            items={status}
-            layoutMode={DetailsListLayoutMode.justified}
-            selectionMode={SelectionMode.none}
-            onRenderRow={this.onRenderRow}
-          />
-        </ThemeProvider>
-        {/* Timer */}
-        <Timer
-          interval={isNil(monacoProps) || isEmpty(logUrl) ? null : interval}
-          func={this.logAutoRefresh}
-        />
-        {/* Monaco Editor Panel */}
-        <MonacoPanel
-          isOpen={!isNil(monacoProps)}
-          onDismiss={this.onDismiss}
-          title={monacoTitle}
-          monacoProps={monacoProps}
-          footer={monacoFooterButton}
-        />
-      </div>
-    );
   }
 }
 
 TaskRoleContainerList.contextType = Context;
 
 TaskRoleContainerList.propTypes = {
-  className: PropTypes.string,
-  style: PropTypes.object,
-  taskInfo: PropTypes.object,
-  showDebugInfo: PropTypes.bool,
+  taskRoleName: PropTypes.string,
+  tasks: PropTypes.arrayOf(PropTypes.object),
+  showMoreDiagnostics: PropTypes.bool,
+  jobAttemptIndex: PropTypes.number,
 };

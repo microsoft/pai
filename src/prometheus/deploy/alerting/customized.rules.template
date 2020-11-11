@@ -17,4 +17,6 @@
 
 # Rule Syntax Reference: https://prometheus.io/docs/prometheus/latest/configuration/alerting_rules/
 
+# select alert severity from `info`, `warn`, `error` or `fatal`
+
 {{ cluster_cfg['prometheus']['customized-alerts'] }}

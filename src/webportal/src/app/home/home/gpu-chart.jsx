@@ -41,7 +41,6 @@ import {
   BREAKPOINT1,
   BREAKPOINT2,
 } from './util';
-import { TooltipIcon } from '../../job-submission/components/controls/tooltip-icon';
 
 const GpuChart = ({ style, gpuPerNode, virtualClusters, userInfo }) => {
   const chartRef = useRef(null);
@@ -307,16 +306,7 @@ const GpuChart = ({ style, gpuPerNode, virtualClusters, userInfo }) => {
       <Stack styles={{ root: [{ height: '100%' }] }} gap='l1'>
         <Stack.Item>
           <Stack horizontal horizontalAlign='space-between'>
-            <Stack horizontal gap='s1'>
-              <div className={FontClassNames.mediumPlus}>
-                Available GPU nodes
-              </div>
-              <TooltipIcon
-                content={
-                  'The chart shows the distribution of nodes with available GPUs. X axis represents nodes with different number of available GPUs. Y axis represents the amount of the nodes.'
-                }
-              />
-            </Stack>
+            <div className={FontClassNames.mediumPlus}>Available GPU nodes</div>
             <div>
               {hasDedicatedVC && (
                 <div>

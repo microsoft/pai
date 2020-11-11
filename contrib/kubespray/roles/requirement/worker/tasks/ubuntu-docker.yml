@@ -36,7 +36,7 @@
 
 - name: "Get Default Runtime"
   set_fact:
-    default_runtime_fin: item
+    default_runtime_fin: "{{ item }}"
   when: item == worker_default_docker_runtime
   loop: "{{default_runtime_processed}}"
 
@@ -47,4 +47,4 @@
   check_mode: false
   environment: {}
   when:
-    - default_runtime_fin is defined
+    - default_runtime_fin is not defined

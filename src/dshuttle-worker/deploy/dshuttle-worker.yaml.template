@@ -1,0 +1,156 @@
+# Copyright (c) Microsoft Corporation
+# All rights reserved.
+#
+# MIT License
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
+# documentation files (the "Software"), to deal in the Software without restriction, including without limitation
+# the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and
+# to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+# The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED *AS IS*, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING
+# BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+# NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+# DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: dshuttle-worker
+spec:
+  selector:
+    matchLabels:
+      app: dshuttle-worker
+  template:
+    metadata:
+      labels:
+        app: dshuttle-worker
+    spec:
+      hostNetwork: true
+      dnsPolicy: ClusterFirstWithHostNet
+      securityContext:
+        fsGroup: 1000
+      nodeSelector:
+      initContainers:
+      - name: socket-chown
+        securityContext:
+          runAsUser: 0
+        image: dshuttle.azurecr.io/dshuttle/dshuttle:25037dc
+        command: ["/bin/chown","-R", "1000:1000", "/opt/domain", "/opt/logs", "/mnt/ssd"]
+        volumeMounts:
+        - name: dshuttle-domain
+          mountPath: /opt/domain
+        - name: worker-logs
+          mountPath: /opt/logs
+        - name: ssd
+          mountPath: /mnt/ssd
+      containers:
+      - name: dshuttle-worker
+        image: dshuttle.azurecr.io/dshuttle/dshuttle:25037dc
+        imagePullPolicy: Always
+        securityContext:
+          runAsUser: 1000
+          runAsGroup: 1000
+        {%- if cluster_cfg['cluster']['common']['qos-switch'] == "true" %}
+        resources:
+          limits:
+            memory: {{ cluster_cfg['dshuttle']['worker_limit_mem'] }}
+          requests:
+            memory: {{ cluster_cfg['dshuttle']['worker_request_mem'] }}
+        {%- endif %}
+        command: ["/entrypoint.sh"]
+        args:
+        - worker-only
+        - --no-format
+        env:
+        - name: ALLUXIO_WORKER_HOSTNAME
+          valueFrom:
+            fieldRef:
+              fieldPath: status.hostIP
+        envFrom:
+        - configMapRef:
+            name: dshuttle-config
+        ports:
+        - containerPort: {{ cluster_cfg['dshuttle']['worker_rpc_port'] }} 
+          name: rpc
+        - containerPort: {{ cluster_cfg['dshuttle']['worker_web_port'] }}
+          name: web
+        volumeMounts:
+        - name: dshuttle-domain
+          mountPath: /opt/domain
+        - mountPath: /dev/shm
+          name: mem
+        - mountPath: /mnt/ssd
+          name: ssd
+        - name: worker-logs
+          mountPath: /opt/alluxio/logs
+        - name: dshuttle-log-config
+          mountPath: /opt/alluxio/conf/log4j.properties
+          subPath: log4j.properties
+      - name: dshuttle-job-worker
+        image: dshuttle.azurecr.io/dshuttle/dshuttle:25037dc
+        securityContext:
+          runAsUser: 1000
+          runAsGroup: 1000
+        imagePullPolicy: Always
+        {%- if cluster_cfg['cluster']['common']['qos-switch'] == "true" %}
+        resources:
+          limits:
+            memory: {{ cluster_cfg['dshuttle']['job_worker_limit_mem'] }}
+          requests:
+            memory: {{ cluster_cfg['dshuttle']['job_worker_request_mem'] }}
+        {%- endif %}
+        command: ["/entrypoint.sh"]
+        args:
+        - job-worker
+        env:
+        - name: ALLUXIO_WORKER_HOSTNAME
+          valueFrom:
+            fieldRef:
+              fieldPath: status.hostIP
+        envFrom:
+        - configMapRef:
+            name: dshuttle-config
+        ports:
+        - containerPort: {{ cluster_cfg['dshuttle']['job_worker_rpc_port'] }}
+          name: job-rpc
+        - containerPort: {{ cluster_cfg['dshuttle']['job_worker_data_port'] }} 
+          name: job-data
+        - containerPort: {{ cluster_cfg['dshuttle']['job_worker_web_port'] }}
+          name: job-web
+        volumeMounts:
+        - name: dshuttle-domain
+          mountPath: /opt/domain
+        - mountPath: /dev/shm
+          name: mem
+        - mountPath: /mnt/ssd
+          name: ssd
+        - name: worker-logs
+          mountPath: /opt/alluxio/logs
+        - name: dshuttle-log-config
+          mountPath: /opt/alluxio/conf/log4j.properties
+          subPath: log4j.properties
+      restartPolicy: Always
+      volumes:
+      - name: dshuttle-domain
+        hostPath:
+          path: /tmp/alluxio-domain
+          type: DirectoryOrCreate
+      - name: worker-logs
+        hostPath:
+          path: /var/log/dshuttle
+          type: DirectoryOrCreate
+      - name: ssd
+        hostPath:
+          path: /mnt/dshuttle/ssd
+          type: DirectoryOrCreate
+      - name: mem
+        emptyDir:
+          medium: "Memory"
+      - name: dshuttle-log-config
+        configMap:
+          name: dshuttle-log-config
+      imagePullSecrets:
+      - name: dshuttle-regcred

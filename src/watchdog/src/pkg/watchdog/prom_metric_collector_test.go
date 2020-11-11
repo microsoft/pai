@@ -75,21 +75,21 @@ func TestGeneratePodsMetrics(t *testing.T) {
 	expectLables := [][]map[string]string{
 		{
 			{
-				"host_ip": "10.151.41.8", "initialized": "true", "name": "log-manager-ds-nxm2k", "namespace": "default",
+				"host_ip": "10.151.41.8", "node_name": "test_node_0", "initialized": "true", "name": "log-manager-ds-nxm2k", "namespace": "default",
 				"phase": "running", "pod_scheduled": "true", "ready": "true", "service_name": "log-manager",
 			}, {
-				"host_ip": "10.151.41.8", "name": "log-manager-logrotate", "namespace": "default",
+				"host_ip": "10.151.41.8", "node_name": "test_node_0",  "name": "log-manager-logrotate", "namespace": "default",
 				"pod_name": "log-manager-ds-nxm2k", "state": "running", "ready": "true", "service_name": "log-manager",
 			},
 			{
-				"host_ip": "10.151.41.8", "name": "log-manager-nginx", "namespace": "default",
+				"host_ip": "10.151.41.8", "node_name": "test_node_0", "name": "log-manager-nginx", "namespace": "default",
 				"pod_name": "log-manager-ds-nxm2k", "state": "running", "ready": "true", "service_name": "log-manager",
 			},
 		},
 		{},
 		{
 			{
-				"host_ip": "10.1.3.29", "initialized": "true", "job_name": "it_it_batch052_infer_80-159_bs2_V1",
+				"host_ip": "10.1.3.29", "node_name": "test_node_1", "initialized": "true", "job_name": "it_it_batch052_infer_80-159_bs2_V1",
 				"name": "f1up4zk9ehfpjx2zc9gq8rv860uk4qv9dtk6awjz70r2uc9n75fp4wtjbxb32-taskrole-28", "namespace": "default",
 				"phase": "pending", "pod_bound": "true", "pod_scheduled": "true", "ready": "false",
 			},
@@ -118,7 +118,7 @@ func TestGenerateNodesMetrics(t *testing.T) {
 	metrics := mo.pc.getPaiNodeMetrics(nodeMetrics[0])
 	expectLables := []map[string]string{
 		{
-			"name": "10.151.41.8", "disk_pressure": "false", "memory_pressure": "false",
+			"host_ip": "10.151.41.8", "node_name": "test_node_0", "disk_pressure": "false", "memory_pressure": "false",
 			"ready": "true", "unschedulable": "false",
 		},
 	}
@@ -176,7 +176,7 @@ func TestParseNoConditionPods(t *testing.T) {
 	promMetrics := mo.pc.getPodMetrics(podMetrics[0])
 	expectLables := []map[string]string{
 		{
-			"host_ip": "unscheduled", "initialized": "unknown", "name": "yarn-frameworklauncher-ds-2684q", "namespace": "default",
+			"host_ip": "unscheduled", "node_name": "test_node_0", "initialized": "unknown", "name": "yarn-frameworklauncher-ds-2684q", "namespace": "default",
 			"phase": "failed", "pod_scheduled": "unknown", "ready": "unknown", "service_name": "frameworklauncher",
 		},
 	}
@@ -197,7 +197,7 @@ func TestParseDLWSUnschedulableNodes(t *testing.T) {
 	promMetrics := mo.pc.getPaiNodeMetrics(nodeMetrics[0])
 	expectLables := []map[string]string{
 		{
-			"name": "192.168.255.1", "disk_pressure": "false", "memory_pressure": "false",
+			"host_ip": "192.168.255.1", "node_name": "dltsp40-infra01", "disk_pressure": "false", "memory_pressure": "false",
 			"ready": "true", "unschedulable": "true",
 		},
 	}

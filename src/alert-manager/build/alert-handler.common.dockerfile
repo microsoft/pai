@@ -19,13 +19,10 @@ FROM node:dubnium
 
 WORKDIR /usr/src/app
 
-ENV NODE_ENV=production \
-    SERVER_PORT=9095
+ENV NODE_ENV=production
 
 COPY ./src/alert-handler .
 
 RUN yarn install
-
-EXPOSE ${SERVER_PORT}
 
 CMD ["npm", "start"]

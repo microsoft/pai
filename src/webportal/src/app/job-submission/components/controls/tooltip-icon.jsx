@@ -24,21 +24,16 @@
  */
 
 import React from 'react';
-import { DirectionalHint, TooltipHost, Icon } from 'office-ui-fabric-react';
+import { IconButton } from 'office-ui-fabric-react';
 import PropTypes from 'prop-types';
 
 export const TooltipIcon = ({ content }) => {
   return (
-    <TooltipHost
-      calloutProps={{
-        isBeakVisible: false,
-        directionalHint: DirectionalHint.topAutoEdge,
-        gapSpace: 8, // spacing.s1
-      }}
-      content={content}
-    >
-      <Icon styles={{ root: { verticalAlign: 'middle' } }} iconName='Info' />
-    </TooltipHost>
+    <IconButton
+      target='_blank'
+      iconProps={{ iconName: 'Info' }}
+      href={content}
+    />
   );
 };
 

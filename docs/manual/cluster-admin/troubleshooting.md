@@ -23,7 +23,7 @@ Solutions:
 This is a kind of alert from alert manager, and is reported by watchdog service. Watchdog gets such metrics from Kubernetes API. Example metrics is like:
 
 ```
-pai_node_count{disk_pressure="false",instance="10.0.0.1:9101",job="pai_serivce_exporter",memory_pressure="false",name="10.0.0.2",out_of_disk="false",pai_service_name="watchdog",ready="true",scraped_from="watchdog-5ddd945975-kwhpr"}
+pai_node_count{disk_pressure="false",instance="10.0.0.1:9101",job="pai_serivce_exporter",memory_pressure="false",host_ip="10.0.0.2",out_of_disk="false",pai_service_name="watchdog",ready="true",scraped_from="watchdog-5ddd945975-kwhpr"}
 ```
 
 The name label indicate what node this metric represents.
@@ -66,6 +66,15 @@ If you cannot use GPU in your job, please check the following items on the corre
  2. [nvidia-container-runtime](https://github.com/NVIDIA/nvidia-container-runtime) is installed, and configured as the default runtime of docker. Use `docker info -f "{{json .DefaultRuntime}}"` to confirm.
 
 If the GPU number shown in webportal is wrong, check the [hivedscheduler and VC configuration](./how-to-set-up-virtual-clusters.md).
+
+### NvidiaSmiDoubleEccError
+This is a kind of alert from alert manager.
+It means that nvidia cards from the related nodes have double ecc error.
+When this alert occurs, the nodes related will be automatically cordoned by alert manager. 
+After the problem is resolved, you can uncordon the node manually with the following command:
+```bash
+kubectl uncordon <node name>
+```
 
 ### Cannot See Utilization Information.
 

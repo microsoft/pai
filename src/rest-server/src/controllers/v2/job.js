@@ -146,7 +146,10 @@ const list = asyncHandler(async (req, res) => {
 });
 
 const get = asyncHandler(async (req, res) => {
-  const data = await job.get(req.params.frameworkName);
+  const data = await job.get(
+    req.params.frameworkName,
+    req.params.jobAttemptId ? Number(req.params.jobAttemptId) : undefined,
+  );
   res.json(data);
 });
 
@@ -219,19 +222,70 @@ const getSshInfo = asyncHandler(async (req, res) => {
 });
 
 const addTag = asyncHandler(async (req, res) => {
-  await job.addTag(req.params.frameworkName, req.body.value);
-  res.status(status('OK')).json({
-    status: status('OK'),
-    message: `Add tag ${req.body.value} for job ${req.params.frameworkName} successfully.`,
-  });
+  const userName = req.user.username;
+  const admin = req.user.admin;
+  if (req.params.frameworkName.split('~')[0] === userName || admin) {
+    await job.addTag(req.params.frameworkName, req.body.value);
+    res.status(status('OK')).json({
+      status: status('OK'),
+      message: `Add tag ${req.body.value} for job ${req.params.frameworkName} successfully.`,
+    });
+  } else {
+    throw createError(
+      'Forbidden',
+      'ForbiddenUserError',
+      `User ${userName} is not allowed to add tag to job ${req.params.frameworkName}.`,
+    );
+  }
 });
 
 const deleteTag = asyncHandler(async (req, res) => {
-  await job.deleteTag(req.params.frameworkName, req.body.value);
-  res.status(status('OK')).json({
-    status: status('OK'),
-    message: `Delete tag ${req.body.value} from job ${req.params.frameworkName} successfully.`,
-  });
+  const userName = req.user.username;
+  const admin = req.user.admin;
+  if (req.params.frameworkName.split('~')[0] === userName || admin) {
+    await job.deleteTag(req.params.frameworkName, req.body.value);
+    res.status(status('OK')).json({
+      status: status('OK'),
+      message: `Delete tag ${req.body.value} from job ${req.params.frameworkName} successfully.`,
+    });
+  } else {
+    throw createError(
+      'Forbidden',
+      'ForbiddenUserError',
+      `User ${userName} is not allowed to delete tag from job ${req.params.frameworkName}.`,
+    );
+  }
+});
+
+const getEvents = asyncHandler(async (req, res) => {
+  const filters = {};
+  if (req.query) {
+    if ('type' in req.query) {
+      filters.type = req.query.type;
+    }
+  }
+  const attributes = [
+    'uid',
+    'frameworkName',
+    'podUid',
+    'taskroleName',
+    'taskName',
+    'taskIndex',
+    'type',
+    'reason',
+    'message',
+    'firstTimestamp',
+    'lastTimestamp',
+    'count',
+    'sourceComponent',
+    'sourceHost',
+  ];
+  const data = await job.getEvents(
+    req.params.frameworkName,
+    attributes,
+    filters,
+  );
+  res.json(data);
 });
 
 // module exports
@@ -244,4 +298,5 @@ module.exports = {
   getSshInfo,
   addTag,
   deleteTag,
+  getEvents,
 };

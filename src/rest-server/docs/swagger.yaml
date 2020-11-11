@@ -9,10 +9,13 @@ info:
     Version 2.0.4: add default field in get storage list
     Version 2.0.5: add more parameters to job list; add submissionTime
     Version 2.1.0: add add/delete tag api; add tags field in get job detail and get job list; add tags filter in get job list
+    Version 2.1.1: add get event api
+    Version 2.2.0: add get task status api; add jobAttempId filter to job status api and extend job detail schema
+    Version 2.2.1: a user can add/delete tags to/from his/her own jobs
   license:
     name: MIT License
     url: "https://github.com/microsoft/pai/blob/master/LICENSE"
-  version: 2.1.0
+  version: 2.2.0
 externalDocs:
   description: Find out more about OpenPAI
   url: "https://github.com/microsoft/pai"
@@ -439,7 +442,6 @@ paths:
       summary: Update user's own profile.
       description: >-
         Update user's own profile in the system.
-        Only allowed in basic mode
       operationId: updateUserSelf
       security:
         - bearerAuth: []
@@ -476,6 +478,13 @@ paths:
                         Old password.
                         When newPassword exists, it's required.
                         When newPassword doesn't exists, it's useless.
+                    extension:
+                      type: object
+                      description: >-
+                        Extension fields.
+                        Be allowed in both oidc and basic mode.
+                        When patch is false, it's required.
+                        When patch is true, it's optional.
                 patch:
                   type: boolean
                   default: false
@@ -1167,10 +1176,11 @@ paths:
                   state: SUCCEEDED
                   subState: Completed
                   executionType: STOP
-                  tags: ['abnormal', 'low_gpu_utilization']
+                  tags: ["abnormal", "low_gpu_utilization"]
                   retries: 0
                   submissionTime: 0
                   createdTime: 0
+                  launchedTime: 0
                   completedTime: 0
                   appExitCode: 0
                   virtualCluster: unknown
@@ -1180,8 +1190,8 @@ paths:
     get:
       tags:
         - job
-      summary: Get job status.
-      description: Get job status.
+      summary: Get job status with the last attempt.
+      description: Get job status with the last attempt.
       operationId: getJob
       security:
         - bearerAuth: []
@@ -1197,7 +1207,7 @@ paths:
                 $ref: "#/components/schemas/JobDetail"
               example:
                 name: job name
-                tags: ['abnormal', 'low_gpu_utilization']
+                tags: ["abnormal", "low_gpu_utilization"]
                 jobStatus:
                   username: user name
                   state: SUCCEEDED
@@ -1206,8 +1216,12 @@ paths:
                   retries: 0
                   submissionTime: 0
                   createdTime: 0
+                  launchedTime: 0
                   completedTime: 0
+                  attemptId: 0
+                  attemptState: SUCCEEDED,
                   appId: id
+                  appCreatedTime: 0
                   appLaunchedTime: 0
                   appCompletedTime: 0
                   appExitCode: 0
@@ -1218,7 +1232,65 @@ paths:
                       name: task role name
                     taskStatuses:
                       - taskIndex: 0
+                        taskUid: 421
                         taskState: SUCCEEDED
+                        attemptId: 0
+                        attemptState: SUCCEEDED
+        "404":
+          $ref: "#/components/responses/NoJobError"
+        "500":
+          $ref: "#/components/responses/UnknownError"
+  "/api/v2/jobs/{user}~{job}/attempts/{jobAttemptId}":
+    get:
+      tags:
+        - job
+      summary: Get job status with specific job attempt.
+      description: Get job status with specific job attempt.
+      operationId: getJob
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/user"
+        - $ref: "#/components/parameters/job"
+        - $ref: "#/components/parameters/jobAttemptId"
+      responses:
+        "200":
+          description: Succeeded
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/JobDetail"
+              example:
+                name: job name
+                tags: ["abnormal", "low_gpu_utilization"]
+                jobStatus:
+                  username: user name
+                  state: SUCCEEDED
+                  subState: Completed
+                  executionType: STOP
+                  retries: 0
+                  submissionTime: 0
+                  createdTime: 0
+                  launchedTIme: 0
+                  completedTime: 0
+                  attemptId: 0
+                  attemptState: SUCCEEDED,
+                  appId: id
+                  appCreatedTime: 0
+                  appLaunchedTime: 0
+                  appCompletedTime: 0
+                  appExitCode: 0
+                  virtualCluster: unknown
+                taskRoles:
+                  taskrole:
+                    taskRoleStatus:
+                      name: task role name
+                    taskStatuses:
+                      - taskIndex: 0
+                        taskUid: 421
+                        taskState: SUCCEEDED
+                        attemptId: 0
+                        attemptState: SUCCEEDED
         "404":
           $ref: "#/components/responses/NoJobError"
         "500":
@@ -1246,11 +1318,11 @@ paths:
                 protocolVersion: 2
                 name: jobconfig
                 type: job
-                version: '1.0'
+                version: "1.0"
                 prerequisites:
                   - name: image
                     type: dockerimage
-                    uri : uri
+                    uri: uri
                 taskRoles:
                   taskRole:
                     instances: 1
@@ -1311,6 +1383,8 @@ paths:
                 $ref: "#/components/schemas/Response"
               example:
                 message: execute job {job} successfully
+        "400":
+          $ref: "#/components/responses/InvalidParametersError"
         "404":
           $ref: "#/components/responses/NoJobError"
         "500":
@@ -1319,7 +1393,7 @@ paths:
     put:
       tags:
         - job
-      summary: Add a tag to a job.
+      summary: Add a tag to a job. Admin users can add tags to any job. A non-admin user can add tags to his/her own jobs.
       description: Add a tag to a job.
       operationId: addTag
       security:
@@ -1348,6 +1422,8 @@ paths:
                 $ref: "#/components/schemas/Response"
               example:
                 message: "Add tag {tag} for job {job} successfully."
+        "400":
+          $ref: "#/components/responses/InvalidParametersError"
         "404":
           $ref: "#/components/responses/NoJobError"
         "500":
@@ -1355,7 +1431,7 @@ paths:
     delete:
       tags:
         - job
-      summary: Delete a tag from a job.
+      summary: Delete a tag from a job. Admin users can delete tags from any job. A non-admin user can delete tags from his/her own jobs.
       description: Delete a tag from a job.
       operationId: deleteTag
       security:
@@ -1384,6 +1460,8 @@ paths:
                 $ref: "#/components/schemas/Response"
               example:
                 message: "Delete tag {tag} from job {job} successfully."
+        "400":
+          $ref: "#/components/responses/InvalidParametersError"
         "404":
           description: NoJobError or NoTagError
           content:
@@ -1397,8 +1475,52 @@ paths:
                   $ref: "#/components/responses/NoTagError/content/application~1json/examples/NoTagError"
         "500":
           $ref: "#/components/responses/UnknownError"
+  "/api/v2/jobs/{user}~{job}/events":
+    get:
+      tags:
+        - job
+      summary: Get events of a job.
+      description: Get events of a job. The events are sorted by "lastTimestamp,DESC".
+      operationId: getEvents
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: type
+          in: query
+          description: filter events with type. Could be "Warning" or "Normal".
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Succeeded
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/JobEventsWithTotalCount"
+              example:
+                totalCount: 1
+                data:
+                - uid: "b8a87b12-29de-4702-818a-442d5a97623e"
+                  frameworkName: "399af21acb5befd015d4c45f6c7c1eb9"
+                  podUid: "94920b63-f4d6-4c63-b72b-b926b8bc1334"
+                  taskroleName: "taskrole"
+                  taskName: "399af21acb5befd015d4c45f6c7c1eb9-taskrole-11"
+                  taskIndex: 11
+                  type: "Warning"
+                  reason: "FailedScheduling"
+                  message: "0/17 nodes are available: 1 Insufficient memory, 1 node(s) didn't match node selector, 1 node(s) were unschedulable, 14 Insufficient cpu, 16 Insufficient nvidia.com/gpu."
+                  firstTimestamp: "2020-09-29T09:46:42.000Z"
+                  lastTimestamp: "2020-09-29T09:55:53.000Z"
+                  count: 9
+                  sourceComponent: "default-scheduler"
+                  sourceHost: null
+        "404":
+          $ref: "#/components/responses/NoJobError"
+        "500":
+          $ref: "#/components/responses/UnknownError"
   "/api/v2/jobs/{user}~{job}/job-attempts/healthz":
     get:
+      deprecated: true
       tags:
         - job history
       summary: Check if job attempts is healthy.
@@ -1416,6 +1538,7 @@ paths:
           description: Not healthy
   "/api/v2/jobs/{user}~{job}/job-attempts":
     get:
+      deprecated: true
       tags:
         - job history
       summary: Get all attempts of a job.
@@ -1443,7 +1566,6 @@ paths:
                   userName: userName
                   state: SUCCEEDED
                   originState: Completed
-                  maxAttemptCount: 1
                   attemptIndex: 0
                   jobStartedTime: 0
                   attemptStartedTime: 0
@@ -1494,6 +1616,7 @@ paths:
           $ref: "#/components/responses/UnknownError"
   "/api/v2/jobs/{user}~{job}/job-attempts/{attemptIndex}":
     get:
+      deprecated: true
       tags:
         - job history
       summary: Get a specific attempt by attempt index.
@@ -1519,7 +1642,6 @@ paths:
                 userName: userName
                 state: SUCCEEDED
                 originState: Completed
-                maxAttemptCount: 1
                 attemptIndex: 0
                 jobStartedTime: 0
                 attemptStartedTime: 0
@@ -1567,6 +1689,100 @@ paths:
         "404":
           $ref: "#/components/responses/NoJobError"
         "501":
+          $ref: "#/components/responses/UnknownError"
+  "/api/v2/jobs/{user}~{job}/attempts/{jobAttemptId}/taskRoles/{taskRoleName}/taskIndex/{taskIndex}/attempts":
+    get:
+      tags:
+        - job
+      summary: Get task status.
+      description: Get task status.
+      operationId: getTask
+      security:
+        - bearerAuth: []
+      parameters:
+      - $ref: "#/components/parameters/user"
+      - $ref: "#/components/parameters/job"
+      - $ref: "#/components/parameters/jobAttemptId"
+      - $ref: "#/components/parameters/taskRoleName"
+      - $ref: "#/components/parameters/taskIndex"
+      responses:
+        "200":
+          description: Succeeded
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TaskStatus"
+              example:
+                taskIndex: 0
+                taskUid: e0235258-0c4b-11eb-b396-96ba8c8049b4
+                taskState: STOPPED
+                retries: 1
+                accountableRetries: 1
+                createdTime: 1602480558000
+                launchedTime: 1602480559000
+                completedTime: 1602480603000
+                username: test_user
+                jobName: task_retry_histry_test
+                jobAttemptId: 0
+                taskRoleName: taskrole
+                attempts:
+                  - attemptId: 0
+                    attemptState: FAILED
+                    currentAttemptCreatedTime: 1602480558000
+                    currentAttemptLaunchedTime: 1602480558000
+                    currentAttemptCompletedTime: 1602480570000
+                    containerId: a9f9f1f2-5e43-4423-88c3-022433b8cd7c
+                    containerIp: 10.151.40.34
+                    containerNodeName: node16
+                    containerPorts:
+                      ssh: 37508
+                      http: 24661
+                    containerGpus: null
+                    containerLog: http://10.151.40.34:9103/log-manager/tail/admin/9893b6e0f9f5997f4a82f23bef39bf32/taskrole/a9f9f1f2-5e43-4423-88c3-022433b8cd7c/
+                    containerExitCode: -220
+                    containerExitSpec:
+                      code: -220
+                      phrase: FrameworkAttemptCompletion
+                      issuer: PAI_FC
+                      causer: USER_STOP
+                      type: USER_STOP
+                      stage: UNKNOWN
+                      behavior: PERMANENT
+                      reaction: NEVER_RETRY
+                      reason: Stop to complete current job attempt
+                      repro:
+                        - Stop a job with long running container
+                    containerExitDiagnostics: Stop to complete current FrameworkAttempt
+                  - attemptId: 1
+                    attemptState: FAILED
+                    currentAttemptCreatedTime: 1602480591000
+                    currentAttemptLaunchedTime: 1602480591000
+                    currentAttemptCompletedTime: 1602480603000
+                    containerId: a9f9f1f2-5e43-4423-88c3-022433b8cd7c
+                    containerIp: 10.151.40.34
+                    containerNodeName: node16
+                    containerPorts:
+                      ssh: 37508
+                      http: 24661
+                    containerGpus: null
+                    containerLog: http://10.151.40.34:9103/log-manager/tail/admin/9893b6e0f9f5997f4a82f23bef39bf32/taskrole/a9f9f1f2-5e43-4423-88c3-022433b8cd7c/
+                    containerExitCode: -220
+                    containerExitSpec:
+                      code: -220
+                      phrase: FrameworkAttemptCompletion
+                      issuer: PAI_FC
+                      causer: USER_STOP
+                      type: USER_STOP
+                      stage: UNKNOWN
+                      behavior: PERMANENT
+                      reaction: NEVER_RETRY
+                      reason: Stop to complete current job attempt
+                      repro:
+                        - Stop a job with long running container
+                    containerExitDiagnostics: Stop to complete current FrameworkAttempt
+        "404":
+          $ref: "#/components/responses/NoTaskError"
+        "500":
           $ref: "#/components/responses/UnknownError"
   /api/v2/kubernetes/nodes:
     get:
@@ -1680,6 +1896,27 @@ components:
       required: true
       schema:
         type: string
+    jobAttemptId:
+      name: jobAttemptId
+      in: path
+      description: job attempt id
+      required: true
+      schema:
+        type: string
+    taskRoleName:
+      name: taskRoleName
+      in: path
+      description: task role name
+      required: true
+      schema:
+        type: string
+    taskIndex:
+      name: taskIndex
+      in: path
+      description: task index
+      required: true
+      schema:
+        type: string
   schemas:
     Response:
       type: object
@@ -1727,6 +1964,84 @@ components:
       required:
         - totalCount
         - data
+    JobEventsWithTotalCount:
+      type: object
+      properties:
+        totalCount:
+          type: number
+          description: total count of events with given filters
+        data:
+          $ref: "#/components/schemas/JobEvents"
+      required:
+        - totalCount
+        - data
+    JobEvents:
+      type: array
+      description: job event list
+      items:
+        type: object
+        properties:
+          uid:
+            type: string
+            description: event uid
+          frameworkName:
+            type: string
+            description: related framework name
+          podUid:
+            type: string
+            description: pod uid of the event
+          taskroleName:
+            type: string
+            description: taskrole name of the event
+          taskName:
+            type: string
+            description: task name of the event
+          taskIndex:
+            type: integer
+            description: task index of the event
+          type:
+            type: string
+            description: type of the event
+            enum:
+              - Normal
+              - Warning
+          reason:
+            type: string
+            description: event reason
+          message:
+            type: string
+            description: event message
+          firstTimestamp:
+            type: string
+            description: firstTimestamp of the event
+          lastTimestamp:
+            type: string
+            description: lastTimestamp of the event
+          count:
+            type: integer
+            description: event count between firstTimestamp and lastTimestamp
+          sourceComponent:
+            type: string
+            description: source component of the event
+          sourceHost:
+            type: string
+            nullable: true
+            description: source host of the event
+        required:
+          - uid
+          - frameworkName
+          - podUid
+          - taskroleName
+          - taskName
+          - taskIndex
+          - type
+          - reason
+          - message
+          - firstTimestamp
+          - lastTimestamp
+          - count
+          - sourceComponent
+          - sourceHost
     JobSummary:
       type: array
       description: job summary list
@@ -1797,6 +2112,10 @@ components:
             type: integer
             nullable: true
             description: job created time, in number of milliseconds since the Unix Epoch.
+          launchedTime:
+            type: integer
+            nullable: true
+            description: job launched time, in number of milliseconds since the Unix Epoch.
           completedTime:
             type: integer
             nullable: true
@@ -1906,6 +2225,11 @@ components:
               nullable: true
               description: >-
                 job created time, in number of milliseconds since the Unix
+            launchedTime:
+              type: integer
+              nullable: true
+              description: >-
+                job launched time, in number of milliseconds since the Unix
                 Epoch.
             completedTime:
               type: integer
@@ -1913,9 +2237,19 @@ components:
               description: >-
                 job completed time, in number of milliseconds since the Unix
                 Epoch.
+            attemptId:
+              type: integer
+            attemptState:
+              type: string
             appId:
               type: string
               description: unique id for the job
+            appCreatedTime:
+              type: integer
+              nullable: true
+              description: >-
+                job created time for last attempt, in number of milliseconds
+                since the Unix Epoch.
             appLaunchedTime:
               type: integer
               nullable: true
@@ -1927,11 +2261,12 @@ components:
               nullable: true
               description: >
                 job completed time for last attempt, in number of milliseconds
-                since the Unix Epoch. to get durations for last attempt:
+                since the Unix Epoch.
+                To get durations for last attempt:
                   wholeDuration = completedTime - createdTime;
                   runningDuration = appCompletedTime - appLaunchedTime;
                   waitingDuration = wholeDuration - runningDuration.
-                to get durations for all attempts:
+                To get durations for all attempts:
                   runningDuration = sum(appCompletedTime - appLaunchedTime) for all attempts.
             appExitCode:
               type: integer
@@ -2013,6 +2348,7 @@ components:
             - retries
             - createdTime
             - completedTime
+            - appCreatedTime
             - appLaunchedTime
             - appCompletedTime
             - appExitCode
@@ -2039,6 +2375,8 @@ components:
                     taskIndex:
                       type: integer
                       description: task index
+                    taskUid:
+                      type: integer
                     taskState:
                       type: string
                       description: task state
@@ -2121,11 +2459,27 @@ components:
                       description: >-
                         task created time, in number of milliseconds since the Unix
                         Epoch.
+                    launchedTime:
+                      type: integer
+                      nullable: true
+                      description: >-
+                        task launched time, in number of milliseconds since the Unix
+                        Epoch.
                     completedTime:
                       type: integer
                       nullable: true
                       description: >-
                         task completion time, in number of milliseconds since the Unix
+                        Epoch.
+                    attemptId:
+                      type: integer
+                    attemptState:
+                      type: string
+                    currentAttemptCreatedTime:
+                      type: integer
+                      nullable: true
+                      description: >-
+                        the current attempt created time, in number of milliseconds since the Unix
                         Epoch.
                     currentAttemptLaunchedTime:
                       type: integer
@@ -2356,8 +2710,6 @@ components:
         originState:
           type: string
           nullable: true
-        maxAttemptCount:
-          type: integer
         attemptIndex:
           type: integer
           nullable: true
@@ -2533,6 +2885,155 @@ components:
                 - taskStatuses
         isLatest:
           type: boolean
+    TaskStatus:
+      type: object
+      description: task status
+      properties:
+        taskIndex:
+          type: integer
+          description: task index
+        taskUid:
+          type: string
+        taskState:
+          type: string
+          description: task state
+          enum:
+            - WAITING
+            - RUNNING
+            - STOPPING
+            - STOPPED
+            - SUCCEEDED
+            - FAILED
+            - UNKNOWN
+        retries:
+          type: integer
+        accountableRetries:
+          type: integer
+        createdTime:
+          type: integer
+          nullable: true
+          description: >-
+            task created time, in number of milliseconds since the Unix Epoch.
+        launchedTime:
+          type: integer
+          nullable: true
+          description: >-
+            task launched time, in number of milliseconds since the Unix Epoch.
+        completedTime:
+          type: integer
+          nullable: true
+          description: >-
+            task completion time, in number of milliseconds since the Unix Epoch.
+        username:
+          type: string
+        jobName:
+          type: string
+        jobAttemptId:
+          type: integer
+        taskRoleName:
+          type: string
+        attempts:
+          type: array
+          items:
+            type: object
+            description: task attempt specific information
+            properties:
+              attemptId:
+                type: integer
+              attemptState:
+                type: string
+              currentAttemptCreatedTime:
+                type: integer
+                nullable: true
+                description: >-
+                  the current attempt created time, in number of milliseconds since the Unix
+                  Epoch.
+              currentAttemptLaunchedTime:
+                type: integer
+                nullable: true
+                description: >-
+                  the current attempt launched time, in number of milliseconds since the Unix
+                  Epoch.
+              currentAttemptCompletedTime:
+                type: integer
+                nullable: true
+                description: >-
+                  the current attempt completion time, in number of milliseconds since the Unix
+                  Epoch.
+              containerId:
+                type: string
+                nullable: true
+                description: uid of the task container
+              containerIp:
+                type: string
+                nullable: true
+                description: ip of the task container
+              containerNodeName:
+                type: string
+                nullable: true
+                description: node name of task container
+              containerPorts:
+                type: object
+                description: ports of the task container
+              containerGpus:
+                type: string
+                nullable: true
+                description: gpu of the task container
+              containerLog:
+                type: string
+                description: log url of the task container
+              containerExitCode:
+                type: integer
+                nullable: true
+                description: exit code the task container
+              containerExitSpec:
+                type: object
+                nullable: true
+                description: container exit spec
+                properties:
+                  code:
+                    type: integer
+                  phrase:
+                    type: string
+                  issuer:
+                    type: string
+                  causer:
+                    type: string
+                  type:
+                    type: string
+                  stage:
+                    type: string
+                  behavior:
+                    type: string
+                  reaction:
+                    type: string
+                  reason:
+                    type: string
+                  repro:
+                    type: array
+                    items:
+                      type: string
+                  solution:
+                    type: array
+                    items:
+                      type: string
+              containerExitDiagnostics:
+                type: string
+                nullable: true
+                description: container exit diagnostics
+              hived:
+                type: object
+                nullable: true
+                properties:
+                  affinityGroupName:
+                    type: string
+                    nullable: true
+                  lazyPreempted:
+                    type: object
+                    nullable: true
+                  lazyPreemptionStatus:
+                    type: object
+                    nullable: true
     UserInfo:
       type: object
       properties:
@@ -2567,6 +3068,17 @@ components:
         - email
         - extension
   responses:
+    InvalidParametersError:
+      description: InvalidParametersError
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Response"
+          examples:
+            InvalidParametersError:
+              value:
+                code: InvalidParametersError
+                message: Invalid request parameters.
     IncorrectPasswordError:
       description: IncorrectPasswordError
       content:
@@ -2670,6 +3182,17 @@ components:
               value:
                 code: NoJobError
                 message: "Job {job} is not found."
+    NoTaskError:
+      description: NoTaskError
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Response"
+          examples:
+            NoTaskError:
+              value:
+                code: NoTaskError
+                message: "Task {task} is not found."
     NoTagError:
       description: NoTagError
       content:

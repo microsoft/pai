@@ -81,7 +81,7 @@ export const SidebarCard = ({
               styles={style.actionButton}
               onClick={onSelect}
             />
-            <Stack horizontal gap='s1'>
+            <Stack horizontal verticalAlign='baseline'>
               <Text styles={style.headerText}>{title}</Text>
               {tooltip && <TooltipIcon content={tooltip} />}
             </Stack>

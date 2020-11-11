@@ -20,8 +20,12 @@ const express = require('express');
 const limiter = require('@pai/config/rate-limit');
 const token = require('@pai/middlewares/token');
 const controller = require('@pai/controllers/v2/job');
+const taskController = require('@pai/controllers/v2/task');
 const protocol = require('@pai/middlewares/v2/protocol');
 const jobAttemptRouter = require('@pai/routes/v2/job-attempt.js');
+const param = require('@pai/middlewares/parameter');
+const tagInputSchema = require('@pai/config/v2/tag');
+const executionTypeInputSchema = require('@pai/config/v2/execution-type');
 
 const router = new express.Router();
 
@@ -38,9 +42,25 @@ router
   .get(token.check, controller.get);
 
 router
+  .route('/:frameworkName/attempts/:jobAttemptId')
+  /** GET /api/v2/jobs/:frameworkName/attempts/:jobAttemptId - Get job with specific attempt */
+  .get(token.check, controller.get);
+
+router
+  .route(
+    '/:frameworkName/attempts/:jobAttemptId/taskRoles/:taskRoleName/taskIndex/:taskIndex/attempts',
+  )
+  /** GET /api/v2/jobs/frameworkName/attempts/:jobAttemptId/taskRoles/:taskRoleName/taskIndex/:taskIndex/attempts - get certain task retry */
+  .get(token.check, taskController.get);
+
+router
   .route('/:frameworkName/executionType')
   /** PUT /api/v2/jobs/:frameworkName/executionType - Start or stop job */
-  .put(token.check, controller.execute);
+  .put(
+    token.check,
+    param.validate(executionTypeInputSchema.executionTypeInputSchema),
+    controller.execute,
+  );
 
 router
   .route('/:frameworkName/config')
@@ -57,12 +77,25 @@ router.use('/:frameworkName/job-attempts', jobAttemptRouter);
 router
   .route('/:frameworkName/tag')
   /** PUT /api/v2/jobs/:frameworkName/tag - Add a framework tag */
-  .put(token.check, protocol.validateTag, controller.addTag);
+  .put(
+    token.check,
+    param.validate(tagInputSchema.tagInputSchema),
+    controller.addTag,
+  );
 
 router
   .route('/:frameworkName/tag')
   /** DELETE /api/v2/jobs/:frameworkName/tag - Delete a framework tag */
-  .delete(token.check, controller.deleteTag);
+  .delete(
+    token.check,
+    param.validate(tagInputSchema.tagInputSchema),
+    controller.deleteTag,
+  );
+
+router
+  .route('/:frameworkName/events')
+  /** GET /api/v2/jobs/:frameworkName/events - Get events of a framework */
+  .get(token.check, controller.getEvents);
 
 // module exports
 module.exports = router;

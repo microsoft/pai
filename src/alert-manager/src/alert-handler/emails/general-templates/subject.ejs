@@ -1,7 +1,8 @@
-OpenPAI Alerts : <%= groupLabels.alertname %>,
+<%= cluster_id %> <%= groupLabels.severity %>: 
 <% if (alerts.filter( element => element.status =="firing").length > 0) { %>
-<%= alerts.filter( element => element.status =="firing").length %> Firing
+[FIRING: <%= alerts.filter( element => element.status =="firing").length %> ]
 <% } %>
-<% if (alerts.filter( element => element.status =="resolved").length > 0) { %>
-<%= alerts.filter( element => element.status =="resolved").length %> Resolved
+<% if (alerts.filter( element => element.status =="firing").length === 0) { %>
+[RESOLVED: <%= alerts.filter( element => element.status =="resolved").length %> ]
 <% } %>
+<%= groupLabels.alertname %>

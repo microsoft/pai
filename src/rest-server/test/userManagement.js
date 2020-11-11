@@ -151,7 +151,6 @@ describe('Add new user: post /api/v2/user', () => {
 
   before(() => {
     // mock for case1 username=newuser
-
     nock(apiServerRootUri)
       .post('/api/v1/namespaces/pai-user-v2/secrets', {
         'metadata': {'name': '6e657775736572'},
@@ -185,7 +184,6 @@ describe('Add new user: post /api/v2/user', () => {
       });
 
     // mock for case2 add non-admin user
-
     nock(apiServerRootUri)
       .post('/api/v1/namespaces/pai-user-v2/secrets', {
         'metadata': {'name': '6e6f6e5f61646d696e'},
@@ -247,13 +245,13 @@ describe('Add new user: post /api/v2/user', () => {
 
     nock(apiServerRootUri)
       .get('/api/v1/namespaces/pai-group/secrets/64656661756c74')
-      .times(4)
+      .times(3)
       .reply(200, defaultGroupSchema)
       .get('/api/v1/namespaces/pai-group/secrets/766331')
-      .times(4)
+      .times(3)
       .reply(200, vc1GroupSchema)
       .get('/api/v1/namespaces/pai-group/secrets/766332')
-      .times(4)
+      .times(3)
       .reply(200, vc2GroupSchema)
       .get('/api/v1/namespaces/pai-group/secrets/61646d696e47726f7570');
 });

@@ -117,7 +117,7 @@
           "restartPolicy": "Always",
           "terminationGracePeriodSeconds": 30,
           "dnsPolicy": "ClusterFirst",
-          "nodeName": "10.151.41.8",
+          "nodeName": "test_node_0",
           "securityContext": {},
           "imagePullSecrets": [
             {
@@ -685,7 +685,7 @@
           "dnsPolicy": "ClusterFirst",
           "serviceAccountName": "frameworkbarrier",
           "serviceAccount": "frameworkbarrier",
-          "nodeName": "10.1.3.29",
+          "nodeName": "test_node_1",
           "hostNetwork": true,
           "securityContext": {},
           "imagePullSecrets": [

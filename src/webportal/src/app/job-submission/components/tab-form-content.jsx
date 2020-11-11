@@ -66,7 +66,6 @@ export const TabFormContent = ({
       {!isSingle && (
         <FormTextField
           sectionLabel={'Task role name'}
-          sectionTooltip={PROTOCOL_TOOLTIPS.taskRoleName}
           shortStyle
           value={jobTaskRole.name}
           onChange={value => _onValueChange('name', value)}
@@ -121,6 +120,7 @@ export const TabFormContent = ({
             onChange={ports => _onValueChange('ports', ports)}
           />
           <FormSpinButton
+            sectionTooltip={PROTOCOL_TOOLTIPS.policy}
             sectionLabel={'Task retry count'}
             shortStyle
             sectionOptional

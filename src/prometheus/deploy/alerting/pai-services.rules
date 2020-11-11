@@ -17,35 +17,43 @@
 
 # Rule Syntax Reference: https://prometheus.io/docs/prometheus/latest/configuration/alerting_rules/
 
+# select alert severity from `info`, `warn`, `error` or `fatal`
+
 groups:
     - name: pai-services
       rules:
       - alert: PaiServicePodNotRunning
         expr: pai_pod_count{phase!="running"} > 0
         for: 10m
+        labels:
+          type: pai_service
+          severity: error
         annotations:
-          summary: "{{$labels.name}} in {{$labels.host_ip}} not running detected"
+          summary: "{{$labels.name}} in {{$labels.node_name}} ({{$labels.host_ip}})  not running detected"
 
       - alert: PaiServicePodNotReady
         expr: pai_pod_count{phase="running", ready="false"} > 0
         for: 10m
         labels:
           type: pai_service
+          severity: error
         annotations:
-          summary: "{{$labels.name}} in {{$labels.host_ip}} not ready detected"
+          summary: "{{$labels.name}} in {{$labels.node_name}} ({{$labels.host_ip}})  not ready detected"
 
-      - alert: PaiServiceNotUp
-        expr: up != 1
+      - alert: WatchdogNotUp
+        expr: up{pai_service_name="watchdog"} != 1
         for: 5m
         labels:
           type: pai_service
+          severity: error
         annotations:
-          summary: "{{$labels.pai_service_name}} in {{$labels.instance}} not up detected"
+          summary: "OpenPAI service watchdog in {{$labels.instance}} not up detected"
 
       - alert: JobExporterHangs
         expr: rate(collector_iteration_count_total[10m]) == 0
         for: 5m
         labels:
           type: pai_service
+          severity: warn
         annotations:
           summary: "{{$labels.name}} in {{$labels.instance}} hangs detected"

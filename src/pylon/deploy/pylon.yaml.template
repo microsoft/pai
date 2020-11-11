@@ -79,6 +79,10 @@ spec:
               value: {{ cluster_cfg['grafana']['url'] }}
             - name: PAI_WEB_PORTAL_URI
               value: {{ cluster_cfg['webportal']['uri'] }}
+{% if cluster_cfg['cluster']['common']['dshuttle'] == 'true' %}
+            - name: DSHUTTLE_URI
+              value: {{ cluster_cfg['dshuttle']['uri'] }}
+{% endif %}
           ports:
             - name: pylon
               containerPort: 80
