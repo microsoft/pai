@@ -57,7 +57,7 @@ if [ $ret_code_check -ne 0 ]; then
 fi
 
 # prepare cluster-cfg folder
-/bin/bash script/configuration-kubescpray.sh -m ${MASTER_LIST} -w ${WORKER_LIST} -c ${CLUSTER_CONFIG} || exit $?
+/bin/bash script/configuration-kubespray.sh -m ${MASTER_LIST} -w ${WORKER_LIST} -c ${CLUSTER_CONFIG} || exit $?
 
 echo "Ping Test"
 ansible all -i ${HOME}/pai-deploy/cluster-cfg/hosts.yml -m ping || exit $?
