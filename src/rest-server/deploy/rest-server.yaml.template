@@ -72,6 +72,10 @@ spec:
           value: {{ cluster_cfg['hivedscheduler']['webservice'] }}
         - name: LOG_MANAGER_PORT
           value: "{{ cluster_cfg['log-manager']['port'] }}"
+        - name: LOG_MANAGER_ADMIN_NAME
+          value: "{{ cluster_cfg['log-manager']['admin_name'] }}"
+        - name: LOG_MANAGER_ADMIN_PASSWORD
+          value: "{{ cluster_cfg['log-manager']['admin_password'] }}"
 {%- endif %}
         - name: RATE_LIMIT_API_PER_MIN
           value: "{{ cluster_cfg['rest-server']['rate-limit-api-per-min'] }}"
@@ -89,7 +93,7 @@ spec:
           value: {{ cluster_cfg['rest-server']['jwt-expire-time'] }}
         - name: WEBPORTAL_URL
 {%- if "ssl" in cluster_cfg["pylon"] and cluster_cfg["pylon"]["ssl"] %}
-          value: "{{ cluster_cfg['pylon']['uriHttps']}}"
+          value: "{{ cluster_cfg['pylon']['uri-https']}}"
 {%- else %}
           value: "{{ cluster_cfg['pylon']['uri']}}"
 {%- endif %}

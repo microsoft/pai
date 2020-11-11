@@ -49,7 +49,7 @@ EOT
     cp ${WORKSPACE}/src/rest-server/docs/swagger.yaml .
     node tests/common/apiTestCaseGenerator.js -- "swagger.yaml" ".tests/apiTestCase.json"
     sudo npm install -g mocha
-    mocha tests/api_tests/**/*.spec.js -t 20000
+    mocha tests/api_tests/**/*.spec.js -t 1800000
 
     cd ../..
     ;;
