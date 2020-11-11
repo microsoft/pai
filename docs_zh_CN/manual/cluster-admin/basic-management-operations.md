@@ -214,6 +214,7 @@ openssl x509 -req -days 3650 -in FileName.csr -signkey FileName.key -out FileNam
 ```bash
 ./paictl.py service stop -n pylon
 ./paictl.py config pull -o <config-folder>
+vim <config-folder>/services-configuration.yaml
 ./paictl.py config push -p <config-folder> -m service
 ./paictl.py service start -n pylon
 ```
@@ -242,7 +243,7 @@ pylon:
       key_name: FileName.key
       key_path: /home/ssl/FileName.key
 ```
-到此，您已经配好了自签名证书，重启pylon service，可以通过https来访问OpenPAI。
+重启pylon service，可以通过https来访问OpenPAI。
 
 #### 配置CA证书
 ##### 1. 将CA证书保存到dev-box容器内
