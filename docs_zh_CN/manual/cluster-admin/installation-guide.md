@@ -191,8 +191,7 @@ docker_image_tag: v1.0.0
 在dev box机器上，使用下面的命令克隆OpenPAI的源代码。
 
 ```bash
-git clone https://github.com/microsoft/pai.git
-git checkout pai-1.0.y  # 如果您想要部署不同的版本，请切换到相应的branch。
+git clone -b pai-1.3.0 https://github.com/microsoft/pai.git # 如果您想要部署不同的版本，请切换到相应的branch。
 cd pai/contrib/kubespray
 ```
 
