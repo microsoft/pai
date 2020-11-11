@@ -210,7 +210,7 @@ openssl x509 -req -days 3650 -in FileName.csr -signkey FileName.key -out FileNam
 #### 7. 设置services-configuration.yaml
 
 
-如果您是第一次配置，dev-box容器内可能不存在`services-configuration.yaml`。您应该按照以下过程来更改配置文件并使其生效。关闭pylon service，将OpenPAI的配置文件`services-configuration.yaml`拉取到本地，更改配置文件，上传配置文件，重新启动pylon service。如果您的容器内已经有`services-configuration.yaml`，您可以省略拉取文件的过程。您需要的命令依次为：
+如果您是第一次配置，dev-box容器内可能不存在`services-configuration.yaml`。您应该按照以下过程来更改配置文件并使其生效。关闭pylon service，将OpenPAI的配置文件`services-configuration.yaml`拉取到本地，更改配置文件，上传配置文件，重新启动pylon service。您需要的命令依次为：
 ```bash
 ./paictl.py service stop -n pylon
 ./paictl.py config pull -o <config-folder>
@@ -219,7 +219,7 @@ openssl x509 -req -days 3650 -in FileName.csr -signkey FileName.key -out FileNam
 ```
 
 
-请注意配置文件中的的master_ip就是您master machine的IP，而不是您dev box machine的IP。请按照以下格式来配置yaml文件：
+如果您的容器内已经有`services-configuration.yaml`，您可以省略拉取文件的过程。请注意配置文件中的的master_ip就是您master machine的IP，而不是您dev box machine的IP。请按照以下格式来配置yaml文件：
 
 ```
 pylon:
@@ -242,7 +242,7 @@ pylon:
       key_name: FileName.key
       key_path: /home/ssl/FileName.key
 ```
-到此，您已经配好了自签名证书，重启pylon services，可以通过https来访问OpenPAI。
+到此，您已经配好了自签名证书，重启pylon service，可以通过https来访问OpenPAI。
 
 #### 配置CA证书
 ##### 1. 将CA证书保存到dev-box容器内
