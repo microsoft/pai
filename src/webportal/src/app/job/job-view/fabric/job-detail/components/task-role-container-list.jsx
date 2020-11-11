@@ -139,7 +139,6 @@ export default class TaskRoleContainerList extends React.Component {
       monacoFooterButton: null,
       fullLogUrls: null,
       tailLogUrls: null,
-      tailLogUrlsCvt: null,
       logListUrl: null,
       logType: null,
       items: props.tasks,
@@ -163,16 +162,12 @@ export default class TaskRoleContainerList extends React.Component {
   }
 
   logAutoRefresh() {
-    const { fullLogUrls, tailLogUrlsCvt, logListUrl, logType } = this.state;
-    getContainerLog(
-      tailLogUrlsCvt,
-      this.convertObjectFormat(fullLogUrls),
-      logType,
-    )
+    const { fullLogUrls, tailLogUrls, logListUrl, logType } = this.state;
+    getContainerLog(tailLogUrls, fullLogUrls, logType)
       .then(({ text, fullLogLink }) =>
         this.setState(
           prevState =>
-            prevState.tailLogUrlsCvt[logType] === tailLogUrlsCvt[logType] && {
+            prevState.tailLogUrls[logType] === tailLogUrls[logType] && {
               monacoProps: { value: text },
               monacoFooterButton: (
                 <PrimaryButton
@@ -190,7 +185,7 @@ export default class TaskRoleContainerList extends React.Component {
       .catch(err => {
         this.setState(
           prevState =>
-            prevState.tailLogUrlsCvt[logType] === tailLogUrlsCvt[logType] && {
+            prevState.tailLogUrls[logType] === tailLogUrls[logType] && {
               monacoProps: { value: err.message },
             },
         );
@@ -259,9 +254,8 @@ export default class TaskRoleContainerList extends React.Component {
           {
             monacoProps: { value: 'Loading...' },
             monacoTitle: title,
-            fullLogUrls,
-            tailLogUrls,
-            tailLogUrlsCvt: this.convertObjectFormat(tailLogUrls),
+            fullLogUrls: this.convertObjectFormat(fullLogUrls),
+            tailLogUrls: this.convertObjectFormat(tailLogUrls),
             logType,
           },
           () => {
