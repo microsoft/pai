@@ -1,56 +1,76 @@
-#### Install Necessary Package.
+# Cluster Autoscaler on AKS Engine
 
-- [ Install Azure CLI ](https://docs.microsoft.com/en-us/cli/azure/install-azure-cli?view=azure-cli-latest)
-- [ Install AKS-Engine ](https://github.com/Azure/aks-engine/blob/master/docs/tutorials/quickstart.md#install-the-aks-engine-binary)
+[AKS Engine](https://github.com/Azure/aks-engine) is a tool to help you provision a self-managed Kubernetes cluster on Azure,
+while [Cluster Autoscaler](https://github.com/kubernetes/autoscaler/tree/master/cluster-autoscaler) is another tool that automatically adjusts the size of the Kubernetes cluster.
+The Cluster Autoscaler on Azure dynamically scales Kubernetes worker nodes.
 
-#### Create Resource Group
+This contrib aims to help you deploy a OpenPAI cluster on Azure using AKS Engine, and runs Cluster Autoscaler as a deployment in your cluster.
 
-- Solution A [ Azure Portal ](https://docs.microsoft.com/en-us/azure/azure-resource-manager/management/manage-resource-groups-portal#create-resource-groups) (Recommended)
-- Solution B [ Azure CLI ](https://docs.microsoft.com/en-us/azure/azure-resource-manager/management/manage-resource-groups-cli#create-resource-groups)
 
-Remember the following parameters
+## Preparations on Azure
 
-- subscription id: ```${subscriptionId}```
-- resource groupname: ```${resourcegroup}```
-- location: ```${location}```
+1. Install Dependencies
 
-#### Create Service Principle
+    1. Install [Azure CLI](https://docs.microsoft.com/en-us/cli/azure/install-azure-cli?view=azure-cli-latest)
+    2. Install [AKS Engine](https://github.com/Azure/aks-engine/blob/master/docs/tutorials/quickstart.md#install-the-aks-engine-binary)
 
-```bash
-az ad sp create-for-rbac --skip-assignment --name ${service-principal-name}
-```
+2. Create resource group
 
-If the command success, the output will like the following example.
+    There're two options to create resource group in your subscription:
+    * It's recommended to use [Azure Portal](https://docs.microsoft.com/en-us/azure/azure-resource-manager/management/manage-resource-groups-portal#create-resource-groups)
+    * You can also use [Azure CLI](https://docs.microsoft.com/en-us/azure/azure-resource-manager/management/manage-resource-groups-cli#create-resource-groups)
 
-```json
-{
-  "appId": "559513bd-0c19-4c1a-87cd-851a26afd5fc",
-  "displayName": "${service-principal-name}",
-  "name": "http://${service-principal-name}",
-  "password": "e763725a-5eee-40e8-a466-dc88d980f415",
-  "tenant": "72f988bf-86f1-41af-91ab-2d7cd011db48"
-}
-```
-Remember the following parameters.
+    Remember the following parameters which will be used later:
+    * subscription id `${subscriptionId}`
+    * resource groupname `${resourcegroup}`
+    * location `${location}`
 
-- ```appId```: ```${appId}```
-- ```password```: ```${password}```
-- ```displayName```: ```${spName}```
-- ```tenant```: ```${tenant}```
-  
-  
-[The doc about this steps](https://docs.microsoft.com/en-us/azure/aks/kubernetes-service-principal#manually-create-a-service-principal)
+3. Create Service Principal
 
-#### Ask your subscription's admin to add the new service principal as the owner of the new resource group.
+    Run the following command:
 
-Content as the title. Important and don't forget it.
+    ```sh
+    az ad sp create-for-rbac --skip-assignment --name ${service-principal-name}
+    ```
 
-#### Write Configuration
+    You will see the following output if it succeed:
 
-[Configuration example](config.yml)
+    ```json
+    {
+        "appId": "87432405-56b6-4d76-923b-39d1d75d19f7",
+        "displayName": "${service-principal-name}",
+        "name": "http://${service-principal-name}",
+        "password": "ff5b1601-1298-460d-a94f-fcc8b5ef96f0",
+        "tenant": "72e9b8a0-54c8-4742-8da6-1f5d1418c3c5"
+    }
+    ```
 
-#### Start Cluster
+    Remember the following parameters which will be used later:
+    * appId `${appId}`
+    * password `${password}`
+    * displayName `${spName}`
+    * tenant `${tenant}`
 
-```
-python3 azure.py -c config.yml
-```
+    For more details on how to create service principal, please refer to [manually-create-a-service-principal document](https://docs.microsoft.com/en-us/azure/aks/kubernetes-service-principal#manually-create-a-service-principal).
+
+4. Add the service principal as the owner of the resource group.
+
+
+## OpenPAI Deployment
+
+1. Prepare the [configuration file](./config.yaml), replace the variables with parameters in previous steps.
+To use Cluster Autosaler, specify the following lines in `openpai_worker_vmss`:
+
+    ```yaml
+    openpai_worker_vmss:
+      ...
+      ca_enable: true
+      min_vm_count: 1
+      max_vm_count: 10
+    ```
+
+2. Deploy Kubernetes cluster with AKS Engine, and deploy OpenPAI:
+
+    ```sh
+    python3 azure.py -c config.yaml
+    ```
