@@ -1,3 +1,5 @@
+#!/bin/bash
+
 # Copyright (c) Microsoft Corporation
 # All rights reserved.
 #
@@ -15,10 +17,27 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-service_type: "k8s"
+set -o errexit
+set -o pipefail
 
-port: 9103
-admin_name: "admin"
-admin_password: "admin"
-jwt_secret: "jwt_secret"
-token_expired_second: 120
+log_exist_time=30 # 30 day
+if [ -n "${LOG_EXIST_TIME}" ]; then
+  log_exist_time=${LOG_EXIST_TIME}
+fi
+
+cat > /etc/periodic/daily/remove_logs << EOF
+#!/bin/bash
+/usr/bin/pgrep -f ^find 2>&1 > /dev/null || find /usr/local/pai/logs/* -mtime +${log_exist_time} -type f -exec rm -fv {} \;
+EOF
+
+cat > /etc/periodic/weekly/remove_log_dir << EOF
+#!/bin/bash
+"/usr/bin/pgrep -f ^find 2>&1 > /dev/null || find /usr/local/pai/logs/* -mtime +${log_exist_time} -type d -empty -exec rmdir -v {} \;"
+EOF
+
+chmod a+x /etc/periodic/daily/remove_logs /etc/periodic/weekly/remove_log_dir
+
+echo "cron job added"
+
+crond -f -l 0
+

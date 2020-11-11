@@ -34,12 +34,9 @@ spec:
       priorityClassName: pai-daemon-priority
       hostNetwork: false
       containers:
-      - name: log-manager-logrotate
-        image: {{ cluster_cfg["cluster"]["docker-registry"]["prefix"] }}log-manager-logrotate:{{ cluster_cfg["cluster"]["docker-registry"]["tag"] }}
+      - name: log-cleaner
+        image: {{ cluster_cfg["cluster"]["docker-registry"]["prefix"] }}log-manager-cleaner:{{ cluster_cfg["cluster"]["docker-registry"]["tag"] }}
         imagePullPolicy: Always
-        env:
-        - name: LOGROTATE_CRONSCHEDULE
-          value: "*/10 * * * *"
         volumeMounts:
         - name: pai-log
           mountPath: /usr/local/pai/logs
@@ -77,6 +74,19 @@ spec:
             cpu: 0
             memory: "128Mi"
         {%- endif %}
+        env:
+        - name: ADMIN_NAME
+          value: {{ cluster_cfg["log-manager"]["admin_name"] }}
+        - name: ADMIN_PASSWORD
+          value: {{ cluster_cfg["log-manager"]["admin_password"] }}
+        - name: JWT_SECRET
+          value: {{ cluster_cfg["log-manager"]["jwt_secret"] }}
+        - name: TOKEN_EXPIRED_SECOND
+          value: '{{ cluster_cfg["log-manager"]["token_expired_second"] }}'
+        - name: NODE_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: spec.nodeName
       volumes:
         - name: pai-log
           hostPath:

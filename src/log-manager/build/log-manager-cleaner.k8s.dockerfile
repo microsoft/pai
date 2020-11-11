@@ -15,10 +15,10 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-service_type: "k8s"
+FROM alpine:3.10
 
-port: 9103
-admin_name: "admin"
-admin_password: "admin"
-jwt_secret: "jwt_secret"
-token_expired_second: 120
+# install dev tools
+RUN apk update && apk add --no-cache tini bash findutils
+COPY src/cleaner/ /usr/bin/cleaner/
+ENTRYPOINT ["/sbin/tini","--","/usr/bin/cleaner/entrypoint.sh"]
+
