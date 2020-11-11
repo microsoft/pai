@@ -107,6 +107,10 @@ rest-server:
 # uncomment following section if you want to customize the port of log-manager
 # log-manager:
 #  port: 9103
+#  admin_name: "admin"
+#  admin_password: "admin"
+#  jwt_secret: "jwt_secret"
+#  token_expired_second: 120
 
 # uncomment following section if you want to customize the port of storage-manager
 # storage-manager:

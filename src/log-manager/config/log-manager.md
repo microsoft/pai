@@ -28,16 +28,16 @@ log-manager:
   admin_name: admin
   admin_password: admin
   jwt_secret: "jwt_secret"
-  token_expired_time: 120
+  token_expired_second: 120
 ```
 
 
 #### Table
 
-| Data in Configuration File      | Data in Cluster Object Model              | Data in Jinja2 Template                          | Data type |
-|---------------------------------|-------------------------------------------|--------------------------------------------------|-----------|
-| log-manager.port                | com["log-manager"]["port"]                | cluster_cfg["log-manager"]["port"]               | Int       |
-| log-manager.admin_name          | com["log-manager"]["admin_name"]          | cluster_cfg["log-manager"]["admin_name"]         | String    |
-| log-manager.admin_password      | com["log-manager"]["admin_password"]      | cluster_cfg["log-manager"]["admin_password"]     | String    |
-| log-manager.jwt_secret          | com["log-manager"]["jwt_secret"]          | cluster_cfg["log-manager"]["jwt_secret"]         | String    |
-| log-manager.token_expired_time  | com["log-manager"]["token_expired_time"]  | cluster_cfg["log-manager"]["token_expired_time"] | Int       |
+| Data in Configuration File        | Data in Cluster Object Model                | Data in Jinja2 Template                            | Data type |
+|-----------------------------------|---------------------------------------------|----------------------------------------------------|-----------|
+| log-manager.port                  | com["log-manager"]["port"]                  | cluster_cfg["log-manager"]["port"]                 | Int       |
+| log-manager.admin_name            | com["log-manager"]["admin_name"]            | cluster_cfg["log-manager"]["admin_name"]           | String    |
+| log-manager.admin_password        | com["log-manager"]["admin_password"]        | cluster_cfg["log-manager"]["admin_password"]       | String    |
+| log-manager.jwt_secret            | com["log-manager"]["jwt_secret"]            | cluster_cfg["log-manager"]["jwt_secret"]           | String    |
+| log-manager.token_expired_second  | com["log-manager"]["token_expired_second"]  | cluster_cfg["log-manager"]["token_expired_second"] | Int       |
