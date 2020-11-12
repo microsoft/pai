@@ -40,7 +40,7 @@ Webportal上有一个k8s仪表板的快捷方式，如下图所示。
 
    <img src="./imgs/k8s-dashboard.png" width="100%" height="100%" />
 
-要使用它，您首先应该为OpenPAI设置`https`访问（使用`http://<ip>`会使访问无效）。 然后，在dev box机器上，按照以下步骤操作：
+要使用它，您首先应该为OpenPAI设置`https`访问（使用`http://<ip>`会使访问无效），请参考[这里](#how-to-set-up-https) 。然后，在dev box机器上，按照以下步骤操作：
 
 **步骤 1.** 将以下Yaml文本另存为`admin-user.yaml`
 
@@ -152,3 +152,118 @@ cd /pai
 ```
 
 您可以使用`exit`离开dev-box容器，并使用`sudo docker exec -it dev-box bash`重新进入它。如果您不再需要它，请使用`sudo docker stop dev-box`和`sudo docker rm dev-box`删除Docker容器。
+
+## <div id="how-to-set-up-https">如何设置HTTPS访问</div>
+
+为pylon配置https证书您需要先获得数字证书，然后将数字证书相关文件保存到dev-box容器中，在dev-box内您可以找到`services-configuration.yaml`这个配置文件，然后您需要把已经保存的数字证书的文件路径配置到`services-configuration.yaml`文件中。您可以选择自签名证书或由CA机构颁发的证书，接下来将首先演示自签名证书的配置过程。两种证书的配置过程是近似的。
+
+### 配置自签名证书
+
+
+#### 1. 进入dev-box容器
+
+要使用[`paictl`](#pai-service-management-and-paictl)，请通过以下方式进入容器：
+
+```bash
+sudo docker exec -it dev-box bash
+```
+
+#### 2. 在dev-box容器中创建一个文件夹
+当您进入容器后，您需要创建一个文件夹，并在此文件夹下生成自签名证书，我们可以在home文件夹下创建ssl文件夹。
+
+``` bash
+mkdir /home/ssl
+cd  /home/ssl
+```
+#### 3. 使用OpenSSL生成RSA私钥
+接下来输入的命令多次会用到FileName参数，您可以选择合适的文件名来替换FileName。
+
+``` bash
+openssl genrsa -des3 -out FileName.key 1024
+```
+
+这步会需要您填一个密码。
+
+#### 4. 生成证书请求
+
+```bash
+SUBJECT="/C=US/ST=Washington/CN=FileName"
+openssl req -new -subj $SUBJECT -key FileName.key -out FileName.csr
+```
+
+#### 5. 生成证书
+
+```bash
+mv FileName.key FileName.origin.key
+openssl rsa -in FileName.origin.key -out FileName.key
+openssl x509 -req -days 3650 -in FileName.csr -signkey FileName.key -out FileName.crt
+```
+
+#### 6. 最后结果
+
+在当前目录下，您将会发现有4个文件
+
+<div  align="center">
+<img src="./imgs/aad/openssl_result.png" alt="paictl overview picture" style="float: center; margin-right: 10px;" />
+</div>
+
+#### 7. 设置services-configuration.yaml
+
+
+如果您是第一次配置，dev-box容器内可能不存在`services-configuration.yaml`。您应该按照以下过程来更改配置文件并使其生效。关闭pylon service，将OpenPAI的配置文件`services-configuration.yaml`拉取到本地，更改配置文件，上传配置文件，重新启动pylon service。您需要的命令依次为：
+```bash
+./paictl.py service stop -n pylon
+./paictl.py config pull -o <config-folder>
+vim <config-folder>/services-configuration.yaml
+./paictl.py config push -p <config-folder> -m service
+./paictl.py service start -n pylon
+```
+
+
+如果您的容器内已经有`services-configuration.yaml`，您可以省略拉取文件的过程。请注意配置文件中的的master_ip就是您master machine的IP，而不是您dev box machine的IP。请按照以下格式来配置yaml文件：
+
+```
+pylon:
+    port: 80
+    uri: "http://master_ip:80"
+    ssl:
+      crt_name: xxxxxx
+      crt_path: /path/to/xxxxxx
+      key_name: yyyyyy
+      key_path: /path/to/yyyyyy
+```
+在我们刚才给出的样例中，配置文件内容应当为：
+```
+pylon:
+    port: 80
+    uri: "http://master_ip:80"
+    ssl:
+      crt_name: FileName.crt
+      crt_path: /home/ssl/FileName.crt
+      key_name: FileName.key
+      key_path: /home/ssl/FileName.key
+```
+重启pylon service，可以通过https来访问OpenPAI。
+
+#### 配置CA证书
+##### 1. 将CA证书保存到dev-box容器内
+要配置CA证书，您首先需要申请并导出您的CA证书，您最终会得到一个crt文件和一个key文件，然后将这两个文件保存到dev-box容器中,比如存储到dev-box容器的/home/ssl文件夹下。如图所示：
+
+<div  align="center">
+<img src="./imgs/aad/openssl_CA_result.png" alt="paictl overview picture" style="float: center; margin-right: 10px;" />
+</div>
+
+##### 2. 设置services-configuration.yaml
+这一步您可以按照`配置自签名证书`过程中的第7步进行配置，更改FileName字段即可。例如：
+
+```
+pylon:
+    port: 80
+    uri: "http://master_ip:80"
+    ssl:
+      crt_name: n32.openpai.org_chain.crt
+      crt_path: /home/ssl/n32.openpai.org_chain.crt
+      key_name: n32.openpai.org_key.key
+      key_path: /home/ssl/n32.openpai.org_key.key
+```
+
