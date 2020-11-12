@@ -40,7 +40,7 @@ There is a shortcut to k8s dashboard on the webportal. However, it needs special
 
    <img src="./imgs/k8s-dashboard.png" width="100%" height="100%" />
 
-To use it, you should first set up `https` access (Using `http://<ip>` won't work) for OpenPAI.Please refer to [here](#how-to-set-up-https). Then, on the dev box machine, follow the steps below:
+To use it, you should first set up `https` access (Using `http://<ip>` won't work) for OpenPAI. Please refer to [here](#how-to-set-up-https). Then, on the dev box machine, follow the steps below:
 
 **Step 1.** Save following yaml text as `admin-user.yaml`
 
@@ -153,14 +153,14 @@ Another example is to restart the whole cluster:
 
 You can use `exit` to leave the dev-box container, and use `sudo docker exec -it dev-box bash` to re-enter it if you desire so. If you don't need it any more, use `sudo docker stop dev-box` and `sudo docker rm dev-box` to delete the docker container.
 
-## <div id="how-to-set-up-https">How To Set Up Https</div>
+## <div id="how-to-set-up-https">How To Set Up HTTPS</div>
 
-To configure https certificate for pylon, you need to obtain a digital certificate first, and then save the digital certificate related files in the dev-box container. In the dev-box, you can find the configuration file `services-configuration.yaml`, and then you need to Enter the file path of the saved digital certificate into the `services-configuration.yaml` file. You can choose a self-signed certificate or a certificate issued by a CA. Next, we will first demonstrate the configuration process of a self-signed certificate. The configuration process for the two types of certificates is similar.
+To configure https certificate for pylon, you need to obtain a digital certificate first, and then save the digital certificate-related files in the dev-box container. In the dev-box container, you can find the configuration file `services-configuration.yaml`, and then you need to add the file path of the saved digital certificate into the `services-configuration.yaml` file. You can choose a self-signed certificate or a certificate issued by a CA. Next, we will first demonstrate the configuration process of a self-signed certificate. The configuration processes for the two types of certificates are similar.
 
 ### Configure A Self-Signed Certificate
 
 
-#### 1. Enter the dev-box onctainer
+#### 1. Enter the dev-box container
 
 You need to use [`paictl`](#pai-service-management-and-paictl) to enter the container in the following way:
 
@@ -169,20 +169,20 @@ sudo docker exec -it dev-box bash
 ```
 
 #### 2. Create a folder in the dev-box container
-When you enter the container, you need to create a folder and generate a self-signed certificate in this folder. We can create an ssl folder in the home folder.
+When you enter the container, you need to create a folder and generate a self-signed certificate in this folder. You can create an `ssl` folder in the `home` folder.
 
 ``` bash
 mkdir /home/ssl
 cd  /home/ssl
 ```
 #### 3. Generate RSA private key with openssl
-The next commands you enter will use the FileName parameter multiple times. You can choose a suitable file name to replace FileName.
+The next command you enter will use the `FileName` parameter multiple times. You can choose a suitable file name to replace `FileName`.
 
 ``` bash
 openssl genrsa -des3 -out FileName.key 1024
 ```
 
-In this step, password will be asked.
+In this step, A password will be asked.
 
 #### 4. Generate certificate request
 
@@ -210,7 +210,7 @@ In the current directory, you will find 4 files:
 #### 7. Configure services-configuration.yaml
 
 
-If you are configuring for the first time, `services-configuration.yaml` may not exist in the dev-box container. You should follow the procedure below to change the configuration file and make it effective. Close the pylon service, pull the OpenPAI configuration file `services-configuration.yaml` to the local, change the configuration file, upload the configuration file, and restart the pylon service. The commands you need are:
+If you are configuring PAI service for the first time, `services-configuration.yaml` may not exist in the dev-box container. You should follow the procedure below to change the configuration file and make it effective. Then, stop the pylon service, pull the OpenPAI configuration file `services-configuration.yaml` to the local, change the configuration file, upload the configuration file, and restart the pylon service. The commands you need are:
 ```bash
 ./paictl.py service stop -n pylon
 ./paictl.py config pull -o <config-folder>
@@ -231,7 +231,7 @@ pylon:
       key_name: yyyyyy
       key_path: /path/to/yyyyyy
 ```
-In the example we just gave, the configuration file content should be:
+With the example we just gave, the configuration file content should be:
 ```
 pylon:
     port: 80
@@ -242,18 +242,18 @@ pylon:
       key_name: FileName.key
       key_path: /home/ssl/FileName.key
 ```
-Restart the pylon service, you can access OpenPAI via https.
+Restart the pylon service, Restart the pylon service, and you will be able to access OpenPAI via https.
 
 #### Configure CA certificate
 ##### 1. Save the CA certificate in the dev-box container
-To configure a CA certificate, you first need to apply for and export your CA certificate, you will eventually get a crt file and a key file, and then save these two files in the dev-box container, such as the one stored in the dev-box container /home/ssl folder. as the picture shows:
+To configure a CA certificate, you first need to apply for and export it. You will eventually get a crt file and a key file. Please save these two files in the dev-box container. As shown in the following picture, the two files are saved in `/home/ssl`.
 
 <div  align="center">
 <img src="./imgs/aad/openssl_CA_result.png" alt="paictl overview picture" style="float: center; margin-right: 10px;" />
 </div>
 
 ##### 2. Configure services-configuration.yaml
-In this step, you can configure it in accordance with Step 7 in the process of `Configure a self-signed certificate`, just change the FileName field. For example:
+In this step, you can configure the `services-configuration.yaml` in accordance with the Step 7 in the process of `Configure a self-signed certificate`. For example:
 
 ```
 pylon:
