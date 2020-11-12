@@ -101,12 +101,12 @@ spec:
         configMap:
           name: alert-templates
           items:
-          {% for template in cluster_cfg["alert-manager"]["alert-handler"]["email-configs"]["templates"] %}
+          {% for template in cluster_cfg["alert-manager"]["alert-handler"]["email-configs"]["templates"] -%}
           - key: {{ template }}-html.ejs
             path: {{ template }}/html.ejs
           - key: {{ template }}-subject.ejs
             path: {{ template }}/subject.ejs
-          {% endfor %}
+          {% endfor -%}
 {% endif %}
 {% endif %}
       - name: alertmanager
