@@ -40,10 +40,7 @@ sudo docker run -itd \
 sudo docker exec -it dev-box-quick-start kubectl get node || { cleanup; exit 1; }
 
 # Work in dev-box
-sudo docker exec -i dev-box-quick-start /bin/bash << EOF_DEV_BOX
-
-apt-get -y install software-properties-common
-pip3 install kubernetes==11.0.0b2 jinja2
+sudo docker exec -it dev-box-quick-start /bin/bash << EOF_DEV_BOX
 
 echo "starting nvidia device plugin to detect nvidia gpu resource"
 svn cat https://github.com/NVIDIA/k8s-device-plugin.git/tags/1.0.0-beta4/nvidia-device-plugin.yml \
@@ -61,9 +58,6 @@ python3 /pai/contrib/kubespray/script/openpai-generator.py -m /quick-start-confi
 kubectl delete ds nvidia-device-plugin-daemonset -n kube-system || exit $?
 kubectl delete ds amdgpu-device-plugin-daemonset -n kube-system || exit $?
 sleep 5
-
-echo y | pip3 uninstall kubernetes==11.0.0b2
-pip3 install kubernetes
 
 # TODO: This should be done at our source code.
 kubectl create namespace pai-storage
