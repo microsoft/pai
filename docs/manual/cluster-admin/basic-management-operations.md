@@ -40,7 +40,7 @@ There is a shortcut to k8s dashboard on the webportal. However, it needs special
 
    <img src="./imgs/k8s-dashboard.png" width="100%" height="100%" />
 
-To use it, you should first set up `https` access (Using `http://<ip>` won't work) for OpenPAI. Please refer to [here](#how-to-set-up-https). Then, on the dev box machine, follow the steps below:
+To use it, you should first set up `https` access (Using `http://<ip>` won't work) for OpenPAI. Please refer to [here](#How To Set Up HTTPS). Then, on the dev box machine, follow the steps below:
 
 **Step 1.** Save following yaml text as `admin-user.yaml`
 
@@ -153,7 +153,7 @@ Another example is to restart the whole cluster:
 
 You can use `exit` to leave the dev-box container, and use `sudo docker exec -it dev-box bash` to re-enter it if you desire so. If you don't need it any more, use `sudo docker stop dev-box` and `sudo docker rm dev-box` to delete the docker container.
 
-## <div id="how-to-set-up-https">How To Set Up HTTPS</div>
+## How To Set Up HTTPS
 
 To configure https certificate for pylon, you need to obtain a digital certificate first, and then save the digital certificate-related files in the dev-box container. In the dev-box container, you can find the configuration file `services-configuration.yaml`, and then you need to add the file path of the saved digital certificate into the `services-configuration.yaml` file. You can choose a self-signed certificate or a certificate issued by a CA. Next, we will first demonstrate the configuration process of a self-signed certificate. The configuration processes for the two types of certificates are similar.
 
