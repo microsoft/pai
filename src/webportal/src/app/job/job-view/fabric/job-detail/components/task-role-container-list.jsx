@@ -29,9 +29,13 @@ import {
   CommandBarButton,
   PrimaryButton,
   TooltipHost,
+  Text,
   DirectionalHint,
+  Dialog,
+  DialogFooter,
   Stack,
   Link,
+  Icon,
 } from 'office-ui-fabric-react';
 import {
   DetailsList,
@@ -130,6 +134,25 @@ PortTooltipContent.propTypes = {
   ports: PropTypes.object,
 };
 
+const LogDialogContent = ({ urlLists }) => {
+  const lists = [];
+  for (const p of urlLists) {
+    lists.push(p);
+  }
+  const urlpairs = lists.map(lists => (
+    <dl key='log-list'>
+      <Link href={lists.uri} styles={{ root: [FontClassNames.mediumPlus] }}>
+        <Icon iconName='TextDocument'></Icon> {lists.name}
+      </Link>
+    </dl>
+  ));
+  return <ul>{urlpairs}</ul>;
+};
+
+LogDialogContent.propTypes = {
+  urlLists: PropTypes.object,
+};
+
 export default class TaskRoleContainerList extends React.Component {
   constructor(props) {
     super(props);
@@ -144,9 +167,11 @@ export default class TaskRoleContainerList extends React.Component {
       items: props.tasks,
       ordering: { field: null, descending: false },
       hideDialog: true,
+      dialogMessage: null,
     };
 
     this.showSshInfo = this.showSshInfo.bind(this);
+    this.showDialog = this.showDialog.bind(this);
     this.onDismiss = this.onDismiss.bind(this);
     this.showContainerTailLog = this.showContainerTailLog.bind(this);
     this.onRenderRow = this.onRenderRow.bind(this);
@@ -371,6 +396,17 @@ export default class TaskRoleContainerList extends React.Component {
     }
   }
 
+  showDialog(logListUrl) {
+    const { hideDialog } = this.state;
+
+    getContainerLogList(logListUrl).then(({ fullLogUrls, tailLogUrls }) => {
+      this.setState({
+        hideDialog: !hideDialog,
+        dialogMessage: fullLogUrls.locations,
+      });
+    });
+  }
+
   getTaskPropertyFromColumnKey(item, key) {
     if (key === 'exitType') {
       return !isNil(item.containerExitSpec) &&
@@ -444,7 +480,9 @@ export default class TaskRoleContainerList extends React.Component {
       monacoProps,
       monacoFooterButton,
       tailLogUrls,
+      hideDialog,
       items,
+      dialogMessage,
     } = this.state;
     const { showMoreDiagnostics } = this.props;
     return (
@@ -475,6 +513,22 @@ export default class TaskRoleContainerList extends React.Component {
           monacoProps={monacoProps}
           footer={monacoFooterButton}
         />
+        <Dialog
+          hidden={hideDialog}
+          onDismiss={() => this.setState({ hideDialog: !hideDialog })}
+          minWidth='500px'
+        >
+          <Stack gap='m'>
+            <Text variant='xLarge'>All Logs:</Text>
+            <LogDialogContent urlLists={dialogMessage} />
+          </Stack>
+          <DialogFooter>
+            <PrimaryButton
+              onClick={() => this.setState({ hideDialog: !hideDialog })}
+              text='Close'
+            />
+          </DialogFooter>
+        </Dialog>
       </div>
     );
   }
@@ -687,6 +741,16 @@ export default class TaskRoleContainerList extends React.Component {
                           `${config.restServerUri}${item.containerLog}`,
                           'all',
                         ),
+                    },
+                    {
+                      key: 'trackingPage',
+                      name: 'Browse log folder',
+                      iconProps: { iconName: 'Link' },
+                      onClick: () => {
+                        this.showDialog(
+                          `${config.restServerUri}${item.containerLog}`,
+                        );
+                      },
                     },
                   ],
                 }}
