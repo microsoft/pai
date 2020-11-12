@@ -242,7 +242,7 @@ pylon:
       key_name: FileName.key
       key_path: /home/ssl/FileName.key
 ```
-Restart the pylon service, Restart the pylon service, and you will be able to access OpenPAI via https.
+Restart the pylon service, and you will be able to access OpenPAI via https.
 
 #### Configure CA certificate
 ##### 1. Save the CA certificate in the dev-box container
