@@ -15,7 +15,7 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-import { capitalize, isEmpty, isNil, get } from 'lodash';
+import { capitalize, isEmpty, isNil, get, cloneDeep } from 'lodash';
 import { DateTime, Interval } from 'luxon';
 import {
   MessageBar,
@@ -162,6 +162,11 @@ class JobDetail extends React.Component {
 
   async stop() {
     await stopJob();
+    const newJobInfo = cloneDeep(this.state.jobInfo);
+    newJobInfo.jobStatus.executionType = 'STOP';
+    this.setState({
+      jobInfo: newJobInfo,
+    });
     await this.reload();
   }
 
