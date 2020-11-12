@@ -192,7 +192,7 @@ docker_image_tag: v1.0.0
 On the dev box machine, use the following commands to clone the OpenPAI repo:
 
 ```bash
-git clone -b pai-1.3.0 https://github.com/microsoft/pai.git # change to a different branch if you want to deploy a different version
+git clone -b pai-1.3.y https://github.com/microsoft/pai.git # change to a different branch if you want to deploy a different version
 cd pai/contrib/kubespray
 ```
 
