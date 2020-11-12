@@ -19,6 +19,18 @@
 
 pushd $(dirname "$0") > /dev/null
 
+# crate configmap for alert-templates
+{% if cluster_cfg["alert-manager"]["alert-handler"]["configured"] -%}
+{% if 'email-admin' in cluster_cfg["alert-manager"]["actions-available"] -%}
+kubectl create configmap alert-templates \
+{% for template in cluster_cfg["alert-manager"]["alert-handler"]["email-configs"]["templates"] -%}
+--from-file={{ template }}-html.ejs=alert-templates/{{ template }}/html.ejs \
+--from-file={{ template }}-subject.ejs=alert-templates/{{ template }}/subject.ejs \
+{% endfor -%}
+--dry-run -o yaml | kubectl apply --overwrite=true -f - || exit $?
+{% endif -%}
+{% endif -%}
+
 kubectl apply --overwrite=true -f rbac.yaml || exit $?
 kubectl apply --overwrite=true -f alert-manager-configmap.yaml || exit $?
 kubectl apply --overwrite=true -f alert-manager-deployment.yaml || exit $?

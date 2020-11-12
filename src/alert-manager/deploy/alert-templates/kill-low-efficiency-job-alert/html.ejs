@@ -1,0 +1,34 @@
+<!DOCTYPE html
+    PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns="http://www.w3.org/1999/xhtml"
+    style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; box-sizing: border-box; font-size: 14px; margin: 0;">
+
+<body>
+    Dear OpenPAI user:
+    </br>
+    </br>
+    Your jobs in OpenPAI cluster <b><%= cluster_id %></b> have very low GPU utilization.
+
+    <p style="color: red; font-weight: bold">The jobs will be killed automatically by OpenPAI services.</p>
+
+    Related Job(s):
+    </br>
+    </br>
+    <% alerts.filter( element => element.status =="firing").forEach(function(alert){ %>
+    <a
+        href=<%= webportalURL %>/job-detail.html?username=<%= alert.labels.job_name.split("~")[0] %>&jobName=<%= alert.labels.job_name.split("~")[1] %>>
+        <%= alert.labels.job_name.split("~")[1] %>
+    </a>: <%= alert.annotations.summary %>
+    <br />
+    <% }); %>
+    </br>
+    </br>
+
+    Thanks for your comprehension,
+    </br>
+    </br>
+    OpenPAI Admin Team
+</body>
+
+</html>

@@ -55,12 +55,12 @@ After parsing, if you properly configured `email-configs` and `pai-bearer-token`
 alert-manager: 
   port: 9093
   actions-available:
-    - webportal-notification
-    - cordon-nodes
-    - email-admin
-    - email-user
-    - stop-jobs
-    - tag-jobs
+  - webportal-notification
+  - cordon-nodes
+  - email-admin
+  - email-user
+  - stop-jobs
+  - tag-jobs
   alert-handler:
     log-level: info
     port: 9095
@@ -85,8 +85,8 @@ if you didn't configured `alert-handler`, it will be like:
 alert-manager:
   port: 9093
   actions-available:
-    - webportal-notification
-    - cordon-nodes
+  - webportal-notification
+  - cordon-nodes
   alert-handler:
     log-level: info
     port: 9095

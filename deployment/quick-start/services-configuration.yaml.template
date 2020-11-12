@@ -88,15 +88,18 @@ rest-server:
 #     - receiver: pai-email-admin-user-and-stop-job
 #       match:
 #         alertname: PAIJobGpuPercentLowerThan0_3For1h
-#   customized-receivers:
+#   customized-receivers: # receivers are combination of several actions
 #   - name: "pai-email-admin-user-and-stop-job"
 #     actions: 
-#     - email-admin
-#     - email-user
-#     - stop-jobs
-#     - tag-jobs
-#     tags: 
-#     - 'stopped-by-alert-manager'
+#       # the email template for `email-admin` and `email-user `can be chosen from ['general-template', 'kill-low-efficiency-job-alert']
+#       # if no template specified, 'general-template' will be used.
+#       email-admin:
+#       email-user:  
+#         template: 'kill-low-efficiency-job-alert'
+#       stop-jobs: # no parameters required for stop-jobs action
+#       tag-jobs:
+#         tags: 
+#         - 'stopped-by-alert-manager'
 
 # uncomment following if you want to customize prometheus
 # prometheus:

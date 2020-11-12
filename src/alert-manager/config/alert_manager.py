@@ -2,6 +2,7 @@
 
 import copy
 import collections
+import os
 
 def update_nested_dict(dict_original, dict_update):
     """
@@ -28,6 +29,21 @@ class AlertManager(object):
     def validation_pre(self):
         return True, None
 
+    def get_email_templates(self):
+        # get all template folders
+        templates_path = os.path.abspath(os.path.join(os.path.abspath(__file__), '../../deploy/alert-templates'))
+        template_dirs = os.listdir(templates_path)
+
+        # the template folder is valid if 'html.ejs' and 'subject.ejs' both exist in the dir
+        templates = []
+        for dir_name in template_dirs:
+            template_path = os.path.join(templates_path, dir_name)
+            if os.path.isdir(template_path):
+                contents = os.listdir(template_path)
+                if set(['html.ejs', 'subject.ejs']).issubset(set(contents)):
+                    templates.append(dir_name)
+        return templates
+    
     def run(self):
         result = update_nested_dict(self.default_service_conf, self.service_conf)
 
@@ -43,8 +59,11 @@ class AlertManager(object):
             email_configured = True
         else:
             email_configured = False
+        
+        if email_configured:
+            result["alert-handler"]["email-configs"]["templates"] = self.get_email_templates()
 
-        # check if `pai-bearer-token` is properly configureds
+        # check if `pai-bearer-token` is properly configured
         if result.get("alert-handler") is not None and \
             result["alert-handler"].get("pai-bearer-token") is not None:
             token_configured = True
