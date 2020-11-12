@@ -23,6 +23,8 @@ function cleanup(){
   sudo docker rm dev-box-quick-start &> /dev/null
 }
 
+cleanup
+
 sudo docker run -itd \
         -e COLUMNS=$COLUMNS -e LINES=$LINES -e TERM=$TERM \
         -v /var/run/docker.sock:/var/run/docker.sock \
