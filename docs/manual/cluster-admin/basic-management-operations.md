@@ -40,7 +40,7 @@ There is a shortcut to k8s dashboard on the webportal. However, it needs special
 
    <img src="./imgs/k8s-dashboard.png" width="100%" height="100%" />
 
-To use it, you should first set up `https` access (Using `http://<ip>` won't work) for OpenPAI. Please refer to [here](#How To Set Up HTTPS). Then, on the dev box machine, follow the steps below:
+To use it, you should first set up `https` access (Using `http://<ip>` won't work) for OpenPAI. Please refer to [here](#how-to-set-up-https). Then, on the dev box machine, follow the steps below:
 
 **Step 1.** Save following yaml text as `admin-user.yaml`
 
