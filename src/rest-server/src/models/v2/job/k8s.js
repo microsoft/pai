@@ -626,10 +626,7 @@ const generateTaskRole = (
         : frameworkTaskRole.taskNumber,
   };
   // check cpu job
-  if (
-    !launcherConfig.enabledHived &&
-    config.taskRoles[taskRole].resourcePerInstance.gpu === 0
-  ) {
+  if (config.taskRoles[taskRole].resourcePerInstance.gpu === 0) {
     frameworkTaskRole.task.pod.spec.containers[0].env.push({
       name: 'NVIDIA_VISIBLE_DEVICES',
       value: 'none',
@@ -647,24 +644,26 @@ const generateTaskRole = (
     frameworkTaskRole.task.pod.metadata.annotations[
       'hivedscheduler.microsoft.com/pod-scheduling-spec'
     ] = yaml.safeDump(config.taskRoles[taskRole].hivedPodSpec);
-    frameworkTaskRole.task.pod.spec.containers[0].env.push(
-      {
-        name: 'NVIDIA_VISIBLE_DEVICES',
-        valueFrom: {
-          fieldRef: {
-            fieldPath: `metadata.annotations['hivedscheduler.microsoft.com/pod-leaf-cell-isolation']`,
+    if (config.taskRoles[taskRole].resourcePerInstance.gpu > 0) {
+      frameworkTaskRole.task.pod.spec.containers[0].env.push(
+        {
+          name: 'NVIDIA_VISIBLE_DEVICES',
+          valueFrom: {
+            fieldRef: {
+              fieldPath: `metadata.annotations['hivedscheduler.microsoft.com/pod-leaf-cell-isolation']`,
+            },
           },
         },
-      },
-      {
-        name: 'PAI_AMD_VISIBLE_DEVICES',
-        valueFrom: {
-          fieldRef: {
-            fieldPath: `metadata.annotations['hivedscheduler.microsoft.com/pod-leaf-cell-isolation']`,
+        {
+          name: 'PAI_AMD_VISIBLE_DEVICES',
+          valueFrom: {
+            fieldRef: {
+              fieldPath: `metadata.annotations['hivedscheduler.microsoft.com/pod-leaf-cell-isolation']`,
+            },
           },
         },
-      },
-    );
+      );
+    }
   }
 
   return frameworkTaskRole;
