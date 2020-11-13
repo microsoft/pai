@@ -21,6 +21,7 @@ const Context = React.createContext({
   jobConfig: null,
   rawJobConfig: null,
   sshInfo: null,
+  isViewingSelf: null,
 });
 
 export default Context;

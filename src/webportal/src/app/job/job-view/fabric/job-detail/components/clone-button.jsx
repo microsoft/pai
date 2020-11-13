@@ -1,3 +1,4 @@
+
 // Copyright (c) Microsoft Corporation
 // All rights reserved.
 //
@@ -15,14 +16,15 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-import React, { useMemo } from 'react';
+import React, { useMemo, useContext } from 'react';
 import PropTypes from 'prop-types';
 import qs from 'querystring';
 import { get, isNil } from 'lodash';
 import { PrimaryButton } from 'office-ui-fabric-react';
 import { isClonable, isJobV2 } from '../util';
+import Context from './context';
 
-const CloneButton = ({ rawJobConfig, namespace, jobName }) => {
+const CloneButton = ({ rawJobConfig, namespace, jobName, enableTransfer }) => {
   const [href, onClick] = useMemo(() => {
     // TODO: align same format of jobname with each submit ways
     const queryOld = {
@@ -41,9 +43,11 @@ const CloneButton = ({ rawJobConfig, namespace, jobName }) => {
     // default
     if (isNil(pluginId)) {
       if (isJobV2(rawJobConfig)) {
-        return [`/submit.html?${qs.stringify(queryNew)}`, undefined];
+        // give a dummy function for onClick because split button depends on it to work
+        return [`/submit.html?${qs.stringify(queryNew)}`, () => {}];
       } else {
-        return [`/submit_v1.html?${qs.stringify(queryNew)}`, undefined];
+        // give a dummy function for onClick because split button depends on it to work
+        return [`/submit_v1.html?${qs.stringify(queryNew)}`, () => {}];
       }
     }
     // plugin
@@ -84,14 +88,50 @@ const CloneButton = ({ rawJobConfig, namespace, jobName }) => {
     ];
   }, [rawJobConfig]);
 
-  return (
-    <PrimaryButton
-      text='Clone'
-      href={href}
-      onClick={onClick}
-      disabled={!isClonable(rawJobConfig)}
-    />
-  );
+  let cloneButton;
+  // Only when transfer job is enabled, and the owner of this job is the one
+  // who is viewing it, show the transfer option.
+  const { isViewingSelf } = useContext(Context);
+  if (enableTransfer && isViewingSelf) {
+    cloneButton = (
+      <PrimaryButton
+        text='Clone'
+        split
+        menuProps={{
+          items: [
+            {
+              key: 'transfer',
+              text: 'Transfer',
+              iconProps: { iconName: 'Forward' },
+              onClick: () => {
+                const query = {
+                  userName: namespace,
+                  jobName: jobName,
+                };
+                window.location.href = `job-transfer.html?${qs.stringify(
+                  query,
+                )}`;
+              },
+            },
+          ],
+        }}
+        href={href}
+        onClick={onClick}
+        disabled={!isClonable(rawJobConfig)}
+      />
+    );
+  } else {
+    cloneButton = (
+      <PrimaryButton
+        text='Clone'
+        href={href}
+        onClick={onClick}
+        disabled={!isClonable(rawJobConfig)}
+      />
+    );
+  }
+
+  return cloneButton;
 };
 
 CloneButton.propTypes = {
