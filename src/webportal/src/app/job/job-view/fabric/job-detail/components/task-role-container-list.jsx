@@ -141,7 +141,11 @@ const LogDialogContent = ({ urlLists }) => {
   }
   const urlpairs = lists.map(lists => (
     <dl key='log-list'>
-      <Link href={lists.uri} styles={{ root: [FontClassNames.mediumPlus] }}>
+      <Link
+        href={lists.uri}
+        target='_blank'
+        styles={{ root: [FontClassNames.mediumPlus] }}
+      >
         <Icon iconName='TextDocument'></Icon> {lists.name}
       </Link>
     </dl>
