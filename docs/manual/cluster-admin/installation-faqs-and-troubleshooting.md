@@ -68,7 +68,7 @@ To remove the network plugin, you could use following `ansible-playbook`:
       shell: systemctl restart kubelet
       args:
         executable: /bin/bash
-    
+
     - name: restart docker
       shell: systemctl restart docker
       args:
@@ -112,6 +112,10 @@ Please refer to the [official document](https://github.com/NVIDIA/nvidia-contain
   }
 }
 ```
+
+#### How to deploy on [Azure Kubernetes Service (AKS)](https://azure.microsoft.com/en-us/services/kubernetes-service/) with [Cluster Autoscaler](https://github.com/kubernetes/autoscaler/tree/master/cluster-autoscaler)?
+
+Please refer to [this document](https://github.com/microsoft/pai/tree/master/contrib/aks-engine).
 
 ## Troubleshooting
 

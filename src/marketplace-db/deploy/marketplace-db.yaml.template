@@ -1,0 +1,43 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: marketplace-db-ds
+spec:
+  selector:
+    matchLabels:
+      app: marketplace-db
+  template:
+    metadata:
+      name: marketplace-db
+      labels:
+        app: marketplace-db
+    spec:
+      hostNetwork: true
+      containers:
+      - name: marketplace-db
+        image: {{ cluster_cfg["cluster"]["docker-registry"]["prefix"] }}marketplace-db:{{ cluster_cfg["cluster"]["docker-registry"]["tag"] }}
+        imagePullPolicy: Always
+        env:
+        - name: POSTGRES_USER
+          value: {{ cluster_cfg["marketplace-db"]["user"] }}
+        - name: POSTGRES_PASSWORD
+          value: {{ cluster_cfg["marketplace-db"]["passwd"] }}
+        - name: POSTGRES_DB
+          value: {{ cluster_cfg["marketplace-db"]["db"] }}
+        - name: PGDATA
+          value: /var/lib/postgresql/data/pgdata
+        args: ['-c', 'port={{- cluster_cfg["marketplace-db"]["port"] }}', '-N', '{{ cluster_cfg["marketplace-db"]["max-connection"] }}']
+        volumeMounts:
+        - name: marketplace-data-dir
+          mountPath: /var/lib/postgresql/data/pgdata
+          mountPropagation: "None"
+      volumes:
+        - name: marketplace-data-dir
+          hostPath:
+            path: '{{ cluster_cfg["marketplace-db"]["data-path"] }}'
+            type: DirectoryOrCreate
+      imagePullSecrets:
+      - name: {{ cluster_cfg["cluster"]["docker-registry"]["secret-name"] }}

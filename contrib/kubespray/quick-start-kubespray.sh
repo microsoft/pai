@@ -40,14 +40,10 @@ then
   exit 1
 fi
 
+# environment set up
 /bin/bash script/environment.sh -c ${CLUSTER_CONFIG} || exit $?
 
-/bin/bash script/configuration.sh -m ${MASTER_LIST} -w ${WORKER_LIST} -c ${CLUSTER_CONFIG} || exit $?
-
-echo "Ping Test"
-
-ansible all -i ${HOME}/pai-deploy/cluster-cfg/hosts.yml -m ping || exit $?
-
+# check requirements
 /bin/bash requirement.sh -m ${MASTER_LIST} -w ${WORKER_LIST} -c ${CLUSTER_CONFIG}
 ret_code_check=$?
 if [ $ret_code_check -ne 0 ]; then
@@ -60,8 +56,13 @@ if [ $ret_code_check -ne 0 ]; then
   fi
 fi
 
+# prepare cluster-cfg folder
+/bin/bash script/configuration-kubespray.sh -m ${MASTER_LIST} -w ${WORKER_LIST} -c ${CLUSTER_CONFIG} || exit $?
+
+echo "Ping Test"
+ansible all -i ${HOME}/pai-deploy/cluster-cfg/hosts.yml -m ping || exit $?
+
 /bin/bash preinstall.sh -c ${CLUSTER_CONFIG} || exit $?
 
+# setup k8s cluster
 /bin/bash script/kubernetes-boot.sh || exit $?
-
-

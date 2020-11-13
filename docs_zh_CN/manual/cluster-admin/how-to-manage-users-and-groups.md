@@ -25,61 +25,8 @@
 
 #### 注意
 
-如果您在基础认证模式下已经设置过一些用户，您需要手动将他们迁移至AAD。一旦AAD认证设置成功，您将不能使用原先的基础认证。
+如果您在基础认证模式下已经设置过一些用户，您需要手动将他们迁移至AAD。一旦AAD认证设置成功，您将不能使用原先的基础认证。要设置AAD，请先按照[这里](./basic-management-operations.md#how-to-set-up-https)的说明为OpenPAI设置HTTPS访问。
 
-#### 设置HTTPS证书（以自签名证书为例）
-
-##### 1. 将您的域名保存到环境变量
-
-```bash
-DOMAIN={pylon address}
-```
-##### 2. 使用OpenSSL生成RSA私钥
-
-``` bash
-openssl genrsa -des3 -out $DOMAIN.key 1024
-```
-
-这步会需要您填一个密码。您可以跳过这步，按Enter键跳过，此时密码将会是一个空值。
-
-##### 3. 生成证书请求
-
-```bash
-SUBJECT="/C=US/ST=Washington/CN=$DOMAIN"
-openssl req -new -subj $SUBJECT -key $DOMAIN.key -out $DOMAIN.csr
-```
-
-##### 4. 生成证书
-
-```bash
-mv $DOMAIN.key $DOMAIN.origin.key
-openssl rsa -in $DOMAIN.origin.key -out $DOMAIN.key
-openssl x509 -req -days 3650 -in $DOMAIN.csr -signkey $DOMAIN.key -out $DOMAIN.crt
-```
-
-##### 5. 最后结果
-
-在当前目录下，您将会发现有4个文件
-
-<div  align="center">
-<img src="./imgs/aad/openssl_result.png" alt="paictl overview picture" style="float: center; margin-right: 10px;" />
-</div>
-
-##### 6. 设置Pylon
-
-修改您的`services-configuration.yaml`。 如果您还不知道什么是`services-configuration.yaml`，请参考[这个文档](basic-management-operations.md#pai-service-management-and-paictl)。
-
-```
-pylon:
-    port: 80
-    uri: "http://master_ip:80"
-    ssl:
-      # self-sign
-      crt_name: xxxxxx
-      crt_path: /path/to/xxxxxx
-      key_name: yyyyyy
-      key_path: /path/to/yyyyyy
-```
 
 #### 设置AAD
 

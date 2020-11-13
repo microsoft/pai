@@ -40,4 +40,7 @@ then
   exit 1
 fi
 
+# prepare quick-start-config folder
+/bin/bash script/configuration-services.sh -m ${MASTER_LIST} -w ${WORKER_LIST} -c ${CLUSTER_CONFIG} || exit $?
+
 /bin/bash script/service-boot.sh -c ${CLUSTER_CONFIG}

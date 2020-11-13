@@ -33,23 +33,6 @@ location ~ ^/rest-server/api(.*)$ {
   proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
   proxy_set_header X-Real-IP $remote_addr;
   proxy_set_header Accept-Encoding "";
-  subs_filter_types *;
-  subs_filter
-    \"containerLog\":\"http://([^/]*):8042/([^\"]*)\"
-    \"containerLog\":\"$scheme://$http_host/yarn/$1:8042/$2\"
-    r;
-  subs_filter
-    \"appTrackingUrl\":\"http://([^/]*):8088/([^\"]*)\"
-    \"appTrackingUrl\":\"$scheme://$http_host/yarn/$1:8088/$2\"
-    r;
-  subs_filter
-    \"privateKeyDirectDownloadLink\":\"http://([^/]*):5070/([^\"]*)\"
-    \"privateKeyDirectDownloadLink\":\"$scheme://$http_host/a/$1:5070/$2\"
-    r;
-  subs_filter
-    \"containerLog\":\"http://([^/]*):(\d+)/log-manager/([^\"]*)\"
-    \"containerLog\":\"/log-manager/$1:$2/$3\"
-    r;
 
   proxy_set_header    If-None-Match    $request_if_none_match;
   add_header          Etag             $response_etag;
@@ -90,100 +73,8 @@ location ~ ^/alert-manager(.*)$ {
 
 # log-manager server
 location ~ ^/log-manager/([^/]+):(\d+)/(.*)$ {
-  proxy_pass http://$1:$2/log-manager/$3$is_args$args;
+  proxy_pass http://$1:$2/$3$is_args$args;
 }
-
-{% if CLUSTER_TYPE == 'yarn' %}
-#
-# YARN web portal
-#
-
-location ~ ^/yarn$ {
-  # Add '/' to the end of the URL, otherwise there will be a 404 error.
-  return 301 $scheme://$http_host$request_uri/;
-}
-location ~ ^/yarn/([^/]+):(\d+)/(.*/)?([^/]*)$ {
-  set $target_host   $1;
-  set $target_port   $2;
-  set $target_path   $3$4$is_args$args;
-  set $condition     "";
-  #
-  proxy_pass http://$target_host:$target_port/$target_path;
-  proxy_set_header Accept-Encoding $routing_accept_encoding;
-  proxy_intercept_errors on;
-  error_page 301 302 307 = @handle_yarn_redirect;
-  #
-  set $base $scheme://$http_host/yarn/$target_host:$target_port/;
-  #
-  subs_filter
-    "<html>"
-    "<head><base href=\"$base\"></head><html>"
-    o;
-  subs_filter
-    " src=\"/static"
-    " src=\"static"
-    g;
-  subs_filter
-    href=(['"])/
-    href=$1
-    r;
-  #
-  subs_filter
-    href=\'http://([^/]*):8042\'
-    href=\'$scheme://$http_host/yarn/$1:8042/node\'
-    r;
-  subs_filter
-    href=\'http://([^/]*):8042/([^\']*)\'
-    href=\'$scheme://$http_host/yarn/$1:8042/$2\'
-    r;
-  subs_filter
-    href=\'http://([^/]*):8088/([^\']*)\'
-    href=\'$scheme://$http_host/yarn/$1:8088/$2\'
-    r;
-  #
-  subs_filter
-    href=\"/([^/]*):8042\"
-    href=\"$scheme://$http_host/yarn/$1:8042/node\"
-    r;
- subs_filter
-    href=\"http://([^/]*):8042\"
-    href=\"$scheme://$http_host/yarn/$1:8042/node\"
-    r;
-  subs_filter
-    href=\"http://([^/]*):8042/([^\"]*)\"
-    href=\"$scheme://$http_host/yarn/$1:8042/$2\"
-    r;
-  subs_filter
-    href=\"http://([^/]*):8088\"
-    href=\"$scheme://$http_host/yarn/$1:8088/cluster\"
-    r;
-  subs_filter
-    href=\"http://([^/]*):8088/([^\"]*)\"
-    href=\"$scheme://$http_host/yarn/$1:8088/$2\"
-    r;
-  subs_filter
-    url=http://([^/]*):8188/([^\"]*)\">
-    url=$scheme://$http_host/yarn/$1:8188/$2\">
-    r;
-  #
-  subs_filter
-    8088/proxy/application
-    8088/cluster/app/application
-    g;
-}
-location ~ ^/yarn(.*)$ {
-  set $target_path   $1$is_args$args;
-  set $yarn_root_url {{YARN_WEB_PORTAL_URI}};
-  if ($yarn_root_url ~ ^http://([^/]+):(\d+)$) {
-    return 301 $scheme://$http_host/yarn/$1:$2$target_path;
-  }
-}
-location @handle_yarn_redirect {
-  if ($upstream_http_location ~ ^http://([^/]+):(\d+)/(.*/)?([^/]*)$) {
-    return 301 $scheme://$http_host/yarn/$1:$2/$3$4;
-  }
-}
-{% endif %}
 
 #
 # Other web portals
@@ -197,38 +88,6 @@ location ~ ^/kubernetes-dashboard$ {
 location ~ ^/kubernetes-dashboard(.*)$ {
   proxy_pass {{K8S_DASHBOARD_URI}}$1$is_args$args;
 }
-
-{% if CLUSTER_TYPE == 'yarn' %}
-# WebHDFS dashboard
-location ~ ^/webhdfs$ {
-  # Add '/' to the end of the URL, otherwise there will be a 404 error.
-  return 301 $scheme://$http_host$request_uri/;
-}
-location ~ ^/webhdfs(.*)$ {
-  proxy_pass {{WEBHDFS_URI}}$1$is_args$args;
-  set $base $scheme://$http_host/webhdfs/;
-  sub_filter_types *;
-  sub_filter_once off;
-  sub_filter
-    "href=\"/"
-    "href=\"$base";
-  sub_filter
-    "src=\"/static"
-    "src=\"${base}static";
-  sub_filter
-    "/jmx?qry="
-    "${base}jmx?qry=";
-  sub_filter
-    "/webhdfs/v1"
-    "/webhdfs/api/v1";
-  sub_filter
-    "'url': '/conf'"
-    "'url': '${base}conf'";
-  sub_filter
-    "get('/startupProgress'"
-    "get('${base}startupProgress'";
-}
-{% endif %}
 
 # Grafana
 location ~ ^/grafana$ {
@@ -284,6 +143,28 @@ location ~ ^/dshuttle/(.*)$ {
 }
 {%- endif %}
 
+{%- if MARKETPLACE_API_URI %}
+# marketplace rest server
+location ~ ^/marketplace/api$ {
+  # Add '/' to the end of the URL, otherwise there will be a 404 error.
+  return 301 $scheme://$http_host$request_uri/;
+}
+location ~ ^/marketplace/api/(.*)$ {
+  proxy_pass {{MARKETPLACE_API_URI}}/$1$is_args$args;
+}
+{%- endif %}
+
+{%- if MARKETPLACE_WEBPORTAL_PLUGIN %}
+# marketplace webportal plugin
+location ~ ^/marketplace$ {
+  # Add '/' to the end of the URL, otherwise there will be a 404 error.
+  return 301 $scheme://$http_host$request_uri/;
+}
+location ~ ^/marketplace/(.*)$ {
+  proxy_pass {{MARKETPLACE_WEBPORTAL_PLUGIN}}/$1;
+}
+{%- endif %}
+
 # PAI web portal
 location ~ ^(.*)$ {
   proxy_pass {{PAI_WEB_PORTAL_URI}}$1$is_args$args;
@@ -326,6 +207,16 @@ location ~ ^(.*)$ {
   sub_filter
     '{{DSHUTTLE_URI}}'
     '/dshuttle';
+{%- endif %}
+{%- if MARKETPLACE_API_URI %}
+  sub_filter
+    '{{MARKETPLACE_API_URI}}'
+    '/marketplace/api';
+{%- endif %}
+{%- if MARKETPLACE_WEBPORTAL_PLUGIN %}
+  sub_filter
+    '{{MARKETPLACE_WEBPORTAL_PLUGIN}}'
+    '/marketplace';
 {%- endif %}
 
   proxy_set_header    If-None-Match    $request_if_none_match;
