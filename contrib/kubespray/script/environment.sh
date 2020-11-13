@@ -16,14 +16,10 @@ OPENPAI_BRANCH_NAME=`cat ${CLUSTER_CONFIG} | grep branch_name | tr -d "[:space:]
 
 echo "Create working folder in ${HOME}/pai-deploy"
 mkdir -p ${HOME}/pai-deploy/
-cd ${HOME}/pai-deploy
 
-echo "Clone kubespray source code from github"
-git clone https://github.com/kubernetes-sigs/kubespray.git
-
-echo "Checkout to the Release Branch"
-cd kubespray
-git checkout release-2.11
+echo "Clone kubespray source code from github to ${HOME}/pai-deploy"
+sudo rm -rf ${HOME}/pai-deploy/kubespray
+git clone -b release-2.11 https://github.com/kubernetes-sigs/kubespray.git ${HOME}/pai-deploy/kubespray
 
 echo "Copy inventory folder, and save it "
 cp -rfp ${HOME}/pai-deploy/kubespray/inventory/sample ${HOME}/pai-deploy/kubespray/inventory/pai
@@ -44,13 +40,8 @@ echo "Install sshpass"
 sudo apt-get -y install sshpass
 
 echo "Install kubespray's requirements and ansible is included"
-cd ${HOME}/pai-deploy/kubespray
-sudo pip3 install -r requirements.txt
+sudo pip3 install -r ${HOME}/pai-deploy/kubespray/requirements.txt
 
-echo "Clone OpenPAI source code from github"
-cd ${HOME}/pai-deploy
-git clone https://github.com/microsoft/pai.git
-cd pai
-
-echo "switch to the branch ${OPENPAI_BRANCH_NAME}"
-git checkout ${OPENPAI_BRANCH_NAME}
+echo "Clone OpenPAI source code from github to ${HOME}/pai-deploy"
+sudo rm -rf ${HOME}/pai-deploy/pai
+git clone -b ${OPENPAI_BRANCH_NAME} https://github.com/microsoft/pai.git ${HOME}/pai-deploy/pai

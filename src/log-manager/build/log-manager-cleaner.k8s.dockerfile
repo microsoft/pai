@@ -1,5 +1,3 @@
-#!/bin/bash
-
 # Copyright (c) Microsoft Corporation
 # All rights reserved.
 #
@@ -17,14 +15,10 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-pushd $(dirname "$0") > /dev/null
+FROM alpine:3.10
 
-kubectl apply --overwrite=true -f rbac.yaml || exit $?
-kubectl apply --overwrite=true -f alert-manager-configmap.yaml || exit $?
-kubectl apply --overwrite=true -f alert-manager-deployment.yaml || exit $?
+# install dev tools
+RUN apk update && apk add --no-cache tini bash findutils
+COPY src/cleaner/ /usr/bin/cleaner/
+ENTRYPOINT ["/sbin/tini","--","/usr/bin/cleaner/entrypoint.sh"]
 
-sleep 10
-# wait until the service is ready.
-PYTHONPATH="../../../deployment" python -m  k8sPaiLibrary.monitorTool.check_pod_ready_status -w -k app -v alertmanager || exit $?
-
-popd > /dev/null

@@ -1,46 +1,43 @@
 ## Log-manager section parser
 
-- [Default Configuration](#D_Config)
-- [How to Configure](#HT_Config)
-- [Generated Configuration](#G_Config)
-- [Data Table](#T_config)
+- [Default configuration](#default-configuration)
+- [How to configure cluster section in service-configuration.yaml](#how-to-configure-cluster-section-in-service-configurationyaml)
+- [Generated Configuration](#generated-configuration)
+- [Table](#table)
 
-#### Default configuration <a name="D_Config"></a>
+#### Default configuration
 
 [log-manager default configuration](log-manager.yaml)
 
-#### How to configure cluster section in service-configuration.yaml <a name="HT_Config"></a>
+#### How to configure cluster section in service-configuration.yaml
 
 All configurations in this section is optional. If you want to customized these value, you can configure it in service-configuration.yaml.
 
 For example, if you want to use different port than the default 9103, add following to your service-configuration.yaml as following:
 ```yaml
 log-manager:
-    port: new-value
+  port: new-value
 ```
 
-#### Generated Configuration <a name="G_Config"></a>
+#### Generated Configuration
 
 Generated configuration means the object model after parsing. The parsed data will be presented by a yaml format.
 ```yaml
 log-manager:
-    port: 9103
+  port: 9103
+  admin_name: admin
+  admin_password: admin
+  jwt_secret: "jwt_secret"
+  token_expired_second: 120
 ```
 
 
-#### Table <a name="T_Config"></a>
+#### Table
 
-<table>
-<tr>
-    <td>Data in Configuration File</td>
-    <td>Data in Cluster Object Model</td>
-    <td>Data in Jinja2 Template</td>
-    <td>Data type</td>
-</tr>
-<tr>
-    <td>log-manager.port</td>
-    <td>com["log-manager"]["port"]</td>
-    <td>cluster_cfg["log-manager"]["port"]</td>
-    <td>Int</td>
-</tr>
-</table>
+| Data in Configuration File        | Data in Cluster Object Model                | Data in Jinja2 Template                            | Data type |
+|-----------------------------------|---------------------------------------------|----------------------------------------------------|-----------|
+| log-manager.port                  | com["log-manager"]["port"]                  | cluster_cfg["log-manager"]["port"]                 | Int       |
+| log-manager.admin_name            | com["log-manager"]["admin_name"]            | cluster_cfg["log-manager"]["admin_name"]           | String    |
+| log-manager.admin_password        | com["log-manager"]["admin_password"]        | cluster_cfg["log-manager"]["admin_password"]       | String    |
+| log-manager.jwt_secret            | com["log-manager"]["jwt_secret"]            | cluster_cfg["log-manager"]["jwt_secret"]           | String    |
+| log-manager.token_expired_second  | com["log-manager"]["token_expired_second"]  | cluster_cfg["log-manager"]["token_expired_second"] | Int       |

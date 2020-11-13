@@ -94,13 +94,16 @@ alert-manager:
         alertname: PAIJobGpuPercentLowerThan0_3For1h
   customized-receivers: # receivers are combination of several actions
   - name: "pai-email-admin-user-and-stop-job"
-    actions:
-    - email-admin
-    - email-user
-    - stop-jobs
-    - tag-jobs
-    tags: 
-    - 'stopped-by-alert-manager'
+    actions: 
+      # the email template for `email-admin` and `email-user `can be chosen from ['general-template', 'kill-low-efficiency-job-alert']
+      # if no template specified, 'general-template' will be used.
+      email-admin:
+      email-user:  
+        template: 'kill-low-efficiency-job-alert'
+      stop-jobs: # no parameters required for stop-jobs action
+      tag-jobs:
+        tags: 
+        - 'stopped-by-alert-manager'
 
 ```
 
@@ -152,13 +155,16 @@ alert-manager:
         alertname: PAIJobGpuPercentLowerThan0_3For1h
   customized-receivers: # receivers are combination of several actions
   - name: "pai-email-admin-user-and-stop-job"
-    actions: # We have provided so far these actions: email-admin, email-user, stop-jobs, tag-jobs
-    - email-admin
-    - email-user
-    - stop-jobs
-    - tag-jobs
-    tags: 
-    - 'stopped-by-alert-manager'
+    actions: 
+      # the email template for `email-admin` and `email-user `can be chosen from ['general-template', 'kill-low-efficiency-job-alert']
+      # if no template specified, 'general-template' will be used.
+      email-admin:
+      email-user:  
+        template: 'kill-low-efficiency-job-alert'
+      stop-jobs: # no parameters required for stop-jobs action
+      tag-jobs:
+        tags: 
+        - 'stopped-by-alert-manager'
   ......
 ```
 
@@ -173,8 +179,19 @@ For `routes` definition, we adopt the syntax of [Prometheus Alertmanager](https:
 For `receivers` definition, you can simply:
 
 - name the receiver in `name` field;
-- list the actions to use in `actions`;
-- list the tags in `tags` if `tag-jobs` is one of the actions.
+- list the actions to use in `actions` and fill corresponding parameters for the actions:
+  - `email-admin`: 
+    - template: Optional, can be choose from ['general-template', 'kill-low-efficiency-job-alert'], by default 'general-template'.
+  - `email-user`: 
+    - template: Optional, can be choose from ['general-template', 'kill-low-efficiency-job-alert'], by default 'general-template'.
+  - `cordon-nodes`: No parameters required
+  - `stop-jobs`: No parameters required
+  - `tag-jobs`:
+    - tags: required, list of tags
+
+You can also add customized email templates by adding a template folder in `pai/src/alert-manager/deploy/alert-templates`. 
+Two files need to be present: one email body template file named `html.ejs` and one email subject template file named `subject.ejs`.
+The folder name will be automatically passed as the template name.
 
 Remember to push service config to the cluster and restart the `alert-manager` service after your modification with the following commands in the dev-box container:
 

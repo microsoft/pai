@@ -76,7 +76,7 @@ const convertFrameworkSummary = (framework) => {
   };
 };
 
-const convertTaskDetail = async (taskStatus, ports, logPathPrefix) => {
+const convertTaskDetail = async (taskStatus, ports, frameworkName) => {
   // get containerPorts
   const containerPorts = getContainerPorts(
     ports,
@@ -103,7 +103,7 @@ const convertTaskDetail = async (taskStatus, ports, logPathPrefix) => {
     containerNodeName: taskStatus.attemptStatus.podNodeName,
     containerPorts,
     containerGpus,
-    containerLog: `http://${taskStatus.attemptStatus.podHostIP}:${process.env.LOG_MANAGER_PORT}/log-manager/tail/${logPathPrefix}/${taskStatus.attemptStatus.podUID}/`,
+    containerLog: `/api/v2/jobs/${frameworkName}/pods/${taskStatus.attemptStatus.podUID}/logs`,
     containerExitCode: completionStatus ? completionStatus.code : null,
     containerExitSpec: completionStatus
       ? generateExitSpec(completionStatus.code)
@@ -158,9 +158,6 @@ const convertFrameworkDetail = async (
   const virtualCluster = frameworkWithLatestAttempt.metadata.labels
     ? frameworkWithLatestAttempt.metadata.labels.virtualCluster
     : 'unknown';
-  const logPathInfix = frameworkWithLatestAttempt.metadata.annotations
-    ? frameworkWithLatestAttempt.metadata.annotations.logPathInfix
-    : null;
 
   const latestAttemptStatus = frameworkWithLatestAttempt.status.attemptStatus;
   const latestAttemptCompletionStatus = latestAttemptStatus.completionStatus;
@@ -291,7 +288,7 @@ const convertFrameworkDetail = async (
           await convertTaskDetail(
             status,
             ports[taskRoleStatus.name],
-            `${userName}/${logPathInfix || jobName}/${taskRoleStatus.name}`,
+            `${userName}~${jobName}`,
           ),
       ),
     );
@@ -629,10 +626,7 @@ const generateTaskRole = (
         : frameworkTaskRole.taskNumber,
   };
   // check cpu job
-  if (
-    !launcherConfig.enabledHived &&
-    config.taskRoles[taskRole].resourcePerInstance.gpu === 0
-  ) {
+  if (config.taskRoles[taskRole].resourcePerInstance.gpu === 0) {
     frameworkTaskRole.task.pod.spec.containers[0].env.push({
       name: 'NVIDIA_VISIBLE_DEVICES',
       value: 'none',
@@ -650,24 +644,26 @@ const generateTaskRole = (
     frameworkTaskRole.task.pod.metadata.annotations[
       'hivedscheduler.microsoft.com/pod-scheduling-spec'
     ] = yaml.safeDump(config.taskRoles[taskRole].hivedPodSpec);
-    frameworkTaskRole.task.pod.spec.containers[0].env.push(
-      {
-        name: 'NVIDIA_VISIBLE_DEVICES',
-        valueFrom: {
-          fieldRef: {
-            fieldPath: `metadata.annotations['hivedscheduler.microsoft.com/pod-leaf-cell-isolation']`,
+    if (config.taskRoles[taskRole].resourcePerInstance.gpu > 0) {
+      frameworkTaskRole.task.pod.spec.containers[0].env.push(
+        {
+          name: 'NVIDIA_VISIBLE_DEVICES',
+          valueFrom: {
+            fieldRef: {
+              fieldPath: `metadata.annotations['hivedscheduler.microsoft.com/pod-leaf-cell-isolation']`,
+            },
           },
         },
-      },
-      {
-        name: 'PAI_AMD_VISIBLE_DEVICES',
-        valueFrom: {
-          fieldRef: {
-            fieldPath: `metadata.annotations['hivedscheduler.microsoft.com/pod-leaf-cell-isolation']`,
+        {
+          name: 'PAI_AMD_VISIBLE_DEVICES',
+          valueFrom: {
+            fieldRef: {
+              fieldPath: `metadata.annotations['hivedscheduler.microsoft.com/pod-leaf-cell-isolation']`,
+            },
           },
         },
-      },
-    );
+      );
+    }
   }
 
   return frameworkTaskRole;

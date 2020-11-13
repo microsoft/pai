@@ -1,0 +1,11 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+
+service_type: "k8s"
+
+user: user
+passwd: passwd
+db: marketplace
+port: 9291
+max-connection: 1000
+data-path: /mnt/marketplace

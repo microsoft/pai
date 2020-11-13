@@ -253,6 +253,61 @@ hivedscheduler:
 
 In the above example, we set up 2 VCs: `default` and `v100`. The `default` VC has 2 K80 nodes, and `V100` VC has 3 V100 nodes. Every K80 node has 4 K80 GPUs and Every V100 nodes has 4 V100 GPUs.
 
+## Configure CPU and GPU SKU on the Same Node
+
+If you want to configure both CPU and GPU sku types on the same node, you could use the same `cellAddress` for different `cellTypes`, here is an example.
+
+```yaml
+hivedscheduler:
+  config: |
+    physicalCluster:
+      skuTypes:
+        GPU:
+          gpu: 1
+          cpu: 4
+          memory: 40960Mi
+        CPU:
+          gpu: 0
+          cpu: 1
+          memory: 10240Mi
+      cellTypes:
+        GPU-NODE:
+          childCellType: GPU
+          childCellNumber: 4
+          isNodeLevel: true
+        GPU-NODE-POOL:
+          childCellType: GPU-NODE
+          childCellNumber: 2
+        CPU-NODE:
+          childCellType: CPU
+          childCellNumber: 12
+          isNodeLevel: true
+        CPU-NODE-POOL:
+          childCellType: CPU-NODE
+          childCellNumber: 2
+      physicalCells:
+      - cellType: GPU-NODE-POOL
+        cellChildren:
+        - cellAddress: node1
+        - cellAddress: node2
+      - cellType: CPU-NODE-POOL
+        cellChildren:
+        - cellAddress: node1
+        - cellAddress: node2
+    virtualClusters:
+      default:
+        virtualCells:
+        - cellType: GPU-NODE-POOL.GPU-NODE
+          cellNumber: 2
+      cpu:
+        virtualCells:
+        - cellType: CPU-NODE-POOL.CPU-NODE
+          cellNumber: 2
+```
+
+Currently we only support mixing CPU and GPU types on one NVIDIA GPU node or one AMD GPU node,
+rare cases including NVIDIA cards and AMD cards on one node are not supported.
+
 ## Use Pinned Cell to Reserve Certain Node in a Virtual Cluster
 
 In some cases, you might want to reserve a certain node in a virtual cluster, and submit job to this node explicitly for debugging or quick testing. OpenPAI provides you with a way to "pin" a node to a virtual cluster.

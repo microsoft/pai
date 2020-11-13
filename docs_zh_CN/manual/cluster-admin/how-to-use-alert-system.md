@@ -91,13 +91,14 @@ alert-manager:
         alertname: PAIJobGpuPercentLowerThan0_3For1h
   customized-receivers:
   - name: "pai-email-admin-user-and-stop-job"
-    actions:
-      - email-admin
-      - email-user
-      - stop-jobs
-      - tag-jobs
-    tags: 
-      - 'stopped-by-alert-manager'
+    actions: 
+      email-admin:
+      email-user:  
+        template: 'kill-low-efficiency-job-alert'
+      stop-jobs:
+      tag-jobs:
+        tags: 
+        - 'stopped-by-alert-manager'
 
 ```
 
@@ -142,15 +143,16 @@ alert-manager:
     - receiver: pai-email-admin-user-and-stop-job
       match:
         alertname: PAIJobGpuPercentLowerThan0_3For1h
-  customized-receivers:、
+  customized-receivers:
   - name: "pai-email-admin-user-and-stop-job"
-    actions:、
-      - email-admin
-      - email-user
-      - stop-jobs
-      - tag-jobs
-    tags: 
-      - 'stopped-by-alert-manager'
+    actions: 
+      email-admin:
+      email-user:  
+        template: 'kill-low-efficiency-job-alert'
+      stop-jobs:
+      tag-jobs:
+        tags: 
+        - 'stopped-by-alert-manager'
   ......
 ```
 

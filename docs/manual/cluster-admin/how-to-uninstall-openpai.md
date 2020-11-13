@@ -2,10 +2,10 @@
 
 The uninstallation of OpenPAI is irreversible: all the data will be removed and you cannot find them back. If you need a backup, do it before uninstallation.
 
-First, log in to the dev box machine and delete all PAI services:
+First, log in to the dev box machine and delete all PAI services with [dev box container](./basic-management-operations.md#pai-service-management-and-paictl).:
 
 ```bash
-./paictl.py service delete
+sudo docker exec -it dev-box /pai/paictl.py service delete
 ```
 
 Now all PAI services and data are deleted. If you want to destroy the Kubernetes cluster too, please go into [`~/pai-deploy/kubespray` folder](installation-guide.md#keep-a-folder), run:

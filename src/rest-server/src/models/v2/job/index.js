@@ -37,4 +37,7 @@ if (config.env !== 'test') {
     }
   })();
 }
-module.exports = require('@pai/models/v2/job/k8s');
+module.exports = {
+  job: require('@pai/models/v2/job/k8s'),
+  log: require('@pai/models/v2/job/log'),
+};

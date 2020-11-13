@@ -102,8 +102,8 @@ openpai-004,10.0.0.4
 ```yaml
 user: <your-ssh-username>
 password: <your-ssh-password>
-branch_name: pai-1.0.y
-docker_image_tag: v1.0.0
+branch_name: pai-1.3.y
+docker_image_tag: v1.3.0
 
 # Optional
 
@@ -192,8 +192,7 @@ docker_image_tag: v1.0.0
 On the dev box machine, use the following commands to clone the OpenPAI repo:
 
 ```bash
-git clone https://github.com/microsoft/pai.git
-git checkout pai-1.0.y  # change to a different branch if you want to deploy a different version
+git clone -b pai-1.3.y https://github.com/microsoft/pai.git # change to a different branch if you want to deploy a different version
 cd pai/contrib/kubespray
 ```
 
