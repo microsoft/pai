@@ -180,7 +180,7 @@ cd  /home/ssl
 ``` bash
 openssl genrsa -des3 -out FileName.key 1024
 ```
-In this step, a password will be asked.The following commands you enter will use the `FileName` parameter multiple times. You can choose a suitable file name to replace `FileName`.
+In this step, a password will be asked. The following commands you enter will use the `FileName` parameter multiple times. You can choose a suitable file name to replace `FileName`.
 
 
 #### 4. Generate certificate request
