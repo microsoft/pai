@@ -204,7 +204,7 @@ openssl x509 -req -days 3650 -in FileName.csr -signkey FileName.key -out FileNam
 在当前目录下，您将会发现有4个文件
 
 <div  align="center">
-<img src="./imgs/aad/openssl_result.png" alt="paictl overview picture" style="float: center; margin-right: 10px;" />
+<img src="./imgs/openssl_result.png" alt="paictl overview picture" style="float: center; margin-right: 10px;" />
 </div>
 
 #### 7. 设置services-configuration.yaml
@@ -250,7 +250,7 @@ pylon:
 要配置CA证书，您首先需要申请并导出您的CA证书，您最终会得到一个crt文件和一个key文件，然后将这两个文件保存到dev-box容器中,比如存储到dev-box容器的/home/ssl文件夹下。如图所示：
 
 <div  align="center">
-<img src="./imgs/aad/openssl_CA_result.png" alt="paictl overview picture" style="float: center; margin-right: 10px;" />
+<img src="./imgs/openssl_CA_result.png" alt="paictl overview picture" style="float: center; margin-right: 10px;" />
 </div>
 
 ##### 2. 设置services-configuration.yaml
