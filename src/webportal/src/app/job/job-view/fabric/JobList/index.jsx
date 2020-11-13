@@ -12,7 +12,7 @@ import React, {
   useEffect,
   useRef,
 } from 'react';
-import { debounce, isEmpty } from 'lodash';
+import { debounce, isEmpty, cloneDeep } from 'lodash';
 
 import { ColorClassNames, getTheme } from '@uifabric/styling';
 import { Fabric } from 'office-ui-fabric-react/lib/Fabric';
@@ -39,7 +39,6 @@ export default function JobList() {
   const admin = userAuth.checkAdmin();
   const username = cookies.get('user');
 
-  const [allJobs, setAllJobs] = useState(null);
   const [selectedJobs, setSelectedJobs] = useState([]);
   const [error, setError] = useState(null);
 
@@ -164,42 +163,43 @@ export default function JobList() {
     applyOrdering(ordering);
   }, [applyOrdering, ordering]);
 
-  const stopJob = useCallback(
-    (...jobs) => {
-      userAuth.checkToken(token => {
-        jobs.forEach(job => {
-          const { name, username } = job;
-          const client = new PAIV2.OpenPAIClient({
-            rest_server_uri: new URL(
-              webportalConfig.restServerUri,
-              window.location.href,
-            ),
-            username: username,
-            token: token,
-            https: window.location.protocol === 'https:',
-          });
-          client.job
-            .updateJobExecutionType(username, name, 'STOP')
-            .then(() => {
-              job.executionType = 'STOP';
-              delete job._statusText;
-              delete job._statusIndex;
-              setAllJobs(allJobs.slice());
-            })
-            .catch(err => {
-              if (err.data.code === 'UnauthorizedUserError') {
-                alert(err.data.message);
-                clearToken();
-              } else {
-                alert(err.data.message || err.message);
-                throw new Error(err.data.message || err.message);
-              }
-            });
+  const stopJob = (...jobs) => {
+    userAuth.checkToken(token => {
+      jobs.forEach(job => {
+        const { name, username } = job;
+        const client = new PAIV2.OpenPAIClient({
+          rest_server_uri: new URL(
+            webportalConfig.restServerUri,
+            window.location.href,
+          ),
+          username: username,
+          token: token,
+          https: window.location.protocol === 'https:',
         });
+        client.job
+          .updateJobExecutionType(username, name, 'STOP')
+          .then(() => {
+            job.executionType = 'STOP';
+            delete job._statusText;
+            delete job._statusIndex;
+            const newFilteredJobsInfo = cloneDeep(filteredJobsInfo);
+            setFilteredJobsInfo(newFilteredJobsInfo);
+          })
+          .catch(err => {
+            if (err.data && err.data.code === 'UnauthorizedUserError') {
+              alert(err.data.message);
+              clearToken();
+            } else if (err.data) {
+              alert(err.data.message);
+              throw new Error(err.data.message);
+            } else {
+              alert(err.message);
+              throw new Error(err.message);
+            }
+          });
       });
-    },
-    [allJobs],
-  );
+    });
+  };
 
   const getJobs = async query => {
     const token = userAuth.checkToken();
