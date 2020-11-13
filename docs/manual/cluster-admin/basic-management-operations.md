@@ -176,13 +176,12 @@ mkdir /home/ssl
 cd  /home/ssl
 ```
 #### 3. Generate RSA private key with openssl
-The next command you enter will use the `FileName` parameter multiple times. You can choose a suitable file name to replace `FileName`.
 
 ``` bash
 openssl genrsa -des3 -out FileName.key 1024
 ```
+In this step, a password will be asked.The following commands you enter will use the `FileName` parameter multiple times. You can choose a suitable file name to replace `FileName`.
 
-In this step, A password will be asked.
 
 #### 4. Generate certificate request
 
@@ -204,7 +203,7 @@ openssl x509 -req -days 3650 -in FileName.csr -signkey FileName.key -out FileNam
 In the current directory, you will find 4 files:
 
 <div  align="center">
-<img src="./imgs/aad/openssl_result.png" alt="paictl overview picture" style="float: center; margin-right: 10px;" />
+<img src="./imgs/openssl_result.png" alt="paictl overview picture" style="float: center; margin-right: 10px;" />
 </div>
 
 #### 7. Configure services-configuration.yaml
@@ -249,7 +248,7 @@ Restart the pylon service, and you will be able to access OpenPAI via https.
 To configure a CA certificate, you first need to apply for and export it. You will eventually get a crt file and a key file. Please save these two files in the dev-box container. As shown in the following picture, the two files are saved in `/home/ssl`.
 
 <div  align="center">
-<img src="./imgs/aad/openssl_CA_result.png" alt="paictl overview picture" style="float: center; margin-right: 10px;" />
+<img src="./imgs/openssl_CA_result.png" alt="paictl overview picture" style="float: center; margin-right: 10px;" />
 </div>
 
 ##### 2. Configure services-configuration.yaml
