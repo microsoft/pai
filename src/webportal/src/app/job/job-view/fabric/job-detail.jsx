@@ -52,6 +52,14 @@ import TaskRoleContainerList from './job-detail/components/task-role-container-l
 import TaskRoleCount from './job-detail/components/task-role-count';
 import MonacoPanel from '../../../components/monaco-panel';
 
+const params = new URLSearchParams(window.location.search);
+// the user who is viewing this page
+const userName = cookies.get('user');
+// the user of the job
+const userNameOfTheJob = params.get('username');
+// is the user viewing his/her own job?
+const isViewingSelf = userName === userNameOfTheJob;
+
 class JobDetail extends React.Component {
   constructor(props) {
     super(props);
@@ -70,6 +78,7 @@ class JobDetail extends React.Component {
       loadingAttempt: false,
       monacoProps: null,
       modalTitle: '',
+      jobTransferInfo: null,
     };
     this.stop = this.stop.bind(this);
     this.reload = this.reload.bind(this);
@@ -157,6 +166,9 @@ class JobDetail extends React.Component {
     if (isNil(this.state.selectedAttemptIndex)) {
       nextState.selectedAttemptIndex = nextState.jobInfo.jobStatus.retries;
     }
+    nextState.jobTransferInfo = this.generateTransferState(
+      nextState.jobInfo.tags,
+    );
     this.setState(nextState);
   }
 
@@ -278,6 +290,53 @@ class JobDetail extends React.Component {
     }
   }
 
+  generateTransferState(tags) {
+    try {
+      // find out successfully transferred beds
+      const transferredPrefix = 'pai-transferred-to-';
+      const transferredURLs = [];
+      const transferredClusterSet = new Set();
+      for (let tag of tags) {
+        if (tag.startsWith(transferredPrefix)) {
+          tag = tag.substr(transferredPrefix.length);
+          const urlPosition = tag.lastIndexOf('-url-');
+          if (urlPosition !== -1) {
+            transferredClusterSet.add(tag.substr(0, urlPosition));
+            transferredURLs.push(tag.substr(urlPosition + 5));
+          }
+        }
+      }
+      // find out failed transfer attempts
+      const transferAttemptPrefix = 'pai-transfer-attempt-to-';
+      const transferFailedClusters = [];
+      for (let tag of tags) {
+        if (tag.startsWith(transferAttemptPrefix)) {
+          tag = tag.substr(transferAttemptPrefix.length);
+          const urlPosition = tag.lastIndexOf('-url-');
+          if (urlPosition !== -1) {
+            const cluster = tag.substr(0, urlPosition);
+            const clusterURL = tag.substr(urlPosition + 5);
+            if (!transferredClusterSet.has(cluster)) {
+              transferFailedClusters.push({
+                alias: cluster,
+                uri: clusterURL,
+              });
+            }
+          }
+        }
+      }
+
+      return { transferredURLs, transferFailedClusters };
+    } catch (err) {
+      // in case there is error with the tag parsing
+      console.error(err);
+      return {
+        transferredURLs: [],
+        transferFailedClusters: [],
+      };
+    }
+  }
+
   render() {
     const {
       loading,
@@ -289,7 +348,14 @@ class JobDetail extends React.Component {
       sshInfo,
       selectedAttemptIndex,
       loadingAttempt,
+      jobTransferInfo,
     } = this.state;
+    const transferredURLs = get(jobTransferInfo, 'transferredURLs', []);
+    const transferFailedClusters = get(
+      jobTransferInfo,
+      'transferFailedClusters',
+      [],
+    );
 
     const attemptIndexOptions = [];
     if (!isNil(jobInfo)) {
@@ -305,13 +371,63 @@ class JobDetail extends React.Component {
       return <SpinnerLoading />;
     } else {
       return (
-        <Context.Provider value={{ sshInfo, rawJobConfig, jobConfig }}>
+        <Context.Provider
+          value={{ sshInfo, rawJobConfig, jobConfig, isViewingSelf }}
+        >
           <Stack styles={{ root: { margin: '30px' } }} gap='l1'>
             <Top />
             {!isEmpty(error) && (
               <div className={t.bgWhite}>
                 <MessageBar messageBarType={MessageBarType.error}>
                   {error}
+                </MessageBar>
+              </div>
+            )}
+            {transferredURLs.length > 0 && (
+              <div className={t.bgWhite}>
+                <MessageBar messageBarType={MessageBarType.warning}>
+                  <Text variant='mediumPlus'>
+                    This job has been transferred to{' '}
+                    {transferredURLs
+                      .map(url => (
+                        <a
+                          href={url}
+                          key={url}
+                          target='_blank'
+                          rel='noopener noreferrer'
+                        >
+                          {url}
+                        </a>
+                      ))
+                      .reduce((prev, curr) => [prev, ', ', curr])}
+                    .{' '}
+                  </Text>
+                </MessageBar>
+              </div>
+            )}
+            {isViewingSelf && transferFailedClusters.length > 0 && (
+              <div className={t.bgWhite}>
+                <MessageBar messageBarType={MessageBarType.warning}>
+                  <Text variant='mediumPlus'>
+                    You have transfer attempts to cluster{' '}
+                    {transferFailedClusters
+                      .map(item => (
+                        <a
+                          href={item.uri}
+                          key={item.alias}
+                          target='_blank'
+                          rel='noopener noreferrer'
+                        >
+                          {item.alias}
+                        </a>
+                      ))
+                      .reduce((prev, curr) => [prev, ', ', curr])}
+                    . Please go to{' '}
+                    {transferFailedClusters.length > 1
+                      ? 'these clusters'
+                      : 'the cluster'}{' '}
+                    to check whether the transfer is successful.
+                  </Text>
                 </MessageBar>
               </div>
             )}

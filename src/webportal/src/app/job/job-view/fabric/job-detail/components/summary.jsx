@@ -454,6 +454,7 @@ export default class Summary extends React.Component {
                   namespace={namespace}
                   jobName={jobName}
                   rawJobConfig={rawJobConfig}
+                  enableTransfer={config.enableJobTransfer === 'true'}
                 />
               </span>
               <span className={c(t.ml2)}>

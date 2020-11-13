@@ -8,9 +8,11 @@ import cookies from 'js-cookie';
 import PropTypes from 'prop-types';
 import { FontClassNames, FontWeights, getTheme } from '@uifabric/styling';
 import { DefaultButton } from 'office-ui-fabric-react';
+import { isEmpty, cloneDeep } from 'lodash';
 
 import Card from '../../components/card';
 import { SpinnerLoading } from '../../components/loading';
+import config from '../../config/webportal.config';
 import {
   getUserRequest,
   getAllVcsRequest,
@@ -21,6 +23,7 @@ import {
   updateUserEmailRequest,
   listStorageDetailRequest,
   getGroupsRequest,
+  updateBoundedClustersRequest,
 } from './conn';
 
 import t from '../../components/tachyons.scss';
@@ -28,6 +31,8 @@ import { VirtualClusterDetailsList } from '../../home/home/virtual-cluster-stati
 import TokenList from './user-profile/token-list';
 import UserProfileHeader from './user-profile/header';
 import StorageList from './user-profile/storage-list';
+import BoundedClusterDialog from './user-profile/bounded-cluster-dialog';
+import BoundedClusterList from './user-profile/bounded-cluster-list';
 
 const UserProfileCard = ({ title, children, headerButton }) => {
   const { spacing } = getTheme();
@@ -53,6 +58,8 @@ UserProfileCard.propTypes = {
   children: PropTypes.node,
 };
 
+const enableJobTransfer = config.enableJobTransfer;
+
 const UserProfile = () => {
   const [loading, setLoading] = useState(true);
   const [userInfo, setUserInfo] = useState(null);
@@ -60,7 +67,9 @@ const UserProfile = () => {
   const [tokens, setTokens] = useState(null);
   const [storageDetails, setStorageDetails] = useState(null);
   const [groups, setGroups] = useState(null);
-
+  const [showBoundedClusterDialog, setShowBoundedClusterDialog] = useState(
+    false,
+  );
   const [processing, setProcessing] = useState(false);
 
   useEffect(() => {
@@ -135,6 +144,43 @@ const UserProfile = () => {
     await getTokenRequest().then(res => setTokens(res.tokens));
   });
 
+  const onAddBoundedCluster = async clusterConfig => {
+    let updatedBoundedClusters = {};
+    if (userInfo.extension.boundedClusters) {
+      updatedBoundedClusters = cloneDeep(userInfo.extension.boundedClusters);
+    }
+    updatedBoundedClusters[clusterConfig.alias] = {
+      uri: clusterConfig.uri,
+      username: clusterConfig.username,
+      token: clusterConfig.token,
+    };
+    await updateBoundedClustersRequest(
+      userInfo.username,
+      updatedBoundedClusters,
+    );
+    const updatedUserInfo = await getUserRequest(userInfo.username);
+    setUserInfo(updatedUserInfo);
+  };
+
+  const onDeleteBoundedCluster = async clusterAlias => {
+    let updatedBoundedClusters = {};
+    if (userInfo.extension.boundedClusters) {
+      updatedBoundedClusters = cloneDeep(userInfo.extension.boundedClusters);
+    }
+    if (!(clusterAlias in updatedBoundedClusters)) {
+      throw new Error(
+        `Cannot find cluster ${clusterAlias} in your bounded clusters!`,
+      );
+    }
+    delete updatedBoundedClusters[clusterAlias];
+    await updateBoundedClustersRequest(
+      userInfo.username,
+      updatedBoundedClusters,
+    );
+    const updatedUserInfo = await getUserRequest(userInfo.username);
+    setUserInfo(updatedUserInfo);
+  };
+
   const { spacing } = getTheme();
 
   if (loading) {
@@ -173,6 +219,39 @@ const UserProfile = () => {
               groups={groups}
             />
           </UserProfileCard>
+          {enableJobTransfer === 'true' && (
+            <UserProfileCard
+              title='Bounded Clusters'
+              headerButton={
+                <DefaultButton
+                  onClick={() => setShowBoundedClusterDialog(true)}
+                >
+                  Add a bounded cluster
+                </DefaultButton>
+              }
+            >
+              {showBoundedClusterDialog && (
+                <BoundedClusterDialog
+                  onDismiss={() => setShowBoundedClusterDialog(false)}
+                  onAddBoundedCluster={onAddBoundedCluster}
+                />
+              )}
+              {!isEmpty(userInfo.extension.boundedClusters) && (
+                <BoundedClusterList
+                  boundedClusters={userInfo.extension.boundedClusters}
+                  onDelete={onDeleteBoundedCluster}
+                />
+              )}
+              {isEmpty(userInfo.extension.boundedClusters) && (
+                <div
+                  className={c(t.mt5, FontClassNames.large)}
+                  style={{ fontWeight: FontWeights.regular }}
+                >
+                  There is no added bounded cluster.
+                </div>
+              )}
+            </UserProfileCard>
+          )}
         </div>
       </div>
     );

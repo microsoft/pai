@@ -18,3 +18,5 @@
 service_type: "common"
 
 server-port: 9286
+
+enable-job-transfer: false
