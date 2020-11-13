@@ -399,7 +399,7 @@ export default class TaskRoleContainerList extends React.Component {
   showDialog(logListUrl) {
     const { hideDialog } = this.state;
 
-    getContainerLogList(logListUrl).then(({ fullLogUrls, tailLogUrls }) => {
+    getContainerLogList(logListUrl).then(({ fullLogUrls, _ }) => {
       this.setState({
         hideDialog: !hideDialog,
         dialogMessage: fullLogUrls.locations,
