@@ -72,6 +72,7 @@ const config = (env, argv) => ({
     jobDetail: './src/app/job/job-view/fabric/job-detail.jsx',
     taskAttempt: './src/app/job/job-view/fabric/task-attempt.jsx',
     jobEvent: './src/app/job/job-view/fabric/job-event.jsx',
+    jobTransfer: './src/app/job/job-view/fabric/job-transfer.jsx',
     virtualClusters: './src/app/vc/vc.component.js',
     services: './src/app/cluster-view/services/services.component.js',
     hardware: './src/app/cluster-view/hardware/hardware.component.js',
@@ -342,6 +343,10 @@ const config = (env, argv) => ({
     generateHtml({
       filename: 'job-event.html',
       chunks: ['layout', 'jobEvent'],
+    }),
+    generateHtml({
+      filename: 'job-transfer.html',
+      chunks: ['layout', 'jobTransfer'],
     }),
     generateHtml({
       filename: 'virtual-clusters.html',

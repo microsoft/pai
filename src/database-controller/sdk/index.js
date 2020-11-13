@@ -290,7 +290,7 @@ class DatabaseModel {
           allowNull: false,
         },
         name: {
-          type: Sequelize.STRING(64),
+          type: Sequelize.STRING(512),
           allowNull: false,
         },
       },
