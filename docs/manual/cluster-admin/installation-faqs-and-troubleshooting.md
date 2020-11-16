@@ -23,7 +23,7 @@ To fasten the deploy speed, you can add `-f <parallel-number>` to all commands u
 
 After installation, if you use [weave](https://github.com/weaveworks/weave) as k8s network plugin and you encounter some errors about the network, such as some pods failed to connect internet, you could remove network plugin to solve this issue.
 
-Please run `kubectl get delete ds weave-net  -n kube-system` to remove `weave-net` daemon set first
+Please run `kubectl delete ds weave-net -n kube-system` to remove `weave-net` daemon set first
 
 To remove the network plugin, you could use following `ansible-playbook`:
 ```yaml
@@ -76,7 +76,7 @@ To remove the network plugin, you could use following `ansible-playbook`:
 ```
 
 After these steps you need to change the `coredns` to fix dns resolution issue.
-Please run `kubectl edit cm coredns -n kube-system -o yaml`, change `.:53` to `.:9053`
+Please run `kubectl edit cm coredns -n kube-system`, change `.:53` to `.:9053`
 Please run `kubectl edit service coredns -n kube-system`, change `targetPort: 53` to `targetPort: 9053`
 Please run `kubectl edit deployment coredns -n kube-system`, change `containerPort: 53` to `containerPort: 9053`. Add `hostNetwork: true` in pod spec.
 

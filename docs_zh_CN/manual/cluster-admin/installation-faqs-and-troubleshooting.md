@@ -22,7 +22,7 @@
 
 在安装后，如果您使用的是[weave](https://github.com/weaveworks/weave)插件，并且在使用过程中碰到了一些网络相关的问题，例如：一些pod无法连接互联网。此时，您可以移除网络插件来解决这个问题。
 
-请先运行`kubectl get delete ds weave-net  -n kube-system`来移除`weave-net` DaemonSet。
+请先运行`kubectl delete ds weave-net -n kube-system`来移除`weave-net` DaemonSet。
 
 接着，您可以参考下面的`ansible-playbook`来移除网络插件:
 
@@ -76,7 +76,7 @@
 ```
 
 在这些步骤后，您需要修改`coredns`来解决DNS问题：
-请使用命令`kubectl edit cm coredns -n kube-system -o yaml`，修改`.:53`为`.:9053`。
+请使用命令`kubectl edit cm coredns -n kube-system`，修改`.:53`为`.:9053`。
 请使用命令`kubectl edit service coredns -n kube-system`，修改`targetPort: 53`为 `targetPort: 9053`。
 请使用命令`kubectl edit deployment coredns -n kube-system`，修改`containerPort: 53`为`containerPort: 9053`，在pod定义中添加`hostNetwork: true`。
 
