@@ -40,7 +40,7 @@ sudo docker run -itd \
 sudo docker exec -it dev-box-quick-start kubectl get node || { cleanup; exit 1; }
 
 # Work in dev-box
-sudo docker exec -it dev-box-quick-start /bin/bash << EOF_DEV_BOX
+sudo docker exec -i dev-box-quick-start /bin/bash << EOF_DEV_BOX
 
 echo "starting nvidia device plugin to detect nvidia gpu resource"
 svn cat https://github.com/NVIDIA/k8s-device-plugin.git/tags/1.0.0-beta4/nvidia-device-plugin.yml \
