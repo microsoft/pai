@@ -300,7 +300,7 @@ const JobTransferPage = () => {
               </Stack>
             </Stack>
             <Stack className={styles.item}>
-              <Stack horizontal gap={10}>
+              <Stack horizontal gap={10} grow>
                 <Label required>Transfer to</Label>
                 <StackItem grow>
                   <Dropdown
