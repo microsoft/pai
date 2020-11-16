@@ -25,61 +25,8 @@ In this section, we will cover how to set up the integration step by step.
 
 #### Note
 
-Previous user data in webportal is required to be mapping/migrate to AAD. Once the integration is enabled, instead of using basic user authentication, OpenPAI will switch to use (and only use) AAD as user authentication mechanism.
+Previous user data in webportal is required to be mapping/migrate to AAD. Once the integration is enabled, instead of using basic user authentication, OpenPAI will switch to use (and only use) AAD as user authentication mechanism. To set up AAD, please follow the instructions [here](./basic-management-operations.md#how-to-set-up-https) to set up HTTPS access for OpenPAI first.
 
-#### [Pylon] Prepare your certificate for https, self-sign cert as an example
-
-##### 1. Store your domain name (pylon address) into a linux env
-
-```bash
-DOMAIN={pylon address}
-```
-##### 2. Generate RSA private key with openssl
-
-``` bash
-openssl genrsa -des3 -out $DOMAIN.key 1024
-```
-
-In this step, password will be asked. You can just skip it with an empty value (Type enter button).
-
-##### 3. Generate certificate request
-
-```bash
-SUBJECT="/C=US/ST=Washington/CN=$DOMAIN"
-openssl req -new -subj $SUBJECT -key $DOMAIN.key -out $DOMAIN.csr
-```
-
-##### 4. Generate certificate
-
-```bash
-mv $DOMAIN.key $DOMAIN.origin.key
-openssl rsa -in $DOMAIN.origin.key -out $DOMAIN.key
-openssl x509 -req -days 3650 -in $DOMAIN.csr -signkey $DOMAIN.key -out $DOMAIN.crt
-```
-
-##### 5. Final result
-
-You should get the following 4 files in your current path
-
-<div  align="center">
-<img src="./imgs/aad/openssl_result.png" alt="paictl overview picture" style="float: center; margin-right: 10px;" />
-</div>
-
-##### 6. Configure pylon
-
-Add the following configuration to your `services-configuration.yaml`. If you wonder what `services-configuration.yaml` is, please refer to [PAI Service Management and Paictl](basic-management-operations.md#pai-service-management-and-paictl).
-
-```
-pylon:
-    port: 80
-    uri: "http://master_ip:80"
-    ssl:
-      # self-sign
-      crt_name: xxxxxx
-      crt_path: /path/to/xxxxxx
-      key_name: yyyyyy
-      key_path: /path/to/yyyyyy
-```
 
 #### [Rest-server] Configuration AAD
 
