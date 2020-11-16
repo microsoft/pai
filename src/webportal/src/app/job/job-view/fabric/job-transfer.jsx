@@ -300,9 +300,9 @@ const JobTransferPage = () => {
               </Stack>
             </Stack>
             <Stack className={styles.item}>
-              <Stack horizontal gap={10} grow>
+              <Stack horizontal gap={10}>
                 <Label required>Transfer to</Label>
-                <StackItem grow>
+                <Stack grow>
                   <Dropdown
                     placeholder={'select a bounded cluster'}
                     selectedKey={selectedCluster}
@@ -315,7 +315,7 @@ const JobTransferPage = () => {
                       return options;
                     })()}
                   />
-                </StackItem>
+                </Stack>
               </Stack>
             </Stack>
             <Stack className={styles.item}>
