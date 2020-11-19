@@ -253,6 +253,60 @@ hivedscheduler:
 
 在上面的示例中，我们设置了 2 个 VC：`default` 和 `v100`。`default` VC 有两个 K80 结点，`V100` VC 有 3 个 V100 结点。每个 K80 结点有 4 个 K80 GPU，每个 V100 结点有 4 个 V100 GPU。
 
+## 在同一个结点上同时设置CPU和GPU sku
+
+如果你想要在同一个结点上同时设置CPU和GPU sku，您可以参考下面的配置，在不同的`cellTypes`里使用相同的`cellAddress`：
+
+```yaml
+hivedscheduler:
+  config: |
+    physicalCluster:
+      skuTypes:
+        GPU:
+          gpu: 1
+          cpu: 4
+          memory: 40960Mi
+        CPU:
+          gpu: 0
+          cpu: 1
+          memory: 10240Mi
+      cellTypes:
+        GPU-NODE:
+          childCellType: GPU
+          childCellNumber: 4
+          isNodeLevel: true
+        GPU-NODE-POOL:
+          childCellType: GPU-NODE
+          childCellNumber: 2
+        CPU-NODE:
+          childCellType: CPU
+          childCellNumber: 12
+          isNodeLevel: true
+        CPU-NODE-POOL:
+          childCellType: CPU-NODE
+          childCellNumber: 2
+      physicalCells:
+      - cellType: GPU-NODE-POOL
+        cellChildren:
+        - cellAddress: node1
+        - cellAddress: node2
+      - cellType: CPU-NODE-POOL
+        cellChildren:
+        - cellAddress: node1
+        - cellAddress: node2
+    virtualClusters:
+      default:
+        virtualCells:
+        - cellType: GPU-NODE-POOL.GPU-NODE
+          cellNumber: 2
+      cpu:
+        virtualCells:
+        - cellType: CPU-NODE-POOL.CPU-NODE
+          cellNumber: 2
+```
+
+目前，在同一个结点上，我们只支持CPU和NVIDIA GPU的混合，或者CPU和AMD GPU的混合。暂不支持在同一个结点上同时存在NVIDIA和AMD GPU的情形。
+
 ## 使用Pinned Cell在虚拟集群中保留特定结点
 
 在某些情况下，您可能希望保留虚拟集群中的特定节点，将作业明确提交到该结点以进行调试或快速测试。OpenPAI 提供了一种“固定”结点到虚拟集群的方法。
