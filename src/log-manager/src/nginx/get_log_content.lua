@@ -25,14 +25,14 @@ local function get_rotated_log(log_path)
 end
 
 local function is_path_under_log_folder(log_path)
-  local real_path = io.popen("realpath "..path_prefix)
+  local real_path = io.popen("realpath "..log_path)
   local path = real_path:read()
-  if not path
+  if not path then
     real_path:close()
     return false
   end
 
-  if not string.match(path, "^/usr/local/pai/logs/.*")
+  if not string.match(path, "^/usr/local/pai/logs/.*") then
     real_path:close()
     return false
   end
@@ -56,7 +56,8 @@ if not token or not username or not taskrole or not framework_name or not pod_ui
 end
 
 local path_prefix = "/usr/local/pai/logs/"..username.."/".. framework_name.."/".. taskrole.."/"..pod_uid.."/"
-if not is_path_under_log_folder(path_prefix)
+if not is_path_under_log_folder(path_prefix) then
+  ngx.log(ngx.WARN, "Log path is invalid, path: "..path_prefix)
   ngx.status = ngx.HTTP_NOT_FOUND
   return ngx.exit(ngx.HTTP_OK)
 end
