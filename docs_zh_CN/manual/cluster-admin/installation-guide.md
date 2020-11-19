@@ -102,8 +102,8 @@ openpai-004,10.0.0.4
 ```yaml
 user: <your-ssh-username>
 password: <your-ssh-password>
-branch_name: pai-1.0.y
-docker_image_tag: v1.0.0
+branch_name: pai-1.3.y
+docker_image_tag: v1.3.0
 
 # Optional
 
