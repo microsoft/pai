@@ -24,6 +24,22 @@ local function get_rotated_log(log_path)
   end
 end
 
+local function is_path_under_log_folder(log_path)
+  local real_path = io.popen("realpath "..path_prefix)
+  local path = real_path:read()
+  if not path
+    real_path:close()
+    return false
+  end
+
+  if not string.match(path, "^/usr/local/pai/logs/.*")
+    real_path:close()
+    return false
+  end
+  real_path:close()
+  return true
+end
+
 
 local args = ngx.req.get_uri_args()
 local username = args["username"]
@@ -40,6 +56,11 @@ if not token or not username or not taskrole or not framework_name or not pod_ui
 end
 
 local path_prefix = "/usr/local/pai/logs/"..username.."/".. framework_name.."/".. taskrole.."/"..pod_uid.."/"
+if not is_path_under_log_folder(path_prefix)
+  ngx.status = ngx.HTTP_NOT_FOUND
+  return ngx.exit(ngx.HTTP_OK)
+end
+
 local log_name = ngx.var[1]
 
 local log_path = path_prefix..log_name
@@ -82,3 +103,4 @@ while true do
   if not block then break end
   ngx.say(block)
 end
+logs:close()
