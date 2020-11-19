@@ -19,8 +19,8 @@ service_type: "common"
 
 server-port: 9186
 rate-limit-api-per-min: 600
-rate-limit-list-job-per-min: 60
-rate-limit-submit-job-per-hour: 60
+rate-limit-list-job-per-min: 120
+rate-limit-submit-job-per-hour: 3600
 # The schedule port range is [schedule-port-start, schedule-port-end)
 schedule-port-start: 15000
 schedule-port-end: 40000
