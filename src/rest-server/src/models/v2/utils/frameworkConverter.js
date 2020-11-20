@@ -310,9 +310,6 @@ const convertToJobAttempt = async (framework) => {
     framework.metadata.annotations,
   );
   const frameworkName = framework.metadata.name;
-  const logPathInfix = framework.metadata.annotations.logPathInfix
-    ? framework.metadata.annotations.logPathInfix
-    : jobName;
   const uid = framework.metadata.uid;
   const userName = framework.metadata.labels
     ? framework.metadata.labels.userName
@@ -383,8 +380,7 @@ const convertToJobAttempt = async (framework) => {
           async (status) =>
             await convertTaskDetail(
               status,
-              userName,
-              logPathInfix,
+              `${userName}~${jobName}`,
               taskRoleStatus.name,
               true,
             ),
@@ -421,13 +417,7 @@ const convertToJobAttempt = async (framework) => {
   };
 };
 
-const convertTaskDetail = async (
-  taskStatus,
-  userName,
-  logPathInfix,
-  taskRoleName,
-  withoutGetPod,
-) => {
+const convertTaskDetail = async (taskStatus, frameworkName, withoutGetPod) => {
   // get container gpus
   const containerGpus = await getContainerGpus(
     withoutGetPod,
@@ -443,16 +433,14 @@ const convertTaskDetail = async (
     containerId: taskStatus.attemptStatus.podUID,
     containerIp: taskStatus.attemptStatus.podHostIP,
     containerGpus,
-    containerLog: `http://${taskStatus.attemptStatus.podHostIP}:${process.env.LOG_MANAGER_PORT}/log-manager/tail/${userName}/${logPathInfix}/${taskRoleName}/${taskStatus.attemptStatus.podUID}/`,
+    containerLog: `/api/v2/jobs/${frameworkName}/pods/${taskStatus.attemptStatus.podUID}/logs`,
     containerExitCode: completionStatus ? completionStatus.code : null,
   };
 };
 
 const convertTaskAttempt = async (
-  logPathInfix, // job level info
-  userName,
+  frameworkName,
   ports,
-  taskRoleName, // task role level info
   attemptState, // attempt level info
   attemptStatus,
 ) => {
@@ -491,7 +479,7 @@ const convertTaskAttempt = async (
     // Job level info
     containerPorts,
     containerGpus,
-    containerLog: `http://${attemptStatus.podHostIP}:${process.env.LOG_MANAGER_PORT}/log-manager/tail/${userName}/${logPathInfix}/${taskRoleName}/${attemptStatus.podUID}/`,
+    containerLog: `/api/v2/jobs/${frameworkName}/pods/${attemptStatus.podUID}/logs`,
     containerExitCode: completionStatus ? completionStatus.code : null,
     containerExitSpec: completionStatus
       ? generateExitSpec(completionStatus.code)
@@ -546,10 +534,6 @@ const convertToTaskDetail = async (
     attempts: [],
   };
 
-  const logPathInfix = attemptFramework.metadata.annotations.logPathInfix
-    ? attemptFramework.metadata.annotations.logPathInfix
-    : jobName;
-
   const ports = attemptFramework.spec.taskRoles.find(
     (taskRoleSpec) => taskRoleSpec.name === taskRoleName,
   ).task.pod.metadata.annotations['rest-server/port-scheduling-spec'];
@@ -558,10 +542,8 @@ const convertToTaskDetail = async (
   // last task attempt
   taskDetail.attempts.push(
     await convertTaskAttempt(
-      logPathInfix,
-      userName,
+      `${userName}~${jobName}`,
       ports,
-      taskRoleName,
       lastTaskAttemptState,
       lastTaskAttemptStatus,
     ),
@@ -571,10 +553,8 @@ const convertToTaskDetail = async (
   for (const taskHistory of taskHistories) {
     taskDetail.attempts.push(
       await convertTaskAttempt(
-        logPathInfix,
-        userName,
+        `${userName}~${jobName}`,
         ports,
-        taskRoleName,
         taskHistory.status.state,
         taskHistory.status.attemptStatus,
       ),
