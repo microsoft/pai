@@ -49,9 +49,9 @@ const getLogListFromLogManager = async (
 
   const taskDetail = await task.get(
     frameworkName,
-    jobAttemptId,
+    Number(jobAttemptId),
     taskRoleName,
-    taskIndex,
+    Number(taskIndex),
   );
   const noPodLogsErr = createError(
     'Not Found',
