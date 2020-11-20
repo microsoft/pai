@@ -2,6 +2,7 @@
 # Licensed under the MIT License.
 
 import copy
+import json
 
 class MarketplaceRestserver(object):
     def __init__(self, cluster_conf, service_conf, default_service_conf):
@@ -20,6 +21,7 @@ class MarketplaceRestserver(object):
         server_port = self.service_conf['server-port']
         master_ip = [host['hostip'] for host in machine_list if host.get('pai-master') == 'true'][0]
         result['uri'] = 'http://{0}:{1}'.format(master_ip, server_port)
+        result['azure_storage_json'] = json.dumps(self.service_conf['azure_storage'])
         if 'db_host' not in result:
             result['db_host'] = master_ip
         return result
