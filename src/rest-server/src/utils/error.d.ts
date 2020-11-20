@@ -49,7 +49,7 @@ declare type Code =
     'UnauthorizedUserError' |
     'NoEnoughQuotaError' |
     'NotImplementedError' |
-    'NoPodLogsError' |
+    'NoTaskLogsError' |
     'UnknownError';
 
 declare function createError(status: Status, code: Code, message: string): HttpError;

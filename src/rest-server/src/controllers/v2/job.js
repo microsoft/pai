@@ -294,7 +294,9 @@ const getLogs = asyncHandler(async (req, res) => {
     const data = await log.getLogListFromLogManager(
       req.params.frameworkName,
       req.params.jobAttemptId,
-      req.params.podUid,
+      req.params.taskRoleName,
+      req.params.taskIndex,
+      req.params.taskAttemptId,
       req.query['tail-mode'],
     );
     res.json(data);

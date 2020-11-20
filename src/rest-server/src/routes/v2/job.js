@@ -54,8 +54,10 @@ router
   .get(token.check, taskController.get);
 
 router
-  .route('/:frameworkName/attempts/:jobAttemptId/pods/:podUid/logs')
-  /** GET /api/v2/jobs/:frameworkName/attempts/:jobAttemptId/pods/:podUid/logs - Get logs of a pod */
+  .route(
+    '/:frameworkName/attempts/:jobAttemptId/taskRoles/:taskRoleName/taskIndex/:taskIndex/attempts/:taskAttemptId/logs',
+  )
+  /** GET /api/v2/jobs/:frameworkName/attempts/:jobAttemptId/taskRoles/:taskRoleName/taskIndex/:taskIndex/attempts/:taskAttemptId/logs - Get logs of a task */
   .get(token.check, controller.getLogs);
 
 router
