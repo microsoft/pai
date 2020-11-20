@@ -71,6 +71,8 @@ server {
       deny all;
     }
     default_type text/plain;
+    limit_rate_after 1m;
+    limit_rate 1m;
     access_by_lua_file /etc/nginx/lua/guard.lua;
     content_by_lua_file /etc/nginx/lua/get_log_content.lua;
   }
