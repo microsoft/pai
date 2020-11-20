@@ -79,7 +79,7 @@ const get = async (frameworkName, jobAttemptIndex, taskRoleName, taskIndex) => {
   );
   if (taskRoleStatus) {
     taskStatus = taskRoleStatus.taskStatuses.find(
-      (taskRoleStatus) => taskRoleStatus.index === taskIndex,
+      (taskAttemptStatus) => taskAttemptStatus.index === Number(taskIndex),
     );
   }
   if (taskStatus === undefined) {
