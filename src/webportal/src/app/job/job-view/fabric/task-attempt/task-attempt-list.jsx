@@ -33,7 +33,7 @@ import yaml from 'js-yaml';
 import localCss from './task-role-container-list.scss';
 import t from '../../../../components/tachyons.scss';
 
-import { getContainerLog } from './conn';
+import { getContainerLog, getContainerLogList } from './conn';
 import config from '../../../../config/webportal.config';
 import MonacoPanel from '../../../../components/monaco-panel';
 import StatusBadge from '../../../../components/status-badge';
@@ -91,7 +91,10 @@ export default class TaskAttemptList extends React.Component {
       monacoProps: null,
       monacoTitle: '',
       monacoFooterButton: null,
-      logUrl: null,
+      fullLogUrls: null,
+      tailLogUrls: null,
+      logListUrl: null,
+      logType: null,
       items: props.taskAttempts,
       ordering: { field: null, descending: false },
       hideDialog: true,
@@ -99,7 +102,7 @@ export default class TaskAttemptList extends React.Component {
 
     this.showSshInfo = this.showSshInfo.bind(this);
     this.onDismiss = this.onDismiss.bind(this);
-    this.showContainerLog = this.showContainerLog.bind(this);
+    this.showContainerTailLog = this.showContainerTailLog.bind(this);
     this.onRenderRow = this.onRenderRow.bind(this);
   }
 
@@ -110,12 +113,12 @@ export default class TaskAttemptList extends React.Component {
   }
 
   logAutoRefresh() {
-    const { logUrl } = this.state;
-    getContainerLog(logUrl)
+    const { fullLogUrls, tailLogUrls, logListUrl, logType } = this.state;
+    getContainerLog(tailLogUrls, fullLogUrls, logType)
       .then(({ text, fullLogLink }) =>
         this.setState(
           prevState =>
-            prevState.logUrl === logUrl && {
+            prevState.tailLogUrls[logType] === tailLogUrls[logType] && {
               monacoProps: { value: text },
               monacoFooterButton: (
                 <PrimaryButton
@@ -130,14 +133,17 @@ export default class TaskAttemptList extends React.Component {
             },
         ),
       )
-      .catch(err =>
+      .catch(err => {
         this.setState(
           prevState =>
-            prevState.logUrl === logUrl && {
+            prevState.tailLogUrls[logType] === tailLogUrls[logType] && {
               monacoProps: { value: err.message },
             },
-        ),
-      );
+        );
+        if (err.message === '403') {
+          this.showContainerTailLog(logListUrl, logType);
+        }
+      });
   }
 
   onDismiss() {
@@ -164,40 +170,44 @@ export default class TaskAttemptList extends React.Component {
     }
   }
 
-  showContainerLog(logUrl, logType) {
+  showContainerTailLog(logListUrl, logType) {
     let title;
-    let logHint;
-
-    if (config.logType === 'yarn') {
-      logHint = 'Last 4096 bytes';
-    } else if (config.logType === 'log-manager') {
-      logHint = 'Last 16384 bytes';
-    } else {
-      logHint = '';
-    }
-    switch (logType) {
-      case 'stdout':
-        title = `Standard Output (${logHint})`;
-        break;
-      case 'stderr':
-        title = `Standard Error (${logHint})`;
-        break;
-      case 'stdall':
-        title = `User logs (${logHint}. Notice: The logs may out of order when merging stdout & stderr streams)`;
-        break;
-      default:
-        throw new Error(`Unsupported log type`);
-    }
-    this.setState(
-      {
-        monacoProps: { value: 'Loading...' },
-        monacoTitle: title,
-        logUrl,
-      },
-      () => {
-        this.logAutoRefresh(); // start immediately
-      },
-    );
+    let logHint = '';
+    this.setState({ logListUrl: logListUrl });
+    getContainerLogList(logListUrl)
+      .then(({ fullLogUrls, tailLogUrls }) => {
+        if (config.logType === 'log-manager') {
+          logHint = 'Last 16384 bytes';
+        }
+        switch (logType) {
+          case 'stdout':
+            title = `Standard Output (${logHint})`;
+            break;
+          case 'stderr':
+            title = `Standard Error (${logHint})`;
+            break;
+          case 'all':
+            title = `User logs (${logHint}. Notice: The logs may out of order when merging stdout & stderr streams)`;
+            break;
+          default:
+            throw new Error(`Unsupported log type`);
+        }
+        this.setState(
+          {
+            monacoProps: { value: 'Loading...' },
+            monacoTitle: title,
+            fullLogUrls: this.convertObjectFormat(fullLogUrls),
+            tailLogUrls: this.convertObjectFormat(tailLogUrls),
+            logType,
+          },
+          () => {
+            this.logAutoRefresh(); // start immediately
+          },
+        );
+      })
+      .catch(err => {
+        this.setState({ monacoProps: { value: err.message } });
+      });
   }
 
   showSshInfo(id, containerPorts, containerIp) {
@@ -436,8 +446,8 @@ export default class TaskAttemptList extends React.Component {
                 iconProps={{ iconName: 'TextDocument' }}
                 text='Stdout'
                 onClick={() =>
-                  this.showContainerLog(
-                    `${item.containerLog}user.pai.stdout`,
+                  this.showContainerTailLog(
+                    `${config.restServerUri}${item.containerLog}`,
                     'stdout',
                   )
                 }
@@ -452,12 +462,46 @@ export default class TaskAttemptList extends React.Component {
                 iconProps={{ iconName: 'Error' }}
                 text='Stderr'
                 onClick={() =>
-                  this.showContainerLog(
-                    `${item.containerLog}user.pai.stderr`,
+                  this.showContainerTailLog(
+                    `${config.restServerUri}${item.containerLog}`,
                     'stderr',
                   )
                 }
                 disabled={isNil(item.containerId) || isNil(item.containerIp)}
+              />
+              <CommandBarButton
+                className={FontClassNames.mediumPlus}
+                styles={{
+                  root: { backgroundColor: 'transparent' },
+                  rootDisabled: { backgroundColor: 'transparent' },
+                }}
+                menuIconProps={{ iconName: 'More' }}
+                menuProps={{
+                  items: [
+                    {
+                      key: 'mergedLog',
+                      name: 'Stdout+Stderr',
+                      iconProps: { iconName: 'TextDocument' },
+                      disabled: isNil(item.containerId),
+                      onClick: () =>
+                        this.showContainerTailLog(
+                          `${config.restServerUri}${item.containerLog}`,
+                          'all',
+                        ),
+                    },
+                    {
+                      key: 'trackingPage',
+                      name: 'Show All Logs',
+                      iconProps: { iconName: 'Link' },
+                      onClick: () => {
+                        this.showAllLogDialog(
+                          `${config.restServerUri}${item.containerLog}`,
+                        );
+                      },
+                    },
+                  ],
+                }}
+                disabled={isNil(item.containerId)}
               />
             </div>
           </div>
