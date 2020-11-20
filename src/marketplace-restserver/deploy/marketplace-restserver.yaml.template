@@ -36,6 +36,6 @@ spec:
         - name: PORT
           value: "{{ cluster_cfg["marketplace-restserver"]["server-port"] }}"
         - name: AZURE_STORAGE
-          value: "{{ cluster_cfg["marketplace-restserver"]["azure_storage_json"] }}"
+          value: {{ cluster_cfg["marketplace-restserver"]["azure_storage_json"] }}
       imagePullSecrets:
       - name: {{ cluster_cfg["cluster"]["docker-registry"]["secret-name"] }}
