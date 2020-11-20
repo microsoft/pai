@@ -451,6 +451,7 @@ const convertTaskAttempt = async (
   frameworkName,
   jobAttemptId,
   taskRoleName,
+  taskIndex,
   ports,
   attemptState, // attempt level info
   attemptStatus,
@@ -490,7 +491,7 @@ const convertTaskAttempt = async (
     // Job level info
     containerPorts,
     containerGpus,
-    containerLog: `/api/v2/jobs/${frameworkName}/attempts/${jobAttemptId}/taskRoles/${taskRoleName}/taskIndex/${attemptStatus.index}/attempts/${attemptStatus.id}/logs`,
+    containerLog: `/api/v2/jobs/${frameworkName}/attempts/${jobAttemptId}/taskRoles/${taskRoleName}/taskIndex/${taskIndex}/attempts/${attemptStatus.id}/logs`,
     containerExitCode: completionStatus ? completionStatus.code : null,
     containerExitSpec: completionStatus
       ? generateExitSpec(completionStatus.code)
@@ -557,6 +558,7 @@ const convertToTaskDetail = async (
       `${userName}~${jobName}`,
       jobAttemptId,
       taskRoleName,
+      taskStatus.index,
       ports,
       lastTaskAttemptState,
       lastTaskAttemptStatus,
@@ -570,6 +572,7 @@ const convertToTaskDetail = async (
         `${userName}~${jobName}`,
         jobAttemptId,
         taskRoleName,
+        taskStatus.index,
         ports,
         taskHistory.status.state,
         taskHistory.status.attemptStatus,
