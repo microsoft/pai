@@ -19,7 +19,16 @@ import { ColorClassNames, FontClassNames, getTheme } from '@uifabric/styling';
 import c from 'classnames';
 import { capitalize, isEmpty, isNil, flatten } from 'lodash';
 import { DateTime, Interval } from 'luxon';
-import { CommandBarButton, PrimaryButton, Stack } from 'office-ui-fabric-react';
+import {
+  CommandBarButton,
+  PrimaryButton,
+  Stack,
+  Text,
+  Dialog,
+  DialogFooter,
+  Link,
+  Icon,
+} from 'office-ui-fabric-react';
 import {
   DetailsList,
   SelectionMode,
@@ -84,6 +93,29 @@ PortTooltipContent.propTypes = {
   ports: PropTypes.object,
 };
 
+const LogDialogContent = ({ urlLists }) => {
+  const lists = [];
+  for (const p of urlLists) {
+    lists.push(p);
+  }
+  const urlpairs = lists.map((lists, index) => (
+    <Stack key={`log-list-${index}`}>
+      <Link
+        href={lists.uri}
+        target='_blank'
+        styles={{ root: [FontClassNames.mediumPlus] }}
+      >
+        <Icon iconName='TextDocument'></Icon> {lists.name}
+      </Link>
+    </Stack>
+  ));
+  return urlpairs;
+};
+
+LogDialogContent.propTypes = {
+  urlLists: PropTypes.array,
+};
+
 export default class TaskAttemptList extends React.Component {
   constructor(props) {
     super(props);
@@ -97,13 +129,15 @@ export default class TaskAttemptList extends React.Component {
       logType: null,
       items: props.taskAttempts,
       ordering: { field: null, descending: false },
-      hideDialog: true,
+      hideAllLogsDialog: true,
     };
 
     this.showSshInfo = this.showSshInfo.bind(this);
     this.onDismiss = this.onDismiss.bind(this);
     this.showContainerTailLog = this.showContainerTailLog.bind(this);
     this.onRenderRow = this.onRenderRow.bind(this);
+    this.convertObjectFormat = this.convertObjectFormat.bind(this);
+    this.showAllLogDialog = this.showAllLogDialog.bind(this);
   }
 
   componentDidUpdate(prevProps) {
@@ -151,7 +185,8 @@ export default class TaskAttemptList extends React.Component {
       monacoProps: null,
       monacoTitle: '',
       monacoFooterButton: null,
-      logUrl: null,
+      fullLogUrls: null,
+      tailLogUrls: null,
     });
   }
 
@@ -168,6 +203,25 @@ export default class TaskAttemptList extends React.Component {
     } else {
       return null;
     }
+  }
+
+  convertObjectFormat(logUrls) {
+    const logs = {};
+    for (const p in logUrls.locations) {
+      logs[logUrls.locations[p].name] = logUrls.locations[p].uri;
+    }
+    return logs;
+  }
+
+  showAllLogDialog(logListUrl) {
+    const { hideAllLogsDialog } = this.state;
+
+    getContainerLogList(logListUrl).then(({ fullLogUrls, _ }) => {
+      this.setState({
+        hideAllLogsDialog: !hideAllLogsDialog,
+        fullLogUrls: fullLogUrls,
+      });
+    });
   }
 
   showContainerTailLog(logListUrl, logType) {
@@ -337,7 +391,14 @@ export default class TaskAttemptList extends React.Component {
   }
 
   render() {
-    const { monacoTitle, monacoProps, monacoFooterButton, items } = this.state;
+    const {
+      monacoTitle,
+      monacoProps,
+      monacoFooterButton,
+      items,
+      hideAllLogsDialog,
+      fullLogUrls,
+    } = this.state;
     return (
       <div>
         <DetailsList
@@ -357,6 +418,28 @@ export default class TaskAttemptList extends React.Component {
           monacoProps={monacoProps}
           footer={monacoFooterButton}
         />
+        <Dialog
+          hidden={hideAllLogsDialog}
+          onDismiss={() =>
+            this.setState({ hideAllLogsDialog: !hideAllLogsDialog })
+          }
+          minWidth='500px'
+        >
+          <Stack gap='m'>
+            <Text variant='xLarge'>All Logs:</Text>
+            <LogDialogContent
+              urlLists={!isNil(fullLogUrls) ? fullLogUrls.locations : null}
+            />
+          </Stack>
+          <DialogFooter>
+            <PrimaryButton
+              onClick={() =>
+                this.setState({ hideAllLogsDialog: !hideAllLogsDialog })
+              }
+              text='Close'
+            />
+          </DialogFooter>
+        </Dialog>
       </div>
     );
   }
