@@ -380,6 +380,7 @@ const convertToJobAttempt = async (framework) => {
           async (status) =>
             await convertTaskDetail(
               status,
+              attemptIndex,
               `${userName}~${jobName}`,
               taskRoleStatus.name,
               true,
@@ -417,14 +418,18 @@ const convertToJobAttempt = async (framework) => {
   };
 };
 
-const convertTaskDetail = async (taskStatus, frameworkName, withoutGetPod) => {
+const convertTaskDetail = async (
+  taskStatus,
+  jobAttemptId,
+  frameworkName,
+  withoutGetPod,
+) => {
   // get container gpus
   const containerGpus = await getContainerGpus(
     withoutGetPod,
     taskStatus.attemptStatus.podName,
   );
   const completionStatus = taskStatus.attemptStatus.completionStatus;
-  const attemptId = taskStatus.attemptStatus.id;
   return {
     taskIndex: taskStatus.index,
     taskState: convertState(
@@ -434,13 +439,14 @@ const convertTaskDetail = async (taskStatus, frameworkName, withoutGetPod) => {
     containerId: taskStatus.attemptStatus.podUID,
     containerIp: taskStatus.attemptStatus.podHostIP,
     containerGpus,
-    containerLog: `/api/v2/jobs/${frameworkName}/attempts/${attemptId}/pods/${taskStatus.attemptStatus.podUID}/logs`,
+    containerLog: `/api/v2/jobs/${frameworkName}/attempts/${jobAttemptId}/pods/${taskStatus.attemptStatus.podUID}/logs`,
     containerExitCode: completionStatus ? completionStatus.code : null,
   };
 };
 
 const convertTaskAttempt = async (
   frameworkName,
+  jobAttemptId,
   ports,
   attemptState, // attempt level info
   attemptStatus,
@@ -480,7 +486,7 @@ const convertTaskAttempt = async (
     // Job level info
     containerPorts,
     containerGpus,
-    containerLog: `/api/v2/jobs/${frameworkName}/attempts/${attemptStatus.id}/pods/${attemptStatus.podUID}/logs`,
+    containerLog: `/api/v2/jobs/${frameworkName}/attempts/${jobAttemptId}/pods/${attemptStatus.podUID}/logs`,
     containerExitCode: completionStatus ? completionStatus.code : null,
     containerExitSpec: completionStatus
       ? generateExitSpec(completionStatus.code)
@@ -509,12 +515,13 @@ const convertToTaskDetail = async (
   const completionStatus = lastTaskAttemptStatus.completionStatus;
   const userName = attemptFramework.metadata.labels.userName;
   const jobName = attemptFramework.metadata.annotations.jobName;
+  const jobAttemptId = attemptFramework.status.attemptStatus.id;
 
   const taskDetail = {
     // job level information
     username: userName,
     jobName: jobName,
-    jobAttemptId: attemptFramework.status.attemptStatus.id,
+    jobAttemptId: jobAttemptId,
     // task role level information
     taskRoleName: taskRoleName,
     // task level information
@@ -544,6 +551,7 @@ const convertToTaskDetail = async (
   taskDetail.attempts.push(
     await convertTaskAttempt(
       `${userName}~${jobName}`,
+      jobAttemptId,
       ports,
       lastTaskAttemptState,
       lastTaskAttemptStatus,
@@ -555,6 +563,7 @@ const convertToTaskDetail = async (
     taskDetail.attempts.push(
       await convertTaskAttempt(
         `${userName}~${jobName}`,
+        jobAttemptId,
         ports,
         taskHistory.status.state,
         taskHistory.status.attemptStatus,

@@ -76,7 +76,12 @@ const convertFrameworkSummary = (framework) => {
   };
 };
 
-const convertTaskDetail = async (taskStatus, ports, frameworkName) => {
+const convertTaskDetail = async (
+  taskStatus,
+  jobAttemptId,
+  ports,
+  frameworkName,
+) => {
   // get containerPorts
   const containerPorts = getContainerPorts(
     ports,
@@ -91,7 +96,6 @@ const convertTaskDetail = async (taskStatus, ports, frameworkName) => {
   const completionStatus = taskStatus.attemptStatus.completionStatus;
   const diagnostics = completionStatus ? completionStatus.diagnostics : null;
   const exitDiagnostics = generateExitDiagnostics(diagnostics);
-  const attemptId = taskStatus.attemptStatus.id;
   return {
     taskIndex: taskStatus.index,
     taskUid: taskStatus.instanceUID,
@@ -104,7 +108,7 @@ const convertTaskDetail = async (taskStatus, ports, frameworkName) => {
     containerNodeName: taskStatus.attemptStatus.podNodeName,
     containerPorts,
     containerGpus,
-    containerLog: `/api/v2/jobs/${frameworkName}/attempts/${attemptId}/pods/${taskStatus.attemptStatus.podUID}/logs`,
+    containerLog: `/api/v2/jobs/${frameworkName}/attempts/${jobAttemptId}/pods/${taskStatus.attemptStatus.podUID}/logs`,
     containerExitCode: completionStatus ? completionStatus.code : null,
     containerExitSpec: completionStatus
       ? generateExitSpec(completionStatus.code)
@@ -119,7 +123,7 @@ const convertTaskDetail = async (taskStatus, ports, frameworkName) => {
       new Date(taskStatus.runTime || taskStatus.completionTime).getTime() ||
       null,
     completedTime: new Date(taskStatus.completionTime).getTime() || null,
-    attemptId: attemptId,
+    attemptId: taskStatus.attemptStatus.id,
     attemptState: convertAttemptState(
       taskStatus.state || null,
       completionStatus ? completionStatus.code : null,
@@ -288,6 +292,7 @@ const convertFrameworkDetail = async (
         async (status) =>
           await convertTaskDetail(
             status,
+            specifiedAttemptStatus.id,
             ports[taskRoleStatus.name],
             `${userName}~${jobName}`,
           ),
