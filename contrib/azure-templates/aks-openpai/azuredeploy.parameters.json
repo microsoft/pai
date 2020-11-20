@@ -1,0 +1,39 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "clusterName": {
+      "value": "pai-aks"
+    },
+    "kubernetesVersion": {
+      "value": "1.15.11"
+    },
+    "dnsPrefix": {
+      "value": "pai-aks-dns"
+    },
+    "osDiskSizeGB": {
+      "value": 0
+    },
+    "workerAgentCount": {
+      "value": 3
+    },
+    "workerAgentVMSize": {
+      "value": "Standard_NC24"
+    },
+    "devBoxVMSize": {
+      "value": "Standard_D2s_v3"
+    },
+    "sshAdminUsername": {
+      "value": "root"
+    },
+    "sshPublicKey": {
+      "value": null
+    },
+    "servicePrincipalClientId": {
+      "value": null
+    },
+    "servicePrincipalClientSecret": {
+      "value": null
+    }
+  }
+}

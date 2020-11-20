@@ -1,0 +1,194 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "clusterName": {
+      "type": "string"
+    },
+    "subnetId": {
+      "type": "string"
+    },
+    "dnsPrefix": {
+      "type": "string"
+    },
+    "devBoxName": {
+      "type": "string"
+    },
+    "devBoxVMSize": {
+      "type": "string"
+    },
+    "devBoxAdminUsername": {
+      "type": "string"
+    },
+    "devBoxPublicKey": {
+      "type": "string"
+    },
+    "servicePrincipalClientId": {
+      "type": "securestring"
+    },
+    "servicePrincipalClientSecret": {
+      "type": "securestring"
+    },
+    "_artifactsLocation": {
+      "type": "string"
+    },
+    "_artifactsLocationSasToken": {
+      "type": "securestring"
+    }
+  },
+  "variables": {
+    "location": "[resourceGroup().location]",
+    "devBoxIPAddressName": "[concat(parameters('devBoxName'), '-ip')]",
+    "devBoxNetworkSGName": "[concat(parameters('devBoxName'), '-nsg')]",
+    "devBoxNetworkInterfaceName": "[concat(parameters('devBoxName'), '-nic')]"
+  },
+  "resources": [
+    {
+      "apiVersion": "2020-05-01",
+      "type": "Microsoft.Network/publicIPAddresses",
+      "name": "[variables('devBoxIPAddressName')]",
+      "location": "[variables('location')]",
+      "properties": {
+        "publicIPAllocationMethod": "Dynamic",
+        "dnsSettings": {
+          "domainNameLabel": "[parameters('dnsPrefix')]"
+        }
+      }
+    },
+    {
+      "apiVersion": "2020-05-01",
+      "type": "Microsoft.Network/networkSecurityGroups",
+      "name": "[variables('devBoxNetworkSGName')]",
+      "location": "[variables('location')]",
+      "properties": {
+        "securityRules": [
+          {
+            "name": "ssh",
+            "properties": {
+              "description": "Allows inbound SSH traffic",
+              "protocol": "Tcp",
+              "sourcePortRange": "*",
+              "destinationPortRange": "22",
+              "sourceAddressPrefix": "*",
+              "destinationAddressPrefix": "*",
+              "access": "Allow",
+              "priority": 100,
+              "direction": "Inbound"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "apiVersion": "2020-05-01",
+      "type": "Microsoft.Network/networkInterfaces",
+      "name": "[variables('devBoxNetworkInterfaceName')]",
+      "location": "[variables('location')]",
+      "dependsOn": [
+        "[concat('Microsoft.Network/publicIPAddresses/', variables('devBoxIPAddressName'))]",
+        "[concat('Microsoft.Network/networkSecurityGroups/', variables('devBoxNetworkSGName'))]"
+      ],
+      "properties": {
+        "ipConfigurations": [
+          {
+            "name": "[concat(parameters('devBoxName'), '-ipconfig')]",
+            "properties": {
+              "privateIPAllocationMethod": "Dynamic",
+              "publicIPAddress": {
+                "id": "[resourceId('Microsoft.Network/publicIPAddresses', variables('devBoxIPAddressName'))]"
+              },
+              "subnet": {
+                "id": "[parameters('subnetId')]"
+              }
+            }
+          }
+        ],
+        "networkSecurityGroup": {
+          "id": "[resourceId('Microsoft.Network/networkSecurityGroups', variables('devBoxNetworkSGName'))]"
+        }
+      }
+    },
+    {
+      "apiVersion": "2019-07-01",
+      "type": "Microsoft.Compute/virtualMachines",
+      "name": "[parameters('devBoxName')]",
+      "location": "[variables('location')]",
+      "dependsOn": [
+        "[concat('Microsoft.Network/networkInterfaces/', variables('devBoxNetworkInterfaceName'))]"
+      ],
+      "properties": {
+        "hardwareProfile": {
+          "vmSize": "[parameters('devBoxVMSize')]"
+        },
+        "storageProfile": {
+          "imageReference": {
+            "publisher": "Canonical",
+            "offer": "UbuntuServer",
+            "sku": "18.04-LTS",
+            "version": "latest"
+          },
+          "osDisk": {
+            "name": "[concat(parameters('devBoxName'), '-os-disk')]",
+            "createOption": "fromImage",
+            "managedDisk": {
+              "storageAccountType": "Premium_LRS"
+            }
+          }
+        },
+        "osProfile": {
+          "computerName": "[concat(parameters('devBoxName'), '-vm')]",
+          "adminUsername": "[parameters('devBoxAdminUsername')]",
+          "linuxConfiguration": {
+            "disablePasswordAuthentication": true,
+            "ssh": {
+              "publicKeys": [
+                {
+                  "path": "[concat('/home/', parameters('devBoxAdminUsername'), '/.ssh/authorized_keys')]",
+                  "keyData": "[parameters('devBoxPublicKey')]"
+                }
+              ]
+            }
+          }
+        },
+        "networkProfile": {
+          "networkInterfaces": [
+            {
+              "id": "[resourceId('Microsoft.Network/networkInterfaces',variables('devBoxNetworkInterfaceName'))]"
+            }
+          ]
+        }
+      },
+      "resources": [
+        {
+          "apiVersion": "2019-07-01",
+          "type": "extensions",
+          "name": "deployOpenPAI",
+          "location": "[variables('location')]",
+          "dependsOn": [
+            "[concat('Microsoft.Compute/virtualMachines/', parameters('devBoxName'))]"
+          ],
+          "properties": {
+            "publisher": "Microsoft.Azure.Extensions",
+            "type": "CustomScript",
+            "typeHandlerVersion": "2.1",
+            "autoUpgradeMinorVersion": true,
+            "settings": {
+              "fileUris": [
+                "[concat(parameters('_artifactsLocation'), 'scripts/deploy-openpai.sh', parameters('_artifactsLocationSasToken'))]"
+              ]
+            },
+            "protectedSettings": {
+              "commandToExecute": "[concat('bash deploy-openpai.sh && echo ', parameters('servicePrincipalClientId'), '&& echo ', parameters('servicePrincipalClientSecret'))]"
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "outputs": {
+    "devBoxAddress": {
+      "type": "string",
+      "value": "[reference(variables('devBoxIPAddressName')).dnsSettings.fqdn]"
+    }
+  }
+}

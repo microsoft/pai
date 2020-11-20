@@ -1,0 +1,261 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "clusterName": {
+      "type": "string",
+      "defaultValue": "pai-aks",
+      "metadata": {
+        "description": "The name of OpenPAI cluster."
+      }
+    },
+    "kubernetesVersion": {
+      "type": "string",
+      "defaultValue": "1.17.13",
+      "allowedValues": [
+        "1.17.13"
+      ],
+      "metadata": {
+        "description": "The version of Kubernetes."
+      }
+    },
+    "dnsPrefix": {
+      "type": "string",
+      "defaultValue": "[concat(parameters('clusterName'), '-dns')]",
+      "metadata": {
+        "description": "Optional DNS prefix to use with hosted Kubernetes API server FQDN."
+      }
+    },
+    "osDiskSizeGB": {
+      "type": "int",
+      "defaultValue": 0,
+      "metadata": {
+        "description": "Disk size (in GiB) to provision for each of the agent pool nodes. This value ranges from 0 to 1023. Specifying 0 will apply the default disk size for that agentVMSize."
+      },
+      "minValue": 0,
+      "maxValue": 1023
+    },
+    "workerAgentCount": {
+      "type": "int",
+      "defaultValue": 3,
+      "metadata": {
+        "description": "The number of worker nodes for the cluster."
+      },
+      "minValue": 1,
+      "maxValue": 200
+    },
+    "workerAgentVMSize": {
+      "type": "string",
+      "defaultValue": "Standard_NC24",
+      "metadata": {
+        "description": "The size of the worker nodes virtual machine."
+      }
+    },
+    "devBoxVMSize": {
+      "type": "string",
+      "defaultValue": "Standard_D2s_v3",
+      "metadata": {
+        "description": "The size of the OpenPAI dev box virtual machine."
+      }
+    },
+    "sshAdminUsername": {
+      "type": "string",
+      "defaultValue": "pai",
+      "metadata": {
+        "description": "SSH admin username for Linux virtual machines."
+      }
+    },
+    "sshPublicKey": {
+      "type": "string",
+      "metadata": {
+        "description": "Certificate public key used to authenticate with Linux virtual machines through SSH. The certificate must be in PEM format with or without headers."
+      }
+    },
+    "servicePrincipalClientId": {
+      "type": "securestring",
+      "metadata": {
+        "description": "The Service Principal Client ID (used by cloudprovider)."
+      }
+    },
+    "servicePrincipalClientSecret": {
+      "type": "securestring",
+      "metadata": {
+        "description": "The Service Principal Client Secret."
+      }
+    },
+    "_artifactsLocation": {
+      "type": "string",
+      "defaultValue": "https://raw.githubusercontent.com/microsoft/pai/master/contrib/azure-templates/aks-openpai/",
+      "metadata": {
+        "description": "The base URI where artifacts required by this template are located. When the template is deployed using the accompanying scripts, a private location in the subscription will be used and this value will be automatically generated."
+      }
+    },
+    "_artifactsLocationSasToken": {
+      "type": "securestring",
+      "defaultValue": "",
+      "metadata": {
+        "description": "The sasToken required to access _artifactsLocation.  When the template is deployed using the accompanying scripts, a sasToken will be automatically generated."
+      }
+    }
+  },
+  "variables": {
+    "location": "[resourceGroup().location]",
+    "enableRBAC": true,
+    "workerAgentName": "paiworker",
+    "pylonAgentName": "paipylon",
+    "networkPlugin": "kubenet",
+    "enablePrivateCluster": true,
+    "devBoxName": "[concat(parameters('clusterName'), '-dev-box')]",
+    "vnetName": "[concat(parameters('clusterName'), '-vnet')]",
+    "subnetName": "[concat(parameters('clusterName'), '-subnet')]",
+    "subnetId": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('vnetName'), variables('subnetName'))]"
+  },
+  "resources": [
+    {
+      "apiVersion": "2020-05-01",
+      "type": "Microsoft.Network/virtualNetworks",
+      "name": "[variables('vnetName')]",
+      "location": "[variables('location')]",
+      "properties": {
+        "addressSpace": {
+          "addressPrefixes": [
+            "10.10.0.0/16"
+          ]
+        },
+        "subnets": [
+          {
+            "name": "[variables('subnetName')]",
+            "properties": {
+              "addressPrefix": "10.10.0.0/24"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "apiVersion": "2020-09-01",
+      "type": "Microsoft.ContainerService/managedClusters",
+      "name": "[parameters('clusterName')]",
+      "location": "[variables('location')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/virtualNetworks', variables('vnetName'))]"
+      ],
+      "properties": {
+        "kubernetesVersion": "[parameters('kubernetesVersion')]",
+        "dnsPrefix": "[parameters('dnsPrefix')]",
+        "agentPoolProfiles": [
+          {
+            "name": "[variables('workerAgentName')]",
+            "count": "[parameters('workerAgentCount')]",
+            "vmSize": "[parameters('workerAgentVMSize')]",
+            "osDiskSizeGB": "[parameters('osDiskSizeGB')]",
+            "vnetSubnetID": "[variables('subnetId')]",
+            "maxPods": 110,
+            "osType": "Linux",
+            "type": "VirtualMachineScaleSets",
+            "mode": "System",
+            "availabilityZones": [],
+            "enableNodePublicIP": false
+          },
+          {
+            "name": "[variables('pylonAgentName')]",
+            "count": 1,
+            "vmSize": "[parameters('devBoxVMSize')]",
+            "osDiskSizeGB": 0,
+            "vnetSubnetID": "[variables('subnetId')]",
+            "maxPods": 110,
+            "osType": "Linux",
+            "type": "AvailabilitySet",
+            "mode": "System",
+            "availabilityZones": [],
+            "enableNodePublicIP": true
+          }
+        ],
+        "linuxProfile": {
+          "adminUsername": "[parameters('sshAdminUsername')]",
+          "ssh": {
+            "publicKeys": [
+              {
+                "keyData": "[parameters('sshPublicKey')]"
+              }
+            ]
+          }
+        },
+        "servicePrincipalProfile": {
+          "ClientId": "[parameters('servicePrincipalClientId')]",
+          "Secret": "[parameters('servicePrincipalClientSecret')]"
+        },
+        "enableRBAC": "[variables('enableRBAC')]",
+        "networkProfile": {
+          "loadBalancerSku": "standard",
+          "networkPlugin": "[variables('networkPlugin')]"
+        },
+        "apiServerAccessProfile": {
+          "enablePrivateCluster": "[variables('enablePrivateCluster')]"
+        }
+      },
+      "tags": {}
+    },
+    {
+      "apiVersion": "2020-06-01",
+      "type": "Microsoft.Resources/deployments",
+      "name": "OpenPAIDeployment",
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/virtualNetworks', variables('vnetName'))]",
+        "[resourceId('Microsoft.ContainerService/managedClusters', parameters('clusterName'))]"
+      ],
+      "properties": {
+        "mode": "Incremental",
+        "templateLink": {
+          "uri": "[uri(parameters('_artifactsLocation'), concat('nested/openpai.json', parameters('_artifactsLocationSasToken')))]",
+          "contentVersion": "1.0.0.0"
+        },
+        "parameters": {
+          "clusterName": {
+            "value": "[parameters('clusterName')]"
+          },
+          "subnetId": {
+            "value": "[variables('subnetId')]"
+          },
+          "dnsPrefix": {
+            "value": "[parameters('dnsPrefix')]"
+          },
+          "devBoxName": {
+            "value": "[variables('devBoxName')]"
+          },
+          "devBoxVMSize": {
+            "value": "[parameters('devBoxVMSize')]"
+          },
+          "devBoxAdminUsername": {
+            "value": "[parameters('sshAdminUsername')]"
+          },
+          "devBoxPublicKey": {
+            "value": "[parameters('sshPublicKey')]"
+          },
+          "servicePrincipalClientId": {
+            "value": "[parameters('servicePrincipalClientId')]"
+          },
+          "servicePrincipalClientSecret": {
+            "value": "[parameters('servicePrincipalClientSecret')]"
+          },
+          "_artifactsLocation": {
+            "value": "[parameters('_artifactsLocation')]"
+          },
+          "_artifactsLocationSasToken": {
+            "value": "[parameters('_artifactsLocationSasToken')]"
+          }
+        }
+      }
+    }
+  ],
+  "outputs": {
+    "devBoxAddress": {
+      "type": "string",
+      "value": "[reference('openpaiDeployment').outputs.devBoxAddress.value]"
+    },
+    "kubernetesControlPlaneFQDN": {
+      "type": "string",
+      "value": "[reference(concat('Microsoft.ContainerService/managedClusters/', parameters('clusterName'))).privateFQDN]"
+    }
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "$schema": "https://aka.ms/azure-quickstart-templates-metadata-schema#",
+  "type": "Application",
+  "itemDisplayName": "OpenPAI on Azure Kubernetes Service (AKS)",
+  "description": "Deploy an OpenPAI cluster with Azure Kubernetes Service (AKS)",
+  "summary": "Deploy an OpenPAI cluster with Azure Kubernetes Service (AKS)",
+  "githubUsername": "abuccts",
+  "dateUpdated": "2020-11-20",
+  "validationType": "Manual",
+  "environments": ["AzureCloud", "AzureChinaCloud"]
+}
