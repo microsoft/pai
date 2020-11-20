@@ -91,6 +91,7 @@ const convertTaskDetail = async (taskStatus, ports, frameworkName) => {
   const completionStatus = taskStatus.attemptStatus.completionStatus;
   const diagnostics = completionStatus ? completionStatus.diagnostics : null;
   const exitDiagnostics = generateExitDiagnostics(diagnostics);
+  const attemptId = taskStatus.attemptStatus.id;
   return {
     taskIndex: taskStatus.index,
     taskUid: taskStatus.instanceUID,
@@ -103,7 +104,7 @@ const convertTaskDetail = async (taskStatus, ports, frameworkName) => {
     containerNodeName: taskStatus.attemptStatus.podNodeName,
     containerPorts,
     containerGpus,
-    containerLog: `/api/v2/jobs/${frameworkName}/pods/${taskStatus.attemptStatus.podUID}/logs`,
+    containerLog: `/api/v2/jobs/${frameworkName}/job-attempts/${attemptId}/pods/${taskStatus.attemptStatus.podUID}/logs`,
     containerExitCode: completionStatus ? completionStatus.code : null,
     containerExitSpec: completionStatus
       ? generateExitSpec(completionStatus.code)
@@ -118,7 +119,7 @@ const convertTaskDetail = async (taskStatus, ports, frameworkName) => {
       new Date(taskStatus.runTime || taskStatus.completionTime).getTime() ||
       null,
     completedTime: new Date(taskStatus.completionTime).getTime() || null,
-    attemptId: taskStatus.attemptStatus.id,
+    attemptId: attemptId,
     attemptState: convertAttemptState(
       taskStatus.state || null,
       completionStatus ? completionStatus.code : null,

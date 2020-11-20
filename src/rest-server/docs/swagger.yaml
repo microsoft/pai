@@ -1741,7 +1741,7 @@ paths:
                       ssh: 37508
                       http: 24661
                     containerGpus: null
-                    containerLog: /api/v2/jobs/admin~admin_444da84f/pods/07cdd036-1a7c-11eb-830b-000d3ab25bb6/logs
+                    containerLog: /api/v2/jobs/admin~admin_444da84f/job-attempts/0/pods/07cdd036-1a7c-11eb-830b-000d3ab25bb6/logs
                     containerExitCode: -220
                     containerExitSpec:
                       code: -220
@@ -1768,7 +1768,7 @@ paths:
                       ssh: 37508
                       http: 24661
                     containerGpus: null
-                    containerLog: /api/v2/jobs/admin~admin_444da84f/pods/07cdd036-1a7c-11eb-830b-000d3ab25bb6/logs
+                    containerLog: /api/v2/jobs/admin~admin_444da84f/job-attempts/0/pods/07cdd036-1a7c-11eb-830b-000d3ab25bb6/logs
                     containerExitCode: -220
                     containerExitSpec:
                       code: -220
@@ -1787,7 +1787,7 @@ paths:
           $ref: "#/components/responses/NoTaskError"
         "500":
           $ref: "#/components/responses/UnknownError"
-  "/api/v2/jobs/{user}~{job}/pods/{podUid}/logs":
+  "/api/v2/jobs/{user}~{job}/attempts/{jobAttemptId}/pods/{podUid}/logs":
     get:
       tags:
         - job
@@ -1799,6 +1799,7 @@ paths:
       parameters:
       - $ref: "#/components/parameters/user"
       - $ref: "#/components/parameters/job"
+      - $ref: "#/components/parameters/jobAttemptId"
       - $ref: "#/components/parameters/podUid"
       - name: tailMode
         in: query

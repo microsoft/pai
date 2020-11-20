@@ -36,11 +36,16 @@ const loginLogManager = async (nodeIp, username, password) => {
   });
 };
 
-const getLogListFromLogManager = async (frameworkName, podUid, tailMode) => {
+const getLogListFromLogManager = async (
+  frameworkName,
+  jobAttemptId,
+  podUid,
+  tailMode,
+) => {
   const adminName = process.env.LOG_MANAGER_ADMIN_NAME;
   const adminPassword = process.env.LOG_MANAGER_ADMIN_PASSWORD;
 
-  const jobDetail = await job.get(frameworkName);
+  const jobDetail = await job.get(frameworkName, jobAttemptId);
   const noPodLogsErr = createError(
     'Not Found',
     'NoPodLogsError',

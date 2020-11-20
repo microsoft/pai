@@ -293,6 +293,7 @@ const getLogs = asyncHandler(async (req, res) => {
   try {
     const data = await log.getLogListFromLogManager(
       req.params.frameworkName,
+      req.params.jobAttemptId,
       req.params.podUid,
       req.query['tail-mode'],
     );
