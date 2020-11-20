@@ -55,8 +55,8 @@ const getLogListFromLogManager = async (
   );
   const noPodLogsErr = createError(
     'Not Found',
-    'NoTaskLogsError',
-    `Logs for task is not found.`,
+    'NoTaskLogError',
+    `Log of task is not found.`,
   );
   const taskStatus = taskDetail.data.attempts[Number(taskAttemptId)];
   if (!taskStatus) {
