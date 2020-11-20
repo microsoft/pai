@@ -139,6 +139,9 @@ const LogDialogContent = ({ urlLists }) => {
   for (const p of urlLists) {
     lists.push(p);
   }
+  if (lists.length === 0) {
+    return <Stack>No log file generated or log files be rotated</Stack>;
+  }
   const urlpairs = lists.map(lists => (
     <Stack key='log-list'>
       <Link
@@ -402,12 +405,14 @@ export default class TaskRoleContainerList extends React.Component {
   showAllLogDialog(logListUrl) {
     const { hideAllLogsDialog } = this.state;
 
-    getContainerLogList(logListUrl).then(({ fullLogUrls, _ }) => {
-      this.setState({
-        hideAllLogsDialog: !hideAllLogsDialog,
-        fullLogUrls: fullLogUrls,
-      });
-    });
+    getContainerLogList(logListUrl)
+      .then(({ fullLogUrls, _ }) => {
+        this.setState({
+          hideAllLogsDialog: !hideAllLogsDialog,
+          fullLogUrls: fullLogUrls,
+        });
+      })
+      .catch(() => this.setState({ hideAllLogsDialog: !hideAllLogsDialog }));
   }
 
   getTaskPropertyFromColumnKey(item, key) {
