@@ -469,8 +469,8 @@
           },
           {
             "selected": false,
-            "text": "log-manager-logrotate",
-            "value": "log-manager-logrotate"
+            "text": "log-cleaner",
+            "value": "log-cleaner"
           },
           {
             "selected": false,
