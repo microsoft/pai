@@ -98,6 +98,9 @@ const LogDialogContent = ({ urlLists }) => {
   for (const p of urlLists) {
     lists.push(p);
   }
+  if (lists.length === 0) {
+    return <Stack>No log file generated or log files be rotated</Stack>;
+  }
   const urlpairs = lists.map((lists, index) => (
     <Stack key={`log-list-${index}`}>
       <Link
