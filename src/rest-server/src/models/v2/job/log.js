@@ -16,8 +16,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 const axios = require('axios');
-const job = require('./k8s');
 const logger = require('@pai/config/logger');
+const task = require('@pai/models/v2/task');
 const createError = require('@pai/utils/error');
 const { encodeName } = require('@pai/models/v2/utils/name');
 
@@ -36,29 +36,36 @@ const loginLogManager = async (nodeIp, username, password) => {
   });
 };
 
-const getLogListFromLogManager = async (frameworkName, podUid, tailMode) => {
+const getLogListFromLogManager = async (
+  frameworkName,
+  jobAttemptId,
+  taskRoleName,
+  taskIndex,
+  taskAttemptId,
+  tailMode,
+) => {
   const adminName = process.env.LOG_MANAGER_ADMIN_NAME;
   const adminPassword = process.env.LOG_MANAGER_ADMIN_PASSWORD;
 
-  const jobDetail = await job.get(frameworkName);
-  const noPodLogsErr = createError(
-    'Not Found',
-    'NoPodLogsError',
-    `Logs for pod ${podUid} is not found.`,
+  const taskDetail = await task.get(
+    frameworkName,
+    Number(jobAttemptId),
+    taskRoleName,
+    Number(taskIndex),
   );
-  let nodeIp;
-  let taskRoleName;
-  for (const [key, taskRole] of Object.entries(jobDetail.taskRoles)) {
-    const status = taskRole.taskStatuses.find(
-      (status) => status.containerId === podUid,
-    );
-    if (!status) {
-      logger.error(`Failed to find pod which has pod uid ${podUid}`);
-      throw noPodLogsErr;
-    }
-    nodeIp = status.containerIp;
-    taskRoleName = key;
+  const NoTaskLogErr = createError(
+    'Not Found',
+    'NoTaskLogError',
+    `Log of task is not found.`,
+  );
+  const taskStatus = taskDetail.data.attempts[Number(taskAttemptId)];
+  if (!taskStatus) {
+    logger.error(`Failed to find task to retrive log`);
+    throw NoTaskLogErr;
   }
+
+  const nodeIp = taskStatus.containerIp;
+  const podUid = taskStatus.containerId;
 
   let res = await loginLogManager(nodeIp, adminName, adminPassword);
   const token = res.data.token;
@@ -67,7 +74,7 @@ const getLogListFromLogManager = async (frameworkName, podUid, tailMode) => {
   try {
     const params = {
       token: token,
-      username: jobDetail.jobStatus.username,
+      username: taskDetail.data.username,
       taskrole: taskRoleName,
     };
     params['framework-name'] = encodeName(frameworkName);
@@ -77,7 +84,7 @@ const getLogListFromLogManager = async (frameworkName, podUid, tailMode) => {
     });
   } catch (err) {
     if (err.response && err.response.status === 404) {
-      throw noPodLogsErr;
+      throw NoTaskLogErr;
     }
     throw err;
   }

@@ -310,9 +310,6 @@ const convertToJobAttempt = async (framework) => {
     framework.metadata.annotations,
   );
   const frameworkName = framework.metadata.name;
-  const logPathInfix = framework.metadata.annotations.logPathInfix
-    ? framework.metadata.annotations.logPathInfix
-    : jobName;
   const uid = framework.metadata.uid;
   const userName = framework.metadata.labels
     ? framework.metadata.labels.userName
@@ -382,9 +379,10 @@ const convertToJobAttempt = async (framework) => {
         taskRoleStatus.taskStatuses.map(
           async (status) =>
             await convertTaskDetail(
+              taskRoleStatus.name,
               status,
-              userName,
-              logPathInfix,
+              attemptIndex,
+              `${userName}~${jobName}`,
               taskRoleStatus.name,
               true,
             ),
@@ -422,10 +420,10 @@ const convertToJobAttempt = async (framework) => {
 };
 
 const convertTaskDetail = async (
-  taskStatus,
-  userName,
-  logPathInfix,
   taskRoleName,
+  taskStatus,
+  jobAttemptId,
+  frameworkName,
   withoutGetPod,
 ) => {
   // get container gpus
@@ -434,6 +432,7 @@ const convertTaskDetail = async (
     taskStatus.attemptStatus.podName,
   );
   const completionStatus = taskStatus.attemptStatus.completionStatus;
+  const taskAttemptId = taskStatus.attemptStatus.id;
   return {
     taskIndex: taskStatus.index,
     taskState: convertState(
@@ -443,16 +442,17 @@ const convertTaskDetail = async (
     containerId: taskStatus.attemptStatus.podUID,
     containerIp: taskStatus.attemptStatus.podHostIP,
     containerGpus,
-    containerLog: `http://${taskStatus.attemptStatus.podHostIP}:${process.env.LOG_MANAGER_PORT}/log-manager/tail/${userName}/${logPathInfix}/${taskRoleName}/${taskStatus.attemptStatus.podUID}/`,
+    containerLog: `/api/v2/jobs/${frameworkName}/attempts/${jobAttemptId}/taskRoles/${taskRoleName}/taskIndex/${taskStatus.index}/attempts/${taskAttemptId}/logs`,
     containerExitCode: completionStatus ? completionStatus.code : null,
   };
 };
 
 const convertTaskAttempt = async (
-  logPathInfix, // job level info
-  userName,
+  frameworkName,
+  jobAttemptId,
+  taskRoleName,
+  taskIndex,
   ports,
-  taskRoleName, // task role level info
   attemptState, // attempt level info
   attemptStatus,
 ) => {
@@ -491,7 +491,7 @@ const convertTaskAttempt = async (
     // Job level info
     containerPorts,
     containerGpus,
-    containerLog: `http://${attemptStatus.podHostIP}:${process.env.LOG_MANAGER_PORT}/log-manager/tail/${userName}/${logPathInfix}/${taskRoleName}/${attemptStatus.podUID}/`,
+    containerLog: `/api/v2/jobs/${frameworkName}/attempts/${jobAttemptId}/taskRoles/${taskRoleName}/taskIndex/${taskIndex}/attempts/${attemptStatus.id}/logs`,
     containerExitCode: completionStatus ? completionStatus.code : null,
     containerExitSpec: completionStatus
       ? generateExitSpec(completionStatus.code)
@@ -520,12 +520,13 @@ const convertToTaskDetail = async (
   const completionStatus = lastTaskAttemptStatus.completionStatus;
   const userName = attemptFramework.metadata.labels.userName;
   const jobName = attemptFramework.metadata.annotations.jobName;
+  const jobAttemptId = attemptFramework.status.attemptStatus.id;
 
   const taskDetail = {
     // job level information
     username: userName,
     jobName: jobName,
-    jobAttemptId: attemptFramework.status.attemptStatus.id,
+    jobAttemptId: jobAttemptId,
     // task role level information
     taskRoleName: taskRoleName,
     // task level information
@@ -546,10 +547,6 @@ const convertToTaskDetail = async (
     attempts: [],
   };
 
-  const logPathInfix = attemptFramework.metadata.annotations.logPathInfix
-    ? attemptFramework.metadata.annotations.logPathInfix
-    : jobName;
-
   const ports = attemptFramework.spec.taskRoles.find(
     (taskRoleSpec) => taskRoleSpec.name === taskRoleName,
   ).task.pod.metadata.annotations['rest-server/port-scheduling-spec'];
@@ -558,10 +555,11 @@ const convertToTaskDetail = async (
   // last task attempt
   taskDetail.attempts.push(
     await convertTaskAttempt(
-      logPathInfix,
-      userName,
-      ports,
+      `${userName}~${jobName}`,
+      jobAttemptId,
       taskRoleName,
+      taskStatus.index,
+      ports,
       lastTaskAttemptState,
       lastTaskAttemptStatus,
     ),
@@ -571,10 +569,11 @@ const convertToTaskDetail = async (
   for (const taskHistory of taskHistories) {
     taskDetail.attempts.push(
       await convertTaskAttempt(
-        logPathInfix,
-        userName,
-        ports,
+        `${userName}~${jobName}`,
+        jobAttemptId,
         taskRoleName,
+        taskStatus.index,
+        ports,
         taskHistory.status.state,
         taskHistory.status.attemptStatus,
       ),

@@ -54,6 +54,13 @@ router
   .get(token.check, taskController.get);
 
 router
+  .route(
+    '/:frameworkName/attempts/:jobAttemptId/taskRoles/:taskRoleName/taskIndex/:taskIndex/attempts/:taskAttemptId/logs',
+  )
+  /** GET /api/v2/jobs/:frameworkName/attempts/:jobAttemptId/taskRoles/:taskRoleName/taskIndex/:taskIndex/attempts/:taskAttemptId/logs - Get logs of a task */
+  .get(token.check, controller.getLogs);
+
+router
   .route('/:frameworkName/executionType')
   /** PUT /api/v2/jobs/:frameworkName/executionType - Start or stop job */
   .put(
@@ -96,11 +103,6 @@ router
   .route('/:frameworkName/events')
   /** GET /api/v2/jobs/:frameworkName/events - Get events of a framework */
   .get(token.check, controller.getEvents);
-
-router
-  .route('/:frameworkName/pods/:podUid/logs')
-  /** GET /api/v2/jobs/:frameworkName/pods/:podUid/logs - Get logs of a pod */
-  .get(token.check, controller.getLogs);
 
 // module exports
 module.exports = router;

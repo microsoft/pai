@@ -293,13 +293,16 @@ const getLogs = asyncHandler(async (req, res) => {
   try {
     const data = await log.getLogListFromLogManager(
       req.params.frameworkName,
-      req.params.podUid,
+      req.params.jobAttemptId,
+      req.params.taskRoleName,
+      req.params.taskIndex,
+      req.params.taskAttemptId,
       req.query['tail-mode'],
     );
     res.json(data);
   } catch (error) {
     logger.error(`Got error when retrieving log list, error: ${error}`);
-    throw error.code === 'NoPodLogsError'
+    throw error.code === 'NoTaskLogErr'
       ? error
       : createError(
           'Internal Server Error',
