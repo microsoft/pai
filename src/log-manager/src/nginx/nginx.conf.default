@@ -76,4 +76,11 @@ server {
     access_by_lua_file /etc/nginx/lua/guard.lua;
     content_by_lua_file /etc/nginx/lua/get_log_content.lua;
   }
+
+  location @download_file {
+    internal;
+
+    root /;
+    try_files $uri =404;
+  }
 }

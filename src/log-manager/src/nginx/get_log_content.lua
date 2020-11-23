@@ -84,7 +84,8 @@ local logs
 if (tail_mode == "true") then
   logs = io.popen("tail -c 16k "..log_path)
 else
-  logs = io.popen("cat "..log_path)
+  ngx.req.set_uri(log_path)
+  ngx.exec("@download_file")
 end
 
 -- buffer size (8K)
