@@ -54,8 +54,8 @@ const sendEmailToAdmin = (req, res) => {
   logger.info(
     'alert-handler received `send-email-to-admin` post request from alert-manager.',
   );
-  const template = req.params.template
-    ? req.params.template
+  const template = req.query.template
+    ? req.query.template
     : 'general-templates';
   email
     .send({
@@ -153,8 +153,8 @@ const sendEmailToUser = async (req, res) => {
     }
   });
 
-  const template = req.params.template
-    ? req.params.template
+  const template = req.query.template
+    ? req.query.template
     : 'general-templates';
   if (alertsGrouped) {
     // send emails to different users separately
