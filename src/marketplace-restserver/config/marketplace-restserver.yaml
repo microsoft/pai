@@ -9,3 +9,10 @@ db: marketplace
 # db_host: postgres
 db_port: 9291
 server-port: 9292
+
+azure_storage:
+  type: blob
+  storage_account: openpaimarketplace
+  connection_strings:
+  - '<connection_string>'
+azure_storage_json: ''
