@@ -79,6 +79,7 @@ server {
 
   location @download_file {
     internal;
+    add_header Accept-Ranges bytes;
 
     root /;
     try_files $uri =404;

@@ -82,17 +82,10 @@ end
 
 local logs
 if (tail_mode == "true") then
-  logs = io.popen("tail -c 16k "..log_path)
+  ngx.req.set_uri(log_path)
+  ngx.req.set_header("Range", "bytes=-16384")
+  ngx.exec("@download_file")
 else
   ngx.req.set_uri(log_path)
   ngx.exec("@download_file")
 end
-
--- buffer size (8K)
-local size = 2^13
-while true do
-  local block = logs:read(size)
-  if not block then break end
-  ngx.say(block)
-end
-logs:close()
