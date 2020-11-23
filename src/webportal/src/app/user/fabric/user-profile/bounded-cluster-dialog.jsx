@@ -55,7 +55,7 @@ const validateInput = async (clusterAlias, clusterUri, username, token) => {
     await client.virtualCluster.listVirtualClusters();
   } catch (err) {
     throw new Error(
-      `Try to connect the cluster but failed. Details: ${err.message}`,
+      `Try to connect the cluster but failed. Details: ${err.message}. Please check the error message in your browser console for more information.`,
     );
   }
 
