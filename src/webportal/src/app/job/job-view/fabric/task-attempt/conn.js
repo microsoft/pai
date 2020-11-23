@@ -5,7 +5,6 @@ import { clearToken } from '../../../../user/user-logout/user-logout.component';
 import config from '../../../../config/webportal.config';
 import urljoin from 'url-join';
 
-const absoluteUrlRegExp = /^[a-z][a-z\d+.-]*:/;
 const token = cookies.get('token');
 
 export class NotFoundError extends Error {
@@ -53,77 +52,63 @@ export async function fetchTaskStatus(
   });
 }
 
-export async function getContainerLog(logUrl) {
-  const ret = {
-    fullLogLink: logUrl,
-    text: null,
+export async function getContainerLogList(logListUrl) {
+  const res = await Promise.all([
+    fetch(`${logListUrl}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }),
+    fetch(`${logListUrl}?tail-mode=true`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }),
+  ]);
+  const resp = res.find(r => !r.ok);
+  if (resp) {
+    throw new Error('Log folder can not be retrieved');
+  }
+  const logUrls = await Promise.all(res.map(r => r.json()));
+  return {
+    fullLogUrls: logUrls[0],
+    tailLogUrls: logUrls[1],
   };
-  const res = await fetch(logUrl);
-  var text = await res.text();
+}
+
+export async function getContainerLog(tailLogUrls, fullLogUrls, logType) {
+  const res = await fetch(tailLogUrls[logType]);
   if (!res.ok) {
+    if (String(res.status) === '403') {
+      throw new Error(res.status);
+    }
     throw new Error(res.statusText);
   }
+  let text = await res.text();
 
-  const contentType = res.headers.get('content-type');
-  if (!contentType) {
-    throw new Error(`Log not available`);
-  }
-
-  // Check log type. The log type is in LOG_TYPE and should be yarn|log-manager.
-  if (config.logType === 'yarn') {
-    try {
-      const parser = new DOMParser();
-      const doc = parser.parseFromString(text, 'text/html');
-      const content = doc.getElementsByClassName('content')[0];
-      const pre = content.getElementsByTagName('pre')[0];
-      ret.text = pre.innerText;
-      // fetch full log link
-      if (pre.previousElementSibling) {
-        const link = pre.previousElementSibling.getElementsByTagName('a');
-        if (link.length === 1) {
-          ret.fullLogLink = link[0].getAttribute('href');
-          // relative link
-          if (ret.fullLogLink && !absoluteUrlRegExp.test(ret.fullLogLink)) {
-            let baseUrl = res.url;
-            // check base tag
-            const baseTags = doc.getElementsByTagName('base');
-            // There can be only one <base> element in a document.
-            if (baseTags.length > 0 && baseTags[0].hasAttribute('href')) {
-              baseUrl = baseTags[0].getAttribute('href');
-              // relative base tag url
-              if (!absoluteUrlRegExp.test(baseUrl)) {
-                baseUrl = new URL(baseUrl, res.url);
-              }
-            }
-            const url = new URL(ret.fullLogLink, baseUrl);
-            ret.fullLogLink = url.href;
-          }
-        }
-      }
-      return ret;
-    } catch (e) {
-      throw new Error(`Log not available`);
-    }
-  } else if (config.logType === 'log-manager') {
+  // Check log type. The log type is in LOG_TYPE only support log-manager.
+  if (config.logType === 'log-manager') {
     // Try to get roated log if currently log content is less than 15KB
-    if (text.length <= 15 * 1024) {
-      const fullLogUrl = logUrl.replace('/tail/', '/full/');
-      const rotatedLogUrl = logUrl + '.1';
+    if (text.length <= 15 * 1024 && tailLogUrls[logType + '.1']) {
+      const rotatedLogUrl = tailLogUrls[logType + '.1'];
       const rotatedLogRes = await fetch(rotatedLogUrl);
-      const fullLogRes = await fetch(fullLogUrl);
+      const fullLogRes = await fetch(fullLogUrls[logType]);
       const rotatedText = await rotatedLogRes.text();
       const fullLog = await fullLogRes.text();
-      if (rotatedLogRes.ok && rotatedText.trim() !== 'No such file!') {
+      if (rotatedLogRes.ok) {
         text = rotatedText
-          .concat('\n--------log is rotated, may be lost during this--------\n')
+          .concat(
+            '\n ------- log is rotated, may be lost during this ------- \n',
+          )
           .concat(fullLog);
       }
       // get last 16KB
       text = text.slice(-16 * 1024);
     }
-    ret.text = text;
-    ret.fullLogLink = logUrl.replace('/tail/', '/full/');
-    return ret;
+    return {
+      fullLogLink: fullLogUrls[logType],
+      text: text,
+    };
   } else {
     throw new Error(`Log not available`);
   }
