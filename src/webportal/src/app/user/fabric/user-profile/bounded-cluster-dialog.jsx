@@ -43,6 +43,10 @@ const validateInput = async (clusterAlias, clusterUri, username, token) => {
     throw new Error(error);
   }
 
+  if (value.uri.startsWith('http:') && location.protocol === 'https:') {
+    throw new Error("Please use an HTTPS url in your bounded cluster setting. Because the current session is in HTTPS.")
+  }
+
   const client = new PAIV2.OpenPAIClient({
     rest_server_uri: new URL('rest-server', value.uri),
     username: value.username,
