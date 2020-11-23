@@ -43,7 +43,7 @@ export const NotificationButton = () => {
 
   useEffect(() => {
     let canceled = false;
-    const alertsUrl = `${webportalConfig.alertManagerUri}/api/v1/alerts?silenced=false`;
+    const alertsUrl = `${webportalConfig.alertManagerUri}/api/v1/alerts?silenced=false&inhibited=false`;
     const work = async () => {
       try {
         const result = await fetch(alertsUrl);
