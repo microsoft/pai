@@ -552,7 +552,7 @@ class ContainerCollector(Collector):
         "node-exporter",
         "job-exporter",
         "log-manager-nginx",
-        "log-manager-logrotate",
+        "log-cleaner",
         "dshuttle-worker",
         "dshuttle-job-worker",
         "dshuttle-csi-daemon",
