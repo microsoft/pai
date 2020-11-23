@@ -14,6 +14,7 @@
 
 
 local lfs = require "lfs"
+local path = require "path"
 
 local function get_rotated_log(log_path)
   for file in lfs.dir(log_path) do
@@ -25,18 +26,11 @@ local function get_rotated_log(log_path)
 end
 
 local function is_path_under_log_folder(log_path)
-  local real_path = io.popen("realpath "..log_path)
-  local path = real_path:read()
-  if not path then
-    real_path:close()
-    return false
-  end
+  local real_path = path.abspath(log_path)
 
-  if not string.match(path, "^/usr/local/pai/logs/.*") then
-    real_path:close()
+  if not string.match(real_path, "^/usr/local/pai/logs/.*") then
     return false
   end
-  real_path:close()
   return true
 end
 
