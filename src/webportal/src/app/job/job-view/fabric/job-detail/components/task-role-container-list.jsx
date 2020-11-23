@@ -142,8 +142,8 @@ const LogDialogContent = ({ urlLists }) => {
   if (lists.length === 0) {
     return <Stack>No log file generated or log files be rotated</Stack>;
   }
-  const urlpairs = lists.map(lists => (
-    <Stack key='log-list'>
+  const urlpairs = lists.map((lists, index) => (
+    <Stack key={`log-list-${index}`}>
       <Link
         href={lists.uri}
         target='_blank'
@@ -157,7 +157,7 @@ const LogDialogContent = ({ urlLists }) => {
 };
 
 LogDialogContent.propTypes = {
-  urlLists: PropTypes.object,
+  urlLists: PropTypes.array,
 };
 
 export default class TaskRoleContainerList extends React.Component {
@@ -179,6 +179,7 @@ export default class TaskRoleContainerList extends React.Component {
     this.showSshInfo = this.showSshInfo.bind(this);
     this.showAllLogDialog = this.showAllLogDialog.bind(this);
     this.onDismiss = this.onDismiss.bind(this);
+    this.convertObjectFormat = this.convertObjectFormat.bind(this);
     this.showContainerTailLog = this.showContainerTailLog.bind(this);
     this.onRenderRow = this.onRenderRow.bind(this);
     this.logAutoRefresh = this.logAutoRefresh.bind(this);
