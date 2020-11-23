@@ -42,19 +42,19 @@ end
 
 local log_query_param = "?username="..username.."&framework-name="..framework_name..
   "&pod-uid="..pod_uid.."&taskrole="..taskrole.."&token="..token
-local path = "/usr/local/pai/logs/"..username.."/".. framework_name.."/".. taskrole.."/"..pod_uid.."/"
+local log_dir = "/usr/local/pai/logs/"..username.."/".. framework_name.."/".. taskrole.."/"..pod_uid.."/"
 local path_prefix = "/api/v1/logs/"
 
 local ret = {}
 
-if not util.is_path_under_log_folder(log_path) or not path.isdir(path) then
+if not util.is_path_under_log_folder(log_dir) or not path.isdir(log_dir) then
   ngx.log(ngx.ERR, "log folder not exists")
   ngx.status = ngx.HTTP_NOT_FOUND
   return ngx.exit(ngx.HTTP_OK)
 end
 
-for file in lfs.dir(path) do
-  if not is_dir(path..file) then
+for file in lfs.dir(log_dir) do
+  if not path.isdir(log_dir..file) then
     if string.match(file, "^user%.pai%..*$") then
       local sub_str = string.sub(file, string.len("user.pai.") + 1)
       ret[sub_str] = path_prefix..file..log_query_param
@@ -64,7 +64,7 @@ for file in lfs.dir(path) do
   elseif string.match(file, "^user-.*$") then
     local sub_str = string.sub(file, string.len("user-") + 1)
     ret[sub_str] = path_prefix..file..log_query_param
-    if has_file_with_pattern(path..file, "^@.*%.s") then
+    if has_file_with_pattern(log_dir..file, "^@.*%.s") then
       ret[sub_str..".1"] = path_prefix..file..".1"..log_query_param
     end
   end

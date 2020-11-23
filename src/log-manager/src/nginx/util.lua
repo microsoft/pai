@@ -23,6 +23,6 @@ local function is_path_under_log_folder(log_path)
   return true
 end
 
-util = {
-  is_path_under_log_folder: is_path_under_log_folder,
+return {
+  is_path_under_log_folder = is_path_under_log_folder,
 }
