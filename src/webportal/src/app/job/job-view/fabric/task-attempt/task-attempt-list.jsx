@@ -219,12 +219,14 @@ export default class TaskAttemptList extends React.Component {
   showAllLogDialog(logListUrl) {
     const { hideAllLogsDialog } = this.state;
 
-    getContainerLogList(logListUrl).then(({ fullLogUrls, _ }) => {
-      this.setState({
-        hideAllLogsDialog: !hideAllLogsDialog,
-        fullLogUrls: fullLogUrls,
-      });
-    });
+    getContainerLogList(logListUrl)
+      .then(({ fullLogUrls, _ }) => {
+        this.setState({
+          hideAllLogsDialog: !hideAllLogsDialog,
+          fullLogUrls: fullLogUrls,
+        });
+      })
+      .catch(() => this.setState({ hideAllLogsDialog: !hideAllLogsDialog }));
   }
 
   showContainerTailLog(logListUrl, logType) {
