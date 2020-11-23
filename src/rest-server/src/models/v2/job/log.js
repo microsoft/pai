@@ -53,7 +53,7 @@ const getLogListFromLogManager = async (
     taskRoleName,
     Number(taskIndex),
   );
-  const noPodLogsErr = createError(
+  const NoTaskLogErr = createError(
     'Not Found',
     'NoTaskLogError',
     `Log of task is not found.`,
@@ -61,7 +61,7 @@ const getLogListFromLogManager = async (
   const taskStatus = taskDetail.data.attempts[Number(taskAttemptId)];
   if (!taskStatus) {
     logger.error(`Failed to find task to retrive log`);
-    throw noPodLogsErr;
+    throw NoTaskLogErr;
   }
 
   const nodeIp = taskStatus.containerIp;
@@ -84,7 +84,7 @@ const getLogListFromLogManager = async (
     });
   } catch (err) {
     if (err.response && err.response.status === 404) {
-      throw noPodLogsErr;
+      throw NoTaskLogErr;
     }
     throw err;
   }
