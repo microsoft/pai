@@ -12,7 +12,7 @@ info:
     Version 2.1.1: add get event api
     Version 2.2.0: add get task status api; add jobAttempId filter to job status api and extend job detail schema
     Version 2.2.1: a user can add/delete tags to/from his/her own jobs
-    version 2.2.2: add get pod logs api
+    version 2.2.2: add get task logs api
   license:
     name: MIT License
     url: "https://github.com/microsoft/pai/blob/master/LICENSE"
