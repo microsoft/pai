@@ -16,6 +16,8 @@
 local lfs = require "lfs"
 local path = require "path"
 
+local util = require "util"
+
 local function get_rotated_log(log_path)
   for file in lfs.dir(log_path) do
     local rotated_log_name = string.match(file, "^@.*%.s")
@@ -50,12 +52,6 @@ if not token or not username or not taskrole or not framework_name or not pod_ui
 end
 
 local path_prefix = "/usr/local/pai/logs/"..username.."/".. framework_name.."/".. taskrole.."/"..pod_uid.."/"
-if not is_path_under_log_folder(path_prefix) then
-  ngx.log(ngx.WARN, "Log path is invalid, path: "..path_prefix)
-  ngx.status = ngx.HTTP_NOT_FOUND
-  return ngx.exit(ngx.HTTP_OK)
-end
-
 local log_name = ngx.var[1]
 
 local log_path = path_prefix..log_name
@@ -78,7 +74,7 @@ end
 
 ngx.log(ngx.INFO, "get log from path"..log_path)
 
-if lfs.attributes(log_path, "mode") ~= "file" then
+if not util.is_path_under_log_folder(log_path) or not path.isfile(log_path) then
   ngx.log(ngx.ERR, log_path.." not exists")
   ngx.status = ngx.HTTP_NOT_FOUND
   return ngx.exit(ngx.HTTP_OK)

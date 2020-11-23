@@ -14,6 +14,9 @@
 
 local cjson = require "cjson"
 local lfs = require "lfs"
+local path = require "path"
+
+local util = require "util"
 
 local function has_file_with_pattern(path, pattern)
   for file in lfs.dir(path) do
@@ -22,10 +25,6 @@ local function has_file_with_pattern(path, pattern)
     end
   end
   return false
-end
-
-local function is_dir(path)
-  return lfs.attributes(path, "mode") == "directory"
 end
 
 local args = ngx.req.get_uri_args()
@@ -48,7 +47,7 @@ local path_prefix = "/api/v1/logs/"
 
 local ret = {}
 
-if not is_dir(path) then
+if not util.is_path_under_log_folder(log_path) or not path.isdir(path) then
   ngx.log(ngx.ERR, "log folder not exists")
   ngx.status = ngx.HTTP_NOT_FOUND
   return ngx.exit(ngx.HTTP_OK)

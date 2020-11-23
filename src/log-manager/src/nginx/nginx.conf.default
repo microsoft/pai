@@ -70,7 +70,7 @@ server {
     limit_except GET {
       deny all;
     }
-    default_type text/plain;
+    default_type application/octet-stream;
     limit_rate_after 1m;
     limit_rate 1m;
     access_by_lua_file /etc/nginx/lua/guard.lua;
