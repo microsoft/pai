@@ -353,7 +353,7 @@ const updateUserGroupList = async (req, res, next) => {
   let userValue;
   try {
     userValue = await userModel.getUser(username);
-    userValue.grouplist = await updateGroupListInternal(userValue.grouplist);
+    userValue.grouplist = await updateGroupListInternal(req.body.grouplist);
   } catch (error) {
     if (error.code === 'NoGroupError') {
       return next(error);
