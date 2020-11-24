@@ -36,7 +36,8 @@ const getGroup = async (req, res, next) => {
         ),
       );
     }
-    return next(createError.unknown(error));
+    const message = error.data ? error.data.reason : error;
+    return next(createError.unknown(message));
   }
 };
 
@@ -45,7 +46,8 @@ const getAllGroup = async (req, res, next) => {
     const groupList = await groupModel.getAllGroup();
     return res.status(200).json(groupList);
   } catch (error) {
-    return next(createError.unknown(error));
+    const message = error.data ? error.data.reason : error;
+    return next(createError.unknown(message));
   }
 };
 
@@ -64,7 +66,8 @@ const getGroupUserList = async (req, res, next) => {
     }
     return res.status(200).json(userlist);
   } catch (error) {
-    return next(createError.unknown(error));
+    const message = error.data ? error.data.reason : error;
+    return next(createError.unknown(message));
   }
 };
 
@@ -82,7 +85,8 @@ const createGroup = async (req, res, next) => {
       message: 'group is created successfully',
     });
   } catch (error) {
-    return next(createError.unknown(error));
+    const message = error.data ? error.data.reason : error;
+    return next(createError.unknown(message));
   }
 };
 
@@ -123,7 +127,8 @@ const updateGroup = async (req, res, next) => {
         ),
       );
     }
-    return next(createError.unknown(error));
+    const message = error.data ? error.data.reason : error;
+    return next(createError.unknown(message));
   }
 };
 
@@ -135,7 +140,8 @@ const deleteGroup = async (req, res, next) => {
       message: 'group is removed successfully',
     });
   } catch (error) {
-    return next(createError.unknown(error));
+    const message = error.data ? error.data.reason : error;
+    return next(createError.unknown(message));
   }
 };
 
