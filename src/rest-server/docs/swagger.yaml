@@ -725,6 +725,8 @@ paths:
                   description: description
                   externalName: externalName
                   extension: {}
+        "401":
+          $ref: "#/components/responses/UnauthorizedUserError"
         "500":
           $ref: "#/components/responses/UnknownError"
     post:
