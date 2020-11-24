@@ -930,6 +930,8 @@ paths:
                   clusterAdmin: false
         "401":
           $ref: "#/components/responses/UnauthorizedUserError"
+        "403":
+          $ref: "#/components/responses/ForbiddenUserError"
         "500":
           $ref: "#/components/responses/UnknownError"
   /api/v2/virtual-clusters:
