@@ -83,7 +83,7 @@ data:
         send_resolved: true
       {% endif %}
 
-      {% if (receiver["actions"]["email-user"]) is defined and ('email-user' in cluster_cfg["alert-manager"]["actions-available"]) %}
+      {% if (receiver["actions"]["email-user"] is defined) and ('email-user' in cluster_cfg["alert-manager"]["actions-available"]) %}
       {% set template = receiver["actions"]["email-user"]["template"] %}
       - url: 'http://localhost:{{ cluster_cfg["alert-manager"]["alert-handler"]["port"] }}/alert-handler/send-email-to-user/?template={{ template }}'
         send_resolved: false
