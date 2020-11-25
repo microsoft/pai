@@ -44,7 +44,10 @@ server {
       deny all;
     }
     default_type application/json;
-    access_by_lua_file /etc/nginx/lua/guard.lua;
+    access_by_lua_block {
+      local guard = require "guard"
+      guard.check_token()
+    }
     content_by_lua_file /etc/nginx/lua/list_logs.lua;
   }
 
@@ -67,21 +70,25 @@ server {
   location ~ ^/api/v1/logs/(.*)$ {
     add_header Access-Control-Allow-Origin *;
     add_header Access-Control-Allow-Methods 'GET';
+    add_header Content-Disposition 'attachment';
     limit_except GET {
       deny all;
     }
     default_type application/octet-stream;
     limit_rate_after 1m;
     limit_rate 1m;
-    access_by_lua_file /etc/nginx/lua/guard.lua;
-    content_by_lua_file /etc/nginx/lua/get_log_content.lua;
+
+    rewrite_by_lua_file /etc/nginx/lua/get_log_content.lua;
   }
 
-  location @download_file {
+  location ~ /~/(.*)$ {
     internal;
     add_header Accept-Ranges bytes;
+    add_header Access-Control-Allow-Origin *;
+    rewrite ^/~/(.*)$ $1 break;
 
-    root /;
+    root /usr/local/pai/logs/;
     try_files $uri =404;
   }
 }
+

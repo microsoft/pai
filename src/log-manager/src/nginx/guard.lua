@@ -15,24 +15,30 @@
 local jwt = require "resty.jwt"
 local validators = require "resty.jwt-validators"
 
-local args = ngx.req.get_uri_args()
-local jwt_token = args["token"]
-if not jwt_token then
-  ngx.status = ngx.HTTP_FORBIDDEN
-  return ngx.exit(ngx.HTTP_OK)
-end
-
-local jwt_secret = os.getenv("JWT_SECRET")
-local node_name = os.getenv("NODE_NAME")
-
-local claim_spec = {
-  sub = validators.equals("log-manager-"..node_name),
-  exp = validators.is_not_expired()
-}
-local jwt_obj = jwt:verify(jwt_secret, jwt_token, claim_spec)
-
-if not jwt_obj["verified"] then
+local function check_token()
+  local args = ngx.req.get_uri_args()
+  local jwt_token = args["token"]
+  if not jwt_token then
     ngx.status = ngx.HTTP_FORBIDDEN
-    ngx.header["Access-Control-Allow-Origin"] = "*";
     return ngx.exit(ngx.HTTP_OK)
+  end
+ 
+  local jwt_secret = os.getenv("JWT_SECRET")
+  local node_name = os.getenv("NODE_NAME")
+
+  local claim_spec = {
+    sub = validators.equals("log-manager-"..node_name),
+    exp = validators.is_not_expired()
+  }
+  local jwt_obj = jwt:verify(jwt_secret, jwt_token, claim_spec)
+
+  if not jwt_obj["verified"] then
+      ngx.status = ngx.HTTP_FORBIDDEN
+      ngx.header["Access-Control-Allow-Origin"] = "*";
+      return ngx.exit(ngx.HTTP_OK)
+  end
 end
+
+return {
+  check_token = check_token,
+}

@@ -16,6 +16,7 @@
 local lfs = require "lfs"
 local path = require "path"
 
+local guard = require "guard"
 local util = require "util"
 
 local function get_rotated_log(log_path)
@@ -27,15 +28,7 @@ local function get_rotated_log(log_path)
   end
 end
 
-local function is_path_under_log_folder(log_path)
-  local real_path = path.abspath(log_path)
-
-  if not string.match(real_path, "^/usr/local/pai/logs/.*") then
-    return false
-  end
-  return true
-end
-
+guard.check_token()
 
 local args = ngx.req.get_uri_args()
 local username = args["username"]
@@ -51,15 +44,17 @@ if not token or not username or not taskrole or not framework_name or not pod_ui
   return ngx.exit(ngx.HTTP_OK)
 end
 
-local path_prefix = "/usr/local/pai/logs/"..username.."/".. framework_name.."/".. taskrole.."/"..pod_uid.."/"
+local file_prefix = "/usr/local/pai/logs"
+local log_dir = file_prefix..path.normalize("/"..username)..
+  path.normalize("/"..framework_name)..path.normalize("/"..taskrole)..path.normalize("/"..pod_uid).."/"
 local log_name = ngx.var[1]
 
-local log_path = path_prefix..log_name
+local log_path = log_dir..log_name
 ngx.log(ngx.INFO, "get log name "..log_name)
 if string.match(log_name, "^user%-.*$") then
   -- we only keep one rotated log in log manager
   if string.match(log_name, "%.1$") then
-    local parent_path = path_prefix..string.sub(log_name, 1, string.len(log_name) - 2)
+    local parent_path = log_dir..string.sub(log_name, 1, string.len(log_name) - 2)
     local rotated_log_name = get_rotated_log(parent_path)
     if not rotated_log_name then
       ngx.status = ngx.HTTP_NOT_FOUND
@@ -68,24 +63,21 @@ if string.match(log_name, "^user%-.*$") then
       log_path = parent_path.."/"..rotated_log_name
     end
   else
-    log_path = path_prefix..log_name.."/current"
+    log_path = log_dir..log_name.."/current"
   end
 end
 
 ngx.log(ngx.INFO, "get log from path"..log_path)
 
-if not util.is_path_under_log_folder(log_path) or not path.isfile(log_path) then
+if not util.is_path_under_log_dir(log_path) or not path.isfile(log_path) then
   ngx.log(ngx.ERR, log_path.." not exists")
   ngx.status = ngx.HTTP_NOT_FOUND
   return ngx.exit(ngx.HTTP_OK)
 end
 
-local logs
 if (tail_mode == "true") then
-  ngx.req.set_uri(log_path)
   ngx.req.set_header("Range", "bytes=-16384")
-  ngx.exec("@download_file")
-else
-  ngx.req.set_uri(log_path)
-  ngx.exec("@download_file")
 end
+
+ngx.req.set_uri("/~/"..string.sub(path.abspath(log_path), string.len(file_prefix) + 1), true)
+

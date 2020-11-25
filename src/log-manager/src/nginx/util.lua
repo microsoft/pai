@@ -14,7 +14,7 @@
 
 local path = require "path"
 
-local function is_path_under_log_folder(log_path)
+local function is_path_under_log_dir(log_path)
   local real_path = path.abspath(log_path)
 
   if not string.match(real_path, "^/usr/local/pai/logs/.*") then
@@ -24,5 +24,6 @@ local function is_path_under_log_folder(log_path)
 end
 
 return {
-  is_path_under_log_folder = is_path_under_log_folder,
+  is_path_under_log_dir = is_path_under_log_dir,
 }
+
