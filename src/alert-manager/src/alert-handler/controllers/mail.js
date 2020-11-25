@@ -130,22 +130,9 @@ const sendEmailToUser = async (req, res) => {
   }
 
   // group alerts by username
-  let userNames;
-  try {
-    userNames = await Promise.all(
-      alerts.map(async (alert) =>
-        getUserNameByJobName(alert.labels.job_name, req.token),
-      ),
-    );
-  } catch (error) {
-    logger.error('alert-handler failed to get user name', error);
-    return res.status(500).json({
-      message: 'alert-handler failed to get user name',
-    });
-  }
-
   const alertsGrouped = {};
-  userNames.map((userName, index) => {
+  alerts.map((alert, index) => {
+    let userName = alert.labels.job_name.split('~')[0];
     if (userName in alertsGrouped) {
       alertsGrouped[userName].push(alerts[index]);
     } else {
