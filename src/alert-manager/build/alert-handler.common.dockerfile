@@ -25,4 +25,4 @@ COPY ./src/alert-handler .
 
 RUN yarn install
 
-CMD ["npm", "start"]
+ENTRYPOINT ["npm", "start"]

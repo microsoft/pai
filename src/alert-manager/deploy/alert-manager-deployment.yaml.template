@@ -67,8 +67,13 @@ spec:
           value: {{ cluster_cfg["cluster"]["common"]["cluster-id"] }}
         - name: REST_SERVER_URI
           value: {{ cluster_cfg['rest-server']['uri'] }}
+{% if 'uri-https' in cluster_cfg['pylon'] %}
+{% set webportal_uri = cluster_cfg['pylon']['uri-https'] %}
+{% else %}
+{% set webportal_uri = cluster_cfg['pylon']['uri'] %}
+{% endif %}
         - name: WEBPORTAL_URI
-          value: {{ cluster_cfg['webportal']['uri'] }}
+          value: {{ webportal_uri }}
         - name: LOG_LEVEL
           value: {{ cluster_cfg["alert-manager"]["alert-handler"]["log-level"] }}
 {% if 'email-admin' in cluster_cfg["alert-manager"]["actions-available"] %}
