@@ -77,13 +77,13 @@ data:
     {% for receiver in cluster_cfg["alert-manager"]["customized-receivers"] %}
     - name: {{ receiver.name}}
       webhook_configs:
-      {% if receiver["actions"]["email-admin"] is defined %}
+      {% if (receiver["actions"]["email-admin"] is defined) and ('email-admin' in cluster_cfg["alert-manager"]["actions-available"]) %}
       {% set template = receiver["actions"]["email-admin"]["template"] %}
       - url: 'http://localhost:{{ cluster_cfg["alert-manager"]["alert-handler"]["port"] }}/alert-handler/send-email-to-admin/?template={{ template }}'
         send_resolved: true
       {% endif %}
 
-      {% if receiver["actions"]["email-user"] is defined %}
+      {% if (receiver["actions"]["email-user"]) is defined and ('email-user' in cluster_cfg["alert-manager"]["actions-available"]) %}
       {% set template = receiver["actions"]["email-user"]["template"] %}
       - url: 'http://localhost:{{ cluster_cfg["alert-manager"]["alert-handler"]["port"] }}/alert-handler/send-email-to-user/?template={{ template }}'
         send_resolved: false
@@ -91,14 +91,14 @@ data:
           bearer_token: {{ cluster_cfg["alert-manager"]["alert-handler"]["pai-bearer-token"] }}
       {% endif %}
 
-      {% if receiver["actions"]["stop-jobs"] is defined %}
+      {% if (receiver["actions"]["stop-jobs"] is defined) and ('stop-jobs' in cluster_cfg["alert-manager"]["actions-available"]) %}
       - url: 'http://localhost:{{ cluster_cfg["alert-manager"]["alert-handler"]["port"] }}/alert-handler/stop-jobs'
         send_resolved: false
         http_config:
           bearer_token: {{ cluster_cfg["alert-manager"]["alert-handler"]["pai-bearer-token"] }}
       {% endif %}
 
-      {% if receiver["actions"]["tag-jobs"] is defined %}
+      {% if (receiver["actions"]["tag-jobs"] is defined) and ('tag-jobs' in cluster_cfg["alert-manager"]["actions-available"]) %}
       {% for tag in receiver["actions"]["tag-jobs"]["tags"] %}
       - url: 'http://localhost:{{ cluster_cfg["alert-manager"]["alert-handler"]["port"] }}/alert-handler/tag-jobs/{{ tag }}'
         send_resolved: false
@@ -107,7 +107,7 @@ data:
       {% endfor %}
       {% endif %}
 
-      {% if receiver["actions"]["cordon-nodes"] is defined %}
+      {% if (receiver["actions"]["cordon-nodes"] is defined) and ('cordon-nodes' in cluster_cfg["alert-manager"]["actions-available"]) %}
       - url: 'http://localhost:{{ cluster_cfg["alert-manager"]["alert-handler"]["port"] }}/alert-handler/cordon-nodes'
         send_resolved: false
       {% endif %}
