@@ -232,8 +232,8 @@ export default class TaskRoleContainerList extends React.Component {
       monacoProps: null,
       monacoTitle: '',
       monacoFooterButton: null,
-      fullLogUrls: null,
-      tailLogUrls: null,
+      fullLogUrls: {},
+      tailLogUrls: {},
     });
   }
 
@@ -532,7 +532,7 @@ export default class TaskRoleContainerList extends React.Component {
           <Stack gap='m'>
             <Text variant='xLarge'>All Logs:</Text>
             <LogDialogContent
-              urlLists={!isNil(fullLogUrls) ? fullLogUrls.locations : null}
+              urlLists={!isNil(fullLogUrls) ? fullLogUrls.locations : []}
             />
           </Stack>
           <DialogFooter>
