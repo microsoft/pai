@@ -18,7 +18,7 @@ spec:
       hostNetwork: true
       containers:
       - name: marketplace-webportal
-        image: {{ cluster_cfg["cluster"]["docker-registry"]["prefix"] }}marketplace-webportal:{{ cluster_cfg["cluster"]["docker-registry"]["tag"] }}
+        image: docker.io/openpai/pai-marketplace-restserver:v1.2.0
         imagePullPolicy: Always
         env:
         - name: MARKETPLACE_API_URL
