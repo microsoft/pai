@@ -79,5 +79,7 @@ if (tail_mode == "true") then
   ngx.req.set_header("Range", "bytes=-16384")
 end
 
+-- Refer https://www.openwall.com/lists/oss-security/2020/03/18/1. set_uri may cause security issue.
+-- Here we need to make sure the log_path is valid
 ngx.req.set_uri("/~/"..string.sub(path.abspath(log_path), string.len(file_prefix) + 1), true)
 
