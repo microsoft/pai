@@ -35,11 +35,17 @@ local username = args["username"]
 local framework_name = args["framework-name"]
 local taskrole = args["taskrole"]
 local pod_uid = args["pod-uid"]
-local token = args["token"]
 local tail_mode = args["tail-mode"]
 
-if not token or not username or not taskrole or not framework_name or not pod_uid then
+if not username or not taskrole or not framework_name or not pod_uid then
   ngx.log(ngx.ERR, "some query parameters is nil")
+  ngx.status = ngx.HTTP_BAD_REQUEST
+  return ngx.exit(ngx.HTTP_OK)
+end
+
+if not util.is_input_validated(username) or not util.is_input_validated(framework_name) or
+   not util.is_input_validated(taskrole) or not util.is_input_validated(pod_uid) then
+  ngx.log(ngx.ERR, "some query parameters is invalid")
   ngx.status = ngx.HTTP_BAD_REQUEST
   return ngx.exit(ngx.HTTP_OK)
 end

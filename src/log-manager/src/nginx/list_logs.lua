@@ -40,6 +40,13 @@ if not token or not username or not taskrole or not framework_name or not pod_ui
   return ngx.exit(ngx.HTTP_OK)
 end
 
+if not util.is_input_validated(username) or not util.is_input_validated(framework_name) or
+   not util.is_input_validated(taskrole) or not util.is_input_validated(pod_uid) then
+  ngx.log(ngx.ERR, "some query parameters is invalid")
+  ngx.status = ngx.HTTP_BAD_REQUEST
+  return ngx.exit(ngx.HTTP_OK)
+end
+
 local log_query_param = "?username="..username.."&framework-name="..framework_name..
   "&pod-uid="..pod_uid.."&taskrole="..taskrole.."&token="..token
 local log_dir = "/usr/local/pai/logs"..path.normalize("/"..username)..

@@ -23,7 +23,15 @@ local function is_path_under_log_dir(log_path)
   return true
 end
 
+local function is_input_validated(input)
+  if not string.match(input, "^[%w_%-%.~]+$") then
+    return false
+  end
+  return true
+end
+
 return {
   is_path_under_log_dir = is_path_under_log_dir,
+  is_input_validated = is_input_validated,
 }
 
