@@ -532,7 +532,11 @@ export default class TaskRoleContainerList extends React.Component {
           <Stack gap='m'>
             <Text variant='xLarge'>All Logs:</Text>
             <LogDialogContent
-              urlLists={!isNil(fullLogUrls) ? fullLogUrls.locations : []}
+              urlLists={
+                !isNil(fullLogUrls) && !isNil(fullLogUrls.locations)
+                  ? fullLogUrls.locations
+                  : []
+              }
             />
           </Stack>
           <DialogFooter>
