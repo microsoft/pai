@@ -18,7 +18,7 @@
 FROM openresty/openresty:1.15.8.3-2-alpine-fat
 
 RUN luarocks install lua-cjson && luarocks install lua-resty-jwt && \
-  luarocks install luafilesystem
+  luarocks install luafilesystem && luarocks install lua-path
 
 COPY src/nginx/nginx.conf.default /etc/nginx/conf.d/default.conf
 COPY src/nginx/nginx.conf /usr/local/openresty/nginx/conf/nginx.conf

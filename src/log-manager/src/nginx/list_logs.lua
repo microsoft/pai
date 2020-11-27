@@ -14,6 +14,9 @@
 
 local cjson = require "cjson"
 local lfs = require "lfs"
+local path = require "path"
+
+local util = require "util"
 
 local function has_file_with_pattern(path, pattern)
   for file in lfs.dir(path) do
@@ -22,10 +25,6 @@ local function has_file_with_pattern(path, pattern)
     end
   end
   return false
-end
-
-local function is_dir(path)
-  return lfs.attributes(path, "mode") == "directory"
 end
 
 local args = ngx.req.get_uri_args()
@@ -41,34 +40,43 @@ if not token or not username or not taskrole or not framework_name or not pod_ui
   return ngx.exit(ngx.HTTP_OK)
 end
 
+if not util.is_input_validated(username) or not util.is_input_validated(framework_name) or
+   not util.is_input_validated(taskrole) or not util.is_input_validated(pod_uid) then
+  ngx.log(ngx.ERR, "some query parameters is invalid")
+  ngx.status = ngx.HTTP_BAD_REQUEST
+  return ngx.exit(ngx.HTTP_OK)
+end
+
 local log_query_param = "?username="..username.."&framework-name="..framework_name..
   "&pod-uid="..pod_uid.."&taskrole="..taskrole.."&token="..token
-local path = "/usr/local/pai/logs/"..username.."/".. framework_name.."/".. taskrole.."/"..pod_uid.."/"
-local path_prefix = "/api/v1/logs/"
+local log_dir = "/usr/local/pai/logs"..path.normalize("/"..username)..
+  path.normalize("/"..framework_name)..path.normalize("/"..taskrole)..path.normalize("/"..pod_uid).."/"
+local api_prefix = "/api/v1/logs/"
 
 local ret = {}
 
-if not is_dir(path) then
+if not util.is_path_under_log_dir(log_dir) or not path.isdir(log_dir) then
   ngx.log(ngx.ERR, "log folder not exists")
   ngx.status = ngx.HTTP_NOT_FOUND
   return ngx.exit(ngx.HTTP_OK)
 end
 
-for file in lfs.dir(path) do
-  if not is_dir(path..file) then
+for file in lfs.dir(log_dir) do
+  if not path.isdir(log_dir..file) then
     if string.match(file, "^user%.pai%..*$") then
       local sub_str = string.sub(file, string.len("user.pai.") + 1)
-      ret[sub_str] = path_prefix..file..log_query_param
+      ret[sub_str] = api_prefix..file..log_query_param
     else
-      ret[file] = path_prefix..file..log_query_param
+      ret[file] = api_prefix..file..log_query_param
     end
   elseif string.match(file, "^user-.*$") then
     local sub_str = string.sub(file, string.len("user-") + 1)
-    ret[sub_str] = path_prefix..file..log_query_param
-    if has_file_with_pattern(path..file, "^@.*%.s") then
-      ret[sub_str..".1"] = path_prefix..file..".1"..log_query_param
+    ret[sub_str] = api_prefix..file..log_query_param
+    if has_file_with_pattern(log_dir..file, "^@.*%.s") then
+      ret[sub_str..".1"] = api_prefix..file..".1"..log_query_param
     end
   end
 end
 
 ngx.say(cjson.encode(ret))
+

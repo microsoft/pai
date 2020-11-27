@@ -12,33 +12,26 @@
 -- DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 -- OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-local jwt = require "resty.jwt"
-local validators = require "resty.jwt-validators"
+local path = require "path"
 
-local function check_token()
-  local args = ngx.req.get_uri_args()
-  local jwt_token = args["token"]
-  if not jwt_token then
-    ngx.status = ngx.HTTP_FORBIDDEN
-    return ngx.exit(ngx.HTTP_OK)
+local function is_path_under_log_dir(log_path)
+  local real_path = path.abspath(log_path)
+
+  if not string.match(real_path, "^/usr/local/pai/logs/.*") then
+    return false
   end
- 
-  local jwt_secret = os.getenv("JWT_SECRET")
-  local node_name = os.getenv("NODE_NAME")
+  return true
+end
 
-  local claim_spec = {
-    sub = validators.equals("log-manager-"..node_name),
-    exp = validators.is_not_expired()
-  }
-  local jwt_obj = jwt:verify(jwt_secret, jwt_token, claim_spec)
-
-  if not jwt_obj["verified"] then
-      ngx.status = ngx.HTTP_FORBIDDEN
-      ngx.header["Access-Control-Allow-Origin"] = "*";
-      return ngx.exit(ngx.HTTP_OK)
+local function is_input_validated(input)
+  if not string.match(input, "^[%w_%-%.~]+$") then
+    return false
   end
+  return true
 end
 
 return {
-  check_token = check_token,
+  is_path_under_log_dir = is_path_under_log_dir,
+  is_input_validated = is_input_validated,
 }
+
