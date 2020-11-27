@@ -74,7 +74,7 @@ server {
     limit_except GET {
       deny all;
     }
-    default_type application/octet-stream;
+    default_type text/plain;
     limit_rate_after 1m;
     limit_rate 1m;
 
@@ -88,7 +88,6 @@ server {
     rewrite ^/~/(.*)$ $1 break;
 
     root /usr/local/pai/logs/;
-    try_files $uri =404;
   }
 }
 
