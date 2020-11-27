@@ -7,8 +7,8 @@ prerequisites:
     uri: 'openpai/standard:python_3.6-pytorch_1.4.0-cpu'
     name: docker_image_0
 taskRoles:
-  taskrole:
-    instances: 500
+  master:
+    instances: 1
     completion:
       minFailedInstances: 1
     taskRetryCount: 0
@@ -16,13 +16,43 @@ taskRoles:
     resourcePerInstance:
       gpu: 0
       cpu: 1
-      memoryMB: 51200
+      memoryMB: 50000
     commands:
       - >-
-        wget https://raw.githubusercontent.com/microsoft/pai/master/examples/mnist_500_tasks/src/mnist_lr_500.py
+        wget
+        https://raw.githubusercontent.com/AmberMsy/pai/sy_example/examples/mnist_500_tasks/src/get_results.py
+      - >-
+        python get_results.py --number=500 --data_path
+        /mnt/confignfs/mnist500_result/
+      - >-
+        wget
+        https://raw.githubusercontent.com/AmberMsy/pai/sy_example/examples/mnist_500_tasks/src/show_results.ipynb
+      - jupyter notebook
+  taskrole:
+    instances: 500
+    completion:
+      minFailedInstances: 1
+      minSucceededInstances: -1
+    taskRetryCount: 0
+    dockerImage: docker_image_0
+    resourcePerInstance:
+      gpu: 0
+      cpu: 1
+      memoryMB: 50000
+    commands:
+      - >-
+        wget
+        https://raw.githubusercontent.com/AmberMsy/pai/sy_example/examples/mnist_500_tasks/src/mnist_lr_500.py
       - >-
         python mnist_lr_500.py --epoch 5
         --task_index=$PAI_CURRENT_TASK_ROLE_CURRENT_TASK_INDEX
+      - apt-get update
+      - apt-get install --assume-yes nfs-common
+      - mkdir -p data/mnist500_result
+      - 'mount -t nfs4 10.151.40.235:/data data'
+      - >-
+        cp results.csv
+        data/mnist500_result/results_$PAI_CURRENT_TASK_ROLE_CURRENT_TASK_INDEX.csv
 defaults:
   virtualCluster: default
 extras:
@@ -31,3 +61,7 @@ extras:
     - plugin: ssh
       parameters:
         jobssh: true
+    - plugin: teamwise_storage
+      parameters:
+        storageConfigNames:
+          - confignfs
