@@ -53,7 +53,13 @@ end
 local file_prefix = "/usr/local/pai/logs"
 local log_dir = file_prefix..path.normalize("/"..username)..
   path.normalize("/"..framework_name)..path.normalize("/"..taskrole)..path.normalize("/"..pod_uid).."/"
-local log_name = ngx.var[1]
+
+local log_name = path.normalize(ngx.var[1])
+if not util.is_input_validated(log_name) then
+  ngx.log(ngx.ERR, "log name is invalid")
+  ngx.status = ngx.HTTP_BAD_REQUEST
+  return ngx.exit(ngx.HTTP_OK)
+end
 
 local log_path = log_dir..log_name
 ngx.log(ngx.INFO, "get log name "..log_name)
