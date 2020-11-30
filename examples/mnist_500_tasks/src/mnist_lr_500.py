@@ -8,7 +8,6 @@ from torchvision import datasets, transforms
 from torch.optim.lr_scheduler import StepLR
 import csv
 
-
 class Net(nn.Module):
     def __init__(self):
         super(Net, self).__init__()
@@ -146,8 +145,7 @@ def main():
 
     write_result(args.result_file, lr, acc)
     if args.save_model:
-        torch.save(model.state_dict(), "mnist_cnn.pt")
-    
+        torch.save(model.state_dict(), "mnist_cnn.pt")    
 
 
 if __name__ == '__main__':
