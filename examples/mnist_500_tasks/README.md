@@ -7,7 +7,7 @@ Here we provide a CPU-only job with 500 tasks on a taskrole. The example use Con
 | ConvNet | CPU | 6h30m10s (500*5 epoch) | [Details](metrics/ConvNet_CPU_500Task.JPG) | 95.15% (lr: 0.0101)  98.53% (lr: 0.1001)  98.95% (lr: 0.9981)| [CPU_500Task_MNIST.yaml](yaml/CPU_500Task_MNIST.yaml) |
 
 ## Usage
-Before running this example, you should first make sure that you have at least one permitted storage in OpenPAI. If you don’t know how to use storage, please refer to [Storage](../../docs/manual/cluster-user/how-to-manage-data.md) ([中文版](../../docs_zh_CN/manual/cluster-user/how-to-manage-data.md)).
+Before running this example, you should first make sure that you have at least one permitted storage in OpenPAI. If you don’t know how to use storage, please refer to [our doc](https://openpai.readthedocs.io/).
 
 Before submitting yaml file as mentioned above (in the yaml folder), you need to update the following commands with your own storage path:
 
