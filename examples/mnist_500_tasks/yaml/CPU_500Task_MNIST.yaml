@@ -20,13 +20,13 @@ taskRoles:
     commands:
       - >-
         wget
-        https://raw.githubusercontent.com/AmberMsy/pai/sy_example/examples/mnist_500_tasks/src/get_results.py
+        https://raw.githubusercontent.com/microsoft/pai/master/examples/mnist_500_tasks/src/get_results.py
       - >-
         python get_results.py --number=500 --data_path
         /mnt/confignfs/mnist500_result/
       - >-
         wget
-        https://raw.githubusercontent.com/AmberMsy/pai/sy_example/examples/mnist_500_tasks/src/show_results.ipynb
+        https://raw.githubusercontent.com/microsoft/pai/master/examples/mnist_500_tasks/src/show_results.ipynb
       - jupyter notebook
   taskrole:
     instances: 500
@@ -42,7 +42,7 @@ taskRoles:
     commands:
       - >-
         wget
-        https://raw.githubusercontent.com/AmberMsy/pai/sy_example/examples/mnist_500_tasks/src/mnist_lr_500.py
+        https://raw.githubusercontent.com/microsoft/pai/master/examples/mnist_500_tasks/src/mnist_lr_500.py
       - >-
         python mnist_lr_500.py --epoch 5
         --task_index=$PAI_CURRENT_TASK_ROLE_CURRENT_TASK_INDEX
