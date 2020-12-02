@@ -484,6 +484,8 @@ const generateTaskRole = (
                   'github.com/fuse': 1,
                   'nvidia.com/gpu':
                     config.taskRoles[taskRole].resourcePerInstance.gpu,
+                  'enflame.com/dtu':
+                    config.taskRoles[taskRole].resourcePerInstance.gpu,
                   ...(infinibandDevice && { 'rdma/hca': 1 }),
                 },
               },

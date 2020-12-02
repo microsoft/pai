@@ -107,6 +107,7 @@ const getPodsInfo = async () => {
     } else {
       podInfo.resourcesUsed.gpu =
         k8s.atoi(resourceRequest['nvidia.com/gpu']) +
+        k8s.atoi(resourceRequest['enflame.com/dtu']) +
         k8s.atoi(resourceRequest['amd.com/gpu']);
     }
     return podInfo;
@@ -177,6 +178,7 @@ const getNodeResource = async () => {
       const nodeName = node.metadata.name;
       const gpuNumber =
         k8s.atoi(node.status.capacity['nvidia.com/gpu']) +
+        k8s.atoi(node.status.capacity['enflame.com/dtu']) +
         k8s.atoi(node.status.capacity['amd.com/gpu']);
       nodeResource[nodeName] = {
         gpuUsed: 0,
@@ -285,6 +287,7 @@ const getVcList = async () => {
         (sum, node) =>
           sum +
           k8s.atoi(node.status.capacity['nvidia.com/gpu']) +
+          k8s.atoi(node.status.capacity['enflame.com/dtu']) +
           k8s.atoi(node.status.capacity['amd.com/gpu']),
         0,
       ),
@@ -304,6 +307,7 @@ const getVcList = async () => {
         (sum, node) =>
           sum +
           k8s.atoi(node.status.capacity['nvidia.com/gpu']) +
+          k8s.atoi(node.status.capacity['enflame.com/dtu']) +
           k8s.atoi(node.status.capacity['amd.com/gpu']),
         0,
       ),
