@@ -6,7 +6,7 @@ import torch.nn.functional as F
 import torch.optim as optim
 from torchvision import datasets, transforms
 from torch.optim.lr_scheduler import StepLR
-
+import csv
 
 class Net(nn.Module):
     def __init__(self):
@@ -68,7 +68,14 @@ def test(model, device, test_loader):
     print('\nTest set: Average loss: {:.4f}, Accuracy: {}/{} ({:.0f}%)\n'.format(
         test_loss, correct, len(test_loader.dataset),
         100. * correct / len(test_loader.dataset)))
+    
+    return 100. * correct / len(test_loader.dataset)
 
+def write_result(filepath, lr, acc):
+    with open(filepath, 'a') as f:
+        csv_write = csv.writer(f)
+        data = [lr, acc]
+        csv_write.writerow(data)
 
 def main():
     # Training settings
@@ -95,6 +102,8 @@ def main():
                         help='For Saving the current Model')
     parser.add_argument('--task_index', default=0, 
                         help='Multi-task Index')
+    parser.add_argument('--result_file', default='results.csv', 
+                        help='Accuracy of different learning rates')
     args = parser.parse_args()
     use_cuda = not args.no_cuda and torch.cuda.is_available()
 
@@ -131,12 +140,12 @@ def main():
     scheduler = StepLR(optimizer, step_size=1, gamma=args.gamma)
     for epoch in range(1, args.epochs + 1):
         train(args, model, device, train_loader, optimizer, epoch)
-        test(model, device, test_loader)
+        acc = test(model, device, test_loader)
         scheduler.step()
 
+    write_result(args.result_file, lr, acc)
     if args.save_model:
-        torch.save(model.state_dict(), "mnist_cnn.pt")
-    
+        torch.save(model.state_dict(), "mnist_cnn.pt")    
 
 
 if __name__ == '__main__':
