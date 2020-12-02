@@ -1,0 +1,30 @@
+# GPU cluster example
+
+machine-sku:
+  master-machine:
+    model: cpu-node
+    mem: 60GB
+    cpu:
+      vcore: 24
+  gpu-machine:
+    computing-device:
+      type: nvidia-gpu-node
+      model: K80
+      count: 4
+    mem: 220GB
+    cpu:
+      vcore: 24
+
+machine-list:
+  - hostname: pai-master
+    hostip: 10.0.0.1
+    machine-type: master-machine
+    pai-master: "true"
+  - hostname: pai-worker1
+    hostip: 10.0.0.2
+    machine-type: gpu-machine
+    pai-worker: "true"
+  - hostname: pai-worker2
+    hostip: 10.0.0.3
+    machine-type: gpu-ma
+    pai-worker: "true"

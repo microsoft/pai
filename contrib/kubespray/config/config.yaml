@@ -1,0 +1,84 @@
+user: forexample
+password: forexample
+branch_name: <% latest-release %>
+docker_image_tag: <% latest-release %>
+
+# Optional
+
+#############################################
+# Ansible-playbooks' inventory hosts' vars. #
+#############################################
+# ssh_key_file_path: /path/to/you/key/file
+
+#####################################
+# OpenPAI's service image registry. #
+#####################################
+# docker_registry_domain: docker.io
+# docker_registry_namespace: openpai
+# docker_registry_username: exampleuser
+# docker_registry_password: examplepasswd
+
+################################################################
+# OpenPAI's daemon qos config.                                 #
+# By default, the QoS class for PAI daemon is BestEffort.      #
+# If you want to promote QoS class to Burstable or Guaranteed, #
+# you should set the value to true.                            #
+################################################################
+# qos-switch: "false"
+
+###########################################################################################
+#                         Pre-check setting                                               #
+# By default, we assume your gpu environment is nvidia. So your runtime should be nvidia. #
+# If you are using AMD or other environment, you should modify it.                        #
+###########################################################################################
+# worker_default_docker_runtime: nvidia
+# docker_check: true
+
+# resource_check: true
+
+# gpu_type: nvidia
+
+########################################################################################
+# Advanced docker configuration. If you are not familiar with them, don't change them. #
+########################################################################################
+# docker_data_root: /mnt/docker
+# docker_config_file_path: /etc/docker/daemon.json
+# docker_iptables_enabled: false
+
+## An obvious use case is allowing insecure-registry access to self hosted registries.
+## Can be ipaddress and domain_name.
+## example define 172.19.16.11 or mirror.registry.io
+# openpai_docker_insecure_registries:
+#   - mirror.registry.io
+#   - 172.19.16.11
+
+## Add other registry,example China registry mirror.
+# openpai_docker_registry_mirrors:
+#   - https://registry.docker-cn.com
+#   - https://mirror.aliyuncs.com
+
+#######################################################################
+#                       kubespray setting                             #
+#######################################################################
+
+# If you couldn't access to gcr.io or docker.io, please configure it.
+# gcr_image_repo: "gcr.io"
+# kube_image_repo: "gcr.io/google-containers"
+# quay_image_repo: "quay.io"
+# docker_image_repo: "docker.io"
+# etcd_image_repo: "quay.io/coreos/etcd"
+# pod_infra_image_repo: "gcr.io/google_containers/pause-{{ image_arch }}"
+# kubeadm_download_url: "https://storage.googleapis.com/kubernetes-release/release/{{ kubeadm_version }}/bin/linux/{{ image_arch }}/kubeadm"
+# hyperkube_download_url: "https://storage.googleapis.com/kubernetes-release/release/{{ kube_version }}/bin/linux/{{ image_arch }}/hyperkube"
+
+# openpai_kube_network_plugin: calico
+
+# openpai_kubespray_extra_var:
+#   kay: value
+#   key: value
+
+#######################################################################
+#                     host daemon port setting                        #
+#######################################################################
+# host_daemon_port_start: 40000
+# host_daemon_port_end: 65535
