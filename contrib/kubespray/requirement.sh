@@ -2,11 +2,8 @@
 
 while getopts "w:m:c:" opt; do
   case $opt in
-    w)
-      WORKER_LIST=$OPTARG
-      ;;
-    m)
-      MASTER_LIST=$OPTARG
+    l)
+      LAYOUT=$OPTARG
       ;;
     c)
       CLUSTER_CONFIG=$OPTARG
@@ -18,12 +15,11 @@ while getopts "w:m:c:" opt; do
   esac
 done
 
-echo "worker list file path: ${WORKER_LIST}"
-echo "master list file path: ${MASTER_LIST}"
+echo "layout file path: ${LAYOUT}"
 echo "cluster config file path: ${CLUSTER_CONFIG}"
 
 mkdir -p ${HOME}/pai-pre-check/
-python3 script/pre-check-generator.py -m ${MASTER_LIST} -w ${WORKER_LIST} -c ${CLUSTER_CONFIG} -o ${HOME}/pai-pre-check
+python3 script/pre-check-generator.py -l ${LAYOUT} -c ${CLUSTER_CONFIG} -o ${HOME}/pai-pre-check
 
 ABS_CONFIG_PATH="$(echo ${CLUSTER_CONFIG})"
 echo "Config path is: ${ABS_CONFIG_PATH}"
