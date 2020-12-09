@@ -23,6 +23,7 @@ function cleanup(){
   sudo docker rm dev-box-quick-start &> /dev/null
 }
 
+echo "Cleaning up..."
 cleanup
 
 sudo docker run -itd \
@@ -42,16 +43,17 @@ sudo docker exec -it dev-box-quick-start kubectl get node || { cleanup; exit 1; 
 sudo docker exec -i dev-box-quick-start /bin/bash << EOF_DEV_BOX
 set -e
 
-echo "starting nvidia device plugin to detect nvidia gpu resource"
+echo "Starting nvidia device plugin to detect nvidia gpu resource..."
 svn cat https://github.com/NVIDIA/k8s-device-plugin.git/tags/1.0.0-beta4/nvidia-device-plugin.yml \
   | kubectl apply --overwrite=true -f -
 sleep 5
 
-echo "starting AMD device plugin to detect AMD gpu resource"
+echo "Starting AMD device plugin to detect AMD gpu resource..."
 svn cat https://github.com/RadeonOpenCompute/k8s-device-plugin.git/trunk/k8s-ds-amdgpu-dp.yaml \
   | kubectl apply --overwrite=true -f -
 sleep 5
 
+echo "Generating services configurations..."
 cd /pai && git checkout ${OPENPAI_BRANCH_NAME}
 python3 /pai/contrib/kubespray/script/openpai-generator.py -l /cluster-configuration/layout.yaml -c /cluster-configuration/config.yaml -o /cluster-configuration
 
@@ -63,9 +65,11 @@ sleep 5
 kubectl create namespace pai-storage
 
 # 1. Push cluster config to cluster
+echo "Pushing cluster config to cluster..."
 echo -e "pai\n" | python /pai/paictl.py config push -p /cluster-configuration -m service
 
 # 2. Start OpenPAI service
+echo "Starting OpenPAI services..."
 echo -e "pai\n" | python /pai/paictl.py service start
 EOF_DEV_BOX
 
