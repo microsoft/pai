@@ -1,4 +1,4 @@
-## Installation Guide
+# Installation Guide
 
 The architecture of OpenPAI has been updated and optimized in `v1.0.0`. Before `v1.0.0`, OpenPAI was based on Yarn and Kubernetes, and data was managed by HDFS. Since `v1.0.0`, OpenPAI has switched to a pure Kubernetes-based architecture. Many new features, such as `AAD authorization`, `Hivedscheduler`, `Kube Runtime`, `Marketplace`, etc., are also included. If you still want to install the old Yarn-based OpenPAI, please stay with `v0.14.0`.
 
@@ -90,7 +90,7 @@ machine-sku:
       vcore: 24
   gpu-machine:
     computing-device:
-      type: nvidia-gpu-node
+      type: nvidia.com/gpu
       model: K80
       count: 4
     mem: 220GB

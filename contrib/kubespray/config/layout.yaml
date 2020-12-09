@@ -9,7 +9,7 @@ machine-sku:
       vcore: 24
   gpu-machine:
     computing-device:
-      type: nvidia-gpu-node
+      type: nvidia.com/gpu
       model: K80
       count: 4
     mem: 220GB
