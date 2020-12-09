@@ -3,7 +3,6 @@
 
 machine-sku:
   master-machine: # define a machine sku
-    model: cpu-node
     # the resource requirements for all the machines of this sku
     mem: 60GB
     cpu:
@@ -18,7 +17,7 @@ machine-sku:
       vcore: 24
 
 machine-list:
-  - hostname: pai-master # name of the machine
+  - hostname: pai-master # name of the machine, **do not** use upper case alphabet letters for hostname
     hostip: 10.0.0.1
     machine-type: master-machine # only one master-machine supported
     pai-master: "true"
@@ -28,5 +27,5 @@ machine-list:
     pai-worker: "true"
   - hostname: pai-worker2
     hostip: 10.0.0.3
-    machine-type: gpu-ma
+    machine-type: gpu-machine
     pai-worker: "true"

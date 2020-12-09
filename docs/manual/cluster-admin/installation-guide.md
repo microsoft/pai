@@ -1,10 +1,10 @@
-## Overview
+## Installation Guide
 
 The architecture of OpenPAI has been updated and optimized in `v1.0.0`. Before `v1.0.0`, OpenPAI was based on Yarn and Kubernetes, and data was managed by HDFS. Since `v1.0.0`, OpenPAI has switched to a pure Kubernetes-based architecture. Many new features, such as `AAD authorization`, `Hivedscheduler`, `Kube Runtime`, `Marketplace`, etc., are also included. If you still want to install the old Yarn-based OpenPAI, please stay with `v0.14.0`.
 
 To install OpenPAI >= `v1.0.0`, please first check [Installation Requirements](#installation-requirements). Then, if you don't have older version OpenPAI installed, please follow [Installation From Scratch](#installation-from-scratch). Otherwise, please first follow [Clean Previous Deployment](#clean-previous-deployment), then follow [Installation From Scratch](#installation-from-scratch).
 
-## Hardware & Environment Requirements
+## Installation Requirements
 
 The deployment of OpenPAI requires you to have **at least 3 separate machines**: one dev box machine, one master machine, and one worker machine.
 
@@ -53,10 +53,11 @@ Please check the following requirements before installation:
     - Other Requirement
         - Each server is dedicated for OpenPAI. OpenPAI manages all CPU, memory and GPU resources of it. If there is any other workload, it may cause unknown problem due to insufficient resource.
 
-**Tips for Network-related Issues**
+#### Tips for Network-related Issues
 If you are facing network issues such as the machine cannot download some file, or cannot connect to some docker registry, please combine the prompted error log and kubespray as a keyword, and search for solution. You can also refer to the [installation troubleshooting](./installation-faqs-and-troubleshooting.md#troubleshooting) and [this issue](https://github.com/microsoft/pai/issues/4516).
 
-**Tips to Use CPU-only Worker**	
+#### Tips to Use CPU-only Worker
+
 Besides the requirements above, this installation script also requires that **all worker machines must be homogenous GPU servers, which have the same hardware, e.g. CPU type and number, GPU type and number, memory size.** If you have different types of workers, please first include only one type of workers during installation, then follow [How to Add and Remove Nodes](./how-to-add-and-remove-nodes.md) to add workers with different types. Currently, the support for CPU-only worker is limited in the installation script. If you have both GPU workers and CPU workers, please first set up PAI with GPU workers only. After PAI is successfully installed, you can attach CPU workers to it and set up a CPU-only virtual cluster.
 
 
@@ -74,17 +75,15 @@ After you have decided all of the machines, please edit `layout.yaml` and a `con
 These two files spedify the cluster layout and the customized configuration, respectively.
 The following is the format and example of these 2 files.
 
-**Tips for China Users**
+#### Tips for China Users
+
 If you are a China user, before you edit these files, please refer to [here](./configuration-for-china.md) first.
 
 #### `layout.yaml` format
 
-Please **do not** use upper case alphabet letters for hostname.
-
 ``` yaml
 machine-sku:
   master-machine: # define a machine sku
-    model: cpu-node
     # the resource requirements for all the machines of this sku
     mem: 60GB
     cpu:
@@ -99,7 +98,7 @@ machine-sku:
       vcore: 24
 
 machine-list:
-  - hostname: pai-master # name of the machine
+  - hostname: pai-master # name of the machine, **do not** use upper case alphabet letters for hostname
     hostip: 10.0.0.1
     machine-type: master-machine # only one master-machine supported
     pai-master: "true"
@@ -109,7 +108,7 @@ machine-list:
     pai-worker: "true"
   - hostname: pai-worker2
     hostip: 10.0.0.3
-    machine-type: gpu-ma
+    machine-type: gpu-machine
     pai-worker: "true"
 ```
 
