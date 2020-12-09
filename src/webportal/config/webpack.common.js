@@ -376,7 +376,7 @@ const config = (env, argv) => ({
   devServer: {
     contentBase: path.resolve(__dirname, '..', 'dist'),
     port: 9286,
-    host: '0.0.0.0'
+    host: '0.0.0.0',
   },
   optimization: {
     moduleIds: 'hashed',
