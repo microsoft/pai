@@ -15,6 +15,6 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-{% for host in cluster_cfg['layout']['machine-list'] if 'gpu' in cluster_cfg['layout']['machine-sku'][ cluster_cfg['layout']['machine-list'][host]['machine-type']] -%}
-{{cluster_cfg['layout']['machine-list'][host]['nodename']}}: {{ cluster_cfg['layout']['machine-sku'][ cluster_cfg['layout']['machine-list'][host]['machine-type']]['gpu']['type'] }}
+{% for host in cluster_cfg['layout']['machine-list'] if 'computing-device' in cluster_cfg['layout']['machine-sku'][ cluster_cfg['layout']['machine-list'][host]['machine-type']] -%}
+{{cluster_cfg['layout']['machine-list'][host]['nodename']}}: {{ cluster_cfg['layout']['machine-sku'][ cluster_cfg['layout']['machine-list'][host]['machine-type']]['computing-device']['type'] }}
 {% endfor %}

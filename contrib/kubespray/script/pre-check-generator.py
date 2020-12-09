@@ -1,12 +1,9 @@
+import os
+import argparse
 import logging
 import logging.config
 import yaml
-import os
-import argparse
-import csv
 import jinja2
-import sys
-import time
 
 
 def setup_logger_config(logger):
@@ -25,20 +22,6 @@ def setup_logger_config(logger):
 
 logger = logging.getLogger(__name__)
 setup_logger_config(logger)
-
-
-def csv_reader(csv_path):
-    hosts_list = []
-    with open(csv_path) as fin:
-        hosts_csv = csv.reader(fin)
-        for row in hosts_csv:
-            hosts_list.append(
-                {
-                    "hostname": row[0],
-                    "ip": row[1]
-                }
-            )
-    return hosts_list
 
 
 def load_yaml_config(config_path):
@@ -73,11 +56,9 @@ def generate_template_file(template_file_path, output_path, map_table):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument('-w', '--worker-list-csv', dest="worklist", required=True,
-                        help="worker-list")
-    parser.add_argument('-m', '--master-list-csv', dest="masterlist", required=True,
-                        help="master-list")
-    parser.add_argument('-c', '--configuration', dest="configuration", required=True,
+    parser.add_argument('-l', '--layout', dest="layout", required=True,
+                        help="layout.yaml")
+    parser.add_argument('-c', '--config', dest="config", required=True,
                         help="cluster configuration")
     parser.add_argument('-o', '--output', dest="output", required=True,
                         help="cluster configuration")
@@ -85,19 +66,24 @@ def main():
 
     output_path = os.path.expanduser(args.output)
 
-    master_list = csv_reader(args.masterlist)
-    head_node = master_list[0]
+    layout = load_yaml_config(args.layout)
+    config = load_yaml_config(args.config)
+
+    masters = list(filter(lambda elem: 'pai-master' in elem and elem["pai-master"] == 'true', layout['machine-list']))
+    workers = list(filter(lambda elem: 'pai-worker' in elem and elem["pai-worker"] == 'true', layout['machine-list']))
+    head_node = masters[0]
 
     environment = {
-        'master': master_list,
-        'worker': csv_reader(args.worklist),
-        'cfg': load_yaml_config(args.configuration),
+        'masters': masters,
+        'workers': workers,
+        'cfg': config,
         'head_node': head_node
     }
 
     map_table = {
         "env": environment
     }
+
     generate_template_file(
         "quick-start/pre-check.yml.template",
         "{0}/pre-check.yml".format(output_path),

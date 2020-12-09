@@ -19,8 +19,6 @@
 import logging
 import logging.config
 
-from ...k8sPaiLibrary.maintainlib import common as pai_k8s_common
-
 
 class Layout:
 
@@ -29,33 +27,42 @@ class Layout:
         self.layout_configuration = layout_configuration
 
 
-
     def validation_pre(self):
-        # TODO
-
         # validate unique hostname
         host_list = [host["hostname"] for host in self.layout_configuration["machine-list"]]
         duplicate_host_list = set([host for host in host_list if host_list.count(host) > 1])
         if duplicate_host_list:
             return False, "duplicate hostname [{}] in kubernetes-configuration".format(", ".join(duplicate_host_list))
 
-        return True, None
+        # validate unique master machine
+        masters = filter(lambda host: 'pai-master' in host and host['pai-master'] == 'true', self.layout_configuration["machine-list"])
+        if len(masters) == 0:
+            return False, "No master node specified"
+        if len(masters) > 1:
+            return False, "Only one pai-master node supported"
+        self.master_ip = masters[0]['hostip']
 
+        return True, None
 
 
     def validation_post(self, cluster_object_model):
         return True, None
 
 
-
     def run(self):
         com_layout = dict()
         com_layout["machine-sku"] = self.layout_configuration["machine-sku"]
-        com_layout["kubernetes"] = self.layout_configuration["kubernetes"]
-        com_layout["machine-list"] = dict()
 
+        if 'kubernetes' in self.layout_configuration:
+            com_layout["kubernetes"] = self.layout_configuration["kubernetes"]
+        else:
+            com_layout["kubernetes"] = {
+                "api-servers-url": "https://{}:6443".format(self.master_ip),
+                "dashboard-url": "https://{}:9090".format(self.master_ip),
+            }
+
+        com_layout["machine-list"] = dict()
         for host in self.layout_configuration["machine-list"]:
             com_layout["machine-list"][host["hostname"]] = host
 
         return com_layout
-

@@ -1,10 +1,10 @@
 all:
   hosts:
-{%- for vm in env["master"] %}
+{%- for vm in env["masters"] %}
     {{ vm["hostname"] }}:
-      ip: {{ vm["ip"] }}
-      access_ip: {{ vm["ip"] }}
-      ansible_host: {{ vm["ip"] }}
+      ip: {{ vm["hostip"] }}
+      access_ip: {{ vm["hostip"] }}
+      ansible_host: {{ vm["hostip"] }}
       ansible_ssh_user: {{ env["cfg"]['user'] }}
       ansible_ssh_pass: "{{ env["cfg"]['password'] }}"
       ansible_become_pass: "{{ env["cfg"]['password'] }}"
@@ -13,11 +13,11 @@ all:
 {%- endif %}
       ansible_ssh_extra_args: '-o StrictHostKeyChecking=no'
 {%- endfor %}
-{%- for vm in env["worker"] %}
+{%- for vm in env["workers"] %}
     {{ vm["hostname"] }}:
-      ip: {{ vm["ip"] }}
-      access_ip: {{ vm["ip"] }}
-      ansible_host: {{ vm["ip"] }}
+      ip: {{ vm["hostip"] }}
+      access_ip: {{ vm["hostip"] }}
+      ansible_host: {{ vm["hostip"] }}
       ansible_ssh_user: {{ env["cfg"]['user'] }}
       ansible_ssh_pass: "{{ env["cfg"]['password'] }}"
       ansible_become_pass: "{{ env["cfg"]['password'] }}"
@@ -29,11 +29,11 @@ all:
   children:
     infra:
       hosts:
-{%- for vm in env["master"] %}
+{%- for vm in env["masters"] %}
         {{ vm["hostname"] }}:
 {%- endfor %}
     worker:
       hosts:
-{%- for vm in env["worker"] %}
+{%- for vm in env["workers"] %}
         {{ vm["hostname"] }}:
 {%- endfor %}
