@@ -28,7 +28,6 @@ cleanup
 sudo docker run -itd \
         -e COLUMNS=$COLUMNS -e LINES=$LINES -e TERM=$TERM \
         -v /var/run/docker.sock:/var/run/docker.sock \
-        -v ${HOME}/pai-deploy/quick-start-config/:/quick-start-config \
         -v ${HOME}/pai-deploy/cluster-cfg:/cluster-configuration  \
         -v ${HOME}/pai-deploy/kube:/root/.kube \
         --pid=host \
@@ -54,7 +53,7 @@ svn cat https://github.com/RadeonOpenCompute/k8s-device-plugin.git/trunk/k8s-ds-
 sleep 5
 
 cd /pai && git checkout ${OPENPAI_BRANCH_NAME}
-python3 /pai/contrib/kubespray/script/openpai-generator.py -l /quick-start-config/layout.yaml -c /quick-start-config/config.yaml -o /cluster-configuration
+python3 /pai/contrib/kubespray/script/openpai-generator.py -l /cluster-configuration/layout.yaml -c /cluster-configuration/config.yaml -o /cluster-configuration
 
 kubectl delete ds nvidia-device-plugin-daemonset -n kube-system
 kubectl delete ds amdgpu-device-plugin-daemonset -n kube-system

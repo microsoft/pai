@@ -327,7 +327,7 @@ def main():
     }
 
     generate_template_file(
-        "/quick-start-config/services-configuration.yaml.template",
+        "quick-start/services-configuration.yaml.template",
         "{0}/services-configuration.yaml".format(output_path),
         map_table
     )
