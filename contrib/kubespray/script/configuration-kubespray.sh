@@ -1,6 +1,6 @@
 #!/bin/bash
 
-while getopts "w:m:c:" opt; do
+while getopts "l:c:" opt; do
   case $opt in
     l)
       LAYOUT=$OPTARG

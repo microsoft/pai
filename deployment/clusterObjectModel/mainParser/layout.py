@@ -35,7 +35,7 @@ class Layout:
             return False, "duplicate hostname [{}] in kubernetes-configuration".format(", ".join(duplicate_host_list))
 
         # validate unique master machine
-        masters = filter(lambda host: 'pai-master' in host and host['pai-master'] == 'true', self.layout_configuration["master-list"])
+        masters = filter(lambda host: 'pai-master' in host and host['pai-master'] == 'true', self.layout_configuration["machine-list"])
         if len(masters) == 0:
             return False, "No master node specified"
         if len(masters) > 1:

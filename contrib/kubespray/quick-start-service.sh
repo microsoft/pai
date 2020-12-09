@@ -1,8 +1,8 @@
 #!/bin/bash
 
 # assume pwd is pai/contrib/kubespray
-${LAYOUT} = "$PWD/config/layout.yaml"
-${CLUSTER_CONFIG} = "$PWD/config/config.yaml"
+LAYOUT="$PWD/config/layout.yaml"
+CLUSTER_CONFIG="$PWD/config/config.yaml"
 
 echo "layout config file path: ${LAYOUT}"
 echo "cluster config file path: ${CLUSTER_CONFIG}"

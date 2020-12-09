@@ -1,6 +1,6 @@
 #!/bin/bash
 
-while getopts "w:m:c:" opt; do
+while getopts "l:c:" opt; do
   case $opt in
     l)
       LAYOUT=$OPTARG
@@ -17,6 +17,6 @@ done
 
 mkdir -p ${HOME}/pai-deploy/quick-start-config/
 cp ${LAYOUT} ${HOME}/pai-deploy/quick-start-config/layout.yaml
-cp ${CLUSTER_CONFIG} ${HOME}/pai-deploy/quick-start-config/config.yml
+cp ${CLUSTER_CONFIG} ${HOME}/pai-deploy/quick-start-config/config.yaml
 
 cp ${HOME}/pai-deploy/pai/contrib/kubespray/quick-start/services-configuration.yaml.template ${HOME}/pai-deploy/quick-start-config/
