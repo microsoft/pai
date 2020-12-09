@@ -23,7 +23,7 @@ echo "Call stop to stop all dshuttle-master pod first"
 /bin/bash stop.sh || exit $?
 
 echo "Create dshuttle-master-delete configmap for deleting data on the host"
-kubectl create configmap dshuttle-master-delete --from-file=dshuttle-master-delete/ --dry-run -o yaml | kubectl apply --overwrite=true -f - || exit $?
+kubectl create configmap dshuttle-master-delete --from-file=dshuttle-master-delete/ --dry-run=client -o yaml | kubectl apply --overwrite=true -f - || exit $?
 
 echo "Create cleaner daemon"
 kubectl apply --overwrite=true -f delete.yaml || exit $?

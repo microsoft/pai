@@ -21,7 +21,7 @@ pushd $(dirname "$0") > /dev/null
 
 
 echo "refresh hadoop-jobhistory-configuration"
-kubectl create configmap hadoop-jobhistory-configuration --from-file=hadoop-jobhistory-configuration/ --dry-run -o yaml | kubectl apply -f - || exit $?
+kubectl create configmap hadoop-jobhistory-configuration --from-file=hadoop-jobhistory-configuration/ --dry-run=client -o yaml | kubectl apply -f - || exit $?
 
 
 popd > /dev/null
