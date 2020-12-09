@@ -23,7 +23,7 @@ echo "Call stop to stop all hadoop service first"
 /bin/bash stop.sh || exit $?
 
 echo "Create hadoop-delete configmap for deleting data on the host"
-kubectl create configmap zookeeper-delete --from-file=zookeeper-delete/ --dry-run -o yaml | kubectl apply --overwrite=true -f - || exit $?
+kubectl create configmap zookeeper-delete --from-file=zookeeper-delete/ --dry-run=client -o yaml | kubectl apply --overwrite=true -f - || exit $?
 
 echo "Create cleaner daemon"
 kubectl apply --overwrite=true -f delete.yaml || exit $?

@@ -21,7 +21,7 @@ pushd $(dirname "$0") > /dev/null
 
 
 echo "refresh hadoop-node-manager-configuration"
-kubectl create configmap hadoop-node-manager-configuration --from-file=hadoop-node-manager-configuration/ --dry-run -o yaml | kubectl apply -f - || exit $?
+kubectl create configmap hadoop-node-manager-configuration --from-file=hadoop-node-manager-configuration/ --dry-run=client -o yaml | kubectl apply -f - || exit $?
 
 
 

@@ -21,8 +21,8 @@
 
 pushd $(dirname "$0") > /dev/null
 
-kubectl create configmap prometheus-alert --from-file=alerting --dry-run -o yaml | kubectl apply --overwrite=true -f - || exit $?
-kubectl create configmap prometheus-record --from-file=recording --dry-run -o yaml | kubectl apply --overwrite=true -f - || exit $?
+kubectl create configmap prometheus-alert --from-file=alerting --dry-run=client -o yaml | kubectl apply --overwrite=true -f - || exit $?
+kubectl create configmap prometheus-record --from-file=recording --dry-run=client -o yaml | kubectl apply --overwrite=true -f - || exit $?
 kubectl apply --overwrite=true -f prometheus-configmap.yaml || exit $?
 kubectl apply --overwrite=true -f rbac.yaml || exit $?
 kubectl apply --overwrite=true -f prometheus-deployment.yaml || exit $?

@@ -24,7 +24,7 @@ echo "Call stop script to stop all service first"
 /bin/bash stop.sh || exit $?
 
 echo "Create yarn-frameworklauncher-delete configmap for deleting data on the host"
-kubectl create configmap yarn-frameworklauncher-delete --from-file=yarn-frameworklauncher-delete/ --dry-run -o yaml | kubectl apply --overwrite=true -f - || exit $?
+kubectl create configmap yarn-frameworklauncher-delete --from-file=yarn-frameworklauncher-delete/ --dry-run=client -o yaml | kubectl apply --overwrite=true -f - || exit $?
 
 echo "Create cleaner daemon"
 kubectl apply --overwrite=true -f delete.yaml || exit $?

@@ -20,9 +20,9 @@
 {%- if cluster_cfg['cluster']['common']['dshuttle'] == 'true' %}
 pushd $(dirname "$0") > /dev/null
 
-kubectl create configmap dshuttle-log-config --from-file=log4j.properties --dry-run -o yaml | kubectl apply --overwrite=true -f - || exit $?
+kubectl create configmap dshuttle-log-config --from-file=log4j.properties --dry-run=client -o yaml | kubectl apply --overwrite=true -f - || exit $?
 kubectl create secret docker-registry dshuttle-regcred --docker-server=dshuttle.azurecr.io \
-        --docker-username={{ cluster_cfg['dshuttle']['registry_username'] }} --docker-password={{ cluster_cfg['dshuttle']['registry_password'] }} --dry-run -o yaml \
+        --docker-username={{ cluster_cfg['dshuttle']['registry_username'] }} --docker-password={{ cluster_cfg['dshuttle']['registry_password'] }} --dry-run=client -o yaml \
         | kubectl apply --overwrite=true -f - || exit $?
 kubectl apply --overwrite=true -f dshuttle-config.yaml || exit $?
 kubectl apply --overwrite=true -f dshuttle-service.yaml || exit $?
