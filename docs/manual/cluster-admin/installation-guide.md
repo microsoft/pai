@@ -9,7 +9,8 @@ To install OpenPAI >= `v1.0.0`, please first check [Installation Requirements](#
 The deployment of OpenPAI requires you to have **at least 3 separate machines**: one dev box machine, one master machine, and one worker machine.
 
 Dev box machine controls masters and workers through SSH during installation, maintenance, and uninstallation. There should be one, and only one dev box. 
-The master machine is used to run core Kubernetes components and core OpenPAI services. Currently, OpenPAI does not support high availability and you can only specify one master machine.
+The master machine is used to run core Kubernetes components and core OpenPAI services.
+Currently, OpenPAI does not support high availability and you can only specify one master machine.
 We recommend you use CPU-only machines for dev box and master.
 The worker machines are used to run jobs.
 
@@ -52,11 +53,12 @@ Please check the following requirements before installation:
     - Other Requirement
         - Each server is dedicated for OpenPAI. OpenPAI manages all CPU, memory and GPU resources of it. If there is any other workload, it may cause unknown problem due to insufficient resource.
 
-#### Tips for Network-related Issues
-
-Besides the requirements above, this installation script also requires that **all worker machines must be homogenous GPU servers, which have the same hardware, e.g. CPU type and number, GPU type and number, memory size.** If you have different types of workers, please first include only one type of workers during installation, then follow [How to Add and Remove Nodes](./how-to-add-and-remove-nodes.md) to add workers with different types. Now, please determine your dev box machine, master machine and worker machine.
-
+**Tips for Network-related Issues**
 If you are facing network issues such as the machine cannot download some file, or cannot connect to some docker registry, please combine the prompted error log and kubespray as a keyword, and search for solution. You can also refer to the [installation troubleshooting](./installation-faqs-and-troubleshooting.md#troubleshooting) and [this issue](https://github.com/microsoft/pai/issues/4516).
+
+**Tips to Use CPU-only Worker**	
+Besides the requirements above, this installation script also requires that **all worker machines must be homogenous GPU servers, which have the same hardware, e.g. CPU type and number, GPU type and number, memory size.** If you have different types of workers, please first include only one type of workers during installation, then follow [How to Add and Remove Nodes](./how-to-add-and-remove-nodes.md) to add workers with different types. Currently, the support for CPU-only worker is limited in the installation script. If you have both GPU workers and CPU workers, please first set up PAI with GPU workers only. After PAI is successfully installed, you can attach CPU workers to it and set up a CPU-only virtual cluster.
+
 
 ## Installation From Scratch
 
@@ -83,7 +85,7 @@ Please **do not** use upper case alphabet letters for hostname.
 machine-sku:
   master-machine: # define a machine sku
     model: cpu-node
-     # the resource requirements for all the machines of this sku
+    # the resource requirements for all the machines of this sku
     mem: 60GB
     cpu:
       vcore: 24
@@ -97,21 +99,15 @@ machine-sku:
       vcore: 24
 
 machine-list:
-
-  + hostname: pai-master # name of the machine
-
+  - hostname: pai-master # name of the machine
     hostip: 10.0.0.1
-    machine-type: master-machine
+    machine-type: master-machine # only one master-machine supported
     pai-master: "true"
-
-  + hostname: pai-worker1
-
+  - hostname: pai-worker1
     hostip: 10.0.0.2
     machine-type: gpu-machine
     pai-worker: "true"
-
-  + hostname: pai-worker2
-
+  - hostname: pai-worker2
     hostip: 10.0.0.3
     machine-type: gpu-ma
     pai-worker: "true"
@@ -156,11 +152,9 @@ docker_image_tag: v1.4.0
 # docker_iptables_enabled: false
 
 ## An obvious use case is allowing insecure-registry access to self hosted registries.
-
 ## Can be ipaddress and domain_name.
 
 ## example define 172.19.16.11 or mirror.registry.io
-
 # openpai_docker_insecure_registries:
 #   - mirror.registry.io
 #   - 172.19.16.11

@@ -1,8 +1,10 @@
 # GPU cluster example
+# This is a cluster with one master node and two worker nodes
 
 machine-sku:
-  master-machine:
+  master-machine: # define a machine sku
     model: cpu-node
+    # the resource requirements for all the machines of this sku
     mem: 60GB
     cpu:
       vcore: 24
@@ -16,9 +18,9 @@ machine-sku:
       vcore: 24
 
 machine-list:
-  - hostname: pai-master
+  - hostname: pai-master # name of the machine
     hostip: 10.0.0.1
-    machine-type: master-machine
+    machine-type: master-machine # only one master-machine supported
     pai-master: "true"
   - hostname: pai-worker1
     hostip: 10.0.0.2
