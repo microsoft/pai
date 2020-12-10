@@ -61,18 +61,13 @@ const getLogListFromLogManager = async (
   const taskStatus = taskDetail.data.attempts.find(
     (attempt) => attempt.attemptId === Number(taskAttemptId),
   );
-  if (!taskStatus) {
-    logger.error(`Failed to find task to retrive log`);
+  if (!taskStatus || !taskStatus.containerIp) {
+    logger.error(`Failed to find task to retrive log or task not started`);
     throw NoTaskLogErr;
   }
 
   const nodeIp = taskStatus.containerIp;
   const podUid = taskStatus.containerId;
-
-  if (!nodeIp) {
-    logger.error(`Failed to find task to retrive log`);
-    throw NoTaskLogErr;
-  }
 
   let res = await loginLogManager(nodeIp, adminName, adminPassword);
   const token = res.data.token;
