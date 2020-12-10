@@ -21,7 +21,7 @@ pushd $(dirname "$0") > /dev/null
 
 echo "refresh the configmap of launcher"
 
-kubectl create configmap yarn-frameworklauncher-configmap --from-file=yarn-frameworklauncher-configuration/ --dry-run -o yaml | kubectl apply -f - || exit $?
+kubectl create configmap yarn-frameworklauncher-configmap --from-file=yarn-frameworklauncher-configuration/ --dry-run=client -o yaml | kubectl apply -f - || exit $?
 
 
 popd > /dev/null

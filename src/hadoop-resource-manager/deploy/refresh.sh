@@ -21,7 +21,7 @@ pushd $(dirname "$0") > /dev/null
 
 
 echo "refresh hadoop-resource-manager-configuration"
-kubectl create configmap hadoop-resource-manager-configuration --from-file=hadoop-resource-manager-configuration/ --dry-run -o yaml | kubectl apply -f - || exit $?
+kubectl create configmap hadoop-resource-manager-configuration --from-file=hadoop-resource-manager-configuration/ --dry-run=client -o yaml | kubectl apply -f - || exit $?
 
 
 

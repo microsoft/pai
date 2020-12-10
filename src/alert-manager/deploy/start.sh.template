@@ -27,7 +27,7 @@ kubectl create configmap alert-templates \
 --from-file={{ template }}-html.ejs=alert-templates/{{ template }}/html.ejs \
 --from-file={{ template }}-subject.ejs=alert-templates/{{ template }}/subject.ejs \
 {% endfor -%}
---dry-run -o yaml | kubectl apply --overwrite=true -f - || exit $?
+--dry-run=client -o yaml | kubectl apply --overwrite=true -f - || exit $?
 {% endif -%}
 {% endif -%}
 

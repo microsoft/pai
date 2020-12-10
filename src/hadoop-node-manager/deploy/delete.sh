@@ -23,7 +23,7 @@ echo "Call stop to stop hadoop node manager first"
 /bin/bash stop.sh || exit $?
 
 echo "Create hadoop-node-manager-delete configmap for deleting data on the host"
-kubectl create configmap hadoop-node-manager-delete --from-file=hadoop-node-manager-delete/ --dry-run -o yaml | kubectl apply --overwrite=true -f - || exit $?
+kubectl create configmap hadoop-node-manager-delete --from-file=hadoop-node-manager-delete/ --dry-run=client -o yaml | kubectl apply --overwrite=true -f - || exit $?
 
 echo "Create cleaner daemon"
 kubectl apply --overwrite=true -f delete.yaml || exit $?

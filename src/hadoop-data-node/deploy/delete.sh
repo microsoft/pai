@@ -23,7 +23,7 @@ echo "Call stop to stop all hadoop-data-node pod first"
 /bin/bash stop.sh || exit $?
 
 echo "Create hadoop-data-node-delete configmap for deleting data on the host"
-kubectl create configmap hadoop-data-node-delete --from-file=hadoop-data-node-delete/ --dry-run -o yaml | kubectl apply --overwrite=true -f - || exit $?
+kubectl create configmap hadoop-data-node-delete --from-file=hadoop-data-node-delete/ --dry-run=client -o yaml | kubectl apply --overwrite=true -f - || exit $?
 
 echo "Create cleaner daemon"
 kubectl apply --overwrite=true -f delete.yaml || exit $?

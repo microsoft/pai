@@ -27,4 +27,4 @@ done
 # create configmap
 for i in `find grafana-configuration/ -type f -regex ".*json" ` ; do
     echo --from-file=$i
-done | xargs kubectl create configmap grafana-configuration --dry-run -o yaml | kubectl apply -f - || exit $?
+done | xargs kubectl create configmap grafana-configuration --dry-run=client -o yaml | kubectl apply -f - || exit $?

@@ -26,7 +26,7 @@ deploy=1
 {% endfor %}
 
 if [[ $deploy == 1 ]]; then
-    kubectl create configmap  storage-configuration --from-file=conf/ --dry-run -o yaml | kubectl apply --overwrite=true -f - || exit $?
+    kubectl create configmap  storage-configuration --from-file=conf/ --dry-run=client -o yaml | kubectl apply --overwrite=true -f - || exit $?
     kubectl apply --overwrite=true -f storage-manager.yaml || exit $?
 
     # Wait until the service is ready.

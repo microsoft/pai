@@ -20,7 +20,7 @@
 pushd $(dirname "$0") > /dev/null
 
 echo "refresh grafana-configuration"
-kubectl create configmap grafana-configuration --from-file=grafana-configuration/ --dry-run -o yaml | kubectl apply -f - || exit $?
+kubectl create configmap grafana-configuration --from-file=grafana-configuration/ --dry-run=client -o yaml | kubectl apply -f - || exit $?
 
 
 

@@ -4,8 +4,6 @@ import logging
 import logging.config
 import os
 import argparse
-import csv
-from pprint import pprint
 import re
 import sys
 import time
@@ -38,29 +36,6 @@ def setup_logger_config(logger):
 
 logger = logging.getLogger(__name__)
 setup_logger_config(logger)
-
-
-def csv_reader(csv_path):
-    hosts_list = []
-    with open(csv_path) as fin:
-        hosts_csv = csv.reader(fin)
-        for row in hosts_csv:
-            hosts_list.append(
-                {
-                    "hostname": row[0],
-                    "ip": row[1]
-                }
-            )
-    return hosts_list
-
-
-def csv_reader_ret_dict(csv_path):
-    hosts_dict = {}
-    with open(csv_path) as fin:
-        hosts_csv = csv.reader(fin)
-        for row in hosts_csv:
-            hosts_dict[row[0]] = row[1]
-    return hosts_dict
 
 
 def load_yaml_config(config_path):
@@ -267,7 +242,12 @@ def wait_amd_device_plugin_ready(total_time=3600):
             sys.exit(1)
 
 
-def hived_config_prepare(worker_dict, node_resource_dict, pai_daemon_resource_dict):
+def hived_config_prepare(workers, node_resource_dict, pai_daemon_resource_dict):
+    # convert workers to hived worker_dict
+    worker_dict = {}
+    for worker in workers:
+        worker_dict[worker['hostname']] = worker['hostip']
+
     hived_config = dict()
     hived_config["nodelist"] = []
 
@@ -313,34 +293,31 @@ def hived_config_prepare(worker_dict, node_resource_dict, pai_daemon_resource_di
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument('-w', '--worker-list-csv', dest="worklist", required=True,
-                        help="worker-list")
-    parser.add_argument('-m', '--master-list-csv', dest="masterlist", required=True,
-                        help="master-list")
-    parser.add_argument('-c', '--configuration', dest="configuration", required=True,
+    parser.add_argument('-l', '--layout', dest="layout", required=True,
+                        help="layout.yaml")
+    parser.add_argument('-c', '--config', dest="config", required=True,
                         help="cluster configuration")
     parser.add_argument('-o', '--output', dest="output", required=True,
                         help="cluster configuration")
     args = parser.parse_args()
 
     output_path = os.path.expanduser(args.output)
+    layout = load_yaml_config(args.layout)
+    config = load_yaml_config(args.config)
 
-    master_list = csv_reader(args.masterlist)
-    worker_list = csv_reader(args.worklist)
-    head_node = master_list[0]
-
-    worker_dict = csv_reader_ret_dict(args.worklist)
+    masters = list(filter(lambda elem: 'pai-master' in elem and elem["pai-master"] == 'true', layout['machine-list']))
+    workers = list(filter(lambda elem: 'pai-worker' in elem and elem["pai-worker"] == 'true', layout['machine-list']))
+    head_node = masters[0]
     wait_nvidia_device_plugin_ready()
     wait_amd_device_plugin_ready()
     node_resource_dict = get_node_resources()
-    cfg = load_yaml_config(args.configuration)
-    pai_daemon_resource_dict = get_pai_daemon_resource_request(cfg)
-    hived_config = hived_config_prepare(worker_dict, node_resource_dict, pai_daemon_resource_dict)
+    pai_daemon_resource_dict = get_pai_daemon_resource_request(config)
+    hived_config = hived_config_prepare(workers, node_resource_dict, pai_daemon_resource_dict)
 
     environment = {
-        'master': master_list,
-        'worker': worker_list,
-        'cfg': cfg,
+        'masters': masters,
+        'workers': workers,
+        'cfg': config,
         'head_node': head_node,
         'hived': hived_config
     }
@@ -348,11 +325,7 @@ def main():
     map_table = {
         "env": environment
     }
-    generate_template_file(
-        "/quick-start-config/layout.yaml.template",
-        "{0}/layout.yaml".format(output_path),
-        map_table
-    )
+
     generate_template_file(
         "/quick-start-config/services-configuration.yaml.template",
         "{0}/services-configuration.yaml".format(output_path),
@@ -362,4 +335,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
