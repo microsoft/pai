@@ -7,10 +7,10 @@ CLUSTER_CONFIG="$PWD/config/config.yaml"
 echo "layout config file path: ${LAYOUT}"
 echo "cluster config file path: ${CLUSTER_CONFIG}"
 
-# environment set up
+echo "Setting up environment..."
 /bin/bash script/environment.sh -c ${CLUSTER_CONFIG} || exit $?
 
-# check requirements
+echo "Checking requirements..."
 /bin/bash requirement.sh -l ${LAYOUT} -c ${CLUSTER_CONFIG}
 ret_code_check=$?
 if [ $ret_code_check -ne 0 ]; then
@@ -23,13 +23,14 @@ if [ $ret_code_check -ne 0 ]; then
   fi
 fi
 
-# prepare cluster-cfg folder
+echo "Generating kubespray configuration..."
 /bin/bash script/configuration-kubespray.sh -l ${LAYOUT} -c ${CLUSTER_CONFIG} || exit $?
 
-echo "Ping Test"
+echo "Performing ping test..."
 ansible all -i ${HOME}/pai-deploy/cluster-cfg/hosts.yml -m ping || exit $?
 
-/bin/bash preinstall.sh -c ${CLUSTER_CONFIG} || exit $?
+echo "Performing pre-check..."
+ansible-playbook -i ${HOME}/pai-pre-check/pre-check.yml set-host-daemon-port-range.yml -e "@${CLUSTER_CONFIG}" || exit $?
 
-# setup k8s cluster
+echo "Starting kubernetes..."
 /bin/bash script/kubernetes-boot.sh || exit $?
