@@ -275,7 +275,9 @@ const getContainerGpus = async (withoutGetPod, podName) => {
           .reduce((attr, id) => attr + Math.pow(2, id), 0);
       } else {
         const gpuNumber = k8s.atoi(
-          pod.spec.containers[0].resources.limits['nvidia.com/gpu'],
+          pod.spec.containers[0].resources.limits[
+            launcherConfig.defaultComputingDeviceType
+          ],
         );
         // mock GPU ids from 0 to (gpuNumber - 1)
         containerGpus = Math.pow(2, gpuNumber) - 1;

@@ -134,6 +134,8 @@ spec:
 {% endif %}
         - name: WRITE_MERGER_URL
           value: {{ cluster_cfg['database-controller']['write-merger-url'] }}
+        - name: DEFAULT_COMPUTING_DEVICE_TYPE
+          value: {{ cluster_cfg['rest-server']['default-computing-device-type'] }}
         ports:
         - name: rest-server
           containerPort: 8080

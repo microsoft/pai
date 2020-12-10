@@ -32,9 +32,3 @@ github-path: marketplace
 debugging-reservation-seconds: 604800
 enable-priority-class: "true"
 sql-max-connection: 50
-# default-computing-device-type only works in default scheduler.
-# If hived scheduler is enabled, it will be ignored.
-# It determines:
-# (1) the resource name to be added in containers[*].resources.limits when we submit job.
-# (2) how we count the gpu number.
-default-computing-device-type: 'nvidia.com/gpu'
