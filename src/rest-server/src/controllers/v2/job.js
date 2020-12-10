@@ -302,7 +302,7 @@ const getLogs = asyncHandler(async (req, res) => {
     res.json(data);
   } catch (error) {
     logger.error(`Got error when retrieving log list, error: ${error}`);
-    throw error.code === 'NoTaskLogErr'
+    throw error.code === 'NoTaskLogError'
       ? error
       : createError(
           'Internal Server Error',
