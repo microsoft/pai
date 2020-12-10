@@ -207,6 +207,10 @@ const protocolSubmitMiddleware = [
         req.user.username,
       );
     }
+    console.log(
+      'in protocol.submit middleware:',
+      JSON.stringify(res.locals.protocol),
+    );
     next();
   }),
 ];

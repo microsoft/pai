@@ -24,6 +24,8 @@ class RestServer:
 
     #### Fist check, ensure all the configured data in cluster_configuration, service_configuration, default_service_configuration is right. And nothing is miss.
     def validation_pre(self):
+        print('self.cluster_configuration', self.cluster_configuration)
+        print('self.service_configuration', self.service_configuration)
         machine_list = self.cluster_configuration['machine-list']
         if 'default-pai-admin-username' not in self.service_configuration:
             return False, '"default-pai-admin-username" is required in rest-server'
@@ -37,6 +39,12 @@ class RestServer:
             return False, '"debugging-reservation-seconds" should be a positive integer.'
 
         return True, None
+
+    # This function is used to find the first valid computing device type from `layout.yaml`
+    # If there's no available computing device, return None.
+    def find_computing_device_type():
+      pass
+
 
     #### Generate the final service object model
     def run(self):
@@ -55,7 +63,8 @@ class RestServer:
             'default-pai-admin-username', 'default-pai-admin-password',
             'github-owner', 'github-repository', 'github-path',
             'debugging-reservation-seconds', 'enable-priority-class',
-            'schedule-port-start', 'schedule-port-end', 'sql-max-connection'
+            'schedule-port-start', 'schedule-port-end', 'sql-max-connection',
+            'default-computing-device-type'
         ]:
             service_object_model[k] = self.service_configuration[k]
         service_object_model['etcd-uris'] = ','.join('http://{0}:4001'.format(host['hostip'])
