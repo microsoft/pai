@@ -21,8 +21,8 @@ pushd $(dirname "$0") > /dev/null
 
 # Deploy device plugin of computing devices.
 # Computing device refers to the main hardware used in a machine for computing,
-# e.g. GPU, TPU, and NPU. In addition, we don't treat CPU as a computing device.
-# In pactice, one computing device may need to deploy one device plugin in cluster.
+# e.g. GPU, TPU, and NPU. We don't treat CPU as a computing device.
+# In pactice, one computing device usually requires one device plugin in cluster.
 # Users can specify their computing device type in `layout.yaml`,
 # and the specified device types will be added to cluster_cfg['device-plugin']['devices'] automatically.
 
