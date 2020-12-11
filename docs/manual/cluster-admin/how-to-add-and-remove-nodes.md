@@ -107,36 +107,28 @@ all:
 Go into folder `~/pai-deploy/kubespray/`, run:
 
 ```bash
-ansible-playbook -i inventory/pai/hosts.yml upgrade-cluster.yml --become --become-user=root  --limit=a,b -e "@inventory/pai/openpai.yml"
+ansible-playbook -i inventory/pai/hosts.yml scale.yml -b --become-user=root -e "node=a,b" -e "@inventory/pai/openpai.yml"
 ```
+
+The nodes to remove are specified with `-e` flag.
 
 ### Update OpenPAI Service Configuration
 
 Find your [service configuration file `layout.yaml` and `services-configuration.yaml`](./basic-management-operations.md#pai-service-management-and-paictl) in  `~/pai-deploy/cluster-cfg`.
 
-- Add the new node into `layout.yaml`
+- Add the new node into `machine-list` field in `layout.yaml`
 
 ```yaml
-...
-
 machine-list:
+  - hostname: a
+    hostip: x.x.x.x
+    machine-type: xxx-sku
+    pai-worker: "true"
 
-    ...
-
-    - hostname: a
-      hostip: x.x.x.x
-      machine-type: sku
-      nodename: a
-      k8s-role: worker
-      pai-worker: "true"
-
-
-    - hostname: b
-      hostip: x.x.x.x
-      machine-type: sku
-      nodename: b
-      k8s-role: worker
-      pai-worker: "true"
+  - hostname: b
+    hostip: x.x.x.x
+    machine-type: xxx-sku
+    pai-worker: "true"
 ```
 
 - You should modify the hived scheduler setting in `services-configuration.yaml` properly. Please refer to [how to set up virtual clusters](./how-to-set-up-virtual-clusters.md) and the [hived scheduler doc](https://github.com/microsoft/hivedscheduler/blob/master/doc/user-manual.md) for details. 
@@ -155,11 +147,14 @@ If you have configured any PV/PVC storage, please confirm the added worker node 
 
 Please refer to the operation of add nodes. They are very similar.
 
-First, modify `hosts.yml` accordingly, then go into `~/pai-deploy/kubespray/`, run
+To remove nodes from the cluster, there is no need to modify `hosts.yml`. 
+Go into `~/pai-deploy/kubespray/`, run
 
 ```bash
-ansible-playbook -i inventory/mycluster/hosts.yml upgrade-cluster.yml --become --become-user=root  --limit=a,b -e "@inventory/mycluster/openpai.yml"
+ansible-playbook -i inventory/pai/hosts.yml remove-node.yml -b --become-user=root -e "node=a,b" -e "@inventory/pai/openpai.yml"
 ``` 
+
+The nodes to remove are specified with `-e` flag.
 
 Modify the `layout.yaml` and `services-configuration.yaml`.
 
