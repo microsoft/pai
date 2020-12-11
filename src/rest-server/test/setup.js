@@ -15,7 +15,6 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-
 require('module-alias/register');
 const env = require('@pai/utils/env');
 
@@ -41,6 +40,7 @@ process.env.REST_SERVER_URI = 'http://restserver.test.pai.9186';
 process.env.SQL_CONNECTION_STR = 'postgres://localhost:5432/openpai';
 process.env.SQL_MAX_CONNECTION = 10;
 process.env.WRITE_MERGER_URL = 'http://localhost';
+process.env.DEFAULT_COMPUTING_DEVICE_TYPE = 'nvidia.com/gpu';
 
 const jwt = require('jsonwebtoken');
 const mustache = require('mustache');
@@ -52,13 +52,14 @@ const chaiHttp = require('chai-http');
 chai.use(chaiHttp);
 chai.use(chaiAsPromised);
 
-
-before(function(done) {
+before(function (done) {
   this.timeout(10000);
-  require('@pai').then((server) => {
-    global.server = server;
-    done();
-  }).catch((err) => done(err));
+  require('@pai')
+    .then((server) => {
+      global.server = server;
+      done();
+    })
+    .catch((err) => done(err));
 });
 
 global.jwt = jwt;
