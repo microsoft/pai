@@ -19,24 +19,39 @@
 
 pushd $(dirname "$0") > /dev/null
 
-# host device plugin
-kubectl apply --overwrite=true -f device-plugin.yaml || exit $?
+# Deploy device plugin of computing devices.
+# Computing device refers to the main hardware used in a machine for computing,
+# e.g. GPU, TPU, and NPU. In addition, we don't treat CPU as a computing device.
+# In pactice, one computing device may need to deploy one device plugin in cluster.
+# Users can specify their computing device type in `layout.yaml`,
+# and the specified device types will be added to cluster_cfg['device-plugin']['devices'] automatically.
 
-# NVIDIA GPU device plugin
+# Begin: NVIDIA GPU device plugin
 {% if 'nvidia.com/gpu' in cluster_cfg['device-plugin']['devices'] %}
 
 svn cat https://github.com/NVIDIA/k8s-device-plugin.git/tags/1.0.0-beta4/nvidia-device-plugin.yml \
     | kubectl apply --overwrite=true -f - || exit $?
 
 {% endif %}
+# End: NVIDIA GPU device plugin
 
-# AMD GPU device plugin
+# Begin: AMD GPU device plugin
 {% if 'amd.com/gpu' in cluster_cfg['device-plugin']['devices'] %}
 
 svn cat https://github.com/RadeonOpenCompute/k8s-device-plugin.git/trunk/k8s-ds-amdgpu-dp.yaml \
     | kubectl apply --overwrite=true -f - || exit $?
 
 {% endif %}
+# End: AMD GPU device plugin
+
+# Please add other types of computing devices here.
+# Use comment "Begin: <device plugin name>" and "End: <device plugin name>"
+
+# Other devices (except computing devices)
+# Some other device plugins except the computing device plugins are also needed.
+
+# host device plugin
+kubectl apply --overwrite=true -f device-plugin.yaml || exit $?
 
 # Mellanox InfiniBand device plugin
 {% if 'rdma/hca' in cluster_cfg['device-plugin']['devices'] %}
