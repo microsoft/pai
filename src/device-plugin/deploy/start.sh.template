@@ -19,7 +19,7 @@
 
 pushd $(dirname "$0") > /dev/null
 
-# Deploy device plugin of computing devices.
+# Deploy device plugins of computing devices.
 # Computing device refers to the main hardware used in a machine for computing,
 # e.g. GPU, TPU, and NPU. We don't treat CPU as a computing device.
 # In pactice, one computing device usually requires one device plugin in cluster.
@@ -46,6 +46,7 @@ svn cat https://github.com/RadeonOpenCompute/k8s-device-plugin.git/trunk/k8s-ds-
 
 # Please add other types of computing devices here.
 # Use comment "Begin: <device plugin name>" and "End: <device plugin name>"
+# Also, the scripts in `delete.sh.template` should also be modified.
 
 # Other devices (except computing devices)
 # Some other device plugins except the computing device plugins are also needed.
