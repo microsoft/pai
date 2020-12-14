@@ -1,7 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import React, { useContext, getTheme } from 'react';
+import React from 'react';
+import { getTheme } from '@uifabric/styling';
 import {
   ColorClassNames,
   CommandBarButton,
@@ -9,14 +10,10 @@ import {
   Stack,
 } from 'office-ui-fabric-react';
 import PropTypes from 'prop-types';
-
-import Context from './context';
 import TaskRoleFilter from './task-role-filter';
 import FilterButton from '../../JobList/FilterButton';
 
-function KeywordSearchBox() {
-  const { filter, setFilter } = useContext(Context);
-
+function KeywordSearchBox({ filter, setFilter }) {
   function onKeywordChange(keyword) {
     const { statuses, exitType, exitCode, nodeName } = filter;
     const newFilter = new TaskRoleFilter(
@@ -46,8 +43,16 @@ function KeywordSearchBox() {
   );
 }
 
-export default function TaskRoleContainerTop({ taskStatuses }) {
-  const { filter, setFilter } = useContext(Context);
+KeywordSearchBox.propTypes = {
+  filter: PropTypes.object.isRequired,
+  setFilter: PropTypes.func.isRequired,
+};
+
+export default function TaskRoleContainerTop({
+  taskStatuses,
+  filter,
+  setFilter,
+}) {
   const exitTypes = new Set();
   const exitCodes = new Set();
   const nodeNames = new Set();
@@ -57,7 +62,7 @@ export default function TaskRoleContainerTop({ taskStatuses }) {
       exitTypes.add(item.containerExitSpec.type);
     }
     if (item.containerExitCode) {
-      exitCodes.add(item.containerExitCode);
+      exitCodes.add(item.containerExitCode.toString());
     }
     if (item.containerNodeName) {
       nodeNames.add(item.containerNodeName);
@@ -90,7 +95,7 @@ export default function TaskRoleContainerTop({ taskStatuses }) {
           ],
         }}
       >
-        <KeywordSearchBox />
+        <KeywordSearchBox filter={filter} setFilter={setFilter} />
         <Stack horizontal>
           <FilterButton
             styles={{ root: { backgroundColor: 'transparent' } }}
@@ -114,7 +119,7 @@ export default function TaskRoleContainerTop({ taskStatuses }) {
           />
           <FilterButton
             styles={{ root: { backgroundColor: 'transparent' } }}
-            text='exitType'
+            text='Exit Type'
             iconProps={{ iconName: 'Tablet' }}
             items={Array.from(exitTypes)}
             selectedItems={Array.from(filter.exitType)}
@@ -135,7 +140,7 @@ export default function TaskRoleContainerTop({ taskStatuses }) {
           />
           <FilterButton
             styles={{ root: { backgroundColor: 'transparent' } }}
-            text='exitCode'
+            text='Exit Code'
             iconProps={{ iconName: 'NumberSymbol' }}
             items={Array.from(exitCodes)}
             selectedItems={Array.from(filter.exitCode)}
@@ -156,8 +161,8 @@ export default function TaskRoleContainerTop({ taskStatuses }) {
           />
           <FilterButton
             styles={{ root: { backgroundColor: 'transparent' } }}
-            text='nodeName'
-            iconProps={{ iconName: 'ConnectVirtualMachine' }}
+            text='Node Name'
+            iconProps={{ iconName: 'TVMonitor' }}
             items={Array.from(nodeNames)}
             selectedItems={Array.from(filter.nodeName)}
             onSelect={nodeNames => {
@@ -190,4 +195,6 @@ export default function TaskRoleContainerTop({ taskStatuses }) {
 
 TaskRoleContainerTop.propTypes = {
   taskStatuses: PropTypes.array.isRequired,
+  filter: PropTypes.object.isRequired,
+  setFilter: PropTypes.func.isRequired,
 };

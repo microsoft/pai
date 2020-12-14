@@ -481,17 +481,22 @@ export default class TaskRoleContainerList extends React.Component {
       tailLogUrls,
       hideAllLogsDialog,
       items,
+      filter,
     } = this.state;
     const { showMoreDiagnostics } = this.props;
     return (
       <div>
         <ThemeProvider theme={theme}>
-          <TaskRoleContainerTop taskStatuses={items} />
+          <TaskRoleContainerTop
+            taskStatuses={items}
+            filter={filter}
+            setFilter={newFilter => this.setState({ filter: newFilter })}
+          />
           <DetailsList
             styles={{ root: { overflow: 'auto' } }}
             columns={this.getColumns(showMoreDiagnostics)}
             disableSelectionZone
-            items={items}
+            items={filter.apply(items)}
             layoutMode={DetailsListLayoutMode.justified}
             selectionMode={SelectionMode.none}
             onRenderRow={this.onRenderRow}

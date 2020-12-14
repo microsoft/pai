@@ -34,20 +34,45 @@ class TaskRoleFilter {
     const filters = [];
     if (keyword !== '') {
       filters.push(
-        ({ exitType, exitCode, nodeName }) =>
-          exitType.indexOf(keyword) > -1 ||
-          exitCode.indexOf(keyword) > -1 ||
-          nodeName.indexOf(keyword) > -1,
+        ({
+          containerExitSpec,
+          containerNodeName,
+          taskState,
+          containerIp,
+          containerId,
+        }) =>
+          (taskState && capitalize(taskState).indexOf(keyword) > -1) ||
+          (containerExitSpec &&
+            containerExitSpec.type &&
+            containerExitSpec.type.indexOf(keyword) > -1) ||
+          (containerExitSpec &&
+            containerExitSpec.code !== undefined &&
+            containerExitSpec.code.toString().indexOf(keyword) > -1) ||
+          (containerNodeName && containerNodeName.indexOf(keyword) > -1) ||
+          (containerIp && containerIp.indexOf(keyword) > -1) ||
+          (containerId && containerId.indexOf(keyword) > -1),
       );
     }
     if (!isEmpty(exitType)) {
-      filters.push(({ exitType }) => exitType.has(exitType));
+      filters.push(({ containerExitSpec }) => {
+        return (
+          containerExitSpec &&
+          containerExitSpec.type &&
+          exitType.has(containerExitSpec.type)
+        );
+      });
     }
     if (!isEmpty(exitCode)) {
-      filters.push(({ exitCode }) => exitCode.has(exitCode));
+      filters.push(({ containerExitSpec }) => {
+        return (
+          containerExitSpec &&
+          containerExitSpec.code &&
+          exitCode.has(containerExitSpec.code)
+        );
+      });
     }
     if (!isEmpty(nodeName)) {
-      filters.push(({ nodeName }) => nodeName.has(nodeName));
+      filters.push(({ containerNodeName }) => nodeName.has(containerNodeName));
     }
     if (!isEmpty(statuses)) {
       filters.push(({ taskState }) => statuses.has(capitalize(taskState)));
