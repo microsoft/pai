@@ -163,6 +163,7 @@ export default class TaskRoleContainerList extends React.Component {
       ordering: { field: null, descending: false },
       hideAllLogsDialog: true,
       filter: new TaskRoleFilter(),
+      taskRoleName: props.taskRoleName,
     };
 
     this.showSshInfo = this.showSshInfo.bind(this);
@@ -482,6 +483,7 @@ export default class TaskRoleContainerList extends React.Component {
       hideAllLogsDialog,
       items,
       filter,
+      taskRoleName,
     } = this.state;
     const { showMoreDiagnostics } = this.props;
     return (
@@ -489,6 +491,7 @@ export default class TaskRoleContainerList extends React.Component {
         <ThemeProvider theme={theme}>
           <TaskRoleContainerTop
             taskStatuses={items}
+            taskRoleName={taskRoleName}
             filter={filter}
             setFilter={newFilter => this.setState({ filter: newFilter })}
           />

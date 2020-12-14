@@ -12,6 +12,7 @@ import {
 import PropTypes from 'prop-types';
 import TaskRoleFilter from './task-role-filter';
 import FilterButton from '../../JobList/FilterButton';
+import TaskRoleCsvExporter from './task-role-csv-exporter';
 
 function KeywordSearchBox({ filter, setFilter }) {
   function onKeywordChange(keyword) {
@@ -52,6 +53,7 @@ export default function TaskRoleContainerTop({
   taskStatuses,
   filter,
   setFilter,
+  taskRoleName,
 }) {
   const exitTypes = new Set();
   const exitCodes = new Set();
@@ -78,6 +80,8 @@ export default function TaskRoleContainerTop({
   };
 
   const { spacing } = getTheme();
+  const csvExporter = new TaskRoleCsvExporter();
+  const expCsv = () => csvExporter.apply(taskRoleName + '.csv', taskStatuses);
 
   return (
     <React.Fragment>
@@ -95,7 +99,14 @@ export default function TaskRoleContainerTop({
           ],
         }}
       >
-        <KeywordSearchBox filter={filter} setFilter={setFilter} />
+        <Stack horizontal>
+          <KeywordSearchBox filter={filter} setFilter={setFilter} />
+          <CommandBarButton
+            iconProps={{ iconName: 'ExcelDocument' }}
+            text='Export CSV'
+            onClick={expCsv}
+          />
+        </Stack>
         <Stack horizontal>
           <FilterButton
             styles={{ root: { backgroundColor: 'transparent' } }}
@@ -197,4 +208,5 @@ TaskRoleContainerTop.propTypes = {
   taskStatuses: PropTypes.array.isRequired,
   filter: PropTypes.object.isRequired,
   setFilter: PropTypes.func.isRequired,
+  taskRoleName: PropTypes.string.isRequired,
 };
