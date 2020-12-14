@@ -8,7 +8,7 @@ data:
     {
       "resourceName": "github.com/fuse",
       "socketName": "fuse.sock",
-      "numDevices": 20,
+      "numDevices": 110,
       "hostDevices": [
         {
           "hostPath": "/dev/fuse",
