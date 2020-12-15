@@ -432,7 +432,7 @@ export default class TaskAttemptList extends React.Component {
         >
           <Stack gap='m'>
             <Text variant='xLarge'>All Logs:</Text>
-            <LogDialogContent urls={!isNil(fullLogUrls) ? fullLogUrls : {}} />
+            <LogDialogContent urls={fullLogUrls} />
           </Stack>
           <DialogFooter>
             <PrimaryButton
