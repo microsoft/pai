@@ -589,7 +589,6 @@ const generateTaskRole = (
       },
     },
   };
-  console.log('frameworkTaskRole', JSON.stringify(frameworkTaskRole));
   // add image pull secret
   if (
     config.prerequisites.dockerimage[config.taskRoles[taskRole].dockerImage]

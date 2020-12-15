@@ -40,7 +40,8 @@ class RestServer:
 
     # This function is used to find the all valid computing device types from `layout.yaml`
     def find_computing_device_types(self):
-      computing_device_types = set()
+      computing_device_type_set = set()
+      computing_device_type_list = []
       machine_sku_to_device_type = {
           sku_name: sku_attrs['computing-device']['type']
           for sku_name, sku_attrs in self.cluster_configuration['machine-sku'].items()
@@ -50,8 +51,10 @@ class RestServer:
       for worker in workers:
         if worker['machine-type'] in machine_sku_to_device_type:
           computing_device_type = machine_sku_to_device_type[worker['machine-type']]
-          computing_device_types.add(computing_device_type)
-      return list(computing_device_types)
+          if computing_device_type not in computing_device_type_set:
+            computing_device_type_set.add(computing_device_type)
+            computing_device_type_list.append(computing_device_type)
+      return computing_device_type_list
 
 
     #### Generate the final service object model
@@ -107,7 +110,7 @@ class RestServer:
         if 'kubernetes' not in cluster_object_model['layout'] or 'api-servers-url' not in cluster_object_model['layout']['kubernetes']:
             return False, 'kubernetes.api-servers-url is required'
 
-        if len(cluster_object_model['hivedscheduler']['config']) == 0:
+        if len(cluster_object_model['hivedscheduler']['config']) < 2:
           # hived is not set and we use default scheduler
           if len(self.used_computing_device_types) > 1:
             return False, "Currently, we only support one kind of computing devices when default scheduler is on."
