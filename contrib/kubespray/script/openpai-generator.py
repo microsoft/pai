@@ -1,23 +1,24 @@
-import copy
-from decimal import *
+import os
+import sys
+import re
+import argparse
 import logging
 import logging.config
-import os
-import argparse
-import re
-import sys
-import time
-
-import jinja2
-from kubernetes import client, config
-from kubernetes.utils import parse_quantity
-from kubernetes.client.rest import ApiException
+from decimal import Decimal
 import yaml
+import jinja2
+from kubernetes.utils import parse_quantity
 
-
+# reserved resources
 PAI_RESERVE_RESOURCE_PERCENTAGE = 0.01
 PAI_MAX_RESERVE_CPU_PER_NODE = 0.5
 PAI_MAX_RESERVE_MEMORY_PER_NODE = 1024 # 1Gi
+
+KUBE_RESERVED_CPU = 0.01 # 100m
+KUBE_RESERVED_MEM = 256 # Mi
+SYSTEM_RESERVED_CPU = 0
+SYSTEM_RESERVED_MEM = 0
+EVICTION_HARD_MEM = 100 #Mi
 
 
 def setup_logger_config(logger):
@@ -68,122 +69,6 @@ def generate_template_file(template_file_path, output_path, map_table):
     write_generated_file(output_path, generated_template)
 
 
-def pod_is_ready_or_not(label_key, label_value, service_name):
-
-    label_selector_str="{0}={1}".format(label_key, label_value)
-
-    config.load_kube_config()
-    v1 = client.CoreV1Api()
-
-    try:
-        pod_list = v1.list_pod_for_all_namespaces(label_selector=label_selector_str, watch=False)
-    except ApiException as e:
-        logger.error("Exception when calling CoreV1Api->list_pod_for_all_namespaces: %s\n" % e)
-        return False
-
-    if len(pod_list.items) == 0:
-        logger.warning("No pod can be dectected.")
-        return False
-
-    ready = 0
-    unready = 0
-    for pod in pod_list.items:
-        if pod.status.container_statuses is None:
-            unready = unready + 1
-            continue
-        flag = True
-        for container in pod.status.container_statuses:
-            if container.ready != True:
-                unready = unready + 1
-                flag = False
-                break
-        if flag:
-            ready = ready + 1
-
-    if unready != 0:
-        logger.info("{0} is not ready.".format(service_name))
-        logger.info("Total: {0}".format(ready + unready))
-        logger.info("Ready: {0}".format(ready))
-        return False
-
-    return True
-
-
-def get_kubernetes_node_info_from_API():
-    config.load_kube_config()
-    api_instance = client.CoreV1Api()
-
-    # https://github.com/kubernetes-client/python/blob/master/kubernetes/docs/CoreV1Api.md#list_node
-    pretty = 'true'
-    timeout_seconds = 56
-
-    ret = dict()
-    try:
-        api_response = api_instance.list_node(pretty=pretty, timeout_seconds=timeout_seconds)
-        for node in api_response.items:
-            gpu_resource = 0
-            if 'nvidia.com/gpu' in node.status.allocatable:
-                gpu_resource = int(parse_quantity(node.status.allocatable['nvidia.com/gpu']))
-            if 'amd.com/gpu' in node.status.allocatable:
-                gpu_resource = int(parse_quantity(node.status.allocatable['amd.com/gpu']))
-            ret[node.metadata.name] = {
-                "cpu-resource": parse_quantity(node.status.allocatable['cpu']),
-                "mem-resource": parse_quantity(node.status.allocatable['memory']) / 1024 / 1024,
-                "gpu-resource": gpu_resource,
-            }
-    except ApiException as e:
-        logger.error("Exception when calling CoreV1Api->list_node: %s\n" % e)
-        raise
-
-    return ret
-
-
-def get_pod_requests(pod):
-    ret = {
-        "cpu-resource": 0,
-        "mem-resource": 0,
-    }
-    for container in pod.spec.containers:
-        if container.resources.requests is None:
-            continue
-        ret["cpu-resource"] += parse_quantity(container.resources.requests.get("cpu", 0))
-        ret["mem-resource"] += parse_quantity(container.resources.requests.get("memory", 0)) / 1024 / 1024
-    return ret
-
-
-def get_kubernetes_pod_info_from_API():
-    config.load_kube_config()
-    api_instance = client.CoreV1Api()
-
-    timeout_seconds = 56
-
-    ret = dict()
-    try:
-        api_response = api_instance.list_pod_for_all_namespaces(timeout_seconds=timeout_seconds)
-        for pod in api_response.items:
-            if pod.spec.node_name not in ret:
-                ret[pod.spec.node_name] = [get_pod_requests(pod)]
-            else:
-                ret[pod.spec.node_name].append(get_pod_requests(pod))
-    except ApiException:
-        logger.error("Exception when calling CoreV1Api->list_pod", exc_info=True)
-        raise
-    return ret
-
-
-def get_node_resources():
-    node_allocatable_resources = get_kubernetes_node_info_from_API()
-    node_free_resources = copy.deepcopy(node_allocatable_resources)
-    pod_resources_dict = get_kubernetes_pod_info_from_API()
-    for node_name in node_free_resources:
-        if node_name not in pod_resources_dict:
-            continue
-        for pod in pod_resources_dict[node_name]:
-            node_free_resources[node_name]["cpu-resource"] -= pod["cpu-resource"]
-            node_free_resources[node_name]["mem-resource"] -= pod["mem-resource"]
-    return {"allocatable": node_allocatable_resources, "free": node_free_resources}
-
-
 def get_pai_daemon_resource_request(cfg):
     ret = {
         "cpu-resource": 0,
@@ -222,73 +107,70 @@ def get_pai_daemon_resource_request(cfg):
     return ret
 
 
-def wait_nvidia_device_plugin_ready(total_time=3600):
-    while pod_is_ready_or_not("name", "nvidia-device-plugin-ds", "Nvidia-Device-Plugin") != True:
-        logger.info("Nvidia-Device-Plugin is not ready yet. Please wait for a moment!")
-        time.sleep(10)
-        total_time = total_time - 10
-        if total_time < 0:
-            logger.error("An issue occur when starting up Nvidia-Device-Plugin")
+def get_hived_config(layout, config):
+    """
+    generate hived config from layout.yaml and config.yaml
+    Resources (gpu/cpu/mem) specified in layout.yaml is considered as the total resources.
+
+    Parameters:
+    -----------
+    layout: dict
+        layout
+    config: dict
+        config
+
+    Returns:
+    --------
+    dict
+        hived config, used to render hived config template
+    """
+    pai_daemon_resource_dict = get_pai_daemon_resource_request(config)
+    sku_specs = {}
+    for sku_name, sku_spec in layout['machine-sku'].items():
+        # save memory with unit Mi
+        sku_spec['mem'] = parse_quantity(sku_spec['mem']) / 1024 / 1024
+
+        # calculate reserved resources
+        pai_reserved_cpu = min(sku_spec['cpu']['vcore'] * Decimal(PAI_RESERVE_RESOURCE_PERCENTAGE), Decimal(PAI_MAX_RESERVE_CPU_PER_NODE))
+        pai_reserved_mem = min(sku_spec['mem'] * Decimal(PAI_RESERVE_RESOURCE_PERCENTAGE), Decimal(PAI_MAX_RESERVE_MEMORY_PER_NODE))
+        reserved_cpu = SYSTEM_RESERVED_CPU + KUBE_RESERVED_CPU + pai_reserved_cpu + pai_daemon_resource_dict["cpu-resource"]
+        reserved_mem = SYSTEM_RESERVED_MEM + KUBE_RESERVED_MEM + EVICTION_HARD_MEM + pai_reserved_mem + pai_daemon_resource_dict["mem-resource"]
+
+        if sku_spec['cpu']['vcore'] <= reserved_cpu or sku_spec['mem'] <= reserved_mem:
+            logger.error("The node resource does not satisfy minmal requests. Toal cpu: %s, mem: %sMB; Reserved cpu:%s, mem: %sMB.",
+                sku_spec['cpu']['vcore'], sku_spec['mem'], reserved_cpu, reserved_mem)
             sys.exit(1)
 
+        # check if the machine has GPUs
+        if 'computing-device' in sku_spec:
+            sku_specs[sku_name] = {
+                'cpu': int((sku_spec['cpu']['vcore'] - reserved_cpu) / sku_spec['computing-device']['count']),
+                'mem': int((sku_spec['mem'] - reserved_mem) / sku_spec['computing-device']['count']),
+                'gpu': True,
+                'gpuCount': sku_spec['computing-device']['count'],
+            }
+        else:
+            sku_specs[sku_name] = {
+                'cpu': int(sku_spec['cpu']['vcore'] - reserved_cpu),
+                'mem': int(sku_spec['mem'] - reserved_mem),
+            }
 
-def wait_amd_device_plugin_ready(total_time=3600):
-    while pod_is_ready_or_not("name", "amdgpu-dp-ds", "AMD-Device-Plugin") != True:
-        logger.info("AMD-Device-Plugin is not ready yet. Please wait for a moment!")
-        time.sleep(10)
-        total_time = total_time - 10
-        if total_time < 0:
-            logger.error("An issue occure when starting up AMD-Device-Plugin")
-            sys.exit(1)
+    skus = {}
+    for machine in layout['machine-list']:
+        if 'pai-worker' in machine and machine['pai-worker'] == 'true':
+            sku_name = machine['machine-type']
+            sku_spec = sku_specs[sku_name]
+            if sku_name not in skus:
+                skus[sku_name] = sku_spec.copy()
+                skus[sku_name]['workers'] = [machine['hostname']]
+            else:
+                skus[sku_name]['workers'].append(machine['hostname'])
 
-
-def hived_config_prepare(workers, node_resource_dict, pai_daemon_resource_dict):
-    # convert workers to hived worker_dict
-    worker_dict = {}
-    for worker in workers:
-        worker_dict[worker['hostname']] = worker['hostip']
-
-    hived_config = dict()
-    hived_config["nodelist"] = []
-
-    min_mem = 100000000
-    min_gpu = 100000000
-    min_cpu = 100000000
-
-
-    node_resource_free = node_resource_dict["free"]
-    node_resource_allocatable = node_resource_dict["allocatable"]
-    for key in node_resource_dict["free"]:
-        if key not in worker_dict:
-            continue
-        if node_resource_free[key]["gpu-resource"] == 0:
-            logger.error("Allocatable GPU number in {0} is 0, current quick start script does not allow.".format(key))
-            logger.error("Please remove {0} from your workerlist, or check if the device plugin is running healthy on the node.".format(key))
-            sys.exit(1)
-        reserved_cpu = min(node_resource_allocatable[key]["cpu-resource"] * Decimal(PAI_RESERVE_RESOURCE_PERCENTAGE), Decimal(PAI_MAX_RESERVE_CPU_PER_NODE))
-        reserved_mem = min(node_resource_allocatable[key]["mem-resource"] * Decimal(PAI_RESERVE_RESOURCE_PERCENTAGE), Decimal(PAI_MAX_RESERVE_MEMORY_PER_NODE))
-        min_cpu = min(min_cpu, node_resource_free[key]["cpu-resource"] - pai_daemon_resource_dict["cpu-resource"] - reserved_cpu)
-        min_mem = min(min_mem, node_resource_free[key]["mem-resource"] - pai_daemon_resource_dict["mem-resource"] - reserved_mem)
-        min_gpu = min(min_gpu, node_resource_free[key]["gpu-resource"])
-        if min_cpu <= 0 or min_mem <= 0:
-            logger.error("The node resource is not satisfy minmal requests. Requests cpu: %s, mem: %sMB.\
-                          Allcoatable cpu: %s, mem: %sMB. Reserved cpu:%s, mem: %sMB.",
-                node_resource_allocatable[key]["cpu-resource"] + abs(min_cpu),
-                node_resource_allocatable[key]["mem-resource"] + abs(min_mem),
-                node_resource_allocatable[key]["cpu-resource"],
-                node_resource_allocatable[key]["mem-resource"],
-                reserved_cpu, reserved_mem)
-            sys.exit(1)
-        hived_config["nodelist"].append(key)
-    if not hived_config["nodelist"]:
+    if not bool(skus):
         logger.error("No worker node is detected.")
         sys.exit(1)
 
-    hived_config["min-gpu"] = min_gpu
-    hived_config["unit-cpu"] = int(min_cpu / min_gpu)
-    hived_config["unit-mem"] = int(min_mem / min_gpu)
-
-    return hived_config
+    return { "skus": skus }
 
 
 def main():
@@ -308,11 +190,8 @@ def main():
     masters = list(filter(lambda elem: 'pai-master' in elem and elem["pai-master"] == 'true', layout['machine-list']))
     workers = list(filter(lambda elem: 'pai-worker' in elem and elem["pai-worker"] == 'true', layout['machine-list']))
     head_node = masters[0]
-    wait_nvidia_device_plugin_ready()
-    wait_amd_device_plugin_ready()
-    node_resource_dict = get_node_resources()
-    pai_daemon_resource_dict = get_pai_daemon_resource_request(config)
-    hived_config = hived_config_prepare(workers, node_resource_dict, pai_daemon_resource_dict)
+
+    hived_config = get_hived_config(layout, config)
 
     environment = {
         'masters': masters,

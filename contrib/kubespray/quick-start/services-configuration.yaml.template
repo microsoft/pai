@@ -5,15 +5,13 @@ cluster:
     k8s-rbac: "true"
     job-history: "true"
     data-path: "/datastorage"
-    qos-switch: "{{ env["cfg"]["qos-switch"] }} | default('false') "
+    qos-switch: "{{ env["cfg"]["qos-switch"] | default('false') }}"
     docker-data-root: "{{ env['cfg']['docker_data_root'] | default('/mnt/docker') }}"
 
   # the docker registry to store docker images that contain system services like frameworklauncher, hadoop, etc.
   docker-registry:
-
     # The namespace in your registry. If the registry is docker.io, the namespace will be your user account.
     namespace: {{ env["cfg"]['docker_registry_namespace'] | default('openpai') }}
-
     # E.g., gcr.io.
     # if the registry is hub.docker, please fill this value with docker.io
     domain: {{ env["cfg"]['docker_registry_domain'] | default('docker.io') }}
@@ -48,36 +46,50 @@ rest-server:
 webportal:
   server-port: 9286
 
-#If you want to customize the scheduling config, such add more virtual clusters or more gpu types, check:
-#https://github.com/microsoft/pai/blob/master/docs/hivedscheduler/devops.md
+# If you want to customize the scheduling config, such add more virtual clusters or more gpu types, check:
+# https://github.com/microsoft/pai/blob/master/docs/manual/cluster-admin/how-to-set-up-virtual-clusters.md
 hivedscheduler:
   config: |
     physicalCluster:
       skuTypes:
-        DT:
+        {% for sku_name, sku_spec in env["hived"]["skus"].items() -%}
+        {{ sku_name }}:
+        {%- if sku_spec.gpu %}
           gpu: 1
-          cpu: {{ env["hived"]["unit-cpu"] }}
-          memory: {{ env["hived"]["unit-mem"] }}Mi
+        {%- endif %}
+          cpu: {{ sku_spec.cpu }}
+          memory: {{ sku_spec.memory }}Mi
+        {% endfor %}
       cellTypes:
-        DT-NODE:
-          childCellType: DT
-          childCellNumber: {{ env["hived"]["min-gpu"] }}
+        {% for sku_name, sku_spec in env["hived"]["skus"].items() -%}
+        {{ sku_name }}-NODE:
+          childCellType: {{ sku_name }}
+          childCellNumber: {{ sku_spec.gpuCount }}
           isNodeLevel: true
-        DT-NODE-POOL:
-          childCellType: DT-NODE
-          childCellNumber: {{ env["hived"]["nodelist"]|length }}
+        {{ sku_name }}-NODE-POOL:
+          childCellType: {{ sku_name }}-NODE
+          childCellNumber: {{ sku_spec.workers|length }}
+        {% endfor %}
       physicalCells:
-      - cellType: DT-NODE-POOL
+      {% for sku_name, sku_spec  in env["hived"]["skus"].items() -%}
+      - cellType: {{ sku_name }}-NODE-POOL.{{ sku_name }}-NODE
         cellChildren:
-        {%- for nodename in env["hived"]["nodelist"] %}
-        - cellAddress: {{nodename}}
-        {%- endfor %}
-    virtualClusters:
-      default:
-        virtualCells:
-        - cellType: DT-NODE-POOL.DT-NODE
-          cellNumber: {{ env["hived"]["nodelist"]|length }}
+        {% for worker in sku_spec.workers -%}
+        - cellAddress: {{ worker }}
+        {% endfor %}
+      {% endfor -%}
 
+    virtualClusters:
+      {% for sku_name, sku_spec  in env["hived"]["skus"].items() -%}
+        {% if loop.index0 == 0 %}
+        default:
+        {% else %}
+        {{ sku_name }}:
+        {% endif %}
+          virtualCells:
+          - cellType: {{ sku_name }}-NODE-POOL.{{ sku_name }}-NODE
+            cellNumber: {{ sku_spec.workers|length }}
+      {% endfor %}
 
 # uncomment following section, if you want to customize the authentication solution.
 authentication:
