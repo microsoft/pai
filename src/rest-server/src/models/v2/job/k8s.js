@@ -659,7 +659,11 @@ const generateTaskRole = (
       for (const envName of launcherConfig.hivedComputingDeviceEnvs) {
         frameworkTaskRole.task.pod.spec.containers[0].env.push({
           name: envName,
-          value: `metadata.annotations['hivedscheduler.microsoft.com/pod-leaf-cell-isolation']`,
+          valueFrom: {
+            fieldRef: {
+              fieldPath: `metadata.annotations['hivedscheduler.microsoft.com/pod-leaf-cell-isolation']`,
+            },
+          },
         });
       }
     }
