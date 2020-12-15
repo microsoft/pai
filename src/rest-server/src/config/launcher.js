@@ -73,7 +73,9 @@ if (launcherType === 'k8s') {
     enabledJobHistory: process.env.JOB_HISTORY === 'true',
     writeMergerUrl: process.env.WRITE_MERGER_URL,
     defaultComputingDeviceType: process.env.DEFAULT_COMPUTING_DEVICE_TYPE,
-    hivedComputingDeviceEnvs: process.env.HIVED_COMPUTING_DEVICE_ENVS.split(','),
+    hivedComputingDeviceEnvs: process.env.HIVED_COMPUTING_DEVICE_ENVS.split(
+      ',',
+    ),
     healthCheckPath: () => {
       return `/apis/${launcherConfig.apiVersion}`;
     },

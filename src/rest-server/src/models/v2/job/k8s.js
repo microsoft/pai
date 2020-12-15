@@ -640,7 +640,7 @@ const generateTaskRole = (
       frameworkTaskRole.task.pod.spec.containers[0].env.push({
         name: envName,
         value: 'none',
-      })
+      });
     }
   }
   // hived spec
