@@ -29,6 +29,7 @@ import { HashRouter as Router, Route } from 'react-router-dom';
 import { Fabric } from 'office-ui-fabric-react';
 
 import { JobSubmissionPage } from './job-submission-page';
+import { YamlEditPage } from './yaml-edit-page';
 import JobWizard from './job-wizard';
 
 const App = () => {
@@ -57,6 +58,16 @@ const App = () => {
           path='/general'
           render={({ history }) => (
             <JobSubmissionPage
+              isSingle={false}
+              yamlText={yamlText}
+              history={history}
+            />
+          )}
+        />
+        <Route
+          path='/yaml-edit'
+          render={({ history }) => (
+            <YamlEditPage
               isSingle={false}
               yamlText={yamlText}
               history={history}
