@@ -20,7 +20,11 @@ const axios = require('axios');
 const yaml = require('js-yaml');
 const createError = require('@pai/utils/error');
 const { resourceUnits } = require('@pai/config/vc');
-const { enabledHived, hivedWebserviceUri } = require('@pai/config/launcher');
+const {
+  enabledHived,
+  hivedWebserviceUri,
+  defaultComputingDeviceType,
+} = require('@pai/config/launcher');
 const kubernetes = require('@pai/models/kubernetes/kubernetes');
 const k8s = require('@pai/utils/k8sUtils');
 
@@ -105,9 +109,9 @@ const getPodsInfo = async () => {
           : null;
       }
     } else {
-      podInfo.resourcesUsed.gpu =
-        k8s.atoi(resourceRequest['nvidia.com/gpu']) +
-        k8s.atoi(resourceRequest['amd.com/gpu']);
+      podInfo.resourcesUsed.gpu = k8s.atoi(
+        resourceRequest[defaultComputingDeviceType],
+      );
     }
     return podInfo;
   });
@@ -175,9 +179,9 @@ const getNodeResource = async () => {
     const nodes = await fetchNodes(true);
     for (const node of nodes) {
       const nodeName = node.metadata.name;
-      const gpuNumber =
-        k8s.atoi(node.status.capacity['nvidia.com/gpu']) +
-        k8s.atoi(node.status.capacity['amd.com/gpu']);
+      const gpuNumber = k8s.atoi(
+        node.status.capacity[defaultComputingDeviceType],
+      );
       nodeResource[nodeName] = {
         gpuUsed: 0,
         gpuAvailable: gpuNumber,
@@ -283,9 +287,7 @@ const getVcList = async () => {
       ),
       gpu: nodes.reduce(
         (sum, node) =>
-          sum +
-          k8s.atoi(node.status.capacity['nvidia.com/gpu']) +
-          k8s.atoi(node.status.capacity['amd.com/gpu']),
+          sum + k8s.atoi(node.status.capacity[defaultComputingDeviceType]),
         0,
       ),
     };
@@ -302,9 +304,7 @@ const getVcList = async () => {
       ),
       gpu: preemptedNodes.reduce(
         (sum, node) =>
-          sum +
-          k8s.atoi(node.status.capacity['nvidia.com/gpu']) +
-          k8s.atoi(node.status.capacity['amd.com/gpu']),
+          sum + k8s.atoi(node.status.capacity[defaultComputingDeviceType]),
         0,
       ),
     };

@@ -482,7 +482,7 @@ const generateTaskRole = (
                   cpu: config.taskRoles[taskRole].resourcePerInstance.cpu,
                   memory: `${config.taskRoles[taskRole].resourcePerInstance.memoryMB}Mi`,
                   'github.com/fuse': 1,
-                  'nvidia.com/gpu':
+                  [launcherConfig.defaultComputingDeviceType]:
                     config.taskRoles[taskRole].resourcePerInstance.gpu,
                   ...(infinibandDevice && { 'rdma/hca': 1 }),
                 },
@@ -645,7 +645,7 @@ const generateTaskRole = (
   if (launcherConfig.enabledHived) {
     frameworkTaskRole.task.pod.spec.schedulerName = `${launcherConfig.scheduler}-ds-${config.taskRoles[taskRole].hivedPodSpec.virtualCluster}`;
     delete frameworkTaskRole.task.pod.spec.containers[0].resources.limits[
-      'nvidia.com/gpu'
+      launcherConfig.defaultComputingDeviceType
     ];
     frameworkTaskRole.task.pod.spec.containers[0].resources.limits[
       'hivedscheduler.microsoft.com/pod-scheduling-enable'
