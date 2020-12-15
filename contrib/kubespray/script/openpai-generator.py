@@ -327,7 +327,7 @@ def main():
     }
 
     generate_template_file(
-        "quick-start/services-configuration.yaml.template",
+        os.path.abspath(os.path.join(os.path.abspath(__file__), '../../quick-start/services-configuration.yaml.template')),
         "{0}/services-configuration.yaml".format(output_path),
         map_table
     )

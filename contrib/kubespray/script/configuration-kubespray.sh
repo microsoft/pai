@@ -18,6 +18,7 @@ done
 mkdir -p ${HOME}/pai-deploy/cluster-cfg
 
 cp ${LAYOUT} ${HOME}/pai-deploy/cluster-cfg
+cp ${CLUSTER_CONFIG} ${HOME}/pai-deploy/cluster-cfg
 
 python3 ${HOME}/pai-deploy/pai/contrib/kubespray/script/k8s-generator.py -l ${LAYOUT} -c ${CLUSTER_CONFIG} -o ${HOME}/pai-deploy/cluster-cfg || exit $?
 
