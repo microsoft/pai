@@ -41,16 +41,26 @@ class TaskRoleFilter {
           containerIp,
           containerId,
         }) =>
-          (taskState && capitalize(taskState).indexOf(keyword) > -1) ||
+          (taskState &&
+            taskState.toLowerCase().indexOf(keyword.toLowerCase()) > -1) ||
           (containerExitSpec &&
             containerExitSpec.type &&
-            containerExitSpec.type.indexOf(keyword) > -1) ||
+            containerExitSpec.type
+              .toLowerCase()
+              .indexOf(keyword.toLowerCase()) > -1) ||
           (containerExitSpec &&
             containerExitSpec.code !== undefined &&
-            containerExitSpec.code.toString().indexOf(keyword) > -1) ||
-          (containerNodeName && containerNodeName.indexOf(keyword) > -1) ||
-          (containerIp && containerIp.indexOf(keyword) > -1) ||
-          (containerId && containerId.indexOf(keyword) > -1),
+            containerExitSpec.code
+              .toString()
+              .toLowerCase()
+              .indexOf(keyword.toLowerCase()) > -1) ||
+          (containerNodeName &&
+            containerNodeName.toLowerCase().indexOf(keyword.toLowerCase()) >
+              -1) ||
+          (containerIp &&
+            containerIp.toLowerCase().indexOf(keyword.toLowerCase()) > -1) ||
+          (containerId &&
+            containerId.toLowerCase().indexOf(keyword.toLowerCase()) > -1),
       );
     }
     if (!isEmpty(exitType)) {
