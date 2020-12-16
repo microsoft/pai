@@ -36,6 +36,9 @@ sudo python3 get-pip.py
 echo "Install paramiko"
 sudo pip3 install paramiko
 
+echo "Install kubernetes package"
+sudo pip3 install kubernetes
+
 echo "Install sshpass"
 sudo apt-get -y install sshpass
 

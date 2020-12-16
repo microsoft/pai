@@ -4,7 +4,7 @@
 machine-sku:
   master-machine: # define a machine sku
     # the resource requirements for all the machines of this sku
-    mem: 60GB
+    mem: 60GB  # You can use GB or MB, e.g. 60GB, 10000MB, in this field
     cpu:
       vcore: 24
   gpu-machine:
