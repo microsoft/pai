@@ -1,0 +1,298 @@
+#!/bin/bash
+
+# Copyright (c) Microsoft Corporation
+# All rights reserved.
+#
+# MIT License
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
+# documentation files (the "Software"), to deal in the Software without restriction, including without limitation
+# the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and
+# to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+# The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED *AS IS*, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING
+# BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+# NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+# DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+
+# Bootstrap script for docker container.
+
+exec 17>/pai/log/runtime.docker.pai.log
+BASH_XTRACEFD=17
+
+RUNTIME_DOCKER_LOG=/pai/log/runtime.docker.pai.log
+RUNTIME_DOCKER_ERR_LOG=/pai/log/runtime.docker.pai.error
+USER_STDOUT=/pai/log/user.pai.stdout
+USER_STDERR=/pai/log/user.pai.stderr
+USER_LOG_ALL=/pai/log/user.pai.all
+DISK_CLEANER_ERROR_FILE=/pai/log/diskCleaner.pai.error
+
+# create runtime docker log here. Since multi shell IO block will write to the files,
+# we just append lines to the log file to avoid flush exits contents.
+touch $RUNTIME_DOCKER_ERR_LOG
+touch $RUNTIME_DOCKER_LOG
+
+# This function is duplicate between dockerContainerScript and yarnContainerScript\
+# Need to remove one if we discard the shell scirpt
+function log_runtime_error()
+{
+  local level=$1
+  local message_type=$2
+  local error_message=$3
+  local timestamp=$(date +%s)
+
+  printf "%s\n" "$timestamp $level $message_type $error_message" >> $RUNTIME_DOCKER_ERR_LOG
+}
+
+
+function sigterm_handler()
+{
+  printf "[DEBUG] SIGTERM received, job will be killed\n"
+  log_runtime_error "ERROR" "REASON" "\"Container receive signal SIGTERM\""
+  exit 143
+} 1>> $RUNTIME_DOCKER_LOG 2>> $RUNTIME_DOCKER_ERR_LOG
+
+
+function exit_handler()
+{
+  rc=$?
+  printf "%s %s\n" \
+    "[DEBUG]" "Docker container exit handler: EXIT signal received in docker container, exiting ..."
+  if [[ $rc -eq 0 ]]; then
+    exit 0
+  fi
+
+  log_runtime_error "ERROR" "REASON" "\"User process exited with code: $rc\""
+  exit $rc
+} 1>> $RUNTIME_DOCKER_LOG 2>> $RUNTIME_DOCKER_ERR_LOG
+
+
+{
+
+set -x
+PS4="+[\t] "
+trap exit_handler EXIT
+trap sigterm_handler SIGTERM
+
+touch "/alive/docker_$PAI_CONTAINER_ID"
+
+
+export PAI_WORK_DIR="$(pwd)"
+PAI_WEB_HDFS_PREFIX={{ webHdfsUri }}/webhdfs/v1/Container
+HDFS_LAUNCHER_PREFIX=$PAI_DEFAULT_FS_URI/Container
+
+# Use for export hadoop lib
+if [[ ! -z $(command -v hadoop) ]]; then
+  export CLASSPATH="$(hadoop classpath --glob)"
+fi
+
+# Make all GPUs allocated to the container accessible
+export NVIDIA_VISIBLE_DEVICES=all
+
+task_role_no={{ idx }}
+printf "%s %s\n%s\n\n" "[INFO]" "ENV" "$(printenv | sort)"
+
+CODE_DIR=/pai/code
+if [[ -d "$CODE_DIR" && ! -z "$(ls $CODE_DIR)" ]]; then
+  cp -r $CODE_DIR/* ./
+fi
+
+function webhdfs_create_file()
+{
+  webHdfsRequestPath=${1}"?user.name="{{ jobData.userName }}"&op=CREATE"
+  redirectResponse=$(curl -i -s -X PUT ${webHdfsRequestPath} -o /dev/null -w %{redirect_url}' '%{http_code})
+
+  redirectCode=$(cut -d ' ' -f 2 <<< ${redirectResponse})
+  if [[ ${redirectCode} = "307" ]]; then
+    redirectUri=$(cut -d ' ' -f 1 <<< ${redirectResponse})
+    createResponse=$(curl -i -sS -X PUT ${redirectUri})
+  else
+    printf "%s %s\n %s %s\n %s %s\n" \
+      "[WARNING]" "Webhdfs creates folder failed" \
+      "Folder Path:" ${webHdfsRequestPath} \
+      "Response code:" ${redirectCode}
+  fi
+}
+
+function webhdfs_download_file()
+{
+  webHdfsRequestPath=${1}"?user.name="{{ jobData.userName }}"&op=OPEN"
+  localPath=${2}
+  downloadResponse=$(curl -sS -L ${webHdfsRequestPath} -o ${localPath} -w %{http_code})
+  if [[ ${downloadResponse} = "200" ]]; then
+    printf "%s %s\n" \
+      "[INFO]" "Webhdfs downloads file succeed"
+  else
+    printf "%s %s\n" \
+      "[WARNING]" "Webhdfs downloads file failed"
+  fi
+}
+
+function prepare_ssh()
+{
+  mkdir /root/.ssh
+  sed -i 's/PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/sshd_config
+  sed 's@session\s*required\s*pam_loginuid.so@session optional pam_loginuid.so@g' -i /etc/pam.d/sshd
+}
+
+function start_ssh_service()
+{
+  printf "%s %s\n" \
+    "[INFO]" "start ssh service"
+  cat /root/.ssh/{{ jobData.jobName }}.pub >> /root/.ssh/authorized_keys
+  sed -i 's/[# ]*Port.*/Port '$PAI_CONTAINER_SSH_PORT'/' /etc/ssh/sshd_config
+  echo "sshd:ALL" >> /etc/hosts.allow
+  service ssh restart
+}
+
+function get_ssh_key_files()
+{
+  info_source="webhdfs"
+  localKeyPath=/root/.ssh/{{ jobData.jobName }}.pub
+  localPrivateKeyPath=/root/.ssh/{{ jobData.jobName }}
+  if [[ -f $localKeyPath ]]; then
+    rm -f $localKeyPath
+  fi
+
+  if [[ "$info_source" = "webhdfs" ]]; then
+    webHdfsKeyPath=${PAI_WEB_HDFS_PREFIX}/{{ jobData.userName }}/{{ jobData.jobName }}/ssh/keyFiles/{{ jobData.jobName }}.pub
+    webhdfs_download_file $webHdfsKeyPath $localKeyPath
+    webHdfsPrivateKeyPath=${PAI_WEB_HDFS_PREFIX}/{{ jobData.userName }}/{{ jobData.jobName }}/ssh/keyFiles/{{ jobData.jobName }}
+    webhdfs_download_file $webHdfsPrivateKeyPath $localPrivateKeyPath
+    chmod 400 ${localPrivateKeyPath}
+  else
+    printf "%s %s\n" \
+      "[WARNING]" "Get another key store way"
+  fi
+}
+
+function generate_ssh_connect_info()
+{
+  info_source="webhdfs"
+  destFileName=${1}
+
+  if [[ "$info_source" = "webhdfs" ]]; then
+    webHdfsRequestPath=$destFileName
+    webhdfs_create_file $webHdfsRequestPath
+  else
+    printf "%s %s\n" \
+      "[WARNING]" "Get another key store way"
+  fi
+}
+
+# Check whether hdfs bianry and ssh exists, if not ignore ssh preparation and start part
+# Start sshd in docker container
+if service --status-all 2>&1 | grep -q ssh; then
+  prepare_ssh
+  get_ssh_key_files
+  sshConnectInfoFolder=${PAI_WEB_HDFS_PREFIX}/${PAI_USER_NAME}/${PAI_JOB_NAME}/ssh/$APP_ID
+  # Generate ssh connect info file in "PAI_CONTAINER_ID-PAI_CURRENT_CONTAINER_IP-PAI_CONTAINER_SSH_PORT" format on hdfs
+  destFilePath=${sshConnectInfoFolder}/$PAI_CONTAINER_ID-$PAI_CONTAINER_HOST_IP-$PAI_CONTAINER_SSH_PORT
+  generate_ssh_connect_info ${destFilePath}
+
+  # Enable SSH connect inside
+  # Copy ssh config file to /root/.ssh/
+  cp /pai/ssh_config/config /root/.ssh/
+  # Start ssh service
+  start_ssh_service
+else
+  printf "%s %s\n %s %s \n" \
+    "[WARNING]" "Open-ssh server not found, will not enable ssh service." \
+    "[INFO]" "Please refer to PAI dockerfile example to get ssh service enabled. https://github.com/Microsoft/pai/tree/master/examples/Dockerfiles"
+fi
+
+{{# reqAzRDMA }}
+{{# azRDMA }}
+function  azure_rdma_preparation()
+{
+    # https://unix.stackexchange.com/questions/404189/find-and-sed-string-in-docker-got-error-device-or-resource-busy
+    cp /etc/hosts /hosts.tmp
+
+    sed -i "/127.0.0.1/c\127.0.0.1 localhost" /hosts.tmp
+{{# paiMachineList }}
+    echo {{hostip}} {{hostname}} >> /hosts.tmp
+{{/ paiMachineList }}
+    cat /hosts.tmp > /etc/hosts
+}
+
+azure_rdma_preparation
+{{/ azRDMA }}
+{{/ reqAzRDMA }}
+# Write env to system-wide environment
+env | grep -E "^PAI|PATH|PREFIX|JAVA|HADOOP|NVIDIA|CUDA" > /etc/environment
+
+function run_user_command()
+{
+  printf "%s %s\n\n" "[INFO]" "USER COMMAND START"
+  eval {{ taskData.command }} || exit $?
+  printf "\n%s %s\n\n" "[INFO]" "USER COMMAND END" # job_exporter relay on this exact output, if you are going to change this, remember to change job_exporter also
+  exit 0
+}
+
+(run_user_command 2> >(tee $USER_STDERR) > >(tee $USER_STDOUT)) > $USER_LOG_ALL &
+
+user_command_pid=$!
+
+function grep_kill_command_from_file()
+{
+  local file_name=$1
+  local rc=0
+
+  if [[ -f $file_name ]]; then
+    grep "ACTION \"KILL\"" $file_name 2>&1 > /dev/null
+    rc=$?
+  fi
+  return $rc
+}
+
+function handle_exit_command()
+{
+  if [[ -f $DISK_CLEANER_ERROR_FILE ]]; then
+    grep_kill_command_from_file $DISK_CLEANER_ERROR_FILE
+    if [[ $? -eq 0 ]]; then
+      printf "[INFO] Docker container killed by cleaner due to disk pressure.\n"
+      log_runtime_error "ERROR" "REASON" "\"docker container killed by disk cleaner\""
+      exit 1
+    fi
+  fi
+}
+
+
+while [ $(( $(date +%s) - $(stat -c %Y /alive/yarn_$PAI_CONTAINER_ID) )) -lt 120 ] && \
+        kill -0 $user_command_pid 2>/dev/null; do
+  handle_exit_command
+  sleep 20
+done
+
+if kill -0 $user_command_pid 2>/dev/null; then
+  echo "job has been killed, docker container exiting"
+  exit 1
+else
+  wait $user_command_pid
+  user_command_exitcode=$?
+  echo "job has finished with exit code $user_command_exitcode"
+
+{{# isDebug }}
+  if [[ $user_command_exitcode -ne 0 ]]; then
+    echo "============================================================================="
+    echo "======   The job container failed, so it will be reserved for 1 week   ======"
+    echo "======          After debugging, please stop the job manually.         ======"
+    echo "============================================================================="
+
+    sleep_time={{ debuggingReservationSeconds }}
+    sleep_count=0
+
+    while [ $(( $(date +%s) - $(stat -c %Y /alive/yarn_$PAI_CONTAINER_ID) )) -lt 30 ] && \
+        [ "$sleep_count" -lt "$sleep_time" ]; do
+        sleep 20
+        sleep_count=$((sleep_count+20))
+    done
+
+  fi
+{{/ isDebug }}
+  exit $user_command_exitcode
+fi
+} 1>> $RUNTIME_DOCKER_LOG 2>> $RUNTIME_DOCKER_ERR_LOG

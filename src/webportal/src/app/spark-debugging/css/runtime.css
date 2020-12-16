@@ -1,0 +1,15 @@
+.minBar {
+    fill: rgb(238, 40, 40)
+}
+
+.avgBar {
+    fill: orange
+}
+
+.maxBar {
+    fill: green
+}
+
+.stageText {
+    font-size: 14px
+}

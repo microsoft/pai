@@ -1,0 +1,1 @@
+Start-Process powershell "$PSScriptRoot\_run.ps1"

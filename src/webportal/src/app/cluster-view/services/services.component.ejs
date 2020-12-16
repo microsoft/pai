@@ -1,0 +1,14 @@
+<section class="content-header"><%= breadcrumb({ breadcrumbTitle: "View Services" }) %></section>
+
+<section class="content">
+  <div class="row">
+    <div class="col-xs-12">
+      <div class="box">
+        <div id="service-table" class="box-body table-responsive table-condensed" >
+          <%= serviceTable({ data: [] }) %>
+        </div>
+      </div>
+    </div>
+  </div>
+  <%= loading() %>
+</section>

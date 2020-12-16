@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TestSuite xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="ap:XPingTestSchema" xsi:schemaLocation="ap:XPingTestSchema c:\src\APGold\autopilotService\Global\Tools\XPingTestSchema.xsd">
+    <Test Name="MTApiGW_admin_status">
+        <TriggerRollback>true</TriggerRollback>
+        <ExecutionIntervalMin>5</ExecutionIntervalMin>
+        <Owner>pelian</Owner>
+        <IsActive>true</IsActive>
+        <Description>MTApiGW_admin_status monitor</Description>
+        <Request>
+            <DelayMs>60000</DelayMs>
+            <RetryOnFailure>
+                <Count>3</Count>
+                <DelayMs>60000</DelayMs>
+            </RetryOnFailure>
+            <TimeoutMs>60000</TimeoutMs>
+            <HTTP>
+                <URI>http://localhost:8080/health</URI>
+                <Options>
+                    <IgnoreServerCertificateErrors/>
+                </Options>
+            </HTTP>
+        </Request>
+        <CustomResultSet>
+          <PropertyCustomResult Name="MTApiGW_admin_status">
+            <PassValue>MTApiGW_admin_status passed.</PassValue>
+            <FailValue>MTApiGW_admin_status failed.</FailValue>
+          </PropertyCustomResult>
+        </CustomResultSet>
+    </Test>
+</TestSuite>

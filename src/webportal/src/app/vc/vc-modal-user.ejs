@@ -1,0 +1,47 @@
+<div> 
+  <% const usersLength = (users !== undefined && users.hasOwnProperty('user'))? users.user.length : 0 %>
+  <% if (usersLength > 0) {%>
+    <table>
+      <thead>
+        <tr style="background-color: #f2f2f2">
+          <th style="text-align: left;">User Name</th>
+          <th style="text-align: left;">Used Resource</th>
+          <th style="text-align: left;">Running Apps</th>
+          <th style="text-align: left;">Pending Apps</th>
+        </tr>
+      </thead>
+      <tbody>
+          <% for (let i = 0; i < usersLength; i++) { %>
+            <% let resourceUsagesByPartition =  users.user[i].resources.resourceUsagesByPartition[0] %>
+            <% let found = false %>
+            <% for (let j = 0; j < users.user[i].resources.resourceUsagesByPartition.length; j++) { %>
+              <% if (users.user[i].resources.resourceUsagesByPartition[j].partitionName === label) { %>
+                <% resourceUsagesByPartition = users.user[i].resources.resourceUsagesByPartition[j] %>
+                <% found = true %>
+                <% break %>
+              <% } %>
+            <% } %>
+            <% if (found === false)  { %>
+              <% resourceUsagesByPartition.used.memory = 0 %>
+              <% resourceUsagesByPartition.used.vCores = 0 %>
+            <% } %>
+            <tr>
+              <td style="text-align: left;">
+                <%= users.user[i].username %>
+              </td>
+              <td style="text-align: left;">
+                memory: <%= (resourceUsagesByPartition.used.memory/1024).toFixed(0) %>Gi, vCores: <%= resourceUsagesByPartition.used.vCores %>
+              </td>
+              <td style="text-align: left;">
+                <%= users.user[i].numActiveApplications %>
+              </td>
+              <td style="text-align: left;">
+                <%= users.user[i].numPendingApplications %>
+              </td>
+            </tr>
+        <%}%>
+      </tbody>
+    </table>
+  <% }%>
+</div>
+

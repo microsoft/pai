@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TestSuite xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="ap:XPingTestSchema" xsi:schemaLocation="ap:XPingTestSchema c:\src\APGold\autopilotService\Global\Tools\XPingTestSchema.xsd">
+    <Test Name="MTApiGW_httpfs_status">
+        <TriggerRollback>false</TriggerRollback>
+        <ExecutionIntervalMin>5</ExecutionIntervalMin>
+        <Owner>pelian</Owner>
+        <IsActive>true</IsActive>
+        <Description>MTApiGW_httpfs_status monitor</Description>
+        <Request>
+            <DelayMs>60000</DelayMs>
+            <RetryOnFailure>
+                <Count>3</Count>
+                <DelayMs>60000</DelayMs>
+            </RetryOnFailure>
+            <TimeoutMs>60000</TimeoutMs>
+            <HTTP>
+                <URI>https://localhost:4436/health</URI>
+                <Options>
+                    <IgnoreServerCertificateErrors/>
+                </Options>
+            </HTTP>
+        </Request>
+        <CustomResultSet>
+          <PropertyCustomResult Name="MTApiGW_httpfs_status">
+            <PassValue>MTApiGW_httpfs_status passed.</PassValue>
+            <FailValue>MTApiGW_httpfs_status failed.</FailValue>
+          </PropertyCustomResult>
+        </CustomResultSet>
+    </Test>
+    <Test Name="MTApiGW_httpfs_backend_status">
+        <TriggerRollback>false</TriggerRollback>
+        <ExecutionIntervalMin>5</ExecutionIntervalMin>
+        <Owner>pelian</Owner>
+        <IsActive>true</IsActive>
+        <Description>MTApiGW_httpfs_backend_status monitor</Description>
+        <Request>
+            <DelayMs>60000</DelayMs>
+            <RetryOnFailure>
+                <Count>3</Count>
+                <DelayMs>60000</DelayMs>
+            </RetryOnFailure>
+            <TimeoutMs>60000</TimeoutMs>
+            <HTTP>
+                <URI>https://localhost:4436/backend_health</URI>
+                <Options>
+                    <IgnoreServerCertificateErrors/>
+                </Options>
+            </HTTP>
+        </Request>
+        <CustomResultSet>
+          <PropertyCustomResult Name="MTApiGW_httpfs_backend_status">
+            <PassValue>MTApiGW_httpfs_backend_status passed.</PassValue>
+            <FailValue>MTApiGW_httpfs_backend_status failed.</FailValue>
+          </PropertyCustomResult>
+        </CustomResultSet>
+    </Test>
+</TestSuite>

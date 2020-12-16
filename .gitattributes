@@ -1,0 +1,21 @@
+# Auto detect text files and perform LF normalization
+*        text=auto
+
+*.cs     text diff=csharp
+*.java   text diff=java
+*.html   text diff=html
+*.py     text diff=python
+*.pl     text diff=perl
+*.pm     text diff=perl
+*.css    text eol=lf
+*.js     text eol=lf
+*.sql    text
+
+*.sh     text eol=lf
+*.mustache text eol=lf
+
+*.bat    text eol=crlf
+*.cmd    text eol=crlf
+*.vcxproj text merge=union eol=crlf
+*.csproj text merge=union eol=crlf
+*.sln    text merge=union eol=crlf

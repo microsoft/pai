@@ -1,0 +1,17 @@
+
+<section class='content-header'>
+  <%= breadcrumb({
+    breadcrumbTitle: 'Hardware Utilization: ' + instance.split(':')[0],
+    pages: [
+      {'path': '/cluster-view/hardware.html', 'title': 'Hardware Utilization'},
+      {'path': '', 'title': instance.split(':')[0]}
+    ]
+  }) %>
+</section>
+
+<section class='content'>
+  <iframe id='content-iframe'
+    style="display:block; width:100%; height:100%; border:none;"
+    src="<%= grafanaUri %>/dashboard/db/pai_nodeview?var-node=<%= instance %>">
+  </iframe>
+</section>

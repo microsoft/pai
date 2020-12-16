@@ -1,0 +1,24 @@
+<section class="content-header"><%= breadcrumb({ breadcrumbTitle: "Submit Jobs" }) %></section>
+
+<section class="content">
+  <div class="box box-primary">
+    <div class="box-body">
+      <div class="row">
+        <div class="form-group col-md-4">
+          <label for="fileUpload">Import Json</label>
+          <input class="btn btn-default" id="fileUpload" type="file" accept=".json,.jsonc">
+        </div>
+        <div class="form-group col-md-4">
+          <label for="fileExport">Export Json</label>
+          <input class="btn btn-default" id="fileExport" type="submit" value="Export">
+        </div>
+      </div>
+      <div class="box-body" id="editor-holder"/>
+      <div class="row">
+        <input class="btn btn-success center-block"  id="submitJob" type="submit" value="Submit" disabled=true>
+        <p id="submitHint" class="help-block"></p>
+      </div>
+    </div>
+  </div>
+  <%= loading() %>
+</section>

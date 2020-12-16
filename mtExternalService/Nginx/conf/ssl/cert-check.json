@@ -1,0 +1,7 @@
+{
+    "cert_name_enc": "conf\\ssl\\magnetar-publiccert.pem.encr",
+    "cert_name_dec": "conf\\ssl\\magnetar-publiccert.pem",
+    "key_name_enc": "conf\\ssl\\magnetar-privatekey.pem.encr",
+    "key_name_dec": "conf\\ssl\\magnetar-privatekey.pem",
+    "ports": [443]
+}

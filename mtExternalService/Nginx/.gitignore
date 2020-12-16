@@ -1,0 +1,5 @@
+temp/
+logs/
+dist/
+magnetar-publiccert.pem
+magnetar-privatekey.pem

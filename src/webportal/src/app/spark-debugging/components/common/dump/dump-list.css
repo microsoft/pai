@@ -1,0 +1,22 @@
+@-webkit-keyframes onDownloadingHeapDumpSpin {
+    from {
+        -webkit-transform: rotate(0deg);
+    }
+    to {
+        -webkit-transform: rotate(360deg);
+    }
+}
+
+@keyframes onDownloadingHeapDumpSpin {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+button.heapDumpStatusButton i{
+    -webkit-animation: onDownloadingHeapDumpSpin 1s linear 1s 5 alternate;
+    animation: onDownloadingHeapDumpSpin 1s linear infinite;
+}

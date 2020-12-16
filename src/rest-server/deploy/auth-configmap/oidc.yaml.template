@@ -1,0 +1,18 @@
+{% if cluster_cfg['authentication']['OIDC'] %}
+
+{% if cluster_cfg['authentication']['OIDC-type'] == 'AAD' %}
+
+OIDC-type: aad
+wellKnownURL: {{cluster_cfg['authentication']['AAD']['wellKnownURL']}}
+tenantID: {{ cluster_cfg['authentication']['AAD']['tenantID'] }}
+clientID: {{ cluster_cfg['authentication']['AAD']['clientID'] }}
+clientSecret: {{ cluster_cfg['authentication']['AAD']['clientSecret'] }}
+redirectUrl: '{{ cluster_cfg['pylon']['uri-https'] }}/rest-server/api/v1/authn/oidc/return'
+nonceLifetime: {{ cluster_cfg['authentication']['AAD']['nonceLifetime'] or null }}
+nonceMaxAmount: {{ cluster_cfg['authentication']['AAD']['nonceMaxAmount'] or null }}
+clockSkew: {{ cluster_cfg['authentication']['AAD']['clockSkew'] or null }}
+destroySessionUrl: https://login.microsoftonline.com/common/oauth2/logout?post_logout_redirect_uri={{ cluster_cfg['pylon']['uri'] }}
+
+{% endif %}
+
+{% endif %}

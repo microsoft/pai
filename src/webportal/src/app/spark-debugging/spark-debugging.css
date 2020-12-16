@@ -1,0 +1,14 @@
+
+.main-color { color: #77FF77; }
+.red { color: red; }
+.light-blue { color: #0071BC; }
+.white { color: white; }
+.main-back-color { background: #7BC559; }
+.dn { display: none; }
+.icon {
+    width: 2em;
+    height: 2em;
+    vertical-align: -0.15em;
+    fill: currentColor;
+    overflow: hidden;
+}

@@ -1,0 +1,124 @@
+# Copyright (c) Microsoft Corporation
+# All rights reserved.
+#
+# MIT License
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
+# documentation files (the "Software"), to deal in the Software without restriction, including without limitation
+# the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and
+# to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+# The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED *AS IS*, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING
+# BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+# NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+# DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: rest-server-ds
+spec:
+  selector:
+    matchLabels:
+      app: rest-server
+  template:
+    metadata:
+      name: rest-server
+      labels:
+        app: rest-server
+    spec:
+      hostNetwork: false
+      hostPID: false
+      containers:
+      - name: rest-server
+        image: {{ cluster_cfg['cluster']['docker-registry']['prefix'] }}rest-server:{{ cluster_cfg['cluster']['docker-registry']['tag'] }}
+        imagePullPolicy: Always
+        volumeMounts:
+        - mountPath: /pai-cluster-config
+          name: pai-configuration-rest-server
+{% if cluster_cfg['authentication']['OIDC'] %}
+        - mountPath: /auth-configuration
+          name: auth-configuration-rest-server
+{% endif %}
+        - mountPath: /group-configuration
+          name: group-configuration-rest-server
+        - mountPath: /job-exit-spec-configuration
+          name: job-exit-spec-rest-server
+        env:
+        - name: LAUNCHER_TYPE
+          value: yarn
+        - name: LAUNCHER_WEBSERVICE_URI
+          value: {{ cluster_cfg['yarn-frameworklauncher']['webservice'] }}
+        - name: HDFS_URI
+          value: hdfs://{{ cluster_cfg['hadoop-name-node']['master-ip'] }}:9000
+        - name: WEBHDFS_URI
+          value: http://{{ cluster_cfg['hadoop-name-node']['master-ip'] }}:5070
+        - name: YARN_URI
+          value: http://{{ cluster_cfg['hadoop-resource-manager']['master-ip'] }}:8088
+        - name: JWT_SECRET
+          value: {{ cluster_cfg['rest-server']['jwt-secret'] }}
+        - name: WEBPORTAL_URL
+          value: "{{ cluster_cfg['webportal']['webportal-address']}}"
+{% if not cluster_cfg['authentication']['OIDC'] %}
+        - name: AUTHN_METHOD
+          value: basic
+        - name: DEFAULT_PAI_ADMIN_USERNAME
+          value: {{ cluster_cfg['rest-server']['default-pai-admin-username'] }}
+        - name: DEFAULT_PAI_ADMIN_PASSWORD
+          value: {{ cluster_cfg['rest-server']['default-pai-admin-password'] }}
+{% else %}
+        - name: AUTHN_METHOD
+          value: OIDC
+{% endif %}
+        - name: K8S_APISERVER_URI
+          value: {{ cluster_cfg['layout']['kubernetes']['api-servers-url'] }}
+        - name: AZ_RDMA
+          value: "{{ cluster_cfg['cluster']['common']['az-rdma']}}"
+        - name: DEBUGGING_RESERVATION_SECONDS
+          value: "{{ cluster_cfg['rest-server']['debugging-reservation-seconds']}}"
+{% if cluster_cfg['rest-server']['github-owner'] %}
+        - name: GITHUB_OWNER
+          value: {{ cluster_cfg['rest-server']['github-owner'] }}
+{% endif %}
+{% if cluster_cfg['rest-server']['github-repository'] %}
+        - name: GITHUB_REPOSITORY
+          value: {{ cluster_cfg['rest-server']['github-repository'] }}
+{% endif %}
+{% if cluster_cfg['rest-server']['github-path'] %}
+        - name: GITHUB_PATH
+          value: {{ cluster_cfg['rest-server']['github-path'] }}
+{% endif %}
+{% if cluster_cfg['layout']['kubernetes']['api-servers-url'].startswith('https://') %}
+        - name: K8S_APISERVER_CA_FILE
+          value: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+        - name: K8S_APISERVER_TOKEN_FILE
+          value: /var/run/secrets/kubernetes.io/serviceaccount/token
+{% endif %}
+        ports:
+        - name: rest-server
+          containerPort: 8080
+          hostPort: {{ cluster_cfg['rest-server']['server-port'] }}
+        {%- if cluster_cfg['cluster']['common']['qos-switch'] == "true" %}
+        resources:
+          limits:
+            memory: "512Mi"
+        {%- endif %}
+      imagePullSecrets:
+      - name: {{ cluster_cfg["cluster"]["docker-registry"]["secret-name"] }}
+      volumes:
+      - name: pai-configuration-rest-server
+        configMap:
+          name: pai-configuration
+{% if cluster_cfg['authentication']['OIDC'] %}
+      - name: auth-configuration-rest-server
+        configMap:
+          name: auth-configuration
+{% endif %}
+      - name: job-exit-spec-rest-server
+        configMap:
+          name: job-exit-spec-configuration
+      - name: group-configuration-rest-server
+        configMap:
+          name: group-configuration

@@ -1,0 +1,83 @@
+{
+  "name": "pai-rest-server",
+  "version": "0.0.0",
+  "description": "RESTful api server for Microsoft Platform for AI",
+  "keywords": [
+    "REST",
+    "api",
+    "server",
+    "AI",
+    "platform",
+    "PAI"
+  ],
+  "author": "Microsoft",
+  "license": "MIT",
+  "homepage": "https://github.com/Microsoft/pai",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Microsoft/pai.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Microsoft/pai/issues"
+  },
+  "engines": {
+    "node": "^8.9.0"
+  },
+  "dependencies": {
+    "ajv": "^6.10.0",
+    "ajv-merge-patch": "~4.1.0",
+    "async": "~2.5.0",
+    "axios": "~0.19.2",
+    "chai": "~4.1.2",
+    "chai-as-promised": "~7.1.1",
+    "chai-http": "~3.0.0",
+    "compression": "~1.7.1",
+    "cookie-parser": "~1.4.3",
+    "cors": "~2.8.4",
+    "coveralls": "~3.0.0",
+    "dotenv": "~4.0.0",
+    "edge-js": "^13.0.1",
+    "eslint": "~4.18.2",
+    "eslint-config-google": "~0.9.1",
+    "express": "~4.16.2",
+    "express-http-context": "~1.2.3",
+    "fs-extra": "~7.0.1",
+    "http-errors": "~1.6.3",
+    "http-proxy-middleware": "^0.19.1",
+    "ini": "~1.3.5",
+    "joi": "~13.0.1",
+    "js-yaml": "^3.13.1",
+    "jsonwebtoken": "~8.1.0",
+    "lodash": "^4.17.13",
+    "mocha": "~5.0.0",
+    "module-alias": "^2.2.0",
+    "morgan": "~1.9.0",
+    "mustache": "~2.3.0",
+    "nock": "~9.1.6",
+    "node-cache": "~4.2.0",
+    "node-fetch": "^2.6.0",
+    "node-zookeeper-client": "~1.1.0",
+    "nyc": "~11.6.0",
+    "on-headers": "~1.0.2",
+    "path": "~0.12.7",
+    "querystring": "~0.2.0",
+    "sync-request": "~6.1.0",
+    "ssh-keygen": "~0.4.2",
+    "statuses": "~1.5.0",
+    "unirest": "~0.5.1",
+    "uuid": "~3.4.0",
+    "winston": "~2.4.0",
+    "xml2js": "~0.4.19"
+  },
+  "_moduleAliases": {
+    "@pai": "src"
+  },
+  "scripts": {
+    "coveralls": "nyc report --reporter=text-lcov | coveralls ..",
+    "lint": "eslint \"src/**/*.js\"",
+    "mocha": "mocha --require ./test/setup --ui bdd --recursive --timeout 1000 --exit",
+    "start": "node index.js",
+    "test": "npm run lint && nyc npm run mocha",
+    "debug": "node --nolazy --inspect-brk=9229 index.js"
+  }
+}

@@ -1,0 +1,29 @@
+groupDataSource: 'ms-graph'
+adminGroup:
+  groupname: 'adminGroup'
+  description: 'group for admin'
+  externalName: 'mtpsg'
+  extension:
+    groupType: 'admin'
+defaultGroup:
+  groupname: 'default'
+  description: 'group for default vc.'
+  externalName: ''
+  extension:
+    groupType: 'vc'
+grouplist:
+- groupname: 'MTSTCA'
+  description: 'MT STCA team'
+  externalName: 'mtpstca'
+  extension:
+    groupType: ''
+- groupname: 'STCAPlatform'
+  description: 'STCA Platform'
+  externalName: 'stcaplatform'
+  extension:
+    groupType: ''
+- groupname: 'mtuser'
+  description: 'MagneTar User for who not include in above groups'
+  externalName: 'mtuser'
+  extension:
+    groupType: ''

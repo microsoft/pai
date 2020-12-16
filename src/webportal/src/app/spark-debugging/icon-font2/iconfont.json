@@ -1,0 +1,198 @@
+{
+  "id": "",
+  "name": "",
+  "font_family": "iconfont",
+  "css_prefix_text": "icon-",
+  "description": "",
+  "glyphs": [
+    {
+      "icon_id": "356882",
+      "name": "warning",
+      "font_class": "warning",
+      "unicode": "e612",
+      "unicode_decimal": 58898
+    },
+    {
+      "icon_id": "1058093",
+      "name": "error",
+      "font_class": "error",
+      "unicode": "e65c",
+      "unicode_decimal": 58972
+    },
+    {
+      "icon_id": "1368623",
+      "name": "warning",
+      "font_class": "warning1",
+      "unicode": "e61c",
+      "unicode_decimal": 58908
+    },
+    {
+      "icon_id": "1506383",
+      "name": "warning",
+      "font_class": "warning2",
+      "unicode": "e60e",
+      "unicode_decimal": 58894
+    },
+    {
+      "icon_id": "2510085",
+      "name": "error",
+      "font_class": "error1",
+      "unicode": "e766",
+      "unicode_decimal": 59238
+    },
+    {
+      "icon_id": "2971461",
+      "name": "warning",
+      "font_class": "warning3",
+      "unicode": "e625",
+      "unicode_decimal": 58917
+    },
+    {
+      "icon_id": "4444639",
+      "name": "error",
+      "font_class": "error2",
+      "unicode": "e61d",
+      "unicode_decimal": 58909
+    },
+    {
+      "icon_id": "4586714",
+      "name": "warning",
+      "font_class": "warning4",
+      "unicode": "e96b",
+      "unicode_decimal": 59755
+    },
+    {
+      "icon_id": "4929901",
+      "name": "Warning",
+      "font_class": "Warning",
+      "unicode": "e604",
+      "unicode_decimal": 58884
+    },
+    {
+      "icon_id": "5402904",
+      "name": "Warning",
+      "font_class": "Warning1",
+      "unicode": "e6f3",
+      "unicode_decimal": 59123
+    },
+    {
+      "icon_id": "6854976",
+      "name": "warning",
+      "font_class": "jinggao",
+      "unicode": "e827",
+      "unicode_decimal": 59431
+    },
+    {
+      "icon_id": "6878990",
+      "name": "warning",
+      "font_class": "warning5",
+      "unicode": "e68f",
+      "unicode_decimal": 59023
+    },
+    {
+      "icon_id": "6973257",
+      "name": "warning (1)",
+      "font_class": "warning6",
+      "unicode": "e664",
+      "unicode_decimal": 58980
+    },
+    {
+      "icon_id": "7224676",
+      "name": "warning",
+      "font_class": "warning7",
+      "unicode": "e668",
+      "unicode_decimal": 58984
+    },
+    {
+      "icon_id": "7441035",
+      "name": "warning",
+      "font_class": "warning8",
+      "unicode": "e624",
+      "unicode_decimal": 58916
+    },
+    {
+      "icon_id": "8149882",
+      "name": "warning",
+      "font_class": "warning9",
+      "unicode": "e605",
+      "unicode_decimal": 58885
+    },
+    {
+      "icon_id": "8646659",
+      "name": "warning",
+      "font_class": "warning10",
+      "unicode": "e61a",
+      "unicode_decimal": 58906
+    },
+    {
+      "icon_id": "9470369",
+      "name": "Error",
+      "font_class": "Error",
+      "unicode": "e609",
+      "unicode_decimal": 58889
+    },
+    {
+      "icon_id": "9934662",
+      "name": "WARNING",
+      "font_class": "WARNING",
+      "unicode": "e7d2",
+      "unicode_decimal": 59346
+    },
+    {
+      "icon_id": "10191600",
+      "name": "warning",
+      "font_class": "alert-warning-filled",
+      "unicode": "e617",
+      "unicode_decimal": 58903
+    },
+    {
+      "icon_id": "11326226",
+      "name": "warning",
+      "font_class": "warning11",
+      "unicode": "e61e",
+      "unicode_decimal": 58910
+    },
+    {
+      "icon_id": "11326823",
+      "name": "warning",
+      "font_class": "warning12",
+      "unicode": "e637",
+      "unicode_decimal": 58935
+    },
+    {
+      "icon_id": "11362760",
+      "name": "Warning",
+      "font_class": "Warning2",
+      "unicode": "e63c",
+      "unicode_decimal": 58940
+    },
+    {
+      "icon_id": "11409621",
+      "name": "warning",
+      "font_class": "warning13",
+      "unicode": "e767",
+      "unicode_decimal": 59239
+    },
+    {
+      "icon_id": "12551117",
+      "name": "msg-warning",
+      "font_class": "warning14",
+      "unicode": "e601",
+      "unicode_decimal": 58881
+    },
+    {
+      "icon_id": "14468845",
+      "name": "warning",
+      "font_class": "warning15",
+      "unicode": "e626",
+      "unicode_decimal": 58918
+    },
+    {
+      "icon_id": "16369792",
+      "name": "warning",
+      "font_class": "warning16",
+      "unicode": "e613",
+      "unicode_decimal": 58899
+    }
+  ]
+}

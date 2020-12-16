@@ -1,0 +1,294 @@
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<div style="margin-top: 30px; margin-left: 10px">
+  <span style="font-size: 25px">Virtual Clusters</span>
+</div>
+<div style="display: flex; margin-top: 20px; widows: 15%;; height:45px">
+  <% if (subClusters.includes(specifiedSubCluster) && isValidCluster) {%>
+    <button class="selectbtn" style="width:13%;"><%- specifiedSubCluster%></button>
+  <%} else {%>
+    <button class="selectbtn" style="width:13%">Cluster</button>
+  <%}%>
+  <div class="select-dropdown">
+    <button class="selectbtn" style="border-left:1px solid #0d8bf2; width:auto">
+      <i class="fa fa-caret-down"></i>
+    </button>
+    <div class="select-dropdown-content" style="width: auto solid;">
+      <% let subClustersNum = subClusters.length %>
+      <% for (let i = 0; i < subClustersNum; i++) { %>
+        <a href="/virtual-clusters.html?subCluster=<%- subClusters[i]%>"><%- subClusters[i]%></a>
+      <% }%>
+    </div>
+  </div>
+</div>
+
+<div class="tab">
+  <% const queueLength = isValidCluster? data.queues.queue.length : 0 %>
+  <% for (let i = 0; i < queueLength; i++) { %>
+    <% let tabID = data.queues.queue[i].queueName + "Tab" %>
+    <% if (!data.queues.queue[i].hasOwnProperty('queues')) { %>
+      <button class="tablinks" id = <%=tabID%> onclick="openQueue(event, '<%= data.queues.queue[i].queueName %>') "> <%= data.queues.queue[i].queueName %></button>
+    <% } else { %>
+      <div class="dropdown">
+        <%let subQueues= data.queues.queue[i].queueName + 'subQueues'%>
+        <button class="dropdown-btn" id = <%=tabID%> onclick="openSubQueues(event, '<%= data.queues.queue[i].queueName %>', '<%=subQueues%>') "><%= data.queues.queue[i].queueName %>
+          <i id= <%=subQueues%> class="fa fa-angle-left"> </i>
+        </button>
+        <div class="dropdown-content">
+          <% for (let j = 0; j < data.queues.queue[i].queues.queue.length; j++){ %>
+            <% tabID = data.queues.queue[i].queues.queue[j].queueName + 'Tab' %>
+            <button class="tablinks" id = <%=tabID%> onclick="openQueue(event, '<%= data.queues.queue[i].queues.queue[j].queueName %>') "> <%= data.queues.queue[i].queues.queue[j].queueName %></button>
+          <% } %>
+        </div>
+      </div>
+    <% } %>
+  <% } %>
+</div>
+
+<% var queues =[] %>
+<%for (let i = 0; i < queueLength; i++) { %>
+  <% queues.push(data.queues.queue[i]) %>
+  <% if (data.queues.queue[i].hasOwnProperty('queues')) { %>
+    <% for (let j = 0; j < data.queues.queue[i].queues.queue.length; j++) { %>
+      <% queues.push(data.queues.queue[i].queues.queue[j]) %>
+    <% } %>
+  <% } %>
+<% } %>
+
+<div id="queue status" class="queuescontent">
+  <% for (let i = 0; i < queues.length; i++) { %>
+    <div id= <%= queues[i].queueName %> class="tabcontent">
+      <h3> <%= queues[i].queueName %></h3>
+      <div class="Legend">
+        <span style="font-weight: bold">Legend:</span>
+        <span class="qlegend ui-corner-all" style="background:#5BD75B">Used</span>
+        <span class="qlegend ui-corner-all" style="background:#FFA333">Used (over 80%)</span>
+        <span class="qlegend ui-corner-all" style="background:red">Used (over capacity)</span>
+        <span class="qlegend ui-corner-all ui-state-default" style="background-color: #ddd;">Virtual Clusters Capacity</span>
+      </div>
+
+      <% for (let j = 0; j < queues[i].capacityAndResourceInfo.length; j++) { %>
+        <% let label = queues[i].capacityAndResourceInfo[j].label.length > 0 ? queues[i].capacityAndResourceInfo[j].label : 'DEFAULT_PARTITION' %>
+        <% let panelID = queues[i].queueName + label %>
+        <% let caretID = queues[i].queueName + label + label %>
+        <% let capacityAndResourceInfo = queues[i].capacityAndResourceInfo[j] %>
+        <% let usedCapacity =(capacityAndResourceInfo.resourcesConfigured.memory === 0 || capacityAndResourceInfo.resourcesConfigured.vCores === 0) ? capacityAndResourceInfo.usedCapacity : Math.max(capacityAndResourceInfo.resourcesAllocated.memory/capacityAndResourceInfo.resourcesConfigured.memory, capacityAndResourceInfo.resourcesAllocated.vCores/capacityAndResourceInfo.resourcesConfigured.vCores) * 100 %>
+        <% let accordionbackgroundColor =  (usedCapacity < 100? '#ddd' : 'red') %>
+        <div class="accordion" style="height: 30px; margin-top: 10px; width: 100%; display: inline-block; border-radius: 6px; background: <%=accordionbackgroundColor%>" onclick= "openPanel(event, '<%= panelID %>', '<%= caretID %>') ">
+          <i id= <%=caretID%> class="fa fa-angle-down" style="width: 1%"> </i>
+          <% let width = (usedCapacity < 80? usedCapacity : (usedCapacity > 97 ? 97 : usedCapacity))%>
+          <% let backgroundColor = (usedCapacity < 80 ?'rgb(91, 215, 91)' : (usedCapacity < 100 ? 'rgb(255, 163, 51)' : 'none')) %>
+          <div class="progress-bar"  role="progressbar" style="width: <%= width%>%; background: <%=backgroundColor%>; font-size: 14px; border-radius: 6px;" aria-valuenow="25" aria-valuemin="0" aria-valuemax=100>
+            <%= label%>  (<%=usedCapacity.toFixed(2)%>% Used)
+          </div>
+        </div>
+        <div id= <%=panelID%> class="panel info-wrap ui-widget-content ui-corner-bottom">
+        <% let partitionResource = 0 %>
+        <%for (let len = 0; len < data.capacityAndResourceInfo.length; len++) {%>
+          <% if (data.capacityAndResourceInfo[len].label === capacityAndResourceInfo.label) {%>
+            <% partitionResource = data.capacityAndResourceInfo[len].resourcesConfigured %>
+            <% break%>
+          <%}%>
+        <%}%>
+        <% var queueInfo = queues[i] %>
+        <table>
+          <tr>
+            <th class="ui-state-default" colspan="2">
+              '<%=queues[i].queueName%>' Queue Status for Partition '<%=label%>'
+            </th>
+          </tr>
+          <tr>
+            <th style="width:700px">Used Capacity:</th>
+            <td style="width:700px"> memory:<%= (capacityAndResourceInfo.resourcesAllocated.memory/1024).toFixed(0)%>Gi, VCores: <%= capacityAndResourceInfo.resourcesAllocated.vCores %> (<%=usedCapacity.toFixed(2)%>%)</td>
+          </tr>
+          <tr>
+            <th>Configured Capacity:</th>
+            <td> memory:<%= (capacityAndResourceInfo.resourcesConfigured.memory/1024).toFixed(0)%>Gi, VCores: <%= capacityAndResourceInfo.resourcesConfigured.vCores %></td>
+          </tr>
+          <tr>
+            <th>Reserved Capacity:</th>
+            <td> memory:<%= (capacityAndResourceInfo.resourcesReserved.memory/1024).toFixed(0)%>Gi, VCores: <%= capacityAndResourceInfo.resourcesReserved.vCores %></td>
+          </tr>
+          <tr>
+            <th>Configured Max Capacity:</th>
+            <td> memory:<%= (capacityAndResourceInfo.effectiveMaxResource.memory/1024).toFixed(0)%>Gi, VCores: <%= capacityAndResourceInfo.effectiveMaxResource.vCores %></td>
+          </tr>
+          <tr>
+            <th>Absolute Used Capacity:</th>
+            <% let absoluteUsedCapacity = (partitionResource.memory ===0 || partitionResource.vCores === 0) ? capacityAndResourceInfo.absoluteUsedCapacity : Math.max(capacityAndResourceInfo.resourcesAllocated.memory/partitionResource.memory, capacityAndResourceInfo.resourcesAllocated.vCores/partitionResource.vCores) * 100 %>
+            <td> <%= absoluteUsedCapacity.toFixed(2)%>%</td>
+          </tr>
+          <tr>
+            <th>Pending Request:</th>
+            <td> memory:<%= capacityAndResourceInfo.resourcesPending.memory/1024%>Gi, VCores: <%= capacityAndResourceInfo.resourcesPending.vCores %></td>
+          </tr>
+          <tr>
+            <% let absoluteCapacity = (partitionResource.memory ===0 || partitionResource.vCores === 0) ? capacityAndResourceInfo.absoluteCapacity : Math.max(capacityAndResourceInfo.resourcesConfigured.memory/partitionResource.memory, capacityAndResourceInfo.resourcesConfigured.vCores/partitionResource.vCores) * 100 %>
+            <% absoluteCapacity > 100? 100 : absoluteCapacity%>
+            <th>Absolute Configured Capacity:</th>
+            <td><%= absoluteCapacity.toFixed(2)%>%</td>
+          </tr>
+          <tr>
+            <th>Absolute Configured Max Capacity:</th>
+            <td><%= capacityAndResourceInfo.absoluteMaxCapacity%>%</td>
+          </tr>
+          <tr>
+            <th>Configured Max Application Master Limit:</th>
+            <td><%= capacityAndResourceInfo.maxAMLimitPercentage%> </td>
+          </tr>
+          <% if (queueInfo.hasOwnProperty('queues')) { %> 
+            <tr>
+              <th>Submit Applications Acl:</th>
+              <td><%= queueInfo.submitApplicationsAcl ?  queueInfo.submitApplicationsAcl : 'Not supported yet' %></td>
+            </tr>
+            <tr>
+              <th>Administer Applications AcL:</th>
+              <td><%= queueInfo.administerQueueAcl ? queueInfo.administerQueueAcl : 'Not supported yet'%></td>
+            </tr>
+          <% } %>
+        </table>
+        <% if (!queueInfo.hasOwnProperty('queues')) { %> 
+        <table>
+          <tr>
+            <th class="ui-state-default" colspan="2">
+              '<%=queues[i].queueName%>' Queue Status
+            </th>
+          </tr>
+          <tr>
+            <th style="width:700px">Queue State:</th>
+            <td style="width:700px"><%= queueInfo.state %></td>
+          </tr>
+          <tr>
+            <th>Num Running Application:</th>
+            <td><%= queueInfo.numRunningApplications %></td>
+          </tr>
+          <tr>
+            <th>Num Pending Application:</th>
+            <td><%= queueInfo.numNonRunningApplications %></td>
+          </tr>
+          <tr>
+            <th>Max Application:</th>
+            <td><%= queueInfo.maxApplications %></td>
+          </tr>
+          <tr>
+            <th>Max Application Per User:</th>
+            <td><%= queueInfo.maxApplications %></td>
+          </tr>
+          <tr>
+            <th>Configured Minimum User Limit Percent:</th>
+            <td><%= queueInfo.userLimit %></td>
+          </tr>
+          <tr>
+            <th>Configured User Limit Factor:</th>
+            <td><%= queueInfo.userLimitFactor %></td>
+          </tr>
+          <tr>
+            <th>Accessible Node Labels:</th>
+            <td><%= queueInfo.nodeLabels %></td>
+          </tr>
+          <tr>
+            <th>Preemption:</th>
+            <td><%= (queueInfo.preemptionDisabled === true ? 'disabled' : 'enabled')  %></td>
+          </tr>
+          <tr>
+            <th>Intra-queue Preemption:</th>
+            <td><%= (queueInfo.intraQueuePreemptionDisabled === true ? 'disabled' : 'enabled')  %></td>
+          </tr>
+          <tr>
+            <th>Default Node Label Expression:</th>
+            <td><%= queueInfo.defaultNodeLabelExpression %></td>
+          </tr>
+          <tr>
+            <th>Default Application Priority:</th>
+            <td><%= queueInfo.defaultPriority %></td>
+          </tr>
+          <tr>
+            <th>Submit Applications Acl:</th>
+            <td><%= queueInfo.submitApplicationsAcl ?  queueInfo.submitApplicationsAcl : 'Not supported yet'%></td>
+          </tr>
+          <tr>
+            <th>Administer Applications AcL:</th>
+            <td><%= queueInfo.administerQueueAcl ?  queueInfo.administerQueueAcl : 'Not supported yet'%></td>
+          </tr>
+        </table>
+        <% } %>
+        <% if (!queues[i].hasOwnProperty('queues') && queues[i].hasOwnProperty('users') &&  queues[i].users.hasOwnProperty('user')) { %> 
+        <p style= "padding-top: 10px; font-weight: bold;">Active Users Info</p>
+        <%= modalUser({'users': queueInfo.users, 'label': capacityAndResourceInfo.label}) %>
+        <% } %>
+    </div>
+    <% } %>
+    <% let yarnJavirsUri = `https://jarvis-west.dc.ad.msft.net/dashboard/mtp-prod/Overview/YARN?overrides=` + '[{%22query%22:%22//*[id=%27Queue%27]%22,%22key%22:%22value%22,%22replacement%22:%22' + queues[i].queueName + '%22}]%20' %>
+    <div class="historical">
+      <a href="job-list.html?subCluster=<%=cookies.get("subClusterUri")%>&vcName=<%= queues[i].queueName %>">View Jobs</a>
+    </div>
+    <div class="historical">
+      <a href=<%=yarnJavirsUri%> target="_blank">Historical Resource Usage</a>
+    </div>
+</div>
+<% } %>
+</div>
+
+<script>
+  function openQueue(evt, queueName) {
+    let i, tabcontent, tablinks;
+    tabcontent = document.getElementsByClassName("tabcontent");
+    for (i = 0; i < tabcontent.length; i++) {
+      tabcontent[i].style.display = "none";
+    }
+    tablinks = document.getElementsByClassName("tablinks");
+    for (i = 0; i < tablinks.length; i++) {
+      tablinks[i].className = tablinks[i].className.replace(" active", "");
+    }
+
+    tablinks = document.getElementsByClassName("dropdown-btn");
+    for (i = 0; i < tablinks.length; i++) {
+      tablinks[i].className = tablinks[i].className.replace(" active", "");
+    }
+
+    document.getElementById(queueName).style.display = "block";
+    evt.currentTarget.className += " active";
+    
+    let parentNode = document.getElementById(queueName + "Tab").parentElement;
+    if (parentNode.classList.contains('dropdown-content')) {
+      parentNode.style.display = "block";
+    }
+    var vcPara = '#vcName=' + queueName
+    window.history.pushState(null, null, vcPara);
+  }
+  </script>
+
+<script>
+  function openSubQueues(evt, queueName, subQueues) {
+    openQueue(evt, queueName);
+    document.getElementById(subQueues).classList.toggle("fa-angle-left");
+    document.getElementById(subQueues).classList.toggle("fa-angle-down");
+    let dropdownContent = document.getElementById(queueName + "Tab").nextElementSibling;
+      if (dropdownContent.style.display === "block") {
+        dropdownContent.style.display = "none";
+      } else {
+        dropdownContent.style.display = "block";
+      }
+
+  }
+</script>
+
+<script>
+  function openPanel(evt, queueName, caretID) {
+    if (document.getElementById(queueName).style.display === "block") {
+      document.getElementById(queueName).style.display = "none";
+      document.getElementById(caretID).classList.remove("fa-angle-up");
+      document.getElementById(caretID).classList.add("fa-angle-down");
+    } else {
+      document.getElementById(queueName).style.display = "block";
+      document.getElementById(caretID).classList.remove("fa-angle-down");
+      document.getElementById(caretID).classList.add("fa-angle-up");
+    }
+  }
+</script>
+
+<script>
+  var vcTab= "<%=vcName %>" + "Tab";
+  if (vcTab !== "Tab") {
+    document.getElementById(vcTab).click();
+  } 
+</script>

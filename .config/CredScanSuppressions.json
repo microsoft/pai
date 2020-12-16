@@ -1,0 +1,9 @@
+{
+  "tool": "Credential Scanner",
+  "suppressions": [
+    {
+      "file": "\\src\\rest-server\\test\\data\\private-key.pem",
+      "_justification": "It is only used by unit test, prod will use the one decrypted by AP Secret Store"
+    }
+  ]
+}

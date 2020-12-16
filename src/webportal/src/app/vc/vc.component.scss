@@ -1,0 +1,247 @@
+/* Style the tab */
+.tab {
+  margin-top: 3px;
+  float: left;
+  border: 1px solid #ccc;
+  background-color:#F0F0F0;
+  width: 15%;
+  color: white;
+  height: inherit;
+  overflow-y: scroll;
+}
+
+/* Style the buttons inside the tab */
+.tab button {
+  display: block;
+  background-color: inherit;
+  color: black;
+  padding: 14px 14px;
+  width: 100%;
+  border: none;
+  outline: none;
+  text-align: left;
+  cursor: pointer;
+  transition: 0.3s;
+  font-size: 15px;
+}
+
+
+/* Change background color of buttons on hover */
+.tab button:hover:not(.active) {
+  background-color: #555;
+  color: white;
+}
+
+/* Create an active/current "tab button" class */
+.tab button.active {
+  background: #3c8dbc;
+  color: black;
+}
+
+div.tabcontent {
+  padding-left: 30px;
+  float: left;
+  width: 100%;
+  background-color:white;
+  position: relative;
+  display: none;
+  min-height: 100%;
+}
+
+div.queuescontent {
+  float: left;
+  height: inherit;
+  width: 85%;
+  background-color:#F0F0F0;
+  overflow-x: hidden;
+  overflow-y: scroll;
+  position: relative;
+  margin-top: 3px;
+}
+
+.dropdown dropdown-btn {
+  display: block;
+  background-color: inherit;
+  color: black;
+  padding: 15px 10px;
+  width: 100%;
+  border: none;
+  outline: none;
+  text-align: left;
+  cursor: pointer;
+  transition: 0.3s;
+  font-size: 15px;
+}
+
+/* Dropdown container (hidden by default). Optional: add a lighter background color and some left padding to change the design of the dropdown content */
+.dropdown-content{
+  display: none;
+  background-color: inherit;
+  padding-left: 30px;
+}
+
+/* Optional: Style the caret down icon */
+.fa-angle-down {
+  float: right;
+  padding-right: 2%;
+}
+
+/* Optional: Style the caret down icon */
+.fa-angle-up {
+  float: right;
+  padding-right: 2%;
+}
+
+.fa-angle-left {
+  float: right;
+  padding-right: 20px;
+}
+
+.historical {
+  padding-right: 20px;
+  margin-top: 40px;
+  font-size: 18px;
+  color: #3c8dbc;
+}
+
+.qlegend {
+  font-weight: normal;
+  padding: 0 1em;
+  margin: 1em
+}
+
+.Legend {
+  margin-bottom: 20px;
+}
+
+.accordion {
+  width: 100%;
+  background-color: #ddd;
+  margin-bottom: 3px;
+  text-align: left;
+}
+
+.progress-bar {
+  text-align: left;
+  padding-top: 10px;
+  padding-bottom: 15px;
+  display: block;
+  position: inherit;
+  height: 30px;
+  color: black;
+  word-break:keep-all;
+  white-space:nowrap;
+}
+
+.accordion:hover {
+  background-color: #ccc;
+}
+
+.panel {
+  float: left;
+  padding: 0 18px;
+  display: none;
+  background-color: white;
+}
+
+table {
+  border-collapse: collapse;
+  border-spacing: 0;
+  width: 100%;
+  border: 1px solid #ccc;
+}
+
+td {
+  text-align: left;
+  padding: 4px;
+}
+th {
+  text-align: right;
+  padding: 4px;
+}
+
+tr:nth-child(even) {
+  background-color: #f2f2f2
+}
+
+.selectbtn {
+  background-color: #2196F3;
+  color: white;
+  padding: 14px;
+  font-size: 15px;
+  border: none;
+  outline: none;
+  width: auto;
+}
+
+.select-dropdown {
+  display: inline-block;
+}
+
+.select-dropdown-content {
+  position: relative;
+  display: none;
+  background-color: #f1f1f1;
+  min-width: 180px;
+  z-index: 1;
+}
+
+.select-dropdown-content a {
+  color: black;
+  padding: 12px 16px;
+  text-decoration: none;
+  display: block;
+}
+
+.select-dropdown-content a:hover {background-color: #2196F3}
+
+.select-dropdown:hover .select-dropdown-content {
+  display: block;
+  background-color: #ddd;
+}
+
+.selectbtn:hover, .select-dropdown:hover .selectbtn {
+  background-color: #0b7dda;
+}
+
+#overlay {
+  position: fixed;
+  top: 0;
+  z-index: 100;
+  width: 100%;
+  height: 100%;
+  display: block;
+  background: rgba(0, 0, 0, 0);
+}
+.cv-spinner {
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px #ddd solid;
+  border-top: 4px #2e93e6 solid;
+  border-radius: 50%;
+  animation: sp-anime 0.8s infinite linear;
+}
+@keyframes sp-anime {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+  transform: rotate(359deg);
+  }
+}
+.is-hide {
+  display: none;
+}
+
+/* Some media queries for responsiveness */
+@media screen {
+  .sidenav {padding-top: 15px;}
+  .sidenav a {font-size: 18px;}
+}
+
