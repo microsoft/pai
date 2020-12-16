@@ -38,7 +38,7 @@ const k8sLauncherConfigSchema = Joi.object()
     enabledJobHistory: Joi.boolean().required(),
     writeMergerUrl: Joi.string().required(),
     defaultComputingDeviceType: Joi.string().required(),
-    hivedComputingDeviceEnvs: Joi.array().items(Joi.string()),
+    hivedComputingDeviceEnvs: Joi.array().items(Joi.string()).required(),
     healthCheckPath: Joi.func().arity(0).required(),
     frameworksPath: Joi.func().arity(0).required(),
     frameworkPath: Joi.func().arity(1).required(),

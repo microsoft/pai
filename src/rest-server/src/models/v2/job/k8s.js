@@ -636,9 +636,16 @@ const generateTaskRole = (
   };
   // check cpu job
   if (config.taskRoles[taskRole].resourcePerInstance.gpu === 0) {
-    for (const envName of launcherConfig.hivedComputingDeviceEnvs) {
+    if (launcherConfig.enabledHived) {
+      for (const envName of launcherConfig.hivedComputingDeviceEnvs) {
+        frameworkTaskRole.task.pod.spec.containers[0].env.push({
+          name: envName,
+          value: 'none',
+        });
+      }
+    } else {
       frameworkTaskRole.task.pod.spec.containers[0].env.push({
-        name: envName,
+        name: 'NVIDIA_VISIBLE_DEVICES',
         value: 'none',
       });
     }

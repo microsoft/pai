@@ -137,7 +137,7 @@ spec:
         - name: DEFAULT_COMPUTING_DEVICE_TYPE
           value: {{ cluster_cfg['rest-server']['default-computing-device-type'] }}
         - name: HIVED_COMPUTING_DEVICE_ENVS
-          value: {{ cluster_cfg['rest-server']['hived-computing-device-envs']|join(',') }}
+          value: {{ cluster_cfg['rest-server']['hived-computing-device-envs'] }}
         ports:
         - name: rest-server
           containerPort: 8080
