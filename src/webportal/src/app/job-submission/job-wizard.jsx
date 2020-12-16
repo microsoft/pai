@@ -133,7 +133,8 @@ const JobWizard = ({ setYamlText, history }) => {
             <Stack horizontalAlign='center' gap={50}>
               <WizardButton
                 onClick={() => {
-                  uploadFile.current.click();
+                  // uploadFile.current.click();
+                    history.push('/yaml-edit');
                 }}
               >
                 <IconUpload />
