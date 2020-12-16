@@ -19,22 +19,33 @@
 
 pushd $(dirname "$0") > /dev/null
 
-PYTHONPATH="../../../deployment" python -m k8sPaiLibrary.maintaintool.update_resource \
-    --operation delete --resource daemonset --name k8s-host-device-plugin-daemonset --namespace kube-system
+# Remove device plugins of computing devices.
 
+# Begin: NVIDIA GPU device plugin
 {% if 'nvidia.com/gpu' in cluster_cfg['device-plugin']['devices'] %}
 
 PYTHONPATH="../../../deployment" python -m k8sPaiLibrary.maintaintool.update_resource \
     --operation delete --resource daemonset --name nvidia-device-plugin-daemonset --namespace kube-system
 
 {% endif %}
+# End: NVIDIA GPU device plugin
 
+# Begin: AMD GPU device plugin
 {% if 'amd.com/gpu' in cluster_cfg['device-plugin']['devices'] %}
 
 PYTHONPATH="../../../deployment" python -m k8sPaiLibrary.maintaintool.update_resource \
     --operation delete --resource daemonset --name amdgpu-device-plugin-daemonset --namespace kube-system
 
 {% endif %}
+# End: AMD GPU device plugin
+
+# Please add other types of computing devices here.
+# Use comment "Begin: <device plugin name>" and "End: <device plugin name>"
+
+# Other devices (except computing devices)
+
+PYTHONPATH="../../../deployment" python -m k8sPaiLibrary.maintaintool.update_resource \
+    --operation delete --resource daemonset --name k8s-host-device-plugin-daemonset --namespace kube-system
 
 {% if 'rdma/hca' in cluster_cfg['device-plugin']['devices'] %}
 
