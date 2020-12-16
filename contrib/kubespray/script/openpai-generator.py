@@ -1,24 +1,22 @@
 import os
 import sys
 import re
+import copy
 import argparse
 import logging
 import logging.config
+import math
 from decimal import Decimal
 import yaml
 import jinja2
+from kubernetes import client, config
 from kubernetes.utils import parse_quantity
+from kubernetes.client.rest import ApiException
 
 # reserved resources
 PAI_RESERVE_RESOURCE_PERCENTAGE = 0.01
 PAI_MAX_RESERVE_CPU_PER_NODE = 0.5
 PAI_MAX_RESERVE_MEMORY_PER_NODE = 1024 # 1Gi
-
-KUBE_RESERVED_CPU = 0.01 # 100m
-KUBE_RESERVED_MEM = 256 # Mi
-SYSTEM_RESERVED_CPU = 0
-SYSTEM_RESERVED_MEM = 0
-EVICTION_HARD_MEM = 100 #Mi
 
 
 def setup_logger_config(logger):
@@ -69,6 +67,73 @@ def generate_template_file(template_file_path, output_path, map_table):
     write_generated_file(output_path, generated_template)
 
 
+def get_kubernetes_node_info_from_API():
+    config.load_kube_config()
+    api_instance = client.CoreV1Api()
+    # https://github.com/kubernetes-client/python/blob/master/kubernetes/docs/CoreV1Api.md#list_node
+    pretty = 'true'
+    timeout_seconds = 56
+    ret = dict()
+    try:
+        api_response = api_instance.list_node(pretty=pretty, timeout_seconds=timeout_seconds)
+        for node in api_response.items:
+            ret[node.metadata.name] = {
+                "cpu-resource": parse_quantity(node.status.allocatable['cpu']),
+                "mem-resource": parse_quantity(node.status.allocatable['memory']) / 1024 / 1024,
+            }
+    except ApiException as e:
+        logger.error("Exception when calling CoreV1Api->list_node: %s\n" % e)
+        raise
+
+    return ret
+
+
+def get_pod_requests(pod):
+    ret = {
+        "cpu-resource": 0,
+        "mem-resource": 0,
+    }
+    for container in pod.spec.containers:
+        if container.resources.requests is None:
+            continue
+        ret["cpu-resource"] += parse_quantity(container.resources.requests.get("cpu", 0))
+        ret["mem-resource"] += parse_quantity(container.resources.requests.get("memory", 0)) / 1024 / 1024
+    return ret
+
+
+def get_kubernetes_pod_info_from_API():
+    config.load_kube_config()
+    api_instance = client.CoreV1Api()
+
+    timeout_seconds = 56
+
+    ret = dict()
+    try:
+        api_response = api_instance.list_pod_for_all_namespaces(timeout_seconds=timeout_seconds)
+        for pod in api_response.items:
+            if pod.spec.node_name not in ret:
+                ret[pod.spec.node_name] = [get_pod_requests(pod)]
+            else:
+                ret[pod.spec.node_name].append(get_pod_requests(pod))
+    except ApiException:
+        logger.error("Exception when calling CoreV1Api->list_pod", exc_info=True)
+        raise
+    return ret
+
+
+def get_node_resources():
+    node_allocatable_resources = get_kubernetes_node_info_from_API()
+    node_free_resources = copy.deepcopy(node_allocatable_resources)
+    pod_resources_dict = get_kubernetes_pod_info_from_API()
+    for node_name in node_free_resources:
+        if node_name not in pod_resources_dict:
+            continue
+        for pod in pod_resources_dict[node_name]:
+            node_free_resources[node_name]["cpu-resource"] -= pod["cpu-resource"]
+            node_free_resources[node_name]["mem-resource"] -= pod["mem-resource"]
+    return {"allocatable": node_allocatable_resources, "free": node_free_resources}
+
+
 def get_pai_daemon_resource_request(cfg):
     ret = {
         "cpu-resource": 0,
@@ -107,6 +172,31 @@ def get_pai_daemon_resource_request(cfg):
     return ret
 
 
+def get_min_free_resource(workers, node_resource_dict, pai_daemon_resource_dict):
+    """
+    get the minimum free memory and cpu resource among a list of workers
+    """
+    min_mem = math.inf
+    min_cpu = math.inf
+
+    for node_name in workers:
+        reserved_cpu = min(node_resource_dict["allocatable"][node_name]["cpu-resource"] * Decimal(PAI_RESERVE_RESOURCE_PERCENTAGE), Decimal(PAI_MAX_RESERVE_CPU_PER_NODE))
+        reserved_mem = min(node_resource_dict["allocatable"][node_name]["mem-resource"] * Decimal(PAI_RESERVE_RESOURCE_PERCENTAGE), Decimal(PAI_MAX_RESERVE_MEMORY_PER_NODE))
+        min_cpu = min(min_cpu, node_resource_dict["free"][node_name]["cpu-resource"] - pai_daemon_resource_dict["cpu-resource"] - reserved_cpu)
+        min_mem = min(min_mem, node_resource_dict["free"][node_name]["mem-resource"] - pai_daemon_resource_dict["mem-resource"] - reserved_mem)
+        if min_cpu <= 0 or min_mem <= 0:
+            logger.error("The node resource does not satisfy minmal requests. Requests cpu: %s, mem: %sMB.\
+                          Allcoatable cpu: %s, mem: %sMB. Reserved cpu:%s, mem: %sMB.",
+                node_resource_dict["allocatable"][node_name]["cpu-resource"] + abs(min_cpu),
+                node_resource_dict["allocatable"][node_name]["mem-resource"] + abs(min_mem),
+                node_resource_dict["allocatable"][node_name]["cpu-resource"],
+                node_resource_dict["allocatable"][node_name]["mem-resource"],
+                reserved_cpu, reserved_mem)
+            sys.exit(1)
+
+    return min_mem, min_cpu
+
+
 def get_hived_config(layout, config):
     """
     generate hived config from layout.yaml and config.yaml
@@ -123,52 +213,59 @@ def get_hived_config(layout, config):
     --------
     dict
         hived config, used to render hived config template
+        Example:
+        {
+            "skus": {
+                "gpu-machine": {
+                    "mem": 500,
+                    "cpu": 2,
+                    "gpu": True,
+                    "gpuCount": 4,
+                    "workers": [
+                        "pai-gpu-worker0",
+                        "pai-gpu-worker1"
+                    ]
+                },
+                "cpu-machine": {
+                    "mem": 500,
+                    "cpu": 2,
+                    "workers": [
+                        "pai-cpu-worker0",
+                        "pai-cpu-worker1"
+                    ]
+                }
+            }
+        }
     """
-    pai_daemon_resource_dict = get_pai_daemon_resource_request(config)
-    sku_specs = {}
-    for sku_name, sku_spec in layout['machine-sku'].items():
-        # save memory with unit Mi
-        sku_spec['mem'] = parse_quantity(sku_spec['mem']) / 1024 / 1024
-
-        # calculate reserved resources
-        pai_reserved_cpu = min(sku_spec['cpu']['vcore'] * Decimal(PAI_RESERVE_RESOURCE_PERCENTAGE), Decimal(PAI_MAX_RESERVE_CPU_PER_NODE))
-        pai_reserved_mem = min(sku_spec['mem'] * Decimal(PAI_RESERVE_RESOURCE_PERCENTAGE), Decimal(PAI_MAX_RESERVE_MEMORY_PER_NODE))
-        reserved_cpu = SYSTEM_RESERVED_CPU + KUBE_RESERVED_CPU + pai_reserved_cpu + pai_daemon_resource_dict["cpu-resource"]
-        reserved_mem = SYSTEM_RESERVED_MEM + KUBE_RESERVED_MEM + EVICTION_HARD_MEM + pai_reserved_mem + pai_daemon_resource_dict["mem-resource"]
-
-        if sku_spec['cpu']['vcore'] <= reserved_cpu or sku_spec['mem'] <= reserved_mem:
-            logger.error("The node resource does not satisfy minmal requests. Toal cpu: %s, mem: %sMB; Reserved cpu:%s, mem: %sMB.",
-                sku_spec['cpu']['vcore'], sku_spec['mem'], reserved_cpu, reserved_mem)
-            sys.exit(1)
-
-        # check if the machine has GPUs
-        if 'computing-device' in sku_spec:
-            sku_specs[sku_name] = {
-                'cpu': int((sku_spec['cpu']['vcore'] - reserved_cpu) / sku_spec['computing-device']['count']),
-                'mem': int((sku_spec['mem'] - reserved_mem) / sku_spec['computing-device']['count']),
-                'gpu': True,
-                'gpuCount': sku_spec['computing-device']['count'],
-            }
-        else:
-            sku_specs[sku_name] = {
-                'cpu': int(sku_spec['cpu']['vcore'] - reserved_cpu),
-                'mem': int(sku_spec['mem'] - reserved_mem),
-            }
-
+    # set `workers` field
     skus = {}
     for machine in layout['machine-list']:
         if 'pai-worker' in machine and machine['pai-worker'] == 'true':
             sku_name = machine['machine-type']
-            sku_spec = sku_specs[sku_name]
             if sku_name not in skus:
-                skus[sku_name] = sku_spec.copy()
                 skus[sku_name]['workers'] = [machine['hostname']]
             else:
                 skus[sku_name]['workers'].append(machine['hostname'])
 
     if not bool(skus):
-        logger.error("No worker node is detected.")
+        logger.error("No worker node detected.")
         sys.exit(1)
+
+    node_resource_dict = get_node_resources()
+    pai_daemon_resource_dict = get_pai_daemon_resource_request(config)
+
+    for sku_name in skus:
+        sku_mem_free, sku_cpu_free = get_min_free_resource(skus[sku_name]['workers'], node_resource_dict, pai_daemon_resource_dict)
+        sku_spec = layout['machine-sku'][sku_name]
+        # check if the machine has GPUs
+        if 'computing-device' in sku_spec:
+            skus[sku_name]['gpu'] = True
+            skus[sku_name]['gpuCount'] = sku_spec['computing-device']['count']
+            skus[sku_name]['mem'] = int(sku_mem_free / sku_spec['computing-device']['count'])
+            skus[sku_name]['cpu'] = int(sku_cpu_free / sku_spec['computing-device']['count'])
+        else:
+            skus[sku_name]['mem'] = int(sku_mem_free)
+            skus[sku_name]['cpu'] = int(sku_cpu_free)
 
     return { "skus": skus }
 
@@ -190,7 +287,6 @@ def main():
     masters = list(filter(lambda elem: 'pai-master' in elem and elem["pai-master"] == 'true', layout['machine-list']))
     workers = list(filter(lambda elem: 'pai-worker' in elem and elem["pai-worker"] == 'true', layout['machine-list']))
     head_node = masters[0]
-
     hived_config = get_hived_config(layout, config)
 
     environment = {
