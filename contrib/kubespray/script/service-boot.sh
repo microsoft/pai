@@ -43,23 +43,9 @@ sudo docker exec -it dev-box-quick-start kubectl get node || { cleanup; exit 1; 
 sudo docker exec -i dev-box-quick-start /bin/bash << EOF_DEV_BOX
 set -e
 
-echo "Starting nvidia device plugin to detect nvidia gpu resource..."
-svn cat https://github.com/NVIDIA/k8s-device-plugin.git/tags/1.0.0-beta4/nvidia-device-plugin.yml \
-  | kubectl apply --overwrite=true -f -
-sleep 5
-
-echo "Starting AMD device plugin to detect AMD gpu resource..."
-svn cat https://github.com/RadeonOpenCompute/k8s-device-plugin.git/trunk/k8s-ds-amdgpu-dp.yaml \
-  | kubectl apply --overwrite=true -f -
-sleep 5
-
 echo "Generating services configurations..."
 cd /pai && git checkout ${OPENPAI_BRANCH_NAME}
 python3 /pai/contrib/kubespray/script/openpai-generator.py -l /cluster-configuration/layout.yaml -c /cluster-configuration/config.yaml -o /cluster-configuration
-
-kubectl delete ds nvidia-device-plugin-daemonset -n kube-system
-kubectl delete ds amdgpu-device-plugin-daemonset -n kube-system
-sleep 5
 
 # TODO: This should be done at our source code.
 kubectl create namespace pai-storage
