@@ -35,14 +35,15 @@ export const YamlEditPage = ({ history }) => {
     'Paste or import your yaml here...',
   );
   const [validStatus, setValidStatus] = useState({
-    message: 'Info: Not init with yaml yet',
-    barType: MessageBarType.info,
+    message: 'Warning: Not init with yaml yet',
+    barType: MessageBarType.warning,
   });
 
   useEffect(() => {
     const valid = JobProtocol.validateFromYaml(protocolYaml);
     if (!isEmpty(valid)) {
-      setValidStatus({ message: valid, barType: MessageBarType.error });
+      if (protocolYaml !== 'Paste or import your yaml here...')
+        setValidStatus({ message: valid, barType: MessageBarType.error });
     } else {
       setValidStatus({
         message: 'Success: Validation completed successfully',
@@ -78,10 +79,10 @@ export const YamlEditPage = ({ history }) => {
             onChange={setProtocolYaml}
           />
         </StackItem>
-        <MessageBar messageBarType={validStatus.barType}>
-          {validStatus.message}
-        </MessageBar>
-        <StackItem>
+        <Stack gap='s1'>
+          <MessageBar messageBarType={validStatus.barType}>
+            {validStatus.message}
+          </MessageBar>
           <MonacoEditor
             className={t.overflowHidden}
             style={{ flex: '1 1 100%', minWidth: 1000, minHeight: 720 }}
@@ -98,7 +99,7 @@ export const YamlEditPage = ({ history }) => {
               console.log('onChange', newValue, e);
             }}
           />
-        </StackItem>
+        </Stack>
         <Card>
           <Stack horizontal gap='m' horizontalAlign='space-between'>
             <StackItem>
