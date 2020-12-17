@@ -636,10 +636,19 @@ const generateTaskRole = (
   };
   // check cpu job
   if (config.taskRoles[taskRole].resourcePerInstance.gpu === 0) {
-    frameworkTaskRole.task.pod.spec.containers[0].env.push({
-      name: 'NVIDIA_VISIBLE_DEVICES',
-      value: 'none',
-    });
+    if (launcherConfig.enabledHived) {
+      for (const envName of launcherConfig.hivedComputingDeviceEnvs) {
+        frameworkTaskRole.task.pod.spec.containers[0].env.push({
+          name: envName,
+          value: 'none',
+        });
+      }
+    } else {
+      frameworkTaskRole.task.pod.spec.containers[0].env.push({
+        name: 'NVIDIA_VISIBLE_DEVICES',
+        value: 'none',
+      });
+    }
   }
   // hived spec
   if (launcherConfig.enabledHived) {
@@ -654,24 +663,16 @@ const generateTaskRole = (
       'hivedscheduler.microsoft.com/pod-scheduling-spec'
     ] = yaml.safeDump(config.taskRoles[taskRole].hivedPodSpec);
     if (config.taskRoles[taskRole].resourcePerInstance.gpu > 0) {
-      frameworkTaskRole.task.pod.spec.containers[0].env.push(
-        {
-          name: 'NVIDIA_VISIBLE_DEVICES',
+      for (const envName of launcherConfig.hivedComputingDeviceEnvs) {
+        frameworkTaskRole.task.pod.spec.containers[0].env.push({
+          name: envName,
           valueFrom: {
             fieldRef: {
               fieldPath: `metadata.annotations['hivedscheduler.microsoft.com/pod-leaf-cell-isolation']`,
             },
           },
-        },
-        {
-          name: 'PAI_AMD_VISIBLE_DEVICES',
-          valueFrom: {
-            fieldRef: {
-              fieldPath: `metadata.annotations['hivedscheduler.microsoft.com/pod-leaf-cell-isolation']`,
-            },
-          },
-        },
-      );
+        });
+      }
     }
   }
 

@@ -41,6 +41,7 @@ process.env.SQL_CONNECTION_STR = 'postgres://localhost:5432/openpai';
 process.env.SQL_MAX_CONNECTION = 10;
 process.env.WRITE_MERGER_URL = 'http://localhost';
 process.env.DEFAULT_COMPUTING_DEVICE_TYPE = 'nvidia.com/gpu';
+process.env.HIVED_COMPUTING_DEVICE_ENVS = 'NVIDIA_VISIBLE_DEVICES,HIVED_VISIBLE_DEVICES';
 
 const jwt = require('jsonwebtoken');
 const mustache = require('mustache');

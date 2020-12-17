@@ -38,6 +38,7 @@ const k8sLauncherConfigSchema = Joi.object()
     enabledJobHistory: Joi.boolean().required(),
     writeMergerUrl: Joi.string().required(),
     defaultComputingDeviceType: Joi.string().required(),
+    hivedComputingDeviceEnvs: Joi.array().items(Joi.string()).min(1).required(),
     healthCheckPath: Joi.func().arity(0).required(),
     frameworksPath: Joi.func().arity(0).required(),
     frameworkPath: Joi.func().arity(1).required(),
@@ -72,6 +73,9 @@ if (launcherType === 'k8s') {
     enabledJobHistory: process.env.JOB_HISTORY === 'true',
     writeMergerUrl: process.env.WRITE_MERGER_URL,
     defaultComputingDeviceType: process.env.DEFAULT_COMPUTING_DEVICE_TYPE,
+    hivedComputingDeviceEnvs: process.env.HIVED_COMPUTING_DEVICE_ENVS.split(
+      ',',
+    ),
     healthCheckPath: () => {
       return `/apis/${launcherConfig.apiVersion}`;
     },

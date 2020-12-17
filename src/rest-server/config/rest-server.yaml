@@ -32,3 +32,10 @@ github-path: marketplace
 debugging-reservation-seconds: 604800
 enable-priority-class: "true"
 sql-max-connection: 50
+# `hived-computing-device-envs` only works when hived scheduler is enabled.
+# It determines the environment variables we inject into the container.
+# e.g. if hived-computing-device-envs is set to 'NVIDIA_VISIBLE_DEVICES,HIVED_VISIBLE_DEVICES',
+# and device 0 and device 1 are used, the container will receive environment variables:
+# NVIDIA_VISIBLE_DEVICES=0,1 and HIVED_VISIBLE_DEVICES=0,1
+# Please also see https://github.com/microsoft/hivedscheduler/blob/master/doc/user-manual.md#scheduling-gpus for reference
+hived-computing-device-envs: 'NVIDIA_VISIBLE_DEVICES,HIVED_VISIBLE_DEVICES'

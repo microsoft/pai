@@ -72,7 +72,8 @@ class RestServer:
             'default-pai-admin-username', 'default-pai-admin-password',
             'github-owner', 'github-repository', 'github-path',
             'debugging-reservation-seconds', 'enable-priority-class',
-            'schedule-port-start', 'schedule-port-end', 'sql-max-connection'
+            'schedule-port-start', 'schedule-port-end', 'sql-max-connection',
+            'hived-computing-device-envs',
         ]:
             service_object_model[k] = self.service_configuration[k]
 
