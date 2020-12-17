@@ -8,6 +8,13 @@ all:
       ansible_ssh_user: {{ env["cfg"]['user'] }}
       ansible_ssh_pass: "{{ env["cfg"]['password'] }}"
       ansible_become_pass: "{{ env["cfg"]['password'] }}"
+      memory_mb: {{ vm['memory_mb'] }}
+      cpu_vcores: {{ vm['cpu_vcores'] }}
+      {%- if "computing_device" in vm %}
+      computing_device_type: "{{ vm['computing_device']['type'] }}"
+      computing_device_model: "{{ vm['computing_device']['model'] }}"
+      computing_device_count: {{ vm['computing_device']['count'] }}
+      {%- endif %}
 {%- if "ssh_key_file_path" in env["cfg"]%}
       ansible_ssh_private_key_file: "{{ env["cfg"]["ssh_key_file_path"] }}"
 {%- endif %}
@@ -21,6 +28,13 @@ all:
       ansible_ssh_user: {{ env["cfg"]['user'] }}
       ansible_ssh_pass: "{{ env["cfg"]['password'] }}"
       ansible_become_pass: "{{ env["cfg"]['password'] }}"
+      memory_mb: {{ vm['memory_mb'] }}
+      cpu_vcores: {{ vm['cpu_vcores'] }}
+      {%- if "computing_device" in vm %}
+      computing_device_type: "{{ vm['computing_device']['type'] }}"
+      computing_device_model: "{{ vm['computing_device']['model'] }}"
+      computing_device_count: {{ vm['computing_device']['count'] }}
+      {%- endif %}
 {%- if "ssh_key_file_path" in env["cfg"]%}
       ansible_ssh_private_key_file: "{{ env["cfg"]["ssh_key_file_path"] }}"
 {%- endif %}
@@ -36,4 +50,11 @@ all:
       hosts:
 {%- for vm in env["workers"] %}
         {{ vm["hostname"] }}:
+{%- endfor %}
+{%- for device_group_name, hostnames in env["computing_device_groups"].items() %}
+    {{ device_group_name }}:
+      hosts:
+        {%- for hostname in hostnames %}
+        {{ hostname }}:
+        {%- endfor %}
 {%- endfor %}
