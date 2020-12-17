@@ -48,6 +48,7 @@ webportal:
 
 # If you want to customize the scheduling config, such add more virtual clusters or more gpu types, check:
 # https://github.com/microsoft/pai/blob/master/docs/manual/cluster-admin/how-to-set-up-virtual-clusters.md
+{%- if env["cfg"]["enable_hived_scheduler"]|default(true) is sameas true %}
 hivedscheduler:
   config: |
     physicalCluster:
@@ -96,6 +97,8 @@ hivedscheduler:
           - cellType: {{ sku_name }}-NODE-POOL.{{ sku_name }}-NODE
             cellNumber: {{ sku_spec.workers|length }}
       {% endfor %}
+{%- else %}
+{% endif %}
 
 # uncomment following section, if you want to customize the authentication solution.
 authentication:
