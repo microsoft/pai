@@ -56,15 +56,21 @@ hivedscheduler:
         {{ sku_name }}:
         {%- if sku_spec.gpu %}
           gpu: 1
-        {%- endif %}
           cpu: {{ sku_spec.cpu }}
+        {%- else %}
+          cpu: 1
+        {%- endif %}
           memory: {{ sku_spec.memory }}Mi
         {% endfor %}
       cellTypes:
         {% for sku_name, sku_spec in env["hived"]["skus"].items() -%}
         {{ sku_name }}-NODE:
           childCellType: {{ sku_name }}
+          {%- if sku_spec.gpu %}
           childCellNumber: {{ sku_spec.gpuCount }}
+          {%- else %}
+          childCellNumber: {{ sku_spec.cpu }}
+          {%- endif %}
           isNodeLevel: true
         {{ sku_name }}-NODE-POOL:
           childCellType: {{ sku_name }}-NODE

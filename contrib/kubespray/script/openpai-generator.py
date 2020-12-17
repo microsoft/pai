@@ -215,23 +215,24 @@ def get_hived_config(layout, config):
         hived config, used to render hived config template
         Example:
         {
-            "skus": {
-                "gpu-machine": {
-                    "mem": 500,
-                    "cpu": 2,
-                    "gpu": True,
-                    "gpuCount": 4,
-                    "workers": [
-                        "pai-gpu-worker0",
-                        "pai-gpu-worker1"
+            'skus': {
+                'gpu-machine': {
+                    'mem': 500,
+                    'cpu': 2,
+                    'gpu': True,
+                    'gpuCount': 4,
+                    'workers': [
+                        'pai-gpu-worker0',
+                        'pai-gpu-worker1'
                     ]
                 },
-                "cpu-machine": {
-                    "mem": 500,
-                    "cpu": 2,
-                    "workers": [
-                        "pai-cpu-worker0",
-                        "pai-cpu-worker1"
+                'cpu-machine': {
+                    'mem': 500,
+                    'cpu': 2,
+                    'gpu': False,
+                    'workers': [
+                        'pai-cpu-worker0',
+                        'pai-cpu-worker1'
                     ]
                 }
             }
@@ -243,7 +244,9 @@ def get_hived_config(layout, config):
         if 'pai-worker' in machine and machine['pai-worker'] == 'true':
             sku_name = machine['machine-type']
             if sku_name not in skus:
-                skus[sku_name]['workers'] = [machine['hostname']]
+                skus[sku_name] = {
+                    'workers' : [machine['hostname']]
+                } 
             else:
                 skus[sku_name]['workers'].append(machine['hostname'])
 
@@ -261,10 +264,11 @@ def get_hived_config(layout, config):
         if 'computing-device' in sku_spec:
             skus[sku_name]['gpu'] = True
             skus[sku_name]['gpuCount'] = sku_spec['computing-device']['count']
-            skus[sku_name]['mem'] = int(sku_mem_free / sku_spec['computing-device']['count'])
+            skus[sku_name]['memory'] = int(sku_mem_free / sku_spec['computing-device']['count'])
             skus[sku_name]['cpu'] = int(sku_cpu_free / sku_spec['computing-device']['count'])
         else:
-            skus[sku_name]['mem'] = int(sku_mem_free)
+            skus[sku_name]['gpu'] = False
+            skus[sku_name]['memory'] = int(sku_mem_free / sku_cpu_free)
             skus[sku_name]['cpu'] = int(sku_cpu_free)
 
     return { "skus": skus }
