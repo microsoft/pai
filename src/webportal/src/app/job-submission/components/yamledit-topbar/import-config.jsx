@@ -23,120 +23,77 @@
  * SOFTWARE.
  */
 
-import React, { useContext } from 'react';
+import React from 'react';
 import {
   FontWeights,
   DefaultButton,
   Label,
   ColorClassNames,
 } from 'office-ui-fabric-react';
-import { isNil } from 'lodash';
 import PropTypes from 'prop-types';
 
 import { JobProtocol } from '../../models/job-protocol';
-import Context from '../context';
-import { getJobComponentsFromConfig } from '../../utils/utils';
 
-export const ImportConfig = React.memo(
-  ({ extras, onChange, isSingle, history, setYamlText }) => {
-    const { vcNames } = useContext(Context);
-
-    const _updatedComponent = protocolYaml => {
-      const updatedJob = JobProtocol.fromYaml(protocolYaml);
-      if (isNil(updatedJob)) {
+export const ImportConfig = React.memo(({ onChange }) => {
+  const _importFile = event => {
+    event.preventDefault();
+    const files = event.target.files;
+    if (!files || !files[0]) {
+      return;
+    }
+    const fileReader = new FileReader();
+    fileReader.addEventListener('load', () => {
+      const text = String(fileReader.result);
+      const valid = JobProtocol.validateFromYaml(text);
+      if (valid) {
+        alert(`Yaml file is invalid. ${valid}`);
         return;
       }
-
-      if (onChange === undefined) {
-        return;
+      try {
+        onChange(text);
+      } catch (err) {
+        alert(err.message);
       }
+    });
+    fileReader.readAsText(files[0]);
+  };
 
-      const [
-        updatedJobInformation,
-        updatedTaskRoles,
-        updatedParameters,
-        updatedSecrets,
-        updatedExtras,
-      ] = getJobComponentsFromConfig(updatedJob, { vcNames });
-
-      onChange(
-        updatedJobInformation,
-        updatedTaskRoles,
-        updatedParameters,
-        updatedSecrets,
-        updatedExtras,
-      );
-    };
-
-    const _importFile = event => {
-      event.preventDefault();
-      const files = event.target.files;
-      if (!files || !files[0]) {
-        return;
-      }
-      const fileReader = new FileReader();
-      fileReader.addEventListener('load', () => {
-        const text = String(fileReader.result);
-        const valid = JobProtocol.validateFromYaml(text);
-        if (valid) {
-          alert(`Yaml file is invalid. ${valid}`);
-          return;
-        }
-        try {
-          if (isSingle) {
-            setYamlText(text);
-            history.push('/general');
-          } else {
-            _updatedComponent(text);
-          }
-        } catch (err) {
-          alert(err.message);
-        }
-      });
-      fileReader.readAsText(files[0]);
-    };
-
-    return (
-      <DefaultButton>
-        <Label
-          styles={{
-            root: [
-              {
-                position: 'absolute',
-                top: 0,
-                left: 0,
-                right: 0,
-                bottom: 0,
-                width: '100%',
-                cursor: 'pointer',
-                fontWeight: FontWeights.semibold,
-              },
-              ColorClassNames.neutralTertiaryAltBackground,
-              ColorClassNames.neutralTertiaryBackgroundHover,
-            ],
+  return (
+    <DefaultButton>
+      <Label
+        styles={{
+          root: [
+            {
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              width: '100%',
+              cursor: 'pointer',
+              fontWeight: FontWeights.semibold,
+            },
+            ColorClassNames.neutralTertiaryAltBackground,
+            ColorClassNames.neutralTertiaryBackgroundHover,
+          ],
+        }}
+      >
+        {'Import'}
+        <input
+          type='file'
+          style={{
+            width: '1px',
+            height: '1px',
+            opacity: '.0001',
           }}
-        >
-          {'Import'}
-          <input
-            type='file'
-            style={{
-              width: '1px',
-              height: '1px',
-              opacity: '.0001',
-            }}
-            accept='.yml,.yaml'
-            onChange={_importFile}
-          />
-        </Label>
-      </DefaultButton>
-    );
-  },
-);
+          accept='.yml,.yaml'
+          onChange={_importFile}
+        />
+      </Label>
+    </DefaultButton>
+  );
+});
 
 ImportConfig.propTypes = {
-  extras: PropTypes.object.isRequired,
   onChange: PropTypes.func,
-  isSingle: PropTypes.bool,
-  history: PropTypes.object,
-  setYamlText: PropTypes.func,
 };

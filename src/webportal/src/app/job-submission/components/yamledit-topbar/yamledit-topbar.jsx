@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect, useMemo } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 
 import { Text, Stack, StackItem } from 'office-ui-fabric-react';
@@ -6,15 +6,7 @@ import { Text, Stack, StackItem } from 'office-ui-fabric-react';
 import { ExportConfig } from './export-config';
 import { ImportConfig } from './import-config';
 
-export const YamlEditTopBar = ({
-  jobData,
-  jobProtocol,
-  onChange,
-  extras,
-  isSingle,
-  history,
-  setYamlText,
-}) => {
+export const YamlEditTopBar = ({ protocolYaml, onChange }) => {
   return (
     <Stack horizontal horizontalAlign='space-between' padding='0 m'>
       <Stack horizontal gap='m' verticalAlign='baseline'>
@@ -25,25 +17,15 @@ export const YamlEditTopBar = ({
         </StackItem>
       </Stack>
       <Stack horizontal gap='s1'>
-        <ExportConfig jobData={jobData} jobProtocol={jobProtocol} />
-        <ImportConfig
-          extras={extras}
-          onChange={onChange}
-          isSingle={isSingle}
-          history={history}
-          setYamlText={setYamlText}
-        />
+        <ExportConfig protocolYaml={protocolYaml} />
+        <ImportConfig onChange={onChange} />
       </Stack>
     </Stack>
   );
 };
 
 YamlEditTopBar.propTypes = {
-  jobData: PropTypes.object,
-  jobProtocol: PropTypes.object,
+  protocolYaml: PropTypes.string,
   onChange: PropTypes.func,
-  extras: PropTypes.object.isRequired,
-  isSingle: PropTypes.bool,
   history: PropTypes.object,
-  setYamlText: PropTypes.func,
 };

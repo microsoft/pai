@@ -66,13 +66,7 @@ const App = () => {
         />
         <Route
           path='/yaml-edit'
-          render={({ history }) => (
-            <YamlEditPage
-              isSingle={false}
-              yamlText={yamlText}
-              history={history}
-            />
-          )}
+          render={({ history }) => <YamlEditPage history={history} />}
         />
       </Router>
     </Fabric>

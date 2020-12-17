@@ -25,14 +25,10 @@
 
 import React from 'react';
 import { DefaultButton, ColorClassNames } from 'office-ui-fabric-react';
-import { cloneDeep } from 'lodash';
+import yaml from 'js-yaml';
 import PropTypes from 'prop-types';
 
-import { populateProtocolWithData } from '../../utils/utils';
-
-const user = cookies.get('user');
-
-export const ExportConfig = React.memo(({ jobData, jobProtocol }) => {
+export const ExportConfig = React.memo(({ protocolYaml }) => {
   const _exportFile = (data, filename, type) => {
     const file = new Blob([data], { type: type });
     if (window.navigator.msSaveOrOpenBlob) {
@@ -55,12 +51,10 @@ export const ExportConfig = React.memo(({ jobData, jobProtocol }) => {
 
   const _exportYaml = async event => {
     event.preventDefault();
-    const protocol = cloneDeep(jobProtocol);
     try {
-      await populateProtocolWithData(user, protocol, jobData);
       _exportFile(
-        protocol.toYaml(),
-        (protocol.name || 'job') + '.yaml',
+        protocolYaml,
+        (yaml.safeLoad(protocolYaml).name || 'job') + '.yaml',
         'text/yaml',
       );
     } catch (err) {
@@ -82,6 +76,5 @@ export const ExportConfig = React.memo(({ jobData, jobProtocol }) => {
 });
 
 ExportConfig.propTypes = {
-  jobData: PropTypes.object,
-  jobProtocol: PropTypes.object,
+  protocolYaml: PropTypes.string.isRequired,
 };

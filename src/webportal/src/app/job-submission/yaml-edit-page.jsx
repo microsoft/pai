@@ -1,19 +1,16 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import React, { useState, useCallback, useEffect, useMemo } from 'react';
-import { isNil, isEmpty, get } from 'lodash';
-import Context from './components/context';
+import React, { useState, useEffect } from 'react';
+import yaml from 'js-yaml';
+import { isEmpty, debounce } from 'lodash';
 import PropTypes from 'prop-types';
 
 import t from '../components/tachyons.scss';
 import {
-  Text,
-  Label,
   Fabric,
   Stack,
   ColorClassNames,
-  FontWeights,
   MessageBar,
   MessageBarType,
   DefaultButton,
@@ -21,19 +18,52 @@ import {
   StackItem,
 } from 'office-ui-fabric-react';
 import MonacoEditor from '../components/monaco-editor';
-import { SpinnerLoading } from '../components/loading';
 import { YamlEditTopBar } from './components/yamledit-topbar/yamledit-topbar';
 // models
 import { JobProtocol } from './models/job-protocol';
+import Card from '../components/card';
+// funcs
+import { submitJob } from './utils/conn';
 
-export const YamlEditPage = ({ isSingle, history, yamlText, setYamlText }) => {
-  const [jobData, setJobData] = useState({});
-  const [jobProtocol, setJobProtocol] = useState({});
-  const [extras, setExtras] = useState({});
-  const [loading, setLoading] = useState(false);
-  if (loading) {
-    return <SpinnerLoading />;
-  }
+const JOB_PROTOCOL_SCHEMA_URL =
+  'https://github.com/microsoft/openpai-protocol/blob/master/schemas/v2/schema.yaml';
+
+const user = cookies.get('user');
+
+export const YamlEditPage = ({ history }) => {
+  const [protocolYaml, setProtocolYaml] = useState(
+    'Paste or import your yaml here...',
+  );
+  const [validStatus, setValidStatus] = useState({
+    message: 'Info: Not init with yaml yet',
+    barType: MessageBarType.info,
+  });
+
+  useEffect(() => {
+    const valid = JobProtocol.validateFromYaml(protocolYaml);
+    if (!isEmpty(valid)) {
+      setValidStatus({ message: valid, barType: MessageBarType.error });
+    } else {
+      setValidStatus({
+        message: 'Success: Validation completed successfully',
+        barType: MessageBarType.success,
+      });
+    }
+  }, [protocolYaml]);
+
+  const _submitJob = async event => {
+    console.log('Submit job triggered');
+    event.preventDefault();
+    try {
+      await submitJob(protocolYaml);
+      window.location.href = `/job-detail.html?username=${user}&jobName=${
+        yaml.safeLoad(protocolYaml).name
+      }`;
+    } catch (err) {
+      alert(err);
+    }
+  };
+
   return (
     <Fabric style={{ height: '100%', overflowX: 'auto' }}>
       <Stack
@@ -44,64 +74,67 @@ export const YamlEditPage = ({ isSingle, history, yamlText, setYamlText }) => {
       >
         <StackItem disableShrink>
           <YamlEditTopBar
-            jobData={jobData}
-            jobProtocol={jobProtocol}
-            onChange={(
-              updatedJobInfo,
-              updatedTaskRoles,
-              updatedParameters,
-              updatedExtras,
-            ) => {}}
-            extras={extras}
-            history={history}
-            setYamlText={setYamlText}
+            protocolYaml={protocolYaml}
+            onChange={setProtocolYaml}
           />
         </StackItem>
-        <StackItem>
-          <MessageBar messageBarType={MessageBarType.success}>
-            Success MessageBar
-          </MessageBar>
-        </StackItem>
+        <MessageBar messageBarType={validStatus.barType}>
+          {validStatus.message}
+        </MessageBar>
         <StackItem>
           <MonacoEditor
             className={t.overflowHidden}
+            style={{ flex: '1 1 100%', minWidth: 1000, minHeight: 720 }}
             monacoProps={{
-              width: 1000,
-              height: 720,
               theme: 'vs',
+              onChange: debounce(setProtocolYaml, 100),
+              value: protocolYaml,
               options: {
+                language: 'yaml',
                 wordWrap: 'on',
               },
             }}
+            onChange={(newValue, e) => {
+              console.log('onChange', newValue, e);
+            }}
           />
         </StackItem>
-        <Stack
-          horizontal
-          gap='m'
-          verticalAlign='baseline'
-          horizontalAlign='space-between'
-        >
-          <StackItem>
-            <DefaultButton
-              text='Back'
-              styles={{
-                root: [ColorClassNames.neutralTertiaryAltBackground],
-                rootHovered: [ColorClassNames.neutralTertiaryBackground],
-              }}
-            />
-          </StackItem>
-          <StackItem>
-            <PrimaryButton text='Submit' />
-          </StackItem>
-        </Stack>
+        <Card>
+          <Stack horizontal gap='m' horizontalAlign='space-between'>
+            <StackItem>
+              <DefaultButton
+                text='Back'
+                styles={{
+                  root: [ColorClassNames.neutralTertiaryAltBackground],
+                  rootHovered: [ColorClassNames.neutralTertiaryBackground],
+                }}
+                onClick={() => {
+                  history.push('/');
+                }}
+              />
+            </StackItem>
+            <Stack horizontal gap='l1'>
+              <DefaultButton
+                styles={{
+                  root: [ColorClassNames.neutralTertiaryAltBackground],
+                  rootHovered: [ColorClassNames.neutralTertiaryBackground],
+                }}
+                onClick={() => window.open(JOB_PROTOCOL_SCHEMA_URL)}
+                text='Protocol Schema'
+              />
+              <PrimaryButton
+                onClick={_submitJob}
+                disabled={validStatus.barType !== MessageBarType.success}
+                text='Submit'
+              />
+            </Stack>
+          </Stack>
+        </Card>
       </Stack>
     </Fabric>
   );
 };
 
 YamlEditPage.propTypes = {
-  isSingle: PropTypes.bool,
-  history: PropTypes.object,
-  yamlText: PropTypes.string,
-  setYamlText: PropTypes.func,
+  history: PropTypes.object.isRequired,
 };
