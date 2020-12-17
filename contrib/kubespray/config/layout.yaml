@@ -4,15 +4,18 @@
 machine-sku:
   master-machine: # define a machine sku
     # the resource requirements for all the machines of this sku
-    mem: 60GB  # You can use GB or MB, e.g. 60GB, 10000MB, in this field
+    # We use the same memory format as Kubernetes, e.g. Gi, Mi
+    # Reference: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/#meaning-of-memory
+    mem: 60Gi
     cpu:
+      # the number of CPU vcores
       vcore: 24
   gpu-machine:
     computing-device:
       type: nvidia.com/gpu
       model: K80
       count: 4
-    mem: 220GB
+    mem: 220Gi
     cpu:
       vcore: 24
 
