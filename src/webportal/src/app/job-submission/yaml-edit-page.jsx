@@ -68,7 +68,10 @@ export const YamlEditPage = ({ history }) => {
   return (
     <Fabric style={{ height: '100%', overflowX: 'auto' }}>
       <Stack
-        style={{ root: { height: '100%', minWidth: 1000, minHeight: 720 } }}
+        style={{
+          height: '100%',
+          width: '100%',
+        }}
         verticalAlign='space-between'
         gap='l1'
         padding='l1'
@@ -79,13 +82,13 @@ export const YamlEditPage = ({ history }) => {
             onChange={setProtocolYaml}
           />
         </StackItem>
-        <Stack gap='s1'>
+        <Stack gap='s1' style={{ flex: 1 }}>
           <MessageBar messageBarType={validStatus.barType}>
             {validStatus.message}
           </MessageBar>
           <MonacoEditor
             className={t.overflowHidden}
-            style={{ flex: '1 1 100%', minWidth: 1000, minHeight: 720 }}
+            style={{ flex: '1 1 100%', minWidth: 800, minHeight: 720 }}
             monacoProps={{
               theme: 'vs',
               onChange: debounce(setProtocolYaml, 100),
