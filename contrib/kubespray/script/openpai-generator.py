@@ -291,7 +291,14 @@ def main():
     masters = list(filter(lambda elem: 'pai-master' in elem and elem["pai-master"] == 'true', layout['machine-list']))
     workers = list(filter(lambda elem: 'pai-worker' in elem and elem["pai-worker"] == 'true', layout['machine-list']))
     head_node = masters[0]
-    hived_config = get_hived_config(layout, config)
+
+    # Hivedscheduler is enabled by default.
+    # But if the user sets enable_hived_scheduler to false manually,
+    # we should disable it.
+    if 'enable_hived_scheduler' in config and config['enable_hived_scheduler'] is False:
+        hived_config = {}
+    else:
+        hived_config = get_hived_config(layout, config)
 
     environment = {
         'masters': masters,
