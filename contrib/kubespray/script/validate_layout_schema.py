@@ -47,7 +47,8 @@ def validate_layout_schema(layout):
             },
             'machine-list': [
                 {
-                    'hostname': str,
+                    # https://github.com/kubernetes-sigs/kubespray/blob/release-2.11/roles/kubernetes/preinstall/tasks/0020-verify-settings.yml#L124
+                    'hostname': Regex(r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$"),
                     'hostip': Regex(r"^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$"),
                     'machine-type': str,
                     Optional('pai-master'): Or('true', 'false'),
@@ -78,6 +79,7 @@ def check_layout(layout):
             return False
 
     masters = list(filter(lambda elem: 'pai-master' in elem and elem["pai-master"] == 'true', layout['machine-list']))
+    workers = list(filter(lambda elem: 'pai-worker' in elem and elem["pai-worker"] == 'true', layout['machine-list']))
     # only one pai-master
     if len(masters) == 0:
         logger.error('No master machine specified.')
@@ -85,7 +87,10 @@ def check_layout(layout):
     if len(masters) > 1:
         logger.error('More than one master machine specified.')
         return False
-
+    # at least one pai-worker
+    if len(workers) == 0:
+        logger.error('No worker machine specified.')
+        return False
     # pai-master / pai-worker cannot be true at the same time
     if 'pai-worker' in masters[0] and masters[0]['pai-worker'] == 'true':
         logger.error("One machine can not be pai-master and pai-worker at the same time.")
