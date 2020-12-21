@@ -32,6 +32,11 @@ def load_yaml_config(config_path):
 def validate_layout_schema(layout):
     schema = Schema(
         {
+            # leave `kubernetes` for legacy reasons 
+            Optional('kubernetes'): {
+                'api-servers-url': str,
+                'dashboard-url': str,
+            },
             'machine-sku': {
                 str: {
                     'mem': str,

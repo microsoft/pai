@@ -35,9 +35,14 @@ class K8SDashboard(object):
         masters = filter(lambda host: 'pai-master' in host and host['pai-master'] == 'true', self.cluster_conf["machine-list"])
         master_ip = masters[0]['hostip']
         master_name = masters[0]['hostname']
-        dash_board_url = "https://{}:9090".format(master_ip)
 
-        com_k8s_dashboard['api-servers-url'] = "https://{}:6443".format(master_ip)
+        if 'kubernetes' in self.cluster_conf:
+            com_k8s_dashboard['api-servers-url'] = self.cluster_conf['kubernetes']['api-servers-url']
+            dash_board_url = self.cluster_conf['kubernetes']['dashboard-url']
+        else:
+            com_k8s_dashboard['api-servers-url'] = "https://{}:6443".format(master_ip)
+            dash_board_url = "https://{}:9090".format(master_ip)
+
         com_k8s_dashboard['dashboard-host'] = master_name
         com_k8s_dashboard['dashboard-port'] = urlparse(dash_board_url).port
 

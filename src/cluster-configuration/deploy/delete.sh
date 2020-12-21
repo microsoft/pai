@@ -21,4 +21,8 @@ pushd $(dirname "$0") > /dev/null
 
 /bin/bash stop.sh || exit $?
 
+if kubectl get namespace | grep -q "pai-storage"; then
+    kubectl delete namespace pai-storage || exit $?
+fi
+
 popd > /dev/null

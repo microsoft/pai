@@ -53,4 +53,7 @@ echo kubectl label --overwrite=true nodes {{ cluster_cfg['layout']['machine-list
 {% endfor %}
 ) | parallel || exit $?
 
+# create pai-storage namespace
+kubectl create namespace pai-storage
+
 popd > /dev/null

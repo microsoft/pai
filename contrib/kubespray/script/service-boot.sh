@@ -47,14 +47,9 @@ echo "Generating services configurations..."
 cd /pai && git fetch origin ${OPENPAI_BRANCH_NAME} && git checkout ${OPENPAI_BRANCH_NAME}
 python3 /pai/contrib/kubespray/script/openpai-generator.py -l /cluster-configuration/layout.yaml -c /cluster-configuration/config.yaml -o /cluster-configuration
 
-# TODO: This should be done at our source code.
-kubectl create namespace pai-storage
-
-# 1. Push cluster config to cluster
 echo "Pushing cluster config to cluster..."
 echo -e "pai\n" | python /pai/paictl.py config push -p /cluster-configuration -m service
 
-# 2. Start OpenPAI service
 echo "Starting OpenPAI services..."
 echo -e "pai\n" | python /pai/paictl.py service start
 EOF_DEV_BOX
