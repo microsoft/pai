@@ -1,0 +1,2 @@
+kubernetes==12.0.0
+schema==0.7.2
