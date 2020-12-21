@@ -44,7 +44,7 @@ sudo docker exec -i dev-box-quick-start /bin/bash << EOF_DEV_BOX
 set -e
 
 echo "Generating services configurations..."
-cd /pai && git checkout ${OPENPAI_BRANCH_NAME}
+cd /pai && git fetch origin ${OPENPAI_BRANCH_NAME} && git checkout ${OPENPAI_BRANCH_NAME}
 python3 /pai/contrib/kubespray/script/openpai-generator.py -l /cluster-configuration/layout.yaml -c /cluster-configuration/config.yaml -o /cluster-configuration
 
 # TODO: This should be done at our source code.

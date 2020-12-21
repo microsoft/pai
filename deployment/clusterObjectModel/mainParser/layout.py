@@ -53,13 +53,10 @@ class Layout:
         com_layout = dict()
         com_layout["machine-sku"] = self.layout_configuration["machine-sku"]
 
-        if 'kubernetes' in self.layout_configuration:
-            com_layout["kubernetes"] = self.layout_configuration["kubernetes"]
-        else:
-            com_layout["kubernetes"] = {
-                "api-servers-url": "https://{}:6443".format(self.master_ip),
-                "dashboard-url": "https://{}:9090".format(self.master_ip),
-            }
+        com_layout["kubernetes"] = {
+            "api-servers-url": "https://{}:6443".format(self.master_ip),
+            "dashboard-url": "https://{}:9090".format(self.master_ip),
+        }
 
         com_layout["machine-list"] = dict()
         for host in self.layout_configuration["machine-list"]:
