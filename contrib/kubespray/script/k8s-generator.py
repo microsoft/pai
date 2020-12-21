@@ -6,23 +6,9 @@ import logging.config
 import yaml
 import jinja2
 
+from utils import get_logger
 
-def setup_logger_config(logger):
-    """
-    Setup logging configuration.
-    """
-    if len(logger.handlers) == 0:
-        logger.propagate = False
-        logger.setLevel(logging.DEBUG)
-        consoleHandler = logging.StreamHandler()
-        consoleHandler.setLevel(logging.DEBUG)
-        formatter = logging.Formatter('%(asctime)s [%(levelname)s] - %(filename)s:%(lineno)s : %(message)s')
-        consoleHandler.setFormatter(formatter)
-        logger.addHandler(consoleHandler)
-
-
-logger = logging.getLogger(__name__)
-setup_logger_config(logger)
+logger = utils.get_logger(__name__)
 
 
 def load_yaml_config(config_path):

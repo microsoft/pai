@@ -3,8 +3,6 @@ import sys
 import re
 import copy
 import argparse
-import logging
-import logging.config
 import math
 from decimal import Decimal
 import yaml
@@ -13,28 +11,14 @@ from kubernetes import client, config
 from kubernetes.utils import parse_quantity
 from kubernetes.client.rest import ApiException
 
+from utils import get_logger
+
 # reserved resources
 PAI_RESERVE_RESOURCE_PERCENTAGE = 0.01
 PAI_MAX_RESERVE_CPU_PER_NODE = 0.5
 PAI_MAX_RESERVE_MEMORY_PER_NODE = 1024 # 1Gi
 
-
-def setup_logger_config(logger):
-    """
-    Setup logging configuration.
-    """
-    if len(logger.handlers) == 0:
-        logger.propagate = False
-        logger.setLevel(logging.DEBUG)
-        consoleHandler = logging.StreamHandler()
-        consoleHandler.setLevel(logging.DEBUG)
-        formatter = logging.Formatter('%(asctime)s [%(levelname)s] - %(filename)s:%(lineno)s : %(message)s')
-        consoleHandler.setFormatter(formatter)
-        logger.addHandler(consoleHandler)
-
-
-logger = logging.getLogger(__name__)
-setup_logger_config(logger)
+logger = utils.get_logger(__name__)
 
 
 def load_yaml_config(config_path):
