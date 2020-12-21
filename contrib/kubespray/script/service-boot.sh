@@ -45,7 +45,7 @@ set -e
 
 echo "Generating services configurations..."
 cd /pai && git checkout ${OPENPAI_BRANCH_NAME}
-python3 /pai/contrib/kubespray/script/openpai-generator.py -l /cluster-configuration/layout.yaml -c /cluster-configuration/config.yaml -o /cluster-configuration
+python3 /pai/contrib/kubespray/script/openpai_generator.py -l /cluster-configuration/layout.yaml -c /cluster-configuration/config.yaml -o /cluster-configuration
 
 # TODO: This should be done at our source code.
 kubectl create namespace pai-storage

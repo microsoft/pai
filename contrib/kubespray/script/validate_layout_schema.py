@@ -1,32 +1,11 @@
 import argparse
-import logging
-import logging.config
 import sys
 from schema import Schema, Or, Optional, Regex
-import yaml
+
+from .utils import get_logger, load_yaml_config, get_masters_workers_from_layout
 
 
-def setup_logger_config(logger):
-    """
-    Setup logging configuration.
-    """
-    if len(logger.handlers) == 0:
-        logger.propagate = False
-        logger.setLevel(logging.DEBUG)
-        consoleHandler = logging.StreamHandler()
-        consoleHandler.setLevel(logging.DEBUG)
-        formatter = logging.Formatter('%(asctime)s [%(levelname)s] - %(filename)s:%(lineno)s : %(message)s')
-        consoleHandler.setFormatter(formatter)
-        logger.addHandler(consoleHandler)
-
-logger = logging.getLogger(__name__)
-setup_logger_config(logger)
-
-
-def load_yaml_config(config_path):
-    with open(config_path, "r") as f:
-        config_data = yaml.load(f, yaml.SafeLoader)
-    return config_data
+logger = get_logger(__name__)
 
 
 def validate_layout_schema(layout):
@@ -75,11 +54,10 @@ def check_layout(layout):
     # machine-type should be defined in machine-sku
     for machine in layout['machine-list']:
         if machine['machine-type'] not in layout['machine-sku']:
-            logger.error("machine-type {} is not defined".format(machine['machine-type']))
+            logger.error("machine-type %s is not defined", machine['machine-type'])
             return False
 
-    masters = list(filter(lambda elem: 'pai-master' in elem and elem["pai-master"] == 'true', layout['machine-list']))
-    workers = list(filter(lambda elem: 'pai-worker' in elem and elem["pai-worker"] == 'true', layout['machine-list']))
+    masters, workers = get_masters_workers_from_layout(layout)
     # only one pai-master
     if len(masters) == 0:
         logger.error('No master machine specified.')
