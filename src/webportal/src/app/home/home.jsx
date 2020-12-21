@@ -178,19 +178,24 @@ const Home = () => {
                       'https://openpai.readthedocs.io/en/latest/manual/cluster-admin/basic-management-operations.html#abnormal-jobs'
                     }
                   />
-                  <Pivot styles={{ root: { maxWidth: '100%' } }}>
-                    <PivotItem headerText='Abnormal jobs'>
-                      <AbnormalJobList
-                        jobs={listAbnormalJobs(runningJobs, lowGpuJobInfo)}
-                      />
-                    </PivotItem>
-                    <PivotItem headerText='My recent jobs'>
-                      <RecentJobList style={{ minHeight: 0 }} jobs={userJobs} />
-                    </PivotItem>
-                  </Pivot>
+                  <StackItem grow>
+                    <Pivot>
+                      <PivotItem headerText='Abnormal jobs'>
+                        <AbnormalJobList
+                          jobs={listAbnormalJobs(runningJobs, lowGpuJobInfo)}
+                        />
+                      </PivotItem>
+                      <PivotItem headerText='My recent jobs'>
+                        <RecentJobList
+                          style={{ minHeight: 0 }}
+                          jobs={userJobs}
+                        />
+                      </PivotItem>
+                    </Pivot>
+                  </StackItem>
                 </Stack>
               ) : (
-                <Pivot styles={{ root: { maxWidth: '100%' } }}>
+                <Pivot>
                   <PivotItem headerText='My recent jobs'>
                     <RecentJobList style={{ minHeight: 0 }} jobs={userJobs} />
                   </PivotItem>

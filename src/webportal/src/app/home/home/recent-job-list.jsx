@@ -89,7 +89,6 @@ const DummyContent = () => {
 const jobListColumns = [
   {
     key: 'name',
-    minWidth: 200,
     name: 'Name',
     fieldName: 'name',
     className: FontClassNames.mediumPlus,
@@ -104,7 +103,6 @@ const jobListColumns = [
   },
   {
     key: 'modified',
-    minWidth: 150,
     name: 'Date Modified',
     className: FontClassNames.mediumPlus,
     isResizable: true,
@@ -114,7 +112,6 @@ const jobListColumns = [
   },
   {
     key: 'duration',
-    minWidth: 120,
     name: 'Duration',
     className: FontClassNames.mediumPlus,
     isResizable: true,
@@ -124,7 +121,6 @@ const jobListColumns = [
   },
   {
     key: 'virtualCluster',
-    minWidth: 100,
     name: 'Virtual Cluster',
     fieldName: 'virtualCluster',
     className: FontClassNames.mediumPlus,
@@ -132,7 +128,6 @@ const jobListColumns = [
   },
   {
     key: 'status',
-    minWidth: 100,
     name: 'Status',
     isResizable: true,
     onRender(job) {
