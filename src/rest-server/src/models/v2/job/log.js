@@ -58,9 +58,11 @@ const getLogListFromLogManager = async (
     'NoTaskLogError',
     `Log of task is not found.`,
   );
-  const taskStatus = taskDetail.data.attempts[Number(taskAttemptId)];
-  if (!taskStatus) {
-    logger.error(`Failed to find task to retrive log`);
+  const taskStatus = taskDetail.data.attempts.find(
+    (attempt) => attempt.attemptId === Number(taskAttemptId),
+  );
+  if (!taskStatus || !taskStatus.containerIp) {
+    logger.error(`Failed to find task to retrive log or task not started`);
     throw NoTaskLogErr;
   }
 

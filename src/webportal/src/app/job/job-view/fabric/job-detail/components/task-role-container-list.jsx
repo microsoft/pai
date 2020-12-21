@@ -1,19 +1,5 @@
-// Copyright (c) Microsoft Corporation
-// All rights reserved.
-//
-// MIT License
-//
-// Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
-// documentation files (the "Software"), to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and
-// to permit persons to whom the Software is furnished to do so, subject to the following conditions:
-// The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED *AS IS*, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING
-// BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-// NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
-// DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
 
 import { ThemeProvider } from '@uifabric/foundation';
 import {
@@ -52,6 +38,8 @@ import t from '../../../../../components/tachyons.scss';
 
 import Context from './context';
 import Timer from './timer';
+import TaskRoleFilter from './task-role-filter';
+import TaskRoleContainerTop from './task-role-container-top';
 import { getContainerLog, getContainerLogList } from '../conn';
 import config from '../../../../../config/webportal.config';
 import MonacoPanel from '../../../../../components/monaco-panel';
@@ -134,30 +122,25 @@ PortTooltipContent.propTypes = {
   ports: PropTypes.object,
 };
 
-const LogDialogContent = ({ urlLists }) => {
-  const lists = [];
-  for (const p of urlLists) {
-    lists.push(p);
-  }
-  if (lists.length === 0) {
+const LogDialogContent = ({ urls }) => {
+  if (isEmpty(urls)) {
     return <Stack>No log file generated or log files be rotated</Stack>;
   }
-  const urlpairs = lists.map((lists, index) => (
-    <Stack key={`log-list-${index}`}>
-      <Link
-        href={lists.uri}
-        target='_blank'
-        styles={{ root: [FontClassNames.mediumPlus] }}
-      >
-        <Icon iconName='TextDocument'></Icon> {lists.name}
-      </Link>
-    </Stack>
-  ));
-  return urlpairs;
+  const urlPairs = [];
+  for (const [key, url] of Object.entries(urls)) {
+    urlPairs.push(
+      <Stack key={`log-list-${key}`}>
+        <Link href={url} styles={{ root: [FontClassNames.mediumPlus] }}>
+          <Icon iconName='TextDocument'></Icon> {key}
+        </Link>
+      </Stack>,
+    );
+  }
+  return urlPairs;
 };
 
 LogDialogContent.propTypes = {
-  urlLists: PropTypes.array,
+  urlLists: PropTypes.object,
 };
 
 export default class TaskRoleContainerList extends React.Component {
@@ -174,6 +157,8 @@ export default class TaskRoleContainerList extends React.Component {
       items: props.tasks,
       ordering: { field: null, descending: false },
       hideAllLogsDialog: true,
+      filter: new TaskRoleFilter(),
+      taskRoleName: props.taskRoleName,
     };
 
     this.showSshInfo = this.showSshInfo.bind(this);
@@ -410,10 +395,15 @@ export default class TaskRoleContainerList extends React.Component {
       .then(({ fullLogUrls, _ }) => {
         this.setState({
           hideAllLogsDialog: !hideAllLogsDialog,
-          fullLogUrls: fullLogUrls,
+          fullLogUrls: this.convertObjectFormat(fullLogUrls),
         });
       })
-      .catch(() => this.setState({ hideAllLogsDialog: !hideAllLogsDialog }));
+      .catch(() =>
+        this.setState({
+          hideAllLogsDialog: !hideAllLogsDialog,
+          fullLogUrls: {},
+        }),
+      );
   }
 
   getTaskPropertyFromColumnKey(item, key) {
@@ -492,16 +482,24 @@ export default class TaskRoleContainerList extends React.Component {
       tailLogUrls,
       hideAllLogsDialog,
       items,
+      filter,
+      taskRoleName,
     } = this.state;
     const { showMoreDiagnostics } = this.props;
     return (
       <div>
         <ThemeProvider theme={theme}>
+          <TaskRoleContainerTop
+            taskStatuses={items}
+            taskRoleName={taskRoleName}
+            filter={filter}
+            setFilter={newFilter => this.setState({ filter: newFilter })}
+          />
           <DetailsList
             styles={{ root: { overflow: 'auto' } }}
             columns={this.getColumns(showMoreDiagnostics)}
             disableSelectionZone
-            items={items}
+            items={filter.apply(items)}
             layoutMode={DetailsListLayoutMode.justified}
             selectionMode={SelectionMode.none}
             onRenderRow={this.onRenderRow}
@@ -531,13 +529,7 @@ export default class TaskRoleContainerList extends React.Component {
         >
           <Stack gap='m'>
             <Text variant='xLarge'>All Logs:</Text>
-            <LogDialogContent
-              urlLists={
-                !isNil(fullLogUrls) && !isNil(fullLogUrls.locations)
-                  ? fullLogUrls.locations
-                  : []
-              }
-            />
+            <LogDialogContent urls={fullLogUrls} />
           </Stack>
           <DialogFooter>
             <PrimaryButton

@@ -1,0 +1,12 @@
+---
+- name: Check memory resource meets the memory specified by user
+  set_fact:
+    unmet_requirements: "{{ unmet_requirements + [\"In layout.yaml, the memory specified for this host is {{ memory_mb }}MB, but the host only have {{ ansible_memory_mb['real']['total'] }}MB in total\"] }}"
+  when:
+    - ansible_memory_mb['real']['total'] < memory_mb
+
+- name: Check cpu resource meets the cpu specified by user
+  set_fact:
+    unmet_requirements: "{{ unmet_requirements + [\"In layout.yaml, the CPU number specified for this host is {{ cpu_vcores }}, but the host only have {{ ansible_processor_vcpus }} in total\"] }}"
+  when:
+    - ansible_processor_vcpus < cpu_vcores

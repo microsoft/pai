@@ -1,0 +1,106 @@
+---
+- name: "Check GPU card info with lspci"
+  raw: "lspci | grep -E '[0-9a-fA-F][0-9a-fA-F]:[0-9a-fA-F][0-9a-fA-F].[0-9] (3D|VGA compatible) controller: NVIDIA Corporation.*'"
+  register: lspci_grep
+  failed_when: false
+  changed_when: false
+  check_mode: false
+  environment: {}
+
+- name: "Check NVIDIA GPU exits or not"
+  set_fact:
+    unmet_requirements: "{{ unmet_requirements + ['NVIDIA GPU card is not detected'] }}"
+  changed_when: false
+  check_mode: false
+  environment: {}
+  when:
+    - lspci_grep.rc != 0
+
+- name: "Check NVIDIA GPU drivers with nvidia-smi"
+  raw: "nvidia-smi"
+  register: nvidia_smi
+  failed_when: false
+  changed_when: false
+  check_mode: false
+  environment: {}
+
+- name: "Check NVIDIA GPU drivers is installed or not "
+  set_fact:
+    unmet_requirements: "{{ unmet_requirements + ['NVIDIA GPU drivers is not detected'] }}"
+  changed_when: false
+  check_mode: false
+  environment: {}
+  when:
+    - nvidia_smi.rc != 0
+
+- name: "Check NVIDIA GPU card number with nvidia-smi"
+  raw: "nvidia-smi --query-gpu=gpu_name --format=csv | tail --lines=+2 | wc -l"
+  register: nvidia_gpu_count
+  failed_when: false
+  changed_when: false
+  check_mode: false
+  environment: {}
+  when:
+    # if nvidia-smi doesn't work, we can skip this step
+    - nvidia_smi.rc == 0 
+
+- name: "Check NVIDIA GPU card number is matched or not"
+  set_fact:
+    unmet_requirements: "{{ unmet_requirements + [\"NVIDIA GPU card number is not matched: {{ computing_device_count }} specified but only {{ nvidia_gpu_count.stdout_lines[0] }} found\"] }}"
+  changed_when: false
+  check_mode: false
+  environment: {}
+  when:
+    # if nvidia-smi doesn't work, we can skip this step
+    - nvidia_smi.rc == 0
+    - "nvidia_gpu_count.stdout_lines[0]|int != computing_device_count"
+    - nvidia_gpu_count.rc == 0
+
+- name: "Check NVIDIA container runtime with command"
+  raw: "command -v nvidia-container-runtime "
+  register: nvidia_container_runtime
+  failed_when: false
+  changed_when: false
+  check_mode: false
+  environment: {}
+
+- name: "Check NVIDIA container runtime is installed or not"
+  set_fact:
+    unmet_requirements: "{{ unmet_requirements + ['NVIDIA container runtime is not detected'] }}"
+  changed_when: false
+  check_mode: false
+  environment: {}
+  when:
+    - nvidia_container_runtime.rc != 0
+
+- name: "Get default docker runtime"
+  raw: "{% raw %} docker info -f '{{json .DefaultRuntime}}'{% endraw %}"
+  register: default_runtime
+  failed_when: false
+  changed_when: false
+  check_mode: false
+  environment: {}
+
+- name: "Init array"
+  set_fact:
+    default_runtime_processed: []
+
+- name: "Remove unnecessary char in the end of the output"
+  set_fact:
+    default_runtime_processed: "{{ default_runtime_processed + [ item | replace('\"','') ] }}"
+  loop: "{{ default_runtime.stdout_lines }}"
+
+- name: "Get Default Runtime"
+  set_fact:
+    default_runtime_fin: "{{ item }}"
+  when: item == 'nvidia'
+  loop: "{{default_runtime_processed}}"
+
+- name: "Check the default runtime is set correctly"
+  set_fact:
+    unmet_requirements: "{{ unmet_requirements + ['The default runtime is not set correctly'] }}"
+  changed_when: false
+  check_mode: false
+  environment: {}
+  when:
+    - default_runtime_fin is not defined

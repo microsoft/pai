@@ -43,6 +43,32 @@
   roles:
     - { role: requirement/worker }
 
+# basic-resource role checks whether the host's basic resource meets the user input in layout.yaml
+# For now, we only check CPU and memory in this role. 
+- hosts: all
+  become: true
+  become_user: root
+  gather_facts: true
+  roles:
+    - { role: requirement/basic-resource }
+
+# In the following, we do different checks according to different kinds of computing device.
+# To add a new kind of computing device, please add it as an ansible role in "requirement/computing-devices",
+# and include the role here.
+- hosts: "nvidia.com/gpu"
+  become: true
+  become_user: root
+  gather_facts: true
+  roles:
+    - { role: requirement/computing-devices/nvidia.com_gpu }
+
+- hosts: "amd.com/gpu"
+  become: true
+  become_user: root
+  gather_facts: true
+  roles:
+    - { role: requirement/computing-devices/amd.com_gpu }
+
 - hosts: all,localhost
   tasks:
     - name: "display unmet requirements"
