@@ -1,7 +1,7 @@
 import logging
 import logging.config
-import jinja2
 import yaml
+import jinja2
 
 def setup_logger_config(logger):
     """
