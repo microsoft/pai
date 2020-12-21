@@ -60,7 +60,7 @@ class Layout:
                 "api-servers-url": "https://{}:6443".format(self.master_ip),
                 "dashboard-url": "https://{}:9090".format(self.master_ip),
             }
-        
+
         com_layout["machine-list"] = dict()
         for host in self.layout_configuration["machine-list"]:
             com_layout["machine-list"][host["hostname"]] = host
