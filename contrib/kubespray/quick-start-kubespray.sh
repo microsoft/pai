@@ -7,6 +7,9 @@ CLUSTER_CONFIG="$PWD/config/config.yaml"
 echo "layout config file path: ${LAYOUT}"
 echo "cluster config file path: ${CLUSTER_CONFIG}"
 
+echo "Checking layout.yaml schema..."
+python3 script/validate_layout_schema.py -l ${LAYOUT}
+
 echo "Setting up environment..."
 /bin/bash script/environment.sh -c ${CLUSTER_CONFIG} || exit $?
 

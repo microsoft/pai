@@ -63,7 +63,6 @@ def main():
 
     # fill in cpu, memory, computing_device information in both masters and workers
     # we assume the layout file the user gives is correct
-    # TO DO: check layout file before this step
     all_machines = masters + workers
     for machine in all_machines:
         sku_info = layout['machine-sku'][machine['machine-type']]
