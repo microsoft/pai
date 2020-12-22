@@ -28,7 +28,7 @@ cleanup
 
 sudo docker run -itd \
         -e COLUMNS=$COLUMNS -e LINES=$LINES -e TERM=$TERM \
-        -e OPENPAI_BRANCH_NAME=$OPENPAI_BRANCH_NAME \
+        -e OPENPAI_BRANCH_NAME=${OPENPAI_BRANCH_NAME} \
         -v /var/run/docker.sock:/var/run/docker.sock \
         -v ${HOME}/pai-deploy/cluster-cfg:/cluster-configuration  \
         -v ${HOME}/pai-deploy/kube:/root/.kube \
@@ -38,11 +38,22 @@ sudo docker run -itd \
         --name=dev-box-quick-start \
         openpai/dev-box:${OPENPAI_IMAGE_TAG}
 
-# check k8s 
+echo "Checking k8s installation..."
 sudo docker exec -it dev-box-quick-start kubectl get node || { cleanup; exit 1; }
 
-# Work in dev-box
-sudo docker exec -it -w /pai dev-box-quick-start /bin/bash ./contrib/kubespray/script/dev-box-service-start.sh "${OPENPAI_BRANCH_NAME}"
+echo "Starting OpenPAI services with dev-box..."
+sudo docker exec -i dev-box-quick-start /bin/bash << EOF_DEV_BOX
+set -e
+
+echo "Generating services configurations..."
+python3 /pai/contrib/kubespray/script/openpai_generator.py -l /cluster-configuration/layout.yaml -c /cluster-configuration/config.yaml -o /cluster-configuration
+
+echo "Pushing cluster config to k8s..." 
+echo -e 'pai\n' | /pai//paictl.py config push -p /cluster-configuration -m service
+
+echo "Starting OpenPAI service..."
+echo -e 'pai\n' | /pai/paictl.py service start
+EOF_DEV_BOX
 
 if [ $? -ne 0 ]; then
   cleanup
