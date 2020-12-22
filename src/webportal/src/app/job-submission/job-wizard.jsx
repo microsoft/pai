@@ -118,7 +118,7 @@ const JobWizard = ({ setYamlText, history }) => {
                   fontWeight: FontWeights.semibold,
                 }}
               >
-                Import Config
+                Config Editor
               </div>
             </Stack>
             <Stack horizontalAlign='center' gap={50}>
