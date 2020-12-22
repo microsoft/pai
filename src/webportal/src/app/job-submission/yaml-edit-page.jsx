@@ -52,6 +52,10 @@ export const YamlEditPage = ({ history }) => {
     }
   }, [protocolYaml]);
 
+  const _onTextChange = text => {
+    setProtocolYaml(text);
+  };
+
   const _submitJob = async event => {
     event.preventDefault();
     try {
@@ -90,15 +94,12 @@ export const YamlEditPage = ({ history }) => {
             style={{ flex: '1 1 100%' }}
             monacoProps={{
               theme: 'vs',
-              onChange: debounce(setProtocolYaml, 100),
+              onChange: debounce(_onTextChange, 100),
               value: protocolYaml,
               options: {
                 language: 'yaml',
                 wordWrap: 'on',
               },
-            }}
-            onChange={(newValue, e) => {
-              console.log('onChange', newValue, e);
             }}
           />
         </Stack>
