@@ -53,7 +53,6 @@ export const YamlEditPage = ({ history }) => {
   }, [protocolYaml]);
 
   const _submitJob = async event => {
-    console.log('Submit job triggered');
     event.preventDefault();
     try {
       await submitJob(protocolYaml);
