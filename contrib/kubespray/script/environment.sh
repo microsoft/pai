@@ -34,6 +34,7 @@ curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py
 sudo python3 get-pip.py
 
 echo "Install python packages"
+sudo pip3 install paramiko # need paramiko for ansible-playbook
 sudo pip3 install -r script/requirements.txt
 
 echo "Install sshpass"
