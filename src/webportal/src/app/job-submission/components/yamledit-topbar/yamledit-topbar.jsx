@@ -1,10 +1,13 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License
+
 import React from 'react';
 import PropTypes from 'prop-types';
 
 import { Text, Stack, StackItem } from 'office-ui-fabric-react';
 
-import { ExportConfig } from './export-config';
-import { ImportConfig } from './import-config';
+import { YamlEditExportConfig } from './yamledit-export-config';
+import { YamlEditImportConfig } from './yamledit-import-config';
 
 export const YamlEditTopBar = ({ protocolYaml, onChange }) => {
   return (
@@ -17,8 +20,8 @@ export const YamlEditTopBar = ({ protocolYaml, onChange }) => {
         </StackItem>
       </Stack>
       <Stack horizontal gap='s1'>
-        <ExportConfig protocolYaml={protocolYaml} />
-        <ImportConfig onChange={onChange} />
+        <YamlEditExportConfig protocolYaml={protocolYaml} />
+        <YamlEditImportConfig onChange={onChange} />
       </Stack>
     </Stack>
   );
