@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import {
   getTheme,
@@ -16,7 +16,6 @@ import Card from '../components/card';
 import { ReactComponent as IconSingle } from '../../assets/img/job-wizard-single.svg';
 import { ReactComponent as IconDistributed } from '../../assets/img/job-wizard-distributed.svg';
 import { ReactComponent as IconUpload } from '../../assets/img/job-wizard-upload.svg';
-import { JobProtocol } from './models/job-protocol';
 import { SpinnerLoading } from '../components/loading';
 
 const WizardButton = ({ children, onClick }) => {
@@ -65,32 +64,7 @@ WizardButton.propTypes = {
 };
 
 const JobWizard = ({ setYamlText, history }) => {
-  const uploadFile = React.createRef();
   const [loading, setLoading] = useState(true);
-
-  const importFile = useCallback(event => {
-    event.preventDefault();
-    const files = event.target.files;
-    if (!files || !files[0]) {
-      return;
-    }
-    const fileReader = new FileReader();
-    fileReader.addEventListener('load', () => {
-      const text = fileReader.result;
-      const valid = JobProtocol.validateFromYaml(text);
-      if (valid) {
-        alert(`Yaml file is invalid. ${valid}`);
-        return;
-      }
-      try {
-        setYamlText(text);
-        history.push('/general');
-      } catch (err) {
-        alert(err.message);
-      }
-    });
-    fileReader.readAsText(files[0]);
-  });
 
   // redirect if job clone or local storage
   useEffect(() => {
@@ -133,25 +107,18 @@ const JobWizard = ({ setYamlText, history }) => {
             <Stack horizontalAlign='center' gap={50}>
               <WizardButton
                 onClick={() => {
-                  uploadFile.current.click();
+                  history.push('/yaml-edit');
                 }}
               >
                 <IconUpload />
               </WizardButton>
-              <input
-                type='file'
-                ref={uploadFile}
-                style={{ display: 'none' }}
-                accept='.yml,.yaml'
-                onChange={importFile}
-              />
               <div
                 style={{
                   fontSize: FontSizes.large,
                   fontWeight: FontWeights.semibold,
                 }}
               >
-                Import Config
+                Config Editor
               </div>
             </Stack>
             <Stack horizontalAlign='center' gap={50}>
