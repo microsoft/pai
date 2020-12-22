@@ -20,7 +20,7 @@ mkdir -p ${HOME}/pai-deploy/cluster-cfg
 cp ${LAYOUT} ${HOME}/pai-deploy/cluster-cfg
 cp ${CLUSTER_CONFIG} ${HOME}/pai-deploy/cluster-cfg
 
-python3 ${HOME}/pai-deploy/pai/contrib/kubespray/script/k8s-generator.py -l ${LAYOUT} -c ${CLUSTER_CONFIG} -o ${HOME}/pai-deploy/cluster-cfg || exit $?
+python3 ${HOME}/pai-deploy/pai/contrib/kubespray/script/k8s_generator.py -l ${LAYOUT} -c ${CLUSTER_CONFIG} -o ${HOME}/pai-deploy/cluster-cfg || exit $?
 
 cp ${HOME}/pai-deploy/cluster-cfg/openpai.yml ${HOME}/pai-deploy/kubespray/inventory/pai/
 cp ${HOME}/pai-deploy/cluster-cfg/hosts.yml ${HOME}/pai-deploy/kubespray/inventory/pai/
