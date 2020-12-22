@@ -88,7 +88,7 @@ export const YamlEditPage = ({ history }) => {
           </MessageBar>
           <MonacoEditor
             className={t.overflowHidden}
-            style={{ flex: '1 1 100%', minWidth: 800, minHeight: 720 }}
+            style={{ flex: '1 1 100%' }}
             monacoProps={{
               theme: 'vs',
               onChange: debounce(setProtocolYaml, 100),
