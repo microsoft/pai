@@ -15,7 +15,7 @@ export const YamlEditTopBar = ({ protocolYaml, onChange }) => {
       <Stack horizontal gap='m' verticalAlign='baseline'>
         <StackItem>
           <Text variant='xLarge' styles={{ root: { fontWeight: 'semibold' } }}>
-            Protocol Yaml Edit Page
+            Config Editor
           </Text>
         </StackItem>
       </Stack>
