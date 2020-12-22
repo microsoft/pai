@@ -3,68 +3,22 @@ import sys
 import re
 import copy
 import argparse
-import logging
-import logging.config
 import math
 from decimal import Decimal
 import yaml
-import jinja2
 from kubernetes import client, config
 from kubernetes.utils import parse_quantity
 from kubernetes.client.rest import ApiException
+
+from .utils import get_logger, load_yaml_config, read_template, generate_template_file, get_masters_workers_from_layout
+
 
 # reserved resources
 PAI_RESERVE_RESOURCE_PERCENTAGE = 0.01
 PAI_MAX_RESERVE_CPU_PER_NODE = 0.5
 PAI_MAX_RESERVE_MEMORY_PER_NODE = 1024 # 1Gi
 
-
-def setup_logger_config(logger):
-    """
-    Setup logging configuration.
-    """
-    if len(logger.handlers) == 0:
-        logger.propagate = False
-        logger.setLevel(logging.DEBUG)
-        consoleHandler = logging.StreamHandler()
-        consoleHandler.setLevel(logging.DEBUG)
-        formatter = logging.Formatter('%(asctime)s [%(levelname)s] - %(filename)s:%(lineno)s : %(message)s')
-        consoleHandler.setFormatter(formatter)
-        logger.addHandler(consoleHandler)
-
-
-logger = logging.getLogger(__name__)
-setup_logger_config(logger)
-
-
-def load_yaml_config(config_path):
-    with open(config_path, "r") as f:
-        config_data = yaml.load(f, yaml.SafeLoader)
-    return config_data
-
-
-def read_template(template_path):
-    with open(template_path, "r") as f:
-        template_data = f.read()
-    return template_data
-
-
-def generate_from_template_dict(template_data, map_table):
-    generated_file = jinja2.Template(template_data).render(
-        map_table
-    )
-    return generated_file
-
-
-def write_generated_file(file_path, content_data):
-    with open(file_path, "w+") as fout:
-        fout.write(content_data)
-
-
-def generate_template_file(template_file_path, output_path, map_table):
-    template = read_template(template_file_path)
-    generated_template = generate_from_template_dict(template, map_table)
-    write_generated_file(output_path, generated_template)
+logger = get_logger(__name__)
 
 
 def get_kubernetes_node_info_from_API():
@@ -82,7 +36,7 @@ def get_kubernetes_node_info_from_API():
                 "mem-resource": parse_quantity(node.status.allocatable['memory']) / 1024 / 1024,
             }
     except ApiException as e:
-        logger.error("Exception when calling CoreV1Api->list_node: %s\n" % e)
+        logger.error("Exception when calling CoreV1Api->list_node: %s\n", e)
         raise
 
     return ret
@@ -180,10 +134,14 @@ def get_min_free_resource(workers, node_resource_dict, pai_daemon_resource_dict)
     min_cpu = math.inf
 
     for node_name in workers:
-        reserved_cpu = min(node_resource_dict["allocatable"][node_name]["cpu-resource"] * Decimal(PAI_RESERVE_RESOURCE_PERCENTAGE), Decimal(PAI_MAX_RESERVE_CPU_PER_NODE))
-        reserved_mem = min(node_resource_dict["allocatable"][node_name]["mem-resource"] * Decimal(PAI_RESERVE_RESOURCE_PERCENTAGE), Decimal(PAI_MAX_RESERVE_MEMORY_PER_NODE))
-        min_cpu = min(min_cpu, node_resource_dict["free"][node_name]["cpu-resource"] - pai_daemon_resource_dict["cpu-resource"] - reserved_cpu)
-        min_mem = min(min_mem, node_resource_dict["free"][node_name]["mem-resource"] - pai_daemon_resource_dict["mem-resource"] - reserved_mem)
+        reserved_cpu = min(node_resource_dict["allocatable"][node_name]["cpu-resource"] * \
+            Decimal(PAI_RESERVE_RESOURCE_PERCENTAGE), Decimal(PAI_MAX_RESERVE_CPU_PER_NODE))
+        reserved_mem = min(node_resource_dict["allocatable"][node_name]["mem-resource"] * \
+            Decimal(PAI_RESERVE_RESOURCE_PERCENTAGE), Decimal(PAI_MAX_RESERVE_MEMORY_PER_NODE))
+        min_cpu = min(min_cpu, node_resource_dict["free"][node_name]["cpu-resource"] - \
+            pai_daemon_resource_dict["cpu-resource"] - reserved_cpu)
+        min_mem = min(min_mem, node_resource_dict["free"][node_name]["mem-resource"] - \
+            pai_daemon_resource_dict["mem-resource"] - reserved_mem)
         if min_cpu <= 0 or min_mem <= 0:
             logger.error("The node resource does not satisfy minmal requests. Requests cpu: %s, mem: %sMB.\
                           Allcoatable cpu: %s, mem: %sMB. Reserved cpu:%s, mem: %sMB.",
@@ -197,7 +155,7 @@ def get_min_free_resource(workers, node_resource_dict, pai_daemon_resource_dict)
     return min_mem, min_cpu
 
 
-def get_hived_config(layout, config):
+def get_hived_config(layout, cluster_config):
     """
     generate hived config from layout.yaml and config.yaml
     Resources (gpu/cpu/mem) specified in layout.yaml is considered as the total resources.
@@ -206,8 +164,8 @@ def get_hived_config(layout, config):
     -----------
     layout: dict
         layout
-    config: dict
-        config
+    cluster_config: dict
+        cluster config
 
     Returns:
     --------
@@ -246,7 +204,7 @@ def get_hived_config(layout, config):
             if sku_name not in skus:
                 skus[sku_name] = {
                     'workers' : [machine['hostname']]
-                } 
+                }
             else:
                 skus[sku_name]['workers'].append(machine['hostname'])
 
@@ -255,7 +213,7 @@ def get_hived_config(layout, config):
         sys.exit(1)
 
     node_resource_dict = get_node_resources()
-    pai_daemon_resource_dict = get_pai_daemon_resource_request(config)
+    pai_daemon_resource_dict = get_pai_daemon_resource_request(cluster_config)
 
     for sku_name in skus:
         sku_mem_free, sku_cpu_free = get_min_free_resource(skus[sku_name]['workers'], node_resource_dict, pai_daemon_resource_dict)
@@ -286,17 +244,16 @@ def main():
 
     output_path = os.path.expanduser(args.output)
     layout = load_yaml_config(args.layout)
-    config = load_yaml_config(args.config)
+    cluster_config = load_yaml_config(args.config)
 
-    masters = list(filter(lambda elem: 'pai-master' in elem and elem["pai-master"] == 'true', layout['machine-list']))
-    workers = list(filter(lambda elem: 'pai-worker' in elem and elem["pai-worker"] == 'true', layout['machine-list']))
+    masters, workers = get_masters_workers_from_layout(layout)
     head_node = masters[0]
-    hived_config = get_hived_config(layout, config)
+    hived_config = get_hived_config(layout, cluster_config)
 
     environment = {
         'masters': masters,
         'workers': workers,
-        'cfg': config,
+        'cfg': cluster_config,
         'head_node': head_node,
         'hived': hived_config
     }

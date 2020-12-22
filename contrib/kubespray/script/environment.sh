@@ -33,11 +33,9 @@ sudo apt-get -y install software-properties-common python3 python3-dev
 curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py
 sudo python3 get-pip.py
 
-echo "Install paramiko"
-sudo pip3 install paramiko
-
-echo "Install kubernetes package"
-sudo pip3 install kubernetes
+echo "Install python packages"
+sudo pip3 install paramiko # need paramiko for ansible-playbook
+sudo pip3 install -r script/requirements.txt
 
 echo "Install sshpass"
 sudo apt-get -y install sshpass
