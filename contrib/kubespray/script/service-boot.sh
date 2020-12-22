@@ -28,6 +28,7 @@ cleanup
 
 sudo docker run -itd \
         -e COLUMNS=$COLUMNS -e LINES=$LINES -e TERM=$TERM \
+        -e OPENPAI_BRANCH_NAME=$OPENPAI_BRANCH_NAME \
         -v /var/run/docker.sock:/var/run/docker.sock \
         -v ${HOME}/pai-deploy/cluster-cfg:/cluster-configuration  \
         -v ${HOME}/pai-deploy/kube:/root/.kube \

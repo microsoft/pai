@@ -19,13 +19,17 @@
 
 pushd $(dirname "$0") > /dev/null
 
-if [[ $# -eq 0 ]]; then
-  echo "Fetch latest release code"
+if [ -z "$OPENPAI_BRANCH_NAME" ]
+then
+  echo "checkout to ${OPENPAI_BRANCH_NAME}"
+  cd /pai
+  git fetch origin $OPENPAI_BRANCH_NAME
+  git checkout $OPENPAI_BRANCH_NAME
+else
+  echo "Checkout to latest release tag"
   cd /pai
   git fetch --tags
   TAG=$(curl --silent "https://api.github.com/repos/microsoft/pai/releases/latest" | grep '"tag_name":' | sed -E 's/.*"([^"]+)".*/\1/') && git checkout $TAG
-else
-  echo "Skip fetching latest release code"
 fi
 
 /bin/bash
