@@ -17,6 +17,7 @@
 
 
 import os
+import sys
 import readline
 import logging
 import logging.config
@@ -52,6 +53,7 @@ class ServiceCmd():
         def add_arguments(parser):
             parser.add_argument("-c", "--kube-config-path", dest="kube_config_path", default="~/.kube/config", help="The path to KUBE_CONFIG file. Default value: ~/.kube/config")
             parser.add_argument("-n", "--service-list", nargs='+', dest="service_list", default=None, help="Service list to manage")
+            parser.add_argument("-k", "--skip-service-list", nargs='+', dest="skip_service_list", default=None, help="Service list to skip")
 
         add_arguments(start_parser)
         add_arguments(stop_parser)
@@ -61,22 +63,25 @@ class ServiceCmd():
     def process_args(self, args):
         if args.kube_config_path is not None:
             args.kube_config_path = os.path.expanduser(args.kube_config_path)
-        return args.service_list
+
+        if args.service_list is not None and args.skip_service_list is not None:
+            logger.error('--service-list and --skip-service-list are mutually exclusive')
+            sys.exit(1)
 
     def service_start(self, args):
-        service_list = self.process_args(args)
+        self.process_args(args)
 
-        service_management_starter = service_management_start.serivce_management_start(args.kube_config_path, service_list)
+        service_management_starter = service_management_start.serivce_management_start(args.kube_config_path, args.service_list, args.skip_service_list)
         service_management_starter.run()
 
     def service_stop(self, args):
-        service_list = self.process_args(args)
+        self.process_args(args)
 
-        service_management_stopper = service_management_stop.service_management_stop(args.kube_config_path, service_list)
+        service_management_stopper = service_management_stop.service_management_stop(args.kube_config_path, args.service_list, args.skip_service_list)
         service_management_stopper.run()
 
     def service_delete(self, args):
-        service_list = self.process_args(args)
+        self.process_args(args)
 
         logger.warning("--------------------------------------------------------")
         logger.warning("--------------------------------------------------------")
@@ -110,11 +115,11 @@ class ServiceCmd():
                 logger.warning("3 Times.........  Sorry,  we will force stopping your operation.")
                 return
 
-        service_management_deleter = service_management_delete.service_management_delete(args.kube_config_path, service_list)
+        service_management_deleter = service_management_delete.service_management_delete(args.kube_config_path, args.service_list, args.skip_service_list)
         service_management_deleter.run()
 
     def service_refresh(self, args):
-        service_list = self.process_args(args)
+        self.process_args(args)
 
-        service_management_refresher = service_management_refresh.service_management_refresh(args.kube_config_path, service_list)
+        service_management_refresher = service_management_refresh.service_management_refresh(args.kube_config_path, args.service_list, args.skip_service_list)
         service_management_refresher.run()
