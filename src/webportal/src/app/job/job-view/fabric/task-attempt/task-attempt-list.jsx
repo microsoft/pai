@@ -93,30 +93,25 @@ PortTooltipContent.propTypes = {
   ports: PropTypes.object,
 };
 
-const LogDialogContent = ({ urlLists }) => {
-  const lists = [];
-  for (const p of urlLists) {
-    lists.push(p);
-  }
-  if (lists.length === 0) {
+const LogDialogContent = ({ urls }) => {
+  if (isEmpty(urls)) {
     return <Stack>No log file generated or log files be rotated</Stack>;
   }
-  const urlpairs = lists.map((lists, index) => (
-    <Stack key={`log-list-${index}`}>
-      <Link
-        href={lists.uri}
-        target='_blank'
-        styles={{ root: [FontClassNames.mediumPlus] }}
-      >
-        <Icon iconName='TextDocument'></Icon> {lists.name}
-      </Link>
-    </Stack>
-  ));
-  return urlpairs;
+  const urlPairs = [];
+  for (const [key, url] of Object.entries(urls)) {
+    urlPairs.push(
+      <Stack key={`log-list-${key}`}>
+        <Link href={url} styles={{ root: [FontClassNames.mediumPlus] }}>
+          <Icon iconName='TextDocument'></Icon> {key}
+        </Link>
+      </Stack>,
+    );
+  }
+  return urlPairs;
 };
 
 LogDialogContent.propTypes = {
-  urlLists: PropTypes.array,
+  urlLists: PropTypes.object,
 };
 
 export default class TaskAttemptList extends React.Component {
@@ -223,10 +218,15 @@ export default class TaskAttemptList extends React.Component {
       .then(({ fullLogUrls, _ }) => {
         this.setState({
           hideAllLogsDialog: !hideAllLogsDialog,
-          fullLogUrls: fullLogUrls,
+          fullLogUrls: this.convertObjectFormat(fullLogUrls),
         });
       })
-      .catch(() => this.setState({ hideAllLogsDialog: !hideAllLogsDialog }));
+      .catch(() =>
+        this.setState({
+          hideAllLogsDialog: !hideAllLogsDialog,
+          fullLogUrls: {},
+        }),
+      );
   }
 
   showContainerTailLog(logListUrl, logType) {
@@ -432,9 +432,7 @@ export default class TaskAttemptList extends React.Component {
         >
           <Stack gap='m'>
             <Text variant='xLarge'>All Logs:</Text>
-            <LogDialogContent
-              urlLists={!isNil(fullLogUrls) ? fullLogUrls.locations : []}
-            />
+            <LogDialogContent urls={fullLogUrls} />
           </Stack>
           <DialogFooter>
             <PrimaryButton
