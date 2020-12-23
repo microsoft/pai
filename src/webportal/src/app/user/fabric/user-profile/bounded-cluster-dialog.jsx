@@ -3,7 +3,7 @@
 
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
-import { isEmpty } from 'lodash';
+import { isEmpty, has } from 'lodash';
 import {
   DefaultButton,
   PrimaryButton,
@@ -12,7 +12,7 @@ import {
   DialogFooter,
   TextField,
 } from 'office-ui-fabric-react';
-
+import urljoin from 'url-join';
 import t from '../../../components/tachyons.scss';
 import Joi from 'joi-browser';
 import { PAIV2 } from '@microsoft/openpai-js-sdk';
@@ -25,7 +25,11 @@ const validateInput = async (clusterAlias, clusterUri, username, token) => {
         .required(),
       uri: Joi.string()
         .uri()
-        .required(),
+        .regex(/^https?:\/\/[^\/]*\/?$/)
+        .required()
+        .error(() => {
+          return 'Please use a valid OpenPAI URI, e.g. https://10.0.0.1, https://a.b.c';
+        }),
       username: Joi.string().required(),
       token: Joi.string()
         .trim()
@@ -43,16 +47,23 @@ const validateInput = async (clusterAlias, clusterUri, username, token) => {
     throw new Error(error);
   }
 
-  const client = new PAIV2.OpenPAIClient({
-    rest_server_uri: new URL('rest-server', value.uri),
-    username: value.username,
-    token: value.token,
-    https: value.uri.startsWith('https'),
-  });
-
   // check if token is valid
   try {
-    await client.virtualCluster.listVirtualClusters();
+    const url = urljoin(value.uri, `/rest-server/api/v2/virtual-clusters`);
+    const response = await fetch(url, {
+      headers: { Authorization: `Bearer ${value.token}` },
+    });
+    const result = await response.json();
+    // node-fetch will throw error like network error
+    // node-fetch won't throw error if the response is not 20X (e.g. 404, 500)
+    // In such case, we throw the error manually
+    if (!response.ok) {
+      if (has(result, 'message')) {
+        throw new Error(result.message);
+      } else {
+        throw new Error('Unknown Error');
+      }
+    }
   } catch (err) {
     throw new Error(
       `Try to connect the cluster but failed. Details: ${err.message}. Please check the error message in your browser console for more information.`,
