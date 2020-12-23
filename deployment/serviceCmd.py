@@ -17,7 +17,6 @@
 
 
 import os
-import sys
 import readline
 import logging
 import logging.config
