@@ -56,7 +56,6 @@ const AbnormalJobList = ({ jobs }) => {
   const jobListColumns = [
     {
       key: 'name',
-      minWidth: 150,
       name: 'Name',
       fieldName: 'name',
       className: FontClassNames.mediumPlus,
@@ -72,8 +71,8 @@ const AbnormalJobList = ({ jobs }) => {
     },
     {
       key: 'gpuCount',
-      minWidth: 150,
       name: 'GPUs',
+      minWidth: 150,
       fieldName: 'totalGpuNumber',
       className: FontClassNames.mediumPlus,
       isResizable: true,
@@ -90,7 +89,6 @@ const AbnormalJobList = ({ jobs }) => {
     },
     {
       key: 'modified',
-      minWidth: 150,
       name: 'Date Modified',
       className: FontClassNames.mediumPlus,
       isResizable: true,
@@ -100,7 +98,6 @@ const AbnormalJobList = ({ jobs }) => {
     },
     {
       key: 'user',
-      minWidth: 60,
       name: 'User',
       fieldName: 'username',
       className: FontClassNames.mediumPlus,
@@ -108,7 +105,6 @@ const AbnormalJobList = ({ jobs }) => {
     },
     {
       key: 'duration',
-      minWidth: 120,
       name: 'Duration',
       className: FontClassNames.mediumPlus,
       isResizable: true,
@@ -125,7 +121,6 @@ const AbnormalJobList = ({ jobs }) => {
     },
     {
       key: 'virtualCluster',
-      minWidth: 100,
       name: 'Virtual Cluster',
       fieldName: 'virtualCluster',
       className: FontClassNames.mediumPlus,
@@ -133,7 +128,6 @@ const AbnormalJobList = ({ jobs }) => {
     },
     {
       key: 'status',
-      minWidth: 100,
       name: 'Status',
       isResizable: true,
       onRender(job) {
@@ -142,7 +136,6 @@ const AbnormalJobList = ({ jobs }) => {
     },
     {
       key: 'action',
-      minWidth: 100,
       name: 'Action',
       className: zeroPaddingClass,
       isResizable: true,
