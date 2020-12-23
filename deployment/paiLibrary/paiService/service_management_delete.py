@@ -31,7 +31,7 @@ from ..common import file_handler
 
 class service_management_delete:
 
-    def __init__(self, kube_config_path=None, service_list=None, **kwargs):
+    def __init__(self, kube_config_path=None, service_list=None, skip_service_list=None, **kwargs):
         self.logger = logging.getLogger(__name__)
 
         self.cluster_object_model = service_management_configuration.get_cluster_object_model_from_k8s(kube_config_path)
@@ -42,6 +42,9 @@ class service_management_delete:
             if "cluster-type" in self.cluster_object_model["cluster"]["common"]:
                 self.cluster_type = self.cluster_object_model["cluster"]["common"]["cluster-type"]
             self.service_list = service_management_configuration.get_service_list(self.cluster_type)
+            if skip_service_list is not None:
+                self.logger.info("Skipping service list {0}".format(skip_service_list))
+                self.service_list = list(set(self.service_list) - set(skip_service_list))
         else:
             self.service_list = service_list
         self.logger.info("Get the service-list to manage : {0}".format(str(self.service_list)))

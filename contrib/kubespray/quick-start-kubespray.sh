@@ -10,6 +10,9 @@ echo "cluster config file path: ${CLUSTER_CONFIG}"
 echo "Setting up environment..."
 /bin/bash script/environment.sh -c ${CLUSTER_CONFIG} || exit $?
 
+echo "Checking layout.yaml schema..."
+python3 script/validate_layout_schema.py -l ${LAYOUT}  || exit $?
+
 echo "Checking requirements..."
 /bin/bash requirement.sh -l ${LAYOUT} -c ${CLUSTER_CONFIG}
 ret_code_check=$?
