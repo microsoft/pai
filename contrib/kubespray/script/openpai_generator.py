@@ -10,7 +10,8 @@ from kubernetes import client, config
 from kubernetes.utils import parse_quantity
 from kubernetes.client.rest import ApiException
 
-from .utils import get_logger, load_yaml_config, read_template, generate_template_file, get_masters_workers_from_layout
+# pylint: disable=import-error
+from utils import get_logger, load_yaml_config, read_template, generate_template_file, get_masters_workers_from_layout
 
 
 # reserved resources

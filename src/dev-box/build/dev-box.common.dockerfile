@@ -109,7 +109,9 @@ RUN echo y | pip uninstall requests && \
 RUN rm -rf /tmp/*
 
 WORKDIR /
-# checkout OpenPAI release branch at start-script
+
+# checkout to latest OpenPAI release version by default 
+# checkout to assigned branch if assigned
 COPY build/start-script.sh /usr/local
 RUN chmod u+x /usr/local/start-script.sh
 

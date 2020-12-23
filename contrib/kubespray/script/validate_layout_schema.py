@@ -2,7 +2,8 @@ import argparse
 import sys
 from schema import Schema, Or, Optional, Regex
 
-from .utils import get_logger, load_yaml_config, get_masters_workers_from_layout
+# pylint: disable=import-error
+from utils import get_logger, load_yaml_config, get_masters_workers_from_layout
 
 
 logger = get_logger(__name__)
@@ -11,6 +12,11 @@ logger = get_logger(__name__)
 def validate_layout_schema(layout):
     schema = Schema(
         {
+            # leave `kubernetes` for legacy reasons
+            Optional('kubernetes'): {
+                'api-servers-url': str,
+                'dashboard-url': str,
+            },
             'machine-sku': {
                 str: {
                     'mem': str,

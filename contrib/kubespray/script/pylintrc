@@ -8,3 +8,4 @@ disable =
     broad-except,
     too-many-return-statements,
     duplicate-code,
+    no-name-in-module,

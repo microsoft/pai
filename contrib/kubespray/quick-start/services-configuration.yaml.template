@@ -78,7 +78,7 @@ hivedscheduler:
         {% endfor %}
       physicalCells:
       {% for sku_name, sku_spec  in env["hived"]["skus"].items() -%}
-      - cellType: {{ sku_name }}-NODE-POOL.{{ sku_name }}-NODE
+      - cellType: {{ sku_name }}-NODE-POOL
         cellChildren:
         {% for worker in sku_spec.workers -%}
         - cellAddress: {{ worker }}
