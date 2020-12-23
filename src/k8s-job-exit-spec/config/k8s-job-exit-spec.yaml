@@ -1040,7 +1040,6 @@ spec:
     - userLogRegex: "(?i)eoferror: ran out of input"
     - userLogRegex: "(?mi)utils.lua:.*input/output error"
     - userLogRegex: "(?mi)tensorflow.python.framework.errors.unknownerror:.*input/output error"
-    - userLogRegex: "(?mi)oserror:.*input/output error"
     - userLogRegex: "(?mi)cp: failed to close.*input/output error"
     - userLogRegex: "(?mi)exception occurred:.* Input/output error"
 
