@@ -1,5 +1,12 @@
 # OpenPAI Release Note
 
+## Dec 2020 (version 1.4.1)
+
+- Marketplace
+  - Fix initializing blob data issue (#5189)
+- Log Collection
+    - Fix getting wrong log for retried task & frontend crash issue (#5190)
+
 ## Dec 2020 (version 1.4.0)
 
 - multi-cluster (https://github.com/microsoft/pai/issues/4929)
