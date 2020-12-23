@@ -15,7 +15,6 @@ import {
 import urljoin from 'url-join';
 import t from '../../../components/tachyons.scss';
 import Joi from 'joi-browser';
-import { PAIV2 } from '@microsoft/openpai-js-sdk';
 
 const validateInput = async (clusterAlias, clusterUri, username, token) => {
   const inputSchema = Joi.object()
@@ -25,7 +24,7 @@ const validateInput = async (clusterAlias, clusterUri, username, token) => {
         .required(),
       uri: Joi.string()
         .uri()
-        .regex(/^https?:\/\/[^\/]*\/?$/)
+        .regex(/^https?:\/\/[^/]*\/?$/)
         .required()
         .error(() => {
           return 'Please use a valid OpenPAI URI, e.g. https://10.0.0.1, https://a.b.c';
