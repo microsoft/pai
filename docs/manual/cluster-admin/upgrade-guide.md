@@ -14,9 +14,9 @@ First, launch a dev box container of current PAI version, stop all services by:
 
 The command will ask you for the cluster id for confirmation. If you forget it, another command `./paictl.py config get-id` will help you.
 
-If you don't want to affect current running jobs, please don't stop `storage-manager`, `dshuttle-master`, `dshuttle-worker` & `dshuttle-csi` by using the following command:
+If you don't want to affect current running jobs, please skip stopping `storage-manager` by using the following command:
 ```bash
-./paictl.py service stop --skip-service-list storage-manager dshuttle-master dshuttle-worker dshuttle-csi
+./paictl.py service stop --skip-service-list storage-manager
 ```
 
 Use `exit` to leave the dev box container. And remove it by:
@@ -67,9 +67,9 @@ Start all PAI services by:
 ./paictl.py service start
 ```
 
-If you didn't stop `storage-manager`, `dshuttle-master`, `dshuttle-worker` & `dshuttle-csi`, start other services by:
+If you didn't stop `storage-manager`, start other services by:
 ```bash
-./paictl.py service start --skip-service-list storage-manager dshuttle-master dshuttle-worker dshuttle-csi
+./paictl.py service start --skip-service-list storage-manager
 ```
 
 After all services is started, your OpenPAI cluster is successfully upgraded.
