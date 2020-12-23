@@ -103,7 +103,7 @@ openpai-004,10.0.0.4
 user: <your-ssh-username>
 password: <your-ssh-password>
 branch_name: pai-1.4.y
-docker_image_tag: v1.4.0
+docker_image_tag: v1.4.1
 
 # Optional
 
