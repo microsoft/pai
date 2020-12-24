@@ -44,6 +44,15 @@ svn cat https://github.com/RadeonOpenCompute/k8s-device-plugin.git/trunk/k8s-ds-
 {% endif %}
 # End: AMD GPU device plugin
 
+# Begin: Enflame DTU device plugin
+{% if 'enflame.com/dtu' in cluster_cfg['device-plugin']['devices'] %}
+
+svn cat https://github.com/enflameenflame/k8s-device-plugin.git/trunk/yaml/enflame-device-plugin.yaml \
+    | kubectl apply --overwrite=true -f - || exit $?
+
+{% endif %}
+# End: Enflame DTU device plugin
+
 # Please add other types of computing devices here.
 # Use comment "Begin: <device plugin name>" and "End: <device plugin name>"
 # Also, the scripts in `delete.sh.template` should also be modified.

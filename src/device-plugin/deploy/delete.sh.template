@@ -39,6 +39,15 @@ PYTHONPATH="../../../deployment" python -m k8sPaiLibrary.maintaintool.update_res
 {% endif %}
 # End: AMD GPU device plugin
 
+# Begin: Enflame DTU device plugin
+{% if 'enflame.com/dtu' in cluster_cfg['device-plugin']['devices'] %}
+
+PYTHONPATH="../../../deployment" python -m k8sPaiLibrary.maintaintool.update_resource \
+    --operation delete --resource daemonset --name enflame-device-plugin-daemonset --namespace kube-system
+
+{% endif %}
+# End: Enflame DTU device plugin
+
 # Please add other types of computing devices here.
 # Use comment "Begin: <device plugin name>" and "End: <device plugin name>"
 
