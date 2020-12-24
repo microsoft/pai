@@ -249,7 +249,14 @@ def main():
 
     masters, workers = get_masters_workers_from_layout(layout)
     head_node = masters[0]
-    hived_config = get_hived_config(layout, cluster_config)
+
+    # Hivedscheduler is enabled by default.
+    # But if the user sets enable_hived_scheduler to false manually,
+    # we should disable it.
+    if 'enable_hived_scheduler' in cluster_config and cluster_config['enable_hived_scheduler'] is False:
+        hived_config = {}
+    else:
+        hived_config = get_hived_config(layout, cluster_config)
 
     environment = {
         'masters': masters,
