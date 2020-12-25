@@ -69,6 +69,13 @@
   roles:
     - { role: requirement/computing-devices/amd.com_gpu }
 
+- hosts: "enflame.com/dtu"
+  become: true
+  become_user: root
+  gather_facts: true
+  roles:
+    - { role: requirement/computing-devices/enflame.com_dtu }
+
 - hosts: all,localhost
   tasks:
     - name: "display unmet requirements"
