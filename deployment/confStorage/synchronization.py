@@ -24,7 +24,7 @@ from .upload import UploadConfiguration
 from ..clusterObjectModel.service_config_update import ServiceConfigUpdate
 
 
-class synchronization:
+class Synchronization:
 
     def __init__(self, **kwargs):
 

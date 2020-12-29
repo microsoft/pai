@@ -1,7 +1,7 @@
 import os
 import argparse
 from deployment.confStorage.download import download_configuration
-from deployment.confStorage.synchronization import synchronization
+from deployment.confStorage.synchronization import Synchronization
 from deployment.confStorage.external_version_control.external_config import uploading_external_config
 from deployment.confStorage.get_cluster_id import get_cluster_id
 from utility import pai_version
@@ -186,7 +186,7 @@ class ConfigCmd():
                 "layout.yaml",
                 "services-configuration.yaml"
             ]
-        sync_handler = synchronization(
+        sync_handler = Synchronization(
             pai_cluster_configuration_path=args.cluster_conf_path,
             local_conf_path=args.external_storage_conf_path,
             kube_config_path=args.kube_config_path,
