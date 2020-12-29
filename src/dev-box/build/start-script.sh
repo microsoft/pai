@@ -29,7 +29,7 @@ else
     echo "checkout to ${OPENPAI_BRANCH_NAME}"
     cd /pai
     git fetch origin $OPENPAI_BRANCH_NAME
-    git checkout $OPENPAI_BRANCH_NAME
+    git reset --hard $OPENPAI_BRANCH_NAME
 fi
 
 /bin/bash
