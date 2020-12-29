@@ -90,7 +90,7 @@ hivedscheduler:
         {%- if loop.index0 == 0 %}
         default:
         {%- else %}
-        {{ sku_name }}:
+        vc{{loop.index0 }}:
         {%- endif %}
           virtualCells:
           - cellType: {{ sku_name }}-NODE-POOL.{{ sku_name }}-NODE
