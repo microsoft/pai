@@ -20,7 +20,7 @@ import logging.config
 
 from external_version_control.external_config import getting_external_config
 from external_version_control.storage_factory import get_external_storage
-from .upload import upload_configuration
+from .upload import UploadConfiguration
 from ..clusterObjectModel.service_config_update import ServiceConfigUpdate
 
 
@@ -83,7 +83,7 @@ class synchronization:
             config_format_check = ServiceConfigUpdate(configuration_path)
             config_format_check.run()
 
-            conf_uploader = upload_configuration(configuration_path, self.kube_config_path, self.config_push_list)
+            conf_uploader = UploadConfiguration(configuration_path, self.kube_config_path, self.config_push_list)
             conf_uploader.run()
             self.logger.info("Cluster Configuration synchronization from external storage is successful.")
 
