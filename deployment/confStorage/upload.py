@@ -59,7 +59,7 @@ class UploadConfiguration:
         cluster_id_in_config = 'pai'
         if 'cluster' in service_config and 'common' in service_config['cluster'] and 'cluster-id' in service_config['cluster']['common']:
             cluster_id_in_config = service_config['cluster']['common']['cluster-id']
-            self.logger.info("Configured cluster-id [ %s ]!", cluster_id_in_config)
+            self.logger.info("Configured cluster-id in services configuration : %s", cluster_id_in_config)
         else:
             self.logger.warning("No cluster-id specified, default cluster-id [ %s ] will be used.", cluster_id_in_config)
 
