@@ -43,7 +43,7 @@ sudo docker exec -it dev-box-quick-start kubectl get node || { cleanup; exit 1; 
 
 # make sure git branch is switched to OPENPAI_BRANCH_NAME
 echo "Checking git branch..."
-until sudo docker exec -it -w /pai dev-box-gusui git rev-parse --abbrev-ref HEAD | grep -q "${OPENPAI_BRANCH_NAME}"
+until sudo docker exec -it -w /pai dev-box-quick-start git rev-parse --abbrev-ref HEAD | grep -q "${OPENPAI_BRANCH_NAME}"
 do 
   sleep 5s
 done
