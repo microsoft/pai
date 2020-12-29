@@ -15,7 +15,7 @@ import { isNil } from 'lodash';
 import Card from '../components/card';
 import { ReactComponent as IconSingle } from '../../assets/img/job-wizard-single.svg';
 import { ReactComponent as IconDistributed } from '../../assets/img/job-wizard-distributed.svg';
-import { ReactComponent as IconUpload } from '../../assets/img/job-wizard-upload.svg';
+import { ReactComponent as IconEdit } from '../../assets/img/job-wizard-edit-config.svg';
 import { SpinnerLoading } from '../components/loading';
 
 const WizardButton = ({ children, onClick }) => {
@@ -110,7 +110,7 @@ const JobWizard = ({ setYamlText, history }) => {
                   history.push('/yaml-edit');
                 }}
               >
-                <IconUpload />
+                <IconEdit />
               </WizardButton>
               <div
                 style={{
