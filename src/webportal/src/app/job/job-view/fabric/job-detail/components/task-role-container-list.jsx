@@ -132,7 +132,6 @@ const LogDialogContent = ({ urls, logListUrl }) => {
     urlPairs.push(
       <Stack key={`log-list-${key}`}>
         <Link
-          id={`log-link-btn-${key}`}
           styles={{ root: [FontClassNames.mediumPlus] }}
           onClick={() => {
             getContainerLogList(logListUrl)
