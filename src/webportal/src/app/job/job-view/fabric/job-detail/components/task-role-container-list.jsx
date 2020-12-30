@@ -122,16 +122,36 @@ PortTooltipContent.propTypes = {
   ports: PropTypes.object,
 };
 
-const LogDialogContent = ({ urls }) => {
+const LogDialogContent = ({ urls, logListUrl }) => {
   if (isEmpty(urls)) {
     return <Stack>No log file generated or log files be rotated</Stack>;
   }
+
   const urlPairs = [];
-  for (const [key, url] of Object.entries(urls)) {
+  for (const [key] of Object.entries(urls)) {
     urlPairs.push(
       <Stack key={`log-list-${key}`}>
-        <Link href={url} styles={{ root: [FontClassNames.mediumPlus] }} onClick={()=>{alert('click'); return true;}}>
-          <Icon iconName='TextDocument'></Icon> {key == 'All' ? 'Stdout + Stderr' : key}
+        <Link
+          id={`log-link-btn-${key}`}
+          styles={{ root: [FontClassNames.mediumPlus] }}
+          onClick={() => {
+            getContainerLogList(logListUrl)
+              .then(({ fullLogUrls, _ }) => {
+                const logUrl = fullLogUrls.locations.find(
+                  url => url.name === key,
+                );
+                if (!logUrl || !logUrl.uri) {
+                  throw new Error('Failed to get log url');
+                }
+                location.href = logUrl.uri;
+              })
+              .catch(err => {
+                alert('Error occur, please try again. err: ' + err);
+              });
+          }}
+        >
+          <Icon iconName='TextDocument'></Icon>{' '}
+          {key.toLowerCase() === 'all' ? 'stdout+stderr' : key}
         </Link>
       </Stack>,
     );
@@ -141,6 +161,7 @@ const LogDialogContent = ({ urls }) => {
 
 LogDialogContent.propTypes = {
   urlLists: PropTypes.object,
+  logListUrl: PropTypes.string,
 };
 
 export default class TaskRoleContainerList extends React.Component {
@@ -396,11 +417,13 @@ export default class TaskRoleContainerList extends React.Component {
         this.setState({
           hideAllLogsDialog: !hideAllLogsDialog,
           fullLogUrls: this.convertObjectFormat(fullLogUrls),
+          logListUrl: logListUrl,
         });
       })
       .catch(() =>
         this.setState({
           hideAllLogsDialog: !hideAllLogsDialog,
+          logListUrl: null,
           fullLogUrls: {},
         }),
       );
@@ -484,6 +507,7 @@ export default class TaskRoleContainerList extends React.Component {
       items,
       filter,
       taskRoleName,
+      logListUrl,
     } = this.state;
     const { showMoreDiagnostics } = this.props;
     return (
@@ -529,7 +553,7 @@ export default class TaskRoleContainerList extends React.Component {
         >
           <Stack gap='m'>
             <Text variant='xLarge'>All Logs:</Text>
-            <LogDialogContent urls={fullLogUrls} />
+            <LogDialogContent urls={fullLogUrls} logListUrl={logListUrl} />
           </Stack>
           <DialogFooter>
             <PrimaryButton
