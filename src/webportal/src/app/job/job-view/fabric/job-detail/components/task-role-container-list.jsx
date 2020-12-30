@@ -130,8 +130,8 @@ const LogDialogContent = ({ urls }) => {
   for (const [key, url] of Object.entries(urls)) {
     urlPairs.push(
       <Stack key={`log-list-${key}`}>
-        <Link href={url} styles={{ root: [FontClassNames.mediumPlus] }}>
-          <Icon iconName='TextDocument'></Icon> {key}
+        <Link href={url} styles={{ root: [FontClassNames.mediumPlus] }} onClick={()=>{alert('click'); return true;}}>
+          <Icon iconName='TextDocument'></Icon> {key == 'All' ? 'Stdout + Stderr' : key}
         </Link>
       </Stack>,
     );
