@@ -178,7 +178,7 @@ const Home = () => {
                       'https://openpai.readthedocs.io/en/latest/manual/cluster-admin/basic-management-operations.html#abnormal-jobs'
                     }
                   />
-                  <StackItem grow>
+                  <StackItem grow className={c(t.w100)}>
                     <Pivot>
                       <PivotItem headerText='Abnormal jobs'>
                         <AbnormalJobList

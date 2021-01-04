@@ -47,10 +47,9 @@ const vcListColumns = colProps => {
   const columns = [
     {
       key: 'name',
-      minWidth: 45,
-      maxWidth: 100,
       name: 'Name',
       isResizable: true,
+      maxWidth: 100,
       onRender(vc) {
         return (
           <Stack verticalAlign='center' verticalFill>
@@ -72,9 +71,8 @@ const vcListColumns = colProps => {
     },
     {
       key: 'allocation',
-      minWidth: 80,
-      maxWidth: 132,
       name: 'Allocation',
+      maxWidth: 100,
       isResizable: true,
       className: zeroPaddingClass,
       onRender(vc) {
@@ -101,9 +99,9 @@ const vcListColumns = colProps => {
     },
     {
       key: 'detail',
-      minWidth: 100,
       name: 'Detail: Used / (Total - Bad)',
       isResizable: true,
+      minWidth: 200,
       onRender(vc) {
         const { resourcesUsed, resourcesTotal } = vc;
         const resourcesGuaranteed = vc.resourcesGuaranteed || resourcesTotal;
@@ -282,10 +280,7 @@ export const VirtualClusterStatistics = ({
         </Stack.Item>
         <Stack.Item styles={{ root: [t.relative] }} grow>
           <div className={c(t.absolute, t.absoluteFill, t.overflowAuto, t.pr4)}>
-            <VirtualClusterDetailsList
-              styles={{ root: { overflow: 'unset' } }}
-              virtualClusters={userVC}
-            />
+            <VirtualClusterDetailsList virtualClusters={userVC} />
           </div>
         </Stack.Item>
       </Stack>
