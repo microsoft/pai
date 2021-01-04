@@ -58,6 +58,23 @@ Solutions:
   2. Check the docker cache. The docker may use too many disk space for caching, it's worth to have a check.
   3. Check PAI log folder size. The path is `/var/log/pai`.
 
+### NodeGpuCountChanged Alert
+
+This is an alert from alert manager and is used to monitor the GPU count of each node.
+This alert will be triggered when the GPU count detected is different from the GPU count specified in `layout.yaml`.
+
+If you find that the real GPU count is correct but the alerts still keep being fired, it's possibly caused by the wrong specification in `layout.yaml`.
+
+Solutions:
+
+  1. Enter your dev-box, check the GPU count specified in `~/pai-deploy/cluster-configuration/layout.yaml`, modify the GPU count accordingly;
+  2. Push the modified layout and restart related service:
+    ```shell
+    /pai/paictl.py service stop -n cluster-configuration job-exporter
+    /pai/paictl.py config push -p /cluster-configuration/ -m service
+    /pai/paictl.py service start -n cluster-configuration job-exporter
+    ```
+
 ### NVIDIA GPU is Not Detected
 
 If you cannot use GPU in your job, please check the following items on the corresponding worker node:
