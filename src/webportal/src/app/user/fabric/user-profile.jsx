@@ -24,14 +24,17 @@ import {
   listStorageDetailRequest,
   getGroupsRequest,
   updateBoundedClustersRequest,
+  updateUserRequest,
 } from './conn';
 
 import t from '../../components/tachyons.scss';
 import { VirtualClusterDetailsList } from '../../home/home/virtual-cluster-statistics';
 import TokenList from './user-profile/token-list';
+import SSHlist from './user-profile/ssh-list';
 import UserProfileHeader from './user-profile/header';
 import StorageList from './user-profile/storage-list';
 import BoundedClusterDialog from './user-profile/bounded-cluster-dialog';
+import SSHListDialog from './user-profile/ssh-list-dialog';
 import BoundedClusterList from './user-profile/bounded-cluster-list';
 
 const UserProfileCard = ({ title, children, headerButton }) => {
@@ -68,6 +71,9 @@ const UserProfile = () => {
   const [storageDetails, setStorageDetails] = useState(null);
   const [groups, setGroups] = useState(null);
   const [showBoundedClusterDialog, setShowBoundedClusterDialog] = useState(
+    false,
+  );
+  const [showAddSSHpublicKeysDialog, setShowAddSSHpublicKeysDialog] = useState(
     false,
   );
   const [processing, setProcessing] = useState(false);
@@ -137,6 +143,37 @@ const UserProfile = () => {
       setTokens(res.tokens);
       setProcessing(false);
     });
+  });
+
+  // click `add public ssh keys button` -> open dialog
+  const onAddPublicKeys = useCallback(async sshPublicKeys => {
+    let updatedSSHPublickeys = [];
+    if (userInfo.extension.sshKeys) {
+      updatedSSHPublickeys = cloneDeep(userInfo.extension.sshKeys);
+    }
+    updatedSSHPublickeys.push({
+      title: sshPublicKeys.title,
+      sshValue: sshPublicKeys.sshValue,
+      time: sshPublicKeys.time,
+    });
+    await updateUserRequest(userInfo.username, updatedSSHPublickeys);
+    const updatedUserInfo = await getUserRequest(userInfo.username);
+    setUserInfo(updatedUserInfo);
+  });
+
+  const onDeleteSSHkeys = useCallback(async sshPublicKeys => {
+    let updatedSSHPublickeys = [];
+    if (userInfo.extension.sshKeys) {
+      updatedSSHPublickeys = cloneDeep(userInfo.extension.sshKeys);
+    }
+    updatedSSHPublickeys = updatedSSHPublickeys.filter(
+      item =>
+        item.title !== sshPublicKeys.title &&
+        item.value !== sshPublicKeys.sshValue,
+    );
+    await updateUserRequest(userInfo.username, updatedSSHPublickeys);
+    const updatedUserInfo = await getUserRequest(userInfo.username);
+    setUserInfo(updatedUserInfo);
   });
 
   const onRevokeToken = useCallback(async token => {
@@ -209,6 +246,29 @@ const UserProfile = () => {
             }
           >
             <TokenList tokens={tokens} onRevoke={onRevokeToken} />
+          </UserProfileCard>
+          <UserProfileCard
+            title='SSH Public Keys'
+            headerButton={
+              <DefaultButton
+                onClick={() => setShowAddSSHpublicKeysDialog(true)}
+                disabled={processing}
+              >
+                Add SSH Public Keys
+              </DefaultButton>
+            }
+          >
+            <SSHlist
+              sshKeys={userInfo.extension.sshKeys}
+              onDeleteSSHkeys={onDeleteSSHkeys}
+            />
+            {/* dialog for add public ssh keys */}
+            {showAddSSHpublicKeysDialog && (
+              <SSHListDialog
+                onDismiss={() => setShowAddSSHpublicKeysDialog(false)}
+                onAddPublickeys={onAddPublicKeys}
+              />
+            )}
           </UserProfileCard>
           <UserProfileCard title='Storage'>
             <StorageList storageDetails={storageDetails} />

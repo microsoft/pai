@@ -179,6 +179,26 @@ export const getUserRequest = async username => {
   });
 };
 
+export const updateUserRequest = async (username, sskMessage) => {
+  const url = `${config.restServerUri}/api/v2/users/me`;
+  const token = checkToken();
+  return fetchWrapper(url, {
+    method: 'PUT',
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({
+      data: {
+        username: username,
+        extension: {
+          sshKeys: sskMessage,
+        },
+      },
+      patch: true,
+    }),
+  });
+};
+
 export const getTokenRequest = async () => {
   return wrapper(() => client.token.getTokens());
 };
