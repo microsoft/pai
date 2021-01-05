@@ -77,7 +77,7 @@ class TaskRoleFilter {
         return (
           containerExitSpec &&
           containerExitSpec.code &&
-          exitCode.has(containerExitSpec.code)
+          exitCode.has(containerExitSpec.code.toString())
         );
       });
     }
