@@ -12,8 +12,6 @@ while getopts "c:" opt; do
   esac
 done
 
-OPENPAI_BRANCH_NAME=`cat ${CLUSTER_CONFIG} | grep branch_name | tr -d "[:space:]" | cut -d ':' -f 2`
-
 echo "Create working folder in ${HOME}/pai-deploy"
 mkdir -p ${HOME}/pai-deploy/
 
@@ -34,15 +32,11 @@ curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py
 sudo python3 get-pip.py
 
 echo "Install python packages"
-sudo python3 -m pip3 install paramiko # need paramiko for ansible-playbook
-sudo pip3 install -r script/requirements.txt
+sudo python3 -m pip install paramiko # need paramiko for ansible-playbook
+sudo python3 -m pip install -r script/requirements.txt
 
 echo "Install sshpass"
 sudo apt-get -y install sshpass
 
 echo "Install kubespray's requirements and ansible is included"
-sudo python3 -m pip3 install -r ${HOME}/pai-deploy/kubespray/requirements.txt
-
-echo "Clone OpenPAI source code from github to ${HOME}/pai-deploy"
-sudo rm -rf ${HOME}/pai-deploy/pai
-git clone -b ${OPENPAI_BRANCH_NAME} https://github.com/microsoft/pai.git ${HOME}/pai-deploy/pai
+sudo python3 -m pip install -r ${HOME}/pai-deploy/kubespray/requirements.txt
