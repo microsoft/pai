@@ -32,11 +32,11 @@ curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py
 sudo python3 get-pip.py
 
 echo "Install python packages"
-sudo python3 -m pip3 install paramiko # need paramiko for ansible-playbook
-sudo pip3 install -r script/requirements.txt
+sudo python3 -m pip install paramiko # need paramiko for ansible-playbook
+sudo python3 -m pip install -r script/requirements.txt
 
 echo "Install sshpass"
 sudo apt-get -y install sshpass
 
 echo "Install kubespray's requirements and ansible is included"
-sudo python3 -m pip3 install -r ${HOME}/pai-deploy/kubespray/requirements.txt
+sudo python3 -m pip install -r ${HOME}/pai-deploy/kubespray/requirements.txt
