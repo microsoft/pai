@@ -58,7 +58,7 @@ class Net(nn.Module):
         x = F.relu(self.fc2(x))
         x = self.fc3(x)
         return x
-def train(gpu, args):
+def train(gpu, args, trainset):
     print("start train")
     rank = int(os.environ['PAI_TASK_INDEX']) * args.gpus + gpu
     dist.init_process_group(backend=args.dist_backend, init_method='env://', world_size=args.world_size, rank=rank)
