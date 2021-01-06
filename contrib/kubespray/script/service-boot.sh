@@ -43,7 +43,7 @@ echo "Checking k8s installation..."
 sudo docker exec -it dev-box-quick-start kubectl get node || { cleanup; exit 1; }
 
 echo "Starting OpenPAI service with dev-box..."
-sudo docker exec -it -w /pai dev-box-quick-start /bin/bash ./contrib/kubespray/script/start-service-in-dev-box.sh || { cleanup; exit 1; }
+sudo docker exec -it -w /mnt/pai dev-box-quick-start /bin/bash ./contrib/kubespray/script/start-service-in-dev-box.sh || { cleanup; exit 1; }
 
 if [ $? -ne 0 ]; then
   cleanup
