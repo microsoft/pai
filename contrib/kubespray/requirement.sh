@@ -18,6 +18,12 @@ done
 echo "layout file path: ${LAYOUT}"
 echo "cluster config file path: ${CLUSTER_CONFIG}"
 
+function cleanup(){
+  rm -rf ${HOME}/pai-pre-check/
+}
+
+trap cleanup EXIT
+
 mkdir -p ${HOME}/pai-pre-check/
 python3 script/pre_check_generator.py -l ${LAYOUT} -c ${CLUSTER_CONFIG} -o ${HOME}/pai-pre-check
 
@@ -29,8 +35,5 @@ then
   echo "Pass: Cluster meets the requirements"
 else
   echo "Failed: There are unmet requirements in your cluster, the installation will be very likely to fail."
-  rm -rf ${HOME}/pai-pre-check/
   exit $ret_code_check
 fi
-
-rm -rf ${HOME}/pai-pre-check/
