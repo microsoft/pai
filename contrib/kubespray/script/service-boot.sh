@@ -55,21 +55,3 @@ echo "Default username          :     admin"
 echo "Default password          :     admin-password"
 echo ""
 echo "You can go to ${WEBPORTAL_URL}, then use the default username and password to log in."
- || { cleanup; exit 1; }
-
-if [ $? -ne 0 ]; then
-  cleanup
-  exit 1
-else
-  cleanup
-  WEBPORTAL_URL=http:$(kubectl config view -o jsonpath='{.clusters[].cluster.server}' | cut -d ":" -f 2)
-  echo ""
-  echo "OpenPAI is successfully deployed, please check the following information:"
-  echo "Kubernetes cluster config :     ~/pai-deploy/kube/config"
-  echo "OpenPAI cluster config    :     ~/pai-deploy/cluster-cfg"
-  echo "OpenPAI cluster ID        :     pai"
-  echo "Default username          :     admin"
-  echo "Default password          :     admin-password"
-  echo ""
-  echo "You can go to ${WEBPORTAL_URL}, then use the default username and password to log in."
-fi
