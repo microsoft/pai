@@ -38,19 +38,19 @@ rm -rf secret-system.yaml
 # Create priorityClass for PAI daemon
 kubectl apply --overwrite=true -f priority-class.yaml || exit $?
 
-(
 # Label all the machines
-{% for host in cluster_cfg['layout']['machine-list'] %}
-    {% if 'pai-master' in cluster_cfg['layout']['machine-list'][host] and cluster_cfg['layout']['machine-list'][host]['pai-master'] == 'true' %}
+(
+{%- for host in cluster_cfg['layout']['machine-list'] %}
+    {%- if 'pai-master' in cluster_cfg['layout']['machine-list'][host] and cluster_cfg['layout']['machine-list'][host]['pai-master'] == 'true' %}
 echo kubectl label --overwrite=true nodes {{ cluster_cfg['layout']['machine-list'][host]['hostname'] }} pai-master=true || exit $?
-    {% endif %}
-    {% if 'pai-worker' in cluster_cfg['layout']['machine-list'][host] and cluster_cfg['layout']['machine-list'][host]['pai-worker'] == 'true' %}
+    {%- endif %}
+    {%- if 'pai-worker' in cluster_cfg['layout']['machine-list'][host] and cluster_cfg['layout']['machine-list'][host]['pai-worker'] == 'true' %}
 echo kubectl label --overwrite=true nodes {{ cluster_cfg['layout']['machine-list'][host]['hostname'] }} pai-worker=true || exit $?
-    {% endif %}
-    {% if 'pai-storage' in cluster_cfg['layout']['machine-list'][host] and cluster_cfg['layout']['machine-list'][host]['pai-storage'] == 'true' %}
+    {%- endif %}
+    {%- if 'pai-storage' in cluster_cfg['layout']['machine-list'][host] and cluster_cfg['layout']['machine-list'][host]['pai-storage'] == 'true' %}
 echo kubectl label --overwrite=true nodes {{ cluster_cfg['layout']['machine-list'][host]['hostname'] }} pai-storage=true || exit $?
-    {% endif %}
-{% endfor %}
+    {%- endif %}
+{%- endfor %}
 ) | parallel || exit $?
 
 # create pai-storage namespace
