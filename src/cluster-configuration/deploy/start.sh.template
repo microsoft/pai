@@ -54,6 +54,8 @@ echo kubectl label --overwrite=true nodes {{ cluster_cfg['layout']['machine-list
 ) | parallel || exit $?
 
 # create pai-storage namespace
-kubectl create namespace pai-storage
+if ! kubectl get namespace | grep -q "pai-storage" ; then
+    kubectl create namespace pai-storage || exit $?
+fi
 
 popd > /dev/null
