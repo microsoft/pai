@@ -1,0 +1,48 @@
+- name: "Check NVIDIA container runtime with command"
+  raw: "command -v nvidia-container-runtime "
+  register: nvidia_container_runtime
+  failed_when: false
+  changed_when: false
+  check_mode: false
+  environment: {}
+
+- name: "Check NVIDIA container runtime is installed or not"
+  set_fact:
+    unmet_requirements: "{{ unmet_requirements + ['NVIDIA container runtime is not detected'] }}"
+  changed_when: false
+  check_mode: false
+  environment: {}
+  when:
+    - nvidia_container_runtime.rc != 0
+
+- name: "Get default docker runtime"
+  raw: "{% raw %} docker info -f '{{json .DefaultRuntime}}'{% endraw %}"
+  register: default_runtime
+  failed_when: false
+  changed_when: false
+  check_mode: false
+  environment: {}
+
+- name: "Init array"
+  set_fact:
+    default_runtime_processed: []
+
+- name: "Remove unnecessary char in the end of the output"
+  set_fact:
+    default_runtime_processed: "{{ default_runtime_processed + [ item | replace('\"','') ] }}"
+  loop: "{{ default_runtime.stdout_lines }}"
+
+- name: "Get Default Runtime"
+  set_fact:
+    default_runtime_fin: "{{ item }}"
+  when: item == 'nvidia'
+  loop: "{{default_runtime_processed}}"
+
+- name: "Check the default runtime is set correctly"
+  set_fact:
+    unmet_requirements: "{{ unmet_requirements + ['The default runtime is not set correctly'] }}"
+  changed_when: false
+  check_mode: false
+  environment: {}
+  when:
+    - default_runtime_fin is not defined
