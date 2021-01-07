@@ -117,7 +117,6 @@ machine-list:
 ``` yaml
 user: <your-ssh-username>
 password: <your-ssh-password>
-branch_name: pai-1.5.y
 docker_image_tag: v1.5.0
 
 # Optional
