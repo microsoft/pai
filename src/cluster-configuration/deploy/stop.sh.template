@@ -51,9 +51,4 @@ if kubectl get priorityclass | grep -q "pai-daemon-priority"; then
     kubectl delete priorityclass pai-daemon-priority || exit $?
 fi
 
-# Remove labels
-kubectl label nodes \
-{% for host in cluster_cfg['layout']['machine-list'] %} {{ cluster_cfg['layout']['machine-list'][host]['hostname'] }} {% endfor %} \
-pai-master- pai-worker- pai-storage- || exit $?
-
 popd > /dev/null
