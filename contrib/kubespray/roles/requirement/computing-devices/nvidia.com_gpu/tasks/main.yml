@@ -56,8 +56,5 @@
     - "nvidia_gpu_count.stdout_lines[0]|int != computing_device_count"
     - nvidia_gpu_count.rc == 0
 
-# if hived scheduler is disabled, we can skip the docker runtime check
-- name: "Check default docker runtime. Enabled when hivedscheduler is on."
+- name: "Check default docker runtime"
   include_tasks: docker-runtime.yml
-  when:
-    - enable_hived_scheduler|default(true) is sameas true
