@@ -32,6 +32,9 @@ all:
         {{ env["head_node"]["hostname"]}}
     kube-node:
       hosts:
+{%- for vm in env["masters"] %}
+        {{ vm["hostname"] }}:
+{%- endfor %}
 {%- for vm in env["workers"] %}
         {{ vm["hostname"] }}:
 {%- endfor %}
