@@ -40,8 +40,8 @@ kubectl apply --overwrite=true -f priority-class.yaml || exit $?
 
 # remove `pai-worker` label from master node if missed labeled
 {%- for host in cluster_cfg['layout']['machine-list'] %}
-    {%- if 'pai-master' in host and host['pai-master'] == 'true' %}
-kubectl label nodes {{ host['hostname'] }} pai-worker- exit $?
+    {%- if 'pai-master' in cluster_cfg['layout']['machine-list'][host] and cluster_cfg['layout']['machine-list'][host]['pai-master'] == 'true' %}
+kubectl label nodes {{ cluster_cfg['layout']['machine-list'][host]['hostname'] }} pai-worker- exit $?
     {%- endif %}
 {%- endfor %}
 
