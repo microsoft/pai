@@ -1,4 +1,5 @@
 #!/bin/bash
+set -e
 
 # assume pwd is pai/contrib/kubespray
 LAYOUT="$PWD/config/layout.yaml"
