@@ -45,17 +45,23 @@ kubectl label nodes {{ cluster_cfg['layout']['machine-list'][host]['hostname'] }
     {%- endif %}
 {%- endfor %}
 
-# Add `pai-master`, `pai-worker`, `pai-storage` label to corresponding nodes
+# Add `pai-master`, `pai-worker`, `pai-storage` label to corresponding nodes and remove irrelant labels
 (
 {%- for host in cluster_cfg['layout']['machine-list'] %}
-    {%- if 'pai-master' in cluster_cfg['layout']['machine-list'][host] and cluster_cfg['layout']['machine-list'][host]['pai-master'] == 'true' %}
-echo kubectl label --overwrite=true nodes {{ cluster_cfg['layout']['machine-list'][host]['hostname'] }} pai-master=true || exit $?
+    {%- if 'pai-master' in host and cluster_cfg['layout']['machine-list'][host]['pai-master'] == 'true' %}
+echo kubectl label --overwrite=true nodes {{ cluster_cfg['layout']['machine-list'][host]['hostname'] }} pai-master=true pai-worker=false || exit $?
+    {%- else %}
+echo kubectl label nodes {{ cluster_cfg['layout']['machine-list'][host]['hostname'] }} pai-master- || exit $?
     {%- endif %}
-    {%- if 'pai-worker' in cluster_cfg['layout']['machine-list'][host] and cluster_cfg['layout']['machine-list'][host]['pai-worker'] == 'true' %}
+    {%- if 'pai-worker' in host and cluster_cfg['layout']['machine-list'][host]['pai-worker'] == 'true' %}
 echo kubectl label --overwrite=true nodes {{ cluster_cfg['layout']['machine-list'][host]['hostname'] }} pai-worker=true || exit $?
+    {%- else %}
+echo kubectl label nodes {{ cluster_cfg['layout']['machine-list'][host]['hostname'] }} pai-worker- || exit $?
     {%- endif %}
-    {%- if 'pai-storage' in cluster_cfg['layout']['machine-list'][host] and cluster_cfg['layout']['machine-list'][host]['pai-storage'] == 'true' %}
+    {%- if 'pai-storage' in host and cluster_cfg['layout']['machine-list'][host]['pai-storage'] == 'true' %}
 echo kubectl label --overwrite=true nodes {{ cluster_cfg['layout']['machine-list'][host]['hostname'] }} pai-storage=true || exit $?
+    {%- else %}
+echo kubectl label nodes {{ cluster_cfg['layout']['machine-list'][host]['hostname'] }} pai-storage- || exit $?
     {%- endif %}
 {%- endfor %}
 ) | parallel || exit $?
