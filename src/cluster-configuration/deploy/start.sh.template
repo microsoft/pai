@@ -38,6 +38,13 @@ rm -rf secret-system.yaml
 # Create priorityClass for PAI daemon
 kubectl apply --overwrite=true -f priority-class.yaml || exit $?
 
+# remove `pai-worker` label from master node if missed labeled
+{%- for host in cluster_cfg['layout']['machine-list'] %}
+    {%- if 'pai-master' in host and host['pai-master'] == 'true' %}
+kubectl label nodes {{ host['hostname'] }} pai-worker- exit $?
+    {%- endif %}
+{%- endfor %}
+
 # Add `pai-master`, `pai-worker`, `pai-storage` label to corresponding nodes
 (
 {%- for host in cluster_cfg['layout']['machine-list'] %}
