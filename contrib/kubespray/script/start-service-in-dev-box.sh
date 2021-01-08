@@ -5,7 +5,7 @@ echo "pai" > cluster-id
 
 # assume the workdir is pai
 echo "Generating services configurations..."
-python3 script/openpai_generator.py -l ./contrib/kubespray/config/layout.yaml -c ./contrib/kubespray/config/config.yaml -o /cluster-configuration
+python3 ./contrib/kubespray/script/openpai_generator.py -l ./contrib/kubespray/config/layout.yaml -c ./contrib/kubespray/config/config.yaml -o /cluster-configuration
 
 echo "Pushing cluster config to k8s..." 
 ./paictl.py config push -p /cluster-configuration -m service < cluster-id
