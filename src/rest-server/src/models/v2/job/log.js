@@ -21,6 +21,7 @@ const task = require('@pai/models/v2/task');
 const createError = require('@pai/utils/error');
 const { encodeName } = require('@pai/models/v2/utils/name');
 
+const LOG_SERVER = process.env.LOG_TYPE
 const LOG_MANAGER_PORT = process.env.LOG_MANAGER_PORT;
 const WEBPORTAL_URL = process.env.WEBPORTAL_URL;
 
@@ -36,7 +37,10 @@ const loginLogManager = async (nodeIp, username, password) => {
   });
 };
 
-const getLogListFromLogManager = async (
+const getSasTokenFromAzureStorage = async () => {
+}
+
+const getLogListFromLogServer = async (
   frameworkName,
   jobAttemptId,
   taskRoleName,
@@ -106,5 +110,5 @@ const getLogListFromLogManager = async (
 };
 
 module.exports = {
-  getLogListFromLogManager,
+  getLogListFromLogServer,
 };
