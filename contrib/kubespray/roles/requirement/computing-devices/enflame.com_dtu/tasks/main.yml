@@ -58,5 +58,5 @@
 
 # Enflame device plugin depends on enflame docker runtime.
 # So we should always check it.
-- name: "Check default docker runtime. Enabled when hivedscheduler is on."
+- name: "Check default docker runtime."
   include_tasks: docker-runtime.yml
