@@ -1,4 +1,5 @@
 #!/bin/bash
+set -e
 
 while getopts "l:c:" opt; do
   case $opt in
@@ -18,19 +19,13 @@ done
 echo "layout file path: ${LAYOUT}"
 echo "cluster config file path: ${CLUSTER_CONFIG}"
 
+function cleanup(){
+  rm -rf ${HOME}/pai-pre-check/
+}
+
+trap cleanup EXIT
+
 mkdir -p ${HOME}/pai-pre-check/
 python3 script/pre_check_generator.py -l ${LAYOUT} -c ${CLUSTER_CONFIG} -o ${HOME}/pai-pre-check
 
 ansible-playbook -i ${HOME}/pai-pre-check/pre-check.yml environment-check.yml -e "@${CLUSTER_CONFIG}"
-ret_code_check=$?
-
-if [ $ret_code_check -eq 0 ]
-then
-  echo "Pass: Cluster meets the requirements"
-else
-  echo "Failed: There are unmet requirements in your cluster, the installation will be very likely to fail."
-  rm -rf ${HOME}/pai-pre-check/
-  exit $ret_code_check
-fi
-
-rm -rf ${HOME}/pai-pre-check/
