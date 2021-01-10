@@ -83,7 +83,7 @@ class NvidiaGpuStatus(object):
         self.clocks_throttle_reasons = clocks_throttle_reasons # list of throttle reason
 
     def __repr__(self):
-        return "util: %.3f, mem_util: %.3f, pids: %s, ecc: %s, minor: %s, uuid: %s, temperature %.3f, performance status, clock throttle reasons" % \
+        return "util: %.3f, mem_util: %.3f, pids: %s, ecc: %s, minor: %s, uuid: %s, temperature %.3f, performance status: %d, clock throttle reasons: %s" % \
                 (self.gpu_util, self.gpu_mem_util, self.pids, self.ecc_errors, self.minor, self.uuid, self.temperature, self.performance_state,
                  self.clocks_throttle_reasons)
 
@@ -175,7 +175,7 @@ def parse_smi_xml_result(smi):
         try:
             temp_node = gpu.getElementsByTagName("performance_state")
             if len(temp_node) > 0:
-                performance_state = temp_node[0].childNodes[0].data
+                performance_state = int(re.findall(r"\d+", temp_node[0].childNodes[0].data)[0])
         except:
             logger.warning("Failed to get GPU performance status", exc_info=True)
 
