@@ -90,6 +90,16 @@ def gen_nvidia_gpu_memory_leak_counter():
             "count of nvidia memory leak",
             labels=["minor_number"])
 
+def gen_nvidia_gpu_performance_state():
+    return GaugeMetricFamily("nvidiasmi_performance_state",
+            "gpu performance state",
+            labels=["minor_number"])
+
+def gen_nvidia_gpu_clocks_throttle_reasons():
+    return GaugeMetricFamily("nvidiasmi_clocks_throttle_reasons",
+            "gpu clocks_throttle_reasons",
+            labels=["minor_number"])
+
 # AMD GPU metrics
 def gen_amd_gpu_util_gauge():
     return GaugeMetricFamily("rocmsmi_utilization_gpu",
@@ -399,6 +409,8 @@ class GpuCollector(Collector):
         nvidia_gpu_temp = gen_nvidia_gpu_temperature_gauge()
         nvidia_ecc_errors = gen_nvidia_gpu_ecc_counter()
         nvidia_mem_leak = gen_nvidia_gpu_memory_leak_counter()
+        nvidia_performance_state = gen_nvidia_gpu_performance_state()
+        nvidia_clocks_throttle_reasons = gen_nvidia_gpu_clocks_throttle_reasons()
         external_process = gen_gpu_used_by_external_process_counter()
         zombie_container = gen_gpu_used_by_zombie_container_counter()
 
@@ -416,6 +428,10 @@ class GpuCollector(Collector):
                 nvidia_gpu_temp.add_metric([minor], info.temperature)
             nvidia_ecc_errors.add_metric([node_name, minor, "single"], info.ecc_errors.single)
             nvidia_ecc_errors.add_metric([node_name, minor, "double"], info.ecc_errors.double)
+            nvidia_performance_state.add_metric([minor], info.performance_state)
+
+            if info.clocks_throttle_reasons:
+                nvidia_clocks_throttle_reasons.add_metric([minor], info.performance_state.join(","))
 
             # TODO: this piece of code seems not corret, gpu_mem_util is
             # a percentage number but mem_leak_thrashold is memory size. Need to fix it.

@@ -71,7 +71,7 @@ class NvidiaGpuStatus(object):
         pids an array of pid numbers that uses this card
         ecc_errors instance of EccError class
         temperature will be None or float celsius """
-    def __init__(self, gpu_util, gpu_mem_util, pids, ecc_errors, minor, uuid, temperature):
+    def __init__(self, gpu_util, gpu_mem_util, pids, ecc_errors, minor, uuid, temperature, performance_state, clocks_throttle_reasons):
         self.gpu_util = gpu_util # float
         self.gpu_mem_util = gpu_mem_util # float
         self.pids = pids # list of int
@@ -79,10 +79,13 @@ class NvidiaGpuStatus(object):
         self.minor = minor
         self.uuid = uuid # str
         self.temperature = temperature # None or float celsius
+        self.performance_state = performance_state
+        self.clocks_throttle_reasons = clocks_throttle_reasons # list of throttle reason
 
     def __repr__(self):
-        return "util: %.3f, mem_util: %.3f, pids: %s, ecc: %s, minor: %s, uuid: %s, temperature %.3f" % \
-                (self.gpu_util, self.gpu_mem_util, self.pids, self.ecc_errors, self.minor, self.uuid, self.temperature)
+        return "util: %.3f, mem_util: %.3f, pids: %s, ecc: %s, minor: %s, uuid: %s, temperature %.3f, performance status, clock throttle reasons" % \
+                (self.gpu_util, self.gpu_mem_util, self.pids, self.ecc_errors, self.minor, self.uuid, self.temperature, self.performance_state,
+                 self.clocks_throttle_reasons)
 
     def __eq__(self, o): # for test
         return self.gpu_util == o.gpu_util and \
@@ -91,7 +94,9 @@ class NvidiaGpuStatus(object):
                 self.ecc_errors == o.ecc_errors and \
                 self.minor == o.minor and \
                 self.uuid == o.uuid and \
-                self.temperature == o.temperature
+                self.temperature == o.temperature and \
+                self.performance_state == o.performance_state and \
+                self.clocks_throttle_reasons == o.clocks_throttle_reasons
 
 
 def parse_smi_xml_result(smi):
@@ -164,7 +169,27 @@ def parse_smi_xml_result(smi):
                 temp_s = temp_node[0].getElementsByTagName("gpu_temp")[0].childNodes[0].data
                 temperature = float(re.findall(r"[0-9.]+", temp_s)[0])
         except Exception:
-            pass
+            logger.warning("Failed to get GPU temperature", exc_info=True)
+
+        performance_state = None
+        try:
+            temp_node = gpu.getElementsByTagName("performance_state")
+            if len(temp_node) > 0:
+                performance_state = temp_node[0].childNodes[0].data
+        except:
+            logger.warning("Failed to get GPU performance status", exc_info=True)
+
+        throttle_reasons = []
+        try:
+            temp_node = gpu.getElementsByTagName("clocks_throttle_reasons")
+            for node in temp_node[0].childNodes:
+                if node.nodeType != node.ELEMENT_NODE:
+                    continue
+                if node.childNodes[0].data.lower() == "active":
+                    throttle_reasons.append(node.tagName)
+
+        except Exception:
+            logger.warning("Failed to get GPU clock throttle reasons", exc_info=True)
 
         status = NvidiaGpuStatus(
                 float(gpu_util),
@@ -173,7 +198,9 @@ def parse_smi_xml_result(smi):
                 EccError(single=ecc_single, double=ecc_double),
                 str(gpu_index),
                 uuid,
-                temperature)
+                temperature,
+                performance_state,
+                throttle_reasons)
 
         result[str(gpu_index)] = result[uuid] = status
 
