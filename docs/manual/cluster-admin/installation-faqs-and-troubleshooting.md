@@ -119,7 +119,7 @@ Please refer to [this document](https://github.com/microsoft/pai/tree/master/con
 
 ## Troubleshooting
 
-#### Command `Apt install <some package>` fails in the script.
+#### Ansible reports `Failed to update apt cache` or `Apt install <some package>` fails
 
 Please first check if there is any network-related issues. Besides network, another reason for this problem is: `ansible` sometimes runs a `apt update` to update the cache before the package installation. If `apt update` exits with a non-zero code, the whole command will be considered to be failed.
 
@@ -151,10 +151,13 @@ sudo echo 127.0.0.1 `hostname` >> /etc/hosts
 sudo chmod 644 /etc/hosts
 ```
 
-#### Commands with `sudo` become very slow
+#### Ansible exists because `sudo` is timed out.
 
 The same as `1. Ansible playbook exits because of timeout.` .
 
+#### Ansible reports `Could not import python modules: apt, apt_pkg. Please install python3-apt package.`
+
+Sometimes it is not fixable even you have the `python3-apt` package installed. In this case, please manually add `-e ansible_python_interpreter=/usr/bin/python3` to [this line](https://github.com/microsoft/pai/blob/42bcfb985d0baf05313190a5ac8a237a35133d73/contrib/kubespray/script/kubernetes-boot.sh#L5) in your local code.
 
 #### Network-related Issues
 

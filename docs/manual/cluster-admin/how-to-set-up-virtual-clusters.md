@@ -2,13 +2,13 @@
 
 ## What is Hived Scheduler and How to Configure it
 
-As a standalone component of OpenPAI, [HiveD](https://github.com/microsoft/hivedscheduler) is a Kubernetes Scheduler for Deep Learning.
-
-Before we start, please read [this doc](https://github.com/microsoft/hivedscheduler/blob/master/doc/user-manual.md) to learn how to write hived scheduler configuration.
+OpenPAI supports two kinds of scheduler: the Kubernetes scheduler, and [hivedscheduler](https://github.com/microsoft/hivedscheduler). [Hivedscheduler](https://github.com/microsoft/hivedscheduler) is a Kubernetes Scheduler for Deep Learning. It supports virtual cluster division, topology-aware resource guarantee and optimized gang scheduling, which are not supported in k8s default scheduler. If you didn't specify `enable_hived_scheduler: false` during installation, hived scheduler is enabled by default. Please notice only hivedscheduler supports virtual cluster setup, k8s default scheduler doesn't support it.
 
 ## Set Up Virtual Clusters
 
 ### Configuration for GPU Virtual Cluster
+
+Before we start, please read [this doc](https://github.com/microsoft/hivedscheduler/blob/master/doc/user-manual.md) to learn how to write hived scheduler configuration.
 
 In [`services-configuration.yaml`](./basic-management-operations.md#pai-service-management-and-paictl), there is a section for hived scheduler, for example:
 
