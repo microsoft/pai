@@ -65,8 +65,8 @@ def check_layout(layout, cluster_config):
             logger.error("machine-type %s is not defined", machine['machine-type'])
             return False
         machine_sku = layout['machine-sku'][machine['machine-type']]
-        if 'pai-worker' in machine and machine['pai-worker'] == 'true' and 'computing_device' in machine_sku:
-            worker_computing_devices.add(machine_sku['computing_device']['type'])
+        if 'pai-worker' in machine and machine['pai-worker'] == 'true' and 'computing-device' in machine_sku:
+            worker_computing_devices.add(machine_sku['computing-device']['type'])
     worker_computing_devices = list(worker_computing_devices)
 
     masters, workers = get_masters_workers_from_layout(layout)
