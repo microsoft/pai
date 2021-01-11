@@ -95,13 +95,13 @@ kubectl uncordon <node name>
 
 ### NodeGpuLowPerfState
 This is a kind of alert from alert manager.
-It means the nviida cards from related node downgrade into low peroformance state unexpectedly.
-To fix this, plean run following commands:
+It means the nvidia cards from related node downgrade into low peroformance state unexpectedly.
+To fix this, please run following commands:
 ```bash
 sudo nvidia-smi -pm ENABLED -i <gpu-card-id>
 sudo nvidia-smi -ac <gpu-supported-memory-clock>,<gpu-supported-clock> -i <gpu-card-id>
 ```
-You can get the supportd clock by `sudo nvidia-smi -q -d SUPPORTED_CLOCKS`
+You can get the supported clock by `sudo nvidia-smi -q -d SUPPORTED_CLOCKS`
 
 ### Cannot See Utilization Information.
 
