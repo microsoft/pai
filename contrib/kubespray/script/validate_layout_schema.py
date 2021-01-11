@@ -88,7 +88,7 @@ def check_layout(layout, cluster_config):
     # if cluster_config.enable_hived_scheduler is false, there should be <= 1 type of computing device
     if 'enable_hived_scheduler' in cluster_config and cluster_config['enable_hived_scheduler'] is False:
         if len(worker_computing_devices) > 1:
-            logger.error('K8S default scheduler only supports <= 1 type of computing device.')
+            logger.error('K8S default scheduler only supports <= 1 type of computing device in worker nodes.')
             return False
 
     return True
