@@ -93,7 +93,7 @@ def gen_nvidia_gpu_memory_leak_counter():
 def gen_nvidia_gpu_performance_state():
     return GaugeMetricFamily("nvidiasmi_performance_state",
             "gpu performance state",
-            labels=["minor_number", "clocks_throttle_reasons"])
+            labels=["node_name", "minor_number", "clocks_throttle_reasons"])
 
 # AMD GPU metrics
 def gen_amd_gpu_util_gauge():
@@ -422,7 +422,7 @@ class GpuCollector(Collector):
                 nvidia_gpu_temp.add_metric([minor], info.temperature)
             nvidia_ecc_errors.add_metric([node_name, minor, "single"], info.ecc_errors.single)
             nvidia_ecc_errors.add_metric([node_name, minor, "double"], info.ecc_errors.double)
-            nvidia_performance_state.add_metric([minor, ",".join(info.clocks_throttle_reasons)], info.performance_state)
+            nvidia_performance_state.add_metric([node_name, minor, ",".join(info.clocks_throttle_reasons)], info.performance_state)
 
             # TODO: this piece of code seems not corret, gpu_mem_util is
             # a percentage number but mem_leak_thrashold is memory size. Need to fix it.

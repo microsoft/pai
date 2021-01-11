@@ -294,7 +294,7 @@ class TestGpuCollector(base.TestBase):
         self.assertEqual(target_gpu_temp, gpu_temp)
 
         target_perf_status = collector.gen_nvidia_gpu_performance_state()
-        target_perf_status.add_metric(["1", "clocks_throttle_reason_gpu_idle"], 8)
+        target_perf_status.add_metric(["node_0", "1", "clocks_throttle_reason_gpu_idle"], 8)
         self.assertEqual(target_perf_status, perf_status)
 
         # test minor 2
