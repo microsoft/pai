@@ -98,7 +98,7 @@ Go into folder `~/pai-deploy/kubespray/`, run:
 ansible-playbook -i inventory/pai/hosts.yml scale.yml -b --become-user=root -e "node=a,b" -e "@inventory/pai/openpai.yml"
 ```
 
-The nodes to remove are specified with `-e` flag.
+The nodes to add are specified with `-e` flag.
 
 ### Update OpenPAI Service Configuration
 

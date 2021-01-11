@@ -2,7 +2,7 @@
 
 The architecture of OpenPAI has been updated and optimized in `v1.0.0`. Before `v1.0.0`, OpenPAI was based on Yarn and Kubernetes, and data was managed by HDFS. Since `v1.0.0`, OpenPAI has switched to a pure Kubernetes-based architecture. Many new features, such as `AAD authorization`, `Hivedscheduler`, `Kube Runtime`, `Marketplace`, etc., are also included. If you still want to install the old Yarn-based OpenPAI, please stay with `v0.14.0`.
 
-To install OpenPAI >= `v1.0.0`, please first check [Installation Requirements](#installation-requirements). Then, if you don't have older version OpenPAI installed, please follow [Installation From Scratch](#installation-from-scratch). Otherwise, please first follow [Clean Previous Deployment](#clean-previous-deployment), then follow [Installation From Scratch](#installation-from-scratch).
+To install OpenPAI >= `v1.0.0`, please first check [Installation Requirements](#installation-requirements). Then, if you don't have older version OpenPAI installed, please follow the steps in this document directly. Otherwise, please first [uninstall OpenPAI < `v1.0.0`](./how-to-uninstall-openpai.md#lt100-uninstallation), then follow this document.
 
 ## Installation Requirements
 
@@ -76,7 +76,7 @@ Hivedscheduler is the default for OpenPAI. It supports virtual cluster division,
 For now, the support for CPU/Nvidia GPU workers and workers with other computing device is different:
 
   - For CPU worker and NVIDIA GPU worker, both k8s default scheduler and hived scheduler can be used. 
-  - For workers with other types of computing device (e.g. TPU, NPU), currently we only support the usage of k8s default scheduler. And you can only include workers with the same computing device in the cluster. For example, you can use TPU workers, but all workers should be TPU workers. You cannot use TPU workers together with GPU workers in one cluster.
+  - For workers with other types of computing device (e.g. TPU, NPU), currently we only support the usage of k8s default scheduler. You can only include workers with the same computing device in the cluster. For example, you can use TPU workers, but all workers should be TPU workers. You cannot use TPU workers together with GPU workers in one cluster.
 
 Please check the following requirements for different types of worker machines:
 
@@ -145,15 +145,13 @@ Please check the following requirements for different types of worker machines:
 </tbody>
 </table>
 
-## Installation From Scratch
-
-There mainly 3 steps to install OpenPAI from scratch:
+After you have checked the requirements, please follow these 3 steps to install OpenPAI:
 
 * Prepare configuration files for both Kubernetes and OpenPAI
 * Start Kubernetes
 * Start OpenPAI services
 
-### Prepare Configurations Files
+## Prepare Configuration Files
 
 On the dev box machine, use the following commands to clone the OpenPAI repo:
 
@@ -320,7 +318,7 @@ The `user` and `password` is the SSH username and password from dev box machine 
 | job-exporter  |     512Mi      |      0      |
 |  log-manager  |     256Mi      |      0      |
 
-### Start Kubernetes
+## Start Kubernetes
 
 Go to folder `<pai-code-dir>/contrib/kubespray`:
 
@@ -338,7 +336,7 @@ Please run the following script to deploy Kubernetes first. As the name explains
 If there is any problem, please double check the environment requirements first. Here we provide a requirement checker to help you verify:
 
 ``` bash
-/bin/bash requirement.sh
+/bin/bash requirement.sh -l config/layout.yaml -c config/config.yaml
 ```
 
 You can also refer to [the installation troubleshooting](./installation-faqs-and-troubleshooting.md#troubleshooting) or search engine for solution. After you fix the problem, re-run `/bin/bash quick-start-kubespray.sh`.
@@ -357,7 +355,7 @@ Also, you can use the command `ansible-playbook -i ${HOME}/pai-deploy/kubespray/
 #### Tips for Network-related Issues
 If you are facing network issues such as the machine cannot download some file, or cannot connect to some docker registry, please combine the prompted error log and kubespray as a keyword, and search for solution. You can also refer to the [installation troubleshooting](./installation-faqs-and-troubleshooting.md#troubleshooting) and [this issue](https://github.com/microsoft/pai/issues/4516).
 
-### Start OpenPAI Services
+## Start OpenPAI Services
 
 After Kubernetes is successfully started, run the following script to start OpenPAI services.
 
@@ -379,9 +377,9 @@ You can go to http://<your-master-ip>, then use the default username and passwor
 
 As the message says, you can use `admin` and `admin-password` to login to the webportal, then submit a job to validate your installation.
 
-**For those who use workers other than CPU workers, NVIDIA GPU workers, AMD GPU workers, and Enflame DTU workers**: Please manaully deploy the device's device plugin in Kubernetes. Otherwise the Kubernetes default scheduler won't work. Supported device plugins are listed [in this file](https://github.com/microsoft/pai/blob/master/src/device-plugin/deploy/start.sh.template). PRs are welcome.
+**For those who use workers other than CPU workers, NVIDIA GPU workers, AMD GPU workers, and Enflame DTU workers**: Please manually deploy the device's device plugin in Kubernetes. Otherwise the Kubernetes default scheduler won't work. Supported device plugins are listed [in this file](https://github.com/microsoft/pai/blob/master/src/device-plugin/deploy/start.sh.template). PRs are welcome.
 
-#### Keep a Folder
+## Keep a Folder
 
 We highly recommend you to keep the folder `~/pai-deploy` for future operations such as upgrade, maintenance, and uninstallation. The most important contents in this folder are:
 
@@ -392,82 +390,3 @@ If it is possible, you can make a backup of `~/pai-deploy` in case it is deleted
 
 Apart from the folder, you should remember your OpenPAI cluster ID, which is used to indicate your OpenPAI cluster.
 The default value is `pai`. Some management operation needs a confirmation of this cluster ID.
-
-## Clean Previous Deployment
-
-### Save your Data to a Different Place
-
-If you have installed OpenPAI before `v1.0.0`, to install OpenPAI >= `v1.0.0`, you should first clean the previous deployment. You cannot preserve any useful data: all jobs, user information, dataset will be lost inevitably and irreversibly. Thus, if you have any useful data in previous deployment, please make sure you have saved them to a different place.
-
-#### HDFS Data
-
-Before `v1.0.0`, PAI will deploy an HDFS server for you. After `v1.0.0`, the HDFS server won't be deployed and previous data will be removed in upgrade. The following commands could be used to transfer your HDFS data:
-
-``` bash
-# check data structure
-hdfs dfs -ls hdfs://<hdfs-namenode-ip>:<hdfs-namenode-port>/
-
-hdfs dfs -copyToLocal hdfs://<hdfs-namenode-ip>:<hdfs-namenode-port>/ <local-folder>
-```
-
-`<hdfs-namenode-ip>` and `<hdfs-namenode-port>` is the ip of PAI master and `9000` if you did't modify the default setting. Please make sure your local folder has enough capacity to hold the data you want to save.
-
-#### Metadata of Jobs and Users
-
-Metadata of jobs and users will also be lost, including job records, job log, user name, user password, etc. We do not have an automatical tool for you to backup these data. Please transfer the data manually if you find some are valuable.
-
-#### Other Resources on Kubernetes
-
-If you have deployed any other resources on Kubernetes, please make a proper backup for them, because the Kubernetes cluster will be destroyed, too.
-
-### Remove Previous PAI deployment
-
-To remove the previous deployment, please use the commands below:
-
-``` bash
-git clone https://github.com/Microsoft/pai.git
-cd pai
-#  checkout to a different branch if you have a different version
-git checkout pai-0.14.y
-
-# delete all pai service and remove all service data
-./paictl.py service delete
-
-# delete k8s cluster
-./paictl.py cluster k8s-clean -f -p <path-to-your-old-config>
-```
-
-If you cannot find the old config, the following command can help you to retrieve it:
-
-``` bash
-./paictl.py config pull -o <path-to-your-old-config>
-```
-
-You should also remove the GPU driver installed by OpenPAI, by executing the following commands on every GPU node, using a `root` user:
-
-``` bash
-#!/bin/bash
-
-lsmod | grep -qE "^nvidia" &&
-{
-    DEP_MODS=`lsmod | tr -s " " | grep -E "^nvidia" | cut -f 4 -d " "`
-    for mod in ${DEP_MODS//,/ }
-    do
-        rmmod $mod ||
-        {
-            echo "The driver $mod is still in use, can't unload it."
-            exit 1
-        }
-    done
-    rmmod nvidia ||
-    {
-        echo "The driver nvidia is still in use, can't unload it."
-        exit 1
-    }
-}
-
-rm -rf /var/drivers
-reboot
-```
-
-After the removal, you can now install OpenPAI >= `v1.0.0` by following [Installation From Scratch](#installation-from-scratch).

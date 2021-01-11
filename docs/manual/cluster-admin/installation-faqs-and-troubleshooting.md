@@ -151,7 +151,7 @@ sudo echo 127.0.0.1 `hostname` >> /etc/hosts
 sudo chmod 644 /etc/hosts
 ```
 
-#### Ansible exists because `sudo` is timed out.
+#### Ansible exits because `sudo` is timed out.
 
 The same as `1. Ansible playbook exits because of timeout.` .
 
