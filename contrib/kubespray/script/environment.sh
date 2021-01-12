@@ -19,6 +19,9 @@ echo "Clone kubespray source code from github to ${HOME}/pai-deploy"
 sudo rm -rf ${HOME}/pai-deploy/kubespray
 git clone -b release-2.11 https://github.com/kubernetes-sigs/kubespray.git ${HOME}/pai-deploy/kubespray
 
+echo "Copy customized ansible config to kubespray folder..."
+sudo cp -f ./ansible.cfg ${HOME}/pai-deploy/kubespray
+
 echo "Copy inventory folder, and save it "
 cp -rfp ${HOME}/pai-deploy/kubespray/inventory/sample ${HOME}/pai-deploy/kubespray/inventory/pai
 
