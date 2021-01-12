@@ -93,6 +93,16 @@ After the problem is resolved, you can uncordon the node manually with the follo
 kubectl uncordon <node name>
 ```
 
+### NodeGpuLowPerfState
+This is a kind of alert from alert manager.
+It means the nvidia cards from related node downgrade into low peroformance state unexpectedly.
+To fix this, please run following commands:
+```bash
+sudo nvidia-smi -pm ENABLED -i <gpu-card-id>
+sudo nvidia-smi -ac <gpu-supported-memory-clock>,<gpu-supported-clock> -i <gpu-card-id>
+```
+You can get the supported clock by `sudo nvidia-smi -q -d SUPPORTED_CLOCKS`
+
 ### Cannot See Utilization Information.
 
 If you cannot see utilization information (e.g. GPU, CPU, and network usage) in cluster, please check if the service `prometheus`, `grafana`, `job-exporter`, and `node-exporter` are working.
