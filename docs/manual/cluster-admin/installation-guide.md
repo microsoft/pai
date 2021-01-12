@@ -308,7 +308,7 @@ The `user` and `password` is the SSH username and password from dev box machine 
 
 **For Azure Users**: If you are deploying OpenPAI in Azure, please uncomment `openpai_kube_network_plugin: calico` in the config file above, and change it to `openpai_kube_network_plugin: weave`. It is because Azure doesn't support calico. See [here](https://docs.projectcalico.org/reference/public-cloud/azure#why-doesnt-azure-support-calico-networking) for details.
 
-**For those who use workers other than CPU workers and NVIDIA GPU workers**: Now we only support use Kubernetes default scheduler (not Hivedscheduler) for device other than NVIDIA GPU and CPU. Please uncomment `# enable_hived_scheduler: true` and set it to `enable_hived_scheduler: false`.
+**For those who use workers other than CPU workers and NVIDIA GPU workers**: Now we only support Kubernetes default scheduler (not Hivedscheduler) for device other than NVIDIA GPU and CPU. Please uncomment `# enable_hived_scheduler: true` and set it to `enable_hived_scheduler: false`.
 
 **If qos-switch is enabled**: OpenPAI daemons will request additional resources in each node. Please check following table and reserve sufficient resources for OpenPAI daemons.
 
