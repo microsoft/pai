@@ -72,7 +72,7 @@ docker_image_tag: v1.5.0
 # openpai_kube_network_plugin: calico
 
 # openpai_kubespray_extra_var:
-#   kay: value
+#   key: value
 #   key: value
 
 #######################################################################

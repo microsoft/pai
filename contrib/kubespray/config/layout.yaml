@@ -12,6 +12,10 @@ machine-sku:
       vcore: 24
   gpu-machine:
     computing-device:
+      # For `type`, please follow the same format specified in device plugin.
+      # For example, `nvidia.com/gpu` is for NVIDIA GPU, `amd.com/gpu` is for AMD GPU,
+      # and `enflame.com/dtu` is for Enflame DTU.
+      # Reference: https://kubernetes.io/docs/concepts/extend-kubernetes/compute-storage-net/device-plugins/
       type: nvidia.com/gpu
       model: K80
       count: 4
