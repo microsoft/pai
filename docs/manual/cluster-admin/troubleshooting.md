@@ -69,11 +69,12 @@ Solutions:
 
   1. Enter your dev box container, check the GPU count specified in `<config-dir>/layout.yaml`, modify the GPU count accordingly;
   2. Push the modified layout and restart related service:
-    ```shell
-    /pai/paictl.py service stop -n cluster-configuration job-exporter
-    /pai/paictl.py config push -p <config-dir> -m service
-    /pai/paictl.py service start -n cluster-configuration job-exporter
-    ```
+
+```bash
+/pai/paictl.py service stop -n cluster-configuration job-exporter
+/pai/paictl.py config push -p <config-dir> -m service
+/pai/paictl.py service start -n cluster-configuration job-exporter
+```
 
 ### NVIDIA GPU is Not Detected
 
