@@ -2,10 +2,6 @@
 
 ## Installation FAQs
 
-#### How to include CPU-only worker nodes?
-
-Currently, the support for CPU-only worker is limited in the installation script. If you have both GPU workers and CPU workers, please first set up PAI with GPU workers only. After PAI is successfully installed, you can attach CPU workers to it and set up a CPU-only virtual cluster. Please refer to [How to add and remove nodes](./how-to-add-and-remove-nodes.md) for details. If you only have CPU workers, we haven't had an official installation support yet. Please submit an issue for feature request.
-
 #### Which version of NVIDIA driver should I install?
 
 First, check out the [NVIDIA site](https://www.nvidia.com/Download/index.aspx) to verify the newest driver version of your GPU card. Then, check out [this table](https://docs.nvidia.com/deploy/cuda-compatibility/index.html#binary-compatibility__table-toolkit-driver) to see the CUDA requirement of driver version.
