@@ -67,8 +67,8 @@ If you find that the real GPU count is correct but the alerts still keep being f
 
 Solutions:
 
-  1. Enter your dev box container, check the GPU count specified in `<config-dir>/layout.yaml`, modify the GPU count accordingly;
-  2. Push the modified layout and restart related service:
+1. Enter your dev box container, check the GPU count specified in `<config-dir>/layout.yaml`, modify the GPU count accordingly;
+2. Push the modified layout and restart related service:
 
 ```bash
 /pai/paictl.py service stop -n cluster-configuration job-exporter
