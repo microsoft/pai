@@ -71,13 +71,14 @@ pai_node_count{disk_pressure="false",instance="10.0.0.1:9101",job="pai_serivce_e
 
 解决方法：
 
-  1. 进入dev box容器，检查`layout.yaml`文件，修改GPU数量。
-  2. 更新配置，重启服务：
-    ```shell
-    /pai/paictl.py service stop -n cluster-configuration job-exporter
-    /pai/paictl.py config push -p <config-dir> -m service
-    /pai/paictl.py service start -n cluster-configuration job-exporter
-    ```
+1. 进入dev box容器，检查`layout.yaml`文件，修改GPU数量。
+2. 更新配置，重启服务：
+
+```bash
+/pai/paictl.py service stop -n cluster-configuration job-exporter
+/pai/paictl.py config push -p <config-dir> -m service
+/pai/paictl.py service start -n cluster-configuration job-exporter
+```
 
 ### 无法检测到NVIDIA GPU
 
