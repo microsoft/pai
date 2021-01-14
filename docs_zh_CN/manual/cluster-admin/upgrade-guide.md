@@ -14,7 +14,11 @@
 
 该命令将要求提供集群 id 进行确认。如果忘记了它，可用命令 `./paictl.py config get-id` 找回。
 
-停止 PAI 服务不会影响您当前正在运行的任务。
+如果您不想不想影响到正在运行的任务，可以使用下面的命令，不停止`storage-manager`服务：
+
+```bash
+./paictl.py service stop --skip-service-list storage-manager
+```
 
 使用 `exit` 离开 dev box 容器。通过以下方式将其删除：
 
@@ -62,6 +66,12 @@ cluster:
 
 ```bash
 ./paictl.py service start
+```
+
+如果您没有停止`storage-manager`，可以使用下面的命令来启动服务：
+
+```bash
+./paictl.py service start --skip-service-list storage-manager
 ```
 
 启动所有服务后，OpenPAI 集群已成功升级。

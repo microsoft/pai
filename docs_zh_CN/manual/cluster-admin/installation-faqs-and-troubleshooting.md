@@ -2,10 +2,6 @@
 
 ## 安装常见问题
 
-#### 如何添加纯CPU Worker结点?
-
-目前，安装脚本中只支持GPU worker，不支持CPU worker。如果您同时拥有GPU worker和CPU worker，请先使用GPU worker安装PAI。成功安装后，您可以将CPU Worker附加到一个纯CPU的虚拟集群。详细步骤请参阅[如何添加和移除结点](./how-to-add-and-remove-nodes.md)。如果您只有CPU worker，我们还没有正式的安装支持。请在Github上提交功能请求issue。
-
 #### <div id="which-version-of-nvidia-driver-should-i-install">我应该安装什么版本的NVIDIA显卡驱动？</div>
 
 首先，请参阅[英伟达官网上的文档](https://www.nvidia.com/Download/index.aspx)来确认适合您显卡的驱动版本。接着，您可以参考[这个表格](https://docs.nvidia.com/deploy/cuda-compatibility/index.html#binary-compatibility__table-toolkit-driver)来确认不同版本CUDA对显卡驱动的要求。
@@ -119,7 +115,7 @@ sudo reboot
 
 ## <div id="troubleshooting">故障排查</div>
 
-#### 在脚本中，命令`apt install <some package>`失败
+#### Ansible 报告 `Failed to update apt cache` 或 `apt install <some package>` 失败
 
 请先检查机器是否有网络相关的问题。除了网络之外，还有一个可能的原因：`ansible`有时会在安装apt包前先运行一次`apt update`。如果`apt update`返回的代码是非0的，那整个命令都会失败。
 
@@ -151,7 +147,7 @@ sudo echo 127.0.0.1 `hostname` >> /etc/hosts
 sudo chmod 644 /etc/hosts
 ```
 
-#### 含有`sudo`的命令变得非常缓慢
+#### Ansible因为`sudo`命令超时而退出
 
 和“Ansible playbook因为超时退出”的解决方案相同。
 

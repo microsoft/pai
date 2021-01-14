@@ -2,110 +2,233 @@
 
 OpenPAI的架构在`v1.0.0`时进行了更新和优化。在`v1.0.0`之前，OpenPAI基于Yarn和Kubernetes，数据由HDFS管理。从`v1.0.0`开始，OpenPAI转变为纯Kubernetes的架构。除此之外，`v1.0.0`还包括许多新特性，如`AAD 认证`、`Hived调度器`、`Kube Runtime`、`Marketplace`等。如果您仍要安装旧的基于Yarn的OpenPAI，请使用`v0.14.0`。
 
-要安装 OpenPAI >= `v1.0.0`, 请先检查[安装要求](#installation-requirements)。 接下来, 如果您之前没有安装过OpenPAI，请阅读并跟随[从头开始安装](#installation-from-scratch)中的操作步骤。如果您之前安装过OpenPAI，请先[清除已有安装](#clean-previous-deployment), 再[从头开始安装](#installation-from-scratch)。
+要安装 OpenPAI >= `v1.0.0`, 请先检查[安装要求](#installation-requirements)。 接下来, 如果您之前没有安装过老版本的OpenPAI，请直接跟随本文档中的步骤进行安装。如果您之前安装过OpenPAI，请先[清除已有安装](./how-to-uninstall-openpai.md#lt100-uninstallation), 再跟随本文档。
 
 ## <div id="installation-requirements">安装要求</div>
 
 OpenPAI的部署要求您至少有3台独立的机器：一台dev box机器、一台master机器和一台worker机器。
 
-dev box机器在安装、维护和卸载期间，通过SSH控制master机器和worker机器。您应该指定唯一一台dev box机器。master机器用于运行核心Kubernetes组件和核心OpenPAI服务。目前，您只能指定唯一一台master机器。我们建议您使用纯CPU机器作为dev box机器和master机器。另外，所有的worker机器都应该有GPU，并正确安装GPU驱动程序。
+dev box机器在安装、维护和卸载期间，通过SSH控制master机器和worker机器。您应该指定唯一一台dev box机器。
 
-详细来说，请在安装前检查以下要求：
+master机器用于运行核心Kubernetes组件和核心OpenPAI服务。目前，OpenPAI还不支持 HA (high availability), 您只能指定唯一一台master机器。
 
-- dev box机器
-    - 硬件要求
-        - 它可以与所有其他机器（master和worker机器）通信。
-        - 它是除了master机器和worker机器外的一台独立计算机。
-    - 软件要求
-        - Ubuntu 16.04 (18.04应该可用，但没有经过完整测试)
-        - SSH服务已开启。
-        - 可以免密登录所有master和worker机器。
-        - Docker已被正确安装。您可以用命令`docker --version`来检查。如果您的Docker未被正确安装，可以参考[Docker的安装指南](https://docs.docker.com/engine/install/ubuntu/)。
-- master机器
-    - 硬件要求
-        - 至少40GB内存。
-        - 必须有**固定的IP地址**，且可以和其他所有机器通信。
-        - 可以访问Internet。尤其是可以访问Docker Hub。部署过程会从Docker Hub拉取Docker镜像。
-    - 软件要求
-        - Ubuntu 16.04 (18.04应该可用，但没有经过完整测试)
-        - SSH服务已开启，和所有Worker机器有同样的SSH用户名和密码，且该SSH用户有sudo权限。
-        - NTP已被成功开启。 您可以用命令`apt install ntp`来检查。
-    - 其他要求
-        - 它是OpenPAI的专用服务器。OpenPAI管理它的所有CPU、内存和GPU资源。如果有其他工作负载，则可能由于资源不足而导致未知问题。
-- worker机器:
-    - 硬件要求
-        - 至少16GB内存
-        - 必须有至少一块GPU。
-        - 必须有**固定的IP地址**，且可以和其他所有机器通信。
-        - 可以访问Internet。尤其是可以访问Docker Hub。部署过程会从Docker Hub拉取Docker镜像。
-    - 软件要求
-        - Ubuntu 16.04 (18.04应该可用，但没有经过完整测试)
-        - SSH服务已开启，所有master和worker机器有同样的SSH用户名和密码，且该SSH用户有sudo权限。
-        - Docker已被正确安装。您可以用命令`docker --version`来检查。如果您的Docker未被正确安装，可以参考[Docker的安装指南](https://docs.docker.com/engine/install/ubuntu/)。
-        - **GPU驱动已被正确安装。**  您可以用[这个命令](./installation-faqs-and-troubleshooting.md#how-to-check-whether-the-gpu-driver-is-installed)来检查。 如果您的GPU驱动未被正确安装，可以参考[如何安装GPU驱动](./installation-faqs-and-troubleshooting.md#how-to-install-gpu-driver)。 如果您对安装哪个版本的GPU驱动有疑问，可以阅读[这个文档](./installation-faqs-and-troubleshooting.md#which-version-of-nvidia-driver-should-i-install)。
-        - **[nvidia-container-runtime](https://github.com/NVIDIA/nvidia-container-runtime)或其他device runtime已被正确安装，并且被设置为Docker的默认runtime。请在[docker-config-file](https://docs.docker.com/config/daemon/#configure-the-docker-daemon)里进行设置。**
-            - 您可以用命令`sudo docker run nvidia/cuda:10.0-base nvidia-smi`来检查这一项。如果该命令成功打出当前可用的显卡个数，就说明设置是没问题的。
-            - 如果它未被正确安装，请参考[如何安装nvidia container runtime](./installation-faqs-and-troubleshooting.md#how-to-install-nvidia-container-runtime)。
-    - 其他要求
-        - 它是OpenPAI的专用服务器。OpenPAI管理它的所有CPU、内存和GPU资源。如果有其他工作负载，则可能由于资源不足而导致未知问题。
+我们建议您使用纯CPU机器作为dev box机器和master机器。详细的要求请参考下面的表格：
 
-目前，OpenPAI还不支持高可用（HA），它只能使用一个master机器。我们会在将来添加HA功能。另外，您不能只使用一台机器来部署OpenPAI。您必须有一个dev box机器，一个master机器和至少一个worker机器。如果您想要在一台机器部署，请在[Github](https://github.com/microsoft/pai)提交一个功能请求。
+<table>
+<thead>
+  <tr>
+    <th></th>
+    <th>硬件要求</th>
+    <th>软件要求</th>
+  </tr>
+</thead>
+<tbody>
+  <tr>
+    <td>dev box 机器</td>
+    <td>
+      <ul>
+        <li>它可以与所有其他机器（master和worker机器）通信。</li> 
+        <li>它是独立于master机器和worker机器之外的一台机器。</li>
+        <li>它可以访问Internet。尤其是可以访问Docker Hub。部署过程会从Docker Hub拉取Docker镜像。</li>
+      </ul>
+    </td>
+    <td>
+      <ul>
+        <li>Ubuntu 16.04 (18.04应该可用，但没有经过完整测试)</li>
+        <li>SSH服务已开启。</li>
+        <li>可以免密登录所有master和worker机器。</li>
+        <li>Docker已被正确安装。</li>
+      </ul> 
+    </td>
+  </tr>
+  <tr>
+    <td>master 机器</td>
+    <td>
+      <ul>
+        <li>至少40GB内存。</li>
+        <li>必须有<b>固定的局域网 IP 地址（LAN IP address）</b>，且可以和其他所有机器通信。</li>
+        <li>可以访问Internet。尤其是可以访问Docker Hub。部署过程会从Docker Hub拉取Docker镜像。</li>
+      </ul>
+    </td>
+    <td>
+      <ul>
+        <li>Ubuntu 16.04 (18.04应该可用，但没有经过完整测试)</li>
+        <li>SSH服务已开启。</li>
+        <li>和所有worker机器有同样的SSH用户名和密码，且该SSH用户有sudo权限。</li>
+        <li>Docker已被正确安装。</li>
+        <li>NTP已被成功开启。 您可以用命令<code>apt install ntp</code>来检查。</li>
+        <li>它是OpenPAI的专用服务器。OpenPAI管理它的所有资源（如CPU、内存、GPU等）。如果有其他工作负载，则可能由于资源不足而导致未知问题。</li>
+      </ul>
+    </td>
+  </tr>
+</tbody>
+</table>
 
-#### 使用纯CPU worker的提示
+worker机器会被用来执行任务，您可以在安装期间指定一台或多台worker机器。
 
-目前，在安装脚本中，我们还不支持纯CPU的worker机器。如果您同时拥有GPU worker和CPU worker，请先使用GPU worker安装PAI。成功安装之后，您可以将CPU worker附加进来，并设置一个仅含CPU的虚拟集群，相关步骤请参阅[如何添加和移除结点](./how-to-add-and-remove-nodes.md)。 如果您只有CPU worker，我们还没有正式的安装支持。请在[Github](https://github.com/microsoft/pai)提交功能请求issue。
+我们支持不同种类的worker：CPU机器、GPU机器、以及拥有其他计算设备（如TPU、NPU）的机器。
 
-#### 关于网络问题的提示
+同时，我们还有两种调度器：Kubernetes default scheduler和[hivedscheduler](https://github.com/microsoft/hivedscheduler)。
 
-如果您遇到网络问题，如机器无法下载某些文件，或无法连接到某个docker registry，请将提示的错误日志和kubespray合并为关键字，并搜索解决方案。您也可以参考[安装常见问题解答和故障排查](./installation-faqs-and-troubleshooting.md#troubleshooting)和[这个issue](https://github.com/microsoft/pai/issues/4516)。
+hivedscheduler是OpenPAI的默认调度器，它支持虚拟集群划分，拓扑感知的资源保证、以及性能优化的 Gang Scheduling，这些都是 k8s default scheduler 不支持的。
 
-## <div id="installation-from-scratch">从头开始安装</div>
+目前，对 CPU/NVIDIA GPU worker 和其他种类 worker，调度器的支持有所不同：
 
-除上述要求外，本安装脚本还要求**所有worker机器必须是同质的GPU服务器，即它们具有相同的硬件，例如CPU类型和编号、GPU类型和编号、内存大小等。**如果您有不同类型的worker，请在安装过程中首先只包含一种类型的worker，然后再根据[如何添加和移除结点](./how-to-add-and-remove-nodes.md)添加不同类型的worker。现在，请确认您的dev box机器, master机器和worker机器.
+  - 对于CPU worker或NVIDIA GPU worker，可以使用k8s default scheduler或hivedscheduler。
+  - 对于其他种类的worker，例如TPU、NPU机器，我们目前只支持使用k8s default scheduler。同时，您在集群中只能使用同一种计算设备的机器。例如，您可以在集群中使用TPU worker，但所有worker必须都是TPU worker，不能把TPU worker和其他GPU worker在同一集群中混用。
 
-### <div id="create-configurations">创建设置文件</div>
+不同种类worker机器的详细要求请参考以下表格：
 
-在您决定所有机器后，请登录**dev box**机器，创建`master.csv`文件，`worker.csv`文件以及 `config`文件。这些文件分别表示master机器列表、worker机器列表和自定义配置。下面是这3个文件的格式和示例。
+
+<table>
+<thead>
+  <tr>
+    <th>worker 种类</th>
+    <th>硬件要求</th>
+    <th>软件要求</th>
+  </tr>
+</thead>
+<tbody>
+  <tr>
+    <td>CPU Worker</td>
+    <td>
+      <ul>
+        <li>至少16GB内存。</li>
+        <li>必须有<b>固定的局域网 IP 地址（LAN IP address）</b>，且可以和其他所有机器通信。</li>
+        <li>可以访问Internet。尤其是可以访问Docker Hub。部署过程会从Docker Hub拉取Docker镜像。</li>
+      </ul>
+    </td>
+    <td>
+      <ul>
+        <li>Ubuntu 16.04 (18.04应该可用，但没有经过完整测试)</li>
+        <li>SSH服务已开启。 </li>
+        <li>所有master和worker机器有同样的SSH用户名和密码，且该SSH用户有sudo权限。</li>
+        <li>Docker已被正确安装。</li>
+        <li>它是OpenPAI的专用服务器。OpenPAI管理它的所有资源（如CPU、内存、GPU等）。如果有其他工作负载，则可能由于资源不足而导致未知问题。</li>
+      </ul>
+    </td>
+  </tr>
+  <tr>
+    <td>NVIDIA GPU Worker</td>
+    <td>同上。</td>
+    <td>
+      需要满足和<code>CPU worker</code>一样的要求，除此之外还有下面的额外要求：
+      <ul>
+        <li><b>GPU驱动已被正确安装。</b> 您可以用<a href="./installation-faqs-and-troubleshooting.html#how-to-check-whether-the-gpu-driver-is-installed">这个命令</a>来检查。 如果您的GPU驱动未被正确安装，可以参考<a href="./installation-faqs-and-troubleshooting.html#how-to-install-gpu-driver">如何安装GPU驱动</a>。如果您对安装哪个版本的GPU驱动有疑问，可以阅读<a href="./installation-faqs-and-troubleshooting.html#which-version-of-nvidia-driver-should-i-install">这个文档</a>。</li>
+        <li><b><a href="https://github.com/NVIDIA/nvidia-container-runtime">nvidia-container-runtime</a>已被正确安装，并且被设置为Docker的默认runtime。</b> 因为systemd的配置会在接下来安装过程中被覆盖，所以请不要在systemd里设置 docker 默认runtime，而是在<a href="https://docs.docker.com/config/daemon/#configure-the-docker-daemon">docker-config-file</a>里进行设置。 您可以使用命令<code>sudo docker run --rm nvidia/cuda:10.0-base nvidia-smi</code> 来检查这一项。如果该命令成功打出当前可用的显卡个数，就说明设置是没问题的。如果它未被正确安装，请参考<a href="./installation-faqs-and-troubleshooting.html#how-to-install-nvidia-container-runtime">如何安装nvidia container runtime</a>。</li>
+      </ul>  
+    </td>
+  </tr>
+  <tr>
+    <td>Enflame DTU Worker</td>
+    <td>同上。</td>
+    <td>
+      需要满足和<code>CPU worker</code>一样的要求，除此之外还有下面的额外要求：
+      <ul>
+        <li>Enflame DTU 驱动已被正确安装。</li>
+        <li>Enflame container runtime 已被正确安装，并且被设置为Docker的默认runtime。因为systemd的配置会在接下来安装过程中被覆盖，所以请不要在systemd里设置 docker 默认runtime，而是在<a href="https://docs.docker.com/config/daemon/#configure-the-docker-daemon">docker-config-file</a>里进行设置。</li>
+      </ul>
+    </td>
+  </tr>
+  <tr>
+    <td>其他计算设备</td>
+    <td>同上。</td>
+    <td>
+      需要满足和<code>CPU worker</code>一样的要求，除此之外还有下面的额外要求：
+      <ul>
+        <li>设备的驱动已被正确安装</li>
+        <li>设备的 container runtime 已被正确安装，并且被设置为Docker的默认runtime。因为systemd的配置会在接下来安装过程中被覆盖，所以请不要在systemd里设置 docker 默认runtime，而是在<a href="https://docs.docker.com/config/daemon/#configure-the-docker-daemon">docker-config-file</a>里进行设置。</li>
+        <li>您需要用一个该设备的<a href="https://kubernetes.io/docs/concepts/extend-kubernetes/compute-storage-net/device-plugins/">device plugin</a>。在Kubernetes安装后，您需要手动将该device plugin部署在集群中。</li>
+      </ul>  
+    </td>
+  </tr>
+</tbody>
+</table>
+
+检查完要求后，请按照下面的3个步骤安装OpenPAI：
+
+* 为Kubernetes和OpenPAI创建设置文件
+* 安装Kubernetes
+* 安装OpenPAI服务
+
+## <div id="create-configurations">创建设置文件</div>
+
+在dev box机器上，使用下面的命令来克隆OpenPAI的repo：
+
+```bash
+git clone https://github.com/microsoft/pai.git
+cd pai
+```
+
+checkout到某一个tag，来选择需要安装的OpenPAI版本：
+
+```bash
+git checkout v1.5.0
+```
+
+接下来，请编辑`<pai-code-dir>/contrib/kubespray/config`目录下的`layout.yaml`和`config.yaml`文件。
+这两个文件分别指定了集群的机器组成和自定义设置。下面是示例：
 
 #### 关于中国用户的提示
 
-如果您是中国用户，在创建这些文件前，请先阅读[这个文档](./configuration-for-china.md)。
+如果您是中国用户，在编辑这两个文件前，请先阅读[这个文档](./configuration-for-china.md)。
 
-###### `master.csv`格式
+#### `layout.yaml` 格式示例
 
-请**不要**在此文件中插入空行或使用空格。请**不要**在hostname中使用大写字母。
+``` yaml
+# GPU cluster example
+# This is a cluster with one master node and two worker nodes
 
-```
-hostname(之后会成为Kuberntes中的Node Name),host-ip
-```
-###### `master.csv`示例
-```
-openpai-master-01,10.1.0.1
-```
-###### `worker.csv`格式
+machine-sku:
+  master-machine: # define a machine sku
+    # the resource requirements for all the machines of this sku
+    # We use the same memory format as Kubernetes, e.g. Gi, Mi
+    # Reference: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/#meaning-of-memory
+    mem: 60Gi
+    cpu:
+      # the number of CPU vcores
+      vcore: 24
+  gpu-machine:
+    computing-device:
+      # For `type`, please follow the same format specified in device plugin.
+      # For example, `nvidia.com/gpu` is for NVIDIA GPU, `amd.com/gpu` is for AMD GPU,
+      # and `enflame.com/dtu` is for Enflame DTU.
+      # Reference: https://kubernetes.io/docs/concepts/extend-kubernetes/compute-storage-net/device-plugins/
+      type: nvidia.com/gpu
+      model: K80
+      count: 4
+    mem: 220Gi
+    cpu:
+      vcore: 24
 
-请**不要**在此文件中插入空行或使用空格。请**不要**在hostname中使用大写字母。
+machine-list:
+  - hostname: pai-master # name of the machine, **do not** use upper case alphabet letters for hostname
+    hostip: 10.0.0.1
+    machine-type: master-machine # only one master-machine supported
+    pai-master: "true"
+  - hostname: pai-worker1
+    hostip: 10.0.0.2
+    machine-type: gpu-machine
+    pai-worker: "true"
+  - hostname: pai-worker2
+    hostip: 10.0.0.3
+    machine-type: gpu-machine
+    pai-worker: "true"
+```
 
-```
-hostname(之后会成为Kuberntes中的Node Name),host-ip
-```
-###### `worker.csv` 示例
-```
-openpai-001,10.0.0.1
-openpai-002,10.0.0.2
-openpai-003,10.0.0.3
-openpai-004,10.0.0.4
-```
+#### `config.yaml` 格式示例
 
-###### `config` 示例
-
-```yaml
-user: <your-ssh-username>
-password: <your-ssh-password>
-branch_name: pai-1.4.y
-docker_image_tag: v1.4.1
+``` yaml
+user: forexample
+password: forexample
+docker_image_tag: v1.5.0
 
 # Optional
+
+#######################################################################
+#                    OpenPAI Customized Settings                      #
+#######################################################################
+# enable_hived_scheduler: true
 
 #############################################
 # Ansible-playbooks' inventory hosts' vars. #
@@ -130,15 +253,9 @@ docker_image_tag: v1.4.1
 
 ###########################################################################################
 #                         Pre-check setting                                               #
-# By default, we assume your gpu environment is nvidia. So your runtime should be nvidia. #
-# If you are using AMD or other environment, you should modify it.                        #
 ###########################################################################################
-# worker_default_docker_runtime: nvidia
 # docker_check: true
-
 # resource_check: true
-
-# gpu_type: nvidia
 
 ########################################################################################
 # Advanced docker configuration. If you are not familiar with them, don't change them. #
@@ -168,15 +285,29 @@ docker_image_tag: v1.4.1
 # kube_image_repo: "gcr.io/google-containers"
 # quay_image_repo: "quay.io"
 # docker_image_repo: "docker.io"
+# etcd_image_repo: "quay.io/coreos/etcd"
+# pod_infra_image_repo: "gcr.io/google_containers/pause-{{ image_arch }}"
 # kubeadm_download_url: "https://storage.googleapis.com/kubernetes-release/release/{{ kubeadm_version }}/bin/linux/{{ image_arch }}/kubeadm"
 # hyperkube_download_url: "https://storage.googleapis.com/kubernetes-release/release/{{ kube_version }}/bin/linux/{{ image_arch }}/hyperkube"
 
-
 # openpai_kube_network_plugin: calico
-```
-`branch-name` 和 `docker-image-tag`代表您想安装的OpenPAI的版本。`user`和`password`是master机器、worker机器共享的SSH用户名和密码。换句话说，您得确保所有master机器和worker机器有同样的SSH用户名和密码。 其他的配置为可选配置，只有当您清楚地知道它们的含义时，您可以去修改它，否则请不要修改。
 
-**Azure用户请注意**： 如果您在Azure上部署OpenPAI，请去掉`openpai_kube_network_plugin: calico`的注释，并把它修改为`openpai_kube_network_plugin: weave`. 这是因为Azure暂时不支持calica。细节部分请参阅[这个文档](https://docs.projectcalico.org/reference/public-cloud/azure#why-doesnt-azure-support-calico-networking)。
+# openpai_kubespray_extra_var:
+#   key: value
+#   key: value
+
+#######################################################################
+#                     host daemon port setting                        #
+#######################################################################
+# host_daemon_port_start: 40000
+# host_daemon_port_end: 65535
+```
+
+`user`和`password`是master机器、worker机器共享的SSH用户名和密码。换句话说，您得确保所有master机器和worker机器有同样的SSH用户名和密码。 其他的配置为可选配置，只有当您清楚地知道它们的含义时，您可以去修改它，否则请不要修改。
+
+**Azure用户请注意**： 如果您在Azure上部署OpenPAI，请去掉`openpai_kube_network_plugin: calico`的注释，并把它修改为`openpai_kube_network_plugin: weave`. 这是因为Azure暂时不支持calico。细节部分请参阅[这个文档](https://docs.projectcalico.org/reference/public-cloud/azure#why-doesnt-azure-support-calico-networking)。
+
+**如果您使用了除了CPU worker和NVIDIA GPU worker之外的worker结点**：对于CPU worker和NVIDIA GPU worker之外的worker种类，目前我们只支持Kubernetes default scheduler (而不是Hivedscheduler)。请去掉`# enable_hived_scheduler: true`的注释，并且将它设置为`enable_hived_scheduler: false`。
 
 **如果您在config中开启了qos-switch**： 此时，OpenPAI会在每个worker机器上要求额外的内存。请参考下面的表格，确保您的worker机器上有足够的内存：
 
@@ -186,25 +317,51 @@ docker_image_tag: v1.4.1
 | job-exporter  |     512Mi      |      0      |
 |  log-manager  |     256Mi      |      0      |
 
-### 开始安装
+## 安装Kubernetes
 
-在dev box机器上，使用下面的命令克隆OpenPAI的源代码。
+转到目录`<pai-code-dir>/contrib/kubespray`：
 
-```bash
-git clone -b pai-1.4.y https://github.com/microsoft/pai.git # 如果您想要部署不同的版本，请切换到相应的branch。
-cd pai/contrib/kubespray
+``` bash
+cd <pai-code-dir>/contrib/kubespray
 ```
 
-文件夹`pai/contrib/kubespray`中包含kubespray（用于安装Kubernetes）的代码和安装OpenPAI服务的代码。 请先使用下面的命令来安装Kubernetes。请修改`/path/to` 为上述文件的路径。**不要**使用相对路径，相对路径将导致安装脚本出错。
+目录`<pai-code-dir>/contrib/kubespray`中包含了Kubernetes和OpenPAI服务的代码。
+请先运行下面的命令安装Kubernetes。 顾名思义，我们使用[kubespray](https://github.com/kubernetes-sigs/kubespray)来安装Kubernetes。
 
-```bash
-/bin/bash quick-start-kubespray.sh -m /path/to/master.csv -w /path/to/worker.csv -c /path/to/config
+``` bash
+/bin/bash quick-start-kubespray.sh
 ```
 
-Kubernetes安装成功后，请使用下面的代码来安装OpenPAI服务。请修改`/path/to` 为上述文件的路径。**不要**使用相对路径，相对路径将导致安装脚本出错。
+如果在安装过程中出现任何问题，请再次检查上述环境要求。我们也提供了一个脚本，帮助您进行检查：
+
+``` bash
+/bin/bash requirement.sh -l config/layout.yaml -c config/config.yaml
+```
+
+同时，您也可以参考[安装故障排查文档](./installation-faqs-and-troubleshooting.md#troubleshooting)或直接在搜索引擎上查找解决方法。当您解决问题后，请重新运行`/bin/bash quick-start-kubespray.sh`。
+
+如果安装成功，`quick-start-kubespray.sh` 会打印出下面的信息：
+
+```
+You can run the following commands to setup kubectl on you local host:
+ansible-playbook -i ${HOME}/pai-deploy/kubespray/inventory/pai/hosts.yml set-kubectl.yml --ask-become-pass
+```
+
+在默认情况下，我们既不会在dev box机器上配置默认的`kubeconfig`，也不会安装`kubectl`客户端，只会把Kubernetes的config文件放在`~/pai-deploy/kube/config`。您可以在任何Kubernetes客户端上使用这个config，来连接到Kubernetes集群。
+
+另外，您也可以在dev box机器上运行命令`ansible-playbook -i ${HOME}/pai-deploy/kubespray/inventory/pai/hosts.yml set-kubectl.yml --ask-become-pass`，来安装默认的`kubeconfig`环境和`kubectl`。该命令会把Kubernetes的config拷贝到`~/.kube/config`，并安装`kubectl`。成功运行后，您就可以直接在dev box机器上使用`kubectl`来控制集群了。
+
+#### 关于网络问题的提示
+
+如果您遇到网络问题，如机器无法下载某些文件，或无法连接到某个docker registry，请将提示的错误日志和kubespray合并为关键字，并搜索解决方案。您也可以参考[安装常见问题解答和故障排查](./installation-faqs-and-troubleshooting.md#troubleshooting)和[这个issue](https://github.com/microsoft/pai/issues/4516)。
+
+
+## 安装OpenPAI服务
+
+Kubernetes安装成功后，请使用下面的代码来安装OpenPAI服务：
 
 ```bash
-/bin/bash quick-start-service.sh -m /path/to/master.csv -w /path/to/worker.csv -c /path/to/config
+/bin/bash quick-start-service.sh
 ```
 
 如果一切顺利，您将会看到下面的信息：
@@ -219,17 +376,11 @@ Default password          :     admin-password
 You can go to http://<your-master-ip>, then use the default username and password to log in.
 ```
 
-正如这个提示所说的，您可以用 `admin` 和 `admin-password` 来登录Webportal，并提交一个任务来验证安装。
+正如这个提示所说的，您可以用 `admin` 和 `admin-password` 来登录Webportal，并提交一个任务来验证安装。另外，我们已在目录`~/pai-deploy/cluster-cfg`下生成了OpenPAI的配置文件，如果您之后需要自定义集群的话，这些配置文件有可能会被用到。
 
-#### 关于环境检查的提示
+**如果您使用的worker是CPU worker、NVIDIA GPU worker、AMD GPU worker、Enflame DTU worker之外的worker种类**: 请在集群中手动安装设备的device plugin，否则会无法使用Kubernetes default scheduler。 目前可以自动安装的device plugin被列在[这个文件中](https://github.com/microsoft/pai/blob/master/src/device-plugin/deploy/start.sh.template)。您可以提交PR来支持您的设备。
 
-如果您的安装过程出错，请再次检查上述环境要求。我们也提供了一个脚本，帮助您进行检查。
-
-```bash
-/bin/bash requirement.sh -m /path/to/master.csv -w /path/to/worker.csv -c /path/to/config
-```
-
-### <div id="keep-a-folder">保留一个文件夹</div>
+## <div id="keep-a-folder">保留一个文件夹</div>
 
 我们强烈建议您保留文件夹`~/pai-deploy`，以便将来进行升级、维护和卸载操作。此文件夹中最重要的内容包括：
 
@@ -239,84 +390,3 @@ You can go to http://<your-master-ip>, then use the default username and passwor
 如果可能，可以备份`~/pai-deploy`以防意外删除。
 
 除了文件夹之外，您还应该记住OpenPAI集群ID，它的默认值为`pai`。有些集群管理操作需要确认此ID。
-
-## <div id="clean-previous-deployment">清除已有安装</div>
-
-### 将旧数据备份
-
-如果在您在`v1.0.0`之前安装过OpenPAI，要安装OpenPAI>=`v1.0.0`的话，需要先清除之前的部署。在清除之后，您不能保存任何有用的数据：所有任务、用户信息、数据集都将不可避免地、不可逆转地丢失。因此，如果在以前的部署中有任何有用的数据，请确保已将它们备份到其他位置。
-
-#### HDFS数据
-
-在`v1.0.0`之前，PAI会为您部署HDFS服务器。在`v1.0.0`之后，HDFS服务器将不会被部署。并且，升级时会删除以前的HDFS数据。
-
-以下命令可用于备份旧的HDFS数据：
-
-```bash
-# 检查数据目录
-hdfs dfs -ls hdfs://<hdfs-namenode-ip>:<hdfs-namenode-port>/
-
-hdfs dfs -copyToLocal hdfs://<hdfs-namenode-ip>:<hdfs-namenode-port>/ <local-folder>
-```
-
-如果您之前没有修改过默认配置，`<hdfs-namenode-ip>`和`<hdfs-namenode-port>`就是PAI的master ip和`9000`。当然，在备份时请确保您磁盘空间的大小是足够的。
-
-#### 任务和用户的数据
-
-任务和用户的数据也将丢失，包括任务记录、任务日志、用户名、用户密码等。我们没有自动工具可供您备份这些数据。如果您发现有价值的数据，请手动进行备份。
-
-#### 其他Kubernetes中的资源
-
-因为Kubernetes集群也会被清除，若您在Kubernetes上部署了一些有用的资源，也请为它们做一个备份。
-
-### 清除旧的OpenPAI
-
-请使用以下命令清除旧的OpenPAI：
-
-```bash
-git clone https://github.com/Microsoft/pai.git
-cd pai
-#  如果您的旧安装是不同的版本，请切换到相应的branch
-git checkout pai-0.14.y
-
-# 删除OpenPAI服务以及所有数据
-./paictl.py service delete
-
-# 清除K8S集群
-./paictl.py cluster k8s-clean -f -p <path-to-your-old-config>
-```
-
-如果找不到旧配置（即上述的`<path-to-your-old-config>`），以下命令可以帮您取回：
-
-```bash
-./paictl.py config pull -o <path-to-your-old-config>
-```
-
-另外，您还需要删除旧OpenPAI安装的GPU驱动，方法为使用`root`用户在每个GPU节点上执行以下命令：
-
-```bash
-#!/bin/bash
-
-lsmod | grep -qE "^nvidia" &&
-{
-    DEP_MODS=`lsmod | tr -s " " | grep -E "^nvidia" | cut -f 4 -d " "`
-    for mod in ${DEP_MODS//,/ }
-    do
-        rmmod $mod ||
-        {
-            echo "The driver $mod is still in use, can't unload it."
-            exit 1
-        }
-    done
-    rmmod nvidia ||
-    {
-        echo "The driver nvidia is still in use, can't unload it."
-        exit 1
-    }
-}
-
-rm -rf /var/drivers
-reboot
-```
-
-在以上步骤成功后，您就可以跟随[从头开始安装](#installation-from-scratch)中的步骤安装OpenPAI >= `v1.0.0`了。
