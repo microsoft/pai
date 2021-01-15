@@ -1,5 +1,33 @@
 # OpenPAI Release Note
 
+## Jan 2021 (version 1.4.0)
+
+- Improve Web Portal Experience 
+  - Fix Home page overlap issue #5213 #5180
+  - Add filter, search box and export csv button in task detail list #5175
+  - Create a new page for yaml editor #5172
+
+- Marketplace related update
+  - Please see https://github.com/microsoft/openpaimarketplace/issues/152 for more details
+
+- Support different types of computing hardware #5138 
+
+- Deployment process refinement 
+  - `master.csv` + `worker.csv` -> `layout.yaml` 
+  - move `config.yaml`, `layout.yaml` under quick-start folder, remove all the argument parse logic
+  - doc refactor 
+  - `layout.yaml` schema change
+  - Unify version requirements: pai version, pai image tag
+  - Set default value in config files
+  - Generate hiveD config with `layout.yaml` #5179 
+  - Check layout before installing k8s #5184 #5181
+  - Config folder structure arrangement
+  - Refine installation logs
+  - Add skip service list argument #5193
+
+- Log manager
+  - Change get logs api return code #5125
+
 ## Dec 2020 (version 1.4.1)
 
 - Marketplace
