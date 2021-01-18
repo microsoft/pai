@@ -34,7 +34,7 @@ We recommend you to use CPU-only machines for dev box and master. The detailed r
     </td>
     <td>
       <ul>
-        <li>Ubuntu 16.04 (18.04 should work, but not fully tested)</li>
+        <li>Ubuntu 16.04 (18.04, 20.04 should work, but not fully tested)</li>
         <li>SSH service is enabled.</li>
         <li>Passwordless ssh to all other machines (master and worker machines).</li>
         <li>Docker is installed.</li>
@@ -52,7 +52,7 @@ We recommend you to use CPU-only machines for dev box and master. The detailed r
     </td>
     <td>
       <ul>
-        <li>Ubuntu 16.04 (18.04 should work, but not fully tested)</li>
+        <li>Ubuntu 16.04 (18.04, 20.04 should work, but not fully tested)</li>
         <li>SSH service is enabled. </li>
         <li>It shares the same username/password with worker machines, and have sudo privilege.</li>
         <li>Docker is installed.</li>
@@ -100,7 +100,7 @@ Please check the following requirements for different types of worker machines:
     </td>
     <td>
       <ul>
-        <li>Ubuntu 16.04 (18.04 should work, but not fully tested)</li>
+        <li>Ubuntu 16.04 (18.04, 20.04 should work, but not fully tested)</li>
         <li>SSH service is enabled. </li>
         <li>It shares the same username/password with all other machines, and have sudo privilege.</li>
         <li>Docker is installed.</li>
