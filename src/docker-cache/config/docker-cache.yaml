@@ -8,5 +8,6 @@ registry_listener: ":5000"
 container_port: 5000
 service_port: 5000
 host_name: registry.openpai.org
+uri: http://registry.openpai.org:5000/
 remote_url: https://registry-1.docker.io
 registry-htpasswd: dGVzdDokMnkkMDUkRUZiaWphaHovMHl4UC5xMFk1VW52TzljU2hHMThCRzM3QzBHNFhoRmFtTXdTUXdQLjBqQi4KCg==
