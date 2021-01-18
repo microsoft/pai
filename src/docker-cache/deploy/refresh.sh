@@ -3,4 +3,9 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT License.
 
-kubectl delete --ignore-not-found --now -f docker-cache.yaml
+pushd $(dirname "$0") > /dev/null
+
+bash stop.sh
+bash start.sh
+
+popd > /dev/null

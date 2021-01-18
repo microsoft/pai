@@ -1,3 +1,6 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+
 apiVersion: v1
 kind: Namespace
 metadata:
@@ -31,7 +34,7 @@ spec:
             readOnly: True
         ports:
           - name: http
-            containerPort: 5000
+            containerPort: '{{ cluster_cfg["docker_cache"]["container_port"] }}'
       volumes:
         - name: registry-htpasswd
           secret:
@@ -52,9 +55,9 @@ spec:
   selector:
     app: docker-registry-cache
   ports:
-  - port: 5000
+  - port: '{{ cluster_cfg["docker_cache"]["service_port"]'
     name: http
-    targetPort: 5000
+    targetPort: '{{ cluster_cfg["docker_cache"]["container_port"] }}'
 ---
 apiVersion: networking.k8s.io/v1
 kind: Ingress
@@ -69,7 +72,7 @@ metadata:
     nginx.ingress.kubernetes.io/proxy-send-timeout: "600"
 spec:
   rules:
-  - host: registry.openpai.org
+  - host: '{{ cluster_cfg["docker_cache"]["host_name"] }}'
     http:
       paths:
       - path: /
@@ -83,7 +86,6 @@ spec:
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  creationTimestamp: "2021-01-14T04:04:20Z"
   name: registry-config
   namespace: docker-cache
 data:
@@ -98,12 +100,12 @@ data:
       delete:
         enabled: true
       azure:
-        accountname: <your_azure_blob_account>
-        accountkey: <primary_or_secondry_key_for_your_account>
-        container: <your_docker_registry_container>
+        accountname: '{{ cluster_cfg["docker_cache"]["azure_account_name"] }}'
+        accountkey: '{{ cluster_cfg["docker_cache"]["azure_account_key"] }}'
+        container: '{{ cluster_cfg["docker_cache"]["azure_container_name"] }}'
         # realm:  core.windows.net
     http:
-      addr: :5000
+      addr: '{{ cluster_cfg["docker_cache"]["registry_listener"] }}'
       headers:
         X-Content-Type-Options: [nosniff]
     auth:
@@ -111,7 +113,7 @@ data:
         realm: basic-realm
         path: /auth/htpasswd # /etc/registry
     proxy:
-      remoteurl: https://registry-1.docker.io
+      remoteurl: {{ cluster_cfg["docker_cache"]["remote_url"] }}
     health:
       storagedriver:
         enabled: true
@@ -125,4 +127,4 @@ metadata:
   namespace: docker-cache
 data:
   htpasswd: | # test test as default, to generate htpasswd please refer to README
-    dGVzdDokMnkkMDUkRUZiaWphaHovMHl4UC5xMFk1VW52TzljU2hHMThCRzM3QzBHNFhoRmFtTXdTUXdQLjBqQi4KCg==
+    {{ cluster_cfg["docker-cache"]["registry-htpasswd"] }}
