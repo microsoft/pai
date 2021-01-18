@@ -1,0 +1,13 @@
+---
+# Ubuntu 20.04 doesn't have python2 pre-installed,
+# but Ubuntu 16.04, 18.04, and 20.04 all have python3 pre-installed.
+# So we use python3 as the default interpreter.
+# Also, we use `sudo python3` to execute python on dev box machine.
+# It is better to align with it here to prevent `ansible-playbook` from failing into another python.
+- name: set ansible_python_interpreter to python3
+  set_fact:
+    ansible_python_interpreter: "/usr/bin/python3"
+
+- name: output ansible_python_interpreter
+  debug:
+    var: ansible_python_interpreter

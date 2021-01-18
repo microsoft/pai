@@ -1,0 +1,21 @@
+---
+# If sshpass is not installed on target machine, 
+# kubespray 2.11 may have these issues:
+# https://github.com/kubernetes-sigs/kubespray/issues/6906
+# https://github.com/kubernetes-sigs/kubespray/issues/5693
+# This is resolved in PR https://github.com/kubernetes-sigs/kubespray/pull/6907
+- name: "Install sshpass"
+  apt:
+    name: sshpass
+    state: present
+
+
+# workaround for ubuntu 20.04
+# This is resolved in https://github.com/kubernetes-sigs/kubespray/pull/6157
+- name: "Install Python"
+  apt:
+    name: python
+    state: present
+  when:
+  - ansible_distribution_version is version('20.04', '=')
+

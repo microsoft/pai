@@ -34,7 +34,7 @@ master机器用于运行核心Kubernetes组件和核心OpenPAI服务。目前，
     </td>
     <td>
       <ul>
-        <li>Ubuntu 16.04 (18.04应该可用，但没有经过完整测试)</li>
+        <li>Ubuntu 16.04 (18.04、20.04应该可用，但没有经过完整测试)</li>
         <li>SSH服务已开启。</li>
         <li>可以免密登录所有master和worker机器。</li>
         <li>Docker已被正确安装。</li>
@@ -52,7 +52,7 @@ master机器用于运行核心Kubernetes组件和核心OpenPAI服务。目前，
     </td>
     <td>
       <ul>
-        <li>Ubuntu 16.04 (18.04应该可用，但没有经过完整测试)</li>
+        <li>Ubuntu 16.04 (18.04、20.04应该可用，但没有经过完整测试)</li>
         <li>SSH服务已开启。</li>
         <li>和所有worker机器有同样的SSH用户名和密码，且该SSH用户有sudo权限。</li>
         <li>Docker已被正确安装。</li>
@@ -100,7 +100,7 @@ hivedscheduler是OpenPAI的默认调度器，它支持虚拟集群划分，拓�
     </td>
     <td>
       <ul>
-        <li>Ubuntu 16.04 (18.04应该可用，但没有经过完整测试)</li>
+        <li>Ubuntu 16.04 (18.04、20.04应该可用，但没有经过完整测试)</li>
         <li>SSH服务已开启。 </li>
         <li>所有master和worker机器有同样的SSH用户名和密码，且该SSH用户有sudo权限。</li>
         <li>Docker已被正确安装。</li>
