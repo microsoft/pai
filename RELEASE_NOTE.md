@@ -1,6 +1,6 @@
 # OpenPAI Release Note
 
-## Jan 2021 (version 1.4.0)
+## Jan 2021 (version 1.5.0)
 
 - Improve Web Portal Experience 
   - Fix Home page overlap issue #5213 #5180
@@ -11,6 +11,8 @@
   - Please see https://github.com/microsoft/openpaimarketplace/issues/152 for more details
 
 - Support different types of computing hardware #5138 
+  - Add support for cpu-only worker installation 
+  - Add support for heterogeneous workers
 
 - Deployment process refinement 
   - `master.csv` + `worker.csv` -> `layout.yaml` 
