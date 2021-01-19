@@ -34,7 +34,7 @@ spec:
             readOnly: True
         ports:
           - name: http
-            containerPort: '{{ cluster_cfg["docker_cache"]["container_port"] }}'
+            containerPort: '{{ cluster_cfg["docker-cache"]["container_port"] }}'
       volumes:
         - name: registry-htpasswd
           secret:
@@ -55,9 +55,9 @@ spec:
   selector:
     app: docker-registry-cache
   ports:
-  - port: '{{ cluster_cfg["docker_cache"]["service_port"]'
+  - port: '{{ cluster_cfg["docker-cache"]["service_port"] }}'
     name: http
-    targetPort: '{{ cluster_cfg["docker_cache"]["container_port"] }}'
+    targetPort: '{{ cluster_cfg["docker-cache"]["container_port"] }}'
 ---
 apiVersion: networking.k8s.io/v1
 kind: Ingress
@@ -100,12 +100,12 @@ data:
       delete:
         enabled: true
       azure:
-        accountname: '{{ cluster_cfg["docker_cache"]["azure_account_name"] }}'
-        accountkey: '{{ cluster_cfg["docker_cache"]["azure_account_key"] }}'
-        container: '{{ cluster_cfg["docker_cache"]["azure_container_name"] }}'
+        accountname: {{ cluster_cfg["docker-cache"]["azure_account_name"] }}
+        accountkey: {{ cluster_cfg["docker-cache"]["azure_account_key"] }}
+        container: {{ cluster_cfg["docker-cache"]["azure_container_name"] }}
         # realm:  core.windows.net
     http:
-      addr: '{{ cluster_cfg["docker_cache"]["registry_listener"] }}'
+      addr: {{ cluster_cfg["docker-cache"]["registry_listener"] }}
       headers:
         X-Content-Type-Options: [nosniff]
     auth:
@@ -113,7 +113,7 @@ data:
         realm: basic-realm
         path: /auth/htpasswd # /etc/registry
     proxy:
-      remoteurl: {{ cluster_cfg["docker_cache"]["remote_url"] }}
+      remoteurl: {{ cluster_cfg["docker-cache"]["remote_url"] }}
     health:
       storagedriver:
         enabled: true
