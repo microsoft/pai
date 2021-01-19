@@ -72,7 +72,7 @@ metadata:
     nginx.ingress.kubernetes.io/proxy-send-timeout: "600"
 spec:
   rules:
-  - host: '{{ cluster_cfg["docker_cache"]["host_name"] }}'
+  - host: '{{ cluster_cfg["docker-cache"]["host_name"] }}'
     http:
       paths:
       - path: /
