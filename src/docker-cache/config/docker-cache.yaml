@@ -7,6 +7,6 @@ azure_container_name: dockerregistry
 registry_listener: ":5000"
 container_port: 5000
 service_port: 5000
-service_nodeport: 35000
+service_nodeport: 30500
 remote_url: https://registry-1.docker.io
 registry-htpasswd: dGVzdDokMnkkMDUkRUZiaWphaHovMHl4UC5xMFk1VW52TzljU2hHMThCRzM3QzBHNFhoRmFtTXdTUXdQLjBqQi4KCg==
