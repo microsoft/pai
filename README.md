@@ -6,7 +6,7 @@
 [![Join the chat at https://gitter.im/Microsoft/pai](https://badges.gitter.im/Microsoft/pai.svg)](https://gitter.im/Microsoft/pai?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 [![Version](https://img.shields.io/github/release/Microsoft/pai.svg)](https://github.com/Microsoft/pai/releases/latest)
 
-**OpenPAI [v1.4.1](./RELEASE_NOTE.md#Dec-2020-version-141) has been released!**
+**OpenPAI [v1.5.0](./RELEASE_NOTE.md) has been released!**
 
 With the release of v1.0, OpenPAI is switching to a more robust, more powerful and lightweight architecture. OpenPAI is also becoming more and more modular so that the platform can be easily customized and expanded to suit new needs. OpenPAI also provides many AI user-friendly features, making it easier for end users and administrators to complete daily AI tasks.
 
@@ -58,16 +58,25 @@ With the release of v1.0, OpenPAI is switching to a more robust, more powerful a
 
 ## Table of Contents
 
-1. [When to consider OpenPAI](#when-to-consider-openpai)
-2. [Why choose OpenPAI](#why-choose-openpai)
-3. [Get started](#get-started)
-   - [For cluster administrators](#for-cluster-administrators)
-   - [For cluster users](#for-cluster-users)
-4. [Standalone Components](#standalone-components)
-5. [Reference](#reference)
-6. [Related Projects](#related-projects)
-7. [Get involved](#get-involved)
-8. [How to contribute](#how-to-contribute)
+- [Open Platform for AI (OpenPAI) !alt text](#open-platform-for-ai-openpai-alt-text)
+  - [Table of Contents](#table-of-contents)
+  - [When to consider OpenPAI](#when-to-consider-openpai)
+  - [Why choose OpenPAI](#why-choose-openpai)
+      - [Support on-premises and easy to deploy](#support-on-premises-and-easy-to-deploy)
+      - [Support popular AI frameworks and heterogeneous hardware](#support-popular-ai-frameworks-and-heterogeneous-hardware)
+      - [Most complete solution and easy to extend](#most-complete-solution-and-easy-to-extend)
+  - [Get started](#get-started)
+    - [For cluster administrators](#for-cluster-administrators)
+    - [For cluster users](#for-cluster-users)
+  - [Standalone Components](#standalone-components)
+  - [Reference](#reference)
+  - [Related Projects](#related-projects)
+  - [Get involved](#get-involved)
+  - [How to contribute](#how-to-contribute)
+    - [Contributor License Agreement](#contributor-license-agreement)
+    - [Call for contribution](#call-for-contribution)
+    - [Who should consider contributing to OpenPAI](#who-should-consider-contributing-to-openpai)
+    - [Contributors](#contributors)
 
 ## When to consider OpenPAI
 
