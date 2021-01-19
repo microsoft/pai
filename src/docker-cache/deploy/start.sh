@@ -5,7 +5,6 @@
 
 pushd $(dirname "$0") > /dev/null
 
-kubectl apply --overwrite=true -f docker-cache-namespace.yaml || exit $?
 kubectl apply --overwrite=true -f docker-cache-config.yaml || exit $?
 kubectl apply --overwrite=true -f docker-cache-secret.yaml || exit $?
 kubectl apply --overwrite=true -f docker-cache.yaml || exit $?

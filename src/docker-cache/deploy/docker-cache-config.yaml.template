@@ -5,7 +5,7 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: registry-config
-  namespace: docker-cache
+  namespace: default
 data:
   config.yml: |
     version: 0.1

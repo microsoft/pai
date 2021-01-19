@@ -5,7 +5,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: docker-registry-cache
-  namespace: docker-cache
+  namespace: default
 spec:
   replicas: 1
   selector:
