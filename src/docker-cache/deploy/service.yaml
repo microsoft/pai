@@ -1,0 +1,19 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+
+cluster-type:
+  - k8s
+
+prerequisite:
+  - cluster-configuration
+
+template-list:
+  - docker-cache.yaml
+
+start-script: start.sh
+stop-script: stop.sh
+delete-script: delete.sh
+refresh-script: refresh.sh
+
+deploy-rules:
+  - in: pai-master
