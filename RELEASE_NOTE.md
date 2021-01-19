@@ -11,14 +11,12 @@
   - Please see https://github.com/microsoft/openpaimarketplace/issues/152 for more details
 
 - Support different types of computing hardware #5138 
-  - Add support for cpu-only worker installation 
-  - Add support for heterogeneous workers
 
 - Deployment process refinement 
   - `master.csv` + `worker.csv` -> `layout.yaml` 
   - move `config.yaml`, `layout.yaml` under quick-start folder, remove all the argument parse logic
-  - doc refactor 
-  - `layout.yaml` schema change
+  - Add support for cpu-only worker installation 
+  - Add support for heterogeneous workers
   - Unify version requirements: pai version, pai image tag
   - Set default value in config files
   - Generate hiveD config with `layout.yaml` #5179 
