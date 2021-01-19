@@ -116,7 +116,7 @@ The [admin manual](https://openpai.readthedocs.io/en/latest/manual/cluster-admin
 
 - **Installation and upgrade**. The installation is based on Kubespray, and here is the [system requirements](https://openpai.readthedocs.io/en/latest/manual/cluster-admin/installation-guide.html#installation-requirements). OpenPAI provides an [installation guide](https://openpai.readthedocs.io/en/latest/manual/cluster-admin/installation-guide.html) to facilitate the installation.
 
-  If you are considering upgrade from older version to the latest v1.0.0, please refer to the table below for a brief comparison between `v0.14.0` and the upcoming `v1.0.0`. More detail about the upgrade considerations can be found [upgrade guide](https://openpai.readthedocs.io/en/latest/manual/cluster-admin/upgrade-guide.html).
+  If you are considering upgrade from older version to the latest v1.0.0, please refer to the table below for a brief comparison between `v0.14.0` and the `v1.0.0`. More detail about the upgrade considerations can be found [upgrade guide](https://openpai.readthedocs.io/en/latest/manual/cluster-admin/upgrade-guide.html).
 
   |                   | `v0.14.0`                | `v1.0.0`                |
   | ----------------- | ------------------------ | ----------------------- |
