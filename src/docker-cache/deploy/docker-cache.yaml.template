@@ -29,7 +29,7 @@ spec:
             readOnly: True
         ports:
           - name: http
-            containerPort: '{{ cluster_cfg["docker-cache"]["container_port"] }}'
+            containerPort: {{ cluster_cfg["docker-cache"]["container_port"] }}
       volumes:
         - name: registry-htpasswd
           secret:
