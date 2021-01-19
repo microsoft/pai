@@ -1,0 +1,39 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: registry-config
+  namespace: docker-cache
+data:
+  config.yml: |
+    version: 0.1
+    log:
+      fields:
+        service: registry
+    storage:
+      cache:
+        blobdescriptor: inmemory
+      delete:
+        enabled: true
+      azure:
+        accountname: {{ cluster_cfg["docker-cache"]["azure_account_name"] }}
+        accountkey: {{ cluster_cfg["docker-cache"]["azure_account_key"] }}
+        container: {{ cluster_cfg["docker-cache"]["azure_container_name"] }}
+        # realm:  core.windows.net
+    http:
+      addr: {{ cluster_cfg["docker-cache"]["registry_listener"] }}
+      headers:
+        X-Content-Type-Options: [nosniff]
+    auth:
+      htpasswd:
+        realm: basic-realm
+        path: /auth/htpasswd # /etc/registry
+    proxy:
+      remoteurl: {{ cluster_cfg["docker-cache"]["remote_url"] }}
+    health:
+      storagedriver:
+        enabled: true
+        interval: 10s
+        threshold: 3
