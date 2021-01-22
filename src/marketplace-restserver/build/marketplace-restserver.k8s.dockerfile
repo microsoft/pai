@@ -1,4 +1,4 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT License.
 
-FROM docker.io/openpai/pai-marketplace-restserver
+FROM docker.io/openpai/pai-marketplace-restserver:v1.5.0
