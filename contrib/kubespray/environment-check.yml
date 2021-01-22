@@ -1,4 +1,9 @@
 ---
+- hosts: all,localhost
+  gather_facts: false
+  roles:
+    - { role: set-python3 }
+
 - hosts: all
   gather_facts: false
   tasks:
