@@ -12,7 +12,7 @@
   when:
     - nvidia_smi_check.rc == 0 and not enable_docker_cache
 
-- name: "Nvidia-smi is detected, include nvidia docker runtime task"
+- name: "Nvidia-smi is detected, docker-cache enabled, include nvidia docker runtime task"
   include_tasks: nvidia-runtime-with-docker-cache.yml
   when:
     - nvidia_smi_check.rc == 0 and enable_docker_cache
@@ -22,7 +22,7 @@
   when:
     - nvidia_smi_check.rc != 0 and not enable_docker_cache
 
-- name: "Nvidia-smi is not detected, include default docker runtime task"
+- name: "Nvidia-smi is not detected, docker-cache enabled, include default docker runtime task"
   include_tasks: default-runtime-with-docker-cache.yml
   when:
     - nvidia_smi_check.rc != 0 and enable_docker_cache
