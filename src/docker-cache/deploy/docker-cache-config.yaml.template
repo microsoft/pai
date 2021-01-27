@@ -26,10 +26,10 @@ data:
       addr: {{ cluster_cfg["docker-cache"]["registry_listener"] }}
       headers:
         X-Content-Type-Options: [nosniff]
-    auth:
-      htpasswd:
-        realm: basic-realm
-        path: /auth/htpasswd # /etc/registry
+    # auth:
+    #   htpasswd:
+    #     realm: basic-realm
+    #     path: /auth/htpasswd # /etc/registry
     proxy:
       remoteurl: {{ cluster_cfg["docker-cache"]["remote_url"] }}
     health:
