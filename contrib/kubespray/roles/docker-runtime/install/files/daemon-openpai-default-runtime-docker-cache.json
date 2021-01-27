@@ -1,0 +1,10 @@
+{
+  "storage-driver": "overlay2",
+   "registry-mirrors": [
+    "https://int.openpai.org/registry/cache/",
+    "http://int.openpai.org/registry/cache/"
+  ],
+  "insecure-registries": [
+    "http://int.openpai.org/registry/cache/"
+  ] 
+}
