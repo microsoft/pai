@@ -139,7 +139,7 @@ To remove nodes from the cluster, there is no need to modify `hosts.yml`.
 Go into `~/pai-deploy/kubespray/`, run
 
 ```bash
-ansible-playbook -i inventory/pai/hosts.yml remove-node.yml -b --become-user=root -e "node=worker-nodes-0,worker-nodes-1" -e "@inventory/pai/openpai.yml"
+ansible-playbook -i inventory/pai/hosts.yml remove-node.yml -b --become-user=root -e "node=worker-node-to-remove-0,worker-node-to-remove-1" -e "@inventory/pai/openpai.yml"
 ``` 
 
 The nodes to remove are specified with `-e` flag.
