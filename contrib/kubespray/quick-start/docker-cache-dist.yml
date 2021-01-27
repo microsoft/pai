@@ -1,0 +1,4 @@
+- hosts: all
+  remote_user:
+  roles:
+    - { role: '../roles/docker-runtime/install', enable_docker_cache: true }
