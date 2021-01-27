@@ -233,6 +233,40 @@ def get_hived_config(layout, cluster_config):
     return { "skus": skus }
 
 
+def get_docker_cache_config(layout, cluster_config):
+    """
+    generate hived config from layout.yaml and config.yaml
+    Resources (gpu/cpu/mem) specified in layout.yaml is considered as the total resources.
+
+    Parameters:
+    -----------
+    layout: dict
+        layout
+    cluster_config: dict
+        cluster config
+
+    Returns:
+    --------
+    dict
+        docker-cache config, used to render docker-cache config template
+        Example:
+        {
+            "azure_account_name": "",
+            "azure_account_key": "",
+            "azure_container_name": "dockerregistry",
+            "remote_url": "",
+            "registry-htpasswd": "",
+        }
+    """
+    return { 
+        "azure_account_name": cluster_config["docker_cache_azure_account_name"],
+        "azure_account_key": cluster_config["docker_cache_azure_account_key"],
+        "azure_container_name": cluster_config["docker_cache_azure_container_name"],
+        "remote_url": cluster_config["docker_cache_remote_url"],
+        "registry-htpasswd": cluster_config["docker_cache_htpasswd"],
+    }
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('-l', '--layout', dest="layout", required=True,
@@ -257,6 +291,14 @@ def main():
         hived_config = {}
     else:
         hived_config = get_hived_config(layout, cluster_config)
+
+    # Docker-cache is disabled by default.
+    # But if the user sets enable_hived_scheduler to true manually,
+    # we should enable it.
+    if 'enable_docker_cache' in cluster_config and cluster_config['enable_docker_cache'] is True:
+        hived_config = get_docker_cache_config(layout, cluster_config)
+    else:
+        docker_cache_config = {}
 
     environment = {
         'masters': masters,
