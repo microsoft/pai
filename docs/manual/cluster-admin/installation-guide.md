@@ -242,7 +242,7 @@ docker_image_tag: v1.5.0
 # docker_registry_username: exampleuser
 # docker_registry_password: examplepasswd
 
-################################################################T
+################################################################
 # OpenPAI's daemon qos config.                                 #
 # By default, the QoS class for PAI daemon is BestEffort.      #
 # If you want to promote QoS class to Burstable or Guaranteed, #
