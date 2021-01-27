@@ -104,7 +104,7 @@ The nodes to add are specified with `--limit` flag.
 
 Find your [service configuration file `layout.yaml` and `services-configuration.yaml`](./basic-management-operations.md#pai-service-management-and-paictl) in  `~/pai-deploy/cluster-cfg`.
 
-- Add the new node into `machine-list` field in `layout.yaml`, create a new `machine-sku` if necessary. Refer to [layout.yaml](https://github.com/microsoft/pai/blob/master/contrib/kubespray/config/layout.yaml) for schema requirements.
+- Add the new node into `machine-list` field in `layout.yaml`, create a new `machine-sku` if necessary. Refer to [layout.yaml](./installation-guide.md#layoutyaml-format) for schema requirements.
 
 ```yaml
 machine-list:

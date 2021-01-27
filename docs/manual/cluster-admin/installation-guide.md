@@ -170,9 +170,7 @@ Please edit `layout.yaml` and a `config.yaml` file under `<pai-code-dir>/contrib
 These two files spedify the cluster layout and the customized configuration, respectively.
 The following is the format and example of these 2 files.
 
-#### Tips for China Users
-
-If you are a China user, before you edit these files, please refer to [here](./configuration-for-china.md) first.
+**Tips for China Users**: If you are a China user, before you edit these files, please refer to [here](./configuration-for-china.md) first.
 
 #### `layout.yaml` format
 
@@ -244,7 +242,7 @@ docker_image_tag: v1.5.0
 # docker_registry_username: exampleuser
 # docker_registry_password: examplepasswd
 
-################################################################
+################################################################T
 # OpenPAI's daemon qos config.                                 #
 # By default, the QoS class for PAI daemon is BestEffort.      #
 # If you want to promote QoS class to Burstable or Guaranteed, #
