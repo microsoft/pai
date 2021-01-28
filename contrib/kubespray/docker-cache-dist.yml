@@ -3,9 +3,9 @@
   become_user: root
   gather_facts: true
   roles:
-    - { role: '../roles/docker-runtime/install', enable_docker_cache: true }
+    - { role: '../roles/docker-cache/install', enable_docker_cache: true }
   tasks:
-    - name: Reload service docker config from /etc/docker/daemon.json after update
+    - name: Restart service docker config from /etc/docker/daemon.json after update
       ansible.builtin.systemd:
         name: docker
-        state: reloaded
+        state: restarted

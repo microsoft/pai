@@ -1,0 +1,10 @@
+---
+- name: "Nvidia-smi is not detected, include default docker runtime task"
+  include_tasks: default-runtime.yml
+  when:
+    - not enable_docker_cache
+
+- name: "Nvidia-smi is not detected, docker-cache enabled, include default docker runtime task"
+  include_tasks: default-runtime-with-docker-cache.yml
+  when:
+    - enable_docker_cache
