@@ -4,3 +4,9 @@
   gather_facts: true
   roles:
     - { role: '../roles/docker-runtime/install', enable_docker_cache: true }
+  tasks:
+    - name: Reload service docker config from /etc/docker/daemon.json after update
+      ansible.builtin.systemd:
+        name: docker
+        daemon_reload: yes
+        
