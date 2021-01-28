@@ -87,9 +87,10 @@ server {
     add_header Access-Control-Allow-Origin *;
     rewrite ^/~/(.*)$ $1 break;
     rewrite_by_lua_block {
-      local log_name = ngx.var[1]
-      if string.match(log_name, "^user%-.*$") then
-        ngx.header["Content-Disposition"] = "attachment; filename=\"" ... log_name ... ".log\""
+      local args = ngx.req.get_uri_args()
+      local filename = args["filename"]
+      if string.match(filename, "^user%-.*$") then
+        ngx.header["Content-Disposition"] = "attachment; filename=\""..filename..".log\""
       else
         ngx.header["Content-Disposition"] = "attachment"
       end
