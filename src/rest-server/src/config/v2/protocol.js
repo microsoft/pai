@@ -88,12 +88,15 @@ const protocolSchema = {
                     type: 'string',
                     enum: ['script', 'output'],
                   },
+                  plugin: {
+                    type: 'string'
+                  },
                   uri: {
                     type: 'string',
                   },
                 },
-                required: ['name', 'type', 'uri'],
-                additionalProperties: false,
+                required: ['name', 'type'],
+                additionalProperties: true,
               },
             },
           },
@@ -109,6 +112,9 @@ const protocolSchema = {
                     type: 'string',
                     enum: ['data'],
                   },
+                  plugin: {
+                    type: 'string'
+                  },
                   uri: {
                     type: 'array',
                     items: {
@@ -116,8 +122,8 @@ const protocolSchema = {
                     },
                   },
                 },
-                required: ['name', 'type', 'uri'],
-                additionalProperties: false,
+                required: ['name', 'type'],
+                additionalProperties: true,
               },
             },
           },
@@ -198,6 +204,12 @@ const protocolSchema = {
             },
             taskRetryCount: {
               type: 'integer',
+            },
+            prerequisites: {
+              type: 'array',
+              items: {
+                type: 'string',
+              }
             },
             dockerImage: {
               type: 'string',
