@@ -8,10 +8,9 @@
       }
   },
   "registry-mirrors": [
-    "https://int.openpai.org/registry/cache/",
-    "http://int.openpai.org/registry/cache/"
+    "http://localhost:30500/"
   ],
   "insecure-registries": [
-    "http://int.openpai.org/registry/cache/"
-  ]
+    "http://localhost:30500/"
+  ] 
 }
