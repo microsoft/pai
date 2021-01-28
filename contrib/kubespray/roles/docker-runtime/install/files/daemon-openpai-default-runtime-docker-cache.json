@@ -1,9 +1,0 @@
-{
-  "storage-driver": "overlay2",
-  "registry-mirrors": [
-    "http://localhost:30500/"
-  ],
-  "insecure-registries": [
-    "http://localhost:30500/"
-  ] 
-}
