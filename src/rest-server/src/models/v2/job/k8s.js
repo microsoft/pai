@@ -24,6 +24,7 @@ const launcherConfig = require('@pai/config/launcher');
 const createError = require('@pai/utils/error');
 const protocolSecret = require('@pai/utils/protocolSecret');
 const userModel = require('@pai/models/v2/user');
+const tokenModel = require('@pai/models/token');
 const storageModel = require('@pai/models/v2/storage');
 const logger = require('@pai/config/logger');
 const { apiserver } = require('@pai/config/kubernetes');
@@ -830,6 +831,23 @@ const getConfigSecretDef = (frameworkName, secrets) => {
   };
 };
 
+const getTokenSecretDef = (frameworkName, token) => {
+  // TODO: check key / value 
+  const data = {
+    'token': Buffer.from(yaml.safeDump(token)).toString('base64'),
+  };
+  return {
+    apiVersion: 'v1',
+    kind: 'Secret',
+    metadata: {
+      name: `${encodeName(frameworkName)}-tokencred`,
+      namespace: 'default',
+    },
+    data: data,
+    type: 'Opaque',
+  };
+}
+
 const list = async (
   attributes,
   filters,
@@ -1053,7 +1071,7 @@ const put = async (frameworkName, config, rawConfig) => {
     config,
     rawConfig,
   );
-  // generate image pull secret
+  // generate the image pull secret definition
   const auths = Object.values(config.prerequisites.dockerimage)
     .filter((dockerimage) => dockerimage.auth != null)
     .map((dockerimage) => dockerimage.auth);
@@ -1061,10 +1079,15 @@ const put = async (frameworkName, config, rawConfig) => {
     ? getDockerSecretDef(frameworkName, auths)
     : null;
 
-  // generate job config secret
+  // generate the job config secret definition
   const configSecretDef = config.secrets
     ? getConfigSecretDef(frameworkName, config.secrets)
     : null;
+  
+  // create an application token
+  const token = await tokenModel.create(username, true);
+  // generate the application token secret definition
+  const tokenSecretDef = getTokenSecretDef(frameworkName, token);
 
   // calculate pod priority
   // reference: https://github.com/microsoft/pai/issues/3704
@@ -1088,7 +1111,7 @@ const put = async (frameworkName, config, rawConfig) => {
     priorityClassDef = getPriorityClassDef(frameworkName, podPriority);
   }
 
-  // send request to framework controller
+  // send request to DB controller
   let response;
   try {
     response = await axios({
@@ -1103,6 +1126,7 @@ const put = async (frameworkName, config, rawConfig) => {
         configSecretDef: configSecretDef,
         priorityClassDef: priorityClassDef,
         dockerSecretDef: dockerSecretDef,
+        tokenSecretDef: tokenSecretDef,
       },
       headers: {
         'Content-Type': 'application/json',
