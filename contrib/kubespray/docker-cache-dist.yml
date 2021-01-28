@@ -8,5 +8,4 @@
     - name: Reload service docker config from /etc/docker/daemon.json after update
       ansible.builtin.systemd:
         name: docker
-        daemon_reload: yes
-        
+        state: reloaded
