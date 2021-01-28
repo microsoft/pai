@@ -46,6 +46,8 @@ export const taskRoleSchema = Joi.object().keys({
   data: Joi.string(),
   output: Joi.string(),
   script: Joi.string(),
+  // allow referencing prerequisites directly
+  prerequisites: Joi.array().items(Joi.string()),
   extraContainerOptions: Joi.object().keys({
     shmMB: Joi.number(),
     infiniband: Joi.boolean(),
@@ -77,6 +79,7 @@ export const prerequisitesSchema = Joi.object().keys({
   type: Joi.string()
     .valid(['data', 'script', 'dockerimage', 'output'])
     .required(),
+  plugin: Joi.string(),
   contributor: Joi.string(),
   description: Joi.string(),
   auth: Joi.object().keys({
@@ -90,9 +93,9 @@ export const prerequisitesSchema = Joi.object().keys({
       .items(Joi.string())
       .required(),
     otherwise: Joi.string(),
-  }).required(),
+  }),
   version: [Joi.string(), Joi.number()],
-});
+}).unknown();
 
 const deploymentSchema = Joi.object().keys({
   name: Joi.string()
