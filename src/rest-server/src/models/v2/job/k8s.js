@@ -750,6 +750,7 @@ const generateFrameworkDescription = (
       taskRoleDescription.task.pod.spec.priorityClassName =
         'pai-job-minimal-priority';
     }
+    // mount job secrets to initContainers & job container
     if (config.secrets) {
       taskRoleDescription.task.pod.spec.volumes.push({
         name: 'job-secrets',
@@ -766,6 +767,21 @@ const generateFrameworkDescription = (
         mountPath: '/usr/local/pai/secrets',
       });
     }
+    // mount token-secrets to initContainers & job container
+    taskRoleDescription.task.pod.spec.volumes.push({
+      name: 'token-secrets',
+      secret: {
+        secretName: `${encodeName(frameworkName)}-tokencred`,
+      },
+    });
+    taskRoleDescription.task.pod.spec.initContainers[0].volumeMounts.push({
+      name: 'token-secrets',
+      mountPath: '/usr/local/pai/secrets',
+    });
+    taskRoleDescription.task.pod.spec.containers[0].volumeMounts.push({
+      name: 'token-secrets',
+      mountPath: '/usr/local/pai/secrets',
+    });
     frameworkDescription.spec.taskRoles.push(taskRoleDescription);
   }
   frameworkDescription.metadata.annotations.totalGpuNumber = `${totalGpuNumber}`;
@@ -832,9 +848,8 @@ const getConfigSecretDef = (frameworkName, secrets) => {
 };
 
 const getTokenSecretDef = (frameworkName, token) => {
-  // TODO: check key / value 
   const data = {
-    'token': Buffer.from(yaml.safeDump(token)).toString('base64'),
+    'token': Buffer.from(token).toString('base64'),
   };
   return {
     apiVersion: 'v1',
