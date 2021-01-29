@@ -97,6 +97,8 @@ spec:
 {%- else %}
           value: "{{ cluster_cfg['pylon']['uri']}}"
 {%- endif %}
+        - name: REST_SERVER_URI
+          value: "{{ cluster_cfg['rest-server']['uri']}}"
 {% if not cluster_cfg['authentication']['OIDC'] %}
         - name: AUTHN_METHOD
           value: basic

@@ -444,6 +444,10 @@ const generateTaskRole = (
                   value: apiserver.uri,
                 },
                 {
+                  name: 'REST_SERVER_URI',
+                  value: process.env.REST_SERVER_URI,
+                },
+                {
                   name: 'GANG_ALLOCATION',
                   value: gangAllocation,
                 },
@@ -750,7 +754,7 @@ const generateFrameworkDescription = (
       taskRoleDescription.task.pod.spec.priorityClassName =
         'pai-job-minimal-priority';
     }
-    // mount job secrets to initContainers & job container
+    // mount job secrets to initContainers & job container if exist
     if (config.secrets) {
       taskRoleDescription.task.pod.spec.volumes.push({
         name: 'job-secrets',
