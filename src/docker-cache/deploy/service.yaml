@@ -12,6 +12,7 @@ template-list:
   - docker-cache-secret.yaml
   - docker-cache.yaml
   - docker-cache-service.yaml
+  - start.sh.template
 
 start-script: start.sh
 stop-script: stop.sh
