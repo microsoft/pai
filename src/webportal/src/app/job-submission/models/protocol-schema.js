@@ -80,6 +80,7 @@ export const prerequisitesSchema = Joi.object().keys({
     .valid(['data', 'script', 'dockerimage', 'output'])
     .required(),
   plugin: Joi.string(),
+  require: Joi.array().items(Joi.string()),
   contributor: Joi.string(),
   description: Joi.string(),
   auth: Joi.object().keys({

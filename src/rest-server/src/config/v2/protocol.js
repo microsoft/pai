@@ -89,7 +89,13 @@ const protocolSchema = {
                     enum: ['script', 'output'],
                   },
                   plugin: {
-                    type: 'string'
+                    type: 'string',
+                  },
+                  require: {
+                    type: 'array',
+                    items: {
+                      type: 'string',
+                    },
                   },
                   uri: {
                     type: 'string',
@@ -113,7 +119,13 @@ const protocolSchema = {
                     enum: ['data'],
                   },
                   plugin: {
-                    type: 'string'
+                    type: 'string',
+                  },
+                  require: {
+                    type: 'array',
+                    items: {
+                      type: 'string',
+                    },
                   },
                   uri: {
                     type: 'array',
@@ -209,7 +221,7 @@ const protocolSchema = {
               type: 'array',
               items: {
                 type: 'string',
-              }
+              },
             },
             dockerImage: {
               type: 'string',
