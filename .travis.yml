@@ -1,0 +1,118 @@
+sudo: required
+dict: xenial
+matrix:
+  include:
+    - language: go
+      go: 1.13.8
+      before_install:
+        - cd src/watchdog/src
+      install:
+        - echo "Skipping default install phase"
+      script:
+        - go build ./cmd/watchdog/main.go
+        - go test ./pkg/watchdog
+
+    - language: python
+      python: 2.7
+      install:
+        - pip install dnspython==1.13.0 paramiko pyyaml jinja2 python-etcd kubernetes GitPython
+      script:
+        - python -m unittest deployment.clusterObjectModel.test.test_cluster_object_model
+        - python -m unittest deployment.clusterObjectModel.test.test_template_generate
+        - python -m unittest deployment.clusterObjectModel.test.test_forward_compatibility
+        - cd deployment
+        - python -m unittest discover test/
+
+    - language: python
+      python: 3.7
+      before_install:
+        - cd src/job-exporter/test
+      install:
+        - pip install prometheus_client
+      script:
+        - python3 -m unittest discover .
+
+    - language: python
+      python: 3.6
+      before_install:
+        - cd src/yarn-exporter/test
+      install:
+        - pip install prometheus_client twisted requests
+      script:
+        - python3 -m unittest discover .
+
+    - language: python
+      python: 3.8
+      install:
+        - pip install markdown==2.6.11
+      script:
+        - python src/utilities/doc_checker.py .
+
+    - language: java
+      dist: trusty
+      jdk: oraclejdk8
+      before_install:
+        - cd subprojects/frameworklauncher/yarn
+      install:
+        - mvn install -DskipTests=true -Dmaven.javadoc.skip=true -B -V
+      script:
+        - mvn clean test jacoco:report
+
+    - language: java
+      jdk: openjdk8
+      before_install:
+        - cd subprojects/frameworklauncher/yarn
+      install:
+        - mvn install -DskipTests=true -Dmaven.javadoc.skip=true -B -V
+      script:
+        - mvn clean test jacoco:report
+
+    - language: node_js
+      node_js: lts/dubnium
+      env: NODE_ENV=test
+      before_install:
+        - cd src/rest-server
+      install:
+        - yarn install
+      script:
+        - npm test
+        - npm run coveralls
+
+    - language: node_js
+      node_js: lts/carbon
+      before_install:
+        - cd src/webportal
+      install:
+        - yarn install
+        - npm run build
+      script:
+        - npm test
+
+    - language: node_js
+      node_js: lts/dubnium
+      before_install:
+        - cd src/webportal
+      install:
+        - yarn install --ignore-engines
+        - npm run build
+      script:
+        - npm test
+
+    - language: node_js
+      node_js: node
+      before_install: cd contrib/submit-simple-job
+      install: npm install
+      script: npm test
+
+    - language: node_js
+      node_js: lts/dubnium
+      before_install: cd contrib/submit-job-v2
+      install: yarn --frozen-lockfiles
+      script: yarn build
+
+    - language: node_js
+      node_js: node
+      install:
+        - npm install -g @apidevtools/swagger-cli
+      script:
+        - swagger-cli validate src/rest-server/docs/swagger.yaml

@@ -111,6 +111,7 @@ jobs:
         cd src/rest-server
         yarn install --frozen-lockfiles
         yarn test
+        mkdir ./coverage
         yarn run coveralls
 
     - name: Coveralls GitHub Action
@@ -118,7 +119,7 @@ jobs:
       with:
         github-token: ${{ secrets.GITHUB_TOKEN }}
         # Path to lcov file
-        path-to-lcov: ./coverage/lcov.info
+        path-to-lcov: ./src/rest-server/coverage/lcov.info
 
   webportal:
     name: Test webportal on node-${{ matrix.node }}-${{ matrix.os }}
