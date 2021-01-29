@@ -8,4 +8,4 @@
     - name: Restart service docker config from /etc/docker/daemon.json after update
       ansible.builtin.systemd:
         name: docker
-        state: restarted
+        state: reloaded
