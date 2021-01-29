@@ -66,7 +66,7 @@ jobs:
         pylint contrib/kubespray/script --rcfile=contrib/kubespray/script/pylintrc
 
   swagger-validate:
-    name: use swagger-cli to validate swagger
+    name: Validate swagger
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
