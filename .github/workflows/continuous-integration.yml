@@ -111,6 +111,7 @@ jobs:
         cd src/rest-server
         yarn install --frozen-lockfiles
         yarn test
+        yarn run coveralls
 
   webportal:
     name: Test webportal on node-${{ matrix.node }}-${{ matrix.os }}
