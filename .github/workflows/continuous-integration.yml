@@ -111,6 +111,27 @@ jobs:
         cd src/rest-server
         yarn install --frozen-lockfiles
         yarn test
+
+  code-coverage:
+    name: Test rest server on node-${{ matrix.node }}-${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        node: [10]
+        os: [ubuntu-latest]
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v1
+    - name: Use Node ${{ matrix.node }}
+      uses: actions/setup-node@v1
+      with:
+        node-version: ${{ matrix.node }}
+    - name: yarn install and test
+      run: |
+        cd src/rest-server
+        yarn install --frozen-lockfiles
+        yarn test
         mkdir ./coverage
         yarn run coveralls
 
