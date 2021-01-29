@@ -113,6 +113,13 @@ jobs:
         yarn test
         yarn run coveralls
 
+    - name: Coveralls GitHub Action
+      uses: coverallsapp/github-action@v1.1.1
+      with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        # Path to lcov file
+        path-to-lcov: ./coverage/lcov.info
+
   webportal:
     name: Test webportal on node-${{ matrix.node }}-${{ matrix.os }}
     runs-on: ${{ matrix.os }}
