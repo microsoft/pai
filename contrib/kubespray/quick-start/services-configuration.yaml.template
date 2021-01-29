@@ -33,6 +33,15 @@ cluster:
     # Must be lower case, e.g., regsecret.
     secret-name: pai-secret
 
+{% if env["cfg"]["enable_docker_cache"]|default(false) is sameas true %}
+docker-cache:
+  azure_account_name: {{ env["docker_cache"]["azure_account_name"] }}
+  azure_account_key: {{ env["docker_cache"]["azure_account_key"] }}
+  azure_container_name: {{ env["docker_cache"]["azure_container_name"] }}
+  remote_url: {{ env["docker_cache"]["remote_url"] }}
+  registry-htpasswd: {{ env["docker_cache"]["registry_htpasswd"] }}
+{% else %}
+{% endif %}
 
 rest-server:
 #  # launcher type. k8s or yarn

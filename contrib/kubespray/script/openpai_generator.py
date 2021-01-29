@@ -233,7 +233,7 @@ def get_hived_config(layout, cluster_config):
     return { "skus": skus }
 
 
-def get_docker_cache_mirrors(layout, cluster_config):
+def get_docker_cache_config_and_mirrors(layout, cluster_config):
     """
     generate hived config from layout.yaml and config.yaml
     Resources (gpu/cpu/mem) specified in layout.yaml is considered as the total resources.
@@ -247,7 +247,7 @@ def get_docker_cache_mirrors(layout, cluster_config):
 
     Returns:
     --------
-    list
+    dict, list
         docker-cache mirrors, used to render docker-cache mirrors template
         Example:
         {
@@ -256,7 +256,7 @@ def get_docker_cache_mirrors(layout, cluster_config):
             "azure_container_name": "dockerregistry",
             "remote_url": "",
             "registry-htpasswd": "",
-        }
+        }, [mirror_list]
     """
     pai_master_ips = []
     for machine in layout['machine-list']:
@@ -264,7 +264,21 @@ def get_docker_cache_mirrors(layout, cluster_config):
             pai_master_ips.append(machine['hostip'])
     docker_cache_mirrors = ["http://{}:30500/".format(ip) for ip in pai_master_ips]
 
-    return docker_cache_mirrors
+    if "docker_cache_azure_container_name" not in cluster_config:
+        cluster_config['docker_cache_azure_container_name'] = "dockerregistry"
+    if "docker_cache_remote_url" not in cluster_config:
+        cluster_config['docker_cache_remote_url'] = "https://registry-1.docker.io"
+    if "docker_cache_htpasswd" in cluster_config:
+        cluster_config["docker_cache_htpasswd"] = ""
+    docker_cache_config = {
+        "azure_acount_name": cluster_config['docker_cache_azure_account_name'],
+        "azure_accoutn_key": cluster_config['docker_cache_azure_account_key'],
+        "azure_container_name": cluster_config['docker_cache_azure_container_name'],
+        "remote_url": cluster_config['docker_cache_remote_url'],
+        "registry_htpasswd": cluster_config['docker_cache_htpasswd'],
+    }
+
+    return docker_cache_config, docker_cache_mirrors
 
 
 def main():
@@ -296,9 +310,9 @@ def main():
     # But if the user sets enable_hived_scheduler to true manually,
     # we should enable it.
     if 'enable_docker_cache' in cluster_config and cluster_config['enable_docker_cache'] is True:
-        docker_cache_mirrors = get_docker_cache_mirrors(layout, cluster_config)
+        docker_cache_config, docker_cache_mirrors = get_docker_cache_mirrors(layout, cluster_config)
     else:
-        docker_cache_mirrors = []
+        docker_cache_config, docker_cache_mirrors = {}, []
         cluster_config['enable_docker_cache'] = False
 
     if "openpai_docker_registry_mirrors" in cluster_config:
@@ -316,6 +330,7 @@ def main():
         'cfg': cluster_config,
         'head_node': head_node,
         'hived': hived_config,
+        "docker_cache": docker_cache_config,
     }
 
     map_table = {
