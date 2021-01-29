@@ -4,7 +4,7 @@
 # Licensed under the MIT License.
 
 pushd $(dirname "$0") > /dev/null
-{% if {{ cluster_cfg["enable_docker_cache"] }} is sameas true %}
+{% if {{ cluster_cfg["docker_cache"] }} is defined %}
 kubectl apply --overwrite=true -f docker-cache-config.yaml || exit $?
 kubectl apply --overwrite=true -f docker-cache-secret.yaml || exit $?
 kubectl apply --overwrite=true -f docker-cache.yaml || exit $?
