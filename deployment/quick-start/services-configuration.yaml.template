@@ -83,6 +83,8 @@ rest-server:
 #       smtp-from: alert-sender@example.com
 #       smtp-auth-username: alert-sender@example.com
 #       smtp-auth-password: password-for-alert-sender
+#   cluster-utilization: # cluster-utilization is a k8s CronJob which reports the GPU utilization of the cluster
+#     schedule: "0 0 * * *" by default daily report, refer to https://kubernetes.io/docs/concepts/workloads/controllers/cron-jobs/#cron-schedule-syntax
 #   customized-routes:
 #     routes:
 #     - receiver: pai-email-admin-user-and-stop-job
