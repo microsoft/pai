@@ -36,6 +36,10 @@ data:
       - receiver: pai-cordon-nodes
         match:
           alertname: NvidiaSmiDoubleEccError
+      
+      - receiver: pai-cluster-usage
+        match:
+          report_type: cluster-usage
 
       {% if 'routes' in cluster_cfg["alert-manager"]["customized-routes"] %}
       {% for route in cluster_cfg["alert-manager"]["customized-routes"]["routes"] %}
@@ -61,6 +65,13 @@ data:
       {% if 'email-admin' in cluster_cfg["alert-manager"]["actions-available"] %}
       - url: 'http://localhost:{{ cluster_cfg["alert-manager"]["alert-handler"]["port"] }}/alert-handler/send-email-to-admin'
         send_resolved: true
+      {% endif %}
+    
+    - name: "pai-cluster-usage"
+      webhook_configs:
+      {% if 'email-admin' in cluster_cfg["alert-manager"]["actions-available"] %}
+      - url: 'http://localhost:{{ cluster_cfg["alert-manager"]["alert-handler"]["port"] }}/alert-handler/send-email-to-admin/?template={{ cluster-usage }}'
+        send_resolved: false
       {% endif %}
 
     - name: pai-cordon-nodes

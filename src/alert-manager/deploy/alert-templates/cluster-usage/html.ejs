@@ -1,0 +1,59 @@
+{{ define "email.notice.html" }}
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta name="viewport" content="width=device-width"/>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<title><%= cluster_id %>: Cluster GPU utilization for One Week</title>
+</head>
+
+<body itemscope="" itemtype="http://schema.org/EmailMessage" style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; box-sizing: border-box; font-size: 16px; -webkit-font-smoothing: antialiased; -webkit-text-size-adjust: none; height: 100%; line-height: 1.6em; width: 100% !important; background-color: #f6f6f6; margin: 0; padding: 0;">
+  <h2 style="text-align:center">Cluster GPU utilization for one week</h2>
+  <table style="font-size: 16px; width: 100%; margin: 0;">
+    <% alerts.filter( element => element.labels.cluster_usage).forEach(function(alert){ %>
+    <tr>
+      <th>Cluster GPU utilization</th>
+      <td><%= alert.labels.cluster_usage %></td>
+    </tr>
+    <% }); %>
+  </table>
+  <br/>
+  <br/>
+  <h2 style="text-align:center">Job GPU utilization for one week</h2>
+  <table style="font-size: 16px; width: 100%; margin: 0; text-align:center;">
+    <tr>
+        <th>Job name</th>
+        <th>GPU utilization</th>
+        <th>Job duration</th>
+        <th>Job start time</th>
+        <th>Job status</th>
+        <th>GPU number</th>
+    </tr>
+    <% alerts.filter( element => element.labels.job_name & element.labels.job_usage).forEach(function(alert){ %>
+    <tr>
+        <td><%= alert.labels.job_name %></td>
+        <td><%= alert.labels.job_usage %></td>
+        <td><%= alert.labels.job_duration %></td>
+        <td><%= alert.labels.job_start_time %></td>
+        <td><%= alert.labels.job_status %></td>
+        <td><%= alert.labels.job_gpu_number %></td>
+    </tr>
+    <% }); %>
+  </table>
+  <br/>
+  <br/>
+  <h2 style="text-align:center">User GPU utilization for one week</h2>
+  <table style="font-size: 16px; width: 100%;margin: 0;text-align:center;">
+    <tr>
+      <th>User name</th>
+      <th>GPU utilization</th>
+    </tr>
+    <% alerts.filter( element => element.labels.user_name & element.labels.user_usage).forEach(function(alert){ %>
+    <tr>
+        <td><%= alert.labels.user_name %></td>
+        <td><%= alert.labels.user_usage %></td>
+    </tr>
+    <% }); %>
+  </table>
+</body>
+</html>
