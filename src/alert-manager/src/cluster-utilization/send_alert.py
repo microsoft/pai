@@ -38,7 +38,7 @@ def get_job_usage_info(job_usage_result, rest_url):
     job_usage = []
     job_list = []
     # get all jobs
-    headers = {'Authorization': TOKEN}
+    headers = {'Authorization': "Bearer {}".format(TOKEN)}
     resp = requests.get(rest_url, headers=headers)
     if resp.ok:
         job_list = resp.json()
@@ -49,7 +49,6 @@ def get_job_usage_info(job_usage_result, rest_url):
         job_infos[v["metric"]["job_name"]] = {"usage": v["value"][1][:6] + "%"}
     for job_name, job_info in job_infos.items():
         url = urllib.parse.urljoin(rest_url + "/", job_name)
-        headers = {'Authorization': TOKEN}
         resp = requests.get(url, headers=headers)
         if not resp.ok:
             logging.warning("request failed %s", resp.text)
