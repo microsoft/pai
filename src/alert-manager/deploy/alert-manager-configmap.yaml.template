@@ -70,7 +70,7 @@ data:
     - name: "pai-cluster-usage"
       webhook_configs:
       {% if 'email-admin' in cluster_cfg["alert-manager"]["actions-available"] %}
-      - url: 'http://localhost:{{ cluster_cfg["alert-manager"]["alert-handler"]["port"] }}/alert-handler/send-email-to-admin/?template={{ cluster-usage }}'
+      - url: 'http://localhost:{{ cluster_cfg["alert-manager"]["alert-handler"]["port"] }}/alert-handler/send-email-to-admin/?template=cluster-usage'
         send_resolved: false
       {% endif %}
 
