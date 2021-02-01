@@ -1,19 +1,19 @@
-import argparse
-from datetime import timezone, datetime, timedelta
+from datetime import timezone, datetime
 import logging
-import requests
-import urllib
 import os
+import urllib
+import requests
 
 CLUSTER_QUERY_STRING = "avg(avg_over_time(nvidiasmi_utilization_gpu[7d]))"
 JOB_QUERY_STRING = 'avg by (job_name) (avg_over_time(task_gpu_percent{username!="noves"}[7d]))'
-JOB_METRICS_COUNT_QUERY_STRING = 'max by (job_name) (count_over_time(task_gpu_percent{username!="noves"}[7d]))'
 # user used gpu hours / total gpu hours
-USER_QUERY_STRING = "(sum by (username) (sum_over_time(task_gpu_percent[7d]))) / (sum by (username) (count_over_time(task_gpu_percent[7d])*100)) * 100"
+USER_QUERY_STRING = \
+    "(sum by (username) (sum_over_time(task_gpu_percent[7d]))) / (sum by (username) (count_over_time(task_gpu_percent[7d])*100)) * 100"
+
 QUERY_PREFIX = "/prometheus/api/v1/query"
 ALERT_PREFIX = "/alert-manager/api/v1/alerts"
 REST_JOB_API_PREFIX = "/rest-server/api/v2/jobs"
-# int
+
 TOKEN = os.environ.get('PAI_BEARER_TOKEN')
 
 def enable_request_debug_log(func):
@@ -33,7 +33,7 @@ def enable_request_debug_log(func):
 
 
 @enable_request_debug_log
-def get_job_usage_info(job_usage_result, job_metrics_count, rest_url):
+def get_job_usage_info(job_usage_result, rest_url):
     job_infos = {}
     job_usage = []
     job_list = []
@@ -47,8 +47,8 @@ def get_job_usage_info(job_usage_result, job_metrics_count, rest_url):
 
     for v in job_usage_result["data"]["result"]:
         job_infos[v["metric"]["job_name"]] = {"usage": v["value"][1][:6] + "%"}
-    for k in job_infos.keys():
-        url = urllib.parse.urljoin(rest_url + "/", k)
+    for job_name, job_info in job_infos.items():
+        url = urllib.parse.urljoin(rest_url + "/", job_name)
         headers = {'Authorization': TOKEN}
         resp = requests.get(url, headers=headers)
         if not resp.ok:
@@ -58,33 +58,32 @@ def get_job_usage_info(job_usage_result, job_metrics_count, rest_url):
         if not resp_json["jobStatus"]["appLaunchedTime"]:
             logging.warning("job not start, ignore it")
             continue
-        job_infos[k]["start_time"] = datetime.fromtimestamp(
+        job_info["start_time"] = datetime.fromtimestamp(
             int(resp_json["jobStatus"]["appLaunchedTime"]) / 1000,
             timezone.utc)
         if not resp_json["jobStatus"]["appLaunchedTime"] or not resp_json[
                 "jobStatus"]["appCompletedTime"]:
-            job_infos[k]["duration"] = datetime.now(
-                timezone.utc) - job_infos[k]["start_time"]
+            job_info["duration"] = datetime.now(
+                timezone.utc) - job_info["start_time"]
         else:
-            job_infos[k]["duration"] = datetime.fromtimestamp(
+            job_info["duration"] = datetime.fromtimestamp(
                 int(resp_json["jobStatus"]["appCompletedTime"]) / 1000,
-                timezone.utc) - job_infos[k]["start_time"]
-        job_infos[k]["status"] = resp_json["jobStatus"]["state"]
+                timezone.utc) - job_info["start_time"]
+        job_info["status"] = resp_json["jobStatus"]["state"]
         matched_job = list(
-            filter(
-                lambda job: "{}~{}".format(job["username"], job["name"]) == k,
-                job_list))
+            filter(lambda job: "{}~{}".format(job["username"], job["name"]) == job_name,
+            job_list))
         if matched_job:
-            job_infos[k]["gpu_number"] = matched_job[0]["totalGpuNumber"]
+            job_info["gpu_number"] = matched_job[0]["totalGpuNumber"]
         else:
-            job_infos[k]["gpu_number"] = 0
-    for k, v in job_infos.items():
-        if "start_time" not in v:
+            job_info["gpu_number"] = 0
+    for job_name, job_info in job_infos.items():
+        if "start_time" not in job_info:
             continue
         job_usage.append(
-            (k, v["usage"], str(v["duration"]),
-             v["start_time"].strftime("%y-%m-%d %H:%M:%S"), v["status"],
-             str(v["gpu_number"])))
+            (job_name, job_info["usage"], str(job_info["duration"]),
+             job_info["start_time"].strftime("%y-%m-%d %H:%M:%S"), job_info["status"],
+             str(job_info["gpu_number"])))
     return job_usage
 
 
@@ -114,15 +113,10 @@ def collect_metrics(url):
     # job info
     logging.info("Start to getting job usage")
     resp = requests.get(query_url, params={"query": JOB_QUERY_STRING})
-    resp_count = requests.get(query_url,
-                              params={"query": JOB_METRICS_COUNT_QUERY_STRING})
     if not resp.ok:
         resp.raise_for_status()
-    if not resp_count.ok:
-        resp_count.raise_for_status()
     result = resp.json()
-    result_count = resp_count.json()
-    job_usage = get_job_usage_info(result, result_count, rest_url)
+    job_usage = get_job_usage_info(result, rest_url)
 
     return cluster_usage, job_usage, user_usage
 
@@ -186,10 +180,8 @@ def send_alert(pai_url: str, cluster_usage, job_usage, user_usage):
 
 def main():
     PAI_URI = os.environ.get("PAI_URI")
-
     # collect cluster gpu usage information
     cluster_usage, job_usage, user_usage = collect_metrics(PAI_URI)
-
     # send alert to alert manager
     send_alert(PAI_URI, cluster_usage, job_usage, user_usage)
 
