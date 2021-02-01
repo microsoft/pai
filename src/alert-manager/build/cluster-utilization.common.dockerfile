@@ -19,4 +19,4 @@ FROM python:3.7
 
 COPY ./src/cluster-utilization .
 
-ENTRYPOINT ["python3", "send-alert.py"]
+ENTRYPOINT ["python3", "send_alert.py"]
