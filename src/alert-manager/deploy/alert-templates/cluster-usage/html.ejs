@@ -9,7 +9,7 @@
 <body itemscope="" itemtype="http://schema.org/EmailMessage" style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; box-sizing: border-box; font-size: 16px; -webkit-font-smoothing: antialiased; -webkit-text-size-adjust: none; height: 100%; line-height: 1.6em; width: 100% !important; background-color: #f6f6f6; margin: 0; padding: 0;">
   <h2 style="text-align:center">Cluster GPU utilization for one week</h2>
   <table style="font-size: 16px; width: 100%; margin: 0;">
-    <% alerts.filter( element => element.labels.cluster_usage).forEach(function(alert){ %>
+    <% alerts.filter( element => typeof element.labels.cluster_usage !== 'undefined').forEach(function(alert){ %>
     <tr>
       <th>Cluster GPU utilization</th>
       <td><%= alert.labels.cluster_usage %></td>
@@ -28,7 +28,7 @@
         <th>Job status</th>
         <th>GPU number</th>
     </tr>
-    <% alerts.filter( element => element.labels.job_name & element.labels.job_usage).forEach(function(alert){ %>
+    <% alerts.filter( element => typeof element.labels.job_name !== 'undefined' && typeof element.labels.job_usage !== 'undefined').forEach(function(alert){ %>
     <tr>
         <td><%= alert.labels.job_name %></td>
         <td><%= alert.labels.job_usage %></td>
@@ -47,7 +47,7 @@
       <th>User name</th>
       <th>GPU utilization</th>
     </tr>
-    <% alerts.filter( element => element.labels.user_name & element.labels.user_usage).forEach(function(alert){ %>
+    <% alerts.filter( element => typeof element.labels.user_name !== 'undefined' && typeof element.labels.user_usage !== 'undefined').forEach(function(alert){ %>
     <tr>
         <td><%= alert.labels.user_name %></td>
         <td><%= alert.labels.user_usage %></td>
