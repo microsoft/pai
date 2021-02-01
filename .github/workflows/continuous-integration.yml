@@ -112,36 +112,6 @@ jobs:
         yarn install --frozen-lockfiles
         yarn test
 
-  code-coverage:
-    name: Run code coverage of rest-server on node-${{ matrix.node }}-${{ matrix.os }}
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        node: [10]
-        os: [ubuntu-latest]
-
-    steps:
-    - name: Checkout
-      uses: actions/checkout@v2
-    - name: Use Node ${{ matrix.node }}
-      uses: actions/setup-node@v1
-      with:
-        node-version: ${{ matrix.node }}
-    - name: yarn install and test
-      run: |
-        cd src/rest-server
-        yarn install --frozen-lockfiles
-        yarn test
-        mkdir ./coverage
-        yarn run coveralls
-
-    - name: Coveralls GitHub Action
-      uses: coverallsapp/github-action@v1.1.1
-      with:
-        github-token: ${{ secrets.GITHUB_TOKEN }}
-        # Path to lcov file
-        path-to-lcov: ./src/rest-server/coverage/lcov.info
-
   webportal:
     name: Test webportal on node-${{ matrix.node }}-${{ matrix.os }}
     runs-on: ${{ matrix.os }}
@@ -190,24 +160,3 @@ jobs:
         cd contrib/submit-job-v2
         yarn install --frozen-lockfiles
         yarn build
-
-  frameworklauncher:
-    name: Test frameworklauncher on java-${{ matrix.java }}-${{ matrix.os }}
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        java: [8.0]
-        os: [ubuntu-16.04, ubuntu-latest]
-
-    steps:
-    - name: Checkout
-      uses: actions/checkout@v2
-    - name: Setup java
-      uses: actions/setup-java@v1
-      with:
-        java-version: ${{ matrix.java }}
-    - name: Test frameworklauncher
-      run: |
-        cd subprojects/frameworklauncher/yarn
-        mvn install -DskipTests=true -Dmaven.javadoc.skip=true -B -V
-        mvn clean test jacoco:report
