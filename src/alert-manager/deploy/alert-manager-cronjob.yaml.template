@@ -48,3 +48,4 @@ spec:
               value: {{ cluster_cfg["alert-manager"]["alert-handler"]["pai-bearer-token"] }}
           imagePullSecrets:
           - name: {{ cluster_cfg["cluster"]["docker-registry"]["secret-name"] }}
+          restartPolicy: OnFailure
