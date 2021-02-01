@@ -27,5 +27,7 @@ alert-handler:
   log-level: 'info'
   port: 9095
   configured: False
+cluster-utilization:
+  schedule: '0 0 * * *'
 use-pylon: False
 repeat-interval: '24h'

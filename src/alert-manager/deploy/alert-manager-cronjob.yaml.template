@@ -27,8 +27,7 @@ kind: CronJob
 metadata:
   name: cluster-utilization
 spec:
-  # schedule: "0 0 * * *"   # daily
-  schedule: "* * * * *"   # minutely, for test only
+  schedule: {{ cluster_cfg["alert-manager"]["cluster-utilization"]["schedule"] }}
   jobTemplate:
     spec:
       template:

@@ -243,7 +243,7 @@ Remember to re-build and push the docker image, and restart the `alert-manager` 
 
 ```bash
 ./build/pai_build.py build -c /cluster-configuration/ -s alert-manager
-./build/pai_build.py push -c /cluster-configuration/ -i alert-handler
+./build/pai_build.py push -c /cluster-configuration/ -i alert-handler cluster-utilization
 ./paictl.py service stop -n alert-manager
 ./paictl.py config push -p /cluster-configuration -m service
 ./paictl.py service start -n alert-manager
