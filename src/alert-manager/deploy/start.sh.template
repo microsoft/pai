@@ -34,6 +34,7 @@ kubectl create configmap alert-templates \
 kubectl apply --overwrite=true -f rbac.yaml || exit $?
 kubectl apply --overwrite=true -f alert-manager-configmap.yaml || exit $?
 kubectl apply --overwrite=true -f alert-manager-deployment.yaml || exit $?
+kubectl apply --overwrite=true -f alert-manager-cronjob.yaml || exit $?
 
 sleep 10
 # wait until the service is ready.

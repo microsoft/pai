@@ -3,6 +3,7 @@ from datetime import timezone, datetime, timedelta
 import logging
 import requests
 import urllib
+import os
 
 CLUSTER_QUERY_STRING = "avg(avg_over_time(nvidiasmi_utilization_gpu[7d]))"
 JOB_QUERY_STRING = 'avg by (job_name) (avg_over_time(task_gpu_percent{username!="noves"}[7d]))'
@@ -10,11 +11,10 @@ JOB_METRICS_COUNT_QUERY_STRING = 'max by (job_name) (count_over_time(task_gpu_pe
 # user used gpu hours / total gpu hours
 USER_QUERY_STRING = "(sum by (username) (sum_over_time(task_gpu_percent[7d]))) / (sum by (username) (count_over_time(task_gpu_percent[7d])*100)) * 100"
 QUERY_PREFIX = "/prometheus/api/v1/query"
-ALERT_PREFIX = "/api/v1/alerts"
+ALERT_PREFIX = "/alert-manager/api/v1/alerts"
 REST_JOB_API_PREFIX = "/rest-server/api/v2/jobs"
-TOKEN = "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImJpbnlsaSIsImFwcGxpY2F0aW9uIjp0cnVlLCJpYXQiOjE2MDU0MjU1NjB9.7-4HOICNJy9DvdDlJEdaNX__bx4mQbtyxSjJO96d910"
 # int
-TOKEN = "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6Imd1c3VpIiwiYXBwbGljYXRpb24iOnRydWUsImlhdCI6MTYxMTkxMzgwMX0.A4ScIsZLsD4TBJ4glganEMDVU01rfEm16Lb0Lwqb-2o"
+TOKEN = os.environ.get('PAI_BEARER_TOKEN')
 
 def enable_request_debug_log(func):
     def wrapper(*args, **kwargs):
@@ -128,10 +128,10 @@ def collect_metrics(url):
 
 
 @enable_request_debug_log
-def send_alert(url: str, cluster_usage, job_usage, user_usage):
+def send_alert(pai_url: str, cluster_usage, job_usage, user_usage):
     trigger_time = str(datetime.now(timezone.utc).date())
     logging.info("Starting to send alerts")
-    post_url = url.rstrip("/") + ALERT_PREFIX
+    post_url = pai_url.rstrip("/") + ALERT_PREFIX
     # for cluster
     payload = [{
         "labels": {
@@ -185,12 +185,13 @@ def send_alert(url: str, cluster_usage, job_usage, user_usage):
 
 
 def main():
-    parser = argparse.ArgumentParser()
-    parser.add_argument("pai_url", help="pai url")
-    parser.add_argument("alert_manager_url", help="alert manager url")
-    args = parser.parse_args()
-    cluster_usage, job_usage, user_usage = collect_metrics(args.pai_url)
-    send_alert(args.alert_manager_url, cluster_usage, job_usage, user_usage)
+    PAI_URI = os.environ.get("PAI_URI")
+
+    # collect cluster gpu usage information
+    cluster_usage, job_usage, user_usage = collect_metrics(PAI_URI)
+
+    # send alert to alert manager
+    send_alert(PAI_URI, cluster_usage, job_usage, user_usage)
 
 
 if __name__ == "__main__":
