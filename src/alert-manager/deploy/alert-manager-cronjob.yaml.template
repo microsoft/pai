@@ -28,7 +28,7 @@ metadata:
   name: cluster-utilization
 spec:
   # schedule: "0 0 * * *"   # daily
-  schedule: "0 1 * * *"   # minutely, for test only
+  schedule: "0 * * * *"   # minutely, for test only
   jobTemplate:
     spec:
       template:
