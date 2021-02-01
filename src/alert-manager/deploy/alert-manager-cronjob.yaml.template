@@ -37,8 +37,6 @@ spec:
           - name: cluster-utilization
             image: {{ cluster_cfg['cluster']['docker-registry']['prefix'] }}cluster-utilization:{{ cluster_cfg['cluster']['docker-registry']['tag'] }}
             imagePullPolicy: Always
-            imagePullSecrets:
-            - name: {{ cluster_cfg["cluster"]["docker-registry"]["secret-name"] }}
             env:
             - name: PAI_URI
     {%- if "ssl" in cluster_cfg["pylon"] and cluster_cfg["pylon"]["ssl"] %}
@@ -48,3 +46,5 @@ spec:
     {%- endif %}
             - name: PAI_BEARER_TOKEN
               value: {{ cluster_cfg["alert-manager"]["alert-handler"]["pai-bearer-token"] }}
+          imagePullSecrets:
+          - name: {{ cluster_cfg["cluster"]["docker-registry"]["secret-name"] }}
