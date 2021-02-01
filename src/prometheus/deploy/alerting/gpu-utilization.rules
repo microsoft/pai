@@ -22,6 +22,16 @@
 groups:
     - name: gpu_utilization
       rules:
+      - alert: ClusterUtilization
+        # triggered at UTF time 00:00:00 - 00:01 everyday
+        expr: avg(avg_over_time(nvidiasmi_utilization_gpu[7d])) and vector(time() % 86400) >= 60*60*0 <=60*60*0+1000000
+        labels:
+          severity: info
+          report_type: cluster-usage
+          cluster_usage: avg(avg_over_time(nvidiasmi_utilization_gpu[7d]))
+          user_usage: avg(avg_over_time(nvidiasmi_utilization_gpu[7d]))
+          job_usage: avg by (job_name) (avg_over_time(task_gpu_percent{username!="noves"}[7d]))
+
       - alert: ClusterGpuUtilization
         # triggered at UTF time 00:00:00 - 00:01 everyday
         expr: avg(avg_over_time(nvidiasmi_utilization_gpu[7d])) and vector(time() % 86400) >= 60*60*0 <=60*60*0+1000000
