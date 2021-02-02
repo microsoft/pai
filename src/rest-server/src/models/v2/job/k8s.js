@@ -780,11 +780,11 @@ const generateFrameworkDescription = (
     });
     taskRoleDescription.task.pod.spec.initContainers[0].volumeMounts.push({
       name: 'token-secrets',
-      mountPath: '/usr/local/pai/secrets',
+      mountPath: '/usr/local/pai/token-secrets',
     });
     taskRoleDescription.task.pod.spec.containers[0].volumeMounts.push({
       name: 'token-secrets',
-      mountPath: '/usr/local/pai/secrets',
+      mountPath: '/usr/local/pai/token-secrets',
     });
     frameworkDescription.spec.taskRoles.push(taskRoleDescription);
   }
