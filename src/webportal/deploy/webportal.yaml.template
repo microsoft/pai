@@ -103,9 +103,11 @@ spec:
 {% endif %}
               },
 {% endif %}
+{% if cluster_cfg['webportal']['plugins']|length > 0 %}
 {% for item in cluster_cfg['webportal']['plugins'] %}
-                {{item}}
+                {{item}},
 {% endfor %}
+{% endif %}
             ]
         ports:
         - name: webportal
