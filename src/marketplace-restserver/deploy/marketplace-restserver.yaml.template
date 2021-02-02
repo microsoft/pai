@@ -21,16 +21,32 @@ spec:
         image: {{ cluster_cfg["cluster"]["docker-registry"]["prefix"] }}marketplace-restserver:{{ cluster_cfg["cluster"]["docker-registry"]["tag"] }}
         imagePullPolicy: Always
         env:
-        - name: DB_USERNAME
-          value: {{ cluster_cfg["marketplace-restserver"]["db_user"] }}
-        - name: DB_PASSWORD
-          value: {{ cluster_cfg["marketplace-restserver"]["db_password"] }}
-        - name: DATABASE
-          value: {{ cluster_cfg["marketplace-restserver"]["db"] }}
         - name: DB_HOST
           value: {{ cluster_cfg["marketplace-restserver"]["db_host"] }}
+        - name: DB_USERNAME
+{% if 'db_user' in cluster_cfg["marketplace-restserver"] %}
+          value: {{ cluster_cfg["marketplace-restserver"]["db_user"] }}
+{% else %}
+          value: {{ cluster_cfg["marketplace-db"]["user"] }}
+{% endif %}
+        - name: DB_PASSWORD
+{% if 'db_password' in cluster_cfg["marketplace-restserver"] %}
+          value: {{ cluster_cfg["marketplace-restserver"]["db_password"] }}
+{% else %}
+          value: {{ cluster_cfg["marketplace-db"]["passwd"] }}
+{% endif %}
+        - name: DATABASE
+{% if 'db' in cluster_cfg["marketplace-restserver"] %}
+          value: {{ cluster_cfg["marketplace-restserver"]["db"] }}
+{% else %}
+          value: {{ cluster_cfg["marketplace-db"]["db"] }}
+{% endif %}
         - name: DB_PORT
-          value: "{{ cluster_cfg["marketplace-restserver"]["db_port"] }}"
+{% if 'db_port' in cluster_cfg["marketplace-restserver"] %}
+          value: {{ cluster_cfg["marketplace-restserver"]["db_port"] }}
+{% else %}
+          value: {{ cluster_cfg["marketplace-db"]["port"] }}
+{% endif %}
         - name: NODE_ENV
           value: production
         - name: PORT

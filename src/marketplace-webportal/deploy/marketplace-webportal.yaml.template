@@ -22,7 +22,11 @@ spec:
         imagePullPolicy: Always
         env:
         - name: MARKETPLACE_API_URL
+{% if 'marketplace_api_uri' in cluster_cfg['marketplace-webportal'] %}
           value: {{ cluster_cfg["marketplace-webportal"]["marketplace_api_uri"] }}
+{% else %}
+          value: {{ cluster_cfg["marketplace-restserver"]["uri"] }}
+{% endif %}
         - name: SERVER_PORT
           value: "{{ cluster_cfg["marketplace-webportal"]["server-port"] }}"
         - name: NPM_INSTALL_TOKEN

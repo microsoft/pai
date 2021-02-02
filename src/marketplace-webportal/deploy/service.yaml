@@ -6,6 +6,7 @@ cluster-type:
 
 prerequisite:
   - cluster-configuration
+  - marketplace-restserver
 
 template-list:
   - marketplace-webportal.yaml
