@@ -853,7 +853,7 @@ const getConfigSecretDef = (frameworkName, secrets) => {
 
 const getTokenSecretDef = (frameworkName, token) => {
   const data = {
-    'token': Buffer.from(token).toString('base64'),
+    token: Buffer.from(token).toString('base64'),
   };
   return {
     apiVersion: 'v1',
@@ -865,7 +865,7 @@ const getTokenSecretDef = (frameworkName, token) => {
     data: data,
     type: 'Opaque',
   };
-}
+};
 
 const list = async (
   attributes,
@@ -1102,9 +1102,9 @@ const put = async (frameworkName, config, rawConfig) => {
   const configSecretDef = config.secrets
     ? getConfigSecretDef(frameworkName, config.secrets)
     : null;
-  
+
   // create an application token
-  const token = await tokenModel.create(username, true);
+  const token = await tokenModel.create(userName, true);
   // generate the application token secret definition
   const tokenSecretDef = getTokenSecretDef(frameworkName, token);
 
