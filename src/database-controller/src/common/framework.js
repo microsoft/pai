@@ -293,12 +293,13 @@ class Snapshot {
 }
 
 // Class Add-ons handles creation/patching/deletion of job add-ons.
-// Currently there are 3 types of add-ons: configSecret, priorityClass, and dockerSecret.
+// Currently there are 4 types of add-ons: configSecret, priorityClass, dockerSecret, and tokenSecret.
 class AddOns {
   constructor(
     configSecretDef = null,
     priorityClassDef = null,
     dockerSecretDef = null,
+    tokenSecretDef = null,
   ) {
     if (configSecretDef !== null && !(configSecretDef instanceof Object)) {
       this._configSecretDef = JSON.parse(configSecretDef);
@@ -314,6 +315,11 @@ class AddOns {
       this._dockerSecretDef = JSON.parse(dockerSecretDef);
     } else {
       this._dockerSecretDef = dockerSecretDef;
+    }
+    if (tokenSecretDef !== null && !(tokenSecretDef instanceof Object)) {
+      this._tokenSecretDef = JSON.parse(tokenSecretDef);
+    } else {
+      this._tokenSecretDef = tokenSecretDef;
     }
   }
 
@@ -357,6 +363,19 @@ class AddOns {
         }
       }
     }
+    if (this._tokenSecretDef) {
+      try {
+        await k8s.createSecret(this._tokenSecretDef);
+      } catch (err) {
+        if (err.response && err.response.statusCode === 409) {
+          logger.warn(
+            `Secret ${this._tokenSecretDef.metadata.name} already exists.`,
+          );
+        } else {
+          throw err;
+        }
+      }
+    }
   }
 
   silentPatch(frameworkResponse) {
@@ -368,6 +387,10 @@ class AddOns {
     this._dockerSecretDef &&
       k8s
         .patchSecretOwnerToFramework(this._dockerSecretDef, frameworkResponse)
+        .catch(logError);
+    this._tokenSecretDef &&
+      k8s
+        .patchSecretOwnerToFramework(this._tokenSecretDef, frameworkResponse)
         .catch(logError);
   }
 
@@ -381,6 +404,8 @@ class AddOns {
         .catch(logError);
     this._dockerSecretDef &&
       k8s.deleteSecret(this._dockerSecretDef.metadata.name).catch(logError);
+    this._tokenSecretDef &&
+      k8s.deleteSecret(this._tokenSecretDef.metadata.name).catch(logError);
   }
 
   getUpdate() {
@@ -393,6 +418,9 @@ class AddOns {
     }
     if (this._dockerSecretDef) {
       update.dockerSecretDef = JSON.stringify(this._dockerSecretDef);
+    }
+    if (this._tokenSecretDef) {
+      update.tokenSecretDef = JSON.stringify(this._tokenSecretDef);
     }
     return update;
   }
