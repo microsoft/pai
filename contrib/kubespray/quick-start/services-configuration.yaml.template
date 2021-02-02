@@ -7,6 +7,7 @@ cluster:
     data-path: "/datastorage"
     qos-switch: "{{ env["cfg"]["qos-switch"] | default('false') }}"
     docker-data-root: "{{ env['cfg']['docker_data_root'] | default('/mnt/docker') }}"
+    marketplace: "true"
 
   # the docker registry to store docker images that contain system services like frameworklauncher, hadoop, etc.
   docker-registry:
@@ -205,15 +206,15 @@ authentication:
 #         alertname: PAIJobGpuPercentLowerThan0_3For1h
 #   customized-receivers: # receivers are combination of several actions
 #   - name: "pai-email-admin-user-and-stop-job"
-#     actions: 
+#     actions:
 #       # the email template for `email-admin` and `email-user `can be chosen from ['general-template', 'kill-low-efficiency-job-alert']
 #       # if no template specified, 'general-template' will be used.
 #       email-admin:
-#       email-user:  
+#       email-user:
 #         template: 'kill-low-efficiency-job-alert'
 #       stop-jobs: # no parameters required for stop-jobs action
 #       tag-jobs:
-#         tags: 
+#         tags:
 #         - 'stopped-by-alert-manager'
 
 # uncomment following if you want to customize prometheus

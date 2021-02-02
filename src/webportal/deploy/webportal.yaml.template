@@ -91,7 +91,22 @@ spec:
         - name: WEBPORTAL_PLUGINS
           # A raw JSON formatted value is required here.
           value: |
-            {{ cluster_cfg['webportal']['plugins'] }}
+            [
+{% if cluster_cfg['cluster']['common']['marketplace'] == "true" %}
+              {
+                "id": "marketplace",
+                "title": "Marketplace",
+{% if "ssl" in cluster_cfg["pylon"] and cluster_cfg["pylon"]["ssl"] %}
+                "uri": "{{ cluster_cfg['pylon']['uri-https']}}/marketplace/plugin.js"
+{% else %}
+                "uri": "{{ cluster_cfg['pylon']['uri']}}/marketplace/plugin.js"
+{% endif %}
+              },
+{% endif %}
+{% for item in cluster_cfg['webportal']['plugins'] %}
+                {{item}}
+{% endfor %}
+            ]
         ports:
         - name: webportal
           containerPort: 8080
