@@ -23,32 +23,28 @@ spec:
         env:
         - name: DB_HOST
           value: {{ cluster_cfg["marketplace-restserver"]["db_host"] }}
-{% if 'db_user' in cluster_cfg['marketplace-restserver'] %}
         - name: DB_USERNAME
+{% if 'db_user' in cluster_cfg["marketplace-restserver"] %}
           value: {{ cluster_cfg["marketplace-restserver"]["db_user"] }}
 {% else %}
-        - name: DB_USERNAME
           value: {{ cluster_cfg["marketplace-db"]["user"] }}
 {% endif %}
-{% if 'db_password' in cluster_cfg['marketplace-restserver'] %}
         - name: DB_PASSWORD
+{% if 'db_password' in cluster_cfg["marketplace-restserver"] %}
           value: {{ cluster_cfg["marketplace-restserver"]["db_password"] }}
 {% else %}
-        - name: DB_PASSWORD
           value: {{ cluster_cfg["marketplace-db"]["passwd"] }}
 {% endif %}
-{% if 'db' in cluster_cfg['marketplace-restserver'] %}
         - name: DATABASE
+{% if 'db' in cluster_cfg["marketplace-restserver"] %}
           value: {{ cluster_cfg["marketplace-restserver"]["db"] }}
 {% else %}
-        - name: DATABASE
           value: {{ cluster_cfg["marketplace-db"]["db"] }}
 {% endif %}
-{% if 'db_port' in cluster_cfg['marketplace-restserver'] %}
         - name: DB_PORT
-          value: {{ cluster_cfg["marketplace-restserver"]["db_port"] }}
+{% if 'db_port' in cluster_cfg["marketplace-restserver"] %}
+          value: '{{ cluster_cfg["marketplace-restserver"]["db_port"] }}'
 {% else %}
-        - name: DB_PORT
           value: {{ cluster_cfg["marketplace-db"]["port"] }}
 {% endif %}
         - name: NODE_ENV
