@@ -445,7 +445,7 @@ const generateTaskRole = (
                 },
                 {
                   name: 'REST_SERVER_URI',
-                  value: process.env.REST_SERVER_URI,
+                  value: launcherConfig.restServerUri,
                 },
                 {
                   name: 'GANG_ALLOCATION',
@@ -1104,6 +1104,7 @@ const put = async (frameworkName, config, rawConfig) => {
     : null;
 
   // create an application token
+  // TODO: need a mechanism to label this token as job specific token and revoke it if job is stopped / failed
   const token = await tokenModel.create(userName, true);
   // generate the application token secret definition
   const tokenSecretDef = getTokenSecretDef(frameworkName, token);
