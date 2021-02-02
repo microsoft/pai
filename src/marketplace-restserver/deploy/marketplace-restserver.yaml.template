@@ -45,7 +45,7 @@ spec:
 {% if 'db_port' in cluster_cfg["marketplace-restserver"] %}
           value: '{{ cluster_cfg["marketplace-restserver"]["db_port"] }}'
 {% else %}
-          value: {{ cluster_cfg["marketplace-db"]["port"] }}
+          value: '{{ cluster_cfg["marketplace-db"]["port"] }}'
 {% endif %}
         - name: NODE_ENV
           value: production
