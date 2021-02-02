@@ -98,7 +98,7 @@ Go into folder `~/pai-deploy/kubespray/`, run:
 ansible-playbook -i inventory/pai/hosts.yml cluster.yml -b --become-user=root --limit=new-worker-node-0,new-worker-node-1 -e "@inventory/pai/openpai.yml"
 ```
 
-The nodes to add are specified with `--limit` flag.
+The nodes to add are specified with the `--limit` flag.
 
 ### Update OpenPAI Service Configuration
 
@@ -142,7 +142,7 @@ Go into `~/pai-deploy/kubespray/`, run
 ansible-playbook -i inventory/pai/hosts.yml remove-node.yml -b --become-user=root -e "node=worker-node-to-remove-0,worker-node-to-remove-1" -e "@inventory/pai/openpai.yml"
 ``` 
 
-The nodes to remove are specified with `-e` flag.
+The nodes to remove are specified with the `-e` flag.
 
 Modify the `layout.yaml` and `services-configuration.yaml`.
 
