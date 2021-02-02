@@ -21,10 +21,11 @@ spec:
         image: {{ cluster_cfg["cluster"]["docker-registry"]["prefix"] }}marketplace-webportal:{{ cluster_cfg["cluster"]["docker-registry"]["tag"] }}
         imagePullPolicy: Always
         env:
-        - name: MARKETPLACE_API_URL
 {% if 'marketplace_api_uri' in cluster_cfg['marketplace-webportal'] %}
+        - name: MARKETPLACE_API_URL
           value: {{ cluster_cfg["marketplace-webportal"]["marketplace_api_uri"] }}
 {% else %}
+        - name: MARKETPLACE_API_URL
           value: {{ cluster_cfg["marketplace-restserver"]["uri"] }}
 {% endif %}
         - name: SERVER_PORT
