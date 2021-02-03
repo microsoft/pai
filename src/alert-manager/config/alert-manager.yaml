@@ -28,6 +28,6 @@ alert-handler:
   port: 9095
   configured: False
 cluster-utilization:
-  schedule: '0 0 * * *'
+  configured: False
 use-pylon: False
 repeat-interval: '24h'
