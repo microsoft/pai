@@ -21,19 +21,19 @@ const SSHListDialog = ({ onDismiss, onAddPublickeys }) => {
   const [inputValueError, setInputValueError] = useState('');
   const [processing, setProcessing] = useState(false);
   const [title, setTitle] = useState('');
-  const [sshValue, setValue] = useState('');
+  const [value, setValue] = useState('');
 
   const onAddAsync = async () => {
     if (title.trim() === '') {
       setInputTitleError('Please input title');
-    } else if (sshValue.trim() === '') {
+    } else if (value.trim() === '') {
       setInputValueError('Please input ssk value');
     } else {
       setProcessing(true);
       try {
         await onAddPublickeys({
           title: title.trim(),
-          sshValue: sshValue.trim(),
+          value: value.trim(),
           time: new Date().getTime(),
         });
       } catch (error) {

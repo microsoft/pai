@@ -48,8 +48,8 @@ const SSHlist = ({ sshKeys, onDeleteSSHkeys }) => {
       onRender(ssh) {
         return (
           <div className={c(t.flex, t.itemsCenter, t.h100)}>
-            <div className={t.truncate}>{ssh.sshValue}</div>
-            <CopyButton value={ssh.sshValue} />
+            <div className={t.truncate}>{ssh.value}</div>
+            <CopyButton value={ssh.value} />
           </div>
         );
       },

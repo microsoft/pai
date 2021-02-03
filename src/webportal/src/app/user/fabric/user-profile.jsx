@@ -155,7 +155,7 @@ const UserProfile = () => {
     }
     updatedSSHPublickeys.push({
       title: sshPublicKeys.title,
-      sshValue: sshPublicKeys.sshValue,
+      value: sshPublicKeys.value,
       time: sshPublicKeys.time,
     });
     await updateUserRequest(userInfo.username, updatedSSHPublickeys);
@@ -172,7 +172,7 @@ const UserProfile = () => {
     updatedSSHPublickeys = updatedSSHPublickeys.filter(
       item =>
         item.title !== sshPublicKeys.title &&
-        item.value !== sshPublicKeys.sshValue,
+        item.value !== sshPublicKeys.value,
     );
     await updateUserRequest(userInfo.username, updatedSSHPublickeys);
     const updatedUserInfo = await getUserRequest(userInfo.username);
