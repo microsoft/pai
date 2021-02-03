@@ -179,7 +179,7 @@ export const getUserRequest = async username => {
   });
 };
 
-export const updateUserRequest = async (username, sskMessage) => {
+export const updateUserRequest = async (username, sshMessage) => {
   const url = `${config.restServerUri}/api/v2/users/me`;
   const token = checkToken();
   return fetchWrapper(url, {
@@ -191,7 +191,7 @@ export const updateUserRequest = async (username, sskMessage) => {
       data: {
         username: username,
         extension: {
-          sshKeys: sskMessage,
+          sshKeys: sshMessage,
         },
       },
       patch: true,

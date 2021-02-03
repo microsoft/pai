@@ -15,7 +15,7 @@ import {
 
 import t from '../../../components/tachyons.scss';
 
-const SSHListDialog = ({ onDismiss, onAddPublickeys }) => {
+const SSHListDialog = ({ sshKeys, onDismiss, onAddPublickeys }) => {
   const [error, setError] = useState('');
   const [inputTitleError, setInputTitleError] = useState('');
   const [inputValueError, setInputValueError] = useState('');
@@ -26,8 +26,18 @@ const SSHListDialog = ({ onDismiss, onAddPublickeys }) => {
   const onAddAsync = async () => {
     if (title.trim() === '') {
       setInputTitleError('Please input title');
-    } else if (value.trim() === '') {
-      setInputValueError('Please input SSH value');
+    } else if (
+      sshKeys !== undefined &&
+      sshKeys.filter(item => item.title === title.trim()).length > 0
+    ) {
+      setInputTitleError('This title already exists, please re-input');
+    } else if (
+      value.trim() === '' ||
+      !value.trim().match(/^ssh-rsa AAAA[0-9A-Za-z+/]+[=]{0,3}.*$/)
+    ) {
+      setInputValueError(
+        'Please input correct SSH Public key, it should be starting with ssh-rsa.',
+      );
     } else {
       setProcessing(true);
       try {
@@ -62,7 +72,7 @@ const SSHListDialog = ({ onDismiss, onAddPublickeys }) => {
         <div>
           <div className={t.mt1}>
             <TextField
-              label='title'
+              label='Title (Please give the SSH key a name):'
               required={true}
               errorMessage={inputTitleError}
               onChange={e => {
@@ -74,7 +84,7 @@ const SSHListDialog = ({ onDismiss, onAddPublickeys }) => {
           </div>
           <div className={t.mt1}>
             <TextField
-              label='value'
+              label='Value (SSH Public key, starts with ssh-rsa):'
               required={true}
               errorMessage={inputValueError}
               onChange={e => {
@@ -121,6 +131,7 @@ const SSHListDialog = ({ onDismiss, onAddPublickeys }) => {
 };
 
 SSHListDialog.propTypes = {
+  sshKeys: PropTypes.array.isRequired,
   onDismiss: PropTypes.func.isRequired,
   onAddPublickeys: PropTypes.func.isRequired,
 };

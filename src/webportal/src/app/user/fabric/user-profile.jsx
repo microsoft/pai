@@ -170,9 +170,7 @@ const UserProfile = () => {
       updatedSSHPublickeys = cloneDeep(userInfo.extension.sshKeys);
     }
     updatedSSHPublickeys = updatedSSHPublickeys.filter(
-      item =>
-        item.title !== sshPublicKeys.title &&
-        item.value !== sshPublicKeys.value,
+      item => item.title !== sshPublicKeys.title,
     );
     await updateUserRequest(userInfo.username, updatedSSHPublickeys);
     const updatedUserInfo = await getUserRequest(userInfo.username);
@@ -255,6 +253,7 @@ const UserProfile = () => {
             {/* dialog for add public ssh keys */}
             {showAddSSHpublicKeysDialog && (
               <SSHListDialog
+                sshKeys={userInfo.extension.sshKeys}
                 onDismiss={() => setShowAddSSHpublicKeysDialog(false)}
                 onAddPublickeys={onAddPublicKeys}
               />
