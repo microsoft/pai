@@ -16,12 +16,6 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
-{% if cluster_cfg["alert-manager"]["use-pylon"] %}
-{% set external_url = cluster_cfg["pylon"]["uri"] %}
-{% else %}
-{% set external_url = cluster_cfg["alert-manager"]["url"] %}
-{% endif %}
-
 apiVersion: batch/v1beta1
 kind: CronJob
 metadata:

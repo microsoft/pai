@@ -40,10 +40,8 @@ def get_job_usage_info(job_usage_result, rest_url):
     # get all jobs
     headers = {'Authorization': "Bearer {}".format(TOKEN)}
     resp = requests.get(rest_url, headers=headers)
-    if resp.ok:
-        job_list = resp.json()
-    else:
-        logging.warning("Failed to get job list")
+    resp.raise_for_status()
+    job_list = resp.json()
 
     for v in job_usage_result["data"]["result"]:
         job_infos[v["metric"]["job_name"]] = {"usage": v["value"][1][:6] + "%"}
@@ -54,16 +52,18 @@ def get_job_usage_info(job_usage_result, rest_url):
             logging.warning("request failed %s", resp.text)
             continue
         resp_json = resp.json()
+        # get job duration
         if not resp_json["jobStatus"]["appLaunchedTime"]:
             logging.warning("job not start, ignore it")
             continue
         job_info["start_time"] = datetime.fromtimestamp(
             int(resp_json["jobStatus"]["appLaunchedTime"]) / 1000,
             timezone.utc)
-        if not resp_json["jobStatus"]["appLaunchedTime"] or not resp_json[
-                "jobStatus"]["appCompletedTime"]:
+        # job has not finished
+        if not resp_json["jobStatus"]["appCompletedTime"]:
             job_info["duration"] = datetime.now(
                 timezone.utc) - job_info["start_time"]
+        # job has finished
         else:
             job_info["duration"] = datetime.fromtimestamp(
                 int(resp_json["jobStatus"]["appCompletedTime"]) / 1000,
@@ -94,16 +94,14 @@ def collect_metrics(url):
 
     # cluster info
     resp = requests.get(query_url, params={"query": CLUSTER_QUERY_STRING})
-    if not resp.ok:
-        resp.raise_for_status()
+    resp.raise_for_status()
     result = resp.json()
     cluster_usage = result["data"]["result"][0]["value"][1][:6] + "%"
 
     # user info
     logging.info("Start to getting user average usage")
     resp = requests.get(query_url, params={"query": USER_QUERY_STRING})
-    if not resp.ok:
-        resp.raise_for_status()
+    resp.raise_for_status()
     result = resp.json()
     user_usage = []
     for v in result["data"]["result"]:
@@ -112,8 +110,7 @@ def collect_metrics(url):
     # job info
     logging.info("Start to getting job usage")
     resp = requests.get(query_url, params={"query": JOB_QUERY_STRING})
-    if not resp.ok:
-        resp.raise_for_status()
+    resp.raise_for_status()
     result = resp.json()
     job_usage = get_job_usage_info(result, rest_url)
 
@@ -136,8 +133,7 @@ def send_alert(pai_url: str, cluster_usage, job_usage, user_usage):
         "generatorURL": "alert/script"
     }]
     resp = requests.post(post_url, json=payload)
-    if not resp.ok:
-        resp.raise_for_status()
+    resp.raise_for_status()
 
     # for job
     for job in job_usage:
@@ -156,8 +152,7 @@ def send_alert(pai_url: str, cluster_usage, job_usage, user_usage):
             "generatorURL": "alert/script"
         }]
         resp = requests.post(post_url, json=payload)
-        if not resp.ok:
-            resp.raise_for_status()
+        resp.raise_for_status()
 
     # for user
     for user in user_usage:
@@ -172,8 +167,7 @@ def send_alert(pai_url: str, cluster_usage, job_usage, user_usage):
             "generatorURL": "alert/script"
         }]
         resp = requests.post(post_url, json=payload)
-        if not resp.ok:
-            resp.raise_for_status()
+        resp.raise_for_status()
     logging.info("Finished sending alerts")
 
 
