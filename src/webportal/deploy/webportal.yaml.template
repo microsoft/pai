@@ -92,7 +92,7 @@ spec:
           # A raw JSON formatted value is required here.
           value: |
             [
-{% if cluster_cfg['cluster']['common']['marketplace'] == "true" %}
+{% if cluster_cfg['cluster']['common']['marketplace'] == "true" and cluster_cfg['webportal']['marketplace'] == "true" %}
               {
                 "id": "marketplace",
                 "title": "Marketplace",
