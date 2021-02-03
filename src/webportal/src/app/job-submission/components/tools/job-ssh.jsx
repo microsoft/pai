@@ -5,16 +5,15 @@ import { cloneDeep, isEmpty, isNil } from 'lodash';
 import { TooltipIcon } from '../controls/tooltip-icon';
 import {
   PAI_PLUGIN,
-  USERSSH_TYPE_OPTIONS,
   SSH_KEY_BITS,
   PROTOCOL_TOOLTIPS,
 } from '../../utils/constants';
+import { Hint } from '../sidebar/hint';
 import { SSHPlugin } from '../../models/plugin/ssh-plugin';
 import SSHGenerator from './ssh-generator';
 
 import {
   DefaultButton,
-  Dropdown,
   FontWeights,
   Toggle,
   Stack,
@@ -61,16 +60,6 @@ export const JobSSH = ({ extras, onExtrasChange }) => {
       onExtrasChange(updatedExtras);
     },
     [extras],
-  );
-
-  const _onUsersshTypeChange = useCallback(
-    (_, item) => {
-      _onChangeExtras('userssh', {
-        type: item.key,
-        value: '',
-      });
-    },
-    [extras, _onChangeExtras],
   );
 
   const _onUsersshValueChange = useCallback(
@@ -128,36 +117,32 @@ export const JobSSH = ({ extras, onExtrasChange }) => {
         onChange={_onUsersshEnable}
       />
       {!isEmpty(sshPlugin.userssh) && (
-        <Stack horizontal gap='l1'>
-          <Dropdown
-            placeholder='Select user ssh key type...'
-            options={USERSSH_TYPE_OPTIONS}
-            onChange={_onUsersshTypeChange}
-            selectedKey={sshPlugin.userssh.type}
-            disabled={Object.keys(USERSSH_TYPE_OPTIONS).length <= 1}
-          />
-          <TextField
-            placeholder='Enter ssh public key'
-            disabled={sshPlugin.userssh.type === 'none'}
-            errorMessage={
-              isEmpty(sshPlugin.getUserSshValue())
-                ? 'Please Enter Valid SSH public key'
-                : null
-            }
-            onChange={_onUsersshValueChange}
-            value={sshPlugin.getUserSshValue()}
-          />
-          <DefaultButton onClick={ev => openSshGenerator(ev)}>
-            SSH Key Generator
-          </DefaultButton>
-          {sshGenerator.isOpen && (
-            <SSHGenerator
-              isOpen={sshGenerator.isOpen}
-              bits={sshGenerator.bits}
-              hide={hideSshGenerator}
-              onSshKeysChange={_onSshKeysGenerated}
+        <Stack gap='l1'>
+          <Hint>
+            Your pre-defined SSH public keys on the{' '}
+            <a href='/user-profile.html'>User Profile</a> page will be set
+            automatically.
+          </Hint>
+          <Stack horizontal gap='l1'>
+            <TextField
+              Lable='Add additional ssh public key'
+              placeholder='Additional ssh public key'
+              disabled={sshPlugin.userssh.type === 'none'}
+              onChange={_onUsersshValueChange}
+              value={sshPlugin.getUserSshValue()}
             />
-          )}
+            <DefaultButton onClick={ev => openSshGenerator(ev)}>
+              Generator
+            </DefaultButton>
+            {sshGenerator.isOpen && (
+              <SSHGenerator
+                isOpen={sshGenerator.isOpen}
+                bits={sshGenerator.bits}
+                hide={hideSshGenerator}
+                onSshKeysChange={_onSshKeysGenerated}
+              />
+            )}
+          </Stack>
         </Stack>
       )}
     </Stack>

@@ -77,6 +77,7 @@ const UserProfile = () => {
     false,
   );
   const [processing, setProcessing] = useState(false);
+  const [sshProcessing, setSSHProcessing] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -147,6 +148,7 @@ const UserProfile = () => {
 
   // click `add public ssh keys button` -> open dialog
   const onAddPublicKeys = useCallback(async sshPublicKeys => {
+    setSSHProcessing(true);
     let updatedSSHPublickeys = [];
     if (userInfo.extension.sshKeys) {
       updatedSSHPublickeys = cloneDeep(userInfo.extension.sshKeys);
@@ -159,6 +161,7 @@ const UserProfile = () => {
     await updateUserRequest(userInfo.username, updatedSSHPublickeys);
     const updatedUserInfo = await getUserRequest(userInfo.username);
     setUserInfo(updatedUserInfo);
+    setSSHProcessing(false);
   });
 
   const onDeleteSSHkeys = useCallback(async sshPublicKeys => {
@@ -252,7 +255,7 @@ const UserProfile = () => {
             headerButton={
               <DefaultButton
                 onClick={() => setShowAddSSHpublicKeysDialog(true)}
-                disabled={processing}
+                disabled={sshProcessing}
               >
                 Add SSH Public Keys
               </DefaultButton>

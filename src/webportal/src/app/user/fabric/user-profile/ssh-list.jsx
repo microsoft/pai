@@ -37,7 +37,8 @@ const SSHlist = ({ sshKeys, onDeleteSSHkeys }) => {
   const [processing, setProcessing] = useState(false);
   const [hideDeleteDialog, setHideDeleteDialog] = useState(true);
   const [deleteSSHItem, setDeleteSSHItem] = useState({});
-  const sshList = sshKeys.sort((a, b) => b.time - a.time);
+  const sshList =
+    sshKeys !== undefined ? sshKeys.sort((a, b) => b.time - a.time) : sshKeys;
   const sshColumns = [
     {
       key: 'value',
