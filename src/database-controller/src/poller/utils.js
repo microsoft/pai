@@ -9,8 +9,8 @@ function isUnrecoverableResponse(response) {
   const statusCode = _.get(response, 'statusCode', 0);
   const message = _.get(response, 'body.message', '');
   if (statusCode === 413) {
-    // Code 413 means Payload Too Large
-    // It happens when we use PATCH to a framework, and the PATCH's payload is too large.
+    // Code 413 means Payload Too Large.
+    // It happens when we PATCH a framework, and the PATCH's payload is too large.
     return true;
   } else if (
     statusCode === 500 &&
@@ -18,7 +18,7 @@ function isUnrecoverableResponse(response) {
       'code = ResourceExhausted desc = trying to send message larger than max',
     ) !== -1
   ) {
-    // If we POST a large framework, Kubernetes API server raise this error.
+    // If we POST a large framework, Kubernetes API server will raise this error.
     return true;
   } else if (statusCode === 422) {
     // If the request is not valid, Kubernetes API server will return code 422.

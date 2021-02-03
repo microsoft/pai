@@ -101,7 +101,7 @@ function synchronizeHandler(snapshot, addOns, pollingTs) {
       }),
     )
     .catch(err => {
-      // if we are the error is not recoverable, we will mock a failed framework,
+      // if we are sure the error is not recoverable, we will mock a failed framework,
       // and record this in events
       if (_.has(err, 'response') && isUnrecoverableResponse(err.response)) {
         logger.warn(
