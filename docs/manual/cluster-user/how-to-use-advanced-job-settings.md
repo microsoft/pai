@@ -8,7 +8,7 @@ It is common to train models with different parameters. OpenPAI supports paramet
 
 You can define batch size, learning rate, or whatever you want as parameters to accelerate your job submission.
 
-In some cases, it is desired to define some secret messages such as password, token, etc. You can use the `Secrets` section for the information. The usage is the same as parameters except that secrets will not be displayed or recorded.
+In some cases, it is desired to define some secret messages such as password, token, etc. You can use the `Secrets` section for the definition. The usage is the same as parameters except that secrets will not be displayed or recorded.
 
 ## Multiple Task Roles
 
@@ -16,9 +16,9 @@ If you use the `Distributed` button to submit jobs, then you can add different t
 
    <img src="./imgs/distributed-job.png" width="60%" height="60%" />
 
-What is task role? For single server jobs, there is only one task role. For distributed jobs, there may be multiple task roles. For example, when TensorFlow is used to running distributed jobs, it has two roles, including the parameter server and the worker.
+What is task role? For single server jobs, there is only one task role. For distributed jobs, there may be multiple task roles. For example, when TensorFlow is used to run distributed jobs, it has two roles, including the parameter server and the worker.
 
-`Instances` in the following picture is the number of instances of certain task role. In distributed jobs, it depends on how many instances are needed for a task role. For example, if it's 8 in a worker role of TensorFlow. It means there should be 8 Docker containers for the worker role.
+`Instances` in the following picture is the number of instances of certain task role. In distributed jobs, it depends on how many instances are needed for a task role. For example, if you set instances to 8 for a TensorFlow worker task role, it means there should be 8 Docker containers for the worker role.
 
    <img src="./imgs/taskrole-and-instance.png" width="100%" height="100%" />
 
@@ -50,7 +50,7 @@ Some environmental variables are in association with ports. In OpenPAI, you can 
 
 The ports you reserved are available in environmental variables like `PAI_PORT_LIST_$taskRole_$taskIndex_$portLabel`, where `$taskIndex` means the instance index of that task role.
 
-For a detailed summary, there are two ways to reference a declared port (list)
+For a detailed summary, there are two ways to reference a declared port (list):
 
 - use [Indirection](https://stackoverflow.com/a/16553351/1012014) supported by `bash` as below 
 ```bash
@@ -84,7 +84,7 @@ Firstly, let's look at `Retry count` and `Completion policy`.
 
 In `Completion policy`, there are settings for `Min Failed Instances` and `Min Succeed Instances`. `Min Failed Instances` means the number of failed tasks to fail the entire job. It should be -1 or no less than 1. If it is set to -1, the job will always succeed regardless of any task failure. Default value is 1, which means 1 failed task will cause an entire job failure. `Min Succeed Instances` means the number of succeeded tasks to succeed the entire job. It should be -1 or no less than 1. If it is set to -1, the job will only succeed until all tasks are completed and `Min Failed Instances` is not triggered. Default value is -1.
 
-If a job doesn't succeed after it satisfies `Completion policy`, the failure is caused by an unknown error, and `Retry count` is larger than 0, the whole job will be retried. Set `Retry count` to a larger number if you need more retries.
+If a job: 1. doesn't succeed after it satisfies `Completion policy`, 2. fails with an unknown error, and 3. has a `Retry count` larger than 0, the whole job will be retried. Set `Retry count` to a larger number if you need more retries.
 
 Finally, for `Task retry count`, it is the maximum retry number for a single task. A special notice is that, this setting won't work unless you set `extras.gangAllocation` to `false` in the [job protocol](#job-protocol-export-and-import-jobs).
 
@@ -98,7 +98,7 @@ Use the `Save` button to apply any changes:
 
    <img src="./imgs/click-save-yaml.png" width="100%" height="100%" />
 
-You can also export and import YAML files using the `Export` and `Import` button.
+You can also export and import YAML files using the `Export` and `Import` buttons.
 
    <img src="./imgs/export-and-import.png" width="100%" height="100%" />
 

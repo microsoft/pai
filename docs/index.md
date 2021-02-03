@@ -16,4 +16,4 @@ To set up a new cluster, learn how to manage cluster on OpenPAI, please follow [
 
 To view a general introduction of OpenPAI, please refer to the [Github Readme](https://github.com/microsoft/pai/blob/master/README.md).
 
-For any issue/bug/feature request, please submit it to [GitHub](https://github.com/microsoft/pai).
+For any issue/bug feedback or feature pull request, please submit it to [GitHub](https://github.com/microsoft/pai).

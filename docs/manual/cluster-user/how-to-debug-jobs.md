@@ -38,9 +38,9 @@ chmod 400 <your-private-key-file-path> && ssh -p <ssh-port> -i <your-private-key
 
 **Option 2. Use your Own Keys**
 
-If you are familiar with SSH key authentication, you would probably have generated a public key and a private key already, in the folder `C:\Users\<your-user-name>\.ssh` (it is `~/.ssh/` on a Unix-like system). There is an `id_rsa.pub` file and an `id_rsa` file in such folder, which are the public key and the private key, respectively. 
+If you are familiar with SSH key authentication, you would probably have generated a public key and a private key already, in the `.ssh` subfolder under your user folder (`C:\Users\<your-user-name>` on Windows and `~` on a Unix-like system). There is an `id_rsa.pub` file and an `id_rsa` file in such folder, which contains the public key and the private key, respectively. 
 
-To use them, open the `id_rsa.pub` and copy its content to the SSH plugin, then submit the job. Do not use the key generator.
+To use them, open the `id_rsa.pub` and copy its content to the SSH plugin, then submit the job. There is no need to use the key generator.
 
    <img src="./imgs/copy-ssh-public-key.png" width="60%" height="60%" />
 
@@ -69,12 +69,12 @@ After submission, you will see a `Go to TensorBoard Page` button on the job deta
 
    <img src="./imgs/go-to-tensorboard-page.png" width="100%" height="100%" />
 
-The button will bring you to the TensorBoard page. You might wait a few minutes until the log is ready:
+The button will bring you to the TensorBoard page. You might wait for a few minutes until the log is ready:
 
    <img src="./imgs/tensorboard-ok.png" width="100%" height="100%" />
 
 Generally speaking, to use the TensorBoard plugin, you should:
 
-  1. Save your TensorFlow summary logs to `/mnt/tensorboard`
+  1. Save your TensorFlow summary logs to `/mnt/tensorboard`.
   2. Make sure `tensorboard` is installed in the docker image you use.
   3. Use the `sleep` command to extend the job lifetime, if you want TensorBoard available after job completes. 

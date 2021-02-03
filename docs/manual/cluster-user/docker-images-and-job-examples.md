@@ -30,7 +30,7 @@ Apart from it, OpenPAI provides many out-of-the-box images for different deep le
 | openpai/standard |    python_3.6-mxnet_1.5.1-cpu    |       -      |            -            |
 | openpai/standard |      python_3.6-cntk_2.7-cpu     |       -      |            -            |
 
-The tag of these images indicates the version of the built-in deep learning framework and whether it supports GPU. Some GPU-supported dockers require a high version of your NVIDIA driver, because of the requirement of CUDA. If you are not sure about the driver version of the cluster, please ask your administrator.
+The tag of these images indicates the version of the built-in deep learning framework and whether it supports GPU. According to the requirement of CUDA, some GPU-supported dockers require a high version of NVIDIA driver. If you are not sure about the driver version of the cluster, please ask your administrator.
 
 ## Job Examples based on Pre-built Images
 
@@ -45,7 +45,7 @@ There are also CPU/GPU/Multi-GPU/Horovod job examples for TensorFlow. Please che
 
 ## Use Your Own Custom Image
 
-If you want to build your own custom image instead of pre-built images, it is recommended to build it basing on ubuntu system, which includes bash, apt and other required dependency. Then you could add any requirements your job needs in the docker image, for example, python, pip and tensorflow etc. Please take care of potential conflicts when adding additional dependencies.
+If you want to build your own custom image instead of pre-built images, it is recommended to build it basing on ubuntu system, which includes bash, apt and other required dependency. Then you could add any requirements your job needs in the docker image, such as python, pip and tensorflow. Please take care of potential conflicts when adding additional dependencies.
 
 ## How to use Images from Private Registry
 

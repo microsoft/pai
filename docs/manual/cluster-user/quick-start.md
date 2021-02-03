@@ -20,11 +20,11 @@ Click `Stdout` and `Stderr` button to see the stdout and stderr logs for a job o
 
 <img src="./imgs/view-logs.png" width="90%" height="90%" />
 
-As shown in the following picture, we will only show last 16KB logs in the dialog. Click `View Full Log` for a full log.
+As shown in the following screenshot, we will only show last 16KB logs in the dialog. Click `View Full Log` for a full log.
 
 <img src="./imgs/view-stderr.png" width="90%" height="90%" />
 
-On the job detail page, you can also see metrics by clicking `Go to Job Metrics Page`. Then the CPU/GPU utilization and network will be shown in a new window:
+On the job detail page, you can also see metrics by clicking `Go to Job Metrics Page`. Then the data (including CPU / GPU utilization, network usage, etc.) will be displayed in a new window:
 
 <img src="./imgs/view-metrics.gif" width="90%" height="90%" />
 
@@ -49,7 +49,7 @@ python download_and_convert_data.py --dataset_name=cifar10 --dataset_dir=/tmp/da
 python train_image_classifier.py --dataset_name=cifar10 --dataset_dir=/tmp/data --max_number_of_steps=1000
 ```
 
-Note: Please **Do Not** use `#` for comments or use `\` for line continuation in the command box. These symbols may break the syntax and will be supported in the future.
+Note: Please **DO NOT** use `#` for comments or use `\` for line continuation in the command box. These symbols may break the syntax and will be supported in the future.
 
 <img src="./imgs/input-command.png" width="90%" height="90%" />
 
@@ -65,10 +65,10 @@ Note: Please **Do Not** use `#` for comments or use `\` for line continuation in
 
 Here are some detailed explanations about configurations on the submission page:
 
-- **Job name** is the name of current job. It must be unique in each user account. A meaningful name helps manage jobs well.
+- **Job name** is the name of current job. It must be unique in within all jobs of the same user account. A meaningful name helps manage jobs well.
 
 - **Command** is the commands to run in this task role. It can be multiple lines. For example, in the hello-world job, the command clones code from GitHub, downloads data and then executes the training progress. If one command fails (exits with a nonzero code), the following commands will not be executed. This behavior may be changed in the future.
 
-- **GPU count**, **CPU vcore count**, **Memory (MB)** are easy to understand. They specify corresponding hardware resources including the number of GPUs, the number of CPU cores, and MB of memory.
+- **GPU count**, **CPU vcore count**, **Memory (MB)** are easy to understand. They specify corresponding hardware resources including the number of GPUs, the number of CPU cores, and the amount of memory in MB.
 
 We will introduce more details about the job configuration in [`How to Use Advanced Job Settings`](./how-to-use-advanced-job-settings.md).

@@ -6,15 +6,15 @@ You should first have at least one permitted storage to manage data in OpenPAI. 
 
 ![view profile](./imgs/view-profile.png "view profile")
 
-Then all storages you have access to will be shown:
+Then all storages you have access to will be displayed:
 
 ![storage config](./imgs/storage-config.png "storage config")
 
-If you don't find any storage, please contact the cluster administrator.
+If the display list is empty, please contact the cluster administrator.
 
 ## Upload data
 
-There are multiple types of storage. We introduce how to upload data to `NFS`, `AzureBlob` and `AzureFile` storage as examples.
+There are multiple types of storage. We will introduce how to upload data to `NFS`, `AzureBlob` and `AzureFile` storage as examples.
 
 ### Upload data to NFS
 
@@ -35,7 +35,7 @@ sudo mount -t nfs4 NFS_SERVER:/NFS_PATH MOUNT_PATH
 
 Copy your data to the mount point will upload your data to `NFS`.
 
-The `NFS_SERVER` and `NFS_PATH` can be found in the storage section on your profile page.
+The `NFS_SERVER` and `NFS_PATH` can be found in the `Storage` section on your profile page.
 
 #### Upload data to NFS server in Windows
 
@@ -62,15 +62,15 @@ For Azure File, you can get the `storage account name` and `file share name` on 
 
 To upload data to Azure Blob or Azure File, please:
 
-1. Download [Azure Storage Explorer](https://azure.microsoft.com/en-us/features/storage-explorer/)
-2. If you use AAD to login to PAI portal, the administrator should already grant you the permission to access storage. You can get the `storage account name`, `container name` and `file share name` on the profile page. Please use them to access storage in `Azure Storage Explorer`. For more details, please refer to [storage explore: add resource via azure ad](https://docs.microsoft.com/en-us/azure/vs-azure-tools-storage-manage-with-storage-explorer?tabs=windows#add-a-resource-via-azure-ad)
-3. If you use basic authentication (username/password) to login to PAI portal. Please ask your administrator for the storage `access key`. Then you can add the storage by `access key` and `storage account name`. For more details, please refer to: [storage explore: use name and key](https://docs.microsoft.com/en-us/azure/vs-azure-tools-storage-manage-with-storage-explorer?tabs=windows#use-a-name-and-key)
+1. Download and install [Azure Storage Explorer](https://azure.microsoft.com/en-us/features/storage-explorer/).
+2. If you use AAD to login to PAI portal, the administrator should already grant you the permission to access storage. You can get the `storage account name`, `container name` and `file share name` on the profile page. Please use them to access storage in `Azure Storage Explorer`. For more details, please refer to [storage explore: add resource via azure ad](https://docs.microsoft.com/en-us/azure/vs-azure-tools-storage-manage-with-storage-explorer?tabs=windows#add-a-resource-via-azure-ad).
+3. If you use basic authentication (username/password) to login to PAI portal, please ask your administrator for the storage `access key`. Then you can add the storage by `access key` and `storage account name`. For more details, please refer to: [storage explore: use name and key](https://docs.microsoft.com/en-us/azure/vs-azure-tools-storage-manage-with-storage-explorer?tabs=windows#use-a-name-and-key).
 
 ## Use Storage in Jobs
 
 ### Use Data Section UI
 
-You can use the `Data` Section on the job submission page to select desired storage:
+You can select desired storage in the `Data` section on the job submission page:
 
 ![storage submit](./imgs/storage-submit-data.png "storage submit")
 
@@ -90,9 +90,9 @@ extras:
 
 There are two fields for each storage, `name` and `mountPath`. `name` refers to storage name while `mountPath` is the mount path inside job container. `mountPath` has default value `/mnt/${name}` and is optional.
 
+Set it to an empty list (as follows) will mount default storage for current user in the job.
+
 ```yaml
 extras:
     storages: []
 ```
-
-Set it to an empty list will mount default storage for current user in the job.
