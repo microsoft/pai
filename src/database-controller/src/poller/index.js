@@ -113,6 +113,7 @@ async function poll() {
         'configSecretDef',
         'priorityClassDef',
         'dockerSecretDef',
+        'tokenSecretDef',
         'snapshot',
         'subState',
         'requestSynced',
@@ -132,6 +133,7 @@ async function poll() {
         framework.configSecretDef,
         framework.priorityClassDef,
         framework.dockerSecretDef,
+        framework.tokenSecretDef,
       );
       if (framework.subState === 'Completed') {
         deleteHandler(snapshot, pollingTs);

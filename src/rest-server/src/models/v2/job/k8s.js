@@ -24,6 +24,7 @@ const launcherConfig = require('@pai/config/launcher');
 const createError = require('@pai/utils/error');
 const protocolSecret = require('@pai/utils/protocolSecret');
 const userModel = require('@pai/models/v2/user');
+const tokenModel = require('@pai/models/token');
 const storageModel = require('@pai/models/v2/storage');
 const logger = require('@pai/config/logger');
 const { apiserver } = require('@pai/config/kubernetes');
@@ -443,6 +444,10 @@ const generateTaskRole = (
                   value: apiserver.uri,
                 },
                 {
+                  name: 'REST_SERVER_URI',
+                  value: launcherConfig.restServerUri,
+                },
+                {
                   name: 'GANG_ALLOCATION',
                   value: gangAllocation,
                 },
@@ -749,6 +754,7 @@ const generateFrameworkDescription = (
       taskRoleDescription.task.pod.spec.priorityClassName =
         'pai-job-minimal-priority';
     }
+    // mount job secrets to initContainers & job container if exist
     if (config.secrets) {
       taskRoleDescription.task.pod.spec.volumes.push({
         name: 'job-secrets',
@@ -765,6 +771,21 @@ const generateFrameworkDescription = (
         mountPath: '/usr/local/pai/secrets',
       });
     }
+    // mount token-secrets to initContainers & job container
+    taskRoleDescription.task.pod.spec.volumes.push({
+      name: 'token-secrets',
+      secret: {
+        secretName: `${encodeName(frameworkName)}-tokencred`,
+      },
+    });
+    taskRoleDescription.task.pod.spec.initContainers[0].volumeMounts.push({
+      name: 'token-secrets',
+      mountPath: '/usr/local/pai/token-secrets',
+    });
+    taskRoleDescription.task.pod.spec.containers[0].volumeMounts.push({
+      name: 'token-secrets',
+      mountPath: '/usr/local/pai/token-secrets',
+    });
     frameworkDescription.spec.taskRoles.push(taskRoleDescription);
   }
   frameworkDescription.metadata.annotations.totalGpuNumber = `${totalGpuNumber}`;
@@ -823,6 +844,22 @@ const getConfigSecretDef = (frameworkName, secrets) => {
     kind: 'Secret',
     metadata: {
       name: `${encodeName(frameworkName)}-configcred`,
+      namespace: 'default',
+    },
+    data: data,
+    type: 'Opaque',
+  };
+};
+
+const getTokenSecretDef = (frameworkName, token) => {
+  const data = {
+    token: Buffer.from(token).toString('base64'),
+  };
+  return {
+    apiVersion: 'v1',
+    kind: 'Secret',
+    metadata: {
+      name: `${encodeName(frameworkName)}-tokencred`,
       namespace: 'default',
     },
     data: data,
@@ -1053,7 +1090,7 @@ const put = async (frameworkName, config, rawConfig) => {
     config,
     rawConfig,
   );
-  // generate image pull secret
+  // generate the image pull secret definition
   const auths = Object.values(config.prerequisites.dockerimage)
     .filter((dockerimage) => dockerimage.auth != null)
     .map((dockerimage) => dockerimage.auth);
@@ -1061,10 +1098,16 @@ const put = async (frameworkName, config, rawConfig) => {
     ? getDockerSecretDef(frameworkName, auths)
     : null;
 
-  // generate job config secret
+  // generate the job config secret definition
   const configSecretDef = config.secrets
     ? getConfigSecretDef(frameworkName, config.secrets)
     : null;
+
+  // create an application token
+  // TODO: need a mechanism to label this token as job specific token and revoke it if job is stopped / failed
+  const token = await tokenModel.create(userName, true);
+  // generate the application token secret definition
+  const tokenSecretDef = getTokenSecretDef(frameworkName, token);
 
   // calculate pod priority
   // reference: https://github.com/microsoft/pai/issues/3704
@@ -1088,7 +1131,7 @@ const put = async (frameworkName, config, rawConfig) => {
     priorityClassDef = getPriorityClassDef(frameworkName, podPriority);
   }
 
-  // send request to framework controller
+  // send request to DB controller
   let response;
   try {
     response = await axios({
@@ -1103,6 +1146,7 @@ const put = async (frameworkName, config, rawConfig) => {
         configSecretDef: configSecretDef,
         priorityClassDef: priorityClassDef,
         dockerSecretDef: dockerSecretDef,
+        tokenSecretDef: tokenSecretDef,
       },
       headers: {
         'Content-Type': 'application/json',

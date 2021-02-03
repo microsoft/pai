@@ -188,6 +188,7 @@ async function patchFrameworkRequest(req, res, next) {
           'configSecretDef',
           'priorityClassDef',
           'dockerSecretDef',
+          'tokenSecretDef',
         ],
         where: { name: frameworkName },
       });
@@ -203,6 +204,7 @@ async function patchFrameworkRequest(req, res, next) {
           oldFramework.configSecretDef,
           oldFramework.priorityClassDef,
           oldFramework.dockerSecretDef,
+          oldFramework.tokenSecretDef,
         );
         return onModifyFrameworkRequest(oldSnapshot, snapshot, addOns);
       }
@@ -216,7 +218,7 @@ async function patchFrameworkRequest(req, res, next) {
 async function putFrameworkRequest(req, res, next) {
   // The handler to handle PUT /frameworkRequest.
   // PUT means provide a full spec of framework request, and the corresponding request will be created or updated.
-  // Along with the framework request, user must provide other job add-ons, e.g. configSecretDef, priorityClassDef, dockerSecretDef.
+  // Along with the framework request, user must provide other job add-ons, e.g. configSecretDef, priorityClassDef, dockerSecretDef, tokenSecretDef.
   // If the framework doesn't exist in database, the record will be created.
   // If the framework already exists, the record will be updated, and all job add-ons will be ignored. (Job add-ons can't be changed).
   // If the framework request JSON is changed(or created), we will mark it as requestSynced=false.
@@ -228,6 +230,7 @@ async function putFrameworkRequest(req, res, next) {
       configSecretDef,
       priorityClassDef,
       dockerSecretDef,
+      tokenSecretDef,
     } = req.body;
     const frameworkName = _.get(frameworkRequest, 'metadata.name');
     if (!frameworkName) {
@@ -259,6 +262,7 @@ async function putFrameworkRequest(req, res, next) {
           configSecretDef,
           priorityClassDef,
           dockerSecretDef,
+          tokenSecretDef,
         );
         return onCreateFrameworkRequest(snapshot, submissionTime, addOns);
       } else {
@@ -269,6 +273,7 @@ async function putFrameworkRequest(req, res, next) {
           oldFramework.configSecretDef,
           oldFramework.priorityClassDef,
           oldFramework.dockerSecretDef,
+          oldFramework.tokenSecretDef,
         );
         return onModifyFrameworkRequest(oldSnapshot, snapshot, addOns);
       }
