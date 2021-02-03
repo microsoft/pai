@@ -23,6 +23,21 @@ const mockFrameworkStatus = () => {
   };
 };
 
+const mockFailedFrameworkStatus = () => {
+  return {
+    state: 'Completed',
+    attemptStatus: {
+      completionStatus: null,
+      taskRoleStatuses: [],
+    },
+    retryPolicyStatus: {
+      retryDelaySec: null,
+      totalRetriedCount: 0,
+      accountableRetriedCount: 0,
+    },
+  };
+};
+
 const convertFrameworkState = (state, exitCode) => {
   switch (state) {
     case 'AttemptCreationPending':
@@ -289,6 +304,13 @@ class Snapshot {
       delete patchData.status;
     }
     this._snapshot = jsonmergepatch.apply(this._snapshot, patchData);
+  }
+
+  setFailed() {
+    // Manually set the framework's status to failed.
+    // This is used when we cannot sync the framework request to api server,
+    // and we're sure that the error is unrecoverable.
+    this._snapshot.status = mockFailedFrameworkStatus();
   }
 }
 

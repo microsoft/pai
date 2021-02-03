@@ -18,6 +18,8 @@ const interval = require('interval-promise');
 const config = require('@dbc/poller/config');
 const fetch = require('node-fetch');
 const { deleteFramework } = require('@dbc/common/k8s');
+const _ = require('lodash');
+const { isUnrecoverableResponse, generateClusterEventUpdate } = require('@dbc/poller/utils');
 // Here, we use AsyncLock to control the concurrency of frameworks with the same name;
 // e.g. If framework A has request1, request2, and request3, we use AsyncLock
 // to ensure they will be processed in order.
@@ -33,14 +35,15 @@ const databaseModel = new DatabaseModel(
   config.maxDatabaseConnection,
 );
 
-async function postMockedDeleteEvent(snapshot) {
-  await fetch(`${config.writeMergerUrl}/api/v1/watchEvents/DELETED`, {
+async function postMockedEvent(snapshot, eventType) {
+  await fetch(`${config.writeMergerUrl}/api/v1/watchEvents/${eventType}`, {
     method: 'POST',
     body: snapshot.getString(),
     headers: { 'Content-Type': 'application/json' },
     timeout: config.writeMergerConnectionTimeoutSecond * 1000,
   });
 }
+
 
 function deleteHandler(snapshot, pollingTs) {
   const frameworkName = snapshot.getName();
@@ -65,7 +68,7 @@ function deleteHandler(snapshot, pollingTs) {
               `Cannot find framework ${frameworkName} in API Server. Will mock a deletion to write merger. Error:`,
               err,
             );
-            await postMockedDeleteEvent(snapshot);
+            await postMockedEvent(snapshot, 'DELETED');
           } else {
             // for non-404 error
             throw err;
@@ -94,7 +97,28 @@ function synchronizeHandler(snapshot, addOns, pollingTs) {
           `Request of framework ${frameworkName} is successfully synchronized. PollingTs=${pollingTs}.`,
         );
       }),
-    )
+    ).catch(err => {
+      // if we are the error is not recoverable, we will mock a failed framework,
+      // and record this in events
+      if (_.has(err, 'response') && isUnrecoverableResponse(err.response)) {
+        logger.warn(`An error happened when synchronize request for framework ${frameworkName} and pollingTs=${pollingTs}. We are sure the error is not recoverable. Will mock a failed framework.`, err)
+        queue.add(async () => {
+          snapshot.setFailed();
+          await postMockedEvent(snapshot, 'MODIFIED');
+          await databaseModel.FrameworkEvent.create(
+            generateClusterEventUpdate(
+              snapshot,
+              'Warning',
+              'UnrecoverableSynchronizeFailure',
+              _.get(err, 'response.body.message', 'unknown'),
+            )
+          );
+        });
+      } else {
+        // if the error is recoverable, or we are not sure, just throw it
+        throw err;
+      }
+    })
     .catch(err => {
       logger.error(
         `An error happened when synchronize request for framework ${frameworkName} and pollingTs=${pollingTs}:`,
