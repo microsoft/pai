@@ -95,17 +95,13 @@ router.delete(
 );
 
 /** GET /api/v2/tokens/check - Check a token */
-router.get(
-  '/check',
-  tokenMiddleware.check,
-  async (req, res, next) => {
-    try {
-      res.status(200).json(req[userProperty]);
-    } catch (err) {
-      next(createError.unknown(err));
-    }
+router.get('/check', tokenMiddleware.check, async (req, res, next) => {
+  try {
+    res.status(200).json(req[userProperty]);
+  } catch (err) {
+    next(createError.unknown(err));
   }
-)
+});
 
 // module exports
 module.exports = router;
