@@ -125,8 +125,8 @@ export const JobSSH = ({ extras, onExtrasChange }) => {
           </Hint>
           <Stack horizontal gap='l1'>
             <TextField
-              Lable='Add additional ssh public key'
-              placeholder='Additional ssh public key'
+              Lable='Add additional SSH public key'
+              placeholder='Additional SSH public key'
               disabled={sshPlugin.userssh.type === 'none'}
               onChange={_onUsersshValueChange}
               value={sshPlugin.getUserSshValue()}

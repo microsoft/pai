@@ -1,5 +1,5 @@
-// Copyright (c) Microsoft Corporation
-// All rights reserved.
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
 //
 // MIT License
 //
@@ -127,7 +127,7 @@ const SSHlist = ({ sshKeys, onDeleteSSHkeys }) => {
         }}
         minWidth={400}
       >
-        <div>Are you sure you want to delete this ssh key?</div>
+        <div>Are you sure you want to delete this SSH key?</div>
         <DialogFooter>
           <PrimaryButton
             onClick={() => {

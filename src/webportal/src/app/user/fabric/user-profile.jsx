@@ -238,19 +238,6 @@ const UserProfile = () => {
             />
           </Card>
           <UserProfileCard
-            title='Tokens'
-            headerButton={
-              <DefaultButton
-                onClick={onCreateApplicationToken}
-                disabled={processing}
-              >
-                Create application token
-              </DefaultButton>
-            }
-          >
-            <TokenList tokens={tokens} onRevoke={onRevokeToken} />
-          </UserProfileCard>
-          <UserProfileCard
             title='SSH Public Keys'
             headerButton={
               <DefaultButton
@@ -272,6 +259,19 @@ const UserProfile = () => {
                 onAddPublickeys={onAddPublicKeys}
               />
             )}
+          </UserProfileCard>
+          <UserProfileCard
+            title='Tokens'
+            headerButton={
+              <DefaultButton
+                onClick={onCreateApplicationToken}
+                disabled={processing}
+              >
+                Create application token
+              </DefaultButton>
+            }
+          >
+            <TokenList tokens={tokens} onRevoke={onRevokeToken} />
           </UserProfileCard>
           <UserProfileCard title='Storage'>
             <StorageList storageDetails={storageDetails} />

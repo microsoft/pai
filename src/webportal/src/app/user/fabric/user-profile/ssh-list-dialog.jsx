@@ -27,7 +27,7 @@ const SSHListDialog = ({ onDismiss, onAddPublickeys }) => {
     if (title.trim() === '') {
       setInputTitleError('Please input title');
     } else if (value.trim() === '') {
-      setInputValueError('Please input ssk value');
+      setInputValueError('Please input SSH value');
     } else {
       setProcessing(true);
       try {
