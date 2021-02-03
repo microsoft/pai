@@ -19,7 +19,10 @@ const config = require('@dbc/poller/config');
 const fetch = require('node-fetch');
 const { deleteFramework } = require('@dbc/common/k8s');
 const _ = require('lodash');
-const { isUnrecoverableResponse, generateClusterEventUpdate } = require('@dbc/poller/utils');
+const {
+  isUnrecoverableResponse,
+  generateClusterEventUpdate,
+} = require('@dbc/poller/utils');
 // Here, we use AsyncLock to control the concurrency of frameworks with the same name;
 // e.g. If framework A has request1, request2, and request3, we use AsyncLock
 // to ensure they will be processed in order.
@@ -43,7 +46,6 @@ async function postMockedEvent(snapshot, eventType) {
     timeout: config.writeMergerConnectionTimeoutSecond * 1000,
   });
 }
-
 
 function deleteHandler(snapshot, pollingTs) {
   const frameworkName = snapshot.getName();
@@ -97,11 +99,15 @@ function synchronizeHandler(snapshot, addOns, pollingTs) {
           `Request of framework ${frameworkName} is successfully synchronized. PollingTs=${pollingTs}.`,
         );
       }),
-    ).catch(err => {
+    )
+    .catch(err => {
       // if we are the error is not recoverable, we will mock a failed framework,
       // and record this in events
       if (_.has(err, 'response') && isUnrecoverableResponse(err.response)) {
-        logger.warn(`An error happened when synchronize request for framework ${frameworkName} and pollingTs=${pollingTs}. We are sure the error is not recoverable. Will mock a failed framework.`, err)
+        logger.warn(
+          `An error happened when synchronize request for framework ${frameworkName} and pollingTs=${pollingTs}. We are sure the error is not recoverable. Will mock a failed framework.`,
+          err,
+        );
         queue.add(async () => {
           snapshot.setFailed();
           await postMockedEvent(snapshot, 'MODIFIED');
@@ -111,7 +117,7 @@ function synchronizeHandler(snapshot, addOns, pollingTs) {
               'Warning',
               'UnrecoverableSynchronizeFailure',
               _.get(err, 'response.body.message', 'unknown'),
-            )
+            ),
           );
         });
       } else {
