@@ -7,7 +7,7 @@ cluster:
     data-path: "/datastorage"
     qos-switch: "{{ env["cfg"]["qos-switch"] | default('false') }}"
     docker-data-root: "{{ env['cfg']['docker_data_root'] | default('/mnt/docker') }}"
-    marketplace: "true"
+    marketplace: "false"
 
   # the docker registry to store docker images that contain system services like frameworklauncher, hadoop, etc.
   docker-registry:
