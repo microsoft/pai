@@ -62,36 +62,6 @@ const SSHListDialog = ({ sshKeys, onDismiss, onAddPublickeys }) => {
         onDismiss();
       }
     }
-
-    // if (title.trim() === '') {
-    //   setInputTitleError('Please input title');
-    // } else if (
-    //   sshKeys !== undefined &&
-    //   sshKeys.filter(item => item.title === title.trim()).length > 0
-    // ) {
-    //   setInputTitleError('This title already exists, please re-input');
-    // } else if (
-    //   value.trim() === '' ||
-    //   !value.trim().match(/^ssh-rsa AAAA[0-9A-Za-z+/]+[=]{0,3}.*$/)
-    // ) {
-    //   setInputValueError(
-    //     'Please input correct SSH Public key, it should be starting with ssh-rsa.',
-    //   );
-    // } else {
-    //   setProcessing(true);
-    //   try {
-    //     await onAddPublickeys({
-    //       title: title.trim(),
-    //       value: value.trim(),
-    //       time: new Date().getTime(),
-    //     });
-    //   } catch (error) {
-    //     setError(error.message);
-    //   } finally {
-    //     setProcessing(false);
-    //     onDismiss();
-    //   }
-    // }
   };
 
   return (
