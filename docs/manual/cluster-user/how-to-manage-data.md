@@ -64,12 +64,17 @@ To upload data to Azure Blob or Azure File, please:
 
 1. Download and install [Azure Storage Explorer](https://azure.microsoft.com/en-us/features/storage-explorer/).
 <<<<<<< HEAD
+<<<<<<< HEAD
 2. If you use AAD to login into the PAI portal, the administrator should already permit you to access storage. You can get the `storage account name`, `container name`, and `file share name` on the profile page. Please use them to access storage in `Azure Storage Explorer`. For more details, please refer to [storage explore: add resource via azure ad](https://docs.microsoft.com/en-us/azure/vs-azure-tools-storage-manage-with-storage-explorer?tabs=windows#add-a-resource-via-azure-ad).
 3. If you use basic authentication (username/password) to login into the PAI portal, please ask your administrator for the storage `access key`. Then you can add the storage by `access key` and `storage account name`. For more details, please refer to [storage explore: use name and key](https://docs.microsoft.com/en-us/azure/vs-azure-tools-storage-manage-with-storage-explorer?tabs=windows#use-a-name-and-key).
 =======
 2. If you use AAD to login to PAI portal, the administrator should already grant you the permission to access storage. You can get the `storage account name`, `container name` and `file share name` on the profile page. Please use them to access storage in `Azure Storage Explorer`. For more details, please refer to [storage explore: add resource via azure ad](https://docs.microsoft.com/en-us/azure/vs-azure-tools-storage-manage-with-storage-explorer?tabs=windows#add-a-resource-via-azure-ad).
 3. If you use basic authentication (username/password) to login to PAI portal, please ask your administrator for the storage `access key`. Then you can add the storage by `access key` and `storage account name`. For more details, please refer to: [storage explore: use name and key](https://docs.microsoft.com/en-us/azure/vs-azure-tools-storage-manage-with-storage-explorer?tabs=windows#use-a-name-and-key).
 >>>>>>> a3ad2cbc... user docs modification
+=======
+2. If you use AAD to login into the PAI portal, the administrator should already permit you to access storage. You can get the `storage account name`, `container name`, and `file share name` on the profile page. Please use them to access storage in `Azure Storage Explorer`. For more details, please refer to [storage explore: add resource via azure ad](https://docs.microsoft.com/en-us/azure/vs-azure-tools-storage-manage-with-storage-explorer?tabs=windows#add-a-resource-via-azure-ad).
+3. If you use basic authentication (username/password) to login into the PAI portal, please ask your administrator for the storage `access key`. Then you can add the storage by `access key` and `storage account name`. For more details, please refer to [storage explore: use name and key](https://docs.microsoft.com/en-us/azure/vs-azure-tools-storage-manage-with-storage-explorer?tabs=windows#use-a-name-and-key).
+>>>>>>> 0f6d9eb4... refine English docs
 
 ## Use Storage in Jobs
 
@@ -96,10 +101,14 @@ extras:
 There are two fields for each storage, `name` and `mountPath`. `name` refers to storage name while `mountPath` is the mount path inside job container. `mountPath` has default value `/mnt/${name}` and is optional.
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 Set it to an empty list (as follows) will mount default storage for the current user in the job.
 =======
 Set it to an empty list (as follows) will mount default storage for current user in the job.
 >>>>>>> a3ad2cbc... user docs modification
+=======
+Set it to an empty list (as follows) will mount default storage for the current user in the job.
+>>>>>>> 0f6d9eb4... refine English docs
 
 ```yaml
 extras:
