@@ -2,13 +2,13 @@
 
 ## Parameters and Secrets
 
-It is common to train models with different parameters. OpenPAI supports parameter definition and reference, which provides a flexible way of training and comparing models. You can define your parameters in `Parameters` section and reference them by using `<% $parameters.paramKey %>` in your commands. For example, the following picture shows how to define the [Quick Start](./quick-start.md) job using a `stepNum` parameter.
+It is common to train models with different parameters. OpenPAI supports parameter definition and reference, which provides a flexible way of training and comparing models. You can define your parameters in the `Parameters` section and reference them by using `<% $parameters.paramKey %>` in your commands. For example, the following picture shows how to define the [Quick Start](./quick-start.md) job using a `stepNum` parameter.
 
    <img src="./imgs/use-parameters.png" width="100%" height="100%" />
 
 You can define batch size, learning rate, or whatever you want as parameters to accelerate your job submission.
 
-In some cases, it is desired to define some secret messages such as password, token, etc. You can use the `Secrets` section for the definition. The usage is the same as parameters except that secrets will not be displayed or recorded.
+In some cases, it is desired to define some secret messages such as passwords, tokens, etc. You can use the `Secrets` section for the definition. The usage is the same as parameters except that secrets will not be displayed or recorded.
 
 ## Multiple Task Roles
 
@@ -16,15 +16,15 @@ If you use the `Distributed` button to submit jobs, then you can add different t
 
    <img src="./imgs/distributed-job.png" width="60%" height="60%" />
 
-What is task role? For single server jobs, there is only one task role. For distributed jobs, there may be multiple task roles. For example, when TensorFlow is used to run distributed jobs, it has two roles, including the parameter server and the worker.
+What is a task role? For single server jobs, there is only one task role. For distributed jobs, there may be multiple task roles. For example, when TensorFlow is used to run distributed jobs, it has two roles, including the parameter server and the worker.
 
-`Instances` in the following picture is the number of instances of certain task role. In distributed jobs, it depends on how many instances are needed for a task role. For example, if you set instances to 8 for a TensorFlow worker task role, it means there should be 8 Docker containers for the worker role.
+`Instances` in the following picture is the number of instances of certain task roles. In distributed jobs, it depends on how many instances are needed for a task role. For example, if you set instances to 8 for a TensorFlow worker task role, it means there should be 8 Docker containers for the worker role.
 
    <img src="./imgs/taskrole-and-instance.png" width="100%" height="100%" />
 
 ### Environmental Variables and Port Reservation
 
-In a distributed job, one task might communicate with others (When we say task, we mean a single instance of a task role). So a task need to be aware of other tasks' runtime information such as IP, port, etc. The system exposes such runtime information as environment variables to each task's Docker container. For mutual communication, users can write code in the container to access those runtime environment variables.
+In a distributed job, one task might communicate with others (When we say task, we mean a single instance of a task role). So a task needs to be aware of other tasks' runtime information such as IP, port, etc. The system exposes such runtime information as environment variables to each task's Docker container. For mutual communication, users can write code in the container to access those runtime environment variables.
 
 Below we show a complete list of environment variables accessible in a Docker container:
 
@@ -58,7 +58,7 @@ MY_PORT="PAI_PORT_LIST_${PAI_CURRENT_TASK_ROLE_NAME}_${PAI_CURRENT_TASK_ROLE_CUR
 PORT=${!MY_PORT}
 ```
 
-*Note that you need use `$PAI_CURRENT_TASK_ROLE_NAME` and `$PAI_CURRENT_TASK_ROLE_CURRENT_TASK_INDEX`*
+*Note that you need to use `$PAI_CURRENT_TASK_ROLE_NAME` and `$PAI_CURRENT_TASK_ROLE_CURRENT_TASK_INDEX`*
 
 - use a **to-be-deprecated** environmental variable to get port (list) in current container like 
 ```bash
@@ -70,23 +70,23 @@ PAI_CONTAINER_HOST_<port-label>_PORT_LIST
 
 There are always different kinds of errors in jobs. In OpenPAI, errors are classified into 3 categories automatically:
 
-  1. Transient Error: This kind of error is considered transient. There is high chance to bypass it through a retry.
+  1. Transient Error: This kind of error is considered transient. There is a high chance to bypass it through a retry.
   2. Permanent Error: This kind of error is considered permanent. Retries may not help.
   3. Unknown Error: Errors besides transient error and permanent error.
 
-In jobs, transient error will be always retried, and permanent error will never be retried. If unknown error happens, PAI will retry the job according to user settings. To set a retry policy and completion policy for your job, please toggle the `Advanced` mode, as shown in the following image:
+In jobs, transient errors will be always retried, and permanent errors will never be retried. If an unknown error happens, PAI will retry the job according to user settings. To set a retry policy and completion policy for your job, please toggle the `Advanced` mode, as shown in the following image:
 
    <img src="./imgs/advanced-and-retry.png" width="100%" height="100%" />
 
-Here we have 3 settings: `Retry count`, `Task retry count`, and `Completion policy`. To explain them, we should be aware that a job is made up by multiple tasks. One task stands for a single instance in a task role. `Task retry count` is used for task-level retry. `Retry count` and `Completion policy` are used for job-level retry.
+Here we have 3 settings: `Retry count`, `Task retry count`, and `Completion policy`. To explain them, we should be aware that a job is made up of multiple tasks. One task stands for a single instance in a task role. `Task retry count` is used for task-level retry. `Retry count` and `Completion policy` are used for job-level retry.
 
 Firstly, let's look at `Retry count` and `Completion policy`.
 
-In `Completion policy`, there are settings for `Min Failed Instances` and `Min Succeed Instances`. `Min Failed Instances` means the number of failed tasks to fail the entire job. It should be -1 or no less than 1. If it is set to -1, the job will always succeed regardless of any task failure. Default value is 1, which means 1 failed task will cause an entire job failure. `Min Succeed Instances` means the number of succeeded tasks to succeed the entire job. It should be -1 or no less than 1. If it is set to -1, the job will only succeed until all tasks are completed and `Min Failed Instances` is not triggered. Default value is -1.
+In `Completion policy`, there are settings for `Min Failed Instances` and `Min Succeed Instances`. `Min Failed Instances` means the number of failed tasks to fail the entire job. It should be -1 or no less than 1. If it is set to -1, the job will always succeed regardless of any task failure. The default value is 1, which means 1 failed task will cause an entire job failure. `Min Succeed Instances` means the number of succeeded tasks to succeed the entire job. It should be -1 or no less than 1. If it is set to -1, the job will only succeed until all tasks are completed and `Min Failed Instances` is not triggered. The default value is -1.
 
 If a job: 1. doesn't succeed after it satisfies `Completion policy`, 2. fails with an unknown error, and 3. has a `Retry count` larger than 0, the whole job will be retried. Set `Retry count` to a larger number if you need more retries.
 
-Finally, for `Task retry count`, it is the maximum retry number for a single task. A special notice is that, this setting won't work unless you set `extras.gangAllocation` to `false` in the [job protocol](#job-protocol-export-and-import-jobs).
+Finally, for `Task retry count`, it is the maximum retry number for a single task. A special notice is that this setting won't work unless you set `extras.gangAllocation` to `false` in the [job protocol](#job-protocol-export-and-import-jobs).
 
 ## Job Protocol, Export and Import Jobs
 
@@ -116,7 +116,7 @@ This example, [horovod-pytorch-synthetic-benchmark.yaml](https://github.com/micr
 
 ## InfiniBand Jobs
 
-Here's an example for InfiniBand job:
+Here's an example for an InfiniBand job:
 
 ```yaml
 protocolVersion: 2
@@ -125,7 +125,7 @@ type: job
 version: horovod0.16.4-tf1.12.0-torch1.1.0-mxnet1.4.1-py3.5
 contributor: OpenPAI
 description: |
-  This is a distributed synthetic benchmark for Horovod with PyTorch backend running on OpenPAI.
+  This is a distributed synthetic benchmark for Horovod with the PyTorch backend running on OpenPAI.
   It runs [Horovod with Open MPI](https://github.com/horovod/horovod/blob/master/docs/mpirun.rst).
 parameters:
   model: resnet50

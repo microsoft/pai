@@ -1,12 +1,12 @@
 # How to Debug Jobs
 
-This document describes how to use SSH and TensorBoard plugin to debug job. 
+This document describes how to use SSH and TensorBoard plugin to debug jobs. 
 
-**Note:** These two plugins only work when the IP address is accessible from customer environment (not cluster internal IP). So if PAI deployed in some cloud environment such as Azure, these two plugins will not work.
+**Note:** These two plugins only work when the IP address is accessible from the customer environment (not cluster internal IP). So if PAI is deployed in some cloud environment such as Azure, these two plugins will not work.
 
 ## How to use SSH
 
-OpenPAI provides SSH plugin for you to connect to job containers. To use SSH, you can either create an SSH key pair, or use your own pre-generated keys.
+OpenPAI provides an SSH plugin for you to connect to job containers. To use SSH, you can either create an SSH key pair or use your pre-generated keys.
 
 **Option 1. Create an SSH Key Pair**
 
@@ -14,12 +14,12 @@ It is feasible to create a new SSH key pair when you submit the job. First, open
 
    <img src="./imgs/ssh-click-generator.png" width="60%" height="60%" />
 
-The generator will generate one public key and one private key for you. Please download SSH private key, then click `Use Public Key` button to use this key pair in your job. 
+The generator will generate one public key and one private key for you. Please download SSH private key, then click the `Use Public Key` button to use this key pair in your job. 
 
 
    <img src="./imgs/ssh-generator.png" width="60%" height="60%" />
 
-After job submission, you can ssh to job containers as user root with the downloaded private key through container ip and ssh port. The `View SSH Info` button will give you the corresponding command:
+After job submission, you can ssh to job containers as user root with the downloaded private key through container IP and SSH port. The `View SSH Info` button will give you the corresponding command:
 
 
    <img src="./imgs/view-ssh-info.png" width="100%" height="100%" />
@@ -38,7 +38,7 @@ chmod 400 <your-private-key-file-path> && ssh -p <ssh-port> -i <your-private-key
 
 **Option 2. Use your Own Keys**
 
-If you are familiar with SSH key authentication, you would probably have generated a public key and a private key already, in the `.ssh` subfolder under your user folder (`C:\Users\<your-user-name>` on Windows and `~` on a Unix-like system). There is an `id_rsa.pub` file and an `id_rsa` file in such folder, which contains the public key and the private key, respectively. 
+If you are familiar with SSH key authentication, you would probably have generated a public key and a private key already, in the `.ssh` subfolder under your user folder (`C:\Users\<your-user-name>` on Windows and `~` on a Unix-like system). There are an `id_rsa.pub` file and an `id_rsa` file in such a folder, which contains the public key and the private key, respectively. 
 
 To use them, open the `id_rsa.pub` and copy its content to the SSH plugin, then submit the job. There is no need to use the key generator.
 
@@ -77,4 +77,4 @@ Generally speaking, to use the TensorBoard plugin, you should:
 
   1. Save your TensorFlow summary logs to `/mnt/tensorboard`.
   2. Make sure `tensorboard` is installed in the docker image you use.
-  3. Use the `sleep` command to extend the job lifetime, if you want TensorBoard available after job completes. 
+  3. Use the `sleep` command to extend the job lifetime, if you want TensorBoard available after the job completes. 
