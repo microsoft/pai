@@ -17,11 +17,7 @@ Before using OpenPAI VS Code Client, follow these steps to connect to an OpenPAI
 
     ![add cluster host](https://raw.githubusercontent.com/Microsoft/openpaivscode/0.3.0/assets/add_cluster_host.png)
 
-<<<<<<< HEAD
 4. A configuration file is opened, and the username and password fields are needed at least. Once it completes, click the *Finish* button at the bottom right corner. Notice, the settings will not take effect if you save and close the file directly.
-=======
-4. A configuration file is opened, and username and password fields are needed at least. Once it completes, click *Finish* button at bottom right corner. Notice, the settings will not take effect if you save and close the file directly.
->>>>>>> a3ad2cbc... user docs modification
 
     ![add cluster configuration](https://raw.githubusercontent.com/Microsoft/openpaivscode/0.3.0/assets/add-cluster-finish.png)
 
@@ -38,11 +34,8 @@ If there are multiple OpenPAI clusters, you can follow the above steps again to 
 
     ![add cluster host](https://raw.githubusercontent.com/Microsoft/openpaivscode/0.3.0/assets/add_cluster_host.png)
 
-<<<<<<< HEAD
+
 4. If the `authn_type` of the cluster is `OIDC`, a website will be open and ask you to log in. If your login was successful, the username and token fields are auto-filled, and you can change them if needed. Once it completes, click the *Finish* button at the bottom right corner. Notice, the settings will not take effect if you save and close the file directly.
-=======
-4. If the `authn_type` of the cluster is `OIDC`, a website will be open and ask you to login. If your login was successful, the username and token fields are auto filled, and you can change it if needed. Once it completes, click *Finish* button at bottom right corner. Notice, the settings will not take effect if you save and close the file directly.
->>>>>>> a3ad2cbc... user docs modification
 
     ![add cluster configuration](https://raw.githubusercontent.com/Microsoft/openpaivscode/0.3.0/assets/add_aad_cluster.gif)
 
@@ -54,19 +47,12 @@ After added a cluster configuration, you can find the cluster in the *PAI CLUSTE
 
 ![pai cluster explorer](https://raw.githubusercontent.com/Microsoft/openpaivscode/0.3.0/assets/pai_cluster_explorer.png)
 
-<<<<<<< HEAD
 To submit a job config YAML file, please follow the steps below:
-=======
-To submit a job config yaml file, please follow the steps below:
->>>>>>> a3ad2cbc... user docs modification
 
 1. Double-click `Create Job Config...` in OpenPAI cluster Explorer, and then specify file name and location to create a job configuration file.
 2. Update job configuration as needed.
-<<<<<<< HEAD
 3. Right-click on the created job configuration file, then click on `Submit Job to PAI Cluster`. The client will then upload files to OpenPAI and create a job. Once it's done, there is a notification at the bottom right corner, you can click to open the job detail page.
-=======
-3. Right click on the created job configuration file, then click on `Submit Job to PAI Cluster`. The client will then upload files to OpenPAI and create a job. Once it's done, there is a notification at bottom right corner, you can click to open the job detail page.
->>>>>>> a3ad2cbc... user docs modification
+
 
     If there are multiple OpenPAI clusters, you need to choose one.
 
