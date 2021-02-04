@@ -67,13 +67,14 @@ If you find that the real GPU count is correct but the alerts still keep being f
 
 Solutions:
 
-  1. Enter your dev-box, check the GPU count specified in `~/pai-deploy/cluster-configuration/layout.yaml`, modify the GPU count accordingly;
-  2. Push the modified layout and restart related service:
-    ```shell
-    /pai/paictl.py service stop -n cluster-configuration job-exporter
-    /pai/paictl.py config push -p /cluster-configuration/ -m service
-    /pai/paictl.py service start -n cluster-configuration job-exporter
-    ```
+1. Enter your dev box container, check the GPU count specified in `<config-dir>/layout.yaml`, modify the GPU count accordingly;
+2. Push the modified layout and restart related service:
+
+```bash
+/pai/paictl.py service stop -n cluster-configuration job-exporter
+/pai/paictl.py config push -p <config-dir> -m service
+/pai/paictl.py service start -n cluster-configuration job-exporter
+```
 
 ### NVIDIA GPU is Not Detected
 
@@ -92,6 +93,16 @@ After the problem is resolved, you can uncordon the node manually with the follo
 ```bash
 kubectl uncordon <node name>
 ```
+
+### NodeGpuLowPerfState
+This is a kind of alert from alert manager.
+It means the nvidia cards from related node downgrade into low peroformance state unexpectedly.
+To fix this, please run following commands:
+```bash
+sudo nvidia-smi -pm ENABLED -i <gpu-card-id>
+sudo nvidia-smi -ac <gpu-supported-memory-clock>,<gpu-supported-clock> -i <gpu-card-id>
+```
+You can get the supported clock by `sudo nvidia-smi -q -d SUPPORTED_CLOCKS`
 
 ### Cannot See Utilization Information.
 

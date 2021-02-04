@@ -11,7 +11,7 @@ echo "Setting up environment..."
 /bin/bash script/environment.sh -c ${CLUSTER_CONFIG} || exit $?
 
 echo "Checking layout.yaml schema..."
-python3 script/validate_layout_schema.py -l ${LAYOUT}  || exit $?
+python3 script/validate_layout_schema.py -l ${LAYOUT} -c ${CLUSTER_CONFIG} || exit $?
 
 echo "Checking requirements..."
 /bin/bash requirement.sh -l ${LAYOUT} -c ${CLUSTER_CONFIG}
@@ -34,6 +34,9 @@ ansible all -i ${HOME}/pai-deploy/cluster-cfg/hosts.yml -m ping || exit $?
 
 echo "Performing pre-check..."
 ansible-playbook -i ${HOME}/pai-pre-check/pre-check.yml set-host-daemon-port-range.yml -e "@${CLUSTER_CONFIG}" || exit $?
+
+echo "Performing pre-installation..."
+ansible-playbook -i ${HOME}/pai-deploy/cluster-cfg/hosts.yml pre-installation.yml || exit $?
 
 echo "Starting kubernetes..."
 /bin/bash script/kubernetes-boot.sh || exit $?

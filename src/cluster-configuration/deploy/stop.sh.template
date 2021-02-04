@@ -51,5 +51,4 @@ if kubectl get priorityclass | grep -q "pai-daemon-priority"; then
     kubectl delete priorityclass pai-daemon-priority || exit $?
 fi
 
-
 popd > /dev/null

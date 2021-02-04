@@ -78,3 +78,10 @@ groups:
         annotations:
           summary: "found gpu count changes in {{$labels.instance}}"
 
+      - alert: NodeGpuLowPerfState
+        expr: nvidiasmi_performance_state{clocks_throttle_reasons=""} >= 8
+        for: 5m
+        labels:
+          severity: warn
+        annotations:
+          summary: "found gpu in {{$labels.instance}} minor number {{$labels.minor_number}} in low perf state"

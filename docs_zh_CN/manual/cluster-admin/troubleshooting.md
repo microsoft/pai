@@ -61,6 +61,25 @@ pai_node_count{disk_pressure="false",instance="10.0.0.1:9101",job="pai_serivce_e
   2. 检查docker cache。
   3. 检查PAI的log文件夹：`/var/log/pai`.
 
+
+### NodeGpuCountChanged Alert
+
+这是来自alert manager的报警，用来监控各个机器上的GPU数量。
+如果机器上的GPU数量和`<config-dir>/layout.yaml`中声明的不符，就会有这个报警。
+
+如果您发现，GPU的数量是正确的，但这个报警还一直在，就有可能是`layout.yaml`声明错误导致的。
+
+解决方法：
+
+1. 进入dev box容器，检查`layout.yaml`文件，修改GPU数量。
+2. 更新配置，重启服务：
+
+```bash
+/pai/paictl.py service stop -n cluster-configuration job-exporter
+/pai/paictl.py config push -p <config-dir> -m service
+/pai/paictl.py service start -n cluster-configuration job-exporter
+```
+
 ### 无法检测到NVIDIA GPU
 
 如果您无法在您的任务中使用GPU，您可以在Worker结点上follow下面的步骤来检查：
@@ -69,6 +88,17 @@ pai_node_count{disk_pressure="false",instance="10.0.0.1:9101",job="pai_serivce_e
  2. [nvidia-container-runtime](https://github.com/NVIDIA/nvidia-container-runtime)已经被正确安装，并且被设置为Docker的默认runtime。您可以用`docker info -f "{{json .DefaultRuntime}}"`来检查。
 
 如果是在Webportal中显示的GPU数目有出入，请参考[这个文档](./how-to-set-up-virtual-clusters.md)对集群重新进行配置。
+
+### NodeGpuLowPerfState
+
+这是来自alert manager的报警，它代表某些机器上的NVIDIA卡被降级到低功耗状态。
+
+请尝试在对应机器上运行下列命令来解决这个问题：
+```bash
+sudo nvidia-smi -pm ENABLED -i <gpu-card-id>
+sudo nvidia-smi -ac <gpu-supported-memory-clock>,<gpu-supported-clock> -i <gpu-card-id>
+```
+您可以使用命令 `sudo nvidia-smi -q -d SUPPORTED_CLOCKS` 来获取您显卡的supported clock。
 
 ### 使用监测信息无法显示
 

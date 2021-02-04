@@ -29,7 +29,7 @@
     "ajv": "^6.10.0",
     "ajv-merge-patch": "~4.1.0",
     "async": "~2.5.0",
-    "axios": "^0.18.1",
+    "axios": "^0.21.1",
     "chai": "~4.1.2",
     "chai-as-promised": "~7.1.1",
     "chai-http": "^4.3.0",
@@ -67,7 +67,7 @@
     "@pai": "src"
   },
   "scripts": {
-    "coveralls": "nyc report --reporter=text-lcov | coveralls ..",
+    "coveralls": "nyc report --reporter=text-lcov > coverage/lcov.info",
     "lint": "eslint --ext .js ./src",
     "mocha": "mocha --file ./test/setup --ui bdd --recursive --timeout 1000 --exit",
     "preinstall": "npx ncp ../database-controller/sdk openpaidbsdk || echo skip copying openpaidbsdk",
