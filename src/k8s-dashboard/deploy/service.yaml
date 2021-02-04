@@ -19,6 +19,9 @@ cluster-type:
   - yarn
   - k8s
 
+prerequisite:
+  - docker-cache
+
 template-list:
   - k8s-dashboard.yaml
   - start.sh
