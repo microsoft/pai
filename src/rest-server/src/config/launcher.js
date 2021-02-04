@@ -22,6 +22,7 @@ const Joi = require('joi');
 const k8sLauncherConfigSchema = Joi.object()
   .keys({
     hivedWebserviceUri: Joi.string().uri().required(),
+    restServerUri: Joi.string().uri().required(),
     enabledPriorityClass: Joi.boolean().required(),
     apiVersion: Joi.string().required(),
     podGracefulDeletionTimeoutSec: Joi.number()
@@ -55,6 +56,7 @@ const launcherType = process.env.LAUNCHER_TYPE;
 if (launcherType === 'k8s') {
   launcherConfig = {
     hivedWebserviceUri: process.env.HIVED_WEBSERVICE_URI,
+    restServerUri: process.env.REST_SERVER_URI,
     enabledPriorityClass: process.env.LAUNCHER_PRIORITY_CLASS === 'true',
     apiVersion: 'frameworkcontroller.microsoft.com/v1',
     podGracefulDeletionTimeoutSec: 600,

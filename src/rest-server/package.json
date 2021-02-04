@@ -67,7 +67,7 @@
     "@pai": "src"
   },
   "scripts": {
-    "coveralls": "nyc report --reporter=text-lcov | coveralls ..",
+    "coveralls": "nyc report --reporter=text-lcov > coverage/lcov.info",
     "lint": "eslint --ext .js ./src",
     "mocha": "mocha --file ./test/setup --ui bdd --recursive --timeout 1000 --exit",
     "preinstall": "npx ncp ../database-controller/sdk openpaidbsdk || echo skip copying openpaidbsdk",

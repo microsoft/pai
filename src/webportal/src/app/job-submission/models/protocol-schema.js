@@ -141,7 +141,10 @@ const runtimePluginSchema = Joi.object().keys({
           sshbarrierTimeout: Joi.number(),
           userssh: Joi.object().keys({
             type: Joi.string(),
-            value: Joi.string(),
+            value: Joi.string()
+              .allow(null)
+              .allow('')
+              .optional(),
           }),
         })
         .required(),
