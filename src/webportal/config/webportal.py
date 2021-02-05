@@ -61,7 +61,7 @@ class Webportal:
         return {
             'server-port': server_port,
             'uri': uri,
-            'plugins': json.dumps([apply_config(plugin) for plugin in plugins]),
+            'plugins': [apply_config(plugin) for plugin in plugins],
             'webportal-address': master_ip,
             'enable-job-transfer': self.service_configuration['enable-job-transfer'],
         }
