@@ -7,6 +7,7 @@ const Joi = require('joi');
 
 const configSchema = Joi.object()
   .keys({
+    // read env var
     dbConnectionStr: Joi.string().required(),
     maxDatabaseConnection: Joi.number()
       .integer()

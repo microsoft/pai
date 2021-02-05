@@ -71,6 +71,7 @@ router.delete(
   tokenMiddleware.checkNotApplication,
   async (req, res, next) => {
     const token = req.params.token;
+    // const jobSpecific = req.query.jobSpecific || false;
     try {
       const { username } = jwt.decode(token);
       if (username === req.user.username) {

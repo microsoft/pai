@@ -1103,9 +1103,15 @@ const put = async (frameworkName, config, rawConfig) => {
     ? getConfigSecretDef(frameworkName, config.secrets)
     : null;
 
-  // create an application token
-  // TODO: need a mechanism to label this token as job specific token and revoke it if job is stopped / failed
-  const token = await tokenModel.create(userName, true);
+  // create a job-specific application token
+  // this token will be revoked in database-controller after job stopped / failed
+  const token = await tokenModel.create(
+    userName,
+    true,
+    undefined,
+    true,
+    frameworkName,
+  );
   // generate the application token secret definition
   const tokenSecretDef = getTokenSecretDef(frameworkName, token);
 
