@@ -34,7 +34,7 @@ function generateClusterEventUpdate(snapshot, type, reason, message) {
     kind: 'Event',
     apiVersion: 'v1',
     metadata: {
-      name: `mocked-event-for-${frameworkName}`,
+      name: `db-controller-event-for-${frameworkName}`,
       namespace: 'default',
       uid: uuidv4(),
       creationTimestamp: date,

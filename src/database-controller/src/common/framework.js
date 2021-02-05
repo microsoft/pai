@@ -24,10 +24,34 @@ const mockFrameworkStatus = () => {
 };
 
 const mockFailedFrameworkStatus = () => {
+  // Mock a failed status for framework.
+  // We only use it for frameworks that never start.
+  const dateStr = (new Date()).toISOString();
   return {
     state: 'Completed',
+    startTime: dateStr,
+    runTime: dateStr,
+    transitionTime: dateStr,
+    completionTime: dateStr,
     attemptStatus: {
-      completionStatus: null,
+      completionStatus: {
+        id: 0,
+        code: -1007,
+        diagnostics: 'Framework schema is submitted to database, but cannot be synchronized to API server due to unrecoverable error.',
+        phase: 'UnrecoverableSchemaSynchronizeError',
+        trigger: {
+          message: "Database controller cannot synchronize framework schema to API server.",
+          taskIndex: null,
+          taskRoleName: null,
+        },
+        type: {
+          attributes: ["Permanent"],
+          name: "Failed",
+        },
+        startTime: dateStr,
+        runTime: dateStr,
+        completionTime: dateStr,
+      },
       taskRoleStatuses: [],
     },
     retryPolicyStatus: {
@@ -260,6 +284,10 @@ class Snapshot {
     return this._snapshot.status.state;
   }
 
+  getTotalRetriedCount() {
+    return _.get(this._snapshot, 'status.retryPolicyStatus.totalRetriedCount', 0);
+  }
+
   getSnapshot() {
     return _.cloneDeep(this._snapshot);
   }
@@ -310,6 +338,13 @@ class Snapshot {
     // Manually set the framework's status to failed.
     // This is used when we cannot sync the framework request to api server,
     // and we're sure that the error is unrecoverable.
+
+    // For now, we only use it for frameworks that never start.
+    console.log(this.getTotalRetriedCount(), this.getState())
+    if (!this.getTotalRetriedCount() === 0 || this.getState() !== 'AttemptCreationPending') {
+      throw new Error('setFailed() only works for framework that never start!')
+    }
+
     this._snapshot.status = mockFailedFrameworkStatus();
   }
 }

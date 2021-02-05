@@ -482,6 +482,20 @@ spec:
     - reasonRegex: '(?i)^UnexpectedPredicateFailureType$'
       messageRegex: '(?ms).*'
 
+- code: -1007
+  phrase: UnrecoverableSchemaSynchronizeError
+  issuer: PAI_K8S
+  causer: PAI_K8S
+  type: PLATFORM_FAILURE
+  stage: LAUNCHING
+  behavior: PERMANENT
+  reaction: NEVER_RETRY
+  reason: "Framework schema is submitted to database, but cannot be synchronized to API server due to unrecoverable error"
+  repro:
+  - "Submit a job with a very large job schema"
+  solution:
+  - "Please refer to job events for detailed reasons"
+
 
 ###########################################################################
 # Range: [-1399, -1200]

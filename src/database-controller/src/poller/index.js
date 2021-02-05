@@ -101,14 +101,15 @@ function synchronizeHandler(snapshot, addOns, pollingTs) {
       }),
     )
     .catch(err => {
-      // if we are sure the error is not recoverable, we will mock a failed framework,
-      // and record this in events
+      // if we are sure the error is not recoverable, we will mock a failed framework, and record this in events.
       if (_.has(err, 'response') && isUnrecoverableResponse(err.response)) {
         logger.warn(
           `An error happened when synchronize request for framework ${frameworkName} and pollingTs=${pollingTs}. We are sure the error is not recoverable. Will mock a failed framework.`,
           err,
         );
         queue.add(async () => {
+          // For safety reason, we only consider the job that never starts.
+          // snapshot.setFailed() will raise an error if the framework is not in state AttemptCreationPending or has retry history.
           snapshot.setFailed();
           await postMockedEvent(snapshot, 'MODIFIED');
           await databaseModel.FrameworkEvent.create(
@@ -119,7 +120,10 @@ function synchronizeHandler(snapshot, addOns, pollingTs) {
               _.get(err, 'response.body.message', 'unknown'),
             ),
           );
-        });
+        }).catch(err => logger.error(
+           `An error happened when mock failed event for framework ${frameworkName} and pollingTs=${pollingTs}:`,
+           err,
+        ));
       } else {
         // if the error is recoverable, or we are not sure, just throw it
         throw err;
