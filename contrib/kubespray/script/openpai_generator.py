@@ -315,14 +315,15 @@ def main():
         docker_cache_config, docker_cache_mirrors = {}, []
         cluster_config['enable_docker_cache'] = False
 
+    docker_insecure_registries = ["http://{}/".format(mirror) for mirror in docker_cache_mirrors]
     if "openpai_docker_registry_mirrors" in cluster_config:
         cluster_config["openpai_docker_registry_mirrors"] += docker_cache_mirrors 
     else:
         cluster_config["openpai_docker_registry_mirrors"] = docker_cache_mirrors
     if "openpai_docker_insecure_registries" in cluster_config:
-        cluster_config["openpai_docker_insecure_registries"] += docker_cache_mirrors
+        cluster_config["openpai_docker_insecure_registries"] += docker_insecure_registries
     else:
-        cluster_config["openpai_docker_insecure_registries"] = docker_cache_mirrors
+        cluster_config["openpai_docker_insecure_registries"] = docker_insecure_registries
 
     environment = {
         'masters': masters,

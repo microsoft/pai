@@ -38,7 +38,7 @@ def get_docker_cache_config_and_mirrors(layout, cluster_config):
     for machine in layout['machine-list']:
         if 'pai-master' in machine and machine['pai-master'] == 'true':
             pai_master_ips.append(machine['hostip'])
-    docker_cache_mirrors = ["http://{}:30500/".format(ip) for ip in pai_master_ips]
+    docker_cache_mirrors = ["{}:30500".format(ip) for ip in pai_master_ips]
 
     if "docker_cache_azure_container_name" not in cluster_config:
         cluster_config['docker_cache_azure_container_name'] = "dockerregistry"
@@ -103,14 +103,15 @@ def main():
         docker_cache_config, docker_cache_mirrors = {}, []
         cluster_config['enable_docker_cache'] = False
 
+    docker_insecure_registries = ["http://{}/".format(mirror) for mirror in docker_cache_mirrors]
     if "openpai_docker_registry_mirrors" in cluster_config:
         cluster_config["openpai_docker_registry_mirrors"] += docker_cache_mirrors 
     else:
         cluster_config["openpai_docker_registry_mirrors"] = docker_cache_mirrors
     if "openpai_docker_insecure_registries" in cluster_config:
-        cluster_config["openpai_docker_insecure_registries"] += docker_cache_mirrors
+        cluster_config["openpai_docker_insecure_registries"] += docker_insecure_registries
     else:
-        cluster_config["openpai_docker_insecure_registries"] = docker_cache_mirrors
+        cluster_config["openpai_docker_insecure_registries"] = docker_insecure_registries
 
     environment = {
         'masters': masters,
