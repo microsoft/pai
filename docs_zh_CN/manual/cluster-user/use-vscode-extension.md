@@ -1,6 +1,6 @@
 # 使用VSCode扩展
 
-[OpenPAI VS Code Client](https://github.com/microsoft/openpaivscode) 是一个VSCode扩展，用于连接OpenPAI集群、提交任务、本地模拟任务、管理文件等。请使用[这个页面上](https://github.com/microsoft/openpaivscode/releases) 发布的vsix文件来安装它。
+[OpenPAI VS Code Client](https://github.com/microsoft/openpaivscode) 是一个VSCode扩展，用于连接OpenPAI集群、提交任务、本地模拟任务、管理文件等。请使用 [这个页面上](https://github.com/microsoft/openpaivscode/releases) 发布的vsix文件来安装它。
 
 ## 连接OpenPAI集群
 
@@ -13,7 +13,7 @@
 
     ![add cluster](https://raw.githubusercontent.com/Microsoft/openpaivscode/0.3.0/assets/add_cluster.png)
 
-3. 按 <kbd>Enter</kbd>, 然后输入OpenPAI集群的主机地址。 它可以是域名或IP地址。 之后，再次按 <kbd>Enter</kbd>。
+3. 按 <kbd>Enter</kbd>, 然后输入OpenPAI集群的主机地址（可以是域名或IP地址）。 之后，再次按 <kbd>Enter</kbd>。
 
     ![add cluster host](https://raw.githubusercontent.com/Microsoft/openpaivscode/0.3.0/assets/add_cluster_host.png)
 
@@ -30,11 +30,11 @@
 
     ![add cluster](https://raw.githubusercontent.com/Microsoft/openpaivscode/0.3.0/assets/add_cluster.png)
 
-3. 按 <kbd>Enter</kbd>，然后输入OpenPAI集群的主机。它可以是域名或IP地址。之后，再次按 <kbd>Enter</kbd> 。
+3. 按 <kbd>Enter</kbd>，然后输入OpenPAI集群的主机地址（可以是域名或IP地址）。之后，再次按 <kbd>Enter</kbd> 。
 
     ![add cluster host](https://raw.githubusercontent.com/Microsoft/openpaivscode/0.3.0/assets/add_cluster_host.png)
 
-4. 程序会打开一个网站，并要求您登录。如果登录成功，程序会自动填充用户名和token字段。完成后，单击右下角的*Finish*按钮。请注意，如果直接保存并关闭文件，设置将不会生效。
+4. 程序会打开一个网站，并要求您登录。如果登录成功，程序会自动填充用户名和token字段（可以手动更改）。完成后，单击右下角的*Finish*按钮。请注意，如果直接保存并关闭文件，设置将不会生效。
 
     ![add cluster configuration](https://raw.githubusercontent.com/Microsoft/openpaivscode/0.3.0/assets/add_aad_cluster.gif)
 

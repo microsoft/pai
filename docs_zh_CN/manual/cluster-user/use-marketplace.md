@@ -5,7 +5,7 @@
 
 如果您的管理员启用了`Marketplace`插件，您将在Webportal的`Plugin`部分中找到一个链接，例如：
 
-> 如果您是Pai管理员，则可以查看 [部署文件](https://github.com/microsoft/openpaimarketplace/blob/master/docs/deployment.md) 了解如何部署和启用`Marketplace`插件。
+> 如果您是PAI管理员，则可以查看 [部署文件](https://github.com/microsoft/openpaimarketplace/blob/master/docs/deployment.md) 了解如何部署和启用`Marketplace`插件。
 
 ![plugin](imgs/marketplace-plugin.png)
 
@@ -17,6 +17,8 @@
 
 ## 创建模板
 
-要创建`Marketplace`模板，请单击页面上的`Create`按钮。如下图所示，您可以点击`Upload yaml file`上传配置文件并创建模板。在创建时，您应该填写一些必要的信息，例如`name`, `introduction` 和`description`等。另一种方法是从PAI平台中的现有任务中创建。您只能使用`Succeeded`的任务创建模板。创建后，您的模板将等待平台管理员进行审核，审核通过后，您才能在`Marketplace`列表中看到它们。
+要创建`Marketplace`模板，请单击页面上的`Create`按钮。如下图所示，您可以点击`Upload yaml file`上传配置文件并创建模板。在创建时，您应该填写一些必要的信息，例如`name`, `introduction` 和`description`等。
+
+另一种方法是从PAI平台中的现有任务中创建。您只能使用`Succeeded`的任务创建模板。创建后，您的模板将等待平台管理员进行审核，审核通过后，您才能在`Marketplace`列表中看到它们。
 
 ![create](imgs/marketplace-create-new.png)
