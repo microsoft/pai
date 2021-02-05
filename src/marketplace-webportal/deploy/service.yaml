@@ -6,7 +6,7 @@ cluster-type:
 
 prerequisite:
   - cluster-configuration
-  - docker-cache
+  - marketplace-restserver
 
 template-list:
   - marketplace-webportal.yaml
