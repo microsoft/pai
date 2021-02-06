@@ -35,6 +35,9 @@ import {
   StackItem,
   Toggle,
   ColorClassNames,
+  Dialog,
+  DialogFooter,
+  TextField,
 } from 'office-ui-fabric-react';
 
 import { JobProtocol } from '../models/job-protocol';
@@ -78,6 +81,11 @@ export const SubmissionSection = props => {
 
   const [protocolYaml, setProtocolYaml] = useState('');
   const [validationMsg, setValidationMsg] = useState('');
+  const [hideDialog, setHideDialog] = useState(true);
+
+  const toggleHideDialog = () => {
+    setHideDialog(!hideDialog);
+  };
 
   const monaco = useRef(null);
 
@@ -215,6 +223,12 @@ export const SubmissionSection = props => {
                   Submit
                 </PrimaryButton>
                 <DefaultButton onClick={_openEditor}>Edit YAML</DefaultButton>
+                <DefaultButton
+                  disabled={!isEmpty(errorMessages)}
+                  onClick={toggleHideDialog}
+                >
+                  Save to Templates
+                </DefaultButton>
               </Stack>
             </Stack>
           </FormShortSection>
@@ -228,6 +242,33 @@ export const SubmissionSection = props => {
           </Stack>
         </Stack>
       </Stack>
+      <Dialog
+        hidden={hideDialog}
+        onDismiss={toggleHideDialog}
+        dialogContentProps={{
+          title: <span>Save to template</span>,
+        }}
+        minWidth={500}
+        modalProps={{
+          isBlocking: false,
+          styles: { main: { maxWidth: 900 } },
+        }}
+      >
+        <Stack>
+          <TextField label={'name'} required={true} />
+          <TextField label={'summary'} required={false} multiline rows={3} />
+          <TextField
+            label={'description'}
+            required={false}
+            multiline
+            rows={10}
+          />
+        </Stack>
+        <DialogFooter>
+          <PrimaryButton text='Save' onClick={toggleHideDialog} />
+          <DefaultButton text='Cancel' onClick={toggleHideDialog} />
+        </DialogFooter>
+      </Dialog>
       <MonacoPanel
         isOpen={isEditorOpen}
         onDismiss={_closeEditor}

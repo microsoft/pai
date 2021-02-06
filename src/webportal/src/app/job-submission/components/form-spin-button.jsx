@@ -73,7 +73,6 @@ export const FormSpinButton = props => {
 };
 
 FormSpinButton.propTypes = {
-  sectionTooltip: PropTypes.string.isRequired,
   sectionLabel: PropTypes.string.isRequired,
   sectionOptional: PropTypes.bool,
   onChange: PropTypes.func,
