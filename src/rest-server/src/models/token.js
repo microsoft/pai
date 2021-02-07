@@ -37,14 +37,6 @@ if (process.env.NODE_ENV !== 'test') {
   k8sModel.createNamespace(jobTokenNamespace);
 }
 
-const serialize = (val) => {
-  return Buffer.from(val).toString('hex');
-};
-
-const deserialize = (val) => {
-  return Buffer.from(val, 'hex').toString();
-};
-
 const sign = async (username, application, expiration) => {
   return new Promise((resolve, reject) => {
     jwt.sign(
@@ -71,14 +63,12 @@ const purge = async (data, jobSpecific) => {
 
   if (jobSpecific) {
     // get non-completed frameworks from db
-    const frameworkNamesEncoded = Object.keys(data)
-      .map(deserialize)
-      .map(encodeName);
+    const frameworkNames = Object.keys(data);
     const names = await databaseModel.Framework.findAll({
       attributes: ['name'],
       where: {
         name: {
-          [Op.in]: frameworkNamesEncoded,
+          [Op.in]: frameworkNames,
         },
         subState: {
           [Op.ne]: 'Completed',
@@ -136,7 +126,7 @@ const create = async (
   }
   const token = await sign(username, application, expiration);
   const namespace = jobSpecific ? jobTokenNamespace : userTokenNamespace;
-  const key = jobSpecific ? serialize(frameworkName) : uuid();
+  const key = jobSpecific ? encodeName(frameworkName) : uuid();
   const item = await k8sSecret.get(namespace, username, { encode: 'hex' });
   if (item === null) {
     await k8sSecret.create(
