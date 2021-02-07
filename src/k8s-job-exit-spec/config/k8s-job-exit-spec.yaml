@@ -483,12 +483,12 @@ spec:
     - reasonRegex: '(?i)^UnexpectedPredicateFailureType$'
       messageRegex: '(?ms).*'
 
+
 ###########################################################################
 # Range: [-1199, -1100]
 # Owner: PAI_DB_CONTROLLER
 # Description: PAI_K8S issued failures
 ###########################################################################
-
 - code: -1100
   phrase: CreateFrameworkPermanentFailed
   issuer: PAI_DB_CONTROLLER

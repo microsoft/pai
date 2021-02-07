@@ -35,19 +35,14 @@ const mockFailedFrameworkStatus = () => {
     completionTime: dateStr,
     attemptStatus: {
       completionStatus: {
-        id: 0,
         code: -1100,
         diagnostics: 'Job is submitted to database, but cannot be created in ApiServer due to permanent failures.',
         phase: 'CreateFrameworkPermanentFailed',
-        trigger: {
-          message: "Database controller cannot synchronize framework to APIServer.",
-          taskIndex: null,
-          taskRoleName: null,
-        },
         type: {
           attributes: ["Permanent"],
           name: "Failed",
         },
+        id: 0,
         startTime: dateStr,
         runTime: dateStr,
         completionTime: dateStr,
@@ -340,6 +335,9 @@ class Snapshot {
     // and we're sure that the error is unrecoverable.
 
     // For now, we only use it for frameworks that never start.
+    // Also, requestSynced == false is guaranteed here.
+    // Because only call setFailed() from synchronizeHandler() in poller,
+    // and synchronizeHandler() is only called for requestSynced=false frameworks.
     if (!this.getTotalRetriedCount() === 0 || this.getState() !== 'AttemptCreationPending') {
       throw new Error('setFailed() only works for framework that never start!')
     }
