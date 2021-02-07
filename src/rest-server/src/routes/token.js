@@ -31,7 +31,10 @@ const router = new express.Router();
 /** GET /api/v1/token - Get list of tokens */
 router.get('/', tokenMiddleware.checkNotApplication, async (req, res, next) => {
   try {
-    const list = await tokenModel.list(req.user.username);
+    const list = await tokenModel.list(
+      req.user.username,
+      req.query.jobSpecific,
+    );
     res.status(200).json({
       tokens: list,
     });

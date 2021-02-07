@@ -21,7 +21,8 @@ const { secret, tokenExpireTime } = require('@pai/config/token');
 const k8sSecret = require('@pai/models/kubernetes/k8s-secret');
 const k8sModel = require('@pai/models/kubernetes/kubernetes');
 const logger = require('@pai/config/logger');
-// const { job } = require('@pai/models/v2/job');
+const databaseModel = require('@pai/utils/dbUtils');
+const { encodeName } = require('@pai/models/v2/utils/name');
 
 // job-specific tokens and other tokens are saved in different namespaces
 const userTokenNamespace =
@@ -34,6 +35,14 @@ if (process.env.NODE_ENV !== 'test') {
   k8sModel.createNamespace(userTokenNamespace);
   k8sModel.createNamespace(jobTokenNamespace);
 }
+
+const serialize = (val) => {
+  return Buffer.from(val).toString('hex');
+};
+
+const deserialize = (val) => {
+  return Buffer.from(val, 'hex').toString();
+};
 
 const sign = async (username, application, expiration) => {
   return new Promise((resolve, reject) => {
@@ -62,21 +71,25 @@ const purge = async (data, jobSpecific) => {
     try {
       // expired tokens will be removed
       jwt.verify(val, secret);
-      result[key] = val;
     } catch (err) {
-      // pass;
+      continue;
     }
-    // if (jobSpecific) {
-    //   // checkframework status, tokens of finished jobs will be removed
-    //   const frameworkName = key;
-    //   const framework = await job.get(frameworkName);
-    //   if (
-    //     framework &&
-    //     ['SUCCEEDED', 'STOPPED', 'FAILED'].indexOf(framework.state) !== -1
-    //   ) {
-    //     result[key] = val;
-    //   }
-    // }
+    if (jobSpecific) {
+      // get framework from db
+      const frameworkName = deserialize(key);
+      const framework = await databaseModel.Framework.findOne({
+        attributes: ['state'],
+        where: { name: encodeName(frameworkName) },
+      });
+      // checkframework state, job-tokens of finished jobs will be removed
+      if (
+        !framework ||
+        ['SUCCEEDED', 'STOPPED', 'FAILED'].indexOf(framework.state) !== -1
+      ) {
+        continue;
+      }
+    }
+    result[key] = val;
   }
   return result;
 };
@@ -110,7 +123,7 @@ const create = async (
   }
   const token = await sign(username, application, expiration);
   const namespace = jobSpecific ? jobTokenNamespace : userTokenNamespace;
-  const key = jobSpecific ? uuid() : frameworkName;
+  const key = jobSpecific ? serialize(frameworkName) : uuid();
   const item = await k8sSecret.get(namespace, username, { encode: 'hex' });
   if (item === null) {
     await k8sSecret.create(
