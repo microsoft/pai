@@ -5,7 +5,7 @@
 
 pushd $(dirname "$0") > /dev/null
 
-{% if 'docker_cache' in cluster_cfg %}
+{% if cluster_cfg['docker-cache']['enabled'] %}
 kubectl apply --overwrite=true -f docker-cache-config.yaml || exit $?
 kubectl apply --overwrite=true -f docker-cache-secret.yaml || exit $?
 kubectl apply --overwrite=true -f docker-cache.yaml || exit $?

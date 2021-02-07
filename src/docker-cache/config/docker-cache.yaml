@@ -1,6 +1,7 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT License.
 
+enableed: false
 azure_account_name: ""
 azure_account_key: ""
 azure_container_name: dockerregistry
