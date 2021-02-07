@@ -98,13 +98,13 @@ def main():
     # But if the user sets enable_hived_scheduler to true manually,
     # we should enable it.
     if 'enable_docker_cache' in cluster_config and cluster_config['enable_docker_cache'] is True:
-        docker_cache_config, docker_cache_mirrors = get_docker_cache_config_and_mirrors(layout, cluster_config)
+        _, docker_cache_mirrors = get_docker_cache_config_and_mirrors(layout, cluster_config)
     else:
-        docker_cache_config, docker_cache_mirrors = {}, []
+        _, docker_cache_mirrors = {}, []
         cluster_config['enable_docker_cache'] = False
 
     if "openpai_docker_registry_mirrors" in cluster_config:
-        cluster_config["openpai_docker_registry_mirrors"] += docker_cache_mirrors 
+        cluster_config["openpai_docker_registry_mirrors"] += docker_cache_mirrors
     else:
         cluster_config["openpai_docker_registry_mirrors"] = docker_cache_mirrors
     if "openpai_docker_insecure_registries" in cluster_config:
