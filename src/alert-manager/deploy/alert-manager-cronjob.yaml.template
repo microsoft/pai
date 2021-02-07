@@ -15,26 +15,30 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-cluster-type:
-  - yarn
-  - k8s
 
-prerequisite:
-  - cluster-configuration
-  - drivers
-
-template-list:
-  - alert-manager-deployment.yaml
-  - alert-manager-configmap.yaml
-  - alert-manager-cronjob.yaml
-  - start.sh
-
-start-script: start.sh
-stop-script: stop.sh
-delete-script: delete.sh
-refresh-script: refresh.sh
-upgraded-script: upgraded.sh
-
-
-deploy-rules:
-  - in: pai-master
+apiVersion: batch/v1beta1
+kind: CronJob
+metadata:
+  name: cluster-utilization
+spec:
+  schedule: "{{ cluster_cfg["alert-manager"]["cluster-utilization"]["schedule"] }}"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: cluster-utilization
+            image: {{ cluster_cfg['cluster']['docker-registry']['prefix'] }}cluster-utilization:{{ cluster_cfg['cluster']['docker-registry']['tag'] }}
+            imagePullPolicy: Always
+            env:
+            - name: PAI_URI
+    {%- if "ssl" in cluster_cfg["pylon"] and cluster_cfg["pylon"]["ssl"] %}
+              value: "{{ cluster_cfg['pylon']['uri-https']}}"
+    {%- else %}
+              value: "{{ cluster_cfg['pylon']['uri']}}"
+    {%- endif %}
+            - name: PAI_BEARER_TOKEN
+              value: {{ cluster_cfg["alert-manager"]["alert-handler"]["pai-bearer-token"] }}
+          imagePullSecrets:
+          - name: {{ cluster_cfg["cluster"]["docker-registry"]["secret-name"] }}
+          restartPolicy: OnFailure
