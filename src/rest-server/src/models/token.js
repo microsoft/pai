@@ -86,11 +86,11 @@ const purge = async (data, jobSpecific) => {
       },
     });
     // job-tokens of finished jobs will be removed
-    data = Object.keys(data).reduce((filterd, key) => {
+    data = Object.keys(data).reduce((filtered, key) => {
       if (names.indexOf(key) !== -1) {
-        filterd[key] = data[key];
+        filtered[key] = data[key];
       }
-      return filterd;
+      return filtered;
     }, {});
   }
 
