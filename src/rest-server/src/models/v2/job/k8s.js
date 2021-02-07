@@ -1104,7 +1104,7 @@ const put = async (frameworkName, config, rawConfig) => {
     : null;
 
   // create a job-specific application token
-  // this token will be revoked in database-controller after job stopped, succeed or failed
+  // this token will be revoked after job stopped, succeed or failed
   const token = await tokenModel.create(
     userName,
     true,

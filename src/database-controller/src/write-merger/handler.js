@@ -93,8 +93,6 @@ async function postWatchEvents(req, res, next) {
           if (snapshot.getState() === 'Completed') {
             // if event is DELETED and the state is Completed, mark apiServerDeleted = true
             internalUpdate.apiServerDeleted = true;
-            // ADD rest-server-uri env
-            // call non-blocking rest-server revoke token API, refer to src/common/framework.js silentDelete
           } else {
             // Event is DELETED and the state is not Completed.
             // This case could occur when someone deletes the framework in API server directly.
