@@ -30,10 +30,11 @@ const router = new express.Router();
 
 /** GET /api/v1/token - Get list of tokens */
 router.get('/', tokenMiddleware.checkNotApplication, async (req, res, next) => {
+  const jobSpecific = req.query.jobSpecific || false;
   try {
     const list = await tokenModel.list(
       req.user.username,
-      req.query.jobSpecific,
+      jobSpecific,
     );
     res.status(200).json({
       tokens: list,
@@ -74,7 +75,6 @@ router.delete(
   tokenMiddleware.checkNotApplication,
   async (req, res, next) => {
     const token = req.params.token;
-    // const jobSpecific = req.query.jobSpecific || false;
     try {
       const { username } = jwt.decode(token);
       if (username === req.user.username) {
