@@ -8,6 +8,7 @@ docker_image_tag: v1.5.0
 #                    OpenPAI Customized Settings                      #
 #######################################################################
 # enable_hived_scheduler: true
+# enable_marketplace: false
 
 #############################################
 # Ansible-playbooks' inventory hosts' vars. #

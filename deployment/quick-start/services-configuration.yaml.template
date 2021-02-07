@@ -23,6 +23,7 @@ cluster:
   #  cluster-type: k8s
   #  # HDFS, zookeeper data path on your cluster machine.
   #  data-path: "/datastorage"
+  #  marketplace: "true"
 
   # the docker registry to store docker images that contain system services like frameworklauncher, hadoop, etc.
   docker-registry:
@@ -83,6 +84,9 @@ rest-server:
 #       smtp-from: alert-sender@example.com
 #       smtp-auth-username: alert-sender@example.com
 #       smtp-auth-password: password-for-alert-sender
+#   cluster-utilization: # cluster-utilization is a k8s CronJob which reports the GPU utilization of the cluster
+#     # for schedule syntex, refer to https://kubernetes.io/docs/concepts/workloads/controllers/cron-jobs/#cron-schedule-syntax
+#     schedule: "0 0 * * *" # daily report at UTC 00:00
 #   customized-routes:
 #     routes:
 #     - receiver: pai-email-admin-user-and-stop-job
@@ -90,15 +94,15 @@ rest-server:
 #         alertname: PAIJobGpuPercentLowerThan0_3For1h
 #   customized-receivers: # receivers are combination of several actions
 #   - name: "pai-email-admin-user-and-stop-job"
-#     actions: 
+#     actions:
 #       # the email template for `email-admin` and `email-user `can be chosen from ['general-template', 'kill-low-efficiency-job-alert']
 #       # if no template specified, 'general-template' will be used.
 #       email-admin:
-#       email-user:  
+#       email-user:
 #         template: 'kill-low-efficiency-job-alert'
 #       stop-jobs: # no parameters required for stop-jobs action
 #       tag-jobs:
-#         tags: 
+#         tags:
 #         - 'stopped-by-alert-manager'
 
 # uncomment following if you want to customize prometheus

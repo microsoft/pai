@@ -15,11 +15,10 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-service_type: "common"
+FROM python:3.7
 
-server-port: 9286
+COPY ./src/cluster-utilization .
 
-enable-job-transfer: false
+RUN pip3 install -r requirements.txt
 
-# Will add the marketplace entries to webportal plugin if set true.
-marketplace: true
+ENTRYPOINT ["python3", "send_alert.py"]

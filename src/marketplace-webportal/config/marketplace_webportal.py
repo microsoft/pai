@@ -21,8 +21,6 @@ class MarketplaceWebportal(object):
         api_port = self.service_conf['api-port']
         master_ip = [host['hostip'] for host in machine_list if host.get('pai-master') == 'true'][0]
         result['uri'] = 'http://{0}:{1}'.format(master_ip, server_port)
-        if 'marketplace_api_uri' not in result:
-            result['marketplace_api_uri'] = 'http://{0}:{1}/api'.format(master_ip, api_port)
         return result
 
     def validation_post(self, conf):
