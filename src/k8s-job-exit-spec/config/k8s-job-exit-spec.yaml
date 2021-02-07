@@ -47,6 +47,7 @@ schema:
       - PAI_DOCKER
       - PAI_K8S
       - PAI_FC
+      - PAI_DB_CONTROLLER
   - field: causer
     description: "Who root caused this ExitCode in details"
     required: False
@@ -339,7 +340,7 @@ spec:
   - "Contact Cluster Admin"
 
 ###########################################################################
-# Range: [-1199, -1000]
+# Range: [-1099, -1000]
 # Owner: PAI_FC
 # Description: PAI_K8S issued failures
 ###########################################################################
@@ -482,19 +483,25 @@ spec:
     - reasonRegex: '(?i)^UnexpectedPredicateFailureType$'
       messageRegex: '(?ms).*'
 
-- code: -1007
-  phrase: UnrecoverableSchemaSynchronizeError
-  issuer: PAI_K8S
-  causer: PAI_K8S
-  type: PLATFORM_FAILURE
-  stage: LAUNCHING
+###########################################################################
+# Range: [-1199, -1100]
+# Owner: PAI_DB_CONTROLLER
+# Description: PAI_K8S issued failures
+###########################################################################
+
+- code: -1100
+  phrase: CreateFrameworkPermanentFailed
+  issuer: PAI_DB_CONTROLLER
+  causer: USER_SUBMISSION
+  type: USER_FAILURE
+  stage: SUBMITTING
   behavior: PERMANENT
   reaction: NEVER_RETRY
-  reason: "Framework schema is submitted to database, but cannot be synchronized to API server due to unrecoverable error"
+  reason: "Job is submitted to database, but cannot be created in ApiServer due to permanent failures"
   repro:
-  - "Submit a job with a very large job schema"
+  - "Submit a job with a very large job config"
   solution:
-  - "Please refer to job events for detailed reasons"
+  - "Check job events and fix your job config"
 
 
 ###########################################################################

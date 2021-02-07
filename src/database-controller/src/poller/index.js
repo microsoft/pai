@@ -109,14 +109,14 @@ function synchronizeHandler(snapshot, addOns, pollingTs) {
         );
         queue.add(async () => {
           // For safety reason, we only consider the job that never starts.
-          // snapshot.setFailed() will raise an error if the framework is not in state AttemptCreationPending or has retry history.
+          // snapshot.setFailed() will raise an error if the framework has been launched before
           snapshot.setFailed();
           await postMockedEvent(snapshot, 'MODIFIED');
           await databaseModel.FrameworkEvent.create(
             generateClusterEventUpdate(
               snapshot,
               'Warning',
-              'UnrecoverableSynchronizeFailure',
+              'CreateFrameworkPermanentFailed',
               _.get(err, 'response.body.message', 'unknown'),
             ),
           );
