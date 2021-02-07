@@ -17,6 +17,7 @@
 
 const jwt = require('jsonwebtoken');
 const uuid = require('uuid');
+const { Op } = require('sequelize');
 const { secret, tokenExpireTime } = require('@pai/config/token');
 const k8sSecret = require('@pai/models/kubernetes/k8s-secret');
 const k8sModel = require('@pai/models/kubernetes/kubernetes');
@@ -67,30 +68,42 @@ const sign = async (username, application, expiration) => {
  */
 const purge = async (data, jobSpecific) => {
   const result = {};
+
+  if (jobSpecific) {
+    // get non-completed frameworks from db
+    const frameworkNamesEncoded = Object.keys(data)
+      .map(deserialize)
+      .map(encodeName);
+    const names = await databaseModel.Framework.findAll({
+      attributes: ['name'],
+      where: {
+        name: {
+          [Op.in]: frameworkNamesEncoded,
+        },
+        subState: {
+          [Op.ne]: 'Completed',
+        },
+      },
+    });
+    // job-tokens of finished jobs will be removed
+    data = Object.keys(data).reduce((filterd, key) => {
+      if (names.indexOf(key) !== -1) {
+        filterd[key] = data[key];
+      }
+      return filterd;
+    }, {});
+  }
+
   for (const [key, val] of Object.entries(data)) {
     try {
       // expired tokens will be removed
       jwt.verify(val, secret);
+      result[key] = val;
     } catch (err) {
-      continue;
+      // pass
     }
-    if (jobSpecific) {
-      // get framework from db
-      const frameworkName = deserialize(key);
-      const framework = await databaseModel.Framework.findOne({
-        attributes: ['state'],
-        where: { name: encodeName(frameworkName) },
-      });
-      // checkframework state, job-tokens of finished jobs will be removed
-      if (
-        !framework ||
-        ['SUCCEEDED', 'STOPPED', 'FAILED'].indexOf(framework.state) !== -1
-      ) {
-        continue;
-      }
-    }
-    result[key] = val;
   }
+
   return result;
 };
 
