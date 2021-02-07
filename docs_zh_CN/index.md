@@ -14,4 +14,4 @@ OpenPAI是一个提供完整的人工智能模型训练和资源管理能力开�
 
 如果您想阅读关于OpenPAI的简单介绍，请访问[Github](https://github.com/microsoft/pai/blob/master/README.md)。
 
-如果您想反馈问题/Bug/要求新Feature，请提交至[GitHub](https://github.com/microsoft/pai)。
+如果您想反馈问题/Bug或提供新Feature，请提交至[GitHub](https://github.com/microsoft/pai)。

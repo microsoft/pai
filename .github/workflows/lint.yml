@@ -44,7 +44,7 @@ jobs:
         rm -rf ./src/watchdog/GOPATH/src/github.com/microsoft/watchdog/vendor/
         misspell -error .
 
-  pylint:
+  pylint-deployment:
     name: pylint of deployment scripts
     runs-on: ubuntu-16.04
 
@@ -64,6 +64,27 @@ jobs:
     - name: Lint
       run: |
         pylint contrib/kubespray/script --rcfile=contrib/kubespray/script/pylintrc
+  
+  pylint-alert-manager:
+    name: pylint of alert-manager
+    runs-on: ubuntu-16.04
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v1
+    - name: Use Python 3.7
+      uses: actions/setup-python@v2
+      with:
+        python-version: 3.7
+        architecture: x64
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        python -m pip install -r src/alert-manager/src/cluster-utilization/requirements.txt
+        python -m pip install pylint
+    - name: Lint
+      run: |
+        pylint src/alert-manager/src/cluster-utilization/ --rcfile=src/alert-manager/src/cluster-utilization/pylintrc
 
   swagger-validate:
     name: Validate swagger

@@ -5,7 +5,7 @@
 OpenPAI的 **任务** 定义了一个特定环境下执行的代码和命令。它可以在单个节点上运行，也可以分布式运行。
 
 作为快速入门，请先下载[`hello-world-job.yaml`](./examples/hello-world-job.yaml)。
-·
+
 然后登录到OpenPAI的网页端，点击`Submit Job` -> `Import Config`，选择刚刚下载好的`hello-world-job.yaml`文件，提交任务：
 <img src="./imgs/import-config-submit.gif" width="90%" height="90%" >
 
@@ -13,7 +13,7 @@ OpenPAI的 **任务** 定义了一个特定环境下执行的代码和命令。�
 
 ## 查看Stdout、Stderr、所有日志和运行指标
 
-上述Hello World任务基于TensorFlow实现。这个任务在CIFAR-10数据集上训练了1000步，生成了一个简单的模型。您可以检查运行日志，或在网页端查看监控指标。
+上述Hello World任务基于TensorFlow实现。这个任务在CIFAR-10数据集上训练了1000步，生成了一个简单的模型。您可以通过检查运行日志或在网页端查看指标以监控该任务。
 
 点击 `Stdout` 和 `Stderr` 按钮，可以在任务详细信息页面上看到这个任务的标准输出和标准错误日志。如果要查看合并的日志，可以点击右侧的 `...` ，选择 `Stdout + Stderr`。
 
@@ -64,7 +64,7 @@ python train_image_classifier.py --dataset_name=cifar10 --dataset_dir=/tmp/data 
 
 以下是提交页面上配置信息的一些详细说明：
 
-- **Job name** 是当前任务的名字。在每个用户账户中，它必须是唯一的。有意义的名字有助于良好地管理任务。
+- **Job name** 是当前任务的名字。在同一个用户帐户的所有任务中，它必须是唯一的。有意义的名字有助于良好地管理任务。
 
 - **Command** 是在此任务角色中运行的命令，它可以是多行的。例如，在 Hello World 任务中，命令从Github克隆代码、下载数据，然后执行训练过程。如果一个命令失败了（退出时返回非零），接下来的命令将不继续执行。这个行为未来可能会改变。
 

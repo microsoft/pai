@@ -1,6 +1,6 @@
 # Docker镜像和任务示例
 
-OpenPAI使用[Docker](https://www.docker.com/why-docker)提供一致且独立的环境。利用Docker，OpenPAI可以在同一服务器上处理多个任务请求。任务环境很大程度上依赖您选择的Docker镜像。
+OpenPAI使用[Docker](https://www.docker.com/why-docker)提供一致且独立的环境。基于Docker，OpenPAI可以在同一服务器上处理多个任务请求。任务环境很大程度上依赖您选择的Docker镜像。
 
 ## 预构建的Docker镜像介绍
 
@@ -44,7 +44,7 @@ OpenPAI使用[Docker](https://www.docker.com/why-docker)提供一致且独立的
 
 ## 使用您自己的镜像
 
-如果不使用预构建镜像，想要构建自己的自定义镜像，建议基于Ubuntu系统构建，Ubuntu中包含bash、apt和其他必须的依赖项。然后，您可以在docker镜像中添加任务需要的其他依赖包，例如python、pip和TensorFlow等，添加时请注意潜在的冲突。
+如果不使用预构建镜像，想要构建自己的自定义镜像，建议基于Ubuntu系统构建，因为Ubuntu中包含bash、apt和其他必须的依赖项。然后，您可以在docker镜像中添加任务需要的其他依赖包，例如python、pip和TensorFlow等，添加时请注意潜在的冲突。
 
 ## 如何使用私有Registry的镜像
 
