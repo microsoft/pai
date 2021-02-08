@@ -8,7 +8,7 @@
 
 **OpenPAI [v1.5.0](./RELEASE_NOTE.md#Jan-2021-version-150) has been released!**
 
-With the release of v1.0, OpenPAI is switching to a more robust, more powerful and lightweight architecture. OpenPAI is also becoming more and more modular so that the platform can be easily customized and expanded to suit new needs. OpenPAI also provides many AI user-friendly features, making it easier for end users and administrators to complete daily AI tasks.
+With the release of v1.0, OpenPAI is switching to a more robust, more powerful, and more lightweight architecture. OpenPAI is also becoming more and more modular so that the platform can be easily customized and expanded to suit new needs. OpenPAI also provides many AI user-friendly features, making it easier for end-users and administrators to complete daily AI tasks.
 
  <table>
    <tr>
@@ -85,11 +85,11 @@ With the release of v1.0, OpenPAI is switching to a more robust, more powerful a
 
 ## Why choose OpenPAI
 
-The platform incorporates the mature design that has a proven track record in Microsoft's large-scale production environment.
+The platform incorporates a mature design that has a proven track record in Microsoft's large-scale production environment.
 
 #### Support on-premises and easy to deploy
 
-OpenPAI is a full stack solution. OpenPAI not only supports on-premises, hybrid, or public Cloud deployment but also supports single-box deployment for trial users.
+OpenPAI is a full-stack solution. OpenPAI not only supports on-premises, hybrid, or public cloud deployment but also supports single-box deployment for trial users.
 
 #### Support popular AI frameworks and heterogeneous hardware
 
@@ -97,15 +97,15 @@ Pre-built docker for popular AI frameworks. Easy to include heterogeneous hardwa
 
 #### Most complete solution and easy to extend
 
-OpenPAI is a most complete solution for deep learning, support virtual cluster, compatible with Kubernetes eco-system, complete training pipeline at one cluster etc. OpenPAI is architected in a modular way: different module can be plugged in as appropriate. [Here](./docs/system_architecture.md) is the architecture of OpenPAI, highlighting technical innovations of the platform.
+OpenPAI is a most complete solution for deep learning, support virtual cluster, compatible with Kubernetes eco-system, complete training pipeline at one cluster, etc. OpenPAI is architected in a modular way: different moduless can be plugged in as appropriate. [Here](./docs/system_architecture.md) is the architecture of OpenPAI, highlighting technical innovations of the platform.
 
 ## Get started
 
-OpenPAI manages computing resources and is optimized for deep learning. Through docker technology, the computing hardware are decoupled with software, so that it's easy to run distributed jobs, switch with different deep learning frameworks, or run other kinds of jobs on consistent environments.
+OpenPAI manages computing resources and is optimized for deep learning. Through docker technology, the computing hardware is decoupled with software, so that it's easy to run distributed jobs, switch with different deep learning frameworks, or run other kinds of jobs in consistent environments.
 
 As OpenPAI is a platform, there are typically two different roles:
 
-- **Cluster users** are the consumers of the cluster's computing resources. According to the deployment scenarios, cluster users could be researchers of Machine Learning and Deep Learning, data scientists, lab teachers, students and so on.
+- **Cluster users** are the consumers of the cluster's computing resources. According to the deployment scenarios, cluster users could be researchers of Machine Learning and Deep Learning, data scientists, lab teachers, students, and so on.
 - **Cluster administrators** are the owners and maintainers of computing resources. The administrators are responsible for the deployment and availability of the cluster.
 
 OpenPAI provides end-to-end manuals for both cluster users and administrators.
@@ -114,9 +114,9 @@ OpenPAI provides end-to-end manuals for both cluster users and administrators.
 
 The [admin manual](https://openpai.readthedocs.io/en/latest/manual/cluster-admin/README.html) is a comprehensive guide for cluster administrators, it covers (but not limited to) the following contents:
 
-- **Installation and upgrade**. The installation is based on Kubespray, and here is the [system requirements](https://openpai.readthedocs.io/en/latest/manual/cluster-admin/installation-guide.html#installation-requirements). OpenPAI provides an [installation guide](https://openpai.readthedocs.io/en/latest/manual/cluster-admin/installation-guide.html) to facilitate the installation.
+- **Installation and upgrade**. The installation is based on Kubespray, and here are the [system requirements](https://openpai.readthedocs.io/en/latest/manual/cluster-admin/installation-guide.html#installation-requirements). OpenPAI provides an [installation guide](https://openpai.readthedocs.io/en/latest/manual/cluster-admin/installation-guide.html) to facilitate the installation.
 
-  If you are considering upgrade from older version to the latest v1.0.0, please refer to the table below for a brief comparison between `v0.14.0` and the `v1.0.0`. More detail about the upgrade considerations can be found [upgrade guide](https://openpai.readthedocs.io/en/latest/manual/cluster-admin/upgrade-guide.html).
+  If you are considering upgrading from an older version to the latest v1.0.0, please refer to the table below for a brief comparison between `v0.14.0` and the `v1.0.0`. More detail about the upgrade considerations can be found [upgrade guide](https://openpai.readthedocs.io/en/latest/manual/cluster-admin/upgrade-guide.html).
 
   |                   | `v0.14.0`                | `v1.0.0`                |
   | ----------------- | ------------------------ | ----------------------- |
@@ -128,7 +128,7 @@ The [admin manual](https://openpai.readthedocs.io/en/latest/manual/cluster-admin
   | Marketplace       | Marketplace v2           | openpaimarketplace      |
   | SDK               | Python                   | JavaScript / TypeScript |
 
-  _If there is any question during deployment, please check [installation FAQs and troubleshooting](https://openpai.readthedocs.io/en/latest/manual/cluster-admin/installation-faqs-and-troubleshooting.html) first. If it is not covered yet, refer to [here](#get-involved) to ask question or submit an issue._
+  _If there is any question during deployment, please check [installation FAQs and troubleshooting](https://openpai.readthedocs.io/en/latest/manual/cluster-admin/installation-faqs-and-troubleshooting.html) first. If it is not covered yet, refer to [here](#get-involved) to ask a question or submit an issue._
 
 - **Basic cluster management**. Through the Web-portal and a command-line tool `paictl`, administrators could complete [cluster managements](https://openpai.readthedocs.io/en/latest/manual/cluster-admin/basic-management-operations.html), such as [adding (or removing) nodes](https://openpai.readthedocs.io/en/latest/manual/cluster-admin/how-to-add-and-remove-nodes.html), [monitoring nodes and services](https://openpai.readthedocs.io/en/latest/manual/cluster-admin/basic-management-operations.html#management-on-webportal), and [storages setup and permission control](https://openpai.readthedocs.io/en/latest/manual/cluster-admin/how-to-set-up-storage.html).
 
@@ -140,27 +140,27 @@ The [admin manual](https://openpai.readthedocs.io/en/latest/manual/cluster-admin
 
 ### For cluster users
 
-The [user manual](https://openpai.readthedocs.io/en/latest/manual/cluster-user/README.html) is a guidance for cluster users, who could train and serve deep learning (and other) tasks on OpenPAI.
+The [user manual](https://openpai.readthedocs.io/en/latest/manual/cluster-user/README.html) is guidance for cluster users, who could train and serve deep learning (and other) tasks on OpenPAI.
 
 - **Job submission and monitoring**. The [quick start tutorial](https://openpai.readthedocs.io/en/latest/manual/cluster-user/quick-start.html) is a good start for learning how to train models on OpenPAI. And more examples and supports to multiple mainstream frameworks (out-of-the-box docker images) are in [here](https://openpai.readthedocs.io/en/latest/manual/cluster-user/docker-images-and-job-examples.html). OpenPAI also provides supports for [good debuggability](https://openpai.readthedocs.io/en/latest/manual/cluster-user/how-to-debug-jobs.html) and [advanced job functionalities](https://openpai.readthedocs.io/en/latest/manual/cluster-user/advanced-jobs.html).
 
-- **Data managements**. Users could use cluster provisioned storages and custom storages in their jobs. The cluster provisioned storages are well integrated and easy to configure in a job [(refer to here)](https://openpai.readthedocs.io/en/latest/manual/cluster-user/how-to-manage-data.html).
+- **Data management**. Users could use cluster provisioned storages and custom storages in their jobs. The cluster provisioned storages are well integrated and easy to configure in a job [(refer to here)](https://openpai.readthedocs.io/en/latest/manual/cluster-user/how-to-manage-data.html).
 
-- **Collaboration and sharing**. OpenPAI provides facilities for collaboration in teams and organizations. The cluster provisioned storages are organized by teams (groups). And users could easily share their works (e.g. jobs) in the [marketplace](https://openpai.readthedocs.io/en/latest/manual/cluster-user/use-marketplace.html), where others could discover and reproduce (clone) by one-click.
+- **Collaboration and sharing**. OpenPAI provides facilities for collaboration in teams and organizations. The cluster provisioned storages are organized by teams (groups). And users could easily share their works (e.g. jobs) in the [marketplace](https://openpai.readthedocs.io/en/latest/manual/cluster-user/use-marketplace.html), where others could discover and reproduce (clone) with one-click.
 
-Besides the webportal, OpenPAI provides [VS Code extension](https://openpai.readthedocs.io/en/latest/manual/cluster-user/use-vscode-extension.html) and [command line tool (preview)](https://github.com/microsoft/openpaisdk). The VS Code extension is a friendly, GUI based client tool of OpenPAI, and it's highly recommended. It's an extension of Visual Studio Code. It can submit job, simulate jobs locally, manage multiple OpenPAI environments, and so on.
+Besides the webportal, OpenPAI provides [VS Code extension](https://openpai.readthedocs.io/en/latest/manual/cluster-user/use-vscode-extension.html) and [command line tool (preview)](https://github.com/microsoft/openpaisdk). The VS Code extension is a friendly, GUI-based client tool of OpenPAI, and it's highly recommended. It's an extension of Visual Studio Code. It can submit jobs, simulate jobs locally, manage multiple OpenPAI environments, and so on.
 
 ## Standalone Components
 
-With the `v1.0.0` release, OpenPAI starts using a more modularized component design and re-organize the code structure to 1 main repo together with 7 standalone key component repos. [pai](https://github.com/microsoft/pai) is the main repo, and the 7 component repos are:
+With the `v1.0.0` release, OpenPAI starts using a more modularized component design and re-organizes the code structure to 1 main repo together with 7 standalone key component repos. [pai](https://github.com/microsoft/pai) is the main repo, and the 7 component repos are:
 
 - [hivedscheduler](https://github.com/microsoft/hivedscheduler) is a Kubernetes Scheduler Extender for Multi-Tenant GPU clusters, which provides various advantages over standard k8s scheduler.
 - [frameworkcontroller](https://github.com/microsoft/frameworkcontroller) is built to orchestrate all kinds of applications on Kubernetes by a single controller.
 - [openpai-protocol](https://github.com/microsoft/openpai-protocol) is the specification of OpenPAI job protocol.
 - [openpai-runtime](https://github.com/microsoft/openpai-runtime) provides runtime support which is necessary for the OpenPAI protocol.
 - [openpaisdk](https://github.com/microsoft/openpaisdk) is a JavaScript SDK designed to facilitate the developers of OpenPAI to offer more user-friendly experience.
-- [openpaimarketplace](https://github.com/microsoft/openpaimarketplace) is a service which stores examples and job templates. Users can use it from webportal plugin to share their jobs or run-and-learn others' sharing job.
-- [openpaivscode](https://github.com/microsoft/openpaivscode) is a VSCode extension, which makes users connect OpenPAI clusters, submit AI jobs, simulate jobs locally and manage files in VSCode easily.
+- [openpaimarketplace](https://github.com/microsoft/openpaimarketplace) is a service that stores examples and job templates. Users can use it from webportal plugin to share their jobs or run-and-learn others' sharing jobs.
+- [openpaivscode](https://github.com/microsoft/openpaivscode) is a VSCode extension, which makes users connect OpenPAI clusters, submit AI jobs, simulate jobs locally, and manage files in VSCode easily.
 
 ## Reference
 
@@ -170,19 +170,19 @@ With the `v1.0.0` release, OpenPAI starts using a more modularized component des
 
 ## Related Projects
 
-Targeting at openness and advancing state-of-art technology, [Microsoft Research (MSR)](https://www.microsoft.com/en-us/research/group/systems-research-group-asia/) and [Microsoft Software Technology Center Asia (STCA)](https://www.microsoft.com/en-us/ard/default.aspx) had also released few other open source projects.
+Targeting at openness and advancing state-of-art technology, [Microsoft Research (MSR)](https://www.microsoft.com/en-us/research/group/systems-research-group-asia/) and [Microsoft Software Technology Center Asia (STCA)](https://www.microsoft.com/en-us/ard/default.aspx) had also released few other open-source projects.
 
-- [NNI](https://github.com/Microsoft/nni) : An open source AutoML toolkit for neural architecture search and hyper-parameter tuning.
-  We encourage researchers and students leverage these projects to accelerate the AI development and research.
-- [MMdnn](https://github.com/Microsoft/MMdnn) : A comprehensive, cross-framework solution to convert, visualize and diagnose deep neural network models. The "MM" in MMdnn stands for model management and "dnn" is an acronym for deep neural network.
-- [NeuronBlocks](https://github.com/Microsoft/NeuronBlocks) : An NLP deep learning modeling toolkit that helps engineers to build DNN models like playing Lego. The main goal of this toolkit is to minimize developing cost for NLP deep neural network model building, including both training and inference stages.
-- [SPTAG](https://github.com/Microsoft/SPTAG) : Space Partition Tree And Graph (SPTAG) is an open source library for large scale vector approximate nearest neighbor search scenario.
+- [NNI](https://github.com/Microsoft/nni): An open-source AutoML toolkit for neural architecture search and hyper-parameter tuning.
+  We encourage researchers and students to leverage these projects to accelerate AI development and research.
+- [MMdnn](https://github.com/Microsoft/MMdnn): A comprehensive, cross-framework solution to convert, visualize and diagnose deep neural network models. The "MM" in MMdnn stands for model management and "dnn" is an acronym for deep neural networks.
+- [NeuronBlocks](https://github.com/Microsoft/NeuronBlocks): An NLP deep learning modeling toolkit that helps engineers to build DNN models like playing Lego. The main goal of this toolkit is to minimize the developing cost for NLP deep neural network model building, including both training and inference stages.
+- [SPTAG](https://github.com/Microsoft/SPTAG): Space Partition Tree And Graph (SPTAG) is an open-source library for large -cale vector approximate nearest neighbor search scenario.
 
 ## Get involved
 
 - [Stack Overflow](./docs/stackoverflow.md): If you have questions about OpenPAI, please submit question at Stack Overflow under tag: openpai
 - [Gitter chat](https://gitter.im/Microsoft/pai): You can also ask questions in Microsoft/pai conversation.
-- [Create an issue or feature request](https://github.com/Microsoft/pai/issues/new/choose): If you have issue/ bug/ new feature, please submit it to GitHub.
+- [Create an issue or feature request](https://github.com/Microsoft/pai/issues/new/choose): If you have an issue/ bug/ new feature, please submit it to GitHub.
 
 ## How to contribute
 
@@ -214,7 +214,7 @@ We are working on a set of major features improvement and refactor, anyone who i
 
 ### Contributors
 
-One key purpose of OpenPAI is to support the highly diversified requirements from academia and industry. OpenPAI is completely open: it is under the MIT license. This makes OpenPAI particularly attractive to evaluate various research ideas, which include but not limited to the [components](./docs/research_education.md).
+One key purpose of OpenPAI is to support the highly diversified requirements from academia and industry. OpenPAI is completely open: it is under the MIT license. This makes OpenPAI particularly attractive to evaluate various research ideas, which include but are not limited to the [components](./docs/research_education.md).
 
 OpenPAI operates in an open model. It is initially designed and developed by [Microsoft Research (MSR)](https://www.microsoft.com/en-us/research/group/systems-research-group-asia/) and [Microsoft Software Technology Center Asia (STCA)](https://www.microsoft.com/en-us/ard/default.aspx) platform team.
 We are glad to have [Peking University](http://eecs.pku.edu.cn/EN/), [Xi'an Jiaotong University](http://www.aiar.xjtu.edu.cn/), [Zhejiang University](http://www.cesc.zju.edu.cn/index_e.htm), [University of Science and Technology of China](http://eeis.ustc.edu.cn/) and [SHANGHAI INESA AI INNOVATION CENTER (SHAIIC)](https://www.shaiic.com/) joined us to develop the platform jointly.
